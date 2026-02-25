@@ -1,0 +1,21 @@
+{
+	"name": "@/schemas/generic",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"clean": "rm -rf dist",
+		"qa:test": "vitest run",
+		"qa:test:unit": "vitest run",
+		"qa:test:coverage": "vitest run --coverage",
+		"qa:type-check": "tsgo --noEmit"
+	},
+	"dependencies": {
+		"valibot": "^1.2.0"
+	},
+	"devDependencies": {
+		"@/config/test": "workspace:*",
+		"typescript": "^5.9.3",
+		"vitest": "^4.0.18"
+	}
+}
