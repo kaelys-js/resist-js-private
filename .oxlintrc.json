@@ -58,6 +58,9 @@
 		"$bindable": "readonly",
 		"$inspect": "readonly",
 		"HTMLElement": "readonly",
+		"HTMLCanvasElement": "readonly",
+		"GPUPowerPreference": "readonly",
+		"ResizeObserver": "readonly",
 		"require": "readonly"
 	},
 	"rules": {

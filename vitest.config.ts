@@ -87,6 +87,17 @@ export default defineConfig({
 				test: {
 					name: 'runtime',
 					root: 'packages/products/webforge/runtime',
+					setupFiles: ['./src/test-setup.ts'],
+					server: {
+						deps: {
+							inline: [
+								'@babylonjs/core',
+								'@babylonjs/materials',
+								'@babylonjs/loaders',
+								'@babylonjs/gui',
+							],
+						},
+					},
 				},
 			},
 			{
