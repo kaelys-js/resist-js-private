@@ -162,6 +162,38 @@
 - [ ] 23.4 Sample game
 - [ ] 23.5 Documentation site
 
+### Phase 24: Input System + Controller Support — `phase-24-input.md`
+- [ ] 24.1 Input action map schema
+- [ ] 24.2 Keyboard + mouse input provider
+- [ ] 24.3 Gamepad input provider
+- [ ] 24.4 Touch input provider (virtual joystick, gestures)
+- [ ] 24.5 Input manager (context switching, action dispatch, input buffering)
+- [ ] 24.6 Input settings persistence (rebindable controls, preset profiles)
+
+### Phase 25: RPG Maker Import/Compatibility Layer — `phase-25-rpgmaker-import.md`
+- [ ] 25.1 MV/MZ importer (JSON database/maps, tileset conversion, asset mapping)
+- [ ] 25.2 VX Ace importer (Ruby Marshal decoder, RGSS3 data mapping)
+- [ ] 25.3 XP importer (RGSS1 data, 4-dir to 8-dir sprite conversion)
+- [ ] 25.4 2003 importer (LDB/LMU/LMT binary decoder, chipset conversion)
+- [ ] 25.5 Event command translator (RPG Maker → WebForge interpreter commands)
+- [ ] 25.6 Import wizard UI (format detection, preview, conflict resolution)
+
+### Phase 26: Desktop + Mobile Application (Capacitor) — `phase-26-desktop-mobile.md`
+- [ ] 26.1 Capacitor project setup (config, native platforms, build pipeline)
+- [ ] 26.2 Desktop shell — Electron (native menus, window management, dialogs)
+- [ ] 26.3 Mobile shell — iOS + Android (touch UI, safe areas, orientation)
+- [ ] 26.4 Native file system (project open/save, file watcher, auto-save)
+- [ ] 26.5 Auto-updater + distribution (code signing, packaging, app stores)
+- [ ] 26.6 Game export targets (standalone desktop/mobile apps for players)
+
+### Phase 27: VFX + Particle Engine — `phase-27-vfx-particles.md`
+- [ ] 27.1 GPU particle system core (compute shaders, emitter shapes, lifetime modules)
+- [ ] 27.2 Sprite sheet animation (atlas, blend modes, billboard modes)
+- [ ] 27.3 Spell/skill effects (effect sequencing, pre-built templates)
+- [ ] 27.4 Screen effects (shake, flash, fade, chromatic aberration, radial blur)
+- [ ] 27.5 Trail renderer (ribbon, tube, fading trails)
+- [ ] 27.6 Environmental particles (dust motes, fireflies, leaves, embers, bubbles)
+
 ---
 
 ## Dependency Graph
@@ -169,13 +201,17 @@
 ```
 Phase 1 (Renderer) ──────────────────────────────────────┐
     │                                                     │
+Phase 24 (Input System) ◄── Phase 1                      │
+    │                                                     │
 Phase 2 (Editor Shell) ──── Phase 6 (Event Editor) ──────┤
     │                           │                         │
 Phase 3 (Data Layer) ────── Phase 7 (Database Editor) ────┤
     │                                                     │
-Phase 4 (Map + Player) ──── Phase 5 (Interpreter) ───────┤
+Phase 4 (Map + Player) ◄── Phase 24 (Input)              │
+    │                                                     │
+Phase 4 ──── Phase 5 (Interpreter) ──────────────────────┤
     │                           │                         │
-    │                       Phase 8 (Weather/Fog) ────────┤
+    │                       Phase 8 (Weather/Fog) ◄── 27  │
     │                                                     │
     └── Phase 9 (Battle DTB) ── Phase 10 (ATB/CTB/PTB) ──┤
             │                                             │
@@ -185,17 +221,25 @@ Phase 12 (Menus/HUD) ───────────────────�
 Phase 13-21 (all need Phase 5) ──────────────────────────┤
 Phase 22 (Plugin API) ───────────────────────────────────┤
                                                           │
-Phase 23 (Export/Docs/Sample) ◄───────────────────────────┘
+Phase 23 (Export/Docs/Sample) ◄───────────────────────────┤
+                                                          │
+Phase 25 (RPG Maker Import) ◄── Phase 3 + 5 + 2          │
+Phase 26 (Desktop/Mobile) ◄── Phase 2 + 23               │
+Phase 27 (VFX/Particles) ◄── Phase 1                     │
 ```
 
-**Critical path:** Phase 1 → 4 → 5 → 9 → 11
+**Critical path:** Phase 1 → 24 (Input) → 4 → 5 → 9 → 11
 
 **Can start early (parallel):**
 - Phase 2 (Editor Shell) alongside Phase 1
 - Phase 3 (Data Layer) alongside Phase 1
+- Phase 24 (Input System) once Phase 1 done (blocks Phase 4)
+- Phase 27 (VFX/Particles) once Phase 1 done
 - Phase 6 (Event Editor) once Phase 2 done
 - Phase 7 (Database Editor) once Phase 2 done
 - Phases 12-21 once Phase 5 done
+- Phase 25 (RPG Maker Import) once Phases 2, 3, 5 done
+- Phase 26 (Desktop/Mobile) once Phase 2 done, 26.6 needs Phase 23
 
 ---
 
