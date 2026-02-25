@@ -11,7 +11,7 @@ export default defineConfig({
 	plugins: [tsconfigPaths({ root: resolve(__dirname, '../../../..') })],
 	server: {
 		port: 3100,
-		open: true,
+		host: true,
 	},
 	resolve: {
 		alias: {
