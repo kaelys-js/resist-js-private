@@ -1,0 +1,40 @@
+{
+	"name": "@webforge/editor",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"clean": "rm -rf .svelte-kit dist",
+		"qa:test": "vitest run",
+		"qa:test:unit": "vitest run",
+		"qa:test:coverage": "vitest run --coverage",
+		"qa:benchmark": "vitest bench",
+		"qa:type-check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+	},
+	"dependencies": {
+		"@/schemas/common": "workspace:*",
+		"@/schemas/result": "workspace:*",
+		"@/utils/result": "workspace:*",
+		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/kit": "^2.53.2",
+		"bits-ui": "^2.16.2",
+		"clsx": "^2.1.1",
+		"svelte": "^5.53.5",
+		"tailwind-merge": "^3.5.0",
+		"tailwind-variants": "^3.2.2",
+		"valibot": "^1.2.0"
+	},
+	"devDependencies": {
+		"@/config/test": "workspace:*",
+		"@sveltejs/vite-plugin-svelte": "^6.2.4",
+		"@tailwindcss/vite": "^4.2.1",
+		"svelte-check": "^4.4.3",
+		"tailwindcss": "^4.2.1",
+		"typescript": "^5.9.3",
+		"vite": "^7.3.1",
+		"vitest": "^4.0.18"
+	}
+}

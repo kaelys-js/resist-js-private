@@ -1,0 +1,75 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"globalDependencies": ["tsconfig.json"],
+	"globalPassThroughEnv": ["NODE_ENV", "CI", "VITE_*", "PUBLIC_*"],
+	"ui": "tui",
+	"dangerouslyDisablePackageManagerCheck": false,
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "!src/**/*.test.*", "!src/**/*.spec.*", "!src/**/*.bench.*"],
+			"outputs": ["dist/**", "build/**", ".svelte-kit/**"],
+			"outputLogs": "new-only"
+		},
+		"clean": {
+			"cache": false,
+			"outputs": []
+		},
+		"dev": {
+			"dependsOn": ["^build"],
+			"cache": false,
+			"persistent": true,
+			"interruptible": true
+		},
+		"preview": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"persistent": true,
+			"interruptible": true
+		},
+		"qa:benchmark": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$"],
+			"cache": false
+		},
+		"qa:checks": {
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"//#qa:format": {
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": [],
+			"cache": false
+		},
+		"//#qa:format:check": {
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"qa:test": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"qa:test:coverage": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": ["coverage/**"],
+			"outputLogs": "new-only"
+		},
+		"qa:test:unit": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"qa:type-check": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		}
+	}
+}
