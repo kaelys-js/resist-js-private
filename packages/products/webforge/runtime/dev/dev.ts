@@ -598,6 +598,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
  * @param step - Slider step.
  * @param value - Initial value.
  * @param onChange - Callback when slider changes.
+ * @param dataControl - Optional data-control attribute value.
  * @returns The row element.
  */
 function createSliderRow(
@@ -644,6 +645,7 @@ function createSliderRow(
  * @param label - Display label text.
  * @param initialOn - Whether the toggle starts in the "on" state.
  * @param onChange - Callback when toggle changes.
+ * @param dataControl - Optional data-control attribute value.
  * @returns The row element.
  */
 function createToggleRow(
@@ -754,146 +756,314 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	// ── Exposure & Contrast ──
 	container.append(createSubHeader('Exposure / Contrast'));
 	container.append(
-		createSliderRow('Exposure', 0, 3, 0.05, pipeline.imageProcessing.exposure, (v) => {
-			pipeline.imageProcessing.exposure = v;
-		}, 'postfx-exposure'),
+		createSliderRow(
+			'Exposure',
+			0,
+			3,
+			0.05,
+			pipeline.imageProcessing.exposure,
+			(v) => {
+				pipeline.imageProcessing.exposure = v;
+			},
+			'postfx-exposure',
+		),
 	);
 	container.append(
-		createSliderRow('Contrast', 0, 3, 0.05, pipeline.imageProcessing.contrast, (v) => {
-			pipeline.imageProcessing.contrast = v;
-		}, 'postfx-contrast'),
+		createSliderRow(
+			'Contrast',
+			0,
+			3,
+			0.05,
+			pipeline.imageProcessing.contrast,
+			(v) => {
+				pipeline.imageProcessing.contrast = v;
+			},
+			'postfx-contrast',
+		),
 	);
 
 	// ── Bloom ──
 	container.append(createSubHeader('Bloom'));
 	container.append(
-		createToggleRow('Enabled', pipeline.bloomEnabled, (on) => {
-			pipeline.bloomEnabled = on;
-		}, 'postfx-bloom-enabled'),
+		createToggleRow(
+			'Enabled',
+			pipeline.bloomEnabled,
+			(on) => {
+				pipeline.bloomEnabled = on;
+			},
+			'postfx-bloom-enabled',
+		),
 	);
 	container.append(
-		createSliderRow('Weight', 0, 1, 0.01, pipeline.bloomWeight, (v) => {
-			pipeline.bloomWeight = v;
-		}, 'postfx-bloom-weight'),
+		createSliderRow(
+			'Weight',
+			0,
+			1,
+			0.01,
+			pipeline.bloomWeight,
+			(v) => {
+				pipeline.bloomWeight = v;
+			},
+			'postfx-bloom-weight',
+		),
 	);
 	container.append(
-		createSliderRow('Threshold', 0, 1, 0.01, pipeline.bloomThreshold, (v) => {
-			pipeline.bloomThreshold = v;
-		}, 'postfx-bloom-threshold'),
+		createSliderRow(
+			'Threshold',
+			0,
+			1,
+			0.01,
+			pipeline.bloomThreshold,
+			(v) => {
+				pipeline.bloomThreshold = v;
+			},
+			'postfx-bloom-threshold',
+		),
 	);
 	container.append(
-		createSliderRow('Kernel', 1, 512, 1, pipeline.bloomKernel, (v) => {
-			pipeline.bloomKernel = v;
-		}, 'postfx-bloom-kernel'),
+		createSliderRow(
+			'Kernel',
+			1,
+			512,
+			1,
+			pipeline.bloomKernel,
+			(v) => {
+				pipeline.bloomKernel = v;
+			},
+			'postfx-bloom-kernel',
+		),
 	);
 	container.append(
-		createSliderRow('Scale', 0.1, 1, 0.05, pipeline.bloomScale, (v) => {
-			pipeline.bloomScale = v;
-		}, 'postfx-bloom-scale'),
+		createSliderRow(
+			'Scale',
+			0.1,
+			1,
+			0.05,
+			pipeline.bloomScale,
+			(v) => {
+				pipeline.bloomScale = v;
+			},
+			'postfx-bloom-scale',
+		),
 	);
 
 	// ── Depth of Field ──
 	container.append(createSubHeader('Depth of Field'));
 	container.append(
-		createToggleRow('Enabled', pipeline.depthOfFieldEnabled, (on) => {
-			pipeline.depthOfFieldEnabled = on;
-		}, 'postfx-dof-enabled'),
+		createToggleRow(
+			'Enabled',
+			pipeline.depthOfFieldEnabled,
+			(on) => {
+				pipeline.depthOfFieldEnabled = on;
+			},
+			'postfx-dof-enabled',
+		),
 	);
 	container.append(
-		createSliderRow('Focal Length', 0, 200, 1, pipeline.depthOfField.focalLength, (v) => {
-			pipeline.depthOfField.focalLength = v;
-		}, 'postfx-dof-focal-length'),
+		createSliderRow(
+			'Focal Length',
+			0,
+			200,
+			1,
+			pipeline.depthOfField.focalLength,
+			(v) => {
+				pipeline.depthOfField.focalLength = v;
+			},
+			'postfx-dof-focal-length',
+		),
 	);
 	container.append(
-		createSliderRow('f-Stop', 0.1, 22, 0.1, pipeline.depthOfField.fStop, (v) => {
-			pipeline.depthOfField.fStop = v;
-		}, 'postfx-dof-fstop'),
+		createSliderRow(
+			'f-Stop',
+			0.1,
+			22,
+			0.1,
+			pipeline.depthOfField.fStop,
+			(v) => {
+				pipeline.depthOfField.fStop = v;
+			},
+			'postfx-dof-fstop',
+		),
 	);
 	container.append(
-		createSliderRow('Focus Dist', 0, 500_000, 1000, pipeline.depthOfField.focusDistance, (v) => {
-			pipeline.depthOfField.focusDistance = v;
-		}, 'postfx-dof-focus-dist'),
+		createSliderRow(
+			'Focus Dist',
+			0,
+			500_000,
+			1000,
+			pipeline.depthOfField.focusDistance,
+			(v) => {
+				pipeline.depthOfField.focusDistance = v;
+			},
+			'postfx-dof-focus-dist',
+		),
 	);
 
 	// ── Chromatic Aberration ──
 	container.append(createSubHeader('Chromatic Aberration'));
 	container.append(
-		createToggleRow('Enabled', pipeline.chromaticAberrationEnabled, (on) => {
-			pipeline.chromaticAberrationEnabled = on;
-		}, 'postfx-ca-enabled'),
+		createToggleRow(
+			'Enabled',
+			pipeline.chromaticAberrationEnabled,
+			(on) => {
+				pipeline.chromaticAberrationEnabled = on;
+			},
+			'postfx-ca-enabled',
+		),
 	);
 	container.append(
-		createSliderRow('Amount', 0, 200, 1, pipeline.chromaticAberration.aberrationAmount, (v) => {
-			pipeline.chromaticAberration.aberrationAmount = v;
-		}, 'postfx-ca-amount'),
+		createSliderRow(
+			'Amount',
+			0,
+			200,
+			1,
+			pipeline.chromaticAberration.aberrationAmount,
+			(v) => {
+				pipeline.chromaticAberration.aberrationAmount = v;
+			},
+			'postfx-ca-amount',
+		),
 	);
 	container.append(
-		createSliderRow('Radial', 0, 5, 0.1, pipeline.chromaticAberration.radialIntensity, (v) => {
-			pipeline.chromaticAberration.radialIntensity = v;
-		}, 'postfx-ca-radial'),
+		createSliderRow(
+			'Radial',
+			0,
+			5,
+			0.1,
+			pipeline.chromaticAberration.radialIntensity,
+			(v) => {
+				pipeline.chromaticAberration.radialIntensity = v;
+			},
+			'postfx-ca-radial',
+		),
 	);
 
 	// ── Film Grain ──
 	container.append(createSubHeader('Film Grain'));
 	container.append(
-		createToggleRow('Enabled', pipeline.grainEnabled, (on) => {
-			pipeline.grainEnabled = on;
-		}, 'postfx-grain-enabled'),
+		createToggleRow(
+			'Enabled',
+			pipeline.grainEnabled,
+			(on) => {
+				pipeline.grainEnabled = on;
+			},
+			'postfx-grain-enabled',
+		),
 	);
 	container.append(
-		createSliderRow('Intensity', 0, 100, 1, pipeline.grain.intensity, (v) => {
-			pipeline.grain.intensity = v;
-		}, 'postfx-grain-intensity'),
+		createSliderRow(
+			'Intensity',
+			0,
+			100,
+			1,
+			pipeline.grain.intensity,
+			(v) => {
+				pipeline.grain.intensity = v;
+			},
+			'postfx-grain-intensity',
+		),
 	);
 	container.append(
-		createToggleRow('Animated', pipeline.grain.animated, (on) => {
-			pipeline.grain.animated = on;
-		}, 'postfx-grain-animated'),
+		createToggleRow(
+			'Animated',
+			pipeline.grain.animated,
+			(on) => {
+				pipeline.grain.animated = on;
+			},
+			'postfx-grain-animated',
+		),
 	);
 
 	// ── Sharpen ──
 	container.append(createSubHeader('Sharpen'));
 	container.append(
-		createToggleRow('Enabled', pipeline.sharpenEnabled, (on) => {
-			pipeline.sharpenEnabled = on;
-		}, 'postfx-sharpen-enabled'),
+		createToggleRow(
+			'Enabled',
+			pipeline.sharpenEnabled,
+			(on) => {
+				pipeline.sharpenEnabled = on;
+			},
+			'postfx-sharpen-enabled',
+		),
 	);
 	container.append(
-		createSliderRow('Edge Amount', 0, 2, 0.05, pipeline.sharpen.edgeAmount, (v) => {
-			pipeline.sharpen.edgeAmount = v;
-		}, 'postfx-sharpen-edge'),
+		createSliderRow(
+			'Edge Amount',
+			0,
+			2,
+			0.05,
+			pipeline.sharpen.edgeAmount,
+			(v) => {
+				pipeline.sharpen.edgeAmount = v;
+			},
+			'postfx-sharpen-edge',
+		),
 	);
 	container.append(
-		createSliderRow('Color Amount', 0, 1, 0.05, pipeline.sharpen.colorAmount, (v) => {
-			pipeline.sharpen.colorAmount = v;
-		}, 'postfx-sharpen-color'),
+		createSliderRow(
+			'Color Amount',
+			0,
+			1,
+			0.05,
+			pipeline.sharpen.colorAmount,
+			(v) => {
+				pipeline.sharpen.colorAmount = v;
+			},
+			'postfx-sharpen-color',
+		),
 	);
 
 	// ── Vignette ──
 	container.append(createSubHeader('Vignette'));
 	const imgProc = pipeline.imageProcessing;
 	container.append(
-		createToggleRow('Enabled', imgProc.vignetteEnabled, (on) => {
-			imgProc.vignetteEnabled = on;
-		}, 'postfx-vignette-enabled'),
+		createToggleRow(
+			'Enabled',
+			imgProc.vignetteEnabled,
+			(on) => {
+				imgProc.vignetteEnabled = on;
+			},
+			'postfx-vignette-enabled',
+		),
 	);
 	container.append(
-		createSliderRow('Weight', 0, 10, 0.1, imgProc.vignetteWeight, (v) => {
-			imgProc.vignetteWeight = v;
-		}, 'postfx-vignette-weight'),
+		createSliderRow(
+			'Weight',
+			0,
+			10,
+			0.1,
+			imgProc.vignetteWeight,
+			(v) => {
+				imgProc.vignetteWeight = v;
+			},
+			'postfx-vignette-weight',
+		),
 	);
 	container.append(
-		createSliderRow('Stretch', 0, 25, 0.5, imgProc.vignetteStretch, (v) => {
-			imgProc.vignetteStretch = v;
-		}, 'postfx-vignette-stretch'),
+		createSliderRow(
+			'Stretch',
+			0,
+			25,
+			0.5,
+			imgProc.vignetteStretch,
+			(v) => {
+				imgProc.vignetteStretch = v;
+			},
+			'postfx-vignette-stretch',
+		),
 	);
 
 	// ── Tone Mapping ──
 	container.append(createSubHeader('Tone Mapping'));
 	container.append(
-		createToggleRow('Enabled', imgProc.toneMappingEnabled, (on) => {
-			imgProc.toneMappingEnabled = on;
-		}, 'postfx-tonemapping-enabled'),
+		createToggleRow(
+			'Enabled',
+			imgProc.toneMappingEnabled,
+			(on) => {
+				imgProc.toneMappingEnabled = on;
+			},
+			'postfx-tonemapping-enabled',
+		),
 	);
 	// Determine current tone mapping name from Babylon constant
 	let currentToneMap = 'standard';
@@ -905,51 +1075,80 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 		currentToneMap = 'khr_pbr_neutral';
 	}
 	container.append(
-		createDropdown('Mapping', ['standard', 'aces', 'khr_pbr_neutral'], currentToneMap, (type) => {
-			switch (type) {
-				case 'aces': {
-					imgProc.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
-					break;
+		createDropdown(
+			'Mapping',
+			['standard', 'aces', 'khr_pbr_neutral'],
+			currentToneMap,
+			(type) => {
+				switch (type) {
+					case 'aces': {
+						imgProc.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
+						break;
+					}
+					case 'khr_pbr_neutral': {
+						imgProc.toneMappingType =
+							BABYLON.ImageProcessingConfiguration.TONEMAPPING_KHR_PBR_NEUTRAL;
+						break;
+					}
+					default: {
+						imgProc.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_STANDARD;
+					}
 				}
-				case 'khr_pbr_neutral': {
-					imgProc.toneMappingType =
-						BABYLON.ImageProcessingConfiguration.TONEMAPPING_KHR_PBR_NEUTRAL;
-					break;
-				}
-				default: {
-					imgProc.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_STANDARD;
-				}
-			}
-		}, 'tonemapping-type'),
+			},
+			'tonemapping-type',
+		),
 	);
 
 	// ── Color Grading ──
 	container.append(createSubHeader('Color Grading'));
 	container.append(
-		createToggleRow('Enabled', imgProc.colorCurvesEnabled, (on) => {
-			imgProc.colorCurvesEnabled = on;
-		}, 'postfx-colorgrading-enabled'),
+		createToggleRow(
+			'Enabled',
+			imgProc.colorCurvesEnabled,
+			(on) => {
+				imgProc.colorCurvesEnabled = on;
+			},
+			'postfx-colorgrading-enabled',
+		),
 	);
 
 	// ── FXAA ──
 	container.append(createSubHeader('FXAA'));
 	container.append(
-		createToggleRow('Enabled', pipeline.fxaaEnabled, (on) => {
-			pipeline.fxaaEnabled = on;
-		}, 'postfx-fxaa-enabled'),
+		createToggleRow(
+			'Enabled',
+			pipeline.fxaaEnabled,
+			(on) => {
+				pipeline.fxaaEnabled = on;
+			},
+			'postfx-fxaa-enabled',
+		),
 	);
 
 	// ── Dithering ──
 	container.append(createSubHeader('Dithering'));
 	container.append(
-		createToggleRow('Enabled', imgProc.ditheringEnabled, (on) => {
-			imgProc.ditheringEnabled = on;
-		}, 'postfx-dithering-enabled'),
+		createToggleRow(
+			'Enabled',
+			imgProc.ditheringEnabled,
+			(on) => {
+				imgProc.ditheringEnabled = on;
+			},
+			'postfx-dithering-enabled',
+		),
 	);
 	container.append(
-		createSliderRow('Intensity', 0, 1, 0.001, imgProc.ditheringIntensity, (v) => {
-			imgProc.ditheringIntensity = v;
-		}, 'postfx-dithering-intensity'),
+		createSliderRow(
+			'Intensity',
+			0,
+			1,
+			0.001,
+			imgProc.ditheringIntensity,
+			(v) => {
+				imgProc.ditheringIntensity = v;
+			},
+			'postfx-dithering-intensity',
+		),
 	);
 
 	// ── SSAO ──
@@ -957,24 +1156,56 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	if (ssao) {
 		container.append(createSubHeader('SSAO'));
 		container.append(
-			createSliderRow('Strength', 0, 3, 0.05, ssao.totalStrength, (v) => {
-				ssao.totalStrength = v;
-			}, 'postfx-ssao-strength'),
+			createSliderRow(
+				'Strength',
+				0,
+				3,
+				0.05,
+				ssao.totalStrength,
+				(v) => {
+					ssao.totalStrength = v;
+				},
+				'postfx-ssao-strength',
+			),
 		);
 		container.append(
-			createSliderRow('Radius', 0.01, 16, 0.1, ssao.radius, (v) => {
-				ssao.radius = v;
-			}, 'postfx-ssao-radius'),
+			createSliderRow(
+				'Radius',
+				0.01,
+				16,
+				0.1,
+				ssao.radius,
+				(v) => {
+					ssao.radius = v;
+				},
+				'postfx-ssao-radius',
+			),
 		);
 		container.append(
-			createSliderRow('Samples', 1, 64, 1, ssao.samples, (v) => {
-				ssao.samples = v;
-			}, 'postfx-ssao-samples'),
+			createSliderRow(
+				'Samples',
+				1,
+				64,
+				1,
+				ssao.samples,
+				(v) => {
+					ssao.samples = v;
+				},
+				'postfx-ssao-samples',
+			),
 		);
 		container.append(
-			createSliderRow('Base', 0, 1, 0.01, ssao.base, (v) => {
-				ssao.base = v;
-			}, 'postfx-ssao-base'),
+			createSliderRow(
+				'Base',
+				0,
+				1,
+				0.01,
+				ssao.base,
+				(v) => {
+					ssao.base = v;
+				},
+				'postfx-ssao-base',
+			),
 		);
 	}
 }
@@ -1005,56 +1236,110 @@ function buildFogUI(scene: BABYLON.Scene): void {
 	}
 
 	container.append(
-		createDropdown('Mode', ['none', 'linear', 'exponential', 'exponential2'], currentMode, (mode) => {
-			switch (mode) {
-				case 'linear': {
-					scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
-					break;
+		createDropdown(
+			'Mode',
+			['none', 'linear', 'exponential', 'exponential2'],
+			currentMode,
+			(mode) => {
+				switch (mode) {
+					case 'linear': {
+						scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
+						break;
+					}
+					case 'exponential': {
+						scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
+						break;
+					}
+					case 'exponential2': {
+						scene.fogMode = BABYLON.Scene.FOGMODE_EXP2;
+						break;
+					}
+					default: {
+						scene.fogMode = BABYLON.Scene.FOGMODE_NONE;
+					}
 				}
-				case 'exponential': {
-					scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
-					break;
-				}
-				case 'exponential2': {
-					scene.fogMode = BABYLON.Scene.FOGMODE_EXP2;
-					break;
-				}
-				default: {
-					scene.fogMode = BABYLON.Scene.FOGMODE_NONE;
-				}
-			}
-		}, 'fog-mode'),
+			},
+			'fog-mode',
+		),
 	);
 
 	container.append(
-		createSliderRow('Density', 0, 0.1, 0.001, scene.fogDensity, (v) => {
-			scene.fogDensity = v;
-		}, 'fog-density'),
+		createSliderRow(
+			'Density',
+			0,
+			0.1,
+			0.001,
+			scene.fogDensity,
+			(v) => {
+				scene.fogDensity = v;
+			},
+			'fog-density',
+		),
 	);
 	container.append(
-		createSliderRow('Start', 0, 500, 5, scene.fogStart, (v) => {
-			scene.fogStart = v;
-		}, 'fog-start'),
+		createSliderRow(
+			'Start',
+			0,
+			500,
+			5,
+			scene.fogStart,
+			(v) => {
+				scene.fogStart = v;
+			},
+			'fog-start',
+		),
 	);
 	container.append(
-		createSliderRow('End', 10, 1000, 10, scene.fogEnd, (v) => {
-			scene.fogEnd = v;
-		}, 'fog-end'),
+		createSliderRow(
+			'End',
+			10,
+			1000,
+			10,
+			scene.fogEnd,
+			(v) => {
+				scene.fogEnd = v;
+			},
+			'fog-end',
+		),
 	);
 	container.append(
-		createSliderRow('Fog R', 0, 1, 0.01, scene.fogColor.r, (v) => {
-			scene.fogColor.r = v;
-		}, 'fog-r'),
+		createSliderRow(
+			'Fog R',
+			0,
+			1,
+			0.01,
+			scene.fogColor.r,
+			(v) => {
+				scene.fogColor.r = v;
+			},
+			'fog-r',
+		),
 	);
 	container.append(
-		createSliderRow('Fog G', 0, 1, 0.01, scene.fogColor.g, (v) => {
-			scene.fogColor.g = v;
-		}, 'fog-g'),
+		createSliderRow(
+			'Fog G',
+			0,
+			1,
+			0.01,
+			scene.fogColor.g,
+			(v) => {
+				scene.fogColor.g = v;
+			},
+			'fog-g',
+		),
 	);
 	container.append(
-		createSliderRow('Fog B', 0, 1, 0.01, scene.fogColor.b, (v) => {
-			scene.fogColor.b = v;
-		}, 'fog-b'),
+		createSliderRow(
+			'Fog B',
+			0,
+			1,
+			0.01,
+			scene.fogColor.b,
+			(v) => {
+				scene.fogColor.b = v;
+			},
+			'fog-b',
+		),
 	);
 }
 
@@ -1076,39 +1361,95 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 
 	if (cam instanceof BABYLON.ArcRotateCamera) {
 		container.append(
-			createSliderRow('FOV', 0.3, 2.0, 0.05, cam.fov, (v) => {
-				cam.fov = v;
-			}, 'cam-fov'),
+			createSliderRow(
+				'FOV',
+				0.3,
+				2.0,
+				0.05,
+				cam.fov,
+				(v) => {
+					cam.fov = v;
+				},
+				'cam-fov',
+			),
 		);
 		container.append(
-			createSliderRow('Radius', 1, 500, 1, cam.radius, (v) => {
-				cam.radius = v;
-			}, 'cam-radius'),
+			createSliderRow(
+				'Radius',
+				1,
+				500,
+				1,
+				cam.radius,
+				(v) => {
+					cam.radius = v;
+				},
+				'cam-radius',
+			),
 		);
 		container.append(
-			createSliderRow('Inertia', 0, 1, 0.05, cam.inertia, (v) => {
-				cam.inertia = v;
-			}, 'cam-inertia'),
+			createSliderRow(
+				'Inertia',
+				0,
+				1,
+				0.05,
+				cam.inertia,
+				(v) => {
+					cam.inertia = v;
+				},
+				'cam-inertia',
+			),
 		);
 		container.append(
-			createSliderRow('Wheel Prec.', 1, 50, 1, cam.wheelPrecision, (v) => {
-				cam.wheelPrecision = v;
-			}, 'cam-wheel-prec'),
+			createSliderRow(
+				'Wheel Prec.',
+				1,
+				50,
+				1,
+				cam.wheelPrecision,
+				(v) => {
+					cam.wheelPrecision = v;
+				},
+				'cam-wheel-prec',
+			),
 		);
 		container.append(
-			createSliderRow('Pan Sens.', 0, 200, 5, cam.panningSensibility, (v) => {
-				cam.panningSensibility = v;
-			}, 'cam-pan-sens'),
+			createSliderRow(
+				'Pan Sens.',
+				0,
+				200,
+				5,
+				cam.panningSensibility,
+				(v) => {
+					cam.panningSensibility = v;
+				},
+				'cam-pan-sens',
+			),
 		);
 		container.append(
-			createSliderRow('Lower Radius', 1, 200, 1, cam.lowerRadiusLimit ?? 1, (v) => {
-				cam.lowerRadiusLimit = v;
-			}, 'cam-lower-radius'),
+			createSliderRow(
+				'Lower Radius',
+				1,
+				200,
+				1,
+				cam.lowerRadiusLimit ?? 1,
+				(v) => {
+					cam.lowerRadiusLimit = v;
+				},
+				'cam-lower-radius',
+			),
 		);
 		container.append(
-			createSliderRow('Upper Radius', 10, 1000, 10, cam.upperRadiusLimit ?? 300, (v) => {
-				cam.upperRadiusLimit = v;
-			}, 'cam-upper-radius'),
+			createSliderRow(
+				'Upper Radius',
+				10,
+				1000,
+				10,
+				cam.upperRadiusLimit ?? 300,
+				(v) => {
+					cam.upperRadiusLimit = v;
+				},
+				'cam-upper-radius',
+			),
 		);
 
 		// Live readout of alpha/beta/radius
@@ -1126,9 +1467,17 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 		status.textContent = 'Non-ArcRotate camera — limited controls';
 		container.append(status);
 		container.append(
-			createSliderRow('FOV', 0.3, 2.0, 0.05, cam.fov, (v) => {
-				cam.fov = v;
-			}, 'cam-fov'),
+			createSliderRow(
+				'FOV',
+				0.3,
+				2.0,
+				0.05,
+				cam.fov,
+				(v) => {
+					cam.fov = v;
+				},
+				'cam-fov',
+			),
 		);
 	}
 }
@@ -1158,19 +1507,40 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 	}
 
 	container.append(
-		createToggleRow('Enabled', glow.isEnabled, (on) => {
-			glow.isEnabled = on;
-		}, 'glow-enabled'),
+		createToggleRow(
+			'Enabled',
+			glow.isEnabled,
+			(on) => {
+				glow.isEnabled = on;
+			},
+			'glow-enabled',
+		),
 	);
 	container.append(
-		createSliderRow('Intensity', 0, 5, 0.05, glow.intensity, (v) => {
-			glow.intensity = v;
-		}, 'glow-intensity'),
+		createSliderRow(
+			'Intensity',
+			0,
+			5,
+			0.05,
+			glow.intensity,
+			(v) => {
+				glow.intensity = v;
+			},
+			'glow-intensity',
+		),
 	);
 	container.append(
-		createSliderRow('Blur Kernel', 1, 256, 1, glow.blurKernelSize, (v) => {
-			glow.blurKernelSize = v;
-		}, 'glow-blur-kernel'),
+		createSliderRow(
+			'Blur Kernel',
+			1,
+			256,
+			1,
+			glow.blurKernelSize,
+			(v) => {
+				glow.blurKernelSize = v;
+			},
+			'glow-blur-kernel',
+		),
 	);
 }
 
@@ -1319,44 +1689,89 @@ function buildLightsUI(debug: DevDebugApi): void {
 
 		// Enabled toggle
 		row.append(
-			createToggleRow('Enabled', ml.light.isEnabled(), (on) => {
-				ml.light.setEnabled(on);
-			}, `light-${lightId}-enabled`),
+			createToggleRow(
+				'Enabled',
+				ml.light.isEnabled(),
+				(on) => {
+					ml.light.setEnabled(on);
+				},
+				`light-${lightId}-enabled`,
+			),
 		);
 
 		// Intensity slider
 		row.append(
-			createSliderRow('Intensity', 0, 5, 0.05, ml.light.intensity, (v) => {
-				ml.light.intensity = v;
-			}, `light-${lightId}-intensity`),
+			createSliderRow(
+				'Intensity',
+				0,
+				5,
+				0.05,
+				ml.light.intensity,
+				(v) => {
+					ml.light.intensity = v;
+				},
+				`light-${lightId}-intensity`,
+			),
 		);
 
 		// Color temperature slider (if light has diffuse color)
 		if ('diffuse' in ml.light) {
 			const diffuse = ml.light.diffuse as BABYLON.Color3;
 			row.append(
-				createSliderRow('Diffuse R', 0, 1, 0.01, diffuse.r, (v) => {
-					diffuse.r = v;
-				}, `light-${lightId}-diffuse-r`),
+				createSliderRow(
+					'Diffuse R',
+					0,
+					1,
+					0.01,
+					diffuse.r,
+					(v) => {
+						diffuse.r = v;
+					},
+					`light-${lightId}-diffuse-r`,
+				),
 			);
 			row.append(
-				createSliderRow('Diffuse G', 0, 1, 0.01, diffuse.g, (v) => {
-					diffuse.g = v;
-				}, `light-${lightId}-diffuse-g`),
+				createSliderRow(
+					'Diffuse G',
+					0,
+					1,
+					0.01,
+					diffuse.g,
+					(v) => {
+						diffuse.g = v;
+					},
+					`light-${lightId}-diffuse-g`,
+				),
 			);
 			row.append(
-				createSliderRow('Diffuse B', 0, 1, 0.01, diffuse.b, (v) => {
-					diffuse.b = v;
-				}, `light-${lightId}-diffuse-b`),
+				createSliderRow(
+					'Diffuse B',
+					0,
+					1,
+					0.01,
+					diffuse.b,
+					(v) => {
+						diffuse.b = v;
+					},
+					`light-${lightId}-diffuse-b`,
+				),
 			);
 		}
 
 		// Range slider (point/spot lights)
 		if ('range' in ml.light && typeof ml.light.range === 'number') {
 			row.append(
-				createSliderRow('Range', 0, 200, 1, ml.light.range, (v) => {
-					(ml.light as BABYLON.PointLight).range = v;
-				}, `light-${lightId}-range`),
+				createSliderRow(
+					'Range',
+					0,
+					200,
+					1,
+					ml.light.range,
+					(v) => {
+						(ml.light as BABYLON.PointLight).range = v;
+					},
+					`light-${lightId}-range`,
+				),
 			);
 		}
 
@@ -1364,9 +1779,17 @@ function buildLightsUI(debug: DevDebugApi): void {
 		if (ml.shadowGenerator && 'darkness' in ml.shadowGenerator) {
 			const sg = ml.shadowGenerator;
 			row.append(
-				createSliderRow('Shadow Dark', 0, 1, 0.05, sg.darkness, (v) => {
-					sg.darkness = v;
-				}, `light-${lightId}-shadow-dark`),
+				createSliderRow(
+					'Shadow Dark',
+					0,
+					1,
+					0.05,
+					sg.darkness,
+					(v) => {
+						sg.darkness = v;
+					},
+					`light-${lightId}-shadow-dark`,
+				),
 			);
 		}
 
@@ -1405,19 +1828,43 @@ function buildLightsUI(debug: DevDebugApi): void {
 		if (ml.volumetricPostProcess) {
 			const vl = ml.volumetricPostProcess;
 			row.append(
-				createSliderRow('GR Decay', 0, 1, 0.01, vl.decay, (v) => {
-					vl.decay = v;
-				}, `light-${lightId}-gr-decay`),
+				createSliderRow(
+					'GR Decay',
+					0,
+					1,
+					0.01,
+					vl.decay,
+					(v) => {
+						vl.decay = v;
+					},
+					`light-${lightId}-gr-decay`,
+				),
 			);
 			row.append(
-				createSliderRow('GR Weight', 0, 1, 0.01, vl.weight, (v) => {
-					vl.weight = v;
-				}, `light-${lightId}-gr-weight`),
+				createSliderRow(
+					'GR Weight',
+					0,
+					1,
+					0.01,
+					vl.weight,
+					(v) => {
+						vl.weight = v;
+					},
+					`light-${lightId}-gr-weight`,
+				),
 			);
 			row.append(
-				createSliderRow('GR Density', 0, 1, 0.01, vl.density, (v) => {
-					vl.density = v;
-				}, `light-${lightId}-gr-density`),
+				createSliderRow(
+					'GR Density',
+					0,
+					1,
+					0.01,
+					vl.density,
+					(v) => {
+						vl.density = v;
+					},
+					`light-${lightId}-gr-density`,
+				),
 			);
 		}
 
@@ -1517,24 +1964,56 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	// Clear color RGBA sliders — always useful
 	const cc = scene.clearColor;
 	container.append(
-		createSliderRow('Clear R', 0, 1, 0.01, cc.r, (v) => {
-			scene.clearColor.r = v;
-		}, 'sky-clear-r'),
+		createSliderRow(
+			'Clear R',
+			0,
+			1,
+			0.01,
+			cc.r,
+			(v) => {
+				scene.clearColor.r = v;
+			},
+			'sky-clear-r',
+		),
 	);
 	container.append(
-		createSliderRow('Clear G', 0, 1, 0.01, cc.g, (v) => {
-			scene.clearColor.g = v;
-		}, 'sky-clear-g'),
+		createSliderRow(
+			'Clear G',
+			0,
+			1,
+			0.01,
+			cc.g,
+			(v) => {
+				scene.clearColor.g = v;
+			},
+			'sky-clear-g',
+		),
 	);
 	container.append(
-		createSliderRow('Clear B', 0, 1, 0.01, cc.b, (v) => {
-			scene.clearColor.b = v;
-		}, 'sky-clear-b'),
+		createSliderRow(
+			'Clear B',
+			0,
+			1,
+			0.01,
+			cc.b,
+			(v) => {
+				scene.clearColor.b = v;
+			},
+			'sky-clear-b',
+		),
 	);
 	container.append(
-		createSliderRow('Clear A', 0, 1, 0.01, cc.a, (v) => {
-			scene.clearColor.a = v;
-		}, 'sky-clear-a'),
+		createSliderRow(
+			'Clear A',
+			0,
+			1,
+			0.01,
+			cc.a,
+			(v) => {
+				scene.clearColor.a = v;
+			},
+			'sky-clear-a',
+		),
 	);
 
 	// ── Parallax sub-section ──
@@ -1551,7 +2030,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			const header = document.createElement('div');
 			header.style.cssText = 'font-size: 9px; color: #777; padding: 4px 0 2px;';
 			const shortPath =
-				layer.imagePath.length > 20 ? '...' + layer.imagePath.slice(-17) : layer.imagePath;
+				layer.imagePath.length > 20 ? `...${layer.imagePath.slice(-17)}` : layer.imagePath;
 			header.textContent = `${String(i)}: ${shortPath}`;
 			container.append(header);
 

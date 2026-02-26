@@ -184,7 +184,7 @@ export function createParallax(options: {
 
 		return okShallow({
 			bgLayers,
-			layers,
+			layers: [...layers],
 			observer,
 			scene,
 		});
