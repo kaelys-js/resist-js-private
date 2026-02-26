@@ -70,7 +70,7 @@ export type OptionalNodeChildProcess = NodeChildProcess | undefined;
  */
 async function tryImport<T>(specifier: string): Promise<T | undefined> {
 	try {
-		return (await import(specifier)) as T;
+		return (await import(/* @vite-ignore */ specifier)) as T;
 	} catch {
 		/* non-Node */
 		return undefined;
