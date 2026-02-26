@@ -337,7 +337,7 @@ describe('bitmaskToFrameIndex', () => {
 	});
 
 	it('masks input to 8 bits', () => {
-		const result: Result<Num> = bitmaskToFrameIndex(0x100);
+		const result: Result<Num> = bitmaskToFrameIndex(0x1_00);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.data).toBe(0);

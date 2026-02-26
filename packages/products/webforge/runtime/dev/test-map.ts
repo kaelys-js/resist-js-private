@@ -39,12 +39,24 @@ const P_GID: Num = T_GID + T_COUNT;
 // Tile ID Helpers
 // =============================================================================
 
-/** Convert terrain grid position to tile ID. */
+/**
+ * Convert terrain grid position to tile ID.
+ *
+ * @param row - Tile row in the tileset grid.
+ * @param col - Tile column in the tileset grid.
+ * @returns Tile ID offset by the terrain first-GID.
+ */
 function t(row: Num, col: Num): Num {
 	return row * T_COLS + col + T_GID;
 }
 
-/** Convert plant grid position to tile ID. */
+/**
+ * Convert plant grid position to tile ID.
+ *
+ * @param row - Tile row in the tileset grid.
+ * @param col - Tile column in the tileset grid.
+ * @returns Tile ID offset by the plants first-GID.
+ */
 function p(row: Num, col: Num): Num {
 	return row * P_COLS + col + P_GID;
 }
@@ -79,7 +91,7 @@ const WATER_FLOWER: Num = p(2, 14); // blue water flower
 // Tree tiles from plants_summer.png
 const TREE_CYPRESS: Num = p(2, 0); // tall cypress
 const TREE_MEDIUM: Num = p(2, 1); // medium tree
-const TREE_SMALL: Num = p(2, 2); // small tree/shrub
+const _TREE_SMALL: Num = p(2, 2); // small tree/shrub
 
 // =============================================================================
 // Map Layout Constants
@@ -107,12 +119,24 @@ const PLAT_HEIGHT: Num = 2;
 // Helpers
 // =============================================================================
 
-/** Index into flat tile array. */
+/**
+ * Index into flat tile array.
+ *
+ * @param x - Tile x coordinate.
+ * @param z - Tile z coordinate.
+ * @returns Linear index into the width*height tile array.
+ */
 function idx(x: Num, z: Num): Num {
 	return z * W + x;
 }
 
-/** Subtle grass variation based on position. */
+/**
+ * Subtle grass variation based on position.
+ *
+ * @param x - Tile x coordinate.
+ * @param z - Tile z coordinate.
+ * @returns Grass tile ID, with ~20% alternate tile for variety.
+ */
 function grassTile(x: Num, z: Num): Num {
 	// Use a simple hash for natural-looking variation (~20% alternate tile)
 	return (x * 7 + z * 13) % 5 === 0 ? GRASS_V : GRASS;

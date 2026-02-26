@@ -87,7 +87,7 @@ describe('detectCliffEdges', () => {
 		if (!result.ok) return;
 		expect(result.data).toHaveLength(4);
 		// Each edge should be at (1,1) facing N/S/E/W
-		const directions: readonly string[] = result.data.map((e) => e.direction).sort();
+		const directions: readonly string[] = result.data.map((e) => e.direction).toSorted();
 		expect(directions).toEqual(['east', 'north', 'south', 'west']);
 		// All edges have topHeight=1, bottomHeight=0
 		for (const edge of result.data) {

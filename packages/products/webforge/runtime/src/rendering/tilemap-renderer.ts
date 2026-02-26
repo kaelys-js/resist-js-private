@@ -26,8 +26,7 @@ import * as BABYLON from '@babylonjs/core';
 
 import { ERRORS, err, type DeepReadonly } from '@/schemas/result/result';
 import type { Bool, Num, Str } from '@/schemas/common';
-import { safeParse } from '@/utils/result/safe';
-import { fromUnknownError } from '@/utils/result/safe';
+import { fromUnknownError, safeParse } from '@/utils/result/safe';
 
 import { okShallow, type BabylonResult } from '../core/babylon-result';
 import {

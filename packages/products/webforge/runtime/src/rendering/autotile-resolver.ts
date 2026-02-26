@@ -29,7 +29,7 @@ import * as v from 'valibot';
 import { okUnchecked, type Result } from '@/schemas/result/result';
 import type { Num } from '@/schemas/common';
 
-import { AutotileTypeSchema, type AutotileType } from '../schemas/map-data';
+import { AutotileTypeSchema } from '../schemas/map-data';
 
 // =============================================================================
 // Schemas
@@ -175,7 +175,7 @@ export function buildAdjacencyBitmask(options: AdjacencyOptions): Result<Num> {
 	let bitmask: Num = 0;
 
 	// Check each of 8 neighbors
-	const offsets: readonly [Num, Num, Num][] = [
+	const offsets: ReadonlyArray<[Num, Num, Num]> = [
 		[0, -1, BIT_N], // North
 		[1, -1, BIT_NE], // Northeast
 		[1, 0, BIT_E], // East
