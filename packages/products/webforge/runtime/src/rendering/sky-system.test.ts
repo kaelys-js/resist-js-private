@@ -91,7 +91,7 @@ describe('createSky — gradient type', () => {
 		expect(instance.scene.clearColor.r).toBeCloseTo(0.1);
 	});
 
-	test('creates skybox mesh for gradient rendering', () => {
+	test('does not create skybox mesh for gradient (clearColor only)', () => {
 		const config: SkyConfig = {
 			type: 'gradient',
 			color: { r: 0.35, g: 0.5, b: 0.8, a: 1 },
@@ -108,7 +108,7 @@ describe('createSky — gradient type', () => {
 		const result = createSky({ scene: instance.scene, config });
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.data.skyboxMesh).not.toBeNull();
+		expect(result.data.skyboxMesh).toBeNull();
 	});
 });
 
