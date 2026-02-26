@@ -86,7 +86,7 @@ describe('getPostProcessingPreset', () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.data.bloom?.weight).toBe(0.15);
-		expect(result.data.bloom?.threshold).toBe(0.9);
+		expect(result.data.bloom?.threshold).toBe(0.85);
 		expect(result.data.bloom?.kernel).toBe(64);
 	});
 
@@ -129,7 +129,7 @@ describe('resolvePostProcessingConfig', () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.data.bloom?.weight).toBe(0.5);
-		expect(result.data.bloom?.threshold).toBe(0.9);
+		expect(result.data.bloom?.threshold).toBe(0.85);
 	});
 
 	it('merges multiple sub-schema overrides', () => {

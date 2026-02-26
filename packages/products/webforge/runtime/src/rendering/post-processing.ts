@@ -141,12 +141,17 @@ function mapVignetteBlendMode(mode: string): number {
  * Sets all effect properties from the config. When `config.enabled` is false,
  * all effects are disabled regardless of their individual settings.
  *
+ * When `focusDistance` is 0, auto-calibrates from the active camera's radius
+ * (for ArcRotateCamera) to create the correct tilt-shift focus plane.
+ *
  * @param pipeline - The Babylon.js DefaultRenderingPipeline instance.
  * @param config - The fully resolved PostProcessingConfig.
+ * @param scene - The Babylon.js scene (used for auto-focus distance).
  */
 function applyConfigToPipeline(
 	pipeline: BABYLON.DefaultRenderingPipeline,
 	config: PostProcessingConfig,
+	scene: BABYLON.Scene,
 ): void {
 	const masterEnabled: boolean = config.enabled;
 
@@ -165,7 +170,18 @@ function applyConfigToPipeline(
 		pipeline.depthOfFieldBlurLevel = mapDofBlurLevel(config.depthOfField.blurLevel);
 		pipeline.depthOfField.focalLength = config.depthOfField.focalLength;
 		pipeline.depthOfField.fStop = config.depthOfField.fStop;
-		pipeline.depthOfField.focusDistance = config.depthOfField.focusDistance;
+
+		// Auto-calibrate focus distance from camera radius when set to 0.
+		// Babylon.js DOF focusDistance is in millimeters (1 scene unit = 1 meter),
+		// so multiply scene-unit distance by 1000.
+		let focusDist: number = config.depthOfField.focusDistance;
+		if (focusDist === 0 && scene.activeCamera) {
+			const cam: BABYLON.Camera = scene.activeCamera;
+			if ('radius' in cam && typeof cam.radius === 'number') {
+				focusDist = cam.radius * 1000;
+			}
+		}
+		pipeline.depthOfField.focusDistance = focusDist;
 	}
 
 	// ---- FXAA ----
@@ -277,7 +293,7 @@ export function createPostProcessingPipeline(
 		);
 
 		// Apply all config properties
-		applyConfigToPipeline(pipeline, config);
+		applyConfigToPipeline(pipeline, config, scene);
 
 		// Create SSAO2 pipeline if enabled
 		let ssaoPipeline: BABYLON.SSAO2RenderingPipeline | null = null;
@@ -344,7 +360,7 @@ export function createPostProcessingPipeline(
 export function updatePostProcessingConfig(options: UpdatePipelineOptions): BabylonResult<Bool> {
 	try {
 		const { pipeline, config } = options;
-		applyConfigToPipeline(pipeline.pipeline, config);
+		applyConfigToPipeline(pipeline.pipeline, config, pipeline.scene);
 
 		// Update SSAO properties if pipeline exists
 		if (pipeline.ssaoPipeline && config.ssao) {
