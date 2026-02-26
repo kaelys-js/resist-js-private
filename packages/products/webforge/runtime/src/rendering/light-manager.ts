@@ -31,6 +31,7 @@ import { okShallow, type BabylonResult } from '../core/babylon-result';
 import {
 	LightingConfigSchema,
 	type DayNightCycleConfig,
+	type FlickerConfig,
 	type LightConfig,
 	type LightingConfig,
 } from '../schemas/lighting-config';
@@ -313,10 +314,13 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 			// Create flicker animation (non-fatal — skip on failure)
 			let flickerInst: FlickerInstance | null = null;
 			if (lightCfg.type !== 'hemispheric' && lightCfg.flicker?.enabled) {
+				// Spread to strip DeepReadonly — createFlicker stores a mutable config
+				// that the dev harness (and future game scripting) can mutate at runtime.
+				const flickerConfig: Partial<FlickerConfig> = { ...lightCfg.flicker };
 				const flickerResult = createFlicker({
 					scene: options.scene,
 					light,
-					config: lightCfg.flicker,
+					config: flickerConfig,
 					colorTemperature: lightCfg.colorTemperature,
 				});
 				if (flickerResult.ok) {

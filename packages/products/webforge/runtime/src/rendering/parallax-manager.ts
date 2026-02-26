@@ -38,13 +38,15 @@ import type { ParallaxLayer } from '../schemas/sky-config';
 /**
  * A live parallax background instance in the scene.
  *
- * Contains 2D background layers and the per-frame observer.
+ * `layers` is intentionally mutable — external code (dev harness)
+ * may write to layer configs at runtime and the per-frame observer
+ * reads the latest values each tick.
  */
 export type ParallaxInstance = {
 	/** Background layers (one per parallax config, ordered back-to-front). */
 	readonly bgLayers: BABYLON.Layer[];
-	/** Layer configurations for per-frame offset computation. */
-	readonly layers: readonly ParallaxLayer[];
+	/** Mutable — external code may change scroll speeds between frames. */
+	layers: ParallaxLayer[];
 	/** Per-frame observer for UV offset updates (null if no layers). */
 	readonly observer: BABYLON.Observer<BABYLON.Scene> | null;
 	/** The scene this parallax belongs to. */
