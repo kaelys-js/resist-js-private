@@ -267,6 +267,8 @@ describe('createDayNightCycle', () => {
 					autoCalcShadowZBounds: true,
 				},
 				light: sunLight,
+				shadowGenerator: null,
+				flickerInstance: null,
 			},
 		];
 

@@ -69,6 +69,29 @@ async function main(): Promise<void> {
 		// eslint-disable-next-line no-console -- Dev harness diagnostic output
 		console.log(`[WebForge] Tilemap rendered — ${chunkCount} chunks, ${cliffCount} cliff chunks`);
 
+		// Log lighting status
+		if (tilemap.lighting) {
+			const lightCount = tilemap.lighting.lights.length;
+			const lightNames = tilemap.lighting.lights.map((ml) => ml.config.id).join(', ');
+			const hasShadows = tilemap.lighting.lights.some((ml) => ml.shadowGenerator !== null);
+			const hasFlicker = tilemap.lighting.lights.some((ml) => ml.flickerInstance !== null);
+			const hasDayNight = tilemap.lighting.dayNightCycle !== null;
+			const hasGlow = tilemap.lighting.glowLayer !== null;
+			// eslint-disable-next-line no-console -- Dev harness diagnostic output
+			console.log(
+				`[WebForge] Lighting active — ${lightCount} lights [${lightNames}], ` +
+					`shadows: ${hasShadows}, flicker: ${hasFlicker}, ` +
+					`dayNight: ${hasDayNight}, glow: ${hasGlow}`,
+			);
+		} else {
+			// eslint-disable-next-line no-console -- Dev harness diagnostic output
+			console.log('[WebForge] No lighting system configured');
+		}
+
+		// Expose debug state on window for visual testing inspection
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness debug
+		(window as any).__WEBFORGE_DEBUG__ = { runtime, tilemap, scene: runtime.engine.scene };
+
 		// Center camera on the map (map is 32 tiles wide, 1 unit per tile)
 		const mapCenterX: Num = 16;
 		const mapCenterZ: Num = 16;
