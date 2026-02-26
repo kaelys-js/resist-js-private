@@ -183,6 +183,7 @@ export function loadTileset(options: LoadTilesetOptions): BabylonResult<LoadedTi
 			undefined, // invertY
 			BABYLON.Texture.NEAREST_SAMPLINGMODE,
 		);
+		texture.hasAlpha = true;
 
 		const uvResult: Result<readonly TileUV[]> = computeTileUVs({
 			columns: config.columns,
