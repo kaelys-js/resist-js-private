@@ -1,10 +1,10 @@
 /**
  * Parallax scrolling background manager.
  *
- * Uses Babylon.js `Layer` to create 2D screen-space background images
+ * Uses Babylon.js `Layer` to create 2D screen-space foreground images
  * that scroll at a fraction of the camera movement speed, creating a
- * depth parallax effect. Each layer is rendered behind all 3D scene
- * geometry as a fullscreen quad.
+ * depth parallax effect. Each layer is rendered as a fullscreen quad
+ * in front of 3D geometry with alpha blending for transparency.
  *
  * @example
  * ```typescript
@@ -88,9 +88,10 @@ export function computeParallaxOffset(options: {
 /**
  * Creates parallax scrolling background layers in the scene.
  *
- * Uses Babylon.js `Layer` (2D screen-space background) which renders
- * behind all 3D geometry. UV offset is updated per frame based on
- * camera position to create the parallax scrolling effect.
+ * Uses Babylon.js `Layer` (2D screen-space foreground) which renders
+ * in front of 3D geometry with alpha blending. UV offset is updated
+ * per frame based on camera position to create the parallax scrolling
+ * effect.
  *
  * @param options - Scene, layer configs, and asset base path.
  * @returns BabylonResult containing the parallax instance handle.
@@ -118,8 +119,8 @@ export function createParallax(options: {
 
 			const texturePath = `${assetBasePath}${layer.imagePath}`;
 
-			// Layer(name, imgUrl, scene, isBackground) — isBackground=true renders behind 3D
-			const bgLayer = new BABYLON.Layer(`parallax-${i}`, texturePath, scene, true);
+			// Layer(name, imgUrl, scene, isBackground) — isBackground=false renders in front of 3D
+			const bgLayer = new BABYLON.Layer(`parallax-${i}`, texturePath, scene, false);
 
 			// Set opacity via alpha blending
 			bgLayer.alphaBlendingMode = BABYLON.Constants.ALPHA_COMBINE;
