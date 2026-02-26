@@ -32,7 +32,7 @@
  * @module
  */
 
-import * as BABYLON from '@babylonjs/core';
+import type * as BABYLON from '@babylonjs/core';
 
 import { ERRORS, err } from '@/schemas/result/result';
 import type { Num } from '@/schemas/common';
@@ -77,12 +77,17 @@ type ScreenEffectOptions = {
  * @param initialOpacity - Starting CSS opacity (0-1).
  * @returns The overlay div element.
  */
-function createOverlayDiv(scene: BABYLON.Scene, color: ColorRgba, initialOpacity: Num): HTMLDivElement {
+function createOverlayDiv(
+	scene: BABYLON.Scene,
+	color: ColorRgba,
+	initialOpacity: Num,
+): HTMLDivElement {
 	const overlay = document.createElement('div');
 	const canvas = scene.getEngine().getRenderingCanvas();
 
 	// Match canvas position
-	overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;';
+	overlay.style.cssText =
+		'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;';
 	overlay.style.backgroundColor = `rgb(${Math.round(color.r * 255)},${Math.round(color.g * 255)},${Math.round(color.b * 255)})`;
 	overlay.style.opacity = String(initialOpacity);
 
