@@ -54,7 +54,7 @@ describe('CameraConfigSchema', () => {
 		expect(result.data.targetY).toBe(0);
 		expect(result.data.targetZ).toBe(0);
 		expect(result.data.followSpeed).toBe(0.05);
-		expect(result.data.wheelPrecision).toBe(10);
+		expect(result.data.wheelPrecision).toBe(3);
 	});
 
 	test('fills HD-2D defaults for gameplay mode', () => {

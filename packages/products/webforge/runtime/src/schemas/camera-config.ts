@@ -117,8 +117,8 @@ export const CameraConfigSchema = v.strictObject({
 	 */
 	panningSensibility: v.optional(v.pipe(v.number(), v.minValue(0))),
 
-	/** Mouse wheel zoom precision. Higher = slower zoom. Must be ≥ 1. Default: 10. */
-	wheelPrecision: v.optional(v.pipe(v.number(), v.minValue(1)), 10),
+	/** Mouse wheel zoom precision. Higher = slower zoom. Must be ≥ 1. Default: 3. */
+	wheelPrecision: v.optional(v.pipe(v.number(), v.minValue(1)), 3),
 
 	/**
 	 * Camera movement inertia. No schema default — mode default applied in `createHd2dCamera`:
