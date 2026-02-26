@@ -16,9 +16,11 @@ import {
 	ColorRgbaSchema,
 	FogConfigSchema,
 	SceneSetupConfigSchema,
+	Vector3Schema,
 	type ColorRgba,
 	type FogConfig,
 	type SceneSetupConfig,
+	type Vector3,
 } from './scene-setup-config';
 
 // =============================================================================
@@ -124,6 +126,62 @@ describe('ColorRgbaSchema', () => {
 			g: 0,
 			b: 0,
 			hex: '#000',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// Vector3Schema
+// =============================================================================
+
+describe('Vector3Schema', () => {
+	test('applies all defaults for empty object', () => {
+		const result: Result<Vector3> = safeParse(Vector3Schema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.x).toBe(0);
+		expect(result.data.y).toBe(0);
+		expect(result.data.z).toBe(0);
+	});
+
+	test('accepts explicit x, y, z values', () => {
+		const result: Result<Vector3> = safeParse(Vector3Schema, { x: 1, y: 2, z: 3 });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.x).toBe(1);
+		expect(result.data.y).toBe(2);
+		expect(result.data.z).toBe(3);
+	});
+
+	test('accepts negative values (no constraints)', () => {
+		const result: Result<Vector3> = safeParse(Vector3Schema, {
+			x: -100,
+			y: -0.5,
+			z: -999,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.x).toBe(-100);
+		expect(result.data.y).toBeCloseTo(-0.5);
+		expect(result.data.z).toBe(-999);
+	});
+
+	test('rejects extra keys (strictObject)', () => {
+		const result: Result<Vector3> = safeParse(Vector3Schema, {
+			x: 1,
+			y: 2,
+			z: 3,
+			w: 4,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects wrong types (string for x)', () => {
+		const result: Result<Vector3> = safeParse(Vector3Schema, {
+			x: '1',
+			y: 2,
+			z: 3,
 		});
 		expect(result.ok).toBeFalsy();
 	});

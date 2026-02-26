@@ -27,6 +27,7 @@
 
 import * as v from 'valibot';
 
+import { LightingConfigSchema } from './lighting-config';
 import { PostProcessingConfigSchema } from './post-processing-config';
 
 // =============================================================================
@@ -309,6 +310,9 @@ export const MapDataSchema = v.strictObject({
 
 	/** Optional post-processing pipeline configuration for this map. */
 	postProcessing: v.optional(PostProcessingConfigSchema),
+
+	/** Optional lighting system configuration for this map. */
+	lighting: v.optional(LightingConfigSchema),
 });
 
 /** Top-level map data. */

@@ -227,6 +227,47 @@ describe('renderTilemap', () => {
 		expect(result.data.postProcessing).toBeNull();
 	});
 
+	it('defaults lighting to null when not configured', () => {
+		const scene: BABYLON.Scene = setupEngine();
+		const mapData: unknown = makeMinimalMapData(4, 4);
+
+		const result: BabylonResult<RenderedTilemap> = renderTilemap({
+			scene,
+			mapDataInput: mapData,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.lighting).toBeNull();
+	});
+
+	it('creates lighting instance when lighting config provided', () => {
+		const scene: BABYLON.Scene = setupEngine();
+		const mapData: unknown = {
+			...makeMinimalMapData(4, 4),
+			lighting: {
+				lights: [
+					{
+						id: 'ambient',
+						type: 'hemispheric',
+						intensity: 0.6,
+						direction: { x: 0, y: 1, z: 0 },
+					},
+				],
+			},
+		};
+
+		const result: BabylonResult<RenderedTilemap> = renderTilemap({
+			scene,
+			mapDataInput: mapData,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.lighting).not.toBeNull();
+		expect(result.data.lighting?.lights).toHaveLength(1);
+	});
+
 	it('creates post-processing pipeline when configured', () => {
 		const scene: BABYLON.Scene = setupEngine();
 		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
@@ -253,6 +294,37 @@ describe('renderTilemap', () => {
 // =============================================================================
 
 describe('disposeTilemap', () => {
+	it('disposes lighting along with other resources', () => {
+		const scene: BABYLON.Scene = setupEngine();
+		const mapData: unknown = {
+			...makeMinimalMapData(4, 4),
+			lighting: {
+				lights: [
+					{
+						id: 'ambient',
+						type: 'hemispheric',
+						intensity: 0.6,
+						direction: { x: 0, y: 1, z: 0 },
+					},
+				],
+			},
+		};
+
+		const renderResult: BabylonResult<RenderedTilemap> = renderTilemap({
+			scene,
+			mapDataInput: mapData,
+			assetBasePath: '/assets/',
+		});
+		expect(renderResult.ok).toBe(true);
+		if (!renderResult.ok) return;
+
+		// Verify lighting was created
+		expect(renderResult.data.lighting).not.toBeNull();
+
+		const result = disposeTilemap({ tilemap: renderResult.data });
+		expect(result.ok).toBe(true);
+	});
+
 	it('disposes all meshes, materials, and textures', () => {
 		const scene: BABYLON.Scene = setupEngine();
 		const mapData: unknown = makeMinimalMapData(4, 4);
