@@ -118,28 +118,28 @@ const NEUTRAL_PRESET: PostProcessingConfig = {
 	contrast: 1.0,
 };
 
-/** HD-2D preset — signature look with soft bloom, tilt-shift, and SSAO. */
+/** HD-2D preset — diorama tilt-shift look with warm bloom and atmosphere. */
 const HD2D_PRESET: PostProcessingConfig = {
 	enabled: true,
 	preset: 'hd2d',
-	bloom: { enabled: true, weight: 0.15, threshold: 0.9, kernel: 64, scale: 0.5 },
+	bloom: { enabled: true, weight: 0.15, threshold: 0.85, kernel: 64, scale: 0.5 },
 	depthOfField: {
 		enabled: true,
 		focalLength: 50,
 		fStop: 2.8,
-		focusDistance: 2000,
+		focusDistance: 0,
 		blurLevel: 'medium',
 	},
 	toneMapping: { enabled: true, type: 'aces' },
-	colorGrading: { enabled: false, preset: 'neutral' },
+	colorGrading: { enabled: true, preset: 'warm' },
 	vignette: {
 		enabled: true,
 		weight: 1.5,
-		stretch: 0,
+		stretch: 5,
 		color: { r: 0, g: 0, b: 0, a: 1 },
 		blendMode: 'multiply',
 	},
-	grain: { enabled: true, intensity: 5, animated: true },
+	grain: { enabled: true, intensity: 3, animated: true },
 	ssao: {
 		enabled: true,
 		totalStrength: 1.0,
@@ -166,7 +166,7 @@ const CINEMATIC_PRESET: PostProcessingConfig = {
 		enabled: true,
 		focalLength: 85,
 		fStop: 1.4,
-		focusDistance: 1500,
+		focusDistance: 0,
 		blurLevel: 'high',
 	},
 	toneMapping: { enabled: true, type: 'aces' },
@@ -244,7 +244,7 @@ const FANTASY_PRESET: PostProcessingConfig = {
 		enabled: true,
 		focalLength: 35,
 		fStop: 4.0,
-		focusDistance: 2000,
+		focusDistance: 0,
 		blurLevel: 'low',
 	},
 	toneMapping: { enabled: true, type: 'aces' },

@@ -99,8 +99,8 @@ export const DepthOfFieldConfigSchema = v.strictObject({
 	focalLength: v.optional(v.pipe(v.number(), v.minValue(0)), 50),
 	/** Aperture f-stop (>= 0.1). */
 	fStop: v.optional(v.pipe(v.number(), v.minValue(0.1)), 2.8),
-	/** Focus plane distance in scene units. */
-	focusDistance: v.optional(v.pipe(v.number(), v.minValue(0)), 2000),
+	/** Focus plane distance in mm (1 scene unit = 1 m). 0 = auto-calibrate from camera radius. */
+	focusDistance: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
 	/** Blur quality level. */
 	blurLevel: v.optional(v.picklist(['low', 'medium', 'high']), 'medium'),
 });

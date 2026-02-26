@@ -95,7 +95,7 @@ describe('DepthOfFieldConfigSchema', () => {
 		expect(result.data.enabled).toBe(true);
 		expect(result.data.focalLength).toBe(50);
 		expect(result.data.fStop).toBe(2.8);
-		expect(result.data.focusDistance).toBe(2000);
+		expect(result.data.focusDistance).toBe(0);
 		expect(result.data.blurLevel).toBe('medium');
 	});
 

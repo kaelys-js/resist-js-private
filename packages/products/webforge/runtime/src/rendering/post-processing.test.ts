@@ -143,7 +143,7 @@ describe('createPostProcessingPipeline', () => {
 		if (!result.ok) return;
 		expect(result.data.pipeline.bloomEnabled).toBe(true);
 		expect(result.data.pipeline.bloomWeight).toBe(0.15);
-		expect(result.data.pipeline.bloomThreshold).toBe(0.9);
+		expect(result.data.pipeline.bloomThreshold).toBe(0.85);
 		expect(result.data.pipeline.bloomKernel).toBe(64);
 		expect(result.data.pipeline.bloomScale).toBe(0.5);
 	});
@@ -162,7 +162,8 @@ describe('createPostProcessingPipeline', () => {
 		expect(result.data.pipeline.depthOfFieldEnabled).toBe(true);
 		expect(result.data.pipeline.depthOfField.focalLength).toBe(50);
 		expect(result.data.pipeline.depthOfField.fStop).toBe(2.8);
-		expect(result.data.pipeline.depthOfField.focusDistance).toBe(2000);
+		// focusDistance=0 in preset; auto-calibrate reads camera radius (FreeCamera has none, stays 0)
+		expect(result.data.pipeline.depthOfField.focusDistance).toBe(0);
 	});
 
 	it('maps tone mapping type correctly', () => {
