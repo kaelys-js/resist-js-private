@@ -16,7 +16,7 @@
 ### Phase 1: Babylon.js HD-2D Renderer — `phase-01-renderer.md`
 - [ ] 1.1 Monorepo scaffold (DONE — already built)
 - [x] 1.2 Babylon.js scene setup (engine, camera, render loop)
-- [ ] 1.3 Tilemap renderer (geometry, autotile, cliffs, instancing)
+- [x] 1.3 Tilemap renderer (geometry, autotile, cliffs, instancing)
 - [ ] 1.4 Post-processing pipeline (bloom, DoF, color grading, SSAO)
 - [ ] 1.5 Lighting system (lights, shadows, day/night, flicker)
 

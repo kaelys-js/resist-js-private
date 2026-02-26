@@ -8,7 +8,8 @@ const __dirname: string = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
 	root: __dirname,
-	plugins: [tsconfigPaths({ root: resolve(__dirname, '../../../..') })],
+	plugins: [tsconfigPaths({ root: resolve(__dirname, '../../../../..') })],
+	publicDir: resolve(__dirname, '../../../../../assets'),
 	server: {
 		port: 3100,
 		host: true,
