@@ -35,7 +35,6 @@ import {
 	mergeTileVertexData,
 	TileUVSchema,
 	WallDirectionSchema,
-	type TileUV,
 	type TileVertexData,
 	type WallDirection,
 } from './tile-geometry';
@@ -114,7 +113,7 @@ export type GenerateCliffGeometryOptions = v.InferOutput<typeof GenerateCliffGeo
 // =============================================================================
 
 /** Cardinal neighbor offsets: [dx, dz, direction]. */
-const CARDINAL_OFFSETS: readonly (readonly [Num, Num, WallDirection])[] = [
+const CARDINAL_OFFSETS: ReadonlyArray<readonly [Num, Num, WallDirection]> = [
 	[0, -1, 'north'],
 	[1, 0, 'east'],
 	[0, 1, 'south'],
@@ -245,7 +244,7 @@ export function generateCliffGeometry(
 	if (!merged.ok) return merged;
 
 	if (indexOffset > 0) {
-		const indices: Uint32Array = merged.data.indices;
+		const { indices } = merged.data;
 		for (let i: Num = 0; i < indices.length; i++) {
 			indices[i] = (indices[i] ?? 0) + indexOffset;
 		}

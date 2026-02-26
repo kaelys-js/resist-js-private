@@ -24,7 +24,7 @@ import type { Num } from '@/schemas/common';
 import { fromUnknownError } from '@/utils/result/safe';
 
 import { okShallow, type BabylonResult } from '../core/babylon-result';
-import type { MapData } from '../schemas/map-data';
+import type { AutotileType, MapData } from '../schemas/map-data';
 import {
 	createFlatTileGeometry,
 	mergeTileVertexData,
@@ -35,7 +35,6 @@ import {
 import { resolveGlobalTileId, type LoadedTileset } from './tileset-loader';
 import { detectCliffEdges, generateCliffGeometry } from './cliff-generator';
 import { resolveAutotile } from './autotile-resolver';
-import type { AutotileType } from '../schemas/map-data';
 
 // =============================================================================
 // Schemas
@@ -258,10 +257,10 @@ export function buildChunk(options: BuildChunkOptions): BabylonResult<ChunkMesh 
 		const meshName = `chunk-${chunkX}-${chunkZ}-${layer.name}`;
 		const mesh: BABYLON.Mesh = new BABYLON.Mesh(meshName, scene);
 		const vertexData: BABYLON.VertexData = new BABYLON.VertexData();
-		vertexData.positions = Array.from(mergeResult.data.positions);
-		vertexData.normals = Array.from(mergeResult.data.normals);
-		vertexData.uvs = Array.from(mergeResult.data.uvs);
-		vertexData.indices = Array.from(mergeResult.data.indices);
+		vertexData.positions = [...mergeResult.data.positions];
+		vertexData.normals = [...mergeResult.data.normals];
+		vertexData.uvs = [...mergeResult.data.uvs];
+		vertexData.indices = [...mergeResult.data.indices];
 		vertexData.applyToMesh(mesh);
 
 		const material: BABYLON.StandardMaterial | undefined = materials[firstMaterialIndex];
@@ -340,10 +339,10 @@ export function buildCliffChunk(options: BuildCliffChunkOptions): BabylonResult<
 		const meshName = `cliff-${chunkX}-${chunkZ}`;
 		const mesh: BABYLON.Mesh = new BABYLON.Mesh(meshName, scene);
 		const vertexData: BABYLON.VertexData = new BABYLON.VertexData();
-		vertexData.positions = Array.from(geoResult.data.positions);
-		vertexData.normals = Array.from(geoResult.data.normals);
-		vertexData.uvs = Array.from(geoResult.data.uvs);
-		vertexData.indices = Array.from(geoResult.data.indices);
+		vertexData.positions = [...geoResult.data.positions];
+		vertexData.normals = [...geoResult.data.normals];
+		vertexData.uvs = [...geoResult.data.uvs];
+		vertexData.indices = [...geoResult.data.indices];
 		vertexData.applyToMesh(mesh);
 
 		const material: BABYLON.StandardMaterial | undefined = materials[0];
