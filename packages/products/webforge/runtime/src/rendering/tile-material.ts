@@ -136,6 +136,14 @@ export function createTileMaterial(
 		material.backFaceCulling = false;
 		material.useAlphaFromDiffuseTexture = hasAlpha;
 
+		if (hasAlpha) {
+			// Use alpha testing (not blending) for pixel-art tilesets.
+			// Binary transparency preserves depth-buffer writes and prevents
+			// back-to-front sort artifacts when the camera rotates.
+			material.transparencyMode = BABYLON.Material.MATERIAL_ALPHATEST;
+			material.alphaCutOff = 0.5;
+		}
+
 		return okShallow(material);
 	} catch (error: unknown) {
 		return err(ERRORS.ASSET.IMPORT_FAILED, { cause: fromUnknownError(error) });
