@@ -117,6 +117,7 @@ describe('createLighting — PointLight', () => {
 		if (!result.ok) return;
 		expect(result.data.lights).toHaveLength(1);
 
+		// oxlint-disable-next-line prefer-destructuring
 		const light = result.data.lights[0]!.light;
 		expect(light).toBeInstanceOf(BABYLON.PointLight);
 		expect((light as BABYLON.PointLight).position.x).toBeCloseTo(10);
@@ -226,6 +227,7 @@ describe('createLighting — common properties', () => {
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
 
+		// oxlint-disable-next-line prefer-destructuring
 		const light = result.data.lights[0]!.light;
 		expect(light.diffuse.r).toBeCloseTo(1);
 		expect(light.diffuse.g).toBeCloseTo(0.9);
@@ -249,6 +251,7 @@ describe('createLighting — common properties', () => {
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
 
+		// oxlint-disable-next-line prefer-destructuring
 		const light = result.data.lights[0]!.light;
 		// colorTemperature 2200 should produce warm orange, NOT black
 		expect(light.diffuse.r).toBeGreaterThan(0.8);
@@ -383,6 +386,7 @@ describe('updateLightColor', () => {
 		});
 		expect(result.ok).toBeTruthy();
 
+		// oxlint-disable-next-line prefer-destructuring
 		const light = createResult.data.lights[0]!.light;
 		expect(light.diffuse.r).toBeCloseTo(1);
 		expect(light.diffuse.g).toBeCloseTo(0);

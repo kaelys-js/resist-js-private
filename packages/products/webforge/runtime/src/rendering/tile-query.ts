@@ -21,7 +21,7 @@
  * @module
  */
 
-import { okUnchecked, type Result } from '@/schemas/result/result';
+import type { Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import type { Num } from '@/schemas/common';
 
@@ -89,7 +89,7 @@ export function getTileProperties(options: GetTilePropertiesOptions): Result<Til
 	if (resolved.data === null) return DEFAULT_PROPERTIES_RESULT;
 
 	// Look up per-tile properties from tileset config
-	const localKey: string = String(resolved.data.localIndex);
+	const localKey = String(resolved.data.localIndex);
 	const entry: TileProperties | undefined = resolved.data.tileset.config.tileProperties[localKey];
 
 	if (entry === undefined) return DEFAULT_PROPERTIES_RESULT;

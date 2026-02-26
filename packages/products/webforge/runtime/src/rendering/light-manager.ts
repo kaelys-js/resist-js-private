@@ -302,6 +302,7 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 				if (shadowResult.ok) {
 					shadowGen = shadowResult.data;
 					// Auto-add scene meshes as shadow casters/receivers
+					// oxlint-disable-next-line prefer-destructuring
 					const meshes: readonly BABYLON.AbstractMesh[] = options.scene.meshes;
 					if (meshes.length > 0) {
 						addShadowCasters({ generator: shadowGen, meshes });
@@ -324,15 +325,23 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 			}
 
 			// Volumetric light scattering (god rays) — DirectionalLight only, non-fatal
+			// oxlint-disable-next-line no-warning-comments -- Intentional tracking issue
+			// TODO: Babylon.js lacks native WGSL shaders for VolumetricLightScatteringPostProcess.
+			// The GLSL-to-WGSL transpilation fails on WebGPU, causing a black screen.
+			// Remove this engine check once Babylon.js ships WGSL volumetric shaders.
+			// Tracking: https://github.com/BabylonJS/Babylon.js/issues/6443
 			let volumetric: BABYLON.VolumetricLightScatteringPostProcess | null = null;
-			if (lightCfg.type === 'directional' && lightCfg.volumetricLight?.enabled) {
+			const isWebGPU: boolean = options.scene.getEngine().name === 'WebGPU';
+			if (lightCfg.type === 'directional' && lightCfg.volumetricLight?.enabled && !isWebGPU) {
 				try {
+					// oxlint-disable-next-line prefer-destructuring
 					const cameras: readonly BABYLON.Camera[] = options.scene.cameras;
 					if (cameras.length > 0) {
 						const vlCfg = lightCfg.volumetricLight;
 						volumetric = new BABYLON.VolumetricLightScatteringPostProcess(
 							`${lightCfg.id}-godrays`,
 							{ postProcessRatio: vlCfg.passRatio, passRatio: vlCfg.passRatio },
+							// oxlint-disable-next-line typescript/no-non-null-assertion -- guarded by cameras.length > 0 check above
 							cameras[0]!,
 							undefined,
 							vlCfg.samples,
@@ -343,6 +352,19 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 						volumetric.decay = vlCfg.decay;
 						volumetric.weight = vlCfg.weight;
 						volumetric.density = vlCfg.density;
+						volumetric.exposure = 1.0;
+
+						// Position the internal "light source" mesh at the sun's position
+						// in the sky. For directional lights, place it far along the inverse
+						// of the light direction so it appears as the sun in the scene.
+						const dir = lightCfg.direction;
+						const sunDist: Num = 200 as Num;
+						volumetric.mesh.position = new BABYLON.Vector3(
+							-dir.x * sunDist + lightCfg.position.x,
+							-dir.y * sunDist + lightCfg.position.y,
+							-dir.z * sunDist + lightCfg.position.z,
+						);
+						volumetric.mesh.scaling = new BABYLON.Vector3(20, 20, 20);
 					}
 				} catch {
 					// Non-fatal — volumetric may not be supported (e.g. NullEngine)
@@ -356,21 +378,58 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 				try {
 					lensFlares = new BABYLON.LensFlareSystem(`${lightCfg.id}-flares`, light, options.scene);
 					const flareCfg = lightCfg.lensFlare;
+
+					// Create a 1x1 white texture for flares — passing '' as texture path
+					// causes sampler binding errors on WebGPU due to null internal textures.
+					const flareTexture: BABYLON.RawTexture = new BABYLON.RawTexture(
+						new Uint8Array([255, 255, 255, 255]),
+						1,
+						1,
+						BABYLON.Constants.TEXTUREFORMAT_RGBA,
+						options.scene,
+						false,
+						false,
+						BABYLON.Texture.BILINEAR_SAMPLINGMODE,
+					);
+					flareTexture.name = `${lightCfg.id}-flare-tex`;
+
 					if (flareCfg.flares && flareCfg.flares.length > 0) {
 						for (const f of flareCfg.flares) {
-							new BABYLON.LensFlare(
+							const flare: BABYLON.LensFlare = new BABYLON.LensFlare(
 								f.size,
 								f.position,
 								new BABYLON.Color3(f.color.r, f.color.g, f.color.b),
 								'',
 								lensFlares,
 							);
+							flare.texture = flareTexture;
 						}
 					} else {
 						// Default 3-flare set
-						new BABYLON.LensFlare(0.2, 0, new BABYLON.Color3(1, 1, 1), '', lensFlares);
-						new BABYLON.LensFlare(0.5, 0.2, new BABYLON.Color3(0.5, 0.5, 1), '', lensFlares);
-						new BABYLON.LensFlare(0.2, 1.0, new BABYLON.Color3(1, 1, 1), '', lensFlares);
+						const f1: BABYLON.LensFlare = new BABYLON.LensFlare(
+							0.2,
+							0,
+							new BABYLON.Color3(1, 1, 1),
+							'',
+							lensFlares,
+						);
+						f1.texture = flareTexture;
+						const f2: BABYLON.LensFlare = new BABYLON.LensFlare(
+							0.5,
+							0.2,
+							new BABYLON.Color3(0.5, 0.5, 1),
+							'',
+							lensFlares,
+						);
+						f2.texture = flareTexture;
+						const f3: BABYLON.LensFlare = new BABYLON.LensFlare(
+							0.2,
+							1.0,
+							new BABYLON.Color3(1, 1, 1),
+							'',
+							lensFlares,
+						);
+						f3.texture = flareTexture;
 					}
 				} catch {
 					// Non-fatal — lens flares may not be supported
@@ -407,7 +466,7 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 			const dayNightConfig: Partial<DayNightCycleConfig> = {
 				...config.dayNight,
 				keyframes: config.dayNight.keyframes
-					? [...config.dayNight.keyframes.map((kf) => ({ ...kf }))]
+					? config.dayNight.keyframes.map((kf) => ({ ...kf }))
 					: undefined,
 				sunPath: config.dayNight.sunPath ? { ...config.dayNight.sunPath } : undefined,
 			};
@@ -463,6 +522,7 @@ export function updateLightPosition(options: UpdatePositionOptions): BabylonResu
 	}
 
 	try {
+		// oxlint-disable-next-line prefer-destructuring
 		const light: BABYLON.Light = managed.light;
 		if ('position' in light && light.position instanceof BABYLON.Vector3) {
 			light.position = new BABYLON.Vector3(
@@ -567,6 +627,7 @@ export function removeLightById(options: RemoveLightOptions): BabylonResult<Ligh
 	}
 
 	try {
+		// oxlint-disable-next-line typescript/no-non-null-assertion -- guarded by idx !== -1 check above (findIndex succeeded)
 		const managed: ManagedLight = options.lighting.lights[idx]!;
 
 		// Dispose sub-resources before the light

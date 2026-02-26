@@ -98,6 +98,7 @@ packages/products/webforge/editor/src/lib/components/map/AutotilePreview.svelte
 ## Sub-phase 2.4: Map Paint Tools
 
 - Pencil (single tile), Rectangle fill, Flood fill, Circle brush
+- Paint/Blend/Terrain
 - Eraser
 - Height brush: raise/lower terrain with adjustable radius and strength
 - Layer selector: which layer to paint on

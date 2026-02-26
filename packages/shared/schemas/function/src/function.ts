@@ -26,6 +26,7 @@ import { _toFnType } from '@/schemas/function/wrapper-utils';
  * Arrow async functions and `async function` declarations both have
  * this constructor.
  */
+// oxlint-disable-next-line no-empty-function -- Empty body required to extract AsyncFunction constructor
 const AsyncFunction: FnType = _toFnType((async () => {}).constructor);
 
 // =============================================================================

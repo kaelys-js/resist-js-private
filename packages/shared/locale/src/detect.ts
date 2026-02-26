@@ -377,38 +377,38 @@ export function detectLocale(options: DetectLocaleOptions): Result<Str> {
 			}
 			case 'url-path': {
 				// url-path needs current URL — use globalThis.location if available
-				if (globalThis.location !== undefined) {
+				if (globalThis.location === undefined) {
+					continue;
+				} else {
 					matchResult = detectFromUrlPath(
 						globalThis.location.href,
 						source.index as unknown as NonNegativeInteger,
 						validated.available,
 					);
-				} else {
-					continue;
 				}
 				break;
 			}
 			case 'url-query': {
-				if (globalThis.location !== undefined) {
+				if (globalThis.location === undefined) {
+					continue;
+				} else {
 					matchResult = detectFromUrlQuery(
 						globalThis.location.href,
 						source.key,
 						validated.available,
 					);
-				} else {
-					continue;
 				}
 				break;
 			}
 			case 'cookie': {
-				if (globalThis.document !== undefined) {
+				if (globalThis.document === undefined) {
+					continue;
+				} else {
 					matchResult = detectFromCookie(
 						globalThis.document.cookie,
 						source.key,
 						validated.available,
 					);
-				} else {
-					continue;
 				}
 				break;
 			}
@@ -417,15 +417,15 @@ export function detectLocale(options: DetectLocaleOptions): Result<Str> {
 				break;
 			}
 			case 'storage': {
-				if (globalThis.localStorage !== undefined) {
+				if (globalThis.localStorage === undefined) {
+					continue;
+				} else {
 					const stored: Str | null = globalThis.localStorage.getItem(source.key);
 					if (stored) {
 						matchResult = matchLocale(stored, validated.available);
 					} else {
 						continue;
 					}
-				} else {
-					continue;
 				}
 				break;
 			}

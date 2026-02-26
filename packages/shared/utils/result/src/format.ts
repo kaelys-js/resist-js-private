@@ -337,6 +337,7 @@ export function toHttpResponse(error: AppError, baseUrl: Str): Result<Response> 
 export function formatErrorSafe(error: AppError): Result<AppError> {
 	const safeCause: AppError | undefined = error.cause
 		? (() => {
+				// oxlint-disable-next-line typescript/no-non-null-assertion -- guarded by error.cause truthiness check in ternary condition
 				const result: Result<AppError> = formatErrorSafe(error.cause!);
 				return result.ok ? (result.data as AppError) : undefined;
 			})()

@@ -781,10 +781,10 @@ export const log = {
 				return emitStructured('debug', input.data, 'stderr', data);
 			}
 			dispatchNonJson('debug', input.data, data);
-			if (data !== undefined) {
-				console.error(`[DEBUG] ${input.data}`, data);
-			} else {
+			if (data === undefined) {
 				console.error(`[DEBUG] ${input.data}`);
+			} else {
+				console.error(`[DEBUG] ${input.data}`, data);
 			}
 		}
 		return ok(VoidSchema, undefined);
@@ -904,10 +904,10 @@ export const log = {
 				return emitStructured('trace', input.data, 'stderr', data);
 			}
 			dispatchNonJson('trace', input.data, data);
-			if (data !== undefined) {
-				console.error(`[TRACE] ${input.data}`, data);
-			} else {
+			if (data === undefined) {
 				console.error(`[TRACE] ${input.data}`);
+			} else {
+				console.error(`[TRACE] ${input.data}`, data);
 			}
 		}
 		return ok(VoidSchema, undefined);
@@ -1110,10 +1110,10 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
 			if (allowed.data) {
 				if (!shouldSample('debug')) return ok(VoidSchema, undefined);
 				if (isJsonOutput()) return emitChildStructured('debug', msgInput.data, 'stderr', data);
-				if (data !== undefined) {
-					console.error(`[DEBUG] ${msgInput.data}`, data);
-				} else {
+				if (data === undefined) {
 					console.error(`[DEBUG] ${msgInput.data}`);
+				} else {
+					console.error(`[DEBUG] ${msgInput.data}`, data);
 				}
 			}
 			return ok(VoidSchema, undefined);
@@ -1166,10 +1166,10 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
 			if (allowed.data) {
 				if (!shouldSample('trace')) return ok(VoidSchema, undefined);
 				if (isJsonOutput()) return emitChildStructured('trace', msgInput.data, 'stderr', data);
-				if (data !== undefined) {
-					console.error(`[TRACE] ${msgInput.data}`, data);
-				} else {
+				if (data === undefined) {
 					console.error(`[TRACE] ${msgInput.data}`);
+				} else {
+					console.error(`[TRACE] ${msgInput.data}`, data);
 				}
 			}
 			return ok(VoidSchema, undefined);
@@ -1526,7 +1526,8 @@ export function formatJUnit(testCases: JUnitTestCase[], suiteName: Str): Result<
 	];
 
 	for (const tc of testCases) {
-		const timeAttr: string = tc.time !== undefined ? ` time="${tc.time.toFixed(3)}"` : '';
+		const timeAttr: string = tc.time === undefined ? '' : ` time="${tc.time.toFixed(3)}"`;
+
 		lines.push(
 			`    <testcase classname="${escapeXml(tc.suite)}" name="${escapeXml(tc.name)}"${timeAttr}>`,
 		);

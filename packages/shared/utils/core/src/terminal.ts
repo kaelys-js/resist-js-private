@@ -143,11 +143,11 @@ export function setColors(enabled: Bool): Result<Void> {
 	const input: Result<Bool> = safeParse(BoolSchema, enabled);
 	if (!input.ok) return input;
 	useColors = input.data;
-	currentColorLevel = input.data
-		? currentColorLevel > 0
-			? currentColorLevel
-			: (1 as ColorLevel)
-		: (0 as ColorLevel);
+	if (input.data) {
+		currentColorLevel = currentColorLevel > 0 ? currentColorLevel : (1 as ColorLevel);
+	} else {
+		currentColorLevel = 0 as ColorLevel;
+	}
 	return ok(VoidSchema, undefined);
 }
 
@@ -1001,16 +1001,18 @@ function getCurrentFormat(): OutputFormat | undefined {
  * @returns `Result<Void>`
  */
 function emitCompact(level: Str, message: Str, stream: PrintStream): Result<Void> {
-	const prefix: Str =
-		level === 'error'
-			? 'ERR'
-			: level === 'warn'
-				? 'WRN'
-				: level === 'debug'
-					? 'DBG'
-					: level === 'trace'
-						? 'TRC'
-						: 'INF';
+	let prefix: Str;
+	if (level === 'error') {
+		prefix = 'ERR';
+	} else if (level === 'warn') {
+		prefix = 'WRN';
+	} else if (level === 'debug') {
+		prefix = 'DBG';
+	} else if (level === 'trace') {
+		prefix = 'TRC';
+	} else {
+		prefix = 'INF';
+	}
 	platformLog(stream, `${prefix} ${message}`);
 	return ok(VoidSchema, undefined);
 }
@@ -1232,11 +1234,11 @@ export const log = {
 		if (!rendered.ok) return rendered;
 		const styled: Result<Str> = style.dim(`[DEBUG] ${rendered.data}`);
 		if (!styled.ok) return styled;
-		if (data !== undefined) {
+		if (data === undefined) {
 			platformLog('stderr', `${styled.data}`);
-			console.error(data);
 		} else {
 			platformLog('stderr', `${styled.data}`);
+			console.error(data);
 		}
 		return ok(VoidSchema, undefined);
 	},
@@ -1322,11 +1324,11 @@ export const log = {
 		if (!rendered.ok) return rendered;
 		const styled: Result<Str> = style.dim(`[TRACE] ${rendered.data}`);
 		if (!styled.ok) return styled;
-		if (data !== undefined) {
+		if (data === undefined) {
 			platformLog('stderr', `${styled.data}`);
-			console.error(data);
 		} else {
 			platformLog('stderr', `${styled.data}`);
+			console.error(data);
 		}
 		return ok(VoidSchema, undefined);
 	},

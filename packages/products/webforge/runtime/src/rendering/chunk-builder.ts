@@ -218,8 +218,10 @@ export function buildChunk(options: BuildChunkOptions): BabylonResult<ChunkMesh 
 						autotileType,
 					});
 					if (!frameResult.ok) return frameResult;
+					// oxlint-disable-next-line typescript/no-non-null-assertion -- uvLookup[0] exists
 					uv = tileset.uvLookup[frameResult.data] ?? tileset.uvLookup[0]!;
 				} else {
+					// oxlint-disable-next-line typescript/no-non-null-assertion -- uvLookup[0] exists
 					uv = tileset.uvLookup[localIndex] ?? tileset.uvLookup[0]!;
 				}
 
@@ -351,6 +353,7 @@ export function buildCliffChunk(options: BuildCliffChunkOptions): BabylonResult<
 		vertexData.indices = [...geoResult.data.indices];
 		vertexData.applyToMesh(mesh);
 
+		// oxlint-disable-next-line prefer-destructuring
 		const material: BABYLON.StandardMaterial | undefined = materials[0];
 		if (material) mesh.material = material;
 

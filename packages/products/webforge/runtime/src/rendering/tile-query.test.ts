@@ -37,7 +37,7 @@ function createTestTileset(overrides: {
 	const columns: Num = overrides.columns ?? 8;
 	const rows: Num = overrides.rows ?? 6;
 
-	const uvResult: Result<readonly { u0: number; v0: number; u1: number; v1: number }[]> =
+	const uvResult: Result<ReadonlyArray<{ u0: number; v0: number; u1: number; v1: number }>> =
 		computeTileUVs({
 			columns,
 			rows,

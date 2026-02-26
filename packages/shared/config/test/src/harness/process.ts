@@ -296,7 +296,7 @@ export function snapshotProcess(options: ProcessSnapshotOptions = {}): ProcessSn
 				// Restore by replacing the entire env object's contents
 				for (const key of Object.keys(process.env)) {
 					if (!(key in savedEnv)) {
-						delete process.env[key];
+						delete process.env[key]; // oxlint-disable-line typescript/no-dynamic-delete -- Cleaning env requires dynamic delete
 					}
 				}
 				Object.assign(process.env, savedEnv);

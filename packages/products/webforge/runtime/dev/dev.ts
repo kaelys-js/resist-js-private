@@ -70,6 +70,7 @@ function createDebugApi(runtime: RuntimeInstance): DevDebugApi {
 			return lighting.dayNightCycle.timeOfDay;
 		},
 		status(): Record<string, unknown> {
+			// oxlint-disable-next-line prefer-destructuring
 			const scene = runtime.engine.scene;
 			const lighting = this.tilemap?.lighting;
 
@@ -110,7 +111,12 @@ async function main(): Promise<void> {
 	console.log('[WebForge] Starting dev harness...');
 
 	const result: BabylonResult<RuntimeInstance> = await createRuntime({
-		engine: { canvasId: 'game-canvas' },
+		engine: {
+			canvasId: 'game-canvas',
+			// Force WebGL2 — VolumetricLightScatteringPostProcess lacks WGSL shaders,
+			// causing black screen on WebGPU. Use WebGL2 until Babylon.js adds WGSL support.
+			renderer: 'webgl2',
+		},
 		camera: { mode: 'editor' },
 		scene: {
 			defaultLight: true,

@@ -79,7 +79,7 @@ describe('computeParallaxOffset', () => {
 // =============================================================================
 
 describe('createParallax', () => {
-	test('creates plane mesh per parallax layer', () => {
+	test('creates background layer per parallax config', () => {
 		const layers: readonly ParallaxLayer[] = [
 			{
 				imagePath: 'bg/mountains.png',
@@ -109,10 +109,10 @@ describe('createParallax', () => {
 		});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.data.planes).toHaveLength(2);
+		expect(result.data.bgLayers).toHaveLength(2);
 	});
 
-	test('applies opacity to plane mesh', () => {
+	test('applies opacity to layer color alpha', () => {
 		const layers: readonly ParallaxLayer[] = [
 			{
 				imagePath: 'bg/trees.png',
@@ -132,7 +132,7 @@ describe('createParallax', () => {
 		});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.data.planes[0]!.visibility).toBeCloseTo(0.6);
+		expect(result.data.bgLayers[0]!.color.a).toBeCloseTo(0.6);
 	});
 
 	test('empty layers array creates empty instance', () => {
@@ -143,7 +143,7 @@ describe('createParallax', () => {
 		});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.data.planes).toHaveLength(0);
+		expect(result.data.bgLayers).toHaveLength(0);
 	});
 
 	test('registers onBeforeRender observer when layers exist', () => {
@@ -178,7 +178,7 @@ describe('createParallax', () => {
 // =============================================================================
 
 describe('disposeParallax', () => {
-	test('disposes all plane meshes', () => {
+	test('disposes all background layers', () => {
 		const layers: readonly ParallaxLayer[] = [
 			{
 				imagePath: 'bg/mountains.png',
@@ -199,10 +199,10 @@ describe('disposeParallax', () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 
-		const meshCountBefore = instance.scene.meshes.length;
+		const layerCountBefore = instance.scene.layers.length;
 		const disposeResult = disposeParallax({ parallax: result.data });
 		expect(disposeResult.ok).toBe(true);
-		expect(instance.scene.meshes.length).toBeLessThan(meshCountBefore);
+		expect(instance.scene.layers.length).toBeLessThan(layerCountBefore);
 	});
 
 	test('removes onBeforeRender observer', () => {

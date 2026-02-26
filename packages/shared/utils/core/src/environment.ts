@@ -60,7 +60,7 @@ import { safeParse } from '@/utils/result/safe';
  * ```
  */
 export function getProcess(): OptionalNodeProcess {
-	return globalThis.process !== undefined ? globalThis.process : undefined;
+	return globalThis.process === undefined ? undefined : globalThis.process;
 }
 
 /**
@@ -461,9 +461,9 @@ export function detectEnvironment(): Result<EnvironmentConfig> {
 			: undefined;
 	})();
 	const nodeMajor: number | undefined =
-		nodeVersionStr !== undefined
-			? Number.parseInt(nodeVersionStr.split('.')[0] ?? '', 10) || undefined
-			: undefined;
+		nodeVersionStr === undefined
+			? undefined
+			: Number.parseInt(nodeVersionStr.split('.')[0] ?? '', 10) || undefined;
 
 	return ok(EnvironmentConfigSchema, {
 		// Color & TTY

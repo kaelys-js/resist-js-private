@@ -121,10 +121,10 @@ export function truncateLine(line: Str, maxWidth: NonNegativeInteger): Result<St
 	// Include any trailing ANSI codes (like reset)
 	while (i < lineResult.data.length && lineResult.data[i] === '\u001B') {
 		const end: number = lineResult.data.indexOf('m', i);
-		if (end !== -1) {
-			i = end + 1;
-		} else {
+		if (end === -1) {
 			break;
+		} else {
+			i = end + 1;
 		}
 	}
 

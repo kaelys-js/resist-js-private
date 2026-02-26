@@ -358,10 +358,10 @@ export function detectProvider(env: EnvRecordWithUndefined): Result<ProviderInfo
 				isPR = false;
 			} else if (provider.pr.excludeValues !== undefined) {
 				isPR = !provider.pr.excludeValues.includes(prVal);
-			} else if (provider.pr.matchValues !== undefined) {
-				isPR = provider.pr.matchValues.includes(prVal);
-			} else {
+			} else if (provider.pr.matchValues === undefined) {
 				isPR = true;
+			} else {
+				isPR = provider.pr.matchValues.includes(prVal);
 			}
 		}
 
