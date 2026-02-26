@@ -2,16 +2,24 @@
  * WebForge Runtime — Dev Harness
  *
  * Visual test harness for verifying the runtime in a browser.
- * Creates a runtime with editor camera, adds a ground plane,
+ * Creates a runtime, renders a 32x32 test tilemap, centers the camera,
  * and logs performance metrics periodically.
  */
 
 import * as BABYLON from '@babylonjs/core';
 
 import { createRuntime, disposeRuntime, startRenderLoop, getMetrics } from '../src/index';
+import {
+	renderTilemap,
+	disposeTilemap,
+	type RenderedTilemap,
+} from '../src/rendering/tilemap-renderer';
 
 import type { RuntimeInstance } from '../src/runtime';
 import type { BabylonResult } from '../src/core/babylon-result';
+import type { Num } from '@/schemas/common';
+
+import { TEST_MAP_DATA } from './test-map';
 
 async function main(): Promise<void> {
 	// eslint-disable-next-line no-console -- Dev harness diagnostic output
@@ -45,23 +53,30 @@ async function main(): Promise<void> {
 		runtime.camera.attachControl(canvas, true);
 	}
 
-	// Add a ground plane so the scene is visible
-	// eslint-disable-next-line new-cap -- Babylon.js static factory method
-	const ground: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround(
-		'ground',
-		{ width: 50, height: 50, subdivisions: 10 },
-		runtime.engine.scene,
-	);
+	// Render the test tilemap
+	const mapResult: BabylonResult<RenderedTilemap> = renderTilemap({
+		scene: runtime.engine.scene,
+		mapDataInput: TEST_MAP_DATA,
+		assetBasePath: '/',
+	});
 
-	// Simple grid material
-	const material: BABYLON.StandardMaterial = new BABYLON.StandardMaterial(
-		'ground-material',
-		runtime.engine.scene,
-	);
-	material.diffuseColor = new BABYLON.Color3(0.4, 0.5, 0.4);
-	material.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-	material.wireframe = true;
-	ground.material = material;
+	let tilemap: RenderedTilemap | null = null;
+
+	if (mapResult.ok) {
+		tilemap = mapResult.data;
+		const chunkCount: Num = tilemap.chunks.length;
+		const cliffCount: Num = tilemap.cliffChunks.length;
+		// eslint-disable-next-line no-console -- Dev harness diagnostic output
+		console.log(`[WebForge] Tilemap rendered — ${chunkCount} chunks, ${cliffCount} cliff chunks`);
+
+		// Center camera on the map (map is 32 tiles wide, 1 unit per tile)
+		const mapCenterX: Num = 16;
+		const mapCenterZ: Num = 16;
+		runtime.camera.target = new BABYLON.Vector3(mapCenterX, 0, mapCenterZ);
+	} else {
+		// eslint-disable-next-line no-console -- Dev harness diagnostic output
+		console.error('[WebForge] Failed to render tilemap:', mapResult.error);
+	}
 
 	// Start render loop
 	const loopResult = startRenderLoop(runtime.engine);
@@ -93,6 +108,9 @@ async function main(): Promise<void> {
 
 	// Dispose on page unload
 	window.addEventListener('beforeunload', () => {
+		if (tilemap) {
+			disposeTilemap({ tilemap });
+		}
 		disposeRuntime(runtime);
 		// eslint-disable-next-line no-console -- Dev harness diagnostic output
 		console.log('[WebForge] Runtime disposed');

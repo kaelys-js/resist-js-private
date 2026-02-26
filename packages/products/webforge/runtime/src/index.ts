@@ -53,7 +53,7 @@ export {
 // Debug inspector
 export { showInspector, hideInspector } from './core/debug-inspector';
 
-// Schemas (for consumers who need validation)
+// Schemas — Engine / Camera / Scene / Quality
 export { EngineConfigSchema, type EngineConfig } from './schemas/engine-config';
 export { CameraConfigSchema, type CameraConfig } from './schemas/camera-config';
 export {
@@ -70,3 +70,50 @@ export {
 	type QualityConfig,
 	type QualityPresetSettings,
 } from './schemas/quality-config';
+
+// Schemas — Map data
+export {
+	MapDataSchema,
+	TileLayerSchema,
+	TilesetConfigSchema,
+	TilePropertiesSchema,
+	ChunkConfigSchema,
+	AutotileTypeSchema,
+	LayerTypeSchema,
+	type MapData,
+	type TileLayer,
+	type TilesetConfig,
+	type TileProperties,
+	type ChunkConfig,
+	type AutotileType,
+	type LayerType,
+} from './schemas/map-data';
+
+// Tilemap renderer
+export {
+	renderTilemap,
+	disposeTilemap,
+	updateTile,
+	type RenderedTilemap,
+} from './rendering/tilemap-renderer';
+
+// Tileset loader
+export {
+	loadTileset,
+	computeTileUVs,
+	resolveGlobalTileId,
+	type LoadedTileset,
+} from './rendering/tileset-loader';
+
+// Tile geometry
+export { type TileUV } from './rendering/tile-geometry';
+
+// Autotile resolver
+export { resolveAutotile, buildAdjacencyBitmask } from './rendering/autotile-resolver';
+
+// Tile animator
+export {
+	createTileAnimator,
+	disposeTileAnimator,
+	type TileAnimationManager,
+} from './rendering/tile-animator';
