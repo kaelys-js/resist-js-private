@@ -61,6 +61,7 @@ function styleToOptions(style: DateTimeStyle, kind: FormatKind): Intl.DateTimeFo
 			long: { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' },
 			full: { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'long' },
 		};
+		// oxlint-disable-next-line typescript/no-non-null-assertion -- 'medium' is a literal key in map, always exists
 		return (map[style] ?? map['medium'])!;
 	}
 	// date
@@ -70,6 +71,7 @@ function styleToOptions(style: DateTimeStyle, kind: FormatKind): Intl.DateTimeFo
 		long: { year: 'numeric', month: 'long', day: 'numeric' },
 		full: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
 	};
+	// oxlint-disable-next-line typescript/no-non-null-assertion -- 'medium' is a literal key in map, always exists
 	return (map[style] ?? map['medium'])!;
 }
 
@@ -960,6 +962,7 @@ export function parseDateTimeSkeleton(skeleton: Str): Result<Intl.DateTimeFormat
 	let i: Num = 0;
 
 	while (i < s.length) {
+		// oxlint-disable-next-line typescript/no-non-null-assertion -- guarded by i < s.length in while condition
 		const ch: Str = s[i]!;
 		let count: Num = 0;
 		while (i < s.length && s[i] === ch) {

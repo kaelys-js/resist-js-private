@@ -139,7 +139,8 @@ export function arity(constraint: ArityConstraint): Result<v.CheckAction<FnType,
 	// Build description message and validate as Message (branded type)
 	const descriptionRaw: string = isExact
 		? `Function must have exactly ${String(constraint)} parameter(s) (fn.length)`
-		: `Function must have ${min !== undefined ? `>= ${String(min)}` : ''}${min !== undefined && max !== undefined ? ' and ' : ''}${max !== undefined ? `<= ${String(max)}` : ''} parameter(s) (fn.length)`;
+		: // oxlint-disable-next-line no-negated-condition
+			`Function must have ${min !== undefined ? `>= ${String(min)}` : ''}${min !== undefined && max !== undefined ? ' and ' : ''}${max !== undefined ? `<= ${String(max)}` : ''} parameter(s) (fn.length)`;
 
 	const descriptionParsed: v.SafeParseResult<typeof MessageSchema> = v.safeParse(
 		MessageSchema,

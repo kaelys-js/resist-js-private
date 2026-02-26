@@ -225,6 +225,7 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 		}
 
 		// 7. Calculate chunk grid
+		// oxlint-disable-next-line prefer-destructuring
 		const chunkSize: Num = chunkConfig.chunkSize;
 		const chunksX: Num = Math.ceil(mapData.width / chunkSize);
 		const chunksZ: Num = Math.ceil(mapData.height / chunkSize);
@@ -286,6 +287,7 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 		if (mapData.postProcessing) {
 			const resolvedResult = resolvePostProcessingConfig(mapData.postProcessing);
 			if (resolvedResult.ok) {
+				// oxlint-disable-next-line prefer-destructuring
 				const cameras: BABYLON.Camera[] = scene.cameras;
 				if (cameras.length > 0) {
 					const ppResult = createPostProcessingPipeline({
@@ -473,6 +475,7 @@ export function updateTile(options: UpdateTileOptions): BabylonResult<RenderedTi
 		const updatedMapData: DeepReadonly<MapData> = { ...mapData, layers: updatedLayers };
 
 		// Find affected chunk
+		// oxlint-disable-next-line prefer-destructuring
 		const chunkSize: Num = chunkConfig.chunkSize;
 		const chunkX: Num = Math.floor(x / chunkSize);
 		const chunkZ: Num = Math.floor(z / chunkSize);

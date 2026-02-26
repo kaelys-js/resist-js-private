@@ -193,8 +193,14 @@ export function fromUnknownError(thrown: unknown): AppError {
 		}
 	}
 
-	const message: Str =
-		thrown instanceof Error ? thrown.message : typeof thrown === 'string' ? thrown : String(thrown);
+	let message: Str;
+	if (thrown instanceof Error) {
+		({ message } = thrown);
+	} else if (typeof thrown === 'string') {
+		message = thrown;
+	} else {
+		message = String(thrown);
+	}
 
 	const stack: Str =
 		thrown instanceof Error ? (thrown.stack ?? '') : (new Error(message).stack ?? '');

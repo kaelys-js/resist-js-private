@@ -248,6 +248,7 @@ export function createTileAnimator(
 	try {
 		const entries: AnimatedTileEntry[] = [];
 
+		// oxlint-disable-next-line typescript/no-non-null-assertion -- Babylon's add() returns non-null for valid scene observables
 		const observer: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
 			const deltaMs: Num = scene.deltaTime ?? 16.67;
 			advanceAnimations({ animator: manager, deltaTimeMs: deltaMs });

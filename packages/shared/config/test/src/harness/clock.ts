@@ -118,7 +118,7 @@ export type FakeClock = {
  */
 export function createFakeClock(vi: ViFakeTimerProvider, now?: Date | number): FakeClock {
 	const timerOptions =
-		now !== undefined ? { now: now instanceof Date ? now.getTime() : now } : undefined;
+		now === undefined ? undefined : { now: now instanceof Date ? now.getTime() : now };
 	vi.useFakeTimers(timerOptions);
 
 	return {

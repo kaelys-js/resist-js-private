@@ -1,10 +1,10 @@
 /**
  * Parallax scrolling background manager.
  *
- * Creates textured planes behind the tilemap that scroll at a fraction
- * of the camera movement speed, creating a depth parallax effect.
- * Each layer is a `MeshBuilder.CreatePlane` with UV offset updated
- * per frame via `scene.onBeforeRenderObservable`.
+ * Uses Babylon.js `Layer` to create 2D screen-space background images
+ * that scroll at a fraction of the camera movement speed, creating a
+ * depth parallax effect. Each layer is rendered behind all 3D scene
+ * geometry as a fullscreen quad.
  *
  * @example
  * ```typescript
@@ -38,13 +38,11 @@ import type { ParallaxLayer } from '../schemas/sky-config';
 /**
  * A live parallax background instance in the scene.
  *
- * Contains plane meshes, materials, and the per-frame observer.
+ * Contains 2D background layers and the per-frame observer.
  */
 export type ParallaxInstance = {
-	/** Plane meshes (one per layer, ordered back-to-front). */
-	readonly planes: BABYLON.Mesh[];
-	/** Materials (one per layer). */
-	readonly materials: BABYLON.StandardMaterial[];
+	/** Background layers (one per parallax config, ordered back-to-front). */
+	readonly bgLayers: BABYLON.Layer[];
 	/** Layer configurations for per-frame offset computation. */
 	readonly layers: readonly ParallaxLayer[];
 	/** Per-frame observer for UV offset updates (null if no layers). */
@@ -88,7 +86,11 @@ export function computeParallaxOffset(options: {
 // =============================================================================
 
 /**
- * Creates parallax scrolling background planes in the scene.
+ * Creates parallax scrolling background layers in the scene.
+ *
+ * Uses Babylon.js `Layer` (2D screen-space background) which renders
+ * behind all 3D geometry. UV offset is updated per frame based on
+ * camera position to create the parallax scrolling effect.
  *
  * @param options - Scene, layer configs, and asset base path.
  * @returns BabylonResult containing the parallax instance handle.
@@ -108,56 +110,46 @@ export function createParallax(options: {
 	const { scene, layers, assetBasePath } = options;
 
 	try {
-		const planes: BABYLON.Mesh[] = [];
-		const materials: BABYLON.StandardMaterial[] = [];
+		const bgLayers: BABYLON.Layer[] = [];
 
 		for (let i = 0; i < layers.length; i++) {
 			const layer = layers[i];
 			if (!layer) continue;
 
-			// Create plane mesh positioned behind the tilemap
-			// Each successive layer is slightly closer to camera (less negative Z)
-			const planeSize: Num = 500 as Num;
-			const plane = BABYLON.MeshBuilder.CreatePlane(
-				`parallax-${i}`,
-				{
-					width: planeSize * layer.scale,
-					height: planeSize * layer.scale,
-				},
-				scene,
-			);
-
-			// Position behind tilemap, offset by layer index for back-to-front order
-			plane.position.y = layer.offsetY;
-			plane.position.z = -100 + i * 2;
-			plane.renderingGroupId = 0;
-			plane.visibility = layer.opacity;
-
-			// Create material with texture
-			const material = new BABYLON.StandardMaterial(`parallax-mat-${i}`, scene);
 			const texturePath = `${assetBasePath}${layer.imagePath}`;
-			const texture = new BABYLON.Texture(texturePath, scene);
 
-			// Configure tiling
-			if (layer.tileX) {
-				texture.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
-			} else {
-				texture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+			// Layer(name, imgUrl, scene, isBackground) — isBackground=true renders behind 3D
+			const bgLayer = new BABYLON.Layer(`parallax-${i}`, texturePath, scene, true);
+
+			// Set opacity via alpha blending
+			bgLayer.alphaBlendingMode = BABYLON.Constants.ALPHA_COMBINE;
+			bgLayer.color = new BABYLON.Color4(1, 1, 1, layer.opacity);
+
+			// Configure texture tiling — Layer.texture is BaseTexture but the
+			// constructor creates a Texture, so we narrow for UV property access.
+			const tex = bgLayer.texture;
+			if (tex && tex instanceof BABYLON.Texture) {
+				if (layer.tileX) {
+					tex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
+				} else {
+					tex.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+				}
+				if (layer.tileY) {
+					tex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
+				} else {
+					tex.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
+				}
+
+				// Apply scale via texture scaling
+				tex.uScale = 1 / layer.scale;
+				tex.vScale = 1 / layer.scale;
 			}
-			if (layer.tileY) {
-				texture.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
-			} else {
-				texture.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
-			}
 
-			material.diffuseTexture = texture;
-			material.emissiveColor = new BABYLON.Color3(1, 1, 1);
-			material.disableLighting = true;
-			material.backFaceCulling = false;
-			plane.material = material;
+			// Apply layer scale to offset positioning
+			bgLayer.scale = new BABYLON.Vector2(layer.scale, layer.scale);
+			bgLayer.offset = new BABYLON.Vector2(0, layer.offsetY * 0.01);
 
-			planes.push(plane);
-			materials.push(material);
+			bgLayers.push(bgLayer);
 		}
 
 		// Register per-frame observer for UV offset updates
@@ -171,11 +163,8 @@ export function createParallax(options: {
 				for (let i = 0; i < layers.length; i++) {
 					const layer = layers[i];
 					if (!layer) continue;
-					const material = materials[i];
-					if (!material) continue;
-
-					const tex = material.diffuseTexture;
-					if (!tex || !(tex instanceof BABYLON.Texture)) continue;
+					const bgLayer = bgLayers[i];
+					if (!bgLayer?.texture || !(bgLayer.texture instanceof BABYLON.Texture)) continue;
 
 					const offset = computeParallaxOffset({
 						cameraX: cameraPos.x as Num,
@@ -184,15 +173,15 @@ export function createParallax(options: {
 						scrollSpeedY: layer.scrollSpeedY as Num,
 					});
 
-					tex.uOffset = offset.x;
-					tex.vOffset = offset.y;
+					// Scale offsets to UV space (small values for subtle scrolling)
+					bgLayer.texture.uOffset = offset.x * 0.01;
+					bgLayer.texture.vOffset = offset.y * 0.01;
 				}
 			});
 		}
 
 		return okShallow({
-			planes,
-			materials,
+			bgLayers,
 			layers,
 			observer,
 			scene,
@@ -207,7 +196,7 @@ export function createParallax(options: {
 // =============================================================================
 
 /**
- * Disposes all parallax resources (meshes, materials, observer).
+ * Disposes all parallax resources (layers, textures, observer).
  *
  * @param options - The parallax instance to dispose.
  * @returns BabylonResult indicating success.
@@ -228,17 +217,9 @@ export function disposeParallax(options: {
 			parallax.scene.onBeforeRenderObservable.remove(parallax.observer);
 		}
 
-		// Dispose materials (also disposes textures)
-		for (const material of parallax.materials) {
-			if (material.diffuseTexture) {
-				material.diffuseTexture.dispose();
-			}
-			material.dispose();
-		}
-
-		// Dispose plane meshes
-		for (const plane of parallax.planes) {
-			plane.dispose();
+		// Dispose background layers (also disposes internal textures)
+		for (const bgLayer of parallax.bgLayers) {
+			bgLayer.dispose();
 		}
 
 		return okShallow(true as Bool);

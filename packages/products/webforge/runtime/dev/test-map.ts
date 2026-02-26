@@ -224,6 +224,7 @@ function generateDecorations(): Num[] {
 			const hash: Num = (x * 31 + z * 17 + 7) % 100;
 			if (hash < 8) {
 				const tileIdx: Num = (x * 3 + z * 7) % decorTiles.length;
+				// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo by decorTiles.length guarantees valid index
 				data[idx(x, z)] = decorTiles[tileIdx]!;
 			}
 		}
@@ -236,10 +237,12 @@ function generateDecorations(): Num[] {
 
 		// Left side of road
 		if (hash1 < 25 && z !== ROAD_BRANCH_Z && z !== ROAD_BRANCH_Z + 1) {
+			// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo by decorTiles.length guarantees valid index
 			data[idx(ROAD_X - 1, z)] = decorTiles[(z * 3) % decorTiles.length]!;
 		}
 		// Right side of road
 		if (hash2 < 25) {
+			// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo by decorTiles.length guarantees valid index
 			data[idx(ROAD_X + 2, z)] = decorTiles[(z * 5 + 1) % decorTiles.length]!;
 		}
 	}
@@ -441,9 +444,9 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 				volumetricLight: {
 					enabled: true,
 					samples: 50,
-					density: 0.8,
-					weight: 0.4,
-					decay: 0.97,
+					density: 0.5,
+					weight: 0.15,
+					decay: 0.98,
 					passRatio: 0.5,
 				},
 				lensFlare: {

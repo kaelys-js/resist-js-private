@@ -163,9 +163,11 @@ export async function createRuntime(config: unknown): Promise<BabylonResult<Runt
 			}
 
 			// Auto-show inspector in embed mode (non-fatal)
-			showInspector(engineResult.data.scene, true).catch(() => {
+			try {
+				await showInspector(engineResult.data.scene, true);
+			} catch {
 				// Inspector may not load in all environments — non-fatal
-			});
+			}
 
 			// Register F12 toggle for inspector
 			registerInspectorToggle(engineResult.data.scene);
@@ -268,14 +270,16 @@ export function createTestRuntime(overrides?: TestRuntimeOptions): BabylonResult
  * @param scene - The Babylon.js scene to register the keyboard observer on.
  */
 function registerInspectorToggle(scene: BABYLON.Scene): void {
-	scene.onKeyboardObservable.add((kbInfo) => {
+	scene.onKeyboardObservable.add(async (kbInfo) => {
 		if (kbInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN && kbInfo.event.key === 'F12') {
 			if (scene.debugLayer.isVisible()) {
 				hideInspector(scene);
 			} else {
-				showInspector(scene, true).catch(() => {
+				try {
+					await showInspector(scene, true);
+				} catch {
 					// Non-fatal — inspector may not load in all environments
-				});
+				}
 			}
 		}
 	});

@@ -262,8 +262,8 @@ function builtInFormatters(locale: Str | undefined): FormatterMap {
 			if (valueResult.data.length === 0) return ok(StrSchema, valueResult.data);
 			const effectiveLocale: Str | undefined = loc ?? locale;
 			const first: Str = effectiveLocale
-				? valueResult.data[0]!.toLocaleUpperCase(effectiveLocale)
-				: valueResult.data[0]!.toUpperCase();
+				? valueResult.data[0]!.toLocaleUpperCase(effectiveLocale) // oxlint-disable-line typescript/no-non-null-assertion -- guarded by length === 0 early return above
+				: valueResult.data[0]!.toUpperCase(); // oxlint-disable-line typescript/no-non-null-assertion -- guarded by length === 0 early return above
 			const rest: Str = valueResult.data.slice(1);
 			return ok(StrSchema, first + rest);
 		},
@@ -279,9 +279,9 @@ function builtInFormatters(locale: Str | undefined): FormatterMap {
 			// operations inside cannot fail, so no Result propagation needed here.
 			const transformed: Str = valueResult.data.replaceAll(/\S+/g, (word: Str): Str => {
 				return effectiveLocale
-					? word[0]!.toLocaleUpperCase(effectiveLocale) +
+					? word[0]!.toLocaleUpperCase(effectiveLocale) + // oxlint-disable-line typescript/no-non-null-assertion -- regex \S+ guarantees word is non-empty
 							word.slice(1).toLocaleLowerCase(effectiveLocale)
-					: word[0]!.toUpperCase() + word.slice(1).toLowerCase();
+					: word[0]!.toUpperCase() + word.slice(1).toLowerCase(); // oxlint-disable-line typescript/no-non-null-assertion -- regex \S+ guarantees word is non-empty
 			});
 			return ok(StrSchema, transformed);
 		},
@@ -741,6 +741,7 @@ function replaceSelectBlocks(
 			const selectMatch: NullableRegExpMatchArray = remaining.match(/^(\w+)\s*,\s*select\s*,\s*/);
 
 			if (selectMatch && selectMatch[1]) {
+				// oxlint-disable-next-line prefer-destructuring
 				const key: Str = selectMatch[1];
 				const bodyStart: Num = i + 1 + selectMatch[0].length;
 
@@ -824,6 +825,7 @@ function replaceSelectOrdinalBlocks(
 			);
 
 			if (ordinalMatch && ordinalMatch[1]) {
+				// oxlint-disable-next-line prefer-destructuring
 				const key: Str = ordinalMatch[1];
 				const bodyStart: Num = i + 1 + ordinalMatch[0].length;
 
@@ -1171,6 +1173,7 @@ function replacePluralBlocks(
 			const pluralMatch: NullableRegExpMatchArray = remaining.match(/^(\w+)\s*,\s*plural\s*,\s*/);
 
 			if (pluralMatch && pluralMatch[1]) {
+				// oxlint-disable-next-line prefer-destructuring
 				const key: Str = pluralMatch[1];
 				const bodyStart: Num = i + 1 + pluralMatch[0].length;
 
@@ -1367,6 +1370,7 @@ function replaceRangeBlocks(
 			const rangeMatch: NullableRegExpMatchArray = remaining.match(/^(\w+)\s*,\s*range\s*,\s*/);
 
 			if (rangeMatch && rangeMatch[1]) {
+				// oxlint-disable-next-line prefer-destructuring
 				const key: Str = rangeMatch[1];
 				const bodyStart: Num = i + 1 + rangeMatch[0].length;
 
@@ -1461,8 +1465,10 @@ function replaceNumberBlocks(
 			);
 
 			if (numberMatch && numberMatch[1]) {
+				// oxlint-disable-next-line prefer-destructuring
 				const key: Str = numberMatch[1];
 				const value: Num = Number(params[key]);
+				// oxlint-disable-next-line prefer-destructuring
 				const styleArg: OptionalStr = numberMatch[2];
 				let options: Intl.NumberFormatOptions | undefined;
 
@@ -1527,8 +1533,11 @@ function replaceDateTimeBlocks(
 			);
 
 			if (dtMatch && dtMatch[1] && dtMatch[2]) {
+				// oxlint-disable-next-line prefer-destructuring
 				const key: Str = dtMatch[1];
+				// oxlint-disable-next-line prefer-destructuring
 				const kind: Str = dtMatch[2];
+				// oxlint-disable-next-line prefer-destructuring
 				const rawStyleArg: Str | undefined = dtMatch[3];
 				const rawValue: unknown = params[key];
 				const dateValue: Date | Num = rawValue instanceof Date ? rawValue : Number(rawValue);

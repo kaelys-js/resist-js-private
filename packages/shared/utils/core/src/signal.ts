@@ -170,7 +170,7 @@ function addListener(
 		(target as EventTarget).addEventListener(
 			event,
 			listener as EventListener,
-			capture !== undefined ? { capture } : undefined,
+			capture === undefined ? undefined : { capture },
 		);
 	} else if ('on' in target) {
 		(target as NodeJS.Process).on(event, listener);
@@ -295,7 +295,7 @@ function removeAllListeners(): Void {
 			(target as EventTarget).removeEventListener(
 				event,
 				listener as EventListener,
-				capture !== undefined ? { capture } : undefined,
+				capture === undefined ? undefined : { capture },
 			);
 		} else if ('off' in target) {
 			(target as NodeJS.Process).off(event, listener);
@@ -914,14 +914,16 @@ export function setupSignalHandlers(onInterrupt: InterruptHandler): Result<Void>
 	const globalResult: Result<TeardownFn> = setupGlobalErrorHandling({
 		onError: (captured: CapturedError): Void => {
 			// Translate CapturedError into the legacy string-based callback
-			const label: Str =
-				captured.type === 'signal'
-					? ((captured.meta?.signal as Str) ?? 'UNKNOWN')
-					: captured.type === 'uncaughtException'
-						? `uncaughtException: ${captured.error.message}`
-						: captured.type === 'unhandledRejection'
-							? `unhandledRejection: ${captured.error.message}`
-							: captured.error.message;
+			let label: Str;
+			if (captured.type === 'signal') {
+				label = (captured.meta?.signal as Str) ?? 'UNKNOWN';
+			} else if (captured.type === 'uncaughtException') {
+				label = `uncaughtException: ${captured.error.message}`;
+			} else if (captured.type === 'unhandledRejection') {
+				label = `unhandledRejection: ${captured.error.message}`;
+			} else {
+				label = captured.error.message;
+			}
 			onInterrupt(label);
 		},
 		exitTimeoutMs: 0, // Disable auto-exit — legacy callers handle exit themselves
