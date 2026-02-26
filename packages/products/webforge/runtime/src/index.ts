@@ -224,6 +224,9 @@ export {
 	type GlowLayerConfig,
 } from './schemas/lighting-config';
 
+// Color temperature
+export { colorTemperatureToRgb } from './rendering/color-temperature';
+
 // Light manager
 export {
 	createLighting,
@@ -232,7 +235,6 @@ export {
 	updateLightIntensity,
 	updateLightColor,
 	removeLightById,
-	colorTemperatureToRgb,
 	type LightingInstance,
 	type ManagedLight,
 } from './rendering/light-manager';
