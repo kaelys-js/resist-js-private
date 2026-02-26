@@ -162,14 +162,7 @@ export async function createRuntime(config: unknown): Promise<BabylonResult<Runt
 				monitor = monitorResult.data;
 			}
 
-			// Auto-show inspector in embed mode (non-fatal)
-			try {
-				await showInspector(engineResult.data.scene, true);
-			} catch {
-				// Inspector may not load in all environments — non-fatal
-			}
-
-			// Register F12 toggle for inspector
+			// Register backtick toggle for inspector (no auto-show — use ` key)
 			registerInspectorToggle(engineResult.data.scene);
 		}
 
@@ -244,7 +237,7 @@ export function createTestRuntime(overrides?: TestRuntimeOptions): BabylonResult
 				monitor = monitorResult.data;
 			}
 
-			// Register F12 toggle for inspector (no auto-show in test — no DOM)
+			// Register backtick toggle for inspector (no auto-show in test — no DOM)
 			registerInspectorToggle(engineResult.data.scene);
 		}
 
@@ -265,13 +258,13 @@ export function createTestRuntime(overrides?: TestRuntimeOptions): BabylonResult
 // =============================================================================
 
 /**
- * Registers an F12 keyboard shortcut to toggle the Babylon.js inspector.
+ * Registers a backtick keyboard shortcut to toggle the Babylon.js inspector.
  *
  * @param scene - The Babylon.js scene to register the keyboard observer on.
  */
 function registerInspectorToggle(scene: BABYLON.Scene): void {
 	scene.onKeyboardObservable.add(async (kbInfo) => {
-		if (kbInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN && kbInfo.event.key === 'F12') {
+		if (kbInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN && kbInfo.event.key === '`') {
 			if (scene.debugLayer.isVisible()) {
 				hideInspector(scene);
 			} else {

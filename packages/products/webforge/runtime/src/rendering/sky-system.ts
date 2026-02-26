@@ -159,7 +159,8 @@ function createGradientSky(
 	scene: BABYLON.Scene,
 	config: SkyConfigInput,
 ): BabylonResult<SkyInstance> {
-	// Set clearColor to the first gradient stop color (or config color as fallback)
+	// Gradient sky uses scene.clearColor only (no mesh) so that
+	// background Layers (parallax) are not occluded by a skybox mesh.
 	const firstStop = config.gradient?.[0];
 	if (firstStop) {
 		scene.clearColor = new BABYLON.Color4(
@@ -168,32 +169,16 @@ function createGradientSky(
 			firstStop.color.b,
 			firstStop.color.a,
 		);
-	}
-
-	// Create a large box with BackgroundMaterial for gradient rendering
-	const skyboxMesh = BABYLON.MeshBuilder.CreateBox(
-		'sky-gradient',
-		{ size: config.skyboxSize },
-		scene,
-	);
-	skyboxMesh.infiniteDistance = true;
-	skyboxMesh.renderingGroupId = 0;
-
-	const material = new BABYLON.BackgroundMaterial('sky-gradient-mat', scene);
-	material.backFaceCulling = false;
-
-	// Use primary color from first gradient stop for background tint
-	if (firstStop) {
-		material.primaryColor = new BABYLON.Color3(
-			firstStop.color.r,
-			firstStop.color.g,
-			firstStop.color.b,
+	} else {
+		scene.clearColor = new BABYLON.Color4(
+			config.color.r,
+			config.color.g,
+			config.color.b,
+			config.color.a,
 		);
 	}
 
-	skyboxMesh.material = material;
-
-	return okShallow({ skyboxMesh, skyboxMaterial: material, scene });
+	return okShallow({ skyboxMesh: null, skyboxMaterial: null, scene });
 }
 
 // =============================================================================
