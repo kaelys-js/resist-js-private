@@ -59,9 +59,11 @@ export { CameraConfigSchema, type CameraConfig } from './schemas/camera-config';
 export {
 	SceneSetupConfigSchema,
 	ColorRgbaSchema,
+	Vector3Schema,
 	FogConfigSchema,
 	type SceneSetupConfig,
 	type ColorRgba,
+	type Vector3,
 	type FogConfig,
 } from './schemas/scene-setup-config';
 export {
@@ -175,3 +177,102 @@ export {
 	disposeTileAnimator,
 	type TileAnimationManager,
 } from './rendering/tile-animator';
+
+// Schemas — Lighting config
+export {
+	LightingConfigSchema,
+	LightConfigSchema,
+	PointLightConfigSchema,
+	SpotLightConfigSchema,
+	DirectionalLightConfigSchema,
+	HemisphericLightConfigSchema,
+	ShadowConfigSchema,
+	FlickerConfigSchema,
+	FlickerTypeSchema,
+	ShadowTypeSchema,
+	ShadowFilterQualitySchema,
+	ShadowMapSizeSchema,
+	LightFalloffTypeSchema,
+	LightIntensityModeSchema,
+	VolumetricLightConfigSchema,
+	LensFlareConfigSchema,
+	LensFlareEntrySchema,
+	DayNightCycleConfigSchema,
+	TimeKeyframeSchema,
+	SunPathConfigSchema,
+	GlowLayerConfigSchema,
+	type LightingConfig,
+	type LightConfig,
+	type PointLightConfig,
+	type SpotLightConfig,
+	type DirectionalLightConfig,
+	type HemisphericLightConfig,
+	type ShadowConfig,
+	type FlickerConfig,
+	type FlickerType,
+	type ShadowType,
+	type ShadowFilterQuality,
+	type ShadowMapSize,
+	type LightFalloffType,
+	type LightIntensityMode,
+	type VolumetricLightConfig,
+	type LensFlareConfig,
+	type LensFlareEntry,
+	type DayNightCycleConfig,
+	type TimeKeyframe,
+	type SunPathConfig,
+	type GlowLayerConfig,
+} from './schemas/lighting-config';
+
+// Light manager
+export {
+	createLighting,
+	disposeLighting,
+	updateLightPosition,
+	updateLightIntensity,
+	updateLightColor,
+	removeLightById,
+	colorTemperatureToRgb,
+	type LightingInstance,
+	type ManagedLight,
+} from './rendering/light-manager';
+
+// Shadow manager
+export {
+	createShadowGenerator,
+	addShadowCasters,
+	applyShadowQualityScaling,
+	disposeShadowGenerator,
+	type ShadowGeneratorInstance,
+} from './rendering/shadow-manager';
+
+// Light animation (flicker)
+export {
+	createFlicker,
+	computeFlicker,
+	computeColorShift,
+	computePositionJitter,
+	pseudoNoise,
+	disposeFlicker,
+	type FlickerInstance,
+} from './rendering/light-animation';
+
+// Day/night cycle
+export {
+	createDayNightCycle,
+	interpolateKeyframes,
+	computeSunDirection,
+	setTimeOfDay,
+	getTimeOfDay,
+	disposeDayNightCycle,
+	DEFAULT_DAY_CYCLE_KEYFRAMES,
+	type DayNightCycleInstance,
+	type InterpolatedValues,
+} from './rendering/day-night-cycle';
+
+// Glow manager
+export {
+	createGlowLayer,
+	updateGlowLayer,
+	disposeGlowLayer,
+} from './rendering/glow-manager';

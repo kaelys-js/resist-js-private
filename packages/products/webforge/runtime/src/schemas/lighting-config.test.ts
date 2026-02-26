@@ -1,0 +1,879 @@
+/**
+ * Lighting configuration schema tests.
+ *
+ * Tests all lighting sub-schemas: flicker, shadow, volumetric light,
+ * lens flare, light variants (point, spot, directional, hemispheric),
+ * day/night cycle, sun path, time keyframes, glow layer, and the
+ * top-level LightingConfig.
+ *
+ * @module
+ */
+
+import { describe, expect, test } from 'vitest';
+
+import { safeParse } from '@/utils/result/safe';
+import type { Result } from '@/schemas/result/result';
+
+import {
+	DayNightCycleConfigSchema,
+	DirectionalLightConfigSchema,
+	FlickerConfigSchema,
+	GlowLayerConfigSchema,
+	HemisphericLightConfigSchema,
+	LensFlareConfigSchema,
+	LensFlareEntrySchema,
+	LightConfigSchema,
+	LightingConfigSchema,
+	PointLightConfigSchema,
+	ShadowConfigSchema,
+	SpotLightConfigSchema,
+	SunPathConfigSchema,
+	TimeKeyframeSchema,
+	VolumetricLightConfigSchema,
+	type DayNightCycleConfig,
+	type DirectionalLightConfig,
+	type FlickerConfig,
+	type GlowLayerConfig,
+	type HemisphericLightConfig,
+	type LensFlareConfig,
+	type LensFlareEntry,
+	type LightConfig,
+	type LightingConfig,
+	type PointLightConfig,
+	type ShadowConfig,
+	type SpotLightConfig,
+	type SunPathConfig,
+	type TimeKeyframe,
+	type VolumetricLightConfig,
+} from './lighting-config';
+
+// =============================================================================
+// FlickerConfigSchema
+// =============================================================================
+
+describe('FlickerConfigSchema', () => {
+	test('applies all defaults for empty object', () => {
+		const result: Result<FlickerConfig> = safeParse(FlickerConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.enabled).toBeTruthy();
+		expect(result.data.type).toBe('candle');
+		expect(result.data.intensity).toBeCloseTo(0.3);
+		expect(result.data.speed).toBeCloseTo(1.0);
+		expect(result.data.colorShift).toBeFalsy();
+		expect(result.data.colorShiftRange).toBe(200);
+		expect(result.data.positionJitter).toBe(0);
+	});
+
+	test('accepts each of 7 flicker types', () => {
+		const types: string[] = [
+			'candle',
+			'torch',
+			'campfire',
+			'pulse',
+			'strobe',
+			'breathing',
+			'fluorescent',
+		];
+		for (const type of types) {
+			const result: Result<FlickerConfig> = safeParse(FlickerConfigSchema, { type });
+			expect(result.ok).toBeTruthy();
+		}
+	});
+
+	test('validates intensity range [0, 1]', () => {
+		const valid: Result<FlickerConfig> = safeParse(FlickerConfigSchema, { intensity: 0.5 });
+		expect(valid.ok).toBeTruthy();
+
+		const tooLow: Result<FlickerConfig> = safeParse(FlickerConfigSchema, { intensity: -0.1 });
+		expect(tooLow.ok).toBeFalsy();
+
+		const tooHigh: Result<FlickerConfig> = safeParse(FlickerConfigSchema, { intensity: 1.1 });
+		expect(tooHigh.ok).toBeFalsy();
+	});
+
+	test('validates speed range [0.1, 10]', () => {
+		const valid: Result<FlickerConfig> = safeParse(FlickerConfigSchema, { speed: 5 });
+		expect(valid.ok).toBeTruthy();
+
+		const tooLow: Result<FlickerConfig> = safeParse(FlickerConfigSchema, { speed: 0.05 });
+		expect(tooLow.ok).toBeFalsy();
+
+		const tooHigh: Result<FlickerConfig> = safeParse(FlickerConfigSchema, { speed: 11 });
+		expect(tooHigh.ok).toBeFalsy();
+	});
+
+	test('accepts colorShift with colorShiftRange', () => {
+		const result: Result<FlickerConfig> = safeParse(FlickerConfigSchema, {
+			colorShift: true,
+			colorShiftRange: 300,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.colorShift).toBeTruthy();
+		expect(result.data.colorShiftRange).toBe(300);
+	});
+
+	test('validates positionJitter range [0, 1]', () => {
+		const valid: Result<FlickerConfig> = safeParse(FlickerConfigSchema, {
+			positionJitter: 0.5,
+		});
+		expect(valid.ok).toBeTruthy();
+
+		const tooHigh: Result<FlickerConfig> = safeParse(FlickerConfigSchema, {
+			positionJitter: 1.5,
+		});
+		expect(tooHigh.ok).toBeFalsy();
+	});
+
+	test('rejects invalid flicker type', () => {
+		const result: Result<FlickerConfig> = safeParse(FlickerConfigSchema, { type: 'bonfire' });
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// ShadowConfigSchema
+// =============================================================================
+
+describe('ShadowConfigSchema', () => {
+	test('applies all defaults for empty object', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.enabled).toBeFalsy();
+		expect(result.data.type).toBe('pcf');
+		expect(result.data.mapSize).toBe(1024);
+		expect(result.data.filteringQuality).toBe('medium');
+		expect(result.data.bias).toBeCloseTo(0.000_05);
+		expect(result.data.normalBias).toBeCloseTo(0.04);
+		expect(result.data.darkness).toBeCloseTo(0.5);
+		expect(result.data.transparencyShadow).toBeFalsy();
+		expect(result.data.enableSoftTransparentShadow).toBeFalsy();
+		expect(result.data.numCascades).toBe(3);
+		expect(result.data.stabilizeCascades).toBeTruthy();
+		expect(result.data.cascadeBlendPercentage).toBeCloseTo(0.05);
+		expect(result.data.autoCalcDepthBounds).toBeTruthy();
+	});
+
+	test('validates mapSize picklist values', () => {
+		const validSizes: number[] = [256, 512, 1024, 2048, 4096];
+		for (const mapSize of validSizes) {
+			const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, { mapSize });
+			expect(result.ok).toBeTruthy();
+		}
+	});
+
+	test('rejects invalid mapSize', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, { mapSize: 999 });
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('validates type picklist', () => {
+		const types: string[] = ['pcf', 'pcss', 'cascade'];
+		for (const type of types) {
+			const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, { type });
+			expect(result.ok).toBeTruthy();
+		}
+	});
+
+	test('validates numCascades range [1, 4]', () => {
+		const valid: Result<ShadowConfig> = safeParse(ShadowConfigSchema, { numCascades: 2 });
+		expect(valid.ok).toBeTruthy();
+
+		const tooLow: Result<ShadowConfig> = safeParse(ShadowConfigSchema, { numCascades: 0 });
+		expect(tooLow.ok).toBeFalsy();
+
+		const tooHigh: Result<ShadowConfig> = safeParse(ShadowConfigSchema, { numCascades: 5 });
+		expect(tooHigh.ok).toBeFalsy();
+	});
+
+	test('validates bias, normalBias, darkness ranges [0, 1]', () => {
+		const valid: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {
+			bias: 0.001,
+			normalBias: 0.1,
+			darkness: 0.8,
+		});
+		expect(valid.ok).toBeTruthy();
+
+		const badBias: Result<ShadowConfig> = safeParse(ShadowConfigSchema, { bias: -0.001 });
+		expect(badBias.ok).toBeFalsy();
+
+		const badDarkness: Result<ShadowConfig> = safeParse(ShadowConfigSchema, { darkness: 1.5 });
+		expect(badDarkness.ok).toBeFalsy();
+	});
+
+	test('validates cascadeBlendPercentage range [0, 1]', () => {
+		const valid: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {
+			cascadeBlendPercentage: 0.1,
+		});
+		expect(valid.ok).toBeTruthy();
+
+		const tooHigh: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {
+			cascadeBlendPercentage: 1.5,
+		});
+		expect(tooHigh.ok).toBeFalsy();
+	});
+
+	test('accepts boolean fields', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {
+			enableSoftTransparentShadow: true,
+			transparencyShadow: true,
+			stabilizeCascades: false,
+			autoCalcDepthBounds: false,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.enableSoftTransparentShadow).toBeTruthy();
+		expect(result.data.transparencyShadow).toBeTruthy();
+		expect(result.data.stabilizeCascades).toBeFalsy();
+		expect(result.data.autoCalcDepthBounds).toBeFalsy();
+	});
+
+	test('rejects out-of-range values', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, { normalBias: 2 });
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects unknown shadow type', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, { type: 'vsm' });
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// VolumetricLightConfigSchema
+// =============================================================================
+
+describe('VolumetricLightConfigSchema', () => {
+	test('applies all defaults for empty object', () => {
+		const result: Result<VolumetricLightConfig> = safeParse(VolumetricLightConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.enabled).toBeFalsy();
+		expect(result.data.samples).toBe(100);
+		expect(result.data.decay).toBeCloseTo(0.97);
+		expect(result.data.weight).toBeCloseTo(0.5);
+		expect(result.data.density).toBeCloseTo(0.5);
+		expect(result.data.passRatio).toBeCloseTo(0.5);
+	});
+
+	test('validates samples integer range [10, 200]', () => {
+		const valid: Result<VolumetricLightConfig> = safeParse(VolumetricLightConfigSchema, {
+			samples: 50,
+		});
+		expect(valid.ok).toBeTruthy();
+
+		const tooLow: Result<VolumetricLightConfig> = safeParse(VolumetricLightConfigSchema, {
+			samples: 5,
+		});
+		expect(tooLow.ok).toBeFalsy();
+
+		const tooHigh: Result<VolumetricLightConfig> = safeParse(VolumetricLightConfigSchema, {
+			samples: 300,
+		});
+		expect(tooHigh.ok).toBeFalsy();
+	});
+
+	test('validates decay, weight, density ranges [0, 1]', () => {
+		const result: Result<VolumetricLightConfig> = safeParse(VolumetricLightConfigSchema, {
+			decay: 0.95,
+			weight: 0.3,
+			density: 0.7,
+		});
+		expect(result.ok).toBeTruthy();
+
+		const badDecay: Result<VolumetricLightConfig> = safeParse(VolumetricLightConfigSchema, {
+			decay: 1.5,
+		});
+		expect(badDecay.ok).toBeFalsy();
+	});
+
+	test('validates passRatio range (0, 1]', () => {
+		const valid: Result<VolumetricLightConfig> = safeParse(VolumetricLightConfigSchema, {
+			passRatio: 0.25,
+		});
+		expect(valid.ok).toBeTruthy();
+
+		const valid1: Result<VolumetricLightConfig> = safeParse(VolumetricLightConfigSchema, {
+			passRatio: 1,
+		});
+		expect(valid1.ok).toBeTruthy();
+	});
+
+	test('rejects non-integer samples', () => {
+		const result: Result<VolumetricLightConfig> = safeParse(VolumetricLightConfigSchema, {
+			samples: 50.5,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// LensFlareConfigSchema
+// =============================================================================
+
+describe('LensFlareConfigSchema', () => {
+	test('applies defaults (enabled=false)', () => {
+		const result: Result<LensFlareConfig> = safeParse(LensFlareConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.enabled).toBeFalsy();
+	});
+
+	test('accepts custom flares array', () => {
+		const result: Result<LensFlareConfig> = safeParse(LensFlareConfigSchema, {
+			enabled: true,
+			flares: [
+				{ size: 0.5, position: 0, color: { r: 1, g: 1, b: 1 } },
+				{ size: 0.2, position: -0.5, color: { r: 0.8, g: 0.6, b: 0.2 } },
+			],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.flares).toHaveLength(2);
+	});
+
+	test('validates flare entry ranges', () => {
+		const badSize: Result<LensFlareEntry> = safeParse(LensFlareEntrySchema, {
+			size: 3,
+			position: 0,
+			color: { r: 1, g: 1, b: 1 },
+		});
+		expect(badSize.ok).toBeFalsy();
+
+		const badPos: Result<LensFlareEntry> = safeParse(LensFlareEntrySchema, {
+			size: 0.5,
+			position: 2,
+			color: { r: 1, g: 1, b: 1 },
+		});
+		expect(badPos.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// LightConfigSchema — Variants
+// =============================================================================
+
+describe('LightConfigSchema — PointLight', () => {
+	test('accepts valid PointLight config', () => {
+		const result: Result<LightConfig> = safeParse(LightConfigSchema, {
+			id: 'torch-1',
+			type: 'point',
+			position: { x: 10, y: 2, z: 10 },
+			range: 15,
+			intensity: 1.5,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.type).toBe('point');
+		expect(result.data.id).toBe('torch-1');
+	});
+
+	test('accepts meshRadius on PointLight', () => {
+		const result: Result<PointLightConfig> = safeParse(PointLightConfigSchema, {
+			id: 'torch',
+			type: 'point',
+			meshRadius: 8,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.meshRadius).toBe(8);
+	});
+
+	test('applies common field defaults', () => {
+		const result: Result<PointLightConfig> = safeParse(PointLightConfigSchema, {
+			id: 'light',
+			type: 'point',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.enabled).toBeTruthy();
+		expect(result.data.intensity).toBeCloseTo(1.0);
+		expect(result.data.diffuse.r).toBe(1);
+		expect(result.data.specular.r).toBe(1);
+		expect(result.data.falloffType).toBe('default');
+		expect(result.data.intensityMode).toBe('automatic');
+		expect(result.data.range).toBe(100);
+	});
+
+	test('rejects missing required id', () => {
+		const result: Result<PointLightConfig> = safeParse(PointLightConfigSchema, {
+			type: 'point',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+describe('LightConfigSchema — SpotLight', () => {
+	test('accepts valid SpotLight config with projection texture', () => {
+		const result: Result<SpotLightConfig> = safeParse(SpotLightConfigSchema, {
+			id: 'spot-1',
+			type: 'spot',
+			position: { x: 5, y: 10, z: 5 },
+			direction: { x: 0, y: -1, z: 0 },
+			angle: 0.8,
+			exponent: 3,
+			projectionTexturePath: 'textures/stained-glass.png',
+			projectionTextureNear: 0.5,
+			projectionTextureFar: 50,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.type).toBe('spot');
+		expect(result.data.projectionTexturePath).toBe('textures/stained-glass.png');
+	});
+
+	test('validates angle range [0, PI]', () => {
+		const valid: Result<SpotLightConfig> = safeParse(SpotLightConfigSchema, {
+			id: 's',
+			type: 'spot',
+			angle: Math.PI,
+		});
+		expect(valid.ok).toBeTruthy();
+
+		const tooHigh: Result<SpotLightConfig> = safeParse(SpotLightConfigSchema, {
+			id: 's',
+			type: 'spot',
+			angle: 4,
+		});
+		expect(tooHigh.ok).toBeFalsy();
+	});
+
+	test('accepts meshRadius on SpotLight', () => {
+		const result: Result<SpotLightConfig> = safeParse(SpotLightConfigSchema, {
+			id: 's',
+			type: 'spot',
+			meshRadius: 10,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+});
+
+describe('LightConfigSchema — DirectionalLight', () => {
+	test('accepts valid DirectionalLight with volumetric + lens flare', () => {
+		const result: Result<DirectionalLightConfig> = safeParse(DirectionalLightConfigSchema, {
+			id: 'sun',
+			type: 'directional',
+			direction: { x: -0.5, y: -1, z: 0.3 },
+			shadow: { enabled: true, type: 'cascade', mapSize: 2048 },
+			volumetricLight: { enabled: true, samples: 80 },
+			lensFlare: { enabled: true },
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.type).toBe('directional');
+		expect(result.data.volumetricLight?.enabled).toBeTruthy();
+		expect(result.data.lensFlare?.enabled).toBeTruthy();
+	});
+
+	test('validates autoCalcShadowZBounds default', () => {
+		const result: Result<DirectionalLightConfig> = safeParse(DirectionalLightConfigSchema, {
+			id: 'sun',
+			type: 'directional',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.autoCalcShadowZBounds).toBeTruthy();
+	});
+});
+
+describe('LightConfigSchema — HemisphericLight', () => {
+	test('accepts valid HemisphericLight config', () => {
+		const result: Result<HemisphericLightConfig> = safeParse(HemisphericLightConfigSchema, {
+			id: 'ambient',
+			type: 'hemispheric',
+			direction: { x: 0, y: 1, z: 0 },
+			groundColor: { r: 0.2, g: 0.2, b: 0.2 },
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.type).toBe('hemispheric');
+		expect(result.data.groundColor.r).toBeCloseTo(0.2);
+	});
+
+	test('has no shadow or flicker fields (strictObject)', () => {
+		const result: Result<HemisphericLightConfig> = safeParse(HemisphericLightConfigSchema, {
+			id: 'ambient',
+			type: 'hemispheric',
+			shadow: { enabled: true },
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('applies default direction (upward)', () => {
+		const result: Result<HemisphericLightConfig> = safeParse(HemisphericLightConfigSchema, {
+			id: 'ambient',
+			type: 'hemispheric',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.direction.y).toBe(1);
+	});
+});
+
+describe('LightConfigSchema — discriminated union', () => {
+	test('missing type field rejected', () => {
+		const result: Result<LightConfig> = safeParse(LightConfigSchema, {
+			id: 'light',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('unknown type value rejected', () => {
+		const result: Result<LightConfig> = safeParse(LightConfigSchema, {
+			id: 'light',
+			type: 'area',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('common fields work across all variants', () => {
+		const base: Record<string, unknown> = {
+			intensity: 2.5,
+			diffuse: { r: 1, g: 0.9, b: 0.8 },
+			specular: { r: 0.5, g: 0.5, b: 0.5 },
+			falloffType: 'physical',
+			intensityMode: 'luminous_power',
+		};
+
+		const point: Result<LightConfig> = safeParse(LightConfigSchema, {
+			...base,
+			id: 'p',
+			type: 'point',
+		});
+		expect(point.ok).toBeTruthy();
+
+		const dir: Result<LightConfig> = safeParse(LightConfigSchema, {
+			...base,
+			id: 'd',
+			type: 'directional',
+		});
+		expect(dir.ok).toBeTruthy();
+	});
+
+	test('validates colorTemperature range [1000, 15000]', () => {
+		const valid: Result<LightConfig> = safeParse(LightConfigSchema, {
+			id: 'l',
+			type: 'point',
+			colorTemperature: 2700,
+		});
+		expect(valid.ok).toBeTruthy();
+
+		const tooLow: Result<LightConfig> = safeParse(LightConfigSchema, {
+			id: 'l',
+			type: 'point',
+			colorTemperature: 500,
+		});
+		expect(tooLow.ok).toBeFalsy();
+
+		const tooHigh: Result<LightConfig> = safeParse(LightConfigSchema, {
+			id: 'l',
+			type: 'point',
+			colorTemperature: 20_000,
+		});
+		expect(tooHigh.ok).toBeFalsy();
+	});
+
+	test('validates falloffType picklist', () => {
+		const types: string[] = ['default', 'physical', 'gltf', 'standard'];
+		for (const falloffType of types) {
+			const result: Result<LightConfig> = safeParse(LightConfigSchema, {
+				id: 'l',
+				type: 'point',
+				falloffType,
+			});
+			expect(result.ok).toBeTruthy();
+		}
+
+		const bad: Result<LightConfig> = safeParse(LightConfigSchema, {
+			id: 'l',
+			type: 'point',
+			falloffType: 'inverse',
+		});
+		expect(bad.ok).toBeFalsy();
+	});
+
+	test('validates intensityMode picklist', () => {
+		const modes: string[] = [
+			'automatic',
+			'luminous_power',
+			'luminous_intensity',
+			'illuminance',
+			'luminance',
+		];
+		for (const intensityMode of modes) {
+			const result: Result<LightConfig> = safeParse(LightConfigSchema, {
+				id: 'l',
+				type: 'point',
+				intensityMode,
+			});
+			expect(result.ok).toBeTruthy();
+		}
+	});
+});
+
+// =============================================================================
+// TimeKeyframeSchema
+// =============================================================================
+
+describe('TimeKeyframeSchema', () => {
+	test('accepts valid keyframe with only time', () => {
+		const result: Result<TimeKeyframe> = safeParse(TimeKeyframeSchema, { time: 12 });
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('accepts all optional fields', () => {
+		const result: Result<TimeKeyframe> = safeParse(TimeKeyframeSchema, {
+			time: 7,
+			ambientColor: { r: 0.4, g: 0.35, b: 0.3 },
+			ambientGroundColor: { r: 0.15, g: 0.12, b: 0.1 },
+			sunColor: { r: 1, g: 0.85, b: 0.7 },
+			sunIntensity: 0.6,
+			moonColor: { r: 0.3, g: 0.3, b: 0.4 },
+			moonIntensity: 0,
+			clearColor: { r: 0.5, g: 0.6, b: 0.75 },
+			fogColor: { r: 0.4, g: 0.4, b: 0.5 },
+			fogDensity: 0.02,
+			environmentIntensity: 0.3,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('validates time range [0, 24]', () => {
+		const valid: Result<TimeKeyframe> = safeParse(TimeKeyframeSchema, { time: 0 });
+		expect(valid.ok).toBeTruthy();
+
+		const valid24: Result<TimeKeyframe> = safeParse(TimeKeyframeSchema, { time: 24 });
+		expect(valid24.ok).toBeTruthy();
+
+		const tooLow: Result<TimeKeyframe> = safeParse(TimeKeyframeSchema, { time: -1 });
+		expect(tooLow.ok).toBeFalsy();
+
+		const tooHigh: Result<TimeKeyframe> = safeParse(TimeKeyframeSchema, { time: 25 });
+		expect(tooHigh.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// SunPathConfigSchema
+// =============================================================================
+
+describe('SunPathConfigSchema', () => {
+	test('applies all defaults', () => {
+		const result: Result<SunPathConfig> = safeParse(SunPathConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.sunrise).toBe(6);
+		expect(result.data.sunset).toBe(18);
+		expect(result.data.maxElevation).toBe(75);
+		expect(result.data.azimuthStart).toBe(90);
+	});
+
+	test('validates sunrise/sunset range [0, 24]', () => {
+		const bad: Result<SunPathConfig> = safeParse(SunPathConfigSchema, { sunrise: -1 });
+		expect(bad.ok).toBeFalsy();
+
+		const bad2: Result<SunPathConfig> = safeParse(SunPathConfigSchema, { sunset: 25 });
+		expect(bad2.ok).toBeFalsy();
+	});
+
+	test('validates maxElevation range [0, 90]', () => {
+		const valid: Result<SunPathConfig> = safeParse(SunPathConfigSchema, { maxElevation: 90 });
+		expect(valid.ok).toBeTruthy();
+
+		const bad: Result<SunPathConfig> = safeParse(SunPathConfigSchema, { maxElevation: 91 });
+		expect(bad.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// DayNightCycleConfigSchema
+// =============================================================================
+
+describe('DayNightCycleConfigSchema', () => {
+	test('applies all defaults', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.enabled).toBeFalsy();
+		expect(result.data.timeOfDay).toBe(12);
+		expect(result.data.speed).toBe(0);
+	});
+
+	test('validates timeOfDay range [0, 24]', () => {
+		const valid: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			timeOfDay: 23.5,
+		});
+		expect(valid.ok).toBeTruthy();
+
+		const bad: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			timeOfDay: 25,
+		});
+		expect(bad.ok).toBeFalsy();
+	});
+
+	test('validates speed range [0, 100]', () => {
+		const valid: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			speed: 50,
+		});
+		expect(valid.ok).toBeTruthy();
+
+		const bad: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			speed: -1,
+		});
+		expect(bad.ok).toBeFalsy();
+	});
+
+	test('accepts keyframes with 2+ entries', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			keyframes: [
+				{ time: 0, sunIntensity: 0 },
+				{ time: 12, sunIntensity: 1 },
+			],
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('rejects keyframes with 1 entry (min 2)', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			keyframes: [{ time: 12 }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('accepts sunPath nested config', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			sunPath: { sunrise: 5, sunset: 19, maxElevation: 80 },
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('accepts light ID references', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			sunLightId: 'sun',
+			ambientLightId: 'ambient',
+			moonLightId: 'moon',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.sunLightId).toBe('sun');
+		expect(result.data.ambientLightId).toBe('ambient');
+		expect(result.data.moonLightId).toBe('moon');
+	});
+
+	test('environmentIntensity in keyframe accepted', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			keyframes: [
+				{ time: 0, environmentIntensity: 0.02 },
+				{ time: 12, environmentIntensity: 0.6 },
+			],
+		});
+		expect(result.ok).toBeTruthy();
+	});
+});
+
+// =============================================================================
+// GlowLayerConfigSchema
+// =============================================================================
+
+describe('GlowLayerConfigSchema', () => {
+	test('applies all defaults', () => {
+		const result: Result<GlowLayerConfig> = safeParse(GlowLayerConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.enabled).toBeFalsy();
+		expect(result.data.intensity).toBeCloseTo(0.5);
+		expect(result.data.blurKernelSize).toBe(32);
+		expect(result.data.mainTextureRatio).toBeCloseTo(0.5);
+	});
+
+	test('validates intensity range [0, 5]', () => {
+		const valid: Result<GlowLayerConfig> = safeParse(GlowLayerConfigSchema, { intensity: 3 });
+		expect(valid.ok).toBeTruthy();
+
+		const bad: Result<GlowLayerConfig> = safeParse(GlowLayerConfigSchema, { intensity: 6 });
+		expect(bad.ok).toBeFalsy();
+	});
+
+	test('validates blurKernelSize integer range [1, 256]', () => {
+		const valid: Result<GlowLayerConfig> = safeParse(GlowLayerConfigSchema, {
+			blurKernelSize: 64,
+		});
+		expect(valid.ok).toBeTruthy();
+
+		const bad: Result<GlowLayerConfig> = safeParse(GlowLayerConfigSchema, {
+			blurKernelSize: 0,
+		});
+		expect(bad.ok).toBeFalsy();
+
+		const bad2: Result<GlowLayerConfig> = safeParse(GlowLayerConfigSchema, {
+			blurKernelSize: 300,
+		});
+		expect(bad2.ok).toBeFalsy();
+
+		const nonInt: Result<GlowLayerConfig> = safeParse(GlowLayerConfigSchema, {
+			blurKernelSize: 32.5,
+		});
+		expect(nonInt.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// LightingConfigSchema (top-level)
+// =============================================================================
+
+describe('LightingConfigSchema', () => {
+	test('accepts empty object (all defaults)', () => {
+		const result: Result<LightingConfig> = safeParse(LightingConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lights).toHaveLength(0);
+	});
+
+	test('accepts full lighting config with multiple lights', () => {
+		const result: Result<LightingConfig> = safeParse(LightingConfigSchema, {
+			lights: [
+				{
+					id: 'ambient',
+					type: 'hemispheric',
+					intensity: 0.6,
+					direction: { x: 0, y: 1, z: 0 },
+				},
+				{
+					id: 'sun',
+					type: 'directional',
+					intensity: 0.8,
+					direction: { x: -0.5, y: -1, z: 0.3 },
+					shadow: { enabled: true, type: 'cascade', mapSize: 2048 },
+				},
+				{
+					id: 'torch',
+					type: 'point',
+					intensity: 1.5,
+					position: { x: 10, y: 2, z: 10 },
+					colorTemperature: 2200,
+					flicker: { type: 'torch', intensity: 0.25 },
+				},
+			],
+			dayNight: {
+				enabled: true,
+				timeOfDay: 10,
+				speed: 0.5,
+				sunLightId: 'sun',
+				ambientLightId: 'ambient',
+			},
+			glow: { enabled: true, intensity: 0.3 },
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lights).toHaveLength(3);
+	});
+
+	test('rejects unknown top-level properties', () => {
+		const result: Result<LightingConfig> = safeParse(LightingConfigSchema, {
+			shadows: true,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+});

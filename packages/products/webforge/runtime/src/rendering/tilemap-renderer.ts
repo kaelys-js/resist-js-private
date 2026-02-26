@@ -43,6 +43,7 @@ import {
 	disposeTileAnimator,
 	type TileAnimationManager,
 } from './tile-animator';
+import { createLighting, disposeLighting, type LightingInstance } from './light-manager';
 import {
 	createPostProcessingPipeline,
 	disposePostProcessingPipeline,
@@ -81,6 +82,10 @@ export const RenderedTilemapSchema = v.strictObject({
 	/** Post-processing pipeline (null if not configured). */
 	postProcessing: v.custom<PostProcessingPipeline | null>(
 		(val): val is PostProcessingPipeline | null => val === null || typeof val === 'object',
+	),
+	/** Lighting system instance (null if not configured). */
+	lighting: v.custom<LightingInstance | null>(
+		(val): val is LightingInstance | null => val === null || typeof val === 'object',
 	),
 	/** The Babylon.js scene. */
 	scene: v.custom<BABYLON.Scene>((val): val is BABYLON.Scene => val instanceof BABYLON.Scene),
@@ -285,7 +290,19 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			}
 		}
 
-		// 13. Return RenderedTilemap
+		// 13. Create lighting system (non-fatal on failure)
+		let lighting: LightingInstance | null = null;
+		if (mapData.lighting) {
+			const lightingResult = createLighting({
+				scene,
+				config: mapData.lighting,
+			});
+			if (lightingResult.ok) {
+				lighting = lightingResult.data;
+			}
+		}
+
+		// 14. Return RenderedTilemap
 		const rendered: RenderedTilemap = {
 			chunks,
 			cliffChunks,
@@ -295,6 +312,7 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			mapData,
 			chunkConfig,
 			postProcessing,
+			lighting,
 			scene,
 		};
 
@@ -326,6 +344,11 @@ export function disposeTilemap(options: DisposeTilemapOptions): BabylonResult<Bo
 	const { tilemap } = options;
 
 	try {
+		// Dispose lighting system (before meshes — lighting references scene objects)
+		if (tilemap.lighting) {
+			disposeLighting({ lighting: tilemap.lighting });
+		}
+
 		// Dispose chunk meshes
 		for (const chunk of tilemap.chunks) {
 			chunk.mesh.dispose();

@@ -1015,6 +1015,74 @@ describe('MapDataSchema', () => {
 	});
 
 	// =========================================================================
+	// Lighting integration
+	// =========================================================================
+
+	test('accepts map without lighting field', () => {
+		const result: Result<MapData> = safeParse(MapDataSchema, {
+			width: 1,
+			height: 1,
+			tilesets: [VALID_TILESET],
+			layers: [VALID_LAYER_1X1],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lighting).toBeUndefined();
+	});
+
+	test('accepts map with empty lighting (applies defaults)', () => {
+		const result: Result<MapData> = safeParse(MapDataSchema, {
+			width: 1,
+			height: 1,
+			tilesets: [VALID_TILESET],
+			layers: [VALID_LAYER_1X1],
+			lighting: {},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lighting).toBeDefined();
+		expect(result.data.lighting?.lights).toEqual([]);
+	});
+
+	test('accepts map with full lighting config', () => {
+		const result: Result<MapData> = safeParse(MapDataSchema, {
+			width: 1,
+			height: 1,
+			tilesets: [VALID_TILESET],
+			layers: [VALID_LAYER_1X1],
+			lighting: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						intensity: 0.8,
+						direction: { x: -0.5, y: -1, z: 0.3 },
+						shadow: { enabled: true, type: 'cascade' },
+					},
+					{
+						id: 'ambient',
+						type: 'hemispheric',
+						intensity: 0.6,
+						direction: { x: 0, y: 1, z: 0 },
+					},
+				],
+				dayNight: {
+					enabled: true,
+					timeOfDay: 12,
+					speed: 0.5,
+					sunLightId: 'sun',
+				},
+				glow: { enabled: true, intensity: 0.3 },
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lighting?.lights).toHaveLength(2);
+		expect(result.data.lighting?.dayNight?.enabled).toBe(true);
+		expect(result.data.lighting?.glow?.enabled).toBe(true);
+	});
+
+	// =========================================================================
 	// Edge cases
 	// =========================================================================
 

@@ -15,16 +15,24 @@ src/
 │   ├── performance-monitor.ts  # SceneInstrumentation wrapper for FPS/frame metrics
 │   └── debug-inspector.ts      # Lazy-loaded Babylon.js inspector toggle
 ├── rendering/
-│   └── scene-setup.ts          # Scene defaults: clear color, ambient, fog, hemispheric light
+│   ├── scene-setup.ts          # Scene defaults: clear color, ambient, fog, hemispheric light
+│   ├── light-manager.ts        # Orchestrator: create/update/dispose lights, shadows, flicker, glow
+│   ├── shadow-manager.ts       # Shadow generators (PCF, PCSS, Cascade) + quality scaling
+│   ├── light-animation.ts      # 7 flicker presets, color shift, position jitter
+│   ├── day-night-cycle.ts      # Time engine, keyframe interpolation, procedural sun path
+│   └── glow-manager.ts         # GlowLayer lifecycle
 ├── schemas/
-│   ├── engine-config.ts        # EngineConfig schema (renderer, antialias, stencil, etc.)
-│   ├── camera-config.ts        # CameraConfig schema (dual editor/gameplay modes)
-│   ├── scene-setup-config.ts   # SceneSetupConfig + ColorRgba + FogConfig schemas
-│   └── quality-config.ts       # QualityConfig schema + QUALITY_PRESETS (low/medium/high/ultra)
-├── test-setup.ts               # Vitest polyfills for NullEngine (XMLHttpRequest, navigator, document)
+│   ├── engine-config.ts        # EngineConfig schema
+│   ├── camera-config.ts        # CameraConfig schema
+│   ├── scene-setup-config.ts   # SceneSetupConfig + ColorRgba + Vector3 + FogConfig schemas
+│   ├── quality-config.ts       # QualityConfig + QUALITY_PRESETS
+│   ├── lighting-config.ts      # All lighting schemas (lights, shadows, flicker, day/night, glow)
+│   └── map-data.ts             # MapData with optional lighting field
+├── test-setup.ts               # Vitest polyfills for NullEngine
 └── dev/
     ├── index.html              # Visual test harness
-    ├── dev.ts                  # Harness entry: runtime + ground plane + metrics logging
+    ├── dev.ts                  # Harness entry
+    ├── test-map.ts             # 32x32 test map with full lighting config
     └── vite.config.ts          # Vite dev server config
 ```
 
@@ -82,6 +90,32 @@ RuntimeConfig → createRuntime()
 |----------|---------|-------------|
 | `applySceneSetup(scene, config)` | `Result<Bool>` | Apply clear color, ambient, fog, default light |
 
+### Lighting
+
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `createLighting(options)` | `BabylonResult<LightingInstance>` | Full lighting from config (lights, shadows, flicker, glow, day/night) |
+| `disposeLighting(options)` | `BabylonResult<Bool>` | Dispose all lighting resources |
+| `updateLightPosition(options)` | `BabylonResult<Bool>` | Move a light by ID |
+| `updateLightIntensity(options)` | `BabylonResult<Bool>` | Change intensity by ID |
+| `updateLightColor(options)` | `BabylonResult<Bool>` | Change diffuse color by ID |
+| `removeLightById(options)` | `BabylonResult<LightingInstance>` | Remove a single light and its resources |
+| `colorTemperatureToRgb(kelvin)` | `Result<ColorRgba>` | Kelvin to RGB (Tanner Helland) |
+| `createShadowGenerator(options)` | `BabylonResult<ShadowGeneratorInstance>` | PCF, PCSS, or Cascade shadow generator |
+| `addShadowCasters(options)` | `BabylonResult<Bool>` | Register meshes as shadow casters/receivers |
+| `applyShadowQualityScaling(options)` | `Result<ScaledShadowConfig>` | Scale shadow config by quality preset |
+| `createFlicker(options)` | `BabylonResult<FlickerInstance>` | Per-frame flicker animation on a light |
+| `computeFlicker(type, time, speed, amp)` | `Num` | Pure math flicker multiplier |
+| `computeColorShift(temp, mult, range)` | `Result<ColorRgba>` | Color temperature shift from flicker |
+| `computePositionJitter(base, radius, t)` | `Vector3` | Deterministic position noise |
+| `createDayNightCycle(options)` | `BabylonResult<DayNightCycleInstance>` | Time engine with keyframe interpolation |
+| `interpolateKeyframes(keyframes, time)` | `Result<InterpolatedValues>` | Pure math keyframe lerp |
+| `computeSunDirection(time, sunPath)` | `Result<Vector3>` | Procedural sun direction from time |
+| `setTimeOfDay(instance, time)` | `Result<Bool>` | Jump to a specific hour |
+| `getTimeOfDay(instance)` | `Result<Num>` | Query current time |
+| `createGlowLayer(options)` | `BabylonResult<GlowLayer>` | Global glow post-effect |
+| `updateGlowLayer(options)` | `BabylonResult<Bool>` | Update glow intensity |
+
 ### Performance & Debug
 
 | Function | Returns | Description |
@@ -94,11 +128,11 @@ RuntimeConfig → createRuntime()
 
 ### Schemas
 
-`EngineConfigSchema`, `CameraConfigSchema`, `SceneSetupConfigSchema`, `ColorRgbaSchema`, `FogConfigSchema`, `QualityConfigSchema`, `RuntimeConfigSchema`
+`EngineConfigSchema`, `CameraConfigSchema`, `SceneSetupConfigSchema`, `ColorRgbaSchema`, `Vector3Schema`, `FogConfigSchema`, `QualityConfigSchema`, `RuntimeConfigSchema`, `LightingConfigSchema`, `LightConfigSchema`, `PointLightConfigSchema`, `SpotLightConfigSchema`, `DirectionalLightConfigSchema`, `HemisphericLightConfigSchema`, `ShadowConfigSchema`, `FlickerConfigSchema`, `FlickerTypeSchema`, `ShadowTypeSchema`, `DayNightCycleConfigSchema`, `TimeKeyframeSchema`, `SunPathConfigSchema`, `GlowLayerConfigSchema`, `VolumetricLightConfigSchema`, `LensFlareConfigSchema`
 
 ### Types
 
-`BabylonResult<T>`, `BabylonEngineInstance`, `RuntimeInstance`, `RuntimeConfig`, `EngineConfig`, `CameraConfig`, `CameraTargetOptions`, `SceneSetupConfig`, `ColorRgba`, `FogConfig`, `QualityConfig`, `QualityPresetSettings`, `PerformanceMonitor`, `PerformanceMetrics`
+`BabylonResult<T>`, `BabylonEngineInstance`, `RuntimeInstance`, `RuntimeConfig`, `EngineConfig`, `CameraConfig`, `CameraTargetOptions`, `SceneSetupConfig`, `ColorRgba`, `Vector3`, `FogConfig`, `QualityConfig`, `QualityPresetSettings`, `PerformanceMonitor`, `PerformanceMetrics`, `LightingConfig`, `LightConfig`, `LightingInstance`, `ManagedLight`, `ShadowGeneratorInstance`, `FlickerInstance`, `DayNightCycleInstance`, `InterpolatedValues`
 
 ## Usage
 
@@ -119,7 +153,7 @@ disposeRuntime(result.data);
 
 ## Testing
 
-181 tests across 11 files covering schemas, engine lifecycle, camera modes, scene setup, performance monitoring, and debug inspector.
+692 tests across 30 files covering schemas, engine lifecycle, camera modes, scene setup, tilemap rendering, post-processing, lighting (shadows, flicker, day/night, glow), performance monitoring, and debug inspector.
 
 ```bash
 pnpm qa:test          # Run all tests
@@ -136,7 +170,7 @@ Tests use `NullEngine` for headless Babylon.js execution in Vitest. The `test-se
 pnpm dev    # Opens browser with ground plane + editor camera
 ```
 
-Visual verification: dark blue-gray background, wireframe ground, hemispheric light, mouse orbit, resize handling, FPS logging in console.
+Visual verification: 32x32 tilemap with cascaded shadows, torch flicker, day/night cycle, glow layer, mouse orbit, FPS logging.
 
 ## Known Limitations
 

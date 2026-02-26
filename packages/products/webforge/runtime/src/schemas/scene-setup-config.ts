@@ -26,6 +26,38 @@
 import * as v from 'valibot';
 
 // =============================================================================
+// Vector3 Schema
+// =============================================================================
+
+/**
+ * 3D vector with x, y, z components.
+ *
+ * Maps directly to Babylon.js `Vector3(x, y, z)`.
+ * All components default to 0 when omitted — no min/max constraints,
+ * since positions and directions can be any value.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { Vector3Schema } from './scene-setup-config';
+ *
+ * const result = safeParse(Vector3Schema, { x: 10, y: 2, z: -5 });
+ * if (result.ok) result.data.y; // 2
+ * ```
+ */
+export const Vector3Schema = v.strictObject({
+	/** X component. Default: 0. */
+	x: v.optional(v.number(), 0),
+	/** Y component. Default: 0. */
+	y: v.optional(v.number(), 0),
+	/** Z component. Default: 0. */
+	z: v.optional(v.number(), 0),
+});
+
+/** Inferred 3D vector type from {@link Vector3Schema}. */
+export type Vector3 = v.InferOutput<typeof Vector3Schema>;
+
+// =============================================================================
 // Color Schema
 // =============================================================================
 

@@ -17,8 +17,8 @@
 - [ ] 1.1 Monorepo scaffold (DONE — already built)
 - [x] 1.2 Babylon.js scene setup (engine, camera, render loop)
 - [x] 1.3 Tilemap renderer (geometry, autotile, cliffs, instancing)
-- [ ] 1.4 Post-processing pipeline (bloom, DoF, color grading, SSAO)
-- [ ] 1.5 Lighting system (lights, shadows, day/night, flicker)
+- [x] 1.4 Post-processing pipeline (bloom, DoF, color grading, SSAO)
+- [x] 1.5 Lighting system (lights, shadows, day/night, flicker)
 
 ### Phase 2: SvelteKit Editor Shell + Map Editor — `phase-02-editor.md`
 - [ ] 2.1 Editor layout (sidebar, toolbar, canvas, properties panel)
