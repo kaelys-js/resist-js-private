@@ -194,7 +194,7 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 				scene,
 				name: `mat-${tileset.config.name}` as Str,
 				texture: tileset.texture,
-				hasAlpha: false as Bool,
+				hasAlpha: true as Bool,
 			});
 			if (!matResult.ok) return matResult;
 			materials.push(matResult.data);

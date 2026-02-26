@@ -51,48 +51,35 @@ function p(row: Num, col: Num): Num {
 
 // =============================================================================
 // Tile Palette — LPC terrain_summer.png layout
+// Verified by visual inspection of 4× scaled tile previews.
+// NOTE: rows 0-1 cols 0-3 are transparent blob overlay parts — NOT standalone.
 // =============================================================================
 
-// Grass center fills (row 0, cols 0-1)
-const GRASS: Num = t(0, 0);
-const GRASS_V: Num = t(0, 1);
+// Grass solid fills (row 1, cols 4-5 — confirmed solid green)
+const GRASS: Num = t(1, 4);
+const GRASS_V: Num = t(1, 5);
 
-// Dirt center fills (row 1, cols 4-5)
-const DIRT: Num = t(1, 4);
-const DIRT_V: Num = t(1, 5);
+// Dirt/path solid fills (row 3, cols 3-4 — confirmed solid brown/cobble)
+const DIRT: Num = t(3, 3);
+const DIRT_V: Num = t(3, 4);
 
-// Grass-dirt transition edges (approximate LPC blob positions)
-const GD_EDGE_N: Num = t(3, 0); // grass-dirt north edge
-const GD_EDGE_S: Num = t(3, 1); // grass-dirt south edge
-const GD_EDGE_W: Num = t(4, 0); // grass-dirt west edge
-const GD_EDGE_E: Num = t(4, 1); // grass-dirt east edge
-const GD_CORNER_NW: Num = t(0, 2); // grass-dirt outer corner NW
-const GD_CORNER_NE: Num = t(0, 3); // grass-dirt outer corner NE
-const GD_CORNER_SW: Num = t(1, 2); // grass-dirt outer corner SW
-const GD_CORNER_SE: Num = t(1, 3); // grass-dirt outer corner SE
-
-// Water tiles (row 11 area — open water surface)
-const WATER: Num = t(11, 5);
-const WATER_V: Num = t(11, 6);
-
-// Water-grass edge tiles (rows 8-10 area)
-const WG_EDGE_N: Num = t(8, 2); // water with grass edge north
-const WG_EDGE_S: Num = t(9, 2); // water with grass edge south
-const WG_EDGE_W: Num = t(8, 4); // water with grass edge west
-const WG_EDGE_E: Num = t(9, 4); // water with grass edge east
-const WG_CORNER_NW: Num = t(8, 0); // water outer corner NW
-const WG_CORNER_NE: Num = t(8, 1); // water outer corner NE
-const WG_CORNER_SW: Num = t(9, 0); // water outer corner SW
-const WG_CORNER_SE: Num = t(9, 1); // water outer corner SE
+// Water solid fills (row 23 — confirmed solid deep blue)
+const WATER: Num = t(23, 0);
+const WATER_V: Num = t(23, 4);
 
 // Plant decorations from plants_summer.png
-const PLANT_1: Num = p(0, 0);
-const PLANT_2: Num = p(0, 2);
-const PLANT_3: Num = p(0, 4);
-const PLANT_4: Num = p(1, 0);
-const PLANT_5: Num = p(1, 2);
-const BUSH_1: Num = p(2, 0);
-const BUSH_2: Num = p(2, 2);
+const FLOWER_BUSH: Num = p(0, 0); // round light bush
+const SMALL_BUSH: Num = p(0, 2); // dense bush cluster
+const TALL_GRASS: Num = p(0, 8); // wheat/tall grass
+const FLOWER: Num = p(0, 9); // small flower
+const GRASS_TUFT: Num = p(0, 10); // grass tuft
+const LILY_PAD: Num = p(2, 12); // lily pad (lake decoration)
+const WATER_FLOWER: Num = p(2, 14); // blue water flower
+
+// Tree tiles from plants_summer.png
+const TREE_CYPRESS: Num = p(2, 0); // tall cypress
+const TREE_MEDIUM: Num = p(2, 1); // medium tree
+const TREE_SMALL: Num = p(2, 2); // small tree/shrub
 
 // =============================================================================
 // Map Layout Constants
@@ -123,11 +110,6 @@ const PLAT_HEIGHT: Num = 2;
 /** Index into flat tile array. */
 function idx(x: Num, z: Num): Num {
 	return z * W + x;
-}
-
-/** Check if position is inside a rectangle (inclusive start, exclusive end). */
-function inRect(x: Num, z: Num, x1: Num, z1: Num, x2: Num, z2: Num): boolean {
-	return x >= x1 && x < x2 && z >= z1 && z < z2;
 }
 
 /** Subtle grass variation based on position. */
@@ -162,8 +144,7 @@ function generateGround(): Num[] {
 		data[idx(x, ROAD_BRANCH_Z + 1)] = x % 3 === 0 ? DIRT : DIRT_V;
 	}
 
-	// --- Lake (oval-ish shape with edges) ---
-	// Inner water
+	// --- Lake (oval shape — solid water fills, no edge transitions) ---
 	const lakeCX: Num = (LAKE_X1 + LAKE_X2) / 2;
 	const lakeCZ: Num = (LAKE_Z1 + LAKE_Z2) / 2;
 	const lakeRX: Num = (LAKE_X2 - LAKE_X1) / 2 - 1;
@@ -171,26 +152,10 @@ function generateGround(): Num[] {
 
 	for (let z: Num = LAKE_Z1; z < LAKE_Z2; z++) {
 		for (let x: Num = LAKE_X1; x < LAKE_X2; x++) {
-			// Ellipse test
 			const dx: Num = (x - lakeCX) / lakeRX;
 			const dz: Num = (z - lakeCZ) / lakeRZ;
-			const dist: Num = dx * dx + dz * dz;
-
-			if (dist <= 0.6) {
-				// Deep water center
+			if (dx * dx + dz * dz <= 1.0) {
 				data[idx(x, z)] = (x + z) % 2 === 0 ? WATER : WATER_V;
-			} else if (dist <= 1.0) {
-				// Water edge — use edge tiles based on direction from center
-				const angle: Num = Math.atan2(dz, dx);
-				if (angle > -Math.PI / 4 && angle <= Math.PI / 4) {
-					data[idx(x, z)] = WG_EDGE_E;
-				} else if (angle > Math.PI / 4 && angle <= (3 * Math.PI) / 4) {
-					data[idx(x, z)] = WG_EDGE_S;
-				} else if (angle > -(3 * Math.PI) / 4 && angle <= -Math.PI / 4) {
-					data[idx(x, z)] = WG_EDGE_N;
-				} else {
-					data[idx(x, z)] = WG_EDGE_W;
-				}
 			}
 		}
 	}
@@ -213,7 +178,7 @@ function generateGround(): Num[] {
 function generateDecorations(): Num[] {
 	const data: Num[] = Array.from({ length: TOTAL }, () => 0);
 
-	const decorTiles: readonly Num[] = [PLANT_1, PLANT_2, PLANT_3, PLANT_4, PLANT_5, BUSH_1, BUSH_2];
+	const decorTiles: readonly Num[] = [FLOWER_BUSH, SMALL_BUSH, TALL_GRASS, FLOWER, GRASS_TUFT];
 
 	for (let z: Num = 0; z < H; z++) {
 		for (let x: Num = 0; x < W; x++) {
@@ -255,18 +220,27 @@ function generateDecorations(): Num[] {
 		}
 	}
 
-	// Bushes around the lake
+	// Bushes around the lake shore
 	for (let z: Num = LAKE_Z1 - 1; z <= LAKE_Z2; z++) {
 		for (let x: Num = LAKE_X1 - 1; x <= LAKE_X2; x++) {
 			if (x < 0 || x >= W || z < 0 || z >= H) continue;
-			const dx2: Num = (x - (LAKE_X1 + LAKE_X2) / 2) / ((LAKE_X2 - LAKE_X1) / 2);
-			const dz2: Num = (z - (LAKE_Z1 + LAKE_Z2) / 2) / ((LAKE_Z2 - LAKE_Z1) / 2);
+			const lCX: Num = (LAKE_X1 + LAKE_X2) / 2;
+			const lCZ: Num = (LAKE_Z1 + LAKE_Z2) / 2;
+			const dx2: Num = (x - lCX) / ((LAKE_X2 - LAKE_X1) / 2);
+			const dz2: Num = (z - lCZ) / ((LAKE_Z2 - LAKE_Z1) / 2);
 			const dist: Num = dx2 * dx2 + dz2 * dz2;
-			// Ring around lake edge
+			// Ring around lake edge — bushes on shore
 			if (dist > 1.0 && dist <= 1.5) {
 				const hash3: Num = (x * 41 + z * 13) % 100;
 				if (hash3 < 30) {
-					data[idx(x, z)] = hash3 < 15 ? BUSH_1 : BUSH_2;
+					data[idx(x, z)] = hash3 < 15 ? FLOWER_BUSH : SMALL_BUSH;
+				}
+			}
+			// Lily pads and water flowers ON the water
+			if (dist > 0.3 && dist <= 0.8) {
+				const hash4: Num = (x * 53 + z * 29) % 100;
+				if (hash4 < 15) {
+					data[idx(x, z)] = hash4 < 10 ? LILY_PAD : WATER_FLOWER;
 				}
 			}
 		}
@@ -283,8 +257,8 @@ function generateUpper(): Num[] {
 	const data: Num[] = Array.from({ length: TOTAL }, () => 0);
 
 	// Trees along the north and south edges of the plateau
-	const treeTile: Num = p(3, 0);
-	const treeAlt: Num = p(3, 2);
+	const treeTile: Num = TREE_CYPRESS;
+	const treeAlt: Num = TREE_MEDIUM;
 
 	for (let x: Num = PLAT_X1; x < PLAT_X2; x++) {
 		const hash: Num = (x * 37) % 100;
