@@ -48,14 +48,21 @@ function isPositionedLight(light: BABYLON.Light): light is PositionedLight {
 	return 'position' in light;
 }
 
-/** A running flicker animation instance. */
+/**
+ * A running flicker animation instance.
+ *
+ * `config` is intentionally mutable — external code (dev harness, game
+ * scripting) may write to it at runtime and the per-frame observer reads
+ * the latest values each tick.
+ */
 export type FlickerInstance = {
 	readonly observer: BABYLON.Observer<BABYLON.Scene>;
 	readonly light: BABYLON.Light;
 	readonly baseIntensity: Num;
 	readonly basePosition: Vector3 | null;
 	readonly baseDiffuse: ColorRgba;
-	readonly config: Partial<FlickerConfig>;
+	/** Mutable — external code may change values between frames. */
+	config: Partial<FlickerConfig>;
 };
 
 // =============================================================================
@@ -269,18 +276,19 @@ export function createFlicker(options: CreateFlickerOptions): BabylonResult<Flic
 			};
 		}
 
-		const flickerType: string = config.type ?? 'candle';
-		const flickerIntensity: number = config.intensity ?? 0.3;
-		const flickerSpeed: number = config.speed ?? 1;
-		const colorShift: boolean = config.colorShift ?? false;
-		const colorShiftRange: number = config.colorShiftRange ?? 200;
-		const positionJitter: number = config.positionJitter ?? 0;
-
 		let elapsedTime = 0;
 
+		// Read config values each frame so external changes (dev harness sliders) take effect
 		const observer: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
 			const dt: number = scene.getEngine().getDeltaTime() / 1000;
 			elapsedTime += dt;
+
+			const flickerType: string = config.type ?? 'candle';
+			const flickerIntensity: number = config.intensity ?? 0.3;
+			const flickerSpeed: number = config.speed ?? 1;
+			const colorShiftEnabled: boolean = config.colorShift ?? false;
+			const colorShiftRange: number = config.colorShiftRange ?? 200;
+			const posJitter: number = config.positionJitter ?? 0;
 
 			// Compute flicker multiplier
 			const multiplier: number = computeFlicker(
@@ -292,7 +300,7 @@ export function createFlicker(options: CreateFlickerOptions): BabylonResult<Flic
 			light.intensity = baseIntensity * multiplier;
 
 			// Color temperature shift
-			if (colorShift && colorTemperature !== undefined) {
+			if (colorShiftEnabled && colorTemperature !== undefined) {
 				const shiftResult: Result<ColorRgba> = computeColorShift(
 					colorTemperature,
 					multiplier,
@@ -308,8 +316,8 @@ export function createFlicker(options: CreateFlickerOptions): BabylonResult<Flic
 			}
 
 			// Position jitter
-			if (positionJitter > 0 && basePosition !== null && isPositionedLight(light)) {
-				const jittered: Vector3 = computePositionJitter(basePosition, positionJitter, elapsedTime);
+			if (posJitter > 0 && basePosition !== null && isPositionedLight(light)) {
+				const jittered: Vector3 = computePositionJitter(basePosition, posJitter, elapsedTime);
 				light.position = new BABYLON.Vector3(jittered.x, jittered.y, jittered.z);
 			}
 		});

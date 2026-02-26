@@ -332,8 +332,13 @@ export function buildCliffChunk(options: BuildCliffChunkOptions): BabylonResult<
 		if (!edgeResult.ok) return edgeResult;
 		if (edgeResult.data.length === 0) return okShallow(null);
 
-		// Use first tileset's first UV as wall texture
-		const wallUV: TileUV = { u0: 0, v0: 0, u1: 1, v1: 1 };
+		// Pick a cliff wall UV from the first tileset.
+		// Prefer tile at local index 51 (LPC cobble solid fill at row 3, col 3),
+		// then fall back to tile 0, then fall back to full atlas (last resort).
+		const CLIFF_TILE_INDEX: Num = 51;
+		const [firstTileset]: readonly LoadedTileset[] = context.loadedTilesets;
+		const wallUV: TileUV = firstTileset?.uvLookup[CLIFF_TILE_INDEX] ??
+			firstTileset?.uvLookup[0] ?? { u0: 0, v0: 0, u1: 1, v1: 1 };
 
 		const geoResult = generateCliffGeometry({
 			edges: edgeResult.data,

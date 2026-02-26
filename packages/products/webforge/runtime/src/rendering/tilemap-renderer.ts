@@ -326,9 +326,12 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 		// 15. Create parallax backgrounds (non-fatal on failure)
 		let parallax: ParallaxInstance | null = null;
 		if (mapData.sky?.parallaxLayers && mapData.sky.parallaxLayers.length > 0) {
+			// Spread to strip DeepReadonly — createParallax stores mutable layer
+			// configs that the dev harness can mutate at runtime (scroll speed, etc).
+			const mutableLayers = mapData.sky.parallaxLayers.map((l) => ({ ...l }));
 			const parallaxResult = createParallax({
 				scene,
-				layers: mapData.sky.parallaxLayers,
+				layers: mutableLayers,
 				assetBasePath,
 			});
 			if (parallaxResult.ok) {
@@ -600,6 +603,17 @@ export function setLayerOpacity(options: SetLayerOpacityOptions): BabylonResult<
 		for (const chunk of options.tilemap.chunks) {
 			if (chunk.layerIndex === options.layerIndex) {
 				chunk.mesh.visibility = options.opacity;
+
+				// Switch material transparency mode to support partial opacity.
+				// ALPHATEST is binary (0 or 1), ALPHATESTANDBLEND supports smooth 0-1 range.
+				const mat = chunk.mesh.material;
+				if (mat) {
+					if (options.opacity < 1) {
+						mat.transparencyMode = BABYLON.Material.MATERIAL_ALPHATESTANDBLEND;
+					} else {
+						mat.transparencyMode = BABYLON.Material.MATERIAL_ALPHATEST;
+					}
+				}
 			}
 		}
 		return okUnchecked(true);

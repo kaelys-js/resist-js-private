@@ -16,6 +16,9 @@
 				height: 100%;
 				overflow: hidden;
 				background: #000;
+				font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+				font-size: 11px;
+				color: #e0e0e0;
 			}
 			canvas {
 				display: block;
@@ -23,10 +26,564 @@
 				height: 100vh;
 				touch-action: none;
 			}
+
+			/* ── Control Panel ─────────────────────────────────── */
+			#control-panel {
+				position: fixed;
+				top: 8px;
+				right: 8px;
+				width: 280px;
+				max-height: calc(100vh - 16px);
+				overflow-y: auto;
+				background: rgba(18, 18, 24, 0.92);
+				border: 1px solid rgba(255, 255, 255, 0.08);
+				border-radius: 8px;
+				backdrop-filter: blur(12px);
+				z-index: 100;
+				padding: 0;
+				scrollbar-width: thin;
+				scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+			}
+			#control-panel.collapsed > .panel-body {
+				display: none;
+			}
+
+			.panel-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 8px 12px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+				cursor: pointer;
+				user-select: none;
+			}
+			.panel-header:hover {
+				background: rgba(255, 255, 255, 0.03);
+			}
+			.panel-title {
+				font-size: 12px;
+				font-weight: 600;
+				letter-spacing: 0.5px;
+				color: #a0a0ff;
+			}
+			.panel-toggle {
+				font-size: 10px;
+				opacity: 0.5;
+			}
+
+			/* ── FPS Bar ─────────────────────────────────────── */
+			#fps-bar {
+				padding: 6px 12px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+				font-size: 10px;
+				color: #8a8;
+				display: flex;
+				gap: 12px;
+			}
+			#fps-bar span {
+				opacity: 0.7;
+			}
+
+			/* ── Sections ────────────────────────────────────── */
+			.section {
+				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+			}
+			.section:last-child {
+				border-bottom: none;
+			}
+			.section-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 6px 12px;
+				cursor: pointer;
+				user-select: none;
+				font-size: 10px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 1px;
+				color: #888;
+			}
+			.section-header:hover {
+				background: rgba(255, 255, 255, 0.03);
+				color: #aaa;
+			}
+			.section-body {
+				padding: 4px 12px 8px;
+			}
+			.section.collapsed > .section-body {
+				display: none;
+			}
+
+			/* ── Controls ────────────────────────────────────── */
+			.control-row {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 3px 0;
+				gap: 6px;
+			}
+			.control-label {
+				font-size: 10px;
+				color: #999;
+				flex-shrink: 0;
+			}
+			.control-value {
+				font-size: 10px;
+				color: #7a7aff;
+				min-width: 32px;
+				text-align: right;
+			}
+
+			/* Buttons */
+			.btn-group {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 3px;
+				padding: 2px 0;
+			}
+			.btn {
+				padding: 4px 8px;
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				border-radius: 4px;
+				background: rgba(255, 255, 255, 0.04);
+				color: #ccc;
+				font-family: inherit;
+				font-size: 10px;
+				cursor: pointer;
+				transition: all 0.12s;
+			}
+			.btn:hover {
+				background: rgba(255, 255, 255, 0.1);
+				color: #fff;
+				border-color: rgba(255, 255, 255, 0.2);
+			}
+			.btn.active {
+				background: rgba(100, 100, 255, 0.2);
+				border-color: rgba(100, 100, 255, 0.4);
+				color: #aaf;
+			}
+			.btn-wide {
+				flex: 1;
+				text-align: center;
+			}
+			.btn-danger {
+				border-color: rgba(255, 100, 100, 0.3);
+				color: #f88;
+			}
+			.btn-danger:hover {
+				background: rgba(255, 100, 100, 0.15);
+			}
+
+			/* Sliders */
+			input[type='range'] {
+				-webkit-appearance: none;
+				appearance: none;
+				width: 100%;
+				height: 4px;
+				background: rgba(255, 255, 255, 0.1);
+				border-radius: 2px;
+				outline: none;
+			}
+			input[type='range']::-webkit-slider-thumb {
+				-webkit-appearance: none;
+				appearance: none;
+				width: 12px;
+				height: 12px;
+				background: #7a7aff;
+				border-radius: 50%;
+				cursor: pointer;
+			}
+
+			/* Toggle */
+			.toggle-row {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 3px 0;
+			}
+			.toggle-switch {
+				position: relative;
+				width: 28px;
+				height: 14px;
+				background: rgba(255, 255, 255, 0.1);
+				border-radius: 7px;
+				cursor: pointer;
+				transition: background 0.2s;
+			}
+			.toggle-switch.on {
+				background: rgba(100, 200, 100, 0.4);
+			}
+			.toggle-switch::after {
+				content: '';
+				position: absolute;
+				top: 2px;
+				left: 2px;
+				width: 10px;
+				height: 10px;
+				background: #ccc;
+				border-radius: 50%;
+				transition: transform 0.2s;
+			}
+			.toggle-switch.on::after {
+				transform: translateX(14px);
+				background: #8f8;
+			}
+
+			/* Color preview */
+			.color-swatch {
+				width: 16px;
+				height: 16px;
+				border-radius: 3px;
+				border: 1px solid rgba(255, 255, 255, 0.15);
+				display: inline-block;
+				vertical-align: middle;
+			}
+
+			/* Status text */
+			.status-text {
+				font-size: 9px;
+				color: #666;
+				padding: 2px 0;
+				font-style: italic;
+			}
+
+			/* Dropdown */
+			.control-dropdown {
+				-webkit-appearance: none;
+				appearance: none;
+				width: 100%;
+				padding: 4px 8px;
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				border-radius: 4px;
+				color: #ccc;
+				font-family: inherit;
+				font-size: 10px;
+				cursor: pointer;
+				outline: none;
+			}
+			.control-dropdown:hover {
+				background: rgba(255, 255, 255, 0.1);
+				border-color: rgba(255, 255, 255, 0.2);
+				color: #fff;
+			}
+			.control-dropdown:focus {
+				border-color: rgba(100, 100, 255, 0.4);
+			}
+			.control-dropdown option {
+				background: #1a1a2e;
+				color: #ccc;
+			}
 		</style>
 	</head>
 	<body>
 		<canvas id="game-canvas"></canvas>
+
+		<div id="control-panel">
+			<div class="panel-header" onclick="togglePanel()">
+				<span class="panel-title">WebForge DevTools</span>
+				<span class="panel-toggle" id="panel-toggle-icon">[ - ]</span>
+			</div>
+
+			<div class="panel-body">
+				<!-- FPS -->
+				<div id="fps-bar">
+					<span id="fps-display">FPS: --</span>
+					<span id="backend-display">--</span>
+					<span id="draw-calls-display">DC: --</span>
+				</div>
+
+				<!-- Camera Presets -->
+				<div class="section" id="section-camera" data-section="camera">
+					<div class="section-header" onclick="toggleSection('section-camera')">
+						<span>Camera Presets</span>
+						<span class="panel-toggle">-</span>
+					</div>
+					<div class="section-body">
+						<div id="camera-preset-dropdown"></div>
+						<div class="control-row">
+							<span class="control-label">Transition</span>
+							<input
+								type="range"
+								id="transition-duration"
+							data-control="transition-duration"
+								min="0"
+								max="2000"
+								value="500"
+								step="100"
+							/>
+							<span class="control-value" id="transition-value">500ms</span>
+						</div>
+						<div class="control-row" style="padding-top: 4px">
+							<span class="control-label">Tactics Rotate</span>
+							<div class="btn-group" style="flex: 1; justify-content: flex-end">
+								<button class="btn" onclick="rotateCCW()">CCW</button>
+								<button class="btn" onclick="rotateCW()">CW</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Screen Shake -->
+				<div class="section" id="section-shake" data-section="shake">
+					<div class="section-header" onclick="toggleSection('section-shake')">
+						<span>Screen Shake</span>
+						<span class="panel-toggle">-</span>
+					</div>
+					<div class="section-body">
+						<div class="control-row">
+							<span class="control-label">Intensity</span>
+							<input
+								type="range"
+								id="shake-intensity"
+							data-control="shake-intensity"
+								min="0.1"
+								max="3"
+								value="0.5"
+								step="0.1"
+							/>
+							<span class="control-value" id="shake-intensity-value">0.5</span>
+						</div>
+						<div class="control-row">
+							<span class="control-label">Duration</span>
+							<input
+								type="range"
+								id="shake-duration"
+							data-control="shake-duration"
+								min="100"
+								max="2000"
+								value="300"
+								step="50"
+							/>
+							<span class="control-value" id="shake-duration-value">300ms</span>
+						</div>
+						<button class="btn" onclick="triggerShake()" style="width: 100%; margin-top: 4px">
+							Trigger Shake
+						</button>
+					</div>
+				</div>
+
+				<!-- Day/Night Cycle -->
+				<div class="section" id="section-daynight" data-section="daynight">
+					<div class="section-header" onclick="toggleSection('section-daynight')">
+						<span>Day / Night Cycle</span>
+						<span class="panel-toggle">-</span>
+					</div>
+					<div class="section-body">
+						<div class="control-row">
+							<span class="control-label">Time</span>
+							<input type="range" id="time-slider" data-control="time" min="0" max="24" value="12" step="0.1" />
+							<span class="control-value" id="time-value">12:00</span>
+						</div>
+						<div class="control-row">
+							<span class="control-label">Speed</span>
+							<input type="range" id="speed-slider" data-control="speed" min="0" max="10" value="0" step="0.5" />
+							<span class="control-value" id="speed-value">0x</span>
+						</div>
+						<div id="daynight-preset-dropdown"></div>
+						<button class="btn" id="daynight-pause-btn" data-control="daynight-pause" style="width: 100%; margin-top: 4px">
+							Pause
+						</button>
+					</div>
+				</div>
+
+				<!-- Layers -->
+				<div class="section" id="section-layers" data-section="layers">
+					<div class="section-header" onclick="toggleSection('section-layers')">
+						<span>Layers</span>
+						<span class="panel-toggle">-</span>
+					</div>
+					<div class="section-body" id="layers-body">
+						<div class="status-text">Loading layers...</div>
+					</div>
+				</div>
+
+				<!-- Sky / Background -->
+				<div class="section collapsed" id="section-sky" data-section="sky">
+					<div class="section-header" onclick="toggleSection('section-sky')">
+						<span>Sky / Background</span>
+						<span class="panel-toggle">+</span>
+					</div>
+					<div class="section-body" id="sky-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+
+				<!-- Screen Effects -->
+				<div class="section" id="section-effects" data-section="effects">
+					<div class="section-header" onclick="toggleSection('section-effects')">
+						<span>Screen Effects</span>
+						<span class="panel-toggle">-</span>
+					</div>
+					<div class="section-body">
+						<div class="control-row">
+							<span class="control-label">Duration</span>
+							<input
+								type="range"
+								id="effect-duration"
+							data-control="effect-duration"
+								min="100"
+								max="10000"
+								value="500"
+								step="100"
+							/>
+							<span class="control-value" id="effect-duration-value">500ms</span>
+						</div>
+						<div id="effect-type-dropdown"></div>
+						<button class="btn" id="effect-trigger-btn" data-control="effect-trigger" style="width: 100%; margin-top: 4px">
+							Trigger Effect
+						</button>
+						<div class="control-row" style="padding-top: 4px">
+							<span class="control-label">Color</span>
+							<div class="btn-group" style="flex: 1; justify-content: flex-end; flex-wrap: wrap">
+								<button
+									class="btn active"
+									data-effect-color="white"
+									style="padding: 4px 6px"
+								>
+									<span
+										class="color-swatch"
+										style="background: #fff; width: 12px; height: 12px"
+									></span>
+								</button>
+								<button class="btn" data-effect-color="black" style="padding: 4px 6px">
+									<span
+										class="color-swatch"
+										style="background: #000; width: 12px; height: 12px"
+									></span>
+								</button>
+								<button class="btn" data-effect-color="red" style="padding: 4px 6px">
+									<span
+										class="color-swatch"
+										style="background: #f00; width: 12px; height: 12px"
+									></span>
+								</button>
+								<button class="btn" data-effect-color="green" style="padding: 4px 6px">
+									<span
+										class="color-swatch"
+										style="background: #0f0; width: 12px; height: 12px"
+									></span>
+								</button>
+								<button class="btn" data-effect-color="blue" style="padding: 4px 6px">
+									<span
+										class="color-swatch"
+										style="background: #00f; width: 12px; height: 12px"
+									></span>
+								</button>
+								<button class="btn" data-effect-color="yellow" style="padding: 4px 6px">
+									<span
+										class="color-swatch"
+										style="background: #ff0; width: 12px; height: 12px"
+									></span>
+								</button>
+							</div>
+						</div>
+						<div class="control-row">
+							<span class="control-label">Custom</span>
+							<input type="color" id="effect-custom-color" data-control="effect-custom-color" value="#ffffff" style="width: 28px; height: 20px; border: none; padding: 0; background: transparent; cursor: pointer;" />
+						</div>
+					</div>
+				</div>
+
+				<!-- Rendering -->
+				<div class="section" id="section-rendering" data-section="rendering">
+					<div class="section-header" onclick="toggleSection('section-rendering')">
+						<span>Rendering</span>
+						<span class="panel-toggle">-</span>
+					</div>
+					<div class="section-body">
+						<div class="toggle-row" data-control="post-processing">
+							<span class="control-label">Post Processing</span>
+							<div class="toggle-switch on" id="toggle-postprocess" onclick="togglePostProcess()"></div>
+						</div>
+						<div class="toggle-row" data-control="glow-layer">
+							<span class="control-label">Glow Layer</span>
+							<div class="toggle-switch on" id="toggle-glow" onclick="toggleGlow()"></div>
+						</div>
+						<div class="toggle-row" data-control="shadows">
+							<span class="control-label">Shadows</span>
+							<div class="toggle-switch on" id="toggle-shadows" onclick="toggleShadows()"></div>
+						</div>
+						<div class="toggle-row" data-control="god-rays">
+							<span class="control-label">God Rays</span>
+							<div class="toggle-switch on" id="toggle-godrays" onclick="toggleGodRays()"></div>
+						</div>
+						<div class="toggle-row" data-control="lens-flares">
+							<span class="control-label">Lens Flares</span>
+							<div class="toggle-switch on" id="toggle-lensflares" onclick="toggleLensFlares()"></div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Post-Processing Effects (detailed) -->
+				<div class="section collapsed" id="section-postfx" data-section="postfx">
+					<div class="section-header" onclick="toggleSection('section-postfx')">
+						<span>Post-FX Details</span>
+						<span class="panel-toggle">+</span>
+					</div>
+					<div class="section-body" id="postfx-body">
+						<div class="status-text">Loading pipeline...</div>
+					</div>
+				</div>
+
+				<!-- Fog -->
+				<div class="section collapsed" id="section-fog" data-section="fog">
+					<div class="section-header" onclick="toggleSection('section-fog')">
+						<span>Fog</span>
+						<span class="panel-toggle">+</span>
+					</div>
+					<div class="section-body" id="fog-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+
+				<!-- Camera Details -->
+				<div class="section collapsed" id="section-camdetails" data-section="camdetails">
+					<div class="section-header" onclick="toggleSection('section-camdetails')">
+						<span>Camera Details</span>
+						<span class="panel-toggle">+</span>
+					</div>
+					<div class="section-body" id="camdetails-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+
+				<!-- Glow Layer Details -->
+				<div class="section collapsed" id="section-glowdetails" data-section="glow">
+					<div class="section-header" onclick="toggleSection('section-glowdetails')">
+						<span>Glow Layer</span>
+						<span class="panel-toggle">+</span>
+					</div>
+					<div class="section-body" id="glowdetails-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+
+				<!-- Lights -->
+				<div class="section collapsed" id="section-lights" data-section="lights">
+					<div class="section-header" onclick="toggleSection('section-lights')">
+						<span>Lights</span>
+						<span class="panel-toggle">+</span>
+					</div>
+					<div class="section-body" id="lights-body">
+						<div class="status-text">Loading lights...</div>
+					</div>
+				</div>
+
+				<!-- Scene Info -->
+				<div class="section collapsed" id="section-info" data-section="info">
+					<div class="section-header" onclick="toggleSection('section-info')">
+						<span>Scene Info</span>
+						<span class="panel-toggle">+</span>
+					</div>
+					<div class="section-body" id="info-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<script type="module" src="./dev.ts"></script>
 	</body>
 </html>

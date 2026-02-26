@@ -510,8 +510,12 @@ export function screenShake(options: ScreenShakeOptions): BabylonResult<ShakeHan
 		const startTime: number = Date.now();
 		let disposed = false;
 
-		// Store original position for restoration
-		const originalPosition: BABYLON.Vector3 = camera.position.clone();
+		// For ArcRotateCamera, shaking position is overwritten by the orbit computation
+		// each frame. Instead, shake the orbit target. For other cameras, shake position.
+		const isArcRotate: boolean = camera instanceof BABYLON.ArcRotateCamera;
+		const originalTarget: BABYLON.Vector3 = isArcRotate
+			? (camera as BABYLON.ArcRotateCamera).target.clone()
+			: camera.position.clone();
 
 		const observer: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>> =
 			scene.onBeforeRenderObservable.add(() => {
@@ -520,8 +524,12 @@ export function screenShake(options: ScreenShakeOptions): BabylonResult<ShakeHan
 				const elapsed: number = Date.now() - startTime;
 
 				if (elapsed >= durationMs) {
-					// Restore original position and remove observer
-					camera.position.copyFrom(originalPosition);
+					// Restore original and remove observer
+					if (isArcRotate) {
+						(camera as BABYLON.ArcRotateCamera).target.copyFrom(originalTarget);
+					} else {
+						camera.position.copyFrom(originalTarget);
+					}
 					disposed = true;
 					if (observer) scene.onBeforeRenderObservable.remove(observer);
 					return;
@@ -531,18 +539,209 @@ export function screenShake(options: ScreenShakeOptions): BabylonResult<ShakeHan
 				const progress: number = elapsed / durationMs;
 				const currentIntensity: number = decay ? intensity * (1 - progress) : intensity;
 
-				// Apply random offset
-				camera.position.x = originalPosition.x + (Math.random() - 0.5) * currentIntensity;
-				camera.position.y = originalPosition.y + (Math.random() - 0.5) * currentIntensity;
-				camera.position.z = originalPosition.z + (Math.random() - 0.5) * currentIntensity;
+				// Apply random offset to target (ArcRotate) or position (other cameras)
+				const offsetX: number = (Math.random() - 0.5) * currentIntensity;
+				const offsetY: number = (Math.random() - 0.5) * currentIntensity;
+				const offsetZ: number = (Math.random() - 0.5) * currentIntensity;
+
+				if (isArcRotate) {
+					const arc = camera as BABYLON.ArcRotateCamera;
+					arc.target.x = originalTarget.x + offsetX;
+					arc.target.y = originalTarget.y + offsetY;
+					arc.target.z = originalTarget.z + offsetZ;
+				} else {
+					camera.position.x = originalTarget.x + offsetX;
+					camera.position.y = originalTarget.y + offsetY;
+					camera.position.z = originalTarget.z + offsetZ;
+				}
 			});
 
 		const handle: ShakeHandle = {
 			dispose: () => {
 				if (disposed) return;
 				disposed = true;
-				camera.position.copyFrom(originalPosition);
+				if (isArcRotate) {
+					(camera as BABYLON.ArcRotateCamera).target.copyFrom(originalTarget);
+				} else {
+					camera.position.copyFrom(originalTarget);
+				}
 				if (observer) scene.onBeforeRenderObservable.remove(observer);
+			},
+		};
+
+		return okShallow(handle);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// Switch Camera Preset
+// =============================================================================
+
+/** Handle for a running preset transition. */
+export type PresetTransitionHandle = {
+	/** Cancels the transition at its current interpolation point. */
+	readonly dispose: () => void;
+};
+
+/** Options for switching camera preset with smooth transition. */
+export type SwitchCameraPresetOptions = {
+	/** The Babylon.js scene. */
+	readonly scene: BABYLON.Scene;
+	/** The ArcRotateCamera to transition. */
+	readonly camera: BABYLON.ArcRotateCamera;
+	/** Target preset to transition to. */
+	readonly targetPreset: CameraPreset;
+	/** Transition duration in milliseconds. 0 = instant. */
+	readonly durationMs: Num;
+	/** Easing function name. */
+	readonly easing: 'linear' | 'easeInOutCubic' | 'easeOutBack' | 'easeInOutQuad';
+};
+
+/**
+ * Easing functions for smooth transitions.
+ *
+ * @param t - Progress [0, 1].
+ * @returns Eased value [0, 1].
+ */
+/** No-op dispose for instant transitions. */
+const NOOP_DISPOSE = (): void => {
+	/* no-op for instant transitions */
+};
+
+/**
+ * Linear fallback easing when requested easing is not found.
+ *
+ * @param t - Progress value [0, 1].
+ * @returns The same value unchanged.
+ */
+const LINEAR_FALLBACK = (t: Num): Num => t;
+
+const EASING_FUNCTIONS: Record<string, (t: Num) => Num> = {
+	linear: (t: Num): Num => t,
+	easeInOutCubic: (t: Num): Num => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2),
+	easeOutBack: (t: Num): Num => {
+		const c1: Num = 1.701_58;
+		const c3: Num = c1 + 1;
+		return 1 + c3 * (t - 1) ** 3 + c1 * (t - 1) ** 2;
+	},
+	easeInOutQuad: (t: Num): Num => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2),
+};
+
+/**
+ * Smoothly transitions an ArcRotateCamera to a new preset.
+ *
+ * Interpolates alpha, beta, radius, fov, and inertia from current values
+ * to the target preset defaults over the specified duration. Also updates
+ * orbit limits (alpha/beta lock) and panning at transition end.
+ *
+ * When `durationMs` is 0, the preset is applied instantly.
+ *
+ * @param options - Scene, camera, target preset, duration, and easing.
+ * @returns BabylonResult containing a handle to cancel the transition.
+ *
+ * @example
+ * ```typescript
+ * const result = switchCameraPreset({
+ *   scene, camera: arcCamera, targetPreset: 'cinematic',
+ *   durationMs: 500, easing: 'easeInOutCubic',
+ * });
+ * if (result.ok) result.data.dispose(); // cancel early
+ * ```
+ */
+export function switchCameraPreset(
+	options: SwitchCameraPresetOptions,
+): BabylonResult<PresetTransitionHandle> {
+	const { scene, camera, targetPreset, durationMs, easing } = options;
+
+	try {
+		const defaults: PresetDefaults = PRESET_DEFAULTS[targetPreset];
+		const easeFn: (t: Num) => Num = EASING_FUNCTIONS[easing] ?? LINEAR_FALLBACK;
+
+		// Snapshot starting values
+		const startAlpha: Num = camera.alpha;
+		const startBeta: Num = camera.beta;
+		const startRadius: Num = camera.radius;
+		const startFov: Num = camera.fov;
+		const startInertia: Num = camera.inertia;
+
+		// Target values
+		const endAlpha: Num = defaults.alpha;
+		const endBeta: Num = defaults.beta;
+		const endRadius: Num = defaults.radius;
+		const endFov: Num = defaults.fov;
+		const endInertia: Num = defaults.inertia;
+
+		const applyFinalPresetState = (): void => {
+			camera.fov = endFov;
+			camera.inertia = endInertia;
+			camera.panningSensibility = defaults.panningSensibility;
+
+			// Alpha limits
+			if (defaults.lockAlpha) {
+				camera.lowerAlphaLimit = endAlpha;
+				camera.upperAlphaLimit = endAlpha;
+			} else {
+				camera.lowerAlphaLimit = null;
+				camera.upperAlphaLimit = null;
+			}
+
+			// Beta limits
+			if (defaults.lockBeta) {
+				camera.lowerBetaLimit = endBeta;
+				camera.upperBetaLimit = endBeta;
+			} else {
+				camera.lowerBetaLimit = Math.PI / 6;
+				camera.upperBetaLimit = Math.PI / 2.5;
+			}
+		};
+
+		// Instant transition
+		if (durationMs <= 0) {
+			camera.alpha = endAlpha;
+			camera.beta = endBeta;
+			camera.radius = endRadius;
+			applyFinalPresetState();
+			return okShallow({ dispose: NOOP_DISPOSE });
+		}
+
+		// Animated transition
+		const startTime: Num = Date.now() as Num;
+		let disposed = false;
+
+		// Unlock limits during transition so interpolated values aren't clamped
+		camera.lowerAlphaLimit = null;
+		camera.upperAlphaLimit = null;
+		camera.lowerBetaLimit = 0;
+		camera.upperBetaLimit = Math.PI;
+
+		const observer: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
+			if (disposed) return;
+
+			const elapsed: Num = (Date.now() - startTime) as Num;
+			const rawProgress: Num = Math.min(1, elapsed / durationMs) as Num;
+			const t: Num = easeFn(rawProgress);
+
+			// Interpolate camera properties
+			camera.alpha = startAlpha + (endAlpha - startAlpha) * t;
+			camera.beta = startBeta + (endBeta - startBeta) * t;
+			camera.radius = startRadius + (endRadius - startRadius) * t;
+			camera.fov = startFov + (endFov - startFov) * t;
+			camera.inertia = startInertia + (endInertia - startInertia) * t;
+
+			if (rawProgress >= 1) {
+				applyFinalPresetState();
+				disposed = true;
+				scene.onBeforeRenderObservable.remove(observer);
+			}
+		});
+
+		const handle: PresetTransitionHandle = {
+			dispose: () => {
+				if (disposed) return;
+				disposed = true;
+				scene.onBeforeRenderObservable.remove(observer);
 			},
 		};
 

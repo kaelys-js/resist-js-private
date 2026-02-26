@@ -12,7 +12,13 @@ import * as BABYLON from '@babylonjs/core';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
 import { createTestEngine, disposeEngine, type BabylonEngineInstance } from './engine';
-import { createCamera, updateCameraTarget, rotateTactics, screenShake } from './camera-controller';
+import {
+	createCamera,
+	updateCameraTarget,
+	rotateTactics,
+	screenShake,
+	switchCameraPreset,
+} from './camera-controller';
 
 let instance: BabylonEngineInstance;
 
@@ -473,5 +479,112 @@ describe('screenShake', () => {
 		expect(typeof result.data.dispose).toBe('function');
 		// Disposing early should not throw
 		result.data.dispose();
+	});
+});
+
+// =============================================================================
+// switchCameraPreset
+// =============================================================================
+
+describe('switchCameraPreset', () => {
+	test('returns ok Result with a dispose handle', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+
+		const result = switchCameraPreset({
+			scene: instance.scene,
+			camera: cameraResult.data as BABYLON.ArcRotateCamera,
+			targetPreset: 'topdown',
+			durationMs: 500,
+			easing: 'easeInOutCubic',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(typeof result.data.dispose).toBe('function');
+		result.data.dispose();
+	});
+
+	test('instantly applies target preset values when durationMs is 0', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		const result = switchCameraPreset({
+			scene: instance.scene,
+			camera: arc,
+			targetPreset: 'cinematic',
+			durationMs: 0,
+			easing: 'linear',
+		});
+		expect(result.ok).toBeTruthy();
+
+		// Should immediately have cinematic defaults
+		expect(arc.alpha).toBeCloseTo(Math.PI / 6);
+		expect(arc.beta).toBeCloseTo(Math.PI / 3);
+		expect(arc.radius).toBe(40);
+		expect(arc.fov).toBeCloseTo(1.2);
+	});
+
+	test('dispose cancels transition and keeps current values', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		const result = switchCameraPreset({
+			scene: instance.scene,
+			camera: arc,
+			targetPreset: 'topdown',
+			durationMs: 5000,
+			easing: 'linear',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// Dispose immediately — alpha should still be near hd2d default
+		result.data.dispose();
+		expect(arc.alpha).toBeCloseTo(Math.PI / 4);
+	});
+
+	test('updates alpha limits when transitioning to locked-alpha preset', () => {
+		// Start with free (unlocked alpha)
+		const cameraResult = createCamera(instance.scene, { preset: 'free' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		// Transition to hd2d (locked alpha) instantly
+		const result = switchCameraPreset({
+			scene: instance.scene,
+			camera: arc,
+			targetPreset: 'hd2d',
+			durationMs: 0,
+			easing: 'linear',
+		});
+		expect(result.ok).toBeTruthy();
+
+		// Alpha limits should be locked to hd2d default
+		expect(arc.lowerAlphaLimit).toBeCloseTo(Math.PI / 4);
+		expect(arc.upperAlphaLimit).toBeCloseTo(Math.PI / 4);
+	});
+
+	test('unlocks alpha limits when transitioning to free preset', () => {
+		// Start with hd2d (locked alpha)
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		// Verify locked initially
+		expect(arc.lowerAlphaLimit).not.toBeNull();
+
+		// Transition to free (unlocked) instantly
+		switchCameraPreset({
+			scene: instance.scene,
+			camera: arc,
+			targetPreset: 'free',
+			durationMs: 0,
+			easing: 'linear',
+		});
+
+		expect(arc.lowerAlphaLimit).toBeNull();
+		expect(arc.upperAlphaLimit).toBeNull();
 	});
 });

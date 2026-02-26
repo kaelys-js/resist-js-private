@@ -495,7 +495,7 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 		dayNight: {
 			enabled: true,
 			timeOfDay: 10,
-			speed: 0.5,
+			speed: 0,
 			sunLightId: 'sun',
 			ambientLightId: 'ambient',
 			sunPath: { sunrise: 6, sunset: 18, maxElevation: 75 },

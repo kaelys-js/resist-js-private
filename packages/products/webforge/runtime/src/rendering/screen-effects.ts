@@ -7,8 +7,10 @@
  * - `screenFadeIn` — fade from opaque to transparent (scene appears)
  * - `screenFadeOut` — fade from transparent to opaque (scene disappears)
  *
- * All effects use a full-screen plane mesh parented to the camera with
- * per-frame alpha animation via `scene.onBeforeRenderObservable`.
+ * All effects use a DOM overlay div positioned over the canvas. This approach
+ * is more reliable than 3D plane meshes which have issues with billboard mode,
+ * camera parenting, and rendering group conflicts.
+ *
  * Each returns a `ScreenEffectHandle` with `dispose()` for early cancellation.
  *
  * @example
@@ -49,7 +51,7 @@ import type { ColorRgba } from '../schemas/scene-setup-config';
  * Call `dispose()` to cancel the effect early and remove the overlay.
  */
 export type ScreenEffectHandle = {
-	/** Disposes the overlay mesh, material, and per-frame observer. */
+	/** Disposes the overlay and per-frame observer. */
 	readonly dispose: () => void;
 };
 
@@ -64,60 +66,44 @@ type ScreenEffectOptions = {
 };
 
 // =============================================================================
-// Internal: Create overlay plane
+// Internal: Create DOM overlay
 // =============================================================================
 
 /**
- * Creates a full-screen overlay plane in front of the camera.
+ * Creates a full-screen DOM overlay element positioned over the canvas.
  *
- * @param scene - The Babylon.js scene.
- * @param name - Mesh name for identification.
+ * @param scene - The Babylon.js scene (used to find the canvas).
  * @param color - Overlay RGBA color.
- * @param initialAlpha - Starting alpha transparency.
- * @returns The plane mesh and StandardMaterial for alpha control.
+ * @param initialOpacity - Starting CSS opacity (0-1).
+ * @returns The overlay div element.
  */
-function createOverlayPlane(
-	scene: BABYLON.Scene,
-	name: string,
-	color: ColorRgba,
-	initialAlpha: Num,
-): { mesh: BABYLON.Mesh; material: BABYLON.StandardMaterial } {
-	const mesh = BABYLON.MeshBuilder.CreatePlane(name, { size: 100 }, scene);
-	mesh.renderingGroupId = 3;
-	mesh.isPickable = false;
-	mesh.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+function createOverlayDiv(scene: BABYLON.Scene, color: ColorRgba, initialOpacity: Num): HTMLDivElement {
+	const overlay = document.createElement('div');
+	const canvas = scene.getEngine().getRenderingCanvas();
 
-	// Position close to camera
-	const camera = scene.activeCamera;
-	if (camera) {
-		mesh.parent = camera;
-		mesh.position = new BABYLON.Vector3(0, 0, 1);
-	}
+	// Match canvas position
+	overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;';
+	overlay.style.backgroundColor = `rgb(${Math.round(color.r * 255)},${Math.round(color.g * 255)},${Math.round(color.b * 255)})`;
+	overlay.style.opacity = String(initialOpacity);
 
-	const material = new BABYLON.StandardMaterial(`${name}-mat`, scene);
-	material.diffuseColor = new BABYLON.Color3(color.r, color.g, color.b);
-	material.emissiveColor = new BABYLON.Color3(color.r, color.g, color.b);
-	material.disableLighting = true;
-	material.backFaceCulling = false;
-	material.alpha = initialAlpha;
-	mesh.material = material;
+	// Insert before the control panel so it covers the canvas but not the UI
+	const parent = canvas?.parentElement ?? document.body;
+	parent.append(overlay);
 
-	return { mesh, material };
+	return overlay;
 }
 
 /**
- * Creates a disposable effect handle that cleans up mesh + observer.
+ * Creates a disposable effect handle that cleans up the DOM overlay + observer.
  *
  * @param scene - The Babylon.js scene.
- * @param mesh - The overlay plane mesh.
- * @param material - The overlay material.
+ * @param overlay - The DOM overlay element.
  * @param observer - The per-frame observer (null if not registered).
  * @returns ScreenEffectHandle with a dispose function.
  */
 function createEffectHandle(
 	scene: BABYLON.Scene,
-	mesh: BABYLON.Mesh,
-	material: BABYLON.StandardMaterial,
+	overlay: HTMLDivElement,
 	observer: BABYLON.Observer<BABYLON.Scene> | null,
 ): ScreenEffectHandle {
 	let disposed = false;
@@ -129,8 +115,7 @@ function createEffectHandle(
 			if (observer) {
 				scene.onBeforeRenderObservable.remove(observer);
 			}
-			material.dispose();
-			mesh.dispose();
+			overlay.remove();
 		},
 	};
 }
@@ -157,7 +142,7 @@ export function screenTint(options: ScreenEffectOptions): BabylonResult<ScreenEf
 
 	try {
 		const targetAlpha: Num = color.a as Num;
-		const { mesh, material } = createOverlayPlane(scene, 'screen-tint', color, 0 as Num);
+		const overlay = createOverlayDiv(scene, color, 0 as Num);
 
 		const startTime: Num = Date.now() as Num;
 		const fadeInMs: Num = (durationMs * 0.2) as Num;
@@ -168,22 +153,18 @@ export function screenTint(options: ScreenEffectOptions): BabylonResult<ScreenEf
 			const elapsed: Num = (Date.now() - startTime) as Num;
 
 			if (elapsed < fadeInMs) {
-				// Fade in
-				material.alpha = targetAlpha * (elapsed / fadeInMs);
+				overlay.style.opacity = String(targetAlpha * (elapsed / fadeInMs));
 			} else if (elapsed < fadeInMs + holdMs) {
-				// Hold
-				material.alpha = targetAlpha;
+				overlay.style.opacity = String(targetAlpha);
 			} else if (elapsed < durationMs) {
-				// Fade out
 				const fadeOutElapsed: Num = (elapsed - fadeInMs - holdMs) as Num;
-				material.alpha = targetAlpha * (1 - fadeOutElapsed / fadeOutMs);
+				overlay.style.opacity = String(targetAlpha * (1 - fadeOutElapsed / fadeOutMs));
 			} else {
-				// Done — auto-dispose
 				handle.dispose();
 			}
 		});
 
-		const handle = createEffectHandle(scene, mesh, material, observer);
+		const handle = createEffectHandle(scene, overlay, observer);
 		return okShallow(handle);
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
@@ -211,7 +192,7 @@ export function screenFlash(options: ScreenEffectOptions): BabylonResult<ScreenE
 	const { scene, color, durationMs } = options;
 
 	try {
-		const { mesh, material } = createOverlayPlane(scene, 'screen-flash', color, color.a as Num);
+		const overlay = createOverlayDiv(scene, color, color.a as Num);
 
 		const startTime: Num = Date.now() as Num;
 
@@ -219,14 +200,14 @@ export function screenFlash(options: ScreenEffectOptions): BabylonResult<ScreenE
 			const elapsed: Num = (Date.now() - startTime) as Num;
 			const progress: Num = Math.min(1, elapsed / durationMs) as Num;
 
-			material.alpha = color.a * (1 - progress);
+			overlay.style.opacity = String(color.a * (1 - progress));
 
 			if (progress >= 1) {
 				handle.dispose();
 			}
 		});
 
-		const handle = createEffectHandle(scene, mesh, material, observer);
+		const handle = createEffectHandle(scene, overlay, observer);
 		return okShallow(handle);
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
@@ -254,7 +235,7 @@ export function screenFadeIn(options: ScreenEffectOptions): BabylonResult<Screen
 	const { scene, color, durationMs } = options;
 
 	try {
-		const { mesh, material } = createOverlayPlane(scene, 'screen-fade-in', color, color.a as Num);
+		const overlay = createOverlayDiv(scene, color, color.a as Num);
 
 		const startTime: Num = Date.now() as Num;
 
@@ -263,14 +244,14 @@ export function screenFadeIn(options: ScreenEffectOptions): BabylonResult<Screen
 			const progress: Num = Math.min(1, elapsed / durationMs) as Num;
 
 			// Fade from opaque to transparent
-			material.alpha = color.a * (1 - progress);
+			overlay.style.opacity = String(color.a * (1 - progress));
 
 			if (progress >= 1) {
 				handle.dispose();
 			}
 		});
 
-		const handle = createEffectHandle(scene, mesh, material, observer);
+		const handle = createEffectHandle(scene, overlay, observer);
 		return okShallow(handle);
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
@@ -298,7 +279,7 @@ export function screenFadeOut(options: ScreenEffectOptions): BabylonResult<Scree
 	const { scene, color, durationMs } = options;
 
 	try {
-		const { mesh, material } = createOverlayPlane(scene, 'screen-fade-out', color, 0 as Num);
+		const overlay = createOverlayDiv(scene, color, 0 as Num);
 
 		const startTime: Num = Date.now() as Num;
 
@@ -307,16 +288,15 @@ export function screenFadeOut(options: ScreenEffectOptions): BabylonResult<Scree
 			const progress: Num = Math.min(1, elapsed / durationMs) as Num;
 
 			// Fade from transparent to opaque
-			material.alpha = color.a * progress;
+			overlay.style.opacity = String(color.a * progress);
 
-			if (progress >= 1 && observer) {
-				// Keep overlay visible (don't dispose — it stays opaque)
-				// Only remove the observer
+			if (progress >= 1) {
+				// Keep overlay visible, just remove observer
 				scene.onBeforeRenderObservable.remove(observer);
 			}
 		});
 
-		const handle = createEffectHandle(scene, mesh, material, observer);
+		const handle = createEffectHandle(scene, overlay, observer);
 		return okShallow(handle);
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });

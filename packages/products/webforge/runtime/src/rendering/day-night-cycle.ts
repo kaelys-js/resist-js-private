@@ -46,6 +46,7 @@ export type DayNightCycleInstance = {
 	readonly ambientLight: BABYLON.HemisphericLight | null;
 	readonly moonLight: BABYLON.Light | null;
 	timeOfDay: Num;
+	speed: Num;
 };
 
 /** Interpolated values at a given time of day. */
@@ -418,7 +419,7 @@ export function createDayNightCycle(
 		// Use provided keyframes or default
 		const keyframes: readonly TimeKeyframe[] = config.keyframes ?? DEFAULT_DAY_CYCLE_KEYFRAMES;
 
-		const speed: number = config.speed ?? 0;
+		const initialSpeed: Num = (config.speed ?? 0) as Num;
 		const sunPathConfig: SunPathConfig = config.sunPath ?? {
 			sunrise: 6,
 			sunset: 18,
@@ -426,19 +427,37 @@ export function createDayNightCycle(
 			azimuthStart: 90,
 		};
 
-		let timeOfDay: number = config.timeOfDay ?? 12;
+		const initialTime: Num = (config.timeOfDay ?? 12) as Num;
+
+		// Build instance first so the observer reads mutable state from it
+		// (observer is assigned immediately after via onBeforeRenderObservable.add)
+		const cycleInstance: DayNightCycleInstance = {
+			observer: null as unknown as BABYLON.Observer<BABYLON.Scene>,
+			config,
+			keyframes,
+			scene,
+			sunLight,
+			ambientLight,
+			moonLight,
+			timeOfDay: initialTime,
+			speed: initialSpeed,
+		};
 
 		const observer: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
 			const dt: number = scene.getEngine().getDeltaTime() / 1000;
 
-			// Advance time
-			if (speed > 0) {
-				timeOfDay = (timeOfDay + dt * speed) % 24;
-				cycleInstance.timeOfDay = timeOfDay;
+			// Advance time — reads speed and timeOfDay from instance so external
+			// callers (setTimeOfDay, setSpeed) take effect immediately.
+			if (cycleInstance.speed > 0) {
+				cycleInstance.timeOfDay = ((cycleInstance.timeOfDay + dt * cycleInstance.speed) %
+					24) as Num;
 			}
 
 			// Interpolate keyframes
-			const interpResult: Result<InterpolatedValues> = interpolateKeyframes(keyframes, timeOfDay);
+			const interpResult: Result<InterpolatedValues> = interpolateKeyframes(
+				keyframes,
+				cycleInstance.timeOfDay,
+			);
 			if (!interpResult.ok) return;
 
 			// Apply interpolated values
@@ -446,7 +465,10 @@ export function createDayNightCycle(
 
 			// Compute and apply sun direction
 			if (sunLight !== null) {
-				const dirResult: Result<Vector3> = computeSunDirection(timeOfDay, sunPathConfig);
+				const dirResult: Result<Vector3> = computeSunDirection(
+					cycleInstance.timeOfDay,
+					sunPathConfig,
+				);
 				if (dirResult.ok) {
 					const dir: Vector3 = dirResult.data;
 					// Only update direction when sun is above horizon
@@ -457,16 +479,8 @@ export function createDayNightCycle(
 			}
 		});
 
-		const cycleInstance: DayNightCycleInstance = {
-			observer,
-			config,
-			keyframes,
-			scene,
-			sunLight,
-			ambientLight,
-			moonLight,
-			timeOfDay,
-		};
+		// Assign the real observer now that it's created
+		(cycleInstance as { observer: BABYLON.Observer<BABYLON.Scene> }).observer = observer;
 
 		return okShallow(cycleInstance);
 	} catch (error: unknown) {
