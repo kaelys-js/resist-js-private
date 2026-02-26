@@ -24,7 +24,7 @@
 import * as v from 'valibot';
 import * as BABYLON from '@babylonjs/core';
 
-import { ERRORS, err, type DeepReadonly } from '@/schemas/result/result';
+import { ERRORS, err, okUnchecked, type DeepReadonly } from '@/schemas/result/result';
 import type { Bool, Num, Str } from '@/schemas/common';
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
 
@@ -50,6 +50,8 @@ import {
 	type PostProcessingPipeline,
 } from './post-processing';
 import { resolvePostProcessingConfig } from './post-processing-presets';
+import { createSky, disposeSky, type SkyInstance } from './sky-system';
+import { createParallax, disposeParallax, type ParallaxInstance } from './parallax-manager';
 
 // =============================================================================
 // Schemas
@@ -86,6 +88,14 @@ export const RenderedTilemapSchema = v.strictObject({
 	/** Lighting system instance (null if not configured). */
 	lighting: v.custom<LightingInstance | null>(
 		(val): val is LightingInstance | null => val === null || typeof val === 'object',
+	),
+	/** Sky system instance (null if not configured). */
+	sky: v.custom<SkyInstance | null>(
+		(val): val is SkyInstance | null => val === null || typeof val === 'object',
+	),
+	/** Parallax background instance (null if not configured). */
+	parallax: v.custom<ParallaxInstance | null>(
+		(val): val is ParallaxInstance | null => val === null || typeof val === 'object',
 	),
 	/** The Babylon.js scene. */
 	scene: v.custom<BABYLON.Scene>((val): val is BABYLON.Scene => val instanceof BABYLON.Scene),
@@ -302,7 +312,29 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			}
 		}
 
-		// 14. Return RenderedTilemap
+		// 14. Create sky system (non-fatal on failure)
+		let sky: SkyInstance | null = null;
+		if (mapData.sky) {
+			const skyResult = createSky({ scene, config: mapData.sky });
+			if (skyResult.ok) {
+				sky = skyResult.data;
+			}
+		}
+
+		// 15. Create parallax backgrounds (non-fatal on failure)
+		let parallax: ParallaxInstance | null = null;
+		if (mapData.sky?.parallaxLayers && mapData.sky.parallaxLayers.length > 0) {
+			const parallaxResult = createParallax({
+				scene,
+				layers: mapData.sky.parallaxLayers,
+				assetBasePath,
+			});
+			if (parallaxResult.ok) {
+				parallax = parallaxResult.data;
+			}
+		}
+
+		// 16. Return RenderedTilemap
 		const rendered: RenderedTilemap = {
 			chunks,
 			cliffChunks,
@@ -313,6 +345,8 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			chunkConfig,
 			postProcessing,
 			lighting,
+			sky,
+			parallax,
 			scene,
 		};
 
@@ -344,6 +378,16 @@ export function disposeTilemap(options: DisposeTilemapOptions): BabylonResult<Bo
 	const { tilemap } = options;
 
 	try {
+		// Dispose parallax backgrounds
+		if (tilemap.parallax) {
+			disposeParallax({ parallax: tilemap.parallax });
+		}
+
+		// Dispose sky system
+		if (tilemap.sky) {
+			disposeSky({ sky: tilemap.sky });
+		}
+
 		// Dispose lighting system (before meshes — lighting references scene objects)
 		if (tilemap.lighting) {
 			disposeLighting({ lighting: tilemap.lighting });
@@ -476,6 +520,86 @@ export function updateTile(options: UpdateTileOptions): BabylonResult<RenderedTi
 		};
 
 		return okShallow(updatedTilemap);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// setLayerVisibility
+// =============================================================================
+
+/** Options for {@link setLayerVisibility}. */
+type SetLayerVisibilityOptions = {
+	/** The rendered tilemap. */
+	readonly tilemap: RenderedTilemap;
+	/** Layer index to toggle. */
+	readonly layerIndex: Num;
+	/** Whether the layer should be visible. */
+	readonly visible: Bool;
+};
+
+/**
+ * Sets the visibility of all chunk meshes for a given layer.
+ *
+ * Uses `mesh.isVisible` (boolean show/hide, not alpha transparency).
+ *
+ * @param options - Tilemap, layer index, and visibility flag.
+ * @returns BabylonResult indicating success.
+ *
+ * @example
+ * ```typescript
+ * setLayerVisibility({ tilemap, layerIndex: 0, visible: false });
+ * ```
+ */
+export function setLayerVisibility(options: SetLayerVisibilityOptions): BabylonResult<Bool> {
+	try {
+		for (const chunk of options.tilemap.chunks) {
+			if (chunk.layerIndex === options.layerIndex) {
+				chunk.mesh.isVisible = options.visible;
+			}
+		}
+		return okUnchecked(true);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// setLayerOpacity
+// =============================================================================
+
+/** Options for {@link setLayerOpacity}. */
+type SetLayerOpacityOptions = {
+	/** The rendered tilemap. */
+	readonly tilemap: RenderedTilemap;
+	/** Layer index to adjust. */
+	readonly layerIndex: Num;
+	/** Opacity value [0, 1]. */
+	readonly opacity: Num;
+};
+
+/**
+ * Sets the opacity of all chunk meshes for a given layer.
+ *
+ * Uses `mesh.visibility` (0 = fully transparent, 1 = fully opaque).
+ *
+ * @param options - Tilemap, layer index, and opacity value.
+ * @returns BabylonResult indicating success.
+ *
+ * @example
+ * ```typescript
+ * setLayerOpacity({ tilemap, layerIndex: 0, opacity: 0.5 });
+ * ```
+ */
+export function setLayerOpacity(options: SetLayerOpacityOptions): BabylonResult<Bool> {
+	try {
+		for (const chunk of options.tilemap.chunks) {
+			if (chunk.layerIndex === options.layerIndex) {
+				chunk.mesh.visibility = options.opacity;
+			}
+		}
+		return okUnchecked(true);
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
 	}

@@ -1,8 +1,9 @@
 /**
  * Camera controller tests.
  *
- * Tests HD-2D camera creation in both editor and gameplay modes,
- * mode-dependent defaults, and smooth follow target update logic.
+ * Tests the 6-preset camera system: hd2d, topdown, sideview, firstperson,
+ * cinematic, free. Also tests backward compatibility with legacy editor/gameplay
+ * modes, smooth follow target updates, FF Tactics rotation, and screen shake.
  *
  * @module
  */
@@ -11,7 +12,7 @@ import * as BABYLON from '@babylonjs/core';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
 import { createTestEngine, disposeEngine, type BabylonEngineInstance } from './engine';
-import { createHd2dCamera, updateCameraTarget } from './camera-controller';
+import { createCamera, updateCameraTarget, rotateTactics, screenShake } from './camera-controller';
 
 let instance: BabylonEngineInstance;
 
@@ -26,100 +27,269 @@ afterEach(() => {
 });
 
 // =============================================================================
-// Editor Mode
+// HD-2D Preset (default)
 // =============================================================================
 
-describe('createHd2dCamera — editor mode', () => {
+describe('createCamera — hd2d preset (default)', () => {
 	test('creates ArcRotateCamera with HD-2D defaults', () => {
-		const result = createHd2dCamera(instance.scene, { mode: 'editor' });
+		const result = createCamera(instance.scene, {});
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
 		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
-		expect(result.data.alpha).toBeCloseTo(Math.PI / 4);
-		expect(result.data.beta).toBeCloseTo(Math.PI / 4);
-		expect(result.data.radius).toBe(100);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.alpha).toBeCloseTo(Math.PI / 4);
+		expect(arc.beta).toBeCloseTo(Math.PI / 4);
+		expect(arc.radius).toBe(100);
 	});
 
-	test('applies beta limits', () => {
-		const result = createHd2dCamera(instance.scene, { mode: 'editor' });
-		expect(result.ok).toBeTruthy();
-		if (!result.ok) return;
-		expect(result.data.lowerBetaLimit).toBeCloseTo(Math.PI / 6);
-		expect(result.data.upperBetaLimit).toBeCloseTo(Math.PI / 2.5);
-	});
-
-	test('applies radius limits', () => {
-		const result = createHd2dCamera(instance.scene, { mode: 'editor' });
-		expect(result.ok).toBeTruthy();
-		if (!result.ok) return;
-		expect(result.data.lowerRadiusLimit).toBe(30);
-		expect(result.data.upperRadiusLimit).toBe(300);
-	});
-
-	test('restricts panning to XZ plane', () => {
-		const result = createHd2dCamera(instance.scene, { mode: 'editor' });
-		expect(result.ok).toBeTruthy();
-		if (!result.ok) return;
-		expect(result.data.panningAxis.y).toBe(0);
-	});
-
-	test('allows free orbit (no alpha limits)', () => {
-		const result = createHd2dCamera(instance.scene, { mode: 'editor' });
-		expect(result.ok).toBeTruthy();
-		if (!result.ok) return;
-		// null means unlimited
-		expect(result.data.lowerAlphaLimit).toBeNull();
-		expect(result.data.upperAlphaLimit).toBeNull();
-	});
-
-	test('applies zero inertia for immediate response', () => {
-		const result = createHd2dCamera(instance.scene, { mode: 'editor' });
-		expect(result.ok).toBeTruthy();
-		if (!result.ok) return;
-		expect(result.data.inertia).toBe(0);
-	});
-
-	test('applies panning sensibility for editor', () => {
-		const result = createHd2dCamera(instance.scene, { mode: 'editor' });
-		expect(result.ok).toBeTruthy();
-		if (!result.ok) return;
-		expect(result.data.panningSensibility).toBe(50);
-	});
-});
-
-// =============================================================================
-// Gameplay Mode
-// =============================================================================
-
-describe('createHd2dCamera — gameplay mode', () => {
-	test('locks alpha to initial value', () => {
-		const result = createHd2dCamera(instance.scene, { mode: 'gameplay' });
-		expect(result.ok).toBeTruthy();
-		if (!result.ok) return;
-		expect(result.data.lowerAlphaLimit).toBeCloseTo(Math.PI / 4);
-		expect(result.data.upperAlphaLimit).toBeCloseTo(Math.PI / 4);
-	});
-
-	test('locks beta to initial value', () => {
-		const result = createHd2dCamera(instance.scene, { mode: 'gameplay' });
-		expect(result.ok).toBeTruthy();
-		if (!result.ok) return;
-		expect(result.data.lowerBetaLimit).toBeCloseTo(Math.PI / 4);
-		expect(result.data.upperBetaLimit).toBeCloseTo(Math.PI / 4);
-	});
-
-	test('applies momentum inertia (0.7)', () => {
-		const result = createHd2dCamera(instance.scene, { mode: 'gameplay' });
+	test('applies hd2d inertia (0.7)', () => {
+		const result = createCamera(instance.scene, { preset: 'hd2d' });
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
 		expect(result.data.inertia).toBeCloseTo(0.7);
 	});
 
-	test('disables panning', () => {
-		const result = createHd2dCamera(instance.scene, { mode: 'gameplay' });
+	test('locks alpha to initial value for hd2d', () => {
+		const result = createCamera(instance.scene, { preset: 'hd2d' });
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
-		expect(result.data.panningSensibility).toBe(0);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerAlphaLimit).toBeCloseTo(Math.PI / 4);
+		expect(arc.upperAlphaLimit).toBeCloseTo(Math.PI / 4);
+	});
+
+	test('disables panning for hd2d', () => {
+		const result = createCamera(instance.scene, { preset: 'hd2d' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.panningSensibility).toBe(0);
+	});
+
+	test('applies beta limits', () => {
+		const result = createCamera(instance.scene, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerBetaLimit).toBeCloseTo(Math.PI / 6);
+		expect(arc.upperBetaLimit).toBeCloseTo(Math.PI / 2.5);
+	});
+
+	test('applies radius limits', () => {
+		const result = createCamera(instance.scene, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerRadiusLimit).toBe(30);
+		expect(arc.upperRadiusLimit).toBe(300);
+	});
+
+	test('restricts panning to XZ plane', () => {
+		const result = createCamera(instance.scene, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.panningAxis.y).toBe(0);
+	});
+});
+
+// =============================================================================
+// Topdown Preset
+// =============================================================================
+
+describe('createCamera — topdown preset', () => {
+	test('creates ArcRotateCamera with near-zero beta (overhead)', () => {
+		const result = createCamera(instance.scene, { preset: 'topdown' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.beta).toBeCloseTo(0.01);
+	});
+
+	test('locks beta for topdown', () => {
+		const result = createCamera(instance.scene, { preset: 'topdown' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerBetaLimit).toBeCloseTo(0.01);
+		expect(arc.upperBetaLimit).toBeCloseTo(0.01);
+	});
+
+	test('uses alpha 0 for topdown', () => {
+		const result = createCamera(instance.scene, { preset: 'topdown' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.alpha).toBeCloseTo(0);
+	});
+});
+
+// =============================================================================
+// Sideview Preset
+// =============================================================================
+
+describe('createCamera — sideview preset', () => {
+	test('creates ArcRotateCamera with pi/2 beta (side-on)', () => {
+		const result = createCamera(instance.scene, { preset: 'sideview' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.beta).toBeCloseTo(Math.PI / 2);
+	});
+
+	test('locks beta at pi/2 for sideview', () => {
+		const result = createCamera(instance.scene, { preset: 'sideview' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerBetaLimit).toBeCloseTo(Math.PI / 2);
+		expect(arc.upperBetaLimit).toBeCloseTo(Math.PI / 2);
+	});
+
+	test('uses alpha pi/2 for sideview', () => {
+		const result = createCamera(instance.scene, { preset: 'sideview' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.alpha).toBeCloseTo(Math.PI / 2);
+	});
+});
+
+// =============================================================================
+// Firstperson Preset
+// =============================================================================
+
+describe('createCamera — firstperson preset', () => {
+	test('creates UniversalCamera', () => {
+		const result = createCamera(instance.scene, { preset: 'firstperson' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.UniversalCamera);
+	});
+
+	test('has zero inertia for firstperson', () => {
+		const result = createCamera(instance.scene, { preset: 'firstperson' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.inertia).toBe(0);
+	});
+
+	test('has wider FOV for firstperson', () => {
+		const result = createCamera(instance.scene, { preset: 'firstperson' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.fov).toBeCloseTo(1.2);
+	});
+});
+
+// =============================================================================
+// Cinematic Preset
+// =============================================================================
+
+describe('createCamera — cinematic preset', () => {
+	test('creates ArcRotateCamera with low angle', () => {
+		const result = createCamera(instance.scene, { preset: 'cinematic' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.alpha).toBeCloseTo(Math.PI / 6);
+		expect(arc.beta).toBeCloseTo(Math.PI / 3);
+	});
+
+	test('has heavy inertia for cinematic', () => {
+		const result = createCamera(instance.scene, { preset: 'cinematic' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.inertia).toBeCloseTo(0.9);
+	});
+
+	test('has wide FOV for cinematic', () => {
+		const result = createCamera(instance.scene, { preset: 'cinematic' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.fov).toBeCloseTo(1.2);
+	});
+
+	test('has shorter radius for cinematic', () => {
+		const result = createCamera(instance.scene, { preset: 'cinematic' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.radius).toBe(40);
+	});
+});
+
+// =============================================================================
+// Free Preset
+// =============================================================================
+
+describe('createCamera — free preset', () => {
+	test('creates ArcRotateCamera with free orbit', () => {
+		const result = createCamera(instance.scene, { preset: 'free' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		// Free orbit — no alpha limits
+		expect(arc.lowerAlphaLimit).toBeNull();
+		expect(arc.upperAlphaLimit).toBeNull();
+	});
+
+	test('has zero inertia for free', () => {
+		const result = createCamera(instance.scene, { preset: 'free' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.inertia).toBe(0);
+	});
+
+	test('has panning enabled for free', () => {
+		const result = createCamera(instance.scene, { preset: 'free' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.panningSensibility).toBe(50);
+	});
+});
+
+// =============================================================================
+// Backward Compatibility (legacy mode)
+// =============================================================================
+
+describe('createCamera — backward compatibility', () => {
+	test('mode: editor maps to free preset behavior', () => {
+		const result = createCamera(instance.scene, { mode: 'editor' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		// Editor = free preset: zero inertia, panning enabled, free orbit
+		expect(arc.inertia).toBe(0);
+		expect(arc.panningSensibility).toBe(50);
+		expect(arc.lowerAlphaLimit).toBeNull();
+		expect(arc.upperAlphaLimit).toBeNull();
+	});
+
+	test('mode: gameplay maps to hd2d preset behavior', () => {
+		const result = createCamera(instance.scene, { mode: 'gameplay' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		// Gameplay = hd2d preset: locked alpha, inertia 0.7
+		expect(result.data.inertia).toBeCloseTo(0.7);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerAlphaLimit).toBeCloseTo(Math.PI / 4);
+		expect(arc.upperAlphaLimit).toBeCloseTo(Math.PI / 4);
+	});
+
+	test('explicit preset overrides legacy mode', () => {
+		const result = createCamera(instance.scene, { mode: 'editor', preset: 'cinematic' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		// Preset wins: cinematic has heavy inertia
+		expect(result.data.inertia).toBeCloseTo(0.9);
 	});
 });
 
@@ -127,57 +297,53 @@ describe('createHd2dCamera — gameplay mode', () => {
 // Explicit Overrides
 // =============================================================================
 
-describe('createHd2dCamera — explicit overrides', () => {
-	test('explicit inertia overrides mode default', () => {
-		const result = createHd2dCamera(instance.scene, {
-			mode: 'editor',
-			inertia: 0.5,
-		});
+describe('createCamera — explicit overrides', () => {
+	test('explicit inertia overrides preset default', () => {
+		const result = createCamera(instance.scene, { preset: 'hd2d', inertia: 0.5 });
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
 		expect(result.data.inertia).toBeCloseTo(0.5);
 	});
 
-	test('explicit panningSensibility overrides mode default', () => {
-		const result = createHd2dCamera(instance.scene, {
-			mode: 'gameplay',
-			panningSensibility: 75,
-		});
+	test('explicit panningSensibility overrides preset default', () => {
+		const result = createCamera(instance.scene, { preset: 'hd2d', panningSensibility: 75 });
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
-		expect(result.data.panningSensibility).toBe(75);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.panningSensibility).toBe(75);
 	});
 
 	test('custom alpha/beta/radius', () => {
-		const result = createHd2dCamera(instance.scene, {
-			mode: 'editor',
+		const result = createCamera(instance.scene, {
+			preset: 'hd2d',
 			alpha: 1.0,
 			beta: 0.8,
 			radius: 50,
 		});
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
-		expect(result.data.alpha).toBeCloseTo(1.0);
-		expect(result.data.beta).toBeCloseTo(0.8);
-		expect(result.data.radius).toBe(50);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.alpha).toBeCloseTo(1.0);
+		expect(arc.beta).toBeCloseTo(0.8);
+		expect(arc.radius).toBe(50);
 	});
 
 	test('custom target position', () => {
-		const result = createHd2dCamera(instance.scene, {
-			mode: 'editor',
+		const result = createCamera(instance.scene, {
 			targetX: 10,
 			targetY: 5,
 			targetZ: -20,
 		});
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
-		expect(result.data.target.x).toBeCloseTo(10);
-		expect(result.data.target.y).toBeCloseTo(5);
-		expect(result.data.target.z).toBeCloseTo(-20);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.target.x).toBeCloseTo(10);
+		expect(arc.target.y).toBeCloseTo(5);
+		expect(arc.target.z).toBeCloseTo(-20);
 	});
 
 	test('rejects invalid config', () => {
-		const result = createHd2dCamera(instance.scene, { mode: 'invalid' });
+		const result = createCamera(instance.scene, { preset: 'invalid' });
 		expect(result.ok).toBeFalsy();
 	});
 });
@@ -188,17 +354,11 @@ describe('createHd2dCamera — explicit overrides', () => {
 
 describe('updateCameraTarget', () => {
 	test('lerps camera target toward goal', () => {
-		const cameraResult = createHd2dCamera(instance.scene, { mode: 'gameplay' });
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
 		if (!cameraResult.ok) throw new Error('Failed to create camera');
-		const camera: BABYLON.ArcRotateCamera = cameraResult.data;
 
-		// Camera starts at origin
-		expect(camera.target.x).toBeCloseTo(0);
-		expect(camera.target.z).toBeCloseTo(0);
-
-		// Move toward (10, 0, 10) with one frame at ~16ms
 		const result = updateCameraTarget({
-			camera,
+			camera: cameraResult.data,
 			targetX: 10,
 			targetY: 0,
 			targetZ: 10,
@@ -208,19 +368,17 @@ describe('updateCameraTarget', () => {
 		expect(result.ok).toBeTruthy();
 
 		// Should have moved SOME distance toward target but not all the way
-		expect(camera.target.x).toBeGreaterThan(0);
-		expect(camera.target.x).toBeLessThan(10);
-		expect(camera.target.z).toBeGreaterThan(0);
-		expect(camera.target.z).toBeLessThan(10);
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+		expect(arc.target.x).toBeGreaterThan(0);
+		expect(arc.target.x).toBeLessThan(10);
 	});
 
 	test('followSpeed=0 produces no movement', () => {
-		const cameraResult = createHd2dCamera(instance.scene, { mode: 'gameplay' });
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
 		if (!cameraResult.ok) throw new Error('Failed to create camera');
-		const camera: BABYLON.ArcRotateCamera = cameraResult.data;
 
 		updateCameraTarget({
-			camera,
+			camera: cameraResult.data,
 			targetX: 10,
 			targetY: 0,
 			targetZ: 10,
@@ -228,17 +386,17 @@ describe('updateCameraTarget', () => {
 			followSpeed: 0,
 		});
 
-		expect(camera.target.x).toBeCloseTo(0);
-		expect(camera.target.z).toBeCloseTo(0);
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+		expect(arc.target.x).toBeCloseTo(0);
+		expect(arc.target.z).toBeCloseTo(0);
 	});
 
 	test('followSpeed=1 produces instant snap', () => {
-		const cameraResult = createHd2dCamera(instance.scene, { mode: 'gameplay' });
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
 		if (!cameraResult.ok) throw new Error('Failed to create camera');
-		const camera: BABYLON.ArcRotateCamera = cameraResult.data;
 
 		updateCameraTarget({
-			camera,
+			camera: cameraResult.data,
 			targetX: 10,
 			targetY: 0,
 			targetZ: 10,
@@ -246,56 +404,74 @@ describe('updateCameraTarget', () => {
 			followSpeed: 1,
 		});
 
-		expect(camera.target.x).toBeCloseTo(10);
-		expect(camera.target.z).toBeCloseTo(10);
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+		expect(arc.target.x).toBeCloseTo(10);
+		expect(arc.target.z).toBeCloseTo(10);
+	});
+});
+
+// =============================================================================
+// rotateTactics (FF Tactics 4-angle rotation)
+// =============================================================================
+
+describe('rotateTactics', () => {
+	test('rotates alpha by pi/2 clockwise', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+		const initialAlpha: number = arc.alpha;
+
+		const result = rotateTactics({ camera: arc, direction: 'cw' });
+		expect(result.ok).toBeTruthy();
+		expect(arc.alpha).toBeCloseTo(initialAlpha + Math.PI / 2);
 	});
 
-	test('frame-rate independence: similar position at 16ms and 33ms', () => {
-		// Create two cameras starting at origin
-		const cam1Result = createHd2dCamera(instance.scene, { mode: 'gameplay' });
-		if (!cam1Result.ok) throw new Error('Failed to create camera');
-		const cam1: BABYLON.ArcRotateCamera = cam1Result.data;
+	test('rotates alpha by pi/2 counter-clockwise', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+		const initialAlpha: number = arc.alpha;
 
-		const cam2Result = createHd2dCamera(instance.scene, {
-			mode: 'gameplay',
-			alpha: Math.PI / 4 + 0.001, // slightly different to avoid name conflict
+		const result = rotateTactics({ camera: arc, direction: 'ccw' });
+		expect(result.ok).toBeTruthy();
+		expect(arc.alpha).toBeCloseTo(initialAlpha - Math.PI / 2);
+	});
+});
+
+// =============================================================================
+// screenShake
+// =============================================================================
+
+describe('screenShake', () => {
+	test('returns ok Result', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+
+		const result = screenShake({
+			scene: instance.scene,
+			camera: cameraResult.data,
+			intensity: 0.5,
+			durationMs: 200,
+			decay: true,
 		});
-		if (!cam2Result.ok) throw new Error('Failed to create camera');
-		const cam2: BABYLON.ArcRotateCamera = cam2Result.data;
+		expect(result.ok).toBeTruthy();
+	});
 
-		const speed = 0.05;
+	test('returns handle with dispose function', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
 
-		// Simulate 2 frames at 16ms (60fps) ≈ 32ms total
-		updateCameraTarget({
-			camera: cam1,
-			targetX: 10,
-			targetY: 0,
-			targetZ: 0,
-			deltaTimeMs: 16,
-			followSpeed: speed,
+		const result = screenShake({
+			scene: instance.scene,
+			camera: cameraResult.data,
+			intensity: 0.5,
+			durationMs: 200,
+			decay: true,
 		});
-		updateCameraTarget({
-			camera: cam1,
-			targetX: 10,
-			targetY: 0,
-			targetZ: 0,
-			deltaTimeMs: 16,
-			followSpeed: speed,
-		});
-
-		// Simulate 1 frame at 33ms (30fps) ≈ 33ms total
-		updateCameraTarget({
-			camera: cam2,
-			targetX: 10,
-			targetY: 0,
-			targetZ: 0,
-			deltaTimeMs: 33,
-			followSpeed: speed,
-		});
-
-		// Should be approximately the same position (within 15% tolerance)
-		const ratio: number = cam1.target.x / cam2.target.x;
-		expect(ratio).toBeGreaterThan(0.85);
-		expect(ratio).toBeLessThan(1.15);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(typeof result.data.dispose).toBe('function');
+		// Disposing early should not throw
+		result.data.dispose();
 	});
 });

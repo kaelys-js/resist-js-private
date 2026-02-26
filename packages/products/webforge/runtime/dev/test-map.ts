@@ -438,6 +438,22 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 					cascadeBlendPercentage: 0.05,
 					numCascades: 3,
 				},
+				volumetricLight: {
+					enabled: true,
+					samples: 50,
+					density: 0.8,
+					weight: 0.4,
+					decay: 0.97,
+					passRatio: 0.5,
+				},
+				lensFlare: {
+					enabled: true,
+					flares: [
+						{ size: 0.2, position: 0, color: { r: 1, g: 1, b: 1, a: 1 } },
+						{ size: 0.5, position: 0.2, color: { r: 0.5, g: 0.5, b: 1, a: 1 } },
+						{ size: 0.2, position: 1.0, color: { r: 1, g: 1, b: 1, a: 1 } },
+					],
+				},
 			},
 			{
 				id: 'torch-1',
@@ -482,5 +498,37 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 			sunPath: { sunrise: 6, sunset: 18, maxElevation: 75 },
 		},
 		glow: { enabled: true, intensity: 0.3, blurKernelSize: 32 },
+	},
+	sky: {
+		type: 'gradient',
+		color: { r: 0.35, g: 0.5, b: 0.8, a: 1 },
+		gradient: [
+			{ position: 0, color: { r: 0.2, g: 0.3, b: 0.6, a: 1 } },
+			{ position: 0.4, color: { r: 0.4, g: 0.55, b: 0.85, a: 1 } },
+			{ position: 1, color: { r: 0.7, g: 0.8, b: 0.95, a: 1 } },
+		],
+		skyboxSize: 1000,
+		parallaxLayers: [
+			{
+				imagePath: 'bg/mountains.png',
+				scrollSpeedX: 0.2,
+				scrollSpeedY: 0,
+				offsetY: -5,
+				opacity: 0.8,
+				tileX: true,
+				tileY: false,
+				scale: 2,
+			},
+			{
+				imagePath: 'bg/clouds.png',
+				scrollSpeedX: 0.5,
+				scrollSpeedY: 0,
+				offsetY: 10,
+				opacity: 0.6,
+				tileX: true,
+				tileY: false,
+				scale: 1.5,
+			},
+		],
 	},
 };

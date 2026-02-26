@@ -30,7 +30,7 @@
  */
 
 import * as v from 'valibot';
-import type * as BABYLON from '@babylonjs/core';
+import * as BABYLON from '@babylonjs/core';
 
 import type { Bool } from '@/schemas/common';
 import { ERRORS, err, type Result } from '@/schemas/result/result';
@@ -55,6 +55,7 @@ import {
 	disposePerformanceMonitor,
 	type PerformanceMonitor,
 } from './core/performance-monitor';
+import { showInspector, hideInspector } from './core/debug-inspector';
 
 // =============================================================================
 // Runtime Config Schema
@@ -90,8 +91,8 @@ export type RuntimeConfig = v.InferOutput<typeof RuntimeConfigSchema>;
 export type RuntimeInstance = {
 	/** The Babylon.js engine and scene. */
 	readonly engine: BabylonEngineInstance;
-	/** The HD-2D camera. */
-	readonly camera: BABYLON.ArcRotateCamera;
+	/** The camera (type depends on preset — ArcRotateCamera or UniversalCamera). */
+	readonly camera: BABYLON.Camera;
 	/** Performance monitor (only when debug mode enabled). */
 	readonly performanceMonitor: PerformanceMonitor | undefined;
 };
@@ -147,7 +148,7 @@ export async function createRuntime(config: unknown): Promise<BabylonResult<Runt
 		if (!sceneResult.ok) return sceneResult;
 
 		// Create camera
-		const cameraResult: BabylonResult<BABYLON.ArcRotateCamera> = createHd2dCamera(
+		const cameraResult: BabylonResult<BABYLON.Camera> = createHd2dCamera(
 			engineResult.data.scene,
 			cfg.camera,
 		);
@@ -160,6 +161,14 @@ export async function createRuntime(config: unknown): Promise<BabylonResult<Runt
 			if (monitorResult.ok) {
 				monitor = monitorResult.data;
 			}
+
+			// Auto-show inspector in embed mode (non-fatal)
+			showInspector(engineResult.data.scene, true).catch(() => {
+				// Inspector may not load in all environments — non-fatal
+			});
+
+			// Register F12 toggle for inspector
+			registerInspectorToggle(engineResult.data.scene);
 		}
 
 		const instance: RuntimeInstance = {
@@ -214,12 +223,12 @@ export function createTestRuntime(overrides?: TestRuntimeOptions): BabylonResult
 		const sceneResult: Result<Bool> = applySceneSetup(engineResult.data.scene, sceneConfig);
 		if (!sceneResult.ok) return sceneResult;
 
-		// Create camera
+		// Create camera — default to 'free' preset (same behavior as legacy 'editor' mode)
 		const cameraConfig: unknown = {
-			mode: 'editor' as const,
+			preset: 'free' as const,
 			...overrides?.camera,
 		};
-		const cameraResult: BabylonResult<BABYLON.ArcRotateCamera> = createHd2dCamera(
+		const cameraResult: BabylonResult<BABYLON.Camera> = createHd2dCamera(
 			engineResult.data.scene,
 			cameraConfig,
 		);
@@ -232,6 +241,9 @@ export function createTestRuntime(overrides?: TestRuntimeOptions): BabylonResult
 			if (monitorResult.ok) {
 				monitor = monitorResult.data;
 			}
+
+			// Register F12 toggle for inspector (no auto-show in test — no DOM)
+			registerInspectorToggle(engineResult.data.scene);
 		}
 
 		const instance: RuntimeInstance = {
@@ -244,6 +256,29 @@ export function createTestRuntime(overrides?: TestRuntimeOptions): BabylonResult
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
 	}
+}
+
+// =============================================================================
+// Debug Inspector Toggle
+// =============================================================================
+
+/**
+ * Registers an F12 keyboard shortcut to toggle the Babylon.js inspector.
+ *
+ * @param scene - The Babylon.js scene to register the keyboard observer on.
+ */
+function registerInspectorToggle(scene: BABYLON.Scene): void {
+	scene.onKeyboardObservable.add((kbInfo) => {
+		if (kbInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN && kbInfo.event.key === 'F12') {
+			if (scene.debugLayer.isVisible()) {
+				hideInspector(scene);
+			} else {
+				showInspector(scene, true).catch(() => {
+					// Non-fatal — inspector may not load in all environments
+				});
+			}
+		}
+	});
 }
 
 // =============================================================================

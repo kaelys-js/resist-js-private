@@ -174,6 +174,9 @@ export function buildChunk(options: BuildChunkOptions): BabylonResult<ChunkMesh 
 		const layer = mapData.layers[layerIndex];
 		if (!layer) return err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Invalid layer index');
 
+		// Skip hidden layers
+		if (!layer.visible) return okShallow(null);
+
 		const startX: Num = chunkX * chunkSize;
 		const startZ: Num = chunkZ * chunkSize;
 		const endX: Num = Math.min(startX + chunkSize, mapData.width);
@@ -265,6 +268,9 @@ export function buildChunk(options: BuildChunkOptions): BabylonResult<ChunkMesh 
 
 		const material: BABYLON.StandardMaterial | undefined = materials[firstMaterialIndex];
 		if (material) mesh.material = material;
+
+		// Apply layer opacity to mesh visibility
+		mesh.visibility = layer.opacity;
 
 		const chunkMesh: ChunkMesh = {
 			mesh,

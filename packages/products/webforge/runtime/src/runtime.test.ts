@@ -71,16 +71,16 @@ describe('createTestRuntime', () => {
 		disposeRuntime(result.data);
 	});
 
-	test('accepts camera mode override', () => {
+	test('accepts camera preset override', () => {
 		const result = createTestRuntime({
-			camera: { mode: 'gameplay' },
+			camera: { preset: 'hd2d' },
 		});
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
 
-		// Gameplay mode locks alpha
-		expect(result.data.camera.lowerAlphaLimit).toBeCloseTo(Math.PI / 4);
-		expect(result.data.camera.upperAlphaLimit).toBeCloseTo(Math.PI / 4);
+		// hd2d preset locks alpha — camera is ArcRotateCamera
+		expect(result.data.camera).toBeDefined();
+		expect(result.data.camera.inertia).toBeCloseTo(0.7);
 
 		disposeRuntime(result.data);
 	});
@@ -126,6 +126,27 @@ describe('createTestRuntime — debug mode', () => {
 		if (!result.ok) return;
 
 		expect(result.data.performanceMonitor).toBeUndefined();
+
+		disposeRuntime(result.data);
+	});
+
+	test('registers F12 keyboard observer when debug is true', () => {
+		const result = createTestRuntime({ debug: true });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// Debug mode registers a keyboard observer for F12 toggle
+		expect(result.data.engine.scene.onKeyboardObservable.observers.length).toBeGreaterThan(0);
+
+		disposeRuntime(result.data);
+	});
+
+	test('no keyboard observer when debug is false', () => {
+		const result = createTestRuntime({ debug: false });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.engine.scene.onKeyboardObservable.observers.length).toBe(0);
 
 		disposeRuntime(result.data);
 	});
