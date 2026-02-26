@@ -147,6 +147,47 @@ describe('createTileMaterial', () => {
 		expect(result.data.useAlphaFromDiffuseTexture).toBe(true);
 	});
 
+	it('uses ALPHATEST transparency mode when hasAlpha is true', () => {
+		const scene: BABYLON.Scene = setupEngine();
+		const texResult: BabylonResult<BABYLON.Texture> = createTileTexture({
+			scene,
+			imagePath: 'test.png',
+		});
+		expect(texResult.ok).toBe(true);
+		if (!texResult.ok) return;
+
+		const result: BabylonResult<BABYLON.StandardMaterial> = createTileMaterial({
+			scene,
+			name: 'alphatest-mat',
+			texture: texResult.data,
+			hasAlpha: true,
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.transparencyMode).toBe(BABYLON.Material.MATERIAL_ALPHATEST);
+		expect(result.data.alphaCutOff).toBe(0.5);
+	});
+
+	it('does not set ALPHATEST when hasAlpha is false', () => {
+		const scene: BABYLON.Scene = setupEngine();
+		const texResult: BabylonResult<BABYLON.Texture> = createTileTexture({
+			scene,
+			imagePath: 'test.png',
+		});
+		expect(texResult.ok).toBe(true);
+		if (!texResult.ok) return;
+
+		const result: BabylonResult<BABYLON.StandardMaterial> = createTileMaterial({
+			scene,
+			name: 'opaque-mat',
+			texture: texResult.data,
+			hasAlpha: false,
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.transparencyMode).not.toBe(BABYLON.Material.MATERIAL_ALPHATEST);
+	});
+
 	it('does not enable alpha when hasAlpha is false', () => {
 		const scene: BABYLON.Scene = setupEngine();
 		const texResult: BabylonResult<BABYLON.Texture> = createTileTexture({
