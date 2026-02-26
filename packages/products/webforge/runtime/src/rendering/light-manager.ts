@@ -30,10 +30,24 @@ import { safeParse, fromUnknownError } from '@/utils/result/safe';
 import { okShallow, type BabylonResult } from '../core/babylon-result';
 import {
 	LightingConfigSchema,
+	type DayNightCycleConfig,
 	type LightConfig,
 	type LightingConfig,
 } from '../schemas/lighting-config';
 import type { ColorRgba, Vector3 } from '../schemas/scene-setup-config';
+import {
+	createShadowGenerator,
+	addShadowCasters,
+	disposeShadowGenerator,
+	type ShadowGeneratorInstance,
+} from './shadow-manager';
+import { createFlicker, disposeFlicker, type FlickerInstance } from './light-animation';
+import {
+	createDayNightCycle,
+	disposeDayNightCycle,
+	type DayNightCycleInstance,
+} from './day-night-cycle';
+import { createGlowLayer } from './glow-manager';
 
 // =============================================================================
 // Types
@@ -43,12 +57,15 @@ import type { ColorRgba, Vector3 } from '../schemas/scene-setup-config';
 export type ManagedLight = {
 	readonly config: DeepReadonly<LightConfig>;
 	readonly light: BABYLON.Light;
+	readonly shadowGenerator: ShadowGeneratorInstance | null;
+	readonly flickerInstance: FlickerInstance | null;
 };
 
 /** The top-level lighting system instance. */
 export type LightingInstance = {
 	readonly lights: readonly ManagedLight[];
 	readonly glowLayer: BABYLON.GlowLayer | null;
+	readonly dayNightCycle: DayNightCycleInstance | null;
 	readonly scene: BABYLON.Scene;
 	readonly config: DeepReadonly<LightingConfig>;
 };
@@ -278,6 +295,16 @@ function createBabylonLight(
 	}
 }
 
+/**
+ * Checks whether a light implements IShadowLight (can cast shadows).
+ *
+ * @param light - The light to check.
+ * @returns True if the light supports shadow generation.
+ */
+function isShadowLight(light: BABYLON.Light): light is BABYLON.IShadowLight {
+	return 'setShadowProjectionMatrix' in light;
+}
+
 // =============================================================================
 // Public API
 // =============================================================================
@@ -292,7 +319,8 @@ type CreateLightingOptions = {
  * Creates the lighting system from a config object.
  *
  * Validates the config, removes the default scene light, creates all
- * Babylon.js lights, and returns the `LightingInstance`.
+ * Babylon.js lights with their shadow generators, flicker animations,
+ * glow layer, and day/night cycle.
  *
  * @param options - Scene and raw lighting config.
  * @returns BabylonResult containing the lighting instance.
@@ -325,21 +353,91 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 			defaultLight.dispose();
 		}
 
-		// Create lights
+		// Create lights with sub-resources
 		const managedLights: ManagedLight[] = [];
 		for (const lightCfg of config.lights) {
 			const lightResult: BabylonResult<BABYLON.Light> = createBabylonLight(options.scene, lightCfg);
 			if (!lightResult.ok) return lightResult;
 
+			const light: BABYLON.Light = lightResult.data;
+
+			// Create shadow generator (non-fatal — skip if light can't cast shadows)
+			let shadowGen: ShadowGeneratorInstance | null = null;
+			if (lightCfg.type !== 'hemispheric' && lightCfg.shadow?.enabled && isShadowLight(light)) {
+				const shadowResult = createShadowGenerator({
+					light,
+					config: lightCfg.shadow,
+					scene: options.scene,
+				});
+				if (shadowResult.ok) {
+					shadowGen = shadowResult.data;
+					// Auto-add scene meshes as shadow casters/receivers
+					const meshes: readonly BABYLON.AbstractMesh[] = options.scene.meshes;
+					if (meshes.length > 0) {
+						addShadowCasters({ generator: shadowGen, meshes });
+					}
+				}
+			}
+
+			// Create flicker animation (non-fatal — skip on failure)
+			let flickerInst: FlickerInstance | null = null;
+			if (lightCfg.type !== 'hemispheric' && lightCfg.flicker?.enabled) {
+				const flickerResult = createFlicker({
+					scene: options.scene,
+					light,
+					config: lightCfg.flicker,
+					colorTemperature: lightCfg.colorTemperature,
+				});
+				if (flickerResult.ok) {
+					flickerInst = flickerResult.data;
+				}
+			}
+
 			managedLights.push({
 				config: lightCfg,
-				light: lightResult.data,
+				light,
+				shadowGenerator: shadowGen,
+				flickerInstance: flickerInst,
 			});
+		}
+
+		// Create glow layer (non-fatal)
+		let glowLayer: BABYLON.GlowLayer | null = null;
+		if (config.glow?.enabled) {
+			const glowResult = createGlowLayer({
+				scene: options.scene,
+				config: config.glow,
+			});
+			if (glowResult.ok) {
+				glowLayer = glowResult.data;
+			}
+		}
+
+		// Create day/night cycle (non-fatal)
+		let dayNight: DayNightCycleInstance | null = null;
+		if (config.dayNight?.enabled) {
+			// Spread to strip DeepReadonly — createDayNightCycle expects Partial<DayNightCycleConfig>
+			const dayNightConfig: Partial<DayNightCycleConfig> = {
+				...config.dayNight,
+				keyframes: config.dayNight.keyframes
+					? [...config.dayNight.keyframes.map((kf) => ({ ...kf }))]
+					: undefined,
+				sunPath: config.dayNight.sunPath ? { ...config.dayNight.sunPath } : undefined,
+			};
+			const dayNightResult = createDayNightCycle({
+				scene: options.scene,
+				config: dayNightConfig,
+				managedLights,
+			});
+			if (dayNightResult.ok) {
+				dayNight = dayNightResult.data;
+			}
 		}
 
 		const instance: LightingInstance = {
 			lights: managedLights,
-			glowLayer: null,
+			glowLayer,
+			dayNightCycle: dayNight,
 			scene: options.scene,
 			config,
 		};
@@ -467,7 +565,8 @@ type RemoveLightOptions = {
 /**
  * Removes a light by ID and returns an updated LightingInstance.
  *
- * Disposes the Babylon.js light and all sub-resources.
+ * Disposes the Babylon.js light and all sub-resources (shadow generator,
+ * flicker animation).
  *
  * @param options - Lighting instance and light ID to remove.
  * @returns BabylonResult containing the updated lighting instance.
@@ -482,6 +581,15 @@ export function removeLightById(options: RemoveLightOptions): BabylonResult<Ligh
 
 	try {
 		const managed: ManagedLight = options.lighting.lights[idx]!;
+
+		// Dispose sub-resources before the light
+		if (managed.flickerInstance) {
+			disposeFlicker({ flicker: managed.flickerInstance, scene: options.lighting.scene });
+		}
+		if (managed.shadowGenerator) {
+			disposeShadowGenerator({ generator: managed.shadowGenerator });
+		}
+
 		managed.light.dispose();
 
 		const remaining: ManagedLight[] = [
@@ -508,20 +616,37 @@ type DisposeLightingOptions = {
 /**
  * Disposes the entire lighting system.
  *
- * Disposes glow layer, then all managed lights and their sub-resources.
+ * Disposes day/night cycle, glow layer, then all managed lights
+ * and their sub-resources (shadow generators, flicker animations).
  *
  * @param options - The lighting instance to dispose.
  * @returns BabylonResult indicating success.
  */
 export function disposeLighting(options: DisposeLightingOptions): BabylonResult<Bool> {
 	try {
+		// Dispose day/night cycle first (references lights)
+		if (options.lighting.dayNightCycle) {
+			disposeDayNightCycle({
+				cycle: options.lighting.dayNightCycle,
+				scene: options.lighting.scene,
+			});
+		}
+
 		// Dispose glow layer
 		if (options.lighting.glowLayer) {
 			options.lighting.glowLayer.dispose();
 		}
 
-		// Dispose all lights
+		// Dispose all lights and sub-resources
 		for (const managed of options.lighting.lights) {
+			// Dispose flicker before shadow (flicker modifies light properties)
+			if (managed.flickerInstance) {
+				disposeFlicker({ flicker: managed.flickerInstance, scene: options.lighting.scene });
+			}
+			// Dispose shadow generator before light
+			if (managed.shadowGenerator) {
+				disposeShadowGenerator({ generator: managed.shadowGenerator });
+			}
 			managed.light.dispose();
 		}
 

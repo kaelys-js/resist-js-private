@@ -438,3 +438,239 @@ describe('disposeLighting', () => {
 		expect(result.ok).toBeTruthy();
 	});
 });
+
+// =============================================================================
+// Sub-module Orchestration
+// =============================================================================
+
+describe('createLighting — sub-module orchestration', () => {
+	test('creates flicker instance when flicker config is enabled', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+						intensity: 1.5,
+						flicker: { enabled: true, type: 'torch', intensity: 0.3 },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lights[0]!.flickerInstance).not.toBeNull();
+	});
+
+	test('does not create flicker when disabled', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+						flicker: { enabled: false },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lights[0]!.flickerInstance).toBeNull();
+	});
+
+	test('does not create flicker on hemispheric lights', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'ambient',
+						type: 'hemispheric',
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lights[0]!.flickerInstance).toBeNull();
+	});
+
+	test('creates shadow generator when shadow is enabled on directional light', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						shadow: { enabled: true, type: 'pcf', mapSize: 512 },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lights[0]!.shadowGenerator).not.toBeNull();
+	});
+
+	test('does not create shadow when disabled', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						shadow: { enabled: false },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lights[0]!.shadowGenerator).toBeNull();
+	});
+
+	test('creates glow layer when enabled', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [],
+				glow: { enabled: true, intensity: 0.5 },
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.glowLayer).not.toBeNull();
+	});
+
+	test('does not create glow layer when disabled', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [],
+				glow: { enabled: false },
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.glowLayer).toBeNull();
+	});
+
+	test('creates day/night cycle when enabled', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{ id: 'sun', type: 'directional' },
+					{ id: 'ambient', type: 'hemispheric' },
+				],
+				dayNight: {
+					enabled: true,
+					timeOfDay: 12,
+					speed: 1,
+					sunLightId: 'sun',
+					ambientLightId: 'ambient',
+				},
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.dayNightCycle).not.toBeNull();
+	});
+
+	test('does not create day/night cycle when disabled', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [],
+				dayNight: { enabled: false },
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.dayNightCycle).toBeNull();
+	});
+
+	test('disposes flicker and shadow on removeLightById', () => {
+		const createResult: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+						flicker: { enabled: true, type: 'candle' },
+					},
+				],
+			},
+		});
+		expect(createResult.ok).toBeTruthy();
+		if (!createResult.ok) return;
+		expect(createResult.data.lights[0]!.flickerInstance).not.toBeNull();
+
+		const removeResult: BabylonResult<LightingInstance> = removeLightById({
+			lighting: createResult.data,
+			lightId: 'torch',
+		});
+		expect(removeResult.ok).toBeTruthy();
+		if (!removeResult.ok) return;
+		expect(removeResult.data.lights).toHaveLength(0);
+	});
+
+	test('full lighting config creates all sub-resources', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{ id: 'ambient', type: 'hemispheric', intensity: 0.6 },
+					{
+						id: 'sun',
+						type: 'directional',
+						intensity: 0.8,
+						shadow: { enabled: true, type: 'pcf', mapSize: 512 },
+					},
+					{
+						id: 'torch',
+						type: 'point',
+						intensity: 1.5,
+						colorTemperature: 2200,
+						flicker: { enabled: true, type: 'torch', intensity: 0.25 },
+					},
+				],
+				dayNight: {
+					enabled: true,
+					timeOfDay: 10,
+					speed: 0.5,
+					sunLightId: 'sun',
+					ambientLightId: 'ambient',
+				},
+				glow: { enabled: true, intensity: 0.3 },
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// 3 lights
+		expect(result.data.lights).toHaveLength(3);
+
+		// Ambient: no shadow, no flicker
+		expect(result.data.lights[0]!.shadowGenerator).toBeNull();
+		expect(result.data.lights[0]!.flickerInstance).toBeNull();
+
+		// Sun: shadow, no flicker
+		expect(result.data.lights[1]!.shadowGenerator).not.toBeNull();
+		expect(result.data.lights[1]!.flickerInstance).toBeNull();
+
+		// Torch: no shadow, has flicker
+		expect(result.data.lights[2]!.shadowGenerator).toBeNull();
+		expect(result.data.lights[2]!.flickerInstance).not.toBeNull();
+
+		// Glow + Day/night
+		expect(result.data.glowLayer).not.toBeNull();
+		expect(result.data.dayNightCycle).not.toBeNull();
+	});
+});
