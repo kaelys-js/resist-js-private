@@ -388,4 +388,5 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 		},
 	],
 	heightMap: generateHeightMap(),
+	postProcessing: { preset: 'hd2d' },
 };

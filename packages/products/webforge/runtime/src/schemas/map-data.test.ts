@@ -966,6 +966,55 @@ describe('MapDataSchema', () => {
 	});
 
 	// =========================================================================
+	// Post-processing integration
+	// =========================================================================
+
+	test('accepts map without postProcessing field', () => {
+		const result: Result<MapData> = safeParse(MapDataSchema, {
+			width: 1,
+			height: 1,
+			tilesets: [VALID_TILESET],
+			layers: [VALID_LAYER_1X1],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.postProcessing).toBeUndefined();
+	});
+
+	test('accepts map with empty postProcessing (applies defaults)', () => {
+		const result: Result<MapData> = safeParse(MapDataSchema, {
+			width: 1,
+			height: 1,
+			tilesets: [VALID_TILESET],
+			layers: [VALID_LAYER_1X1],
+			postProcessing: {},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.postProcessing?.enabled).toBe(true);
+		expect(result.data.postProcessing?.preset).toBe('hd2d');
+	});
+
+	test('accepts map with full postProcessing config', () => {
+		const result: Result<MapData> = safeParse(MapDataSchema, {
+			width: 1,
+			height: 1,
+			tilesets: [VALID_TILESET],
+			layers: [VALID_LAYER_1X1],
+			postProcessing: {
+				preset: 'cinematic',
+				bloom: { weight: 0.3 },
+				exposure: 0.9,
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.postProcessing?.preset).toBe('cinematic');
+		expect(result.data.postProcessing?.bloom?.weight).toBe(0.3);
+		expect(result.data.postProcessing?.exposure).toBe(0.9);
+	});
+
+	// =========================================================================
 	// Edge cases
 	// =========================================================================
 
