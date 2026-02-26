@@ -44,6 +44,12 @@ import {
 	disposeTileAnimator,
 	type TileAnimationManager,
 } from './tile-animator';
+import {
+	createPostProcessingPipeline,
+	disposePostProcessingPipeline,
+	type PostProcessingPipeline,
+} from './post-processing';
+import { resolvePostProcessingConfig } from './post-processing-presets';
 
 // =============================================================================
 // Schemas
@@ -72,6 +78,10 @@ export const RenderedTilemapSchema = v.strictObject({
 	/** Chunk configuration (readonly from safeParse). */
 	chunkConfig: v.custom<DeepReadonly<ChunkConfig>>(
 		(val): val is DeepReadonly<ChunkConfig> => typeof val === 'object',
+	),
+	/** Post-processing pipeline (null if not configured). */
+	postProcessing: v.custom<PostProcessingPipeline | null>(
+		(val): val is PostProcessingPipeline | null => val === null || typeof val === 'object',
 	),
 	/** The Babylon.js scene. */
 	scene: v.custom<BABYLON.Scene>((val): val is BABYLON.Scene => val instanceof BABYLON.Scene),
@@ -257,7 +267,26 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 		const animResult = createTileAnimator({ scene });
 		if (!animResult.ok) return animResult;
 
-		// 12. Return RenderedTilemap
+		// 12. Create post-processing pipeline (non-fatal on failure)
+		let postProcessing: PostProcessingPipeline | null = null;
+		if (mapData.postProcessing) {
+			const resolvedResult = resolvePostProcessingConfig(mapData.postProcessing);
+			if (resolvedResult.ok) {
+				const cameras: BABYLON.Camera[] = scene.cameras;
+				if (cameras.length > 0) {
+					const ppResult = createPostProcessingPipeline({
+						scene,
+						cameras,
+						config: resolvedResult.data,
+					});
+					if (ppResult.ok) {
+						postProcessing = ppResult.data;
+					}
+				}
+			}
+		}
+
+		// 13. Return RenderedTilemap
 		const rendered: RenderedTilemap = {
 			chunks,
 			cliffChunks,
@@ -266,6 +295,7 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			animator: animResult.data,
 			mapData,
 			chunkConfig,
+			postProcessing,
 			scene,
 		};
 
@@ -305,6 +335,11 @@ export function disposeTilemap(options: DisposeTilemapOptions): BabylonResult<Bo
 		// Dispose cliff meshes
 		for (const cliff of tilemap.cliffChunks) {
 			cliff.mesh.dispose();
+		}
+
+		// Dispose post-processing pipeline
+		if (tilemap.postProcessing) {
+			disposePostProcessingPipeline({ pipeline: tilemap.postProcessing });
 		}
 
 		// Dispose animator

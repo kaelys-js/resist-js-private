@@ -89,6 +89,64 @@ export {
 	type LayerType,
 } from './schemas/map-data';
 
+// Schemas — Post-processing config
+export {
+	PostProcessingConfigSchema,
+	BloomConfigSchema,
+	DepthOfFieldConfigSchema,
+	ToneMappingConfigSchema,
+	ColorGradingConfigSchema,
+	VignetteConfigSchema,
+	GrainConfigSchema,
+	SsaoConfigSchema,
+	ChromaticAberrationConfigSchema,
+	SharpenConfigSchema,
+	FxaaConfigSchema,
+	DitheringConfigSchema,
+	HdrEnvironmentConfigSchema,
+	PostProcessingPresetSchema,
+	ColorGradingPresetSchema,
+	type PostProcessingConfig,
+	type BloomConfig,
+	type DepthOfFieldConfig,
+	type ToneMappingConfig,
+	type ColorGradingConfig,
+	type VignetteConfig,
+	type GrainConfig,
+	type SsaoConfig,
+	type ChromaticAberrationConfig,
+	type SharpenConfig,
+	type FxaaConfig,
+	type DitheringConfig,
+	type HdrEnvironmentConfig,
+	type PostProcessingPresetName,
+	type ColorGradingPreset,
+} from './schemas/post-processing-config';
+
+// Post-processing presets + quality scaling
+export {
+	POST_PROCESSING_PRESETS,
+	getPostProcessingPreset,
+	resolvePostProcessingConfig,
+	applyQualityScaling,
+} from './rendering/post-processing-presets';
+
+// Post-processing pipeline
+export {
+	createPostProcessingPipeline,
+	updatePostProcessingConfig,
+	disposePostProcessingPipeline,
+	type PostProcessingPipeline,
+} from './rendering/post-processing';
+
+// HDR environment
+export {
+	loadHdrEnvironment,
+	applyHdrEnvironmentToScene,
+	disposeHdrEnvironment,
+	type HdrEnvironmentInstance,
+} from './rendering/hdr-environment';
+
 // Tilemap renderer
 export {
 	renderTilemap,

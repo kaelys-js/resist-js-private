@@ -27,6 +27,8 @@
 
 import * as v from 'valibot';
 
+import { PostProcessingConfigSchema } from './post-processing-config';
+
 // =============================================================================
 // Tile Properties
 // =============================================================================
@@ -304,6 +306,9 @@ export const MapDataSchema = v.strictObject({
 	 * Values 0–15. Omit for flat maps (all tiles at height 0).
 	 */
 	heightMap: v.optional(v.array(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(15)))),
+
+	/** Optional post-processing pipeline configuration for this map. */
+	postProcessing: v.optional(PostProcessingConfigSchema),
 });
 
 /** Top-level map data. */

@@ -212,6 +212,40 @@ describe('renderTilemap', () => {
 		// (some may be null if empty, but loaded chunks should exist)
 		expect(result.data.chunks.length).toBe(4);
 	});
+
+	it('defaults postProcessing to null when not configured', () => {
+		const scene: BABYLON.Scene = setupEngine();
+		const mapData: unknown = makeMinimalMapData(4, 4);
+
+		const result: BabylonResult<RenderedTilemap> = renderTilemap({
+			scene,
+			mapDataInput: mapData,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.postProcessing).toBeNull();
+	});
+
+	it('creates post-processing pipeline when configured', () => {
+		const scene: BABYLON.Scene = setupEngine();
+		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
+		new BABYLON.FreeCamera('test-camera', new BABYLON.Vector3(0, 0, 0), scene);
+
+		const mapData: unknown = {
+			...makeMinimalMapData(4, 4),
+			postProcessing: { preset: 'hd2d' },
+		};
+
+		const result: BabylonResult<RenderedTilemap> = renderTilemap({
+			scene,
+			mapDataInput: mapData,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.postProcessing).not.toBeNull();
+	});
 });
 
 // =============================================================================
