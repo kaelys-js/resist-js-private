@@ -60,6 +60,8 @@ export type ManagedLight = {
 	readonly light: BABYLON.Light;
 	readonly shadowGenerator: ShadowGeneratorInstance | null;
 	readonly flickerInstance: FlickerInstance | null;
+	readonly volumetricPostProcess: BABYLON.VolumetricLightScatteringPostProcess | null;
+	readonly lensFlareSystem: BABYLON.LensFlareSystem | null;
 };
 
 /** The top-level lighting system instance. */
@@ -321,11 +323,68 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 				}
 			}
 
+			// Volumetric light scattering (god rays) — DirectionalLight only, non-fatal
+			let volumetric: BABYLON.VolumetricLightScatteringPostProcess | null = null;
+			if (lightCfg.type === 'directional' && lightCfg.volumetricLight?.enabled) {
+				try {
+					const cameras: readonly BABYLON.Camera[] = options.scene.cameras;
+					if (cameras.length > 0) {
+						const vlCfg = lightCfg.volumetricLight;
+						volumetric = new BABYLON.VolumetricLightScatteringPostProcess(
+							`${lightCfg.id}-godrays`,
+							{ postProcessRatio: vlCfg.passRatio, passRatio: vlCfg.passRatio },
+							cameras[0]!,
+							undefined,
+							vlCfg.samples,
+							BABYLON.Texture.BILINEAR_SAMPLINGMODE,
+							options.scene.getEngine(),
+							false,
+						);
+						volumetric.decay = vlCfg.decay;
+						volumetric.weight = vlCfg.weight;
+						volumetric.density = vlCfg.density;
+					}
+				} catch {
+					// Non-fatal — volumetric may not be supported (e.g. NullEngine)
+					volumetric = null;
+				}
+			}
+
+			// Lens flares — DirectionalLight only, non-fatal
+			let lensFlares: BABYLON.LensFlareSystem | null = null;
+			if (lightCfg.type === 'directional' && lightCfg.lensFlare?.enabled) {
+				try {
+					lensFlares = new BABYLON.LensFlareSystem(`${lightCfg.id}-flares`, light, options.scene);
+					const flareCfg = lightCfg.lensFlare;
+					if (flareCfg.flares && flareCfg.flares.length > 0) {
+						for (const f of flareCfg.flares) {
+							new BABYLON.LensFlare(
+								f.size,
+								f.position,
+								new BABYLON.Color3(f.color.r, f.color.g, f.color.b),
+								'',
+								lensFlares,
+							);
+						}
+					} else {
+						// Default 3-flare set
+						new BABYLON.LensFlare(0.2, 0, new BABYLON.Color3(1, 1, 1), '', lensFlares);
+						new BABYLON.LensFlare(0.5, 0.2, new BABYLON.Color3(0.5, 0.5, 1), '', lensFlares);
+						new BABYLON.LensFlare(0.2, 1.0, new BABYLON.Color3(1, 1, 1), '', lensFlares);
+					}
+				} catch {
+					// Non-fatal — lens flares may not be supported
+					lensFlares = null;
+				}
+			}
+
 			managedLights.push({
 				config: lightCfg,
 				light,
 				shadowGenerator: shadowGen,
 				flickerInstance: flickerInst,
+				volumetricPostProcess: volumetric,
+				lensFlareSystem: lensFlares,
 			});
 		}
 
@@ -514,6 +573,13 @@ export function removeLightById(options: RemoveLightOptions): BabylonResult<Ligh
 		if (managed.flickerInstance) {
 			disposeFlicker({ flicker: managed.flickerInstance, scene: options.lighting.scene });
 		}
+		if (managed.volumetricPostProcess) {
+			const cam: BABYLON.Nullable<BABYLON.Camera> = options.lighting.scene.cameras[0] ?? null;
+			if (cam) managed.volumetricPostProcess.dispose(cam);
+		}
+		if (managed.lensFlareSystem) {
+			managed.lensFlareSystem.dispose();
+		}
 		if (managed.shadowGenerator) {
 			disposeShadowGenerator({ generator: managed.shadowGenerator });
 		}
@@ -570,6 +636,14 @@ export function disposeLighting(options: DisposeLightingOptions): BabylonResult<
 			// Dispose flicker before shadow (flicker modifies light properties)
 			if (managed.flickerInstance) {
 				disposeFlicker({ flicker: managed.flickerInstance, scene: options.lighting.scene });
+			}
+			// Dispose volumetric + lens flares
+			if (managed.volumetricPostProcess) {
+				const cam: BABYLON.Nullable<BABYLON.Camera> = options.lighting.scene.cameras[0] ?? null;
+				if (cam) managed.volumetricPostProcess.dispose(cam);
+			}
+			if (managed.lensFlareSystem) {
+				managed.lensFlareSystem.dispose();
 			}
 			// Dispose shadow generator before light
 			if (managed.shadowGenerator) {

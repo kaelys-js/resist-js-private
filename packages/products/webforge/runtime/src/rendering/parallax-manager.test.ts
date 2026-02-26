@@ -1,0 +1,254 @@
+/**
+ * Parallax manager tests.
+ *
+ * Tests parallax layer creation, UV offset computation,
+ * per-frame observer registration, and disposal.
+ *
+ * @module
+ */
+
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+
+import { createTestEngine, disposeEngine, type BabylonEngineInstance } from '../core/engine';
+import type { ParallaxLayer } from '../schemas/sky-config';
+import { createParallax, disposeParallax, computeParallaxOffset } from './parallax-manager';
+
+let instance: BabylonEngineInstance;
+
+beforeEach(() => {
+	const result = createTestEngine();
+	if (!result.ok) throw new Error('Failed to create test engine');
+	instance = result.data;
+});
+
+afterEach(() => {
+	disposeEngine(instance);
+});
+
+// =============================================================================
+// computeParallaxOffset (pure math)
+// =============================================================================
+
+describe('computeParallaxOffset', () => {
+	test('computes correct X offset for camera position', () => {
+		const offset = computeParallaxOffset({
+			cameraX: 10,
+			cameraZ: 0,
+			scrollSpeedX: 0.5,
+			scrollSpeedY: 0,
+		});
+		expect(offset.x).toBeCloseTo(5);
+		expect(offset.y).toBeCloseTo(0);
+	});
+
+	test('computes correct Y offset from Z movement', () => {
+		const offset = computeParallaxOffset({
+			cameraX: 0,
+			cameraZ: 20,
+			scrollSpeedX: 0,
+			scrollSpeedY: 0.3,
+		});
+		expect(offset.x).toBeCloseTo(0);
+		expect(offset.y).toBeCloseTo(6);
+	});
+
+	test('negative scroll speed reverses direction', () => {
+		const offset = computeParallaxOffset({
+			cameraX: 10,
+			cameraZ: 0,
+			scrollSpeedX: -0.5,
+			scrollSpeedY: 0,
+		});
+		expect(offset.x).toBeCloseTo(-5);
+	});
+
+	test('zero speed produces zero offset', () => {
+		const offset = computeParallaxOffset({
+			cameraX: 100,
+			cameraZ: 100,
+			scrollSpeedX: 0,
+			scrollSpeedY: 0,
+		});
+		expect(offset.x).toBeCloseTo(0);
+		expect(offset.y).toBeCloseTo(0);
+	});
+});
+
+// =============================================================================
+// createParallax
+// =============================================================================
+
+describe('createParallax', () => {
+	test('creates plane mesh per parallax layer', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/mountains.png',
+				scrollSpeedX: 0.3,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+			},
+			{
+				imagePath: 'bg/clouds.png',
+				scrollSpeedX: 0.5,
+				scrollSpeedY: 0,
+				offsetY: 5,
+				opacity: 0.7,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+			},
+		];
+		const result = createParallax({
+			scene: instance.scene,
+			layers,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.planes).toHaveLength(2);
+	});
+
+	test('applies opacity to plane mesh', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/trees.png',
+				scrollSpeedX: 0.4,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 0.6,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+			},
+		];
+		const result = createParallax({
+			scene: instance.scene,
+			layers,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.planes[0]!.visibility).toBeCloseTo(0.6);
+	});
+
+	test('empty layers array creates empty instance', () => {
+		const result = createParallax({
+			scene: instance.scene,
+			layers: [],
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.planes).toHaveLength(0);
+	});
+
+	test('registers onBeforeRender observer when layers exist', () => {
+		const observerCountBefore = instance.scene.onBeforeRenderObservable.observers.length;
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/hills.png',
+				scrollSpeedX: 0.5,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+			},
+		];
+		const result = createParallax({
+			scene: instance.scene,
+			layers,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(instance.scene.onBeforeRenderObservable.observers.length).toBeGreaterThan(
+			observerCountBefore,
+		);
+	});
+});
+
+// =============================================================================
+// disposeParallax
+// =============================================================================
+
+describe('disposeParallax', () => {
+	test('disposes all plane meshes', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/mountains.png',
+				scrollSpeedX: 0.3,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+			},
+		];
+		const result = createParallax({
+			scene: instance.scene,
+			layers,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		const meshCountBefore = instance.scene.meshes.length;
+		const disposeResult = disposeParallax({ parallax: result.data });
+		expect(disposeResult.ok).toBe(true);
+		expect(instance.scene.meshes.length).toBeLessThan(meshCountBefore);
+	});
+
+	test('removes onBeforeRender observer', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/hills.png',
+				scrollSpeedX: 0.5,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+			},
+		];
+		const result = createParallax({
+			scene: instance.scene,
+			layers,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		// Verify the observer exists before dispose
+		expect(result.data.observer).not.toBeNull();
+		disposeParallax({ parallax: result.data });
+		// After dispose, the observer reference was removed from the observable
+		// (Babylon.js sets the slot to null rather than shrinking the array)
+		expect(
+			instance.scene.onBeforeRenderObservable.hasObservers() === false ||
+				instance.scene.onBeforeRenderObservable.observers.some(
+					(o) => o === result.data.observer,
+				) === false,
+		).toBe(true);
+	});
+
+	test('handles empty parallax instance', () => {
+		const result = createParallax({
+			scene: instance.scene,
+			layers: [],
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		const disposeResult = disposeParallax({ parallax: result.data });
+		expect(disposeResult.ok).toBe(true);
+	});
+});

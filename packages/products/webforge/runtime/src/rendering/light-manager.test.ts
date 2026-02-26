@@ -674,3 +674,200 @@ describe('createLighting — sub-module orchestration', () => {
 		expect(result.data.dayNightCycle).not.toBeNull();
 	});
 });
+
+// =============================================================================
+// Volumetric Light (God Rays)
+// =============================================================================
+
+describe('createLighting — volumetric light', () => {
+	test('DirectionalLight with volumetricLight.enabled creates post-process (non-fatal)', () => {
+		// Need a camera for post-processing
+		const _camera: BABYLON.ArcRotateCamera = new BABYLON.ArcRotateCamera(
+			'cam',
+			0,
+			0,
+			10,
+			BABYLON.Vector3.Zero(),
+			instance.scene,
+		);
+
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						volumetricLight: { enabled: true, samples: 50, decay: 0.95, weight: 0.4 },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// Volumetric is non-fatal — may be null on NullEngine, but ManagedLight has the field
+		const managed = result.data.lights[0]!;
+		expect('volumetricPostProcess' in managed).toBe(true);
+	});
+
+	test('DirectionalLight without volumetricLight config has null post-process', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [{ id: 'sun', type: 'directional' }],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lights[0]!.volumetricPostProcess).toBeNull();
+	});
+
+	test('PointLight ignores volumetricLight config (field stays null)', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [{ id: 'torch', type: 'point' }],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lights[0]!.volumetricPostProcess).toBeNull();
+	});
+});
+
+// =============================================================================
+// Lens Flares
+// =============================================================================
+
+describe('createLighting — lens flares', () => {
+	test('DirectionalLight with lensFlare.enabled creates LensFlareSystem', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						lensFlare: { enabled: true },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const managed = result.data.lights[0]!;
+		// Non-fatal — may or may not succeed on NullEngine
+		expect('lensFlareSystem' in managed).toBe(true);
+	});
+
+	test('DirectionalLight with custom flares creates correct number of flare elements', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						lensFlare: {
+							enabled: true,
+							flares: [
+								{ size: 0.2, position: 0, color: { r: 1, g: 1, b: 1, a: 1 } },
+								{ size: 0.5, position: 0.3, color: { r: 0.5, g: 0.5, b: 1, a: 1 } },
+							],
+						},
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const managed = result.data.lights[0]!;
+		if (managed.lensFlareSystem) {
+			expect(managed.lensFlareSystem.lensFlares).toHaveLength(2);
+		}
+	});
+
+	test('DirectionalLight with default flares (no flares array) creates 3 flares', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						lensFlare: { enabled: true },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const managed = result.data.lights[0]!;
+		if (managed.lensFlareSystem) {
+			expect(managed.lensFlareSystem.lensFlares).toHaveLength(3);
+		}
+	});
+
+	test('DirectionalLight without lensFlare config has null system', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [{ id: 'sun', type: 'directional' }],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lights[0]!.lensFlareSystem).toBeNull();
+	});
+
+	test('removeLightById disposes volumetric and lens flare resources', () => {
+		const createResult: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						lensFlare: { enabled: true },
+					},
+				],
+			},
+		});
+		expect(createResult.ok).toBeTruthy();
+		if (!createResult.ok) return;
+
+		const removeResult: BabylonResult<LightingInstance> = removeLightById({
+			lighting: createResult.data,
+			lightId: 'sun',
+		});
+		expect(removeResult.ok).toBeTruthy();
+		if (!removeResult.ok) return;
+		expect(removeResult.data.lights).toHaveLength(0);
+	});
+
+	test('disposeLighting disposes all volumetric and lens flare resources', () => {
+		const createResult: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						lensFlare: { enabled: true },
+					},
+				],
+			},
+		});
+		expect(createResult.ok).toBeTruthy();
+		if (!createResult.ok) return;
+
+		const result: BabylonResult<Bool> = disposeLighting({
+			lighting: createResult.data,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+});

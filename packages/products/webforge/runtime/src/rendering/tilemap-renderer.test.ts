@@ -14,6 +14,8 @@ import type { BabylonResult } from '../core/babylon-result';
 import {
 	disposeTilemap,
 	renderTilemap,
+	setLayerOpacity,
+	setLayerVisibility,
 	updateTile,
 	type RenderedTilemap,
 } from './tilemap-renderer';
@@ -382,5 +384,85 @@ describe('updateTile', () => {
 		expect(oldMesh.isDisposed()).toBe(true);
 		// New chunk should exist
 		expect(result.data.chunks.length).toBeGreaterThan(0);
+	});
+});
+
+// =============================================================================
+// setLayerVisibility + setLayerOpacity
+// =============================================================================
+
+describe('setLayerVisibility', () => {
+	it('hides all chunks for a layer', () => {
+		const scene: BABYLON.Scene = setupEngine();
+		const mapData: unknown = makeMinimalMapData(4, 4);
+
+		const renderResult: BabylonResult<RenderedTilemap> = renderTilemap({
+			scene,
+			mapDataInput: mapData,
+			assetBasePath: '/assets/',
+		});
+		expect(renderResult.ok).toBe(true);
+		if (!renderResult.ok) return;
+
+		const result = setLayerVisibility({
+			tilemap: renderResult.data,
+			layerIndex: 0,
+			visible: false,
+		});
+		expect(result.ok).toBe(true);
+
+		for (const chunk of renderResult.data.chunks) {
+			if (chunk.layerIndex === 0) {
+				expect(chunk.mesh.isVisible).toBe(false);
+			}
+		}
+	});
+
+	it('returns ok for non-existent layer index (no-op)', () => {
+		const scene: BABYLON.Scene = setupEngine();
+		const mapData: unknown = makeMinimalMapData(4, 4);
+
+		const renderResult: BabylonResult<RenderedTilemap> = renderTilemap({
+			scene,
+			mapDataInput: mapData,
+			assetBasePath: '/assets/',
+		});
+		expect(renderResult.ok).toBe(true);
+		if (!renderResult.ok) return;
+
+		const result = setLayerVisibility({
+			tilemap: renderResult.data,
+			layerIndex: 99,
+			visible: false,
+		});
+		expect(result.ok).toBe(true);
+	});
+});
+
+describe('setLayerOpacity', () => {
+	it('sets visibility on all chunks for a layer', () => {
+		const scene: BABYLON.Scene = setupEngine();
+		const mapData: unknown = makeMinimalMapData(4, 4);
+
+		const renderResult: BabylonResult<RenderedTilemap> = renderTilemap({
+			scene,
+			mapDataInput: mapData,
+			assetBasePath: '/assets/',
+		});
+		expect(renderResult.ok).toBe(true);
+		if (!renderResult.ok) return;
+
+		const result = setLayerOpacity({
+			tilemap: renderResult.data,
+			layerIndex: 0,
+			opacity: 0.3,
+		});
+		expect(result.ok).toBe(true);
+
+		for (const chunk of renderResult.data.chunks) {
+			if (chunk.layerIndex === 0) {
+				expect(chunk.mesh.visibility).toBeCloseTo(0.3);
+			}
+		}
 	});
 });

@@ -269,6 +269,8 @@ describe('createDayNightCycle', () => {
 				light: sunLight,
 				shadowGenerator: null,
 				flickerInstance: null,
+				volumetricPostProcess: null,
+				lensFlareSystem: null,
 			},
 		];
 

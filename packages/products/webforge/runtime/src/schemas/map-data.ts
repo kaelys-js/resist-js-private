@@ -29,6 +29,7 @@ import * as v from 'valibot';
 
 import { LightingConfigSchema } from './lighting-config';
 import { PostProcessingConfigSchema } from './post-processing-config';
+import { SkyConfigSchema } from './sky-config';
 
 // =============================================================================
 // Tile Properties
@@ -313,6 +314,9 @@ export const MapDataSchema = v.strictObject({
 
 	/** Optional lighting system configuration for this map. */
 	lighting: v.optional(LightingConfigSchema),
+
+	/** Optional sky and parallax background configuration for this map. */
+	sky: v.optional(SkyConfigSchema),
 });
 
 /** Top-level map data. */

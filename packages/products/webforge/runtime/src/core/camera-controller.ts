@@ -1,20 +1,25 @@
 /**
- * HD-2D camera controller.
+ * Camera controller.
  *
- * Creates and manages a Babylon.js `ArcRotateCamera` configured for
- * HD-2D isometric-style rendering. Supports dual modes:
+ * Creates and manages cameras for the WebForge runtime with 6 presets:
  *
- * - **Editor** — free orbit, XZ panning, zero inertia, full mouse control.
- * - **Gameplay** — locked rotation, no panning, momentum inertia, programmatic only.
+ * | Preset | Camera | Description |
+ * |--------|--------|-------------|
+ * | `hd2d` | ArcRotateCamera | 45° iso tilt, locked rotation (default) |
+ * | `topdown` | ArcRotateCamera | 90° overhead, no tilt |
+ * | `sideview` | ArcRotateCamera | 0° pitch, pure side-on |
+ * | `firstperson` | UniversalCamera | FPS with WASD + mouse |
+ * | `cinematic` | ArcRotateCamera | Low angle, wide FOV, heavy inertia |
+ * | `free` | ArcRotateCamera | Unrestricted orbit, editor-like |
  *
- * The smooth follow system uses frame-rate independent interpolation for
- * consistent camera movement regardless of FPS.
+ * Backward compatibility: legacy `mode` ('editor' / 'gameplay') maps to
+ * 'free' / 'hd2d' presets when `preset` is not explicitly set.
  *
  * @example
  * ```typescript
- * import { createHd2dCamera, updateCameraTarget } from './camera-controller';
+ * import { createCamera, updateCameraTarget } from './camera-controller';
  *
- * const result = createHd2dCamera(scene, { mode: 'editor' });
+ * const result = createCamera(scene, { preset: 'hd2d' });
  * if (!result.ok) return result;
  *
  * // In render loop:
@@ -38,126 +43,297 @@ import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
 import { safeParse, fromUnknownError } from '@/utils/result/safe';
 
 import { okShallow, type BabylonResult } from './babylon-result';
-import { CameraConfigSchema, type CameraConfig } from '../schemas/camera-config';
+import { CameraConfigSchema, type CameraConfig, type CameraPreset } from '../schemas/camera-config';
+
+// =============================================================================
+// Preset Resolution
+// =============================================================================
+
+/**
+ * Resolves the effective camera preset from config.
+ *
+ * Priority: explicit `preset` > legacy `mode` mapping > default `'hd2d'`.
+ *
+ * @param cfg - Validated camera config.
+ * @returns The resolved camera preset.
+ */
+function resolvePreset(cfg: CameraConfig): CameraPreset {
+	// Explicit preset always wins
+	if (cfg.preset !== 'hd2d' || cfg.mode === undefined) return cfg.preset;
+
+	// Legacy mode mapping (only when preset is default 'hd2d' and mode is set)
+	if (cfg.mode === 'editor') return 'free';
+	if (cfg.mode === 'gameplay') return 'hd2d';
+
+	return cfg.preset;
+}
+
+// =============================================================================
+// Preset Defaults
+// =============================================================================
+
+/**
+ * Per-preset default values for fields that are `undefined` in config.
+ *
+ * These defaults are applied by the camera controller, not the schema,
+ * so that explicit user overrides always win.
+ */
+type PresetDefaults = {
+	readonly alpha: Num;
+	readonly beta: Num;
+	readonly radius: Num;
+	readonly lowerBetaLimit: Num;
+	readonly upperBetaLimit: Num;
+	readonly inertia: Num;
+	readonly panningSensibility: Num;
+	readonly fov: Num;
+	readonly lockAlpha: Bool;
+	readonly lockBeta: Bool;
+};
+
+/** Preset default lookup table. */
+const PRESET_DEFAULTS: Record<CameraPreset, PresetDefaults> = {
+	hd2d: {
+		alpha: Math.PI / 4,
+		beta: Math.PI / 4,
+		radius: 100,
+		lowerBetaLimit: Math.PI / 6,
+		upperBetaLimit: Math.PI / 2.5,
+		inertia: 0.7,
+		panningSensibility: 0,
+		fov: 0.8,
+		lockAlpha: true,
+		lockBeta: false,
+	},
+	topdown: {
+		alpha: 0,
+		beta: 0.01,
+		radius: 80,
+		lowerBetaLimit: 0.01,
+		upperBetaLimit: 0.01,
+		inertia: 0.5,
+		panningSensibility: 0,
+		fov: 0.8,
+		lockAlpha: true,
+		lockBeta: true,
+	},
+	sideview: {
+		alpha: Math.PI / 2,
+		beta: Math.PI / 2,
+		radius: 60,
+		lowerBetaLimit: Math.PI / 2,
+		upperBetaLimit: Math.PI / 2,
+		inertia: 0.5,
+		panningSensibility: 0,
+		fov: 0.8,
+		lockAlpha: true,
+		lockBeta: true,
+	},
+	firstperson: {
+		alpha: 0,
+		beta: 0,
+		radius: 0,
+		lowerBetaLimit: 0,
+		upperBetaLimit: 0,
+		inertia: 0,
+		panningSensibility: 0,
+		fov: 1.2,
+		lockAlpha: false,
+		lockBeta: false,
+	},
+	cinematic: {
+		alpha: Math.PI / 6,
+		beta: Math.PI / 3,
+		radius: 40,
+		lowerBetaLimit: Math.PI / 8,
+		upperBetaLimit: Math.PI / 2,
+		inertia: 0.9,
+		panningSensibility: 0,
+		fov: 1.2,
+		lockAlpha: false,
+		lockBeta: false,
+	},
+	free: {
+		alpha: Math.PI / 4,
+		beta: Math.PI / 4,
+		radius: 100,
+		lowerBetaLimit: Math.PI / 6,
+		upperBetaLimit: Math.PI / 2.5,
+		inertia: 0,
+		panningSensibility: 50,
+		fov: 0.8,
+		lockAlpha: false,
+		lockBeta: false,
+	},
+};
 
 // =============================================================================
 // Camera Creation
 // =============================================================================
 
 /**
- * Creates an ArcRotateCamera configured for HD-2D rendering.
+ * Creates a camera configured for the specified preset.
  *
- * Validates config via {@link CameraConfigSchema}, then applies mode-dependent
- * defaults for fields that were not explicitly provided:
- *
- * | Property | Editor | Gameplay |
- * |----------|--------|----------|
- * | inertia | 0 | 0.7 |
- * | panningSensibility | 50 | 0 |
- * | alpha/beta limits | free orbit | locked |
+ * Validates config via {@link CameraConfigSchema}, resolves the effective
+ * preset (including legacy mode mapping), then creates the appropriate
+ * camera type with preset-specific defaults. Explicit config values always
+ * override preset defaults.
  *
  * @param scene - The Babylon.js scene to attach the camera to.
  * @param config - Raw camera configuration (validated internally).
- * @returns Result containing the configured ArcRotateCamera.
+ * @returns Result containing the configured Camera.
  *
  * @example
  * ```typescript
- * const result = createHd2dCamera(scene, { mode: 'editor' });
+ * const result = createCamera(scene, { preset: 'topdown' });
  * if (!result.ok) return result;
  * const camera = result.data;
  * ```
  */
-export function createHd2dCamera(
-	scene: BABYLON.Scene,
-	config: unknown,
-): BabylonResult<BABYLON.ArcRotateCamera> {
+export function createCamera(scene: BABYLON.Scene, config: unknown): BabylonResult<BABYLON.Camera> {
 	const parsed: Result<CameraConfig> = safeParse(CameraConfigSchema, config);
 	if (!parsed.ok) return parsed;
 	const cfg: CameraConfig = parsed.data;
 
 	try {
-		const target: BABYLON.Vector3 = new BABYLON.Vector3(cfg.targetX, cfg.targetY, cfg.targetZ);
+		const preset: CameraPreset = resolvePreset(cfg);
 
-		const camera: BABYLON.ArcRotateCamera = new BABYLON.ArcRotateCamera(
-			'hd2d-camera',
-			cfg.alpha,
-			cfg.beta,
-			cfg.radius,
-			target,
-			scene,
-		);
-
-		// Wheel zoom precision
-		camera.wheelPrecision = cfg.wheelPrecision;
-
-		// Panning axis — restrict to XZ plane by default
-		camera.panningAxis = new BABYLON.Vector3(
-			cfg.panningAxis.x,
-			cfg.panningAxis.y,
-			cfg.panningAxis.z,
-		);
-
-		// Apply mode-dependent defaults
-		if (cfg.mode === 'editor') {
-			applyEditorMode(camera, cfg);
-		} else {
-			applyGameplayMode(camera, cfg);
+		if (preset === 'firstperson') {
+			return createFirstPersonCamera(scene, cfg);
 		}
 
-		return okShallow(camera);
+		return createArcRotateCamera(scene, cfg, preset);
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
 	}
 }
 
 /**
- * Applies editor mode defaults to the camera.
+ * Creates a legacy HD-2D camera (backward compatibility).
  *
- * Editor mode: free orbit, XZ panning enabled, zero inertia.
- *
- * @param camera - The ArcRotateCamera to configure.
- * @param cfg - The validated camera configuration.
+ * @deprecated Use {@link createCamera} with `preset` field instead.
+ * @param scene - The Babylon.js scene.
+ * @param config - Raw camera configuration.
+ * @returns Result containing the configured camera.
  */
-function applyEditorMode(camera: BABYLON.ArcRotateCamera, cfg: CameraConfig): void {
-	// Beta limits (pitch clamp)
-	camera.lowerBetaLimit = cfg.lowerBetaLimit;
-	camera.upperBetaLimit = cfg.upperBetaLimit;
-
-	// Radius limits (zoom clamp)
-	camera.lowerRadiusLimit = cfg.lowerRadiusLimit;
-	camera.upperRadiusLimit = cfg.upperRadiusLimit;
-
-	// Free orbit — no alpha limits
-	camera.lowerAlphaLimit = null;
-	camera.upperAlphaLimit = null;
-
-	// Mode defaults — explicit overrides win
-	camera.inertia = cfg.inertia ?? 0;
-	camera.panningSensibility = cfg.panningSensibility ?? 50;
+export function createHd2dCamera(
+	scene: BABYLON.Scene,
+	config: unknown,
+): BabylonResult<BABYLON.Camera> {
+	return createCamera(scene, config);
 }
 
-/**
- * Applies gameplay mode defaults to the camera.
- *
- * Gameplay mode: locked rotation, no panning, momentum inertia.
- *
- * @param camera - The ArcRotateCamera to configure.
- * @param cfg - The validated camera configuration.
- */
-function applyGameplayMode(camera: BABYLON.ArcRotateCamera, cfg: CameraConfig): void {
-	// Lock alpha and beta to initial values
-	camera.lowerAlphaLimit = cfg.alpha;
-	camera.upperAlphaLimit = cfg.alpha;
-	camera.lowerBetaLimit = cfg.beta;
-	camera.upperBetaLimit = cfg.beta;
+// =============================================================================
+// ArcRotateCamera presets
+// =============================================================================
 
-	// Radius limits still apply
+/**
+ * Creates an ArcRotateCamera for orbit-based presets.
+ *
+ * @param scene - Babylon.js scene.
+ * @param cfg - Validated camera config.
+ * @param preset - Resolved camera preset.
+ * @returns The configured ArcRotateCamera.
+ */
+function createArcRotateCamera(
+	scene: BABYLON.Scene,
+	cfg: CameraConfig,
+	preset: CameraPreset,
+): BabylonResult<BABYLON.Camera> {
+	const defaults: PresetDefaults = PRESET_DEFAULTS[preset];
+	const target: BABYLON.Vector3 = new BABYLON.Vector3(cfg.targetX, cfg.targetY, cfg.targetZ);
+
+	// Resolve alpha/beta/radius — explicit overrides win, then preset defaults
+	const alpha: Num = cfg.alpha ?? defaults.alpha;
+	const beta: Num = cfg.beta ?? defaults.beta;
+	const radius: Num = cfg.radius ?? defaults.radius;
+
+	const camera: BABYLON.ArcRotateCamera = new BABYLON.ArcRotateCamera(
+		`camera-${preset}`,
+		alpha,
+		beta,
+		radius,
+		target,
+		scene,
+	);
+
+	// Wheel zoom precision
+	camera.wheelPrecision = cfg.wheelPrecision;
+
+	// Panning axis — restrict to XZ plane by default
+	camera.panningAxis = new BABYLON.Vector3(cfg.panningAxis.x, cfg.panningAxis.y, cfg.panningAxis.z);
+
+	// FOV
+	camera.fov = defaults.fov;
+
+	// Beta limits
+	if (defaults.lockBeta) {
+		camera.lowerBetaLimit = defaults.beta;
+		camera.upperBetaLimit = defaults.beta;
+	} else {
+		camera.lowerBetaLimit = cfg.lowerBetaLimit;
+		camera.upperBetaLimit = cfg.upperBetaLimit;
+	}
+
+	// Alpha limits — lock for presets that restrict rotation
+	if (defaults.lockAlpha) {
+		camera.lowerAlphaLimit = alpha;
+		camera.upperAlphaLimit = alpha;
+	} else {
+		camera.lowerAlphaLimit = null;
+		camera.upperAlphaLimit = null;
+	}
+
+	// Radius limits
 	camera.lowerRadiusLimit = cfg.lowerRadiusLimit;
 	camera.upperRadiusLimit = cfg.upperRadiusLimit;
 
-	// Mode defaults — explicit overrides win
-	camera.inertia = cfg.inertia ?? 0.7;
-	camera.panningSensibility = cfg.panningSensibility ?? 0;
+	// Inertia — explicit override wins, then preset default
+	camera.inertia = cfg.inertia ?? defaults.inertia;
+
+	// Panning — explicit override wins, then preset default
+	camera.panningSensibility = cfg.panningSensibility ?? defaults.panningSensibility;
+
+	return okShallow(camera);
+}
+
+// =============================================================================
+// UniversalCamera (firstperson)
+// =============================================================================
+
+/**
+ * Creates a UniversalCamera for first-person preset.
+ *
+ * @param scene - Babylon.js scene.
+ * @param cfg - Validated camera config.
+ * @returns The configured UniversalCamera.
+ */
+function createFirstPersonCamera(
+	scene: BABYLON.Scene,
+	cfg: CameraConfig,
+): BabylonResult<BABYLON.Camera> {
+	const defaults: PresetDefaults = PRESET_DEFAULTS.firstperson;
+	const position: BABYLON.Vector3 = new BABYLON.Vector3(cfg.targetX, cfg.targetY, cfg.targetZ);
+
+	const camera: BABYLON.UniversalCamera = new BABYLON.UniversalCamera(
+		'camera-firstperson',
+		position,
+		scene,
+	);
+
+	// WASD keys
+	camera.keysUp = [87]; // W
+	camera.keysDown = [83]; // S
+	camera.keysLeft = [65]; // A
+	camera.keysRight = [68]; // D
+
+	// FOV
+	camera.fov = defaults.fov;
+
+	// Inertia — explicit override wins
+	camera.inertia = cfg.inertia ?? defaults.inertia;
+
+	return okShallow(camera);
 }
 
 // =============================================================================
@@ -166,8 +342,8 @@ function applyGameplayMode(camera: BABYLON.ArcRotateCamera, cfg: CameraConfig): 
 
 /** Options for updating camera target with smooth interpolation. */
 export type CameraTargetOptions = {
-	/** The ArcRotateCamera to update. */
-	readonly camera: BABYLON.ArcRotateCamera;
+	/** The camera to update. Must be an ArcRotateCamera for target lerp. */
+	readonly camera: BABYLON.Camera;
 	/** Goal X position (world space). */
 	readonly targetX: Num;
 	/** Goal Y position (world space). */
@@ -186,12 +362,14 @@ export type CameraTargetOptions = {
  * Uses the formula: `lerpFactor = 1 - (1 - speed) ** ((deltaTimeMs / 1000) * 60)`
  * This produces consistent follow behavior regardless of frame rate.
  *
+ * For ArcRotateCamera presets, lerps the orbit target.
+ * For UniversalCamera, lerps the position (first-person movement is external).
+ *
  * @param options - Camera target update options.
  * @returns Result indicating success.
  *
  * @example
  * ```typescript
- * // In scene.registerBeforeRender:
  * updateCameraTarget({
  *   camera,
  *   targetX: player.x,
@@ -213,12 +391,162 @@ export function updateCameraTarget(options: CameraTargetOptions): Result<Bool> {
 
 		// Frame-rate independent lerp factor
 		const lerpFactor: number = 1 - (1 - followSpeed) ** ((deltaTimeMs / 1000) * 60);
-
 		const goal: BABYLON.Vector3 = new BABYLON.Vector3(targetX, targetY, targetZ);
-		// eslint-disable-next-line new-cap -- Babylon.js static factory method
-		camera.target = BABYLON.Vector3.Lerp(camera.target, goal, lerpFactor);
+
+		if (camera instanceof BABYLON.ArcRotateCamera) {
+			// eslint-disable-next-line new-cap -- Babylon.js static factory method
+			camera.target = BABYLON.Vector3.Lerp(camera.target, goal, lerpFactor);
+		} else {
+			// UniversalCamera — lerp position
+			// eslint-disable-next-line new-cap -- Babylon.js static factory method
+			camera.position = BABYLON.Vector3.Lerp(camera.position, goal, lerpFactor);
+		}
 
 		return okUnchecked(true as Bool);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// FF Tactics Rotation
+// =============================================================================
+
+/** Options for FF Tactics-style 4-angle rotation. */
+export type RotateTacticsOptions = {
+	/** The ArcRotateCamera to rotate. */
+	readonly camera: BABYLON.ArcRotateCamera;
+	/** Rotation direction: clockwise or counter-clockwise. */
+	readonly direction: 'cw' | 'ccw';
+};
+
+/**
+ * Snaps the camera alpha by ±90° (π/2 radians).
+ *
+ * FF Tactics-style 4-angle rotation for ArcRotateCamera presets.
+ * Immediately sets the alpha to the new value (animation is handled
+ * by the caller or via Babylon.js animation system).
+ *
+ * Also updates alpha limits when the camera has locked alpha (e.g., hd2d preset).
+ *
+ * @param options - Camera and rotation direction.
+ * @returns Result indicating success.
+ *
+ * @example
+ * ```typescript
+ * rotateTactics({ camera: arcCamera, direction: 'cw' });
+ * ```
+ */
+export function rotateTactics(options: RotateTacticsOptions): Result<Bool> {
+	const { camera, direction } = options;
+
+	try {
+		const delta: number = direction === 'cw' ? Math.PI / 2 : -Math.PI / 2;
+		const newAlpha: number = camera.alpha + delta;
+
+		camera.alpha = newAlpha;
+
+		// Update alpha limits if locked
+		if (camera.lowerAlphaLimit !== null && camera.upperAlphaLimit !== null) {
+			camera.lowerAlphaLimit = newAlpha;
+			camera.upperAlphaLimit = newAlpha;
+		}
+
+		return okUnchecked(true as Bool);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// Screen Shake
+// =============================================================================
+
+/** Handle for a running screen shake effect. */
+export type ShakeHandle = {
+	/** Cancels the shake effect early. */
+	readonly dispose: () => void;
+};
+
+/** Options for screen shake. */
+export type ScreenShakeOptions = {
+	/** The Babylon.js scene. */
+	readonly scene: BABYLON.Scene;
+	/** The camera to shake. */
+	readonly camera: BABYLON.Camera;
+	/** Shake intensity (world units). */
+	readonly intensity: Num;
+	/** Duration of the shake in milliseconds. */
+	readonly durationMs: Num;
+	/** Whether to apply linear decay over duration. */
+	readonly decay: Bool;
+};
+
+/**
+ * Applies a screen shake effect to the camera.
+ *
+ * Registers a per-frame observer that adds random offset to the camera's
+ * position. Automatically removes itself after the specified duration.
+ * Returns a handle for early cancellation.
+ *
+ * @param options - Scene, camera, and shake parameters.
+ * @returns Result containing a shake handle with `dispose()`.
+ *
+ * @example
+ * ```typescript
+ * const result = screenShake({
+ *   scene, camera, intensity: 0.5, durationMs: 300, decay: true,
+ * });
+ * if (result.ok) {
+ *   // Cancel early if needed:
+ *   result.data.dispose();
+ * }
+ * ```
+ */
+export function screenShake(options: ScreenShakeOptions): BabylonResult<ShakeHandle> {
+	const { scene, camera, intensity, durationMs, decay } = options;
+
+	try {
+		const startTime: number = Date.now();
+		let disposed = false;
+
+		// Store original position for restoration
+		const originalPosition: BABYLON.Vector3 = camera.position.clone();
+
+		const observer: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>> =
+			scene.onBeforeRenderObservable.add(() => {
+				if (disposed) return;
+
+				const elapsed: number = Date.now() - startTime;
+
+				if (elapsed >= durationMs) {
+					// Restore original position and remove observer
+					camera.position.copyFrom(originalPosition);
+					disposed = true;
+					if (observer) scene.onBeforeRenderObservable.remove(observer);
+					return;
+				}
+
+				// Compute current intensity (with optional decay)
+				const progress: number = elapsed / durationMs;
+				const currentIntensity: number = decay ? intensity * (1 - progress) : intensity;
+
+				// Apply random offset
+				camera.position.x = originalPosition.x + (Math.random() - 0.5) * currentIntensity;
+				camera.position.y = originalPosition.y + (Math.random() - 0.5) * currentIntensity;
+				camera.position.z = originalPosition.z + (Math.random() - 0.5) * currentIntensity;
+			});
+
+		const handle: ShakeHandle = {
+			dispose: () => {
+				if (disposed) return;
+				disposed = true;
+				camera.position.copyFrom(originalPosition);
+				if (observer) scene.onBeforeRenderObservable.remove(observer);
+			},
+		};
+
+		return okShallow(handle);
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
 	}

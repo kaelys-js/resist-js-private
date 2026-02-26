@@ -33,9 +33,15 @@ export {
 
 // Camera
 export {
+	createCamera,
 	createHd2dCamera,
 	updateCameraTarget,
+	rotateTactics,
+	screenShake,
 	type CameraTargetOptions,
+	type RotateTacticsOptions,
+	type ScreenShakeOptions,
+	type ShakeHandle,
 } from './core/camera-controller';
 
 // Scene setup
@@ -55,7 +61,14 @@ export { showInspector, hideInspector } from './core/debug-inspector';
 
 // Schemas — Engine / Camera / Scene / Quality
 export { EngineConfigSchema, type EngineConfig } from './schemas/engine-config';
-export { CameraConfigSchema, type CameraConfig } from './schemas/camera-config';
+export {
+	CameraConfigSchema,
+	CameraPresetSchema,
+	TransitionEasingSchema,
+	type CameraConfig,
+	type CameraPreset,
+	type TransitionEasing,
+} from './schemas/camera-config';
 export {
 	SceneSetupConfigSchema,
 	ColorRgbaSchema,
@@ -154,8 +167,13 @@ export {
 	renderTilemap,
 	disposeTilemap,
 	updateTile,
+	setLayerVisibility,
+	setLayerOpacity,
 	type RenderedTilemap,
 } from './rendering/tilemap-renderer';
+
+// Tile query
+export { getTileProperties } from './rendering/tile-query';
 
 // Tileset loader
 export {
@@ -278,3 +296,35 @@ export {
 	updateGlowLayer,
 	disposeGlowLayer,
 } from './rendering/glow-manager';
+
+// Schemas — Sky config
+export {
+	SkyConfigSchema,
+	SkyTypeSchema,
+	SkyGradientStopSchema,
+	ParallaxLayerSchema,
+	type SkyConfig,
+	type SkyType,
+	type SkyGradientStop,
+	type ParallaxLayer,
+} from './schemas/sky-config';
+
+// Sky system
+export { createSky, disposeSky, type SkyInstance } from './rendering/sky-system';
+
+// Parallax manager
+export {
+	createParallax,
+	disposeParallax,
+	computeParallaxOffset,
+	type ParallaxInstance,
+} from './rendering/parallax-manager';
+
+// Screen effects
+export {
+	screenTint,
+	screenFlash,
+	screenFadeIn,
+	screenFadeOut,
+	type ScreenEffectHandle,
+} from './rendering/screen-effects';

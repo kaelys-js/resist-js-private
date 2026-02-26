@@ -476,6 +476,74 @@ describe('rebuildChunk', () => {
 		expect(result.data.mesh).not.toBe(oldMesh);
 	});
 
+	it('returns null for hidden layer (visible: false)', () => {
+		const scene: BABYLON.Scene = setupEngine();
+		const config: TilesetConfig = makeConfig('terrain', 1, 4, 4);
+		const tilesets: LoadedTileset[] = [makeLoadedTileset(scene, config)];
+		const mapData: MapData = {
+			width: 4,
+			height: 4,
+			tileWidth: 48,
+			tileHeight: 48,
+			tilesets: [config],
+			layers: [
+				{
+					name: 'ground',
+					type: 'ground',
+					data: Array.from({ length: 16 }, () => 1),
+					visible: false,
+					opacity: 1,
+				},
+			],
+		};
+		const ctx: ChunkBuildContext = makeContext(scene, mapData, tilesets, 4);
+
+		const result: BabylonResult<ChunkMesh | null> = buildChunk({
+			context: ctx,
+			layerIndex: 0,
+			chunkX: 0,
+			chunkZ: 0,
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data).toBeNull();
+	});
+
+	it('applies layer opacity to mesh.visibility', () => {
+		const scene: BABYLON.Scene = setupEngine();
+		const config: TilesetConfig = makeConfig('terrain', 1, 4, 4);
+		const tilesets: LoadedTileset[] = [makeLoadedTileset(scene, config)];
+		const mapData: MapData = {
+			width: 4,
+			height: 4,
+			tileWidth: 48,
+			tileHeight: 48,
+			tilesets: [config],
+			layers: [
+				{
+					name: 'ground',
+					type: 'ground',
+					data: Array.from({ length: 16 }, () => 1),
+					visible: true,
+					opacity: 0.5,
+				},
+			],
+		};
+		const ctx: ChunkBuildContext = makeContext(scene, mapData, tilesets, 4);
+
+		const result: BabylonResult<ChunkMesh | null> = buildChunk({
+			context: ctx,
+			layerIndex: 0,
+			chunkX: 0,
+			chunkZ: 0,
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data).not.toBeNull();
+		if (!result.data) return;
+		expect(result.data.mesh.visibility).toBe(0.5);
+	});
+
 	it('works with null existing mesh', () => {
 		const scene: BABYLON.Scene = setupEngine();
 		const config: TilesetConfig = makeConfig('terrain', 1, 4, 4);
