@@ -35,6 +35,8 @@ import {
 	removeParallaxLayer,
 	fadeLayerOpacity,
 	setParallaxLayerTint,
+	createSky,
+	disposeSky,
 } from '../src/index';
 import {
 	renderTilemap,
@@ -2544,7 +2546,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	// ── Sky sub-section ──
 	container.append(createSubHeader('Sky'));
 
-	// Sky type dropdown (read-only info — full sky rebuild is beyond dev harness scope)
+	// Sky type dropdown — disposes old sky and rebuilds with selected type
 	const skyConfig = debug.tilemap?.sky;
 	const currentType = skyConfig ? 'gradient' : 'color';
 	container.append(
@@ -2559,8 +2561,36 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				{ value: 'hdri', label: 'HDR Environment' },
 			],
 			currentType,
-			(_val) => {
-				// Sky type change requires full rebuild — show info only
+			(val) => {
+				const { tilemap } = debug;
+				if (!tilemap) return;
+				// Dispose old sky
+				if (tilemap.sky) {
+					disposeSky({ sky: tilemap.sky });
+				}
+				// Build new sky config from current scene state + selected type
+				const cc = scene.clearColor;
+				const newConfig = {
+					type: val,
+					color: { r: cc.r, g: cc.g, b: cc.b, a: cc.a },
+					gradient: [
+						{ position: 0, color: { r: 0.1, g: 0.1, b: 0.3, a: 1 } },
+						{ position: 1, color: { r: 0.5, g: 0.3, b: 0.5, a: 1 } },
+					],
+					skyboxSize: 1000,
+					turbidity: 10,
+					rayleigh: 2,
+					luminance: 1,
+					mieCoefficient: 0.005,
+					mieDirectionalG: 0.8,
+					inclination: 0.49,
+					azimuth: 0.25,
+					parallaxLayers: [],
+				};
+				const result = createSky({ scene, config: newConfig });
+				if (result.ok) {
+					(tilemap as Record<string, unknown>)['sky'] = result.data;
+				}
 			},
 			'sky-type',
 		),

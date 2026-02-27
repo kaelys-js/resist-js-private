@@ -533,5 +533,14 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 				scale: 1,
 			},
 		],
+		stars: {
+			enabled: true,
+			texture: 'sky/stars.png',
+			opacity: 0.8,
+			twinkleSpeed: 1,
+			fadeInTime: 18,
+			fadeOutTime: 6,
+			scale: 2,
+		},
 	},
 };

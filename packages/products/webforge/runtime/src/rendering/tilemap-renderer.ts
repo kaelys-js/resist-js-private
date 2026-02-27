@@ -50,7 +50,7 @@ import {
 	type PostProcessingPipeline,
 } from './post-processing';
 import { resolvePostProcessingConfig } from './post-processing-presets';
-import { createSky, disposeSky, type SkyInstance } from './sky-system';
+import { createSky, createStarField, disposeSky, type SkyInstance } from './sky-system';
 import { createParallax, disposeParallax, type ParallaxInstance } from './parallax-manager';
 
 // =============================================================================
@@ -320,6 +320,26 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			const skyResult = createSky({ scene, config: mapData.sky });
 			if (skyResult.ok) {
 				sky = skyResult.data;
+
+				// 14b. Create star field if stars are enabled
+				if (mapData.sky.stars?.enabled && sky) {
+					const starResult = createStarField({
+						sky,
+						config: {
+							texture: mapData.sky.stars.texture,
+							opacity: mapData.sky.stars.opacity,
+							twinkleSpeed: mapData.sky.stars.twinkleSpeed,
+							fadeInTime: mapData.sky.stars.fadeInTime,
+							fadeOutTime: mapData.sky.stars.fadeOutTime,
+							scale: mapData.sky.stars.scale,
+						},
+						assetBasePath,
+						getTimeOfDay: () => lighting?.dayNightCycle?.timeOfDay ?? 12,
+					});
+					if (starResult.ok) {
+						sky = starResult.data;
+					}
+				}
 			}
 		}
 
