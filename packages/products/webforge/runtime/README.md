@@ -1,6 +1,6 @@
 # @webforge/runtime
 
-Babylon.js HD-2D game runtime for WebForge RPG. Provides engine initialization, 6 camera presets with FF Tactics rotation, scene setup, tilemap rendering, post-processing pipeline, dynamic lighting with day/night cycles, sky/parallax backgrounds, screen effects, performance monitoring, and debug tools in a single lifecycle API.
+Babylon.js HD-2D game runtime for WebForge RPG. Provides engine initialization, 6 camera presets with FF Tactics rotation, scene setup, tilemap rendering, post-processing pipeline, dynamic lighting with day/night cycles, sky/parallax backgrounds, 28 shader-based transitions, performance monitoring, and debug tools in a single lifecycle API.
 
 ## Architecture
 
@@ -34,7 +34,8 @@ src/
 │   ├── color-temperature.ts      # Kelvin → RGB conversion (Tanner Helland algorithm)
 │   ├── sky-system.ts             # Sky visuals: solid color, gradient, skybox, procedural atmosphere
 │   ├── parallax-manager.ts       # Multi-layer scrolling backgrounds with camera-relative UV offset
-│   ├── screen-effects.ts         # Full-screen tint/flash/fade effects
+│   ├── transition-manager.ts     # Shader-based transitions (28 types, 6 easings)
+│   ├── transition-shader.ts      # GLSL uber-shader + PostProcess factory
 │   ├── post-processing.ts        # DefaultRenderingPipeline + individual post-process creation
 │   ├── post-processing-presets.ts # Named presets (fantasy, noir, etc.) + quality scaling
 │   └── hdr-environment.ts        # HDR .env texture loading + PBR environment setup
@@ -46,6 +47,7 @@ src/
 │   ├── lighting-config.ts        # All lighting schemas (lights, shadows, flicker, day/night, glow, volumetric, lens flare)
 │   ├── post-processing-config.ts # All post-processing effect schemas
 │   ├── screen-shake-config.ts    # ScreenShakeConfig, 18 presets, channels, envelope, decay modes
+│   ├── transition-config.ts      # TransitionConfig + 28 types + 6 easings + 32 presets
 │   ├── sky-config.ts             # SkyConfig (4 types) + ParallaxLayer
 │   └── map-data.ts               # MapData: dimensions, tilesets, layers, heightMap, postProcessing, lighting, sky
 ├── test-setup.ts                 # Vitest polyfills for NullEngine
@@ -273,14 +275,31 @@ addTrauma(0.3); // another hit -- accumulates, clamped at 1.0
 | `disposeParallax(options)` | `BabylonResult<Bool>` | Dispose parallax resources |
 | `computeParallaxOffset(options)` | `{ x, y }` | Pure math parallax UV offset |
 
-### Screen Effects
+### Transitions
 
 | Function | Returns | Description |
 |----------|---------|-------------|
-| `screenTint(options)` | `BabylonResult<ScreenEffectHandle>` | Colored overlay with fade in/out |
-| `screenFlash(options)` | `BabylonResult<ScreenEffectHandle>` | Instant flash that decays |
-| `screenFadeIn(options)` | `BabylonResult<ScreenEffectHandle>` | Opaque → transparent transition |
-| `screenFadeOut(options)` | `BabylonResult<ScreenEffectHandle>` | Transparent → opaque transition |
+| `playTransition(options)` | `BabylonResult<TransitionHandle>` | Play any of 28 transition types with full parameter control |
+| `fadeToBlack(options)` | `BabylonResult<TransitionHandle>` | Convenience: fade to black |
+| `fadeToWhite(options)` | `BabylonResult<TransitionHandle>` | Convenience: fade to white |
+| `fadeToColor(options)` | `BabylonResult<TransitionHandle>` | Convenience: fade to custom color |
+| `screenFlash(options)` | `BabylonResult<TransitionHandle>` | Convenience: quick white flash |
+| `screenTint(options)` | `BabylonResult<TransitionHandle>` | Convenience: color tint overlay |
+| `createTransitionPostProcess(options)` | `BabylonResult<PostProcess>` | Low-level: create the transition PostProcess |
+| `applyTransitionEasing(t, easing)` | `Num` | Apply easing function to progress value |
+
+**28 Transition Types:**
+
+| Category | Types |
+|----------|-------|
+| Fade | `fade`, `crossFade` |
+| Iris | `circleIris`, `diamondIris` |
+| Wipe | `wipe`, `diagonalWipe`, `doubleDoor`, `bars`, `venetianBlinds`, `radialWipe`, `scanlineReveal` |
+| Dissolve | `noiseDissove`, `ditheredFade`, `checkerboard` |
+| Retro | `pixelate`, `crtPowerOff` |
+| Battle | `swirl`, `zoomLines`, `shatter`, `wavyDistortion` |
+| Geometric | `hexagonalize`, `pinwheel`, `polkaDots`, `gridFlip` |
+| Distortion | `glitch`, `ripple`, `wind`, `chromaticBurst` |
 
 ### Post-Processing
 
@@ -327,7 +346,7 @@ disposeRuntime(result.data);
 
 - **Schema validation** — all config schemas with defaults, boundaries, and rejection cases
 - **Pure math** — parallax offset, flicker waveforms, keyframe interpolation, sun direction, autotile bitmask
-- **NullEngine integration** — engine lifecycle, camera presets, scene setup, tilemap rendering, lighting, sky, parallax, screen effects, post-processing, debug inspector
+- **NullEngine integration** — engine lifecycle, camera presets, scene setup, tilemap rendering, lighting, sky, parallax, transitions, post-processing, debug inspector
 - **TDD** — all tests written before implementation
 
 ```bash
@@ -345,7 +364,7 @@ Tests use `NullEngine` for headless Babylon.js execution in Vitest. The `test-se
 pnpm dev    # Opens browser with visual test scene
 ```
 
-Visual verification: 32x32 tilemap with cascaded shadows, torch flicker, day/night cycle, glow layer with mesh controls, sky background, parallax layers, mouse orbit, FPS logging.
+Visual verification: 32x32 tilemap with cascaded shadows, torch flicker, day/night cycle, glow layer with mesh controls, sky background, parallax layers, transitions, mouse orbit, FPS logging.
 
 ## Known Limitations
 
@@ -354,4 +373,3 @@ Visual verification: 32x32 tilemap with cascaded shadows, torch flicker, day/nig
 - `attachControl` is not called by the runtime — consumers must call it on the camera with their canvas
 - Procedural sky uses a BackgroundMaterial color approximation, not a full atmospheric scattering shader
 - Parallax texture loading is synchronous in NullEngine tests (no actual image data)
-- Screen effects use billboard overlay planes rather than post-processing (simpler, works on all cameras)
