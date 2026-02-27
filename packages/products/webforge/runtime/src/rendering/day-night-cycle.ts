@@ -705,11 +705,26 @@ export function createDayNightCycle(
 		const keyframes: readonly TimeKeyframe[] = config.keyframes ?? DEFAULT_DAY_CYCLE_KEYFRAMES;
 
 		const initialSpeed: Num = (config.speed ?? 0) as Num;
-		const sunPathConfig: SunPathConfig = config.sunPath ?? {
+		const defaultSunPath: SunPathConfig = {
 			sunrise: 6,
 			sunset: 18,
 			maxElevation: 75,
 			azimuthStart: 90,
+		};
+
+		/**
+		 * Resolves the effective sun path: explicit config > season override > default.
+		 *
+		 * @returns The effective sun path for the current season/config.
+		 */
+		const resolveEffectiveSunPath = (): SunPathConfig => {
+			if (config.sunPath) return config.sunPath;
+			const season: string | undefined = config.season as string | undefined;
+			if (season) {
+				const seasonResult: Result<SunPathConfig> = getSeasonSunPath(season);
+				if (seasonResult.ok) return seasonResult.data;
+			}
+			return defaultSunPath;
 		};
 
 		const initialTime: Num = (config.timeOfDay ?? 12) as Num;
@@ -717,7 +732,8 @@ export function createDayNightCycle(
 		// Build instance first so the observer reads mutable state from it
 		// (observer is assigned immediately after via onBeforeRenderObservable.add)
 		// Compute initial phase
-		const initialPhaseResult: Result<string> = computeTimePhase(initialTime, sunPathConfig);
+		const initialSunPath: SunPathConfig = resolveEffectiveSunPath();
+		const initialPhaseResult: Result<string> = computeTimePhase(initialTime, initialSunPath);
 		const initialPhase: string = initialPhaseResult.ok ? initialPhaseResult.data : 'noon';
 
 		const cycleInstance: DayNightCycleInstance = {
@@ -776,11 +792,12 @@ export function createDayNightCycle(
 			// Fire event callbacks
 			fireCallbacks(cycleInstance, prevTime);
 
-			// Compute and apply sun direction
+			// Compute and apply sun direction using season-aware sun path
 			if (sunLight !== null) {
+				const effectiveSunPath: SunPathConfig = resolveEffectiveSunPath();
 				const dirResult: Result<Vector3> = computeSunDirection(
 					cycleInstance.timeOfDay,
-					sunPathConfig,
+					effectiveSunPath,
 				);
 				if (dirResult.ok) {
 					const dir: Vector3 = dirResult.data;
