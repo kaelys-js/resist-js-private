@@ -2391,9 +2391,19 @@ function buildInfoUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	container.append(createSubHeader('Lighting'));
 	container.append(infoRow('Time of Day', 'info-time'));
 	container.append(infoRow('Cycle Speed', 'info-cycle-speed'));
+	container.append(infoRow('Lights', 'info-light-breakdown'));
+	container.append(infoRow('Shadow Gens', 'info-shadow-gens'));
+	container.append(infoRow('Shadow Map', 'info-shadow-map'));
 	container.append(infoRow('Glow Layer', 'info-glow'));
 	container.append(infoRow('Post-Processing', 'info-postfx'));
-	container.append(infoRow('Shadow Gens', 'info-shadow-gens'));
+
+	// ── Environment ──
+	container.append(createSubHeader('Environment'));
+	container.append(infoRow('Sky Type', 'info-sky-type'));
+	container.append(infoRow('Sky Texture', 'info-sky-texture'));
+	container.append(infoRow('Parallax Layers', 'info-parallax-layers'));
+	container.append(infoRow('Parallax Type', 'info-parallax-types'));
+	container.append(infoRow('Stars', 'info-stars'));
 
 	// ── Memory ──
 	container.append(createSubHeader('Memory'));
@@ -2479,11 +2489,67 @@ function buildInfoUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				setInfoText('info-time', 'N/A');
 				setInfoText('info-cycle-speed', 'N/A');
 			}
-			setInfoText('info-glow', lighting.glowLayer ? 'Active' : 'Off');
-			setInfoText('info-postfx', tm?.postProcessing ? 'Active' : 'Off');
+			// Light breakdown by type
+			const typeCounts: Record<string, number> = {};
+			for (const ml of lighting.lights) {
+				const t = ml.config.type;
+				typeCounts[t] = (typeCounts[t] ?? 0) + 1;
+			}
+			const breakdown = Object.entries(typeCounts)
+				.map(([t, c]) => `${String(c)} ${t}`)
+				.join(', ');
+			setInfoText('info-light-breakdown', breakdown || '0');
+
 			const shadowCount = lighting.lights.filter((ml) => ml.shadowGenerator !== null).length;
 			setInfoText('info-shadow-gens', String(shadowCount));
+
+			// Shadow map info
+			const sgLight = lighting.lights.find((ml) => ml.shadowGenerator !== null);
+			if (sgLight?.shadowGenerator) {
+				const sm = sgLight.shadowGenerator.getShadowMap();
+				const sz = sm?.getSize();
+				setInfoText('info-shadow-map', sz ? `${String(sz.width)}×${String(sz.height)}` : 'N/A');
+			} else {
+				setInfoText('info-shadow-map', 'None');
+			}
+
+			setInfoText('info-glow', lighting.glowLayer ? 'Active' : 'Off');
+			setInfoText('info-postfx', tm?.postProcessing ? 'Active' : 'Off');
 		}
+
+		// Environment
+		const skyInst = tm?.sky;
+		if (skyInst) {
+			const skyMesh = skyInst.skyboxMesh;
+			const skyType = skyMesh ? skyMesh.name.replace('sky-', '').replace('-mat', '') : 'color';
+			setInfoText('info-sky-type', skyType.charAt(0).toUpperCase() + skyType.slice(1));
+
+			// Determine loaded texture
+			const mat = skyInst.skyboxMaterial;
+			let texName = 'None';
+			if (mat && 'reflectionTexture' in mat && mat.reflectionTexture) {
+				texName = (mat.reflectionTexture as BABYLON.BaseTexture).name || 'loaded';
+			}
+			setInfoText('info-sky-texture', texName.length > 28 ? `...${texName.slice(-25)}` : texName);
+		} else {
+			setInfoText('info-sky-type', 'None');
+			setInfoText('info-sky-texture', 'None');
+		}
+
+		const parallax = tm?.parallax;
+		if (parallax) {
+			setInfoText('info-parallax-layers', String(parallax.layers.length));
+			const bgCount = parallax.layers.filter(
+				(l) => (l as Record<string, unknown>)['layerType'] === 'background',
+			).length;
+			const fgCount = parallax.layers.length - bgCount;
+			setInfoText('info-parallax-types', `${String(bgCount)} bg, ${String(fgCount)} fg`);
+		} else {
+			setInfoText('info-parallax-layers', '0');
+			setInfoText('info-parallax-types', 'N/A');
+		}
+
+		setInfoText('info-stars', skyInst?.starLayer?.isEnabled ? 'Active' : 'Off');
 
 		// Memory
 		setInfoText('info-geometries', String(scene.geometries.length));
@@ -2553,6 +2619,18 @@ function formatLargeNumber(n: number): string {
 // =============================================================================
 
 /**
+ * Converts a direction vector to azimuth (0-360°) and elevation (0-90°).
+ *
+ * @param dir - The direction vector.
+ * @returns Azimuth and elevation in degrees.
+ */
+function dirToAngles(dir: BABYLON.Vector3): { azimuth: number; elevation: number } {
+	const elevation = Math.asin(Math.abs(dir.y)) * (180 / Math.PI);
+	const azimuth = (Math.atan2(dir.x, dir.z) * (180 / Math.PI) + 360) % 360;
+	return { azimuth, elevation };
+}
+
+/**
  * Builds sky and parallax background controls.
  *
  * @param debug - Debug API reference.
@@ -2619,6 +2697,31 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		),
 	);
 
+	// Sky texture path indicator — shows what asset is loaded for the current sky type
+	const skyTexturePath = (() => {
+		const type: string = currentType;
+		if (type === 'panorama') return 'sky/panorama.jpg';
+		if (type === 'hdri') return 'sky/environment.hdr';
+		if (type === 'skybox') return 'sky/skybox/skybox';
+		return '';
+	})();
+	if (skyTexturePath) {
+		const pathRow = document.createElement('div');
+		pathRow.className = 'control-row';
+		pathRow.style.opacity = '0.6';
+		const pathLabel = document.createElement('span');
+		pathLabel.className = 'control-label';
+		pathLabel.textContent = 'Texture';
+		const pathValue = document.createElement('span');
+		pathValue.className = 'control-value';
+		pathValue.style.cssText =
+			'font-size: 8px; color: #8ab; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+		pathValue.textContent = skyTexturePath;
+		pathValue.title = skyTexturePath;
+		pathRow.append(pathLabel, pathValue);
+		container.append(pathRow);
+	}
+
 	// Clear color RGBA sliders — always useful
 	const cc = scene.clearColor;
 	container.append(
@@ -2673,6 +2776,107 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			'sky-clear-a',
 		),
 	);
+
+	// ── Sun sub-section — alias to directional light ("sun") ──
+	const sunLight = scene.getLightByName('sun') as BABYLON.DirectionalLight | null;
+	if (sunLight) {
+		container.append(createSubHeader('Sun'));
+
+		const angles = dirToAngles(sunLight.direction);
+
+		container.append(
+			createSliderRow(
+				'Azimuth',
+				0,
+				360,
+				1,
+				angles.azimuth,
+				(v) => {
+					const el = Math.asin(Math.abs(sunLight.direction.y)) * (180 / Math.PI);
+					const rad = (v * Math.PI) / 180;
+					const elRad = (el * Math.PI) / 180;
+					sunLight.direction.x = Math.sin(rad) * Math.cos(elRad);
+					sunLight.direction.z = Math.cos(rad) * Math.cos(elRad);
+					sunLight.direction.y = -Math.sin(elRad);
+				},
+				'sun-azimuth',
+			),
+		);
+
+		container.append(
+			createSliderRow(
+				'Elevation',
+				5,
+				90,
+				1,
+				angles.elevation,
+				(v) => {
+					const az = Math.atan2(sunLight.direction.x, sunLight.direction.z);
+					const elRad = (v * Math.PI) / 180;
+					sunLight.direction.x = Math.sin(az) * Math.cos(elRad);
+					sunLight.direction.z = Math.cos(az) * Math.cos(elRad);
+					sunLight.direction.y = -Math.sin(elRad);
+				},
+				'sun-elevation',
+			),
+		);
+
+		container.append(
+			createSliderRow(
+				'Intensity',
+				0,
+				3,
+				0.05,
+				sunLight.intensity,
+				(v) => {
+					sunLight.intensity = v;
+				},
+				'sun-intensity',
+			),
+		);
+
+		// Sun color
+		const sunDiffuse = sunLight.diffuse;
+		container.append(
+			createSliderRow(
+				'Color R',
+				0,
+				1,
+				0.01,
+				sunDiffuse.r,
+				(v) => {
+					sunDiffuse.r = v;
+				},
+				'sun-color-r',
+			),
+		);
+		container.append(
+			createSliderRow(
+				'Color G',
+				0,
+				1,
+				0.01,
+				sunDiffuse.g,
+				(v) => {
+					sunDiffuse.g = v;
+				},
+				'sun-color-g',
+			),
+		);
+		container.append(
+			createSliderRow(
+				'Color B',
+				0,
+				1,
+				0.01,
+				sunDiffuse.b,
+				(v) => {
+					sunDiffuse.b = v;
+				},
+				'sun-color-b',
+			),
+		);
+	}
 
 	// ── Procedural sky controls ──
 	const skyInstance: SkyInstance | undefined = debug.tilemap?.sky;
@@ -2737,6 +2941,23 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	// ── Stars controls ──
 	if (skyInstance) {
 		container.append(createSubHeader('Stars'));
+
+		// Stars texture path indicator
+		const starTexPath = skyInstance.starLayer?.texture?.name ?? 'sky/stars.png';
+		const starPathRow = document.createElement('div');
+		starPathRow.className = 'control-row';
+		starPathRow.style.opacity = '0.6';
+		const starPathLabel = document.createElement('span');
+		starPathLabel.className = 'control-label';
+		starPathLabel.textContent = 'Texture';
+		const starPathValue = document.createElement('span');
+		starPathValue.className = 'control-value';
+		starPathValue.style.cssText =
+			'font-size: 8px; color: #8ab; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+		starPathValue.textContent = starTexPath;
+		starPathValue.title = starTexPath;
+		starPathRow.append(starPathLabel, starPathValue);
+		container.append(starPathRow);
 
 		container.append(
 			createToggleRow(
