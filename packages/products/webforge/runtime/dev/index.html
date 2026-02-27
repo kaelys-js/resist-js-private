@@ -199,6 +199,122 @@
 				padding-bottom: 0;
 			}
 
+			/* ── Collapsible Groups (within sections) ────────── */
+			.cg {
+				border-top: 1px solid rgba(255, 255, 255, 0.06);
+			}
+			.cg:first-child {
+				border-top: none;
+			}
+			.cg-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 5px 4px;
+				cursor: pointer;
+				user-select: none;
+				font-size: 9px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				color: #888;
+				transition: color 0.12s;
+			}
+			.cg-header:hover {
+				color: #bbb;
+			}
+			.cg-header .cg-chevron {
+				font-size: 8px;
+				color: #555;
+				transition: transform 0.15s;
+			}
+			.cg.collapsed .cg-chevron {
+				transform: rotate(-90deg);
+			}
+			.cg-body {
+				padding: 0 0 4px 8px;
+				overflow: hidden;
+				max-height: 1500px;
+				transition: max-height 0.2s ease, opacity 0.15s ease;
+				opacity: 1;
+			}
+			.cg.collapsed > .cg-body {
+				max-height: 0;
+				opacity: 0;
+				padding-bottom: 0;
+			}
+
+			/* Layer row header — sits above collapsible groups */
+			.layer-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 5px 4px;
+				cursor: pointer;
+				user-select: none;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+			}
+			.layer-header:hover {
+				background: rgba(255, 255, 255, 0.03);
+			}
+			.layer-header .layer-title {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				font-size: 10px;
+				color: #bbb;
+				font-weight: 500;
+			}
+			.layer-header .layer-kind {
+				font-size: 8px;
+				font-weight: 700;
+				padding: 1px 4px;
+				border-radius: 3px;
+				letter-spacing: 0.3px;
+			}
+			.layer-kind-tile { background: rgba(80, 180, 220, 0.2); color: #6cc; }
+			.layer-kind-object { background: rgba(220, 160, 60, 0.2); color: #da6; }
+			.layer-kind-group { background: rgba(160, 120, 220, 0.2); color: #a8d; }
+			.layer-header .layer-chevron {
+				font-size: 8px;
+				color: #555;
+				transition: transform 0.15s;
+			}
+			.layer-row.collapsed > .layer-header .layer-chevron {
+				transform: rotate(-90deg);
+			}
+			.layer-row-body {
+				padding: 2px 0 4px 4px;
+				overflow: hidden;
+				max-height: 3000px;
+				transition: max-height 0.25s ease, opacity 0.15s ease;
+				opacity: 1;
+			}
+			.layer-row.collapsed > .layer-row-body {
+				max-height: 0;
+				opacity: 0;
+			}
+
+			/* Empty state for tile inspector */
+			.ti-empty {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 6px;
+				padding: 20px 12px;
+				color: #555;
+				text-align: center;
+			}
+			.ti-empty-icon {
+				font-size: 24px;
+				opacity: 0.4;
+			}
+			.ti-empty-text {
+				font-size: 10px;
+				letter-spacing: 0.3px;
+			}
+
 			/* ── Controls ────────────────────────────────────── */
 			.control-row {
 				display: flex;
@@ -515,7 +631,10 @@
 					<span class="panel-toggle">&#9662;</span>
 				</div>
 				<div class="section-body" id="tileinspector-body">
-					<div class="status-text">Click a tile on the map to inspect</div>
+					<div class="ti-empty" id="ti-empty-state">
+						<div class="ti-empty-icon">&#9698;</div>
+						<div class="ti-empty-text">Select a tile on the map to inspect</div>
+					</div>
 				</div>
 			</div>
 
