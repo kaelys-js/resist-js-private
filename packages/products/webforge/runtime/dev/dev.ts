@@ -270,9 +270,9 @@ function ensureGridMesh(scene: BABYLON.Scene, debug: DevDebugApi): void {
 	}
 
 	_gridMesh = BABYLON.MeshBuilder.CreateLineSystem('grid-overlay', { lines }, scene);
-	_gridMesh.color = new BABYLON.Color3(1, 1, 1);
-	_gridMesh.alpha = 0.15;
-	_gridMesh.renderingGroupId = 1;
+	_gridMesh.color = _gridColor;
+	_gridMesh.visibility = _gridAlpha;
+	_gridMesh.renderingGroupId = 3;
 	_gridMesh.isPickable = false;
 	_gridMesh.position.y = 0.01;
 	_gridMesh.isVisible = _gridVisible;
@@ -385,6 +385,7 @@ function clearSelectionRect(debug: DevDebugApi): void {
  */
 function updateHighlightForSelection(): void {
 	const mesh = (window as Record<string, unknown>)._highlightMesh as BABYLON.Mesh | undefined;
+	const border = (window as Record<string, unknown>)._borderMesh as BABYLON.Mesh | undefined;
 	if (!mesh) return;
 
 	const rect = getSelectionRect();
@@ -395,10 +396,24 @@ function updateHighlightForSelection(): void {
 		mesh.position.x = rect.minX + w / 2;
 		mesh.position.z = rect.minZ + h / 2;
 		mesh.setEnabled(true);
+		if (border) {
+			rebuildBorderGeometry(border, w, h, _selectionEdgeWidth);
+			border.position.x = mesh.position.x;
+			border.position.y = mesh.position.y - 0.001;
+			border.position.z = mesh.position.z;
+			border.setEnabled(true);
+		}
 	} else if (_lastInspectX >= 0 && _lastInspectZ >= 0) {
 		mesh.scaling.set(1, 1, 1);
 		mesh.position.x = _lastInspectX + 0.5;
 		mesh.position.z = _lastInspectZ + 0.5;
+		if (border) {
+			rebuildBorderGeometry(border, 1, 1, _selectionEdgeWidth);
+			border.position.x = mesh.position.x;
+			border.position.y = mesh.position.y - 0.001;
+			border.position.z = mesh.position.z;
+			border.setEnabled(true);
+		}
 	}
 }
 
@@ -418,6 +433,113 @@ function clearAllLayers(debug: DevDebugApi): void {
 // -- Grid overlay state --
 let _gridMesh: BABYLON.LinesMesh | null = null;
 let _gridVisible: Bool = false;
+let _gridColor: BABYLON.Color3 = new BABYLON.Color3(1, 1, 1);
+let _gridAlpha: Num = 0.15;
+
+/**
+ * Updates the grid mesh color and opacity from the current state variables.
+ *
+ * Uses `.visibility` instead of `.alpha` because Babylon.js `LinesMesh`
+ * does not visually respond to the `.alpha` property.
+ */
+function updateGridAppearance(): void {
+	if (_gridMesh) {
+		_gridMesh.color = _gridColor;
+		_gridMesh.visibility = _gridAlpha;
+	}
+}
+
+// -- Selection highlight state --
+let _selectionColor: BABYLON.Color3 = new BABYLON.Color3(0, 1, 1);
+let _selectionAlpha: Num = 1.0;
+let _selectionEdgeWidth: Num = 0.06;
+
+/**
+ * Rebuilds the border mesh geometry as a hollow rectangular frame (annulus).
+ * The frame extends `bw` world-units outward from a `w × h` inner rectangle,
+ * both centered at the mesh origin. Uses 8 vertices and 8 triangles.
+ *
+ * @param mesh - The Babylon mesh to apply the frame geometry to.
+ * @param w - Inner width of the frame (matches highlight mesh width).
+ * @param h - Inner height of the frame (matches highlight mesh height).
+ * @param bw - Border width in world units.
+ */
+function rebuildBorderGeometry(mesh: BABYLON.Mesh, w: Num, h: Num, bw: Num): void {
+	const hw: Num = w / 2;
+	const hh: Num = h / 2;
+
+	/* eslint-disable @typescript-eslint/no-magic-numbers */
+	const positions: Float32Array = new Float32Array([
+		// Outer 4 vertices
+		-hw - bw,
+		0,
+		-hh - bw, //  0: bottom-left outer
+		hw + bw,
+		0,
+		-hh - bw, //  1: bottom-right outer
+		hw + bw,
+		0,
+		hh + bw, //  2: top-right outer
+		-hw - bw,
+		0,
+		hh + bw, //  3: top-left outer
+		// Inner 4 vertices
+		-hw,
+		0,
+		-hh, //  4: bottom-left inner
+		hw,
+		0,
+		-hh, //  5: bottom-right inner
+		hw,
+		0,
+		hh, //  6: top-right inner
+		-hw,
+		0,
+		hh, //  7: top-left inner
+	]);
+
+	const normals: Float32Array = new Float32Array([
+		0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
+	]);
+
+	const indices: Uint32Array = new Uint32Array([
+		// Bottom strip
+		0, 1, 5, 0, 5, 4,
+		// Right strip
+		1, 2, 6, 1, 6, 5,
+		// Top strip
+		2, 3, 7, 2, 7, 6,
+		// Left strip
+		3, 0, 4, 3, 4, 7,
+	]);
+	/* eslint-enable @typescript-eslint/no-magic-numbers */
+
+	const vertexData: BABYLON.VertexData = new BABYLON.VertexData();
+	vertexData.positions = positions;
+	vertexData.normals = normals;
+	vertexData.indices = indices;
+	vertexData.applyToMesh(mesh, true);
+}
+
+/**
+ * Updates the selection highlight mesh appearance from the current state variables.
+ *
+ * Uses `mesh.visibility` for opacity. The visible border is produced by
+ * `_borderMesh` — a hollow frame mesh rebuilt via {@link rebuildBorderGeometry}.
+ */
+function updateSelectionAppearance(): void {
+	const mesh = (window as Record<string, unknown>)._highlightMesh as BABYLON.Mesh | undefined;
+	if (!mesh) return;
+	const mat = mesh.material as BABYLON.StandardMaterial | null;
+	if (mat) mat.emissiveColor = _selectionColor;
+	mesh.visibility = _selectionAlpha;
+
+	const border = (window as Record<string, unknown>)._borderMesh as BABYLON.Mesh | undefined;
+	if (!border) return;
+	const borderMat = border.material as BABYLON.StandardMaterial | null;
+	if (borderMat) borderMat.emissiveColor = _selectionColor;
+	border.visibility = _selectionAlpha;
+}
 
 // -- Editor backdrop (black plane behind everything) --
 let _editorBackdrop: BABYLON.Mesh | null = null;
@@ -1687,6 +1809,104 @@ function createTextInputRow(
  */
 function getTextInput(row: HTMLElement): HTMLInputElement {
 	return row.children[1] as HTMLInputElement;
+}
+
+/** Preset color definition for {@link createColorPickerRow}. */
+type ColorPreset = { readonly name: string; readonly hex: string };
+
+/** Grid color presets. */
+const GRID_COLOR_PRESETS: readonly ColorPreset[] = [
+	{ name: 'White', hex: '#ffffff' },
+	{ name: 'Gray', hex: '#808080' },
+	{ name: 'Yellow', hex: '#ffff00' },
+	{ name: 'Cyan', hex: '#00ffff' },
+];
+
+/** Selection highlight color presets. */
+const SELECTION_COLOR_PRESETS: readonly ColorPreset[] = [
+	{ name: 'Cyan', hex: '#00ffff' },
+	{ name: 'Yellow', hex: '#ffff00' },
+	{ name: 'Green', hex: '#00ff00' },
+	{ name: 'Red', hex: '#ff0000' },
+	{ name: 'White', hex: '#ffffff' },
+];
+
+/**
+ * Creates a color picker row with preset swatch buttons and a native color input.
+ *
+ * Mirrors the pattern from the Effects section's color buttons + custom picker,
+ * but built programmatically for use in dynamically-generated UI sections.
+ *
+ * @param label - Display label text.
+ * @param presets - Array of preset color definitions with name and hex.
+ * @param initialHex - Initial hex color string (e.g. '#ffffff').
+ * @param onChange - Callback when color changes, receives hex string.
+ * @returns The row element.
+ */
+function createColorPickerRow(
+	label: string,
+	presets: readonly ColorPreset[],
+	initialHex: string,
+	onChange: (hex: string) => void,
+): HTMLElement {
+	const row = document.createElement('div');
+	row.className = 'control-row';
+	row.style.flexWrap = 'wrap';
+
+	const lbl = document.createElement('span');
+	lbl.className = 'control-label';
+	lbl.textContent = label;
+
+	const btnGroup = document.createElement('div');
+	btnGroup.className = 'btn-group';
+	btnGroup.style.flex = '1';
+	btnGroup.style.justifyContent = 'flex-end';
+
+	const buttons: HTMLButtonElement[] = [];
+
+	for (const preset of presets) {
+		const btn = document.createElement('button');
+		btn.className = 'btn';
+		btn.style.padding = '4px 6px';
+		btn.dataset['colorHex'] = preset.hex;
+		if (preset.hex.toLowerCase() === initialHex.toLowerCase()) {
+			btn.classList.add('active');
+		}
+
+		const swatch = document.createElement('span');
+		swatch.className = 'color-swatch';
+		swatch.style.background = preset.hex;
+		swatch.style.width = '12px';
+		swatch.style.height = '12px';
+		btn.append(swatch);
+		btn.title = preset.name;
+
+		btn.addEventListener('click', () => {
+			for (const b of buttons) b.classList.remove('active');
+			btn.classList.add('active');
+			colorInput.value = preset.hex;
+			onChange(preset.hex);
+		});
+
+		buttons.push(btn);
+		btnGroup.append(btn);
+	}
+
+	// Native color picker for custom colors
+	const colorInput = document.createElement('input');
+	colorInput.type = 'color';
+	colorInput.value = initialHex;
+	colorInput.style.cssText =
+		'width: 28px; height: 20px; border: none; padding: 0; background: transparent; cursor: pointer;';
+
+	colorInput.addEventListener('input', () => {
+		for (const b of buttons) b.classList.remove('active');
+		onChange(colorInput.value);
+	});
+
+	btnGroup.append(colorInput);
+	row.append(lbl, btnGroup);
+	return row;
 }
 
 /**
@@ -3885,20 +4105,38 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		'tile-inspector-highlight-mat',
 		scene,
 	);
-	highlightMat.emissiveColor = new BABYLON.Color3(0, 1, 1);
+	highlightMat.emissiveColor = _selectionColor;
 	highlightMat.disableLighting = true;
 	highlightMat.wireframe = true;
 	highlightMat.zOffset = -2;
 	highlightMesh.material = highlightMat;
-	highlightMesh.enableEdgesRendering();
-	highlightMesh.edgesWidth = 16;
-	highlightMesh.edgesColor = new BABYLON.Color4(0, 1, 1, 1);
-	highlightMesh.renderingGroupId = 1;
+	highlightMesh.renderingGroupId = 3;
 	highlightMesh.isPickable = false;
+	highlightMesh.visibility = _selectionAlpha;
 	highlightMesh.setEnabled(false);
 
-	// Store highlight mesh globally for rectangular selection scaling
+	// Create a hollow frame border mesh around the highlight.
+	// WebGL clamps lineWidth to 1px, so edgesWidth cannot produce thick borders.
+	// Instead, a hollow frame mesh (annulus) built with custom vertex data
+	// provides a visible colored border around the selection.
+	const borderMesh: BABYLON.Mesh = new BABYLON.Mesh('tile-inspector-border', scene);
+	rebuildBorderGeometry(borderMesh, 1, 1, _selectionEdgeWidth);
+	const borderMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial(
+		'tile-inspector-border-mat',
+		scene,
+	);
+	borderMat.emissiveColor = _selectionColor;
+	borderMat.disableLighting = true;
+	borderMat.zOffset = -1;
+	borderMesh.material = borderMat;
+	borderMesh.renderingGroupId = 3;
+	borderMesh.isPickable = false;
+	borderMesh.visibility = _selectionAlpha;
+	borderMesh.setEnabled(false);
+
+	// Store meshes globally for selection scaling
 	(window as Record<string, unknown>)._highlightMesh = highlightMesh;
+	(window as Record<string, unknown>)._borderMesh = borderMesh;
 
 	// Attach canvas click handler
 	const canvas: HTMLCanvasElement | null =
@@ -3995,6 +4233,27 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 
 		refreshInspector(tilemap, gridX, gridZ);
 	});
+
+	// ── Selection Style controls ──
+	container.append(createSubHeader('Selection Style'));
+	container.append(
+		createColorPickerRow('Color', SELECTION_COLOR_PRESETS, '#00ffff', (hex: string) => {
+			_selectionColor = BABYLON.Color3.FromHexString(hex);
+			updateSelectionAppearance();
+		}),
+	);
+	container.append(
+		createSliderRow('Edge Width', 0.02, 0.2, 0.01, _selectionEdgeWidth, (val: Num) => {
+			_selectionEdgeWidth = val;
+			updateHighlightForSelection();
+		}),
+	);
+	container.append(
+		createSliderRow('Opacity', 0.1, 1, 0.05, _selectionAlpha, (val: Num) => {
+			_selectionAlpha = val;
+			updateSelectionAppearance();
+		}),
+	);
 }
 
 /**
@@ -5095,6 +5354,19 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 	if (gridCheckbox) {
 		(window as Record<string, unknown>)._gridToggle = gridCheckbox;
 	}
+
+	controlsDiv.append(
+		createSliderRow('Grid Opacity', 0.05, 1, 0.05, _gridAlpha, (val: Num) => {
+			_gridAlpha = val;
+			updateGridAppearance();
+		}),
+	);
+	controlsDiv.append(
+		createColorPickerRow('Grid Color', GRID_COLOR_PRESETS, '#ffffff', (hex: string) => {
+			_gridColor = BABYLON.Color3.FromHexString(hex);
+			updateGridAppearance();
+		}),
+	);
 
 	// ── 4. Go To Position ──
 	controlsDiv.append(createSubHeader('Go To Position'));

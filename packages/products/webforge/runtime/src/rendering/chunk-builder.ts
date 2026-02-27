@@ -97,6 +97,10 @@ export const BuildChunkOptionsSchema = v.pipe(
 		chunkX: v.number(),
 		/** Chunk Z position in chunk grid. */
 		chunkZ: v.number(),
+		/** Existing mesh to update in-place instead of creating a new one. */
+		existingMesh: v.optional(
+			v.nullable(v.custom<BABYLON.Mesh>((val): val is BABYLON.Mesh => val instanceof BABYLON.Mesh)),
+		),
 	}),
 	v.readonly(),
 );
@@ -135,7 +139,7 @@ export const RebuildChunkOptionsSchema = v.pipe(
 		chunkX: v.number(),
 		/** Chunk Z position in chunk grid. */
 		chunkZ: v.number(),
-		/** Existing mesh to dispose before rebuilding (null if none). */
+		/** Existing mesh to update in-place (null if none). */
 		existingMesh: v.nullable(
 			v.custom<BABYLON.Mesh>((val): val is BABYLON.Mesh => val instanceof BABYLON.Mesh),
 		),
@@ -166,7 +170,7 @@ export type RebuildChunkOptions = v.InferOutput<typeof RebuildChunkOptionsSchema
  * ```
  */
 export function buildChunk(options: BuildChunkOptions): BabylonResult<ChunkMesh | null> {
-	const { context, layerIndex, chunkX, chunkZ } = options;
+	const { context, layerIndex, chunkX, chunkZ, existingMesh } = options;
 	const { scene, mapData, loadedTilesets, materials, tileWorldSize, tileWorldHeight, chunkSize } =
 		context;
 
@@ -257,24 +261,32 @@ export function buildChunk(options: BuildChunkOptions): BabylonResult<ChunkMesh 
 			}
 		}
 
-		if (tileParts.length === 0) return okShallow(null);
+		if (tileParts.length === 0) {
+			// Hide existing mesh if chunk is now empty (don't dispose — allows reuse)
+			if (existingMesh) existingMesh.setEnabled(false);
+			return okShallow(null);
+		}
 
 		const mergeResult = mergeTileVertexData(tileParts);
 		if (!mergeResult.ok) return mergeResult;
-
-		const meshName = `chunk-${chunkX}-${chunkZ}-${layer.name}`;
-		const mesh: BABYLON.Mesh = new BABYLON.Mesh(meshName, scene);
-
-		// Keep mesh hidden until fully configured to avoid a black flash frame
-		// (mesh exists in scene with no material/geometry between creation and setup).
-		mesh.setEnabled(false);
 
 		const vertexData: BABYLON.VertexData = new BABYLON.VertexData();
 		vertexData.positions = [...mergeResult.data.positions];
 		vertexData.normals = [...mergeResult.data.normals];
 		vertexData.uvs = [...mergeResult.data.uvs];
 		vertexData.indices = [...mergeResult.data.indices];
-		vertexData.applyToMesh(mesh);
+
+		// Reuse existing mesh (in-place update) or create a new one
+		const mesh: BABYLON.Mesh =
+			existingMesh ?? new BABYLON.Mesh(`chunk-${chunkX}-${chunkZ}-${layer.name}`, scene);
+
+		if (!existingMesh) {
+			// New mesh: hide until fully configured to avoid a flash frame
+			mesh.setEnabled(false);
+		}
+
+		// Apply vertex data — use updatable=true so future rebuilds can update in-place
+		vertexData.applyToMesh(mesh, true);
 
 		const material: BABYLON.StandardMaterial | undefined = materials[firstMaterialIndex];
 		if (material) mesh.material = material;
@@ -282,7 +294,7 @@ export function buildChunk(options: BuildChunkOptions): BabylonResult<ChunkMesh 
 		// Apply layer opacity to mesh visibility
 		mesh.visibility = layer.opacity;
 
-		// Now that geometry, material, and visibility are set, enable for rendering
+		// Enable for rendering (no-op if already enabled on in-place update)
 		mesh.setEnabled(true);
 
 		const chunkMesh: ChunkMesh = {
@@ -396,16 +408,17 @@ export function buildCliffChunk(options: BuildCliffChunkOptions): BabylonResult<
 // =============================================================================
 
 /**
- * Rebuilds a chunk by building the replacement first, then disposing the old mesh.
+ * Rebuilds a chunk by updating vertex data in-place on the existing mesh.
  *
- * Build-before-dispose avoids the visual flash that occurs when the old mesh
- * disappears for one frame before the new mesh is ready.
+ * In-place update avoids the visual flash that occurs when creating a new mesh
+ * and disposing the old one. The existing mesh stays in the scene graph with its
+ * renderingGroupId and material intact — only its geometry changes.
  *
  * Used by the editor when a single tile changes — only the affected
  * chunk needs rebuilding, not the entire map.
  *
- * @param options - Build context, position, and existing mesh to replace
- * @returns BabylonResult containing new chunk mesh or null
+ * @param options - Build context, position, and existing mesh to update
+ * @returns BabylonResult containing updated chunk mesh or null if empty
  *
  * @example
  * ```typescript
@@ -417,19 +430,7 @@ export function buildCliffChunk(options: BuildCliffChunkOptions): BabylonResult<
 export function rebuildChunk(options: RebuildChunkOptions): BabylonResult<ChunkMesh | null> {
 	const { context, layerIndex, chunkX, chunkZ, existingMesh } = options;
 
-	// Build the new chunk first to avoid a visual flash from the old mesh being
-	// disposed before the replacement is ready.
-	const result = buildChunk({ context, layerIndex, chunkX, chunkZ });
-
-	// Copy renderingGroupId from the old mesh to the new one BEFORE disposing,
-	// so the new mesh renders in the correct group from its very first frame.
-	if (result.ok && result.data && existingMesh) {
-		result.data.mesh.renderingGroupId = existingMesh.renderingGroupId;
-	}
-
-	if (existingMesh) {
-		existingMesh.dispose();
-	}
-
-	return result;
+	// Update vertex data in-place on the existing mesh to avoid the visual flash
+	// that occurs when creating a new mesh and disposing the old one.
+	return buildChunk({ context, layerIndex, chunkX, chunkZ, existingMesh });
 }
