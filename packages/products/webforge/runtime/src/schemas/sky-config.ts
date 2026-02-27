@@ -50,7 +50,14 @@ import { ColorRgbaSchema } from './scene-setup-config';
  *
  * Determines how the background behind the tilemap is rendered.
  */
-export const SkyTypeSchema = v.picklist(['color', 'gradient', 'skybox', 'procedural']);
+export const SkyTypeSchema = v.picklist([
+	'color',
+	'gradient',
+	'skybox',
+	'procedural',
+	'panorama',
+	'hdri',
+]);
 
 /** Inferred sky type from {@link SkyTypeSchema}. */
 export type SkyType = v.InferOutput<typeof SkyTypeSchema>;
@@ -83,7 +90,16 @@ export type SkyGradientStop = v.InferOutput<typeof SkyGradientStopSchema>;
  *
  * Maps to `BABYLON.Constants.ALPHA_*` blending constants.
  */
-export const BlendModeSchema = v.picklist(['alpha', 'additive', 'multiply', 'subtract', 'screen']);
+export const BlendModeSchema = v.picklist([
+	'alpha',
+	'additive',
+	'multiply',
+	'subtract',
+	'screen',
+	'maximized',
+	'oneone',
+	'premultiplied',
+]);
 
 /** Inferred blend mode type from {@link BlendModeSchema}. */
 export type BlendMode = v.InferOutput<typeof BlendModeSchema>;
@@ -326,6 +342,20 @@ export const SkyConfigSchema = v.strictObject({
 	 * Range 0–1 (maps to 0–2π). Default: 0.25.
 	 */
 	azimuth: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.25),
+
+	/**
+	 * Equirectangular panoramic image path for `'panorama'` type.
+	 *
+	 * Projected onto a skybox mesh as an equirectangular texture.
+	 */
+	panoramaPath: v.optional(v.string()),
+
+	/**
+	 * HDR environment texture path for `'hdri'` type.
+	 *
+	 * Loaded as an HDR cubemap for PBR reflections and sky rendering.
+	 */
+	hdriPath: v.optional(v.string()),
 
 	/**
 	 * Star field configuration for nighttime sky.

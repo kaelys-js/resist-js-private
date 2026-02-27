@@ -212,6 +212,60 @@ describe('createSky — procedural type', () => {
 });
 
 // =============================================================================
+// createSky — panorama type
+// =============================================================================
+
+describe('createSky — panorama type', () => {
+	test('creates skybox mesh for panorama sky', () => {
+		const config: SkyConfig = {
+			type: 'panorama',
+			color: { r: 0.35, g: 0.5, b: 0.8, a: 1 },
+			panoramaPath: 'sky/sunset_equirect.jpg',
+			parallaxLayers: [],
+			skyboxSize: 1000,
+			turbidity: 10,
+			rayleigh: 2,
+			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
+		};
+		const result = createSky({ scene: instance.scene, config });
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.skyboxMesh).not.toBeNull();
+	});
+});
+
+// =============================================================================
+// createSky — hdri type
+// =============================================================================
+
+describe('createSky — hdri type', () => {
+	test('creates skybox mesh for hdri sky', () => {
+		const config: SkyConfig = {
+			type: 'hdri',
+			color: { r: 0.35, g: 0.5, b: 0.8, a: 1 },
+			hdriPath: 'sky/environment.hdr',
+			parallaxLayers: [],
+			skyboxSize: 1000,
+			turbidity: 10,
+			rayleigh: 2,
+			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
+		};
+		const result = createSky({ scene: instance.scene, config });
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.skyboxMesh).not.toBeNull();
+	});
+});
+
+// =============================================================================
 // disposeSky
 // =============================================================================
 

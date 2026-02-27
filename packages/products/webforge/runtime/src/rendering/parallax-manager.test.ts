@@ -305,12 +305,15 @@ describe('disposeParallax', () => {
 // =============================================================================
 
 describe('mapBlendMode', () => {
-	test('maps all 5 blend modes correctly', () => {
+	test('maps all 8 blend modes correctly', () => {
 		expect(mapBlendMode('alpha')).toBe(2);
 		expect(mapBlendMode('additive')).toBe(1);
 		expect(mapBlendMode('multiply')).toBe(4);
 		expect(mapBlendMode('subtract')).toBe(3);
 		expect(mapBlendMode('screen')).toBe(10);
+		expect(mapBlendMode('maximized')).toBe(5);
+		expect(mapBlendMode('oneone')).toBe(6);
+		expect(mapBlendMode('premultiplied')).toBe(7);
 	});
 
 	test('defaults unknown mode to alpha (2)', () => {

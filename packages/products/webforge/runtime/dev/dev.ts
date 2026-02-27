@@ -2550,7 +2550,14 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	container.append(
 		createDropdown(
 			'Type',
-			['color', 'gradient', 'skybox', 'procedural'],
+			[
+				{ value: 'color', label: 'Solid Color' },
+				{ value: 'gradient', label: 'Vertical Gradient' },
+				{ value: 'skybox', label: 'Cubemap Skybox' },
+				{ value: 'procedural', label: 'Procedural Atmosphere' },
+				{ value: 'panorama', label: 'Panoramic Image' },
+				{ value: 'hdri', label: 'HDR Environment' },
+			],
 			currentType,
 			(_val) => {
 				// Sky type change requires full rebuild — show info only
@@ -2704,6 +2711,73 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					}
 				},
 				'sky-stars-opacity',
+			),
+		);
+
+		// Scale — directly adjusts texture UV scale
+		const starTex = skyInstance.starLayer?.texture;
+		const starScale = starTex && starTex instanceof BABYLON.Texture ? 1 / starTex.uScale : 2;
+		container.append(
+			createSliderRow(
+				'Scale',
+				0.1,
+				10,
+				0.1,
+				starScale,
+				(v) => {
+					const tex = skyInstance.starLayer?.texture;
+					if (tex && tex instanceof BABYLON.Texture) {
+						tex.uScale = 1 / v;
+						tex.vScale = 1 / v;
+					}
+				},
+				'sky-stars-scale',
+			),
+		);
+
+		// Twinkle Speed (read-only indicator — baked into observer closure)
+		container.append(
+			createSliderRow(
+				'Twinkle Speed',
+				0,
+				5,
+				0.1,
+				1,
+				() => {
+					// Twinkle speed is baked into the observer closure at creation time.
+					// Changing this requires recreating the star field.
+				},
+				'sky-stars-twinkle',
+			),
+		);
+
+		// Fade In Hour (read-only indicator — baked into observer closure)
+		container.append(
+			createSliderRow(
+				'Fade In Hour',
+				0,
+				24,
+				0.5,
+				18,
+				() => {
+					// Fade-in time is baked into the observer closure at creation time.
+				},
+				'sky-stars-fade-in',
+			),
+		);
+
+		// Fade Out Hour (read-only indicator — baked into observer closure)
+		container.append(
+			createSliderRow(
+				'Fade Out Hour',
+				0,
+				24,
+				0.5,
+				6,
+				() => {
+					// Fade-out time is baked into the observer closure at creation time.
+				},
+				'sky-stars-fade-out',
 			),
 		);
 	}
@@ -2925,11 +2999,14 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 			createDropdown(
 				'Blend Mode',
 				[
-					{ value: 'alpha', label: 'Alpha' },
+					{ value: 'alpha', label: 'Alpha Blend' },
 					{ value: 'additive', label: 'Additive' },
 					{ value: 'multiply', label: 'Multiply' },
 					{ value: 'subtract', label: 'Subtract' },
 					{ value: 'screen', label: 'Screen' },
+					{ value: 'maximized', label: 'Maximized' },
+					{ value: 'oneone', label: 'One-One (No Alpha)' },
+					{ value: 'premultiplied', label: 'Pre-Multiplied' },
 				],
 				layer.blendMode ?? 'alpha',
 				(val) => {
@@ -2937,6 +3014,40 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 					bgLayer.alphaBlendingMode = mapBlendMode(val);
 				},
 				`parallax-${String(i)}-blend`,
+			),
+		);
+
+		// Tile X toggle
+		sectionBody.append(
+			createToggleRow(
+				'Tile X',
+				layer.tileX ?? true,
+				(on) => {
+					layer.tileX = on;
+					if (bgLayer.texture) {
+						bgLayer.texture.wrapU = on
+							? BABYLON.Texture.WRAP_ADDRESSMODE
+							: BABYLON.Texture.CLAMP_ADDRESSMODE;
+					}
+				},
+				`parallax-${String(i)}-tile-x`,
+			),
+		);
+
+		// Tile Y toggle
+		sectionBody.append(
+			createToggleRow(
+				'Tile Y',
+				layer.tileY ?? false,
+				(on) => {
+					layer.tileY = on;
+					if (bgLayer.texture) {
+						bgLayer.texture.wrapV = on
+							? BABYLON.Texture.WRAP_ADDRESSMODE
+							: BABYLON.Texture.CLAMP_ADDRESSMODE;
+					}
+				},
+				`parallax-${String(i)}-tile-y`,
 			),
 		);
 
@@ -3000,32 +3111,37 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 			),
 		);
 
-		// Fade button
-		const fadeBtn = document.createElement('button');
-		fadeBtn.className = 'btn';
-		fadeBtn.textContent = 'Fade In/Out';
-		fadeBtn.title = 'Fade opacity to 0 over 1s, then back to 1';
-		fadeBtn.addEventListener('click', () => {
-			const fadeResult = fadeLayerOpacity({
+		// Fade Out button
+		const fadeOutBtn = document.createElement('button');
+		fadeOutBtn.className = 'btn';
+		fadeOutBtn.textContent = 'Fade Out';
+		fadeOutBtn.title = 'Fade opacity to 0 over 1 second';
+		fadeOutBtn.addEventListener('click', () => {
+			fadeLayerOpacity({
 				parallax,
 				index: i as Num,
 				target: 0 as Num,
 				durationMs: 1000 as Num,
 			});
-			if (fadeResult.ok) {
-				setTimeout(() => {
-					fadeLayerOpacity({
-						parallax,
-						index: i as Num,
-						target: 1 as Num,
-						durationMs: 1000 as Num,
-					});
-				}, 1100);
-			}
 		});
+
+		// Fade In button
+		const fadeInBtn = document.createElement('button');
+		fadeInBtn.className = 'btn';
+		fadeInBtn.textContent = 'Fade In';
+		fadeInBtn.title = 'Fade opacity to 1 over 1 second';
+		fadeInBtn.addEventListener('click', () => {
+			fadeLayerOpacity({
+				parallax,
+				index: i as Num,
+				target: 1 as Num,
+				durationMs: 1000 as Num,
+			});
+		});
+
 		const fadeRow = document.createElement('div');
-		fadeRow.style.cssText = 'padding: 4px 0; display: flex; justify-content: flex-end;';
-		fadeRow.append(fadeBtn);
+		fadeRow.className = 'btn-group';
+		fadeRow.append(fadeOutBtn, fadeInBtn);
 		sectionBody.append(fadeRow);
 
 		section.append(sectionHeader, sectionBody);
