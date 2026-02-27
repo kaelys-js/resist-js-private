@@ -451,21 +451,30 @@ export function screenShake(options: ScreenShakeOptions): BabylonResult<ShakeHan
 			if (disposed) return;
 
 			const startTime: number = Date.now();
+			let lastTime: number = startTime;
 			const { envelope } = config;
 			const totalDuration: number = envelope.attackMs + envelope.sustainMs + envelope.decayMs;
 			const { seed } = config.noise;
 			const { octaves } = config.noise;
-			const { traumaPower, direction } = config;
+			const { traumaPower, direction, decayRate } = config;
 
 			observer = scene.onBeforeRenderObservable.add(() => {
 				if (disposed) return;
 
-				const elapsed: number = Date.now() - startTime;
+				const now: number = Date.now();
+				const elapsed: number = now - startTime;
+				const deltaTime: number = (now - lastTime) / 1000;
+				lastTime = now;
 
 				// Shake complete
 				if (elapsed >= totalDuration) {
 					cleanup();
 					return;
+				}
+
+				// Auto-decay trauma each frame
+				if (_trauma > 0 && deltaTime > 0) {
+					_trauma = Math.max(0, _trauma - decayRate * deltaTime) as Num;
 				}
 
 				// If master is disabled, skip computation but keep running
