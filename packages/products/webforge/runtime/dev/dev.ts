@@ -26,6 +26,8 @@ import {
 	screenFadeOut,
 	setLayerVisibility,
 	setLayerOpacity,
+	getMoonPhaseInfo,
+	computeTimePhase,
 } from '../src/index';
 import {
 	renderTilemap,
@@ -451,18 +453,39 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		if (pauseBtn) pauseBtn.textContent = speed > 0 ? '\u23F8 Pause' : '\u25B6 Play';
 	});
 
-	// Day/Night preset dropdown
+	// Day/Night preset dropdown (12 presets)
 	const dayNightDropdownContainer = document.querySelector('#daynight-preset-dropdown');
-	const timePresetMap: Record<string, number> = { dawn: 6, noon: 12, dusk: 18, night: 0 };
+	const timePresetMap: Record<string, number> = {
+		midnight: 0,
+		lateNight: 2,
+		predawn: 4,
+		dawn: 5,
+		goldenMorning: 6.5,
+		morning: 8,
+		noon: 12,
+		afternoon: 15,
+		goldenEvening: 17.5,
+		dusk: 19,
+		twilight: 20.5,
+		night: 22,
+	};
 	if (dayNightDropdownContainer) {
 		dayNightDropdownContainer.append(
 			createDropdown(
 				'Preset',
 				[
-					{ value: 'dawn', label: 'Dawn (6:00)' },
+					{ value: 'dawn', label: 'Dawn (5:00)' },
+					{ value: 'goldenMorning', label: 'Golden Morning (6:30)' },
+					{ value: 'morning', label: 'Morning (8:00)' },
 					{ value: 'noon', label: 'Noon (12:00)' },
-					{ value: 'dusk', label: 'Dusk (18:00)' },
-					{ value: 'night', label: 'Night (0:00)' },
+					{ value: 'afternoon', label: 'Afternoon (15:00)' },
+					{ value: 'goldenEvening', label: 'Golden Evening (17:30)' },
+					{ value: 'dusk', label: 'Dusk (19:00)' },
+					{ value: 'twilight', label: 'Twilight (20:30)' },
+					{ value: 'night', label: 'Night (22:00)' },
+					{ value: 'midnight', label: 'Midnight (0:00)' },
+					{ value: 'lateNight', label: 'Late Night (2:00)' },
+					{ value: 'predawn', label: 'Pre-Dawn (4:00)' },
 				],
 				'noon',
 				(val) => {
@@ -506,7 +529,128 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		timeValue.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 	}
 
-	// Sync time slider with cycle in real-time
+	// ── Day/Night Expansion Controls ───────────────────────────────
+
+	// Season dropdown
+	const seasonDropdownContainer = document.querySelector('#daynight-season-dropdown');
+	if (seasonDropdownContainer) {
+		seasonDropdownContainer.append(
+			createDropdown(
+				'Season',
+				[
+					{ value: 'spring', label: 'Spring' },
+					{ value: 'summer', label: 'Summer' },
+					{ value: 'autumn', label: 'Autumn' },
+					{ value: 'winter', label: 'Winter' },
+				],
+				'summer',
+				(val) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					// Mutate config for observer to pick up on next frame
+					(cycle.config as Record<string, unknown>)['season'] = val;
+				},
+				'daynight-season',
+			),
+		);
+	}
+
+	// Moon phase slider
+	const moonPhaseSlider = document.querySelector('#moonphase-slider') as HTMLInputElement;
+	const moonPhaseValue = document.querySelector('#moonphase-value');
+	const MOON_PHASE_NAMES: readonly string[] = [
+		'New',
+		'Wax Cres',
+		'1st Qtr',
+		'Wax Gib',
+		'Full',
+		'Wan Gib',
+		'Last Qtr',
+		'Wan Cres',
+	];
+
+	moonPhaseSlider?.addEventListener('input', () => {
+		const phase = Number(moonPhaseSlider.value);
+		const cycle = debug.tilemap?.lighting?.dayNightCycle;
+		if (cycle) {
+			(cycle.config as Record<string, unknown>)['moonPhase'] = phase;
+		}
+		if (moonPhaseValue) {
+			moonPhaseValue.textContent = MOON_PHASE_NAMES[phase] ?? String(phase);
+		}
+	});
+
+	// Indoor mode dropdown
+	const indoorDropdownContainer = document.querySelector('#daynight-indoor-dropdown');
+	if (indoorDropdownContainer) {
+		indoorDropdownContainer.append(
+			createDropdown(
+				'Indoor Mode',
+				[
+					{ value: 'outdoor', label: 'Outdoor' },
+					{ value: 'indoor', label: 'Indoor' },
+					{ value: 'cave', label: 'Cave' },
+				],
+				'outdoor',
+				(val) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					(cycle.config as Record<string, unknown>)['indoorMode'] = val;
+				},
+				'daynight-indoor',
+			),
+		);
+	}
+
+	// Transition easing dropdown
+	const easingDropdownContainer = document.querySelector('#daynight-easing-dropdown');
+	if (easingDropdownContainer) {
+		easingDropdownContainer.append(
+			createDropdown(
+				'Easing',
+				[
+					{ value: 'linear', label: 'Linear' },
+					{ value: 'smooth', label: 'Smooth' },
+					{ value: 'easeIn', label: 'Ease In' },
+					{ value: 'easeOut', label: 'Ease Out' },
+				],
+				'linear',
+				(val) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					(cycle.config as Record<string, unknown>)['transitionEasing'] = val;
+				},
+				'daynight-easing',
+			),
+		);
+	}
+
+	// Read-only displays
+	const phaseDisplay = document.querySelector('#daynight-phase-display');
+	const moonIntensityDisplay = document.querySelector('#daynight-moon-intensity');
+	const sunriseSunsetDisplay = document.querySelector('#daynight-sunrise-sunset');
+	const eventLogDisplay = document.querySelector('#daynight-event-log');
+	let lastEventText = '--';
+
+	// Wire up event callbacks
+	function wireEventCallbacks(): void {
+		const cycle = debug.tilemap?.lighting?.dayNightCycle;
+		if (!cycle) return;
+		cycle.onSunrise = () => {
+			lastEventText = 'Sunrise';
+		};
+		cycle.onSunset = () => {
+			lastEventText = 'Sunset';
+		};
+		cycle.onHourChange = (hour: Num) => {
+			lastEventText = `Hour: ${String(Math.floor(hour))}`;
+		};
+		cycle.onPhaseChange = (phase: string) => {
+			lastEventText = `Phase: ${phase}`;
+		};
+	}
+
+	// Sync time slider + read-only displays in real-time
 	scene.registerAfterRender(() => {
 		const cycle = debug.tilemap?.lighting?.dayNightCycle;
 		if (!cycle) return;
@@ -515,7 +659,43 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 			timeSlider.value = String(t);
 			updateTimeDisplay(t);
 		}
+
+		// Update phase display
+		const sunPath = cycle.config.sunPath ?? {
+			sunrise: 6,
+			sunset: 18,
+			maxElevation: 75,
+			azimuthStart: 90,
+		};
+		const phaseResult = computeTimePhase(t as Num, sunPath);
+		if (phaseDisplay && phaseResult.ok) {
+			phaseDisplay.textContent = phaseResult.data;
+		}
+
+		// Update moon intensity display
+		const moonPhaseVal: number = (cycle.config.moonPhase as number | undefined) ?? 4;
+		const moonResult = getMoonPhaseInfo(moonPhaseVal);
+		if (moonIntensityDisplay && moonResult.ok) {
+			moonIntensityDisplay.textContent = `${moonResult.data.name} (${String(moonResult.data.intensityMultiplier)})`;
+		}
+
+		// Update sunrise/sunset display
+		const sr: number = sunPath.sunrise;
+		const ss: number = sunPath.sunset;
+		if (sunriseSunsetDisplay) {
+			sunriseSunsetDisplay.textContent = `${fmtHourMin(sr)} / ${fmtHourMin(ss)}`;
+		}
+
+		// Update event log
+		if (eventLogDisplay) {
+			eventLogDisplay.textContent = lastEventText;
+		}
 	});
+
+	// Wire callbacks after tilemap is ready (deferred)
+	setTimeout(() => {
+		wireEventCallbacks();
+	}, 100);
 
 	// ── Screen Effects ──────────────────────────────────────────────
 	const effectDurSlider = document.querySelector('#effect-duration') as HTMLInputElement;
@@ -734,6 +914,18 @@ function formatSliderValue(value: number, step: number): string {
 	}
 	if (Math.abs(value) >= 1000) return `${(value / 1000).toFixed(1)}k`;
 	return value.toFixed(2);
+}
+
+/**
+ * Formats a fractional hour to HH:MM string.
+ *
+ * @param h - Hours as a decimal (e.g. 6.5 → "06:30").
+ * @returns Formatted time string.
+ */
+function fmtHourMin(h: number): string {
+	const hh = Math.floor(h);
+	const mm = Math.floor((h % 1) * 60);
+	return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
 }
 
 // =============================================================================

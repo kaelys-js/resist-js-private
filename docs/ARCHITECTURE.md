@@ -1,4 +1,4 @@
-# Camera System Architecture
+# WebForge Runtime Architecture
 
 ## Overview
 
@@ -78,3 +78,91 @@ Babylon.js built-in `AutoRotationBehavior` for smooth continuous orbiting.
 
 `resetCamera()` instantly applies all preset defaults to a camera without animation.
 Useful for recovering from manual camera manipulation.
+
+---
+
+## Day/Night Cycle System
+
+### Overview
+
+Time-of-day lighting system that interpolates ambient, sun, moon, fog, and
+clear colors across 9 default keyframes (midnight through dawn, noon, dusk, night).
+Supports seasons, moon phases, indoor/cave modes, transition easing, post-FX
+coupling, and event callbacks.
+
+### File Structure
+
+```
+runtime/src/
+  schemas/lighting-config.ts       — Schemas (DayNightCycleConfigSchema, TimeKeyframeSchema, SeasonSchema, etc.)
+  rendering/day-night-cycle.ts     — Controller (createDayNightCycle, interpolateKeyframes, 15+ API functions)
+  rendering/day-night-cycle.test.ts — Tests (75 tests, 934+ assertions)
+```
+
+### Key Concepts
+
+#### Keyframe Interpolation
+
+9 default keyframes define color/intensity snapshots at specific hours (0:00, 4:00,
+5:30, 7:00, 12:00, 16:00, 18:30, 20:00, 22:00). The observer finds the two
+bracketing keyframes and linearly interpolates all shared fields. Midnight
+wrap-around is handled automatically.
+
+#### Seasons
+
+4 presets (spring, summer, autumn, winter) override `sunPath.sunrise`,
+`sunPath.sunset`, and `sunPath.maxElevation` to shift day length and sun arc.
+Explicit `sunPath` config values take priority over season presets.
+
+#### Moon Phases
+
+8 discrete phases (new moon through waning crescent) provide an intensity
+multiplier [0.0–1.0] that scales `moonIntensity` post-interpolation.
+
+#### Transition Easing
+
+4 easing curves (linear, smooth/smoothstep, easeIn, easeOut) applied uniformly
+to the interpolation factor between keyframes.
+
+#### Indoor/Cave Mode
+
+`indoorMode` overrides interpolated values with fixed tints: `indoor` uses warm
+amber ambient, `cave` uses dark blue-tinted ambient. Time still advances for
+callbacks in both modes.
+
+#### Time Phases
+
+8 auto-computed phases (dawn, morning, noon, afternoon, dusk, twilight, night,
+midnight) derived from sun path sunrise/sunset, not hardcoded hours.
+
+#### Post-FX Coupling
+
+Optional `exposure`, `bloomWeight`, and `contrast` fields on keyframes are
+interpolated alongside colors and can drive the post-processing pipeline.
+
+#### Event Callbacks
+
+Edge-detected callbacks on the instance: `onSunrise`, `onSunset`, `onHourChange`,
+`onPhaseChange`. Fired during the per-frame observer when thresholds are crossed.
+
+### API Functions
+
+| Function | Purpose |
+|----------|---------|
+| `createDayNightCycle` | Create cycle with observer, lights, config |
+| `setTimeOfDay` / `getTimeOfDay` | Set/get current time [0, 24) |
+| `setSpeed` / `getSpeed` | Set/get cycle speed (game-hours/sec) |
+| `setEnabled` / `isEnabled` | Start/stop cycle observer |
+| `jumpToTime` | Jump to a specific time [0, 24) |
+| `getCurrentPhase` | Get current time phase from instance |
+| `setSeason` / `getSeason` | Change/read season at runtime |
+| `setIndoorMode` / `getIndoorMode` | Change/read indoor mode at runtime |
+| `interpolateKeyframes` | Pure math interpolation (testable without Babylon) |
+| `computeSunDirection` | Sun position from time + sun path |
+| `getSeasonSunPath` | Sun path overrides for a season |
+| `getMoonPhaseInfo` | Moon phase name + intensity multiplier |
+| `applyEasing` | Apply easing curve to interpolation factor |
+| `computeTimePhase` | Classify time into phase based on sun path |
+| `getIndoorTint` | Fixed tint values for indoor/cave modes |
+| `fireCallbacks` | Edge-detect and fire event callbacks |
+| `disposeDayNightCycle` | Clean up observer and references |

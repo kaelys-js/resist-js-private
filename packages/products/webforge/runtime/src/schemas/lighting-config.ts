@@ -625,6 +625,13 @@ export const TimeKeyframeSchema = v.strictObject({
 	fogDensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
 	/** HDR environment intensity [0, 5]. */
 	environmentIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5))),
+
+	/** Auto-exposure shift [0, 4]. */
+	exposure: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(4))),
+	/** Bloom weight shift [0, 2]. */
+	bloomWeight: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2))),
+	/** Contrast shift [0, 2]. */
+	contrast: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2))),
 });
 
 /** Inferred time keyframe type from {@link TimeKeyframeSchema}. */
@@ -659,6 +666,42 @@ export const SunPathConfigSchema = v.strictObject({
 
 /** Inferred sun path config type from {@link SunPathConfigSchema}. */
 export type SunPathConfig = v.InferOutput<typeof SunPathConfigSchema>;
+
+/** Season preset affecting sun path parameters. */
+export const SeasonSchema = v.picklist(['spring', 'summer', 'autumn', 'winter']);
+
+/** Inferred season type from {@link SeasonSchema}. */
+export type Season = v.InferOutput<typeof SeasonSchema>;
+
+/** Moon phase [0=new, 4=full, 7=waning crescent]. */
+export const MoonPhaseSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(7));
+
+/** Indoor/outdoor mode controlling cycle visual application. */
+export const IndoorModeSchema = v.picklist(['outdoor', 'indoor', 'cave']);
+
+/** Inferred indoor mode type from {@link IndoorModeSchema}. */
+export type IndoorMode = v.InferOutput<typeof IndoorModeSchema>;
+
+/** Transition easing for keyframe interpolation. */
+export const TransitionEasingSchema = v.picklist(['linear', 'smooth', 'easeIn', 'easeOut']);
+
+/** Inferred transition easing type from {@link TransitionEasingSchema}. */
+export type TransitionEasing = v.InferOutput<typeof TransitionEasingSchema>;
+
+/** Time-of-day phase names (auto-computed from sun path). */
+export const TimePhaseSchema = v.picklist([
+	'dawn',
+	'morning',
+	'noon',
+	'afternoon',
+	'dusk',
+	'twilight',
+	'night',
+	'midnight',
+]);
+
+/** Inferred time phase type from {@link TimePhaseSchema}. */
+export type TimePhase = v.InferOutput<typeof TimePhaseSchema>;
 
 /**
  * Day/night cycle configuration.
@@ -696,6 +739,14 @@ export const DayNightCycleConfigSchema = v.strictObject({
 	sunPath: v.optional(SunPathConfigSchema),
 	/** Keyframes for interpolation (min 2). Omit for default 9-keyframe cycle. */
 	keyframes: v.optional(v.pipe(v.array(TimeKeyframeSchema), v.minLength(2))),
+	/** Season preset. Default: summer. */
+	season: v.optional(SeasonSchema, 'summer'),
+	/** Moon phase [0–7]. Default: 4 (full moon). */
+	moonPhase: v.optional(MoonPhaseSchema, 4),
+	/** Indoor/outdoor mode. Default: outdoor. */
+	indoorMode: v.optional(IndoorModeSchema, 'outdoor'),
+	/** Keyframe interpolation easing. Default: linear. */
+	transitionEasing: v.optional(TransitionEasingSchema, 'linear'),
 });
 
 /** Inferred day/night cycle config type from {@link DayNightCycleConfigSchema}. */

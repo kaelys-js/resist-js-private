@@ -457,6 +457,32 @@
 						<button class="btn" id="daynight-pause-btn" data-control="daynight-pause" style="width: 100%; margin-top: 4px">
 							&#9208; Pause
 						</button>
+						<!-- New expansion controls -->
+						<div id="daynight-season-dropdown" style="margin-top: 6px"></div>
+						<div class="control-row">
+							<span class="control-label">Moon Phase</span>
+							<input type="range" id="moonphase-slider" data-control="moonphase" min="0" max="7" value="4" step="1" />
+							<span class="control-value" id="moonphase-value">Full</span>
+						</div>
+						<div id="daynight-indoor-dropdown"></div>
+						<div id="daynight-easing-dropdown"></div>
+						<!-- Read-only displays -->
+						<div class="control-row" style="margin-top: 4px">
+							<span class="control-label">Phase</span>
+							<span class="control-value" id="daynight-phase-display">--</span>
+						</div>
+						<div class="control-row">
+							<span class="control-label">Moon Intensity</span>
+							<span class="control-value" id="daynight-moon-intensity">--</span>
+						</div>
+						<div class="control-row">
+							<span class="control-label">Sunrise / Sunset</span>
+							<span class="control-value" id="daynight-sunrise-sunset">--</span>
+						</div>
+						<div class="control-row">
+							<span class="control-label">Events</span>
+							<span class="control-value" id="daynight-event-log" style="font-size: 9px; color: #888; max-width: 140px; text-overflow: ellipsis; overflow: hidden">--</span>
+						</div>
 					</div>
 				</div>
 
