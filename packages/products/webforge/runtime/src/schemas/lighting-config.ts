@@ -765,11 +765,21 @@ export type DayNightCycleConfig = v.InferOutput<typeof DayNightCycleConfigSchema
 // Glow Layer Schema
 // =============================================================================
 
+/** Valid fixed sizes for glow render target. */
+export const GlowTextureFixedSizeSchema = v.picklist([256, 512, 1024, 2048]);
+
+/** Inferred fixed-size type. */
+export type GlowTextureFixedSize = v.InferOutput<typeof GlowTextureFixedSizeSchema>;
+
 /**
  * Glow layer configuration.
  *
  * Global GlowLayer effect (separate from bloom post-process).
  * Used for magical effects, torch glow, and emissive highlights.
+ *
+ * Constructor-only fields (`mainTextureRatio`, `mainTextureFixedSize`,
+ * `mainTextureSamples`, `ldrMerge`, `neutralColor`) require a full
+ * recreate when changed at runtime.
  *
  * @example
  * ```typescript
@@ -788,12 +798,52 @@ export const GlowLayerConfigSchema = v.strictObject({
 	intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5)), 0.5),
 	/** Blur kernel size [1, 256]. Default: 32. */
 	blurKernelSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(256)), 32),
-	/** Glow render target resolution ratio (0, 1]. Default: 0.5. */
+	/** Glow render target resolution ratio (0, 1]. Default: 0.5. Constructor-only. */
 	mainTextureRatio: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(1)), 0.5),
+	/** Fixed render target size (overrides ratio when set). Constructor-only. */
+	mainTextureFixedSize: v.optional(GlowTextureFixedSizeSchema),
+	/** MSAA samples on glow render target [1, 4]. Default: 1. Constructor-only. */
+	mainTextureSamples: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(4)), 1),
+	/** Use LDR merge mode instead of HDR additive. Better for stylized/2D. Default: false. Constructor-only. */
+	ldrMerge: v.optional(v.boolean(), false),
+	/** Neutral "no glow" color as 8-char hex (#RRGGBBAA). Default: '#000000ff'. Constructor-only. */
+	neutralColor: v.optional(v.pipe(v.string(), v.regex(/^#[\da-fA-F]{8}$/)), '#000000ff'),
 });
 
 /** Inferred glow layer config type from {@link GlowLayerConfigSchema}. */
 export type GlowLayerConfig = v.InferOutput<typeof GlowLayerConfigSchema>;
+
+/** Glow quality preset name. */
+export const GlowQualityPresetNameSchema = v.picklist(['low', 'medium', 'high', 'ultra']);
+
+/** Inferred glow quality preset name type. */
+export type GlowQualityPresetName = v.InferOutput<typeof GlowQualityPresetNameSchema>;
+
+/**
+ * Quality presets for glow layer.
+ *
+ * | Preset | Ratio | Blur | Samples |
+ * |--------|-------|------|---------|
+ * | low    | 0.25  | 16   | 1       |
+ * | medium | 0.5   | 32   | 1       |
+ * | high   | 0.75  | 48   | 2       |
+ * | ultra  | 1.0   | 64   | 4       |
+ */
+export const GLOW_QUALITY_PRESETS: Readonly<
+	Record<
+		GlowQualityPresetName,
+		{
+			readonly mainTextureRatio: number;
+			readonly blurKernelSize: number;
+			readonly mainTextureSamples: number;
+		}
+	>
+> = {
+	low: { mainTextureRatio: 0.25, blurKernelSize: 16, mainTextureSamples: 1 },
+	medium: { mainTextureRatio: 0.5, blurKernelSize: 32, mainTextureSamples: 1 },
+	high: { mainTextureRatio: 0.75, blurKernelSize: 48, mainTextureSamples: 2 },
+	ultra: { mainTextureRatio: 1.0, blurKernelSize: 64, mainTextureSamples: 4 },
+};
 
 // =============================================================================
 // Top-Level Lighting Config
