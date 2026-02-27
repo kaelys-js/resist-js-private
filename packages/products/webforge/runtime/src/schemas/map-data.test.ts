@@ -17,11 +17,13 @@ import type { Num } from '@/schemas/common';
 import {
 	ChunkConfigSchema,
 	MapDataSchema,
+	TerrainTypeSchema,
 	TileLayerSchema,
 	TilePropertiesSchema,
 	TilesetConfigSchema,
 	type ChunkConfig,
 	type MapData,
+	type TerrainType,
 	type TileLayer,
 	type TileProperties,
 	type TilesetConfig,
@@ -83,6 +85,12 @@ describe('TilePropertiesSchema', () => {
 		expect(result.data.bush).toBeFalsy();
 		expect(result.data.counter).toBeFalsy();
 		expect(result.data.ladder).toBeFalsy();
+		expect(result.data.terrainType).toBe('normal');
+		expect(result.data.footstepSound).toBe('');
+		expect(result.data.encounterRate).toBe(1);
+		expect(result.data.slipperiness).toBe(0);
+		expect(result.data.movementSpeed).toBe(1);
+		expect(result.data.regionId).toBe(0);
 	});
 
 	test('accepts fully specified properties', () => {
@@ -126,11 +134,11 @@ describe('TilePropertiesSchema', () => {
 		expect(result.data.terrainTag).toBe(0);
 	});
 
-	test('accepts terrainTag at maximum (7)', () => {
-		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { terrainTag: 7 });
+	test('accepts terrainTag at maximum (15)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { terrainTag: 15 });
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
-		expect(result.data.terrainTag).toBe(7);
+		expect(result.data.terrainTag).toBe(15);
 	});
 
 	test('accepts height at minimum (0)', () => {
@@ -151,8 +159,8 @@ describe('TilePropertiesSchema', () => {
 	// Rejection: invalid ranges
 	// =========================================================================
 
-	test('rejects terrainTag above maximum (8)', () => {
-		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { terrainTag: 8 });
+	test('rejects terrainTag above maximum (16)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { terrainTag: 16 });
 		expect(result.ok).toBeFalsy();
 	});
 
@@ -379,6 +387,422 @@ describe('TilePropertiesSchema', () => {
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
 		expect(result.data.starPassage).toBe(false);
+	});
+
+	// =========================================================================
+	// Terrain type and terrain fields
+	// =========================================================================
+
+	test('accepts terrainType "normal"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'normal',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('normal');
+	});
+
+	test('accepts terrainType "water"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'water',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('water');
+	});
+
+	test('accepts terrainType "deepWater"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'deepWater',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('deepWater');
+	});
+
+	test('accepts terrainType "lava"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'lava',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('lava');
+	});
+
+	test('accepts terrainType "ice"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'ice',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('ice');
+	});
+
+	test('accepts terrainType "sand"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'sand',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('sand');
+	});
+
+	test('accepts terrainType "swamp"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'swamp',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('swamp');
+	});
+
+	test('accepts terrainType "snow"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'snow',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('snow');
+	});
+
+	test('accepts terrainType "grass"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'grass',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('grass');
+	});
+
+	test('accepts terrainType "wood"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'wood',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('wood');
+	});
+
+	test('accepts terrainType "stone"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'stone',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('stone');
+	});
+
+	test('accepts terrainType "metal"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'metal',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('metal');
+	});
+
+	test('accepts terrainType "custom"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'custom',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('custom');
+	});
+
+	test('defaults terrainType to "normal"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.terrainType).toBe('normal');
+	});
+
+	test('rejects invalid terrainType', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			terrainType: 'dirt',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// =========================================================================
+	// footstepSound
+	// =========================================================================
+
+	test('accepts footstepSound string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			footstepSound: 'grass_step',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.footstepSound).toBe('grass_step');
+	});
+
+	test('defaults footstepSound to empty string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.footstepSound).toBe('');
+	});
+
+	test('accepts empty footstepSound string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			footstepSound: '',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.footstepSound).toBe('');
+	});
+
+	// =========================================================================
+	// encounterRate
+	// =========================================================================
+
+	test('accepts encounterRate at minimum (0)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			encounterRate: 0,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.encounterRate).toBe(0);
+	});
+
+	test('accepts encounterRate at maximum (10)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			encounterRate: 10,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.encounterRate).toBe(10);
+	});
+
+	test('accepts encounterRate fractional value (5.5)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			encounterRate: 5.5,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.encounterRate).toBe(5.5);
+	});
+
+	test('defaults encounterRate to 1', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.encounterRate).toBe(1);
+	});
+
+	test('rejects encounterRate above maximum (10.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			encounterRate: 10.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects encounterRate below minimum (-0.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			encounterRate: -0.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// =========================================================================
+	// slipperiness
+	// =========================================================================
+
+	test('accepts slipperiness at minimum (0)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			slipperiness: 0,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.slipperiness).toBe(0);
+	});
+
+	test('accepts slipperiness at maximum (1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			slipperiness: 1,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.slipperiness).toBe(1);
+	});
+
+	test('accepts slipperiness fractional value (0.5)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			slipperiness: 0.5,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.slipperiness).toBe(0.5);
+	});
+
+	test('defaults slipperiness to 0', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.slipperiness).toBe(0);
+	});
+
+	test('rejects slipperiness above maximum (1.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			slipperiness: 1.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects slipperiness below minimum (-0.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			slipperiness: -0.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// =========================================================================
+	// movementSpeed
+	// =========================================================================
+
+	test('accepts movementSpeed at minimum (0.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			movementSpeed: 0.1,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.movementSpeed).toBe(0.1);
+	});
+
+	test('accepts movementSpeed at maximum (5)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			movementSpeed: 5,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.movementSpeed).toBe(5);
+	});
+
+	test('accepts movementSpeed fractional value (2.5)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			movementSpeed: 2.5,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.movementSpeed).toBe(2.5);
+	});
+
+	test('defaults movementSpeed to 1', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.movementSpeed).toBe(1);
+	});
+
+	test('rejects movementSpeed above maximum (5.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			movementSpeed: 5.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects movementSpeed below minimum (0.09)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			movementSpeed: 0.09,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// =========================================================================
+	// regionId
+	// =========================================================================
+
+	test('accepts regionId at minimum (0)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			regionId: 0,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.regionId).toBe(0);
+	});
+
+	test('accepts regionId at maximum (255)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			regionId: 255,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.regionId).toBe(255);
+	});
+
+	test('defaults regionId to 0', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.regionId).toBe(0);
+	});
+
+	test('rejects regionId above maximum (256)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			regionId: 256,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects regionId below minimum (-1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			regionId: -1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects non-integer regionId', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			regionId: 5.5,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// TerrainTypeSchema
+// =============================================================================
+
+describe('TerrainTypeSchema', () => {
+	const TERRAIN_TYPES: readonly TerrainType[] = [
+		'normal',
+		'water',
+		'deepWater',
+		'lava',
+		'ice',
+		'sand',
+		'swamp',
+		'snow',
+		'grass',
+		'wood',
+		'stone',
+		'metal',
+		'custom',
+	];
+
+	test('accepts all 13 terrain type values', () => {
+		for (const terrainType of TERRAIN_TYPES) {
+			const result: Result<TerrainType> = safeParse(TerrainTypeSchema, terrainType);
+			expect(result.ok).toBeTruthy();
+			if (!result.ok) return;
+			expect(result.data).toBe(terrainType);
+		}
+	});
+
+	test('rejects invalid terrain type string', () => {
+		const result: Result<TerrainType> = safeParse(TerrainTypeSchema, 'dirt');
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects number input', () => {
+		const result: Result<TerrainType> = safeParse(TerrainTypeSchema, 0);
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects null input', () => {
+		const result: Result<TerrainType> = safeParse(TerrainTypeSchema, null);
+		expect(result.ok).toBeFalsy();
 	});
 });
 

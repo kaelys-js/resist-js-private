@@ -32,26 +32,69 @@ import { PostProcessingConfigSchema } from './post-processing-config';
 import { SkyConfigSchema } from './sky-config';
 
 // =============================================================================
+// Terrain Type
+// =============================================================================
+
+/**
+ * Terrain type picklist for tile classification.
+ *
+ * Determines the terrain category of a tile, used for footstep sounds,
+ * encounter rate modifiers, movement speed adjustments, and other
+ * terrain-driven game logic.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { TerrainTypeSchema } from './map-data';
+ *
+ * const result = safeParse(TerrainTypeSchema, 'water');
+ * if (result.ok) {
+ *   result.data; // 'water'
+ * }
+ * ```
+ */
+export const TerrainTypeSchema = v.picklist([
+	'normal',
+	'water',
+	'deepWater',
+	'lava',
+	'ice',
+	'sand',
+	'swamp',
+	'snow',
+	'grass',
+	'wood',
+	'stone',
+	'metal',
+	'custom',
+]);
+
+/** Terrain type classification. */
+export type TerrainType = v.InferOutput<typeof TerrainTypeSchema>;
+
+// =============================================================================
 // Tile Properties
 // =============================================================================
 
 /**
  * Per-tile metadata schema.
  *
- * Stores passability, terrain tags, and special flags for individual tiles
- * within a tileset. Used by the movement system (Phase 4) for collision
- * and terrain-based game logic.
+ * Stores passability, terrain tags, terrain type, movement modifiers,
+ * and special flags for individual tiles within a tileset. Used by the
+ * movement system (Phase 4) for collision and terrain-based game logic.
  *
  * @example
  * ```typescript
  * import { safeParse } from '@/utils/result/safe';
  * import { TilePropertiesSchema } from './map-data';
  *
- * const result = safeParse(TilePropertiesSchema, { height: 2, bush: true });
+ * const result = safeParse(TilePropertiesSchema, { height: 2, bush: true, terrainType: 'grass' });
  * if (result.ok) {
- *   result.data.passability; // [true, true, true, true]
- *   result.data.height;      // 2
- *   result.data.bush;        // true
+ *   result.data.passability;    // [true, true, true, true]
+ *   result.data.height;          // 2
+ *   result.data.bush;            // true
+ *   result.data.terrainType;     // 'grass'
+ *   result.data.movementSpeed;   // 1 (default)
  * }
  * ```
  */
@@ -66,10 +109,10 @@ export const TilePropertiesSchema = v.strictObject({
 	),
 
 	/**
-	 * Terrain tag (0–7). Used by game logic for footstep sounds,
+	 * Terrain tag (0–15). Used by game logic for footstep sounds,
 	 * encounter rates, and other terrain-driven behavior.
 	 */
-	terrainTag: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(7)), 0),
+	terrainTag: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(15)), 0),
 
 	/**
 	 * Height level of this tile (0–15). Each unit equals one tile height
@@ -112,6 +155,39 @@ export const TilePropertiesSchema = v.strictObject({
 
 	/** Star passage flag — allows passage regardless of direction. */
 	starPassage: v.optional(v.boolean(), false),
+
+	/**
+	 * Terrain type classification for this tile.
+	 * Determines footstep sounds, encounter rates, and movement behavior.
+	 */
+	terrainType: v.optional(TerrainTypeSchema, 'normal'),
+
+	/** Sound effect identifier for footsteps on this tile. Empty string = no override. */
+	footstepSound: v.optional(v.string(), ''),
+
+	/**
+	 * Random encounter rate multiplier (0–10).
+	 * 0 = no encounters, 1 = normal rate, higher = more frequent.
+	 */
+	encounterRate: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(10)), 1),
+
+	/**
+	 * Slipperiness factor (0–1). 0 = no slip, 1 = maximum slip.
+	 * Controls how much a character slides after stopping on this tile.
+	 */
+	slipperiness: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
+
+	/**
+	 * Movement speed multiplier (0.1–5). 1 = normal speed.
+	 * Values below 1 slow the character; values above 1 speed them up.
+	 */
+	movementSpeed: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(5)), 1),
+
+	/**
+	 * Region identifier (0–255). Used for map events, encounter tables,
+	 * and other region-based game logic. 0 = no region.
+	 */
+	regionId: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(255)), 0),
 });
 
 /** Per-tile metadata. */
