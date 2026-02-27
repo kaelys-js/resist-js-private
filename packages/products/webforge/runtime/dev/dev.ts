@@ -46,6 +46,12 @@ import {
 	type ScreenShakeConfig,
 	type ShakePreset,
 	type ShakePresetCategory,
+	excludeMeshFromGlow,
+	removeMeshFromGlow,
+	setCustomEmissiveColor,
+	clearCustomEmissiveColor,
+	GLOW_QUALITY_PRESETS,
+	type GlowQualityPresetName,
 } from '../src/index';
 import {
 	renderTilemap,
@@ -3327,6 +3333,10 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 /**
  * Builds glow layer parameter controls.
  *
+ * Controls: enabled, intensity, blur kernel, quality presets,
+ * custom emissive override + color picker, mesh glow toggles
+ * per category (chunks, UI overlays, ground fill, other).
+ *
  * @param debug - Debug API reference.
  */
 function buildGlowDetailsUI(debug: DevDebugApi): void {
@@ -3344,6 +3354,7 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 		return;
 	}
 
+	// ── Basic Controls ──────────────────────────────────────────────
 	container.append(
 		createToggleRow(
 			'Enabled',
@@ -3361,8 +3372,8 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 			5,
 			0.05,
 			glow.intensity,
-			(v) => {
-				glow.intensity = v;
+			(val) => {
+				glow.intensity = val;
 			},
 			'glow-intensity',
 		),
@@ -3374,12 +3385,201 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 			256,
 			1,
 			glow.blurKernelSize,
-			(v) => {
-				glow.blurKernelSize = v;
+			(val) => {
+				glow.blurKernelSize = val;
 			},
 			'glow-blur-kernel',
 		),
 	);
+
+	// ── Quality Presets ─────────────────────────────────────────────
+	container.append(createSubHeader('Quality Presets'));
+
+	const presetRow = document.createElement('div');
+	presetRow.className = 'control-row';
+	presetRow.style.flexWrap = 'wrap';
+
+	const presetLabel = document.createElement('span');
+	presetLabel.className = 'control-label';
+	presetLabel.textContent = 'Preset';
+
+	const btnGroup = document.createElement('div');
+	btnGroup.className = 'btn-group';
+	btnGroup.style.flex = '1';
+	btnGroup.style.justifyContent = 'flex-end';
+
+	const presetNames: GlowQualityPresetName[] = ['low', 'medium', 'high', 'ultra'];
+	for (const name of presetNames) {
+		const btn = document.createElement('button');
+		btn.className = 'btn';
+		btn.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+		btn.dataset['preset'] = name;
+		btn.addEventListener('click', () => {
+			const preset = GLOW_QUALITY_PRESETS[name];
+			// Apply runtime-changeable property
+			glow.blurKernelSize = preset.blurKernelSize;
+			// Update the blur kernel slider to reflect preset value
+			const blurSlider = container.querySelector(
+				'[data-control="glow-blur-kernel"] input[type="range"]',
+			) as HTMLInputElement | null;
+			if (blurSlider) {
+				blurSlider.value = String(preset.blurKernelSize);
+				const valEl = blurSlider.nextElementSibling as HTMLElement | null;
+				if (valEl) valEl.textContent = String(preset.blurKernelSize);
+			}
+			// Mark active
+			for (const b of btnGroup.querySelectorAll('.btn')) {
+				b.classList.remove('active');
+			}
+			btn.classList.add('active');
+		});
+		btnGroup.append(btn);
+	}
+
+	presetRow.append(presetLabel, btnGroup);
+	container.append(presetRow);
+
+	// ── Custom Emissive Override ─────────────────────────────────────
+	container.append(createSubHeader('Custom Emissive Override'));
+
+	let emissiveOverrideEnabled = false;
+	let emissiveHex = '#ff6600';
+
+	container.append(
+		createToggleRow(
+			'Override Emissive',
+			false,
+			(on) => {
+				emissiveOverrideEnabled = on;
+				if (on) {
+					const c = BABYLON.Color4.FromHexString(`${emissiveHex}ff`);
+					setCustomEmissiveColor({ glowLayer: glow, color: c });
+				} else {
+					clearCustomEmissiveColor({ glowLayer: glow });
+				}
+			},
+			'glow-emissive-override',
+		),
+	);
+
+	const GLOW_COLOR_PRESETS: ReadonlyArray<{ readonly name: string; readonly hex: string }> = [
+		{ name: 'Orange', hex: '#ff6600' },
+		{ name: 'Cyan', hex: '#00ffff' },
+		{ name: 'Purple', hex: '#9933ff' },
+		{ name: 'Gold', hex: '#ffcc00' },
+		{ name: 'White', hex: '#ffffff' },
+	];
+
+	container.append(
+		createColorPickerRow('Glow Color', GLOW_COLOR_PRESETS, emissiveHex, (hex) => {
+			emissiveHex = hex;
+			if (emissiveOverrideEnabled) {
+				const c = BABYLON.Color4.FromHexString(`${hex}ff`);
+				setCustomEmissiveColor({ glowLayer: glow, color: c });
+			}
+		}),
+	);
+
+	// ── Mesh Glow Control ───────────────────────────────────────────
+	container.append(createSubHeader('Mesh Glow Control'));
+
+	const { scene } = debug;
+	const chunkMeshes: BABYLON.AbstractMesh[] = [];
+	const uiMeshes: BABYLON.AbstractMesh[] = [];
+	const otherMeshes: BABYLON.AbstractMesh[] = [];
+
+	for (const mesh of scene.meshes) {
+		if (mesh.name.startsWith('chunk-') || mesh.name.startsWith('cliff-')) {
+			chunkMeshes.push(mesh);
+		} else if (mesh.renderingGroupId === 3) {
+			uiMeshes.push(mesh);
+		} else if (
+			mesh.name !== 'tilemap-ground-fill' &&
+			!mesh.name.startsWith('sky-') &&
+			!mesh.name.startsWith('BackgroundHelper') &&
+			!mesh.name.startsWith('BackgroundPlane') &&
+			mesh.name !== 'hdrSkyBox'
+		) {
+			otherMeshes.push(mesh);
+		}
+	}
+
+	container.append(
+		createToggleRow(
+			`Tilemap Chunks (${String(chunkMeshes.length)})`,
+			true,
+			(on) => {
+				for (const mesh of chunkMeshes) {
+					if (mesh instanceof BABYLON.Mesh) {
+						if (on) {
+							removeMeshFromGlow({ glowLayer: glow, mesh });
+						} else {
+							excludeMeshFromGlow({ glowLayer: glow, mesh });
+						}
+					}
+				}
+			},
+			'glow-chunks',
+		),
+	);
+
+	container.append(
+		createToggleRow(
+			`UI Overlays (${String(uiMeshes.length)})`,
+			false,
+			(on) => {
+				for (const mesh of uiMeshes) {
+					if (mesh instanceof BABYLON.Mesh) {
+						if (on) {
+							removeMeshFromGlow({ glowLayer: glow, mesh });
+						} else {
+							excludeMeshFromGlow({ glowLayer: glow, mesh });
+						}
+					}
+				}
+			},
+			'glow-ui',
+		),
+	);
+
+	if (otherMeshes.length > 0) {
+		container.append(
+			createToggleRow(
+				`Other Meshes (${String(otherMeshes.length)})`,
+				true,
+				(on) => {
+					for (const mesh of otherMeshes) {
+						if (mesh instanceof BABYLON.Mesh) {
+							if (on) {
+								removeMeshFromGlow({ glowLayer: glow, mesh });
+							} else {
+								excludeMeshFromGlow({ glowLayer: glow, mesh });
+							}
+						}
+					}
+				},
+				'glow-other',
+			),
+		);
+	}
+
+	const groundFill = scene.getMeshByName('tilemap-ground-fill');
+	if (groundFill && groundFill instanceof BABYLON.Mesh) {
+		container.append(
+			createToggleRow(
+				'Ground Fill',
+				true,
+				(on) => {
+					if (on) {
+						removeMeshFromGlow({ glowLayer: glow, mesh: groundFill });
+					} else {
+						excludeMeshFromGlow({ glowLayer: glow, mesh: groundFill });
+					}
+				},
+				'glow-ground',
+			),
+		);
+	}
 }
 
 // =============================================================================
