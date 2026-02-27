@@ -15,13 +15,19 @@ import type { Result } from '@/schemas/result/result';
 import type { Num } from '@/schemas/common';
 
 import {
+	AnimationFrameSchema,
+	AnimationPlaybackModeSchema,
 	ChunkConfigSchema,
+	CollisionShapeSchema,
 	MapDataSchema,
 	TerrainTypeSchema,
 	TileLayerSchema,
 	TilePropertiesSchema,
 	TilesetConfigSchema,
+	type AnimationFrame,
+	type AnimationPlaybackMode,
 	type ChunkConfig,
+	type CollisionShape,
 	type MapData,
 	type TerrainType,
 	type TileLayer,
@@ -91,6 +97,30 @@ describe('TilePropertiesSchema', () => {
 		expect(result.data.slipperiness).toBe(0);
 		expect(result.data.movementSpeed).toBe(1);
 		expect(result.data.regionId).toBe(0);
+		expect(result.data.slip).toBe(false);
+		expect(result.data.shelter).toBe(false);
+		expect(result.data.bushDepth).toBe(12);
+		expect(result.data.coverHeight).toBe(0);
+		expect(result.data.soundAbsorb).toBe(false);
+		expect(result.data.damageAmount).toBe(0);
+		expect(result.data.damagePercent).toBe(0);
+		expect(result.data.damageElement).toBe('');
+		expect(result.data.damageInterval).toBe(1);
+		expect(result.data.reflection).toBe(false);
+		expect(result.data.reflectionOpacity).toBe(0.5);
+		expect(result.data.glow).toBe(false);
+		expect(result.data.glowColor).toBe('#ffffffff');
+		expect(result.data.glowIntensity).toBe(0);
+		expect(result.data.collisionShapes).toEqual([]);
+		expect(result.data.properties).toEqual({});
+		expect(result.data['class']).toBe('');
+		expect(result.data.tags).toEqual([]);
+		expect(result.data.scriptHook).toBe('');
+		expect(result.data.frames).toEqual([]);
+		expect(result.data.playbackMode).toBe('loop');
+		expect(result.data.globalSync).toBe(true);
+		expect(result.data.speedMultiplier).toBe(1);
+		expect(result.data.pauseWhenOffscreen).toBe(true);
 	});
 
 	test('accepts fully specified properties', () => {
@@ -756,6 +786,1279 @@ describe('TilePropertiesSchema', () => {
 		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
 			regionId: 5.5,
 		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// =========================================================================
+	// Tile flags (Task 3)
+	// =========================================================================
+
+	// --- slip ---
+
+	test('accepts slip as true', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { slip: true });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.slip).toBe(true);
+	});
+
+	test('defaults slip to false', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.slip).toBe(false);
+	});
+
+	// --- shelter ---
+
+	test('accepts shelter as true', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { shelter: true });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.shelter).toBe(true);
+	});
+
+	test('defaults shelter to false', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.shelter).toBe(false);
+	});
+
+	// --- soundAbsorb ---
+
+	test('accepts soundAbsorb as true', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			soundAbsorb: true,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.soundAbsorb).toBe(true);
+	});
+
+	test('defaults soundAbsorb to false', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.soundAbsorb).toBe(false);
+	});
+
+	// --- reflection ---
+
+	test('accepts reflection as true', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			reflection: true,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.reflection).toBe(true);
+	});
+
+	test('defaults reflection to false', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.reflection).toBe(false);
+	});
+
+	// --- glow ---
+
+	test('accepts glow as true', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { glow: true });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.glow).toBe(true);
+	});
+
+	test('defaults glow to false', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.glow).toBe(false);
+	});
+
+	// --- bushDepth ---
+
+	test('accepts bushDepth at minimum (0)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			bushDepth: 0,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.bushDepth).toBe(0);
+	});
+
+	test('accepts bushDepth at maximum (48)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			bushDepth: 48,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.bushDepth).toBe(48);
+	});
+
+	test('defaults bushDepth to 12', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.bushDepth).toBe(12);
+	});
+
+	test('rejects bushDepth above maximum (49)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			bushDepth: 49,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects bushDepth below minimum (-1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			bushDepth: -1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects non-integer bushDepth', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			bushDepth: 6.5,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// --- coverHeight ---
+
+	test('accepts coverHeight at minimum (0)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			coverHeight: 0,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.coverHeight).toBe(0);
+	});
+
+	test('accepts coverHeight at maximum (1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			coverHeight: 1,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.coverHeight).toBe(1);
+	});
+
+	test('accepts coverHeight fractional (0.5)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			coverHeight: 0.5,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.coverHeight).toBe(0.5);
+	});
+
+	test('defaults coverHeight to 0', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.coverHeight).toBe(0);
+	});
+
+	test('rejects coverHeight above maximum (1.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			coverHeight: 1.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects coverHeight below minimum (-0.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			coverHeight: -0.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// --- damageAmount ---
+
+	test('accepts damageAmount at minimum (0)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damageAmount: 0,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damageAmount).toBe(0);
+	});
+
+	test('accepts damageAmount at maximum (9999)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damageAmount: 9999,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damageAmount).toBe(9999);
+	});
+
+	test('defaults damageAmount to 0', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damageAmount).toBe(0);
+	});
+
+	test('rejects damageAmount above maximum (10000)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damageAmount: 10_000,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects damageAmount below minimum (-1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damageAmount: -1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// --- damagePercent ---
+
+	test('accepts damagePercent at minimum (0)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damagePercent: 0,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damagePercent).toBe(0);
+	});
+
+	test('accepts damagePercent at maximum (100)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damagePercent: 100,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damagePercent).toBe(100);
+	});
+
+	test('accepts damagePercent fractional (50.5)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damagePercent: 50.5,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damagePercent).toBe(50.5);
+	});
+
+	test('defaults damagePercent to 0', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damagePercent).toBe(0);
+	});
+
+	test('rejects damagePercent above maximum (100.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damagePercent: 100.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects damagePercent below minimum (-0.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damagePercent: -0.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// --- damageElement ---
+
+	test('accepts damageElement string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damageElement: 'fire',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damageElement).toBe('fire');
+	});
+
+	test('defaults damageElement to empty string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damageElement).toBe('');
+	});
+
+	test('accepts empty damageElement string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damageElement: '',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damageElement).toBe('');
+	});
+
+	// --- damageInterval ---
+
+	test('accepts damageInterval at minimum (1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damageInterval: 1,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damageInterval).toBe(1);
+	});
+
+	test('accepts damageInterval at maximum (999)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damageInterval: 999,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damageInterval).toBe(999);
+	});
+
+	test('defaults damageInterval to 1', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.damageInterval).toBe(1);
+	});
+
+	test('rejects damageInterval above maximum (1000)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damageInterval: 1000,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects damageInterval below minimum (0)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damageInterval: 0,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects non-integer damageInterval', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			damageInterval: 1.5,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// --- reflectionOpacity ---
+
+	test('accepts reflectionOpacity at minimum (0)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			reflectionOpacity: 0,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.reflectionOpacity).toBe(0);
+	});
+
+	test('accepts reflectionOpacity at maximum (1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			reflectionOpacity: 1,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.reflectionOpacity).toBe(1);
+	});
+
+	test('accepts reflectionOpacity fractional (0.75)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			reflectionOpacity: 0.75,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.reflectionOpacity).toBe(0.75);
+	});
+
+	test('defaults reflectionOpacity to 0.5', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.reflectionOpacity).toBe(0.5);
+	});
+
+	test('rejects reflectionOpacity above maximum (1.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			reflectionOpacity: 1.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects reflectionOpacity below minimum (-0.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			reflectionOpacity: -0.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// --- glowColor ---
+
+	test('accepts glowColor hex string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			glowColor: '#ff0000ff',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.glowColor).toBe('#ff0000ff');
+	});
+
+	test('defaults glowColor to #ffffffff', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.glowColor).toBe('#ffffffff');
+	});
+
+	// --- glowIntensity ---
+
+	test('accepts glowIntensity at minimum (0)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			glowIntensity: 0,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.glowIntensity).toBe(0);
+	});
+
+	test('accepts glowIntensity at maximum (1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			glowIntensity: 1,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.glowIntensity).toBe(1);
+	});
+
+	test('accepts glowIntensity fractional (0.5)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			glowIntensity: 0.5,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.glowIntensity).toBe(0.5);
+	});
+
+	test('defaults glowIntensity to 0', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.glowIntensity).toBe(0);
+	});
+
+	test('rejects glowIntensity above maximum (1.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			glowIntensity: 1.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects glowIntensity below minimum (-0.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			glowIntensity: -0.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// =========================================================================
+	// Collision shapes (Task 4)
+	// =========================================================================
+
+	test('accepts empty collisionShapes array', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			collisionShapes: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.collisionShapes).toEqual([]);
+	});
+
+	test('accepts single rect collision shape', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			collisionShapes: [
+				{
+					type: 'rect',
+					points: [
+						{ x: 0, y: 0 },
+						{ x: 1, y: 0 },
+						{ x: 1, y: 1 },
+						{ x: 0, y: 1 },
+					],
+				},
+			],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.collisionShapes).toHaveLength(1);
+		const [firstShape] = result.data.collisionShapes;
+		expect(firstShape).toBeDefined();
+		if (!firstShape) return;
+		expect(firstShape.type).toBe('rect');
+		expect(firstShape.points).toHaveLength(4);
+	});
+
+	test('accepts collision shape with all fields', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			collisionShapes: [
+				{
+					type: 'polygon',
+					points: [
+						{ x: 0.1, y: 0.2 },
+						{ x: 0.8, y: 0.2 },
+						{ x: 0.5, y: 0.9 },
+					],
+					isTrigger: true,
+					collisionGroup: 'water',
+					collisionMask: ['wall', 'barrier'],
+					oneWay: true,
+					oneWayDirection: 'north',
+					height: 5,
+					enabled: false,
+				},
+			],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const [shape] = result.data.collisionShapes;
+		expect(shape).toBeDefined();
+		if (!shape) return;
+		expect(shape.type).toBe('polygon');
+		expect(shape.isTrigger).toBe(true);
+		expect(shape.collisionGroup).toBe('water');
+		expect(shape.collisionMask).toEqual(['wall', 'barrier']);
+		expect(shape.oneWay).toBe(true);
+		expect(shape.oneWayDirection).toBe('north');
+		expect(shape.height).toBe(5);
+		expect(shape.enabled).toBe(false);
+	});
+
+	test('accepts multiple collision shapes', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			collisionShapes: [
+				{
+					type: 'rect',
+					points: [
+						{ x: 0, y: 0 },
+						{ x: 1, y: 1 },
+					],
+				},
+				{ type: 'circle', points: [{ x: 0.5, y: 0.5 }] },
+			],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.collisionShapes).toHaveLength(2);
+		const [first, second] = result.data.collisionShapes;
+		expect(first).toBeDefined();
+		expect(second).toBeDefined();
+		if (!first || !second) return;
+		expect(first.type).toBe('rect');
+		expect(second.type).toBe('circle');
+	});
+
+	test('accepts polygon with multiple points', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			collisionShapes: [
+				{
+					type: 'polygon',
+					points: [
+						{ x: 0, y: 0 },
+						{ x: 0.5, y: 0 },
+						{ x: 1, y: 0.5 },
+						{ x: 0.5, y: 1 },
+						{ x: 0, y: 0.5 },
+					],
+				},
+			],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const [firstShape] = result.data.collisionShapes;
+		expect(firstShape).toBeDefined();
+		if (!firstShape) return;
+		expect(firstShape.points).toHaveLength(5);
+	});
+
+	test('accepts all shape types', () => {
+		const shapeTypes: readonly string[] = ['rect', 'ellipse', 'polygon', 'polyline', 'circle'];
+		for (const shapeType of shapeTypes) {
+			const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+				collisionShapes: [{ type: shapeType, points: [{ x: 0.5, y: 0.5 }] }],
+			});
+			expect(result.ok).toBeTruthy();
+			if (!result.ok) return;
+			const [firstShape] = result.data.collisionShapes;
+			expect(firstShape).toBeDefined();
+			if (!firstShape) return;
+			expect(firstShape.type).toBe(shapeType);
+		}
+	});
+
+	test('accepts all oneWayDirection values', () => {
+		const directions: readonly string[] = ['north', 'south', 'east', 'west'];
+		for (const dir of directions) {
+			const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+				collisionShapes: [
+					{ type: 'rect', points: [{ x: 0, y: 0 }], oneWay: true, oneWayDirection: dir },
+				],
+			});
+			expect(result.ok).toBeTruthy();
+			if (!result.ok) return;
+			const [firstShape] = result.data.collisionShapes;
+			expect(firstShape).toBeDefined();
+			if (!firstShape) return;
+			expect(firstShape.oneWayDirection).toBe(dir);
+		}
+	});
+
+	test('defaults collisionShape optional fields', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			collisionShapes: [{ type: 'rect', points: [{ x: 0, y: 0 }] }],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const [shape] = result.data.collisionShapes;
+		expect(shape).toBeDefined();
+		if (!shape) return;
+		expect(shape.isTrigger).toBe(false);
+		expect(shape.collisionGroup).toBe('wall');
+		expect(shape.collisionMask).toEqual([]);
+		expect(shape.oneWay).toBe(false);
+		expect(shape.oneWayDirection).toBe('south');
+		expect(shape.height).toBe(0);
+		expect(shape.enabled).toBe(true);
+	});
+
+	test('rejects unknown shape type', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			collisionShapes: [{ type: 'triangle', points: [{ x: 0, y: 0 }] }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects point x above 1', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			collisionShapes: [{ type: 'rect', points: [{ x: 1.5, y: 0 }] }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects point y below 0', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			collisionShapes: [{ type: 'rect', points: [{ x: 0, y: -0.1 }] }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects collision shape height above 15', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			collisionShapes: [{ type: 'rect', points: [{ x: 0, y: 0 }], height: 16 }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects collision shape without type', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			collisionShapes: [{ points: [{ x: 0, y: 0 }] }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects collision shape without points', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			collisionShapes: [{ type: 'rect' }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// =========================================================================
+	// Custom properties & tags (Task 5)
+	// =========================================================================
+
+	// --- properties field ---
+
+	test('accepts properties with string value', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			properties: { name: 'chest' },
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.properties).toEqual({ name: 'chest' });
+	});
+
+	test('accepts properties with number value', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			properties: { weight: 42 },
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.properties).toEqual({ weight: 42 });
+	});
+
+	test('accepts properties with boolean value', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			properties: { locked: true },
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.properties).toEqual({ locked: true });
+	});
+
+	test('accepts properties with string array value', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			properties: { items: ['key', 'potion'] },
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.properties).toEqual({ items: ['key', 'potion'] });
+	});
+
+	test('accepts properties with mixed value types', () => {
+		const input: Record<string, unknown> = {
+			name: 'chest',
+			weight: 42,
+			locked: true,
+			items: ['key', 'potion'],
+		};
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			properties: input,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.properties).toEqual(input);
+	});
+
+	test('accepts empty properties object', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			properties: {},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.properties).toEqual({});
+	});
+
+	test('defaults properties to empty object', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.properties).toEqual({});
+	});
+
+	test('rejects properties with null value', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			properties: { broken: null },
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// --- class field ---
+
+	test('accepts class string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			class: 'treasure_chest',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data['class']).toBe('treasure_chest');
+	});
+
+	test('defaults class to empty string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data['class']).toBe('');
+	});
+
+	test('accepts empty class string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			class: '',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data['class']).toBe('');
+	});
+
+	// --- tags field ---
+
+	test('accepts tags array', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			tags: ['flammable', 'destructible'],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.tags).toEqual(['flammable', 'destructible']);
+	});
+
+	test('accepts empty tags array', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			tags: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.tags).toEqual([]);
+	});
+
+	test('defaults tags to empty array', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.tags).toEqual([]);
+	});
+
+	test('rejects tags with non-string element', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			tags: ['valid', 42],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// --- scriptHook field ---
+
+	test('accepts scriptHook string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			scriptHook: 'on_step_treasure',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.scriptHook).toBe('on_step_treasure');
+	});
+
+	test('defaults scriptHook to empty string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.scriptHook).toBe('');
+	});
+
+	test('accepts empty scriptHook string', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			scriptHook: '',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.scriptHook).toBe('');
+	});
+
+	// =========================================================================
+	// Tile animation definition (Task 6)
+	// =========================================================================
+
+	// --- frames field ---
+
+	test('accepts empty frames array', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			frames: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.frames).toEqual([]);
+	});
+
+	test('accepts single animation frame', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			frames: [{ tileId: 0, duration: 100 }],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.frames).toHaveLength(1);
+		const [frame0] = result.data.frames;
+		expect(frame0).toBeDefined();
+		if (!frame0) return;
+		expect(frame0.tileId).toBe(0);
+		expect(frame0.duration).toBe(100);
+	});
+
+	test('accepts multiple animation frames', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			frames: [
+				{ tileId: 0, duration: 100 },
+				{ tileId: 1, duration: 200 },
+				{ tileId: 2, duration: 150 },
+			],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.frames).toHaveLength(3);
+		const [f0, f1, f2] = result.data.frames;
+		expect(f0).toBeDefined();
+		expect(f1).toBeDefined();
+		expect(f2).toBeDefined();
+		if (!f0 || !f1 || !f2) return;
+		expect(f0.tileId).toBe(0);
+		expect(f1.tileId).toBe(1);
+		expect(f2.tileId).toBe(2);
+	});
+
+	test('defaults frames to empty array', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.frames).toEqual([]);
+	});
+
+	test('rejects frame with negative tileId', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			frames: [{ tileId: -1, duration: 100 }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects frame with non-integer tileId', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			frames: [{ tileId: 1.5, duration: 100 }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects frame with duration below 1', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			frames: [{ tileId: 0, duration: 0 }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects frame without tileId', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			frames: [{ duration: 100 }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects frame without duration', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			frames: [{ tileId: 0 }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// --- playbackMode field ---
+
+	test('accepts playbackMode "loop"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			playbackMode: 'loop',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.playbackMode).toBe('loop');
+	});
+
+	test('accepts playbackMode "pingPong"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			playbackMode: 'pingPong',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.playbackMode).toBe('pingPong');
+	});
+
+	test('accepts playbackMode "once"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			playbackMode: 'once',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.playbackMode).toBe('once');
+	});
+
+	test('accepts playbackMode "random"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			playbackMode: 'random',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.playbackMode).toBe('random');
+	});
+
+	test('defaults playbackMode to "loop"', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.playbackMode).toBe('loop');
+	});
+
+	test('rejects invalid playbackMode', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			playbackMode: 'reverse',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// --- globalSync field ---
+
+	test('accepts globalSync true', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			globalSync: true,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.globalSync).toBe(true);
+	});
+
+	test('accepts globalSync false', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			globalSync: false,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.globalSync).toBe(false);
+	});
+
+	test('defaults globalSync to true', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.globalSync).toBe(true);
+	});
+
+	// --- speedMultiplier field ---
+
+	test('accepts speedMultiplier at minimum (0.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			speedMultiplier: 0.1,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.speedMultiplier).toBe(0.1);
+	});
+
+	test('accepts speedMultiplier at maximum (10)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			speedMultiplier: 10,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.speedMultiplier).toBe(10);
+	});
+
+	test('accepts speedMultiplier fractional (2.5)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			speedMultiplier: 2.5,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.speedMultiplier).toBe(2.5);
+	});
+
+	test('defaults speedMultiplier to 1', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.speedMultiplier).toBe(1);
+	});
+
+	test('rejects speedMultiplier above maximum (10.1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			speedMultiplier: 10.1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects speedMultiplier below minimum (0.09)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			speedMultiplier: 0.09,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// --- pauseWhenOffscreen field ---
+
+	test('accepts pauseWhenOffscreen true', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			pauseWhenOffscreen: true,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.pauseWhenOffscreen).toBe(true);
+	});
+
+	test('accepts pauseWhenOffscreen false', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			pauseWhenOffscreen: false,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.pauseWhenOffscreen).toBe(false);
+	});
+
+	test('defaults pauseWhenOffscreen to true', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.pauseWhenOffscreen).toBe(true);
+	});
+});
+
+// =============================================================================
+// CollisionShapeSchema
+// =============================================================================
+
+describe('CollisionShapeSchema', () => {
+	test('accepts minimal valid shape', () => {
+		const result: Result<CollisionShape> = safeParse(CollisionShapeSchema, {
+			type: 'rect',
+			points: [{ x: 0, y: 0 }],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.type).toBe('rect');
+		expect(result.data.points).toHaveLength(1);
+	});
+
+	test('defaults optional fields correctly', () => {
+		const result: Result<CollisionShape> = safeParse(CollisionShapeSchema, {
+			type: 'ellipse',
+			points: [{ x: 0.5, y: 0.5 }],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.isTrigger).toBe(false);
+		expect(result.data.collisionGroup).toBe('wall');
+		expect(result.data.collisionMask).toEqual([]);
+		expect(result.data.oneWay).toBe(false);
+		expect(result.data.oneWayDirection).toBe('south');
+		expect(result.data.height).toBe(0);
+		expect(result.data.enabled).toBe(true);
+	});
+
+	test('rejects unknown type', () => {
+		const result: Result<CollisionShape> = safeParse(CollisionShapeSchema, {
+			type: 'hexagon',
+			points: [{ x: 0, y: 0 }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// AnimationFrameSchema
+// =============================================================================
+
+describe('AnimationFrameSchema', () => {
+	test('accepts valid animation frame', () => {
+		const result: Result<AnimationFrame> = safeParse(AnimationFrameSchema, {
+			tileId: 5,
+			duration: 200,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.tileId).toBe(5);
+		expect(result.data.duration).toBe(200);
+	});
+
+	test('accepts tileId of 0', () => {
+		const result: Result<AnimationFrame> = safeParse(AnimationFrameSchema, {
+			tileId: 0,
+			duration: 100,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.tileId).toBe(0);
+	});
+
+	test('accepts duration of 1 (minimum)', () => {
+		const result: Result<AnimationFrame> = safeParse(AnimationFrameSchema, {
+			tileId: 0,
+			duration: 1,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.duration).toBe(1);
+	});
+
+	test('rejects missing tileId', () => {
+		const result: Result<AnimationFrame> = safeParse(AnimationFrameSchema, {
+			duration: 100,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects missing duration', () => {
+		const result: Result<AnimationFrame> = safeParse(AnimationFrameSchema, {
+			tileId: 0,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects negative tileId', () => {
+		const result: Result<AnimationFrame> = safeParse(AnimationFrameSchema, {
+			tileId: -1,
+			duration: 100,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects non-integer tileId', () => {
+		const result: Result<AnimationFrame> = safeParse(AnimationFrameSchema, {
+			tileId: 2.5,
+			duration: 100,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects duration below 1', () => {
+		const result: Result<AnimationFrame> = safeParse(AnimationFrameSchema, {
+			tileId: 0,
+			duration: 0,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects fractional duration below 1', () => {
+		const result: Result<AnimationFrame> = safeParse(AnimationFrameSchema, {
+			tileId: 0,
+			duration: 0.5,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// AnimationPlaybackModeSchema
+// =============================================================================
+
+describe('AnimationPlaybackModeSchema', () => {
+	test('accepts "loop"', () => {
+		const result: Result<AnimationPlaybackMode> = safeParse(AnimationPlaybackModeSchema, 'loop');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBe('loop');
+	});
+
+	test('accepts "pingPong"', () => {
+		const result: Result<AnimationPlaybackMode> = safeParse(
+			AnimationPlaybackModeSchema,
+			'pingPong',
+		);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBe('pingPong');
+	});
+
+	test('accepts "once"', () => {
+		const result: Result<AnimationPlaybackMode> = safeParse(AnimationPlaybackModeSchema, 'once');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBe('once');
+	});
+
+	test('accepts "random"', () => {
+		const result: Result<AnimationPlaybackMode> = safeParse(AnimationPlaybackModeSchema, 'random');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBe('random');
+	});
+
+	test('rejects invalid mode', () => {
+		const result: Result<AnimationPlaybackMode> = safeParse(AnimationPlaybackModeSchema, 'reverse');
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects number input', () => {
+		const result: Result<AnimationPlaybackMode> = safeParse(AnimationPlaybackModeSchema, 0);
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects null input', () => {
+		const result: Result<AnimationPlaybackMode> = safeParse(AnimationPlaybackModeSchema, null);
 		expect(result.ok).toBeFalsy();
 	});
 });

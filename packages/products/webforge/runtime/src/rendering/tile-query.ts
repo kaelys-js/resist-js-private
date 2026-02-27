@@ -21,7 +21,7 @@
  * @module
  */
 
-import type { Result } from '@/schemas/result/result';
+import type { DeepReadonly, Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import type { Num } from '@/schemas/common';
 
@@ -90,7 +90,8 @@ export function getTileProperties(options: GetTilePropertiesOptions): Result<Til
 
 	// Look up per-tile properties from tileset config
 	const localKey = String(resolved.data.localIndex);
-	const entry: TileProperties | undefined = resolved.data.tileset.config.tileProperties[localKey];
+	const entry: DeepReadonly<TileProperties> | undefined =
+		resolved.data.tileset.config.tileProperties[localKey];
 
 	if (entry === undefined) return DEFAULT_PROPERTIES_RESULT;
 

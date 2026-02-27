@@ -73,6 +73,207 @@ export const TerrainTypeSchema = v.picklist([
 export type TerrainType = v.InferOutput<typeof TerrainTypeSchema>;
 
 // =============================================================================
+// Collision Shape
+// =============================================================================
+
+/**
+ * Collision shape type picklist.
+ *
+ * Defines the geometric primitive used for a tile collision region.
+ *
+ * - `'rect'` — Axis-aligned rectangle.
+ * - `'ellipse'` — Axis-aligned ellipse.
+ * - `'polygon'` — Closed polygon (last point connects to first).
+ * - `'polyline'` — Open polyline (no closing segment).
+ * - `'circle'` — Circle (single center point, radius derived from context).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { CollisionShapeTypeSchema } from './map-data';
+ *
+ * const result = safeParse(CollisionShapeTypeSchema, 'rect');
+ * if (result.ok) {
+ *   result.data; // 'rect'
+ * }
+ * ```
+ */
+export const CollisionShapeTypeSchema = v.picklist([
+	'rect',
+	'ellipse',
+	'polygon',
+	'polyline',
+	'circle',
+]);
+
+/** Collision shape type. */
+export type CollisionShapeType = v.InferOutput<typeof CollisionShapeTypeSchema>;
+
+/**
+ * A single collision point, normalized 0-1 relative to tile dimensions.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { CollisionPointSchema } from './map-data';
+ *
+ * const result = safeParse(CollisionPointSchema, { x: 0.5, y: 0.5 });
+ * if (result.ok) {
+ *   result.data.x; // 0.5
+ *   result.data.y; // 0.5
+ * }
+ * ```
+ */
+export const CollisionPointSchema = v.strictObject({
+	/** X coordinate (0-1, normalized to tile width). */
+	x: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+	/** Y coordinate (0-1, normalized to tile height). */
+	y: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+});
+
+/** A single collision point. */
+export type CollisionPoint = v.InferOutput<typeof CollisionPointSchema>;
+
+/**
+ * One-way direction picklist for one-way collision shapes.
+ *
+ * Determines which direction allows passage through a one-way collider.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { OneWayDirectionSchema } from './map-data';
+ *
+ * const result = safeParse(OneWayDirectionSchema, 'south');
+ * if (result.ok) {
+ *   result.data; // 'south'
+ * }
+ * ```
+ */
+export const OneWayDirectionSchema = v.picklist(['north', 'south', 'east', 'west']);
+
+/** One-way direction. */
+export type OneWayDirection = v.InferOutput<typeof OneWayDirectionSchema>;
+
+/**
+ * Collision shape schema for physics and trigger detection.
+ *
+ * Each shape defines a collider region within tile bounds using normalized
+ * coordinates (0-1). Supports rectangular, elliptical, polygonal, polyline,
+ * and circular geometries with optional trigger, one-way, and grouping behavior.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { CollisionShapeSchema } from './map-data';
+ *
+ * const result = safeParse(CollisionShapeSchema, {
+ *   type: 'rect',
+ *   points: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 1 }],
+ *   collisionGroup: 'wall',
+ * });
+ * if (result.ok) {
+ *   result.data.type;           // 'rect'
+ *   result.data.collisionGroup; // 'wall'
+ * }
+ * ```
+ */
+export const CollisionShapeSchema = v.strictObject({
+	/** Shape type. */
+	type: CollisionShapeTypeSchema,
+	/** Vertices (normalized 0-1 relative to tile origin). */
+	points: v.array(CollisionPointSchema),
+	/** Whether shape is a trigger (passes through but fires events). */
+	isTrigger: v.optional(v.boolean(), false),
+	/** Named collision group (e.g., "wall", "water", "barrier", "interactable"). */
+	collisionGroup: v.optional(v.string(), 'wall'),
+	/** Collision mask — which groups this shape interacts with. */
+	collisionMask: v.optional(v.array(v.string()), (): string[] => []),
+	/** Whether this is a one-way collider. */
+	oneWay: v.optional(v.boolean(), false),
+	/** Direction of one-way passage (only meaningful when oneWay is true). */
+	oneWayDirection: v.optional(OneWayDirectionSchema, 'south'),
+	/** Collision height for 3D collision (0-15). */
+	height: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(15)), 0),
+	/** Whether this shape is enabled (can be toggled at runtime). */
+	enabled: v.optional(v.boolean(), true),
+});
+
+/** Collision shape for physics/trigger detection. */
+export type CollisionShape = v.InferOutput<typeof CollisionShapeSchema>;
+
+// =============================================================================
+// Custom Property Value
+// =============================================================================
+
+/**
+ * Custom property value type.
+ * Supports string, number, boolean, and string array values.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { CustomPropertyValueSchema } from './map-data';
+ *
+ * const strResult = safeParse(CustomPropertyValueSchema, 'hello');
+ * const numResult = safeParse(CustomPropertyValueSchema, 42);
+ * const boolResult = safeParse(CustomPropertyValueSchema, true);
+ * const arrResult = safeParse(CustomPropertyValueSchema, ['a', 'b']);
+ * ```
+ */
+export const CustomPropertyValueSchema = v.union([
+	v.string(),
+	v.number(),
+	v.boolean(),
+	v.array(v.string()),
+]);
+
+/** Custom property value. */
+export type CustomPropertyValue = v.InferOutput<typeof CustomPropertyValueSchema>;
+
+// =============================================================================
+// Animation Playback Mode
+// =============================================================================
+
+/**
+ * Animation playback mode for tile animations.
+ *
+ * - `'loop'` — Repeats indefinitely (default).
+ * - `'pingPong'` — Plays forward then backward repeatedly.
+ * - `'once'` — Plays once and stops on last frame.
+ * - `'random'` — Picks random frames (useful for flickering effects).
+ */
+export const AnimationPlaybackModeSchema = v.picklist(['loop', 'pingPong', 'once', 'random']);
+export type AnimationPlaybackMode = v.InferOutput<typeof AnimationPlaybackModeSchema>;
+
+// =============================================================================
+// Animation Frame
+// =============================================================================
+
+/**
+ * A single frame in a tile animation sequence.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { AnimationFrameSchema } from './map-data';
+ *
+ * const result = safeParse(AnimationFrameSchema, { tileId: 5, duration: 200 });
+ * if (result.ok) {
+ *   result.data.tileId;   // 5
+ *   result.data.duration; // 200
+ * }
+ * ```
+ */
+export const AnimationFrameSchema = v.strictObject({
+	/** Local tile ID to display for this frame. */
+	tileId: v.pipe(v.number(), v.integer(), v.minValue(0)),
+	/** Duration of this frame in milliseconds. */
+	duration: v.pipe(v.number(), v.minValue(1)),
+});
+export type AnimationFrame = v.InferOutput<typeof AnimationFrameSchema>;
+
+// =============================================================================
 // Tile Properties
 // =============================================================================
 
@@ -80,21 +281,30 @@ export type TerrainType = v.InferOutput<typeof TerrainTypeSchema>;
  * Per-tile metadata schema.
  *
  * Stores passability, terrain tags, terrain type, movement modifiers,
- * and special flags for individual tiles within a tileset. Used by the
- * movement system (Phase 4) for collision and terrain-based game logic.
+ * collision shapes, custom properties, and special flags for individual
+ * tiles within a tileset. Used by the movement system (Phase 4) for
+ * collision and terrain-based game logic.
  *
  * @example
  * ```typescript
  * import { safeParse } from '@/utils/result/safe';
  * import { TilePropertiesSchema } from './map-data';
  *
- * const result = safeParse(TilePropertiesSchema, { height: 2, bush: true, terrainType: 'grass' });
+ * const result = safeParse(TilePropertiesSchema, {
+ *   height: 2,
+ *   bush: true,
+ *   terrainType: 'grass',
+ *   class: 'treasure_chest',
+ *   tags: ['flammable', 'destructible'],
+ * });
  * if (result.ok) {
  *   result.data.passability;    // [true, true, true, true]
  *   result.data.height;          // 2
  *   result.data.bush;            // true
  *   result.data.terrainType;     // 'grass'
  *   result.data.movementSpeed;   // 1 (default)
+ *   result.data['class'];        // 'treasure_chest'
+ *   result.data.tags;            // ['flammable', 'destructible']
  * }
  * ```
  */
@@ -155,6 +365,102 @@ export const TilePropertiesSchema = v.strictObject({
 
 	/** Star passage flag — allows passage regardless of direction. */
 	starPassage: v.optional(v.boolean(), false),
+
+	/** Slip flag — disables dash/run on this tile. */
+	slip: v.optional(v.boolean(), false),
+
+	/** Shelter flag — blocks weather effects on this tile. */
+	shelter: v.optional(v.boolean(), false),
+
+	/** Bush depth in pixels (0–48). How much of character sprite is semi-transparent. */
+	bushDepth: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(48)), 12),
+
+	/** Cover height (0–1). How much of character sprite is hidden by this tile. */
+	coverHeight: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
+
+	/** Sound absorb flag — mutes/dampens footstep sounds on this tile. */
+	soundAbsorb: v.optional(v.boolean(), false),
+
+	/** Damage amount in HP per tick. 0 = no damage. */
+	damageAmount: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(9999)), 0),
+
+	/** Damage as percentage of max HP per tick (0–100). */
+	damagePercent: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 0),
+
+	/** Damage element type (e.g., 'fire', 'poison'). Empty string = untyped. */
+	damageElement: v.optional(v.string(), ''),
+
+	/** Steps between damage ticks (1–999). */
+	damageInterval: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(999)), 1),
+
+	/** Reflection flag — whether tile surface shows reflections. */
+	reflection: v.optional(v.boolean(), false),
+
+	/** Reflection opacity (0–1). Only meaningful when `reflection` is true. */
+	reflectionOpacity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
+
+	/** Glow flag — whether this tile emits a glow effect. */
+	glow: v.optional(v.boolean(), false),
+
+	/** Glow color as hex RGBA string (e.g., '#ff0000ff'). */
+	glowColor: v.optional(v.string(), '#ffffffff'),
+
+	/** Glow intensity (0–1). Only meaningful when `glow` is true. */
+	glowIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
+
+	/**
+	 * Collision shapes for physics/trigger detection.
+	 * Each shape defines a collider region within the tile bounds.
+	 */
+	collisionShapes: v.optional(v.array(CollisionShapeSchema), (): CollisionShape[] => []),
+
+	/**
+	 * Custom properties for game logic. Keyed by property name,
+	 * values can be string, number, boolean, or string array.
+	 */
+	properties: v.optional(
+		v.record(v.string(), CustomPropertyValueSchema),
+		(): Record<string, CustomPropertyValue> => ({}),
+	),
+
+	/** Class name linking to a user-defined type template. */
+	class: v.optional(v.string(), ''),
+
+	/** Tags for bulk queries (e.g., ["flammable", "destructible"]). */
+	tags: v.optional(v.array(v.string()), (): string[] => []),
+
+	/** Event script ID triggered on interaction/step/proximity. */
+	scriptHook: v.optional(v.string(), ''),
+
+	/**
+	 * Animation frame sequence for this tile.
+	 * Each frame specifies a tile ID and duration in milliseconds.
+	 * Empty array = no animation.
+	 */
+	frames: v.optional(v.array(AnimationFrameSchema), (): AnimationFrame[] => []),
+
+	/**
+	 * Animation playback mode.
+	 * Only meaningful when `frames` is non-empty.
+	 */
+	playbackMode: v.optional(AnimationPlaybackModeSchema, 'loop'),
+
+	/**
+	 * Whether all tiles with this animation play in sync (true)
+	 * or with random phase offsets (false).
+	 * true = lockstep for water/lava, false = random for flowers/torches.
+	 */
+	globalSync: v.optional(v.boolean(), true),
+
+	/**
+	 * Animation playback speed multiplier. 1 = normal speed.
+	 */
+	speedMultiplier: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(10)), 1),
+
+	/**
+	 * Whether to pause animation when tile is off-screen.
+	 */
+	pauseWhenOffscreen: v.optional(v.boolean(), true),
 
 	/**
 	 * Terrain type classification for this tile.
