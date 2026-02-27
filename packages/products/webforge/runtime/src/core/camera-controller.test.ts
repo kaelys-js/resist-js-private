@@ -1,9 +1,14 @@
 /**
  * Camera controller tests.
  *
- * Tests the 6-preset camera system: hd2d, topdown, sideview, firstperson,
- * cinematic, free. Also tests backward compatibility with legacy editor/gameplay
- * modes, smooth follow target updates, FF Tactics rotation, and screen shake.
+ * Tests the 16-preset camera system:
+ * - Original 6: hd2d, topdown, sideview, firstperson, cinematic, free
+ * - New 10: isometric, tactical, thirdperson, rts, dungeon, platformer,
+ *   panoramic, orbit, editor, mapeditor
+ *
+ * Also tests backward compatibility with legacy editor/gameplay modes,
+ * smooth follow target updates, FF Tactics rotation, screen shake,
+ * orthographic mode (mapeditor), auto-rotate (orbit), and resetCamera.
  *
  * @module
  */
@@ -18,6 +23,7 @@ import {
 	rotateTactics,
 	screenShake,
 	switchCameraPreset,
+	resetCamera,
 } from './camera-controller';
 
 let instance: BabylonEngineInstance;
@@ -586,5 +592,462 @@ describe('switchCameraPreset', () => {
 
 		expect(arc.lowerAlphaLimit).toBeNull();
 		expect(arc.upperAlphaLimit).toBeNull();
+	});
+});
+
+// =============================================================================
+// Isometric Preset — True isometric (Diablo, Baldur's Gate)
+// =============================================================================
+
+describe('createCamera — isometric preset', () => {
+	test('creates ArcRotateCamera with true isometric angle', () => {
+		const result = createCamera(instance.scene, { preset: 'isometric' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		// True isometric: beta ≈ 35.264° = atan(1/√2)
+		expect(arc.beta).toBeCloseTo(Math.atan(1 / Math.SQRT2));
+		expect(arc.alpha).toBeCloseTo(Math.PI / 4);
+	});
+
+	test('locks both alpha and beta for isometric', () => {
+		const result = createCamera(instance.scene, { preset: 'isometric' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerAlphaLimit).toBeCloseTo(Math.PI / 4);
+		expect(arc.upperAlphaLimit).toBeCloseTo(Math.PI / 4);
+		expect(arc.lowerBetaLimit).toBeCloseTo(Math.atan(1 / Math.SQRT2));
+		expect(arc.upperBetaLimit).toBeCloseTo(Math.atan(1 / Math.SQRT2));
+	});
+
+	test('disables panning for isometric', () => {
+		const result = createCamera(instance.scene, { preset: 'isometric' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.panningSensibility).toBe(0);
+	});
+});
+
+// =============================================================================
+// Tactical Preset — Tactics/strategy (Fire Emblem, XCOM)
+// =============================================================================
+
+describe('createCamera — tactical preset', () => {
+	test('creates ArcRotateCamera with steep overhead angle', () => {
+		const result = createCamera(instance.scene, { preset: 'tactical' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.beta).toBeCloseTo(Math.PI / 6);
+		expect(arc.radius).toBe(120);
+	});
+
+	test('locks alpha for tactical', () => {
+		const result = createCamera(instance.scene, { preset: 'tactical' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerAlphaLimit).toBeCloseTo(Math.PI / 4);
+		expect(arc.upperAlphaLimit).toBeCloseTo(Math.PI / 4);
+	});
+
+	test('enables panning for tactical map scrolling', () => {
+		const result = createCamera(instance.scene, { preset: 'tactical' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.panningSensibility).toBe(50);
+	});
+});
+
+// =============================================================================
+// Third-Person Preset — Follow camera (action RPG, JRPG overworld)
+// =============================================================================
+
+describe('createCamera — thirdperson preset', () => {
+	test('creates ArcRotateCamera with close shoulder-level angle', () => {
+		const result = createCamera(instance.scene, { preset: 'thirdperson' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.beta).toBeCloseTo(Math.PI / 3);
+		expect(arc.radius).toBe(25);
+	});
+
+	test('allows free orbit for thirdperson', () => {
+		const result = createCamera(instance.scene, { preset: 'thirdperson' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerAlphaLimit).toBeNull();
+		expect(arc.upperAlphaLimit).toBeNull();
+	});
+
+	test('has smooth inertia for thirdperson follow', () => {
+		const result = createCamera(instance.scene, { preset: 'thirdperson' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.inertia).toBeCloseTo(0.85);
+	});
+});
+
+// =============================================================================
+// RTS Preset — Real-time strategy (Age of Empires, StarCraft)
+// =============================================================================
+
+describe('createCamera — rts preset', () => {
+	test('creates ArcRotateCamera with battlefield overview angle', () => {
+		const result = createCamera(instance.scene, { preset: 'rts' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.beta).toBeCloseTo(Math.PI / 5);
+		expect(arc.radius).toBe(150);
+	});
+
+	test('locks alpha for rts', () => {
+		const result = createCamera(instance.scene, { preset: 'rts' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerAlphaLimit).toBeCloseTo(Math.PI / 4);
+		expect(arc.upperAlphaLimit).toBeCloseTo(Math.PI / 4);
+	});
+
+	test('enables panning for rts map scrolling', () => {
+		const result = createCamera(instance.scene, { preset: 'rts' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.panningSensibility).toBe(50);
+	});
+
+	test('has responsive inertia for rts', () => {
+		const result = createCamera(instance.scene, { preset: 'rts' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.inertia).toBeCloseTo(0.3);
+	});
+});
+
+// =============================================================================
+// Dungeon Preset — Dungeon crawler (Diablo close-up, roguelikes)
+// =============================================================================
+
+describe('createCamera — dungeon preset', () => {
+	test('creates ArcRotateCamera with steep close overhead', () => {
+		const result = createCamera(instance.scene, { preset: 'dungeon' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.beta).toBeCloseTo(Math.PI / 8);
+		expect(arc.radius).toBe(50);
+	});
+
+	test('locks both alpha and beta for dungeon', () => {
+		const result = createCamera(instance.scene, { preset: 'dungeon' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerAlphaLimit).toBeCloseTo(Math.PI / 4);
+		expect(arc.upperAlphaLimit).toBeCloseTo(Math.PI / 4);
+		expect(arc.lowerBetaLimit).toBeCloseTo(Math.PI / 8);
+		expect(arc.upperBetaLimit).toBeCloseTo(Math.PI / 8);
+	});
+
+	test('disables panning for dungeon', () => {
+		const result = createCamera(instance.scene, { preset: 'dungeon' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.panningSensibility).toBe(0);
+	});
+});
+
+// =============================================================================
+// Platformer Preset — 2.5D platformer (Kirby, LittleBigPlanet)
+// =============================================================================
+
+describe('createCamera — platformer preset', () => {
+	test('creates ArcRotateCamera with side-on view', () => {
+		const result = createCamera(instance.scene, { preset: 'platformer' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.alpha).toBeCloseTo(Math.PI / 2);
+		expect(arc.beta).toBeCloseTo(Math.PI / 2);
+	});
+
+	test('has closer radius than sideview for tighter framing', () => {
+		const result = createCamera(instance.scene, { preset: 'platformer' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.radius).toBe(50);
+	});
+
+	test('has narrower FOV for platformer', () => {
+		const result = createCamera(instance.scene, { preset: 'platformer' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.fov).toBeCloseTo(0.7);
+	});
+
+	test('locks both alpha and beta for platformer', () => {
+		const result = createCamera(instance.scene, { preset: 'platformer' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerAlphaLimit).toBeCloseTo(Math.PI / 2);
+		expect(arc.upperAlphaLimit).toBeCloseTo(Math.PI / 2);
+		expect(arc.lowerBetaLimit).toBeCloseTo(Math.PI / 2);
+		expect(arc.upperBetaLimit).toBeCloseTo(Math.PI / 2);
+	});
+});
+
+// =============================================================================
+// Panoramic Preset — Cinematic sweeping panorama
+// =============================================================================
+
+describe('createCamera — panoramic preset', () => {
+	test('creates ArcRotateCamera with far distance and wide FOV', () => {
+		const result = createCamera(instance.scene, { preset: 'panoramic' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.radius).toBe(200);
+		expect(arc.fov).toBeCloseTo(1.4);
+	});
+
+	test('has ultra-heavy inertia for panoramic sweep', () => {
+		const result = createCamera(instance.scene, { preset: 'panoramic' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.inertia).toBeCloseTo(0.95);
+	});
+
+	test('allows free orbit for panoramic', () => {
+		const result = createCamera(instance.scene, { preset: 'panoramic' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerAlphaLimit).toBeNull();
+		expect(arc.upperAlphaLimit).toBeNull();
+	});
+});
+
+// =============================================================================
+// Orbit Preset — Auto-rotating model showcase
+// =============================================================================
+
+describe('createCamera — orbit preset', () => {
+	test('creates ArcRotateCamera with auto-rotation enabled', () => {
+		const result = createCamera(instance.scene, { preset: 'orbit' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.useAutoRotationBehavior).toBe(true);
+	});
+
+	test('allows free orbit for orbit preset', () => {
+		const result = createCamera(instance.scene, { preset: 'orbit' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerAlphaLimit).toBeNull();
+		expect(arc.upperAlphaLimit).toBeNull();
+	});
+
+	test('has standard radius and inertia for orbit', () => {
+		const result = createCamera(instance.scene, { preset: 'orbit' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.radius).toBe(80);
+		expect(arc.inertia).toBeCloseTo(0.7);
+	});
+
+	test('does not auto-rotate for non-orbit presets', () => {
+		const result = createCamera(instance.scene, { preset: 'hd2d' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.useAutoRotationBehavior).toBe(false);
+	});
+});
+
+// =============================================================================
+// Editor Preset — General-purpose level editor
+// =============================================================================
+
+describe('createCamera — editor preset', () => {
+	test('creates ArcRotateCamera with free orbit', () => {
+		const result = createCamera(instance.scene, { preset: 'editor' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.lowerAlphaLimit).toBeNull();
+		expect(arc.upperAlphaLimit).toBeNull();
+	});
+
+	test('has zero inertia for editor precision', () => {
+		const result = createCamera(instance.scene, { preset: 'editor' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.inertia).toBe(0);
+	});
+
+	test('has panning enabled for editor', () => {
+		const result = createCamera(instance.scene, { preset: 'editor' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.panningSensibility).toBe(50);
+	});
+});
+
+// =============================================================================
+// Map Editor Preset — RPG Maker-style (orthographic, north-up, pan-only)
+// =============================================================================
+
+describe('createCamera — mapeditor preset', () => {
+	test('creates ArcRotateCamera in orthographic mode', () => {
+		const result = createCamera(instance.scene, { preset: 'mapeditor' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.ArcRotateCamera);
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.mode).toBe(BABYLON.Camera.ORTHOGRAPHIC_CAMERA);
+	});
+
+	test('sets symmetric orthographic bounds', () => {
+		const result = createCamera(instance.scene, { preset: 'mapeditor' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		// Bounds should be set and symmetric
+		expect(arc.orthoLeft).toBeLessThan(0);
+		expect(arc.orthoRight).toBeGreaterThan(0);
+		expect(arc.orthoTop).toBeGreaterThan(0);
+		expect(arc.orthoBottom).toBeLessThan(0);
+		expect(arc.orthoLeft).toBe(-(arc.orthoRight as number));
+		expect(arc.orthoBottom).toBe(-(arc.orthoTop as number));
+	});
+
+	test('locks to top-down north-up view', () => {
+		const result = createCamera(instance.scene, { preset: 'mapeditor' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.beta).toBeCloseTo(0.01);
+		expect(arc.alpha).toBeCloseTo(0);
+		// Both alpha and beta locked
+		expect(arc.lowerAlphaLimit).toBeCloseTo(0);
+		expect(arc.upperAlphaLimit).toBeCloseTo(0);
+		expect(arc.lowerBetaLimit).toBeCloseTo(0.01);
+		expect(arc.upperBetaLimit).toBeCloseTo(0.01);
+	});
+
+	test('enables panning for tile map editing', () => {
+		const result = createCamera(instance.scene, { preset: 'mapeditor' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const arc = result.data as BABYLON.ArcRotateCamera;
+		expect(arc.panningSensibility).toBe(50);
+	});
+
+	test('has zero inertia for precise editing', () => {
+		const result = createCamera(instance.scene, { preset: 'mapeditor' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.inertia).toBe(0);
+	});
+});
+
+// =============================================================================
+// resetCamera
+// =============================================================================
+
+describe('resetCamera', () => {
+	test('resets ArcRotateCamera to preset defaults', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		// Mutate camera away from defaults
+		arc.alpha = 999;
+		arc.beta = 999;
+		arc.radius = 999;
+
+		const result = resetCamera({
+			scene: instance.scene,
+			camera: arc,
+			preset: 'hd2d',
+		});
+		expect(result.ok).toBeTruthy();
+		expect(arc.alpha).toBeCloseTo(Math.PI / 4);
+		expect(arc.beta).toBeCloseTo(Math.PI / 4);
+		expect(arc.radius).toBe(100);
+	});
+
+	test('resets to different preset', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		const result = resetCamera({
+			scene: instance.scene,
+			camera: arc,
+			preset: 'cinematic',
+		});
+		expect(result.ok).toBeTruthy();
+		expect(arc.alpha).toBeCloseTo(Math.PI / 6);
+		expect(arc.beta).toBeCloseTo(Math.PI / 3);
+		expect(arc.radius).toBe(40);
+	});
+
+	test('resets inertia and panning to preset defaults', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'free' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		// Mutate
+		arc.inertia = 0.99;
+		arc.panningSensibility = 999;
+
+		resetCamera({
+			scene: instance.scene,
+			camera: arc,
+			preset: 'free',
+		});
+
+		expect(arc.inertia).toBe(0);
+		expect(arc.panningSensibility).toBe(50);
+	});
+
+	test('resets FOV to preset default', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+
+		cameraResult.data.fov = 2.0;
+
+		resetCamera({
+			scene: instance.scene,
+			camera: cameraResult.data,
+			preset: 'panoramic',
+		});
+
+		expect(cameraResult.data.fov).toBeCloseTo(1.4);
 	});
 });

@@ -1,7 +1,7 @@
 /**
  * Camera controller.
  *
- * Creates and manages cameras for the WebForge runtime with 6 presets:
+ * Creates and manages cameras for the WebForge runtime with 16 presets:
  *
  * | Preset | Camera | Description |
  * |--------|--------|-------------|
@@ -11,6 +11,16 @@
  * | `firstperson` | UniversalCamera | FPS with WASD + mouse |
  * | `cinematic` | ArcRotateCamera | Low angle, wide FOV, heavy inertia |
  * | `free` | ArcRotateCamera | Unrestricted orbit, editor-like |
+ * | `isometric` | ArcRotateCamera | True isometric (35.264°), locked view |
+ * | `tactical` | ArcRotateCamera | Steep overhead, pan-enabled (SRPG) |
+ * | `thirdperson` | ArcRotateCamera | Close follow, free orbit |
+ * | `rts` | ArcRotateCamera | High up, pan-enabled battlefield view |
+ * | `dungeon` | ArcRotateCamera | Steep close overhead, locked |
+ * | `platformer` | ArcRotateCamera | Side-on, tight framing, narrow FOV |
+ * | `panoramic` | ArcRotateCamera | Far distance, ultra-wide FOV sweep |
+ * | `orbit` | ArcRotateCamera | Auto-rotating model showcase |
+ * | `editor` | ArcRotateCamera | Free orbit, zero inertia, panning |
+ * | `mapeditor` | ArcRotateCamera | Orthographic top-down, RPG Maker-style |
  *
  * Backward compatibility: legacy `mode` ('editor' / 'gameplay') maps to
  * 'free' / 'hd2d' presets when `preset` is not explicitly set.
@@ -89,7 +99,13 @@ type PresetDefaults = {
 	readonly fov: Num;
 	readonly lockAlpha: Bool;
 	readonly lockBeta: Bool;
+	readonly orthographic: Bool;
+	readonly autoRotate: Bool;
+	readonly orthoSize: Num;
 };
+
+/** True isometric angle: atan(1/√2) ≈ 35.264° from vertical. */
+const ISOMETRIC_BETA: Num = Math.atan(1 / Math.SQRT2) as Num;
 
 /** Preset default lookup table. */
 const PRESET_DEFAULTS: Record<CameraPreset, PresetDefaults> = {
@@ -104,6 +120,9 @@ const PRESET_DEFAULTS: Record<CameraPreset, PresetDefaults> = {
 		fov: 0.8,
 		lockAlpha: true,
 		lockBeta: false,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
 	},
 	topdown: {
 		alpha: 0,
@@ -116,6 +135,9 @@ const PRESET_DEFAULTS: Record<CameraPreset, PresetDefaults> = {
 		fov: 0.8,
 		lockAlpha: true,
 		lockBeta: true,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
 	},
 	sideview: {
 		alpha: Math.PI / 2,
@@ -128,6 +150,9 @@ const PRESET_DEFAULTS: Record<CameraPreset, PresetDefaults> = {
 		fov: 0.8,
 		lockAlpha: true,
 		lockBeta: true,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
 	},
 	firstperson: {
 		alpha: 0,
@@ -140,6 +165,9 @@ const PRESET_DEFAULTS: Record<CameraPreset, PresetDefaults> = {
 		fov: 1.2,
 		lockAlpha: false,
 		lockBeta: false,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
 	},
 	cinematic: {
 		alpha: Math.PI / 6,
@@ -152,6 +180,9 @@ const PRESET_DEFAULTS: Record<CameraPreset, PresetDefaults> = {
 		fov: 1.2,
 		lockAlpha: false,
 		lockBeta: false,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
 	},
 	free: {
 		alpha: Math.PI / 4,
@@ -164,6 +195,159 @@ const PRESET_DEFAULTS: Record<CameraPreset, PresetDefaults> = {
 		fov: 0.8,
 		lockAlpha: false,
 		lockBeta: false,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
+	},
+	isometric: {
+		alpha: Math.PI / 4,
+		beta: ISOMETRIC_BETA,
+		radius: 100,
+		lowerBetaLimit: ISOMETRIC_BETA,
+		upperBetaLimit: ISOMETRIC_BETA,
+		inertia: 0.5,
+		panningSensibility: 0,
+		fov: 0.8,
+		lockAlpha: true,
+		lockBeta: true,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
+	},
+	tactical: {
+		alpha: Math.PI / 4,
+		beta: Math.PI / 6,
+		radius: 120,
+		lowerBetaLimit: Math.PI / 8,
+		upperBetaLimit: Math.PI / 4,
+		inertia: 0.5,
+		panningSensibility: 50,
+		fov: 0.8,
+		lockAlpha: true,
+		lockBeta: false,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
+	},
+	thirdperson: {
+		alpha: 0,
+		beta: Math.PI / 3,
+		radius: 25,
+		lowerBetaLimit: Math.PI / 6,
+		upperBetaLimit: Math.PI / 2,
+		inertia: 0.85,
+		panningSensibility: 0,
+		fov: 0.9,
+		lockAlpha: false,
+		lockBeta: false,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
+	},
+	rts: {
+		alpha: Math.PI / 4,
+		beta: Math.PI / 5,
+		radius: 150,
+		lowerBetaLimit: Math.PI / 8,
+		upperBetaLimit: Math.PI / 3,
+		inertia: 0.3,
+		panningSensibility: 50,
+		fov: 0.8,
+		lockAlpha: true,
+		lockBeta: false,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
+	},
+	dungeon: {
+		alpha: Math.PI / 4,
+		beta: Math.PI / 8,
+		radius: 50,
+		lowerBetaLimit: Math.PI / 8,
+		upperBetaLimit: Math.PI / 8,
+		inertia: 0.5,
+		panningSensibility: 0,
+		fov: 0.8,
+		lockAlpha: true,
+		lockBeta: true,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
+	},
+	platformer: {
+		alpha: Math.PI / 2,
+		beta: Math.PI / 2,
+		radius: 50,
+		lowerBetaLimit: Math.PI / 2,
+		upperBetaLimit: Math.PI / 2,
+		inertia: 0.3,
+		panningSensibility: 0,
+		fov: 0.7,
+		lockAlpha: true,
+		lockBeta: true,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
+	},
+	panoramic: {
+		alpha: 0,
+		beta: Math.PI / 4,
+		radius: 200,
+		lowerBetaLimit: Math.PI / 8,
+		upperBetaLimit: Math.PI / 2,
+		inertia: 0.95,
+		panningSensibility: 0,
+		fov: 1.4,
+		lockAlpha: false,
+		lockBeta: false,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
+	},
+	orbit: {
+		alpha: 0,
+		beta: Math.PI / 4,
+		radius: 80,
+		lowerBetaLimit: Math.PI / 8,
+		upperBetaLimit: Math.PI / 2,
+		inertia: 0.7,
+		panningSensibility: 0,
+		fov: 0.8,
+		lockAlpha: false,
+		lockBeta: false,
+		orthographic: false,
+		autoRotate: true,
+		orthoSize: 20,
+	},
+	editor: {
+		alpha: Math.PI / 4,
+		beta: Math.PI / 4,
+		radius: 100,
+		lowerBetaLimit: Math.PI / 6,
+		upperBetaLimit: Math.PI / 2.5,
+		inertia: 0,
+		panningSensibility: 50,
+		fov: 0.8,
+		lockAlpha: false,
+		lockBeta: false,
+		orthographic: false,
+		autoRotate: false,
+		orthoSize: 20,
+	},
+	mapeditor: {
+		alpha: 0,
+		beta: 0.01,
+		radius: 100,
+		lowerBetaLimit: 0.01,
+		upperBetaLimit: 0.01,
+		inertia: 0,
+		panningSensibility: 50,
+		fov: 0.8,
+		lockAlpha: true,
+		lockBeta: true,
+		orthographic: true,
+		autoRotate: false,
+		orthoSize: 20,
 	},
 };
 
@@ -293,6 +477,19 @@ function createArcRotateCamera(
 
 	// Panning — explicit override wins, then preset default
 	camera.panningSensibility = cfg.panningSensibility ?? defaults.panningSensibility;
+
+	// Orthographic mode (mapeditor preset)
+	if (defaults.orthographic) {
+		camera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
+		const halfSize: Num = cfg.orthoSize;
+		camera.orthoLeft = -halfSize;
+		camera.orthoRight = halfSize;
+		camera.orthoTop = halfSize;
+		camera.orthoBottom = -halfSize;
+	}
+
+	// Auto-rotation behavior (orbit preset)
+	camera.useAutoRotationBehavior = defaults.autoRotate;
 
 	return okShallow(camera);
 }
@@ -746,6 +943,85 @@ export function switchCameraPreset(
 		};
 
 		return okShallow(handle);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// Reset Camera
+// =============================================================================
+
+/** Options for resetting a camera to preset defaults. */
+export type ResetCameraOptions = {
+	/** The Babylon.js scene. */
+	readonly scene: BABYLON.Scene;
+	/** The camera to reset. */
+	readonly camera: BABYLON.Camera;
+	/** Preset to reset to. */
+	readonly preset: CameraPreset;
+};
+
+/**
+ * Instantly resets a camera to preset defaults.
+ *
+ * Applies all preset default values (alpha, beta, radius, fov, inertia,
+ * panning, limits) without animation. Works for both ArcRotateCamera and
+ * UniversalCamera presets.
+ *
+ * @param options - Scene, camera, and target preset.
+ * @returns Result indicating success.
+ *
+ * @example
+ * ```typescript
+ * resetCamera({ scene, camera, preset: 'hd2d' });
+ * ```
+ */
+export function resetCamera(options: ResetCameraOptions): Result<Bool> {
+	const { camera, preset } = options;
+
+	try {
+		const defaults: PresetDefaults = PRESET_DEFAULTS[preset];
+
+		camera.fov = defaults.fov;
+		camera.inertia = defaults.inertia;
+
+		if (camera instanceof BABYLON.ArcRotateCamera) {
+			camera.alpha = defaults.alpha;
+			camera.beta = defaults.beta;
+			camera.radius = defaults.radius;
+			camera.panningSensibility = defaults.panningSensibility;
+
+			// Alpha limits
+			if (defaults.lockAlpha) {
+				camera.lowerAlphaLimit = defaults.alpha;
+				camera.upperAlphaLimit = defaults.alpha;
+			} else {
+				camera.lowerAlphaLimit = null;
+				camera.upperAlphaLimit = null;
+			}
+
+			// Beta limits
+			if (defaults.lockBeta) {
+				camera.lowerBetaLimit = defaults.beta;
+				camera.upperBetaLimit = defaults.beta;
+			} else {
+				camera.lowerBetaLimit = defaults.lowerBetaLimit;
+				camera.upperBetaLimit = defaults.upperBetaLimit;
+			}
+
+			// Orthographic mode
+			if (defaults.orthographic) {
+				camera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
+			} else {
+				camera.mode = BABYLON.Camera.PERSPECTIVE_CAMERA;
+			}
+
+			// Auto-rotation
+			camera.useAutoRotationBehavior = defaults.autoRotate;
+		}
+
+		return okUnchecked(true as Bool);
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
 	}
