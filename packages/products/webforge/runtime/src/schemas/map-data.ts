@@ -29,7 +29,8 @@ import * as v from 'valibot';
 
 import { LightingConfigSchema } from './lighting-config';
 import { PostProcessingConfigSchema } from './post-processing-config';
-import { SkyConfigSchema } from './sky-config';
+import { ColorRgbaSchema } from './scene-setup-config';
+import { BlendModeSchema, SkyConfigSchema } from './sky-config';
 
 // =============================================================================
 // Terrain Type
@@ -615,11 +616,135 @@ export type LayerType = v.InferOutput<typeof LayerTypeSchema>;
 // Tile Layer
 // =============================================================================
 
+// =============================================================================
+// Map Object Shape
+// =============================================================================
+
+/**
+ * Shape type picklist for map objects.
+ *
+ * Determines the geometric shape representation of an object on the map.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { MapObjectShapeSchema } from './map-data';
+ *
+ * const result = safeParse(MapObjectShapeSchema, 'rect');
+ * if (result.ok) {
+ *   result.data; // 'rect'
+ * }
+ * ```
+ */
+export const MapObjectShapeSchema = v.picklist(['rect', 'ellipse', 'point', 'polygon', 'polyline']);
+
+/** Map object geometric shape. */
+export type MapObjectShape = v.InferOutput<typeof MapObjectShapeSchema>;
+
+// =============================================================================
+// Draw Order
+// =============================================================================
+
+/**
+ * Draw order mode for object layers.
+ *
+ * - `'topdown'` — Objects are drawn from top to bottom by Y coordinate.
+ * - `'index'` — Objects are drawn in array index order.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { DrawOrderSchema } from './map-data';
+ *
+ * const result = safeParse(DrawOrderSchema, 'topdown');
+ * if (result.ok) {
+ *   result.data; // 'topdown'
+ * }
+ * ```
+ */
+export const DrawOrderSchema = v.picklist(['topdown', 'index']);
+
+/** Draw order mode. */
+export type DrawOrder = v.InferOutput<typeof DrawOrderSchema>;
+
+// =============================================================================
+// Map Object
+// =============================================================================
+
+/**
+ * Map object schema for object layers.
+ *
+ * Represents a positioned object on the map such as a spawn point, NPC,
+ * trigger zone, or any other non-tile entity.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { MapObjectSchema } from './map-data';
+ *
+ * const result = safeParse(MapObjectSchema, {
+ *   id: 'spawn-1',
+ *   x: 128,
+ *   y: 256,
+ *   name: 'Player Start',
+ *   shape: 'point',
+ * });
+ * if (result.ok) {
+ *   result.data.id;    // 'spawn-1'
+ *   result.data.shape; // 'point'
+ * }
+ * ```
+ */
+export const MapObjectSchema = v.strictObject({
+	/** Unique identifier for this object. */
+	id: v.pipe(v.string(), v.nonEmpty()),
+	/** Display name. */
+	name: v.optional(v.string(), ''),
+	/** Class name linking to a user-defined type template. */
+	class: v.optional(v.string(), ''),
+	/** X position in pixels. */
+	x: v.number(),
+	/** Y position in pixels. */
+	y: v.number(),
+	/** Object width in pixels (only meaningful for rect/ellipse shapes). */
+	width: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+	/** Object height in pixels (only meaningful for rect/ellipse shapes). */
+	height: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+	/** Rotation in degrees (0–360). */
+	rotation: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(360)), 0),
+	/** Geometric shape type. */
+	shape: v.optional(MapObjectShapeSchema, 'rect'),
+	/** Polygon/polyline vertex points. */
+	points: v.optional(
+		v.array(v.strictObject({ x: v.number(), y: v.number() })),
+		(): Array<{ x: number; y: number }> => [],
+	),
+	/** Whether this object is visible in the renderer. */
+	visible: v.optional(v.boolean(), true),
+	/** Custom properties for game logic. */
+	customProperties: v.optional(
+		v.record(v.string(), CustomPropertyValueSchema),
+		(): Record<string, CustomPropertyValue> => ({}),
+	),
+});
+
+/** Map object. */
+export type MapObject = v.InferOutput<typeof MapObjectSchema>;
+
+// =============================================================================
+// Tile Layer
+// =============================================================================
+
 /**
  * Tile layer schema.
  *
  * One layer of tile data in the map. The `data` array is a flat row-major
  * array of global tile IDs where 0 means empty/transparent.
+ *
+ * The `type` field accepts any non-empty string. The original 5 preset values
+ * (`'ground'`, `'ground_deco'`, `'upper1'`, `'upper2'`, `'shadow'`) are still
+ * available via {@link LayerTypeSchema} for reference, but custom types are
+ * now supported for user-defined layer categories.
  *
  * @example
  * ```typescript
@@ -634,11 +759,17 @@ export type LayerType = v.InferOutput<typeof LayerTypeSchema>;
  * ```
  */
 export const TileLayerSchema = v.strictObject({
+	/** Layer kind discriminant. Defaults to `'tile'` for backward compatibility. */
+	kind: v.optional(v.literal('tile'), 'tile'),
+
 	/** Layer name (for editor display and identification). */
 	name: v.pipe(v.string(), v.minLength(1)),
 
-	/** Layer type determines render order and height offset. */
-	type: LayerTypeSchema,
+	/**
+	 * Layer type determines render order and height offset.
+	 * Accepts any non-empty string — the 5 preset types are still recommended.
+	 */
+	type: v.pipe(v.string(), v.minLength(1)),
 
 	/**
 	 * Flat row-major array of global tile IDs.
@@ -651,10 +782,213 @@ export const TileLayerSchema = v.strictObject({
 
 	/** Layer opacity (0 = fully transparent, 1 = fully opaque). */
 	opacity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 1),
+
+	// Visual properties
+	/** Tint color applied to the layer. */
+	tintColor: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+	/** Brightness adjustment (-1 to 1). 0 = no change. */
+	brightness: v.optional(v.pipe(v.number(), v.minValue(-1), v.maxValue(1)), 0),
+	/** Saturation multiplier (0 to 2). 1 = no change. */
+	saturation: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 1),
+	/** Contrast multiplier (0 to 2). 1 = no change. */
+	contrast: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 1),
+
+	// Transform
+	/** Horizontal pixel offset. */
+	offsetX: v.optional(v.number(), 0),
+	/** Vertical pixel offset. */
+	offsetY: v.optional(v.number(), 0),
+	/** Parallax scroll factor X (1 = normal scroll, 0 = fixed). */
+	parallaxFactorX: v.optional(v.number(), 1),
+	/** Parallax scroll factor Y (1 = normal scroll, 0 = fixed). */
+	parallaxFactorY: v.optional(v.number(), 1),
+	/** Parallax origin X in pixels. */
+	parallaxOriginX: v.optional(v.number(), 0),
+	/** Parallax origin Y in pixels. */
+	parallaxOriginY: v.optional(v.number(), 0),
+	/** Horizontal scale factor (0.1 to 10). */
+	scaleX: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(10)), 1),
+	/** Vertical scale factor (0.1 to 10). */
+	scaleY: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(10)), 1),
+
+	// Rendering
+	/** Explicit render order (integer). Higher values draw later. */
+	renderOrder: v.optional(v.pipe(v.number(), v.integer()), 0),
+	/** Whether this layer casts shadows. */
+	castShadows: v.optional(v.boolean(), false),
+	/** Whether this layer receives shadows. */
+	receiveShadows: v.optional(v.boolean(), true),
+	/** Whether this layer writes to the depth buffer. */
+	depthWrite: v.optional(v.boolean(), true),
+	/** Name of a mask layer controlling visibility. */
+	maskLayer: v.optional(v.string(), ''),
+	/** Extra tile padding for frustum culling (0–16). */
+	cullingPadding: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(16)), 0),
+	/** Whether Y-sort is enabled for this layer. */
+	ySortEnabled: v.optional(v.boolean(), false),
+	/** Blend mode for compositing. */
+	blendMode: v.optional(BlendModeSchema, 'alpha'),
+
+	// Editor
+	/** Whether this layer is locked in the editor. */
+	locked: v.optional(v.boolean(), false),
+	/** Whether this layer is collapsed in the editor panel. */
+	collapsed: v.optional(v.boolean(), false),
+	/** Editor color tag (hex string or empty). */
+	color: v.optional(v.string(), ''),
 });
 
 /** Tile layer. */
 export type TileLayer = v.InferOutput<typeof TileLayerSchema>;
+
+// =============================================================================
+// Object Layer
+// =============================================================================
+
+/**
+ * Object layer schema for non-tile entities.
+ *
+ * Contains positioned objects such as spawn points, NPCs, trigger zones,
+ * and other map entities that are not part of the tile grid.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { ObjectLayerSchema } from './map-data';
+ *
+ * const result = safeParse(ObjectLayerSchema, {
+ *   kind: 'object',
+ *   name: 'npcs',
+ *   objects: [{ id: 'npc-1', x: 128, y: 256 }],
+ * });
+ * ```
+ */
+export const ObjectLayerSchema = v.strictObject({
+	/** Layer kind discriminant. Must be `'object'`. */
+	kind: v.literal('object'),
+	/** Layer name (for editor display and identification). */
+	name: v.pipe(v.string(), v.minLength(1)),
+	/** Objects contained in this layer. */
+	objects: v.optional(v.array(MapObjectSchema), (): MapObject[] => []),
+	/** Draw order mode for objects. */
+	drawOrder: v.optional(DrawOrderSchema, 'topdown'),
+	/** Whether this layer is visible in the renderer. */
+	visible: v.optional(v.boolean(), true),
+	/** Layer opacity (0 = fully transparent, 1 = fully opaque). */
+	opacity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 1),
+	/** Tint color applied to the layer. */
+	tintColor: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+	/** Brightness adjustment (-1 to 1). 0 = no change. */
+	brightness: v.optional(v.pipe(v.number(), v.minValue(-1), v.maxValue(1)), 0),
+	/** Saturation multiplier (0 to 2). 1 = no change. */
+	saturation: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 1),
+	/** Contrast multiplier (0 to 2). 1 = no change. */
+	contrast: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 1),
+	/** Horizontal pixel offset. */
+	offsetX: v.optional(v.number(), 0),
+	/** Vertical pixel offset. */
+	offsetY: v.optional(v.number(), 0),
+	/** Whether this layer is locked in the editor. */
+	locked: v.optional(v.boolean(), false),
+});
+
+/** Object layer. */
+export type ObjectLayer = v.InferOutput<typeof ObjectLayerSchema>;
+
+// =============================================================================
+// Group Layer
+// =============================================================================
+
+/**
+ * Group layer schema for organizing layers into hierarchical folders.
+ *
+ * Contains child layers of any kind (tile, object, or group), enabling
+ * recursive nesting for complex map organization. Uses `v.lazy` for
+ * the recursive `children` reference to {@link LayerSchema}.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { GroupLayerSchema } from './map-data';
+ *
+ * const result = safeParse(GroupLayerSchema, {
+ *   kind: 'group',
+ *   name: 'Buildings',
+ *   children: [
+ *     { name: 'walls', type: 'upper1', data: [1, 2, 3] },
+ *     { kind: 'object', name: 'doors', objects: [] },
+ *   ],
+ * });
+ * ```
+ */
+export const GroupLayerSchema = v.strictObject({
+	/** Layer kind discriminant. Must be `'group'`. */
+	kind: v.literal('group'),
+	/** Layer name (for editor display and identification). */
+	name: v.pipe(v.string(), v.minLength(1)),
+	/** Child layers (recursive — can contain any layer kind). */
+	children: v.optional(
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define -- recursive reference via v.lazy
+		v.array(v.lazy((): v.GenericSchema => LayerSchema)),
+		(): unknown[] => [],
+	),
+	/** Whether this layer group is visible in the renderer. */
+	visible: v.optional(v.boolean(), true),
+	/** Group opacity (0 = fully transparent, 1 = fully opaque). */
+	opacity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 1),
+	/** Tint color applied to the group. */
+	tintColor: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+	/** Brightness adjustment (-1 to 1). 0 = no change. */
+	brightness: v.optional(v.pipe(v.number(), v.minValue(-1), v.maxValue(1)), 0),
+	/** Saturation multiplier (0 to 2). 1 = no change. */
+	saturation: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 1),
+	/** Contrast multiplier (0 to 2). 1 = no change. */
+	contrast: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 1),
+	/** Horizontal pixel offset. */
+	offsetX: v.optional(v.number(), 0),
+	/** Vertical pixel offset. */
+	offsetY: v.optional(v.number(), 0),
+	/** Whether this layer group is locked in the editor. */
+	locked: v.optional(v.boolean(), false),
+});
+
+/** Group layer. */
+export type GroupLayer = v.InferOutput<typeof GroupLayerSchema>;
+
+// =============================================================================
+// Layer Schema (Discriminated Union)
+// =============================================================================
+
+/**
+ * Discriminated union of all layer kinds.
+ *
+ * Uses `v.union` to try each schema in order:
+ * 1. ObjectLayerSchema (requires `kind: 'object'`)
+ * 2. GroupLayerSchema (requires `kind: 'group'`)
+ * 3. TileLayerSchema (fallback — `kind` defaults to `'tile'`)
+ *
+ * This ordering ensures backward compatibility: existing tile layers
+ * without a `kind` field are parsed as TileLayerSchema.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { LayerSchema, type Layer } from './map-data';
+ *
+ * // Tile layer (backward compat, no kind)
+ * const tile = safeParse(LayerSchema, { name: 'ground', type: 'ground', data: [1] });
+ *
+ * // Object layer
+ * const obj = safeParse(LayerSchema, { kind: 'object', name: 'npcs', objects: [] });
+ *
+ * // Group layer
+ * const grp = safeParse(LayerSchema, { kind: 'group', name: 'world', children: [] });
+ * ```
+ */
+export const LayerSchema = v.union([ObjectLayerSchema, GroupLayerSchema, TileLayerSchema]);
+
+/** Any layer kind (tile, object, or group). */
+export type Layer = v.InferOutput<typeof LayerSchema>;
 
 // =============================================================================
 // Map Data
@@ -706,8 +1040,8 @@ export const MapDataSchema = v.strictObject({
 	/** Ordered tileset configurations (at least one required). */
 	tilesets: v.pipe(v.array(TilesetConfigSchema), v.minLength(1)),
 
-	/** Ordered tile layers (render order = array order, at least one required). */
-	layers: v.pipe(v.array(TileLayerSchema), v.minLength(1)),
+	/** Ordered layers (render order = array order, at least one required). */
+	layers: v.pipe(v.array(LayerSchema), v.minLength(1)),
 
 	/**
 	 * Per-tile height map. Flat row-major array (length = width × height).

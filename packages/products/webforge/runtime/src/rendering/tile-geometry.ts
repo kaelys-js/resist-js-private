@@ -22,10 +22,9 @@
 import * as v from 'valibot';
 
 import { ERRORS, err } from '@/schemas/result/result';
-import type { Num } from '@/schemas/common';
+import type { Num, Str } from '@/schemas/common';
 
 import { okShallow, type BabylonResult } from '../core/babylon-result';
-import type { LayerType } from '../schemas/map-data';
 
 // =============================================================================
 // Types
@@ -154,9 +153,10 @@ export type WallFaceOptions = v.InferOutput<typeof WallFaceOptionsSchema>;
 /**
  * Micro Y-offsets per layer type to prevent Z-fighting between overlapping layers.
  *
- * Values are in world units (fractions of tile height).
+ * Values are in world units (fractions of tile height). The 5 preset layer types
+ * have predefined offsets; custom layer types will fall back to 0 via `?? 0`.
  */
-export const LAYER_Y_OFFSETS: Readonly<Record<LayerType, Num>> = {
+export const LAYER_Y_OFFSETS: Readonly<Record<Str, Num>> = {
 	ground: 0.0,
 	ground_deco: 0.001,
 	upper1: 0.002,

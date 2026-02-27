@@ -11,7 +11,7 @@ import type { Num } from '@/schemas/common';
 
 import { createTestEngine, disposeEngine, type BabylonEngineInstance } from '../core/engine';
 import type { BabylonResult } from '../core/babylon-result';
-import type { MapData, TilesetConfig } from '../schemas/map-data';
+import type { MapData, TileLayer, TilesetConfig } from '../schemas/map-data';
 import { computeTileUVs, type LoadedTileset } from './tileset-loader';
 import type { TileUV } from './tile-geometry';
 import {
@@ -71,6 +71,54 @@ function makeConfig(name: string, firstGid: Num, columns: Num, rows: Num): Tiles
 		animationSpeed: 4,
 		tileProperties: {},
 	};
+}
+
+/** Default tile layer properties for test fixtures. */
+const TILE_LAYER_DEFAULTS: Omit<TileLayer, 'name' | 'type' | 'data'> = {
+	kind: 'tile',
+	visible: true,
+	opacity: 1,
+	tintColor: { r: 1, g: 1, b: 1, a: 1 },
+	brightness: 0,
+	saturation: 1,
+	contrast: 1,
+	offsetX: 0,
+	offsetY: 0,
+	parallaxFactorX: 1,
+	parallaxFactorY: 1,
+	parallaxOriginX: 0,
+	parallaxOriginY: 0,
+	scaleX: 1,
+	scaleY: 1,
+	renderOrder: 0,
+	castShadows: false,
+	receiveShadows: true,
+	depthWrite: true,
+	maskLayer: '',
+	cullingPadding: 0,
+	ySortEnabled: false,
+	blendMode: 'alpha',
+	locked: false,
+	collapsed: false,
+	color: '',
+};
+
+/**
+ * Creates a complete TileLayer with all defaults filled.
+ *
+ * @param name - Layer name
+ * @param type - Layer type
+ * @param data - Tile data array
+ * @param overrides - Optional overrides for defaults
+ * @returns Complete TileLayer
+ */
+function makeTileLayer(
+	name: string,
+	type: string,
+	data: readonly number[],
+	overrides?: Partial<TileLayer>,
+): TileLayer {
+	return { ...TILE_LAYER_DEFAULTS, name, type, data: [...data], ...overrides };
 }
 
 /**
@@ -146,13 +194,11 @@ describe('buildChunk', () => {
 			tileHeight: 48,
 			tilesets: [config],
 			layers: [
-				{
-					name: 'ground',
-					type: 'ground',
-					data: Array.from({ length: 16 }, () => 1),
-					visible: true,
-					opacity: 1,
-				},
+				makeTileLayer(
+					'ground',
+					'ground',
+					Array.from({ length: 16 }, () => 1),
+				),
 			],
 		};
 		const ctx: ChunkBuildContext = makeContext(scene, mapData, tilesets, 4);
@@ -182,13 +228,11 @@ describe('buildChunk', () => {
 			tileHeight: 48,
 			tilesets: [config],
 			layers: [
-				{
-					name: 'ground',
-					type: 'ground',
-					data: Array.from({ length: 16 }, () => 0),
-					visible: true,
-					opacity: 1,
-				},
+				makeTileLayer(
+					'ground',
+					'ground',
+					Array.from({ length: 16 }, () => 0),
+				),
 			],
 		};
 		const ctx: ChunkBuildContext = makeContext(scene, mapData, tilesets, 4);
@@ -220,7 +264,7 @@ describe('buildChunk', () => {
 			tileWidth: 48,
 			tileHeight: 48,
 			tilesets: [config],
-			layers: [{ name: 'ground', type: 'ground', data, visible: true, opacity: 1 }],
+			layers: [makeTileLayer('ground', 'ground', data)],
 		};
 		const ctx: ChunkBuildContext = makeContext(scene, mapData, tilesets, 4);
 
@@ -248,13 +292,11 @@ describe('buildChunk', () => {
 			tileHeight: 48,
 			tilesets: [config],
 			layers: [
-				{
-					name: 'ground',
-					type: 'ground',
-					data: Array.from({ length: 16 }, () => 1),
-					visible: true,
-					opacity: 1,
-				},
+				makeTileLayer(
+					'ground',
+					'ground',
+					Array.from({ length: 16 }, () => 1),
+				),
 			],
 		};
 		const ctx: ChunkBuildContext = makeContext(scene, mapData, tilesets, 4);
@@ -285,13 +327,11 @@ describe('buildChunk', () => {
 			tileHeight: 48,
 			tilesets: [config],
 			layers: [
-				{
-					name: 'upper1',
-					type: 'upper1',
-					data: Array.from({ length: 64 }, () => 1),
-					visible: true,
-					opacity: 1,
-				},
+				makeTileLayer(
+					'upper1',
+					'upper1',
+					Array.from({ length: 64 }, () => 1),
+				),
 			],
 		};
 		const ctx: ChunkBuildContext = makeContext(scene, mapData, tilesets, 4);
@@ -328,13 +368,11 @@ describe('buildCliffChunk', () => {
 			tileHeight: 48,
 			tilesets: [config],
 			layers: [
-				{
-					name: 'ground',
-					type: 'ground',
-					data: Array.from({ length: 16 }, () => 1),
-					visible: true,
-					opacity: 1,
-				},
+				makeTileLayer(
+					'ground',
+					'ground',
+					Array.from({ length: 16 }, () => 1),
+				),
 			],
 			heightMap,
 		};
@@ -363,13 +401,11 @@ describe('buildCliffChunk', () => {
 			tileHeight: 48,
 			tilesets: [config],
 			layers: [
-				{
-					name: 'ground',
-					type: 'ground',
-					data: Array.from({ length: 16 }, () => 1),
-					visible: true,
-					opacity: 1,
-				},
+				makeTileLayer(
+					'ground',
+					'ground',
+					Array.from({ length: 16 }, () => 1),
+				),
 			],
 			heightMap: Array.from({ length: 16 }, () => 0),
 		};
@@ -396,13 +432,11 @@ describe('buildCliffChunk', () => {
 			tileHeight: 48,
 			tilesets: [config],
 			layers: [
-				{
-					name: 'ground',
-					type: 'ground',
-					data: Array.from({ length: 16 }, () => 1),
-					visible: true,
-					opacity: 1,
-				},
+				makeTileLayer(
+					'ground',
+					'ground',
+					Array.from({ length: 16 }, () => 1),
+				),
 			],
 		};
 		const ctx: ChunkBuildContext = makeContext(scene, mapData, tilesets, 4);
@@ -434,13 +468,11 @@ describe('rebuildChunk', () => {
 			tileHeight: 48,
 			tilesets: [config],
 			layers: [
-				{
-					name: 'ground',
-					type: 'ground',
-					data: Array.from({ length: 16 }, () => 1),
-					visible: true,
-					opacity: 1,
-				},
+				makeTileLayer(
+					'ground',
+					'ground',
+					Array.from({ length: 16 }, () => 1),
+				),
 			],
 		};
 		const ctx: ChunkBuildContext = makeContext(scene, mapData, tilesets, 4);
@@ -487,13 +519,12 @@ describe('rebuildChunk', () => {
 			tileHeight: 48,
 			tilesets: [config],
 			layers: [
-				{
-					name: 'ground',
-					type: 'ground',
-					data: Array.from({ length: 16 }, () => 1),
-					visible: false,
-					opacity: 1,
-				},
+				makeTileLayer(
+					'ground',
+					'ground',
+					Array.from({ length: 16 }, () => 1),
+					{ visible: false },
+				),
 			],
 		};
 		const ctx: ChunkBuildContext = makeContext(scene, mapData, tilesets, 4);
@@ -520,13 +551,12 @@ describe('rebuildChunk', () => {
 			tileHeight: 48,
 			tilesets: [config],
 			layers: [
-				{
-					name: 'ground',
-					type: 'ground',
-					data: Array.from({ length: 16 }, () => 1),
-					visible: true,
-					opacity: 0.5,
-				},
+				makeTileLayer(
+					'ground',
+					'ground',
+					Array.from({ length: 16 }, () => 1),
+					{ opacity: 0.5 },
+				),
 			],
 		};
 		const ctx: ChunkBuildContext = makeContext(scene, mapData, tilesets, 4);
@@ -555,13 +585,11 @@ describe('rebuildChunk', () => {
 			tileHeight: 48,
 			tilesets: [config],
 			layers: [
-				{
-					name: 'ground',
-					type: 'ground',
-					data: Array.from({ length: 16 }, () => 1),
-					visible: true,
-					opacity: 1,
-				},
+				makeTileLayer(
+					'ground',
+					'ground',
+					Array.from({ length: 16 }, () => 1),
+				),
 			],
 		};
 		const ctx: ChunkBuildContext = makeContext(scene, mapData, tilesets, 4);

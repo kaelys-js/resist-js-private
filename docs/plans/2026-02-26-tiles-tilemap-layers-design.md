@@ -1,8 +1,25 @@
 # Tiles, Tilemap & Layers Expansion Design
 
 **Date:** 2026-02-26
-**Status:** Approved
+**Status:** In Progress
 **Scope:** Full expansion of tile properties, layer system, autotile, animation, and supporting systems (water, fog of war, pathfinding, map properties)
+
+### Progress
+
+| # | Section | Status |
+|---|---------|--------|
+| 1 | Layer System Expansion | **In Progress** (Task 7 done: discriminated union) |
+| 2 | Tile Properties & Flags | **Done** (Tasks 1-6: passability, terrain, flags, collision, custom props, animation defs) |
+| 3 | Tile Flip/Rotate | Pending |
+| 4 | Per-Tile Visual Overrides | Pending |
+| 5 | Animated Tiles (Runtime) | Pending |
+| 6 | Native Autotile System | Pending |
+| 7 | Tileset Normal & Emission Maps | Pending |
+| 8 | Water/Liquid Tiles | Pending |
+| 9 | Fog of War | Pending |
+| 10 | Map-Level Properties | Pending |
+| 11 | Pathfinding Integration | Pending |
+| 12 | Procedural Tile Helpers | Pending |
 
 ---
 

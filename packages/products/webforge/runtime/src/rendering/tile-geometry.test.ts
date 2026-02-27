@@ -9,6 +9,8 @@
 
 import { describe, expect, test } from 'vitest';
 
+import type { Num } from '@/schemas/common';
+
 import type { BabylonResult } from '../core/babylon-result';
 
 import {
@@ -484,20 +486,39 @@ describe('mergeTileVertexData', () => {
 // =============================================================================
 
 describe('LAYER_Y_OFFSETS', () => {
+	test('has all 5 preset layer types', () => {
+		expect(LAYER_Y_OFFSETS.ground).toBeDefined();
+		expect(LAYER_Y_OFFSETS.ground_deco).toBeDefined();
+		expect(LAYER_Y_OFFSETS.upper1).toBeDefined();
+		expect(LAYER_Y_OFFSETS.upper2).toBeDefined();
+		expect(LAYER_Y_OFFSETS.shadow).toBeDefined();
+	});
+
 	test('ground is 0', () => {
 		expect(LAYER_Y_OFFSETS.ground).toBe(0);
 	});
 
 	test('ground_deco is above ground', () => {
-		expect(LAYER_Y_OFFSETS.ground_deco).toBeGreaterThan(LAYER_Y_OFFSETS.ground);
+		const ground: Num = LAYER_Y_OFFSETS.ground ?? 0;
+		const groundDeco: Num = LAYER_Y_OFFSETS.ground_deco ?? 0;
+		expect(groundDeco).toBeGreaterThan(ground);
 	});
 
 	test('upper layers are above ground_deco', () => {
-		expect(LAYER_Y_OFFSETS.upper1).toBeGreaterThan(LAYER_Y_OFFSETS.ground_deco);
-		expect(LAYER_Y_OFFSETS.upper2).toBeGreaterThan(LAYER_Y_OFFSETS.upper1);
+		const groundDeco: Num = LAYER_Y_OFFSETS.ground_deco ?? 0;
+		const upper1: Num = LAYER_Y_OFFSETS.upper1 ?? 0;
+		const upper2: Num = LAYER_Y_OFFSETS.upper2 ?? 0;
+		expect(upper1).toBeGreaterThan(groundDeco);
+		expect(upper2).toBeGreaterThan(upper1);
 	});
 
 	test('shadow is below ground', () => {
-		expect(LAYER_Y_OFFSETS.shadow).toBeLessThan(LAYER_Y_OFFSETS.ground);
+		const ground: Num = LAYER_Y_OFFSETS.ground ?? 0;
+		const shadow: Num = LAYER_Y_OFFSETS.shadow ?? 0;
+		expect(shadow).toBeLessThan(ground);
+	});
+
+	test('returns undefined for unknown layer types', () => {
+		expect(LAYER_Y_OFFSETS.customLayer).toBeUndefined();
 	});
 });
