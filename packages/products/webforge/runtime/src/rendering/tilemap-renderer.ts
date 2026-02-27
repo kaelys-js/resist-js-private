@@ -635,6 +635,26 @@ export function updateTile(options: UpdateTileOptions): BabylonResult<RenderedTi
 		if (rebuildResult.data) {
 			// Preserve rendering group from the original tilemap setup
 			rebuildResult.data.mesh.renderingGroupId = 2;
+
+			// Restore opaque material for ground layers (mirrors renderTilemap step 10c).
+			// rebuildChunk assigns from tilemap.materials (alpha-test); ground layers need
+			// the opaque variant to prevent the fill plane bleeding through tile edges.
+			const rebuiltLayer = updatedMapData.layers[layerIndex];
+			if (
+				rebuiltLayer &&
+				rebuiltLayer.kind === 'tile' &&
+				rebuiltLayer.type === 'ground' &&
+				rebuildResult.data.mesh.material
+			) {
+				for (let mi: Num = 0; mi < tilemap.materials.length; mi++) {
+					const opaqueMat: BABYLON.StandardMaterial | undefined = tilemap.opaqueMaterials[mi];
+					if (rebuildResult.data.mesh.material === tilemap.materials[mi] && opaqueMat) {
+						rebuildResult.data.mesh.material = opaqueMat;
+						break;
+					}
+				}
+			}
+
 			updatedChunks.push(rebuildResult.data);
 		}
 
