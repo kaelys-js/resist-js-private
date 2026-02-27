@@ -69,7 +69,7 @@ export type ParallaxInstance = {
 	readonly autoScrollAccum: Array<{ u: Num; v: Num }>;
 	/** Per-frame observer for UV offset updates (null if no layers). */
 	readonly observer: BABYLON.Observer<BABYLON.Scene> | null;
-	/** Observer that manually renders background layers before the tilemap group. */
+	/** Observer that renders background layers between sky and tilemap groups. */
 	readonly renderGroupObserver: BABYLON.Observer<BABYLON.RenderingGroupInfo> | null;
 	/** The scene this parallax belongs to. */
 	readonly scene: BABYLON.Scene;
@@ -303,11 +303,8 @@ export function createParallax(options: {
 			});
 		}
 
-		// Register observer to manually render background parallax layers
-		// AFTER the sky rendering group (group 0). Using onAfterRenderingGroup
-		// for group 0 ensures the parallax always renders even when the tilemap
-		// (group 2) has no visible meshes. This places parallax visually between
-		// the sky (group 0) and the tilemap (group 2).
+		// Render background parallax layers after sky group (0), before tilemap
+		// group (2). This places parallax visually between sky and tilemap.
 		let renderGroupObserver: BABYLON.Observer<BABYLON.RenderingGroupInfo> | null = null;
 		const backgroundLayers: BABYLON.Layer[] = bgLayers.filter(
 			(_, idx) => sortedLayers[idx]?.layerType !== 'foreground',
