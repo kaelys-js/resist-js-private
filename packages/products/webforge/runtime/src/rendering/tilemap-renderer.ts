@@ -280,6 +280,9 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 
 		// 10b. Set renderingGroupId = 2 on tilemap meshes so parallax
 		// (group 1) renders behind them and sky (group 0) behind both.
+		// Disable auto depth/stencil clear for group 2 so shadows and
+		// depth testing remain continuous from group 0.
+		scene.setRenderingAutoClearDepthStencil(2, false, false, false);
 		for (const chunk of chunks) {
 			chunk.mesh.renderingGroupId = 2;
 		}
