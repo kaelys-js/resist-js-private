@@ -2735,20 +2735,25 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		addBtn.className = 'btn btn-wide';
 		addBtn.textContent = 'Add Layer';
 		addBtn.addEventListener('click', () => {
-			const layerResult = addParallaxLayer(parallax, {
-				imagePath: '/parallax-mountains.png',
-				scrollSpeedX: 0.1,
-				scrollSpeedY: 0,
-				opacity: 0.8,
-				scale: 1,
-				depth: parallax.layers.length,
-				type: 'background',
-				autoScrollX: 0.05,
-				autoScrollY: 0,
-				blendMode: 'alpha',
-				tint: { r: 1, g: 1, b: 1, a: 1 },
-				tileX: true,
-				tileY: false,
+			const layerResult = addParallaxLayer({
+				parallax,
+				assetBasePath: '/',
+				layer: {
+					imagePath: 'bg/mountains.png',
+					scrollSpeedX: 0.1,
+					scrollSpeedY: 0,
+					opacity: 0.8,
+					scale: 1,
+					depth: parallax.layers.length,
+					layerType: 'background',
+					autoScrollX: 0.05,
+					autoScrollY: 0,
+					blendMode: 'alpha',
+					tint: { r: 1, g: 1, b: 1, a: 1 },
+					tileX: true,
+					tileY: false,
+					offsetY: 0,
+				},
 			});
 			if (layerResult.ok) rebuildParallaxControls();
 		});
@@ -2759,7 +2764,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		removeBtn.addEventListener('click', () => {
 			if (parallax.layers.length === 0) return;
 			const idx = parallax.layers.length - 1;
-			const removeResult = removeParallaxLayer(parallax, idx as Num);
+			const removeResult = removeParallaxLayer({ parallax, index: idx as Num });
 			if (removeResult.ok) rebuildParallaxControls();
 		});
 
@@ -2782,7 +2787,7 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 
 		const shortPath =
 			layer.imagePath.length > 20 ? `...${layer.imagePath.slice(-17)}` : layer.imagePath;
-		const layerType: string = layer.type ?? 'background';
+		const layerType: string = layer.layerType ?? 'background';
 
 		// Collapsible sub-section per layer (collapsed by default)
 		const section = document.createElement('div');
@@ -2929,8 +2934,7 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 				layer.blendMode ?? 'alpha',
 				(val) => {
 					layer.blendMode = val;
-					const mapped = mapBlendMode(val);
-					if (mapped.ok) bgLayer.alphaBlendingMode = mapped.data;
+					bgLayer.alphaBlendingMode = mapBlendMode(val);
 				},
 				`parallax-${String(i)}-blend`,
 			),
@@ -2952,7 +2956,7 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 						b: layer.tint?.b ?? 1,
 						a: layer.tint?.a ?? 1,
 					};
-					setParallaxLayerTint(parallax, i as Num, newTint);
+					setParallaxLayerTint({ parallax, index: i as Num, tint: newTint });
 				},
 				`parallax-${String(i)}-tint-r`,
 			),
@@ -2971,7 +2975,7 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 						b: layer.tint?.b ?? 1,
 						a: layer.tint?.a ?? 1,
 					};
-					setParallaxLayerTint(parallax, i as Num, newTint);
+					setParallaxLayerTint({ parallax, index: i as Num, tint: newTint });
 				},
 				`parallax-${String(i)}-tint-g`,
 			),
@@ -2990,7 +2994,7 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 						b: v,
 						a: layer.tint?.a ?? 1,
 					};
-					setParallaxLayerTint(parallax, i as Num, newTint);
+					setParallaxLayerTint({ parallax, index: i as Num, tint: newTint });
 				},
 				`parallax-${String(i)}-tint-b`,
 			),
@@ -3002,10 +3006,20 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 		fadeBtn.textContent = 'Fade In/Out';
 		fadeBtn.title = 'Fade opacity to 0 over 1s, then back to 1';
 		fadeBtn.addEventListener('click', () => {
-			const fadeResult = fadeLayerOpacity(parallax, i as Num, 0 as Num, 1000 as Num);
+			const fadeResult = fadeLayerOpacity({
+				parallax,
+				index: i as Num,
+				target: 0 as Num,
+				durationMs: 1000 as Num,
+			});
 			if (fadeResult.ok) {
 				setTimeout(() => {
-					fadeLayerOpacity(parallax, i as Num, 1 as Num, 1000 as Num);
+					fadeLayerOpacity({
+						parallax,
+						index: i as Num,
+						target: 1 as Num,
+						durationMs: 1000 as Num,
+					});
 				}, 1100);
 			}
 		});
