@@ -17,6 +17,7 @@ import {
 	createRuntime,
 	disposeRuntime,
 	startRenderLoop,
+	registerResizeHandler,
 	switchCameraPreset,
 	rotateTactics,
 	screenShake,
@@ -93,11 +94,36 @@ type EffectColor = { r: number; g: number; b: number; a: number };
 // State
 // =============================================================================
 
-let _currentPreset = 'free';
+let _currentPreset = 'mapeditor';
 let selectedEffectColor = 'white';
 let _firstPersonCam: BABYLON.UniversalCamera | null = null;
 let _isFirstPerson = false;
 let _lastFadeOutHandle: { dispose: () => void } | null = null;
+
+// -- Map Editor camera state --
+const MAP_MIN = 0;
+const MAP_MAX = 32;
+const MAP_SIZE: number = MAP_MAX - MAP_MIN;
+const ORTHO_MIN = 3;
+const ZOOM_FACTOR = 1.08;
+const _heldKeys = new Set<string>();
+let _orthoSize: number = MAP_SIZE / 2;
+let _savedClearColor: BABYLON.Color4 | null = null;
+
+/**
+ * Computes the maximum ortho size so the map exactly fills the viewport
+ * along the tighter axis (no gap visible). Mirrors RPG Maker MV behavior.
+ *
+ * @param cam - The ArcRotateCamera.
+ * @param scene - The active Babylon scene.
+ * @returns The maximum orthographic half-height.
+ */
+function computeOrthoMax(): number {
+	// Fixed at MAP_SIZE/2 so the full map always fits vertically (screen up/down = X axis).
+	// For wide viewports a narrow dark strip appears on the sides at max zoom-out;
+	// it disappears as soon as the user zooms in. No scrollbars at max zoom.
+	return MAP_SIZE / 2;
+}
 
 // -- Tile Inspector selected tile state --
 let _selectedTileset: LoadedTileset | null = null;
@@ -488,14 +514,53 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		// Handle orthographic mode switching for mapeditor
 		if (preset === 'mapeditor') {
 			arcCam.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
-			const orthoSize = 20;
-			arcCam.orthoLeft = -orthoSize;
-			arcCam.orthoRight = orthoSize;
-			arcCam.orthoTop = orthoSize;
-			arcCam.orthoBottom = -orthoSize;
+			_orthoSize = computeOrthoMax();
+			applyOrthoBounds(arcCam, scene);
+
+			// Detach Babylon's wheel input (we use custom zoom)
+			const wheelInput = arcCam.inputs.attached['mousewheel'];
+			if (wheelInput) wheelInput.detachControl();
+			// Disable Babylon's right-click panning (we handle all panning)
+			arcCam.panningSensibility = 0;
+
+			// Center camera on map
+			arcCam.target.x = (MAP_MIN + MAP_MAX) / 2;
+			arcCam.target.z = (MAP_MIN + MAP_MAX) / 2;
+
+			// Dark background for any visible area outside the map
+			_savedClearColor = scene.clearColor.clone();
+			scene.clearColor = new BABYLON.Color4(0.08, 0.08, 0.08, 1);
+
+			updateScrollbars(arcCam, scene);
 		} else if (_currentPreset === 'mapeditor') {
 			// Switching away from mapeditor — restore perspective
 			arcCam.mode = BABYLON.Camera.PERSPECTIVE_CAMERA;
+
+			// Restore original clear color
+			if (_savedClearColor) {
+				scene.clearColor = _savedClearColor;
+				_savedClearColor = null;
+			}
+
+			// Re-attach Babylon's wheel input for 3D presets
+			const cvs = scene.getEngine().getRenderingCanvas();
+			const wheelInput = arcCam.inputs.attached['mousewheel'];
+			if (wheelInput && cvs) wheelInput.attachControl(cvs);
+			// Restore Babylon's right-click panning
+			arcCam.panningSensibility = 50;
+
+			// Restore 3D-only meshes hidden by mapeditor per-frame callback
+			for (const mesh of scene.meshes) {
+				if (mesh.name === 'VolumetricLightScatteringMesh' || mesh.name === 'sky-gradient') {
+					mesh.isVisible = true;
+				}
+			}
+
+			// Hide scrollbars
+			const hBar: HTMLElement | null = document.querySelector('#scrollbar-h');
+			const vBar: HTMLElement | null = document.querySelector('#scrollbar-v');
+			if (hBar) hBar.style.display = 'none';
+			if (vBar) vBar.style.display = 'none';
 		}
 
 		// Handle auto-rotate for orbit preset
@@ -534,7 +599,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					{ value: 'mapeditor', label: 'Map Editor (Ortho)' },
 					{ value: 'firstperson', label: 'First Person' },
 				],
-				'free',
+				'mapeditor',
 				(value) => {
 					handlePresetChange(value);
 				},
@@ -5067,6 +5132,384 @@ function setupFpsCounter(runtime: RuntimeInstance): void {
 }
 
 // =============================================================================
+// Map Editor Camera Controls
+// =============================================================================
+
+/**
+ * Recalculates orthographic bounds from `_orthoSize` with aspect ratio correction.
+ *
+ * @param cam - The ArcRotateCamera in orthographic mode.
+ * @param scene - The active Babylon scene.
+ */
+function applyOrthoBounds(cam: BABYLON.ArcRotateCamera, scene: BABYLON.Scene): void {
+	const halfHeight: number = _orthoSize;
+	const aspect: number = scene.getEngine().getAspectRatio(cam);
+	const halfWidth: number = halfHeight * aspect;
+	cam.orthoLeft = -halfWidth;
+	cam.orthoRight = halfWidth;
+	cam.orthoTop = halfHeight;
+	cam.orthoBottom = -halfHeight;
+}
+
+/**
+ * Clamps the camera target so the viewport stays within map bounds.
+ *
+ * @param cam - The ArcRotateCamera.
+ * @param scene - The active Babylon scene.
+ */
+function clampCameraToMap(cam: BABYLON.ArcRotateCamera, scene: BABYLON.Scene): void {
+	const aspect: number = scene.getEngine().getAspectRatio(cam);
+	const halfW: number = _orthoSize * aspect;
+	const halfH: number = _orthoSize;
+
+	// Screen vertical = X axis (halfH), screen horizontal = Z axis (halfW)
+	const minX: number = MAP_MIN + halfH;
+	const maxX: number = MAP_MAX - halfH;
+	const minZ: number = MAP_MIN + halfW;
+	const maxZ: number = MAP_MAX - halfW;
+
+	if (minX < maxX) {
+		cam.target.x = Math.max(minX, Math.min(maxX, cam.target.x));
+	} else {
+		cam.target.x = (MAP_MIN + MAP_MAX) / 2;
+	}
+	if (minZ < maxZ) {
+		cam.target.z = Math.max(minZ, Math.min(maxZ, cam.target.z));
+	} else {
+		cam.target.z = (MAP_MIN + MAP_MAX) / 2;
+	}
+}
+
+/**
+ * Updates scrollbar thumb position and size to reflect current camera view.
+ *
+ * @param cam - The ArcRotateCamera.
+ * @param scene - The active Babylon scene.
+ */
+function updateScrollbars(cam: BABYLON.ArcRotateCamera, scene: BABYLON.Scene): void {
+	const hBar: HTMLElement | null = document.querySelector('#scrollbar-h');
+	const vBar: HTMLElement | null = document.querySelector('#scrollbar-v');
+	const hThumb: HTMLElement | null = document.querySelector('#sb-thumb-h');
+	const vThumb: HTMLElement | null = document.querySelector('#sb-thumb-v');
+	if (!hBar || !vBar || !hThumb || !vThumb) return;
+
+	if (_currentPreset !== 'mapeditor') {
+		hBar.style.display = 'none';
+		vBar.style.display = 'none';
+		return;
+	}
+
+	const aspect: number = scene.getEngine().getAspectRatio(cam);
+	const viewW: number = _orthoSize * aspect * 2;
+	const viewH: number = _orthoSize * 2;
+	const mapW: number = MAP_MAX - MAP_MIN;
+	const mapH: number = MAP_MAX - MAP_MIN;
+
+	const hRatio: number = Math.min(1, viewW / mapW);
+	const vRatio: number = Math.min(1, viewH / mapH);
+
+	// Hide scrollbars when fully zoomed out
+	hBar.style.display = hRatio >= 1 ? 'none' : '';
+	vBar.style.display = vRatio >= 1 ? 'none' : '';
+
+	if (hRatio >= 1 && vRatio >= 1) return;
+
+	// Horizontal thumb
+	const hTrack: HTMLElement | null = hBar.querySelector('.sb-track');
+	const vTrack: HTMLElement | null = vBar.querySelector('.sb-track');
+	if (!hTrack || !vTrack) return;
+
+	const hTrackW: number = hTrack.clientWidth;
+	const vTrackH: number = vTrack.clientHeight;
+
+	// Thumb sizes
+	const hThumbW: number = Math.max(24, hRatio * hTrackW);
+	const vThumbH: number = Math.max(24, vRatio * vTrackH);
+	hThumb.style.width = `${String(hThumbW)}px`;
+	vThumb.style.height = `${String(vThumbH)}px`;
+
+	// Camera position → thumb position
+	// Screen right = world +Z → horizontal scrollbar tracks Z
+	// Screen down = world +X → vertical scrollbar tracks X
+	const halfW: number = _orthoSize * aspect;
+	const halfH: number = _orthoSize;
+	const minTZ: number = MAP_MIN + halfW;
+	const maxTZ: number = MAP_MAX - halfW;
+	const minTX: number = MAP_MIN + halfH;
+	const maxTX: number = MAP_MAX - halfH;
+
+	const hProgress: number = maxTZ > minTZ ? (cam.target.z - minTZ) / (maxTZ - minTZ) : 0.5;
+	const vProgress: number = maxTX > minTX ? (cam.target.x - minTX) / (maxTX - minTX) : 0.5;
+
+	hThumb.style.left = `${String(Math.max(0, Math.min(hTrackW - hThumbW, hProgress * (hTrackW - hThumbW))))}px`;
+	vThumb.style.top = `${String(Math.max(0, Math.min(vTrackH - vThumbH, vProgress * (vTrackH - vThumbH))))}px`;
+}
+
+/**
+ * Sets up RPG Maker-style map editor controls: ortho zoom, keyboard pan,
+ * scrollbar sync, and resize handling.
+ *
+ * @param runtime - The runtime instance.
+ * @param canvas - The game canvas element.
+ */
+function setupMapEditorControls(runtime: RuntimeInstance, canvas: HTMLCanvasElement): void {
+	const cam = runtime.camera as BABYLON.ArcRotateCamera;
+	const { scene } = runtime.engine;
+
+	// ── Detach Babylon's built-in mouse wheel when in mapeditor ──
+	if (_currentPreset === 'mapeditor') {
+		const wheelInput = cam.inputs.attached['mousewheel'];
+		if (wheelInput) wheelInput.detachControl();
+
+		// Disable Babylon's built-in right-click panning (we handle all panning)
+		cam.panningSensibility = 0;
+
+		// Set initial ortho size to fill viewport with no gap
+		_orthoSize = computeOrthoMax();
+		applyOrthoBounds(cam, scene);
+
+		// Dark background for any area outside the map
+		_savedClearColor = scene.clearColor.clone();
+		scene.clearColor = new BABYLON.Color4(0.08, 0.08, 0.08, 1);
+	}
+
+	// ── Custom wheel: scroll to pan, Ctrl+scroll / pinch to zoom ──
+	// Screen axes: right = world +Z, up = world -X (ArcRotateCamera alpha=0 top-down)
+	canvas.addEventListener(
+		'wheel',
+		(evt: WheelEvent) => {
+			if (_currentPreset !== 'mapeditor') return;
+			evt.preventDefault();
+
+			const aspect: number = scene.getEngine().getAspectRatio(cam);
+
+			// Ctrl+scroll or pinch-to-zoom → zoom toward cursor
+			if (evt.ctrlKey || evt.metaKey) {
+				const orthoMax: number = computeOrthoMax();
+				const halfWBefore: number = _orthoSize * aspect;
+				const halfHBefore: number = _orthoSize;
+
+				// Mouse position normalized to [-1, 1]
+				const rect: DOMRect = canvas.getBoundingClientRect();
+				const nx: number = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
+				const ny: number = 1 - ((evt.clientY - rect.top) / rect.height) * 2;
+
+				// World position under cursor before zoom
+				const worldZBefore: number = cam.target.z + nx * halfWBefore;
+				const worldXBefore: number = cam.target.x - ny * halfHBefore;
+
+				// Adjust ortho size
+				const factor: number = evt.deltaY > 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR;
+				_orthoSize = Math.max(ORTHO_MIN, Math.min(orthoMax, _orthoSize * factor));
+
+				const halfWAfter: number = _orthoSize * aspect;
+				const halfHAfter: number = _orthoSize;
+
+				// Shift target so world point stays under cursor
+				const worldZAfter: number = cam.target.z + nx * halfWAfter;
+				const worldXAfter: number = cam.target.x - ny * halfHAfter;
+				cam.target.z += worldZBefore - worldZAfter;
+				cam.target.x += worldXBefore - worldXAfter;
+
+				applyOrthoBounds(cam, scene);
+				clampCameraToMap(cam, scene);
+				updateScrollbars(cam, scene);
+				return;
+			}
+
+			// Plain scroll → pan (deltaX = horizontal, deltaY = vertical)
+			const panSpeed: number = _orthoSize * 0.002;
+			// screen right = world +Z, screen up = world -X
+			cam.target.z += evt.deltaX * panSpeed;
+			cam.target.x += evt.deltaY * panSpeed;
+			clampCameraToMap(cam, scene);
+			updateScrollbars(cam, scene);
+		},
+		{ passive: false },
+	);
+
+	// ── Click-drag to pan (middle-click or right-click) ──
+	let _dragPanning = false;
+	let _dragLastX = 0;
+	let _dragLastY = 0;
+
+	canvas.addEventListener('pointerdown', (evt: PointerEvent) => {
+		if (_currentPreset !== 'mapeditor') return;
+		// Middle (1) or right (2) button = grab-to-pan
+		if (evt.button !== 1 && evt.button !== 2) return;
+		evt.preventDefault();
+		_dragPanning = true;
+		_dragLastX = evt.clientX;
+		_dragLastY = evt.clientY;
+		canvas.setPointerCapture(evt.pointerId);
+		canvas.style.cursor = 'grabbing';
+	});
+
+	// Prevent context menu on right-click so drag works smoothly
+	canvas.addEventListener('contextmenu', (evt: Event) => {
+		if (_currentPreset === 'mapeditor') evt.preventDefault();
+	});
+
+	canvas.addEventListener('pointermove', (evt: PointerEvent) => {
+		if (!_dragPanning) return;
+		const rect: DOMRect = canvas.getBoundingClientRect();
+		const aspect: number = scene.getEngine().getAspectRatio(cam);
+		const halfW: number = _orthoSize * aspect;
+		const halfH: number = _orthoSize;
+
+		// Convert pixel delta to world units
+		// screen right (+dx pixels) = world +Z, screen down (+dy pixels) = world +X
+		const dx: number = evt.clientX - _dragLastX;
+		const dy: number = evt.clientY - _dragLastY;
+		const worldDZ: number = -(dx / rect.width) * halfW * 2;
+		const worldDX: number = -(dy / rect.height) * halfH * 2;
+
+		cam.target.z += worldDZ;
+		cam.target.x += worldDX;
+		_dragLastX = evt.clientX;
+		_dragLastY = evt.clientY;
+
+		clampCameraToMap(cam, scene);
+		updateScrollbars(cam, scene);
+	});
+
+	const stopDragPan = (): void => {
+		if (_dragPanning) {
+			_dragPanning = false;
+			canvas.style.cursor = '';
+		}
+	};
+	canvas.addEventListener('pointerup', stopDragPan);
+	canvas.addEventListener('pointercancel', stopDragPan);
+
+	// ── Keyboard navigation ──
+	document.addEventListener('keydown', (e: KeyboardEvent) => {
+		const tag: string = (e.target as HTMLElement).tagName;
+		if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+		_heldKeys.add(e.key);
+	});
+	document.addEventListener('keyup', (e: KeyboardEvent) => {
+		_heldKeys.delete(e.key);
+	});
+
+	// ── Per-frame update: keyboard pan + clamp + scrollbar sync + mesh hiding ──
+	scene.registerBeforeRender(() => {
+		if (_currentPreset !== 'mapeditor') return;
+
+		// Screen right = world +Z, screen up = world -X
+		const speed: number = _orthoSize * 0.03;
+		if (_heldKeys.has('w') || _heldKeys.has('W') || _heldKeys.has('ArrowUp')) cam.target.x -= speed;
+		if (_heldKeys.has('s') || _heldKeys.has('S') || _heldKeys.has('ArrowDown'))
+			cam.target.x += speed;
+		if (_heldKeys.has('a') || _heldKeys.has('A') || _heldKeys.has('ArrowLeft'))
+			cam.target.z -= speed;
+		if (_heldKeys.has('d') || _heldKeys.has('D') || _heldKeys.has('ArrowRight'))
+			cam.target.z += speed;
+
+		clampCameraToMap(cam, scene);
+		updateScrollbars(cam, scene);
+
+		// Hide 3D meshes that look wrong in top-down ortho view every frame
+		// (they may be re-enabled by lighting/post-processing updates)
+		for (const mesh of scene.meshes) {
+			if (mesh.name === 'VolumetricLightScatteringMesh' || mesh.name === 'sky-gradient') {
+				mesh.isVisible = false;
+			}
+		}
+	});
+
+	// ── Resize: recalculate ortho bounds + ortho max ──
+	const parent: HTMLElement | null = canvas.parentElement;
+	if (parent) {
+		const orthoResizeObserver: ResizeObserver = new ResizeObserver(() => {
+			if (_currentPreset === 'mapeditor') {
+				const orthoMax: number = computeOrthoMax();
+				// If current zoom is beyond new max, clamp it
+				if (_orthoSize > orthoMax) {
+					_orthoSize = orthoMax;
+				}
+				applyOrthoBounds(cam, scene);
+				clampCameraToMap(cam, scene);
+				updateScrollbars(cam, scene);
+			}
+		});
+		orthoResizeObserver.observe(parent);
+	}
+
+	// ── Scrollbar thumb drag ──
+	setupScrollbarDrag('#sb-thumb-h', 'horizontal', cam, scene);
+	setupScrollbarDrag('#sb-thumb-v', 'vertical', cam, scene);
+}
+
+/**
+ * Attaches drag handlers to a scrollbar thumb element.
+ *
+ * @param thumbSelector - CSS selector for the thumb element.
+ * @param axis - Which axis this scrollbar controls.
+ * @param cam - The ArcRotateCamera.
+ * @param scene - The active Babylon scene.
+ */
+function setupScrollbarDrag(
+	thumbSelector: string,
+	axis: 'horizontal' | 'vertical',
+	cam: BABYLON.ArcRotateCamera,
+	scene: BABYLON.Scene,
+): void {
+	const thumb: HTMLElement | null = document.querySelector(thumbSelector);
+	if (!thumb) return;
+
+	let dragging = false;
+	let startMouse = 0;
+	let startTarget = 0;
+
+	thumb.addEventListener('mousedown', (e: MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		dragging = true;
+		startMouse = axis === 'horizontal' ? e.clientX : e.clientY;
+		// Screen right = world +Z → horizontal tracks Z; screen down = world +X → vertical tracks X
+		startTarget = axis === 'horizontal' ? cam.target.z : cam.target.x;
+		thumb.style.cursor = 'grabbing';
+	});
+
+	document.addEventListener('mousemove', (e: MouseEvent) => {
+		if (!dragging) return;
+
+		const track: HTMLElement | null = thumb.parentElement;
+		if (!track) return;
+
+		const trackSize: number = axis === 'horizontal' ? track.clientWidth : track.clientHeight;
+		const thumbSize: number = axis === 'horizontal' ? thumb.clientWidth : thumb.clientHeight;
+		const scrollableTrack: number = trackSize - thumbSize;
+		if (scrollableTrack <= 0) return;
+
+		const aspect: number = scene.getEngine().getAspectRatio(cam);
+		const halfView: number = axis === 'horizontal' ? _orthoSize * aspect : _orthoSize;
+		const mapRange: number = MAP_MAX - MAP_MIN - halfView * 2;
+		if (mapRange <= 0) return;
+
+		const mouseDelta: number = (axis === 'horizontal' ? e.clientX : e.clientY) - startMouse;
+		const worldDelta: number = (mouseDelta / scrollableTrack) * mapRange;
+
+		if (axis === 'horizontal') {
+			cam.target.z = startTarget + worldDelta;
+		} else {
+			cam.target.x = startTarget + worldDelta;
+		}
+
+		clampCameraToMap(cam, scene);
+		updateScrollbars(cam, scene);
+	});
+
+	document.addEventListener('mouseup', () => {
+		if (dragging) {
+			dragging = false;
+			thumb.style.cursor = 'grab';
+		}
+	});
+}
+
+// =============================================================================
 // Main
 // =============================================================================
 
@@ -5081,7 +5524,7 @@ async function main(): Promise<void> {
 			// causing black screen on WebGPU. Use WebGL2 until Babylon.js adds WGSL support.
 			renderer: 'webgl2',
 		},
-		camera: { mode: 'editor' },
+		camera: { preset: 'mapeditor' },
 		scene: {
 			defaultLight: true,
 			defaultLightIntensity: 0.8,
@@ -5114,6 +5557,19 @@ async function main(): Promise<void> {
 		document.querySelector<HTMLCanvasElement>('#game-canvas');
 	if (canvas) {
 		runtime.camera.attachControl(canvas, true);
+
+		// Force an initial resize so the canvas pixel buffer matches the display
+		// size — without this, the canvas defaults to 300×150 and looks blurry.
+		runtime.engine.engine.resize();
+
+		// Register resize handler so canvas adapts when window is resized
+		const resizeResult = registerResizeHandler(runtime.engine, canvas);
+		if (resizeResult.ok) {
+			window.addEventListener('beforeunload', resizeResult.data);
+		}
+
+		// Set up RPG Maker-style map editor controls (zoom, pan, scrollbars)
+		setupMapEditorControls(runtime, canvas);
 	}
 
 	// Render the test tilemap
@@ -5167,6 +5623,14 @@ async function main(): Promise<void> {
 		const mapCenterX: Num = 16;
 		const mapCenterZ: Num = 16;
 		runtime.camera.target = new BABYLON.Vector3(mapCenterX, 0, mapCenterZ);
+
+		// Apply initial ortho bounds now that camera target is centered
+		if (_currentPreset === 'mapeditor') {
+			const arcCam = runtime.camera as BABYLON.ArcRotateCamera;
+			_orthoSize = computeOrthoMax();
+			applyOrthoBounds(arcCam, runtime.engine.scene);
+			clampCameraToMap(arcCam, runtime.engine.scene);
+		}
 	} else {
 		// eslint-disable-next-line no-console -- Dev harness diagnostic output
 		console.error('[WebForge] Failed to render tilemap:', mapResult.error);

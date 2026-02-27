@@ -18,14 +18,20 @@
 
 1. **TDD** — Write failing test, implement, pass
 2. **Full QA** — `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
-3. **Dev harness wiring** — Add editable UI controls (sliders, toggles, dropdowns, inputs) for EVERY new schema field. Info-only rows are NOT acceptable — controls must be interactive
-4. **Visual verification (scene)** — Run `pnpm dev`, visually confirm the feature renders/behaves correctly in the 3D scene
-5. **Visual verification (dev UX)** — Confirm all new dev harness controls appear, expand, respond to interaction, and update the scene in real-time. Take a screenshot as proof
+3. **Dev harness wiring** — Add editable UI controls (sliders, toggles, dropdowns, inputs) for EVERY new schema field. Info-only rows are NOT acceptable — controls must be interactive. Every control callback must be wired to a real runtime function — `noop` placeholders are not acceptable for shipped features.
+4. **Visual verification (scene — per-control)** — Run `pnpm dev` and test EACH individual control one at a time:
+   - **Toggles:** Turn off → verify the visual effect disappears from the scene. Turn on → verify it reappears.
+   - **Sliders:** Move to min → screenshot. Move to max → screenshot. Confirm the scene changes visually at each extreme.
+   - **Dropdowns:** Select each option. Verify the scene updates for each one.
+   - **Buttons:** Click each action button. Verify the expected effect occurs in the scene.
+   - **Color controls:** Change each channel (R/G/B/A). Verify the scene tint/color changes accordingly.
+   - If a control does NOT produce a visible change in the scene, investigate — the callback may be a `noop`, the runtime function may be unimplemented, or the wiring may be wrong.
+5. **Visual verification (dev UX)** — Confirm all new dev harness controls appear, expand/collapse correctly, respond to interaction, and display proper labels. Take a screenshot as proof.
 6. **Mark complete** — Update this plan doc, marking the task as `[x]` done
 7. **Commit** — One commit per feature with all changes
 8. **Ask approval** — Ask the user for permission before proceeding to the next task
 
-**Never batch verification.** Every single feature gets its own QA + visual test pass. If a feature breaks something, fix it before moving on.
+**Never batch verification.** Every single feature gets its own QA + visual test pass. If a feature breaks something, fix it before moving on. Never skip per-control scene verification — it catches wiring bugs that unit tests miss.
 
 ---
 

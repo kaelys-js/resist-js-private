@@ -335,6 +335,9 @@ const PRESET_DEFAULTS: Record<CameraPreset, PresetDefaults> = {
 		orthoSize: 20,
 	},
 	mapeditor: {
+		// Top-down orthographic. With alpha=0/beta=0.01 the screen axes are:
+		// screen right = world +Z, screen up = world -X (axes swapped).
+		// The dev harness accounts for this in scrollbar/zoom/keyboard code.
 		alpha: 0,
 		beta: 0.01,
 		radius: 100,
@@ -478,14 +481,16 @@ function createArcRotateCamera(
 	// Panning — explicit override wins, then preset default
 	camera.panningSensibility = cfg.panningSensibility ?? defaults.panningSensibility;
 
-	// Orthographic mode (mapeditor preset)
+	// Orthographic mode (mapeditor preset) — aspect-ratio-corrected
 	if (defaults.orthographic) {
 		camera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
-		const halfSize: Num = cfg.orthoSize;
-		camera.orthoLeft = -halfSize;
-		camera.orthoRight = halfSize;
-		camera.orthoTop = halfSize;
-		camera.orthoBottom = -halfSize;
+		const halfHeight: Num = cfg.orthoSize;
+		const aspect: Num = scene.getEngine().getAspectRatio(camera);
+		const halfWidth: Num = halfHeight * aspect;
+		camera.orthoLeft = -halfWidth;
+		camera.orthoRight = halfWidth;
+		camera.orthoTop = halfHeight;
+		camera.orthoBottom = -halfHeight;
 	}
 
 	// Auto-rotation behavior (orbit preset)
@@ -1010,9 +1015,19 @@ export function resetCamera(options: ResetCameraOptions): Result<Bool> {
 				camera.upperBetaLimit = defaults.upperBetaLimit;
 			}
 
-			// Orthographic mode
+			// Orthographic mode — aspect-ratio-corrected
 			if (defaults.orthographic) {
 				camera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
+				const scene: BABYLON.Scene | null = camera.getScene();
+				if (scene) {
+					const halfHeight: Num = defaults.orthoSize;
+					const aspect: Num = scene.getEngine().getAspectRatio(camera);
+					const halfWidth: Num = halfHeight * aspect;
+					camera.orthoLeft = -halfWidth;
+					camera.orthoRight = halfWidth;
+					camera.orthoTop = halfHeight;
+					camera.orthoBottom = -halfHeight;
+				}
 			} else {
 				camera.mode = BABYLON.Camera.PERSPECTIVE_CAMERA;
 			}
