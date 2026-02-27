@@ -270,6 +270,9 @@ export {
 	TimeKeyframeSchema,
 	SunPathConfigSchema,
 	GlowLayerConfigSchema,
+	GlowTextureFixedSizeSchema,
+	GlowQualityPresetNameSchema,
+	GLOW_QUALITY_PRESETS,
 	SeasonSchema,
 	MoonPhaseSchema,
 	IndoorModeSchema,
@@ -296,6 +299,8 @@ export {
 	type TimeKeyframe,
 	type SunPathConfig,
 	type GlowLayerConfig,
+	type GlowTextureFixedSize,
+	type GlowQualityPresetName,
 	type Season,
 	type IndoorMode,
 	type TransitionEasing as DayNightTransitionEasing,
@@ -372,6 +377,12 @@ export {
 	createGlowLayer,
 	updateGlowLayer,
 	disposeGlowLayer,
+	excludeMeshFromGlow,
+	includeOnlyMeshInGlow,
+	removeMeshFromGlow,
+	excludeUiMeshes,
+	setCustomEmissiveColor,
+	clearCustomEmissiveColor,
 } from './rendering/glow-manager';
 
 // Schemas — Sky config
