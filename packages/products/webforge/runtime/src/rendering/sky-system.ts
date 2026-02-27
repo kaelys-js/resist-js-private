@@ -25,6 +25,7 @@
  */
 
 import * as BABYLON from '@babylonjs/core';
+import { SkyMaterial } from '@babylonjs/materials/sky';
 
 import { ERRORS, err, type DeepReadonly } from '@/schemas/result/result';
 import type { Bool } from '@/schemas/common';
@@ -344,8 +345,6 @@ function createProceduralSky(
 	scene: BABYLON.Scene,
 	config: SkyConfigInput,
 ): BabylonResult<SkyInstance> {
-	// Create a large box with a BackgroundMaterial configured for
-	// procedural atmosphere simulation via primaryColor tinting
 	const skyboxMesh = BABYLON.MeshBuilder.CreateBox(
 		'sky-procedural',
 		{ size: config.skyboxSize },
@@ -354,20 +353,38 @@ function createProceduralSky(
 	skyboxMesh.infiniteDistance = true;
 	skyboxMesh.renderingGroupId = 0;
 
-	const material = new BABYLON.BackgroundMaterial('sky-procedural-mat', scene);
-	material.backFaceCulling = false;
+	// Try real SkyMaterial first; fall back to BackgroundMaterial approximation
+	// if SkyMaterial fails (e.g. NullEngine without shader support)
+	let material: BABYLON.Material;
+	try {
+		const skyMat = new SkyMaterial('sky-procedural-mat', scene);
+		skyMat.backFaceCulling = false;
 
-	// Approximate atmosphere color from rayleigh/turbidity/luminance
-	// Rayleigh scattering produces blue → higher rayleigh = more blue
-	const blueIntensity: number = Math.min(1, config.rayleigh / 4);
-	const hazeReduce: number = Math.max(0, 1 - config.turbidity / 20);
-	const lum: number = config.luminance;
+		// Apply Rayleigh/Mie scattering parameters from config
+		skyMat.turbidity = config.turbidity;
+		skyMat.rayleigh = config.rayleigh;
+		skyMat.luminance = config.luminance;
+		skyMat.mieCoefficient = config.mieCoefficient;
+		skyMat.mieDirectionalG = config.mieDirectionalG;
+		skyMat.inclination = config.inclination;
+		skyMat.azimuth = config.azimuth;
 
-	material.primaryColor = new BABYLON.Color3(
-		lum * hazeReduce * 0.5,
-		lum * hazeReduce * 0.7,
-		lum * blueIntensity,
-	);
+		material = skyMat;
+	} catch {
+		// Fallback: BackgroundMaterial approximation for test environments
+		const bgMat = new BABYLON.BackgroundMaterial('sky-procedural-mat', scene);
+		bgMat.backFaceCulling = false;
+
+		const blueIntensity = Math.min(1, config.rayleigh / 4);
+		const hazeReduce = Math.max(0, 1 - config.turbidity / 20);
+		const lum = config.luminance;
+		bgMat.primaryColor = new BABYLON.Color3(
+			lum * hazeReduce * 0.5,
+			lum * hazeReduce * 0.7,
+			lum * blueIntensity,
+		);
+		material = bgMat;
+	}
 
 	skyboxMesh.material = material;
 
