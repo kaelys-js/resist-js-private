@@ -29,6 +29,7 @@ import type { Bool, Num } from '@/schemas/common';
 import { fromUnknownError } from '@/utils/result/safe';
 
 import { okShallow, type BabylonResult } from '../core/babylon-result';
+import type { ColorRgba } from '../schemas/scene-setup-config';
 import type { ParallaxLayer } from '../schemas/sky-config';
 
 // =============================================================================
@@ -306,6 +307,281 @@ export function disposeParallax(options: {
 		}
 
 		return okShallow(true as Bool);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// getParallaxLayerCount
+// =============================================================================
+
+/**
+ * Returns the number of parallax layers in the instance.
+ *
+ * @param options - The parallax instance to query.
+ * @returns BabylonResult containing the layer count.
+ *
+ * @example
+ * ```typescript
+ * const countResult = getParallaxLayerCount({ parallax });
+ * if (countResult.ok) console.log('Layers:', countResult.data);
+ * ```
+ */
+export function getParallaxLayerCount(options: {
+	readonly parallax: ParallaxInstance;
+}): BabylonResult<Num> {
+	return okShallow(options.parallax.bgLayers.length as Num);
+}
+
+// =============================================================================
+// addParallaxLayer
+// =============================================================================
+
+/**
+ * Adds a new parallax layer to a live parallax instance at runtime.
+ *
+ * Creates a new Babylon.js `Layer`, applies blend mode, tint, tiling,
+ * scale, and offset from the layer config, then pushes to bgLayers,
+ * layers, and autoScrollAccum arrays.
+ *
+ * @param options - Parallax instance, layer config, and asset base path.
+ * @returns BabylonResult indicating success.
+ *
+ * @example
+ * ```typescript
+ * const addResult = addParallaxLayer({
+ *   parallax, layer: { imagePath: 'bg/new.png', scrollSpeedX: 0.5, ... },
+ *   assetBasePath: '/assets/',
+ * });
+ * if (!addResult.ok) return addResult;
+ * ```
+ */
+export function addParallaxLayer(options: {
+	readonly parallax: ParallaxInstance;
+	readonly layer: ParallaxLayer;
+	readonly assetBasePath: string;
+}): BabylonResult<Bool> {
+	const { parallax, layer, assetBasePath } = options;
+
+	try {
+		const texturePath = `${assetBasePath}${layer.imagePath}`;
+		const index: Num = parallax.bgLayers.length as Num;
+		const isBackground: boolean = layer.layerType !== 'foreground';
+		const bgLayer = new BABYLON.Layer(
+			`parallax-${index}`,
+			texturePath,
+			parallax.scene,
+			isBackground,
+		);
+
+		// Apply blend mode
+		bgLayer.alphaBlendingMode = mapBlendMode(layer.blendMode);
+
+		// Apply tint with opacity
+		bgLayer.color = new BABYLON.Color4(layer.tint.r, layer.tint.g, layer.tint.b, layer.opacity);
+
+		// Configure texture tiling and scale
+		const tex = bgLayer.texture;
+		if (tex && tex instanceof BABYLON.Texture) {
+			if (layer.tileX) {
+				tex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
+			} else {
+				tex.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+			}
+			if (layer.tileY) {
+				tex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
+			} else {
+				tex.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
+			}
+			tex.uScale = 1 / layer.scale;
+			tex.vScale = 1 / layer.scale;
+		}
+
+		bgLayer.scale = new BABYLON.Vector2(layer.scale, layer.scale);
+		bgLayer.offset = new BABYLON.Vector2(0, layer.offsetY * 0.01);
+
+		parallax.bgLayers.push(bgLayer);
+		parallax.layers.push(layer);
+		parallax.autoScrollAccum.push({ u: 0 as Num, v: 0 as Num });
+
+		return okShallow(true as Bool);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// removeParallaxLayer
+// =============================================================================
+
+/**
+ * Removes a parallax layer by index from a live parallax instance.
+ *
+ * Disposes the Babylon.js `Layer` and splices the corresponding
+ * entries from bgLayers, layers, and autoScrollAccum arrays.
+ *
+ * @param options - Parallax instance and the index to remove.
+ * @returns BabylonResult indicating success, or error if index is out of bounds.
+ *
+ * @example
+ * ```typescript
+ * const removeResult = removeParallaxLayer({ parallax, index: 0 });
+ * if (!removeResult.ok) return removeResult;
+ * ```
+ */
+export function removeParallaxLayer(options: {
+	readonly parallax: ParallaxInstance;
+	readonly index: Num;
+}): BabylonResult<Bool> {
+	const { parallax, index } = options;
+
+	if (index < 0 || index >= parallax.bgLayers.length) {
+		return err(
+			ERRORS.VALIDATION.INVALID_FORMAT,
+			`Layer index ${index} out of bounds (0..${parallax.bgLayers.length - 1})`,
+		);
+	}
+
+	try {
+		const bgLayer = parallax.bgLayers[index];
+		if (bgLayer) {
+			bgLayer.dispose();
+		}
+
+		parallax.bgLayers.splice(index, 1);
+		parallax.layers.splice(index, 1);
+		parallax.autoScrollAccum.splice(index, 1);
+
+		return okShallow(true as Bool);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// setParallaxLayerTint
+// =============================================================================
+
+/**
+ * Updates the tint color of a parallax layer at the given index.
+ *
+ * Sets both the Babylon.js `Layer.color` (RGB channels) and the
+ * config `layer.tint`, preserving the current opacity in the alpha channel.
+ *
+ * @param options - Parallax instance, layer index, and new tint color.
+ * @returns BabylonResult indicating success, or error if index is out of bounds.
+ *
+ * @example
+ * ```typescript
+ * const tintResult = setParallaxLayerTint({
+ *   parallax, index: 0, tint: { r: 1, g: 0, b: 0, a: 1 },
+ * });
+ * if (!tintResult.ok) return tintResult;
+ * ```
+ */
+export function setParallaxLayerTint(options: {
+	readonly parallax: ParallaxInstance;
+	readonly index: Num;
+	readonly tint: ColorRgba;
+}): BabylonResult<Bool> {
+	const { parallax, index, tint } = options;
+
+	if (index < 0 || index >= parallax.bgLayers.length) {
+		return err(
+			ERRORS.VALIDATION.INVALID_FORMAT,
+			`Layer index ${index} out of bounds (0..${parallax.bgLayers.length - 1})`,
+		);
+	}
+
+	try {
+		const bgLayer = parallax.bgLayers[index];
+		const layer = parallax.layers[index];
+		if (bgLayer && layer) {
+			bgLayer.color = new BABYLON.Color4(tint.r, tint.g, tint.b, bgLayer.color.a);
+			layer.tint = tint;
+		}
+
+		return okShallow(true as Bool);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// fadeLayerOpacity
+// =============================================================================
+
+/**
+ * Fades a parallax layer's opacity from its current value to a target
+ * over the specified duration in milliseconds.
+ *
+ * Registers a per-frame observer that linearly interpolates the opacity.
+ * Returns a handle with a `dispose` method to cancel the fade early.
+ * The observer auto-removes when the fade completes (t >= 1).
+ *
+ * @param options - Parallax instance, layer index, target opacity, and duration.
+ * @returns BabylonResult containing a dispose handle, or error if index is out of bounds.
+ *
+ * @example
+ * ```typescript
+ * const fadeResult = fadeLayerOpacity({
+ *   parallax, index: 0, target: 0, durationMs: 1000,
+ * });
+ * if (fadeResult.ok) {
+ *   // Cancel the fade early if needed:
+ *   fadeResult.data.dispose();
+ * }
+ * ```
+ */
+export function fadeLayerOpacity(options: {
+	readonly parallax: ParallaxInstance;
+	readonly index: Num;
+	readonly target: Num;
+	readonly durationMs: Num;
+}): BabylonResult<{ readonly dispose: () => void }> {
+	const { parallax, index, target, durationMs } = options;
+
+	if (index < 0 || index >= parallax.bgLayers.length) {
+		return err(
+			ERRORS.VALIDATION.INVALID_FORMAT,
+			`Layer index ${index} out of bounds (0..${parallax.bgLayers.length - 1})`,
+		);
+	}
+
+	try {
+		const bgLayer = parallax.bgLayers[index];
+		const layer = parallax.layers[index];
+		if (!bgLayer || !layer) {
+			return err(ERRORS.VALIDATION.INVALID_FORMAT, `Layer at index ${index} not found`);
+		}
+
+		const startOpacity: Num = bgLayer.color.a as Num;
+		let elapsed = 0 as Num;
+
+		const observer = parallax.scene.onBeforeRenderObservable.add(() => {
+			const dtMs: Num = parallax.scene.getEngine().getDeltaTime() as Num;
+			elapsed = (elapsed + dtMs) as Num;
+			const t: Num = Math.min(elapsed / durationMs, 1) as Num;
+
+			const currentOpacity: Num = (startOpacity + (target - startOpacity) * t) as Num;
+
+			// Update bgLayer color with current tint and interpolated opacity
+			bgLayer.color = new BABYLON.Color4(layer.tint.r, layer.tint.g, layer.tint.b, currentOpacity);
+			layer.opacity = currentOpacity;
+
+			if (t >= 1 && observer) {
+				parallax.scene.onBeforeRenderObservable.remove(observer);
+			}
+		});
+
+		const dispose = (): void => {
+			if (observer) {
+				parallax.scene.onBeforeRenderObservable.remove(observer);
+			}
+		};
+
+		return okShallow({ dispose });
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
 	}
