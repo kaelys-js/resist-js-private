@@ -53,6 +53,10 @@ export type SkyInstance = {
 	readonly skyboxMaterial: BABYLON.Material | null;
 	/** The scene this sky belongs to. */
 	readonly scene: BABYLON.Scene;
+	/** The star field layer (null if no star field is active). */
+	readonly starLayer: BABYLON.Layer | null;
+	/** The star field render observer (null if no star field is active). */
+	readonly starObserver: BABYLON.Observer<BABYLON.Scene> | null;
 };
 
 // =============================================================================
@@ -121,6 +125,12 @@ export function disposeSky(options: { readonly sky: SkyInstance }): BabylonResul
 	const { sky } = options;
 
 	try {
+		if (sky.starObserver) {
+			sky.scene.onBeforeRenderObservable.remove(sky.starObserver);
+		}
+		if (sky.starLayer) {
+			sky.starLayer.dispose();
+		}
 		if (sky.skyboxMaterial) {
 			sky.skyboxMaterial.dispose();
 		}
@@ -128,6 +138,316 @@ export function disposeSky(options: { readonly sky: SkyInstance }): BabylonResul
 			sky.skyboxMesh.dispose();
 		}
 		return okShallow(true as Bool);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// regenerateGradientTexture
+// =============================================================================
+
+/**
+ * Regenerates the gradient texture on a gradient sky instance with new top/bottom colors.
+ *
+ * Creates new gradient pixel data from the provided colors, builds a new RawTexture,
+ * and replaces the existing diffuseTexture on the sky's BackgroundMaterial.
+ *
+ * @param options - Sky instance and new top/bottom colors.
+ * @returns BabylonResult indicating success, or error if the sky has no mesh/material.
+ *
+ * @example
+ * ```typescript
+ * const result = regenerateGradientTexture({
+ *   sky: skyInstance,
+ *   topColor: { r: 1, g: 0, b: 0, a: 1 },
+ *   bottomColor: { r: 0, g: 0, b: 1, a: 1 },
+ * });
+ * ```
+ */
+export function regenerateGradientTexture(options: {
+	readonly sky: SkyInstance;
+	readonly topColor: {
+		readonly r: number;
+		readonly g: number;
+		readonly b: number;
+		readonly a: number;
+	};
+	readonly bottomColor: {
+		readonly r: number;
+		readonly g: number;
+		readonly b: number;
+		readonly a: number;
+	};
+}): BabylonResult<Bool> {
+	const { sky, topColor, bottomColor } = options;
+
+	if (!sky.skyboxMesh || !sky.skyboxMaterial) {
+		return err(ERRORS.SCENE.RENDER_FAILED, 'Cannot regenerate gradient: no skybox mesh');
+	}
+
+	try {
+		const pixels = generateGradientPixels([
+			{ position: 0, color: topColor },
+			{ position: 1, color: bottomColor },
+		]);
+
+		const tex = new BABYLON.RawTexture(
+			pixels,
+			1,
+			256,
+			BABYLON.Engine.TEXTUREFORMAT_RGBA,
+			sky.scene,
+			false,
+			false,
+			BABYLON.Texture.BILINEAR_SAMPLINGMODE,
+		);
+		tex.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+		tex.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
+
+		const mat = sky.skyboxMaterial;
+		if (mat instanceof BABYLON.BackgroundMaterial) {
+			if (mat.diffuseTexture) {
+				mat.diffuseTexture.dispose();
+			}
+			mat.diffuseTexture = tex;
+		}
+
+		return okShallow(true as Bool);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// updateSkyFromDayNight
+// =============================================================================
+
+/**
+ * Applies interpolated day/night color values to the active sky.
+ *
+ * Handles all sky types:
+ * - `color` / `procedural`: sets `scene.clearColor`
+ * - `gradient`: regenerates gradient texture with new top/bottom colors
+ *
+ * Optionally syncs fog color to the bottom gradient color when `fogSyncSky` is true.
+ *
+ * @param options - Sky instance, sky type, and optional color values to apply.
+ * @returns BabylonResult indicating success.
+ *
+ * @example
+ * ```typescript
+ * updateSkyFromDayNight({
+ *   sky: skyInstance,
+ *   skyType: 'color',
+ *   skyColor: { r: 0.9, g: 0.1, b: 0.1, a: 1 },
+ * });
+ * ```
+ */
+export function updateSkyFromDayNight(options: {
+	readonly sky: SkyInstance;
+	readonly skyColor?: {
+		readonly r: number;
+		readonly g: number;
+		readonly b: number;
+		readonly a: number;
+	};
+	readonly skyGradientTop?: {
+		readonly r: number;
+		readonly g: number;
+		readonly b: number;
+		readonly a: number;
+	};
+	readonly skyGradientBottom?: {
+		readonly r: number;
+		readonly g: number;
+		readonly b: number;
+		readonly a: number;
+	};
+	readonly fogSyncSky?: boolean;
+	readonly skyType: string;
+}): BabylonResult<Bool> {
+	const { sky, skyColor, skyGradientTop, skyGradientBottom, fogSyncSky, skyType } = options;
+
+	try {
+		switch (skyType) {
+			case 'color': {
+				if (skyColor) {
+					sky.scene.clearColor = new BABYLON.Color4(skyColor.r, skyColor.g, skyColor.b, skyColor.a);
+				}
+				break;
+			}
+			case 'gradient': {
+				if (skyGradientTop && skyGradientBottom) {
+					regenerateGradientTexture({
+						sky,
+						topColor: skyGradientTop,
+						bottomColor: skyGradientBottom,
+					});
+				}
+				break;
+			}
+			case 'procedural': {
+				if (skyColor) {
+					sky.scene.clearColor = new BABYLON.Color4(skyColor.r, skyColor.g, skyColor.b, skyColor.a);
+				}
+				break;
+			}
+		}
+
+		if (fogSyncSky && skyGradientBottom) {
+			sky.scene.fogColor = new BABYLON.Color3(
+				skyGradientBottom.r,
+				skyGradientBottom.g,
+				skyGradientBottom.b,
+			);
+		}
+
+		return okShallow(true as Bool);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// computeStarOpacity
+// =============================================================================
+
+/**
+ * Computes the opacity of a star field based on time of day.
+ *
+ * Stars fade in after `fadeInTime` (e.g. 18:00), stay visible through midnight,
+ * and fade out before `fadeOutTime` (e.g. 06:00). A twinkle effect modulates
+ * the base opacity with a sine wave when `twinkleSpeed > 0`.
+ *
+ * Pure math function with no Babylon.js dependencies.
+ *
+ * @param options - Time of day (0-24), max opacity, fade times, and twinkle parameters.
+ * @returns Computed opacity value between 0 and maxOpacity.
+ *
+ * @example
+ * ```typescript
+ * const opacity = computeStarOpacity({
+ *   timeOfDay: 22,
+ *   maxOpacity: 0.8,
+ *   fadeInTime: 18,
+ *   fadeOutTime: 6,
+ *   twinkleSpeed: 1,
+ *   elapsedTime: 0,
+ * });
+ * ```
+ */
+export function computeStarOpacity(options: {
+	readonly timeOfDay: number;
+	readonly maxOpacity: number;
+	readonly fadeInTime: number;
+	readonly fadeOutTime: number;
+	readonly twinkleSpeed: number;
+	readonly elapsedTime: number;
+}): number {
+	const { timeOfDay, maxOpacity, fadeInTime, fadeOutTime, twinkleSpeed, elapsedTime } = options;
+
+	let baseOpacity = 0;
+
+	if (fadeInTime > fadeOutTime) {
+		// Night spans across midnight (e.g. fadeIn=18, fadeOut=6)
+		if (timeOfDay >= fadeInTime) {
+			// After fadeIn (e.g. 18..24): fading in
+			const fadeRange = 24 - fadeInTime;
+			const progress = (timeOfDay - fadeInTime) / (fadeRange > 0 ? fadeRange : 1);
+			baseOpacity = Math.min(1, progress) * maxOpacity;
+		} else if (timeOfDay <= fadeOutTime) {
+			// Before fadeOut (e.g. 0..6): fading out
+			const progress = 1 - timeOfDay / (fadeOutTime > 0 ? fadeOutTime : 1);
+			baseOpacity = Math.max(0, progress) * maxOpacity;
+		}
+		// Between fadeOut and fadeIn (e.g. 6..18): daytime, opacity stays 0
+	}
+
+	if (baseOpacity > 0 && twinkleSpeed > 0) {
+		const twinkle = Math.sin(elapsedTime * twinkleSpeed * Math.PI * 2) * 0.05 * maxOpacity;
+		baseOpacity = Math.max(0, Math.min(maxOpacity, baseOpacity + twinkle));
+	}
+
+	return baseOpacity;
+}
+
+// =============================================================================
+// createStarField
+// =============================================================================
+
+/**
+ * Creates a star field layer on an existing sky instance.
+ *
+ * Renders a textured layer with additive blending that fades in/out
+ * based on time of day. Uses `computeStarOpacity` each frame to
+ * determine the current opacity, producing a time-based star field
+ * with optional twinkle effect.
+ *
+ * @param options - Sky instance, star config, asset path, and time-of-day getter.
+ * @returns BabylonResult containing the updated SkyInstance with star layer references.
+ *
+ * @example
+ * ```typescript
+ * const result = createStarField({
+ *   sky: skyInstance,
+ *   config: { texture: 'sky/stars.png', opacity: 0.8, twinkleSpeed: 1, scale: 2 },
+ *   assetBasePath: '/assets/',
+ *   getTimeOfDay: () => 22,
+ * });
+ * ```
+ */
+export function createStarField(options: {
+	readonly sky: SkyInstance;
+	readonly config: {
+		readonly texture: string;
+		readonly opacity: number;
+		readonly twinkleSpeed: number;
+		readonly fadeInTime?: number;
+		readonly fadeOutTime?: number;
+		readonly scale: number;
+	};
+	readonly assetBasePath: string;
+	readonly getTimeOfDay: () => number;
+}): BabylonResult<SkyInstance> {
+	const { sky, config, assetBasePath, getTimeOfDay } = options;
+
+	try {
+		const texPath = `${assetBasePath}${config.texture}`;
+		const starLayer = new BABYLON.Layer('stars', texPath, sky.scene, true);
+		starLayer.alphaBlendingMode = 1; // ALPHA_ADD
+		starLayer.color = new BABYLON.Color4(1, 1, 1, 0);
+
+		const tex = starLayer.texture;
+		if (tex && tex instanceof BABYLON.Texture) {
+			tex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
+			tex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
+			tex.uScale = 1 / config.scale;
+			tex.vScale = 1 / config.scale;
+		}
+
+		let elapsed = 0;
+		const starObserver = sky.scene.onBeforeRenderObservable.add(() => {
+			const dt = sky.scene.getEngine().getDeltaTime() / 1000;
+			elapsed += dt;
+			const opacity = computeStarOpacity({
+				timeOfDay: getTimeOfDay(),
+				maxOpacity: config.opacity,
+				fadeInTime: config.fadeInTime ?? 18,
+				fadeOutTime: config.fadeOutTime ?? 6,
+				twinkleSpeed: config.twinkleSpeed,
+				elapsedTime: elapsed,
+			});
+			starLayer.color = new BABYLON.Color4(1, 1, 1, opacity);
+		});
+
+		return okShallow({
+			skyboxMesh: sky.skyboxMesh,
+			skyboxMaterial: sky.skyboxMaterial,
+			scene: sky.scene,
+			starLayer,
+			starObserver,
+		});
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
 	}
@@ -149,6 +469,8 @@ function createColorSky(scene: BABYLON.Scene, config: SkyConfigInput): BabylonRe
 		skyboxMesh: null,
 		skyboxMaterial: null,
 		scene,
+		starLayer: null,
+		starObserver: null,
 	});
 }
 
@@ -306,7 +628,13 @@ function createGradientSky(
 		);
 	}
 
-	return okShallow({ skyboxMesh, skyboxMaterial: material, scene });
+	return okShallow({
+		skyboxMesh,
+		skyboxMaterial: material,
+		scene,
+		starLayer: null,
+		starObserver: null,
+	});
 }
 
 // =============================================================================
@@ -334,7 +662,13 @@ function createSkyboxSky(scene: BABYLON.Scene, config: SkyConfigInput): BabylonR
 
 	skyboxMesh.material = material;
 
-	return okShallow({ skyboxMesh, skyboxMaterial: material, scene });
+	return okShallow({
+		skyboxMesh,
+		skyboxMaterial: material,
+		scene,
+		starLayer: null,
+		starObserver: null,
+	});
 }
 
 // =============================================================================
@@ -388,5 +722,11 @@ function createProceduralSky(
 
 	skyboxMesh.material = material;
 
-	return okShallow({ skyboxMesh, skyboxMaterial: material, scene });
+	return okShallow({
+		skyboxMesh,
+		skyboxMaterial: material,
+		scene,
+		starLayer: null,
+		starObserver: null,
+	});
 }

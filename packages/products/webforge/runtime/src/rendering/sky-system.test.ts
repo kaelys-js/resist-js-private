@@ -11,7 +11,15 @@ import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
 import { createTestEngine, disposeEngine, type BabylonEngineInstance } from '../core/engine';
 import type { SkyConfig } from '../schemas/sky-config';
-import { createSky, disposeSky, generateGradientPixels } from './sky-system';
+import {
+	computeStarOpacity,
+	createSky,
+	createStarField,
+	disposeSky,
+	generateGradientPixels,
+	regenerateGradientTexture,
+	updateSkyFromDayNight,
+} from './sky-system';
 
 let instance: BabylonEngineInstance;
 
@@ -317,5 +325,258 @@ describe('generateGradientPixels', () => {
 		expect(pixels[0]).toBeLessThan(136);
 		expect(pixels[500]).toBeGreaterThan(120);
 		expect(pixels[500]).toBeLessThan(136);
+	});
+});
+
+// =============================================================================
+// regenerateGradientTexture
+// =============================================================================
+
+describe('regenerateGradientTexture', () => {
+	test('returns ok for gradient sky with new top/bottom colors', () => {
+		const config: SkyConfig = {
+			type: 'gradient',
+			color: { r: 0.35, g: 0.5, b: 0.8, a: 1 },
+			gradient: [
+				{ position: 0, color: { r: 0, g: 0, b: 0.5, a: 1 } },
+				{ position: 1, color: { r: 0.5, g: 0.5, b: 0, a: 1 } },
+			],
+			parallaxLayers: [],
+			skyboxSize: 1000,
+			turbidity: 10,
+			rayleigh: 2,
+			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
+		};
+		const createResult = createSky({ scene: instance.scene, config });
+		expect(createResult.ok).toBe(true);
+		if (!createResult.ok) return;
+
+		const result = regenerateGradientTexture({
+			sky: createResult.data,
+			topColor: { r: 1, g: 0, b: 0, a: 1 },
+			bottomColor: { r: 0, g: 0, b: 1, a: 1 },
+		});
+		expect(result.ok).toBe(true);
+	});
+
+	test('returns error for non-gradient sky (no mesh)', () => {
+		const config: SkyConfig = {
+			type: 'color',
+			color: { r: 0.35, g: 0.5, b: 0.8, a: 1 },
+			parallaxLayers: [],
+			skyboxSize: 1000,
+			turbidity: 10,
+			rayleigh: 2,
+			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
+		};
+		const createResult = createSky({ scene: instance.scene, config });
+		expect(createResult.ok).toBe(true);
+		if (!createResult.ok) return;
+
+		const result = regenerateGradientTexture({
+			sky: createResult.data,
+			topColor: { r: 1, g: 0, b: 0, a: 1 },
+			bottomColor: { r: 0, g: 0, b: 1, a: 1 },
+		});
+		expect(result.ok).toBe(false);
+	});
+});
+
+// =============================================================================
+// updateSkyFromDayNight
+// =============================================================================
+
+describe('updateSkyFromDayNight', () => {
+	test('updates clearColor for color sky type', () => {
+		const config: SkyConfig = {
+			type: 'color',
+			color: { r: 0.35, g: 0.5, b: 0.8, a: 1 },
+			parallaxLayers: [],
+			skyboxSize: 1000,
+			turbidity: 10,
+			rayleigh: 2,
+			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
+		};
+		const createResult = createSky({ scene: instance.scene, config });
+		expect(createResult.ok).toBe(true);
+		if (!createResult.ok) return;
+
+		const result = updateSkyFromDayNight({
+			sky: createResult.data,
+			skyType: 'color',
+			skyColor: { r: 0.9, g: 0.1, b: 0.1, a: 1 },
+		});
+		expect(result.ok).toBe(true);
+		expect(instance.scene.clearColor.r).toBeCloseTo(0.9);
+	});
+
+	test('sets fog color when fogSyncSky is true', () => {
+		const config: SkyConfig = {
+			type: 'color',
+			color: { r: 0.35, g: 0.5, b: 0.8, a: 1 },
+			parallaxLayers: [],
+			skyboxSize: 1000,
+			turbidity: 10,
+			rayleigh: 2,
+			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
+		};
+		const createResult = createSky({ scene: instance.scene, config });
+		expect(createResult.ok).toBe(true);
+		if (!createResult.ok) return;
+
+		const result = updateSkyFromDayNight({
+			sky: createResult.data,
+			skyType: 'color',
+			fogSyncSky: true,
+			skyGradientBottom: { r: 0.3, g: 0.4, b: 0.5, a: 1 },
+		});
+		expect(result.ok).toBe(true);
+		expect(instance.scene.fogColor.r).toBeCloseTo(0.3);
+	});
+});
+
+// =============================================================================
+// computeStarOpacity
+// =============================================================================
+
+describe('computeStarOpacity', () => {
+	test('returns 0 during daytime (noon)', () => {
+		const opacity = computeStarOpacity({
+			timeOfDay: 12,
+			maxOpacity: 0.8,
+			fadeInTime: 18,
+			fadeOutTime: 6,
+			twinkleSpeed: 1,
+			elapsedTime: 0,
+		});
+		expect(opacity).toBeCloseTo(0);
+	});
+
+	test('returns maxOpacity at midnight', () => {
+		const opacity = computeStarOpacity({
+			timeOfDay: 0,
+			maxOpacity: 0.8,
+			fadeInTime: 18,
+			fadeOutTime: 6,
+			twinkleSpeed: 0,
+			elapsedTime: 0,
+		});
+		expect(opacity).toBeCloseTo(0.8);
+	});
+
+	test('returns partial opacity during fade-in', () => {
+		const opacity = computeStarOpacity({
+			timeOfDay: 21,
+			maxOpacity: 1,
+			fadeInTime: 18,
+			fadeOutTime: 6,
+			twinkleSpeed: 0,
+			elapsedTime: 0,
+		});
+		expect(opacity).toBeGreaterThan(0.3);
+		expect(opacity).toBeLessThan(0.7);
+	});
+
+	test('twinkle modulates opacity', () => {
+		const o1 = computeStarOpacity({
+			timeOfDay: 0,
+			maxOpacity: 0.8,
+			fadeInTime: 18,
+			fadeOutTime: 6,
+			twinkleSpeed: 1,
+			elapsedTime: 0,
+		});
+		const o2 = computeStarOpacity({
+			timeOfDay: 0,
+			maxOpacity: 0.8,
+			fadeInTime: 18,
+			fadeOutTime: 6,
+			twinkleSpeed: 1,
+			elapsedTime: Math.PI / 2,
+		});
+		expect(Math.abs(o1 - o2)).toBeGreaterThan(0);
+	});
+});
+
+// =============================================================================
+// createStarField
+// =============================================================================
+
+describe('createStarField', () => {
+	test('creates star layer on existing sky', () => {
+		const config: SkyConfig = {
+			type: 'color',
+			color: { r: 0, g: 0, b: 0.1, a: 1 },
+			parallaxLayers: [],
+			skyboxSize: 1000,
+			turbidity: 10,
+			rayleigh: 2,
+			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
+		};
+		const createResult = createSky({ scene: instance.scene, config });
+		expect(createResult.ok).toBe(true);
+		if (!createResult.ok) return;
+
+		const starResult = createStarField({
+			sky: createResult.data,
+			config: { texture: 'sky/stars.png', opacity: 0.8, twinkleSpeed: 1, scale: 2 },
+			assetBasePath: '/assets/',
+			getTimeOfDay: () => 0,
+		});
+		expect(starResult.ok).toBe(true);
+		if (!starResult.ok) return;
+		expect(starResult.data.starLayer).not.toBeNull();
+		expect(starResult.data.starObserver).not.toBeNull();
+	});
+
+	test('disposes star layer with disposeSky', () => {
+		const config: SkyConfig = {
+			type: 'color',
+			color: { r: 0, g: 0, b: 0.1, a: 1 },
+			parallaxLayers: [],
+			skyboxSize: 1000,
+			turbidity: 10,
+			rayleigh: 2,
+			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
+		};
+		const createResult = createSky({ scene: instance.scene, config });
+		expect(createResult.ok).toBe(true);
+		if (!createResult.ok) return;
+
+		const starResult = createStarField({
+			sky: createResult.data,
+			config: { texture: 'sky/stars.png', opacity: 0.8, twinkleSpeed: 1, scale: 2 },
+			assetBasePath: '/assets/',
+			getTimeOfDay: () => 22,
+		});
+		expect(starResult.ok).toBe(true);
+		if (!starResult.ok) return;
+
+		const disposeResult = disposeSky({ sky: starResult.data });
+		expect(disposeResult.ok).toBe(true);
 	});
 });
