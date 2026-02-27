@@ -49,7 +49,7 @@ import {
 	disposeDayNightCycle,
 	type DayNightCycleInstance,
 } from './day-night-cycle';
-import { createGlowLayer } from './glow-manager';
+import { createGlowLayer, excludeUiMeshes } from './glow-manager';
 
 // =============================================================================
 // Types
@@ -460,6 +460,8 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 			});
 			if (glowResult.ok) {
 				glowLayer = glowResult.data;
+				// Auto-exclude UI overlay meshes (renderingGroupId=3)
+				excludeUiMeshes({ glowLayer, scene: options.scene });
 			}
 		}
 
