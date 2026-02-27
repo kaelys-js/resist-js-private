@@ -410,6 +410,7 @@ export function screenShake(options: ScreenShakeOptions): BabylonResult<ShakeHan
 			: camera.position.clone();
 		const originalUpVector: BABYLON.Vector3 = camera.upVector.clone();
 		const originalFov: number = camera.fov;
+		const originalAlpha: number = isArcRotate ? (camera as BABYLON.ArcRotateCamera).alpha : 0;
 
 		let disposed = false;
 		let observer: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>> = null;
@@ -417,11 +418,13 @@ export function screenShake(options: ScreenShakeOptions): BabylonResult<ShakeHan
 
 		const restoreCamera = (): void => {
 			if (isArcRotate) {
-				(camera as BABYLON.ArcRotateCamera).target.copyFrom(originalTarget);
+				const arc = camera as BABYLON.ArcRotateCamera;
+				arc.target.copyFrom(originalTarget);
+				arc.alpha = originalAlpha;
 			} else {
 				camera.position.copyFrom(originalTarget);
+				camera.upVector.copyFrom(originalUpVector);
 			}
-			camera.upVector.copyFrom(originalUpVector);
 			camera.fov = originalFov;
 		};
 
@@ -534,15 +537,26 @@ export function screenShake(options: ScreenShakeOptions): BabylonResult<ShakeHan
 					camera.position.z = originalTarget.z + transZ;
 				}
 
-				// Apply rotation (roll) via upVector rotation around forward axis
-				if (roll === 0) {
+				// Apply rotation (roll)
+				if (isArcRotate) {
+					// ArcRotateCamera: modifying upVector crashes _getViewMatrix
+					// (degenerate matrix). Instead, apply roll as an alpha offset
+					// which creates a visual wobble around the target.
+					(camera as BABYLON.ArcRotateCamera).alpha = originalAlpha + roll;
+				} else if (roll === 0) {
 					camera.upVector.copyFrom(originalUpVector);
 				} else {
-					const forward: BABYLON.Vector3 = camera.getForwardRay().direction;
-					const rotationQuat: BABYLON.Quaternion = BABYLON.Quaternion.RotationAxis(forward, roll);
-					const rotatedUp: BABYLON.Vector3 = originalUpVector.clone();
-					rotatedUp.rotateByQuaternionToRef(rotationQuat, rotatedUp);
-					camera.upVector.copyFrom(rotatedUp);
+					// Non-ArcRotate cameras: rotate upVector around forward axis
+					const forward: BABYLON.Vector3 = camera.getDirection(BABYLON.Axis.Z);
+					const forwardLen: number = forward.length();
+
+					if (forwardLen > 1e-6) {
+						forward.scaleInPlace(1 / forwardLen);
+						const rotationQuat: BABYLON.Quaternion = BABYLON.Quaternion.RotationAxis(forward, roll);
+						const rotatedUp: BABYLON.Vector3 = originalUpVector.clone();
+						rotatedUp.rotateByQuaternionToRef(rotationQuat, rotatedUp);
+						camera.upVector.copyFrom(rotatedUp);
+					}
 				}
 
 				// Apply FOV offset
