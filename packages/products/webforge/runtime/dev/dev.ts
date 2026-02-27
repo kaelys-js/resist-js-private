@@ -2713,32 +2713,26 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	if (parallax && parallax.layers.length > 0) {
 		container.append(createSubHeader('Parallax Layers'));
 
+		// Container for dynamically-rebuilt layer sub-sections
+		const layerContainer = document.createElement('div');
+		layerContainer.dataset['parallaxLayers'] = 'true';
+		container.append(layerContainer);
+
 		// Rebuilds the parallax layer controls after add/remove layer.
 		const rebuildParallaxControls = (): void => {
-			// Remove existing parallax controls (everything after the "Parallax Layers" sub-header)
-			const headers = container.querySelectorAll('div');
-			let removing = false;
-			const toRemove: HTMLElement[] = [];
-			for (const el of headers) {
-				if (el.textContent === 'Parallax Layers') {
-					removing = true;
-					continue;
-				}
-				if (removing) toRemove.push(el);
-			}
-			for (const el of toRemove) el.remove();
-
-			buildParallaxLayerRows(parallax, container);
+			layerContainer.innerHTML = '';
+			buildParallaxLayerRows(parallax, layerContainer);
 		};
 
-		buildParallaxLayerRows(parallax, container);
+		buildParallaxLayerRows(parallax, layerContainer);
 
 		// Add / Remove layer buttons
 		const btnRow = document.createElement('div');
-		btnRow.style.cssText = 'display: flex; gap: 4px; padding: 4px 0;';
+		btnRow.className = 'btn-group';
+		btnRow.style.padding = '6px 0';
 
 		const addBtn = document.createElement('button');
-		addBtn.className = 'action-btn';
+		addBtn.className = 'btn btn-wide';
 		addBtn.textContent = 'Add Layer';
 		addBtn.addEventListener('click', () => {
 			const layerResult = addParallaxLayer(parallax, {
@@ -2760,7 +2754,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		});
 
 		const removeBtn = document.createElement('button');
-		removeBtn.className = 'action-btn';
+		removeBtn.className = 'btn btn-wide btn-danger';
 		removeBtn.textContent = 'Remove Last';
 		removeBtn.addEventListener('click', () => {
 			if (parallax.layers.length === 0) return;
@@ -2775,7 +2769,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 }
 
 /**
- * Builds per-layer parallax control rows.
+ * Builds per-layer parallax control rows, each in a collapsible sub-section.
  *
  * @param parallax - Parallax instance.
  * @param container - Container element to append rows into.
@@ -2786,17 +2780,30 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 		const bgLayer = parallax.bgLayers[i];
 		if (!layer || !bgLayer) continue;
 
-		// Layer header
-		const header = document.createElement('div');
-		header.style.cssText = 'font-size: 9px; color: #777; padding: 4px 0 2px;';
 		const shortPath =
 			layer.imagePath.length > 20 ? `...${layer.imagePath.slice(-17)}` : layer.imagePath;
 		const layerType: string = layer.type ?? 'background';
-		header.textContent = `${String(i)}: ${shortPath} (${layerType})`;
-		container.append(header);
+
+		// Collapsible sub-section per layer (collapsed by default)
+		const section = document.createElement('div');
+		section.className = 'section collapsed';
+		section.style.borderBottom = 'none';
+
+		const sectionHeader = document.createElement('div');
+		sectionHeader.className = 'section-header';
+		sectionHeader.style.padding = '5px 4px';
+		sectionHeader.style.fontSize = '9px';
+		sectionHeader.innerHTML = `<span>${String(i)}: ${shortPath} <span style="color:#666">(${layerType})</span></span><span class="panel-toggle">\u25BC</span>`;
+		sectionHeader.addEventListener('click', () => {
+			section.classList.toggle('collapsed');
+		});
+
+		const sectionBody = document.createElement('div');
+		sectionBody.className = 'section-body';
+		sectionBody.style.padding = '2px 4px 6px';
 
 		// Visibility toggle
-		container.append(
+		sectionBody.append(
 			createToggleRow(
 				'Visible',
 				bgLayer.isEnabled,
@@ -2808,7 +2815,7 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 		);
 
 		// Opacity slider
-		container.append(
+		sectionBody.append(
 			createSliderRow(
 				'Opacity',
 				0,
@@ -2828,8 +2835,8 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 			),
 		);
 
-		// ScrollSpeedX slider
-		container.append(
+		// Scroll Speed X
+		sectionBody.append(
 			createSliderRow(
 				'Scroll X',
 				-2,
@@ -2843,8 +2850,8 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 			),
 		);
 
-		// ScrollSpeedY slider
-		container.append(
+		// Scroll Speed Y
+		sectionBody.append(
 			createSliderRow(
 				'Scroll Y',
 				-2,
@@ -2858,8 +2865,8 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 			),
 		);
 
-		// Auto-Scroll X slider
-		container.append(
+		// Auto-Scroll X
+		sectionBody.append(
 			createSliderRow(
 				'Auto-Scroll X',
 				-2,
@@ -2873,8 +2880,8 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 			),
 		);
 
-		// Auto-Scroll Y slider
-		container.append(
+		// Auto-Scroll Y
+		sectionBody.append(
 			createSliderRow(
 				'Auto-Scroll Y',
 				-2,
@@ -2888,8 +2895,8 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 			),
 		);
 
-		// Scale slider
-		container.append(
+		// Scale
+		sectionBody.append(
 			createSliderRow(
 				'Scale',
 				0.1,
@@ -2909,7 +2916,7 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 		);
 
 		// Blend mode dropdown
-		container.append(
+		sectionBody.append(
 			createDropdown(
 				'Blend Mode',
 				[
@@ -2931,7 +2938,7 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 
 		// Tint R/G/B sliders
 		const tint = layer.tint ?? { r: 1, g: 1, b: 1, a: 1 };
-		container.append(
+		sectionBody.append(
 			createSliderRow(
 				'Tint R',
 				0,
@@ -2950,7 +2957,7 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 				`parallax-${String(i)}-tint-r`,
 			),
 		);
-		container.append(
+		sectionBody.append(
 			createSliderRow(
 				'Tint G',
 				0,
@@ -2969,7 +2976,7 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 				`parallax-${String(i)}-tint-g`,
 			),
 		);
-		container.append(
+		sectionBody.append(
 			createSliderRow(
 				'Tint B',
 				0,
@@ -2991,24 +2998,24 @@ function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLEleme
 
 		// Fade button
 		const fadeBtn = document.createElement('button');
-		fadeBtn.className = 'action-btn';
-		fadeBtn.textContent = 'Fade';
+		fadeBtn.className = 'btn';
+		fadeBtn.textContent = 'Fade In/Out';
 		fadeBtn.title = 'Fade opacity to 0 over 1s, then back to 1';
 		fadeBtn.addEventListener('click', () => {
-			// Fade to 0 over 1 second
 			const fadeResult = fadeLayerOpacity(parallax, i as Num, 0 as Num, 1000 as Num);
 			if (fadeResult.ok) {
-				// After 1.1s, fade back to 1
 				setTimeout(() => {
 					fadeLayerOpacity(parallax, i as Num, 1 as Num, 1000 as Num);
 				}, 1100);
 			}
 		});
 		const fadeRow = document.createElement('div');
-		fadeRow.className = 'control-row';
-		fadeRow.style.justifyContent = 'flex-end';
+		fadeRow.style.cssText = 'padding: 4px 0; display: flex; justify-content: flex-end;';
 		fadeRow.append(fadeBtn);
-		container.append(fadeRow);
+		sectionBody.append(fadeRow);
+
+		section.append(sectionHeader, sectionBody);
+		container.append(section);
 	}
 }
 
