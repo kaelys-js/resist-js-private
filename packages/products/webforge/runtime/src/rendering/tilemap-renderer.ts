@@ -278,6 +278,15 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			}
 		}
 
+		// 10b. Set renderingGroupId = 2 on tilemap meshes so parallax
+		// (group 1) renders behind them and sky (group 0) behind both.
+		for (const chunk of chunks) {
+			chunk.mesh.renderingGroupId = 2;
+		}
+		for (const cliff of cliffChunks) {
+			cliff.mesh.renderingGroupId = 2;
+		}
+
 		// 11. Create tile animation manager
 		const animResult = createTileAnimator({ scene });
 		if (!animResult.ok) return animResult;

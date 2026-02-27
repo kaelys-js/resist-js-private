@@ -369,6 +369,8 @@ export {
 	fadeLayerOpacity,
 	getParallaxLayerCount,
 	setParallaxLayerTint,
+	PARALLAX_BG_RENDER_GROUP,
+	PARALLAX_FG_RENDER_GROUP,
 	type ParallaxInstance,
 } from './rendering/parallax-manager';
 

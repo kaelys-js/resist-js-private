@@ -451,6 +451,11 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		const hour = Number(timeSlider.value);
 		debug.setTime(hour);
 		updateTimeDisplay(hour);
+		// Clear preset dropdown when slider is dragged manually
+		const presetSelect = document.querySelector(
+			'select[data-control="daynight-preset"]',
+		) as HTMLSelectElement | null;
+		if (presetSelect) presetSelect.selectedIndex = -1;
 	});
 
 	let _lastDayNightSpeed = 1.0;
@@ -831,6 +836,21 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	});
 
 	// ── Rendering Toggles ───────────────────────────────────────────
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
+	(window as any).toggleTilemap = (): void => {
+		const el = document.querySelector('#toggle-tilemap');
+		const { tilemap } = debug;
+		if (!tilemap || !el) return;
+		const isOn = el.classList.contains('on');
+		for (const chunk of tilemap.chunks) {
+			chunk.mesh.isVisible = !isOn;
+		}
+		for (const cliff of tilemap.cliffChunks) {
+			cliff.mesh.isVisible = !isOn;
+		}
+		el.classList.toggle('on', !isOn);
+	};
+
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
 	(window as any).togglePostProcess = (): void => {
 		const el = document.querySelector('#toggle-postprocess');
