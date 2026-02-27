@@ -431,11 +431,39 @@ export {
 	type ParallaxInstance,
 } from './rendering/parallax-manager';
 
-// Screen effects
+// Transitions (replaces screen-effects)
 export {
-	screenTint,
+	playTransition,
+	applyTransitionEasing,
+	fadeToBlack,
+	fadeToWhite,
+	fadeToColor,
 	screenFlash,
-	screenFadeIn,
-	screenFadeOut,
-	type ScreenEffectHandle,
-} from './rendering/screen-effects';
+	screenTint,
+	type TransitionHandle,
+} from './rendering/transition-manager';
+
+// Transition shader
+export {
+	createTransitionPostProcess,
+	registerTransitionShader,
+	TRANSITION_TYPE_MAP,
+	TRANSITION_SHADER_NAME,
+} from './rendering/transition-shader';
+
+// Schemas — Transition config
+export {
+	TransitionConfigSchema,
+	TransitionTypeSchema,
+	TransitionEasingSchema as ScreenTransitionEasingSchema,
+	TransitionDirectionSchema,
+	TransitionAxisSchema,
+	Color3Schema,
+	TRANSITION_PRESETS,
+	type TransitionConfig,
+	type TransitionType,
+	type TransitionEasing as ScreenTransitionEasing,
+	type TransitionDirection,
+	type TransitionAxis,
+	type Color3,
+} from './schemas/transition-config';
