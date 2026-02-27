@@ -2193,12 +2193,16 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
  * @param layer - The layer data (tile, object, or group).
  * @param index - The layer index.
  * @param container - The parent container element.
+ * @param totalLayers - Total number of layers (for disabling buttons).
+ * @param onReorder - Callback to swap layer positions.
  */
 function buildLayerRow(
 	tilemap: RenderedTilemap,
 	layer: Layer,
 	index: number,
 	container: HTMLElement,
+	totalLayers: number,
+	onReorder: (fromIndex: number, toIndex: number) => void,
 ): void {
 	const idx = String(index);
 	const row: HTMLElement = document.createElement('div');
@@ -2238,12 +2242,38 @@ function buildLayerRow(
 
 	titleArea.append(kindBadge, nameSpan);
 
+	// -- Reorder buttons --
+	const reorderWrap: HTMLElement = document.createElement('div');
+	reorderWrap.className = 'layer-reorder';
+
+	const upBtn: HTMLButtonElement = document.createElement('button');
+	upBtn.textContent = '\u25B2'; // ▲
+	upBtn.title = 'Move layer up';
+	upBtn.disabled = index === 0;
+	upBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		onReorder(index, index - 1);
+	});
+
+	const downBtn: HTMLButtonElement = document.createElement('button');
+	downBtn.textContent = '\u25BC'; // ▼
+	downBtn.title = 'Move layer down';
+	downBtn.disabled = index === totalLayers - 1;
+	downBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		onReorder(index, index + 1);
+	});
+
+	reorderWrap.append(upBtn, downBtn);
+
 	const chevron: HTMLElement = document.createElement('span');
 	chevron.className = 'layer-chevron';
 	chevron.textContent = '\u25BE'; // ▾
 
-	header.append(titleArea, chevron);
-	header.addEventListener('click', () => {
+	header.append(titleArea, reorderWrap, chevron);
+	header.addEventListener('click', (e) => {
+		// Don't toggle when clicking reorder buttons
+		if ((e.target as HTMLElement).closest('.layer-reorder')) return;
 		row.classList.toggle('collapsed');
 	});
 	row.append(header);
@@ -3593,11 +3623,36 @@ function buildLayerUI(debug: DevDebugApi): void {
 	const { layers } = tilemap.mapData;
 	container.innerHTML = '';
 
+	const onReorder = (fromIdx: number, toIdx: number): void => {
+		if (toIdx < 0 || toIdx >= layers.length) return;
+
+		// Create a mutable copy of map data with swapped layers
+		const mutableLayers = [...layers];
+		const temp = mutableLayers[fromIdx];
+		if (!temp || !mutableLayers[toIdx]) return;
+		mutableLayers[fromIdx] = mutableLayers[toIdx];
+		mutableLayers[toIdx] = temp;
+		const newMapData = { ...tilemap.mapData, layers: mutableLayers };
+
+		// Dispose current tilemap and re-render with new order
+		const { scene } = tilemap;
+		disposeTilemap({ tilemap });
+		const result: BabylonResult<RenderedTilemap> = renderTilemap({
+			scene,
+			mapDataInput: newMapData,
+			assetBasePath: '/',
+		});
+		if (result.ok) {
+			debug.tilemap = result.data;
+			buildLayerUI(debug);
+		}
+	};
+
 	for (let i = 0; i < layers.length; i++) {
 		const layer = layers[i];
 		if (!layer) continue;
 
-		buildLayerRow(tilemap, layer, i, container as HTMLElement);
+		buildLayerRow(tilemap, layer, i, container as HTMLElement, layers.length, onReorder);
 	}
 }
 
