@@ -257,6 +257,10 @@ function ensureGridMesh(scene: BABYLON.Scene, debug: DevDebugApi): void {
 		_gridMesh.dispose();
 		_gridMesh = null;
 	}
+	if (_gridFillMesh) {
+		_gridFillMesh.dispose();
+		_gridFillMesh = null;
+	}
 
 	const lines: BABYLON.Vector3[][] = [];
 
@@ -276,6 +280,23 @@ function ensureGridMesh(scene: BABYLON.Scene, debug: DevDebugApi): void {
 	_gridMesh.isPickable = false;
 	_gridMesh.position.y = 0.01;
 	_gridMesh.isVisible = _gridVisible;
+
+	// Create a solid fill plane behind the grid lines
+	_gridFillMesh = BABYLON.MeshBuilder.CreateGround(
+		'grid-fill',
+		{ width: mapW, height: mapH },
+		scene,
+	);
+	const fillMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial('grid-fill-mat', scene);
+	fillMat.emissiveColor = _gridFillColor;
+	fillMat.disableLighting = true;
+	fillMat.zOffset = -1;
+	_gridFillMesh.material = fillMat;
+	_gridFillMesh.renderingGroupId = 3;
+	_gridFillMesh.isPickable = false;
+	_gridFillMesh.position.set(mapW / 2, 0.009, mapH / 2);
+	_gridFillMesh.visibility = _gridFillAlpha;
+	_gridFillMesh.isVisible = _gridVisible;
 }
 
 /**
@@ -296,6 +317,9 @@ function toggleGridOverlay(scene: BABYLON.Scene, debug: DevDebugApi, forceState?
 	}
 	if (_gridMesh) {
 		_gridMesh.isVisible = _gridVisible;
+	}
+	if (_gridFillMesh) {
+		_gridFillMesh.isVisible = _gridVisible;
 	}
 
 	// Sync the toggle checkbox in the Navigation UI
@@ -386,6 +410,7 @@ function clearSelectionRect(debug: DevDebugApi): void {
 function updateHighlightForSelection(): void {
 	const mesh = (window as Record<string, unknown>)._highlightMesh as BABYLON.Mesh | undefined;
 	const border = (window as Record<string, unknown>)._borderMesh as BABYLON.Mesh | undefined;
+	const fill = (window as Record<string, unknown>)._selectionFillMesh as BABYLON.Mesh | undefined;
 	if (!mesh) return;
 
 	const rect = getSelectionRect();
@@ -403,6 +428,13 @@ function updateHighlightForSelection(): void {
 			border.position.z = mesh.position.z;
 			border.setEnabled(true);
 		}
+		if (fill) {
+			fill.scaling.set(w, 1, h);
+			fill.position.x = mesh.position.x;
+			fill.position.y = mesh.position.y - 0.002;
+			fill.position.z = mesh.position.z;
+			fill.setEnabled(true);
+		}
 	} else if (_lastInspectX >= 0 && _lastInspectZ >= 0) {
 		mesh.scaling.set(1, 1, 1);
 		mesh.position.x = _lastInspectX + 0.5;
@@ -413,6 +445,13 @@ function updateHighlightForSelection(): void {
 			border.position.y = mesh.position.y - 0.001;
 			border.position.z = mesh.position.z;
 			border.setEnabled(true);
+		}
+		if (fill) {
+			fill.scaling.set(1, 1, 1);
+			fill.position.x = mesh.position.x;
+			fill.position.y = mesh.position.y - 0.002;
+			fill.position.z = mesh.position.z;
+			fill.setEnabled(true);
 		}
 	}
 }
@@ -432,12 +471,15 @@ function clearAllLayers(debug: DevDebugApi): void {
 
 // -- Grid overlay state --
 let _gridMesh: BABYLON.LinesMesh | null = null;
+let _gridFillMesh: BABYLON.Mesh | null = null;
 let _gridVisible: Bool = false;
-let _gridColor: BABYLON.Color3 = new BABYLON.Color3(1, 1, 1);
-let _gridAlpha: Num = 0.15;
+let _gridColor: BABYLON.Color3 = new BABYLON.Color3(0.8, 0.8, 0.8);
+let _gridAlpha: Num = 0.2;
+let _gridFillColor: BABYLON.Color3 = new BABYLON.Color3(0.8, 0.8, 0.8);
+let _gridFillAlpha: Num = 0;
 
 /**
- * Updates the grid mesh color and opacity from the current state variables.
+ * Updates the grid line mesh color and opacity from the current state variables.
  *
  * Uses `.visibility` instead of `.alpha` because Babylon.js `LinesMesh`
  * does not visually respond to the `.alpha` property.
@@ -449,10 +491,22 @@ function updateGridAppearance(): void {
 	}
 }
 
+/**
+ * Updates the grid fill mesh color and opacity from the current state variables.
+ */
+function updateGridFillAppearance(): void {
+	if (!_gridFillMesh) return;
+	const mat = _gridFillMesh.material as BABYLON.StandardMaterial | null;
+	if (mat) mat.emissiveColor = _gridFillColor;
+	_gridFillMesh.visibility = _gridFillAlpha;
+}
+
 // -- Selection highlight state --
-let _selectionColor: BABYLON.Color3 = new BABYLON.Color3(0, 1, 1);
-let _selectionAlpha: Num = 1.0;
-let _selectionEdgeWidth: Num = 0.06;
+let _selectionColor: BABYLON.Color3 = BABYLON.Color3.FromHexString('#44ccdd');
+let _selectionAlpha: Num = 0.9;
+let _selectionEdgeWidth: Num = 0.05;
+let _selectionFillColor: BABYLON.Color3 = BABYLON.Color3.FromHexString('#44ccdd');
+let _selectionFillAlpha: Num = 0.12;
 
 /**
  * Rebuilds the border mesh geometry as a hollow rectangular frame (annulus).
@@ -539,6 +593,12 @@ function updateSelectionAppearance(): void {
 	const borderMat = border.material as BABYLON.StandardMaterial | null;
 	if (borderMat) borderMat.emissiveColor = _selectionColor;
 	border.visibility = _selectionAlpha;
+
+	const fill = (window as Record<string, unknown>)._selectionFillMesh as BABYLON.Mesh | undefined;
+	if (!fill) return;
+	const fillMat = fill.material as BABYLON.StandardMaterial | null;
+	if (fillMat) fillMat.emissiveColor = _selectionFillColor;
+	fill.visibility = _selectionFillAlpha;
 }
 
 // -- Editor backdrop (black plane behind everything) --
@@ -1824,10 +1884,10 @@ const GRID_COLOR_PRESETS: readonly ColorPreset[] = [
 
 /** Selection highlight color presets. */
 const SELECTION_COLOR_PRESETS: readonly ColorPreset[] = [
+	{ name: 'Teal', hex: '#44ccdd' },
 	{ name: 'Cyan', hex: '#00ffff' },
 	{ name: 'Yellow', hex: '#ffff00' },
 	{ name: 'Green', hex: '#00ff00' },
-	{ name: 'Red', hex: '#ff0000' },
 	{ name: 'White', hex: '#ffffff' },
 ];
 
@@ -4134,9 +4194,28 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	borderMesh.visibility = _selectionAlpha;
 	borderMesh.setEnabled(false);
 
+	// Create a solid fill mesh behind the wireframe and border for the interior color
+	const fillMesh: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround(
+		'tile-inspector-fill',
+		{ width: 1, height: 1 },
+		scene,
+	);
+	const fillMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial(
+		'tile-inspector-fill-mat',
+		scene,
+	);
+	fillMat.emissiveColor = _selectionFillColor;
+	fillMat.disableLighting = true;
+	fillMesh.material = fillMat;
+	fillMesh.renderingGroupId = 3;
+	fillMesh.isPickable = false;
+	fillMesh.visibility = _selectionFillAlpha;
+	fillMesh.setEnabled(false);
+
 	// Store meshes globally for selection scaling
 	(window as Record<string, unknown>)._highlightMesh = highlightMesh;
 	(window as Record<string, unknown>)._borderMesh = borderMesh;
+	(window as Record<string, unknown>)._selectionFillMesh = fillMesh;
 
 	// Attach canvas click handler
 	const canvas: HTMLCanvasElement | null =
@@ -4206,15 +4285,15 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		_selEndX = -1;
 		_selEndZ = -1;
 
-		// Position the highlight mesh over the selected tile (use picked Y for cliffs)
-		const highlightY: Num = pickResult.pickedPoint.y + 0.02;
-		highlightMesh.scaling.set(1, 1, 1);
-		highlightMesh.position.set(gridX + 0.5, highlightY, gridZ + 0.5);
-		highlightMesh.setEnabled(true);
-
 		// Cache grid position for re-inspection when switching layers
 		_lastInspectX = gridX;
 		_lastInspectZ = gridZ;
+
+		// Position the highlight mesh over the selected tile (use picked Y for cliffs)
+		const highlightY: Num = pickResult.pickedPoint.y + 0.02;
+		highlightMesh.position.y = highlightY;
+		highlightMesh.setEnabled(true);
+		updateHighlightForSelection();
 
 		// Enable selection-dependent buttons in the Navigation section
 		const selBtnRef = (window as Record<string, unknown>)._selBtn as HTMLButtonElement | undefined;
@@ -4237,7 +4316,7 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	// ── Selection Style controls ──
 	container.append(createSubHeader('Selection Style'));
 	container.append(
-		createColorPickerRow('Color', SELECTION_COLOR_PRESETS, '#00ffff', (hex: string) => {
+		createColorPickerRow('Color', SELECTION_COLOR_PRESETS, '#44ccdd', (hex: string) => {
 			_selectionColor = BABYLON.Color3.FromHexString(hex);
 			updateSelectionAppearance();
 		}),
@@ -4251,6 +4330,18 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	container.append(
 		createSliderRow('Opacity', 0.1, 1, 0.05, _selectionAlpha, (val: Num) => {
 			_selectionAlpha = val;
+			updateSelectionAppearance();
+		}),
+	);
+	container.append(
+		createSliderRow('Fill Opacity', 0, 1, 0.05, _selectionFillAlpha, (val: Num) => {
+			_selectionFillAlpha = val;
+			updateSelectionAppearance();
+		}),
+	);
+	container.append(
+		createColorPickerRow('Fill Color', SELECTION_COLOR_PRESETS, '#44ccdd', (hex: string) => {
+			_selectionFillColor = BABYLON.Color3.FromHexString(hex);
 			updateSelectionAppearance();
 		}),
 	);
@@ -5362,9 +5453,21 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 		}),
 	);
 	controlsDiv.append(
-		createColorPickerRow('Grid Color', GRID_COLOR_PRESETS, '#ffffff', (hex: string) => {
+		createColorPickerRow('Grid Color', GRID_COLOR_PRESETS, '#cccccc', (hex: string) => {
 			_gridColor = BABYLON.Color3.FromHexString(hex);
 			updateGridAppearance();
+		}),
+	);
+	controlsDiv.append(
+		createSliderRow('Fill Opacity', 0, 1, 0.05, _gridFillAlpha, (val: Num) => {
+			_gridFillAlpha = val;
+			updateGridFillAppearance();
+		}),
+	);
+	controlsDiv.append(
+		createColorPickerRow('Fill Color', GRID_COLOR_PRESETS, '#cccccc', (hex: string) => {
+			_gridFillColor = BABYLON.Color3.FromHexString(hex);
+			updateGridFillAppearance();
 		}),
 	);
 
