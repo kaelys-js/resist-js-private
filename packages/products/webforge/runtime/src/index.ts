@@ -334,20 +334,41 @@ export {
 	SkyTypeSchema,
 	SkyGradientStopSchema,
 	ParallaxLayerSchema,
+	BlendModeSchema,
+	ParallaxLayerTypeSchema,
+	StarsConfigSchema,
 	type SkyConfig,
 	type SkyType,
 	type SkyGradientStop,
 	type ParallaxLayer,
+	type BlendMode,
+	type ParallaxLayerType,
+	type StarsConfig,
 } from './schemas/sky-config';
 
 // Sky system
-export { createSky, disposeSky, type SkyInstance } from './rendering/sky-system';
+export {
+	createSky,
+	disposeSky,
+	generateGradientPixels,
+	regenerateGradientTexture,
+	updateSkyFromDayNight,
+	computeStarOpacity,
+	createStarField,
+	type SkyInstance,
+} from './rendering/sky-system';
 
 // Parallax manager
 export {
 	createParallax,
 	disposeParallax,
 	computeParallaxOffset,
+	mapBlendMode,
+	addParallaxLayer,
+	removeParallaxLayer,
+	fadeLayerOpacity,
+	getParallaxLayerCount,
+	setParallaxLayerTint,
 	type ParallaxInstance,
 } from './rendering/parallax-manager';
 
