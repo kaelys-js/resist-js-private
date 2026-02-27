@@ -441,6 +441,19 @@
 				color: #fff;
 				border-color: rgba(255, 255, 255, 0.2);
 			}
+			.btn:disabled {
+				opacity: 0.3;
+				cursor: default;
+				pointer-events: none;
+			}
+			kbd {
+				background: #333;
+				padding: 1px 5px;
+				border-radius: 3px;
+				font-family: monospace;
+				font-size: 11px;
+				border: 1px solid #555;
+			}
 			.btn.active {
 				background: rgba(80, 200, 200, 0.15);
 				border-color: rgba(80, 200, 200, 0.4);
@@ -456,6 +469,37 @@
 			}
 			.btn-danger:hover {
 				background: rgba(255, 100, 100, 0.15);
+			}
+
+			/* Navigation inputs */
+			.nav-input {
+				width: 48px;
+				padding: 3px 4px;
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				border-radius: 4px;
+				color: #ccc;
+				font-family: inherit;
+				font-size: 10px;
+				text-align: center;
+				outline: none;
+			}
+			.nav-input:focus {
+				border-color: rgba(80, 200, 200, 0.4);
+			}
+			.nav-readout {
+				display: flex;
+				justify-content: space-between;
+				padding: 2px 0;
+				font-size: 10px;
+			}
+			.nav-readout-label {
+				color: #888;
+			}
+			.nav-readout-value {
+				color: #6ecfcf;
+				font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+				font-size: 10px;
 			}
 
 			/* Sliders */
@@ -599,6 +643,15 @@
 			</div>
 
 			<div class="panel-body">
+
+				<!-- 0. Navigation -->
+				<div class="section" id="section-camera-nav" data-section="camera-nav">
+					<div class="section-header" onclick="toggleSection('section-camera-nav')">
+						<span>Navigation</span>
+						<span class="panel-toggle">&#9662;</span>
+					</div>
+					<div class="section-body" id="camera-nav-body"></div>
+				</div>
 
 				<!-- 1. Camera -->
 				<div class="section collapsed" id="section-camera" data-section="camera">
@@ -936,6 +989,14 @@
 					<div class="section-body" id="info-body">
 						<div class="status-text">Loading...</div>
 					</div>
+				</div>
+
+				<div class="section collapsed" id="section-shortcuts">
+					<div class="section-header" onclick="toggleSection('section-shortcuts')">
+						<span>Keyboard Shortcuts</span>
+						<span class="panel-toggle">&#9662;</span>
+					</div>
+					<div class="section-body" id="shortcuts-body"></div>
 				</div>
 			</div>
 		</div>

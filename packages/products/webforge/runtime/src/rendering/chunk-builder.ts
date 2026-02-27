@@ -264,6 +264,11 @@ export function buildChunk(options: BuildChunkOptions): BabylonResult<ChunkMesh 
 
 		const meshName = `chunk-${chunkX}-${chunkZ}-${layer.name}`;
 		const mesh: BABYLON.Mesh = new BABYLON.Mesh(meshName, scene);
+
+		// Keep mesh hidden until fully configured to avoid a black flash frame
+		// (mesh exists in scene with no material/geometry between creation and setup).
+		mesh.setEnabled(false);
+
 		const vertexData: BABYLON.VertexData = new BABYLON.VertexData();
 		vertexData.positions = [...mergeResult.data.positions];
 		vertexData.normals = [...mergeResult.data.normals];
@@ -276,6 +281,9 @@ export function buildChunk(options: BuildChunkOptions): BabylonResult<ChunkMesh 
 
 		// Apply layer opacity to mesh visibility
 		mesh.visibility = layer.opacity;
+
+		// Now that geometry, material, and visibility are set, enable for rendering
+		mesh.setEnabled(true);
 
 		const chunkMesh: ChunkMesh = {
 			mesh,
@@ -354,6 +362,8 @@ export function buildCliffChunk(options: BuildCliffChunkOptions): BabylonResult<
 
 		const meshName = `cliff-${chunkX}-${chunkZ}`;
 		const mesh: BABYLON.Mesh = new BABYLON.Mesh(meshName, scene);
+		mesh.setEnabled(false);
+
 		const vertexData: BABYLON.VertexData = new BABYLON.VertexData();
 		vertexData.positions = [...geoResult.data.positions];
 		vertexData.normals = [...geoResult.data.normals];
@@ -364,6 +374,8 @@ export function buildCliffChunk(options: BuildCliffChunkOptions): BabylonResult<
 		// oxlint-disable-next-line prefer-destructuring
 		const material: BABYLON.StandardMaterial | undefined = materials[0];
 		if (material) mesh.material = material;
+
+		mesh.setEnabled(true);
 
 		const chunkMesh: ChunkMesh = {
 			mesh,
@@ -384,7 +396,10 @@ export function buildCliffChunk(options: BuildCliffChunkOptions): BabylonResult<
 // =============================================================================
 
 /**
- * Rebuilds a chunk, disposing the existing mesh first.
+ * Rebuilds a chunk by building the replacement first, then disposing the old mesh.
+ *
+ * Build-before-dispose avoids the visual flash that occurs when the old mesh
+ * disappears for one frame before the new mesh is ready.
  *
  * Used by the editor when a single tile changes — only the affected
  * chunk needs rebuilding, not the entire map.
@@ -402,9 +417,19 @@ export function buildCliffChunk(options: BuildCliffChunkOptions): BabylonResult<
 export function rebuildChunk(options: RebuildChunkOptions): BabylonResult<ChunkMesh | null> {
 	const { context, layerIndex, chunkX, chunkZ, existingMesh } = options;
 
+	// Build the new chunk first to avoid a visual flash from the old mesh being
+	// disposed before the replacement is ready.
+	const result = buildChunk({ context, layerIndex, chunkX, chunkZ });
+
+	// Copy renderingGroupId from the old mesh to the new one BEFORE disposing,
+	// so the new mesh renders in the correct group from its very first frame.
+	if (result.ok && result.data && existingMesh) {
+		result.data.mesh.renderingGroupId = existingMesh.renderingGroupId;
+	}
+
 	if (existingMesh) {
 		existingMesh.dispose();
 	}
 
-	return buildChunk({ context, layerIndex, chunkX, chunkZ });
+	return result;
 }
