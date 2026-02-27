@@ -77,6 +77,10 @@ export type InterpolatedValues = {
 	readonly exposure?: Num;
 	readonly bloomWeight?: Num;
 	readonly contrast?: Num;
+	readonly skyColor?: ColorRgba;
+	readonly skyGradientTop?: ColorRgba;
+	readonly skyGradientBottom?: ColorRgba;
+	readonly fogSyncSky?: boolean;
 };
 
 // =============================================================================
@@ -100,6 +104,8 @@ export const DEFAULT_DAY_CYCLE_KEYFRAMES: readonly TimeKeyframe[] = [
 		exposure: 0.3,
 		bloomWeight: 0.15,
 		contrast: 0.8,
+		skyGradientTop: { r: 0.02, g: 0.02, b: 0.08, a: 1 },
+		skyGradientBottom: { r: 0.03, g: 0.03, b: 0.06, a: 1 },
 	},
 	{
 		time: 5,
@@ -114,6 +120,8 @@ export const DEFAULT_DAY_CYCLE_KEYFRAMES: readonly TimeKeyframe[] = [
 		exposure: 0.8,
 		bloomWeight: 0.5,
 		contrast: 0.9,
+		skyGradientTop: { r: 0.15, g: 0.1, b: 0.3, a: 1 },
+		skyGradientBottom: { r: 0.6, g: 0.35, b: 0.2, a: 1 },
 	},
 	{
 		time: 7,
@@ -127,6 +135,8 @@ export const DEFAULT_DAY_CYCLE_KEYFRAMES: readonly TimeKeyframe[] = [
 		exposure: 1.2,
 		bloomWeight: 0.4,
 		contrast: 1.0,
+		skyGradientTop: { r: 0.3, g: 0.45, b: 0.75, a: 1 },
+		skyGradientBottom: { r: 0.7, g: 0.65, b: 0.5, a: 1 },
 	},
 	{
 		time: 10,
@@ -140,6 +150,8 @@ export const DEFAULT_DAY_CYCLE_KEYFRAMES: readonly TimeKeyframe[] = [
 		exposure: 1.5,
 		bloomWeight: 0.3,
 		contrast: 1.1,
+		skyGradientTop: { r: 0.3, g: 0.5, b: 0.85, a: 1 },
+		skyGradientBottom: { r: 0.8, g: 0.8, b: 0.9, a: 1 },
 	},
 	{
 		time: 12,
@@ -153,6 +165,8 @@ export const DEFAULT_DAY_CYCLE_KEYFRAMES: readonly TimeKeyframe[] = [
 		exposure: 1.6,
 		bloomWeight: 0.25,
 		contrast: 1.15,
+		skyGradientTop: { r: 0.25, g: 0.45, b: 0.85, a: 1 },
+		skyGradientBottom: { r: 0.85, g: 0.85, b: 0.95, a: 1 },
 	},
 	{
 		time: 15,
@@ -166,6 +180,8 @@ export const DEFAULT_DAY_CYCLE_KEYFRAMES: readonly TimeKeyframe[] = [
 		exposure: 1.4,
 		bloomWeight: 0.35,
 		contrast: 1.1,
+		skyGradientTop: { r: 0.35, g: 0.45, b: 0.75, a: 1 },
+		skyGradientBottom: { r: 0.75, g: 0.7, b: 0.6, a: 1 },
 	},
 	{
 		time: 18,
@@ -179,6 +195,8 @@ export const DEFAULT_DAY_CYCLE_KEYFRAMES: readonly TimeKeyframe[] = [
 		exposure: 1.0,
 		bloomWeight: 0.6,
 		contrast: 0.95,
+		skyGradientTop: { r: 0.3, g: 0.15, b: 0.35, a: 1 },
+		skyGradientBottom: { r: 0.7, g: 0.35, b: 0.2, a: 1 },
 	},
 	{
 		time: 20,
@@ -191,6 +209,8 @@ export const DEFAULT_DAY_CYCLE_KEYFRAMES: readonly TimeKeyframe[] = [
 		exposure: 0.5,
 		bloomWeight: 0.3,
 		contrast: 0.85,
+		skyGradientTop: { r: 0.06, g: 0.04, b: 0.15, a: 1 },
+		skyGradientBottom: { r: 0.1, g: 0.06, b: 0.12, a: 1 },
 	},
 	{
 		time: 22,
@@ -203,6 +223,8 @@ export const DEFAULT_DAY_CYCLE_KEYFRAMES: readonly TimeKeyframe[] = [
 		exposure: 0.3,
 		bloomWeight: 0.15,
 		contrast: 0.8,
+		skyGradientTop: { r: 0.02, g: 0.02, b: 0.08, a: 1 },
+		skyGradientBottom: { r: 0.03, g: 0.03, b: 0.06, a: 1 },
 	},
 ];
 
@@ -563,6 +585,9 @@ function keyframeToValues(kf: TimeKeyframe): InterpolatedValues {
 	if (kf.exposure !== undefined) values['exposure'] = kf.exposure;
 	if (kf.bloomWeight !== undefined) values['bloomWeight'] = kf.bloomWeight;
 	if (kf.contrast !== undefined) values['contrast'] = kf.contrast;
+	if (kf.skyColor !== undefined) values['skyColor'] = kf.skyColor;
+	if (kf.skyGradientTop !== undefined) values['skyGradientTop'] = kf.skyGradientTop;
+	if (kf.skyGradientBottom !== undefined) values['skyGradientBottom'] = kf.skyGradientBottom;
 
 	return values;
 }
@@ -575,6 +600,9 @@ const COLOR_FIELDS: readonly string[] = [
 	'moonColor',
 	'clearColor',
 	'fogColor',
+	'skyColor',
+	'skyGradientTop',
+	'skyGradientBottom',
 ];
 
 /** Numeric field names for keyframe interpolation. */
@@ -599,14 +627,14 @@ const NUM_FIELDS: readonly string[] = [
  * @returns Interpolated values.
  */
 function interpolateValues(before: TimeKeyframe, after: TimeKeyframe, t: Num): InterpolatedValues {
-	const result: Record<string, ColorRgba | Num> = {};
-	const beforeRecord = before as unknown as Record<string, ColorRgba | Num | undefined>;
-	const afterRecord = after as unknown as Record<string, ColorRgba | Num | undefined>;
+	const result: Record<string, ColorRgba | Num | boolean> = {};
+	const beforeRecord = before as unknown as Record<string, ColorRgba | Num | boolean | undefined>;
+	const afterRecord = after as unknown as Record<string, ColorRgba | Num | boolean | undefined>;
 
 	// Interpolate color fields
 	for (const field of COLOR_FIELDS) {
-		const bVal: ColorRgba | Num | undefined = beforeRecord[field];
-		const aVal: ColorRgba | Num | undefined = afterRecord[field];
+		const bVal: ColorRgba | Num | boolean | undefined = beforeRecord[field];
+		const aVal: ColorRgba | Num | boolean | undefined = afterRecord[field];
 		if (bVal !== undefined && aVal !== undefined) {
 			result[field] = lerpColor(bVal as ColorRgba, aVal as ColorRgba, t);
 		}
@@ -614,11 +642,16 @@ function interpolateValues(before: TimeKeyframe, after: TimeKeyframe, t: Num): I
 
 	// Interpolate numeric fields
 	for (const field of NUM_FIELDS) {
-		const bVal: ColorRgba | Num | undefined = beforeRecord[field];
-		const aVal: ColorRgba | Num | undefined = afterRecord[field];
+		const bVal: ColorRgba | Num | boolean | undefined = beforeRecord[field];
+		const aVal: ColorRgba | Num | boolean | undefined = afterRecord[field];
 		if (bVal !== undefined && aVal !== undefined) {
 			result[field] = lerpNum(bVal as Num, aVal as Num, t);
 		}
+	}
+
+	// Boolean fields — use lower keyframe value (not interpolated)
+	if (before.fogSyncSky !== undefined) {
+		result['fogSyncSky'] = before.fogSyncSky;
 	}
 
 	return result;

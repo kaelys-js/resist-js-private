@@ -1254,3 +1254,90 @@ describe('setIndoorMode / getIndoorMode', () => {
 		sunLight.dispose();
 	});
 });
+
+// =============================================================================
+// Sky Field Interpolation
+// =============================================================================
+
+describe('sky field interpolation', () => {
+	test('interpolates skyColor between keyframes', () => {
+		const keyframes = [
+			{ time: 0, skyColor: { r: 0, g: 0, b: 0.1, a: 1 } },
+			{ time: 12, skyColor: { r: 0.3, g: 0.5, b: 0.9, a: 1 } },
+		];
+		const result = interpolateKeyframes(keyframes, 6);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.skyColor?.r).toBeCloseTo(0.15, 2);
+		expect(result.data.skyColor?.g).toBeCloseTo(0.25, 2);
+		expect(result.data.skyColor?.b).toBeCloseTo(0.5, 2);
+	});
+
+	test('interpolates skyGradientTop and skyGradientBottom', () => {
+		const keyframes = [
+			{
+				time: 0,
+				skyGradientTop: { r: 0, g: 0, b: 0.1, a: 1 },
+				skyGradientBottom: { r: 0, g: 0, b: 0.05, a: 1 },
+			},
+			{
+				time: 12,
+				skyGradientTop: { r: 0.3, g: 0.5, b: 0.9, a: 1 },
+				skyGradientBottom: { r: 0.9, g: 0.9, b: 1, a: 1 },
+			},
+		];
+		const result = interpolateKeyframes(keyframes, 6);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		// At time 6 (halfway), should be ~50% blend
+		expect(result.data.skyGradientTop?.r).toBeCloseTo(0.15, 2);
+		expect(result.data.skyGradientTop?.b).toBeCloseTo(0.5, 2);
+		expect(result.data.skyGradientBottom?.r).toBeCloseTo(0.45, 2);
+		expect(result.data.skyGradientBottom?.b).toBeCloseTo(0.525, 2);
+	});
+
+	test('fogSyncSky uses lower keyframe value (boolean, not interpolated)', () => {
+		const keyframes = [
+			{ time: 0, fogSyncSky: true },
+			{ time: 12, fogSyncSky: false },
+		];
+		const result = interpolateKeyframes(keyframes, 6);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		// Boolean field — uses lower keyframe value
+		expect(result.data.fogSyncSky).toBe(true);
+	});
+
+	test('fogSyncSky is undefined when not in both keyframes', () => {
+		const keyframes = [
+			{ time: 0, sunIntensity: 1 },
+			{ time: 12, sunIntensity: 0.5 },
+		];
+		const result = interpolateKeyframes(keyframes, 6);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.fogSyncSky).toBeUndefined();
+	});
+
+	test('default keyframes include skyGradientTop and skyGradientBottom', () => {
+		const noon = DEFAULT_DAY_CYCLE_KEYFRAMES.find((kf) => kf.time === 12);
+		expect(noon).toBeDefined();
+		expect(noon?.skyGradientTop).toBeDefined();
+		expect(noon?.skyGradientBottom).toBeDefined();
+	});
+
+	test('single keyframe with sky fields returns them directly', () => {
+		const keyframes = [
+			{
+				time: 12,
+				skyColor: { r: 0.5, g: 0.6, b: 0.8, a: 1 },
+				skyGradientTop: { r: 0.3, g: 0.5, b: 0.9, a: 1 },
+			},
+		];
+		const result = interpolateKeyframes(keyframes, 12);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.skyColor?.r).toBeCloseTo(0.5, 2);
+		expect(result.data.skyGradientTop?.b).toBeCloseTo(0.9, 2);
+	});
+});
