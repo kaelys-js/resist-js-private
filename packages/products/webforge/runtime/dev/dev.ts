@@ -3523,24 +3523,52 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 		),
 	);
 
-	container.append(
-		createToggleRow(
-			`UI Overlays (${String(uiMeshes.length)})`,
-			false,
-			(on) => {
-				for (const mesh of uiMeshes) {
-					if (mesh instanceof BABYLON.Mesh) {
-						if (on) {
-							removeMeshFromGlow({ glowLayer: glow, mesh });
-						} else {
-							excludeMeshFromGlow({ glowLayer: glow, mesh });
-						}
+	// Track whether the user has enabled UI overlay glow
+	let uiGlowEnabled = false;
+
+	const uiToggleRow: HTMLElement = createToggleRow(
+		`UI Overlays (${String(uiMeshes.length)})`,
+		false,
+		(on) => {
+			uiGlowEnabled = on;
+			for (const mesh of uiMeshes) {
+				if (mesh instanceof BABYLON.Mesh) {
+					if (on) {
+						removeMeshFromGlow({ glowLayer: glow, mesh });
+					} else {
+						excludeMeshFromGlow({ glowLayer: glow, mesh });
 					}
 				}
-			},
-			'glow-ui',
-		),
+			}
+		},
+		'glow-ui',
 	);
+	container.append(uiToggleRow);
+
+	// Auto-exclude dynamically-created UI meshes (grid, selection highlight, etc.)
+	// Uses queueMicrotask because renderingGroupId is set AFTER mesh creation
+	scene.onNewMeshAddedObservable.add((mesh: BABYLON.AbstractMesh) => {
+		queueMicrotask(() => {
+			if (mesh.renderingGroupId === 3 && mesh instanceof BABYLON.Mesh) {
+				uiMeshes.push(mesh);
+				if (!uiGlowEnabled) {
+					excludeMeshFromGlow({ glowLayer: glow, mesh });
+				}
+				const lbl: Element | null = uiToggleRow.querySelector('.control-label');
+				if (lbl) lbl.textContent = `UI Overlays (${String(uiMeshes.length)})`;
+			}
+		});
+	});
+
+	// Update count when UI meshes are removed
+	scene.onMeshRemovedObservable.add((mesh: BABYLON.AbstractMesh) => {
+		const idx: number = uiMeshes.indexOf(mesh);
+		if (idx >= 0) {
+			uiMeshes.splice(idx, 1);
+			const lbl: Element | null = uiToggleRow.querySelector('.control-label');
+			if (lbl) lbl.textContent = `UI Overlays (${String(uiMeshes.length)})`;
+		}
+	});
 
 	if (otherMeshes.length > 0) {
 		container.append(
