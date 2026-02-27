@@ -30,7 +30,7 @@ src/
 │   ├── shadow-manager.ts         # Shadow generators (PCF, PCSS, Cascade) + quality scaling
 │   ├── light-animation.ts        # 7 flicker presets, color shift, position jitter
 │   ├── day-night-cycle.ts        # Time engine, keyframe interpolation, procedural sun path
-│   ├── glow-manager.ts           # GlowLayer lifecycle
+│   ├── glow-manager.ts           # GlowLayer lifecycle + mesh management + custom emissive
 │   ├── color-temperature.ts      # Kelvin → RGB conversion (Tanner Helland algorithm)
 │   ├── sky-system.ts             # Sky visuals: solid color, gradient, skybox, procedural atmosphere
 │   ├── parallax-manager.ts       # Multi-layer scrolling backgrounds with camera-relative UV offset
@@ -253,7 +253,15 @@ addTrauma(0.3); // another hit -- accumulates, clamped at 1.0
 | `createDayNightCycle(options)` | `BabylonResult<DayNightCycleInstance>` | Time engine with keyframe interpolation |
 | `setTimeOfDay(instance, time)` | `Result<Bool>` | Jump to specific hour |
 | `getTimeOfDay(instance)` | `Result<Num>` | Query current time |
-| `createGlowLayer(options)` | `BabylonResult<GlowLayer>` | Global glow post-effect |
+| `createGlowLayer(options)` | `BabylonResult<GlowLayer>` | Create glow layer with full constructor options |
+| `updateGlowLayer(options)` | `BabylonResult<GlowUpdateResult>` | Update runtime props, detect constructor-only changes |
+| `disposeGlowLayer(options)` | `BabylonResult<Bool>` | Dispose glow layer |
+| `excludeMeshFromGlow(options)` | `BabylonResult<Bool>` | Exclude specific mesh from glow |
+| `includeOnlyMeshInGlow(options)` | `BabylonResult<Bool>` | Whitelist-mode mesh inclusion |
+| `removeMeshFromGlow(options)` | `BabylonResult<Bool>` | Remove mesh from exclude/include lists |
+| `excludeUiMeshes(options)` | `BabylonResult<Num>` | Auto-exclude all renderingGroupId=3 meshes |
+| `setCustomEmissiveColor(options)` | `BabylonResult<Bool>` | Override emissive color for glow computation |
+| `clearCustomEmissiveColor(options)` | `BabylonResult<Bool>` | Revert to material-based glow |
 
 ### Sky & Parallax
 
@@ -337,7 +345,7 @@ Tests use `NullEngine` for headless Babylon.js execution in Vitest. The `test-se
 pnpm dev    # Opens browser with visual test scene
 ```
 
-Visual verification: 32x32 tilemap with cascaded shadows, torch flicker, day/night cycle, glow layer, sky background, parallax layers, mouse orbit, FPS logging.
+Visual verification: 32x32 tilemap with cascaded shadows, torch flicker, day/night cycle, glow layer with mesh controls, sky background, parallax layers, mouse orbit, FPS logging.
 
 ## Known Limitations
 
