@@ -632,6 +632,15 @@ export const TimeKeyframeSchema = v.strictObject({
 	bloomWeight: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2))),
 	/** Contrast shift [0, 2]. */
 	contrast: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2))),
+
+	/** Primary sky color at this time (used for color-mode sky and clearColor). */
+	skyColor: v.optional(ColorRgbaSchema),
+	/** Top gradient color at this time (for gradient sky mode). */
+	skyGradientTop: v.optional(ColorRgbaSchema),
+	/** Bottom gradient color at this time (for gradient sky mode). */
+	skyGradientBottom: v.optional(ColorRgbaSchema),
+	/** When true, fog color auto-follows sky horizon color. */
+	fogSyncSky: v.optional(v.boolean()),
 });
 
 /** Inferred time keyframe type from {@link TimeKeyframeSchema}. */
