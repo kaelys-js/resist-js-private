@@ -420,8 +420,12 @@ export function createStarField(options: {
 
 	try {
 		const texPath = `${assetBasePath}${config.texture}`;
-		const starLayer = new BABYLON.Layer('stars', texPath, sky.scene, true);
-		starLayer.alphaBlendingMode = 1; // ALPHA_ADD
+		// Render as foreground overlay (not background) so stars show in front of
+		// sky meshes (gradient, skybox, procedural). Additive blending adds white
+		// star dots on top of the dark night sky without obscuring daytime scenes
+		// since star opacity fades to 0 during the day.
+		const starLayer = new BABYLON.Layer('stars', texPath, sky.scene, false);
+		starLayer.alphaBlendingMode = 2; // ALPHA_COMBINE
 		starLayer.color = new BABYLON.Color4(1, 1, 1, 0);
 
 		const tex = starLayer.texture;
