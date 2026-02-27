@@ -275,6 +275,35 @@
 			.layer-kind-tile { background: rgba(80, 180, 220, 0.2); color: #6cc; }
 			.layer-kind-object { background: rgba(220, 160, 60, 0.2); color: #da6; }
 			.layer-kind-group { background: rgba(160, 120, 220, 0.2); color: #a8d; }
+			.layer-reorder {
+				display: flex;
+				gap: 2px;
+				margin-left: auto;
+				margin-right: 6px;
+			}
+			.layer-reorder button {
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				color: #888;
+				font-size: 9px;
+				width: 18px;
+				height: 18px;
+				border-radius: 3px;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 0;
+				transition: all 0.12s;
+			}
+			.layer-reorder button:hover {
+				background: rgba(255, 255, 255, 0.12);
+				color: #ccc;
+			}
+			.layer-reorder button:disabled {
+				opacity: 0.25;
+				cursor: default;
+			}
 			.layer-header .layer-chevron {
 				font-size: 8px;
 				color: #555;
