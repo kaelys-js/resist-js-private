@@ -11,6 +11,7 @@
  */
 
 import * as BABYLON from '@babylonjs/core';
+import { SkyMaterial } from '@babylonjs/materials/sky';
 
 import {
 	createRuntime,
@@ -29,6 +30,11 @@ import {
 	getMoonPhaseInfo,
 	computeTimePhase,
 	getSeasonSunPath,
+	mapBlendMode,
+	addParallaxLayer,
+	removeParallaxLayer,
+	fadeLayerOpacity,
+	setParallaxLayerTint,
 } from '../src/index';
 import {
 	renderTilemap,
@@ -40,6 +46,9 @@ import type { RuntimeInstance } from '../src/runtime';
 import type { BabylonResult } from '../src/core/babylon-result';
 import type { CameraPreset } from '../src/schemas/camera-config';
 import type { Num, Bool } from '@/schemas/common';
+import type { ParallaxInstance } from '../src/rendering/parallax-manager';
+import type { SkyInstance } from '../src/rendering/sky-system';
+import type { ColorRgba } from '../src/schemas/scene-setup-config';
 
 import { TEST_MAP_DATA } from './test-map';
 
@@ -2605,102 +2614,401 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		),
 	);
 
+	// ── Procedural sky controls ──
+	const skyInstance: SkyInstance | undefined = debug.tilemap?.sky;
+	if (skyInstance?.skyboxMaterial instanceof SkyMaterial) {
+		container.append(createSubHeader('Procedural Sky'));
+		const skyMat: SkyMaterial = skyInstance.skyboxMaterial;
+
+		container.append(
+			createSliderRow(
+				'Mie Coefficient',
+				0,
+				0.1,
+				0.001,
+				skyMat.mieCoefficient,
+				(v) => {
+					skyMat.mieCoefficient = v;
+				},
+				'sky-mie-coeff',
+			),
+		);
+		container.append(
+			createSliderRow(
+				'Mie Directional G',
+				0,
+				1,
+				0.01,
+				skyMat.mieDirectionalG,
+				(v) => {
+					skyMat.mieDirectionalG = v;
+				},
+				'sky-mie-dir-g',
+			),
+		);
+		container.append(
+			createSliderRow(
+				'Inclination',
+				0,
+				0.5,
+				0.01,
+				skyMat.inclination,
+				(v) => {
+					skyMat.inclination = v;
+				},
+				'sky-inclination',
+			),
+		);
+		container.append(
+			createSliderRow(
+				'Azimuth',
+				0,
+				1,
+				0.01,
+				skyMat.azimuth,
+				(v) => {
+					skyMat.azimuth = v;
+				},
+				'sky-azimuth',
+			),
+		);
+	}
+
+	// ── Stars controls ──
+	if (skyInstance) {
+		container.append(createSubHeader('Stars'));
+
+		container.append(
+			createToggleRow(
+				'Enabled',
+				skyInstance.starLayer !== null,
+				(on) => {
+					if (skyInstance.starLayer) {
+						skyInstance.starLayer.isEnabled = on;
+					}
+				},
+				'sky-stars-enabled',
+			),
+		);
+
+		container.append(
+			createSliderRow(
+				'Opacity',
+				0,
+				1,
+				0.01,
+				skyInstance.starLayer?.color?.a ?? 0,
+				(v) => {
+					if (skyInstance.starLayer) {
+						skyInstance.starLayer.color = new BABYLON.Color4(1, 1, 1, v);
+					}
+				},
+				'sky-stars-opacity',
+			),
+		);
+	}
+
 	// ── Parallax sub-section ──
-	const parallax = debug.tilemap?.parallax;
+	const parallax: ParallaxInstance | undefined = debug.tilemap?.parallax;
 	if (parallax && parallax.layers.length > 0) {
 		container.append(createSubHeader('Parallax Layers'));
 
-		for (let i = 0; i < parallax.layers.length; i++) {
-			const layer = parallax.layers[i];
-			const bgLayer = parallax.bgLayers[i];
-			if (!layer || !bgLayer) continue;
+		// Rebuilds the parallax layer controls after add/remove layer.
+		const rebuildParallaxControls = (): void => {
+			// Remove existing parallax controls (everything after the "Parallax Layers" sub-header)
+			const headers = container.querySelectorAll('div');
+			let removing = false;
+			const toRemove: HTMLElement[] = [];
+			for (const el of headers) {
+				if (el.textContent === 'Parallax Layers') {
+					removing = true;
+					continue;
+				}
+				if (removing) toRemove.push(el);
+			}
+			for (const el of toRemove) el.remove();
 
-			// Layer header
-			const header = document.createElement('div');
-			header.style.cssText = 'font-size: 9px; color: #777; padding: 4px 0 2px;';
-			const shortPath =
-				layer.imagePath.length > 20 ? `...${layer.imagePath.slice(-17)}` : layer.imagePath;
-			header.textContent = `${String(i)}: ${shortPath}`;
-			container.append(header);
+			buildParallaxLayerRows(parallax, container);
+		};
 
-			// Visibility toggle
-			container.append(
-				createToggleRow(
-					'Visible',
-					bgLayer.isEnabled,
-					(on) => {
-						bgLayer.isEnabled = on;
-					},
-					`parallax-${String(i)}-visible`,
-				),
-			);
+		buildParallaxLayerRows(parallax, container);
 
-			// Opacity slider
-			container.append(
-				createSliderRow(
-					'Opacity',
-					0,
-					1,
-					0.01,
-					layer.opacity,
-					(v) => {
-						bgLayer.color = new BABYLON.Color4(1, 1, 1, v);
-						layer.opacity = v;
-					},
-					`parallax-${String(i)}-opacity`,
-				),
-			);
+		// Add / Remove layer buttons
+		const btnRow = document.createElement('div');
+		btnRow.style.cssText = 'display: flex; gap: 4px; padding: 4px 0;';
 
-			// ScrollSpeedX slider
-			container.append(
-				createSliderRow(
-					'Scroll X',
-					-2,
-					2,
-					0.05,
-					layer.scrollSpeedX,
-					(v) => {
-						layer.scrollSpeedX = v;
-					},
-					`parallax-${String(i)}-speed-x`,
-				),
-			);
+		const addBtn = document.createElement('button');
+		addBtn.className = 'action-btn';
+		addBtn.textContent = 'Add Layer';
+		addBtn.addEventListener('click', () => {
+			const layerResult = addParallaxLayer(parallax, {
+				imagePath: '/parallax-mountains.png',
+				scrollSpeedX: 0.1,
+				scrollSpeedY: 0,
+				opacity: 0.8,
+				scale: 1,
+				depth: parallax.layers.length,
+				type: 'background',
+				autoScrollX: 0.05,
+				autoScrollY: 0,
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				tileX: true,
+				tileY: false,
+			});
+			if (layerResult.ok) rebuildParallaxControls();
+		});
 
-			// ScrollSpeedY slider
-			container.append(
-				createSliderRow(
-					'Scroll Y',
-					-2,
-					2,
-					0.05,
-					layer.scrollSpeedY,
-					(v) => {
-						layer.scrollSpeedY = v;
-					},
-					`parallax-${String(i)}-speed-y`,
-				),
-			);
+		const removeBtn = document.createElement('button');
+		removeBtn.className = 'action-btn';
+		removeBtn.textContent = 'Remove Last';
+		removeBtn.addEventListener('click', () => {
+			if (parallax.layers.length === 0) return;
+			const idx = parallax.layers.length - 1;
+			const removeResult = removeParallaxLayer(parallax, idx as Num);
+			if (removeResult.ok) rebuildParallaxControls();
+		});
 
-			// Scale slider
-			container.append(
-				createSliderRow(
-					'Scale',
-					0.1,
-					10,
-					0.1,
-					layer.scale,
-					(v) => {
-						layer.scale = v;
-						const tex = bgLayer.texture;
-						if (tex && tex instanceof BABYLON.Texture) {
-							tex.uScale = 1 / v;
-							tex.vScale = 1 / v;
-						}
-					},
-					`parallax-${String(i)}-scale`,
-				),
-			);
-		}
+		btnRow.append(addBtn, removeBtn);
+		container.append(btnRow);
+	}
+}
+
+/**
+ * Builds per-layer parallax control rows.
+ *
+ * @param parallax - Parallax instance.
+ * @param container - Container element to append rows into.
+ */
+function buildParallaxLayerRows(parallax: ParallaxInstance, container: HTMLElement): void {
+	for (let i = 0; i < parallax.layers.length; i++) {
+		const layer = parallax.layers[i];
+		const bgLayer = parallax.bgLayers[i];
+		if (!layer || !bgLayer) continue;
+
+		// Layer header
+		const header = document.createElement('div');
+		header.style.cssText = 'font-size: 9px; color: #777; padding: 4px 0 2px;';
+		const shortPath =
+			layer.imagePath.length > 20 ? `...${layer.imagePath.slice(-17)}` : layer.imagePath;
+		const layerType: string = layer.type ?? 'background';
+		header.textContent = `${String(i)}: ${shortPath} (${layerType})`;
+		container.append(header);
+
+		// Visibility toggle
+		container.append(
+			createToggleRow(
+				'Visible',
+				bgLayer.isEnabled,
+				(on) => {
+					bgLayer.isEnabled = on;
+				},
+				`parallax-${String(i)}-visible`,
+			),
+		);
+
+		// Opacity slider
+		container.append(
+			createSliderRow(
+				'Opacity',
+				0,
+				1,
+				0.01,
+				layer.opacity,
+				(v) => {
+					bgLayer.color = new BABYLON.Color4(
+						layer.tint?.r ?? 1,
+						layer.tint?.g ?? 1,
+						layer.tint?.b ?? 1,
+						v,
+					);
+					layer.opacity = v;
+				},
+				`parallax-${String(i)}-opacity`,
+			),
+		);
+
+		// ScrollSpeedX slider
+		container.append(
+			createSliderRow(
+				'Scroll X',
+				-2,
+				2,
+				0.05,
+				layer.scrollSpeedX,
+				(v) => {
+					layer.scrollSpeedX = v;
+				},
+				`parallax-${String(i)}-speed-x`,
+			),
+		);
+
+		// ScrollSpeedY slider
+		container.append(
+			createSliderRow(
+				'Scroll Y',
+				-2,
+				2,
+				0.05,
+				layer.scrollSpeedY,
+				(v) => {
+					layer.scrollSpeedY = v;
+				},
+				`parallax-${String(i)}-speed-y`,
+			),
+		);
+
+		// Auto-Scroll X slider
+		container.append(
+			createSliderRow(
+				'Auto-Scroll X',
+				-2,
+				2,
+				0.01,
+				layer.autoScrollX ?? 0,
+				(v) => {
+					layer.autoScrollX = v;
+				},
+				`parallax-${String(i)}-autoscroll-x`,
+			),
+		);
+
+		// Auto-Scroll Y slider
+		container.append(
+			createSliderRow(
+				'Auto-Scroll Y',
+				-2,
+				2,
+				0.01,
+				layer.autoScrollY ?? 0,
+				(v) => {
+					layer.autoScrollY = v;
+				},
+				`parallax-${String(i)}-autoscroll-y`,
+			),
+		);
+
+		// Scale slider
+		container.append(
+			createSliderRow(
+				'Scale',
+				0.1,
+				10,
+				0.1,
+				layer.scale,
+				(v) => {
+					layer.scale = v;
+					const tex = bgLayer.texture;
+					if (tex && tex instanceof BABYLON.Texture) {
+						tex.uScale = 1 / v;
+						tex.vScale = 1 / v;
+					}
+				},
+				`parallax-${String(i)}-scale`,
+			),
+		);
+
+		// Blend mode dropdown
+		container.append(
+			createDropdown(
+				'Blend Mode',
+				[
+					{ value: 'alpha', label: 'Alpha' },
+					{ value: 'additive', label: 'Additive' },
+					{ value: 'multiply', label: 'Multiply' },
+					{ value: 'subtract', label: 'Subtract' },
+					{ value: 'screen', label: 'Screen' },
+				],
+				layer.blendMode ?? 'alpha',
+				(val) => {
+					layer.blendMode = val;
+					const mapped = mapBlendMode(val);
+					if (mapped.ok) bgLayer.alphaBlendingMode = mapped.data;
+				},
+				`parallax-${String(i)}-blend`,
+			),
+		);
+
+		// Tint R/G/B sliders
+		const tint = layer.tint ?? { r: 1, g: 1, b: 1, a: 1 };
+		container.append(
+			createSliderRow(
+				'Tint R',
+				0,
+				1,
+				0.01,
+				tint.r,
+				(v) => {
+					const newTint: ColorRgba = {
+						r: v,
+						g: layer.tint?.g ?? 1,
+						b: layer.tint?.b ?? 1,
+						a: layer.tint?.a ?? 1,
+					};
+					setParallaxLayerTint(parallax, i as Num, newTint);
+				},
+				`parallax-${String(i)}-tint-r`,
+			),
+		);
+		container.append(
+			createSliderRow(
+				'Tint G',
+				0,
+				1,
+				0.01,
+				tint.g,
+				(v) => {
+					const newTint: ColorRgba = {
+						r: layer.tint?.r ?? 1,
+						g: v,
+						b: layer.tint?.b ?? 1,
+						a: layer.tint?.a ?? 1,
+					};
+					setParallaxLayerTint(parallax, i as Num, newTint);
+				},
+				`parallax-${String(i)}-tint-g`,
+			),
+		);
+		container.append(
+			createSliderRow(
+				'Tint B',
+				0,
+				1,
+				0.01,
+				tint.b,
+				(v) => {
+					const newTint: ColorRgba = {
+						r: layer.tint?.r ?? 1,
+						g: layer.tint?.g ?? 1,
+						b: v,
+						a: layer.tint?.a ?? 1,
+					};
+					setParallaxLayerTint(parallax, i as Num, newTint);
+				},
+				`parallax-${String(i)}-tint-b`,
+			),
+		);
+
+		// Fade button
+		const fadeBtn = document.createElement('button');
+		fadeBtn.className = 'action-btn';
+		fadeBtn.textContent = 'Fade';
+		fadeBtn.title = 'Fade opacity to 0 over 1s, then back to 1';
+		fadeBtn.addEventListener('click', () => {
+			// Fade to 0 over 1 second
+			const fadeResult = fadeLayerOpacity(parallax, i as Num, 0 as Num, 1000 as Num);
+			if (fadeResult.ok) {
+				// After 1.1s, fade back to 1
+				setTimeout(() => {
+					fadeLayerOpacity(parallax, i as Num, 1 as Num, 1000 as Num);
+				}, 1100);
+			}
+		});
+		const fadeRow = document.createElement('div');
+		fadeRow.className = 'control-row';
+		fadeRow.style.justifyContent = 'flex-end';
+		fadeRow.append(fadeBtn);
+		container.append(fadeRow);
 	}
 }
 
