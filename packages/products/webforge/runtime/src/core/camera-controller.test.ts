@@ -7,7 +7,7 @@
  *   panoramic, orbit, editor, mapeditor
  *
  * Also tests backward compatibility with legacy editor/gameplay modes,
- * smooth follow target updates, FF Tactics rotation, screen shake,
+ * smooth follow target updates, FF Tactics rotation,
  * orthographic mode (mapeditor), auto-rotate (orbit), and resetCamera.
  *
  * @module
@@ -21,7 +21,6 @@ import {
 	createCamera,
 	updateCameraTarget,
 	rotateTactics,
-	screenShake,
 	switchCameraPreset,
 	resetCamera,
 } from './camera-controller';
@@ -447,44 +446,6 @@ describe('rotateTactics', () => {
 		const result = rotateTactics({ camera: arc, direction: 'ccw' });
 		expect(result.ok).toBeTruthy();
 		expect(arc.alpha).toBeCloseTo(initialAlpha - Math.PI / 2);
-	});
-});
-
-// =============================================================================
-// screenShake
-// =============================================================================
-
-describe('screenShake', () => {
-	test('returns ok Result', () => {
-		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
-		if (!cameraResult.ok) throw new Error('Failed to create camera');
-
-		const result = screenShake({
-			scene: instance.scene,
-			camera: cameraResult.data,
-			intensity: 0.5,
-			durationMs: 200,
-			decay: true,
-		});
-		expect(result.ok).toBeTruthy();
-	});
-
-	test('returns handle with dispose function', () => {
-		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
-		if (!cameraResult.ok) throw new Error('Failed to create camera');
-
-		const result = screenShake({
-			scene: instance.scene,
-			camera: cameraResult.data,
-			intensity: 0.5,
-			durationMs: 200,
-			decay: true,
-		});
-		expect(result.ok).toBeTruthy();
-		if (!result.ok) return;
-		expect(typeof result.data.dispose).toBe('function');
-		// Disposing early should not throw
-		result.data.dispose();
 	});
 });
 
