@@ -97,6 +97,12 @@ export function createSky(options: {
 			case 'procedural': {
 				return createProceduralSky(scene, config);
 			}
+			case 'panorama': {
+				return createPanoramaSky(scene, config);
+			}
+			case 'hdri': {
+				return createHdriSky(scene, config);
+			}
 			default: {
 				return createColorSky(scene, config);
 			}
@@ -718,6 +724,81 @@ function createProceduralSky(
 			lum * blueIntensity,
 		);
 		material = bgMat;
+	}
+
+	skyboxMesh.material = material;
+
+	return okShallow({
+		skyboxMesh,
+		skyboxMaterial: material,
+		scene,
+		starLayer: null,
+		starObserver: null,
+	});
+}
+
+// =============================================================================
+// Internal: Panorama sky
+// =============================================================================
+
+function createPanoramaSky(
+	scene: BABYLON.Scene,
+	config: SkyConfigInput,
+): BabylonResult<SkyInstance> {
+	const skyboxMesh = BABYLON.MeshBuilder.CreateBox(
+		'sky-panorama',
+		{ size: config.skyboxSize },
+		scene,
+	);
+	skyboxMesh.infiniteDistance = true;
+	skyboxMesh.renderingGroupId = 0;
+
+	const material = new BABYLON.BackgroundMaterial('sky-panorama-mat', scene);
+	material.backFaceCulling = false;
+
+	// Load equirectangular panoramic texture if path provided
+	if (config.panoramaPath) {
+		try {
+			const tex = new BABYLON.EquiRectangularCubeTexture(config.panoramaPath, scene, 512);
+			tex.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+			material.reflectionTexture = tex;
+		} catch {
+			// Fallback: NullEngine may not support equirectangular textures
+		}
+	}
+
+	skyboxMesh.material = material;
+
+	return okShallow({
+		skyboxMesh,
+		skyboxMaterial: material,
+		scene,
+		starLayer: null,
+		starObserver: null,
+	});
+}
+
+// =============================================================================
+// Internal: HDRI sky
+// =============================================================================
+
+function createHdriSky(scene: BABYLON.Scene, config: SkyConfigInput): BabylonResult<SkyInstance> {
+	const skyboxMesh = BABYLON.MeshBuilder.CreateBox('sky-hdri', { size: config.skyboxSize }, scene);
+	skyboxMesh.infiniteDistance = true;
+	skyboxMesh.renderingGroupId = 0;
+
+	const material = new BABYLON.BackgroundMaterial('sky-hdri-mat', scene);
+	material.backFaceCulling = false;
+
+	// Load HDR environment texture if path provided
+	if (config.hdriPath) {
+		try {
+			const tex = new BABYLON.HDRCubeTexture(config.hdriPath, scene, 256);
+			tex.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+			material.reflectionTexture = tex;
+		} catch {
+			// Fallback: NullEngine may not support HDR textures
+		}
 	}
 
 	skyboxMesh.material = material;

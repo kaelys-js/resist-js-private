@@ -71,6 +71,9 @@ export type ParallaxInstance = {
  * | `'multiply'` | `ALPHA_MULTIPLY` | 4 |
  * | `'subtract'` | `ALPHA_SUBTRACT` | 3 |
  * | `'screen'` | `ALPHA_SCREENMODE` | 10 |
+ * | `'maximized'` | `ALPHA_MAXIMIZED` | 5 |
+ * | `'oneone'` | `ALPHA_ONEONE` | 6 |
+ * | `'premultiplied'` | `ALPHA_PREMULTIPLIED` | 7 |
  *
  * Unknown modes default to `'alpha'` (2).
  *
@@ -100,6 +103,15 @@ export function mapBlendMode(mode: string): Num {
 		}
 		case 'screen': {
 			return 10 as Num;
+		}
+		case 'maximized': {
+			return 5 as Num;
+		}
+		case 'oneone': {
+			return 6 as Num;
+		}
+		case 'premultiplied': {
+			return 7 as Num;
 		}
 		default: {
 			return 2 as Num;

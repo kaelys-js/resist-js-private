@@ -11,6 +11,8 @@ import {
 	SkyTypeSchema,
 	SkyGradientStopSchema,
 	ParallaxLayerSchema,
+	BlendModeSchema,
+	StarsConfigSchema,
 } from './sky-config';
 
 // =============================================================================
@@ -23,6 +25,8 @@ describe('SkyTypeSchema', () => {
 		'gradient',
 		'skybox',
 		'procedural',
+		'panorama',
+		'hdri',
 	] as const)('accepts valid type: %s', (skyType) => {
 		const result = safeParse(SkyTypeSchema, skyType);
 		expect(result.ok).toBe(true);
@@ -31,7 +35,7 @@ describe('SkyTypeSchema', () => {
 	});
 
 	test('rejects invalid type', () => {
-		const result = safeParse(SkyTypeSchema, 'panorama');
+		const result = safeParse(SkyTypeSchema, 'volumetric');
 		expect(result.ok).toBe(false);
 	});
 });
@@ -340,6 +344,28 @@ describe('SkyConfigSchema', () => {
 		expect(result.ok).toBe(false);
 	});
 
+	test('accepts panorama sky type', () => {
+		const result = safeParse(SkyConfigSchema, {
+			type: 'panorama',
+			panoramaPath: 'sky/sunset_equirect.jpg',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.type).toBe('panorama');
+		expect(result.data.panoramaPath).toBe('sky/sunset_equirect.jpg');
+	});
+
+	test('accepts hdri sky type', () => {
+		const result = safeParse(SkyConfigSchema, {
+			type: 'hdri',
+			hdriPath: 'sky/environment.hdr',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.type).toBe('hdri');
+		expect(result.data.hdriPath).toBe('sky/environment.hdr');
+	});
+
 	test('full explicit config roundtrip', () => {
 		const input = {
 			type: 'gradient' as const,
@@ -373,5 +399,127 @@ describe('SkyConfigSchema', () => {
 		expect(result.data.skyboxPath).toBe('skyboxes/night');
 		expect(result.data.parallaxLayers).toHaveLength(1);
 		expect(result.data.parallaxLayers[0]!.scale).toBe(3);
+	});
+});
+
+// =============================================================================
+// BlendModeSchema
+// =============================================================================
+
+describe('BlendModeSchema', () => {
+	test.each([
+		'alpha',
+		'additive',
+		'multiply',
+		'subtract',
+		'screen',
+		'maximized',
+		'oneone',
+		'premultiplied',
+	] as const)('accepts valid blend mode: %s', (mode) => {
+		const result = safeParse(BlendModeSchema, mode);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data).toBe(mode);
+	});
+
+	test('rejects invalid blend mode', () => {
+		const result = safeParse(BlendModeSchema, 'overlay');
+		expect(result.ok).toBe(false);
+	});
+});
+
+// =============================================================================
+// StarsConfigSchema
+// =============================================================================
+
+describe('StarsConfigSchema', () => {
+	test('accepts empty config with defaults', () => {
+		const result = safeParse(StarsConfigSchema, {});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.enabled).toBe(false);
+		expect(result.data.texture).toBe('sky/stars.png');
+		expect(result.data.opacity).toBe(0.8);
+		expect(result.data.twinkleSpeed).toBe(1);
+		expect(result.data.fadeInTime).toBe(18);
+		expect(result.data.fadeOutTime).toBe(6);
+		expect(result.data.scale).toBe(2);
+	});
+
+	test('accepts fully explicit config', () => {
+		const result = safeParse(StarsConfigSchema, {
+			enabled: true,
+			texture: 'sky/custom-stars.png',
+			opacity: 0.5,
+			twinkleSpeed: 3,
+			fadeInTime: 20,
+			fadeOutTime: 4,
+			scale: 5,
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.enabled).toBe(true);
+		expect(result.data.texture).toBe('sky/custom-stars.png');
+		expect(result.data.opacity).toBe(0.5);
+		expect(result.data.twinkleSpeed).toBe(3);
+		expect(result.data.fadeInTime).toBe(20);
+		expect(result.data.fadeOutTime).toBe(4);
+		expect(result.data.scale).toBe(5);
+	});
+
+	test('rejects opacity below 0', () => {
+		const result = safeParse(StarsConfigSchema, { opacity: -0.1 });
+		expect(result.ok).toBe(false);
+	});
+
+	test('rejects opacity above 1', () => {
+		const result = safeParse(StarsConfigSchema, { opacity: 1.1 });
+		expect(result.ok).toBe(false);
+	});
+
+	test('rejects twinkleSpeed below 0', () => {
+		const result = safeParse(StarsConfigSchema, { twinkleSpeed: -1 });
+		expect(result.ok).toBe(false);
+	});
+
+	test('rejects twinkleSpeed above 5', () => {
+		const result = safeParse(StarsConfigSchema, { twinkleSpeed: 6 });
+		expect(result.ok).toBe(false);
+	});
+
+	test('rejects fadeInTime below 0', () => {
+		const result = safeParse(StarsConfigSchema, { fadeInTime: -1 });
+		expect(result.ok).toBe(false);
+	});
+
+	test('rejects fadeInTime above 24', () => {
+		const result = safeParse(StarsConfigSchema, { fadeInTime: 25 });
+		expect(result.ok).toBe(false);
+	});
+
+	test('rejects fadeOutTime below 0', () => {
+		const result = safeParse(StarsConfigSchema, { fadeOutTime: -1 });
+		expect(result.ok).toBe(false);
+	});
+
+	test('rejects fadeOutTime above 24', () => {
+		const result = safeParse(StarsConfigSchema, { fadeOutTime: 25 });
+		expect(result.ok).toBe(false);
+	});
+
+	test('rejects scale below 0.1', () => {
+		const result = safeParse(StarsConfigSchema, { scale: 0.05 });
+		expect(result.ok).toBe(false);
+	});
+
+	test('rejects scale above 10', () => {
+		const result = safeParse(StarsConfigSchema, { scale: 11 });
+		expect(result.ok).toBe(false);
+	});
+
+	test('rejects empty texture path', () => {
+		const result = safeParse(StarsConfigSchema, { texture: '' });
+		expect(result.ok).toBe(false);
 	});
 });
