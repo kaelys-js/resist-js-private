@@ -368,7 +368,67 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 			autotileType: 'none',
 			animationFrames: 1,
 			animationSpeed: 4,
-			tileProperties: {},
+			tileProperties: {
+				// --- Water tiles (solid fills, row 23) ---
+				// WATER = t(23, 0) → local index 368
+				'368': {
+					terrainType: 'water',
+					passability: [false, false, false, false],
+					movementSpeed: 0.5,
+					slipperiness: 0.3,
+					footstepSound: 'sfx/water',
+					encounterRate: 0.2,
+					damageFloor: false,
+				},
+				// WATER_V = t(23, 4) → local index 372
+				'372': {
+					terrainType: 'water',
+					passability: [false, false, false, false],
+					movementSpeed: 0.5,
+					slipperiness: 0.3,
+					footstepSound: 'sfx/water',
+					encounterRate: 0.2,
+					damageFloor: false,
+				},
+
+				// --- Dirt/road tiles (solid fills, row 3) ---
+				// DIRT = t(3, 3) → local index 51
+				'51': {
+					terrainType: 'stone',
+					movementSpeed: 1.5,
+					encounterRate: 0.5,
+					footstepSound: 'sfx/stone',
+					regionId: 1,
+				},
+				// DIRT_V = t(3, 4) → local index 52
+				'52': {
+					terrainType: 'stone',
+					movementSpeed: 1.5,
+					encounterRate: 0.5,
+					footstepSound: 'sfx/stone',
+					regionId: 1,
+				},
+
+				// --- Grass tiles (solid fills, row 1) ---
+				// GRASS = t(1, 4) → local index 20
+				'20': {
+					terrainType: 'grass',
+					footstepSound: 'sfx/grass',
+					encounterRate: 1,
+					bush: false,
+				},
+				// GRASS_V = t(1, 5) → local index 21
+				'21': {
+					terrainType: 'grass',
+					footstepSound: 'sfx/grass',
+					encounterRate: 1,
+					bush: false,
+					passAbove: true,
+					starPassage: true,
+					passHeight: 2,
+					regionId: 2,
+				},
+			},
 		},
 		{
 			name: 'plants',
