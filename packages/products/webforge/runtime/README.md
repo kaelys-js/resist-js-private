@@ -11,7 +11,9 @@ src/
 ├── core/
 │   ├── babylon-result.ts         # BabylonResult<T> — mutable-safe Result variant
 │   ├── engine.ts                 # Engine creation (WebGPU/WebGL2/NullEngine), render loop, resize, dispose
-│   ├── camera-controller.ts      # 6 camera presets + FF Tactics rotation + screen shake
+│   ├── camera-controller.ts      # 6 camera presets + FF Tactics rotation + transitions
+│   ├── screen-shake.ts           # Trauma-based screen shake (Perlin noise, 3 channels, envelope)
+│   ├── perlin.ts                 # 2D Perlin noise generator for shake randomisation
 │   ├── performance-monitor.ts    # SceneInstrumentation wrapper for FPS/frame metrics
 │   └── debug-inspector.ts        # Lazy-loaded Babylon.js inspector toggle (wired to F12)
 ├── rendering/
@@ -43,6 +45,7 @@ src/
 │   ├── quality-config.ts         # QualityConfig + QUALITY_PRESETS
 │   ├── lighting-config.ts        # All lighting schemas (lights, shadows, flicker, day/night, glow, volumetric, lens flare)
 │   ├── post-processing-config.ts # All post-processing effect schemas
+│   ├── screen-shake-config.ts    # ScreenShakeConfig, 18 presets, channels, envelope, decay modes
 │   ├── sky-config.ts             # SkyConfig (4 types) + ParallaxLayer
 │   └── map-data.ts               # MapData: dimensions, tilesets, layers, heightMap, postProcessing, lighting, sky
 ├── test-setup.ts                 # Vitest polyfills for NullEngine
@@ -143,7 +146,77 @@ All sky types support `parallaxLayers` for multi-depth scrolling backgrounds.
 | `createHd2dCamera(scene, config)` | `BabylonResult<Camera>` | Alias for `createCamera` |
 | `updateCameraTarget(camera, options)` | `Result<Bool>` | Frame-rate independent smooth follow |
 | `rotateTactics(options)` | `BabylonResult<Bool>` | FF Tactics-style 90-degree snap rotation |
-| `screenShake(options)` | `BabylonResult<ShakeHandle>` | Camera position shake with decay |
+
+### Screen Shake
+
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `screenShake(options)` | `BabylonResult<ShakeHandle>` | Trauma-based camera shake with Perlin noise, 3 channels, envelope |
+| `addTrauma(amount)` | `void` | Add trauma for additive shake stacking (clamped at 1.0) |
+| `getTrauma()` | `Num` | Read current trauma level (0.0--1.0) |
+| `resetTrauma()` | `void` | Reset trauma to 0 |
+| `stopAllShakes()` | `void` | Cancel all active shakes and reset trauma |
+| `setGlobalScale(scale)` | `void` | Set global shake amplitude multiplier (0 = disabled, 2 = double) |
+| `getGlobalScale()` | `Num` | Read current global scale (default 1.0) |
+| `setMasterEnabled(enabled)` | `void` | Master on/off toggle for all shakes |
+| `getMasterEnabled()` | `Bool` | Read master enable state |
+
+Trauma-based camera shake system with Perlin noise, replacing the old `Math.random()` approach.
+
+**Architecture:** `trauma^traumaPower * envelope * globalScale` drives 3 independent channels through multi-octave Perlin noise. Higher `traumaPower` (default 2) makes light hits barely visible while heavy hits produce dramatic displacement.
+
+| Channel | Property | Default Amplitude | Notes |
+|---------|----------|-------------------|-------|
+| Translation | Camera target X/Z | 0.5 world units | No Y axis -- avoids ground clipping |
+| Rotation | Camera roll via upVector | 0.05 radians (~3 degrees) | Subtle roll for realism |
+| FOV | `camera.fov` offset | 0.03 radians (~2 degrees) | Zoom punch for impacts |
+
+Each channel can be independently enabled/disabled with its own amplitude and noise frequency.
+
+**Envelope (Attack/Sustain/Decay):**
+
+- Attack: ramp from 0 to full over `attackMs` (default 0ms)
+- Sustain: hold at full for `sustainMs` (default 0ms)
+- Decay: fade to 0 over `decayMs` using one of 3 curves (default 300ms exponential)
+- Decay modes: `linear`, `exponential` (fast drop, slow tail), `easeOut` (smooth deceleration)
+- Total duration = `attackMs + sustainMs + decayMs`
+
+**Additional features:**
+
+- **Directional bias:** optional XZ vector biases translation 70/30 along the direction
+- **Freeze frame:** optional `freezeMs` pause before the shake begins (hit-stop effect)
+- **Accessibility:** `setGlobalScale()` (0--200%) + `setMasterEnabled()` toggle
+- **Additive stacking:** `addTrauma()` accumulates trauma across multiple shake sources, clamped at 1.0
+
+**18 Built-in Presets** (`SHAKE_PRESETS`):
+
+| Category | Count | Presets |
+|----------|-------|---------|
+| Combat | 6 | Light Hit, Heavy Hit, Critical Hit, Explosion, Parry/Block, Spell Cast |
+| Environment | 5 | Earthquake, Tremor, Rumble, Thunder, Footstep (Giant) |
+| UI/Feedback | 3 | Deny, Alert, Landing |
+| Cinematic | 4 | Boss Intro, Teleport, Death Blow, World Shift |
+
+```typescript
+import { screenShake, addTrauma, SHAKE_PRESETS } from '@webforge/runtime';
+
+// One-shot shake with defaults
+const result = screenShake({ scene, camera, intensity: 0.5 });
+if (result.ok) {
+  // Cancel early if needed:
+  result.data.dispose();
+}
+
+// Use a preset
+const preset = SHAKE_PRESETS.find(p => p.name === 'Heavy Hit');
+if (preset) {
+  screenShake({ ...preset.config, scene, camera });
+}
+
+// Additive stacking from multiple sources
+addTrauma(0.3); // light hit
+addTrauma(0.3); // another hit -- accumulates, clamped at 1.0
+```
 
 ### Tilemap Rendering
 
