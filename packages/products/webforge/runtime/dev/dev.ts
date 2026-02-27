@@ -21,6 +21,11 @@ import {
 	switchCameraPreset,
 	rotateTactics,
 	screenShake,
+	getTrauma,
+	stopAllShakes,
+	SHAKE_PRESETS,
+	setGlobalScale,
+	setMasterEnabled,
 	resetCamera,
 	screenTint,
 	screenFlash,
@@ -38,6 +43,9 @@ import {
 	setParallaxLayerTint,
 	createSky,
 	disposeSky,
+	type ScreenShakeConfig,
+	type ShakePreset,
+	type ShakePresetCategory,
 } from '../src/index';
 import {
 	renderTilemap,
@@ -1184,24 +1192,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	};
 
 	// ── Screen Shake ────────────────────────────────────────────────
-	const shakeIntSlider = document.querySelector('#shake-intensity') as HTMLInputElement;
-	const shakeIntValue = document.querySelector('#shake-intensity-value');
-	shakeIntSlider?.addEventListener('input', () => {
-		if (shakeIntValue) shakeIntValue.textContent = shakeIntSlider.value;
-	});
-
-	const shakeDurSlider = document.querySelector('#shake-duration') as HTMLInputElement;
-	const shakeDurValue = document.querySelector('#shake-duration-value');
-	shakeDurSlider?.addEventListener('input', () => {
-		if (shakeDurValue) shakeDurValue.textContent = `${shakeDurSlider.value}ms`;
-	});
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
-	(window as any).triggerShake = (): void => {
-		const intensity = Number(shakeIntSlider?.value ?? 0.5);
-		const durationMs = Number(shakeDurSlider?.value ?? 300);
-		screenShake({ scene, camera: runtime.camera, intensity, durationMs, decay: true });
-	};
+	buildShakeUI(scene, runtime.camera);
 
 	// ── Day/Night Cycle ─────────────────────────────────────────────
 	const timeSlider = document.querySelector('#time-slider') as HTMLInputElement;
@@ -2020,6 +2011,509 @@ function createCollapsibleGroup(
 	root.append(header, body);
 	return { root, body };
 }
+
+// =============================================================================
+// Shake UI Builder
+// =============================================================================
+
+/**
+ * Builds the full screen shake dev harness UI with 8 sub-sections:
+ * Presets, Translation, Rotation, FOV, Envelope, Noise, Advanced, Controls.
+ *
+ * All controls are created programmatically and appended to `#shake-body`.
+ *
+ * @param scene - The Babylon.js scene.
+ * @param camera - The camera to shake.
+ */
+/* eslint-disable max-lines-per-function */
+function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
+	// ── State variables ─────────────────────────────────────────────
+	let shakeIntensity = 0.5;
+	let shakeTraumaPower = 2;
+	let shakeDecayRate = 0.8;
+	let shakeDecayMode: 'linear' | 'exponential' | 'easeOut' = 'exponential';
+
+	let translationEnabled = true;
+	let translationAmplitude = 0.5;
+	let translationFrequency = 25;
+
+	let rotationEnabled = true;
+	let rotationAmplitude = 0.05;
+	let rotationFrequency = 20;
+
+	let fovEnabled = true;
+	let fovAmplitude = 0.03;
+	let fovFrequency = 15;
+
+	let envelopeAttack = 0;
+	let envelopeSustain = 0;
+	let envelopeDecay = 300;
+
+	let noiseSeed = 0;
+	let noiseOctaves = 2;
+
+	let freezeMs = 0;
+	let directionX = 0;
+	let directionZ = 0;
+
+	// globalScale and masterEnabled are managed via setGlobalScale / setMasterEnabled API only
+
+	// ── Container ───────────────────────────────────────────────────
+	const body = document.querySelector('#shake-body');
+	if (!body) return;
+
+	// ── Slider / toggle tracking for preset application ─────────────
+	const sliders = new Map<string, HTMLInputElement>();
+	const toggles = new Map<string, HTMLDivElement>();
+
+	/**
+	 * Creates a slider row and stores a ref by key.
+	 *
+	 * @param parent - Container to append the row to.
+	 * @param key - Unique key for slider lookup.
+	 * @param label - Display label text.
+	 * @param min - Minimum slider value.
+	 * @param max - Maximum slider value.
+	 * @param step - Slider step increment.
+	 * @param value - Initial slider value.
+	 * @param onChange - Callback when slider changes.
+	 */
+	function addSlider(
+		parent: Element,
+		key: string,
+		label: string,
+		min: number,
+		max: number,
+		step: number,
+		value: number,
+		onChange: (val: number) => void,
+	): void {
+		const row = createSliderRow(label, min, max, step, value, onChange);
+		const input = row.querySelector('input[type="range"]') as HTMLInputElement | null;
+		if (input) sliders.set(key, input);
+		parent.append(row);
+	}
+
+	/**
+	 * Programmatically sets a slider's value and fires its input event.
+	 *
+	 * @param key - Unique key for slider lookup.
+	 * @param value - New slider value.
+	 */
+	function setSlider(key: string, value: number): void {
+		const input = sliders.get(key);
+		if (!input) return;
+		input.value = String(value);
+		// eslint-disable-next-line no-undef -- Browser global in dev harness
+		input.dispatchEvent(new Event('input'));
+	}
+
+	/**
+	 * Creates a toggle row and stores a ref by key.
+	 *
+	 * @param parent - Container to append the row to.
+	 * @param key - Unique key for toggle lookup.
+	 * @param label - Display label text.
+	 * @param initialOn - Whether the toggle starts on.
+	 * @param onChange - Callback when toggle changes.
+	 */
+	function addToggle(
+		parent: Element,
+		key: string,
+		label: string,
+		initialOn: boolean,
+		onChange: (on: boolean) => void,
+	): void {
+		const row = createToggleRow(label, initialOn, onChange);
+		const toggle = row.querySelector('.toggle-switch') as HTMLDivElement | null;
+		if (toggle) toggles.set(key, toggle);
+		parent.append(row);
+	}
+
+	/**
+	 * Programmatically sets a toggle's state.
+	 *
+	 * @param key - Unique key for toggle lookup.
+	 * @param on - Whether the toggle should be on.
+	 */
+	function setToggle(key: string, on: boolean): void {
+		const toggle = toggles.get(key);
+		if (!toggle) return;
+		const isOn = toggle.classList.contains('on');
+		if (isOn !== on) toggle.click();
+	}
+
+	// ── Sub-section 1: Presets ───────────────────────────────────────
+	body.append(createSubHeader('Presets'));
+
+	const categories: Array<{ label: string; value: ShakePresetCategory }> = [
+		{ label: 'Combat', value: 'combat' },
+		{ label: 'Environment', value: 'environment' },
+		{ label: 'UI/Feedback', value: 'ui' },
+		{ label: 'Cinematic', value: 'cinematic' },
+	];
+
+	let activeCategory: ShakePresetCategory = 'combat';
+
+	const categoryRow = document.createElement('div');
+	categoryRow.className = 'control-row';
+
+	const categoryBtnGroup = document.createElement('div');
+	categoryBtnGroup.className = 'btn-group';
+	categoryBtnGroup.style.flex = '1';
+
+	const presetContainer = document.createElement('div');
+	presetContainer.style.cssText = 'display: flex; flex-wrap: wrap; gap: 2px; padding: 2px 0;';
+
+	const categoryButtons: HTMLButtonElement[] = [];
+
+	/**
+	 * Rebuilds the preset buttons for the given category.
+	 *
+	 * @param category - The preset category to display.
+	 */
+	function showPresetsForCategory(category: ShakePresetCategory): void {
+		presetContainer.innerHTML = '';
+		const filtered = SHAKE_PRESETS.filter((p) => p.category === category);
+		for (const preset of filtered) {
+			const btn = document.createElement('button');
+			btn.className = 'btn';
+			btn.textContent = preset.name;
+			btn.style.fontSize = '10px';
+			btn.style.padding = '2px 6px';
+			btn.addEventListener('click', () => {
+				applyPreset(preset);
+			});
+			presetContainer.append(btn);
+		}
+	}
+
+	for (const cat of categories) {
+		const btn = document.createElement('button');
+		btn.className = 'btn';
+		btn.textContent = cat.label;
+		btn.style.fontSize = '10px';
+		if (cat.value === activeCategory) btn.classList.add('active');
+		categoryButtons.push(btn);
+		categoryBtnGroup.append(btn);
+	}
+
+	/**
+	 * Binds a click handler to a category button.
+	 *
+	 * @param btn - The button element.
+	 * @param cat - The category descriptor.
+	 */
+	function bindCategoryButton(
+		btn: HTMLButtonElement,
+		cat: { label: string; value: ShakePresetCategory },
+	): void {
+		btn.addEventListener('click', () => {
+			activeCategory = cat.value;
+			for (const b of categoryButtons) b.classList.remove('active');
+			btn.classList.add('active');
+			showPresetsForCategory(cat.value);
+		});
+	}
+
+	for (const [idx, cat] of categories.entries()) {
+		const btn = categoryButtons[idx];
+		if (!btn) continue;
+		bindCategoryButton(btn, cat);
+	}
+
+	categoryRow.append(categoryBtnGroup);
+	body.append(categoryRow, presetContainer);
+	showPresetsForCategory(activeCategory);
+
+	// ── Sub-section 2: Translation ──────────────────────────────────
+	body.append(createSubHeader('Translation'));
+	addToggle(body, 'translationEnabled', 'Enabled', true, (on) => {
+		translationEnabled = on;
+	});
+	addSlider(body, 'translationAmplitude', 'Amplitude', 0, 3, 0.05, 0.5, (val) => {
+		translationAmplitude = val;
+	});
+	addSlider(body, 'translationFrequency', 'Frequency', 1, 100, 1, 25, (val) => {
+		translationFrequency = val;
+	});
+
+	// ── Sub-section 3: Rotation ─────────────────────────────────────
+	body.append(createSubHeader('Rotation'));
+	addToggle(body, 'rotationEnabled', 'Enabled', true, (on) => {
+		rotationEnabled = on;
+	});
+	addSlider(body, 'rotationAmplitude', 'Max Roll', 0, 0.15, 0.005, 0.05, (val) => {
+		rotationAmplitude = val;
+	});
+	addSlider(body, 'rotationFrequency', 'Frequency', 1, 100, 1, 20, (val) => {
+		rotationFrequency = val;
+	});
+
+	// ── Sub-section 4: FOV ──────────────────────────────────────────
+	body.append(createSubHeader('FOV'));
+	addToggle(body, 'fovEnabled', 'Enabled', true, (on) => {
+		fovEnabled = on;
+	});
+	addSlider(body, 'fovAmplitude', 'Max FOV', 0, 0.1, 0.005, 0.03, (val) => {
+		fovAmplitude = val;
+	});
+	addSlider(body, 'fovFrequency', 'Frequency', 1, 100, 1, 15, (val) => {
+		fovFrequency = val;
+	});
+
+	// ── Sub-section 5: Envelope ─────────────────────────────────────
+	body.append(createSubHeader('Envelope'));
+	addSlider(body, 'envelopeAttack', 'Attack', 0, 500, 10, 0, (val) => {
+		envelopeAttack = val;
+	});
+	addSlider(body, 'envelopeSustain', 'Sustain', 0, 2000, 50, 0, (val) => {
+		envelopeSustain = val;
+	});
+	addSlider(body, 'envelopeDecay', 'Decay', 0, 3000, 50, 300, (val) => {
+		envelopeDecay = val;
+	});
+
+	// Decay mode buttons
+	const decayRow = document.createElement('div');
+	decayRow.className = 'control-row';
+	const decayLabel = document.createElement('span');
+	decayLabel.className = 'control-label';
+	decayLabel.textContent = 'Decay Mode';
+
+	const decayBtnGroup = document.createElement('div');
+	decayBtnGroup.className = 'btn-group';
+	decayBtnGroup.style.flex = '1';
+	decayBtnGroup.style.justifyContent = 'flex-end';
+
+	const decayModes: Array<{ label: string; value: 'linear' | 'exponential' | 'easeOut' }> = [
+		{ label: 'Linear', value: 'linear' },
+		{ label: 'Expo', value: 'exponential' },
+		{ label: 'Ease-out', value: 'easeOut' },
+	];
+	const decayButtons: HTMLButtonElement[] = [];
+	for (const mode of decayModes) {
+		const btn = document.createElement('button');
+		btn.className = 'btn';
+		btn.textContent = mode.label;
+		if (mode.value === shakeDecayMode) btn.classList.add('active');
+		decayButtons.push(btn);
+		decayBtnGroup.append(btn);
+	}
+
+	/**
+	 * Binds a click handler to a decay mode button.
+	 *
+	 * @param btn - The button element.
+	 * @param mode - The decay mode descriptor.
+	 */
+	function bindDecayButton(
+		btn: HTMLButtonElement,
+		mode: { label: string; value: 'linear' | 'exponential' | 'easeOut' },
+	): void {
+		btn.addEventListener('click', () => {
+			shakeDecayMode = mode.value;
+			for (const b of decayButtons) b.classList.remove('active');
+			btn.classList.add('active');
+		});
+	}
+
+	for (const [idx, mode] of decayModes.entries()) {
+		const btn = decayButtons[idx];
+		if (!btn) continue;
+		bindDecayButton(btn, mode);
+	}
+	decayRow.append(decayLabel, decayBtnGroup);
+	body.append(decayRow);
+
+	// ── Sub-section 6: Noise ────────────────────────────────────────
+	body.append(createSubHeader('Noise'));
+	addSlider(body, 'noiseSeed', 'Seed', 0, 9999, 1, 0, (val) => {
+		noiseSeed = val;
+	});
+	addSlider(body, 'noiseOctaves', 'Octaves', 1, 4, 1, 2, (val) => {
+		noiseOctaves = val;
+	});
+
+	// ── Sub-section 7: Advanced ─────────────────────────────────────
+	body.append(createSubHeader('Advanced'));
+	addSlider(body, 'intensity', 'Intensity', 0, 3, 0.05, 0.5, (val) => {
+		shakeIntensity = val;
+	});
+	addSlider(body, 'traumaPower', 'Trauma Power', 1, 4, 0.5, 2, (val) => {
+		shakeTraumaPower = val;
+	});
+	addSlider(body, 'decayRate', 'Auto-Decay', 0.1, 5.0, 0.1, 0.8, (val) => {
+		shakeDecayRate = val;
+	});
+	addSlider(body, 'freezeMs', 'Freeze Frame', 0, 300, 10, 0, (val) => {
+		freezeMs = val;
+	});
+	addSlider(body, 'directionX', 'Direction X', -1, 1, 0.1, 0, (val) => {
+		directionX = val;
+	});
+	addSlider(body, 'directionZ', 'Direction Z', -1, 1, 0.1, 0, (val) => {
+		directionZ = val;
+	});
+
+	// ── Sub-section 8: Controls ─────────────────────────────────────
+	body.append(createSubHeader('Controls'));
+
+	// Trigger Shake button
+	const triggerBtn = document.createElement('button');
+	triggerBtn.className = 'btn';
+	triggerBtn.textContent = 'Trigger Shake';
+	triggerBtn.style.width = '100%';
+	triggerBtn.style.marginTop = '4px';
+	triggerBtn.addEventListener('click', () => {
+		const config: ScreenShakeConfig = {
+			intensity: shakeIntensity,
+			traumaPower: shakeTraumaPower,
+			decayRate: shakeDecayRate,
+			decayMode: shakeDecayMode,
+			translation: {
+				enabled: translationEnabled,
+				amplitude: translationAmplitude,
+				frequency: translationFrequency,
+			},
+			rotation: {
+				enabled: rotationEnabled,
+				amplitude: rotationAmplitude,
+				frequency: rotationFrequency,
+			},
+			fov: { enabled: fovEnabled, amplitude: fovAmplitude, frequency: fovFrequency },
+			envelope: {
+				attackMs: envelopeAttack,
+				sustainMs: envelopeSustain,
+				decayMs: envelopeDecay,
+			},
+			noise: { seed: noiseSeed, octaves: noiseOctaves },
+			direction: directionX === 0 && directionZ === 0 ? null : { x: directionX, z: directionZ },
+			freezeMs,
+		};
+		screenShake({ ...config, scene, camera });
+	});
+	body.append(triggerBtn);
+
+	// Stop All button
+	const stopBtn = document.createElement('button');
+	stopBtn.className = 'btn';
+	stopBtn.textContent = 'Stop All';
+	stopBtn.style.width = '100%';
+	stopBtn.style.marginTop = '2px';
+	stopBtn.addEventListener('click', () => {
+		stopAllShakes();
+	});
+	body.append(stopBtn);
+
+	// Trauma meter
+	const meterRow = document.createElement('div');
+	meterRow.className = 'control-row';
+	const meterLabel = document.createElement('span');
+	meterLabel.className = 'control-label';
+	meterLabel.textContent = 'Trauma';
+
+	const meterBar = document.createElement('div');
+	meterBar.style.cssText =
+		'flex: 1; height: 12px; background: #333; border-radius: 3px; overflow: hidden;';
+	const meterFill = document.createElement('div');
+	meterFill.style.cssText = 'height: 100%; width: 0%; background: #ff4444; transition: width 50ms;';
+	meterBar.append(meterFill);
+
+	const meterValue = document.createElement('span');
+	meterValue.className = 'control-value';
+	meterValue.textContent = '0.00';
+
+	meterRow.append(meterLabel, meterBar, meterValue);
+	body.append(meterRow);
+
+	// Animate trauma meter
+	const updateMeter = (): void => {
+		const trauma = getTrauma();
+		meterFill.style.width = `${(trauma * 100).toFixed(0)}%`;
+		meterValue.textContent = trauma.toFixed(2);
+		requestAnimationFrame(updateMeter);
+	};
+	requestAnimationFrame(updateMeter);
+
+	// Global Scale slider
+	addSlider(body, 'globalScale', 'Global Scale', 0, 200, 5, 100, (val) => {
+		setGlobalScale(val / 100);
+	});
+
+	// Master Enable toggle
+	addToggle(body, 'masterEnabled', 'Enabled', true, (on) => {
+		setMasterEnabled(on);
+	});
+
+	// ── applyPreset ─────────────────────────────────────────────────
+	/**
+	 * Applies a shake preset's config to all UI controls.
+	 *
+	 * @param preset - The shake preset to apply.
+	 */
+	function applyPreset(preset: ShakePreset): void {
+		const c = preset.config;
+		shakeIntensity = c.intensity;
+		shakeTraumaPower = c.traumaPower;
+		shakeDecayRate = c.decayRate;
+		shakeDecayMode = c.decayMode;
+
+		translationEnabled = c.translation.enabled;
+		translationAmplitude = c.translation.amplitude;
+		translationFrequency = c.translation.frequency;
+
+		rotationEnabled = c.rotation.enabled;
+		rotationAmplitude = c.rotation.amplitude;
+		rotationFrequency = c.rotation.frequency;
+
+		fovEnabled = c.fov.enabled;
+		fovAmplitude = c.fov.amplitude;
+		fovFrequency = c.fov.frequency;
+
+		envelopeAttack = c.envelope.attackMs;
+		envelopeSustain = c.envelope.sustainMs;
+		envelopeDecay = c.envelope.decayMs;
+
+		noiseSeed = c.noise.seed;
+		noiseOctaves = c.noise.octaves;
+
+		({ freezeMs } = c);
+		directionX = c.direction?.x ?? 0;
+		directionZ = c.direction?.z ?? 0;
+
+		// Update all sliders
+		setSlider('intensity', shakeIntensity);
+		setSlider('traumaPower', shakeTraumaPower);
+		setSlider('decayRate', shakeDecayRate);
+		setSlider('translationAmplitude', translationAmplitude);
+		setSlider('translationFrequency', translationFrequency);
+		setSlider('rotationAmplitude', rotationAmplitude);
+		setSlider('rotationFrequency', rotationFrequency);
+		setSlider('fovAmplitude', fovAmplitude);
+		setSlider('fovFrequency', fovFrequency);
+		setSlider('envelopeAttack', envelopeAttack);
+		setSlider('envelopeSustain', envelopeSustain);
+		setSlider('envelopeDecay', envelopeDecay);
+		setSlider('noiseSeed', noiseSeed);
+		setSlider('noiseOctaves', noiseOctaves);
+		setSlider('freezeMs', freezeMs);
+		setSlider('directionX', directionX);
+		setSlider('directionZ', directionZ);
+
+		// Update decay mode buttons
+		for (const btn of decayButtons) {
+			const mode = decayModes.find((m) => m.label === btn.textContent);
+			if (mode) btn.classList.toggle('active', mode.value === shakeDecayMode);
+		}
+
+		// Update toggles
+		setToggle('translationEnabled', translationEnabled);
+		setToggle('rotationEnabled', rotationEnabled);
+		setToggle('fovEnabled', fovEnabled);
+	}
+}
+/* eslint-enable max-lines-per-function */
 
 /**
  * Creates a control-row with label and styled dropdown.
