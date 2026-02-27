@@ -3,8 +3,11 @@
  *
  * Uses Babylon.js `Layer` to create 2D screen-space background images
  * that scroll at a fraction of the camera movement speed, creating a
- * depth parallax effect. Each layer is rendered behind all 3D scene
- * geometry as a fullscreen quad.
+ * depth parallax effect. Layers use `renderOnlyInRenderTargetTextures`
+ * to suppress automatic background rendering, then are manually drawn
+ * via `onBeforeRenderingGroupObservable` just before tilemap meshes
+ * (rendering group 2), so they appear between the sky (group 0) and
+ * the tilemap (group 2).
  *
  * @example
  * ```typescript
@@ -33,6 +36,20 @@ import type { ColorRgba } from '../schemas/scene-setup-config';
 import type { ParallaxLayer } from '../schemas/sky-config';
 
 // =============================================================================
+// Rendering group constants
+// =============================================================================
+
+/**
+ * Rendering group IDs for layer ordering.
+ *
+ * Sky = 0, tilemap = 2. Parallax layers are `BABYLON.Layer` instances
+ * manually rendered between groups 0 and 2 via `onBeforeRenderingGroupObservable`.
+ * Foreground parallax layers are rendered as standard foreground Layers (after all groups).
+ */
+export const PARALLAX_BG_RENDER_GROUP: Num = 1 as Num;
+export const PARALLAX_FG_RENDER_GROUP: Num = 3 as Num;
+
+// =============================================================================
 // ParallaxInstance
 // =============================================================================
 
@@ -52,6 +69,8 @@ export type ParallaxInstance = {
 	readonly autoScrollAccum: Array<{ u: Num; v: Num }>;
 	/** Per-frame observer for UV offset updates (null if no layers). */
 	readonly observer: BABYLON.Observer<BABYLON.Scene> | null;
+	/** Observer that manually renders background layers before the tilemap group. */
+	readonly renderGroupObserver: BABYLON.Observer<BABYLON.RenderingGroupInfo> | null;
 	/** The scene this parallax belongs to. */
 	readonly scene: BABYLON.Scene;
 };
@@ -156,9 +175,12 @@ export function computeParallaxOffset(options: {
 /**
  * Creates parallax scrolling background layers in the scene.
  *
- * Uses Babylon.js `Layer` (2D screen-space background) which renders
- * behind all 3D geometry. UV offset is updated per frame based on
- * camera position to create the parallax scrolling effect.
+ * Background layers are `BABYLON.Layer` instances with
+ * `renderOnlyInRenderTargetTextures = true` so they skip automatic
+ * background rendering, then are manually drawn before the tilemap
+ * rendering group via `onBeforeRenderingGroupObservable`. This places
+ * them visually between the sky (group 0) and the tilemap (group 2).
+ * Foreground layers render as normal foreground Layers (after all groups).
  *
  * @param options - Scene, layer configs, and asset base path.
  * @returns BabylonResult containing the parallax instance handle.
@@ -193,6 +215,12 @@ export function createParallax(options: {
 			// isBackground=true renders behind 3D, isBackground=false renders in front
 			const isBackground = layer.layerType !== 'foreground';
 			const bgLayer = new BABYLON.Layer(`parallax-${i}`, texturePath, scene, isBackground);
+
+			// Suppress automatic background rendering — we manually render
+			// background layers between the sky and tilemap groups instead.
+			if (isBackground) {
+				bgLayer.renderOnlyInRenderTargetTextures = true;
+			}
 
 			// Apply blend mode from layer config
 			bgLayer.alphaBlendingMode = mapBlendMode(layer.blendMode);
@@ -275,11 +303,31 @@ export function createParallax(options: {
 			});
 		}
 
+		// Register observer to manually render background parallax layers
+		// AFTER the sky rendering group (group 0). Using onAfterRenderingGroup
+		// for group 0 ensures the parallax always renders even when the tilemap
+		// (group 2) has no visible meshes. This places parallax visually between
+		// the sky (group 0) and the tilemap (group 2).
+		let renderGroupObserver: BABYLON.Observer<BABYLON.RenderingGroupInfo> | null = null;
+		const backgroundLayers: BABYLON.Layer[] = bgLayers.filter(
+			(_, idx) => sortedLayers[idx]?.layerType !== 'foreground',
+		);
+		if (backgroundLayers.length > 0) {
+			renderGroupObserver = scene.onAfterRenderingGroupObservable.add((info) => {
+				if (info.renderingGroupId === 0) {
+					for (const layer of backgroundLayers) {
+						layer.render();
+					}
+				}
+			});
+		}
+
 		return okShallow({
 			bgLayers,
 			layers: sortedLayers,
 			autoScrollAccum,
 			observer,
+			renderGroupObserver,
 			scene,
 		});
 	} catch (error: unknown) {
@@ -311,6 +359,11 @@ export function disposeParallax(options: {
 		// Remove per-frame observer
 		if (parallax.observer) {
 			parallax.scene.onBeforeRenderObservable.remove(parallax.observer);
+		}
+
+		// Remove rendering group observer
+		if (parallax.renderGroupObserver) {
+			parallax.scene.onAfterRenderingGroupObservable.remove(parallax.renderGroupObserver);
 		}
 
 		// Dispose background layers (also disposes internal textures)
@@ -386,6 +439,12 @@ export function addParallaxLayer(options: {
 			parallax.scene,
 			isBackground,
 		);
+
+		// Suppress automatic background rendering — the rendering group
+		// observer handles manual rendering between sky and tilemap.
+		if (isBackground) {
+			bgLayer.renderOnlyInRenderTargetTextures = true;
+		}
 
 		// Apply blend mode
 		bgLayer.alphaBlendingMode = mapBlendMode(layer.blendMode);

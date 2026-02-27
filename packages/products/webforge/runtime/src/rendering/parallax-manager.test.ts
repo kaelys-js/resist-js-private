@@ -22,6 +22,8 @@ import {
 	fadeLayerOpacity,
 	getParallaxLayerCount,
 	setParallaxLayerTint,
+	PARALLAX_BG_RENDER_GROUP,
+	PARALLAX_FG_RENDER_GROUP,
 } from './parallax-manager';
 
 let instance: BabylonEngineInstance;
@@ -297,6 +299,187 @@ describe('disposeParallax', () => {
 
 		const disposeResult = disposeParallax({ parallax: result.data });
 		expect(disposeResult.ok).toBe(true);
+	});
+
+	test('removes renderGroupObserver on dispose', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/hills.png',
+				scrollSpeedX: 0.5,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
+			},
+		];
+		const result = createParallax({
+			scene: instance.scene,
+			layers,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		expect(result.data.renderGroupObserver).not.toBeNull();
+		disposeParallax({ parallax: result.data });
+		expect(
+			instance.scene.onAfterRenderingGroupObservable.hasObservers() === false ||
+				instance.scene.onAfterRenderingGroupObservable.observers.some(
+					(o) => o === result.data.renderGroupObserver,
+				) === false,
+		).toBe(true);
+	});
+});
+
+// =============================================================================
+// Rendering group constants
+// =============================================================================
+
+describe('rendering group constants', () => {
+	test('PARALLAX_BG_RENDER_GROUP is 1', () => {
+		expect(PARALLAX_BG_RENDER_GROUP).toBe(1);
+	});
+
+	test('PARALLAX_FG_RENDER_GROUP is 3', () => {
+		expect(PARALLAX_FG_RENDER_GROUP).toBe(3);
+	});
+});
+
+// =============================================================================
+// renderOnlyInRenderTargetTextures
+// =============================================================================
+
+describe('background layer rendering suppression', () => {
+	test('background layers have renderOnlyInRenderTargetTextures = true', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/mountains.png',
+				scrollSpeedX: 0.3,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
+			},
+		];
+		const result = createParallax({
+			scene: instance.scene,
+			layers,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		expect(result.data.bgLayers[0]!.renderOnlyInRenderTargetTextures).toBe(true);
+		disposeParallax({ parallax: result.data });
+	});
+
+	test('foreground layers do NOT have renderOnlyInRenderTargetTextures', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/mountains.png',
+				scrollSpeedX: 0.3,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'foreground',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
+			},
+		];
+		const result = createParallax({
+			scene: instance.scene,
+			layers,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		expect(result.data.bgLayers[0]!.renderOnlyInRenderTargetTextures).toBe(false);
+		disposeParallax({ parallax: result.data });
+	});
+
+	test('registers renderGroupObserver for background layers', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/mountains.png',
+				scrollSpeedX: 0.3,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
+			},
+		];
+		const result = createParallax({
+			scene: instance.scene,
+			layers,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		expect(result.data.renderGroupObserver).not.toBeNull();
+		disposeParallax({ parallax: result.data });
+	});
+
+	test('no renderGroupObserver for foreground-only layers', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/mountains.png',
+				scrollSpeedX: 0.3,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'foreground',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
+			},
+		];
+		const result = createParallax({
+			scene: instance.scene,
+			layers,
+			assetBasePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		expect(result.data.renderGroupObserver).toBeNull();
+		disposeParallax({ parallax: result.data });
 	});
 });
 
