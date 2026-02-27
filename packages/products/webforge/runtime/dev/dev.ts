@@ -27,10 +27,9 @@ import {
 	setGlobalScale,
 	setMasterEnabled,
 	resetCamera,
-	screenTint,
+	playTransition,
 	screenFlash,
-	screenFadeIn,
-	screenFadeOut,
+	screenTint,
 	setLayerVisibility,
 	setLayerOpacity,
 	getMoonPhaseInfo,
@@ -101,8 +100,8 @@ type DevDebugApi = {
 	status: () => Record<string, unknown>;
 };
 
-/** Color preset for screen effects. */
-type EffectColor = { r: number; g: number; b: number; a: number };
+/** Color preset for screen effects (RGB, no alpha). */
+type EffectColor = { r: number; g: number; b: number };
 
 // =============================================================================
 // State
@@ -112,7 +111,7 @@ let _currentPreset = 'mapeditor';
 let selectedEffectColor = 'white';
 let _firstPersonCam: BABYLON.UniversalCamera | null = null;
 let _isFirstPerson = false;
-let _lastFadeOutHandle: { dispose: () => void } | null = null;
+let _lastFadeOutHandle: { readonly dispose: () => void } | null = null;
 
 // -- Map Editor camera state --
 const MAP_MIN = 0;
@@ -796,12 +795,12 @@ type TileInspectorControls = {
 let _tiControls: TileInspectorControls | null = null;
 
 const EFFECT_COLORS: Record<string, EffectColor> = {
-	white: { r: 1, g: 1, b: 1, a: 1 },
-	black: { r: 0, g: 0, b: 0, a: 1 },
-	red: { r: 1, g: 0, b: 0, a: 0.5 },
-	green: { r: 0, g: 1, b: 0, a: 0.5 },
-	blue: { r: 0, g: 0, b: 1, a: 0.5 },
-	yellow: { r: 1, g: 1, b: 0, a: 0.5 },
+	white: { r: 1, g: 1, b: 1 },
+	black: { r: 0, g: 0, b: 0 },
+	red: { r: 1, g: 0, b: 0 },
+	green: { r: 0, g: 1, b: 0 },
+	blue: { r: 0, g: 0, b: 1 },
+	yellow: { r: 1, g: 1, b: 0 },
 };
 
 // =============================================================================
@@ -1553,20 +1552,21 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 				r: Number.parseInt(hex.slice(1, 3), 16) / 255,
 				g: Number.parseInt(hex.slice(3, 5), 16) / 255,
 				b: Number.parseInt(hex.slice(5, 7), 16) / 255,
-				a: 0.7,
 			};
 		} else {
-			color = EFFECT_COLORS[selectedEffectColor] ?? { r: 1, g: 1, b: 1, a: 1 };
+			color = EFFECT_COLORS[selectedEffectColor] ?? { r: 1, g: 1, b: 1 };
 		}
-		const opts = { scene, color, durationMs };
+		const cam = scene.activeCamera;
+		if (!cam) return;
+		const eng = scene.getEngine();
 
 		switch (type) {
 			case 'flash': {
-				screenFlash(opts);
+				screenFlash({ scene, camera: cam, engine: eng, color, durationMs });
 				break;
 			}
 			case 'tint': {
-				screenTint(opts);
+				screenTint({ scene, camera: cam, engine: eng, color, durationMs });
 				break;
 			}
 			case 'fadeOut': {
@@ -1574,7 +1574,12 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					_lastFadeOutHandle.dispose();
 					_lastFadeOutHandle = null;
 				}
-				const fadeOutResult: BabylonResult<{ dispose: () => void }> = screenFadeOut(opts);
+				const fadeOutResult = playTransition({
+					scene,
+					camera: cam,
+					engine: eng,
+					config: { type: 'fade', color, durationMs },
+				});
 				if (fadeOutResult.ok) _lastFadeOutHandle = fadeOutResult.data;
 				break;
 			}
@@ -1583,7 +1588,12 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					_lastFadeOutHandle.dispose();
 					_lastFadeOutHandle = null;
 				}
-				screenFadeIn(opts);
+				playTransition({
+					scene,
+					camera: cam,
+					engine: eng,
+					config: { type: 'fade', color, durationMs, reverse: true },
+				});
 				break;
 			}
 		}
