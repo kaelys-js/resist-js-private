@@ -41,10 +41,16 @@ import {
 import {
 	renderTilemap,
 	disposeTilemap,
+	updateTile,
 	type RenderedTilemap,
 } from '../src/rendering/tilemap-renderer';
 import { getTileProperties } from '../src/rendering/tile-query';
-import { resolveGlobalTileId } from '../src/rendering/tileset-loader';
+import {
+	resolveGlobalTileId,
+	type LoadedTileset,
+	type ResolvedTile,
+} from '../src/rendering/tileset-loader';
+import type { TileProperties } from '../src/schemas/map-data';
 
 import type { RuntimeInstance } from '../src/runtime';
 import type { BabylonResult } from '../src/core/babylon-result';
@@ -84,6 +90,127 @@ let selectedEffectColor = 'white';
 let _firstPersonCam: BABYLON.UniversalCamera | null = null;
 let _isFirstPerson = false;
 let _lastFadeOutHandle: { dispose: () => void } | null = null;
+
+// -- Tile Inspector selected tile state --
+let _selectedTileset: LoadedTileset | null = null;
+let _selectedLocalIndex: Num = 0;
+/** Layer index to inspect: -1 = topmost non-empty, 0+ = specific layer. */
+let _inspectLayerIndex: Num = -1;
+/** Cached grid position so re-inspect works when switching layers. */
+let _lastInspectX: Num = -1;
+let _lastInspectZ: Num = -1;
+
+/** Terrain type options for the dropdown. */
+const TERRAIN_TYPE_OPTIONS: readonly string[] = [
+	'normal',
+	'water',
+	'deepWater',
+	'lava',
+	'ice',
+	'sand',
+	'swamp',
+	'snow',
+	'grass',
+	'wood',
+	'stone',
+	'metal',
+	'custom',
+];
+
+/**
+ * Reads the current TileProperties for the selected tile, creating a
+ * default entry if one does not exist yet.
+ *
+ * @returns The mutable TileProperties object from the tileset config.
+ */
+function getOrCreateSelectedProps(): TileProperties | null {
+	if (!_selectedTileset) return null;
+	const key = String(_selectedLocalIndex);
+	const existing: TileProperties | undefined = _selectedTileset.config.tileProperties[key];
+	if (existing) return existing;
+
+	// Create a new entry with schema defaults
+	const defaults: TileProperties = {
+		passability: [true, true, true, true],
+		terrainTag: 0,
+		height: 0,
+		damageFloor: false,
+		bush: false,
+		counter: false,
+		ladder: false,
+		passAbove: false,
+		passBelow: false,
+		passVehicle: 0,
+		passEvent: true,
+		passHeight: 0,
+		starPassage: false,
+		terrainType: 'normal',
+		footstepSound: '',
+		encounterRate: 1,
+		slipperiness: 0,
+		movementSpeed: 1,
+		regionId: 0,
+	};
+	_selectedTileset.config.tileProperties[key] = defaults;
+	return defaults;
+}
+
+/**
+ * References to all editable tile inspector controls so they can be
+ * updated when a new tile is selected.
+ */
+type TileInspectorControls = {
+	passDown: HTMLElement;
+	passLeft: HTMLElement;
+	passRight: HTMLElement;
+	passUp: HTMLElement;
+	passAbove: HTMLElement;
+	passBelow: HTMLElement;
+	passEvent: HTMLElement;
+	starPassage: HTMLElement;
+	passVehicle: HTMLInputElement;
+	passVehicleVal: HTMLElement;
+	passHeight: HTMLInputElement;
+	passHeightVal: HTMLElement;
+	terrainTag: HTMLInputElement;
+	terrainTagVal: HTMLElement;
+	terrainType: HTMLSelectElement;
+	encounterRate: HTMLInputElement;
+	encounterRateVal: HTMLElement;
+	slipperiness: HTMLInputElement;
+	slipperinessVal: HTMLElement;
+	movementSpeed: HTMLInputElement;
+	movementSpeedVal: HTMLElement;
+	regionId: HTMLInputElement;
+	regionIdVal: HTMLElement;
+	height: HTMLInputElement;
+	heightVal: HTMLElement;
+	damageFloor: HTMLElement;
+	bush: HTMLElement;
+	counter: HTMLElement;
+	ladder: HTMLElement;
+	slip: HTMLElement;
+	shelter: HTMLElement;
+	bushDepth: HTMLInputElement;
+	bushDepthVal: HTMLElement;
+	coverHeight: HTMLInputElement;
+	coverHeightVal: HTMLElement;
+	soundAbsorb: HTMLElement;
+	damageAmount: HTMLInputElement;
+	damageAmountVal: HTMLElement;
+	damagePercent: HTMLInputElement;
+	damagePercentVal: HTMLElement;
+	damageInterval: HTMLInputElement;
+	damageIntervalVal: HTMLElement;
+	reflection: HTMLElement;
+	reflectionOpacity: HTMLInputElement;
+	reflectionOpacityVal: HTMLElement;
+	glow: HTMLElement;
+	glowIntensity: HTMLInputElement;
+	glowIntensityVal: HTMLElement;
+};
+
+let _tiControls: TileInspectorControls | null = null;
 
 const EFFECT_COLORS: Record<string, EffectColor> = {
 	white: { r: 1, g: 1, b: 1, a: 1 },
@@ -2028,8 +2155,450 @@ function buildLayerRow(
 // =============================================================================
 
 /**
- * Populates the tile inspector section with read-only info rows
+ * Extracts the toggle-switch div from a toggle row created by
+ * {@link createToggleRow}. The toggle switch is the second child.
+ *
+ * @param row - The toggle row element.
+ * @returns The inner toggle-switch div.
+ */
+function getToggleSwitch(row: HTMLElement): HTMLElement {
+	return row.children[1] as HTMLElement;
+}
+
+/**
+ * Programmatically sets a toggle switch to a given state without
+ * firing the change callback.
+ *
+ * @param toggle - The toggle-switch div.
+ * @param on - Whether it should be on.
+ */
+function setToggleState(toggle: HTMLElement, on: boolean): void {
+	toggle.classList.toggle('on', on);
+}
+
+/**
+ * Extracts the slider input and value display span from a slider
+ * row created by {@link createSliderRow}.
+ *
+ * @param row - The slider row element.
+ * @returns Tuple of [input, valueSpan].
+ */
+function getSliderParts(row: HTMLElement): [HTMLInputElement, HTMLElement] {
+	return [row.children[1] as HTMLInputElement, row.children[2] as HTMLElement];
+}
+
+/**
+ * Programmatically sets a slider to a given value without firing
+ * the change callback. Also updates the display span.
+ *
+ * @param input - The range input element.
+ * @param valSpan - The value display span.
+ * @param value - New numeric value.
+ * @param step - Slider step (for formatting).
+ */
+function setSliderValue(
+	input: HTMLInputElement,
+	valSpan: HTMLElement,
+	value: number,
+	step: number,
+): void {
+	input.value = String(value);
+	valSpan.textContent = formatSliderValue(value, step);
+}
+
+/**
+ * Extracts the select element from a dropdown row created by
+ * {@link createDropdown}.
+ *
+ * @param row - The dropdown row element.
+ * @returns The inner select element.
+ */
+function getDropdownSelect(row: HTMLElement): HTMLSelectElement {
+	return row.children[1] as HTMLSelectElement;
+}
+
+/**
+ * Writes a property value back to the selected tile's properties
+ * in the tileset config. Creates a default entry if none exists.
+ * Uses Object.assign for type-safe dynamic property update.
+ *
+ * @param patch - Partial TileProperties object with the field(s) to update.
+ */
+function writeTileProp(patch: Partial<TileProperties>): void {
+	const props: TileProperties | null = getOrCreateSelectedProps();
+	if (!props) return;
+	Object.assign(props, patch);
+}
+
+/**
+ * Writes a single passability direction flag back to the selected
+ * tile's properties.
+ *
+ * @param dirIndex - Direction index (0=down, 1=left, 2=right, 3=up).
+ * @param value - Whether the direction is passable.
+ */
+function writePassability(dirIndex: Num, value: boolean): void {
+	const props: TileProperties | null = getOrCreateSelectedProps();
+	if (!props) return;
+	// passability is a readonly tuple from the schema; we must replace the whole array
+	const updated: [boolean, boolean, boolean, boolean] = [...props.passability];
+	updated[dirIndex] = value;
+	writeTileProp({ passability: updated });
+}
+
+/** Cache of loaded tileset images for tile preview rendering. */
+const _tilesetImages = new Map<string, HTMLImageElement>();
+
+/**
+ * Draws a tile preview on the given canvas from the resolved tile data.
+ *
+ * @param canvas - The 2D canvas to draw on.
+ * @param resolved - Resolved tile data (tileset + local index), or null.
+ */
+function drawTilePreview(canvas: HTMLCanvasElement, resolved: ResolvedTile | null): void {
+	const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+	if (!ctx) return;
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	if (!resolved) return;
+
+	const { tileset, localIndex } = resolved;
+	const { columns, tileWidth, tileHeight } = tileset.config;
+	const srcX: Num = (localIndex % columns) * tileWidth;
+	const srcY: Num = Math.floor(localIndex / columns) * tileHeight;
+
+	// Get or load the tileset image
+	const imgUrl: string = tileset.texture.name;
+	const cached: HTMLImageElement | undefined = _tilesetImages.get(imgUrl);
+
+	if (cached?.complete) {
+		ctx.drawImage(cached, srcX, srcY, tileWidth, tileHeight, 0, 0, canvas.width, canvas.height);
+		return;
+	}
+
+	if (!cached) {
+		const img: HTMLImageElement = document.createElement('img');
+		img.crossOrigin = 'anonymous';
+		img.src = imgUrl;
+		_tilesetImages.set(imgUrl, img);
+		img.addEventListener('load', () => {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.drawImage(img, srcX, srcY, tileWidth, tileHeight, 0, 0, canvas.width, canvas.height);
+		});
+	}
+}
+
+/**
+ * Finds the layer index of the topmost non-empty tile at the given position.
+ * Falls back to layer 0 if all layers are empty at that position.
+ *
+ * @param tilemap - The rendered tilemap.
+ * @param x - Grid X coordinate.
+ * @param z - Grid Z coordinate.
+ * @returns The layer index with the topmost non-empty tile.
+ */
+function findTopmostLayerAt(tilemap: RenderedTilemap, x: Num, z: Num): Num {
+	const { layers } = tilemap.mapData;
+	const tileIndex: Num = z * tilemap.mapData.width + x;
+	for (let li: Num = layers.length - 1; li >= 0; li--) {
+		const tileId: Num = layers[li]?.data[tileIndex] ?? 0;
+		if (tileId > 0) return li;
+	}
+	return 0;
+}
+
+/**
+ * Looks up the global tile ID at the given flat index, respecting the
+ * current layer selection (`_inspectLayerIndex`).
+ *
+ * - When `_inspectLayerIndex` is -1, iterates layers top-to-bottom and
+ *   returns the first non-empty tile (topmost).
+ * - Otherwise returns the tile from the specific layer.
+ *
+ * @param tilemap - The rendered tilemap.
+ * @param tileIndex - Flat row-major tile index.
+ * @returns The global tile ID (0 = empty).
+ */
+function lookupTileAtIndex(tilemap: RenderedTilemap, tileIndex: Num): Num {
+	const { layers } = tilemap.mapData;
+
+	// Specific layer selected
+	if (_inspectLayerIndex >= 0 && _inspectLayerIndex < layers.length) {
+		return layers[_inspectLayerIndex]?.data[tileIndex] ?? 0;
+	}
+
+	// Topmost non-empty (iterate top-to-bottom)
+	for (let li: Num = layers.length - 1; li >= 0; li--) {
+		const layerTile: Num = layers[li]?.data[tileIndex] ?? 0;
+		if (layerTile > 0) return layerTile;
+	}
+
+	// Fallback to ground layer
+	return layers[0]?.data[tileIndex] ?? 0;
+}
+
+/** Reference to the floating tile picker panel so we don't create duplicates. */
+let _tilePickerPanel: HTMLElement | null = null;
+
+/**
+ * Closes the floating tile picker panel if it is currently open.
+ */
+function closeTilePickerPanel(): void {
+	if (_tilePickerPanel) {
+		_tilePickerPanel.remove();
+		_tilePickerPanel = null;
+	}
+}
+
+/**
+ * Opens (or focuses) a floating tile picker panel with the full tileset
+ * atlas. Clicking a tile in the palette replaces the currently selected
+ * map tile. The panel is draggable via its title bar.
+ *
+ * @param debug - Debug API reference.
+ * @param tilemap - The rendered tilemap.
+ */
+function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void {
+	// If already open, just bring to front
+	if (_tilePickerPanel && document.body.contains(_tilePickerPanel)) {
+		_tilePickerPanel.style.zIndex = '10001';
+		return;
+	}
+
+	// Create floating panel
+	const panel: HTMLElement = document.createElement('div');
+	panel.style.cssText = [
+		'position:fixed',
+		'top:80px',
+		'left:320px',
+		'width:auto',
+		'max-width:420px',
+		'max-height:70vh',
+		'background:#1a1a1a',
+		'border:1px solid #444',
+		'border-radius:6px',
+		'box-shadow:0 4px 16px rgba(0,0,0,0.6)',
+		'z-index:10001',
+		'display:flex',
+		'flex-direction:column',
+		'font-family:monospace',
+		'font-size:11px',
+		'color:#ccc',
+	].join(';');
+	_tilePickerPanel = panel;
+
+	// Title bar (draggable)
+	const titleBar: HTMLElement = document.createElement('div');
+	titleBar.style.cssText = [
+		'display:flex',
+		'align-items:center',
+		'justify-content:space-between',
+		'padding:6px 10px',
+		'background:#252525',
+		'border-bottom:1px solid #444',
+		'border-radius:6px 6px 0 0',
+		'cursor:grab',
+		'user-select:none',
+	].join(';');
+	const titleText: HTMLElement = document.createElement('span');
+	titleText.textContent = 'Tile Picker';
+	titleText.style.fontWeight = 'bold';
+	const closeBtn: HTMLButtonElement = document.createElement('button');
+	closeBtn.textContent = 'X';
+	closeBtn.style.cssText =
+		'background:none;border:none;color:#888;cursor:pointer;font-size:12px;font-weight:bold;';
+	closeBtn.addEventListener('pointerdown', (e: PointerEvent) => {
+		e.stopPropagation(); // Prevent title bar drag from intercepting
+	});
+	closeBtn.addEventListener('click', () => {
+		panel.remove();
+		_tilePickerPanel = null;
+	});
+	titleBar.append(titleText, closeBtn);
+	panel.append(titleBar);
+
+	// Make draggable
+	let isDragging = false;
+	let dragOffX: Num = 0;
+	let dragOffY: Num = 0;
+	titleBar.addEventListener('pointerdown', (e: PointerEvent) => {
+		isDragging = true;
+		dragOffX = e.clientX - panel.offsetLeft;
+		dragOffY = e.clientY - panel.offsetTop;
+		titleBar.style.cursor = 'grabbing';
+		titleBar.setPointerCapture(e.pointerId);
+	});
+	titleBar.addEventListener('pointermove', (e: PointerEvent) => {
+		if (!isDragging) return;
+		panel.style.left = `${String(e.clientX - dragOffX)}px`;
+		panel.style.top = `${String(e.clientY - dragOffY)}px`;
+	});
+	titleBar.addEventListener('pointerup', () => {
+		isDragging = false;
+		titleBar.style.cursor = 'grab';
+	});
+
+	// Content area (scrollable)
+	const content: HTMLElement = document.createElement('div');
+	content.style.cssText = 'padding:8px;overflow-y:auto;flex:1;';
+
+	// Tileset selector dropdown (if multiple tilesets)
+	const tilesetNames: string[] = tilemap.tilesets.map((ts) => ts.config.name);
+	let pickerTsIdx: Num = 0;
+
+	const paletteCanvas: HTMLCanvasElement = document.createElement('canvas');
+	paletteCanvas.style.cssText =
+		'border:1px solid #555;background:#111;image-rendering:pixelated;cursor:crosshair;';
+
+	/**
+	 * Draws a highlight rectangle around a tile in the palette canvas.
+	 *
+	 * @param ctx - Canvas rendering context.
+	 * @param localIdx - Local tile index to highlight (-1 for none).
+	 * @param columns - Number of columns in the tileset.
+	 * @param tileWidth - Width of each tile in pixels.
+	 * @param tileHeight - Height of each tile in pixels.
+	 */
+	const drawPaletteHighlight = (
+		ctx: CanvasRenderingContext2D,
+		localIdx: Num,
+		columns: Num,
+		tileWidth: Num,
+		tileHeight: Num,
+	): void => {
+		if (localIdx < 0) return;
+		const hCol: Num = localIdx % columns;
+		const hRow: Num = Math.floor(localIdx / columns);
+		ctx.strokeStyle = '#00ffff';
+		ctx.lineWidth = 2;
+		ctx.strokeRect(hCol * tileWidth + 1, hRow * tileHeight + 1, tileWidth - 2, tileHeight - 2);
+	};
+
+	/**
+	 * Returns the local tile index within the given tileset for the
+	 * currently inspected map tile, or -1 if not in that tileset.
+	 *
+	 * @param tsIdx - Tileset index to check against.
+	 * @returns Local tile index or -1.
+	 */
+	const getSelectedLocalForTileset = (tsIdx: Num): Num => {
+		if (_lastInspectX < 0 || _lastInspectZ < 0) return -1;
+		const currentTm: RenderedTilemap | null = debug.tilemap;
+		if (!currentTm) return -1;
+		const tileIndex: Num = _lastInspectZ * currentTm.mapData.width + _lastInspectX;
+		const globalId: Num = lookupTileAtIndex(currentTm, tileIndex);
+		if (globalId === 0) return -1;
+		const ts = currentTm.tilesets[tsIdx];
+		if (!ts) return -1;
+		const { firstGid, columns, rows } = ts.config;
+		const local: Num = globalId - firstGid;
+		if (local < 0 || local >= columns * rows) return -1;
+		return local;
+	};
+
+	/**
+	 * Draws the tileset atlas onto the palette canvas, scaling to fit
+	 * the panel width while maintaining the pixel-art look.
+	 *
+	 * @param tsIdx - Index of the tileset to draw.
+	 */
+	const drawPalette = (tsIdx: Num): void => {
+		const ts = tilemap.tilesets[tsIdx];
+		if (!ts) return;
+		const { columns, rows, tileWidth, tileHeight } = ts.config;
+		paletteCanvas.width = columns * tileWidth;
+		paletteCanvas.height = rows * tileHeight;
+		const ctx: CanvasRenderingContext2D | null = paletteCanvas.getContext('2d');
+		if (!ctx) return;
+		ctx.clearRect(0, 0, paletteCanvas.width, paletteCanvas.height);
+
+		const selectedLocal: Num = getSelectedLocalForTileset(tsIdx);
+
+		const imgUrl: string = ts.texture.name;
+		const cached: HTMLImageElement | undefined = _tilesetImages.get(imgUrl);
+		if (cached?.complete) {
+			ctx.drawImage(cached, 0, 0);
+			drawPaletteHighlight(ctx, selectedLocal, columns, tileWidth, tileHeight);
+			return;
+		}
+		if (!cached) {
+			const img: HTMLImageElement = document.createElement('img');
+			img.crossOrigin = 'anonymous';
+			img.src = imgUrl;
+			_tilesetImages.set(imgUrl, img);
+			img.addEventListener('load', () => {
+				ctx.drawImage(img, 0, 0);
+				drawPaletteHighlight(ctx, selectedLocal, columns, tileWidth, tileHeight);
+			});
+		}
+	};
+
+	if (tilesetNames.length > 1) {
+		const dropRow: HTMLElement = createDropdown(
+			'Tileset',
+			tilesetNames,
+			tilesetNames[0] ?? '',
+			(val: string) => {
+				pickerTsIdx = tilesetNames.indexOf(val);
+				drawPalette(pickerTsIdx);
+			},
+		);
+		content.append(dropRow);
+	}
+
+	content.append(paletteCanvas);
+
+	// Click on palette to change the selected map tile
+	paletteCanvas.addEventListener('pointerdown', (evt: PointerEvent) => {
+		if (_lastInspectX < 0 || _lastInspectZ < 0) return;
+		const currentTilemap: RenderedTilemap | null = debug.tilemap;
+		if (!currentTilemap) return;
+		const ts = currentTilemap.tilesets[pickerTsIdx];
+		if (!ts) return;
+
+		const rect: DOMRect = paletteCanvas.getBoundingClientRect();
+		const scaleX: Num = paletteCanvas.width / rect.width;
+		const scaleY: Num = paletteCanvas.height / rect.height;
+		const px: Num = (evt.clientX - rect.left) * scaleX;
+		const py: Num = (evt.clientY - rect.top) * scaleY;
+
+		const { columns, tileWidth, tileHeight, firstGid } = ts.config;
+		const col: Num = Math.floor(px / tileWidth);
+		const row: Num = Math.floor(py / tileHeight);
+		const localIndex: Num = row * columns + col;
+		const newGlobalId: Num = firstGid + localIndex;
+
+		// Determine which layer to edit
+		const editLayer: Num =
+			_inspectLayerIndex >= 0
+				? _inspectLayerIndex
+				: findTopmostLayerAt(currentTilemap, _lastInspectX, _lastInspectZ);
+
+		const result = updateTile({
+			tilemap: currentTilemap,
+			layerIndex: editLayer,
+			x: _lastInspectX,
+			z: _lastInspectZ,
+			newTileId: newGlobalId,
+		});
+		if (result.ok) {
+			debug.tilemap = result.data;
+			refreshInspector(result.data, _lastInspectX, _lastInspectZ);
+			// Redraw palette to move highlight to the newly placed tile
+			drawPalette(pickerTsIdx);
+		}
+	});
+
+	panel.append(content);
+	document.body.append(panel);
+	drawPalette(0);
+}
+
+/**
+ * Populates the tile inspector section with editable controls
  * and attaches a canvas click handler for pick-to-inspect.
+ * Controls are created once; their values are updated when a tile
+ * is clicked.
  *
  * @param debug - Debug API reference.
  * @param scene - Babylon.js scene.
@@ -2040,44 +2609,437 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 
 	container.innerHTML = '';
 
-	// -- Identity rows --
+	// -- Tile preview canvas with edit overlay --
+	const previewRow: HTMLElement = document.createElement('div');
+	previewRow.style.cssText = 'display:flex;align-items:center;gap:8px;padding:4px 8px;';
+
+	// Wrapper for preview + edit overlay
+	const previewWrap: HTMLElement = document.createElement('div');
+	previewWrap.style.cssText = 'position:relative;width:48px;height:48px;flex-shrink:0;';
+
+	const previewCanvas: HTMLCanvasElement = document.createElement('canvas');
+	previewCanvas.id = 'ti-preview';
+	previewCanvas.width = 16;
+	previewCanvas.height = 16;
+	previewCanvas.style.cssText =
+		'width:48px;height:48px;border:1px solid #555;background:#222;image-rendering:pixelated;';
+
+	// Edit icon overlay (pencil) — shown on hover, opens tile picker
+	const editOverlay: HTMLElement = document.createElement('div');
+	editOverlay.style.cssText = [
+		'position:absolute',
+		'inset:0',
+		'display:flex',
+		'align-items:center',
+		'justify-content:center',
+		'background:rgba(0,0,0,0.55)',
+		'opacity:0',
+		'transition:opacity 0.15s',
+		'cursor:pointer',
+		'border:1px solid #555',
+		'font-size:18px',
+	].join(';');
+	editOverlay.textContent = '\u270E'; // ✎ pencil
+	editOverlay.title = 'Open Tile Picker';
+	previewWrap.addEventListener('mouseenter', () => {
+		editOverlay.style.opacity = '1';
+	});
+	previewWrap.addEventListener('mouseleave', () => {
+		editOverlay.style.opacity = '0';
+	});
+
+	previewWrap.append(previewCanvas, editOverlay);
+
+	const previewLabel: HTMLElement = document.createElement('span');
+	previewLabel.style.cssText = 'color:#888;font-size:10px;';
+	previewLabel.textContent = 'Click a tile to inspect';
+	previewLabel.id = 'ti-preview-label';
+	previewRow.append(previewWrap, previewLabel);
+	container.append(previewRow);
+
+	// -- Layer selector dropdown --
+	const { tilemap: tiTilemap } = debug;
+	const layerNames: string[] = ['Topmost'];
+	if (tiTilemap) {
+		for (const layer of tiTilemap.mapData.layers) {
+			layerNames.push(layer.name);
+		}
+	}
+	const layerSelectRow: HTMLElement = createDropdown(
+		'Inspect Layer',
+		layerNames,
+		'Topmost',
+		(val: string) => {
+			const idx: Num = layerNames.indexOf(val) - 1; // -1 = Topmost, 0+ = layer index
+			_inspectLayerIndex = idx;
+			// Re-inspect the last-clicked tile with the new layer
+			if (_lastInspectX >= 0 && _lastInspectZ >= 0 && debug.tilemap) {
+				refreshInspector(debug.tilemap, _lastInspectX, _lastInspectZ);
+			}
+		},
+	);
+	container.append(layerSelectRow);
+
+	// -- Identity rows (read-only) --
 	const hdrIdentity: HTMLElement = createSubHeader('Identity');
 	container.append(hdrIdentity);
 	container.append(infoRow('Tile ID (global)', 'ti-global-id'));
 	container.append(infoRow('Tile ID (local)', 'ti-local-id'));
 	container.append(infoRow('Tileset', 'ti-tileset'));
 	container.append(infoRow('Grid Position', 'ti-grid-pos'));
+	container.append(infoRow('Layer', 'ti-layer'));
 
-	// -- Passability rows --
+	// -- Passability controls --
 	const hdrPass: HTMLElement = createSubHeader('Passability');
 	container.append(hdrPass);
-	container.append(infoRow('Passability', 'ti-passability'));
-	container.append(infoRow('Pass Above', 'ti-pass-above'));
-	container.append(infoRow('Pass Below', 'ti-pass-below'));
-	container.append(infoRow('Pass Event', 'ti-pass-event'));
-	container.append(infoRow('Star Passage', 'ti-star-passage'));
-	container.append(infoRow('Pass Vehicle', 'ti-pass-vehicle'));
-	container.append(infoRow('Pass Height', 'ti-pass-height'));
 
-	// -- Terrain rows --
+	const passDownRow: HTMLElement = createToggleRow('Pass Down', true, (on: boolean) => {
+		writePassability(0, on);
+	});
+	container.append(passDownRow);
+
+	const passLeftRow: HTMLElement = createToggleRow('Pass Left', true, (on: boolean) => {
+		writePassability(1, on);
+	});
+	container.append(passLeftRow);
+
+	const passRightRow: HTMLElement = createToggleRow('Pass Right', true, (on: boolean) => {
+		writePassability(2, on);
+	});
+	container.append(passRightRow);
+
+	const passUpRow: HTMLElement = createToggleRow('Pass Up', true, (on: boolean) => {
+		writePassability(3, on);
+	});
+	container.append(passUpRow);
+
+	const passAboveRow: HTMLElement = createToggleRow('Pass Above', false, (on: boolean) => {
+		writeTileProp({ passAbove: on });
+	});
+	container.append(passAboveRow);
+
+	const passBelowRow: HTMLElement = createToggleRow('Pass Below', false, (on: boolean) => {
+		writeTileProp({ passBelow: on });
+	});
+	container.append(passBelowRow);
+
+	const passEventRow: HTMLElement = createToggleRow('Pass Event', true, (on: boolean) => {
+		writeTileProp({ passEvent: on });
+	});
+	container.append(passEventRow);
+
+	const starPassageRow: HTMLElement = createToggleRow('Star Passage', false, (on: boolean) => {
+		writeTileProp({ starPassage: on });
+	});
+	container.append(starPassageRow);
+
+	const passVehicleRow: HTMLElement = createSliderRow(
+		'Pass Vehicle',
+		0,
+		31,
+		1,
+		0,
+		(val: number) => {
+			writeTileProp({ passVehicle: val });
+		},
+	);
+	container.append(passVehicleRow);
+
+	const passHeightRow: HTMLElement = createSliderRow('Pass Height', 0, 15, 1, 0, (val: number) => {
+		writeTileProp({ passHeight: val });
+	});
+	container.append(passHeightRow);
+
+	// -- Terrain controls --
 	const hdrTerrain: HTMLElement = createSubHeader('Terrain');
 	container.append(hdrTerrain);
-	container.append(infoRow('Terrain Tag', 'ti-terrain-tag'));
-	container.append(infoRow('Terrain Type', 'ti-terrain-type'));
-	container.append(infoRow('Footstep Sound', 'ti-footstep'));
-	container.append(infoRow('Encounter Rate', 'ti-encounter'));
-	container.append(infoRow('Slipperiness', 'ti-slipperiness'));
-	container.append(infoRow('Movement Speed', 'ti-movement'));
-	container.append(infoRow('Region ID', 'ti-region'));
 
-	// -- Flags rows --
+	const terrainTagRow: HTMLElement = createSliderRow('Terrain Tag', 0, 15, 1, 0, (val: number) => {
+		writeTileProp({ terrainTag: val });
+	});
+	container.append(terrainTagRow);
+
+	const terrainTypeRow: HTMLElement = createDropdown(
+		'Terrain Type',
+		TERRAIN_TYPE_OPTIONS,
+		'normal',
+		(val: string) => {
+			writeTileProp({ terrainType: val });
+		},
+	);
+	container.append(terrainTypeRow);
+
+	container.append(infoRow('Footstep Sound', 'ti-footstep'));
+
+	const encounterRateRow: HTMLElement = createSliderRow(
+		'Encounter Rate',
+		0,
+		10,
+		0.1,
+		1,
+		(val: number) => {
+			writeTileProp({ encounterRate: val });
+		},
+	);
+	container.append(encounterRateRow);
+
+	const slipperinessRow: HTMLElement = createSliderRow(
+		'Slipperiness',
+		0,
+		1,
+		0.01,
+		0,
+		(val: number) => {
+			writeTileProp({ slipperiness: val });
+		},
+	);
+	container.append(slipperinessRow);
+
+	const movementSpeedRow: HTMLElement = createSliderRow(
+		'Movement Speed',
+		0.1,
+		5,
+		0.1,
+		1,
+		(val: number) => {
+			writeTileProp({ movementSpeed: val });
+		},
+	);
+	container.append(movementSpeedRow);
+
+	const regionIdRow: HTMLElement = createSliderRow('Region ID', 0, 255, 1, 0, (val: number) => {
+		writeTileProp({ regionId: val });
+	});
+	container.append(regionIdRow);
+
+	// -- Flags controls --
 	const hdrFlags: HTMLElement = createSubHeader('Flags');
 	container.append(hdrFlags);
-	container.append(infoRow('Height', 'ti-height'));
-	container.append(infoRow('Damage Floor', 'ti-damage'));
-	container.append(infoRow('Bush', 'ti-bush'));
-	container.append(infoRow('Counter', 'ti-counter'));
-	container.append(infoRow('Ladder', 'ti-ladder'));
+
+	const heightRow: HTMLElement = createSliderRow('Height', 0, 15, 1, 0, (val: number) => {
+		writeTileProp({ height: val });
+	});
+	container.append(heightRow);
+
+	const damageFloorRow: HTMLElement = createToggleRow('Damage Floor', false, (on: boolean) => {
+		writeTileProp({ damageFloor: on });
+	});
+	container.append(damageFloorRow);
+
+	const bushRow: HTMLElement = createToggleRow('Bush', false, (on: boolean) => {
+		writeTileProp({ bush: on });
+	});
+	container.append(bushRow);
+
+	const counterRow: HTMLElement = createToggleRow('Counter', false, (on: boolean) => {
+		writeTileProp({ counter: on });
+	});
+	container.append(counterRow);
+
+	const ladderRow: HTMLElement = createToggleRow('Ladder', false, (on: boolean) => {
+		writeTileProp({ ladder: on });
+	});
+	container.append(ladderRow);
+
+	const slipRow: HTMLElement = createToggleRow('Slip', false, (on: boolean) => {
+		writeTileProp({ slip: on } as Partial<TileProperties>);
+	});
+	container.append(slipRow);
+
+	const shelterRow: HTMLElement = createToggleRow('Shelter', false, (on: boolean) => {
+		writeTileProp({ shelter: on } as Partial<TileProperties>);
+	});
+	container.append(shelterRow);
+
+	const bushDepthRow: HTMLElement = createSliderRow('Bush Depth', 0, 24, 1, 12, (val: number) => {
+		writeTileProp({ bushDepth: val } as Partial<TileProperties>);
+	});
+	container.append(bushDepthRow);
+
+	const coverHeightRow: HTMLElement = createSliderRow(
+		'Cover Height',
+		0,
+		1,
+		0.01,
+		0,
+		(val: number) => {
+			writeTileProp({ coverHeight: val } as Partial<TileProperties>);
+		},
+	);
+	container.append(coverHeightRow);
+
+	const soundAbsorbRow: HTMLElement = createToggleRow('Sound Absorb', false, (on: boolean) => {
+		writeTileProp({ soundAbsorb: on } as Partial<TileProperties>);
+	});
+	container.append(soundAbsorbRow);
+
+	// -- Damage sub-section --
+	const hdrDamage: HTMLElement = createSubHeader('Damage');
+	container.append(hdrDamage);
+
+	const damageAmountRow: HTMLElement = createSliderRow(
+		'Damage Amount',
+		0,
+		999,
+		1,
+		0,
+		(val: number) => {
+			writeTileProp({ damageAmount: val } as Partial<TileProperties>);
+		},
+	);
+	container.append(damageAmountRow);
+
+	const damagePercentRow: HTMLElement = createSliderRow('Damage %', 0, 100, 1, 0, (val: number) => {
+		writeTileProp({ damagePercent: val } as Partial<TileProperties>);
+	});
+	container.append(damagePercentRow);
+
+	const damageIntervalRow: HTMLElement = createSliderRow(
+		'Damage Interval',
+		1,
+		100,
+		1,
+		1,
+		(val: number) => {
+			writeTileProp({ damageInterval: val } as Partial<TileProperties>);
+		},
+	);
+	container.append(damageIntervalRow);
+
+	// -- Reflection sub-section --
+	const hdrReflection: HTMLElement = createSubHeader('Reflection');
+	container.append(hdrReflection);
+
+	const reflectionRow: HTMLElement = createToggleRow('Reflection', false, (on: boolean) => {
+		writeTileProp({ reflection: on } as Partial<TileProperties>);
+	});
+	container.append(reflectionRow);
+
+	const reflectionOpacityRow: HTMLElement = createSliderRow(
+		'Reflection Opacity',
+		0,
+		1,
+		0.01,
+		0.5,
+		(val: number) => {
+			writeTileProp({ reflectionOpacity: val } as Partial<TileProperties>);
+		},
+	);
+	container.append(reflectionOpacityRow);
+
+	// -- Glow sub-section --
+	const hdrGlow: HTMLElement = createSubHeader('Glow');
+	container.append(hdrGlow);
+
+	const glowRow: HTMLElement = createToggleRow('Glow', false, (on: boolean) => {
+		writeTileProp({ glow: on } as Partial<TileProperties>);
+	});
+	container.append(glowRow);
+
+	const glowIntensityRow: HTMLElement = createSliderRow(
+		'Glow Intensity',
+		0,
+		1,
+		0.01,
+		0,
+		(val: number) => {
+			writeTileProp({ glowIntensity: val } as Partial<TileProperties>);
+		},
+	);
+	container.append(glowIntensityRow);
+
+	// -- Collision sub-section --
+	const hdrCollision: HTMLElement = createSubHeader('Collision');
+	container.append(hdrCollision);
+	container.append(infoRow('Collision Shapes', 'ti-collision-count'));
+
+	// -- Custom Properties sub-section --
+	const hdrCustom: HTMLElement = createSubHeader('Custom');
+	container.append(hdrCustom);
+	container.append(infoRow('Class', 'ti-class'));
+	container.append(infoRow('Tags', 'ti-tags'));
+	container.append(infoRow('Script Hook', 'ti-script-hook'));
+
+	// -- Animation sub-section --
+	const hdrAnim: HTMLElement = createSubHeader('Animation');
+	container.append(hdrAnim);
+	container.append(infoRow('Frames', 'ti-anim-frames'));
+	container.append(infoRow('Playback Mode', 'ti-anim-mode'));
+
+	// -- Wire edit overlay to open tile picker --
+	if (tiTilemap) {
+		editOverlay.addEventListener('click', () => {
+			openTilePickerPanel(debug, tiTilemap);
+		});
+	}
+
+	// -- Extract control references for external updates --
+	const [passVehicleInput, passVehicleVal] = getSliderParts(passVehicleRow);
+	const [passHeightInput, passHeightValEl] = getSliderParts(passHeightRow);
+	const [terrainTagInput, terrainTagVal] = getSliderParts(terrainTagRow);
+	const [encounterRateInput, encounterRateVal] = getSliderParts(encounterRateRow);
+	const [slipperinessInput, slipperinessVal] = getSliderParts(slipperinessRow);
+	const [movementSpeedInput, movementSpeedVal] = getSliderParts(movementSpeedRow);
+	const [regionIdInput, regionIdVal] = getSliderParts(regionIdRow);
+	const [heightInput, heightVal] = getSliderParts(heightRow);
+	const [bushDepthInput, bushDepthVal] = getSliderParts(bushDepthRow);
+	const [coverHeightInput, coverHeightVal] = getSliderParts(coverHeightRow);
+	const [damageAmountInput, damageAmountVal] = getSliderParts(damageAmountRow);
+	const [damagePercentInput, damagePercentVal] = getSliderParts(damagePercentRow);
+	const [damageIntervalInput, damageIntervalVal] = getSliderParts(damageIntervalRow);
+	const [reflectionOpacityInput, reflectionOpacityVal] = getSliderParts(reflectionOpacityRow);
+	const [glowIntensityInput, glowIntensityVal] = getSliderParts(glowIntensityRow);
+
+	_tiControls = {
+		passDown: getToggleSwitch(passDownRow),
+		passLeft: getToggleSwitch(passLeftRow),
+		passRight: getToggleSwitch(passRightRow),
+		passUp: getToggleSwitch(passUpRow),
+		passAbove: getToggleSwitch(passAboveRow),
+		passBelow: getToggleSwitch(passBelowRow),
+		passEvent: getToggleSwitch(passEventRow),
+		starPassage: getToggleSwitch(starPassageRow),
+		passVehicle: passVehicleInput,
+		passVehicleVal,
+		passHeight: passHeightInput,
+		passHeightVal: passHeightValEl,
+		terrainTag: terrainTagInput,
+		terrainTagVal,
+		terrainType: getDropdownSelect(terrainTypeRow),
+		encounterRate: encounterRateInput,
+		encounterRateVal,
+		slipperiness: slipperinessInput,
+		slipperinessVal,
+		movementSpeed: movementSpeedInput,
+		movementSpeedVal,
+		regionId: regionIdInput,
+		regionIdVal,
+		height: heightInput,
+		heightVal,
+		damageFloor: getToggleSwitch(damageFloorRow),
+		bush: getToggleSwitch(bushRow),
+		counter: getToggleSwitch(counterRow),
+		ladder: getToggleSwitch(ladderRow),
+		slip: getToggleSwitch(slipRow),
+		shelter: getToggleSwitch(shelterRow),
+		bushDepth: bushDepthInput,
+		bushDepthVal,
+		coverHeight: coverHeightInput,
+		coverHeightVal,
+		soundAbsorb: getToggleSwitch(soundAbsorbRow),
+		damageAmount: damageAmountInput,
+		damageAmountVal,
+		damagePercent: damagePercentInput,
+		damagePercentVal,
+		damageInterval: damageIntervalInput,
+		damageIntervalVal,
+		reflection: getToggleSwitch(reflectionRow),
+		reflectionOpacity: reflectionOpacityInput,
+		reflectionOpacityVal,
+		glow: getToggleSwitch(glowRow),
+		glowIntensity: glowIntensityInput,
+		glowIntensityVal,
+	};
 
 	// Create a reusable selection highlight (cyan wireframe)
 	const highlightMesh: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround(
@@ -2126,83 +3088,148 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		// Bounds check
 		if (gridX < 0 || gridX >= mapW || gridZ < 0 || gridZ >= mapH) return;
 
-		// Position the highlight meshes over the selected tile
-		// Position the highlight mesh over the selected tile
-		highlightMesh.position.set(gridX + 0.5, 0.02, gridZ + 0.5);
+		// Position the highlight mesh over the selected tile (use picked Y for cliffs)
+		const highlightY: Num = pickResult.pickedPoint.y + 0.02;
+		highlightMesh.position.set(gridX + 0.5, highlightY, gridZ + 0.5);
 		highlightMesh.setEnabled(true);
 
-		// Look up the global tile ID from the ground layer (first layer)
-		const tileIndex: Num = gridZ * mapW + gridX;
-		const [groundLayer] = tilemap.mapData.layers;
-		if (!groundLayer) return;
+		// Cache grid position for re-inspection when switching layers
+		_lastInspectX = gridX;
+		_lastInspectZ = gridZ;
 
-		const globalTileId: Num = groundLayer.data[tileIndex] ?? 0;
-
-		// Resolve to tileset + local index
-		const resolved = resolveGlobalTileId({
-			globalId: globalTileId,
-			tilesets: tilemap.tilesets,
-		});
-
-		let localId: Num = 0;
-		let tilesetName = '(none)';
-
-		if (resolved.ok && resolved.data !== null) {
-			localId = resolved.data.localIndex;
-			tilesetName = resolved.data.tileset.config.name;
-		}
-
-		// Get tile properties
-		const propsResult = getTileProperties({
-			tilesets: tilemap.tilesets,
-			globalTileId: globalTileId,
-		});
-
-		// Update identity fields
-		setInfoValue('ti-global-id', String(globalTileId));
-		setInfoValue('ti-local-id', String(localId));
-		setInfoValue('ti-tileset', tilesetName);
-		setInfoValue('ti-grid-pos', `${String(gridX)}, ${String(gridZ)}`);
-
-		if (propsResult.ok) {
-			const props = propsResult.data;
-
-			// Passability — show as D/L/R/U arrows
-			const passLabels: readonly string[] = ['\u2193', '\u2190', '\u2192', '\u2191'];
-			const passStr: string = props.passability
-				.map((p: boolean, i: number) => (p ? (passLabels[i] ?? '?') : '\u2715'))
-				.join(' ');
-			setInfoValue('ti-passability', passStr);
-			setInfoValue('ti-pass-above', boolLabel(props.passAbove));
-			setInfoValue('ti-pass-below', boolLabel(props.passBelow));
-			setInfoValue('ti-pass-event', boolLabel(props.passEvent));
-			setInfoValue('ti-star-passage', boolLabel(props.starPassage));
-			setInfoValue('ti-pass-vehicle', String(props.passVehicle));
-			setInfoValue('ti-pass-height', String(props.passHeight));
-
-			// Terrain
-			setInfoValue('ti-terrain-tag', String(props.terrainTag));
-			setInfoValue('ti-terrain-type', props.terrainType);
-			setInfoValue('ti-footstep', props.footstepSound || '(none)');
-			setInfoValue('ti-encounter', String(props.encounterRate));
-			setInfoValue('ti-slipperiness', String(props.slipperiness));
-			setInfoValue('ti-movement', `${String(props.movementSpeed)}x`);
-			setInfoValue('ti-region', String(props.regionId));
-
-			// Flags
-			setInfoValue('ti-height', String(props.height));
-			setInfoValue('ti-damage', boolLabel(props.damageFloor));
-			setInfoValue('ti-bush', boolLabel(props.bush));
-			setInfoValue('ti-counter', boolLabel(props.counter));
-			setInfoValue('ti-ladder', boolLabel(props.ladder));
-		}
-
-		// Auto-expand the tile inspector section if collapsed
-		const section: HTMLElement | null = document.querySelector('#section-tileinspector');
-		if (section?.classList.contains('collapsed')) {
-			section.classList.remove('collapsed');
-		}
+		refreshInspector(tilemap, gridX, gridZ);
 	});
+}
+
+/**
+ * Updates all tile inspector controls for the tile at the given grid
+ * position. Called on canvas click and when the layer dropdown changes.
+ *
+ * @param tilemap - The rendered tilemap.
+ * @param gridX - Grid X coordinate.
+ * @param gridZ - Grid Z coordinate.
+ */
+function refreshInspector(tilemap: RenderedTilemap, gridX: Num, gridZ: Num): void {
+	const mapW: Num = tilemap.mapData.width;
+	const tileIndex: Num = gridZ * mapW + gridX;
+	const globalTileId: Num = lookupTileAtIndex(tilemap, tileIndex);
+
+	// Resolve to tileset + local index
+	const resolved = resolveGlobalTileId({
+		globalId: globalTileId,
+		tilesets: tilemap.tilesets,
+	});
+
+	let localId: Num = 0;
+	let tilesetName = '(none)';
+
+	if (resolved.ok && resolved.data !== null) {
+		localId = resolved.data.localIndex;
+		tilesetName = resolved.data.tileset.config.name;
+		_selectedTileset = resolved.data.tileset;
+		_selectedLocalIndex = localId;
+	} else {
+		_selectedTileset = null;
+		_selectedLocalIndex = 0;
+	}
+
+	// Get tile properties
+	const propsResult = getTileProperties({
+		tilesets: tilemap.tilesets,
+		globalTileId,
+	});
+
+	// Determine which layer was inspected
+	const inspectedLayerIdx: Num =
+		_inspectLayerIndex >= 0 ? _inspectLayerIndex : findTopmostLayerAt(tilemap, gridX, gridZ);
+	const layerLabel: string =
+		tilemap.mapData.layers[inspectedLayerIdx]?.name ?? `#${String(inspectedLayerIdx)}`;
+
+	// Update identity fields (read-only)
+	setInfoValue('ti-global-id', String(globalTileId));
+	setInfoValue('ti-local-id', String(localId));
+	setInfoValue('ti-tileset', tilesetName);
+	setInfoValue('ti-grid-pos', `${String(gridX)}, ${String(gridZ)}`);
+	setInfoValue('ti-layer', layerLabel);
+
+	// Draw tile preview
+	const previewCanvas: HTMLCanvasElement | null =
+		document.querySelector<HTMLCanvasElement>('#ti-preview');
+	if (previewCanvas) {
+		drawTilePreview(previewCanvas, resolved.ok ? resolved.data : null);
+	}
+
+	// Update editable controls with tile properties
+	if (propsResult.ok && _tiControls) {
+		const props: TileProperties = propsResult.data;
+		const c: TileInspectorControls = _tiControls;
+
+		// Passability direction toggles
+		setToggleState(c.passDown, props.passability[0]);
+		setToggleState(c.passLeft, props.passability[1]);
+		setToggleState(c.passRight, props.passability[2]);
+		setToggleState(c.passUp, props.passability[3]);
+
+		setToggleState(c.passAbove, props.passAbove);
+		setToggleState(c.passBelow, props.passBelow);
+		setToggleState(c.passEvent, props.passEvent);
+		setToggleState(c.starPassage, props.starPassage);
+		setSliderValue(c.passVehicle, c.passVehicleVal, props.passVehicle, 1);
+		setSliderValue(c.passHeight, c.passHeightVal, props.passHeight, 1);
+
+		// Terrain
+		setSliderValue(c.terrainTag, c.terrainTagVal, props.terrainTag, 1);
+		c.terrainType.value = props.terrainType;
+		setInfoValue('ti-footstep', props.footstepSound || '(none)');
+		setSliderValue(c.encounterRate, c.encounterRateVal, props.encounterRate, 0.1);
+		setSliderValue(c.slipperiness, c.slipperinessVal, props.slipperiness, 0.01);
+		setSliderValue(c.movementSpeed, c.movementSpeedVal, props.movementSpeed, 0.1);
+		setSliderValue(c.regionId, c.regionIdVal, props.regionId, 1);
+
+		// Flags
+		setSliderValue(c.height, c.heightVal, props.height, 1);
+		setToggleState(c.damageFloor, props.damageFloor);
+		setToggleState(c.bush, props.bush);
+		setToggleState(c.counter, props.counter);
+		setToggleState(c.ladder, props.ladder);
+
+		// Future flags (use raw props object for fields not yet in schema)
+		const raw = props as Record<string, unknown>;
+		setToggleState(c.slip, Boolean(raw['slip']));
+		setToggleState(c.shelter, Boolean(raw['shelter']));
+		setSliderValue(c.bushDepth, c.bushDepthVal, Number(raw['bushDepth'] ?? 12), 1);
+		setSliderValue(c.coverHeight, c.coverHeightVal, Number(raw['coverHeight'] ?? 0), 0.01);
+		setToggleState(c.soundAbsorb, Boolean(raw['soundAbsorb']));
+		setSliderValue(c.damageAmount, c.damageAmountVal, Number(raw['damageAmount'] ?? 0), 1);
+		setSliderValue(c.damagePercent, c.damagePercentVal, Number(raw['damagePercent'] ?? 0), 1);
+		setSliderValue(c.damageInterval, c.damageIntervalVal, Number(raw['damageInterval'] ?? 1), 1);
+		setToggleState(c.reflection, Boolean(raw['reflection']));
+		setSliderValue(
+			c.reflectionOpacity,
+			c.reflectionOpacityVal,
+			Number(raw['reflectionOpacity'] ?? 0.5),
+			0.01,
+		);
+		setToggleState(c.glow, Boolean(raw['glow']));
+		setSliderValue(c.glowIntensity, c.glowIntensityVal, Number(raw['glowIntensity'] ?? 0), 0.01);
+
+		// Collision/Custom/Animation placeholders
+		const shapes = raw['collisionShapes'];
+		setInfoValue('ti-collision-count', Array.isArray(shapes) ? String(shapes.length) : '0');
+		setInfoValue('ti-class', String(raw['class'] ?? '(none)'));
+		const { tags: rawTags } = raw as { tags?: unknown };
+		setInfoValue('ti-tags', Array.isArray(rawTags) ? rawTags.join(', ') : '(none)');
+		setInfoValue('ti-script-hook', String(raw['scriptHook'] ?? '(none)'));
+		const { frames: rawFrames } = raw as { frames?: unknown };
+		setInfoValue('ti-anim-frames', Array.isArray(rawFrames) ? String(rawFrames.length) : '0');
+		setInfoValue('ti-anim-mode', String(raw['playbackMode'] ?? '(none)'));
+	}
+
+	// Auto-expand the tile inspector section if collapsed
+	const section: HTMLElement | null = document.querySelector('#section-tileinspector');
+	if (section?.classList.contains('collapsed')) {
+		section.classList.remove('collapsed');
+	}
 }
 
 /**
@@ -2214,16 +3241,6 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 function setInfoValue(id: string, value: string): void {
 	const el: HTMLElement | null = document.querySelector(`#${id}`);
 	if (el) el.textContent = value;
-}
-
-/**
- * Returns a human-readable label for a boolean value.
- *
- * @param val - Boolean value.
- * @returns 'Yes' or 'No'.
- */
-function boolLabel(val: boolean): string {
-	return val ? 'Yes' : 'No';
 }
 
 // =============================================================================
@@ -3781,6 +4798,7 @@ async function main(): Promise<void> {
 
 	// Dispose on page unload
 	window.addEventListener('beforeunload', () => {
+		closeTilePickerPanel();
 		if (tilemap) {
 			disposeTilemap({ tilemap });
 		}
