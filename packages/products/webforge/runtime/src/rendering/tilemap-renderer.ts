@@ -625,6 +625,8 @@ export function updateTile(options: UpdateTileOptions): BabylonResult<RenderedTi
 			(c) => !(c.chunkX === chunkX && c.chunkZ === chunkZ && c.layerIndex === layerIndex),
 		);
 		if (rebuildResult.data) {
+			// Preserve rendering group from the original tilemap setup
+			rebuildResult.data.mesh.renderingGroupId = 2;
 			updatedChunks.push(rebuildResult.data);
 		}
 
