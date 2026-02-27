@@ -17,6 +17,11 @@ import {
 	disposeParallax,
 	computeParallaxOffset,
 	mapBlendMode,
+	addParallaxLayer,
+	removeParallaxLayer,
+	fadeLayerOpacity,
+	getParallaxLayerCount,
+	setParallaxLayerTint,
 } from './parallax-manager';
 
 let instance: BabylonEngineInstance;
@@ -649,5 +654,207 @@ describe('auto-scroll', () => {
 		expect(vAfter - vBefore).toBeCloseTo(0.0032, 4);
 
 		engine.getDeltaTime = originalGetDelta;
+	});
+});
+
+// =============================================================================
+// Runtime layer management
+// =============================================================================
+
+describe('runtime layer management', () => {
+	test('getParallaxLayerCount returns correct count', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/a.png',
+				scrollSpeedX: 0,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
+			},
+		];
+		const result = createParallax({ scene: instance.scene, layers, assetBasePath: '/' });
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		const countResult = getParallaxLayerCount({ parallax: result.data });
+		expect(countResult.ok).toBe(true);
+		if (!countResult.ok) return;
+		expect(countResult.data).toBe(1);
+	});
+
+	test('addParallaxLayer adds a new layer', () => {
+		const result = createParallax({ scene: instance.scene, layers: [], assetBasePath: '/' });
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		const addResult = addParallaxLayer({
+			parallax: result.data,
+			layer: {
+				imagePath: 'bg/new.png',
+				scrollSpeedX: 0.5,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 0.8,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
+			},
+			assetBasePath: '/',
+		});
+		expect(addResult.ok).toBe(true);
+		expect(result.data.bgLayers).toHaveLength(1);
+		expect(result.data.layers).toHaveLength(1);
+	});
+
+	test('removeParallaxLayer removes by index', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/a.png',
+				scrollSpeedX: 0,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
+			},
+			{
+				imagePath: 'bg/b.png',
+				scrollSpeedX: 0,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 1,
+			},
+		];
+		const result = createParallax({ scene: instance.scene, layers, assetBasePath: '/' });
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		const removeResult = removeParallaxLayer({ parallax: result.data, index: 0 });
+		expect(removeResult.ok).toBe(true);
+		expect(result.data.bgLayers).toHaveLength(1);
+		expect(result.data.layers).toHaveLength(1);
+	});
+
+	test('removeParallaxLayer returns error for out-of-bounds index', () => {
+		const result = createParallax({ scene: instance.scene, layers: [], assetBasePath: '/' });
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		const removeResult = removeParallaxLayer({ parallax: result.data, index: 5 });
+		expect(removeResult.ok).toBe(false);
+	});
+
+	test('setParallaxLayerTint updates layer color', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/a.png',
+				scrollSpeedX: 0,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
+			},
+		];
+		const result = createParallax({ scene: instance.scene, layers, assetBasePath: '/' });
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		const tintResult = setParallaxLayerTint({
+			parallax: result.data,
+			index: 0,
+			tint: { r: 1, g: 0, b: 0, a: 1 },
+		});
+		expect(tintResult.ok).toBe(true);
+		const [firstLayer] = result.data.bgLayers;
+		if (!firstLayer) return;
+		expect(firstLayer.color.r).toBeCloseTo(1);
+		expect(firstLayer.color.g).toBeCloseTo(0);
+	});
+
+	test('fadeLayerOpacity returns handle with dispose', () => {
+		const layers: readonly ParallaxLayer[] = [
+			{
+				imagePath: 'bg/a.png',
+				scrollSpeedX: 0,
+				scrollSpeedY: 0,
+				offsetY: 0,
+				opacity: 1,
+				tileX: true,
+				tileY: false,
+				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
+			},
+		];
+		const result = createParallax({ scene: instance.scene, layers, assetBasePath: '/' });
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		const fadeResult = fadeLayerOpacity({
+			parallax: result.data,
+			index: 0,
+			target: 0,
+			durationMs: 1000,
+		});
+		expect(fadeResult.ok).toBe(true);
+		if (!fadeResult.ok) return;
+		expect(typeof fadeResult.data.dispose).toBe('function');
+		fadeResult.data.dispose();
+	});
+
+	test('fadeLayerOpacity returns error for out-of-bounds index', () => {
+		const result = createParallax({ scene: instance.scene, layers: [], assetBasePath: '/' });
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+
+		const fadeResult = fadeLayerOpacity({
+			parallax: result.data,
+			index: 5,
+			target: 0,
+			durationMs: 1000,
+		});
+		expect(fadeResult.ok).toBe(false);
 	});
 });
