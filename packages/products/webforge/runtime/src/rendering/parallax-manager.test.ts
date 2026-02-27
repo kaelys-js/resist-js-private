@@ -90,6 +90,12 @@ describe('createParallax', () => {
 				tileX: true,
 				tileY: false,
 				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
 			},
 			{
 				imagePath: 'bg/clouds.png',
@@ -100,6 +106,12 @@ describe('createParallax', () => {
 				tileX: true,
 				tileY: false,
 				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
 			},
 		];
 		const result = createParallax({
@@ -123,6 +135,12 @@ describe('createParallax', () => {
 				tileX: true,
 				tileY: false,
 				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
 			},
 		];
 		const result = createParallax({
@@ -158,6 +176,12 @@ describe('createParallax', () => {
 				tileX: true,
 				tileY: false,
 				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
 			},
 		];
 		const result = createParallax({
@@ -189,6 +213,12 @@ describe('disposeParallax', () => {
 				tileX: true,
 				tileY: false,
 				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
 			},
 		];
 		const result = createParallax({
@@ -216,6 +246,12 @@ describe('disposeParallax', () => {
 				tileX: true,
 				tileY: false,
 				scale: 1,
+				autoScrollX: 0,
+				autoScrollY: 0,
+				layerType: 'background',
+				blendMode: 'alpha',
+				tint: { r: 1, g: 1, b: 1, a: 1 },
+				depth: 0,
 			},
 		];
 		const result = createParallax({

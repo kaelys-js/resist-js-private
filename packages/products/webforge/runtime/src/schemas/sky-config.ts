@@ -75,6 +75,32 @@ export const SkyGradientStopSchema = v.strictObject({
 export type SkyGradientStop = v.InferOutput<typeof SkyGradientStopSchema>;
 
 // =============================================================================
+// Blend Mode
+// =============================================================================
+
+/**
+ * Alpha blending mode for parallax layers.
+ *
+ * Maps to `BABYLON.Constants.ALPHA_*` blending constants.
+ */
+export const BlendModeSchema = v.picklist(['alpha', 'additive', 'multiply', 'subtract', 'screen']);
+
+/** Inferred blend mode type from {@link BlendModeSchema}. */
+export type BlendMode = v.InferOutput<typeof BlendModeSchema>;
+
+// =============================================================================
+// Layer Type
+// =============================================================================
+
+/**
+ * Rendering layer for parallax: background (behind tilemap) or foreground (above tilemap).
+ */
+export const ParallaxLayerTypeSchema = v.picklist(['background', 'foreground']);
+
+/** Inferred layer type from {@link ParallaxLayerTypeSchema}. */
+export type ParallaxLayerType = v.InferOutput<typeof ParallaxLayerTypeSchema>;
+
+// =============================================================================
 // Parallax Layer
 // =============================================================================
 
@@ -121,6 +147,24 @@ export const ParallaxLayerSchema = v.strictObject({
 
 	/** Image scale multiplier (0.1–10). Default: 1. */
 	scale: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(10)), 1),
+
+	/** Constant horizontal drift in UV/sec (camera-independent). Default: 0. */
+	autoScrollX: v.optional(v.number(), 0),
+
+	/** Constant vertical drift in UV/sec (camera-independent). Default: 0. */
+	autoScrollY: v.optional(v.number(), 0),
+
+	/** Rendering layer: behind tilemap or above tilemap. Default: 'background'. */
+	layerType: v.optional(ParallaxLayerTypeSchema, 'background'),
+
+	/** Alpha blending mode. Default: 'alpha'. */
+	blendMode: v.optional(BlendModeSchema, 'alpha'),
+
+	/** Color tint multiplied with texture. Default: white (no tint). */
+	tint: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+
+	/** Sort order (lower = further back). Default: 0. */
+	depth: v.optional(v.number(), 0),
 });
 
 /** Inferred parallax layer type from {@link ParallaxLayerSchema}. */
