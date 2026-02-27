@@ -649,7 +649,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 			lastEventText = `Hour: ${String(Math.floor(hour))}`;
 		};
 		cycle.onPhaseChange = (phase: string) => {
-			lastEventText = `Phase: ${phase}`;
+			lastEventText = `Phase: ${phase.charAt(0).toUpperCase() + phase.slice(1)}`;
 		};
 	}
 
@@ -676,7 +676,8 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		if (!sunPath) sunPath = { sunrise: 6, sunset: 18, maxElevation: 75, azimuthStart: 90 };
 		const phaseResult = computeTimePhase(t as Num, sunPath);
 		if (phaseDisplay && phaseResult.ok) {
-			phaseDisplay.textContent = phaseResult.data;
+			phaseDisplay.textContent =
+				phaseResult.data.charAt(0).toUpperCase() + phaseResult.data.slice(1);
 		}
 
 		// Update moon intensity display
