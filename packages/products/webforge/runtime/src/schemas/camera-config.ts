@@ -1,7 +1,7 @@
 /**
  * Camera configuration schema.
  *
- * Defines a 6-preset camera system for the WebForge runtime:
+ * Defines a 16-preset camera system for the WebForge runtime:
  *
  * | Preset | Camera Type | Description |
  * |--------|-------------|-------------|
@@ -61,6 +61,16 @@ export const CameraPresetSchema = v.picklist([
 	'firstperson',
 	'cinematic',
 	'free',
+	'isometric',
+	'tactical',
+	'thirdperson',
+	'rts',
+	'dungeon',
+	'platformer',
+	'panoramic',
+	'orbit',
+	'editor',
+	'mapeditor',
 ]);
 
 /** Inferred camera preset type from {@link CameraPresetSchema}. */
@@ -212,6 +222,14 @@ export const CameraConfigSchema = v.strictObject({
 
 	/** Panning axis restriction. Default: {x:1, y:0, z:1} (XZ ground plane). */
 	panningAxis: v.optional(PanningAxisSchema, { x: 1, y: 0, z: 1 }),
+
+	/**
+	 * Orthographic half-size for mapeditor preset.
+	 *
+	 * Controls the visible area in orthographic mode. Higher values show more
+	 * of the map. Only used when preset is `'mapeditor'`. Must be ≥ 1. Default: 20.
+	 */
+	orthoSize: v.optional(v.pipe(v.number(), v.minValue(1)), 20),
 
 	/**
 	 * FF Tactics-style 4-angle rotation.

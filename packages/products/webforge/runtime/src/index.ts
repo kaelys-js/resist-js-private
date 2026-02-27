@@ -39,12 +39,14 @@ export {
 	rotateTactics,
 	screenShake,
 	switchCameraPreset,
+	resetCamera,
 	type CameraTargetOptions,
 	type RotateTacticsOptions,
 	type ScreenShakeOptions,
 	type ShakeHandle,
 	type SwitchCameraPresetOptions,
 	type PresetTransitionHandle,
+	type ResetCameraOptions,
 } from './core/camera-controller';
 
 // Scene setup

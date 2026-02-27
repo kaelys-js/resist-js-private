@@ -19,6 +19,7 @@ import {
 	switchCameraPreset,
 	rotateTactics,
 	screenShake,
+	resetCamera,
 	screenTint,
 	screenFlash,
 	screenFadeIn,
@@ -34,6 +35,7 @@ import {
 
 import type { RuntimeInstance } from '../src/runtime';
 import type { BabylonResult } from '../src/core/babylon-result';
+import type { CameraPreset } from '../src/schemas/camera-config';
 import type { Num, Bool } from '@/schemas/common';
 
 import { TEST_MAP_DATA } from './test-map';
@@ -314,6 +316,28 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 			return;
 		}
 
+		const arcCam = runtime.camera as BABYLON.ArcRotateCamera;
+
+		// Handle orthographic mode switching for mapeditor
+		if (preset === 'mapeditor') {
+			arcCam.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
+			const orthoSize = 20;
+			arcCam.orthoLeft = -orthoSize;
+			arcCam.orthoRight = orthoSize;
+			arcCam.orthoTop = orthoSize;
+			arcCam.orthoBottom = -orthoSize;
+		} else if (_currentPreset === 'mapeditor') {
+			// Switching away from mapeditor — restore perspective
+			arcCam.mode = BABYLON.Camera.PERSPECTIVE_CAMERA;
+		}
+
+		// Handle auto-rotate for orbit preset
+		if (preset === 'orbit') {
+			arcCam.useAutoRotationBehavior = true;
+		} else if (_currentPreset === 'orbit') {
+			arcCam.useAutoRotationBehavior = false;
+		}
+
 		const durationSlider = document.querySelector('#transition-duration') as HTMLInputElement;
 		const durationMs = Number(durationSlider?.value ?? 500);
 		debug.switchPreset(preset, durationMs);
@@ -327,10 +351,20 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 				'Preset',
 				[
 					{ value: 'free', label: 'Free Orbit' },
-					{ value: 'hd2d', label: 'HD-2D (Isometric)' },
+					{ value: 'hd2d', label: 'HD-2D' },
+					{ value: 'isometric', label: 'Isometric' },
 					{ value: 'topdown', label: 'Top-Down' },
 					{ value: 'sideview', label: 'Side View' },
+					{ value: 'tactical', label: 'Tactical (SRPG)' },
+					{ value: 'thirdperson', label: 'Third Person' },
+					{ value: 'rts', label: 'RTS' },
+					{ value: 'dungeon', label: 'Dungeon Crawler' },
+					{ value: 'platformer', label: 'Platformer' },
+					{ value: 'panoramic', label: 'Panoramic' },
+					{ value: 'orbit', label: 'Orbit (Auto-Rotate)' },
 					{ value: 'cinematic', label: 'Cinematic' },
+					{ value: 'editor', label: 'Editor' },
+					{ value: 'mapeditor', label: 'Map Editor (Ortho)' },
 					{ value: 'firstperson', label: 'First Person' },
 				],
 				'free',
@@ -348,6 +382,14 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	transSlider?.addEventListener('input', () => {
 		if (transValue) transValue.textContent = `${transSlider.value}ms`;
 	});
+
+	// ── Reset Camera ───────────────────────────────────────────────
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
+	(window as any).resetCam = (): void => {
+		const cam = _isFirstPerson ? _firstPersonCam : runtime.camera;
+		if (!cam) return;
+		resetCamera({ scene, camera: cam, preset: _currentPreset as CameraPreset });
+	};
 
 	// ── Tactics Rotation ────────────────────────────────────────────
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
