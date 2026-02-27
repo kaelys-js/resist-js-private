@@ -380,10 +380,11 @@ describe('updateTile', () => {
 		});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		// Old mesh should have been disposed
-		expect(oldMesh.isDisposed()).toBe(true);
-		// New chunk should exist
+		// Mesh should be reused in-place (not disposed)
+		expect(oldMesh.isDisposed()).toBe(false);
+		// Updated chunk should exist and use the same mesh instance
 		expect(result.data.chunks.length).toBeGreaterThan(0);
+		expect(result.data.chunks[0]!.mesh).toBe(oldMesh);
 	});
 });
 

@@ -457,7 +457,7 @@ describe('buildCliffChunk', () => {
 // =============================================================================
 
 describe('rebuildChunk', () => {
-	it('disposes existing mesh and builds new one', () => {
+	it('updates existing mesh vertex data in-place', () => {
 		const scene: BABYLON.Scene = setupEngine();
 		const config: TilesetConfig = makeConfig('terrain', 1, 4, 4);
 		const tilesets: LoadedTileset[] = [makeLoadedTileset(scene, config)];
@@ -490,7 +490,7 @@ describe('rebuildChunk', () => {
 		if (!first.data) return;
 		const oldMesh: BABYLON.Mesh = first.data.mesh;
 
-		// Rebuild with existing mesh
+		// Rebuild with existing mesh — should reuse same instance
 		const result: BabylonResult<ChunkMesh | null> = rebuildChunk({
 			context: ctx,
 			layerIndex: 0,
@@ -502,10 +502,10 @@ describe('rebuildChunk', () => {
 		if (!result.ok) return;
 		expect(result.data).not.toBeNull();
 		if (!result.data) return;
-		// Old mesh should be disposed
-		expect(oldMesh.isDisposed()).toBe(true);
-		// New mesh should be a different instance
-		expect(result.data.mesh).not.toBe(oldMesh);
+		// Mesh should NOT be disposed — it was updated in-place
+		expect(oldMesh.isDisposed()).toBe(false);
+		// Should be the same mesh instance
+		expect(result.data.mesh).toBe(oldMesh);
 	});
 
 	it('returns null for hidden layer (visible: false)', () => {
