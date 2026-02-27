@@ -104,7 +104,7 @@ let _lastFadeOutHandle: { dispose: () => void } | null = null;
 const MAP_MIN = 0;
 const MAP_MAX = 32;
 const MAP_SIZE: number = MAP_MAX - MAP_MIN;
-const ORTHO_MIN = 3;
+const ORTHO_MIN = 1;
 const ZOOM_FACTOR = 1.08;
 const _heldKeys = new Set<string>();
 let _orthoSize: number = MAP_SIZE / 2;
@@ -124,6 +124,343 @@ function computeOrthoMax(): number {
 	// it disappears as soon as the user zooms in. No scrollbars at max zoom.
 	return MAP_SIZE / 2;
 }
+
+/**
+ * Returns the current zoom multiplier (1x = full map visible, 2x = half map, etc.).
+ *
+ * @returns The zoom multiplier.
+ */
+function getZoomMultiplier(): number {
+	return MAP_SIZE / 2 / _orthoSize;
+}
+
+/**
+ * Sets the zoom to a specific multiplier and updates ortho bounds + UI.
+ *
+ * @param multiplier - Target zoom multiplier (1 = fit, 16 = max zoom in).
+ * @param cam - The ArcRotateCamera.
+ * @param scene - The active Babylon scene.
+ */
+function setZoomLevel(
+	multiplier: number,
+	cam: BABYLON.ArcRotateCamera,
+	scene: BABYLON.Scene,
+): void {
+	_orthoSize = Math.max(ORTHO_MIN, Math.min(computeOrthoMax(), MAP_SIZE / 2 / multiplier));
+	applyOrthoBounds(cam, scene);
+	clampCameraToMap(cam, scene);
+	updateScrollbars(cam, scene);
+}
+
+/**
+ * Centers the camera on a specific tile grid position.
+ *
+ * @param gx - Grid X coordinate.
+ * @param gz - Grid Z coordinate.
+ * @param cam - The ArcRotateCamera.
+ * @param scene - The active Babylon scene.
+ */
+function navigateToTile(
+	gx: number,
+	gz: number,
+	cam: BABYLON.ArcRotateCamera,
+	scene: BABYLON.Scene,
+): void {
+	cam.target.x = Math.max(MAP_MIN, Math.min(MAP_MAX, gx + 0.5));
+	cam.target.z = Math.max(MAP_MIN, Math.min(MAP_MAX, gz + 0.5));
+	clampCameraToMap(cam, scene);
+	updateScrollbars(cam, scene);
+}
+
+/**
+ * Clears the currently selected tile on the active layer.
+ * Sets the tile ID to 0 and refreshes the inspector.
+ *
+ * @param debug - Debug API reference.
+ */
+function clearSelectedTile(debug: DevDebugApi): void {
+	if (_lastInspectX < 0 || _lastInspectZ < 0) return;
+	const { tilemap } = debug;
+	if (!tilemap) return;
+
+	const editLayer: Num =
+		_inspectLayerIndex >= 0
+			? _inspectLayerIndex
+			: findTopmostLayerAt(tilemap, _lastInspectX, _lastInspectZ);
+
+	const result = updateTile({
+		tilemap,
+		layerIndex: editLayer,
+		x: _lastInspectX,
+		z: _lastInspectZ,
+		newTileId: 0,
+	});
+	if (result.ok) {
+		debug.tilemap = result.data;
+		refreshInspector(result.data, _lastInspectX, _lastInspectZ);
+	}
+}
+
+/**
+ * Clears all tiles on a specific layer by setting each tile to 0.
+ *
+ * @param debug - Debug API reference.
+ * @param layerIndex - Index of the layer to clear.
+ */
+function clearLayer(debug: DevDebugApi, layerIndex: Num): void {
+	let { tilemap } = debug;
+	if (!tilemap) return;
+
+	const layer = tilemap.mapData.layers[layerIndex];
+	if (!layer || layer.kind !== 'tile') return;
+
+	const { width, height } = tilemap.mapData;
+
+	for (let z: Num = 0; z < height; z++) {
+		for (let x: Num = 0; x < width; x++) {
+			const tileIndex: Num = z * width + x;
+			if ((layer.data[tileIndex] ?? 0) === 0) continue;
+			const result = updateTile({
+				tilemap,
+				layerIndex,
+				x,
+				z,
+				newTileId: 0,
+			});
+			if (result.ok) {
+				tilemap = result.data;
+			}
+		}
+	}
+
+	debug.tilemap = tilemap;
+	if (_lastInspectX >= 0 && _lastInspectZ >= 0 && tilemap) {
+		refreshInspector(tilemap, _lastInspectX, _lastInspectZ);
+	}
+}
+
+/**
+ * Lazily creates the grid overlay mesh covering the full tilemap.
+ * Reads map dimensions from the tilemap; falls back to MAP_SIZE if unavailable.
+ * Disposes and recreates if the mesh already exists (handles map size changes).
+ *
+ * @param scene - The active Babylon scene.
+ * @param debug - Debug API reference for reading tilemap dimensions.
+ */
+function ensureGridMesh(scene: BABYLON.Scene, debug: DevDebugApi): void {
+	const { tilemap } = debug;
+	const mapW: Num = tilemap ? tilemap.mapData.width : MAP_SIZE;
+	const mapH: Num = tilemap ? tilemap.mapData.height : MAP_SIZE;
+
+	// Dispose existing if present (handles map size changes)
+	if (_gridMesh) {
+		_gridMesh.dispose();
+		_gridMesh = null;
+	}
+
+	const lines: BABYLON.Vector3[][] = [];
+
+	// Vertical lines (along Z axis)
+	for (let i: Num = 0; i <= mapW; i++) {
+		lines.push([new BABYLON.Vector3(i, 0, 0), new BABYLON.Vector3(i, 0, mapH)]);
+	}
+	// Horizontal lines (along X axis)
+	for (let j: Num = 0; j <= mapH; j++) {
+		lines.push([new BABYLON.Vector3(0, 0, j), new BABYLON.Vector3(mapW, 0, j)]);
+	}
+
+	_gridMesh = BABYLON.MeshBuilder.CreateLineSystem('grid-overlay', { lines }, scene);
+	_gridMesh.color = new BABYLON.Color3(1, 1, 1);
+	_gridMesh.alpha = 0.15;
+	_gridMesh.renderingGroupId = 1;
+	_gridMesh.isPickable = false;
+	_gridMesh.position.y = 0.01;
+	_gridMesh.isVisible = _gridVisible;
+}
+
+/**
+ * Toggles the grid overlay on/off. Lazily creates the mesh if needed.
+ *
+ * @param scene - The active Babylon scene.
+ * @param debug - Debug API reference.
+ * @param forceState - Optional: force visible (true) or hidden (false).
+ */
+function toggleGridOverlay(scene: BABYLON.Scene, debug: DevDebugApi, forceState?: Bool): void {
+	if (!_gridMesh) {
+		ensureGridMesh(scene, debug);
+	}
+	if (forceState === undefined) {
+		_gridVisible = !_gridVisible;
+	} else {
+		_gridVisible = forceState;
+	}
+	if (_gridMesh) {
+		_gridMesh.isVisible = _gridVisible;
+	}
+
+	// Sync the toggle checkbox in the Navigation UI
+	const gridToggle = (window as Record<string, unknown>)._gridToggle as
+		| HTMLInputElement
+		| undefined;
+	if (gridToggle) {
+		gridToggle.checked = _gridVisible;
+	}
+}
+
+/**
+ * Applies dim/restore to tilemap layers based on _dimOtherLayers and _inspectLayerIndex.
+ * When enabled and a specific layer is selected, dims all other layers to 0.25 opacity.
+ * Restores all layers to 1.0 when disabled or when set to Topmost (-1).
+ *
+ * @param tilemap - The rendered tilemap (or null).
+ */
+function applyDimLayers(tilemap: RenderedTilemap | null): void {
+	if (!tilemap) return;
+	const { layers } = tilemap.mapData;
+
+	for (let i: Num = 0; i < layers.length; i++) {
+		const targetOpacity: Num =
+			_dimOtherLayers && _inspectLayerIndex >= 0 && i !== _inspectLayerIndex ? 0.25 : 1.0;
+		setLayerOpacity({ tilemap, layerIndex: i, opacity: targetOpacity });
+	}
+}
+
+/**
+ * Returns the normalized rectangular selection bounds, or null if no selection.
+ *
+ * @returns Selection rectangle with minX, minZ, maxX, maxZ or null.
+ */
+function getSelectionRect(): { minX: Num; minZ: Num; maxX: Num; maxZ: Num } | null {
+	if (_selStartX < 0 || _selEndX < 0) return null;
+	return {
+		minX: Math.min(_selStartX, _selEndX),
+		minZ: Math.min(_selStartZ, _selEndZ),
+		maxX: Math.max(_selStartX, _selEndX),
+		maxZ: Math.max(_selStartZ, _selEndZ),
+	};
+}
+
+/**
+ * Clears all tiles within the rectangular selection on the active layer.
+ *
+ * @param debug - Debug API reference.
+ */
+function clearSelectionRect(debug: DevDebugApi): void {
+	const rect = getSelectionRect();
+	if (!rect) return;
+	let { tilemap } = debug;
+	if (!tilemap) return;
+
+	const { width, height } = tilemap.mapData;
+	const clampedMinX: Num = Math.max(0, rect.minX);
+	const clampedMinZ: Num = Math.max(0, rect.minZ);
+	const clampedMaxX: Num = Math.min(width - 1, rect.maxX);
+	const clampedMaxZ: Num = Math.min(height - 1, rect.maxZ);
+
+	for (let z: Num = clampedMinZ; z <= clampedMaxZ; z++) {
+		for (let x: Num = clampedMinX; x <= clampedMaxX; x++) {
+			const editLayer: Num =
+				_inspectLayerIndex >= 0 ? _inspectLayerIndex : findTopmostLayerAt(tilemap, x, z);
+			const result = updateTile({
+				tilemap,
+				layerIndex: editLayer,
+				x,
+				z,
+				newTileId: 0,
+			});
+			if (result.ok) {
+				tilemap = result.data;
+			}
+		}
+	}
+
+	debug.tilemap = tilemap;
+	// Keep showing selection summary (selection rect is still active after clearing)
+	showSelectionSummary();
+}
+
+/**
+ * Updates the highlight mesh to cover the rectangular selection or single tile.
+ * Reads the highlight mesh from window global.
+ */
+function updateHighlightForSelection(): void {
+	const mesh = (window as Record<string, unknown>)._highlightMesh as BABYLON.Mesh | undefined;
+	if (!mesh) return;
+
+	const rect = getSelectionRect();
+	if (rect) {
+		const w: Num = rect.maxX - rect.minX + 1;
+		const h: Num = rect.maxZ - rect.minZ + 1;
+		mesh.scaling.set(w, 1, h);
+		mesh.position.x = rect.minX + w / 2;
+		mesh.position.z = rect.minZ + h / 2;
+		mesh.setEnabled(true);
+	} else if (_lastInspectX >= 0 && _lastInspectZ >= 0) {
+		mesh.scaling.set(1, 1, 1);
+		mesh.position.x = _lastInspectX + 0.5;
+		mesh.position.z = _lastInspectZ + 0.5;
+	}
+}
+
+/**
+ * Clears all tiles on all layers.
+ *
+ * @param debug - Debug API reference.
+ */
+function clearAllLayers(debug: DevDebugApi): void {
+	const { tilemap } = debug;
+	if (!tilemap) return;
+	for (let li: Num = 0; li < tilemap.mapData.layers.length; li++) {
+		clearLayer(debug, li);
+	}
+}
+
+// -- Grid overlay state --
+let _gridMesh: BABYLON.LinesMesh | null = null;
+let _gridVisible: Bool = false;
+
+// -- Editor backdrop (black plane behind everything) --
+let _editorBackdrop: BABYLON.Mesh | null = null;
+
+/**
+ * Creates or shows a large black ground mesh behind the tilemap to cover any visible area outside the map.
+ *
+ * @param scene - The Babylon.js scene to add the backdrop to
+ */
+function ensureEditorBackdrop(scene: BABYLON.Scene): void {
+	if (!_editorBackdrop) {
+		_editorBackdrop = BABYLON.MeshBuilder.CreateGround(
+			'editor-backdrop',
+			{ width: 2000, height: 2000 },
+			scene,
+		);
+		const mat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial(
+			'editor-backdrop-mat',
+			scene,
+		);
+		mat.diffuseColor = new BABYLON.Color3(0.02, 0.02, 0.02);
+		mat.specularColor = new BABYLON.Color3(0, 0, 0);
+		mat.emissiveColor = new BABYLON.Color3(0.02, 0.02, 0.02);
+		mat.disableLighting = true;
+		_editorBackdrop.material = mat;
+		_editorBackdrop.position.y = -0.05;
+		_editorBackdrop.position.x = MAP_SIZE / 2;
+		_editorBackdrop.position.z = MAP_SIZE / 2;
+		_editorBackdrop.isPickable = false;
+		_editorBackdrop.renderingGroupId = 0;
+	}
+	_editorBackdrop.setEnabled(true);
+}
+
+// -- Dim other layers state --
+let _dimOtherLayers: Bool = false;
+
+// -- Rectangular selection state --
+let _selStartX: Num = -1;
+let _selStartZ: Num = -1;
+let _selEndX: Num = -1;
+let _selEndZ: Num = -1;
+let _isRectSelecting: Bool = false;
 
 // -- Tile Inspector selected tile state --
 let _selectedTileset: LoadedTileset | null = null;
@@ -531,10 +868,27 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 			_savedClearColor = scene.clearColor.clone();
 			scene.clearColor = new BABYLON.Color4(0.08, 0.08, 0.08, 1);
 
+			ensureEditorBackdrop(scene);
+
 			updateScrollbars(arcCam, scene);
 		} else if (_currentPreset === 'mapeditor') {
 			// Switching away from mapeditor — restore perspective
 			arcCam.mode = BABYLON.Camera.PERSPECTIVE_CAMERA;
+
+			// Hide grid overlay when leaving mapeditor
+			if (_gridMesh) {
+				_gridMesh.isVisible = false;
+			}
+			_gridVisible = false;
+			const gridToggle = (window as Record<string, unknown>)._gridToggle as
+				| HTMLInputElement
+				| undefined;
+			if (gridToggle) gridToggle.checked = false;
+
+			// Hide editor backdrop
+			if (_editorBackdrop) {
+				_editorBackdrop.setEnabled(false);
+			}
 
 			// Restore original clear color
 			if (_savedClearColor) {
@@ -574,6 +928,14 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		const durationMs = Number(durationSlider?.value ?? 500);
 		debug.switchPreset(preset, durationMs);
 		_currentPreset = preset;
+
+		// Toggle camera nav controls visibility
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
+		const navControls = (window as any)._camNavControls as HTMLElement | undefined;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
+		const navFallback = (window as any)._camNavFallback as HTMLElement | undefined;
+		if (navControls) navControls.style.display = preset === 'mapeditor' ? 'block' : 'none';
+		if (navFallback) navFallback.style.display = preset === 'mapeditor' ? 'none' : 'block';
 	}
 
 	const presetContainer = document.querySelector('#camera-preset-dropdown');
@@ -2260,6 +2622,7 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
  * @param container - The parent container element.
  * @param totalLayers - Total number of layers (for disabling buttons).
  * @param onReorder - Callback to swap layer positions.
+ * @param debug - Debug API reference (for clearing layers).
  */
 function buildLayerRow(
 	tilemap: RenderedTilemap,
@@ -2268,6 +2631,7 @@ function buildLayerRow(
 	container: HTMLElement,
 	totalLayers: number,
 	onReorder: (fromIndex: number, toIndex: number) => void,
+	debug: DevDebugApi,
 ): void {
 	const idx = String(index);
 	const row: HTMLElement = document.createElement('div');
@@ -2519,6 +2883,23 @@ function buildLayerRow(
 		if (grpVal) grpVal.textContent = String(layer.children.length);
 		grpGroup.body.append(grpInfo);
 		body.append(grpGroup.root);
+	}
+
+	// -- Clear Layer button (tile layers only) --
+	if (layer.kind === 'tile') {
+		const clearBtn: HTMLButtonElement = document.createElement('button');
+		clearBtn.className = 'btn btn-danger';
+		clearBtn.textContent = 'Clear Layer';
+		clearBtn.title = `Clear all tiles on ${displayName}`;
+		clearBtn.style.width = '100%';
+		clearBtn.style.marginTop = '4px';
+		clearBtn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			// oxlint-disable-next-line no-alert
+			if (!window.confirm(`Clear all tiles on "${displayName}"?`)) return;
+			clearLayer(debug, index as Num);
+		});
+		body.append(clearBtn);
 	}
 
 	row.append(body);
@@ -2997,6 +3378,20 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	emptyState.append(emptyIcon, emptyText);
 	container.append(emptyState);
 
+	// -- Selection summary (shown during rectangular selection) --
+	const selSummary: HTMLElement = document.createElement('div');
+	selSummary.id = 'ti-selection-summary';
+	selSummary.style.display = 'none';
+	selSummary.style.padding = '12px 8px';
+	// Delegate click for the Clear Selection button (recreated each render)
+	selSummary.addEventListener('click', (evt: MouseEvent) => {
+		const target = evt.target as HTMLElement;
+		if (target.id === 'ti-clear-selection-btn') {
+			clearSelectionRect(debug);
+		}
+	});
+	container.append(selSummary);
+
 	// -- Controls wrapper (hidden until a tile is clicked) --
 	const controlsWrap: HTMLElement = document.createElement('div');
 	controlsWrap.id = 'ti-controls';
@@ -3070,6 +3465,8 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			if (_lastInspectX >= 0 && _lastInspectZ >= 0 && debug.tilemap) {
 				refreshInspector(debug.tilemap, _lastInspectX, _lastInspectZ);
 			}
+			// Update dim layers when switching layers
+			applyDimLayers(debug.tilemap);
 		},
 	);
 	controlsWrap.append(layerSelectRow);
@@ -3381,6 +3778,24 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	anim.body.append(infoRow('Pause Offscreen', 'ti-anim-pause'));
 	controlsWrap.append(anim.root);
 
+	// -- Clear Tile(s) button --
+	const clearTileBtn: HTMLButtonElement = document.createElement('button');
+	clearTileBtn.className = 'btn btn-danger';
+	clearTileBtn.textContent = 'Clear Tile';
+	clearTileBtn.title = 'Clear selected tile(s) on current layer (Delete key)';
+	clearTileBtn.style.marginTop = '6px';
+	clearTileBtn.style.width = '100%';
+	clearTileBtn.addEventListener('click', () => {
+		const rect = getSelectionRect();
+		if (rect) {
+			clearSelectionRect(debug);
+		} else {
+			clearSelectedTile(debug);
+		}
+	});
+	controlsWrap.append(clearTileBtn);
+	(window as Record<string, unknown>)._clearTileBtn = clearTileBtn;
+
 	// -- Wire edit overlay to open tile picker --
 	if (tiTilemap) {
 		editOverlay.addEventListener('click', () => {
@@ -3482,6 +3897,9 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	highlightMesh.isPickable = false;
 	highlightMesh.setEnabled(false);
 
+	// Store highlight mesh globally for rectangular selection scaling
+	(window as Record<string, unknown>)._highlightMesh = highlightMesh;
+
 	// Attach canvas click handler
 	const canvas: HTMLCanvasElement | null =
 		document.querySelector<HTMLCanvasElement>('#game-canvas');
@@ -3507,8 +3925,52 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		// Bounds check
 		if (gridX < 0 || gridX >= mapW || gridZ < 0 || gridZ >= mapH) return;
 
+		// ── Shift+click: start rectangular selection ──
+		if (evt.shiftKey) {
+			_isRectSelecting = true;
+			_selStartX = gridX;
+			_selStartZ = gridZ;
+			_selEndX = gridX;
+			_selEndZ = gridZ;
+
+			const highlightY: Num = pickResult.pickedPoint.y + 0.02;
+			highlightMesh.position.y = highlightY;
+			highlightMesh.setEnabled(true);
+			updateHighlightForSelection();
+			showSelectionSummary();
+
+			const onMove = (moveEvt: PointerEvent): void => {
+				const moveResult: BABYLON.PickingInfo = scene.pick(moveEvt.offsetX, moveEvt.offsetY);
+				if (!moveResult.hit || !moveResult.pickedPoint) return;
+				const mx: Num = Math.floor(moveResult.pickedPoint.x);
+				const mz: Num = Math.floor(moveResult.pickedPoint.z);
+				if (mx < 0 || mx >= mapW || mz < 0 || mz >= mapH) return;
+				_selEndX = mx;
+				_selEndZ = mz;
+				updateHighlightForSelection();
+				showSelectionSummary();
+			};
+
+			const onUp = (): void => {
+				_isRectSelecting = false;
+				canvas.removeEventListener('pointermove', onMove);
+				canvas.removeEventListener('pointerup', onUp);
+			};
+
+			canvas.addEventListener('pointermove', onMove);
+			canvas.addEventListener('pointerup', onUp);
+			return;
+		}
+
+		// ── Normal click: clear rectangular selection, single-tile inspect ──
+		_selStartX = -1;
+		_selStartZ = -1;
+		_selEndX = -1;
+		_selEndZ = -1;
+
 		// Position the highlight mesh over the selected tile (use picked Y for cliffs)
 		const highlightY: Num = pickResult.pickedPoint.y + 0.02;
+		highlightMesh.scaling.set(1, 1, 1);
 		highlightMesh.position.set(gridX + 0.5, highlightY, gridZ + 0.5);
 		highlightMesh.setEnabled(true);
 
@@ -3516,8 +3978,68 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		_lastInspectX = gridX;
 		_lastInspectZ = gridZ;
 
+		// Enable selection-dependent buttons in the Navigation section
+		const selBtnRef = (window as Record<string, unknown>)._selBtn as HTMLButtonElement | undefined;
+		const centerBtnRef = (window as Record<string, unknown>)._centerBtn as
+			| HTMLButtonElement
+			| undefined;
+		const clearTileBtnRef = (window as Record<string, unknown>)._clearTileBtn as
+			| HTMLButtonElement
+			| undefined;
+		if (selBtnRef) selBtnRef.disabled = false;
+		if (centerBtnRef) centerBtnRef.disabled = false;
+		if (clearTileBtnRef) clearTileBtnRef.disabled = false;
+
+		// Update dim layers on tile selection (topmost layer may change)
+		applyDimLayers(tilemap);
+
 		refreshInspector(tilemap, gridX, gridZ);
 	});
+}
+
+/**
+ * Shows the rectangular selection summary in the Tile Inspector,
+ * hiding single-tile controls and the empty state.
+ */
+function showSelectionSummary(): void {
+	const emptyEl: HTMLElement | null = document.querySelector('#ti-empty-state');
+	const ctrlsEl: HTMLElement | null = document.querySelector('#ti-controls');
+	const summaryEl: HTMLElement | null = document.querySelector('#ti-selection-summary');
+	if (emptyEl) emptyEl.style.display = 'none';
+	if (ctrlsEl) ctrlsEl.style.display = 'none';
+	if (!summaryEl) return;
+
+	const rect = getSelectionRect();
+	if (!rect) return;
+
+	const w: Num = rect.maxX - rect.minX + 1;
+	const h: Num = rect.maxZ - rect.minZ + 1;
+	const total: Num = w * h;
+
+	summaryEl.style.display = '';
+	summaryEl.innerHTML = '';
+
+	const icon: HTMLDivElement = document.createElement('div');
+	icon.style.cssText = 'font-size:24px;text-align:center;color:#7dd;margin-bottom:6px;';
+	icon.textContent = '\u25A3'; // ▣
+
+	const title: HTMLDivElement = document.createElement('div');
+	title.style.cssText = 'text-align:center;font-size:13px;color:#ccc;margin-bottom:8px;';
+	title.textContent = `${String(w)}\u00D7${String(h)} Selection (${String(total)} tiles)`;
+
+	const bounds: HTMLDivElement = document.createElement('div');
+	bounds.style.cssText = 'font-size:11px;color:#888;text-align:center;';
+	bounds.textContent = `(${String(rect.minX)}, ${String(rect.minZ)}) \u2192 (${String(rect.maxX)}, ${String(rect.maxZ)})`;
+
+	const clearBtn: HTMLButtonElement = document.createElement('button');
+	clearBtn.className = 'btn btn-danger';
+	clearBtn.textContent = 'Clear Selection';
+	clearBtn.title = 'Clear all tiles in selection on current layer (Delete key)';
+	clearBtn.style.marginTop = '8px';
+	clearBtn.style.width = '100%';
+	clearBtn.id = 'ti-clear-selection-btn';
+
+	summaryEl.append(icon, title, bounds, clearBtn);
 }
 
 /**
@@ -3529,11 +4051,13 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
  * @param gridZ - Grid Z coordinate.
  */
 function refreshInspector(tilemap: RenderedTilemap, gridX: Num, gridZ: Num): void {
-	// Show controls, hide empty state
+	// Show controls, hide empty state and selection summary
 	const emptyEl: HTMLElement | null = document.querySelector('#ti-empty-state');
 	const ctrlsEl: HTMLElement | null = document.querySelector('#ti-controls');
+	const summaryEl: HTMLElement | null = document.querySelector('#ti-selection-summary');
 	if (emptyEl) emptyEl.style.display = 'none';
 	if (ctrlsEl) ctrlsEl.style.display = '';
+	if (summaryEl) summaryEl.style.display = 'none';
 
 	const mapW: Num = tilemap.mapData.width;
 	const tileIndex: Num = gridZ * mapW + gridX;
@@ -3713,12 +4237,37 @@ function buildLayerUI(debug: DevDebugApi): void {
 		}
 	};
 
+	// -- Dim Other Layers toggle --
+	const dimToggleRow: HTMLElement = createToggleRow(
+		'Dim Other Layers',
+		_dimOtherLayers,
+		(on: boolean) => {
+			_dimOtherLayers = on;
+			applyDimLayers(debug.tilemap);
+		},
+	);
+	(container as HTMLElement).append(dimToggleRow);
+
 	for (let i = 0; i < layers.length; i++) {
 		const layer = layers[i];
 		if (!layer) continue;
 
-		buildLayerRow(tilemap, layer, i, container as HTMLElement, layers.length, onReorder);
+		buildLayerRow(tilemap, layer, i, container as HTMLElement, layers.length, onReorder, debug);
 	}
+
+	// -- Clear All Layers button --
+	const clearAllBtn: HTMLButtonElement = document.createElement('button');
+	clearAllBtn.className = 'btn btn-danger';
+	clearAllBtn.textContent = 'Clear All Layers';
+	clearAllBtn.title = 'Clear all tiles on every layer';
+	clearAllBtn.style.width = '100%';
+	clearAllBtn.style.marginTop = '6px';
+	clearAllBtn.addEventListener('click', () => {
+		// oxlint-disable-next-line no-alert
+		if (!window.confirm('Clear ALL tiles on ALL layers? This cannot be undone.')) return;
+		clearAllLayers(debug);
+	});
+	(container as HTMLElement).append(clearAllBtn);
 }
 
 // =============================================================================
@@ -4263,6 +4812,383 @@ function buildInfoUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 function setInfoText(id: string, text: string): void {
 	const el = document.querySelector(`#${id}`);
 	if (el) el.textContent = text;
+}
+
+// =============================================================================
+// Camera / Navigation UI
+// =============================================================================
+
+/** Zoom preset multipliers for the navigation section buttons. */
+const ZOOM_PRESETS: readonly number[] = [1, 2, 4, 8, 16];
+
+/**
+ * Creates a readout row with a label and value span for the navigation section.
+ *
+ * @param label - Display label text.
+ * @param id - Element ID for the value span (for live updates).
+ * @returns The readout row element.
+ */
+function makeNavReadout(label: string, id: string): HTMLDivElement {
+	const row: HTMLDivElement = document.createElement('div');
+	row.className = 'nav-readout';
+	const lbl: HTMLSpanElement = document.createElement('span');
+	lbl.className = 'nav-readout-label';
+	lbl.textContent = label;
+	const val: HTMLSpanElement = document.createElement('span');
+	val.className = 'nav-readout-value';
+	val.id = id;
+	val.textContent = '--';
+	row.append(lbl, val);
+	return row;
+}
+
+/**
+ * Builds the Keyboard Shortcuts reference section listing all available shortcuts.
+ */
+function buildKeyboardShortcutsUI(): void {
+	const container = document.querySelector('#shortcuts-body') as HTMLElement | null;
+	if (!container) return;
+	container.innerHTML = '';
+
+	const shortcuts: Array<{ group: string; items: Array<{ key: string; desc: string }> }> = [
+		{
+			group: 'Panel',
+			items: [{ key: '`', desc: 'Toggle dev panel' }],
+		},
+		{
+			group: 'Navigation (Map Editor)',
+			items: [
+				{ key: 'W / \u2191', desc: 'Pan up' },
+				{ key: 'S / \u2193', desc: 'Pan down' },
+				{ key: 'A / \u2190', desc: 'Pan left' },
+				{ key: 'D / \u2192', desc: 'Pan right' },
+				{ key: 'Ctrl + Scroll', desc: 'Zoom in/out' },
+				{ key: 'Right/Mid Drag', desc: 'Drag to pan' },
+			],
+		},
+		{
+			group: 'Editing (Map Editor)',
+			items: [
+				{ key: 'Delete / Backspace', desc: 'Clear selected tile(s)' },
+				{ key: 'G', desc: 'Toggle grid overlay' },
+				{ key: 'Shift + Drag', desc: 'Rectangular selection' },
+				{ key: 'Escape', desc: 'Clear selection' },
+			],
+		},
+	];
+
+	for (const group of shortcuts) {
+		container.append(createSubHeader(group.group));
+		for (const item of group.items) {
+			const row: HTMLDivElement = document.createElement('div');
+			row.className = 'control-row';
+			row.style.padding = '1px 0';
+
+			const keySpan: HTMLElement = document.createElement('span');
+			keySpan.className = 'control-label';
+			keySpan.style.minWidth = 'auto';
+			keySpan.style.flex = 'none';
+			keySpan.innerHTML = `<kbd>${item.key}</kbd>`;
+
+			const descSpan: HTMLSpanElement = document.createElement('span');
+			descSpan.style.cssText = 'color:#aaa;font-size:11px;margin-left:6px;';
+			descSpan.textContent = item.desc;
+
+			row.append(keySpan, descSpan);
+			container.append(row);
+		}
+	}
+}
+
+/**
+ * Builds the Camera / Navigation UI section with zoom presets,
+ * grid position navigation, and live camera readout.
+ *
+ * @param runtime - The runtime instance.
+ * @param debug - Debug API reference.
+ */
+function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
+	const container = document.querySelector('#camera-nav-body') as HTMLElement | null;
+	if (!container) return;
+	container.innerHTML = '';
+
+	const cam = runtime.camera as BABYLON.ArcRotateCamera;
+	const { scene } = runtime.engine;
+
+	// -- Mapeditor-only wrapper vs fallback message --
+	const controlsDiv: HTMLDivElement = document.createElement('div');
+	const fallbackDiv: HTMLDivElement = document.createElement('div');
+	fallbackDiv.className = 'status-text';
+	fallbackDiv.textContent = 'Switch to Map Editor preset';
+	fallbackDiv.style.display = _currentPreset === 'mapeditor' ? 'none' : 'block';
+	controlsDiv.style.display = _currentPreset === 'mapeditor' ? 'block' : 'none';
+	container.append(fallbackDiv, controlsDiv);
+
+	// Store refs for preset-change toggling
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
+	(window as any)._camNavControls = controlsDiv;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
+	(window as any)._camNavFallback = fallbackDiv;
+
+	// ── 1. Zoom Preset Buttons ──
+	controlsDiv.append(createSubHeader('Zoom'));
+
+	const zoomBtnGroup: HTMLDivElement = document.createElement('div');
+	zoomBtnGroup.className = 'btn-group';
+	zoomBtnGroup.style.padding = '2px 0';
+
+	const zoomButtons: HTMLButtonElement[] = [];
+	for (const mult of ZOOM_PRESETS) {
+		const btn: HTMLButtonElement = document.createElement('button');
+		btn.className = 'btn';
+		btn.textContent = mult === 1 ? '1x' : `${String(mult)}x`;
+		btn.dataset['zoom'] = String(mult);
+		btn.addEventListener('click', () => {
+			setZoomLevel(mult, cam, scene);
+		});
+		zoomButtons.push(btn);
+		zoomBtnGroup.append(btn);
+	}
+	controlsDiv.append(zoomBtnGroup);
+
+	// ── 2. Zoom Slider ──
+	const zoomSliderRow: HTMLDivElement = document.createElement('div');
+	zoomSliderRow.className = 'control-row';
+
+	const zoomLabel: HTMLSpanElement = document.createElement('span');
+	zoomLabel.className = 'control-label';
+	zoomLabel.textContent = 'Zoom';
+
+	const zoomSlider: HTMLInputElement = document.createElement('input');
+	zoomSlider.type = 'range';
+	zoomSlider.min = '1.0';
+	zoomSlider.max = '16.0';
+	zoomSlider.step = '0.5';
+	zoomSlider.value = String(getZoomMultiplier().toFixed(1));
+	zoomSlider.dataset['control'] = 'cam-nav-zoom';
+
+	const zoomValSpan: HTMLSpanElement = document.createElement('span');
+	zoomValSpan.className = 'control-value';
+	zoomValSpan.id = 'cam-nav-zoom-display';
+	zoomValSpan.textContent = `${getZoomMultiplier().toFixed(1)}x`;
+
+	zoomSlider.addEventListener('input', () => {
+		const val: number = Number.parseFloat(zoomSlider.value);
+		setZoomLevel(val, cam, scene);
+		zoomValSpan.textContent = `${val.toFixed(1)}x`;
+	});
+
+	zoomSliderRow.append(zoomLabel, zoomSlider, zoomValSpan);
+	controlsDiv.append(zoomSliderRow);
+
+	// ── 2b. Custom Zoom Input ──
+	const customZoomRow: HTMLDivElement = document.createElement('div');
+	customZoomRow.className = 'control-row';
+	customZoomRow.style.gap = '4px';
+	customZoomRow.style.alignItems = 'center';
+
+	const customLabel: HTMLSpanElement = document.createElement('span');
+	customLabel.className = 'control-label';
+	customLabel.textContent = 'Custom';
+	customLabel.style.flex = 'none';
+	customLabel.style.minWidth = 'auto';
+
+	const customInput: HTMLInputElement = document.createElement('input');
+	customInput.type = 'number';
+	customInput.className = 'nav-input';
+	customInput.min = '1';
+	customInput.max = '16';
+	customInput.step = '0.1';
+	customInput.value = getZoomMultiplier().toFixed(1);
+	customInput.title = 'Enter zoom multiplier (1–16)';
+
+	const applyBtn: HTMLButtonElement = document.createElement('button');
+	applyBtn.className = 'btn';
+	applyBtn.textContent = 'Apply';
+	applyBtn.style.marginLeft = 'auto';
+
+	const doCustomZoom = (): void => {
+		const val: number = Math.max(1, Math.min(16, Number.parseFloat(customInput.value) || 1));
+		customInput.value = val.toFixed(1);
+		setZoomLevel(val, cam, scene);
+	};
+
+	applyBtn.addEventListener('click', doCustomZoom);
+	customInput.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === 'Enter') doCustomZoom();
+	});
+
+	customZoomRow.append(customLabel, customInput, applyBtn);
+	controlsDiv.append(customZoomRow);
+
+	// ── 3. Action Buttons ──
+	controlsDiv.append(createSubHeader('Actions'));
+
+	const actionGroup: HTMLDivElement = document.createElement('div');
+	actionGroup.className = 'btn-group';
+	actionGroup.style.padding = '2px 0';
+
+	const fitBtn: HTMLButtonElement = document.createElement('button');
+	fitBtn.className = 'btn';
+	fitBtn.textContent = 'Fit Map';
+	fitBtn.title = 'Zoom to show the entire map';
+	fitBtn.addEventListener('click', () => {
+		setZoomLevel(1, cam, scene);
+		cam.target.x = (MAP_MIN + MAP_MAX) / 2;
+		cam.target.z = (MAP_MIN + MAP_MAX) / 2;
+		clampCameraToMap(cam, scene);
+		updateScrollbars(cam, scene);
+	});
+
+	const resetBtn: HTMLButtonElement = document.createElement('button');
+	resetBtn.className = 'btn';
+	resetBtn.textContent = 'Reset';
+	resetBtn.title = 'Reset camera to default position and zoom';
+	resetBtn.addEventListener('click', () => {
+		setZoomLevel(1, cam, scene);
+		cam.target.x = (MAP_MIN + MAP_MAX) / 2;
+		cam.target.z = (MAP_MIN + MAP_MAX) / 2;
+		clampCameraToMap(cam, scene);
+		updateScrollbars(cam, scene);
+	});
+
+	const selBtn: HTMLButtonElement = document.createElement('button');
+	selBtn.className = 'btn';
+	selBtn.textContent = 'To Selection';
+	selBtn.title = 'Zoom to last selected tile at 4x';
+	selBtn.disabled = _lastInspectX < 0 || _lastInspectZ < 0;
+	selBtn.addEventListener('click', () => {
+		if (_lastInspectX < 0 || _lastInspectZ < 0) return;
+		navigateToTile(_lastInspectX, _lastInspectZ, cam, scene);
+		setZoomLevel(4, cam, scene);
+	});
+
+	const centerBtn: HTMLButtonElement = document.createElement('button');
+	centerBtn.className = 'btn';
+	centerBtn.textContent = 'Center';
+	centerBtn.title = 'Center on selected tile (keep current zoom)';
+	centerBtn.disabled = _lastInspectX < 0 || _lastInspectZ < 0;
+	centerBtn.addEventListener('click', () => {
+		if (_lastInspectX < 0 || _lastInspectZ < 0) return;
+		navigateToTile(_lastInspectX, _lastInspectZ, cam, scene);
+	});
+
+	// Store refs for enabling when a tile is selected
+	(window as Record<string, unknown>)._selBtn = selBtn;
+	(window as Record<string, unknown>)._centerBtn = centerBtn;
+
+	actionGroup.append(fitBtn, resetBtn, selBtn, centerBtn);
+	controlsDiv.append(actionGroup);
+
+	// ── 3b. View Toggles ──
+	controlsDiv.append(createSubHeader('View'));
+
+	const gridToggleRow: HTMLElement = createToggleRow('Grid Overlay (G)', _gridVisible, () => {
+		toggleGridOverlay(scene, debug);
+	});
+	controlsDiv.append(gridToggleRow);
+
+	// Store grid toggle checkbox ref so G key can sync it
+	const gridCheckbox = gridToggleRow.querySelector(
+		'input[type="checkbox"]',
+	) as HTMLInputElement | null;
+	if (gridCheckbox) {
+		(window as Record<string, unknown>)._gridToggle = gridCheckbox;
+	}
+
+	// ── 4. Go To Position ──
+	controlsDiv.append(createSubHeader('Go To Position'));
+
+	const gotoRow: HTMLDivElement = document.createElement('div');
+	gotoRow.className = 'control-row';
+	gotoRow.style.gap = '4px';
+	gotoRow.style.alignItems = 'center';
+
+	const xLabel: HTMLSpanElement = document.createElement('span');
+	xLabel.className = 'control-label';
+	xLabel.textContent = 'X';
+	xLabel.style.flex = 'none';
+	xLabel.style.minWidth = 'auto';
+
+	const xInput: HTMLInputElement = document.createElement('input');
+	xInput.type = 'number';
+	xInput.className = 'nav-input';
+	xInput.min = '0';
+	xInput.max = String(MAP_MAX - 1);
+	xInput.value = '16';
+
+	const zLabel: HTMLSpanElement = document.createElement('span');
+	zLabel.className = 'control-label';
+	zLabel.textContent = 'Z';
+	zLabel.style.flex = 'none';
+	zLabel.style.minWidth = 'auto';
+
+	const zInput: HTMLInputElement = document.createElement('input');
+	zInput.type = 'number';
+	zInput.className = 'nav-input';
+	zInput.min = '0';
+	zInput.max = String(MAP_MAX - 1);
+	zInput.value = '16';
+
+	const goBtn: HTMLButtonElement = document.createElement('button');
+	goBtn.className = 'btn';
+	goBtn.textContent = 'Go';
+	goBtn.style.marginLeft = 'auto';
+
+	const doGoto = (): void => {
+		const gx: number = Math.max(0, Math.min(MAP_MAX - 1, Number.parseInt(xInput.value, 10) || 0));
+		const gz: number = Math.max(0, Math.min(MAP_MAX - 1, Number.parseInt(zInput.value, 10) || 0));
+		navigateToTile(gx, gz, cam, scene);
+	};
+
+	goBtn.addEventListener('click', doGoto);
+	xInput.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === 'Enter') doGoto();
+	});
+	zInput.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === 'Enter') doGoto();
+	});
+
+	gotoRow.append(xLabel, xInput, zLabel, zInput, goBtn);
+	controlsDiv.append(gotoRow);
+
+	// ── 5. Live Readout ──
+	controlsDiv.append(createSubHeader('Position'));
+
+	controlsDiv.append(makeNavReadout('Target X', 'nav-target-x'));
+	controlsDiv.append(makeNavReadout('Target Z', 'nav-target-z'));
+	controlsDiv.append(makeNavReadout('Zoom', 'nav-zoom-readout'));
+
+	// ── 6. Per-frame readout update ──
+	let navFrameCount = 0;
+	scene.registerAfterRender(() => {
+		navFrameCount++;
+		if (navFrameCount % 6 !== 0) return;
+		if (_currentPreset !== 'mapeditor') return;
+		const section: Element | null = document.querySelector('#section-camera-nav');
+		if (section?.classList.contains('collapsed')) return;
+
+		// Update readout
+		setInfoText('nav-target-x', cam.target.x.toFixed(1));
+		setInfoText('nav-target-z', cam.target.z.toFixed(1));
+
+		const currentMult: number = getZoomMultiplier();
+		setInfoText('nav-zoom-readout', `${currentMult.toFixed(1)}x`);
+
+		// Sync zoom slider (handles external zoom changes from wheel/keyboard)
+		zoomSlider.value = String(Math.min(16.0, Math.max(1.0, currentMult)).toFixed(1));
+		zoomValSpan.textContent = `${currentMult.toFixed(1)}x`;
+
+		// Sync custom zoom input
+		customInput.value = currentMult.toFixed(1);
+
+		// Update active zoom button highlight
+		for (const btn of zoomButtons) {
+			const btnMult: number = Number.parseFloat(btn.dataset['zoom'] ?? '0');
+			const isActive: boolean = Math.abs(currentMult - btnMult) < 0.05;
+			btn.classList.toggle('active', isActive);
+		}
+	});
 }
 
 /**
@@ -5250,9 +6176,14 @@ function updateScrollbars(cam: BABYLON.ArcRotateCamera, scene: BABYLON.Scene): v
  * scrollbar sync, and resize handling.
  *
  * @param runtime - The runtime instance.
+ * @param debug - Debug API reference.
  * @param canvas - The game canvas element.
  */
-function setupMapEditorControls(runtime: RuntimeInstance, canvas: HTMLCanvasElement): void {
+function setupMapEditorControls(
+	runtime: RuntimeInstance,
+	debug: DevDebugApi,
+	canvas: HTMLCanvasElement,
+): void {
 	const cam = runtime.camera as BABYLON.ArcRotateCamera;
 	const { scene } = runtime.engine;
 
@@ -5271,6 +6202,8 @@ function setupMapEditorControls(runtime: RuntimeInstance, canvas: HTMLCanvasElem
 		// Dark background for any area outside the map
 		_savedClearColor = scene.clearColor.clone();
 		scene.clearColor = new BABYLON.Color4(0.08, 0.08, 0.08, 1);
+
+		ensureEditorBackdrop(scene);
 	}
 
 	// ── Custom wheel: scroll to pan, Ctrl+scroll / pinch to zoom ──
@@ -5387,6 +6320,33 @@ function setupMapEditorControls(runtime: RuntimeInstance, canvas: HTMLCanvasElem
 		const tag: string = (e.target as HTMLElement).tagName;
 		if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 		_heldKeys.add(e.key);
+
+		if (_currentPreset !== 'mapeditor') return;
+
+		// Delete/Backspace clears the selected tile(s) in map editor mode
+		if (e.key === 'Delete' || e.key === 'Backspace') {
+			e.preventDefault();
+			const rect = getSelectionRect();
+			if (rect) {
+				clearSelectionRect(debug);
+			} else {
+				clearSelectedTile(debug);
+			}
+		}
+
+		// G toggles grid overlay
+		if (e.key === 'g' || e.key === 'G') {
+			toggleGridOverlay(runtime.engine.scene, debug);
+		}
+
+		// Escape clears rectangular selection
+		if (e.key === 'Escape') {
+			_selStartX = -1;
+			_selStartZ = -1;
+			_selEndX = -1;
+			_selEndZ = -1;
+			updateHighlightForSelection();
+		}
 	});
 	document.addEventListener('keyup', (e: KeyboardEvent) => {
 		_heldKeys.delete(e.key);
@@ -5569,7 +6529,7 @@ async function main(): Promise<void> {
 		}
 
 		// Set up RPG Maker-style map editor controls (zoom, pan, scrollbars)
-		setupMapEditorControls(runtime, canvas);
+		setupMapEditorControls(runtime, debug, canvas);
 	}
 
 	// Render the test tilemap
@@ -5609,6 +6569,7 @@ async function main(): Promise<void> {
 		}
 
 		// Build dynamic UI sections after tilemap is loaded
+		buildCameraNavigationUI(runtime, debug);
 		buildLayerUI(debug);
 		buildSkyUI(debug, runtime.engine.scene);
 		buildLightsUI(debug);
@@ -5618,6 +6579,7 @@ async function main(): Promise<void> {
 		buildGlowDetailsUI(debug);
 		buildInfoUI(debug, runtime.engine.scene);
 		buildTileInspectorUI(debug, runtime.engine.scene);
+		buildKeyboardShortcutsUI();
 
 		// Center camera on the map (map is 32 tiles wide, 1 unit per tile)
 		const mapCenterX: Num = 16;
