@@ -47,11 +47,64 @@ export type ParallaxInstance = {
 	readonly bgLayers: BABYLON.Layer[];
 	/** Mutable — external code may change scroll speeds between frames. */
 	layers: ParallaxLayer[];
+	/** Accumulated auto-scroll UV offsets per layer (u, v pairs). */
+	readonly autoScrollAccum: Array<{ u: Num; v: Num }>;
 	/** Per-frame observer for UV offset updates (null if no layers). */
 	readonly observer: BABYLON.Observer<BABYLON.Scene> | null;
 	/** The scene this parallax belongs to. */
 	readonly scene: BABYLON.Scene;
 };
+
+// =============================================================================
+// Blend mode mapping
+// =============================================================================
+
+/**
+ * Maps a parallax layer blend mode string to the corresponding
+ * Babylon.js alpha blending constant.
+ *
+ * | Mode | Babylon constant | Value |
+ * |------|-----------------|-------|
+ * | `'alpha'` | `ALPHA_COMBINE` | 2 |
+ * | `'additive'` | `ALPHA_ADD` | 1 |
+ * | `'multiply'` | `ALPHA_MULTIPLY` | 4 |
+ * | `'subtract'` | `ALPHA_SUBTRACT` | 3 |
+ * | `'screen'` | `ALPHA_SCREENMODE` | 10 |
+ *
+ * Unknown modes default to `'alpha'` (2).
+ *
+ * @param mode - The blend mode string from the parallax layer config.
+ * @returns The numeric Babylon.js alpha blending constant.
+ *
+ * @example
+ * ```typescript
+ * mapBlendMode('additive'); // 1
+ * mapBlendMode('screen');   // 10
+ * mapBlendMode('unknown');  // 2 (default: alpha)
+ * ```
+ */
+export function mapBlendMode(mode: string): Num {
+	switch (mode) {
+		case 'alpha': {
+			return 2 as Num;
+		}
+		case 'additive': {
+			return 1 as Num;
+		}
+		case 'multiply': {
+			return 4 as Num;
+		}
+		case 'subtract': {
+			return 3 as Num;
+		}
+		case 'screen': {
+			return 10 as Num;
+		}
+		default: {
+			return 2 as Num;
+		}
+	}
+}
 
 // =============================================================================
 // Parallax offset computation (pure math, exported for testing)
@@ -109,23 +162,30 @@ export function createParallax(options: {
 	readonly layers: readonly ParallaxLayer[];
 	readonly assetBasePath: string;
 }): BabylonResult<ParallaxInstance> {
-	const { scene, layers, assetBasePath } = options;
+	const { scene, assetBasePath } = options;
 
 	try {
+		// Sort layers by depth (lower depth = further back, rendered first)
+		const sortedLayers: ParallaxLayer[] = [...options.layers].toSorted((a, b) => a.depth - b.depth);
+
 		const bgLayers: BABYLON.Layer[] = [];
 
-		for (let i = 0; i < layers.length; i++) {
-			const layer = layers[i];
+		for (let i = 0; i < sortedLayers.length; i++) {
+			const layer = sortedLayers[i];
 			if (!layer) continue;
 
 			const texturePath = `${assetBasePath}${layer.imagePath}`;
 
-			// Layer(name, imgUrl, scene, isBackground) — isBackground=true renders behind 3D
-			const bgLayer = new BABYLON.Layer(`parallax-${i}`, texturePath, scene, true);
+			// Layer(name, imgUrl, scene, isBackground)
+			// isBackground=true renders behind 3D, isBackground=false renders in front
+			const isBackground = layer.layerType !== 'foreground';
+			const bgLayer = new BABYLON.Layer(`parallax-${i}`, texturePath, scene, isBackground);
 
-			// Set opacity via alpha blending
-			bgLayer.alphaBlendingMode = BABYLON.Constants.ALPHA_COMBINE;
-			bgLayer.color = new BABYLON.Color4(1, 1, 1, layer.opacity);
+			// Apply blend mode from layer config
+			bgLayer.alphaBlendingMode = mapBlendMode(layer.blendMode);
+
+			// Apply tint color with opacity in the alpha channel
+			bgLayer.color = new BABYLON.Color4(layer.tint.r, layer.tint.g, layer.tint.b, layer.opacity);
 
 			// Configure texture tiling — Layer.texture is BaseTexture but the
 			// constructor creates a Texture, so we narrow for UV property access.
@@ -154,37 +214,58 @@ export function createParallax(options: {
 			bgLayers.push(bgLayer);
 		}
 
-		// Register per-frame observer for UV offset updates
-		let observer: BABYLON.Observer<BABYLON.Scene> | null = null;
-		if (layers.length > 0) {
-			observer = scene.onBeforeRenderObservable.add(() => {
-				const camera = scene.activeCamera;
-				if (!camera) return;
+		// Accumulated auto-scroll offsets (one per sorted layer)
+		const autoScrollAccum: Array<{ u: Num; v: Num }> = sortedLayers.map(() => ({
+			u: 0 as Num,
+			v: 0 as Num,
+		}));
 
-				const cameraPos = camera.position;
-				for (let i = 0; i < layers.length; i++) {
-					const layer = layers[i];
+		// Register per-frame observer for UV offset and auto-scroll updates
+		let observer: BABYLON.Observer<BABYLON.Scene> | null = null;
+		if (sortedLayers.length > 0) {
+			observer = scene.onBeforeRenderObservable.add(() => {
+				const dt = (scene.getEngine().getDeltaTime() / 1000) as Num;
+				const camera = scene.activeCamera;
+
+				for (let i = 0; i < sortedLayers.length; i++) {
+					const layer = sortedLayers[i];
 					if (!layer) continue;
 					const bgLayer = bgLayers[i];
 					if (!bgLayer?.texture || !(bgLayer.texture instanceof BABYLON.Texture)) continue;
 
-					const offset = computeParallaxOffset({
-						cameraX: cameraPos.x as Num,
-						cameraZ: cameraPos.z as Num,
-						scrollSpeedX: layer.scrollSpeedX as Num,
-						scrollSpeedY: layer.scrollSpeedY as Num,
-					});
+					// Camera-based parallax offset (absolute, position-based)
+					let cameraU = 0 as Num;
+					let cameraV = 0 as Num;
+					if (camera) {
+						const cameraPos = camera.position;
+						const offset = computeParallaxOffset({
+							cameraX: cameraPos.x as Num,
+							cameraZ: cameraPos.z as Num,
+							scrollSpeedX: layer.scrollSpeedX as Num,
+							scrollSpeedY: layer.scrollSpeedY as Num,
+						});
+						cameraU = (offset.x * 0.01) as Num;
+						cameraV = (offset.y * 0.01) as Num;
+					}
 
-					// Scale offsets to UV space (small values for subtle scrolling)
-					bgLayer.texture.uOffset = offset.x * 0.01;
-					bgLayer.texture.vOffset = offset.y * 0.01;
+					// Accumulate auto-scroll drift (camera-independent, time-based)
+					const accum = autoScrollAccum[i];
+					if (accum) {
+						accum.u = (accum.u + layer.autoScrollX * dt) as Num;
+						accum.v = (accum.v + layer.autoScrollY * dt) as Num;
+					}
+
+					// Combine absolute camera offset with accumulated auto-scroll
+					bgLayer.texture.uOffset = cameraU + (accum ? accum.u : 0);
+					bgLayer.texture.vOffset = cameraV + (accum ? accum.v : 0);
 				}
 			});
 		}
 
 		return okShallow({
 			bgLayers,
-			layers: [...layers],
+			layers: sortedLayers,
+			autoScrollAccum,
 			observer,
 			scene,
 		});
