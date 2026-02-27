@@ -28,6 +28,7 @@ import {
 	setLayerOpacity,
 	getMoonPhaseInfo,
 	computeTimePhase,
+	getSeasonSunPath,
 } from '../src/index';
 import {
 	renderTilemap,
@@ -547,8 +548,10 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 				(val) => {
 					const cycle = debug.tilemap?.lighting?.dayNightCycle;
 					if (!cycle) return;
-					// Mutate config for observer to pick up on next frame
-					(cycle.config as Record<string, unknown>)['season'] = val;
+					const cfg = cycle.config as Record<string, unknown>;
+					// Set season and clear explicit sunPath so season override takes effect
+					cfg['season'] = val;
+					delete cfg['sunPath'];
 				},
 				'daynight-season',
 			),
@@ -660,13 +663,17 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 			updateTimeDisplay(t);
 		}
 
-		// Update phase display
-		const sunPath = cycle.config.sunPath ?? {
-			sunrise: 6,
-			sunset: 18,
-			maxElevation: 75,
-			azimuthStart: 90,
-		};
+		// Resolve effective sun path: explicit config > season override > default
+		const { sunPath: explicitSunPath } = cycle.config;
+		let sunPath = explicitSunPath;
+		if (!sunPath) {
+			const season = cycle.config.season as string | undefined;
+			if (season) {
+				const seasonResult = getSeasonSunPath(season);
+				if (seasonResult.ok) sunPath = seasonResult.data;
+			}
+		}
+		if (!sunPath) sunPath = { sunrise: 6, sunset: 18, maxElevation: 75, azimuthStart: 90 };
 		const phaseResult = computeTimePhase(t as Num, sunPath);
 		if (phaseDisplay && phaseResult.ok) {
 			phaseDisplay.textContent = phaseResult.data;
