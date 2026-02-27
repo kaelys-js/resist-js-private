@@ -1277,6 +1277,44 @@ function createSubHeader(text: string): HTMLElement {
 }
 
 /**
+ * Creates a collapsible group with a clickable header and body.
+ * Used inside sections for sub-groups (tile inspector categories,
+ * layer property groups, etc.).
+ *
+ * @param title - Group header text.
+ * @param collapsed - Whether the group starts collapsed.
+ * @returns Object with `root` (the wrapper), `body` (append children here).
+ */
+function createCollapsibleGroup(
+	title: string,
+	collapsed: boolean,
+): { root: HTMLElement; body: HTMLElement } {
+	const root: HTMLElement = document.createElement('div');
+	root.className = collapsed ? 'cg collapsed' : 'cg';
+
+	const header: HTMLElement = document.createElement('div');
+	header.className = 'cg-header';
+
+	const label: HTMLElement = document.createElement('span');
+	label.textContent = title;
+
+	const chevron: HTMLElement = document.createElement('span');
+	chevron.className = 'cg-chevron';
+	chevron.textContent = '\u25BE'; // ▾
+
+	header.append(label, chevron);
+	header.addEventListener('click', () => {
+		root.classList.toggle('collapsed');
+	});
+
+	const body: HTMLElement = document.createElement('div');
+	body.className = 'cg-body';
+
+	root.append(header, body);
+	return { root, body };
+}
+
+/**
  * Creates a control-row with label and styled dropdown.
  *
  * @param label - Display label text.
@@ -2162,222 +2200,176 @@ function buildLayerRow(
 	index: number,
 	container: HTMLElement,
 ): void {
-	const row = document.createElement('div');
-	row.style.cssText = 'padding: 3px 0; border-bottom: 1px solid #333;';
+	const idx = String(index);
+	const row: HTMLElement = document.createElement('div');
+	row.className = 'layer-row collapsed';
 
+	// -- Styled layer header --
 	const displayName: string = layer.name
 		? layer.name
 				.replaceAll('_', ' ')
 				.split(' ')
 				.map((w: string) => (w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w))
 				.join(' ')
-		: `Layer ${String(index)}`;
+		: `Layer ${idx}`;
 
-	let kindLabel = 'G';
-	if (layer.kind === 'tile') kindLabel = 'T';
-	else if (layer.kind === 'object') kindLabel = 'O';
+	let kindLabel = 'GRP';
+	let kindClass = 'layer-kind-group';
+	if (layer.kind === 'tile') {
+		kindLabel = 'TILE';
+		kindClass = 'layer-kind-tile';
+	} else if (layer.kind === 'object') {
+		kindLabel = 'OBJ';
+		kindClass = 'layer-kind-object';
+	}
 
-	// Visibility toggle
-	row.append(
+	const header: HTMLElement = document.createElement('div');
+	header.className = 'layer-header';
+
+	const titleArea: HTMLElement = document.createElement('div');
+	titleArea.className = 'layer-title';
+
+	const kindBadge: HTMLElement = document.createElement('span');
+	kindBadge.className = `layer-kind ${kindClass}`;
+	kindBadge.textContent = kindLabel;
+
+	const nameSpan: HTMLElement = document.createElement('span');
+	nameSpan.textContent = displayName;
+
+	titleArea.append(kindBadge, nameSpan);
+
+	const chevron: HTMLElement = document.createElement('span');
+	chevron.className = 'layer-chevron';
+	chevron.textContent = '\u25BE'; // ▾
+
+	header.append(titleArea, chevron);
+	header.addEventListener('click', () => {
+		row.classList.toggle('collapsed');
+	});
+	row.append(header);
+
+	// -- Expandable body --
+	const body: HTMLElement = document.createElement('div');
+	body.className = 'layer-row-body';
+
+	// Visibility + Opacity (always visible at top of body)
+	body.append(
 		createToggleRow(
-			`${String(index)}. [${kindLabel}] ${displayName}`,
+			'Visible',
 			layer.visible,
 			(on) => {
-				setLayerVisibility({
-					tilemap,
-					layerIndex: index as Num,
-					visible: on as Bool,
-				});
+				setLayerVisibility({ tilemap, layerIndex: index as Num, visible: on as Bool });
 			},
-			`layer-${String(index)}-visible`,
+			`layer-${idx}-visible`,
 		),
 	);
-
-	// Opacity slider
-	const opacityRow: HTMLElement = document.createElement('div');
-	opacityRow.className = 'control-row';
-	opacityRow.style.cssText = 'padding-left: 12px;';
-	opacityRow.dataset['control'] = `layer-${String(index)}-opacity`;
-
-	const opLabel: HTMLElement = document.createElement('span');
-	opLabel.className = 'control-label';
-	opLabel.textContent = 'Opacity';
-
-	const opSlider: HTMLInputElement = document.createElement('input');
-	opSlider.type = 'range';
-	opSlider.min = '0';
-	opSlider.max = '1';
-	opSlider.step = '0.05';
-	opSlider.value = String(layer.opacity);
-
-	const opValue: HTMLElement = document.createElement('span');
-	opValue.className = 'control-value';
-	opValue.textContent = layer.opacity.toFixed(2);
-
-	opSlider.addEventListener('input', () => {
-		const val = Number(opSlider.value);
-		setLayerOpacity({
-			tilemap,
-			layerIndex: index as Num,
-			opacity: val as Num,
-		});
-		opValue.textContent = val.toFixed(2);
-	});
-
-	opacityRow.append(opLabel);
-	opacityRow.append(opSlider);
-	opacityRow.append(opValue);
-	row.append(opacityRow);
-
-	// -- Shared visual controls (all layer kinds) --
-	const hdrVisual: HTMLElement = createSubHeader('Visual');
-	row.append(hdrVisual);
-
-	row.append(
-		createSliderRow('Tint R', 0, 1, 0.01, layer.tintColor.r, noop, `layer-${String(index)}-tint-r`),
-	);
-	row.append(
-		createSliderRow('Tint G', 0, 1, 0.01, layer.tintColor.g, noop, `layer-${String(index)}-tint-g`),
-	);
-	row.append(
-		createSliderRow('Tint B', 0, 1, 0.01, layer.tintColor.b, noop, `layer-${String(index)}-tint-b`),
-	);
-	row.append(
-		createSliderRow('Tint A', 0, 1, 0.01, layer.tintColor.a, noop, `layer-${String(index)}-tint-a`),
-	);
-	row.append(
+	body.append(
 		createSliderRow(
-			'Brightness',
-			-1,
-			1,
-			0.01,
-			layer.brightness,
-			noop,
-			`layer-${String(index)}-brightness`,
-		),
-	);
-	row.append(
-		createSliderRow(
-			'Saturation',
+			'Opacity',
 			0,
-			2,
-			0.01,
-			layer.saturation,
-			noop,
-			`layer-${String(index)}-saturation`,
-		),
-	);
-	row.append(
-		createSliderRow(
-			'Contrast',
-			0,
-			2,
-			0.01,
-			layer.contrast,
-			noop,
-			`layer-${String(index)}-contrast`,
-		),
-	);
-
-	const hdrTransform: HTMLElement = createSubHeader('Transform');
-	row.append(hdrTransform);
-
-	row.append(
-		createSliderRow(
-			'Offset X',
-			-100,
-			100,
 			1,
-			layer.offsetX,
-			noop,
-			`layer-${String(index)}-offset-x`,
+			0.05,
+			layer.opacity,
+			(val) => {
+				setLayerOpacity({ tilemap, layerIndex: index as Num, opacity: val as Num });
+			},
+			`layer-${idx}-opacity`,
 		),
 	);
-	row.append(
-		createSliderRow(
-			'Offset Y',
-			-100,
-			100,
-			1,
-			layer.offsetY,
-			noop,
-			`layer-${String(index)}-offset-y`,
-		),
-	);
-	row.append(createToggleRow('Locked', layer.locked, noop, `layer-${String(index)}-locked`));
 
-	// Tile-layer-specific controls
+	// -- Visual group (collapsed) --
+	const visual = createCollapsibleGroup('Visual', true);
+	visual.body.append(
+		createSliderRow('Tint R', 0, 1, 0.01, layer.tintColor.r, noop, `layer-${idx}-tint-r`),
+	);
+	visual.body.append(
+		createSliderRow('Tint G', 0, 1, 0.01, layer.tintColor.g, noop, `layer-${idx}-tint-g`),
+	);
+	visual.body.append(
+		createSliderRow('Tint B', 0, 1, 0.01, layer.tintColor.b, noop, `layer-${idx}-tint-b`),
+	);
+	visual.body.append(
+		createSliderRow('Tint A', 0, 1, 0.01, layer.tintColor.a, noop, `layer-${idx}-tint-a`),
+	);
+	visual.body.append(
+		createSliderRow('Brightness', -1, 1, 0.01, layer.brightness, noop, `layer-${idx}-brightness`),
+	);
+	visual.body.append(
+		createSliderRow('Saturation', 0, 2, 0.01, layer.saturation, noop, `layer-${idx}-saturation`),
+	);
+	visual.body.append(
+		createSliderRow('Contrast', 0, 2, 0.01, layer.contrast, noop, `layer-${idx}-contrast`),
+	);
+	body.append(visual.root);
+
+	// -- Transform group (collapsed) --
+	const transform = createCollapsibleGroup('Transform', true);
+	transform.body.append(
+		createSliderRow('Offset X', -100, 100, 1, layer.offsetX, noop, `layer-${idx}-offset-x`),
+	);
+	transform.body.append(
+		createSliderRow('Offset Y', -100, 100, 1, layer.offsetY, noop, `layer-${idx}-offset-y`),
+	);
+	transform.body.append(createToggleRow('Locked', layer.locked, noop, `layer-${idx}-locked`));
+	body.append(transform.root);
+
+	// -- Tile-layer-specific groups --
 	if (layer.kind === 'tile') {
-		const hdrTile: HTMLElement = createSubHeader('Tile Layer');
-		row.append(hdrTile);
-
-		row.append(
+		const parallax = createCollapsibleGroup('Parallax', true);
+		parallax.body.append(
 			createSliderRow(
-				'Parallax X',
+				'Factor X',
 				0,
 				2,
 				0.01,
 				layer.parallaxFactorX,
 				noop,
-				`layer-${String(index)}-parallax-x`,
+				`layer-${idx}-parallax-x`,
 			),
 		);
-		row.append(
+		parallax.body.append(
 			createSliderRow(
-				'Parallax Y',
+				'Factor Y',
 				0,
 				2,
 				0.01,
 				layer.parallaxFactorY,
 				noop,
-				`layer-${String(index)}-parallax-y`,
+				`layer-${idx}-parallax-y`,
 			),
 		);
-		row.append(
+		parallax.body.append(
 			createSliderRow(
-				'Parallax Origin X',
+				'Origin X',
 				-500,
 				500,
 				1,
 				layer.parallaxOriginX,
 				noop,
-				`layer-${String(index)}-porigin-x`,
+				`layer-${idx}-porigin-x`,
 			),
 		);
-		row.append(
+		parallax.body.append(
 			createSliderRow(
-				'Parallax Origin Y',
+				'Origin Y',
 				-500,
 				500,
 				1,
 				layer.parallaxOriginY,
 				noop,
-				`layer-${String(index)}-porigin-y`,
+				`layer-${idx}-porigin-y`,
 			),
 		);
-		row.append(
-			createSliderRow(
-				'Scale X',
-				0.1,
-				10,
-				0.1,
-				layer.scaleX,
-				noop,
-				`layer-${String(index)}-scale-x`,
-			),
+		body.append(parallax.root);
+
+		const rendering = createCollapsibleGroup('Rendering', true);
+		rendering.body.append(
+			createSliderRow('Scale X', 0.1, 10, 0.1, layer.scaleX, noop, `layer-${idx}-scale-x`),
 		);
-		row.append(
-			createSliderRow(
-				'Scale Y',
-				0.1,
-				10,
-				0.1,
-				layer.scaleY,
-				noop,
-				`layer-${String(index)}-scale-y`,
-			),
+		rendering.body.append(
+			createSliderRow('Scale Y', 0.1, 10, 0.1, layer.scaleY, noop, `layer-${idx}-scale-y`),
 		);
-		row.append(
+		rendering.body.append(
 			createSliderRow(
 				'Render Order',
 				-10,
@@ -2385,30 +2377,22 @@ function buildLayerRow(
 				1,
 				layer.renderOrder,
 				noop,
-				`layer-${String(index)}-renderorder`,
+				`layer-${idx}-renderorder`,
 			),
 		);
-		row.append(
-			createToggleRow(
-				'Cast Shadows',
-				layer.castShadows,
-				noop,
-				`layer-${String(index)}-castshadows`,
-			),
+		rendering.body.append(
+			createToggleRow('Cast Shadows', layer.castShadows, noop, `layer-${idx}-castshadows`),
 		);
-		row.append(
-			createToggleRow(
-				'Receive Shadows',
-				layer.receiveShadows,
-				noop,
-				`layer-${String(index)}-receiveshadows`,
-			),
+		rendering.body.append(
+			createToggleRow('Receive Shadows', layer.receiveShadows, noop, `layer-${idx}-receiveshadows`),
 		);
-		row.append(
-			createToggleRow('Depth Write', layer.depthWrite, noop, `layer-${String(index)}-depthwrite`),
+		rendering.body.append(
+			createToggleRow('Depth Write', layer.depthWrite, noop, `layer-${idx}-depthwrite`),
 		);
-		row.append(createToggleRow('Y-Sort', layer.ySortEnabled, noop, `layer-${String(index)}-ysort`));
-		row.append(
+		rendering.body.append(
+			createToggleRow('Y-Sort', layer.ySortEnabled, noop, `layer-${idx}-ysort`),
+		);
+		rendering.body.append(
 			createSliderRow(
 				'Culling Pad',
 				0,
@@ -2416,31 +2400,33 @@ function buildLayerRow(
 				1,
 				layer.cullingPadding,
 				noop,
-				`layer-${String(index)}-cullingpad`,
+				`layer-${idx}-cullingpad`,
 			),
 		);
+		body.append(rendering.root);
 	}
 
-	// Object-layer-specific info
+	// -- Object-layer info --
 	if (layer.kind === 'object') {
-		const hdrObj: HTMLElement = createSubHeader('Object Layer');
-		row.append(hdrObj);
-		const objInfo: HTMLElement = infoRow('Objects', `layer-${String(index)}-objects`);
-		const objVal: HTMLElement | null = objInfo.querySelector(`#layer-${String(index)}-objects`);
+		const objGroup = createCollapsibleGroup('Objects', false);
+		const objInfo: HTMLElement = infoRow('Count', `layer-${idx}-objects`);
+		const objVal: HTMLElement | null = objInfo.querySelector(`#layer-${idx}-objects`);
 		if (objVal) objVal.textContent = String(layer.objects.length);
-		row.append(objInfo);
+		objGroup.body.append(objInfo);
+		body.append(objGroup.root);
 	}
 
-	// Group-layer-specific info
+	// -- Group-layer info --
 	if (layer.kind === 'group') {
-		const hdrGrp: HTMLElement = createSubHeader('Group Layer');
-		row.append(hdrGrp);
-		const grpInfo: HTMLElement = infoRow('Children', `layer-${String(index)}-children`);
-		const grpVal: HTMLElement | null = grpInfo.querySelector(`#layer-${String(index)}-children`);
+		const grpGroup = createCollapsibleGroup('Children', false);
+		const grpInfo: HTMLElement = infoRow('Count', `layer-${idx}-children`);
+		const grpVal: HTMLElement | null = grpInfo.querySelector(`#layer-${idx}-children`);
 		if (grpVal) grpVal.textContent = String(layer.children.length);
-		row.append(grpInfo);
+		grpGroup.body.append(grpInfo);
+		body.append(grpGroup.root);
 	}
 
+	row.append(body);
 	container.append(row);
 }
 
@@ -2903,6 +2889,25 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 
 	container.innerHTML = '';
 
+	// -- Empty state (shown until a tile is clicked) --
+	const emptyState: HTMLElement = document.createElement('div');
+	emptyState.className = 'ti-empty';
+	emptyState.id = 'ti-empty-state';
+	const emptyIcon: HTMLElement = document.createElement('div');
+	emptyIcon.className = 'ti-empty-icon';
+	emptyIcon.textContent = '\u25E7'; // ◧
+	const emptyText: HTMLElement = document.createElement('div');
+	emptyText.className = 'ti-empty-text';
+	emptyText.textContent = 'Select a tile on the map to inspect';
+	emptyState.append(emptyIcon, emptyText);
+	container.append(emptyState);
+
+	// -- Controls wrapper (hidden until a tile is clicked) --
+	const controlsWrap: HTMLElement = document.createElement('div');
+	controlsWrap.id = 'ti-controls';
+	controlsWrap.style.display = 'none';
+	container.append(controlsWrap);
+
 	// -- Tile preview canvas with edit overlay --
 	const previewRow: HTMLElement = document.createElement('div');
 	previewRow.style.cssText = 'display:flex;align-items:center;gap:8px;padding:4px 8px;';
@@ -2946,10 +2951,10 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 
 	const previewLabel: HTMLElement = document.createElement('span');
 	previewLabel.style.cssText = 'color:#888;font-size:10px;';
-	previewLabel.textContent = 'Click a tile to inspect';
+	previewLabel.textContent = '';
 	previewLabel.id = 'ti-preview-label';
 	previewRow.append(previewWrap, previewLabel);
-	container.append(previewRow);
+	controlsWrap.append(previewRow);
 
 	// -- Layer selector dropdown --
 	const { tilemap: tiTilemap } = debug;
@@ -2972,60 +2977,59 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			}
 		},
 	);
-	container.append(layerSelectRow);
+	controlsWrap.append(layerSelectRow);
 
-	// -- Identity rows (read-only) --
-	const hdrIdentity: HTMLElement = createSubHeader('Identity');
-	container.append(hdrIdentity);
-	container.append(infoRow('Tile ID (global)', 'ti-global-id'));
-	container.append(infoRow('Tile ID (local)', 'ti-local-id'));
-	container.append(infoRow('Tileset', 'ti-tileset'));
-	container.append(infoRow('Grid Position', 'ti-grid-pos'));
-	container.append(infoRow('Layer', 'ti-layer'));
+	// -- Identity (expanded by default — most-used) --
+	const identity = createCollapsibleGroup('Identity', false);
+	identity.body.append(infoRow('Tile ID (global)', 'ti-global-id'));
+	identity.body.append(infoRow('Tile ID (local)', 'ti-local-id'));
+	identity.body.append(infoRow('Tileset', 'ti-tileset'));
+	identity.body.append(infoRow('Grid Position', 'ti-grid-pos'));
+	identity.body.append(infoRow('Layer', 'ti-layer'));
+	controlsWrap.append(identity.root);
 
-	// -- Passability controls --
-	const hdrPass: HTMLElement = createSubHeader('Passability');
-	container.append(hdrPass);
+	// -- Passability (collapsed) --
+	const pass = createCollapsibleGroup('Passability', true);
 
 	const passDownRow: HTMLElement = createToggleRow('Pass Down', true, (on: boolean) => {
 		writePassability(0, on);
 	});
-	container.append(passDownRow);
+	pass.body.append(passDownRow);
 
 	const passLeftRow: HTMLElement = createToggleRow('Pass Left', true, (on: boolean) => {
 		writePassability(1, on);
 	});
-	container.append(passLeftRow);
+	pass.body.append(passLeftRow);
 
 	const passRightRow: HTMLElement = createToggleRow('Pass Right', true, (on: boolean) => {
 		writePassability(2, on);
 	});
-	container.append(passRightRow);
+	pass.body.append(passRightRow);
 
 	const passUpRow: HTMLElement = createToggleRow('Pass Up', true, (on: boolean) => {
 		writePassability(3, on);
 	});
-	container.append(passUpRow);
+	pass.body.append(passUpRow);
 
 	const passAboveRow: HTMLElement = createToggleRow('Pass Above', false, (on: boolean) => {
 		writeTileProp({ passAbove: on });
 	});
-	container.append(passAboveRow);
+	pass.body.append(passAboveRow);
 
 	const passBelowRow: HTMLElement = createToggleRow('Pass Below', false, (on: boolean) => {
 		writeTileProp({ passBelow: on });
 	});
-	container.append(passBelowRow);
+	pass.body.append(passBelowRow);
 
 	const passEventRow: HTMLElement = createToggleRow('Pass Event', true, (on: boolean) => {
 		writeTileProp({ passEvent: on });
 	});
-	container.append(passEventRow);
+	pass.body.append(passEventRow);
 
 	const starPassageRow: HTMLElement = createToggleRow('Star Passage', false, (on: boolean) => {
 		writeTileProp({ starPassage: on });
 	});
-	container.append(starPassageRow);
+	pass.body.append(starPassageRow);
 
 	const passVehicleRow: HTMLElement = createSliderRow(
 		'Pass Vehicle',
@@ -3037,21 +3041,21 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			writeTileProp({ passVehicle: val });
 		},
 	);
-	container.append(passVehicleRow);
+	pass.body.append(passVehicleRow);
 
 	const passHeightRow: HTMLElement = createSliderRow('Pass Height', 0, 15, 1, 0, (val: number) => {
 		writeTileProp({ passHeight: val });
 	});
-	container.append(passHeightRow);
+	pass.body.append(passHeightRow);
+	controlsWrap.append(pass.root);
 
-	// -- Terrain controls --
-	const hdrTerrain: HTMLElement = createSubHeader('Terrain');
-	container.append(hdrTerrain);
+	// -- Terrain (collapsed) --
+	const terrain = createCollapsibleGroup('Terrain', true);
 
 	const terrainTagRow: HTMLElement = createSliderRow('Terrain Tag', 0, 15, 1, 0, (val: number) => {
 		writeTileProp({ terrainTag: val });
 	});
-	container.append(terrainTagRow);
+	terrain.body.append(terrainTagRow);
 
 	const terrainTypeRow: HTMLElement = createDropdown(
 		'Terrain Type',
@@ -3061,9 +3065,9 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			writeTileProp({ terrainType: val });
 		},
 	);
-	container.append(terrainTypeRow);
+	terrain.body.append(terrainTypeRow);
 
-	container.append(infoRow('Footstep Sound', 'ti-footstep'));
+	terrain.body.append(infoRow('Footstep Sound', 'ti-footstep'));
 
 	const encounterRateRow: HTMLElement = createSliderRow(
 		'Encounter Rate',
@@ -3075,7 +3079,7 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			writeTileProp({ encounterRate: val });
 		},
 	);
-	container.append(encounterRateRow);
+	terrain.body.append(encounterRateRow);
 
 	const slipperinessRow: HTMLElement = createSliderRow(
 		'Slipperiness',
@@ -3087,7 +3091,7 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			writeTileProp({ slipperiness: val });
 		},
 	);
-	container.append(slipperinessRow);
+	terrain.body.append(slipperinessRow);
 
 	const movementSpeedRow: HTMLElement = createSliderRow(
 		'Movement Speed',
@@ -3099,56 +3103,56 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			writeTileProp({ movementSpeed: val });
 		},
 	);
-	container.append(movementSpeedRow);
+	terrain.body.append(movementSpeedRow);
 
 	const regionIdRow: HTMLElement = createSliderRow('Region ID', 0, 255, 1, 0, (val: number) => {
 		writeTileProp({ regionId: val });
 	});
-	container.append(regionIdRow);
+	terrain.body.append(regionIdRow);
+	controlsWrap.append(terrain.root);
 
-	// -- Flags controls --
-	const hdrFlags: HTMLElement = createSubHeader('Flags');
-	container.append(hdrFlags);
+	// -- Flags (collapsed) --
+	const flags = createCollapsibleGroup('Flags', true);
 
 	const heightRow: HTMLElement = createSliderRow('Height', 0, 15, 1, 0, (val: number) => {
 		writeTileProp({ height: val });
 	});
-	container.append(heightRow);
+	flags.body.append(heightRow);
 
 	const damageFloorRow: HTMLElement = createToggleRow('Damage Floor', false, (on: boolean) => {
 		writeTileProp({ damageFloor: on });
 	});
-	container.append(damageFloorRow);
+	flags.body.append(damageFloorRow);
 
 	const bushRow: HTMLElement = createToggleRow('Bush', false, (on: boolean) => {
 		writeTileProp({ bush: on });
 	});
-	container.append(bushRow);
+	flags.body.append(bushRow);
 
 	const counterRow: HTMLElement = createToggleRow('Counter', false, (on: boolean) => {
 		writeTileProp({ counter: on });
 	});
-	container.append(counterRow);
+	flags.body.append(counterRow);
 
 	const ladderRow: HTMLElement = createToggleRow('Ladder', false, (on: boolean) => {
 		writeTileProp({ ladder: on });
 	});
-	container.append(ladderRow);
+	flags.body.append(ladderRow);
 
 	const slipRow: HTMLElement = createToggleRow('Slip', false, (on: boolean) => {
 		writeTileProp({ slip: on });
 	});
-	container.append(slipRow);
+	flags.body.append(slipRow);
 
 	const shelterRow: HTMLElement = createToggleRow('Shelter', false, (on: boolean) => {
 		writeTileProp({ shelter: on });
 	});
-	container.append(shelterRow);
+	flags.body.append(shelterRow);
 
 	const bushDepthRow: HTMLElement = createSliderRow('Bush Depth', 0, 48, 1, 12, (val: number) => {
 		writeTileProp({ bushDepth: val });
 	});
-	container.append(bushDepthRow);
+	flags.body.append(bushDepthRow);
 
 	const coverHeightRow: HTMLElement = createSliderRow(
 		'Cover Height',
@@ -3160,16 +3164,16 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			writeTileProp({ coverHeight: val });
 		},
 	);
-	container.append(coverHeightRow);
+	flags.body.append(coverHeightRow);
 
 	const soundAbsorbRow: HTMLElement = createToggleRow('Sound Absorb', false, (on: boolean) => {
 		writeTileProp({ soundAbsorb: on });
 	});
-	container.append(soundAbsorbRow);
+	flags.body.append(soundAbsorbRow);
+	controlsWrap.append(flags.root);
 
-	// -- Damage sub-section --
-	const hdrDamage: HTMLElement = createSubHeader('Damage');
-	container.append(hdrDamage);
+	// -- Damage (collapsed) --
+	const damage = createCollapsibleGroup('Damage', true);
 
 	const damageAmountRow: HTMLElement = createSliderRow(
 		'Damage Amount',
@@ -3181,7 +3185,7 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			writeTileProp({ damageAmount: val });
 		},
 	);
-	container.append(damageAmountRow);
+	damage.body.append(damageAmountRow);
 
 	const damagePercentRow: HTMLElement = createSliderRow(
 		'Damage %',
@@ -3193,12 +3197,12 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			writeTileProp({ damagePercent: val });
 		},
 	);
-	container.append(damagePercentRow);
+	damage.body.append(damagePercentRow);
 
 	const damageElementRow: HTMLElement = createTextInputRow('Damage Element', '', (val: string) => {
 		writeTileProp({ damageElement: val });
 	});
-	container.append(damageElementRow);
+	damage.body.append(damageElementRow);
 
 	const damageIntervalRow: HTMLElement = createSliderRow(
 		'Damage Interval',
@@ -3210,16 +3214,16 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			writeTileProp({ damageInterval: val });
 		},
 	);
-	container.append(damageIntervalRow);
+	damage.body.append(damageIntervalRow);
+	controlsWrap.append(damage.root);
 
-	// -- Reflection sub-section --
-	const hdrReflection: HTMLElement = createSubHeader('Reflection');
-	container.append(hdrReflection);
+	// -- Reflection (collapsed) --
+	const reflect = createCollapsibleGroup('Reflection', true);
 
 	const reflectionRow: HTMLElement = createToggleRow('Reflection', false, (on: boolean) => {
 		writeTileProp({ reflection: on });
 	});
-	container.append(reflectionRow);
+	reflect.body.append(reflectionRow);
 
 	const reflectionOpacityRow: HTMLElement = createSliderRow(
 		'Reflection Opacity',
@@ -3231,21 +3235,21 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			writeTileProp({ reflectionOpacity: val });
 		},
 	);
-	container.append(reflectionOpacityRow);
+	reflect.body.append(reflectionOpacityRow);
+	controlsWrap.append(reflect.root);
 
-	// -- Glow sub-section --
-	const hdrGlow: HTMLElement = createSubHeader('Glow');
-	container.append(hdrGlow);
+	// -- Glow (collapsed) --
+	const glowGroup = createCollapsibleGroup('Glow', true);
 
 	const glowRow: HTMLElement = createToggleRow('Glow', false, (on: boolean) => {
 		writeTileProp({ glow: on });
 	});
-	container.append(glowRow);
+	glowGroup.body.append(glowRow);
 
 	const glowColorRow: HTMLElement = createTextInputRow('Glow Color', '#ffffffff', (val: string) => {
 		writeTileProp({ glowColor: val });
 	});
-	container.append(glowColorRow);
+	glowGroup.body.append(glowColorRow);
 
 	const glowIntensityRow: HTMLElement = createSliderRow(
 		'Glow Intensity',
@@ -3257,29 +3261,30 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			writeTileProp({ glowIntensity: val });
 		},
 	);
-	container.append(glowIntensityRow);
+	glowGroup.body.append(glowIntensityRow);
+	controlsWrap.append(glowGroup.root);
 
-	// -- Collision sub-section --
-	const hdrCollision: HTMLElement = createSubHeader('Collision');
-	container.append(hdrCollision);
-	container.append(infoRow('Collision Shapes', 'ti-collision-count'));
+	// -- Collision (collapsed) --
+	const collision = createCollapsibleGroup('Collision', true);
+	collision.body.append(infoRow('Collision Shapes', 'ti-collision-count'));
+	controlsWrap.append(collision.root);
 
-	// -- Custom Properties sub-section --
-	const hdrCustom: HTMLElement = createSubHeader('Custom');
-	container.append(hdrCustom);
-	container.append(infoRow('Properties', 'ti-properties'));
-	container.append(infoRow('Class', 'ti-class'));
-	container.append(infoRow('Tags', 'ti-tags'));
-	container.append(infoRow('Script Hook', 'ti-script-hook'));
+	// -- Custom Properties (collapsed) --
+	const custom = createCollapsibleGroup('Custom Properties', true);
+	custom.body.append(infoRow('Properties', 'ti-properties'));
+	custom.body.append(infoRow('Class', 'ti-class'));
+	custom.body.append(infoRow('Tags', 'ti-tags'));
+	custom.body.append(infoRow('Script Hook', 'ti-script-hook'));
+	controlsWrap.append(custom.root);
 
-	// -- Animation sub-section --
-	const hdrAnim: HTMLElement = createSubHeader('Animation');
-	container.append(hdrAnim);
-	container.append(infoRow('Frames', 'ti-anim-frames'));
-	container.append(infoRow('Playback Mode', 'ti-anim-mode'));
-	container.append(infoRow('Global Sync', 'ti-anim-sync'));
-	container.append(infoRow('Speed Multiplier', 'ti-anim-speed'));
-	container.append(infoRow('Pause Offscreen', 'ti-anim-pause'));
+	// -- Animation (collapsed) --
+	const anim = createCollapsibleGroup('Animation', true);
+	anim.body.append(infoRow('Frames', 'ti-anim-frames'));
+	anim.body.append(infoRow('Playback Mode', 'ti-anim-mode'));
+	anim.body.append(infoRow('Global Sync', 'ti-anim-sync'));
+	anim.body.append(infoRow('Speed Multiplier', 'ti-anim-speed'));
+	anim.body.append(infoRow('Pause Offscreen', 'ti-anim-pause'));
+	controlsWrap.append(anim.root);
 
 	// -- Wire edit overlay to open tile picker --
 	if (tiTilemap) {
@@ -3429,6 +3434,12 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
  * @param gridZ - Grid Z coordinate.
  */
 function refreshInspector(tilemap: RenderedTilemap, gridX: Num, gridZ: Num): void {
+	// Show controls, hide empty state
+	const emptyEl: HTMLElement | null = document.querySelector('#ti-empty-state');
+	const ctrlsEl: HTMLElement | null = document.querySelector('#ti-controls');
+	if (emptyEl) emptyEl.style.display = 'none';
+	if (ctrlsEl) ctrlsEl.style.display = '';
+
 	const mapW: Num = tilemap.mapData.width;
 	const tileIndex: Num = gridZ * mapW + gridX;
 	const globalTileId: Num = lookupTileAtIndex(tilemap, tileIndex);
@@ -3471,11 +3482,15 @@ function refreshInspector(tilemap: RenderedTilemap, gridX: Num, gridZ: Num): voi
 	setInfoValue('ti-grid-pos', `${String(gridX)}, ${String(gridZ)}`);
 	setInfoValue('ti-layer', layerLabel);
 
-	// Draw tile preview
+	// Draw tile preview + update label
 	const previewCanvas: HTMLCanvasElement | null =
 		document.querySelector<HTMLCanvasElement>('#ti-preview');
 	if (previewCanvas) {
 		drawTilePreview(previewCanvas, resolved.ok ? resolved.data : null);
+	}
+	const previewLabel: HTMLElement | null = document.querySelector('#ti-preview-label');
+	if (previewLabel) {
+		previewLabel.textContent = `${tilesetName} #${String(localId)} (${String(gridX)}, ${String(gridZ)})`;
 	}
 
 	// Update editable controls with tile properties
