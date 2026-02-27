@@ -144,6 +144,20 @@ function getOrCreateSelectedProps(): TileProperties | null {
 		passEvent: true,
 		passHeight: 0,
 		starPassage: false,
+		slip: false,
+		shelter: false,
+		bushDepth: 12,
+		coverHeight: 0,
+		soundAbsorb: false,
+		damageAmount: 0,
+		damagePercent: 0,
+		damageElement: '',
+		damageInterval: 1,
+		reflection: false,
+		reflectionOpacity: 0.5,
+		glow: false,
+		glowColor: '#ffffffff',
+		glowIntensity: 0,
 		terrainType: 'normal',
 		footstepSound: '',
 		encounterRate: 1,
@@ -200,12 +214,14 @@ type TileInspectorControls = {
 	damageAmountVal: HTMLElement;
 	damagePercent: HTMLInputElement;
 	damagePercentVal: HTMLElement;
+	damageElement: HTMLInputElement;
 	damageInterval: HTMLInputElement;
 	damageIntervalVal: HTMLElement;
 	reflection: HTMLElement;
 	reflectionOpacity: HTMLInputElement;
 	reflectionOpacityVal: HTMLElement;
 	glow: HTMLElement;
+	glowColor: HTMLInputElement;
 	glowIntensity: HTMLInputElement;
 	glowIntensityVal: HTMLElement;
 };
@@ -1183,6 +1199,59 @@ function createToggleRow(
 
 	row.append(lbl, toggle);
 	return row;
+}
+
+/**
+ * Creates a text input row with label and editable text field.
+ *
+ * @param label - Display label text.
+ * @param value - Initial text value.
+ * @param onChange - Callback when text changes (on blur or Enter key).
+ * @returns The row element.
+ */
+function createTextInputRow(
+	label: string,
+	value: string,
+	onChange: (val: string) => void,
+): HTMLElement {
+	const row = document.createElement('div');
+	row.className = 'control-row';
+
+	const lbl = document.createElement('span');
+	lbl.className = 'control-label';
+	lbl.textContent = label;
+
+	const input = document.createElement('input');
+	input.type = 'text';
+	input.value = value;
+	input.style.flex = '1';
+	input.style.background = '#333';
+	input.style.border = '1px solid #555';
+	input.style.color = '#eee';
+	input.style.padding = '2px 4px';
+	input.style.fontSize = '11px';
+	input.style.borderRadius = '3px';
+
+	const commit = (): void => {
+		onChange(input.value);
+	};
+	input.addEventListener('blur', commit);
+	input.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === 'Enter') commit();
+	});
+
+	row.append(lbl, input);
+	return row;
+}
+
+/**
+ * Extracts the text input element from a text input row.
+ *
+ * @param row - The text input row element.
+ * @returns The input element.
+ */
+function getTextInput(row: HTMLElement): HTMLInputElement {
+	return row.children[1] as HTMLInputElement;
 }
 
 /**
@@ -2842,17 +2911,17 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	container.append(ladderRow);
 
 	const slipRow: HTMLElement = createToggleRow('Slip', false, (on: boolean) => {
-		writeTileProp({ slip: on } as Partial<TileProperties>);
+		writeTileProp({ slip: on });
 	});
 	container.append(slipRow);
 
 	const shelterRow: HTMLElement = createToggleRow('Shelter', false, (on: boolean) => {
-		writeTileProp({ shelter: on } as Partial<TileProperties>);
+		writeTileProp({ shelter: on });
 	});
 	container.append(shelterRow);
 
-	const bushDepthRow: HTMLElement = createSliderRow('Bush Depth', 0, 24, 1, 12, (val: number) => {
-		writeTileProp({ bushDepth: val } as Partial<TileProperties>);
+	const bushDepthRow: HTMLElement = createSliderRow('Bush Depth', 0, 48, 1, 12, (val: number) => {
+		writeTileProp({ bushDepth: val });
 	});
 	container.append(bushDepthRow);
 
@@ -2863,13 +2932,13 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		0.01,
 		0,
 		(val: number) => {
-			writeTileProp({ coverHeight: val } as Partial<TileProperties>);
+			writeTileProp({ coverHeight: val });
 		},
 	);
 	container.append(coverHeightRow);
 
 	const soundAbsorbRow: HTMLElement = createToggleRow('Sound Absorb', false, (on: boolean) => {
-		writeTileProp({ soundAbsorb: on } as Partial<TileProperties>);
+		writeTileProp({ soundAbsorb: on });
 	});
 	container.append(soundAbsorbRow);
 
@@ -2880,28 +2949,40 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	const damageAmountRow: HTMLElement = createSliderRow(
 		'Damage Amount',
 		0,
-		999,
+		9999,
 		1,
 		0,
 		(val: number) => {
-			writeTileProp({ damageAmount: val } as Partial<TileProperties>);
+			writeTileProp({ damageAmount: val });
 		},
 	);
 	container.append(damageAmountRow);
 
-	const damagePercentRow: HTMLElement = createSliderRow('Damage %', 0, 100, 1, 0, (val: number) => {
-		writeTileProp({ damagePercent: val } as Partial<TileProperties>);
-	});
+	const damagePercentRow: HTMLElement = createSliderRow(
+		'Damage %',
+		0,
+		100,
+		0.1,
+		0,
+		(val: number) => {
+			writeTileProp({ damagePercent: val });
+		},
+	);
 	container.append(damagePercentRow);
+
+	const damageElementRow: HTMLElement = createTextInputRow('Damage Element', '', (val: string) => {
+		writeTileProp({ damageElement: val });
+	});
+	container.append(damageElementRow);
 
 	const damageIntervalRow: HTMLElement = createSliderRow(
 		'Damage Interval',
 		1,
-		100,
+		999,
 		1,
 		1,
 		(val: number) => {
-			writeTileProp({ damageInterval: val } as Partial<TileProperties>);
+			writeTileProp({ damageInterval: val });
 		},
 	);
 	container.append(damageIntervalRow);
@@ -2911,7 +2992,7 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	container.append(hdrReflection);
 
 	const reflectionRow: HTMLElement = createToggleRow('Reflection', false, (on: boolean) => {
-		writeTileProp({ reflection: on } as Partial<TileProperties>);
+		writeTileProp({ reflection: on });
 	});
 	container.append(reflectionRow);
 
@@ -2922,7 +3003,7 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		0.01,
 		0.5,
 		(val: number) => {
-			writeTileProp({ reflectionOpacity: val } as Partial<TileProperties>);
+			writeTileProp({ reflectionOpacity: val });
 		},
 	);
 	container.append(reflectionOpacityRow);
@@ -2932,9 +3013,14 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	container.append(hdrGlow);
 
 	const glowRow: HTMLElement = createToggleRow('Glow', false, (on: boolean) => {
-		writeTileProp({ glow: on } as Partial<TileProperties>);
+		writeTileProp({ glow: on });
 	});
 	container.append(glowRow);
+
+	const glowColorRow: HTMLElement = createTextInputRow('Glow Color', '#ffffffff', (val: string) => {
+		writeTileProp({ glowColor: val });
+	});
+	container.append(glowColorRow);
 
 	const glowIntensityRow: HTMLElement = createSliderRow(
 		'Glow Intensity',
@@ -2943,7 +3029,7 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		0.01,
 		0,
 		(val: number) => {
-			writeTileProp({ glowIntensity: val } as Partial<TileProperties>);
+			writeTileProp({ glowIntensity: val });
 		},
 	);
 	container.append(glowIntensityRow);
@@ -2956,6 +3042,7 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	// -- Custom Properties sub-section --
 	const hdrCustom: HTMLElement = createSubHeader('Custom');
 	container.append(hdrCustom);
+	container.append(infoRow('Properties', 'ti-properties'));
 	container.append(infoRow('Class', 'ti-class'));
 	container.append(infoRow('Tags', 'ti-tags'));
 	container.append(infoRow('Script Hook', 'ti-script-hook'));
@@ -2965,6 +3052,9 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	container.append(hdrAnim);
 	container.append(infoRow('Frames', 'ti-anim-frames'));
 	container.append(infoRow('Playback Mode', 'ti-anim-mode'));
+	container.append(infoRow('Global Sync', 'ti-anim-sync'));
+	container.append(infoRow('Speed Multiplier', 'ti-anim-speed'));
+	container.append(infoRow('Pause Offscreen', 'ti-anim-pause'));
 
 	// -- Wire edit overlay to open tile picker --
 	if (tiTilemap) {
@@ -2989,6 +3079,8 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	const [damageIntervalInput, damageIntervalVal] = getSliderParts(damageIntervalRow);
 	const [reflectionOpacityInput, reflectionOpacityVal] = getSliderParts(reflectionOpacityRow);
 	const [glowIntensityInput, glowIntensityVal] = getSliderParts(glowIntensityRow);
+	const damageElementInput: HTMLInputElement = getTextInput(damageElementRow);
+	const glowColorInput: HTMLInputElement = getTextInput(glowColorRow);
 
 	_tiControls = {
 		passDown: getToggleSwitch(passDownRow),
@@ -3031,12 +3123,14 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		damageAmountVal,
 		damagePercent: damagePercentInput,
 		damagePercentVal,
+		damageElement: damageElementInput,
 		damageInterval: damageIntervalInput,
 		damageIntervalVal,
 		reflection: getToggleSwitch(reflectionRow),
 		reflectionOpacity: reflectionOpacityInput,
 		reflectionOpacityVal,
 		glow: getToggleSwitch(glowRow),
+		glowColor: glowColorInput,
 		glowIntensity: glowIntensityInput,
 		glowIntensityVal,
 	};
@@ -3193,36 +3287,35 @@ function refreshInspector(tilemap: RenderedTilemap, gridX: Num, gridZ: Num): voi
 		setToggleState(c.counter, props.counter);
 		setToggleState(c.ladder, props.ladder);
 
-		// Future flags (use raw props object for fields not yet in schema)
-		const raw = props as Record<string, unknown>;
-		setToggleState(c.slip, Boolean(raw['slip']));
-		setToggleState(c.shelter, Boolean(raw['shelter']));
-		setSliderValue(c.bushDepth, c.bushDepthVal, Number(raw['bushDepth'] ?? 12), 1);
-		setSliderValue(c.coverHeight, c.coverHeightVal, Number(raw['coverHeight'] ?? 0), 0.01);
-		setToggleState(c.soundAbsorb, Boolean(raw['soundAbsorb']));
-		setSliderValue(c.damageAmount, c.damageAmountVal, Number(raw['damageAmount'] ?? 0), 1);
-		setSliderValue(c.damagePercent, c.damagePercentVal, Number(raw['damagePercent'] ?? 0), 1);
-		setSliderValue(c.damageInterval, c.damageIntervalVal, Number(raw['damageInterval'] ?? 1), 1);
-		setToggleState(c.reflection, Boolean(raw['reflection']));
-		setSliderValue(
-			c.reflectionOpacity,
-			c.reflectionOpacityVal,
-			Number(raw['reflectionOpacity'] ?? 0.5),
-			0.01,
-		);
-		setToggleState(c.glow, Boolean(raw['glow']));
-		setSliderValue(c.glowIntensity, c.glowIntensityVal, Number(raw['glowIntensity'] ?? 0), 0.01);
+		// Tile flags
+		setToggleState(c.slip, props.slip);
+		setToggleState(c.shelter, props.shelter);
+		setSliderValue(c.bushDepth, c.bushDepthVal, props.bushDepth, 1);
+		setSliderValue(c.coverHeight, c.coverHeightVal, props.coverHeight, 0.01);
+		setToggleState(c.soundAbsorb, props.soundAbsorb);
+		setSliderValue(c.damageAmount, c.damageAmountVal, props.damageAmount, 1);
+		setSliderValue(c.damagePercent, c.damagePercentVal, props.damagePercent, 0.1);
+		c.damageElement.value = props.damageElement;
+		setSliderValue(c.damageInterval, c.damageIntervalVal, props.damageInterval, 1);
+		setToggleState(c.reflection, props.reflection);
+		setSliderValue(c.reflectionOpacity, c.reflectionOpacityVal, props.reflectionOpacity, 0.01);
+		setToggleState(c.glow, props.glow);
+		c.glowColor.value = props.glowColor;
+		setSliderValue(c.glowIntensity, c.glowIntensityVal, props.glowIntensity, 0.01);
 
-		// Collision/Custom/Animation placeholders
-		const shapes = raw['collisionShapes'];
-		setInfoValue('ti-collision-count', Array.isArray(shapes) ? String(shapes.length) : '0');
-		setInfoValue('ti-class', String(raw['class'] ?? '(none)'));
-		const { tags: rawTags } = raw as { tags?: unknown };
-		setInfoValue('ti-tags', Array.isArray(rawTags) ? rawTags.join(', ') : '(none)');
-		setInfoValue('ti-script-hook', String(raw['scriptHook'] ?? '(none)'));
-		const { frames: rawFrames } = raw as { frames?: unknown };
-		setInfoValue('ti-anim-frames', Array.isArray(rawFrames) ? String(rawFrames.length) : '0');
-		setInfoValue('ti-anim-mode', String(raw['playbackMode'] ?? '(none)'));
+		// Collision/Custom/Animation info
+		const shapeCount: number = props.collisionShapes.length;
+		setInfoValue('ti-collision-count', shapeCount > 0 ? `${String(shapeCount)} shapes` : 'None');
+		const propCount: number = Object.keys(props.properties).length;
+		setInfoValue('ti-properties', propCount > 0 ? `${String(propCount)} props` : 'None');
+		setInfoValue('ti-class', props['class'] || '(none)');
+		setInfoValue('ti-tags', props.tags.length > 0 ? props.tags.join(', ') : '(none)');
+		setInfoValue('ti-script-hook', props.scriptHook || '(none)');
+		setInfoValue('ti-anim-frames', `${String(props.frames.length)} frames`);
+		setInfoValue('ti-anim-mode', props.playbackMode);
+		setInfoValue('ti-anim-sync', String(props.globalSync));
+		setInfoValue('ti-anim-speed', String(props.speedMultiplier));
+		setInfoValue('ti-anim-pause', String(props.pauseWhenOffscreen));
 	}
 
 	// Auto-expand the tile inspector section if collapsed

@@ -19,7 +19,7 @@
 import * as v from 'valibot';
 import * as BABYLON from '@babylonjs/core';
 
-import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
+import { ERRORS, err, okUnchecked, type DeepReadonly, type Result } from '@/schemas/result/result';
 import type { Num, Str } from '@/schemas/common';
 import { fromUnknownError } from '@/utils/result/safe';
 
@@ -55,7 +55,9 @@ export const LoadTilesetOptionsSchema = v.pipe(
 		/** The Babylon.js scene to create the texture in. */
 		scene: v.custom<BABYLON.Scene>((val): val is BABYLON.Scene => val instanceof BABYLON.Scene),
 		/** Tileset configuration from MapData. */
-		config: v.custom<TilesetConfig>((val): val is TilesetConfig => typeof val === 'object'),
+		config: v.custom<DeepReadonly<TilesetConfig>>(
+			(val): val is DeepReadonly<TilesetConfig> => typeof val === 'object',
+		),
 		/** Base path for resolving image paths. */
 		basePath: v.string(),
 	}),
@@ -84,7 +86,9 @@ export type ResolveGlobalTileIdOptions = v.InferOutput<typeof ResolveGlobalTileI
 /** A loaded tileset with texture and precomputed UV lookup. */
 export const LoadedTilesetSchema = v.strictObject({
 	/** Original tileset configuration. */
-	config: v.custom<TilesetConfig>((val): val is TilesetConfig => typeof val === 'object'),
+	config: v.custom<DeepReadonly<TilesetConfig>>(
+		(val): val is DeepReadonly<TilesetConfig> => typeof val === 'object',
+	),
 	/** Babylon.js texture for this tileset. */
 	texture: v.custom<BABYLON.Texture>(
 		(val): val is BABYLON.Texture => val instanceof BABYLON.Texture,
