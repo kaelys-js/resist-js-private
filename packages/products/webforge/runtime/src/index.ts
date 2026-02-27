@@ -37,17 +37,51 @@ export {
 	createHd2dCamera,
 	updateCameraTarget,
 	rotateTactics,
-	screenShake,
 	switchCameraPreset,
 	resetCamera,
 	type CameraTargetOptions,
 	type RotateTacticsOptions,
-	type ScreenShakeOptions,
-	type ShakeHandle,
 	type SwitchCameraPresetOptions,
 	type PresetTransitionHandle,
 	type ResetCameraOptions,
 } from './core/camera-controller';
+
+// Screen shake
+export {
+	screenShake,
+	addTrauma,
+	getTrauma,
+	resetTrauma,
+	stopAllShakes,
+	setGlobalScale,
+	getGlobalScale,
+	setMasterEnabled,
+	getMasterEnabled,
+	computeEnvelopeMultiplier,
+	applyDecay,
+	type ShakeHandle,
+} from './core/screen-shake';
+
+// Schemas — Screen shake config
+export {
+	ScreenShakeConfigSchema,
+	DecayModeSchema,
+	ShakeChannelSchema,
+	ShakeEnvelopeSchema,
+	ShakeNoiseSchema,
+	ShakeDirectionSchema,
+	ShakePresetSchema,
+	ShakePresetCategorySchema,
+	SHAKE_PRESETS,
+	type ScreenShakeConfig,
+	type DecayMode,
+	type ShakeChannel,
+	type ShakeEnvelope,
+	type ShakeNoise,
+	type ShakeDirection,
+	type ShakePreset,
+	type ShakePresetCategory,
+} from './schemas/screen-shake-config';
 
 // Scene setup
 export { applySceneSetup } from './rendering/scene-setup';
