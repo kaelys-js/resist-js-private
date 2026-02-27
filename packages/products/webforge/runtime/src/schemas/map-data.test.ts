@@ -246,6 +246,140 @@ describe('TilePropertiesSchema', () => {
 		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, undefined);
 		expect(result.ok).toBeFalsy();
 	});
+
+	// =========================================================================
+	// Passability expansion fields
+	// =========================================================================
+
+	test('accepts passAbove field', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { passAbove: true });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.passAbove).toBe(true);
+	});
+
+	test('defaults passAbove to false', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.passAbove).toBe(false);
+	});
+
+	test('accepts passBelow field', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { passBelow: true });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.passBelow).toBe(true);
+	});
+
+	test('defaults passBelow to false', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.passBelow).toBe(false);
+	});
+
+	test('accepts passVehicle bitmask 0-31', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { passVehicle: 15 });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.passVehicle).toBe(15);
+	});
+
+	test('defaults passVehicle to 0', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.passVehicle).toBe(0);
+	});
+
+	test('accepts passVehicle at maximum (31)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { passVehicle: 31 });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.passVehicle).toBe(31);
+	});
+
+	test('rejects passVehicle above maximum (32)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { passVehicle: 32 });
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects passVehicle below minimum (-1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { passVehicle: -1 });
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects non-integer passVehicle', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {
+			passVehicle: 2.5,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('accepts passEvent field', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { passEvent: false });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.passEvent).toBe(false);
+	});
+
+	test('defaults passEvent to true', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.passEvent).toBe(true);
+	});
+
+	test('accepts passHeight 0-15', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { passHeight: 5 });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.passHeight).toBe(5);
+	});
+
+	test('defaults passHeight to 0', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.passHeight).toBe(0);
+	});
+
+	test('accepts passHeight at maximum (15)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { passHeight: 15 });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.passHeight).toBe(15);
+	});
+
+	test('rejects passHeight above maximum (16)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { passHeight: 16 });
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects passHeight below minimum (-1)', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { passHeight: -1 });
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects non-integer passHeight', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { passHeight: 3.7 });
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('accepts starPassage field', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, { starPassage: true });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.starPassage).toBe(true);
+	});
+
+	test('defaults starPassage to false', () => {
+		const result: Result<TileProperties> = safeParse(TilePropertiesSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.starPassage).toBe(false);
+	});
 });
 
 // =============================================================================

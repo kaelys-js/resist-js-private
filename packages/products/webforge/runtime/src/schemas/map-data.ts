@@ -88,6 +88,30 @@ export const TilePropertiesSchema = v.strictObject({
 
 	/** Ladder flag — changes movement direction to vertical climbing. */
 	ladder: v.optional(v.boolean(), false),
+
+	/** Whether the tile can be passed from above (e.g., jumping down). */
+	passAbove: v.optional(v.boolean(), false),
+
+	/** Whether the tile can be passed from below (e.g., climbing up). */
+	passBelow: v.optional(v.boolean(), false),
+
+	/**
+	 * Vehicle passability bitmask (0–31). Each bit represents a vehicle type
+	 * that can traverse this tile. 0 = no vehicles allowed.
+	 */
+	passVehicle: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(31)), 0),
+
+	/** Whether events can be triggered on this tile. */
+	passEvent: v.optional(v.boolean(), true),
+
+	/**
+	 * Passage height level (0–15). Controls which height layers
+	 * a character can pass through on this tile.
+	 */
+	passHeight: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(15)), 0),
+
+	/** Star passage flag — allows passage regardless of direction. */
+	starPassage: v.optional(v.boolean(), false),
 });
 
 /** Per-tile metadata. */
