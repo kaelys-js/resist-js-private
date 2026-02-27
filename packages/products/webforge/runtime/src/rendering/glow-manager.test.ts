@@ -14,7 +14,17 @@ import { safeParse } from '@/utils/result/safe';
 import { createTestEngine, disposeEngine, type BabylonEngineInstance } from '../core/engine';
 import { GlowLayerConfigSchema, GLOW_QUALITY_PRESETS } from '../schemas/lighting-config';
 import { applySceneSetup } from './scene-setup';
-import { createGlowLayer, disposeGlowLayer, updateGlowLayer } from './glow-manager';
+import {
+	createGlowLayer,
+	disposeGlowLayer,
+	updateGlowLayer,
+	excludeMeshFromGlow,
+	includeOnlyMeshInGlow,
+	removeMeshFromGlow,
+	excludeUiMeshes,
+	setCustomEmissiveColor,
+	clearCustomEmissiveColor,
+} from './glow-manager';
 
 let instance: BabylonEngineInstance;
 
@@ -184,5 +194,242 @@ describe('disposeGlowLayer', () => {
 
 		const result = disposeGlowLayer({ glowLayer: createResult.data });
 		expect(result.ok).toBeTruthy();
+	});
+});
+
+// =============================================================================
+// createGlowLayer — new constructor options
+// =============================================================================
+
+describe('createGlowLayer — new constructor options', () => {
+	test('applies mainTextureSamples', () => {
+		const result = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true, mainTextureSamples: 4 },
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.GlowLayer);
+	});
+
+	test('applies ldrMerge option', () => {
+		const result = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true, ldrMerge: true },
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.GlowLayer);
+	});
+
+	test('applies mainTextureFixedSize', () => {
+		const result = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true, mainTextureFixedSize: 512 },
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data).toBeInstanceOf(BABYLON.GlowLayer);
+	});
+
+	test('applies neutralColor', () => {
+		const result = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true, neutralColor: '#ff000080' },
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.neutralColor).toBeDefined();
+	});
+});
+
+// =============================================================================
+// updateGlowLayer — expanded
+// =============================================================================
+
+describe('updateGlowLayer — expanded', () => {
+	test('updates blurKernelSize', () => {
+		const createResult = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true, blurKernelSize: 32 },
+		});
+		if (!createResult.ok) throw new Error('Failed');
+
+		const updateResult = updateGlowLayer({
+			glowLayer: createResult.data,
+			config: { blurKernelSize: 64 },
+		});
+		expect(updateResult.ok).toBe(true);
+		expect(createResult.data.blurKernelSize).toBe(64);
+	});
+
+	test('updates isEnabled', () => {
+		const createResult = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true },
+		});
+		if (!createResult.ok) throw new Error('Failed');
+
+		expect(createResult.data.isEnabled).toBe(true);
+		const updateResult = updateGlowLayer({
+			glowLayer: createResult.data,
+			config: { enabled: false },
+		});
+		expect(updateResult.ok).toBe(true);
+		expect(createResult.data.isEnabled).toBe(false);
+	});
+
+	test('detects constructor-only change needing recreate', () => {
+		const createResult = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true, mainTextureRatio: 0.5 },
+		});
+		if (!createResult.ok) throw new Error('Failed');
+
+		const updateResult = updateGlowLayer({
+			glowLayer: createResult.data,
+			config: { mainTextureRatio: 0.75 },
+			previousConfig: { mainTextureRatio: 0.5 },
+		});
+		expect(updateResult.ok).toBe(true);
+		if (!updateResult.ok) return;
+		expect(updateResult.data.needsRecreate).toBe(true);
+	});
+
+	test('no recreate needed for runtime-only changes', () => {
+		const createResult = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true, intensity: 0.5 },
+		});
+		if (!createResult.ok) throw new Error('Failed');
+
+		const updateResult = updateGlowLayer({
+			glowLayer: createResult.data,
+			config: { intensity: 1.0 },
+			previousConfig: { intensity: 0.5 },
+		});
+		expect(updateResult.ok).toBe(true);
+		if (!updateResult.ok) return;
+		expect(updateResult.data.needsRecreate).toBe(false);
+	});
+});
+
+// =============================================================================
+// Mesh management
+// =============================================================================
+
+describe('mesh management', () => {
+	test('excludeMeshFromGlow excludes a mesh', () => {
+		const createResult = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true },
+		});
+		if (!createResult.ok) throw new Error('Failed');
+
+		const mesh = BABYLON.MeshBuilder.CreateGround(
+			'test-mesh',
+			{ width: 1, height: 1 },
+			instance.scene,
+		);
+		const result = excludeMeshFromGlow({ glowLayer: createResult.data, mesh });
+		expect(result.ok).toBe(true);
+	});
+
+	test('includeOnlyMeshInGlow includes a mesh', () => {
+		const createResult = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true },
+		});
+		if (!createResult.ok) throw new Error('Failed');
+
+		const mesh = BABYLON.MeshBuilder.CreateGround(
+			'test-mesh',
+			{ width: 1, height: 1 },
+			instance.scene,
+		);
+		const result = includeOnlyMeshInGlow({ glowLayer: createResult.data, mesh });
+		expect(result.ok).toBe(true);
+	});
+
+	test('removeMeshFromGlow removes exclusion/inclusion', () => {
+		const createResult = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true },
+		});
+		if (!createResult.ok) throw new Error('Failed');
+
+		const mesh = BABYLON.MeshBuilder.CreateGround(
+			'test-mesh',
+			{ width: 1, height: 1 },
+			instance.scene,
+		);
+		excludeMeshFromGlow({ glowLayer: createResult.data, mesh });
+		const result = removeMeshFromGlow({ glowLayer: createResult.data, mesh });
+		expect(result.ok).toBe(true);
+	});
+
+	test('excludeUiMeshes excludes all renderingGroupId=3 meshes', () => {
+		const createResult = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true },
+		});
+		if (!createResult.ok) throw new Error('Failed');
+
+		const uiMesh = BABYLON.MeshBuilder.CreateGround(
+			'ui-mesh',
+			{ width: 1, height: 1 },
+			instance.scene,
+		);
+		uiMesh.renderingGroupId = 3;
+		const normalMesh = BABYLON.MeshBuilder.CreateGround(
+			'normal-mesh',
+			{ width: 1, height: 1 },
+			instance.scene,
+		);
+		normalMesh.renderingGroupId = 2;
+
+		const result = excludeUiMeshes({ glowLayer: createResult.data, scene: instance.scene });
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data).toBeGreaterThan(0);
+	});
+});
+
+// =============================================================================
+// Custom emissive color selector
+// =============================================================================
+
+describe('custom emissive color selector', () => {
+	test('setCustomEmissiveColor sets the selector', () => {
+		const createResult = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true },
+		});
+		if (!createResult.ok) throw new Error('Failed');
+
+		const result = setCustomEmissiveColor({
+			glowLayer: createResult.data,
+			color: new BABYLON.Color4(1, 0, 0, 1),
+		});
+		expect(result.ok).toBe(true);
+		expect(createResult.data.customEmissiveColorSelector).toBeDefined();
+	});
+
+	test('clearCustomEmissiveColor removes the selector', () => {
+		const createResult = createGlowLayer({
+			scene: instance.scene,
+			config: { enabled: true },
+		});
+		if (!createResult.ok) throw new Error('Failed');
+
+		setCustomEmissiveColor({
+			glowLayer: createResult.data,
+			color: new BABYLON.Color4(1, 0, 0, 1),
+		});
+		const result = clearCustomEmissiveColor({ glowLayer: createResult.data });
+		expect(result.ok).toBe(true);
+		// Babylon.js sets to null when cleared
+		const selector = createResult.data.customEmissiveColorSelector;
+		expect(selector === null || selector === undefined).toBe(true);
 	});
 });
