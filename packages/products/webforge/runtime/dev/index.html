@@ -16,7 +16,7 @@
 				height: 100%;
 				overflow: hidden;
 				background: #000;
-				font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, Helvetica, Arial, sans-serif;
 				font-size: 11px;
 				color: #e0e0e0;
 			}
@@ -32,10 +32,10 @@
 				position: fixed;
 				top: 8px;
 				right: 8px;
-				width: 280px;
+				width: 290px;
 				max-height: calc(100vh - 16px);
 				overflow-y: auto;
-				background: rgba(18, 18, 24, 0.92);
+				background: rgba(18, 18, 24, 0.93);
 				border: 1px solid rgba(255, 255, 255, 0.08);
 				border-radius: 8px;
 				backdrop-filter: blur(12px);
@@ -43,45 +43,119 @@
 				padding: 0;
 				scrollbar-width: thin;
 				scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+				transition: opacity 0.2s ease, transform 0.2s ease;
+				transform-origin: top right;
 			}
-			#control-panel.collapsed > .panel-body {
-				display: none;
+			#control-panel.hidden {
+				opacity: 0;
+				transform: scale(0.95) translateY(-8px);
+				pointer-events: none;
 			}
 
+			/* ── Minimized Icon ──────────────────────────────── */
+			#panel-icon {
+				position: fixed;
+				top: 8px;
+				right: 8px;
+				width: 40px;
+				height: 40px;
+				background: rgba(22, 28, 32, 0.95);
+				border: 1px solid rgba(80, 200, 200, 0.25);
+				border-radius: 10px;
+				backdrop-filter: blur(12px);
+				z-index: 100;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				font-size: 18px;
+				color: #6ecfcf;
+				transition: all 0.2s ease;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+				opacity: 0;
+				transform: scale(0.8);
+				pointer-events: none;
+			}
+			#panel-icon:hover {
+				background: rgba(28, 36, 40, 0.98);
+				border-color: rgba(80, 200, 200, 0.5);
+				color: #8ee0e0;
+				transform: scale(1.05);
+				box-shadow: 0 2px 14px rgba(80, 200, 200, 0.15);
+			}
+			#panel-icon.visible {
+				opacity: 1;
+				transform: scale(1);
+				pointer-events: auto;
+			}
+
+			.panel-sticky-top {
+				position: sticky;
+				top: 0;
+				z-index: 10;
+				background: rgba(18, 18, 24, 0.98);
+				backdrop-filter: blur(12px);
+			}
 			.panel-header {
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
 				padding: 8px 12px;
 				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-				cursor: pointer;
+				cursor: grab;
 				user-select: none;
+			}
+			.panel-header:active {
+				cursor: grabbing;
+			}
+			.panel-btn {
+				font-size: 14px;
+				line-height: 1;
+				opacity: 0.6;
+				cursor: pointer;
+				padding: 0 2px;
+				border-radius: 3px;
+				transition: all 0.12s;
+			}
+			.panel-btn:hover {
+				opacity: 1;
+				background: rgba(255, 255, 255, 0.1);
 			}
 			.panel-header:hover {
 				background: rgba(255, 255, 255, 0.03);
 			}
 			.panel-title {
-				font-size: 12px;
+				font-size: 11px;
 				font-weight: 600;
 				letter-spacing: 0.5px;
-				color: #a0a0ff;
+				color: #6ecfcf;
 			}
 			.panel-toggle {
-				font-size: 10px;
-				opacity: 0.5;
+				font-size: 14px;
+				opacity: 0.65;
+				transition: transform 0.25s ease;
+				display: inline-block;
+			}
+			.section.collapsed .panel-toggle {
+				transform: rotate(-90deg);
 			}
 
 			/* ── FPS Bar ─────────────────────────────────────── */
 			#fps-bar {
-				padding: 6px 12px;
-				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+				padding: 5px 12px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 				font-size: 10px;
-				color: #8a8;
+				color: #a0d0a0;
 				display: flex;
-				gap: 12px;
+				gap: 6px;
+				align-items: center;
 			}
 			#fps-bar span {
-				opacity: 0.7;
+				opacity: 0.9;
+			}
+			.fps-sep {
+				opacity: 0.35;
+				font-size: 8px;
 			}
 
 			/* ── Sections ────────────────────────────────────── */
@@ -95,24 +169,34 @@
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-				padding: 6px 12px;
+				padding: 7px 12px;
 				cursor: pointer;
 				user-select: none;
 				font-size: 10px;
 				font-weight: 600;
 				text-transform: uppercase;
-				letter-spacing: 1px;
-				color: #888;
+				letter-spacing: 0.8px;
+				color: #aaa;
+				border-left: 3px solid transparent;
+				transition: all 0.12s;
 			}
 			.section-header:hover {
-				background: rgba(255, 255, 255, 0.03);
-				color: #aaa;
+				background: rgba(255, 255, 255, 0.04);
+				color: #ccc;
+				border-left-color: rgba(80, 200, 200, 0.4);
 			}
 			.section-body {
 				padding: 4px 12px 8px;
+				overflow: hidden;
+				max-height: 2000px;
+				transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+				opacity: 1;
 			}
 			.section.collapsed > .section-body {
-				display: none;
+				max-height: 0;
+				opacity: 0;
+				padding-top: 0;
+				padding-bottom: 0;
 			}
 
 			/* ── Controls ────────────────────────────────────── */
@@ -125,16 +209,22 @@
 			}
 			.control-label {
 				font-size: 10px;
-				color: #999;
+				color: #b0b0b0;
 				flex-shrink: 0;
+				max-width: 110px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 			.control-value {
 				font-size: 10px;
-				color: #7a7aff;
-				min-width: 32px;
+				color: #6ecfcf;
+				min-width: 36px;
+				flex-shrink: 0;
 				text-align: right;
+				white-space: nowrap;
+				overflow: visible;
 			}
-
 			/* Buttons */
 			.btn-group {
 				display: flex;
@@ -143,7 +233,7 @@
 				padding: 2px 0;
 			}
 			.btn {
-				padding: 4px 8px;
+				padding: 5px 10px;
 				border: 1px solid rgba(255, 255, 255, 0.12);
 				border-radius: 4px;
 				background: rgba(255, 255, 255, 0.04);
@@ -159,9 +249,9 @@
 				border-color: rgba(255, 255, 255, 0.2);
 			}
 			.btn.active {
-				background: rgba(100, 100, 255, 0.2);
-				border-color: rgba(100, 100, 255, 0.4);
-				color: #aaf;
+				background: rgba(80, 200, 200, 0.15);
+				border-color: rgba(80, 200, 200, 0.4);
+				color: #7dd;
 			}
 			.btn-wide {
 				flex: 1;
@@ -179,7 +269,8 @@
 			input[type='range'] {
 				-webkit-appearance: none;
 				appearance: none;
-				width: 100%;
+				flex: 1;
+				min-width: 60px;
 				height: 4px;
 				background: rgba(255, 255, 255, 0.1);
 				border-radius: 2px;
@@ -190,7 +281,7 @@
 				appearance: none;
 				width: 12px;
 				height: 12px;
-				background: #7a7aff;
+				background: #5cc9c9;
 				border-radius: 50%;
 				cursor: pointer;
 			}
@@ -204,10 +295,10 @@
 			}
 			.toggle-switch {
 				position: relative;
-				width: 28px;
-				height: 14px;
+				width: 32px;
+				height: 16px;
 				background: rgba(255, 255, 255, 0.1);
-				border-radius: 7px;
+				border-radius: 8px;
 				cursor: pointer;
 				transition: background 0.2s;
 			}
@@ -219,14 +310,14 @@
 				position: absolute;
 				top: 2px;
 				left: 2px;
-				width: 10px;
-				height: 10px;
+				width: 12px;
+				height: 12px;
 				background: #ccc;
 				border-radius: 50%;
 				transition: transform 0.2s;
 			}
 			.toggle-switch.on::after {
-				transform: translateX(14px);
+				transform: translateX(16px);
 				background: #8f8;
 			}
 
@@ -269,7 +360,7 @@
 				color: #fff;
 			}
 			.control-dropdown:focus {
-				border-color: rgba(100, 100, 255, 0.4);
+				border-color: rgba(80, 200, 200, 0.4);
 			}
 			.control-dropdown option {
 				background: #1a1a2e;
@@ -280,25 +371,39 @@
 	<body>
 		<canvas id="game-canvas"></canvas>
 
+		<div id="panel-icon" onclick="restorePanel()" title="Open DevTools (`)">
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<polyline points="4 17 10 11 4 5"></polyline>
+				<line x1="12" y1="19" x2="20" y2="19"></line>
+			</svg>
+		</div>
+
 		<div id="control-panel">
-			<div class="panel-header" onclick="togglePanel()">
-				<span class="panel-title">WebForge DevTools</span>
-				<span class="panel-toggle" id="panel-toggle-icon">[ - ]</span>
+			<div class="panel-sticky-top">
+				<div class="panel-header" id="panel-header">
+					<span class="panel-title">DevTools</span>
+					<span class="panel-btn" id="panel-minimize-btn" onclick="minimizePanel()" title="Minimize to icon (`)">&times;</span>
+				</div>
+
+				<!-- Status Bar -->
+				<div id="fps-bar">
+					<span id="fps-display">-- fps</span>
+					<span class="fps-sep">&middot;</span>
+					<span id="frametime-display">-- ms</span>
+					<span class="fps-sep">&middot;</span>
+					<span id="meshes-display">-- meshes</span>
+					<span class="fps-sep">&middot;</span>
+					<span id="tris-display">-- tris</span>
+				</div>
 			</div>
 
 			<div class="panel-body">
-				<!-- FPS -->
-				<div id="fps-bar">
-					<span id="fps-display">FPS: --</span>
-					<span id="backend-display">--</span>
-					<span id="draw-calls-display">DC: --</span>
-				</div>
 
-				<!-- Camera Presets -->
-				<div class="section" id="section-camera" data-section="camera">
+				<!-- 1. Camera -->
+				<div class="section collapsed" id="section-camera" data-section="camera">
 					<div class="section-header" onclick="toggleSection('section-camera')">
-						<span>Camera Presets</span>
-						<span class="panel-toggle">-</span>
+						<span>Camera</span>
+						<span class="panel-toggle">&#9662;</span>
 					</div>
 					<div class="section-body">
 						<div id="camera-preset-dropdown"></div>
@@ -307,7 +412,7 @@
 							<input
 								type="range"
 								id="transition-duration"
-							data-control="transition-duration"
+								data-control="transition-duration"
 								min="0"
 								max="2000"
 								value="500"
@@ -316,59 +421,20 @@
 							<span class="control-value" id="transition-value">500ms</span>
 						</div>
 						<div class="control-row" style="padding-top: 4px">
-							<span class="control-label">Tactics Rotate</span>
+							<span class="control-label">Tactics</span>
 							<div class="btn-group" style="flex: 1; justify-content: flex-end">
-								<button class="btn" onclick="rotateCCW()">CCW</button>
-								<button class="btn" onclick="rotateCW()">CW</button>
+								<button class="btn" onclick="rotateCCW()" title="Rotate camera 90° counter-clockwise">&larr; Rotate</button>
+								<button class="btn" onclick="rotateCW()" title="Rotate camera 90° clockwise">Rotate &rarr;</button>
 							</div>
 						</div>
 					</div>
 				</div>
 
-				<!-- Screen Shake -->
-				<div class="section" id="section-shake" data-section="shake">
-					<div class="section-header" onclick="toggleSection('section-shake')">
-						<span>Screen Shake</span>
-						<span class="panel-toggle">-</span>
-					</div>
-					<div class="section-body">
-						<div class="control-row">
-							<span class="control-label">Intensity</span>
-							<input
-								type="range"
-								id="shake-intensity"
-							data-control="shake-intensity"
-								min="0.1"
-								max="3"
-								value="0.5"
-								step="0.1"
-							/>
-							<span class="control-value" id="shake-intensity-value">0.5</span>
-						</div>
-						<div class="control-row">
-							<span class="control-label">Duration</span>
-							<input
-								type="range"
-								id="shake-duration"
-							data-control="shake-duration"
-								min="100"
-								max="2000"
-								value="300"
-								step="50"
-							/>
-							<span class="control-value" id="shake-duration-value">300ms</span>
-						</div>
-						<button class="btn" onclick="triggerShake()" style="width: 100%; margin-top: 4px">
-							Trigger Shake
-						</button>
-					</div>
-				</div>
-
-				<!-- Day/Night Cycle -->
-				<div class="section" id="section-daynight" data-section="daynight">
+				<!-- 2. Time of Day -->
+				<div class="section collapsed" id="section-daynight" data-section="daynight">
 					<div class="section-header" onclick="toggleSection('section-daynight')">
-						<span>Day / Night Cycle</span>
-						<span class="panel-toggle">-</span>
+						<span>Time of Day</span>
+						<span class="panel-toggle">&#9662;</span>
 					</div>
 					<div class="section-body">
 						<div class="control-row">
@@ -383,38 +449,38 @@
 						</div>
 						<div id="daynight-preset-dropdown"></div>
 						<button class="btn" id="daynight-pause-btn" data-control="daynight-pause" style="width: 100%; margin-top: 4px">
-							Pause
+							&#9208; Pause
 						</button>
 					</div>
 				</div>
 
-				<!-- Layers -->
-				<div class="section" id="section-layers" data-section="layers">
-					<div class="section-header" onclick="toggleSection('section-layers')">
-						<span>Layers</span>
-						<span class="panel-toggle">-</span>
-					</div>
-					<div class="section-body" id="layers-body">
-						<div class="status-text">Loading layers...</div>
-					</div>
-				</div>
-
-				<!-- Sky / Background -->
+				<!-- 3. Environment -->
 				<div class="section collapsed" id="section-sky" data-section="sky">
 					<div class="section-header" onclick="toggleSection('section-sky')">
-						<span>Sky / Background</span>
-						<span class="panel-toggle">+</span>
+						<span>Environment</span>
+						<span class="panel-toggle">&#9662;</span>
 					</div>
 					<div class="section-body" id="sky-body">
 						<div class="status-text">Loading...</div>
 					</div>
 				</div>
 
-				<!-- Screen Effects -->
-				<div class="section" id="section-effects" data-section="effects">
+				<!-- 4. Map Layers -->
+				<div class="section collapsed" id="section-layers" data-section="layers">
+					<div class="section-header" onclick="toggleSection('section-layers')">
+						<span>Map Layers</span>
+						<span class="panel-toggle">&#9662;</span>
+					</div>
+					<div class="section-body" id="layers-body">
+						<div class="status-text">Loading layers...</div>
+					</div>
+				</div>
+
+				<!-- 5. Effects -->
+				<div class="section collapsed" id="section-effects" data-section="effects">
 					<div class="section-header" onclick="toggleSection('section-effects')">
-						<span>Screen Effects</span>
-						<span class="panel-toggle">-</span>
+						<span>Effects</span>
+						<span class="panel-toggle">&#9662;</span>
 					</div>
 					<div class="section-body">
 						<div class="control-row">
@@ -422,7 +488,7 @@
 							<input
 								type="range"
 								id="effect-duration"
-							data-control="effect-duration"
+								data-control="effect-duration"
 								min="100"
 								max="10000"
 								value="500"
@@ -432,7 +498,7 @@
 						</div>
 						<div id="effect-type-dropdown"></div>
 						<button class="btn" id="effect-trigger-btn" data-control="effect-trigger" style="width: 100%; margin-top: 4px">
-							Trigger Effect
+							Play Effect
 						</button>
 						<div class="control-row" style="padding-top: 4px">
 							<span class="control-label">Color</span>
@@ -486,15 +552,54 @@
 					</div>
 				</div>
 
-				<!-- Rendering -->
-				<div class="section" id="section-rendering" data-section="rendering">
+				<!-- 6. Shake -->
+				<div class="section collapsed" id="section-shake" data-section="shake">
+					<div class="section-header" onclick="toggleSection('section-shake')">
+						<span>Shake</span>
+						<span class="panel-toggle">&#9662;</span>
+					</div>
+					<div class="section-body">
+						<div class="control-row">
+							<span class="control-label">Intensity</span>
+							<input
+								type="range"
+								id="shake-intensity"
+								data-control="shake-intensity"
+								min="0.1"
+								max="3"
+								value="0.5"
+								step="0.1"
+							/>
+							<span class="control-value" id="shake-intensity-value">0.5</span>
+						</div>
+						<div class="control-row">
+							<span class="control-label">Duration</span>
+							<input
+								type="range"
+								id="shake-duration"
+								data-control="shake-duration"
+								min="100"
+								max="2000"
+								value="300"
+								step="50"
+							/>
+							<span class="control-value" id="shake-duration-value">300ms</span>
+						</div>
+						<button class="btn" onclick="triggerShake()" style="width: 100%; margin-top: 4px">
+							Shake
+						</button>
+					</div>
+				</div>
+
+				<!-- 7. Render Toggles -->
+				<div class="section collapsed" id="section-rendering" data-section="rendering">
 					<div class="section-header" onclick="toggleSection('section-rendering')">
-						<span>Rendering</span>
-						<span class="panel-toggle">-</span>
+						<span>Render Toggles</span>
+						<span class="panel-toggle">&#9662;</span>
 					</div>
 					<div class="section-body">
 						<div class="toggle-row" data-control="post-processing">
-							<span class="control-label">Post Processing</span>
+							<span class="control-label">Post-Processing</span>
 							<div class="toggle-switch on" id="toggle-postprocess" onclick="togglePostProcess()"></div>
 						</div>
 						<div class="toggle-row" data-control="glow-layer">
@@ -516,66 +621,66 @@
 					</div>
 				</div>
 
-				<!-- Post-Processing Effects (detailed) -->
+				<!-- 8. Post-Processing -->
 				<div class="section collapsed" id="section-postfx" data-section="postfx">
 					<div class="section-header" onclick="toggleSection('section-postfx')">
-						<span>Post-FX Details</span>
-						<span class="panel-toggle">+</span>
+						<span>Post-Processing</span>
+						<span class="panel-toggle">&#9662;</span>
 					</div>
 					<div class="section-body" id="postfx-body">
 						<div class="status-text">Loading pipeline...</div>
 					</div>
 				</div>
 
-				<!-- Fog -->
-				<div class="section collapsed" id="section-fog" data-section="fog">
-					<div class="section-header" onclick="toggleSection('section-fog')">
-						<span>Fog</span>
-						<span class="panel-toggle">+</span>
-					</div>
-					<div class="section-body" id="fog-body">
-						<div class="status-text">Loading...</div>
-					</div>
-				</div>
-
-				<!-- Camera Details -->
-				<div class="section collapsed" id="section-camdetails" data-section="camdetails">
-					<div class="section-header" onclick="toggleSection('section-camdetails')">
-						<span>Camera Details</span>
-						<span class="panel-toggle">+</span>
-					</div>
-					<div class="section-body" id="camdetails-body">
-						<div class="status-text">Loading...</div>
-					</div>
-				</div>
-
-				<!-- Glow Layer Details -->
+				<!-- 9. Glow -->
 				<div class="section collapsed" id="section-glowdetails" data-section="glow">
 					<div class="section-header" onclick="toggleSection('section-glowdetails')">
-						<span>Glow Layer</span>
-						<span class="panel-toggle">+</span>
+						<span>Glow</span>
+						<span class="panel-toggle">&#9662;</span>
 					</div>
 					<div class="section-body" id="glowdetails-body">
 						<div class="status-text">Loading...</div>
 					</div>
 				</div>
 
-				<!-- Lights -->
+				<!-- 10. Fog -->
+				<div class="section collapsed" id="section-fog" data-section="fog">
+					<div class="section-header" onclick="toggleSection('section-fog')">
+						<span>Fog</span>
+						<span class="panel-toggle">&#9662;</span>
+					</div>
+					<div class="section-body" id="fog-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+
+				<!-- 11. Camera Properties -->
+				<div class="section collapsed" id="section-camdetails" data-section="camdetails">
+					<div class="section-header" onclick="toggleSection('section-camdetails')">
+						<span>Camera Properties</span>
+						<span class="panel-toggle">&#9662;</span>
+					</div>
+					<div class="section-body" id="camdetails-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+
+				<!-- 12. Lights -->
 				<div class="section collapsed" id="section-lights" data-section="lights">
 					<div class="section-header" onclick="toggleSection('section-lights')">
 						<span>Lights</span>
-						<span class="panel-toggle">+</span>
+						<span class="panel-toggle">&#9662;</span>
 					</div>
 					<div class="section-body" id="lights-body">
 						<div class="status-text">Loading lights...</div>
 					</div>
 				</div>
 
-				<!-- Scene Info -->
+				<!-- 13. Debug Info -->
 				<div class="section collapsed" id="section-info" data-section="info">
 					<div class="section-header" onclick="toggleSection('section-info')">
-						<span>Scene Info</span>
-						<span class="panel-toggle">+</span>
+						<span>Debug Info</span>
+						<span class="panel-toggle">&#9662;</span>
 					</div>
 					<div class="section-body" id="info-body">
 						<div class="status-text">Loading...</div>

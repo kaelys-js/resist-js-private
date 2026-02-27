@@ -16,7 +16,6 @@ import {
 	createRuntime,
 	disposeRuntime,
 	startRenderLoop,
-	getMetrics,
 	switchCameraPreset,
 	rotateTactics,
 	screenShake,
@@ -162,16 +161,86 @@ function createDebugApi(runtime: RuntimeInstance): DevDebugApi {
 function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	const { scene }: { scene: BABYLON.Scene } = runtime.engine;
 
-	// ── Panel toggle ────────────────────────────────────────────────
+	// ── Panel minimize / restore ────────────────────────────────────
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
-	(window as any).togglePanel = (): void => {
+	(window as any).minimizePanel = (): void => {
 		const panel = document.querySelector('#control-panel');
-		const icon = document.querySelector('#panel-toggle-icon');
-		if (panel && icon) {
-			panel.classList.toggle('collapsed');
-			icon.textContent = panel.classList.contains('collapsed') ? '[ + ]' : '[ - ]';
-		}
+		const panelIcon = document.querySelector('#panel-icon');
+		if (panel) panel.classList.add('hidden');
+		if (panelIcon) panelIcon.classList.add('visible');
 	};
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
+	(window as any).restorePanel = (): void => {
+		const panel = document.querySelector('#control-panel');
+		const panelIcon = document.querySelector('#panel-icon');
+		if (panel) panel.classList.remove('hidden');
+		if (panelIcon) panelIcon.classList.remove('visible');
+	};
+
+	// ── Global shortcut: backtick toggles panel visibility ──────────
+	document.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === '`' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+			const target = e.target as HTMLElement;
+			// Don't trigger when typing in inputs
+			if (
+				target.tagName === 'INPUT' ||
+				target.tagName === 'TEXTAREA' ||
+				target.tagName === 'SELECT'
+			)
+				return;
+			e.preventDefault();
+			const panel = document.querySelector('#control-panel');
+			const panelIcon = document.querySelector('#panel-icon');
+			if (panel?.classList.contains('hidden')) {
+				panel.classList.remove('hidden');
+				panelIcon?.classList.remove('visible');
+			} else if (panel) {
+				panel.classList.add('hidden');
+				panelIcon?.classList.add('visible');
+			}
+		}
+	});
+
+	// ── Draggable panel ─────────────────────────────────────────────
+	const panelHeader = document.querySelector('#panel-header') as HTMLElement | null;
+	const controlPanel = document.querySelector('#control-panel') as HTMLElement | null;
+	if (panelHeader && controlPanel) {
+		let isDragging = false;
+		let dragStartX = 0;
+		let dragStartY = 0;
+		let panelStartX = 0;
+		let panelStartY = 0;
+
+		panelHeader.addEventListener('mousedown', (e: MouseEvent) => {
+			// Only drag on the header background, not on child buttons
+			const target = e.target as HTMLElement;
+			if (target.classList.contains('panel-btn')) return;
+			isDragging = true;
+			dragStartX = e.clientX;
+			dragStartY = e.clientY;
+			const rect = controlPanel.getBoundingClientRect();
+			panelStartX = rect.left;
+			panelStartY = rect.top;
+			// Switch from right-anchored to left-anchored positioning
+			controlPanel.style.right = 'auto';
+			controlPanel.style.left = `${String(panelStartX)}px`;
+			controlPanel.style.top = `${String(panelStartY)}px`;
+			e.preventDefault();
+		});
+
+		document.addEventListener('mousemove', (e: MouseEvent) => {
+			if (!isDragging) return;
+			const dx = e.clientX - dragStartX;
+			const dy = e.clientY - dragStartY;
+			controlPanel.style.left = `${String(panelStartX + dx)}px`;
+			controlPanel.style.top = `${String(panelStartY + dy)}px`;
+		});
+
+		document.addEventListener('mouseup', () => {
+			isDragging = false;
+		});
+	}
 
 	// ── Section toggle ──────────────────────────────────────────────
 	/** @param id - DOM id of the section to toggle. */
@@ -180,8 +249,6 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		const section = document.querySelector(`#${id}`);
 		if (!section) return;
 		section.classList.toggle('collapsed');
-		const toggle = section.querySelector('.section-header .panel-toggle');
-		if (toggle) toggle.textContent = section.classList.contains('collapsed') ? '+' : '-';
 	};
 
 	// ── Camera Presets (dropdown) ───────────────────────────────────
@@ -258,7 +325,14 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		presetContainer.append(
 			createDropdown(
 				'Preset',
-				['free', 'hd2d', 'topdown', 'sideview', 'cinematic', 'firstperson'],
+				[
+					{ value: 'free', label: 'Free Orbit' },
+					{ value: 'hd2d', label: 'HD-2D (Isometric)' },
+					{ value: 'topdown', label: 'Top-Down' },
+					{ value: 'sideview', label: 'Side View' },
+					{ value: 'cinematic', label: 'Cinematic' },
+					{ value: 'firstperson', label: 'First Person' },
+				],
 				'free',
 				(value) => {
 					handlePresetChange(value);
@@ -332,7 +406,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		if (cycle) cycle.speed = speed;
 		if (speed > 0) _lastDayNightSpeed = speed;
 		if (speedValue) speedValue.textContent = speed === 0 ? '0x' : `${speed}x`;
-		if (pauseBtn) pauseBtn.textContent = speed > 0 ? 'Pause' : 'Play';
+		if (pauseBtn) pauseBtn.textContent = speed > 0 ? '\u23F8 Pause' : '\u25B6 Play';
 	});
 
 	// Day/Night preset dropdown
@@ -342,7 +416,12 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		dayNightDropdownContainer.append(
 			createDropdown(
 				'Preset',
-				['dawn', 'noon', 'dusk', 'night'],
+				[
+					{ value: 'dawn', label: 'Dawn (6:00)' },
+					{ value: 'noon', label: 'Noon (12:00)' },
+					{ value: 'dusk', label: 'Dusk (18:00)' },
+					{ value: 'night', label: 'Night (0:00)' },
+				],
 				'noon',
 				(val) => {
 					const hour = timePresetMap[val] ?? 12;
@@ -364,12 +443,12 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 			cycle.speed = 0;
 			if (speedSlider) speedSlider.value = '0';
 			if (speedValue) speedValue.textContent = '0x';
-			pauseBtn.textContent = 'Play';
+			pauseBtn.textContent = '\u25B6 Play';
 		} else {
 			cycle.speed = _lastDayNightSpeed;
 			if (speedSlider) speedSlider.value = String(_lastDayNightSpeed);
 			if (speedValue) speedValue.textContent = `${_lastDayNightSpeed}x`;
-			pauseBtn.textContent = 'Pause';
+			pauseBtn.textContent = '\u23F8 Pause';
 		}
 	});
 
@@ -440,7 +519,12 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		effectDropdownContainer.append(
 			createDropdown(
 				'Effect',
-				['flash', 'tint', 'fadeOut', 'fadeIn'],
+				[
+					{ value: 'flash', label: 'Flash' },
+					{ value: 'tint', label: 'Color Tint' },
+					{ value: 'fadeOut', label: 'Fade Out' },
+					{ value: 'fadeIn', label: 'Fade In' },
+				],
 				'flash',
 				(val) => {
 					_selectedEffectType = val;
@@ -586,6 +670,31 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 }
 
 // =============================================================================
+// UI Helper — value formatting
+// =============================================================================
+
+/**
+ * Formats a slider value for compact display.
+ * Large numbers use "k" suffix, decimals use fixed precision.
+ *
+ * @param value - The numeric value.
+ * @param step - The slider step (determines precision).
+ * @returns Formatted string.
+ */
+function formatSliderValue(value: number, step: number): string {
+	if (!Number.isFinite(value)) return '\u221E';
+	if (step >= 1) {
+		const rounded = Math.round(value);
+		if (rounded >= 1_000_000) return `${(rounded / 1_000_000).toFixed(1)}M`;
+		if (rounded >= 10_000) return `${String(Math.round(rounded / 1000))}k`;
+		if (rounded >= 1000) return `${(rounded / 1000).toFixed(1)}k`;
+		return String(rounded);
+	}
+	if (Math.abs(value) >= 1000) return `${(value / 1000).toFixed(1)}k`;
+	return value.toFixed(2);
+}
+
+// =============================================================================
 // UI Helper — creates a labeled slider row
 // =============================================================================
 
@@ -627,11 +736,11 @@ function createSliderRow(
 
 	const valEl = document.createElement('span');
 	valEl.className = 'control-value';
-	valEl.textContent = step >= 1 ? String(Math.round(value)) : value.toFixed(2);
+	valEl.textContent = formatSliderValue(value, step);
 
 	slider.addEventListener('input', () => {
 		const v = Number(slider.value);
-		valEl.textContent = step >= 1 ? String(Math.round(v)) : v.toFixed(2);
+		valEl.textContent = formatSliderValue(v, step);
 		onChange(v);
 	});
 
@@ -700,7 +809,7 @@ function createSubHeader(text: string): HTMLElement {
  */
 function createDropdown(
 	label: string,
-	options: readonly string[],
+	options: ReadonlyArray<string | { readonly value: string; readonly label: string }>,
 	active: string,
 	onChange: (value: string) => void,
 	dataControl?: string,
@@ -718,11 +827,13 @@ function createDropdown(
 	if (dataControl) select.dataset['control'] = dataControl;
 
 	for (const opt of options) {
+		const optValue = typeof opt === 'string' ? opt : opt.value;
+		const optLabel = typeof opt === 'string' ? opt : opt.label;
 		const option = document.createElement('option');
-		option.value = opt;
-		option.textContent = opt;
-		option.dataset['value'] = opt;
-		if (opt === active) option.selected = true;
+		option.value = optValue;
+		option.textContent = optLabel;
+		option.dataset['value'] = optValue;
+		if (optValue === active) option.selected = true;
 		select.append(option);
 	}
 
@@ -796,7 +907,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Weight',
+			'Bloom Weight',
 			0,
 			1,
 			0.01,
@@ -809,7 +920,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Threshold',
+			'Bloom Threshold',
 			0,
 			1,
 			0.01,
@@ -822,7 +933,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Kernel',
+			'Bloom Kernel',
 			1,
 			512,
 			1,
@@ -835,7 +946,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Scale',
+			'Bloom Scale',
 			0.1,
 			1,
 			0.05,
@@ -861,7 +972,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Focal Length',
+			'DoF Focal Length',
 			0,
 			200,
 			1,
@@ -874,7 +985,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'f-Stop',
+			'DoF Aperture (f/)',
 			0.1,
 			22,
 			0.1,
@@ -887,7 +998,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Focus Dist',
+			'DoF Focus Dist',
 			0,
 			500_000,
 			1000,
@@ -913,7 +1024,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Amount',
+			'CA Strength',
 			0,
 			200,
 			1,
@@ -926,7 +1037,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Radial',
+			'CA Radial',
 			0,
 			5,
 			0.1,
@@ -952,7 +1063,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Intensity',
+			'Grain Amount',
 			0,
 			100,
 			1,
@@ -965,7 +1076,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createToggleRow(
-			'Animated',
+			'Grain Animated',
 			pipeline.grain.animated,
 			(on) => {
 				pipeline.grain.animated = on;
@@ -988,7 +1099,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Edge Amount',
+			'Sharpen Edge',
 			0,
 			2,
 			0.05,
@@ -1001,7 +1112,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Color Amount',
+			'Sharpen Color',
 			0,
 			1,
 			0.05,
@@ -1028,7 +1139,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Weight',
+			'Vignette Weight',
 			0,
 			10,
 			0.1,
@@ -1041,7 +1152,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Stretch',
+			'Vignette Stretch',
 			0,
 			25,
 			0.5,
@@ -1077,7 +1188,11 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	container.append(
 		createDropdown(
 			'Mapping',
-			['standard', 'aces', 'khr_pbr_neutral'],
+			[
+				{ value: 'standard', label: 'Standard' },
+				{ value: 'aces', label: 'ACES' },
+				{ value: 'khr_pbr_neutral', label: 'KHR PBR Neutral' },
+			],
 			currentToneMap,
 			(type) => {
 				switch (type) {
@@ -1139,7 +1254,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	);
 	container.append(
 		createSliderRow(
-			'Intensity',
+			'Dither Amount',
 			0,
 			1,
 			0.001,
@@ -1157,7 +1272,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 		container.append(createSubHeader('SSAO'));
 		container.append(
 			createSliderRow(
-				'Strength',
+				'SSAO Strength',
 				0,
 				3,
 				0.05,
@@ -1170,7 +1285,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 		);
 		container.append(
 			createSliderRow(
-				'Radius',
+				'SSAO Radius',
 				0.01,
 				16,
 				0.1,
@@ -1183,7 +1298,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 		);
 		container.append(
 			createSliderRow(
-				'Samples',
+				'SSAO Samples',
 				1,
 				64,
 				1,
@@ -1196,7 +1311,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 		);
 		container.append(
 			createSliderRow(
-				'Base',
+				'SSAO Base',
 				0,
 				1,
 				0.01,
@@ -1238,7 +1353,12 @@ function buildFogUI(scene: BABYLON.Scene): void {
 	container.append(
 		createDropdown(
 			'Mode',
-			['none', 'linear', 'exponential', 'exponential2'],
+			[
+				{ value: 'none', label: 'None' },
+				{ value: 'linear', label: 'Linear' },
+				{ value: 'exponential', label: 'Exponential' },
+				{ value: 'exponential2', label: 'Exponential²' },
+			],
 			currentMode,
 			(mode) => {
 				switch (mode) {
@@ -1304,7 +1424,7 @@ function buildFogUI(scene: BABYLON.Scene): void {
 	);
 	container.append(
 		createSliderRow(
-			'Fog R',
+			'Color R',
 			0,
 			1,
 			0.01,
@@ -1317,7 +1437,7 @@ function buildFogUI(scene: BABYLON.Scene): void {
 	);
 	container.append(
 		createSliderRow(
-			'Fog G',
+			'Color G',
 			0,
 			1,
 			0.01,
@@ -1330,7 +1450,7 @@ function buildFogUI(scene: BABYLON.Scene): void {
 	);
 	container.append(
 		createSliderRow(
-			'Fog B',
+			'Color B',
 			0,
 			1,
 			0.01,
@@ -1401,7 +1521,7 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 		);
 		container.append(
 			createSliderRow(
-				'Wheel Prec.',
+				'Scroll Sensitivity',
 				1,
 				50,
 				1,
@@ -1414,7 +1534,7 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 		);
 		container.append(
 			createSliderRow(
-				'Pan Sens.',
+				'Pan Sensitivity',
 				0,
 				200,
 				5,
@@ -1427,7 +1547,7 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 		);
 		container.append(
 			createSliderRow(
-				'Lower Radius',
+				'Min Distance',
 				1,
 				200,
 				1,
@@ -1440,7 +1560,7 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 		);
 		container.append(
 			createSliderRow(
-				'Upper Radius',
+				'Max Distance',
 				10,
 				1000,
 				10,
@@ -1565,35 +1685,34 @@ function buildLayerRow(
 	const row = document.createElement('div');
 	row.style.cssText = 'padding: 3px 0;';
 
-	// Layer name + visibility toggle
-	const header = document.createElement('div');
-	header.className = 'toggle-row';
-	header.dataset['control'] = `layer-${String(index)}-visible`;
+	// Layer visibility toggle with formatted name
+	const displayName = layer.name
+		? layer.name
+				.replaceAll('_', ' ')
+				.split(' ')
+				.map((w) => (w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w))
+				.join(' ')
+		: `Layer ${String(index)}`;
 
-	const label = document.createElement('span');
-	label.className = 'control-label';
-	label.textContent = `${String(index)}: ${layer.name}`;
-
-	const toggle = document.createElement('div');
-	toggle.className = `toggle-switch ${layer.visible ? 'on' : ''}`;
-	toggle.addEventListener('click', () => {
-		const isOn = toggle.classList.contains('on');
-		setLayerVisibility({
-			tilemap,
-			layerIndex: index as Num,
-			visible: !isOn as Bool,
-		});
-		toggle.classList.toggle('on', !isOn);
-	});
-
-	header.append(label);
-	header.append(toggle);
-	row.append(header);
+	row.append(
+		createToggleRow(
+			`${String(index)}. ${displayName}`,
+			layer.visible,
+			(on) => {
+				setLayerVisibility({
+					tilemap,
+					layerIndex: index as Num,
+					visible: on as Bool,
+				});
+			},
+			`layer-${String(index)}-visible`,
+		),
+	);
 
 	// Opacity slider
 	const opacityRow = document.createElement('div');
 	opacityRow.className = 'control-row';
-	opacityRow.style.cssText = 'padding-left: 8px;';
+	opacityRow.style.cssText = 'padding-left: 12px;';
 	opacityRow.dataset['control'] = `layer-${String(index)}-opacity`;
 
 	const opLabel = document.createElement('span');
@@ -1672,17 +1791,35 @@ function buildLightsUI(debug: DevDebugApi): void {
 
 	for (const ml of lights) {
 		const row = document.createElement('div');
-		row.style.cssText = 'padding: 3px 0;';
+		row.style.cssText =
+			'padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); margin-bottom: 2px;';
 
-		// Light name + type header
+		// Light name + type header with type badge
 		const header = document.createElement('div');
-		header.className = 'control-row';
+		header.style.cssText = 'display: flex; align-items: center; gap: 6px; padding-bottom: 4px;';
+
+		const typeBadge = document.createElement('span');
+		const typeColors: Record<string, string> = {
+			hemispheric: '#6ab',
+			directional: '#5b9',
+			point: '#b96',
+			spot: '#8bb',
+		};
+		const typeColor = typeColors[ml.config.type] ?? '#888';
+		typeBadge.style.cssText = `font-size: 8px; padding: 1px 5px; border-radius: 3px; background: ${typeColor}22; color: ${typeColor}; border: 1px solid ${typeColor}44; text-transform: uppercase; letter-spacing: 0.5px;`;
+		typeBadge.textContent = ml.config.type;
 
 		const label = document.createElement('span');
-		label.className = 'control-label';
-		label.textContent = `${ml.config.id} (${ml.config.type})`;
+		label.style.cssText = 'font-size: 10px; color: #ccc; font-weight: 600;';
+		const lightDisplayName = ml.config.id
+			.replaceAll('_', ' ')
+			.replaceAll('-', ' ')
+			.split(' ')
+			.map((w) => (w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w))
+			.join(' ');
+		label.textContent = lightDisplayName;
 
-		header.append(label);
+		header.append(typeBadge, label);
 		row.append(header);
 
 		const lightId = ml.config.id;
@@ -1719,7 +1856,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 			const diffuse = ml.light.diffuse as BABYLON.Color3;
 			row.append(
 				createSliderRow(
-					'Diffuse R',
+					'Color R',
 					0,
 					1,
 					0.01,
@@ -1732,7 +1869,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 			);
 			row.append(
 				createSliderRow(
-					'Diffuse G',
+					'Color G',
 					0,
 					1,
 					0.01,
@@ -1745,7 +1882,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 			);
 			row.append(
 				createSliderRow(
-					'Diffuse B',
+					'Color B',
 					0,
 					1,
 					0.01,
@@ -1760,13 +1897,14 @@ function buildLightsUI(debug: DevDebugApi): void {
 
 		// Range slider (point/spot lights)
 		if ('range' in ml.light && typeof ml.light.range === 'number') {
+			const currentRange = Math.min(ml.light.range, 200);
 			row.append(
 				createSliderRow(
 					'Range',
 					0,
 					200,
 					1,
-					ml.light.range,
+					currentRange,
 					(v) => {
 						(ml.light as BABYLON.PointLight).range = v;
 					},
@@ -1780,7 +1918,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 			const sg = ml.shadowGenerator;
 			row.append(
 				createSliderRow(
-					'Shadow Dark',
+					'Shadow Darkness',
 					0,
 					1,
 					0.05,
@@ -1798,7 +1936,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 			const flickerCfg = ml.flickerInstance.config as Record<string, unknown>;
 			row.append(
 				createSliderRow(
-					'Flicker Int.',
+					'Flicker Intensity',
 					0,
 					1,
 					0.05,
@@ -1811,7 +1949,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 			);
 			row.append(
 				createSliderRow(
-					'Flicker Spd.',
+					'Flicker Speed',
 					0.1,
 					10,
 					0.1,
@@ -1829,7 +1967,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 			const vl = ml.volumetricPostProcess;
 			row.append(
 				createSliderRow(
-					'GR Decay',
+					'God Ray Decay',
 					0,
 					1,
 					0.01,
@@ -1842,7 +1980,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 			);
 			row.append(
 				createSliderRow(
-					'GR Weight',
+					'God Ray Weight',
 					0,
 					1,
 					0.01,
@@ -1855,7 +1993,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 			);
 			row.append(
 				createSliderRow(
-					'GR Density',
+					'God Ray Density',
 					0,
 					1,
 					0.01,
@@ -1870,12 +2008,12 @@ function buildLightsUI(debug: DevDebugApi): void {
 
 		// Features badges
 		const badges = document.createElement('div');
-		badges.style.cssText = 'display: flex; gap: 4px; flex-wrap: wrap; padding: 2px 0;';
+		badges.style.cssText = 'display: flex; gap: 3px; flex-wrap: wrap; padding: 3px 0 1px;';
 
 		if (ml.shadowGenerator) addBadge(badges, 'Shadow', '#8a8');
 		if (ml.flickerInstance) addBadge(badges, 'Flicker', '#aa8');
-		if (ml.volumetricPostProcess) addBadge(badges, 'God Rays', '#88a');
-		if (ml.lensFlareSystem) addBadge(badges, 'Flares', '#a8a');
+		if (ml.volumetricPostProcess) addBadge(badges, 'God Rays', '#8ab');
+		if (ml.lensFlareSystem) addBadge(badges, 'Flares', '#ab8');
 
 		if (badges.childElementCount > 0) row.append(badges);
 
@@ -1902,6 +2040,27 @@ function addBadge(parent: HTMLElement, text: string, color: string): void {
 // =============================================================================
 
 /**
+ * Creates a labeled info row for the debug info section.
+ *
+ * @param label - Display label.
+ * @param id - DOM id for the value element.
+ * @returns The row element.
+ */
+function infoRow(label: string, id: string): HTMLElement {
+	const row = document.createElement('div');
+	row.className = 'control-row';
+	const lbl = document.createElement('span');
+	lbl.className = 'control-label';
+	lbl.textContent = label;
+	const val = document.createElement('span');
+	val.className = 'control-value';
+	val.id = id;
+	val.textContent = '--';
+	row.append(lbl, val);
+	return row;
+}
+
+/**
  * Populates the scene info section.
  *
  * @param debug - Debug API reference.
@@ -1911,21 +2070,209 @@ function buildInfoUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	const container = document.querySelector('#info-body');
 	if (!container) return;
 
-	// Update every 60 frames
+	container.innerHTML = '';
+
+	// ── Performance ──
+	container.append(createSubHeader('Performance'));
+	container.append(infoRow('FPS', 'info-fps'));
+	container.append(infoRow('Frame Time', 'info-frametime'));
+	container.append(infoRow('Draw Calls', 'info-drawcalls'));
+	container.append(infoRow('Active Meshes', 'info-active-meshes'));
+	container.append(infoRow('Total Triangles', 'info-triangles'));
+
+	// ── Scene ──
+	container.append(createSubHeader('Scene'));
+	container.append(infoRow('Total Meshes', 'info-total-meshes'));
+	container.append(infoRow('Total Materials', 'info-materials'));
+	container.append(infoRow('Total Textures', 'info-textures'));
+	container.append(infoRow('Total Lights', 'info-total-lights'));
+	container.append(infoRow('Effect Layers', 'info-effect-layers'));
+	container.append(infoRow('Particle Systems', 'info-particles'));
+	container.append(infoRow('Animations', 'info-animations'));
+
+	// ── Renderer ──
+	container.append(createSubHeader('Renderer'));
+	container.append(infoRow('Backend', 'info-backend'));
+	container.append(infoRow('GPU', 'info-gpu'));
+	container.append(infoRow('Resolution', 'info-resolution'));
+	container.append(infoRow('Pixel Ratio', 'info-pixel-ratio'));
+	container.append(infoRow('Hardware Scale', 'info-hw-scale'));
+	container.append(infoRow('Antialias', 'info-antialias'));
+
+	// ── Camera ──
+	container.append(createSubHeader('Camera'));
+	container.append(infoRow('Type', 'info-cam-type'));
+	container.append(infoRow('Position', 'info-cam-pos'));
+	container.append(infoRow('Target', 'info-cam-target'));
+	container.append(infoRow('FOV', 'info-cam-fov'));
+	container.append(infoRow('Near / Far', 'info-cam-clip'));
+
+	// ── Tilemap ──
+	container.append(createSubHeader('Tilemap'));
+	container.append(infoRow('Chunks', 'info-chunks'));
+	container.append(infoRow('Cliff Chunks', 'info-cliff-chunks'));
+	container.append(infoRow('Map Layers', 'info-map-layers'));
+	container.append(infoRow('Map Size', 'info-map-size'));
+
+	// ── Lighting ──
+	container.append(createSubHeader('Lighting'));
+	container.append(infoRow('Time of Day', 'info-time'));
+	container.append(infoRow('Cycle Speed', 'info-cycle-speed'));
+	container.append(infoRow('Glow Layer', 'info-glow'));
+	container.append(infoRow('Post-Processing', 'info-postfx'));
+	container.append(infoRow('Shadow Gens', 'info-shadow-gens'));
+
+	// ── Memory ──
+	container.append(createSubHeader('Memory'));
+	container.append(infoRow('Geometries', 'info-geometries'));
+	container.append(infoRow('Buffers (Vertex)', 'info-vertex-buffers'));
+	container.append(infoRow('Compile Count', 'info-compile'));
+
+	// Update function for debug info values
+	const engine = scene.getEngine();
+
+	/** Refreshes all debug info fields. */
+	function updateDebugInfo(): void {
+		const cam = scene.activeCamera;
+		const lighting = debug.tilemap?.lighting;
+
+		// Performance
+		const fps = engine.getFps();
+		setInfoText('info-fps', fps.toFixed(1));
+		setInfoText('info-frametime', `${(1000 / Math.max(fps, 1)).toFixed(1)}ms`);
+		setInfoText(
+			'info-drawcalls',
+			String((engine as Record<string, unknown>)['_drawCalls']?.['current'] ?? '?'),
+		);
+		setInfoText('info-active-meshes', String(scene.getActiveMeshes().length));
+		setInfoText('info-triangles', formatLargeNumber(scene.totalVerticesPerfCounter.current / 3));
+
+		// Scene
+		setInfoText('info-total-meshes', String(scene.meshes.length));
+		setInfoText('info-materials', String(scene.materials.length));
+		setInfoText('info-textures', String(scene.textures.length));
+		setInfoText('info-total-lights', String(scene.lights.length));
+		setInfoText('info-effect-layers', String(scene.effectLayers?.length ?? 0));
+		setInfoText('info-particles', String(scene.particleSystems.length));
+		setInfoText('info-animations', String(scene.animatables.length));
+
+		// Renderer
+		const isWebGPU = engine.constructor.name.includes('WebGPU');
+		setInfoText('info-backend', isWebGPU ? 'WebGPU' : 'WebGL2');
+		const glInfo = (engine as Record<string, unknown>)['_glRenderer'] ?? '';
+		setInfoText('info-gpu', truncateText(String(glInfo), 24));
+		setInfoText(
+			'info-resolution',
+			`${String(engine.getRenderWidth())}×${String(engine.getRenderHeight())}`,
+		);
+		setInfoText('info-pixel-ratio', String(window.devicePixelRatio.toFixed(2)));
+		setInfoText('info-hw-scale', engine.getHardwareScalingLevel().toFixed(2));
+		setInfoText(
+			'info-antialias',
+			(engine as Record<string, unknown>)['_antialiasing'] ? 'On' : 'Off',
+		);
+
+		// Camera
+		if (cam) {
+			setInfoText('info-cam-type', cam.getClassName());
+			const p = cam.position;
+			setInfoText('info-cam-pos', `${p.x.toFixed(1)}, ${p.y.toFixed(1)}, ${p.z.toFixed(1)}`);
+			if ('target' in cam && cam.target instanceof BABYLON.Vector3) {
+				const t = cam.target;
+				setInfoText('info-cam-target', `${t.x.toFixed(1)}, ${t.y.toFixed(1)}, ${t.z.toFixed(1)}`);
+			}
+			setInfoText('info-cam-fov', `${(cam.fov * (180 / Math.PI)).toFixed(0)}°`);
+			setInfoText('info-cam-clip', `${cam.minZ.toFixed(1)} / ${cam.maxZ.toFixed(0)}`);
+		}
+
+		// Tilemap
+		const tm = debug.tilemap;
+		if (tm) {
+			setInfoText('info-chunks', String(tm.chunks.length));
+			setInfoText('info-cliff-chunks', String(tm.cliffChunks.length));
+			setInfoText('info-map-layers', String(tm.mapData.layers.length));
+			setInfoText('info-map-size', `${String(tm.mapData.width)}×${String(tm.mapData.height)}`);
+		}
+
+		// Lighting
+		if (lighting) {
+			const cycle = lighting.dayNightCycle;
+			if (cycle) {
+				const h = Math.floor(cycle.timeOfDay);
+				const m = Math.floor((cycle.timeOfDay % 1) * 60);
+				setInfoText('info-time', `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
+				setInfoText('info-cycle-speed', `${cycle.speed.toFixed(1)}x`);
+			} else {
+				setInfoText('info-time', 'N/A');
+				setInfoText('info-cycle-speed', 'N/A');
+			}
+			setInfoText('info-glow', lighting.glowLayer ? 'Active' : 'Off');
+			setInfoText('info-postfx', tm?.postProcessing ? 'Active' : 'Off');
+			const shadowCount = lighting.lights.filter((ml) => ml.shadowGenerator !== null).length;
+			setInfoText('info-shadow-gens', String(shadowCount));
+		}
+
+		// Memory
+		setInfoText('info-geometries', String(scene.geometries.length));
+		const totalVB = scene.meshes.reduce(
+			(acc, m) => acc + Object.keys(m.geometry?.getVerticesDataKinds() ?? {}).length,
+			0,
+		);
+		setInfoText('info-vertex-buffers', String(totalVB));
+		setInfoText(
+			'info-compile',
+			String((engine as Record<string, unknown>)['_compiledEffects']?.['size'] ?? '?'),
+		);
+	}
+
+	// Run one immediate update so fields are populated when section is expanded
+	updateDebugInfo();
+
+	// Then update every 30 frames (skip when collapsed to save perf)
 	let infoFrameCount = 0;
 	scene.registerAfterRender(() => {
 		infoFrameCount++;
-		if (infoFrameCount % 60 !== 0) return;
-
-		const status = debug.status();
-		container.innerHTML = Object.entries(status)
-			.filter(([key]) => key !== 'lights')
-			.map(([key, val]) => {
-				const valStr = typeof val === 'object' ? JSON.stringify(val) : String(val);
-				return `<div class="control-row"><span class="control-label">${key}</span><span class="control-value">${valStr}</span></div>`;
-			})
-			.join('');
+		if (infoFrameCount % 30 !== 0) return;
+		if (document.querySelector('#section-info')?.classList.contains('collapsed')) {
+			return;
+		}
+		updateDebugInfo();
 	});
+}
+
+/**
+ * Sets the text content of an info element by ID.
+ *
+ * @param id - Element ID.
+ * @param text - Text to set.
+ */
+function setInfoText(id: string, text: string): void {
+	const el = document.querySelector(`#${id}`);
+	if (el) el.textContent = text;
+}
+
+/**
+ * Truncates text with ellipsis.
+ *
+ * @param text - Input text.
+ * @param maxLen - Maximum length.
+ * @returns Truncated text.
+ */
+function truncateText(text: string, maxLen: number): string {
+	return text.length > maxLen ? `${text.slice(0, maxLen - 1)}…` : text;
+}
+
+/**
+ * Formats a large number with k/M suffix.
+ *
+ * @param n - The number.
+ * @returns Formatted string.
+ */
+function formatLargeNumber(n: number): string {
+	if (!Number.isFinite(n)) return '?';
+	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+	if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+	return String(Math.round(n));
 }
 
 // =============================================================================
@@ -1965,7 +2312,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	const cc = scene.clearColor;
 	container.append(
 		createSliderRow(
-			'Clear R',
+			'BG Color R',
 			0,
 			1,
 			0.01,
@@ -1978,7 +2325,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	);
 	container.append(
 		createSliderRow(
-			'Clear G',
+			'BG Color G',
 			0,
 			1,
 			0.01,
@@ -1991,7 +2338,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	);
 	container.append(
 		createSliderRow(
-			'Clear B',
+			'BG Color B',
 			0,
 			1,
 			0.01,
@@ -2004,7 +2351,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	);
 	container.append(
 		createSliderRow(
-			'Clear A',
+			'BG Color A',
 			0,
 			1,
 			0.01,
@@ -2065,7 +2412,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			// ScrollSpeedX slider
 			container.append(
 				createSliderRow(
-					'Speed X',
+					'Scroll X',
 					-2,
 					2,
 					0.05,
@@ -2080,7 +2427,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			// ScrollSpeedY slider
 			container.append(
 				createSliderRow(
-					'Speed Y',
+					'Scroll Y',
 					-2,
 					2,
 					0.05,
@@ -2126,12 +2473,9 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
  */
 function setupFpsCounter(runtime: RuntimeInstance): void {
 	const fpsEl = document.querySelector('#fps-display');
-	const backendEl = document.querySelector('#backend-display');
-	const dcEl = document.querySelector('#draw-calls-display');
-
-	if (backendEl) {
-		backendEl.textContent = runtime.engine.isWebGPU ? 'WebGPU' : 'WebGL2';
-	}
+	const ftEl = document.querySelector('#frametime-display');
+	const meshEl = document.querySelector('#meshes-display');
+	const trisEl = document.querySelector('#tris-display');
 
 	let fpsFrameCount = 0;
 	runtime.engine.scene.registerAfterRender(() => {
@@ -2139,10 +2483,14 @@ function setupFpsCounter(runtime: RuntimeInstance): void {
 		if (fpsFrameCount % 30 !== 0) return;
 
 		const engine = runtime.engine.scene.getEngine();
-		if (fpsEl) fpsEl.textContent = `FPS: ${engine.getFps().toFixed(0)}`;
-		if (dcEl && runtime.performanceMonitor) {
-			const m = getMetrics(runtime.performanceMonitor);
-			if (m.ok) dcEl.textContent = `DC: ${m.data.drawCalls}`;
+		const fps = engine.getFps();
+		if (fpsEl) fpsEl.textContent = `${fps.toFixed(0)} fps`;
+		if (ftEl) ftEl.textContent = `${(1000 / Math.max(fps, 1)).toFixed(1)} ms`;
+		const { scene } = runtime.engine;
+		if (meshEl) meshEl.textContent = `${scene.getActiveMeshes().length} meshes`;
+		if (trisEl) {
+			const triCount = Math.round(scene.totalVerticesPerfCounter.current / 3);
+			trisEl.textContent = `${formatLargeNumber(triCount)} tris`;
 		}
 	});
 }
