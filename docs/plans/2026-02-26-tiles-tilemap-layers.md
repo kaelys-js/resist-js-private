@@ -18,10 +18,12 @@
 
 1. **TDD** — Write failing test, implement, pass
 2. **Full QA** — `pnpm qa:type-check && pnpm -w run qa:lint && pnpm -w run qa:format:check && pnpm qa:test`
-3. **Visual verification** — Run `pnpm dev`, visually confirm the feature works in the dev harness and scene
-4. **Mark complete** — Update this plan doc, marking the task as `[x]` done
-5. **Commit** — One commit per feature with all changes
-6. **Proceed** — Only then move to the next feature
+3. **Dev harness wiring** — Add editable UI controls (sliders, toggles, dropdowns, inputs) for EVERY new schema field. Info-only rows are NOT acceptable — controls must be interactive
+4. **Visual verification (scene)** — Run `pnpm dev`, visually confirm the feature renders/behaves correctly in the 3D scene
+5. **Visual verification (dev UX)** — Confirm all new dev harness controls appear, expand, respond to interaction, and update the scene in real-time. Take a screenshot as proof
+6. **Mark complete** — Update this plan doc, marking the task as `[x]` done
+7. **Commit** — One commit per feature with all changes
+8. **Ask approval** — Ask the user for permission before proceeding to the next task
 
 **Never batch verification.** Every single feature gets its own QA + visual test pass. If a feature breaks something, fix it before moving on.
 
@@ -1715,13 +1717,13 @@ Each task: TDD → full QA → visual verify → mark `[x]` → commit → next 
 ### Phase A: Tile Properties Schemas
 - [x] Task 1: Passability schema
 - [x] Task 2: Terrain schema
-- [ ] Task 3: Tile flags schema
-- [ ] Task 4: Collision shape schema
-- [ ] Task 5: Custom properties & tags schema
-- [ ] Task 6: Tile animation definition schema
+- [x] Task 3: Tile flags schema
+- [x] Task 4: Collision shape schema
+- [x] Task 5: Custom properties & tags schema
+- [x] Task 6: Tile animation definition schema
 
 ### Phase B: Layer System Schemas
-- [ ] Task 7: Layer kind discriminated union (tile/object/group)
+- [x] Task 7: Layer kind discriminated union (tile/object/group)
 - [ ] Task 8: Map-level properties schema
 - [ ] Task 9: Tileset normal & emission map fields
 - [ ] Task 10: Per-tile override schema

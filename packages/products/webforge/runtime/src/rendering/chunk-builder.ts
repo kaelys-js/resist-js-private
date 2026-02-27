@@ -174,6 +174,9 @@ export function buildChunk(options: BuildChunkOptions): BabylonResult<ChunkMesh 
 		const layer = mapData.layers[layerIndex];
 		if (!layer) return err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Invalid layer index');
 
+		// Only tile layers produce chunk geometry
+		if (layer.kind !== 'tile') return okShallow(null);
+
 		// Skip hidden layers
 		if (!layer.visible) return okShallow(null);
 
@@ -186,7 +189,7 @@ export function buildChunk(options: BuildChunkOptions): BabylonResult<ChunkMesh 
 			return okShallow(null);
 		}
 
-		const layerYOffset: Num = LAYER_Y_OFFSETS[layer.type as keyof typeof LAYER_Y_OFFSETS] ?? 0;
+		const layerYOffset: Num = LAYER_Y_OFFSETS[layer.type] ?? 0;
 
 		const tileParts: TileVertexData[] = [];
 		let tileCount: Num = 0;

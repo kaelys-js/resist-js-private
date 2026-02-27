@@ -188,10 +188,10 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 		if (!chunkResult.ok) return chunkResult;
 		const chunkConfig = chunkResult.data;
 
-		// 3. Cross-field: layer.data.length === width * height
+		// 3. Cross-field: layer.data.length === width * height (tile layers only)
 		const expectedLength: Num = mapData.width * mapData.height;
 		for (const layer of mapData.layers) {
-			if (layer.data.length !== expectedLength) {
+			if (layer.kind === 'tile' && layer.data.length !== expectedLength) {
 				return err(
 					ERRORS.VALIDATION.SCHEMA_FAILED,
 					`Layer "${layer.name}" data length ${layer.data.length} does not match map size ${expectedLength}`,
@@ -318,7 +318,12 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 		// can't bleed through alpha-tested tile edges on the base terrain.
 		for (const chunk of chunks) {
 			const chunkLayer = mapData.layers[chunk.layerIndex];
-			if (chunkLayer && chunkLayer.type === 'ground' && chunk.mesh.material) {
+			if (
+				chunkLayer &&
+				chunkLayer.kind === 'tile' &&
+				chunkLayer.type === 'ground' &&
+				chunk.mesh.material
+			) {
 				for (let mi: Num = 0; mi < materials.length; mi++) {
 					const opaqueMat: BABYLON.StandardMaterial | undefined = opaqueMaterials[mi];
 					if (chunk.mesh.material === materials[mi] && opaqueMat) {
@@ -570,6 +575,9 @@ export function updateTile(options: UpdateTileOptions): BabylonResult<RenderedTi
 		const layer = mapData.layers[layerIndex];
 		if (!layer) {
 			return err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Invalid layer index');
+		}
+		if (layer.kind !== 'tile') {
+			return err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Cannot update tiles on a non-tile layer');
 		}
 
 		// Update tile data

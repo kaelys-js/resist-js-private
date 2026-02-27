@@ -19,7 +19,13 @@ import {
 	AnimationPlaybackModeSchema,
 	ChunkConfigSchema,
 	CollisionShapeSchema,
+	DrawOrderSchema,
+	GroupLayerSchema,
+	LayerSchema,
 	MapDataSchema,
+	MapObjectSchema,
+	MapObjectShapeSchema,
+	ObjectLayerSchema,
 	TerrainTypeSchema,
 	TileLayerSchema,
 	TilePropertiesSchema,
@@ -28,7 +34,13 @@ import {
 	type AnimationPlaybackMode,
 	type ChunkConfig,
 	type CollisionShape,
+	type DrawOrder,
+	type GroupLayer,
+	type Layer,
 	type MapData,
+	type MapObject,
+	type MapObjectShape,
+	type ObjectLayer,
 	type TerrainType,
 	type TileLayer,
 	type TileProperties,
@@ -2476,10 +2488,20 @@ describe('TileLayerSchema', () => {
 		expect(result.ok).toBeFalsy();
 	});
 
-	test('rejects invalid layer type', () => {
+	test('accepts custom layer type (any non-empty string)', () => {
 		const result: Result<TileLayer> = safeParse(TileLayerSchema, {
 			...VALID_LAYER_1X1,
 			type: 'overlay',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.type).toBe('overlay');
+	});
+
+	test('rejects empty layer type', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, {
+			...VALID_LAYER_1X1,
+			type: '',
 		});
 		expect(result.ok).toBeFalsy();
 	});
@@ -2523,9 +2545,567 @@ describe('TileLayerSchema', () => {
 	test('rejects unknown properties', () => {
 		const result: Result<TileLayer> = safeParse(TileLayerSchema, {
 			...VALID_LAYER_1X1,
-			tint: '#ff0000',
+			unknownField: 42,
 		});
 		expect(result.ok).toBeFalsy();
+	});
+
+	// =========================================================================
+	// kind field (discriminant)
+	// =========================================================================
+
+	test('defaults kind to "tile"', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, VALID_LAYER_1X1);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.kind).toBe('tile');
+	});
+
+	test('accepts explicit kind=tile', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, {
+			...VALID_LAYER_1X1,
+			kind: 'tile',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.kind).toBe('tile');
+	});
+
+	test('rejects kind other than "tile"', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, {
+			...VALID_LAYER_1X1,
+			kind: 'object',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// =========================================================================
+	// Visual properties
+	// =========================================================================
+
+	test('defaults visual properties', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, VALID_LAYER_1X1);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.tintColor).toEqual({ r: 1, g: 1, b: 1, a: 1 });
+		expect(result.data.brightness).toBe(0);
+		expect(result.data.saturation).toBe(1);
+		expect(result.data.contrast).toBe(1);
+	});
+
+	test('accepts custom tintColor', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, {
+			...VALID_LAYER_1X1,
+			tintColor: { r: 0.5, g: 0.2, b: 0.8, a: 0.9 },
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.tintColor.r).toBe(0.5);
+	});
+
+	test('rejects brightness outside range', () => {
+		const over: Result<TileLayer> = safeParse(TileLayerSchema, {
+			...VALID_LAYER_1X1,
+			brightness: 2,
+		});
+		expect(over.ok).toBeFalsy();
+		const under: Result<TileLayer> = safeParse(TileLayerSchema, {
+			...VALID_LAYER_1X1,
+			brightness: -2,
+		});
+		expect(under.ok).toBeFalsy();
+	});
+
+	// =========================================================================
+	// Transform properties
+	// =========================================================================
+
+	test('defaults transform properties', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, VALID_LAYER_1X1);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.offsetX).toBe(0);
+		expect(result.data.offsetY).toBe(0);
+		expect(result.data.parallaxFactorX).toBe(1);
+		expect(result.data.parallaxFactorY).toBe(1);
+		expect(result.data.parallaxOriginX).toBe(0);
+		expect(result.data.parallaxOriginY).toBe(0);
+		expect(result.data.scaleX).toBe(1);
+		expect(result.data.scaleY).toBe(1);
+	});
+
+	test('rejects scaleX below 0.1', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, {
+			...VALID_LAYER_1X1,
+			scaleX: 0.05,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects scaleY above 10', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, {
+			...VALID_LAYER_1X1,
+			scaleY: 11,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// =========================================================================
+	// Rendering properties
+	// =========================================================================
+
+	test('defaults rendering properties', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, VALID_LAYER_1X1);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.renderOrder).toBe(0);
+		expect(result.data.castShadows).toBe(false);
+		expect(result.data.receiveShadows).toBe(true);
+		expect(result.data.depthWrite).toBe(true);
+		expect(result.data.maskLayer).toBe('');
+		expect(result.data.cullingPadding).toBe(0);
+		expect(result.data.ySortEnabled).toBe(false);
+		expect(result.data.blendMode).toBe('alpha');
+	});
+
+	test('rejects cullingPadding above 16', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, {
+			...VALID_LAYER_1X1,
+			cullingPadding: 17,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('accepts valid blendMode', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, {
+			...VALID_LAYER_1X1,
+			blendMode: 'additive',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.blendMode).toBe('additive');
+	});
+
+	// =========================================================================
+	// Editor properties
+	// =========================================================================
+
+	test('defaults editor properties', () => {
+		const result: Result<TileLayer> = safeParse(TileLayerSchema, VALID_LAYER_1X1);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.locked).toBe(false);
+		expect(result.data.collapsed).toBe(false);
+		expect(result.data.color).toBe('');
+	});
+});
+
+// =============================================================================
+// MapObjectShapeSchema
+// =============================================================================
+
+describe('MapObjectShapeSchema', () => {
+	test('accepts all valid shapes', () => {
+		const shapes: readonly string[] = ['rect', 'ellipse', 'point', 'polygon', 'polyline'];
+		for (const shape of shapes) {
+			const result: Result<MapObjectShape> = safeParse(MapObjectShapeSchema, shape);
+			expect(result.ok).toBeTruthy();
+		}
+	});
+
+	test('rejects invalid shape', () => {
+		const result: Result<MapObjectShape> = safeParse(MapObjectShapeSchema, 'triangle');
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// DrawOrderSchema
+// =============================================================================
+
+describe('DrawOrderSchema', () => {
+	test('accepts "topdown"', () => {
+		const result: Result<DrawOrder> = safeParse(DrawOrderSchema, 'topdown');
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('accepts "index"', () => {
+		const result: Result<DrawOrder> = safeParse(DrawOrderSchema, 'index');
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('rejects invalid draw order', () => {
+		const result: Result<DrawOrder> = safeParse(DrawOrderSchema, 'manual');
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// MapObjectSchema
+// =============================================================================
+
+describe('MapObjectSchema', () => {
+	test('accepts minimal object', () => {
+		const result: Result<MapObject> = safeParse(MapObjectSchema, {
+			id: 'spawn-1',
+			x: 10,
+			y: 20,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.id).toBe('spawn-1');
+		expect(result.data.x).toBe(10);
+		expect(result.data.y).toBe(20);
+	});
+
+	test('fills defaults for optional fields', () => {
+		const result: Result<MapObject> = safeParse(MapObjectSchema, {
+			id: 'obj-1',
+			x: 0,
+			y: 0,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.name).toBe('');
+		expect(result.data.class).toBe('');
+		expect(result.data.width).toBe(0);
+		expect(result.data.height).toBe(0);
+		expect(result.data.rotation).toBe(0);
+		expect(result.data.shape).toBe('rect');
+		expect(result.data.points).toEqual([]);
+		expect(result.data.visible).toBe(true);
+		expect(result.data.customProperties).toEqual({});
+	});
+
+	test('accepts full object with all fields', () => {
+		const result: Result<MapObject> = safeParse(MapObjectSchema, {
+			id: 'npc-1',
+			name: 'Merchant',
+			class: 'npc',
+			x: 128,
+			y: 256,
+			width: 32,
+			height: 48,
+			rotation: 90,
+			shape: 'ellipse',
+			points: [
+				{ x: 0, y: 0 },
+				{ x: 10, y: 20 },
+			],
+			visible: false,
+			customProperties: { dialogue: 'hello', level: 5 },
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.name).toBe('Merchant');
+		expect(result.data.shape).toBe('ellipse');
+		expect(result.data.rotation).toBe(90);
+	});
+
+	test('rejects empty id', () => {
+		const result: Result<MapObject> = safeParse(MapObjectSchema, {
+			id: '',
+			x: 0,
+			y: 0,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects negative width', () => {
+		const result: Result<MapObject> = safeParse(MapObjectSchema, {
+			id: 'obj',
+			x: 0,
+			y: 0,
+			width: -5,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects rotation above 360', () => {
+		const result: Result<MapObject> = safeParse(MapObjectSchema, {
+			id: 'obj',
+			x: 0,
+			y: 0,
+			rotation: 361,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects unknown properties', () => {
+		const result: Result<MapObject> = safeParse(MapObjectSchema, {
+			id: 'obj',
+			x: 0,
+			y: 0,
+			unknownProp: true,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// ObjectLayerSchema
+// =============================================================================
+
+describe('ObjectLayerSchema', () => {
+	test('accepts minimal object layer', () => {
+		const result: Result<ObjectLayer> = safeParse(ObjectLayerSchema, {
+			kind: 'object',
+			name: 'spawns',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.kind).toBe('object');
+		expect(result.data.name).toBe('spawns');
+		expect(result.data.objects).toEqual([]);
+	});
+
+	test('accepts object layer with objects', () => {
+		const result: Result<ObjectLayer> = safeParse(ObjectLayerSchema, {
+			kind: 'object',
+			name: 'npcs',
+			objects: [
+				{ id: 'npc-1', x: 32, y: 64, name: 'Merchant', class: 'npc' },
+				{ id: 'npc-2', x: 128, y: 96 },
+			],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.objects).toHaveLength(2);
+		expect(result.data.objects[0]?.name).toBe('Merchant');
+	});
+
+	test('defaults optional fields', () => {
+		const result: Result<ObjectLayer> = safeParse(ObjectLayerSchema, {
+			kind: 'object',
+			name: 'events',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.drawOrder).toBe('topdown');
+		expect(result.data.visible).toBe(true);
+		expect(result.data.opacity).toBe(1);
+		expect(result.data.tintColor).toEqual({ r: 1, g: 1, b: 1, a: 1 });
+		expect(result.data.brightness).toBe(0);
+		expect(result.data.saturation).toBe(1);
+		expect(result.data.contrast).toBe(1);
+		expect(result.data.offsetX).toBe(0);
+		expect(result.data.offsetY).toBe(0);
+		expect(result.data.locked).toBe(false);
+	});
+
+	test('rejects missing kind', () => {
+		const result: Result<ObjectLayer> = safeParse(ObjectLayerSchema, {
+			name: 'spawns',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects wrong kind', () => {
+		const result: Result<ObjectLayer> = safeParse(ObjectLayerSchema, {
+			kind: 'tile',
+			name: 'spawns',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects missing name', () => {
+		const result: Result<ObjectLayer> = safeParse(ObjectLayerSchema, {
+			kind: 'object',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects empty name', () => {
+		const result: Result<ObjectLayer> = safeParse(ObjectLayerSchema, {
+			kind: 'object',
+			name: '',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects invalid object in objects array', () => {
+		const result: Result<ObjectLayer> = safeParse(ObjectLayerSchema, {
+			kind: 'object',
+			name: 'bad',
+			objects: [{ id: '', x: 0, y: 0 }],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// GroupLayerSchema
+// =============================================================================
+
+describe('GroupLayerSchema', () => {
+	test('accepts minimal group layer', () => {
+		const result: Result<GroupLayer> = safeParse(GroupLayerSchema, {
+			kind: 'group',
+			name: 'Buildings',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.kind).toBe('group');
+		expect(result.data.name).toBe('Buildings');
+		expect(result.data.children).toEqual([]);
+	});
+
+	test('accepts group with tile layer children', () => {
+		const result: Result<GroupLayer> = safeParse(GroupLayerSchema, {
+			kind: 'group',
+			name: 'terrain',
+			children: [
+				{ name: 'ground', type: 'ground', data: [1, 2, 3] },
+				{ kind: 'tile', name: 'deco', type: 'ground_deco', data: [0, 0, 1] },
+			],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.children).toHaveLength(2);
+	});
+
+	test('accepts nested group layers', () => {
+		const result: Result<GroupLayer> = safeParse(GroupLayerSchema, {
+			kind: 'group',
+			name: 'outer',
+			children: [
+				{
+					kind: 'group',
+					name: 'inner',
+					children: [{ name: 'base', type: 'ground', data: [1] }],
+				},
+			],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.children).toHaveLength(1);
+	});
+
+	test('accepts group with object layer children', () => {
+		const result: Result<GroupLayer> = safeParse(GroupLayerSchema, {
+			kind: 'group',
+			name: 'world',
+			children: [
+				{
+					kind: 'object',
+					name: 'npcs',
+					objects: [{ id: 'npc-1', x: 0, y: 0 }],
+				},
+			],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.children).toHaveLength(1);
+	});
+
+	test('defaults optional fields', () => {
+		const result: Result<GroupLayer> = safeParse(GroupLayerSchema, {
+			kind: 'group',
+			name: 'test',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.visible).toBe(true);
+		expect(result.data.opacity).toBe(1);
+		expect(result.data.tintColor).toEqual({ r: 1, g: 1, b: 1, a: 1 });
+		expect(result.data.brightness).toBe(0);
+		expect(result.data.saturation).toBe(1);
+		expect(result.data.contrast).toBe(1);
+		expect(result.data.offsetX).toBe(0);
+		expect(result.data.offsetY).toBe(0);
+		expect(result.data.locked).toBe(false);
+	});
+
+	test('rejects missing kind', () => {
+		const result: Result<GroupLayer> = safeParse(GroupLayerSchema, {
+			name: 'Buildings',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects missing name', () => {
+		const result: Result<GroupLayer> = safeParse(GroupLayerSchema, {
+			kind: 'group',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects empty name', () => {
+		const result: Result<GroupLayer> = safeParse(GroupLayerSchema, {
+			kind: 'group',
+			name: '',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// LayerSchema — discriminated union
+// =============================================================================
+
+describe('LayerSchema — discriminated union', () => {
+	test('accepts tile layer (backward compat, no kind)', () => {
+		const result: Result<Layer> = safeParse(LayerSchema, {
+			name: 'ground',
+			type: 'ground',
+			data: [1],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.kind).toBe('tile');
+	});
+
+	test('accepts tile layer with explicit kind=tile', () => {
+		const result: Result<Layer> = safeParse(LayerSchema, {
+			kind: 'tile',
+			name: 'ground',
+			type: 'ground',
+			data: [1],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.kind).toBe('tile');
+	});
+
+	test('accepts object layer', () => {
+		const result: Result<Layer> = safeParse(LayerSchema, {
+			kind: 'object',
+			name: 'events',
+			objects: [{ id: 'ev-1', x: 0, y: 0 }],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.kind).toBe('object');
+	});
+
+	test('accepts group layer', () => {
+		const result: Result<Layer> = safeParse(LayerSchema, {
+			kind: 'group',
+			name: 'world',
+			children: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.kind).toBe('group');
+	});
+
+	test('discriminates correctly for MapDataSchema.layers', () => {
+		const result: Result<MapData> = safeParse(MapDataSchema, {
+			width: 1,
+			height: 1,
+			tilesets: [VALID_TILESET],
+			layers: [
+				{ name: 'ground', type: 'ground', data: [1] },
+				{ kind: 'object', name: 'events', objects: [] },
+				{ kind: 'group', name: 'overlays', children: [] },
+			],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.layers).toHaveLength(3);
+		expect(result.data.layers[0]?.kind).toBe('tile');
+		expect(result.data.layers[1]?.kind).toBe('object');
+		expect(result.data.layers[2]?.kind).toBe('group');
 	});
 });
 

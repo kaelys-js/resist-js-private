@@ -50,7 +50,7 @@ import {
 	type LoadedTileset,
 	type ResolvedTile,
 } from '../src/rendering/tileset-loader';
-import type { TileProperties } from '../src/schemas/map-data';
+import type { TileProperties, Layer } from '../src/schemas/map-data';
 
 import type { RuntimeInstance } from '../src/runtime';
 import type { BabylonResult } from '../src/core/babylon-result';
@@ -61,6 +61,14 @@ import type { SkyInstance } from '../src/rendering/sky-system';
 import type { ColorRgba } from '../src/schemas/scene-setup-config';
 
 import { TEST_MAP_DATA } from './test-map';
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/** No-op callback for controls not yet wired to runtime. */
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = (): void => {};
 
 // =============================================================================
 // Types
@@ -2140,34 +2148,39 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 // =============================================================================
 
 /**
- * Builds a single layer row with visibility toggle and opacity slider.
+ * Builds a single layer row with visibility toggle, opacity slider,
+ * and expanded controls for all layer properties.
  *
  * @param tilemap - The rendered tilemap.
- * @param layer - The layer data.
+ * @param layer - The layer data (tile, object, or group).
  * @param index - The layer index.
  * @param container - The parent container element.
  */
 function buildLayerRow(
 	tilemap: RenderedTilemap,
-	layer: { name: string; visible: boolean; opacity: number },
+	layer: Layer,
 	index: number,
 	container: HTMLElement,
 ): void {
 	const row = document.createElement('div');
-	row.style.cssText = 'padding: 3px 0;';
+	row.style.cssText = 'padding: 3px 0; border-bottom: 1px solid #333;';
 
-	// Layer visibility toggle with formatted name
-	const displayName = layer.name
+	const displayName: string = layer.name
 		? layer.name
 				.replaceAll('_', ' ')
 				.split(' ')
-				.map((w) => (w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w))
+				.map((w: string) => (w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w))
 				.join(' ')
 		: `Layer ${String(index)}`;
 
+	let kindLabel = 'G';
+	if (layer.kind === 'tile') kindLabel = 'T';
+	else if (layer.kind === 'object') kindLabel = 'O';
+
+	// Visibility toggle
 	row.append(
 		createToggleRow(
-			`${String(index)}. ${displayName}`,
+			`${String(index)}. [${kindLabel}] ${displayName}`,
 			layer.visible,
 			(on) => {
 				setLayerVisibility({
@@ -2181,23 +2194,23 @@ function buildLayerRow(
 	);
 
 	// Opacity slider
-	const opacityRow = document.createElement('div');
+	const opacityRow: HTMLElement = document.createElement('div');
 	opacityRow.className = 'control-row';
 	opacityRow.style.cssText = 'padding-left: 12px;';
 	opacityRow.dataset['control'] = `layer-${String(index)}-opacity`;
 
-	const opLabel = document.createElement('span');
+	const opLabel: HTMLElement = document.createElement('span');
 	opLabel.className = 'control-label';
 	opLabel.textContent = 'Opacity';
 
-	const opSlider = document.createElement('input');
+	const opSlider: HTMLInputElement = document.createElement('input');
 	opSlider.type = 'range';
 	opSlider.min = '0';
 	opSlider.max = '1';
 	opSlider.step = '0.05';
 	opSlider.value = String(layer.opacity);
 
-	const opValue = document.createElement('span');
+	const opValue: HTMLElement = document.createElement('span');
 	opValue.className = 'control-value';
 	opValue.textContent = layer.opacity.toFixed(2);
 
@@ -2215,6 +2228,218 @@ function buildLayerRow(
 	opacityRow.append(opSlider);
 	opacityRow.append(opValue);
 	row.append(opacityRow);
+
+	// -- Shared visual controls (all layer kinds) --
+	const hdrVisual: HTMLElement = createSubHeader('Visual');
+	row.append(hdrVisual);
+
+	row.append(
+		createSliderRow('Tint R', 0, 1, 0.01, layer.tintColor.r, noop, `layer-${String(index)}-tint-r`),
+	);
+	row.append(
+		createSliderRow('Tint G', 0, 1, 0.01, layer.tintColor.g, noop, `layer-${String(index)}-tint-g`),
+	);
+	row.append(
+		createSliderRow('Tint B', 0, 1, 0.01, layer.tintColor.b, noop, `layer-${String(index)}-tint-b`),
+	);
+	row.append(
+		createSliderRow('Tint A', 0, 1, 0.01, layer.tintColor.a, noop, `layer-${String(index)}-tint-a`),
+	);
+	row.append(
+		createSliderRow(
+			'Brightness',
+			-1,
+			1,
+			0.01,
+			layer.brightness,
+			noop,
+			`layer-${String(index)}-brightness`,
+		),
+	);
+	row.append(
+		createSliderRow(
+			'Saturation',
+			0,
+			2,
+			0.01,
+			layer.saturation,
+			noop,
+			`layer-${String(index)}-saturation`,
+		),
+	);
+	row.append(
+		createSliderRow(
+			'Contrast',
+			0,
+			2,
+			0.01,
+			layer.contrast,
+			noop,
+			`layer-${String(index)}-contrast`,
+		),
+	);
+
+	const hdrTransform: HTMLElement = createSubHeader('Transform');
+	row.append(hdrTransform);
+
+	row.append(
+		createSliderRow(
+			'Offset X',
+			-100,
+			100,
+			1,
+			layer.offsetX,
+			noop,
+			`layer-${String(index)}-offset-x`,
+		),
+	);
+	row.append(
+		createSliderRow(
+			'Offset Y',
+			-100,
+			100,
+			1,
+			layer.offsetY,
+			noop,
+			`layer-${String(index)}-offset-y`,
+		),
+	);
+	row.append(createToggleRow('Locked', layer.locked, noop, `layer-${String(index)}-locked`));
+
+	// Tile-layer-specific controls
+	if (layer.kind === 'tile') {
+		const hdrTile: HTMLElement = createSubHeader('Tile Layer');
+		row.append(hdrTile);
+
+		row.append(
+			createSliderRow(
+				'Parallax X',
+				0,
+				2,
+				0.01,
+				layer.parallaxFactorX,
+				noop,
+				`layer-${String(index)}-parallax-x`,
+			),
+		);
+		row.append(
+			createSliderRow(
+				'Parallax Y',
+				0,
+				2,
+				0.01,
+				layer.parallaxFactorY,
+				noop,
+				`layer-${String(index)}-parallax-y`,
+			),
+		);
+		row.append(
+			createSliderRow(
+				'Parallax Origin X',
+				-500,
+				500,
+				1,
+				layer.parallaxOriginX,
+				noop,
+				`layer-${String(index)}-porigin-x`,
+			),
+		);
+		row.append(
+			createSliderRow(
+				'Parallax Origin Y',
+				-500,
+				500,
+				1,
+				layer.parallaxOriginY,
+				noop,
+				`layer-${String(index)}-porigin-y`,
+			),
+		);
+		row.append(
+			createSliderRow(
+				'Scale X',
+				0.1,
+				10,
+				0.1,
+				layer.scaleX,
+				noop,
+				`layer-${String(index)}-scale-x`,
+			),
+		);
+		row.append(
+			createSliderRow(
+				'Scale Y',
+				0.1,
+				10,
+				0.1,
+				layer.scaleY,
+				noop,
+				`layer-${String(index)}-scale-y`,
+			),
+		);
+		row.append(
+			createSliderRow(
+				'Render Order',
+				-10,
+				10,
+				1,
+				layer.renderOrder,
+				noop,
+				`layer-${String(index)}-renderorder`,
+			),
+		);
+		row.append(
+			createToggleRow(
+				'Cast Shadows',
+				layer.castShadows,
+				noop,
+				`layer-${String(index)}-castshadows`,
+			),
+		);
+		row.append(
+			createToggleRow(
+				'Receive Shadows',
+				layer.receiveShadows,
+				noop,
+				`layer-${String(index)}-receiveshadows`,
+			),
+		);
+		row.append(
+			createToggleRow('Depth Write', layer.depthWrite, noop, `layer-${String(index)}-depthwrite`),
+		);
+		row.append(createToggleRow('Y-Sort', layer.ySortEnabled, noop, `layer-${String(index)}-ysort`));
+		row.append(
+			createSliderRow(
+				'Culling Pad',
+				0,
+				16,
+				1,
+				layer.cullingPadding,
+				noop,
+				`layer-${String(index)}-cullingpad`,
+			),
+		);
+	}
+
+	// Object-layer-specific info
+	if (layer.kind === 'object') {
+		const hdrObj: HTMLElement = createSubHeader('Object Layer');
+		row.append(hdrObj);
+		const objInfo: HTMLElement = infoRow('Objects', `layer-${String(index)}-objects`);
+		const objVal: HTMLElement | null = objInfo.querySelector(`#layer-${String(index)}-objects`);
+		if (objVal) objVal.textContent = String(layer.objects.length);
+		row.append(objInfo);
+	}
+
+	// Group-layer-specific info
+	if (layer.kind === 'group') {
+		const hdrGrp: HTMLElement = createSubHeader('Group Layer');
+		row.append(hdrGrp);
+		const grpInfo: HTMLElement = infoRow('Children', `layer-${String(index)}-children`);
+		const grpVal: HTMLElement | null = grpInfo.querySelector(`#layer-${String(index)}-children`);
+		if (grpVal) grpVal.textContent = String(layer.children.length);
+		row.append(grpInfo);
+	}
 
 	container.append(row);
 }
