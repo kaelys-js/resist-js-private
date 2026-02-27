@@ -101,6 +101,56 @@ export const ParallaxLayerTypeSchema = v.picklist(['background', 'foreground']);
 export type ParallaxLayerType = v.InferOutput<typeof ParallaxLayerTypeSchema>;
 
 // =============================================================================
+// Stars Config
+// =============================================================================
+
+/**
+ * Star field configuration for nighttime sky.
+ *
+ * Rendered as a background Layer with time-based opacity fade and twinkle.
+ * Stars fade in at `fadeInTime` (default: sunset) and out at `fadeOutTime`
+ * (default: sunrise), with a small sine-based twinkle oscillation.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { StarsConfigSchema } from './sky-config';
+ *
+ * const result = safeParse(StarsConfigSchema, {
+ *   enabled: true,
+ *   texture: 'sky/stars.png',
+ *   opacity: 0.8,
+ *   twinkleSpeed: 1.5,
+ * });
+ * ```
+ */
+export const StarsConfigSchema = v.strictObject({
+	/** Enable star field layer. Default: false. */
+	enabled: v.optional(v.boolean(), false),
+
+	/** Path to star texture (relative to project assets directory). */
+	texture: v.optional(v.pipe(v.string(), v.minLength(1)), 'sky/stars.png'),
+
+	/** Max opacity when fully visible [0, 1]. Default: 0.8. */
+	opacity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.8),
+
+	/** Twinkle oscillation speed [0, 5]. Default: 1. */
+	twinkleSpeed: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5)), 1),
+
+	/** Hour when stars begin fading in [0, 24]. Default: 18 (sunset). */
+	fadeInTime: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(24)), 18),
+
+	/** Hour when stars finish fading out [0, 24]. Default: 6 (sunrise). */
+	fadeOutTime: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(24)), 6),
+
+	/** Texture scale [0.1, 10]. Default: 2. */
+	scale: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(10)), 2),
+});
+
+/** Inferred stars config type from {@link StarsConfigSchema}. */
+export type StarsConfig = v.InferOutput<typeof StarsConfigSchema>;
+
+// =============================================================================
 // Parallax Layer
 // =============================================================================
 
@@ -248,6 +298,41 @@ export const SkyConfigSchema = v.strictObject({
 	 * Overall sky brightness. Range 0–2. Default: 1.
 	 */
 	luminance: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 1),
+
+	/**
+	 * Mie scattering intensity for `'procedural'` type.
+	 *
+	 * Controls haze glow around the sun. Range 0–0.1. Default: 0.005.
+	 */
+	mieCoefficient: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.1)), 0.005),
+
+	/**
+	 * Mie directional parameter for `'procedural'` type.
+	 *
+	 * 0 = isotropic, 1 = fully forward scattering. Range 0–1. Default: 0.8.
+	 */
+	mieDirectionalG: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.8),
+
+	/**
+	 * Sun vertical angle for `'procedural'` type.
+	 *
+	 * 0 = horizon, 0.5 = zenith. Range 0–0.5. Default: 0.49.
+	 */
+	inclination: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.49),
+
+	/**
+	 * Sun horizontal angle for `'procedural'` type.
+	 *
+	 * Range 0–1 (maps to 0–2π). Default: 0.25.
+	 */
+	azimuth: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.25),
+
+	/**
+	 * Star field configuration for nighttime sky.
+	 *
+	 * When enabled, renders a background layer with twinkle and time-based opacity.
+	 */
+	stars: v.optional(StarsConfigSchema),
 
 	/**
 	 * Parallax scrolling background layers (ordered back-to-front).

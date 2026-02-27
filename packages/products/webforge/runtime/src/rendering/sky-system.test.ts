@@ -39,6 +39,10 @@ describe('createSky — color type', () => {
 			turbidity: 10,
 			rayleigh: 2,
 			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
 		};
 		const result = createSky({ scene: instance.scene, config });
 		expect(result.ok).toBe(true);
@@ -57,6 +61,10 @@ describe('createSky — color type', () => {
 			turbidity: 10,
 			rayleigh: 2,
 			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
 		};
 		const result = createSky({ scene: instance.scene, config });
 		expect(result.ok).toBe(true);
@@ -83,6 +91,10 @@ describe('createSky — gradient type', () => {
 			turbidity: 10,
 			rayleigh: 2,
 			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
 		};
 		const result = createSky({ scene: instance.scene, config });
 		expect(result.ok).toBe(true);
@@ -104,6 +116,10 @@ describe('createSky — gradient type', () => {
 			turbidity: 10,
 			rayleigh: 2,
 			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
 		};
 		const result = createSky({ scene: instance.scene, config });
 		expect(result.ok).toBe(true);
@@ -127,6 +143,10 @@ describe('createSky — skybox type', () => {
 			turbidity: 10,
 			rayleigh: 2,
 			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
 		};
 		const result = createSky({ scene: instance.scene, config });
 		expect(result.ok).toBe(true);
@@ -149,6 +169,10 @@ describe('createSky — procedural type', () => {
 			turbidity: 10,
 			rayleigh: 2,
 			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
 		};
 		const result = createSky({ scene: instance.scene, config });
 		expect(result.ok).toBe(true);
@@ -172,6 +196,10 @@ describe('disposeSky', () => {
 			turbidity: 10,
 			rayleigh: 2,
 			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
 		};
 		const createResult = createSky({ scene: instance.scene, config });
 		expect(createResult.ok).toBe(true);
@@ -193,6 +221,10 @@ describe('disposeSky', () => {
 			turbidity: 10,
 			rayleigh: 2,
 			luminance: 1,
+			mieCoefficient: 0.005,
+			mieDirectionalG: 0.8,
+			inclination: 0.49,
+			azimuth: 0.25,
 		};
 		const createResult = createSky({ scene: instance.scene, config });
 		expect(createResult.ok).toBe(true);
