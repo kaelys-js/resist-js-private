@@ -1713,8 +1713,8 @@ git commit -m "chore: fix QA issues from tiles/tilemap/layers expansion"
 Each task: TDD → full QA → visual verify → mark `[x]` → commit → next task.
 
 ### Phase A: Tile Properties Schemas
-- [ ] Task 1: Passability schema
-- [ ] Task 2: Terrain schema
+- [x] Task 1: Passability schema
+- [x] Task 2: Terrain schema
 - [ ] Task 3: Tile flags schema
 - [ ] Task 4: Collision shape schema
 - [ ] Task 5: Custom properties & tags schema

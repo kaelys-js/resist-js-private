@@ -43,6 +43,8 @@ import {
 	disposeTilemap,
 	type RenderedTilemap,
 } from '../src/rendering/tilemap-renderer';
+import { getTileProperties } from '../src/rendering/tile-query';
+import { resolveGlobalTileId } from '../src/rendering/tileset-loader';
 
 import type { RuntimeInstance } from '../src/runtime';
 import type { BabylonResult } from '../src/core/babylon-result';
@@ -2022,6 +2024,209 @@ function buildLayerRow(
 }
 
 // =============================================================================
+// Tile Inspector UI Builder
+// =============================================================================
+
+/**
+ * Populates the tile inspector section with read-only info rows
+ * and attaches a canvas click handler for pick-to-inspect.
+ *
+ * @param debug - Debug API reference.
+ * @param scene - Babylon.js scene.
+ */
+function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
+	const container = document.querySelector('#tileinspector-body') as HTMLElement | null;
+	if (!container || !debug.tilemap) return;
+
+	container.innerHTML = '';
+
+	// -- Identity rows --
+	const hdrIdentity: HTMLElement = createSubHeader('Identity');
+	container.append(hdrIdentity);
+	container.append(infoRow('Tile ID (global)', 'ti-global-id'));
+	container.append(infoRow('Tile ID (local)', 'ti-local-id'));
+	container.append(infoRow('Tileset', 'ti-tileset'));
+	container.append(infoRow('Grid Position', 'ti-grid-pos'));
+
+	// -- Passability rows --
+	const hdrPass: HTMLElement = createSubHeader('Passability');
+	container.append(hdrPass);
+	container.append(infoRow('Passability', 'ti-passability'));
+	container.append(infoRow('Pass Above', 'ti-pass-above'));
+	container.append(infoRow('Pass Below', 'ti-pass-below'));
+	container.append(infoRow('Pass Event', 'ti-pass-event'));
+	container.append(infoRow('Star Passage', 'ti-star-passage'));
+	container.append(infoRow('Pass Vehicle', 'ti-pass-vehicle'));
+	container.append(infoRow('Pass Height', 'ti-pass-height'));
+
+	// -- Terrain rows --
+	const hdrTerrain: HTMLElement = createSubHeader('Terrain');
+	container.append(hdrTerrain);
+	container.append(infoRow('Terrain Tag', 'ti-terrain-tag'));
+	container.append(infoRow('Terrain Type', 'ti-terrain-type'));
+	container.append(infoRow('Footstep Sound', 'ti-footstep'));
+	container.append(infoRow('Encounter Rate', 'ti-encounter'));
+	container.append(infoRow('Slipperiness', 'ti-slipperiness'));
+	container.append(infoRow('Movement Speed', 'ti-movement'));
+	container.append(infoRow('Region ID', 'ti-region'));
+
+	// -- Flags rows --
+	const hdrFlags: HTMLElement = createSubHeader('Flags');
+	container.append(hdrFlags);
+	container.append(infoRow('Height', 'ti-height'));
+	container.append(infoRow('Damage Floor', 'ti-damage'));
+	container.append(infoRow('Bush', 'ti-bush'));
+	container.append(infoRow('Counter', 'ti-counter'));
+	container.append(infoRow('Ladder', 'ti-ladder'));
+
+	// Create a reusable selection highlight (cyan wireframe)
+	const highlightMesh: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround(
+		'tile-inspector-highlight',
+		{ width: 1, height: 1 },
+		scene,
+	);
+	const highlightMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial(
+		'tile-inspector-highlight-mat',
+		scene,
+	);
+	highlightMat.emissiveColor = new BABYLON.Color3(0, 1, 1);
+	highlightMat.disableLighting = true;
+	highlightMat.wireframe = true;
+	highlightMat.zOffset = -2;
+	highlightMesh.material = highlightMat;
+	highlightMesh.enableEdgesRendering();
+	highlightMesh.edgesWidth = 16;
+	highlightMesh.edgesColor = new BABYLON.Color4(0, 1, 1, 1);
+	highlightMesh.renderingGroupId = 1;
+	highlightMesh.isPickable = false;
+	highlightMesh.setEnabled(false);
+
+	// Attach canvas click handler
+	const canvas: HTMLCanvasElement | null =
+		document.querySelector<HTMLCanvasElement>('#game-canvas');
+	if (!canvas) return;
+
+	canvas.addEventListener('pointerdown', (evt: PointerEvent) => {
+		// Only react to left-click; ignore when dragging camera
+		if (evt.button !== 0) return;
+
+		const { tilemap }: { tilemap: RenderedTilemap | null } = debug;
+		if (!tilemap) return;
+
+		const pickResult: BABYLON.PickingInfo = scene.pick(evt.offsetX, evt.offsetY);
+
+		if (!pickResult.hit || !pickResult.pickedPoint) return;
+
+		// Convert world position to grid coordinates (tileWorldSize = 1)
+		const gridX: Num = Math.floor(pickResult.pickedPoint.x);
+		const gridZ: Num = Math.floor(pickResult.pickedPoint.z);
+		const mapW: Num = tilemap.mapData.width;
+		const mapH: Num = tilemap.mapData.height;
+
+		// Bounds check
+		if (gridX < 0 || gridX >= mapW || gridZ < 0 || gridZ >= mapH) return;
+
+		// Position the highlight meshes over the selected tile
+		// Position the highlight mesh over the selected tile
+		highlightMesh.position.set(gridX + 0.5, 0.02, gridZ + 0.5);
+		highlightMesh.setEnabled(true);
+
+		// Look up the global tile ID from the ground layer (first layer)
+		const tileIndex: Num = gridZ * mapW + gridX;
+		const [groundLayer] = tilemap.mapData.layers;
+		if (!groundLayer) return;
+
+		const globalTileId: Num = groundLayer.data[tileIndex] ?? 0;
+
+		// Resolve to tileset + local index
+		const resolved = resolveGlobalTileId({
+			globalId: globalTileId,
+			tilesets: tilemap.tilesets,
+		});
+
+		let localId: Num = 0;
+		let tilesetName = '(none)';
+
+		if (resolved.ok && resolved.data !== null) {
+			localId = resolved.data.localIndex;
+			tilesetName = resolved.data.tileset.config.name;
+		}
+
+		// Get tile properties
+		const propsResult = getTileProperties({
+			tilesets: tilemap.tilesets,
+			globalTileId: globalTileId,
+		});
+
+		// Update identity fields
+		setInfoValue('ti-global-id', String(globalTileId));
+		setInfoValue('ti-local-id', String(localId));
+		setInfoValue('ti-tileset', tilesetName);
+		setInfoValue('ti-grid-pos', `${String(gridX)}, ${String(gridZ)}`);
+
+		if (propsResult.ok) {
+			const props = propsResult.data;
+
+			// Passability — show as D/L/R/U arrows
+			const passLabels: readonly string[] = ['\u2193', '\u2190', '\u2192', '\u2191'];
+			const passStr: string = props.passability
+				.map((p: boolean, i: number) => (p ? (passLabels[i] ?? '?') : '\u2715'))
+				.join(' ');
+			setInfoValue('ti-passability', passStr);
+			setInfoValue('ti-pass-above', boolLabel(props.passAbove));
+			setInfoValue('ti-pass-below', boolLabel(props.passBelow));
+			setInfoValue('ti-pass-event', boolLabel(props.passEvent));
+			setInfoValue('ti-star-passage', boolLabel(props.starPassage));
+			setInfoValue('ti-pass-vehicle', String(props.passVehicle));
+			setInfoValue('ti-pass-height', String(props.passHeight));
+
+			// Terrain
+			setInfoValue('ti-terrain-tag', String(props.terrainTag));
+			setInfoValue('ti-terrain-type', props.terrainType);
+			setInfoValue('ti-footstep', props.footstepSound || '(none)');
+			setInfoValue('ti-encounter', String(props.encounterRate));
+			setInfoValue('ti-slipperiness', String(props.slipperiness));
+			setInfoValue('ti-movement', `${String(props.movementSpeed)}x`);
+			setInfoValue('ti-region', String(props.regionId));
+
+			// Flags
+			setInfoValue('ti-height', String(props.height));
+			setInfoValue('ti-damage', boolLabel(props.damageFloor));
+			setInfoValue('ti-bush', boolLabel(props.bush));
+			setInfoValue('ti-counter', boolLabel(props.counter));
+			setInfoValue('ti-ladder', boolLabel(props.ladder));
+		}
+
+		// Auto-expand the tile inspector section if collapsed
+		const section: HTMLElement | null = document.querySelector('#section-tileinspector');
+		if (section?.classList.contains('collapsed')) {
+			section.classList.remove('collapsed');
+		}
+	});
+}
+
+/**
+ * Sets the text content of an info-value element by ID.
+ *
+ * @param id - Element ID.
+ * @param value - Text to display.
+ */
+function setInfoValue(id: string, value: string): void {
+	const el: HTMLElement | null = document.querySelector(`#${id}`);
+	if (el) el.textContent = value;
+}
+
+/**
+ * Returns a human-readable label for a boolean value.
+ *
+ * @param val - Boolean value.
+ * @returns 'Yes' or 'No'.
+ */
+function boolLabel(val: boolean): string {
+	return val ? 'Yes' : 'No';
+}
+
+// =============================================================================
 // Layer UI Builder
 // =============================================================================
 
@@ -3551,6 +3756,7 @@ async function main(): Promise<void> {
 		buildCameraDetailsUI(runtime);
 		buildGlowDetailsUI(debug);
 		buildInfoUI(debug, runtime.engine.scene);
+		buildTileInspectorUI(debug, runtime.engine.scene);
 
 		// Center camera on the map (map is 32 tiles wide, 1 unit per tile)
 		const mapCenterX: Num = 16;
