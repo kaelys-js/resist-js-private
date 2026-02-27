@@ -65,8 +65,12 @@ export const RenderedTilemapSchema = v.strictObject({
 	cliffChunks: v.custom<ChunkMesh[]>((val): val is ChunkMesh[] => Array.isArray(val)),
 	/** Loaded tilesets. */
 	tilesets: v.custom<LoadedTileset[]>((val): val is LoadedTileset[] => Array.isArray(val)),
-	/** Materials per tileset. */
+	/** Materials per tileset (alpha-tested for decoration/upper layers). */
 	materials: v.custom<BABYLON.StandardMaterial[]>((val): val is BABYLON.StandardMaterial[] =>
+		Array.isArray(val),
+	),
+	/** Opaque materials per tileset (for ground layers, no alpha testing). */
+	opaqueMaterials: v.custom<BABYLON.StandardMaterial[]>((val): val is BABYLON.StandardMaterial[] =>
 		Array.isArray(val),
 	),
 	/** Tile animation manager. */
@@ -96,6 +100,10 @@ export const RenderedTilemapSchema = v.strictObject({
 	/** Parallax background instance (null if not configured). */
 	parallax: v.custom<ParallaxInstance | null>(
 		(val): val is ParallaxInstance | null => val === null || typeof val === 'object',
+	),
+	/** Opaque fill plane behind all tile layers (blocks parallax bleed-through). */
+	groundFill: v.nullable(
+		v.custom<BABYLON.Mesh>((val): val is BABYLON.Mesh => val instanceof BABYLON.Mesh),
 	),
 	/** The Babylon.js scene. */
 	scene: v.custom<BABYLON.Scene>((val): val is BABYLON.Scene => val instanceof BABYLON.Scene),
@@ -224,6 +232,22 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			materials.push(matResult.data);
 		}
 
+		// 6b. Create opaque materials for ground layers.
+		// Ground tiles are fully opaque — disabling alpha testing prevents
+		// parallax backgrounds from bleeding through at tile edges.
+		const opaqueMaterials: BABYLON.StandardMaterial[] = [];
+		for (const tileset of tilesets) {
+			const opaqueMatResult = createTileMaterial({
+				scene,
+				name: `mat-opaque-${tileset.config.name}` as Str,
+				texture: tileset.texture,
+				hasAlpha: false as Bool,
+			});
+			if (!opaqueMatResult.ok) return opaqueMatResult;
+			opaqueMatResult.data.transparencyMode = BABYLON.Material.MATERIAL_OPAQUE;
+			opaqueMaterials.push(opaqueMatResult.data);
+		}
+
 		// 7. Calculate chunk grid
 		// oxlint-disable-next-line prefer-destructuring
 		const chunkSize: Num = chunkConfig.chunkSize;
@@ -280,8 +304,8 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 
 		// 10b. Set renderingGroupId = 2 on tilemap meshes so parallax
 		// (group 1) renders behind them and sky (group 0) behind both.
-		// Disable auto depth/stencil clear for group 2 so shadows and
-		// depth testing remain continuous from group 0.
+		// Disable auto depth/stencil clear for group 2 so depth testing
+		// remains continuous from earlier groups.
 		scene.setRenderingAutoClearDepthStencil(2, false, false, false);
 		for (const chunk of chunks) {
 			chunk.mesh.renderingGroupId = 2;
@@ -289,6 +313,46 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 		for (const cliff of cliffChunks) {
 			cliff.mesh.renderingGroupId = 2;
 		}
+
+		// 10c. Assign opaque materials to ground-layer chunks so parallax
+		// can't bleed through alpha-tested tile edges on the base terrain.
+		for (const chunk of chunks) {
+			const chunkLayer = mapData.layers[chunk.layerIndex];
+			if (chunkLayer && chunkLayer.type === 'ground' && chunk.mesh.material) {
+				for (let mi: Num = 0; mi < materials.length; mi++) {
+					const opaqueMat: BABYLON.StandardMaterial | undefined = opaqueMaterials[mi];
+					if (chunk.mesh.material === materials[mi] && opaqueMat) {
+						chunk.mesh.material = opaqueMat;
+						break;
+					}
+				}
+			}
+		}
+
+		// 10d. Create an opaque fill plane behind all tile layers.
+		// This blocks parallax Layer.render() full-screen composites from
+		// bleeding through alpha-tested tile edges and empty tile gaps.
+		const tileWorldSize: Num = 1;
+		const fillWidth: Num = mapData.width * tileWorldSize;
+		const fillDepth: Num = mapData.height * tileWorldSize;
+		const groundFill: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround(
+			'tilemap-ground-fill',
+			{ width: fillWidth, height: fillDepth },
+			scene,
+		);
+		groundFill.position.x = fillWidth / 2;
+		groundFill.position.z = fillDepth / 2;
+		groundFill.position.y = -0.01;
+		groundFill.renderingGroupId = 2;
+		groundFill.receiveShadows = true;
+		const fillMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial(
+			'ground-fill-mat',
+			scene,
+		);
+		fillMat.diffuseColor = new BABYLON.Color3(0.02, 0.02, 0.02);
+		fillMat.specularColor = new BABYLON.Color3(0, 0, 0);
+		fillMat.transparencyMode = BABYLON.Material.MATERIAL_OPAQUE;
+		groundFill.material = fillMat;
 
 		// 11. Create tile animation manager
 		const animResult = createTileAnimator({ scene });
@@ -377,6 +441,7 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			cliffChunks,
 			tilesets,
 			materials,
+			opaqueMaterials,
 			animator: animResult.data,
 			mapData,
 			chunkConfig,
@@ -384,6 +449,7 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			lighting,
 			sky,
 			parallax,
+			groundFill,
 			scene,
 		};
 
@@ -440,6 +506,12 @@ export function disposeTilemap(options: DisposeTilemapOptions): BabylonResult<Bo
 			cliff.mesh.dispose();
 		}
 
+		// Dispose ground fill plane
+		if (tilemap.groundFill) {
+			tilemap.groundFill.material?.dispose();
+			tilemap.groundFill.dispose();
+		}
+
 		// Dispose post-processing pipeline
 		if (tilemap.postProcessing) {
 			disposePostProcessingPipeline({ pipeline: tilemap.postProcessing });
@@ -450,6 +522,11 @@ export function disposeTilemap(options: DisposeTilemapOptions): BabylonResult<Bo
 
 		// Dispose materials
 		for (const material of tilemap.materials) {
+			material.dispose();
+		}
+
+		// Dispose opaque materials
+		for (const material of tilemap.opaqueMaterials) {
 			material.dispose();
 		}
 
@@ -642,8 +719,10 @@ export function setLayerOpacity(options: SetLayerOpacityOptions): BabylonResult<
 				if (mat) {
 					if (options.opacity < 1) {
 						mat.transparencyMode = BABYLON.Material.MATERIAL_ALPHATESTANDBLEND;
-					} else {
+					} else if (mat instanceof BABYLON.StandardMaterial && mat.useAlphaFromDiffuseTexture) {
 						mat.transparencyMode = BABYLON.Material.MATERIAL_ALPHATEST;
+					} else {
+						mat.transparencyMode = BABYLON.Material.MATERIAL_OPAQUE;
 					}
 				}
 			}
