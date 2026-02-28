@@ -1163,7 +1163,40 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 
 		const durationSlider = document.querySelector('#transition-duration') as HTMLInputElement;
 		const durationMs = Number(durationSlider?.value ?? 500);
+
+		// Centre camera on the tilemap before transition so it looks at the map.
+		if (preset !== 'mapeditor') {
+			arcCam.target.x = (MAP_MIN + MAP_MAX) / 2;
+			arcCam.target.z = (MAP_MIN + MAP_MAX) / 2;
+		}
+
 		debug.switchPreset(preset, durationMs);
+
+		// Override the radius animation with a closer value for the tilemap.
+		// PRESET_DEFAULTS use radius 100-150 which is far too wide for a 32×32 map.
+		// This observer fires AFTER the preset transition's observer (registered
+		// later), so our radius write wins each frame — no visible jump.
+		if (preset !== 'mapeditor') {
+			const closerRadius: number = Math.max(MAP_SIZE * 1.2, 40);
+			const radiusStart: number = arcCam.radius;
+
+			if (durationMs <= 0) {
+				arcCam.radius = closerRadius;
+			} else {
+				const tStart: number = performance.now();
+				const obs: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
+					const elapsed: number = performance.now() - tStart;
+					const rawT: number = Math.min(1, elapsed / durationMs);
+					// Smoothstep easing
+					const t: number = rawT * rawT * (3 - 2 * rawT);
+					arcCam.radius = radiusStart + (closerRadius - radiusStart) * t;
+					if (rawT >= 1) {
+						scene.onBeforeRenderObservable.remove(obs);
+					}
+				});
+			}
+		}
+
 		_currentPreset = preset;
 
 		// Toggle camera nav controls visibility
@@ -8545,6 +8578,11 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		document.querySelector<HTMLCanvasElement>('#game-canvas');
 	if (!canvas) return;
 
+	// Click-vs-drag threshold (px). If pointer moves less than this between
+	// pointerdown and pointerup it counts as a click, otherwise it's a drag
+	// (camera rotation) and tile inspection is skipped.
+	const CLICK_THRESHOLD = 6;
+
 	canvas.addEventListener('pointerdown', (evt: PointerEvent) => {
 		// Only react to left-click; ignore when dragging camera
 		if (evt.button !== 0) return;
@@ -8619,38 +8657,56 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			return;
 		}
 
-		// ── Normal click: clear rectangular selection, single-tile inspect ──
-		_selStartX = -1;
-		_selStartZ = -1;
-		_selEndX = -1;
-		_selEndZ = -1;
+		// ── Normal click: use click-vs-drag detection ──
+		// Record start position; only inspect tile if pointer didn't move far
+		// (i.e. it was a click, not a camera rotation drag).
+		const downX: number = evt.clientX;
+		const downY: number = evt.clientY;
 
-		// Cache grid position for re-inspection when switching layers
-		_lastInspectX = gridX;
-		_lastInspectZ = gridZ;
+		const onClickUp = (upEvt: PointerEvent): void => {
+			canvas.removeEventListener('pointerup', onClickUp);
 
-		// Position the highlight mesh over the selected tile (use picked Y for cliffs)
-		const highlightY: Num = pickResult.pickedPoint.y + 0.02;
-		highlightMesh.position.y = highlightY;
-		highlightMesh.setEnabled(true);
-		updateHighlightForSelection();
+			const dx: number = upEvt.clientX - downX;
+			const dy: number = upEvt.clientY - downY;
+			if (dx * dx + dy * dy > CLICK_THRESHOLD * CLICK_THRESHOLD) return;
 
-		// Enable selection-dependent buttons in the Navigation section
-		const selBtnRef = (window as Record<string, unknown>)._selBtn as HTMLButtonElement | undefined;
-		const centerBtnRef = (window as Record<string, unknown>)._centerBtn as
-			| HTMLButtonElement
-			| undefined;
-		const clearTileBtnRef = (window as Record<string, unknown>)._clearTileBtn as
-			| HTMLButtonElement
-			| undefined;
-		if (selBtnRef) selBtnRef.disabled = false;
-		if (centerBtnRef) centerBtnRef.disabled = false;
-		if (clearTileBtnRef) clearTileBtnRef.disabled = false;
+			// This was a click, not a drag — perform tile inspection
+			_selStartX = -1;
+			_selStartZ = -1;
+			_selEndX = -1;
+			_selEndZ = -1;
 
-		// Update dim layers on tile selection (topmost layer may change)
-		applyDimLayers(tilemap);
+			// Cache grid position for re-inspection when switching layers
+			_lastInspectX = gridX;
+			_lastInspectZ = gridZ;
 
-		refreshInspector(tilemap, gridX, gridZ);
+			// Position the highlight mesh over the selected tile (use picked Y for cliffs)
+			const highlightY: Num = (pickResult.pickedPoint?.y ?? 0) + 0.02;
+			highlightMesh.position.y = highlightY;
+			highlightMesh.setEnabled(true);
+			updateHighlightForSelection();
+
+			// Enable selection-dependent buttons in the Navigation section
+			const selBtnRef = (window as Record<string, unknown>)._selBtn as
+				| HTMLButtonElement
+				| undefined;
+			const centerBtnRef = (window as Record<string, unknown>)._centerBtn as
+				| HTMLButtonElement
+				| undefined;
+			const clearTileBtnRef = (window as Record<string, unknown>)._clearTileBtn as
+				| HTMLButtonElement
+				| undefined;
+			if (selBtnRef) selBtnRef.disabled = false;
+			if (centerBtnRef) centerBtnRef.disabled = false;
+			if (clearTileBtnRef) clearTileBtnRef.disabled = false;
+
+			// Update dim layers on tile selection (topmost layer may change)
+			applyDimLayers(tilemap);
+
+			refreshInspector(tilemap, gridX, gridZ);
+		};
+
+		canvas.addEventListener('pointerup', onClickUp);
 	});
 
 	// ── Selection Style controls ──
