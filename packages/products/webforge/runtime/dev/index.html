@@ -700,23 +700,30 @@
 					<div class="section-body">
 						<div class="control-row">
 							<span class="control-label">Time</span>
-							<input type="range" id="time-slider" data-control="time" min="0" max="24" value="12" step="0.1" />
+							<input type="range" id="time-slider" data-control="time" min="0" max="23.99" value="12" step="0.1" />
 							<span class="control-value" id="time-value">12:00</span>
 						</div>
 						<div class="control-row">
 							<span class="control-label">Speed</span>
-							<input type="range" id="speed-slider" data-control="speed" min="0" max="10" value="0" step="0.5" />
+							<input type="range" id="speed-slider" data-control="speed" min="0" max="100" value="0" step="0.5" />
 							<span class="control-value" id="speed-value">0x</span>
 						</div>
 						<div id="daynight-preset-dropdown"></div>
-						<button class="btn" id="daynight-pause-btn" data-control="daynight-pause" style="width: 100%; margin-top: 4px">
-							&#9654; Play
-						</button>
+						<div style="display: flex; gap: 4px; margin-top: 4px">
+							<button class="btn" id="daynight-pause-btn" data-control="daynight-pause" style="flex: 1">
+								&#9654; Play
+							</button>
+							<button class="btn" id="daynight-now-btn" data-control="daynight-now" style="flex: 0 0 auto; padding: 0 10px" title="Set time to current real-world time">
+								&#128337; Now
+							</button>
+						</div>
 						<!-- Time Source & Progression -->
 						<div id="daynight-timesource-dropdown" style="margin-top: 6px"></div>
 						<div id="daynight-day-duration-row"></div>
 						<div id="daynight-reverse-row"></div>
 						<div id="daynight-timezone-row"></div>
+						<div id="daynight-realtime-season-row"></div>
+						<div id="daynight-realtime-moon-row"></div>
 						<!-- Season & Cycling -->
 						<div id="daynight-season-dropdown" style="margin-top: 6px"></div>
 						<div id="daynight-season-duration-row"></div>

@@ -819,7 +819,16 @@ export function createDayNightCycle(
 		// Use provided keyframes or default
 		const keyframes: readonly TimeKeyframe[] = config.keyframes ?? DEFAULT_DAY_CYCLE_KEYFRAMES;
 
-		const initialSpeed: Num = (config.speed ?? 0) as Num;
+		// Derive initial speed: if dayDurationSeconds is set and speed is not explicit, compute speed
+		const dayDurInit: number | undefined = config.dayDurationSeconds as number | undefined;
+		const explicitSpeed: number | undefined = config.speed as number | undefined;
+		let derivedSpeed = 0;
+		if (explicitSpeed !== undefined) {
+			derivedSpeed = explicitSpeed;
+		} else if (dayDurInit !== undefined && dayDurInit > 0) {
+			derivedSpeed = 24 / dayDurInit;
+		}
+		const initialSpeed: Num = derivedSpeed as Num;
 		const defaultSunPath: SunPathConfig = {
 			sunrise: 6,
 			sunset: 18,
@@ -837,7 +846,45 @@ export function createDayNightCycle(
 			const season: string | undefined = config.season as string | undefined;
 			if (season) {
 				const seasonResult: Result<SunPathConfig> = getSeasonSunPath(season);
-				if (seasonResult.ok) return seasonResult.data;
+				if (!seasonResult.ok) return defaultSunPath;
+				const currentPath: SunPathConfig = seasonResult.data;
+
+				// Season transition blending: lerp sun path toward next season
+				const transition: number = (config.seasonTransition as number | undefined) ?? 0;
+				if (transition > 0) {
+					const sDuration: number = (config.seasonDurationDays as number | undefined) ?? 7;
+					const sOrder: readonly string[] = (config.seasonOrder as string[] | undefined) ?? [
+						'spring',
+						'summer',
+						'autumn',
+						'winter',
+					];
+					if (sOrder.length > 0 && sDuration > 0) {
+						const fraction: number = (cycleInstance._currentDay % sDuration) / sDuration;
+						if (fraction > 1 - transition) {
+							const blendT: number = (fraction - (1 - transition)) / transition;
+							const nextIdx: number = (sOrder.indexOf(season) + 1) % sOrder.length;
+							const nextSeason: string | undefined = sOrder[nextIdx];
+							if (nextSeason) {
+								const nextResult: Result<SunPathConfig> = getSeasonSunPath(nextSeason);
+								if (nextResult.ok) {
+									const next: SunPathConfig = nextResult.data;
+									return {
+										sunrise: currentPath.sunrise + (next.sunrise - currentPath.sunrise) * blendT,
+										sunset: currentPath.sunset + (next.sunset - currentPath.sunset) * blendT,
+										maxElevation:
+											currentPath.maxElevation +
+											(next.maxElevation - currentPath.maxElevation) * blendT,
+										azimuthStart:
+											currentPath.azimuthStart +
+											(next.azimuthStart - currentPath.azimuthStart) * blendT,
+									};
+								}
+							}
+						}
+					}
+				}
+				return currentPath;
 			}
 			return defaultSunPath;
 		};
@@ -936,6 +983,9 @@ export function createDayNightCycle(
 						break;
 					}
 					default: {
+						// When speed is 0 (paused), skip time advancement entirely
+						if (cycleInstance.speed === 0) break;
+
 						// Compute effective speed: prefer dayDurationSeconds if set
 						let effectiveSpeed: number = cycleInstance.speed;
 						const dayDuration: number | undefined = config.dayDurationSeconds as number | undefined;
@@ -953,6 +1003,60 @@ export function createDayNightCycle(
 						}
 						break;
 					}
+				}
+			}
+
+			// ---- Realtime Season Sync ----
+			const timeSource: string = (config.timeSource as string | undefined) ?? 'accelerated';
+			if (timeSource === 'realtime') {
+				// Auto-set season from real month via realTimeSeasonMap
+				const seasonMap = config.realTimeSeasonMap as
+					| {
+							month3?: string;
+							month6?: string;
+							month9?: string;
+							month12?: string;
+					  }
+					| undefined;
+				if (seasonMap) {
+					const month: number = new Date().getMonth() + 1; // 1-12
+					let realSeason: string;
+					if (month >= 12 || month < 3) {
+						realSeason = seasonMap.month12 ?? 'winter';
+					} else if (month >= 3 && month < 6) {
+						realSeason = seasonMap.month3 ?? 'spring';
+					} else if (month >= 6 && month < 9) {
+						realSeason = seasonMap.month6 ?? 'summer';
+					} else {
+						realSeason = seasonMap.month9 ?? 'autumn';
+					}
+					(config as Record<string, unknown>)['season'] = realSeason;
+				}
+
+				// Auto-sync moon phase from real lunar cycle
+				const syncMoon: boolean = (config.realtimeMoonSync as boolean | undefined) ?? false;
+				if (syncMoon) {
+					const realMoonResult: Result<Num> = computeRealMoonPhase();
+					if (realMoonResult.ok) {
+						(config as Record<string, unknown>)['moonPhase'] = realMoonResult.data;
+					}
+				}
+			}
+
+			// ---- Season Auto-Cycling ----
+			const seasonDuration: number = (config.seasonDurationDays as number | undefined) ?? 7;
+			const seasonOrder: readonly string[] = (config.seasonOrder as string[] | undefined) ?? [
+				'spring',
+				'summer',
+				'autumn',
+				'winter',
+			];
+			if (seasonOrder.length > 0 && timeSource !== 'realtime') {
+				const currentSeasonIdx: number =
+					Math.floor(cycleInstance._currentDay / seasonDuration) % seasonOrder.length;
+				const autoSeason: string | undefined = seasonOrder[currentSeasonIdx];
+				if (autoSeason !== undefined) {
+					(config as Record<string, unknown>)['season'] = autoSeason;
 				}
 			}
 
@@ -1513,10 +1617,13 @@ export function getDayNightStats(instance: DayNightCycleInstance): Result<DayNig
 		nighttimeRemaining = (sunPath.sunrise - instance.timeOfDay) as Num;
 	}
 
-	// Effective speed
-	const dayDurationSeconds: Num =
-		(instance.config.dayDurationSeconds as Num | undefined) ?? (1440 as Num);
-	const effectiveSpeed: Num = (24 / dayDurationSeconds) as Num;
+	// Effective speed (respects speed=0 pause)
+	let effectiveSpeed: Num = 0 as Num;
+	if (instance.speed !== 0) {
+		const dayDurationSeconds: Num =
+			(instance.config.dayDurationSeconds as Num | undefined) ?? (1440 as Num);
+		effectiveSpeed = (24 / dayDurationSeconds) as Num;
+	}
 
 	return okUnchecked({
 		currentTime,
@@ -1567,7 +1674,7 @@ export function smoothJumpToTime(
 		);
 	}
 	instance._jumpTarget = targetTime;
-	instance._jumpStartMs = Date.now() as Num;
+	instance._jumpStartMs = performance.now() as Num;
 	instance._jumpDurationMs = durationMs;
 	instance._jumpStartValue = instance.timeOfDay;
 	return okUnchecked(true as Bool);
