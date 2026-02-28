@@ -93,8 +93,8 @@ describe('morningFog preset', () => {
 		expect(FOG_PRESETS.morningFog.mode).toBe('exponential2');
 	});
 
-	test('has density of 0.005', () => {
-		expect(FOG_PRESETS.morningFog.density).toBe(0.005);
+	test('has density of 0.006', () => {
+		expect(FOG_PRESETS.morningFog.density).toBe(0.006);
 	});
 
 	test('has warm color', () => {
@@ -132,7 +132,7 @@ describe('denseFog preset', () => {
 	});
 
 	test('has high density', () => {
-		expect(FOG_PRESETS.denseFog.density).toBe(0.008);
+		expect(FOG_PRESETS.denseFog.density).toBe(0.012);
 	});
 
 	test('has clouds overlay', () => {
@@ -172,7 +172,7 @@ describe('underwater preset', () => {
 	});
 
 	test('has high density', () => {
-		expect(FOG_PRESETS.underwater.density).toBe(0.01);
+		expect(FOG_PRESETS.underwater.density).toBe(0.015);
 	});
 
 	test('has blue-green color', () => {
@@ -231,7 +231,7 @@ describe('sandstorm preset', () => {
 	});
 
 	test('has high density', () => {
-		expect(FOG_PRESETS.sandstorm.density).toBe(0.008);
+		expect(FOG_PRESETS.sandstorm.density).toBe(0.012);
 	});
 
 	test('has warm sandy color', () => {
