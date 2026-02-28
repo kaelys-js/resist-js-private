@@ -1251,9 +1251,15 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	speedSlider?.addEventListener('input', () => {
 		const speed = Number(speedSlider.value);
 		const cycle = debug.tilemap?.lighting?.dayNightCycle;
-		if (cycle) cycle.speed = speed;
+		if (cycle) {
+			cycle.speed = speed;
+			// Sync dayDurationSeconds to match speed
+			if (speed > 0) {
+				(cycle.config as Record<string, unknown>)['dayDurationSeconds'] = 24 / speed;
+			}
+		}
 		if (speed > 0) _lastDayNightSpeed = speed;
-		if (speedValue) speedValue.textContent = speed === 0 ? '0x' : `${speed}x`;
+		if (speedValue) speedValue.textContent = speed === 0 ? '0x' : `${speed.toFixed(1)}x`;
 		if (pauseBtn) pauseBtn.textContent = speed > 0 ? '\u23F8 Pause' : '\u25B6 Play';
 	});
 
@@ -1321,15 +1327,31 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		}
 	});
 
+	// "Now" button — set time to current real-world time
+	const nowBtn = document.querySelector('#daynight-now-btn') as HTMLButtonElement | null;
+	nowBtn?.addEventListener('click', () => {
+		const now: Date = new Date();
+		const realHour: number = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+		debug.setTime(realHour);
+		if (timeSlider) timeSlider.value = String(realHour);
+		updateTimeDisplay(realHour);
+		// Clear preset dropdown
+		const presetSelect = document.querySelector(
+			'select[data-control="daynight-preset"]',
+		) as HTMLSelectElement | null;
+		if (presetSelect) presetSelect.selectedIndex = -1;
+	});
+
 	/**
 	 * Updates the time display label.
 	 *
-	 * @param hour - Current hour (0-24).
+	 * @param hour - Current hour (0-23.99).
 	 */
 	function updateTimeDisplay(hour: number): void {
 		if (!timeValue) return;
-		const h = Math.floor(hour);
-		const m = Math.floor((hour % 1) * 60);
+		const wrapped: number = ((hour % 24) + 24) % 24;
+		const h = Math.floor(wrapped);
+		const m = Math.floor((wrapped % 1) * 60);
 		timeValue.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 	}
 
@@ -1340,6 +1362,8 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	const dayDurationRow = document.querySelector('#daynight-day-duration-row');
 	const reverseRow = document.querySelector('#daynight-reverse-row');
 	const timezoneRow = document.querySelector('#daynight-timezone-row');
+	const realtimeSeasonRow = document.querySelector('#daynight-realtime-season-row');
+	const realtimeMoonRow = document.querySelector('#daynight-realtime-moon-row');
 
 	/**
 	 * Shows/hides time source dependent controls.
@@ -1356,6 +1380,12 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		if (timezoneRow) {
 			(timezoneRow as HTMLElement).style.display = source === 'realtime' ? '' : 'none';
 		}
+		if (realtimeSeasonRow) {
+			(realtimeSeasonRow as HTMLElement).style.display = source === 'realtime' ? '' : 'none';
+		}
+		if (realtimeMoonRow) {
+			(realtimeMoonRow as HTMLElement).style.display = source === 'realtime' ? '' : 'none';
+		}
 		// Hide speed slider when not accelerated
 		if (speedSlider) {
 			const speedRow = speedSlider.closest('.control-row') as HTMLElement | null;
@@ -1368,9 +1398,9 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 			createDropdown(
 				'Time Source',
 				[
-					{ value: 'accelerated', label: 'Accelerated' },
-					{ value: 'realtime', label: 'Real Time' },
-					{ value: 'manual', label: 'Manual' },
+					{ value: 'accelerated', label: 'Simulated' },
+					{ value: 'realtime', label: 'Wall Clock' },
+					{ value: 'manual', label: 'Slider Only' },
 				],
 				'accelerated',
 				(val) => {
@@ -1386,13 +1416,32 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 
 	// Day Duration slider (accelerated mode)
 	if (dayDurationRow) {
-		dayDurationRow.append(
-			createSliderRow('Day Duration (s)', 10, 3600, 10, 1440, (val) => {
-				const cycle = debug.tilemap?.lighting?.dayNightCycle;
-				if (!cycle) return;
-				(cycle.config as Record<string, unknown>)['dayDurationSeconds'] = val;
-			}),
-		);
+		const dayDurationSlider = createSliderRow('Day Length', 10, 3600, 10, 1440, (val) => {
+			const cycle = debug.tilemap?.lighting?.dayNightCycle;
+			if (!cycle) return;
+			(cycle.config as Record<string, unknown>)['dayDurationSeconds'] = val;
+			// Update speed slider to match
+			if (speedSlider) {
+				const derivedSpeed: number = 24 / val;
+				speedSlider.value = String(derivedSpeed);
+				if (speedValue) speedValue.textContent = `${derivedSpeed.toFixed(2)}x`;
+			}
+		});
+		// Replace the value label with formatted time
+		const dayDurValueSpan = dayDurationSlider.querySelector('.control-value');
+		if (dayDurValueSpan) dayDurValueSpan.textContent = '24m 0s';
+		const dayDurSliderEl = dayDurationSlider.querySelector(
+			'input[type="range"]',
+		) as HTMLInputElement | null;
+		dayDurSliderEl?.addEventListener('input', () => {
+			const v = Number(dayDurSliderEl.value);
+			const mins: number = Math.floor(v / 60);
+			const secs: number = v % 60;
+			if (dayDurValueSpan)
+				dayDurValueSpan.textContent =
+					mins > 0 ? `${String(mins)}m ${String(secs)}s` : `${String(secs)}s`;
+		});
+		dayDurationRow.append(dayDurationSlider);
 	}
 
 	// Reverse toggle (accelerated mode)
@@ -1414,6 +1463,40 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 				const cycle = debug.tilemap?.lighting?.dayNightCycle;
 				if (!cycle) return;
 				(cycle.config as Record<string, unknown>)['timezoneOffset'] = val;
+			}),
+		);
+	}
+
+	// Realtime season sync toggle (only visible in realtime mode)
+	if (realtimeSeasonRow) {
+		(realtimeSeasonRow as HTMLElement).style.display = 'none';
+		realtimeSeasonRow.append(
+			createToggleRow('Sync Season to Month', false, (on) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				if (on) {
+					// Set up the default season map
+					(cycle.config as Record<string, unknown>)['realTimeSeasonMap'] = {
+						month3: 'spring',
+						month6: 'summer',
+						month9: 'autumn',
+						month12: 'winter',
+					};
+				} else {
+					(cycle.config as Record<string, unknown>)['realTimeSeasonMap'] = undefined;
+				}
+			}),
+		);
+	}
+
+	// Realtime moon sync toggle (only visible in realtime mode)
+	if (realtimeMoonRow) {
+		(realtimeMoonRow as HTMLElement).style.display = 'none';
+		realtimeMoonRow.append(
+			createToggleRow('Sync Moon to Lunar Cycle', false, (on) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				(cycle.config as Record<string, unknown>)['realtimeMoonSync'] = on;
 			}),
 		);
 	}
@@ -1548,7 +1631,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	const seasonDurationRow = document.querySelector('#daynight-season-duration-row');
 	if (seasonDurationRow) {
 		seasonDurationRow.append(
-			createSliderRow('Season Days', 1, 30, 1, 7, (val) => {
+			createSliderRow('Days per Season', 1, 30, 1, 7, (val) => {
 				const cycle = debug.tilemap?.lighting?.dayNightCycle;
 				if (!cycle) return;
 				(cycle.config as Record<string, unknown>)['seasonDurationDays'] = val;
@@ -1572,7 +1655,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	const seasonTransitionRow = document.querySelector('#daynight-season-transition-row');
 	if (seasonTransitionRow) {
 		seasonTransitionRow.append(
-			createSliderRow('Season Blend', 0, 1, 0.05, 0, (val) => {
+			createSliderRow('Season Crossfade', 0, 1, 0.05, 0, (val) => {
 				const cycle = debug.tilemap?.lighting?.dayNightCycle;
 				if (!cycle) return;
 				(cycle.config as Record<string, unknown>)['seasonTransition'] = val;
@@ -1616,62 +1699,60 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		);
 	}
 
-	// Smooth Jump controls
+	// Smooth Jump controls — preset dropdown + duration slider + Go button
 	const smoothJumpRow = document.querySelector('#daynight-smooth-jump-row');
 	if (smoothJumpRow) {
-		const jumpRow = document.createElement('div');
-		jumpRow.className = 'control-row';
-		jumpRow.style.gap = '4px';
+		// Jump target dropdown
+		const jumpTargetMap: Record<string, number> = {
+			dawn: 5,
+			morning: 8,
+			noon: 12,
+			afternoon: 15,
+			dusk: 19,
+			night: 22,
+			midnight: 0,
+		};
+		let _jumpTargetHour = 18;
+		smoothJumpRow.append(
+			createDropdown(
+				'Jump To',
+				[
+					{ value: 'dawn', label: 'Dawn (5:00)' },
+					{ value: 'morning', label: 'Morning (8:00)' },
+					{ value: 'noon', label: 'Noon (12:00)' },
+					{ value: 'afternoon', label: 'Afternoon (15:00)' },
+					{ value: 'dusk', label: 'Dusk (19:00)' },
+					{ value: 'night', label: 'Night (22:00)' },
+					{ value: 'midnight', label: 'Midnight (0:00)' },
+				],
+				'dusk',
+				(val) => {
+					_jumpTargetHour = jumpTargetMap[val] ?? 18;
+				},
+				'daynight-jump-target',
+			),
+		);
 
-		const jumpLabel = document.createElement('span');
-		jumpLabel.className = 'control-label';
-		jumpLabel.textContent = 'Jump To';
+		// Duration slider
+		smoothJumpRow.append(
+			createSliderRow('Jump Duration', 0.5, 5, 0.25, 2, (val) => {
+				_jumpDurationSec = val;
+			}),
+		);
+		let _jumpDurationSec = 2;
 
-		const jumpInput = document.createElement('input');
-		jumpInput.type = 'number';
-		jumpInput.min = '0';
-		jumpInput.max = '24';
-		jumpInput.step = '0.5';
-		jumpInput.value = '18';
-		jumpInput.style.width = '48px';
-		jumpInput.style.background = '#333';
-		jumpInput.style.border = '1px solid #555';
-		jumpInput.style.color = '#eee';
-		jumpInput.style.borderRadius = '3px';
-		jumpInput.style.padding = '2px 4px';
-
-		const jumpDurationInput = document.createElement('input');
-		jumpDurationInput.type = 'number';
-		jumpDurationInput.min = '500';
-		jumpDurationInput.max = '5000';
-		jumpDurationInput.step = '250';
-		jumpDurationInput.value = '2000';
-		jumpDurationInput.style.width = '56px';
-		jumpDurationInput.style.background = '#333';
-		jumpDurationInput.style.border = '1px solid #555';
-		jumpDurationInput.style.color = '#eee';
-		jumpDurationInput.style.borderRadius = '3px';
-		jumpDurationInput.style.padding = '2px 4px';
-
-		const msLabel = document.createElement('span');
-		msLabel.style.fontSize = '9px';
-		msLabel.style.color = '#888';
-		msLabel.textContent = 'ms';
-
-		const jumpBtn = document.createElement('button');
-		jumpBtn.className = 'btn';
-		jumpBtn.textContent = 'Go';
-		jumpBtn.style.padding = '2px 8px';
-		jumpBtn.addEventListener('click', () => {
+		// Go button
+		const goBtn = document.createElement('button');
+		goBtn.className = 'btn';
+		goBtn.textContent = '\u25B6 Jump';
+		goBtn.style.width = '100%';
+		goBtn.style.marginTop = '2px';
+		goBtn.addEventListener('click', () => {
 			const cycle = debug.tilemap?.lighting?.dayNightCycle;
 			if (!cycle) return;
-			const target = Number(jumpInput.value) as Num;
-			const duration = Number(jumpDurationInput.value) as Num;
-			smoothJumpToTime(cycle, target, duration);
+			smoothJumpToTime(cycle, _jumpTargetHour as Num, (_jumpDurationSec * 1000) as Num);
 		});
-
-		jumpRow.append(jumpLabel, jumpInput, jumpDurationInput, msLabel, jumpBtn);
-		smoothJumpRow.append(jumpRow);
+		smoothJumpRow.append(goBtn);
 	}
 
 	// Read-only displays

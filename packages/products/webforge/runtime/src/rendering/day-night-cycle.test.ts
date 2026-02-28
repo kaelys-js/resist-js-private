@@ -10,6 +10,8 @@
 import * as BABYLON from '@babylonjs/core';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
+import type { Num } from '@/schemas/common';
+
 import { createTestEngine, disposeEngine, type BabylonEngineInstance } from '../core/engine';
 import type { ManagedLight } from './light-manager';
 import { applySceneSetup } from './scene-setup';
@@ -1801,5 +1803,171 @@ describe('computeRealMoonPhase', () => {
 		expect(result.ok).toBeTruthy();
 		if (!result.ok) return;
 		expect(result.data).toBe(0);
+	});
+});
+
+// =============================================================================
+// speed=0 pause with dayDurationSeconds
+// =============================================================================
+
+describe('speed=0 pause with dayDurationSeconds', () => {
+	test('speed=0 prevents time advancement even with dayDurationSeconds set', () => {
+		const { scene } = instance;
+		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
+		new BABYLON.FreeCamera('test-camera', new BABYLON.Vector3(0, 0, 0), scene);
+		const engine: BABYLON.NullEngine = scene.getEngine() as BABYLON.NullEngine;
+		const originalGetDelta = engine.getDeltaTime.bind(engine);
+		engine.getDeltaTime = () => 16;
+		const result = createDayNightCycle({
+			scene,
+			config: {
+				enabled: true,
+				timeOfDay: 12,
+				speed: 0,
+				dayDurationSeconds: 24,
+				timeSource: 'accelerated',
+			},
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const cycle = result.data;
+		scene.render();
+		// Time should NOT advance because speed is explicitly 0 (paused)
+		expect(cycle.timeOfDay).toBe(12);
+		engine.getDeltaTime = originalGetDelta;
+		disposeDayNightCycle({ cycle, scene });
+	});
+
+	test('initialSpeed derived from dayDurationSeconds when speed not set', () => {
+		const { scene } = instance;
+		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
+		new BABYLON.FreeCamera('test-camera', new BABYLON.Vector3(0, 0, 0), scene);
+		const result = createDayNightCycle({
+			scene,
+			config: {
+				enabled: true,
+				timeOfDay: 12,
+				dayDurationSeconds: 24,
+			},
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const cycle = result.data;
+		// speed = 24/24 = 1
+		expect(cycle.speed).toBe(1);
+		disposeDayNightCycle({ cycle, scene });
+	});
+});
+
+// =============================================================================
+// Season auto-cycling
+// =============================================================================
+
+describe('season auto-cycling', () => {
+	test('season advances based on currentDay and seasonDurationDays', () => {
+		const { scene } = instance;
+		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
+		new BABYLON.FreeCamera('test-camera', new BABYLON.Vector3(0, 0, 0), scene);
+		const engine: BABYLON.NullEngine = scene.getEngine() as BABYLON.NullEngine;
+		const originalGetDelta = engine.getDeltaTime.bind(engine);
+		engine.getDeltaTime = () => 16;
+		const result = createDayNightCycle({
+			scene,
+			config: {
+				enabled: true,
+				timeOfDay: 12,
+				speed: 0,
+				currentDay: 0,
+				seasonDurationDays: 7,
+				seasonOrder: ['spring', 'summer', 'autumn', 'winter'],
+				timeSource: 'accelerated',
+			},
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const cycle = result.data;
+		// Day 0, seasonDuration=7 → index = floor(0/7) % 4 = 0 → spring
+		scene.render();
+		expect(cycle.config.season).toBe('spring');
+
+		// Manually advance currentDay to 7 → index = floor(7/7) % 4 = 1 → summer
+		cycle._currentDay = 7 as Num;
+		scene.render();
+		expect(cycle.config.season).toBe('summer');
+
+		// Day 14 → index = 2 → autumn
+		cycle._currentDay = 14 as Num;
+		scene.render();
+		expect(cycle.config.season).toBe('autumn');
+
+		// Day 21 → index = 3 → winter
+		cycle._currentDay = 21 as Num;
+		scene.render();
+		expect(cycle.config.season).toBe('winter');
+
+		// Day 28 → wraps back to spring
+		cycle._currentDay = 28 as Num;
+		scene.render();
+		expect(cycle.config.season).toBe('spring');
+
+		engine.getDeltaTime = originalGetDelta;
+		disposeDayNightCycle({ cycle, scene });
+	});
+});
+
+// =============================================================================
+// getDayNightStats effectiveSpeed with speed=0
+// =============================================================================
+
+describe('getDayNightStats with speed=0', () => {
+	test('effectiveSpeed is 0 when cycle speed is 0', () => {
+		const { scene } = instance;
+		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
+		new BABYLON.FreeCamera('test-camera', new BABYLON.Vector3(0, 0, 0), scene);
+		const result = createDayNightCycle({
+			scene,
+			config: {
+				enabled: true,
+				timeOfDay: 12,
+				speed: 0,
+				dayDurationSeconds: 24,
+			},
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const cycle = result.data;
+		const stats = getDayNightStats(cycle);
+		expect(stats.ok).toBeTruthy();
+		if (!stats.ok) return;
+		expect(stats.data.effectiveSpeed).toBe(0);
+		disposeDayNightCycle({ cycle, scene });
+	});
+
+	test('effectiveSpeed is non-zero when cycle speed is non-zero', () => {
+		const { scene } = instance;
+		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
+		new BABYLON.FreeCamera('test-camera', new BABYLON.Vector3(0, 0, 0), scene);
+		const result = createDayNightCycle({
+			scene,
+			config: {
+				enabled: true,
+				timeOfDay: 12,
+				dayDurationSeconds: 24,
+			},
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const cycle = result.data;
+		const stats = getDayNightStats(cycle);
+		expect(stats.ok).toBeTruthy();
+		if (!stats.ok) return;
+		// speed = 24/24 = 1, so effectiveSpeed should be 1
+		expect(stats.data.effectiveSpeed).toBe(1);
+		disposeDayNightCycle({ cycle, scene });
 	});
 });
