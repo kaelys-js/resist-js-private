@@ -289,10 +289,13 @@ function ensureGridMesh(scene: BABYLON.Scene, debug: DevDebugApi): void {
 		lines.push([new BABYLON.Vector3(0, 0, j), new BABYLON.Vector3(mapW, 0, j)]);
 	}
 
-	_gridMesh = BABYLON.MeshBuilder.CreateLineSystem('grid-overlay', { lines }, scene);
+	// Create meshes in the utility layer scene so they render AFTER all
+	// post-processing (fog, bloom, glow, SSAO, vignette, tone mapping, etc.)
+	const utilScene: BABYLON.Scene = ensureUtilityLayer(scene).utilityLayerScene;
+
+	_gridMesh = BABYLON.MeshBuilder.CreateLineSystem('grid-overlay', { lines }, utilScene);
 	_gridMesh.color = _gridColor;
 	_gridMesh.visibility = _gridAlpha;
-	_gridMesh.renderingGroupId = 3;
 	_gridMesh.isPickable = false;
 	_gridMesh.position.y = 0.01;
 	_gridMesh.isVisible = _gridVisible;
@@ -301,14 +304,16 @@ function ensureGridMesh(scene: BABYLON.Scene, debug: DevDebugApi): void {
 	_gridFillMesh = BABYLON.MeshBuilder.CreateGround(
 		'grid-fill',
 		{ width: mapW, height: mapH },
-		scene,
+		utilScene,
 	);
-	const fillMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial('grid-fill-mat', scene);
+	const fillMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial(
+		'grid-fill-mat',
+		utilScene,
+	);
 	fillMat.emissiveColor = _gridFillColor;
 	fillMat.disableLighting = true;
 	fillMat.zOffset = -1;
 	_gridFillMesh.material = fillMat;
-	_gridFillMesh.renderingGroupId = 3;
 	_gridFillMesh.isPickable = false;
 	_gridFillMesh.position.set(mapW / 2, 0.009, mapH / 2);
 	_gridFillMesh.visibility = _gridFillAlpha;
@@ -483,6 +488,36 @@ function clearAllLayers(debug: DevDebugApi): void {
 	for (let li: Num = 0; li < tilemap.mapData.layers.length; li++) {
 		clearLayer(debug, li);
 	}
+}
+
+// -- Utility layer for dev overlays (renders AFTER all post-processing) --
+let _utilityLayer: BABYLON.UtilityLayerRenderer | null = null;
+
+/**
+ * Returns (and lazily creates) a UtilityLayerRenderer whose scene renders
+ * on top of the main scene AFTER all post-processing effects. Grid, selection
+ * highlight, border, and fill meshes live here so fog, bloom, SSAO, glow,
+ * vignette, tone mapping, etc. never affect them.
+ *
+ * @param scene - The main Babylon scene.
+ * @returns The shared UtilityLayerRenderer instance.
+ */
+function ensureUtilityLayer(scene: BABYLON.Scene): BABYLON.UtilityLayerRenderer {
+	if (!_utilityLayer) {
+		_utilityLayer = new BABYLON.UtilityLayerRenderer(scene);
+		// Draw on top of everything (default), clearing depth so overlays
+		// are never occluded by main-scene geometry.
+		_utilityLayer.utilityLayerScene.autoClearDepthAndStencil = true;
+		// Ambient light for future overlays that might need it.
+		// Current overlay materials all use disableLighting = true.
+		const light: BABYLON.HemisphericLight = new BABYLON.HemisphericLight(
+			'util-overlay-light',
+			new BABYLON.Vector3(0, 1, 0),
+			_utilityLayer.utilityLayerScene,
+		);
+		light.intensity = 1.0;
+	}
+	return _utilityLayer;
 }
 
 // -- Grid overlay state --
@@ -4685,14 +4720,13 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 
 	const { scene } = debug;
 	const chunkMeshes: BABYLON.AbstractMesh[] = [];
-	const uiMeshes: BABYLON.AbstractMesh[] = [];
 	const otherMeshes: BABYLON.AbstractMesh[] = [];
 
+	// UI overlay meshes (grid, selection) now live in the UtilityLayerRenderer
+	// scene and are immune to all post-processing. No glow exclusion needed.
 	for (const mesh of scene.meshes) {
 		if (mesh.name.startsWith('chunk-') || mesh.name.startsWith('cliff-')) {
 			chunkMeshes.push(mesh);
-		} else if (mesh.renderingGroupId === 3) {
-			uiMeshes.push(mesh);
 		} else if (
 			mesh.name !== 'tilemap-ground-fill' &&
 			!mesh.name.startsWith('sky-') &&
@@ -4722,53 +4756,6 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 			'glow-chunks',
 		),
 	);
-
-	// Track whether the user has enabled UI overlay glow
-	let uiGlowEnabled = false;
-
-	const uiToggleRow: HTMLElement = createToggleRow(
-		`UI Overlays (${String(uiMeshes.length)})`,
-		false,
-		(on) => {
-			uiGlowEnabled = on;
-			for (const mesh of uiMeshes) {
-				if (mesh instanceof BABYLON.Mesh) {
-					if (on) {
-						removeMeshFromGlow({ glowLayer: glow, mesh });
-					} else {
-						excludeMeshFromGlow({ glowLayer: glow, mesh });
-					}
-				}
-			}
-		},
-		'glow-ui',
-	);
-	container.append(uiToggleRow);
-
-	// Auto-exclude dynamically-created UI meshes (grid, selection highlight, etc.)
-	// Uses queueMicrotask because renderingGroupId is set AFTER mesh creation
-	scene.onNewMeshAddedObservable.add((mesh: BABYLON.AbstractMesh) => {
-		queueMicrotask(() => {
-			if (mesh.renderingGroupId === 3 && mesh instanceof BABYLON.Mesh) {
-				uiMeshes.push(mesh);
-				if (!uiGlowEnabled) {
-					excludeMeshFromGlow({ glowLayer: glow, mesh });
-				}
-				const lbl: Element | null = uiToggleRow.querySelector('.control-label');
-				if (lbl) lbl.textContent = `UI Overlays (${String(uiMeshes.length)})`;
-			}
-		});
-	});
-
-	// Update count when UI meshes are removed
-	scene.onMeshRemovedObservable.add((mesh: BABYLON.AbstractMesh) => {
-		const idx: number = uiMeshes.indexOf(mesh);
-		if (idx >= 0) {
-			uiMeshes.splice(idx, 1);
-			const lbl: Element | null = uiToggleRow.querySelector('.control-label');
-			if (lbl) lbl.textContent = `UI Overlays (${String(uiMeshes.length)})`;
-		}
-	});
 
 	if (otherMeshes.length > 0) {
 		container.append(
@@ -6077,22 +6064,25 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		glowIntensityVal,
 	};
 
+	// Create selection meshes in the utility layer scene so they render AFTER
+	// all post-processing (fog, bloom, glow, SSAO, vignette, tone mapping, etc.)
+	const utilScene: BABYLON.Scene = ensureUtilityLayer(scene).utilityLayerScene;
+
 	// Create a reusable selection highlight (cyan wireframe)
 	const highlightMesh: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround(
 		'tile-inspector-highlight',
 		{ width: 1, height: 1 },
-		scene,
+		utilScene,
 	);
 	const highlightMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial(
 		'tile-inspector-highlight-mat',
-		scene,
+		utilScene,
 	);
 	highlightMat.emissiveColor = _selectionColor;
 	highlightMat.disableLighting = true;
 	highlightMat.wireframe = true;
 	highlightMat.zOffset = -2;
 	highlightMesh.material = highlightMat;
-	highlightMesh.renderingGroupId = 3;
 	highlightMesh.isPickable = false;
 	highlightMesh.visibility = _selectionAlpha;
 	highlightMesh.setEnabled(false);
@@ -6101,17 +6091,16 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	// WebGL clamps lineWidth to 1px, so edgesWidth cannot produce thick borders.
 	// Instead, a hollow frame mesh (annulus) built with custom vertex data
 	// provides a visible colored border around the selection.
-	const borderMesh: BABYLON.Mesh = new BABYLON.Mesh('tile-inspector-border', scene);
+	const borderMesh: BABYLON.Mesh = new BABYLON.Mesh('tile-inspector-border', utilScene);
 	rebuildBorderGeometry(borderMesh, 1, 1, _selectionEdgeWidth);
 	const borderMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial(
 		'tile-inspector-border-mat',
-		scene,
+		utilScene,
 	);
 	borderMat.emissiveColor = _selectionColor;
 	borderMat.disableLighting = true;
 	borderMat.zOffset = -1;
 	borderMesh.material = borderMat;
-	borderMesh.renderingGroupId = 3;
 	borderMesh.isPickable = false;
 	borderMesh.visibility = _selectionAlpha;
 	borderMesh.setEnabled(false);
@@ -6120,16 +6109,15 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	const fillMesh: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround(
 		'tile-inspector-fill',
 		{ width: 1, height: 1 },
-		scene,
+		utilScene,
 	);
 	const fillMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial(
 		'tile-inspector-fill-mat',
-		scene,
+		utilScene,
 	);
 	fillMat.emissiveColor = _selectionFillColor;
 	fillMat.disableLighting = true;
 	fillMesh.material = fillMat;
-	fillMesh.renderingGroupId = 3;
 	fillMesh.isPickable = false;
 	fillMesh.visibility = _selectionFillAlpha;
 	fillMesh.setEnabled(false);

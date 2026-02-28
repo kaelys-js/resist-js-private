@@ -290,8 +290,11 @@ type ExcludeUiMeshesOptions = {
  * Excludes all UI overlay meshes (renderingGroupId=3) from glow.
  *
  * Scans all scene meshes and excludes any with renderingGroupId 3.
- * This prevents grid overlays, selection highlights, and other dev
- * tooling from being affected by the glow layer.
+ * This is a legacy defensive measure — the dev harness now renders
+ * overlay meshes (grid, selection highlight, border, fill) in a
+ * UtilityLayerRenderer scene that is immune to all post-processing
+ * including glow. This function is retained for any future meshes
+ * that might use renderingGroupId 3 in the main scene.
  *
  * @param options - Glow layer and scene to scan.
  * @returns BabylonResult containing the count of excluded meshes.
