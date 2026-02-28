@@ -286,12 +286,21 @@ describe('createDayNightCycle', () => {
 					direction: { x: 0, y: -1, z: 0 },
 					position: { x: 0, y: 50, z: 0 },
 					autoCalcShadowZBounds: true,
+					shadowFrustumSize: 0,
+					shadowOrthoScale: 0.1,
+					autoUpdateExtends: true,
+					shadowMinZ: 0,
+					shadowMaxZ: 0,
+					renderPriority: 0,
+					layerMask: 268_435_455,
+					lightmapMode: 'default',
 				},
 				light: sunLight,
 				shadowGenerator: null,
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				distanceFadeObserver: null,
 			},
 		];
 
@@ -1135,6 +1144,14 @@ const SUN_CONFIG = {
 	direction: { x: 0, y: -1, z: 0 },
 	position: { x: 0, y: 50, z: 0 },
 	autoCalcShadowZBounds: true,
+	shadowFrustumSize: 0,
+	shadowOrthoScale: 0.1,
+	autoUpdateExtends: true,
+	shadowMinZ: 0,
+	shadowMaxZ: 0,
+	renderPriority: 0,
+	layerMask: 268_435_455,
+	lightmapMode: 'default' as const,
 };
 
 // =============================================================================
@@ -1154,6 +1171,7 @@ describe('jumpToTime', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				distanceFadeObserver: null,
 			},
 		];
 		const result = createDayNightCycle({
@@ -1185,6 +1203,7 @@ describe('jumpToTime', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				distanceFadeObserver: null,
 			},
 		];
 		const result = createDayNightCycle({
@@ -1221,6 +1240,7 @@ describe('getCurrentPhase', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				distanceFadeObserver: null,
 			},
 		];
 		const result = createDayNightCycle({
@@ -1259,6 +1279,7 @@ describe('setSeason / getSeason', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				distanceFadeObserver: null,
 			},
 		];
 		const result = createDayNightCycle({
@@ -1294,6 +1315,7 @@ describe('setSeason / getSeason', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				distanceFadeObserver: null,
 			},
 		];
 		const result = createDayNightCycle({
@@ -1330,6 +1352,7 @@ describe('setIndoorMode / getIndoorMode', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				distanceFadeObserver: null,
 			},
 		];
 		const result = createDayNightCycle({
@@ -1365,6 +1388,7 @@ describe('setIndoorMode / getIndoorMode', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				distanceFadeObserver: null,
 			},
 		];
 		const result = createDayNightCycle({

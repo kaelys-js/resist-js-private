@@ -2,7 +2,9 @@
  * Shadow manager rendering tests.
  *
  * Tests shadow generator creation (PCF, PCSS, Cascade), property application,
- * shadow caster management, quality scaling, and disposal.
+ * shadow caster management, quality scaling, disposal, filter type overrides,
+ * and expanded shadow properties (forceBackFacesOnly, frustumEdgeFalloff,
+ * blur settings, cascade-specific lambda/depthClamp/penumbraDarkness, etc.).
  *
  * Note: NullEngine has limited WebGL support. Filtering flags
  * (`usePercentageCloserFiltering`, `useContactHardeningShadow`) may not
@@ -242,6 +244,412 @@ describe('createShadowGenerator — common properties', () => {
 		if (!result.ok) return;
 
 		expect(result.data.enableSoftTransparentShadow).toBe(true);
+	});
+});
+
+// =============================================================================
+// Filter Type Override
+// =============================================================================
+
+describe('createShadowGenerator — filterType override', () => {
+	test('filterType "none" creates generator without filter flags', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', filterType: 'none' },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const gen = result.data;
+		expect(gen).toBeInstanceOf(BABYLON.ShadowGenerator);
+		// "none" means no specialized filter — all filter flags should be false
+		expect(gen.useExponentialShadowMap).toBe(false);
+		expect(gen.useBlurExponentialShadowMap).toBe(false);
+		expect(gen.usePercentageCloserFiltering).toBe(false);
+		expect(gen.useContactHardeningShadow).toBe(false);
+		expect(gen.usePoissonSampling).toBe(false);
+	});
+
+	test('filterType "esm" sets useExponentialShadowMap', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', filterType: 'esm' },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.useExponentialShadowMap).toBe(true);
+	});
+
+	test('filterType "blurredEsm" sets useBlurExponentialShadowMap', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', filterType: 'blurredEsm' },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.useBlurExponentialShadowMap).toBe(true);
+	});
+
+	test('filterType "closeEsm" sets useCloseExponentialShadowMap', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', filterType: 'closeEsm' },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.useCloseExponentialShadowMap).toBe(true);
+	});
+
+	test('filterType "blurredCloseEsm" sets useBlurCloseExponentialShadowMap', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', filterType: 'blurredCloseEsm' },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.useBlurCloseExponentialShadowMap).toBe(true);
+	});
+
+	test('filterType "pcf" creates generator successfully', () => {
+		// Note: usePercentageCloserFiltering flag may not persist in NullEngine
+		// due to limited WebGL support. We verify creation succeeds.
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcss', filterType: 'pcf' },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data).toBeInstanceOf(BABYLON.ShadowGenerator);
+	});
+
+	test('filterType "pcss" creates generator successfully', () => {
+		// Note: useContactHardeningShadow flag may not persist in NullEngine
+		// due to limited WebGL support. We verify creation succeeds.
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', filterType: 'pcss' },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data).toBeInstanceOf(BABYLON.ShadowGenerator);
+	});
+
+	test('filterType "poisson" sets usePoissonSampling', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', filterType: 'poisson' },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.usePoissonSampling).toBe(true);
+	});
+
+	test('filterType overrides default filter from type', () => {
+		// type 'pcss' normally sets useContactHardeningShadow, but filterType 'esm'
+		// should override to useExponentialShadowMap instead
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcss', filterType: 'esm' },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// ESM flag persists in NullEngine (unlike PCF/PCSS flags)
+		expect(result.data.useExponentialShadowMap).toBe(true);
+	});
+
+	test('without filterType, default filter from type is applied', () => {
+		// Note: PCF/PCSS filter flags may not persist in NullEngine.
+		// We verify the generator is created successfully with the default type.
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf' },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data).toBeInstanceOf(BABYLON.ShadowGenerator);
+	});
+});
+
+// =============================================================================
+// Expanded General Shadow Properties
+// =============================================================================
+
+describe('createShadowGenerator — expanded general properties', () => {
+	test('applies forceBackFacesOnly', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', forceBackFacesOnly: true },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.forceBackFacesOnly).toBe(true);
+	});
+
+	test('applies frustumEdgeFalloff', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', frustumEdgeFalloff: 0.5 },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.frustumEdgeFalloff).toBeCloseTo(0.5);
+	});
+
+	test('applies contactHardeningLightSizeUVRatio', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcss', contactHardeningLightSizeUVRatio: 0.3 },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.contactHardeningLightSizeUVRatio).toBeCloseTo(0.3);
+	});
+
+	test('applies useKernelBlur', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', useKernelBlur: true },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.useKernelBlur).toBe(true);
+	});
+
+	test('applies blurKernel', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', blurKernel: 16 },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.blurKernel).toBe(16);
+	});
+
+	test('applies blurScale', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', blurScale: 3 },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.blurScale).toBeCloseTo(3);
+	});
+
+	test('applies depthScale', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf', depthScale: 100 },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.depthScale).toBeCloseTo(100);
+	});
+
+	test('applies useOpacityTextureForTransparentShadow', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: {
+				enabled: true,
+				type: 'pcf',
+				useOpacityTextureForTransparentShadow: true,
+				transparencyShadow: true,
+			},
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.useOpacityTextureForTransparentShadow).toBe(true);
+	});
+
+	test('forceBackFacesOnly defaults to false when not set', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: { enabled: true, type: 'pcf' },
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.forceBackFacesOnly).toBe(false);
+	});
+});
+
+// =============================================================================
+// Cascade-Specific Expanded Properties
+// =============================================================================
+
+describe('createShadowGenerator — cascade expanded properties', () => {
+	test('applies lambda to CSM when available', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: {
+				enabled: true,
+				type: 'cascade',
+				lambda: 0.8,
+			},
+			scene: instance.scene,
+		});
+		expect(typeof result.ok).toBe('boolean');
+		if (!result.ok) return;
+
+		if (result.data instanceof BABYLON.CascadedShadowGenerator) {
+			expect(result.data.lambda).toBeCloseTo(0.8);
+		}
+	});
+
+	test('applies depthClamp to CSM when available', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: {
+				enabled: true,
+				type: 'cascade',
+				depthClamp: false,
+			},
+			scene: instance.scene,
+		});
+		expect(typeof result.ok).toBe('boolean');
+		if (!result.ok) return;
+
+		if (result.data instanceof BABYLON.CascadedShadowGenerator) {
+			expect(result.data.depthClamp).toBe(false);
+		}
+	});
+
+	test('applies penumbraDarkness to CSM when available', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: {
+				enabled: true,
+				type: 'cascade',
+				penumbraDarkness: 0.6,
+			},
+			scene: instance.scene,
+		});
+		expect(typeof result.ok).toBe('boolean');
+		if (!result.ok) return;
+
+		if (result.data instanceof BABYLON.CascadedShadowGenerator) {
+			expect(result.data.penumbraDarkness).toBeCloseTo(0.6);
+		}
+	});
+
+	test('applies shadowMaxZ to CSM when available', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: {
+				enabled: true,
+				type: 'cascade',
+				shadowMaxZ: 500,
+			},
+			scene: instance.scene,
+		});
+		expect(typeof result.ok).toBe('boolean');
+		if (!result.ok) return;
+
+		if (result.data instanceof BABYLON.CascadedShadowGenerator) {
+			expect(result.data.shadowMaxZ).toBeCloseTo(500);
+		}
+	});
+
+	test('applies freezeShadowCastersBoundingInfo to CSM when available', () => {
+		const light: BABYLON.DirectionalLight = createDirectionalLight();
+		const result = createShadowGenerator({
+			light,
+			config: {
+				enabled: true,
+				type: 'cascade',
+				freezeShadowCastersBoundingInfo: true,
+			},
+			scene: instance.scene,
+		});
+		expect(typeof result.ok).toBe('boolean');
+		if (!result.ok) return;
+
+		if (result.data instanceof BABYLON.CascadedShadowGenerator) {
+			expect(result.data.freezeShadowCastersBoundingInfo).toBe(true);
+		}
+	});
+
+	test('cascade-specific properties are not applied to standard generator', () => {
+		// When cascade falls back to standard (e.g., PointLight), cascade-only
+		// properties should not be applied
+		const light: BABYLON.PointLight = createPointLight();
+		const result = createShadowGenerator({
+			light,
+			config: {
+				enabled: true,
+				type: 'cascade',
+				lambda: 0.8,
+				depthClamp: false,
+				penumbraDarkness: 0.3,
+				shadowMaxZ: 1000,
+				freezeShadowCastersBoundingInfo: true,
+			},
+			scene: instance.scene,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// Should be a standard ShadowGenerator (fallback), not CSM
+		expect(result.data).toBeInstanceOf(BABYLON.ShadowGenerator);
+		expect(result.data).not.toBeInstanceOf(BABYLON.CascadedShadowGenerator);
 	});
 });
 

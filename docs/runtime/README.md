@@ -29,7 +29,7 @@ if (!result.ok) {
 | **Engine** | WebGPU/WebGL2 renderer, render loop, quality presets | 10 | [engine.md](engine.md) |
 | **Camera** | 16 presets, FF Tactics rotation, smooth transitions | 18 | [camera.md](camera.md) |
 | **Tilemap** | Chunked renderer, autotile, animated tiles, layers | 60+ | [tilemap.md](tilemap.md) |
-| **Lighting** | 4 light types, shadows, flicker, god rays, lens flares | 50+ | [lighting.md](lighting.md) |
+| **Lighting** | 4 light types, 8 shadow filters, 13 flicker modes, god rays, lens flares, distance fade | 85+ | [lighting.md](lighting.md) |
 | **Day/Night Cycle** | 9 keyframes, seasons, moon phases, callbacks | 30+ | [day-night-cycle.md](day-night-cycle.md) |
 | **Glow Layer** | Mesh glow, intensity control, custom emissive colors | 6 | [glow-layer.md](glow-layer.md) |
 | **Fog** | 3-tier architecture, 14 presets, GLSL shaders | 77+ | [fog.md](fog.md) |
@@ -59,7 +59,7 @@ runtime/src/
 │   ├── scene-setup-config.ts   Scene setup, screen effects
 │   ├── fog-config.ts           3-tier fog (12 sub-schemas)
 │   ├── quality-config.ts       Quality presets (low/medium/high/ultra)
-│   ├── lighting-config.ts      Lights, shadows, day/night, glow
+│   ├── lighting-config.ts      Lights, 8 shadow filters, 13 flicker modes, god rays, lens flares, distance fade
 │   ├── post-processing-config.ts  12 post-FX sub-schemas
 │   ├── screen-shake-config.ts  Trauma shake + 18 presets
 │   ├── transition-config.ts    53 transition types + 32 presets
@@ -85,9 +85,9 @@ runtime/src/
 │   ├── tile-material.ts        StandardMaterial (NEAREST sampling)
 │   ├── tile-animator.ts        UV cycling for animated tiles
 │   ├── tile-query.ts           Tile inspection / querying
-│   ├── light-manager.ts        4 light types + shadow setup
-│   ├── light-animation.ts      Flicker, pulse, color cycling
-│   ├── shadow-manager.ts       Shadow generator management
+│   ├── light-manager.ts        4 light types + shadows + distance fade + lens flare presets
+│   ├── light-animation.ts      13 flicker modes with color shift + position jitter
+│   ├── shadow-manager.ts       Shadow generators with 8 filter types
 │   ├── day-night-cycle.ts      Keyframe interpolation + callbacks
 │   ├── color-temperature.ts    Kelvin-to-RGB conversion
 │   ├── glow-manager.ts         GlowLayer mesh management
@@ -144,6 +144,12 @@ runtime/dev/                    Dev harness
 | Function | Module | Purpose |
 |----------|--------|---------|
 | `createLights` | `rendering/light-manager.ts` | Create scene lights from config |
+| `removeLightById` | `rendering/light-manager.ts` | Remove and dispose a light by ID |
+| `updateLightPosition` | `rendering/light-manager.ts` | Update a light's position at runtime |
+| `updateLightIntensity` | `rendering/light-manager.ts` | Update a light's intensity at runtime |
+| `updateLightColor` | `rendering/light-manager.ts` | Update a light's diffuse color at runtime |
+| `disposeLighting` | `rendering/light-manager.ts` | Dispose all lights and sub-resources |
+| `createShadowGenerator` | `rendering/shadow-manager.ts` | Set up shadow generator (8 filter types) |
 | `createDayNightCycle` | `rendering/day-night-cycle.ts` | Start day/night interpolation |
 | `setTimeOfDay` | `rendering/day-night-cycle.ts` | Jump to specific time |
 | `setSeason` | `rendering/day-night-cycle.ts` | Change season at runtime |

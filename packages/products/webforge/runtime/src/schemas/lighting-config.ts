@@ -43,7 +43,7 @@ import { ColorRgbaSchema, Vector3Schema } from './color-schema';
 /**
  * Flicker animation type picklist.
  *
- * Seven procedural patterns for fire, pulse, and electrical effects:
+ * Thirteen procedural patterns for fire, pulse, electrical, and special effects:
  * - `'candle'` — irregular, high-frequency flicker (multi-harmonic sine + noise)
  * - `'torch'` — slower, broader flicker than candle
  * - `'campfire'` — slow rolling intensity with occasional flare
@@ -51,6 +51,12 @@ import { ColorRgbaSchema, Vector3Schema } from './color-schema';
  * - `'strobe'` — binary on/off at high frequency
  * - `'breathing'` — very slow, gentle sine wave
  * - `'fluorescent'` — mostly steady with rare sudden dips
+ * - `'storm'` — rare bright flashes over dim base (lightning storm)
+ * - `'heartbeat'` — double-pulse pattern (living/organic pulse)
+ * - `'random'` — per-frame pure noise (chaotic magic sparks)
+ * - `'neon'` — mostly on with rare brief dropouts (buzzing neon sign)
+ * - `'dying'` — increasingly long off-periods (failing light)
+ * - `'siren'` — sinusoidal at ~2Hz with hard threshold (emergency alarm)
  */
 export const FlickerTypeSchema = v.picklist([
 	'candle',
@@ -60,6 +66,12 @@ export const FlickerTypeSchema = v.picklist([
 	'strobe',
 	'breathing',
 	'fluorescent',
+	'storm',
+	'heartbeat',
+	'random',
+	'neon',
+	'dying',
+	'siren',
 ]);
 
 /** Inferred flicker type from {@link FlickerTypeSchema}. */
@@ -164,6 +176,33 @@ export const ShadowTypeSchema = v.picklist(['pcf', 'pcss', 'cascade']);
 export type ShadowType = v.InferOutput<typeof ShadowTypeSchema>;
 
 /**
+ * Shadow filter type picklist.
+ *
+ * Fine-grained control over shadow filtering algorithm:
+ * - `'none'` — raw shadow map, no filtering
+ * - `'esm'` — Exponential Shadow Map
+ * - `'blurredEsm'` — Blurred Exponential Shadow Map
+ * - `'closeEsm'` — Close Exponential Shadow Map
+ * - `'blurredCloseEsm'` — Blurred Close Exponential Shadow Map
+ * - `'pcf'` — Percentage Closer Filtering
+ * - `'pcss'` — Percentage Closer Soft Shadows (contact hardening)
+ * - `'poisson'` — Poisson disk sampling
+ */
+export const ShadowFilterTypeSchema = v.picklist([
+	'none',
+	'esm',
+	'blurredEsm',
+	'closeEsm',
+	'blurredCloseEsm',
+	'pcf',
+	'pcss',
+	'poisson',
+]);
+
+/** Inferred shadow filter type from {@link ShadowFilterTypeSchema}. */
+export type ShadowFilterType = v.InferOutput<typeof ShadowFilterTypeSchema>;
+
+/**
  * Shadow filtering quality picklist.
  *
  * Maps to `ShadowGenerator.QUALITY_LOW/MEDIUM/HIGH`.
@@ -240,10 +279,113 @@ export const ShadowConfigSchema = v.strictObject({
 
 	/** Auto-optimize shadow frustum per frame. Default: true. */
 	autoCalcDepthBounds: v.optional(v.boolean(), true),
+
+	// ---- Expansion: Filter Type ----
+
+	/** Fine-grained shadow filter type. Overrides default filter from `type` when set. */
+	filterType: v.optional(ShadowFilterTypeSchema),
+
+	// ---- Expansion: General Shadow Properties ----
+
+	/** Render only back faces into shadow map — reduces self-shadowing. Default: false. */
+	forceBackFacesOnly: v.optional(v.boolean(), false),
+
+	/** Fade shadow at frustum edges [0, 1]. 0 = hard edge. Default: 0. */
+	frustumEdgeFalloff: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
+
+	/** PCSS light size UV ratio (soft penumbra radius) [0, 1]. Default: 0.1. */
+	contactHardeningLightSizeUVRatio: v.optional(
+		v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+		0.1,
+	),
+
+	/** Use kernel blur instead of box blur (ESM modes). Default: false. */
+	useKernelBlur: v.optional(v.boolean(), false),
+
+	/** Blur kernel size (ESM modes) [1, 64]. Default: 1. */
+	blurKernel: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(64)), 1),
+
+	/** Blur render scale (ESM modes) [0.5, 4]. Default: 2. */
+	blurScale: v.optional(v.pipe(v.number(), v.minValue(0.5), v.maxValue(4)), 2),
+
+	/** ESM depth scale factor [0, 1000]. Default: 50. */
+	depthScale: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1000)), 50),
+
+	/** Uses opacity texture for alpha-tested shadows. Default: false. */
+	useOpacityTextureForTransparentShadow: v.optional(v.boolean(), false),
+
+	// ---- Expansion: Cascade-Specific Properties ----
+
+	/** Cascade split balance (0=uniform, 1=logarithmic) [0, 1]. Default: 0.5. */
+	lambda: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
+
+	/** Clamps depth to prevent clipping. Default: true. */
+	depthClamp: v.optional(v.boolean(), true),
+
+	/** Cascade penumbra darkness [0, 1]. Default: 1.0. */
+	penumbraDarkness: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 1.0),
+
+	/** Max shadow distance for CSM (0 = auto) [>= 0]. Default: 0. */
+	shadowMaxZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+
+	/** Cache shadow caster bounding info for performance. Default: false. */
+	freezeShadowCastersBoundingInfo: v.optional(v.boolean(), false),
 });
 
 /** Inferred shadow configuration type from {@link ShadowConfigSchema}. */
 export type ShadowConfig = v.InferOutput<typeof ShadowConfigSchema>;
+
+// =============================================================================
+// Distance Fade Schema
+// =============================================================================
+
+/**
+ * Distance-based light fade configuration.
+ *
+ * Fades point/spot lights based on distance from the active camera.
+ * Lights beyond `end` are fully invisible; lights closer than `start`
+ * are at full intensity.
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { DistanceFadeConfigSchema } from './lighting-config';
+ *
+ * const result = safeParse(DistanceFadeConfigSchema, {
+ *   enabled: true, start: 30, end: 80,
+ * });
+ * ```
+ */
+export const DistanceFadeConfigSchema = v.strictObject({
+	/** Whether distance fade is active. Default: false. */
+	enabled: v.optional(v.boolean(), false),
+
+	/** Distance at which fade begins [>= 0]. Default: 50. */
+	start: v.optional(v.pipe(v.number(), v.minValue(0)), 50),
+
+	/** Distance at which light fully fades out [>= 0]. Default: 100. */
+	end: v.optional(v.pipe(v.number(), v.minValue(0)), 100),
+});
+
+/** Inferred distance fade config type from {@link DistanceFadeConfigSchema}. */
+export type DistanceFadeConfig = v.InferOutput<typeof DistanceFadeConfigSchema>;
+
+// =============================================================================
+// Lightmap Mode Schema
+// =============================================================================
+
+/**
+ * Lightmap mode picklist.
+ *
+ * Controls how a light interacts with lightmapped materials:
+ * - `'default'` — standard diffuse + specular
+ * - `'specular'` — specular contribution only
+ * - `'shadowsOnly'` — shadow contribution only (no direct lighting)
+ */
+export const LightmapModeSchema = v.picklist(['default', 'specular', 'shadowsOnly']);
+
+/** Inferred lightmap mode type from {@link LightmapModeSchema}. */
+export type LightmapMode = v.InferOutput<typeof LightmapModeSchema>;
 
 // =============================================================================
 // Volumetric Light (God Rays) Schema
@@ -283,6 +425,12 @@ export const VolumetricLightConfigSchema = v.strictObject({
 
 	/** Internal render target resolution ratio (0, 1]. Default: 0.5. */
 	passRatio: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(1)), 0.5),
+
+	/** Exposure multiplier for god ray brightness [0, 2]. Default: 1.0. */
+	exposure: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 1.0),
+
+	/** God ray tint color. Default: white. */
+	color: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
 });
 
 /** Inferred volumetric light config type from {@link VolumetricLightConfigSchema}. */
@@ -320,24 +468,53 @@ export const LensFlareEntrySchema = v.strictObject({
 export type LensFlareEntry = v.InferOutput<typeof LensFlareEntrySchema>;
 
 /**
+ * Lens flare preset picklist.
+ *
+ * Curated flare element arrays for common lighting scenarios:
+ * - `'sun'` — 6-element outdoor sun flare with rainbow ring
+ * - `'moonGlow'` — 3-element soft white/blue moon glow
+ * - `'crystalLight'` — 5-element prismatic rainbow (fantasy)
+ * - `'torchGlow'` — 2-element warm orange indoor glow
+ */
+export const LensFlarePresetSchema = v.picklist(['sun', 'moonGlow', 'crystalLight', 'torchGlow']);
+
+/** Inferred lens flare preset type from {@link LensFlarePresetSchema}. */
+export type LensFlarePreset = v.InferOutput<typeof LensFlarePresetSchema>;
+
+/**
  * Lens flare system configuration for DirectionalLight (sun effects).
  *
- * When `flares` is omitted, a default 3-flare set is used at runtime.
+ * When `preset` is set and `flares` is omitted, the runtime generates
+ * a curated flare array. Custom `flares` always override the preset.
  *
  * @example
  * ```typescript
  * import { safeParse } from '@/utils/result/safe';
  * import { LensFlareConfigSchema } from './lighting-config';
  *
- * const result = safeParse(LensFlareConfigSchema, { enabled: true });
+ * const result = safeParse(LensFlareConfigSchema, {
+ *   enabled: true, preset: 'sun', haloWidth: 0.6,
+ * });
  * ```
  */
 export const LensFlareConfigSchema = v.strictObject({
 	/** Whether lens flares are enabled. Default: false. */
 	enabled: v.optional(v.boolean(), false),
 
-	/** Custom flare elements. Omit for default 3-flare set. */
+	/** Custom flare elements. Omit to use preset or default 3-flare set. */
 	flares: v.optional(v.array(LensFlareEntrySchema)),
+
+	/** Curated flare preset. Used when `flares` is omitted. */
+	preset: v.optional(LensFlarePresetSchema),
+
+	/** Center halo element size [0, 2]. Default: 0.4. */
+	haloWidth: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 0.4),
+
+	/** Spacing multiplier between ghost elements [0, 2]. Default: 0.3. */
+	ghostDispersal: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 0.3),
+
+	/** Min dot product for flare visibility [0, 1]. Default: 0.5. */
+	threshold: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
 });
 
 /** Inferred lens flare config type from {@link LensFlareConfigSchema}. */
@@ -401,6 +578,22 @@ export const PointLightConfigSchema = v.strictObject({
 	range: v.optional(v.pipe(v.number(), v.minValue(0)), 100),
 	/** Auto-assign includedOnlyMeshes within this radius. 0 or undefined = no culling. */
 	meshRadius: v.optional(v.pipe(v.number(), v.minValue(0))),
+
+	// --- Expansion: New Light Properties ---
+	/** PBR light physical radius (area light simulation) [>= 0]. Default: 0. */
+	radius: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+	/** Render ordering priority [0, 10]. Default: 0. */
+	renderPriority: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)), 0),
+	/** Shadow near plane (0 = auto) [>= 0]. Default: 0. */
+	shadowMinZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+	/** Shadow far plane (0 = auto) [>= 0]. Default: 0. */
+	shadowMaxZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+	/** Layer mask for mesh filtering. Default: 0x0FFFFFFF (Babylon.js default). */
+	layerMask: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 268_435_455),
+	/** Lightmap interaction mode. Default: 'default'. */
+	lightmapMode: v.optional(LightmapModeSchema, 'default'),
+	/** Distance-based fade configuration (Point/Spot only). */
+	distanceFade: v.optional(DistanceFadeConfigSchema),
 });
 
 /** Inferred PointLight config type from {@link PointLightConfigSchema}. */
@@ -463,6 +656,24 @@ export const SpotLightConfigSchema = v.strictObject({
 	projectionTextureNear: v.optional(v.pipe(v.number(), v.minValue(0)), 0.1),
 	/** Projection texture far clip distance. Default: 100. */
 	projectionTextureFar: v.optional(v.pipe(v.number(), v.minValue(0)), 100),
+
+	// --- Expansion: New Light Properties ---
+	/** Inner cone angle for soft edge falloff [0, PI]. Default: 0. */
+	innerAngle: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(Math.PI)), 0),
+	/** PBR light physical radius [>= 0]. Default: 0. */
+	radius: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+	/** Render ordering priority [0, 10]. Default: 0. */
+	renderPriority: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)), 0),
+	/** Shadow near plane (0 = auto) [>= 0]. Default: 0. */
+	shadowMinZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+	/** Shadow far plane (0 = auto) [>= 0]. Default: 0. */
+	shadowMaxZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+	/** Layer mask for mesh filtering. Default: 0x0FFFFFFF. */
+	layerMask: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 268_435_455),
+	/** Lightmap interaction mode. Default: 'default'. */
+	lightmapMode: v.optional(LightmapModeSchema, 'default'),
+	/** Distance-based fade configuration (Point/Spot only). */
+	distanceFade: v.optional(DistanceFadeConfigSchema),
 });
 
 /** Inferred SpotLight config type from {@link SpotLightConfigSchema}. */
@@ -516,6 +727,24 @@ export const DirectionalLightConfigSchema = v.strictObject({
 	volumetricLight: v.optional(VolumetricLightConfigSchema),
 	/** Lens flare system configuration. */
 	lensFlare: v.optional(LensFlareConfigSchema),
+
+	// --- Expansion: New Light Properties ---
+	/** Fixed shadow frustum size (0 = auto) [>= 0]. Default: 0. */
+	shadowFrustumSize: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+	/** Shadow ortho matrix scale factor [> 0]. Default: 0.1. */
+	shadowOrthoScale: v.optional(v.pipe(v.number(), v.minValue(0)), 0.1),
+	/** Auto-update shadow extends each frame. Default: true. */
+	autoUpdateExtends: v.optional(v.boolean(), true),
+	/** Shadow near plane (0 = auto) [>= 0]. Default: 0. */
+	shadowMinZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+	/** Shadow far plane (0 = auto) [>= 0]. Default: 0. */
+	shadowMaxZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+	/** Render ordering priority [0, 10]. Default: 0. */
+	renderPriority: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)), 0),
+	/** Layer mask for mesh filtering. Default: 0x0FFFFFFF. */
+	layerMask: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 268_435_455),
+	/** Lightmap interaction mode. Default: 'default'. */
+	lightmapMode: v.optional(LightmapModeSchema, 'default'),
 });
 
 /** Inferred DirectionalLight config type from {@link DirectionalLightConfigSchema}. */
@@ -559,6 +788,12 @@ export const HemisphericLightConfigSchema = v.strictObject({
 	direction: v.optional(Vector3Schema, { x: 0, y: 1, z: 0 }),
 	/** Ground (bounce) color. Default: dim gray (0.2, 0.2, 0.2). */
 	groundColor: v.optional(ColorRgbaSchema, { r: 0.2, g: 0.2, b: 0.2, a: 1 }),
+
+	// --- Expansion: New Light Properties ---
+	/** Render ordering priority [0, 10]. Default: 0. */
+	renderPriority: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)), 0),
+	/** Layer mask for mesh filtering. Default: 0x0FFFFFFF. */
+	layerMask: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 268_435_455),
 });
 
 /** Inferred HemisphericLight config type from {@link HemisphericLightConfigSchema}. */

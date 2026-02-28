@@ -1,9 +1,9 @@
 /**
  * Light animation (flicker) tests.
  *
- * Tests the 7 flicker presets (candle, torch, campfire, pulse, strobe,
- * breathing, fluorescent), color shift, position jitter, pseudoNoise,
- * and observer lifecycle.
+ * Tests the 13 flicker presets (candle, torch, campfire, pulse, strobe,
+ * breathing, fluorescent, storm, heartbeat, random, neon, dying, siren),
+ * color shift, position jitter, pseudoNoise, and observer lifecycle.
  *
  * @module
  */
@@ -75,6 +75,12 @@ describe('computeFlicker', () => {
 		'strobe',
 		'breathing',
 		'fluorescent',
+		'storm',
+		'heartbeat',
+		'random',
+		'neon',
+		'dying',
+		'siren',
 	] as const;
 
 	for (const type of types) {
@@ -89,9 +95,11 @@ describe('computeFlicker', () => {
 		});
 	}
 
-	test('amplitude=0 always returns 1', () => {
-		for (let t = 0; t < 5; t += 0.1) {
-			expect(computeFlicker('candle', t, 1, 0)).toBeCloseTo(1, 5);
+	test('amplitude=0 always returns 1 for all types', () => {
+		for (const type of types) {
+			for (let t = 0; t < 5; t += 0.1) {
+				expect(computeFlicker(type, t, 1, 0)).toBeCloseTo(1, 5);
+			}
 		}
 	});
 
@@ -109,6 +117,117 @@ describe('computeFlicker', () => {
 			values.add(Math.round(computeFlicker('strobe', t, 1, amplitude) * 1000) / 1000);
 		}
 		// Strobe should only produce two values: 1 and (1-amplitude)
+		expect(values.size).toBeLessThanOrEqual(2);
+	});
+
+	test('storm has mostly dimmed rumble with occasional bright flashes', () => {
+		const amplitude = 0.5;
+		let flashCount = 0;
+		const total = 1000;
+		for (let t = 0; t < 10; t += 10 / total) {
+			const val: number = computeFlicker('storm', t, 1, amplitude);
+			// Must stay in valid range
+			expect(val).toBeGreaterThanOrEqual(1 - amplitude - 0.001);
+			expect(val).toBeLessThanOrEqual(1.001);
+			if (val > 0.95) flashCount++;
+		}
+		// Storm should have some flash moments but not constantly bright
+		expect(flashCount).toBeGreaterThan(0);
+		expect(flashCount).toBeLessThan(total * 0.3);
+	});
+
+	test('heartbeat has double-pulse pattern', () => {
+		const amplitude = 0.5;
+		// Sample one complete cycle at speed=1 (period = 1/1.2 ≈ 0.833s)
+		const cycleDuration = 1 / 1.2;
+		const samples: number[] = [];
+		for (let t = 0; t < cycleDuration; t += cycleDuration / 200) {
+			samples.push(computeFlicker('heartbeat', t, 1, amplitude));
+		}
+		// Find peaks (local maxima significantly above baseline)
+		let peakCount = 0;
+		for (let i = 1; i < samples.length - 1; i++) {
+			const curr: number | undefined = samples[i];
+			const prev: number | undefined = samples[i - 1];
+			const next: number | undefined = samples[i + 1];
+			if (
+				curr !== undefined &&
+				prev !== undefined &&
+				next !== undefined &&
+				curr > prev &&
+				curr > next &&
+				curr > 1 - amplitude + 0.05
+			) {
+				peakCount++;
+			}
+		}
+		// Should have at least 2 peaks in one cycle (the double beat)
+		expect(peakCount).toBeGreaterThanOrEqual(2);
+	});
+
+	test('random varies each frame', () => {
+		const amplitude = 0.5;
+		const values: Set<number> = new Set<number>();
+		for (let t = 0; t < 1; t += 0.01) {
+			const val: number = computeFlicker('random', t, 1, amplitude);
+			expect(val).toBeGreaterThanOrEqual(1 - amplitude - 0.001);
+			expect(val).toBeLessThanOrEqual(1.001);
+			values.add(Math.round(val * 1000) / 1000);
+		}
+		// Random should produce many distinct values over 100 samples
+		expect(values.size).toBeGreaterThan(10);
+	});
+
+	test('neon is mostly on with rare dips', () => {
+		const amplitude = 0.5;
+		let fullOnCount = 0;
+		const total = 1000;
+		for (let t = 0; t < 10; t += 10 / total) {
+			const val: number = computeFlicker('neon', t, 1, amplitude);
+			expect(val).toBeGreaterThanOrEqual(1 - amplitude - 0.001);
+			expect(val).toBeLessThanOrEqual(1.001);
+			if (val > 0.99) fullOnCount++;
+		}
+		// Neon should be fully on >90% of the time (threshold is 0.03)
+		expect(fullOnCount).toBeGreaterThan(total * 0.9);
+	});
+
+	test('dying tends toward longer off periods', () => {
+		const amplitude = 0.8;
+		// Sample early in cycle vs late in cycle
+		let earlyOnCount = 0;
+		let lateOnCount = 0;
+		const samplesPerSegment = 200;
+		// Early in cycle (cycle value near 0 → onChance high)
+		for (let i = 0; i < samplesPerSegment; i++) {
+			const t: number = i * 0.001; // Very small t → cycle ≈ 0
+			const val: number = computeFlicker('dying', t, 1, amplitude);
+			expect(val).toBeGreaterThanOrEqual(1 - amplitude - 0.001);
+			expect(val).toBeLessThanOrEqual(1.001);
+			if (val > 1 - amplitude + 0.01) earlyOnCount++;
+		}
+		// Late in cycle (larger t → cycle approaches 1 → onChance drops)
+		for (let i = 0; i < samplesPerSegment; i++) {
+			const t: number = 2.5 + i * 0.001; // Larger t → cycle further along
+			const val: number = computeFlicker('dying', t, 1, amplitude);
+			expect(val).toBeGreaterThanOrEqual(1 - amplitude - 0.001);
+			expect(val).toBeLessThanOrEqual(1.001);
+			if (val > 1 - amplitude + 0.01) lateOnCount++;
+		}
+		// Early should have more "on" frames than late (dying effect)
+		expect(earlyOnCount).toBeGreaterThanOrEqual(lateOnCount);
+	});
+
+	test('siren returns binary output oscillating at ~2Hz', () => {
+		const amplitude = 0.5;
+		const values: Set<number> = new Set<number>();
+		for (let t = 0; t < 2; t += 0.001) {
+			const val: number = computeFlicker('siren', t, 1, amplitude);
+			expect(val).toBeGreaterThanOrEqual(1 - amplitude - 0.001);
+			expect(val).toBeLessThanOrEqual(1.001);
+			values.add(Math.round(val * 1000) / 1000);
+		}
+		// Siren should only produce two values: 1 and (1-amplitude)
 		expect(values.size).toBeLessThanOrEqual(2);
 	});
 });

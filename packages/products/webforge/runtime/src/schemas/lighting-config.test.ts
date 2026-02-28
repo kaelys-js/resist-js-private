@@ -17,6 +17,7 @@ import type { Result } from '@/schemas/result/result';
 import {
 	DayNightCycleConfigSchema,
 	DirectionalLightConfigSchema,
+	DistanceFadeConfigSchema,
 	FlickerConfigSchema,
 	GlowLayerConfigSchema,
 	HemisphericLightConfigSchema,
@@ -24,11 +25,14 @@ import {
 	IndoorModeSchema,
 	LensFlareConfigSchema,
 	LensFlareEntrySchema,
+	LensFlarePresetSchema,
 	LightConfigSchema,
 	LightingConfigSchema,
+	LightmapModeSchema,
 	PointLightConfigSchema,
 	RealTimeSeasonMapSchema,
 	ShadowConfigSchema,
+	ShadowFilterTypeSchema,
 	SpotLightConfigSchema,
 	SunPathConfigSchema,
 	TimeKeyframeSchema,
@@ -37,6 +41,7 @@ import {
 	VolumetricLightConfigSchema,
 	type DayNightCycleConfig,
 	type DirectionalLightConfig,
+	type DistanceFadeConfig,
 	type FlickerConfig,
 	type GlowLayerConfig,
 	type HemisphericLightConfig,
@@ -44,11 +49,14 @@ import {
 	type IndoorModeConfig,
 	type LensFlareConfig,
 	type LensFlareEntry,
+	type LensFlarePreset,
 	type LightConfig,
 	type LightingConfig,
+	type LightmapMode,
 	type PointLightConfig,
 	type RealTimeSeasonMap,
 	type ShadowConfig,
+	type ShadowFilterType,
 	type SpotLightConfig,
 	type SunPathConfig,
 	type TimeKeyframe,
@@ -1291,5 +1299,416 @@ describe('LightingConfigSchema', () => {
 			shadows: true,
 		});
 		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// ShadowFilterTypeSchema (Expansion)
+// =============================================================================
+
+describe('ShadowFilterTypeSchema', () => {
+	test('accepts all 8 filter types', () => {
+		const types: string[] = [
+			'none',
+			'esm',
+			'blurredEsm',
+			'closeEsm',
+			'blurredCloseEsm',
+			'pcf',
+			'pcss',
+			'poisson',
+		];
+		for (const t of types) {
+			const result: Result<ShadowFilterType> = safeParse(ShadowFilterTypeSchema, t);
+			expect(result.ok).toBeTruthy();
+		}
+	});
+
+	test('rejects invalid filter type', () => {
+		const result: Result<ShadowFilterType> = safeParse(ShadowFilterTypeSchema, 'raytraced');
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// ShadowConfigSchema Expansion Fields
+// =============================================================================
+
+describe('ShadowConfigSchema expansion', () => {
+	test('filterType defaults to undefined', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.filterType).toBeUndefined();
+	});
+
+	test('accepts filterType esm', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, { filterType: 'esm' });
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.filterType).toBe('esm');
+	});
+
+	test('forceBackFacesOnly defaults to false', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.forceBackFacesOnly).toBeFalsy();
+	});
+
+	test('frustumEdgeFalloff defaults to 0, rejects out of range', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.frustumEdgeFalloff).toBe(0);
+
+		const tooHigh: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {
+			frustumEdgeFalloff: 1.5,
+		});
+		expect(tooHigh.ok).toBeFalsy();
+
+		const tooLow: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {
+			frustumEdgeFalloff: -0.1,
+		});
+		expect(tooLow.ok).toBeFalsy();
+	});
+
+	test('contactHardeningLightSizeUVRatio defaults to 0.1', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.contactHardeningLightSizeUVRatio).toBeCloseTo(0.1);
+	});
+
+	test('useKernelBlur defaults to false', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.useKernelBlur).toBeFalsy();
+	});
+
+	test('blurKernel defaults to 1, rejects out of range', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.blurKernel).toBe(1);
+
+		expect(safeParse(ShadowConfigSchema, { blurKernel: 0 }).ok).toBeFalsy();
+		expect(safeParse(ShadowConfigSchema, { blurKernel: 65 }).ok).toBeFalsy();
+	});
+
+	test('blurScale defaults to 2, rejects out of range', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.blurScale).toBe(2);
+
+		expect(safeParse(ShadowConfigSchema, { blurScale: 0.1 }).ok).toBeFalsy();
+		expect(safeParse(ShadowConfigSchema, { blurScale: 5 }).ok).toBeFalsy();
+	});
+
+	test('depthScale defaults to 50, rejects out of range', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.depthScale).toBe(50);
+
+		expect(safeParse(ShadowConfigSchema, { depthScale: -1 }).ok).toBeFalsy();
+		expect(safeParse(ShadowConfigSchema, { depthScale: 1001 }).ok).toBeFalsy();
+	});
+
+	test('useOpacityTextureForTransparentShadow defaults to false', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.useOpacityTextureForTransparentShadow).toBeFalsy();
+	});
+
+	test('lambda defaults to 0.5, rejects out of range', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.lambda).toBeCloseTo(0.5);
+
+		expect(safeParse(ShadowConfigSchema, { lambda: -0.1 }).ok).toBeFalsy();
+		expect(safeParse(ShadowConfigSchema, { lambda: 1.1 }).ok).toBeFalsy();
+	});
+
+	test('depthClamp defaults to true', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.depthClamp).toBeTruthy();
+	});
+
+	test('penumbraDarkness defaults to 1.0', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.penumbraDarkness).toBeCloseTo(1.0);
+	});
+
+	test('shadowMaxZ defaults to 0, rejects negative', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.shadowMaxZ).toBe(0);
+
+		expect(safeParse(ShadowConfigSchema, { shadowMaxZ: -1 }).ok).toBeFalsy();
+	});
+
+	test('freezeShadowCastersBoundingInfo defaults to false', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.freezeShadowCastersBoundingInfo).toBeFalsy();
+	});
+
+	test('backward compat: existing configs without new fields parse', () => {
+		const result: Result<ShadowConfig> = safeParse(ShadowConfigSchema, {
+			enabled: true,
+			type: 'pcf',
+			mapSize: 1024,
+			filteringQuality: 'medium',
+			bias: 0.000_05,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+});
+
+// =============================================================================
+// DistanceFadeConfigSchema (Expansion)
+// =============================================================================
+
+describe('DistanceFadeConfigSchema', () => {
+	test('applies defaults for empty object', () => {
+		const result: Result<DistanceFadeConfig> = safeParse(DistanceFadeConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.enabled).toBeFalsy();
+		expect(result.data.start).toBe(50);
+		expect(result.data.end).toBe(100);
+	});
+
+	test('rejects negative start', () => {
+		expect(safeParse(DistanceFadeConfigSchema, { start: -1 }).ok).toBeFalsy();
+	});
+
+	test('rejects negative end', () => {
+		expect(safeParse(DistanceFadeConfigSchema, { end: -1 }).ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// LightmapModeSchema (Expansion)
+// =============================================================================
+
+describe('LightmapModeSchema', () => {
+	test('accepts all 3 modes', () => {
+		const modes: string[] = ['default', 'specular', 'shadowsOnly'];
+		for (const m of modes) {
+			const result: Result<LightmapMode> = safeParse(LightmapModeSchema, m);
+			expect(result.ok).toBeTruthy();
+		}
+	});
+
+	test('rejects invalid mode', () => {
+		expect(safeParse(LightmapModeSchema, 'diffuseOnly').ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// Light Type Schema Expansion Fields
+// =============================================================================
+
+describe('PointLightConfigSchema expansion', () => {
+	test('new fields default correctly', () => {
+		const result: Result<PointLightConfig> = safeParse(PointLightConfigSchema, {
+			id: 'test',
+			type: 'point',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.radius).toBe(0);
+		expect(result.data.renderPriority).toBe(0);
+		expect(result.data.shadowMinZ).toBe(0);
+		expect(result.data.shadowMaxZ).toBe(0);
+		expect(result.data.layerMask).toBe(268_435_455);
+		expect(result.data.lightmapMode).toBe('default');
+		expect(result.data.distanceFade).toBeUndefined();
+	});
+
+	test('accepts all new fields', () => {
+		const result: Result<PointLightConfig> = safeParse(PointLightConfigSchema, {
+			id: 'test',
+			type: 'point',
+			radius: 0.5,
+			renderPriority: 3,
+			shadowMinZ: 1,
+			shadowMaxZ: 100,
+			layerMask: 16_777_215,
+			lightmapMode: 'specular',
+			distanceFade: { enabled: true, start: 10, end: 50 },
+		});
+		expect(result.ok).toBeTruthy();
+	});
+});
+
+describe('SpotLightConfigSchema expansion', () => {
+	test('innerAngle defaults to 0', () => {
+		const result: Result<SpotLightConfig> = safeParse(SpotLightConfigSchema, {
+			id: 'test',
+			type: 'spot',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.innerAngle).toBe(0);
+	});
+
+	test('rejects innerAngle > PI', () => {
+		expect(
+			safeParse(SpotLightConfigSchema, {
+				id: 'test',
+				type: 'spot',
+				innerAngle: 4,
+			}).ok,
+		).toBeFalsy();
+	});
+});
+
+describe('DirectionalLightConfigSchema expansion', () => {
+	test('new fields default correctly', () => {
+		const result: Result<DirectionalLightConfig> = safeParse(DirectionalLightConfigSchema, {
+			id: 'test',
+			type: 'directional',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.shadowFrustumSize).toBe(0);
+		expect(result.data.shadowOrthoScale).toBeCloseTo(0.1);
+		expect(result.data.autoUpdateExtends).toBeTruthy();
+		expect(result.data.shadowMinZ).toBe(0);
+		expect(result.data.shadowMaxZ).toBe(0);
+		expect(result.data.renderPriority).toBe(0);
+		expect(result.data.layerMask).toBe(268_435_455);
+		expect(result.data.lightmapMode).toBe('default');
+	});
+});
+
+describe('HemisphericLightConfigSchema expansion', () => {
+	test('new fields default correctly', () => {
+		const result: Result<HemisphericLightConfig> = safeParse(HemisphericLightConfigSchema, {
+			id: 'test',
+			type: 'hemispheric',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.renderPriority).toBe(0);
+		expect(result.data.layerMask).toBe(268_435_455);
+	});
+});
+
+// =============================================================================
+// FlickerTypeSchema Expansion (6 new modes)
+// =============================================================================
+
+describe('FlickerTypeSchema expansion', () => {
+	test('accepts all 13 flicker types', () => {
+		const types: string[] = [
+			'candle',
+			'torch',
+			'campfire',
+			'pulse',
+			'strobe',
+			'breathing',
+			'fluorescent',
+			'storm',
+			'heartbeat',
+			'random',
+			'neon',
+			'dying',
+			'siren',
+		];
+		for (const t of types) {
+			const result: Result<FlickerConfig> = safeParse(FlickerConfigSchema, { type: t });
+			expect(result.ok).toBeTruthy();
+		}
+	});
+});
+
+// =============================================================================
+// LensFlarePresetSchema (Expansion)
+// =============================================================================
+
+describe('LensFlarePresetSchema', () => {
+	test('accepts all 4 presets', () => {
+		const presets: string[] = ['sun', 'moonGlow', 'crystalLight', 'torchGlow'];
+		for (const p of presets) {
+			const result: Result<LensFlarePreset> = safeParse(LensFlarePresetSchema, p);
+			expect(result.ok).toBeTruthy();
+		}
+	});
+
+	test('rejects invalid preset', () => {
+		expect(safeParse(LensFlarePresetSchema, 'strobe').ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// LensFlareConfigSchema Expansion
+// =============================================================================
+
+describe('LensFlareConfigSchema expansion', () => {
+	test('new fields default correctly', () => {
+		const result: Result<LensFlareConfig> = safeParse(LensFlareConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.preset).toBeUndefined();
+		expect(result.data.haloWidth).toBeCloseTo(0.4);
+		expect(result.data.ghostDispersal).toBeCloseTo(0.3);
+		expect(result.data.threshold).toBeCloseTo(0.5);
+	});
+
+	test('accepts preset with haloWidth', () => {
+		const result: Result<LensFlareConfig> = safeParse(LensFlareConfigSchema, {
+			enabled: true,
+			preset: 'sun',
+			haloWidth: 0.8,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('rejects haloWidth > 2', () => {
+		expect(safeParse(LensFlareConfigSchema, { haloWidth: 3 }).ok).toBeFalsy();
+	});
+
+	test('rejects threshold > 1', () => {
+		expect(safeParse(LensFlareConfigSchema, { threshold: 1.5 }).ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// VolumetricLightConfigSchema Expansion
+// =============================================================================
+
+describe('VolumetricLightConfigSchema expansion', () => {
+	test('exposure defaults to 1.0', () => {
+		const result: Result<VolumetricLightConfig> = safeParse(VolumetricLightConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.exposure).toBeCloseTo(1.0);
+	});
+
+	test('color defaults to white', () => {
+		const result: Result<VolumetricLightConfig> = safeParse(VolumetricLightConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.color.r).toBeCloseTo(1);
+		expect(result.data.color.g).toBeCloseTo(1);
+		expect(result.data.color.b).toBeCloseTo(1);
+	});
+
+	test('rejects exposure > 2', () => {
+		expect(safeParse(VolumetricLightConfigSchema, { exposure: 3 }).ok).toBeFalsy();
 	});
 });

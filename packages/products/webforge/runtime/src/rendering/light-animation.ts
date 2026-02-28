@@ -1,9 +1,10 @@
 /**
  * Light animation — procedural flicker system.
  *
- * Seven flicker presets (candle, torch, campfire, pulse, strobe, breathing,
- * fluorescent) driven by per-frame `onBeforeRenderObservable`. Includes
- * optional color temperature shift and position jitter for realistic fire.
+ * Thirteen flicker presets (candle, torch, campfire, pulse, strobe, breathing,
+ * fluorescent, storm, heartbeat, random, neon, dying, siren) driven by
+ * per-frame `onBeforeRenderObservable`. Includes optional color temperature
+ * shift and position jitter for realistic fire.
  *
  * All pure-math helpers are exported for unit testing without Babylon.js.
  *
@@ -152,6 +153,39 @@ export function computeFlicker(type: string, time: Num, speed: Num, amplitude: N
 
 		case 'fluorescent': {
 			return pseudoNoise(t * s * 20) < 0.05 ? 1 - a * 0.8 : 1;
+		}
+
+		case 'storm': {
+			const flash: number = pseudoNoise(t * s * 2) > 0.95 ? 1 : 0;
+			const rumble: number = 0.1 * Math.sin(t * s * 3);
+			const raw: number = 1 - a * (1 - flash) * (1 - rumble);
+			return Math.max(1 - a, Math.min(1, raw));
+		}
+
+		case 'heartbeat': {
+			const phase: number = (t * s * 1.2) % 1;
+			const beat1: number = Math.max(0, 1 - Math.abs(phase - 0.15) * 15);
+			const beat2: number = Math.max(0, 1 - Math.abs(phase - 0.35) * 15);
+			return 1 - a * (1 - Math.max(beat1, beat2));
+		}
+
+		case 'random': {
+			return 1 - a * pseudoNoise(t * s * 30);
+		}
+
+		case 'neon': {
+			return pseudoNoise(t * s * 15) < 0.03 ? 1 - a * 0.9 : 1;
+		}
+
+		case 'dying': {
+			const cycle: number = (t * s * 0.3) % 1;
+			const onChance: number = Math.max(0.05, 1 - cycle * 0.8);
+			return pseudoNoise(t * s * 8) < onChance ? 1 : 1 - a;
+		}
+
+		case 'siren': {
+			const wave: number = Math.sin(t * s * Math.PI * 4);
+			return wave > 0 ? 1 : 1 - a;
 		}
 
 		default: {

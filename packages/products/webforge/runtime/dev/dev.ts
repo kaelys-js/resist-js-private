@@ -9118,6 +9118,168 @@ function buildLightsUI(debug: DevDebugApi): void {
 			);
 		}
 
+		// ── Per-Light Properties sub-group ──
+		if (ml.config.type !== 'hemispheric') {
+			const propsGroup = createCollapsibleGroup('Light Properties', true);
+
+			// Radius (point/spot only)
+			if (ml.config.type === 'point' || ml.config.type === 'spot') {
+				const pointLight = ml.light as BABYLON.PointLight;
+				propsGroup.body.append(
+					createSliderRow(
+						'Radius',
+						0,
+						10,
+						0.1,
+						pointLight.radius ?? 0,
+						(v) => {
+							pointLight.radius = v;
+						},
+						`light-${lightId}-radius`,
+						'Light source radius for soft shadow penumbra.',
+					),
+				);
+			}
+
+			// Render Priority
+			propsGroup.body.append(
+				createSliderRow(
+					'Render Priority',
+					0,
+					10,
+					1,
+					ml.light.renderPriority,
+					(v) => {
+						ml.light.renderPriority = v;
+					},
+					`light-${lightId}-render-priority`,
+					'Order in which this light is processed during rendering.',
+				),
+			);
+
+			// Inner Angle (spot only)
+			if (ml.config.type === 'spot') {
+				propsGroup.body.append(
+					createSliderRow(
+						'Inner Angle',
+						0,
+						Math.PI,
+						0.01,
+						(ml.light as BABYLON.SpotLight).innerAngle,
+						(v) => {
+							(ml.light as BABYLON.SpotLight).innerAngle = v;
+						},
+						`light-${lightId}-inner-angle`,
+						'Inner cone angle in radians where light is at full intensity.',
+					),
+				);
+			}
+
+			// Shadow Frustum Size (directional only)
+			if (ml.config.type === 'directional') {
+				propsGroup.body.append(
+					createSliderRow(
+						'Shadow Frustum Size',
+						0,
+						100,
+						1,
+						(ml.light as BABYLON.DirectionalLight).shadowFrustumSize,
+						(v) => {
+							(ml.light as BABYLON.DirectionalLight).shadowFrustumSize = v;
+						},
+						`light-${lightId}-shadow-frustum-size`,
+						'Fixed frustum size for shadow map. 0 = auto-compute.',
+					),
+				);
+
+				propsGroup.body.append(
+					createSliderRow(
+						'Shadow Ortho Scale',
+						0,
+						2,
+						0.01,
+						(ml.light as BABYLON.DirectionalLight).shadowOrthoScale,
+						(v) => {
+							(ml.light as BABYLON.DirectionalLight).shadowOrthoScale = v;
+						},
+						`light-${lightId}-shadow-ortho-scale`,
+						'Scale factor for orthographic shadow projection.',
+					),
+				);
+
+				propsGroup.body.append(
+					createToggleRow(
+						'Auto Update Extends',
+						(ml.light as BABYLON.DirectionalLight).autoUpdateExtends,
+						(on) => {
+							(ml.light as BABYLON.DirectionalLight).autoUpdateExtends = on;
+						},
+						`light-${lightId}-auto-update-extends`,
+						'Automatically recompute shadow bounds each frame.',
+					),
+				);
+			}
+
+			// Shadow Min Z (directional/point/spot)
+			const shadowLight = ml.light as BABYLON.ShadowLight;
+			propsGroup.body.append(
+				createSliderRow(
+					'Shadow Min Z',
+					0,
+					100,
+					0.1,
+					shadowLight.shadowMinZ ?? 0,
+					(v) => {
+						shadowLight.shadowMinZ = v;
+					},
+					`light-${lightId}-shadow-min-z`,
+					'Near clipping plane for shadow generation.',
+				),
+			);
+
+			// Shadow Max Z (directional/point/spot — on the light itself)
+			propsGroup.body.append(
+				createSliderRow(
+					'Shadow Max Z',
+					0,
+					500,
+					1,
+					shadowLight.shadowMaxZ ?? 200,
+					(v) => {
+						shadowLight.shadowMaxZ = v;
+					},
+					`light-${lightId}-light-shadow-max-z`,
+					'Far clipping plane for shadow generation.',
+				),
+			);
+
+			// Lightmap Mode
+			const lightmapModeMap: Record<number, string> = {
+				0: 'default',
+				1: 'specular',
+				2: 'shadowsOnly',
+			};
+			const lightmapModeReverseMap: Record<string, number> = {
+				default: 0,
+				specular: 1,
+				shadowsOnly: 2,
+			};
+			propsGroup.body.append(
+				createDropdown(
+					'Lightmap Mode',
+					['default', 'specular', 'shadowsOnly'],
+					lightmapModeMap[ml.light.lightmapMode] ?? 'default',
+					(v) => {
+						ml.light.lightmapMode = lightmapModeReverseMap[v] ?? 0;
+					},
+					`light-${lightId}-lightmap-mode`,
+					'How this light interacts with lightmaps.',
+				),
+			);
+
+			row.append(propsGroup.root);
+		}
+
 		// Shadow darkness slider
 		if (ml.shadowGenerator && 'darkness' in ml.shadowGenerator) {
 			const sg = ml.shadowGenerator;
@@ -9135,6 +9297,272 @@ function buildLightsUI(debug: DevDebugApi): void {
 					'Shadow intensity. 0 = no shadow, 1 = fully dark.',
 				),
 			);
+		}
+
+		// ── Shadow Details sub-group ──
+		if (ml.shadowGenerator) {
+			const sg = ml.shadowGenerator as BABYLON.ShadowGenerator;
+			const sgRecord = sg as unknown as Record<string, unknown>;
+			const isCascaded = 'numCascades' in sg;
+			const shadowGroup = createCollapsibleGroup('Shadow Details', true);
+
+			// Filter Type dropdown — cascaded generators only support PCF/PCSS/none
+			const cfgRecord = ml.config as unknown as Record<string, Record<string, unknown>>;
+			const currentFilter = (cfgRecord['shadow']?.['filterType'] as string) ?? 'none';
+			const filterOptions: readonly string[] = isCascaded
+				? ['none', 'pcf', 'pcss']
+				: ['none', 'esm', 'blurredEsm', 'closeEsm', 'blurredCloseEsm', 'pcf', 'pcss', 'poisson'];
+			shadowGroup.body.append(
+				createDropdown(
+					'Filter Type',
+					filterOptions,
+					currentFilter,
+					(v) => {
+						// Reset supported filter flags
+						sg.usePercentageCloserFiltering = false;
+						sg.useContactHardeningShadowMap = false;
+						if (!isCascaded) {
+							sg.useExponentialShadowMap = false;
+							sg.useBlurExponentialShadowMap = false;
+							sg.useCloseExponentialShadowMap = false;
+							sg.useBlurCloseExponentialShadowMap = false;
+							sg.usePoissonSampling = false;
+						}
+						switch (v) {
+							case 'esm': {
+								sg.useExponentialShadowMap = true;
+								break;
+							}
+							case 'blurredEsm': {
+								sg.useBlurExponentialShadowMap = true;
+								break;
+							}
+							case 'closeEsm': {
+								sg.useCloseExponentialShadowMap = true;
+								break;
+							}
+							case 'blurredCloseEsm': {
+								sg.useBlurCloseExponentialShadowMap = true;
+								break;
+							}
+							case 'pcf': {
+								sg.usePercentageCloserFiltering = true;
+								break;
+							}
+							case 'pcss': {
+								sg.useContactHardeningShadowMap = true;
+								break;
+							}
+							case 'poisson': {
+								sg.usePoissonSampling = true;
+								break;
+							}
+						}
+					},
+					`light-${lightId}-shadow-filter`,
+					'Shadow filtering algorithm. PCF/PCSS give softer shadows.',
+				),
+			);
+
+			// Force Back Faces toggle
+			shadowGroup.body.append(
+				createToggleRow(
+					'Force Back Faces',
+					sg.forceBackFacesOnly ?? false,
+					(on) => {
+						sg.forceBackFacesOnly = on;
+					},
+					`light-${lightId}-shadow-backfaces`,
+					'Only render back faces into the shadow map to reduce self-shadowing artifacts.',
+				),
+			);
+
+			// Frustum Edge Falloff slider
+			shadowGroup.body.append(
+				createSliderRow(
+					'Frustum Edge Falloff',
+					0,
+					1,
+					0.01,
+					sg.frustumEdgeFalloff ?? 0,
+					(v) => {
+						sg.frustumEdgeFalloff = v;
+					},
+					`light-${lightId}-shadow-frustum-falloff`,
+					'Fade shadow at frustum edges to avoid hard cutoffs.',
+				),
+			);
+
+			// Contact Hardening Size slider
+			shadowGroup.body.append(
+				createSliderRow(
+					'Contact Hardening Size',
+					0,
+					1,
+					0.01,
+					sg.contactHardeningLightSizeUVRatio ?? 0.1,
+					(v) => {
+						sg.contactHardeningLightSizeUVRatio = v;
+					},
+					`light-${lightId}-shadow-ch-size`,
+					'Light size ratio for PCSS contact hardening. Larger = softer penumbra.',
+				),
+			);
+
+			// Use Kernel Blur toggle
+			shadowGroup.body.append(
+				createToggleRow(
+					'Use Kernel Blur',
+					sg.useKernelBlur ?? false,
+					(on) => {
+						sg.useKernelBlur = on;
+					},
+					`light-${lightId}-shadow-kernelblur`,
+					'Enable kernel-based blur for shadow map smoothing.',
+				),
+			);
+
+			// Blur Kernel slider
+			shadowGroup.body.append(
+				createSliderRow(
+					'Blur Kernel',
+					1,
+					64,
+					1,
+					sg.blurKernel ?? 1,
+					(v) => {
+						sg.blurKernel = v;
+					},
+					`light-${lightId}-shadow-blurkernel`,
+					'Shadow blur kernel size. Larger = softer but more expensive.',
+				),
+			);
+
+			// Blur Scale slider
+			shadowGroup.body.append(
+				createSliderRow(
+					'Blur Scale',
+					0.5,
+					4,
+					0.1,
+					sg.blurScale ?? 2,
+					(v) => {
+						sg.blurScale = v;
+					},
+					`light-${lightId}-shadow-blurscale`,
+					'Scale factor for the shadow blur pass.',
+				),
+			);
+
+			// Depth Scale slider
+			shadowGroup.body.append(
+				createSliderRow(
+					'Depth Scale',
+					0,
+					1000,
+					1,
+					sg.depthScale ?? 50,
+					(v) => {
+						sg.depthScale = v;
+					},
+					`light-${lightId}-shadow-depthscale`,
+					'Depth scale for ESM shadow maps. Higher reduces light bleed.',
+				),
+			);
+
+			// Opacity Tex Shadows toggle
+			shadowGroup.body.append(
+				createToggleRow(
+					'Opacity Tex Shadows',
+					sg.useOpacityTextureForTransparentShadow ?? false,
+					(on) => {
+						sg.useOpacityTextureForTransparentShadow = on;
+					},
+					`light-${lightId}-shadow-opacity-tex`,
+					'Use opacity textures to cast transparent shadows.',
+				),
+			);
+
+			// Cascaded-only properties
+			if ('penumbraDarkness' in sg) {
+				shadowGroup.body.append(
+					createSliderRow(
+						'Penumbra Darkness',
+						0,
+						1,
+						0.01,
+						(sgRecord['penumbraDarkness'] as number) ?? 1,
+						(v) => {
+							sgRecord['penumbraDarkness'] = v;
+						},
+						`light-${lightId}-shadow-penumbra`,
+						'Darkness of the shadow penumbra region (cascaded only).',
+					),
+				);
+			}
+
+			if ('lambda' in sg) {
+				shadowGroup.body.append(
+					createSliderRow(
+						'Lambda',
+						0,
+						1,
+						0.01,
+						(sgRecord['lambda'] as number) ?? 0.5,
+						(v) => {
+							sgRecord['lambda'] = v;
+						},
+						`light-${lightId}-shadow-lambda`,
+						'Blend between logarithmic and uniform cascade splits (cascaded only).',
+					),
+				);
+			}
+
+			if ('depthClamp' in sg) {
+				shadowGroup.body.append(
+					createToggleRow(
+						'Depth Clamp',
+						(sgRecord['depthClamp'] as boolean) ?? true,
+						(on) => {
+							sgRecord['depthClamp'] = on;
+						},
+						`light-${lightId}-shadow-depthclamp`,
+						'Clamp shadow depth to reduce artifacts (cascaded only).',
+					),
+				);
+			}
+
+			if ('shadowMaxZ' in sg) {
+				shadowGroup.body.append(
+					createSliderRow(
+						'Shadow Max Z',
+						0,
+						500,
+						1,
+						(sgRecord['shadowMaxZ'] as number) ?? 200,
+						(v) => {
+							sgRecord['shadowMaxZ'] = v;
+						},
+						`light-${lightId}-shadow-maxz`,
+						'Maximum depth for cascaded shadow generation.',
+					),
+				);
+			}
+
+			// Freeze Casters toggle
+			shadowGroup.body.append(
+				createToggleRow(
+					'Freeze Casters',
+					sg.freezeShadowCastersBoundingInfo ?? false,
+					(on) => {
+						sg.freezeShadowCastersBoundingInfo = on;
+					},
+					`light-${lightId}-shadow-freeze`,
+					'Freeze shadow caster bounding info for performance.',
+				),
+			);
+
+			row.append(shadowGroup.root);
 		}
 
 		// Flicker controls — mutate config properties directly
@@ -9166,6 +9594,40 @@ function buildLightsUI(debug: DevDebugApi): void {
 					},
 					`light-${lightId}-flicker-spd`,
 					'Flicker animation speed. Higher = faster pulsing.',
+				),
+			);
+
+			// Flicker Type dropdown
+			const flickerTypes = [
+				'candle',
+				'torch',
+				'campfire',
+				'pulse',
+				'strobe',
+				'breathing',
+				'fluorescent',
+				'storm',
+				'heartbeat',
+				'random',
+				'neon',
+				'dying',
+				'siren',
+			];
+			const flickerConfigRecord = ml.config as unknown as Record<
+				string,
+				Record<string, unknown> | undefined
+			>;
+			const currentFlickerType = (flickerConfigRecord['flicker']?.['type'] as string) ?? 'candle';
+			row.append(
+				createDropdown(
+					'Flicker Type',
+					flickerTypes,
+					currentFlickerType,
+					(v) => {
+						flickerCfg['type'] = v;
+					},
+					`light-${lightId}-flicker-type`,
+					'Flicker animation pattern preset.',
 				),
 			);
 		}
@@ -9215,6 +9677,205 @@ function buildLightsUI(debug: DevDebugApi): void {
 					'Number of samples per ray. Higher = smoother but heavier.',
 				),
 			);
+
+			// God Ray Exposure slider
+			row.append(
+				createSliderRow(
+					'God Ray Exposure',
+					0,
+					2,
+					0.01,
+					vl.exposure,
+					(v) => {
+						vl.exposure = v;
+					},
+					`light-${lightId}-gr-exposure`,
+					'Exposure multiplier for volumetric light scattering.',
+				),
+			);
+
+			// God Ray Color R/G/B
+			const grMesh = vl.mesh;
+			const grMatRecord = grMesh?.material as unknown as Record<string, unknown> | undefined;
+			const grCol = grMatRecord?.['diffuseColor'] as BABYLON.Color3 | undefined;
+			if (grCol) {
+				row.append(
+					createSliderRow(
+						'God Ray Color R',
+						0,
+						1,
+						0.01,
+						grCol.r,
+						(v) => {
+							grCol.r = v;
+						},
+						`light-${lightId}-gr-color-r`,
+						'Red channel of the god ray mesh color.',
+					),
+				);
+				row.append(
+					createSliderRow(
+						'God Ray Color G',
+						0,
+						1,
+						0.01,
+						grCol.g,
+						(v) => {
+							grCol.g = v;
+						},
+						`light-${lightId}-gr-color-g`,
+						'Green channel of the god ray mesh color.',
+					),
+				);
+				row.append(
+					createSliderRow(
+						'God Ray Color B',
+						0,
+						1,
+						0.01,
+						grCol.b,
+						(v) => {
+							grCol.b = v;
+						},
+						`light-${lightId}-gr-color-b`,
+						'Blue channel of the god ray mesh color.',
+					),
+				);
+			}
+		}
+
+		// ── Lens Flare sub-group ──
+		if (ml.lensFlareSystem) {
+			const flareGroup = createCollapsibleGroup('Lens Flares', true);
+			const flareCfgRecord = ml.config as unknown as Record<
+				string,
+				Record<string, unknown> | undefined
+			>;
+			const flareCfg = flareCfgRecord['lensFlare'];
+
+			// Lens Flare Preset (read-only — set at creation time)
+			flareGroup.body.append(
+				createDropdown(
+					'Preset',
+					['(custom)', 'sun', 'moonGlow', 'crystalLight', 'torchGlow'],
+					(flareCfg?.['preset'] as string) ?? '(custom)',
+					() => {
+						// Read-only: preset is a creation-time property
+					},
+					`light-${lightId}-flare-preset`,
+					'Lens flare preset (read-only, set at creation time).',
+				),
+			);
+
+			// Halo Width (read-only config value)
+			flareGroup.body.append(
+				createSliderRow(
+					'Halo Width',
+					0,
+					2,
+					0.01,
+					(flareCfg?.['haloWidth'] as number) ?? 0.4,
+					() => {
+						// Read-only: halo width is a creation-time property
+					},
+					`light-${lightId}-flare-halo`,
+					'Width of the halo ring effect (read-only, set at creation time).',
+				),
+			);
+
+			// Ghost Dispersal (read-only config value)
+			flareGroup.body.append(
+				createSliderRow(
+					'Ghost Dispersal',
+					0,
+					2,
+					0.01,
+					(flareCfg?.['ghostDispersal'] as number) ?? 0.3,
+					() => {
+						// Read-only: ghost dispersal is a creation-time property
+					},
+					`light-${lightId}-flare-ghost`,
+					'Spacing between ghost flare elements (read-only, set at creation time).',
+				),
+			);
+
+			// Threshold (read-only config value)
+			flareGroup.body.append(
+				createSliderRow(
+					'Threshold',
+					0,
+					1,
+					0.01,
+					(flareCfg?.['threshold'] as number) ?? 0.5,
+					() => {
+						// Read-only: threshold is a creation-time property
+					},
+					`light-${lightId}-flare-threshold`,
+					'Brightness threshold for flare visibility (read-only, set at creation time).',
+				),
+			);
+
+			row.append(flareGroup.root);
+		}
+
+		// ── Distance Fade sub-group (point/spot only) ──
+		const fadeCfgRecord = ml.config as unknown as Record<
+			string,
+			Record<string, unknown> | undefined
+		>;
+		if (
+			(ml.config.type === 'point' || ml.config.type === 'spot') &&
+			fadeCfgRecord['distanceFade']
+		) {
+			const fadeGroup = createCollapsibleGroup('Distance Fade', true);
+			const fadeCfg = fadeCfgRecord['distanceFade'];
+
+			// Distance Fade Enabled (read-only — requires observer re-creation)
+			fadeGroup.body.append(
+				createToggleRow(
+					'Enabled',
+					ml.distanceFadeObserver !== null,
+					() => {
+						// Read-only: toggling distance fade requires re-creation of observer
+					},
+					`light-${lightId}-dist-fade-enabled`,
+					'Whether distance-based intensity fade is active (read-only).',
+				),
+			);
+
+			// Fade Start (read-only config value)
+			fadeGroup.body.append(
+				createSliderRow(
+					'Fade Start',
+					0,
+					200,
+					1,
+					(fadeCfg?.['start'] as number) ?? 50,
+					() => {
+						// Read-only: changing fade range requires observer re-creation
+					},
+					`light-${lightId}-dist-fade-start`,
+					'Distance at which fade begins (read-only, set at creation time).',
+				),
+			);
+
+			// Fade End (read-only config value)
+			fadeGroup.body.append(
+				createSliderRow(
+					'Fade End',
+					0,
+					500,
+					1,
+					(fadeCfg?.['end'] as number) ?? 100,
+					() => {
+						// Read-only: changing fade range requires observer re-creation
+					},
+					`light-${lightId}-dist-fade-end`,
+					'Distance at which light fully fades out (read-only, set at creation time).',
+				),
+			);
+
+			row.append(fadeGroup.root);
 		}
 
 		// Features badges
@@ -9225,6 +9886,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 		if (ml.flickerInstance) addBadge(badges, 'Flicker', '#aa8');
 		if (ml.volumetricPostProcess) addBadge(badges, 'God Rays', '#8ab');
 		if (ml.lensFlareSystem) addBadge(badges, 'Flares', '#ab8');
+		if (ml.distanceFadeObserver) addBadge(badges, 'Dist Fade', '#b8a');
 
 		if (badges.childElementCount > 0) row.append(badges);
 
