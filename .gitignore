@@ -11,3 +11,5 @@ coverage/
 .agents/
 .claude/
 .worktrees/
+.playwright-mcp
+TODO.md
