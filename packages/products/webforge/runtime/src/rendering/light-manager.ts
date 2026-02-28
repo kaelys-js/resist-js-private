@@ -552,6 +552,20 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 							-dir.z * sunDist + lightCfg.position.z,
 						);
 						volumetric.mesh.scaling = new BABYLON.Vector3(20, 20, 20);
+
+						// The mesh MUST be visible for the scattering pass to produce
+						// any output.  Make it emissive + unlit so it always renders
+						// as a bright disc regardless of scene lighting.
+						volumetric.mesh.isVisible = true;
+						const vlsMat: BABYLON.Nullable<BABYLON.Material> = volumetric.mesh.material;
+						if (
+							vlsMat !== null &&
+							vlsMat !== undefined &&
+							vlsMat instanceof BABYLON.StandardMaterial
+						) {
+							vlsMat.disableLighting = true;
+							vlsMat.emissiveColor = new BABYLON.Color3(1, 1, 1);
+						}
 					}
 				} catch {
 					// Non-fatal — volumetric may not be supported (e.g. NullEngine)
