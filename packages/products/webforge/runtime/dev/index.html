@@ -698,13 +698,13 @@
 
 				<!-- Status Bar -->
 				<div id="fps-bar">
-					<span id="fps-display">-- fps</span>
+					<span id="fps-display" title="Frames per second">-- fps</span>
 					<span class="fps-sep">&middot;</span>
-					<span id="frametime-display">-- ms</span>
+					<span id="frametime-display" title="Frame time in milliseconds">-- ms</span>
 					<span class="fps-sep">&middot;</span>
-					<span id="meshes-display">-- meshes</span>
+					<span id="meshes-display" title="Active mesh count being rendered">-- meshes</span>
 					<span class="fps-sep">&middot;</span>
-					<span id="tris-display">-- tris</span>
+					<span id="tris-display" title="Triangle count being rasterized">-- tris</span>
 				</div>
 			</div>
 
@@ -728,7 +728,11 @@
 					<div class="section-body">
 						<div id="camera-preset-dropdown"></div>
 						<div class="control-row">
-							<span class="control-label">Transition</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Transition Time</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Duration of animated camera preset transitions in milliseconds.</span>
+							</div>
 							<input
 								type="range"
 								id="transition-duration"
@@ -741,7 +745,11 @@
 							<span class="control-value" id="transition-value">500ms</span>
 						</div>
 						<div class="control-row" style="padding-top: 4px">
-							<span class="control-label">Tactics</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Tactical Rotate</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">FF Tactics-style 90° camera rotation around the map center.</span>
+							</div>
 							<div class="btn-group" style="flex: 1; justify-content: flex-end">
 								<button class="btn" onclick="rotateCCW()" title="Rotate camera 90° counter-clockwise">&larr; Rotate</button>
 								<button class="btn" onclick="rotateCW()" title="Rotate camera 90° clockwise">Rotate &rarr;</button>
@@ -822,39 +830,75 @@
 						<div id="daynight-smooth-jump-row" style="margin-top: 6px"></div>
 						<!-- Statistics -->
 						<div class="control-row" style="margin-top: 4px">
-							<span class="control-label">Phase</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Time Phase</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Current phase of day: Dawn, Morning, Noon, Afternoon, Dusk, Night.</span>
+							</div>
 							<span class="control-value" id="daynight-phase-display">--</span>
 						</div>
 						<div class="control-row">
-							<span class="control-label">Season / Day</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Season · Day</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Current season and elapsed day within that season.</span>
+							</div>
 							<span class="control-value" id="daynight-season-day">--</span>
 						</div>
 						<div class="control-row">
-							<span class="control-label">Moon Intensity</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Moon · Phase</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Current moon intensity and lunar phase name (New, Waxing, Full, Waning).</span>
+							</div>
 							<span class="control-value" id="daynight-moon-intensity">--</span>
 						</div>
 						<div class="control-row">
-							<span class="control-label">Sunrise / Sunset</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Rise / Set</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Computed sunrise and sunset times based on season and day length.</span>
+							</div>
 							<span class="control-value" id="daynight-sunrise-sunset">--</span>
 						</div>
 						<div class="control-row">
-							<span class="control-label">Sun Elevation</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Sun Elevation°</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Sun angle above the horizon in degrees. 0° = horizon, 90° = zenith.</span>
+							</div>
 							<span class="control-value" id="daynight-sun-elevation">--</span>
 						</div>
 						<div class="control-row">
-							<span class="control-label">Daylight Left</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Daylight Left</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Hours and minutes of daylight remaining before sunset.</span>
+							</div>
 							<span class="control-value" id="daynight-daylight-remaining">--</span>
 						</div>
 						<div class="control-row">
-							<span class="control-label">Eff. Speed</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Effective Speed</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Actual speed after applying easing curves, halt, and indoor modifiers.</span>
+							</div>
 							<span class="control-value" id="daynight-effective-speed">--</span>
 						</div>
 						<div class="control-row">
-							<span class="control-label">Frames</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Frames Rendered</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Total day/night cycle frames processed since page load.</span>
+							</div>
 							<span class="control-value" id="daynight-frames-rendered">--</span>
 						</div>
 						<div class="control-row">
-							<span class="control-label">Events</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Event Log</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Most recent day/night event (phase change, sunrise, sunset, etc.).</span>
+							</div>
 							<span class="control-value" id="daynight-event-log" style="font-size: 9px; color: #888; max-width: 140px; text-overflow: ellipsis; overflow: hidden">--</span>
 						</div>
 					</div>
@@ -924,11 +968,11 @@
 					</div>
 					<div class="section-body">
 						<div class="toggle-row" data-control="tilemap">
-							<span class="control-label">Tilemap</span>
+							<div class="control-label-wrap"><span class="control-label">Tilemap</span><span class="tip-icon">?</span><span class="tip-bubble">Show or hide all tilemap chunk meshes.</span></div>
 							<div class="toggle-switch on" id="toggle-tilemap" onclick="toggleTilemap()"></div>
 						</div>
 						<div class="toggle-row" data-control="post-processing">
-							<span class="control-label">Post-Processing</span>
+							<div class="control-label-wrap"><span class="control-label">Post-FX Pipeline</span><span class="tip-icon">?</span><span class="tip-bubble">Enable the full post-processing pipeline (bloom, DoF, grain, etc.).</span></div>
 							<div class="toggle-switch on" id="toggle-postprocess" onclick="togglePostProcess()"></div>
 						</div>
 						<div class="toggle-row" data-control="glow-layer">
@@ -940,11 +984,11 @@
 							<div class="toggle-switch on" id="toggle-shadows" onclick="toggleShadows()"></div>
 						</div>
 						<div class="toggle-row" data-control="god-rays">
-							<span class="control-label">God Rays</span>
+							<div class="control-label-wrap"><span class="control-label">Volumetric Rays</span><span class="tip-icon">?</span><span class="tip-bubble">Enable volumetric light scattering (god rays) from directional lights.</span></div>
 							<div class="toggle-switch on" id="toggle-godrays" onclick="toggleGodRays()"></div>
 						</div>
 						<div class="toggle-row" data-control="lens-flares">
-							<span class="control-label">Lens Flares</span>
+							<div class="control-label-wrap"><span class="control-label">Lens Flares</span><span class="tip-icon">?</span><span class="tip-bubble">Enable camera lens flare effects on bright light sources.</span></div>
 							<div class="toggle-switch on" id="toggle-lensflares" onclick="toggleLensFlares()"></div>
 						</div>
 					</div>
