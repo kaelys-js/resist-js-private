@@ -2496,6 +2496,7 @@ function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
 	 * @param step - Slider step increment.
 	 * @param value - Initial slider value.
 	 * @param onChange - Callback when slider changes.
+	 * @param tooltip - Optional tooltip description shown on hover.
 	 */
 	function addSlider(
 		parent: Element,
@@ -2506,8 +2507,9 @@ function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
 		step: number,
 		value: number,
 		onChange: (val: number) => void,
+		tooltip?: string,
 	): void {
-		const row = createSliderRow(label, min, max, step, value, onChange);
+		const row = createSliderRow(label, min, max, step, value, onChange, undefined, tooltip);
 		const input = row.querySelector('input[type="range"]') as HTMLInputElement | null;
 		if (input) sliders.set(key, input);
 		parent.append(row);
@@ -2535,6 +2537,7 @@ function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
 	 * @param label - Display label text.
 	 * @param initialOn - Whether the toggle starts on.
 	 * @param onChange - Callback when toggle changes.
+	 * @param tooltip - Optional tooltip description shown on hover.
 	 */
 	function addToggle(
 		parent: Element,
@@ -2542,8 +2545,9 @@ function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
 		label: string,
 		initialOn: boolean,
 		onChange: (on: boolean) => void,
+		tooltip?: string,
 	): void {
-		const row = createToggleRow(label, initialOn, onChange);
+		const row = createToggleRow(label, initialOn, onChange, undefined, tooltip);
 		const toggle = row.querySelector('.toggle-switch') as HTMLDivElement | null;
 		if (toggle) toggles.set(key, toggle);
 		parent.append(row);
@@ -2647,58 +2651,169 @@ function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
 
 	// ── Sub-section 2: Translation ──────────────────────────────────
 	body.append(createSubHeader('Translation'));
-	addToggle(body, 'translationEnabled', 'Enabled', true, (on) => {
-		translationEnabled = on;
-	});
-	addSlider(body, 'translationAmplitude', 'Amplitude', 0, 3, 0.05, 0.5, (val) => {
-		translationAmplitude = val;
-	});
-	addSlider(body, 'translationFrequency', 'Frequency', 1, 100, 1, 25, (val) => {
-		translationFrequency = val;
-	});
+	addToggle(
+		body,
+		'translationEnabled',
+		'Translation On',
+		true,
+		(on) => {
+			translationEnabled = on;
+		},
+		'Enable horizontal/vertical position shake.',
+	);
+	addSlider(
+		body,
+		'translationAmplitude',
+		'Shake Amplitude',
+		0,
+		3,
+		0.05,
+		0.5,
+		(val) => {
+			translationAmplitude = val;
+		},
+		'Max displacement in world units. Higher = more violent shake.',
+	);
+	addSlider(
+		body,
+		'translationFrequency',
+		'Shake Frequency',
+		1,
+		100,
+		1,
+		25,
+		(val) => {
+			translationFrequency = val;
+		},
+		'Oscillations per second for position shake. Higher = tighter vibration.',
+	);
 
 	// ── Sub-section 3: Rotation ─────────────────────────────────────
 	body.append(createSubHeader('Rotation'));
-	addToggle(body, 'rotationEnabled', 'Enabled', true, (on) => {
-		rotationEnabled = on;
-	});
-	addSlider(body, 'rotationAmplitude', 'Max Roll', 0, 0.15, 0.005, 0.05, (val) => {
-		rotationAmplitude = val;
-	});
-	addSlider(body, 'rotationFrequency', 'Frequency', 1, 100, 1, 20, (val) => {
-		rotationFrequency = val;
-	});
+	addToggle(
+		body,
+		'rotationEnabled',
+		'Rotation On',
+		true,
+		(on) => {
+			rotationEnabled = on;
+		},
+		'Enable camera roll and tilt during shake.',
+	);
+	addSlider(
+		body,
+		'rotationAmplitude',
+		'Roll Amplitude',
+		0,
+		0.15,
+		0.005,
+		0.05,
+		(val) => {
+			rotationAmplitude = val;
+		},
+		'Max rotation in radians. Small values (~0.05) feel natural.',
+	);
+	addSlider(
+		body,
+		'rotationFrequency',
+		'Roll Frequency',
+		1,
+		100,
+		1,
+		20,
+		(val) => {
+			rotationFrequency = val;
+		},
+		'Oscillations per second for rotational shake.',
+	);
 
 	// ── Sub-section 4: FOV ──────────────────────────────────────────
 	body.append(createSubHeader('FOV'));
-	addToggle(body, 'fovEnabled', 'Enabled', true, (on) => {
-		fovEnabled = on;
-	});
-	addSlider(body, 'fovAmplitude', 'Max FOV', 0, 0.1, 0.005, 0.03, (val) => {
-		fovAmplitude = val;
-	});
-	addSlider(body, 'fovFrequency', 'Frequency', 1, 100, 1, 15, (val) => {
-		fovFrequency = val;
-	});
+	addToggle(
+		body,
+		'fovEnabled',
+		'FOV Punch On',
+		true,
+		(on) => {
+			fovEnabled = on;
+		},
+		'Enable field-of-view zoom punch during shake.',
+	);
+	addSlider(
+		body,
+		'fovAmplitude',
+		'FOV Amplitude',
+		0,
+		0.1,
+		0.005,
+		0.03,
+		(val) => {
+			fovAmplitude = val;
+		},
+		'Max FOV change in radians. Adds a zoom punch effect.',
+	);
+	addSlider(
+		body,
+		'fovFrequency',
+		'FOV Frequency',
+		1,
+		100,
+		1,
+		15,
+		(val) => {
+			fovFrequency = val;
+		},
+		'Oscillations per second for FOV punch.',
+	);
 
 	// ── Sub-section 5: Envelope ─────────────────────────────────────
 	body.append(createSubHeader('Envelope'));
-	addSlider(body, 'envelopeAttack', 'Attack', 0, 500, 10, 0, (val) => {
-		envelopeAttack = val;
-	});
-	addSlider(body, 'envelopeSustain', 'Sustain', 0, 2000, 50, 0, (val) => {
-		envelopeSustain = val;
-	});
-	addSlider(body, 'envelopeDecay', 'Decay', 0, 3000, 50, 300, (val) => {
-		envelopeDecay = val;
-	});
+	addSlider(
+		body,
+		'envelopeAttack',
+		'Attack (ms)',
+		0,
+		500,
+		10,
+		0,
+		(val) => {
+			envelopeAttack = val;
+		},
+		'Ramp-up time before the shake reaches full intensity.',
+	);
+	addSlider(
+		body,
+		'envelopeSustain',
+		'Sustain (ms)',
+		0,
+		2000,
+		50,
+		0,
+		(val) => {
+			envelopeSustain = val;
+		},
+		'Hold time at full intensity before decay begins.',
+	);
+	addSlider(
+		body,
+		'envelopeDecay',
+		'Decay (ms)',
+		0,
+		3000,
+		50,
+		300,
+		(val) => {
+			envelopeDecay = val;
+		},
+		'Fade-out time from full intensity to silence.',
+	);
 
 	// Decay mode buttons
 	const decayRow = document.createElement('div');
 	decayRow.className = 'control-row';
 	const decayLabel = document.createElement('span');
 	decayLabel.className = 'control-label';
-	decayLabel.textContent = 'Decay Mode';
+	decayLabel.textContent = 'Fade Curve';
 
 	const decayBtnGroup = document.createElement('div');
 	decayBtnGroup.className = 'btn-group';
@@ -2742,38 +2857,124 @@ function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
 		if (!btn) continue;
 		bindDecayButton(btn, mode);
 	}
-	decayRow.append(decayLabel, decayBtnGroup);
+	decayRow.append(
+		wrapWithTooltip(
+			decayLabel,
+			'Easing curve for shake decay. Linear = steady, Expo = fast start, Ease-out = gentle finish.',
+		),
+		decayBtnGroup,
+	);
 	body.append(decayRow);
 
 	// ── Sub-section 6: Noise ────────────────────────────────────────
 	body.append(createSubHeader('Noise'));
-	addSlider(body, 'noiseSeed', 'Seed', 0, 9999, 1, 0, (val) => {
-		noiseSeed = val;
-	});
-	addSlider(body, 'noiseOctaves', 'Octaves', 1, 4, 1, 2, (val) => {
-		noiseOctaves = val;
-	});
+	addSlider(
+		body,
+		'noiseSeed',
+		'Noise Seed',
+		0,
+		9999,
+		1,
+		0,
+		(val) => {
+			noiseSeed = val;
+		},
+		'Random seed for Perlin noise. Change to get a different shake pattern.',
+	);
+	addSlider(
+		body,
+		'noiseOctaves',
+		'Noise Octaves',
+		1,
+		4,
+		1,
+		2,
+		(val) => {
+			noiseOctaves = val;
+		},
+		'Layers of Perlin noise. More octaves = finer detail in the shake.',
+	);
 
 	// ── Sub-section 7: Advanced ─────────────────────────────────────
 	body.append(createSubHeader('Advanced'));
-	addSlider(body, 'intensity', 'Intensity', 0, 3, 0.05, 0.5, (val) => {
-		shakeIntensity = val;
-	});
-	addSlider(body, 'traumaPower', 'Trauma Power', 1, 4, 0.5, 2, (val) => {
-		shakeTraumaPower = val;
-	});
-	addSlider(body, 'decayRate', 'Auto-Decay', 0.1, 5.0, 0.1, 0.8, (val) => {
-		shakeDecayRate = val;
-	});
-	addSlider(body, 'freezeMs', 'Freeze Frame', 0, 300, 10, 0, (val) => {
-		freezeMs = val;
-	});
-	addSlider(body, 'directionX', 'Direction X', -1, 1, 0.1, 0, (val) => {
-		directionX = val;
-	});
-	addSlider(body, 'directionZ', 'Direction Z', -1, 1, 0.1, 0, (val) => {
-		directionZ = val;
-	});
+	addSlider(
+		body,
+		'intensity',
+		'Shake Intensity',
+		0,
+		3,
+		0.05,
+		0.5,
+		(val) => {
+			shakeIntensity = val;
+		},
+		'Global shake strength multiplier. Scales all axes uniformly.',
+	);
+	addSlider(
+		body,
+		'traumaPower',
+		'Trauma Power',
+		1,
+		4,
+		0.5,
+		2,
+		(val) => {
+			shakeTraumaPower = val;
+		},
+		'Exponent applied to trauma. Higher = more contrast between light and heavy hits.',
+	);
+	addSlider(
+		body,
+		'decayRate',
+		'Trauma Decay',
+		0.1,
+		5.0,
+		0.1,
+		0.8,
+		(val) => {
+			shakeDecayRate = val;
+		},
+		'Trauma drain per second. Higher = shake fades faster.',
+	);
+	addSlider(
+		body,
+		'freezeMs',
+		'Freeze (ms)',
+		0,
+		300,
+		10,
+		0,
+		(val) => {
+			freezeMs = val;
+		},
+		'Brief freeze-frame on impact before the shake begins. 0 = no freeze.',
+	);
+	addSlider(
+		body,
+		'directionX',
+		'Bias X',
+		-1,
+		1,
+		0.1,
+		0,
+		(val) => {
+			directionX = val;
+		},
+		'Directional bias on the X axis. 0 = omnidirectional, 1 = right only, -1 = left only.',
+	);
+	addSlider(
+		body,
+		'directionZ',
+		'Bias Z',
+		-1,
+		1,
+		0.1,
+		0,
+		(val) => {
+			directionZ = val;
+		},
+		'Directional bias on the Z axis. 0 = omnidirectional, 1 = forward, -1 = backward.',
+	);
 
 	// ── Sub-section 8: Controls ─────────────────────────────────────
 	body.append(createSubHeader('Controls'));
@@ -2830,7 +3031,7 @@ function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
 	meterRow.className = 'control-row';
 	const meterLabel = document.createElement('span');
 	meterLabel.className = 'control-label';
-	meterLabel.textContent = 'Trauma';
+	meterLabel.textContent = 'Trauma Level';
 
 	const meterBar = document.createElement('div');
 	meterBar.style.cssText =
@@ -2843,7 +3044,14 @@ function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
 	meterValue.className = 'control-value';
 	meterValue.textContent = '0.00';
 
-	meterRow.append(meterLabel, meterBar, meterValue);
+	meterRow.append(
+		wrapWithTooltip(
+			meterLabel,
+			'Current trauma value (0-1). Triggers add trauma; it decays over time.',
+		),
+		meterBar,
+		meterValue,
+	);
 	body.append(meterRow);
 
 	// Animate trauma meter
@@ -2856,14 +3064,31 @@ function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
 	requestAnimationFrame(updateMeter);
 
 	// Global Scale slider
-	addSlider(body, 'globalScale', 'Global Scale', 0, 200, 5, 100, (val) => {
-		setGlobalScale(val / 100);
-	});
+	addSlider(
+		body,
+		'globalScale',
+		'Global Scale',
+		0,
+		200,
+		5,
+		100,
+		(val) => {
+			setGlobalScale(val / 100);
+		},
+		'Overall shake scale (%). 100 = normal, 200 = double, 0 = muted.',
+	);
 
 	// Master Enable toggle
-	addToggle(body, 'masterEnabled', 'Enabled', true, (on) => {
-		setMasterEnabled(on);
-	});
+	addToggle(
+		body,
+		'masterEnabled',
+		'Master Enable',
+		true,
+		(on) => {
+			setMasterEnabled(on);
+		},
+		'Global on/off for the entire shake system.',
+	);
 
 	// ── applyPreset ─────────────────────────────────────────────────
 	/**
@@ -3016,6 +3241,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.imageProcessing.exposure = v;
 			},
 			'postfx-exposure',
+			'Overall brightness multiplier. 1.0 = neutral, >1 = brighter.',
 		),
 	);
 	container.append(
@@ -3029,6 +3255,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.imageProcessing.contrast = v;
 			},
 			'postfx-contrast',
+			'Image contrast. 1.0 = neutral, >1 = more contrast.',
 		),
 	);
 
@@ -3042,6 +3269,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.bloomEnabled = on;
 			},
 			'postfx-bloom-enabled',
+			'Enable bloom glow on bright pixels.',
 		),
 	);
 	container.append(
@@ -3055,6 +3283,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.bloomWeight = v;
 			},
 			'postfx-bloom-weight',
+			'Blend strength of the bloom effect (0–1).',
 		),
 	);
 	container.append(
@@ -3068,6 +3297,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.bloomThreshold = v;
 			},
 			'postfx-bloom-threshold',
+			'Minimum brightness for bloom. Lower = more glow.',
 		),
 	);
 	container.append(
@@ -3081,6 +3311,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.bloomKernel = v;
 			},
 			'postfx-bloom-kernel',
+			'Blur kernel size. Larger = wider, softer bloom.',
 		),
 	);
 	container.append(
@@ -3094,6 +3325,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.bloomScale = v;
 			},
 			'postfx-bloom-scale',
+			'Resolution scale of bloom pass. Lower = cheaper but softer.',
 		),
 	);
 
@@ -3107,11 +3339,12 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.depthOfFieldEnabled = on;
 			},
 			'postfx-dof-enabled',
+			'Enable depth-of-field blur for out-of-focus areas.',
 		),
 	);
 	container.append(
 		createSliderRow(
-			'DoF Focal Length',
+			'Focal Length',
 			0,
 			200,
 			1,
@@ -3120,6 +3353,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.depthOfField.focalLength = v;
 			},
 			'postfx-dof-focal-length',
+			'Lens focal length in mm. Higher = more magnification + blur.',
 		),
 	);
 	container.append(
@@ -3133,11 +3367,12 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.depthOfField.fStop = v;
 			},
 			'postfx-dof-fstop',
+			'f-stop value. Lower = shallower depth of field (more blur).',
 		),
 	);
 	container.append(
 		createSliderRow(
-			'DoF Focus Dist',
+			'Focus Distance',
 			0,
 			500_000,
 			1000,
@@ -3146,6 +3381,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.depthOfField.focusDistance = v;
 			},
 			'postfx-dof-focus-dist',
+			'Distance to the in-focus plane in scene units.',
 		),
 	);
 
@@ -3159,11 +3395,12 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.chromaticAberrationEnabled = on;
 			},
 			'postfx-ca-enabled',
+			'Enable chromatic aberration (color fringing at edges).',
 		),
 	);
 	container.append(
 		createSliderRow(
-			'CA Strength',
+			'CA Amount',
 			0,
 			200,
 			1,
@@ -3172,6 +3409,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.chromaticAberration.aberrationAmount = v;
 			},
 			'postfx-ca-amount',
+			'Intensity of color channel separation.',
 		),
 	);
 	container.append(
@@ -3185,6 +3423,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.chromaticAberration.radialIntensity = v;
 			},
 			'postfx-ca-radial',
+			'How much aberration increases toward screen edges.',
 		),
 	);
 
@@ -3198,11 +3437,12 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.grainEnabled = on;
 			},
 			'postfx-grain-enabled',
+			'Enable film grain noise overlay.',
 		),
 	);
 	container.append(
 		createSliderRow(
-			'Grain Amount',
+			'Grain Intensity',
 			0,
 			100,
 			1,
@@ -3211,6 +3451,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.grain.intensity = v;
 			},
 			'postfx-grain-intensity',
+			'Strength of the noise pattern (0–100).',
 		),
 	);
 	container.append(
@@ -3221,6 +3462,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.grain.animated = on;
 			},
 			'postfx-grain-animated',
+			'Randomize grain pattern each frame for a filmic look.',
 		),
 	);
 
@@ -3234,11 +3476,12 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.sharpenEnabled = on;
 			},
 			'postfx-sharpen-enabled',
+			'Enable image sharpening post-process.',
 		),
 	);
 	container.append(
 		createSliderRow(
-			'Sharpen Edge',
+			'Edge Amount',
 			0,
 			2,
 			0.05,
@@ -3247,11 +3490,12 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.sharpen.edgeAmount = v;
 			},
 			'postfx-sharpen-edge',
+			'Edge enhancement strength. Higher = crisper edges.',
 		),
 	);
 	container.append(
 		createSliderRow(
-			'Sharpen Color',
+			'Color Amount',
 			0,
 			1,
 			0.05,
@@ -3260,6 +3504,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.sharpen.colorAmount = v;
 			},
 			'postfx-sharpen-color',
+			'Color sharpening strength. Higher = more saturated edges.',
 		),
 	);
 
@@ -3274,6 +3519,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				imgProc.vignetteEnabled = on;
 			},
 			'postfx-vignette-enabled',
+			'Darken screen edges for a cinematic effect.',
 		),
 	);
 	container.append(
@@ -3287,6 +3533,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				imgProc.vignetteWeight = v;
 			},
 			'postfx-vignette-weight',
+			'Darkness intensity at screen edges.',
 		),
 	);
 	container.append(
@@ -3300,6 +3547,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				imgProc.vignetteStretch = v;
 			},
 			'postfx-vignette-stretch',
+			'How far the vignette extends toward center.',
 		),
 	);
 
@@ -3313,6 +3561,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				imgProc.toneMappingEnabled = on;
 			},
 			'postfx-tonemapping-enabled',
+			'Enable tone mapping to compress HDR to display range.',
 		),
 	);
 	// Determine current tone mapping name from Babylon constant
@@ -3350,6 +3599,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				}
 			},
 			'tonemapping-type',
+			'Tone mapping algorithm: Standard, ACES (cinematic), or KHR PBR Neutral.',
 		),
 	);
 
@@ -3363,6 +3613,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				imgProc.colorCurvesEnabled = on;
 			},
 			'postfx-colorgrading-enabled',
+			'Enable color curve adjustments for stylized looks.',
 		),
 	);
 
@@ -3376,6 +3627,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				pipeline.fxaaEnabled = on;
 			},
 			'postfx-fxaa-enabled',
+			'Enable fast approximate anti-aliasing to smooth jagged edges.',
 		),
 	);
 
@@ -3389,11 +3641,12 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				imgProc.ditheringEnabled = on;
 			},
 			'postfx-dithering-enabled',
+			'Add subtle noise to reduce color banding in gradients.',
 		),
 	);
 	container.append(
 		createSliderRow(
-			'Dither Amount',
+			'Dither Intensity',
 			0,
 			1,
 			0.001,
@@ -3402,6 +3655,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 				imgProc.ditheringIntensity = v;
 			},
 			'postfx-dithering-intensity',
+			'Strength of the dithering pattern (0–1).',
 		),
 	);
 
@@ -4288,84 +4542,181 @@ function buildFogUI(
 				update();
 			},
 			'fog-mode',
+			'Fog falloff algorithm. Linear = distance, Exponential = density-based.',
 		),
 	);
 
 	container.append(
-		createSliderRow('Density', 0, 0.1, 0.001, _fogConfig.density, (v) => {
-			_fogConfig = { ..._fogConfig, density: v };
-			update();
-		}),
+		createSliderRow(
+			'Density',
+			0,
+			0.1,
+			0.001,
+			_fogConfig.density,
+			(v) => {
+				_fogConfig = { ..._fogConfig, density: v };
+				update();
+			},
+			undefined,
+			'Exponential fog thickness. Higher = fog appears closer.',
+		),
 	);
 
 	container.append(
-		createSliderRow('Start', 0, 500, 5, _fogConfig.start, (v) => {
-			_fogConfig = { ..._fogConfig, start: v };
-			update();
-		}),
+		createSliderRow(
+			'Start',
+			0,
+			500,
+			5,
+			_fogConfig.start,
+			(v) => {
+				_fogConfig = { ..._fogConfig, start: v };
+				update();
+			},
+			undefined,
+			'Distance where linear fog begins (world units).',
+		),
 	);
 
 	container.append(
-		createSliderRow('End', 10, 1000, 10, _fogConfig.end, (v) => {
-			_fogConfig = { ..._fogConfig, end: v };
-			update();
-		}),
+		createSliderRow(
+			'End',
+			10,
+			1000,
+			10,
+			_fogConfig.end,
+			(v) => {
+				_fogConfig = { ..._fogConfig, end: v };
+				update();
+			},
+			undefined,
+			'Distance where linear fog reaches full opacity.',
+		),
 	);
 
 	container.append(
-		createSliderRow('Color R', 0, 1, 0.01, _fogConfig.color.r, (v) => {
-			_fogConfig = { ..._fogConfig, color: { ..._fogConfig.color, r: v } };
-			update();
-		}),
+		createSliderRow(
+			'Color R',
+			0,
+			1,
+			0.01,
+			_fogConfig.color.r,
+			(v) => {
+				_fogConfig = { ..._fogConfig, color: { ..._fogConfig.color, r: v } };
+				update();
+			},
+			undefined,
+			'Red channel of the base fog color.',
+		),
 	);
 
 	container.append(
-		createSliderRow('Color G', 0, 1, 0.01, _fogConfig.color.g, (v) => {
-			_fogConfig = { ..._fogConfig, color: { ..._fogConfig.color, g: v } };
-			update();
-		}),
+		createSliderRow(
+			'Color G',
+			0,
+			1,
+			0.01,
+			_fogConfig.color.g,
+			(v) => {
+				_fogConfig = { ..._fogConfig, color: { ..._fogConfig.color, g: v } };
+				update();
+			},
+			undefined,
+			'Green channel of the base fog color.',
+		),
 	);
 
 	container.append(
-		createSliderRow('Color B', 0, 1, 0.01, _fogConfig.color.b, (v) => {
-			_fogConfig = { ..._fogConfig, color: { ..._fogConfig.color, b: v } };
-			update();
-		}),
+		createSliderRow(
+			'Color B',
+			0,
+			1,
+			0.01,
+			_fogConfig.color.b,
+			(v) => {
+				_fogConfig = { ..._fogConfig, color: { ..._fogConfig.color, b: v } };
+				update();
+			},
+			undefined,
+			'Blue channel of the base fog color.',
+		),
 	);
 
 	container.append(
-		createSliderRow('Max Opacity', 0, 1, 0.01, _fogConfig.maxOpacity, (v) => {
-			_fogConfig = { ..._fogConfig, maxOpacity: v };
-			update();
-		}),
+		createSliderRow(
+			'Max Opacity',
+			0,
+			1,
+			0.01,
+			_fogConfig.maxOpacity,
+			(v) => {
+				_fogConfig = { ..._fogConfig, maxOpacity: v };
+				update();
+			},
+			undefined,
+			'Maximum fog opacity cap (0–1). Prevents full whiteout.',
+		),
 	);
 
 	container.append(
-		createSliderRow('Start Distance', 0, 200, 1, _fogConfig.startDistance, (v) => {
-			_fogConfig = { ..._fogConfig, startDistance: v };
-			update();
-		}),
+		createSliderRow(
+			'Start Distance',
+			0,
+			200,
+			1,
+			_fogConfig.startDistance,
+			(v) => {
+				_fogConfig = { ..._fogConfig, startDistance: v };
+				update();
+			},
+			undefined,
+			'Offset before fog begins. Objects closer are fog-free.',
+		),
 	);
 
 	container.append(
-		createSliderRow('Cutoff Distance', 0, 1000, 5, _fogConfig.cutoffDistance, (v) => {
-			_fogConfig = { ..._fogConfig, cutoffDistance: v };
-			update();
-		}),
+		createSliderRow(
+			'Cutoff Distance',
+			0,
+			1000,
+			5,
+			_fogConfig.cutoffDistance,
+			(v) => {
+				_fogConfig = { ..._fogConfig, cutoffDistance: v };
+				update();
+			},
+			undefined,
+			'Beyond this distance fog is fully opaque.',
+		),
 	);
 
 	container.append(
-		createToggleRow('Exclude Skybox', _fogConfig.excludeSkybox, (on) => {
-			_fogConfig = { ..._fogConfig, excludeSkybox: on };
-			update();
-		}),
+		createToggleRow(
+			'Exclude Skybox',
+			_fogConfig.excludeSkybox,
+			(on) => {
+				_fogConfig = { ..._fogConfig, excludeSkybox: on };
+				update();
+			},
+			undefined,
+			'Skip fog on the skybox mesh so the sky stays clear.',
+		),
 	);
 
 	container.append(
-		createSliderRow('Sky Affect', 0, 1, 0.01, _fogConfig.skyAffect, (v) => {
-			_fogConfig = { ..._fogConfig, skyAffect: v };
-			update();
-		}),
+		createSliderRow(
+			'Sky Affect',
+			0,
+			1,
+			0.01,
+			_fogConfig.skyAffect,
+			(v) => {
+				_fogConfig = { ..._fogConfig, skyAffect: v };
+				update();
+			},
+			undefined,
+			'How much fog tints the sky. 0 = unaffected, 1 = fully fogged.',
+		),
 	);
 
 	// =========================================================================
@@ -4382,38 +4733,80 @@ function buildFogUI(
 	};
 
 	heightGroup.body.append(
-		createToggleRow('Enabled', hf.enabled, (on) => {
-			_fogConfig = { ..._fogConfig, heightFog: { ...hf, enabled: on } };
-			update();
-		}),
+		createToggleRow(
+			'Enabled',
+			hf.enabled,
+			(on) => {
+				_fogConfig = { ..._fogConfig, heightFog: { ...hf, enabled: on } };
+				update();
+			},
+			undefined,
+			'Turn height-based fog on or off.',
+		),
 	);
 	heightGroup.body.append(
-		createSliderRow('Base Height', -20, 50, 0.5, hf.baseHeight, (v) => {
-			const cur = _fogConfig.heightFog ?? hf;
-			_fogConfig = { ..._fogConfig, heightFog: { ...cur, baseHeight: v } };
-			update();
-		}),
+		createSliderRow(
+			'Base Height',
+			-20,
+			50,
+			0.5,
+			hf.baseHeight,
+			(v) => {
+				const cur = _fogConfig.heightFog ?? hf;
+				_fogConfig = { ..._fogConfig, heightFog: { ...cur, baseHeight: v } };
+				update();
+			},
+			undefined,
+			'World Y where height fog is densest.',
+		),
 	);
 	heightGroup.body.append(
-		createSliderRow('Falloff', 0.01, 10, 0.01, hf.falloff, (v) => {
-			const cur = _fogConfig.heightFog ?? hf;
-			_fogConfig = { ..._fogConfig, heightFog: { ...cur, falloff: v } };
-			update();
-		}),
+		createSliderRow(
+			'Falloff',
+			0.01,
+			10,
+			0.01,
+			hf.falloff,
+			(v) => {
+				const cur = _fogConfig.heightFog ?? hf;
+				_fogConfig = { ..._fogConfig, heightFog: { ...cur, falloff: v } };
+				update();
+			},
+			undefined,
+			'How quickly height fog fades above the base.',
+		),
 	);
 	heightGroup.body.append(
-		createSliderRow('Density', 0, 1, 0.01, hf.density, (v) => {
-			const cur = _fogConfig.heightFog ?? hf;
-			_fogConfig = { ..._fogConfig, heightFog: { ...cur, density: v } };
-			update();
-		}),
+		createSliderRow(
+			'Density',
+			0,
+			1,
+			0.01,
+			hf.density,
+			(v) => {
+				const cur = _fogConfig.heightFog ?? hf;
+				_fogConfig = { ..._fogConfig, heightFog: { ...cur, density: v } };
+				update();
+			},
+			undefined,
+			'Height fog thickness at the base level.',
+		),
 	);
 	heightGroup.body.append(
-		createSliderRow('Offset', -20, 20, 0.5, hf.offset, (v) => {
-			const cur = _fogConfig.heightFog ?? hf;
-			_fogConfig = { ..._fogConfig, heightFog: { ...cur, offset: v } };
-			update();
-		}),
+		createSliderRow(
+			'Offset',
+			-20,
+			20,
+			0.5,
+			hf.offset,
+			(v) => {
+				const cur = _fogConfig.heightFog ?? hf;
+				_fogConfig = { ..._fogConfig, heightFog: { ...cur, offset: v } };
+				update();
+			},
+			undefined,
+			'Vertical shift for the entire height fog layer.',
+		),
 	);
 	container.append(heightGroup.root);
 
@@ -4431,31 +4824,64 @@ function buildFogUI(
 	};
 
 	slGroup.body.append(
-		createToggleRow('Enabled', sl.enabled, (on) => {
-			_fogConfig = { ..._fogConfig, secondLayer: { ...sl, enabled: on } };
-			update();
-		}),
+		createToggleRow(
+			'Enabled',
+			sl.enabled,
+			(on) => {
+				_fogConfig = { ..._fogConfig, secondLayer: { ...sl, enabled: on } };
+				update();
+			},
+			undefined,
+			'Turn the second fog layer on or off.',
+		),
 	);
 	slGroup.body.append(
-		createSliderRow('Density', 0, 1, 0.01, sl.density, (v) => {
-			const cur = _fogConfig.secondLayer ?? sl;
-			_fogConfig = { ..._fogConfig, secondLayer: { ...cur, density: v } };
-			update();
-		}),
+		createSliderRow(
+			'Density',
+			0,
+			1,
+			0.01,
+			sl.density,
+			(v) => {
+				const cur = _fogConfig.secondLayer ?? sl;
+				_fogConfig = { ..._fogConfig, secondLayer: { ...cur, density: v } };
+				update();
+			},
+			undefined,
+			'Thickness of the second fog layer.',
+		),
 	);
 	slGroup.body.append(
-		createSliderRow('Height Falloff', 0.01, 10, 0.01, sl.heightFalloff, (v) => {
-			const cur = _fogConfig.secondLayer ?? sl;
-			_fogConfig = { ..._fogConfig, secondLayer: { ...cur, heightFalloff: v } };
-			update();
-		}),
+		createSliderRow(
+			'Height Falloff',
+			0.01,
+			10,
+			0.01,
+			sl.heightFalloff,
+			(v) => {
+				const cur = _fogConfig.secondLayer ?? sl;
+				_fogConfig = { ..._fogConfig, secondLayer: { ...cur, heightFalloff: v } };
+				update();
+			},
+			undefined,
+			'Vertical decay rate for the second layer.',
+		),
 	);
 	slGroup.body.append(
-		createSliderRow('Height Offset', -20, 50, 0.5, sl.heightOffset, (v) => {
-			const cur = _fogConfig.secondLayer ?? sl;
-			_fogConfig = { ..._fogConfig, secondLayer: { ...cur, heightOffset: v } };
-			update();
-		}),
+		createSliderRow(
+			'Height Offset',
+			-20,
+			50,
+			0.5,
+			sl.heightOffset,
+			(v) => {
+				const cur = _fogConfig.secondLayer ?? sl;
+				_fogConfig = { ..._fogConfig, secondLayer: { ...cur, heightOffset: v } };
+				update();
+			},
+			undefined,
+			'Vertical position offset for the second layer.',
+		),
 	);
 	container.append(slGroup.root);
 
@@ -4473,31 +4899,64 @@ function buildFogUI(
 	};
 
 	insGroup.body.append(
-		createToggleRow('Enabled', ins.enabled, (on) => {
-			_fogConfig = { ..._fogConfig, inscattering: { ...ins, enabled: on } };
-			update();
-		}),
+		createToggleRow(
+			'Enabled',
+			ins.enabled,
+			(on) => {
+				_fogConfig = { ..._fogConfig, inscattering: { ...ins, enabled: on } };
+				update();
+			},
+			undefined,
+			'Turn light inscattering effect on or off.',
+		),
 	);
 	insGroup.body.append(
-		createSliderRow('Exponent', 1, 32, 1, ins.exponent, (v) => {
-			const cur = _fogConfig.inscattering ?? ins;
-			_fogConfig = { ..._fogConfig, inscattering: { ...cur, exponent: v } };
-			update();
-		}),
+		createSliderRow(
+			'Exponent',
+			1,
+			32,
+			1,
+			ins.exponent,
+			(v) => {
+				const cur = _fogConfig.inscattering ?? ins;
+				_fogConfig = { ..._fogConfig, inscattering: { ...cur, exponent: v } };
+				update();
+			},
+			undefined,
+			'Tightness of the light halo. Higher = more focused.',
+		),
 	);
 	insGroup.body.append(
-		createSliderRow('Start Dist', 0, 200, 5, ins.startDistance, (v) => {
-			const cur = _fogConfig.inscattering ?? ins;
-			_fogConfig = { ..._fogConfig, inscattering: { ...cur, startDistance: v } };
-			update();
-		}),
+		createSliderRow(
+			'Start Dist',
+			0,
+			200,
+			5,
+			ins.startDistance,
+			(v) => {
+				const cur = _fogConfig.inscattering ?? ins;
+				_fogConfig = { ..._fogConfig, inscattering: { ...cur, startDistance: v } };
+				update();
+			},
+			undefined,
+			'Distance before inscattering begins.',
+		),
 	);
 	insGroup.body.append(
-		createSliderRow('Intensity', 0, 5, 0.1, ins.intensity, (v) => {
-			const cur = _fogConfig.inscattering ?? ins;
-			_fogConfig = { ..._fogConfig, inscattering: { ...cur, intensity: v } };
-			update();
-		}),
+		createSliderRow(
+			'Intensity',
+			0,
+			5,
+			0.1,
+			ins.intensity,
+			(v) => {
+				const cur = _fogConfig.inscattering ?? ins;
+				_fogConfig = { ..._fogConfig, inscattering: { ...cur, intensity: v } };
+				update();
+			},
+			undefined,
+			'Brightness of the inscattered light.',
+		),
 	);
 	container.append(insGroup.root);
 
@@ -4517,52 +4976,112 @@ function buildFogUI(
 	};
 
 	atmGroup.body.append(
-		createToggleRow('Enabled', atm.enabled, (on) => {
-			_fogConfig = { ..._fogConfig, atmospheric: { ...atm, enabled: on } };
-			update();
-		}),
+		createToggleRow(
+			'Enabled',
+			atm.enabled,
+			(on) => {
+				_fogConfig = { ..._fogConfig, atmospheric: { ...atm, enabled: on } };
+				update();
+			},
+			undefined,
+			'Turn wavelength-dependent atmospheric fog on or off.',
+		),
 	);
 	atmGroup.body.append(
-		createSliderRow('Extinct. R', 0, 0.5, 0.001, atm.extinctionR, (v) => {
-			const cur = _fogConfig.atmospheric ?? atm;
-			_fogConfig = { ..._fogConfig, atmospheric: { ...cur, extinctionR: v } };
-			update();
-		}),
+		createSliderRow(
+			'Extinct. R',
+			0,
+			0.5,
+			0.001,
+			atm.extinctionR,
+			(v) => {
+				const cur = _fogConfig.atmospheric ?? atm;
+				_fogConfig = { ..._fogConfig, atmospheric: { ...cur, extinctionR: v } };
+				update();
+			},
+			undefined,
+			'Red channel light absorption rate.',
+		),
 	);
 	atmGroup.body.append(
-		createSliderRow('Extinct. G', 0, 0.5, 0.001, atm.extinctionG, (v) => {
-			const cur = _fogConfig.atmospheric ?? atm;
-			_fogConfig = { ..._fogConfig, atmospheric: { ...cur, extinctionG: v } };
-			update();
-		}),
+		createSliderRow(
+			'Extinct. G',
+			0,
+			0.5,
+			0.001,
+			atm.extinctionG,
+			(v) => {
+				const cur = _fogConfig.atmospheric ?? atm;
+				_fogConfig = { ..._fogConfig, atmospheric: { ...cur, extinctionG: v } };
+				update();
+			},
+			undefined,
+			'Green channel light absorption rate.',
+		),
 	);
 	atmGroup.body.append(
-		createSliderRow('Extinct. B', 0, 0.5, 0.001, atm.extinctionB, (v) => {
-			const cur = _fogConfig.atmospheric ?? atm;
-			_fogConfig = { ..._fogConfig, atmospheric: { ...cur, extinctionB: v } };
-			update();
-		}),
+		createSliderRow(
+			'Extinct. B',
+			0,
+			0.5,
+			0.001,
+			atm.extinctionB,
+			(v) => {
+				const cur = _fogConfig.atmospheric ?? atm;
+				_fogConfig = { ..._fogConfig, atmospheric: { ...cur, extinctionB: v } };
+				update();
+			},
+			undefined,
+			'Blue channel absorption. Higher = warmer sunset tones.',
+		),
 	);
 	atmGroup.body.append(
-		createSliderRow('Inscatter R', 0, 0.5, 0.001, atm.inscatteringR, (v) => {
-			const cur = _fogConfig.atmospheric ?? atm;
-			_fogConfig = { ..._fogConfig, atmospheric: { ...cur, inscatteringR: v } };
-			update();
-		}),
+		createSliderRow(
+			'Inscatter R',
+			0,
+			0.5,
+			0.001,
+			atm.inscatteringR,
+			(v) => {
+				const cur = _fogConfig.atmospheric ?? atm;
+				_fogConfig = { ..._fogConfig, atmospheric: { ...cur, inscatteringR: v } };
+				update();
+			},
+			undefined,
+			'Red channel of light scattered into the view.',
+		),
 	);
 	atmGroup.body.append(
-		createSliderRow('Inscatter G', 0, 0.5, 0.001, atm.inscatteringG, (v) => {
-			const cur = _fogConfig.atmospheric ?? atm;
-			_fogConfig = { ..._fogConfig, atmospheric: { ...cur, inscatteringG: v } };
-			update();
-		}),
+		createSliderRow(
+			'Inscatter G',
+			0,
+			0.5,
+			0.001,
+			atm.inscatteringG,
+			(v) => {
+				const cur = _fogConfig.atmospheric ?? atm;
+				_fogConfig = { ..._fogConfig, atmospheric: { ...cur, inscatteringG: v } };
+				update();
+			},
+			undefined,
+			'Green channel of light scattered into the view.',
+		),
 	);
 	atmGroup.body.append(
-		createSliderRow('Inscatter B', 0, 0.5, 0.001, atm.inscatteringB, (v) => {
-			const cur = _fogConfig.atmospheric ?? atm;
-			_fogConfig = { ..._fogConfig, atmospheric: { ...cur, inscatteringB: v } };
-			update();
-		}),
+		createSliderRow(
+			'Inscatter B',
+			0,
+			0.5,
+			0.001,
+			atm.inscatteringB,
+			(v) => {
+				const cur = _fogConfig.atmospheric ?? atm;
+				_fogConfig = { ..._fogConfig, atmospheric: { ...cur, inscatteringB: v } };
+				update();
+			},
+			undefined,
+			'Blue channel of light scattered into the view.',
+		),
 	);
 	container.append(atmGroup.root);
 
@@ -4582,52 +5101,112 @@ function buildFogUI(
 	};
 
 	noiseGroup.body.append(
-		createToggleRow('Enabled', noise.enabled, (on) => {
-			_fogConfig = { ..._fogConfig, noise: { ...noise, enabled: on } };
-			update();
-		}),
+		createToggleRow(
+			'Enabled',
+			noise.enabled,
+			(on) => {
+				_fogConfig = { ..._fogConfig, noise: { ...noise, enabled: on } };
+				update();
+			},
+			undefined,
+			'Add Perlin noise variation to fog density.',
+		),
 	);
 	noiseGroup.body.append(
-		createSliderRow('Scale', 0.001, 10, 0.01, noise.scale, (v) => {
-			const cur = _fogConfig.noise ?? noise;
-			_fogConfig = { ..._fogConfig, noise: { ...cur, scale: v } };
-			update();
-		}),
+		createSliderRow(
+			'Scale',
+			0.001,
+			10,
+			0.01,
+			noise.scale,
+			(v) => {
+				const cur = _fogConfig.noise ?? noise;
+				_fogConfig = { ..._fogConfig, noise: { ...cur, scale: v } };
+				update();
+			},
+			undefined,
+			'Noise pattern size. Smaller = finer detail.',
+		),
 	);
 	noiseGroup.body.append(
-		createSliderRow('Amplitude', 0, 1, 0.01, noise.amplitude, (v) => {
-			const cur = _fogConfig.noise ?? noise;
-			_fogConfig = { ..._fogConfig, noise: { ...cur, amplitude: v } };
-			update();
-		}),
+		createSliderRow(
+			'Amplitude',
+			0,
+			1,
+			0.01,
+			noise.amplitude,
+			(v) => {
+				const cur = _fogConfig.noise ?? noise;
+				_fogConfig = { ..._fogConfig, noise: { ...cur, amplitude: v } };
+				update();
+			},
+			undefined,
+			'Noise strength. How much density varies.',
+		),
 	);
 	noiseGroup.body.append(
-		createSliderRow('Speed', 0, 2, 0.01, noise.speed, (v) => {
-			const cur = _fogConfig.noise ?? noise;
-			_fogConfig = { ..._fogConfig, noise: { ...cur, speed: v } };
-			update();
-		}),
+		createSliderRow(
+			'Speed',
+			0,
+			2,
+			0.01,
+			noise.speed,
+			(v) => {
+				const cur = _fogConfig.noise ?? noise;
+				_fogConfig = { ..._fogConfig, noise: { ...cur, speed: v } };
+				update();
+			},
+			undefined,
+			'How fast the noise pattern animates.',
+		),
 	);
 	noiseGroup.body.append(
-		createSliderRow('Octaves', 1, 6, 1, noise.octaves, (v) => {
-			const cur = _fogConfig.noise ?? noise;
-			_fogConfig = { ..._fogConfig, noise: { ...cur, octaves: v } };
-			update();
-		}),
+		createSliderRow(
+			'Octaves',
+			1,
+			6,
+			1,
+			noise.octaves,
+			(v) => {
+				const cur = _fogConfig.noise ?? noise;
+				_fogConfig = { ..._fogConfig, noise: { ...cur, octaves: v } };
+				update();
+			},
+			undefined,
+			'Noise layers. More = finer detail, higher GPU cost.',
+		),
 	);
 	noiseGroup.body.append(
-		createSliderRow('Lacunarity', 1, 4, 0.1, noise.lacunarity, (v) => {
-			const cur = _fogConfig.noise ?? noise;
-			_fogConfig = { ..._fogConfig, noise: { ...cur, lacunarity: v } };
-			update();
-		}),
+		createSliderRow(
+			'Lacunarity',
+			1,
+			4,
+			0.1,
+			noise.lacunarity,
+			(v) => {
+				const cur = _fogConfig.noise ?? noise;
+				_fogConfig = { ..._fogConfig, noise: { ...cur, lacunarity: v } };
+				update();
+			},
+			undefined,
+			'Frequency multiplier between octaves.',
+		),
 	);
 	noiseGroup.body.append(
-		createSliderRow('Persistence', 0.1, 0.9, 0.01, noise.persistence, (v) => {
-			const cur = _fogConfig.noise ?? noise;
-			_fogConfig = { ..._fogConfig, noise: { ...cur, persistence: v } };
-			update();
-		}),
+		createSliderRow(
+			'Persistence',
+			0.1,
+			0.9,
+			0.01,
+			noise.persistence,
+			(v) => {
+				const cur = _fogConfig.noise ?? noise;
+				_fogConfig = { ..._fogConfig, noise: { ...cur, persistence: v } };
+				update();
+			},
+			undefined,
+			'Amplitude falloff per octave. Lower = smoother.',
+		),
 	);
 	container.append(noiseGroup.root);
 
@@ -4644,31 +5223,64 @@ function buildFogUI(
 	};
 
 	windGroup.body.append(
-		createToggleRow('Enabled', wind.enabled, (on) => {
-			_fogConfig = { ..._fogConfig, wind: { ...wind, enabled: on } };
-			update();
-		}),
+		createToggleRow(
+			'Enabled',
+			wind.enabled,
+			(on) => {
+				_fogConfig = { ..._fogConfig, wind: { ...wind, enabled: on } };
+				update();
+			},
+			undefined,
+			'Enable wind-driven fog movement.',
+		),
 	);
 	windGroup.body.append(
-		createSliderRow('Direction°', 0, 360, 1, wind.directionAngle, (v) => {
-			const cur = _fogConfig.wind ?? wind;
-			_fogConfig = { ..._fogConfig, wind: { ...cur, directionAngle: v } };
-			update();
-		}),
+		createSliderRow(
+			'Direction°',
+			0,
+			360,
+			1,
+			wind.directionAngle,
+			(v) => {
+				const cur = _fogConfig.wind ?? wind;
+				_fogConfig = { ..._fogConfig, wind: { ...cur, directionAngle: v } };
+				update();
+			},
+			undefined,
+			'Wind compass angle (0–360). Drives fog drift.',
+		),
 	);
 	windGroup.body.append(
-		createSliderRow('Speed', 0, 5, 0.1, wind.speed, (v) => {
-			const cur = _fogConfig.wind ?? wind;
-			_fogConfig = { ..._fogConfig, wind: { ...cur, speed: v } };
-			update();
-		}),
+		createSliderRow(
+			'Speed',
+			0,
+			5,
+			0.1,
+			wind.speed,
+			(v) => {
+				const cur = _fogConfig.wind ?? wind;
+				_fogConfig = { ..._fogConfig, wind: { ...cur, speed: v } };
+				update();
+			},
+			undefined,
+			'Wind speed. Higher = faster fog drift.',
+		),
 	);
 	windGroup.body.append(
-		createSliderRow('Turbulence', 0, 1, 0.01, wind.turbulence, (v) => {
-			const cur = _fogConfig.wind ?? wind;
-			_fogConfig = { ..._fogConfig, wind: { ...cur, turbulence: v } };
-			update();
-		}),
+		createSliderRow(
+			'Turbulence',
+			0,
+			1,
+			0.01,
+			wind.turbulence,
+			(v) => {
+				const cur = _fogConfig.wind ?? wind;
+				_fogConfig = { ..._fogConfig, wind: { ...cur, turbulence: v } };
+				update();
+			},
+			undefined,
+			'Random wind variation. 0 = steady, 1 = chaotic.',
+		),
 	);
 	container.append(windGroup.root);
 
@@ -4730,9 +5342,15 @@ function buildFogUI(
 		};
 
 		ovGroup.body.append(
-			createToggleRow('Enabled', ov.enabled, (on) => {
-				setOverlayProp('enabled', on);
-			}),
+			createToggleRow(
+				'Enabled',
+				ov.enabled,
+				(on) => {
+					setOverlayProp('enabled', on);
+				},
+				undefined,
+				'Turn this fog overlay layer on or off.',
+			),
 		);
 		ovGroup.body.append(
 			createDropdown(
@@ -4751,12 +5369,23 @@ function buildFogUI(
 					}
 					update();
 				},
+				undefined,
+				'Noise pattern type for this overlay layer.',
 			),
 		);
 		ovGroup.body.append(
-			createSliderRow('Opacity', 0, 1, 0.01, ov.opacity, (v) => {
-				setOverlayProp('opacity', v);
-			}),
+			createSliderRow(
+				'Opacity',
+				0,
+				1,
+				0.01,
+				ov.opacity,
+				(v) => {
+					setOverlayProp('opacity', v);
+				},
+				undefined,
+				'Layer transparency. 0 = invisible, 1 = opaque.',
+			),
 		);
 		ovGroup.body.append(
 			createDropdown(
@@ -4766,32 +5395,79 @@ function buildFogUI(
 				(v) => {
 					setOverlayProp('blendMode', v);
 				},
+				undefined,
+				'How this layer combines with the scene.',
 			),
 		);
 		ovGroup.body.append(
-			createSliderRow('Scroll X', -2, 2, 0.01, ov.scrollX, (v) => {
-				setOverlayProp('scrollX', v);
-			}),
+			createSliderRow(
+				'Scroll X',
+				-2,
+				2,
+				0.01,
+				ov.scrollX,
+				(v) => {
+					setOverlayProp('scrollX', v);
+				},
+				undefined,
+				'Horizontal drift speed. Negative = left.',
+			),
 		);
 		ovGroup.body.append(
-			createSliderRow('Scroll Y', -2, 2, 0.01, ov.scrollY, (v) => {
-				setOverlayProp('scrollY', v);
-			}),
+			createSliderRow(
+				'Scroll Y',
+				-2,
+				2,
+				0.01,
+				ov.scrollY,
+				(v) => {
+					setOverlayProp('scrollY', v);
+				},
+				undefined,
+				'Vertical drift speed. Negative = down.',
+			),
 		);
 		ovGroup.body.append(
-			createSliderRow('Scale', 0.1, 10, 0.1, ov.scale, (v) => {
-				setOverlayProp('scale', v);
-			}),
+			createSliderRow(
+				'Scale',
+				0.1,
+				10,
+				0.1,
+				ov.scale,
+				(v) => {
+					setOverlayProp('scale', v);
+				},
+				undefined,
+				'Texture scale. Larger = bigger pattern.',
+			),
 		);
 		ovGroup.body.append(
-			createSliderRow('Hue', 0, 360, 1, ov.hue, (v) => {
-				setOverlayProp('hue', v);
-			}),
+			createSliderRow(
+				'Hue',
+				0,
+				360,
+				1,
+				ov.hue,
+				(v) => {
+					setOverlayProp('hue', v);
+				},
+				undefined,
+				'Color rotation in degrees.',
+			),
 		);
 		ovGroup.body.append(
-			createSliderRow('Hue Speed', -10, 10, 0.1, ov.hueSpeed, (v) => {
-				setOverlayProp('hueSpeed', v);
-			}),
+			createSliderRow(
+				'Hue Speed',
+				-10,
+				10,
+				0.1,
+				ov.hueSpeed,
+				(v) => {
+					setOverlayProp('hueSpeed', v);
+				},
+				undefined,
+				'Auto hue rotation speed (deg/sec). 0 = static.',
+			),
 		);
 		ovGroup.body.append(
 			createDropdown(
@@ -4801,12 +5477,23 @@ function buildFogUI(
 				(v) => {
 					setOverlayProp('vignette', v);
 				},
+				undefined,
+				'Edge fade shape for this overlay layer.',
 			),
 		);
 		ovGroup.body.append(
-			createSliderRow('Vig. Intensity', 0, 1, 0.01, ov.vignetteIntensity, (v) => {
-				setOverlayProp('vignetteIntensity', v);
-			}),
+			createSliderRow(
+				'Vig. Intensity',
+				0,
+				1,
+				0.01,
+				ov.vignetteIntensity,
+				(v) => {
+					setOverlayProp('vignetteIntensity', v);
+				},
+				undefined,
+				'Strength of the edge fade effect.',
+			),
 		);
 		return ovGroup.root;
 	};
@@ -4828,24 +5515,48 @@ function buildFogUI(
 	};
 
 	animGroup.body.append(
-		createToggleRow('Enabled', anim.enabled, (on) => {
-			_fogConfig = { ..._fogConfig, animation: { ...anim, enabled: on } };
-			update();
-		}),
+		createToggleRow(
+			'Enabled',
+			anim.enabled,
+			(on) => {
+				_fogConfig = { ..._fogConfig, animation: { ...anim, enabled: on } };
+				update();
+			},
+			undefined,
+			'Animate fog density over time.',
+		),
 	);
 	animGroup.body.append(
-		createSliderRow('Speed', 0.01, 5, 0.01, anim.speed, (v) => {
-			const cur = _fogConfig.animation ?? anim;
-			_fogConfig = { ..._fogConfig, animation: { ...cur, speed: v } };
-			update();
-		}),
+		createSliderRow(
+			'Speed',
+			0.01,
+			5,
+			0.01,
+			anim.speed,
+			(v) => {
+				const cur = _fogConfig.animation ?? anim;
+				_fogConfig = { ..._fogConfig, animation: { ...cur, speed: v } };
+				update();
+			},
+			undefined,
+			'Animation cycle speed.',
+		),
 	);
 	animGroup.body.append(
-		createSliderRow('Amplitude', 0, 0.5, 0.01, anim.amplitude, (v) => {
-			const cur = _fogConfig.animation ?? anim;
-			_fogConfig = { ..._fogConfig, animation: { ...cur, amplitude: v } };
-			update();
-		}),
+		createSliderRow(
+			'Amplitude',
+			0,
+			0.5,
+			0.01,
+			anim.amplitude,
+			(v) => {
+				const cur = _fogConfig.animation ?? anim;
+				_fogConfig = { ..._fogConfig, animation: { ...cur, amplitude: v } };
+				update();
+			},
+			undefined,
+			'How much density varies during animation.',
+		),
 	);
 	animGroup.body.append(
 		createDropdown(
@@ -4861,6 +5572,8 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, animation: { ...cur, waveform: v as typeof anim.waveform } };
 				update();
 			},
+			undefined,
+			'Oscillation shape. Sine = smooth, Triangle = angular.',
 		),
 	);
 	container.append(animGroup.root);
@@ -4880,24 +5593,48 @@ function buildFogUI(
 	};
 
 	dnGroup.body.append(
-		createToggleRow('Enabled', dn.enabled, (on) => {
-			_fogConfig = { ..._fogConfig, dayNight: { ...dn, enabled: on } };
-			update();
-		}),
+		createToggleRow(
+			'Enabled',
+			dn.enabled,
+			(on) => {
+				_fogConfig = { ..._fogConfig, dayNight: { ...dn, enabled: on } };
+				update();
+			},
+			undefined,
+			'Auto-adjust fog with the day/night cycle.',
+		),
 	);
 	dnGroup.body.append(
-		createSliderRow('Day Density', 0, 0.1, 0.001, dn.dayDensity, (v) => {
-			const cur = _fogConfig.dayNight ?? dn;
-			_fogConfig = { ..._fogConfig, dayNight: { ...cur, dayDensity: v } };
-			update();
-		}),
+		createSliderRow(
+			'Day Density',
+			0,
+			0.1,
+			0.001,
+			dn.dayDensity,
+			(v) => {
+				const cur = _fogConfig.dayNight ?? dn;
+				_fogConfig = { ..._fogConfig, dayNight: { ...cur, dayDensity: v } };
+				update();
+			},
+			undefined,
+			'Fog density during daytime.',
+		),
 	);
 	dnGroup.body.append(
-		createSliderRow('Night Density', 0, 0.1, 0.001, dn.nightDensity, (v) => {
-			const cur = _fogConfig.dayNight ?? dn;
-			_fogConfig = { ..._fogConfig, dayNight: { ...cur, nightDensity: v } };
-			update();
-		}),
+		createSliderRow(
+			'Night Density',
+			0,
+			0.1,
+			0.001,
+			dn.nightDensity,
+			(v) => {
+				const cur = _fogConfig.dayNight ?? dn;
+				_fogConfig = { ..._fogConfig, dayNight: { ...cur, nightDensity: v } };
+				update();
+			},
+			undefined,
+			'Fog density at night. Usually denser than day.',
+		),
 	);
 	container.append(dnGroup.root);
 
@@ -4909,16 +5646,28 @@ function buildFogUI(
 	const pm = _fogConfig.perMesh ?? { excludeGround: false, excludeSprites: false };
 
 	pmGroup.body.append(
-		createToggleRow('Exclude Ground', pm.excludeGround, (on) => {
-			_fogConfig = { ..._fogConfig, perMesh: { ...pm, excludeGround: on } };
-			update();
-		}),
+		createToggleRow(
+			'Exclude Ground',
+			pm.excludeGround,
+			(on) => {
+				_fogConfig = { ..._fogConfig, perMesh: { ...pm, excludeGround: on } };
+				update();
+			},
+			undefined,
+			'Skip fog on the ground fill plane.',
+		),
 	);
 	pmGroup.body.append(
-		createToggleRow('Exclude Sprites', pm.excludeSprites, (on) => {
-			_fogConfig = { ..._fogConfig, perMesh: { ...pm, excludeSprites: on } };
-			update();
-		}),
+		createToggleRow(
+			'Exclude Sprites',
+			pm.excludeSprites,
+			(on) => {
+				_fogConfig = { ..._fogConfig, perMesh: { ...pm, excludeSprites: on } };
+				update();
+			},
+			undefined,
+			'Skip fog on sprite meshes (characters, items).',
+		),
 	);
 	container.append(pmGroup.root);
 }
@@ -4951,6 +5700,7 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 					cam.fov = v;
 				},
 				'cam-fov',
+				'Field of view in radians. ~0.8 = 45°, ~1.4 = 80°.',
 			),
 		);
 		container.append(
@@ -4964,6 +5714,7 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 					cam.radius = v;
 				},
 				'cam-radius',
+				'Distance from camera to target (world units).',
 			),
 		);
 		container.append(
@@ -4977,6 +5728,7 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 					cam.inertia = v;
 				},
 				'cam-inertia',
+				'Movement smoothing. 0 = instant response, 1 = heavy damping.',
 			),
 		);
 		container.append(
@@ -4990,6 +5742,7 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 					cam.wheelPrecision = v;
 				},
 				'cam-wheel-prec',
+				'Mouse wheel zoom sensitivity. Higher = finer zoom control.',
 			),
 		);
 		container.append(
@@ -5003,6 +5756,7 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 					cam.panningSensibility = v;
 				},
 				'cam-pan-sens',
+				'Right-click pan speed. Higher value = slower panning.',
 			),
 		);
 		container.append(
@@ -5016,6 +5770,7 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 					cam.lowerRadiusLimit = v;
 				},
 				'cam-lower-radius',
+				'Closest allowed zoom distance from the target.',
 			),
 		);
 		container.append(
@@ -5029,6 +5784,7 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 					cam.upperRadiusLimit = v;
 				},
 				'cam-upper-radius',
+				'Farthest allowed zoom distance from the target.',
 			),
 		);
 
@@ -5057,6 +5813,7 @@ function buildCameraDetailsUI(runtime: RuntimeInstance): void {
 					cam.fov = v;
 				},
 				'cam-fov',
+				'Field of view in radians. ~0.8 = 45°, ~1.4 = 80°.',
 			),
 		);
 	}
@@ -5099,6 +5856,7 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 				glow.isEnabled = on;
 			},
 			'glow-enabled',
+			'Turn the glow post-process layer on or off.',
 		),
 	);
 	container.append(
@@ -5112,6 +5870,7 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 				glow.intensity = val;
 			},
 			'glow-intensity',
+			'Glow brightness multiplier. Higher = stronger bloom on emissive surfaces.',
 		),
 	);
 	container.append(
@@ -5125,6 +5884,7 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 				glow.blurKernelSize = val;
 			},
 			'glow-blur-kernel',
+			'Blur kernel size in pixels. Larger = softer, wider glow.',
 		),
 	);
 
@@ -5195,6 +5955,7 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 				}
 			},
 			'glow-emissive-override',
+			'Replace per-mesh emissive colors with a single custom color.',
 		),
 	);
 
@@ -5255,6 +6016,7 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 				}
 			},
 			'glow-chunks',
+			'Include tilemap chunks in the glow pass. Off = exclude from glow.',
 		),
 	);
 
@@ -5275,6 +6037,7 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 					}
 				},
 				'glow-other',
+				'Include non-tilemap meshes (sprites, props) in the glow pass.',
 			),
 		);
 	}
@@ -5293,6 +6056,7 @@ function buildGlowDetailsUI(debug: DevDebugApi): void {
 					}
 				},
 				'glow-ground',
+				'Include the ground fill plane in the glow pass.',
 			),
 		);
 	}
@@ -7091,6 +7855,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 					ml.light.setEnabled(on);
 				},
 				`light-${lightId}-enabled`,
+				'Turn this light source on or off.',
 			),
 		);
 
@@ -7106,6 +7871,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 					ml.light.intensity = v;
 				},
 				`light-${lightId}-intensity`,
+				'Brightness of this light source.',
 			),
 		);
 
@@ -7123,6 +7889,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 						diffuse.r = v;
 					},
 					`light-${lightId}-diffuse-r`,
+					'Red channel of this light\u2019s diffuse color.',
 				),
 			);
 			row.append(
@@ -7136,6 +7903,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 						diffuse.g = v;
 					},
 					`light-${lightId}-diffuse-g`,
+					'Green channel of this light\u2019s diffuse color.',
 				),
 			);
 			row.append(
@@ -7149,6 +7917,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 						diffuse.b = v;
 					},
 					`light-${lightId}-diffuse-b`,
+					'Blue channel of this light\u2019s diffuse color.',
 				),
 			);
 		}
@@ -7167,6 +7936,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 						(ml.light as BABYLON.PointLight).range = v;
 					},
 					`light-${lightId}-range`,
+					'Maximum illumination distance (world units). 0 = infinite.',
 				),
 			);
 		}
@@ -7185,6 +7955,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 						sg.darkness = v;
 					},
 					`light-${lightId}-shadow-dark`,
+					'Shadow intensity. 0 = no shadow, 1 = fully dark.',
 				),
 			);
 		}
@@ -7203,6 +7974,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 						flickerCfg['intensity'] = v;
 					},
 					`light-${lightId}-flicker-int`,
+					'How much the light flickers. 0 = steady, 1 = extreme.',
 				),
 			);
 			row.append(
@@ -7216,6 +7988,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 						flickerCfg['speed'] = v;
 					},
 					`light-${lightId}-flicker-spd`,
+					'Flicker animation speed. Higher = faster pulsing.',
 				),
 			);
 		}
@@ -7234,6 +8007,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 						vl.decay = v;
 					},
 					`light-${lightId}-gr-decay`,
+					'Light falloff per sample step. Lower = rays travel farther.',
 				),
 			);
 			row.append(
@@ -7247,6 +8021,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 						vl.weight = v;
 					},
 					`light-${lightId}-gr-weight`,
+					'Brightness contribution of the volumetric rays.',
 				),
 			);
 			row.append(
@@ -7260,6 +8035,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 						vl.density = v;
 					},
 					`light-${lightId}-gr-density`,
+					'Number of samples per ray. Higher = smoother but heavier.',
 				),
 			);
 		}
@@ -7302,9 +8078,10 @@ function addBadge(parent: HTMLElement, text: string, color: string): void {
  *
  * @param label - Display label.
  * @param id - DOM id for the value element.
+ * @param tooltip - Optional tooltip description shown on hover.
  * @returns The row element.
  */
-function infoRow(label: string, id: string): HTMLElement {
+function infoRow(label: string, id: string, tooltip?: string): HTMLElement {
 	const row = document.createElement('div');
 	row.className = 'control-row';
 	const lbl = document.createElement('span');
@@ -7314,7 +8091,7 @@ function infoRow(label: string, id: string): HTMLElement {
 	val.className = 'control-value';
 	val.id = id;
 	val.textContent = '--';
-	row.append(lbl, val);
+	row.append(wrapWithTooltip(lbl, tooltip), val);
 	return row;
 }
 
@@ -7332,69 +8109,153 @@ function buildInfoUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 
 	// ── Performance ──
 	container.append(createSubHeader('Performance'));
-	container.append(infoRow('FPS', 'info-fps'));
-	container.append(infoRow('Frame Time', 'info-frametime'));
-	container.append(infoRow('Draw Calls', 'info-drawcalls'));
-	container.append(infoRow('Active Meshes', 'info-active-meshes'));
-	container.append(infoRow('Total Triangles', 'info-triangles'));
+	container.append(
+		infoRow('FPS', 'info-fps', 'Frames rendered per second. 60 = smooth, <30 may feel sluggish.'),
+	);
+	container.append(
+		infoRow(
+			'Frame Time',
+			'info-frametime',
+			'Milliseconds per frame. Lower = better. 16.7ms = 60 FPS.',
+		),
+	);
+	container.append(
+		infoRow('Draw Calls', 'info-drawcalls', 'GPU draw calls per frame. Lower = better batching.'),
+	);
+	container.append(
+		infoRow(
+			'Active Meshes',
+			'info-active-meshes',
+			'Meshes visible this frame after frustum culling.',
+		),
+	);
+	container.append(
+		infoRow('Total Triangles', 'info-triangles', 'Total triangle count rendered this frame.'),
+	);
 
 	// ── Scene ──
 	container.append(createSubHeader('Scene'));
-	container.append(infoRow('Total Meshes', 'info-total-meshes'));
-	container.append(infoRow('Total Materials', 'info-materials'));
-	container.append(infoRow('Total Textures', 'info-textures'));
-	container.append(infoRow('Total Lights', 'info-total-lights'));
-	container.append(infoRow('Effect Layers', 'info-effect-layers'));
-	container.append(infoRow('Particle Systems', 'info-particles'));
-	container.append(infoRow('Animations', 'info-animations'));
+	container.append(
+		infoRow('Total Meshes', 'info-total-meshes', 'Total mesh objects in the scene graph.'),
+	);
+	container.append(
+		infoRow('Total Materials', 'info-materials', 'Unique material instances loaded.'),
+	);
+	container.append(infoRow('Total Textures', 'info-textures', 'Texture objects in GPU memory.'));
+	container.append(
+		infoRow('Total Lights', 'info-total-lights', 'Active light sources in the scene.'),
+	);
+	container.append(
+		infoRow(
+			'Effect Layers',
+			'info-effect-layers',
+			'Post-process effect layers (glow, highlight, etc.).',
+		),
+	);
+	container.append(
+		infoRow('Particle Systems', 'info-particles', 'Active particle system emitters.'),
+	);
+	container.append(
+		infoRow('Animations', 'info-animations', 'Currently running animation playbacks.'),
+	);
 
 	// ── Renderer ──
 	container.append(createSubHeader('Renderer'));
-	container.append(infoRow('Backend', 'info-backend'));
-	container.append(infoRow('GPU', 'info-gpu'));
-	container.append(infoRow('Resolution', 'info-resolution'));
-	container.append(infoRow('Pixel Ratio', 'info-pixel-ratio'));
-	container.append(infoRow('Hardware Scale', 'info-hw-scale'));
-	container.append(infoRow('Antialias', 'info-antialias'));
+	container.append(
+		infoRow('Backend', 'info-backend', 'Graphics API: WebGPU (modern) or WebGL2 (fallback).'),
+	);
+	container.append(infoRow('GPU', 'info-gpu', 'GPU model name reported by the browser.'));
+	container.append(infoRow('Resolution', 'info-resolution', 'Canvas render resolution in pixels.'));
+	container.append(
+		infoRow('Pixel Ratio', 'info-pixel-ratio', 'Display scaling factor. 2 = Retina/HiDPI.'),
+	);
+	container.append(
+		infoRow(
+			'Hardware Scale',
+			'info-hw-scale',
+			'Babylon.js hardware scaling. 1 = native resolution.',
+		),
+	);
+	container.append(
+		infoRow('Antialias', 'info-antialias', 'Whether MSAA anti-aliasing is enabled.'),
+	);
 
 	// ── Camera ──
 	container.append(createSubHeader('Camera'));
-	container.append(infoRow('Type', 'info-cam-type'));
-	container.append(infoRow('Position', 'info-cam-pos'));
-	container.append(infoRow('Target', 'info-cam-target'));
-	container.append(infoRow('FOV', 'info-cam-fov'));
-	container.append(infoRow('Near / Far', 'info-cam-clip'));
+	container.append(
+		infoRow('Type', 'info-cam-type', 'Active camera class (ArcRotate, Universal, etc.).'),
+	);
+	container.append(infoRow('Position', 'info-cam-pos', 'Camera world-space position (X, Y, Z).'));
+	container.append(
+		infoRow('Target', 'info-cam-target', 'Point the camera is looking at (X, Y, Z).'),
+	);
+	container.append(infoRow('FOV', 'info-cam-fov', 'Camera field of view in degrees.'));
+	container.append(infoRow('Near / Far', 'info-cam-clip', 'Near and far clipping planes.'));
 
 	// ── Tilemap ──
 	container.append(createSubHeader('Tilemap'));
-	container.append(infoRow('Chunks', 'info-chunks'));
-	container.append(infoRow('Cliff Chunks', 'info-cliff-chunks'));
-	container.append(infoRow('Map Layers', 'info-map-layers'));
-	container.append(infoRow('Map Size', 'info-map-size'));
+	container.append(infoRow('Chunks', 'info-chunks', 'Number of tilemap terrain chunks loaded.'));
+	container.append(
+		infoRow('Cliff Chunks', 'info-cliff-chunks', 'Number of cliff/height transition chunks.'),
+	);
+	container.append(
+		infoRow('Map Layers', 'info-map-layers', 'Tiled map layers (ground, objects, events, etc.).'),
+	);
+	container.append(
+		infoRow('Map Size', 'info-map-size', 'Map dimensions in tiles (width × height).'),
+	);
 
 	// ── Lighting ──
 	container.append(createSubHeader('Lighting'));
-	container.append(infoRow('Time of Day', 'info-time'));
-	container.append(infoRow('Cycle Speed', 'info-cycle-speed'));
-	container.append(infoRow('Lights', 'info-light-breakdown'));
-	container.append(infoRow('Shadow Gens', 'info-shadow-gens'));
-	container.append(infoRow('Shadow Map', 'info-shadow-map'));
-	container.append(infoRow('Glow Layer', 'info-glow'));
-	container.append(infoRow('Post-Processing', 'info-postfx'));
+	container.append(infoRow('Time of Day', 'info-time', 'Current in-game time of day (HH:MM).'));
+	container.append(infoRow('Cycle Speed', 'info-cycle-speed', 'Day/night cycle speed multiplier.'));
+	container.append(
+		infoRow('Lights', 'info-light-breakdown', 'Light count by type (dir, point, spot, hemi).'),
+	);
+	container.append(infoRow('Shadow Gens', 'info-shadow-gens', 'Active shadow map generators.'));
+	container.append(infoRow('Shadow Map', 'info-shadow-map', 'Shadow map texture resolution.'));
+	container.append(infoRow('Glow Layer', 'info-glow', 'Whether the glow layer is active.'));
+	container.append(
+		infoRow('Post-Processing', 'info-postfx', 'Whether the post-processing pipeline is active.'),
+	);
 
 	// ── Environment ──
 	container.append(createSubHeader('Environment'));
-	container.append(infoRow('Sky Type', 'info-sky-type'));
-	container.append(infoRow('Sky Texture', 'info-sky-texture'));
-	container.append(infoRow('Parallax Layers', 'info-parallax-layers'));
-	container.append(infoRow('Parallax Type', 'info-parallax-types'));
-	container.append(infoRow('Stars', 'info-stars'));
+	container.append(infoRow('Sky Type', 'info-sky-type', 'Active sky rendering mode.'));
+	container.append(
+		infoRow('Sky Texture', 'info-sky-texture', 'Sky texture asset currently loaded.'),
+	);
+	container.append(
+		infoRow('Parallax Layers', 'info-parallax-layers', 'Number of parallax background layers.'),
+	);
+	container.append(
+		infoRow(
+			'Parallax Type',
+			'info-parallax-types',
+			'Breakdown of background vs foreground layers.',
+		),
+	);
+	container.append(infoRow('Stars', 'info-stars', 'Whether the star field overlay is active.'));
 
 	// ── Memory ──
 	container.append(createSubHeader('Memory'));
-	container.append(infoRow('Geometries', 'info-geometries'));
-	container.append(infoRow('Buffers (Vertex)', 'info-vertex-buffers'));
-	container.append(infoRow('Compile Count', 'info-compile'));
+	container.append(
+		infoRow('Geometries', 'info-geometries', 'Total geometry objects (vertex data) in the scene.'),
+	);
+	container.append(
+		infoRow(
+			'Buffers (Vertex)',
+			'info-vertex-buffers',
+			'Total vertex buffer objects in GPU memory.',
+		),
+	);
+	container.append(
+		infoRow(
+			'Compile Count',
+			'info-compile',
+			'Shader compile count since load. High = stutter risk.',
+		),
+	);
 
 	// Update function for debug info values
 	const engine = scene.getEngine();
@@ -7739,7 +8600,11 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 		zoomValSpan.textContent = `${val.toFixed(1)}x`;
 	});
 
-	zoomSliderRow.append(zoomLabel, zoomSlider, zoomValSpan);
+	zoomSliderRow.append(
+		wrapWithTooltip(zoomLabel, 'Camera zoom multiplier. 1x = default, 16x = max zoom.'),
+		zoomSlider,
+		zoomValSpan,
+	);
 	controlsDiv.append(zoomSliderRow);
 
 	// ── 2b. Custom Zoom Input ──
@@ -7844,9 +8709,15 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 	// ── 3b. View Toggles ──
 	controlsDiv.append(createSubHeader('View'));
 
-	const gridToggleRow: HTMLElement = createToggleRow('Grid Overlay (G)', _gridVisible, () => {
-		toggleGridOverlay(scene, debug);
-	});
+	const gridToggleRow: HTMLElement = createToggleRow(
+		'Grid Overlay (G)',
+		_gridVisible,
+		() => {
+			toggleGridOverlay(scene, debug);
+		},
+		undefined,
+		'Show tile grid lines over the map. Shortcut: G key.',
+	);
 	controlsDiv.append(gridToggleRow);
 
 	// Store grid toggle checkbox ref so G key can sync it
@@ -7858,28 +8729,58 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 	}
 
 	controlsDiv.append(
-		createSliderRow('Grid Opacity', 0.05, 1, 0.05, _gridAlpha, (val: Num) => {
-			_gridAlpha = val;
-			updateGridAppearance();
-		}),
+		createSliderRow(
+			'Grid Opacity',
+			0.05,
+			1,
+			0.05,
+			_gridAlpha,
+			(val: Num) => {
+				_gridAlpha = val;
+				updateGridAppearance();
+			},
+			undefined,
+			'Grid line transparency. 0.05 = faint, 1 = solid.',
+		),
 	);
 	controlsDiv.append(
-		createColorPickerRow('Grid Color', GRID_COLOR_PRESETS, '#cccccc', (hex: string) => {
-			_gridColor = BABYLON.Color3.FromHexString(hex);
-			updateGridAppearance();
-		}),
+		createColorPickerRow(
+			'Grid Color',
+			GRID_COLOR_PRESETS,
+			'#cccccc',
+			(hex: string) => {
+				_gridColor = BABYLON.Color3.FromHexString(hex);
+				updateGridAppearance();
+			},
+			'Pick a color for the grid overlay lines.',
+		),
 	);
 	controlsDiv.append(
-		createSliderRow('Fill Opacity', 0, 1, 0.05, _gridFillAlpha, (val: Num) => {
-			_gridFillAlpha = val;
-			updateGridFillAppearance();
-		}),
+		createSliderRow(
+			'Fill Opacity',
+			0,
+			1,
+			0.05,
+			_gridFillAlpha,
+			(val: Num) => {
+				_gridFillAlpha = val;
+				updateGridFillAppearance();
+			},
+			undefined,
+			'Cell background fill opacity. 0 = no fill.',
+		),
 	);
 	controlsDiv.append(
-		createColorPickerRow('Fill Color', GRID_COLOR_PRESETS, '#cccccc', (hex: string) => {
-			_gridFillColor = BABYLON.Color3.FromHexString(hex);
-			updateGridFillAppearance();
-		}),
+		createColorPickerRow(
+			'Fill Color',
+			GRID_COLOR_PRESETS,
+			'#cccccc',
+			(hex: string) => {
+				_gridFillColor = BABYLON.Color3.FromHexString(hex);
+				updateGridFillAppearance();
+			},
+			'Pick a color for the grid cell fill.',
+		),
 	);
 
 	// ── 4. Go To Position ──
@@ -7941,9 +8842,15 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 	// ── 5. Live Readout ──
 	controlsDiv.append(createSubHeader('Position'));
 
-	controlsDiv.append(makeNavReadout('Target X', 'nav-target-x'));
-	controlsDiv.append(makeNavReadout('Target Z', 'nav-target-z'));
-	controlsDiv.append(makeNavReadout('Zoom', 'nav-zoom-readout'));
+	const navTargetX = makeNavReadout('Target X', 'nav-target-x');
+	navTargetX.title = 'Camera target X coordinate in world space.';
+	controlsDiv.append(navTargetX);
+	const navTargetZ = makeNavReadout('Target Z', 'nav-target-z');
+	navTargetZ.title = 'Camera target Z coordinate in world space.';
+	controlsDiv.append(navTargetZ);
+	const navZoomReadout = makeNavReadout('Zoom', 'nav-zoom-readout');
+	navZoomReadout.title = 'Current zoom multiplier.';
+	controlsDiv.append(navZoomReadout);
 
 	// ── 6. Per-frame readout update ──
 	let navFrameCount = 0;
@@ -8081,6 +8988,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				}
 			},
 			'sky-type',
+			'Background rendering method. Solid, gradient, skybox, procedural, panorama, or HDR.',
 		),
 	);
 
@@ -8122,6 +9030,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				scene.clearColor.r = v;
 			},
 			'sky-clear-r',
+			'Red channel of the scene background color (0–1).',
 		),
 	);
 	container.append(
@@ -8135,6 +9044,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				scene.clearColor.g = v;
 			},
 			'sky-clear-g',
+			'Green channel of the scene background color (0–1).',
 		),
 	);
 	container.append(
@@ -8148,6 +9058,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				scene.clearColor.b = v;
 			},
 			'sky-clear-b',
+			'Blue channel of the scene background color (0–1).',
 		),
 	);
 	container.append(
@@ -8161,6 +9072,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				scene.clearColor.a = v;
 			},
 			'sky-clear-a',
+			'Alpha of the scene background. 0 = transparent, 1 = opaque.',
 		),
 	);
 
@@ -8187,6 +9099,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					sunLight.direction.y = -Math.sin(elRad);
 				},
 				'sun-azimuth',
+				'Compass bearing of the sun (0–360). 0 = north, 90 = east.',
 			),
 		);
 
@@ -8205,6 +9118,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					sunLight.direction.y = -Math.sin(elRad);
 				},
 				'sun-elevation',
+				'Angle of the sun above the horizon (5–90 degrees).',
 			),
 		);
 
@@ -8219,6 +9133,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					sunLight.intensity = v;
 				},
 				'sun-intensity',
+				'Brightness of the directional sunlight.',
 			),
 		);
 
@@ -8235,6 +9150,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					sunDiffuse.r = v;
 				},
 				'sun-color-r',
+				'Red channel of the sunlight diffuse color.',
 			),
 		);
 		container.append(
@@ -8248,6 +9164,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					sunDiffuse.g = v;
 				},
 				'sun-color-g',
+				'Green channel of the sunlight diffuse color.',
 			),
 		);
 		container.append(
@@ -8261,6 +9178,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					sunDiffuse.b = v;
 				},
 				'sun-color-b',
+				'Blue channel of the sunlight diffuse color.',
 			),
 		);
 	}
@@ -8282,6 +9200,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					skyMat.mieCoefficient = v;
 				},
 				'sky-mie-coeff',
+				'Mie scattering coefficient. Higher = more haze around the sun.',
 			),
 		);
 		container.append(
@@ -8295,6 +9214,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					skyMat.mieDirectionalG = v;
 				},
 				'sky-mie-dir-g',
+				'Mie anisotropy. 0 = uniform scatter, 1 = strong forward scatter.',
 			),
 		);
 		container.append(
@@ -8308,6 +9228,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					skyMat.inclination = v;
 				},
 				'sky-inclination',
+				'Sun vertical position (0 = horizon, 0.5 = zenith).',
 			),
 		);
 		container.append(
@@ -8321,6 +9242,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					skyMat.azimuth = v;
 				},
 				'sky-azimuth',
+				'Sun horizontal rotation in the procedural sky (0–1 = full circle).',
 			),
 		);
 	}
@@ -8356,6 +9278,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					}
 				},
 				'sky-stars-enabled',
+				'Show or hide the star field layer.',
 			),
 		);
 
@@ -8372,6 +9295,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					}
 				},
 				'sky-stars-opacity',
+				'Star field transparency. 0 = invisible, 1 = fully opaque.',
 			),
 		);
 
@@ -8393,6 +9317,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					}
 				},
 				'sky-stars-scale',
+				'Star texture scale. Higher = smaller, denser stars.',
 			),
 		);
 
@@ -8409,6 +9334,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					// Changing this requires recreating the star field.
 				},
 				'sky-stars-twinkle',
+				'Twinkle speed. Read-only; baked at creation time.',
 			),
 		);
 
@@ -8424,6 +9350,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					// Fade-in time is baked into the observer closure at creation time.
 				},
 				'sky-stars-fade-in',
+				'Hour when stars begin fading in (24h). Read-only.',
 			),
 		);
 
@@ -8439,6 +9366,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 					// Fade-out time is baked into the observer closure at creation time.
 				},
 				'sky-stars-fade-out',
+				'Hour when stars finish fading out (24h). Read-only.',
 			),
 		);
 	}
