@@ -36,13 +36,18 @@ src/
 │   ├── parallax-manager.ts       # Multi-layer scrolling backgrounds with camera-relative UV offset
 │   ├── transition-manager.ts     # Shader-based transitions (28 types, 6 easings)
 │   ├── transition-shader.ts      # GLSL uber-shader + PostProcess factory
+│   ├── fog-manager.ts            # Fog lifecycle: applyFog, updateFog, applyFogPreset, disposeFog
+│   ├── fog-presets.ts            # 14 curated fog presets (clear through volcanic)
+│   ├── fog-overlay-textures.ts   # 5 procedural noise generators (perlin, worley, clouds, wisps, smoke)
+│   ├── fog-shader.ts             # Advanced fog + overlay GLSL shaders and PostProcess factories
 │   ├── post-processing.ts        # DefaultRenderingPipeline + individual post-process creation
 │   ├── post-processing-presets.ts # Named presets (fantasy, noir, etc.) + quality scaling
 │   └── hdr-environment.ts        # HDR .env texture loading + PBR environment setup
 ├── schemas/
 │   ├── engine-config.ts          # EngineConfig schema
 │   ├── camera-config.ts          # CameraConfig + 6 presets + tactics rotation + transitions
-│   ├── scene-setup-config.ts     # SceneSetupConfig + ColorRgba + Vector3 + FogConfig
+│   ├── scene-setup-config.ts     # SceneSetupConfig + ColorRgba + Vector3
+│   ├── fog-config.ts             # FogConfig: 12 sub-schemas, 77+ options (mode, height, overlay, etc.)
 │   ├── quality-config.ts         # QualityConfig + QUALITY_PRESETS
 │   ├── lighting-config.ts        # All lighting schemas (lights, shadows, flicker, day/night, glow, volumetric, lens flare)
 │   ├── post-processing-config.ts # All post-processing effect schemas
@@ -237,6 +242,34 @@ addTrauma(0.3); // another hit -- accumulates, clamped at 1.0
 |----------|---------|-------------|
 | `applySceneSetup(scene, config)` | `Result<Bool>` | Apply clear color, ambient, fog, default light |
 
+### Fog
+
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `applyFog(scene, camera, engine, config)` | `BabylonResult<FogHandle>` | Apply full fog system (scene fog + PostProcess) |
+| `updateFog(handle, config)` | `BabylonResult<Bool>` | Update fog parameters at runtime |
+| `applyFogPreset(handle, presetName)` | `BabylonResult<Bool>` | Apply a named fog preset |
+| `disposeFog(handle)` | `void` | Dispose all fog resources |
+| `generateOverlayTexture(name, size)` | `BabylonResult<TextureData>` | Generate procedural noise texture |
+
+**Three-tier architecture:**
+
+1. **Scene fog** — Babylon.js built-in `scene.fogMode` (linear, exponential, exponential²)
+2. **Advanced PostProcess** — depth-based height fog, inscattering, atmospheric scattering, noise, wind, animation, day/night
+3. **Overlay PostProcess** — up to 4 scrolling procedural texture layers with blend modes and vignette masking
+
+**14 Built-in Presets** (`FOG_PRESETS`):
+
+| Category | Presets |
+|----------|---------|
+| Basic | Clear, Light Mist, Morning Fog, Dense Fog, Night Mist |
+| Environment | Forest, Mountain, Underwater, Swamp, Sandstorm, Snowstorm |
+| Atmosphere | Dungeon, Volcanic, Dream |
+
+**5 Procedural Overlay Textures** (`OVERLAY_TEXTURE_NAMES`): perlin, worley, clouds, wisps, smoke
+
+**77+ configurable options** across 12 sub-schemas: mode, height fog, second layer, inscattering, atmospheric, noise, wind, overlays (×4), animation, day/night, per-mesh exclusion.
+
 ### Lighting
 
 | Function | Returns | Description |
@@ -342,7 +375,7 @@ disposeRuntime(result.data);
 
 ## Testing
 
-833 tests across 35 files covering:
+1647 tests across 43 files covering:
 
 - **Schema validation** — all config schemas with defaults, boundaries, and rejection cases
 - **Pure math** — parallax offset, flicker waveforms, keyframe interpolation, sun direction, autotile bitmask

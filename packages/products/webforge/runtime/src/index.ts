@@ -118,7 +118,68 @@ export {
 	type ColorRgba,
 	type Vector3,
 } from './schemas/color-schema';
-export { FogConfigSchema, type FogConfig } from './schemas/fog-config';
+// Schemas — Fog config (12 sub-schemas, 77+ options)
+export {
+	FogConfigSchema,
+	FogModeSchema,
+	HeightFogSchema,
+	SecondFogLayerSchema,
+	InscatteringSchema,
+	AtmosphericSchema,
+	FogNoiseSchema,
+	FogWindSchema,
+	FogOverlaySchema,
+	FogOverlayTextureSchema,
+	FogOverlayBlendModeSchema,
+	FogOverlayVignetteSchema,
+	FogAnimationSchema,
+	FogAnimationWaveformSchema,
+	FogDayNightSchema,
+	FogPerMeshSchema,
+	FogPresetSchema,
+	type FogConfig,
+	type FogMode,
+	type HeightFog,
+	type SecondFogLayer,
+	type Inscattering,
+	type Atmospheric,
+	type FogNoise,
+	type FogWind,
+	type FogOverlay,
+	type FogOverlayTexture,
+	type FogOverlayBlendMode,
+	type FogOverlayVignette,
+	type FogAnimation,
+	type FogAnimationWaveform,
+	type FogDayNight,
+	type FogPerMesh,
+	type FogPreset,
+} from './schemas/fog-config';
+
+// Fog manager — PostProcess lifecycle, presets, per-mesh exclusion
+export {
+	applyFog,
+	updateFog,
+	applyFogPreset,
+	disposeFog,
+	type FogHandle,
+} from './rendering/fog-manager';
+
+// Fog presets — 14 curated fog configurations
+export {
+	FOG_PRESETS,
+	FOG_PRESET_NAMES,
+	type FogPresetName,
+} from './rendering/fog-presets';
+
+// Procedural overlay textures — 5 noise-based generators
+export {
+	generateOverlayTexture,
+	OVERLAY_TEXTURE_NAMES,
+	TextureDataSchema,
+	type TextureData,
+	type OverlayTextureName,
+} from './rendering/fog-overlay-textures';
 export {
 	QualityConfigSchema,
 	QUALITY_PRESETS,

@@ -166,3 +166,97 @@ Edge-detected callbacks on the instance: `onSunrise`, `onSunset`, `onHourChange`
 | `getIndoorTint` | Fixed tint values for indoor/cave modes |
 | `fireCallbacks` | Edge-detect and fire event callbacks |
 | `disposeDayNightCycle` | Clean up observer and references |
+
+---
+
+## Fog System
+
+### Overview
+
+Three-tier fog system providing basic scene fog, advanced depth-based effects,
+and procedural overlay texture layers. 77+ configurable options across 12
+sub-schemas with 14 curated presets.
+
+### File Structure
+
+```
+runtime/src/
+  schemas/fog-config.ts                — Valibot schemas (FogConfigSchema + 12 sub-schemas)
+  rendering/fog-manager.ts             — Lifecycle (applyFog, updateFog, applyFogPreset, disposeFog)
+  rendering/fog-presets.ts             — 14 presets (clear through volcanic)
+  rendering/fog-shader.ts              — GLSL shaders + PostProcess factories
+  rendering/fog-overlay-textures.ts    — 5 procedural noise generators
+  rendering/fog-manager.test.ts        — Tests (21 tests)
+  rendering/fog-presets.test.ts        — Tests (46 tests)
+  rendering/fog-overlay-textures.test.ts — Tests (32 tests)
+```
+
+### Three-Tier Architecture
+
+```
+Tier 1: Scene Fog (Babylon.js built-in)
+  scene.fogMode → linear | exponential | exponential²
+  scene.fogColor, fogDensity, fogStart, fogEnd
+
+Tier 2: Advanced Fog PostProcess (depth-based)
+  DepthRenderer → world-space position reconstruction
+  → Height fog (baseHeight, falloff, density, offset)
+  → Second fog layer (independent density + height)
+  → Inscattering (sun-direction color bleeding)
+  → Atmospheric scattering (per-channel extinction + inscattering)
+  → Noise perturbation (FBM, octaves, lacunarity)
+  → Wind displacement (direction, speed, turbulence)
+  → Density animation (sine/triangle/sawtooth waveform)
+  → Day/night color + density blending
+
+Tier 3: Overlay Fog PostProcess (texture-based)
+  4 independent layers, each with:
+  → Procedural texture (perlin | worley | clouds | wisps | smoke)
+  → Blend mode (normal | additive | multiply | screen)
+  → Scroll speed, scale, hue rotation
+  → Vignette masking (9 types: radial, border, directional edges)
+```
+
+### Fog Handle Pattern
+
+`applyFog()` returns a `FogHandle` that owns all fog resources:
+
+- `advancedPP` — Advanced fog PostProcess (nullable)
+- `overlayPP` — Overlay fog PostProcess (nullable)
+- `overlayTextures` — Generated `RawTexture[]` for overlay layers
+- `depthRenderer` — Scene depth renderer (nullable)
+- `observer` — Per-frame time accumulation observer
+- `elapsedTime` — Accumulated time for shader animation
+- `config`, `scene`, `camera`, `engine` — References for updates
+
+`updateFog()` patches the handle's config and updates shader uniforms.
+`disposeFog()` disposes PostProcesses, textures, depth renderer, and observer.
+
+### 14 Built-in Presets
+
+| Preset | Mode | Density | Features |
+|--------|------|---------|----------|
+| clear | none | 0 | No fog |
+| lightMist | exponential | 0.003 | Subtle atmosphere |
+| morningFog | exponential² | 0.008 | Height fog + wisps overlay + wind |
+| denseFog | exponential | 0.04 | Clouds overlay |
+| dungeon | exponential² | 0.02 | Dark + smoke overlay |
+| underwater | exponential | 0.06 | Blue-green tint |
+| forest | exponential | 0.01 | Height fog + perlin overlay |
+| mountain | exponential² | 0.005 | Elevated height fog + clouds overlay |
+| sandstorm | exponential | 0.035 | Strong wind + smoke overlay |
+| snowstorm | exponential | 0.03 | Strong wind + perlin overlay |
+| dream | exponential² | 0.012 | Purple + wisps overlay |
+| volcanic | exponential | 0.025 | Red-orange + steep height fog + smoke overlay |
+| swamp | exponential | 0.015 | Murky green + height fog + worley overlay |
+| nightMist | exponential² | 0.006 | Very dark + wisps overlay |
+
+### API Functions
+
+| Function | Purpose |
+|----------|---------|
+| `applyFog` | Create full fog system from config |
+| `updateFog` | Update fog parameters at runtime |
+| `applyFogPreset` | Apply a named preset |
+| `disposeFog` | Dispose all fog resources |
+| `generateOverlayTexture` | Generate procedural noise texture data |
