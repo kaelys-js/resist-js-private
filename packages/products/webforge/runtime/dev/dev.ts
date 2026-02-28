@@ -72,6 +72,15 @@ import type { Num, Bool } from '@/schemas/common';
 import type { ParallaxInstance } from '../src/rendering/parallax-manager';
 import type { SkyInstance } from '../src/rendering/sky-system';
 import type { ColorRgba } from '../src/schemas/scene-setup-config';
+import type { FogConfig } from '../src/schemas/fog-config';
+import {
+	applyFog,
+	updateFog,
+	applyFogPreset,
+	disposeFog,
+	type FogHandle,
+} from '../src/rendering/fog-manager';
+import { FOG_PRESETS, FOG_PRESET_NAMES, type FogPresetName } from '../src/rendering/fog-presets';
 
 import { TEST_MAP_DATA } from './test-map';
 
@@ -3598,26 +3607,135 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 // Fog UI Builder
 // =============================================================================
 
+// =============================================================================
+// Fog State
+// =============================================================================
+
+/** Current fog configuration state. */
+let _fogConfig: FogConfig = {
+	mode: 'none',
+	color: { r: 0.8, g: 0.8, b: 0.85, a: 1 },
+	density: 0.01,
+	start: 50,
+	end: 300,
+	maxOpacity: 1,
+	startDistance: 0,
+	cutoffDistance: 0,
+	excludeSkybox: true,
+	skyAffect: 0,
+	overlays: [],
+};
+
+/** Active fog handle (null until fog is applied). */
+let _fogHandle: FogHandle | null = null;
+
 /**
- * Builds fog controls.
+ * Updates fog config and applies changes via the fog manager.
  *
  * @param scene - The Babylon.js scene.
+ * @param camera - The camera.
+ * @param engine - The engine.
  */
-function buildFogUI(scene: BABYLON.Scene): void {
+function applyFogConfig(
+	scene: BABYLON.Scene,
+	camera: BABYLON.Camera,
+	engine: BABYLON.AbstractEngine,
+): void {
+	if (_fogHandle) {
+		updateFog(_fogHandle, _fogConfig);
+	} else {
+		const result = applyFog(scene, camera, engine, _fogConfig);
+		if (result.ok) {
+			_fogHandle = result.data;
+		}
+	}
+}
+
+/** Human-friendly labels for fog preset names. */
+const FOG_PRESET_LABELS: Readonly<Record<FogPresetName, string>> = {
+	clear: 'Clear',
+	lightMist: 'Light Mist',
+	morningFog: 'Morning Fog',
+	denseFog: 'Dense Fog',
+	dungeon: 'Dungeon',
+	underwater: 'Underwater',
+	forest: 'Forest',
+	mountain: 'Mountain',
+	sandstorm: 'Sandstorm',
+	snowstorm: 'Snowstorm',
+	dream: 'Dream',
+	volcanic: 'Volcanic',
+	swamp: 'Swamp',
+	nightMist: 'Night Mist',
+};
+
+/**
+ * Builds expanded fog controls with 12 sub-groups covering 77+ options.
+ *
+ * @param scene - The Babylon.js scene.
+ * @param camera - The camera for PostProcess attachment.
+ * @param engine - The engine reference.
+ */
+// eslint-disable-next-line max-lines-per-function
+function buildFogUI(
+	scene: BABYLON.Scene,
+	camera: BABYLON.Camera,
+	engine: BABYLON.AbstractEngine,
+): void {
 	const container = document.querySelector('#fog-body') as HTMLElement | null;
 	if (!container) return;
 
 	container.innerHTML = '';
 
-	// Determine current fog mode name from Babylon constant
-	let currentMode = 'none';
-	if (scene.fogMode === BABYLON.Scene.FOGMODE_LINEAR) {
-		currentMode = 'linear';
-	} else if (scene.fogMode === BABYLON.Scene.FOGMODE_EXP) {
-		currentMode = 'exponential';
-	} else if (scene.fogMode === BABYLON.Scene.FOGMODE_EXP2) {
-		currentMode = 'exponential2';
+	/** Helper to update config and re-apply. */
+	const update = (): void => {
+		applyFogConfig(scene, camera, engine);
+	};
+
+	// =========================================================================
+	// Presets
+	// =========================================================================
+
+	container.append(createSubHeader('Presets'));
+
+	const presetBtnGroup = document.createElement('div');
+	presetBtnGroup.style.cssText = 'display:flex;flex-wrap:wrap;gap:3px;padding:4px 0;';
+
+	/**
+	 * Creates a preset button for the given preset name.
+	 *
+	 * @param presetName - The fog preset name.
+	 * @returns The button element.
+	 */
+	const makePresetBtn = (presetName: FogPresetName): HTMLButtonElement => {
+		const btn = document.createElement('button');
+		btn.className = 'btn';
+		btn.textContent = FOG_PRESET_LABELS[presetName];
+		btn.style.cssText = 'font-size:9px;padding:2px 6px;';
+		btn.addEventListener('click', () => {
+			const preset = FOG_PRESETS[presetName];
+			_fogConfig = { ...preset };
+			if (_fogHandle) {
+				applyFogPreset(_fogHandle, presetName);
+			} else {
+				update();
+			}
+			// Rebuild UI to reflect preset values
+			buildFogUI(scene, camera, engine);
+		});
+		return btn;
+	};
+
+	for (const pName of FOG_PRESET_NAMES) {
+		presetBtnGroup.append(makePresetBtn(pName));
 	}
+	container.append(presetBtnGroup);
+
+	// =========================================================================
+	// Core
+	// =========================================================================
+
+	container.append(createSubHeader('Core'));
 
 	container.append(
 		createDropdown(
@@ -3628,108 +3746,645 @@ function buildFogUI(scene: BABYLON.Scene): void {
 				{ value: 'exponential', label: 'Exponential' },
 				{ value: 'exponential2', label: 'Exponential²' },
 			],
-			currentMode,
+			_fogConfig.mode,
 			(mode) => {
-				switch (mode) {
-					case 'linear': {
-						scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
-						break;
-					}
-					case 'exponential': {
-						scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
-						break;
-					}
-					case 'exponential2': {
-						scene.fogMode = BABYLON.Scene.FOGMODE_EXP2;
-						break;
-					}
-					default: {
-						scene.fogMode = BABYLON.Scene.FOGMODE_NONE;
-					}
-				}
+				_fogConfig = { ..._fogConfig, mode: mode as FogConfig['mode'] };
+				update();
 			},
 			'fog-mode',
 		),
 	);
 
 	container.append(
-		createSliderRow(
-			'Density',
-			0,
-			0.1,
-			0.001,
-			scene.fogDensity,
-			(v) => {
-				scene.fogDensity = v;
-			},
-			'fog-density',
-		),
+		createSliderRow('Density', 0, 0.1, 0.001, _fogConfig.density, (v) => {
+			_fogConfig = { ..._fogConfig, density: v };
+			update();
+		}),
 	);
+
 	container.append(
-		createSliderRow(
-			'Start',
-			0,
-			500,
-			5,
-			scene.fogStart,
-			(v) => {
-				scene.fogStart = v;
-			},
-			'fog-start',
-		),
+		createSliderRow('Start', 0, 500, 5, _fogConfig.start, (v) => {
+			_fogConfig = { ..._fogConfig, start: v };
+			update();
+		}),
 	);
+
 	container.append(
-		createSliderRow(
-			'End',
-			10,
-			1000,
-			10,
-			scene.fogEnd,
-			(v) => {
-				scene.fogEnd = v;
-			},
-			'fog-end',
-		),
+		createSliderRow('End', 10, 1000, 10, _fogConfig.end, (v) => {
+			_fogConfig = { ..._fogConfig, end: v };
+			update();
+		}),
 	);
+
 	container.append(
-		createSliderRow(
-			'Color R',
-			0,
-			1,
-			0.01,
-			scene.fogColor.r,
-			(v) => {
-				scene.fogColor.r = v;
-			},
-			'fog-r',
-		),
+		createSliderRow('Color R', 0, 1, 0.01, _fogConfig.color.r, (v) => {
+			_fogConfig = { ..._fogConfig, color: { ..._fogConfig.color, r: v } };
+			update();
+		}),
 	);
+
 	container.append(
-		createSliderRow(
-			'Color G',
-			0,
-			1,
-			0.01,
-			scene.fogColor.g,
-			(v) => {
-				scene.fogColor.g = v;
-			},
-			'fog-g',
-		),
+		createSliderRow('Color G', 0, 1, 0.01, _fogConfig.color.g, (v) => {
+			_fogConfig = { ..._fogConfig, color: { ..._fogConfig.color, g: v } };
+			update();
+		}),
 	);
+
 	container.append(
-		createSliderRow(
-			'Color B',
-			0,
-			1,
-			0.01,
-			scene.fogColor.b,
+		createSliderRow('Color B', 0, 1, 0.01, _fogConfig.color.b, (v) => {
+			_fogConfig = { ..._fogConfig, color: { ..._fogConfig.color, b: v } };
+			update();
+		}),
+	);
+
+	container.append(
+		createSliderRow('Max Opacity', 0, 1, 0.01, _fogConfig.maxOpacity, (v) => {
+			_fogConfig = { ..._fogConfig, maxOpacity: v };
+			update();
+		}),
+	);
+
+	container.append(
+		createSliderRow('Start Distance', 0, 200, 1, _fogConfig.startDistance, (v) => {
+			_fogConfig = { ..._fogConfig, startDistance: v };
+			update();
+		}),
+	);
+
+	container.append(
+		createSliderRow('Cutoff Distance', 0, 1000, 5, _fogConfig.cutoffDistance, (v) => {
+			_fogConfig = { ..._fogConfig, cutoffDistance: v };
+			update();
+		}),
+	);
+
+	container.append(
+		createToggleRow('Exclude Skybox', _fogConfig.excludeSkybox, (on) => {
+			_fogConfig = { ..._fogConfig, excludeSkybox: on };
+			update();
+		}),
+	);
+
+	container.append(
+		createSliderRow('Sky Affect', 0, 1, 0.01, _fogConfig.skyAffect, (v) => {
+			_fogConfig = { ..._fogConfig, skyAffect: v };
+			update();
+		}),
+	);
+
+	// =========================================================================
+	// Height Fog
+	// =========================================================================
+
+	const heightGroup = createCollapsibleGroup('Height Fog', true);
+	const hf = _fogConfig.heightFog ?? {
+		enabled: false,
+		baseHeight: 0,
+		falloff: 0.5,
+		density: 0.1,
+		offset: 0,
+	};
+
+	heightGroup.body.append(
+		createToggleRow('Enabled', hf.enabled, (on) => {
+			_fogConfig = { ..._fogConfig, heightFog: { ...hf, enabled: on } };
+			update();
+		}),
+	);
+	heightGroup.body.append(
+		createSliderRow('Base Height', -20, 50, 0.5, hf.baseHeight, (v) => {
+			const cur = _fogConfig.heightFog ?? hf;
+			_fogConfig = { ..._fogConfig, heightFog: { ...cur, baseHeight: v } };
+			update();
+		}),
+	);
+	heightGroup.body.append(
+		createSliderRow('Falloff', 0.01, 10, 0.01, hf.falloff, (v) => {
+			const cur = _fogConfig.heightFog ?? hf;
+			_fogConfig = { ..._fogConfig, heightFog: { ...cur, falloff: v } };
+			update();
+		}),
+	);
+	heightGroup.body.append(
+		createSliderRow('Density', 0, 1, 0.01, hf.density, (v) => {
+			const cur = _fogConfig.heightFog ?? hf;
+			_fogConfig = { ..._fogConfig, heightFog: { ...cur, density: v } };
+			update();
+		}),
+	);
+	heightGroup.body.append(
+		createSliderRow('Offset', -20, 20, 0.5, hf.offset, (v) => {
+			const cur = _fogConfig.heightFog ?? hf;
+			_fogConfig = { ..._fogConfig, heightFog: { ...cur, offset: v } };
+			update();
+		}),
+	);
+	container.append(heightGroup.root);
+
+	// =========================================================================
+	// Second Layer
+	// =========================================================================
+
+	const slGroup = createCollapsibleGroup('Second Layer', true);
+	const sl = _fogConfig.secondLayer ?? {
+		enabled: false,
+		density: 0.05,
+		heightFalloff: 0.2,
+		heightOffset: 0,
+		color: { r: 0.7, g: 0.75, b: 0.8, a: 1 },
+	};
+
+	slGroup.body.append(
+		createToggleRow('Enabled', sl.enabled, (on) => {
+			_fogConfig = { ..._fogConfig, secondLayer: { ...sl, enabled: on } };
+			update();
+		}),
+	);
+	slGroup.body.append(
+		createSliderRow('Density', 0, 1, 0.01, sl.density, (v) => {
+			const cur = _fogConfig.secondLayer ?? sl;
+			_fogConfig = { ..._fogConfig, secondLayer: { ...cur, density: v } };
+			update();
+		}),
+	);
+	slGroup.body.append(
+		createSliderRow('Height Falloff', 0.01, 10, 0.01, sl.heightFalloff, (v) => {
+			const cur = _fogConfig.secondLayer ?? sl;
+			_fogConfig = { ..._fogConfig, secondLayer: { ...cur, heightFalloff: v } };
+			update();
+		}),
+	);
+	slGroup.body.append(
+		createSliderRow('Height Offset', -20, 50, 0.5, sl.heightOffset, (v) => {
+			const cur = _fogConfig.secondLayer ?? sl;
+			_fogConfig = { ..._fogConfig, secondLayer: { ...cur, heightOffset: v } };
+			update();
+		}),
+	);
+	container.append(slGroup.root);
+
+	// =========================================================================
+	// Inscattering
+	// =========================================================================
+
+	const insGroup = createCollapsibleGroup('Inscattering', true);
+	const ins = _fogConfig.inscattering ?? {
+		enabled: false,
+		color: { r: 1, g: 0.9, b: 0.7, a: 1 },
+		exponent: 4,
+		startDistance: 50,
+		intensity: 1,
+	};
+
+	insGroup.body.append(
+		createToggleRow('Enabled', ins.enabled, (on) => {
+			_fogConfig = { ..._fogConfig, inscattering: { ...ins, enabled: on } };
+			update();
+		}),
+	);
+	insGroup.body.append(
+		createSliderRow('Exponent', 1, 32, 1, ins.exponent, (v) => {
+			const cur = _fogConfig.inscattering ?? ins;
+			_fogConfig = { ..._fogConfig, inscattering: { ...cur, exponent: v } };
+			update();
+		}),
+	);
+	insGroup.body.append(
+		createSliderRow('Start Dist', 0, 200, 5, ins.startDistance, (v) => {
+			const cur = _fogConfig.inscattering ?? ins;
+			_fogConfig = { ..._fogConfig, inscattering: { ...cur, startDistance: v } };
+			update();
+		}),
+	);
+	insGroup.body.append(
+		createSliderRow('Intensity', 0, 5, 0.1, ins.intensity, (v) => {
+			const cur = _fogConfig.inscattering ?? ins;
+			_fogConfig = { ..._fogConfig, inscattering: { ...cur, intensity: v } };
+			update();
+		}),
+	);
+	container.append(insGroup.root);
+
+	// =========================================================================
+	// Atmospheric
+	// =========================================================================
+
+	const atmGroup = createCollapsibleGroup('Atmospheric', true);
+	const atm = _fogConfig.atmospheric ?? {
+		enabled: false,
+		extinctionR: 0.02,
+		extinctionG: 0.03,
+		extinctionB: 0.05,
+		inscatteringR: 0.04,
+		inscatteringG: 0.04,
+		inscatteringB: 0.06,
+	};
+
+	atmGroup.body.append(
+		createToggleRow('Enabled', atm.enabled, (on) => {
+			_fogConfig = { ..._fogConfig, atmospheric: { ...atm, enabled: on } };
+			update();
+		}),
+	);
+	atmGroup.body.append(
+		createSliderRow('Extinct. R', 0, 0.5, 0.001, atm.extinctionR, (v) => {
+			const cur = _fogConfig.atmospheric ?? atm;
+			_fogConfig = { ..._fogConfig, atmospheric: { ...cur, extinctionR: v } };
+			update();
+		}),
+	);
+	atmGroup.body.append(
+		createSliderRow('Extinct. G', 0, 0.5, 0.001, atm.extinctionG, (v) => {
+			const cur = _fogConfig.atmospheric ?? atm;
+			_fogConfig = { ..._fogConfig, atmospheric: { ...cur, extinctionG: v } };
+			update();
+		}),
+	);
+	atmGroup.body.append(
+		createSliderRow('Extinct. B', 0, 0.5, 0.001, atm.extinctionB, (v) => {
+			const cur = _fogConfig.atmospheric ?? atm;
+			_fogConfig = { ..._fogConfig, atmospheric: { ...cur, extinctionB: v } };
+			update();
+		}),
+	);
+	atmGroup.body.append(
+		createSliderRow('Inscatter R', 0, 0.5, 0.001, atm.inscatteringR, (v) => {
+			const cur = _fogConfig.atmospheric ?? atm;
+			_fogConfig = { ..._fogConfig, atmospheric: { ...cur, inscatteringR: v } };
+			update();
+		}),
+	);
+	atmGroup.body.append(
+		createSliderRow('Inscatter G', 0, 0.5, 0.001, atm.inscatteringG, (v) => {
+			const cur = _fogConfig.atmospheric ?? atm;
+			_fogConfig = { ..._fogConfig, atmospheric: { ...cur, inscatteringG: v } };
+			update();
+		}),
+	);
+	atmGroup.body.append(
+		createSliderRow('Inscatter B', 0, 0.5, 0.001, atm.inscatteringB, (v) => {
+			const cur = _fogConfig.atmospheric ?? atm;
+			_fogConfig = { ..._fogConfig, atmospheric: { ...cur, inscatteringB: v } };
+			update();
+		}),
+	);
+	container.append(atmGroup.root);
+
+	// =========================================================================
+	// Noise
+	// =========================================================================
+
+	const noiseGroup = createCollapsibleGroup('Noise', true);
+	const noise = _fogConfig.noise ?? {
+		enabled: false,
+		scale: 1,
+		amplitude: 0.5,
+		speed: 0.1,
+		octaves: 3,
+		lacunarity: 2,
+		persistence: 0.5,
+	};
+
+	noiseGroup.body.append(
+		createToggleRow('Enabled', noise.enabled, (on) => {
+			_fogConfig = { ..._fogConfig, noise: { ...noise, enabled: on } };
+			update();
+		}),
+	);
+	noiseGroup.body.append(
+		createSliderRow('Scale', 0.001, 10, 0.01, noise.scale, (v) => {
+			const cur = _fogConfig.noise ?? noise;
+			_fogConfig = { ..._fogConfig, noise: { ...cur, scale: v } };
+			update();
+		}),
+	);
+	noiseGroup.body.append(
+		createSliderRow('Amplitude', 0, 1, 0.01, noise.amplitude, (v) => {
+			const cur = _fogConfig.noise ?? noise;
+			_fogConfig = { ..._fogConfig, noise: { ...cur, amplitude: v } };
+			update();
+		}),
+	);
+	noiseGroup.body.append(
+		createSliderRow('Speed', 0, 2, 0.01, noise.speed, (v) => {
+			const cur = _fogConfig.noise ?? noise;
+			_fogConfig = { ..._fogConfig, noise: { ...cur, speed: v } };
+			update();
+		}),
+	);
+	noiseGroup.body.append(
+		createSliderRow('Octaves', 1, 6, 1, noise.octaves, (v) => {
+			const cur = _fogConfig.noise ?? noise;
+			_fogConfig = { ..._fogConfig, noise: { ...cur, octaves: v } };
+			update();
+		}),
+	);
+	noiseGroup.body.append(
+		createSliderRow('Lacunarity', 1, 4, 0.1, noise.lacunarity, (v) => {
+			const cur = _fogConfig.noise ?? noise;
+			_fogConfig = { ..._fogConfig, noise: { ...cur, lacunarity: v } };
+			update();
+		}),
+	);
+	noiseGroup.body.append(
+		createSliderRow('Persistence', 0.1, 0.9, 0.01, noise.persistence, (v) => {
+			const cur = _fogConfig.noise ?? noise;
+			_fogConfig = { ..._fogConfig, noise: { ...cur, persistence: v } };
+			update();
+		}),
+	);
+	container.append(noiseGroup.root);
+
+	// =========================================================================
+	// Wind
+	// =========================================================================
+
+	const windGroup = createCollapsibleGroup('Wind', true);
+	const wind = _fogConfig.wind ?? {
+		enabled: false,
+		directionAngle: 0,
+		speed: 0.5,
+		turbulence: 0.2,
+	};
+
+	windGroup.body.append(
+		createToggleRow('Enabled', wind.enabled, (on) => {
+			_fogConfig = { ..._fogConfig, wind: { ...wind, enabled: on } };
+			update();
+		}),
+	);
+	windGroup.body.append(
+		createSliderRow('Direction°', 0, 360, 1, wind.directionAngle, (v) => {
+			const cur = _fogConfig.wind ?? wind;
+			_fogConfig = { ..._fogConfig, wind: { ...cur, directionAngle: v } };
+			update();
+		}),
+	);
+	windGroup.body.append(
+		createSliderRow('Speed', 0, 5, 0.1, wind.speed, (v) => {
+			const cur = _fogConfig.wind ?? wind;
+			_fogConfig = { ..._fogConfig, wind: { ...cur, speed: v } };
+			update();
+		}),
+	);
+	windGroup.body.append(
+		createSliderRow('Turbulence', 0, 1, 0.01, wind.turbulence, (v) => {
+			const cur = _fogConfig.wind ?? wind;
+			_fogConfig = { ..._fogConfig, wind: { ...cur, turbulence: v } };
+			update();
+		}),
+	);
+	container.append(windGroup.root);
+
+	// =========================================================================
+	// Overlay Layers (4 layers)
+	// =========================================================================
+
+	const overlayTextures = ['perlin', 'worley', 'clouds', 'wisps', 'smoke'] as const;
+	const blendModes = ['normal', 'additive', 'multiply', 'screen'] as const;
+	const vignetteTypes = [
+		'none',
+		'radial',
+		'border',
+		'horizontal',
+		'vertical',
+		'upper',
+		'lower',
+		'left',
+		'right',
+	] as const;
+
+	/**
+	 * Builds controls for a single overlay layer (extracted to avoid no-loop-func).
+	 *
+	 * @param idx - Overlay layer index (0–3).
+	 * @returns The collapsible group root element.
+	 */
+	const buildOverlayLayer = (idx: Num): HTMLElement => {
+		const ovGroup = createCollapsibleGroup(`Overlay ${idx + 1}`, true);
+		const defaultOv = {
+			enabled: false,
+			texture: 'perlin' as const,
+			opacity: 0.3,
+			blendMode: 'additive' as const,
+			scrollX: 0.5,
+			scrollY: 0,
+			scale: 1,
+			tint: { r: 1, g: 1, b: 1, a: 1 },
+			hue: 0,
+			hueSpeed: 0,
+			mapLocked: false,
+			vignette: 'none' as const,
+			vignetteIntensity: 0.5,
+		};
+		const ov = _fogConfig.overlays?.[idx] ?? defaultOv;
+
+		/**
+		 * Helper to update a single overlay property.
+		 *
+		 * @param prop - Overlay property key.
+		 * @param val - New value.
+		 */
+		const setOverlayProp = (prop: string, val: unknown): void => {
+			const overlays = [...(_fogConfig.overlays ?? [])];
+			while (overlays.length <= idx) overlays.push({ ...defaultOv });
+			overlays[idx] = { ...overlays[idx], [prop]: val };
+			_fogConfig = { ..._fogConfig, overlays };
+			update();
+		};
+
+		ovGroup.body.append(
+			createToggleRow('Enabled', ov.enabled, (on) => {
+				setOverlayProp('enabled', on);
+			}),
+		);
+		ovGroup.body.append(
+			createDropdown(
+				'Texture',
+				overlayTextures.map((t) => ({ value: t, label: t })),
+				ov.texture,
+				(v) => {
+					const overlays = [...(_fogConfig.overlays ?? [])];
+					while (overlays.length <= idx) overlays.push({ ...defaultOv });
+					overlays[idx] = { ...overlays[idx], texture: v as typeof ov.texture };
+					_fogConfig = { ..._fogConfig, overlays };
+					// Need to recreate handle for new textures
+					if (_fogHandle) {
+						disposeFog(_fogHandle);
+						_fogHandle = null;
+					}
+					update();
+				},
+			),
+		);
+		ovGroup.body.append(
+			createSliderRow('Opacity', 0, 1, 0.01, ov.opacity, (v) => {
+				setOverlayProp('opacity', v);
+			}),
+		);
+		ovGroup.body.append(
+			createDropdown(
+				'Blend',
+				blendModes.map((m) => ({ value: m, label: m })),
+				ov.blendMode,
+				(v) => {
+					setOverlayProp('blendMode', v);
+				},
+			),
+		);
+		ovGroup.body.append(
+			createSliderRow('Scroll X', -2, 2, 0.01, ov.scrollX, (v) => {
+				setOverlayProp('scrollX', v);
+			}),
+		);
+		ovGroup.body.append(
+			createSliderRow('Scroll Y', -2, 2, 0.01, ov.scrollY, (v) => {
+				setOverlayProp('scrollY', v);
+			}),
+		);
+		ovGroup.body.append(
+			createSliderRow('Scale', 0.1, 10, 0.1, ov.scale, (v) => {
+				setOverlayProp('scale', v);
+			}),
+		);
+		ovGroup.body.append(
+			createSliderRow('Hue', 0, 360, 1, ov.hue, (v) => {
+				setOverlayProp('hue', v);
+			}),
+		);
+		ovGroup.body.append(
+			createSliderRow('Hue Speed', -10, 10, 0.1, ov.hueSpeed, (v) => {
+				setOverlayProp('hueSpeed', v);
+			}),
+		);
+		ovGroup.body.append(
+			createDropdown(
+				'Vignette',
+				vignetteTypes.map((t) => ({ value: t, label: t })),
+				ov.vignette,
+				(v) => {
+					setOverlayProp('vignette', v);
+				},
+			),
+		);
+		ovGroup.body.append(
+			createSliderRow('Vig. Intensity', 0, 1, 0.01, ov.vignetteIntensity, (v) => {
+				setOverlayProp('vignetteIntensity', v);
+			}),
+		);
+		return ovGroup.root;
+	};
+
+	for (let layerIdx = 0; layerIdx < 4; layerIdx++) {
+		container.append(buildOverlayLayer(layerIdx));
+	}
+
+	// =========================================================================
+	// Animation
+	// =========================================================================
+
+	const animGroup = createCollapsibleGroup('Animation', true);
+	const anim = _fogConfig.animation ?? {
+		enabled: false,
+		speed: 0.5,
+		amplitude: 0.3,
+		waveform: 'sine' as const,
+	};
+
+	animGroup.body.append(
+		createToggleRow('Enabled', anim.enabled, (on) => {
+			_fogConfig = { ..._fogConfig, animation: { ...anim, enabled: on } };
+			update();
+		}),
+	);
+	animGroup.body.append(
+		createSliderRow('Speed', 0.01, 5, 0.01, anim.speed, (v) => {
+			const cur = _fogConfig.animation ?? anim;
+			_fogConfig = { ..._fogConfig, animation: { ...cur, speed: v } };
+			update();
+		}),
+	);
+	animGroup.body.append(
+		createSliderRow('Amplitude', 0, 0.5, 0.01, anim.amplitude, (v) => {
+			const cur = _fogConfig.animation ?? anim;
+			_fogConfig = { ..._fogConfig, animation: { ...cur, amplitude: v } };
+			update();
+		}),
+	);
+	animGroup.body.append(
+		createDropdown(
+			'Waveform',
+			[
+				{ value: 'sine', label: 'Sine' },
+				{ value: 'triangle', label: 'Triangle' },
+				{ value: 'sawtooth', label: 'Sawtooth' },
+			],
+			anim.waveform,
 			(v) => {
-				scene.fogColor.b = v;
+				const cur = _fogConfig.animation ?? anim;
+				_fogConfig = { ..._fogConfig, animation: { ...cur, waveform: v as typeof anim.waveform } };
+				update();
 			},
-			'fog-b',
 		),
 	);
+	container.append(animGroup.root);
+
+	// =========================================================================
+	// Day/Night
+	// =========================================================================
+
+	const dnGroup = createCollapsibleGroup('Day/Night', true);
+	const dn = _fogConfig.dayNight ?? {
+		enabled: false,
+		dayColor: { r: 0.8, g: 0.85, b: 0.9, a: 1 },
+		nightColor: { r: 0.1, g: 0.1, b: 0.2, a: 1 },
+		dawnColor: { r: 0.9, g: 0.7, b: 0.5, a: 1 },
+		dayDensity: 0.005,
+		nightDensity: 0.02,
+	};
+
+	dnGroup.body.append(
+		createToggleRow('Enabled', dn.enabled, (on) => {
+			_fogConfig = { ..._fogConfig, dayNight: { ...dn, enabled: on } };
+			update();
+		}),
+	);
+	dnGroup.body.append(
+		createSliderRow('Day Density', 0, 0.1, 0.001, dn.dayDensity, (v) => {
+			const cur = _fogConfig.dayNight ?? dn;
+			_fogConfig = { ..._fogConfig, dayNight: { ...cur, dayDensity: v } };
+			update();
+		}),
+	);
+	dnGroup.body.append(
+		createSliderRow('Night Density', 0, 0.1, 0.001, dn.nightDensity, (v) => {
+			const cur = _fogConfig.dayNight ?? dn;
+			_fogConfig = { ..._fogConfig, dayNight: { ...cur, nightDensity: v } };
+			update();
+		}),
+	);
+	container.append(dnGroup.root);
+
+	// =========================================================================
+	// Per-Mesh
+	// =========================================================================
+
+	const pmGroup = createCollapsibleGroup('Per-Mesh', true);
+	const pm = _fogConfig.perMesh ?? { excludeGround: false, excludeSprites: false };
+
+	pmGroup.body.append(
+		createToggleRow('Exclude Ground', pm.excludeGround, (on) => {
+			_fogConfig = { ..._fogConfig, perMesh: { ...pm, excludeGround: on } };
+			update();
+		}),
+	);
+	pmGroup.body.append(
+		createToggleRow('Exclude Sprites', pm.excludeSprites, (on) => {
+			_fogConfig = { ..._fogConfig, perMesh: { ...pm, excludeSprites: on } };
+			update();
+		}),
+	);
+	container.append(pmGroup.root);
 }
 
 // =============================================================================
@@ -8217,7 +8872,7 @@ async function main(): Promise<void> {
 		buildLightsUI(debug);
 		buildPostProcessingUI(debug);
 		buildTransitionsUI(runtime.engine.scene);
-		buildFogUI(runtime.engine.scene);
+		buildFogUI(runtime.engine.scene, runtime.camera, runtime.engine.engine);
 		buildCameraDetailsUI(runtime);
 		buildGlowDetailsUI(debug);
 		buildInfoUI(debug, runtime.engine.scene);
