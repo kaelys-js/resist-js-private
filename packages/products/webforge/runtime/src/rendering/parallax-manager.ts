@@ -32,7 +32,7 @@ import type { Bool, Num } from '@/schemas/common';
 import { fromUnknownError } from '@/utils/result/safe';
 
 import { okShallow, type BabylonResult } from '../core/babylon-result';
-import type { ColorRgba } from '../schemas/scene-setup-config';
+import type { ColorRgba } from '../schemas/color-schema';
 import type { ParallaxLayer } from '../schemas/sky-config';
 
 // =============================================================================

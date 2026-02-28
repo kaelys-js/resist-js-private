@@ -110,14 +110,15 @@ export {
 } from './schemas/camera-config';
 export {
 	SceneSetupConfigSchema,
+	type SceneSetupConfig,
+} from './schemas/scene-setup-config';
+export {
 	ColorRgbaSchema,
 	Vector3Schema,
-	FogConfigSchema,
-	type SceneSetupConfig,
 	type ColorRgba,
 	type Vector3,
-	type FogConfig,
-} from './schemas/scene-setup-config';
+} from './schemas/color-schema';
+export { FogConfigSchema, type FogConfig } from './schemas/fog-config';
 export {
 	QualityConfigSchema,
 	QUALITY_PRESETS,

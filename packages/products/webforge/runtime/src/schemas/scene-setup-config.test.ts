@@ -12,16 +12,9 @@ import { describe, expect, test } from 'vitest';
 import { safeParse } from '@/utils/result/safe';
 import type { Result } from '@/schemas/result/result';
 
-import {
-	ColorRgbaSchema,
-	FogConfigSchema,
-	SceneSetupConfigSchema,
-	Vector3Schema,
-	type ColorRgba,
-	type FogConfig,
-	type SceneSetupConfig,
-	type Vector3,
-} from './scene-setup-config';
+import { ColorRgbaSchema, Vector3Schema, type ColorRgba, type Vector3 } from './color-schema';
+import { FogConfigSchema, type FogConfig } from './fog-config';
+import { SceneSetupConfigSchema, type SceneSetupConfig } from './scene-setup-config';
 
 // =============================================================================
 // ColorRgbaSchema
