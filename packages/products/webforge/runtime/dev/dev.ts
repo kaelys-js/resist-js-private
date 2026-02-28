@@ -2939,6 +2939,14 @@ const TYPE_DISPLAY_NAMES: Readonly<Record<string, string>> = {
 	noiseDissove: 'Noise Dissolve',
 	ditheredFade: 'Dithered Fade',
 	checkerboard: 'Checkerboard',
+	randomBlocks: 'Random Blocks',
+	crossSplit: 'Cross Split',
+	heartIris: 'Heart Iris',
+	starIris: 'Star Iris',
+	crossIris: 'Cross Iris',
+	clockWipe: 'Clock Wipe',
+	diagonalBlinds: 'Diagonal Blinds',
+	bowTie: 'Bow Tie',
 	pixelate: 'Pixelate',
 	crtPowerOff: 'CRT Power Off',
 	swirl: 'Swirl',
@@ -2953,6 +2961,23 @@ const TYPE_DISPLAY_NAMES: Readonly<Record<string, string>> = {
 	ripple: 'Ripple',
 	wind: 'Wind',
 	chromaticBurst: 'Chromatic Burst',
+	zoom: 'Zoom',
+	spiralWipe: 'Spiral Wipe',
+	curtain: 'Curtain',
+	dreamDissolve: 'Dream Dissolve',
+	filmBurn: 'Film Burn',
+	overexposure: 'Overexposure',
+	doomMelt: 'Doom Melt',
+	tvStatic: 'TV Static',
+	matrixRain: 'Matrix Rain',
+	mosaic: 'Mosaic',
+	burn: 'Burn',
+	waterDrop: 'Water Drop',
+	squeeze: 'Squeeze',
+	flyEye: 'Fly Eye',
+	crosshatch: 'Crosshatch',
+	luminanceMelt: 'Luminance Melt',
+	pageFlip: 'Page Flip',
 };
 
 /** Transition type categories for grouped dropdown. */
@@ -2960,8 +2985,8 @@ const TRANSITION_CATEGORIES: ReadonlyArray<{
 	readonly label: string;
 	readonly types: readonly string[];
 }> = [
-	{ label: 'Fade', types: ['fade', 'crossFade'] },
-	{ label: 'Iris', types: ['circleIris', 'diamondIris'] },
+	{ label: 'Fade', types: ['fade', 'crossFade', 'overexposure', 'dreamDissolve'] },
+	{ label: 'Iris', types: ['circleIris', 'diamondIris', 'heartIris', 'starIris', 'crossIris'] },
 	{
 		label: 'Wipe',
 		types: [
@@ -2972,16 +2997,33 @@ const TRANSITION_CATEGORIES: ReadonlyArray<{
 			'venetianBlinds',
 			'radialWipe',
 			'scanlineReveal',
+			'clockWipe',
+			'diagonalBlinds',
+			'spiralWipe',
+			'curtain',
+			'bowTie',
+			'crossSplit',
+			'pageFlip',
 		],
 	},
-	{ label: 'Dissolve', types: ['noiseDissove', 'ditheredFade', 'checkerboard'] },
-	{ label: 'Retro', types: ['pixelate', 'crtPowerOff'] },
-	{ label: 'Battle', types: ['swirl', 'zoomLines', 'shatter', 'wavyDistortion'] },
+	{
+		label: 'Dissolve',
+		types: ['noiseDissove', 'ditheredFade', 'checkerboard', 'randomBlocks', 'luminanceMelt'],
+	},
+	{
+		label: 'Retro',
+		types: ['pixelate', 'crtPowerOff', 'doomMelt', 'tvStatic', 'matrixRain'],
+	},
+	{ label: 'Battle', types: ['swirl', 'zoomLines', 'shatter', 'wavyDistortion', 'zoom'] },
 	{
 		label: 'Geometric',
-		types: ['hexagonalize', 'pinwheel', 'polkaDots', 'gridFlip'],
+		types: ['hexagonalize', 'pinwheel', 'polkaDots', 'gridFlip', 'mosaic', 'flyEye'],
 	},
-	{ label: 'Distortion', types: ['glitch', 'ripple', 'wind', 'chromaticBurst'] },
+	{
+		label: 'Distortion',
+		types: ['glitch', 'ripple', 'wind', 'chromaticBurst', 'squeeze', 'waterDrop'],
+	},
+	{ label: 'Film', types: ['filmBurn', 'burn', 'crosshatch'] },
 ];
 
 /** Maps each transition type to its context-sensitive parameter names. */
@@ -2992,26 +3034,48 @@ const TYPE_PARAMS: Record<string, string[]> = {
 	venetianBlinds: ['direction', 'count'],
 	circleIris: ['centerX', 'centerY'],
 	diamondIris: ['centerX', 'centerY'],
+	heartIris: ['centerX', 'centerY'],
+	starIris: ['centerX', 'centerY', 'pointCount'],
+	crossIris: ['centerX', 'centerY'],
 	ripple: ['centerX', 'centerY', 'waveCount'],
 	diagonalWipe: ['angle'],
 	radialWipe: ['angle', 'clockwise'],
+	clockWipe: ['clockwise', 'centerX', 'centerY'],
+	diagonalBlinds: ['angle', 'count'],
 	noiseDissove: ['noiseScale', 'noiseSeed'],
 	ditheredFade: ['matrixSize'],
 	checkerboard: ['gridSize'],
+	randomBlocks: ['gridSize'],
+	crossSplit: ['openFromCenter'],
 	hexagonalize: ['gridSize'],
 	gridFlip: ['gridSize'],
+	mosaic: ['gridSize'],
 	pixelate: ['maxBlockSize'],
 	crtPowerOff: ['scanlines'],
 	swirl: ['swirlStrength', 'swirlRadius'],
 	zoomLines: ['lineCount', 'zoomLineWidth'],
 	shatter: ['cellCount'],
 	wavyDistortion: ['amplitude', 'frequency'],
+	dreamDissolve: ['amplitude', 'frequency'],
 	pinwheel: ['bladeCount'],
 	polkaDots: ['count'],
 	glitch: ['intensity'],
 	wind: ['intensity'],
 	chromaticBurst: ['intensity'],
 	scanlineReveal: ['lineWidth'],
+	crosshatch: ['lineWidth'],
+	bowTie: ['axis'],
+	curtain: ['axis', 'openFromCenter'],
+	squeeze: ['axis'],
+	zoom: ['centerX', 'centerY'],
+	spiralWipe: ['clockwise', 'centerX', 'centerY'],
+	waterDrop: ['centerX', 'centerY', 'amplitude'],
+	flyEye: ['cellCount'],
+	filmBurn: ['noiseScale', 'noiseSeed'],
+	burn: ['noiseScale', 'noiseSeed'],
+	luminanceMelt: ['noiseScale'],
+	doomMelt: ['gridSize', 'noiseSeed'],
+	matrixRain: ['gridSize', 'noiseSeed'],
 };
 
 /** Quick preset buttons shown in the transitions panel. */
@@ -3069,6 +3133,7 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 	let currentFrequency = 10;
 	let currentIntensity = 1;
 	let currentWaveCount = 5;
+	let currentPointCount = 5;
 	let lastHandle: { readonly dispose: () => void } | null = null;
 
 	/**
@@ -3115,6 +3180,7 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 			frequency: currentFrequency,
 			intensity: currentIntensity,
 			waveCount: currentWaveCount,
+			pointCount: currentPointCount,
 		};
 		const params = TYPE_PARAMS[currentType];
 		if (params) {
@@ -3471,6 +3537,10 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 		currentWaveCount = val;
 	});
 
+	const pointCountEl = createSliderRow('Star Points', 3, 12, 1, currentPointCount, (val) => {
+		currentPointCount = val;
+	});
+
 	// Assemble context controls map
 	const contextControls: Record<string, HTMLElement> = {
 		direction: directionEl,
@@ -3497,6 +3567,7 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 		frequency: frequencyEl,
 		intensity: intensityEl,
 		waveCount: waveCountEl,
+		pointCount: pointCountEl,
 	};
 
 	// Append all controls and initially hide them
