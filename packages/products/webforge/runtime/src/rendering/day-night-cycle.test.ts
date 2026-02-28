@@ -16,12 +16,14 @@ import { applySceneSetup } from './scene-setup';
 import {
 	DEFAULT_DAY_CYCLE_KEYFRAMES,
 	applyEasing,
+	computeRealMoonPhase,
 	computeSunDirection,
 	computeTimePhase,
 	createDayNightCycle,
 	disposeDayNightCycle,
 	fireCallbacks,
 	getCurrentPhase,
+	getDayNightStats,
 	getIndoorMode,
 	getIndoorTint,
 	getMoonPhaseInfo,
@@ -37,6 +39,7 @@ import {
 	setSeason,
 	setSpeed,
 	setTimeOfDay,
+	smoothJumpToTime,
 } from './day-night-cycle';
 
 let instance: BabylonEngineInstance;
@@ -578,7 +581,15 @@ describe('applyEasing', () => {
 	});
 
 	test('all easings return 0 at t=0 and 1 at t=1', () => {
-		for (const easing of ['linear', 'smooth', 'easeIn', 'easeOut'] as const) {
+		for (const easing of [
+			'linear',
+			'smooth',
+			'easeIn',
+			'easeOut',
+			'easeInOut',
+			'sine',
+			'cubic',
+		] as const) {
 			const at0 = applyEasing(0, easing);
 			const at1 = applyEasing(1, easing);
 			expect(at0.ok).toBeTruthy();
@@ -587,6 +598,65 @@ describe('applyEasing', () => {
 			expect(at0.data).toBeCloseTo(0, 5);
 			expect(at1.data).toBeCloseTo(1, 5);
 		}
+	});
+
+	test('easeInOut at 0.5 is symmetric midpoint', () => {
+		const result = applyEasing(0.5, 'easeInOut');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeCloseTo(0.5, 5);
+	});
+
+	test('easeInOut at 0.25 returns value less than 0.25 (slow start)', () => {
+		const result = applyEasing(0.25, 'easeInOut');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeLessThan(0.25);
+	});
+
+	test('sine at 0.5 is symmetric', () => {
+		const result = applyEasing(0.5, 'sine');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeCloseTo(0.5, 5);
+	});
+
+	test('cubic at 0.5 returns 0.125', () => {
+		const result = applyEasing(0.5, 'cubic');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeCloseTo(0.125, 5);
+	});
+
+	test('step at 0.3 returns 0', () => {
+		const result = applyEasing(0.3, 'step');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBe(0);
+	});
+
+	test('step at 0.5 returns 1', () => {
+		const result = applyEasing(0.5, 'step');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBe(1);
+	});
+
+	test('step at 0.7 returns 1', () => {
+		const result = applyEasing(0.7, 'step');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBe(1);
+	});
+
+	test('step at 0 returns 0 and at 1 returns 1', () => {
+		const at0 = applyEasing(0, 'step');
+		const at1 = applyEasing(1, 'step');
+		expect(at0.ok).toBeTruthy();
+		expect(at1.ok).toBeTruthy();
+		if (!at0.ok || !at1.ok) return;
+		expect(at0.data).toBe(0);
+		expect(at1.data).toBe(1);
 	});
 });
 
@@ -708,6 +778,63 @@ describe('getIndoorTint', () => {
 		if (result.data === null) return;
 		expect(result.data.sunIntensity).toBe(0);
 		expect(result.data.moonIntensity).toBe(0);
+	});
+
+	test('firelit returns warm orange-red tint', () => {
+		const result = getIndoorTint('firelit');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).not.toBeNull();
+		if (result.data === null) return;
+		expect(result.data.ambientColor?.r).toBeGreaterThan(0.4);
+		expect(result.data.ambientColor?.g).toBeGreaterThan(0.2);
+		expect(result.data.sunIntensity).toBe(0);
+		expect(result.data.moonIntensity).toBe(0);
+		expect(result.data.environmentIntensity).toBeCloseTo(0.25);
+	});
+
+	test('dungeon returns cold gray-blue tint', () => {
+		const result = getIndoorTint('dungeon');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).not.toBeNull();
+		if (result.data === null) return;
+		expect(result.data.ambientColor?.b).toBeGreaterThanOrEqual(result.data.ambientColor?.r ?? 0);
+		expect(result.data.sunIntensity).toBe(0);
+		expect(result.data.moonIntensity).toBe(0);
+		expect(result.data.environmentIntensity).toBeCloseTo(0.05);
+	});
+
+	test('temple returns soft gold tint', () => {
+		const result = getIndoorTint('temple');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).not.toBeNull();
+		if (result.data === null) return;
+		expect(result.data.ambientColor?.r).toBeGreaterThan(0.3);
+		expect(result.data.sunIntensity).toBe(0);
+		expect(result.data.moonIntensity).toBe(0);
+		expect(result.data.environmentIntensity).toBeCloseTo(0.3);
+	});
+
+	test('underwater returns deep blue-green tint', () => {
+		const result = getIndoorTint('underwater');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).not.toBeNull();
+		if (result.data === null) return;
+		expect(result.data.ambientColor?.b).toBeGreaterThan(result.data.ambientColor?.r ?? 0);
+		expect(result.data.ambientColor?.g).toBeGreaterThan(result.data.ambientColor?.r ?? 0);
+		expect(result.data.sunIntensity).toBe(0);
+		expect(result.data.moonIntensity).toBe(0);
+		expect(result.data.environmentIntensity).toBeCloseTo(0.15);
+	});
+
+	test('custom returns null (no tint without config)', () => {
+		const result = getIndoorTint('custom');
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeNull();
 	});
 });
 
@@ -1247,7 +1374,7 @@ describe('setIndoorMode / getIndoorMode', () => {
 		if (!result.ok) return;
 		const cycle = result.data;
 
-		const setResult = setIndoorMode(cycle, 'underwater');
+		const setResult = setIndoorMode(cycle, 'lava');
 		expect(setResult.ok).toBeFalsy();
 
 		disposeDayNightCycle({ scene, cycle });
@@ -1339,5 +1466,340 @@ describe('sky field interpolation', () => {
 		if (!result.ok) return;
 		expect(result.data.skyColor?.r).toBeCloseTo(0.5, 2);
 		expect(result.data.skyGradientTop?.b).toBeCloseTo(0.9, 2);
+	});
+});
+
+// =============================================================================
+// Time Source Logic (Task 6)
+// =============================================================================
+
+describe('time source logic', () => {
+	test('manual time source does NOT advance time', () => {
+		const { scene } = instance;
+		applySceneSetup(scene, {});
+		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
+		new BABYLON.FreeCamera('test-camera', new BABYLON.Vector3(0, 0, 0), scene);
+		const result = createDayNightCycle({
+			scene,
+			config: { enabled: true, timeOfDay: 12, speed: 1, timeSource: 'manual' },
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const cycle = result.data;
+
+		// Simulate a frame
+		scene.render();
+		// Time should NOT have changed
+		expect(cycle.timeOfDay).toBe(12);
+
+		disposeDayNightCycle({ cycle, scene });
+	});
+
+	test('accelerated with dayDurationSeconds computes correct speed', () => {
+		const { scene } = instance;
+		applySceneSetup(scene, {});
+		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
+		new BABYLON.FreeCamera('test-camera', new BABYLON.Vector3(0, 0, 0), scene);
+		const engine: BABYLON.NullEngine = scene.getEngine() as BABYLON.NullEngine;
+		const originalGetDelta = engine.getDeltaTime.bind(engine);
+		engine.getDeltaTime = () => 16; // 16ms = ~60fps
+		const result = createDayNightCycle({
+			scene,
+			config: {
+				enabled: true,
+				timeOfDay: 12,
+				timeSource: 'accelerated',
+				dayDurationSeconds: 24,
+			},
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const cycle = result.data;
+		// speed = 24/24 = 1 game-hour per real second
+		// dt = 16ms = 0.016s → time advances by 0.016 hours
+		scene.render();
+		expect(cycle.timeOfDay).toBeGreaterThan(12);
+
+		engine.getDeltaTime = originalGetDelta;
+		disposeDayNightCycle({ cycle, scene });
+	});
+
+	test('reverse: true makes time go backward', () => {
+		const { scene } = instance;
+		applySceneSetup(scene, {});
+		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
+		new BABYLON.FreeCamera('test-camera', new BABYLON.Vector3(0, 0, 0), scene);
+		const engine: BABYLON.NullEngine = scene.getEngine() as BABYLON.NullEngine;
+		const originalGetDelta = engine.getDeltaTime.bind(engine);
+		engine.getDeltaTime = () => 16;
+		const result = createDayNightCycle({
+			scene,
+			config: {
+				enabled: true,
+				timeOfDay: 12,
+				speed: 10,
+				timeSource: 'accelerated',
+				reverse: true,
+			},
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const cycle = result.data;
+
+		scene.render();
+		// Time should have decreased
+		expect(cycle.timeOfDay).toBeLessThan(12);
+
+		engine.getDeltaTime = originalGetDelta;
+		disposeDayNightCycle({ cycle, scene });
+	});
+});
+
+// =============================================================================
+// Indoor Mode haltTime (Task 9)
+// =============================================================================
+
+describe('indoor mode haltTime', () => {
+	test('haltTime prevents time advancement', () => {
+		const { scene } = instance;
+		applySceneSetup(scene, {});
+		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
+		new BABYLON.FreeCamera('test-camera', new BABYLON.Vector3(0, 0, 0), scene);
+		const result = createDayNightCycle({
+			scene,
+			config: {
+				enabled: true,
+				timeOfDay: 12,
+				speed: 10,
+				indoorMode: 'indoor',
+				indoorModeConfig: { haltTime: true },
+			},
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const cycle = result.data;
+
+		scene.render();
+		// Time should NOT have advanced due to haltTime
+		expect(cycle.timeOfDay).toBe(12);
+
+		disposeDayNightCycle({ cycle, scene });
+	});
+
+	test('haltTime: false does not prevent advancement', () => {
+		const { scene } = instance;
+		applySceneSetup(scene, {});
+		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
+		new BABYLON.FreeCamera('test-camera', new BABYLON.Vector3(0, 0, 0), scene);
+		const engine: BABYLON.NullEngine = scene.getEngine() as BABYLON.NullEngine;
+		const originalGetDelta = engine.getDeltaTime.bind(engine);
+		engine.getDeltaTime = () => 16;
+		const result = createDayNightCycle({
+			scene,
+			config: {
+				enabled: true,
+				timeOfDay: 12,
+				speed: 10,
+				indoorMode: 'cave',
+				indoorModeConfig: { haltTime: false },
+			},
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const cycle = result.data;
+
+		scene.render();
+		// With haltTime: false, time should advance normally
+		// (indoor modes skip interpolation but time still advances)
+		expect(cycle.timeOfDay).not.toBe(12);
+
+		engine.getDeltaTime = originalGetDelta;
+		disposeDayNightCycle({ cycle, scene });
+	});
+});
+
+// =============================================================================
+// Statistics API (Task 11)
+// =============================================================================
+
+describe('getDayNightStats', () => {
+	test('returns all expected stat fields', () => {
+		const { scene } = instance;
+		applySceneSetup(scene, {});
+		const result = createDayNightCycle({
+			scene,
+			config: { enabled: true, timeOfDay: 12, speed: 0 },
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const cycle = result.data;
+
+		const stats = getDayNightStats(cycle);
+		expect(stats.ok).toBeTruthy();
+		if (!stats.ok) return;
+
+		expect(stats.data.currentTime).toBeDefined();
+		expect(stats.data.currentPhase).toBeDefined();
+		expect(stats.data.currentSeason).toBeDefined();
+		expect(stats.data.currentDay).toBeDefined();
+		expect(stats.data.sunElevation).toBeDefined();
+		expect(stats.data.moonPhaseName).toBeDefined();
+		expect(stats.data.effectiveSpeed).toBeDefined();
+		expect(stats.data.framesRendered).toBeDefined();
+		expect(stats.data.totalElapsedSeconds).toBeDefined();
+
+		disposeDayNightCycle({ cycle, scene });
+	});
+
+	test('framesRendered increments with each render', () => {
+		const { scene } = instance;
+		applySceneSetup(scene, {});
+		// eslint-disable-next-line no-new -- Babylon.js auto-registers camera with scene
+		new BABYLON.FreeCamera('test-camera', new BABYLON.Vector3(0, 0, 0), scene);
+		const result = createDayNightCycle({
+			scene,
+			config: { enabled: true, timeOfDay: 12, speed: 0 },
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		const cycle = result.data;
+
+		scene.render();
+		scene.render();
+		scene.render();
+
+		const stats = getDayNightStats(cycle);
+		expect(stats.ok).toBeTruthy();
+		if (!stats.ok) return;
+		expect(stats.data.framesRendered).toBeGreaterThanOrEqual(3);
+
+		disposeDayNightCycle({ cycle, scene });
+	});
+
+	test('currentTime is formatted as HH:MM', () => {
+		const { scene } = instance;
+		applySceneSetup(scene, {});
+		const result = createDayNightCycle({
+			scene,
+			config: { enabled: true, timeOfDay: 14.5, speed: 0 },
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const stats = getDayNightStats(result.data);
+		expect(stats.ok).toBeTruthy();
+		if (!stats.ok) return;
+		expect(stats.data.currentTime).toMatch(/^\d{2}:\d{2}$/);
+
+		disposeDayNightCycle({ cycle: result.data, scene });
+	});
+
+	test('daylightRemaining is non-null during daytime', () => {
+		const { scene } = instance;
+		applySceneSetup(scene, {});
+		const result = createDayNightCycle({
+			scene,
+			config: { enabled: true, timeOfDay: 12, speed: 0 },
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const stats = getDayNightStats(result.data);
+		expect(stats.ok).toBeTruthy();
+		if (!stats.ok) return;
+		expect(stats.data.daylightRemaining).not.toBeNull();
+		expect(stats.data.nighttimeRemaining).toBeNull();
+
+		disposeDayNightCycle({ cycle: result.data, scene });
+	});
+});
+
+// =============================================================================
+// Smooth Jump (Task 12)
+// =============================================================================
+
+describe('smoothJumpToTime', () => {
+	test('returns ok for valid target time', () => {
+		const { scene } = instance;
+		applySceneSetup(scene, {});
+		const result = createDayNightCycle({
+			scene,
+			config: { enabled: true, timeOfDay: 12, speed: 0 },
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const jumpResult = smoothJumpToTime(result.data, 18, 1000);
+		expect(jumpResult.ok).toBeTruthy();
+
+		disposeDayNightCycle({ cycle: result.data, scene });
+	});
+
+	test('rejects invalid target time', () => {
+		const { scene } = instance;
+		applySceneSetup(scene, {});
+		const result = createDayNightCycle({
+			scene,
+			config: { enabled: true, timeOfDay: 12, speed: 0 },
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const jumpResult = smoothJumpToTime(result.data, 25, 1000);
+		expect(jumpResult.ok).toBeFalsy();
+
+		disposeDayNightCycle({ cycle: result.data, scene });
+	});
+
+	test('sets jump target on instance', () => {
+		const { scene } = instance;
+		applySceneSetup(scene, {});
+		const result = createDayNightCycle({
+			scene,
+			config: { enabled: true, timeOfDay: 12, speed: 0 },
+			managedLights: [],
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		smoothJumpToTime(result.data, 18, 1000);
+		expect(result.data._jumpTarget).toBe(18);
+
+		disposeDayNightCycle({ cycle: result.data, scene });
+	});
+});
+
+// =============================================================================
+// computeRealMoonPhase (Task 8)
+// =============================================================================
+
+describe('computeRealMoonPhase', () => {
+	test('returns integer phase [0, 7]', () => {
+		const result = computeRealMoonPhase();
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBeGreaterThanOrEqual(0);
+		expect(result.data).toBeLessThanOrEqual(7);
+		expect(Number.isInteger(result.data)).toBe(true);
+	});
+
+	test('known new moon epoch produces phase 0', () => {
+		// Jan 6, 2000 is a known new moon
+		const epoch = new Date(2000, 0, 6).getTime();
+		const result = computeRealMoonPhase(epoch);
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data).toBe(0);
 	});
 });

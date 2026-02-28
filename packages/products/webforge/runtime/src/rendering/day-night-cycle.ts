@@ -45,6 +45,8 @@ export type DayNightCycleInstance = {
 	readonly sunLight: BABYLON.DirectionalLight | null;
 	readonly ambientLight: BABYLON.HemisphericLight | null;
 	readonly moonLight: BABYLON.Light | null;
+	/** Post-processing pipeline for applying exposure/bloom/contrast from keyframes. */
+	readonly postProcessingPipeline: BABYLON.DefaultRenderingPipeline | null;
 	timeOfDay: Num;
 	speed: Num;
 	enabled: Bool;
@@ -60,6 +62,24 @@ export type DayNightCycleInstance = {
 	_previousTime: Num;
 	/** Tracks previous phase for phase change detection. */
 	_previousPhase: string;
+	/** Total frames rendered by this cycle observer. */
+	_frameCount: Num;
+	/** Total real elapsed seconds since cycle creation. */
+	_totalElapsedSeconds: Num;
+	/** Elapsed game-days (fractional). */
+	_currentDay: Num;
+	/** Sunrise event count. */
+	_sunriseCount: Num;
+	/** Sunset event count. */
+	_sunsetCount: Num;
+	/** Smooth jump target time, or null if no jump active. */
+	_jumpTarget: Num | null;
+	/** Real timestamp (ms) when jump started. */
+	_jumpStartMs: Num;
+	/** Jump duration in ms. */
+	_jumpDurationMs: Num;
+	/** Time-of-day when jump started. */
+	_jumpStartValue: Num;
 };
 
 /** Interpolated values at a given time of day. */
@@ -341,6 +361,23 @@ export function applyEasing(t: number, easing: string): Result<Num> {
 			// Quadratic ease-out: 1 - (1-t)²
 			return okUnchecked((1 - (1 - t) * (1 - t)) as Num);
 		}
+		case 'easeInOut': {
+			// Quadratic ease-in-out: 2t² for t<0.5, 1 - (-2t+2)²/2 for t≥0.5
+			const v: number = t < 0.5 ? 2 * t * t : 1 - ((-2 * t + 2) * (-2 * t + 2)) / 2;
+			return okUnchecked(v as Num);
+		}
+		case 'sine': {
+			// Sinusoidal ease-in-out: -(cos(πt) - 1) / 2
+			return okUnchecked((0.5 * (1 - Math.cos(Math.PI * t))) as Num);
+		}
+		case 'cubic': {
+			// Cubic ease-in: t³
+			return okUnchecked((t * t * t) as Num);
+		}
+		case 'step': {
+			// Hard step: snap to 0 or 1 at midpoint
+			return okUnchecked((t >= 0.5 ? 1 : 0) as Num);
+		}
 		default: {
 			return okUnchecked(t as Num);
 		}
@@ -434,6 +471,49 @@ export function getIndoorTint(mode: string): Result<InterpolatedValues | null> {
 				environmentIntensity: 0.02 as Num,
 				clearColor: { r: 0.02, g: 0.02, b: 0.05, a: 1 },
 			});
+		}
+		case 'firelit': {
+			return okUnchecked({
+				ambientColor: { r: 0.5, g: 0.3, b: 0.15, a: 1 },
+				ambientGroundColor: { r: 0.25, g: 0.15, b: 0.08, a: 1 },
+				sunIntensity: 0 as Num,
+				moonIntensity: 0 as Num,
+				environmentIntensity: 0.25 as Num,
+				clearColor: { r: 0.2, g: 0.12, b: 0.06, a: 1 },
+			});
+		}
+		case 'dungeon': {
+			return okUnchecked({
+				ambientColor: { r: 0.08, g: 0.08, b: 0.12, a: 1 },
+				ambientGroundColor: { r: 0.03, g: 0.03, b: 0.06, a: 1 },
+				sunIntensity: 0 as Num,
+				moonIntensity: 0 as Num,
+				environmentIntensity: 0.05 as Num,
+				clearColor: { r: 0.04, g: 0.04, b: 0.08, a: 1 },
+			});
+		}
+		case 'temple': {
+			return okUnchecked({
+				ambientColor: { r: 0.4, g: 0.35, b: 0.2, a: 1 },
+				ambientGroundColor: { r: 0.2, g: 0.18, b: 0.1, a: 1 },
+				sunIntensity: 0 as Num,
+				moonIntensity: 0 as Num,
+				environmentIntensity: 0.3 as Num,
+				clearColor: { r: 0.18, g: 0.15, b: 0.1, a: 1 },
+			});
+		}
+		case 'underwater': {
+			return okUnchecked({
+				ambientColor: { r: 0.1, g: 0.2, b: 0.25, a: 1 },
+				ambientGroundColor: { r: 0.05, g: 0.1, b: 0.15, a: 1 },
+				sunIntensity: 0 as Num,
+				moonIntensity: 0 as Num,
+				environmentIntensity: 0.15 as Num,
+				clearColor: { r: 0.05, g: 0.12, b: 0.18, a: 1 },
+			});
+		}
+		case 'custom': {
+			return okUnchecked(null);
 		}
 		default: {
 			return okUnchecked(null);
@@ -701,6 +781,8 @@ type CreateDayNightCycleOptions = {
 	readonly scene: BABYLON.Scene;
 	readonly config: Partial<DayNightCycleConfig>;
 	readonly managedLights: readonly ManagedLight[];
+	/** Post-processing pipeline for keyframe-driven exposure/bloom/contrast. */
+	readonly postProcessingPipeline?: BABYLON.DefaultRenderingPipeline | null;
 };
 
 /**
@@ -769,6 +851,9 @@ export function createDayNightCycle(
 		const initialPhaseResult: Result<string> = computeTimePhase(initialTime, initialSunPath);
 		const initialPhase: string = initialPhaseResult.ok ? initialPhaseResult.data : 'noon';
 
+		const pipeline: BABYLON.DefaultRenderingPipeline | null =
+			options.postProcessingPipeline ?? null;
+
 		const cycleInstance: DayNightCycleInstance = {
 			observer: null as unknown as BABYLON.Observer<BABYLON.Scene>,
 			config,
@@ -777,11 +862,21 @@ export function createDayNightCycle(
 			sunLight,
 			ambientLight,
 			moonLight,
+			postProcessingPipeline: pipeline,
 			timeOfDay: initialTime,
 			speed: initialSpeed,
 			enabled: true as Bool,
 			_previousTime: initialTime,
 			_previousPhase: initialPhase,
+			_frameCount: 0 as Num,
+			_totalElapsedSeconds: 0 as Num,
+			_currentDay: (config.currentDay ?? 0) as Num,
+			_sunriseCount: 0 as Num,
+			_sunsetCount: 0 as Num,
+			_jumpTarget: null,
+			_jumpStartMs: 0 as Num,
+			_jumpDurationMs: 0 as Num,
+			_jumpStartValue: 0 as Num,
 		};
 
 		const observer: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
@@ -790,22 +885,105 @@ export function createDayNightCycle(
 			const dt: number = scene.getEngine().getDeltaTime() / 1000;
 			const prevTime: Num = cycleInstance.timeOfDay;
 
-			// Advance time — reads speed and timeOfDay from instance so external
-			// callers (setTimeOfDay, setSpeed) take effect immediately.
-			if (cycleInstance.speed > 0) {
-				cycleInstance.timeOfDay = ((cycleInstance.timeOfDay + dt * cycleInstance.speed) %
-					24) as Num;
+			// Increment stats
+			cycleInstance._frameCount = (cycleInstance._frameCount + 1) as Num;
+			cycleInstance._totalElapsedSeconds = (cycleInstance._totalElapsedSeconds + dt) as Num;
+
+			// ---- Indoor haltTime check ----
+			const indoorMode: string = (config.indoorMode as string | undefined) ?? 'outdoor';
+			const haltTime: boolean =
+				indoorMode !== 'outdoor' &&
+				(config.indoorModeConfig as { haltTime?: boolean } | undefined)?.haltTime === true;
+
+			// ---- Smooth Jump ----
+			if (cycleInstance._jumpTarget !== null) {
+				const nowMs: number = performance.now();
+				const elapsed: number = nowMs - cycleInstance._jumpStartMs;
+				const progress: number = Math.min(1, elapsed / cycleInstance._jumpDurationMs);
+				const easedProgress: number =
+					progress < 0.5
+						? 2 * progress * progress
+						: 1 - ((-2 * progress + 2) * (-2 * progress + 2)) / 2;
+
+				// Compute shortest path direction
+				const start: number = cycleInstance._jumpStartValue;
+				const target: number = cycleInstance._jumpTarget;
+				let diff: number = target - start;
+				if (diff > 12) diff -= 24;
+				if (diff < -12) diff += 24;
+
+				cycleInstance.timeOfDay = ((((start + diff * easedProgress) % 24) + 24) % 24) as Num;
+
+				if (progress >= 1) {
+					cycleInstance.timeOfDay = target as Num;
+					cycleInstance._jumpTarget = null;
+				}
+			} else if (!haltTime) {
+				// ---- Time Source Logic ----
+				const timeSource: string = (config.timeSource as string | undefined) ?? 'accelerated';
+
+				switch (timeSource) {
+					case 'realtime': {
+						const now: Date = new Date();
+						const offset: number = (config.timezoneOffset as number | undefined) ?? 0;
+						const gameHour: number =
+							now.getHours() + offset + now.getMinutes() / 60 + now.getSeconds() / 3600;
+						cycleInstance.timeOfDay = (((gameHour % 24) + 24) % 24) as Num;
+						break;
+					}
+					case 'manual': {
+						// Do NOT advance time
+						break;
+					}
+					default: {
+						// Compute effective speed: prefer dayDurationSeconds if set
+						let effectiveSpeed: number = cycleInstance.speed;
+						const dayDuration: number | undefined = config.dayDurationSeconds as number | undefined;
+						if (dayDuration !== undefined && dayDuration > 0) {
+							effectiveSpeed = 24 / dayDuration;
+						}
+
+						// Apply reverse
+						const reverse: boolean = (config.reverse as boolean | undefined) ?? false;
+						if (reverse) effectiveSpeed = -effectiveSpeed;
+
+						if (effectiveSpeed !== 0) {
+							const newTime: number = cycleInstance.timeOfDay + dt * effectiveSpeed;
+							cycleInstance.timeOfDay = (((newTime % 24) + 24) % 24) as Num;
+						}
+						break;
+					}
+				}
+			}
+
+			// ---- Day counter ----
+			if (prevTime > 20 && cycleInstance.timeOfDay < 4 && cycleInstance.timeOfDay < prevTime) {
+				cycleInstance._currentDay = (cycleInstance._currentDay + 1) as Num;
 			}
 
 			// Get easing and moon phase from config
 			const easingType: string = (config.transitionEasing as string | undefined) ?? 'linear';
-			const moonPhaseVal: number | undefined = config.moonPhase as number | undefined;
+			let moonPhaseVal: number | undefined = config.moonPhase as number | undefined;
 
-			// Check indoor mode — if indoor/cave, apply fixed tint instead of interpolation
-			const indoorMode: string = (config.indoorMode as string | undefined) ?? 'outdoor';
+			// ---- Auto-advance moon phase ----
+			const autoMoon: boolean = (config.autoAdvanceMoonPhase as boolean | undefined) ?? false;
+			if (autoMoon) {
+				const moonCycleDays: number = (config.moonCycleDays as number | undefined) ?? 3.69;
+				moonPhaseVal = Math.floor(cycleInstance._currentDay / moonCycleDays) % 8;
+			}
+
+			// Check indoor mode — if not outdoor, apply fixed tint instead of interpolation
 			const indoorTintResult: Result<InterpolatedValues | null> = getIndoorTint(indoorMode);
 			if (indoorTintResult.ok && indoorTintResult.data !== null) {
-				applyInterpolatedValues(scene, indoorTintResult.data, sunLight, ambientLight, moonLight);
+				applyInterpolatedValues(
+					scene,
+					indoorTintResult.data,
+					sunLight,
+					ambientLight,
+					moonLight,
+					pipeline,
+					config.dayNightControlsPostFx as boolean | undefined,
+				);
 				fireCallbacks(cycleInstance, prevTime);
 				return;
 			}
@@ -820,7 +998,15 @@ export function createDayNightCycle(
 			if (!interpResult.ok) return;
 
 			// Apply interpolated values
-			applyInterpolatedValues(scene, interpResult.data, sunLight, ambientLight, moonLight);
+			applyInterpolatedValues(
+				scene,
+				interpResult.data,
+				sunLight,
+				ambientLight,
+				moonLight,
+				pipeline,
+				config.dayNightControlsPostFx as boolean | undefined,
+			);
 
 			// Fire event callbacks
 			fireCallbacks(cycleInstance, prevTime);
@@ -919,13 +1105,15 @@ function resolveLight(
 // =============================================================================
 
 /**
- * Applies interpolated values to scene, lights, and fog.
+ * Applies interpolated values to scene, lights, fog, and optionally post-processing.
  *
  * @param scene - The Babylon.js scene.
  * @param values - Interpolated values from keyframes.
  * @param sunLight - The sun DirectionalLight (or null).
  * @param ambientLight - The ambient HemisphericLight (or null).
  * @param moonLight - The moon light (or null).
+ * @param pipeline - Post-processing pipeline for exposure/bloom/contrast (or null).
+ * @param controlsPostFx - Whether day/night controls post-FX (default true).
  */
 function applyInterpolatedValues(
 	scene: BABYLON.Scene,
@@ -933,6 +1121,8 @@ function applyInterpolatedValues(
 	sunLight: BABYLON.DirectionalLight | null,
 	ambientLight: BABYLON.HemisphericLight | null,
 	moonLight: BABYLON.Light | null,
+	pipeline?: BABYLON.DefaultRenderingPipeline | null,
+	controlsPostFx?: boolean,
 ): void {
 	// Scene clear color
 	if (values.clearColor !== undefined) {
@@ -1000,6 +1190,20 @@ function applyInterpolatedValues(
 		}
 		if (values.moonIntensity !== undefined) {
 			moonLight.intensity = values.moonIntensity;
+		}
+	}
+
+	// Post-processing pipeline (exposure, bloom, contrast)
+	const shouldControlPostFx: boolean = controlsPostFx !== false;
+	if (pipeline && shouldControlPostFx) {
+		if (values.exposure !== undefined) {
+			pipeline.imageProcessing.exposure = values.exposure;
+		}
+		if (values.bloomWeight !== undefined) {
+			pipeline.bloomWeight = values.bloomWeight;
+		}
+		if (values.contrast !== undefined) {
+			pipeline.imageProcessing.contrast = values.contrast;
 		}
 	}
 }
@@ -1139,7 +1343,16 @@ export function getSeason(instance: DayNightCycleInstance): Result<string> {
 	return okUnchecked(season);
 }
 
-const VALID_INDOOR_MODES: ReadonlySet<string> = new Set(['outdoor', 'indoor', 'cave']);
+const VALID_INDOOR_MODES: ReadonlySet<string> = new Set([
+	'outdoor',
+	'indoor',
+	'cave',
+	'firelit',
+	'dungeon',
+	'temple',
+	'underwater',
+	'custom',
+]);
 
 /**
  * Changes the indoor mode on the cycle config at runtime.
@@ -1223,6 +1436,171 @@ export function fireCallbacks(instance: DayNightCycleInstance, previousTime: Num
 			instance.onPhaseChange(phaseResult.data);
 		}
 	}
+}
+
+// =============================================================================
+// Statistics API
+// =============================================================================
+
+/** Statistics snapshot from a day/night cycle instance. */
+type DayNightStats = {
+	readonly currentTime: string;
+	readonly currentPhase: string;
+	readonly currentSeason: string;
+	readonly currentDay: Num;
+	readonly sunElevation: Num;
+	readonly moonPhaseName: string;
+	readonly daylightRemaining: Num | null;
+	readonly nighttimeRemaining: Num | null;
+	readonly totalElapsedSeconds: Num;
+	readonly framesRendered: Num;
+	readonly effectiveSpeed: Num;
+};
+
+/**
+ * Returns a snapshot of debug statistics from a day/night cycle instance.
+ *
+ * @param instance - The cycle instance to read stats from.
+ * @returns Result containing all stat fields.
+ *
+ * @example
+ * ```typescript
+ * const stats = getDayNightStats(cycle);
+ * if (stats.ok) console.log(stats.data.currentTime); // "14:30"
+ * ```
+ */
+export function getDayNightStats(instance: DayNightCycleInstance): Result<DayNightStats> {
+	const sunPath: SunPathConfig = (instance.config.sunPath as SunPathConfig | undefined) ?? {
+		sunrise: 6,
+		sunset: 18,
+		maxElevation: 75,
+		azimuthStart: 90,
+	};
+
+	// Format time as HH:MM
+	const hours: Num = Math.floor(instance.timeOfDay) as Num;
+	const minutes: Num = Math.floor((instance.timeOfDay - hours) * 60) as Num;
+	const currentTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+	// Current phase
+	const phaseResult: Result<string> = computeTimePhase(instance.timeOfDay, sunPath);
+	const currentPhase: string = phaseResult.ok ? phaseResult.data : 'unknown';
+
+	// Season
+	const currentSeason: string = (instance.config.season as string | undefined) ?? 'summer';
+
+	// Sun elevation in degrees
+	const dirResult: Result<Vector3> = computeSunDirection(instance.timeOfDay as Num, sunPath);
+	let sunElevation: Num = 0 as Num;
+	if (dirResult.ok && dirResult.data.y !== 0) {
+		// y is -sin(elevation), so elevation = asin(-y) converted to degrees
+		sunElevation = (Math.asin(-dirResult.data.y) * (180 / Math.PI)) as Num;
+	}
+
+	// Moon phase name
+	const moonPhase: Num = (instance.config.moonPhase as Num | undefined) ?? (0 as Num);
+	const moonInfo: Result<MoonPhaseInfo> = getMoonPhaseInfo(moonPhase);
+	const moonPhaseName: string = moonInfo.ok ? moonInfo.data.name : 'Unknown';
+
+	// Daylight / nighttime remaining
+	let daylightRemaining: Num | null = null;
+	let nighttimeRemaining: Num | null = null;
+	if (instance.timeOfDay >= sunPath.sunrise && instance.timeOfDay < sunPath.sunset) {
+		daylightRemaining = (sunPath.sunset - instance.timeOfDay) as Num;
+	} else if (instance.timeOfDay >= sunPath.sunset) {
+		nighttimeRemaining = (24 - instance.timeOfDay + sunPath.sunrise) as Num;
+	} else {
+		nighttimeRemaining = (sunPath.sunrise - instance.timeOfDay) as Num;
+	}
+
+	// Effective speed
+	const dayDurationSeconds: Num =
+		(instance.config.dayDurationSeconds as Num | undefined) ?? (1440 as Num);
+	const effectiveSpeed: Num = (24 / dayDurationSeconds) as Num;
+
+	return okUnchecked({
+		currentTime,
+		currentPhase,
+		currentSeason,
+		currentDay: instance._currentDay,
+		sunElevation,
+		moonPhaseName,
+		daylightRemaining,
+		nighttimeRemaining,
+		totalElapsedSeconds: instance._totalElapsedSeconds,
+		framesRendered: instance._frameCount,
+		effectiveSpeed,
+	});
+}
+
+// =============================================================================
+// Smooth Time Jump
+// =============================================================================
+
+/**
+ * Initiates a smooth animated time jump to a target time.
+ *
+ * The jump takes the shortest path around the 24-hour clock and uses
+ * easeInOut interpolation over the specified duration.
+ *
+ * @param instance - The cycle instance.
+ * @param targetTime - Target time of day [0, 24).
+ * @param durationMs - Animation duration in milliseconds.
+ * @returns Result indicating success.
+ *
+ * @example
+ * ```typescript
+ * smoothJumpToTime(cycle, 18, 2000); // Jump to 6pm over 2 seconds
+ * ```
+ */
+/* eslint-disable jsdoc/require-returns, jsdoc/require-param -- false positive: @returns and @param tags present above */
+export function smoothJumpToTime(
+	instance: DayNightCycleInstance,
+	targetTime: Num,
+	durationMs: Num,
+): Result<Bool> {
+	/* eslint-enable jsdoc/require-returns, jsdoc/require-param */
+	if (targetTime < 0 || targetTime >= 24) {
+		return err(
+			ERRORS.VALIDATION.INVALID_FORMAT,
+			`Target time must be in [0, 24), got ${String(targetTime)}`,
+		);
+	}
+	instance._jumpTarget = targetTime;
+	instance._jumpStartMs = Date.now() as Num;
+	instance._jumpDurationMs = durationMs;
+	instance._jumpStartValue = instance.timeOfDay;
+	return okUnchecked(true as Bool);
+}
+
+// =============================================================================
+// Real Moon Phase Computation
+// =============================================================================
+
+/**
+ * Computes the current moon phase from the real lunar cycle.
+ *
+ * Uses the known new moon epoch of January 6, 2000 and the 29.53-day
+ * lunar synodic period to compute a phase value [0–7].
+ *
+ * @param epochMs - Optional timestamp in ms (defaults to Date.now()).
+ * @returns Result containing moon phase integer [0–7].
+ *
+ * @example
+ * ```typescript
+ * const phase = computeRealMoonPhase();
+ * if (phase.ok) console.log(phase.data); // 0-7
+ * ```
+ */
+export function computeRealMoonPhase(epochMs?: number): Result<Num> {
+	const now: number = epochMs ?? Date.now();
+	// Known new moon: January 6, 2000 00:00 UTC
+	const knownNewMoon: number = new Date(2000, 0, 6).getTime();
+	const daysSinceEpoch: number = (now - knownNewMoon) / 86_400_000;
+	const lunarPeriod = 29.53;
+	const lunationPhase: number = ((daysSinceEpoch % lunarPeriod) + lunarPeriod) % lunarPeriod;
+	const phase: Num = (Math.floor((lunationPhase / lunarPeriod) * 8) % 8) as Num;
+	return okUnchecked(phase);
 }
 
 // =============================================================================

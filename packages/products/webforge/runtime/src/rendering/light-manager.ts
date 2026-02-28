@@ -475,6 +475,13 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 					? config.dayNight.keyframes.map((kf) => ({ ...kf }))
 					: undefined,
 				sunPath: config.dayNight.sunPath ? { ...config.dayNight.sunPath } : undefined,
+				seasonOrder: config.dayNight.seasonOrder ? [...config.dayNight.seasonOrder] : undefined,
+				realTimeSeasonMap: config.dayNight.realTimeSeasonMap
+					? { ...config.dayNight.realTimeSeasonMap }
+					: undefined,
+				indoorModeConfig: config.dayNight.indoorModeConfig
+					? { ...config.dayNight.indoorModeConfig }
+					: undefined,
 			};
 			const dayNightResult = createDayNightCycle({
 				scene: options.scene,

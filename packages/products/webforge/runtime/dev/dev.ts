@@ -31,8 +31,6 @@ import {
 	TRANSITION_PRESETS,
 	setLayerVisibility,
 	setLayerOpacity,
-	getMoonPhaseInfo,
-	computeTimePhase,
 	getSeasonSunPath,
 	mapBlendMode,
 	addParallaxLayer,
@@ -50,6 +48,8 @@ import {
 	clearCustomEmissiveColor,
 	GLOW_QUALITY_PRESETS,
 	type GlowQualityPresetName,
+	getDayNightStats,
+	smoothJumpToTime,
 } from '../src/index';
 import {
 	renderTilemap,
@@ -1335,6 +1335,92 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 
 	// ── Day/Night Expansion Controls ───────────────────────────────
 
+	// Time Source dropdown
+	const timeSourceContainer = document.querySelector('#daynight-timesource-dropdown');
+	const dayDurationRow = document.querySelector('#daynight-day-duration-row');
+	const reverseRow = document.querySelector('#daynight-reverse-row');
+	const timezoneRow = document.querySelector('#daynight-timezone-row');
+
+	/**
+	 * Shows/hides time source dependent controls.
+	 *
+	 * @param source - The active time source.
+	 */
+	function updateTimeSourceVisibility(source: string): void {
+		if (dayDurationRow) {
+			(dayDurationRow as HTMLElement).style.display = source === 'accelerated' ? '' : 'none';
+		}
+		if (reverseRow) {
+			(reverseRow as HTMLElement).style.display = source === 'accelerated' ? '' : 'none';
+		}
+		if (timezoneRow) {
+			(timezoneRow as HTMLElement).style.display = source === 'realtime' ? '' : 'none';
+		}
+		// Hide speed slider when not accelerated
+		if (speedSlider) {
+			const speedRow = speedSlider.closest('.control-row') as HTMLElement | null;
+			if (speedRow) speedRow.style.display = source === 'accelerated' ? '' : 'none';
+		}
+	}
+
+	if (timeSourceContainer) {
+		timeSourceContainer.append(
+			createDropdown(
+				'Time Source',
+				[
+					{ value: 'accelerated', label: 'Accelerated' },
+					{ value: 'realtime', label: 'Real Time' },
+					{ value: 'manual', label: 'Manual' },
+				],
+				'accelerated',
+				(val) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					(cycle.config as Record<string, unknown>)['timeSource'] = val;
+					updateTimeSourceVisibility(val);
+				},
+				'daynight-timesource',
+			),
+		);
+	}
+
+	// Day Duration slider (accelerated mode)
+	if (dayDurationRow) {
+		dayDurationRow.append(
+			createSliderRow('Day Duration (s)', 10, 3600, 10, 1440, (val) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				(cycle.config as Record<string, unknown>)['dayDurationSeconds'] = val;
+			}),
+		);
+	}
+
+	// Reverse toggle (accelerated mode)
+	if (reverseRow) {
+		reverseRow.append(
+			createToggleRow('Reverse', false, (on) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				(cycle.config as Record<string, unknown>)['reverse'] = on;
+			}),
+		);
+	}
+
+	// Timezone offset slider (realtime mode)
+	if (timezoneRow) {
+		(timezoneRow as HTMLElement).style.display = 'none';
+		timezoneRow.append(
+			createSliderRow('Timezone Offset', -12, 14, 0.5, 0, (val) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				(cycle.config as Record<string, unknown>)['timezoneOffset'] = val;
+			}),
+		);
+	}
+
+	// Initialize time source visibility
+	updateTimeSourceVisibility('accelerated');
+
 	// Season dropdown
 	const seasonDropdownContainer = document.querySelector('#daynight-season-dropdown');
 	if (seasonDropdownContainer) {
@@ -1396,12 +1482,20 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					{ value: 'outdoor', label: 'Outdoor' },
 					{ value: 'indoor', label: 'Indoor' },
 					{ value: 'cave', label: 'Cave' },
+					{ value: 'firelit', label: 'Firelit' },
+					{ value: 'dungeon', label: 'Dungeon' },
+					{ value: 'temple', label: 'Temple' },
+					{ value: 'underwater', label: 'Underwater' },
+					{ value: 'custom', label: 'Custom' },
 				],
 				'outdoor',
 				(val) => {
 					const cycle = debug.tilemap?.lighting?.dayNightCycle;
 					if (!cycle) return;
 					(cycle.config as Record<string, unknown>)['indoorMode'] = val;
+					// Show/hide halt time toggle
+					const haltRow = document.querySelector('#daynight-halt-time-row') as HTMLElement | null;
+					if (haltRow) haltRow.style.display = val === 'outdoor' ? 'none' : '';
 				},
 				'daynight-indoor',
 			),
@@ -1419,6 +1513,10 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					{ value: 'smooth', label: 'Smooth' },
 					{ value: 'easeIn', label: 'Ease In' },
 					{ value: 'easeOut', label: 'Ease Out' },
+					{ value: 'easeInOut', label: 'Ease In/Out' },
+					{ value: 'sine', label: 'Sine' },
+					{ value: 'cubic', label: 'Cubic' },
+					{ value: 'step', label: 'Step' },
 				],
 				'linear',
 				(val) => {
@@ -1431,10 +1529,160 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		);
 	}
 
+	// Halt Time toggle (shown only when indoor mode is not outdoor)
+	const haltTimeRow = document.querySelector('#daynight-halt-time-row');
+	if (haltTimeRow) {
+		(haltTimeRow as HTMLElement).style.display = 'none';
+		haltTimeRow.append(
+			createToggleRow('Halt Time', false, (on) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				const cfg = cycle.config as Record<string, unknown>;
+				if (!cfg['indoorModeConfig']) cfg['indoorModeConfig'] = {};
+				(cfg['indoorModeConfig'] as Record<string, unknown>)['haltTime'] = on;
+			}),
+		);
+	}
+
+	// Season Duration slider
+	const seasonDurationRow = document.querySelector('#daynight-season-duration-row');
+	if (seasonDurationRow) {
+		seasonDurationRow.append(
+			createSliderRow('Season Days', 1, 30, 1, 7, (val) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				(cycle.config as Record<string, unknown>)['seasonDurationDays'] = val;
+			}),
+		);
+	}
+
+	// Current Day slider
+	const currentDayRow = document.querySelector('#daynight-current-day-row');
+	if (currentDayRow) {
+		currentDayRow.append(
+			createSliderRow('Current Day', 0, 365, 0.1, 0, (val) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				cycle._currentDay = val as Num;
+			}),
+		);
+	}
+
+	// Season Transition slider
+	const seasonTransitionRow = document.querySelector('#daynight-season-transition-row');
+	if (seasonTransitionRow) {
+		seasonTransitionRow.append(
+			createSliderRow('Season Blend', 0, 1, 0.05, 0, (val) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				(cycle.config as Record<string, unknown>)['seasonTransition'] = val;
+			}),
+		);
+	}
+
+	// Auto Moon Phase toggle
+	const autoMoonRow = document.querySelector('#daynight-auto-moon-row');
+	if (autoMoonRow) {
+		autoMoonRow.append(
+			createToggleRow('Auto Moon Phase', false, (on) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				(cycle.config as Record<string, unknown>)['autoAdvanceMoonPhase'] = on;
+			}),
+		);
+	}
+
+	// Moon Cycle Days slider
+	const moonCycleRow = document.querySelector('#daynight-moon-cycle-row');
+	if (moonCycleRow) {
+		moonCycleRow.append(
+			createSliderRow('Moon Cycle (d)', 1, 30, 0.5, 3.69, (val) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				(cycle.config as Record<string, unknown>)['moonCycleDays'] = val;
+			}),
+		);
+	}
+
+	// Post-FX Control toggle
+	const postFxRow = document.querySelector('#daynight-postfx-row');
+	if (postFxRow) {
+		postFxRow.append(
+			createToggleRow('Controls Post-FX', true, (on) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				(cycle.config as Record<string, unknown>)['dayNightControlsPostFx'] = on;
+			}),
+		);
+	}
+
+	// Smooth Jump controls
+	const smoothJumpRow = document.querySelector('#daynight-smooth-jump-row');
+	if (smoothJumpRow) {
+		const jumpRow = document.createElement('div');
+		jumpRow.className = 'control-row';
+		jumpRow.style.gap = '4px';
+
+		const jumpLabel = document.createElement('span');
+		jumpLabel.className = 'control-label';
+		jumpLabel.textContent = 'Jump To';
+
+		const jumpInput = document.createElement('input');
+		jumpInput.type = 'number';
+		jumpInput.min = '0';
+		jumpInput.max = '24';
+		jumpInput.step = '0.5';
+		jumpInput.value = '18';
+		jumpInput.style.width = '48px';
+		jumpInput.style.background = '#333';
+		jumpInput.style.border = '1px solid #555';
+		jumpInput.style.color = '#eee';
+		jumpInput.style.borderRadius = '3px';
+		jumpInput.style.padding = '2px 4px';
+
+		const jumpDurationInput = document.createElement('input');
+		jumpDurationInput.type = 'number';
+		jumpDurationInput.min = '500';
+		jumpDurationInput.max = '5000';
+		jumpDurationInput.step = '250';
+		jumpDurationInput.value = '2000';
+		jumpDurationInput.style.width = '56px';
+		jumpDurationInput.style.background = '#333';
+		jumpDurationInput.style.border = '1px solid #555';
+		jumpDurationInput.style.color = '#eee';
+		jumpDurationInput.style.borderRadius = '3px';
+		jumpDurationInput.style.padding = '2px 4px';
+
+		const msLabel = document.createElement('span');
+		msLabel.style.fontSize = '9px';
+		msLabel.style.color = '#888';
+		msLabel.textContent = 'ms';
+
+		const jumpBtn = document.createElement('button');
+		jumpBtn.className = 'btn';
+		jumpBtn.textContent = 'Go';
+		jumpBtn.style.padding = '2px 8px';
+		jumpBtn.addEventListener('click', () => {
+			const cycle = debug.tilemap?.lighting?.dayNightCycle;
+			if (!cycle) return;
+			const target = Number(jumpInput.value) as Num;
+			const duration = Number(jumpDurationInput.value) as Num;
+			smoothJumpToTime(cycle, target, duration);
+		});
+
+		jumpRow.append(jumpLabel, jumpInput, jumpDurationInput, msLabel, jumpBtn);
+		smoothJumpRow.append(jumpRow);
+	}
+
 	// Read-only displays
 	const phaseDisplay = document.querySelector('#daynight-phase-display');
+	const seasonDayDisplay = document.querySelector('#daynight-season-day');
 	const moonIntensityDisplay = document.querySelector('#daynight-moon-intensity');
 	const sunriseSunsetDisplay = document.querySelector('#daynight-sunrise-sunset');
+	const sunElevationDisplay = document.querySelector('#daynight-sun-elevation');
+	const daylightRemainingDisplay = document.querySelector('#daynight-daylight-remaining');
+	const effectiveSpeedDisplay = document.querySelector('#daynight-effective-speed');
+	const framesRenderedDisplay = document.querySelector('#daynight-frames-rendered');
 	const eventLogDisplay = document.querySelector('#daynight-event-log');
 	let lastEventText = '--';
 
@@ -1466,7 +1714,49 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 			updateTimeDisplay(t);
 		}
 
-		// Resolve effective sun path: explicit config > season override > default
+		// Use getDayNightStats for all read-only displays
+		const statsResult = getDayNightStats(cycle);
+		if (statsResult.ok) {
+			const stats = statsResult.data;
+
+			if (phaseDisplay) {
+				phaseDisplay.textContent =
+					stats.currentPhase.charAt(0).toUpperCase() + stats.currentPhase.slice(1);
+			}
+
+			if (seasonDayDisplay) {
+				const season = stats.currentSeason.charAt(0).toUpperCase() + stats.currentSeason.slice(1);
+				seasonDayDisplay.textContent = `${season} / Day ${stats.currentDay.toFixed(1)}`;
+			}
+
+			if (moonIntensityDisplay) {
+				moonIntensityDisplay.textContent = stats.moonPhaseName;
+			}
+
+			if (sunElevationDisplay) {
+				sunElevationDisplay.textContent = `${stats.sunElevation.toFixed(1)}°`;
+			}
+
+			if (daylightRemainingDisplay) {
+				if (stats.daylightRemaining === null && stats.nighttimeRemaining === null) {
+					daylightRemainingDisplay.textContent = '--';
+				} else if (stats.daylightRemaining === null) {
+					daylightRemainingDisplay.textContent = `${(stats.nighttimeRemaining ?? 0).toFixed(1)}h night`;
+				} else {
+					daylightRemainingDisplay.textContent = `${stats.daylightRemaining.toFixed(1)}h day`;
+				}
+			}
+
+			if (effectiveSpeedDisplay) {
+				effectiveSpeedDisplay.textContent = `${stats.effectiveSpeed.toFixed(4)} h/s`;
+			}
+
+			if (framesRenderedDisplay) {
+				framesRenderedDisplay.textContent = String(stats.framesRendered);
+			}
+		}
+
+		// Resolve effective sun path for sunrise/sunset display
 		const { sunPath: explicitSunPath } = cycle.config;
 		let sunPath = explicitSunPath;
 		if (!sunPath) {
@@ -1477,18 +1767,6 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 			}
 		}
 		if (!sunPath) sunPath = { sunrise: 6, sunset: 18, maxElevation: 75, azimuthStart: 90 };
-		const phaseResult = computeTimePhase(t as Num, sunPath);
-		if (phaseDisplay && phaseResult.ok) {
-			phaseDisplay.textContent =
-				phaseResult.data.charAt(0).toUpperCase() + phaseResult.data.slice(1);
-		}
-
-		// Update moon intensity display
-		const moonPhaseVal: number = (cycle.config.moonPhase as number | undefined) ?? 4;
-		const moonResult = getMoonPhaseInfo(moonPhaseVal);
-		if (moonIntensityDisplay && moonResult.ok) {
-			moonIntensityDisplay.textContent = `${moonResult.data.name} (${String(moonResult.data.intensityMultiplier)})`;
-		}
 
 		// Update sunrise/sunset display
 		const sr: number = sunPath.sunrise;

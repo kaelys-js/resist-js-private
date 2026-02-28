@@ -712,19 +712,38 @@
 						<button class="btn" id="daynight-pause-btn" data-control="daynight-pause" style="width: 100%; margin-top: 4px">
 							&#9654; Play
 						</button>
-						<!-- New expansion controls -->
+						<!-- Time Source & Progression -->
+						<div id="daynight-timesource-dropdown" style="margin-top: 6px"></div>
+						<div id="daynight-day-duration-row"></div>
+						<div id="daynight-reverse-row"></div>
+						<div id="daynight-timezone-row"></div>
+						<!-- Season & Cycling -->
 						<div id="daynight-season-dropdown" style="margin-top: 6px"></div>
+						<div id="daynight-season-duration-row"></div>
+						<div id="daynight-current-day-row"></div>
+						<div id="daynight-season-transition-row"></div>
 						<div class="control-row">
 							<span class="control-label">Moon Phase</span>
 							<input type="range" id="moonphase-slider" data-control="moonphase" min="0" max="7" value="4" step="1" />
 							<span class="control-value" id="moonphase-value">Full</span>
 						</div>
+						<div id="daynight-auto-moon-row"></div>
+						<div id="daynight-moon-cycle-row"></div>
+						<!-- Indoor & Easing -->
 						<div id="daynight-indoor-dropdown"></div>
+						<div id="daynight-halt-time-row"></div>
 						<div id="daynight-easing-dropdown"></div>
-						<!-- Read-only displays -->
+						<div id="daynight-postfx-row"></div>
+						<!-- Smooth Jump -->
+						<div id="daynight-smooth-jump-row" style="margin-top: 6px"></div>
+						<!-- Statistics -->
 						<div class="control-row" style="margin-top: 4px">
 							<span class="control-label">Phase</span>
 							<span class="control-value" id="daynight-phase-display">--</span>
+						</div>
+						<div class="control-row">
+							<span class="control-label">Season / Day</span>
+							<span class="control-value" id="daynight-season-day">--</span>
 						</div>
 						<div class="control-row">
 							<span class="control-label">Moon Intensity</span>
@@ -733,6 +752,22 @@
 						<div class="control-row">
 							<span class="control-label">Sunrise / Sunset</span>
 							<span class="control-value" id="daynight-sunrise-sunset">--</span>
+						</div>
+						<div class="control-row">
+							<span class="control-label">Sun Elevation</span>
+							<span class="control-value" id="daynight-sun-elevation">--</span>
+						</div>
+						<div class="control-row">
+							<span class="control-label">Daylight Left</span>
+							<span class="control-value" id="daynight-daylight-remaining">--</span>
+						</div>
+						<div class="control-row">
+							<span class="control-label">Eff. Speed</span>
+							<span class="control-value" id="daynight-effective-speed">--</span>
+						</div>
+						<div class="control-row">
+							<span class="control-label">Frames</span>
+							<span class="control-value" id="daynight-frames-rendered">--</span>
 						</div>
 						<div class="control-row">
 							<span class="control-label">Events</span>

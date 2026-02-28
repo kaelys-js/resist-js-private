@@ -686,16 +686,76 @@ export type Season = v.InferOutput<typeof SeasonSchema>;
 export const MoonPhaseSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(7));
 
 /** Indoor/outdoor mode controlling cycle visual application. */
-export const IndoorModeSchema = v.picklist(['outdoor', 'indoor', 'cave']);
+export const IndoorModeSchema = v.picklist([
+	'outdoor',
+	'indoor',
+	'cave',
+	'firelit',
+	'dungeon',
+	'temple',
+	'underwater',
+	'custom',
+]);
 
 /** Inferred indoor mode type from {@link IndoorModeSchema}. */
 export type IndoorMode = v.InferOutput<typeof IndoorModeSchema>;
 
+/**
+ * Per-mode indoor configuration.
+ *
+ * Controls whether time halts in this mode and provides a custom tint
+ * for the `custom` indoor mode.
+ */
+export const IndoorModeConfigSchema = v.strictObject({
+	/** When true, time progression stops while in this indoor mode. Default: false. */
+	haltTime: v.optional(v.boolean(), false),
+	/** Custom ambient tint used only when indoor mode is `custom`. */
+	customTint: v.optional(ColorRgbaSchema),
+});
+
+/** Inferred indoor mode config type from {@link IndoorModeConfigSchema}. */
+export type IndoorModeConfig = v.InferOutput<typeof IndoorModeConfigSchema>;
+
 /** Transition easing for keyframe interpolation. */
-export const TransitionEasingSchema = v.picklist(['linear', 'smooth', 'easeIn', 'easeOut']);
+export const TransitionEasingSchema = v.picklist([
+	'linear',
+	'smooth',
+	'easeIn',
+	'easeOut',
+	'easeInOut',
+	'sine',
+	'cubic',
+	'step',
+]);
 
 /** Inferred transition easing type from {@link TransitionEasingSchema}. */
 export type TransitionEasing = v.InferOutput<typeof TransitionEasingSchema>;
+
+/** Time source controlling how time progresses. */
+export const TimeSourceSchema = v.picklist(['accelerated', 'realtime', 'manual']);
+
+/** Inferred time source type from {@link TimeSourceSchema}. */
+export type TimeSource = v.InferOutput<typeof TimeSourceSchema>;
+
+/**
+ * Maps real calendar months to in-game seasons for realtime mode.
+ *
+ * Uses month boundaries: month3 = Mar–May, month6 = Jun–Aug,
+ * month9 = Sep–Nov, month12 = Dec–Feb.
+ */
+export const RealTimeSeasonMapSchema = v.strictObject({
+	/** Season starting in March. Default: spring. */
+	month3: v.optional(SeasonSchema, 'spring'),
+	/** Season starting in June. Default: summer. */
+	month6: v.optional(SeasonSchema, 'summer'),
+	/** Season starting in September. Default: autumn. */
+	month9: v.optional(SeasonSchema, 'autumn'),
+	/** Season starting in December. Default: winter. */
+	month12: v.optional(SeasonSchema, 'winter'),
+});
+
+/** Inferred real-time season map type from {@link RealTimeSeasonMapSchema}. */
+export type RealTimeSeasonMap = v.InferOutput<typeof RealTimeSeasonMapSchema>;
 
 /** Time-of-day phase names (auto-computed from sun path). */
 export const TimePhaseSchema = v.picklist([
@@ -756,6 +816,49 @@ export const DayNightCycleConfigSchema = v.strictObject({
 	indoorMode: v.optional(IndoorModeSchema, 'outdoor'),
 	/** Keyframe interpolation easing. Default: linear. */
 	transitionEasing: v.optional(TransitionEasingSchema, 'linear'),
+
+	// ---- Time Source & Progression ----
+
+	/** How time progresses: accelerated (speed-based), realtime (system clock), manual (API only). Default: accelerated. */
+	timeSource: v.optional(TimeSourceSchema, 'accelerated'),
+	/** Real seconds for one full game day [1, 86400]. Default: 1440 (1 game-min per real-sec). */
+	dayDurationSeconds: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(86_400)), 1440),
+	/** Run time backward. Default: false. */
+	reverse: v.optional(v.boolean(), false),
+	/** Hour offset for realtime mode [-12, 14]. Default: 0. */
+	timezoneOffset: v.optional(v.pipe(v.number(), v.minValue(-12), v.maxValue(14)), 0),
+
+	// ---- Season Duration & Auto-Cycling ----
+
+	/** Game-days per season [1, 365]. Default: 7. */
+	seasonDurationDays: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(365)), 7),
+	/** Season rotation order. Default: spring → summer → autumn → winter. */
+	seasonOrder: v.optional(v.array(SeasonSchema), ['spring', 'summer', 'autumn', 'winter']),
+	/** Fraction of season spent cross-fading to next season's sun path [0, 1]. Default: 0. */
+	seasonTransition: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
+	/** Elapsed game-days (fractional). Drives season auto-advance. Default: 0. */
+	currentDay: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+	/** Auto-advance moon phase based on game-day count. Default: false. */
+	autoAdvanceMoonPhase: v.optional(v.boolean(), false),
+	/** Game-days per moon phase step [1, 365]. Default: 3.69 (≈ 29.5/8). */
+	moonCycleDays: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(365)), 3.69),
+
+	// ---- Real System Time Integration ----
+
+	/** Maps real months to in-game seasons for realtime mode. */
+	realTimeSeasonMap: v.optional(RealTimeSeasonMapSchema),
+	/** Sync moon phase to real lunar cycle. Default: false. */
+	realtimeMoonSync: v.optional(v.boolean(), false),
+
+	// ---- Indoor Mode Config ----
+
+	/** Per-mode indoor settings (haltTime, customTint). */
+	indoorModeConfig: v.optional(IndoorModeConfigSchema),
+
+	// ---- Post-FX Control ----
+
+	/** Whether day/night cycle controls post-processing (exposure, bloom, contrast). Default: true. */
+	dayNightControlsPostFx: v.optional(v.boolean(), true),
 });
 
 /** Inferred day/night cycle config type from {@link DayNightCycleConfigSchema}. */

@@ -20,30 +20,40 @@ import {
 	FlickerConfigSchema,
 	GlowLayerConfigSchema,
 	HemisphericLightConfigSchema,
+	IndoorModeConfigSchema,
+	IndoorModeSchema,
 	LensFlareConfigSchema,
 	LensFlareEntrySchema,
 	LightConfigSchema,
 	LightingConfigSchema,
 	PointLightConfigSchema,
+	RealTimeSeasonMapSchema,
 	ShadowConfigSchema,
 	SpotLightConfigSchema,
 	SunPathConfigSchema,
 	TimeKeyframeSchema,
+	TimeSourceSchema,
+	TransitionEasingSchema,
 	VolumetricLightConfigSchema,
 	type DayNightCycleConfig,
 	type DirectionalLightConfig,
 	type FlickerConfig,
 	type GlowLayerConfig,
 	type HemisphericLightConfig,
+	type IndoorMode,
+	type IndoorModeConfig,
 	type LensFlareConfig,
 	type LensFlareEntry,
 	type LightConfig,
 	type LightingConfig,
 	type PointLightConfig,
+	type RealTimeSeasonMap,
 	type ShadowConfig,
 	type SpotLightConfig,
 	type SunPathConfig,
 	type TimeKeyframe,
+	type TimeSource,
+	type TransitionEasing,
 	type VolumetricLightConfig,
 } from './lighting-config';
 
@@ -770,6 +780,412 @@ describe('DayNightCycleConfigSchema', () => {
 			],
 		});
 		expect(result.ok).toBeTruthy();
+	});
+
+	// ---- Time Source & Day Duration (Task 1) ----
+
+	test('defaults timeSource to accelerated', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.timeSource).toBe('accelerated');
+	});
+
+	test('accepts timeSource: realtime', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			timeSource: 'realtime',
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('accepts timeSource: manual', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			timeSource: 'manual',
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('defaults dayDurationSeconds to 1440', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.dayDurationSeconds).toBe(1440);
+	});
+
+	test('accepts dayDurationSeconds: 600', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			dayDurationSeconds: 600,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('rejects dayDurationSeconds: 0 (min 1)', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			dayDurationSeconds: 0,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects dayDurationSeconds: 100000 (max 86400)', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			dayDurationSeconds: 100_000,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('defaults reverse to false', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.reverse).toBe(false);
+	});
+
+	test('accepts reverse: true', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			reverse: true,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.reverse).toBe(true);
+	});
+
+	test('defaults timezoneOffset to 0', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.timezoneOffset).toBe(0);
+	});
+
+	test('accepts timezoneOffset: -5', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			timezoneOffset: -5,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('rejects timezoneOffset: 15 (max 14)', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			timezoneOffset: 15,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects timezoneOffset: -13 (min -12)', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			timezoneOffset: -13,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// ---- Season Duration & Auto-Cycling (Task 2) ----
+
+	test('defaults seasonDurationDays to 7', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.seasonDurationDays).toBe(7);
+	});
+
+	test('rejects seasonDurationDays: 0 (min 1)', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			seasonDurationDays: 0,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects seasonDurationDays: 366 (max 365)', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			seasonDurationDays: 366,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('accepts seasonOrder with custom order', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			seasonOrder: ['winter', 'spring', 'summer', 'autumn'],
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('rejects seasonOrder with invalid season', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			seasonOrder: ['monsoon'],
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('defaults seasonTransition to 0', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.seasonTransition).toBe(0);
+	});
+
+	test('rejects seasonTransition: 1.5 (max 1)', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			seasonTransition: 1.5,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('defaults currentDay to 0', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.currentDay).toBe(0);
+	});
+
+	test('rejects currentDay: -1 (min 0)', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			currentDay: -1,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('defaults autoAdvanceMoonPhase to false', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.autoAdvanceMoonPhase).toBe(false);
+	});
+
+	test('accepts autoAdvanceMoonPhase: true', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			autoAdvanceMoonPhase: true,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('defaults moonCycleDays to 3.69', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.moonCycleDays).toBeCloseTo(3.69);
+	});
+
+	test('rejects moonCycleDays: 0 (min 1)', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			moonCycleDays: 0,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	// ---- Real Time Season Map (Task 3) ----
+
+	test('accepts realtimeMoonSync: true', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			realtimeMoonSync: true,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('defaults realtimeMoonSync to false', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.realtimeMoonSync).toBe(false);
+	});
+
+	test('accepts realTimeSeasonMap', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			realTimeSeasonMap: {
+				month3: 'spring',
+				month6: 'summer',
+				month9: 'autumn',
+				month12: 'winter',
+			},
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	// ---- Indoor Mode Config (Task 3) ----
+
+	test('accepts indoorModeConfig with haltTime', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			indoorModeConfig: { haltTime: true },
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('accepts indoorModeConfig with customTint', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			indoorModeConfig: {
+				haltTime: false,
+				customTint: { r: 0.5, g: 0.3, b: 0.1, a: 1 },
+			},
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('defaults indoorModeConfig.haltTime to false', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			indoorModeConfig: {},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.indoorModeConfig?.haltTime).toBe(false);
+	});
+
+	// ---- Day/Night Controls Post-FX toggle (Task 3) ----
+
+	test('defaults dayNightControlsPostFx to true', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.dayNightControlsPostFx).toBe(true);
+	});
+
+	test('accepts dayNightControlsPostFx: false', () => {
+		const result: Result<DayNightCycleConfig> = safeParse(DayNightCycleConfigSchema, {
+			dayNightControlsPostFx: false,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.dayNightControlsPostFx).toBe(false);
+	});
+});
+
+// =============================================================================
+// TimeSourceSchema
+// =============================================================================
+
+describe('TimeSourceSchema', () => {
+	test('accepts accelerated', () => {
+		const result: Result<TimeSource> = safeParse(TimeSourceSchema, 'accelerated');
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('accepts realtime', () => {
+		const result: Result<TimeSource> = safeParse(TimeSourceSchema, 'realtime');
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('accepts manual', () => {
+		const result: Result<TimeSource> = safeParse(TimeSourceSchema, 'manual');
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('rejects turbo', () => {
+		const result: Result<TimeSource> = safeParse(TimeSourceSchema, 'turbo');
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// IndoorModeSchema (expanded)
+// =============================================================================
+
+describe('IndoorModeSchema (expanded)', () => {
+	const allModes: string[] = [
+		'outdoor',
+		'indoor',
+		'cave',
+		'firelit',
+		'dungeon',
+		'temple',
+		'underwater',
+		'custom',
+	];
+
+	test.each(allModes)('accepts %s', (mode: string) => {
+		const result: Result<IndoorMode> = safeParse(IndoorModeSchema, mode);
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('rejects lava', () => {
+		const result: Result<IndoorMode> = safeParse(IndoorModeSchema, 'lava');
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// TransitionEasingSchema (expanded)
+// =============================================================================
+
+describe('TransitionEasingSchema (expanded)', () => {
+	const allEasings: string[] = [
+		'linear',
+		'smooth',
+		'easeIn',
+		'easeOut',
+		'easeInOut',
+		'sine',
+		'cubic',
+		'step',
+	];
+
+	test.each(allEasings)('accepts %s', (easing: string) => {
+		const result: Result<TransitionEasing> = safeParse(TransitionEasingSchema, easing);
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('rejects bounce', () => {
+		const result: Result<TransitionEasing> = safeParse(TransitionEasingSchema, 'bounce');
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// RealTimeSeasonMapSchema
+// =============================================================================
+
+describe('RealTimeSeasonMapSchema', () => {
+	test('accepts valid month-to-season mapping', () => {
+		const result: Result<RealTimeSeasonMap> = safeParse(RealTimeSeasonMapSchema, {
+			month3: 'spring',
+			month6: 'summer',
+			month9: 'autumn',
+			month12: 'winter',
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('applies defaults for northern hemisphere', () => {
+		const result: Result<RealTimeSeasonMap> = safeParse(RealTimeSeasonMapSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.month3).toBe('spring');
+		expect(result.data.month6).toBe('summer');
+		expect(result.data.month9).toBe('autumn');
+		expect(result.data.month12).toBe('winter');
+	});
+
+	test('rejects invalid season value', () => {
+		const result: Result<RealTimeSeasonMap> = safeParse(RealTimeSeasonMapSchema, {
+			month3: 'monsoon',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// IndoorModeConfigSchema
+// =============================================================================
+
+describe('IndoorModeConfigSchema', () => {
+	test('defaults haltTime to false', () => {
+		const result: Result<IndoorModeConfig> = safeParse(IndoorModeConfigSchema, {});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.haltTime).toBe(false);
+	});
+
+	test('accepts haltTime: true', () => {
+		const result: Result<IndoorModeConfig> = safeParse(IndoorModeConfigSchema, {
+			haltTime: true,
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.haltTime).toBe(true);
+	});
+
+	test('accepts customTint', () => {
+		const result: Result<IndoorModeConfig> = safeParse(IndoorModeConfigSchema, {
+			customTint: { r: 0.5, g: 0.3, b: 0.1, a: 1 },
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(result.data.customTint).toBeDefined();
 	});
 });
 
