@@ -211,8 +211,8 @@ export const FogNoiseSchema = v.strictObject({
 	/** Enable noise modulation. Default: false. */
 	enabled: v.optional(v.boolean(), false),
 
-	/** Spatial frequency [0.1, 10]. Default: 1.0. */
-	scale: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(10)), 1.0),
+	/** Spatial frequency [0.001, 10]. Default: 1.0. */
+	scale: v.optional(v.pipe(v.number(), v.minValue(0.001), v.maxValue(10)), 1.0),
 
 	/** Density modulation strength [0, 1]. Default: 0.5. */
 	amplitude: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
@@ -285,6 +285,7 @@ export type FogOverlayBlendMode = v.InferOutput<typeof FogOverlayBlendModeSchema
 /** Overlay vignette mask type. */
 export const FogOverlayVignetteSchema = v.picklist([
 	'none',
+	'radial',
 	'border',
 	'horizontal',
 	'vertical',
