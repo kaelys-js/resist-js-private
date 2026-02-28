@@ -451,9 +451,9 @@ describe('applyFogPreset', () => {
 		const presetResult = applyFogPreset(result.data, 'denseFog' as FogPresetName);
 		expect(presetResult.ok).toBe(true);
 
-		// denseFog preset uses exponential mode with 0.025 density
+		// denseFog preset uses exponential mode with 0.008 density
 		expect(instance.scene.fogMode).toBe(BABYLON.Scene.FOGMODE_EXP);
-		expect(instance.scene.fogDensity).toBe(0.025);
+		expect(instance.scene.fogDensity).toBe(0.008);
 
 		result.data.dispose();
 	});
