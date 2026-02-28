@@ -3,7 +3,7 @@
 /**
  * Transition configuration schema tests.
  *
- * Tests the 28-type transition system with mask-based transitions (fade,
+ * Tests the 53-type transition system with mask-based transitions (fade,
  * crossFade, circleIris, etc.) and procedural transitions (pixelate,
  * crtPowerOff, swirl, etc.), along with shared/type-specific parameters,
  * easing functions, and curated presets.
@@ -50,6 +50,14 @@ describe('TransitionTypeSchema', () => {
 		'checkerboard',
 		'radialWipe',
 		'scanlineReveal',
+		'randomBlocks',
+		'crossSplit',
+		'heartIris',
+		'starIris',
+		'crossIris',
+		'clockWipe',
+		'diagonalBlinds',
+		'bowTie',
 	];
 
 	const proceduralTypes: readonly string[] = [
@@ -67,6 +75,23 @@ describe('TransitionTypeSchema', () => {
 		'ripple',
 		'wind',
 		'chromaticBurst',
+		'zoom',
+		'spiralWipe',
+		'curtain',
+		'dreamDissolve',
+		'filmBurn',
+		'overexposure',
+		'doomMelt',
+		'tvStatic',
+		'matrixRain',
+		'mosaic',
+		'burn',
+		'waterDrop',
+		'squeeze',
+		'flyEye',
+		'crosshatch',
+		'luminanceMelt',
+		'pageFlip',
 	];
 
 	test.each(maskTypes)('accepts mask-based type "%s"', (type: string) => {
@@ -83,9 +108,9 @@ describe('TransitionTypeSchema', () => {
 		expect(result.data).toBe(type);
 	});
 
-	test('accepts all 28 types total', () => {
+	test('accepts all 53 types total', () => {
 		const allTypes: readonly string[] = [...maskTypes, ...proceduralTypes];
-		expect(allTypes.length).toBe(28);
+		expect(allTypes.length).toBe(53);
 		for (const type of allTypes) {
 			const result: Result<TransitionType> = safeParse(TransitionTypeSchema, type);
 			expect(result.ok).toBeTruthy();
@@ -217,6 +242,7 @@ describe('TransitionConfigSchema — minimal config', () => {
 		expect(result.data.frequency).toBe(10);
 		expect(result.data.waveCount).toBe(8);
 		expect(result.data.glitchIntensity).toBe(0.5);
+		expect(result.data.pointCount).toBe(5);
 	});
 });
 
@@ -258,6 +284,7 @@ describe('TransitionConfigSchema — full config', () => {
 			frequency: 25,
 			waveCount: 15,
 			glitchIntensity: 0.8,
+			pointCount: 7,
 		};
 		const result: Result<TransitionConfig> = safeParse(TransitionConfigSchema, input);
 		expect(result.ok).toBeTruthy();
@@ -293,6 +320,7 @@ describe('TransitionConfigSchema — full config', () => {
 		expect(result.data.frequency).toBe(25);
 		expect(result.data.waveCount).toBe(15);
 		expect(result.data.glitchIntensity).toBe(0.8);
+		expect(result.data.pointCount).toBe(7);
 	});
 });
 
@@ -441,6 +469,34 @@ describe('TransitionConfigSchema — validation boundaries', () => {
 			});
 			expect(result.ok).toBeTruthy();
 		}
+	});
+
+	test('rejects pointCount outside 3-12', () => {
+		const belowMin: Result<TransitionConfig> = safeParse(TransitionConfigSchema, {
+			type: 'starIris',
+			pointCount: 2,
+		});
+		expect(belowMin.ok).toBeFalsy();
+
+		const aboveMax: Result<TransitionConfig> = safeParse(TransitionConfigSchema, {
+			type: 'starIris',
+			pointCount: 13,
+		});
+		expect(aboveMax.ok).toBeFalsy();
+	});
+
+	test('accepts pointCount at boundaries (3, 12)', () => {
+		const atMin: Result<TransitionConfig> = safeParse(TransitionConfigSchema, {
+			type: 'starIris',
+			pointCount: 3,
+		});
+		expect(atMin.ok).toBeTruthy();
+
+		const atMax: Result<TransitionConfig> = safeParse(TransitionConfigSchema, {
+			type: 'starIris',
+			pointCount: 12,
+		});
+		expect(atMax.ok).toBeTruthy();
 	});
 });
 

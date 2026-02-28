@@ -1,20 +1,20 @@
 /**
  * Transition configuration schema.
  *
- * Defines a 28-type screen transition system for the WebForge runtime,
+ * Defines a 53-type screen transition system for the WebForge runtime,
  * split across two categories:
  *
  * | Category | Count | Types |
  * |-----------|-------|---------------------------------------------------|
- * | Mask-based | 14 | fade, crossFade, circleIris, diamondIris, wipe, diagonalWipe, doubleDoor, noiseDissove, ditheredFade, venetianBlinds, bars, checkerboard, radialWipe, scanlineReveal |
- * | Procedural | 14 | pixelate, crtPowerOff, swirl, zoomLines, shatter, wavyDistortion, hexagonalize, pinwheel, polkaDots, gridFlip, glitch, ripple, wind, chromaticBurst |
+ * | Mask-based | 22 | fade, crossFade, circleIris, diamondIris, wipe, diagonalWipe, doubleDoor, noiseDissove, ditheredFade, venetianBlinds, bars, checkerboard, radialWipe, scanlineReveal, randomBlocks, crossSplit, heartIris, starIris, crossIris, clockWipe, diagonalBlinds, bowTie |
+ * | Procedural | 31 | pixelate, crtPowerOff, swirl, zoomLines, shatter, wavyDistortion, hexagonalize, pinwheel, polkaDots, gridFlip, glitch, ripple, wind, chromaticBurst, zoom, spiralWipe, curtain, dreamDissolve, filmBurn, overexposure, doomMelt, tvStatic, matrixRain, mosaic, burn, waterDrop, squeeze, flyEye, crosshatch, luminanceMelt, pageFlip |
  *
  * Each transition config includes shared parameters (duration, easing, color)
  * and type-specific parameters (direction, count, noise, etc.). All type-specific
  * params are optional with sensible defaults, allowing minimal configs like
  * `{ type: 'fade' }` to work out of the box.
  *
- * Includes 32 curated presets covering all transition types.
+ * Includes 32 curated presets covering common transition types.
  *
  * @example
  * ```typescript
@@ -48,7 +48,7 @@ import * as v from 'valibot';
 /**
  * Transition type identifiers.
  *
- * 28 transition effects split into mask-based (14) and procedural (14).
+ * 53 transition effects split into mask-based (22) and procedural (31).
  *
  * @example
  * ```typescript
@@ -60,7 +60,7 @@ import * as v from 'valibot';
  * ```
  */
 export const TransitionTypeSchema = v.picklist([
-	// Mask-based (14)
+	// Mask-based (22)
 	'fade',
 	'crossFade',
 	'circleIris',
@@ -75,7 +75,15 @@ export const TransitionTypeSchema = v.picklist([
 	'checkerboard',
 	'radialWipe',
 	'scanlineReveal',
-	// Procedural (14)
+	'randomBlocks',
+	'crossSplit',
+	'heartIris',
+	'starIris',
+	'crossIris',
+	'clockWipe',
+	'diagonalBlinds',
+	'bowTie',
+	// Procedural (31)
 	'pixelate',
 	'crtPowerOff',
 	'swirl',
@@ -90,6 +98,23 @@ export const TransitionTypeSchema = v.picklist([
 	'ripple',
 	'wind',
 	'chromaticBurst',
+	'zoom',
+	'spiralWipe',
+	'curtain',
+	'dreamDissolve',
+	'filmBurn',
+	'overexposure',
+	'doomMelt',
+	'tvStatic',
+	'matrixRain',
+	'mosaic',
+	'burn',
+	'waterDrop',
+	'squeeze',
+	'flyEye',
+	'crosshatch',
+	'luminanceMelt',
+	'pageFlip',
 ]);
 
 /** Inferred transition type from {@link TransitionTypeSchema}. */
@@ -338,6 +363,9 @@ export const TransitionConfigSchema = v.strictObject({
 
 	/** Glitch effect intensity. Range 0-1. Default: 0.5. */
 	glitchIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
+
+	/** Number of points for starIris. Range 3-12. Default: 5. */
+	pointCount: v.optional(v.pipe(v.number(), v.minValue(3), v.maxValue(12)), 5),
 });
 
 /** Inferred transition config type from {@link TransitionConfigSchema}. */
@@ -398,6 +426,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	fadeToWhite: {
 		type: 'fade',
@@ -430,6 +459,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	crossFade: {
 		type: 'crossFade',
@@ -462,6 +492,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	circleIris: {
 		type: 'circleIris',
@@ -494,6 +525,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	diamondIris: {
 		type: 'diamondIris',
@@ -526,6 +558,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	wipeLeft: {
 		type: 'wipe',
@@ -558,6 +591,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	wipeRight: {
 		type: 'wipe',
@@ -590,6 +624,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	wipeUp: {
 		type: 'wipe',
@@ -622,6 +657,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	wipeDown: {
 		type: 'wipe',
@@ -654,6 +690,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	diagonalWipe: {
 		type: 'diagonalWipe',
@@ -686,6 +723,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	doubleDoor: {
 		type: 'doubleDoor',
@@ -718,6 +756,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	noiseDissove: {
 		type: 'noiseDissove',
@@ -750,6 +789,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	ditheredFade: {
 		type: 'ditheredFade',
@@ -782,6 +822,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	venetianBlinds: {
 		type: 'venetianBlinds',
@@ -814,6 +855,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	bars: {
 		type: 'bars',
@@ -846,6 +888,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	checkerboard: {
 		type: 'checkerboard',
@@ -878,6 +921,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	radialWipe: {
 		type: 'radialWipe',
@@ -910,6 +954,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	scanlineReveal: {
 		type: 'scanlineReveal',
@@ -942,6 +987,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	pixelate: {
 		type: 'pixelate',
@@ -974,6 +1020,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	crtPowerOff: {
 		type: 'crtPowerOff',
@@ -1006,6 +1053,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	swirl: {
 		type: 'swirl',
@@ -1038,6 +1086,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	zoomLines: {
 		type: 'zoomLines',
@@ -1070,6 +1119,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	shatter: {
 		type: 'shatter',
@@ -1102,6 +1152,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	wavyDistortion: {
 		type: 'wavyDistortion',
@@ -1134,6 +1185,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	hexagonalize: {
 		type: 'hexagonalize',
@@ -1166,6 +1218,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	pinwheel: {
 		type: 'pinwheel',
@@ -1198,6 +1251,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	polkaDots: {
 		type: 'polkaDots',
@@ -1230,6 +1284,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	gridFlip: {
 		type: 'gridFlip',
@@ -1262,6 +1317,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	glitch: {
 		type: 'glitch',
@@ -1294,6 +1350,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	ripple: {
 		type: 'ripple',
@@ -1326,6 +1383,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	wind: {
 		type: 'wind',
@@ -1358,6 +1416,7 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 	chromaticBurst: {
 		type: 'chromaticBurst',
@@ -1390,5 +1449,6 @@ export const TRANSITION_PRESETS = {
 		frequency: 10,
 		waveCount: 8,
 		glitchIntensity: 0.5,
+		pointCount: 5,
 	},
 } as const satisfies Record<string, TransitionConfig>;

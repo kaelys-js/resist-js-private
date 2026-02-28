@@ -2,7 +2,7 @@
  * Transition manager module.
  *
  * The core transition engine for the WebForge runtime. Provides
- * {@link playTransition} to play any of the 28 transition types as a
+ * {@link playTransition} to play any of the 53 transition types as a
  * GPU post-process effect, {@link applyTransitionEasing} for 6 easing
  * curves, and convenience wrappers ({@link fadeToBlack}, {@link fadeToWhite},
  * {@link fadeToColor}, {@link screenFlash}, {@link screenTint}).
@@ -284,6 +284,7 @@ export function playTransition(options: PlayTransitionOptions): BabylonResult<Tr
 		effect.setFloat('frequency', config.frequency);
 		effect.setFloat('waveCount', config.waveCount);
 		effect.setFloat('glitchIntensity', config.glitchIntensity);
+		effect.setFloat('pointCount', config.pointCount);
 		effect.setFloat2('resolution', pp.width || 1, pp.height || 1);
 	};
 

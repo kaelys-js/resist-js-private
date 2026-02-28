@@ -1,7 +1,7 @@
 /**
  * Transition shader module.
  *
- * Contains the GLSL fragment uber-shader for all 28 transition types,
+ * Contains the GLSL fragment uber-shader for all 53 transition types,
  * a type-to-integer mapping constant, shader registration, and a
  * PostProcess factory function.
  *
@@ -9,8 +9,8 @@
  *
  * | Category   | IDs   | Description                              |
  * |------------|-------|------------------------------------------|
- * | Mask-based | 0-13  | Grayscale mask with smoothstep threshold  |
- * | Procedural | 14-27 | Custom per-pixel math with direct output  |
+ * | Mask-based | 0-21  | Grayscale mask with smoothstep threshold  |
+ * | Procedural | 22-52 | Custom per-pixel math with direct output  |
  *
  * Mask-based transitions compute a 0-1 grayscale value per pixel, then
  * use `smoothstep` with `edgeSoftness` to blend between background color
@@ -56,7 +56,7 @@ import type { TransitionType } from '../schemas/transition-config';
 export const TRANSITION_SHADER_NAME = 'webforgeTransition';
 
 /**
- * Maps each of the 28 transition type strings to integer IDs 0-27.
+ * Maps each of the 53 transition type strings to integer IDs 0-52.
  *
  * The integer values match the `maskType` uniform in the GLSL shader.
  * Order matches {@link TransitionTypeSchema} exactly.
@@ -70,6 +70,7 @@ export const TRANSITION_SHADER_NAME = 'webforgeTransition';
  * ```
  */
 export const TRANSITION_TYPE_MAP: Readonly<Record<TransitionType, number>> = {
+	// Mask-based (0-21)
 	fade: 0,
 	crossFade: 1,
 	circleIris: 2,
@@ -84,20 +85,46 @@ export const TRANSITION_TYPE_MAP: Readonly<Record<TransitionType, number>> = {
 	checkerboard: 11,
 	radialWipe: 12,
 	scanlineReveal: 13,
-	pixelate: 14,
-	crtPowerOff: 15,
-	swirl: 16,
-	zoomLines: 17,
-	shatter: 18,
-	wavyDistortion: 19,
-	hexagonalize: 20,
-	pinwheel: 21,
-	polkaDots: 22,
-	gridFlip: 23,
-	glitch: 24,
-	ripple: 25,
-	wind: 26,
-	chromaticBurst: 27,
+	randomBlocks: 14,
+	crossSplit: 15,
+	heartIris: 16,
+	starIris: 17,
+	crossIris: 18,
+	clockWipe: 19,
+	diagonalBlinds: 20,
+	bowTie: 21,
+	// Procedural (22-52)
+	pixelate: 22,
+	crtPowerOff: 23,
+	swirl: 24,
+	zoomLines: 25,
+	shatter: 26,
+	wavyDistortion: 27,
+	hexagonalize: 28,
+	pinwheel: 29,
+	polkaDots: 30,
+	gridFlip: 31,
+	glitch: 32,
+	ripple: 33,
+	wind: 34,
+	chromaticBurst: 35,
+	zoom: 36,
+	spiralWipe: 37,
+	curtain: 38,
+	dreamDissolve: 39,
+	filmBurn: 40,
+	overexposure: 41,
+	doomMelt: 42,
+	tvStatic: 43,
+	matrixRain: 44,
+	mosaic: 45,
+	burn: 46,
+	waterDrop: 47,
+	squeeze: 48,
+	flyEye: 49,
+	crosshatch: 50,
+	luminanceMelt: 51,
+	pageFlip: 52,
 };
 
 // =============================================================================
@@ -137,6 +164,7 @@ const UNIFORM_NAMES: readonly string[] = [
 	'frequency',
 	'waveCount',
 	'glitchIntensity',
+	'pointCount',
 	'resolution',
 ];
 
@@ -196,6 +224,7 @@ uniform float amplitude;
 uniform float frequency;
 uniform float waveCount;
 uniform float glitchIntensity;
+uniform float pointCount;
 uniform vec2 resolution;
 
 // =========================================================================
@@ -311,9 +340,9 @@ void main(void) {
 	}
 
 	// ===================================================================
-	// Mask-based transitions (types 0-13)
+	// Mask-based transitions (types 0-21)
 	// ===================================================================
-	if (maskType <= 13) {
+	if (maskType <= 21) {
 		float mask = 0.0;
 
 		// 0: fade
@@ -407,6 +436,80 @@ void main(void) {
 		else if (maskType == 13) {
 			mask = uv.y;
 		}
+		// 14: randomBlocks
+		else if (maskType == 14) {
+			vec2 cell = floor(uv * gridSize);
+			mask = hash(cell);
+		}
+		// 15: crossSplit (4-quadrant split from center)
+		else if (maskType == 15) {
+			float dx = abs(uv.x - 0.5) * 2.0;
+			float dy = abs(uv.y - 0.5) * 2.0;
+			mask = openFromCenter > 0.5 ? 1.0 - max(dx, dy) : max(dx, dy);
+		}
+		// 16: heartIris
+		else if (maskType == 16) {
+			vec2 p = (uv - center) * 2.0;
+			p.x *= aspectRatio;
+			p.y -= 0.35;
+			float a = atan(p.x, p.y) / 3.14159265;
+			float r = length(p);
+			float h = abs(a);
+			float heartShape = (13.0 * h - 22.0 * h * h + 10.0 * h * h * h) / (6.0 - 5.0 * h);
+			float d = r - heartShape * 0.5;
+			mask = clamp(d + 0.5, 0.0, 1.0);
+		}
+		// 17: starIris
+		else if (maskType == 17) {
+			vec2 p = uv - center;
+			p.x *= aspectRatio;
+			float a = atan(p.y, p.x);
+			float r = length(p);
+			float n = pointCount;
+			float star = cos(3.14159265 / n) / cos(mod(a, 2.0 * 3.14159265 / n) - 3.14159265 / n);
+			float maxDist = length(vec2(max(center.x, 1.0 - center.x) * aspectRatio, max(center.y, 1.0 - center.y)));
+			mask = (r / (star * 0.4)) / maxDist;
+			mask = clamp(mask, 0.0, 1.0);
+		}
+		// 18: crossIris (plus/cross shape)
+		else if (maskType == 18) {
+			vec2 p = abs(uv - center);
+			p.x *= aspectRatio;
+			float crossDist = min(p.x, p.y);
+			float maxDist = max(center.x, 1.0 - center.x) * aspectRatio * 0.5;
+			mask = crossDist / maxDist;
+			mask = clamp(mask, 0.0, 1.0);
+		}
+		// 19: clockWipe
+		else if (maskType == 19) {
+			vec2 diff = uv - center;
+			diff.x *= aspectRatio;
+			float a = atan(diff.y, diff.x);
+			float startRad = -3.14159265 / 2.0;
+			a -= startRad;
+			if (clockwise < 0.5) a = -a;
+			mask = (a + 3.14159265) / (2.0 * 3.14159265);
+			mask = fract(mask);
+		}
+		// 20: diagonalBlinds
+		else if (maskType == 20) {
+			float rad = angle * 3.14159265 / 180.0;
+			float coord = uv.x * cos(rad) + uv.y * sin(rad);
+			mask = fract(coord * count);
+		}
+		// 21: bowTie (two triangles meeting at center)
+		else if (maskType == 21) {
+			vec2 p = uv - 0.5;
+			if (axis < 0.5) {
+				// Horizontal bow-tie
+				float d = abs(p.y) / (abs(p.x) + 0.001);
+				mask = clamp(d, 0.0, 1.0);
+			} else {
+				// Vertical bow-tie
+				float d = abs(p.x) / (abs(p.y) + 0.001);
+				mask = clamp(d, 0.0, 1.0);
+			}
+		}
 
 		// Apply smoothstep threshold
 		float t = smoothstep(prog - edgeSoftness, prog + edgeSoftness, mask);
@@ -436,11 +539,11 @@ void main(void) {
 	}
 
 	// ===================================================================
-	// Procedural transitions (types 14-27)
+	// Procedural transitions (types 22-52)
 	// ===================================================================
 
-	// 14: pixelate
-	if (maskType == 14) {
+	// 22: pixelate
+	if (maskType == 22) {
 		float blockSize = max(1.0, maxBlockSize * prog);
 		vec2 pixelUV = floor(uv * resolution / blockSize) * blockSize / resolution;
 		vec4 pixelColor = texture2D(textureSampler, pixelUV);
@@ -449,8 +552,8 @@ void main(void) {
 		return;
 	}
 
-	// 15: crtPowerOff
-	if (maskType == 15) {
+	// 23: crtPowerOff
+	if (maskType == 23) {
 		vec2 crtUV = uv;
 		float phase1 = clamp(prog * 2.0, 0.0, 1.0);
 		float phase2 = clamp(prog * 2.0 - 1.0, 0.0, 1.0);
@@ -478,8 +581,8 @@ void main(void) {
 		return;
 	}
 
-	// 16: swirl
-	if (maskType == 16) {
+	// 24: swirl
+	if (maskType == 24) {
 		vec2 swirlUV = uv;
 		vec2 diff = swirlUV - center;
 		diff.x *= aspectRatio;
@@ -503,8 +606,8 @@ void main(void) {
 		return;
 	}
 
-	// 17: zoomLines
-	if (maskType == 17) {
+	// 25: zoomLines
+	if (maskType == 25) {
 		vec2 diff = uv - center;
 		diff.x *= aspectRatio;
 		float dist = length(diff);
@@ -520,8 +623,8 @@ void main(void) {
 		return;
 	}
 
-	// 18: shatter
-	if (maskType == 18) {
+	// 26: shatter
+	if (maskType == 26) {
 		vec2 cell = voronoiCell(uv, cellCount);
 		float cellHash = hash(cell);
 		float threshold = cellHash;
@@ -545,8 +648,8 @@ void main(void) {
 		return;
 	}
 
-	// 19: wavyDistortion
-	if (maskType == 19) {
+	// 27: wavyDistortion
+	if (maskType == 27) {
 		float xOffset = sin(uv.y * frequency + prog * 20.0) * amplitude * prog;
 		vec2 wavyUV = vec2(uv.x + xOffset, uv.y);
 		vec4 wavyColor;
@@ -560,8 +663,8 @@ void main(void) {
 		return;
 	}
 
-	// 20: hexagonalize
-	if (maskType == 20) {
+	// 28: hexagonalize
+	if (maskType == 28) {
 		vec2 hexUV = uv * gridSize;
 		vec2 hexCell = floor(hexUV);
 		float threshold = hash(hexCell);
@@ -573,8 +676,8 @@ void main(void) {
 		return;
 	}
 
-	// 21: pinwheel
-	if (maskType == 21) {
+	// 29: pinwheel
+	if (maskType == 29) {
 		vec2 diff = uv - center;
 		diff.x *= aspectRatio;
 		float a = atan(diff.y, diff.x);
@@ -586,8 +689,8 @@ void main(void) {
 		return;
 	}
 
-	// 22: polkaDots
-	if (maskType == 22) {
+	// 30: polkaDots
+	if (maskType == 30) {
 		vec2 dotUV = fract(uv * cellCount);
 		float dotDist = length(dotUV - 0.5);
 		float dotRadius = prog * 0.5;
@@ -596,8 +699,8 @@ void main(void) {
 		return;
 	}
 
-	// 23: gridFlip
-	if (maskType == 23) {
+	// 31: gridFlip
+	if (maskType == 31) {
 		vec2 cell = floor(uv * gridSize);
 		float cellHash = hash(cell);
 		float stagger = cellHash * 0.6;
@@ -621,8 +724,8 @@ void main(void) {
 		return;
 	}
 
-	// 24: glitch
-	if (maskType == 24) {
+	// 32: glitch
+	if (maskType == 32) {
 		float intensity = glitchIntensity * prog;
 		float blockY = floor(uv.y * 20.0 + prog * 7.0);
 		float blockShift = (hash(vec2(blockY, prog * 100.0)) - 0.5) * intensity * 0.3;
@@ -645,8 +748,8 @@ void main(void) {
 		return;
 	}
 
-	// 25: ripple
-	if (maskType == 25) {
+	// 33: ripple
+	if (maskType == 33) {
 		vec2 diff = uv - center;
 		diff.x *= aspectRatio;
 		float dist = length(diff);
@@ -662,8 +765,8 @@ void main(void) {
 		return;
 	}
 
-	// 26: wind
-	if (maskType == 26) {
+	// 34: wind
+	if (maskType == 34) {
 		float windDir = direction < 1.5 ? 1.0 : -1.0;
 		float row = floor(uv.y * resolution.y);
 		float rowHash = hash(vec2(row, 0.0));
@@ -680,8 +783,8 @@ void main(void) {
 		return;
 	}
 
-	// 27: chromaticBurst
-	if (maskType == 27) {
+	// 35: chromaticBurst
+	if (maskType == 35) {
 		vec2 diff = uv - center;
 		float separation = prog * 0.05;
 		vec2 dir = length(diff) > 0.001 ? normalize(diff) : vec2(1.0, 0.0);
@@ -691,6 +794,295 @@ void main(void) {
 		vec4 chromaColor = vec4(r, g, b, 1.0);
 		float fadeOut = smoothstep(0.7, 1.0, prog);
 		gl_FragColor = mix(chromaColor, vec4(bgColor, 1.0), fadeOut);
+		return;
+	}
+
+	// 36: zoom
+	if (maskType == 36) {
+		float scale = 1.0 + prog * 3.0;
+		vec2 zoomUV = center + (uv - center) / scale;
+		vec4 zoomColor;
+		if (zoomUV.x < 0.0 || zoomUV.x > 1.0 || zoomUV.y < 0.0 || zoomUV.y > 1.0) {
+			zoomColor = vec4(bgColor, 1.0);
+		} else {
+			zoomColor = texture2D(textureSampler, zoomUV);
+		}
+		float fadeOut = smoothstep(0.6, 1.0, prog);
+		gl_FragColor = mix(zoomColor, vec4(bgColor, 1.0), fadeOut);
+		return;
+	}
+
+	// 37: spiralWipe
+	if (maskType == 37) {
+		vec2 diff = uv - center;
+		diff.x *= aspectRatio;
+		float dist = length(diff);
+		float a = atan(diff.y, diff.x);
+		if (clockwise < 0.5) a = -a;
+		float spiral = fract((a / (2.0 * 3.14159265) + dist * 3.0) * 0.5 + 0.5);
+		float t = smoothstep(prog - edgeSoftness, prog + edgeSoftness, spiral);
+		gl_FragColor = mix(vec4(bgColor, 1.0), sceneColor, t);
+		return;
+	}
+
+	// 38: curtain
+	if (maskType == 38) {
+		float coord;
+		if (axis < 0.5) {
+			coord = uv.x;
+		} else {
+			coord = uv.y;
+		}
+		float wave = sin(coord * 3.14159265 * 4.0) * 0.03 * (1.0 - prog);
+		float curtainProg = prog + wave;
+		float dist = abs(coord - 0.5) * 2.0;
+		float mask = openFromCenter > 0.5 ? 1.0 - dist : dist;
+		float t = smoothstep(curtainProg - edgeSoftness, curtainProg + edgeSoftness, mask);
+		gl_FragColor = mix(vec4(bgColor, 1.0), sceneColor, t);
+		return;
+	}
+
+	// 39: dreamDissolve
+	if (maskType == 39) {
+		float wave1 = sin(uv.x * frequency + prog * 8.0) * amplitude;
+		float wave2 = sin(uv.y * frequency * 1.3 + prog * 6.0) * amplitude;
+		vec2 dreamUV = vec2(uv.x + wave1 * prog, uv.y + wave2 * prog);
+		dreamUV = clamp(dreamUV, 0.0, 1.0);
+		vec4 dreamColor = texture2D(textureSampler, dreamUV);
+		// Desaturate as transition progresses
+		float gray = dot(dreamColor.rgb, vec3(0.299, 0.587, 0.114));
+		dreamColor.rgb = mix(dreamColor.rgb, vec3(gray), prog * 0.5);
+		float fadeOut = smoothstep(0.5, 1.0, prog);
+		gl_FragColor = mix(dreamColor, vec4(bgColor, 1.0), fadeOut);
+		return;
+	}
+
+	// 40: filmBurn
+	if (maskType == 40) {
+		float n1 = valueNoise((uv + vec2(noiseSeed)) * noiseScale + prog * 2.0);
+		float n2 = valueNoise((uv + vec2(noiseSeed + 7.0)) * noiseScale * 2.0 + prog * 3.0);
+		float burnMask = n1 * 0.7 + n2 * 0.3;
+		float threshold = prog * 1.4;
+		float burnEdge = smoothstep(threshold - 0.15, threshold, burnMask);
+		// Orange-hot edge
+		vec3 hotColor = vec3(1.0, 0.6, 0.1);
+		float edgeBand = smoothstep(threshold - 0.15, threshold - 0.05, burnMask)
+			* (1.0 - smoothstep(threshold - 0.05, threshold, burnMask));
+		vec4 burnColor = mix(vec4(bgColor, 1.0), sceneColor, burnEdge);
+		burnColor.rgb = mix(burnColor.rgb, hotColor, edgeBand * 0.8);
+		// Overexpose near burn
+		float overexpose = smoothstep(threshold - 0.2, threshold - 0.1, burnMask) * (1.0 - burnEdge);
+		burnColor.rgb += vec3(overexpose * 0.3);
+		gl_FragColor = burnColor;
+		return;
+	}
+
+	// 41: overexposure
+	if (maskType == 41) {
+		vec4 overColor = sceneColor;
+		float exposure = prog * 4.0;
+		overColor.rgb *= (1.0 + exposure);
+		overColor.rgb = clamp(overColor.rgb, 0.0, 1.0);
+		float fadeOut = smoothstep(0.6, 1.0, prog);
+		gl_FragColor = mix(overColor, vec4(bgColor, 1.0), fadeOut);
+		return;
+	}
+
+	// 42: doomMelt
+	if (maskType == 42) {
+		float col = floor(uv.x * gridSize);
+		float colDelay = hash(vec2(col, noiseSeed)) * 0.5;
+		float colProg = clamp((prog - colDelay) / (1.0 - colDelay), 0.0, 1.0);
+		float meltOffset = colProg * colProg * 1.5;
+		vec2 meltUV = vec2(uv.x, uv.y - meltOffset);
+		if (meltUV.y < 0.0) {
+			gl_FragColor = vec4(bgColor, 1.0);
+		} else {
+			gl_FragColor = texture2D(textureSampler, meltUV);
+		}
+		return;
+	}
+
+	// 43: tvStatic
+	if (maskType == 43) {
+		float staticNoise = hash(uv * resolution + vec2(prog * 1000.0));
+		float scanline = sin(uv.y * resolution.y * 3.14159265 / 2.0) * 0.5 + 0.5;
+		vec4 staticColor = vec4(vec3(staticNoise * scanline), 1.0);
+		float blend = prog;
+		gl_FragColor = mix(sceneColor, staticColor, blend);
+		float fadeOut = smoothstep(0.7, 1.0, prog);
+		gl_FragColor = mix(gl_FragColor, vec4(bgColor, 1.0), fadeOut);
+		return;
+	}
+
+	// 44: matrixRain
+	if (maskType == 44) {
+		float col = floor(uv.x * gridSize);
+		float colHash = hash(vec2(col, noiseSeed));
+		float speed = 0.5 + colHash * 1.5;
+		float colStart = colHash * 0.6;
+		float colProg = clamp((prog - colStart) / (1.0 - colStart), 0.0, 1.0);
+		float rainY = 1.0 - colProg * speed;
+		float trail = smoothstep(rainY - 0.3, rainY, uv.y);
+		float head = smoothstep(rainY - 0.02, rainY, uv.y) * (1.0 - smoothstep(rainY, rainY + 0.02, uv.y));
+		// Green tint for rain
+		vec3 rainColor = vec3(0.0, 1.0, 0.3);
+		vec4 result = sceneColor;
+		result.rgb = mix(result.rgb, rainColor, trail * prog * 0.5);
+		result.rgb += rainColor * head * 0.5;
+		float fadeOut = smoothstep(0.7, 1.0, prog);
+		gl_FragColor = mix(result, vec4(bgColor, 1.0), fadeOut);
+		return;
+	}
+
+	// 45: mosaic
+	if (maskType == 45) {
+		vec2 cell = floor(uv * gridSize);
+		float cellHash = hash(cell);
+		float threshold = cellHash;
+		if (prog > threshold) {
+			float cellProg = (prog - threshold) / (1.0 - threshold);
+			// Flip effect: scale Y within cell
+			vec2 cellUV = fract(uv * gridSize);
+			float flipScale = abs(1.0 - cellProg * 2.0);
+			if (flipScale < 0.01) {
+				gl_FragColor = vec4(bgColor, 1.0);
+			} else if (cellProg < 0.5) {
+				float newY = 0.5 + (cellUV.y - 0.5) / flipScale;
+				if (newY < 0.0 || newY > 1.0) {
+					gl_FragColor = vec4(bgColor, 1.0);
+				} else {
+					vec2 sampleUV = (cell + vec2(cellUV.x, newY)) / gridSize;
+					gl_FragColor = texture2D(textureSampler, sampleUV);
+				}
+			} else {
+				gl_FragColor = vec4(bgColor, 1.0);
+			}
+		} else {
+			gl_FragColor = sceneColor;
+		}
+		return;
+	}
+
+	// 46: burn
+	if (maskType == 46) {
+		float noise = valueNoise((uv + vec2(noiseSeed)) * noiseScale);
+		float burnThreshold = prog * 1.3;
+		float burnMask = smoothstep(burnThreshold - 0.1, burnThreshold, noise);
+		vec3 burnEdgeColor = vec3(1.0, 0.3, 0.0);
+		float edge = smoothstep(burnThreshold - 0.1, burnThreshold - 0.02, noise)
+			* (1.0 - smoothstep(burnThreshold - 0.02, burnThreshold, noise));
+		vec4 result = mix(vec4(bgColor, 1.0), sceneColor, burnMask);
+		result.rgb = mix(result.rgb, burnEdgeColor, edge);
+		gl_FragColor = result;
+		return;
+	}
+
+	// 47: waterDrop
+	if (maskType == 47) {
+		vec2 diff = uv - center;
+		diff.x *= aspectRatio;
+		float dist = length(diff);
+		float rippleWave = sin(dist * 30.0 - prog * 20.0) * amplitude * (1.0 - prog);
+		float ring = smoothstep(0.0, prog * 1.5, dist);
+		vec2 dir = dist > 0.001 ? normalize(diff) : vec2(0.0);
+		dir.x /= aspectRatio;
+		vec2 dropUV = uv + dir * rippleWave * ring;
+		dropUV = clamp(dropUV, 0.0, 1.0);
+		vec4 dropColor = texture2D(textureSampler, dropUV);
+		float fadeOut = smoothstep(0.7, 1.0, prog);
+		gl_FragColor = mix(dropColor, vec4(bgColor, 1.0), fadeOut);
+		return;
+	}
+
+	// 48: squeeze
+	if (maskType == 48) {
+		vec2 squeezeUV = uv;
+		if (axis < 0.5) {
+			// Horizontal squeeze
+			float scale = 1.0 - prog;
+			squeezeUV.x = 0.5 + (uv.x - 0.5) / max(scale, 0.001);
+		} else {
+			// Vertical squeeze
+			float scale = 1.0 - prog;
+			squeezeUV.y = 0.5 + (uv.y - 0.5) / max(scale, 0.001);
+		}
+		if (squeezeUV.x < 0.0 || squeezeUV.x > 1.0 || squeezeUV.y < 0.0 || squeezeUV.y > 1.0) {
+			gl_FragColor = vec4(bgColor, 1.0);
+		} else {
+			gl_FragColor = texture2D(textureSampler, squeezeUV);
+		}
+		return;
+	}
+
+	// 49: flyEye
+	if (maskType == 49) {
+		float cells = cellCount;
+		vec2 cellUV = fract(uv * cells);
+		vec2 cellCenter = floor(uv * cells) / cells + 0.5 / cells;
+		float dist = length(cellUV - 0.5);
+		// Lens distortion within each cell
+		float lensStrength = prog * 2.0;
+		vec2 lensUV = cellCenter + (cellUV - 0.5) * (1.0 + lensStrength * dist) / cells;
+		lensUV = clamp(lensUV, 0.0, 1.0);
+		vec4 eyeColor = texture2D(textureSampler, lensUV);
+		// Darken edges of each cell
+		float vignette = 1.0 - smoothstep(0.3, 0.5, dist);
+		eyeColor.rgb *= mix(1.0, vignette, prog);
+		float fadeOut = smoothstep(0.7, 1.0, prog);
+		gl_FragColor = mix(eyeColor, vec4(bgColor, 1.0), fadeOut);
+		return;
+	}
+
+	// 50: crosshatch
+	if (maskType == 50) {
+		float lum = dot(sceneColor.rgb, vec3(0.299, 0.587, 0.114));
+		float scale = lineWidth * 10.0;
+		float line1 = abs(sin((uv.x + uv.y) * scale * 3.14159265));
+		float line2 = abs(sin((uv.x - uv.y) * scale * 3.14159265));
+		float hatch1 = smoothstep(0.3, 0.5, line1);
+		float hatch2 = smoothstep(0.3, 0.5, line2);
+		float threshold = 1.0 - prog;
+		float hatching = 1.0;
+		if (lum < threshold) hatching *= hatch1;
+		if (lum < threshold * 0.5) hatching *= hatch2;
+		vec4 hatchColor = mix(vec4(bgColor, 1.0), sceneColor, hatching);
+		float fadeOut = smoothstep(0.8, 1.0, prog);
+		gl_FragColor = mix(hatchColor, vec4(bgColor, 1.0), fadeOut);
+		return;
+	}
+
+	// 51: luminanceMelt
+	if (maskType == 51) {
+		float lum = dot(sceneColor.rgb, vec3(0.299, 0.587, 0.114));
+		float noise = valueNoise(uv * noiseScale) * 0.3;
+		float meltMask = lum + noise;
+		float threshold = prog * 1.5;
+		float t = smoothstep(threshold - edgeSoftness * 2.0, threshold + edgeSoftness * 2.0, meltMask);
+		gl_FragColor = mix(vec4(bgColor, 1.0), sceneColor, t);
+		return;
+	}
+
+	// 52: pageFlip
+	if (maskType == 52) {
+		float flipProg = prog;
+		float curlX = 1.0 - flipProg;
+		float distFromCurl = uv.x - curlX;
+		if (distFromCurl > 0.0) {
+			// Page being flipped - show bg
+			float shadow = smoothstep(0.0, 0.1, distFromCurl);
+			gl_FragColor = vec4(bgColor * (0.7 + 0.3 * shadow), 1.0);
+		} else {
+			// Underneath page visible
+			float curl = smoothstep(-0.15, 0.0, distFromCurl);
+			float yWarp = uv.y + sin(distFromCurl * 10.0) * 0.01 * curl;
+			vec2 flipUV = vec2(uv.x, clamp(yWarp, 0.0, 1.0));
+			vec4 pageColor = texture2D(textureSampler, flipUV);
+			// Shadow near curl line
+			float shadowEdge = smoothstep(-0.08, -0.02, distFromCurl);
+			pageColor.rgb *= 1.0 - shadowEdge * 0.3;
+			gl_FragColor = pageColor;
+		}
 		return;
 	}
 
