@@ -312,8 +312,17 @@ float bayerMatrix(vec2 coord, float size) {
 
 void main(void) {
 	vec2 uv = vUV;
-	float prog = reversed > 0.5 ? 1.0 - progress : progress;
 	vec4 sceneColor = texture2D(textureSampler, uv);
+
+	// Guard: if resolution uniform has not been set yet (PostProcess attached
+	// but Effect still compiling / onApply not yet called), pass through the
+	// scene color to prevent a black flash on the first frame.
+	if (resolution.x < 1.0) {
+		gl_FragColor = sceneColor;
+		return;
+	}
+
+	float prog = reversed > 0.5 ? 1.0 - progress : progress;
 	float aspectRatio = resolution.x / resolution.y;
 
 	// ----- Custom mask override -----
@@ -457,19 +466,38 @@ void main(void) {
 			float h = abs(a);
 			float heartShape = (13.0 * h - 22.0 * h * h + 10.0 * h * h * h) / (6.0 - 5.0 * h);
 			float d = r - heartShape * 0.5;
-			mask = clamp(d + 0.5, 0.0, 1.0);
+			// Normalize signed distance to [0,1]: heart center (d≈-0.15) → 0,
+			// farthest screen corner (d≈maxR) → 1. Adding a CONSTANT preserves
+			// the heart-shaped iso-contours (unlike adding heartShape which cancels
+			// the shape back to a circle).
+			float maxR = length(vec2(max(center.x, 1.0 - center.x) * 2.0 * aspectRatio,
+				max(center.y, 1.0 - center.y) * 2.0 + 0.35));
+			mask = clamp((d + 0.15) / (maxR + 0.15), 0.0, 1.0);
 		}
-		// 17: starIris
+		// 17: starIris — geometric star with straight edges
 		else if (maskType == 17) {
 			vec2 p = uv - center;
 			p.x *= aspectRatio;
 			float a = atan(p.y, p.x);
 			float r = length(p);
 			float n = pointCount;
-			float star = cos(3.14159265 / n) / cos(mod(a, 2.0 * 3.14159265 / n) - 3.14159265 / n);
+			float halfSector = 3.14159265 / n;
+			// Reduce angle to [0, 2*halfSector) then mirror to [0, halfSector].
+			// localA=0 is at a valley vertex, localA=halfSector at a tip vertex.
+			float sectorA = mod(a + halfSector, 2.0 * halfSector);
+			float localA = sectorA < halfSector ? sectorA : 2.0 * halfSector - sectorA;
+			// Star boundary: straight line from valley(innerR) to tip(outerR)
+			// in Cartesian. In polar coords the radius along that line is:
+			//   R(θ) = Ri*Ro*sin(hs) / (Ro*sin(hs-θ) + Ri*sin(θ))
+			float innerR = 0.38;
+			float outerR = 1.0;
+			float sinHS = sin(halfSector);
+			float denom = outerR * sin(halfSector - localA) + innerR * sin(localA);
+			float starEdge = innerR * outerR * sinHS / max(denom, 0.001);
+			float starScale = 0.4;
 			float maxDist = length(vec2(max(center.x, 1.0 - center.x) * aspectRatio, max(center.y, 1.0 - center.y)));
-			mask = (r / (star * 0.4)) / maxDist;
-			mask = clamp(mask, 0.0, 1.0);
+			float d = r - starEdge * starScale;
+			mask = clamp((d + outerR * starScale) / (maxDist + outerR * starScale), 0.0, 1.0);
 		}
 		// 18: crossIris (plus/cross shape)
 		else if (maskType == 18) {
@@ -511,8 +539,11 @@ void main(void) {
 			}
 		}
 
-		// Apply smoothstep threshold
-		float t = smoothstep(prog - edgeSoftness, prog + edgeSoftness, mask);
+		// Apply smoothstep threshold — remap prog so it overshoots [0,1] by
+		// edgeSoftness, ensuring mask values at exactly 0.0 and 1.0 fully
+		// transition instead of lingering at a half-blend.
+		float adjustedProg = mix(-edgeSoftness, 1.0 + edgeSoftness, prog);
+		float t = smoothstep(adjustedProg - edgeSoftness, adjustedProg + edgeSoftness, mask);
 
 		// Color output
 		vec4 result;
@@ -529,8 +560,8 @@ void main(void) {
 
 		// Edge color overlay
 		if (hasEdgeColor > 0.5 && maskType != 0 && maskType != 1) {
-			float edgeBand = smoothstep(prog - edgeSoftness * 3.0, prog - edgeSoftness, mask)
-				* (1.0 - smoothstep(prog + edgeSoftness, prog + edgeSoftness * 3.0, mask));
+			float edgeBand = smoothstep(adjustedProg - edgeSoftness * 3.0, adjustedProg - edgeSoftness, mask)
+				* (1.0 - smoothstep(adjustedProg + edgeSoftness, adjustedProg + edgeSoftness * 3.0, mask));
 			result.rgb = mix(result.rgb, edgeColor, edgeBand);
 		}
 
@@ -613,12 +644,16 @@ void main(void) {
 		float dist = length(diff);
 		float a = atan(diff.y, diff.x);
 		float linePattern = sin(a * count) * 0.5 + 0.5;
-		float lineMask = smoothstep(zoomLineWidth, 0.0, linePattern * prog);
-		float zoom = 1.0 + prog * 0.3;
+		// Lines thicken with progress for dramatic radial speed-line effect
+		float lineThickness = zoomLineWidth * (1.0 + prog * 5.0);
+		float lineMask = 1.0 - smoothstep(lineThickness, lineThickness * 2.0, abs(linePattern - 0.5) * 2.0);
+		float zoom = 1.0 + prog * 1.5;
 		vec2 zoomUV = center + (uv - center) / zoom;
+		zoomUV = clamp(zoomUV, 0.0, 1.0);
 		vec4 zoomColor = texture2D(textureSampler, zoomUV);
-		float fadeOut = smoothstep(0.6, 1.0, prog);
-		vec4 lineColor = mix(zoomColor, vec4(bgColor, 1.0), lineMask * prog);
+		float fadeOut = smoothstep(0.7, 1.0, prog);
+		// Bright white lines radiating from center
+		vec4 lineColor = mix(zoomColor, vec4(1.0), lineMask * prog * 0.8);
 		gl_FragColor = mix(lineColor, vec4(bgColor, 1.0), fadeOut);
 		return;
 	}
@@ -683,8 +718,10 @@ void main(void) {
 		float a = atan(diff.y, diff.x);
 		float sector = fract(a * bladeCount / (2.0 * 3.14159265));
 		float dist = length(diff);
-		float mask = sector + dist * 0.5;
-		float t = smoothstep(prog - edgeSoftness, prog + edgeSoftness, mask);
+		// Wrap combined mask with fract() to keep within [0,1]
+		float mask = fract(sector + dist * 0.5);
+		float adjustedProg = mix(-edgeSoftness, 1.0 + edgeSoftness, prog);
+		float t = smoothstep(adjustedProg - edgeSoftness, adjustedProg + edgeSoftness, mask);
 		gl_FragColor = mix(vec4(bgColor, 1.0), sceneColor, t);
 		return;
 	}
@@ -693,7 +730,8 @@ void main(void) {
 	if (maskType == 30) {
 		vec2 dotUV = fract(uv * cellCount);
 		float dotDist = length(dotUV - 0.5);
-		float dotRadius = prog * 0.5;
+		// Max cell corner distance is sqrt(0.5^2 + 0.5^2) = 0.707
+		float dotRadius = prog * 0.72;
 		float t = smoothstep(dotRadius - edgeSoftness, dotRadius + edgeSoftness, dotDist);
 		gl_FragColor = mix(vec4(bgColor, 1.0), sceneColor, t);
 		return;
@@ -727,22 +765,25 @@ void main(void) {
 	// 32: glitch
 	if (maskType == 32) {
 		float intensity = glitchIntensity * prog;
-		float blockY = floor(uv.y * 20.0 + prog * 7.0);
-		float blockShift = (hash(vec2(blockY, prog * 100.0)) - 0.5) * intensity * 0.3;
+		float blockY = floor(uv.y * 40.0 + prog * 13.0);
+		float blockShift = (hash(vec2(blockY, prog * 100.0)) - 0.5) * intensity * 1.5;
 
 		vec2 glitchUV = uv;
-		if (hash(vec2(blockY, floor(prog * 10.0))) > 0.5) {
+		if (hash(vec2(blockY, floor(prog * 50.0))) > 0.4) {
 			glitchUV.x += blockShift;
 		}
 		glitchUV = clamp(glitchUV, 0.0, 1.0);
 
-		// RGB channel separation
-		float chromaShift = intensity * 0.02;
+		// RGB channel separation — amplified for visible chromatic aberration
+		float chromaShift = intensity * 0.1;
 		float r = texture2D(textureSampler, glitchUV + vec2(chromaShift, 0.0)).r;
 		float g = texture2D(textureSampler, glitchUV).g;
 		float b = texture2D(textureSampler, glitchUV - vec2(chromaShift, 0.0)).b;
 
 		vec4 glitchColor = vec4(r, g, b, 1.0);
+		// Occasional bright horizontal stripe artifacts
+		float stripeMask = step(0.9, hash(vec2(blockY, floor(prog * 30.0))));
+		glitchColor.rgb += vec3(stripeMask * intensity * 0.5);
 		float fadeOut = smoothstep(0.7, 1.0, prog);
 		gl_FragColor = mix(glitchColor, vec4(bgColor, 1.0), fadeOut);
 		return;
@@ -767,12 +808,13 @@ void main(void) {
 
 	// 34: wind
 	if (maskType == 34) {
-		float windDir = direction < 1.5 ? 1.0 : -1.0;
+		float windDir = direction < 0.5 ? 1.0 : -1.0;
 		float row = floor(uv.y * resolution.y);
 		float rowHash = hash(vec2(row, 0.0));
 		float rowPhase = rowHash * 0.5;
 		float windProg = clamp((prog - rowPhase) / (1.0 - rowPhase), 0.0, 1.0);
-		float offset = windDir * windProg * (0.5 + rowHash * 0.5);
+		// Minimum offset of 1.0 at windProg=1 ensures all pixels blown off-screen
+		float offset = windDir * windProg * (1.0 + rowHash * 0.5);
 		vec2 windUV = vec2(uv.x + offset, uv.y);
 
 		if (windUV.x < 0.0 || windUV.x > 1.0) {
@@ -786,13 +828,14 @@ void main(void) {
 	// 35: chromaticBurst
 	if (maskType == 35) {
 		vec2 diff = uv - center;
-		float separation = prog * 0.05;
+		// Amplified separation for visible radial RGB split
+		float separation = prog * 0.15;
 		vec2 dir = length(diff) > 0.001 ? normalize(diff) : vec2(1.0, 0.0);
-		float r = texture2D(textureSampler, uv + dir * separation).r;
+		float r = texture2D(textureSampler, clamp(uv + dir * separation, 0.0, 1.0)).r;
 		float g = texture2D(textureSampler, uv).g;
-		float b = texture2D(textureSampler, uv - dir * separation).b;
+		float b = texture2D(textureSampler, clamp(uv - dir * separation, 0.0, 1.0)).b;
 		vec4 chromaColor = vec4(r, g, b, 1.0);
-		float fadeOut = smoothstep(0.7, 1.0, prog);
+		float fadeOut = smoothstep(0.8, 1.0, prog);
 		gl_FragColor = mix(chromaColor, vec4(bgColor, 1.0), fadeOut);
 		return;
 	}
@@ -1012,6 +1055,9 @@ void main(void) {
 		} else {
 			gl_FragColor = texture2D(textureSampler, squeezeUV);
 		}
+		// Final fade ensures the last center pixel line fully disappears
+		float fadeOut = smoothstep(0.85, 1.0, prog);
+		gl_FragColor = mix(gl_FragColor, vec4(bgColor, 1.0), fadeOut);
 		return;
 	}
 
@@ -1136,6 +1182,10 @@ type CreateTransitionPostProcessOptions = {
  *
  * Registers the shader if not already registered, then constructs a
  * `BABYLON.PostProcess` with all required uniforms and samplers.
+ *
+ * The PostProcess auto-attaches to the camera. The GLSL shader includes a
+ * guard that passes through the scene color when uniforms have not been set
+ * yet (resolution < 1), preventing a black flash on the first frame.
  *
  * @param options - Camera and engine to attach the post-process to.
  * @returns BabylonResult containing the created PostProcess, or an error.
