@@ -6987,6 +6987,32 @@ function lookupTileAtIndex(tilemap: RenderedTilemap, tileIndex: Num): Num {
 /** Reference to the floating tile picker panel so we don't create duplicates. */
 let _tilePickerPanel: HTMLElement | null = null;
 
+/** Zoom level for the tile picker palette (1×–6×). */
+let _tilePickerZoom: Num = 2;
+
+/** Whether the tile picker grid overlay is enabled. */
+let _tilePickerGrid = true;
+
+/** Recently placed tile global IDs (most recent first, max 12). */
+let _recentTiles: Num[] = [];
+
+/** Maximum number of recent tiles to track. */
+const RECENT_TILES_MAX: Num = 12;
+
+/**
+ * Adds a global tile ID to the recently-used list.
+ * Deduplicates, prepends to front, caps at RECENT_TILES_MAX.
+ *
+ * @param globalId - Global tile ID to add.
+ */
+function addRecentTile(globalId: Num): void {
+	_recentTiles = _recentTiles.filter((id: Num) => id !== globalId);
+	_recentTiles.unshift(globalId);
+	if (_recentTiles.length > RECENT_TILES_MAX) {
+		_recentTiles = _recentTiles.slice(0, RECENT_TILES_MAX);
+	}
+}
+
 /**
  * Closes the floating tile picker panel if it is currently open.
  */
@@ -6995,16 +7021,21 @@ function closeTilePickerPanel(): void {
 		_tilePickerPanel.remove();
 		_tilePickerPanel = null;
 	}
+	const tip: HTMLElement | null = document.querySelector('#tile-picker-tooltip');
+	if (tip) tip.remove();
 }
 
 /**
  * Opens (or focuses) a floating tile picker panel with the full tileset
- * atlas. Clicking a tile in the palette replaces the currently selected
- * map tile. The panel is draggable via its title bar.
+ * atlas. Features: tileset tabs, zoom slider, grid overlay, hover highlight
+ * with tooltip, keyboard navigation, recently-used tiles, status bar,
+ * and a resizable/draggable panel. Clicking a tile in the palette replaces
+ * the currently selected map tile.
  *
  * @param debug - Debug API reference.
  * @param tilemap - The rendered tilemap.
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: dev harness UI builder
 function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void {
 	// If already open, just bring to front
 	if (_tilePickerPanel && document.body.contains(_tilePickerPanel)) {
@@ -7012,15 +7043,22 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		return;
 	}
 
-	// Create floating panel
+	const tilesetNames: string[] = tilemap.tilesets.map((ts) => ts.config.name);
+	let pickerTsIdx: Num = 0;
+	let hoveredLocal: Num = -1;
+	let kbCursorCol: Num = -1;
+	let kbCursorRow: Num = -1;
+
+	// ── Panel container ──────────────────────────────────────────
 	const panel: HTMLElement = document.createElement('div');
 	panel.style.cssText = [
 		'position:fixed',
 		'top:80px',
 		'left:320px',
-		'width:auto',
-		'max-width:420px',
-		'max-height:70vh',
+		'width:340px',
+		'min-width:280px',
+		'min-height:300px',
+		'height:85vh',
 		'background:#1a1a1a',
 		'border:1px solid #444',
 		'border-radius:6px',
@@ -7034,7 +7072,7 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 	].join(';');
 	_tilePickerPanel = panel;
 
-	// Title bar (draggable)
+	// ── Title bar (draggable) ────────────────────────────────────
 	const titleBar: HTMLElement = document.createElement('div');
 	titleBar.style.cssText = [
 		'display:flex',
@@ -7046,25 +7084,25 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		'border-radius:6px 6px 0 0',
 		'cursor:grab',
 		'user-select:none',
+		'flex-shrink:0',
 	].join(';');
 	const titleText: HTMLElement = document.createElement('span');
 	titleText.textContent = 'Tile Picker';
 	titleText.style.fontWeight = 'bold';
 	const closeBtn: HTMLButtonElement = document.createElement('button');
-	closeBtn.textContent = 'X';
+	closeBtn.textContent = '×';
 	closeBtn.style.cssText =
-		'background:none;border:none;color:#888;cursor:pointer;font-size:12px;font-weight:bold;';
+		'background:none;border:none;color:#888;cursor:pointer;font-size:14px;font-weight:bold;line-height:1;';
 	closeBtn.addEventListener('pointerdown', (e: PointerEvent) => {
-		e.stopPropagation(); // Prevent title bar drag from intercepting
+		e.stopPropagation();
 	});
 	closeBtn.addEventListener('click', () => {
-		panel.remove();
-		_tilePickerPanel = null;
+		closeTilePickerPanel();
 	});
 	titleBar.append(titleText, closeBtn);
 	panel.append(titleBar);
 
-	// Make draggable
+	// Make title bar draggable
 	let isDragging = false;
 	let dragOffX: Num = 0;
 	let dragOffY: Num = 0;
@@ -7085,49 +7123,263 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		titleBar.style.cursor = 'grab';
 	});
 
-	// Content area (scrollable)
-	const content: HTMLElement = document.createElement('div');
-	content.style.cssText = 'padding:8px;overflow-y:auto;flex:1;';
+	// ── Tileset tabs ─────────────────────────────────────────────
+	const tabBar: HTMLElement = document.createElement('div');
+	tabBar.style.cssText = [
+		'display:flex',
+		'gap:0',
+		'padding:0 8px',
+		'background:#222',
+		'border-bottom:1px solid #333',
+		'flex-shrink:0',
+		'overflow-x:auto',
+	].join(';');
+	const tabButtons: HTMLButtonElement[] = [];
+	const setActiveTab = (idx: Num): void => {
+		for (let i: Num = 0; i < tabButtons.length; i++) {
+			const btn: HTMLButtonElement | undefined = tabButtons[i];
+			if (!btn) continue;
+			btn.style.borderBottom = i === idx ? '2px solid #50c8c8' : '2px solid transparent';
+			btn.style.color = i === idx ? '#e0e0e0' : '#888';
+		}
+	};
+	const createTabButton = (idx: Num, name: string): HTMLButtonElement => {
+		const btn: HTMLButtonElement = document.createElement('button');
+		btn.textContent = name;
+		btn.style.cssText = [
+			'background:none',
+			'border:none',
+			'border-bottom:2px solid transparent',
+			'color:#888',
+			'cursor:pointer',
+			'padding:6px 10px',
+			'font-family:monospace',
+			'font-size:10px',
+			'white-space:nowrap',
+			'transition:color 0.15s',
+		].join(';');
+		btn.addEventListener('click', () => {
+			pickerTsIdx = idx;
+			setActiveTab(idx);
+			hoveredLocal = -1;
+			kbCursorCol = -1;
+			kbCursorRow = -1;
+			drawPalette(pickerTsIdx);
+		});
+		return btn;
+	};
+	for (let ti: Num = 0; ti < tilesetNames.length; ti++) {
+		const btn: HTMLButtonElement = createTabButton(ti, tilesetNames[ti] ?? `Tileset ${String(ti)}`);
+		tabButtons.push(btn);
+		tabBar.append(btn);
+	}
+	setActiveTab(0);
+	panel.append(tabBar);
 
-	// Tileset selector dropdown (if multiple tilesets)
-	const tilesetNames: string[] = tilemap.tilesets.map((ts) => ts.config.name);
-	let pickerTsIdx: Num = 0;
-
-	const paletteCanvas: HTMLCanvasElement = document.createElement('canvas');
-	paletteCanvas.style.cssText =
-		'border:1px solid #555;background:#111;image-rendering:pixelated;cursor:crosshair;';
+	// ── Recently used tiles row ──────────────────────────────────
+	const recentRow: HTMLElement = document.createElement('div');
+	recentRow.style.cssText = [
+		'display:flex',
+		'align-items:center',
+		'gap:3px',
+		'padding:4px 8px',
+		'background:#1e1e1e',
+		'border-bottom:1px solid #333',
+		'flex:0 0 auto',
+		'overflow-x:auto',
+		'max-height:40px',
+	].join(';');
+	const recentLabel: HTMLElement = document.createElement('span');
+	recentLabel.style.cssText = 'color:#555;font-size:9px;margin-right:4px;white-space:nowrap;';
+	recentLabel.textContent = 'Recent:';
+	recentRow.append(recentLabel);
+	const recentContainer: HTMLElement = document.createElement('div');
+	recentContainer.style.cssText =
+		'display:flex;gap:3px;align-items:center;overflow-x:auto;flex:1 1 auto;';
+	recentRow.append(recentContainer);
+	panel.append(recentRow);
 
 	/**
-	 * Draws a highlight rectangle around a tile in the palette canvas.
-	 *
-	 * @param ctx - Canvas rendering context.
-	 * @param localIdx - Local tile index to highlight (-1 for none).
-	 * @param columns - Number of columns in the tileset.
-	 * @param tileWidth - Width of each tile in pixels.
-	 * @param tileHeight - Height of each tile in pixels.
+	 * Redraws the recently-used tiles row from `_recentTiles`.
 	 */
-	const drawPaletteHighlight = (
-		ctx: CanvasRenderingContext2D,
-		localIdx: Num,
-		columns: Num,
-		tileWidth: Num,
-		tileHeight: Num,
-	): void => {
-		if (localIdx < 0) return;
-		const hCol: Num = localIdx % columns;
-		const hRow: Num = Math.floor(localIdx / columns);
-		ctx.strokeStyle = '#00ffff';
-		ctx.lineWidth = 2;
-		ctx.strokeRect(hCol * tileWidth + 1, hRow * tileHeight + 1, tileWidth - 2, tileHeight - 2);
+	const refreshRecentRow = (): void => {
+		recentContainer.innerHTML = '';
+		if (_recentTiles.length === 0) {
+			const emptyMsg: HTMLElement = document.createElement('span');
+			emptyMsg.style.cssText = 'color:#444;font-size:9px;font-style:italic;';
+			emptyMsg.textContent = 'No recent tiles';
+			recentContainer.append(emptyMsg);
+			return;
+		}
+		for (const gid of _recentTiles) {
+			const miniCanvas: HTMLCanvasElement = document.createElement('canvas');
+			miniCanvas.width = 32;
+			miniCanvas.height = 32;
+			miniCanvas.style.cssText =
+				'width:32px;height:32px;flex-shrink:0;border:1px solid #444;background:#111;cursor:pointer;image-rendering:pixelated;border-radius:2px;';
+			miniCanvas.addEventListener('mouseenter', () => {
+				miniCanvas.style.borderColor = '#50c8c8';
+			});
+			miniCanvas.addEventListener('mouseleave', () => {
+				miniCanvas.style.borderColor = '#444';
+			});
+			// Draw the tile image into mini canvas
+			drawRecentTile(miniCanvas, gid, tilemap);
+			// Click to re-place
+			miniCanvas.addEventListener('click', () => {
+				placeTileByGlobalId(debug, gid);
+			});
+			recentContainer.append(miniCanvas);
+		}
 	};
 
-	/**
-	 * Returns the local tile index within the given tileset for the
-	 * currently inspected map tile, or -1 if not in that tileset.
-	 *
-	 * @param tsIdx - Tileset index to check against.
-	 * @returns Local tile index or -1.
-	 */
+	// ── Toolbar (zoom + grid) ────────────────────────────────────
+	const toolbar: HTMLElement = document.createElement('div');
+	toolbar.style.cssText = [
+		'display:flex',
+		'align-items:center',
+		'gap:8px',
+		'padding:4px 8px',
+		'background:#222',
+		'border-bottom:1px solid #333',
+		'flex-shrink:0',
+	].join(';');
+
+	// Zoom control
+	const zoomLabel: HTMLElement = document.createElement('span');
+	zoomLabel.style.cssText = 'color:#888;font-size:9px;';
+	zoomLabel.textContent = 'Zoom';
+	const zoomSlider: HTMLInputElement = document.createElement('input');
+	zoomSlider.type = 'range';
+	zoomSlider.min = '1';
+	zoomSlider.max = '6';
+	zoomSlider.step = '1';
+	zoomSlider.value = String(_tilePickerZoom);
+	zoomSlider.style.cssText = 'width:60px;accent-color:#50c8c8;';
+	const zoomVal: HTMLElement = document.createElement('span');
+	zoomVal.style.cssText = 'color:#aaa;font-size:10px;min-width:18px;';
+	zoomVal.textContent = `${String(_tilePickerZoom)}×`;
+	zoomSlider.addEventListener('input', () => {
+		_tilePickerZoom = Number(zoomSlider.value);
+		zoomVal.textContent = `${String(_tilePickerZoom)}×`;
+		drawPalette(pickerTsIdx);
+	});
+
+	// Grid toggle
+	const gridLabel: HTMLElement = document.createElement('label');
+	gridLabel.style.cssText =
+		'display:flex;align-items:center;gap:3px;cursor:pointer;margin-left:auto;';
+	const gridCheckbox: HTMLInputElement = document.createElement('input');
+	gridCheckbox.type = 'checkbox';
+	gridCheckbox.checked = _tilePickerGrid;
+	gridCheckbox.style.cssText = 'accent-color:#50c8c8;';
+	gridCheckbox.addEventListener('change', () => {
+		_tilePickerGrid = gridCheckbox.checked;
+		drawPalette(pickerTsIdx);
+	});
+	const gridText: HTMLElement = document.createElement('span');
+	gridText.style.cssText = 'color:#888;font-size:9px;';
+	gridText.textContent = 'Grid';
+	gridLabel.append(gridCheckbox, gridText);
+
+	toolbar.append(zoomLabel, zoomSlider, zoomVal, gridLabel);
+	panel.append(toolbar);
+
+	// ── Palette viewport (scrollable) ────────────────────────────
+	const viewport: HTMLElement = document.createElement('div');
+	viewport.style.cssText = 'overflow:auto;flex:1;min-height:0;background:#111;';
+
+	const paletteCanvas: HTMLCanvasElement = document.createElement('canvas');
+	paletteCanvas.tabIndex = 0;
+	paletteCanvas.style.cssText =
+		'display:block;image-rendering:pixelated;cursor:crosshair;outline:none;';
+
+	// Tooltip element (positioned near cursor)
+	const tooltip: HTMLElement = document.createElement('div');
+	tooltip.id = 'tile-picker-tooltip';
+	tooltip.style.cssText = [
+		'position:fixed',
+		'background:rgba(0,0,0,0.85)',
+		'color:#e0e0e0',
+		'padding:2px 6px',
+		'border-radius:3px',
+		'font-size:10px',
+		'font-family:monospace',
+		'pointer-events:none',
+		'z-index:10002',
+		'display:none',
+		'white-space:nowrap',
+	].join(';');
+
+	viewport.append(paletteCanvas);
+	panel.append(viewport);
+
+	// ── Status bar ───────────────────────────────────────────────
+	const statusBar: HTMLElement = document.createElement('div');
+	statusBar.style.cssText = [
+		'display:flex',
+		'justify-content:space-between',
+		'padding:3px 8px',
+		'background:#1e1e1e',
+		'border-top:1px solid #333',
+		'flex-shrink:0',
+		'font-size:9px',
+		'min-height:20px',
+	].join(';');
+	const statusHover: HTMLElement = document.createElement('span');
+	statusHover.style.color = '#888';
+	const statusSelected: HTMLElement = document.createElement('span');
+	statusSelected.style.color = '#50c8c8';
+	statusBar.append(statusHover, statusSelected);
+	panel.append(statusBar);
+
+	// ── Resize handle ────────────────────────────────────────────
+	const resizeHandle: HTMLElement = document.createElement('div');
+	resizeHandle.style.cssText = [
+		'position:absolute',
+		'bottom:0',
+		'right:0',
+		'width:14px',
+		'height:14px',
+		'cursor:nwse-resize',
+		'display:flex',
+		'align-items:center',
+		'justify-content:center',
+		'color:#555',
+		'font-size:8px',
+		'user-select:none',
+		'border-radius:0 0 6px 0',
+	].join(';');
+	resizeHandle.textContent = '⋱';
+	panel.style.position = 'fixed'; // ensure relative for absolute child
+	panel.append(resizeHandle);
+
+	let isResizing = false;
+	let resizeStartX: Num = 0;
+	let resizeStartY: Num = 0;
+	let resizeStartW: Num = 0;
+	let resizeStartH: Num = 0;
+	resizeHandle.addEventListener('pointerdown', (e: PointerEvent) => {
+		e.stopPropagation();
+		isResizing = true;
+		resizeStartX = e.clientX;
+		resizeStartY = e.clientY;
+		resizeStartW = panel.offsetWidth;
+		resizeStartH = panel.offsetHeight;
+		resizeHandle.setPointerCapture(e.pointerId);
+	});
+	resizeHandle.addEventListener('pointermove', (e: PointerEvent) => {
+		if (!isResizing) return;
+		const newW: Num = Math.max(280, resizeStartW + (e.clientX - resizeStartX));
+		const newH: Num = Math.max(300, resizeStartH + (e.clientY - resizeStartY));
+		panel.style.width = `${String(newW)}px`;
+		panel.style.height = `${String(newH)}px`;
+	});
+	resizeHandle.addEventListener('pointerup', () => {
+		isResizing = false;
+	});
+
+	// ── Helper: get selected local index for a tileset ───────────
 	const getSelectedLocalForTileset = (tsIdx: Num): Num => {
 		if (_lastInspectX < 0 || _lastInspectZ < 0) return -1;
 		const currentTm: RenderedTilemap | null = debug.tilemap;
@@ -7143,29 +7395,92 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		return local;
 	};
 
-	/**
-	 * Draws the tileset atlas onto the palette canvas, scaling to fit
-	 * the panel width while maintaining the pixel-art look.
-	 *
-	 * @param tsIdx - Index of the tileset to draw.
-	 */
+	// ── Draw palette with zoom + grid + highlights ───────────────
 	const drawPalette = (tsIdx: Num): void => {
 		const ts = tilemap.tilesets[tsIdx];
 		if (!ts) return;
 		const { columns, rows, tileWidth, tileHeight } = ts.config;
-		paletteCanvas.width = columns * tileWidth;
-		paletteCanvas.height = rows * tileHeight;
+		const zoom: Num = _tilePickerZoom;
+		const cw: Num = columns * tileWidth * zoom;
+		const ch: Num = rows * tileHeight * zoom;
+		paletteCanvas.width = cw;
+		paletteCanvas.height = ch;
+		paletteCanvas.style.width = `${String(cw)}px`;
+		paletteCanvas.style.height = `${String(ch)}px`;
 		const ctx: CanvasRenderingContext2D | null = paletteCanvas.getContext('2d');
 		if (!ctx) return;
-		ctx.clearRect(0, 0, paletteCanvas.width, paletteCanvas.height);
+		ctx.imageSmoothingEnabled = false;
+		ctx.clearRect(0, 0, cw, ch);
 
 		const selectedLocal: Num = getSelectedLocalForTileset(tsIdx);
+
+		const drawOverlays = (): void => {
+			// Grid overlay
+			if (_tilePickerGrid) {
+				ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+				ctx.lineWidth = 1;
+				ctx.beginPath();
+				for (let c: Num = 1; c < columns; c++) {
+					const x: Num = c * tileWidth * zoom;
+					ctx.moveTo(x + 0.5, 0);
+					ctx.lineTo(x + 0.5, ch);
+				}
+				for (let r: Num = 1; r < rows; r++) {
+					const y: Num = r * tileHeight * zoom;
+					ctx.moveTo(0, y + 0.5);
+					ctx.lineTo(cw, y + 0.5);
+				}
+				ctx.stroke();
+			}
+
+			// Selected tile highlight (solid cyan)
+			if (selectedLocal >= 0) {
+				const sCol: Num = selectedLocal % columns;
+				const sRow: Num = Math.floor(selectedLocal / columns);
+				ctx.strokeStyle = '#00ffff';
+				ctx.lineWidth = 2;
+				ctx.strokeRect(
+					sCol * tileWidth * zoom + 1,
+					sRow * tileHeight * zoom + 1,
+					tileWidth * zoom - 2,
+					tileHeight * zoom - 2,
+				);
+			}
+
+			// Hover highlight (white overlay)
+			if (hoveredLocal >= 0) {
+				const hCol: Num = hoveredLocal % columns;
+				const hRow: Num = Math.floor(hoveredLocal / columns);
+				ctx.fillStyle = 'rgba(255,255,255,0.15)';
+				ctx.fillRect(
+					hCol * tileWidth * zoom,
+					hRow * tileHeight * zoom,
+					tileWidth * zoom,
+					tileHeight * zoom,
+				);
+			}
+
+			// Keyboard cursor (dashed cyan)
+			if (kbCursorCol >= 0 && kbCursorRow >= 0) {
+				ctx.strokeStyle = '#00ffff';
+				ctx.lineWidth = 2;
+				ctx.setLineDash([4, 3]);
+				ctx.strokeRect(
+					kbCursorCol * tileWidth * zoom + 1,
+					kbCursorRow * tileHeight * zoom + 1,
+					tileWidth * zoom - 2,
+					tileHeight * zoom - 2,
+				);
+				ctx.setLineDash([]);
+			}
+		};
 
 		const imgUrl: string = ts.texture.name;
 		const cached: HTMLImageElement | undefined = _tilesetImages.get(imgUrl);
 		if (cached?.complete) {
-			ctx.drawImage(cached, 0, 0);
-			drawPaletteHighlight(ctx, selectedLocal, columns, tileWidth, tileHeight);
+			ctx.drawImage(cached, 0, 0, cw, ch);
+			drawOverlays();
+			updateStatusSelected(selectedLocal, tsIdx);
 			return;
 		}
 		if (!cached) {
@@ -7174,48 +7489,45 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 			img.src = imgUrl;
 			_tilesetImages.set(imgUrl, img);
 			img.addEventListener('load', () => {
-				ctx.drawImage(img, 0, 0);
-				drawPaletteHighlight(ctx, selectedLocal, columns, tileWidth, tileHeight);
+				ctx.drawImage(img, 0, 0, cw, ch);
+				drawOverlays();
+				updateStatusSelected(selectedLocal, tsIdx);
 			});
 		}
 	};
 
-	if (tilesetNames.length > 1) {
-		const dropRow: HTMLElement = createDropdown(
-			'Tileset',
-			tilesetNames,
-			tilesetNames[0] ?? '',
-			(val: string) => {
-				pickerTsIdx = tilesetNames.indexOf(val);
-				drawPalette(pickerTsIdx);
-			},
-		);
-		content.append(dropRow);
-	}
-
-	content.append(paletteCanvas);
-
-	// Click on palette to change the selected map tile
-	paletteCanvas.addEventListener('pointerdown', (evt: PointerEvent) => {
-		if (_lastInspectX < 0 || _lastInspectZ < 0) return;
-		const currentTilemap: RenderedTilemap | null = debug.tilemap;
-		if (!currentTilemap) return;
-		const ts = currentTilemap.tilesets[pickerTsIdx];
+	// ── Status bar update helpers ────────────────────────────────
+	const updateStatusHover = (localIdx: Num, tsIdx: Num): void => {
+		if (localIdx < 0) {
+			statusHover.textContent = '';
+			return;
+		}
+		const ts = tilemap.tilesets[tsIdx];
 		if (!ts) return;
+		const { columns } = ts.config;
+		const col: Num = localIdx % columns;
+		const row: Num = Math.floor(localIdx / columns);
+		statusHover.textContent = `Hover: #${String(localIdx)} (${String(col)}, ${String(row)})`;
+	};
 
-		const rect: DOMRect = paletteCanvas.getBoundingClientRect();
-		const scaleX: Num = paletteCanvas.width / rect.width;
-		const scaleY: Num = paletteCanvas.height / rect.height;
-		const px: Num = (evt.clientX - rect.left) * scaleX;
-		const py: Num = (evt.clientY - rect.top) * scaleY;
+	const updateStatusSelected = (localIdx: Num, tsIdx: Num): void => {
+		if (localIdx < 0) {
+			statusSelected.textContent = '';
+			return;
+		}
+		const ts = tilemap.tilesets[tsIdx];
+		if (!ts) return;
+		const { columns } = ts.config;
+		const col: Num = localIdx % columns;
+		const row: Num = Math.floor(localIdx / columns);
+		statusSelected.textContent = `Selected: #${String(localIdx)} (${String(col)}, ${String(row)})`;
+	};
 
-		const { columns, tileWidth, tileHeight, firstGid } = ts.config;
-		const col: Num = Math.floor(px / tileWidth);
-		const row: Num = Math.floor(py / tileHeight);
-		const localIndex: Num = row * columns + col;
-		const newGlobalId: Num = firstGid + localIndex;
-
-		// Determine which layer to edit
+	// ── Place tile helper (shared by click, keyboard, recent) ────
+	const placeTileByGlobalId = (dbg: DevDebugApi, newGlobalId: Num): void => {
+		if (_lastInspectX < 0 || _lastInspectZ < 0) return;
+		const currentTilemap: RenderedTilemap | null = dbg.tilemap;
+		if (!currentTilemap) return;
 		const editLayer: Num =
 			_inspectLayerIndex >= 0
 				? _inspectLayerIndex
@@ -7229,15 +7541,201 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 			newTileId: newGlobalId,
 		});
 		if (result.ok) {
-			debug.tilemap = result.data;
+			dbg.tilemap = result.data;
 			refreshInspector(result.data, _lastInspectX, _lastInspectZ);
-			// Redraw palette to move highlight to the newly placed tile
+			addRecentTile(newGlobalId);
+			refreshRecentRow();
 			drawPalette(pickerTsIdx);
+		}
+	};
+
+	// ── Draw a single tile into a mini canvas (for recent row) ───
+	const drawRecentTile = (canvas: HTMLCanvasElement, gid: Num, tm: RenderedTilemap): void => {
+		const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+		if (!ctx) return;
+		ctx.imageSmoothingEnabled = false;
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+		// Find which tileset this gid belongs to
+		const resolved = resolveGlobalTileId({
+			globalId: gid,
+			tilesets: tm.tilesets,
+		});
+		if (!resolved.ok || resolved.data === null) return;
+		const { tileset, localIndex } = resolved.data;
+		const { columns, tileWidth, tileHeight } = tileset.config;
+		const srcCol: Num = localIndex % columns;
+		const srcRow: Num = Math.floor(localIndex / columns);
+
+		const imgUrl: string = tileset.texture.name;
+		const cached: HTMLImageElement | undefined = _tilesetImages.get(imgUrl);
+		if (cached?.complete) {
+			ctx.drawImage(
+				cached,
+				srcCol * tileWidth,
+				srcRow * tileHeight,
+				tileWidth,
+				tileHeight,
+				0,
+				0,
+				canvas.width,
+				canvas.height,
+			);
+		}
+	};
+
+	// ── Hover handler ────────────────────────────────────────────
+	paletteCanvas.addEventListener('pointermove', (evt: PointerEvent) => {
+		const ts = tilemap.tilesets[pickerTsIdx];
+		if (!ts) return;
+		const { columns, rows, tileWidth, tileHeight } = ts.config;
+		const zoom: Num = _tilePickerZoom;
+		const rect: DOMRect = paletteCanvas.getBoundingClientRect();
+		const scaleX: Num = paletteCanvas.width / rect.width;
+		const scaleY: Num = paletteCanvas.height / rect.height;
+		const px: Num = (evt.clientX - rect.left) * scaleX;
+		const py: Num = (evt.clientY - rect.top) * scaleY;
+		const col: Num = Math.floor(px / (tileWidth * zoom));
+		const row: Num = Math.floor(py / (tileHeight * zoom));
+		const localIdx: Num = row * columns + col;
+
+		if (col < 0 || col >= columns || row < 0 || row >= rows) {
+			if (hoveredLocal >= 0) {
+				hoveredLocal = -1;
+				drawPalette(pickerTsIdx);
+				tooltip.style.display = 'none';
+				updateStatusHover(-1, pickerTsIdx);
+			}
+			return;
+		}
+
+		if (localIdx !== hoveredLocal) {
+			hoveredLocal = localIdx;
+			drawPalette(pickerTsIdx);
+			updateStatusHover(localIdx, pickerTsIdx);
+		}
+
+		// Position tooltip near cursor
+		tooltip.textContent = `#${String(localIdx)} (${String(col)}, ${String(row)})`;
+		tooltip.style.display = 'block';
+		tooltip.style.left = `${String(evt.clientX + 12)}px`;
+		tooltip.style.top = `${String(evt.clientY + 12)}px`;
+	});
+
+	paletteCanvas.addEventListener('pointerleave', () => {
+		if (hoveredLocal >= 0) {
+			hoveredLocal = -1;
+			drawPalette(pickerTsIdx);
+		}
+		tooltip.style.display = 'none';
+		updateStatusHover(-1, pickerTsIdx);
+	});
+
+	// ── Click handler ────────────────────────────────────────────
+	paletteCanvas.addEventListener('pointerdown', (evt: PointerEvent) => {
+		if (_lastInspectX < 0 || _lastInspectZ < 0) return;
+		const currentTilemap: RenderedTilemap | null = debug.tilemap;
+		if (!currentTilemap) return;
+		const ts = currentTilemap.tilesets[pickerTsIdx];
+		if (!ts) return;
+
+		const { columns, tileWidth, tileHeight, firstGid } = ts.config;
+		const zoom: Num = _tilePickerZoom;
+		const rect: DOMRect = paletteCanvas.getBoundingClientRect();
+		const scaleX: Num = paletteCanvas.width / rect.width;
+		const scaleY: Num = paletteCanvas.height / rect.height;
+		const px: Num = (evt.clientX - rect.left) * scaleX;
+		const py: Num = (evt.clientY - rect.top) * scaleY;
+		const col: Num = Math.floor(px / (tileWidth * zoom));
+		const row: Num = Math.floor(py / (tileHeight * zoom));
+		const localIndex: Num = row * columns + col;
+		const newGlobalId: Num = firstGid + localIndex;
+
+		placeTileByGlobalId(debug, newGlobalId);
+		paletteCanvas.focus();
+	});
+
+	// ── Keyboard handler ─────────────────────────────────────────
+	paletteCanvas.addEventListener('keydown', (evt: KeyboardEvent) => {
+		const ts = tilemap.tilesets[pickerTsIdx];
+		if (!ts) return;
+		const { columns, rows, tileWidth, tileHeight, firstGid } = ts.config;
+
+		// Initialize keyboard cursor if not set
+		if (kbCursorCol < 0 || kbCursorRow < 0) {
+			const selected: Num = getSelectedLocalForTileset(pickerTsIdx);
+			if (selected >= 0) {
+				kbCursorCol = selected % columns;
+				kbCursorRow = Math.floor(selected / columns);
+			} else {
+				kbCursorCol = 0;
+				kbCursorRow = 0;
+			}
+		}
+
+		let handled = true;
+		switch (evt.key) {
+			case 'ArrowLeft': {
+				kbCursorCol = Math.max(0, kbCursorCol - 1);
+				break;
+			}
+			case 'ArrowRight': {
+				kbCursorCol = Math.min(columns - 1, kbCursorCol + 1);
+				break;
+			}
+			case 'ArrowUp': {
+				kbCursorRow = Math.max(0, kbCursorRow - 1);
+				break;
+			}
+			case 'ArrowDown': {
+				kbCursorRow = Math.min(rows - 1, kbCursorRow + 1);
+				break;
+			}
+			case 'Enter':
+			case ' ': {
+				const localIdx: Num = kbCursorRow * columns + kbCursorCol;
+				const gid: Num = firstGid + localIdx;
+				placeTileByGlobalId(debug, gid);
+				break;
+			}
+			case 'Escape': {
+				closeTilePickerPanel();
+				return;
+			}
+			default: {
+				handled = false;
+			}
+		}
+
+		if (handled) {
+			evt.preventDefault();
+			evt.stopPropagation();
+			drawPalette(pickerTsIdx);
+			const kbLocal: Num = kbCursorRow * columns + kbCursorCol;
+			updateStatusHover(kbLocal, pickerTsIdx);
+
+			// Scroll keyboard cursor into view
+			const tileX: Num = kbCursorCol * tileWidth * _tilePickerZoom;
+			const tileY: Num = kbCursorRow * tileHeight * _tilePickerZoom;
+			const tileW: Num = tileWidth * _tilePickerZoom;
+			const tileH: Num = tileHeight * _tilePickerZoom;
+			if (tileX < viewport.scrollLeft) {
+				viewport.scrollLeft = tileX;
+			} else if (tileX + tileW > viewport.scrollLeft + viewport.clientWidth) {
+				viewport.scrollLeft = tileX + tileW - viewport.clientWidth;
+			}
+			if (tileY < viewport.scrollTop) {
+				viewport.scrollTop = tileY;
+			} else if (tileY + tileH > viewport.scrollTop + viewport.clientHeight) {
+				viewport.scrollTop = tileY + tileH - viewport.clientHeight;
+			}
 		}
 	});
 
-	panel.append(content);
+	// ── Assemble and mount ───────────────────────────────────────
+	document.body.append(tooltip);
 	document.body.append(panel);
+	refreshRecentRow();
 	drawPalette(0);
 }
 
@@ -8321,7 +8819,7 @@ function refreshInspector(tilemap: RenderedTilemap, gridX: Num, gridZ: Num): voi
 	}
 	const previewLabel: HTMLElement | null = document.querySelector('#ti-preview-label');
 	if (previewLabel) {
-		previewLabel.textContent = `${tilesetName} #${String(localId)} (${String(gridX)}, ${String(gridZ)})`;
+		previewLabel.textContent = `${layerLabel} · ${tilesetName} #${String(localId)} · tile (${String(gridX)}, ${String(gridZ)})`;
 	}
 
 	// Update editable controls with tile properties
