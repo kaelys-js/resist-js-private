@@ -1,193 +1,287 @@
-# Professional Test Map Rework — Design
+# Test Map Rework — Design (v2: Autotile Support)
 
 ## Goal
 
-Replace the placeholder test map with a hand-crafted RPG village scene that uses 10 tilesets (up from 2), features 7 distinct terrain zones, adds procedural 3D mesh props via Babylon.js, and provides dev harness controls for season switching, prop visibility, and atmosphere presets. Every zone is purpose-built to showcase specific engine features (fog, glow, shadows, height map, day/night cycle, volumetric lighting, post-FX).
+Replace the broken test map with a professional RPG village scene by making the autotile system work end-to-end. Instead of manually picking tile IDs from a complex atlas (which failed previously), the engine will:
+
+1. **Expand** RPG Maker A2-format autotile source images (2×3 blocks) into 48 full tiles at load time
+2. **Resolve** neighbor-based patterns using the existing `autotile-resolver.ts`
+3. **Render** the correct tile variant per cell automatically
+
+This means **any** RPG Maker-compatible autotile tileset can be dropped in and used directly.
 
 ## Architecture
 
-### Files Modified
+### What Already Works (no changes needed)
 
-| File | Change |
-|------|--------|
-| `runtime/dev/test-map.ts` | Complete rewrite — new layout, 10 tilesets, 7 zones, multi-level height map |
-| `runtime/dev/dev.ts` | New "Test Map" sidebar section, 3D prop system, season switching, atmosphere presets |
+| Component | File | Status |
+|-----------|------|--------|
+| Autotile resolver | `src/rendering/autotile-resolver.ts` | ✅ Complete — bitmask, diagonal gating, 48-pattern lookup |
+| Chunk builder integration | `src/rendering/chunk-builder.ts` | ✅ Complete — calls resolver when `autotileType !== 'none'` |
+| Map data schema | `src/schemas/map-data.ts` | ✅ Complete — `AutotileType` includes `'terrain_48'` |
+| Tile geometry | `src/rendering/tile-geometry.ts` | ✅ Complete — UV-based quad generation |
 
-No schema files are changed. No new packages. Everything stays in the dev harness.
+### What Needs To Be Built
+
+| Component | File | Change |
+|-----------|------|--------|
+| A2 atlas splitter | `dev/scripts/split-a2-atlas.ts` | New — offline script to split A2 atlas into individual 2×3 PNGs |
+| Autotile expander | `src/rendering/autotile-expander.ts` | New — runtime expansion of 2×3 source → 48 full tiles |
+| Tileset loader update | `src/rendering/tileset-loader.ts` | Modified — detect autotile source and expand before creating texture |
+| Test map rewrite | `dev/test-map.ts` | Rewritten — use expanded autotile tilesets with correct terrain type references |
+| Dev harness wiring | `dev/dev.ts` | Modified — 3D prop system wiring (partially done), dev harness UI |
 
 ### Files NOT Modified
 
-- `runtime/src/schemas/map-data.ts` — existing schemas support all needed features
-- `runtime/src/rendering/tilemap-renderer.ts` — tilemap renderer is unchanged
-- No new dependencies
+- `autotile-resolver.ts` — already correct
+- `chunk-builder.ts` — already integrates autotile resolver
+- `map-data.ts` — schema already supports autotile types
 
-## Map Layout
+## Autotile Expansion Algorithm
 
-32×32 tile grid, 7 distinct zones:
+### Source Format: RPG Maker A2 (2×3 blocks)
+
+Each terrain type is stored as a 2-tile × 3-tile block (64×96px for 32px tiles). When divided into 16×16 quarter-tiles, this is a 4×6 grid of sub-tiles:
+
+```
+Source 2×3 block → 4×6 sub-tile grid:
+
+     col0  col1  col2  col3
+    +------+------+------+------+
+row0|      |  IC  |      |  IC  |   IC = Inner Corner sub-tiles
+row1|  --preview-- |  A   |  B   |   A,B = Inner corner for TL/TR quadrants
+    +------+------+------+------+
+row2|  HE  |  HE  |  CE  |  CE  |   HE = Horizontal Edge sub-tiles
+row3|  HE  |  HE  |  CE  |  CE  |   CE = Center/Fill sub-tiles
+    +------+------+------+------+
+row4|  OC  |  OC  |  VE  |  VE  |   OC = Outer Corner sub-tiles
+row5|  OC  |  OC  |  VE  |  VE  |   VE = Vertical Edge sub-tiles
+    +------+------+------+------+
+```
+
+### Sub-Tile Composition
+
+Each of the 48 output tiles is composed from 4 quarter-tiles (one per quadrant: TL, TR, BL, BR). The composition table maps frame index → which sub-tile to use for each quadrant:
+
+```
+FLOOR_AUTOTILE_TABLE[frameIndex] = [
+  [tl_col, tl_row],  // Top-Left quadrant sub-tile coords
+  [tr_col, tr_row],  // Top-Right quadrant sub-tile coords
+  [bl_col, bl_row],  // Bottom-Left quadrant sub-tile coords
+  [br_col, br_row],  // Bottom-Right quadrant sub-tile coords
+]
+```
+
+The 5 sub-tile types per quadrant:
+
+| Type | Role | Source position (TL quadrant) |
+|------|------|-------------------------------|
+| Outer corner | Convex corner at this quadrant | (0, 4) |
+| Horizontal edge | Edge runs horizontally | (0, 2) |
+| Vertical edge | Edge runs vertically | (2, 4) |
+| Inner corner | Concave corner at this quadrant | (2, 0) |
+| Center/fill | Fully surrounded, no edge | (2, 2) |
+
+### Expansion Pipeline
+
+```
+Input: 64×96 PNG (2 tiles × 3 tiles, 32px per tile)
+                    ↓
+Split into 4×6 grid of 16×16 sub-tiles (24 sub-tiles total)
+                    ↓
+For each frame index 0–47:
+  Look up FLOOR_AUTOTILE_TABLE[frame] → 4 sub-tile coordinates
+  Compose: draw TL at (0,0), TR at (16,0), BL at (0,16), BR at (16,16)
+  → produces one 32×32 output tile
+                    ↓
+Output: 48 tiles arranged in a grid (8 cols × 6 rows = 256×192 PNG)
+```
+
+### Frame Index ↔ BITMASK_TO_FRAME Alignment
+
+**Critical**: The expanded tiles must be arranged so that frame index N in the output grid matches frame index N in `BITMASK_TO_FRAME`. The existing table in `autotile-resolver.ts` uses this mapping:
+
+- Frame 0 = bitmask 0 (isolated, no matching neighbors)
+- Frame 15 = bitmask 15 (N+NE+E+SE, all four cardinal+diagonal in one quadrant)
+- Higher frames = more complex patterns with edges, corridors, peninsulas, etc.
+
+The FLOOR_AUTOTILE_TABLE must be ordered to match BITMASK_TO_FRAME. We will verify this with unit tests that check representative patterns.
+
+## A2 Atlas Splitter Script
+
+The LPC `terrain_summer.png` (512×832, 16 cols × 26 rows) is a full A2 atlas containing multiple terrain types:
+
+```
+A2 atlas layout (8 terrain types per row, 2 cols × 3 rows each):
+
+  T0   T1   T2   T3   T4   T5   T6   T7     ← Row 0 (rows 0–2)
+  T8   T9   T10  T11  T12  T13  T14  T15    ← Row 1 (rows 3–5)
+  T16  T17  T18  T19  T20  T21  T22  T23    ← Row 2 (rows 6–8)
+  ...
+```
+
+Each terrain type T_n:
+- Source position: column = (n % 8) × 2 tiles, row = floor(n / 8) × 3 tiles
+- Pixel position: x = (n % 8) × 64, y = floor(n / 8) × 96
+
+The splitter script:
+1. Reads the A2 atlas PNG
+2. For each 2×3 block, extracts 64×96 pixels
+3. Saves as individual file: `terrain-00-grass.png`, `terrain-01-grass-dark.png`, etc.
+4. Naming includes both index and human-readable label
+
+### Terrain Types in LPC terrain_summer.png
+
+From visual inspection of the atlas:
+
+| Block | Row | Col | Terrain | Description |
+|-------|-----|-----|---------|-------------|
+| 0 | 0 | 0 | grass | Light green grass |
+| 1 | 0 | 1 | grass-dark | Darker green grass variant |
+| 2 | 0 | 2 | dirt | Brown dirt |
+| 3 | 0 | 3 | cobble | Stone cobblestone path |
+| 4 | 1 | 0 | grass-dirt | Grass → dirt transition |
+| 5 | 1 | 1 | sand-grass | Sand/beach → grass transition |
+| 6 | 1 | 2 | grass-light | Light/pale grass |
+| 7 | 1 | 3 | sand | Sandy terrain |
+| 8–11 | 2–3 | 0–3 | More grass/dirt variants | Additional transitions |
+| 12–15 | 4 | 0–3 | water | Water tiles (with grass border) |
+| 16–19 | 5 | 0–3 | water-dirt | Water with dirt border |
+| 20+ | 6+ | 0–3 | deep water | Deep water, ocean variants |
+
+(Exact mapping will be confirmed by visual inspection during implementation.)
+
+## Test Map Layout
+
+Same 32×32 tile grid, 7 zones as original design. Key change: terrain types are now autotile-resolved instead of manually placed.
 
 ```
   0         8        16        24       31
 0 ┌─────────┬────┬────┬────────────────┐
   │ FOREST  │    │    │  CLIFF PLATEAU  │
-  │ trees   │    │    │  height=3       │
-  │ mushroom│    │    │  ┌──RUINS──┐    │
-8 │ floor   │    │RIVR│  │stones   │    │
+  │ dark    │    │    │  height=3       │
+  │ grass   │    │    │  ┌──RUINS──┐    │
+8 │         │    │RIVR│  │stone    │    │
   ├─────────┘    │ E  │  │torches  │    │
   │   VILLAGE    │ R  │  └─────────┘    │
-  │ paths,houses │    │  cliff face     │
-  │ well,torches │    │  height=2       │
-16│ fences       │    │  rocks          │
+  │ grass+paths  │    │  cliff face     │
+  │ cottages     │    │  height=2       │
+16│ well,torches │    │  rocks          │
   │              │    ├─────────────────┤
   ├──────────────┤    │ MEADOW/FARM    │
   │  LAKE/SHORE  │    │ wildflowers    │
-  │  water,lilies│    │ tilled soil    │
-24│  waterfall   │    │ open field     │
-  │  rocks       │    │ height=1       │
+  │  water       │    │ tilled soil    │
+24│  rocks       │    │ open field     │
+  │              │    │ height=1       │
   │              │    │                │
   │              │    │                │
 31└──────────────┴────┴────────────────┘
 ```
 
-### Zone Specifications
+### Zone → Terrain Type Mapping
 
-**Forest (NW: X:0–12, Z:0–8)**
-- Dense trees from `trees_summer.png` (with shadow sprites on shadow layer)
-- Mushrooms from `mushrooms.png` scattered on forest floor
-- Wildflower ground cover
-- Engine showcase: fog, volumetric light filtering through canopy, god rays
+| Zone | Ground Terrain | Decoration |
+|------|---------------|------------|
+| Forest | dark grass (autotile) | mushrooms, flowers from non-autotile sheets |
+| Village | grass (autotile) + cobble paths (autotile) | flower beds, grass tufts |
+| River | water (autotile) | — |
+| Lake & Shore | water (autotile) + grass (autotile) shore | rocks, lily pads |
+| Cliff Plateau | grass (autotile) on top | cliff face tiles on upper layer |
+| Ruins | cobble (autotile) | — |
+| Meadow/Farm | grass (autotile) + dirt (autotile) patches | wildflowers, flowers |
 
-**Village (CW: X:0–14, Z:9–20)**
-- Stone paths connecting buildings
-- 3D cottage meshes (3 houses)
-- Well in center, fence posts around perimeter
-- Torch posts along main path (6 total — warm point lights, glow emissive)
-- Engine showcase: shadows from buildings, glow layer from torches, day/night
+### How Autotile Map Data Works
 
-**River (Center: X:15–17, full height)**
-- Water channel carved at height=0 through terrain
-- Bridge crossing at village level (Z:14)
-- Water tiles with variation
-- Engine showcase: water tile rendering, bridge 3D prop
+With autotiles, each cell in the layer data just stores the `firstGid` of its terrain type. The engine handles the rest:
 
-**Lake & Shore (SW: X:0–12, Z:22–31)**
-- Larger organic lake shape
-- Lily pads, water flowers on surface
-- Rocky shore with boulders from `Rocks, Grasslands.png`
-- Cliff edge waterfall tiles from `Waterfall.png` at south cliff
-- Engine showcase: water features, animated tiles, rocks
+```
+Example ground layer for a 4×4 area (grass surrounded by water):
+  water  water  water  water
+  water  grass  grass  water
+  water  grass  grass  water
+  water  water  water  water
 
-**Cliff Plateau (NE: X:20–31, Z:0–16)**
-- Height level 3 on top, cliff faces from `cliff_summer.png`
-- Rocky edges from `Rocks, Cliffs.png`
-- Transition zone at height=2 (hillside)
-- Engine showcase: height map, cliff rendering, 3D camera depth
+Layer data (using firstGid values):
+  [2, 2, 2, 2,
+   2, 1, 1, 2,
+   2, 1, 1, 2,
+   2, 2, 2, 2]
 
-**Ruins (on cliff: X:24–30, Z:2–8)**
-- Stone terrain tiles on plateau
-- 2 torch props for atmospheric lighting
-- Darker area for point light showcase
-- Engine showcase: point lights in dark area, post-FX grain/vignette
+Where: 1 = grass tileset firstGid, 2 = water tileset firstGid
 
-**Meadow/Farm (SE: X:20–31, Z:18–31)**
-- Tilled soil from `tilled_soil.png`
-- Wildflowers from `wildflowers_summer.png`
-- Colorful flowers from `flowers.png`
-- Open field area
-- Engine showcase: open sky, day/night cycle, panoramic camera views
+For the grass tile at (1,1):
+  - Resolver checks 8 neighbors → N=water, NE=water, E=grass, SE=grass, S=grass, SW=water, W=water, NW=water
+  - Bitmask = E + SE + S = bits 2,3,4 → 0b00011100 = 28
+  - Reduced (SE valid since both S and E set) → 28
+  - BITMASK_TO_FRAME[28] → frame index for "NW outer corner" pattern
+  - uvLookup[frameIndex] → correct UV from the expanded grass tileset
+```
 
 ## Tileset Configuration
 
-10 tilesets with non-overlapping GID ranges:
+For the test map, we'll use 5–8 terrain types as autotile tilesets, plus 3–5 regular (non-autotile) tilesets for decorations:
 
-| # | Name | Image | Columns × Rows | Tile Size | First GID | Count |
-|---|------|-------|-----------------|-----------|-----------|-------|
-| 1 | terrain | `lpc-terrain/terrain_summer.png` | 16×26 | 32×32 | 1 | 416 |
-| 2 | plants | `lpc-terrain/plants_summer.png` | 16×5 | 32×32 | 417 | 80 |
-| 3 | trees | `lpc-terrain/trees_summer.png` | 16×18 | 32×32 | 497 | 288 |
-| 4 | cliffs | `lpc-terrain/cliff_summer.png` | 16×14 | 32×32 | 785 | 224 |
-| 5 | flowers | `lpc-terrain/flowers.png` | 11×5 | 32×32 | 1009 | 55 |
-| 6 | mushrooms | `lpc-terrain/mushrooms.png` | 6×5 | 32×32 | 1064 | 30 |
-| 7 | wildflowers | `lpc-terrain/wildflowers_summer.png` | 9×10 | 16×16 | 1094 | 90 |
-| 8 | rocks | `lpc-terrain/Rocks, Grasslands.png` | 6×12 | 32×32 | 1184 | 72 |
-| 9 | cliffRocks | `lpc-terrain/Rocks, Cliffs.png` | 6×4 | 32×32 | 1256 | 24 |
-| 10 | soil | `lpc-terrain/tilled_soil.png` | 8×8 | 32×32 | 1280 | 64 |
+### Autotile Tilesets (terrain_48)
 
-Note: `wildflowers_summer.png` is 144×160 with 16×16 sub-tiles — each 32×32 map tile will use a 2×2 block of wildflower sub-tiles composed into one tile slot.
-Alternatively, skip sub-tile complexity and use wildflowers at 32×32 grid (9 cols × 10 rows = 90 tiles at native pixel scale, each wildflower occupies a full tile).
+| # | Name | Source | Expanded Size | firstGid |
+|---|------|--------|---------------|----------|
+| 1 | grass | `terrain-00-grass.png` | 8×6 (48 tiles) | 1 |
+| 2 | dark-grass | `terrain-01-darkgrass.png` | 8×6 (48 tiles) | 49 |
+| 3 | dirt | `terrain-02-dirt.png` | 8×6 (48 tiles) | 97 |
+| 4 | cobble | `terrain-03-cobble.png` | 8×6 (48 tiles) | 145 |
+| 5 | water | `terrain-12-water.png` | 8×6 (48 tiles) | 193 |
+| 6 | sand | `terrain-07-sand.png` | 8×6 (48 tiles) | 241 |
 
-### Season Variants
+### Regular Tilesets (no autotile)
 
-For season switching, only tilesets 1–4 and 7 have seasonal variants:
+| # | Name | Source | Cols × Rows | firstGid |
+|---|------|--------|-------------|----------|
+| 7 | trees | `lpc-terrain/trees_summer.png` | 16×18 | 289 |
+| 8 | flowers | `lpc-terrain/flowers.png` | 11×5 | 577 |
+| 9 | rocks | `lpc-terrain/Rocks, Grasslands.png` | 6×12 | 632 |
+| 10 | cliffs | `lpc-terrain/cliff_summer.png` | 16×14 | 704 |
 
-| Tileset | Summer | Spring | Autumn | Winter |
-|---------|--------|--------|--------|--------|
-| terrain | `terrain_summer.png` | `terrain_spring.png` | `terrain_autumn.png` | `terrain_winter.png` |
-| plants | `plants_summer.png` | `plants_spring.png` | `plants_autumn.png` | `plants_winter.png` |
-| trees | `trees_summer.png` | `trees_spring.png` | `trees_autumn.png` | `trees_winter.png` |
-| cliffs | `cliff_summer.png` | `cliff_spring.png` | `cliff_autumn.png` | `cliff_winter.png` |
-| wildflowers | `wildflowers_summer.png` | `wildflowers_spring.png` | `wildflowers_autumn.png` | `wildflowers_winter.png` |
+(Exact GID assignments will be confirmed during implementation based on actual tile counts.)
 
-Tilesets 5 (flowers), 6 (mushrooms), 8 (rocks), 9 (cliffRocks), 10 (soil) have no seasonal variants and stay constant.
+## Tileset Loader Changes
 
-Season switching works by destroying the current `RenderedTilemap`, updating the tileset `imagePath` values in the map data, and calling `renderTilemap()` again with the new paths.
+### Autotile Source Detection
 
-## 3D Prop System
+When loading a tileset with `autotileType: 'terrain_48'`:
 
-### Approach
-
-All 3D props are procedural Babylon.js meshes. No external GLB files — keeps the dev harness self-contained.
-
-### Prop Types
-
-| Prop | Geometry | Babylon.js Mesh | Material | Count | Position |
-|------|----------|-----------------|----------|-------|----------|
-| Cottage | Box body + box roof | `MeshBuilder.CreateBox` × 2 | Brown diffuse, darker roof | 3 | Village zone |
-| Well | Cylinder + cylinder rim | `MeshBuilder.CreateCylinder` × 2 | Gray stone | 1 | Village center |
-| Fence post | Thin box | `MeshBuilder.CreateBox` | Brown wood | ~20 | Village perimeter |
-| Torch post | Cylinder + small sphere | `MeshBuilder.CreateCylinder` + `CreateSphere` | Dark metal, orange emissive tip | 6 | Along paths |
-| Bridge | Flat box | `MeshBuilder.CreateBox` | Brown wood planks | 1 | Over river |
-| Boulder | Icosphere | `MeshBuilder.CreateIcoSphere` | Gray/brown stone | ~8 | Cliff edges, shore |
-| Barrel | Short cylinder | `MeshBuilder.CreateCylinder` | Brown wood | 4 | Village corners |
-| Crate | Small box | `MeshBuilder.CreateBox` | Light wood | 3 | Near cottages |
-
-### Prop Materials
+1. Load the source image
+2. Check if it's a compact 2×3 source (2 cols × 3 rows) or pre-expanded (8×6 / other)
+3. If compact: run the autotile expander to produce a 48-tile canvas
+4. Create Babylon.js texture from the expanded canvas
+5. Compute `uvLookup` for the expanded 8×6 grid (48 entries)
 
 ```typescript
-// Wood material
-const woodMat = new BABYLON.StandardMaterial('wood', scene);
-woodMat.diffuseColor = new BABYLON.Color3(0.45, 0.3, 0.15);
-woodMat.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-
-// Stone material
-const stoneMat = new BABYLON.StandardMaterial('stone', scene);
-stoneMat.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5);
-stoneMat.specularColor = new BABYLON.Color3(0.15, 0.15, 0.15);
-
-// Torch emissive (for glow layer)
-const torchMat = new BABYLON.StandardMaterial('torch', scene);
-torchMat.emissiveColor = new BABYLON.Color3(1, 0.6, 0.1);
-torchMat.diffuseColor = new BABYLON.Color3(1, 0.7, 0.2);
+// In tileset-loader.ts, within loadTileset():
+if (config.autotileType === 'terrain_48' && config.columns === 2 && config.rows === 3) {
+  // Compact RPG Maker A2 source — expand to 48 tiles
+  const expandedCanvas = expandAutotileSource(sourceImage, config.tileWidth);
+  // Create texture from expanded canvas (8 cols × 6 rows)
+  // Compute uvLookup for 48 tiles
+}
 ```
 
-### Shadows & Glow
+### New Config Fields
 
-- All solid props added to the directional light's shadow generator `renderList`
-- Torch tip meshes added to the scene's `GlowLayer` include list
-- Each torch prop creates a `PointLight` with:
-  - Range: 8 tiles
-  - Intensity: 0.8
-  - Diffuse: warm orange `(1, 0.7, 0.3)`
-  - Flicker: `candle` mode
+Add to `TilesetConfig`:
 
-### Height-Aware Placement
-
-Props are placed at the height map elevation:
 ```typescript
-const height = heightMap[idx(tileX, tileZ)] ?? 0;
-mesh.position.y = height * TILE_HEIGHT_SCALE;
+/** If true, the source image is in compact RPG Maker A2 format (2×3 block)
+ *  and will be expanded to 48 tiles at load time. Auto-detected from
+ *  columns=2, rows=3 when autotileType is 'terrain_48'. */
 ```
 
-## Height Map Design
+No schema changes needed — the loader auto-detects based on `columns`, `rows`, and `autotileType`.
+
+## 3D Prop System (unchanged from v1 design)
+
+All 3D props are procedural Babylon.js meshes — cottages, well, fence posts, torch posts, bridge, boulders, barrels, crates. Already partially implemented in `dev.ts`. No changes to the prop design.
+
+## Height Map (unchanged from v1 design)
 
 ```
 Level 0: Water (river channel, lake)
@@ -196,28 +290,7 @@ Level 2: Hillside (transition between ground and cliff top)
 Level 3: Cliff top (plateau, ruins)
 ```
 
-The height map is a flat array of 1024 values (32×32). Each value 0–3. The cliff tileset tiles (`cliff_summer.png`) are placed on the `upper1` layer at elevation transitions to provide visual cliff faces.
-
-## Atmosphere Presets
-
-Pre-configured scene states for one-click testing. Each preset adjusts time, fog, torch lights, and post-FX:
-
-```typescript
-const ATMOSPHERE_PRESETS = {
-  sunnyVillage: { time: 10, fog: 'clear', torches: false, postFx: 'default' },
-  dusk:         { time: 18.5, fog: 'lightMist', torches: true, postFx: 'warm' },
-  nightMarket:  { time: 22, fog: 'clear', torches: true, postFx: 'nightGlow' },
-  foggyForest:  { time: 6, fog: 'denseFog', torches: false, postFx: 'misty' },
-  cliffPanorama:{ time: 12, fog: 'clear', torches: false, postFx: 'sharp' },
-  stormy:       { time: 15, fog: 'morningFog', torches: true, postFx: 'storm' },
-};
-```
-
-Presets use existing `__WEBFORGE__` API: `setTime()`, `switchPreset()` for fog, and manual post-FX slider adjustments.
-
-## Dev Harness UI
-
-New **"Test Map"** collapsible section in sidebar:
+## Dev Harness UI (unchanged from v1 design)
 
 ```
 TEST MAP
@@ -227,50 +300,29 @@ TEST MAP
 ├── Torch Lights    [Toggle: ON]
 ├── Torch Glow      [Toggle: ON]
 ├── Prop Opacity    [Slider: 0.0 – 1.0, default 1.0]
-├── Atmosphere      [Dropdown: Sunny Village/Dusk/Night Market/Foggy Forest/Cliff Panorama/Stormy]
+├── Atmosphere      [Dropdown: presets]
 └── Randomize Deco  [Button]
 ```
-
-All controls use the existing dev harness UI primitives (`createToggle`, `createSlider`, `createDropdown`, `createButton`).
-
-## Layer Utilization
-
-| Layer | Type | Content |
-|-------|------|---------|
-| ground | `ground` | Full terrain: grass, dirt paths, stone roads, water, tilled soil |
-| ground_deco | `ground_deco` | Flowers, mushrooms, wildflowers, rocks, lily pads, path edges, grass tufts |
-| upper1 | `upper1` | Tree canopies, cliff face tiles, large rock formations |
-| shadow | `shadow` | Tree shadow sprites (from trees tileset cols 0–1), building ambient occlusion |
 
 ## Data Flow
 
 ```
-test-map.ts
-  → exports TEST_MAP_DATA (static map data object)
-  → exports SEASON_TILESET_PATHS (season→tileset path lookup)
+LPC terrain_summer.png (A2 atlas)
+  → split-a2-atlas.ts (offline, one-time)
+  → individual 2×3 PNGs per terrain type
 
-dev.ts
-  → imports TEST_MAP_DATA
-  → renderTilemap(TEST_MAP_DATA) — creates RenderedTilemap
-  → create3DProps(scene, heightMap) — creates procedural meshes
-  → buildTestMapUI() — creates sidebar controls
-    → season dropdown → destroy tilemap, update paths, re-render
-    → prop toggles → show/hide mesh groups
-    → atmosphere dropdown → apply time + fog + post-FX preset
+2×3 PNG per terrain type
+  → tileset-loader.ts (runtime, at load time)
+  → autotile-expander.ts expands to 48 tiles
+  → Babylon.js texture + 48-entry uvLookup
+
+test-map.ts
+  → layer data uses firstGid per cell (one value per terrain type)
+  → autotile-resolver.ts resolves neighbor bitmask → frame index
+  → chunk-builder.ts uses uvLookup[frameIndex] for UV coords
+  → merged mesh per chunk rendered
 ```
 
-## Tile Properties
+## Season Switching
 
-Tile properties attached to specific tile IDs in the map data:
-
-| Tile Group | Terrain Type | Passable | Speed | Sound | Encounter |
-|-----------|-------------|----------|-------|-------|-----------|
-| Grass | `grass` | ✅ | 1.0× | grass | 1.0 |
-| Dirt path | `normal` | ✅ | 1.2× | dirt | 0.5 |
-| Stone road | `stone` | ✅ | 1.5× | stone | 0.3 |
-| Water | `water` | ❌ | 0.5× | water | 0.2 |
-| Deep water | `deepWater` | ❌ | 0.0× | water | 0.0 |
-| Cliff face | `stone` | ❌ | 0.0× | — | 0.0 |
-| Tilled soil | `normal` | ✅ | 0.8× | dirt | 0.1 |
-| Forest floor | `grass` | ✅ | 0.9× | grass | 1.5 |
-| Bridge | `wood` | ✅ | 1.0× | wood | 0.0 |
+Season variants (`terrain_spring.png`, `terrain_autumn.png`, `terrain_winter.png`) get the same A2 splitting treatment. The season paths map indexes terrain names to seasonal file variants. Switching seasons destroys the tilemap, updates image paths, and re-renders.
