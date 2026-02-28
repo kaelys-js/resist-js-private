@@ -29,7 +29,7 @@ import { fromUnknownError } from '@/utils/result/safe';
 
 import { okShallow, type BabylonResult } from '../core/babylon-result';
 import type { DayNightCycleConfig, SunPathConfig, TimeKeyframe } from '../schemas/lighting-config';
-import type { ColorRgba, Vector3 } from '../schemas/scene-setup-config';
+import type { ColorRgba, Vector3 } from '../schemas/color-schema';
 import type { ManagedLight } from './light-manager';
 
 // =============================================================================

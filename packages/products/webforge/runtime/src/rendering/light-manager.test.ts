@@ -16,7 +16,7 @@ import type { Bool, Num } from '@/schemas/common';
 
 import { createTestEngine, disposeEngine, type BabylonEngineInstance } from '../core/engine';
 import type { BabylonResult } from '../core/babylon-result';
-import type { ColorRgba } from '../schemas/scene-setup-config';
+import type { ColorRgba } from '../schemas/color-schema';
 import { colorTemperatureToRgb } from './color-temperature';
 import {
 	createLighting,

@@ -39,7 +39,7 @@
 
 import * as v from 'valibot';
 
-import { ColorRgbaSchema } from './scene-setup-config';
+import { ColorRgbaSchema } from './color-schema';
 
 // =============================================================================
 // Sky Type

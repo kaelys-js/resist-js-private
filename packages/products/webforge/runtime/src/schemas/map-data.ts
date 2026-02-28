@@ -29,7 +29,7 @@ import * as v from 'valibot';
 
 import { LightingConfigSchema } from './lighting-config';
 import { PostProcessingConfigSchema } from './post-processing-config';
-import { ColorRgbaSchema } from './scene-setup-config';
+import { ColorRgbaSchema } from './color-schema';
 import { BlendModeSchema, SkyConfigSchema } from './sky-config';
 
 // =============================================================================

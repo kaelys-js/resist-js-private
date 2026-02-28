@@ -33,7 +33,7 @@ import * as v from 'valibot';
 import * as BABYLON from '@babylonjs/core';
 
 import type { Bool } from '@/schemas/common';
-import { ERRORS, err, type Result } from '@/schemas/result/result';
+import { ERRORS, err, type DeepReadonly, type Result } from '@/schemas/result/result';
 import { safeParse, fromUnknownError } from '@/utils/result/safe';
 
 import { EngineConfigSchema, type EngineConfig } from './schemas/engine-config';
@@ -122,11 +122,11 @@ export type RuntimeInstance = {
 export async function createRuntime(config: unknown): Promise<BabylonResult<RuntimeInstance>> {
 	const parsed: Result<RuntimeConfig> = safeParse(RuntimeConfigSchema, config);
 	if (!parsed.ok) return parsed;
-	const cfg: RuntimeConfig = parsed.data;
+	const cfg: DeepReadonly<RuntimeConfig> = parsed.data;
 
 	try {
 		// Apply quality preset overrides to engine config
-		const engineCfg: EngineConfig = applyQualityPreset(cfg);
+		const engineCfg: DeepReadonly<EngineConfig> = applyQualityPreset(cfg);
 
 		// Get canvas element
 		const canvas: HTMLCanvasElement | null = document.querySelector<HTMLCanvasElement>(
@@ -321,7 +321,7 @@ export function disposeRuntime(instance: RuntimeInstance): Result<Bool> {
  * @param cfg - The validated runtime configuration.
  * @returns The engine configuration with quality preset defaults applied.
  */
-function applyQualityPreset(cfg: RuntimeConfig): EngineConfig {
+function applyQualityPreset(cfg: DeepReadonly<RuntimeConfig>): DeepReadonly<EngineConfig> {
 	// Quality preset's hardwareScalingLevel will be applied to the engine
 	// after creation via setHardwareScalingLevel. Preset provides defaults
 	// for antialias/stencil/adaptToDeviceRatio but explicit engine config values

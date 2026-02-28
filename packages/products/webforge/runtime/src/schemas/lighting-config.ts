@@ -34,7 +34,7 @@
 
 import * as v from 'valibot';
 
-import { ColorRgbaSchema, Vector3Schema } from './scene-setup-config';
+import { ColorRgbaSchema, Vector3Schema } from './color-schema';
 
 // =============================================================================
 // Flicker Schemas

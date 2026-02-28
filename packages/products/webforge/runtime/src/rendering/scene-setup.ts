@@ -20,14 +20,11 @@
 import * as BABYLON from '@babylonjs/core';
 
 import type { Bool } from '@/schemas/common';
-import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
+import { ERRORS, err, okUnchecked, type DeepReadonly, type Result } from '@/schemas/result/result';
 import { safeParse, fromUnknownError } from '@/utils/result/safe';
 
-import {
-	SceneSetupConfigSchema,
-	type SceneSetupConfig,
-	type FogConfig,
-} from '../schemas/scene-setup-config';
+import { SceneSetupConfigSchema, type SceneSetupConfig } from '../schemas/scene-setup-config';
+import type { FogConfig } from '../schemas/fog-config';
 
 // =============================================================================
 // Fog Mode Mapping
@@ -70,7 +67,7 @@ const FOG_MODE_MAP: Readonly<Record<string, number>> = {
 export function applySceneSetup(scene: BABYLON.Scene, config: unknown): Result<Bool> {
 	const parsed: Result<SceneSetupConfig> = safeParse(SceneSetupConfigSchema, config);
 	if (!parsed.ok) return parsed;
-	const cfg: SceneSetupConfig = parsed.data;
+	const cfg: DeepReadonly<SceneSetupConfig> = parsed.data;
 
 	try {
 		// Clear color (Color4)
@@ -120,7 +117,7 @@ export function applySceneSetup(scene: BABYLON.Scene, config: unknown): Result<B
  * @param scene - The Babylon.js scene to configure fog on.
  * @param fog - The validated fog configuration.
  */
-function applyFog(scene: BABYLON.Scene, fog: FogConfig): void {
+function applyFog(scene: BABYLON.Scene, fog: DeepReadonly<FogConfig>): void {
 	const mode: number | undefined = FOG_MODE_MAP[fog.mode];
 	scene.fogMode = mode ?? BABYLON.Scene.FOGMODE_NONE;
 

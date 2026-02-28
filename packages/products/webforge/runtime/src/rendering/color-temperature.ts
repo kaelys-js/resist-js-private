@@ -20,7 +20,7 @@
 import type { Num } from '@/schemas/common';
 import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
 
-import type { ColorRgba } from '../schemas/scene-setup-config';
+import type { ColorRgba } from '../schemas/color-schema';
 
 // =============================================================================
 // Helpers
