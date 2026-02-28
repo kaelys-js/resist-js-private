@@ -758,7 +758,7 @@ export function registerOverlayFogShader(): void {
  */
 export type CreateAdvancedFogPostProcessOptions = {
 	readonly camera: BABYLON.Camera;
-	readonly engine: BABYLON.Engine;
+	readonly engine: BABYLON.AbstractEngine;
 };
 
 /**
@@ -771,7 +771,7 @@ export type CreateAdvancedFogPostProcessOptions = {
  */
 export type CreateOverlayFogPostProcessOptions = {
 	readonly camera: BABYLON.Camera;
-	readonly engine: BABYLON.Engine;
+	readonly engine: BABYLON.AbstractEngine;
 };
 
 // =============================================================================
