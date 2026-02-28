@@ -89,13 +89,29 @@ function hash2D(x: Num, y: Num): Num {
 }
 
 /**
- * 2D value noise with smooth interpolation.
+ * Wrap an integer coordinate to a periodic range for seamless tiling.
+ *
+ * @param val - Integer grid coordinate to wrap.
+ * @param period - Tile period in grid cells (must be positive).
+ * @returns Wrapped coordinate in range zero to period.
+ */
+function wrapCoord(val: Num, period: Num): Num {
+	return ((val % period) + period) % period;
+}
+
+/**
+ * 2D value noise with smooth interpolation and seamless tiling.
+ *
+ * Grid corner coordinates are wrapped modulo `periodX`/`periodY` so that
+ * noise values at opposite edges of the tile match perfectly.
  *
  * @param x - X coordinate.
  * @param y - Y coordinate.
+ * @param periodX - Horizontal tile period.
+ * @param periodY - Vertical tile period.
  * @returns Noise value in [0, 1].
  */
-function valueNoise2D(x: Num, y: Num): Num {
+function valueNoise2D(x: Num, y: Num, periodX: Num, periodY: Num): Num {
 	const ix: Num = Math.floor(x);
 	const iy: Num = Math.floor(y);
 	const fx: Num = x - ix;
@@ -105,10 +121,16 @@ function valueNoise2D(x: Num, y: Num): Num {
 	const ux: Num = fx * fx * (3 - 2 * fx);
 	const uy: Num = fy * fy * (3 - 2 * fy);
 
-	const n00: Num = hash2D(ix, iy);
-	const n10: Num = hash2D(ix + 1, iy);
-	const n01: Num = hash2D(ix, iy + 1);
-	const n11: Num = hash2D(ix + 1, iy + 1);
+	// Wrap grid corners for seamless tiling
+	const ix0: Num = wrapCoord(ix, periodX);
+	const iy0: Num = wrapCoord(iy, periodY);
+	const ix1: Num = wrapCoord(ix + 1, periodX);
+	const iy1: Num = wrapCoord(iy + 1, periodY);
+
+	const n00: Num = hash2D(ix0, iy0);
+	const n10: Num = hash2D(ix1, iy0);
+	const n01: Num = hash2D(ix0, iy1);
+	const n11: Num = hash2D(ix1, iy1);
 
 	const a: Num = n00 + (n10 - n00) * ux;
 	const b: Num = n01 + (n11 - n01) * ux;
@@ -117,25 +139,42 @@ function valueNoise2D(x: Num, y: Num): Num {
 }
 
 /**
- * 2D FBM (fractal Brownian motion) using value noise.
+ * 2D FBM (fractal Brownian motion) using tileable value noise.
+ *
+ * The tile period scales with each octave's frequency so that every
+ * octave layer tiles seamlessly at the same texture boundary.
  *
  * @param x - X coordinate.
  * @param y - Y coordinate.
  * @param octaves - Number of noise layers.
  * @param lacunarity - Frequency multiplier per octave.
  * @param persistence - Amplitude multiplier per octave.
+ * @param periodX - Horizontal tile period at base frequency.
+ * @param periodY - Vertical tile period at base frequency.
  * @returns FBM noise value in [0, 1].
  */
-function fbm2D(x: Num, y: Num, octaves: Num, lacunarity: Num, persistence: Num): Num {
+function fbm2D(
+	x: Num,
+	y: Num,
+	octaves: Num,
+	lacunarity: Num,
+	persistence: Num,
+	periodX: Num,
+	periodY: Num,
+): Num {
 	let value: Num = 0;
 	let amp: Num = 1;
 	let freq: Num = 1;
 	let total: Num = 0;
+	let px: Num = periodX;
+	let py: Num = periodY;
 
 	for (let i: Num = 0; i < octaves; i++) {
-		value += valueNoise2D(x * freq, y * freq) * amp;
+		value += valueNoise2D(x * freq, y * freq, px, py) * amp;
 		total += amp;
 		freq *= lacunarity;
+		px *= lacunarity;
+		py *= lacunarity;
 		amp *= persistence;
 	}
 
@@ -143,13 +182,18 @@ function fbm2D(x: Num, y: Num, octaves: Num, lacunarity: Num, persistence: Num):
 }
 
 /**
- * Worley (cellular) noise — returns distance to nearest feature point.
+ * Worley (cellular) noise with seamless tiling.
+ *
+ * Cell coordinates are wrapped modulo the tile period so feature points
+ * near edges connect to feature points on the opposite edge.
  *
  * @param x - X coordinate.
  * @param y - Y coordinate.
+ * @param periodX - Horizontal tile period.
+ * @param periodY - Vertical tile period.
  * @returns Distance to nearest cell center, clamped to [0, 1].
  */
-function worleyNoise2D(x: Num, y: Num): Num {
+function worleyNoise2D(x: Num, y: Num, periodX: Num, periodY: Num): Num {
 	const ix: Num = Math.floor(x);
 	const iy: Num = Math.floor(y);
 	let minDist: Num = 1;
@@ -158,9 +202,12 @@ function worleyNoise2D(x: Num, y: Num): Num {
 		for (let dy: Num = -1; dy <= 1; dy++) {
 			const cellX: Num = ix + dx;
 			const cellY: Num = iy + dy;
-			// Feature point within cell
-			const fpx: Num = cellX + hash2D(cellX, cellY);
-			const fpy: Num = cellY + hash2D(cellY + 0.5, cellX + 0.5);
+			// Wrap cell coordinates for seamless tiling
+			const wcx: Num = wrapCoord(cellX, periodX);
+			const wcy: Num = wrapCoord(cellY, periodY);
+			// Feature point within cell (hash uses wrapped coords)
+			const fpx: Num = cellX + hash2D(wcx, wcy);
+			const fpy: Num = cellY + hash2D(wcy + 0.5, wcx + 0.5);
 			const distX: Num = x - fpx;
 			const distY: Num = y - fpy;
 			const dist: Num = Math.hypot(distX, distY);
@@ -190,7 +237,7 @@ function generatePerlin(size: Num): TextureData {
 		for (let x: Num = 0; x < size; x++) {
 			const nx: Num = (x / size) * scale;
 			const ny: Num = (y / size) * scale;
-			const val: Num = fbm2D(nx, ny, 4, 2, 0.5);
+			const val: Num = fbm2D(nx, ny, 4, 2, 0.5, scale, scale);
 			const byte: Num = Math.round(val * 255);
 			const idx: Num = (y * size + x) * 4;
 			data[idx] = byte;
@@ -218,7 +265,7 @@ function generateWorley(size: Num): TextureData {
 		for (let x: Num = 0; x < size; x++) {
 			const nx: Num = (x / size) * scale;
 			const ny: Num = (y / size) * scale;
-			const val: Num = 1 - worleyNoise2D(nx, ny);
+			const val: Num = 1 - worleyNoise2D(nx, ny, scale, scale);
 			const byte: Num = Math.round(val * 255);
 			const idx: Num = (y * size + x) * 4;
 			data[idx] = byte;
@@ -246,10 +293,10 @@ function generateClouds(size: Num): TextureData {
 		for (let x: Num = 0; x < size; x++) {
 			const nx: Num = (x / size) * scale;
 			const ny: Num = (y / size) * scale;
-			const v1: Num = fbm2D(nx, ny, 6, 2, 0.5);
-			const v2: Num = fbm2D(nx + 5.2, ny + 1.3, 6, 2, 0.5);
+			const v1: Num = fbm2D(nx, ny, 6, 2, 0.5, scale, scale);
+			const v2: Num = fbm2D(nx + 5.2, ny + 1.3, 6, 2, 0.5, scale, scale);
 			// Warped domain for more organic shapes
-			const val: Num = fbm2D(nx + v1 * 2, ny + v2 * 2, 4, 2, 0.5);
+			const val: Num = fbm2D(nx + v1 * 2, ny + v2 * 2, 4, 2, 0.5, scale, scale);
 			const clamped: Num = Math.max(0, Math.min(1, val * 1.2 - 0.1));
 			const byte: Num = Math.round(clamped * 255);
 			const idx: Num = (y * size + x) * 4;
@@ -280,10 +327,10 @@ function generateWisps(size: Num): TextureData {
 			const nx: Num = (x / size) * scaleX;
 			const ny: Num = (y / size) * scaleY;
 			// Stretched noise for wispy appearance
-			const v1: Num = fbm2D(nx, ny, 4, 2.5, 0.4);
+			const v1: Num = fbm2D(nx, ny, 4, 2.5, 0.4, scaleX, scaleY);
 			// Warp with secondary noise for organic tendrils
-			const warp: Num = fbm2D(nx + 3.7, ny + 8.1, 3, 2, 0.5) * 0.8;
-			const val: Num = fbm2D(nx + warp, ny, 3, 2, 0.5);
+			const warp: Num = fbm2D(nx + 3.7, ny + 8.1, 3, 2, 0.5, scaleX, scaleY) * 0.8;
+			const val: Num = fbm2D(nx + warp, ny, 3, 2, 0.5, scaleX, scaleY);
 			// Sharper falloff for wispy edges
 			const shaped: Num = Math.max(0, Math.min(1, val * v1 * 2)) ** 0.7;
 			const byte: Num = Math.round(shaped * 255);
@@ -314,10 +361,10 @@ function generateSmoke(size: Num): TextureData {
 			const nx: Num = (x / size) * scale;
 			const ny: Num = (y / size) * scale;
 			// Strong domain warping for turbulent smoke
-			const w1: Num = fbm2D(nx, ny, 4, 2, 0.5);
-			const w2: Num = fbm2D(nx + 1.7, ny + 9.2, 4, 2, 0.5);
-			const w3: Num = fbm2D(nx + w1 * 3, ny + w2 * 3, 5, 2, 0.5);
-			const val: Num = fbm2D(nx + w3 * 2.5, ny + w1 * 2.5, 4, 2, 0.5);
+			const w1: Num = fbm2D(nx, ny, 4, 2, 0.5, scale, scale);
+			const w2: Num = fbm2D(nx + 1.7, ny + 9.2, 4, 2, 0.5, scale, scale);
+			const w3: Num = fbm2D(nx + w1 * 3, ny + w2 * 3, 5, 2, 0.5, scale, scale);
+			const val: Num = fbm2D(nx + w3 * 2.5, ny + w1 * 2.5, 4, 2, 0.5, scale, scale);
 			// Boost contrast
 			const contrasted: Num = Math.max(0, Math.min(1, (val - 0.3) * 1.8));
 			const byte: Num = Math.round(contrasted * 255);

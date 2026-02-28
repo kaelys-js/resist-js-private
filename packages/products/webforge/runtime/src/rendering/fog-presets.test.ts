@@ -132,7 +132,7 @@ describe('denseFog preset', () => {
 	});
 
 	test('has high density', () => {
-		expect(FOG_PRESETS.denseFog.density).toBe(0.04);
+		expect(FOG_PRESETS.denseFog.density).toBe(0.025);
 	});
 
 	test('has clouds overlay', () => {
@@ -172,7 +172,7 @@ describe('underwater preset', () => {
 	});
 
 	test('has high density', () => {
-		expect(FOG_PRESETS.underwater.density).toBe(0.06);
+		expect(FOG_PRESETS.underwater.density).toBe(0.03);
 	});
 
 	test('has blue-green color', () => {
@@ -231,7 +231,7 @@ describe('sandstorm preset', () => {
 	});
 
 	test('has high density', () => {
-		expect(FOG_PRESETS.sandstorm.density).toBe(0.035);
+		expect(FOG_PRESETS.sandstorm.density).toBe(0.02);
 	});
 
 	test('has warm sandy color', () => {
