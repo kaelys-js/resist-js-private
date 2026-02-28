@@ -4712,6 +4712,9 @@ let _fogConfig: FogConfig = {
 /** Active fog handle (null until fog is applied). */
 let _fogHandle: FogHandle | null = null;
 
+/** Currently selected fog preset name (tracks dropdown selection). */
+let _currentFogPreset: FogPresetName = 'clear';
+
 /**
  * Updates fog config and applies changes via the fog manager.
  *
@@ -4786,9 +4789,10 @@ function buildFogUI(
 				value: name,
 				label: FOG_PRESET_LABELS[name],
 			})),
-			'clear',
+			_currentFogPreset,
 			(val) => {
 				const presetName = val as FogPresetName;
+				_currentFogPreset = presetName;
 				const preset = FOG_PRESETS[presetName];
 				_fogConfig = { ...preset };
 				if (_fogHandle) {
@@ -8569,6 +8573,14 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			_selEndX = gridX;
 			_selEndZ = gridZ;
 
+			// Temporarily detach camera input so shift+drag doesn't rotate/pan
+			const activeCam: BABYLON.Nullable<BABYLON.Camera> = scene.activeCamera;
+			if (activeCam) activeCam.detachControl();
+
+			// Capture pointer to ensure we get pointerup even if cursor leaves canvas
+			canvas.setPointerCapture(evt.pointerId);
+			const capturedPointerId: number = evt.pointerId;
+
 			const highlightY: Num = pickResult.pickedPoint.y + 0.02;
 			highlightMesh.position.y = highlightY;
 			highlightMesh.setEnabled(true);
@@ -8587,14 +8599,23 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				showSelectionSummary();
 			};
 
-			const onUp = (): void => {
+			const cleanup = (): void => {
 				_isRectSelecting = false;
+				// Reattach camera input after selection ends
+				if (activeCam && canvas) activeCam.attachControl(canvas, true);
+				if (canvas.hasPointerCapture(capturedPointerId)) {
+					canvas.releasePointerCapture(capturedPointerId);
+				}
 				canvas.removeEventListener('pointermove', onMove);
-				canvas.removeEventListener('pointerup', onUp);
+				canvas.removeEventListener('pointerup', cleanup);
+				canvas.removeEventListener('pointercancel', cleanup);
+				canvas.removeEventListener('lostpointercapture', cleanup);
 			};
 
 			canvas.addEventListener('pointermove', onMove);
-			canvas.addEventListener('pointerup', onUp);
+			canvas.addEventListener('pointerup', cleanup);
+			canvas.addEventListener('pointercancel', cleanup);
+			canvas.addEventListener('lostpointercapture', cleanup);
 			return;
 		}
 
@@ -10382,10 +10403,13 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 	const controlsDiv: HTMLDivElement = document.createElement('div');
 	const fallbackDiv: HTMLDivElement = document.createElement('div');
 	fallbackDiv.className = 'status-text';
-	fallbackDiv.textContent = 'Switch to Map Editor preset';
+	fallbackDiv.textContent = 'Switch to Map Editor for zoom/navigation';
 	fallbackDiv.style.display = _currentPreset === 'mapeditor' ? 'none' : 'block';
 	controlsDiv.style.display = _currentPreset === 'mapeditor' ? 'block' : 'none';
-	container.append(fallbackDiv, controlsDiv);
+
+	// Grid controls are always visible (work in all camera modes)
+	const gridDiv: HTMLDivElement = document.createElement('div');
+	container.append(gridDiv, fallbackDiv, controlsDiv);
 
 	// Store refs for preset-change toggling
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
@@ -10547,8 +10571,8 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 	actionGroup.append(fitBtn, resetBtn, selBtn, centerBtn);
 	controlsDiv.append(actionGroup);
 
-	// ── 3b. View Toggles ──
-	controlsDiv.append(createSubHeader('View'));
+	// ── 3b. View Toggles (always visible — grid works in all camera modes) ──
+	gridDiv.append(createSubHeader('View'));
 
 	const gridToggleRow: HTMLElement = createToggleRow(
 		'Grid Overlay (G)',
@@ -10559,7 +10583,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 		'nav-grid-overlay',
 		'Show tile grid lines over the map. Shortcut: G key.',
 	);
-	controlsDiv.append(gridToggleRow);
+	gridDiv.append(gridToggleRow);
 
 	// Store grid toggle checkbox ref so G key can sync it
 	const gridCheckbox = gridToggleRow.querySelector(
@@ -10569,7 +10593,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 		(window as Record<string, unknown>)._gridToggle = gridCheckbox;
 	}
 
-	controlsDiv.append(
+	gridDiv.append(
 		createSliderRow(
 			'Grid Opacity',
 			0.05,
@@ -10584,7 +10608,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 			'Grid line transparency. 0.05 = faint, 1 = solid.',
 		),
 	);
-	controlsDiv.append(
+	gridDiv.append(
 		createColorPickerRow(
 			'Grid Color',
 			GRID_COLOR_PRESETS,
@@ -10597,7 +10621,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 			'Pick a color for the grid overlay lines.',
 		),
 	);
-	controlsDiv.append(
+	gridDiv.append(
 		createSliderRow(
 			'Fill Opacity',
 			0,
@@ -10612,7 +10636,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 			'Cell background fill opacity. 0 = no fill.',
 		),
 	);
-	controlsDiv.append(
+	gridDiv.append(
 		createColorPickerRow(
 			'Fill Color',
 			GRID_COLOR_PRESETS,
@@ -11934,9 +11958,7 @@ function setupMapEditorControls(
 		if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 		_heldKeys.add(e.key);
 
-		if (_currentPreset !== 'mapeditor') return;
-
-		// Delete/Backspace clears the selected tile(s) in map editor mode
+		// Delete/Backspace clears the selected tile(s) in any camera mode
 		if (e.key === 'Delete' || e.key === 'Backspace') {
 			e.preventDefault();
 			const rect = getSelectionRect();
@@ -11947,7 +11969,7 @@ function setupMapEditorControls(
 			}
 		}
 
-		// G toggles grid overlay
+		// G toggles grid overlay in any camera mode
 		if (e.key === 'g' || e.key === 'G') {
 			toggleGridOverlay(runtime.engine.scene, debug);
 		}
