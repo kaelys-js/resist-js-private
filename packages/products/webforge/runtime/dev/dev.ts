@@ -704,21 +704,21 @@ let _inspectLayerIndex: Num = -1;
 let _lastInspectX: Num = -1;
 let _lastInspectZ: Num = -1;
 
-/** Terrain type options for the dropdown. */
-const TERRAIN_TYPE_OPTIONS: readonly string[] = [
-	'normal',
-	'water',
-	'deepWater',
-	'lava',
-	'ice',
-	'sand',
-	'swamp',
-	'snow',
-	'grass',
-	'wood',
-	'stone',
-	'metal',
-	'custom',
+/** Terrain type options for the dropdown with friendly display labels. */
+const TERRAIN_TYPE_OPTIONS: ReadonlyArray<{ readonly value: string; readonly label: string }> = [
+	{ value: 'normal', label: 'Normal' },
+	{ value: 'water', label: 'Shallow Water' },
+	{ value: 'deepWater', label: 'Deep Water' },
+	{ value: 'lava', label: 'Lava' },
+	{ value: 'ice', label: 'Ice' },
+	{ value: 'sand', label: 'Sand' },
+	{ value: 'swamp', label: 'Swamp' },
+	{ value: 'snow', label: 'Snow' },
+	{ value: 'grass', label: 'Grass' },
+	{ value: 'wood', label: 'Wood / Planks' },
+	{ value: 'stone', label: 'Stone / Brick' },
+	{ value: 'metal', label: 'Metal' },
+	{ value: 'custom', label: 'Custom' },
 ];
 
 /**
@@ -1004,7 +1004,20 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	(window as any).toggleSection = (id: string): void => {
 		const section = document.querySelector(`#${id}`);
 		if (!section) return;
+		const isCollapsing = !section.classList.contains('collapsed');
 		section.classList.toggle('collapsed');
+		if (!isCollapsing) {
+			const body = section.querySelector('.section-body') as HTMLElement | null;
+			if (body) {
+				body.style.overflow = 'hidden';
+				body.addEventListener('transitionend', function handler() {
+					body.removeEventListener('transitionend', handler);
+					if (!section.classList.contains('collapsed')) {
+						body.style.overflow = '';
+					}
+				});
+			}
+		}
 	};
 
 	// ── Camera Presets (dropdown) ───────────────────────────────────
@@ -1435,7 +1448,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					if (speedValue) speedValue.textContent = `${derivedSpeed.toFixed(2)}x`;
 				}
 			},
-			undefined,
+			'daynight-day-length',
 			'Total real-world seconds for one full in-game day. Lower = faster cycle. Syncs with Cycle Speed.',
 		);
 		// Replace the value label with formatted time
@@ -1466,7 +1479,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					if (!cycle) return;
 					(cycle.config as Record<string, unknown>)['reverse'] = on;
 				},
-				undefined,
+				'daynight-reverse-time',
 				'Run the clock backwards — the day rewinds toward midnight.',
 			),
 		);
@@ -1487,7 +1500,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					if (!cycle) return;
 					(cycle.config as Record<string, unknown>)['timezoneOffset'] = val;
 				},
-				undefined,
+				'daynight-utc-offset',
 				'Hours offset from UTC in Wall Clock mode. Shifts the real-world time mapping.',
 			),
 		);
@@ -1515,7 +1528,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 						(cycle.config as Record<string, unknown>)['realTimeSeasonMap'] = undefined;
 					}
 				},
-				undefined,
+				'daynight-sync-season',
 				'Auto-set season from the current real-world month (Dec–Feb = Winter, Mar–May = Spring, etc.).',
 			),
 		);
@@ -1533,7 +1546,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					if (!cycle) return;
 					(cycle.config as Record<string, unknown>)['realtimeMoonSync'] = on;
 				},
-				undefined,
+				'daynight-sync-moon',
 				'Auto-track the real-world lunar cycle instead of using the manual Moon Phase slider.',
 			),
 		);
@@ -1668,7 +1681,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					if (!cfg['indoorModeConfig']) cfg['indoorModeConfig'] = {};
 					(cfg['indoorModeConfig'] as Record<string, unknown>)['haltTime'] = on;
 				},
-				undefined,
+				'daynight-freeze-clock',
 				'Pause time progression while an Indoor Mode is active. Clock resumes when returning to Outdoor.',
 			),
 		);
@@ -1689,7 +1702,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					if (!cycle) return;
 					(cycle.config as Record<string, unknown>)['seasonDurationDays'] = val;
 				},
-				undefined,
+				'daynight-days-per-season',
 				'In-game days before the season auto-advances. Lower = faster seasonal cycling.',
 			),
 		);
@@ -1710,7 +1723,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					if (!cycle) return;
 					cycle._currentDay = val as Num;
 				},
-				undefined,
+				'daynight-current-day',
 				'Day counter within the current cycle. Drives season transitions when auto-cycling.',
 			),
 		);
@@ -1731,7 +1744,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					if (!cycle) return;
 					(cycle.config as Record<string, unknown>)['seasonTransition'] = val;
 				},
-				undefined,
+				'daynight-season-blend',
 				'How much of the season boundary to spend blending. 0 = instant switch, 1 = blend the entire season.',
 			),
 		);
@@ -1749,7 +1762,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					if (!cycle) return;
 					(cycle.config as Record<string, unknown>)['autoAdvanceMoonPhase'] = on;
 				},
-				undefined,
+				'daynight-auto-moon',
 				'Automatically advance the moon phase over time based on Moon Cycle length.',
 			),
 		);
@@ -1770,7 +1783,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					if (!cycle) return;
 					(cycle.config as Record<string, unknown>)['moonCycleDays'] = val;
 				},
-				undefined,
+				'daynight-moon-cycle',
 				'In-game days for one full lunar cycle (new moon → new moon). Default ≈ 3.7 days.',
 			),
 		);
@@ -1788,7 +1801,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					if (!cycle) return;
 					(cycle.config as Record<string, unknown>)['dayNightControlsPostFx'] = on;
 				},
-				undefined,
+				'daynight-drive-post-fx',
 				'Let the day/night cycle auto-adjust post-processing (bloom, exposure, tint) to match the time of day.',
 			),
 		);
@@ -1840,7 +1853,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 				(val) => {
 					_jumpDurationSec = val;
 				},
-				undefined,
+				'daynight-jump-time',
 				'Duration of the smooth jump animation, in seconds.',
 			),
 		);
@@ -2160,6 +2173,7 @@ function createSliderRow(
 ): HTMLElement {
 	const row = document.createElement('div');
 	row.className = 'control-row';
+	row.dataset['type'] = 'slider';
 	if (dataControl) row.dataset['control'] = dataControl;
 
 	const lbl = document.createElement('span');
@@ -2206,6 +2220,7 @@ function createToggleRow(
 ): HTMLElement {
 	const row = document.createElement('div');
 	row.className = 'toggle-row';
+	row.dataset['type'] = 'toggle';
 	if (dataControl) row.dataset['control'] = dataControl;
 
 	const lbl = document.createElement('span');
@@ -2230,6 +2245,7 @@ function createToggleRow(
  * @param label - Display label text.
  * @param value - Initial text value.
  * @param onChange - Callback when text changes (on blur or Enter key).
+ * @param dataControl - Optional data-control attribute value for automated testing.
  * @param tooltip - Optional tooltip description shown on hover.
  * @returns The row element.
  */
@@ -2237,10 +2253,13 @@ function createTextInputRow(
 	label: string,
 	value: string,
 	onChange: (val: string) => void,
+	dataControl?: string,
 	tooltip?: string,
 ): HTMLElement {
 	const row = document.createElement('div');
 	row.className = 'control-row';
+	row.dataset['type'] = 'text';
+	if (dataControl) row.dataset['control'] = dataControl;
 
 	const lbl = document.createElement('span');
 	lbl.className = 'control-label';
@@ -2309,6 +2328,7 @@ const SELECTION_COLOR_PRESETS: readonly ColorPreset[] = [
  * @param presets - Array of preset color definitions with name and hex.
  * @param initialHex - Initial hex color string (e.g. '#ffffff').
  * @param onChange - Callback when color changes, receives hex string.
+ * @param dataControl - Optional data-control attribute value for automated testing.
  * @param tooltip - Optional tooltip description shown on hover.
  * @returns The row element.
  */
@@ -2317,10 +2337,13 @@ function createColorPickerRow(
 	presets: readonly ColorPreset[],
 	initialHex: string,
 	onChange: (hex: string) => void,
+	dataControl?: string,
 	tooltip?: string,
 ): HTMLElement {
 	const row = document.createElement('div');
 	row.className = 'control-row';
+	row.dataset['type'] = 'color';
+	if (dataControl) row.dataset['control'] = dataControl;
 	row.style.flexWrap = 'wrap';
 
 	const lbl = document.createElement('span');
@@ -2390,6 +2413,10 @@ function createSubHeader(text: string): HTMLElement {
 	el.style.cssText =
 		'font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #666; padding: 6px 0 2px; border-top: 1px solid rgba(255,255,255,0.04); margin-top: 4px;';
 	el.textContent = text;
+	el.dataset['subsection'] = text
+		.toLowerCase()
+		.replaceAll(/\s+/g, '-')
+		.replaceAll(/[^a-z0-9-]/g, '');
 	return el;
 }
 
@@ -2417,7 +2444,8 @@ function createCollapsibleGroup(
 
 	const chevron: HTMLElement = document.createElement('span');
 	chevron.className = 'cg-chevron';
-	chevron.textContent = '\u25BE'; // ▾
+	chevron.innerHTML =
+		'<svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 	header.append(label, chevron);
 	header.addEventListener('click', () => {
@@ -2509,7 +2537,7 @@ function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
 		onChange: (val: number) => void,
 		tooltip?: string,
 	): void {
-		const row = createSliderRow(label, min, max, step, value, onChange, undefined, tooltip);
+		const row = createSliderRow(label, min, max, step, value, onChange, `shake-${key}`, tooltip);
 		const input = row.querySelector('input[type="range"]') as HTMLInputElement | null;
 		if (input) sliders.set(key, input);
 		parent.append(row);
@@ -2547,7 +2575,7 @@ function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
 		onChange: (on: boolean) => void,
 		tooltip?: string,
 	): void {
-		const row = createToggleRow(label, initialOn, onChange, undefined, tooltip);
+		const row = createToggleRow(label, initialOn, onChange, `shake-${key}`, tooltip);
 		const toggle = row.querySelector('.toggle-switch') as HTMLDivElement | null;
 		if (toggle) toggles.set(key, toggle);
 		parent.append(row);
@@ -3180,6 +3208,7 @@ function createDropdown(
 ): HTMLElement {
 	const row = document.createElement('div');
 	row.className = 'control-row';
+	row.dataset['type'] = 'dropdown';
 	if (dataControl) row.dataset['control'] = dataControl;
 
 	const lbl = document.createElement('span');
@@ -3229,8 +3258,8 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	container.innerHTML = '';
 
 	// ── Exposure & Contrast ──
-	container.append(createSubHeader('Exposure / Contrast'));
-	container.append(
+	const ecGroup = createCollapsibleGroup('Exposure / Contrast', false);
+	ecGroup.body.append(
 		createSliderRow(
 			'Exposure',
 			0,
@@ -3244,7 +3273,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Overall brightness multiplier. 1.0 = neutral, >1 = brighter.',
 		),
 	);
-	container.append(
+	ecGroup.body.append(
 		createSliderRow(
 			'Contrast',
 			0,
@@ -3258,10 +3287,11 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Image contrast. 1.0 = neutral, >1 = more contrast.',
 		),
 	);
+	container.append(ecGroup.root);
 
 	// ── Bloom ──
-	container.append(createSubHeader('Bloom'));
-	container.append(
+	const bloomGroup = createCollapsibleGroup('Bloom', true);
+	bloomGroup.body.append(
 		createToggleRow(
 			'Enabled',
 			pipeline.bloomEnabled,
@@ -3272,7 +3302,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Enable bloom glow on bright pixels.',
 		),
 	);
-	container.append(
+	bloomGroup.body.append(
 		createSliderRow(
 			'Bloom Weight',
 			0,
@@ -3286,7 +3316,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Blend strength of the bloom effect (0–1).',
 		),
 	);
-	container.append(
+	bloomGroup.body.append(
 		createSliderRow(
 			'Bloom Threshold',
 			0,
@@ -3300,7 +3330,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Minimum brightness for bloom. Lower = more glow.',
 		),
 	);
-	container.append(
+	bloomGroup.body.append(
 		createSliderRow(
 			'Bloom Kernel',
 			1,
@@ -3314,7 +3344,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Blur kernel size. Larger = wider, softer bloom.',
 		),
 	);
-	container.append(
+	bloomGroup.body.append(
 		createSliderRow(
 			'Bloom Scale',
 			0.1,
@@ -3328,10 +3358,11 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Resolution scale of bloom pass. Lower = cheaper but softer.',
 		),
 	);
+	container.append(bloomGroup.root);
 
 	// ── Depth of Field ──
-	container.append(createSubHeader('Depth of Field'));
-	container.append(
+	const dofGroup = createCollapsibleGroup('Depth of Field', true);
+	dofGroup.body.append(
 		createToggleRow(
 			'Enabled',
 			pipeline.depthOfFieldEnabled,
@@ -3342,7 +3373,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Enable depth-of-field blur for out-of-focus areas.',
 		),
 	);
-	container.append(
+	dofGroup.body.append(
 		createSliderRow(
 			'Focal Length',
 			0,
@@ -3356,7 +3387,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Lens focal length in mm. Higher = more magnification + blur.',
 		),
 	);
-	container.append(
+	dofGroup.body.append(
 		createSliderRow(
 			'DoF Aperture (f/)',
 			0.1,
@@ -3370,7 +3401,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'f-stop value. Lower = shallower depth of field (more blur).',
 		),
 	);
-	container.append(
+	dofGroup.body.append(
 		createSliderRow(
 			'Focus Distance',
 			0,
@@ -3384,10 +3415,11 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Distance to the in-focus plane in scene units.',
 		),
 	);
+	container.append(dofGroup.root);
 
 	// ── Chromatic Aberration ──
-	container.append(createSubHeader('Chromatic Aberration'));
-	container.append(
+	const caGroup = createCollapsibleGroup('Chromatic Aberration', true);
+	caGroup.body.append(
 		createToggleRow(
 			'Enabled',
 			pipeline.chromaticAberrationEnabled,
@@ -3398,7 +3430,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Enable chromatic aberration (color fringing at edges).',
 		),
 	);
-	container.append(
+	caGroup.body.append(
 		createSliderRow(
 			'CA Amount',
 			0,
@@ -3412,7 +3444,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Intensity of color channel separation.',
 		),
 	);
-	container.append(
+	caGroup.body.append(
 		createSliderRow(
 			'CA Radial',
 			0,
@@ -3426,10 +3458,11 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'How much aberration increases toward screen edges.',
 		),
 	);
+	container.append(caGroup.root);
 
 	// ── Film Grain ──
-	container.append(createSubHeader('Film Grain'));
-	container.append(
+	const grainGroup = createCollapsibleGroup('Film Grain', true);
+	grainGroup.body.append(
 		createToggleRow(
 			'Enabled',
 			pipeline.grainEnabled,
@@ -3440,7 +3473,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Enable film grain noise overlay.',
 		),
 	);
-	container.append(
+	grainGroup.body.append(
 		createSliderRow(
 			'Grain Intensity',
 			0,
@@ -3454,7 +3487,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Strength of the noise pattern (0–100).',
 		),
 	);
-	container.append(
+	grainGroup.body.append(
 		createToggleRow(
 			'Grain Animated',
 			pipeline.grain.animated,
@@ -3465,10 +3498,11 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Randomize grain pattern each frame for a filmic look.',
 		),
 	);
+	container.append(grainGroup.root);
 
 	// ── Sharpen ──
-	container.append(createSubHeader('Sharpen'));
-	container.append(
+	const sharpenGroup = createCollapsibleGroup('Sharpen', true);
+	sharpenGroup.body.append(
 		createToggleRow(
 			'Enabled',
 			pipeline.sharpenEnabled,
@@ -3479,7 +3513,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Enable image sharpening post-process.',
 		),
 	);
-	container.append(
+	sharpenGroup.body.append(
 		createSliderRow(
 			'Edge Amount',
 			0,
@@ -3493,7 +3527,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Edge enhancement strength. Higher = crisper edges.',
 		),
 	);
-	container.append(
+	sharpenGroup.body.append(
 		createSliderRow(
 			'Color Amount',
 			0,
@@ -3507,11 +3541,12 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Color sharpening strength. Higher = more saturated edges.',
 		),
 	);
+	container.append(sharpenGroup.root);
 
 	// ── Vignette ──
-	container.append(createSubHeader('Vignette'));
 	const imgProc = pipeline.imageProcessing;
-	container.append(
+	const vignetteGroup = createCollapsibleGroup('Vignette', true);
+	vignetteGroup.body.append(
 		createToggleRow(
 			'Enabled',
 			imgProc.vignetteEnabled,
@@ -3522,7 +3557,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Darken screen edges for a cinematic effect.',
 		),
 	);
-	container.append(
+	vignetteGroup.body.append(
 		createSliderRow(
 			'Vignette Weight',
 			0,
@@ -3536,7 +3571,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Darkness intensity at screen edges.',
 		),
 	);
-	container.append(
+	vignetteGroup.body.append(
 		createSliderRow(
 			'Vignette Stretch',
 			0,
@@ -3550,10 +3585,11 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'How far the vignette extends toward center.',
 		),
 	);
+	container.append(vignetteGroup.root);
 
 	// ── Tone Mapping ──
-	container.append(createSubHeader('Tone Mapping'));
-	container.append(
+	const tmGroup = createCollapsibleGroup('Tone Mapping', true);
+	tmGroup.body.append(
 		createToggleRow(
 			'Enabled',
 			imgProc.toneMappingEnabled,
@@ -3573,7 +3609,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 	) {
 		currentToneMap = 'khr_pbr_neutral';
 	}
-	container.append(
+	tmGroup.body.append(
 		createDropdown(
 			'Mapping',
 			[
@@ -3602,10 +3638,11 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Tone mapping algorithm: Standard, ACES (cinematic), or KHR PBR Neutral.',
 		),
 	);
+	container.append(tmGroup.root);
 
 	// ── Color Grading ──
-	container.append(createSubHeader('Color Grading'));
-	container.append(
+	const cgGroup = createCollapsibleGroup('Color Grading', true);
+	cgGroup.body.append(
 		createToggleRow(
 			'Enabled',
 			imgProc.colorCurvesEnabled,
@@ -3616,10 +3653,11 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Enable color curve adjustments for stylized looks.',
 		),
 	);
+	container.append(cgGroup.root);
 
 	// ── FXAA ──
-	container.append(createSubHeader('FXAA'));
-	container.append(
+	const fxaaGroup = createCollapsibleGroup('FXAA', true);
+	fxaaGroup.body.append(
 		createToggleRow(
 			'Enabled',
 			pipeline.fxaaEnabled,
@@ -3630,10 +3668,11 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Enable fast approximate anti-aliasing to smooth jagged edges.',
 		),
 	);
+	container.append(fxaaGroup.root);
 
 	// ── Dithering ──
-	container.append(createSubHeader('Dithering'));
-	container.append(
+	const ditherGroup = createCollapsibleGroup('Dithering', true);
+	ditherGroup.body.append(
 		createToggleRow(
 			'Enabled',
 			imgProc.ditheringEnabled,
@@ -3644,7 +3683,7 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Add subtle noise to reduce color banding in gradients.',
 		),
 	);
-	container.append(
+	ditherGroup.body.append(
 		createSliderRow(
 			'Dither Intensity',
 			0,
@@ -3658,12 +3697,13 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			'Strength of the dithering pattern (0–1).',
 		),
 	);
+	container.append(ditherGroup.root);
 
 	// ── SSAO ──
 	const ssao = pp.ssaoPipeline;
 	if (ssao) {
-		container.append(createSubHeader('SSAO'));
-		container.append(
+		const ssaoGroup = createCollapsibleGroup('SSAO', true);
+		ssaoGroup.body.append(
 			createSliderRow(
 				'SSAO Strength',
 				0,
@@ -3674,9 +3714,10 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 					ssao.totalStrength = v;
 				},
 				'postfx-ssao-strength',
+				'Overall strength of the SSAO darkening effect.',
 			),
 		);
-		container.append(
+		ssaoGroup.body.append(
 			createSliderRow(
 				'SSAO Radius',
 				0.01,
@@ -3687,9 +3728,10 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 					ssao.radius = v;
 				},
 				'postfx-ssao-radius',
+				'Sample radius in world units. Larger = wider but softer shadows.',
 			),
 		);
-		container.append(
+		ssaoGroup.body.append(
 			createSliderRow(
 				'SSAO Samples',
 				1,
@@ -3700,9 +3742,10 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 					ssao.samples = v;
 				},
 				'postfx-ssao-samples',
+				'Number of AO samples per pixel. More = smoother but slower.',
 			),
 		);
-		container.append(
+		ssaoGroup.body.append(
 			createSliderRow(
 				'SSAO Base',
 				0,
@@ -3713,8 +3756,10 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 					ssao.base = v;
 				},
 				'postfx-ssao-base',
+				'Minimum AO value. Higher = less darkening in occluded areas.',
 			),
 		);
+		container.append(ssaoGroup.root);
 	}
 }
 
@@ -4048,9 +4093,11 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 	// ── Type Selector (grouped dropdown with <optgroup>) ──
 	const typeRow = document.createElement('div');
 	typeRow.className = 'control-row';
+	typeRow.dataset['type'] = 'dropdown';
+	typeRow.dataset['control'] = 'transition-type';
 	const typeLbl = document.createElement('span');
 	typeLbl.className = 'control-label';
-	typeLbl.textContent = 'Type';
+	typeLbl.textContent = 'Effect Type';
 	const typeSelect = document.createElement('select');
 	typeSelect.className = 'control-dropdown';
 	for (const cat of TRANSITION_CATEGORIES) {
@@ -4069,7 +4116,13 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 		currentType = typeSelect.value;
 		updateContextParams();
 	});
-	typeRow.append(typeLbl, typeSelect);
+	typeRow.append(
+		wrapWithTooltip(
+			typeLbl,
+			'Transition visual effect. Pick from fade, iris, wipe, dissolve, retro, battle, geometric, distortion, or film styles.',
+		),
+		typeSelect,
+	);
 	container.append(typeRow);
 
 	// ── Play Buttons ──
@@ -4078,25 +4131,29 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 
 	const playOutBtn = document.createElement('button');
 	playOutBtn.className = 'btn';
-	playOutBtn.textContent = 'Play Out';
+	playOutBtn.textContent = '▶ Out';
+	playOutBtn.title = 'Play the transition OUT (screen goes dark/covered).';
 	playOutBtn.style.flex = '1';
 	playOutBtn.addEventListener('click', () => play(false));
 
 	const playInBtn = document.createElement('button');
 	playInBtn.className = 'btn';
-	playInBtn.textContent = 'Play In';
+	playInBtn.textContent = '◀ In';
+	playInBtn.title = 'Play the transition IN (screen revealed from dark/covered).';
 	playInBtn.style.flex = '1';
 	playInBtn.addEventListener('click', () => play(true));
 
 	const playCycleBtn = document.createElement('button');
 	playCycleBtn.className = 'btn';
-	playCycleBtn.textContent = 'Cycle';
+	playCycleBtn.textContent = '↻ Out + In';
+	playCycleBtn.title = 'Play a full Out → In cycle to preview the complete transition.';
 	playCycleBtn.style.flex = '1';
 	playCycleBtn.addEventListener('click', () => playCycle());
 
 	const resetBtn = document.createElement('button');
 	resetBtn.className = 'btn';
-	resetBtn.textContent = 'Reset';
+	resetBtn.textContent = '✕ Reset';
+	resetBtn.title = 'Cancel any active transition and restore the normal view.';
 	resetBtn.style.flex = '1';
 	resetBtn.addEventListener('click', () => {
 		if (lastHandle) {
@@ -4149,9 +4206,11 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 	// Duration slider with "ms" suffix (custom instead of createSliderRow to avoid "1.0k" formatting)
 	const durRow = document.createElement('div');
 	durRow.className = 'control-row';
+	durRow.dataset['type'] = 'slider';
+	durRow.dataset['control'] = 'transition-duration';
 	const durLbl = document.createElement('span');
 	durLbl.className = 'control-label';
-	durLbl.textContent = 'Duration';
+	durLbl.textContent = 'Duration (ms)';
 	const durSlider = document.createElement('input');
 	durSlider.type = 'range';
 	durSlider.min = '100';
@@ -4166,12 +4225,19 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 		durVal.textContent = `${v}ms`;
 		currentDuration = v;
 	});
-	durRow.append(durLbl, durSlider, durVal);
+	durRow.append(
+		wrapWithTooltip(
+			durLbl,
+			'Transition length in milliseconds. 500 = fast, 2000 = slow, cinematic.',
+		),
+		durSlider,
+		durVal,
+	);
 	container.append(durRow);
 
 	container.append(
 		createDropdown(
-			'Easing',
+			'Easing Curve',
 			[
 				{ value: 'linear', label: 'Linear' },
 				{ value: 'easeIn', label: 'Ease In' },
@@ -4184,6 +4250,8 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 			(val) => {
 				currentEasing = val;
 			},
+			'transition-easing',
+			'Animation timing function. Controls acceleration/deceleration of the effect.',
 		),
 	);
 
@@ -4195,26 +4263,48 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 		{ name: 'Blue', hex: '#0000ff' },
 	];
 	container.append(
-		createColorPickerRow('BG Color', BG_COLOR_PRESETS, '#000000', (hex) => {
-			currentColor = {
-				r: Number.parseInt(hex.slice(1, 3), 16) / 255,
-				g: Number.parseInt(hex.slice(3, 5), 16) / 255,
-				b: Number.parseInt(hex.slice(5, 7), 16) / 255,
-			};
-		}),
+		createColorPickerRow(
+			'Background',
+			BG_COLOR_PRESETS,
+			'#000000',
+			(hex) => {
+				currentColor = {
+					r: Number.parseInt(hex.slice(1, 3), 16) / 255,
+					g: Number.parseInt(hex.slice(3, 5), 16) / 255,
+					b: Number.parseInt(hex.slice(5, 7), 16) / 255,
+				};
+			},
+			'transition-bg-color',
+			'Solid color shown behind the transition mask (usually black or white).',
+		),
 	);
 
 	container.append(
-		createSliderRow('Edge Soft', 0, 0.5, 0.01, currentEdgeSoftness, (val) => {
-			currentEdgeSoftness = val;
-		}),
+		createSliderRow(
+			'Edge Softness',
+			0,
+			0.5,
+			0.01,
+			currentEdgeSoftness,
+			(val) => {
+				currentEdgeSoftness = val;
+			},
+			'transition-edge-softness',
+			'Blur width at transition edges. 0 = hard cut, higher = feathered gradient.',
+		),
 	);
 
 	container.append(
-		createToggleRow('Edge Color', false, (on) => {
-			currentEdgeColorEnabled = on;
-			edgeColorRow.style.display = on ? 'flex' : 'none';
-		}),
+		createToggleRow(
+			'Edge Glow',
+			false,
+			(on) => {
+				currentEdgeColorEnabled = on;
+				edgeColorRow.style.display = on ? 'flex' : 'none';
+			},
+			'transition-edge-glow',
+			'Enable a colored glow/outline at the transition boundary.',
+		),
 	);
 
 	const EDGE_COLOR_PRESETS: readonly ColorPreset[] = [
@@ -4222,13 +4312,20 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 		{ name: 'Gold', hex: '#ffd700' },
 		{ name: 'Cyan', hex: '#00ffff' },
 	];
-	const edgeColorRow = createColorPickerRow('Edge Clr', EDGE_COLOR_PRESETS, '#ffffff', (hex) => {
-		currentEdgeColor = {
-			r: Number.parseInt(hex.slice(1, 3), 16) / 255,
-			g: Number.parseInt(hex.slice(3, 5), 16) / 255,
-			b: Number.parseInt(hex.slice(5, 7), 16) / 255,
-		};
-	});
+	const edgeColorRow = createColorPickerRow(
+		'Edge Color',
+		EDGE_COLOR_PRESETS,
+		'#ffffff',
+		(hex) => {
+			currentEdgeColor = {
+				r: Number.parseInt(hex.slice(1, 3), 16) / 255,
+				g: Number.parseInt(hex.slice(3, 5), 16) / 255,
+				b: Number.parseInt(hex.slice(5, 7), 16) / 255,
+			};
+		},
+		'transition-edge-color',
+		'Color of the glow at the transition boundary when Edge Glow is on.',
+	);
 	edgeColorRow.style.display = 'none';
 	container.append(edgeColorRow);
 
@@ -4249,39 +4346,125 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 		(val) => {
 			currentDirection = val;
 		},
+		'transition-direction',
+		'Wipe/slide direction for directional transition effects.',
 	);
-	const openFromCenterEl = createToggleRow('From Center', currentOpenFromCenter, (on) => {
-		currentOpenFromCenter = on;
-	});
-	const centerXEl = createSliderRow('Center X', 0, 1, 0.05, currentCenterX, (val) => {
-		currentCenterX = val;
-	});
-	const centerYEl = createSliderRow('Center Y', 0, 1, 0.05, currentCenterY, (val) => {
-		currentCenterY = val;
-	});
-	const countEl = createSliderRow('Count', 2, 30, 1, currentCount, (val) => {
-		currentCount = val;
-	});
-	const gridSizeEl = createSliderRow('Grid Size', 2, 32, 1, currentGridSize, (val) => {
-		currentGridSize = val;
-	});
-	const angleEl = createSliderRow('Angle', 0, 360, 5, currentAngle, (val) => {
-		currentAngle = val;
-	});
-	const clockwiseEl = createToggleRow('Clockwise', currentClockwise, (on) => {
-		currentClockwise = on;
-	});
-	const bladeCountEl = createSliderRow('Blades', 2, 12, 1, currentBladeCount, (val) => {
-		currentBladeCount = val;
-	});
-	const noiseScaleEl = createSliderRow('Noise Scale', 1, 20, 0.5, currentNoiseScale, (val) => {
-		currentNoiseScale = val;
-	});
-	const noiseSeedEl = createSliderRow('Seed', 0, 100, 1, currentNoiseSeed, (val) => {
-		currentNoiseSeed = val;
-	});
+	const openFromCenterEl = createToggleRow(
+		'From Center',
+		currentOpenFromCenter,
+		(on) => {
+			currentOpenFromCenter = on;
+		},
+		'transition-from-center',
+		'Start the effect from screen center instead of an edge.',
+	);
+	const centerXEl = createSliderRow(
+		'Center X',
+		0,
+		1,
+		0.05,
+		currentCenterX,
+		(val) => {
+			currentCenterX = val;
+		},
+		'transition-center-x',
+		'Horizontal origin (0=left, 0.5=center, 1=right) for radial effects.',
+	);
+	const centerYEl = createSliderRow(
+		'Center Y',
+		0,
+		1,
+		0.05,
+		currentCenterY,
+		(val) => {
+			currentCenterY = val;
+		},
+		'transition-center-y',
+		'Vertical origin (0=top, 0.5=center, 1=bottom) for radial effects.',
+	);
+	const countEl = createSliderRow(
+		'Slice Count',
+		2,
+		30,
+		1,
+		currentCount,
+		(val) => {
+			currentCount = val;
+		},
+		'transition-count',
+		'Number of segments for multi-slice effects (blinds, strips).',
+	);
+	const gridSizeEl = createSliderRow(
+		'Grid Size',
+		2,
+		32,
+		1,
+		currentGridSize,
+		(val) => {
+			currentGridSize = val;
+		},
+		'transition-grid-size',
+		'Tile count per axis for grid-based transitions (pixelate, blocks).',
+	);
+	const angleEl = createSliderRow(
+		'Angle (deg)',
+		0,
+		360,
+		5,
+		currentAngle,
+		(val) => {
+			currentAngle = val;
+		},
+		'transition-angle',
+		'Rotation angle for angular wipe and radial effects.',
+	);
+	const clockwiseEl = createToggleRow(
+		'Clockwise',
+		currentClockwise,
+		(on) => {
+			currentClockwise = on;
+		},
+		'transition-clockwise',
+		'Radial effects rotate clockwise when on, counter-clockwise when off.',
+	);
+	const bladeCountEl = createSliderRow(
+		'Blade Count',
+		2,
+		12,
+		1,
+		currentBladeCount,
+		(val) => {
+			currentBladeCount = val;
+		},
+		'transition-blade-count',
+		'Number of fan blades for pinwheel/radial-wipe effects.',
+	);
+	const noiseScaleEl = createSliderRow(
+		'Noise Scale',
+		1,
+		20,
+		0.5,
+		currentNoiseScale,
+		(val) => {
+			currentNoiseScale = val;
+		},
+		'transition-noise-scale',
+		'Perlin noise pattern size for dissolve effects. Smaller = finer grain.',
+	);
+	const noiseSeedEl = createSliderRow(
+		'Noise Seed',
+		0,
+		100,
+		1,
+		currentNoiseSeed,
+		(val) => {
+			currentNoiseSeed = val;
+		},
+		'transition-noise-seed',
+		'Random seed for noise-based effects. Different seeds = different patterns.',
+	);
 	const matrixSizeEl = createDropdown(
-		'Matrix',
+		'Dither Matrix',
 		[
 			{ value: '2', label: '2x2' },
 			{ value: '4', label: '4x4' },
@@ -4291,27 +4474,80 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 		(val) => {
 			currentMatrixSize = Number(val);
 		},
+		'transition-matrix-size',
+		'Dither grid resolution for retro-style transitions. Larger = smoother.',
 	);
-	const lineWidthEl = createSliderRow('Line Width', 0.5, 8, 0.5, currentLineWidth, (val) => {
-		currentLineWidth = val;
-	});
-	const maxBlockSizeEl = createSliderRow('Block Size', 4, 128, 4, currentMaxBlockSize, (val) => {
-		currentMaxBlockSize = val;
-	});
-	const scanlinesEl = createToggleRow('Scanlines', currentScanlines, (on) => {
-		currentScanlines = on;
-	});
-	const swirlStrengthEl = createSliderRow('Strength', 1, 30, 1, currentSwirlStrength, (val) => {
-		currentSwirlStrength = val;
-	});
-	const swirlRadiusEl = createSliderRow('Radius', 0.1, 1, 0.05, currentSwirlRadius, (val) => {
-		currentSwirlRadius = val;
-	});
-	const lineCountEl = createSliderRow('Lines', 4, 30, 1, currentLineCount, (val) => {
-		currentLineCount = val;
-	});
+	const lineWidthEl = createSliderRow(
+		'Line Width',
+		0.5,
+		8,
+		0.5,
+		currentLineWidth,
+		(val) => {
+			currentLineWidth = val;
+		},
+		'transition-line-width',
+		'Stroke thickness for line-based transition effects.',
+	);
+	const maxBlockSizeEl = createSliderRow(
+		'Block Size (px)',
+		4,
+		128,
+		4,
+		currentMaxBlockSize,
+		(val) => {
+			currentMaxBlockSize = val;
+		},
+		'transition-block-size',
+		'Pixel block size for pixelation and mosaic transitions.',
+	);
+	const scanlinesEl = createToggleRow(
+		'Scanlines',
+		currentScanlines,
+		(on) => {
+			currentScanlines = on;
+		},
+		'transition-scanlines',
+		'Add CRT-style horizontal scanline overlay during the transition.',
+	);
+	const swirlStrengthEl = createSliderRow(
+		'Strength',
+		1,
+		30,
+		1,
+		currentSwirlStrength,
+		(val) => {
+			currentSwirlStrength = val;
+		},
+		'transition-strength',
+		'Effect intensity for distortion-based transitions (ripple, wave, zoom).',
+	);
+	const swirlRadiusEl = createSliderRow(
+		'Radius',
+		0.1,
+		1,
+		0.05,
+		currentSwirlRadius,
+		(val) => {
+			currentSwirlRadius = val;
+		},
+		'transition-radius',
+		'Effect spread radius from the center point (0–1 = fraction of screen).',
+	);
+	const lineCountEl = createSliderRow(
+		'Line Count',
+		4,
+		30,
+		1,
+		currentLineCount,
+		(val) => {
+			currentLineCount = val;
+		},
+		'transition-line-count',
+		'Number of lines for line-based geometric transitions.',
+	);
 	const zoomLineWidthEl = createSliderRow(
-		'Line W',
+		'Line Weight',
 		0.005,
 		0.1,
 		0.005,
@@ -4319,26 +4555,81 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 		(val) => {
 			currentZoomLineWidth = val;
 		},
+		'transition-line-weight',
+		'Line thickness as fraction of screen for geometric effects.',
 	);
-	const cellCountEl = createSliderRow('Cells', 5, 50, 1, currentCellCount, (val) => {
-		currentCellCount = val;
-	});
-	const amplitudeEl = createSliderRow('Amplitude', 0.01, 0.5, 0.01, currentAmplitude, (val) => {
-		currentAmplitude = val;
-	});
-	const frequencyEl = createSliderRow('Frequency', 1, 30, 1, currentFrequency, (val) => {
-		currentFrequency = val;
-	});
-	const intensityEl = createSliderRow('Intensity', 0.1, 3, 0.1, currentIntensity, (val) => {
-		currentIntensity = val;
-	});
-	const waveCountEl = createSliderRow('Waves', 1, 15, 1, currentWaveCount, (val) => {
-		currentWaveCount = val;
-	});
-
-	const pointCountEl = createSliderRow('Star Points', 3, 12, 1, currentPointCount, (val) => {
-		currentPointCount = val;
-	});
+	const cellCountEl = createSliderRow(
+		'Cell Count',
+		5,
+		50,
+		1,
+		currentCellCount,
+		(val) => {
+			currentCellCount = val;
+		},
+		'transition-cell-count',
+		'Number of cells for Voronoi/cellular transitions.',
+	);
+	const amplitudeEl = createSliderRow(
+		'Amplitude',
+		0.01,
+		0.5,
+		0.01,
+		currentAmplitude,
+		(val) => {
+			currentAmplitude = val;
+		},
+		'transition-amplitude',
+		'Displacement amount for wave and ripple transitions.',
+	);
+	const frequencyEl = createSliderRow(
+		'Frequency',
+		1,
+		30,
+		1,
+		currentFrequency,
+		(val) => {
+			currentFrequency = val;
+		},
+		'transition-frequency',
+		'Wave repetitions for oscillating transitions. Higher = more waves.',
+	);
+	const intensityEl = createSliderRow(
+		'Intensity',
+		0.1,
+		3,
+		0.1,
+		currentIntensity,
+		(val) => {
+			currentIntensity = val;
+		},
+		'transition-intensity',
+		'Overall strength multiplier for distortion transitions.',
+	);
+	const waveCountEl = createSliderRow(
+		'Wave Count',
+		1,
+		15,
+		1,
+		currentWaveCount,
+		(val) => {
+			currentWaveCount = val;
+		},
+		'transition-wave-count',
+		'Number of concurrent waves for multi-wave effects.',
+	);
+	const pointCountEl = createSliderRow(
+		'Star Points',
+		3,
+		12,
+		1,
+		currentPointCount,
+		(val) => {
+			currentPointCount = val;
+		},
+		'transition-star-points',
+		'Number of points on the star shape for star-wipe transitions.',
+	);
 
 	// Assemble context controls map
 	const contextControls: Record<string, HTMLElement> = {
@@ -4486,48 +4777,38 @@ function buildFogUI(
 	// Presets
 	// =========================================================================
 
-	container.append(createSubHeader('Presets'));
-
-	const presetBtnGroup = document.createElement('div');
-	presetBtnGroup.style.cssText = 'display:flex;flex-wrap:wrap;gap:3px;padding:4px 0;';
-
-	/**
-	 * Creates a preset button for the given preset name.
-	 *
-	 * @param presetName - The fog preset name.
-	 * @returns The button element.
-	 */
-	const makePresetBtn = (presetName: FogPresetName): HTMLButtonElement => {
-		const btn = document.createElement('button');
-		btn.className = 'btn';
-		btn.textContent = FOG_PRESET_LABELS[presetName];
-		btn.style.cssText = 'font-size:9px;padding:2px 6px;';
-		btn.addEventListener('click', () => {
-			const preset = FOG_PRESETS[presetName];
-			_fogConfig = { ...preset };
-			if (_fogHandle) {
-				applyFogPreset(_fogHandle, presetName);
-			} else {
-				update();
-			}
-			// Rebuild UI to reflect preset values
-			buildFogUI(scene, camera, engine);
-		});
-		return btn;
-	};
-
-	for (const pName of FOG_PRESET_NAMES) {
-		presetBtnGroup.append(makePresetBtn(pName));
-	}
-	container.append(presetBtnGroup);
+	container.append(
+		createDropdown(
+			'Fog Preset',
+			FOG_PRESET_NAMES.map((name) => ({
+				value: name,
+				label: FOG_PRESET_LABELS[name],
+			})),
+			'clear',
+			(val) => {
+				const presetName = val as FogPresetName;
+				const preset = FOG_PRESETS[presetName];
+				_fogConfig = { ...preset };
+				if (_fogHandle) {
+					applyFogPreset(_fogHandle, presetName);
+				} else {
+					update();
+				}
+				// Rebuild UI to reflect preset values
+				buildFogUI(scene, camera, engine);
+			},
+			'fog-preset',
+			'Quick-load a pre-configured fog setup.',
+		),
+	);
 
 	// =========================================================================
 	// Core
 	// =========================================================================
 
-	container.append(createSubHeader('Core'));
+	const coreGroup = createCollapsibleGroup('Core', false);
 
-	container.append(
+	coreGroup.body.append(
 		createDropdown(
 			'Mode',
 			[
@@ -4546,7 +4827,7 @@ function buildFogUI(
 		),
 	);
 
-	container.append(
+	coreGroup.body.append(
 		createSliderRow(
 			'Density',
 			0,
@@ -4557,12 +4838,12 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, density: v };
 				update();
 			},
-			undefined,
+			'fog-density',
 			'Exponential fog thickness. Higher = fog appears closer.',
 		),
 	);
 
-	container.append(
+	coreGroup.body.append(
 		createSliderRow(
 			'Start',
 			0,
@@ -4573,12 +4854,12 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, start: v };
 				update();
 			},
-			undefined,
+			'fog-start',
 			'Distance where linear fog begins (world units).',
 		),
 	);
 
-	container.append(
+	coreGroup.body.append(
 		createSliderRow(
 			'End',
 			10,
@@ -4589,12 +4870,12 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, end: v };
 				update();
 			},
-			undefined,
+			'fog-end',
 			'Distance where linear fog reaches full opacity.',
 		),
 	);
 
-	container.append(
+	coreGroup.body.append(
 		createSliderRow(
 			'Color R',
 			0,
@@ -4605,12 +4886,12 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, color: { ..._fogConfig.color, r: v } };
 				update();
 			},
-			undefined,
+			'fog-color-r',
 			'Red channel of the base fog color.',
 		),
 	);
 
-	container.append(
+	coreGroup.body.append(
 		createSliderRow(
 			'Color G',
 			0,
@@ -4621,12 +4902,12 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, color: { ..._fogConfig.color, g: v } };
 				update();
 			},
-			undefined,
+			'fog-color-g',
 			'Green channel of the base fog color.',
 		),
 	);
 
-	container.append(
+	coreGroup.body.append(
 		createSliderRow(
 			'Color B',
 			0,
@@ -4637,12 +4918,12 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, color: { ..._fogConfig.color, b: v } };
 				update();
 			},
-			undefined,
+			'fog-color-b',
 			'Blue channel of the base fog color.',
 		),
 	);
 
-	container.append(
+	coreGroup.body.append(
 		createSliderRow(
 			'Max Opacity',
 			0,
@@ -4653,12 +4934,12 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, maxOpacity: v };
 				update();
 			},
-			undefined,
+			'fog-max-opacity',
 			'Maximum fog opacity cap (0–1). Prevents full whiteout.',
 		),
 	);
 
-	container.append(
+	coreGroup.body.append(
 		createSliderRow(
 			'Start Distance',
 			0,
@@ -4669,12 +4950,12 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, startDistance: v };
 				update();
 			},
-			undefined,
+			'fog-start-distance',
 			'Offset before fog begins. Objects closer are fog-free.',
 		),
 	);
 
-	container.append(
+	coreGroup.body.append(
 		createSliderRow(
 			'Cutoff Distance',
 			0,
@@ -4685,12 +4966,12 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, cutoffDistance: v };
 				update();
 			},
-			undefined,
+			'fog-cutoff-distance',
 			'Beyond this distance fog is fully opaque.',
 		),
 	);
 
-	container.append(
+	coreGroup.body.append(
 		createToggleRow(
 			'Exclude Skybox',
 			_fogConfig.excludeSkybox,
@@ -4698,12 +4979,12 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, excludeSkybox: on };
 				update();
 			},
-			undefined,
+			'fog-exclude-skybox',
 			'Skip fog on the skybox mesh so the sky stays clear.',
 		),
 	);
 
-	container.append(
+	coreGroup.body.append(
 		createSliderRow(
 			'Sky Affect',
 			0,
@@ -4714,10 +4995,11 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, skyAffect: v };
 				update();
 			},
-			undefined,
+			'fog-sky-affect',
 			'How much fog tints the sky. 0 = unaffected, 1 = fully fogged.',
 		),
 	);
+	container.append(coreGroup.root);
 
 	// =========================================================================
 	// Height Fog
@@ -4740,7 +5022,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, heightFog: { ...hf, enabled: on } };
 				update();
 			},
-			undefined,
+			'fog-height-enabled',
 			'Turn height-based fog on or off.',
 		),
 	);
@@ -4756,7 +5038,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, heightFog: { ...cur, baseHeight: v } };
 				update();
 			},
-			undefined,
+			'fog-height-base-height',
 			'World Y where height fog is densest.',
 		),
 	);
@@ -4772,7 +5054,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, heightFog: { ...cur, falloff: v } };
 				update();
 			},
-			undefined,
+			'fog-height-falloff',
 			'How quickly height fog fades above the base.',
 		),
 	);
@@ -4788,7 +5070,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, heightFog: { ...cur, density: v } };
 				update();
 			},
-			undefined,
+			'fog-height-density',
 			'Height fog thickness at the base level.',
 		),
 	);
@@ -4804,7 +5086,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, heightFog: { ...cur, offset: v } };
 				update();
 			},
-			undefined,
+			'fog-height-offset',
 			'Vertical shift for the entire height fog layer.',
 		),
 	);
@@ -4831,7 +5113,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, secondLayer: { ...sl, enabled: on } };
 				update();
 			},
-			undefined,
+			'fog-second-layer-enabled',
 			'Turn the second fog layer on or off.',
 		),
 	);
@@ -4847,7 +5129,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, secondLayer: { ...cur, density: v } };
 				update();
 			},
-			undefined,
+			'fog-second-layer-density',
 			'Thickness of the second fog layer.',
 		),
 	);
@@ -4863,7 +5145,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, secondLayer: { ...cur, heightFalloff: v } };
 				update();
 			},
-			undefined,
+			'fog-second-layer-height-falloff',
 			'Vertical decay rate for the second layer.',
 		),
 	);
@@ -4879,7 +5161,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, secondLayer: { ...cur, heightOffset: v } };
 				update();
 			},
-			undefined,
+			'fog-second-layer-height-offset',
 			'Vertical position offset for the second layer.',
 		),
 	);
@@ -4906,7 +5188,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, inscattering: { ...ins, enabled: on } };
 				update();
 			},
-			undefined,
+			'fog-inscattering-enabled',
 			'Turn light inscattering effect on or off.',
 		),
 	);
@@ -4922,7 +5204,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, inscattering: { ...cur, exponent: v } };
 				update();
 			},
-			undefined,
+			'fog-inscattering-exponent',
 			'Tightness of the light halo. Higher = more focused.',
 		),
 	);
@@ -4938,7 +5220,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, inscattering: { ...cur, startDistance: v } };
 				update();
 			},
-			undefined,
+			'fog-inscattering-start-dist',
 			'Distance before inscattering begins.',
 		),
 	);
@@ -4954,7 +5236,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, inscattering: { ...cur, intensity: v } };
 				update();
 			},
-			undefined,
+			'fog-inscattering-intensity',
 			'Brightness of the inscattered light.',
 		),
 	);
@@ -4983,7 +5265,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, atmospheric: { ...atm, enabled: on } };
 				update();
 			},
-			undefined,
+			'fog-atmospheric-enabled',
 			'Turn wavelength-dependent atmospheric fog on or off.',
 		),
 	);
@@ -4999,7 +5281,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, atmospheric: { ...cur, extinctionR: v } };
 				update();
 			},
-			undefined,
+			'fog-atmospheric-extinct-r',
 			'Red channel light absorption rate.',
 		),
 	);
@@ -5015,7 +5297,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, atmospheric: { ...cur, extinctionG: v } };
 				update();
 			},
-			undefined,
+			'fog-atmospheric-extinct-g',
 			'Green channel light absorption rate.',
 		),
 	);
@@ -5031,7 +5313,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, atmospheric: { ...cur, extinctionB: v } };
 				update();
 			},
-			undefined,
+			'fog-atmospheric-extinct-b',
 			'Blue channel absorption. Higher = warmer sunset tones.',
 		),
 	);
@@ -5047,7 +5329,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, atmospheric: { ...cur, inscatteringR: v } };
 				update();
 			},
-			undefined,
+			'fog-atmospheric-inscatter-r',
 			'Red channel of light scattered into the view.',
 		),
 	);
@@ -5063,7 +5345,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, atmospheric: { ...cur, inscatteringG: v } };
 				update();
 			},
-			undefined,
+			'fog-atmospheric-inscatter-g',
 			'Green channel of light scattered into the view.',
 		),
 	);
@@ -5079,7 +5361,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, atmospheric: { ...cur, inscatteringB: v } };
 				update();
 			},
-			undefined,
+			'fog-atmospheric-inscatter-b',
 			'Blue channel of light scattered into the view.',
 		),
 	);
@@ -5108,7 +5390,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, noise: { ...noise, enabled: on } };
 				update();
 			},
-			undefined,
+			'fog-noise-enabled',
 			'Add Perlin noise variation to fog density.',
 		),
 	);
@@ -5124,7 +5406,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, noise: { ...cur, scale: v } };
 				update();
 			},
-			undefined,
+			'fog-noise-scale',
 			'Noise pattern size. Smaller = finer detail.',
 		),
 	);
@@ -5140,7 +5422,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, noise: { ...cur, amplitude: v } };
 				update();
 			},
-			undefined,
+			'fog-noise-amplitude',
 			'Noise strength. How much density varies.',
 		),
 	);
@@ -5156,7 +5438,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, noise: { ...cur, speed: v } };
 				update();
 			},
-			undefined,
+			'fog-noise-speed',
 			'How fast the noise pattern animates.',
 		),
 	);
@@ -5172,7 +5454,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, noise: { ...cur, octaves: v } };
 				update();
 			},
-			undefined,
+			'fog-noise-octaves',
 			'Noise layers. More = finer detail, higher GPU cost.',
 		),
 	);
@@ -5188,7 +5470,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, noise: { ...cur, lacunarity: v } };
 				update();
 			},
-			undefined,
+			'fog-noise-lacunarity',
 			'Frequency multiplier between octaves.',
 		),
 	);
@@ -5204,7 +5486,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, noise: { ...cur, persistence: v } };
 				update();
 			},
-			undefined,
+			'fog-noise-persistence',
 			'Amplitude falloff per octave. Lower = smoother.',
 		),
 	);
@@ -5230,7 +5512,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, wind: { ...wind, enabled: on } };
 				update();
 			},
-			undefined,
+			'fog-wind-enabled',
 			'Enable wind-driven fog movement.',
 		),
 	);
@@ -5246,7 +5528,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, wind: { ...cur, directionAngle: v } };
 				update();
 			},
-			undefined,
+			'fog-wind-direction',
 			'Wind compass angle (0–360). Drives fog drift.',
 		),
 	);
@@ -5262,7 +5544,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, wind: { ...cur, speed: v } };
 				update();
 			},
-			undefined,
+			'fog-wind-speed',
 			'Wind speed. Higher = faster fog drift.',
 		),
 	);
@@ -5278,7 +5560,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, wind: { ...cur, turbulence: v } };
 				update();
 			},
-			undefined,
+			'fog-wind-turbulence',
 			'Random wind variation. 0 = steady, 1 = chaotic.',
 		),
 	);
@@ -5288,18 +5570,29 @@ function buildFogUI(
 	// Overlay Layers (4 layers)
 	// =========================================================================
 
-	const overlayTextures = ['perlin', 'worley', 'clouds', 'wisps', 'smoke'] as const;
-	const blendModes = ['normal', 'additive', 'multiply', 'screen'] as const;
-	const vignetteTypes = [
-		'none',
-		'radial',
-		'border',
-		'horizontal',
-		'vertical',
-		'upper',
-		'lower',
-		'left',
-		'right',
+	const overlayTextureOptions = [
+		{ value: 'perlin', label: 'Perlin Noise' },
+		{ value: 'worley', label: 'Worley Cells' },
+		{ value: 'clouds', label: 'Cloud Wisps' },
+		{ value: 'wisps', label: 'Ethereal Wisps' },
+		{ value: 'smoke', label: 'Smoke Billows' },
+	] as const;
+	const blendModeOptions = [
+		{ value: 'normal', label: 'Normal' },
+		{ value: 'additive', label: 'Additive (Glow)' },
+		{ value: 'multiply', label: 'Multiply (Darken)' },
+		{ value: 'screen', label: 'Screen (Lighten)' },
+	] as const;
+	const vignetteOptions = [
+		{ value: 'none', label: 'None' },
+		{ value: 'radial', label: 'Radial' },
+		{ value: 'border', label: 'Full Border' },
+		{ value: 'horizontal', label: 'Horizontal Band' },
+		{ value: 'vertical', label: 'Vertical Band' },
+		{ value: 'upper', label: 'Upper Half' },
+		{ value: 'lower', label: 'Lower Half' },
+		{ value: 'left', label: 'Left Half' },
+		{ value: 'right', label: 'Right Half' },
 	] as const;
 
 	/**
@@ -5309,7 +5602,7 @@ function buildFogUI(
 	 * @returns The collapsible group root element.
 	 */
 	const buildOverlayLayer = (idx: Num): HTMLElement => {
-		const ovGroup = createCollapsibleGroup(`Overlay ${idx + 1}`, true);
+		const ovGroup = createCollapsibleGroup(`Fog Layer ${idx + 1}`, true);
 		const defaultOv = {
 			enabled: false,
 			texture: 'perlin' as const,
@@ -5348,14 +5641,14 @@ function buildFogUI(
 				(on) => {
 					setOverlayProp('enabled', on);
 				},
-				undefined,
+				`fog-overlay-${idx}-enabled`,
 				'Turn this fog overlay layer on or off.',
 			),
 		);
 		ovGroup.body.append(
 			createDropdown(
 				'Texture',
-				overlayTextures.map((t) => ({ value: t, label: t })),
+				[...overlayTextureOptions],
 				ov.texture,
 				(v) => {
 					const overlays = [...(_fogConfig.overlays ?? [])];
@@ -5369,7 +5662,7 @@ function buildFogUI(
 					}
 					update();
 				},
-				undefined,
+				`fog-overlay-${idx}-texture`,
 				'Noise pattern type for this overlay layer.',
 			),
 		);
@@ -5383,19 +5676,19 @@ function buildFogUI(
 				(v) => {
 					setOverlayProp('opacity', v);
 				},
-				undefined,
+				`fog-overlay-${idx}-opacity`,
 				'Layer transparency. 0 = invisible, 1 = opaque.',
 			),
 		);
 		ovGroup.body.append(
 			createDropdown(
 				'Blend',
-				blendModes.map((m) => ({ value: m, label: m })),
+				[...blendModeOptions],
 				ov.blendMode,
 				(v) => {
 					setOverlayProp('blendMode', v);
 				},
-				undefined,
+				`fog-overlay-${idx}-blend`,
 				'How this layer combines with the scene.',
 			),
 		);
@@ -5409,7 +5702,7 @@ function buildFogUI(
 				(v) => {
 					setOverlayProp('scrollX', v);
 				},
-				undefined,
+				`fog-overlay-${idx}-scroll-x`,
 				'Horizontal drift speed. Negative = left.',
 			),
 		);
@@ -5423,7 +5716,7 @@ function buildFogUI(
 				(v) => {
 					setOverlayProp('scrollY', v);
 				},
-				undefined,
+				`fog-overlay-${idx}-scroll-y`,
 				'Vertical drift speed. Negative = down.',
 			),
 		);
@@ -5437,7 +5730,7 @@ function buildFogUI(
 				(v) => {
 					setOverlayProp('scale', v);
 				},
-				undefined,
+				`fog-overlay-${idx}-scale`,
 				'Texture scale. Larger = bigger pattern.',
 			),
 		);
@@ -5451,7 +5744,7 @@ function buildFogUI(
 				(v) => {
 					setOverlayProp('hue', v);
 				},
-				undefined,
+				`fog-overlay-${idx}-hue`,
 				'Color rotation in degrees.',
 			),
 		);
@@ -5465,19 +5758,19 @@ function buildFogUI(
 				(v) => {
 					setOverlayProp('hueSpeed', v);
 				},
-				undefined,
+				`fog-overlay-${idx}-hue-speed`,
 				'Auto hue rotation speed (deg/sec). 0 = static.',
 			),
 		);
 		ovGroup.body.append(
 			createDropdown(
 				'Vignette',
-				vignetteTypes.map((t) => ({ value: t, label: t })),
+				[...vignetteOptions],
 				ov.vignette,
 				(v) => {
 					setOverlayProp('vignette', v);
 				},
-				undefined,
+				`fog-overlay-${idx}-vignette`,
 				'Edge fade shape for this overlay layer.',
 			),
 		);
@@ -5491,7 +5784,7 @@ function buildFogUI(
 				(v) => {
 					setOverlayProp('vignetteIntensity', v);
 				},
-				undefined,
+				`fog-overlay-${idx}-vig-intensity`,
 				'Strength of the edge fade effect.',
 			),
 		);
@@ -5522,7 +5815,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, animation: { ...anim, enabled: on } };
 				update();
 			},
-			undefined,
+			'fog-animation-enabled',
 			'Animate fog density over time.',
 		),
 	);
@@ -5538,7 +5831,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, animation: { ...cur, speed: v } };
 				update();
 			},
-			undefined,
+			'fog-animation-speed',
 			'Animation cycle speed.',
 		),
 	);
@@ -5554,7 +5847,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, animation: { ...cur, amplitude: v } };
 				update();
 			},
-			undefined,
+			'fog-animation-amplitude',
 			'How much density varies during animation.',
 		),
 	);
@@ -5572,7 +5865,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, animation: { ...cur, waveform: v as typeof anim.waveform } };
 				update();
 			},
-			undefined,
+			'fog-animation-waveform',
 			'Oscillation shape. Sine = smooth, Triangle = angular.',
 		),
 	);
@@ -5600,7 +5893,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, dayNight: { ...dn, enabled: on } };
 				update();
 			},
-			undefined,
+			'fog-daynight-enabled',
 			'Auto-adjust fog with the day/night cycle.',
 		),
 	);
@@ -5616,7 +5909,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, dayNight: { ...cur, dayDensity: v } };
 				update();
 			},
-			undefined,
+			'fog-daynight-day-density',
 			'Fog density during daytime.',
 		),
 	);
@@ -5632,7 +5925,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, dayNight: { ...cur, nightDensity: v } };
 				update();
 			},
-			undefined,
+			'fog-daynight-night-density',
 			'Fog density at night. Usually denser than day.',
 		),
 	);
@@ -5653,7 +5946,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, perMesh: { ...pm, excludeGround: on } };
 				update();
 			},
-			undefined,
+			'fog-per-mesh-exclude-ground',
 			'Skip fog on the ground fill plane.',
 		),
 	);
@@ -5665,7 +5958,7 @@ function buildFogUI(
 				_fogConfig = { ..._fogConfig, perMesh: { ...pm, excludeSprites: on } };
 				update();
 			},
-			undefined,
+			'fog-per-mesh-exclude-sprites',
 			'Skip fog on sprite meshes (characters, items).',
 		),
 	);
@@ -6130,8 +6423,9 @@ function buildLayerRow(
 	reorderWrap.className = 'layer-reorder';
 
 	const upBtn: HTMLButtonElement = document.createElement('button');
-	upBtn.textContent = '\u25B2'; // ▲
-	upBtn.title = 'Move layer up';
+	upBtn.innerHTML =
+		'<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 7L5 3L8 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+	upBtn.title = 'Move this layer up in the draw order (closer to foreground).';
 	upBtn.disabled = index === 0;
 	upBtn.addEventListener('click', (e) => {
 		e.stopPropagation();
@@ -6139,8 +6433,9 @@ function buildLayerRow(
 	});
 
 	const downBtn: HTMLButtonElement = document.createElement('button');
-	downBtn.textContent = '\u25BC'; // ▼
-	downBtn.title = 'Move layer down';
+	downBtn.innerHTML =
+		'<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3L5 7L8 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+	downBtn.title = 'Move this layer down in the draw order (closer to background).';
 	downBtn.disabled = index === totalLayers - 1;
 	downBtn.addEventListener('click', (e) => {
 		e.stopPropagation();
@@ -6151,7 +6446,8 @@ function buildLayerRow(
 
 	const chevron: HTMLElement = document.createElement('span');
 	chevron.className = 'layer-chevron';
-	chevron.textContent = '\u25BE'; // ▾
+	chevron.innerHTML =
+		'<svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 	header.append(titleArea, reorderWrap, chevron);
 	header.addEventListener('click', (e) => {
@@ -6174,6 +6470,7 @@ function buildLayerRow(
 				setLayerVisibility({ tilemap, layerIndex: index as Num, visible: on as Bool });
 			},
 			`layer-${idx}-visible`,
+			'Show or hide this layer in the viewport.',
 		),
 	);
 	body.append(
@@ -6187,43 +6484,133 @@ function buildLayerRow(
 				setLayerOpacity({ tilemap, layerIndex: index as Num, opacity: val as Num });
 			},
 			`layer-${idx}-opacity`,
+			'Layer transparency. 0 = invisible, 1 = fully opaque.',
 		),
 	);
 
 	// -- Visual group (collapsed) --
 	const visual = createCollapsibleGroup('Visual', true);
 	visual.body.append(
-		createSliderRow('Tint R', 0, 1, 0.01, layer.tintColor.r, noop, `layer-${idx}-tint-r`),
+		createSliderRow(
+			'Tint R',
+			0,
+			1,
+			0.01,
+			layer.tintColor.r,
+			noop,
+			`layer-${idx}-tint-r`,
+			'Red tint channel (0–1).',
+		),
 	);
 	visual.body.append(
-		createSliderRow('Tint G', 0, 1, 0.01, layer.tintColor.g, noop, `layer-${idx}-tint-g`),
+		createSliderRow(
+			'Tint G',
+			0,
+			1,
+			0.01,
+			layer.tintColor.g,
+			noop,
+			`layer-${idx}-tint-g`,
+			'Green tint channel (0–1).',
+		),
 	);
 	visual.body.append(
-		createSliderRow('Tint B', 0, 1, 0.01, layer.tintColor.b, noop, `layer-${idx}-tint-b`),
+		createSliderRow(
+			'Tint B',
+			0,
+			1,
+			0.01,
+			layer.tintColor.b,
+			noop,
+			`layer-${idx}-tint-b`,
+			'Blue tint channel (0–1).',
+		),
 	);
 	visual.body.append(
-		createSliderRow('Tint A', 0, 1, 0.01, layer.tintColor.a, noop, `layer-${idx}-tint-a`),
+		createSliderRow(
+			'Tint A',
+			0,
+			1,
+			0.01,
+			layer.tintColor.a,
+			noop,
+			`layer-${idx}-tint-a`,
+			'Alpha tint channel (0–1).',
+		),
 	);
 	visual.body.append(
-		createSliderRow('Brightness', -1, 1, 0.01, layer.brightness, noop, `layer-${idx}-brightness`),
+		createSliderRow(
+			'Brightness',
+			-1,
+			1,
+			0.01,
+			layer.brightness,
+			noop,
+			`layer-${idx}-brightness`,
+			'Lighten or darken the layer. 0 = normal, -1 = black, 1 = white.',
+		),
 	);
 	visual.body.append(
-		createSliderRow('Saturation', 0, 2, 0.01, layer.saturation, noop, `layer-${idx}-saturation`),
+		createSliderRow(
+			'Saturation',
+			0,
+			2,
+			0.01,
+			layer.saturation,
+			noop,
+			`layer-${idx}-saturation`,
+			'Color intensity. 0 = grayscale, 1 = normal, 2 = vivid.',
+		),
 	);
 	visual.body.append(
-		createSliderRow('Contrast', 0, 2, 0.01, layer.contrast, noop, `layer-${idx}-contrast`),
+		createSliderRow(
+			'Contrast',
+			0,
+			2,
+			0.01,
+			layer.contrast,
+			noop,
+			`layer-${idx}-contrast`,
+			'Tone range. 0 = flat, 1 = normal, 2 = high contrast.',
+		),
 	);
 	body.append(visual.root);
 
 	// -- Transform group (collapsed) --
 	const transform = createCollapsibleGroup('Transform', true);
 	transform.body.append(
-		createSliderRow('Offset X', -100, 100, 1, layer.offsetX, noop, `layer-${idx}-offset-x`),
+		createSliderRow(
+			'Offset X',
+			-100,
+			100,
+			1,
+			layer.offsetX,
+			noop,
+			`layer-${idx}-offset-x`,
+			'Pixel offset from default position. Useful for parallax tuning.',
+		),
 	);
 	transform.body.append(
-		createSliderRow('Offset Y', -100, 100, 1, layer.offsetY, noop, `layer-${idx}-offset-y`),
+		createSliderRow(
+			'Offset Y',
+			-100,
+			100,
+			1,
+			layer.offsetY,
+			noop,
+			`layer-${idx}-offset-y`,
+			'Pixel offset from default position. Useful for parallax tuning.',
+		),
 	);
-	transform.body.append(createToggleRow('Locked', layer.locked, noop, `layer-${idx}-locked`));
+	transform.body.append(
+		createToggleRow(
+			'Locked',
+			layer.locked,
+			noop,
+			`layer-${idx}-locked`,
+			'Prevent accidental edits to this layer in the editor.',
+		),
+	);
 	body.append(transform.root);
 
 	// -- Tile-layer-specific groups --
@@ -6238,6 +6625,7 @@ function buildLayerRow(
 				layer.parallaxFactorX,
 				noop,
 				`layer-${idx}-parallax-x`,
+				'Parallax scroll multiplier. 0 = static, 1 = normal, >1 = foreground.',
 			),
 		);
 		parallax.body.append(
@@ -6249,6 +6637,7 @@ function buildLayerRow(
 				layer.parallaxFactorY,
 				noop,
 				`layer-${idx}-parallax-y`,
+				'Parallax scroll multiplier. 0 = static, 1 = normal, >1 = foreground.',
 			),
 		);
 		parallax.body.append(
@@ -6260,6 +6649,7 @@ function buildLayerRow(
 				layer.parallaxOriginX,
 				noop,
 				`layer-${idx}-porigin-x`,
+				'Parallax scroll origin point in world coordinates.',
 			),
 		);
 		parallax.body.append(
@@ -6271,16 +6661,35 @@ function buildLayerRow(
 				layer.parallaxOriginY,
 				noop,
 				`layer-${idx}-porigin-y`,
+				'Parallax scroll origin point in world coordinates.',
 			),
 		);
 		body.append(parallax.root);
 
 		const rendering = createCollapsibleGroup('Rendering', true);
 		rendering.body.append(
-			createSliderRow('Scale X', 0.1, 10, 0.1, layer.scaleX, noop, `layer-${idx}-scale-x`),
+			createSliderRow(
+				'Scale X',
+				0.1,
+				10,
+				0.1,
+				layer.scaleX,
+				noop,
+				`layer-${idx}-scale-x`,
+				'Tile rendering scale multiplier. 1 = normal size.',
+			),
 		);
 		rendering.body.append(
-			createSliderRow('Scale Y', 0.1, 10, 0.1, layer.scaleY, noop, `layer-${idx}-scale-y`),
+			createSliderRow(
+				'Scale Y',
+				0.1,
+				10,
+				0.1,
+				layer.scaleY,
+				noop,
+				`layer-${idx}-scale-y`,
+				'Tile rendering scale multiplier. 1 = normal size.',
+			),
 		);
 		rendering.body.append(
 			createSliderRow(
@@ -6291,19 +6700,44 @@ function buildLayerRow(
 				layer.renderOrder,
 				noop,
 				`layer-${idx}-renderorder`,
+				'Draw priority. Higher = drawn later (on top of lower values).',
 			),
 		);
 		rendering.body.append(
-			createToggleRow('Cast Shadows', layer.castShadows, noop, `layer-${idx}-castshadows`),
+			createToggleRow(
+				'Cast Shadows',
+				layer.castShadows,
+				noop,
+				`layer-${idx}-castshadows`,
+				'Layer geometry casts shadows onto lower layers.',
+			),
 		);
 		rendering.body.append(
-			createToggleRow('Receive Shadows', layer.receiveShadows, noop, `layer-${idx}-receiveshadows`),
+			createToggleRow(
+				'Receive Shadows',
+				layer.receiveShadows,
+				noop,
+				`layer-${idx}-receiveshadows`,
+				'Layer receives shadow projections from above.',
+			),
 		);
 		rendering.body.append(
-			createToggleRow('Depth Write', layer.depthWrite, noop, `layer-${idx}-depthwrite`),
+			createToggleRow(
+				'Depth Write',
+				layer.depthWrite,
+				noop,
+				`layer-${idx}-depthwrite`,
+				'Write to the depth buffer (affects occlusion with other layers).',
+			),
 		);
 		rendering.body.append(
-			createToggleRow('Y-Sort', layer.ySortEnabled, noop, `layer-${idx}-ysort`),
+			createToggleRow(
+				'Y-Sort',
+				layer.ySortEnabled,
+				noop,
+				`layer-${idx}-ysort`,
+				'Sort sprites by Y position for correct overlap in top-down view.',
+			),
 		);
 		rendering.body.append(
 			createSliderRow(
@@ -6314,6 +6748,7 @@ function buildLayerRow(
 				layer.cullingPadding,
 				noop,
 				`layer-${idx}-cullingpad`,
+				'Extra tiles rendered beyond viewport edges to prevent pop-in.',
 			),
 		);
 		body.append(rendering.root);
@@ -6922,63 +7357,125 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			// Update dim layers when switching layers
 			applyDimLayers(debug.tilemap);
 		},
+		'ti-inspect-layer',
+		"Which map layer to inspect. 'Topmost' picks the highest non-empty layer.",
 	);
 	controlsWrap.append(layerSelectRow);
 
 	// -- Identity (expanded by default — most-used) --
 	const identity = createCollapsibleGroup('Identity', false);
-	identity.body.append(infoRow('Tile ID (global)', 'ti-global-id'));
-	identity.body.append(infoRow('Tile ID (local)', 'ti-local-id'));
-	identity.body.append(infoRow('Tileset', 'ti-tileset'));
-	identity.body.append(infoRow('Grid Position', 'ti-grid-pos'));
-	identity.body.append(infoRow('Layer', 'ti-layer'));
+	identity.body.append(
+		infoRow(
+			'Tile ID (global)',
+			'ti-global-id',
+			'Unique numeric ID across all tilesets in the project.',
+		),
+	);
+	identity.body.append(
+		infoRow('Tile ID (local)', 'ti-local-id', 'Tile index within its parent tileset (0-based).'),
+	);
+	identity.body.append(
+		infoRow('Tileset', 'ti-tileset', 'Name of the tileset image this tile belongs to.'),
+	);
+	identity.body.append(
+		infoRow('Grid Position', 'ti-grid-pos', 'Column and row of this tile on the map grid (X, Z).'),
+	);
+	identity.body.append(infoRow('Layer', 'ti-layer', 'Map layer index where this tile is placed.'));
 	controlsWrap.append(identity.root);
 
 	// -- Passability (collapsed) --
 	const pass = createCollapsibleGroup('Passability', true);
 
-	const passDownRow: HTMLElement = createToggleRow('Pass Down', true, (on: boolean) => {
-		writePassability(0, on);
-	});
+	const passDownRow: HTMLElement = createToggleRow(
+		'Pass ↓',
+		true,
+		(on: boolean) => {
+			writePassability(0, on);
+		},
+		'ti-pass-down',
+		'Allow character movement downward through this tile.',
+	);
 	pass.body.append(passDownRow);
 
-	const passLeftRow: HTMLElement = createToggleRow('Pass Left', true, (on: boolean) => {
-		writePassability(1, on);
-	});
+	const passLeftRow: HTMLElement = createToggleRow(
+		'Pass ←',
+		true,
+		(on: boolean) => {
+			writePassability(1, on);
+		},
+		'ti-pass-left',
+		'Allow character movement leftward through this tile.',
+	);
 	pass.body.append(passLeftRow);
 
-	const passRightRow: HTMLElement = createToggleRow('Pass Right', true, (on: boolean) => {
-		writePassability(2, on);
-	});
+	const passRightRow: HTMLElement = createToggleRow(
+		'Pass →',
+		true,
+		(on: boolean) => {
+			writePassability(2, on);
+		},
+		'ti-pass-right',
+		'Allow character movement rightward through this tile.',
+	);
 	pass.body.append(passRightRow);
 
-	const passUpRow: HTMLElement = createToggleRow('Pass Up', true, (on: boolean) => {
-		writePassability(3, on);
-	});
+	const passUpRow: HTMLElement = createToggleRow(
+		'Pass ↑',
+		true,
+		(on: boolean) => {
+			writePassability(3, on);
+		},
+		'ti-pass-up',
+		'Allow character movement upward through this tile.',
+	);
 	pass.body.append(passUpRow);
 
-	const passAboveRow: HTMLElement = createToggleRow('Pass Above', false, (on: boolean) => {
-		writeTileProp({ passAbove: on });
-	});
+	const passAboveRow: HTMLElement = createToggleRow(
+		'Pass Above',
+		false,
+		(on: boolean) => {
+			writeTileProp({ passAbove: on });
+		},
+		'ti-pass-above',
+		'Allow passage to the layer above (vertical stacking).',
+	);
 	pass.body.append(passAboveRow);
 
-	const passBelowRow: HTMLElement = createToggleRow('Pass Below', false, (on: boolean) => {
-		writeTileProp({ passBelow: on });
-	});
+	const passBelowRow: HTMLElement = createToggleRow(
+		'Pass Below',
+		false,
+		(on: boolean) => {
+			writeTileProp({ passBelow: on });
+		},
+		'ti-pass-below',
+		'Allow passage to the layer below (vertical stacking).',
+	);
 	pass.body.append(passBelowRow);
 
-	const passEventRow: HTMLElement = createToggleRow('Pass Event', true, (on: boolean) => {
-		writeTileProp({ passEvent: on });
-	});
+	const passEventRow: HTMLElement = createToggleRow(
+		'Event Passable',
+		true,
+		(on: boolean) => {
+			writeTileProp({ passEvent: on });
+		},
+		'ti-pass-event',
+		'Can events (NPCs, objects) traverse this tile?',
+	);
 	pass.body.append(passEventRow);
 
-	const starPassageRow: HTMLElement = createToggleRow('Star Passage', false, (on: boolean) => {
-		writeTileProp({ starPassage: on });
-	});
+	const starPassageRow: HTMLElement = createToggleRow(
+		'Star Passage',
+		false,
+		(on: boolean) => {
+			writeTileProp({ starPassage: on });
+		},
+		'ti-star-passage',
+		'Special RPG Maker passage mode: passable regardless of other flags.',
+	);
 	pass.body.append(starPassageRow);
 
 	const passVehicleRow: HTMLElement = createSliderRow(
-		'Pass Vehicle',
+		'Vehicle Flags',
 		0,
 		31,
 		1,
@@ -6986,21 +7483,41 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		(val: number) => {
 			writeTileProp({ passVehicle: val });
 		},
+		'ti-pass-vehicle',
+		'Bitmask for which vehicle types can traverse (0 = none, 31 = all).',
 	);
 	pass.body.append(passVehicleRow);
 
-	const passHeightRow: HTMLElement = createSliderRow('Pass Height', 0, 15, 1, 0, (val: number) => {
-		writeTileProp({ passHeight: val });
-	});
+	const passHeightRow: HTMLElement = createSliderRow(
+		'Pass Height',
+		0,
+		15,
+		1,
+		0,
+		(val: number) => {
+			writeTileProp({ passHeight: val });
+		},
+		'ti-pass-height',
+		'Tile collision height in half-tile units (0–15).',
+	);
 	pass.body.append(passHeightRow);
 	controlsWrap.append(pass.root);
 
 	// -- Terrain (collapsed) --
 	const terrain = createCollapsibleGroup('Terrain', true);
 
-	const terrainTagRow: HTMLElement = createSliderRow('Terrain Tag', 0, 15, 1, 0, (val: number) => {
-		writeTileProp({ terrainTag: val });
-	});
+	const terrainTagRow: HTMLElement = createSliderRow(
+		'Terrain Tag',
+		0,
+		15,
+		1,
+		0,
+		(val: number) => {
+			writeTileProp({ terrainTag: val });
+		},
+		'ti-terrain-tag',
+		'Numeric tag for gameplay logic (0–15). Used by events and scripts.',
+	);
 	terrain.body.append(terrainTagRow);
 
 	const terrainTypeRow: HTMLElement = createDropdown(
@@ -7010,10 +7527,18 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		(val: string) => {
 			writeTileProp({ terrainType: val });
 		},
+		'ti-terrain-type',
+		'Surface type affecting footstep sounds and movement behavior.',
 	);
 	terrain.body.append(terrainTypeRow);
 
-	terrain.body.append(infoRow('Footstep Sound', 'ti-footstep'));
+	terrain.body.append(
+		infoRow(
+			'Footstep Sound',
+			'ti-footstep',
+			'Sound effect played when a character steps on this terrain type.',
+		),
+	);
 
 	const encounterRateRow: HTMLElement = createSliderRow(
 		'Encounter Rate',
@@ -7024,6 +7549,8 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		(val: number) => {
 			writeTileProp({ encounterRate: val });
 		},
+		'ti-encounter-rate',
+		'Random encounter multiplier. 0 = no encounters, higher = more frequent.',
 	);
 	terrain.body.append(encounterRateRow);
 
@@ -7036,11 +7563,13 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		(val: number) => {
 			writeTileProp({ slipperiness: val });
 		},
+		'ti-slipperiness',
+		'Ice-like sliding factor. 0 = normal grip, 1 = full slide.',
 	);
 	terrain.body.append(slipperinessRow);
 
 	const movementSpeedRow: HTMLElement = createSliderRow(
-		'Movement Speed',
+		'Move Speed',
 		0.1,
 		5,
 		0.1,
@@ -7048,60 +7577,125 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		(val: number) => {
 			writeTileProp({ movementSpeed: val });
 		},
+		'ti-move-speed',
+		'Movement speed multiplier on this tile. 1 = normal, <1 = slow, >1 = fast.',
 	);
 	terrain.body.append(movementSpeedRow);
 
-	const regionIdRow: HTMLElement = createSliderRow('Region ID', 0, 255, 1, 0, (val: number) => {
-		writeTileProp({ regionId: val });
-	});
+	const regionIdRow: HTMLElement = createSliderRow(
+		'Region ID',
+		0,
+		255,
+		1,
+		0,
+		(val: number) => {
+			writeTileProp({ regionId: val });
+		},
+		'ti-region-id',
+		'Map region identifier (0–255). Used for area triggers and scripting.',
+	);
 	terrain.body.append(regionIdRow);
 	controlsWrap.append(terrain.root);
 
 	// -- Flags (collapsed) --
 	const flags = createCollapsibleGroup('Flags', true);
 
-	const heightRow: HTMLElement = createSliderRow('Height', 0, 15, 1, 0, (val: number) => {
-		writeTileProp({ height: val });
-	});
+	const heightRow: HTMLElement = createSliderRow(
+		'Height Level',
+		0,
+		15,
+		1,
+		0,
+		(val: number) => {
+			writeTileProp({ height: val });
+		},
+		'ti-height',
+		'Tile height for layered rendering (0–15 half-tile increments).',
+	);
 	flags.body.append(heightRow);
 
-	const damageFloorRow: HTMLElement = createToggleRow('Damage Floor', false, (on: boolean) => {
-		writeTileProp({ damageFloor: on });
-	});
+	const damageFloorRow: HTMLElement = createToggleRow(
+		'Damage Floor',
+		false,
+		(on: boolean) => {
+			writeTileProp({ damageFloor: on });
+		},
+		'ti-damage-floor',
+		'Tile deals damage to characters standing on it each step.',
+	);
 	flags.body.append(damageFloorRow);
 
-	const bushRow: HTMLElement = createToggleRow('Bush', false, (on: boolean) => {
-		writeTileProp({ bush: on });
-	});
+	const bushRow: HTMLElement = createToggleRow(
+		'Bush Tile',
+		false,
+		(on: boolean) => {
+			writeTileProp({ bush: on });
+		},
+		'ti-bush',
+		'Character sprite is partially hidden (bush/tall grass effect).',
+	);
 	flags.body.append(bushRow);
 
-	const counterRow: HTMLElement = createToggleRow('Counter', false, (on: boolean) => {
-		writeTileProp({ counter: on });
-	});
+	const counterRow: HTMLElement = createToggleRow(
+		'Counter Tile',
+		false,
+		(on: boolean) => {
+			writeTileProp({ counter: on });
+		},
+		'ti-counter',
+		'Tile acts as a counter — interactions pass through to the tile behind.',
+	);
 	flags.body.append(counterRow);
 
-	const ladderRow: HTMLElement = createToggleRow('Ladder', false, (on: boolean) => {
-		writeTileProp({ ladder: on });
-	});
+	const ladderRow: HTMLElement = createToggleRow(
+		'Ladder Tile',
+		false,
+		(on: boolean) => {
+			writeTileProp({ ladder: on });
+		},
+		'ti-ladder',
+		'Tile acts as a ladder — character sprite faces upward while climbing.',
+	);
 	flags.body.append(ladderRow);
 
-	const slipRow: HTMLElement = createToggleRow('Slip', false, (on: boolean) => {
-		writeTileProp({ slip: on });
-	});
+	const slipRow: HTMLElement = createToggleRow(
+		'Slip Tile',
+		false,
+		(on: boolean) => {
+			writeTileProp({ slip: on });
+		},
+		'ti-slip',
+		'Character slides across this tile without stopping (ice).',
+	);
 	flags.body.append(slipRow);
 
-	const shelterRow: HTMLElement = createToggleRow('Shelter', false, (on: boolean) => {
-		writeTileProp({ shelter: on });
-	});
+	const shelterRow: HTMLElement = createToggleRow(
+		'Shelter Tile',
+		false,
+		(on: boolean) => {
+			writeTileProp({ shelter: on });
+		},
+		'ti-shelter',
+		'Protects from weather effects when standing on this tile.',
+	);
 	flags.body.append(shelterRow);
 
-	const bushDepthRow: HTMLElement = createSliderRow('Bush Depth', 0, 48, 1, 12, (val: number) => {
-		writeTileProp({ bushDepth: val });
-	});
+	const bushDepthRow: HTMLElement = createSliderRow(
+		'Bush Depth (px)',
+		0,
+		48,
+		1,
+		12,
+		(val: number) => {
+			writeTileProp({ bushDepth: val });
+		},
+		'ti-bush-depth',
+		'Pixels of character hidden by bush effect (0–48).',
+	);
 	flags.body.append(bushDepthRow);
 
 	const coverHeightRow: HTMLElement = createSliderRow(
-		'Cover Height',
+		'Cover Fraction',
 		0,
 		1,
 		0.01,
@@ -7109,12 +7703,20 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		(val: number) => {
 			writeTileProp({ coverHeight: val });
 		},
+		'ti-cover-height',
+		'Fraction of character sprite covered by terrain (0–1).',
 	);
 	flags.body.append(coverHeightRow);
 
-	const soundAbsorbRow: HTMLElement = createToggleRow('Sound Absorb', false, (on: boolean) => {
-		writeTileProp({ soundAbsorb: on });
-	});
+	const soundAbsorbRow: HTMLElement = createToggleRow(
+		'Sound Absorb',
+		false,
+		(on: boolean) => {
+			writeTileProp({ soundAbsorb: on });
+		},
+		'ti-sound-absorb',
+		'Dampens footstep and ambient sounds on this tile.',
+	);
 	flags.body.append(soundAbsorbRow);
 	controlsWrap.append(flags.root);
 
@@ -7122,7 +7724,7 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	const damage = createCollapsibleGroup('Damage', true);
 
 	const damageAmountRow: HTMLElement = createSliderRow(
-		'Damage Amount',
+		'Damage HP',
 		0,
 		9999,
 		1,
@@ -7130,11 +7732,13 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		(val: number) => {
 			writeTileProp({ damageAmount: val });
 		},
+		'ti-damage-amount',
+		'HP lost per damage tick when standing on a damage floor.',
 	);
 	damage.body.append(damageAmountRow);
 
 	const damagePercentRow: HTMLElement = createSliderRow(
-		'Damage %',
+		'Damage % HP',
 		0,
 		100,
 		0.1,
@@ -7142,12 +7746,20 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		(val: number) => {
 			writeTileProp({ damagePercent: val });
 		},
+		'ti-damage-percent',
+		'Percentage of max HP lost per tick (0–100%).',
 	);
 	damage.body.append(damagePercentRow);
 
-	const damageElementRow: HTMLElement = createTextInputRow('Damage Element', '', (val: string) => {
-		writeTileProp({ damageElement: val });
-	});
+	const damageElementRow: HTMLElement = createTextInputRow(
+		'Damage Element',
+		'',
+		(val: string) => {
+			writeTileProp({ damageElement: val });
+		},
+		'ti-damage-element',
+		"Element type name for damage floor (e.g., 'fire', 'poison').",
+	);
 	damage.body.append(damageElementRow);
 
 	const damageIntervalRow: HTMLElement = createSliderRow(
@@ -7159,6 +7771,8 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		(val: number) => {
 			writeTileProp({ damageInterval: val });
 		},
+		'ti-damage-interval',
+		'Frames between each damage tick on a damage floor.',
 	);
 	damage.body.append(damageIntervalRow);
 	controlsWrap.append(damage.root);
@@ -7166,13 +7780,19 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	// -- Reflection (collapsed) --
 	const reflect = createCollapsibleGroup('Reflection', true);
 
-	const reflectionRow: HTMLElement = createToggleRow('Reflection', false, (on: boolean) => {
-		writeTileProp({ reflection: on });
-	});
+	const reflectionRow: HTMLElement = createToggleRow(
+		'Reflection',
+		false,
+		(on: boolean) => {
+			writeTileProp({ reflection: on });
+		},
+		'ti-reflection',
+		'Render a reflected copy of characters below this tile.',
+	);
 	reflect.body.append(reflectionRow);
 
 	const reflectionOpacityRow: HTMLElement = createSliderRow(
-		'Reflection Opacity',
+		'Reflect Opacity',
 		0,
 		1,
 		0.01,
@@ -7180,6 +7800,8 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		(val: number) => {
 			writeTileProp({ reflectionOpacity: val });
 		},
+		'ti-reflect-opacity',
+		'Transparency of the reflection (0 = invisible, 1 = mirror).',
 	);
 	reflect.body.append(reflectionOpacityRow);
 	controlsWrap.append(reflect.root);
@@ -7187,18 +7809,38 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	// -- Glow (collapsed) --
 	const glowGroup = createCollapsibleGroup('Glow', true);
 
-	const glowRow: HTMLElement = createToggleRow('Glow', false, (on: boolean) => {
-		writeTileProp({ glow: on });
-	});
+	const glowRow: HTMLElement = createToggleRow(
+		'Tile Glow',
+		false,
+		(on: boolean) => {
+			writeTileProp({ glow: on });
+		},
+		'ti-glow',
+		'Emit a glow effect from this tile (uses glow layer).',
+	);
 	glowGroup.body.append(glowRow);
 
-	const glowColorRow: HTMLElement = createTextInputRow('Glow Color', '#ffffffff', (val: string) => {
-		writeTileProp({ glowColor: val });
-	});
+	const TILE_GLOW_PRESETS: ReadonlyArray<{ readonly name: string; readonly hex: string }> = [
+		{ name: 'White', hex: '#ffffff' },
+		{ name: 'Orange', hex: '#ff8800' },
+		{ name: 'Cyan', hex: '#00ffff' },
+		{ name: 'Purple', hex: '#9933ff' },
+		{ name: 'Gold', hex: '#ffcc00' },
+	];
+	const glowColorRow: HTMLElement = createColorPickerRow(
+		'Glow Color',
+		TILE_GLOW_PRESETS,
+		'#ffffff',
+		(hex: string) => {
+			writeTileProp({ glowColor: `${hex}ff` });
+		},
+		'ti-glow-color',
+		'Color of the tile glow emission. Pick from presets or use the color picker.',
+	);
 	glowGroup.body.append(glowColorRow);
 
 	const glowIntensityRow: HTMLElement = createSliderRow(
-		'Glow Intensity',
+		'Glow Strength',
 		0,
 		1,
 		0.01,
@@ -7206,6 +7848,8 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		(val: number) => {
 			writeTileProp({ glowIntensity: val });
 		},
+		'ti-glow-intensity',
+		'Brightness of the tile glow effect (0–1).',
 	);
 	glowGroup.body.append(glowIntensityRow);
 	controlsWrap.append(glowGroup.root);
@@ -7491,34 +8135,75 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	// ── Selection Style controls ──
 	container.append(createSubHeader('Selection Style'));
 	container.append(
-		createColorPickerRow('Color', SELECTION_COLOR_PRESETS, '#44ccdd', (hex: string) => {
-			_selectionColor = BABYLON.Color3.FromHexString(hex);
-			updateSelectionAppearance();
-		}),
+		createColorPickerRow(
+			'Edge Color',
+			SELECTION_COLOR_PRESETS,
+			'#44ccdd',
+			(hex: string) => {
+				_selectionColor = BABYLON.Color3.FromHexString(hex);
+				updateSelectionAppearance();
+			},
+			'ti-sel-edge-color',
+			'Outline color of the selection highlight drawn around selected tiles.',
+		),
 	);
 	container.append(
-		createSliderRow('Edge Width', 0.02, 0.2, 0.01, _selectionEdgeWidth, (val: Num) => {
-			_selectionEdgeWidth = val;
-			updateHighlightForSelection();
-		}),
+		createSliderRow(
+			'Edge Width',
+			0.02,
+			0.2,
+			0.01,
+			_selectionEdgeWidth,
+			(val: Num) => {
+				_selectionEdgeWidth = val;
+				updateHighlightForSelection();
+			},
+			'ti-sel-edge-width',
+			'Thickness of the selection outline in world units.',
+		),
 	);
 	container.append(
-		createSliderRow('Opacity', 0.1, 1, 0.05, _selectionAlpha, (val: Num) => {
-			_selectionAlpha = val;
-			updateSelectionAppearance();
-		}),
+		createSliderRow(
+			'Edge Opacity',
+			0.1,
+			1,
+			0.05,
+			_selectionAlpha,
+			(val: Num) => {
+				_selectionAlpha = val;
+				updateSelectionAppearance();
+			},
+			'ti-sel-edge-opacity',
+			'Transparency of the selection outline. 1 = fully opaque.',
+		),
 	);
 	container.append(
-		createSliderRow('Fill Opacity', 0, 1, 0.05, _selectionFillAlpha, (val: Num) => {
-			_selectionFillAlpha = val;
-			updateSelectionAppearance();
-		}),
+		createSliderRow(
+			'Fill Opacity',
+			0,
+			1,
+			0.05,
+			_selectionFillAlpha,
+			(val: Num) => {
+				_selectionFillAlpha = val;
+				updateSelectionAppearance();
+			},
+			'ti-sel-fill-opacity',
+			'Transparency of the selection fill overlay. 0 = outline only.',
+		),
 	);
 	container.append(
-		createColorPickerRow('Fill Color', SELECTION_COLOR_PRESETS, '#44ccdd', (hex: string) => {
-			_selectionFillColor = BABYLON.Color3.FromHexString(hex);
-			updateSelectionAppearance();
-		}),
+		createColorPickerRow(
+			'Fill Color',
+			SELECTION_COLOR_PRESETS,
+			'#44ccdd',
+			(hex: string) => {
+				_selectionFillColor = BABYLON.Color3.FromHexString(hex);
+				updateSelectionAppearance();
+			},
+			'ti-sel-fill-color',
+			'Color of the semi-transparent fill inside the selection outline.',
+		),
 	);
 }
 
@@ -7770,6 +8455,8 @@ function buildLayerUI(debug: DevDebugApi): void {
 			_dimOtherLayers = on;
 			applyDimLayers(debug.tilemap);
 		},
+		'layers-dim-others',
+		'Fade all non-selected layers to 25% opacity for easier editing.',
 	);
 	(container as HTMLElement).append(dimToggleRow);
 
@@ -7812,15 +8499,13 @@ function buildLightsUI(debug: DevDebugApi): void {
 	container.innerHTML = '';
 
 	for (const ml of lights) {
-		const row = document.createElement('div');
-		row.style.cssText =
-			'padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); margin-bottom: 2px;';
+		const lightDisplayName = ml.config.id
+			.replaceAll('_', ' ')
+			.replaceAll('-', ' ')
+			.split(' ')
+			.map((w) => (w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w))
+			.join(' ');
 
-		// Light name + type header with type badge
-		const header = document.createElement('div');
-		header.style.cssText = 'display: flex; align-items: center; gap: 6px; padding-bottom: 4px;';
-
-		const typeBadge = document.createElement('span');
 		const typeColors: Record<string, string> = {
 			hemispheric: '#6ab',
 			directional: '#5b9',
@@ -7828,21 +8513,13 @@ function buildLightsUI(debug: DevDebugApi): void {
 			spot: '#8bb',
 		};
 		const typeColor = typeColors[ml.config.type] ?? '#888';
-		typeBadge.style.cssText = `font-size: 8px; padding: 1px 5px; border-radius: 3px; background: ${typeColor}22; color: ${typeColor}; border: 1px solid ${typeColor}44; text-transform: uppercase; letter-spacing: 0.5px;`;
-		typeBadge.textContent = ml.config.type;
-
-		const label = document.createElement('span');
-		label.style.cssText = 'font-size: 10px; color: #ccc; font-weight: 600;';
-		const lightDisplayName = ml.config.id
-			.replaceAll('_', ' ')
-			.replaceAll('-', ' ')
-			.split(' ')
-			.map((w) => (w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w))
-			.join(' ');
-		label.textContent = lightDisplayName;
-
-		header.append(typeBadge, label);
-		row.append(header);
+		const lightGroup = createCollapsibleGroup(`${lightDisplayName} (${ml.config.type})`, true);
+		// Style the label with type color
+		const groupLabel = lightGroup.root.querySelector('.cg-header > span:first-child');
+		if (groupLabel instanceof HTMLElement) {
+			groupLabel.style.color = typeColor;
+		}
+		const row = lightGroup.body;
 
 		const lightId = ml.config.id;
 
@@ -8051,7 +8728,7 @@ function buildLightsUI(debug: DevDebugApi): void {
 
 		if (badges.childElementCount > 0) row.append(badges);
 
-		container.append(row);
+		container.append(lightGroup.root);
 	}
 }
 
@@ -8084,6 +8761,8 @@ function addBadge(parent: HTMLElement, text: string, color: string): void {
 function infoRow(label: string, id: string, tooltip?: string): HTMLElement {
 	const row = document.createElement('div');
 	row.className = 'control-row';
+	row.dataset['type'] = 'info';
+	row.dataset['control'] = id;
 	const lbl = document.createElement('span');
 	lbl.className = 'control-label';
 	lbl.textContent = label;
@@ -8715,7 +9394,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 		() => {
 			toggleGridOverlay(scene, debug);
 		},
-		undefined,
+		'nav-grid-overlay',
 		'Show tile grid lines over the map. Shortcut: G key.',
 	);
 	controlsDiv.append(gridToggleRow);
@@ -8739,7 +9418,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 				_gridAlpha = val;
 				updateGridAppearance();
 			},
-			undefined,
+			'nav-grid-opacity',
 			'Grid line transparency. 0.05 = faint, 1 = solid.',
 		),
 	);
@@ -8752,6 +9431,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 				_gridColor = BABYLON.Color3.FromHexString(hex);
 				updateGridAppearance();
 			},
+			'nav-grid-color',
 			'Pick a color for the grid overlay lines.',
 		),
 	);
@@ -8766,7 +9446,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 				_gridFillAlpha = val;
 				updateGridFillAppearance();
 			},
-			undefined,
+			'nav-fill-opacity',
 			'Cell background fill opacity. 0 = no fill.',
 		),
 	);
@@ -8779,6 +9459,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 				_gridFillColor = BABYLON.Color3.FromHexString(hex);
 				updateGridFillAppearance();
 			},
+			'nav-grid-fill-color',
 			'Pick a color for the grid cell fill.',
 		),
 	);
@@ -8936,12 +9617,12 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	container.innerHTML = '';
 
 	// ── Sky sub-section ──
-	container.append(createSubHeader('Sky'));
+	const skyGroup = createCollapsibleGroup('Sky', false);
 
 	// Sky type dropdown — disposes old sky and rebuilds with selected type
 	const skyConfig = debug.tilemap?.sky;
 	const currentType = skyConfig ? 'gradient' : 'color';
-	container.append(
+	skyGroup.body.append(
 		createDropdown(
 			'Type',
 			[
@@ -9014,12 +9695,12 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		pathValue.textContent = skyTexturePath;
 		pathValue.title = skyTexturePath;
 		pathRow.append(pathLabel, pathValue);
-		container.append(pathRow);
+		skyGroup.body.append(pathRow);
 	}
 
 	// Clear color RGBA sliders — always useful
 	const cc = scene.clearColor;
-	container.append(
+	skyGroup.body.append(
 		createSliderRow(
 			'BG Color R',
 			0,
@@ -9033,7 +9714,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			'Red channel of the scene background color (0–1).',
 		),
 	);
-	container.append(
+	skyGroup.body.append(
 		createSliderRow(
 			'BG Color G',
 			0,
@@ -9047,7 +9728,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			'Green channel of the scene background color (0–1).',
 		),
 	);
-	container.append(
+	skyGroup.body.append(
 		createSliderRow(
 			'BG Color B',
 			0,
@@ -9061,7 +9742,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			'Blue channel of the scene background color (0–1).',
 		),
 	);
-	container.append(
+	skyGroup.body.append(
 		createSliderRow(
 			'BG Color A',
 			0,
@@ -9075,15 +9756,16 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			'Alpha of the scene background. 0 = transparent, 1 = opaque.',
 		),
 	);
+	container.append(skyGroup.root);
 
 	// ── Sun sub-section — alias to directional light ("sun") ──
 	const sunLight = scene.getLightByName('sun') as BABYLON.DirectionalLight | null;
 	if (sunLight) {
-		container.append(createSubHeader('Sun'));
+		const sunGroup = createCollapsibleGroup('Sun', true);
 
 		const angles = dirToAngles(sunLight.direction);
 
-		container.append(
+		sunGroup.body.append(
 			createSliderRow(
 				'Azimuth',
 				0,
@@ -9103,7 +9785,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			),
 		);
 
-		container.append(
+		sunGroup.body.append(
 			createSliderRow(
 				'Elevation',
 				5,
@@ -9122,7 +9804,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			),
 		);
 
-		container.append(
+		sunGroup.body.append(
 			createSliderRow(
 				'Intensity',
 				0,
@@ -9139,7 +9821,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 
 		// Sun color
 		const sunDiffuse = sunLight.diffuse;
-		container.append(
+		sunGroup.body.append(
 			createSliderRow(
 				'Color R',
 				0,
@@ -9153,7 +9835,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				'Red channel of the sunlight diffuse color.',
 			),
 		);
-		container.append(
+		sunGroup.body.append(
 			createSliderRow(
 				'Color G',
 				0,
@@ -9167,7 +9849,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				'Green channel of the sunlight diffuse color.',
 			),
 		);
-		container.append(
+		sunGroup.body.append(
 			createSliderRow(
 				'Color B',
 				0,
@@ -9181,15 +9863,16 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				'Blue channel of the sunlight diffuse color.',
 			),
 		);
+		container.append(sunGroup.root);
 	}
 
 	// ── Procedural sky controls ──
 	const skyInstance: SkyInstance | undefined = debug.tilemap?.sky;
 	if (skyInstance?.skyboxMaterial instanceof SkyMaterial) {
-		container.append(createSubHeader('Procedural Sky'));
+		const proSkyGroup = createCollapsibleGroup('Procedural Sky', true);
 		const skyMat: SkyMaterial = skyInstance.skyboxMaterial;
 
-		container.append(
+		proSkyGroup.body.append(
 			createSliderRow(
 				'Mie Coefficient',
 				0,
@@ -9203,7 +9886,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				'Mie scattering coefficient. Higher = more haze around the sun.',
 			),
 		);
-		container.append(
+		proSkyGroup.body.append(
 			createSliderRow(
 				'Mie Directional G',
 				0,
@@ -9217,7 +9900,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				'Mie anisotropy. 0 = uniform scatter, 1 = strong forward scatter.',
 			),
 		);
-		container.append(
+		proSkyGroup.body.append(
 			createSliderRow(
 				'Inclination',
 				0,
@@ -9231,7 +9914,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				'Sun vertical position (0 = horizon, 0.5 = zenith).',
 			),
 		);
-		container.append(
+		proSkyGroup.body.append(
 			createSliderRow(
 				'Azimuth',
 				0,
@@ -9245,11 +9928,12 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				'Sun horizontal rotation in the procedural sky (0–1 = full circle).',
 			),
 		);
+		container.append(proSkyGroup.root);
 	}
 
 	// ── Stars controls ──
 	if (skyInstance) {
-		container.append(createSubHeader('Stars'));
+		const starsGroup = createCollapsibleGroup('Stars', true);
 
 		// Stars texture path indicator
 		const starTexPath = skyInstance.starLayer?.texture?.name ?? 'sky/stars.png';
@@ -9266,9 +9950,9 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		starPathValue.textContent = starTexPath;
 		starPathValue.title = starTexPath;
 		starPathRow.append(starPathLabel, starPathValue);
-		container.append(starPathRow);
+		starsGroup.body.append(starPathRow);
 
-		container.append(
+		starsGroup.body.append(
 			createToggleRow(
 				'Enabled',
 				skyInstance.starLayer !== null,
@@ -9282,7 +9966,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			),
 		);
 
-		container.append(
+		starsGroup.body.append(
 			createSliderRow(
 				'Opacity',
 				0,
@@ -9302,7 +9986,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		// Scale — directly adjusts texture UV scale
 		const starTex = skyInstance.starLayer?.texture;
 		const starScale = starTex && starTex instanceof BABYLON.Texture ? 1 / starTex.uScale : 2;
-		container.append(
+		starsGroup.body.append(
 			createSliderRow(
 				'Scale',
 				0.1,
@@ -9322,7 +10006,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		);
 
 		// Twinkle Speed (read-only indicator — baked into observer closure)
-		container.append(
+		starsGroup.body.append(
 			createSliderRow(
 				'Twinkle Speed',
 				0,
@@ -9339,7 +10023,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		);
 
 		// Fade In Hour (read-only indicator — baked into observer closure)
-		container.append(
+		starsGroup.body.append(
 			createSliderRow(
 				'Fade In Hour',
 				0,
@@ -9355,7 +10039,7 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		);
 
 		// Fade Out Hour (read-only indicator — baked into observer closure)
-		container.append(
+		starsGroup.body.append(
 			createSliderRow(
 				'Fade Out Hour',
 				0,
@@ -9369,17 +10053,18 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				'Hour when stars finish fading out (24h). Read-only.',
 			),
 		);
+		container.append(starsGroup.root);
 	}
 
 	// ── Parallax sub-section ──
 	const parallax: ParallaxInstance | undefined = debug.tilemap?.parallax;
 	if (parallax && parallax.layers.length > 0) {
-		container.append(createSubHeader('Parallax Layers'));
+		const parallaxGroup = createCollapsibleGroup('Parallax Layers', true);
 
 		// Container for dynamically-rebuilt layer sub-sections
 		const layerContainer = document.createElement('div');
 		layerContainer.dataset['parallaxLayers'] = 'true';
-		container.append(layerContainer);
+		parallaxGroup.body.append(layerContainer);
 
 		// Rebuilds the parallax layer controls after add/remove layer.
 		const rebuildParallaxControls = (): void => {
@@ -9432,7 +10117,8 @@ function buildSkyUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		});
 
 		btnRow.append(addBtn, removeBtn);
-		container.append(btnRow);
+		parallaxGroup.body.append(btnRow);
+		container.append(parallaxGroup.root);
 	}
 }
 
@@ -9752,6 +10438,22 @@ function setupFpsCounter(runtime: RuntimeInstance): void {
 	const ftEl = document.querySelector('#frametime-display');
 	const meshEl = document.querySelector('#meshes-display');
 	const trisEl = document.querySelector('#tris-display');
+	const sparkCanvas = document.querySelector('#fps-sparkline') as HTMLCanvasElement | null;
+	const sparkCtx = sparkCanvas?.getContext('2d') ?? null;
+
+	// Handle Retina DPI
+	if (sparkCanvas && sparkCtx) {
+		const dpr = window.devicePixelRatio || 1;
+		sparkCanvas.width = 60 * dpr;
+		sparkCanvas.height = 14 * dpr;
+		sparkCanvas.style.width = '60px';
+		sparkCanvas.style.height = '14px';
+		sparkCtx.scale(dpr, dpr);
+	}
+
+	const SPARK_SIZE = 60;
+	const fpsSamples: number[] = Array.from<number>({ length: SPARK_SIZE }).fill(0);
+	let sparkIdx = 0;
 
 	let fpsFrameCount = 0;
 	runtime.engine.scene.registerAfterRender(() => {
@@ -9760,13 +10462,48 @@ function setupFpsCounter(runtime: RuntimeInstance): void {
 
 		const engine = runtime.engine.scene.getEngine();
 		const fps = engine.getFps();
-		if (fpsEl) fpsEl.textContent = `${fps.toFixed(0)} fps`;
+		const fpsRound = Math.round(fps);
+
+		if (fpsEl) {
+			fpsEl.textContent = `${fpsRound} fps`;
+			if (fps >= 55) {
+				fpsEl.className = 'fps-green';
+			} else if (fps >= 30) {
+				fpsEl.className = 'fps-yellow';
+			} else {
+				fpsEl.className = 'fps-red';
+			}
+		}
 		if (ftEl) ftEl.textContent = `${(1000 / Math.max(fps, 1)).toFixed(1)} ms`;
 		const { scene } = runtime.engine;
 		if (meshEl) meshEl.textContent = `${scene.getActiveMeshes().length} meshes`;
 		if (trisEl) {
 			const triCount = Math.round(scene.totalVerticesPerfCounter.current / 3);
 			trisEl.textContent = `${formatLargeNumber(triCount)} tris`;
+		}
+
+		// Sparkline
+		fpsSamples[sparkIdx % SPARK_SIZE] = fpsRound;
+		sparkIdx++;
+		if (sparkCtx && sparkCanvas) {
+			const w = 60;
+			const h = 14;
+			sparkCtx.clearRect(0, 0, w, h);
+			const maxFps = 120;
+			const barW = w / SPARK_SIZE;
+			for (let i = 0; i < SPARK_SIZE; i++) {
+				const sampleIdx = (sparkIdx + i) % SPARK_SIZE;
+				const val = fpsSamples[sampleIdx] ?? 0;
+				const barH = Math.min((val / maxFps) * h, h);
+				if (val >= 55) {
+					sparkCtx.fillStyle = 'rgba(160,208,160,0.7)';
+				} else if (val >= 30) {
+					sparkCtx.fillStyle = 'rgba(208,208,160,0.7)';
+				} else {
+					sparkCtx.fillStyle = 'rgba(208,160,160,0.7)';
+				}
+				sparkCtx.fillRect(i * barW, h - barH, barW - 0.5, barH);
+			}
 		}
 	});
 }
