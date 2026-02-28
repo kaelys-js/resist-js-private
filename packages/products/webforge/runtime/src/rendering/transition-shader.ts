@@ -413,7 +413,10 @@ void main(void) {
 
 		// Color output
 		vec4 result;
-		if (maskType == 1) {
+		if (maskType == 0) {
+			// fade: gradual blend across full duration (bypass smoothstep)
+			result = mix(sceneColor, vec4(bgColor, 1.0), prog);
+		} else if (maskType == 1) {
 			// crossFade: blend from captured frame to current scene
 			vec4 fromColor = texture2D(fromTexture, uv);
 			result = mix(fromColor, sceneColor, prog);
@@ -422,7 +425,7 @@ void main(void) {
 		}
 
 		// Edge color overlay
-		if (hasEdgeColor > 0.5 && maskType != 1) {
+		if (hasEdgeColor > 0.5 && maskType != 0 && maskType != 1) {
 			float edgeBand = smoothstep(prog - edgeSoftness * 3.0, prog - edgeSoftness, mask)
 				* (1.0 - smoothstep(prog + edgeSoftness, prog + edgeSoftness * 3.0, mask));
 			result.rgb = mix(result.rgb, edgeColor, edgeBand);

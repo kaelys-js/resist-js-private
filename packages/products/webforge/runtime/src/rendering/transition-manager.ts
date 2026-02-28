@@ -187,11 +187,12 @@ export function applyTransitionEasing(t: Num, easing: TransitionEasing): Num {
  * Plays a screen transition using the GPU uber-shader.
  *
  * Validates the config via {@link TransitionConfigSchema}, creates a
- * PostProcess with all required uniforms, and sets up an auto-dispose
- * observer that removes the effect when the duration completes.
+ * PostProcess with all required uniforms, and animates progress from
+ * 0 to 1 over the configured duration. The transition holds its final
+ * state until explicitly disposed via the returned handle.
  *
  * @param options - Scene, camera, engine, and transition config.
- * @returns BabylonResult containing a {@link TransitionHandle} for early disposal.
+ * @returns BabylonResult containing a {@link TransitionHandle} for disposal.
  *
  * @example
  * ```typescript
@@ -202,7 +203,8 @@ export function applyTransitionEasing(t: Num, easing: TransitionEasing): Num {
  *   config: { type: 'circleIris', durationMs: 800, centerX: 0.3 },
  * });
  * if (!result.ok) return result;
- * // Auto-disposes after 800ms, or call result.data.dispose() early
+ * // Holds final state after 800ms — call dispose() to remove
+ * result.data.dispose();
  * ```
  */
 export function playTransition(options: PlayTransitionOptions): BabylonResult<TransitionHandle> {
@@ -286,10 +288,9 @@ export function playTransition(options: PlayTransitionOptions): BabylonResult<Tr
 	};
 
 	// -------------------------------------------------------------------------
-	// 4. Auto-dispose observer
+	// 4. Dispose handle (manual only — transition holds final state)
 	// -------------------------------------------------------------------------
 	let disposed = false;
-	let observer: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>> = null;
 
 	const dispose = (): void => {
 		if (disposed) {
@@ -297,21 +298,9 @@ export function playTransition(options: PlayTransitionOptions): BabylonResult<Tr
 		}
 		disposed = true;
 
-		if (observer) {
-			options.scene.onBeforeRenderObservable.remove(observer);
-			observer = null;
-		}
-
 		options.camera.detachPostProcess(pp);
 		pp.dispose();
 	};
-
-	observer = options.scene.onBeforeRenderObservable.add(() => {
-		const elapsed: number = performance.now() - startTime;
-		if (elapsed >= durationMs) {
-			dispose();
-		}
-	});
 
 	// -------------------------------------------------------------------------
 	// 5. Return handle
