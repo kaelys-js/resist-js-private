@@ -28,8 +28,7 @@ import {
 	setMasterEnabled,
 	resetCamera,
 	playTransition,
-	screenFlash,
-	screenTint,
+	TRANSITION_PRESETS,
 	setLayerVisibility,
 	setLayerOpacity,
 	getMoonPhaseInfo,
@@ -100,18 +99,13 @@ type DevDebugApi = {
 	status: () => Record<string, unknown>;
 };
 
-/** Color preset for screen effects (RGB, no alpha). */
-type EffectColor = { r: number; g: number; b: number };
-
 // =============================================================================
 // State
 // =============================================================================
 
 let _currentPreset = 'mapeditor';
-let selectedEffectColor = 'white';
 let _firstPersonCam: BABYLON.UniversalCamera | null = null;
 let _isFirstPerson = false;
-let _lastFadeOutHandle: { readonly dispose: () => void } | null = null;
 
 // -- Map Editor camera state --
 const MAP_MIN = 0;
@@ -794,15 +788,6 @@ type TileInspectorControls = {
 
 let _tiControls: TileInspectorControls | null = null;
 
-const EFFECT_COLORS: Record<string, EffectColor> = {
-	white: { r: 1, g: 1, b: 1 },
-	black: { r: 0, g: 0, b: 0 },
-	red: { r: 1, g: 0, b: 0 },
-	green: { r: 0, g: 1, b: 0 },
-	blue: { r: 0, g: 0, b: 1 },
-	yellow: { r: 1, g: 1, b: 0 },
-};
-
 // =============================================================================
 // Debug API
 // =============================================================================
@@ -1478,131 +1463,6 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	setTimeout(() => {
 		wireEventCallbacks();
 	}, 100);
-
-	// ── Screen Effects ──────────────────────────────────────────────
-	const effectDurSlider = document.querySelector('#effect-duration') as HTMLInputElement;
-	const effectDurValue = document.querySelector('#effect-duration-value');
-	effectDurSlider?.addEventListener('input', () => {
-		if (effectDurValue) effectDurValue.textContent = `${effectDurSlider.value}ms`;
-	});
-
-	// Effect color buttons
-	const colorButtons = document.querySelectorAll<HTMLButtonElement>('[data-effect-color]');
-
-	/**
-	 * Handles an effect color button click.
-	 *
-	 * @param btn - The clicked button.
-	 * @param allButtons - All color buttons for active state management.
-	 */
-	function handleColorClick(
-		btn: HTMLButtonElement,
-		allButtons: NodeListOf<HTMLButtonElement>,
-	): void {
-		selectedEffectColor = btn.dataset['effectColor'] ?? 'white';
-		for (const b of allButtons) b.classList.remove('active');
-		btn.classList.add('active');
-	}
-
-	for (const btn of colorButtons) {
-		btn.addEventListener('click', () => handleColorClick(btn, colorButtons));
-	}
-
-	// Custom color picker support
-	const customColorInput = document.querySelector('#effect-custom-color') as HTMLInputElement;
-	customColorInput?.addEventListener('input', () => {
-		selectedEffectColor = 'custom';
-		// Deselect preset buttons
-		for (const btn of colorButtons) btn.classList.remove('active');
-	});
-
-	// ── Screen Effects (dropdown + trigger) ────────────────────────
-	let _selectedEffectType = 'flash';
-	const effectDropdownContainer = document.querySelector('#effect-type-dropdown');
-	if (effectDropdownContainer) {
-		effectDropdownContainer.append(
-			createDropdown(
-				'Effect',
-				[
-					{ value: 'flash', label: 'Flash' },
-					{ value: 'tint', label: 'Color Tint' },
-					{ value: 'fadeOut', label: 'Fade Out' },
-					{ value: 'fadeIn', label: 'Fade In' },
-				],
-				'flash',
-				(val) => {
-					_selectedEffectType = val;
-				},
-				'effect-type',
-			),
-		);
-	}
-
-	/**
-	 * Triggers the currently selected screen effect.
-	 *
-	 * @param type - Effect type: 'flash' | 'tint' | 'fadeOut' | 'fadeIn'.
-	 */
-	function triggerEffect(type: string): void {
-		const durationMs = Number(effectDurSlider?.value ?? 500);
-		let color: EffectColor;
-		if (selectedEffectColor === 'custom' && customColorInput) {
-			const hex = customColorInput.value;
-			color = {
-				r: Number.parseInt(hex.slice(1, 3), 16) / 255,
-				g: Number.parseInt(hex.slice(3, 5), 16) / 255,
-				b: Number.parseInt(hex.slice(5, 7), 16) / 255,
-			};
-		} else {
-			color = EFFECT_COLORS[selectedEffectColor] ?? { r: 1, g: 1, b: 1 };
-		}
-		const cam = scene.activeCamera;
-		if (!cam) return;
-		const eng = scene.getEngine();
-
-		switch (type) {
-			case 'flash': {
-				screenFlash({ scene, camera: cam, engine: eng, color, durationMs });
-				break;
-			}
-			case 'tint': {
-				screenTint({ scene, camera: cam, engine: eng, color, durationMs });
-				break;
-			}
-			case 'fadeOut': {
-				if (_lastFadeOutHandle) {
-					_lastFadeOutHandle.dispose();
-					_lastFadeOutHandle = null;
-				}
-				const fadeOutResult = playTransition({
-					scene,
-					camera: cam,
-					engine: eng,
-					config: { type: 'fade', color, durationMs },
-				});
-				if (fadeOutResult.ok) _lastFadeOutHandle = fadeOutResult.data;
-				break;
-			}
-			case 'fadeIn': {
-				if (_lastFadeOutHandle) {
-					_lastFadeOutHandle.dispose();
-					_lastFadeOutHandle = null;
-				}
-				playTransition({
-					scene,
-					camera: cam,
-					engine: eng,
-					config: { type: 'fade', color, durationMs, reverse: true },
-				});
-				break;
-			}
-		}
-	}
-
-	const effectTriggerBtn = document.querySelector('#effect-trigger-btn');
-	effectTriggerBtn?.addEventListener('click', () => {
-		triggerEffect(_selectedEffectType);
-	});
 
 	// ── Rendering Toggles ───────────────────────────────────────────
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
@@ -3057,6 +2917,543 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 			),
 		);
 	}
+}
+
+// =============================================================================
+// Transitions UI Builder
+// =============================================================================
+
+/** Transition type categories for grouped dropdown. */
+const TRANSITION_CATEGORIES: ReadonlyArray<{
+	readonly label: string;
+	readonly types: readonly string[];
+}> = [
+	{ label: 'Fade', types: ['fade', 'crossFade'] },
+	{ label: 'Iris', types: ['circleIris', 'diamondIris'] },
+	{
+		label: 'Wipe',
+		types: [
+			'wipe',
+			'diagonalWipe',
+			'doubleDoor',
+			'bars',
+			'venetianBlinds',
+			'radialWipe',
+			'scanlineReveal',
+		],
+	},
+	{ label: 'Dissolve', types: ['noiseDissove', 'ditheredFade', 'checkerboard'] },
+	{ label: 'Retro', types: ['pixelate', 'crtPowerOff'] },
+	{ label: 'Battle', types: ['swirl', 'zoomLines', 'shatter', 'wavyDistortion'] },
+	{
+		label: 'Geometric',
+		types: ['hexagonalize', 'pinwheel', 'polkaDots', 'gridFlip'],
+	},
+	{ label: 'Distortion', types: ['glitch', 'ripple', 'wind', 'chromaticBurst'] },
+];
+
+/** Maps each transition type to its context-sensitive parameter names. */
+const TYPE_PARAMS: Record<string, string[]> = {
+	wipe: ['direction'],
+	doubleDoor: ['direction', 'openFromCenter'],
+	bars: ['direction', 'count'],
+	venetianBlinds: ['direction', 'count'],
+	circleIris: ['centerX', 'centerY'],
+	diamondIris: ['centerX', 'centerY'],
+	ripple: ['centerX', 'centerY', 'waveCount'],
+	diagonalWipe: ['angle'],
+	radialWipe: ['angle', 'clockwise'],
+	noiseDissove: ['noiseScale', 'noiseSeed'],
+	ditheredFade: ['matrixSize'],
+	checkerboard: ['gridSize'],
+	hexagonalize: ['gridSize'],
+	gridFlip: ['gridSize'],
+	pixelate: ['maxBlockSize'],
+	crtPowerOff: ['scanlines'],
+	swirl: ['swirlStrength', 'swirlRadius'],
+	zoomLines: ['lineCount', 'zoomLineWidth'],
+	shatter: ['cellCount'],
+	wavyDistortion: ['amplitude', 'frequency'],
+	pinwheel: ['bladeCount'],
+	polkaDots: ['count'],
+	glitch: ['intensity'],
+	wind: ['intensity'],
+	chromaticBurst: ['intensity'],
+	scanlineReveal: ['lineWidth'],
+};
+
+/** Quick preset buttons shown in the transitions panel. */
+const QUICK_PRESETS: ReadonlyArray<{ readonly label: string; readonly preset: string }> = [
+	{ label: 'Fade Black', preset: 'fadeToBlack' },
+	{ label: 'Fade White', preset: 'fadeToWhite' },
+	{ label: 'Circle Iris', preset: 'circleIris' },
+	{ label: 'Pixelate', preset: 'pixelate' },
+	{ label: 'Wipe Left', preset: 'wipeLeft' },
+	{ label: 'Noise', preset: 'noiseDissove' },
+];
+
+/**
+ * Builds the full transitions dev harness UI with type selector,
+ * shared parameters, context-sensitive controls, and play buttons.
+ *
+ * @param scene - The Babylon.js scene.
+ */
+// eslint-disable-next-line max-lines-per-function -- Dev harness UI builder
+function buildTransitionsUI(scene: BABYLON.Scene): void {
+	const container = document.querySelector('#transitions-body') as HTMLElement | null;
+	if (!container) return;
+	container.innerHTML = '';
+
+	// -- State --
+	let currentType = 'fade';
+	let currentDuration = 1000;
+	let currentEasing = 'easeInOut';
+	let currentColor = { r: 0, g: 0, b: 0 };
+	let currentEdgeSoftness = 0.02;
+	let currentEdgeColor: { r: number; g: number; b: number } | null = null;
+	let currentEdgeColorEnabled = false;
+	// Type-specific param state (defaults from schema):
+	let currentDirection = 'left';
+	let currentOpenFromCenter = false;
+	let currentCenterX = 0.5;
+	let currentCenterY = 0.5;
+	let currentCount = 10;
+	let currentGridSize = 8;
+	let currentAngle = 45;
+	let currentClockwise = true;
+	let currentBladeCount = 4;
+	let currentNoiseScale = 4;
+	let currentNoiseSeed = 0;
+	let currentMatrixSize = 4;
+	let currentLineWidth = 2;
+	let currentMaxBlockSize = 32;
+	let currentScanlines = true;
+	let currentSwirlStrength = 10;
+	let currentSwirlRadius = 0.5;
+	let currentLineCount = 12;
+	let currentZoomLineWidth = 0.02;
+	let currentCellCount = 20;
+	let currentAmplitude = 0.1;
+	let currentFrequency = 10;
+	let currentIntensity = 1;
+	let currentWaveCount = 5;
+	let lastHandle: { readonly dispose: () => void } | null = null;
+
+	/**
+	 * Builds a transition config object from the current UI state.
+	 *
+	 * @param reverse - Whether to play in reverse (transition in).
+	 * @returns Config record suitable for playTransition.
+	 */
+	function buildConfig(reverse: boolean): Record<string, unknown> {
+		const config: Record<string, unknown> = {
+			type: currentType,
+			durationMs: currentDuration,
+			easing: currentEasing,
+			color: currentColor,
+			edgeSoftness: currentEdgeSoftness,
+			reverse,
+		};
+		if (currentEdgeColorEnabled && currentEdgeColor) {
+			config['edgeColor'] = currentEdgeColor;
+		}
+		// Map param names to their current values
+		const paramValues: Record<string, unknown> = {
+			direction: currentDirection,
+			openFromCenter: currentOpenFromCenter,
+			centerX: currentCenterX,
+			centerY: currentCenterY,
+			count: currentCount,
+			gridSize: currentGridSize,
+			angle: currentAngle,
+			clockwise: currentClockwise,
+			bladeCount: currentBladeCount,
+			noiseScale: currentNoiseScale,
+			noiseSeed: currentNoiseSeed,
+			matrixSize: currentMatrixSize,
+			lineWidth: currentLineWidth,
+			maxBlockSize: currentMaxBlockSize,
+			scanlines: currentScanlines,
+			swirlStrength: currentSwirlStrength,
+			swirlRadius: currentSwirlRadius,
+			lineCount: currentLineCount,
+			zoomLineWidth: currentZoomLineWidth,
+			cellCount: currentCellCount,
+			amplitude: currentAmplitude,
+			frequency: currentFrequency,
+			intensity: currentIntensity,
+			waveCount: currentWaveCount,
+		};
+		const params = TYPE_PARAMS[currentType];
+		if (params) {
+			for (const p of params) {
+				config[p] = paramValues[p];
+			}
+		}
+		return config;
+	}
+
+	/**
+	 * Plays a transition in one direction.
+	 *
+	 * @param reverse - True for transition-in, false for transition-out.
+	 */
+	function play(reverse: boolean): void {
+		const cam = scene.activeCamera;
+		if (!cam) return;
+		const eng = scene.getEngine();
+		if (lastHandle) {
+			lastHandle.dispose();
+			lastHandle = null;
+		}
+		const result = playTransition({
+			scene,
+			camera: cam,
+			engine: eng,
+			config: buildConfig(reverse),
+		});
+		if (result.ok) lastHandle = result.data;
+	}
+
+	/**
+	 * Plays a full out-then-in transition cycle.
+	 */
+	function playCycle(): void {
+		const cam = scene.activeCamera;
+		if (!cam) return;
+		const eng = scene.getEngine();
+		if (lastHandle) {
+			lastHandle.dispose();
+			lastHandle = null;
+		}
+		const outConfig = buildConfig(false);
+		const result = playTransition({ scene, camera: cam, engine: eng, config: outConfig });
+		if (result.ok) {
+			lastHandle = result.data;
+			setTimeout(() => {
+				const inConfig = buildConfig(true);
+				const inResult = playTransition({
+					scene,
+					camera: cam,
+					engine: eng,
+					config: inConfig,
+				});
+				if (inResult.ok) lastHandle = inResult.data;
+			}, currentDuration + 100);
+		}
+	}
+
+	// ── Type Selector (grouped dropdown with <optgroup>) ──
+	const typeRow = document.createElement('div');
+	typeRow.className = 'control-row';
+	const typeLbl = document.createElement('span');
+	typeLbl.className = 'control-label';
+	typeLbl.textContent = 'Type';
+	const typeSelect = document.createElement('select');
+	typeSelect.className = 'control-dropdown';
+	for (const cat of TRANSITION_CATEGORIES) {
+		const group = document.createElement('optgroup');
+		group.label = cat.label;
+		for (const t of cat.types) {
+			const opt = document.createElement('option');
+			opt.value = t;
+			opt.textContent = t;
+			if (t === currentType) opt.selected = true;
+			group.append(opt);
+		}
+		typeSelect.append(group);
+	}
+	typeSelect.addEventListener('change', () => {
+		currentType = typeSelect.value;
+		updateContextParams();
+	});
+	typeRow.append(typeLbl, typeSelect);
+	container.append(typeRow);
+
+	// ── Play Buttons ──
+	const btnRow = document.createElement('div');
+	btnRow.style.cssText = 'display: flex; gap: 4px; padding: 4px 0;';
+
+	const playOutBtn = document.createElement('button');
+	playOutBtn.className = 'btn';
+	playOutBtn.textContent = 'Play Out';
+	playOutBtn.style.flex = '1';
+	playOutBtn.addEventListener('click', () => play(false));
+
+	const playInBtn = document.createElement('button');
+	playInBtn.className = 'btn';
+	playInBtn.textContent = 'Play In';
+	playInBtn.style.flex = '1';
+	playInBtn.addEventListener('click', () => play(true));
+
+	const playCycleBtn = document.createElement('button');
+	playCycleBtn.className = 'btn';
+	playCycleBtn.textContent = 'Cycle';
+	playCycleBtn.style.flex = '1';
+	playCycleBtn.addEventListener('click', () => playCycle());
+
+	btnRow.append(playOutBtn, playInBtn, playCycleBtn);
+	container.append(btnRow);
+
+	// ── Quick Presets Row ──
+	container.append(createSubHeader('Quick Presets'));
+	const presetRow = document.createElement('div');
+	presetRow.style.cssText = 'display: flex; gap: 3px; flex-wrap: wrap; padding: 2px 0;';
+
+	/**
+	 * Applies a named preset and plays a full transition cycle.
+	 *
+	 * @param presetName - Key in TRANSITION_PRESETS to apply.
+	 */
+	function applyPreset(presetName: string): void {
+		const presetConfig = (TRANSITION_PRESETS as Record<string, Record<string, unknown>>)[
+			presetName
+		];
+		if (!presetConfig) return;
+		currentType = (presetConfig['type'] as string) ?? 'fade';
+		typeSelect.value = currentType;
+		if (presetConfig['durationMs'] !== undefined) {
+			currentDuration = presetConfig['durationMs'] as number;
+		}
+		updateContextParams();
+		playCycle();
+	}
+
+	for (const qp of QUICK_PRESETS) {
+		const btn = document.createElement('button');
+		btn.className = 'btn';
+		btn.textContent = qp.label;
+		btn.style.cssText = 'font-size: 10px; padding: 2px 6px;';
+		const { preset } = qp;
+		btn.addEventListener('click', () => applyPreset(preset));
+		presetRow.append(btn);
+	}
+	container.append(presetRow);
+
+	// ── Shared Parameters ──
+	container.append(createSubHeader('Parameters'));
+
+	container.append(
+		createSliderRow('Duration', 100, 10_000, 100, currentDuration, (val) => {
+			currentDuration = val;
+		}),
+	);
+
+	container.append(
+		createDropdown(
+			'Easing',
+			[
+				{ value: 'linear', label: 'Linear' },
+				{ value: 'easeIn', label: 'Ease In' },
+				{ value: 'easeOut', label: 'Ease Out' },
+				{ value: 'easeInOut', label: 'Ease In/Out' },
+				{ value: 'easeOutBack', label: 'Ease Out Back' },
+				{ value: 'easeInOutCubic', label: 'Ease In/Out Cubic' },
+			],
+			currentEasing,
+			(val) => {
+				currentEasing = val;
+			},
+		),
+	);
+
+	const BG_COLOR_PRESETS: readonly ColorPreset[] = [
+		{ name: 'Black', hex: '#000000' },
+		{ name: 'White', hex: '#ffffff' },
+		{ name: 'Red', hex: '#ff0000' },
+		{ name: 'Green', hex: '#00ff00' },
+		{ name: 'Blue', hex: '#0000ff' },
+	];
+	container.append(
+		createColorPickerRow('BG Color', BG_COLOR_PRESETS, '#000000', (hex) => {
+			currentColor = {
+				r: Number.parseInt(hex.slice(1, 3), 16) / 255,
+				g: Number.parseInt(hex.slice(3, 5), 16) / 255,
+				b: Number.parseInt(hex.slice(5, 7), 16) / 255,
+			};
+		}),
+	);
+
+	container.append(
+		createSliderRow('Edge Soft', 0, 0.5, 0.01, currentEdgeSoftness, (val) => {
+			currentEdgeSoftness = val;
+		}),
+	);
+
+	container.append(
+		createToggleRow('Edge Color', false, (on) => {
+			currentEdgeColorEnabled = on;
+			edgeColorRow.style.display = on ? 'flex' : 'none';
+		}),
+	);
+
+	const EDGE_COLOR_PRESETS: readonly ColorPreset[] = [
+		{ name: 'White', hex: '#ffffff' },
+		{ name: 'Gold', hex: '#ffd700' },
+		{ name: 'Cyan', hex: '#00ffff' },
+	];
+	const edgeColorRow = createColorPickerRow('Edge Clr', EDGE_COLOR_PRESETS, '#ffffff', (hex) => {
+		currentEdgeColor = {
+			r: Number.parseInt(hex.slice(1, 3), 16) / 255,
+			g: Number.parseInt(hex.slice(3, 5), 16) / 255,
+			b: Number.parseInt(hex.slice(5, 7), 16) / 255,
+		};
+	});
+	edgeColorRow.style.display = 'none';
+	container.append(edgeColorRow);
+
+	// ── Context-Sensitive Parameters ──
+	container.append(createSubHeader('Type Options'));
+
+	// Build each context-sensitive control element
+	const directionEl = createDropdown(
+		'Direction',
+		[
+			{ value: 'left', label: 'Left' },
+			{ value: 'right', label: 'Right' },
+			{ value: 'up', label: 'Up' },
+			{ value: 'down', label: 'Down' },
+		],
+		currentDirection,
+		(val) => {
+			currentDirection = val;
+		},
+	);
+	const openFromCenterEl = createToggleRow('From Center', currentOpenFromCenter, (on) => {
+		currentOpenFromCenter = on;
+	});
+	const centerXEl = createSliderRow('Center X', 0, 1, 0.05, currentCenterX, (val) => {
+		currentCenterX = val;
+	});
+	const centerYEl = createSliderRow('Center Y', 0, 1, 0.05, currentCenterY, (val) => {
+		currentCenterY = val;
+	});
+	const countEl = createSliderRow('Count', 2, 30, 1, currentCount, (val) => {
+		currentCount = val;
+	});
+	const gridSizeEl = createSliderRow('Grid Size', 2, 32, 1, currentGridSize, (val) => {
+		currentGridSize = val;
+	});
+	const angleEl = createSliderRow('Angle', 0, 360, 5, currentAngle, (val) => {
+		currentAngle = val;
+	});
+	const clockwiseEl = createToggleRow('Clockwise', currentClockwise, (on) => {
+		currentClockwise = on;
+	});
+	const bladeCountEl = createSliderRow('Blades', 2, 12, 1, currentBladeCount, (val) => {
+		currentBladeCount = val;
+	});
+	const noiseScaleEl = createSliderRow('Noise Scale', 1, 20, 0.5, currentNoiseScale, (val) => {
+		currentNoiseScale = val;
+	});
+	const noiseSeedEl = createSliderRow('Seed', 0, 100, 1, currentNoiseSeed, (val) => {
+		currentNoiseSeed = val;
+	});
+	const matrixSizeEl = createDropdown(
+		'Matrix',
+		[
+			{ value: '2', label: '2x2' },
+			{ value: '4', label: '4x4' },
+			{ value: '8', label: '8x8' },
+		],
+		String(currentMatrixSize),
+		(val) => {
+			currentMatrixSize = Number(val);
+		},
+	);
+	const lineWidthEl = createSliderRow('Line Width', 0.5, 8, 0.5, currentLineWidth, (val) => {
+		currentLineWidth = val;
+	});
+	const maxBlockSizeEl = createSliderRow('Block Size', 4, 128, 4, currentMaxBlockSize, (val) => {
+		currentMaxBlockSize = val;
+	});
+	const scanlinesEl = createToggleRow('Scanlines', currentScanlines, (on) => {
+		currentScanlines = on;
+	});
+	const swirlStrengthEl = createSliderRow('Strength', 1, 30, 1, currentSwirlStrength, (val) => {
+		currentSwirlStrength = val;
+	});
+	const swirlRadiusEl = createSliderRow('Radius', 0.1, 1, 0.05, currentSwirlRadius, (val) => {
+		currentSwirlRadius = val;
+	});
+	const lineCountEl = createSliderRow('Lines', 4, 30, 1, currentLineCount, (val) => {
+		currentLineCount = val;
+	});
+	const zoomLineWidthEl = createSliderRow(
+		'Line W',
+		0.005,
+		0.1,
+		0.005,
+		currentZoomLineWidth,
+		(val) => {
+			currentZoomLineWidth = val;
+		},
+	);
+	const cellCountEl = createSliderRow('Cells', 5, 50, 1, currentCellCount, (val) => {
+		currentCellCount = val;
+	});
+	const amplitudeEl = createSliderRow('Amplitude', 0.01, 0.5, 0.01, currentAmplitude, (val) => {
+		currentAmplitude = val;
+	});
+	const frequencyEl = createSliderRow('Frequency', 1, 30, 1, currentFrequency, (val) => {
+		currentFrequency = val;
+	});
+	const intensityEl = createSliderRow('Intensity', 0.1, 3, 0.1, currentIntensity, (val) => {
+		currentIntensity = val;
+	});
+	const waveCountEl = createSliderRow('Waves', 1, 15, 1, currentWaveCount, (val) => {
+		currentWaveCount = val;
+	});
+
+	// Assemble context controls map
+	const contextControls: Record<string, HTMLElement> = {
+		direction: directionEl,
+		openFromCenter: openFromCenterEl,
+		centerX: centerXEl,
+		centerY: centerYEl,
+		count: countEl,
+		gridSize: gridSizeEl,
+		angle: angleEl,
+		clockwise: clockwiseEl,
+		bladeCount: bladeCountEl,
+		noiseScale: noiseScaleEl,
+		noiseSeed: noiseSeedEl,
+		matrixSize: matrixSizeEl,
+		lineWidth: lineWidthEl,
+		maxBlockSize: maxBlockSizeEl,
+		scanlines: scanlinesEl,
+		swirlStrength: swirlStrengthEl,
+		swirlRadius: swirlRadiusEl,
+		lineCount: lineCountEl,
+		zoomLineWidth: zoomLineWidthEl,
+		cellCount: cellCountEl,
+		amplitude: amplitudeEl,
+		frequency: frequencyEl,
+		intensity: intensityEl,
+		waveCount: waveCountEl,
+	};
+
+	// Append all controls and initially hide them
+	const contextContainer = document.createElement('div');
+	contextContainer.id = 'transition-context-params';
+	for (const [key, el] of Object.entries(contextControls)) {
+		el.dataset['transParam'] = key;
+		el.style.display = 'none';
+		contextContainer.append(el);
+	}
+	container.append(contextContainer);
+
+	/**
+	 * Shows/hides context-sensitive controls based on the current transition type.
+	 */
+	function updateContextParams(): void {
+		const visibleParams = TYPE_PARAMS[currentType] ?? [];
+		for (const [key, el] of Object.entries(contextControls)) {
+			el.style.display = visibleParams.includes(key) ? '' : 'none';
+		}
+	}
+
+	updateContextParams();
 }
 
 // =============================================================================
@@ -7681,6 +8078,7 @@ async function main(): Promise<void> {
 		buildSkyUI(debug, runtime.engine.scene);
 		buildLightsUI(debug);
 		buildPostProcessingUI(debug);
+		buildTransitionsUI(runtime.engine.scene);
 		buildFogUI(runtime.engine.scene);
 		buildCameraDetailsUI(runtime);
 		buildGlowDetailsUI(debug);

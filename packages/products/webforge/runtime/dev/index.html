@@ -777,81 +777,16 @@
 				</div>
 			</div>
 
-			<!-- 6. Effects -->
-				<div class="section collapsed" id="section-effects" data-section="effects">
-					<div class="section-header" onclick="toggleSection('section-effects')">
-						<span>Effects</span>
-						<span class="panel-toggle">&#9662;</span>
-					</div>
-					<div class="section-body">
-						<div class="control-row">
-							<span class="control-label">Duration</span>
-							<input
-								type="range"
-								id="effect-duration"
-								data-control="effect-duration"
-								min="100"
-								max="10000"
-								value="500"
-								step="100"
-							/>
-							<span class="control-value" id="effect-duration-value">500ms</span>
-						</div>
-						<div id="effect-type-dropdown"></div>
-						<button class="btn" id="effect-trigger-btn" data-control="effect-trigger" style="width: 100%; margin-top: 4px">
-							Play Effect
-						</button>
-						<div class="control-row" style="padding-top: 4px">
-							<span class="control-label">Color</span>
-							<div class="btn-group" style="flex: 1; justify-content: flex-end; flex-wrap: wrap">
-								<button
-									class="btn active"
-									data-effect-color="white"
-									style="padding: 4px 6px"
-								>
-									<span
-										class="color-swatch"
-										style="background: #fff; width: 12px; height: 12px"
-									></span>
-								</button>
-								<button class="btn" data-effect-color="black" style="padding: 4px 6px">
-									<span
-										class="color-swatch"
-										style="background: #000; width: 12px; height: 12px"
-									></span>
-								</button>
-								<button class="btn" data-effect-color="red" style="padding: 4px 6px">
-									<span
-										class="color-swatch"
-										style="background: #f00; width: 12px; height: 12px"
-									></span>
-								</button>
-								<button class="btn" data-effect-color="green" style="padding: 4px 6px">
-									<span
-										class="color-swatch"
-										style="background: #0f0; width: 12px; height: 12px"
-									></span>
-								</button>
-								<button class="btn" data-effect-color="blue" style="padding: 4px 6px">
-									<span
-										class="color-swatch"
-										style="background: #00f; width: 12px; height: 12px"
-									></span>
-								</button>
-								<button class="btn" data-effect-color="yellow" style="padding: 4px 6px">
-									<span
-										class="color-swatch"
-										style="background: #ff0; width: 12px; height: 12px"
-									></span>
-								</button>
-							</div>
-						</div>
-						<div class="control-row">
-							<span class="control-label">Custom</span>
-							<input type="color" id="effect-custom-color" data-control="effect-custom-color" value="#ffffff" style="width: 28px; height: 20px; border: none; padding: 0; background: transparent; cursor: pointer;" />
-						</div>
-					</div>
+			<!-- 6. Transitions -->
+			<div class="section collapsed" id="section-transitions" data-section="transitions">
+				<div class="section-header" onclick="toggleSection('section-transitions')">
+					<span>Transitions</span>
+					<span class="panel-toggle">&#9662;</span>
 				</div>
+				<div class="section-body" id="transitions-body">
+					<!-- Built dynamically by dev.ts -->
+				</div>
+			</div>
 
 				<!-- 6. Shake -->
 				<div class="section collapsed" id="section-shake" data-section="shake">
