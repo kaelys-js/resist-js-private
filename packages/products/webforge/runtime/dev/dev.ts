@@ -3163,6 +3163,11 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 		if (result.ok) {
 			lastHandle = result.data;
 			setTimeout(() => {
+				// Dispose the out-transition before playing in-transition
+				if (lastHandle) {
+					lastHandle.dispose();
+					lastHandle = null;
+				}
 				const inConfig = buildConfig(true);
 				const inResult = playTransition({
 					scene,
@@ -3224,7 +3229,18 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 	playCycleBtn.style.flex = '1';
 	playCycleBtn.addEventListener('click', () => playCycle());
 
-	btnRow.append(playOutBtn, playInBtn, playCycleBtn);
+	const resetBtn = document.createElement('button');
+	resetBtn.className = 'btn';
+	resetBtn.textContent = 'Reset';
+	resetBtn.style.flex = '1';
+	resetBtn.addEventListener('click', () => {
+		if (lastHandle) {
+			lastHandle.dispose();
+			lastHandle = null;
+		}
+	});
+
+	btnRow.append(playOutBtn, playInBtn, playCycleBtn, resetBtn);
 	container.append(btnRow);
 
 	// ── Quick Presets Row ──
