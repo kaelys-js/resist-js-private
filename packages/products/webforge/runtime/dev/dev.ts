@@ -2923,6 +2923,38 @@ function buildPostProcessingUI(debug: DevDebugApi): void {
 // Transitions UI Builder
 // =============================================================================
 
+/** Human-friendly display names for transition types. */
+const TYPE_DISPLAY_NAMES: Readonly<Record<string, string>> = {
+	fade: 'Fade',
+	crossFade: 'Cross Fade',
+	circleIris: 'Circle Iris',
+	diamondIris: 'Diamond Iris',
+	wipe: 'Wipe',
+	diagonalWipe: 'Diagonal Wipe',
+	doubleDoor: 'Double Door',
+	bars: 'Bars',
+	venetianBlinds: 'Venetian Blinds',
+	radialWipe: 'Radial Wipe',
+	scanlineReveal: 'Scanline Reveal',
+	noiseDissove: 'Noise Dissolve',
+	ditheredFade: 'Dithered Fade',
+	checkerboard: 'Checkerboard',
+	pixelate: 'Pixelate',
+	crtPowerOff: 'CRT Power Off',
+	swirl: 'Swirl',
+	zoomLines: 'Zoom Lines',
+	shatter: 'Shatter',
+	wavyDistortion: 'Wavy Distortion',
+	hexagonalize: 'Hexagonalize',
+	pinwheel: 'Pinwheel',
+	polkaDots: 'Polka Dots',
+	gridFlip: 'Grid Flip',
+	glitch: 'Glitch',
+	ripple: 'Ripple',
+	wind: 'Wind',
+	chromaticBurst: 'Chromatic Burst',
+};
+
 /** Transition type categories for grouped dropdown. */
 const TRANSITION_CATEGORIES: ReadonlyArray<{
 	readonly label: string;
@@ -3157,7 +3189,7 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 		for (const t of cat.types) {
 			const opt = document.createElement('option');
 			opt.value = t;
-			opt.textContent = t;
+			opt.textContent = TYPE_DISPLAY_NAMES[t] ?? t;
 			if (t === currentType) opt.selected = true;
 			group.append(opt);
 		}
@@ -3233,11 +3265,28 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 	// ── Shared Parameters ──
 	container.append(createSubHeader('Parameters'));
 
-	container.append(
-		createSliderRow('Duration', 100, 10_000, 100, currentDuration, (val) => {
-			currentDuration = val;
-		}),
-	);
+	// Duration slider with "ms" suffix (custom instead of createSliderRow to avoid "1.0k" formatting)
+	const durRow = document.createElement('div');
+	durRow.className = 'control-row';
+	const durLbl = document.createElement('span');
+	durLbl.className = 'control-label';
+	durLbl.textContent = 'Duration';
+	const durSlider = document.createElement('input');
+	durSlider.type = 'range';
+	durSlider.min = '100';
+	durSlider.max = '10000';
+	durSlider.step = '100';
+	durSlider.value = String(currentDuration);
+	const durVal = document.createElement('span');
+	durVal.className = 'control-value';
+	durVal.textContent = `${currentDuration}ms`;
+	durSlider.addEventListener('input', () => {
+		const v = Number(durSlider.value);
+		durVal.textContent = `${v}ms`;
+		currentDuration = v;
+	});
+	durRow.append(durLbl, durSlider, durVal);
+	container.append(durRow);
 
 	container.append(
 		createDropdown(
@@ -3303,7 +3352,8 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 	container.append(edgeColorRow);
 
 	// ── Context-Sensitive Parameters ──
-	container.append(createSubHeader('Type Options'));
+	const typeOptionsHeader = createSubHeader('Type Options');
+	container.append(typeOptionsHeader);
 
 	// Build each context-sensitive control element
 	const directionEl = createDropdown(
@@ -3448,6 +3498,7 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 	 */
 	function updateContextParams(): void {
 		const visibleParams = TYPE_PARAMS[currentType] ?? [];
+		typeOptionsHeader.style.display = visibleParams.length > 0 ? '' : 'none';
 		for (const [key, el] of Object.entries(contextControls)) {
 			el.style.display = visibleParams.includes(key) ? '' : 'none';
 		}
