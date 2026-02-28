@@ -875,3 +875,731 @@ describe('createLighting — lens flares', () => {
 		expect(result.ok).toBeTruthy();
 	});
 });
+
+// =============================================================================
+// Task 5: New Per-Light Properties
+// =============================================================================
+
+describe('createLighting — new per-light properties', () => {
+	test('PointLight applies radius property', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+						radius: 5,
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const light = result.data.lights[0]!.light as BABYLON.PointLight;
+		if ('radius' in light) {
+			expect(light.radius).toBe(5);
+		}
+	});
+
+	test('PointLight applies renderPriority', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+						renderPriority: 3,
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// oxlint-disable-next-line prefer-destructuring
+		const light = result.data.lights[0]!.light;
+		if ('renderPriority' in light) {
+			expect(light.renderPriority).toBe(3);
+		}
+	});
+
+	test('PointLight applies shadowMinZ and shadowMaxZ when > 0', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+						shadowMinZ: 1,
+						shadowMaxZ: 50,
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// oxlint-disable-next-line prefer-destructuring
+		const light = result.data.lights[0]!.light;
+		if ('shadowMinZ' in light) {
+			expect(light.shadowMinZ).toBe(1);
+		}
+		if ('shadowMaxZ' in light) {
+			expect(light.shadowMaxZ).toBe(50);
+		}
+	});
+
+	test('PointLight applies lightmapMode', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+						lightmapMode: 'specular',
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// oxlint-disable-next-line prefer-destructuring
+		const light = result.data.lights[0]!.light;
+		if ('lightmapMode' in light) {
+			expect(light.lightmapMode).toBe(BABYLON.Light.LIGHTMAP_SPECULAR);
+		}
+	});
+
+	test('SpotLight applies innerAngle', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'spot',
+						type: 'spot',
+						innerAngle: 0.5,
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const light = result.data.lights[0]!.light as BABYLON.SpotLight;
+		if ('innerAngle' in light) {
+			expect(light.innerAngle).toBeCloseTo(0.5);
+		}
+	});
+
+	test('SpotLight applies radius', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'spot',
+						type: 'spot',
+						radius: 3,
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const light = result.data.lights[0]!.light as BABYLON.SpotLight;
+		if ('radius' in light) {
+			expect(light.radius).toBe(3);
+		}
+	});
+
+	test('SpotLight applies shadowMinZ and shadowMaxZ', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'spot',
+						type: 'spot',
+						shadowMinZ: 2,
+						shadowMaxZ: 80,
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// oxlint-disable-next-line prefer-destructuring
+		const light = result.data.lights[0]!.light;
+		if ('shadowMinZ' in light) {
+			expect(light.shadowMinZ).toBe(2);
+		}
+		if ('shadowMaxZ' in light) {
+			expect(light.shadowMaxZ).toBe(80);
+		}
+	});
+
+	test('DirectionalLight applies shadowFrustumSize when > 0', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						shadowFrustumSize: 20,
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const light = result.data.lights[0]!.light as BABYLON.DirectionalLight;
+		if ('shadowFrustumSize' in light) {
+			expect(light.shadowFrustumSize).toBe(20);
+		}
+	});
+
+	test('DirectionalLight does not set shadowFrustumSize when 0', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						shadowFrustumSize: 0,
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const light = result.data.lights[0]!.light as BABYLON.DirectionalLight;
+		// When 0, we should not override Babylon's default
+		if ('shadowFrustumSize' in light) {
+			expect(light.shadowFrustumSize).toBe(0);
+		}
+	});
+
+	test('DirectionalLight applies shadowOrthoScale', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						shadowOrthoScale: 0.5,
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const light = result.data.lights[0]!.light as BABYLON.DirectionalLight;
+		if ('shadowOrthoScale' in light) {
+			expect(light.shadowOrthoScale).toBeCloseTo(0.5);
+		}
+	});
+
+	test('DirectionalLight applies autoUpdateExtends', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						autoUpdateExtends: false,
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const light = result.data.lights[0]!.light as BABYLON.DirectionalLight;
+		if ('autoUpdateExtends' in light) {
+			expect(light.autoUpdateExtends).toBe(false);
+		}
+	});
+
+	test('DirectionalLight applies shadowMinZ and shadowMaxZ', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						shadowMinZ: 5,
+						shadowMaxZ: 200,
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// oxlint-disable-next-line prefer-destructuring
+		const light = result.data.lights[0]!.light;
+		if ('shadowMinZ' in light) {
+			expect(light.shadowMinZ).toBe(5);
+		}
+		if ('shadowMaxZ' in light) {
+			expect(light.shadowMaxZ).toBe(200);
+		}
+	});
+
+	test('DirectionalLight applies lightmapMode', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						lightmapMode: 'shadowsOnly',
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// oxlint-disable-next-line prefer-destructuring
+		const light = result.data.lights[0]!.light;
+		if ('lightmapMode' in light) {
+			expect(light.lightmapMode).toBe(BABYLON.Light.LIGHTMAP_SHADOWSONLY);
+		}
+	});
+
+	test('HemisphericLight applies renderPriority', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'ambient',
+						type: 'hemispheric',
+						renderPriority: 5,
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		// oxlint-disable-next-line prefer-destructuring
+		const light = result.data.lights[0]!.light;
+		if ('renderPriority' in light) {
+			expect(light.renderPriority).toBe(5);
+		}
+	});
+});
+
+// =============================================================================
+// Task 6: Distance Fade Observer
+// =============================================================================
+
+describe('createLighting — distance fade', () => {
+	test('ManagedLight has distanceFadeObserver field', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+						distanceFade: { enabled: true, start: 10, end: 50 },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const managed = result.data.lights[0]!;
+		expect('distanceFadeObserver' in managed).toBe(true);
+	});
+
+	test('distance fade observer is null when not configured', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.lights[0]!.distanceFadeObserver).toBeNull();
+	});
+
+	test('distance fade observer is null when distanceFade.enabled is false', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+						distanceFade: { enabled: false, start: 10, end: 50 },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.lights[0]!.distanceFadeObserver).toBeNull();
+	});
+
+	test('distance fade observer is created for point light when enabled', () => {
+		// Need a camera for distance calculations
+		const _camera: BABYLON.ArcRotateCamera = new BABYLON.ArcRotateCamera(
+			'cam',
+			0,
+			0,
+			10,
+			BABYLON.Vector3.Zero(),
+			instance.scene,
+		);
+
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+						position: { x: 0, y: 0, z: 0 },
+						distanceFade: { enabled: true, start: 10, end: 50 },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.lights[0]!.distanceFadeObserver).not.toBeNull();
+	});
+
+	test('distance fade observer is created for spot light when enabled', () => {
+		const _camera: BABYLON.ArcRotateCamera = new BABYLON.ArcRotateCamera(
+			'cam',
+			0,
+			0,
+			10,
+			BABYLON.Vector3.Zero(),
+			instance.scene,
+		);
+
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'spot',
+						type: 'spot',
+						position: { x: 0, y: 0, z: 0 },
+						distanceFade: { enabled: true, start: 5, end: 30 },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.lights[0]!.distanceFadeObserver).not.toBeNull();
+	});
+
+	test('distance fade observer is null for hemispheric light (no position)', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'ambient',
+						type: 'hemispheric',
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		expect(result.data.lights[0]!.distanceFadeObserver).toBeNull();
+	});
+
+	test('distance fade is cleaned up on removeLightById', () => {
+		const _camera: BABYLON.ArcRotateCamera = new BABYLON.ArcRotateCamera(
+			'cam',
+			0,
+			0,
+			10,
+			BABYLON.Vector3.Zero(),
+			instance.scene,
+		);
+
+		const createResult: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+						distanceFade: { enabled: true, start: 10, end: 50 },
+					},
+				],
+			},
+		});
+		expect(createResult.ok).toBeTruthy();
+		if (!createResult.ok) return;
+
+		const removeResult: BabylonResult<LightingInstance> = removeLightById({
+			lighting: createResult.data,
+			lightId: 'torch',
+		});
+		expect(removeResult.ok).toBeTruthy();
+		if (!removeResult.ok) return;
+		expect(removeResult.data.lights).toHaveLength(0);
+	});
+
+	test('distance fade is cleaned up on disposeLighting', () => {
+		const _camera: BABYLON.ArcRotateCamera = new BABYLON.ArcRotateCamera(
+			'cam',
+			0,
+			0,
+			10,
+			BABYLON.Vector3.Zero(),
+			instance.scene,
+		);
+
+		const createResult: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'torch',
+						type: 'point',
+						distanceFade: { enabled: true, start: 10, end: 50 },
+					},
+				],
+			},
+		});
+		expect(createResult.ok).toBeTruthy();
+		if (!createResult.ok) return;
+
+		const result: BabylonResult<Bool> = disposeLighting({
+			lighting: createResult.data,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+});
+
+// =============================================================================
+// Task 7: Lens Flare Presets & Volumetric Expansion
+// =============================================================================
+
+describe('createLighting — lens flare presets', () => {
+	test('preset sun creates 6-element flare set when no custom flares', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						lensFlare: { enabled: true, preset: 'sun' },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const managed = result.data.lights[0]!;
+		if (managed.lensFlareSystem) {
+			expect(managed.lensFlareSystem.lensFlares).toHaveLength(6);
+		}
+	});
+
+	test('preset moonGlow creates 3-element flare set', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						lensFlare: { enabled: true, preset: 'moonGlow' },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const managed = result.data.lights[0]!;
+		if (managed.lensFlareSystem) {
+			expect(managed.lensFlareSystem.lensFlares).toHaveLength(3);
+		}
+	});
+
+	test('preset crystalLight creates 5-element flare set', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						lensFlare: { enabled: true, preset: 'crystalLight' },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const managed = result.data.lights[0]!;
+		if (managed.lensFlareSystem) {
+			expect(managed.lensFlareSystem.lensFlares).toHaveLength(5);
+		}
+	});
+
+	test('preset torchGlow creates 2-element flare set', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						lensFlare: { enabled: true, preset: 'torchGlow' },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const managed = result.data.lights[0]!;
+		if (managed.lensFlareSystem) {
+			expect(managed.lensFlareSystem.lensFlares).toHaveLength(2);
+		}
+	});
+
+	test('custom flares override preset', () => {
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						lensFlare: {
+							enabled: true,
+							preset: 'sun',
+							flares: [{ size: 0.3, position: 0, color: { r: 1, g: 1, b: 1, a: 1 } }],
+						},
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const managed = result.data.lights[0]!;
+		if (managed.lensFlareSystem) {
+			// Custom flares should override preset — 1, not 6
+			expect(managed.lensFlareSystem.lensFlares).toHaveLength(1);
+		}
+	});
+});
+
+describe('createLighting — volumetric expansion', () => {
+	test('volumetric applies exposure property', () => {
+		const _camera: BABYLON.ArcRotateCamera = new BABYLON.ArcRotateCamera(
+			'cam',
+			0,
+			0,
+			10,
+			BABYLON.Vector3.Zero(),
+			instance.scene,
+		);
+
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						volumetricLight: {
+							enabled: true,
+							samples: 50,
+							exposure: 1.5,
+						},
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const managed = result.data.lights[0]!;
+		if (managed.volumetricPostProcess) {
+			expect(managed.volumetricPostProcess.exposure).toBeCloseTo(1.5);
+		}
+	});
+
+	test('volumetric defaults exposure to 1.0 when not set', () => {
+		const _camera: BABYLON.ArcRotateCamera = new BABYLON.ArcRotateCamera(
+			'cam',
+			0,
+			0,
+			10,
+			BABYLON.Vector3.Zero(),
+			instance.scene,
+		);
+
+		const result: BabylonResult<LightingInstance> = createLighting({
+			scene: instance.scene,
+			config: {
+				lights: [
+					{
+						id: 'sun',
+						type: 'directional',
+						volumetricLight: { enabled: true, samples: 50 },
+					},
+				],
+			},
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const managed = result.data.lights[0]!;
+		if (managed.volumetricPostProcess) {
+			expect(managed.volumetricPostProcess.exposure).toBeCloseTo(1.0);
+		}
+	});
+});

@@ -32,6 +32,7 @@ import {
 	LightingConfigSchema,
 	type DayNightCycleConfig,
 	type FlickerConfig,
+	type LensFlarePreset,
 	type LightConfig,
 	type LightingConfig,
 } from '../schemas/lighting-config';
@@ -63,6 +64,7 @@ export type ManagedLight = {
 	readonly flickerInstance: FlickerInstance | null;
 	readonly volumetricPostProcess: BABYLON.VolumetricLightScatteringPostProcess | null;
 	readonly lensFlareSystem: BABYLON.LensFlareSystem | null;
+	readonly distanceFadeObserver: BABYLON.Observer<BABYLON.Scene> | null;
 };
 
 /** The top-level lighting system instance. */
@@ -75,7 +77,7 @@ export type LightingInstance = {
 };
 
 // =============================================================================
-// Falloff & Intensity Mode Mappings
+// Falloff, Intensity Mode & Lightmap Mode Mappings
 // =============================================================================
 
 /** Maps falloff type string to Babylon.js constant. */
@@ -95,12 +97,91 @@ const INTENSITY_MODE_MAP: Readonly<Record<string, number>> = {
 	luminance: BABYLON.Light.INTENSITYMODE_LUMINANCE,
 };
 
+/** Maps lightmap mode string to Babylon.js constant. */
+const LIGHTMAP_MODE_MAP: Readonly<Record<string, number>> = {
+	default: BABYLON.Light.LIGHTMAP_DEFAULT,
+	specular: BABYLON.Light.LIGHTMAP_SPECULAR,
+	shadowsOnly: BABYLON.Light.LIGHTMAP_SHADOWSONLY,
+};
+
+// =============================================================================
+// Lens Flare Presets
+// =============================================================================
+
+/** A single flare definition within a preset. */
+type FlarePresetEntry = {
+	readonly size: Num;
+	readonly position: Num;
+	readonly r: Num;
+	readonly g: Num;
+	readonly b: Num;
+};
+
+/**
+ * Curated lens flare preset definitions.
+ *
+ * Each preset provides a ready-made array of flare elements for common
+ * lighting scenarios. Used when `lensFlare.preset` is set and no custom
+ * `flares` array is provided.
+ */
+const LENS_FLARE_PRESETS: Readonly<Record<LensFlarePreset, readonly FlarePresetEntry[]>> = {
+	/** 6-element outdoor sun flare with rainbow ring. */
+	sun: [
+		{ size: 0.5 as Num, position: 0 as Num, r: 1 as Num, g: 1 as Num, b: 1 as Num },
+		{ size: 0.2 as Num, position: 0.2 as Num, r: 1 as Num, g: 0.8 as Num, b: 0.5 as Num },
+		{ size: 0.3 as Num, position: 0.4 as Num, r: 0.5 as Num, g: 0.5 as Num, b: 1 as Num },
+		{ size: 0.15 as Num, position: 0.6 as Num, r: 0.8 as Num, g: 1 as Num, b: 0.8 as Num },
+		{ size: 0.1 as Num, position: 0.8 as Num, r: 1 as Num, g: 0.6 as Num, b: 0.3 as Num },
+		{ size: 0.4 as Num, position: 1.0 as Num, r: 1 as Num, g: 1 as Num, b: 1 as Num },
+	],
+	/** 3-element soft white/blue moon glow. */
+	moonGlow: [
+		{ size: 0.6 as Num, position: 0 as Num, r: 0.8 as Num, g: 0.85 as Num, b: 1 as Num },
+		{ size: 0.3 as Num, position: 0.3 as Num, r: 0.6 as Num, g: 0.7 as Num, b: 1 as Num },
+		{ size: 0.15 as Num, position: 0.7 as Num, r: 0.9 as Num, g: 0.9 as Num, b: 1 as Num },
+	],
+	/** 5-element prismatic rainbow (fantasy). */
+	crystalLight: [
+		{ size: 0.3 as Num, position: 0 as Num, r: 1 as Num, g: 1 as Num, b: 1 as Num },
+		{ size: 0.2 as Num, position: 0.2 as Num, r: 1 as Num, g: 0.3 as Num, b: 0.3 as Num },
+		{ size: 0.2 as Num, position: 0.4 as Num, r: 0.3 as Num, g: 1 as Num, b: 0.3 as Num },
+		{ size: 0.2 as Num, position: 0.6 as Num, r: 0.3 as Num, g: 0.3 as Num, b: 1 as Num },
+		{ size: 0.15 as Num, position: 0.9 as Num, r: 1 as Num, g: 0.8 as Num, b: 1 as Num },
+	],
+	/** 2-element warm orange indoor glow. */
+	torchGlow: [
+		{ size: 0.4 as Num, position: 0 as Num, r: 1 as Num, g: 0.7 as Num, b: 0.3 as Num },
+		{ size: 0.15 as Num, position: 0.5 as Num, r: 1 as Num, g: 0.5 as Num, b: 0.2 as Num },
+	],
+};
+
 // =============================================================================
 // Light Creation (Private)
 // =============================================================================
 
 /**
+ * Applies shadow Z-bounds to a shadow-capable light when values are > 0.
+ *
+ * @param light - A Babylon.js light that supports shadowMinZ/shadowMaxZ.
+ * @param minZ - Shadow near plane (0 = auto).
+ * @param maxZ - Shadow far plane (0 = auto).
+ */
+function applyShadowZBounds(light: BABYLON.ShadowLight, minZ: Num, maxZ: Num): void {
+	if (minZ > 0) {
+		light.shadowMinZ = minZ;
+	}
+	if (maxZ > 0) {
+		light.shadowMaxZ = maxZ;
+	}
+}
+
+/**
  * Creates a Babylon.js light from a validated config.
+ *
+ * Applies type-specific properties (position, direction, range, radius,
+ * inner angle, shadow frustum, etc.) and common properties (intensity,
+ * diffuse/specular, color temperature, falloff, intensity mode,
+ * render priority, lightmap mode).
  *
  * @param scene - The scene to add the light to.
  * @param config - The validated light configuration.
@@ -122,6 +203,15 @@ function createBabylonLight(
 				);
 				const pointLight: BABYLON.PointLight = new BABYLON.PointLight(config.id, pos, scene);
 				pointLight.range = config.range;
+				pointLight.radius = config.radius;
+				applyShadowZBounds(pointLight, config.shadowMinZ, config.shadowMaxZ);
+
+				// Apply lightmap mode (non-hemispheric)
+				const pointLmMode: number | undefined = LIGHTMAP_MODE_MAP[config.lightmapMode];
+				if (pointLmMode !== undefined) {
+					pointLight.lightmapMode = pointLmMode;
+				}
+
 				light = pointLight;
 				break;
 			}
@@ -146,6 +236,16 @@ function createBabylonLight(
 					scene,
 				);
 				spotLight.range = config.range;
+				spotLight.innerAngle = config.innerAngle;
+				spotLight.radius = config.radius;
+				applyShadowZBounds(spotLight, config.shadowMinZ, config.shadowMaxZ);
+
+				// Apply lightmap mode (non-hemispheric)
+				const spotLmMode: number | undefined = LIGHTMAP_MODE_MAP[config.lightmapMode];
+				if (spotLmMode !== undefined) {
+					spotLight.lightmapMode = spotLmMode;
+				}
+
 				light = spotLight;
 				break;
 			}
@@ -167,6 +267,21 @@ function createBabylonLight(
 					config.position.z,
 				);
 				dirLight.autoCalcShadowZBounds = config.autoCalcShadowZBounds;
+
+				// Apply new directional-specific properties
+				if (config.shadowFrustumSize > 0) {
+					dirLight.shadowFrustumSize = config.shadowFrustumSize;
+				}
+				dirLight.shadowOrthoScale = config.shadowOrthoScale;
+				dirLight.autoUpdateExtends = config.autoUpdateExtends;
+				applyShadowZBounds(dirLight, config.shadowMinZ, config.shadowMaxZ);
+
+				// Apply lightmap mode (non-hemispheric)
+				const dirLmMode: number | undefined = LIGHTMAP_MODE_MAP[config.lightmapMode];
+				if (dirLmMode !== undefined) {
+					dirLight.lightmapMode = dirLmMode;
+				}
+
 				light = dirLight;
 				break;
 			}
@@ -195,6 +310,7 @@ function createBabylonLight(
 		// Apply common properties
 		light.intensity = config.intensity;
 		light.setEnabled(config.enabled);
+		light.renderPriority = config.renderPriority;
 
 		// Apply diffuse — may be overridden by colorTemperature below
 		light.diffuse = new BABYLON.Color3(config.diffuse.r, config.diffuse.g, config.diffuse.b);
@@ -236,6 +352,60 @@ function isShadowLight(light: BABYLON.Light): light is BABYLON.IShadowLight {
 	return 'setShadowProjectionMatrix' in light;
 }
 
+/**
+ * Creates a distance fade observer for a positional light.
+ *
+ * Registers a scene `onBeforeRenderObservable` callback that computes the
+ * distance from the active camera to the light position each frame. The
+ * light intensity is scaled by a linear fade factor:
+ *   factor = clamp((end - dist) / (end - start), 0, 1)
+ * Lights beyond `end` are disabled; lights closer than `start` are full.
+ *
+ * @param scene - The scene to observe.
+ * @param light - The light to fade.
+ * @param baseIntensity - The light's configured base intensity.
+ * @param start - Distance at which fade begins.
+ * @param end - Distance at which light fully fades out.
+ * @returns The registered observer, or null if no camera is available.
+ */
+function createDistanceFadeObserver(
+	scene: BABYLON.Scene,
+	light: BABYLON.Light,
+	baseIntensity: Num,
+	start: Num,
+	end: Num,
+): BABYLON.Observer<BABYLON.Scene> | null {
+	// ShadowLight is the base class for all positional lights (Point, Spot, Directional).
+	// Hemispheric lights do not extend ShadowLight and have no position.
+	if (!(light instanceof BABYLON.ShadowLight)) {
+		return null;
+	}
+	const positionedLight: BABYLON.ShadowLight = light;
+
+	const observer: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
+		const camera: BABYLON.Nullable<BABYLON.Camera> = scene.activeCamera;
+		if (!camera) return;
+
+		const lightPos: BABYLON.Vector3 = positionedLight.position;
+		const camPos: BABYLON.Vector3 = camera.position;
+		const dist: number = BABYLON.Vector3.Distance(lightPos, camPos);
+
+		const range: number = end - start;
+		// Avoid division by zero when start === end
+		let factor = 0;
+		if (range > 0) {
+			factor = Math.max(0, Math.min(1, (end - dist) / range));
+		} else if (dist <= start) {
+			factor = 1;
+		}
+
+		light.intensity = baseIntensity * factor;
+		light.setEnabled(factor > 0);
+	});
+
+	return observer;
+}
+
 // =============================================================================
 // Public API
 // =============================================================================
@@ -251,7 +421,7 @@ type CreateLightingOptions = {
  *
  * Validates the config, removes the default scene light, creates all
  * Babylon.js lights with their shadow generators, flicker animations,
- * glow layer, and day/night cycle.
+ * distance fade observers, glow layer, and day/night cycle.
  *
  * @param options - Scene and raw lighting config.
  * @returns BabylonResult containing the lighting instance.
@@ -356,7 +526,20 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 						volumetric.decay = vlCfg.decay;
 						volumetric.weight = vlCfg.weight;
 						volumetric.density = vlCfg.density;
-						volumetric.exposure = 1.0;
+						volumetric.exposure = vlCfg.exposure;
+
+						// Tint the volumetric mesh if color is not pure white
+						const vlColor = vlCfg.color;
+						if (vlColor.r < 1 || vlColor.g < 1 || vlColor.b < 1) {
+							const meshMat: BABYLON.Nullable<BABYLON.Material> = volumetric.mesh.material;
+							if (
+								meshMat !== null &&
+								meshMat !== undefined &&
+								meshMat instanceof BABYLON.StandardMaterial
+							) {
+								meshMat.diffuseColor = new BABYLON.Color3(vlColor.r, vlColor.g, vlColor.b);
+							}
+						}
 
 						// Position the internal "light source" mesh at the sun's position
 						// in the sky. For directional lights, place it far along the inverse
@@ -398,6 +581,7 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 					flareTexture.name = `${lightCfg.id}-flare-tex`;
 
 					if (flareCfg.flares && flareCfg.flares.length > 0) {
+						// Custom flares — always override preset
 						for (const f of flareCfg.flares) {
 							const flare: BABYLON.LensFlare = new BABYLON.LensFlare(
 								f.size,
@@ -407,6 +591,22 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 								lensFlares,
 							);
 							flare.texture = flareTexture;
+						}
+					} else if (flareCfg.preset) {
+						// Use preset flare array
+						const presetFlares: readonly FlarePresetEntry[] | undefined =
+							LENS_FLARE_PRESETS[flareCfg.preset];
+						if (presetFlares) {
+							for (const pf of presetFlares) {
+								const flare: BABYLON.LensFlare = new BABYLON.LensFlare(
+									pf.size,
+									pf.position,
+									new BABYLON.Color3(pf.r, pf.g, pf.b),
+									'',
+									lensFlares,
+								);
+								flare.texture = flareTexture;
+							}
 						}
 					} else {
 						// Default 3-flare set
@@ -441,6 +641,22 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 				}
 			}
 
+			// Distance fade observer — Point/Spot only, non-fatal
+			let distanceFadeObs: BABYLON.Observer<BABYLON.Scene> | null = null;
+			if (
+				(lightCfg.type === 'point' || lightCfg.type === 'spot') &&
+				lightCfg.distanceFade?.enabled
+			) {
+				const fadeCfg = lightCfg.distanceFade;
+				distanceFadeObs = createDistanceFadeObserver(
+					options.scene,
+					light,
+					lightCfg.intensity,
+					fadeCfg.start,
+					fadeCfg.end,
+				);
+			}
+
 			managedLights.push({
 				config: lightCfg,
 				light,
@@ -448,6 +664,7 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 				flickerInstance: flickerInst,
 				volumetricPostProcess: volumetric,
 				lensFlareSystem: lensFlares,
+				distanceFadeObserver: distanceFadeObs,
 			});
 		}
 
@@ -626,7 +843,8 @@ type RemoveLightOptions = {
  * Removes a light by ID and returns an updated LightingInstance.
  *
  * Disposes the Babylon.js light and all sub-resources (shadow generator,
- * flicker animation).
+ * flicker animation, distance fade observer, volumetric post-process,
+ * lens flare system).
  *
  * @param options - Lighting instance and light ID to remove.
  * @returns BabylonResult containing the updated lighting instance.
@@ -646,6 +864,9 @@ export function removeLightById(options: RemoveLightOptions): BabylonResult<Ligh
 		// Dispose sub-resources before the light
 		if (managed.flickerInstance) {
 			disposeFlicker({ flicker: managed.flickerInstance, scene: options.lighting.scene });
+		}
+		if (managed.distanceFadeObserver) {
+			options.lighting.scene.onBeforeRenderObservable.remove(managed.distanceFadeObserver);
 		}
 		if (managed.volumetricPostProcess) {
 			const cam: BABYLON.Nullable<BABYLON.Camera> = options.lighting.scene.cameras[0] ?? null;
@@ -685,7 +906,8 @@ type DisposeLightingOptions = {
  * Disposes the entire lighting system.
  *
  * Disposes day/night cycle, glow layer, then all managed lights
- * and their sub-resources (shadow generators, flicker animations).
+ * and their sub-resources (shadow generators, flicker animations,
+ * distance fade observers, volumetric post-processes, lens flare systems).
  *
  * @param options - The lighting instance to dispose.
  * @returns BabylonResult indicating success.
@@ -710,6 +932,10 @@ export function disposeLighting(options: DisposeLightingOptions): BabylonResult<
 			// Dispose flicker before shadow (flicker modifies light properties)
 			if (managed.flickerInstance) {
 				disposeFlicker({ flicker: managed.flickerInstance, scene: options.lighting.scene });
+			}
+			// Dispose distance fade observer
+			if (managed.distanceFadeObserver) {
+				options.lighting.scene.onBeforeRenderObservable.remove(managed.distanceFadeObserver);
 			}
 			// Dispose volumetric + lens flares
 			if (managed.volumetricPostProcess) {

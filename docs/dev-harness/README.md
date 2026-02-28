@@ -29,7 +29,7 @@ The sidebar contains 12 collapsible sections:
 | 8 | **Fog** | 77+ options across all 3 tiers | Full fog configuration |
 | 9 | **Camera Details** | Per-field overrides | Fine-grained camera adjustment |
 | 10 | **Glow Layer** | Intensity, blur, samples | Glow layer configuration |
-| 11 | **Lights** | Per-light expanded controls | Shadow, flicker, volumetric, lens flare |
+| 11 | **Lights** | Per-light expanded controls (47+) | Shadow (8 filters, 14 props), 13 flicker modes, god rays, lens flares (4 presets), distance fade |
 | 12 | **Scene Info** | Read-only | FPS, draw calls, active meshes, memory |
 
 ## Control Types
