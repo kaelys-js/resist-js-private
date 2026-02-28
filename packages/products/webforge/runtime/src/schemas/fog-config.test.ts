@@ -236,8 +236,8 @@ describe('FogNoiseSchema', () => {
 		expect(result.data.persistence).toBeCloseTo(0.5);
 	});
 
-	test('rejects scale below 0.1', () => {
-		const result: Result<FogNoise> = safeParse(FogNoiseSchema, { scale: 0.05 });
+	test('rejects scale below 0.001', () => {
+		const result: Result<FogNoise> = safeParse(FogNoiseSchema, { scale: 0.0005 });
 		expect(result.ok).toBe(false);
 	});
 
@@ -373,7 +373,7 @@ describe('FogOverlaySchema', () => {
 	});
 
 	test('rejects invalid vignette', () => {
-		const result: Result<FogOverlay> = safeParse(FogOverlaySchema, { vignette: 'radial' });
+		const result: Result<FogOverlay> = safeParse(FogOverlaySchema, { vignette: 'circular' });
 		expect(result.ok).toBe(false);
 	});
 
@@ -579,6 +579,7 @@ describe('FogOverlayVignetteSchema', () => {
 	test('accepts all vignette types', () => {
 		const types: string[] = [
 			'none',
+			'radial',
 			'border',
 			'horizontal',
 			'vertical',
