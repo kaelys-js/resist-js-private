@@ -1282,7 +1282,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	if (dayNightDropdownContainer) {
 		dayNightDropdownContainer.append(
 			createDropdown(
-				'Preset',
+				'Time Preset',
 				[
 					{ value: 'dawn', label: 'Dawn (5:00)' },
 					{ value: 'goldenMorning', label: 'Golden Morning (6:30)' },
@@ -1305,6 +1305,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					updateTimeDisplay(hour);
 				},
 				'daynight-preset',
+				'Quick-jump to a predefined time of day.',
 			),
 		);
 	}
@@ -1410,23 +1411,33 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					updateTimeSourceVisibility(val);
 				},
 				'daynight-timesource',
+				'How time advances. Simulated = adjustable speed, Wall Clock = synced to real time, Slider Only = manual control.',
 			),
 		);
 	}
 
 	// Day Duration slider (accelerated mode)
 	if (dayDurationRow) {
-		const dayDurationSlider = createSliderRow('Day Length', 10, 3600, 10, 1440, (val) => {
-			const cycle = debug.tilemap?.lighting?.dayNightCycle;
-			if (!cycle) return;
-			(cycle.config as Record<string, unknown>)['dayDurationSeconds'] = val;
-			// Update speed slider to match
-			if (speedSlider) {
-				const derivedSpeed: number = 24 / val;
-				speedSlider.value = String(derivedSpeed);
-				if (speedValue) speedValue.textContent = `${derivedSpeed.toFixed(2)}x`;
-			}
-		});
+		const dayDurationSlider = createSliderRow(
+			'Day Length',
+			10,
+			3600,
+			10,
+			1440,
+			(val) => {
+				const cycle = debug.tilemap?.lighting?.dayNightCycle;
+				if (!cycle) return;
+				(cycle.config as Record<string, unknown>)['dayDurationSeconds'] = val;
+				// Update speed slider to match
+				if (speedSlider) {
+					const derivedSpeed: number = 24 / val;
+					speedSlider.value = String(derivedSpeed);
+					if (speedValue) speedValue.textContent = `${derivedSpeed.toFixed(2)}x`;
+				}
+			},
+			undefined,
+			'Total real-world seconds for one full in-game day. Lower = faster cycle. Syncs with Cycle Speed.',
+		);
 		// Replace the value label with formatted time
 		const dayDurValueSpan = dayDurationSlider.querySelector('.control-value');
 		if (dayDurValueSpan) dayDurValueSpan.textContent = '24m 0s';
@@ -1447,11 +1458,17 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	// Reverse toggle (accelerated mode)
 	if (reverseRow) {
 		reverseRow.append(
-			createToggleRow('Reverse', false, (on) => {
-				const cycle = debug.tilemap?.lighting?.dayNightCycle;
-				if (!cycle) return;
-				(cycle.config as Record<string, unknown>)['reverse'] = on;
-			}),
+			createToggleRow(
+				'Reverse Time',
+				false,
+				(on) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					(cycle.config as Record<string, unknown>)['reverse'] = on;
+				},
+				undefined,
+				'Run the clock backwards — the day rewinds toward midnight.',
+			),
 		);
 	}
 
@@ -1459,11 +1476,20 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	if (timezoneRow) {
 		(timezoneRow as HTMLElement).style.display = 'none';
 		timezoneRow.append(
-			createSliderRow('Timezone Offset', -12, 14, 0.5, 0, (val) => {
-				const cycle = debug.tilemap?.lighting?.dayNightCycle;
-				if (!cycle) return;
-				(cycle.config as Record<string, unknown>)['timezoneOffset'] = val;
-			}),
+			createSliderRow(
+				'UTC Offset (h)',
+				-12,
+				14,
+				0.5,
+				0,
+				(val) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					(cycle.config as Record<string, unknown>)['timezoneOffset'] = val;
+				},
+				undefined,
+				'Hours offset from UTC in Wall Clock mode. Shifts the real-world time mapping.',
+			),
 		);
 	}
 
@@ -1471,21 +1497,27 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	if (realtimeSeasonRow) {
 		(realtimeSeasonRow as HTMLElement).style.display = 'none';
 		realtimeSeasonRow.append(
-			createToggleRow('Sync Season to Month', false, (on) => {
-				const cycle = debug.tilemap?.lighting?.dayNightCycle;
-				if (!cycle) return;
-				if (on) {
-					// Set up the default season map
-					(cycle.config as Record<string, unknown>)['realTimeSeasonMap'] = {
-						month3: 'spring',
-						month6: 'summer',
-						month9: 'autumn',
-						month12: 'winter',
-					};
-				} else {
-					(cycle.config as Record<string, unknown>)['realTimeSeasonMap'] = undefined;
-				}
-			}),
+			createToggleRow(
+				'Sync Season',
+				false,
+				(on) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					if (on) {
+						// Set up the default season map
+						(cycle.config as Record<string, unknown>)['realTimeSeasonMap'] = {
+							month3: 'spring',
+							month6: 'summer',
+							month9: 'autumn',
+							month12: 'winter',
+						};
+					} else {
+						(cycle.config as Record<string, unknown>)['realTimeSeasonMap'] = undefined;
+					}
+				},
+				undefined,
+				'Auto-set season from the current real-world month (Dec–Feb = Winter, Mar–May = Spring, etc.).',
+			),
 		);
 	}
 
@@ -1493,11 +1525,17 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	if (realtimeMoonRow) {
 		(realtimeMoonRow as HTMLElement).style.display = 'none';
 		realtimeMoonRow.append(
-			createToggleRow('Sync Moon to Lunar Cycle', false, (on) => {
-				const cycle = debug.tilemap?.lighting?.dayNightCycle;
-				if (!cycle) return;
-				(cycle.config as Record<string, unknown>)['realtimeMoonSync'] = on;
-			}),
+			createToggleRow(
+				'Sync Moon',
+				false,
+				(on) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					(cycle.config as Record<string, unknown>)['realtimeMoonSync'] = on;
+				},
+				undefined,
+				'Auto-track the real-world lunar cycle instead of using the manual Moon Phase slider.',
+			),
 		);
 	}
 
@@ -1526,6 +1564,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					delete cfg['sunPath'];
 				},
 				'daynight-season',
+				'Current season. Controls sunrise/sunset times, sun elevation arc, and ambient color temperature.',
 			),
 		);
 	}
@@ -1581,6 +1620,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					if (haltRow) haltRow.style.display = val === 'outdoor' ? 'none' : '';
 				},
 				'daynight-indoor',
+				'Override outdoor lighting with an indoor environment. Cave, Dungeon, etc. freeze or replace the sky.',
 			),
 		);
 	}
@@ -1590,7 +1630,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	if (easingDropdownContainer) {
 		easingDropdownContainer.append(
 			createDropdown(
-				'Easing',
+				'Time Easing',
 				[
 					{ value: 'linear', label: 'Linear' },
 					{ value: 'smooth', label: 'Smooth' },
@@ -1608,6 +1648,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					(cycle.config as Record<string, unknown>)['transitionEasing'] = val;
 				},
 				'daynight-easing',
+				'Interpolation curve for smooth lighting transitions between time-of-day keyframes.',
 			),
 		);
 	}
@@ -1617,13 +1658,19 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	if (haltTimeRow) {
 		(haltTimeRow as HTMLElement).style.display = 'none';
 		haltTimeRow.append(
-			createToggleRow('Halt Time', false, (on) => {
-				const cycle = debug.tilemap?.lighting?.dayNightCycle;
-				if (!cycle) return;
-				const cfg = cycle.config as Record<string, unknown>;
-				if (!cfg['indoorModeConfig']) cfg['indoorModeConfig'] = {};
-				(cfg['indoorModeConfig'] as Record<string, unknown>)['haltTime'] = on;
-			}),
+			createToggleRow(
+				'Freeze Clock',
+				false,
+				(on) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					const cfg = cycle.config as Record<string, unknown>;
+					if (!cfg['indoorModeConfig']) cfg['indoorModeConfig'] = {};
+					(cfg['indoorModeConfig'] as Record<string, unknown>)['haltTime'] = on;
+				},
+				undefined,
+				'Pause time progression while an Indoor Mode is active. Clock resumes when returning to Outdoor.',
+			),
 		);
 	}
 
@@ -1631,11 +1678,20 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	const seasonDurationRow = document.querySelector('#daynight-season-duration-row');
 	if (seasonDurationRow) {
 		seasonDurationRow.append(
-			createSliderRow('Days per Season', 1, 30, 1, 7, (val) => {
-				const cycle = debug.tilemap?.lighting?.dayNightCycle;
-				if (!cycle) return;
-				(cycle.config as Record<string, unknown>)['seasonDurationDays'] = val;
-			}),
+			createSliderRow(
+				'Days / Season',
+				1,
+				30,
+				1,
+				7,
+				(val) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					(cycle.config as Record<string, unknown>)['seasonDurationDays'] = val;
+				},
+				undefined,
+				'In-game days before the season auto-advances. Lower = faster seasonal cycling.',
+			),
 		);
 	}
 
@@ -1643,11 +1699,20 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	const currentDayRow = document.querySelector('#daynight-current-day-row');
 	if (currentDayRow) {
 		currentDayRow.append(
-			createSliderRow('Current Day', 0, 365, 0.1, 0, (val) => {
-				const cycle = debug.tilemap?.lighting?.dayNightCycle;
-				if (!cycle) return;
-				cycle._currentDay = val as Num;
-			}),
+			createSliderRow(
+				'Current Day',
+				0,
+				365,
+				0.1,
+				0,
+				(val) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					cycle._currentDay = val as Num;
+				},
+				undefined,
+				'Day counter within the current cycle. Drives season transitions when auto-cycling.',
+			),
 		);
 	}
 
@@ -1655,11 +1720,20 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	const seasonTransitionRow = document.querySelector('#daynight-season-transition-row');
 	if (seasonTransitionRow) {
 		seasonTransitionRow.append(
-			createSliderRow('Season Crossfade', 0, 1, 0.05, 0, (val) => {
-				const cycle = debug.tilemap?.lighting?.dayNightCycle;
-				if (!cycle) return;
-				(cycle.config as Record<string, unknown>)['seasonTransition'] = val;
-			}),
+			createSliderRow(
+				'Season Blend',
+				0,
+				1,
+				0.05,
+				0,
+				(val) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					(cycle.config as Record<string, unknown>)['seasonTransition'] = val;
+				},
+				undefined,
+				'How much of the season boundary to spend blending. 0 = instant switch, 1 = blend the entire season.',
+			),
 		);
 	}
 
@@ -1667,11 +1741,17 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	const autoMoonRow = document.querySelector('#daynight-auto-moon-row');
 	if (autoMoonRow) {
 		autoMoonRow.append(
-			createToggleRow('Auto Moon Phase', false, (on) => {
-				const cycle = debug.tilemap?.lighting?.dayNightCycle;
-				if (!cycle) return;
-				(cycle.config as Record<string, unknown>)['autoAdvanceMoonPhase'] = on;
-			}),
+			createToggleRow(
+				'Auto Moon',
+				false,
+				(on) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					(cycle.config as Record<string, unknown>)['autoAdvanceMoonPhase'] = on;
+				},
+				undefined,
+				'Automatically advance the moon phase over time based on Moon Cycle length.',
+			),
 		);
 	}
 
@@ -1679,11 +1759,20 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	const moonCycleRow = document.querySelector('#daynight-moon-cycle-row');
 	if (moonCycleRow) {
 		moonCycleRow.append(
-			createSliderRow('Moon Cycle (d)', 1, 30, 0.5, 3.69, (val) => {
-				const cycle = debug.tilemap?.lighting?.dayNightCycle;
-				if (!cycle) return;
-				(cycle.config as Record<string, unknown>)['moonCycleDays'] = val;
-			}),
+			createSliderRow(
+				'Moon Cycle (d)',
+				1,
+				30,
+				0.5,
+				3.69,
+				(val) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					(cycle.config as Record<string, unknown>)['moonCycleDays'] = val;
+				},
+				undefined,
+				'In-game days for one full lunar cycle (new moon → new moon). Default ≈ 3.7 days.',
+			),
 		);
 	}
 
@@ -1691,11 +1780,17 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	const postFxRow = document.querySelector('#daynight-postfx-row');
 	if (postFxRow) {
 		postFxRow.append(
-			createToggleRow('Controls Post-FX', true, (on) => {
-				const cycle = debug.tilemap?.lighting?.dayNightCycle;
-				if (!cycle) return;
-				(cycle.config as Record<string, unknown>)['dayNightControlsPostFx'] = on;
-			}),
+			createToggleRow(
+				'Drive Post-FX',
+				true,
+				(on) => {
+					const cycle = debug.tilemap?.lighting?.dayNightCycle;
+					if (!cycle) return;
+					(cycle.config as Record<string, unknown>)['dayNightControlsPostFx'] = on;
+				},
+				undefined,
+				'Let the day/night cycle auto-adjust post-processing (bloom, exposure, tint) to match the time of day.',
+			),
 		);
 	}
 
@@ -1715,7 +1810,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		let _jumpTargetHour = 18;
 		smoothJumpRow.append(
 			createDropdown(
-				'Jump To',
+				'Jump Target',
 				[
 					{ value: 'dawn', label: 'Dawn (5:00)' },
 					{ value: 'morning', label: 'Morning (8:00)' },
@@ -1730,14 +1825,24 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					_jumpTargetHour = jumpTargetMap[val] ?? 18;
 				},
 				'daynight-jump-target',
+				'Destination time for a smooth animated jump.',
 			),
 		);
 
 		// Duration slider
 		smoothJumpRow.append(
-			createSliderRow('Jump Duration', 0.5, 5, 0.25, 2, (val) => {
-				_jumpDurationSec = val;
-			}),
+			createSliderRow(
+				'Jump Time (s)',
+				0.5,
+				5,
+				0.25,
+				2,
+				(val) => {
+					_jumpDurationSec = val;
+				},
+				undefined,
+				'Duration of the smooth jump animation, in seconds.',
+			),
 		);
 		let _jumpDurationSec = 2;
 
@@ -1745,6 +1850,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		const goBtn = document.createElement('button');
 		goBtn.className = 'btn';
 		goBtn.textContent = '\u25B6 Jump';
+		goBtn.title = 'Smoothly animate to the target time';
 		goBtn.style.width = '100%';
 		goBtn.style.marginTop = '2px';
 		goBtn.addEventListener('click', () => {
@@ -2000,6 +2106,32 @@ function fmtHourMin(h: number): string {
 }
 
 // =============================================================================
+// UI Helper — tooltip wrapper
+// =============================================================================
+
+/**
+ * Wraps a control label span with an optional tooltip icon and bubble.
+ * If no tooltip text is provided, returns the label span as-is.
+ *
+ * @param lbl - The `.control-label` span element.
+ * @param tooltip - Optional tooltip description text.
+ * @returns The label element (unwrapped) or a `.control-label-wrap` div.
+ */
+function wrapWithTooltip(lbl: HTMLElement, tooltip?: string): HTMLElement {
+	if (!tooltip) return lbl;
+	const wrap = document.createElement('div');
+	wrap.className = 'control-label-wrap';
+	const icon = document.createElement('span');
+	icon.className = 'tip-icon';
+	icon.textContent = '?';
+	const bubble = document.createElement('span');
+	bubble.className = 'tip-bubble';
+	bubble.textContent = tooltip;
+	wrap.append(lbl, icon, bubble);
+	return wrap;
+}
+
+// =============================================================================
 // UI Helper — creates a labeled slider row
 // =============================================================================
 
@@ -2013,6 +2145,7 @@ function fmtHourMin(h: number): string {
  * @param value - Initial value.
  * @param onChange - Callback when slider changes.
  * @param dataControl - Optional data-control attribute value.
+ * @param tooltip - Optional tooltip description shown on hover.
  * @returns The row element.
  */
 function createSliderRow(
@@ -2023,6 +2156,7 @@ function createSliderRow(
 	value: number,
 	onChange: (val: number) => void,
 	dataControl?: string,
+	tooltip?: string,
 ): HTMLElement {
 	const row = document.createElement('div');
 	row.className = 'control-row';
@@ -2049,7 +2183,7 @@ function createSliderRow(
 		onChange(v);
 	});
 
-	row.append(lbl, slider, valEl);
+	row.append(wrapWithTooltip(lbl, tooltip), slider, valEl);
 	return row;
 }
 
@@ -2060,6 +2194,7 @@ function createSliderRow(
  * @param initialOn - Whether the toggle starts in the "on" state.
  * @param onChange - Callback when toggle changes.
  * @param dataControl - Optional data-control attribute value.
+ * @param tooltip - Optional tooltip description shown on hover.
  * @returns The row element.
  */
 function createToggleRow(
@@ -2067,6 +2202,7 @@ function createToggleRow(
 	initialOn: boolean,
 	onChange: (on: boolean) => void,
 	dataControl?: string,
+	tooltip?: string,
 ): HTMLElement {
 	const row = document.createElement('div');
 	row.className = 'toggle-row';
@@ -2084,7 +2220,7 @@ function createToggleRow(
 		onChange(!isOn);
 	});
 
-	row.append(lbl, toggle);
+	row.append(wrapWithTooltip(lbl, tooltip), toggle);
 	return row;
 }
 
@@ -2094,12 +2230,14 @@ function createToggleRow(
  * @param label - Display label text.
  * @param value - Initial text value.
  * @param onChange - Callback when text changes (on blur or Enter key).
+ * @param tooltip - Optional tooltip description shown on hover.
  * @returns The row element.
  */
 function createTextInputRow(
 	label: string,
 	value: string,
 	onChange: (val: string) => void,
+	tooltip?: string,
 ): HTMLElement {
 	const row = document.createElement('div');
 	row.className = 'control-row';
@@ -2127,7 +2265,7 @@ function createTextInputRow(
 		if (e.key === 'Enter') commit();
 	});
 
-	row.append(lbl, input);
+	row.append(wrapWithTooltip(lbl, tooltip), input);
 	return row;
 }
 
@@ -2171,6 +2309,7 @@ const SELECTION_COLOR_PRESETS: readonly ColorPreset[] = [
  * @param presets - Array of preset color definitions with name and hex.
  * @param initialHex - Initial hex color string (e.g. '#ffffff').
  * @param onChange - Callback when color changes, receives hex string.
+ * @param tooltip - Optional tooltip description shown on hover.
  * @returns The row element.
  */
 function createColorPickerRow(
@@ -2178,6 +2317,7 @@ function createColorPickerRow(
 	presets: readonly ColorPreset[],
 	initialHex: string,
 	onChange: (hex: string) => void,
+	tooltip?: string,
 ): HTMLElement {
 	const row = document.createElement('div');
 	row.className = 'control-row';
@@ -2235,7 +2375,7 @@ function createColorPickerRow(
 	});
 
 	btnGroup.append(colorInput);
-	row.append(lbl, btnGroup);
+	row.append(wrapWithTooltip(lbl, tooltip), btnGroup);
 	return row;
 }
 
@@ -2802,6 +2942,7 @@ function buildShakeUI(scene: BABYLON.Scene, camera: BABYLON.Camera): void {
  * @param active - Currently selected option.
  * @param onChange - Callback when selection changes.
  * @param dataControl - Optional data-control attribute value.
+ * @param tooltip - Optional tooltip description shown on hover.
  * @returns The row element.
  */
 function createDropdown(
@@ -2810,6 +2951,7 @@ function createDropdown(
 	active: string,
 	onChange: (value: string) => void,
 	dataControl?: string,
+	tooltip?: string,
 ): HTMLElement {
 	const row = document.createElement('div');
 	row.className = 'control-row';
@@ -2838,7 +2980,7 @@ function createDropdown(
 		onChange(select.value);
 	});
 
-	row.append(lbl, select);
+	row.append(wrapWithTooltip(lbl, tooltip), select);
 	return row;
 }
 

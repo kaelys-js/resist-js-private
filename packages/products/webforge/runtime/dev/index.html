@@ -405,10 +405,75 @@
 				font-size: 10px;
 				color: #b0b0b0;
 				flex-shrink: 0;
-				max-width: 110px;
+				max-width: 120px;
 				white-space: nowrap;
 				overflow: hidden;
 				text-overflow: ellipsis;
+			}
+			/* ── Tooltip System ─────────────────────────────── */
+			.control-label-wrap {
+				display: flex;
+				align-items: center;
+				gap: 3px;
+				flex-shrink: 0;
+				max-width: 120px;
+				position: relative;
+			}
+			.control-label-wrap .control-label {
+				max-width: none;
+			}
+			.tip-icon {
+				font-size: 9px;
+				width: 13px;
+				height: 13px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 50%;
+				background: rgba(255, 255, 255, 0.06);
+				color: #666;
+				flex-shrink: 0;
+				cursor: default;
+				line-height: 1;
+				border: 1px solid rgba(255, 255, 255, 0.08);
+				transition: color 0.12s, border-color 0.12s, background 0.12s;
+			}
+			.tip-icon:hover {
+				color: #6ecfcf;
+				border-color: rgba(110, 207, 207, 0.3);
+				background: rgba(110, 207, 207, 0.08);
+			}
+			.tip-bubble {
+				display: none;
+				position: absolute;
+				bottom: calc(100% + 6px);
+				left: 0;
+				width: 220px;
+				padding: 7px 9px;
+				background: rgba(22, 22, 32, 0.97);
+				border: 1px solid rgba(110, 207, 207, 0.2);
+				border-radius: 5px;
+				font-size: 11px;
+				line-height: 1.45;
+				color: #ccc;
+				font-weight: 400;
+				text-transform: none;
+				letter-spacing: 0;
+				white-space: normal;
+				z-index: 200;
+				pointer-events: none;
+				box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+			}
+			.tip-bubble::after {
+				content: '';
+				position: absolute;
+				top: 100%;
+				left: 12px;
+				border: 5px solid transparent;
+				border-top-color: rgba(110, 207, 207, 0.2);
+			}
+			.tip-icon:hover + .tip-bubble {
+				display: block;
 			}
 			.control-value {
 				font-size: 10px;
@@ -699,18 +764,26 @@
 					</div>
 					<div class="section-body">
 						<div class="control-row">
-							<span class="control-label">Time</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Time of Day</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Current hour (0:00–23:59). Drag to scrub through the day manually.</span>
+							</div>
 							<input type="range" id="time-slider" data-control="time" min="0" max="23.99" value="12" step="0.1" />
 							<span class="control-value" id="time-value">12:00</span>
 						</div>
 						<div class="control-row">
-							<span class="control-label">Speed</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Cycle Speed</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Time progression multiplier. 0 = paused, 1 = real-time, higher = faster day/night cycling.</span>
+							</div>
 							<input type="range" id="speed-slider" data-control="speed" min="0" max="100" value="0" step="0.5" />
 							<span class="control-value" id="speed-value">0x</span>
 						</div>
 						<div id="daynight-preset-dropdown"></div>
 						<div style="display: flex; gap: 4px; margin-top: 4px">
-							<button class="btn" id="daynight-pause-btn" data-control="daynight-pause" style="flex: 1">
+							<button class="btn" id="daynight-pause-btn" data-control="daynight-pause" style="flex: 1" title="Start or stop automatic time progression">
 								&#9654; Play
 							</button>
 							<button class="btn" id="daynight-now-btn" data-control="daynight-now" style="flex: 0 0 auto; padding: 0 10px" title="Set time to current real-world time">
@@ -730,7 +803,11 @@
 						<div id="daynight-current-day-row"></div>
 						<div id="daynight-season-transition-row"></div>
 						<div class="control-row">
-							<span class="control-label">Moon Phase</span>
+							<div class="control-label-wrap">
+								<span class="control-label">Moon Phase</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Current lunar phase (0 = New Moon → 7 = Waning Crescent). Affects nighttime moonlight intensity.</span>
+							</div>
 							<input type="range" id="moonphase-slider" data-control="moonphase" min="0" max="7" value="4" step="1" />
 							<span class="control-value" id="moonphase-value">Full</span>
 						</div>
