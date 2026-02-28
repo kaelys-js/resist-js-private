@@ -191,6 +191,13 @@ export function applyTransitionEasing(t: Num, easing: TransitionEasing): Num {
  * 0 to 1 over the configured duration. The transition holds its final
  * state until explicitly disposed via the returned handle.
  *
+ * For "Out" transitions (reverse=false), the PostProcess is created
+ * then immediately detached. It polls `isReady()` each frame and
+ * reattaches once the shader is compiled — preventing a black flash
+ * on the very first transition play. "In" transitions (reverse=true)
+ * start from bgColor, so any black frame during compilation is
+ * invisible and no deferral is needed.
+ *
  * @param options - Scene, camera, engine, and transition config.
  * @returns BabylonResult containing a {@link TransitionHandle} for disposal.
  *
@@ -218,7 +225,10 @@ export function playTransition(options: PlayTransitionOptions): BabylonResult<Tr
 	const config: TransitionConfig = configResult.data;
 
 	// -------------------------------------------------------------------------
-	// 2. Create PostProcess (pass camera to auto-attach)
+	// 2. Create PostProcess (auto-attaches to camera via constructor).
+	//    For "Out" transitions we detach immediately and defer reattachment
+	//    until the shader is compiled — see step 5. "In" transitions start
+	//    from bgColor so any black frame during compilation is invisible.
 	// -------------------------------------------------------------------------
 	const ppResult = createTransitionPostProcess({
 		engine: options.engine as BABYLON.Engine,
@@ -229,13 +239,26 @@ export function playTransition(options: PlayTransitionOptions): BabylonResult<Tr
 	}
 	const pp: BABYLON.PostProcess = ppResult.data;
 
+	// Only detach for non-reverse (Out) transitions to prevent black flash.
+	// Reverse (In) transitions start from bgColor, so black is fine.
+	if (!config.reverse) {
+		options.camera.detachPostProcess(pp);
+	}
+
 	// -------------------------------------------------------------------------
-	// 3. Set up uniform application
+	// 3. Set up uniform application — reset startTime on first render to
+	//    guarantee progress=0 on the first frame.
 	// -------------------------------------------------------------------------
-	const startTime: number = performance.now();
+	let firstFrame = true;
+	let startTime: number = performance.now();
 	const { durationMs } = config;
 
 	pp.onApply = (effect: BABYLON.Effect): void => {
+		if (firstFrame) {
+			firstFrame = false;
+			startTime = performance.now();
+		}
+
 		const elapsed: number = performance.now() - startTime;
 		const rawProgress: number = Math.min(elapsed / durationMs, 1);
 		const easedProgress: Num = applyTransitionEasing(rawProgress as Num, config.easing);
@@ -304,7 +327,28 @@ export function playTransition(options: PlayTransitionOptions): BabylonResult<Tr
 	};
 
 	// -------------------------------------------------------------------------
-	// 5. Return handle
+	// 5. Deferred attachment for "Out" transitions — poll until the shader
+	//    is compiled (isReady), then reattach. This prevents the black flash
+	//    on the very first transition play when the shader needs to compile.
+	//    "In" transitions are already attached (step 2) — no deferral needed.
+	// -------------------------------------------------------------------------
+	if (!config.reverse) {
+		const observer: BABYLON.Observer<BABYLON.Scene> = options.scene.onBeforeRenderObservable.add(
+			(): void => {
+				if (disposed) {
+					options.scene.onBeforeRenderObservable.remove(observer);
+					return;
+				}
+				if (pp.isReady()) {
+					options.scene.onBeforeRenderObservable.remove(observer);
+					options.camera.attachPostProcess(pp);
+				}
+			},
+		);
+	}
+
+	// -------------------------------------------------------------------------
+	// 6. Return handle
 	// -------------------------------------------------------------------------
 	const handle: TransitionHandle = { dispose };
 	return okShallow(handle);

@@ -70,11 +70,14 @@ describe('playTransition', () => {
 	test('dispose cleans up PostProcess from camera', () => {
 		const ppCountBefore: number = camera._postProcesses.filter(Boolean).length;
 
+		// Use reverse=true so PostProcess is attached immediately (no deferral).
+		// "Out" transitions defer attachment until isReady() — not testable
+		// synchronously in unit tests.
 		const result = playTransition({
 			scene: instance.scene,
 			camera,
 			engine: instance.engine,
-			config: { type: 'fade' },
+			config: { type: 'fade', reverse: true },
 		});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
