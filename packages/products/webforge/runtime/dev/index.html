@@ -126,42 +126,86 @@
 				background: rgba(255, 255, 255, 0.03);
 			}
 			.panel-title {
-				font-size: 11px;
-				font-weight: 600;
-				letter-spacing: 0.5px;
+				display: flex;
+				align-items: center;
 				color: #6ecfcf;
 			}
-			.panel-toggle {
-				font-size: 14px;
-				opacity: 0.65;
-				transition: transform 0.25s ease;
-				display: inline-block;
+			.panel-title svg {
+				width: 18px;
+				height: 18px;
 			}
+			.panel-toggle {
+				transition: transform 0.25s ease;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 16px;
+				height: 16px;
+				opacity: 0.5;
+			}
+			.panel-toggle svg {
+				width: 12px;
+				height: 12px;
+				fill: none;
+				stroke: currentColor;
+				stroke-width: 2;
+				stroke-linecap: round;
+				stroke-linejoin: round;
+			}
+			.section-header:hover .panel-toggle { opacity: 0.8; }
 			.section.collapsed .panel-toggle {
 				transform: rotate(-90deg);
 			}
 
 			/* ── FPS Bar ─────────────────────────────────────── */
 			#fps-bar {
-				padding: 5px 12px;
+				padding: 4px 12px 5px;
 				border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 				font-size: 10px;
 				color: #a0d0a0;
 				display: flex;
-				gap: 6px;
+				flex-direction: column;
+				gap: 3px;
+			}
+			.fps-row-top {
+				display: flex;
 				align-items: center;
+				gap: 6px;
 			}
-			#fps-bar span {
-				opacity: 0.9;
+			.fps-row-bottom {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				font-size: 9px;
+				color: #888;
 			}
-			.fps-sep {
-				opacity: 0.35;
-				font-size: 8px;
+			.fps-metric {
+				display: flex;
+				align-items: center;
+				gap: 3px;
 			}
+			.fps-icon {
+				opacity: 0.5;
+				flex-shrink: 0;
+			}
+			#fps-sparkline {
+				width: 60px;
+				height: 14px;
+				flex-shrink: 0;
+				opacity: 0.7;
+				border-radius: 2px;
+			}
+			.fps-green { color: #a0d0a0; }
+			.fps-yellow { color: #d0d0a0; }
+			.fps-red { color: #d0a0a0; }
 
 			/* ── Sections ────────────────────────────────────── */
 			.section {
 				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+				transition: background 0.2s ease;
+			}
+			.section:not(.collapsed) {
+				background: rgba(255, 255, 255, 0.02);
 			}
 			.section:last-child {
 				border-bottom: none;
@@ -181,6 +225,10 @@
 				border-left: 3px solid transparent;
 				transition: all 0.12s;
 			}
+			.section:not(.collapsed) > .section-header {
+				color: #ccc;
+				border-left-color: rgba(80, 200, 200, 0.25);
+			}
 			.section-header:hover {
 				background: rgba(255, 255, 255, 0.04);
 				color: #ccc;
@@ -188,7 +236,7 @@
 			}
 			.section-body {
 				padding: 4px 12px 8px;
-				overflow: hidden;
+				overflow: visible;
 				max-height: 2000px;
 				transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
 				opacity: 1;
@@ -198,6 +246,7 @@
 				opacity: 0;
 				padding-top: 0;
 				padding-bottom: 0;
+				overflow: hidden;
 			}
 
 			/* ── Collapsible Groups (within sections) ────────── */
@@ -211,30 +260,44 @@
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-				padding: 5px 4px;
+				padding: 6px 4px;
 				cursor: pointer;
 				user-select: none;
-				font-size: 9px;
+				font-size: 10.5px;
 				font-weight: 600;
 				text-transform: uppercase;
 				letter-spacing: 0.5px;
-				color: #888;
+				color: #999;
 				transition: color 0.12s;
 			}
 			.cg-header:hover {
-				color: #bbb;
+				color: #ccc;
 			}
 			.cg-header .cg-chevron {
-				font-size: 8px;
-				color: #555;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 14px;
+				height: 14px;
+				opacity: 0.45;
 				transition: transform 0.15s;
 			}
+			.cg-header .cg-chevron svg {
+				width: 10px;
+				height: 10px;
+				fill: none;
+				stroke: currentColor;
+				stroke-width: 2;
+				stroke-linecap: round;
+				stroke-linejoin: round;
+			}
+			.cg-header:hover .cg-chevron { opacity: 0.75; }
 			.cg.collapsed .cg-chevron {
 				transform: rotate(-90deg);
 			}
 			.cg-body {
 				padding: 0 0 4px 8px;
-				overflow: hidden;
+				overflow: visible;
 				max-height: 1500px;
 				transition: max-height 0.2s ease, opacity 0.15s ease;
 				opacity: 1;
@@ -243,6 +306,7 @@
 				max-height: 0;
 				opacity: 0;
 				padding-bottom: 0;
+				overflow: hidden;
 			}
 
 			/* Layer row header — sits above collapsible groups */
@@ -306,16 +370,30 @@
 				cursor: default;
 			}
 			.layer-header .layer-chevron {
-				font-size: 8px;
-				color: #555;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 14px;
+				height: 14px;
+				opacity: 0.45;
 				transition: transform 0.15s;
 			}
+			.layer-header .layer-chevron svg {
+				width: 10px;
+				height: 10px;
+				fill: none;
+				stroke: currentColor;
+				stroke-width: 2;
+				stroke-linecap: round;
+				stroke-linejoin: round;
+			}
+			.layer-header:hover .layer-chevron { opacity: 0.75; }
 			.layer-row.collapsed > .layer-header .layer-chevron {
 				transform: rotate(-90deg);
 			}
 			.layer-row-body {
 				padding: 2px 0 4px 4px;
-				overflow: hidden;
+				overflow: visible;
 				max-height: 3000px;
 				transition: max-height 0.25s ease, opacity 0.15s ease;
 				opacity: 1;
@@ -323,6 +401,7 @@
 			.layer-row.collapsed > .layer-row-body {
 				max-height: 0;
 				opacity: 0;
+				overflow: hidden;
 			}
 
 			/* Empty state for tile inspector */
@@ -464,13 +543,21 @@
 				pointer-events: none;
 				box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 			}
-			.tip-bubble::after {
+			.tip-bubble::before {
 				content: '';
 				position: absolute;
 				top: 100%;
 				left: 12px;
-				border: 5px solid transparent;
+				border: 6px solid transparent;
 				border-top-color: rgba(110, 207, 207, 0.2);
+			}
+			.tip-bubble::after {
+				content: '';
+				position: absolute;
+				top: 100%;
+				left: 13px;
+				border: 5px solid transparent;
+				border-top-color: rgba(22, 22, 32, 0.97);
 			}
 			.tip-icon:hover + .tip-bubble {
 				display: block;
@@ -692,19 +779,31 @@
 		<div id="control-panel">
 			<div class="panel-sticky-top">
 				<div class="panel-header" id="panel-header">
-					<span class="panel-title">DevTools</span>
+					<span class="panel-title"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" fill="rgba(110,207,207,0.12)" stroke="#6ecfcf" stroke-width="1.2"/><path d="M5.5 7.5L8 16L10.5 9.5L12 14L13.5 9.5L16 16L18.5 7.5" stroke="#6ecfcf" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
 					<span class="panel-btn" id="panel-minimize-btn" onclick="minimizePanel()" title="Minimize to icon (`)">&times;</span>
 				</div>
 
 				<!-- Status Bar -->
 				<div id="fps-bar">
-					<span id="fps-display" title="Frames per second">-- fps</span>
-					<span class="fps-sep">&middot;</span>
-					<span id="frametime-display" title="Frame time in milliseconds">-- ms</span>
-					<span class="fps-sep">&middot;</span>
-					<span id="meshes-display" title="Active mesh count being rendered">-- meshes</span>
-					<span class="fps-sep">&middot;</span>
-					<span id="tris-display" title="Triangle count being rasterized">-- tris</span>
+					<div class="fps-row-top">
+						<svg class="fps-icon" width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 1.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 4a.5.5 0 0 1 .5.5v3.3l2.15 2.15a.5.5 0 0 1-.7.7L7.65 8.35A.5.5 0 0 1 7.5 8V4.5A.5.5 0 0 1 8 4z"/></svg>
+						<span id="fps-display" title="Frames per second">-- fps</span>
+						<canvas id="fps-sparkline" width="60" height="14" title="FPS history (last 60 frames)"></canvas>
+					</div>
+					<div class="fps-row-bottom">
+						<span class="fps-metric">
+							<svg class="fps-icon" width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><line x1="8" y1="4" x2="8" y2="8"/><line x1="8" y1="8" x2="11" y2="8"/></svg>
+							<span id="frametime-display" title="Frame time in milliseconds">-- ms</span>
+						</span>
+						<span class="fps-metric">
+							<svg class="fps-icon" width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M8 2L2.5 5.5v5L8 14l5.5-3.5v-5L8 2z"/><path d="M8 8.5v5.5M2.5 5.5L8 8.5l5.5-3"/></svg>
+							<span id="meshes-display" title="Active mesh count">-- meshes</span>
+						</span>
+						<span class="fps-metric">
+							<svg class="fps-icon" width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="8,2 14,13 2,13"/></svg>
+							<span id="tris-display" title="Triangle count">-- tris</span>
+						</span>
+					</div>
 				</div>
 			</div>
 
@@ -713,8 +812,8 @@
 				<!-- 0. Navigation -->
 				<div class="section collapsed" id="section-camera-nav" data-section="camera-nav">
 					<div class="section-header" onclick="toggleSection('section-camera-nav')">
-						<span>Navigation</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Map Navigation</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body" id="camera-nav-body"></div>
 				</div>
@@ -722,8 +821,8 @@
 				<!-- 1. Camera -->
 				<div class="section collapsed" id="section-camera" data-section="camera">
 					<div class="section-header" onclick="toggleSection('section-camera')">
-						<span>Camera</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Camera Presets</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body">
 						<div id="camera-preset-dropdown"></div>
@@ -767,8 +866,8 @@
 				<!-- 2. Time of Day -->
 				<div class="section collapsed" id="section-daynight" data-section="daynight">
 					<div class="section-header" onclick="toggleSection('section-daynight')">
-						<span>Time of Day</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Day / Night Cycle</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body">
 						<div class="control-row">
@@ -907,8 +1006,8 @@
 				<!-- 3. Environment -->
 				<div class="section collapsed" id="section-sky" data-section="sky">
 					<div class="section-header" onclick="toggleSection('section-sky')">
-						<span>Environment</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Environment & Sky</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body" id="sky-body">
 						<div class="status-text">Loading...</div>
@@ -919,7 +1018,7 @@
 				<div class="section collapsed" id="section-layers" data-section="layers">
 					<div class="section-header" onclick="toggleSection('section-layers')">
 						<span>Map Layers</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body" id="layers-body">
 						<div class="status-text">Loading layers...</div>
@@ -930,7 +1029,7 @@
 			<div class="section collapsed" id="section-tileinspector" data-section="tileinspector">
 				<div class="section-header" onclick="toggleSection('section-tileinspector')">
 					<span>Tile Inspector</span>
-					<span class="panel-toggle">&#9662;</span>
+					<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 				</div>
 				<div class="section-body" id="tileinspector-body">
 					<div class="ti-empty" id="ti-empty-state">
@@ -943,8 +1042,8 @@
 			<!-- 6. Transitions -->
 			<div class="section collapsed" id="section-transitions" data-section="transitions">
 				<div class="section-header" onclick="toggleSection('section-transitions')">
-					<span>Transitions</span>
-					<span class="panel-toggle">&#9662;</span>
+					<span>Screen Effects</span>
+					<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 				</div>
 				<div class="section-body" id="transitions-body">
 					<!-- Built dynamically by dev.ts -->
@@ -954,8 +1053,8 @@
 				<!-- 6. Shake -->
 				<div class="section collapsed" id="section-shake" data-section="shake">
 					<div class="section-header" onclick="toggleSection('section-shake')">
-						<span>Shake</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Screen Shake</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body" id="shake-body"></div>
 				</div>
@@ -963,31 +1062,31 @@
 				<!-- 7. Render Toggles -->
 				<div class="section collapsed" id="section-rendering" data-section="rendering">
 					<div class="section-header" onclick="toggleSection('section-rendering')">
-						<span>Render Toggles</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Render Pipeline</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body">
-						<div class="toggle-row" data-control="tilemap">
+						<div class="toggle-row" data-control="tilemap" data-type="toggle">
 							<div class="control-label-wrap"><span class="control-label">Tilemap</span><span class="tip-icon">?</span><span class="tip-bubble">Show or hide all tilemap chunk meshes.</span></div>
 							<div class="toggle-switch on" id="toggle-tilemap" onclick="toggleTilemap()"></div>
 						</div>
-						<div class="toggle-row" data-control="post-processing">
+						<div class="toggle-row" data-control="post-processing" data-type="toggle">
 							<div class="control-label-wrap"><span class="control-label">Post-FX Pipeline</span><span class="tip-icon">?</span><span class="tip-bubble">Enable the full post-processing pipeline (bloom, DoF, grain, etc.).</span></div>
 							<div class="toggle-switch on" id="toggle-postprocess" onclick="togglePostProcess()"></div>
 						</div>
-						<div class="toggle-row" data-control="glow-layer">
-							<span class="control-label">Glow Layer</span>
+						<div class="toggle-row" data-control="glow-layer" data-type="toggle">
+							<div class="control-label-wrap"><span class="control-label">Glow Layer</span><span class="tip-icon">?</span><span class="tip-bubble">Enable the glow/bloom layer for emissive materials and highlights.</span></div>
 							<div class="toggle-switch on" id="toggle-glow" onclick="toggleGlow()"></div>
 						</div>
-						<div class="toggle-row" data-control="shadows">
-							<span class="control-label">Shadows</span>
+						<div class="toggle-row" data-control="shadows" data-type="toggle">
+							<div class="control-label-wrap"><span class="control-label">Shadows</span><span class="tip-icon">?</span><span class="tip-bubble">Enable real-time shadow casting from directional and spot lights.</span></div>
 							<div class="toggle-switch on" id="toggle-shadows" onclick="toggleShadows()"></div>
 						</div>
-						<div class="toggle-row" data-control="god-rays">
+						<div class="toggle-row" data-control="god-rays" data-type="toggle">
 							<div class="control-label-wrap"><span class="control-label">Volumetric Rays</span><span class="tip-icon">?</span><span class="tip-bubble">Enable volumetric light scattering (god rays) from directional lights.</span></div>
 							<div class="toggle-switch on" id="toggle-godrays" onclick="toggleGodRays()"></div>
 						</div>
-						<div class="toggle-row" data-control="lens-flares">
+						<div class="toggle-row" data-control="lens-flares" data-type="toggle">
 							<div class="control-label-wrap"><span class="control-label">Lens Flares</span><span class="tip-icon">?</span><span class="tip-bubble">Enable camera lens flare effects on bright light sources.</span></div>
 							<div class="toggle-switch on" id="toggle-lensflares" onclick="toggleLensFlares()"></div>
 						</div>
@@ -997,8 +1096,8 @@
 				<!-- 8. Post-Processing -->
 				<div class="section collapsed" id="section-postfx" data-section="postfx">
 					<div class="section-header" onclick="toggleSection('section-postfx')">
-						<span>Post-Processing</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Post-FX</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body" id="postfx-body">
 						<div class="status-text">Loading pipeline...</div>
@@ -1008,8 +1107,8 @@
 				<!-- 9. Glow -->
 				<div class="section collapsed" id="section-glowdetails" data-section="glow">
 					<div class="section-header" onclick="toggleSection('section-glowdetails')">
-						<span>Glow</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Glow Layer</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body" id="glowdetails-body">
 						<div class="status-text">Loading...</div>
@@ -1019,8 +1118,8 @@
 				<!-- 10. Fog -->
 				<div class="section collapsed" id="section-fog" data-section="fog">
 					<div class="section-header" onclick="toggleSection('section-fog')">
-						<span>Fog</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Volumetric Fog</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body" id="fog-body">
 						<div class="status-text">Loading...</div>
@@ -1030,8 +1129,8 @@
 				<!-- 11. Camera Properties -->
 				<div class="section collapsed" id="section-camdetails" data-section="camdetails">
 					<div class="section-header" onclick="toggleSection('section-camdetails')">
-						<span>Camera Properties</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Camera Settings</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body" id="camdetails-body">
 						<div class="status-text">Loading...</div>
@@ -1041,8 +1140,8 @@
 				<!-- 12. Lights -->
 				<div class="section collapsed" id="section-lights" data-section="lights">
 					<div class="section-header" onclick="toggleSection('section-lights')">
-						<span>Lights</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Scene Lighting</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body" id="lights-body">
 						<div class="status-text">Loading lights...</div>
@@ -1052,8 +1151,8 @@
 				<!-- 13. Debug Info -->
 				<div class="section collapsed" id="section-info" data-section="info">
 					<div class="section-header" onclick="toggleSection('section-info')">
-						<span>Debug Info</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Performance & Debug</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body" id="info-body">
 						<div class="status-text">Loading...</div>
@@ -1062,8 +1161,8 @@
 
 				<div class="section collapsed" id="section-shortcuts">
 					<div class="section-header" onclick="toggleSection('section-shortcuts')">
-						<span>Keyboard Shortcuts</span>
-						<span class="panel-toggle">&#9662;</span>
+						<span>Shortcuts</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
 					</div>
 					<div class="section-body" id="shortcuts-body"></div>
 				</div>
