@@ -29,9 +29,11 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.4",
 		"@types/node": "^25.3.0",
+		"@types/pngjs": "^6.0.5",
 		"@typescript/native-preview": "^7.0.0-dev.20260225.1",
 		"jsdom": "^28.1.0",
 		"oxlint": "^1.50.0",
+		"pngjs": "^7.0.0",
 		"prettier": "^3.8.1",
 		"prettier-plugin-svelte": "^3.5.0",
 		"turbo": "^2.8.11",

@@ -189,9 +189,19 @@ export function loadTileset(options: LoadTilesetOptions): BabylonResult<LoadedTi
 		);
 		texture.hasAlpha = true;
 
+		// Detect compact autotile source: 2×3 block with terrain_48 type.
+		// These are RPG Maker A2 format sources that should be interpreted as
+		// an expanded 8×6 grid (48 tiles) after sub-tile composition.
+		// The actual pixel expansion is done at build time by expand-autotiles.ts;
+		// here we just adjust the UV grid dimensions.
+		const isCompactAutotile: boolean =
+			config.autotileType === 'terrain_48' && config.columns === 2 && config.rows === 3;
+		const effectiveCols: Num = isCompactAutotile ? 8 : config.columns;
+		const effectiveRows: Num = isCompactAutotile ? 6 : config.rows;
+
 		const uvResult: Result<readonly TileUV[]> = computeTileUVs({
-			columns: config.columns,
-			rows: config.rows,
+			columns: effectiveCols,
+			rows: effectiveRows,
 			tileWidth: config.tileWidth,
 			tileHeight: config.tileHeight,
 		});
@@ -218,6 +228,10 @@ export function loadTileset(options: LoadTilesetOptions): BabylonResult<LoadedTi
  *
  * Global IDs are assigned per tileset via `firstGid`. ID 0 is always
  * empty (returns null). IDs beyond all tilesets also return null.
+ *
+ * Uses `uvLookup.length` as the authoritative tile count, which handles
+ * expanded autotile tilesets where the config specifies 2×3 but the
+ * actual UV lookup contains 48 entries (8×6 after autotile expansion).
  *
  * @param options - Global ID and available tilesets
  * @returns BabylonResult containing the resolved tile or null
@@ -253,7 +267,9 @@ export function resolveGlobalTileId(
 	if (!matched) return okUnchecked(null);
 
 	const localIndex: Num = globalId - matched.config.firstGid;
-	const totalTiles: Num = matched.config.columns * matched.config.rows;
+	// Use uvLookup.length as the authoritative tile count — this handles
+	// expanded autotile tilesets where config says 2×3 but UVs are 8×6.
+	const totalTiles: Num = matched.uvLookup.length;
 
 	// Out of range for this tileset
 	if (localIndex >= totalTiles) return okUnchecked(null);

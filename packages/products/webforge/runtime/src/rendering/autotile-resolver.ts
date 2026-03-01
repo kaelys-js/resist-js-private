@@ -108,30 +108,36 @@ const BIT_NW: Num = 7;
 // =============================================================================
 
 /**
- * Maps reduced 8-bit bitmask → terrain_48 pattern index (0–47).
+ * Maps reduced 8-bit bitmask → terrain_48 shape index (0–46).
  *
- * After corner reduction, there are exactly 48 unique visual patterns.
- * This lookup table maps each possible reduced bitmask value to its
- * corresponding pattern index in the tileset grid.
+ * Aligned with RPG Maker MZ's Tilemap.FLOOR_AUTOTILE_TABLE ordering:
+ * - Shape 0 = fully surrounded (all 8 neighbors match)
+ * - Shapes 1–15 = all 4 cardinals present, varying diagonal combinations
+ * - Shapes 16–31 = missing one cardinal edge (4 groups of 4 with corner variants)
+ * - Shapes 32–33 = corridors (N+S vertical, E+W horizontal)
+ * - Shapes 34–41 = two adjacent cardinals (outer corners ± connecting diagonal)
+ * - Shapes 42–45 = single cardinal (peninsulas: S, E, N, W)
+ * - Shape 46 = isolated (no matching neighbors)
  *
- * The 256-entry table is sparse — many bitmask values map to the same
- * pattern because corner bits are masked out when adjacent edges aren't set.
+ * After corner reduction, exactly 47 unique bitmask values remain (shapes 0–46).
+ * Shape 47 in the FLOOR_AUTOTILE_TABLE uses a different sub-tile set for the
+ * isolated case but shares bitmask 0 with shape 46; only 46 is reachable here.
+ *
+ * Source: RPG Maker MZ Tilemap.js (rpgmakerofficial.com)
  */
 // prettier-ignore
 const BITMASK_TO_FRAME: readonly Num[] = [
-	// Generated from the 48 unique neighbor configurations.
-	// Index = reduced bitmask value, Value = pattern index 0–47
-	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 1, 1, 3, 3, 5, 5, 7, 7, 9, 9, 11, 11, 13,
-	13, 15, 15, 2, 3, 2, 3, 16, 17, 16, 17, 10, 11, 10, 11, 18, 19, 18, 19, 3, 3, 3, 3, 17, 17, 17,
-	17, 11, 11, 11, 11, 19, 19, 19, 19, 4, 5, 16, 17, 4, 5, 16, 17, 20, 21, 22, 23, 20, 21, 22, 23, 5,
-	5, 17, 17, 5, 5, 17, 17, 21, 21, 23, 23, 21, 21, 23, 23, 6, 7, 16, 17, 16, 17, 24, 25, 26, 27, 22,
-	23, 28, 29, 30, 31, 7, 7, 17, 17, 17, 17, 25, 25, 27, 27, 23, 23, 29, 29, 31, 31, 8, 9, 10, 11,
-	20, 21, 26, 27, 8, 9, 10, 11, 20, 21, 26, 27, 9, 9, 11, 11, 21, 21, 27, 27, 9, 9, 11, 11, 21, 21,
-	27, 27, 10, 11, 10, 11, 22, 23, 22, 23, 10, 11, 10, 11, 22, 23, 22, 23, 11, 11, 11, 11, 23, 23,
-	23, 23, 11, 11, 11, 11, 23, 23, 23, 23, 12, 13, 18, 19, 20, 21, 28, 29, 20, 21, 22, 23, 32, 33,
-	34, 35, 13, 13, 19, 19, 21, 21, 29, 29, 21, 21, 23, 23, 33, 33, 35, 35, 14, 15, 18, 19, 22, 23,
-	30, 31, 26, 27, 22, 23, 36, 37, 38, 39, 15, 15, 19, 19, 23, 23, 31, 31, 27, 27, 23, 23, 37, 37,
-	39, 39,
+	46, 44, 46, 44, 43, 41, 43, 40, 46, 44, 46, 44, 43, 41, 43, 40, 42, 32, 42, 32, 35, 19, 35, 18,
+	42, 32, 42, 32, 34, 17, 34, 16, 46, 44, 46, 44, 43, 41, 43, 40, 46, 44, 46, 44, 43, 41, 43, 40,
+	42, 32, 42, 32, 35, 19, 35, 18, 42, 32, 42, 32, 34, 17, 34, 16, 45, 39, 45, 39, 33, 31, 33, 29,
+	45, 39, 45, 39, 33, 31, 33, 29, 37, 27, 37, 27, 23, 15, 23, 13, 37, 27, 37, 27, 22, 11, 22, 9, 45,
+	39, 45, 39, 33, 31, 33, 29, 45, 39, 45, 39, 33, 31, 33, 29, 36, 26, 36, 26, 21, 7, 21, 5, 36, 26,
+	36, 26, 20, 3, 20, 1, 46, 44, 46, 44, 43, 41, 43, 40, 46, 44, 46, 44, 43, 41, 43, 40, 42, 32, 42,
+	32, 35, 19, 35, 18, 42, 32, 42, 32, 34, 17, 34, 16, 46, 44, 46, 44, 43, 41, 43, 40, 46, 44, 46,
+	44, 43, 41, 43, 40, 42, 32, 42, 32, 35, 19, 35, 18, 42, 32, 42, 32, 34, 17, 34, 16, 45, 38, 45,
+	38, 33, 30, 33, 28, 45, 38, 45, 38, 33, 30, 33, 28, 37, 25, 37, 25, 23, 14, 23, 12, 37, 25, 37,
+	25, 22, 10, 22, 8, 45, 38, 45, 38, 33, 30, 33, 28, 45, 38, 45, 38, 33, 30, 33, 28, 36, 24, 36, 24,
+	21, 6, 21, 4, 36, 24, 36, 24, 20, 2, 20, 0,
 ];
 
 /**
