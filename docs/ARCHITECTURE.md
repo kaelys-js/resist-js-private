@@ -144,9 +144,53 @@ The tilemap uses a chunk-based merged geometry approach: the map is divided into
 | Monorepo | pnpm workspaces + Turborepo |
 | Node | >= 25 |
 
+## Autotile System
+
+The runtime supports RPG Maker A2-format autotiles for automatic terrain edge/corner transitions:
+
+### Pipeline
+
+1. **Source format:** 2×3 tile blocks (64×96px at 32px) — RPG Maker A2 terrain format
+2. **Sub-tile grid:** Each source is a 4×6 grid of quarter-tiles (16×16px at 32px) containing center, edge, and corner sub-tile variants
+3. **Expansion:** `FLOOR_AUTOTILE_TABLE` (48 entries) maps each shape to 4 sub-tile coordinates; `expandAutotileSource()` composes 48 full tiles from the sub-tile grid → outputs 8×6 grid (256×192px at 32px)
+4. **Build-time CLI:** `expand-autotiles.ts` pre-expands all 2×3 source PNGs to 8×6 expanded PNGs; `split-a2-atlas.ts` splits RPG Maker A2 atlases into individual 2×3 sources
+5. **Runtime detection:** `tileset-loader.ts` detects `autotileType: 'terrain_48'` with `columns: 2, rows: 3` and overrides UV computation to 8×6 grid
+6. **Tile resolution:** `autotile-resolver.ts` converts 8-bit neighbor bitmasks → shape frame indices via `BITMASK_TO_FRAME`
+
+### Key Modules
+
+| Module | Purpose |
+|--------|---------|
+| `autotile-expander.ts` | Sub-tile composition: 2×3 source → 8×6 expanded grid |
+| `autotile-resolver.ts` | Bitmask → frame index mapping (256 → 48 entries) |
+| `tileset-loader.ts` | UV computation + compact autotile detection |
+| `expand-autotiles.ts` | Build-time CLI for batch PNG expansion |
+| `split-a2-atlas.ts` | Build-time CLI for splitting A2 atlases |
+
+### Adding New Terrain Types
+
+1. Place the 2×3 source PNG in `assets/tilesets/lpc-terrain/autotile/`
+2. Run `expand-autotiles.ts` to generate the 8×6 expanded version
+3. Add a tileset config with `autotileType: 'terrain_48'`, `columns: 2`, `rows: 3`
+4. The tileset loader auto-adjusts UV grid to 8×6 at runtime
+
+## Dev Harness Test Map
+
+The dev harness (`dev/test-map.ts` + `dev/dev.ts`) includes a hand-crafted 32×32 RPG village test map with:
+
+- **7 terrain zones:** Forest (NW), Village (CW), River (center column), Lake/Shore (SW), Cliff Plateau (NE), Ruins (on cliff), Meadow/Farm (SE)
+- **14 tilesets:** 6 autotile terrain (grass, dark grass, dirt, cobble, water, sand — 48 tiles each via A2 expansion) + 8 decoration (plants, trees, cliffs, flowers, mushrooms, wildflowers, rocks, cliff rocks, tilled soil)
+- **Multi-level height map:** Level 0 (water), Level 1 (ground), Level 2 (hillside), Level 3 (cliff top)
+- **Procedural 3D props:** Babylon.js meshes (cottages, well, torch posts, bridge, boulders, barrels, crates, fences) placed at height-aware positions
+- **Season switching:** Summer, Spring, Autumn, Winter — swaps autotile and decoration tileset image paths, disposes and re-renders tilemap
+- **6 atmosphere presets:** Sunny Village, Dusk, Night Market, Foggy Forest, Cliff Panorama, Stormy — each adjusts time, fog, torches, and post-FX
+- **Dev harness controls:** Test Map sidebar section with 3D Props toggle, Prop Shadows toggle, Torch Lights toggle, Torch Glow toggle, Prop Opacity slider, Season dropdown, Atmosphere dropdown
+
+The test map showcases every rendering feature: fog, shadows, glow, height map, day/night cycle, point lights, volumetric lighting, and post-processing effects.
+
 ## Testing
 
-All modules have colocated `.test.ts` files (1741+ tests total). Pure math modules use logic tests; modules touching Babylon.js use NullEngine integration tests. Test harness from `@/config/test/harness` provides temp dirs, console capture, async helpers, and fake clock.
+All modules have colocated `.test.ts` files (1863+ tests total). Pure math modules use logic tests; modules touching Babylon.js use NullEngine integration tests. Test harness from `@/config/test/harness` provides temp dirs, console capture, async helpers, and fake clock.
 
 ```bash
 pnpm qa:test           # Run all tests

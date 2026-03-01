@@ -252,6 +252,113 @@ describe('loadTileset', () => {
 		if (!result.ok) return;
 		expect(result.data.uvLookup).toHaveLength(16); // 4 × 4
 	});
+
+	it('expands 2×3 autotile source to 48 tiles when terrain_48', () => {
+		const engineResult: BabylonResult<BabylonEngineInstance> = createTestEngine();
+		expect(engineResult.ok).toBe(true);
+		if (!engineResult.ok) return;
+		instance = engineResult.data;
+
+		const result: BabylonResult<LoadedTileset> = loadTileset({
+			scene: instance.scene,
+			config: {
+				name: 'grass',
+				imagePath: 'autotile/terrain-00.png',
+				tileWidth: 32,
+				tileHeight: 32,
+				columns: 2,
+				rows: 3,
+				firstGid: 1,
+				autotileType: 'terrain_48',
+				animationFrames: 1,
+				animationSpeed: 4,
+				tileProperties: {},
+			},
+			basePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		// Should have 48 UV entries (expanded from 2×3=6 to 8×6=48)
+		expect(result.data.uvLookup).toHaveLength(48);
+	});
+
+	it('does not expand when autotileType is terrain_48 but grid is already 8×6', () => {
+		const engineResult: BabylonResult<BabylonEngineInstance> = createTestEngine();
+		expect(engineResult.ok).toBe(true);
+		if (!engineResult.ok) return;
+		instance = engineResult.data;
+
+		const result: BabylonResult<LoadedTileset> = loadTileset({
+			scene: instance.scene,
+			config: {
+				name: 'expanded-grass',
+				imagePath: 'autotile-expanded/terrain-00.png',
+				tileWidth: 32,
+				tileHeight: 32,
+				columns: 8,
+				rows: 6,
+				firstGid: 1,
+				autotileType: 'terrain_48',
+				animationFrames: 1,
+				animationSpeed: 4,
+				tileProperties: {},
+			},
+			basePath: '/assets/',
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		// Already 8×6, should use columns/rows as-is
+		expect(result.data.uvLookup).toHaveLength(48);
+	});
+
+	it('UVs for expanded autotile match 8×6 grid UVs', () => {
+		const engineResult: BabylonResult<BabylonEngineInstance> = createTestEngine();
+		expect(engineResult.ok).toBe(true);
+		if (!engineResult.ok) return;
+		instance = engineResult.data;
+
+		// Load as compact 2×3 autotile
+		const compactResult: BabylonResult<LoadedTileset> = loadTileset({
+			scene: instance.scene,
+			config: {
+				name: 'grass-compact',
+				imagePath: 'autotile/terrain-00.png',
+				tileWidth: 32,
+				tileHeight: 32,
+				columns: 2,
+				rows: 3,
+				firstGid: 1,
+				autotileType: 'terrain_48',
+				animationFrames: 1,
+				animationSpeed: 4,
+				tileProperties: {},
+			},
+			basePath: '/assets/',
+		});
+		expect(compactResult.ok).toBe(true);
+		if (!compactResult.ok) return;
+
+		// Compute reference UVs for 8×6 grid directly
+		const refUvs: Result<readonly TileUV[]> = computeTileUVs({
+			columns: 8,
+			rows: 6,
+			tileWidth: 32,
+			tileHeight: 32,
+		});
+		expect(refUvs.ok).toBe(true);
+		if (!refUvs.ok) return;
+
+		// Should match exactly
+		expect(compactResult.data.uvLookup).toHaveLength(refUvs.data.length);
+		for (let i = 0; i < refUvs.data.length; i++) {
+			const ref: TileUV = refUvs.data[i]!;
+			const actual: TileUV = compactResult.data.uvLookup[i]!;
+			expect(actual.u0).toBeCloseTo(ref.u0);
+			expect(actual.u1).toBeCloseTo(ref.u1);
+			expect(actual.v0).toBeCloseTo(ref.v0);
+			expect(actual.v1).toBeCloseTo(ref.v1);
+		}
+	});
 });
 
 // =============================================================================
@@ -389,5 +496,73 @@ describe('resolveGlobalTileId', () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.data).toBeNull();
+	});
+
+	it('resolves IDs correctly for expanded autotile tileset (uvLookup > config grid)', () => {
+		// Simulate a terrain_48 tileset: config says 2×3 (6 tiles) but
+		// uvLookup has 48 entries after expansion to 8×6.
+		const autotileTileset: LoadedTileset = {
+			config: {
+				name: 'grass',
+				imagePath: 'terrain-00.png',
+				tileWidth: 32,
+				tileHeight: 32,
+				columns: 2,
+				rows: 3,
+				firstGid: 1,
+				autotileType: 'terrain_48',
+				animationFrames: 1,
+				animationSpeed: 4,
+				tileProperties: {},
+			},
+			texture: null as unknown as BABYLON.Texture,
+			// 48 UV entries from autotile expansion
+			uvLookup: Array.from({ length: 48 }, () => ({
+				u0: 0,
+				v0: 0,
+				u1: 1,
+				v1: 1,
+			})),
+		};
+		const tilesets: readonly LoadedTileset[] = [
+			autotileTileset,
+			stubTileset('objects', 49, 4, 4), // 16 tiles: IDs 49-64
+		];
+
+		// ID 1 → grass, local 0
+		const r1: BabylonResult<ResolvedTile | null> = resolveGlobalTileId({
+			globalId: 1,
+			tilesets,
+		});
+		expect(r1.ok).toBe(true);
+		if (!r1.ok) return;
+		expect(r1.data).not.toBeNull();
+		if (!r1.data) return;
+		expect(r1.data.tileset.config.name).toBe('grass');
+		expect(r1.data.localIndex).toBe(0);
+
+		// ID 48 → grass, local 47 (last autotile frame)
+		const r48: BabylonResult<ResolvedTile | null> = resolveGlobalTileId({
+			globalId: 48,
+			tilesets,
+		});
+		expect(r48.ok).toBe(true);
+		if (!r48.ok) return;
+		expect(r48.data).not.toBeNull();
+		if (!r48.data) return;
+		expect(r48.data.tileset.config.name).toBe('grass');
+		expect(r48.data.localIndex).toBe(47);
+
+		// ID 49 → objects, local 0
+		const r49: BabylonResult<ResolvedTile | null> = resolveGlobalTileId({
+			globalId: 49,
+			tilesets,
+		});
+		expect(r49.ok).toBe(true);
+		if (!r49.ok) return;
+		expect(r49.data).not.toBeNull();
+		if (!r49.data) return;
+		expect(r49.data.tileset.config.name).toBe('objects');
+		expect(r49.data.localIndex).toBe(0);
 	});
 });

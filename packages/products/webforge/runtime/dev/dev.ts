@@ -82,7 +82,7 @@ import {
 } from '../src/rendering/fog-manager';
 import { FOG_PRESETS, FOG_PRESET_NAMES, type FogPresetName } from '../src/rendering/fog-presets';
 
-import { TEST_MAP_DATA } from './test-map';
+import { TEST_MAP_DATA, SEASON_PATHS, ATMOSPHERE_PRESETS, PROP_POSITIONS } from './test-map';
 
 // =============================================================================
 // Helpers
@@ -10382,6 +10382,596 @@ function makeNavReadout(label: string, id: string): HTMLDivElement {
 	return row;
 }
 
+// =============================================================================
+// 3D Prop System — procedural Babylon.js meshes for the test map
+// =============================================================================
+
+/** Prop system state: all meshes, lights, and torch references for UI control. */
+type PropSystem = {
+	meshes: BABYLON.Mesh[];
+	lights: BABYLON.PointLight[];
+	torchTips: BABYLON.Mesh[];
+};
+
+/**
+ * Creates shared materials for 3D props.
+ *
+ * @param scene - The Babylon.js scene
+ * @returns Record of named materials
+ */
+function createPropMaterials(scene: BABYLON.Scene): Record<string, BABYLON.StandardMaterial> {
+	const wood = new BABYLON.StandardMaterial('prop-wood', scene);
+	wood.diffuseColor = new BABYLON.Color3(0.45, 0.3, 0.15);
+	wood.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+
+	const darkWood = new BABYLON.StandardMaterial('prop-darkwood', scene);
+	darkWood.diffuseColor = new BABYLON.Color3(0.35, 0.22, 0.1);
+	darkWood.specularColor = new BABYLON.Color3(0.08, 0.08, 0.08);
+
+	const stone = new BABYLON.StandardMaterial('prop-stone', scene);
+	stone.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+	stone.specularColor = new BABYLON.Color3(0.15, 0.15, 0.15);
+
+	const roof = new BABYLON.StandardMaterial('prop-roof', scene);
+	roof.diffuseColor = new BABYLON.Color3(0.55, 0.25, 0.12);
+	roof.specularColor = new BABYLON.Color3(0.05, 0.05, 0.05);
+
+	const metal = new BABYLON.StandardMaterial('prop-metal', scene);
+	metal.diffuseColor = new BABYLON.Color3(0.3, 0.3, 0.35);
+	metal.specularColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+
+	const torch = new BABYLON.StandardMaterial('prop-torch', scene);
+	torch.emissiveColor = new BABYLON.Color3(1, 0.6, 0.1);
+	torch.diffuseColor = new BABYLON.Color3(1, 0.7, 0.2);
+
+	return { wood, darkWood, stone, roof, metal, torch };
+}
+
+/**
+ * Creates a procedural cottage at the given tile position.
+ *
+ * @param scene - The Babylon.js scene
+ * @param mats - Shared prop materials
+ * @param pos - Position with x, z, rotation
+ * @param heightMap - Height map array for Y placement
+ * @returns Array of meshes forming the cottage
+ */
+function createCottage(
+	scene: BABYLON.Scene,
+	mats: Record<string, BABYLON.StandardMaterial>,
+	pos: { readonly x: Num; readonly z: Num; readonly rotation: Num },
+	heightMap: Num[],
+): BABYLON.Mesh[] {
+	const hIdx: Num = pos.z * 32 + pos.x;
+	const baseY: Num = (heightMap[hIdx] ?? 1) * 0.25;
+	const meshes: BABYLON.Mesh[] = [];
+
+	// Body
+	const body = BABYLON.MeshBuilder.CreateBox(
+		'cottage-body',
+		{ width: 1.4, height: 0.9, depth: 1.2 },
+		scene,
+	);
+	body.position.set(pos.x + 0.5, baseY + 0.45, pos.z + 0.5);
+	body.rotation.y = pos.rotation;
+	body.material = mats['wood'] ?? null;
+	meshes.push(body);
+
+	// Roof
+	const roofMesh = BABYLON.MeshBuilder.CreateBox(
+		'cottage-roof',
+		{ width: 1.6, height: 0.35, depth: 1.4 },
+		scene,
+	);
+	roofMesh.position.set(pos.x + 0.5, baseY + 1.07, pos.z + 0.5);
+	roofMesh.rotation.y = pos.rotation;
+	roofMesh.material = mats['roof'] ?? null;
+	meshes.push(roofMesh);
+
+	return meshes;
+}
+
+/**
+ * Creates a procedural well at the given tile position.
+ *
+ * @param scene - The Babylon.js scene
+ * @param mats - Shared prop materials
+ * @param pos - Position with x, z
+ * @param heightMap - Height map array for Y placement
+ * @returns Array of meshes forming the well
+ */
+function createWell(
+	scene: BABYLON.Scene,
+	mats: Record<string, BABYLON.StandardMaterial>,
+	pos: { readonly x: Num; readonly z: Num },
+	heightMap: Num[],
+): BABYLON.Mesh[] {
+	const hIdx: Num = pos.z * 32 + pos.x;
+	const baseY: Num = (heightMap[hIdx] ?? 1) * 0.25;
+	const meshes: BABYLON.Mesh[] = [];
+
+	const base = BABYLON.MeshBuilder.CreateCylinder(
+		'well-base',
+		{ height: 0.5, diameter: 0.8, tessellation: 12 },
+		scene,
+	);
+	base.position.set(pos.x + 0.5, baseY + 0.25, pos.z + 0.5);
+	base.material = mats['stone'] ?? null;
+	meshes.push(base);
+
+	const rim = BABYLON.MeshBuilder.CreateTorus(
+		'well-rim',
+		{ diameter: 0.85, thickness: 0.08, tessellation: 16 },
+		scene,
+	);
+	rim.position.set(pos.x + 0.5, baseY + 0.52, pos.z + 0.5);
+	rim.material = mats['stone'] ?? null;
+	meshes.push(rim);
+
+	return meshes;
+}
+
+/**
+ * Creates a torch post with a glowing tip at the given tile position.
+ *
+ * @param scene - The Babylon.js scene
+ * @param mats - Shared prop materials
+ * @param pos - Position with x, z
+ * @param heightMap - Height map array for Y placement
+ * @returns Object with meshes and a reference to the glowing tip
+ */
+function createTorchPost(
+	scene: BABYLON.Scene,
+	mats: Record<string, BABYLON.StandardMaterial>,
+	pos: { readonly x: Num; readonly z: Num },
+	heightMap: Num[],
+): { meshes: BABYLON.Mesh[]; tip: BABYLON.Mesh } {
+	const hIdx: Num = pos.z * 32 + pos.x;
+	const baseY: Num = (heightMap[hIdx] ?? 1) * 0.25;
+
+	const post = BABYLON.MeshBuilder.CreateCylinder(
+		'torch-post',
+		{ height: 1.0, diameter: 0.08, tessellation: 8 },
+		scene,
+	);
+	post.position.set(pos.x + 0.5, baseY + 0.5, pos.z + 0.5);
+	post.material = mats['metal'] ?? null;
+
+	const tip = BABYLON.MeshBuilder.CreateSphere('torch-tip', { diameter: 0.18, segments: 8 }, scene);
+	tip.position.set(pos.x + 0.5, baseY + 1.05, pos.z + 0.5);
+	tip.material = mats['torch'] ?? null;
+
+	return { meshes: [post, tip], tip };
+}
+
+/**
+ * Creates a bridge at the given tile position spanning the river.
+ *
+ * @param scene - The Babylon.js scene
+ * @param mats - Shared prop materials
+ * @param pos - Position with x, z, width
+ * @param heightMap - Height map array for Y placement
+ * @returns Array of bridge meshes
+ */
+function createBridge(
+	scene: BABYLON.Scene,
+	mats: Record<string, BABYLON.StandardMaterial>,
+	pos: { readonly x: Num; readonly z: Num; readonly width: Num },
+	heightMap: Num[],
+): BABYLON.Mesh[] {
+	const hIdx: Num = pos.z * 32 + pos.x;
+	const baseY: Num = (heightMap[hIdx] ?? 1) * 0.25;
+
+	const plank = BABYLON.MeshBuilder.CreateBox(
+		'bridge',
+		{ width: pos.width, height: 0.12, depth: 2 },
+		scene,
+	);
+	plank.position.set(pos.x + pos.width / 2, baseY + 0.06, pos.z + 0.5);
+	plank.material = mats['darkWood'] ?? null;
+
+	// Railings
+	const rail1 = BABYLON.MeshBuilder.CreateBox(
+		'bridge-rail1',
+		{ width: pos.width, height: 0.3, depth: 0.06 },
+		scene,
+	);
+	rail1.position.set(pos.x + pos.width / 2, baseY + 0.27, pos.z - 0.47);
+	rail1.material = mats['wood'] ?? null;
+
+	const rail2 = BABYLON.MeshBuilder.CreateBox(
+		'bridge-rail2',
+		{ width: pos.width, height: 0.3, depth: 0.06 },
+		scene,
+	);
+	rail2.position.set(pos.x + pos.width / 2, baseY + 0.27, pos.z + 1.47);
+	rail2.material = mats['wood'] ?? null;
+
+	return [plank, rail1, rail2];
+}
+
+/**
+ * Creates a boulder/rock at the given tile position.
+ *
+ * @param scene - The Babylon.js scene
+ * @param mats - Shared prop materials
+ * @param pos - Position with x, z, scale
+ * @param heightMap - Height map array for Y placement
+ * @returns The boulder mesh
+ */
+function createBoulder(
+	scene: BABYLON.Scene,
+	mats: Record<string, BABYLON.StandardMaterial>,
+	pos: { readonly x: Num; readonly z: Num; readonly scale: Num },
+	heightMap: Num[],
+): BABYLON.Mesh {
+	const hIdx: Num = pos.z * 32 + pos.x;
+	const baseY: Num = (heightMap[hIdx] ?? 1) * 0.25;
+
+	const rock = BABYLON.MeshBuilder.CreateIcoSphere(
+		'boulder',
+		{ radius: 0.3 * pos.scale, subdivisions: 1 },
+		scene,
+	);
+	rock.position.set(pos.x + 0.5, baseY + 0.15 * pos.scale, pos.z + 0.5);
+	rock.material = mats['stone'] ?? null;
+	return rock;
+}
+
+/**
+ * Creates a barrel at the given tile position.
+ *
+ * @param scene - The Babylon.js scene
+ * @param mats - Shared prop materials
+ * @param pos - Position with x, z
+ * @param heightMap - Height map array for Y placement
+ * @returns The barrel mesh
+ */
+function createBarrel(
+	scene: BABYLON.Scene,
+	mats: Record<string, BABYLON.StandardMaterial>,
+	pos: { readonly x: Num; readonly z: Num },
+	heightMap: Num[],
+): BABYLON.Mesh {
+	const hIdx: Num = pos.z * 32 + pos.x;
+	const baseY: Num = (heightMap[hIdx] ?? 1) * 0.25;
+
+	const barrel = BABYLON.MeshBuilder.CreateCylinder(
+		'barrel',
+		{ height: 0.5, diameter: 0.35, tessellation: 10 },
+		scene,
+	);
+	barrel.position.set(pos.x + 0.5, baseY + 0.25, pos.z + 0.5);
+	barrel.material = mats['wood'] ?? null;
+	return barrel;
+}
+
+/**
+ * Creates a crate at the given tile position.
+ *
+ * @param scene - The Babylon.js scene
+ * @param mats - Shared prop materials
+ * @param pos - Position with x, z
+ * @param heightMap - Height map array for Y placement
+ * @returns The crate mesh
+ */
+function createCrate(
+	scene: BABYLON.Scene,
+	mats: Record<string, BABYLON.StandardMaterial>,
+	pos: { readonly x: Num; readonly z: Num },
+	heightMap: Num[],
+): BABYLON.Mesh {
+	const hIdx: Num = pos.z * 32 + pos.x;
+	const baseY: Num = (heightMap[hIdx] ?? 1) * 0.25;
+
+	const crate = BABYLON.MeshBuilder.CreateBox(
+		'crate',
+		{ width: 0.4, height: 0.4, depth: 0.4 },
+		scene,
+	);
+	crate.position.set(pos.x + 0.5, baseY + 0.2, pos.z + 0.5);
+	crate.material = mats['darkWood'] ?? null;
+	return crate;
+}
+
+/**
+ * Creates a fence post at the given tile position.
+ *
+ * @param scene - The Babylon.js scene
+ * @param mats - Shared prop materials
+ * @param pos - Position with x, z, axis
+ * @param heightMap - Height map array for Y placement
+ * @returns The fence post mesh
+ */
+function createFencePost(
+	scene: BABYLON.Scene,
+	mats: Record<string, BABYLON.StandardMaterial>,
+	pos: { readonly x: Num; readonly z: Num; readonly axis: 'x' | 'z' },
+	heightMap: Num[],
+): BABYLON.Mesh {
+	const hIdx: Num = pos.z * 32 + pos.x;
+	const baseY: Num = (heightMap[hIdx] ?? 1) * 0.25;
+
+	const fence = BABYLON.MeshBuilder.CreateBox(
+		'fence',
+		pos.axis === 'x'
+			? { width: 1.0, height: 0.5, depth: 0.06 }
+			: { width: 0.06, height: 0.5, depth: 1.0 },
+		scene,
+	);
+	fence.position.set(pos.x + 0.5, baseY + 0.25, pos.z + 0.5);
+	fence.material = mats['wood'] ?? null;
+	return fence;
+}
+
+/**
+ * Creates all 3D props for the test map scene.
+ *
+ * @param scene - The Babylon.js scene
+ * @param heightMap - Height map array for Y placement
+ * @returns PropSystem with all meshes, lights, and torch tip references
+ */
+function create3DProps(scene: BABYLON.Scene, heightMap: Num[]): PropSystem {
+	const mats: Record<string, BABYLON.StandardMaterial> = createPropMaterials(scene);
+	const meshes: BABYLON.Mesh[] = [];
+	const lights: BABYLON.PointLight[] = [];
+	const torchTips: BABYLON.Mesh[] = [];
+
+	// Cottages
+	for (const cottage of PROP_POSITIONS.cottages) {
+		meshes.push(...createCottage(scene, mats, cottage, heightMap));
+	}
+
+	// Well
+	meshes.push(...createWell(scene, mats, PROP_POSITIONS.well, heightMap));
+
+	// Torch posts
+	for (const torchPos of PROP_POSITIONS.torches) {
+		const result = createTorchPost(scene, mats, torchPos, heightMap);
+		meshes.push(...result.meshes);
+		torchTips.push(result.tip);
+	}
+
+	// Bridge
+	meshes.push(...createBridge(scene, mats, PROP_POSITIONS.bridge, heightMap));
+
+	// Boulders
+	for (const boulder of PROP_POSITIONS.boulders) {
+		meshes.push(createBoulder(scene, mats, boulder, heightMap));
+	}
+
+	// Barrels
+	for (const barrel of PROP_POSITIONS.barrels) {
+		meshes.push(createBarrel(scene, mats, barrel, heightMap));
+	}
+
+	// Crates
+	for (const crate of PROP_POSITIONS.crates) {
+		meshes.push(createCrate(scene, mats, crate, heightMap));
+	}
+
+	// Fence posts
+	for (const fence of PROP_POSITIONS.fencePosts) {
+		meshes.push(createFencePost(scene, mats, fence, heightMap));
+	}
+
+	// Wire shadows: add all solid props to shadow generator
+	const shadowGen = scene.lights[0]?.getShadowGenerator();
+	if (shadowGen) {
+		for (const mesh of meshes) {
+			(shadowGen as BABYLON.ShadowGenerator).addShadowCaster(mesh);
+			mesh.receiveShadows = true;
+		}
+	}
+
+	// Wire glow: add torch tips to glow layer
+	const glowLayer = scene.effectLayers?.find((layer) => layer instanceof BABYLON.GlowLayer) as
+		| BABYLON.GlowLayer
+		| undefined;
+	if (glowLayer) {
+		for (const tip of torchTips) {
+			glowLayer.addIncludedOnlyMesh(tip);
+		}
+	}
+
+	return { meshes, lights, torchTips };
+}
+
+/** Module-level prop system reference for UI control. */
+let _propSystem: PropSystem | null = null;
+
+// =============================================================================
+// Test Map UI — sidebar controls for props, season, atmosphere
+// =============================================================================
+
+/**
+ * Builds the Test Map sidebar section with controls for props, seasons, atmosphere.
+ *
+ * @param debug - The debug API handle
+ * @param scene - The Babylon.js scene
+ */
+function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
+	const container = document.querySelector('#testmap-body') as HTMLElement | null;
+	if (!container) return;
+	container.innerHTML = '';
+
+	// --- 3D Props Toggle ---
+	container.append(
+		createToggleRow(
+			'3D Props',
+			true,
+			(on) => {
+				if (!_propSystem) return;
+				for (const mesh of _propSystem.meshes) {
+					mesh.setEnabled(on);
+				}
+			},
+			'testmap-props-toggle',
+		),
+	);
+
+	// --- Prop Shadows Toggle ---
+	container.append(
+		createToggleRow(
+			'Prop Shadows',
+			true,
+			(on) => {
+				if (!_propSystem) return;
+				const shadowGen = scene.lights[0]?.getShadowGenerator() as BABYLON.ShadowGenerator | null;
+				if (!shadowGen) return;
+				for (const mesh of _propSystem.meshes) {
+					if (on) {
+						shadowGen.addShadowCaster(mesh);
+					} else {
+						shadowGen.removeShadowCaster(mesh);
+					}
+				}
+			},
+			'testmap-shadows-toggle',
+		),
+	);
+
+	// --- Torch Lights Toggle ---
+	container.append(
+		createToggleRow(
+			'Torch Lights',
+			true,
+			(on) => {
+				if (!_propSystem) return;
+				for (const light of _propSystem.lights) {
+					light.setEnabled(on);
+				}
+			},
+			'testmap-lights-toggle',
+		),
+	);
+
+	// --- Torch Glow Toggle ---
+	container.append(
+		createToggleRow(
+			'Torch Glow',
+			true,
+			(on) => {
+				if (!_propSystem) return;
+				const glowLayer = scene.effectLayers?.find((layer) => layer instanceof BABYLON.GlowLayer) as
+					| BABYLON.GlowLayer
+					| undefined;
+				if (!glowLayer) return;
+				for (const tip of _propSystem.torchTips) {
+					if (on) {
+						glowLayer.addIncludedOnlyMesh(tip);
+					} else {
+						glowLayer.removeIncludedOnlyMesh(tip);
+					}
+				}
+			},
+			'testmap-glow-toggle',
+		),
+	);
+
+	// --- Prop Opacity Slider ---
+	container.append(
+		createSliderRow(
+			'Prop Opacity',
+			0,
+			1,
+			0.05,
+			1.0,
+			(v) => {
+				if (!_propSystem) return;
+				for (const mesh of _propSystem.meshes) {
+					mesh.visibility = v;
+				}
+			},
+			'testmap-opacity-slider',
+		),
+	);
+
+	// --- Season Dropdown ---
+	const seasonOptions: Array<{ value: string; label: string }> = Object.keys(SEASON_PATHS).map(
+		(s) => ({ value: s, label: s.charAt(0).toUpperCase() + s.slice(1) }),
+	);
+	container.append(
+		createDropdown(
+			'Season',
+			seasonOptions,
+			'summer',
+			(value) => {
+				const currentTilemap: RenderedTilemap | null = debug.tilemap;
+				if (!currentTilemap) return;
+				const paths: Record<string, string> | undefined = SEASON_PATHS[value];
+				if (!paths) return;
+
+				// Clone tilesets with updated image paths for the selected season
+				const updatedTilesets: Array<Record<string, unknown>> = currentTilemap.mapData.tilesets.map(
+					(ts: Record<string, unknown>) => {
+						const tsName = String(ts['name'] ?? '');
+						const seasonPath: string | undefined = paths[tsName];
+						if (seasonPath) {
+							return { ...ts, imagePath: seasonPath };
+						}
+						return { ...ts };
+					},
+				);
+
+				const newMapData: Record<string, unknown> = {
+					...currentTilemap.mapData,
+					tilesets: updatedTilesets,
+				};
+
+				// Dispose current tilemap and re-render with seasonal variant
+				disposeTilemap({ tilemap: currentTilemap });
+				const result: BabylonResult<RenderedTilemap> = renderTilemap({
+					scene,
+					mapDataInput: newMapData,
+					assetBasePath: '/',
+				});
+				if (result.ok) {
+					debug.tilemap = result.data;
+					// eslint-disable-next-line no-console -- Dev harness diagnostic
+					console.log(`[TestMap] Season switched → ${value}`);
+				} else {
+					// eslint-disable-next-line no-console -- Dev harness diagnostic
+					console.error(`[TestMap] Season switch failed:`, result.error);
+				}
+			},
+			'testmap-season-dropdown',
+		),
+	);
+
+	// --- Atmosphere Dropdown ---
+	const atmosOptions: Array<{ value: string; label: string }> = Object.keys(ATMOSPHERE_PRESETS).map(
+		(key) => {
+			const preset = ATMOSPHERE_PRESETS[key];
+			return { value: key, label: preset?.label ?? key };
+		},
+	);
+	container.append(
+		createDropdown(
+			'Atmosphere',
+			atmosOptions,
+			atmosOptions[0]?.value ?? 'sunnyVillage',
+			(value) => {
+				const preset = ATMOSPHERE_PRESETS[value];
+				if (!preset) return;
+
+				// Apply time
+				debug.setTime(preset.time);
+
+				// Apply fog preset
+				if (preset.fog !== 'clear') {
+					debug.switchPreset(preset.fog as FogPresetName);
+				}
+
+				// eslint-disable-next-line no-console -- Dev harness diagnostic
+				console.log(
+					`[TestMap] Atmosphere → ${preset.label} (time=${String(preset.time)}, fog=${preset.fog})`,
+				);
+			},
+		),
+	);
+}
+
 /**
  * Builds the Keyboard Shortcuts reference section listing all available shortcuts.
  */
@@ -12272,6 +12862,10 @@ async function main(): Promise<void> {
 		buildInfoUI(debug, runtime.engine.scene);
 		buildTileInspectorUI(debug, runtime.engine.scene);
 		buildKeyboardShortcutsUI();
+		buildTestMapUI(debug, runtime.engine.scene);
+
+		// Create 3D procedural props (cottages, well, torches, bridge, etc.)
+		_propSystem = create3DProps(runtime.engine.scene, TEST_MAP_DATA.heightMap);
 
 		// Center camera on the map (map is 32 tiles wide, 1 unit per tile)
 		const mapCenterX: Num = 16;

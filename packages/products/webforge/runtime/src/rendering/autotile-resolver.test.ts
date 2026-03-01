@@ -303,44 +303,55 @@ describe('reduceBitmask', () => {
 // =============================================================================
 
 describe('bitmaskToFrameIndex', () => {
-	it('returns frame 0 for isolated tile', () => {
+	it('returns frame 46 for isolated tile (bitmask 0)', () => {
 		const result: Result<Num> = bitmaskToFrameIndex(0);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data).toBe(46);
+	});
+
+	it('returns frame 0 for fully surrounded tile (bitmask 0xFF)', () => {
+		const result: Result<Num> = bitmaskToFrameIndex(0xff);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.data).toBe(0);
 	});
 
-	it('returns valid frame index for fully surrounded tile', () => {
-		const result: Result<Num> = bitmaskToFrameIndex(0xff);
-		expect(result.ok).toBe(true);
-		if (!result.ok) return;
-		expect(result.data).toBeGreaterThanOrEqual(0);
-		expect(result.data).toBeLessThanOrEqual(47);
-	});
-
-	it('returns frame 1 for N-only bitmask', () => {
+	it('returns frame 44 for N-only bitmask', () => {
 		const result: Result<Num> = bitmaskToFrameIndex(BIT_N);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.data).toBe(1);
+		expect(result.data).toBe(44);
 	});
 
-	it('returns valid frame indices for all single-edge bitmasks', () => {
-		const bits: readonly Num[] = [BIT_N, BIT_E, BIT_S, BIT_W];
-		for (const bit of bits) {
+	it('returns correct frame indices for all single-cardinal bitmasks', () => {
+		// RPG Maker MZ ordering: S=42, E=43, N=44, W=45
+		const expected: ReadonlyArray<[Num, Num]> = [
+			[BIT_N, 44],
+			[BIT_E, 43],
+			[BIT_S, 42],
+			[BIT_W, 45],
+		];
+		for (const [bit, frame] of expected) {
 			const result: Result<Num> = bitmaskToFrameIndex(bit);
 			expect(result.ok).toBe(true);
 			if (!result.ok) return;
-			expect(result.data).toBeGreaterThanOrEqual(0);
-			expect(result.data).toBeLessThanOrEqual(47);
+			expect(result.data).toBe(frame);
 		}
+	});
+
+	it('returns frame 15 for all-cardinals-no-diagonals (0x55)', () => {
+		const result: Result<Num> = bitmaskToFrameIndex(0x55);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data).toBe(15);
 	});
 
 	it('masks input to 8 bits', () => {
 		const result: Result<Num> = bitmaskToFrameIndex(0x1_00);
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.data).toBe(0);
+		expect(result.data).toBe(46);
 	});
 });
 
@@ -435,7 +446,7 @@ describe('resolveAutotile', () => {
 		expect(result.data).toBe(0);
 	});
 
-	it('returns frame 0 for isolated terrain_48 tile', () => {
+	it('returns frame 46 for isolated terrain_48 tile', () => {
 		const data: readonly Num[] = [2, 2, 2, 2, 1, 2, 2, 2, 2];
 		const result: Result<Num> = resolveAutotile({
 			x: 1,
@@ -448,10 +459,10 @@ describe('resolveAutotile', () => {
 		});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.data).toBe(0);
+		expect(result.data).toBe(46);
 	});
 
-	it('returns valid frame for fully surrounded terrain_48', () => {
+	it('returns frame 0 for fully surrounded terrain_48', () => {
 		const data: readonly Num[] = createGrid(3, 3, 1);
 		const result: Result<Num> = resolveAutotile({
 			x: 1,
@@ -464,8 +475,7 @@ describe('resolveAutotile', () => {
 		});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.data).toBeGreaterThanOrEqual(0);
-		expect(result.data).toBeLessThanOrEqual(47);
+		expect(result.data).toBe(0);
 	});
 
 	it('returns 15 for fully surrounded wall_16 tile', () => {
@@ -577,7 +587,7 @@ describe('resolveAutotile', () => {
 		expect(single.data).toBe(surrounded.data);
 	});
 
-	it('returns expected frame for N-only terrain_48', () => {
+	it('returns frame 44 for N-only terrain_48', () => {
 		const data: readonly Num[] = [2, 1, 2, 2, 1, 2, 2, 2, 2];
 		const result: Result<Num> = resolveAutotile({
 			x: 1,
@@ -590,10 +600,10 @@ describe('resolveAutotile', () => {
 		});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.data).toBe(1);
+		expect(result.data).toBe(44);
 	});
 
-	it('returns expected frame for N+E without corner', () => {
+	it('returns frame 41 for N+E without corner', () => {
 		// N+E match, NE does not → bitmask 0x05 → reduced 0x05
 		const data: readonly Num[] = [2, 1, 2, 2, 1, 1, 2, 2, 2];
 		const result: Result<Num> = resolveAutotile({
@@ -607,10 +617,10 @@ describe('resolveAutotile', () => {
 		});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.data).toBe(5);
+		expect(result.data).toBe(41);
 	});
 
-	it('returns expected frame for N+NE+E with corner', () => {
+	it('returns frame 40 for N+NE+E with corner', () => {
 		// N+NE+E match → bitmask 0x07 → NE preserved → reduced 0x07
 		const data: readonly Num[] = [2, 1, 1, 2, 1, 1, 2, 2, 2];
 		const result: Result<Num> = resolveAutotile({
@@ -624,6 +634,6 @@ describe('resolveAutotile', () => {
 		});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.data).toBe(7);
+		expect(result.data).toBe(40);
 	});
 });
