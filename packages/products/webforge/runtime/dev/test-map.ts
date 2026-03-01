@@ -1,9 +1,10 @@
 /**
- * Professional test map — 32×32 RPG village scene.
+ * Professional test map — 40×30 RPG crossroads village scene.
  *
- * Hand-crafted layout with 7 distinct zones designed to showcase every engine
- * feature (fog, glow, shadows, height map, day/night, volumetric lighting,
- * post-FX, multiple camera modes).
+ * Hand-crafted layout inspired by professional RPG Maker maps: simple ground
+ * terrain with rich decoration layers for visual depth. Designed to showcase
+ * every engine feature (fog, glow, shadows, height map, day/night, volumetric
+ * lighting, post-FX, multiple camera modes).
  *
  * Uses 6 autotile tilesets (grass, darkGrass, dirt, cobble, water, sand) plus
  * 8 decoration tilesets (plants, trees, cliffs, flowers, mushrooms, rocks,
@@ -12,14 +13,14 @@
  * The autotile system automatically generates edge/corner transitions between
  * different terrain types using RPG Maker A2 sub-tile composition.
  *
- * Zones:
- * - Forest (NW) — dense trees, mushrooms, fog/god-ray showcase
- * - Village (CW) — stone paths, houses, torches, shadow/glow showcase
- * - River (center) — water channel with bridge
- * - Lake & Shore (SW) — lake, lily pads, boulders
- * - Cliff Plateau (NE) — multi-level elevation, cliff face tiles
- * - Ruins (on cliff) — dark stone, point-light showcase
- * - Meadow & Farm (SE) — open field, wildflowers, day/night showcase
+ * Layout:
+ * - Grass base with organic dark-grass forest patches in all four corners
+ * - Pond (NW) — elliptical water body with dirt shoreline and sand edges
+ * - Dirt roads — 3-tile-wide E-W and N-S roads forming a crossroads
+ * - Cobblestone crossroads (center) — 5×5 stone intersection
+ * - Side path from crossroads down to pond shore
+ * - Flowers along road edges, mushrooms in forest, lily pads on water
+ * - Trees in forest corners and sparse along roads
  *
  * @module
  */
@@ -30,8 +31,8 @@ import type { Num } from '@/schemas/common';
 // Map Constants
 // =============================================================================
 
-const W: Num = 32;
-const H: Num = 32;
+const W: Num = 40;
+const H: Num = 30;
 const TILE_SIZE: Num = 32;
 const TOTAL: Num = W * H;
 
@@ -213,10 +214,10 @@ const STONE: Num = COBBLE_GID;
 const FLOWER_BUSH: Num = p(0, 0);
 const SMALL_BUSH: Num = p(0, 2);
 const TALL_GRASS: Num = p(0, 8);
-const FLOWER: Num = p(0, 9);
+const _FLOWER: Num = p(0, 9);
 const GRASS_TUFT: Num = p(0, 10);
 const LILY_PAD: Num = p(2, 12);
-const WATER_FLOWER: Num = p(2, 14);
+const _WATER_FLOWER: Num = p(2, 14);
 
 // --- Trees (trees_summer.png) ---
 // Row 0-1: tree shadow sprites (dark/light ovals)
@@ -235,19 +236,19 @@ const PINE_LARGE_2: Num = tr(10, 5);
 const PINE_MED_1: Num = tr(12, 4);
 const PINE_MED_2: Num = tr(12, 5);
 // Row 8: bare tree trunk
-const TREE_DEAD: Num = tr(8, 0);
+const _TREE_DEAD: Num = tr(8, 0);
 // Row 16-17: tree stump, trunk base
-const TREE_STUMP: Num = tr(14, 0);
+const _TREE_STUMP: Num = tr(14, 0);
 
 // --- Cliffs (cliff_summer.png) — verified by visual tile catalog ---
 // Rows 0-4: cliff face autotile (brown cliff, transparent edges)
 // Rows 5-8: cliff-grass transitions (green grass meeting cliff)
 // Rows 9-13: cave, planks, specialty tiles
-const CLIFF_FACE: Num = cl(2, 1); // solid brown cliff wall (center fill)
-const CLIFF_BASE: Num = cl(3, 1); // cliff base/bottom (solid)
-const CLIFF_GRASS_T: Num = cl(5, 1); // grass on top of cliff face
+const _CLIFF_FACE: Num = cl(2, 1); // solid brown cliff wall (center fill)
+const _CLIFF_BASE: Num = cl(3, 1); // cliff base/bottom (solid)
+const _CLIFF_GRASS_T: Num = cl(5, 1); // grass on top of cliff face
 const _CLIFF_GRASS_L: Num = cl(6, 1); // grass on left of cliff face
-const CLIFF_FACE_DEEP: Num = cl(7, 1); // deeper cliff wall variant
+const _CLIFF_FACE_DEEP: Num = cl(7, 1); // deeper cliff wall variant
 
 // --- Flowers (flowers.png) ---
 const FLOWER_RED: Num = fl(0, 0);
@@ -257,8 +258,8 @@ const FLOWER_PINK: Num = fl(0, 4);
 const FLOWER_WHITE: Num = fl(0, 5);
 const FLOWER_PURPLE: Num = fl(1, 0);
 const FLOWER_ORANGE: Num = fl(1, 3);
-const FLOWER_TALL_1: Num = fl(3, 0);
-const FLOWER_TALL_2: Num = fl(3, 1);
+const _FLOWER_TALL_1: Num = fl(3, 0);
+const _FLOWER_TALL_2: Num = fl(3, 1);
 
 // --- Mushrooms (mushrooms.png) ---
 const MUSH_BROWN: Num = mu(0, 0);
@@ -276,7 +277,7 @@ const _ROCK_LARGE_3: Num = rk(1, 0); // bottom-left
 const _ROCK_LARGE_4: Num = rk(1, 1); // bottom-right
 const ROCK_MED: Num = rk(2, 0); // medium rock
 const ROCK_SMALL_1: Num = rk(4, 0); // small rock
-const ROCK_SMALL_2: Num = rk(4, 1);
+const _ROCK_SMALL_2: Num = rk(4, 1);
 const ROCK_PEBBLE: Num = rk(6, 0); // pebble scatter
 
 // --- Cliff Rocks (Rocks, Cliffs.png) ---
@@ -290,25 +291,28 @@ const _SOIL_BARE: Num = so(1, 0); // bare plowed soil
 const _SOIL_CROSS: Num = so(2, 0); // cross-hatched soil
 
 // =============================================================================
-// Zone Boundaries
+// Layout Constants — crossroads village with pond
 // =============================================================================
 
-const ZONES = {
-	forest: { x1: 0, z1: 0, x2: 13, z2: 8 },
-	village: { x1: 0, z1: 9, x2: 14, z2: 21 },
-	river: { x1: 15, z1: 0, x2: 17, z2: 31 },
-	lake: { x1: 0, z1: 22, x2: 13, z2: 31 },
-	plateau: { x1: 20, z1: 0, x2: 31, z2: 16 },
-	ruins: { x1: 24, z1: 2, x2: 30, z2: 8 },
-	meadow: { x1: 20, z1: 18, x2: 31, z2: 31 },
-} as const;
+/** Pond center and radii. */
+const POND_CX: Num = 8;
+const POND_CY: Num = 7;
+const POND_RX: Num = 5.5;
+const POND_RY: Num = 3.8;
 
-// Bridge location
-const BRIDGE_Z: Num = 14;
+/** E-W road row range (3 tiles wide). */
+const ROAD_EW_Y1: Num = 13;
+const ROAD_EW_Y2: Num = 15;
 
-// Village paths — stone path tiles along these coordinates
-const VILLAGE_MAIN_PATH_Z: Num = 14; // E-W main path
-const VILLAGE_CROSS_PATH_X: Num = 7; // N-S cross path
+/** N-S road column range (3 tiles wide). */
+const ROAD_NS_X1: Num = 19;
+const ROAD_NS_X2: Num = 21;
+
+/** Cobblestone crossroads center. */
+const CROSS_X1: Num = 18;
+const CROSS_X2: Num = 22;
+const CROSS_Y1: Num = 12;
+const CROSS_Y2: Num = 16;
 
 // =============================================================================
 // Helpers
@@ -318,7 +322,7 @@ const VILLAGE_CROSS_PATH_X: Num = 7; // N-S cross path
  * Index into flat tile array.
  *
  * @param x - Tile X coordinate
- * @param z - Tile Z coordinate
+ * @param z - Tile Z coordinate (row)
  * @returns Flat array index
  */
 function idx(x: Num, z: Num): Num {
@@ -338,167 +342,236 @@ function hash(x: Num, z: Num, seed: Num): Num {
 }
 
 /**
- * Check if position is in a rectangular zone.
+ * Noise-like function using multiple sine waves for organic shapes.
  *
- * @param x - Tile X coordinate
- * @param z - Tile Z coordinate
- * @param zone - Rectangular zone bounds
- * @returns True if position is within the zone
+ * @param x - X position
+ * @param y - Y position
+ * @param s - Seed offset
+ * @returns Value roughly in [-1, 1]
  */
-function inZone(
-	x: Num,
-	z: Num,
-	zone: { readonly x1: Num; readonly z1: Num; readonly x2: Num; readonly z2: Num },
-): boolean {
-	return x >= zone.x1 && x < zone.x2 && z >= zone.z1 && z < zone.z2;
-}
-
-// Note: grassTile() is no longer needed — autotile terrain types
-// don't need manual variation. The autotile resolver handles edge/corner
-// transitions automatically based on neighbor analysis.
-
-/**
- * Check if position is in the lake body (organic ellipse).
- *
- * @param x - Tile X coordinate
- * @param z - Tile Z coordinate
- * @returns True if position falls within the lake ellipse
- */
-function isLake(x: Num, z: Num): boolean {
-	const cx: Num = 6;
-	const cz: Num = 26;
-	const rx: Num = 4.5;
-	const rz: Num = 3.5;
-	const dx: Num = (x - cx) / rx;
-	const dz: Num = (z - cz) / rz;
-	// Add slight irregularity via hash
-	const noise: Num = (hash(x, z, 99) % 7) / 25;
-	return dx * dx + dz * dz <= 1.0 + noise;
+function noise2d(x: Num, y: Num, s: Num): Num {
+	return (
+		Math.sin(x * 0.3 + s) * 0.4 +
+		Math.sin(y * 0.4 + s * 1.7) * 0.3 +
+		Math.sin((x + y) * 0.2 + s * 2.3) * 0.2 +
+		Math.sin((x - y) * 0.35 + s * 0.9) * 0.1
+	);
 }
 
 /**
- * Check if position is on the river.
+ * Check if position is in the pond.
  *
  * @param x - Tile X coordinate
  * @param z - Tile Z coordinate
- * @returns True if position is part of the river
+ * @returns True if position is within the pond ellipse
  */
-function isRiver(x: Num, z: Num): boolean {
-	// River runs N-S at X=15-17, except where bridge crosses
-	if (x < 15 || x > 17) return false;
-	if (z === BRIDGE_Z || z === BRIDGE_Z - 1) return false; // bridge gap
-	return true;
+function isPond(x: Num, z: Num): boolean {
+	const dx: Num = (x - POND_CX) / POND_RX;
+	const dy: Num = (z - POND_CY) / POND_RY;
+	const d: Num = dx * dx + dy * dy + noise2d(x, z, 5) * 0.12;
+	return d < 1.0;
 }
 
 /**
- * Check if position is a village stone path.
+ * Check if position is on the E-W road.
  *
  * @param x - Tile X coordinate
  * @param z - Tile Z coordinate
- * @returns True if position is on a village path
+ * @returns True if on the east-west road
  */
-function isVillagePath(x: Num, z: Num): boolean {
-	if (!inZone(x, z, ZONES.village)) return false;
-	// Main E-W path (1 tile wide)
-	if (z === VILLAGE_MAIN_PATH_Z && x >= 1 && x <= 14) return true;
-	// N-S cross path (1 tile wide)
-	if (x === VILLAGE_CROSS_PATH_X && z >= 10 && z <= 19) return true;
-	// Small branch to cottage 1 (at X:4, Z:12)
-	if (z === 12 && x >= 4 && x <= 6) return true;
-	// Small branch to cottage 3 (at X:10, Z:17)
-	if (z === 17 && x >= 8 && x <= 10) return true;
+function isRoadEW(x: Num, z: Num): boolean {
+	return z >= ROAD_EW_Y1 && z <= ROAD_EW_Y2;
+}
+
+/**
+ * Check if position is on the N-S road.
+ *
+ * @param x - Tile X coordinate
+ * @param _z - Tile Z coordinate (unused, kept for API symmetry)
+ * @returns True if on the north-south road
+ */
+function isRoadNS(x: Num, _z: Num): boolean {
+	return x >= ROAD_NS_X1 && x <= ROAD_NS_X2;
+}
+
+/**
+ * Check if position is on any road.
+ *
+ * @param x - Tile X coordinate
+ * @param z - Tile Z coordinate
+ * @returns True if on a road
+ */
+function isRoad(x: Num, z: Num): boolean {
+	return isRoadEW(x, z) || isRoadNS(x, z);
+}
+
+/**
+ * Check if position is in the cobblestone crossroads center.
+ *
+ * @param x - Tile X coordinate
+ * @param z - Tile Z coordinate
+ * @returns True if in the crossroads center
+ */
+function isCrossroads(x: Num, z: Num): boolean {
+	return x >= CROSS_X1 && x <= CROSS_X2 && z >= CROSS_Y1 && z <= CROSS_Y2;
+}
+
+/**
+ * Check if position is near water (within 2 tiles of pond).
+ *
+ * @param x - Tile X coordinate
+ * @param z - Tile Z coordinate
+ * @returns True if within 2 tiles of pond water
+ */
+function isNearPond(x: Num, z: Num): boolean {
+	for (let dz: Num = -2; dz <= 2; dz++) {
+		for (let dx: Num = -2; dx <= 2; dx++) {
+			if (isPond(x + dx, z + dz)) return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Check if position is near a road (within 2 tiles).
+ *
+ * @param x - Tile X coordinate
+ * @param z - Tile Z coordinate
+ * @returns True if within 2 tiles of a road
+ */
+function isNearRoad(x: Num, z: Num): boolean {
+	for (let dz: Num = -2; dz <= 2; dz++) {
+		for (let dx: Num = -2; dx <= 2; dx++) {
+			if (isRoad(x + dx, z + dz) || isCrossroads(x + dx, z + dz)) return true;
+		}
+	}
 	return false;
 }
 
 // =============================================================================
-// Ground Layer — base terrain for each zone
+// Ground Layer — crossroads village with pond
 // =============================================================================
 
+/**
+ * Generates the ground layer: light grass base, dirt roads forming a
+ * crossroads, cobblestone intersection center, pond with dirt shoreline,
+ * sand near water's edge, and dark grass forest patches in corners.
+ *
+ * @returns Flat array of autotile GIDs
+ */
 function generateGround(): Num[] {
-	// Default: grass everywhere. The autotile resolver handles edge transitions.
 	const data: Num[] = Array.from({ length: TOTAL }, () => GRASS);
 
+	// ── 1. Pond ────────────────────────────────────────────────────────
 	for (let z: Num = 0; z < H; z++) {
 		for (let x: Num = 0; x < W; x++) {
-			const i: Num = idx(x, z);
-
-			// --- Forest zone: dark grass ---
-			if (inZone(x, z, ZONES.forest)) {
-				data[i] = DARK_GRASS_GID;
-				continue;
+			const dx: Num = (x - POND_CX) / POND_RX;
+			const dy: Num = (z - POND_CY) / POND_RY;
+			const d: Num = dx * dx + dy * dy + noise2d(x, z, 5) * 0.12;
+			if (d < 1.0) {
+				data[idx(x, z)] = WATER;
+			} else if (d < 1.35 + (hash(x, z, 42) % 10) / 100) {
+				data[idx(x, z)] = DIRT;
 			}
-
-			// --- Water features (river + lake) ---
-			if (isRiver(x, z)) {
-				data[i] = WATER;
-				continue;
-			}
-			if (isLake(x, z)) {
-				data[i] = WATER;
-				continue;
-			}
-
-			// --- Bridge over river ---
-			if (x >= 15 && x <= 17 && (z === BRIDGE_Z || z === BRIDGE_Z - 1)) {
-				data[i] = STONE; // cobblestone bridge surface
-				continue;
-			}
-
-			// --- Village stone paths ---
-			if (isVillagePath(x, z)) {
-				data[i] = STONE;
-				continue;
-			}
-
-			// --- Ruins (stone floor on cliff top) ---
-			if (inZone(x, z, ZONES.ruins)) {
-				data[i] = STONE;
-				continue;
-			}
-
-			// --- Meadow with tilled soil patches ---
-			if (inZone(x, z, ZONES.meadow)) {
-				// Dirt patches in center of meadow (farm area)
-				if (x >= 23 && x <= 28 && z >= 22 && z <= 27) {
-					data[i] = DIRT;
-					continue;
-				}
-				// Sandy edges near river
-				if (x >= 18 && x <= 19) {
-					data[i] = SAND;
-					continue;
-				}
-			}
-
-			// --- Hillside transition (sand between river and plateau) ---
-			if (x >= 18 && x <= 19 && z <= 16) {
-				data[i] = SAND;
-				continue;
-			}
-
-			// --- Default: grass (already set) ---
 		}
 	}
 
+	// ── 2. E-W road (rows 13-15) ───────────────────────────────────────
+	for (let x: Num = 0; x < W; x++) {
+		for (let z: Num = ROAD_EW_Y1; z <= ROAD_EW_Y2; z++) {
+			if (!isPond(x, z)) data[idx(x, z)] = DIRT;
+		}
+	}
+
+	// ── 3. N-S road (cols 19-21) ───────────────────────────────────────
+	for (let z: Num = 0; z < H; z++) {
+		for (let x: Num = ROAD_NS_X1; x <= ROAD_NS_X2; x++) {
+			if (!isPond(x, z)) data[idx(x, z)] = DIRT;
+		}
+	}
+
+	// ── 4. Cobblestone crossroads center ───────────────────────────────
+	for (let z: Num = CROSS_Y1; z <= CROSS_Y2; z++) {
+		for (let x: Num = CROSS_X1; x <= CROSS_X2; x++) {
+			data[idx(x, z)] = STONE;
+		}
+	}
+
+	// ── 5. Side path from E-W road down to pond shore ─────────────────
+	for (let z: Num = 10; z <= ROAD_EW_Y1; z++) {
+		const px: Num = POND_CX + Math.round(noise2d(POND_CX, z, 3) * 0.5);
+		if (!isPond(px, z)) data[idx(px, z)] = DIRT;
+		if (px + 1 < W && !isPond(px + 1, z)) data[idx(px + 1, z)] = DIRT;
+	}
+
+	// ── 6. Sand patches near pond shore ────────────────────────────────
+	for (let z: Num = 0; z < H; z++) {
+		for (let x: Num = 0; x < W; x++) {
+			if (data[idx(x, z)] !== WATER) continue;
+			for (let dz: Num = -1; dz <= 1; dz++) {
+				for (let dx: Num = -1; dx <= 1; dx++) {
+					const nx: Num = x + dx;
+					const ny: Num = z + dz;
+					if (
+						nx >= 0 &&
+						nx < W &&
+						ny >= 0 &&
+						ny < H &&
+						data[idx(nx, ny)] === GRASS &&
+						hash(nx, ny, 44) < 30
+					) {
+						data[idx(nx, ny)] = SAND;
+					}
+				}
+			}
+		}
+	}
+
+	// ── 7. Dark grass forest patches in corners ────────────────────────
+	for (let z: Num = 0; z < H; z++) {
+		for (let x: Num = 0; x < W; x++) {
+			if (data[idx(x, z)] !== GRASS) continue;
+
+			// NW corner
+			if (x < 6 && z < 6) {
+				data[idx(x, z)] = DARK_GRASS_GID;
+				continue;
+			}
+			// NE corner
+			if (x >= W - 8 && z < 4 + noise2d(x, z, 9) * 1.5) {
+				data[idx(x, z)] = DARK_GRASS_GID;
+				continue;
+			}
+			// SE corner
+			if (Math.hypot(x - (W - 3), z - (H - 3)) < 4 + noise2d(x, z, 11) * 1.2) {
+				data[idx(x, z)] = DARK_GRASS_GID;
+				continue;
+			}
+			// SW corner
+			if (Math.hypot(x - 1, z - (H - 2)) < 4 + noise2d(x, z, 13)) {
+				data[idx(x, z)] = DARK_GRASS_GID;
+			}
+		}
+	}
+
+	generateGroundCache = data;
 	return data;
 }
 
 // =============================================================================
-// Decoration Layer — zone-specific ground details
+// Decoration Layer — flowers, bushes, mushrooms, lily pads
 // =============================================================================
 
+/**
+ * Generates the decoration layer: flowers along roads, mushrooms in forest,
+ * lily pads on water, bushes and grass tufts in open areas.
+ *
+ * @returns Flat array of decoration tile GIDs (0 = empty)
+ */
 function generateDecorations(): Num[] {
 	const data: Num[] = Array.from({ length: TOTAL }, () => 0);
 
-	const forestMushrooms: readonly Num[] = [
-		MUSH_BROWN,
-		MUSH_TAN,
-		MUSH_GREEN,
-		MUSH_RED,
-		MUSH_SMALL_1,
-		MUSH_SMALL_2,
-	];
-	const meadowFlowers: readonly Num[] = [
+	const flowers: readonly Num[] = [
 		FLOWER_RED,
 		FLOWER_BLUE,
 		FLOWER_YELLOW,
@@ -506,96 +579,95 @@ function generateDecorations(): Num[] {
 		FLOWER_WHITE,
 		FLOWER_PURPLE,
 		FLOWER_ORANGE,
-		FLOWER_TALL_1,
-		FLOWER_TALL_2,
 	];
-	const grassDecor: readonly Num[] = [FLOWER_BUSH, SMALL_BUSH, TALL_GRASS, FLOWER, GRASS_TUFT];
+	const forestFloor: readonly Num[] = [
+		MUSH_BROWN,
+		MUSH_TAN,
+		MUSH_GREEN,
+		MUSH_RED,
+		MUSH_SMALL_1,
+		MUSH_SMALL_2,
+		TALL_GRASS,
+		GRASS_TUFT,
+	];
+	const grassDecor: readonly Num[] = [FLOWER_BUSH, SMALL_BUSH, TALL_GRASS, GRASS_TUFT];
 
 	for (let z: Num = 0; z < H; z++) {
 		for (let x: Num = 0; x < W; x++) {
-			// Skip water
-			if (isRiver(x, z) || isLake(x, z)) {
-				// Lily pads on lake water
-				if (isLake(x, z) && hash(x, z, 41) < 12) {
-					data[idx(x, z)] = hash(x, z, 43) < 8 ? LILY_PAD : WATER_FLOWER;
+			const i: Num = idx(x, z);
+			const h: Num = hash(x, z, 47);
+
+			// ── Water: lily pads ───────────────────────────────────────
+			if (isPond(x, z)) {
+				if (h < 10) data[i] = LILY_PAD;
+				continue;
+			}
+
+			// ── Roads + crossroads: keep clean, sparse edge grass ──────
+			if (isRoad(x, z) || isCrossroads(x, z)) {
+				if (h < 3 && !isCrossroads(x, z)) {
+					let nearGrass = false;
+					for (let dz: Num = -1; dz <= 1; dz++) {
+						for (let dx: Num = -1; dx <= 1; dx++) {
+							const nx: Num = x + dx;
+							const ny: Num = z + dz;
+							if (nx >= 0 && nx < W && ny >= 0 && ny < H) {
+								const gnd: Num = generateGroundCache[idx(nx, ny)] ?? GRASS;
+								if (gnd === GRASS || gnd === DARK_GRASS_GID) nearGrass = true;
+							}
+						}
+					}
+					if (nearGrass) data[i] = GRASS_TUFT;
 				}
 				continue;
 			}
-			// Skip paths and bridge
-			if (isVillagePath(x, z)) continue;
-			if (x >= 15 && x <= 17 && (z === BRIDGE_Z || z === BRIDGE_Z - 1)) continue;
 
-			// --- Forest zone: mushrooms + grass ---
-			if (inZone(x, z, ZONES.forest)) {
-				if (hash(x, z, 47) < 10) {
+			// ── Sand: sparse rocks ─────────────────────────────────────
+			if (generateGroundCache[i] === SAND) {
+				if (h < 8) data[i] = ROCK_PEBBLE;
+				continue;
+			}
+
+			// ── Dark grass (forest): mushrooms + undergrowth ───────────
+			if (generateGroundCache[i] === DARK_GRASS_GID) {
+				if (h < 18) {
 					// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-					data[idx(x, z)] = forestMushrooms[hash(x, z, 49) % forestMushrooms.length]!;
-				} else if (hash(x, z, 51) < 8) {
-					// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-					data[idx(x, z)] = grassDecor[hash(x, z, 53) % grassDecor.length]!;
+					data[i] = forestFloor[hash(x, z, 49) % forestFloor.length]!;
 				}
 				continue;
 			}
 
-			// --- Village zone: flowers near paths, grass tufts ---
-			if (inZone(x, z, ZONES.village)) {
-				// Flower beds near cottages
-				if (
-					((x >= 3 && x <= 5 && z >= 11 && z <= 13) ||
-						(x >= 7 && x <= 9 && z >= 13 && z <= 15) ||
-						(x >= 9 && x <= 11 && z >= 16 && z <= 18)) &&
-					hash(x, z, 55) < 40
-				) {
-					// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-					data[idx(x, z)] = meadowFlowers[hash(x, z, 57) % meadowFlowers.length]!;
-				}
-				// Grass along path edges
-				if (hash(x, z, 59) < 6) {
-					// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-					data[idx(x, z)] = grassDecor[hash(x, z, 61) % grassDecor.length]!;
-				}
-				continue;
-			}
-
-			// --- Lake shore: rocks + bushes ---
-			if (inZone(x, z, ZONES.lake) && !isLake(x, z)) {
-				if (hash(x, z, 63) < 15) {
-					data[idx(x, z)] = hash(x, z, 65) < 8 ? ROCK_SMALL_1 : FLOWER_BUSH;
-				}
-				continue;
-			}
-
-			// --- Meadow: wildflowers + flowers ---
-			if (inZone(x, z, ZONES.meadow)) {
-				// Skip tilled soil
-				if (x >= 23 && x <= 28 && z >= 22 && z <= 27) continue;
-				if (hash(x, z, 67) < 18) {
-					// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-					data[idx(x, z)] = meadowFlowers[hash(x, z, 69) % meadowFlowers.length]!;
-				} else if (hash(x, z, 71) < 8) {
-					data[idx(x, z)] = TALL_GRASS;
-				}
-				continue;
-			}
-
-			// --- Plateau / ruins: scattered rocks ---
-			if (inZone(x, z, ZONES.plateau)) {
-				if (hash(x, z, 73) < 5) {
-					data[idx(x, z)] = hash(x, z, 75) < 3 ? ROCK_PEBBLE : ROCK_SMALL_2;
-				}
-				continue;
-			}
-
-			// --- Default grass area: sparse decoration ---
-			if (hash(x, z, 77) < 5) {
+			// ── Near roads: flower beds (high density) ─────────────────
+			if (isNearRoad(x, z) && h < 35) {
 				// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-				data[idx(x, z)] = grassDecor[hash(x, z, 79) % grassDecor.length]!;
+				data[i] = flowers[hash(x, z, 51) % flowers.length]!;
+				continue;
+			}
+
+			// ── Near pond: bushes + rocks ──────────────────────────────
+			if (isNearPond(x, z) && h < 20) {
+				data[i] = hash(x, z, 53) < 50 ? SMALL_BUSH : ROCK_SMALL_1;
+				continue;
+			}
+
+			// ── Open meadow: scattered flowers + grass ─────────────────
+			if (h < 12) {
+				if (hash(x, z, 55) < 40) {
+					// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
+					data[i] = flowers[hash(x, z, 57) % flowers.length]!;
+				} else {
+					// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
+					data[i] = grassDecor[hash(x, z, 59) % grassDecor.length]!;
+				}
 			}
 		}
 	}
 
 	return data;
 }
+
+/** Cached ground layer for decoration/upper generators to reference. */
+let generateGroundCache: Num[] = [];
 
 // =============================================================================
 // Upper Layer — trees, cliff faces, large features
@@ -616,71 +688,45 @@ function generateUpper(): Num[] {
 
 	for (let z: Num = 0; z < H; z++) {
 		for (let x: Num = 0; x < W; x++) {
-			// --- Forest zone: dense tree canopy ---
-			if (inZone(x, z, ZONES.forest)) {
-				// Skip very edge tiles and path areas
+			const i: Num = idx(x, z);
+			const gnd: Num = generateGroundCache[i] ?? GRASS;
+
+			// ── Skip water, roads, crossroads ────────────────────────────
+			if (isPond(x, z)) continue;
+			if (isRoad(x, z) || isCrossroads(x, z)) continue;
+
+			// ── Dark grass (forest corners): dense tree canopy ───────────
+			if (gnd === DARK_GRASS_GID) {
 				if (x === 0 || z === 0) continue;
-				// Dense deciduous + pine mix (~25% coverage)
 				if (hash(x, z, 81) < 25) {
-					if (hash(x, z, 83) < 15) {
+					if (hash(x, z, 83) < 60) {
 						// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-						data[idx(x, z)] = deciduousTrees[hash(x, z, 85) % deciduousTrees.length]!;
+						data[i] = deciduousTrees[hash(x, z, 85) % deciduousTrees.length]!;
 					} else {
 						// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-						data[idx(x, z)] = pineTrees[hash(x, z, 87) % pineTrees.length]!;
+						data[i] = pineTrees[hash(x, z, 87) % pineTrees.length]!;
 					}
 				}
 				continue;
 			}
 
-			// --- Cliff face tiles at plateau edge ---
-			if (x === 19 && z >= 0 && z <= 16) {
-				// West edge of plateau — cliff face (vertical wall)
-				data[idx(x, z)] = hash(x, z, 89) < 40 ? CLIFF_FACE : CLIFF_FACE_DEEP;
-				continue;
-			}
-			if (x === 20 && z >= 0 && z <= 16) {
-				// Top of cliff — grass meeting cliff edge
-				data[idx(x, z)] = CLIFF_GRASS_T;
-				continue;
-			}
-			if (z === 17 && x >= 20 && x <= 31) {
-				// South edge of plateau — cliff base
-				data[idx(x, z)] = hash(x, z, 91) < 50 ? CLIFF_BASE : CLIFF_GRASS_T;
+			// ── Near pond shore: scattered medium rocks ──────────────────
+			if (isNearPond(x, z) && !isPond(x, z) && hash(x, z, 93) < 5) {
+				data[i] = ROCK_MED;
 				continue;
 			}
 
-			// --- Lake shore: large rocks ---
-			if (inZone(x, z, ZONES.lake) && !isLake(x, z)) {
-				if (hash(x, z, 93) < 6) {
-					data[idx(x, z)] = ROCK_MED;
-				}
+			// ── Roadside trees: sparse deciduous along roads ─────────────
+			if (isNearRoad(x, z) && !isNearPond(x, z) && hash(x, z, 95) < 4) {
+				// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
+				data[i] = deciduousTrees[hash(x, z, 97) % deciduousTrees.length]!;
 				continue;
 			}
 
-			// --- Scattered village trees (sparse) ---
-			if (inZone(x, z, ZONES.village)) {
-				if (isVillagePath(x, z)) continue;
-				if (hash(x, z, 95) < 4) {
-					// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-					data[idx(x, z)] = deciduousTrees[hash(x, z, 97) % deciduousTrees.length]!;
-				}
-				continue;
-			}
-
-			// --- Plateau edge trees ---
-			if (inZone(x, z, ZONES.plateau) && !inZone(x, z, ZONES.ruins)) {
-				// Trees along the edge
-				if ((x === 20 || x === 21) && z >= 1 && z <= 15 && hash(x, z, 99) < 30) {
-					// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-					data[idx(x, z)] = pineTrees[hash(x, z, 101) % pineTrees.length]!;
-				}
-				continue;
-			}
-
-			// --- Ruins: dead trees and stumps ---
-			if (inZone(x, z, ZONES.ruins) && hash(x, z, 103) < 8) {
-				data[idx(x, z)] = hash(x, z, 105) < 5 ? TREE_DEAD : TREE_STUMP;
+			// ── Open meadow: very sparse trees ──────────────────────────
+			if (gnd === GRASS && hash(x, z, 99) < 2) {
+				// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
+				data[i] = deciduousTrees[hash(x, z, 101) % deciduousTrees.length]!;
 			}
 		}
 	}
@@ -694,33 +740,16 @@ function generateUpper(): Num[] {
 
 function generateShadow(): Num[] {
 	const data: Num[] = Array.from({ length: TOTAL }, () => 0);
+	const upper: Num[] = generateUpper();
 
 	for (let z: Num = 0; z < H; z++) {
 		for (let x: Num = 0; x < W; x++) {
-			// --- Forest zone: shadow under trees ---
-			if (inZone(x, z, ZONES.forest)) {
-				if (hash(x, z, 81) < 25) {
-					// Same hash as tree placement — shadow aligns with tree
-					data[idx(x, z)] = hash(x, z, 107) < 50 ? TREE_SHADOW_DARK : TREE_SHADOW_LIGHT;
-				}
-				continue;
-			}
-
-			// --- Village scattered tree shadows ---
-			if (inZone(x, z, ZONES.village) && hash(x, z, 95) < 4) {
-				data[idx(x, z)] = TREE_SHADOW_LIGHT;
-				continue;
-			}
-
-			// --- Plateau edge tree shadows ---
-			if (
-				inZone(x, z, ZONES.plateau) &&
-				(x === 20 || x === 21) &&
-				z >= 1 &&
-				z <= 15 &&
-				hash(x, z, 99) < 30
-			) {
-				data[idx(x, z)] = TREE_SHADOW_DARK;
+			const i: Num = idx(x, z);
+			// Place shadow wherever a tree was placed in the upper layer
+			if (upper[i] !== 0) {
+				const gnd: Num = generateGroundCache[i] ?? GRASS;
+				// Dense forest = darker shadows, open meadow = lighter
+				data[i] = gnd === DARK_GRASS_GID ? TREE_SHADOW_DARK : TREE_SHADOW_LIGHT;
 			}
 		}
 	}
@@ -737,29 +766,10 @@ function generateHeightMap(): Num[] {
 
 	for (let z: Num = 0; z < H; z++) {
 		for (let x: Num = 0; x < W; x++) {
-			const i: Num = idx(x, z);
-
-			// River channel — level 0
-			if (isRiver(x, z)) {
-				data[i] = 0;
+			// Pond — level 0 (sunken water)
+			if (isPond(x, z)) {
+				data[idx(x, z)] = 0;
 			}
-
-			// Lake — level 0
-			if (isLake(x, z)) {
-				data[i] = 0;
-			}
-
-			// Hillside transition — level 2
-			if (x >= 18 && x <= 19 && z <= 16) {
-				data[i] = 2;
-			}
-
-			// Cliff plateau — level 3
-			if (x >= 20 && z <= 16) {
-				data[i] = 3;
-			}
-
-			// Meadow stays at level 1 (default)
 		}
 	}
 
@@ -779,45 +789,45 @@ function generateHeightMap(): Num[] {
  */
 export const SEASON_PATHS: Record<string, Record<string, string>> = {
 	summer: {
-		grass: 'tilesets/lpc-terrain/autotile-expanded/terrain-00.png',
-		darkGrass: 'tilesets/lpc-terrain/autotile-expanded/terrain-01.png',
-		dirt: 'tilesets/lpc-terrain/autotile-expanded/terrain-02.png',
-		cobble: 'tilesets/lpc-terrain/autotile-expanded/terrain-03.png',
+		grass: 'tilesets/lpc-terrain/autotile-expanded/terrain-02.png',
+		darkGrass: 'tilesets/lpc-terrain/autotile-expanded/terrain-00.png',
+		dirt: 'tilesets/lpc-terrain/autotile-expanded/terrain-03.png',
+		cobble: 'tilesets/lpc-terrain/autotile-expanded/terrain-11.png',
 		water: 'tilesets/lpc-terrain/autotile-expanded/terrain-24.png',
-		sand: 'tilesets/lpc-terrain/autotile-expanded/terrain-07.png',
+		sand: 'tilesets/lpc-terrain/autotile-expanded/terrain-18.png',
 		plants: 'tilesets/lpc-terrain/plants_summer.png',
 		trees: 'tilesets/lpc-terrain/trees_summer.png',
 		cliffs: 'tilesets/lpc-terrain/cliff_summer.png',
 	},
 	spring: {
-		grass: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-00.png',
-		darkGrass: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-01.png',
-		dirt: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-02.png',
-		cobble: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-03.png',
+		grass: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-02.png',
+		darkGrass: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-00.png',
+		dirt: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-03.png',
+		cobble: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-11.png',
 		water: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-24.png',
-		sand: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-07.png',
+		sand: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-18.png',
 		plants: 'tilesets/lpc-terrain/plants_spring.png',
 		trees: 'tilesets/lpc-terrain/trees_spring.png',
 		cliffs: 'tilesets/lpc-terrain/cliff_spring.png',
 	},
 	autumn: {
-		grass: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-00.png',
-		darkGrass: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-01.png',
-		dirt: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-02.png',
-		cobble: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-03.png',
+		grass: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-02.png',
+		darkGrass: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-00.png',
+		dirt: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-03.png',
+		cobble: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-11.png',
 		water: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-24.png',
-		sand: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-07.png',
+		sand: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-18.png',
 		plants: 'tilesets/lpc-terrain/plants_autumn.png',
 		trees: 'tilesets/lpc-terrain/trees_autumn.png',
 		cliffs: 'tilesets/lpc-terrain/cliff_autumn.png',
 	},
 	winter: {
-		grass: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-00.png',
-		darkGrass: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-01.png',
-		dirt: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-02.png',
-		cobble: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-03.png',
+		grass: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-02.png',
+		darkGrass: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-00.png',
+		dirt: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-03.png',
+		cobble: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-11.png',
 		water: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-24.png',
-		sand: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-07.png',
+		sand: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-18.png',
 		plants: 'tilesets/lpc-terrain/plants_winter.png',
 		trees: 'tilesets/lpc-terrain/trees_winter.png',
 		cliffs: 'tilesets/lpc-terrain/cliff_winter.png',
@@ -868,50 +878,48 @@ export const ATMOSPHERE_PRESETS: Record<
 /** Tile positions for 3D prop placement (used by dev.ts). */
 export const PROP_POSITIONS = {
 	cottages: [
-		{ x: 4, z: 12, rotation: 0 },
-		{ x: 8, z: 14, rotation: Math.PI / 6 },
-		{ x: 10, z: 17, rotation: -Math.PI / 8 },
+		{ x: 24, z: 13, rotation: 0 },
+		{ x: 28, z: 14, rotation: Math.PI / 6 },
+		{ x: 32, z: 13, rotation: -Math.PI / 8 },
 	],
-	well: { x: 7, z: 14 },
+	well: { x: 20, z: 14 },
+	bridge: { x: 8, z: 11, width: 2 },
 	torches: [
-		{ x: 3, z: 14 },
-		{ x: 6, z: 14 },
-		{ x: 9, z: 14 },
-		{ x: 12, z: 14 },
-		{ x: 7, z: 11 },
-		{ x: 7, z: 17 },
+		{ x: 17, z: 14 },
+		{ x: 23, z: 14 },
+		{ x: 20, z: 11 },
+		{ x: 20, z: 17 },
+		{ x: 26, z: 14 },
+		{ x: 30, z: 14 },
 	],
-	bridge: { x: 15, z: BRIDGE_Z, width: 3 },
 	boulders: [
-		{ x: 2, z: 24, scale: 1.2 },
-		{ x: 9, z: 23, scale: 0.8 },
-		{ x: 5, z: 29, scale: 1.0 },
-		{ x: 22, z: 5, scale: 1.1 },
-		{ x: 25, z: 12, scale: 0.9 },
-		{ x: 28, z: 14, scale: 1.3 },
-		{ x: 30, z: 3, scale: 0.7 },
-		{ x: 21, z: 15, scale: 1.0 },
+		{ x: 3, z: 10, scale: 1.2 },
+		{ x: 14, z: 7, scale: 0.8 },
+		{ x: 35, z: 4, scale: 1.1 },
+		{ x: 37, z: 25, scale: 0.9 },
+		{ x: 5, z: 22, scale: 1.0 },
+		{ x: 33, z: 20, scale: 1.3 },
 	],
 	barrels: [
-		{ x: 5, z: 13 },
-		{ x: 9, z: 15 },
-		{ x: 11, z: 18 },
-		{ x: 3, z: 11 },
+		{ x: 23, z: 13 },
+		{ x: 25, z: 15 },
+		{ x: 29, z: 13 },
+		{ x: 31, z: 15 },
 	],
 	crates: [
-		{ x: 4, z: 13 },
-		{ x: 8, z: 15 },
-		{ x: 11, z: 17 },
+		{ x: 24, z: 15 },
+		{ x: 28, z: 13 },
+		{ x: 32, z: 15 },
 	],
 	fencePosts: (() => {
 		const posts: Array<{ x: Num; z: Num; axis: 'x' | 'z' }> = [];
-		// North fence (Z=9, X=0-14)
-		for (let x: Num = 0; x <= 14; x += 2) {
-			posts.push({ x, z: 9, axis: 'x' });
+		// Fence along N side of E-W road (Z=12, X=24-36)
+		for (let x: Num = 24; x <= 36; x += 2) {
+			posts.push({ x, z: 12, axis: 'x' });
 		}
-		// South fence (Z=20, X=0-14)
-		for (let x: Num = 0; x <= 14; x += 2) {
-			posts.push({ x, z: 20, axis: 'x' });
+		// Fence along S side of E-W road (Z=16, X=24-36)
+		for (let x: Num = 24; x <= 36; x += 2) {
+			posts.push({ x, z: 16, axis: 'x' });
 		}
 		return posts;
 	})(),
@@ -955,12 +963,12 @@ function autotileTileset(
 
 const TILESET_CONFIGS: ReadonlyArray<Record<string, unknown>> = [
 	// --- Autotile terrain tilesets (2×3 compact, expanded to 8×6 by loader) ---
-	autotileTileset('grass', '00', GRASS_GID, 'grass'),
-	autotileTileset('darkGrass', '01', DARK_GRASS_GID, 'grass'),
-	autotileTileset('dirt', '02', DIRT_GID, 'stone'),
-	autotileTileset('cobble', '03', COBBLE_GID, 'stone'),
+	autotileTileset('grass', '02', GRASS_GID, 'grass'),
+	autotileTileset('darkGrass', '00', DARK_GRASS_GID, 'grass'),
+	autotileTileset('dirt', '03', DIRT_GID, 'stone'),
+	autotileTileset('cobble', '11', COBBLE_GID, 'stone'),
 	autotileTileset('water', '24', WATER_GID, 'water'),
-	autotileTileset('sand', '07', SAND_GID, 'sand'),
+	autotileTileset('sand', '18', SAND_GID, 'sand'),
 
 	// --- Decoration tilesets (non-autotile) ---
 	{
@@ -1074,12 +1082,12 @@ const TILESET_CONFIGS: ReadonlyArray<Record<string, unknown>> = [
 // =============================================================================
 
 /**
- * 32×32 professional test map — RPG village scene.
+ * 40×30 professional test map — RPG crossroads village scene.
  *
- * Features 7 distinct zones (forest, village, river, lake, cliff plateau,
- * ruins, meadow/farm), 6 autotile terrain tilesets + 8 decoration tilesets,
- * multi-level height map, and full tile properties. The autotile system
- * automatically generates edge/corner transitions between terrain types.
+ * Features a crossroads village layout with pond, dirt roads, cobblestone
+ * intersection, forest corners, and rich decoration layers. Uses 6 autotile
+ * terrain tilesets + 8 decoration tilesets with season-swappable paths.
+ * The autotile system generates edge/corner transitions between terrain types.
  */
 export const TEST_MAP_DATA: Record<string, unknown> = {
 	width: W,
@@ -1173,12 +1181,12 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 					],
 				},
 			},
-			// Village torches — warm point lights along paths
+			// Village torches — warm point lights at crossroads
 			{
 				id: 'torch-1',
 				type: 'point',
 				intensity: 1.5,
-				position: { x: 3, y: 1.5, z: 14 },
+				position: { x: 17, y: 1.5, z: 14 },
 				colorTemperature: 2200,
 				range: 12,
 				meshRadius: 8,
@@ -1195,7 +1203,7 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 				id: 'torch-2',
 				type: 'point',
 				intensity: 1.3,
-				position: { x: 6, y: 1.5, z: 14 },
+				position: { x: 23, y: 1.5, z: 14 },
 				colorTemperature: 2100,
 				range: 10,
 				meshRadius: 7,
@@ -1211,7 +1219,7 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 				id: 'torch-3',
 				type: 'point',
 				intensity: 1.4,
-				position: { x: 9, y: 1.5, z: 14 },
+				position: { x: 20, y: 1.5, z: 11 },
 				colorTemperature: 2200,
 				range: 11,
 				meshRadius: 7,
@@ -1228,7 +1236,7 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 				id: 'torch-4',
 				type: 'point',
 				intensity: 1.2,
-				position: { x: 12, y: 1.5, z: 14 },
+				position: { x: 20, y: 1.5, z: 17 },
 				colorTemperature: 1900,
 				range: 10,
 				meshRadius: 6,
@@ -1244,7 +1252,7 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 				id: 'torch-5',
 				type: 'point',
 				intensity: 1.3,
-				position: { x: 7, y: 1.5, z: 11 },
+				position: { x: 26, y: 1.5, z: 14 },
 				colorTemperature: 2100,
 				range: 10,
 				meshRadius: 7,
@@ -1261,7 +1269,7 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 				id: 'torch-6',
 				type: 'point',
 				intensity: 1.4,
-				position: { x: 7, y: 1.5, z: 17 },
+				position: { x: 30, y: 1.5, z: 14 },
 				colorTemperature: 2200,
 				range: 11,
 				meshRadius: 7,
@@ -1274,12 +1282,12 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 					positionJitter: 0.018,
 				},
 			},
-			// Ruins torch — atmospheric point light on cliff top
+			// Pond-side campfire — atmospheric warm light
 			{
-				id: 'ruins-torch-1',
+				id: 'pond-fire',
 				type: 'point',
 				intensity: 2.0,
-				position: { x: 26, y: 4.5, z: 4 },
+				position: { x: 14, y: 1.5, z: 8 },
 				colorTemperature: 1800,
 				range: 15,
 				meshRadius: 10,
@@ -1290,23 +1298,6 @@ export const TEST_MAP_DATA: Record<string, unknown> = {
 					colorShift: true,
 					colorShiftRange: 300,
 					positionJitter: 0.03,
-				},
-			},
-			{
-				id: 'ruins-torch-2',
-				type: 'point',
-				intensity: 1.8,
-				position: { x: 28, y: 4.5, z: 6 },
-				colorTemperature: 1900,
-				range: 12,
-				meshRadius: 8,
-				flicker: {
-					type: 'campfire',
-					intensity: 0.45,
-					speed: 0.7,
-					colorShift: true,
-					colorShiftRange: 280,
-					positionJitter: 0.025,
 				},
 			},
 		],
