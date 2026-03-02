@@ -53,7 +53,12 @@ import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
 import { safeParse, fromUnknownError } from '@/utils/result/safe';
 
 import { okShallow, type BabylonResult } from './babylon-result';
-import { CameraConfigSchema, type CameraConfig, type CameraPreset } from '../schemas/camera-config';
+import {
+	CameraConfigSchema,
+	type CameraConfig,
+	type CameraPreset,
+	type RefocusConfig,
+} from '../schemas/camera-config';
 
 // =============================================================================
 // Preset Resolution
@@ -920,6 +925,156 @@ export function resetCamera(options: ResetCameraOptions): Result<Bool> {
 		}
 
 		return okUnchecked(true as Bool);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// Refocus On Tilemap
+// =============================================================================
+
+/** Options for refocusing the camera on the entire tilemap. */
+export type RefocusOptions = {
+	/** The Babylon.js scene. */
+	readonly scene: BABYLON.Scene;
+	/** The camera to refocus. Must be ArcRotateCamera for perspective presets. */
+	readonly camera: BABYLON.Camera;
+	/** Tilemap width in tiles. */
+	readonly mapWidth: Num;
+	/** Tilemap height in tiles. */
+	readonly mapHeight: Num;
+	/** Refocus configuration (animation, easing, padding). */
+	readonly config: RefocusConfig;
+	/** Current camera preset name (used to look up default alpha/beta). */
+	readonly currentPreset: CameraPreset;
+};
+
+/**
+ * Refocuses the camera to show the entire tilemap.
+ *
+ * Computes the ideal camera position from tilemap dimensions, camera FOV,
+ * and padding scale, then smoothly animates the camera there. Works with
+ * all ArcRotateCamera presets. Returns an error for UniversalCamera
+ * (firstperson preset).
+ *
+ * @param options - Scene, camera, map dimensions, config, and current preset.
+ * @returns BabylonResult containing a handle to cancel the animation.
+ *
+ * @example
+ * ```typescript
+ * import { refocusOnTilemap } from './camera-controller';
+ * import { REFOCUS_DEFAULTS } from '../schemas/camera-config';
+ *
+ * const result = refocusOnTilemap({
+ *   scene, camera: arcCamera,
+ *   mapWidth: 32, mapHeight: 32,
+ *   config: REFOCUS_DEFAULTS,
+ *   currentPreset: 'hd2d',
+ * });
+ * if (result.ok) result.data.dispose(); // cancel early
+ * ```
+ */
+export function refocusOnTilemap(options: RefocusOptions): BabylonResult<PresetTransitionHandle> {
+	const { scene, camera, mapWidth, mapHeight, config, currentPreset } = options;
+
+	try {
+		if (!(camera instanceof BABYLON.ArcRotateCamera)) {
+			return err(
+				ERRORS.SCENE.RENDER_FAILED,
+				'Refocus requires ArcRotateCamera (not available in firstperson mode)',
+			);
+		}
+
+		const arc: BABYLON.ArcRotateCamera = camera;
+		const defaults: PresetDefaults = PRESET_DEFAULTS[currentPreset];
+		const easeFn: (t: Num) => Num = EASING_FUNCTIONS[config.easing] ?? LINEAR_FALLBACK;
+
+		// Compute destination — safe minimum of 1 tile for zero-size maps
+		const safeWidth: Num = Math.max(1, mapWidth) as Num;
+		const safeHeight: Num = Math.max(1, mapHeight) as Num;
+		const targetX: Num = (safeWidth / 2) as Num;
+		const targetZ: Num = (safeHeight / 2) as Num;
+		const diagonal: Num = Math.hypot(safeWidth, safeHeight) as Num;
+		const boundRadius: Num = (diagonal / 2) as Num;
+		const idealRadius: Num = ((boundRadius / Math.sin(arc.fov / 2)) * config.paddingScale) as Num;
+		const endRadius: Num = Math.min(
+			arc.upperRadiusLimit ?? 10_000,
+			Math.max(arc.lowerRadiusLimit ?? 1, idealRadius),
+		) as Num;
+		const endBeta: Num = config.resetElevation ? defaults.beta : arc.beta;
+		const endAlpha: Num = config.resetOrbit ? defaults.alpha : arc.alpha;
+
+		// Instant mode — no animation
+		if (!config.animated || config.durationMs <= 0) {
+			arc.target.x = targetX;
+			arc.target.y = 0;
+			arc.target.z = targetZ;
+			arc.radius = endRadius;
+			if (config.resetElevation) arc.beta = endBeta;
+			if (config.resetOrbit) arc.alpha = endAlpha;
+			return okShallow({ dispose: NOOP_DISPOSE });
+		}
+
+		// Animated transition
+		const startTarget: BABYLON.Vector3 = arc.target.clone();
+		const startRadius: Num = arc.radius;
+		const startAlpha: Num = arc.alpha;
+		const startBeta: Num = arc.beta;
+		const startTime: Num = Date.now() as Num;
+		let disposed: boolean = false;
+
+		// Temporarily unlock alpha/beta limits during animation
+		const savedLowerAlpha: number | null = arc.lowerAlphaLimit;
+		const savedUpperAlpha: number | null = arc.upperAlphaLimit;
+		const savedLowerBeta: number | null = arc.lowerBetaLimit;
+		const savedUpperBeta: number | null = arc.upperBetaLimit;
+		arc.lowerAlphaLimit = null;
+		arc.upperAlphaLimit = null;
+		arc.lowerBetaLimit = 0;
+		arc.upperBetaLimit = Math.PI;
+
+		const restoreLimits = (): void => {
+			arc.lowerAlphaLimit = savedLowerAlpha;
+			arc.upperAlphaLimit = savedUpperAlpha;
+			arc.lowerBetaLimit = savedLowerBeta;
+			arc.upperBetaLimit = savedUpperBeta;
+		};
+
+		const observer: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
+			if (disposed) return;
+
+			const elapsed: Num = (Date.now() - startTime) as Num;
+			const rawProgress: Num = Math.min(1, elapsed / config.durationMs) as Num;
+			const t: Num = easeFn(rawProgress);
+
+			arc.target.x = startTarget.x + (targetX - startTarget.x) * t;
+			arc.target.y = 0;
+			arc.target.z = startTarget.z + (targetZ - startTarget.z) * t;
+			arc.radius = startRadius + (endRadius - startRadius) * t;
+
+			if (config.resetElevation) {
+				arc.beta = startBeta + (endBeta - startBeta) * t;
+			}
+			if (config.resetOrbit) {
+				arc.alpha = startAlpha + (endAlpha - startAlpha) * t;
+			}
+
+			if (rawProgress >= 1) {
+				restoreLimits();
+				disposed = true;
+				scene.onBeforeRenderObservable.remove(observer);
+			}
+		});
+
+		return okShallow({
+			dispose: (): void => {
+				if (disposed) return;
+				disposed = true;
+				restoreLimits();
+				scene.onBeforeRenderObservable.remove(observer);
+			},
+		});
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
 	}

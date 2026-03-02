@@ -73,6 +73,37 @@ The `mapeditor` preset sets `camera.mode = ORTHOGRAPHIC_CAMERA` with symmetric o
 
 The `orbit` preset enables `camera.useAutoRotationBehavior = true`, which uses Babylon.js built-in `AutoRotationBehavior` for continuous orbiting.
 
+## Refocus / Fit Map
+
+`refocusOnTilemap()` computes the ideal camera position to view the entire tilemap and smoothly animates there. Works with all ArcRotateCamera presets. Returns an error for firstperson (UniversalCamera).
+
+### Refocus Configuration
+
+| Field | Type | Default | Range | Description |
+|-------|------|---------|-------|-------------|
+| `animated` | Bool | `true` | -- | Smooth transition vs instant snap |
+| `durationMs` | Num | `800` | 100--3000 | Animation duration in milliseconds |
+| `easing` | Enum | `'easeInOutCubic'` | 4 options | Easing curve for the transition |
+| `paddingScale` | Num | `1.15` | 1.0--2.0 | Radius multiplier for breathing room |
+| `resetElevation` | Bool | `true` | -- | Reset pitch to preset default |
+| `resetOrbit` | Bool | `false` | -- | Reset orbit angle to preset default |
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `F` | Refocus on entire tilemap |
+| `Home` | Refocus on entire tilemap (alternative) |
+
+### Radius Calculation
+
+For perspective presets, the camera radius is computed as:
+
+```
+diagonal = hypot(mapWidth, mapHeight)
+radius = (diagonal / 2) / sin(fov / 2) * paddingScale
+```
+
 ## API
 
 | Function | Signature | Description |
@@ -80,10 +111,11 @@ The `orbit` preset enables `camera.useAutoRotationBehavior = true`, which uses B
 | `createCamera` | `(scene, config) -> Result<Camera>` | Create camera from preset config |
 | `switchCameraPreset` | `(camera, preset, options) -> Result<Void>` | Animated preset transition |
 | `resetCamera` | `(camera, preset) -> Result<Void>` | Instant reset to preset defaults |
+| `refocusOnTilemap` | `(options) -> Result<Handle>` | Animate camera to show entire tilemap |
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `schemas/camera-config.ts` | Camera preset schema + 16 preset enum |
-| `core/camera-controller.ts` | PRESET_DEFAULTS, createCamera, switchCameraPreset, resetCamera |
+| `schemas/camera-config.ts` | Camera preset schema + 16 preset enum + RefocusConfigSchema |
+| `core/camera-controller.ts` | PRESET_DEFAULTS, createCamera, switchCameraPreset, resetCamera, refocusOnTilemap |

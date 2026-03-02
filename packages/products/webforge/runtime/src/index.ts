@@ -39,11 +39,13 @@ export {
 	rotateTactics,
 	switchCameraPreset,
 	resetCamera,
+	refocusOnTilemap,
 	type CameraTargetOptions,
 	type RotateTacticsOptions,
 	type SwitchCameraPresetOptions,
 	type PresetTransitionHandle,
 	type ResetCameraOptions,
+	type RefocusOptions,
 } from './core/camera-controller';
 
 // Screen shake
@@ -104,9 +106,12 @@ export {
 	CameraConfigSchema,
 	CameraPresetSchema,
 	TransitionEasingSchema,
+	RefocusConfigSchema,
+	REFOCUS_DEFAULTS,
 	type CameraConfig,
 	type CameraPreset,
 	type TransitionEasing,
+	type RefocusConfig,
 } from './schemas/camera-config';
 export {
 	SceneSetupConfigSchema,

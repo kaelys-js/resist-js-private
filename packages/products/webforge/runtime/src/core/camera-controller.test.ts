@@ -17,12 +17,14 @@ import * as BABYLON from '@babylonjs/core';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
 import { createTestEngine, disposeEngine, type BabylonEngineInstance } from './engine';
+import { REFOCUS_DEFAULTS } from '../schemas/camera-config';
 import {
 	createCamera,
 	updateCameraTarget,
 	rotateTactics,
 	switchCameraPreset,
 	resetCamera,
+	refocusOnTilemap,
 } from './camera-controller';
 
 let instance: BabylonEngineInstance;
@@ -1010,5 +1012,180 @@ describe('resetCamera', () => {
 		});
 
 		expect(cameraResult.data.fov).toBeCloseTo(1.4);
+	});
+});
+
+// =============================================================================
+// Refocus On Tilemap
+// =============================================================================
+
+describe('refocusOnTilemap', () => {
+	test('returns ok Result with dispose handle', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		const result = refocusOnTilemap({
+			scene: instance.scene,
+			camera: arc,
+			mapWidth: 40,
+			mapHeight: 30,
+			config: REFOCUS_DEFAULTS,
+			currentPreset: 'hd2d',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+		expect(typeof result.data.dispose).toBe('function');
+		result.data.dispose();
+	});
+
+	test('instantly sets camera to map center when animated=false', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		const result = refocusOnTilemap({
+			scene: instance.scene,
+			camera: arc,
+			mapWidth: 40,
+			mapHeight: 30,
+			config: { ...REFOCUS_DEFAULTS, animated: false },
+			currentPreset: 'hd2d',
+		});
+		expect(result.ok).toBeTruthy();
+
+		expect(arc.target.x).toBeCloseTo(20);
+		expect(arc.target.z).toBeCloseTo(15);
+	});
+
+	test('computes correct radius from map dimensions and FOV', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		refocusOnTilemap({
+			scene: instance.scene,
+			camera: arc,
+			mapWidth: 40,
+			mapHeight: 30,
+			config: { ...REFOCUS_DEFAULTS, animated: false, paddingScale: 1.0 },
+			currentPreset: 'hd2d',
+		});
+
+		const diagonal = Math.hypot(40, 30);
+		const boundRadius = diagonal / 2;
+		const expectedRadius = boundRadius / Math.sin(arc.fov / 2);
+		expect(arc.radius).toBeCloseTo(expectedRadius, 0);
+	});
+
+	test('applies paddingScale to radius', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		refocusOnTilemap({
+			scene: instance.scene,
+			camera: arc,
+			mapWidth: 32,
+			mapHeight: 32,
+			config: { ...REFOCUS_DEFAULTS, animated: false, paddingScale: 1.5 },
+			currentPreset: 'hd2d',
+		});
+
+		const diagonal = Math.hypot(32, 32);
+		const boundRadius = diagonal / 2;
+		const expectedRadius = (boundRadius / Math.sin(arc.fov / 2)) * 1.5;
+		expect(arc.radius).toBeCloseTo(expectedRadius, 0);
+	});
+
+	test('resets beta when resetElevation=true', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+		arc.beta = 1.2;
+
+		refocusOnTilemap({
+			scene: instance.scene,
+			camera: arc,
+			mapWidth: 32,
+			mapHeight: 32,
+			config: { ...REFOCUS_DEFAULTS, animated: false, resetElevation: true },
+			currentPreset: 'hd2d',
+		});
+
+		// hd2d default beta is PI/4
+		expect(arc.beta).toBeCloseTo(Math.PI / 4);
+	});
+
+	test('does not reset beta when resetElevation=false', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+		arc.beta = 1.2;
+
+		refocusOnTilemap({
+			scene: instance.scene,
+			camera: arc,
+			mapWidth: 32,
+			mapHeight: 32,
+			config: { ...REFOCUS_DEFAULTS, animated: false, resetElevation: false },
+			currentPreset: 'hd2d',
+		});
+
+		expect(arc.beta).toBeCloseTo(1.2);
+	});
+
+	test('dispose cancels animation', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		const result = refocusOnTilemap({
+			scene: instance.scene,
+			camera: arc,
+			mapWidth: 40,
+			mapHeight: 30,
+			config: { ...REFOCUS_DEFAULTS, animated: true, durationMs: 5000 },
+			currentPreset: 'hd2d',
+		});
+		expect(result.ok).toBeTruthy();
+		if (!result.ok) return;
+
+		const alphaBefore = arc.alpha;
+		result.data.dispose();
+		// Alpha should stay near where it was when disposed
+		expect(arc.alpha).toBeCloseTo(alphaBefore, 1);
+	});
+
+	test('returns error for non-ArcRotateCamera (firstperson)', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'firstperson' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+
+		const result = refocusOnTilemap({
+			scene: instance.scene,
+			camera: cameraResult.data,
+			mapWidth: 40,
+			mapHeight: 30,
+			config: REFOCUS_DEFAULTS,
+			currentPreset: 'firstperson',
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('handles zero-size map gracefully', () => {
+		const cameraResult = createCamera(instance.scene, { preset: 'hd2d' });
+		if (!cameraResult.ok) throw new Error('Failed to create camera');
+		const arc = cameraResult.data as BABYLON.ArcRotateCamera;
+
+		const result = refocusOnTilemap({
+			scene: instance.scene,
+			camera: arc,
+			mapWidth: 0,
+			mapHeight: 0,
+			config: { ...REFOCUS_DEFAULTS, animated: false },
+			currentPreset: 'hd2d',
+		});
+		expect(result.ok).toBeTruthy();
+		expect(arc.radius).toBeGreaterThan(0);
 	});
 });
