@@ -122,13 +122,16 @@ let _handlePresetChange: ((preset: string) => void) | null = null;
 
 // -- Map Editor camera state --
 const MAP_MIN = 0;
-let _mapWidth = 32; // tilemap column count (Z axis, screen horizontal)
-let _mapHeight = 32; // tilemap row count (X axis, screen vertical)
+let _mapWidth = 32; // screen horizontal extent (Z axis = tilemap rows)
+let _mapHeight = 32; // screen vertical extent (X axis = tilemap columns)
 const ORTHO_MIN = 1;
+const MIN_TILE_PX = 1; // Minimum on-screen pixels per tile when fully zoomed out
+const TARGET_TILE_PX = 48; // Default on-screen pixels per tile (3× native 16px tiles)
 const ZOOM_FACTOR = 1.08;
 const _heldKeys = new Set<string>();
 let _orthoSize: number = Math.max(_mapWidth, _mapHeight) / 2;
 let _orthoMax: number = _orthoSize; // cached computeOrthoMax result (updated when scene/cam available)
+let _lastCanvasH: number = 0; // canvas height at last resize — used to maintain tile pixel size on resize
 let _savedClearColor: BABYLON.Color4 | null = null;
 
 // -- Refocus configuration (mutable for dev harness controls) --
@@ -155,11 +158,29 @@ function computeOrthoMax(scene?: BABYLON.Scene, cam?: BABYLON.ArcRotateCamera): 
 	// orthoTop/Bottom = ±_orthoSize, orthoLeft/Right = ±(_orthoSize * aspect).
 	if (scene && cam) {
 		const aspect: number = scene.getEngine().getAspectRatio(cam);
-		_orthoMax = Math.max(_mapHeight / 2, _mapWidth / (2 * aspect));
+		// +2 adds one-tile padding on each edge to prevent clipping at map boundaries
+		_orthoMax = Math.max((_mapHeight + 2) / 2, (_mapWidth + 2) / (2 * aspect));
+
+		// For very large maps, don't let tiles become microscopic.
+		// tileScreenPx = canvasHeight / (2 * orthoSize).
+		const canvasH: number = scene.getEngine().getRenderHeight();
+		const maxForMinTile: number = canvasH / (2 * MIN_TILE_PX);
+		if (_orthoMax > maxForMinTile) {
+			_orthoMax = maxForMinTile;
+		}
 		return _orthoMax;
 	}
 	// Fallback without aspect ratio — use the larger dimension.
 	return Math.max(_mapWidth, _mapHeight) / 2;
+}
+
+/**
+ * Returns the initial _orthoSize for mapeditor mode: tiles at TARGET_TILE_PX,
+ * clamped so we never zoom out beyond the full map.
+ */
+function initialOrthoSize(scene: BABYLON.Scene): number {
+	const canvasH: number = scene.getEngine().getRenderHeight();
+	return Math.min(_orthoMax, canvasH / (2 * TARGET_TILE_PX));
 }
 
 /**
@@ -401,7 +422,10 @@ function ensureGridMesh(scene: BABYLON.Scene, debug: DevDebugApi): void {
 			let maxCount: Num = 0;
 			let dominantHeight: Num = 0;
 			for (const [h, c] of counts) {
-				if (c > maxCount) { maxCount = c; dominantHeight = h; }
+				if (c > maxCount) {
+					maxCount = c;
+					dominantHeight = h;
+				}
 			}
 			gridY = dominantHeight * twh;
 		}
@@ -438,23 +462,55 @@ function ensureGridMesh(scene: BABYLON.Scene, debug: DevDebugApi): void {
 	// Vertical lines (along Z axis, at each column boundary)
 	for (let col: Num = 0; col <= mapW; col++) {
 		const base: Num = vi;
-		positions[vi * 3] = col - LINE_HW; positions[vi * 3 + 1] = 0; positions[vi * 3 + 2] = 0; vi++;
-		positions[vi * 3] = col + LINE_HW; positions[vi * 3 + 1] = 0; positions[vi * 3 + 2] = 0; vi++;
-		positions[vi * 3] = col + LINE_HW; positions[vi * 3 + 1] = 0; positions[vi * 3 + 2] = mapH; vi++;
-		positions[vi * 3] = col - LINE_HW; positions[vi * 3 + 1] = 0; positions[vi * 3 + 2] = mapH; vi++;
-		indices[ii++] = base; indices[ii++] = base + 1; indices[ii++] = base + 2;
-		indices[ii++] = base; indices[ii++] = base + 2; indices[ii++] = base + 3;
+		positions[vi * 3] = col - LINE_HW;
+		positions[vi * 3 + 1] = 0;
+		positions[vi * 3 + 2] = 0;
+		vi++;
+		positions[vi * 3] = col + LINE_HW;
+		positions[vi * 3 + 1] = 0;
+		positions[vi * 3 + 2] = 0;
+		vi++;
+		positions[vi * 3] = col + LINE_HW;
+		positions[vi * 3 + 1] = 0;
+		positions[vi * 3 + 2] = mapH;
+		vi++;
+		positions[vi * 3] = col - LINE_HW;
+		positions[vi * 3 + 1] = 0;
+		positions[vi * 3 + 2] = mapH;
+		vi++;
+		indices[ii++] = base;
+		indices[ii++] = base + 1;
+		indices[ii++] = base + 2;
+		indices[ii++] = base;
+		indices[ii++] = base + 2;
+		indices[ii++] = base + 3;
 	}
 
 	// Horizontal lines (along X axis, at each row boundary)
 	for (let row: Num = 0; row <= mapH; row++) {
 		const base: Num = vi;
-		positions[vi * 3] = 0; positions[vi * 3 + 1] = 0; positions[vi * 3 + 2] = row - LINE_HW; vi++;
-		positions[vi * 3] = mapW; positions[vi * 3 + 1] = 0; positions[vi * 3 + 2] = row - LINE_HW; vi++;
-		positions[vi * 3] = mapW; positions[vi * 3 + 1] = 0; positions[vi * 3 + 2] = row + LINE_HW; vi++;
-		positions[vi * 3] = 0; positions[vi * 3 + 1] = 0; positions[vi * 3 + 2] = row + LINE_HW; vi++;
-		indices[ii++] = base; indices[ii++] = base + 1; indices[ii++] = base + 2;
-		indices[ii++] = base; indices[ii++] = base + 2; indices[ii++] = base + 3;
+		positions[vi * 3] = 0;
+		positions[vi * 3 + 1] = 0;
+		positions[vi * 3 + 2] = row - LINE_HW;
+		vi++;
+		positions[vi * 3] = mapW;
+		positions[vi * 3 + 1] = 0;
+		positions[vi * 3 + 2] = row - LINE_HW;
+		vi++;
+		positions[vi * 3] = mapW;
+		positions[vi * 3 + 1] = 0;
+		positions[vi * 3 + 2] = row + LINE_HW;
+		vi++;
+		positions[vi * 3] = 0;
+		positions[vi * 3 + 1] = 0;
+		positions[vi * 3 + 2] = row + LINE_HW;
+		vi++;
+		indices[ii++] = base;
+		indices[ii++] = base + 1;
+		indices[ii++] = base + 2;
+		indices[ii++] = base;
+		indices[ii++] = base + 2;
+		indices[ii++] = base + 3;
 	}
 
 	_gridMesh = new BABYLON.Mesh('grid-overlay', utilScene);
@@ -856,6 +912,9 @@ function ensureEditorBackdrop(scene: BABYLON.Scene): void {
 		_editorBackdrop.isPickable = false;
 		_editorBackdrop.renderingGroupId = 0;
 	}
+	// Reposition to current map center (may have changed after resize)
+	_editorBackdrop.position.x = _mapHeight / 2;
+	_editorBackdrop.position.z = _mapWidth / 2;
 	_editorBackdrop.setEnabled(true);
 }
 
@@ -1257,8 +1316,10 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		// Handle orthographic mode switching for mapeditor
 		if (preset === 'mapeditor') {
 			arcCam.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
-			_orthoSize = computeOrthoMax(scene, arcCam);
+			computeOrthoMax(scene, arcCam);
+			_orthoSize = initialOrthoSize(scene);
 			applyOrthoBounds(arcCam, scene);
+			_lastCanvasH = scene.getEngine().getRenderHeight();
 
 			// Detach Babylon's wheel input (we use custom zoom)
 			const wheelInput = arcCam.inputs.attached['mousewheel'];
@@ -1306,9 +1367,11 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 			// Restore Babylon's right-click panning
 			arcCam.panningSensibility = 50;
 
-			// Restore meshes disabled by mapeditor per-frame callback
+			// Restore meshes hidden by mapeditor per-frame callback
 			for (const mesh of scene.meshes) {
-				if (mesh.name === 'VolumetricLightScatteringMesh' || mesh.name === 'sky-gradient') {
+				if (mesh.name === 'VolumetricLightScatteringMesh') {
+					mesh.isVisible = true;
+				} else if (mesh.name.startsWith('sky-')) {
 					mesh.setEnabled(true);
 					mesh.isVisible = true;
 				}
@@ -10991,31 +11054,117 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	const widthInput: HTMLInputElement = document.createElement('input');
 	const heightInput: HTMLInputElement = document.createElement('input');
 
+	// Preset sizes dropdown
+	const presetRow: HTMLElement = document.createElement('div');
+	presetRow.className = 'control-row';
+	presetRow.dataset['control'] = 'map-preset';
+	const presetLabel: HTMLSpanElement = document.createElement('span');
+	presetLabel.className = 'control-label';
+	presetLabel.textContent = 'Preset';
+	presetLabel.title = 'Choose a common map size or enter custom dimensions below';
+	const presetSelect: HTMLSelectElement = document.createElement('select');
+	presetSelect.title = 'Select a preset map size';
+	presetSelect.style.cssText =
+		'flex:1;background:#1a1a1a;color:#ccc;border:1px solid rgba(255,255,255,0.18);' +
+		'border-radius:4px;padding:5px 8px;font:11px/1.2 "SF Mono","Menlo","Monaco",monospace;' +
+		'outline:none;cursor:pointer;';
+	const presets: Array<[string, number, number]> = [
+		['Custom', 0, 0],
+		// RPG Maker-style sizes
+		['RPG Maker XS \u2014 17\u00D713', 17, 13],
+		['RPG Maker S \u2014 20\u00D715', 20, 15],
+		['RPG Maker M \u2014 25\u00D719', 25, 19],
+		['RPG Maker L \u2014 30\u00D725', 30, 25],
+		['RPG Maker XL \u2014 40\u00D730', 40, 30],
+		// Square sizes
+		['10\u00D710', 10, 10],
+		['16\u00D716', 16, 16],
+		['20\u00D720', 20, 20],
+		['32\u00D732', 32, 32],
+		['48\u00D748', 48, 48],
+		['50\u00D750', 50, 50],
+		['64\u00D764', 64, 64],
+		['80\u00D780', 80, 80],
+		['100\u00D7100', 100, 100],
+		['128\u00D7128', 128, 128],
+		['150\u00D7150', 150, 150],
+		['200\u00D7200', 200, 200],
+		['256\u00D7256', 256, 256],
+		['300\u00D7300', 300, 300],
+		['400\u00D7400', 400, 400],
+		['500\u00D7500', 500, 500],
+		// Wide / tall
+		['60\u00D720', 60, 20],
+		['80\u00D730', 80, 30],
+		['120\u00D740', 120, 40],
+		['200\u00D750', 200, 50],
+		['20\u00D760', 20, 60],
+		['30\u00D780', 30, 80],
+		['40\u00D7120', 40, 120],
+		['50\u00D7200', 50, 200],
+		// Stress test
+		['512\u00D7512', 512, 512],
+		['750\u00D7750', 750, 750],
+		['1000\u00D71000', 1000, 1000],
+		['1500\u00D71500', 1500, 1500],
+		['2000\u00D72000', 2000, 2000],
+		['2500\u00D72500', 2500, 2500],
+		['3000\u00D73000', 3000, 3000],
+		['4000\u00D74000', 4000, 4000],
+		['5000\u00D75000', 5000, 5000],
+	];
+	for (const [label, ,] of presets) {
+		const opt: HTMLOptionElement = document.createElement('option');
+		opt.textContent = label;
+		opt.value = label;
+		presetSelect.append(opt);
+	}
+	presetSelect.addEventListener('change', () => {
+		const idx: number = presetSelect.selectedIndex;
+		if (idx > 0) {
+			const [, w, h] = presets[idx];
+			widthInput.value = String(w);
+			heightInput.value = String(h);
+		}
+	});
+	presetRow.append(presetLabel, presetSelect);
+
+	// Width × Height inputs — show raw mapData dimensions (not screen-axis-mapped)
+	// _mapHeight = mapData.width (columns), _mapWidth = mapData.height (rows) after swap
 	const sizeRow: HTMLElement = document.createElement('div');
 	sizeRow.className = 'control-row';
 	sizeRow.dataset['control'] = 'map-size';
-	sizeRow.style.gap = '4px';
+	sizeRow.style.cssText = 'gap:6px;align-items:center;';
+	sizeRow.title = 'Map dimensions in tiles (columns \u00D7 rows)';
 
 	const sizeLabel: HTMLSpanElement = document.createElement('span');
 	sizeLabel.className = 'control-label';
-	sizeLabel.textContent = 'Map Size';
+	sizeLabel.textContent = 'Size';
+	sizeLabel.title = 'Map columns \u00D7 rows';
 
-	const buildSizeInput = (input: HTMLInputElement, val: number): void => {
+	const sizeInputCss: string =
+		'width:56px;background:#1a1a1a;color:#6ecfcf;' +
+		'border:1px solid rgba(255,255,255,0.18);border-radius:4px;' +
+		'padding:5px 8px;font:12px/1.2 "SF Mono","Menlo","Monaco",monospace;' +
+		'text-align:center;outline:none;';
+
+	const buildSizeInput = (input: HTMLInputElement, val: number, tip: string): void => {
 		input.type = 'number';
 		input.min = '1';
-		input.max = '1000';
+		input.max = '5000';
 		input.value = String(val);
-		input.style.cssText =
-			'width:50px;background:rgba(255,255,255,0.06);color:#6ecfcf;' +
-			'border:1px solid rgba(255,255,255,0.15);border-radius:3px;' +
-			'padding:3px 6px;font:10px/1 "SF Mono","Menlo","Monaco",monospace;' +
-			'text-align:center;outline:none;';
+		input.title = tip;
+		input.style.cssText = sizeInputCss;
+		input.addEventListener('input', () => {
+			presetSelect.selectedIndex = 0;
+		});
 	};
-	buildSizeInput(widthInput, _mapWidth);
-	buildSizeInput(heightInput, _mapHeight);
+	// Show mapData dimensions: width (columns) = _mapHeight, height (rows) = _mapWidth
+	buildSizeInput(widthInput, _mapHeight, 'Columns (1\u20131000)');
+	buildSizeInput(heightInput, _mapWidth, 'Rows (1\u20131000)');
 
 	const times: HTMLSpanElement = document.createElement('span');
-	times.style.cssText = 'color:#666;font-size:11px;';
+	times.style.cssText = 'color:#555;font-size:14px;font-weight:bold;';
 	times.textContent = '\u00D7';
 
 	sizeRow.append(sizeLabel, widthInput, times, heightInput);
@@ -11023,14 +11172,15 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	// Resize button
 	const btnRow: HTMLElement = document.createElement('div');
 	btnRow.className = 'btn-group';
-	btnRow.style.padding = '2px 0 4px';
+	btnRow.style.padding = '4px 0 6px';
 	const resizeBtn: HTMLButtonElement = document.createElement('button');
 	resizeBtn.className = 'btn';
 	resizeBtn.style.flex = '1';
-	resizeBtn.textContent = 'Resize (Blank)';
+	resizeBtn.textContent = 'Resize Map';
+	resizeBtn.title = 'Replace current map with a blank map at the specified dimensions';
 	resizeBtn.addEventListener('click', () => {
-		const newW: number = Math.max(1, Math.min(1000, Number(widthInput.value) || 1));
-		const newH: number = Math.max(1, Math.min(1000, Number(heightInput.value) || 1));
+		const newW: number = Math.max(1, Math.min(5000, Number(widthInput.value) || 1));
+		const newH: number = Math.max(1, Math.min(5000, Number(heightInput.value) || 1));
 		const total: number = newW * newH;
 
 		// Dispose current tilemap
@@ -11052,10 +11202,34 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			tileHeight: 32,
 			tilesets: TEST_MAP_DATA.tilesets,
 			layers: [
-				{ name: 'ground', type: 'ground', data: Array.from<number>({ length: total }).fill(1), visible: true, opacity: 1 },
-				{ name: 'ground_deco', type: 'ground_deco', data: Array.from<number>({ length: total }).fill(0), visible: true, opacity: 1 },
-				{ name: 'upper1', type: 'upper1', data: Array.from<number>({ length: total }).fill(0), visible: true, opacity: 1 },
-				{ name: 'shadow', type: 'shadow', data: Array.from<number>({ length: total }).fill(0), visible: true, opacity: 0.4 },
+				{
+					name: 'ground',
+					type: 'ground',
+					data: Array.from<number>({ length: total }).fill(1),
+					visible: true,
+					opacity: 1,
+				},
+				{
+					name: 'ground_deco',
+					type: 'ground_deco',
+					data: Array.from<number>({ length: total }).fill(0),
+					visible: true,
+					opacity: 1,
+				},
+				{
+					name: 'upper1',
+					type: 'upper1',
+					data: Array.from<number>({ length: total }).fill(0),
+					visible: true,
+					opacity: 1,
+				},
+				{
+					name: 'shadow',
+					type: 'shadow',
+					data: Array.from<number>({ length: total }).fill(0),
+					visible: true,
+					opacity: 0.4,
+				},
 			],
 			heightMap: Array.from<number>({ length: total }).fill(0),
 			postProcessing: { preset: 'hd2d' },
@@ -11069,17 +11243,24 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		});
 		if (result.ok) {
 			debug.tilemap = result.data;
-			_mapWidth = newW;
-			_mapHeight = newH;
+			// User "Width" = screen horizontal (Z axis), "Height" = screen vertical (X axis)
+			// But mapData.width = columns on X, mapData.height = rows on Z
+			// So swap: _mapWidth (Z) = newW, _mapHeight (X) = newH from user perspective
+			// However blankMapData has width: newW → X axis, height: newH → Z axis
+			// So _mapHeight (X axis extent) = newW (mapData.width), _mapWidth (Z axis extent) = newH (mapData.height)
+			_mapWidth = newH;
+			_mapHeight = newW;
 
 			// Reapply ortho bounds for new map size
 			const cam = scene.activeCamera as BABYLON.ArcRotateCamera;
-			_orthoSize = computeOrthoMax(scene, cam);
+			computeOrthoMax(scene, cam);
+			_orthoSize = initialOrthoSize(scene);
 			applyOrthoBounds(cam, scene);
 			cam.target.x = _mapHeight / 2;
 			cam.target.z = _mapWidth / 2;
 			clampCameraToMap(cam, scene);
 			updateScrollbars(cam, scene);
+			_lastCanvasH = scene.getEngine().getRenderHeight();
 
 			// Rebuild grid for new size
 			if (_gridMesh) {
@@ -11095,6 +11276,17 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			// Update editor backdrop size
 			ensureEditorBackdrop(scene);
 
+			// Immediately hide VLS/sky meshes so they don't flash for one frame
+			if (_currentPreset === 'mapeditor') {
+				for (const mesh of scene.meshes) {
+					if (mesh.name === 'VolumetricLightScatteringMesh' && mesh.isVisible) {
+						mesh.isVisible = false;
+					} else if (mesh.name.startsWith('sky-') && mesh.isEnabled()) {
+						mesh.setEnabled(false);
+					}
+				}
+			}
+
 			// eslint-disable-next-line no-console -- Dev harness diagnostic
 			console.log(`[TestMap] Resized to ${String(newW)}×${String(newH)} (blank)`);
 		} else {
@@ -11104,7 +11296,7 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	});
 
 	btnRow.append(resizeBtn);
-	container.append(sizeRow, btnRow);
+	container.append(presetRow, sizeRow, btnRow);
 
 	// --- 3D Props Toggle ---
 	container.append(
@@ -11118,6 +11310,7 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				}
 			},
 			'testmap-props-toggle',
+			'Show/hide 3D prop meshes (cottages, well, torches, bridge)',
 		),
 	);
 
@@ -11139,6 +11332,7 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				}
 			},
 			'testmap-shadows-toggle',
+			'Enable shadow casting for 3D prop meshes',
 		),
 	);
 
@@ -11154,6 +11348,7 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				}
 			},
 			'testmap-lights-toggle',
+			'Enable point lights attached to torch props',
 		),
 	);
 
@@ -11177,6 +11372,7 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				}
 			},
 			'testmap-glow-toggle',
+			'Enable glow layer emission on torch flame tips',
 		),
 	);
 
@@ -12895,8 +13091,9 @@ function setupMapEditorControls(
 		// Disable Babylon's built-in right-click panning (we handle all panning)
 		cam.panningSensibility = 0;
 
-		// Set initial ortho size to fill viewport with no gap
-		_orthoSize = computeOrthoMax(scene, cam);
+		// Set initial ortho size — zoomed in like RPG Maker MV
+		computeOrthoMax(scene, cam);
+		_orthoSize = initialOrthoSize(scene);
 		applyOrthoBounds(cam, scene);
 
 		// Dark background for any area outside the map
@@ -13078,14 +13275,14 @@ function setupMapEditorControls(
 		clampCameraToMap(cam, scene);
 		updateScrollbars(cam, scene);
 
-		// Disable meshes that produce visual artifacts in top-down ortho view.
-		// setEnabled(false) fully removes them from the render pipeline
-		// (including post-process passes) without destroying them.
+		// Hide meshes that produce visual artifacts in top-down ortho view.
+		// VLS mesh: isVisible=false hides the mesh but keeps the god ray
+		// post-process effect active.
+		// Sky meshes: setEnabled(false) fully removes them from the scene.
 		for (const mesh of scene.meshes) {
-			if (
-				(mesh.name === 'VolumetricLightScatteringMesh' || mesh.name === 'sky-gradient') &&
-				mesh.isEnabled()
-			) {
+			if (mesh.name === 'VolumetricLightScatteringMesh' && mesh.isVisible) {
+				mesh.isVisible = false;
+			} else if (mesh.name.startsWith('sky-') && mesh.isEnabled()) {
 				mesh.setEnabled(false);
 			}
 		}
@@ -13096,11 +13293,25 @@ function setupMapEditorControls(
 	if (parent) {
 		const orthoResizeObserver: ResizeObserver = new ResizeObserver(() => {
 			if (_currentPreset === 'mapeditor') {
+				const newCanvasH: number = scene.getEngine().getRenderHeight();
+
+				// Maintain tile pixel size on resize (RPG Maker MV behavior):
+				// Scale _orthoSize proportionally with canvas height so tiles
+				// stay the same screen size. Scrollbars appear when the viewport
+				// can no longer fit the full map at the current tile size.
+				if (_lastCanvasH > 0 && newCanvasH > 0) {
+					_orthoSize = _orthoSize * (newCanvasH / _lastCanvasH);
+				}
+				_lastCanvasH = newCanvasH;
+
+				// Recalculate _orthoMax with new aspect ratio
 				const orthoMax: number = computeOrthoMax(scene, cam);
-				// If current zoom is beyond new max, clamp it
+
+				// Don't zoom out past full map
 				if (_orthoSize > orthoMax) {
 					_orthoSize = orthoMax;
 				}
+
 				applyOrthoBounds(cam, scene);
 				clampCameraToMap(cam, scene);
 				updateScrollbars(cam, scene);
@@ -13246,10 +13457,53 @@ async function main(): Promise<void> {
 		setupMapEditorControls(runtime, debug, canvas);
 	}
 
-	// Render the test tilemap
+	// Generate a blank 300×300 map on boot (no test map data)
+	const bootW: number = 300;
+	const bootH: number = 300;
+	const bootTotal: number = bootW * bootH;
+	const bootMapData: Record<string, unknown> = {
+		width: bootW,
+		height: bootH,
+		tileWidth: 32,
+		tileHeight: 32,
+		tilesets: TEST_MAP_DATA.tilesets,
+		layers: [
+			{
+				name: 'ground',
+				type: 'ground',
+				data: Array.from<number>({ length: bootTotal }).fill(1),
+				visible: true,
+				opacity: 1,
+			},
+			{
+				name: 'ground_deco',
+				type: 'ground_deco',
+				data: Array.from<number>({ length: bootTotal }).fill(0),
+				visible: true,
+				opacity: 1,
+			},
+			{
+				name: 'upper1',
+				type: 'upper1',
+				data: Array.from<number>({ length: bootTotal }).fill(0),
+				visible: true,
+				opacity: 1,
+			},
+			{
+				name: 'shadow',
+				type: 'shadow',
+				data: Array.from<number>({ length: bootTotal }).fill(0),
+				visible: true,
+				opacity: 0.4,
+			},
+		],
+		heightMap: Array.from<number>({ length: bootTotal }).fill(0),
+		postProcessing: { preset: 'hd2d' },
+		lighting: (TEST_MAP_DATA as Record<string, unknown>).lighting,
+	};
 	const mapResult: BabylonResult<RenderedTilemap> = renderTilemap({
 		scene: runtime.engine.scene,
-		mapDataInput: TEST_MAP_DATA,
+		mapDataInput: bootMapData,
 		assetBasePath: '/',
 	});
 
@@ -13259,19 +13513,36 @@ async function main(): Promise<void> {
 		tilemap = mapResult.data;
 		debug.tilemap = tilemap;
 
-		// Update map dimensions from actual tilemap (overrides 32×32 defaults)
-		_mapWidth = tilemap.mapData.width;
-		_mapHeight = tilemap.mapData.height;
+		// Update map dimensions from actual tilemap (overrides 32×32 defaults).
+		// World X axis = mapData.width (columns) = screen vertical → _mapHeight
+		// World Z axis = mapData.height (rows)   = screen horizontal → _mapWidth
+		_mapWidth = tilemap.mapData.height;
+		_mapHeight = tilemap.mapData.width;
 		_orthoSize = computeOrthoMax(runtime.engine.scene, runtime.camera as BABYLON.ArcRotateCamera);
 		// eslint-disable-next-line no-console -- Dev harness diagnostic output
-		console.log(`[WebForge] Map dimensions: ${String(_mapWidth)}×${String(_mapHeight)}`);
+		console.log(
+			`[WebForge] Map: ${String(tilemap.mapData.width)}cols × ${String(tilemap.mapData.height)}rows (screen ${String(_mapWidth)}w × ${String(_mapHeight)}h)`,
+		);
 
 		// If starting in mapeditor, reapply ortho bounds with correct map dimensions
 		if (_currentPreset === 'mapeditor') {
 			const arcCam = runtime.camera as BABYLON.ArcRotateCamera;
+			_orthoSize = initialOrthoSize(runtime.engine.scene); // RPG Maker MV-like tile size
 			applyOrthoBounds(arcCam, runtime.engine.scene);
 			arcCam.target.x = _mapHeight / 2;
 			arcCam.target.z = _mapWidth / 2;
+			clampCameraToMap(arcCam, runtime.engine.scene);
+			updateScrollbars(arcCam, runtime.engine.scene);
+			_lastCanvasH = runtime.engine.scene.getEngine().getRenderHeight();
+
+			// Immediately hide VLS/sky meshes so they don't flash for one frame
+			for (const mesh of runtime.engine.scene.meshes) {
+				if (mesh.name === 'VolumetricLightScatteringMesh' && mesh.isVisible) {
+					mesh.isVisible = false;
+				} else if (mesh.name.startsWith('sky-') && mesh.isEnabled()) {
+					mesh.setEnabled(false);
+				}
+			}
 		}
 
 		// Rebuild grid overlay with correct map dimensions (it was created
@@ -13327,8 +13598,8 @@ async function main(): Promise<void> {
 		buildKeyboardShortcutsUI();
 		buildTestMapUI(debug, runtime.engine.scene);
 
-		// Create 3D procedural props (cottages, well, torches, bridge, etc.)
-		_propSystem = create3DProps(runtime.engine.scene, TEST_MAP_DATA.heightMap);
+		// Skip 3D procedural props on blank boot map (no height data)
+		// _propSystem = create3DProps(runtime.engine.scene, TEST_MAP_DATA.heightMap);
 
 		// Center camera on the map using actual tilemap dimensions
 		runtime.camera.target = new BABYLON.Vector3(_mapHeight / 2, 0, _mapWidth / 2);
@@ -13336,9 +13607,12 @@ async function main(): Promise<void> {
 		// Apply initial ortho bounds now that camera target is centered
 		if (_currentPreset === 'mapeditor') {
 			const arcCam = runtime.camera as BABYLON.ArcRotateCamera;
-			_orthoSize = computeOrthoMax(runtime.engine.scene, arcCam);
+			computeOrthoMax(runtime.engine.scene, arcCam);
+			_orthoSize = initialOrthoSize(runtime.engine.scene);
 			applyOrthoBounds(arcCam, runtime.engine.scene);
 			clampCameraToMap(arcCam, runtime.engine.scene);
+			updateScrollbars(arcCam, runtime.engine.scene);
+			_lastCanvasH = runtime.engine.scene.getEngine().getRenderHeight();
 		}
 	} else {
 		// eslint-disable-next-line no-console -- Dev harness diagnostic output
