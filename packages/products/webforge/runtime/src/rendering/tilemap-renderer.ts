@@ -31,13 +31,22 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
 import { okShallow, type BabylonResult } from '../core/babylon-result';
 import {
 	ChunkConfigSchema,
+	MAX_MAP_DIMENSION,
 	MapDataSchema,
 	type ChunkConfig,
 	type MapData,
 } from '../schemas/map-data';
 import { loadTileset, type LoadedTileset } from './tileset-loader';
 import { createTileMaterial } from './tile-material';
-import { buildChunk, buildCliffChunk, rebuildChunk, type ChunkMesh } from './chunk-builder';
+import { buildCliffChunk, type ChunkMesh } from './chunk-builder';
+import {
+	createGpuTileLayer,
+	disposeGpuTileLayer,
+	setGpuLayerOpacity,
+	setGpuLayerVisibility,
+	updateGpuTile,
+	type GpuTileLayer,
+} from './gpu-tile-renderer';
 import {
 	createTileAnimator,
 	disposeTileAnimator,
@@ -52,6 +61,22 @@ import {
 import { resolvePostProcessingConfig } from './post-processing-presets';
 import { createSky, createStarField, disposeSky, type SkyInstance } from './sky-system';
 import { createParallax, disposeParallax, type ParallaxInstance } from './parallax-manager';
+import {
+	createStreamingManager,
+	disposeStreamingManager,
+	type StreamingManager,
+} from './tile-streaming';
+import {
+	createObjectRenderer,
+	disposeObjectRenderer,
+	type ObjectInstanceRenderer,
+} from './object-instance-renderer';
+import {
+	buildMegaAtlas,
+	type MegaAtlasLayout,
+	type TilesetEntry,
+	type TilesetImageEntry,
+} from './tile-mega-atlas';
 
 // =============================================================================
 // Schemas
@@ -63,6 +88,8 @@ export const RenderedTilemapSchema = v.strictObject({
 	chunks: v.custom<ChunkMesh[]>((val): val is ChunkMesh[] => Array.isArray(val)),
 	/** Cliff chunk meshes (non-null only). */
 	cliffChunks: v.custom<ChunkMesh[]>((val): val is ChunkMesh[] => Array.isArray(val)),
+	/** GPU-rendered tile layers (one per tile layer, replaces chunk meshes). */
+	gpuLayers: v.custom<GpuTileLayer[]>((val): val is GpuTileLayer[] => Array.isArray(val)),
 	/** Loaded tilesets. */
 	tilesets: v.custom<LoadedTileset[]>((val): val is LoadedTileset[] => Array.isArray(val)),
 	/** Materials per tileset (alpha-tested for decoration/upper layers). */
@@ -104,6 +131,20 @@ export const RenderedTilemapSchema = v.strictObject({
 	/** Opaque fill plane behind all tile layers (blocks parallax bleed-through). */
 	groundFill: v.nullable(
 		v.custom<BABYLON.Mesh>((val): val is BABYLON.Mesh => val instanceof BABYLON.Mesh),
+	),
+	/** Mega-atlas layout for multi-tileset maps (null for single-tileset). */
+	megaAtlas: v.nullable(
+		v.custom<MegaAtlasLayout>((val): val is MegaAtlasLayout => typeof val === 'object'),
+	),
+	/** Streaming manager for large maps (null for maps ≤16384). */
+	streamingManager: v.nullable(
+		v.custom<StreamingManager>((val): val is StreamingManager => typeof val === 'object'),
+	),
+	/** Object instance renderer (null if no object layers). */
+	objectRenderer: v.nullable(
+		v.custom<ObjectInstanceRenderer>(
+			(val): val is ObjectInstanceRenderer => typeof val === 'object',
+		),
 	),
 	/** The Babylon.js scene. */
 	scene: v.custom<BABYLON.Scene>((val): val is BABYLON.Scene => val instanceof BABYLON.Scene),
@@ -265,24 +306,104 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			chunkSize,
 		};
 
-		// 9. Build chunks for each layer × chunk position
-		const chunks: ChunkMesh[] = [];
-		for (let layerIndex: Num = 0; layerIndex < mapData.layers.length; layerIndex++) {
-			for (let cz: Num = 0; cz < chunksZ; cz++) {
-				for (let cx: Num = 0; cx < chunksX; cx++) {
-					const chunkResult2 = buildChunk({
-						context: buildContext,
-						layerIndex,
-						chunkX: cx,
-						chunkZ: cz,
-					});
-					if (!chunkResult2.ok) return chunkResult2;
-					if (chunkResult2.data) {
-						chunks.push(chunkResult2.data);
-					}
-				}
+		// 9. Create GPU tile layers or streaming manager based on map size
+		const gpuLayers: GpuTileLayer[] = [];
+		let streamingManager: StreamingManager | null = null;
+		let megaAtlas: MegaAtlasLayout | null = null;
+		const needsStreaming: Bool =
+			mapData.width > MAX_MAP_DIMENSION || mapData.height > MAX_MAP_DIMENSION;
+
+		// oxlint-disable-next-line prefer-destructuring
+		const primaryTileset: LoadedTileset | undefined = tilesets[0];
+
+		// Compute atlas grid from primary tileset's effective tile layout.
+		// Handles autotile expansion (e.g., terrain_48 compact 2×3 → 8×6 effective).
+		//
+		// NOTE: calculateMegaAtlasLayout computes grid dimensions for a composited
+		// mega-atlas texture (built by buildMegaAtlas). That composited texture is
+		// not created here — we use the primary tileset's texture directly. Using
+		// mega-atlas grid dimensions (e.g., 32×32) with the primary tileset's texture
+		// (e.g., 8×6 at 32px tiles) causes a grid/texture mismatch that makes the
+		// shader sample the wrong UV region for every tile.
+		//
+		// TODO: Implement async mega-atlas texture compositing for proper multi-tileset
+		// support. Until then, multi-tileset maps fall back to the primary tileset.
+		const isCompactAutotile: boolean = primaryTileset
+			? primaryTileset.config.autotileType === 'terrain_48' &&
+				primaryTileset.config.columns === 2 &&
+				primaryTileset.config.rows === 3
+			: false;
+		const atlasGridColumns: Num = isCompactAutotile ? 8 : (primaryTileset?.config.columns ?? 1);
+		const atlasGridRows: Num = isCompactAutotile ? 6 : (primaryTileset?.config.rows ?? 1);
+		const atlasTexture: BABYLON.Texture | undefined = primaryTileset?.texture;
+		const tilePixelWidth: Num = primaryTileset?.config.tileWidth ?? 32;
+		const tilePixelHeight: Num = primaryTileset?.config.tileHeight ?? 32;
+		const maxLocalTileId: Num = atlasGridColumns * atlasGridRows;
+
+		/** Remap global tile IDs to atlas-local IDs using firstGid subtraction. */
+		function remapGlobalIds(data: readonly Num[]): Num[] {
+			const firstGid: Num = primaryTileset?.config.firstGid ?? 1;
+			return data.map((gid: Num) => {
+				if (gid === 0) return 0;
+				const localId: Num = gid - firstGid + 1;
+				// Clamp to valid range for the primary tileset's atlas
+				return localId >= 1 && localId <= maxLocalTileId ? localId : 0;
+			});
+		}
+
+		if (atlasTexture && needsStreaming) {
+			// System 2: Region-based streaming for maps > 16384
+			// oxlint-disable-next-line prefer-destructuring
+			const firstTileLayer = mapData.layers.find((l) => l.kind === 'tile');
+			const tileData: Num[] = firstTileLayer ? remapGlobalIds(firstTileLayer.data) : [];
+
+			const streamResult = createStreamingManager({
+				scene,
+				mapWidth: mapData.width,
+				mapHeight: mapData.height,
+				tileData,
+				config: {
+					regionSize: 2048,
+					maxLoadedRegions: 16,
+					loadRadius: 1,
+					unloadDistance: 3,
+				},
+				atlasTexture,
+				tilePixelWidth,
+				tilePixelHeight,
+				tileWorldSize: 1,
+			});
+			if (!streamResult.ok) return streamResult;
+			streamingManager = streamResult.data;
+		} else if (atlasTexture) {
+			// System 1: Single data texture per layer (maps ≤ 16384)
+			for (let layerIndex: Num = 0; layerIndex < mapData.layers.length; layerIndex++) {
+				const layer = mapData.layers[layerIndex];
+				if (!layer || layer.kind !== 'tile') continue;
+
+				// Remap global tile IDs to atlas-local via mega-atlas or firstGid
+				const atlasIds: Num[] = remapGlobalIds(layer.data);
+
+				const gpuResult = createGpuTileLayer({
+					scene,
+					layerName: layer.name,
+					layerIndex,
+					mapWidth: mapData.width,
+					mapHeight: mapData.height,
+					tileIds: atlasIds,
+					atlasTexture,
+					tilePixelWidth,
+					tilePixelHeight,
+					tileWorldSize: 1,
+					heightY: layerIndex * 0.01,
+				});
+				if (!gpuResult.ok) return gpuResult;
+				gpuLayers.push(gpuResult.data);
 			}
 		}
+
+		// Chunk meshes (empty — tile layers use GPU data-texture path)
+		const chunks: ChunkMesh[] = [];
 
 		// 10. Build cliff chunks if heightMap exists
 		const cliffChunks: ChunkMesh[] = [];
@@ -307,34 +428,14 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 		// Disable auto depth/stencil clear for group 2 so depth testing
 		// remains continuous from earlier groups.
 		scene.setRenderingAutoClearDepthStencil(2, false, false, false);
-		for (const chunk of chunks) {
-			chunk.mesh.renderingGroupId = 2;
+		for (const gpuLayer of gpuLayers) {
+			gpuLayer.mesh.renderingGroupId = 2;
 		}
 		for (const cliff of cliffChunks) {
 			cliff.mesh.renderingGroupId = 2;
 		}
 
-		// 10c. Assign opaque materials to ground-layer chunks so parallax
-		// can't bleed through alpha-tested tile edges on the base terrain.
-		for (const chunk of chunks) {
-			const chunkLayer = mapData.layers[chunk.layerIndex];
-			if (
-				chunkLayer &&
-				chunkLayer.kind === 'tile' &&
-				chunkLayer.type === 'ground' &&
-				chunk.mesh.material
-			) {
-				for (let mi: Num = 0; mi < materials.length; mi++) {
-					const opaqueMat: BABYLON.StandardMaterial | undefined = opaqueMaterials[mi];
-					if (chunk.mesh.material === materials[mi] && opaqueMat) {
-						chunk.mesh.material = opaqueMat;
-						break;
-					}
-				}
-			}
-		}
-
-		// 10d. Create an opaque fill plane behind all tile layers.
+		// 10c. Create an opaque fill plane behind all tile layers.
 		// This blocks parallax Layer.render() full-screen composites from
 		// bleeding through alpha-tested tile edges and empty tile gaps.
 		const tileWorldSize: Num = 1;
@@ -440,10 +541,51 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			}
 		}
 
+		// 15b. Create object instance renderer for object layers (non-fatal on failure)
+		let objectRenderer: ObjectInstanceRenderer | null = null;
+		const objectInstances: Array<{
+			readonly id: string;
+			readonly meshType: string;
+			readonly position: readonly [number, number, number];
+		}> = [];
+		const tileW: Num = mapData.tileWidth;
+		const tileH: Num = mapData.tileHeight;
+		for (const layer of mapData.layers) {
+			if (layer.kind === 'object') {
+				for (const obj of layer.objects) {
+					// MapObject uses pixel coords; convert to tile-world space (1 unit = 1 tile)
+					// class → meshType; x/tileW → world X; y/tileH → world Z; Y = 0 (ground)
+					const meshType: Str = (obj.class || obj.name || 'default') as Str;
+					objectInstances.push({
+						id: obj.id,
+						meshType,
+						position: [obj.x / tileW, 0, obj.y / tileH],
+					});
+				}
+			}
+		}
+		if (objectInstances.length > 0) {
+			const tileWorldSize: Num = 1;
+			const objResult = createObjectRenderer({
+				scene,
+				instances: objectInstances,
+				worldBounds: {
+					minX: 0,
+					minZ: 0,
+					maxX: mapData.width * tileWorldSize,
+					maxZ: mapData.height * tileWorldSize,
+				},
+			});
+			if (objResult.ok) {
+				objectRenderer = objResult.data;
+			}
+		}
+
 		// 16. Return RenderedTilemap
 		const rendered: RenderedTilemap = {
 			chunks,
 			cliffChunks,
+			gpuLayers,
 			tilesets,
 			materials,
 			opaqueMaterials,
@@ -454,6 +596,9 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			lighting,
 			sky,
 			parallax,
+			megaAtlas,
+			streamingManager,
+			objectRenderer,
 			groundFill,
 			scene,
 		};
@@ -506,6 +651,21 @@ export function disposeTilemap(options: DisposeTilemapOptions): BabylonResult<Bo
 			chunk.mesh.dispose();
 		}
 
+		// Dispose GPU tile layers
+		for (const gpuLayer of tilemap.gpuLayers) {
+			disposeGpuTileLayer({ layer: gpuLayer });
+		}
+
+		// Dispose streaming manager
+		if (tilemap.streamingManager) {
+			disposeStreamingManager({ manager: tilemap.streamingManager });
+		}
+
+		// Dispose object renderer
+		if (tilemap.objectRenderer) {
+			disposeObjectRenderer({ renderer: tilemap.objectRenderer });
+		}
+
 		// Dispose cliff meshes
 		for (const cliff of tilemap.cliffChunks) {
 			cliff.mesh.dispose();
@@ -551,10 +711,10 @@ export function disposeTilemap(options: DisposeTilemapOptions): BabylonResult<Bo
 // =============================================================================
 
 /**
- * Updates a single tile and rebuilds the affected chunk.
+ * Updates a single tile via GPU data-texture patch.
  *
- * Modifies the tile ID in the map data and rebuilds only the chunk
- * containing the specified tile position.
+ * Updates the GPU data texture in-place (~0.01ms) and keeps the
+ * CPU-side mapData in sync. No chunk rebuild is needed.
  *
  * @param options - Tilemap, layer index, tile position, and new tile ID
  * @returns BabylonResult containing the updated tilemap
@@ -571,7 +731,7 @@ export function updateTile(options: UpdateTileOptions): BabylonResult<RenderedTi
 	const { tilemap, layerIndex, x, z, newTileId } = options;
 
 	try {
-		const { mapData, chunkConfig, scene } = tilemap;
+		const { mapData } = tilemap;
 		const layer = mapData.layers[layerIndex];
 		if (!layer) {
 			return err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Invalid layer index');
@@ -580,11 +740,49 @@ export function updateTile(options: UpdateTileOptions): BabylonResult<RenderedTi
 			return err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Cannot update tiles on a non-tile layer');
 		}
 
-		// Update tile data
+		// GPU path: update data texture directly (~0.01ms vs ~2ms for chunk rebuild)
+		const gpuLayer: GpuTileLayer | undefined = tilemap.gpuLayers.find(
+			(l) => l.layerIndex === layerIndex,
+		);
+		if (gpuLayer) {
+			// Remap global ID → atlas-local via mega-atlas or firstGid
+			let atlasLocalId: Num;
+			if (tilemap.megaAtlas) {
+				atlasLocalId = newTileId === 0 ? 0 : (tilemap.megaAtlas.remapTable.get(newTileId) ?? 0);
+			} else {
+				// oxlint-disable-next-line prefer-destructuring
+				const tileset: LoadedTileset | undefined = tilemap.tilesets[0];
+				const firstGid: Num = tileset?.config.firstGid ?? 1;
+				atlasLocalId = newTileId === 0 ? 0 : newTileId - firstGid + 1;
+			}
+
+			updateGpuTile({
+				layer: gpuLayer,
+				x,
+				y: z,
+				tileId: atlasLocalId,
+			});
+			gpuLayer.dataTexture.update(gpuLayer.layerData);
+		}
+
+		// Update streaming manager's CPU tile data if active
+		if (tilemap.streamingManager) {
+			let atlasLocalId: Num;
+			if (tilemap.megaAtlas) {
+				atlasLocalId = newTileId === 0 ? 0 : (tilemap.megaAtlas.remapTable.get(newTileId) ?? 0);
+			} else {
+				// oxlint-disable-next-line prefer-destructuring
+				const tileset: LoadedTileset | undefined = tilemap.tilesets[0];
+				const firstGid: Num = tileset?.config.firstGid ?? 1;
+				atlasLocalId = newTileId === 0 ? 0 : newTileId - firstGid + 1;
+			}
+			tilemap.streamingManager.tileData[z * mapData.width + x] = atlasLocalId;
+		}
+
+		// Update CPU-side map data for consistency
 		const mutableData: Num[] = [...layer.data];
 		mutableData[z * mapData.width + x] = newTileId;
 
-		// Create updated layer with new data
 		const updatedLayers = mapData.layers.map((l, i) => {
 			if (i === layerIndex) {
 				return { ...l, data: mutableData };
@@ -594,77 +792,161 @@ export function updateTile(options: UpdateTileOptions): BabylonResult<RenderedTi
 
 		const updatedMapData: DeepReadonly<MapData> = { ...mapData, layers: updatedLayers };
 
-		// Find affected chunk
-		// oxlint-disable-next-line prefer-destructuring
-		const chunkSize: Num = chunkConfig.chunkSize;
-		const chunkX: Num = Math.floor(x / chunkSize);
-		const chunkZ: Num = Math.floor(z / chunkSize);
-
-		// Find and remove existing chunk for this position + layer
-		const existingIdx: Num = tilemap.chunks.findIndex(
-			(c) => c.chunkX === chunkX && c.chunkZ === chunkZ && c.layerIndex === layerIndex,
-		);
-		const existingMesh: BABYLON.Mesh | null =
-			existingIdx >= 0 ? (tilemap.chunks[existingIdx]?.mesh ?? null) : null;
-
-		// Build context with updated map data
-		const buildContext = {
-			scene,
-			mapData: updatedMapData,
-			loadedTilesets: tilemap.tilesets as readonly LoadedTileset[],
-			materials: tilemap.materials as readonly BABYLON.StandardMaterial[],
-			tileWorldSize: 1 as Num,
-			tileWorldHeight: 0.5 as Num,
-			chunkSize,
-		};
-
-		// Rebuild chunk
-		const rebuildResult = rebuildChunk({
-			context: buildContext,
-			layerIndex,
-			chunkX,
-			chunkZ,
-			existingMesh,
-		});
-		if (!rebuildResult.ok) return rebuildResult;
-
-		// Update chunks array
-		const updatedChunks: ChunkMesh[] = tilemap.chunks.filter(
-			(c) => !(c.chunkX === chunkX && c.chunkZ === chunkZ && c.layerIndex === layerIndex),
-		);
-		if (rebuildResult.data) {
-			// Preserve rendering group from the original tilemap setup
-			rebuildResult.data.mesh.renderingGroupId = 2;
-
-			// Restore opaque material for ground layers (mirrors renderTilemap step 10c).
-			// rebuildChunk assigns from tilemap.materials (alpha-test); ground layers need
-			// the opaque variant to prevent the fill plane bleeding through tile edges.
-			const rebuiltLayer = updatedMapData.layers[layerIndex];
-			if (
-				rebuiltLayer &&
-				rebuiltLayer.kind === 'tile' &&
-				rebuiltLayer.type === 'ground' &&
-				rebuildResult.data.mesh.material
-			) {
-				for (let mi: Num = 0; mi < tilemap.materials.length; mi++) {
-					const opaqueMat: BABYLON.StandardMaterial | undefined = tilemap.opaqueMaterials[mi];
-					if (rebuildResult.data.mesh.material === tilemap.materials[mi] && opaqueMat) {
-						rebuildResult.data.mesh.material = opaqueMat;
-						break;
-					}
-				}
-			}
-
-			updatedChunks.push(rebuildResult.data);
-		}
-
 		const updatedTilemap: RenderedTilemap = {
 			...tilemap,
-			chunks: updatedChunks,
 			mapData: updatedMapData,
 		};
 
 		return okShallow(updatedTilemap);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// applyMegaAtlas
+// =============================================================================
+
+/**
+ * Builds a mega-atlas combining all tileset images into one texture,
+ * then remaps every GPU layer's data texture to use mega-atlas-local IDs.
+ *
+ * Call this after {@link renderTilemap} to enable correct multi-tileset
+ * rendering. The initial render uses only the primary tileset; this
+ * function upgrades it to a composited mega-atlas that includes all
+ * tilesets, so tiles from any tileset render correctly.
+ *
+ * @param options - The rendered tilemap to upgrade
+ * @returns Promise resolving to the updated RenderedTilemap with megaAtlas set
+ *
+ * @example
+ * ```typescript
+ * const renderResult = renderTilemap({ scene, mapDataInput, assetBasePath });
+ * if (!renderResult.ok) return renderResult;
+ * const megaResult = await applyMegaAtlas({ tilemap: renderResult.data });
+ * if (megaResult.ok) debug.tilemap = megaResult.data;
+ * ```
+ */
+export async function applyMegaAtlas(options: {
+	readonly tilemap: RenderedTilemap;
+}): Promise<BabylonResult<RenderedTilemap>> {
+	const { tilemap } = options;
+	const { tilesets, gpuLayers, mapData, scene } = tilemap;
+
+	if (tilesets.length === 0 || gpuLayers.length === 0) {
+		return okShallow(tilemap);
+	}
+
+	try {
+		// 1. Wait for all tileset textures to be ready
+		await Promise.all(
+			tilesets.map(
+				(ts) =>
+					new Promise<void>((resolve) => {
+						if (ts.texture.isReady()) {
+							resolve();
+						} else {
+							ts.texture.onLoadObservable.addOnce(() => resolve());
+						}
+					}),
+			),
+		);
+
+		// 2. Build TilesetEntry array with effective dimensions (handling autotile expansion)
+		const entries: TilesetEntry[] = tilesets.map((ts, i): TilesetEntry => {
+			const isCompactAutotile: boolean =
+				ts.config.autotileType === 'terrain_48' && ts.config.columns === 2 && ts.config.rows === 3;
+			return {
+				tilesetIndex: i,
+				columns: isCompactAutotile ? 8 : ts.config.columns,
+				rows: isCompactAutotile ? 6 : ts.config.rows,
+				tileWidth: ts.config.tileWidth,
+				tileHeight: ts.config.tileHeight,
+				firstGid: ts.config.firstGid,
+			};
+		});
+
+		// 3. Load tileset images from URLs (browser-cached from initial texture load)
+		const images: HTMLImageElement[] = await Promise.all(
+			tilesets.map(
+				(ts) =>
+					new Promise<HTMLImageElement>((resolve, reject) => {
+						const img: HTMLImageElement = new Image();
+						img.crossOrigin = 'anonymous';
+						img.onload = (): void => resolve(img);
+						img.onerror = (): void =>
+							reject(new Error(`Failed to load tileset image: ${ts.config.imagePath}`));
+						img.src = ts.texture.url ?? '';
+					}),
+			),
+		);
+
+		// 4. Build mega-atlas texture
+		const tilesetImageEntries: TilesetImageEntry[] = entries.map(
+			(entry, i): TilesetImageEntry => ({
+				entry,
+				image: images[i] as CanvasImageSource,
+			}),
+		);
+
+		const megaResult = buildMegaAtlas({ scene, tilesets: tilesetImageEntries });
+		if (!megaResult.ok) return megaResult;
+
+		const { texture: megaTexture, layout: megaLayout } = megaResult.data;
+
+		// 5. Remap all GPU layer data textures using the mega-atlas remap table.
+		// The GPU R channel already has RESOLVED autotile local IDs (1-48 for terrain_48)
+		// from the initial render. We must read those (not the raw map GIDs) and convert
+		// back to global IDs using the primary tileset's firstGid before remapping.
+		const primaryFirstGid: Num = tilesets[0]?.config.firstGid ?? 1;
+		for (const gpuLayer of gpuLayers) {
+			const mapLayer = mapData.layers[gpuLayer.layerIndex];
+			if (!mapLayer || mapLayer.kind !== 'tile') continue;
+
+			for (let z: Num = 0; z < gpuLayer.mapHeight; z++) {
+				for (let x: Num = 0; x < gpuLayer.mapWidth; x++) {
+					const idx: Num = z * gpuLayer.mapWidth + x;
+					const offset: Num = idx * 4;
+					const currentLocal: Num = gpuLayer.layerData[offset] ?? 0;
+					if (currentLocal === 0) continue;
+
+					// Convert local (relative to primary tileset) back to global
+					const resolvedGlobal: Num = primaryFirstGid + currentLocal - 1;
+					const megaLocalId: Num = megaLayout.remapTable.get(resolvedGlobal) ?? 0;
+					gpuLayer.layerData[offset] = megaLocalId;
+				}
+			}
+
+			// Upload remapped data to GPU
+			gpuLayer.dataTexture.update(gpuLayer.layerData);
+
+			// Swap atlas texture on the material plugin
+			gpuLayer.plugin.tileAtlas = megaTexture;
+			gpuLayer.plugin.tilePixelSize = new BABYLON.Vector2(
+				megaLayout.tileWidth,
+				megaLayout.tileHeight,
+			);
+		}
+
+		// 6. Also update streaming manager tile data if active
+		if (tilemap.streamingManager) {
+			const firstTileLayer = mapData.layers.find((l) => l.kind === 'tile');
+			if (firstTileLayer && firstTileLayer.kind === 'tile') {
+				for (let i: Num = 0; i < firstTileLayer.data.length; i++) {
+					const globalId: Num = firstTileLayer.data[i] ?? 0;
+					tilemap.streamingManager.tileData[i] =
+						globalId === 0 ? 0 : (megaLayout.remapTable.get(globalId) ?? 0);
+				}
+			}
+		}
+
+		// 7. Return updated tilemap with megaAtlas set
+		const updated: RenderedTilemap = {
+			...tilemap,
+			megaAtlas: megaLayout,
+		};
+
+		return okShallow(updated);
 	} catch (error: unknown) {
 		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
 	}
@@ -699,6 +981,13 @@ type SetLayerVisibilityOptions = {
  */
 export function setLayerVisibility(options: SetLayerVisibilityOptions): BabylonResult<Bool> {
 	try {
+		// GPU tile layers
+		for (const gpuLayer of options.tilemap.gpuLayers) {
+			if (gpuLayer.layerIndex === options.layerIndex) {
+				setGpuLayerVisibility({ layer: gpuLayer, visible: options.visible });
+			}
+		}
+		// Legacy chunk meshes (cliff chunks)
 		for (const chunk of options.tilemap.chunks) {
 			if (chunk.layerIndex === options.layerIndex) {
 				chunk.mesh.isVisible = options.visible;
@@ -739,6 +1028,13 @@ type SetLayerOpacityOptions = {
  */
 export function setLayerOpacity(options: SetLayerOpacityOptions): BabylonResult<Bool> {
 	try {
+		// GPU tile layers
+		for (const gpuLayer of options.tilemap.gpuLayers) {
+			if (gpuLayer.layerIndex === options.layerIndex) {
+				setGpuLayerOpacity({ layer: gpuLayer, opacity: options.opacity });
+			}
+		}
+		// Legacy chunk meshes (cliff chunks)
 		for (const chunk of options.tilemap.chunks) {
 			if (chunk.layerIndex === options.layerIndex) {
 				chunk.mesh.visibility = options.opacity;

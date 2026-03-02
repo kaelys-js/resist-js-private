@@ -22,6 +22,7 @@ import {
 	DrawOrderSchema,
 	GroupLayerSchema,
 	LayerSchema,
+	MAX_MAP_DIMENSION,
 	MapDataSchema,
 	MapObjectSchema,
 	MapObjectShapeSchema,
@@ -3200,22 +3201,22 @@ describe('MapDataSchema', () => {
 		expect(result.ok).toBeTruthy();
 	});
 
-	test('accepts width at maximum (500)', () => {
+	test('accepts width at maximum (MAX_MAP_DIMENSION)', () => {
 		const result: Result<MapData> = safeParse(MapDataSchema, {
-			width: 500,
+			width: MAX_MAP_DIMENSION,
 			height: 1,
 			tilesets: [VALID_TILESET],
-			layers: [validLayer(500, 1)],
+			layers: [validLayer(MAX_MAP_DIMENSION, 1)],
 		});
 		expect(result.ok).toBeTruthy();
 	});
 
-	test('accepts height at maximum (500)', () => {
+	test('accepts height at maximum (MAX_MAP_DIMENSION)', () => {
 		const result: Result<MapData> = safeParse(MapDataSchema, {
 			width: 1,
-			height: 500,
+			height: MAX_MAP_DIMENSION,
 			tilesets: [VALID_TILESET],
-			layers: [validLayer(1, 500)],
+			layers: [validLayer(1, MAX_MAP_DIMENSION)],
 		});
 		expect(result.ok).toBeTruthy();
 	});
@@ -3297,14 +3298,25 @@ describe('MapDataSchema', () => {
 		expect(result.ok).toBeFalsy();
 	});
 
-	test('rejects width above maximum (501)', () => {
+	test('accepts width above streaming threshold (MAX_MAP_DIMENSION + 1)', () => {
 		const result: Result<MapData> = safeParse(MapDataSchema, {
-			width: 501,
+			width: MAX_MAP_DIMENSION + 1,
 			height: 1,
 			tilesets: [VALID_TILESET],
-			layers: [VALID_LAYER_1X1],
+			layers: [validLayer(MAX_MAP_DIMENSION + 1, 1)],
 		});
-		expect(result.ok).toBeFalsy();
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('accepts large streaming map dimensions (50000×50000)', () => {
+		const result: Result<MapData> = safeParse(MapDataSchema, {
+			width: 50_000,
+			height: 50_000,
+			tilesets: [VALID_TILESET],
+			// Data array is small — schema validates dimensions independently
+			layers: [{ name: 'ground', type: 'ground', data: [1] }],
+		});
+		expect(result.ok).toBeTruthy();
 	});
 
 	test('rejects height of 0', () => {

@@ -28,7 +28,7 @@ if (!result.ok) {
 |--------|-------------|----------------|------|
 | **Engine** | WebGPU/WebGL2 renderer, render loop, quality presets | 10 | [engine.md](engine.md) |
 | **Camera** | 16 presets, FF Tactics rotation, smooth transitions, refocus | 18 | [camera.md](camera.md) |
-| **Tilemap** | Chunked renderer, autotile, animated tiles, layers | 60+ | [tilemap.md](tilemap.md) |
+| **Tilemap** | GPU data texture renderer, streaming, thin-instance objects, autotile, animated tiles | 80+ | [tilemap.md](tilemap.md) |
 | **Lighting** | 4 light types, 8 shadow filters, 13 flicker modes, god rays, lens flares, distance fade | 85+ | [lighting.md](lighting.md) |
 | **Day/Night Cycle** | 9 keyframes, seasons, moon phases, callbacks | 30+ | [day-night-cycle.md](day-night-cycle.md) |
 | **Glow Layer** | Mesh glow, intensity control, custom emissive colors | 6 | [glow-layer.md](glow-layer.md) |
@@ -45,7 +45,7 @@ All systems follow the same pattern:
 
 1. **Schema** (`schemas/*.ts`) -- Valibot schema with sensible defaults
 2. **Implementation** (`core/*.ts` or `rendering/*.ts`) -- Pure functions returning `Result<T>`
-3. **Tests** (`*.test.ts`) -- Colocated, 1741+ total across the runtime
+3. **Tests** (`*.test.ts`) -- Colocated, 2090+ total across the runtime
 
 An empty `{}` config input produces a fully working setup with HD-2D defaults.
 
@@ -53,7 +53,7 @@ An empty `{}` config input produces a fully working setup with HD-2D defaults.
 
 ```
 runtime/src/
-├── schemas/                    Configuration schemas (11 files)
+├── schemas/                    Configuration schemas (14 files)
 │   ├── engine-config.ts        Engine creation options
 │   ├── camera-config.ts        Camera presets & behavior
 │   ├── scene-setup-config.ts   Scene setup, screen effects
@@ -65,6 +65,8 @@ runtime/src/
 │   ├── transition-config.ts    53 transition types + 32 presets
 │   ├── sky-config.ts           Sky types + parallax layers
 │   ├── map-data.ts             Tilemap format (layers, tilesets, properties)
+│   ├── streaming-config.ts     Region-based streaming configuration
+│   ├── object-instance.ts      Object instance schema (props, NPCs, events)
 │   └── color-schema.ts         Shared ColorRgba, Vector3
 ├── core/                       Core engine systems
 │   ├── engine.ts               Engine creation & render loop
@@ -77,7 +79,14 @@ runtime/src/
 ├── rendering/                  Visual rendering systems
 │   ├── scene-setup.ts          Scene creation, screen effects
 │   ├── tilemap-renderer.ts     Top-level tilemap orchestrator
-│   ├── chunk-builder.ts        Merged mesh per 16x16 chunk
+│   ├── gpu-tile-renderer.ts    GPU data texture tile layer (1 draw call/layer)
+│   ├── gpu-tile-shader.ts      GLSL vertex/fragment shader source
+│   ├── gpu-tile-data-texture.ts Data texture creation + visual flags
+│   ├── gpu-tile-material-plugin.ts MaterialPluginBase for StandardMaterial
+│   ├── tile-streaming.ts       Region-based streaming for large maps
+│   ├── object-instance-renderer.ts Thin-instance object renderer
+│   ├── object-quadtree.ts      Quadtree spatial index for objects
+│   ├── chunk-builder.ts        Merged mesh per 16x16 chunk (cliff geometry)
 │   ├── tile-geometry.ts        Vertex generation (quads, walls)
 │   ├── autotile-resolver.ts    48-pattern autotile lookup
 │   ├── cliff-generator.ts      Height-diff cliff face geometry

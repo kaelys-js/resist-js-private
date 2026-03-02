@@ -56,8 +56,17 @@ import {
 	renderTilemap,
 	disposeTilemap,
 	updateTile,
+	applyMegaAtlas,
 	type RenderedTilemap,
 } from '../src/rendering/tilemap-renderer';
+import {
+	setGpuLayerTint,
+	setGpuLayerBrightness,
+	setGpuLayerSaturation,
+	setGpuLayerContrast,
+	setGpuLayerOffset,
+	setGpuAnimationFrame,
+} from '../src/rendering/gpu-tile-renderer';
 import { getTileProperties } from '../src/rendering/tile-query';
 import {
 	resolveGlobalTileId,
@@ -2286,6 +2295,9 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		}
 		for (const cliff of tilemap.cliffChunks) {
 			cliff.mesh.isVisible = !isOn;
+		}
+		for (const gpuLayer of tilemap.gpuLayers) {
+			gpuLayer.mesh.isVisible = !isOn;
 		}
 		el.classList.toggle('on', !isOn);
 	};
@@ -6784,6 +6796,13 @@ function buildLayerRow(
 
 	// -- Visual group (collapsed) --
 	const visual = createCollapsibleGroup('Visual', true);
+	const gpuLayer = tilemap.gpuLayers.find((l) => l.layerIndex === index);
+	const tintState = {
+		r: layer.tintColor.r,
+		g: layer.tintColor.g,
+		b: layer.tintColor.b,
+		a: layer.tintColor.a,
+	};
 	visual.body.append(
 		createSliderRow(
 			'Tint R',
@@ -6791,7 +6810,10 @@ function buildLayerRow(
 			1,
 			0.01,
 			layer.tintColor.r,
-			noop,
+			(val) => {
+				tintState.r = val;
+				if (gpuLayer) setGpuLayerTint({ layer: gpuLayer, ...tintState });
+			},
 			`layer-${idx}-tint-r`,
 			'Red tint channel (0–1).',
 		),
@@ -6803,7 +6825,10 @@ function buildLayerRow(
 			1,
 			0.01,
 			layer.tintColor.g,
-			noop,
+			(val) => {
+				tintState.g = val;
+				if (gpuLayer) setGpuLayerTint({ layer: gpuLayer, ...tintState });
+			},
 			`layer-${idx}-tint-g`,
 			'Green tint channel (0–1).',
 		),
@@ -6815,7 +6840,10 @@ function buildLayerRow(
 			1,
 			0.01,
 			layer.tintColor.b,
-			noop,
+			(val) => {
+				tintState.b = val;
+				if (gpuLayer) setGpuLayerTint({ layer: gpuLayer, ...tintState });
+			},
 			`layer-${idx}-tint-b`,
 			'Blue tint channel (0–1).',
 		),
@@ -6827,7 +6855,10 @@ function buildLayerRow(
 			1,
 			0.01,
 			layer.tintColor.a,
-			noop,
+			(val) => {
+				tintState.a = val;
+				if (gpuLayer) setGpuLayerTint({ layer: gpuLayer, ...tintState });
+			},
 			`layer-${idx}-tint-a`,
 			'Alpha tint channel (0–1).',
 		),
@@ -6839,7 +6870,9 @@ function buildLayerRow(
 			1,
 			0.01,
 			layer.brightness,
-			noop,
+			(val) => {
+				if (gpuLayer) setGpuLayerBrightness({ layer: gpuLayer, brightness: val as Num });
+			},
 			`layer-${idx}-brightness`,
 			'Lighten or darken the layer. 0 = normal, -1 = black, 1 = white.',
 		),
@@ -6851,7 +6884,9 @@ function buildLayerRow(
 			2,
 			0.01,
 			layer.saturation,
-			noop,
+			(val) => {
+				if (gpuLayer) setGpuLayerSaturation({ layer: gpuLayer, saturation: val as Num });
+			},
 			`layer-${idx}-saturation`,
 			'Color intensity. 0 = grayscale, 1 = normal, 2 = vivid.',
 		),
@@ -6863,7 +6898,9 @@ function buildLayerRow(
 			2,
 			0.01,
 			layer.contrast,
-			noop,
+			(val) => {
+				if (gpuLayer) setGpuLayerContrast({ layer: gpuLayer, contrast: val as Num });
+			},
 			`layer-${idx}-contrast`,
 			'Tone range. 0 = flat, 1 = normal, 2 = high contrast.',
 		),
@@ -6872,6 +6909,7 @@ function buildLayerRow(
 
 	// -- Transform group (collapsed) --
 	const transform = createCollapsibleGroup('Transform', true);
+	const offsetState = { x: layer.offsetX, y: layer.offsetY };
 	transform.body.append(
 		createSliderRow(
 			'Offset X',
@@ -6879,7 +6917,11 @@ function buildLayerRow(
 			100,
 			1,
 			layer.offsetX,
-			noop,
+			(val) => {
+				offsetState.x = val;
+				if (gpuLayer)
+					setGpuLayerOffset({ layer: gpuLayer, x: offsetState.x as Num, y: offsetState.y as Num });
+			},
 			`layer-${idx}-offset-x`,
 			'Pixel offset from default position. Useful for parallax tuning.',
 		),
@@ -6891,7 +6933,11 @@ function buildLayerRow(
 			100,
 			1,
 			layer.offsetY,
-			noop,
+			(val) => {
+				offsetState.y = val;
+				if (gpuLayer)
+					setGpuLayerOffset({ layer: gpuLayer, x: offsetState.x as Num, y: offsetState.y as Num });
+			},
 			`layer-${idx}-offset-y`,
 			'Pixel offset from default position. Useful for parallax tuning.',
 		),
@@ -6995,6 +7041,20 @@ function buildLayerRow(
 				noop,
 				`layer-${idx}-renderorder`,
 				'Draw priority. Higher = drawn later (on top of lower values).',
+			),
+		);
+		rendering.body.append(
+			createSliderRow(
+				'Anim Frame',
+				0,
+				60,
+				1,
+				0,
+				(val) => {
+					if (gpuLayer) setGpuAnimationFrame({ layer: gpuLayer, frame: val as Num });
+				},
+				`layer-${idx}-animframe`,
+				'Animation frame index for tile animation cycling.',
 			),
 		);
 		rendering.body.append(
@@ -9276,6 +9336,9 @@ function buildLayerUI(debug: DevDebugApi): void {
 		if (result.ok) {
 			debug.tilemap = result.data;
 			buildLayerUI(debug);
+			void applyMegaAtlas({ tilemap: result.data }).then((megaResult) => {
+				if (megaResult.ok) debug.tilemap = megaResult.data;
+			});
 		}
 	};
 
@@ -10377,6 +10440,43 @@ function buildInfoUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	container.append(
 		infoRow('Map Size', 'info-map-size', 'Map dimensions in tiles (width × height).'),
 	);
+	container.append(
+		infoRow(
+			'Tile Renderer',
+			'info-tile-renderer',
+			'Tile rendering backend (GPU Data Texture or Chunk).',
+		),
+	);
+	container.append(
+		infoRow('GPU Layers', 'info-gpu-layers', 'Number of GPU data-texture tile layers.'),
+	);
+	container.append(
+		infoRow('Data Textures', 'info-data-textures', 'GPU data texture dimensions per layer.'),
+	);
+	container.append(
+		infoRow('VRAM (est)', 'info-vram-est', 'Estimated GPU memory used by tile data textures.'),
+	);
+	container.append(
+		infoRow(
+			'Streaming',
+			'info-streaming',
+			'Streaming status (active/inactive) and loaded regions.',
+		),
+	);
+	container.append(infoRow('Region Size', 'info-region-size', 'Streaming region size in tiles.'));
+	container.append(
+		infoRow('VRAM Budget', 'info-vram-budget', 'Estimated VRAM budget for streaming regions.'),
+	);
+
+	// ── Objects ──
+	container.append(createSubHeader('Objects'));
+	container.append(infoRow('Objects', 'info-objects', 'Total / visible object instances.'));
+	container.append(
+		infoRow('Mesh Types', 'info-mesh-types', 'Unique mesh types in the object renderer.'),
+	);
+	container.append(
+		infoRow('Instance Draws', 'info-instance-draws', 'Draw calls for thin-instance rendering.'),
+	);
 
 	// ── Lighting ──
 	container.append(createSubHeader('Lighting'));
@@ -10494,6 +10594,66 @@ function buildInfoUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			setInfoText('info-cliff-chunks', String(tm.cliffChunks.length));
 			setInfoText('info-map-layers', String(tm.mapData.layers.length));
 			setInfoText('info-map-size', `${String(tm.mapData.width)}×${String(tm.mapData.height)}`);
+			// GPU tile renderer info
+			const gpuCount = tm.gpuLayers.length;
+			setInfoText('info-tile-renderer', gpuCount > 0 ? 'GPU Data Texture' : 'Chunk');
+			setInfoText('info-gpu-layers', String(gpuCount));
+			if (gpuCount > 0) {
+				const firstGpu = tm.gpuLayers[0];
+				setInfoText(
+					'info-data-textures',
+					`${String(gpuCount)} × ${String(firstGpu?.mapWidth ?? 0)}×${String(firstGpu?.mapHeight ?? 0)}`,
+				);
+				// VRAM: each layer = mapWidth * mapHeight * 4 channels * 4 bytes (uint32)
+				const bytesPerLayer = (firstGpu?.mapWidth ?? 0) * (firstGpu?.mapHeight ?? 0) * 16;
+				const totalBytes = bytesPerLayer * gpuCount;
+				const mb = totalBytes / (1024 * 1024);
+				setInfoText(
+					'info-vram-est',
+					mb < 1 ? `${(mb * 1024).toFixed(0)} KB` : `${mb.toFixed(1)} MB`,
+				);
+			} else {
+				setInfoText('info-data-textures', 'N/A');
+				setInfoText('info-vram-est', 'N/A');
+			}
+			// Streaming info
+			if (tm.streamingManager) {
+				const sm = tm.streamingManager;
+				const totalRegionsX = Math.ceil(sm.mapWidth / sm.config.regionSize);
+				const totalRegionsZ = Math.ceil(sm.mapHeight / sm.config.regionSize);
+				const totalRegions = totalRegionsX * totalRegionsZ;
+				setInfoText('info-tile-renderer', 'Streaming');
+				setInfoText(
+					'info-streaming',
+					`Active — ${String(sm.regions.length)} / ${String(totalRegions)} regions`,
+				);
+				setInfoText('info-region-size', `${String(sm.config.regionSize)} tiles`);
+				// VRAM budget: regionSize² × 16 bytes (RGBA32F) × maxLoadedRegions × layers
+				const regionBytes = sm.config.regionSize * sm.config.regionSize * 16;
+				const budgetBytes = regionBytes * sm.config.maxLoadedRegions * (tm.gpuLayers.length || 1);
+				const budgetMB = (budgetBytes / (1024 * 1024)).toFixed(1);
+				setInfoText('info-vram-budget', `~${budgetMB} MB`);
+			} else {
+				setInfoText('info-streaming', 'Inactive');
+				setInfoText('info-region-size', 'N/A');
+				setInfoText('info-vram-budget', 'N/A');
+			}
+			// Object renderer info
+			if (tm.objectRenderer) {
+				const total = tm.objectRenderer.instanceData.size;
+				const meshTypes = tm.objectRenderer.baseMeshes.size;
+				let visibleCount = 0;
+				for (const mesh of tm.objectRenderer.baseMeshes.values()) {
+					visibleCount += mesh.thinInstanceCount > 0 ? mesh.thinInstanceCount : 0;
+				}
+				setInfoText('info-objects', `${String(total)} total / ${String(visibleCount)} visible`);
+				setInfoText('info-mesh-types', String(meshTypes));
+				setInfoText('info-instance-draws', String(meshTypes));
+			} else {
+				setInfoText('info-objects', '0');
+				setInfoText('info-mesh-types', '0');
+				setInfoText('info-instance-draws', '0');
+			}
 		}
 
 		// Lighting
@@ -11112,6 +11272,12 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		['3000\u00D73000', 3000, 3000],
 		['4000\u00D74000', 4000, 4000],
 		['5000\u00D75000', 5000, 5000],
+		['8000\u00D78000', 8000, 8000],
+		['10000\u00D710000', 10000, 10000],
+		['16384\u00D716384', 16384, 16384],
+		// Streaming (maps > 16384)
+		['20000\u00D720000', 20000, 20000],
+		['50000\u00D750000', 50000, 50000],
 	];
 	for (const [label, ,] of presets) {
 		const opt: HTMLOptionElement = document.createElement('option');
@@ -11243,6 +11409,9 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 		});
 		if (result.ok) {
 			debug.tilemap = result.data;
+			void applyMegaAtlas({ tilemap: result.data }).then((megaResult) => {
+				if (megaResult.ok) debug.tilemap = megaResult.data;
+			});
 			// User "Width" = screen horizontal (Z axis), "Height" = screen vertical (X axis)
 			// But mapData.width = columns on X, mapData.height = rows on Z
 			// So swap: _mapWidth (Z) = newW, _mapHeight (X) = newH from user perspective
@@ -11435,6 +11604,9 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 				});
 				if (result.ok) {
 					debug.tilemap = result.data;
+					void applyMegaAtlas({ tilemap: result.data }).then((megaResult) => {
+						if (megaResult.ok) debug.tilemap = megaResult.data;
+					});
 					// eslint-disable-next-line no-console -- Dev harness diagnostic
 					console.log(`[TestMap] Season switched → ${value}`);
 				} else {
@@ -13512,6 +13684,15 @@ async function main(): Promise<void> {
 	if (mapResult.ok) {
 		tilemap = mapResult.data;
 		debug.tilemap = tilemap;
+
+		// Build mega-atlas for multi-tileset support (async — composites all tileset
+		// images into one GPU texture so tiles from any tileset render correctly).
+		void applyMegaAtlas({ tilemap }).then((megaResult) => {
+			if (megaResult.ok) {
+				debug.tilemap = megaResult.data;
+				tilemap = megaResult.data;
+			}
+		});
 
 		// Update map dimensions from actual tilemap (overrides 32×32 defaults).
 		// World X axis = mapData.width (columns) = screen vertical → _mapHeight
