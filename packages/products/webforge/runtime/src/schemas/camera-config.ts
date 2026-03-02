@@ -256,3 +256,72 @@ export const CameraConfigSchema = v.strictObject({
 
 /** Inferred camera configuration type from {@link CameraConfigSchema}. */
 export type CameraConfig = v.InferOutput<typeof CameraConfigSchema>;
+
+// =============================================================================
+// Refocus Config
+// =============================================================================
+
+/**
+ * Configuration for the "Refocus Map" action.
+ *
+ * Controls how the camera animates to show the entire tilemap.
+ * Works with all ArcRotateCamera presets (not firstperson).
+ *
+ * @example
+ * ```typescript
+ * import { safeParse } from '@/utils/result/safe';
+ * import { RefocusConfigSchema, REFOCUS_DEFAULTS } from './camera-config';
+ *
+ * const result = safeParse(RefocusConfigSchema, REFOCUS_DEFAULTS);
+ * if (result.ok) {
+ *   result.data.animated;     // true
+ *   result.data.durationMs;   // 800
+ *   result.data.paddingScale; // 1.15
+ * }
+ * ```
+ */
+export const RefocusConfigSchema = v.strictObject({
+	/** Smooth transition vs instant snap. */
+	animated: v.pipe(v.boolean(), v.description('Smooth transition vs instant snap')),
+	/** Animation duration in milliseconds (100–3000). */
+	durationMs: v.pipe(
+		v.number(),
+		v.minValue(100),
+		v.maxValue(3000),
+		v.description('Animation duration in ms'),
+	),
+	/** Easing curve for the transition. */
+	easing: v.pipe(
+		v.picklist(['linear', 'easeInOutCubic', 'easeOutBack', 'easeInOutQuad']),
+		v.description('Easing curve'),
+	),
+	/** Radius multiplier for breathing room around map edges (1.0–2.0). */
+	paddingScale: v.pipe(
+		v.number(),
+		v.minValue(1.0),
+		v.maxValue(2.0),
+		v.description('Radius multiplier for breathing room'),
+	),
+	/** Reset camera pitch to preset default. */
+	resetElevation: v.pipe(v.boolean(), v.description('Reset camera pitch to preset default')),
+	/** Reset camera orbit angle to preset default. */
+	resetOrbit: v.pipe(v.boolean(), v.description('Reset camera orbit angle to preset default')),
+});
+
+/** Inferred refocus configuration type from {@link RefocusConfigSchema}. */
+export type RefocusConfig = v.InferOutput<typeof RefocusConfigSchema>;
+
+/**
+ * Default refocus configuration values.
+ *
+ * Smooth 800ms cubic ease-in-out transition with 15% padding.
+ * Resets elevation (pitch) but preserves orbit angle.
+ */
+export const REFOCUS_DEFAULTS: RefocusConfig = {
+	animated: true,
+	durationMs: 800,
+	easing: 'easeInOutCubic',
+	paddingScale: 1.15,
+	resetElevation: true,
+	resetOrbit: false,
+};

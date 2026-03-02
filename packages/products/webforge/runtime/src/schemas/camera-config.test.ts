@@ -16,8 +16,11 @@ import type { Result } from '@/schemas/result/result';
 import {
 	CameraConfigSchema,
 	CameraPresetSchema,
+	REFOCUS_DEFAULTS,
+	RefocusConfigSchema,
 	type CameraConfig,
 	type CameraPreset,
+	type RefocusConfig,
 } from './camera-config';
 
 // =============================================================================
@@ -44,6 +47,152 @@ describe('CameraPresetSchema', () => {
 	test('rejects invalid preset name', () => {
 		const result: Result<CameraPreset> = safeParse(CameraPresetSchema, 'orthographic');
 		expect(result.ok).toBeFalsy();
+	});
+});
+
+// =============================================================================
+// RefocusConfigSchema
+// =============================================================================
+
+describe('RefocusConfigSchema', () => {
+	test('accepts valid defaults', () => {
+		const result: Result<RefocusConfig> = safeParse(RefocusConfigSchema, {
+			animated: true,
+			durationMs: 800,
+			easing: 'easeInOutCubic',
+			paddingScale: 1.15,
+			resetElevation: true,
+			resetOrbit: false,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('rejects durationMs below minimum (100)', () => {
+		const result: Result<RefocusConfig> = safeParse(RefocusConfigSchema, {
+			animated: true,
+			durationMs: 50,
+			easing: 'easeInOutCubic',
+			paddingScale: 1.15,
+			resetElevation: true,
+			resetOrbit: false,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects durationMs above maximum (3000)', () => {
+		const result: Result<RefocusConfig> = safeParse(RefocusConfigSchema, {
+			animated: true,
+			durationMs: 4000,
+			easing: 'easeInOutCubic',
+			paddingScale: 1.15,
+			resetElevation: true,
+			resetOrbit: false,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects invalid easing value', () => {
+		const result: Result<RefocusConfig> = safeParse(RefocusConfigSchema, {
+			animated: true,
+			durationMs: 800,
+			easing: 'bounce',
+			paddingScale: 1.15,
+			resetElevation: true,
+			resetOrbit: false,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects paddingScale below minimum (1.0)', () => {
+		const result: Result<RefocusConfig> = safeParse(RefocusConfigSchema, {
+			animated: true,
+			durationMs: 800,
+			easing: 'easeInOutCubic',
+			paddingScale: 0.5,
+			resetElevation: true,
+			resetOrbit: false,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('rejects paddingScale above maximum (2.0)', () => {
+		const result: Result<RefocusConfig> = safeParse(RefocusConfigSchema, {
+			animated: true,
+			durationMs: 800,
+			easing: 'easeInOutCubic',
+			paddingScale: 2.5,
+			resetElevation: true,
+			resetOrbit: false,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+
+	test('accepts boundary values', () => {
+		const result: Result<RefocusConfig> = safeParse(RefocusConfigSchema, {
+			animated: false,
+			durationMs: 100,
+			easing: 'linear',
+			paddingScale: 1.0,
+			resetElevation: false,
+			resetOrbit: true,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('accepts maximum boundary values', () => {
+		const result: Result<RefocusConfig> = safeParse(RefocusConfigSchema, {
+			animated: true,
+			durationMs: 3000,
+			easing: 'easeOutBack',
+			paddingScale: 2.0,
+			resetElevation: true,
+			resetOrbit: true,
+		});
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('accepts all valid easing functions', () => {
+		const easings: readonly string[] = ['linear', 'easeInOutCubic', 'easeOutBack', 'easeInOutQuad'];
+		for (const easing of easings) {
+			const result: Result<RefocusConfig> = safeParse(RefocusConfigSchema, {
+				animated: true,
+				durationMs: 800,
+				easing,
+				paddingScale: 1.15,
+				resetElevation: true,
+				resetOrbit: false,
+			});
+			expect(result.ok).toBeTruthy();
+		}
+	});
+
+	test('rejects unknown properties', () => {
+		const result: Result<RefocusConfig> = safeParse(RefocusConfigSchema, {
+			animated: true,
+			durationMs: 800,
+			easing: 'easeInOutCubic',
+			paddingScale: 1.15,
+			resetElevation: true,
+			resetOrbit: false,
+			extraProp: true,
+		});
+		expect(result.ok).toBeFalsy();
+	});
+});
+
+describe('REFOCUS_DEFAULTS', () => {
+	test('validates against RefocusConfigSchema', () => {
+		const result: Result<RefocusConfig> = safeParse(RefocusConfigSchema, REFOCUS_DEFAULTS);
+		expect(result.ok).toBeTruthy();
+	});
+
+	test('has expected default values', () => {
+		expect(REFOCUS_DEFAULTS.animated).toBe(true);
+		expect(REFOCUS_DEFAULTS.durationMs).toBe(800);
+		expect(REFOCUS_DEFAULTS.easing).toBe('easeInOutCubic');
+		expect(REFOCUS_DEFAULTS.paddingScale).toBeCloseTo(1.15);
+		expect(REFOCUS_DEFAULTS.resetElevation).toBe(true);
+		expect(REFOCUS_DEFAULTS.resetOrbit).toBe(false);
 	});
 });
 

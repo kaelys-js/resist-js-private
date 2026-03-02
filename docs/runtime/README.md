@@ -27,7 +27,7 @@ if (!result.ok) {
 | System | Description | Config Options | Docs |
 |--------|-------------|----------------|------|
 | **Engine** | WebGPU/WebGL2 renderer, render loop, quality presets | 10 | [engine.md](engine.md) |
-| **Camera** | 16 presets, FF Tactics rotation, smooth transitions | 18 | [camera.md](camera.md) |
+| **Camera** | 16 presets, FF Tactics rotation, smooth transitions, refocus | 18 | [camera.md](camera.md) |
 | **Tilemap** | Chunked renderer, autotile, animated tiles, layers | 60+ | [tilemap.md](tilemap.md) |
 | **Lighting** | 4 light types, 8 shadow filters, 13 flicker modes, god rays, lens flares, distance fade | 85+ | [lighting.md](lighting.md) |
 | **Day/Night Cycle** | 9 keyframes, seasons, moon phases, callbacks | 30+ | [day-night-cycle.md](day-night-cycle.md) |
@@ -129,6 +129,7 @@ runtime/dev/                    Dev harness
 | `createCamera` | `core/camera-controller.ts` | Create camera from preset config |
 | `switchCameraPreset` | `core/camera-controller.ts` | Animated transition between presets |
 | `resetCamera` | `core/camera-controller.ts` | Instant reset to preset defaults |
+| `refocusOnTilemap` | `core/camera-controller.ts` | Animate camera to show entire tilemap |
 
 ### Tilemap
 
