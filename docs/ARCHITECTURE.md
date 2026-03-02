@@ -4,7 +4,7 @@
 
 WebForge RPG is a web-based RPG creation suite built on Babylon.js. The project uses a pnpm monorepo managed by Turborepo, with shared packages providing foundational utilities and product packages delivering the editor, runtime engine, and plugin API.
 
-The runtime engine renders HD-2D tile-based worlds with a full visual pipeline: chunked tilemap rendering, 16 camera presets, day/night cycle, 3-tier fog, post-processing (12 effects), screen transitions (53 types), screen shake (18 presets), sky/parallax backgrounds, and a complete lighting system with shadows, god rays, lens flares, and glow.
+The runtime engine renders HD-2D tile-based worlds with a full visual pipeline: GPU data texture tilemap rendering (1 draw call per layer, unlimited map size via streaming), thin-instance object renderer, 16 camera presets, day/night cycle, 3-tier fog, post-processing (12 effects), screen transitions (53 types), screen shake (18 presets), sky/parallax backgrounds, and a complete lighting system with shadows, god rays, lens flares, and glow.
 
 ## Workspace Structure
 

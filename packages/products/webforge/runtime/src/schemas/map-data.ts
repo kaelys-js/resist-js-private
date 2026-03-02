@@ -27,10 +27,19 @@
 
 import * as v from 'valibot';
 
+import type { Num } from '@/schemas/common';
+
 import { LightingConfigSchema } from './lighting-config';
 import { PostProcessingConfigSchema } from './post-processing-config';
 import { ColorRgbaSchema } from './color-schema';
 import { BlendModeSchema, SkyConfigSchema } from './sky-config';
+
+// =============================================================================
+// Constants
+// =============================================================================
+
+/** Streaming threshold in tiles — maps exceeding this use region-based streaming. */
+export const MAX_MAP_DIMENSION: Num = 16_384;
 
 // =============================================================================
 // Terrain Type
@@ -1025,11 +1034,11 @@ export type Layer = v.InferOutput<typeof LayerSchema>;
  * ```
  */
 export const MapDataSchema = v.strictObject({
-	/** Map width in tiles (1–500). */
-	width: v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(500)),
+	/** Map width in tiles (≥1). Maps larger than 16384 use streaming. */
+	width: v.pipe(v.number(), v.integer(), v.minValue(1)),
 
-	/** Map height in tiles (1–500). */
-	height: v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(500)),
+	/** Map height in tiles (≥1). Maps larger than 16384 use streaming. */
+	height: v.pipe(v.number(), v.integer(), v.minValue(1)),
 
 	/** Tile width in pixels (for UV calculations). */
 	tileWidth: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 48),
