@@ -1,0 +1,60 @@
+import type { EditorLocaleRaw } from './schema';
+
+export const zh: EditorLocaleRaw = {
+	meta: {
+		description: 'WebForge RPG — HD-2D游戏创作套件',
+		applicationName: 'WebForge',
+	},
+	common: {
+		settings: '设置',
+		help: '帮助',
+		rename: '重命名',
+		duplicate: '复制',
+		delete: '删除',
+		cancel: '取消',
+		save: '保存',
+		close: '关闭',
+		loading: '加载中…',
+	},
+	sidebar: {
+		scenes: '场景',
+		newScene: '新建场景',
+		assets: '资源',
+		tilesets: '图块集',
+		sprites: '精灵',
+		audio: '音频',
+	},
+	header: {
+		editor: '编辑器',
+		scene: '场景',
+	},
+	settings: {
+		appearance: '外观',
+		theme: '主题',
+		language: '语言',
+		light: '浅色',
+		dark: '深色',
+		system: '跟随系统',
+		themeDefault: '默认',
+		themeMidnight: '午夜',
+		themeWarm: '温暖',
+		themeForest: '森林',
+		themeOcean: '海洋',
+		themeRose: '玫瑰',
+		themeLavender: '薰衣草',
+		themeSunset: '日落',
+		themeSlate: '石板',
+		themeCopper: '铜色',
+		themeAurora: '极光',
+		themeAmethyst: '紫水晶',
+	},
+	project: {
+		openProject: '打开项目',
+		webforgeProject: 'WebForge项目',
+	},
+	scenes: {
+		rename: '重命名场景',
+		duplicate: '复制场景',
+		delete: '删除场景',
+	},
+};

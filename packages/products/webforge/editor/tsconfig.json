@@ -21,6 +21,7 @@
 			"@/utils/result/*": ["packages/shared/utils/result/src/*.ts"],
 			"@/utils/core": ["packages/shared/utils/core/src/index.ts"],
 			"@/utils/core/*": ["packages/shared/utils/core/src/*.ts"],
+			"@/locale/svelte": ["packages/shared/locale/src/svelte.svelte.ts"],
 			"@/locale/*": ["packages/shared/locale/src/*.ts"],
 			"@/config/test/*": ["packages/shared/config/test/src/*.ts"],
 			"@/config/test/harness": ["packages/shared/config/test/src/harness/index.ts"],

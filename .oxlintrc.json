@@ -59,6 +59,8 @@
 		"$inspect": "readonly",
 		"HTMLElement": "readonly",
 		"HTMLCanvasElement": "readonly",
+		"HTMLInputElement": "readonly",
+		"localStorage": "readonly",
 		"GPUPowerPreference": "readonly",
 		"ResizeObserver": "readonly",
 		"require": "readonly"
@@ -545,7 +547,7 @@
 			}
 		},
 		{
-			"files": ["**/dev.ts", "**/dev/**"],
+			"files": ["**/runtime/dev/dev.ts"],
 			"rules": {
 				"typescript/no-dynamic-delete": "off"
 			}
@@ -577,6 +579,13 @@
 			"rules": {
 				"import/no-default-export": "off",
 				"unicorn/filename-case": "off"
+			}
+		},
+		{
+			"files": ["**/app.d.ts"],
+			"rules": {
+				"typescript/consistent-type-definitions": "off",
+				"unicorn/require-module-specifiers": "off"
 			}
 		}
 	]

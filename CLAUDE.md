@@ -193,6 +193,12 @@ const harness = createTestHarness();
 - **oxlint** — full ruleset
 - Run `pnpm qa:format` to format, `pnpm qa:lint` to lint
 
+## Browser Tools
+
+- **NEVER use `preview_*` tools** (`mcp__Claude_Preview__preview_*`) — they are forbidden in this project
+- **ALWAYS use Playwright MCP** (`mcp__plugin_playwright_playwright__*`) for all browser interaction, visual verification, screenshots, and console checking
+- Start dev servers via `Bash` (e.g., `pnpm --filter @webforge/editor dev`), not via `preview_start`
+
 ## Gotchas
 
 - **Result short-circuit** — `if (!result.ok) return result;` is the only way to propagate errors; never swallow them with fallbacks.

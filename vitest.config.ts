@@ -1,3 +1,5 @@
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { svelteTesting } from '@testing-library/svelte/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
@@ -109,11 +111,22 @@ export default defineConfig({
 			},
 			{
 				extends: true,
+				plugins: [svelte({ hot: false }), svelteTesting()],
 				test: {
 					name: 'editor',
 					root: 'packages/products/webforge/editor',
 					environment: 'jsdom',
 					globals: true,
+					setupFiles: ['./src/test-setup-component.ts'],
+					alias: {
+						$lib: 'packages/products/webforge/editor/src/lib',
+						'$lib/*': 'packages/products/webforge/editor/src/lib/*',
+					},
+					server: {
+						deps: {
+							inline: ['@lucide/svelte', 'bits-ui', 'mode-watcher', 'runed', 'svelte-toolbelt'],
+						},
+					},
 				},
 			},
 		],

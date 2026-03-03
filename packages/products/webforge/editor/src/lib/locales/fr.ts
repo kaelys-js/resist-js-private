@@ -1,0 +1,60 @@
+import type { EditorLocaleRaw } from './schema';
+
+export const fr: EditorLocaleRaw = {
+	meta: {
+		description: 'WebForge RPG — Suite de création de jeux HD-2D',
+		applicationName: 'WebForge',
+	},
+	common: {
+		settings: 'Paramètres',
+		help: 'Aide',
+		rename: 'Renommer',
+		duplicate: 'Dupliquer',
+		delete: 'Supprimer',
+		cancel: 'Annuler',
+		save: 'Enregistrer',
+		close: 'Fermer',
+		loading: 'Chargement…',
+	},
+	sidebar: {
+		scenes: 'Scènes',
+		newScene: 'Nouvelle scène',
+		assets: 'Ressources',
+		tilesets: 'Jeux de tuiles',
+		sprites: 'Sprites',
+		audio: 'Audio',
+	},
+	header: {
+		editor: 'Éditeur',
+		scene: 'Scène',
+	},
+	settings: {
+		appearance: 'Apparence',
+		theme: 'Thème',
+		language: 'Langue',
+		light: 'Clair',
+		dark: 'Sombre',
+		system: 'Système',
+		themeDefault: 'Par défaut',
+		themeMidnight: 'Minuit',
+		themeWarm: 'Chaleureux',
+		themeForest: 'Forêt',
+		themeOcean: 'Océan',
+		themeRose: 'Rose',
+		themeLavender: 'Lavande',
+		themeSunset: 'Crépuscule',
+		themeSlate: 'Ardoise',
+		themeCopper: 'Cuivre',
+		themeAurora: 'Aurore',
+		themeAmethyst: 'Améthyste',
+	},
+	project: {
+		openProject: 'Ouvrir le projet',
+		webforgeProject: 'Projet WebForge',
+	},
+	scenes: {
+		rename: 'Renommer la scène',
+		duplicate: 'Dupliquer la scène',
+		delete: 'Supprimer la scène',
+	},
+};

@@ -1,14 +1,20 @@
 <script lang="ts">
 import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 import Folder from '@lucide/svelte/icons/folder';
-import Settings from '@lucide/svelte/icons/settings';
+import SettingsIcon from '@lucide/svelte/icons/settings';
 import * as Avatar from '$lib/components/ui/avatar/index.js';
 import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 import WebForgeLogo from './WebForgeLogo.svelte';
+import ThemeSwitcher from './ThemeSwitcher.svelte';
+import LanguageSwitcher from './LanguageSwitcher.svelte';
+import ModeToggle from './ModeToggle.svelte';
+import { localeStore, t } from '$lib/i18n.svelte';
+import { useEditorStore } from '$lib/stores/editor-state.svelte';
 
 let { user }: { user: { name: string; avatar: string } } = $props();
 
+const store = useEditorStore();
 const sidebar = Sidebar.useSidebar();
 </script>
 
@@ -30,7 +36,9 @@ const sidebar = Sidebar.useSidebar();
 						</Avatar.Root>
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-medium">{user.name}</span>
-							<span class="truncate text-xs text-muted-foreground">Project</span>
+							<span class="truncate text-xs text-muted-foreground"
+								>{store.app.appName}</span
+							>
 						</div>
 						<ChevronsUpDown class="ml-auto size-4" />
 					</Sidebar.MenuButton>
@@ -52,7 +60,9 @@ const sidebar = Sidebar.useSidebar();
 						</Avatar.Root>
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-medium">{user.name}</span>
-							<span class="truncate text-xs text-muted-foreground">Project</span>
+							<span class="truncate text-xs text-muted-foreground"
+								>{store.app.appName}</span
+							>
 						</div>
 					</div>
 				</DropdownMenu.Label>
@@ -60,11 +70,20 @@ const sidebar = Sidebar.useSidebar();
 				<DropdownMenu.Group>
 					<DropdownMenu.Item>
 						<Folder class="mr-2 size-4" />
-						Open Project
+						{t(localeStore.t.project.openProject, 'Open Project')}
 					</DropdownMenu.Item>
+					{#if store.features.themeSelection}
+						<ThemeSwitcher />
+					{/if}
+					{#if store.features.languageSelection}
+						<LanguageSwitcher />
+					{/if}
+					{#if store.features.modeToggle}
+						<ModeToggle />
+					{/if}
 					<DropdownMenu.Item>
-						<Settings class="mr-2 size-4" />
-						Settings
+						<SettingsIcon class="mr-2 size-4" />
+						{t(localeStore.t.common.settings, 'Settings')}
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
 			</DropdownMenu.Content>

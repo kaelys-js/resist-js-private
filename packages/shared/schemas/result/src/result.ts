@@ -91,9 +91,11 @@ export type DeepReadonly<T> =
 			? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
 			: T extends Array<infer U>
 				? ReadonlyArray<DeepReadonly<U>>
-				: T extends object
-					? { readonly [K in keyof T]: DeepReadonly<T[K]> }
-					: T;
+				: T extends (...args: never[]) => unknown
+					? T
+					: T extends object
+						? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+						: T;
 
 /**
  * Deeply freezes an object to prevent mutation at runtime.

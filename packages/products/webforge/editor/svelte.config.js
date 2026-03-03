@@ -23,6 +23,7 @@ const config = {
 			'@/utils/result/*': path.join(root, 'packages/shared/utils/result/src/*'),
 			'@/utils/core': path.join(root, 'packages/shared/utils/core/src/index.ts'),
 			'@/utils/core/*': path.join(root, 'packages/shared/utils/core/src/*'),
+			'@/locale/svelte': path.join(root, 'packages/shared/locale/src/svelte.svelte.ts'),
 			'@/locale/*': path.join(root, 'packages/shared/locale/src/*'),
 			'@/config/test/*': path.join(root, 'packages/shared/config/test/src/*'),
 			'@/config/test/harness': path.join(root, 'packages/shared/config/test/src/harness/index.ts'),
