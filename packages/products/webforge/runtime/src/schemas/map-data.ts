@@ -786,8 +786,7 @@ export const TileLayerSchema = v.strictObject({
 	 */
 	data: v.custom<readonly Num[]>((val): boolean => {
 		if (!Array.isArray(val)) return false;
-		for (let i = 0; i < val.length; i++) {
-			const n: unknown = val[i];
+		for (const n of val) {
 			if (typeof n !== 'number' || !Number.isInteger(n) || n < 0) return false;
 		}
 		return true;
@@ -1066,8 +1065,7 @@ export const MapDataSchema = v.strictObject({
 	heightMap: v.optional(
 		v.custom<readonly Num[]>((val): boolean => {
 			if (!Array.isArray(val)) return false;
-			for (let i = 0; i < val.length; i++) {
-				const n: unknown = val[i];
+			for (const n of val) {
 				if (typeof n !== 'number' || !Number.isInteger(n) || n < 0 || n > 15) return false;
 			}
 			return true;

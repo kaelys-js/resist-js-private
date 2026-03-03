@@ -1067,7 +1067,7 @@ export function refocusOnTilemap(options: RefocusOptions): BabylonResult<PresetT
 		const startAlpha: Num = arc.alpha;
 		const startBeta: Num = arc.beta;
 		const startTime: Num = Date.now() as Num;
-		let disposed: boolean = false;
+		let disposed: Bool = false;
 
 		// Temporarily unlock alpha/beta limits during animation
 		const savedLowerAlpha: number | null = arc.lowerAlphaLimit;

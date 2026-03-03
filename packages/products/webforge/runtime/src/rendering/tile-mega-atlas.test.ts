@@ -156,7 +156,7 @@ describe('calculateMegaAtlasLayout', () => {
 
 describe('remapTileIds', () => {
 	it('preserves empty tile (0 → 0)', () => {
-		const remapTable: Map<Num, Num> = new Map([[1, 5]]);
+		const remapTable = new Map<Num, Num>([[1, 5]]);
 		const tileIds: readonly Num[] = [0, 1, 0, 1];
 
 		const result = remapTileIds({ tileIds, remapTable });
@@ -168,7 +168,7 @@ describe('remapTileIds', () => {
 	});
 
 	it('remaps non-empty tile IDs', () => {
-		const remapTable: Map<Num, Num> = new Map([
+		const remapTable = new Map<Num, Num>([
 			[1, 10],
 			[2, 20],
 			[3, 30],
@@ -186,7 +186,7 @@ describe('remapTileIds', () => {
 	});
 
 	it('passes through IDs not in remap table unchanged', () => {
-		const remapTable: Map<Num, Num> = new Map([[1, 5]]);
+		const remapTable = new Map<Num, Num>([[1, 5]]);
 		const tileIds: readonly Num[] = [1, 99];
 
 		const result = remapTileIds({ tileIds, remapTable });
@@ -199,7 +199,7 @@ describe('remapTileIds', () => {
 	});
 
 	it('handles empty array', () => {
-		const remapTable: Map<Num, Num> = new Map();
+		const remapTable = new Map<Num, Num>();
 		const tileIds: readonly Num[] = [];
 
 		const result = remapTileIds({ tileIds, remapTable });
@@ -210,7 +210,7 @@ describe('remapTileIds', () => {
 	});
 
 	it('returns a new array (does not mutate input)', () => {
-		const remapTable: Map<Num, Num> = new Map([[1, 5]]);
+		const remapTable = new Map<Num, Num>([[1, 5]]);
 		const tileIds: Num[] = [1, 2];
 
 		const result = remapTileIds({ tileIds, remapTable });

@@ -498,6 +498,7 @@ describe('updateTile', () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 
+		// oxlint-disable-next-line prefer-destructuring -- nested chain readability
 		const updatedLayer = result.data.mapData.layers[0];
 		if (updatedLayer?.kind === 'tile') {
 			expect(updatedLayer.data[1]).toBe(5);

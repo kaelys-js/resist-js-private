@@ -382,7 +382,7 @@ describe('updateStreamingViewport', () => {
 		// Use 2048-based regions but smaller map: 6 regions wide
 		const mapSize: Num = 2048 * 6;
 		// Sparse tile data — only allocate what we need (use lazy approach)
-		const tileData: Num[] = new Array(mapSize * 100).fill(1);
+		const tileData: Num[] = Array.from({ length: mapSize * 100 }, () => 1);
 
 		const createResult = createStreamingManager({
 			scene,
