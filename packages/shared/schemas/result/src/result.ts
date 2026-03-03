@@ -1290,6 +1290,27 @@ export const ErrOptionsSchema = v.strictObject({
 export type ErrOptions = v.InferOutput<typeof ErrOptionsSchema>;
 
 /**
+ * Captures a stack trace starting from the caller of `err()`.
+ *
+ * Uses `Error.captureStackTrace` (V8-specific) to skip the `err()` and
+ * `_captureCallerStack` frames, so the stack begins at the actual call site.
+ * Falls back to `new Error().stack` on non-V8 engines.
+ *
+ * @param message - Error message for the stack trace
+ * @returns Stack trace string starting from the `err()` caller
+ *
+ * @internal
+ */
+function _captureCallerStack(message: string): string {
+	const target: { stack?: string } = { stack: '' };
+	if (typeof Error.captureStackTrace === 'function') {
+		Error.captureStackTrace(target, err);
+		return target.stack ? `Error: ${message}\n${target.stack.split('\n').slice(1).join('\n')}` : '';
+	}
+	return new Error(message).stack ?? '';
+}
+
+/**
  * Creates a failed `Result<never>`.
  *
  * Wraps an error in `{ ok: false, data: null, error: AppError }`.
@@ -1368,7 +1389,7 @@ export function err(
 		message: resolvedMessage,
 		id: crypto.randomUUID(),
 		timestamp: new Date().toISOString(),
-		stack: new Error(resolvedMessage).stack ?? '',
+		stack: _captureCallerStack(resolvedMessage),
 		// Apply defaults first (options override below)
 		...(defaults?.severity !== undefined && { severity: defaults.severity }),
 		...(defaults?.httpStatus !== undefined && { httpStatus: defaults.httpStatus }),

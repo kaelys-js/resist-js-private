@@ -41,8 +41,8 @@ describe('error.html static fallback', () => {
 		expect(errorHtml).toContain('sizes="180x180"');
 	});
 
-	it('contains title with sveltekit.status placeholder', () => {
-		expect(errorHtml).toContain('%sveltekit.status%');
+	it('contains title with friendly text and WebForge', () => {
+		expect(errorHtml).toContain('Something went wrong');
 		expect(errorHtml).toContain('WebForge');
 	});
 

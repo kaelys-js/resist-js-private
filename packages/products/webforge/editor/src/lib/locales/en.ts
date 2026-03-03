@@ -77,6 +77,7 @@ export const en: EditorLocaleRaw = {
 		genericDescription: 'Something unexpected happened while loading this page.',
 		goHome: 'Go to homepage',
 		tryAgain: 'Try again',
-		errorId: 'Error ID: {id}',
+		errorId: 'Reference: {id}',
+		copied: 'Copied!',
 	},
 };

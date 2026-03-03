@@ -106,7 +106,61 @@ test.describe('head meta — normal page (/)', () => {
 		const icon = page.locator('link[rel="apple-touch-icon"][sizes="180x180"]');
 		await expect(icon).toBeAttached();
 	});
+
+	test('format-detection disables telephone linking', async ({ page }) => {
+		await page.goto('/');
+		const formatDetection = page.locator('meta[name="format-detection"]');
+		await expect(formatDetection).toHaveAttribute('content', 'telephone=no');
+	});
 });
+
+/* oxlint-disable no-undef -- page.evaluate callbacks run in browser context where getComputedStyle is a global */
+test.describe('mobile CSS hardening', () => {
+	test('body has user-select: none', async ({ page }) => {
+		await page.goto('/');
+		const userSelect = await page.evaluate(() =>
+			getComputedStyle(document.body).getPropertyValue('user-select'),
+		);
+		expect(userSelect).toBe('none');
+	});
+
+	test('input elements have user-select: text', async ({ page }) => {
+		await page.goto('/');
+		const userSelect = await page.evaluate(() => {
+			const input = document.createElement('input');
+			document.body.append(input);
+			const value = getComputedStyle(input).getPropertyValue('user-select');
+			input.remove();
+			return value;
+		});
+		expect(userSelect).toBe('text');
+	});
+
+	test('html has overscroll-behavior: none', async ({ page }) => {
+		await page.goto('/');
+		const overscroll = await page.evaluate(() =>
+			getComputedStyle(document.documentElement).getPropertyValue('overscroll-behavior'),
+		);
+		expect(overscroll).toBe('none');
+	});
+
+	test('body has touch-action: manipulation', async ({ page }) => {
+		await page.goto('/');
+		const touchAction = await page.evaluate(() =>
+			getComputedStyle(document.body).getPropertyValue('touch-action'),
+		);
+		expect(touchAction).toBe('manipulation');
+	});
+
+	test('tap highlight is transparent', async ({ page }) => {
+		await page.goto('/');
+		const color = await page.evaluate(() =>
+			getComputedStyle(document.body).getPropertyValue('-webkit-tap-highlight-color'),
+		);
+		expect(color).toMatch(/transparent|rgba\(0,\s*0,\s*0,\s*0\)/);
+	});
+});
+/* oxlint-enable no-undef */
 
 test.describe('head meta — error page (/test-error/404)', () => {
 	test('charset is utf-8', async ({ page }) => {
@@ -135,9 +189,9 @@ test.describe('head meta — error page (/test-error/404)', () => {
 		await expect(robots).toHaveAttribute('content', /nofollow/);
 	});
 
-	test('title includes status code and WebForge', async ({ page }) => {
+	test('title includes error text and WebForge', async ({ page }) => {
 		await page.goto('/test-error/404');
-		await expect(page).toHaveTitle(/page not found.*404.*WebForge/i);
+		await expect(page).toHaveTitle(/page not found.*WebForge/i);
 	});
 
 	test('description is inherited from layout', async ({ page }) => {

@@ -28,6 +28,7 @@ import {
 	BoolSchema,
 	DEFAULT_JSON_INDENT,
 	DEFAULT_LOG_LEVEL,
+	EnvRecordWithUndefinedSchema,
 	type LogContext,
 	LogContextSchema,
 	type LogEntry,
@@ -36,9 +37,11 @@ import {
 	StrSchema,
 	VoidSchema,
 	type Bool,
+	type EnvRecordWithUndefined,
 	type JsonData,
 	type LogLevel,
 	type NonNegativeInteger,
+	type OptionalNodeProcess,
 	type OutputFormat,
 	type Str,
 	type TeardownFn,
@@ -47,7 +50,6 @@ import {
 import { ERRORS, err, ok, okUnchecked, type AppError, type Result } from '@/schemas/result/result';
 import { safeStringify } from '@/utils/core/object';
 import { getOutputFormat, setOutputFormat } from '@/utils/core/output-context';
-import { getEnvRecord } from '@/utils/core/process';
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
 
 import type { AsyncLocalStorage as AsyncLocalStorageType } from 'node:async_hooks';
@@ -791,13 +793,14 @@ export const log = {
 	},
 
 	/**
-	 * Print an error message to stderr. Respects log level (error).
-	 * In JSON mode, emits a structured {@link LogEntry}.
+	 * Print an error message to stderr with optional data. Respects log level (error).
+	 * In JSON mode, emits a structured {@link LogEntry} with the data payload.
 	 *
 	 * @param message - Message to print.
+	 * @param data - Optional serializable data to include.
 	 * @returns `Result<Void>` — success, or a log-level/validation error.
 	 */
-	error: (message: Str): Result<Void> => {
+	error: (message: Str, data?: JsonData): Result<Void> => {
 		const input: Result<Str> = safeParse(StrSchema, message);
 		if (!input.ok) return input;
 		const allowed: Result<Bool> = shouldLog('error');
@@ -805,10 +808,14 @@ export const log = {
 		if (allowed.data) {
 			if (!shouldSample('error')) return ok(VoidSchema, undefined);
 			if (isJsonOutput()) {
-				return emitStructured('error', input.data, 'stderr');
+				return emitStructured('error', input.data, 'stderr', data);
 			}
-			dispatchNonJson('error', input.data);
-			console.error(input.data);
+			dispatchNonJson('error', input.data, data);
+			if (data === undefined) {
+				console.error(input.data);
+			} else {
+				console.error(input.data, data);
+			}
 		}
 		return ok(VoidSchema, undefined);
 	},
@@ -937,8 +944,10 @@ export const log = {
 
 		if (isJsonOutput()) {
 			return emitStructured('error', error.message, 'stderr', {
+				errorId: error.id,
 				errorCode: error.code,
 				errorMessage: error.message,
+				errorTimestamp: error.timestamp,
 				errorStack: error.stack,
 				...(error.severity !== undefined && { severity: error.severity }),
 				...(error.httpStatus !== undefined && { httpStatus: error.httpStatus }),
@@ -998,8 +1007,8 @@ export type ChildLogger = {
 	info: (message: Str) => Result<Void>;
 	/** Log a debug message with optional data. @param message - Message text. @param data - Optional data. @returns `Result<Void>` */
 	debug: (message: Str, data?: JsonData) => Result<Void>;
-	/** Log an error message. @param message - Message text. @returns `Result<Void>` */
-	error: (message: Str) => Result<Void>;
+	/** Log an error message with optional data. @param message - Message text. @param data - Optional data. @returns `Result<Void>` */
+	error: (message: Str, data?: JsonData) => Result<Void>;
 	/** Log a warning message. @param message - Message text. @returns `Result<Void>` */
 	warn: (message: Str) => Result<Void>;
 	/** Log a success message. @param message - Message text. @returns `Result<Void>` */
@@ -1119,15 +1128,19 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
 			return ok(VoidSchema, undefined);
 		},
 
-		error: (message: Str): Result<Void> => {
+		error: (message: Str, data?: JsonData): Result<Void> => {
 			const msgInput: Result<Str> = safeParse(StrSchema, message);
 			if (!msgInput.ok) return msgInput;
 			const allowed: Result<Bool> = shouldLogChild('error');
 			if (!allowed.ok) return allowed;
 			if (allowed.data) {
 				if (!shouldSample('error')) return ok(VoidSchema, undefined);
-				if (isJsonOutput()) return emitChildStructured('error', msgInput.data, 'stderr');
-				console.error(msgInput.data);
+				if (isJsonOutput()) return emitChildStructured('error', msgInput.data, 'stderr', data);
+				if (data === undefined) {
+					console.error(msgInput.data);
+				} else {
+					console.error(msgInput.data, data);
+				}
 			}
 			return ok(VoidSchema, undefined);
 		},
@@ -1318,7 +1331,17 @@ export function startTimer(
  * ```
  */
 export function initLogLevelFromEnv(): Result<LogLevel> {
-	const envResult = getEnvRecord();
+	/*
+	 * Read env directly instead of importing `getEnvRecord` from `process.ts`.
+	 * This breaks the circular dependency chain:
+	 *   logger → process → terminal → logger
+	 */
+	const proc: OptionalNodeProcess =
+		globalThis.process === undefined ? undefined : globalThis.process;
+	const envResult: Result<EnvRecordWithUndefined> = safeParse(
+		EnvRecordWithUndefinedSchema,
+		proc?.env ?? {},
+	);
 	if (!envResult.ok) return ok(LogLevelSchema, DEFAULT_LOG_LEVEL);
 
 	const envLevel: string | undefined = envResult.data.LOG_LEVEL;

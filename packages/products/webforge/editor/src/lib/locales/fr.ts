@@ -77,6 +77,7 @@ export const fr: EditorLocaleRaw = {
 		genericDescription: "Quelque chose d'inattendu s'est produit lors du chargement de cette page.",
 		goHome: "Retour à l'accueil",
 		tryAgain: 'Réessayer',
-		errorId: "Identifiant d'erreur\u00A0: {id}",
+		errorId: 'Référence\u00A0: {id}',
+		copied: 'Copié\u00A0!',
 	},
 };

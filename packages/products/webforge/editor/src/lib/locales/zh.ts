@@ -73,6 +73,7 @@ export const zh: EditorLocaleRaw = {
 		genericDescription: '加载此页面时发生了意外错误。',
 		goHome: '返回首页',
 		tryAgain: '重试',
-		errorId: '错误ID: {id}',
+		errorId: '参考编号: {id}',
+		copied: '已复制！',
 	},
 };

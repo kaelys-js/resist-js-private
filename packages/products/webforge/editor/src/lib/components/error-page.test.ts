@@ -1,6 +1,27 @@
-import { render, screen } from '@testing-library/svelte';
-import { describe, expect, it } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/svelte';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import ErrorPageTest from './ErrorPageTest.svelte';
+
+beforeAll(() => {
+	// Tooltip internals need ResizeObserver + Element.animate, which JSDOM lacks.
+	globalThis.ResizeObserver ??= class {
+		observe(): void {}
+		unobserve(): void {}
+		disconnect(): void {}
+	} as unknown as typeof ResizeObserver;
+
+	if (!globalThis.Element.prototype.animate) {
+		globalThis.Element.prototype.animate = function () {
+			return {
+				finished: new Promise<void>((resolve) => {
+					resolve();
+				}),
+				cancel(): void {},
+				onfinish: null,
+			} as unknown as Animation;
+		};
+	}
+});
 
 describe('ErrorPage', () => {
 	it('renders 400 with "Bad request" title', () => {
@@ -84,16 +105,49 @@ describe('ErrorPage', () => {
 		expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument();
 	});
 
-	it('shows error ID when provided', () => {
-		render(ErrorPageTest, {
+	it('shows error ID as a clickable button when provided', () => {
+		const { container } = render(ErrorPageTest, {
 			props: { status: 500, message: 'Error', errorId: 'abc-123' },
 		});
-		expect(screen.getByText(/error id.*abc-123/i)).toBeInTheDocument();
+		const btn: HTMLElement | null = container.querySelector('[data-error-id="abc-123"]');
+		expect(btn).toBeInTheDocument();
+		expect(screen.getByText(/reference.*abc-123/i)).toBeInTheDocument();
 	});
 
 	it('does not show error ID when not provided', () => {
-		render(ErrorPageTest, { props: { status: 500, message: 'Error' } });
-		expect(screen.queryByText(/error id/i)).not.toBeInTheDocument();
+		const { container } = render(ErrorPageTest, {
+			props: { status: 500, message: 'Error' },
+		});
+		expect(container.querySelector('[data-error-id]')).not.toBeInTheDocument();
+	});
+
+	it('copies error ID to clipboard on click', async () => {
+		const writeText = vi.fn().mockResolvedValue(undefined);
+		Object.assign(navigator, { clipboard: { writeText } });
+		const { container } = render(ErrorPageTest, {
+			props: { status: 500, message: 'Error', errorId: 'abc-123' },
+		});
+		const btn: HTMLElement | null = container.querySelector('[data-error-id="abc-123"]');
+		expect(btn).toBeTruthy();
+		await fireEvent.click(btn!);
+		expect(writeText).toHaveBeenCalledWith('abc-123');
+	});
+
+	it('shows "Copied!" feedback after clicking error ID', async () => {
+		const writeText = vi.fn().mockResolvedValue(undefined);
+		Object.assign(navigator, { clipboard: { writeText } });
+		const { container } = render(ErrorPageTest, {
+			props: { status: 500, message: 'Error', errorId: 'abc-123' },
+		});
+		const btn: HTMLElement | null = container.querySelector('[data-error-id="abc-123"]');
+		expect(btn).toBeTruthy();
+		await fireEvent.click(btn!);
+		await vi.waitFor(() => {
+			// The button itself contains the "Copied!" span
+			const copiedSpan: HTMLElement | null = btn!.querySelector('.text-green-500 span');
+			expect(copiedSpan).toBeTruthy();
+			expect(copiedSpan!.textContent).toBe('Copied!');
+		});
 	});
 
 	it('has proper heading hierarchy', () => {
