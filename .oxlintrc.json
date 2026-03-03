@@ -503,11 +503,7 @@
 			}
 		},
 		{
-			"files": [
-				"**/components/ui/**/*.svelte",
-				"**/components/ui/**/*.ts",
-				"**/hooks/*.svelte.ts"
-			],
+			"files": ["**/components/ui/**/*.svelte", "**/components/ui/**/*.ts", "**/hooks/*.svelte.ts"],
 			"rules": {
 				"unicorn/filename-case": "off",
 				"unicorn/no-useless-undefined": "off",

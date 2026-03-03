@@ -7,16 +7,14 @@ import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 const { children } = $props();
 </script>
 
-<div class="dark">
-	<Sidebar.Provider
-		style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
-	>
-		<AppSidebar />
-		<Sidebar.Inset>
-			<SiteHeader />
-			<div class="flex flex-1 flex-col">
-				{@render children()}
-			</div>
-		</Sidebar.Inset>
-	</Sidebar.Provider>
-</div>
+<Sidebar.Provider
+	style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
+>
+	<AppSidebar />
+	<Sidebar.Inset>
+		<SiteHeader />
+		<div class="flex flex-1 flex-col">
+			{@render children()}
+		</div>
+	</Sidebar.Inset>
+</Sidebar.Provider>
