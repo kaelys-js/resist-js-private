@@ -14,13 +14,29 @@ describe('SiteHeader', () => {
 		expect(screen.getByText('Editor')).toBeInTheDocument();
 	});
 
-	it('renders breadcrumb with "Scene" text', () => {
+	it('renders breadcrumb with "Scene" text when not on error page', () => {
 		render(SiteHeaderTest);
 		expect(screen.getByText('Scene')).toBeInTheDocument();
+	});
+
+	it('renders breadcrumb with "Error" text when isError is true', () => {
+		render(SiteHeaderTest, { props: { isError: true } });
+		expect(screen.getByText('Error')).toBeInTheDocument();
+	});
+
+	it('does not show "Scene" in breadcrumb when isError is true', () => {
+		render(SiteHeaderTest, { props: { isError: true } });
+		expect(screen.queryByText('Scene')).not.toBeInTheDocument();
 	});
 
 	it('renders mode toggle button', () => {
 		render(SiteHeaderTest);
 		expect(screen.getByRole('button', { name: /toggle mode/i })).toBeInTheDocument();
+	});
+
+	it('renders sidebar trigger with tooltip trigger attributes', () => {
+		const { container } = render(SiteHeaderTest);
+		const trigger: HTMLElement | null = container.querySelector('[data-slot="tooltip-trigger"]');
+		expect(trigger).toBeInTheDocument();
 	});
 });

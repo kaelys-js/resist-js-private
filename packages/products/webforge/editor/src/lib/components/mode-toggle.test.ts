@@ -13,4 +13,12 @@ describe('ModeToggle', () => {
 		const svgs: NodeListOf<SVGSVGElement> = container.querySelectorAll('svg');
 		expect(svgs.length).toBeGreaterThanOrEqual(2);
 	});
+
+	it('renders toggle button as dropdown menu trigger', () => {
+		const { container } = render(ModeToggleTest);
+		const trigger: HTMLElement | null = container.querySelector(
+			'[data-slot="dropdown-menu-trigger"]',
+		);
+		expect(trigger).toBeInTheDocument();
+	});
 });

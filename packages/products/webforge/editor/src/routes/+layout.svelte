@@ -1,6 +1,7 @@
 <script lang="ts">
 import '../app.css';
 import { untrack } from 'svelte';
+import { page } from '$app/state';
 import { ModeWatcher, setMode, setTheme } from 'mode-watcher';
 import AppSidebar from '$lib/components/AppSidebar.svelte';
 import SiteHeader from '$lib/components/SiteHeader.svelte';
@@ -67,7 +68,7 @@ const ogLocale = $derived(OG_LOCALES[store.app.locale] ?? 'en_US');
 >
 	<AppSidebar />
 	<Sidebar.Inset>
-		<SiteHeader />
+		<SiteHeader isError={Boolean(page.error)} />
 		<div class="flex flex-1 flex-col">
 			{@render children()}
 		</div>
