@@ -1,12 +1,13 @@
 <script lang="ts">
-import Camera from '@lucide/svelte/icons/camera';
-import Layers from '@lucide/svelte/icons/layers';
+import Image from '@lucide/svelte/icons/image';
 import Grid3x3 from '@lucide/svelte/icons/grid-3x3';
-import Sparkles from '@lucide/svelte/icons/sparkles';
+import Music from '@lucide/svelte/icons/music';
 import Settings from '@lucide/svelte/icons/settings';
 import CircleHelp from '@lucide/svelte/icons/circle-help';
 import type { ComponentProps } from 'svelte';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+import WebForgeLogo from './WebForgeLogo.svelte';
+import NavScenes from './NavScenes.svelte';
 import NavMain from './NavMain.svelte';
 import NavSecondary from './NavSecondary.svelte';
 import NavUser from './NavUser.svelte';
@@ -14,44 +15,16 @@ import NavUser from './NavUser.svelte';
 type Props = ComponentProps<typeof Sidebar.Root>;
 let { ...restProps }: Props = $props();
 
-const navMain = [
-	{
-		title: 'Scene',
-		icon: Camera,
-		isActive: true,
-		items: [
-			{ title: 'Camera', url: '#camera' },
-			{ title: 'Lighting', url: '#lighting' },
-			{ title: 'Fog', url: '#fog' },
-			{ title: 'Sky', url: '#sky' },
-		],
-	},
-	{
-		title: 'Rendering',
-		icon: Layers,
-		items: [
-			{ title: 'Post-FX', url: '#postfx' },
-			{ title: 'Glow', url: '#glow' },
-			{ title: 'Shadows', url: '#shadows' },
-		],
-	},
-	{
-		title: 'Tilemap',
-		icon: Grid3x3,
-		items: [
-			{ title: 'Layers', url: '#layers' },
-			{ title: 'Tile Picker', url: '#tilepicker' },
-			{ title: 'Inspector', url: '#inspector' },
-		],
-	},
-	{
-		title: 'Effects',
-		icon: Sparkles,
-		items: [
-			{ title: 'Screen Effects', url: '#screeneffects' },
-			{ title: 'Screen Shake', url: '#screenshake' },
-		],
-	},
+const scenes = [
+	{ title: 'Overworld', url: '#overworld', isActive: true },
+	{ title: 'Town Interior', url: '#town-interior' },
+	{ title: 'Dungeon B1', url: '#dungeon-b1' },
+];
+
+const navAssets = [
+	{ title: 'Tilesets', url: '#tilesets', icon: Grid3x3 },
+	{ title: 'Sprites', url: '#sprites', icon: Image },
+	{ title: 'Audio', url: '#audio', icon: Music },
 ];
 
 const navSecondary = [
@@ -71,9 +44,9 @@ const user = {
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton size="lg">
 					<div
-						class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg text-xs font-bold"
+						class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
 					>
-						WF
+						<WebForgeLogo size={20} />
 					</div>
 					<div class="grid flex-1 text-left text-sm leading-tight">
 						<span class="truncate font-medium">WebForge</span>
@@ -84,7 +57,8 @@ const user = {
 		</Sidebar.Menu>
 	</Sidebar.Header>
 	<Sidebar.Content>
-		<NavMain items={navMain} />
+		<NavScenes {scenes} />
+		<NavMain label="Assets" items={navAssets} />
 		<NavSecondary items={navSecondary} class="mt-auto" />
 	</Sidebar.Content>
 	<Sidebar.Footer>
