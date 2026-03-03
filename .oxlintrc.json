@@ -547,12 +547,6 @@
 			}
 		},
 		{
-			"files": ["**/runtime/dev/dev.ts"],
-			"rules": {
-				"typescript/no-dynamic-delete": "off"
-			}
-		},
-		{
 			"files": [
 				"*.config.ts",
 				"*.config.js",
