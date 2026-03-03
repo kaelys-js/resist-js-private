@@ -57,6 +57,14 @@ export const FeatureFlagsSchema = v.strictObject({
 	sceneList: v.optional(v.boolean(), true),
 	assetBrowser: v.optional(v.boolean(), true),
 	resizableSidebar: v.optional(v.boolean(), true),
+	breadcrumb: v.optional(v.boolean(), true),
+	sidebarToggle: v.optional(v.boolean(), true),
+	sidebarHelp: v.optional(v.boolean(), true),
+	projectDropdown: v.optional(v.boolean(), true),
+	projectDropdownSettings: v.optional(v.boolean(), true),
+	projectDropdownIcon: v.optional(v.boolean(), true),
+	appIconInSidebar: v.optional(v.boolean(), true),
+	appNameInSidebar: v.optional(v.boolean(), true),
 });
 
 /** Inferred type for feature flags. */

@@ -50,6 +50,14 @@ const FEATURE_DEFAULTS: FeatureFlags = {
 	sceneList: true,
 	assetBrowser: true,
 	resizableSidebar: true,
+	breadcrumb: true,
+	sidebarToggle: true,
+	sidebarHelp: true,
+	projectDropdown: true,
+	projectDropdownSettings: true,
+	projectDropdownIcon: true,
+	appIconInSidebar: true,
+	appNameInSidebar: true,
 };
 
 /** All valid feature flag keys. */

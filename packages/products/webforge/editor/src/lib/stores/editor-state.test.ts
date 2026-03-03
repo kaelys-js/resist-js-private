@@ -44,7 +44,7 @@ describe('EditorStore', () => {
 		expect(store.app.sidebarOpen).toBe(true);
 	});
 
-	it('store.features has all flags true by default', () => {
+	it('store.features has all 16 flags true by default', () => {
 		const result = createEditorStore();
 		if (!result.ok) throw new Error('Store creation failed');
 		const store = result.data;
@@ -57,6 +57,14 @@ describe('EditorStore', () => {
 		expect(store.features.sceneList).toBe(true);
 		expect(store.features.assetBrowser).toBe(true);
 		expect(store.features.resizableSidebar).toBe(true);
+		expect(store.features.breadcrumb).toBe(true);
+		expect(store.features.sidebarToggle).toBe(true);
+		expect(store.features.sidebarHelp).toBe(true);
+		expect(store.features.projectDropdown).toBe(true);
+		expect(store.features.projectDropdownSettings).toBe(true);
+		expect(store.features.projectDropdownIcon).toBe(true);
+		expect(store.features.appIconInSidebar).toBe(true);
+		expect(store.features.appNameInSidebar).toBe(true);
 	});
 
 	// ── setTheme ───────────────────────────────────────────────────────────
@@ -347,9 +355,9 @@ describe('EditorStore', () => {
 		expect(result.data.app.sidebarOpen).toBe(true);
 	});
 
-	// ── setFeature — all 8 flags ──────────────────────────────────────────
+	// ── setFeature — all 16 flags ─────────────────────────────────────────
 
-	it('setFeature() toggles all 8 flags individually', () => {
+	it('setFeature() toggles all 16 flags individually', () => {
 		const flags: readonly string[] = [
 			'settings',
 			'themeSelection',
@@ -359,6 +367,14 @@ describe('EditorStore', () => {
 			'sceneList',
 			'assetBrowser',
 			'resizableSidebar',
+			'breadcrumb',
+			'sidebarToggle',
+			'sidebarHelp',
+			'projectDropdown',
+			'projectDropdownSettings',
+			'projectDropdownIcon',
+			'appIconInSidebar',
+			'appNameInSidebar',
 		];
 		const result = createEditorStore();
 		if (!result.ok) throw new Error('Store creation failed');

@@ -24,17 +24,20 @@ const toggleSidebarLabel: string = $derived(
 	class="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height,color,background-color,border-color] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)"
 >
 	<div class="flex w-full items-center gap-1 px-4">
-		<Tooltip.Root delayDuration={700}>
-			<Tooltip.Trigger>
-				{#snippet child({ props })}
-					<Sidebar.Trigger class="-ml-1" {...props} />
-				{/snippet}
-			</Tooltip.Trigger>
-			<Tooltip.Content side="right" sideOffset={4}>
-				{toggleSidebarLabel}
-			</Tooltip.Content>
-		</Tooltip.Root>
-		<Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
+		{#if store.features.sidebarToggle}
+			<Tooltip.Root delayDuration={700}>
+				<Tooltip.Trigger>
+					{#snippet child({ props })}
+						<Sidebar.Trigger class="-ml-1" {...props} />
+					{/snippet}
+				</Tooltip.Trigger>
+				<Tooltip.Content side="right" sideOffset={4}>
+					{toggleSidebarLabel}
+				</Tooltip.Content>
+			</Tooltip.Root>
+			<Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
+		{/if}
+		{#if store.features.breadcrumb}
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item class="hidden md:block">
@@ -46,6 +49,7 @@ const toggleSidebarLabel: string = $derived(
 				</Breadcrumb.Item>
 			</Breadcrumb.List>
 		</Breadcrumb.Root>
+		{/if}
 		<div class="ml-auto flex items-center gap-2">
 			{#if store.features.modeToggle}
 				<ModeToggle />
