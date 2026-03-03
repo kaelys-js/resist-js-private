@@ -453,52 +453,116 @@
 				letter-spacing: 0.3px;
 			}
 
-			/* ── Map Editor Scrollbars ───────────────────────── */
+			/* ── Map Editor Scrollbars (macOS-style overlay) ── */
+			/* ── Scrollbar custom properties ─────────────── */
+			:root {
+				--sb-color: rgba(180, 180, 180, 0.6);
+				--sb-color-hover: rgba(200, 200, 200, 0.85);
+				--sb-color-active: rgba(220, 220, 220, 0.9);
+				--sb-hover-size: 12px;
+				--sb-show-delay: 0.35s;
+				--sb-hover-linger: 0s;
+			}
 			.map-scrollbar {
 				position: fixed;
-				z-index: 50;
+				z-index: 10;
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.4s var(--sb-hover-linger);
+			}
+			.map-scrollbar.sb-active {
+				pointer-events: auto;
+			}
+			.map-scrollbar.sb-active .sb-thumb {
+				pointer-events: auto;
+			}
+			/* JS scroll flash — immediate show */
+			.map-scrollbar.visible {
+				opacity: 0.7;
+				transition: opacity 0.1s;
+			}
+			/* Hover — delayed reveal (requires sb-active so "never" mode blocks it) */
+			.map-scrollbar.sb-active:hover {
+				opacity: 1;
+				transition: opacity 0.15s var(--sb-show-delay);
 			}
 			.map-scrollbar-h {
-				left: 0;
+				left: 4px;
 				bottom: 0;
-				right: 14px;
+				right: 18px;
 				height: 14px;
 			}
 			.map-scrollbar-v {
-				top: 0;
+				top: 4px;
 				right: 0;
-				bottom: 14px;
+				bottom: 18px;
 				width: 14px;
 			}
 			.sb-track {
 				position: relative;
 				width: 100%;
 				height: 100%;
-				background: rgba(0, 0, 0, 0.35);
+				background: transparent;
+				border-radius: 4px;
 			}
 			.sb-thumb {
 				position: absolute;
-				background: rgba(160, 160, 160, 0.45);
-				border-radius: 7px;
-				min-width: 24px;
-				min-height: 24px;
+				background: var(--sb-color);
+				border-radius: 4px;
 				cursor: grab;
-				transition: background 0.12s;
+				pointer-events: none;
+				transition: background 0.15s, box-shadow 0.15s, width 0.15s, height 0.15s;
 			}
 			.sb-thumb:hover {
-				background: rgba(190, 190, 190, 0.65);
+				background: var(--sb-color-hover);
+				box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
 			}
 			.sb-thumb:active {
-				background: rgba(210, 210, 210, 0.8);
+				background: var(--sb-color-active);
 				cursor: grabbing;
 			}
+			/* Horizontal: thumb hugs bottom edge */
 			.map-scrollbar-h .sb-thumb {
-				top: 2px;
-				height: calc(100% - 4px);
+				bottom: 2px;
+				height: 6px;
+				min-width: 40px;
 			}
+			.map-scrollbar-h.visible .sb-thumb {
+				height: 8px;
+			}
+			.map-scrollbar-h:hover .sb-thumb {
+				height: var(--sb-hover-size);
+			}
+			/* Vertical: thumb hugs right edge */
 			.map-scrollbar-v .sb-thumb {
-				left: 2px;
-				width: calc(100% - 4px);
+				right: 2px;
+				width: 6px;
+				min-height: 40px;
+			}
+			.map-scrollbar-v.visible .sb-thumb {
+				width: 8px;
+			}
+			.map-scrollbar-v:hover .sb-thumb {
+				width: var(--sb-hover-size);
+			}
+
+			/* Corner piece where horizontal and vertical scrollbars meet */
+			#scrollbar-corner {
+				position: fixed;
+				right: 0;
+				bottom: 0;
+				width: 14px;
+				height: 14px;
+				z-index: 10;
+				background: var(--sb-color);
+				border-radius: 4px;
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.4s var(--sb-hover-linger);
+			}
+			#scrollbar-corner.visible {
+				opacity: 0.7;
+				transition: opacity 0.1s;
 			}
 
 			/* ── Controls ────────────────────────────────────── */
@@ -791,12 +855,13 @@
 		<canvas id="game-canvas"></canvas>
 
 		<!-- Map Editor Scrollbars -->
-		<div id="scrollbar-h" class="map-scrollbar map-scrollbar-h" style="display:none">
+		<div id="scrollbar-h" class="map-scrollbar map-scrollbar-h">
 			<div class="sb-track"><div id="sb-thumb-h" class="sb-thumb"></div></div>
 		</div>
-		<div id="scrollbar-v" class="map-scrollbar map-scrollbar-v" style="display:none">
+		<div id="scrollbar-v" class="map-scrollbar map-scrollbar-v">
 			<div class="sb-track"><div id="sb-thumb-v" class="sb-thumb"></div></div>
 		</div>
+		<div id="scrollbar-corner"></div>
 
 		<div id="panel-icon" onclick="restorePanel()" title="Open DevTools (`)">
 			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -847,6 +912,15 @@
 					<div class="section-body" id="camera-nav-body"></div>
 				</div>
 
+				<!-- Scrollbar Settings -->
+				<div class="section collapsed" id="section-scrollbar" data-section="scrollbar">
+					<div class="section-header" onclick="toggleSection('section-scrollbar')">
+						<span>Scrollbar</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="scrollbar-body"></div>
+				</div>
+
 				<!-- 1. Camera -->
 				<div class="section collapsed" id="section-camera" data-section="camera">
 					<div class="section-header" onclick="toggleSection('section-camera')">
@@ -866,9 +940,9 @@
 								id="transition-duration"
 								data-control="transition-duration"
 								min="0"
-								max="2000"
+								max="30000"
 								value="500"
-								step="100"
+								step="50"
 							/>
 							<span class="control-value" id="transition-value">500ms</span>
 						</div>
@@ -882,6 +956,14 @@
 								<button class="btn" onclick="rotateCCW()" title="Rotate camera 90° counter-clockwise">&larr; Rotate</button>
 								<button class="btn" onclick="rotateCW()" title="Rotate camera 90° clockwise">Rotate &rarr;</button>
 							</div>
+						</div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Rotation Angle</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Current camera orbit angle in degrees (0° = default, rotates in 90° steps).</span>
+							</div>
+							<span id="tactical-angle" class="control-value">0°</span>
 						</div>
 						<div class="control-row" style="padding-top: 4px">
 							<span class="control-label">Actions</span>

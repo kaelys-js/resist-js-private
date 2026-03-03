@@ -64,6 +64,7 @@ export type ManagedLight = {
 	readonly flickerInstance: FlickerInstance | null;
 	readonly volumetricPostProcess: BABYLON.VolumetricLightScatteringPostProcess | null;
 	readonly lensFlareSystem: BABYLON.LensFlareSystem | null;
+	readonly lensFlareEmitter: BABYLON.Mesh | null;
 	readonly distanceFadeObserver: BABYLON.Observer<BABYLON.Scene> | null;
 };
 
@@ -575,9 +576,27 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 
 			// Lens flares — DirectionalLight only, non-fatal
 			let lensFlares: BABYLON.LensFlareSystem | null = null;
+			let lensFlareEmitter: BABYLON.Mesh | null = null;
 			if (lightCfg.type === 'directional' && lightCfg.lensFlare?.enabled) {
 				try {
-					lensFlares = new BABYLON.LensFlareSystem(`${lightCfg.id}-flares`, light, options.scene);
+					// Position the emitter far along the inverse light direction so
+					// the flare appears "in the sky" (same approach as VLS mesh).
+					const flareDir = lightCfg.direction;
+					const flareSunDist: Num = 200 as Num;
+					lensFlareEmitter = new BABYLON.Mesh(`${lightCfg.id}-flare-emitter`, options.scene);
+					lensFlareEmitter.position = new BABYLON.Vector3(
+						-flareDir.x * flareSunDist + lightCfg.position.x,
+						-flareDir.y * flareSunDist + lightCfg.position.y,
+						-flareDir.z * flareSunDist + lightCfg.position.z,
+					);
+					lensFlareEmitter.isVisible = false;
+					lensFlareEmitter.isPickable = false;
+
+					lensFlares = new BABYLON.LensFlareSystem(
+						`${lightCfg.id}-flares`,
+						lensFlareEmitter,
+						options.scene,
+					);
 					const flareCfg = lightCfg.lensFlare;
 
 					// Create a 1x1 white texture for flares — passing '' as texture path
@@ -678,6 +697,7 @@ export function createLighting(options: CreateLightingOptions): BabylonResult<Li
 				flickerInstance: flickerInst,
 				volumetricPostProcess: volumetric,
 				lensFlareSystem: lensFlares,
+				lensFlareEmitter,
 				distanceFadeObserver: distanceFadeObs,
 			});
 		}
@@ -889,6 +909,9 @@ export function removeLightById(options: RemoveLightOptions): BabylonResult<Ligh
 		if (managed.lensFlareSystem) {
 			managed.lensFlareSystem.dispose();
 		}
+		if (managed.lensFlareEmitter) {
+			managed.lensFlareEmitter.dispose();
+		}
 		if (managed.shadowGenerator) {
 			disposeShadowGenerator({ generator: managed.shadowGenerator });
 		}
@@ -958,6 +981,9 @@ export function disposeLighting(options: DisposeLightingOptions): BabylonResult<
 			}
 			if (managed.lensFlareSystem) {
 				managed.lensFlareSystem.dispose();
+			}
+			if (managed.lensFlareEmitter) {
+				managed.lensFlareEmitter.dispose();
 			}
 			// Dispose shadow generator before light
 			if (managed.shadowGenerator) {

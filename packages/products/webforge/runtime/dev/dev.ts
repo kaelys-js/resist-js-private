@@ -21,6 +21,7 @@ import {
 	switchCameraPreset,
 	rotateTactics,
 	refocusOnTilemap,
+	computeMinRadiusForMap,
 	screenShake,
 	getTrauma,
 	stopAllShakes,
@@ -54,6 +55,7 @@ import {
 } from '../src/index';
 import {
 	renderTilemap,
+	renderBlankTilemap,
 	disposeTilemap,
 	updateTile,
 	applyMegaAtlas,
@@ -73,12 +75,12 @@ import {
 	type LoadedTileset,
 	type ResolvedTile,
 } from '../src/rendering/tileset-loader';
-import type { TileProperties, Layer } from '../src/schemas/map-data';
+import type { TileProperties, Layer, MapData } from '../src/schemas/map-data';
 
 import type { RuntimeInstance } from '../src/runtime';
 import type { BabylonResult } from '../src/core/babylon-result';
 import type { CameraPreset } from '../src/schemas/camera-config';
-import type { Num, Bool } from '@/schemas/common';
+import type { Num, Bool, Str } from '@/schemas/common';
 import type { ParallaxInstance } from '../src/rendering/parallax-manager';
 import type { SkyInstance } from '../src/rendering/sky-system';
 import type { ColorRgba } from '../src/schemas/scene-setup-config';
@@ -152,6 +154,9 @@ let _refocusPaddingScale = 1.15;
 let _refocusResetElevation = true;
 let _refocusResetOrbit = false;
 let _refocusHandle: { dispose: () => void } | null = null;
+let _sbFlashTimer: ReturnType<typeof setTimeout> | null = null;
+let _sbFlashDuration = 1200;
+let _sbVisibility: 'auto' | 'always' | 'never' = 'auto';
 
 /**
  * Computes the maximum ortho size so the map exactly fills the viewport
@@ -214,7 +219,7 @@ function setZoomLevel(
 	scene: BABYLON.Scene,
 ): void {
 	const orthoMax: number = computeOrthoMax(scene, cam);
-	_orthoSize = Math.max(ORTHO_MIN, Math.min(orthoMax, orthoMax / multiplier));
+	_orthoSize = Math.max(ORTHO_MIN, Math.min(orthoMax / MIN_ZOOM, orthoMax / multiplier));
 	applyOrthoBounds(cam, scene);
 	clampCameraToMap(cam, scene);
 	updateScrollbars(cam, scene);
@@ -251,6 +256,30 @@ const _EASING_FNS: Record<string, (t: number) => number> = {
 	},
 	easeInOutQuad: (t: number): number => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2),
 };
+
+/**
+ * Recomputes `upperRadiusLimit` so the camera can zoom out far enough to
+ * see the entire tilemap.  Also updates the "Max Distance" slider in the
+ * Camera Details panel if it exists.
+ *
+ * @param cam - The ArcRotateCamera.
+ * @param mapW - Screen-horizontal map extent (tiles).
+ * @param mapH - Screen-vertical map extent (tiles).
+ */
+function updateRadiusLimitForMap(cam: BABYLON.ArcRotateCamera, mapW: number, mapH: number): void {
+	const needed: Num = computeMinRadiusForMap(mapW as Num, mapH as Num, cam.fov as Num);
+	const current: number = cam.upperRadiusLimit ?? 300;
+	if (needed > current) {
+		cam.upperRadiusLimit = needed;
+	}
+	// Keep the dev-harness slider in sync
+	const slider = document.querySelector('#cam-upper-radius') as HTMLInputElement | null;
+	if (slider) {
+		const limit: number = cam.upperRadiusLimit ?? 300;
+		if (limit > Number(slider.max)) slider.max = String(Math.ceil(limit));
+		slider.value = String(Math.round(limit));
+	}
+}
 
 /**
  * Refocuses the camera to show the entire tilemap.
@@ -717,6 +746,7 @@ function updateHighlightForSelection(): void {
 			fill.setEnabled(true);
 		}
 	}
+	_tilePickerRedraw?.();
 }
 
 /**
@@ -779,6 +809,7 @@ function updateGridAppearance(): void {
 	const mat = _gridMesh.material as BABYLON.StandardMaterial | null;
 	if (mat) mat.emissiveColor = _gridColor;
 	_gridMesh.visibility = _gridAlpha;
+	_tilePickerRedraw?.();
 }
 
 /**
@@ -789,6 +820,7 @@ function updateGridFillAppearance(): void {
 	const mat = _gridFillMesh.material as BABYLON.StandardMaterial | null;
 	if (mat) mat.emissiveColor = _gridFillColor;
 	_gridFillMesh.visibility = _gridFillAlpha;
+	_tilePickerRedraw?.();
 }
 
 // -- Selection highlight state --
@@ -889,6 +921,7 @@ function updateSelectionAppearance(): void {
 	const fillMat = fill.material as BABYLON.StandardMaterial | null;
 	if (fillMat) fillMat.emissiveColor = _selectionFillColor;
 	fill.visibility = _selectionFillAlpha;
+	_tilePickerRedraw?.();
 }
 
 // -- Editor backdrop (black plane behind everything) --
@@ -1376,7 +1409,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 			// Restore Babylon's right-click panning
 			arcCam.panningSensibility = 50;
 
-			// Restore meshes hidden by mapeditor per-frame callback
+			// Restore meshes/systems hidden by mapeditor per-frame callback
 			for (const mesh of scene.meshes) {
 				if (mesh.name === 'VolumetricLightScatteringMesh') {
 					mesh.isVisible = true;
@@ -1385,12 +1418,20 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					mesh.isVisible = true;
 				}
 			}
+			const restoredLights = debug.tilemap?.lighting?.lights;
+			if (restoredLights) {
+				for (const ml of restoredLights) {
+					if (ml.lensFlareSystem) ml.lensFlareSystem.isEnabled = true;
+				}
+			}
 
 			// Hide scrollbars
 			const hBar: HTMLElement | null = document.querySelector('#scrollbar-h');
 			const vBar: HTMLElement | null = document.querySelector('#scrollbar-v');
-			if (hBar) hBar.style.display = 'none';
-			if (vBar) vBar.style.display = 'none';
+			const sbCorner: HTMLElement | null = document.querySelector('#scrollbar-corner');
+			if (hBar) hBar.classList.remove('sb-active', 'visible');
+			if (vBar) vBar.classList.remove('sb-active', 'visible');
+			if (sbCorner) sbCorner.classList.remove('visible');
 		}
 
 		// Handle auto-rotate for orbit preset
@@ -1407,6 +1448,9 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		if (preset !== 'mapeditor') {
 			arcCam.target.x = _mapHeight / 2;
 			arcCam.target.z = _mapWidth / 2;
+
+			// Ensure zoom-out limit is large enough for the current map
+			updateRadiusLimitForMap(arcCam, _mapWidth, _mapHeight);
 		}
 
 		switchCameraPreset({
@@ -1417,16 +1461,23 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 			easing: 'easeInOutCubic',
 		});
 
-		// Override the radius animation with a closer value for the tilemap.
-		// PRESET_DEFAULTS use radius 100-150 which is far too wide for the map.
-		// This observer fires AFTER the preset transition's observer (registered
-		// later), so our radius write wins each frame — no visible jump.
+		// Override the preset's default radius so the camera zooms to fit
+		// the entire tilemap.  Uses the same FOV-based calculation as
+		// refocusOnTilemap() instead of the old crude heuristic.
 		if (preset !== 'mapeditor') {
-			const closerRadius: number = Math.max(Math.max(_mapWidth, _mapHeight) * 1.2, 40);
+			const fitRadius: number = Math.max(
+				computeMinRadiusForMap(
+					_mapWidth as Num,
+					_mapHeight as Num,
+					arcCam.fov as Num,
+					_refocusPaddingScale as Num,
+				),
+				40,
+			);
 			const radiusStart: number = arcCam.radius;
 
 			if (durationMs <= 0) {
-				arcCam.radius = closerRadius;
+				arcCam.radius = fitRadius;
 			} else {
 				const tStart: number = performance.now();
 				const obs: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
@@ -1434,7 +1485,7 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 					const rawT: number = Math.min(1, elapsed / durationMs);
 					// Smoothstep easing
 					const t: number = rawT * rawT * (3 - 2 * rawT);
-					arcCam.radius = radiusStart + (closerRadius - radiusStart) * t;
+					arcCam.radius = radiusStart + (fitRadius - radiusStart) * t;
 					if (rawT >= 1) {
 						scene.onBeforeRenderObservable.remove(obs);
 					}
@@ -1493,12 +1544,50 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 	// so the camera gets the correct ortho bounds, VLS/sky-gradient hiding, etc.)
 	handlePresetChange('mapeditor');
 
-	// Transition duration slider
+	// Transition duration slider + inline edit
 	const transSlider = document.querySelector('#transition-duration') as HTMLInputElement;
-	const transValue = document.querySelector('#transition-value');
+	const transValue = document.querySelector('#transition-value') as HTMLElement | null;
 	transSlider?.addEventListener('input', () => {
 		if (transValue) transValue.textContent = `${transSlider.value}ms`;
 	});
+	if (transValue) {
+		transValue.style.cursor = 'pointer';
+		transValue.title = 'Click to enter a custom duration';
+		const transInline: HTMLInputElement = document.createElement('input');
+		transInline.type = 'number';
+		transInline.className = 'nav-input';
+		transInline.min = '0';
+		transInline.max = '60000';
+		transInline.step = '50';
+		transInline.style.display = 'none';
+		transInline.style.width = '60px';
+		transValue.parentElement?.append(transInline);
+
+		const applyTransInline = (): void => {
+			const v: number = Math.max(0, Math.min(60000, Number(transInline.value) || 0));
+			if (transSlider) transSlider.value = String(Math.min(30000, v));
+			transValue.textContent = `${String(v)}ms`;
+			transInline.style.display = 'none';
+			transValue.style.display = '';
+		};
+
+		transValue.addEventListener('click', () => {
+			transInline.value = transSlider?.value ?? '500';
+			transValue.style.display = 'none';
+			transInline.style.display = '';
+			transInline.focus();
+			transInline.select();
+		});
+
+		transInline.addEventListener('keydown', (e: KeyboardEvent) => {
+			if (e.key === 'Enter') applyTransInline();
+			if (e.key === 'Escape') {
+				transInline.style.display = 'none';
+				transValue.style.display = '';
+			}
+		});
+		transInline.addEventListener('blur', applyTransInline);
+	}
 
 	// ── Reset Camera ───────────────────────────────────────────────
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
@@ -1517,6 +1606,10 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		}
 
 		resetCamera({ scene, camera: cam, preset: _currentPreset as CameraPreset });
+
+		// After resetting angles/fov/limits to defaults, center the camera on
+		// the map and zoom out to show the full tilemap (same as Refocus Map).
+		refocusMap(cam, scene, debug);
 	};
 
 	// ── Tactics Rotation ────────────────────────────────────────────
@@ -1535,6 +1628,21 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		}
 	};
 
+	// ── Tactical Rotation Angle Readout ─────────────────────────────
+	const tacticalAngleSpan: HTMLElement | null = document.querySelector('#tactical-angle');
+	if (tacticalAngleSpan) {
+		let tacFrameCount = 0;
+		scene.registerAfterRender(() => {
+			tacFrameCount++;
+			if (tacFrameCount % 6 !== 0) return;
+			const { camera: cam } = runtime;
+			if (cam instanceof BABYLON.ArcRotateCamera) {
+				const deg: number = ((((cam.alpha * 180) / Math.PI) % 360) + 360) % 360;
+				tacticalAngleSpan.textContent = `${Math.round(deg)}°`;
+			}
+		});
+	}
+
 	// ── Screen Shake ────────────────────────────────────────────────
 	buildShakeUI(scene, runtime.camera);
 
@@ -1548,11 +1656,11 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		const hour = Number(timeSlider.value);
 		debug.setTime(hour);
 		updateTimeDisplay(hour);
-		// Clear preset dropdown when slider is dragged manually
+		// Switch preset dropdown to "-- Custom --" when slider is dragged manually
 		const presetSelect = document.querySelector(
 			'select[data-control="daynight-preset"]',
 		) as HTMLSelectElement | null;
-		if (presetSelect) presetSelect.selectedIndex = -1;
+		if (presetSelect) presetSelect.value = '__custom__';
 	});
 
 	let _lastDayNightSpeed = 1.0;
@@ -1590,34 +1698,43 @@ function wireUI(runtime: RuntimeInstance, debug: DevDebugApi): void {
 		night: 22,
 	};
 	if (dayNightDropdownContainer) {
-		dayNightDropdownContainer.append(
-			createDropdown(
-				'Time Preset',
-				[
-					{ value: 'dawn', label: 'Dawn (5:00)' },
-					{ value: 'goldenMorning', label: 'Golden Morning (6:30)' },
-					{ value: 'morning', label: 'Morning (8:00)' },
-					{ value: 'noon', label: 'Noon (12:00)' },
-					{ value: 'afternoon', label: 'Afternoon (15:00)' },
-					{ value: 'goldenEvening', label: 'Golden Evening (17:30)' },
-					{ value: 'dusk', label: 'Dusk (19:00)' },
-					{ value: 'twilight', label: 'Twilight (20:30)' },
-					{ value: 'night', label: 'Night (22:00)' },
-					{ value: 'midnight', label: 'Midnight (0:00)' },
-					{ value: 'lateNight', label: 'Late Night (2:00)' },
-					{ value: 'predawn', label: 'Pre-Dawn (4:00)' },
-				],
-				'noon',
-				(val) => {
-					const hour = timePresetMap[val] ?? 12;
-					debug.setTime(hour);
-					if (timeSlider) timeSlider.value = String(hour);
-					updateTimeDisplay(hour);
-				},
-				'daynight-preset',
-				'Quick-jump to a predefined time of day.',
-			),
+		const presetDropdownRow = createDropdown(
+			'Time Preset',
+			[
+				{ value: '__custom__', label: '\u2014' },
+				{ value: 'dawn', label: 'Dawn (5:00)' },
+				{ value: 'goldenMorning', label: 'Golden Morning (6:30)' },
+				{ value: 'morning', label: 'Morning (8:00)' },
+				{ value: 'noon', label: 'Noon (12:00)' },
+				{ value: 'afternoon', label: 'Afternoon (15:00)' },
+				{ value: 'goldenEvening', label: 'Golden Evening (17:30)' },
+				{ value: 'dusk', label: 'Dusk (19:00)' },
+				{ value: 'twilight', label: 'Twilight (20:30)' },
+				{ value: 'night', label: 'Night (22:00)' },
+				{ value: 'midnight', label: 'Midnight (0:00)' },
+				{ value: 'lateNight', label: 'Late Night (2:00)' },
+				{ value: 'predawn', label: 'Pre-Dawn (4:00)' },
+			],
+			'noon',
+			(val) => {
+				if (val === '__custom__') return;
+				const hour = timePresetMap[val] ?? 12;
+				debug.setTime(hour);
+				if (timeSlider) timeSlider.value = String(hour);
+				updateTimeDisplay(hour);
+			},
+			'daynight-preset',
+			'Quick-jump to a predefined time of day.',
 		);
+		// Mark the "-- Custom --" placeholder as disabled + hidden so it can't be picked
+		const customOpt = presetDropdownRow.querySelector(
+			'option[value="__custom__"]',
+		) as HTMLOptionElement | null;
+		if (customOpt) {
+			customOpt.disabled = true;
+			customOpt.hidden = true;
+		}
+		dayNightDropdownContainer.append(presetDropdownRow);
 	}
 
 	// Pause/Play toggle
@@ -4514,25 +4631,65 @@ function buildTransitionsUI(scene: BABYLON.Scene): void {
 	durLbl.textContent = 'Duration (ms)';
 	const durSlider = document.createElement('input');
 	durSlider.type = 'range';
-	durSlider.min = '100';
-	durSlider.max = '10000';
-	durSlider.step = '100';
+	durSlider.min = '0';
+	durSlider.max = '30000';
+	durSlider.step = '50';
 	durSlider.value = String(currentDuration);
 	const durVal = document.createElement('span');
 	durVal.className = 'control-value';
 	durVal.textContent = `${currentDuration}ms`;
+	durVal.style.cursor = 'pointer';
+	durVal.title = 'Click to enter a custom duration';
 	durSlider.addEventListener('input', () => {
 		const v = Number(durSlider.value);
 		durVal.textContent = `${v}ms`;
 		currentDuration = v;
 	});
+
+	// Inline-editable duration value (click the "500ms" to type a custom value)
+	const durInlineInput = document.createElement('input');
+	durInlineInput.type = 'number';
+	durInlineInput.className = 'nav-input';
+	durInlineInput.min = '0';
+	durInlineInput.max = '60000';
+	durInlineInput.step = '50';
+	durInlineInput.style.display = 'none';
+	durInlineInput.style.width = '60px';
+
+	const applyDurInline = (): void => {
+		const v = Math.max(0, Math.min(60000, Number(durInlineInput.value) || 0));
+		currentDuration = v;
+		durSlider.value = String(Math.min(30000, v));
+		durVal.textContent = `${v}ms`;
+		durInlineInput.style.display = 'none';
+		durVal.style.display = '';
+	};
+
+	durVal.addEventListener('click', () => {
+		durInlineInput.value = String(currentDuration);
+		durVal.style.display = 'none';
+		durInlineInput.style.display = '';
+		durInlineInput.focus();
+		durInlineInput.select();
+	});
+
+	durInlineInput.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === 'Enter') applyDurInline();
+		if (e.key === 'Escape') {
+			durInlineInput.style.display = 'none';
+			durVal.style.display = '';
+		}
+	});
+	durInlineInput.addEventListener('blur', applyDurInline);
+
 	durRow.append(
 		wrapWithTooltip(
 			durLbl,
-			'Transition length in milliseconds. 500 = fast, 2000 = slow, cinematic.',
+			'Transition length in milliseconds. 0 = instant, 500 = fast, 2000 = slow, 30000 = cinematic.',
 		),
 		durSlider,
 		durVal,
+		durInlineInput,
 	);
 	container.append(durRow);
 
@@ -7339,6 +7496,12 @@ function lookupTileAtIndex(tilemap: RenderedTilemap, tileIndex: Num): Num {
 /** Reference to the floating tile picker panel so we don't create duplicates. */
 let _tilePickerPanel: HTMLElement | null = null;
 
+/** Callback to redraw the tile picker palette (set when panel is open, null when closed). */
+let _tilePickerRedraw: (() => void) | null = null;
+
+/** Callback to sync the tile picker to the inspected tile's tileset (set when panel is open). */
+let _tilePickerSyncTileset: (() => void) | null = null;
+
 /** Zoom level for the tile picker palette (1×–6×). */
 let _tilePickerZoom: Num = 2;
 
@@ -7373,6 +7536,8 @@ function closeTilePickerPanel(): void {
 		_tilePickerPanel.remove();
 		_tilePickerPanel = null;
 	}
+	_tilePickerRedraw = null;
+	_tilePickerSyncTileset = null;
 	const tip: HTMLElement | null = document.querySelector('#tile-picker-tooltip');
 	if (tip) tip.remove();
 }
@@ -7410,17 +7575,19 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		'width:340px',
 		'min-width:280px',
 		'min-height:300px',
-		'height:85vh',
-		'background:#1a1a1a',
-		'border:1px solid #444',
-		'border-radius:6px',
-		'box-shadow:0 4px 16px rgba(0,0,0,0.6)',
+		'height:500px',
+		'background:rgba(18,18,24,0.93)',
+		'border:1px solid rgba(255,255,255,0.08)',
+		'border-radius:8px',
+		'backdrop-filter:blur(12px)',
+		'-webkit-backdrop-filter:blur(12px)',
+		'box-shadow:0 4px 20px rgba(0,0,0,0.5)',
 		'z-index:10001',
 		'display:flex',
 		'flex-direction:column',
-		'font-family:monospace',
+		'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Inter,Roboto,Helvetica,Arial,sans-serif',
 		'font-size:11px',
-		'color:#ccc',
+		'color:#e0e0e0',
 	].join(';');
 	_tilePickerPanel = panel;
 
@@ -7430,21 +7597,32 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		'display:flex',
 		'align-items:center',
 		'justify-content:space-between',
-		'padding:6px 10px',
-		'background:#252525',
-		'border-bottom:1px solid #444',
-		'border-radius:6px 6px 0 0',
+		'padding:8px 12px',
+		'background:rgba(18,18,24,0.98)',
+		'border-bottom:1px solid rgba(255,255,255,0.06)',
+		'border-radius:8px 8px 0 0',
 		'cursor:grab',
 		'user-select:none',
 		'flex-shrink:0',
+		'backdrop-filter:blur(12px)',
+		'transition:background 0.12s',
 	].join(';');
 	const titleText: HTMLElement = document.createElement('span');
 	titleText.textContent = 'Tile Picker';
-	titleText.style.fontWeight = 'bold';
+	titleText.style.cssText =
+		'font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:#6ecfcf;';
 	const closeBtn: HTMLButtonElement = document.createElement('button');
 	closeBtn.textContent = '×';
 	closeBtn.style.cssText =
-		'background:none;border:none;color:#888;cursor:pointer;font-size:14px;font-weight:bold;line-height:1;';
+		'background:none;border:none;color:#888;cursor:pointer;font-size:14px;line-height:1;opacity:0.6;padding:0 2px;border-radius:3px;transition:all 0.12s;';
+	closeBtn.addEventListener('mouseenter', () => {
+		closeBtn.style.opacity = '1';
+		closeBtn.style.background = 'rgba(255,255,255,0.1)';
+	});
+	closeBtn.addEventListener('mouseleave', () => {
+		closeBtn.style.opacity = '0.6';
+		closeBtn.style.background = 'none';
+	});
 	closeBtn.addEventListener('pointerdown', (e: PointerEvent) => {
 		e.stopPropagation();
 	});
@@ -7475,81 +7653,17 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		titleBar.style.cursor = 'grab';
 	});
 
-	// ── Tileset tabs ─────────────────────────────────────────────
-	const tabBar: HTMLElement = document.createElement('div');
-	tabBar.style.cssText = [
-		'display:flex',
-		'gap:0',
-		'padding:0 8px',
-		'background:#222',
-		'border-bottom:1px solid #333',
-		'flex-shrink:0',
-		'overflow-x:auto',
-	].join(';');
-	const tabButtons: HTMLButtonElement[] = [];
-	const setActiveTab = (idx: Num): void => {
-		for (let i: Num = 0; i < tabButtons.length; i++) {
-			const btn: HTMLButtonElement | undefined = tabButtons[i];
-			if (!btn) continue;
-			btn.style.borderBottom = i === idx ? '2px solid #50c8c8' : '2px solid transparent';
-			btn.style.color = i === idx ? '#e0e0e0' : '#888';
-		}
-	};
-	const createTabButton = (idx: Num, name: string): HTMLButtonElement => {
-		const btn: HTMLButtonElement = document.createElement('button');
-		btn.textContent = name;
-		btn.style.cssText = [
-			'background:none',
-			'border:none',
-			'border-bottom:2px solid transparent',
-			'color:#888',
-			'cursor:pointer',
-			'padding:6px 10px',
-			'font-family:monospace',
-			'font-size:10px',
-			'white-space:nowrap',
-			'transition:color 0.15s',
-		].join(';');
-		btn.addEventListener('click', () => {
-			pickerTsIdx = idx;
-			setActiveTab(idx);
-			hoveredLocal = -1;
-			kbCursorCol = -1;
-			kbCursorRow = -1;
-			drawPalette(pickerTsIdx);
-		});
-		return btn;
-	};
-	for (let ti: Num = 0; ti < tilesetNames.length; ti++) {
-		const btn: HTMLButtonElement = createTabButton(ti, tilesetNames[ti] ?? `Tileset ${String(ti)}`);
-		tabButtons.push(btn);
-		tabBar.append(btn);
-	}
-	setActiveTab(0);
-	panel.append(tabBar);
+	// Tileset dropdown is built later and placed in the bottom action bar.
 
-	// ── Recently used tiles row ──────────────────────────────────
-	const recentRow: HTMLElement = document.createElement('div');
-	recentRow.style.cssText = [
-		'display:flex',
-		'align-items:center',
-		'gap:3px',
-		'padding:4px 8px',
-		'background:#1e1e1e',
-		'border-bottom:1px solid #333',
-		'flex:0 0 auto',
-		'overflow-x:auto',
-		'max-height:40px',
-	].join(';');
-	const recentLabel: HTMLElement = document.createElement('span');
-	recentLabel.style.cssText = 'color:#555;font-size:9px;margin-right:4px;white-space:nowrap;';
-	recentLabel.textContent = 'Recent:';
-	recentRow.append(recentLabel);
+	// ── Recently used tiles (collapsible subsection) ────────────
+	const recentGroup = createCollapsibleGroup('Recent Tiles', false);
+	const recentRow: HTMLElement = recentGroup.root;
+	recentRow.style.flexShrink = '0';
 	const recentContainer: HTMLElement = document.createElement('div');
 	recentContainer.style.cssText =
-		'display:flex;gap:3px;align-items:center;overflow-x:auto;flex:1 1 auto;';
-	recentRow.append(recentContainer);
-	panel.append(recentRow);
+		'display:flex;gap:3px;align-items:center;overflow-x:auto;padding:2px 0;';
+	recentGroup.body.append(recentContainer);
+	// recentRow is appended after actionBar below (bottom of panel).
 
 	/**
 	 * Redraws the recently-used tiles row from `_recentTiles`.
@@ -7558,7 +7672,7 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		recentContainer.innerHTML = '';
 		if (_recentTiles.length === 0) {
 			const emptyMsg: HTMLElement = document.createElement('span');
-			emptyMsg.style.cssText = 'color:#444;font-size:9px;font-style:italic;';
+			emptyMsg.style.cssText = 'color:rgba(255,255,255,0.2);font-size:9px;font-style:italic;';
 			emptyMsg.textContent = 'No recent tiles';
 			recentContainer.append(emptyMsg);
 			return;
@@ -7568,12 +7682,12 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 			miniCanvas.width = 32;
 			miniCanvas.height = 32;
 			miniCanvas.style.cssText =
-				'width:32px;height:32px;flex-shrink:0;border:1px solid #444;background:#111;cursor:pointer;image-rendering:pixelated;border-radius:2px;';
+				'width:32px;height:32px;flex-shrink:0;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);cursor:pointer;image-rendering:pixelated;border-radius:3px;transition:border-color 0.12s;';
 			miniCanvas.addEventListener('mouseenter', () => {
-				miniCanvas.style.borderColor = '#50c8c8';
+				miniCanvas.style.borderColor = 'rgba(80,200,200,0.5)';
 			});
 			miniCanvas.addEventListener('mouseleave', () => {
-				miniCanvas.style.borderColor = '#444';
+				miniCanvas.style.borderColor = 'rgba(255,255,255,0.1)';
 			});
 			// Draw the tile image into mini canvas
 			drawRecentTile(miniCanvas, gid, tilemap);
@@ -7585,61 +7699,11 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		}
 	};
 
-	// ── Toolbar (zoom + grid) ────────────────────────────────────
-	const toolbar: HTMLElement = document.createElement('div');
-	toolbar.style.cssText = [
-		'display:flex',
-		'align-items:center',
-		'gap:8px',
-		'padding:4px 8px',
-		'background:#222',
-		'border-bottom:1px solid #333',
-		'flex-shrink:0',
-	].join(';');
-
-	// Zoom control
-	const zoomLabel: HTMLElement = document.createElement('span');
-	zoomLabel.style.cssText = 'color:#888;font-size:9px;';
-	zoomLabel.textContent = 'Zoom';
-	const zoomSlider: HTMLInputElement = document.createElement('input');
-	zoomSlider.type = 'range';
-	zoomSlider.min = '1';
-	zoomSlider.max = '6';
-	zoomSlider.step = '1';
-	zoomSlider.value = String(_tilePickerZoom);
-	zoomSlider.style.cssText = 'width:60px;accent-color:#50c8c8;';
-	const zoomVal: HTMLElement = document.createElement('span');
-	zoomVal.style.cssText = 'color:#aaa;font-size:10px;min-width:18px;';
-	zoomVal.textContent = `${String(_tilePickerZoom)}×`;
-	zoomSlider.addEventListener('input', () => {
-		_tilePickerZoom = Number(zoomSlider.value);
-		zoomVal.textContent = `${String(_tilePickerZoom)}×`;
-		drawPalette(pickerTsIdx);
-	});
-
-	// Grid toggle
-	const gridLabel: HTMLElement = document.createElement('label');
-	gridLabel.style.cssText =
-		'display:flex;align-items:center;gap:3px;cursor:pointer;margin-left:auto;';
-	const gridCheckbox: HTMLInputElement = document.createElement('input');
-	gridCheckbox.type = 'checkbox';
-	gridCheckbox.checked = _tilePickerGrid;
-	gridCheckbox.style.cssText = 'accent-color:#50c8c8;';
-	gridCheckbox.addEventListener('change', () => {
-		_tilePickerGrid = gridCheckbox.checked;
-		drawPalette(pickerTsIdx);
-	});
-	const gridText: HTMLElement = document.createElement('span');
-	gridText.style.cssText = 'color:#888;font-size:9px;';
-	gridText.textContent = 'Grid';
-	gridLabel.append(gridCheckbox, gridText);
-
-	toolbar.append(zoomLabel, zoomSlider, zoomVal, gridLabel);
-	panel.append(toolbar);
+	// Zoom + grid controls are built later and placed in the bottom action bar.
 
 	// ── Palette viewport (scrollable) ────────────────────────────
 	const viewport: HTMLElement = document.createElement('div');
-	viewport.style.cssText = 'overflow:auto;flex:1;min-height:0;background:#111;';
+	viewport.style.cssText = 'overflow:auto;flex:1;min-height:0;background:rgba(0,0,0,0.3);';
 
 	const paletteCanvas: HTMLCanvasElement = document.createElement('canvas');
 	paletteCanvas.tabIndex = 0;
@@ -7651,39 +7715,111 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 	tooltip.id = 'tile-picker-tooltip';
 	tooltip.style.cssText = [
 		'position:fixed',
-		'background:rgba(0,0,0,0.85)',
+		'background:rgba(18,18,24,0.95)',
 		'color:#e0e0e0',
-		'padding:2px 6px',
-		'border-radius:3px',
+		'padding:3px 8px',
+		'border:1px solid rgba(255,255,255,0.1)',
+		'border-radius:4px',
 		'font-size:10px',
-		'font-family:monospace',
+		'font-family:inherit',
 		'pointer-events:none',
 		'z-index:10002',
 		'display:none',
 		'white-space:nowrap',
+		'backdrop-filter:blur(8px)',
 	].join(';');
 
 	viewport.append(paletteCanvas);
 	panel.append(viewport);
 
-	// ── Status bar ───────────────────────────────────────────────
-	const statusBar: HTMLElement = document.createElement('div');
-	statusBar.style.cssText = [
+	// ── Bottom action bar (structured control rows) ──
+	const actionBar: HTMLElement = document.createElement('div');
+	actionBar.style.cssText = [
 		'display:flex',
-		'justify-content:space-between',
-		'padding:3px 8px',
-		'background:#1e1e1e',
-		'border-top:1px solid #333',
+		'flex-direction:column',
+		'gap:0',
+		'padding:4px 8px 0',
+		'border-top:1px solid rgba(255,255,255,0.1)',
 		'flex-shrink:0',
-		'font-size:9px',
-		'min-height:20px',
 	].join(';');
-	const statusHover: HTMLElement = document.createElement('span');
-	statusHover.style.color = '#888';
+
+	// Row 1: Tileset dropdown (uses standard helper)
+	const tsOptions: Array<{ value: string; label: string }> = tilesetNames.map(
+		(name: string, i: number) => ({
+			value: String(i),
+			label: name || `Tileset ${String(i)}`,
+		}),
+	);
+	const tsRow: HTMLElement = createDropdown(
+		'Tileset',
+		tsOptions,
+		'0',
+		(val: string) => {
+			pickerTsIdx = Number(val);
+			hoveredLocal = -1;
+			kbCursorCol = -1;
+			kbCursorRow = -1;
+			drawPalette(pickerTsIdx);
+		},
+		'tp-tileset',
+		'Select which tileset to browse.',
+	);
+
+	// Row 2: Zoom slider (uses standard helper)
+	const zoomRow: HTMLElement = createSliderRow(
+		'Zoom',
+		1,
+		6,
+		1,
+		_tilePickerZoom,
+		(val: Num) => {
+			_tilePickerZoom = val;
+			drawPalette(pickerTsIdx);
+		},
+		'tp-zoom',
+		'Tile picker zoom level (1×–6×).',
+	);
+
+	// Row 3: Grid toggle (uses standard helper — matches toggle-switch pattern)
+	const gridRow: HTMLElement = createToggleRow(
+		'Grid',
+		_tilePickerGrid,
+		(on: boolean) => {
+			_tilePickerGrid = on;
+			drawPalette(pickerTsIdx);
+		},
+		'tp-grid',
+		'Toggle tile grid lines in the picker.',
+	);
+
+	// Row 4: Selected tile preview + hover info
+	const statusRow: HTMLElement = document.createElement('div');
+	statusRow.style.cssText =
+		'display:flex;align-items:center;gap:8px;padding:6px 8px;border-top:1px solid rgba(255,255,255,0.08);min-height:36px;';
+
+	// Mini preview canvas for selected tile
+	const statusPreview: HTMLCanvasElement = document.createElement('canvas');
+	statusPreview.width = 16;
+	statusPreview.height = 16;
+	statusPreview.style.cssText =
+		'width:32px;height:32px;border:1px solid rgba(110,207,207,0.25);border-radius:3px;background:#181820;image-rendering:pixelated;flex-shrink:0;display:none;';
+
 	const statusSelected: HTMLElement = document.createElement('span');
-	statusSelected.style.color = '#50c8c8';
-	statusBar.append(statusHover, statusSelected);
-	panel.append(statusBar);
+	statusSelected.style.cssText =
+		'color:#ccc;font-size:10px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4;';
+
+	const statusHover: HTMLElement = document.createElement('span');
+	statusHover.style.cssText = 'color:#777;font-size:9px;flex-shrink:0;white-space:nowrap;';
+
+	const statusEmpty: HTMLElement = document.createElement('span');
+	statusEmpty.style.cssText = 'color:#555;font-size:10px;font-style:italic;';
+	statusEmpty.textContent = 'No tile selected';
+
+	statusRow.append(statusPreview, statusSelected, statusEmpty, statusHover);
+
+	actionBar.append(tsRow, zoomRow, gridRow, statusRow);
+	panel.append(actionBar);
+	panel.append(recentRow);
 
 	// ── Resize handle ────────────────────────────────────────────
 	const resizeHandle: HTMLElement = document.createElement('div');
@@ -7697,10 +7833,11 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		'display:flex',
 		'align-items:center',
 		'justify-content:center',
-		'color:#555',
+		'color:rgba(255,255,255,0.2)',
 		'font-size:8px',
 		'user-select:none',
-		'border-radius:0 0 6px 0',
+		'border-radius:0 0 8px 0',
+		'transition:color 0.12s',
 	].join(';');
 	resizeHandle.textContent = '⋱';
 	panel.style.position = 'fixed'; // ensure relative for absolute child
@@ -7731,6 +7868,15 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		isResizing = false;
 	});
 
+	// ── Helper: effective grid dimensions (accounts for autotile expansion) ──
+	const getEffectiveDims = (ts: (typeof tilemap.tilesets)[number]): { columns: Num; rows: Num } => {
+		const { autotileType, columns, rows } = ts.config;
+		if (autotileType === 'terrain_48' && columns === 2 && rows === 3) {
+			return { columns: 8, rows: 6 };
+		}
+		return { columns, rows };
+	};
+
 	// ── Helper: get selected local index for a tileset ───────────
 	const getSelectedLocalForTileset = (tsIdx: Num): Num => {
 		if (_lastInspectX < 0 || _lastInspectZ < 0) return -1;
@@ -7741,7 +7887,8 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		if (globalId === 0) return -1;
 		const ts = currentTm.tilesets[tsIdx];
 		if (!ts) return -1;
-		const { firstGid, columns, rows } = ts.config;
+		const { firstGid } = ts.config;
+		const { columns, rows } = getEffectiveDims(ts);
 		const local: Num = globalId - firstGid;
 		if (local < 0 || local >= columns * rows) return -1;
 		return local;
@@ -7751,7 +7898,8 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 	const drawPalette = (tsIdx: Num): void => {
 		const ts = tilemap.tilesets[tsIdx];
 		if (!ts) return;
-		const { columns, rows, tileWidth, tileHeight } = ts.config;
+		const { tileWidth, tileHeight } = ts.config;
+		const { columns, rows } = getEffectiveDims(ts);
 		const zoom: Num = _tilePickerZoom;
 		const cw: Num = columns * tileWidth * zoom;
 		const ch: Num = rows * tileHeight * zoom;
@@ -7769,7 +7917,8 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		const drawOverlays = (): void => {
 			// Grid overlay
 			if (_tilePickerGrid) {
-				ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+				const gc: BABYLON.Color3 = _gridColor;
+				ctx.strokeStyle = `rgba(${Math.round(gc.r * 255)},${Math.round(gc.g * 255)},${Math.round(gc.b * 255)},${String(_gridAlpha)})`;
 				ctx.lineWidth = 1;
 				ctx.beginPath();
 				for (let c: Num = 1; c < columns; c++) {
@@ -7785,18 +7934,24 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 				ctx.stroke();
 			}
 
-			// Selected tile highlight (solid cyan)
+			// Selected tile highlight (matches dev harness selection style)
 			if (selectedLocal >= 0) {
 				const sCol: Num = selectedLocal % columns;
 				const sRow: Num = Math.floor(selectedLocal / columns);
-				ctx.strokeStyle = '#00ffff';
-				ctx.lineWidth = 2;
-				ctx.strokeRect(
-					sCol * tileWidth * zoom + 1,
-					sRow * tileHeight * zoom + 1,
-					tileWidth * zoom - 2,
-					tileHeight * zoom - 2,
-				);
+				const sx: Num = sCol * tileWidth * zoom;
+				const sy: Num = sRow * tileHeight * zoom;
+				const sw: Num = tileWidth * zoom;
+				const sh: Num = tileHeight * zoom;
+				// Fill
+				const fc: BABYLON.Color3 = _selectionFillColor;
+				ctx.fillStyle = `rgba(${Math.round(fc.r * 255)},${Math.round(fc.g * 255)},${Math.round(fc.b * 255)},${String(_selectionFillAlpha)})`;
+				ctx.fillRect(sx, sy, sw, sh);
+				// Edge
+				const ec: BABYLON.Color3 = _selectionColor;
+				ctx.strokeStyle = `rgba(${Math.round(ec.r * 255)},${Math.round(ec.g * 255)},${Math.round(ec.b * 255)},${String(_selectionAlpha)})`;
+				ctx.lineWidth = Math.max(1, Math.round(_selectionEdgeWidth * zoom * 16));
+				const hw: Num = ctx.lineWidth / 2;
+				ctx.strokeRect(sx + hw, sy + hw, sw - ctx.lineWidth, sh - ctx.lineWidth);
 			}
 
 			// Hover highlight (white overlay)
@@ -7848,6 +8003,42 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		}
 	};
 
+	// ── Draw a single tile into a mini canvas (for recent row + status preview) ─
+	const drawRecentTile = (canvas: HTMLCanvasElement, gid: Num, tm: RenderedTilemap): void => {
+		const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+		if (!ctx) return;
+		ctx.imageSmoothingEnabled = false;
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+		// Find which tileset this gid belongs to
+		const resolved = resolveGlobalTileId({
+			globalId: gid,
+			tilesets: tm.tilesets,
+		});
+		if (!resolved.ok || resolved.data === null) return;
+		const { tileset, localIndex } = resolved.data;
+		const { tileWidth, tileHeight } = tileset.config;
+		const { columns } = getEffectiveDims(tileset);
+		const srcCol: Num = localIndex % columns;
+		const srcRow: Num = Math.floor(localIndex / columns);
+
+		const imgUrl: string = tileset.texture.name;
+		const cached: HTMLImageElement | undefined = _tilesetImages.get(imgUrl);
+		if (cached?.complete) {
+			ctx.drawImage(
+				cached,
+				srcCol * tileWidth,
+				srcRow * tileHeight,
+				tileWidth,
+				tileHeight,
+				0,
+				0,
+				canvas.width,
+				canvas.height,
+			);
+		}
+	};
+
 	// ── Status bar update helpers ────────────────────────────────
 	const updateStatusHover = (localIdx: Num, tsIdx: Num): void => {
 		if (localIdx < 0) {
@@ -7856,23 +8047,32 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		}
 		const ts = tilemap.tilesets[tsIdx];
 		if (!ts) return;
-		const { columns } = ts.config;
+		const { columns } = getEffectiveDims(ts);
 		const col: Num = localIdx % columns;
 		const row: Num = Math.floor(localIdx / columns);
-		statusHover.textContent = `Hover: #${String(localIdx)} (${String(col)}, ${String(row)})`;
+		statusHover.textContent = `#${String(localIdx)} (${String(col)}, ${String(row)})`;
 	};
 
 	const updateStatusSelected = (localIdx: Num, tsIdx: Num): void => {
 		if (localIdx < 0) {
 			statusSelected.textContent = '';
+			statusPreview.style.display = 'none';
+			statusEmpty.style.display = '';
 			return;
 		}
 		const ts = tilemap.tilesets[tsIdx];
 		if (!ts) return;
-		const { columns } = ts.config;
+		const { columns } = getEffectiveDims(ts);
 		const col: Num = localIdx % columns;
 		const row: Num = Math.floor(localIdx / columns);
-		statusSelected.textContent = `Selected: #${String(localIdx)} (${String(col)}, ${String(row)})`;
+		const tsName: string = tilesetNames[tsIdx] ?? `Tileset ${String(tsIdx)}`;
+		statusSelected.textContent = `${tsName} #${String(localIdx)} (${String(col)}, ${String(row)})`;
+		statusPreview.style.display = '';
+		statusEmpty.style.display = 'none';
+
+		// Draw the selected tile into the mini preview
+		const gid: Num = localIdx + (ts.config.firstGid ?? 0);
+		drawRecentTile(statusPreview, gid, tilemap);
 	};
 
 	// ── Place tile helper (shared by click, keyboard, recent) ────
@@ -7901,46 +8101,12 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		}
 	};
 
-	// ── Draw a single tile into a mini canvas (for recent row) ───
-	const drawRecentTile = (canvas: HTMLCanvasElement, gid: Num, tm: RenderedTilemap): void => {
-		const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
-		if (!ctx) return;
-		ctx.imageSmoothingEnabled = false;
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-		// Find which tileset this gid belongs to
-		const resolved = resolveGlobalTileId({
-			globalId: gid,
-			tilesets: tm.tilesets,
-		});
-		if (!resolved.ok || resolved.data === null) return;
-		const { tileset, localIndex } = resolved.data;
-		const { columns, tileWidth, tileHeight } = tileset.config;
-		const srcCol: Num = localIndex % columns;
-		const srcRow: Num = Math.floor(localIndex / columns);
-
-		const imgUrl: string = tileset.texture.name;
-		const cached: HTMLImageElement | undefined = _tilesetImages.get(imgUrl);
-		if (cached?.complete) {
-			ctx.drawImage(
-				cached,
-				srcCol * tileWidth,
-				srcRow * tileHeight,
-				tileWidth,
-				tileHeight,
-				0,
-				0,
-				canvas.width,
-				canvas.height,
-			);
-		}
-	};
-
 	// ── Hover handler ────────────────────────────────────────────
 	paletteCanvas.addEventListener('pointermove', (evt: PointerEvent) => {
 		const ts = tilemap.tilesets[pickerTsIdx];
 		if (!ts) return;
-		const { columns, rows, tileWidth, tileHeight } = ts.config;
+		const { tileWidth, tileHeight } = ts.config;
+		const { columns, rows } = getEffectiveDims(ts);
 		const zoom: Num = _tilePickerZoom;
 		const rect: DOMRect = paletteCanvas.getBoundingClientRect();
 		const scaleX: Num = paletteCanvas.width / rect.width;
@@ -7991,7 +8157,8 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 		const ts = currentTilemap.tilesets[pickerTsIdx];
 		if (!ts) return;
 
-		const { columns, tileWidth, tileHeight, firstGid } = ts.config;
+		const { tileWidth, tileHeight, firstGid } = ts.config;
+		const { columns } = getEffectiveDims(ts);
 		const zoom: Num = _tilePickerZoom;
 		const rect: DOMRect = paletteCanvas.getBoundingClientRect();
 		const scaleX: Num = paletteCanvas.width / rect.width;
@@ -8011,7 +8178,8 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 	paletteCanvas.addEventListener('keydown', (evt: KeyboardEvent) => {
 		const ts = tilemap.tilesets[pickerTsIdx];
 		if (!ts) return;
-		const { columns, rows, tileWidth, tileHeight, firstGid } = ts.config;
+		const { tileWidth, tileHeight, firstGid } = ts.config;
+		const { columns, rows } = getEffectiveDims(ts);
 
 		// Initialize keyboard cursor if not set
 		if (kbCursorCol < 0 || kbCursorRow < 0) {
@@ -8089,6 +8257,38 @@ function openTilePickerPanel(debug: DevDebugApi, tilemap: RenderedTilemap): void
 	document.body.append(panel);
 	refreshRecentRow();
 	drawPalette(0);
+
+	// Expose redraw so external handlers (selection style, grid color) can trigger it
+	_tilePickerRedraw = () => {
+		drawPalette(pickerTsIdx);
+	};
+
+	// Expose sync so map clicks auto-switch the picker to the inspected tile's tileset
+	const tsSelect: HTMLSelectElement | null = tsRow.querySelector('select');
+	_tilePickerSyncTileset = () => {
+		if (_lastInspectX < 0 || _lastInspectZ < 0) return;
+		const currentTm: RenderedTilemap | null = debug.tilemap;
+		if (!currentTm) return;
+		const tileIndex: Num = _lastInspectZ * currentTm.mapData.width + _lastInspectX;
+		const globalId: Num = lookupTileAtIndex(currentTm, tileIndex);
+		if (globalId === 0) return;
+		// Find which tileset index this global ID belongs to
+		for (let i: Num = 0; i < currentTm.tilesets.length; i++) {
+			const ts = currentTm.tilesets[i];
+			if (!ts) continue;
+			const { firstGid } = ts.config;
+			const { columns, rows } = getEffectiveDims(ts);
+			const local: Num = globalId - firstGid;
+			if (local >= 0 && local < columns * rows) {
+				if (i !== pickerTsIdx) {
+					pickerTsIdx = i;
+					if (tsSelect) tsSelect.value = String(i);
+				}
+				drawPalette(pickerTsIdx);
+				return;
+			}
+		}
+	};
 }
 
 /**
@@ -9019,6 +9219,9 @@ function buildTileInspectorUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			applyDimLayers(tilemap);
 
 			refreshInspector(tilemap, gridX, gridZ);
+
+			// Sync tile picker to the inspected tile's tileset
+			_tilePickerSyncTileset?.();
 		};
 
 		canvas.addEventListener('pointerup', onClickUp);
@@ -10773,8 +10976,14 @@ function setInfoText(id: string, text: string): void {
 // Camera / Navigation UI
 // =============================================================================
 
+/** Maximum zoom multiplier for the navigation section. */
+const MAX_ZOOM = 64;
+
+/** Minimum zoom multiplier (< 1 = zoomed out beyond fit-to-map). */
+const MIN_ZOOM = 0.5;
+
 /** Zoom preset multipliers for the navigation section buttons. */
-const ZOOM_PRESETS: readonly number[] = [1, 2, 4, 8, 16];
+const ZOOM_PRESETS: readonly number[] = [0.5, 1, 2, 4, 8, 16, 32, 64];
 
 /**
  * Creates a readout row with a label and value span for the navigation section.
@@ -11345,9 +11554,8 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 	resizeBtn.textContent = 'Resize Map';
 	resizeBtn.title = 'Replace current map with a blank map at the specified dimensions';
 	resizeBtn.addEventListener('click', () => {
-		const newW: number = Math.max(1, Math.min(5000, Number(widthInput.value) || 1));
-		const newH: number = Math.max(1, Math.min(5000, Number(heightInput.value) || 1));
-		const total: number = newW * newH;
+		const newW: number = Math.max(1, Number(widthInput.value) || 1);
+		const newH: number = Math.max(1, Number(heightInput.value) || 1);
 
 		// Dispose current tilemap
 		const currentTilemap: RenderedTilemap | null = debug.tilemap;
@@ -11360,68 +11568,44 @@ function buildTestMapUI(debug: DevDebugApi, scene: BABYLON.Scene): void {
 			_propSystem = null;
 		}
 
-		// Create blank map data with a single grass tileset
-		const blankMapData: Record<string, unknown> = {
-			width: newW,
-			height: newH,
-			tileWidth: 32,
-			tileHeight: 32,
+		// Use fast blank tilemap renderer — no huge JS arrays, no per-tile
+		// schema validation, no intermediate copies. Directly fills GPU
+		// data textures with uniform tile IDs.
+		const result: BabylonResult<RenderedTilemap> = renderBlankTilemap({
+			scene,
+			width: newW as Num,
+			height: newH as Num,
+			assetBasePath: '/' as Str,
 			tilesets: TEST_MAP_DATA.tilesets,
 			layers: [
+				{ name: 'ground' as Str, type: 'ground' as Str, fillTileId: 1 as Num, opacity: 1 as Num },
 				{
-					name: 'ground',
-					type: 'ground',
-					data: Array.from<number>({ length: total }).fill(1),
-					visible: true,
-					opacity: 1,
+					name: 'ground_deco' as Str,
+					type: 'ground_deco' as Str,
+					fillTileId: 0 as Num,
+					opacity: 1 as Num,
 				},
-				{
-					name: 'ground_deco',
-					type: 'ground_deco',
-					data: Array.from<number>({ length: total }).fill(0),
-					visible: true,
-					opacity: 1,
-				},
-				{
-					name: 'upper1',
-					type: 'upper1',
-					data: Array.from<number>({ length: total }).fill(0),
-					visible: true,
-					opacity: 1,
-				},
-				{
-					name: 'shadow',
-					type: 'shadow',
-					data: Array.from<number>({ length: total }).fill(0),
-					visible: true,
-					opacity: 0.4,
-				},
+				{ name: 'upper1' as Str, type: 'upper1' as Str, fillTileId: 0 as Num, opacity: 1 as Num },
+				{ name: 'shadow' as Str, type: 'shadow' as Str, fillTileId: 0 as Num, opacity: 0.4 as Num },
 			],
-			heightMap: Array.from<number>({ length: total }).fill(0),
-			postProcessing: { preset: 'hd2d' },
-			lighting: (TEST_MAP_DATA as Record<string, unknown>).lighting,
-		};
-
-		const result: BabylonResult<RenderedTilemap> = renderTilemap({
-			scene,
-			mapDataInput: blankMapData,
-			assetBasePath: '/',
+			postProcessing: { preset: 'hd2d' } as unknown as MapData['postProcessing'],
+			lighting: (TEST_MAP_DATA as Record<string, unknown>).lighting as MapData['lighting'],
 		});
 		if (result.ok) {
 			debug.tilemap = result.data;
 			void applyMegaAtlas({ tilemap: result.data }).then((megaResult) => {
 				if (megaResult.ok) debug.tilemap = megaResult.data;
 			});
-			// User "Width" = screen horizontal (Z axis), "Height" = screen vertical (X axis)
-			// But mapData.width = columns on X, mapData.height = rows on Z
-			// So swap: _mapWidth (Z) = newW, _mapHeight (X) = newH from user perspective
-			// However blankMapData has width: newW → X axis, height: newH → Z axis
-			// So _mapHeight (X axis extent) = newW (mapData.width), _mapWidth (Z axis extent) = newH (mapData.height)
+			// _mapHeight (X axis extent) = newW (mapData.width)
+			// _mapWidth (Z axis extent) = newH (mapData.height)
 			_mapWidth = newH;
 			_mapHeight = newW;
 
 			// Reapply ortho bounds for new map size
 			const cam = scene.activeCamera as BABYLON.ArcRotateCamera;
+
+			// Ensure 3D presets can zoom out far enough for the new map size
+			updateRadiusLimitForMap(cam, _mapWidth, _mapHeight);
 			computeOrthoMax(scene, cam);
 			_orthoSize = initialOrthoSize(scene);
 			applyOrthoBounds(cam, scene);
@@ -11735,6 +11919,9 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 	// Grid controls are always visible (work in all camera modes)
 	const gridDiv: HTMLDivElement = document.createElement('div');
 
+	// Go To Tile + Camera Position (always visible — works in all camera presets)
+	const navDiv: HTMLDivElement = document.createElement('div');
+
 	// ── 0. Refocus Section (always visible — works in all presets) ──
 	const refocusSection: HTMLDivElement = document.createElement('div');
 	refocusSection.append(createSubHeader('Refocus'));
@@ -11750,10 +11937,10 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 	});
 	refocusSection.append(refocusBtn);
 
-	// ── 0b. Refocus Settings ──
-	refocusSection.append(createSubHeader('Refocus Settings'));
+	// ── 0b. Refocus Settings (collapsible, collapsed by default) ──
+	const refSettings = createCollapsibleGroup('Refocus Settings', true);
 
-	refocusSection.append(
+	refSettings.body.append(
 		createToggleRow(
 			'Animated',
 			_refocusAnimated,
@@ -11765,22 +11952,76 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 		),
 	);
 
-	refocusSection.append(
-		createSliderRow(
-			'Duration',
-			100,
-			3000,
-			50,
-			_refocusDurationMs,
-			(val: number) => {
-				_refocusDurationMs = val;
-			},
-			'nav-refocus-duration',
-			'Animation duration in milliseconds',
-		),
-	);
+	// Duration slider with "ms" suffix (custom to avoid "3.0k" formatting from createSliderRow)
+	const refDurRow: HTMLDivElement = document.createElement('div');
+	refDurRow.className = 'control-row';
+	refDurRow.dataset['type'] = 'slider';
+	refDurRow.dataset['control'] = 'nav-refocus-duration';
+	const refDurLbl: HTMLSpanElement = document.createElement('span');
+	refDurLbl.className = 'control-label';
+	refDurLbl.textContent = 'Duration';
+	const refDurSlider: HTMLInputElement = document.createElement('input');
+	refDurSlider.type = 'range';
+	refDurSlider.min = '0';
+	refDurSlider.max = '30000';
+	refDurSlider.step = '50';
+	refDurSlider.value = String(_refocusDurationMs);
+	const refDurVal: HTMLSpanElement = document.createElement('span');
+	refDurVal.className = 'control-value';
+	refDurVal.textContent = `${_refocusDurationMs}ms`;
+	refDurVal.style.cursor = 'pointer';
+	refDurVal.title = 'Click to enter a custom duration';
+	refDurSlider.addEventListener('input', () => {
+		const v: number = Number(refDurSlider.value);
+		refDurVal.textContent = `${v}ms`;
+		_refocusDurationMs = v;
+	});
 
-	refocusSection.append(
+	// Inline-editable duration value
+	const refDurInline: HTMLInputElement = document.createElement('input');
+	refDurInline.type = 'number';
+	refDurInline.className = 'nav-input';
+	refDurInline.min = '0';
+	refDurInline.max = '60000';
+	refDurInline.step = '50';
+	refDurInline.style.display = 'none';
+	refDurInline.style.width = '60px';
+
+	const applyRefDur = (): void => {
+		const v: number = Math.max(0, Math.min(60000, Number(refDurInline.value) || 0));
+		_refocusDurationMs = v;
+		refDurSlider.value = String(Math.min(30000, v));
+		refDurVal.textContent = `${v}ms`;
+		refDurInline.style.display = 'none';
+		refDurVal.style.display = '';
+	};
+
+	refDurVal.addEventListener('click', () => {
+		refDurInline.value = String(_refocusDurationMs);
+		refDurVal.style.display = 'none';
+		refDurInline.style.display = '';
+		refDurInline.focus();
+		refDurInline.select();
+	});
+
+	refDurInline.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === 'Enter') applyRefDur();
+		if (e.key === 'Escape') {
+			refDurInline.style.display = 'none';
+			refDurVal.style.display = '';
+		}
+	});
+	refDurInline.addEventListener('blur', applyRefDur);
+
+	refDurRow.append(
+		wrapWithTooltip(refDurLbl, 'Animation duration in milliseconds. 0 = instant.'),
+		refDurSlider,
+		refDurVal,
+		refDurInline,
+	);
+	refSettings.body.append(refDurRow);
+
+	refSettings.body.append(
 		createDropdown(
 			'Easing',
 			[
@@ -11798,7 +12039,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 		),
 	);
 
-	refocusSection.append(
+	refSettings.body.append(
 		createSliderRow(
 			'Padding',
 			1.0,
@@ -11813,7 +12054,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 		),
 	);
 
-	refocusSection.append(
+	refSettings.body.append(
 		createToggleRow(
 			'Reset Elevation',
 			_refocusResetElevation,
@@ -11825,7 +12066,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 		),
 	);
 
-	refocusSection.append(
+	refSettings.body.append(
 		createToggleRow(
 			'Reset Orbit',
 			_refocusResetOrbit,
@@ -11837,7 +12078,9 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 		),
 	);
 
-	container.append(refocusSection, gridDiv, fallbackDiv, controlsDiv);
+	refocusSection.append(refSettings.root);
+
+	// NOTE: container.append is deferred until after actionsDiv is built below.
 
 	// Store refs for preset-change toggling
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
@@ -11876,8 +12119,8 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 
 	const zoomSlider: HTMLInputElement = document.createElement('input');
 	zoomSlider.type = 'range';
-	zoomSlider.min = '1.0';
-	zoomSlider.max = '16.0';
+	zoomSlider.min = String(MIN_ZOOM);
+	zoomSlider.max = String(MAX_ZOOM);
 	zoomSlider.step = '0.5';
 	zoomSlider.value = String(getZoomMultiplier().toFixed(1));
 	zoomSlider.dataset['control'] = 'cam-nav-zoom';
@@ -11900,48 +12143,54 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 	);
 	controlsDiv.append(zoomSliderRow);
 
-	// ── 2b. Custom Zoom Input ──
-	const customZoomRow: HTMLDivElement = document.createElement('div');
-	customZoomRow.className = 'control-row';
-	customZoomRow.style.gap = '4px';
-	customZoomRow.style.alignItems = 'center';
+	// ── 2b. Inline-editable zoom value (click the value to type a custom zoom) ──
+	zoomValSpan.style.cursor = 'pointer';
+	zoomValSpan.title = 'Click to enter a custom zoom value';
 
-	const customLabel: HTMLSpanElement = document.createElement('span');
-	customLabel.className = 'control-label';
-	customLabel.textContent = 'Custom';
-	customLabel.style.flex = 'none';
-	customLabel.style.minWidth = 'auto';
+	const inlineZoomInput: HTMLInputElement = document.createElement('input');
+	inlineZoomInput.type = 'number';
+	inlineZoomInput.className = 'nav-input';
+	inlineZoomInput.min = String(MIN_ZOOM);
+	inlineZoomInput.max = String(MAX_ZOOM);
+	inlineZoomInput.step = '0.1';
+	inlineZoomInput.style.display = 'none';
+	inlineZoomInput.style.width = '52px';
+	zoomSliderRow.append(inlineZoomInput);
 
-	const customInput: HTMLInputElement = document.createElement('input');
-	customInput.type = 'number';
-	customInput.className = 'nav-input';
-	customInput.min = '1';
-	customInput.max = '16';
-	customInput.step = '0.1';
-	customInput.value = getZoomMultiplier().toFixed(1);
-	customInput.title = 'Enter zoom multiplier (1–16)';
-
-	const applyBtn: HTMLButtonElement = document.createElement('button');
-	applyBtn.className = 'btn';
-	applyBtn.textContent = 'Apply';
-	applyBtn.style.marginLeft = 'auto';
-
-	const doCustomZoom = (): void => {
-		const val: number = Math.max(1, Math.min(16, Number.parseFloat(customInput.value) || 1));
-		customInput.value = val.toFixed(1);
+	const applyInlineZoom = (): void => {
+		const val: number = Math.max(
+			MIN_ZOOM,
+			Math.min(MAX_ZOOM, Number.parseFloat(inlineZoomInput.value) || 1),
+		);
 		setZoomLevel(val, cam, scene);
+		zoomValSpan.textContent = `${val.toFixed(1)}x`;
+		inlineZoomInput.style.display = 'none';
+		zoomValSpan.style.display = '';
 	};
 
-	applyBtn.addEventListener('click', doCustomZoom);
-	customInput.addEventListener('keydown', (e: KeyboardEvent) => {
-		if (e.key === 'Enter') doCustomZoom();
+	zoomValSpan.addEventListener('click', () => {
+		inlineZoomInput.value = getZoomMultiplier().toFixed(1);
+		zoomValSpan.style.display = 'none';
+		inlineZoomInput.style.display = '';
+		inlineZoomInput.focus();
+		inlineZoomInput.select();
 	});
 
-	customZoomRow.append(customLabel, customInput, applyBtn);
-	controlsDiv.append(customZoomRow);
+	inlineZoomInput.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === 'Enter') applyInlineZoom();
+		if (e.key === 'Escape') {
+			inlineZoomInput.style.display = 'none';
+			zoomValSpan.style.display = '';
+		}
+	});
+	inlineZoomInput.addEventListener('blur', applyInlineZoom);
 
-	// ── 3. Action Buttons ──
-	controlsDiv.append(createSubHeader('Actions'));
+	// ── 3. Action Buttons (always visible — work in all camera presets) ──
+	// NOTE: These are appended to actionsDiv (not controlsDiv) so they
+	// remain visible in 3D presets.  actionsDiv is added to the container
+	// alongside refocusSection and gridDiv further below.
+	const actionsDiv: HTMLDivElement = document.createElement('div');
+	actionsDiv.append(createSubHeader('Actions'));
 
 	const actionGroup: HTMLDivElement = document.createElement('div');
 	actionGroup.className = 'btn-group';
@@ -11952,44 +12201,90 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 	fitBtn.textContent = 'Fit Map';
 	fitBtn.title = 'Zoom to show the entire map';
 	fitBtn.addEventListener('click', () => {
-		setZoomLevel(1, cam, scene);
-		cam.target.x = _mapHeight / 2;
-		cam.target.z = _mapWidth / 2;
-		clampCameraToMap(cam, scene);
-		updateScrollbars(cam, scene);
+		refocusMap(cam, scene, debug);
 	});
 
 	const resetBtn: HTMLButtonElement = document.createElement('button');
 	resetBtn.className = 'btn';
 	resetBtn.textContent = 'Reset';
-	resetBtn.title = 'Reset camera to default position and zoom';
+	resetBtn.title = 'Reset camera to preset defaults and fit map';
 	resetBtn.addEventListener('click', () => {
-		setZoomLevel(1, cam, scene);
-		cam.target.x = _mapHeight / 2;
-		cam.target.z = _mapWidth / 2;
-		clampCameraToMap(cam, scene);
-		updateScrollbars(cam, scene);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dev harness global
+		const resetFn = (window as any).resetCam as (() => void) | undefined;
+		if (resetFn) resetFn();
 	});
 
 	const selBtn: HTMLButtonElement = document.createElement('button');
 	selBtn.className = 'btn';
 	selBtn.textContent = 'To Selection';
-	selBtn.title = 'Zoom to last selected tile at 4x';
+	selBtn.title = 'Zoom to fit the selected tile(s)';
 	selBtn.disabled = _lastInspectX < 0 || _lastInspectZ < 0;
 	selBtn.addEventListener('click', () => {
-		if (_lastInspectX < 0 || _lastInspectZ < 0) return;
-		navigateToTile(_lastInspectX, _lastInspectZ, cam, scene);
-		setZoomLevel(4, cam, scene);
+		const rect = getSelectionRect();
+		if (rect) {
+			const cx: number = (rect.minX + rect.maxX + 1) / 2;
+			const cz: number = (rect.minZ + rect.maxZ + 1) / 2;
+			const selW: number = rect.maxX - rect.minX + 1;
+			const selH: number = rect.maxZ - rect.minZ + 1;
+			if (_currentPreset === 'mapeditor') {
+				// Zoom to fit selection but never past default zoom (RPG Maker MV standard)
+				const aspect: number = scene.getEngine().getAspectRatio(cam);
+				const selOrtho: number = Math.max((selH + 2) / 2, (selW + 2) / (2 * aspect));
+				_orthoSize = Math.max(ORTHO_MIN, selOrtho, initialOrthoSize(scene));
+				applyOrthoBounds(cam, scene);
+				clampCameraToMap(cam, scene);
+				updateScrollbars(cam, scene);
+				navigateToTile(cx - 0.5, cz - 0.5, cam, scene);
+			} else {
+				cam.target.x = cx;
+				cam.target.z = cz;
+				// Zoom to fit the selection rectangle
+				cam.radius = Math.max(
+					cam.lowerRadiusLimit ?? 1,
+					computeMinRadiusForMap(selW as Num, selH as Num, cam.fov as Num),
+				);
+			}
+		} else if (_lastInspectX >= 0 && _lastInspectZ >= 0) {
+			if (_currentPreset === 'mapeditor') {
+				// Zoom to default level (RPG Maker MV standard) and center on tile
+				_orthoSize = Math.max(ORTHO_MIN, initialOrthoSize(scene));
+				applyOrthoBounds(cam, scene);
+				clampCameraToMap(cam, scene);
+				updateScrollbars(cam, scene);
+				navigateToTile(_lastInspectX, _lastInspectZ, cam, scene);
+			} else {
+				cam.target.x = _lastInspectX + 0.5;
+				cam.target.z = _lastInspectZ + 0.5;
+				// Close-up on a single tile
+				cam.radius = Math.max(cam.lowerRadiusLimit ?? 1, 15);
+			}
+		}
 	});
 
 	const centerBtn: HTMLButtonElement = document.createElement('button');
 	centerBtn.className = 'btn';
 	centerBtn.textContent = 'Center';
-	centerBtn.title = 'Center on selected tile (keep current zoom)';
+	centerBtn.title = 'Center on selected tile(s) (keep current zoom)';
 	centerBtn.disabled = _lastInspectX < 0 || _lastInspectZ < 0;
 	centerBtn.addEventListener('click', () => {
-		if (_lastInspectX < 0 || _lastInspectZ < 0) return;
-		navigateToTile(_lastInspectX, _lastInspectZ, cam, scene);
+		const rect = getSelectionRect();
+		if (rect) {
+			const cx: number = (rect.minX + rect.maxX + 1) / 2;
+			const cz: number = (rect.minZ + rect.maxZ + 1) / 2;
+			if (_currentPreset === 'mapeditor') {
+				navigateToTile(cx - 0.5, cz - 0.5, cam, scene);
+			} else {
+				cam.target.x = cx;
+				cam.target.z = cz;
+			}
+		} else if (_lastInspectX >= 0 && _lastInspectZ >= 0) {
+			if (_currentPreset === 'mapeditor') {
+				navigateToTile(_lastInspectX, _lastInspectZ, cam, scene);
+			} else {
+				cam.target.x = _lastInspectX + 0.5;
+				cam.target.z = _lastInspectZ + 0.5;
+			}
+		}
 	});
 
 	// Store refs for enabling when a tile is selected
@@ -11997,7 +12292,10 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 	(window as Record<string, unknown>)._centerBtn = centerBtn;
 
 	actionGroup.append(fitBtn, resetBtn, selBtn, centerBtn);
-	controlsDiv.append(actionGroup);
+	actionsDiv.append(actionGroup);
+
+	// Now that all always-visible sections are built, append everything
+	container.append(actionsDiv, refocusSection, gridDiv, navDiv, fallbackDiv, controlsDiv);
 
 	// ── 3b. View Toggles (always visible — grid works in all camera modes) ──
 	gridDiv.append(createSubHeader('View'));
@@ -12078,8 +12376,8 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 		),
 	);
 
-	// ── 4. Go To Position ──
-	controlsDiv.append(createSubHeader('Go To Position'));
+	// ── 4. Go To Tile (always visible — works in all camera presets) ──
+	navDiv.append(createSubHeader('Go To Tile'));
 
 	const gotoRow: HTMLDivElement = document.createElement('div');
 	gotoRow.className = 'control-row';
@@ -12088,7 +12386,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 
 	const xLabel: HTMLSpanElement = document.createElement('span');
 	xLabel.className = 'control-label';
-	xLabel.textContent = 'X';
+	xLabel.textContent = 'Row';
 	xLabel.style.flex = 'none';
 	xLabel.style.minWidth = 'auto';
 
@@ -12101,7 +12399,7 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 
 	const zLabel: HTMLSpanElement = document.createElement('span');
 	zLabel.className = 'control-label';
-	zLabel.textContent = 'Z';
+	zLabel.textContent = 'Col';
 	zLabel.style.flex = 'none';
 	zLabel.style.minWidth = 'auto';
 
@@ -12123,7 +12421,12 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 			Math.min(_mapHeight - 1, Number.parseInt(xInput.value, 10) || 0),
 		);
 		const gz: number = Math.max(0, Math.min(_mapWidth - 1, Number.parseInt(zInput.value, 10) || 0));
-		navigateToTile(gx, gz, cam, scene);
+		if (_currentPreset === 'mapeditor') {
+			navigateToTile(gx, gz, cam, scene);
+		} else {
+			cam.target.x = gx + 0.5;
+			cam.target.z = gz + 0.5;
+		}
 	};
 
 	goBtn.addEventListener('click', doGoto);
@@ -12134,49 +12437,51 @@ function buildCameraNavigationUI(runtime: RuntimeInstance, debug: DevDebugApi): 
 		if (e.key === 'Enter') doGoto();
 	});
 
-	gotoRow.append(xLabel, xInput, zLabel, zInput, goBtn);
-	controlsDiv.append(gotoRow);
+	gotoRow.append(zLabel, zInput, xLabel, xInput, goBtn);
+	navDiv.append(gotoRow);
 
-	// ── 5. Live Readout ──
-	controlsDiv.append(createSubHeader('Position'));
+	// ── 5. Live Readout (always visible) ──
+	navDiv.append(createSubHeader('Camera Position'));
 
-	const navTargetX = makeNavReadout('Target X', 'nav-target-x');
-	navTargetX.title = 'Camera target X coordinate in world space.';
-	controlsDiv.append(navTargetX);
-	const navTargetZ = makeNavReadout('Target Z', 'nav-target-z');
-	navTargetZ.title = 'Camera target Z coordinate in world space.';
-	controlsDiv.append(navTargetZ);
+	const navTargetX = makeNavReadout('Tile Row', 'nav-target-x');
+	navTargetX.title = 'Camera target tile row (vertical axis).';
+	navDiv.append(navTargetX);
+	const navTargetZ = makeNavReadout('Tile Col', 'nav-target-z');
+	navTargetZ.title = 'Camera target tile column (horizontal axis).';
+	navDiv.append(navTargetZ);
 	const navZoomReadout = makeNavReadout('Zoom', 'nav-zoom-readout');
 	navZoomReadout.title = 'Current zoom multiplier.';
-	controlsDiv.append(navZoomReadout);
+	navDiv.append(navZoomReadout);
 
 	// ── 6. Per-frame readout update ──
 	let navFrameCount = 0;
 	scene.registerAfterRender(() => {
 		navFrameCount++;
 		if (navFrameCount % 6 !== 0) return;
-		if (_currentPreset !== 'mapeditor') return;
 		const section: Element | null = document.querySelector('#section-camera-nav');
 		if (section?.classList.contains('collapsed')) return;
 
-		// Update readout
+		// Update position readout (works in all presets)
 		setInfoText('nav-target-x', cam.target.x.toFixed(1));
 		setInfoText('nav-target-z', cam.target.z.toFixed(1));
 
-		const currentMult: number = getZoomMultiplier();
-		setInfoText('nav-zoom-readout', `${currentMult.toFixed(1)}x`);
+		// Zoom readout and slider sync (ortho only)
+		const zoomMult: number = _currentPreset === 'mapeditor' ? getZoomMultiplier() : 0;
+		if (_currentPreset === 'mapeditor') {
+			setInfoText('nav-zoom-readout', `${zoomMult.toFixed(1)}x`);
 
-		// Sync zoom slider (handles external zoom changes from wheel/keyboard)
-		zoomSlider.value = String(Math.min(16.0, Math.max(1.0, currentMult)).toFixed(1));
-		zoomValSpan.textContent = `${currentMult.toFixed(1)}x`;
-
-		// Sync custom zoom input
-		customInput.value = currentMult.toFixed(1);
+			// Sync zoom slider (handles external zoom changes from wheel/keyboard)
+			zoomSlider.value = String(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoomMult)).toFixed(1));
+			// Only update span when inline input is NOT visible (avoid overwriting user input)
+			if (inlineZoomInput.style.display === 'none') {
+				zoomValSpan.textContent = `${zoomMult.toFixed(1)}x`;
+			}
+		}
 
 		// Update active zoom button highlight
 		for (const btn of zoomButtons) {
 			const btnMult: number = Number.parseFloat(btn.dataset['zoom'] ?? '0');
-			const isActive: boolean = Math.abs(currentMult - btnMult) < 0.05;
+			const isActive: boolean = Math.abs(zoomMult - btnMult) < 0.05;
 			btn.classList.toggle('active', isActive);
 		}
 	});
@@ -13174,6 +13479,250 @@ function clampCameraToMap(cam: BABYLON.ArcRotateCamera, scene: BABYLON.Scene): v
 	}
 }
 
+// =============================================================================
+// Scrollbar Settings UI
+// =============================================================================
+
+/** Theme presets: name → { color, hover, active } as CSS rgba strings. */
+const SB_THEMES: Record<string, { color: string; hover: string; active: string }> = {
+	default: {
+		color: 'rgba(180,180,180,0.6)',
+		hover: 'rgba(200,200,200,0.85)',
+		active: 'rgba(220,220,220,0.9)',
+	},
+	macos: {
+		color: 'rgba(100,100,100,0.45)',
+		hover: 'rgba(120,120,120,0.7)',
+		active: 'rgba(140,140,140,0.85)',
+	},
+	vscode: {
+		color: 'rgba(121,121,121,0.4)',
+		hover: 'rgba(100,100,100,0.7)',
+		active: 'rgba(80,80,80,0.9)',
+	},
+	sublime: {
+		color: 'rgba(190,170,140,0.4)',
+		hover: 'rgba(200,180,150,0.65)',
+		active: 'rgba(210,190,160,0.85)',
+	},
+	github: {
+		color: 'rgba(110,119,129,0.4)',
+		hover: 'rgba(110,119,129,0.65)',
+		active: 'rgba(110,119,129,0.85)',
+	},
+	discord: {
+		color: 'rgba(32,34,37,0.7)',
+		hover: 'rgba(42,44,47,0.85)',
+		active: 'rgba(52,54,57,0.95)',
+	},
+	spotify: {
+		color: 'rgba(30,215,96,0.45)',
+		hover: 'rgba(30,215,96,0.7)',
+		active: 'rgba(30,215,96,0.9)',
+	},
+	figma: {
+		color: 'rgba(255,255,255,0.35)',
+		hover: 'rgba(255,255,255,0.6)',
+		active: 'rgba(255,255,255,0.85)',
+	},
+};
+
+/**
+ * Applies a scrollbar theme by setting CSS custom properties.
+ *
+ * @param theme - Theme key from SB_THEMES.
+ */
+function applySbTheme(theme: string): void {
+	const t = SB_THEMES[theme];
+	if (!t) return;
+	const root: HTMLElement = document.documentElement;
+	root.style.setProperty('--sb-color', t.color);
+	root.style.setProperty('--sb-color-hover', t.hover);
+	root.style.setProperty('--sb-color-active', t.active);
+}
+
+/**
+ * Builds the scrollbar settings UI section.
+ */
+function buildScrollbarUI(): void {
+	const container = document.querySelector('#scrollbar-body') as HTMLElement | null;
+	if (!container) return;
+	container.innerHTML = '';
+
+	// ── Visibility mode ──
+	container.append(
+		createDropdown(
+			'Visibility',
+			[
+				{ value: 'auto', label: 'Auto' },
+				{ value: 'always', label: 'Always' },
+				{ value: 'never', label: 'Never' },
+			],
+			_sbVisibility,
+			(val: string) => {
+				_sbVisibility = val as 'auto' | 'always' | 'never';
+				// Clean up stale visible class when switching away from "always"
+				const hb: HTMLElement | null = document.querySelector('#scrollbar-h');
+				const vb: HTMLElement | null = document.querySelector('#scrollbar-v');
+				const cn: HTMLElement | null = document.querySelector('#scrollbar-corner');
+				if (val !== 'always') {
+					hb?.classList.remove('visible');
+					vb?.classList.remove('visible');
+					cn?.classList.remove('visible');
+				}
+				if (_sbFlashTimer) {
+					clearTimeout(_sbFlashTimer);
+					_sbFlashTimer = null;
+				}
+			},
+			'sb-visibility',
+			'Auto: show on scroll/hover. Always: permanently visible. Never: hidden.',
+		),
+	);
+
+	let currentTheme = 'default';
+
+	// ── Theme dropdown ──
+	const themeLabels: Record<string, string> = {
+		default: 'Default',
+		macos: 'macOS',
+		vscode: 'VS Code',
+		sublime: 'Sublime',
+		github: 'GitHub',
+		discord: 'Discord',
+		spotify: 'Spotify',
+		figma: 'Figma',
+	};
+	container.append(
+		createDropdown(
+			'Theme',
+			Object.keys(SB_THEMES).map((k: string) => ({
+				value: k,
+				label: themeLabels[k] ?? k,
+			})),
+			currentTheme,
+			(val: string) => {
+				currentTheme = val;
+				applySbTheme(val);
+			},
+			'sb-theme',
+			'Color theme for scrollbar thumb',
+		),
+	);
+
+	// ── Custom Color ──
+	const SB_COLOR_PRESETS: readonly ColorPreset[] = [
+		{ name: 'Gray', hex: '#b4b4b4' },
+		{ name: 'Cyan', hex: '#50c8c8' },
+		{ name: 'Green', hex: '#80c850' },
+		{ name: 'Orange', hex: '#ff8040' },
+		{ name: 'Blue', hex: '#5090e0' },
+		{ name: 'Purple', hex: '#a070d0' },
+	];
+	container.append(
+		createColorPickerRow(
+			'Custom Color',
+			SB_COLOR_PRESETS,
+			'#b4b4b4',
+			(hex: string) => {
+				// Convert hex to rgba with 0.6 opacity for color, 0.85 for hover, 0.9 for active
+				const r: number = Number.parseInt(hex.slice(1, 3), 16);
+				const g: number = Number.parseInt(hex.slice(3, 5), 16);
+				const b: number = Number.parseInt(hex.slice(5, 7), 16);
+				const root: HTMLElement = document.documentElement;
+				root.style.setProperty('--sb-color', `rgba(${String(r)},${String(g)},${String(b)},0.6)`);
+				root.style.setProperty(
+					'--sb-color-hover',
+					`rgba(${String(r)},${String(g)},${String(b)},0.85)`,
+				);
+				root.style.setProperty(
+					'--sb-color-active',
+					`rgba(${String(r)},${String(g)},${String(b)},0.9)`,
+				);
+			},
+			'sb-custom-color',
+			'Override theme with a custom thumb color',
+		),
+	);
+
+	// ── Hover Size slider ──
+	container.append(
+		createSliderRow(
+			'Hover Size',
+			8,
+			24,
+			1,
+			12,
+			(val: number) => {
+				document.documentElement.style.setProperty('--sb-hover-size', `${String(val)}px`);
+			},
+			'sb-hover-size',
+			'Thumb thickness when hovered (px)',
+		),
+	);
+
+	// ── Show Delay slider (CSS transition-delay for hover reveal) ──
+	container.append(
+		createSliderRow(
+			'Show Delay',
+			0,
+			1,
+			0.05,
+			0.35,
+			(val: number) => {
+				document.documentElement.style.setProperty('--sb-show-delay', `${String(val)}s`);
+			},
+			'sb-show-delay',
+			'Seconds to hover before scrollbar appears (0 = instant)',
+		),
+	);
+
+	// ── Hover Duration slider (linger time after mouse leaves) ──
+	container.append(
+		createSliderRow(
+			'Hover Duration',
+			0,
+			2,
+			0.1,
+			0,
+			(val: number) => {
+				document.documentElement.style.setProperty('--sb-hover-linger', `${String(val)}s`);
+			},
+			'sb-hover-linger',
+			'Seconds scrollbar lingers after mouse leaves before fading (0 = immediate)',
+		),
+	);
+
+	// ── Flash Duration slider (how long scrollbar stays after scroll) ──
+	container.append(
+		createSliderRow(
+			'Flash Duration',
+			0.3,
+			3,
+			0.1,
+			1.2,
+			(val: number) => {
+				_sbFlashDuration = Math.round(val * 1000);
+				// Restart active flash timer with new duration
+				if (_sbFlashTimer) {
+					clearTimeout(_sbFlashTimer);
+					const hb: HTMLElement | null = document.querySelector('#scrollbar-h');
+					const vb: HTMLElement | null = document.querySelector('#scrollbar-v');
+					const cn: HTMLElement | null = document.querySelector('#scrollbar-corner');
+					_sbFlashTimer = setTimeout(() => {
+						hb?.classList.remove('visible');
+						vb?.classList.remove('visible');
+						cn?.classList.remove('visible');
+						_sbFlashTimer = null;
+					}, _sbFlashDuration);
+				}
+			},
+			'sb-flash-duration',
+			'Seconds scrollbar stays visible after scrolling (before fading)',
+		),
+	);
+}
+
 /**
  * Updates scrollbar thumb position and size to reflect current camera view.
  *
@@ -13187,9 +13736,12 @@ function updateScrollbars(cam: BABYLON.ArcRotateCamera, scene: BABYLON.Scene): v
 	const vThumb: HTMLElement | null = document.querySelector('#sb-thumb-v');
 	if (!hBar || !vBar || !hThumb || !vThumb) return;
 
-	if (_currentPreset !== 'mapeditor') {
-		hBar.style.display = 'none';
-		vBar.style.display = 'none';
+	const corner: HTMLElement | null = document.querySelector('#scrollbar-corner');
+
+	if (_currentPreset !== 'mapeditor' || _sbVisibility === 'never') {
+		hBar.classList.remove('sb-active', 'visible');
+		vBar.classList.remove('sb-active', 'visible');
+		corner?.classList.remove('visible');
 		return;
 	}
 
@@ -13201,12 +13753,32 @@ function updateScrollbars(cam: BABYLON.ArcRotateCamera, scene: BABYLON.Scene): v
 
 	const hRatio: number = Math.min(1, viewW / mapW);
 	const vRatio: number = Math.min(1, viewH / mapH);
+	// Treat >= 0.99 as "view fits" to avoid floating-point edge cases at max zoom-out
+	const hFits: boolean = hRatio >= 0.99;
+	const vFits: boolean = vRatio >= 0.99;
 
-	// Hide scrollbars when fully zoomed out
-	hBar.style.display = hRatio >= 1 ? 'none' : '';
-	vBar.style.display = vRatio >= 1 ? 'none' : '';
+	// Toggle scrollbar presence based on whether view fits
+	hBar.classList.toggle('sb-active', !hFits);
+	vBar.classList.toggle('sb-active', !vFits);
 
-	if (hRatio >= 1 && vRatio >= 1) return;
+	// Corner piece: visible only when BOTH axes are scrollable
+	const bothScrollable: boolean = !hFits && !vFits;
+	if (corner) {
+		if (!bothScrollable) corner.classList.remove('visible');
+	}
+
+	// "Always" mode: force visible whenever scrollable
+	if (_sbVisibility === 'always') {
+		if (!hFits) hBar.classList.add('visible');
+		if (!vFits) vBar.classList.add('visible');
+		if (bothScrollable && corner) corner.classList.add('visible');
+	}
+
+	// Remove visible when no longer scrollable so flash doesn't linger
+	if (hFits) hBar.classList.remove('visible');
+	if (vFits) vBar.classList.remove('visible');
+
+	if (hFits && vFits) return;
 
 	// Horizontal thumb
 	const hTrack: HTMLElement | null = hBar.querySelector('.sb-track');
@@ -13216,9 +13788,9 @@ function updateScrollbars(cam: BABYLON.ArcRotateCamera, scene: BABYLON.Scene): v
 	const hTrackW: number = hTrack.clientWidth;
 	const vTrackH: number = vTrack.clientHeight;
 
-	// Thumb sizes
-	const hThumbW: number = Math.max(24, hRatio * hTrackW);
-	const vThumbH: number = Math.max(24, vRatio * vTrackH);
+	// Thumb sizes (40px min so thumb stays grabbable at extreme zoom)
+	const hThumbW: number = Math.max(40, hRatio * hTrackW);
+	const vThumbH: number = Math.max(40, vRatio * vTrackH);
 	hThumb.style.width = `${String(hThumbW)}px`;
 	vThumb.style.height = `${String(vThumbH)}px`;
 
@@ -13237,6 +13809,32 @@ function updateScrollbars(cam: BABYLON.ArcRotateCamera, scene: BABYLON.Scene): v
 
 	hThumb.style.left = `${String(Math.max(0, Math.min(hTrackW - hThumbW, hProgress * (hTrackW - hThumbW))))}px`;
 	vThumb.style.top = `${String(Math.max(0, Math.min(vTrackH - vThumbH, vProgress * (vTrackH - vThumbH))))}px`;
+}
+
+/**
+ * Briefly shows scrollbars then fades them after 1.2s idle.
+ * Call from user-initiated events (wheel, drag, keyboard), NOT from per-frame loops.
+ */
+function flashScrollbars(): void {
+	// "always" keeps them visible permanently; "never" hides everything
+	if (_sbVisibility !== 'auto') return;
+	const hBar: HTMLElement | null = document.querySelector('#scrollbar-h');
+	const vBar: HTMLElement | null = document.querySelector('#scrollbar-v');
+	const corner: HTMLElement | null = document.querySelector('#scrollbar-corner');
+	if (!hBar || !vBar) return;
+	if (hBar.classList.contains('sb-active')) hBar.classList.add('visible');
+	if (vBar.classList.contains('sb-active')) vBar.classList.add('visible');
+	// Show corner when both scrollbars are active
+	if (hBar.classList.contains('sb-active') && vBar.classList.contains('sb-active')) {
+		corner?.classList.add('visible');
+	}
+	if (_sbFlashTimer) clearTimeout(_sbFlashTimer);
+	_sbFlashTimer = setTimeout(() => {
+		hBar.classList.remove('visible');
+		vBar.classList.remove('visible');
+		corner?.classList.remove('visible');
+		_sbFlashTimer = null;
+	}, _sbFlashDuration);
 }
 
 /**
@@ -13307,7 +13905,7 @@ function setupMapEditorControls(
 
 				// Adjust ortho size
 				const factor: number = evt.deltaY > 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR;
-				_orthoSize = Math.max(ORTHO_MIN, Math.min(orthoMax, _orthoSize * factor));
+				_orthoSize = Math.max(ORTHO_MIN, Math.min(orthoMax / MIN_ZOOM, _orthoSize * factor));
 
 				const halfWAfter: number = _orthoSize * aspect;
 				const halfHAfter: number = _orthoSize;
@@ -13321,6 +13919,7 @@ function setupMapEditorControls(
 				applyOrthoBounds(cam, scene);
 				clampCameraToMap(cam, scene);
 				updateScrollbars(cam, scene);
+				flashScrollbars();
 				return;
 			}
 
@@ -13331,6 +13930,7 @@ function setupMapEditorControls(
 			cam.target.x += evt.deltaY * panSpeed;
 			clampCameraToMap(cam, scene);
 			updateScrollbars(cam, scene);
+			flashScrollbars();
 		},
 		{ passive: false },
 	);
@@ -13436,26 +14036,45 @@ function setupMapEditorControls(
 
 		// Screen right = world +Z, screen up = world -X
 		const speed: number = _orthoSize * 0.03;
-		if (_heldKeys.has('w') || _heldKeys.has('W') || _heldKeys.has('ArrowUp')) cam.target.x -= speed;
-		if (_heldKeys.has('s') || _heldKeys.has('S') || _heldKeys.has('ArrowDown'))
+		let panning = false;
+		if (_heldKeys.has('w') || _heldKeys.has('W') || _heldKeys.has('ArrowUp')) {
+			cam.target.x -= speed;
+			panning = true;
+		}
+		if (_heldKeys.has('s') || _heldKeys.has('S') || _heldKeys.has('ArrowDown')) {
 			cam.target.x += speed;
-		if (_heldKeys.has('a') || _heldKeys.has('A') || _heldKeys.has('ArrowLeft'))
+			panning = true;
+		}
+		if (_heldKeys.has('a') || _heldKeys.has('A') || _heldKeys.has('ArrowLeft')) {
 			cam.target.z -= speed;
-		if (_heldKeys.has('d') || _heldKeys.has('D') || _heldKeys.has('ArrowRight'))
+			panning = true;
+		}
+		if (_heldKeys.has('d') || _heldKeys.has('D') || _heldKeys.has('ArrowRight')) {
 			cam.target.z += speed;
+			panning = true;
+		}
 
 		clampCameraToMap(cam, scene);
 		updateScrollbars(cam, scene);
+		if (panning) flashScrollbars();
 
 		// Hide meshes that produce visual artifacts in top-down ortho view.
 		// VLS mesh: isVisible=false hides the mesh but keeps the god ray
 		// post-process effect active.
 		// Sky meshes: setEnabled(false) fully removes them from the scene.
+		// Lens flares: isEnabled=false suppresses screen-space quad rendering
+		// (lens flares are purely cosmetic overlays, no scene contribution).
 		for (const mesh of scene.meshes) {
 			if (mesh.name === 'VolumetricLightScatteringMesh' && mesh.isVisible) {
 				mesh.isVisible = false;
 			} else if (mesh.name.startsWith('sky-') && mesh.isEnabled()) {
 				mesh.setEnabled(false);
+			}
+		}
+		const orthoLights = debug.tilemap?.lighting?.lights;
+		if (orthoLights) {
+			for (const ml of orthoLights) {
+				if (ml.lensFlareSystem?.isEnabled) ml.lensFlareSystem.isEnabled = false;
 			}
 		}
 	});
@@ -13492,9 +14111,11 @@ function setupMapEditorControls(
 		orthoResizeObserver.observe(parent);
 	}
 
-	// ── Scrollbar thumb drag ──
+	// ── Scrollbar thumb drag + track click-to-jump ──
 	setupScrollbarDrag('#sb-thumb-h', 'horizontal', cam, scene);
 	setupScrollbarDrag('#sb-thumb-v', 'vertical', cam, scene);
+	setupTrackClick('#scrollbar-h .sb-track', 'horizontal', cam, scene);
+	setupTrackClick('#scrollbar-v .sb-track', 'vertical', cam, scene);
 }
 
 /**
@@ -13556,6 +14177,7 @@ function setupScrollbarDrag(
 
 		clampCameraToMap(cam, scene);
 		updateScrollbars(cam, scene);
+		flashScrollbars();
 	});
 
 	document.addEventListener('mouseup', () => {
@@ -13563,6 +14185,57 @@ function setupScrollbarDrag(
 			dragging = false;
 			thumb.style.cursor = 'grab';
 		}
+	});
+}
+
+/**
+ * Clicks on the scrollbar track jump the camera to that position.
+ *
+ * @param trackSelector - CSS selector for the track element.
+ * @param axis - Which axis this scrollbar controls.
+ * @param cam - The ArcRotateCamera.
+ * @param scene - The active Babylon scene.
+ */
+function setupTrackClick(
+	trackSelector: string,
+	axis: 'horizontal' | 'vertical',
+	cam: BABYLON.ArcRotateCamera,
+	scene: BABYLON.Scene,
+): void {
+	const track: HTMLElement | null = document.querySelector(trackSelector);
+	if (!track) return;
+
+	track.addEventListener('mousedown', (e: MouseEvent) => {
+		// Ignore if the click landed on the thumb itself
+		if ((e.target as HTMLElement).classList.contains('sb-thumb')) return;
+
+		// Only respond when the scrollbar is visible (hovered or flashed)
+		const bar: HTMLElement | null = track.closest('.map-scrollbar');
+		if (bar && !bar.classList.contains('visible') && !bar.matches(':hover')) return;
+
+		const rect: DOMRect = track.getBoundingClientRect();
+		const clickPos: number =
+			axis === 'horizontal'
+				? (e.clientX - rect.left) / rect.width
+				: (e.clientY - rect.top) / rect.height;
+
+		const aspect: number = scene.getEngine().getAspectRatio(cam);
+		const halfView: number = axis === 'horizontal' ? _orthoSize * aspect : _orthoSize;
+		const mapSize: number = axis === 'horizontal' ? _mapWidth : _mapHeight;
+		const minT: number = MAP_MIN + halfView;
+		const maxT: number = mapSize - halfView;
+
+		const newTarget: number = minT + clickPos * (maxT - minT);
+
+		if (axis === 'horizontal') {
+			cam.target.z = newTarget;
+		} else {
+			cam.target.x = newTarget;
+		}
+
+		clampCameraToMap(cam, scene);
+		updateScrollbars(cam, scene);
+		flashScrollbars();
 	});
 }
 
@@ -13699,6 +14372,10 @@ async function main(): Promise<void> {
 		// World Z axis = mapData.height (rows)   = screen horizontal → _mapWidth
 		_mapWidth = tilemap.mapData.height;
 		_mapHeight = tilemap.mapData.width;
+
+		// Ensure 3D presets can zoom out far enough for this map from the start
+		updateRadiusLimitForMap(runtime.camera as BABYLON.ArcRotateCamera, _mapWidth, _mapHeight);
+
 		_orthoSize = computeOrthoMax(runtime.engine.scene, runtime.camera as BABYLON.ArcRotateCamera);
 		// eslint-disable-next-line no-console -- Dev harness diagnostic output
 		console.log(
@@ -13766,6 +14443,7 @@ async function main(): Promise<void> {
 
 		// Build dynamic UI sections after tilemap is loaded
 		buildCameraNavigationUI(runtime, debug);
+		buildScrollbarUI();
 		buildLayerUI(debug);
 		buildSkyUI(debug, runtime.engine.scene);
 		buildLightsUI(debug);

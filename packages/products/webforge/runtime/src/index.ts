@@ -40,6 +40,7 @@ export {
 	switchCameraPreset,
 	resetCamera,
 	refocusOnTilemap,
+	computeMinRadiusForMap,
 	type CameraTargetOptions,
 	type RotateTacticsOptions,
 	type SwitchCameraPresetOptions,
@@ -283,6 +284,7 @@ export {
 // Tilemap renderer
 export {
 	renderTilemap,
+	renderBlankTilemap,
 	disposeTilemap,
 	updateTile,
 	setLayerVisibility,

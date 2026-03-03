@@ -277,6 +277,48 @@ export function buildLayerData(
 }
 
 // =============================================================================
+// buildUniformLayerData
+// =============================================================================
+
+/**
+ * Creates a Float32Array for a GPU tile layer where every tile has the same ID.
+ *
+ * This is an optimized fast path for blank/uniform maps that avoids creating
+ * intermediate JS arrays. Only a single Float32Array is allocated and filled.
+ *
+ * @param width - Map width in tiles.
+ * @param height - Map height in tiles.
+ * @param fillTileId - The tile ID to fill every tile with (0 = empty).
+ * @returns The packed RGBA32F Float32Array.
+ *
+ * @example
+ * ```typescript
+ * const data = buildUniformLayerData(100 as Num, 100 as Num, 1 as Num);
+ * data.length; // 40000 (100×100×4 channels)
+ * ```
+ */
+export function buildUniformLayerData(
+	width: Num,
+	height: Num,
+	fillTileId: Num,
+): Float32Array<ArrayBufferLike> {
+	const tileCount: Num = width * height;
+	const data: Float32Array<ArrayBufferLike> = new Float32Array(tileCount * 4);
+
+	if (fillTileId !== 0) {
+		const flags: Num = DEFAULT_FLAGS_VALUE;
+		for (let i: Num = 0; i < tileCount; i++) {
+			const offset: Num = i * 4;
+			data[offset] = fillTileId;
+			data[offset + 1] = flags;
+		}
+	}
+	// else: all zeros — Float32Array is zero-initialized
+
+	return data;
+}
+
+// =============================================================================
 // buildHeightData
 // =============================================================================
 

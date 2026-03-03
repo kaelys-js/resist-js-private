@@ -310,13 +310,26 @@ export function registerResizeHandler(
 			return err(ERRORS.SCENE.LOAD_FAILED, 'Canvas has no parent element for resize observer');
 		}
 
+		let needsResize: Bool = false;
 		const observer: ResizeObserver = new ResizeObserver(() => {
-			instance.engine.resize();
+			needsResize = true;
 		});
 		observer.observe(parent);
 
+		// Resize inside the render loop so buffer clear + redraw happen in
+		// the same frame, preventing the black flash caused by setting
+		// canvas.width/height between frames.
+		const resizeObs: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>> =
+			instance.scene.onBeforeRenderObservable.add(() => {
+				if (needsResize) {
+					needsResize = false;
+					instance.engine.resize();
+				}
+			});
+
 		const cleanup = (): void => {
 			observer.disconnect();
+			if (resizeObs) instance.scene.onBeforeRenderObservable.remove(resizeObs);
 		};
 
 		return okUnchecked(cleanup);

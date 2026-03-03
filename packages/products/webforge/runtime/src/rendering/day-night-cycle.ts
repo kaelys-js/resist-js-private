@@ -810,6 +810,7 @@ export function createDayNightCycle(
 			config.sunLightId,
 			managedLights,
 		);
+		const sunManaged: ManagedLight | null = resolveManagedLight(config.sunLightId, managedLights);
 		const ambientLight: BABYLON.HemisphericLight | null = resolveHemisphericLight(
 			config.ambientLightId,
 			managedLights,
@@ -1127,6 +1128,22 @@ export function createDayNightCycle(
 					// Only update direction when sun is above horizon
 					if (dir.x !== 0 || dir.y !== 0 || dir.z !== 0) {
 						sunLight.direction = new BABYLON.Vector3(dir.x, dir.y, dir.z);
+
+						// Reposition VLS mesh and lens flare emitter to follow the
+						// sun as it moves through the sky during the day/night cycle.
+						if (sunManaged !== null) {
+							const sunDist: Num = 200 as Num;
+							const pos: BABYLON.Vector3 = sunLight.position;
+							const sx: Num = (-dir.x * sunDist + pos.x) as Num;
+							const sy: Num = (-dir.y * sunDist + pos.y) as Num;
+							const sz: Num = (-dir.z * sunDist + pos.z) as Num;
+							if (sunManaged.volumetricPostProcess !== null) {
+								sunManaged.volumetricPostProcess.mesh.position.set(sx, sy, sz);
+							}
+							if (sunManaged.lensFlareEmitter !== null) {
+								sunManaged.lensFlareEmitter.position.set(sx, sy, sz);
+							}
+						}
 					}
 				}
 			}
@@ -1144,6 +1161,25 @@ export function createDayNightCycle(
 // =============================================================================
 // Light Resolution Helpers
 // =============================================================================
+
+/**
+ * Resolves the full ManagedLight entry by ID.
+ *
+ * @param lightId - Light ID to find.
+ * @param managedLights - Array of managed lights.
+ * @returns The ManagedLight or null if not found.
+ */
+function resolveManagedLight(
+	lightId: string | undefined,
+	managedLights: readonly ManagedLight[],
+): ManagedLight | null {
+	if (lightId === undefined) return null;
+	const managed: ManagedLight | undefined = managedLights.find(
+		(m: ManagedLight) => m.config.id === lightId,
+	);
+	if (managed === undefined) return null;
+	return managed;
+}
 
 /**
  * Resolves a DirectionalLight from managed lights by ID.
