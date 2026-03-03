@@ -8,7 +8,6 @@ import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 import WebForgeLogo from './WebForgeLogo.svelte';
 import ThemeSwitcher from './ThemeSwitcher.svelte';
 import LanguageSwitcher from './LanguageSwitcher.svelte';
-import ModeToggle from './ModeToggle.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 
@@ -77,9 +76,6 @@ const sidebar = Sidebar.useSidebar();
 					{/if}
 					{#if store.features.languageSelection}
 						<LanguageSwitcher />
-					{/if}
-					{#if store.features.modeToggle}
-						<ModeToggle />
 					{/if}
 					<DropdownMenu.Item>
 						<SettingsIcon class="mr-2 size-4" />

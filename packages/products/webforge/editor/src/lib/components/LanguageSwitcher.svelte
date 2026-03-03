@@ -5,18 +5,16 @@ import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 import { getTextDirection } from '@/locale/direction';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
+import { SUPPORTED_LOCALES } from '$lib/schemas/editor-state';
+import { getLanguageDisplayNames, type LanguageDisplayInfo } from '$lib/utils/locale-display';
 
 const store = useEditorStore();
 
-const languages = [
-	{ code: 'en', name: 'English' },
-	{ code: 'ja', name: '日本語' },
-	{ code: 'zh', name: '中文' },
-	{ code: 'ko', name: '한국어' },
-	{ code: 'fr', name: 'Français' },
-	{ code: 'de', name: 'Deutsch' },
-	{ code: 'es', name: 'Español' },
-] as const;
+const languages: readonly LanguageDisplayInfo[] = $derived.by(() => {
+	const result = getLanguageDisplayNames(SUPPORTED_LOCALES, store.app.locale);
+	if (!result.ok) return [];
+	return result.data;
+});
 
 function switchLanguage(code: string): void {
 	const apply = (): void => {
@@ -34,6 +32,10 @@ function switchLanguage(code: string): void {
 		apply();
 	}
 }
+
+function isDuplicate(info: LanguageDisplayInfo): boolean {
+	return info.endonym.localeCompare(info.exonym, undefined, { sensitivity: 'base' }) === 0;
+}
 </script>
 
 <DropdownMenu.Sub>
@@ -49,7 +51,10 @@ function switchLanguage(code: string): void {
 				{:else}
 					<span class="mr-2 size-4 inline-block"></span>
 				{/if}
-				{lang.name}
+				<span lang={lang.code}>{lang.endonym}</span>
+				{#if !isDuplicate(lang)}
+					<span class="text-muted-foreground ml-1">({lang.exonym})</span>
+				{/if}
 			</DropdownMenu.Item>
 		{/each}
 	</DropdownMenu.SubContent>
