@@ -46,7 +46,6 @@ import {
 import { ERRORS, err, ok, type Result } from '@/schemas/result/result';
 import { getProcess } from '@/utils/core/environment';
 import { type OptionalNodeOs, nodeOs } from '@/utils/core/node-imports';
-import { style } from '@/utils/core/terminal';
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
 
 // =============================================================================
@@ -512,21 +511,25 @@ export function fatalExit(options: FatalExitOptions): never {
 
 	writeStderr('\n');
 
-	const boldLabel: Result<Str> = style.bold('Error:');
-	const redLabel: Result<Str> = style.red(boldLabel.ok ? boldLabel.data : 'Error:');
-	const errorPrefix: Str = redLabel.ok ? redLabel.data : 'Error:';
+	/*
+	 * Inline ANSI codes instead of importing `style` from terminal.ts.
+	 * This breaks the circular dependency: process ↔ terminal.
+	 * fatalExit() is Node-only (guarded by getProcess()), so ANSI is safe.
+	 */
+	const BOLD = '\u001B[1m';
+	const RED = '\u001B[31m';
+	const DIM = '\u001B[2m';
+	const RESET = '\u001B[0m';
 
-	writeStderr(`${errorPrefix} ${message}\n`);
+	writeStderr(`${RED}${BOLD}Error:${RESET} ${message}\n`);
 
 	if (details) {
-		const dimDetails: Result<Str> = style.dim(`  ${details}`);
-		writeStderr(`${dimDetails.ok ? dimDetails.data : `  ${details}`}\n`);
+		writeStderr(`${DIM}  ${details}${RESET}\n`);
 	}
 
 	if (error) {
 		writeStderr('\n');
-		const dimTrace: Result<Str> = style.dim('Stack trace:');
-		writeStderr(`${dimTrace.ok ? dimTrace.data : 'Stack trace:'}\n`);
+		writeStderr(`${DIM}Stack trace:${RESET}\n`);
 		writeStderr(`${error instanceof Error ? error.stack : String(error)}\n`);
 	}
 

@@ -47,10 +47,29 @@ const metaDescription = $derived(
 );
 const metaAppName = $derived(t(localeStore.t.meta.applicationName, 'WebForge'));
 const ogLocale = $derived(OG_LOCALES[store.app.locale] ?? 'en_US');
+
+// Error title map — must live in layout so title reactively clears on navigation.
+// Svelte's <svelte:head> sets document.title directly; when +error.svelte unmounts,
+// the title doesn't revert. Keeping it here ensures page.error → null updates the title.
+const errorTitleMap: Record<number, () => string> = {
+	400: () => t(localeStore.t.errors.badRequest, 'Bad request'),
+	403: () => t(localeStore.t.errors.forbidden, 'Access denied'),
+	404: () => t(localeStore.t.errors.notFound, 'Page not found'),
+	500: () => t(localeStore.t.errors.serverError, 'Something went wrong'),
+};
+
+const pageTitle: string = $derived.by(() => {
+	if (page.error) {
+		const titleFn =
+			errorTitleMap[page.status] ?? (() => t(localeStore.t.errors.genericTitle, 'Error'));
+		return `${titleFn()} | ${store.app.appName}`;
+	}
+	return store.app.appName;
+});
 </script>
 
 <svelte:head>
-	<title>{store.app.appName}</title>
+	<title>{pageTitle}</title>
 	<meta name="description" content={metaDescription} />
 	<meta name="application-name" content={metaAppName} />
 	<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />

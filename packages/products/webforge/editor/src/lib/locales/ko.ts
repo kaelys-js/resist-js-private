@@ -75,6 +75,7 @@ export const ko: EditorLocaleRaw = {
 		genericDescription: '이 페이지를 로드하는 중 예기치 않은 오류가 발생했습니다.',
 		goHome: '홈페이지로 이동',
 		tryAgain: '다시 시도',
-		errorId: '오류 ID: {id}',
+		errorId: '참조: {id}',
+		copied: '복사됨!',
 	},
 };

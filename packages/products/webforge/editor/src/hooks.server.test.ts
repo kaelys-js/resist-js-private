@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { RequestEvent, ResolveOptions } from '@sveltejs/kit';
+import { ERRORS, err } from '@/schemas/result/result';
 import { handle, handleError } from './hooks.server';
 
 /**
@@ -7,9 +8,10 @@ import { handle, handleError } from './hooks.server';
  *
  * @param cookie - Value for the 'locale' cookie
  * @param acceptLanguage - Value for the Accept-Language header
+ * @param pathname - URL pathname for the request
  * @returns Mock RequestEvent with cookies and request headers
  */
-function mockEvent(cookie: string, acceptLanguage: string | null): RequestEvent {
+function mockEvent(cookie: string, acceptLanguage: string | null, pathname = '/'): RequestEvent {
 	return {
 		cookies: {
 			get: (name: string): string | undefined =>
@@ -24,6 +26,7 @@ function mockEvent(cookie: string, acceptLanguage: string | null): RequestEvent 
 				get: (name: string): string | null => (name === 'accept-language' ? acceptLanguage : null),
 			},
 		},
+		url: new URL(`http://localhost${pathname}`),
 		locals: {} as Record<string, string>,
 	} as unknown as RequestEvent;
 }
@@ -107,12 +110,21 @@ describe('hooks.server handle', () => {
 /**
  * Creates a mock RequestEvent with a stubbed setHeaders method for testing handleError.
  *
+ * @param pathname - URL pathname for the mock request
  * @returns Mock event and setHeaders spy
  */
-function createMockErrorEvent(): { event: RequestEvent; setHeaders: ReturnType<typeof vi.fn> } {
+function createMockErrorEvent(pathname = '/test-page'): {
+	event: RequestEvent;
+	setHeaders: ReturnType<typeof vi.fn>;
+} {
 	const setHeaders = vi.fn();
 	return {
-		event: { setHeaders } as unknown as RequestEvent,
+		event: {
+			setHeaders,
+			url: new URL(`http://localhost${pathname}`),
+			request: { method: 'GET', headers: { get: () => null } },
+			route: { id: pathname },
+		} as unknown as RequestEvent,
 		setHeaders,
 	};
 }
@@ -120,14 +132,19 @@ function createMockErrorEvent(): { event: RequestEvent; setHeaders: ReturnType<t
 /**
  * Calls handleError with the given params and asserts a defined App.Error is returned.
  *
- * @param params - Error, status, and message to pass to handleError
+ * @param params - Error, status, message, and optional pathname to pass to handleError
  * @returns The App.Error result and the setHeaders spy
  */
-function callServerHandleError(params: { error: Error; status: number; message: string }): {
+function callServerHandleError(params: {
+	error: unknown;
+	status: number;
+	message: string;
+	pathname?: string;
+}): {
 	result: App.Error;
 	setHeaders: ReturnType<typeof vi.fn>;
 } {
-	const { event, setHeaders } = createMockErrorEvent();
+	const { event, setHeaders } = createMockErrorEvent(params.pathname);
 	const returned = handleError({
 		error: params.error,
 		event,
@@ -180,13 +197,15 @@ describe('security headers', () => {
 });
 
 describe('handleError', () => {
-	it('returns App.Error with message and errorId', () => {
+	it('returns App.Error with message containing errorId and separate errorId field', () => {
 		const { result } = callServerHandleError({
 			error: new Error('test crash'),
 			status: 500,
 			message: 'Internal Error',
 		});
-		expect(result).toHaveProperty('message', 'Internal Error');
+		expect(result.message).toContain('Internal Error');
+		expect(result.message).toContain('Reference:');
+		expect(result.message).toContain(result.errorId!);
 		expect(result).toHaveProperty('errorId');
 		expect(typeof result.errorId).toBe('string');
 	});
@@ -202,23 +221,41 @@ describe('handleError', () => {
 		);
 	});
 
-	it('preserves the provided message', () => {
+	it('includes the original message text', () => {
 		const { result } = callServerHandleError({
 			error: new Error('crash'),
 			status: 404,
 			message: 'Not Found',
 		});
-		expect(result.message).toBe('Not Found');
+		expect(result.message).toContain('Not Found');
+		expect(result.message).toContain('Reference:');
 	});
 
-	it('logs the error with errorId', () => {
+	it('logs structured error with errorId, url, method, status, and error code', () => {
 		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const { result } = callServerHandleError({
 			error: new Error('crash'),
 			status: 500,
 			message: 'Internal Error',
+			pathname: '/api/scenes',
 		});
-		expect(spy).toHaveBeenCalledWith(expect.stringContaining(result.errorId!), expect.any(Error));
+		// log.error() outputs structured JSON via console.error in json mode.
+		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
+		expect(logOutput).toContain(result.errorId);
+		expect(logOutput).toContain('INTERNAL.UNEXPECTED');
+		expect(logOutput).toContain('/api/scenes');
+		expect(logOutput).toContain('GET');
+		const parsed: Record<string, unknown> = JSON.parse(logOutput);
+		const data = parsed.data as Record<string, unknown>;
+		expect(data).toMatchObject({
+			errorId: result.errorId,
+			errorCode: 'INTERNAL.UNEXPECTED',
+			url: '/api/scenes',
+			method: 'GET',
+			status: 500,
+		});
+		expect(data.source).toBeDefined();
+		expect(typeof data.source).toBe('string');
 		spy.mockRestore();
 	});
 
@@ -243,5 +280,49 @@ describe('handleError', () => {
 			message: 'Error',
 		});
 		expect(setHeaders).toHaveBeenCalledWith({ 'x-error-id': result.errorId });
+	});
+
+	it('preserves domain-specific AppError code when thrown error is an AppError', () => {
+		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const validationErr = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
+			meta: { field: 'email' },
+		});
+		if (validationErr.ok) throw new Error('err() should return error');
+		const { result } = callServerHandleError({
+			error: validationErr.error,
+			status: 500,
+			message: 'Internal Error',
+		});
+		// The errorId should come from the original AppError, not a new wrapper
+		expect(result.errorId).toBe(validationErr.error.id);
+		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
+		const parsed: Record<string, unknown> = JSON.parse(logOutput);
+		expect(parsed.data).toMatchObject({
+			errorCode: 'VALIDATION.SCHEMA_FAILED',
+		});
+		spy.mockRestore();
+	});
+
+	it('wraps plain Error in INTERNAL.UNEXPECTED with cause chain', () => {
+		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const { result } = callServerHandleError({
+			error: new Error('plain crash'),
+			status: 500,
+			message: 'Internal Error',
+			pathname: '/test',
+		});
+		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
+		const parsed: Record<string, unknown> = JSON.parse(logOutput);
+		expect(parsed.data).toMatchObject({
+			errorCode: 'INTERNAL.UNEXPECTED',
+		});
+		// The cause chain should include the wrapped plain error
+		const data = parsed.data as Record<string, unknown>;
+		expect(data.causeChain).toBeDefined();
+		const chain = data.causeChain as Array<{ code: string; message: string }>;
+		expect(chain[0]?.code).toBe('INTERNAL.UNEXPECTED');
+		expect(chain[0]?.message).toBe('plain crash');
+		expect(result.errorId).toBeTruthy();
+		spy.mockRestore();
 	});
 });

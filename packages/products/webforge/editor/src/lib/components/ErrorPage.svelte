@@ -2,17 +2,38 @@
 import type { Str } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { Component } from 'svelte';
+import { fade } from 'svelte/transition';
 import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+import Check from '@lucide/svelte/icons/check';
 import CircleAlert from '@lucide/svelte/icons/circle-alert';
+import Copy from '@lucide/svelte/icons/copy';
 import FileQuestion from '@lucide/svelte/icons/file-question';
 import RotateCw from '@lucide/svelte/icons/rotate-cw';
 import ServerCrash from '@lucide/svelte/icons/server-crash';
 import ShieldOff from '@lucide/svelte/icons/shield-off';
 import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 import { Button } from '$lib/components/ui/button/index.js';
+import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
 
 let { status, message, errorId }: { status: number; message: string; errorId?: string } = $props();
+
+let copied: boolean = $state(false);
+let copyTimeout: ReturnType<typeof setTimeout> | undefined = $state(undefined);
+
+async function copyErrorId(): Promise<void> {
+	if (!errorId) return;
+	try {
+		await navigator.clipboard.writeText(errorId);
+		copied = true;
+		clearTimeout(copyTimeout);
+		copyTimeout = setTimeout(() => {
+			copied = false;
+		}, 2000);
+	} catch {
+		// Fallback: select text for manual copy
+	}
+}
 
 const titleKey: Record<number, () => string> = {
 	400: () => t(localeStore.t.errors.badRequest, 'Bad request'),
@@ -74,14 +95,17 @@ const description: string = $derived(
 
 const goHomeLabel: string = $derived(t(localeStore.t.errors.goHome, 'Go to homepage'));
 const tryAgainLabel: string = $derived(t(localeStore.t.errors.tryAgain, 'Try again'));
+const copiedLabel: string = $derived(t(localeStore.t.errors.copied, 'Copied!'));
 
 const errorIdLabel: string = $derived.by(() => {
 	if (!errorId) return '';
 	const result: Result<Str> = (localeStore.t.errors.errorId as (p: { id: string }) => Result<Str>)({
 		id: errorId,
 	});
-	return result.ok ? result.data : `Error ID: ${errorId}`;
+	return result.ok ? result.data : `Reference: ${errorId}`;
 });
+
+const tooltipText: string = $derived(copied ? copiedLabel : 'Click to copy');
 
 const showTryAgain: boolean = $derived(status >= 500);
 const StatusIcon: Component = $derived(iconMap[status] ?? TriangleAlert);
@@ -113,6 +137,41 @@ const iconColor: string = $derived(iconColorMap[status] ?? 'text-muted-foregroun
 	</div>
 
 	{#if errorId}
-		<p class="text-muted-foreground mt-8 font-mono text-xs">{errorIdLabel}</p>
+		<Tooltip.Provider>
+			<Tooltip.Root delayDuration={300} open={copied ? true : undefined}>
+				<Tooltip.Trigger>
+					{#snippet child({ props })}
+						<button
+							{...props}
+							type="button"
+							class="text-muted-foreground hover:text-foreground relative mt-8 inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md border border-transparent px-2.5 font-mono text-xs transition-all duration-200 hover:border-border hover:bg-muted/50"
+							onclick={copyErrorId}
+							data-error-id={errorId}
+						>
+							{#if copied}
+								<span
+									class="inline-flex items-center gap-1.5 text-green-500"
+									in:fade={{ duration: 150 }}
+								>
+									<Check size={12} />
+									<span>{copiedLabel}</span>
+								</span>
+							{:else}
+								<span
+									class="inline-flex items-center gap-1.5"
+									in:fade={{ duration: 150 }}
+								>
+									<Copy size={12} />
+									<span>{errorIdLabel}</span>
+								</span>
+							{/if}
+						</button>
+					{/snippet}
+				</Tooltip.Trigger>
+				<Tooltip.Content side="bottom" sideOffset={4}>
+					{tooltipText}
+				</Tooltip.Content>
+			</Tooltip.Root>
+		</Tooltip.Provider>
 	{/if}
 </div>

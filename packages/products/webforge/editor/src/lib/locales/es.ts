@@ -76,6 +76,7 @@ export const es: EditorLocaleRaw = {
 		genericDescription: 'Algo inesperado ocurrió al cargar esta página.',
 		goHome: 'Ir al inicio',
 		tryAgain: 'Intentar de nuevo',
-		errorId: 'ID de error: {id}',
+		errorId: 'Referencia: {id}',
+		copied: '¡Copiado!',
 	},
 };

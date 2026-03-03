@@ -76,9 +76,10 @@ describe('+error.svelte integration logic', () => {
 		expect(mockPageError.errorId).toBeUndefined();
 	});
 
-	it('meta title format includes status code', () => {
-		const status = 404;
-		const title = `${status} | WebForge`;
-		expect(title).toBe('404 | WebForge');
+	it('error title format includes error name and app name', () => {
+		const errorTitle = 'Page not found';
+		const appName = 'WebForge';
+		const title = `${errorTitle} | ${appName}`;
+		expect(title).toBe('Page not found | WebForge');
 	});
 });

@@ -77,6 +77,7 @@ export const de: EditorLocaleRaw = {
 		genericDescription: 'Beim Laden dieser Seite ist etwas Unerwartetes passiert.',
 		goHome: 'Zur Startseite',
 		tryAgain: 'Erneut versuchen',
-		errorId: 'Fehler-ID: {id}',
+		errorId: 'Referenz: {id}',
+		copied: 'Kopiert!',
 	},
 };

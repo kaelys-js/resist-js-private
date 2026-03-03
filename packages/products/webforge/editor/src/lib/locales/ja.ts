@@ -76,6 +76,7 @@ export const ja: EditorLocaleRaw = {
 		genericDescription: 'ページの読み込み中に予期しないエラーが発生しました。',
 		goHome: 'ホームページへ',
 		tryAgain: 'もう一度試す',
-		errorId: 'エラーID: {id}',
+		errorId: 'リファレンス: {id}',
+		copied: 'コピーしました！',
 	},
 };

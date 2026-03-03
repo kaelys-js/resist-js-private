@@ -502,14 +502,21 @@ function registerBrowserHandlers(options: GlobalErrorHandlerOptions, runtime: Ru
 				if (event instanceof ErrorEvent) return;
 				const target: unknown = (event as Event)?.target;
 				if (!target || !(target instanceof HTMLElement)) return;
+				// Use getAttribute to get the raw attribute value, not the resolved URL.
+				// .src/.href properties resolve relative/empty values to the page URL,
+				// producing misleading "Resource load error: <IMG> http://current-page" messages.
+				const rawSrc: Str =
+					(target as HTMLElement).getAttribute('src') ??
+					(target as HTMLElement).getAttribute('href') ??
+					'';
+				if (!rawSrc) return; // Skip elements with no actual src/href attribute
 				const { tagName } = target;
-				const src: Str = (target as HTMLImageElement).src ?? (target as HTMLLinkElement).href ?? '';
 				const captured: CapturedError = createCapturedError(
 					'resourceError',
-					new Error(`Resource load error: <${tagName}> ${src}`),
+					new Error(`Resource load error: <${tagName}> ${rawSrc}`),
 					false,
 					runtime,
-					{ tagName, src },
+					{ tagName, src: rawSrc },
 				);
 				safeInvoke(options.onError, captured);
 			},
