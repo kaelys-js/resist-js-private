@@ -27,12 +27,14 @@ const sidebar = Sidebar.useSidebar();
 						class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						{...props}
 					>
-						<Avatar.Root class="h-8 w-8 rounded-lg">
-							<Avatar.Image src={user.avatar} alt={user.name} />
-							<Avatar.Fallback class="rounded-lg">
-								<WebForgeLogo size={16} />
-							</Avatar.Fallback>
-						</Avatar.Root>
+						{#if store.features.projectDropdownIcon}
+							<Avatar.Root class="h-8 w-8 rounded-lg">
+								<Avatar.Image src={user.avatar} alt={user.name} />
+								<Avatar.Fallback class="rounded-lg">
+									<WebForgeLogo size={16} />
+								</Avatar.Fallback>
+							</Avatar.Root>
+						{/if}
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-medium">{user.name}</span>
 							<span class="truncate text-xs text-muted-foreground"
@@ -77,10 +79,12 @@ const sidebar = Sidebar.useSidebar();
 					{#if store.features.languageSelection}
 						<LanguageSwitcher />
 					{/if}
-					<DropdownMenu.Item>
-						<SettingsIcon class="mr-2 size-4" />
-						{t(localeStore.t.common.settings, 'Settings')}
-					</DropdownMenu.Item>
+					{#if store.features.projectDropdownSettings}
+						<DropdownMenu.Item>
+							<SettingsIcon class="mr-2 size-4" />
+							{t(localeStore.t.common.settings, 'Settings')}
+						</DropdownMenu.Item>
+					{/if}
 				</DropdownMenu.Group>
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>

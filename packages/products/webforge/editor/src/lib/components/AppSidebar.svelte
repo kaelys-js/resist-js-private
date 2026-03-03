@@ -35,7 +35,9 @@ const navSecondary = $derived([
 	...(store.features.settings
 		? [{ title: t(localeStore.t.common.settings, 'Settings'), url: '#settings', icon: Settings }]
 		: []),
-	{ title: t(localeStore.t.common.help, 'Help'), url: '#help', icon: CircleHelp },
+	...(store.features.sidebarHelp
+		? [{ title: t(localeStore.t.common.help, 'Help'), url: '#help', icon: CircleHelp }]
+		: []),
 ]);
 
 const user = {
@@ -49,15 +51,19 @@ const user = {
 		<Sidebar.Menu>
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton size="lg">
-					<div
-						class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
-					>
-						<WebForgeLogo size={20} />
-					</div>
-					<div class="grid flex-1 text-left text-sm leading-tight">
-						<span class="truncate font-medium">WebForge</span>
-						<span class="truncate text-xs text-muted-foreground">RPG Editor</span>
-					</div>
+					{#if store.features.appIconInSidebar}
+						<div
+							class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
+						>
+							<WebForgeLogo size={20} />
+						</div>
+					{/if}
+					{#if store.features.appNameInSidebar}
+						<div class="grid flex-1 text-left text-sm leading-tight">
+							<span class="truncate font-medium">WebForge</span>
+							<span class="truncate text-xs text-muted-foreground">RPG Editor</span>
+						</div>
+					{/if}
 				</Sidebar.MenuButton>
 			</Sidebar.MenuItem>
 		</Sidebar.Menu>
@@ -72,6 +78,8 @@ const user = {
 		<NavSecondary items={navSecondary} class="mt-auto" />
 	</Sidebar.Content>
 	<Sidebar.Footer>
-		<NavUser {user} />
+		{#if store.features.projectDropdown}
+			<NavUser {user} />
+		{/if}
 	</Sidebar.Footer>
 </Sidebar.Root>

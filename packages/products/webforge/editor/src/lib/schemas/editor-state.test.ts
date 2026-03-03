@@ -89,7 +89,7 @@ describe('AppPreferencesSchema', () => {
 });
 
 describe('FeatureFlagsSchema', () => {
-	it('accepts empty object with all defaults true', () => {
+	it('accepts empty object with all 16 defaults true', () => {
 		const result = safeParse(FeatureFlagsSchema, {});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
@@ -101,9 +101,41 @@ describe('FeatureFlagsSchema', () => {
 		expect(flags.sidebar).toBe(true);
 		expect(flags.sceneList).toBe(true);
 		expect(flags.assetBrowser).toBe(true);
+		expect(flags.resizableSidebar).toBe(true);
+		expect(flags.breadcrumb).toBe(true);
+		expect(flags.sidebarToggle).toBe(true);
+		expect(flags.sidebarHelp).toBe(true);
+		expect(flags.projectDropdown).toBe(true);
+		expect(flags.projectDropdownSettings).toBe(true);
+		expect(flags.projectDropdownIcon).toBe(true);
+		expect(flags.appIconInSidebar).toBe(true);
+		expect(flags.appNameInSidebar).toBe(true);
 	});
 
-	it('accepts partial override', () => {
+	it('has exactly 16 flag keys', () => {
+		const result = safeParse(FeatureFlagsSchema, {});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(Object.keys(result.data)).toHaveLength(16);
+	});
+
+	it('accepts partial override with only new flags', () => {
+		const result = safeParse(FeatureFlagsSchema, {
+			breadcrumb: false,
+			sidebarToggle: false,
+			appIconInSidebar: false,
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.data.breadcrumb).toBe(false);
+		expect(result.data.sidebarToggle).toBe(false);
+		expect(result.data.appIconInSidebar).toBe(false);
+		// Unset flags default to true
+		expect(result.data.settings).toBe(true);
+		expect(result.data.projectDropdown).toBe(true);
+	});
+
+	it('accepts partial override with existing flags', () => {
 		const result = safeParse(FeatureFlagsSchema, {
 			settings: false,
 			sceneList: false,
@@ -113,6 +145,23 @@ describe('FeatureFlagsSchema', () => {
 		expect(result.data.settings).toBe(false);
 		expect(result.data.sceneList).toBe(false);
 		expect(result.data.themeSelection).toBe(true);
+	});
+
+	it('all new flag keys are present in schema entries', () => {
+		const newFlags = [
+			'breadcrumb',
+			'sidebarToggle',
+			'sidebarHelp',
+			'projectDropdown',
+			'projectDropdownSettings',
+			'projectDropdownIcon',
+			'appIconInSidebar',
+			'appNameInSidebar',
+		];
+		const schemaKeys = Object.keys(FeatureFlagsSchema.entries);
+		for (const flag of newFlags) {
+			expect(schemaKeys, `schema should contain '${flag}'`).toContain(flag);
+		}
 	});
 });
 
