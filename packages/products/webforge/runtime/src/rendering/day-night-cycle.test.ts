@@ -300,6 +300,7 @@ describe('createDayNightCycle', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				lensFlareEmitter: null,
 				distanceFadeObserver: null,
 			},
 		];
@@ -1171,6 +1172,7 @@ describe('jumpToTime', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				lensFlareEmitter: null,
 				distanceFadeObserver: null,
 			},
 		];
@@ -1203,6 +1205,7 @@ describe('jumpToTime', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				lensFlareEmitter: null,
 				distanceFadeObserver: null,
 			},
 		];
@@ -1240,6 +1243,7 @@ describe('getCurrentPhase', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				lensFlareEmitter: null,
 				distanceFadeObserver: null,
 			},
 		];
@@ -1279,6 +1283,7 @@ describe('setSeason / getSeason', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				lensFlareEmitter: null,
 				distanceFadeObserver: null,
 			},
 		];
@@ -1315,6 +1320,7 @@ describe('setSeason / getSeason', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				lensFlareEmitter: null,
 				distanceFadeObserver: null,
 			},
 		];
@@ -1352,6 +1358,7 @@ describe('setIndoorMode / getIndoorMode', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				lensFlareEmitter: null,
 				distanceFadeObserver: null,
 			},
 		];
@@ -1388,6 +1395,7 @@ describe('setIndoorMode / getIndoorMode', () => {
 				flickerInstance: null,
 				volumetricPostProcess: null,
 				lensFlareSystem: null,
+				lensFlareEmitter: null,
 				distanceFadeObserver: null,
 			},
 		];

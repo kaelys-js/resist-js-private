@@ -41,6 +41,7 @@ import { createTileMaterial } from './tile-material';
 import { buildCliffChunk, type ChunkMesh } from './chunk-builder';
 import {
 	createGpuTileLayer,
+	createGpuTileLayerUniform,
 	disposeGpuTileLayer,
 	setGpuLayerOpacity,
 	setGpuLayerVisibility,
@@ -599,6 +600,250 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			megaAtlas,
 			streamingManager,
 			objectRenderer,
+			groundFill,
+			scene,
+		};
+
+		return okShallow(rendered);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// renderBlankTilemap
+// =============================================================================
+
+/** Options for {@link renderBlankTilemap}. */
+type RenderBlankTilemapOptions = {
+	/** The Babylon.js scene. */
+	readonly scene: BABYLON.Scene;
+	/** Map width in tiles. */
+	readonly width: Num;
+	/** Map height in tiles. */
+	readonly height: Num;
+	/** Base path for loading tileset images. */
+	readonly assetBasePath: Str;
+	/** Tileset configs to load (same as MapData.tilesets). */
+	readonly tilesets: MapData['tilesets'];
+	/** Layer definitions: name, type, and the uniform fill tile ID. */
+	readonly layers: readonly {
+		readonly name: Str;
+		readonly type: Str;
+		readonly fillTileId: Num;
+		readonly opacity: Num;
+	}[];
+	/** Optional post-processing config. */
+	readonly postProcessing?: MapData['postProcessing'];
+	/** Optional lighting config. */
+	readonly lighting?: MapData['lighting'];
+};
+
+/**
+ * Creates a rendered tilemap where every tile in each layer has a uniform ID.
+ *
+ * Optimized fast path for blank/uniform maps used by the dev harness. Avoids
+ * creating huge JS tile data arrays, schema validation of per-tile data, and
+ * intermediate remap copies. Directly creates GPU data textures via
+ * {@link createGpuTileLayerUniform}.
+ *
+ * @param options - Scene, dimensions, tilesets, layer fill definitions.
+ * @returns Result containing the rendered tilemap.
+ *
+ * @example
+ * ```typescript
+ * const result = renderBlankTilemap({
+ *   scene, width: 3000, height: 3000, assetBasePath: '/',
+ *   tilesets: [...], layers: [{ name: 'ground', type: 'ground', fillTileId: 1, opacity: 1 }],
+ * });
+ * ```
+ */
+export function renderBlankTilemap(
+	options: RenderBlankTilemapOptions,
+): BabylonResult<RenderedTilemap> {
+	const { scene, width, height, assetBasePath, layers, postProcessing, lighting } = options;
+
+	try {
+		// 1. Load tilesets (same as renderTilemap)
+		const tilesets: LoadedTileset[] = [];
+		for (const tilesetConfig of options.tilesets) {
+			const loadResult = loadTileset({
+				scene,
+				config: tilesetConfig,
+				basePath: assetBasePath,
+			});
+			if (!loadResult.ok) return loadResult;
+			tilesets.push(loadResult.data);
+		}
+
+		// 2. Create materials (same as renderTilemap)
+		const materials: BABYLON.StandardMaterial[] = [];
+		for (const tileset of tilesets) {
+			const matResult = createTileMaterial({
+				scene,
+				name: `mat-${tileset.config.name}` as Str,
+				texture: tileset.texture,
+				hasAlpha: true as Bool,
+			});
+			if (!matResult.ok) return matResult;
+			materials.push(matResult.data);
+		}
+
+		const opaqueMaterials: BABYLON.StandardMaterial[] = [];
+		for (const tileset of tilesets) {
+			const opaqueMatResult = createTileMaterial({
+				scene,
+				name: `mat-opaque-${tileset.config.name}` as Str,
+				texture: tileset.texture,
+				hasAlpha: false as Bool,
+			});
+			if (!opaqueMatResult.ok) return opaqueMatResult;
+			opaqueMatResult.data.transparencyMode = BABYLON.Material.MATERIAL_OPAQUE;
+			opaqueMaterials.push(opaqueMatResult.data);
+		}
+
+		// 3. Resolve atlas grid from primary tileset
+		const primaryTileset: LoadedTileset | undefined = tilesets[0];
+		const isCompactAutotile: boolean = primaryTileset
+			? primaryTileset.config.autotileType === 'terrain_48' &&
+				primaryTileset.config.columns === 2 &&
+				primaryTileset.config.rows === 3
+			: false;
+		const atlasGridColumns: Num = isCompactAutotile ? 8 : (primaryTileset?.config.columns ?? 1);
+		const atlasGridRows: Num = isCompactAutotile ? 6 : (primaryTileset?.config.rows ?? 1);
+		const maxLocalTileId: Num = atlasGridColumns * atlasGridRows;
+		const firstGid: Num = primaryTileset?.config.firstGid ?? 1;
+		const atlasTexture: BABYLON.Texture | undefined = primaryTileset?.texture;
+		const tilePixelWidth: Num = primaryTileset?.config.tileWidth ?? 32;
+		const tilePixelHeight: Num = primaryTileset?.config.tileHeight ?? 32;
+
+		// 4. Create GPU layers with uniform fill
+		const gpuLayers: GpuTileLayer[] = [];
+		for (let i: Num = 0; i < layers.length; i++) {
+			const layerDef = layers[i];
+			if (!layerDef) continue;
+
+			// Remap fill tile ID: global → atlas-local (same logic as remapGlobalIds)
+			let localFillId: Num = 0;
+			if (layerDef.fillTileId !== 0) {
+				const localId: Num = layerDef.fillTileId - firstGid + 1;
+				localFillId = localId >= 1 && localId <= maxLocalTileId ? localId : 0;
+			}
+
+			const gpuResult = createGpuTileLayerUniform({
+				scene,
+				layerName: layerDef.name,
+				layerIndex: i as Num,
+				mapWidth: width,
+				mapHeight: height,
+				fillTileId: localFillId,
+				atlasTexture: atlasTexture ?? null,
+				tilePixelWidth,
+				tilePixelHeight,
+				tileWorldSize: 1 as Num,
+				heightY: (i * 0.01) as Num,
+			});
+			if (!gpuResult.ok) return gpuResult;
+			gpuLayers.push(gpuResult.data);
+		}
+
+		// 5. Set rendering group on GPU layers
+		scene.setRenderingAutoClearDepthStencil(2, false, false, false);
+		for (const gpuLayer of gpuLayers) {
+			gpuLayer.mesh.renderingGroupId = 2;
+		}
+
+		// 6. Ground fill plane
+		const tileWorldSize: Num = 1;
+		const fillWidth: Num = width * tileWorldSize;
+		const fillDepth: Num = height * tileWorldSize;
+		const groundFill: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround(
+			'tilemap-ground-fill',
+			{ width: fillWidth, height: fillDepth },
+			scene,
+		);
+		groundFill.position.x = fillWidth / 2;
+		groundFill.position.z = fillDepth / 2;
+		groundFill.position.y = -0.01;
+		groundFill.renderingGroupId = 2;
+		groundFill.receiveShadows = true;
+		const fillMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial(
+			'ground-fill-mat',
+			scene,
+		);
+		fillMat.diffuseColor = new BABYLON.Color3(0.02, 0.02, 0.02);
+		fillMat.specularColor = new BABYLON.Color3(0, 0, 0);
+		fillMat.transparencyMode = BABYLON.Material.MATERIAL_OPAQUE;
+		groundFill.material = fillMat;
+
+		// 7. Tile animator
+		const animResult = createTileAnimator({ scene });
+		if (!animResult.ok) return animResult;
+
+		// 8. Post-processing (non-fatal)
+		let pp: PostProcessingPipeline | null = null;
+		if (postProcessing) {
+			const resolvedResult = resolvePostProcessingConfig(postProcessing);
+			if (resolvedResult.ok) {
+				const cameras: BABYLON.Camera[] = scene.cameras;
+				if (cameras.length > 0) {
+					const ppResult = createPostProcessingPipeline({
+						scene,
+						cameras,
+						config: resolvedResult.data,
+					});
+					if (ppResult.ok) pp = ppResult.data;
+				}
+			}
+		}
+
+		// 9. Lighting (non-fatal)
+		let lightingInstance: LightingInstance | null = null;
+		if (lighting) {
+			const lightingResult = createLighting({ scene, config: lighting });
+			if (lightingResult.ok) lightingInstance = lightingResult.data;
+		}
+
+		// 10. Build a minimal MapData for the RenderedTilemap.mapData field.
+		// Use small 1-element placeholder arrays — only the structure matters,
+		// tile data lives in the GPU data textures.
+		const minimalLayers = layers.map((l) => ({
+			kind: 'tile' as const,
+			name: l.name,
+			type: l.type,
+			data: [l.fillTileId] as readonly Num[],
+			visible: true as Bool,
+			opacity: l.opacity,
+		}));
+		const mapData = {
+			width,
+			height,
+			tileWidth: tilePixelWidth,
+			tileHeight: tilePixelHeight,
+			tilesets: options.tilesets,
+			layers: minimalLayers,
+		} as unknown as DeepReadonly<MapData>;
+
+		const chunkResult = safeParse(ChunkConfigSchema, {});
+		if (!chunkResult.ok) return chunkResult;
+
+		const rendered: RenderedTilemap = {
+			chunks: [],
+			cliffChunks: [],
+			gpuLayers,
+			tilesets,
+			materials,
+			opaqueMaterials,
+			animator: animResult.data,
+			mapData,
+			chunkConfig: chunkResult.data,
+			postProcessing: pp,
+			lighting: lightingInstance,
+			sky: null,
+			parallax: null,
+			megaAtlas: null,
+			streamingManager: null,
+			objectRenderer: null,
 			groundFill,
 			scene,
 		};

@@ -931,6 +931,42 @@ export function resetCamera(options: ResetCameraOptions): Result<Bool> {
 }
 
 // =============================================================================
+// Map-Aware Radius
+// =============================================================================
+
+/**
+ * Computes the minimum camera radius to see an entire tilemap.
+ *
+ * Uses the map diagonal, the camera FOV, and a padding multiplier to
+ * determine the distance the camera needs to be from the map center
+ * so that every tile is visible.
+ *
+ * @param mapWidth - Map width in tiles.
+ * @param mapHeight - Map height in tiles.
+ * @param fov - Camera field-of-view in radians.
+ * @param paddingScale - Extra padding multiplier (1.0 = exact fit). Default 1.15.
+ * @returns The minimum radius needed.
+ *
+ * @example
+ * ```typescript
+ * const r = computeMinRadiusForMap(200, 200, 0.8);
+ * camera.upperRadiusLimit = Math.max(camera.upperRadiusLimit ?? 300, r);
+ * ```
+ */
+export function computeMinRadiusForMap(
+	mapWidth: Num,
+	mapHeight: Num,
+	fov: Num,
+	paddingScale: Num = 1.15 as Num,
+): Num {
+	const safeW: Num = Math.max(1, mapWidth) as Num;
+	const safeH: Num = Math.max(1, mapHeight) as Num;
+	const diagonal: Num = Math.hypot(safeW, safeH) as Num;
+	const boundRadius: Num = (diagonal / 2) as Num;
+	return ((boundRadius / Math.sin(fov / 2)) * paddingScale) as Num;
+}
+
+// =============================================================================
 // Refocus On Tilemap
 // =============================================================================
 
@@ -995,13 +1031,22 @@ export function refocusOnTilemap(options: RefocusOptions): BabylonResult<PresetT
 		const safeHeight: Num = Math.max(1, mapHeight) as Num;
 		const targetX: Num = (safeWidth / 2) as Num;
 		const targetZ: Num = (safeHeight / 2) as Num;
-		const diagonal: Num = Math.hypot(safeWidth, safeHeight) as Num;
-		const boundRadius: Num = (diagonal / 2) as Num;
-		const idealRadius: Num = ((boundRadius / Math.sin(arc.fov / 2)) * config.paddingScale) as Num;
-		const endRadius: Num = Math.min(
-			arc.upperRadiusLimit ?? 10_000,
-			Math.max(arc.lowerRadiusLimit ?? 1, idealRadius),
-		) as Num;
+		const idealRadius: Num = computeMinRadiusForMap(
+			safeWidth,
+			safeHeight,
+			arc.fov,
+			config.paddingScale as Num,
+		);
+
+		// Raise the zoom-out limit so the camera can actually reach the
+		// distance needed to show the full map.  This also unblocks manual
+		// scroll-zoom after the refocus completes.
+		const currentUpper: Num = (arc.upperRadiusLimit ?? 10_000) as Num;
+		if (idealRadius > currentUpper) {
+			arc.upperRadiusLimit = idealRadius;
+		}
+
+		const endRadius: Num = Math.max(arc.lowerRadiusLimit ?? 1, idealRadius) as Num;
 		const endBeta: Num = config.resetElevation ? defaults.beta : arc.beta;
 		const endAlpha: Num = config.resetOrbit ? defaults.alpha : arc.alpha;
 

@@ -784,7 +784,14 @@ export const TileLayerSchema = v.strictObject({
 	 * Flat row-major array of global tile IDs.
 	 * Length must equal map `width * height`. ID 0 = empty/transparent.
 	 */
-	data: v.array(v.pipe(v.number(), v.integer(), v.minValue(0))),
+	data: v.custom<readonly Num[]>((val): boolean => {
+		if (!Array.isArray(val)) return false;
+		for (let i = 0; i < val.length; i++) {
+			const n: unknown = val[i];
+			if (typeof n !== 'number' || !Number.isInteger(n) || n < 0) return false;
+		}
+		return true;
+	}, 'Expected array of non-negative integers'),
 
 	/** Whether this layer is visible in the renderer. */
 	visible: v.optional(v.boolean(), true),
@@ -1056,7 +1063,16 @@ export const MapDataSchema = v.strictObject({
 	 * Per-tile height map. Flat row-major array (length = width × height).
 	 * Values 0–15. Omit for flat maps (all tiles at height 0).
 	 */
-	heightMap: v.optional(v.array(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(15)))),
+	heightMap: v.optional(
+		v.custom<readonly Num[]>((val): boolean => {
+			if (!Array.isArray(val)) return false;
+			for (let i = 0; i < val.length; i++) {
+				const n: unknown = val[i];
+				if (typeof n !== 'number' || !Number.isInteger(n) || n < 0 || n > 15) return false;
+			}
+			return true;
+		}, 'Expected array of integers 0–15'),
+	),
 
 	/** Optional post-processing pipeline configuration for this map. */
 	postProcessing: v.optional(PostProcessingConfigSchema),

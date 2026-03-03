@@ -26,7 +26,7 @@ import type { Num, Str } from '@/schemas/common';
 import { fromUnknownError } from '@/utils/result/safe';
 
 import { okShallow, type BabylonResult } from '../core/babylon-result';
-import { buildLayerData } from './gpu-tile-data-texture';
+import { buildLayerData, buildUniformLayerData } from './gpu-tile-data-texture';
 import { GpuTileMaterialPlugin } from './gpu-tile-material-plugin';
 import { resolveAutotile } from './autotile-resolver';
 import type { AutotileType } from '../schemas/map-data';
@@ -395,6 +395,130 @@ export function createGpuTileLayer(
 		if (atlasTexture) {
 			plugin.tileAtlas = atlasTexture;
 		}
+
+		mesh.material = material;
+
+		const gpuLayer: GpuTileLayer = {
+			mesh,
+			material,
+			plugin,
+			dataTexture,
+			layerData,
+			layerIndex,
+			mapWidth,
+			mapHeight,
+		};
+
+		return okShallow(gpuLayer);
+	} catch (error: unknown) {
+		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+	}
+}
+
+// =============================================================================
+// createGpuTileLayerUniform
+// =============================================================================
+
+/**
+ * Creates a GPU tile layer where every tile has the same ID.
+ *
+ * Optimized fast path for blank/uniform maps — avoids creating intermediate
+ * JS tile ID arrays. Directly fills the Float32Array data texture.
+ *
+ * @param options - Scene, layer info, map dimensions, fill tile ID, atlas texture.
+ * @returns Result containing the GPU tile layer.
+ *
+ * @example
+ * ```typescript
+ * const result = createGpuTileLayerUniform({
+ *   scene, layerName: 'ground', layerIndex: 0,
+ *   mapWidth: 1000, mapHeight: 1000, fillTileId: 1,
+ *   atlasTexture: tex, tilePixelWidth: 32, tilePixelHeight: 32,
+ *   tileWorldSize: 1,
+ * });
+ * ```
+ */
+export function createGpuTileLayerUniform(options: {
+	readonly scene: BABYLON.Scene;
+	readonly layerName: Str;
+	readonly layerIndex: Num;
+	readonly mapWidth: Num;
+	readonly mapHeight: Num;
+	readonly fillTileId: Num;
+	readonly atlasTexture: BABYLON.Texture | null;
+	readonly tilePixelWidth: Num;
+	readonly tilePixelHeight: Num;
+	readonly tileWorldSize: Num;
+	readonly heightY?: Num;
+}): BabylonResult<GpuTileLayer> {
+	const {
+		scene,
+		layerName,
+		layerIndex,
+		mapWidth,
+		mapHeight,
+		fillTileId,
+		atlasTexture,
+		tilePixelWidth,
+		tilePixelHeight,
+		tileWorldSize,
+		heightY,
+	} = options;
+
+	try {
+		const layerData: Float32Array<ArrayBufferLike> = buildUniformLayerData(
+			mapWidth,
+			mapHeight,
+			fillTileId,
+		);
+
+		const dataTexture: BABYLON.RawTexture = new BABYLON.RawTexture(
+			layerData,
+			mapWidth,
+			mapHeight,
+			BABYLON.Constants.TEXTUREFORMAT_RGBA,
+			scene,
+			false,
+			false,
+			BABYLON.Constants.TEXTURE_NEAREST_SAMPLINGMODE,
+			BABYLON.Constants.TEXTURETYPE_FLOAT,
+		);
+		dataTexture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+		dataTexture.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
+
+		const worldWidth: Num = mapWidth * tileWorldSize;
+		const worldHeight: Num = mapHeight * tileWorldSize;
+		const meshName: Str = `gpu-layer-${layerName}-${String(layerIndex)}` as Str;
+
+		const mesh: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround(
+			meshName,
+			{ width: worldWidth, height: worldHeight, subdivisions: 1 },
+			scene,
+		);
+		mesh.position.x = worldWidth / 2;
+		mesh.position.y = heightY ?? 0;
+		mesh.position.z = worldHeight / 2;
+
+		const materialName: Str = `gpu-mat-${layerName}-${String(layerIndex)}` as Str;
+		const material: BABYLON.StandardMaterial = new BABYLON.StandardMaterial(materialName, scene);
+		material.specularColor = new BABYLON.Color3(0, 0, 0);
+		material.backFaceCulling = false;
+		material.alphaMode = BABYLON.Constants.ALPHA_COMBINE;
+
+		const plugin: GpuTileMaterialPlugin = new GpuTileMaterialPlugin(material);
+		plugin.isEnabled = true;
+		plugin.mapSize = new BABYLON.Vector2(mapWidth, mapHeight);
+		plugin.tilePixelSize = new BABYLON.Vector2(tilePixelWidth, tilePixelHeight);
+		plugin.layerOpacity = 1;
+		plugin.animationFrame = 0;
+		plugin.layerTint = new BABYLON.Color4(1, 1, 1, 1);
+		plugin.layerBrightness = 0;
+		plugin.layerSaturation = 1;
+		plugin.layerContrast = 1;
+		plugin.layerOffset = new BABYLON.Vector2(0, 0);
+		plugin.invWorldSize = new BABYLON.Vector2(mapWidth / worldWidth, mapHeight / worldHeight);
+		plugin.tileDataTexture = dataTexture;
+		if (atlasTexture) plugin.tileAtlas = atlasTexture;
 
 		mesh.material = material;
 
