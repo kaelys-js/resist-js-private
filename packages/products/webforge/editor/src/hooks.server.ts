@@ -1,8 +1,10 @@
 import type { Handle, HandleServerError } from '@sveltejs/kit';
+import type { Bool } from '@/schemas/common';
+import type { CapturedError } from '@/schemas/result/captured-error';
 import { getTextDirection } from '@/locale/direction';
 import { ERRORS, err, type AppError } from '@/schemas/result/result';
 import { setupLogging, log } from '@/utils/core/logger';
-import { setupGlobalErrorHandling } from '@/utils/core/signal';
+import { reportError, setupGlobalErrorHandling } from '@/utils/core/signal';
 import { fromUnknownError } from '@/utils/result/safe';
 import { resolveLocale } from '$lib/server/locale-detection';
 
@@ -18,7 +20,7 @@ const SECURITY_HEADERS: ReadonlyArray<readonly [string, string]> = [
 setupLogging({ service: 'editor-server', initFromEnv: true, format: 'json' });
 setupGlobalErrorHandling({
 	onError: (captured) => {
-		log.errorObject(captured.error);
+		logCapturedError(captured);
 	},
 });
 
@@ -65,6 +67,43 @@ function collectCauseChain(root: AppError): Array<{ code: string; message: strin
 		current = current.cause;
 	}
 	return chain;
+}
+
+/**
+ * Logs a CapturedError with full structured context for server-side JSON logging.
+ *
+ * Used by the global `onError` handler for both uncaught errors and
+ * SvelteKit `handleError` errors (routed through `reportError()`).
+ *
+ * @param captured - The CapturedError envelope containing the AppError + context
+ */
+function logCapturedError(captured: CapturedError): void {
+	const appError: AppError = captured.error;
+	const source: string = extractSource(appError.stack);
+	const causeChain: Array<{ code: string; message: string }> = collectCauseChain(appError);
+
+	log.error(`[${captured.type}] ${appError.code}: ${appError.message}`, {
+		captureId: captured.id,
+		errorId: appError.id,
+		errorCode: appError.code,
+		source,
+		environment: captured.environment,
+		fatal: captured.fatal,
+		stack: appError.stack,
+		...(appError.severity !== undefined && { severity: appError.severity }),
+		...(appError.httpStatus !== undefined && { httpStatus: appError.httpStatus }),
+		...(appError.meta && { errorMeta: appError.meta }),
+		...(appError.validation && { validation: appError.validation }),
+		...(causeChain.length > 0 && { causeChain }),
+		...(captured.meta && { meta: captured.meta }),
+		...(captured.breadcrumbs &&
+			captured.breadcrumbs.length > 0 && { breadcrumbs: captured.breadcrumbs }),
+		...(captured.fingerprint && { fingerprint: captured.fingerprint }),
+		...(captured.tags && { tags: captured.tags }),
+		...(captured.user && { user: captured.user }),
+		...(captured.release !== undefined && { release: captured.release }),
+		...(captured.serverName !== undefined && { serverName: captured.serverName }),
+	});
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -127,7 +166,13 @@ export const handleError: HandleServerError = ({ error, event, status, message }
 			`Unexpected server error (${status}): ${message}`,
 			{
 				cause: extracted,
-				meta: { status, message },
+				meta: {
+					status,
+					message,
+					url: event.url.pathname,
+					method: event.request.method,
+					route: event.route?.id ?? null,
+				},
 			},
 		);
 		// err() always returns ok:false — narrow for type safety.
@@ -137,22 +182,10 @@ export const handleError: HandleServerError = ({ error, event, status, message }
 		appError = extracted;
 	}
 
-	const causeChain: Array<{ code: string; message: string }> = collectCauseChain(appError);
-
-	const source: string = extractSource(appError.stack);
-
-	log.error(`Server error (${status}): ${message}`, {
-		errorId: appError.id,
-		errorCode: appError.code,
-		source,
-		url: event.url.pathname,
-		method: event.request.method,
-		route: event.route?.id ?? null,
-		status,
-		stack: appError.stack,
-		...(appError.validation && { validation: appError.validation }),
-		...(causeChain.length > 0 && { causeChain }),
-	});
+	// Route through CapturedError pipeline — reportError() wraps the AppError
+	// with breadcrumbs, fingerprint, environment, etc. and fires onError which
+	// calls logCapturedError with the full CapturedError.
+	reportError(appError, false as Bool);
 
 	event.setHeaders({ 'x-error-id': appError.id });
 	// Embed errorId in message so error.html fallback can display it

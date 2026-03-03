@@ -19,6 +19,19 @@ function callHandleError(params: { error: unknown; status: number; message: stri
 	return result as App.Error;
 }
 
+/**
+ * Waits for pending microtasks to flush so async logErrorToConsole completes.
+ *
+ * logErrorToConsole is async (source map resolution) but fire-and-forget.
+ * In tests, source map fetch fails immediately (no server), so the async
+ * function resolves on the next microtask tick.
+ */
+async function flushAsync(): Promise<void> {
+	await new Promise((resolve) => {
+		setTimeout(resolve, 0);
+	});
+}
+
 describe('handleError', () => {
 	it('returns App.Error with message and errorId', () => {
 		const result: App.Error = callHandleError({
@@ -51,7 +64,7 @@ describe('handleError', () => {
 		expect(result.message).toBe('Not Found');
 	});
 
-	it('logs error with groupCollapsed including error code and errorId', () => {
+	it('logs error via CapturedError pipeline with groupCollapsed header', async () => {
 		const groupSpy = vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
@@ -63,6 +76,10 @@ describe('handleError', () => {
 			message: 'Internal Error',
 		});
 
+		// logErrorToConsole is async — wait for it to complete
+		await flushAsync();
+
+		// reportError sets type='resultError' which maps to [Error] label
 		expect(groupSpy).toHaveBeenCalledWith(
 			expect.stringContaining('[Error]'),
 			expect.any(String),
@@ -70,12 +87,19 @@ describe('handleError', () => {
 			expect.any(String),
 			expect.any(String),
 		);
-		// Verify the key-value block contains error code and error ID
+		// Verify the key-value block contains both AppError and CapturedError fields
 		const [kvCall] = logSpy.mock.calls;
 		expect(kvCall[0]).toContain('Code');
 		expect(kvCall[0]).toContain('Error ID');
+		expect(kvCall[0]).toContain('Capture ID');
+		expect(kvCall[0]).toContain('Type');
+		expect(kvCall[0]).toContain('Environment');
+		expect(kvCall[0]).toContain('Fatal');
 		expect(kvCall).toContain('INTERNAL.UNEXPECTED');
 		expect(kvCall).toContain(result.errorId);
+		// CapturedError fields
+		expect(kvCall).toContain('resultError'); // type
+		expect(kvCall).toContain('false'); // fatal (non-fatal from handleError)
 
 		vi.restoreAllMocks();
 	});
@@ -94,7 +118,7 @@ describe('handleError', () => {
 		expect(result1.errorId).not.toBe(result2.errorId);
 	});
 
-	it('preserves domain-specific AppError code when thrown error is an AppError', () => {
+	it('preserves domain-specific AppError code when thrown error is an AppError', async () => {
 		vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
@@ -109,6 +133,8 @@ describe('handleError', () => {
 			message: 'Internal Error',
 		});
 
+		await flushAsync();
+
 		// The errorId should come from the original AppError
 		expect(result.errorId).toBe(validationErr.error.id);
 		const [kvCall] = logSpy.mock.calls;
@@ -118,7 +144,10 @@ describe('handleError', () => {
 		vi.restoreAllMocks();
 	});
 
-	it('extracts source from browser @fs URLs in stack traces', () => {
+	it('extracts source from browser @fs URLs in stack traces', async () => {
+		// Mock fetch to reject immediately — no dev server in test env.
+		// Without this, real fetch attempts a TCP connection that takes too long to fail.
+		vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('no server')));
 		vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
@@ -146,17 +175,22 @@ describe('handleError', () => {
 			message: 'Internal Error',
 		});
 
+		await flushAsync();
+
 		// Should extract source from the first non-shared @fs URL frame
+		// Source map resolution fails in test (no server), so falls back to raw positions
 		const [kvCall] = logSpy.mock.calls;
 		expect(kvCall[0]).toContain('Source');
 		expect(kvCall).toContain(
 			'http://localhost:5173/@fs/Users/coleb/Desktop/webforge/packages/products/webforge/editor/src/routes/(testing)/test-error/validation-client/+page.svelte:21:22',
 		);
 
+		vi.unstubAllGlobals();
 		vi.restoreAllMocks();
 	});
 
-	it('extracts source from browser /src/ URLs in stack traces', () => {
+	it('extracts source from browser /src/ URLs in stack traces', async () => {
+		vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('no server')));
 		vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
@@ -180,16 +214,19 @@ describe('handleError', () => {
 			message: 'Internal Error',
 		});
 
+		await flushAsync();
+
 		const [kvCall] = logSpy.mock.calls;
 		expect(kvCall[0]).toContain('Source');
 		expect(kvCall).toContain(
 			'http://localhost:5173/src/routes/(testing)/test-error/validation-client/+page.svelte:21:22',
 		);
 
+		vi.unstubAllGlobals();
 		vi.restoreAllMocks();
 	});
 
-	it('logs cause chain when AppError has causes', () => {
+	it('logs cause chain when AppError has causes', async () => {
 		vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
@@ -208,6 +245,8 @@ describe('handleError', () => {
 			status: 500,
 			message: 'Internal Error',
 		});
+
+		await flushAsync();
 
 		// Should log the cause chain (styled: format string, color1, color2)
 		expect(logSpy).toHaveBeenCalledWith(
