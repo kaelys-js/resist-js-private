@@ -11,6 +11,7 @@
  */
 
 import { styles } from '$lib/debug/console-styles';
+import { createWatcher, type WatcherCleanup } from '$lib/debug/state-logger.svelte';
 import {
 	AppPreferencesSchema,
 	FeatureFlagsSchema,
@@ -80,6 +81,23 @@ export type EditorDevtools = {
 	logFeatures(): void;
 
 	/**
+	 * Register a reactive state watcher for change tracking.
+	 * The getter is called inside a Svelte `$effect` — any reactive reads
+	 * inside it will trigger re-evaluation and diff logging.
+	 *
+	 * @param name - Section name shown in console output (e.g., 'sidebar')
+	 * @param getter - Function that returns a plain snapshot of reactive state
+	 */
+	registerWatcher(name: string, getter: () => Record<string, unknown>): void;
+
+	/**
+	 * Remove a previously registered watcher by name.
+	 *
+	 * @param name - Section name used in `registerWatcher`
+	 */
+	unregisterWatcher(name: string): void;
+
+	/**
 	 * Register a custom namespace on the devtools API.
 	 *
 	 * @param namespace - Name for the extension (e.g., 'scene', 'audio')
@@ -137,6 +155,7 @@ export function createDevtoolsAPI(
 	debugStore: DebugStore,
 ): { destroy(): void } {
 	const extensions = new Map<string, Record<string, unknown>>();
+	const watchers = new Map<string, WatcherCleanup>();
 
 	const devtools: EditorDevtools = {
 		get state() {
@@ -221,6 +240,21 @@ export function createDevtoolsAPI(
 			console.table(devtools.state.features);
 		},
 
+		registerWatcher(name: string, getter: () => Record<string, unknown>): void {
+			// Unregister existing watcher with same name to avoid duplicates
+			const existing: WatcherCleanup | undefined = watchers.get(name);
+			if (existing) existing();
+			watchers.set(name, createWatcher(name, getter, debugStore));
+		},
+
+		unregisterWatcher(name: string): void {
+			const cleanup: WatcherCleanup | undefined = watchers.get(name);
+			if (cleanup) {
+				cleanup();
+				watchers.delete(name);
+			}
+		},
+
 		register(namespace: string, api: Record<string, unknown>): void {
 			extensions.set(namespace, api);
 			Object.defineProperty(devtools, namespace, {
@@ -250,6 +284,12 @@ export function createDevtoolsAPI(
 
 	return {
 		destroy(): void {
+			// Clean up all registered watchers
+			for (const cleanup of watchers.values()) {
+				cleanup();
+			}
+			watchers.clear();
+
 			// eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Intentional global cleanup
 			delete (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY];
 		},

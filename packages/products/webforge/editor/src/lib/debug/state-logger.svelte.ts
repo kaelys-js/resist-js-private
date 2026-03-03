@@ -1,12 +1,13 @@
 /**
  * State Change Logger
  *
- * Watches EditorStore reactive state via `$effect` and logs changes to the
- * browser console with styled badges, old/new diffs, and timestamps.
+ * Watches reactive state via `$effect` and logs changes to the browser
+ * console with styled badges, old/new diffs, and timestamps.
  * Only active when debug mode is enabled and log level permits.
  *
- * Auto-discovers state fields via schema introspection — adding new fields
- * to AppPreferencesSchema or FeatureFlagsSchema requires zero changes here.
+ * Provides `createWatcher()` — a reusable utility that any component can
+ * use to register its own reactive state for change tracking. The built-in
+ * watchers (app, features, debug) use the same utility internally.
  *
  * @module
  */
@@ -15,6 +16,13 @@ import { styles, formatTimestamp, diffSnapshot } from '$lib/debug/console-styles
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import type { DebugStore } from '$lib/stores/debug-state.svelte';
 import type { LogLevel } from '$lib/schemas/debug-state';
+
+// =============================================================================
+// Types
+// =============================================================================
+
+/** Cleanup function returned by `createWatcher` — call to stop watching. */
+export type WatcherCleanup = () => void;
 
 // =============================================================================
 // Log Level Priority
@@ -51,7 +59,7 @@ export function shouldLog(messageLevel: LogLevel, currentLevel: LogLevel): boole
 }
 
 // =============================================================================
-// State Logger
+// State Change Logging
 // =============================================================================
 
 /**
@@ -90,20 +98,75 @@ function logChange(section: string, key: string, oldVal: unknown, newVal: unknow
 	console.groupEnd();
 }
 
+// =============================================================================
+// Watcher Factory
+// =============================================================================
+
 /**
- * Creates a state change logger that watches all EditorStore properties.
+ * Creates a reactive watcher that logs state changes for a named section.
  *
- * Uses `$effect` to reactively watch `editorStore.app` and `editorStore.features`.
- * On each change, diffs the current snapshot against the previous one and logs
- * changed keys to the console.
+ * Uses `$effect.root` for lifecycle independence — the watcher runs outside
+ * the parent `$effect` tree and must be manually cleaned up by calling the
+ * returned function.
  *
- * Only logs when:
- * - `debugStore.debug.enabled` is true
- * - `debugStore.debug.logLevel` is 'debug' or 'trace'
+ * Any component with access to reactive state can use this to opt-in to
+ * state change tracking. For example, the sidebar can register a watcher
+ * for its `open`/`openMobile` state via the devtools API.
+ *
+ * @param name - Section name shown in console output (e.g., 'app', 'sidebar')
+ * @param getter - Function that returns a plain snapshot of the reactive state
+ * @param debugStore - The debug store (for log level gating)
+ * @returns Cleanup function — call to stop watching
+ *
+ * @example
+ * ```typescript
+ * const cleanup = createWatcher(
+ *   'sidebar',
+ *   () => ({ open: sidebar.open, openMobile: sidebar.openMobile }),
+ *   debugStore,
+ * );
+ * // ... later
+ * cleanup(); // stops watching
+ * ```
+ */
+export function createWatcher(
+	name: string,
+	getter: () => Record<string, unknown>,
+	debugStore: DebugStore,
+): WatcherCleanup {
+	let prev: Record<string, unknown> = { ...getter() };
+
+	return $effect.root(() => {
+		$effect(() => {
+			const current: Record<string, unknown> = { ...getter() };
+
+			if (!shouldLog('debug', debugStore.debug.logLevel)) return;
+
+			const diffs = diffSnapshot(prev, current);
+			for (const diff of diffs) {
+				logChange(name, diff.key, diff.old, diff.new);
+			}
+			prev = current;
+		});
+	});
+}
+
+// =============================================================================
+// State Logger (built-in watchers)
+// =============================================================================
+
+/**
+ * Creates a state change logger that watches all built-in store properties.
+ *
+ * Watches `editorStore.app`, `editorStore.features`, and `debugStore.debug`
+ * using `createWatcher()`. On each change, diffs the current snapshot against
+ * the previous one and logs changed keys to the console.
+ *
+ * Only logs when `debugStore.debug.logLevel` is 'debug' or 'trace'.
  *
  * @param editorStore - The editor state store to watch
- * @param debugStore - The debug store for log level checking
- * @returns Object with `destroy()` method to stop watching
+ * @param debugStore - The debug store (watched for its own state + log level)
+ * @returns Object with `destroy()` method to stop all watchers
  *
  * @example
  * ```typescript
@@ -116,48 +179,17 @@ export function createStateLogger(
 	editorStore: EditorStore,
 	debugStore: DebugStore,
 ): { destroy(): void } {
-	let prevApp: Record<string, unknown> = { ...editorStore.app };
-	let prevFeatures: Record<string, unknown> = { ...editorStore.features };
-
-	// Use $effect.root to create independent effects NOT tied to the parent
-	// $effect tree. This prevents the layout's $effect from destroying these
-	// watchers when it re-runs. Cleanup is manual via the returned function.
-	const cleanupApp: () => void = $effect.root(() => {
-		$effect(() => {
-			// Read reactive state to establish dependency tracking
-			const currentApp = { ...editorStore.app };
-
-			// Skip logging if log level doesn't allow debug messages
-			if (!shouldLog('debug', debugStore.debug.logLevel)) return;
-
-			const appDiffs = diffSnapshot(prevApp, currentApp);
-			for (const diff of appDiffs) {
-				logChange('app', diff.key, diff.old, diff.new);
-			}
-			prevApp = currentApp;
-		});
-	});
-
-	const cleanupFeatures: () => void = $effect.root(() => {
-		$effect(() => {
-			// Read reactive state to establish dependency tracking
-			const currentFeatures = { ...editorStore.features };
-
-			// Skip logging if log level doesn't allow debug messages
-			if (!shouldLog('debug', debugStore.debug.logLevel)) return;
-
-			const featureDiffs = diffSnapshot(prevFeatures, currentFeatures);
-			for (const diff of featureDiffs) {
-				logChange('features', diff.key, diff.old, diff.new);
-			}
-			prevFeatures = currentFeatures;
-		});
-	});
+	const cleanups: WatcherCleanup[] = [
+		createWatcher('app', () => ({ ...editorStore.app }), debugStore),
+		createWatcher('features', () => ({ ...editorStore.features }), debugStore),
+		createWatcher('debug', () => ({ ...debugStore.debug }), debugStore),
+	];
 
 	return {
 		destroy(): void {
-			cleanupApp();
-			cleanupFeatures();
+			for (const cleanup of cleanups) {
+				cleanup();
+			}
 		},
 	};
 }

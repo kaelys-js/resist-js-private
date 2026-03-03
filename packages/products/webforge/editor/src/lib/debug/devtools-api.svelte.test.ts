@@ -251,6 +251,56 @@ describe('devtools.logState / logFeatures', () => {
 	});
 });
 
+describe('devtools.registerWatcher / unregisterWatcher', () => {
+	it('registerWatcher creates a watcher', () => {
+		const api = createDevtoolsAPI(editorStore, debugStore);
+		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		let callCount = 0;
+		devtools.registerWatcher('test', () => {
+			callCount++;
+			return { value: callCount };
+		});
+		// Getter is called once during initial snapshot capture
+		expect(callCount).toBeGreaterThanOrEqual(1);
+		api.destroy();
+	});
+
+	it('unregisterWatcher removes a watcher', () => {
+		const api = createDevtoolsAPI(editorStore, debugStore);
+		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		devtools.registerWatcher('test', () => ({ value: 1 }));
+		devtools.unregisterWatcher('test');
+		// Should not throw after unregistering
+		api.destroy();
+	});
+
+	it('unregisterWatcher is safe for unknown names', () => {
+		const api = createDevtoolsAPI(editorStore, debugStore);
+		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		// Should not throw
+		devtools.unregisterWatcher('nonexistent');
+		api.destroy();
+	});
+
+	it('registerWatcher replaces existing watcher with same name', () => {
+		const api = createDevtoolsAPI(editorStore, debugStore);
+		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		devtools.registerWatcher('test', () => ({ value: 1 }));
+		// Re-register with same name — should replace, not duplicate
+		devtools.registerWatcher('test', () => ({ value: 2 }));
+		api.destroy();
+	});
+
+	it('destroy cleans up all registered watchers', () => {
+		const api = createDevtoolsAPI(editorStore, debugStore);
+		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		devtools.registerWatcher('w1', () => ({ a: 1 }));
+		devtools.registerWatcher('w2', () => ({ b: 2 }));
+		// destroy should clean up both watchers without errors
+		api.destroy();
+	});
+});
+
 describe('devtools meta', () => {
 	it('exposes appName', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);

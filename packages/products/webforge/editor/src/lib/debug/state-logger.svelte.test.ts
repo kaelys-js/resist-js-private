@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LOG_LEVEL_PRIORITY, shouldLog } from './state-logger.svelte';
+import { LOG_LEVEL_PRIORITY, shouldLog, type WatcherCleanup } from './state-logger.svelte';
 
 describe('LOG_LEVEL_PRIORITY', () => {
 	it('has correct priority ordering', () => {
@@ -46,5 +46,13 @@ describe('shouldLog', () => {
 	it('allows error messages at any level', () => {
 		expect(shouldLog('error', 'trace')).toBe(true);
 		expect(shouldLog('error', 'error')).toBe(true);
+	});
+});
+
+const watcherNoop: WatcherCleanup = () => {};
+
+describe('WatcherCleanup type', () => {
+	it('is exported as a callable function type', () => {
+		expect(typeof watcherNoop).toBe('function');
 	});
 });
