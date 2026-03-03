@@ -5,6 +5,7 @@ import Settings from '@lucide/svelte/icons/settings';
 import * as Avatar from '$lib/components/ui/avatar/index.js';
 import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+import WebForgeLogo from './WebForgeLogo.svelte';
 
 let { user }: { user: { name: string; avatar: string } } = $props();
 
@@ -23,7 +24,9 @@ const sidebar = Sidebar.useSidebar();
 					>
 						<Avatar.Root class="h-8 w-8 rounded-lg">
 							<Avatar.Image src={user.avatar} alt={user.name} />
-							<Avatar.Fallback class="rounded-lg">WF</Avatar.Fallback>
+							<Avatar.Fallback class="rounded-lg">
+								<WebForgeLogo size={16} />
+							</Avatar.Fallback>
 						</Avatar.Root>
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-medium">{user.name}</span>
@@ -43,7 +46,9 @@ const sidebar = Sidebar.useSidebar();
 					<div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 						<Avatar.Root class="h-8 w-8 rounded-lg">
 							<Avatar.Image src={user.avatar} alt={user.name} />
-							<Avatar.Fallback class="rounded-lg">WF</Avatar.Fallback>
+							<Avatar.Fallback class="rounded-lg">
+								<WebForgeLogo size={16} />
+							</Avatar.Fallback>
 						</Avatar.Root>
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-medium">{user.name}</span>
