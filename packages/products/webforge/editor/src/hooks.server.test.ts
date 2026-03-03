@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { RequestEvent, ResolveOptions } from '@sveltejs/kit';
-import { handle } from './hooks.server';
+import { handle, handleError } from './hooks.server';
 
 /**
  * Creates a minimal mock RequestEvent for testing the handle hook.
@@ -101,5 +101,147 @@ describe('hooks.server handle', () => {
 			event,
 			expect.objectContaining({ transformPageChunk: expect.any(Function) }),
 		);
+	});
+});
+
+/**
+ * Creates a mock RequestEvent with a stubbed setHeaders method for testing handleError.
+ *
+ * @returns Mock event and setHeaders spy
+ */
+function createMockErrorEvent(): { event: RequestEvent; setHeaders: ReturnType<typeof vi.fn> } {
+	const setHeaders = vi.fn();
+	return {
+		event: { setHeaders } as unknown as RequestEvent,
+		setHeaders,
+	};
+}
+
+/**
+ * Calls handleError with the given params and asserts a defined App.Error is returned.
+ *
+ * @param params - Error, status, and message to pass to handleError
+ * @returns The App.Error result and the setHeaders spy
+ */
+function callServerHandleError(params: { error: Error; status: number; message: string }): {
+	result: App.Error;
+	setHeaders: ReturnType<typeof vi.fn>;
+} {
+	const { event, setHeaders } = createMockErrorEvent();
+	const returned = handleError({
+		error: params.error,
+		event,
+		status: params.status,
+		message: params.message,
+	});
+	expect(returned).toBeDefined();
+	return { result: returned as App.Error, setHeaders };
+}
+
+describe('security headers', () => {
+	async function getResponseFromHandle(
+		cookie: string,
+		acceptLanguage: string | null,
+	): Promise<Response> {
+		const event = mockEvent(cookie, acceptLanguage);
+		const { resolve } = mockResolve();
+		const response = await handle({ event, resolve });
+		return response as Response;
+	}
+
+	it('sets X-Frame-Options to DENY', async () => {
+		const response: Response = await getResponseFromHandle('en', null);
+		expect(response.headers.get('X-Frame-Options')).toBe('DENY');
+	});
+
+	it('sets X-Content-Type-Options to nosniff', async () => {
+		const response: Response = await getResponseFromHandle('en', null);
+		expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff');
+	});
+
+	it('sets Referrer-Policy to strict-origin-when-cross-origin', async () => {
+		const response: Response = await getResponseFromHandle('en', null);
+		expect(response.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
+	});
+
+	it('sets Permissions-Policy', async () => {
+		const response: Response = await getResponseFromHandle('en', null);
+		const policy: string | null = response.headers.get('Permissions-Policy');
+		expect(policy).toBeTruthy();
+		expect(policy).toContain('camera=()');
+		expect(policy).toContain('microphone=()');
+		expect(policy).toContain('geolocation=()');
+	});
+
+	it('sets Cross-Origin-Opener-Policy to same-origin', async () => {
+		const response: Response = await getResponseFromHandle('en', null);
+		expect(response.headers.get('Cross-Origin-Opener-Policy')).toBe('same-origin');
+	});
+});
+
+describe('handleError', () => {
+	it('returns App.Error with message and errorId', () => {
+		const { result } = callServerHandleError({
+			error: new Error('test crash'),
+			status: 500,
+			message: 'Internal Error',
+		});
+		expect(result).toHaveProperty('message', 'Internal Error');
+		expect(result).toHaveProperty('errorId');
+		expect(typeof result.errorId).toBe('string');
+	});
+
+	it('errorId is a valid UUID', () => {
+		const { result } = callServerHandleError({
+			error: new Error('test'),
+			status: 500,
+			message: 'Error',
+		});
+		expect(result.errorId).toMatch(
+			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+		);
+	});
+
+	it('preserves the provided message', () => {
+		const { result } = callServerHandleError({
+			error: new Error('crash'),
+			status: 404,
+			message: 'Not Found',
+		});
+		expect(result.message).toBe('Not Found');
+	});
+
+	it('logs the error with errorId', () => {
+		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const { result } = callServerHandleError({
+			error: new Error('crash'),
+			status: 500,
+			message: 'Internal Error',
+		});
+		expect(spy).toHaveBeenCalledWith(expect.stringContaining(result.errorId!), expect.any(Error));
+		spy.mockRestore();
+	});
+
+	it('generates unique errorIds for each call', () => {
+		const { result: result1 } = callServerHandleError({
+			error: new Error('a'),
+			status: 500,
+			message: 'Error',
+		});
+		const { result: result2 } = callServerHandleError({
+			error: new Error('b'),
+			status: 500,
+			message: 'Error',
+		});
+		expect(result1.errorId).not.toBe(result2.errorId);
+	});
+
+	it('sets x-error-id response header', () => {
+		const { result, setHeaders } = callServerHandleError({
+			error: new Error('crash'),
+			status: 500,
+			message: 'Error',
+		});
+		expect(setHeaders).toHaveBeenCalledWith({ 'x-error-id': result.errorId });
 	});
 });
