@@ -12,4 +12,5 @@ coverage/
 .claude/
 .worktrees/
 .playwright-mcp
+test-results/
 TODO.md
