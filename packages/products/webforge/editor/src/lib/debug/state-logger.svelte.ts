@@ -118,43 +118,46 @@ export function createStateLogger(
 ): { destroy(): void } {
 	let prevApp: Record<string, unknown> = { ...editorStore.app };
 	let prevFeatures: Record<string, unknown> = { ...editorStore.features };
-	let destroyed = false;
 
-	$effect(() => {
-		if (destroyed) return;
+	// Use $effect.root to create independent effects NOT tied to the parent
+	// $effect tree. This prevents the layout's $effect from destroying these
+	// watchers when it re-runs. Cleanup is manual via the returned function.
+	const cleanupApp: () => void = $effect.root(() => {
+		$effect(() => {
+			// Read reactive state to establish dependency tracking
+			const currentApp = { ...editorStore.app };
 
-		// Read reactive state to establish dependency tracking
-		const currentApp = { ...editorStore.app };
+			// Skip logging if log level doesn't allow debug messages
+			if (!shouldLog('debug', debugStore.debug.logLevel)) return;
 
-		// Skip logging if log level doesn't allow debug messages
-		if (!shouldLog('debug', debugStore.debug.logLevel)) return;
-
-		const appDiffs = diffSnapshot(prevApp, currentApp);
-		for (const diff of appDiffs) {
-			logChange('app', diff.key, diff.old, diff.new);
-		}
-		prevApp = currentApp;
+			const appDiffs = diffSnapshot(prevApp, currentApp);
+			for (const diff of appDiffs) {
+				logChange('app', diff.key, diff.old, diff.new);
+			}
+			prevApp = currentApp;
+		});
 	});
 
-	$effect(() => {
-		if (destroyed) return;
+	const cleanupFeatures: () => void = $effect.root(() => {
+		$effect(() => {
+			// Read reactive state to establish dependency tracking
+			const currentFeatures = { ...editorStore.features };
 
-		// Read reactive state to establish dependency tracking
-		const currentFeatures = { ...editorStore.features };
+			// Skip logging if log level doesn't allow debug messages
+			if (!shouldLog('debug', debugStore.debug.logLevel)) return;
 
-		// Skip logging if log level doesn't allow debug messages
-		if (!shouldLog('debug', debugStore.debug.logLevel)) return;
-
-		const featureDiffs = diffSnapshot(prevFeatures, currentFeatures);
-		for (const diff of featureDiffs) {
-			logChange('features', diff.key, diff.old, diff.new);
-		}
-		prevFeatures = currentFeatures;
+			const featureDiffs = diffSnapshot(prevFeatures, currentFeatures);
+			for (const diff of featureDiffs) {
+				logChange('features', diff.key, diff.old, diff.new);
+			}
+			prevFeatures = currentFeatures;
+		});
 	});
 
 	return {
 		destroy(): void {
-			destroyed = true;
+			cleanupApp();
+			cleanupFeatures();
 		},
 	};
 }

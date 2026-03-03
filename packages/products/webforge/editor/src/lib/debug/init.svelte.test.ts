@@ -102,7 +102,7 @@ describe('activateDebugServices', () => {
 		// Welcome banner includes the app name in the first styled log
 		const { calls } = consoleSpy.mock;
 		const hasWelcome: boolean = calls.some(
-			(args) => typeof args[0] === 'string' && args[0].includes('WebForge'),
+			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('WebForge'),
 		);
 		expect(hasWelcome).toBe(true);
 		handle.destroy();

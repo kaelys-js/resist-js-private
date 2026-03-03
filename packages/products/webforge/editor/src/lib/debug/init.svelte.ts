@@ -15,6 +15,7 @@
 import { styles } from '$lib/debug/console-styles';
 import { createStateLogger } from '$lib/debug/state-logger.svelte';
 import { createDevtoolsAPI, DEVTOOLS_KEY } from '$lib/debug/devtools-api.svelte';
+import { isValidAppKey, isValidFeatureFlag } from '$lib/utils/url-params';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import type { DebugStore } from '$lib/stores/debug-state.svelte';
 
@@ -71,6 +72,24 @@ export function activateDebugServices(
 // Welcome Banner
 // =============================================================================
 
+/** Feature flag override prefix within wf.* params. */
+const FF_PREFIX = 'ff.';
+
+/**
+ * Checks whether a URL override key is recognized by the system.
+ * Recognized keys: `debug`, `logLevel`, valid app preference keys, `ff.<validFlag>`.
+ *
+ * @param key - Unprefixed override key (e.g., 'debug', 'theme', 'ff.settings')
+ * @returns True if the key maps to a known store setter
+ */
+function isRecognizedOverrideKey(key: string): boolean {
+	if (key === 'debug' || key === 'logLevel') return true;
+	if (key.startsWith(FF_PREFIX)) {
+		return isValidFeatureFlag(key.slice(FF_PREFIX.length));
+	}
+	return isValidAppKey(key);
+}
+
 /**
  * Logs a rich welcome banner to the console when debug mode activates.
  * Shows app info, current state summary, available commands, and URL param usage.
@@ -111,31 +130,51 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): voi
 
 	// ── URL Overrides ──────────────────────────────────────────────
 	if (overrideKeys.length > 0) {
+		// Partition into recognized vs unknown keys
+		const validKeys: string[] = [];
+		const unknownKeys: string[] = [];
+		for (const key of overrideKeys) {
+			if (isRecognizedOverrideKey(key)) {
+				validKeys.push(key);
+			} else {
+				unknownKeys.push(key);
+			}
+		}
+
 		console.groupCollapsed(
-			`%c URL Overrides %c ${overrideKeys.length} param(s) applied`,
+			`%c URL Overrides %c ${validKeys.length} applied${unknownKeys.length > 0 ? `, ${unknownKeys.length} unknown` : ''}`,
 			styles.warnBadge,
 			styles.reset,
 		);
-		for (const key of overrideKeys) {
-			console.log(`  wf.${key} = ${overrides[key]}`);
+		for (const key of validKeys) {
+			console.log(`  ✓ wf.${key} = ${overrides[key]}`);
+		}
+		for (const key of unknownKeys) {
+			console.warn(`  ✗ wf.${key} = ${overrides[key]}  (unknown — ignored)`);
 		}
 		console.groupEnd();
 	}
 
 	// ── Devtools API Help ──────────────────────────────────────────
 	console.groupCollapsed(`%c Devtools API %c ${globalName}`, styles.debugBadge, styles.reset);
-	console.log('  .state                → full state snapshot');
-	console.log('  .set(path, value)     → generic setter  e.g. .set("app.theme", "midnight")');
-	console.log('  .setTheme(t)          → change theme');
-	console.log('  .setFeature(f, bool)  → toggle feature flag');
-	console.log('  .setLogLevel(l)       → trace | debug | info | warn | error');
-	console.log('  .enable() / .disable()→ toggle debug mode');
-	console.log('  .logState()           → print full state');
-	console.log('  .logFeatures()        → print feature flags table');
-	console.log('  .register(ns, api)    → add custom extension namespace');
-	console.log('');
+	console.table({
+		'.state': { description: 'Full state snapshot (app, features, debug)' },
+		'.set(path, value)': { description: 'Generic setter — e.g. .set("app.theme", "midnight")' },
+		'.setTheme(t)': { description: 'Change editor theme' },
+		'.setMode(m)': { description: 'Set color mode (light / dark / system)' },
+		'.setLocale(l)': { description: 'Set locale (en, ja, zh, ko, fr, de, es)' },
+		'.setSidebarOpen(b)': { description: 'Toggle sidebar (true / false)' },
+		'.setFeature(f, b)': { description: 'Toggle feature flag' },
+		'.setLogLevel(l)': { description: 'Set log level (trace / debug / info / warn / error)' },
+		'.enable() / .disable()': { description: 'Toggle debug mode on/off' },
+		'.logState()': { description: 'Pretty-print full state to console' },
+		'.logFeatures()': { description: 'Print feature flags as console table' },
+		'.register(ns, api)': { description: 'Add custom extension namespace' },
+	});
 	console.log(
-		'  URL params:  ?wf.debug=true&wf.theme=midnight&wf.logLevel=debug&wf.ff.settings=false',
+		'%c URL params %c ?wf.debug=true&wf.theme=midnight&wf.logLevel=debug&wf.ff.settings=false',
+		styles.propPath,
+		styles.reset,
 	);
 	console.groupEnd();
 

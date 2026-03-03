@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import {
 	parseDebugParams,
 	applyUrlOverrides,
@@ -153,10 +153,16 @@ describe('applyUrlOverrides', () => {
 
 	let editorStore: ReturnType<typeof createMockEditorStore>;
 	let debugStore: ReturnType<typeof createMockDebugStore>;
+	let warnSpy: ReturnType<typeof vi.spyOn>;
 
 	beforeEach(() => {
 		editorStore = createMockEditorStore();
 		debugStore = createMockDebugStore();
+		warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+	});
+
+	afterEach(() => {
+		warnSpy.mockRestore();
 	});
 
 	it('returns ok for empty overrides', () => {
@@ -213,11 +219,27 @@ describe('applyUrlOverrides', () => {
 		expect(editorStore.setFeature).toHaveBeenCalledWith('sidebar', true);
 	});
 
-	it('silently ignores unknown keys', () => {
+	it('warns about unknown keys in console', () => {
 		const result = applyUrlOverrides(editorStore, debugStore, { unknownKey: 'value' });
 		expect(result.ok).toBe(true);
 		expect(editorStore.setTheme).not.toHaveBeenCalled();
 		expect(editorStore.setFeature).not.toHaveBeenCalled();
+		expect(warnSpy).toHaveBeenCalledWith(
+			expect.stringContaining('Unknown URL override: wf.unknownKey=value'),
+		);
+	});
+
+	it('warns about typo params like logLesel', () => {
+		applyUrlOverrides(editorStore, debugStore, { logLesel: 'debug' });
+		expect(debugStore.setLogLevel).not.toHaveBeenCalled();
+		expect(warnSpy).toHaveBeenCalledWith(
+			expect.stringContaining('Unknown URL override: wf.logLesel=debug'),
+		);
+	});
+
+	it('does not warn for valid keys', () => {
+		applyUrlOverrides(editorStore, debugStore, { debug: 'true', theme: 'midnight' });
+		expect(warnSpy).not.toHaveBeenCalled();
 	});
 
 	it('silently ignores unknown feature flag keys', () => {
