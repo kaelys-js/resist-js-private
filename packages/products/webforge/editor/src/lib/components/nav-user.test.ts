@@ -18,4 +18,10 @@ describe('NavUser', () => {
 		const svgs: NodeListOf<SVGSVGElement> = container.querySelectorAll('svg');
 		expect(svgs.length).toBeGreaterThanOrEqual(1);
 	});
+
+	it('does NOT render ModeToggle button', () => {
+		render(NavUserTest);
+		// ModeToggle renders a button with aria-label "Toggle mode"
+		expect(screen.queryByRole('button', { name: /toggle mode/i })).not.toBeInTheDocument();
+	});
 });

@@ -5,8 +5,11 @@ import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import ModeToggle from './ModeToggle.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
+import { useEditorStore } from '$lib/stores/editor-state.svelte';
 
 let { isError = false }: { isError?: boolean } = $props();
+
+const store = useEditorStore();
 
 const breadcrumbLeaf: string = $derived(
 	isError ? t(localeStore.t.header.error, 'Error') : t(localeStore.t.header.scene, 'Scene'),
@@ -44,7 +47,9 @@ const toggleSidebarLabel: string = $derived(
 			</Breadcrumb.List>
 		</Breadcrumb.Root>
 		<div class="ml-auto flex items-center gap-2">
-			<ModeToggle />
+			{#if store.features.modeToggle}
+				<ModeToggle />
+			{/if}
 		</div>
 	</div>
 </header>

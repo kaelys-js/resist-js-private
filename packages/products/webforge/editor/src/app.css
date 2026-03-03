@@ -377,7 +377,7 @@
 	*,
 	*::before,
 	*::after {
-		@apply border-border transition-colors duration-500 ease-in-out;
+		@apply border-border transition-colors duration-1500 ease-in-out;
 		-webkit-tap-highlight-color: transparent;
 	}
 

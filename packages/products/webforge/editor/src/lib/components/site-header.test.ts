@@ -29,7 +29,7 @@ describe('SiteHeader', () => {
 		expect(screen.queryByText('Scene')).not.toBeInTheDocument();
 	});
 
-	it('renders mode toggle button', () => {
+	it('renders mode toggle button when modeToggle feature flag is true (default)', () => {
 		render(SiteHeaderTest);
 		expect(screen.getByRole('button', { name: /toggle mode/i })).toBeInTheDocument();
 	});

@@ -56,6 +56,7 @@ export const FeatureFlagsSchema = v.strictObject({
 	sidebar: v.optional(v.boolean(), true),
 	sceneList: v.optional(v.boolean(), true),
 	assetBrowser: v.optional(v.boolean(), true),
+	resizableSidebar: v.optional(v.boolean(), true),
 });
 
 /** Inferred type for feature flags. */

@@ -120,6 +120,9 @@ importers:
       '@testing-library/svelte':
         specifier: ^5.3.1
         version: 5.3.1(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1))(vitest@4.0.18(@types/node@25.3.0)(jiti@2.6.1)(jsdom@28.1.0)(lightningcss@1.31.1))
+      paneforge:
+        specifier: ^1.0.2
+        version: 1.0.2(svelte@5.53.5)
       svelte-check:
         specifier: ^4.4.3
         version: 4.4.3(picomatch@4.0.3)(svelte@5.53.5)(typescript@5.9.3)
@@ -2201,6 +2204,11 @@ packages:
       oxlint-tsgolint:
         optional: true
 
+  paneforge@1.0.2:
+    resolution: {integrity: sha512-KzmIXQH1wCfwZ4RsMohD/IUtEjVhteR+c+ulb/CHYJHX8SuDXoJmChtsc/Xs5Wl8NHS4L5Q7cxL8MG40gSU1bA==}
+    peerDependencies:
+      svelte: ^5.29.0
+
   parse5@8.0.0:
     resolution: {integrity: sha512-9m4m5GSgXjL4AjumKzq1Fgfp3Z8rsvjRNbnkVwfu2ImRqE5D0LnY2QfDen18FSY9C573YU5XxSapdHZTZ2WolA==}
 
@@ -2293,6 +2301,11 @@ packages:
     peerDependencies:
       svelte: ^5.7.0
 
+  runed@0.29.2:
+    resolution: {integrity: sha512-0cq6cA6sYGZwl/FvVqjx9YN+1xEBu9sDDyuWdDW1yWX7JF2wmvmVKfH+hVCZs+csW+P3ARH92MjI3H9QTagOQA==}
+    peerDependencies:
+      svelte: ^5.7.0
+
   runed@0.35.1:
     resolution: {integrity: sha512-2F4Q/FZzbeJTFdIS/PuOoPRSm92sA2LhzTnv6FXhCoENb3huf5+fDuNOg1LNvGOouy3u/225qxmuJvcV3IZK5Q==}
     peerDependencies:
@@ -2362,6 +2375,12 @@ packages:
     engines: {node: '>=18', pnpm: '>=8.7.0'}
     peerDependencies:
       svelte: ^5.0.0
+
+  svelte-toolbelt@0.9.3:
+    resolution: {integrity: sha512-HCSWxCtVmv+c6g1ACb8LTwHVbDqLKJvHpo6J8TaqwUme2hj9ATJCpjCPNISR1OCq2Q4U1KT41if9ON0isINQZw==}
+    engines: {node: '>=18', pnpm: '>=8.7.0'}
+    peerDependencies:
+      svelte: ^5.30.2
 
   svelte@5.53.5:
     resolution: {integrity: sha512-YkqERnF05g8KLdDZwZrF8/i1eSbj6Eoat8Jjr2IfruZz9StLuBqo8sfCSzjosNKd+ZrQ8DkKZDjpO5y3ht1Pow==}
@@ -4803,6 +4822,12 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.50.0
       '@oxlint/binding-win32-x64-msvc': 1.50.0
 
+  paneforge@1.0.2(svelte@5.53.5):
+    dependencies:
+      runed: 0.23.4(svelte@5.53.5)
+      svelte: 5.53.5
+      svelte-toolbelt: 0.9.3(svelte@5.53.5)
+
   parse5@8.0.0:
     dependencies:
       entities: 6.0.1
@@ -4907,6 +4932,11 @@ snapshots:
       esm-env: 1.2.2
       svelte: 5.53.5
 
+  runed@0.29.2(svelte@5.53.5):
+    dependencies:
+      esm-env: 1.2.2
+      svelte: 5.53.5
+
   runed@0.35.1(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1)))(svelte@5.53.5):
     dependencies:
       dequal: 2.0.3
@@ -4977,6 +5007,13 @@ snapshots:
     dependencies:
       clsx: 2.1.1
       runed: 0.23.4(svelte@5.53.5)
+      style-to-object: 1.0.14
+      svelte: 5.53.5
+
+  svelte-toolbelt@0.9.3(svelte@5.53.5):
+    dependencies:
+      clsx: 2.1.1
+      runed: 0.29.2(svelte@5.53.5)
       style-to-object: 1.0.14
       svelte: 5.53.5
 

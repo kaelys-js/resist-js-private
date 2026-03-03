@@ -56,6 +56,7 @@ describe('EditorStore', () => {
 		expect(store.features.sidebar).toBe(true);
 		expect(store.features.sceneList).toBe(true);
 		expect(store.features.assetBrowser).toBe(true);
+		expect(store.features.resizableSidebar).toBe(true);
 	});
 
 	// ── setTheme ───────────────────────────────────────────────────────────
@@ -346,9 +347,9 @@ describe('EditorStore', () => {
 		expect(result.data.app.sidebarOpen).toBe(true);
 	});
 
-	// ── setFeature — all 7 flags ──────────────────────────────────────────
+	// ── setFeature — all 8 flags ──────────────────────────────────────────
 
-	it('setFeature() toggles all 7 flags individually', () => {
+	it('setFeature() toggles all 8 flags individually', () => {
 		const flags: readonly string[] = [
 			'settings',
 			'themeSelection',
@@ -357,6 +358,7 @@ describe('EditorStore', () => {
 			'sidebar',
 			'sceneList',
 			'assetBrowser',
+			'resizableSidebar',
 		];
 		const result = createEditorStore();
 		if (!result.ok) throw new Error('Store creation failed');

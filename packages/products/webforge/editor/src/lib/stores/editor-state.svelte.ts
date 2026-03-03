@@ -49,6 +49,7 @@ const FEATURE_DEFAULTS: FeatureFlags = {
 	sidebar: true,
 	sceneList: true,
 	assetBrowser: true,
+	resizableSidebar: true,
 };
 
 /** All valid feature flag keys. */

@@ -54,4 +54,44 @@ test.describe('language switcher', () => {
 		const cookie = await page.evaluate(() => document.cookie);
 		expect(cookie).toContain('locale=fr');
 	});
+
+	test('language sub-menu shows dual display names (endonym + exonym)', async ({ page }) => {
+		await page.goto('/');
+		await page.getByText('WebForge Project').click();
+		await expect(page.getByText('Language')).toBeVisible();
+		await page.getByText('Language').hover();
+		await page.waitForTimeout(300);
+		// Non-English languages show endonym + exonym in parentheses
+		// Japanese: 日本語 (Japanese)
+		await expect(page.getByText('日本語')).toBeVisible();
+		await expect(page.getByText(/Japanese/)).toBeVisible();
+		// French: Français (French)
+		await expect(page.getByText('Français')).toBeVisible();
+		await expect(page.getByText(/French/)).toBeVisible();
+		// English should NOT show exonym since endonym === exonym
+		await expect(page.getByText('(English)')).not.toBeVisible();
+	});
+
+	test('switching locale updates exonym language format', async ({ page }) => {
+		await page.goto('/');
+		// Switch to French
+		await page.getByText('WebForge Project').click();
+		await expect(page.getByText('Language')).toBeVisible();
+		await page.getByText('Language').hover();
+		await page.waitForTimeout(300);
+		await page.getByText('Français').click();
+		await page.waitForTimeout(500);
+		// Verify locale changed
+		await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
+
+		// Re-open language sub-menu — trigger text is now in French
+		// Use .first() because Bits UI popover may still have a duplicate text node
+		await page.getByText('WebForge Project').first().click();
+		const langTrigger = page.locator('[role="menuitem"]').filter({ hasText: /Langue|Language/ });
+		await expect(langTrigger).toBeVisible();
+		await langTrigger.hover();
+		await page.waitForTimeout(300);
+		// Japanese exonym in French locale should be "japonais"
+		await expect(page.getByText(/japonais/i)).toBeVisible();
+	});
 });
