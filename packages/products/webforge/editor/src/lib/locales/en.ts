@@ -1,0 +1,60 @@
+import type { EditorLocaleRaw } from './schema';
+
+export const en: EditorLocaleRaw = {
+	meta: {
+		description: 'WebForge RPG — HD-2D game creation suite',
+		applicationName: 'WebForge',
+	},
+	common: {
+		settings: 'Settings',
+		help: 'Help',
+		rename: 'Rename',
+		duplicate: 'Duplicate',
+		delete: 'Delete',
+		cancel: 'Cancel',
+		save: 'Save',
+		close: 'Close',
+		loading: 'Loading…',
+	},
+	sidebar: {
+		scenes: 'Scenes',
+		newScene: 'New Scene',
+		assets: 'Assets',
+		tilesets: 'Tilesets',
+		sprites: 'Sprites',
+		audio: 'Audio',
+	},
+	header: {
+		editor: 'Editor',
+		scene: 'Scene',
+	},
+	settings: {
+		appearance: 'Appearance',
+		theme: 'Theme',
+		language: 'Language',
+		light: 'Light',
+		dark: 'Dark',
+		system: 'System',
+		themeDefault: 'Default',
+		themeMidnight: 'Midnight',
+		themeWarm: 'Warm',
+		themeForest: 'Forest',
+		themeOcean: 'Ocean',
+		themeRose: 'Rose',
+		themeLavender: 'Lavender',
+		themeSunset: 'Sunset',
+		themeSlate: 'Slate',
+		themeCopper: 'Copper',
+		themeAurora: 'Aurora',
+		themeAmethyst: 'Amethyst',
+	},
+	project: {
+		openProject: 'Open Project',
+		webforgeProject: 'WebForge Project',
+	},
+	scenes: {
+		rename: 'Rename Scene',
+		duplicate: 'Duplicate Scene',
+		delete: 'Delete Scene',
+	},
+};

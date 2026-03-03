@@ -7,6 +7,7 @@ import Pencil from '@lucide/svelte/icons/pencil';
 import Trash2 from '@lucide/svelte/icons/trash-2';
 import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+import { localeStore, t } from '$lib/i18n.svelte';
 
 type Scene = {
 	title: string;
@@ -18,7 +19,7 @@ let { scenes }: { scenes: Scene[] } = $props();
 </script>
 
 <Sidebar.Group>
-	<Sidebar.GroupLabel>Scenes</Sidebar.GroupLabel>
+	<Sidebar.GroupLabel>{t(localeStore.t.sidebar.scenes, 'Scenes')}</Sidebar.GroupLabel>
 	<Sidebar.Menu>
 		{#each scenes as scene (scene.title)}
 			<Sidebar.MenuItem>
@@ -41,16 +42,16 @@ let { scenes }: { scenes: Scene[] } = $props();
 					<DropdownMenu.Content class="w-48 rounded-lg" side="bottom" align="end">
 						<DropdownMenu.Item>
 							<Pencil class="mr-2 size-4 text-muted-foreground" />
-							<span>Rename</span>
+							<span>{t(localeStore.t.scenes.rename, 'Rename')}</span>
 						</DropdownMenu.Item>
 						<DropdownMenu.Item>
 							<Copy class="mr-2 size-4 text-muted-foreground" />
-							<span>Duplicate</span>
+							<span>{t(localeStore.t.scenes.duplicate, 'Duplicate')}</span>
 						</DropdownMenu.Item>
 						<DropdownMenu.Separator />
 						<DropdownMenu.Item>
 							<Trash2 class="mr-2 size-4 text-muted-foreground" />
-							<span>Delete</span>
+							<span>{t(localeStore.t.scenes.delete, 'Delete')}</span>
 						</DropdownMenu.Item>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
@@ -59,7 +60,7 @@ let { scenes }: { scenes: Scene[] } = $props();
 		<Sidebar.MenuItem>
 			<Sidebar.MenuButton class="text-sidebar-foreground/70">
 				<Plus />
-				<span>New Scene</span>
+				<span>{t(localeStore.t.sidebar.newScene, 'New Scene')}</span>
 			</Sidebar.MenuButton>
 		</Sidebar.MenuItem>
 	</Sidebar.Menu>

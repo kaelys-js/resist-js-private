@@ -1,0 +1,60 @@
+import type { EditorLocaleRaw } from './schema';
+
+export const ja: EditorLocaleRaw = {
+	meta: {
+		description: 'WebForge RPG — HD-2Dゲーム制作スイート',
+		applicationName: 'WebForge',
+	},
+	common: {
+		settings: '設定',
+		help: 'ヘルプ',
+		rename: '名前変更',
+		duplicate: '複製',
+		delete: '削除',
+		cancel: 'キャンセル',
+		save: '保存',
+		close: '閉じる',
+		loading: '読み込み中…',
+	},
+	sidebar: {
+		scenes: 'シーン',
+		newScene: '新規シーン',
+		assets: 'アセット',
+		tilesets: 'タイルセット',
+		sprites: 'スプライト',
+		audio: 'オーディオ',
+	},
+	header: {
+		editor: 'エディタ',
+		scene: 'シーン',
+	},
+	settings: {
+		appearance: '外観',
+		theme: 'テーマ',
+		language: '言語',
+		light: 'ライト',
+		dark: 'ダーク',
+		system: 'システム',
+		themeDefault: 'デフォルト',
+		themeMidnight: 'ミッドナイト',
+		themeWarm: 'ウォーム',
+		themeForest: 'フォレスト',
+		themeOcean: 'オーシャン',
+		themeRose: 'ローズ',
+		themeLavender: 'ラベンダー',
+		themeSunset: 'サンセット',
+		themeSlate: 'スレート',
+		themeCopper: 'コッパー',
+		themeAurora: 'オーロラ',
+		themeAmethyst: 'アメジスト',
+	},
+	project: {
+		openProject: 'プロジェクトを開く',
+		webforgeProject: 'WebForgeプロジェクト',
+	},
+	scenes: {
+		rename: 'シーン名を変更',
+		duplicate: 'シーンを複製',
+		delete: 'シーンを削除',
+	},
+};

@@ -1,7 +1,7 @@
 {
 	"$schema": "https://turbo.build/schema.json",
 	"globalDependencies": ["tsconfig.json"],
-	"globalPassThroughEnv": ["NODE_ENV", "CI", "VITE_*", "PUBLIC_*"],
+	"globalPassThroughEnv": ["NODE_ENV", "CI", "VITE_*", "PUBLIC_*", "PLAYWRIGHT_*"],
 	"ui": "tui",
 	"dangerouslyDisablePackageManagerCheck": false,
 	"tasks": {
@@ -51,6 +51,12 @@
 			"dependsOn": ["^build"],
 			"inputs": ["$TURBO_DEFAULT$"],
 			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"qa:test:e2e": {
+			"dependsOn": ["build"],
+			"inputs": ["$TURBO_DEFAULT$"],
+			"cache": false,
 			"outputLogs": "new-only"
 		},
 		"qa:test:coverage": {

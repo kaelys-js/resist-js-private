@@ -11,9 +11,13 @@ import NavScenes from './NavScenes.svelte';
 import NavMain from './NavMain.svelte';
 import NavSecondary from './NavSecondary.svelte';
 import NavUser from './NavUser.svelte';
+import { localeStore, t } from '$lib/i18n.svelte';
+import { useEditorStore } from '$lib/stores/editor-state.svelte';
 
 type Props = ComponentProps<typeof Sidebar.Root>;
 let { ...restProps }: Props = $props();
+
+const store = useEditorStore();
 
 const scenes = [
 	{ title: 'Overworld', url: '#overworld', isActive: true },
@@ -21,16 +25,18 @@ const scenes = [
 	{ title: 'Dungeon B1', url: '#dungeon-b1' },
 ];
 
-const navAssets = [
-	{ title: 'Tilesets', url: '#tilesets', icon: Grid3x3 },
-	{ title: 'Sprites', url: '#sprites', icon: Image },
-	{ title: 'Audio', url: '#audio', icon: Music },
-];
+const navAssets = $derived([
+	{ title: t(localeStore.t.sidebar.tilesets, 'Tilesets'), url: '#tilesets', icon: Grid3x3 },
+	{ title: t(localeStore.t.sidebar.sprites, 'Sprites'), url: '#sprites', icon: Image },
+	{ title: t(localeStore.t.sidebar.audio, 'Audio'), url: '#audio', icon: Music },
+]);
 
-const navSecondary = [
-	{ title: 'Settings', url: '#settings', icon: Settings },
-	{ title: 'Help', url: '#help', icon: CircleHelp },
-];
+const navSecondary = $derived([
+	...(store.features.settings
+		? [{ title: t(localeStore.t.common.settings, 'Settings'), url: '#settings', icon: Settings }]
+		: []),
+	{ title: t(localeStore.t.common.help, 'Help'), url: '#help', icon: CircleHelp },
+]);
 
 const user = {
 	name: 'WebForge Project',
@@ -57,8 +63,12 @@ const user = {
 		</Sidebar.Menu>
 	</Sidebar.Header>
 	<Sidebar.Content>
-		<NavScenes {scenes} />
-		<NavMain label="Assets" items={navAssets} />
+		{#if store.features.sceneList}
+			<NavScenes {scenes} />
+		{/if}
+		{#if store.features.assetBrowser}
+			<NavMain label={t(localeStore.t.sidebar.assets, 'Assets')} items={navAssets} />
+		{/if}
 		<NavSecondary items={navSecondary} class="mt-auto" />
 	</Sidebar.Content>
 	<Sidebar.Footer>
