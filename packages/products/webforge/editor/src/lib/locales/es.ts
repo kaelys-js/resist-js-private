@@ -27,11 +27,14 @@ export const es: EditorLocaleRaw = {
 	header: {
 		editor: 'Editor',
 		scene: 'Escena',
+		error: 'Error',
+		toggleSidebar: 'Alternar barra lateral',
 	},
 	settings: {
 		appearance: 'Apariencia',
 		theme: 'Tema',
 		language: 'Idioma',
+		toggleTheme: 'Cambiar tema',
 		light: 'Claro',
 		dark: 'Oscuro',
 		system: 'Sistema',
@@ -56,5 +59,23 @@ export const es: EditorLocaleRaw = {
 		rename: 'Renombrar escena',
 		duplicate: 'Duplicar escena',
 		delete: 'Eliminar escena',
+	},
+	errors: {
+		badRequest: 'Solicitud no válida',
+		badRequestDescription: 'Algo en esa solicitud no se veía bien. Revisa e inténtalo de nuevo.',
+		notFound: 'Página no encontrada',
+		notFoundDescription:
+			'Buscamos por todas partes, pero esta página parece haberse perdido. Puede que se haya movido o eliminado.',
+		forbidden: 'Acceso denegado',
+		forbiddenDescription:
+			'No tienes permiso para acceder a esta página. Intenta iniciar sesión con otra cuenta.',
+		serverError: 'Algo salió mal',
+		serverErrorDescription:
+			'¡Ups! Algo se rompió de nuestro lado. Estamos trabajando en ello — por favor inténtalo de nuevo en un momento.',
+		genericTitle: 'Error',
+		genericDescription: 'Algo inesperado ocurrió al cargar esta página.',
+		goHome: 'Ir al inicio',
+		tryAgain: 'Intentar de nuevo',
+		errorId: 'ID de error: {id}',
 	},
 };

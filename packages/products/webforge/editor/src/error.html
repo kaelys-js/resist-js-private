@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="color-scheme" content="light dark" />
+		<meta name="robots" content="noindex, nofollow" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<title>%sveltekit.status% | WebForge</title>
+		<style>
+			body {
+				font-family: system-ui, -apple-system, sans-serif;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				min-height: 100vh;
+				margin: 0;
+				background: #0a0a0a;
+				color: #fafafa;
+			}
+			.container {
+				text-align: center;
+			}
+			.status {
+				font-size: 4rem;
+				font-weight: bold;
+				opacity: 0.5;
+			}
+			.message {
+				margin-top: 1rem;
+				opacity: 0.7;
+			}
+			a {
+				color: #3b82f6;
+				text-decoration: none;
+				margin-top: 2rem;
+				display: inline-block;
+			}
+			a:hover {
+				text-decoration: underline;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="status">%sveltekit.status%</div>
+			<div class="message">%sveltekit.error.message%</div>
+			<a href="/">Go to homepage</a>
+		</div>
+	</body>
+</html>

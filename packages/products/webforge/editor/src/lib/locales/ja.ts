@@ -27,11 +27,14 @@ export const ja: EditorLocaleRaw = {
 	header: {
 		editor: 'エディタ',
 		scene: 'シーン',
+		error: 'エラー',
+		toggleSidebar: 'サイドバーの切り替え',
 	},
 	settings: {
 		appearance: '外観',
 		theme: 'テーマ',
 		language: '言語',
+		toggleTheme: 'テーマの切り替え',
 		light: 'ライト',
 		dark: 'ダーク',
 		system: 'システム',
@@ -56,5 +59,23 @@ export const ja: EditorLocaleRaw = {
 		rename: 'シーン名を変更',
 		duplicate: 'シーンを複製',
 		delete: 'シーンを削除',
+	},
+	errors: {
+		badRequest: '不正なリクエスト',
+		badRequestDescription: 'リクエストの内容に問題がありました。確認してもう一度お試しください。',
+		notFound: 'ページが見つかりません',
+		notFoundDescription:
+			'あちこち探しましたが、このページは見つかりませんでした。移動または削除された可能性があります。',
+		forbidden: 'アクセスが拒否されました',
+		forbiddenDescription:
+			'このページにアクセスする権限がありません。別のアカウントでログインしてみてください。',
+		serverError: '問題が発生しました',
+		serverErrorDescription:
+			'申し訳ありません、こちら側で問題が発生しました。現在対応中ですので、少し時間をおいてもう一度お試しください。',
+		genericTitle: 'エラー',
+		genericDescription: 'ページの読み込み中に予期しないエラーが発生しました。',
+		goHome: 'ホームページへ',
+		tryAgain: 'もう一度試す',
+		errorId: 'エラーID: {id}',
 	},
 };

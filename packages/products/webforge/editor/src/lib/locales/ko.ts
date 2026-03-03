@@ -27,11 +27,14 @@ export const ko: EditorLocaleRaw = {
 	header: {
 		editor: '에디터',
 		scene: '씬',
+		error: '오류',
+		toggleSidebar: '사이드바 전환',
 	},
 	settings: {
 		appearance: '외관',
 		theme: '테마',
 		language: '언어',
+		toggleTheme: '테마 전환',
 		light: '라이트',
 		dark: '다크',
 		system: '시스템',
@@ -56,5 +59,22 @@ export const ko: EditorLocaleRaw = {
 		rename: '씬 이름 변경',
 		duplicate: '씬 복제',
 		delete: '씬 삭제',
+	},
+	errors: {
+		badRequest: '잘못된 요청',
+		badRequestDescription: '요청에 문제가 있는 것 같습니다. 확인 후 다시 시도해 주세요.',
+		notFound: '페이지를 찾을 수 없습니다',
+		notFoundDescription:
+			'여기저기 찾아봤지만 이 페이지를 찾을 수 없습니다. 이동되었거나 삭제되었을 수 있습니다.',
+		forbidden: '접근이 거부되었습니다',
+		forbiddenDescription: '이 페이지에 접근할 권한이 없습니다. 다른 계정으로 로그인해 보세요.',
+		serverError: '문제가 발생했습니다',
+		serverErrorDescription:
+			'이런! 저희 쪽에서 문제가 발생했습니다. 확인 중이니 잠시 후 다시 시도해 주세요.',
+		genericTitle: '오류',
+		genericDescription: '이 페이지를 로드하는 중 예기치 않은 오류가 발생했습니다.',
+		goHome: '홈페이지로 이동',
+		tryAgain: '다시 시도',
+		errorId: '오류 ID: {id}',
 	},
 };

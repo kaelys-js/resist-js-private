@@ -4,7 +4,7 @@ import { messageTemplate } from '@/locale/template';
 /**
  * Editor locale schema — defines all translatable strings.
  *
- * Namespaces: meta, common, sidebar, header, settings, project, scenes.
+ * Namespaces: meta, common, sidebar, header, settings, project, scenes, errors.
  * Each key uses `messageTemplate()` for static strings or
  * `messageTemplate({ param: Schema })` for parameterized strings.
  */
@@ -35,11 +35,14 @@ export const EditorLocaleSchema = v.strictObject({
 	header: v.strictObject({
 		editor: messageTemplate(),
 		scene: messageTemplate(),
+		error: messageTemplate(),
+		toggleSidebar: messageTemplate(),
 	}),
 	settings: v.strictObject({
 		appearance: messageTemplate(),
 		theme: messageTemplate(),
 		language: messageTemplate(),
+		toggleTheme: messageTemplate(),
 		light: messageTemplate(),
 		dark: messageTemplate(),
 		system: messageTemplate(),
@@ -64,6 +67,21 @@ export const EditorLocaleSchema = v.strictObject({
 		rename: messageTemplate(),
 		duplicate: messageTemplate(),
 		delete: messageTemplate(),
+	}),
+	errors: v.strictObject({
+		badRequest: messageTemplate(),
+		badRequestDescription: messageTemplate(),
+		notFound: messageTemplate(),
+		notFoundDescription: messageTemplate(),
+		forbidden: messageTemplate(),
+		forbiddenDescription: messageTemplate(),
+		serverError: messageTemplate(),
+		serverErrorDescription: messageTemplate(),
+		genericTitle: messageTemplate(),
+		genericDescription: messageTemplate(),
+		goHome: messageTemplate(),
+		tryAgain: messageTemplate(),
+		errorId: messageTemplate({ id: v.string() }),
 	}),
 });
 

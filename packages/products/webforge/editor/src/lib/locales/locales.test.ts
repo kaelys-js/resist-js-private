@@ -107,6 +107,7 @@ const EXPECTED_NAMESPACES: readonly string[] = [
 	'settings',
 	'project',
 	'scenes',
+	'errors',
 ];
 
 describe('namespace coverage', () => {
@@ -152,10 +153,11 @@ const NAMESPACE_KEY_COUNTS: Record<string, number> = {
 	meta: 2,
 	common: 9,
 	sidebar: 6,
-	header: 2,
-	settings: 18,
+	header: 4,
+	settings: 19,
 	project: 2,
 	scenes: 3,
+	errors: 13,
 };
 
 describe('namespace key counts', () => {
