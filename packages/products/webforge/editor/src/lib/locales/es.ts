@@ -60,6 +60,12 @@ export const es: EditorLocaleRaw = {
 		duplicate: 'Duplicar escena',
 		delete: 'Eliminar escena',
 	},
+	debug: {
+		enabled: 'Modo depuración activado',
+		disabled: 'Modo depuración desactivado',
+		logLevel: 'Nivel de log: {level}',
+		urlOverride: 'Anulación de URL: {key} = {value}',
+	},
 	errors: {
 		badRequest: 'Solicitud no válida',
 		badRequestDescription: 'Algo en esa solicitud no se veía bien. Revisa e inténtalo de nuevo.',

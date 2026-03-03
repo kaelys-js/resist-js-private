@@ -13,6 +13,9 @@ import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { OG_LOCALES } from '$lib/og-locales';
 import { initEditorStore } from '$lib/stores/editor-state.svelte';
+import { initDebugStore } from '$lib/stores/debug-state.svelte';
+import { applyUrlOverrides } from '$lib/utils/url-params';
+import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
 
 const { children, data } = $props();
 
@@ -31,6 +34,19 @@ if (serverLocale !== store.app.locale) {
 if (serverLocale !== localeStore.locale) {
 	localeStore.setLocale(serverLocale);
 }
+
+// ── Debug store + URL overrides (client-only) ───────────────────────
+const debugStore = browser ? initDebugStore(page.url) : undefined;
+if (browser && debugStore) {
+	applyUrlOverrides(store, debugStore, debugStore.urlOverrides);
+}
+
+// Reactive debug service lifecycle — watches debugStore.debug.enabled
+let debugHandle: DebugServicesHandle | null = $state(null);
+$effect(() => {
+	if (!debugStore) return;
+	debugHandle = syncDebugServices(store, debugStore, debugHandle);
+});
 
 // ── Resizable sidebar ─────────────────────────────────────────────────
 // Default sidebar width: calc(var(--spacing) * 72) = 0.25rem * 72 = 18rem = 288px

@@ -188,9 +188,37 @@ The dev harness (`dev/test-map.ts` + `dev/dev.ts`) includes a hand-crafted 32×3
 
 The test map showcases every rendering feature: fog, shadows, glow, height map, day/night cycle, point lights, volumetric lighting, and post-processing effects.
 
+## Editor Debug / Developer Mode
+
+The editor includes a full debug system activated via URL params (`?wf.debug=true`) or programmatically. When enabled, it provides:
+
+| Feature | Description |
+|---------|-------------|
+| **Devtools API** | `window.__EDITOR_DEVTOOLS__` — state inspection, generic `set(path, value)`, convenience setters, extension registry |
+| **State Logger** | Console logging of all store mutations with styled badges, old/new diffs, timestamps (requires logLevel `debug` or `trace`) |
+| **URL Overrides** | `wf.*`-prefixed query params: `?wf.debug=true&wf.theme=midnight&wf.logLevel=trace&wf.ff.settings=false` |
+| **Extension Registry** | `register(namespace, api)` / `unregister(namespace)` for custom devtools namespaces |
+| **Welcome Banner** | Rich console output on activation: current state, feature flags, URL overrides, API reference |
+
+### Key Modules
+
+| Module | Path | Purpose |
+|--------|------|---------|
+| `debug-state.ts` | `schemas/` | Valibot schemas for debug config (LogLevel, DebugState, UrlOverrides) |
+| `url-params.ts` | `utils/` | Parse `wf.*` URL params, apply overrides to stores |
+| `console-styles.ts` | `debug/` | CSS badge styles, timestamp formatting, snapshot diffing |
+| `debug-state.svelte.ts` | `stores/` | Reactive debug store with localStorage persistence |
+| `state-logger.svelte.ts` | `debug/` | `$effect`-based state change watcher with log level filtering |
+| `devtools-api.svelte.ts` | `debug/` | Window global API factory with auto-discovered setters |
+| `init.svelte.ts` | `debug/` | Orchestrator: activate/sync lifecycle for all debug services |
+
+### Auto-Discovery
+
+The debug system uses Valibot schema introspection (`Schema.entries`) to auto-discover state fields and feature flags. Adding new fields to `AppPreferencesSchema` or `FeatureFlagsSchema` requires **zero changes** to the debug system — URL overrides, devtools API, and state logging pick them up automatically.
+
 ## Testing
 
-All modules have colocated `.test.ts` files (1863+ tests total). Pure math modules use logic tests; modules touching Babylon.js use NullEngine integration tests. Test harness from `@/config/test/harness` provides temp dirs, console capture, async helpers, and fake clock.
+All modules have colocated `.test.ts` files (2563+ tests total). Pure math modules use logic tests; modules touching Babylon.js use NullEngine integration tests. Test harness from `@/config/test/harness` provides temp dirs, console capture, async helpers, and fake clock.
 
 ```bash
 pnpm qa:test           # Run all tests

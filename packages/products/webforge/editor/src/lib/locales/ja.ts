@@ -60,6 +60,12 @@ export const ja: EditorLocaleRaw = {
 		duplicate: 'シーンを複製',
 		delete: 'シーンを削除',
 	},
+	debug: {
+		enabled: 'デバッグモード有効',
+		disabled: 'デバッグモード無効',
+		logLevel: 'ログレベル: {level}',
+		urlOverride: 'URLオーバーライド: {key} = {value}',
+	},
 	errors: {
 		badRequest: '不正なリクエスト',
 		badRequestDescription: 'リクエストの内容に問題がありました。確認してもう一度お試しください。',

@@ -60,6 +60,12 @@ export const en: EditorLocaleRaw = {
 		duplicate: 'Duplicate Scene',
 		delete: 'Delete Scene',
 	},
+	debug: {
+		enabled: 'Debug mode enabled',
+		disabled: 'Debug mode disabled',
+		logLevel: 'Log level: {level}',
+		urlOverride: 'URL override: {key} = {value}',
+	},
 	errors: {
 		badRequest: 'Bad request',
 		badRequestDescription:

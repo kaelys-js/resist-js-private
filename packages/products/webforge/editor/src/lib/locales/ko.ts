@@ -60,6 +60,12 @@ export const ko: EditorLocaleRaw = {
 		duplicate: '씬 복제',
 		delete: '씬 삭제',
 	},
+	debug: {
+		enabled: '디버그 모드 활성화',
+		disabled: '디버그 모드 비활성화',
+		logLevel: '로그 레벨: {level}',
+		urlOverride: 'URL 오버라이드: {key} = {value}',
+	},
 	errors: {
 		badRequest: '잘못된 요청',
 		badRequestDescription: '요청에 문제가 있는 것 같습니다. 확인 후 다시 시도해 주세요.',

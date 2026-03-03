@@ -60,6 +60,12 @@ export const zh: EditorLocaleRaw = {
 		duplicate: '复制场景',
 		delete: '删除场景',
 	},
+	debug: {
+		enabled: '调试模式已启用',
+		disabled: '调试模式已禁用',
+		logLevel: '日志级别：{level}',
+		urlOverride: 'URL 覆盖：{key} = {value}',
+	},
 	errors: {
 		badRequest: '请求无效',
 		badRequestDescription: '请求内容似乎有误，请检查后重试。',
