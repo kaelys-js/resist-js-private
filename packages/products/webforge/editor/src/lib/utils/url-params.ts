@@ -161,8 +161,14 @@ export function applyUrlOverrides(
 					setter(value);
 				}
 			}
+			continue;
 		}
-		// Unknown keys: silently ignored
+
+		// Unknown key — warn so typos are caught (e.g., wf.logLesel instead of wf.logLevel)
+		// eslint-disable-next-line no-console -- Intentional debug warning for bad URL params
+		console.warn(
+			`[WebForge] Unknown URL override: wf.${key}=${value} — valid: debug, logLevel, theme, mode, locale, sidebarOpen, appName, ff.<flag>`,
+		);
 	}
 
 	return okUnchecked<Void>(undefined);
