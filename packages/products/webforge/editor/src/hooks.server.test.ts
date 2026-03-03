@@ -231,7 +231,7 @@ describe('handleError', () => {
 		expect(result.message).toContain('Reference:');
 	});
 
-	it('logs structured error with errorId, url, method, status, and error code', () => {
+	it('logs structured CapturedError with errorId, error code, and CapturedError fields', () => {
 		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const { result } = callServerHandleError({
 			error: new Error('crash'),
@@ -239,23 +239,29 @@ describe('handleError', () => {
 			message: 'Internal Error',
 			pathname: '/api/scenes',
 		});
-		// log.error() outputs structured JSON via console.error in json mode.
+		// logCapturedError outputs via log.error() → console.error in json mode
 		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
 		expect(logOutput).toContain(result.errorId);
 		expect(logOutput).toContain('INTERNAL.UNEXPECTED');
-		expect(logOutput).toContain('/api/scenes');
-		expect(logOutput).toContain('GET');
 		const parsed: Record<string, unknown> = JSON.parse(logOutput);
 		const data = parsed.data as Record<string, unknown>;
+		// AppError fields
 		expect(data).toMatchObject({
 			errorId: result.errorId,
 			errorCode: 'INTERNAL.UNEXPECTED',
-			url: '/api/scenes',
-			method: 'GET',
-			status: 500,
 		});
+		// CapturedError fields
+		expect(data.captureId).toBeDefined();
+		expect(typeof data.captureId).toBe('string');
+		expect(data.environment).toBeDefined();
+		expect(data.fatal).toBe(false);
 		expect(data.source).toBeDefined();
 		expect(typeof data.source).toBe('string');
+		// Request context in errorMeta (from UNEXPECTED wrapper's meta)
+		const errorMeta = data.errorMeta as Record<string, unknown>;
+		expect(errorMeta.url).toBe('/api/scenes');
+		expect(errorMeta.method).toBe('GET');
+		expect(errorMeta.status).toBe(500);
 		spy.mockRestore();
 	});
 
@@ -323,6 +329,10 @@ describe('handleError', () => {
 		expect(chain[0]?.code).toBe('INTERNAL.UNEXPECTED');
 		expect(chain[0]?.message).toBe('plain crash');
 		expect(result.errorId).toBeTruthy();
+		// CapturedError fields present
+		expect(data.captureId).toBeDefined();
+		expect(data.fatal).toBe(false);
+		expect(data.fingerprint).toBeDefined();
 		spy.mockRestore();
 	});
 });
