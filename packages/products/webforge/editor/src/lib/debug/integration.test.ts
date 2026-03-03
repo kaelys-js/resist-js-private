@@ -24,6 +24,7 @@ vi.mock('./state-logger.svelte', async () => {
 		LOG_LEVEL_PRIORITY: mod.LOG_LEVEL_PRIORITY,
 		shouldLog: mod.shouldLog,
 		createStateLogger: vi.fn(() => ({ destroy: vi.fn() })),
+		createWatcher: vi.fn(() => vi.fn()),
 	};
 });
 
