@@ -60,6 +60,12 @@ export const de: EditorLocaleRaw = {
 		duplicate: 'Szene duplizieren',
 		delete: 'Szene löschen',
 	},
+	debug: {
+		enabled: 'Debug-Modus aktiviert',
+		disabled: 'Debug-Modus deaktiviert',
+		logLevel: 'Log-Level: {level}',
+		urlOverride: 'URL-Überschreibung: {key} = {value}',
+	},
 	errors: {
 		badRequest: 'Ungültige Anfrage',
 		badRequestDescription:

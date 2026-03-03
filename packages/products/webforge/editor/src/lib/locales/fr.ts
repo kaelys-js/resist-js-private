@@ -60,6 +60,12 @@ export const fr: EditorLocaleRaw = {
 		duplicate: 'Dupliquer la scène',
 		delete: 'Supprimer la scène',
 	},
+	debug: {
+		enabled: 'Mode débogage activé',
+		disabled: 'Mode débogage désactivé',
+		logLevel: 'Niveau de log : {level}',
+		urlOverride: 'Remplacement URL : {key} = {value}',
+	},
 	errors: {
 		badRequest: 'Requête invalide',
 		badRequestDescription:

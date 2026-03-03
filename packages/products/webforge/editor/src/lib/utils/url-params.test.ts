@@ -1,0 +1,246 @@
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+import {
+	parseDebugParams,
+	applyUrlOverrides,
+	isValidAppKey,
+	isValidFeatureFlag,
+} from './url-params';
+
+const okVoid = () => ({ ok: true as const, data: undefined, error: null });
+
+// ── parseDebugParams ────────────────────────────────────────────────────
+
+describe('parseDebugParams', () => {
+	it('returns empty overrides for URL with no wf.* params', () => {
+		const result = parseDebugParams(new URL('http://localhost'));
+		expect(result.ok).toBe(true);
+		if (result.ok) expect(result.data).toEqual({});
+	});
+
+	it('extracts single wf.* param', () => {
+		const result = parseDebugParams(new URL('http://localhost?wf.debug=true'));
+		expect(result.ok).toBe(true);
+		if (result.ok) expect(result.data).toEqual({ debug: 'true' });
+	});
+
+	it('extracts multiple wf.* params', () => {
+		const result = parseDebugParams(
+			new URL('http://localhost?wf.debug=true&wf.logLevel=trace&wf.theme=midnight'),
+		);
+		expect(result.ok).toBe(true);
+		if (result.ok) {
+			expect(result.data).toEqual({
+				debug: 'true',
+				logLevel: 'trace',
+				theme: 'midnight',
+			});
+		}
+	});
+
+	it('ignores non-wf params', () => {
+		const result = parseDebugParams(new URL('http://localhost?foo=bar&wf.debug=true&baz=qux'));
+		expect(result.ok).toBe(true);
+		if (result.ok) expect(result.data).toEqual({ debug: 'true' });
+	});
+
+	it('handles feature flag params with ff. prefix', () => {
+		const result = parseDebugParams(new URL('http://localhost?wf.ff.settings=false'));
+		expect(result.ok).toBe(true);
+		if (result.ok) expect(result.data).toEqual({ 'ff.settings': 'false' });
+	});
+
+	it('handles empty value', () => {
+		const result = parseDebugParams(new URL('http://localhost?wf.debug='));
+		expect(result.ok).toBe(true);
+		if (result.ok) expect(result.data).toEqual({ debug: '' });
+	});
+
+	it('handles URL with hash and path', () => {
+		const result = parseDebugParams(new URL('http://localhost/editor?wf.debug=true#section'));
+		expect(result.ok).toBe(true);
+		if (result.ok) expect(result.data).toEqual({ debug: 'true' });
+	});
+});
+
+// ── isValidAppKey / isValidFeatureFlag ──────────────────────────────────
+
+describe('isValidAppKey', () => {
+	it.each(['appName', 'theme', 'mode', 'locale', 'sidebarOpen'])('returns true for: %s', (key) => {
+		expect(isValidAppKey(key)).toBe(true);
+	});
+
+	it('returns false for unknown key', () => {
+		expect(isValidAppKey('unknown')).toBe(false);
+	});
+
+	it('returns false for feature flag key', () => {
+		expect(isValidAppKey('settings')).toBe(false);
+	});
+});
+
+describe('isValidFeatureFlag', () => {
+	it.each([
+		'settings',
+		'themeSelection',
+		'languageSelection',
+		'modeToggle',
+		'sidebar',
+		'sceneList',
+		'assetBrowser',
+		'resizableSidebar',
+	])('returns true for: %s', (key) => {
+		expect(isValidFeatureFlag(key)).toBe(true);
+	});
+
+	it('returns false for unknown key', () => {
+		expect(isValidFeatureFlag('unknown')).toBe(false);
+	});
+
+	it('returns false for app key', () => {
+		expect(isValidFeatureFlag('theme')).toBe(false);
+	});
+});
+
+// ── applyUrlOverrides ───────────────────────────────────────────────────
+
+describe('applyUrlOverrides', () => {
+	const createMockEditorStore = () => ({
+		app: {
+			appName: 'WebForge' as const,
+			theme: '' as
+				| ''
+				| 'midnight'
+				| 'warm'
+				| 'forest'
+				| 'ocean'
+				| 'rose'
+				| 'lavender'
+				| 'sunset'
+				| 'slate'
+				| 'copper'
+				| 'aurora'
+				| 'amethyst',
+			mode: 'system' as 'light' | 'dark' | 'system',
+			locale: 'en' as 'en' | 'ja' | 'zh' | 'ko' | 'fr' | 'de' | 'es',
+			sidebarOpen: true,
+		},
+		features: {
+			settings: true,
+			themeSelection: true,
+			languageSelection: true,
+			modeToggle: true,
+			sidebar: true,
+			sceneList: true,
+			assetBrowser: true,
+			resizableSidebar: true,
+		},
+		setAppName: vi.fn(okVoid),
+		setTheme: vi.fn(okVoid),
+		setMode: vi.fn(okVoid),
+		setLocale: vi.fn(okVoid),
+		setSidebarOpen: vi.fn(okVoid),
+		setFeature: vi.fn(okVoid),
+		save: vi.fn(okVoid),
+		load: vi.fn(okVoid),
+	});
+
+	const createMockDebugStore = () => ({
+		debug: { enabled: false, logLevel: 'info' as const },
+		urlOverrides: {},
+		setEnabled: vi.fn(() => ({ ok: true as const, data: undefined, error: null })),
+		setLogLevel: vi.fn(() => ({ ok: true as const, data: undefined, error: null })),
+	});
+
+	let editorStore: ReturnType<typeof createMockEditorStore>;
+	let debugStore: ReturnType<typeof createMockDebugStore>;
+
+	beforeEach(() => {
+		editorStore = createMockEditorStore();
+		debugStore = createMockDebugStore();
+	});
+
+	it('returns ok for empty overrides', () => {
+		const result = applyUrlOverrides(editorStore, debugStore, {});
+		expect(result.ok).toBe(true);
+	});
+
+	it('applies debug=true to debug store', () => {
+		applyUrlOverrides(editorStore, debugStore, { debug: 'true' });
+		expect(debugStore.setEnabled).toHaveBeenCalledWith(true);
+	});
+
+	it('applies debug=false to debug store', () => {
+		applyUrlOverrides(editorStore, debugStore, { debug: 'false' });
+		expect(debugStore.setEnabled).toHaveBeenCalledWith(false);
+	});
+
+	it('applies logLevel to debug store', () => {
+		applyUrlOverrides(editorStore, debugStore, { logLevel: 'trace' });
+		expect(debugStore.setLogLevel).toHaveBeenCalledWith('trace');
+	});
+
+	it('applies theme override to editor store', () => {
+		applyUrlOverrides(editorStore, debugStore, { theme: 'midnight' });
+		expect(editorStore.setTheme).toHaveBeenCalledWith('midnight');
+	});
+
+	it('applies mode override to editor store', () => {
+		applyUrlOverrides(editorStore, debugStore, { mode: 'dark' });
+		expect(editorStore.setMode).toHaveBeenCalledWith('dark');
+	});
+
+	it('applies locale override to editor store', () => {
+		applyUrlOverrides(editorStore, debugStore, { locale: 'ja' });
+		expect(editorStore.setLocale).toHaveBeenCalledWith('ja');
+	});
+
+	it('applies sidebarOpen override to editor store', () => {
+		applyUrlOverrides(editorStore, debugStore, { sidebarOpen: 'false' });
+		expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(false);
+	});
+
+	it('applies feature flag override', () => {
+		applyUrlOverrides(editorStore, debugStore, { 'ff.settings': 'false' });
+		expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
+	});
+
+	it('applies multiple feature flag overrides', () => {
+		applyUrlOverrides(editorStore, debugStore, {
+			'ff.settings': 'false',
+			'ff.sidebar': 'true',
+		});
+		expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
+		expect(editorStore.setFeature).toHaveBeenCalledWith('sidebar', true);
+	});
+
+	it('silently ignores unknown keys', () => {
+		const result = applyUrlOverrides(editorStore, debugStore, { unknownKey: 'value' });
+		expect(result.ok).toBe(true);
+		expect(editorStore.setTheme).not.toHaveBeenCalled();
+		expect(editorStore.setFeature).not.toHaveBeenCalled();
+	});
+
+	it('silently ignores unknown feature flag keys', () => {
+		const result = applyUrlOverrides(editorStore, debugStore, { 'ff.nonexistent': 'true' });
+		expect(result.ok).toBe(true);
+		expect(editorStore.setFeature).not.toHaveBeenCalled();
+	});
+
+	it('applies multiple overrides in one call', () => {
+		applyUrlOverrides(editorStore, debugStore, {
+			debug: 'true',
+			logLevel: 'trace',
+			theme: 'midnight',
+			'ff.settings': 'false',
+		});
+		expect(debugStore.setEnabled).toHaveBeenCalledWith(true);
+		expect(debugStore.setLogLevel).toHaveBeenCalledWith('trace');
+		expect(editorStore.setTheme).toHaveBeenCalledWith('midnight');
+		expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
+	});
+
+	it('applies appName override to editor store', () => {
+		applyUrlOverrides(editorStore, debugStore, { appName: 'MyRPG' });
+		expect(editorStore.setAppName).toHaveBeenCalledWith('MyRPG');
+	});
+});
