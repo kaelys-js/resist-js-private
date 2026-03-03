@@ -19,7 +19,7 @@
 		"qa:type-check": "turbo qa:type-check",
 		"qa:format": "biome format --write . && prettier --write '**/*.svelte'",
 		"qa:format:check": "biome format . && prettier --check '**/*.svelte'",
-		"qa:lint": "oxlint --ignore-pattern 'packages/products/webforge/runtime/dev/dev.ts' ."
+		"qa:lint": "oxlint ."
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
