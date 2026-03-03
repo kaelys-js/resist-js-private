@@ -87,6 +87,12 @@ importers:
       '@/config/test':
         specifier: workspace:*
         version: link:../../../shared/config/test
+      '@internationalized/date':
+        specifier: ^3.11.0
+        version: 3.11.0
+      '@lucide/svelte':
+        specifier: ^0.561.0
+        version: 0.561.0(svelte@5.53.5)
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.2.4
         version: 6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1))
@@ -1253,6 +1259,11 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@lucide/svelte@0.561.0':
+    resolution: {integrity: sha512-vofKV2UFVrKE6I4ewKJ3dfCXSV6iP6nWVmiM83MLjsU91EeJcEg7LoWUABLp/aOTxj1HQNbJD1f3g3L0JQgH9A==}
+    peerDependencies:
+      svelte: ^5
 
   '@oxlint/binding-android-arm-eabi@1.50.0':
     resolution: {integrity: sha512-G7MRGk/6NCe+L8ntonRdZP7IkBfEpiZ/he3buLK6JkLgMHgJShXZ+BeOwADmspXez7U7F7L1Anf4xLSkLHiGTg==}
@@ -3898,6 +3909,10 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@lucide/svelte@0.561.0(svelte@5.53.5)':
+    dependencies:
+      svelte: 5.53.5
 
   '@oxlint/binding-android-arm-eabi@1.50.0':
     optional: true

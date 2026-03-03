@@ -496,8 +496,26 @@
 			"files": ["*.svelte", "**/*.svelte"],
 			"rules": {
 				"no-undef": "off",
+				"prefer-const": "off",
 				"import/no-mutable-exports": "off",
+				"typescript/consistent-type-imports": "off",
 				"unicorn/filename-case": ["error", { "case": "pascalCase" }]
+			}
+		},
+		{
+			"files": [
+				"**/components/ui/**/*.svelte",
+				"**/components/ui/**/*.ts",
+				"**/hooks/*.svelte.ts"
+			],
+			"rules": {
+				"unicorn/filename-case": "off",
+				"unicorn/no-useless-undefined": "off",
+				"unicorn/no-document-cookie": "off",
+				"no-empty-function": "off",
+				"no-duplicate-imports": "off",
+				"import/no-duplicates": "off",
+				"import/max-dependencies": "off"
 			}
 		},
 		{
