@@ -309,8 +309,9 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 
 		// 9. Create GPU tile layers or streaming manager based on map size
 		const gpuLayers: GpuTileLayer[] = [];
+		// oxlint-disable-next-line prefer-const -- reassigned conditionally at line ~378
 		let streamingManager: StreamingManager | null = null;
-		let megaAtlas: MegaAtlasLayout | null = null;
+		const megaAtlas: MegaAtlasLayout | null = null;
 		const needsStreaming: Bool =
 			mapData.width > MAX_MAP_DIMENSION || mapData.height > MAX_MAP_DIMENSION;
 
@@ -327,6 +328,7 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 		// (e.g., 8×6 at 32px tiles) causes a grid/texture mismatch that makes the
 		// shader sample the wrong UV region for every tile.
 		//
+		// oxlint-disable-next-line no-warning-comments -- Intentional tracking issue
 		// TODO: Implement async mega-atlas texture compositing for proper multi-tileset
 		// support. Until then, multi-tileset maps fall back to the primary tileset.
 		const isCompactAutotile: boolean = primaryTileset
@@ -341,8 +343,13 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 		const tilePixelHeight: Num = primaryTileset?.config.tileHeight ?? 32;
 		const maxLocalTileId: Num = atlasGridColumns * atlasGridRows;
 
-		/** Remap global tile IDs to atlas-local IDs using firstGid subtraction. */
-		function remapGlobalIds(data: readonly Num[]): Num[] {
+		/**
+		 * Remap global tile IDs to atlas-local IDs using firstGid subtraction.
+		 *
+		 * @param data - Array of global tile IDs to remap
+		 * @returns Array of atlas-local tile IDs
+		 */
+		const remapGlobalIds = (data: readonly Num[]): Num[] => {
 			const firstGid: Num = primaryTileset?.config.firstGid ?? 1;
 			return data.map((gid: Num) => {
 				if (gid === 0) return 0;
@@ -350,7 +357,7 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 				// Clamp to valid range for the primary tileset's atlas
 				return localId >= 1 && localId <= maxLocalTileId ? localId : 0;
 			});
-		}
+		};
 
 		if (atlasTexture && needsStreaming) {
 			// System 2: Region-based streaming for maps > 16384
@@ -471,7 +478,7 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			const resolvedResult = resolvePostProcessingConfig(mapData.postProcessing);
 			if (resolvedResult.ok) {
 				// oxlint-disable-next-line prefer-destructuring
-				const cameras: BABYLON.Camera[] = scene.cameras;
+				const { cameras } = scene;
 				if (cameras.length > 0) {
 					const ppResult = createPostProcessingPipeline({
 						scene,
@@ -566,7 +573,6 @@ export function renderTilemap(options: RenderTilemapOptions): BabylonResult<Rend
 			}
 		}
 		if (objectInstances.length > 0) {
-			const tileWorldSize: Num = 1;
 			const objResult = createObjectRenderer({
 				scene,
 				instances: objectInstances,
@@ -627,12 +633,12 @@ type RenderBlankTilemapOptions = {
 	/** Tileset configs to load (same as MapData.tilesets). */
 	readonly tilesets: MapData['tilesets'];
 	/** Layer definitions: name, type, and the uniform fill tile ID. */
-	readonly layers: readonly {
+	readonly layers: ReadonlyArray<{
 		readonly name: Str;
 		readonly type: Str;
 		readonly fillTileId: Num;
 		readonly opacity: Num;
-	}[];
+	}>;
 	/** Optional post-processing config. */
 	readonly postProcessing?: MapData['postProcessing'];
 	/** Optional lighting config. */
@@ -703,6 +709,7 @@ export function renderBlankTilemap(
 		}
 
 		// 3. Resolve atlas grid from primary tileset
+		// oxlint-disable-next-line prefer-destructuring
 		const primaryTileset: LoadedTileset | undefined = tilesets[0];
 		const isCompactAutotile: boolean = primaryTileset
 			? primaryTileset.config.autotileType === 'terrain_48' &&
@@ -785,7 +792,7 @@ export function renderBlankTilemap(
 		if (postProcessing) {
 			const resolvedResult = resolvePostProcessingConfig(postProcessing);
 			if (resolvedResult.ok) {
-				const cameras: BABYLON.Camera[] = scene.cameras;
+				const { cameras } = scene;
 				if (cameras.length > 0) {
 					const ppResult = createPostProcessingPipeline({
 						scene,
@@ -1116,11 +1123,12 @@ export async function applyMegaAtlas(options: {
 			tilesets.map(
 				(ts) =>
 					new Promise<HTMLImageElement>((resolve, reject) => {
-						const img: HTMLImageElement = new Image();
+						const img: HTMLImageElement = document.createElement('img');
 						img.crossOrigin = 'anonymous';
-						img.onload = (): void => resolve(img);
-						img.onerror = (): void =>
-							reject(new Error(`Failed to load tileset image: ${ts.config.imagePath}`));
+						img.addEventListener('load', (): void => resolve(img));
+						img.addEventListener('error', (): void =>
+							reject(new Error(`Failed to load tileset image: ${ts.config.imagePath}`)),
+						);
 						img.src = ts.texture.url ?? '';
 					}),
 			),
