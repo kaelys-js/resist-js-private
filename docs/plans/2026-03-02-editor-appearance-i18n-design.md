@@ -54,12 +54,18 @@ ModeToggle (in SiteHeader, right side)
 src/lib/components/ModeToggle.svelte
 ```
 
-Three icon buttons in a bordered pill group:
-- Sun icon → `setMode('light')`
-- Monitor icon → `setMode('system')`
-- Moon icon → `setMode('dark')`
+Single icon button with dropdown menu (standard shadcn pattern):
 
-Active button uses `variant="secondary"`, inactive uses `variant="ghost"`.
+- **Trigger:** `Button variant="ghost" size="icon"` showing the current resolved mode icon:
+  - Light → Sun icon
+  - Dark → Moon icon
+  - System → Monitor icon (when `userPrefersMode` is `'system'`)
+- **Icon animation:** Sun/Moon overlay with rotate/scale CSS transitions (`-rotate-90 scale-0` ↔ `rotate-0 scale-100`, `duration-200`)
+- **Dropdown content:** Three items with icon + localized label + check mark:
+  - Sun + `settings.light` → `setMode('light')`
+  - Moon + `settings.dark` → `setMode('dark')`
+  - Monitor + `settings.system` → `setMode('system')`
+- Uses `mode.current` for resolved icon display, `userPrefersMode.current` for check mark
 
 Placed in SiteHeader right side: `<div class="ml-auto flex items-center gap-2">`.
 
@@ -80,14 +86,34 @@ CSS layering: `:root` → `.dark` → `[data-theme]` → `[data-theme].dark`
 
 Added to `app.css` after the `.dark` block:
 
-| Theme | Personality | Key Colors |
-|-------|------------|------------|
-| (default) | Neutral gray | Current values, no data-theme |
-| midnight | Deep blue/indigo | Blue-purple sidebar, indigo primary |
-| warm | Amber/earth tones | Warm beige bg, amber primary |
-| forest | Green/emerald | Green sidebar accent, emerald primary |
+| Theme | Personality | Hue | Key Colors |
+|-------|------------|-----|------------|
+| (default) | Neutral gray | 0 (achromatic) | Current values, no data-theme |
+| midnight | Deep blue/indigo | 260 | Blue-purple sidebar, indigo primary |
+| warm | Amber/earth tones | 50 | Warm beige bg, amber primary |
+| forest | Green/emerald | 155 | Green sidebar accent, emerald primary |
+| ocean | Deep teal/cyan | 200 | Teal sidebar, cyan primary |
+| rose | Soft pink/mauve | 350 | Pink sidebar, rose primary |
+| lavender | Purple/lilac | 290 | Lavender sidebar, purple primary |
+| sunset | Orange/coral | 30 | Coral sidebar, warm orange primary |
+| slate | Cool blue-gray | 240 | Low-chroma blue-gray, subtle accent |
+| copper | Bronze/rust | 60 | Bronze sidebar, copper primary |
+| aurora | Teal-green/mint | 170 | Mint sidebar, teal primary |
+| amethyst | Deep violet | 310 | Violet sidebar, deep purple primary |
 
 Each theme overrides only the semantic tokens it changes. Both light and dark variants are defined.
+
+### Theme Transition
+
+Smooth color transitions when switching themes via CSS:
+
+```css
+body {
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+```
+
+Applied to `body` and sidebar wrapper elements for a polished switching feel.
 
 ### New Component: ThemeSwitcher.svelte
 
@@ -119,7 +145,15 @@ Uses the **existing `@/locale` infrastructure** — no new library. The shared p
 hooks.server.ts
   ├── reads 'locale' cookie
   ├── falls back to Accept-Language header
+  ├── stores locale in event.locals.locale
   ├── injects lang/dir into HTML via transformPageChunk
+
++layout.server.ts
+  └── returns { locale: locals.locale } to client
+
++layout.svelte
+  ├── receives data.locale from server
+  └── calls localeStore.setLocale(data.locale) on mount
 
 i18n.svelte.ts (singleton)
   ├── createLocaleRegistry({ schema, defaultLocale, locales })
@@ -128,8 +162,8 @@ i18n.svelte.ts (singleton)
 
 Components
   ├── import { localeStore } from '$lib/i18n.svelte'
-  ├── const label = $derived(localeStore.t.common.save())
-  └── {label.ok ? label.data : 'Save'}
+  ├── use t() helper for concise string access
+  └── {t(localeStore.t.common.save, 'Save')}
 
 LanguageSwitcher
   ├── localeStore.setLocale(code)
@@ -184,6 +218,18 @@ const EditorLocaleSchema = v.strictObject({
     light: messageTemplate(),
     dark: messageTemplate(),
     system: messageTemplate(),
+    themeDefault: messageTemplate(),
+    themeMidnight: messageTemplate(),
+    themeWarm: messageTemplate(),
+    themeForest: messageTemplate(),
+    themeOcean: messageTemplate(),
+    themeRose: messageTemplate(),
+    themeLavender: messageTemplate(),
+    themeSunset: messageTemplate(),
+    themeSlate: messageTemplate(),
+    themeCopper: messageTemplate(),
+    themeAurora: messageTemplate(),
+    themeAmethyst: messageTemplate(),
   }),
   project: v.strictObject({
     openProject: messageTemplate(),
@@ -216,11 +262,30 @@ A dropdown menu item in the NavUser dropdown. Globe icon + current language name
 ```typescript
 export const handle: Handle = async ({ event, resolve }) => {
   const locale = event.cookies.get('locale') ?? detectFromHeader(event) ?? 'en';
+  event.locals.locale = locale;  // Pass to +layout.server.ts
   return resolve(event, {
     transformPageChunk: ({ html }) =>
       html.replace('%lang%', locale).replace('%dir%', getDir(locale)),
   });
 };
+```
+
+**`src/app.d.ts`:**
+
+```typescript
+declare global {
+  namespace App {
+    interface Locals {
+      locale: string;
+    }
+  }
+}
+```
+
+**`src/routes/+layout.server.ts`:**
+
+```typescript
+export const load = async ({ locals }) => ({ locale: locals.locale });
 ```
 
 **`app.html`:**
