@@ -735,8 +735,12 @@ describe('welcome banner', () => {
 		const debugStore = createMockDebugStore(true);
 		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
+		// App name is passed as a %s substitution arg, not embedded in the format string
 		const headerCall = consoleSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('WebForge'),
+			(args: unknown[]) =>
+				typeof args[0] === 'string' &&
+				args[0].includes('[Debug]') &&
+				args.some((arg: unknown) => arg === 'WebForge'),
 		);
 		expect(headerCall).toBeDefined();
 		handle.destroy();
@@ -764,7 +768,7 @@ describe('welcome banner', () => {
 		handle.destroy();
 	});
 
-	it('shows Devtools API group with console.table', () => {
+	it('shows Devtools API group with logKV entries', () => {
 		const debugStore = createMockDebugStore(true);
 		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
@@ -773,11 +777,11 @@ describe('welcome banner', () => {
 		);
 		expect(apiGroup).toBeDefined();
 
-		// API help is rendered as a table
-		const apiTable = tableSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'object' && args[0] !== null && '.state' in args[0],
+		// API help is rendered as key-value rows via console.log
+		const stateRow = consoleSpy.mock.calls.find(
+			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('.state'),
 		);
-		expect(apiTable).toBeDefined();
+		expect(stateRow).toBeDefined();
 
 		handle.destroy();
 	});
@@ -844,9 +848,9 @@ describe('welcome banner', () => {
 			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
 		);
 		expect(overrideGroup).toBeDefined();
-		// Should say "2 applied"
-		const groupMsg = (overrideGroup?.[0] as string) + (overrideGroup?.[2] as string);
-		expect(groupMsg).toContain('2 applied');
+		// Suffix is in the second %c segment (arg index 2)
+		const groupText = String(overrideGroup?.[0]) + String(overrideGroup?.[2] ?? '');
+		expect(groupText).toContain('2 applied');
 
 		handle.destroy();
 	});
@@ -856,11 +860,12 @@ describe('welcome banner', () => {
 		debugStore.urlOverrides = { debug: 'true', logLesel: 'debug', theme: 'midnight' };
 		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		// Valid overrides logged with console.log
-		const validLogs = consoleSpy.mock.calls.filter(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('✓ wf.'),
+		// Valid overrides logged as a single block via console.log
+		const validBlock = consoleSpy.mock.calls.find(
+			(args: unknown[]) =>
+				typeof args[0] === 'string' && args[0].includes('wf.debug') && args[0].includes('wf.theme'),
 		);
-		expect(validLogs.length).toBe(2); // debug and theme
+		expect(validBlock).toBeDefined();
 
 		// Unknown override warned with console.warn
 		const unknownWarns = warnSpy.mock.calls.filter(
@@ -882,9 +887,9 @@ describe('welcome banner', () => {
 			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
 		);
 		expect(overrideGroup).toBeDefined();
-		const groupMsg = (overrideGroup?.[0] as string) + (overrideGroup?.[2] as string);
-		expect(groupMsg).toContain('1 applied');
-		expect(groupMsg).toContain('1 unknown');
+		const groupText = String(overrideGroup?.[0]) + String(overrideGroup?.[2] ?? '');
+		expect(groupText).toContain('1 applied');
+		expect(groupText).toContain('1 unknown');
 
 		handle.destroy();
 	});
@@ -894,10 +899,11 @@ describe('welcome banner', () => {
 		debugStore.urlOverrides = { 'ff.settings': 'false' };
 		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		const validLogs = consoleSpy.mock.calls.filter(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('✓ wf.ff.settings'),
+		// Valid ff.* override logged as a block via console.log
+		const validBlock = consoleSpy.mock.calls.find(
+			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('wf.ff.settings'),
 		);
-		expect(validLogs.length).toBe(1);
+		expect(validBlock).toBeDefined();
 		expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('ff.settings'));
 
 		handle.destroy();
@@ -953,7 +959,6 @@ describe('full debug activation flow', () => {
 		// 7. Welcome banner was logged (header + state + flags + API + logger hint)
 		expect(consoleSpy).toHaveBeenCalled();
 		expect(groupSpy).toHaveBeenCalled();
-		expect(tableSpy).toHaveBeenCalled();
 
 		// 8. URL Overrides section shows in banner
 		const overrideGroup = groupSpy.mock.calls.find(

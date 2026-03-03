@@ -99,10 +99,13 @@ describe('activateDebugServices', () => {
 		const debugStore = createMockDebugStore(true);
 		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		// Welcome banner includes the app name in the first styled log
+		// Welcome banner includes the app name as a %s substitution arg
 		const { calls } = consoleSpy.mock;
 		const hasWelcome: boolean = calls.some(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('WebForge'),
+			(args: unknown[]) =>
+				typeof args[0] === 'string' &&
+				args[0].includes('[Debug]') &&
+				args.some((arg: unknown) => arg === 'WebForge'),
 		);
 		expect(hasWelcome).toBe(true);
 		handle.destroy();

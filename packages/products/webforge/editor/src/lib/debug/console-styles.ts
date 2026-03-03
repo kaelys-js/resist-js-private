@@ -9,6 +9,7 @@
 
 /**
  * CSS style strings for console badge/pill formatting.
+ * Palette matches the SvelteKit client hook error system for visual consistency.
  * Used with `console.log('%cLabel', styles.storeBadge)`.
  */
 export const styles = {
@@ -28,8 +29,10 @@ export const styles = {
 	warnBadge: 'background:#f90;color:#000;padding:1px 6px;border-radius:3px;font-weight:bold',
 	/** Red pill for ERROR-level messages. */
 	errorBadge: 'background:#f44;color:#fff;padding:1px 6px;border-radius:3px;font-weight:bold',
-	/** Blue pill for INFO-level messages. */
-	infoBadge: 'background:#4a9eff;color:#fff;padding:1px 6px;border-radius:3px;font-weight:bold',
+	/** Dim gray for key/label text in key-value rows. */
+	keyLabel: 'color:#888',
+	/** Bright gray for value text in key-value rows. */
+	valueText: 'color:#eee',
 	/** Reset to default inherited color. */
 	reset: 'color:inherit',
 } as const;

@@ -12,7 +12,8 @@ describe('styles', () => {
 			'debugBadge',
 			'warnBadge',
 			'errorBadge',
-			'infoBadge',
+			'keyLabel',
+			'valueText',
 			'reset',
 		];
 		for (const key of expected) {

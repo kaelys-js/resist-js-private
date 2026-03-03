@@ -97,6 +97,35 @@ function isRecognizedOverrideKey(key: string): boolean {
  * @param editorStore - The editor state store (for current state info)
  * @param debugStore - The debug state store (for log level info)
  */
+
+// ── Badge styles (inline — each section has a unique color) ───────────
+const BADGE_STATE =
+	'background:#1a3a4a;color:#8cf;padding:1px 6px;border-radius:3px;font-weight:bold';
+const BADGE_FLAGS =
+	'background:#1a3a2a;color:#8f8;padding:1px 6px;border-radius:3px;font-weight:bold';
+const BADGE_OVERRIDES =
+	'background:#3a3a1a;color:#fc8;padding:1px 6px;border-radius:3px;font-weight:bold';
+const BADGE_API =
+	'background:#2a1a3a;color:#c8f;padding:1px 6px;border-radius:3px;font-weight:bold';
+
+/**
+ * Builds a single formatted log string from key-value pairs.
+ * All pairs are joined with newlines so the browser renders one console entry.
+ *
+ * @param entries - Array of `[key, value]` pairs
+ * @param pad - Padding width for the key column
+ * @returns Tuple of `[formatString, ...styleArgs]` for `console.log`
+ */
+function buildKVBlock(entries: Array<[string, string]>, pad = 14): [string, ...string[]] {
+	const parts: string[] = [];
+	const styleArgs: string[] = [];
+	for (const [key, value] of entries) {
+		parts.push(`  %c${key.padEnd(pad)}%c ${value}`);
+		styleArgs.push(styles.keyLabel, styles.valueText);
+	}
+	return [parts.join('\n'), ...styleArgs];
+}
+
 function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): void {
 	const globalName = `window.${DEVTOOLS_KEY}`;
 	const { logLevel } = debugStore.debug;
@@ -105,32 +134,39 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): voi
 	const overrideKeys: string[] = Object.keys(overrides);
 
 	/* eslint-disable no-console -- Intentional welcome banner output */
+
+	// ── Header ────────────────────────────────────────────────────
 	console.log(
-		`%c 🛠️ ${app.appName} — Debug Mode Enabled %c`,
-		'background: #1e293b; color: #38bdf8; font-size: 14px; font-weight: bold; padding: 8px 16px; border-radius: 6px;',
-		'',
+		'%c[Debug] %c%s — debug mode enabled',
+		'color:#8cf;font-weight:bold',
+		'color:#aaa',
+		app.appName,
 	);
 
-	// ── Current State ──────────────────────────────────────────────
-	console.groupCollapsed('%c Current State', styles.infoBadge);
-	console.log(`  theme:       ${app.theme || '(system default)'}`);
-	console.log(`  mode:        ${app.mode}`);
-	console.log(`  locale:      ${app.locale}`);
-	console.log(`  sidebarOpen: ${String(app.sidebarOpen)}`);
-	console.log(`  logLevel:    ${logLevel}`);
+	// ── Current State (teal badge) ────────────────────────────────
+	console.groupCollapsed('%c Current State ', BADGE_STATE);
+	const stateBlock = buildKVBlock([
+		['theme', app.theme || '(system default)'],
+		['mode', app.mode],
+		['locale', app.locale],
+		['sidebarOpen', String(app.sidebarOpen)],
+		['logLevel', logLevel],
+	]);
+	console.log(...stateBlock);
 	console.groupEnd();
 
-	// ── Feature Flags ──────────────────────────────────────────────
-	console.groupCollapsed('%c Feature Flags', styles.infoBadge);
-	for (const [key, val] of Object.entries(features)) {
-		const icon: string = val ? '✅' : '❌';
-		console.log(`  ${icon} ${key}`);
-	}
+	// ── Feature Flags (green badge) ───────────────────────────────
+	console.groupCollapsed('%c Feature Flags ', BADGE_FLAGS);
+	const flagEntries: Array<[string, string]> = Object.entries(features).map(([key, val]) => [
+		key,
+		String(val),
+	]);
+	const flagsBlock = buildKVBlock(flagEntries, 20);
+	console.log(...flagsBlock);
 	console.groupEnd();
 
-	// ── URL Overrides ──────────────────────────────────────────────
+	// ── URL Overrides (amber badge) ───────────────────────────────
 	if (overrideKeys.length > 0) {
-		// Partition into recognized vs unknown keys
 		const validKeys: string[] = [];
 		const unknownKeys: string[] = [];
 		for (const key of overrideKeys) {
@@ -141,13 +177,15 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): voi
 			}
 		}
 
-		console.groupCollapsed(
-			`%c URL Overrides %c ${validKeys.length} applied${unknownKeys.length > 0 ? `, ${unknownKeys.length} unknown` : ''}`,
-			styles.warnBadge,
-			styles.reset,
-		);
-		for (const key of validKeys) {
-			console.log(`  ✓ wf.${key} = ${overrides[key]}`);
+		const suffix = `${validKeys.length} applied${unknownKeys.length > 0 ? `, ${unknownKeys.length} unknown` : ''}`;
+		console.groupCollapsed(`%c URL Overrides %c ${suffix}`, BADGE_OVERRIDES, 'color:#aaa');
+		if (validKeys.length > 0) {
+			const validEntries: Array<[string, string]> = validKeys.map((key) => [
+				`wf.${key}`,
+				overrides[key] ?? '',
+			]);
+			const validBlock = buildKVBlock(validEntries, 20);
+			console.log(...validBlock);
 		}
 		for (const key of unknownKeys) {
 			console.warn(`  ✗ wf.${key} = ${overrides[key]}  (unknown — ignored)`);
@@ -155,47 +193,50 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): voi
 		console.groupEnd();
 	}
 
-	// ── Devtools API Help ──────────────────────────────────────────
-	console.groupCollapsed(`%c Devtools API %c ${globalName}`, styles.debugBadge, styles.reset);
-	console.table({
-		'.state': { description: 'Full state snapshot (app, features, debug)' },
-		'.set(path, value)': { description: 'Generic setter — e.g. .set("app.theme", "midnight")' },
-		'.setTheme(t)': { description: 'Change editor theme' },
-		'.setMode(m)': { description: 'Set color mode (light / dark / system)' },
-		'.setLocale(l)': { description: 'Set locale (en, ja, zh, ko, fr, de, es)' },
-		'.setSidebarOpen(b)': { description: 'Toggle sidebar (true / false)' },
-		'.setFeature(f, b)': { description: 'Toggle feature flag' },
-		'.setLogLevel(l)': { description: 'Set log level (trace / debug / info / warn / error)' },
-		'.enable() / .disable()': { description: 'Toggle debug mode on/off' },
-		'.logState()': { description: 'Pretty-print full state to console' },
-		'.logFeatures()': { description: 'Print feature flags as console table' },
-		'.register(ns, api)': { description: 'Add custom extension namespace' },
-	});
+	// ── Devtools API (purple badge) ───────────────────────────────
+	console.groupCollapsed(`%c Devtools API %c ${globalName}`, BADGE_API, 'color:#aaa');
+	const apiBlock = buildKVBlock(
+		[
+			['.state', 'Full state snapshot (app, features, debug)'],
+			['.set(path, value)', 'Generic setter — e.g. .set("app.theme", "midnight")'],
+			['.setTheme(t)', 'Change editor theme'],
+			['.setMode(m)', 'Set color mode (light / dark / system)'],
+			['.setLocale(l)', 'Set locale (en, ja, zh, ko, fr, de, es)'],
+			['.setSidebarOpen(b)', 'Toggle sidebar (true / false)'],
+			['.setFeature(f, b)', 'Toggle feature flag'],
+			['.setLogLevel(l)', 'Set log level (trace / debug / info / warn / error)'],
+			['.enable() / .disable()', 'Toggle debug mode on/off'],
+			['.logState()', 'Pretty-print full state to console'],
+			['.logFeatures()', 'Print feature flags as console table'],
+			['.register(ns, api)', 'Add custom extension namespace'],
+		],
+		22,
+	);
+	console.log(...apiBlock);
 	console.log(
-		'%c URL params %c ?wf.debug=true&wf.theme=midnight&wf.logLevel=debug&wf.ff.settings=false',
-		styles.propPath,
-		styles.reset,
+		'  %cURL params%c ?wf.debug=true&wf.theme=midnight&wf.logLevel=debug&wf.ff.settings=false',
+		styles.keyLabel,
+		styles.valueText,
 	);
 	console.groupEnd();
 
 	// ── State Logger Hint ──────────────────────────────────────────
 	if (logLevel !== 'trace' && logLevel !== 'debug') {
 		console.log(
-			'%c Tip %c State change logging requires logLevel "debug" or "trace". Currently: "%s". Set via: %s.setLogLevel("debug")',
-			styles.infoBadge,
-			styles.reset,
+			'%c[Tip] %cState change logging requires logLevel "debug" or "trace". Currently: "%s". Set via: %s.setLogLevel("debug")',
+			'color:#fa0;font-weight:bold',
+			'color:#aaa',
 			logLevel,
 			globalName,
 		);
 	} else {
 		console.log(
-			'%c Logger %c State change logging active — all store mutations will be logged below',
-			styles.debugBadge,
-			styles.reset,
+			'%c[Logger] %cState change logging active — store mutations will be logged below',
+			'color:#4f4;font-weight:bold',
+			'color:#aaa',
 		);
 	}
 
-	console.log('');
 	/* eslint-enable no-console */
 }
 
