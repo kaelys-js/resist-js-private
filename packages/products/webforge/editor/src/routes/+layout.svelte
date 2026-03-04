@@ -246,6 +246,7 @@ const pageTitle: string = $derived.by(() => {
 	bind:ref={providerEl}
 	open={store.app.sidebarOpen}
 	onOpenChange={useResizable ? handleSidebarOpenChange : undefined}
+	class="min-w-[450px]"
 	style="--sidebar-width: {SIDEBAR_DEFAULT_PX}px; --header-height: calc(var(--spacing) * 12);"
 >
 	{#if useResizable}
@@ -273,7 +274,7 @@ const pageTitle: string = $derived.by(() => {
 				class="w-1.5 bg-transparent hover:bg-border data-[active]:bg-ring transition-colors"
 				ondblclick={handleDoubleClickResize}
 			/>
-			<Resizable.Pane defaultSize={100 - initialSidebarPercent} class="flex flex-col !overflow-auto">
+			<Resizable.Pane defaultSize={100 - initialSidebarPercent} class="flex flex-col !overflow-y-auto !overflow-x-hidden">
 				<Sidebar.Inset class={insetClass}>
 					<SiteHeader isError={Boolean(page.error)} />
 					<div class="flex flex-1 flex-col">
