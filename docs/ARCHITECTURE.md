@@ -236,6 +236,42 @@ A floating Astro-style developer toolbar rendered at the bottom center of the vi
 
 **Styling:** The toolbar uses a fixed dark theme (zinc/slate colors) independent of the app's current theme, ensuring consistent readability regardless of light/dark mode.
 
+## Security Headers & Response Hardening
+
+The editor applies security headers through two complementary mechanisms:
+
+| Mechanism | When | Where |
+|-----------|------|-------|
+| `hooks.server.ts` | Dev (`vite dev`) and preview (`pnpm preview`) | Response headers set in `handle` hook |
+| `static/_headers` | Production static hosting (Cloudflare Pages, Netlify) | Platform reads this file and applies headers to all responses |
+
+### Headers Applied
+
+| Header | Value | Notes |
+|--------|-------|-------|
+| X-Frame-Options | DENY | Prevents clickjacking |
+| X-Content-Type-Options | nosniff | Prevents MIME sniffing |
+| Referrer-Policy | strict-origin-when-cross-origin | Safe default for navigation |
+| Permissions-Policy | camera=(), microphone=(), geolocation=(), interest-cohort=() | Blocks device APIs and FLoC |
+| Cross-Origin-Opener-Policy | same-origin-allow-popups | Allows OAuth popups |
+| Cross-Origin-Resource-Policy | same-origin | Prevents cross-origin reads |
+| Cross-Origin-Embedder-Policy | unsafe-none | Safe default; upgrade to credentialless for SharedArrayBuffer |
+| X-DNS-Prefetch-Control | off | OWASP recommended |
+| X-Permitted-Cross-Domain-Policies | none | Blocks Flash/Acrobat cross-domain |
+| X-XSS-Protection | 0 | Explicitly disabled (CSP replaces it) |
+| Strict-Transport-Security | max-age=63072000; includeSubDomains; preload | **Prod-only** — breaks localhost |
+| Cache-Control | private, no-cache | HTML responses only (skips `/_app/immutable/` paths) |
+
+### CSP (Content Security Policy)
+
+Configured via `kit.csp` in `svelte.config.js` with `mode: 'hash'`. Disabled in dev to avoid Vite HMR script conflicts. In production, SvelteKit embeds CSP as `<meta>` tags with hashes for prerendered pages. The `static/_headers` file provides CSP for the SPA fallback page.
+
+Key directives for Babylon.js compatibility: `wasm-unsafe-eval` (WebAssembly), `blob:` in worker-src/child-src (web workers), `data:` + `blob:` in img-src (generated textures).
+
+### Dev Guard
+
+`hooks.server.ts` imports `dev` from `$app/environment` and splits headers into `BASE_HEADERS` (always applied) and `PROD_HEADERS` (production only). HSTS is the only prod-only header since it breaks localhost.
+
 ## Testing
 
 All modules have colocated `.test.ts` files (2727+ tests total). Pure math modules use logic tests; modules touching Babylon.js use NullEngine integration tests. Test harness from `@/config/test/harness` provides temp dirs, console capture, async helpers, and fake clock.

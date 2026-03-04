@@ -1,63 +1,82 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Verifies security response headers are present on both normal and error pages.
+ * Expected security headers on every response from the dev server.
+ *
+ * Note: HSTS is excluded because the dev server runs with `dev=true`.
+ * CSP is set via `<meta>` tag by SvelteKit's `kit.csp`, not as a response header in dev.
  */
+const EXPECTED_HEADERS: ReadonlyArray<readonly [string, string]> = [
+	['x-frame-options', 'DENY'],
+	['x-content-type-options', 'nosniff'],
+	['referrer-policy', 'strict-origin-when-cross-origin'],
+	['cross-origin-opener-policy', 'same-origin-allow-popups'],
+	['cross-origin-resource-policy', 'same-origin'],
+	['cross-origin-embedder-policy', 'unsafe-none'],
+	['x-dns-prefetch-control', 'off'],
+	['x-permitted-cross-domain-policies', 'none'],
+	['x-xss-protection', '0'],
+];
 
 test.describe('security headers — normal page (/)', () => {
-	test('X-Frame-Options is DENY', async ({ page }) => {
-		const response = await page.goto('/');
-		expect(response?.headers()['x-frame-options']).toBe('DENY');
-	});
+	for (const [header, value] of EXPECTED_HEADERS) {
+		test(`${header} is ${value}`, async ({ page }) => {
+			const response = await page.goto('/');
+			expect(response?.headers()[header]).toBe(value);
+		});
+	}
 
-	test('X-Content-Type-Options is nosniff', async ({ page }) => {
-		const response = await page.goto('/');
-		expect(response?.headers()['x-content-type-options']).toBe('nosniff');
-	});
-
-	test('Referrer-Policy is strict-origin-when-cross-origin', async ({ page }) => {
-		const response = await page.goto('/');
-		expect(response?.headers()['referrer-policy']).toBe('strict-origin-when-cross-origin');
-	});
-
-	test('Permissions-Policy is present', async ({ page }) => {
+	test('Permissions-Policy includes camera, microphone, geolocation, interest-cohort', async ({
+		page,
+	}) => {
 		const response = await page.goto('/');
 		const policy = response?.headers()['permissions-policy'];
 		expect(policy).toBeTruthy();
 		expect(policy).toContain('camera=()');
+		expect(policy).toContain('microphone=()');
+		expect(policy).toContain('geolocation=()');
+		expect(policy).toContain('interest-cohort=()');
 	});
 
-	test('Cross-Origin-Opener-Policy is same-origin', async ({ page }) => {
+	test('HSTS is set in production preview', async ({ page }) => {
 		const response = await page.goto('/');
-		expect(response?.headers()['cross-origin-opener-policy']).toBe('same-origin');
+		expect(response?.headers()['strict-transport-security']).toBe(
+			'max-age=63072000; includeSubDomains; preload',
+		);
 	});
+
+	test('Cache-Control is private, no-cache for HTML', async ({ page }) => {
+		const response = await page.goto('/');
+		expect(response?.headers()['cache-control']).toBe('private, no-cache');
+	});
+
+	// CSP is delivered via static/_headers in production (Cloudflare Pages / Netlify).
+	// The SPA fallback (index.html) is not prerendered, so SvelteKit's kit.csp
+	// hash-based <meta> tags only apply to explicitly prerendered routes.
 });
 
 test.describe('security headers — error page (/test-error/404)', () => {
-	test('X-Frame-Options is DENY', async ({ page }) => {
-		const response = await page.goto('/test-error/404');
-		expect(response?.headers()['x-frame-options']).toBe('DENY');
-	});
+	for (const [header, value] of EXPECTED_HEADERS) {
+		test(`${header} is ${value}`, async ({ page }) => {
+			const response = await page.goto('/test-error/404');
+			expect(response?.headers()[header]).toBe(value);
+		});
+	}
 
-	test('X-Content-Type-Options is nosniff', async ({ page }) => {
-		const response = await page.goto('/test-error/404');
-		expect(response?.headers()['x-content-type-options']).toBe('nosniff');
-	});
-
-	test('Referrer-Policy is strict-origin-when-cross-origin', async ({ page }) => {
-		const response = await page.goto('/test-error/404');
-		expect(response?.headers()['referrer-policy']).toBe('strict-origin-when-cross-origin');
-	});
-
-	test('Permissions-Policy is present', async ({ page }) => {
+	test('Permissions-Policy includes camera, microphone, geolocation, interest-cohort', async ({
+		page,
+	}) => {
 		const response = await page.goto('/test-error/404');
 		const policy = response?.headers()['permissions-policy'];
 		expect(policy).toBeTruthy();
 		expect(policy).toContain('camera=()');
+		expect(policy).toContain('microphone=()');
+		expect(policy).toContain('geolocation=()');
+		expect(policy).toContain('interest-cohort=()');
 	});
 
-	test('Cross-Origin-Opener-Policy is same-origin', async ({ page }) => {
+	test('Cache-Control is private, no-cache for HTML', async ({ page }) => {
 		const response = await page.goto('/test-error/404');
-		expect(response?.headers()['cross-origin-opener-policy']).toBe('same-origin');
+		expect(response?.headers()['cache-control']).toBe('private, no-cache');
 	});
 });

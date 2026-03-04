@@ -1,4 +1,5 @@
 import type { Handle, HandleServerError } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 import type { Bool } from '@/schemas/common';
 import type { CapturedError } from '@/schemas/result/captured-error';
 import { getTextDirection } from '@/locale/direction';
@@ -8,14 +9,36 @@ import { reportError, setupGlobalErrorHandling } from '@/utils/core/signal';
 import { fromUnknownError } from '@/utils/result/safe';
 import { resolveLocale } from '$lib/server/locale-detection';
 
-/** Security headers applied to every response. */
-const SECURITY_HEADERS: ReadonlyArray<readonly [string, string]> = [
+/** Security headers applied to every response (safe in both dev and prod). */
+const BASE_HEADERS: ReadonlyArray<readonly [string, string]> = [
 	['X-Frame-Options', 'DENY'],
 	['X-Content-Type-Options', 'nosniff'],
 	['Referrer-Policy', 'strict-origin-when-cross-origin'],
-	['Permissions-Policy', 'camera=(), microphone=(), geolocation=()'],
-	['Cross-Origin-Opener-Policy', 'same-origin'],
+	['Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()'],
+	['Cross-Origin-Opener-Policy', 'same-origin-allow-popups'],
+	['Cross-Origin-Resource-Policy', 'same-origin'],
+	['Cross-Origin-Embedder-Policy', 'unsafe-none'],
+	['X-DNS-Prefetch-Control', 'off'],
+	['X-Permitted-Cross-Domain-Policies', 'none'],
+	['X-XSS-Protection', '0'],
 ];
+
+/** Headers only applied in production (would break or are irrelevant in dev). */
+const PROD_HEADERS: ReadonlyArray<readonly [string, string]> = [
+	['Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload'],
+];
+
+/**
+ * Returns the full set of security headers for the current environment.
+ *
+ * In dev mode, prod-only headers (HSTS) are excluded to avoid breaking localhost.
+ * Computed per-request so tests can mock `dev` from `$app/environment`.
+ *
+ * @returns Combined base + prod headers (or base-only in dev)
+ */
+function getSecurityHeaders(): ReadonlyArray<readonly [string, string]> {
+	return dev ? BASE_HEADERS : [...BASE_HEADERS, ...PROD_HEADERS];
+}
 
 setupLogging({ service: 'editor-server', initFromEnv: true, format: 'json' });
 setupGlobalErrorHandling({
@@ -124,8 +147,16 @@ export const handle: Handle = async ({ event, resolve }) => {
 		transformPageChunk: ({ html }) => html.replace('%lang%', locale).replace('%dir%', dir),
 	});
 
-	for (const [name, value] of SECURITY_HEADERS) {
+	for (const [name, value] of getSecurityHeaders()) {
 		response.headers.set(name, value);
+	}
+
+	// Prevent caching of HTML responses (skip SvelteKit immutable assets).
+	const contentType: string = response.headers.get('content-type') ?? '';
+	const isHtml: boolean = contentType.includes('text/html');
+	const isImmutable: boolean = event.url.pathname.startsWith('/_app/immutable/');
+	if (isHtml && !isImmutable) {
+		response.headers.set('Cache-Control', 'private, no-cache');
 	}
 
 	return response;

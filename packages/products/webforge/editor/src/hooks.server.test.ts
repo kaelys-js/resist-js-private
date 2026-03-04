@@ -1,7 +1,20 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { RequestEvent, ResolveOptions } from '@sveltejs/kit';
 import { ERRORS, err } from '@/schemas/result/result';
-import { handle, handleError } from './hooks.server';
+
+/** Controls the mocked value of `dev` from `$app/environment`. */
+let mockDev = true;
+vi.mock('$app/environment', () => ({
+	get dev() {
+		return mockDev;
+	},
+	browser: false,
+	building: false,
+	version: 'test',
+}));
+
+// Import after mock setup so the module picks up the mock.
+const { handle, handleError } = await import('./hooks.server');
 
 /**
  * Creates a minimal mock RequestEvent for testing the handle hook.
@@ -159,8 +172,9 @@ describe('security headers', () => {
 	async function getResponseFromHandle(
 		cookie: string,
 		acceptLanguage: string | null,
+		pathname = '/',
 	): Promise<Response> {
-		const event = mockEvent(cookie, acceptLanguage);
+		const event = mockEvent(cookie, acceptLanguage, pathname);
 		const { resolve } = mockResolve();
 		const response = await handle({ event, resolve });
 		return response as Response;
@@ -181,18 +195,97 @@ describe('security headers', () => {
 		expect(response.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
 	});
 
-	it('sets Permissions-Policy', async () => {
+	it('sets Permissions-Policy with camera, microphone, geolocation, and interest-cohort', async () => {
 		const response: Response = await getResponseFromHandle('en', null);
 		const policy: string | null = response.headers.get('Permissions-Policy');
 		expect(policy).toBeTruthy();
 		expect(policy).toContain('camera=()');
 		expect(policy).toContain('microphone=()');
 		expect(policy).toContain('geolocation=()');
+		expect(policy).toContain('interest-cohort=()');
 	});
 
-	it('sets Cross-Origin-Opener-Policy to same-origin', async () => {
+	it('sets Cross-Origin-Opener-Policy to same-origin-allow-popups', async () => {
 		const response: Response = await getResponseFromHandle('en', null);
-		expect(response.headers.get('Cross-Origin-Opener-Policy')).toBe('same-origin');
+		expect(response.headers.get('Cross-Origin-Opener-Policy')).toBe('same-origin-allow-popups');
+	});
+
+	it('sets Cross-Origin-Resource-Policy to same-origin', async () => {
+		const response: Response = await getResponseFromHandle('en', null);
+		expect(response.headers.get('Cross-Origin-Resource-Policy')).toBe('same-origin');
+	});
+
+	it('sets Cross-Origin-Embedder-Policy to unsafe-none', async () => {
+		const response: Response = await getResponseFromHandle('en', null);
+		expect(response.headers.get('Cross-Origin-Embedder-Policy')).toBe('unsafe-none');
+	});
+
+	it('sets X-DNS-Prefetch-Control to off', async () => {
+		const response: Response = await getResponseFromHandle('en', null);
+		expect(response.headers.get('X-DNS-Prefetch-Control')).toBe('off');
+	});
+
+	it('sets X-Permitted-Cross-Domain-Policies to none', async () => {
+		const response: Response = await getResponseFromHandle('en', null);
+		expect(response.headers.get('X-Permitted-Cross-Domain-Policies')).toBe('none');
+	});
+
+	it('sets X-XSS-Protection to 0', async () => {
+		const response: Response = await getResponseFromHandle('en', null);
+		expect(response.headers.get('X-XSS-Protection')).toBe('0');
+	});
+
+	it('does NOT set HSTS in dev mode', async () => {
+		mockDev = true;
+		const response: Response = await getResponseFromHandle('en', null);
+		expect(response.headers.get('Strict-Transport-Security')).toBeNull();
+	});
+
+	it('sets HSTS in production mode', async () => {
+		mockDev = false;
+		const response: Response = await getResponseFromHandle('en', null);
+		expect(response.headers.get('Strict-Transport-Security')).toBe(
+			'max-age=63072000; includeSubDomains; preload',
+		);
+		mockDev = true;
+	});
+});
+
+describe('cache-control', () => {
+	async function getResponseWithContentType(
+		contentType: string,
+		pathname = '/',
+	): Promise<Response> {
+		const event = mockEvent('en', null, pathname);
+		const resolve = vi.fn((_event: RequestEvent, opts?: ResolveOptions): Promise<Response> => {
+			if (opts?.transformPageChunk) {
+				// Capture transformer but don't need it for cache-control tests
+			}
+			const resp = new Response('ok', {
+				headers: { 'content-type': contentType },
+			});
+			return Promise.resolve(resp);
+		});
+		const response = await handle({ event, resolve });
+		return response as Response;
+	}
+
+	it('sets Cache-Control to private, no-cache for HTML responses', async () => {
+		const response: Response = await getResponseWithContentType('text/html; charset=utf-8');
+		expect(response.headers.get('Cache-Control')).toBe('private, no-cache');
+	});
+
+	it('does NOT set Cache-Control for non-HTML responses', async () => {
+		const response: Response = await getResponseWithContentType('application/javascript');
+		expect(response.headers.get('Cache-Control')).toBeNull();
+	});
+
+	it('does NOT set Cache-Control for immutable asset paths', async () => {
+		const response: Response = await getResponseWithContentType(
+			'text/html',
+			'/_app/immutable/entry/start.js',
+		);
+		expect(response.headers.get('Cache-Control')).toBeNull();
 	});
 });
 
