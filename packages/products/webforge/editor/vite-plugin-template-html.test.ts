@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
 	deriveErrorIdPrefix,
 	generateFontFaceCss,
+	resolveAppHtml,
 	resolveErrorHtml,
+	templateAppHtml,
 	templateErrorHtml,
 } from './vite-plugin-template-html';
 
@@ -75,6 +77,7 @@ describe('resolveErrorHtml', () => {
 <script>
 var prefix = '{{errors.errorIdPrefix}}';
 var copied = '{{errors.copied}}';
+var failed = '{{errors.copyFailed}}';
 </script>
 </body>
 </html>`;
@@ -112,5 +115,45 @@ var copied = '{{errors.copied}}';
 	it('derives error ID prefix from parameterized locale string', () => {
 		const result = resolveErrorHtml(TEMPLATE);
 		expect(result).toContain("var prefix = 'Reference: '");
+	});
+});
+
+describe('templateAppHtml plugin', () => {
+	it('returns a Vite plugin object with correct name', () => {
+		const plugin = templateAppHtml();
+		expect(plugin.name).toBe('template-app-html');
+	});
+
+	it('enforces pre-ordering', () => {
+		const plugin = templateAppHtml();
+		expect(plugin.enforce).toBe('pre');
+	});
+
+	it('applies only to build mode', () => {
+		const plugin = templateAppHtml();
+		expect(plugin.apply).toBe('build');
+	});
+
+	it('uses config hook', () => {
+		const plugin = templateAppHtml();
+		expect(plugin.config).toBeTypeOf('function');
+	});
+});
+
+describe('resolveAppHtml', () => {
+	const APP_TEMPLATE = `<meta name="apple-mobile-web-app-title" content="{{APP_NAME}}" />
+<script>(function () { try {
+} catch (e) { console.error('[{{APP_NAME}}] failed:', e); }
+})();</script>`;
+
+	it('replaces all APP_NAME placeholders', () => {
+		const result = resolveAppHtml(APP_TEMPLATE);
+		expect(result).not.toContain('{{APP_NAME}}');
+	});
+
+	it('inserts Storyline from app-meta', () => {
+		const result = resolveAppHtml(APP_TEMPLATE);
+		expect(result).toContain('content="Storyline"');
+		expect(result).toContain("'[Storyline]");
 	});
 });

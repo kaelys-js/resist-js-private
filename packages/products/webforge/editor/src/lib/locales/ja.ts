@@ -135,6 +135,7 @@ export const ja: EditorLocaleRaw = {
 		tryAgain: 'もう一度試す',
 		errorId: 'リファレンス: {id}',
 		copied: 'コピーしました！',
+		copyFailed: 'コピーに失敗しました',
 		copyErrorId: 'エラーIDをクリップボードにコピー',
 	},
 };
