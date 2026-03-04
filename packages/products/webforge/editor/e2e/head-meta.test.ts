@@ -121,9 +121,9 @@ test.describe('head meta — normal page (/)', () => {
 		await expect(formatDetection).toHaveAttribute('content', 'telephone=no');
 	});
 
-	test('apple-mobile-web-app-capable is yes', async ({ page }) => {
+	test('mobile-web-app-capable is yes', async ({ page }) => {
 		await page.goto('/');
-		const meta = page.locator('meta[name="apple-mobile-web-app-capable"]');
+		const meta = page.locator('meta[name="mobile-web-app-capable"]');
 		await expect(meta).toHaveAttribute('content', 'yes');
 	});
 
@@ -298,9 +298,9 @@ test.describe('head meta — error page (/test-error/404)', () => {
 		await expect(manifest).toHaveAttribute('href', /manifest\.webmanifest/);
 	});
 
-	test('apple-mobile-web-app-capable is yes', async ({ page }) => {
+	test('mobile-web-app-capable is yes', async ({ page }) => {
 		await page.goto('/test-error/404');
-		const meta = page.locator('meta[name="apple-mobile-web-app-capable"]');
+		const meta = page.locator('meta[name="mobile-web-app-capable"]');
 		await expect(meta).toHaveAttribute('content', 'yes');
 	});
 
