@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const STORAGE_KEY = 'webforge:editor-state';
+const STORAGE_KEY = 'app:editor-state';
 
 /**
  * Sets feature flags in localStorage before navigating.
@@ -45,7 +45,7 @@ test.describe('feature flags — default state', () => {
 		await expect(page.getByRole('button', { name: /toggle mode/i })).toBeVisible();
 
 		// AppSidebar: branding visible
-		await expect(page.getByText('WebForge', { exact: true }).first()).toBeVisible();
+		await expect(page.getByText('Storyline', { exact: true }).first()).toBeVisible();
 		await expect(page.getByText('RPG Editor', { exact: true })).toBeVisible();
 
 		// AppSidebar: Help visible
@@ -159,7 +159,7 @@ test.describe('feature flags — combined', () => {
 		});
 
 		// Page should load without errors
-		await expect(page).toHaveTitle('WebForge');
+		await expect(page).toHaveTitle('Storyline');
 
 		// Header should still render (even if empty of controlled content)
 		const header = page.locator('header');

@@ -7,6 +7,7 @@ import {
 	type AppPreferences,
 	type FeatureFlags,
 } from './editor-state';
+import { APP_NAME } from '$lib/config/app-meta';
 
 describe('AppPreferencesSchema', () => {
 	it('accepts empty object and fills all defaults', () => {
@@ -14,7 +15,7 @@ describe('AppPreferencesSchema', () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		const prefs: AppPreferences = result.data;
-		expect(prefs.appName).toBe('WebForge');
+		expect(prefs.appName).toBe(APP_NAME);
 		expect(prefs.theme).toBe('');
 		expect(prefs.mode).toBe('system');
 		expect(prefs.locale).toBe('en');
@@ -182,7 +183,7 @@ describe('EditorStateSchema', () => {
 		const result = safeParse(EditorStateSchema, { app: {}, features: {} });
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(result.data.app.appName).toBe('WebForge');
+		expect(result.data.app.appName).toBe(APP_NAME);
 		expect(result.data.features.sidebar).toBe(true);
 	});
 

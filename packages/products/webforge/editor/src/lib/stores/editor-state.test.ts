@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createEditorStore, initEditorStore, useEditorStore } from './editor-state.svelte';
-
-const STORAGE_KEY = 'webforge:editor-state';
+import {
+	createEditorStore,
+	initEditorStore,
+	useEditorStore,
+	STORAGE_KEY,
+} from './editor-state.svelte';
+import { APP_NAME } from '$lib/config/app-meta';
 
 // Mock localStorage — jsdom's built-in localStorage is incomplete
 const storage = new Map<string, string>();
@@ -37,7 +41,7 @@ describe('EditorStore', () => {
 		if (!result.ok) throw new Error('Store creation failed');
 		const store = result.data;
 
-		expect(store.app.appName).toBe('WebForge');
+		expect(store.app.appName).toBe(APP_NAME);
 		expect(store.app.theme).toBe('');
 		expect(store.app.mode).toBe('system');
 		expect(store.app.locale).toBe('en');
@@ -151,7 +155,7 @@ describe('EditorStore', () => {
 
 		const setResult = store.setAppName('');
 		expect(setResult.ok).toBe(false);
-		expect(store.app.appName).toBe('WebForge');
+		expect(store.app.appName).toBe(APP_NAME);
 	});
 
 	// ── setSidebarOpen ─────────────────────────────────────────────────────
@@ -189,7 +193,7 @@ describe('EditorStore', () => {
 
 	// ── save / load ────────────────────────────────────────────────────────
 
-	it("save() writes to localStorage key 'webforge:editor-state'", () => {
+	it("save() writes to localStorage key 'app:editor-state'", () => {
 		const result = createEditorStore();
 		if (!result.ok) throw new Error('Store creation failed');
 		const store = result.data;
@@ -201,7 +205,7 @@ describe('EditorStore', () => {
 		expect(raw).not.toBeNull();
 
 		const parsed = JSON.parse(raw!);
-		expect(parsed.app.appName).toBe('WebForge');
+		expect(parsed.app.appName).toBe(APP_NAME);
 		expect(parsed.features.settings).toBe(true);
 	});
 
@@ -246,7 +250,7 @@ describe('EditorStore', () => {
 		const store = result.data;
 
 		// Should fall back to defaults when localStorage is corrupted
-		expect(store.app.appName).toBe('WebForge');
+		expect(store.app.appName).toBe(APP_NAME);
 		expect(store.app.theme).toBe('');
 		expect(store.app.mode).toBe('system');
 	});
@@ -425,7 +429,7 @@ describe('EditorStore', () => {
 		storage.clear();
 		const result = createEditorStore();
 		if (!result.ok) throw new Error('Store creation failed');
-		expect(result.data.app.appName).toBe('WebForge');
+		expect(result.data.app.appName).toBe(APP_NAME);
 		expect(result.data.app.mode).toBe('system');
 	});
 
@@ -448,7 +452,7 @@ describe('EditorStore', () => {
 
 	it('initEditorStore() returns an EditorStore', () => {
 		const store = initEditorStore();
-		expect(store.app.appName).toBe('WebForge');
+		expect(store.app.appName).toBe(APP_NAME);
 	});
 
 	it('useEditorStore() returns the same singleton after init', () => {

@@ -4,7 +4,7 @@
  * Centralized, reactive debug/developer mode state.
  * Module-level `$state` runes provide fine-grained reactivity.
  * All mutations return `Result<Void>` — no exceptions.
- * Persists to localStorage under `'webforge:debug-state'`.
+ * Persists to localStorage under `'app:debug-state'`.
  *
  * @module
  */
@@ -26,7 +26,7 @@ import { parseDebugParams } from '$lib/utils/url-params';
 // =============================================================================
 
 /** localStorage key for persisting debug state. */
-export const STORAGE_KEY = 'webforge:debug-state';
+export const STORAGE_KEY = 'app:debug-state';
 
 // =============================================================================
 // Defaults

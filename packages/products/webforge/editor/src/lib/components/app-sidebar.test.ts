@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import AppSidebarTest from './AppSidebarTest.svelte';
+import { APP_NAME } from '$lib/config/app-meta';
 
 describe('AppSidebar', () => {
 	it('renders sidebar wrapper', () => {
@@ -9,9 +10,9 @@ describe('AppSidebar', () => {
 		expect(sidebar).toBeInTheDocument();
 	});
 
-	it('renders WebForge branding', () => {
+	it('renders app branding', () => {
 		render(AppSidebarTest);
-		expect(screen.getAllByText('WebForge').length).toBeGreaterThanOrEqual(1);
+		expect(screen.getAllByText(APP_NAME).length).toBeGreaterThanOrEqual(1);
 		expect(screen.getByText('RPG Editor')).toBeInTheDocument();
 	});
 

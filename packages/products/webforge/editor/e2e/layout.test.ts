@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('layout', () => {
 	test('page loads with correct title', async ({ page }) => {
 		await page.goto('/');
-		await expect(page).toHaveTitle('WebForge');
+		await expect(page).toHaveTitle('Storyline');
 	});
 
 	test('sidebar is visible on desktop', async ({ page }) => {

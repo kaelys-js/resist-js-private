@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('sidebar', () => {
-	test('sidebar renders with WebForge branding', async ({ page }) => {
+	test('sidebar renders with Storyline branding', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.getByText('WebForge', { exact: true }).first()).toBeVisible();
+		await expect(page.getByText('Storyline', { exact: true }).first()).toBeVisible();
 		await expect(page.getByText('RPG Editor', { exact: true })).toBeVisible();
 	});
 

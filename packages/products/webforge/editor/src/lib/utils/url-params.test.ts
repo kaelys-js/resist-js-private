@@ -5,6 +5,7 @@ import {
 	isValidAppKey,
 	isValidFeatureFlag,
 } from './url-params';
+import { APP_NAME } from '$lib/config/app-meta';
 
 const okVoid = () => ({ ok: true as const, data: undefined, error: null });
 
@@ -113,7 +114,7 @@ describe('isValidFeatureFlag', () => {
 describe('applyUrlOverrides', () => {
 	const createMockEditorStore = () => ({
 		app: {
-			appName: 'WebForge' as const,
+			appName: APP_NAME,
 			theme: '' as
 				| ''
 				| 'midnight'

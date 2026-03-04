@@ -53,13 +53,13 @@ $effect(() => {
 // ── Resizable sidebar ─────────────────────────────────────────────────
 // Default sidebar width: calc(var(--spacing) * 72) = 0.25rem * 72 = 18rem = 288px
 const SIDEBAR_DEFAULT_PX = 288;
-const SIDEBAR_PX_KEY = 'webforge:sidebar-px';
+const SIDEBAR_PX_KEY = 'app:sidebar-px';
 
 // Compute initial sidebar percentage from saved pixel width to prevent flash on load.
 function getInitialSidebarPercent(): number {
 	if (typeof window === 'undefined') return 20;
 	// Clean stale PaneForge internal storage that bypasses our adapter.
-	localStorage.removeItem('paneforge:webforge:sidebar-width');
+	localStorage.removeItem('paneforge:app:sidebar-width');
 	const saved: string | null = localStorage.getItem(SIDEBAR_PX_KEY);
 	const px: number = saved ? Number(saved) : SIDEBAR_DEFAULT_PX;
 	return (px / window.innerWidth) * 100;
@@ -207,10 +207,16 @@ $effect(() => {
 const themeColorLight: string = $derived(THEME_COLORS[store.app.theme]?.light ?? '#ffffff');
 const themeColorDark: string = $derived(THEME_COLORS[store.app.theme]?.dark ?? '#242424');
 
-const metaDescription = $derived(
-	t(localeStore.t.meta.description, 'WebForge RPG — HD-2D game creation suite'),
+const metaDescription: string = $derived(
+	(() => {
+		const result = (
+			localeStore.t.meta.description as (p: {
+				appName: string;
+			}) => import('@/schemas/result/result').Result<string>
+		)({ appName: store.app.appName });
+		return result.ok ? result.data : `${store.app.appName} — HD-2D game creation suite`;
+	})(),
 );
-const metaAppName = $derived(t(localeStore.t.meta.applicationName, 'WebForge'));
 const ogLocale = $derived(OG_LOCALES[store.app.locale] ?? 'en_US');
 
 // Error title map — must live in layout so title reactively clears on navigation.
@@ -236,7 +242,7 @@ const pageTitle: string = $derived.by(() => {
 <svelte:head>
 	<title>{pageTitle}</title>
 	<meta name="description" content={metaDescription} />
-	<meta name="application-name" content={metaAppName} />
+	<meta name="application-name" content={store.app.appName} />
 	<meta name="theme-color" content={themeColorLight} media="(prefers-color-scheme: light)" />
 	<meta name="theme-color" content={themeColorDark} media="(prefers-color-scheme: dark)" />
 	<meta property="og:title" content={store.app.appName} />
@@ -256,7 +262,7 @@ const pageTitle: string = $derived.by(() => {
 	{#if useResizable}
 		<Resizable.PaneGroup
 			direction="horizontal"
-			autoSaveId="webforge:sidebar-width"
+			autoSaveId="app:sidebar-width"
 			storage={paneStorage}
 			class="min-h-svh"
 		>

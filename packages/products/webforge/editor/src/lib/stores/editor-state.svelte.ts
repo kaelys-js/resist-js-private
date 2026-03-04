@@ -4,7 +4,7 @@
  * Centralized, reactive, Valibot-validated editor state.
  * Module-level `$state` runes provide fine-grained reactivity.
  * All mutations return `Result<Void>` — no exceptions.
- * Persists to localStorage under `'webforge:editor-state'`.
+ * Persists to localStorage under `'app:editor-state'`.
  *
  * @module
  */
@@ -21,20 +21,21 @@ import {
 	type AppPreferences,
 	type FeatureFlags,
 } from '$lib/schemas/editor-state';
+import { APP_NAME } from '$lib/config/app-meta';
 
 // =============================================================================
 // Constants
 // =============================================================================
 
 /** localStorage key for persisting editor state. */
-export const STORAGE_KEY = 'webforge:editor-state';
+export const STORAGE_KEY = 'app:editor-state';
 
 // =============================================================================
 // Defaults (derived from schema defaults via safeParse of empty object)
 // =============================================================================
 
 const APP_DEFAULTS: AppPreferences = {
-	appName: 'WebForge',
+	appName: APP_NAME,
 	theme: '',
 	mode: 'system',
 	locale: 'en',

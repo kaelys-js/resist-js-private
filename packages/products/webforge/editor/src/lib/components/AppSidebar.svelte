@@ -3,7 +3,7 @@ import Settings from '@lucide/svelte/icons/settings';
 import CircleHelp from '@lucide/svelte/icons/circle-help';
 import type { ComponentProps } from 'svelte';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-import WebForgeLogo from './WebForgeLogo.svelte';
+import AppLogo from './AppLogo.svelte';
 import NavScenes from './NavScenes.svelte';
 import NavSecondary from './NavSecondary.svelte';
 import NavUser from './NavUser.svelte';
@@ -45,7 +45,7 @@ const user = {
 						<div
 							class="flex aspect-square size-8 items-center justify-center"
 						>
-							<WebForgeLogo size={28} />
+							<AppLogo size={28} />
 						</div>
 					{/if}
 					{#if store.features.appNameInSidebar}

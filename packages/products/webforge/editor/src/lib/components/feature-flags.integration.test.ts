@@ -14,6 +14,7 @@ import { describe, expect, it } from 'vitest';
 import SiteHeaderFlagsTest from './SiteHeaderFlagsTest.svelte';
 import AppSidebarFlagsTest from './AppSidebarFlagsTest.svelte';
 import NavUserFlagsTest from './NavUserFlagsTest.svelte';
+import { APP_NAME } from '$lib/config/app-meta';
 
 // =============================================================================
 // SiteHeader feature flags
@@ -90,14 +91,14 @@ describe('AppSidebar feature flags', () => {
 	});
 
 	// --- appIconInSidebar ---
-	it('renders WebForge logo when appIconInSidebar flag is enabled (default)', () => {
+	it('renders app logo when appIconInSidebar flag is enabled (default)', () => {
 		const { container } = render(AppSidebarFlagsTest);
 		// The logo renders as an img with class logo-img
 		const logoImg: HTMLElement | null = container.querySelector('img.logo-img');
 		expect(logoImg).toBeInTheDocument();
 	});
 
-	it('hides WebForge logo when appIconInSidebar flag is disabled', () => {
+	it('hides app logo when appIconInSidebar flag is disabled', () => {
 		const { container } = render(AppSidebarFlagsTest, {
 			props: { disabledFlags: ['appIconInSidebar'] },
 		});
@@ -106,11 +107,11 @@ describe('AppSidebar feature flags', () => {
 	});
 
 	// --- appNameInSidebar ---
-	it('renders "WebForge" name when appNameInSidebar flag is enabled (default)', () => {
+	it('renders app name when appNameInSidebar flag is enabled (default)', () => {
 		render(AppSidebarFlagsTest);
-		// "WebForge" appears in the sidebar header name area
-		const webforgeElements: HTMLElement[] = screen.getAllByText('WebForge');
-		expect(webforgeElements.length).toBeGreaterThanOrEqual(1);
+		// App name appears in the sidebar header name area
+		const appNameElements: HTMLElement[] = screen.getAllByText(APP_NAME);
+		expect(appNameElements.length).toBeGreaterThanOrEqual(1);
 	});
 
 	it('hides sidebar header name when appNameInSidebar flag is disabled', () => {

@@ -10,9 +10,9 @@ import type { SUPPORTED_THEMES } from '$lib/schemas/editor-state';
 
 // ── App identity ─────────────────────────────────────────────────────────────
 
-export const APP_NAME = 'WebForge';
-export const APP_SHORT_NAME = 'WebForge';
-export const APP_DESCRIPTION = 'HD-2D RPG creation suite';
+export const APP_NAME = 'Storyline';
+export const APP_SHORT_NAME = 'Storyline';
+export const APP_DESCRIPTION = 'HD-2D game creation suite';
 export const APP_ID = '/';
 export const APP_SCOPE = '/';
 export const APP_START_URL = '/';

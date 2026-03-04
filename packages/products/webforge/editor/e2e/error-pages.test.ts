@@ -20,7 +20,7 @@ test.describe('Error pages', () => {
 
 		test('page title includes error text', async ({ page }) => {
 			await page.goto('/test-error/400');
-			await expect(page).toHaveTitle(/bad request.*WebForge/i);
+			await expect(page).toHaveTitle(/bad request.*Storyline/i);
 		});
 	});
 
@@ -43,7 +43,7 @@ test.describe('Error pages', () => {
 
 		test('page title includes error text', async ({ page }) => {
 			await page.goto('/test-error/403');
-			await expect(page).toHaveTitle(/access denied.*WebForge/i);
+			await expect(page).toHaveTitle(/access denied.*Storyline/i);
 		});
 	});
 
@@ -66,7 +66,7 @@ test.describe('Error pages', () => {
 
 		test('page title includes error text', async ({ page }) => {
 			await page.goto('/test-error/404');
-			await expect(page).toHaveTitle(/page not found.*WebForge/i);
+			await expect(page).toHaveTitle(/page not found.*Storyline/i);
 		});
 
 		test('nonexistent route shows 404 page', async ({ page }) => {
@@ -89,7 +89,7 @@ test.describe('Error pages', () => {
 
 		test('page title includes error text', async ({ page }) => {
 			await page.goto('/test-error/500');
-			await expect(page).toHaveTitle(/something went wrong.*WebForge/i);
+			await expect(page).toHaveTitle(/something went wrong.*Storyline/i);
 		});
 
 		test('homepage link navigates home from 500 page', async ({ page }) => {
@@ -149,7 +149,7 @@ test.describe('Error pages', () => {
 			await expect(page).toHaveTitle(/page not found/i);
 			await page.getByRole('link', { name: /go to homepage/i }).click();
 			await expect(page).toHaveURL('/');
-			await expect(page).toHaveTitle('WebForge');
+			await expect(page).toHaveTitle('Storyline');
 		});
 
 		test('title reverts to app name after navigating home from 500', async ({ page }) => {
@@ -157,7 +157,7 @@ test.describe('Error pages', () => {
 			await expect(page).toHaveTitle(/something went wrong/i);
 			await page.getByRole('link', { name: /go to homepage/i }).click();
 			await expect(page).toHaveURL('/');
-			await expect(page).toHaveTitle('WebForge');
+			await expect(page).toHaveTitle('Storyline');
 		});
 
 		test('og:title reverts after navigating home from error page', async ({ page }) => {
@@ -165,7 +165,7 @@ test.describe('Error pages', () => {
 			await page.getByRole('link', { name: /go to homepage/i }).click();
 			await expect(page).toHaveURL('/');
 			const ogTitle = page.locator('meta[property="og:title"]');
-			await expect(ogTitle).toHaveAttribute('content', 'WebForge');
+			await expect(ogTitle).toHaveAttribute('content', 'Storyline');
 		});
 
 		test('description meta persists after navigating home from error page', async ({ page }) => {
@@ -354,9 +354,9 @@ test.describe('Error pages', () => {
 			await expect(page).toHaveURL('/');
 		});
 
-		test('page title includes friendly text and WebForge', async ({ page }) => {
+		test('page title includes friendly text and Storyline', async ({ page }) => {
 			await page.goto('/test-error/catastrophic');
-			await expect(page).toHaveTitle(/something went wrong.*WebForge/i);
+			await expect(page).toHaveTitle(/something went wrong.*Storyline/i);
 		});
 
 		test('has required meta tags', async ({ page }) => {

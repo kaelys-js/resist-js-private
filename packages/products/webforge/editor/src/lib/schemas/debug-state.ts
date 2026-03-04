@@ -28,7 +28,7 @@ export const URL_PARAM_PREFIX = 'wf.' as const;
 
 /**
  * Schema for debug state. Persisted separately from editor state
- * under `'webforge:debug-state'` localStorage key.
+ * under `'app:debug-state'` localStorage key.
  *
  * @example
  * ```typescript

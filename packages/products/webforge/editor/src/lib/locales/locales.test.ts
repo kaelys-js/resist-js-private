@@ -84,13 +84,13 @@ describe('no empty strings in any locale', () => {
 });
 
 // =============================================================================
-// Brand invariants
+// Description contains parameterized placeholder
 // =============================================================================
 
-describe('brand name invariant', () => {
+describe('description template', () => {
 	for (const code of LOCALE_CODES) {
-		it(`${code}.meta.applicationName is 'WebForge'`, () => {
-			expect(ALL_LOCALES[code]!.meta.applicationName).toBe('WebForge');
+		it(`${code}.meta.description contains {appName} placeholder`, () => {
+			expect(ALL_LOCALES[code]!.meta.description).toContain('{appName}');
 		});
 	}
 });
@@ -152,7 +152,7 @@ describe('schema validation', () => {
 // =============================================================================
 
 const NAMESPACE_KEY_COUNTS: Record<string, number> = {
-	meta: 2,
+	meta: 1,
 	common: 9,
 	sidebar: 2,
 	header: 4,

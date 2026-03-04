@@ -40,8 +40,8 @@ test.describe('mobile sidebar — open/close/toggle', () => {
 		const mobileSidebar = page.locator('[data-mobile="true"][data-sidebar="sidebar"]');
 		await expect(mobileSidebar).toBeVisible();
 
-		// Branding (use .first() because "WebForge" appears in header and footer)
-		await expect(mobileSidebar.getByText('WebForge', { exact: true }).first()).toBeVisible();
+		// Branding (use .first() because "Storyline" appears in header and footer)
+		await expect(mobileSidebar.getByText('Storyline', { exact: true }).first()).toBeVisible();
 		await expect(mobileSidebar.getByText('RPG Editor', { exact: true })).toBeVisible();
 
 		// Scenes

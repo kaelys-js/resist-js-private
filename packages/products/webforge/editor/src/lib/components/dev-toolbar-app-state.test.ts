@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import DevToolbarAppStateTest from './DevToolbarAppStateTest.svelte';
 import { discoverAppPreferences } from '$lib/debug/dev-toolbar-registry';
+import { APP_NAME } from '$lib/config/app-meta';
 
 const preferences = discoverAppPreferences();
 
@@ -62,7 +63,7 @@ describe('DevToolbarAppState', () => {
 	it('appName input reflects default store value', () => {
 		const { container } = render(DevToolbarAppStateTest);
 		const input: HTMLInputElement | null = container.querySelector('#pref-appName');
-		expect(input?.value).toBe('WebForge');
+		expect(input?.value).toBe(APP_NAME);
 	});
 
 	it('sidebarOpen switch defaults to checked', () => {

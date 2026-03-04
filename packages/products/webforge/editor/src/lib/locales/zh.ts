@@ -2,8 +2,7 @@ import type { EditorLocaleRaw } from './schema';
 
 export const zh: EditorLocaleRaw = {
 	meta: {
-		description: 'WebForge RPG — HD-2D游戏创作套件',
-		applicationName: 'WebForge',
+		description: '{appName} — HD-2D游戏创作套件',
 	},
 	common: {
 		settings: '设置',
@@ -49,7 +48,7 @@ export const zh: EditorLocaleRaw = {
 	},
 	project: {
 		openProject: '打开项目',
-		webforgeProject: '项目',
+		project: '项目',
 	},
 	scenes: {
 		rename: '重命名场景',

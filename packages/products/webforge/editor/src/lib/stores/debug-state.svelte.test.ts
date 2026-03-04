@@ -30,8 +30,8 @@ beforeEach(() => {
 });
 
 describe('STORAGE_KEY', () => {
-	it('is webforge:debug-state', () => {
-		expect(STORAGE_KEY).toBe('webforge:debug-state');
+	it('is app:debug-state', () => {
+		expect(STORAGE_KEY).toBe('app:debug-state');
 	});
 });
 

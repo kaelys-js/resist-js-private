@@ -6,6 +6,30 @@
 @theme inline {
 	--font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
 		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+	--animate-collapsible-down: collapsible-down 200ms ease-out;
+	--animate-collapsible-up: collapsible-up 200ms ease-out;
+}
+
+@keyframes collapsible-down {
+	from {
+		height: 0;
+		opacity: 0;
+	}
+	to {
+		height: var(--bits-collapsible-content-height);
+		opacity: 1;
+	}
+}
+
+@keyframes collapsible-up {
+	from {
+		height: var(--bits-collapsible-content-height);
+		opacity: 1;
+	}
+	to {
+		height: 0;
+		opacity: 0;
+	}
 }
 
 :root {

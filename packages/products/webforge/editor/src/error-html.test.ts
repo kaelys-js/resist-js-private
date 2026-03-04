@@ -46,9 +46,9 @@ describe('error.html static fallback', () => {
 		expect(errorHtml).toContain('href="/manifest.webmanifest"');
 	});
 
-	it('contains title with friendly text and WebForge', () => {
+	it('contains title with friendly text and app name', () => {
 		expect(errorHtml).toContain('Something went wrong');
-		expect(errorHtml).toContain('WebForge');
+		expect(errorHtml).toContain('Storyline');
 	});
 
 	it('contains sveltekit.error.message placeholder', () => {

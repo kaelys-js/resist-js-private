@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { activateDebugServices, syncDebugServices, type DebugServicesHandle } from './init.svelte';
 import { DEVTOOLS_KEY } from './devtools-api.svelte';
+import { APP_NAME } from '$lib/config/app-meta';
 
 // Mock the sub-modules to avoid $effect calls in state-logger
 vi.mock('./state-logger.svelte', () => ({
@@ -27,7 +28,7 @@ const okVoid = () => ({ ok: true as const, data: undefined, error: null });
 
 const createMockEditorStore = () => ({
 	app: {
-		appName: 'WebForge' as const,
+		appName: APP_NAME,
 		theme: '' as
 			| ''
 			| 'midnight'
@@ -112,7 +113,7 @@ describe('activateDebugServices', () => {
 			(args: unknown[]) =>
 				typeof args[0] === 'string' &&
 				args[0].includes('[Debug]') &&
-				args.some((arg: unknown) => arg === 'WebForge'),
+				args.some((arg: unknown) => arg === APP_NAME),
 		);
 		expect(hasWelcome).toBe(true);
 		handle.destroy();
