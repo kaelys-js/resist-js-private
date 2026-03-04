@@ -173,7 +173,7 @@ test.describe('Error pages', () => {
 			await page.getByRole('link', { name: /go to homepage/i }).click();
 			await expect(page).toHaveURL('/');
 			const description = page.locator('meta[name="description"]');
-			await expect(description).toHaveAttribute('content', /HD-2D/);
+			await expect(description).toHaveAttribute('content', /Your Story, Rendered/);
 		});
 	});
 

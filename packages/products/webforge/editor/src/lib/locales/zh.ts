@@ -2,7 +2,8 @@ import type { EditorLocaleRaw } from './schema';
 
 export const zh: EditorLocaleRaw = {
 	meta: {
-		description: '{appName} — HD-2D游戏创作套件',
+		tagline: '你的故事，跃然呈现',
+		description: '{appName} — 你的故事，跃然呈现',
 	},
 	common: {
 		settings: '设置',

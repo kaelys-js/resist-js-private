@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import AppSidebarTest from './AppSidebarTest.svelte';
-import { APP_NAME } from '$lib/config/app-meta';
+import { APP_NAME, APP_TAGLINE } from '$lib/config/app-meta';
 
 describe('AppSidebar', () => {
 	it('renders sidebar wrapper', () => {
@@ -13,7 +13,7 @@ describe('AppSidebar', () => {
 	it('renders app branding', () => {
 		render(AppSidebarTest);
 		expect(screen.getAllByText(APP_NAME).length).toBeGreaterThanOrEqual(1);
-		expect(screen.getByText('RPG Editor')).toBeInTheDocument();
+		expect(screen.getByText(APP_TAGLINE)).toBeInTheDocument();
 	});
 
 	it('renders scene list with default scenes', () => {

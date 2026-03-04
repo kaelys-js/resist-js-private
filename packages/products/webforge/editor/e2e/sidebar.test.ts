@@ -4,7 +4,7 @@ test.describe('sidebar', () => {
 	test('sidebar renders with Storyline branding', async ({ page }) => {
 		await page.goto('/');
 		await expect(page.getByText('Storyline', { exact: true }).first()).toBeVisible();
-		await expect(page.getByText('RPG Editor', { exact: true })).toBeVisible();
+		await expect(page.getByText('Your Story, Rendered', { exact: true })).toBeVisible();
 	});
 
 	test('scene list renders with default scenes', async ({ page }) => {

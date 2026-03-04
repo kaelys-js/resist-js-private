@@ -10,6 +10,7 @@ import { messageTemplate } from '@/locale/template';
  */
 export const EditorLocaleSchema = v.strictObject({
 	meta: v.strictObject({
+		tagline: messageTemplate(),
 		description: messageTemplate({ appName: v.string() }),
 	}),
 	common: v.strictObject({

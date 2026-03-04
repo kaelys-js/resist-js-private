@@ -152,7 +152,7 @@ describe('schema validation', () => {
 // =============================================================================
 
 const NAMESPACE_KEY_COUNTS: Record<string, number> = {
-	meta: 1,
+	meta: 2,
 	common: 9,
 	sidebar: 2,
 	header: 4,

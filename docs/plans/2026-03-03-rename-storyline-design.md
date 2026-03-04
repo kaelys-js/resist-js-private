@@ -44,10 +44,10 @@ Old: `webforge:*` → New: `app:*`
 description: messageTemplate({ appName: v.string() }),
 
 // Usage (en.ts)
-description: '{appName} — HD-2D game creation suite',
+description: '{appName} — Your Story, Rendered',
 
 // Rendered
-t(localeStore.t.meta.description, '{appName} — HD-2D game creation suite', { appName: store.app.appName })
+t(localeStore.t.meta.description, '{appName} — Your Story, Rendered', { appName: store.app.appName })
 ```
 
 **Rename** `project.webforgeProject` → `project.project` (key only, translations unchanged).

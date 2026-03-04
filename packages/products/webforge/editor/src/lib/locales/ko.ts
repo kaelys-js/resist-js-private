@@ -2,7 +2,8 @@ import type { EditorLocaleRaw } from './schema';
 
 export const ko: EditorLocaleRaw = {
 	meta: {
-		description: '{appName} — HD-2D 게임 제작 도구',
+		tagline: '당신의 이야기, 렌더링되다',
+		description: '{appName} — 당신의 이야기, 렌더링되다',
 	},
 	common: {
 		settings: '설정',

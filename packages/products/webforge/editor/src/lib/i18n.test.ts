@@ -61,13 +61,13 @@ describe('localeStore.setLocale', () => {
 		const enDescFn = localeStore.t.meta.description as (p: { appName: string }) => Result<string>;
 		const enResult = enDescFn({ appName: APP_NAME });
 		const enDesc: string = enResult.ok ? enResult.data : '';
-		expect(enDesc).toContain('HD-2D');
+		expect(enDesc).toContain(APP_NAME);
 
 		localeStore.setLocale('ja');
 		const jaDescFn = localeStore.t.meta.description as (p: { appName: string }) => Result<string>;
 		const jaResult = jaDescFn({ appName: APP_NAME });
 		const jaDesc: string = jaResult.ok ? jaResult.data : '';
-		expect(jaDesc).toContain('HD-2D');
+		expect(jaDesc).toContain(APP_NAME);
 		expect(jaDesc).not.toBe(enDesc);
 
 		// Reset

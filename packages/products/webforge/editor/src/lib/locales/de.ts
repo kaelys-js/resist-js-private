@@ -2,7 +2,8 @@ import type { EditorLocaleRaw } from './schema';
 
 export const de: EditorLocaleRaw = {
 	meta: {
-		description: '{appName} — HD-2D-Spielerstellungssuite',
+		tagline: 'Deine Geschichte, zum Leben erweckt',
+		description: '{appName} — Deine Geschichte, zum Leben erweckt',
 	},
 	common: {
 		settings: 'Einstellungen',

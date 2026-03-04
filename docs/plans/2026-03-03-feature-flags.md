@@ -116,8 +116,8 @@
    ```svelte
    {#if store.features.appNameInSidebar}
      <div class="grid flex-1 text-left text-sm leading-tight">
-       <span class="truncate font-medium">WebForge</span>
-       <span class="truncate text-xs text-muted-foreground">RPG Editor</span>
+       <span class="truncate font-medium">{store.app.appName}</span>
+       <span class="truncate text-xs text-muted-foreground">{t(localeStore.t.meta.tagline, APP_TAGLINE)}</span>
      </div>
    {/if}
    ```
