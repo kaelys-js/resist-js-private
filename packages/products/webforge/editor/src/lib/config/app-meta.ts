@@ -65,6 +65,31 @@ export const ICONS: readonly IconEntry[] = [
 	{ src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
 ];
 
+// ── Fonts ────────────────────────────────────────────────────────────────────
+// Self-hosted font configuration. Used by app.css (@font-face) and
+// the Vite HTML template plugin (error.html inline styles).
+
+/** CSS font-family stack for body text (Inter + system fallbacks). */
+export const FONT_FAMILIES =
+	"'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'";
+
+/** CSS font-family stack for display/accent text (Rajdhani). */
+export const FONT_DISPLAY_FAMILIES = "'Rajdhani', ui-sans-serif, system-ui, sans-serif";
+
+type FontFaceEntry = {
+	readonly family: string;
+	readonly style: string;
+	readonly weight: string;
+	readonly src: string;
+};
+
+/** Self-hosted @font-face definitions. Paths are relative to static/. */
+export const FONT_FACES: readonly FontFaceEntry[] = [
+	{ family: 'Inter', style: 'normal', weight: '100 900', src: '/fonts/inter-latin.woff2' },
+	{ family: 'Rajdhani', style: 'normal', weight: '600', src: '/fonts/rajdhani-latin-600.woff2' },
+	{ family: 'Rajdhani', style: 'normal', weight: '700', src: '/fonts/rajdhani-latin-700.woff2' },
+];
+
 // ── Security / contact ───────────────────────────────────────────────────────
 // Used by security.txt route.
 
