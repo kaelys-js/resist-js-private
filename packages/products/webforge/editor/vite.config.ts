@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 import { templateErrorHtml } from './vite-plugin-template-html.js';
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit(), devtoolsJson(), templateErrorHtml()],
+	plugins: [templateErrorHtml(), tailwindcss(), sveltekit(), devtoolsJson()],
 	ssr: {
 		noExternal: ['@lucide/svelte'],
 	},

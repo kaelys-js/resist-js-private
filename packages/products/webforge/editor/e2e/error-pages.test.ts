@@ -421,7 +421,7 @@ test.describe('Error pages', () => {
 			await page.goto('/test-error/catastrophic');
 			const btn = page.locator('.error-id-btn');
 			await expect(btn).toBeVisible();
-			await expect(btn).toContainText(/^Reference: /);
+			await expect(page.locator('#error-id-text')).toContainText(/^Reference: /);
 		});
 
 		test('copied text comes from errors.copied locale', async ({ page, context }) => {

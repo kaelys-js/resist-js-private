@@ -79,7 +79,11 @@ export function resolveErrorHtml(template: string): string {
 /**
  * Vite plugin that templates `src/error.html` at build time.
  *
- * - `buildStart`: Reads template, resolves placeholders, writes resolved HTML
+ * Uses `enforce: 'pre'` and the `config()` hook so that placeholders are
+ * resolved BEFORE SvelteKit's own `config()` hook reads error.html via
+ * `sync.all()` → `load_error_page()`.
+ *
+ * - `config`: Reads template, resolves placeholders, writes resolved HTML
  * - `closeBundle`: Restores original template content
  *
  * No-op in dev mode (serve).
@@ -90,22 +94,31 @@ export function templateErrorHtml(): Plugin {
 	let originalContent: string | null = null;
 	let errorHtmlPath = '';
 
+	function restore(): void {
+		if (originalContent !== null && errorHtmlPath) {
+			writeFileSync(errorHtmlPath, originalContent, 'utf8');
+			originalContent = null;
+		}
+	}
+
 	return {
 		name: 'template-error-html',
 		apply: 'build',
+		enforce: 'pre',
 
-		buildStart() {
+		config() {
 			errorHtmlPath = resolve(import.meta.dirname ?? '.', 'src/error.html');
 			originalContent = readFileSync(errorHtmlPath, 'utf8');
 			const resolved = resolveErrorHtml(originalContent);
 			writeFileSync(errorHtmlPath, resolved, 'utf8');
+
+			// Safety net: restore on abrupt process exit (e.g. Ctrl+C, SIGTERM)
+			process.on('exit', restore);
 		},
 
 		closeBundle() {
-			if (originalContent !== null && errorHtmlPath) {
-				writeFileSync(errorHtmlPath, originalContent, 'utf8');
-				originalContent = null;
-			}
+			restore();
+			process.removeListener('exit', restore);
 		},
 	};
 }
