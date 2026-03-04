@@ -37,10 +37,10 @@ test.describe('head meta — normal page (/)', () => {
 		await expect(page).toHaveTitle('Storyline');
 	});
 
-	test('description contains HD-2D', async ({ page }) => {
+	test('description contains tagline', async ({ page }) => {
 		await page.goto('/');
 		const description = page.locator('meta[name="description"]');
-		await expect(description).toHaveAttribute('content', /HD-2D/);
+		await expect(description).toHaveAttribute('content', /Your Story, Rendered/);
 	});
 
 	test('application-name is Storyline', async ({ page }) => {
@@ -71,10 +71,10 @@ test.describe('head meta — normal page (/)', () => {
 		await expect(ogTitle).toHaveAttribute('content', 'Storyline');
 	});
 
-	test('og:description contains HD-2D', async ({ page }) => {
+	test('og:description contains tagline', async ({ page }) => {
 		await page.goto('/');
 		const ogDescription = page.locator('meta[property="og:description"]');
-		await expect(ogDescription).toHaveAttribute('content', /HD-2D/);
+		await expect(ogDescription).toHaveAttribute('content', /Your Story, Rendered/);
 	});
 
 	test('og:type is website', async ({ page }) => {
@@ -223,7 +223,7 @@ test.describe('head meta — error page (/test-error/404)', () => {
 	test('description is inherited from layout', async ({ page }) => {
 		await page.goto('/test-error/404');
 		const description = page.locator('meta[name="description"]');
-		await expect(description).toHaveAttribute('content', /HD-2D/);
+		await expect(description).toHaveAttribute('content', /Your Story, Rendered/);
 	});
 
 	test('application-name is inherited from layout', async ({ page }) => {
@@ -257,7 +257,7 @@ test.describe('head meta — error page (/test-error/404)', () => {
 	test('og:description is inherited from layout', async ({ page }) => {
 		await page.goto('/test-error/404');
 		const ogDescription = page.locator('meta[property="og:description"]');
-		await expect(ogDescription).toHaveAttribute('content', /HD-2D/);
+		await expect(ogDescription).toHaveAttribute('content', /Your Story, Rendered/);
 	});
 
 	test('og:type is website', async ({ page }) => {

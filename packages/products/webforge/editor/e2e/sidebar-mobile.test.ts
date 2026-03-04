@@ -42,7 +42,7 @@ test.describe('mobile sidebar — open/close/toggle', () => {
 
 		// Branding (use .first() because "Storyline" appears in header and footer)
 		await expect(mobileSidebar.getByText('Storyline', { exact: true }).first()).toBeVisible();
-		await expect(mobileSidebar.getByText('RPG Editor', { exact: true })).toBeVisible();
+		await expect(mobileSidebar.getByText('Your Story, Rendered', { exact: true })).toBeVisible();
 
 		// Scenes
 		await expect(mobileSidebar.getByText('Scenes')).toBeVisible();

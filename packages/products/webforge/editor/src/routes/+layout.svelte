@@ -17,7 +17,7 @@ import { initDebugStore } from '$lib/stores/debug-state.svelte';
 import { applyUrlOverrides } from '$lib/utils/url-params';
 import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
 import DevToolbar from '$lib/components/DevToolbar.svelte';
-import { THEME_COLORS } from '$lib/config/app-meta';
+import { APP_TAGLINE, THEME_COLORS } from '$lib/config/app-meta';
 
 const { children, data } = $props();
 
@@ -214,7 +214,7 @@ const metaDescription: string = $derived(
 				appName: string;
 			}) => import('@/schemas/result/result').Result<string>
 		)({ appName: store.app.appName });
-		return result.ok ? result.data : `${store.app.appName} — HD-2D game creation suite`;
+		return result.ok ? result.data : `${store.app.appName} — ${APP_TAGLINE}`;
 	})(),
 );
 const ogLocale = $derived(OG_LOCALES[store.app.locale] ?? 'en_US');

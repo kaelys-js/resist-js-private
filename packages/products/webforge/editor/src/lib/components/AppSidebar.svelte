@@ -8,6 +8,7 @@ import NavScenes from './NavScenes.svelte';
 import NavSecondary from './NavSecondary.svelte';
 import NavUser from './NavUser.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
+import { APP_TAGLINE } from '$lib/config/app-meta';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 
 type Props = ComponentProps<typeof Sidebar.Root>;
@@ -55,7 +56,7 @@ const user = {
 								style="font-family: 'Rajdhani', sans-serif;"
 								>{store.app.appName}</span
 							>
-							<span class="truncate text-xs text-muted-foreground">RPG Editor</span>
+							<span class="truncate text-xs text-muted-foreground">{t(localeStore.t.meta.tagline, APP_TAGLINE)}</span>
 						</div>
 					{/if}
 				</Sidebar.MenuButton>

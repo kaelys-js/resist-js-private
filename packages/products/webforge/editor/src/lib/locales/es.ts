@@ -2,7 +2,8 @@ import type { EditorLocaleRaw } from './schema';
 
 export const es: EditorLocaleRaw = {
 	meta: {
-		description: '{appName} — Suite de creación de juegos HD-2D',
+		tagline: 'Tu historia, hecha realidad',
+		description: '{appName} — Tu historia, hecha realidad',
 	},
 	common: {
 		settings: 'Configuración',

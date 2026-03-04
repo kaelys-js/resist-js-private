@@ -13,7 +13,8 @@ All paths relative to `packages/products/webforge/editor/`.
 
 - `APP_NAME` → `'Storyline'`
 - `APP_SHORT_NAME` → `'Storyline'`
-- `APP_DESCRIPTION` → `'HD-2D game creation suite'` (remove "WebForge RPG —" prefix, keep description generic)
+- `APP_DESCRIPTION` → `'Your Story, Rendered'`
+- `APP_TAGLINE` → `'Your Story, Rendered'` (new constant for brand tagline)
 
 **QA:** `pnpm qa:type-check && pnpm qa:lint && pnpm qa:format`
 

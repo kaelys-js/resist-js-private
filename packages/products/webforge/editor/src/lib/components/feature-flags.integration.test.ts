@@ -14,7 +14,7 @@ import { describe, expect, it } from 'vitest';
 import SiteHeaderFlagsTest from './SiteHeaderFlagsTest.svelte';
 import AppSidebarFlagsTest from './AppSidebarFlagsTest.svelte';
 import NavUserFlagsTest from './NavUserFlagsTest.svelte';
-import { APP_NAME } from '$lib/config/app-meta';
+import { APP_NAME, APP_TAGLINE } from '$lib/config/app-meta';
 
 // =============================================================================
 // SiteHeader feature flags
@@ -116,8 +116,8 @@ describe('AppSidebar feature flags', () => {
 
 	it('hides sidebar header name when appNameInSidebar flag is disabled', () => {
 		render(AppSidebarFlagsTest, { props: { disabledFlags: ['appNameInSidebar'] } });
-		// With appName hidden, "RPG Editor" subtitle should also be absent from sidebar header
-		expect(screen.queryByText('RPG Editor')).not.toBeInTheDocument();
+		// With appName hidden, tagline subtitle should also be absent from sidebar header
+		expect(screen.queryByText(APP_TAGLINE)).not.toBeInTheDocument();
 	});
 
 	// --- projectDropdown ---

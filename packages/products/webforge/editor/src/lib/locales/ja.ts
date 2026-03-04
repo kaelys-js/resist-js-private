@@ -2,7 +2,8 @@ import type { EditorLocaleRaw } from './schema';
 
 export const ja: EditorLocaleRaw = {
 	meta: {
-		description: '{appName} — HD-2Dゲーム制作スイート',
+		tagline: 'あなたの物語を、描き出す',
+		description: '{appName} — あなたの物語を、描き出す',
 	},
 	common: {
 		settings: '設定',
