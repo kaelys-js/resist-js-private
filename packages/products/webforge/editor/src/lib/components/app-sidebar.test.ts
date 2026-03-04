@@ -22,14 +22,6 @@ describe('AppSidebar', () => {
 		expect(screen.getByText('Dungeon B1')).toBeInTheDocument();
 	});
 
-	it('renders assets section', () => {
-		render(AppSidebarTest);
-		expect(screen.getByText('Assets')).toBeInTheDocument();
-		expect(screen.getByText('Tilesets')).toBeInTheDocument();
-		expect(screen.getByText('Sprites')).toBeInTheDocument();
-		expect(screen.getByText('Audio')).toBeInTheDocument();
-	});
-
 	it('renders help link in secondary nav', () => {
 		render(AppSidebarTest);
 		expect(screen.getByText('Help')).toBeInTheDocument();

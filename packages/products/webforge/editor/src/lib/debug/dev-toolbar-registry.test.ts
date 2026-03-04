@@ -70,7 +70,6 @@ describe('discoverFeatureFlags', () => {
 		const keys = flags.map((f) => f.key);
 		expect(keys).toContain('settings');
 		expect(keys).toContain('sceneList');
-		expect(keys).toContain('assetBrowser');
 		expect(keys).toContain('breadcrumb');
 		expect(keys).toContain('sidebarToggle');
 	});

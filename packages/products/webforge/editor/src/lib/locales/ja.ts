@@ -19,10 +19,6 @@ export const ja: EditorLocaleRaw = {
 	sidebar: {
 		scenes: 'シーン',
 		newScene: '新規シーン',
-		assets: 'アセット',
-		tilesets: 'タイルセット',
-		sprites: 'スプライト',
-		audio: 'オーディオ',
 	},
 	header: {
 		editor: 'エディタ',
@@ -103,7 +99,6 @@ export const ja: EditorLocaleRaw = {
 			modeToggle: 'モード切替',
 			sidebar: 'サイドバー',
 			sceneList: 'シーン一覧',
-			assetBrowser: 'アセットブラウザ',
 			resizableSidebar: 'リサイズ可能サイドバー',
 			breadcrumb: 'パンくずリスト',
 			sidebarToggle: 'サイドバー切替',

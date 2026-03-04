@@ -30,7 +30,6 @@ const createMockEditorStore = () => ({
 		modeToggle: true,
 		sidebar: true,
 		sceneList: true,
-		assetBrowser: true,
 		resizableSidebar: true,
 		breadcrumb: true,
 		sidebarToggle: true,

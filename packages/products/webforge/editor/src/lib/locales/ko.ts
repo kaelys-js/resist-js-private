@@ -19,10 +19,6 @@ export const ko: EditorLocaleRaw = {
 	sidebar: {
 		scenes: '씬',
 		newScene: '새 씬',
-		assets: '에셋',
-		tilesets: '타일셋',
-		sprites: '스프라이트',
-		audio: '오디오',
 	},
 	header: {
 		editor: '에디터',
@@ -103,7 +99,6 @@ export const ko: EditorLocaleRaw = {
 			modeToggle: '모드 전환',
 			sidebar: '사이드바',
 			sceneList: '씬 목록',
-			assetBrowser: '에셋 브라우저',
 			resizableSidebar: '크기 조절 가능 사이드바',
 			breadcrumb: '경로 표시',
 			sidebarToggle: '사이드바 전환',
