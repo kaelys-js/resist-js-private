@@ -1,5 +1,5 @@
 <script lang="ts">
-import Wrench from '@lucide/svelte/icons/wrench';
+import Code from '@lucide/svelte/icons/code';
 import Flag from '@lucide/svelte/icons/flag';
 import Settings2 from '@lucide/svelte/icons/settings-2';
 import Bug from '@lucide/svelte/icons/bug';
@@ -8,27 +8,105 @@ import Moon from '@lucide/svelte/icons/moon';
 import Monitor from '@lucide/svelte/icons/monitor';
 import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
 import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+import Check from '@lucide/svelte/icons/check';
 import { Button } from '$lib/components/ui/button/index.js';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import { Separator } from '$lib/components/ui/separator/index.js';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 import { useDebugStore } from '$lib/stores/debug-state.svelte';
+import { localeStore, t } from '$lib/i18n.svelte';
+import type { Str } from '@/schemas/common';
+import type { Result } from '@/schemas/result/result';
 import DevToolbarFeatureFlags from './DevToolbarFeatureFlags.svelte';
 import DevToolbarAppState from './DevToolbarAppState.svelte';
 import DevToolbarDebug from './DevToolbarDebug.svelte';
 import { discoverFeatureFlags, discoverAppPreferences } from '$lib/debug/dev-toolbar-registry';
-import type { FeatureFlags } from '$lib/schemas/editor-state';
+import { scale, fly } from 'svelte/transition';
 
 const editorStore = useEditorStore();
 const debugStore = useDebugStore();
 
+const isMac: boolean =
+	typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent);
+const shortcutHint: string = isMac ? '⌃ Shift D' : 'Ctrl+Shift+D';
+
 let toolbarOpen = $state(false);
 let activePanel: string | null = $state(null);
+let copySuccess = $state(false);
+let resetSuccess = $state(false);
+
+// ── Draggable position (persisted to localStorage) ───────────────────
+const POS_KEY = 'dev-toolbar-pos';
+
+function loadPos(): { x: number; b: number } {
+	if (typeof window === 'undefined') return { x: 0, b: 16 };
+	try {
+		const raw: string | null = localStorage.getItem(POS_KEY);
+		if (raw) {
+			const p = JSON.parse(raw);
+			if (typeof p.x === 'number' && typeof p.b === 'number') {
+				return { x: p.x, b: p.b };
+			}
+		}
+	} catch (_) {
+		/* noop */
+	}
+	return { x: window.innerWidth / 2, b: 16 };
+}
+
+const initPos = loadPos();
+let posX: number = $state(initPos.x);
+let posBottom: number = $state(initPos.b);
+
+let dragging = $state(false);
+let dragStartClientX = 0;
+let dragStartClientY = 0;
+let dragOriginX = 0;
+let dragOriginBottom = 0;
+let didDrag = false;
+
+function savePos(): void {
+	try {
+		localStorage.setItem(POS_KEY, JSON.stringify({ x: posX, b: posBottom }));
+	} catch (_) {
+		/* noop */
+	}
+}
+
+function onDragStart(e: PointerEvent): void {
+	dragging = true;
+	didDrag = false;
+	dragStartClientX = e.clientX;
+	dragStartClientY = e.clientY;
+	dragOriginX = posX;
+	dragOriginBottom = posBottom;
+	(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+}
+
+function onDragMove(e: PointerEvent): void {
+	if (!dragging) return;
+	const dx: number = e.clientX - dragStartClientX;
+	const dy: number = e.clientY - dragStartClientY;
+	if (!didDrag && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+	didDrag = true;
+	posX = Math.max(24, Math.min(window.innerWidth - 24, dragOriginX + dx));
+	posBottom = Math.max(8, Math.min(window.innerHeight - 48, dragOriginBottom - dy));
+}
+
+function onDragEnd(): void {
+	dragging = false;
+	if (didDrag) savePos();
+}
 
 // ── Badge data ────────────────────────────────────────────────────────
 const flags = discoverFeatureFlags();
-const enabledCount: number = $derived(
-	flags.filter((f) => editorStore.features[f.key as keyof FeatureFlags]).length,
+const cycleThemeLabel: string = $derived(
+	(() => {
+		const result: Result<Str> = (
+			localeStore.t.devToolbar.cycleTheme as (p: { mode: string }) => Result<Str>
+		)({ mode: editorStore.app.mode });
+		return result.ok ? result.data : `Cycle Theme (${editorStore.app.mode})`;
+	})(),
 );
 
 // ── Mode cycling ──────────────────────────────────────────────────────
@@ -55,6 +133,10 @@ async function copyDebugInfo(): Promise<void> {
 		debug: { ...debugStore.debug },
 	};
 	await navigator.clipboard.writeText(JSON.stringify(state, null, 2));
+	copySuccess = true;
+	setTimeout(() => {
+		copySuccess = false;
+	}, 1000);
 }
 
 /**
@@ -73,6 +155,21 @@ function resetAll(): void {
 		editorStore.setFeature(flag.key, flag.default);
 	}
 	debugStore.setLogLevel('info');
+
+	// Reset toolbar position to center-bottom
+	try {
+		localStorage.removeItem(POS_KEY);
+		localStorage.removeItem('webforge:sidebar-px');
+	} catch (_) {
+		/* noop */
+	}
+	posX = window.innerWidth / 2;
+	posBottom = 16;
+
+	resetSuccess = true;
+	setTimeout(() => {
+		resetSuccess = false;
+	}, 1000);
 }
 
 // ── Panel management ──────────────────────────────────────────────────
@@ -122,12 +219,16 @@ $effect(() => {
 {#if debugStore.debug.enabled}
 	<Tooltip.Provider delayDuration={300}>
 		<div
-			class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[99999] flex flex-col items-center gap-2"
+			class="fixed z-[99999] flex flex-col items-center gap-2"
+			style="left: {posX}px; bottom: {posBottom}px; transform: translateX(-50%)"
 			data-testid="dev-toolbar"
 		>
 		<!-- Active panel popover content (rendered above toolbar) -->
 		{#if toolbarOpen && activePanel}
-			<div class="w-80 max-h-[60vh] overflow-auto rounded-lg bg-zinc-900 border border-zinc-700 shadow-xl">
+			<div
+				transition:fly={{ y: 8, duration: 150 }}
+				class="w-80 max-h-[60vh] overflow-auto rounded-lg bg-popover/80 backdrop-blur-xl border border-border shadow-2xl shadow-black/20"
+			>
 				{#if activePanel === 'flags'}
 					<DevToolbarFeatureFlags {editorStore} />
 				{:else if activePanel === 'app'}
@@ -142,9 +243,10 @@ $effect(() => {
 		{#if toolbarOpen}
 			<div
 				role="toolbar"
-				aria-label="Developer toolbar"
+				aria-label={t(localeStore.t.devToolbar.title, 'Developer Toolbar')}
 				aria-orientation="horizontal"
-				class="flex items-center gap-1 px-2 py-1.5 rounded-full bg-zinc-900 border border-zinc-700 shadow-xl"
+				transition:scale={{ start: 0.6, duration: 150 }}
+				class="flex items-center gap-1 px-2 py-1.5 rounded-full bg-popover/80 backdrop-blur-xl border border-border shadow-2xl shadow-black/20 origin-bottom"
 				data-testid="dev-toolbar-bar"
 			>
 				<!-- Panel buttons -->
@@ -155,11 +257,11 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
-								class="size-8 {flagsOpen
-									? 'bg-zinc-700 text-cyan-400'
-									: 'text-zinc-400 hover:text-zinc-100'}"
+								class="size-8 hover:bg-transparent! transition-colors duration-200 {flagsOpen
+									? 'text-primary'
+									: 'text-muted-foreground hover:text-primary'}"
 								onclick={() => togglePanel('flags')}
-								aria-label="Feature flags"
+								aria-label={t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')}
 								aria-pressed={flagsOpen}
 								data-testid="toolbar-btn-flags"
 							>
@@ -167,8 +269,8 @@ $effect(() => {
 							</Button>
 						{/snippet}
 					</Tooltip.Trigger>
-					<Tooltip.Content side="top" sideOffset={8}>
-						Feature Flags ({enabledCount}/{flags.length})
+					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')} <kbd class="inline-flex items-center rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -179,11 +281,11 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
-								class="size-8 {appOpen
-									? 'bg-zinc-700 text-cyan-400'
-									: 'text-zinc-400 hover:text-zinc-100'}"
+								class="size-8 hover:bg-transparent! transition-colors duration-200 {appOpen
+									? 'text-primary'
+									: 'text-muted-foreground hover:text-primary'}"
 								onclick={() => togglePanel('app')}
-								aria-label="App state"
+								aria-label={t(localeStore.t.devToolbar.appPreferences, 'App Preferences')}
 								aria-pressed={appOpen}
 								data-testid="toolbar-btn-app"
 							>
@@ -191,8 +293,8 @@ $effect(() => {
 							</Button>
 						{/snippet}
 					</Tooltip.Trigger>
-					<Tooltip.Content side="top" sideOffset={8}>
-						App State
+					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')} <kbd class="inline-flex items-center rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -203,11 +305,11 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
-								class="size-8 {debugOpen
-									? 'bg-zinc-700 text-cyan-400'
-									: 'text-zinc-400 hover:text-zinc-100'}"
+								class="size-8 hover:bg-transparent! transition-colors duration-200 {debugOpen
+									? 'text-primary'
+									: 'text-muted-foreground hover:text-primary'}"
 								onclick={() => togglePanel('debug')}
-								aria-label="Debug"
+								aria-label={t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')}
 								aria-pressed={debugOpen}
 								data-testid="toolbar-btn-debug"
 							>
@@ -215,12 +317,12 @@ $effect(() => {
 							</Button>
 						{/snippet}
 					</Tooltip.Trigger>
-					<Tooltip.Content side="top" sideOffset={8}>
-						Debug
+					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')} <kbd class="inline-flex items-center rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
-				<Separator orientation="vertical" class="mx-1 h-5 bg-zinc-700" />
+				<Separator orientation="vertical" class="mx-1 h-5 bg-border" />
 
 				<!-- Quick action: cycle mode -->
 				<Tooltip.Root delayDuration={300}>
@@ -230,9 +332,9 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
-								class="size-8 text-zinc-400 hover:text-zinc-100"
+								class="size-8 hover:bg-transparent! transition-colors duration-200 text-muted-foreground hover:text-primary"
 								onclick={cycleMode}
-								aria-label="Toggle mode"
+								aria-label={cycleThemeLabel}
 								data-testid="toolbar-btn-mode"
 							>
 								{#if editorStore.app.mode === 'light'}
@@ -245,8 +347,8 @@ $effect(() => {
 							</Button>
 						{/snippet}
 					</Tooltip.Trigger>
-					<Tooltip.Content side="top" sideOffset={8}>
-						Mode: {editorStore.app.mode}
+					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
+						{cycleThemeLabel}
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -258,17 +360,29 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
-								class="size-8 text-zinc-400 hover:text-zinc-100"
+								class="size-8 hover:bg-transparent! transition-colors duration-200 {copySuccess
+								? 'text-green-500'
+								: 'text-muted-foreground hover:text-primary'}"
 								onclick={copyDebugInfo}
-								aria-label="Copy debug info"
+								aria-label={t(localeStore.t.devToolbar.copyStateJson, 'Copy State as JSON')}
 								data-testid="toolbar-btn-copy"
 							>
-								<ClipboardCopy class="size-4" />
+								<span class="grid place-items-center size-4">
+									{#key copySuccess}
+										<span class="col-start-1 row-start-1" in:scale={{ start: 0, duration: 150 }} out:scale={{ start: 0, duration: 150 }}>
+											{#if copySuccess}
+												<Check class="size-4" />
+											{:else}
+												<ClipboardCopy class="size-4" />
+											{/if}
+										</span>
+									{/key}
+								</span>
 							</Button>
 						{/snippet}
 					</Tooltip.Trigger>
-					<Tooltip.Content side="top" sideOffset={8}>
-						Copy Debug Info
+					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
+						{t(localeStore.t.devToolbar.copyStateJson, 'Copy State as JSON')}
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -280,36 +394,61 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
-								class="size-8 text-zinc-400 hover:text-zinc-100"
+								class="size-8 hover:bg-transparent! transition-colors duration-200 {resetSuccess
+								? 'text-green-500'
+								: 'text-muted-foreground hover:text-primary'}"
 								onclick={resetAll}
-								aria-label="Reset all state"
+								aria-label={t(localeStore.t.devToolbar.resetAllDefaults, 'Reset All to Defaults')}
 								data-testid="toolbar-btn-reset"
 							>
-								<RotateCcw class="size-4" />
+								<span class="grid place-items-center size-4">
+									{#key resetSuccess}
+										<span class="col-start-1 row-start-1" in:scale={{ start: 0, duration: 150 }} out:scale={{ start: 0, duration: 150 }}>
+											{#if resetSuccess}
+												<Check class="size-4" />
+											{:else}
+												<RotateCcw class="size-4" />
+											{/if}
+										</span>
+									{/key}
+								</span>
 							</Button>
 						{/snippet}
 					</Tooltip.Trigger>
-					<Tooltip.Content side="top" sideOffset={8}>
-						Reset All
+					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
+						{t(localeStore.t.devToolbar.resetAllDefaults, 'Reset All to Defaults')}
 					</Tooltip.Content>
 				</Tooltip.Root>
 			</div>
 		{/if}
 
 		<!-- Trigger pill -->
-		<button
-			class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-700 shadow-xl text-zinc-100 hover:bg-zinc-800 transition-colors cursor-pointer"
-			onclick={() => {
-				toolbarOpen = !toolbarOpen;
-				if (!toolbarOpen) activePanel = null;
-			}}
-			aria-label={toolbarOpen ? 'Collapse developer toolbar' : 'Expand developer toolbar'}
-			aria-expanded={toolbarOpen}
-			data-testid="dev-toolbar-trigger"
-		>
-			<Wrench class="size-3.5 text-cyan-400" />
-			<span class="text-xs font-bold tracking-wider">DEV</span>
-		</button>
+		<Tooltip.Root delayDuration={300}>
+			<Tooltip.Trigger>
+				{#snippet child({ props })}
+					<button
+						{...props}
+						class="flex items-center justify-center size-9 rounded-full bg-popover/80 backdrop-blur-xl border border-border shadow-2xl shadow-black/20 text-popover-foreground hover:bg-accent transition-colors touch-none {dragging ? 'cursor-grabbing' : 'cursor-grab'}"
+						onclick={() => {
+							if (didDrag) return;
+							toolbarOpen = !toolbarOpen;
+							if (!toolbarOpen) activePanel = null;
+						}}
+						onpointerdown={onDragStart}
+						onpointermove={onDragMove}
+						onpointerup={onDragEnd}
+						aria-label={toolbarOpen ? t(localeStore.t.devToolbar.collapseToolbar, 'Collapse developer toolbar') : t(localeStore.t.devToolbar.expandToolbar, 'Expand developer toolbar')}
+						aria-expanded={toolbarOpen}
+						data-testid="dev-toolbar-trigger"
+					>
+						<Code class="size-5 text-primary" />
+					</button>
+				{/snippet}
+			</Tooltip.Trigger>
+			<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
+				<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.title, 'Developer Toolbar')} <kbd class="inline-flex items-center rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutHint}</kbd></span>
+			</Tooltip.Content>
+		</Tooltip.Root>
 		</div>
 	</Tooltip.Provider>
 {/if}

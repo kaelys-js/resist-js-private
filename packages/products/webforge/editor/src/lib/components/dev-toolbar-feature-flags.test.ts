@@ -41,10 +41,10 @@ describe('DevToolbarFeatureFlags', () => {
 		}
 	});
 
-	it('renders search/filter input', () => {
+	it('renders search input', () => {
 		const { container } = render(DevToolbarFeatureFlagsTest);
 		const input: HTMLInputElement | null = container.querySelector(
-			'input[placeholder="Filter flags..."]',
+			'input[placeholder="Search flags\u2026"]',
 		);
 		expect(input).toBeInTheDocument();
 	});
@@ -57,14 +57,6 @@ describe('DevToolbarFeatureFlags', () => {
 	it('renders "Disable All" button', () => {
 		render(DevToolbarFeatureFlagsTest);
 		expect(screen.getByText('Disable All')).toBeInTheDocument();
-	});
-
-	it('renders badge showing enabled/total count', () => {
-		const { container } = render(DevToolbarFeatureFlagsTest);
-		const badge: HTMLElement | null = container.querySelector('[data-testid="flags-badge"]');
-		expect(badge).toBeInTheDocument();
-		// All flags default to true, so badge should show all enabled
-		expect(badge?.textContent).toBe(`${flags.length}/${flags.length}`);
 	});
 
 	it('all switches default to checked (all flags enabled by default)', () => {

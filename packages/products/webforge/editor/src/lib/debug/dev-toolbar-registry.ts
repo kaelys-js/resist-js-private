@@ -252,3 +252,40 @@ export function humanizeKey(key: string): string {
 	const spaced: string = key.replaceAll(/([A-Z])/g, ' $1');
 	return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
+
+/** Known display labels for picklist option values, keyed by field key. */
+const OPTION_LABELS: Record<string, Record<string, string>> = {
+	theme: { '': 'Default' },
+	locale: {
+		en: 'English',
+		ja: 'Japanese',
+		zh: 'Chinese',
+		ko: 'Korean',
+		fr: 'French',
+		de: 'German',
+		es: 'Spanish',
+	},
+};
+
+/**
+ * Returns a human-readable display label for a picklist option value.
+ * Uses known labels for specific fields (e.g., locale codes → language names),
+ * falls back to capitalizing the raw value.
+ *
+ * @param key - The field key (e.g., 'theme', 'locale', 'mode')
+ * @param value - The raw option value (e.g., 'en', 'midnight', '')
+ * @returns Human-readable label
+ *
+ * @example
+ * ```typescript
+ * humanizeOption('locale', 'ja');  // 'Japanese'
+ * humanizeOption('theme', '');     // 'Default'
+ * humanizeOption('mode', 'dark');  // 'Dark'
+ * ```
+ */
+export function humanizeOption(key: string, value: string): string {
+	const fieldLabels = OPTION_LABELS[key];
+	if (fieldLabels && value in fieldLabels) return fieldLabels[value];
+	if (!value) return 'Default';
+	return value.charAt(0).toUpperCase() + value.slice(1);
+}

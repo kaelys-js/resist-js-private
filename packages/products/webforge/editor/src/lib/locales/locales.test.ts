@@ -108,6 +108,7 @@ const EXPECTED_NAMESPACES: readonly string[] = [
 	'project',
 	'scenes',
 	'debug',
+	'devToolbar',
 	'errors',
 ];
 

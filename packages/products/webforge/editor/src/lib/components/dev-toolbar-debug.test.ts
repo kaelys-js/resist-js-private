@@ -13,9 +13,9 @@ describe('DevToolbarDebug', () => {
 		expect(panel).toBeInTheDocument();
 	});
 
-	it('renders "Debug" heading', () => {
+	it('renders "Debug Settings" heading', () => {
 		render(DevToolbarDebugTest);
-		expect(screen.getByText('Debug')).toBeInTheDocument();
+		expect(screen.getByText('Debug Settings')).toBeInTheDocument();
 	});
 
 	it('renders debug enabled Switch', () => {
@@ -25,15 +25,16 @@ describe('DevToolbarDebug', () => {
 		expect(toggle?.getAttribute('role')).toBe('switch');
 	});
 
-	it('renders log level Select trigger', () => {
+	it('renders a combobox trigger for logLevel picklist', () => {
 		const { container } = render(DevToolbarDebugTest);
-		const trigger: HTMLElement | null = container.querySelector('#debug-logLevel');
-		expect(trigger).toBeInTheDocument();
+		const combobox: HTMLElement | null = container.querySelector('button[role="combobox"]');
+		expect(combobox).toBeInTheDocument();
 	});
 
-	it('renders accessible labels for debug fields', () => {
+	it('renders accessible labels for boolean debug fields', () => {
 		render(DevToolbarDebugTest);
-		for (const field of debugFields) {
+		const booleanFields = debugFields.filter((f) => f.type === 'boolean');
+		for (const field of booleanFields) {
 			const label: HTMLElement | null = document.querySelector(`label[for="debug-${field.key}"]`);
 			expect(label).toBeInTheDocument();
 		}
