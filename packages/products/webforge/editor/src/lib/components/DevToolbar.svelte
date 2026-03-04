@@ -21,6 +21,7 @@ import DevToolbarFeatureFlags from './DevToolbarFeatureFlags.svelte';
 import DevToolbarAppState from './DevToolbarAppState.svelte';
 import DevToolbarDebug from './DevToolbarDebug.svelte';
 import { discoverFeatureFlags, discoverAppPreferences } from '$lib/debug/dev-toolbar-registry';
+import { storageKey } from '$lib/config/app-meta';
 import { scale, fly } from 'svelte/transition';
 
 const editorStore = useEditorStore();
@@ -36,7 +37,7 @@ let copySuccess = $state(false);
 let resetSuccess = $state(false);
 
 // ── Draggable position (persisted to localStorage) ───────────────────
-const POS_KEY = 'dev-toolbar-pos';
+const POS_KEY: string = storageKey('dev-toolbar-pos');
 
 function loadPos(): { x: number; b: number } {
 	if (typeof window === 'undefined') return { x: 0, b: 16 };
@@ -197,7 +198,7 @@ function resetAll(): void {
 	// Reset toolbar position to center-bottom
 	try {
 		localStorage.removeItem(POS_KEY);
-		localStorage.removeItem('app:sidebar-px');
+		localStorage.removeItem(storageKey('sidebar-px'));
 	} catch (_) {
 		/* noop */
 	}

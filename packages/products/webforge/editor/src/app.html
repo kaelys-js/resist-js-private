@@ -15,10 +15,10 @@
 		<link rel="manifest" href="/manifest.webmanifest" />
 		<script>
 			(function () { try {
-				var m = localStorage.getItem('mode-watcher-mode');
+				var m = localStorage.getItem('app:mode');
 				var dark = m === 'dark' || (m !== 'light' && matchMedia('(prefers-color-scheme:dark)').matches);
 				if (dark) document.documentElement.classList.add('dark');
-			} catch (e) { console.error('[{{APP_NAME}}] Dark mode init failed:', e); }
+			} catch (e) { console.error('[{{APP_NAME}}] Theme preference could not be loaded — falling back to system default:', e); }
 			})();
 		</script>
 		%sveltekit.head%

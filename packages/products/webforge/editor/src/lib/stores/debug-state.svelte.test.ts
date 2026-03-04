@@ -30,8 +30,9 @@ beforeEach(() => {
 });
 
 describe('STORAGE_KEY', () => {
-	it('is app:debug-state', () => {
+	it('uses storageKey helper with debug-state suffix', () => {
 		expect(STORAGE_KEY).toBe('app:debug-state');
+		expect(STORAGE_KEY).toContain(':debug-state');
 	});
 });
 

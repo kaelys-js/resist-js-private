@@ -20,6 +20,25 @@ export const APP_START_URL = '/';
 export const APP_DISPLAY = 'standalone';
 export const APP_CATEGORIES: readonly string[] = ['games', 'developer tools', 'design'];
 
+// ── Storage ──────────────────────────────────────────────────────────────────
+
+/** Prefix for all localStorage keys. Prevents collisions with other apps on the same origin. */
+export const STORAGE_PREFIX = 'app';
+
+/**
+ * Builds a namespaced localStorage key.
+ *
+ * @param suffix - The key-specific suffix (e.g. 'editor-state', 'mode')
+ * @returns Prefixed key string (e.g. 'app:editor-state')
+ *
+ * @example
+ * storageKey('editor-state') // 'app:editor-state'
+ * storageKey('mode')         // 'app:mode'
+ */
+export function storageKey(suffix: string): string {
+	return `${STORAGE_PREFIX}:${suffix}`;
+}
+
 // ── Theme colors ─────────────────────────────────────────────────────────────
 // Hex equivalents of the oklch --background values from app.css.
 // Light mode is always #ffffff (all themes use oklch(1 0 0) as :root default).

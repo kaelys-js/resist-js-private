@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { storageKey } from '$lib/config/app-meta';
 
 const appHtml: string = readFileSync(
 	resolve(dirname(fileURLToPath(import.meta.url)), 'app.html'),
@@ -19,6 +20,11 @@ describe('app.html script robustness', () => {
 
 	it('console error prefix uses APP_NAME placeholder', () => {
 		expect(appHtml).toContain("'[{{APP_NAME}}]");
+	});
+
+	it('reads theme preference from namespaced localStorage key', () => {
+		expect(appHtml).toContain(`localStorage.getItem('${storageKey('mode')}')`);
+		expect(appHtml).not.toContain('mode-watcher-mode');
 	});
 });
 

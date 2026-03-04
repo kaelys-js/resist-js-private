@@ -21,14 +21,14 @@ import {
 	type AppPreferences,
 	type FeatureFlags,
 } from '$lib/schemas/editor-state';
-import { APP_NAME } from '$lib/config/app-meta';
+import { APP_NAME, storageKey } from '$lib/config/app-meta';
 
 // =============================================================================
 // Constants
 // =============================================================================
 
 /** localStorage key for persisting editor state. */
-export const STORAGE_KEY = 'app:editor-state';
+export const STORAGE_KEY: string = storageKey('editor-state');
 
 // =============================================================================
 // Defaults (derived from schema defaults via safeParse of empty object)
