@@ -121,6 +121,8 @@ export default defineConfig({
 					alias: {
 						$lib: 'packages/products/webforge/editor/src/lib',
 						'$lib/*': 'packages/products/webforge/editor/src/lib/*',
+						'$app/environment':
+							'packages/products/webforge/editor/src/test-mocks/app-environment.ts',
 					},
 					server: {
 						deps: {
