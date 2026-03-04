@@ -53,14 +53,18 @@ const user = {
 				<Sidebar.MenuButton size="lg">
 					{#if store.features.appIconInSidebar}
 						<div
-							class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
+							class="flex aspect-square size-8 items-center justify-center"
 						>
-							<WebForgeLogo size={20} />
+							<WebForgeLogo size={28} />
 						</div>
 					{/if}
 					{#if store.features.appNameInSidebar}
-						<div class="grid flex-1 text-left text-sm leading-tight">
-							<span class="truncate font-medium">{store.app.appName}</span>
+						<div class="grid flex-1 text-left leading-tight">
+							<span
+								class="truncate text-base font-semibold tracking-tight"
+								style="font-family: 'Rajdhani', sans-serif;"
+								>{store.app.appName}</span
+							>
 							<span class="truncate text-xs text-muted-foreground">RPG Editor</span>
 						</div>
 					{/if}
