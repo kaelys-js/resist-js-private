@@ -1,5 +1,13 @@
 <!doctype html>
-<html lang="en">
+<!--
+  Static error fallback — served when SvelteKit's rendering pipeline fails.
+
+  This file uses {{placeholders}} resolved at build time by vite-plugin-template-html.
+  Text comes from en.ts (English locale) and app-meta.ts (app identity/fonts).
+  Dynamic per-user locale is NOT possible here — this is a last-resort page.
+  The full localized error UI lives in +error.svelte / ErrorPage.svelte.
+-->
+<html lang="en" dir="ltr">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -10,8 +18,9 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<link rel="manifest" href="/manifest.webmanifest" />
-		<title>Something went wrong | Storyline</title>
+		<title>{{errors.serverError}} | {{APP_NAME}}</title>
 		<style>
+			{{FONT_FACE_CSS}}
 			:root {
 				--background: oklch(1 0 0);
 				--foreground: oklch(0.145 0 0);
@@ -44,7 +53,7 @@
 				-moz-osx-font-smoothing: grayscale;
 			}
 			body {
-				font-family: system-ui, -apple-system, sans-serif;
+				font-family: {{FONT_FAMILIES}};
 				display: flex;
 				justify-content: center;
 				align-items: center;
@@ -194,11 +203,8 @@
 					<path d="m13 6-4 6h6l-4 6" />
 				</svg>
 			</div>
-			<h1>Something went wrong</h1>
-			<p class="description">
-				Oops! Something broke on our end. We&rsquo;re looking into it &mdash; please
-				try again in a moment.
-			</p>
+			<h1>{{errors.serverError}}</h1>
+			<p class="description">{{errors.serverErrorDescription}}</p>
 			<span class="raw-message" id="raw-message">%sveltekit.error.message%</span>
 			<a class="home-link" href="/">
 				<svg
@@ -213,7 +219,7 @@
 					<path d="m12 19-7-7 7-7" />
 					<path d="M19 12H5" />
 				</svg>
-				Go to homepage
+				{{errors.goHome}}
 			</a>
 			<button type="button" class="error-id-btn" id="error-id-btn" onclick="copyErrorId()">
 				<!-- Copy icon (lucide copy) -->
@@ -250,6 +256,9 @@
 		</div>
 		<script>
 			(function () {
+				var ERROR_ID_PREFIX = '{{errors.errorIdPrefix}}';
+				var COPIED_TEXT = '{{errors.copied}}';
+
 				var raw = document.getElementById('raw-message');
 				if (!raw) return;
 				var text = raw.textContent || '';
@@ -259,47 +268,63 @@
 				var btn = document.getElementById('error-id-btn');
 				var label = document.getElementById('error-id-text');
 				if (!btn || !label) return;
-				label.textContent = 'Reference: ' + errorId;
+				label.textContent = ERROR_ID_PREFIX + errorId;
 				btn.style.display = 'flex';
 				btn.setAttribute('data-error-id', errorId);
-			})();
 
-			var _copyTimeout;
-			function applyFadeIn(el) {
-				el.classList.remove('fade-in');
-				void el.offsetWidth;
-				el.classList.add('fade-in');
-			}
-			function copyErrorId() {
-				var btn = document.getElementById('error-id-btn');
-				if (!btn) return;
-				var id = btn.getAttribute('data-error-id');
-				if (!id) return;
-				var copyIcon = document.getElementById('copy-icon');
-				var checkIcon = document.getElementById('check-icon');
-				var label = document.getElementById('error-id-text');
-				if (!copyIcon || !checkIcon || !label) return;
-
-				if (navigator.clipboard) {
-					navigator.clipboard.writeText(id);
+				var _copyTimeout;
+				function applyFadeIn(el) {
+					el.classList.remove('fade-in');
+					void el.offsetWidth;
+					el.classList.add('fade-in');
 				}
-				copyIcon.style.display = 'none';
-				checkIcon.style.display = 'block';
-				label.textContent = 'Copied!';
-				label.className = 'copied-text';
-				applyFadeIn(checkIcon);
-				applyFadeIn(label);
 
-				clearTimeout(_copyTimeout);
-				_copyTimeout = setTimeout(function () {
-					copyIcon.style.display = 'block';
-					checkIcon.style.display = 'none';
-					label.textContent = 'Reference: ' + id;
-					label.className = '';
-					applyFadeIn(copyIcon);
+				// Clipboard with legacy fallback for insecure contexts / older browsers
+				function copyToClipboard(str) {
+					if (navigator.clipboard && navigator.clipboard.writeText) {
+						try {
+							navigator.clipboard.writeText(str);
+							return;
+						} catch (e) {
+							/* fall through */
+						}
+					}
+					var ta = document.createElement('textarea');
+					ta.value = str;
+					ta.style.position = 'fixed';
+					ta.style.opacity = '0';
+					document.body.appendChild(ta);
+					ta.select();
+					document.execCommand('copy');
+					document.body.removeChild(ta);
+				}
+
+				window.copyErrorId = function () {
+					var id = btn.getAttribute('data-error-id');
+					if (!id) return;
+					var copyIcon = document.getElementById('copy-icon');
+					var checkIcon = document.getElementById('check-icon');
+					if (!copyIcon || !checkIcon) return;
+
+					copyToClipboard(id);
+					copyIcon.style.display = 'none';
+					checkIcon.style.display = 'block';
+					label.textContent = COPIED_TEXT;
+					label.className = 'copied-text';
+					applyFadeIn(checkIcon);
 					applyFadeIn(label);
-				}, 2000);
-			}
+
+					clearTimeout(_copyTimeout);
+					_copyTimeout = setTimeout(function () {
+						copyIcon.style.display = 'block';
+						checkIcon.style.display = 'none';
+						label.textContent = ERROR_ID_PREFIX + id;
+						label.className = '';
+						applyFadeIn(copyIcon);
+						applyFadeIn(label);
+					}, 2000);
+				};
+			})();
 		</script>
 	</body>
 </html>

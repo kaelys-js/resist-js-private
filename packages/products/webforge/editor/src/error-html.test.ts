@@ -46,17 +46,17 @@ describe('error.html static fallback', () => {
 		expect(errorHtml).toContain('href="/manifest.webmanifest"');
 	});
 
-	it('contains title with friendly text and app name', () => {
-		expect(errorHtml).toContain('Something went wrong');
-		expect(errorHtml).toContain('Storyline');
+	it('contains title with error and app name placeholders', () => {
+		expect(errorHtml).toContain('{{errors.serverError}}');
+		expect(errorHtml).toContain('{{APP_NAME}}');
 	});
 
 	it('contains sveltekit.error.message placeholder', () => {
 		expect(errorHtml).toContain('%sveltekit.error.message%');
 	});
 
-	it('contains Go to homepage link', () => {
+	it('contains Go to homepage link placeholder', () => {
 		expect(errorHtml).toContain('href="/"');
-		expect(errorHtml).toContain('Go to homepage');
+		expect(errorHtml).toContain('{{errors.goHome}}');
 	});
 });

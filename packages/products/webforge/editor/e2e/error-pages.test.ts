@@ -387,6 +387,70 @@ test.describe('Error pages', () => {
 		});
 	});
 
+	test.describe('Build-time template replacements (error.html)', () => {
+		test('no raw {{placeholders}} remain in rendered page', async ({ page }) => {
+			await page.goto('/test-error/catastrophic');
+			const html: string = await page.content();
+			expect(html).not.toContain('{{');
+			expect(html).not.toContain('}}');
+		});
+
+		test('APP_NAME is resolved to Storyline in title', async ({ page }) => {
+			await page.goto('/test-error/catastrophic');
+			await expect(page).toHaveTitle(/Storyline/);
+		});
+
+		test('heading text comes from errors.serverError locale', async ({ page }) => {
+			await page.goto('/test-error/catastrophic');
+			await expect(page.locator('h1')).toHaveText('Something went wrong');
+		});
+
+		test('description text comes from errors.serverErrorDescription locale', async ({ page }) => {
+			await page.goto('/test-error/catastrophic');
+			const desc = page.locator('.description');
+			await expect(desc).toBeVisible();
+			await expect(desc).toContainText(/looking into it/i);
+		});
+
+		test('homepage link text comes from errors.goHome locale', async ({ page }) => {
+			await page.goto('/test-error/catastrophic');
+			await expect(page.locator('a[href="/"]')).toHaveText(/Go to homepage/);
+		});
+
+		test('error ID prefix comes from errors.errorId locale', async ({ page }) => {
+			await page.goto('/test-error/catastrophic');
+			const btn = page.locator('.error-id-btn');
+			await expect(btn).toBeVisible();
+			await expect(btn).toContainText(/^Reference: /);
+		});
+
+		test('copied text comes from errors.copied locale', async ({ page, context }) => {
+			await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+			await page.goto('/test-error/catastrophic');
+			const btn = page.locator('.error-id-btn');
+			await expect(btn).toBeVisible();
+			await btn.click();
+			await expect(btn).toContainText('Copied!');
+		});
+
+		test('FONT_FAMILIES is resolved in body style', async ({ page }) => {
+			await page.goto('/test-error/catastrophic');
+			const fontFamily: string = await page.evaluate(
+				() => window.getComputedStyle(document.body).fontFamily,
+			);
+			expect(fontFamily).toContain('Inter');
+		});
+
+		test('@font-face CSS is inlined from FONT_FACES config', async ({ page }) => {
+			await page.goto('/test-error/catastrophic');
+			const styleContent: string = (await page.locator('style').textContent()) ?? '';
+			expect(styleContent).toContain('@font-face');
+			expect(styleContent).toContain('/fonts/inter-latin.woff2');
+			expect(styleContent).toContain('/fonts/rajdhani-latin-600.woff2');
+			expect(styleContent).toContain('/fonts/rajdhani-latin-700.woff2');
+		});
+	});
+
 	test.describe('ErrorId consistency', () => {
 		test('Svelte: x-error-id header matches data-error-id on page', async ({ page }) => {
 			const response = await page.goto('/test-error/unexpected');
