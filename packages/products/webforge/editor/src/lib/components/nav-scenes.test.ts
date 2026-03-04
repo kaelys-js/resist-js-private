@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import NavScenesTest from './NavScenesTest.svelte';
 
-describe('NavScenes', () => {
+describe('NavScenes — expanded sidebar', () => {
 	it('renders scene titles', () => {
 		render(NavScenesTest);
 		expect(screen.getByText('Overworld')).toBeInTheDocument();
@@ -23,5 +23,23 @@ describe('NavScenes', () => {
 		render(NavScenesTest);
 		const moreButtons: HTMLElement[] = screen.getAllByText('More');
 		expect(moreButtons).toHaveLength(2);
+	});
+});
+
+describe('NavScenes — collapsed sidebar', () => {
+	it('renders popover trigger with menu button when collapsed', () => {
+		const { container } = render(NavScenesTest, { props: { collapsed: true } });
+		const menuButtons: NodeListOf<Element> = container.querySelectorAll(
+			'[data-sidebar="menu-button"]',
+		);
+		expect(menuButtons.length).toBeGreaterThanOrEqual(1);
+	});
+
+	it('does not render collapsible group label when collapsed', () => {
+		const { container } = render(NavScenesTest, { props: { collapsed: true } });
+		const groupLabels: NodeListOf<Element> = container.querySelectorAll(
+			'[data-sidebar="group-label"]',
+		);
+		expect(groupLabels).toHaveLength(0);
 	});
 });
