@@ -78,8 +78,8 @@ describe('+error.svelte integration logic', () => {
 
 	it('error title format includes error name and app name', () => {
 		const errorTitle = 'Page not found';
-		const appName = 'WebForge';
+		const appName = 'Storyline';
 		const title = `${errorTitle} | ${appName}`;
-		expect(title).toBe('Page not found | WebForge');
+		expect(title).toBe('Page not found | Storyline');
 	});
 });

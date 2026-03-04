@@ -197,7 +197,7 @@ function resetAll(): void {
 	// Reset toolbar position to center-bottom
 	try {
 		localStorage.removeItem(POS_KEY);
-		localStorage.removeItem('webforge:sidebar-px');
+		localStorage.removeItem('app:sidebar-px');
 	} catch (_) {
 		/* noop */
 	}

@@ -1,11 +1,12 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { createDevtoolsAPI, DEVTOOLS_KEY, type EditorDevtools } from './devtools-api.svelte';
+import { APP_NAME } from '$lib/config/app-meta';
 
 const okVoid = () => ({ ok: true as const, data: undefined, error: null });
 
 const createMockEditorStore = () => ({
 	app: {
-		appName: 'WebForge' as const,
+		appName: APP_NAME,
 		theme: '' as
 			| ''
 			| 'midnight'
@@ -312,7 +313,7 @@ describe('devtools meta', () => {
 	it('exposes appName', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
 		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
-		expect(devtools.appName).toBe('WebForge');
+		expect(devtools.appName).toBe(APP_NAME);
 		api.destroy();
 	});
 

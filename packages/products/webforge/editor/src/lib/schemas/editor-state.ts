@@ -1,4 +1,5 @@
 import * as v from 'valibot';
+import { APP_NAME } from '$lib/config/app-meta';
 
 /**
  * Supported locale codes for the editor UI.
@@ -33,7 +34,7 @@ export const SUPPORTED_MODES = ['light', 'dark', 'system'] as const;
  * Persisted to localStorage.
  */
 export const AppPreferencesSchema = v.strictObject({
-	appName: v.optional(v.pipe(v.string(), v.minLength(1)), 'WebForge'),
+	appName: v.optional(v.pipe(v.string(), v.minLength(1)), APP_NAME),
 	theme: v.optional(v.picklist(SUPPORTED_THEMES), ''),
 	mode: v.optional(v.picklist(SUPPORTED_MODES), 'system'),
 	locale: v.optional(v.picklist(SUPPORTED_LOCALES), 'en'),

@@ -10,8 +10,7 @@ import { messageTemplate } from '@/locale/template';
  */
 export const EditorLocaleSchema = v.strictObject({
 	meta: v.strictObject({
-		description: messageTemplate(),
-		applicationName: messageTemplate(),
+		description: messageTemplate({ appName: v.string() }),
 	}),
 	common: v.strictObject({
 		settings: messageTemplate(),
@@ -57,7 +56,7 @@ export const EditorLocaleSchema = v.strictObject({
 	}),
 	project: v.strictObject({
 		openProject: messageTemplate(),
-		webforgeProject: messageTemplate(),
+		project: messageTemplate(),
 	}),
 	scenes: v.strictObject({
 		rename: messageTemplate(),

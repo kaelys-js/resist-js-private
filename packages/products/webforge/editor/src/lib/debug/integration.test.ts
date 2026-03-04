@@ -16,6 +16,7 @@ import { createDevtoolsAPI, DEVTOOLS_KEY, type EditorDevtools } from './devtools
 import { activateDebugServices, syncDebugServices, type DebugServicesHandle } from './init.svelte';
 import { diffSnapshot, formatTimestamp } from './console-styles';
 import { shouldLog } from './state-logger.svelte';
+import { APP_NAME } from '$lib/config/app-meta';
 
 // Mock state-logger to avoid $effect in tests
 vi.mock('./state-logger.svelte', async () => {
@@ -32,7 +33,7 @@ const okVoid = () => ({ ok: true as const, data: undefined, error: null });
 
 const createMockEditorStore = () => ({
 	app: {
-		appName: 'WebForge' as const,
+		appName: APP_NAME,
 		theme: '' as
 			| ''
 			| 'midnight'
@@ -386,7 +387,7 @@ describe('devtools API state inspection', () => {
 		expect(devtools.state.app.locale).toBe('en');
 		expect(devtools.state.app.mode).toBe('system');
 		expect(devtools.state.app.sidebarOpen).toBe(true);
-		expect(devtools.state.app.appName).toBe('WebForge');
+		expect(devtools.state.app.appName).toBe(APP_NAME);
 		expect(devtools.state.features.settings).toBe(true);
 		expect(devtools.state.features.resizableSidebar).toBe(true);
 		expect(devtools.state.debug.enabled).toBe(true);
@@ -412,7 +413,7 @@ describe('devtools API state inspection', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
 		const devtools = window.__EDITOR_DEVTOOLS__!;
 
-		expect(devtools.appName).toBe('WebForge');
+		expect(devtools.appName).toBe(APP_NAME);
 		expect(devtools.version).toBe('0.1.0');
 
 		api.destroy();
@@ -755,7 +756,7 @@ describe('welcome banner', () => {
 			(args: unknown[]) =>
 				typeof args[0] === 'string' &&
 				args[0].includes('[Debug]') &&
-				args.some((arg: unknown) => arg === 'WebForge'),
+				args.some((arg: unknown) => arg === APP_NAME),
 		);
 		expect(headerCall).toBeDefined();
 		handle.destroy();

@@ -2,8 +2,7 @@ import type { EditorLocaleRaw } from './schema';
 
 export const fr: EditorLocaleRaw = {
 	meta: {
-		description: 'WebForge RPG — Suite de création de jeux HD-2D',
-		applicationName: 'WebForge',
+		description: '{appName} — Suite de création de jeux HD-2D',
 	},
 	common: {
 		settings: 'Paramètres',
@@ -49,7 +48,7 @@ export const fr: EditorLocaleRaw = {
 	},
 	project: {
 		openProject: 'Ouvrir le projet',
-		webforgeProject: 'Projet',
+		project: 'Projet',
 	},
 	scenes: {
 		rename: 'Renommer la scène',

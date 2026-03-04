@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { localeStore, t } from './i18n.svelte';
+import { APP_NAME } from '$lib/config/app-meta';
+import type { Result } from '@/schemas/result/result';
 
 const SUPPORTED: readonly string[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
 
@@ -56,11 +58,15 @@ describe('localeStore.setLocale', () => {
 
 	it('switching locale changes t strings', () => {
 		localeStore.setLocale('en');
-		const enDesc: string = t(localeStore.t.meta.description, '');
+		const enDescFn = localeStore.t.meta.description as (p: { appName: string }) => Result<string>;
+		const enResult = enDescFn({ appName: APP_NAME });
+		const enDesc: string = enResult.ok ? enResult.data : '';
 		expect(enDesc).toContain('HD-2D');
 
 		localeStore.setLocale('ja');
-		const jaDesc: string = t(localeStore.t.meta.description, '');
+		const jaDescFn = localeStore.t.meta.description as (p: { appName: string }) => Result<string>;
+		const jaResult = jaDescFn({ appName: APP_NAME });
+		const jaDesc: string = jaResult.ok ? jaResult.data : '';
 		expect(jaDesc).toContain('HD-2D');
 		expect(jaDesc).not.toBe(enDesc);
 
@@ -101,7 +107,9 @@ describe('all locales produce valid translations', () => {
 	for (const code of SUPPORTED) {
 		it(`${code} meta.description returns non-empty string`, () => {
 			localeStore.setLocale(code);
-			const desc: string = t(localeStore.t.meta.description, '');
+			const descFn = localeStore.t.meta.description as (p: { appName: string }) => Result<string>;
+			const result = descFn({ appName: APP_NAME });
+			const desc: string = result.ok ? result.data : '';
 			expect(desc.length).toBeGreaterThan(0);
 		});
 
@@ -132,15 +140,18 @@ describe('all locales produce valid translations', () => {
 });
 
 // =============================================================================
-// applicationName consistency across locales
+// description contains app name across locales
 // =============================================================================
 
-describe('applicationName consistency', () => {
+describe('description contains app name', () => {
 	for (const code of SUPPORTED) {
-		it(`${code} meta.applicationName is 'WebForge'`, () => {
+		it(`${code} meta.description contains APP_NAME`, () => {
 			localeStore.setLocale(code);
-			const name: string = t(localeStore.t.meta.applicationName, '');
-			expect(name).toBe('WebForge');
+			const descFn = localeStore.t.meta.description as (p: { appName: string }) => Result<string>;
+			const result = descFn({ appName: APP_NAME });
+			expect(result.ok).toBe(true);
+			if (!result.ok) return;
+			expect(result.data).toContain(APP_NAME);
 		});
 	}
 

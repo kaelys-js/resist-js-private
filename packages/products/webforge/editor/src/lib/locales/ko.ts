@@ -2,8 +2,7 @@ import type { EditorLocaleRaw } from './schema';
 
 export const ko: EditorLocaleRaw = {
 	meta: {
-		description: 'WebForge RPG — HD-2D 게임 제작 도구',
-		applicationName: 'WebForge',
+		description: '{appName} — HD-2D 게임 제작 도구',
 	},
 	common: {
 		settings: '설정',
@@ -49,7 +48,7 @@ export const ko: EditorLocaleRaw = {
 	},
 	project: {
 		openProject: '프로젝트 열기',
-		webforgeProject: '프로젝트',
+		project: '프로젝트',
 	},
 	scenes: {
 		rename: '씬 이름 변경',

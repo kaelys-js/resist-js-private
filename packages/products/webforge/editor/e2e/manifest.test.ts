@@ -24,16 +24,16 @@ test.describe('manifest.webmanifest', () => {
 		expect(() => JSON.parse(text)).not.toThrow();
 	});
 
-	test('name is WebForge', async ({ request }) => {
+	test('name is Storyline', async ({ request }) => {
 		const response = await request.get('/manifest.webmanifest');
 		const manifest = await response.json();
-		expect(manifest.name).toBe('WebForge');
+		expect(manifest.name).toBe('Storyline');
 	});
 
-	test('short_name is WebForge', async ({ request }) => {
+	test('short_name is Storyline', async ({ request }) => {
 		const response = await request.get('/manifest.webmanifest');
 		const manifest = await response.json();
-		expect(manifest.short_name).toBe('WebForge');
+		expect(manifest.short_name).toBe('Storyline');
 	});
 
 	test('description is non-empty', async ({ request }) => {
