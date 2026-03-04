@@ -4,7 +4,7 @@ test.describe('language switcher', () => {
 	test('opens user menu and shows language sub-menu', async ({ page }) => {
 		await page.goto('/');
 		// Click user menu in sidebar footer
-		const userButton = page.getByText('WebForge Project');
+		const userButton = page.getByText('Project');
 		await userButton.click();
 		// Language sub-trigger should appear
 		await expect(page.getByText('Language')).toBeVisible();
@@ -12,7 +12,7 @@ test.describe('language switcher', () => {
 
 	test('language sub-menu shows all 7 languages', async ({ page }) => {
 		await page.goto('/');
-		const userButton = page.getByText('WebForge Project');
+		const userButton = page.getByText('Project');
 		await userButton.click();
 		// Wait for dropdown to render, then hover Language sub-trigger
 		await expect(page.getByText('Language')).toBeVisible();
@@ -33,7 +33,7 @@ test.describe('language switcher', () => {
 		// Verify default is English
 		await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 		// Open user menu → Language → Japanese
-		await page.getByText('WebForge Project').click();
+		await page.getByText('Project').click();
 		await expect(page.getByText('Language')).toBeVisible();
 		await page.getByText('Language').hover();
 		await page.waitForTimeout(300);
@@ -44,7 +44,7 @@ test.describe('language switcher', () => {
 
 	test('switching language sets locale cookie', async ({ page }) => {
 		await page.goto('/');
-		await page.getByText('WebForge Project').click();
+		await page.getByText('Project').click();
 		await expect(page.getByText('Language')).toBeVisible();
 		await page.getByText('Language').hover();
 		await page.waitForTimeout(300);
@@ -57,7 +57,7 @@ test.describe('language switcher', () => {
 
 	test('language sub-menu shows dual display names (endonym + exonym)', async ({ page }) => {
 		await page.goto('/');
-		await page.getByText('WebForge Project').click();
+		await page.getByText('Project').click();
 		await expect(page.getByText('Language')).toBeVisible();
 		await page.getByText('Language').hover();
 		await page.waitForTimeout(300);
@@ -75,7 +75,7 @@ test.describe('language switcher', () => {
 	test('switching locale updates exonym language format', async ({ page }) => {
 		await page.goto('/');
 		// Switch to French
-		await page.getByText('WebForge Project').click();
+		await page.getByText('Project').click();
 		await expect(page.getByText('Language')).toBeVisible();
 		await page.getByText('Language').hover();
 		await page.waitForTimeout(300);
@@ -86,7 +86,7 @@ test.describe('language switcher', () => {
 
 		// Re-open language sub-menu — trigger text is now in French
 		// Use .first() because Bits UI popover may still have a duplicate text node
-		await page.getByText('WebForge Project').first().click();
+		await page.getByText('Project').first().click();
 		const langTrigger = page.locator('[role="menuitem"]').filter({ hasText: /Langue|Language/ });
 		await expect(langTrigger).toBeVisible();
 		await langTrigger.hover();

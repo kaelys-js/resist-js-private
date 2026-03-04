@@ -380,11 +380,10 @@ test.describe('Error pages', () => {
 
 		test('has favicon links', async ({ page }) => {
 			await page.goto('/test-error/catastrophic');
+			await expect(page.locator('link[rel="icon"][sizes="32x32"]')).toBeAttached();
 			await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toBeAttached();
-			await expect(
-				page.locator('link[rel="icon"][type="image/png"][sizes="32x32"]'),
-			).toBeAttached();
-			await expect(page.locator('link[rel="apple-touch-icon"][sizes="180x180"]')).toBeAttached();
+			await expect(page.locator('link[rel="apple-touch-icon"]')).toBeAttached();
+			await expect(page.locator('link[rel="manifest"]')).toBeAttached();
 		});
 	});
 

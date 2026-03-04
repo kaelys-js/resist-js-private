@@ -53,7 +53,7 @@ export const zh: EditorLocaleRaw = {
 	},
 	project: {
 		openProject: '打开项目',
-		webforgeProject: 'WebForge项目',
+		webforgeProject: '项目',
 	},
 	scenes: {
 		rename: '重命名场景',

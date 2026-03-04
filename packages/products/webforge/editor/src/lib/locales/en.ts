@@ -53,7 +53,7 @@ export const en: EditorLocaleRaw = {
 	},
 	project: {
 		openProject: 'Open Project',
-		webforgeProject: 'WebForge Project',
+		webforgeProject: 'Project',
 	},
 	scenes: {
 		rename: 'Rename Scene',

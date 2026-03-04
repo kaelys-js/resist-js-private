@@ -53,7 +53,7 @@ export const ko: EditorLocaleRaw = {
 	},
 	project: {
 		openProject: '프로젝트 열기',
-		webforgeProject: 'WebForge 프로젝트',
+		webforgeProject: '프로젝트',
 	},
 	scenes: {
 		rename: '씬 이름 변경',

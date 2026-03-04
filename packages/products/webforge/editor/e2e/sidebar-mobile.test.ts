@@ -53,7 +53,7 @@ test.describe('mobile sidebar — open/close/toggle', () => {
 		await expect(mobileSidebar.getByText('Tilesets')).toBeVisible();
 
 		// Footer
-		await expect(mobileSidebar.getByText('WebForge Project')).toBeVisible();
+		await expect(mobileSidebar.getByText('Project')).toBeVisible();
 	});
 
 	test('clicking overlay closes mobile sidebar', async ({ page }) => {

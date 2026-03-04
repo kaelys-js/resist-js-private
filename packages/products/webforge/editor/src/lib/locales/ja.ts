@@ -53,7 +53,7 @@ export const ja: EditorLocaleRaw = {
 	},
 	project: {
 		openProject: 'プロジェクトを開く',
-		webforgeProject: 'WebForgeプロジェクト',
+		webforgeProject: 'プロジェクト',
 	},
 	scenes: {
 		rename: 'シーン名を変更',
