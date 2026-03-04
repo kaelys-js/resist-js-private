@@ -61,8 +61,6 @@
 				margin: 0;
 				background: var(--background);
 				color: var(--foreground);
-				user-select: none;
-				-webkit-touch-callout: none;
 				touch-action: manipulation;
 			}
 			.container {
@@ -139,6 +137,7 @@
 				justify-content: center;
 				gap: 0.375rem;
 				height: 1.75rem;
+				min-width: 1.5rem;
 				margin: 2rem auto 0;
 				padding: 0 0.625rem;
 				font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
@@ -150,6 +149,8 @@
 				cursor: pointer;
 				transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
 				user-select: text;
+				overflow-wrap: break-word;
+				max-width: 100%;
 			}
 			.error-id-btn:hover {
 				color: var(--foreground);
@@ -178,33 +179,77 @@
 			.raw-message {
 				display: none;
 			}
+			/* Screen-reader only — visually hidden but announced by AT */
+			.sr-only {
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				padding: 0;
+				margin: -1px;
+				overflow: hidden;
+				clip: rect(0, 0, 0, 0);
+				white-space: nowrap;
+				border-width: 0;
+			}
+			/* WCAG 2.4.7 — visible focus indicator for keyboard navigation */
+			.home-link:focus-visible,
+			.error-id-btn:focus-visible {
+				outline: 2px solid var(--foreground);
+				outline-offset: 2px;
+			}
+			/* WCAG 2.3.3 — respect reduced motion preference */
+			@media (prefers-reduced-motion: reduce) {
+				*,
+				*::before,
+				*::after {
+					animation-duration: 0.01ms !important;
+					animation-iteration-count: 1 !important;
+					transition-duration: 0.01ms !important;
+				}
+			}
+			/* Windows High Contrast / forced-colors support */
+			@media (forced-colors: active) {
+				.home-link {
+					border: 1px solid ButtonText;
+				}
+				.error-id-btn:hover {
+					border-color: ButtonText;
+				}
+				.icon svg {
+					color: LinkText;
+				}
+			}
 		</style>
 	</head>
 	<body>
-		<div class="container" role="alert">
-			<div class="icon" aria-hidden="true">
-				<!-- Inline SVG: lucide server-crash icon -->
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				>
-					<path
-						d="M6 10H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"
-					/>
-					<path
-						d="M6 14H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2"
-					/>
-					<path d="M6 6h.01" />
-					<path d="M6 18h.01" />
-					<path d="m13 6-4 6h6l-4 6" />
-				</svg>
+		<main class="container">
+			<div role="alert" aria-atomic="true">
+				<div class="icon" aria-hidden="true">
+					<!-- Inline SVG: lucide server-crash icon -->
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+						focusable="false"
+					>
+						<path
+							d="M6 10H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"
+						/>
+						<path
+							d="M6 14H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2"
+						/>
+						<path d="M6 6h.01" />
+						<path d="M6 18h.01" />
+						<path d="m13 6-4 6h6l-4 6" />
+					</svg>
+				</div>
+				<h1>{{errors.serverError}}</h1>
+				<p class="description">{{errors.serverErrorDescription}}</p>
 			</div>
-			<h1>{{errors.serverError}}</h1>
-			<p class="description">{{errors.serverErrorDescription}}</p>
 			<span class="raw-message" id="raw-message">%sveltekit.error.message%</span>
 			<a class="home-link" href="/">
 				<svg
@@ -215,13 +260,21 @@
 					stroke-width="2"
 					stroke-linecap="round"
 					stroke-linejoin="round"
+					aria-hidden="true"
+					focusable="false"
 				>
 					<path d="m12 19-7-7 7-7" />
 					<path d="M19 12H5" />
 				</svg>
 				{{errors.goHome}}
 			</a>
-			<button type="button" class="error-id-btn" id="error-id-btn" onclick="copyErrorId()">
+			<button
+				type="button"
+				class="error-id-btn"
+				id="error-id-btn"
+				aria-label="{{errors.copyErrorId}}"
+				onclick="copyErrorId()"
+			>
 				<!-- Copy icon (lucide copy) -->
 				<svg
 					id="copy-icon"
@@ -232,6 +285,8 @@
 					stroke-width="2"
 					stroke-linecap="round"
 					stroke-linejoin="round"
+					aria-hidden="true"
+					focusable="false"
 				>
 					<rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
 					<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
@@ -248,12 +303,16 @@
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					style="display: none"
+					aria-hidden="true"
+					focusable="false"
 				>
 					<path d="M20 6 9 17l-5-5" />
 				</svg>
 				<span id="error-id-text"></span>
 			</button>
-		</div>
+			<!-- Live region for clipboard feedback — must exist before interaction -->
+			<div id="copy-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+		</main>
 		<script>
 			(function () {
 				var ERROR_ID_PREFIX = '{{errors.errorIdPrefix}}';
@@ -299,6 +358,9 @@
 					document.body.removeChild(ta);
 				}
 
+				var copyStatus = document.getElementById('copy-status');
+				var COPY_LABEL = btn.getAttribute('aria-label') || '';
+
 				window.copyErrorId = function () {
 					var id = btn.getAttribute('data-error-id');
 					if (!id) return;
@@ -314,6 +376,10 @@
 					applyFadeIn(checkIcon);
 					applyFadeIn(label);
 
+					// Announce to screen readers via live region
+					if (copyStatus) copyStatus.textContent = COPIED_TEXT;
+					btn.setAttribute('aria-label', COPIED_TEXT);
+
 					clearTimeout(_copyTimeout);
 					_copyTimeout = setTimeout(function () {
 						copyIcon.style.display = 'block';
@@ -322,6 +388,10 @@
 						label.className = '';
 						applyFadeIn(copyIcon);
 						applyFadeIn(label);
+
+						// Restore original aria-label and clear live region
+						btn.setAttribute('aria-label', COPY_LABEL);
+						if (copyStatus) copyStatus.textContent = '';
 					}, 2000);
 				};
 			})();

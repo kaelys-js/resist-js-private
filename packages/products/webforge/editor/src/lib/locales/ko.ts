@@ -134,5 +134,6 @@ export const ko: EditorLocaleRaw = {
 		tryAgain: '다시 시도',
 		errorId: '참조: {id}',
 		copied: '복사됨!',
+		copyErrorId: '오류 ID를 클립보드에 복사',
 	},
 };

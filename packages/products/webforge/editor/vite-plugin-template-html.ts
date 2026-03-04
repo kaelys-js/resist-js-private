@@ -64,6 +64,7 @@ export function resolveErrorHtml(template: string): string {
 		'{{errors.serverErrorDescription}}': en.errors.serverErrorDescription,
 		'{{errors.goHome}}': en.errors.goHome,
 		'{{errors.copied}}': en.errors.copied,
+		'{{errors.copyErrorId}}': en.errors.copyErrorId,
 		'{{errors.errorIdPrefix}}': deriveErrorIdPrefix(en.errors.errorId),
 	};
 
