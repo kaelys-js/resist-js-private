@@ -173,6 +173,12 @@
 			.error-id-btn .copied-icon {
 				color: #22c55e;
 			}
+			.error-id-btn .error-text {
+				color: #ef4444;
+			}
+			.error-id-btn .error-icon {
+				color: #ef4444;
+			}
 			.error-id-btn .fade-in {
 				animation: fadeIn 150ms ease-out;
 			}
@@ -273,8 +279,7 @@
 				class="error-id-btn"
 				id="error-id-btn"
 				aria-label="{{errors.copyErrorId}}"
-				onclick="copyErrorId()"
-			>
+				>
 				<!-- Copy icon (lucide copy) -->
 				<svg
 					id="copy-icon"
@@ -308,15 +313,34 @@
 				>
 					<path d="M20 6 9 17l-5-5" />
 				</svg>
+				<!-- Error icon (lucide x) — shown on clipboard failure -->
+				<svg
+					id="error-icon"
+					class="error-icon"
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					style="display: none"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<path d="M18 6 6 18" />
+					<path d="m6 6 12 12" />
+				</svg>
 				<span id="error-id-text"></span>
 			</button>
 			<!-- Live region for clipboard feedback — must exist before interaction -->
 			<div id="copy-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 		</main>
 		<script>
-			(function () {
+			(function () { try {
 				var ERROR_ID_PREFIX = '{{errors.errorIdPrefix}}';
 				var COPIED_TEXT = '{{errors.copied}}';
+				var FAILED_TEXT = '{{errors.copyFailed}}';
 
 				var raw = document.getElementById('raw-message');
 				if (!raw) return;
@@ -339,61 +363,83 @@
 				}
 
 				// Clipboard with legacy fallback for insecure contexts / older browsers
-				function copyToClipboard(str) {
+				function copyToClipboard(str, onDone) {
 					if (navigator.clipboard && navigator.clipboard.writeText) {
-						try {
-							navigator.clipboard.writeText(str);
-							return;
-						} catch (e) {
-							/* fall through */
-						}
+						navigator.clipboard.writeText(str).then(
+							function () { onDone(true); },
+							function (e) {
+								console.error('[{{APP_NAME}}] Clipboard write failed:', e);
+								onDone(false);
+							}
+						);
+						return;
 					}
-					var ta = document.createElement('textarea');
-					ta.value = str;
-					ta.style.position = 'fixed';
-					ta.style.opacity = '0';
-					document.body.appendChild(ta);
-					ta.select();
-					document.execCommand('copy');
-					document.body.removeChild(ta);
+					try {
+						var ta = document.createElement('textarea');
+						ta.value = str;
+						ta.style.position = 'fixed';
+						ta.style.opacity = '0';
+						document.body.appendChild(ta);
+						ta.select();
+						var ok = document.execCommand('copy');
+						document.body.removeChild(ta);
+						if (!ok) console.error('[{{APP_NAME}}] execCommand copy returned false');
+						onDone(ok);
+					} catch (e) {
+						console.error('[{{APP_NAME}}] Clipboard fallback failed:', e);
+						onDone(false);
+					}
 				}
 
+				var copyIcon = document.getElementById('copy-icon');
+				var checkIcon = document.getElementById('check-icon');
+				var errorIcon = document.getElementById('error-icon');
 				var copyStatus = document.getElementById('copy-status');
 				var COPY_LABEL = btn.getAttribute('aria-label') || '';
 
-				window.copyErrorId = function () {
+				function hideAllIcons() {
+					if (copyIcon) copyIcon.style.display = 'none';
+					if (checkIcon) checkIcon.style.display = 'none';
+					if (errorIcon) errorIcon.style.display = 'none';
+				}
+
+				function resetState(id) {
+					hideAllIcons();
+					if (copyIcon) copyIcon.style.display = 'block';
+					label.textContent = ERROR_ID_PREFIX + id;
+					label.className = '';
+					applyFadeIn(copyIcon);
+					applyFadeIn(label);
+					btn.setAttribute('aria-label', COPY_LABEL);
+					if (copyStatus) copyStatus.textContent = '';
+				}
+
+				function showResult(id, success) {
+					hideAllIcons();
+					if (success) {
+						if (checkIcon) { checkIcon.style.display = 'block'; applyFadeIn(checkIcon); }
+						label.textContent = COPIED_TEXT;
+						label.className = 'copied-text';
+						if (copyStatus) copyStatus.textContent = COPIED_TEXT;
+						btn.setAttribute('aria-label', COPIED_TEXT);
+					} else {
+						if (errorIcon) { errorIcon.style.display = 'block'; applyFadeIn(errorIcon); }
+						label.textContent = FAILED_TEXT;
+						label.className = 'error-text';
+						if (copyStatus) copyStatus.textContent = FAILED_TEXT;
+						btn.setAttribute('aria-label', FAILED_TEXT);
+					}
+					applyFadeIn(label);
+					clearTimeout(_copyTimeout);
+					_copyTimeout = setTimeout(function () { resetState(id); }, 2000);
+				}
+
+				btn.addEventListener('click', function () {
 					var id = btn.getAttribute('data-error-id');
 					if (!id) return;
-					var copyIcon = document.getElementById('copy-icon');
-					var checkIcon = document.getElementById('check-icon');
-					if (!copyIcon || !checkIcon) return;
-
-					copyToClipboard(id);
-					copyIcon.style.display = 'none';
-					checkIcon.style.display = 'block';
-					label.textContent = COPIED_TEXT;
-					label.className = 'copied-text';
-					applyFadeIn(checkIcon);
-					applyFadeIn(label);
-
-					// Announce to screen readers via live region
-					if (copyStatus) copyStatus.textContent = COPIED_TEXT;
-					btn.setAttribute('aria-label', COPIED_TEXT);
-
-					clearTimeout(_copyTimeout);
-					_copyTimeout = setTimeout(function () {
-						copyIcon.style.display = 'block';
-						checkIcon.style.display = 'none';
-						label.textContent = ERROR_ID_PREFIX + id;
-						label.className = '';
-						applyFadeIn(copyIcon);
-						applyFadeIn(label);
-
-						// Restore original aria-label and clear live region
-						btn.setAttribute('aria-label', COPY_LABEL);
-						if (copyStatus) copyStatus.textContent = '';
-					}, 2000);
-				};
+					copyToClipboard(id, function (success) { showResult(id, success); });
+				});
+			} catch (e) { console.error('[{{APP_NAME}}] Error page script failed:', e); }
 			})();
 		</script>
 	</body>

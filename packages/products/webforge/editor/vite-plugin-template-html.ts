@@ -1,12 +1,13 @@
 /**
- * Vite plugin that templates error.html at build time.
+ * Vite plugins that template HTML files at build/dev time.
  *
- * Replaces `{{placeholders}}` in `src/error.html` with values from
- * `app-meta.ts` (app identity, font config) and `locales/en.ts`
- * (English error strings). The original template is restored after build.
+ * `templateErrorHtml` — Build-only. Replaces `{{placeholders}}` in
+ * `src/error.html` with values from `app-meta.ts` and `locales/en.ts`.
  *
- * In dev mode the plugin is a no-op — error.html is rarely triggered
- * during development and raw `{{placeholders}}` are acceptable.
+ * `templateAppHtml` — Build-only. Replaces `{{APP_NAME}}` in
+ * `src/app.html` with the app name from `app-meta.ts`.
+ *
+ * Both restore original template content after build or on process exit.
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -64,6 +65,7 @@ export function resolveErrorHtml(template: string): string {
 		'{{errors.serverErrorDescription}}': en.errors.serverErrorDescription,
 		'{{errors.goHome}}': en.errors.goHome,
 		'{{errors.copied}}': en.errors.copied,
+		'{{errors.copyFailed}}': en.errors.copyFailed,
 		'{{errors.copyErrorId}}': en.errors.copyErrorId,
 		'{{errors.errorIdPrefix}}': deriveErrorIdPrefix(en.errors.errorId),
 	};
@@ -75,7 +77,17 @@ export function resolveErrorHtml(template: string): string {
 	return result;
 }
 
-// ── Plugin ───────────────────────────────────────────────────────────────────
+/**
+ * Resolves `{{APP_NAME}}` in app.html template content.
+ *
+ * @param template - Raw app.html content with `{{APP_NAME}}`
+ * @returns Resolved HTML with placeholder replaced
+ */
+export function resolveAppHtml(template: string): string {
+	return template.replaceAll('{{APP_NAME}}', APP_NAME);
+}
+
+// ── Plugins ──────────────────────────────────────────────────────────────────
 
 /**
  * Vite plugin that templates `src/error.html` at build time.
@@ -107,13 +119,58 @@ export function templateErrorHtml(): Plugin {
 		apply: 'build',
 		enforce: 'pre',
 
-		config() {
+		config(_config, env) {
+			if (env.command !== 'build') return;
 			errorHtmlPath = resolve(import.meta.dirname ?? '.', 'src/error.html');
 			originalContent = readFileSync(errorHtmlPath, 'utf8');
 			const resolved = resolveErrorHtml(originalContent);
 			writeFileSync(errorHtmlPath, resolved, 'utf8');
 
 			// Safety net: restore on abrupt process exit (e.g. Ctrl+C, SIGTERM)
+			process.on('exit', restore);
+		},
+
+		closeBundle() {
+			restore();
+			process.removeListener('exit', restore);
+		},
+	};
+}
+
+/**
+ * Vite plugin that templates `src/app.html` at build time.
+ *
+ * Replaces `{{APP_NAME}}` so the meta tag and console.error prefix
+ * derive from `app-meta.ts` instead of being hardcoded.
+ *
+ * Build-only — in dev mode, raw `{{APP_NAME}}` is acceptable since
+ * the meta tag is cosmetic and the catch block rarely triggers.
+ *
+ * @returns Vite plugin instance
+ */
+export function templateAppHtml(): Plugin {
+	let originalContent: string | null = null;
+	let appHtmlPath = '';
+
+	function restore(): void {
+		if (originalContent !== null && appHtmlPath) {
+			writeFileSync(appHtmlPath, originalContent, 'utf8');
+			originalContent = null;
+		}
+	}
+
+	return {
+		name: 'template-app-html',
+		apply: 'build',
+		enforce: 'pre',
+
+		config(_config, env) {
+			if (env.command !== 'build') return;
+			appHtmlPath = resolve(import.meta.dirname ?? '.', 'src/app.html');
+			originalContent = readFileSync(appHtmlPath, 'utf8');
+			const resolved = resolveAppHtml(originalContent);
+			writeFileSync(appHtmlPath, resolved, 'utf8');
+
 			process.on('exit', restore);
 		},
 

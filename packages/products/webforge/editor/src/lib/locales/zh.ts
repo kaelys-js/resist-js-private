@@ -132,6 +132,7 @@ export const zh: EditorLocaleRaw = {
 		tryAgain: '重试',
 		errorId: '参考编号: {id}',
 		copied: '已复制！',
+		copyFailed: '复制失败',
 		copyErrorId: '将错误ID复制到剪贴板',
 	},
 };

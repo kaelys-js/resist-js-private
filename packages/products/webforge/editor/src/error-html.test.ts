@@ -114,3 +114,63 @@ describe('error.html WCAG accessibility', () => {
 		expect(errorHtml).not.toContain('user-scalable=no');
 	});
 });
+
+describe('error.html script robustness', () => {
+	it('does not expose globals via window assignment', () => {
+		expect(errorHtml).not.toContain('window.');
+	});
+
+	it('does not use inline onclick handlers', () => {
+		expect(errorHtml).not.toMatch(/onclick="/);
+	});
+
+	it('attaches click handler via addEventListener', () => {
+		expect(errorHtml).toContain("addEventListener('click'");
+	});
+
+	it('wraps entire IIFE body in try/catch', () => {
+		expect(errorHtml).toMatch(/\(function\s*\(\)\s*\{\s*try\s*\{/);
+	});
+
+	it('logs errors to console in outer catch', () => {
+		expect(errorHtml).toMatch(/catch\s*\([^)]+\)\s*\{\s*console\.error\(/);
+	});
+
+	it('has error X icon SVG for clipboard failure', () => {
+		expect(errorHtml).toContain('id="error-icon"');
+	});
+
+	it('error icon has aria-hidden and focusable attributes', () => {
+		const errorIconMatch: RegExpMatchArray | null = errorHtml.match(
+			/<svg[^>]*id="error-icon"[^>]*>/,
+		);
+		expect(errorIconMatch).not.toBeNull();
+		expect(errorIconMatch![0]).toContain('aria-hidden="true"');
+		expect(errorIconMatch![0]).toContain('focusable="false"');
+	});
+
+	it('has CSS for error state styling', () => {
+		expect(errorHtml).toContain('.error-icon');
+	});
+
+	it('copyToClipboard uses callback for success/failure', () => {
+		expect(errorHtml).toMatch(/function copyToClipboard\(str,\s*onDone\)/);
+	});
+
+	it('script has multiple console.error calls', () => {
+		const scriptMatch: RegExpMatchArray | null = errorHtml.match(/<script>([\s\S]*?)<\/script>/);
+		expect(scriptMatch).not.toBeNull();
+		const script: string = scriptMatch![1]!;
+		const errorCalls: RegExpMatchArray | null = script.match(/console\.error\(/g);
+		expect(errorCalls).not.toBeNull();
+		expect(errorCalls!.length).toBeGreaterThanOrEqual(2);
+	});
+
+	it('has copyFailed placeholder for error state text', () => {
+		expect(errorHtml).toContain('{{errors.copyFailed}}');
+	});
+
+	it('console error prefix uses APP_NAME placeholder', () => {
+		expect(errorHtml).toContain("'[{{APP_NAME}}]");
+	});
+});

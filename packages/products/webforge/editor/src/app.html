@@ -8,16 +8,17 @@
 		<meta name="format-detection" content="telephone=no" />
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-		<meta name="apple-mobile-web-app-title" content="Storyline" />
+		<meta name="apple-mobile-web-app-title" content="{{APP_NAME}}" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.ico" sizes="32x32" />
 		<link rel="icon" type="image/svg+xml" href="%sveltekit.assets%/favicon.svg" />
 		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
 		<link rel="manifest" href="/manifest.webmanifest" />
 		<script>
-			(function () {
+			(function () { try {
 				var m = localStorage.getItem('mode-watcher-mode');
 				var dark = m === 'dark' || (m !== 'light' && matchMedia('(prefers-color-scheme:dark)').matches);
 				if (dark) document.documentElement.classList.add('dark');
+			} catch (e) { console.error('[{{APP_NAME}}] Dark mode init failed:', e); }
 			})();
 		</script>
 		%sveltekit.head%
