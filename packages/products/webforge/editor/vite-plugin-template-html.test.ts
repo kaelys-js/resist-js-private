@@ -16,6 +16,16 @@ describe('templateErrorHtml plugin', () => {
 		const plugin = templateErrorHtml();
 		expect(plugin.apply).toBe('build');
 	});
+
+	it('enforces pre-ordering to run before SvelteKit', () => {
+		const plugin = templateErrorHtml();
+		expect(plugin.enforce).toBe('pre');
+	});
+
+	it('uses config hook instead of buildStart', () => {
+		const plugin = templateErrorHtml();
+		expect(plugin.config).toBeTypeOf('function');
+	});
 });
 
 describe('generateFontFaceCss', () => {
