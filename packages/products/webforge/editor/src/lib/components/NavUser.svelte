@@ -49,7 +49,7 @@ const monogram: string = $derived(
 								>—</span
 							>
 						</div>
-						<ChevronsUpDown class="ml-auto size-4" />
+						<ChevronsUpDown aria-hidden="true" class="ml-auto size-4" />
 					</Sidebar.MenuButton>
 				{/snippet}
 			</DropdownMenu.Trigger>
@@ -78,7 +78,7 @@ const monogram: string = $derived(
 				<DropdownMenu.Separator />
 				<DropdownMenu.Group>
 					<DropdownMenu.Item>
-						<Folder class="mr-2 size-4" />
+						<Folder aria-hidden="true" class="mr-2 size-4" />
 						{t(localeStore.t.project.openProject, 'Open Project')}
 					</DropdownMenu.Item>
 					{#if store.features.themeSelection}
@@ -89,7 +89,7 @@ const monogram: string = $derived(
 					{/if}
 					{#if store.features.projectDropdownSettings}
 						<DropdownMenu.Item>
-							<SettingsIcon class="mr-2 size-4" />
+							<SettingsIcon aria-hidden="true" class="mr-2 size-4" />
 							{t(localeStore.t.common.settings, 'Settings')}
 						</DropdownMenu.Item>
 					{/if}

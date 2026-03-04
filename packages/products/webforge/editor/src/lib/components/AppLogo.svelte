@@ -80,6 +80,17 @@ let { size = 24, class: className = '' }: { size?: number; class?: string } = $p
 		animation: logo-sparkle 1.4s 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 	}
 
+	@media (prefers-reduced-motion: reduce) {
+		.logo-img {
+			animation: none;
+			opacity: 1;
+		}
+		.logo-sparkle::after {
+			animation: none;
+			opacity: 0;
+		}
+	}
+
 	@keyframes logo-sparkle {
 		0% {
 			transform: translateX(0) skewX(-12deg);

@@ -15,6 +15,7 @@ import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 import { Button } from '$lib/components/ui/button/index.js';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
+import { announce } from '$lib/utils/announce.svelte';
 
 let { status, message, errorId }: { status: number; message: string; errorId?: string } = $props();
 
@@ -26,6 +27,7 @@ async function copyErrorId(): Promise<void> {
 	try {
 		await navigator.clipboard.writeText(errorId);
 		copied = true;
+		announce(t(localeStore.t.errors.copied, 'Copied!'));
 		clearTimeout(copyTimeout);
 		copyTimeout = setTimeout(() => {
 			copied = false;
@@ -125,12 +127,12 @@ const iconColor: string = $derived(iconColorMap[status] ?? 'text-muted-foregroun
 
 	<div class="mt-8 flex gap-3">
 		<Button variant="default" href="/">
-			<ArrowLeft size={16} />
+			<ArrowLeft aria-hidden="true" size={16} />
 			{goHomeLabel}
 		</Button>
 		{#if showTryAgain}
 			<Button variant="outline" onclick={() => window.location.reload()}>
-				<RotateCw size={16} />
+				<RotateCw aria-hidden="true" size={16} />
 				{tryAgainLabel}
 			</Button>
 		{/if}
@@ -146,6 +148,7 @@ const iconColor: string = $derived(iconColorMap[status] ?? 'text-muted-foregroun
 							type="button"
 							class="text-muted-foreground hover:text-foreground relative mt-8 inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md border border-transparent px-2.5 font-mono text-xs transition-all duration-200 hover:border-border hover:bg-muted/50"
 							onclick={copyErrorId}
+							aria-label={t(localeStore.t.errors.copyErrorId, 'Copy error ID to clipboard')}
 							data-error-id={errorId}
 						>
 							{#if copied}
@@ -153,7 +156,7 @@ const iconColor: string = $derived(iconColorMap[status] ?? 'text-muted-foregroun
 									class="inline-flex items-center gap-1.5 text-green-500"
 									in:fade={{ duration: 150 }}
 								>
-									<Check size={12} />
+									<Check aria-hidden="true" size={12} />
 									<span>{copiedLabel}</span>
 								</span>
 							{:else}
@@ -161,7 +164,7 @@ const iconColor: string = $derived(iconColorMap[status] ?? 'text-muted-foregroun
 									class="inline-flex items-center gap-1.5"
 									in:fade={{ duration: 150 }}
 								>
-									<Copy size={12} />
+									<Copy aria-hidden="true" size={12} />
 									<span>{errorIdLabel}</span>
 								</span>
 							{/if}

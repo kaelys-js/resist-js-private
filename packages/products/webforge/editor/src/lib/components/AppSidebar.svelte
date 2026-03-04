@@ -37,7 +37,7 @@ const user = {
 };
 </script>
 
-<Sidebar.Root variant="inset" collapsible="icon" {...restProps}>
+<Sidebar.Root variant="inset" collapsible="icon" aria-label={t(localeStore.t.common.sidebarLabel, 'Application sidebar')} {...restProps}>
 	<Sidebar.Header>
 		<Sidebar.Menu>
 			<Sidebar.MenuItem>

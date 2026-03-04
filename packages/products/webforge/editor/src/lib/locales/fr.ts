@@ -15,6 +15,10 @@ export const fr: EditorLocaleRaw = {
 		save: 'Enregistrer',
 		close: 'Fermer',
 		loading: 'Chargement…',
+		skipToContent: 'Aller au contenu principal',
+		toggleMode: 'Basculer le mode',
+		sidebarLabel: "Barre latérale de l'application",
+		more: 'Plus',
 	},
 	sidebar: {
 		scenes: 'Scènes',

@@ -15,6 +15,10 @@ export const ja: EditorLocaleRaw = {
 		save: '保存',
 		close: '閉じる',
 		loading: '読み込み中…',
+		skipToContent: 'メインコンテンツへスキップ',
+		toggleMode: 'モード切替',
+		sidebarLabel: 'アプリケーションサイドバー',
+		more: 'その他',
 	},
 	sidebar: {
 		scenes: 'シーン',

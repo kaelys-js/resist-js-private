@@ -35,32 +35,33 @@ const scenesLabel = $derived(t(localeStore.t.sidebar.scenes, 'Scenes'));
 			<Sidebar.MenuButton
 				tooltipContent={scene.title}
 				isActive={scene.isActive}
+				aria-current={scene.isActive ? 'page' : undefined}
 				size="sm"
 			>
-				<MapIcon />
+				<MapIcon aria-hidden="true" />
 				<span>{scene.title}</span>
 			</Sidebar.MenuButton>
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger>
 					{#snippet child({ props })}
 						<Sidebar.MenuAction showOnHover {...props}>
-							<MoreHorizontal />
-							<span class="sr-only">More</span>
+							<MoreHorizontal aria-hidden="true" />
+							<span class="sr-only">{t(localeStore.t.common.more, 'More')}</span>
 						</Sidebar.MenuAction>
 					{/snippet}
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content class="w-48 rounded-lg" side="bottom" align="end">
 					<DropdownMenu.Item>
-						<Pencil class="mr-2 size-4 text-muted-foreground" />
+						<Pencil aria-hidden="true" class="mr-2 size-4 text-muted-foreground" />
 						<span>{t(localeStore.t.scenes.rename, 'Rename')}</span>
 					</DropdownMenu.Item>
 					<DropdownMenu.Item>
-						<Copy class="mr-2 size-4 text-muted-foreground" />
+						<Copy aria-hidden="true" class="mr-2 size-4 text-muted-foreground" />
 						<span>{t(localeStore.t.scenes.duplicate, 'Duplicate')}</span>
 					</DropdownMenu.Item>
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item>
-						<Trash2 class="mr-2 size-4 text-muted-foreground" />
+						<Trash2 aria-hidden="true" class="mr-2 size-4 text-muted-foreground" />
 						<span>{t(localeStore.t.scenes.delete, 'Delete')}</span>
 					</DropdownMenu.Item>
 				</DropdownMenu.Content>
