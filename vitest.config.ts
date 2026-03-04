@@ -10,7 +10,7 @@ export default defineConfig({
 		globals: false,
 		restoreMocks: true,
 		isolate: true,
-		pool: 'threads',
+		pool: 'forks',
 		sequence: { shuffle: false },
 		passWithNoTests: true,
 		bail: 0,
@@ -123,6 +123,7 @@ export default defineConfig({
 						'$lib/*': 'packages/products/webforge/editor/src/lib/*',
 						'$app/environment':
 							'packages/products/webforge/editor/src/test-mocks/app-environment.ts',
+						'$app/state': 'packages/products/webforge/editor/src/test-mocks/app-state.ts',
 					},
 					server: {
 						deps: {

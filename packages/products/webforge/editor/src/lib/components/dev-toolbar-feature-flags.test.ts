@@ -1,16 +1,7 @@
 import { render, screen } from '@testing-library/svelte';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import DevToolbarFeatureFlagsTest from './DevToolbarFeatureFlagsTest.svelte';
 import { discoverFeatureFlags } from '$lib/debug/dev-toolbar-registry';
-
-beforeAll(() => {
-	// ScrollArea internals need ResizeObserver, which JSDOM lacks.
-	globalThis.ResizeObserver ??= class {
-		observe(): void {}
-		unobserve(): void {}
-		disconnect(): void {}
-	} as unknown as typeof ResizeObserver;
-});
 
 const flags = discoverFeatureFlags();
 
