@@ -1,31 +1,7 @@
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import DevToolbarTest from './DevToolbarTest.svelte';
-
-beforeAll(() => {
-	// ScrollArea + Tooltip internals need ResizeObserver, which JSDOM lacks.
-	globalThis.ResizeObserver ??= class {
-		observe(): void {}
-		unobserve(): void {}
-		disconnect(): void {}
-	} as unknown as typeof ResizeObserver;
-
-	// Svelte transitions use Element.animate(), which JSDOM lacks.
-	// eslint-disable-next-line no-undef -- Element is a global in browser environments
-	if (!Element.prototype.animate) {
-		// eslint-disable-next-line no-undef -- Element is a global in browser environments
-		Element.prototype.animate = function () {
-			const noop = {
-				finished: new Promise<void>((resolve) => {
-					resolve();
-				}),
-				cancel(): void {},
-			};
-			return noop as unknown as Animation;
-		};
-	}
-});
 
 /**
  * Helper to expand the toolbar and return the container + trigger.

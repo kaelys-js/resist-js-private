@@ -19,3 +19,30 @@ Object.defineProperty(window, 'matchMedia', {
 		dispatchEvent: () => false,
 	}),
 });
+
+// jsdom does not implement ResizeObserver — required by ScrollArea + Tooltip internals.
+// oxlint-disable-next-line no-empty-function -- intentional no-op mock methods
+globalThis.ResizeObserver ??= class {
+	// oxlint-disable-next-line no-empty-function -- intentional no-op for mock
+	observe(): void {}
+	// oxlint-disable-next-line no-empty-function -- intentional no-op for mock
+	unobserve(): void {}
+	// oxlint-disable-next-line no-empty-function -- intentional no-op for mock
+	disconnect(): void {}
+} as unknown as typeof ResizeObserver;
+
+// jsdom does not implement Element.prototype.animate — required by Svelte transitions.
+// oxlint-disable-next-line no-undef -- Element is a global in jsdom browser environment
+if (!Element.prototype.animate) {
+	// oxlint-disable-next-line no-undef -- Element is a global in jsdom browser environment
+	Element.prototype.animate = function () {
+		return {
+			finished: new Promise<void>((resolve) => {
+				resolve();
+			}),
+			// oxlint-disable-next-line no-empty-function -- intentional no-op for mock
+			cancel(): void {},
+			onfinish: null,
+		} as unknown as Animation;
+	};
+}

@@ -291,11 +291,57 @@ Key directives for Babylon.js compatibility: `wasm-unsafe-eval` (WebAssembly), `
 
 ## Testing
 
-All modules have colocated `.test.ts` files (2727+ tests total). Pure math modules use logic tests; modules touching Babylon.js use NullEngine integration tests. Test harness from `@/config/test/harness` provides temp dirs, console capture, async helpers, and fake clock.
+All modules have colocated `.test.ts` files (2753+ tests total). Pure math modules use logic tests; modules touching Babylon.js use NullEngine integration tests. Test harness from `@/config/test/harness` provides temp dirs, console capture, async helpers, and fake clock.
 
 ```bash
-pnpm qa:test           # Run all tests
-pnpm qa:type-check     # TypeScript type checking
-pnpm -w run qa:lint    # oxlint + Biome linting
+pnpm qa:test              # Run all unit tests (Vitest)
+pnpm qa:test:e2e          # Run E2E tests (Playwright)
+pnpm qa:type-check        # TypeScript type checking
+pnpm -w run qa:lint       # oxlint + Biome linting
 pnpm -w run qa:format:check  # Biome format check
 ```
+
+### Vitest Configuration
+
+A single root `vitest.config.ts` defines all test projects via the `projects` array (Vitest 4.x pattern — replaces deprecated `vitest.workspace.ts`):
+
+| Project | Root | Environment | Notes |
+|---------|------|-------------|-------|
+| schemas-common | `packages/shared/schemas/common` | node | |
+| schemas-result | `packages/shared/schemas/result` | node | |
+| schemas-function | `packages/shared/schemas/function` | node | |
+| schemas-generic | `packages/shared/schemas/generic` | node | |
+| utils-result | `packages/shared/utils/result` | node | |
+| utils-core | `packages/shared/utils/core` | node | |
+| locale | `packages/shared/locale` | node | |
+| runtime | `packages/products/webforge/runtime` | node | Babylon.js deps inlined |
+| plugin-api | `packages/products/webforge/plugin-api` | node | |
+| editor | `packages/products/webforge/editor` | jsdom | Svelte + shadcn-svelte |
+
+Root config uses `pool: 'forks'` (Vitest 4.x default, better SvelteKit/Babylon.js compatibility). Each project inherits root settings via `extends: true`.
+
+### Editor Test Setup
+
+The editor project uses `jsdom` environment with a shared setup file (`test-setup-component.ts`) that provides:
+
+- `@testing-library/jest-dom` matchers
+- `window.matchMedia` mock (required by shadcn-svelte Sidebar)
+- `ResizeObserver` polyfill (required by ScrollArea/Tooltip)
+- `Element.prototype.animate` polyfill (required by Svelte transitions)
+
+SvelteKit virtual module mocks live in `editor/src/test-mocks/`:
+
+- `app-environment.ts` — mocks `$app/environment` (`dev`, `browser`, `building`, `version`)
+- `app-state.ts` — mocks `$app/state` (`page`, `navigating`, `updated`)
+
+These are wired via `resolve.alias` in the root Vitest config's editor project.
+
+### Playwright Configuration
+
+E2E tests use Playwright (`editor/playwright.config.ts`) with a build+preview web server:
+
+- **Local**: 0 retries (don't mask flaky tests), list reporter
+- **CI**: 2 retries, html + github reporters
+- **Timeouts**: test 30s, expect 5s, action 10s, navigation 15s, web server 120s
+- **Failure artifacts**: screenshots on failure, video retained on failure
+- **Web server**: `pnpm build && pnpm preview --port 4173`, URL-based readiness check
