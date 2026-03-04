@@ -98,6 +98,29 @@ function onDragEnd(): void {
 	if (didDrag) savePos();
 }
 
+// ── Clamp position on viewport resize ─────────────────────────────────
+$effect(() => {
+	/**
+	 * Clamps toolbar position to visible bounds when viewport resizes.
+	 */
+	function onResize(): void {
+		const maxX: number = window.innerWidth - 24;
+		const maxB: number = window.innerHeight - 48;
+		let changed = false;
+		if (posX > maxX) {
+			posX = Math.max(24, maxX);
+			changed = true;
+		}
+		if (posBottom > maxB) {
+			posBottom = Math.max(8, maxB);
+			changed = true;
+		}
+		if (changed) savePos();
+	}
+	window.addEventListener('resize', onResize);
+	return () => window.removeEventListener('resize', onResize);
+});
+
 // ── Badge data ────────────────────────────────────────────────────────
 const flags = discoverFeatureFlags();
 const cycleThemeLabel: string = $derived(

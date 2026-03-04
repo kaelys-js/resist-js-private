@@ -215,3 +215,72 @@ test.describe('dev toolbar — quick actions', () => {
 		await expect(page.locator('[data-testid="toolbar-btn-mode"]')).toBeVisible();
 	});
 });
+
+// =============================================================================
+// Viewport resize — toolbar stays visible
+// =============================================================================
+
+test.describe('dev toolbar — viewport resize', () => {
+	test('toolbar clamps to visible area when viewport shrinks', async ({ page }) => {
+		// Start at a wide viewport
+		await page.setViewportSize({ width: 1200, height: 800 });
+
+		// Place toolbar near the right edge via localStorage before navigating
+		await page.goto('/');
+		await page.evaluate(() => {
+			localStorage.setItem('dev-toolbar-pos', JSON.stringify({ x: 1100, b: 16 }));
+		});
+
+		// Navigate with debug — toolbar loads at x=1100
+		await page.goto('/?wf.debug=true');
+		await page.locator('[data-testid="dev-toolbar-trigger"]').waitFor({ state: 'visible' });
+
+		// Shrink viewport so x=1100 is offscreen
+		await page.setViewportSize({ width: 600, height: 800 });
+
+		// Poll until the resize listener clamps posX — trigger should be within viewport
+		const trigger = page.locator('[data-testid="dev-toolbar-trigger"]');
+		await expect
+			.poll(async () => {
+				const box = await trigger.boundingBox();
+				return box ? box.x + box.width : 9999;
+			})
+			.toBeLessThanOrEqual(600);
+		await expect
+			.poll(async () => {
+				const box = await trigger.boundingBox();
+				return box ? box.x : -9999;
+			})
+			.toBeGreaterThanOrEqual(0);
+	});
+
+	test('toolbar clamps vertically when viewport height shrinks', async ({ page }) => {
+		await page.setViewportSize({ width: 1200, height: 800 });
+
+		await page.goto('/');
+		await page.evaluate(() => {
+			localStorage.setItem('dev-toolbar-pos', JSON.stringify({ x: 600, b: 700 }));
+		});
+
+		await page.goto('/?wf.debug=true');
+		await page.locator('[data-testid="dev-toolbar-trigger"]').waitFor({ state: 'visible' });
+
+		// Shrink height so bottom=700 is offscreen
+		await page.setViewportSize({ width: 1200, height: 400 });
+
+		// Poll until the resize listener clamps posBottom — trigger should be visible
+		const trigger = page.locator('[data-testid="dev-toolbar-trigger"]');
+		await expect
+			.poll(async () => {
+				const box = await trigger.boundingBox();
+				return box ? box.y + box.height : 9999;
+			})
+			.toBeLessThanOrEqual(400);
+		await expect
+			.poll(async () => {
+				const box = await trigger.boundingBox();
+				return box ? box.y : -9999;
+			})
+			.toBeGreaterThanOrEqual(0);
+	});
+});
