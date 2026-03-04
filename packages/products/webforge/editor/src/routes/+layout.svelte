@@ -229,14 +229,19 @@ const errorTitleMap: Record<number, () => string> = {
 	500: () => t(localeStore.t.errors.serverError, 'Something went wrong'),
 };
 
-const pageTitle: string = $derived.by(() => {
+// Breadcrumb segment for page title — mirrors SiteHeader's breadcrumb leaf.
+const breadcrumbSegment: string = $derived.by(() => {
 	if (page.error) {
 		const titleFn =
 			errorTitleMap[page.status] ?? (() => t(localeStore.t.errors.genericTitle, 'Error'));
-		return `${titleFn()} | ${store.app.appName}`;
+		return titleFn();
 	}
-	return store.app.appName;
+	return t(localeStore.t.header.scene, 'Scene');
 });
+
+const tagline: string = $derived(t(localeStore.t.meta.tagline, APP_TAGLINE));
+
+const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} - ${tagline}`);
 </script>
 
 <svelte:head>

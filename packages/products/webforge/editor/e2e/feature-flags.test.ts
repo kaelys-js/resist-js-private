@@ -159,7 +159,7 @@ test.describe('feature flags — combined', () => {
 		});
 
 		// Page should load without errors
-		await expect(page).toHaveTitle('Storyline');
+		await expect(page).toHaveTitle('Storyline - Scene - Your Story, Rendered');
 
 		// Header should still render (even if empty of controlled content)
 		const header = page.locator('header');

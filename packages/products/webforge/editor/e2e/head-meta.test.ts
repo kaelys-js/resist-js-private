@@ -32,9 +32,9 @@ test.describe('head meta — normal page (/)', () => {
 		await expect(robots).toHaveAttribute('content', /nofollow/);
 	});
 
-	test('title is Storyline', async ({ page }) => {
+	test('title includes app name, breadcrumb, and tagline', async ({ page }) => {
 		await page.goto('/');
-		await expect(page).toHaveTitle('Storyline');
+		await expect(page).toHaveTitle('Storyline - Scene - Your Story, Rendered');
 	});
 
 	test('description contains tagline', async ({ page }) => {
@@ -217,7 +217,7 @@ test.describe('head meta — error page (/test-error/404)', () => {
 
 	test('title includes error text and Storyline', async ({ page }) => {
 		await page.goto('/test-error/404');
-		await expect(page).toHaveTitle(/page not found.*Storyline/i);
+		await expect(page).toHaveTitle(/Storyline.*Page not found.*Your Story, Rendered/i);
 	});
 
 	test('description is inherited from layout', async ({ page }) => {

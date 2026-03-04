@@ -20,7 +20,7 @@ test.describe('Error pages', () => {
 
 		test('page title includes error text', async ({ page }) => {
 			await page.goto('/test-error/400');
-			await expect(page).toHaveTitle(/bad request.*Storyline/i);
+			await expect(page).toHaveTitle(/Storyline.*Bad request.*Your Story, Rendered/i);
 		});
 	});
 
@@ -43,7 +43,7 @@ test.describe('Error pages', () => {
 
 		test('page title includes error text', async ({ page }) => {
 			await page.goto('/test-error/403');
-			await expect(page).toHaveTitle(/access denied.*Storyline/i);
+			await expect(page).toHaveTitle(/Storyline.*Access denied.*Your Story, Rendered/i);
 		});
 	});
 
@@ -66,7 +66,7 @@ test.describe('Error pages', () => {
 
 		test('page title includes error text', async ({ page }) => {
 			await page.goto('/test-error/404');
-			await expect(page).toHaveTitle(/page not found.*Storyline/i);
+			await expect(page).toHaveTitle(/Storyline.*Page not found.*Your Story, Rendered/i);
 		});
 
 		test('nonexistent route shows 404 page', async ({ page }) => {
@@ -89,7 +89,7 @@ test.describe('Error pages', () => {
 
 		test('page title includes error text', async ({ page }) => {
 			await page.goto('/test-error/500');
-			await expect(page).toHaveTitle(/something went wrong.*Storyline/i);
+			await expect(page).toHaveTitle(/Storyline.*Something went wrong.*Your Story, Rendered/i);
 		});
 
 		test('homepage link navigates home from 500 page', async ({ page }) => {
@@ -146,18 +146,18 @@ test.describe('Error pages', () => {
 
 		test('title reverts to app name after navigating home from 404', async ({ page }) => {
 			await page.goto('/test-error/404');
-			await expect(page).toHaveTitle(/page not found/i);
+			await expect(page).toHaveTitle(/Page not found/i);
 			await page.getByRole('link', { name: /go to homepage/i }).click();
 			await expect(page).toHaveURL('/');
-			await expect(page).toHaveTitle('Storyline');
+			await expect(page).toHaveTitle('Storyline - Scene - Your Story, Rendered');
 		});
 
 		test('title reverts to app name after navigating home from 500', async ({ page }) => {
 			await page.goto('/test-error/500');
-			await expect(page).toHaveTitle(/something went wrong/i);
+			await expect(page).toHaveTitle(/Something went wrong/i);
 			await page.getByRole('link', { name: /go to homepage/i }).click();
 			await expect(page).toHaveURL('/');
-			await expect(page).toHaveTitle('Storyline');
+			await expect(page).toHaveTitle('Storyline - Scene - Your Story, Rendered');
 		});
 
 		test('og:title reverts after navigating home from error page', async ({ page }) => {
