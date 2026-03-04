@@ -17,6 +17,7 @@ import { initDebugStore } from '$lib/stores/debug-state.svelte';
 import { applyUrlOverrides } from '$lib/utils/url-params';
 import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
 import DevToolbar from '$lib/components/DevToolbar.svelte';
+import { THEME_COLORS } from '$lib/config/app-meta';
 
 const { children, data } = $props();
 
@@ -203,6 +204,9 @@ $effect(() => {
 	}
 });
 
+const themeColorLight: string = $derived(THEME_COLORS[store.app.theme]?.light ?? '#ffffff');
+const themeColorDark: string = $derived(THEME_COLORS[store.app.theme]?.dark ?? '#242424');
+
 const metaDescription = $derived(
 	t(localeStore.t.meta.description, 'WebForge RPG — HD-2D game creation suite'),
 );
@@ -233,8 +237,8 @@ const pageTitle: string = $derived.by(() => {
 	<title>{pageTitle}</title>
 	<meta name="description" content={metaDescription} />
 	<meta name="application-name" content={metaAppName} />
-	<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-	<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+	<meta name="theme-color" content={themeColorLight} media="(prefers-color-scheme: light)" />
+	<meta name="theme-color" content={themeColorDark} media="(prefers-color-scheme: dark)" />
 	<meta property="og:title" content={store.app.appName} />
 	<meta property="og:description" content={metaDescription} />
 	<meta property="og:type" content="website" />
