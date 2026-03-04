@@ -16,6 +16,7 @@ import { initEditorStore } from '$lib/stores/editor-state.svelte';
 import { initDebugStore } from '$lib/stores/debug-state.svelte';
 import { applyUrlOverrides } from '$lib/utils/url-params';
 import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
+import DevToolbar from '$lib/components/DevToolbar.svelte';
 
 const { children, data } = $props();
 
@@ -278,3 +279,7 @@ const pageTitle: string = $derived.by(() => {
 		</Sidebar.Inset>
 	{/if}
 </Sidebar.Provider>
+
+{#if browser && debugStore}
+	<DevToolbar />
+{/if}

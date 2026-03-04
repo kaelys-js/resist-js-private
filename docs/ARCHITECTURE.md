@@ -214,11 +214,31 @@ The editor includes a full debug system activated via URL params (`?wf.debug=tru
 
 ### Auto-Discovery
 
-The debug system uses Valibot schema introspection (`Schema.entries`) to auto-discover state fields and feature flags. Adding new fields to `AppPreferencesSchema` or `FeatureFlagsSchema` requires **zero changes** to the debug system — URL overrides, devtools API, and state logging pick them up automatically.
+The debug system uses Valibot schema introspection (`Schema.entries`) to auto-discover state fields and feature flags. Adding new fields to `AppPreferencesSchema` or `FeatureFlagsSchema` requires **zero changes** to the debug system — URL overrides, devtools API, state logging, and the Dev Toolbar pick them up automatically.
+
+### Dev Toolbar
+
+A floating Astro-style developer toolbar rendered at the bottom center of the viewport when debug mode is active. The toolbar provides in-browser control of all editor state without opening devtools.
+
+| Module | Path | Purpose |
+|--------|------|---------|
+| `dev-toolbar-registry.ts` | `debug/` | Schema introspection: discovers feature flags, app preferences, and debug fields from Valibot schemas at runtime |
+| `DevToolbar.svelte` | `components/` | Root toolbar: trigger pill, expandable icon bar, panel management, keyboard shortcuts |
+| `DevToolbarFeatureFlags.svelte` | `components/` | Feature flags panel: Switch per flag, search filter, Enable/Disable All, badge count |
+| `DevToolbarAppState.svelte` | `components/` | App preferences panel: auto-mapped Select/Switch/Input controls per field type |
+| `DevToolbarDebug.svelte` | `components/` | Debug panel: log level, quick actions (Log State, Log Features, Copy Debug URL), URL overrides display |
+
+**Keyboard shortcuts:**
+- `Ctrl+Shift+D` — toggle toolbar visibility (also enables debug mode if inactive)
+- `Escape` — close the active panel
+
+**Architecture:** The toolbar uses the same Valibot schema introspection as the devtools API. The `dev-toolbar-registry.ts` module walks `FeatureFlagsSchema.entries`, `AppPreferencesSchema.entries`, and `DebugStateSchema.entries` to determine field types (boolean → Switch, picklist → Select, string → Input), extract option lists, and read defaults. Adding a new field to any schema automatically creates a corresponding UI control in the toolbar — zero manual wiring required.
+
+**Styling:** The toolbar uses a fixed dark theme (zinc/slate colors) independent of the app's current theme, ensuring consistent readability regardless of light/dark mode.
 
 ## Testing
 
-All modules have colocated `.test.ts` files (2563+ tests total). Pure math modules use logic tests; modules touching Babylon.js use NullEngine integration tests. Test harness from `@/config/test/harness` provides temp dirs, console capture, async helpers, and fake clock.
+All modules have colocated `.test.ts` files (2727+ tests total). Pure math modules use logic tests; modules touching Babylon.js use NullEngine integration tests. Test harness from `@/config/test/harness` provides temp dirs, console capture, async helpers, and fake clock.
 
 ```bash
 pnpm qa:test           # Run all tests
