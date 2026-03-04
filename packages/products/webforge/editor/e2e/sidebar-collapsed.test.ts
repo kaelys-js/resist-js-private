@@ -73,11 +73,11 @@ test.describe('collapsed sidebar — state', () => {
 });
 
 // =============================================================================
-// Collapsed sidebar — tooltips
+// Collapsed sidebar — scenes popover
 // =============================================================================
 
-test.describe('collapsed sidebar — tooltips', () => {
-	test('hovering scene item in collapsed sidebar shows tooltip', async ({ page }) => {
+test.describe('collapsed sidebar — scenes popover', () => {
+	test('collapsed sidebar shows a map icon trigger for scenes', async ({ page }) => {
 		await page.goto('/');
 		await page.locator('body').click();
 
@@ -86,42 +86,81 @@ test.describe('collapsed sidebar — tooltips', () => {
 		const sidebar = page.locator('[data-slot="sidebar"]').first();
 		await expect(sidebar).toHaveAttribute('data-state', 'collapsed');
 
-		// Hover the first scene menu button (Overworld)
-		const sceneButton = page
-			.locator('[data-sidebar="menu-button"]')
-			.filter({ hasText: 'Overworld' });
-		await sceneButton.hover();
-
-		// Tooltip should appear with scene title
-		const tooltip = page.locator('[data-slot="tooltip-content"]');
-		await expect(tooltip).toBeVisible();
-		await expect(tooltip).toContainText('Overworld');
+		// The scenes popover trigger should be visible
+		const popoverTrigger = page.locator('[data-testid="scenes-popover-trigger"]');
+		await expect(popoverTrigger).toBeVisible();
 	});
 
-	test('tooltip disappears on mouse leave', async ({ page }) => {
+	test('clicking map icon opens scenes popover', async ({ page }) => {
 		await page.goto('/');
 		await page.locator('body').click();
 
 		// Collapse sidebar
 		await page.keyboard.press('ControlOrMeta+b');
-		await expect(page.locator('[data-slot="sidebar"]').first()).toHaveAttribute(
-			'data-state',
-			'collapsed',
-		);
+		const sidebar = page.locator('[data-slot="sidebar"]').first();
+		await expect(sidebar).toHaveAttribute('data-state', 'collapsed');
 
-		// Hover to show tooltip
-		const sceneButton = page
-			.locator('[data-sidebar="menu-button"]')
-			.filter({ hasText: 'Overworld' });
-		await sceneButton.hover();
-		const tooltip = page.locator('[data-slot="tooltip-content"]');
-		await expect(tooltip).toBeVisible();
+		// Click the popover trigger (first menu button in the sidebar content area)
+		const popoverTrigger = page.locator('[data-testid="scenes-popover-trigger"]');
+		await popoverTrigger.click();
 
-		// Move mouse away
-		await page.mouse.move(0, 0);
-		await expect(tooltip).not.toBeVisible();
+		// Popover should open with scene names
+		const popover = page.locator('[data-slot="popover-content"]');
+		await expect(popover).toBeVisible();
+		await expect(popover.getByText('Overworld')).toBeVisible();
+		await expect(popover.getByText('Dungeon B1')).toBeVisible();
+		await expect(popover.getByText('New Scene')).toBeVisible();
 	});
 
+	test('popover closes when clicking outside', async ({ page }) => {
+		await page.goto('/');
+		await page.locator('body').click();
+
+		// Collapse sidebar
+		await page.keyboard.press('ControlOrMeta+b');
+		const sidebar = page.locator('[data-slot="sidebar"]').first();
+		await expect(sidebar).toHaveAttribute('data-state', 'collapsed');
+
+		// Open popover
+		const popoverTrigger = page.locator('[data-testid="scenes-popover-trigger"]');
+		await popoverTrigger.click();
+		const popover = page.locator('[data-slot="popover-content"]');
+		await expect(popover).toBeVisible();
+
+		// Focus inside the popover, then press Escape to dismiss
+		await popover.focus();
+		await page.keyboard.press('Escape');
+		await expect(popover).not.toBeVisible();
+	});
+
+	test('expanding sidebar after using popover restores normal collapsible view', async ({
+		page,
+	}) => {
+		await page.goto('/');
+		await page.locator('body').click();
+
+		// Collapse
+		await page.keyboard.press('ControlOrMeta+b');
+		const sidebar = page.locator('[data-slot="sidebar"]').first();
+		await expect(sidebar).toHaveAttribute('data-state', 'collapsed');
+
+		// Expand
+		await page.keyboard.press('ControlOrMeta+b');
+		await expect(sidebar).toHaveAttribute('data-state', 'expanded');
+
+		// Normal collapsible view should be back
+		await expect(page.getByText('Scenes')).toBeVisible();
+		await expect(page.getByText('Overworld')).toBeVisible();
+		const groupLabel = page.locator('[data-slot="sidebar-group-label"]').first();
+		await expect(groupLabel).toBeVisible();
+	});
+});
+
+// =============================================================================
+// Collapsed sidebar — tooltips
+// =============================================================================
+
+test.describe('collapsed sidebar — tooltips', () => {
 	test('tooltips are hidden when sidebar is expanded', async ({ page }) => {
 		await page.goto('/');
 
