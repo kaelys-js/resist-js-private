@@ -15,6 +15,10 @@ export const ko: EditorLocaleRaw = {
 		save: '저장',
 		close: '닫기',
 		loading: '로딩 중…',
+		skipToContent: '주요 콘텐츠로 건너뛰기',
+		toggleMode: '모드 전환',
+		sidebarLabel: '애플리케이션 사이드바',
+		more: '더보기',
 	},
 	sidebar: {
 		scenes: '씬',

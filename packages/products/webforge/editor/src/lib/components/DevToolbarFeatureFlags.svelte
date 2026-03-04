@@ -9,6 +9,7 @@ import { Button } from '$lib/components/ui/button/index.js';
 import * as ScrollArea from '$lib/components/ui/scroll-area/index.js';
 import { discoverFeatureFlags, humanizeKey } from '$lib/debug/dev-toolbar-registry';
 import { localeStore, t } from '$lib/i18n.svelte';
+import { announce } from '$lib/utils/announce.svelte';
 import type { Str } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
@@ -57,16 +58,18 @@ function labelFor(key: string): string {
 		<Input
 			type="text"
 			placeholder={t(localeStore.t.devToolbar.searchFlags, 'Search flags…')}
+			aria-label={t(localeStore.t.devToolbar.searchFlags, 'Search flags…')}
 			class="h-8 pl-8 {searchQuery ? 'pr-8' : 'pr-3'} text-xs"
 			value={searchQuery}
 			oninput={(e: Event) => {
 				searchQuery = (e.target as HTMLInputElement).value;
+				announce(`${filteredFlags.length} / ${flags.length}`);
 			}}
 		/>
 		{#if searchQuery}
 			<button
 				type="button"
-				class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+				class="absolute right-1.5 top-1/2 -translate-y-1/2 size-6 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
 				onclick={() => { searchQuery = ''; }}
 				aria-label={t(localeStore.t.devToolbar.clearSearch, 'Clear search')}
 			>
@@ -87,15 +90,14 @@ function labelFor(key: string): string {
 						id="flag-{flag.key}"
 						checked={checked}
 						onCheckedChange={(value) => handleToggle(flag.key, value)}
-						class="scale-75"
 					/>
 				</div>
 			{:else}
 				<div class="flex flex-col items-center gap-3 py-8 text-muted-foreground">
-					<SearchX class="size-8 opacity-40" />
+					<SearchX class="size-8" />
 					<div class="flex flex-col items-center gap-1">
 						<p class="text-sm font-medium">{t(localeStore.t.devToolbar.noResultsFound, 'No results found')}</p>
-						<p class="text-xs opacity-70">{t(localeStore.t.devToolbar.noResultsHint, 'Try a different search term')}</p>
+						<p class="text-xs">{t(localeStore.t.devToolbar.noResultsHint, 'Try a different search term')}</p>
 					</div>
 				</div>
 			{/each}

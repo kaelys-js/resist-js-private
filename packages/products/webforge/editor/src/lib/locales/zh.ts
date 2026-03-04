@@ -15,6 +15,10 @@ export const zh: EditorLocaleRaw = {
 		save: '保存',
 		close: '关闭',
 		loading: '加载中…',
+		skipToContent: '跳至主要内容',
+		toggleMode: '切换模式',
+		sidebarLabel: '应用程序侧边栏',
+		more: '更多',
 	},
 	sidebar: {
 		scenes: '场景',

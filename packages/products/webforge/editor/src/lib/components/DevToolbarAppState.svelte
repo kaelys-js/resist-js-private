@@ -106,7 +106,6 @@ function optionLabel(key: string, value: string): string {
 						id="pref-{pref.key}"
 						checked={Boolean(currentValue)}
 						onCheckedChange={(value) => callSetter(pref.key, value)}
-						class="scale-75"
 					/>
 				</div>
 			{:else if pref.type === 'picklist' && pref.options}

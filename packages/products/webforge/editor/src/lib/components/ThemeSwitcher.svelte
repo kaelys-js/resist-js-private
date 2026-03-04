@@ -129,18 +129,18 @@ const themes = [
 
 <DropdownMenu.Sub>
 	<DropdownMenu.SubTrigger>
-		<Palette class="mr-2 size-4" />
+		<Palette aria-hidden="true" class="mr-2 size-4" />
 		{t(localeStore.t.settings.theme, 'Theme')}
 	</DropdownMenu.SubTrigger>
 	<DropdownMenu.SubContent class="max-h-80 overflow-y-auto">
 		{#each themes as th (th.id)}
-			<DropdownMenu.Item onclick={() => store.setTheme(th.id)}>
+			<DropdownMenu.Item onclick={() => store.setTheme(th.id)} aria-current={store.app.theme === th.id ? 'true' : undefined} textValue={th.label()}>
 				{#if store.app.theme === th.id}
-					<Check class="mr-2 size-4 shrink-0" />
+					<Check aria-hidden="true" class="mr-2 size-4 shrink-0" />
 				{:else}
 					<span class="mr-2 size-4 inline-block shrink-0"></span>
 				{/if}
-				<span class="mr-2 flex gap-1 shrink-0">
+				<span aria-hidden="true" class="mr-2 flex gap-1 shrink-0">
 					{#each th.dots as color}
 						<span
 							class="size-2.5 rounded-full border border-border"

@@ -40,14 +40,14 @@ function isDuplicate(info: LanguageDisplayInfo): boolean {
 
 <DropdownMenu.Sub>
 	<DropdownMenu.SubTrigger>
-		<Globe class="mr-2 size-4" />
+		<Globe aria-hidden="true" class="mr-2 size-4" />
 		{t(localeStore.t.settings.language, 'Language')}
 	</DropdownMenu.SubTrigger>
 	<DropdownMenu.SubContent>
 		{#each languages as lang (lang.code)}
-			<DropdownMenu.Item onclick={() => switchLanguage(lang.code)}>
+			<DropdownMenu.Item onclick={() => switchLanguage(lang.code)} aria-current={store.app.locale === lang.code ? 'true' : undefined} textValue={lang.endonym}>
 				{#if store.app.locale === lang.code}
-					<Check class="mr-2 size-4" />
+					<Check aria-hidden="true" class="mr-2 size-4" />
 				{:else}
 					<span class="mr-2 size-4 inline-block"></span>
 				{/if}

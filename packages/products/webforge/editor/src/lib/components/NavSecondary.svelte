@@ -19,7 +19,7 @@ let { items, ...restProps }: { items: NavItem[] } & Record<string, unknown> = $p
 					<Sidebar.MenuButton size="sm">
 						{#snippet child({ props })}
 							<a href={item.url} {...props}>
-								<item.icon />
+								<span aria-hidden="true"><item.icon /></span>
 								<span>{item.title}</span>
 							</a>
 						{/snippet}

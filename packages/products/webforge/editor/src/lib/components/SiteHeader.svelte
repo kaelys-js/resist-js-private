@@ -35,7 +35,7 @@ const toggleSidebarLabel: string = $derived(
 					{toggleSidebarLabel}
 				</Tooltip.Content>
 			</Tooltip.Root>
-			<Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
+			<Separator orientation="vertical" role="separator" class="mx-2 data-[orientation=vertical]:h-4" />
 		{/if}
 		{#if store.features.breadcrumb}
 		<Breadcrumb.Root>

@@ -26,12 +26,14 @@ const toggleThemeLabel: string = $derived(t(localeStore.t.settings.toggleTheme, 
 							class="relative"
 							{...tooltipProps}
 							{...menuProps}
-							aria-label="Toggle mode"
+							aria-label={t(localeStore.t.common.toggleMode, 'Toggle mode')}
 						>
 							<Sun
+								aria-hidden="true"
 								class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 !transition-all !duration-500 dark:scale-0 dark:-rotate-90"
 							/>
 							<Moon
+								aria-hidden="true"
 								class="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 !transition-all !duration-500 dark:scale-100 dark:rotate-0"
 							/>
 						</Button>

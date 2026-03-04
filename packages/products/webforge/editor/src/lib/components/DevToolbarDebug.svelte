@@ -113,7 +113,6 @@ function optionLabel(key: string, value: string): string {
 						id="debug-{field.key}"
 						checked={Boolean(currentValue)}
 						onCheckedChange={(value) => callSetter(field.key, value)}
-						class="scale-75"
 					/>
 				</div>
 			{:else if field.type === 'picklist' && field.options}

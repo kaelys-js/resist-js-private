@@ -18,6 +18,7 @@ import { applyUrlOverrides } from '$lib/utils/url-params';
 import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
 import DevToolbar from '$lib/components/DevToolbar.svelte';
 import { APP_TAGLINE, THEME_COLORS, storageKey } from '$lib/config/app-meta';
+import { getAnnouncement } from '$lib/utils/announce.svelte';
 
 const { children, data } = $props();
 
@@ -257,6 +258,12 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 </svelte:head>
 
 <ModeWatcher defaultMode="system" disableTransitions={false} modeStorageKey={storageKey('mode')} themeStorageKey={storageKey('theme')} />
+<a
+	href="#main-content"
+	class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:rounded-md focus:bg-background focus:text-foreground focus:border-2 focus:border-ring focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg"
+>
+	{t(localeStore.t.common.skipToContent, 'Skip to main content')}
+</a>
 <Sidebar.Provider
 	bind:ref={providerEl}
 	open={store.app.sidebarOpen}
@@ -292,9 +299,9 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 			<Resizable.Pane defaultSize={100 - initialSidebarPercent} class="flex flex-col !overflow-y-auto !overflow-x-hidden">
 				<Sidebar.Inset class={insetClass}>
 					<SiteHeader isError={Boolean(page.error)} />
-					<div class="flex flex-1 flex-col">
+					<main id="main-content" tabindex={-1} class="flex flex-1 flex-col outline-none">
 						{@render children()}
-					</div>
+					</main>
 				</Sidebar.Inset>
 			</Resizable.Pane>
 		</Resizable.PaneGroup>
@@ -312,3 +319,5 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 {#if browser && debugStore}
 	<DevToolbar />
 {/if}
+
+<div aria-live="polite" aria-atomic="true" class="sr-only">{getAnnouncement()}</div>

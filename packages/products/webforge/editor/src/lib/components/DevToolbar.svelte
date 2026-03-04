@@ -227,6 +227,78 @@ const flagsOpen: boolean = $derived(activePanel === 'flags');
 const appOpen: boolean = $derived(activePanel === 'app');
 const debugOpen: boolean = $derived(activePanel === 'debug');
 
+// ── Roving tabindex ──────────────────────────────────────────────────
+const TOOLBAR_BUTTON_IDS: readonly string[] = [
+	'toolbar-btn-flags',
+	'toolbar-btn-app',
+	'toolbar-btn-debug',
+	'toolbar-btn-mode',
+	'toolbar-btn-copy',
+	'toolbar-btn-reset',
+];
+
+let focusedIndex: number = $state(0);
+
+/**
+ * WAI-ARIA toolbar keyboard navigation — roving tabindex pattern.
+ *
+ * @param e - Keyboard event from the toolbar container
+ */
+function handleToolbarKeydown(e: KeyboardEvent): void {
+	const count: number = TOOLBAR_BUTTON_IDS.length;
+	let nextIndex: number | null = null;
+
+	switch (e.key) {
+		case 'ArrowRight': {
+			nextIndex = (focusedIndex + 1) % count;
+			break;
+		}
+		case 'ArrowLeft': {
+			nextIndex = (focusedIndex - 1 + count) % count;
+			break;
+		}
+		case 'Home': {
+			nextIndex = 0;
+			break;
+		}
+		case 'End': {
+			nextIndex = count - 1;
+			break;
+		}
+		case 'Escape': {
+			if (!activePanel) {
+				toolbarOpen = false;
+			}
+			return;
+		}
+		default: {
+			return;
+		}
+	}
+
+	e.preventDefault();
+	focusedIndex = nextIndex;
+	const btn: HTMLElement | null = document.querySelector(
+		`[data-testid="${TOOLBAR_BUTTON_IDS[nextIndex]}"]`,
+	);
+	btn?.focus();
+}
+
+// Move focus into panel content when a panel opens.
+$effect(() => {
+	if (!activePanel) return;
+	requestAnimationFrame(() => {
+		const panelEl: HTMLElement | null = document.querySelector(
+			'[data-testid="dev-toolbar"] [data-testid^="dev-toolbar-panel"]',
+		);
+		if (!panelEl) return;
+		const focusable: HTMLElement | null = panelEl.querySelector(
+			'button, [tabindex="0"], input, select, textarea, a[href]',
+		);
+		focusable?.focus();
+	});
+});
+
 // ── Keyboard shortcuts ────────────────────────────────────────────────
 $effect(() => {
 	/**
@@ -244,9 +316,13 @@ $effect(() => {
 			toolbarOpen = !toolbarOpen;
 		}
 
-		// Escape: close active panel
-		if (e.key === 'Escape' && activePanel) {
-			activePanel = null;
+		// Escape: close active panel, or close toolbar if no panel active
+		if (e.key === 'Escape') {
+			if (activePanel) {
+				activePanel = null;
+			} else if (toolbarOpen) {
+				toolbarOpen = false;
+			}
 		}
 	}
 
@@ -267,6 +343,7 @@ $effect(() => {
 			<div
 				transition:fly={{ y: 8, duration: 150 }}
 				class="w-80 max-h-[60vh] overflow-auto rounded-lg bg-popover/80 backdrop-blur-xl border border-border shadow-2xl shadow-black/20"
+				data-testid="dev-toolbar-panel"
 			>
 				{#if activePanel === 'flags'}
 					<DevToolbarFeatureFlags {editorStore} />
@@ -282,8 +359,10 @@ $effect(() => {
 		{#if toolbarOpen}
 			<div
 				role="toolbar"
+				tabindex={-1}
 				aria-label={t(localeStore.t.devToolbar.title, 'Developer Toolbar')}
 				aria-orientation="horizontal"
+				onkeydown={handleToolbarKeydown}
 				transition:scale={{ start: 0.6, duration: 150 }}
 				class="flex items-center gap-1 px-2 py-1.5 rounded-full bg-popover/80 backdrop-blur-xl border border-border shadow-2xl shadow-black/20 origin-bottom"
 				data-testid="dev-toolbar-bar"
@@ -296,6 +375,7 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
+								tabindex={focusedIndex === 0 ? 0 : -1}
 								class="size-8 hover:bg-transparent! transition-colors duration-200 {flagsOpen
 									? 'text-primary'
 									: 'text-muted-foreground hover:text-primary'}"
@@ -309,7 +389,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')} <kbd class="inline-flex items-center rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -320,6 +400,7 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
+								tabindex={focusedIndex === 1 ? 0 : -1}
 								class="size-8 hover:bg-transparent! transition-colors duration-200 {appOpen
 									? 'text-primary'
 									: 'text-muted-foreground hover:text-primary'}"
@@ -333,7 +414,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')} <kbd class="inline-flex items-center rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -344,6 +425,7 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
+								tabindex={focusedIndex === 2 ? 0 : -1}
 								class="size-8 hover:bg-transparent! transition-colors duration-200 {debugOpen
 									? 'text-primary'
 									: 'text-muted-foreground hover:text-primary'}"
@@ -357,7 +439,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')} <kbd class="inline-flex items-center rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -371,6 +453,7 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
+								tabindex={focusedIndex === 3 ? 0 : -1}
 								class="size-8 hover:bg-transparent! transition-colors duration-200 text-muted-foreground hover:text-primary"
 								onclick={cycleMode}
 								aria-label={cycleThemeLabel}
@@ -399,6 +482,7 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
+								tabindex={focusedIndex === 4 ? 0 : -1}
 								class="size-8 hover:bg-transparent! transition-colors duration-200 {copySuccess
 								? 'text-green-500'
 								: 'text-muted-foreground hover:text-primary'}"
@@ -433,6 +517,7 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
+								tabindex={focusedIndex === 5 ? 0 : -1}
 								class="size-8 hover:bg-transparent! transition-colors duration-200 {resetSuccess
 								? 'text-green-500'
 								: 'text-muted-foreground hover:text-primary'}"
@@ -485,7 +570,7 @@ $effect(() => {
 				{/snippet}
 			</Tooltip.Trigger>
 			<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-				<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.title, 'Developer Toolbar')} <kbd class="inline-flex items-center rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutHint}</kbd></span>
+				<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.title, 'Developer Toolbar')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutHint}</kbd></span>
 			</Tooltip.Content>
 		</Tooltip.Root>
 		</div>

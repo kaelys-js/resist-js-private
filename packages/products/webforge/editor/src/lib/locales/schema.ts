@@ -23,6 +23,10 @@ export const EditorLocaleSchema = v.strictObject({
 		save: messageTemplate(),
 		close: messageTemplate(),
 		loading: messageTemplate(),
+		skipToContent: messageTemplate(),
+		toggleMode: messageTemplate(),
+		sidebarLabel: messageTemplate(),
+		more: messageTemplate(),
 	}),
 	sidebar: v.strictObject({
 		scenes: messageTemplate(),
