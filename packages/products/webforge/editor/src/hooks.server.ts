@@ -218,7 +218,14 @@ export const handleError: HandleServerError = ({ error, event, status, message }
 	// calls logCapturedError with the full CapturedError.
 	reportError(appError, false as Bool);
 
-	event.setHeaders({ 'x-error-id': appError.id });
+	try {
+		event.setHeaders({ 'x-error-id': appError.id });
+	} catch {
+		// setHeaders throws if the header was already set or if the response
+		// is in a state that doesn't allow header modification (e.g., fatal errors
+		// where the handle hook itself threw). Safe to ignore — errorId is also
+		// embedded in the response body message.
+	}
 	// Embed errorId in message so error.html fallback can display it
 	// (error.html only has %sveltekit.error.message% — no custom placeholders).
 	// +error.svelte ignores this message (ErrorPage uses locale-based text + separate errorId prop).
