@@ -19,10 +19,6 @@ export const en: EditorLocaleRaw = {
 	sidebar: {
 		scenes: 'Scenes',
 		newScene: 'New Scene',
-		assets: 'Assets',
-		tilesets: 'Tilesets',
-		sprites: 'Sprites',
-		audio: 'Audio',
 	},
 	header: {
 		editor: 'Editor',
@@ -103,7 +99,6 @@ export const en: EditorLocaleRaw = {
 			modeToggle: 'Mode Toggle',
 			sidebar: 'Sidebar',
 			sceneList: 'Scene List',
-			assetBrowser: 'Asset Browser',
 			resizableSidebar: 'Resizable Sidebar',
 			breadcrumb: 'Breadcrumb',
 			sidebarToggle: 'Sidebar Toggle',

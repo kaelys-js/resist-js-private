@@ -44,7 +44,7 @@ describe('EditorStore', () => {
 		expect(store.app.sidebarOpen).toBe(true);
 	});
 
-	it('store.features has all 16 flags true by default', () => {
+	it('store.features has all 15 flags true by default', () => {
 		const result = createEditorStore();
 		if (!result.ok) throw new Error('Store creation failed');
 		const store = result.data;
@@ -55,7 +55,6 @@ describe('EditorStore', () => {
 		expect(store.features.modeToggle).toBe(true);
 		expect(store.features.sidebar).toBe(true);
 		expect(store.features.sceneList).toBe(true);
-		expect(store.features.assetBrowser).toBe(true);
 		expect(store.features.resizableSidebar).toBe(true);
 		expect(store.features.breadcrumb).toBe(true);
 		expect(store.features.sidebarToggle).toBe(true);
@@ -222,7 +221,6 @@ describe('EditorStore', () => {
 				modeToggle: true,
 				sidebar: true,
 				sceneList: false,
-				assetBrowser: true,
 			},
 		};
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
@@ -355,9 +353,9 @@ describe('EditorStore', () => {
 		expect(result.data.app.sidebarOpen).toBe(true);
 	});
 
-	// ── setFeature — all 16 flags ─────────────────────────────────────────
+	// ── setFeature — all 15 flags ─────────────────────────────────────────
 
-	it('setFeature() toggles all 16 flags individually', () => {
+	it('setFeature() toggles all 15 flags individually', () => {
 		const flags: readonly string[] = [
 			'settings',
 			'themeSelection',
@@ -365,7 +363,6 @@ describe('EditorStore', () => {
 			'modeToggle',
 			'sidebar',
 			'sceneList',
-			'assetBrowser',
 			'resizableSidebar',
 			'breadcrumb',
 			'sidebarToggle',
@@ -408,7 +405,6 @@ describe('EditorStore', () => {
 		s1.setLocale('ko');
 		s1.setSidebarOpen(false);
 		s1.setFeature('settings', false);
-		s1.setFeature('assetBrowser', false);
 		s1.save();
 
 		// New store loads from localStorage
@@ -422,7 +418,6 @@ describe('EditorStore', () => {
 		expect(s2.app.locale).toBe('ko');
 		expect(s2.app.sidebarOpen).toBe(false);
 		expect(s2.features.settings).toBe(false);
-		expect(s2.features.assetBrowser).toBe(false);
 		expect(s2.features.themeSelection).toBe(true);
 	});
 

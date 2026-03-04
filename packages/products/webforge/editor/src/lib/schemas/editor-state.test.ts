@@ -89,7 +89,7 @@ describe('AppPreferencesSchema', () => {
 });
 
 describe('FeatureFlagsSchema', () => {
-	it('accepts empty object with all 16 defaults true', () => {
+	it('accepts empty object with all 15 defaults true', () => {
 		const result = safeParse(FeatureFlagsSchema, {});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
@@ -100,7 +100,6 @@ describe('FeatureFlagsSchema', () => {
 		expect(flags.modeToggle).toBe(true);
 		expect(flags.sidebar).toBe(true);
 		expect(flags.sceneList).toBe(true);
-		expect(flags.assetBrowser).toBe(true);
 		expect(flags.resizableSidebar).toBe(true);
 		expect(flags.breadcrumb).toBe(true);
 		expect(flags.sidebarToggle).toBe(true);
@@ -112,11 +111,11 @@ describe('FeatureFlagsSchema', () => {
 		expect(flags.appNameInSidebar).toBe(true);
 	});
 
-	it('has exactly 16 flag keys', () => {
+	it('has exactly 15 flag keys', () => {
 		const result = safeParse(FeatureFlagsSchema, {});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(Object.keys(result.data)).toHaveLength(16);
+		expect(Object.keys(result.data)).toHaveLength(15);
 	});
 
 	it('accepts partial override with only new flags', () => {

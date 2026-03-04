@@ -19,10 +19,6 @@ export const zh: EditorLocaleRaw = {
 	sidebar: {
 		scenes: '场景',
 		newScene: '新建场景',
-		assets: '资源',
-		tilesets: '图块集',
-		sprites: '精灵',
-		audio: '音频',
 	},
 	header: {
 		editor: '编辑器',
@@ -103,7 +99,6 @@ export const zh: EditorLocaleRaw = {
 			modeToggle: '模式切换',
 			sidebar: '侧边栏',
 			sceneList: '场景列表',
-			assetBrowser: '资源浏览器',
 			resizableSidebar: '可调整侧边栏',
 			breadcrumb: '面包屑导航',
 			sidebarToggle: '侧边栏切换',

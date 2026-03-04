@@ -48,10 +48,6 @@ test.describe('mobile sidebar — open/close/toggle', () => {
 		await expect(mobileSidebar.getByText('Scenes')).toBeVisible();
 		await expect(mobileSidebar.getByText('Overworld')).toBeVisible();
 
-		// Assets
-		await expect(mobileSidebar.getByText('Assets')).toBeVisible();
-		await expect(mobileSidebar.getByText('Tilesets')).toBeVisible();
-
 		// Footer
 		await expect(mobileSidebar.getByText('Project')).toBeVisible();
 	});

@@ -1,14 +1,10 @@
 <script lang="ts">
-import Image from '@lucide/svelte/icons/image';
-import Grid3x3 from '@lucide/svelte/icons/grid-3x3';
-import Music from '@lucide/svelte/icons/music';
 import Settings from '@lucide/svelte/icons/settings';
 import CircleHelp from '@lucide/svelte/icons/circle-help';
 import type { ComponentProps } from 'svelte';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 import WebForgeLogo from './WebForgeLogo.svelte';
 import NavScenes from './NavScenes.svelte';
-import NavMain from './NavMain.svelte';
 import NavSecondary from './NavSecondary.svelte';
 import NavUser from './NavUser.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
@@ -24,12 +20,6 @@ const scenes = [
 	{ title: 'Town Interior', url: '#town-interior' },
 	{ title: 'Dungeon B1', url: '#dungeon-b1' },
 ];
-
-const navAssets = $derived([
-	{ title: t(localeStore.t.sidebar.tilesets, 'Tilesets'), url: '#tilesets', icon: Grid3x3 },
-	{ title: t(localeStore.t.sidebar.sprites, 'Sprites'), url: '#sprites', icon: Image },
-	{ title: t(localeStore.t.sidebar.audio, 'Audio'), url: '#audio', icon: Music },
-]);
 
 const navSecondary = $derived([
 	...(store.features.settings
@@ -75,9 +65,6 @@ const user = {
 	<Sidebar.Content>
 		{#if store.features.sceneList}
 			<NavScenes {scenes} />
-		{/if}
-		{#if store.features.assetBrowser}
-			<NavMain label={t(localeStore.t.sidebar.assets, 'Assets')} items={navAssets} />
 		{/if}
 		<NavSecondary items={navSecondary} class="mt-auto" />
 	</Sidebar.Content>

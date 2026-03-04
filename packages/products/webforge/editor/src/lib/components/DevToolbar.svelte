@@ -123,12 +123,27 @@ $effect(() => {
 
 // ── Badge data ────────────────────────────────────────────────────────
 const flags = discoverFeatureFlags();
+type LocaleFn = (params: Record<string, never>) => Result<Str>;
+const MODE_FALLBACKS: Record<string, string> = { light: 'Light', dark: 'Dark', system: 'System' };
+const modeDisplayName: string = $derived(
+	(() => {
+		const { mode } = editorStore.app;
+		const lookup: Record<string, LocaleFn> = {
+			light: localeStore.t.settings.light as LocaleFn,
+			dark: localeStore.t.settings.dark as LocaleFn,
+			system: localeStore.t.settings.system as LocaleFn,
+		};
+		const fn: LocaleFn | undefined = lookup[mode];
+		if (!fn) return mode;
+		return t(fn, MODE_FALLBACKS[mode] ?? mode);
+	})(),
+);
 const cycleThemeLabel: string = $derived(
 	(() => {
 		const result: Result<Str> = (
 			localeStore.t.devToolbar.cycleTheme as (p: { mode: string }) => Result<Str>
-		)({ mode: editorStore.app.mode });
-		return result.ok ? result.data : `Cycle Theme (${editorStore.app.mode})`;
+		)({ mode: modeDisplayName });
+		return result.ok ? result.data : `Cycle Theme (${modeDisplayName})`;
 	})(),
 );
 

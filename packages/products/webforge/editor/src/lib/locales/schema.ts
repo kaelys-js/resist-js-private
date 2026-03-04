@@ -27,10 +27,6 @@ export const EditorLocaleSchema = v.strictObject({
 	sidebar: v.strictObject({
 		scenes: messageTemplate(),
 		newScene: messageTemplate(),
-		assets: messageTemplate(),
-		tilesets: messageTemplate(),
-		sprites: messageTemplate(),
-		audio: messageTemplate(),
 	}),
 	header: v.strictObject({
 		editor: messageTemplate(),
@@ -112,7 +108,6 @@ export const EditorLocaleSchema = v.strictObject({
 			modeToggle: messageTemplate(),
 			sidebar: messageTemplate(),
 			sceneList: messageTemplate(),
-			assetBrowser: messageTemplate(),
 			resizableSidebar: messageTemplate(),
 			breadcrumb: messageTemplate(),
 			sidebarToggle: messageTemplate(),

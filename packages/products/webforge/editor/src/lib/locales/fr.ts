@@ -19,10 +19,6 @@ export const fr: EditorLocaleRaw = {
 	sidebar: {
 		scenes: 'Scènes',
 		newScene: 'Nouvelle scène',
-		assets: 'Ressources',
-		tilesets: 'Jeux de tuiles',
-		sprites: 'Sprites',
-		audio: 'Audio',
 	},
 	header: {
 		editor: 'Éditeur',
@@ -103,7 +99,6 @@ export const fr: EditorLocaleRaw = {
 			modeToggle: 'Basculer le mode',
 			sidebar: 'Barre latérale',
 			sceneList: 'Liste des scènes',
-			assetBrowser: 'Navigateur de ressources',
 			resizableSidebar: 'Barre latérale redimensionnable',
 			breadcrumb: 'Fil d\u2019Ariane',
 			sidebarToggle: 'Basculer la barre latérale',

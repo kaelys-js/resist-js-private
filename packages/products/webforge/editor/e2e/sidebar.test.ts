@@ -18,10 +18,22 @@ test.describe('sidebar', () => {
 		await expect(page.getByText('New Scene')).toBeVisible();
 	});
 
-	test('assets section renders', async ({ page }) => {
+	test('scenes list is collapsible', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.getByText('Assets')).toBeVisible();
-		await expect(page.getByText('Tilesets')).toBeVisible();
+		// Scenes section starts open by default
+		await expect(page.getByText('Overworld')).toBeVisible();
+
+		// Click the Scenes group label (collapsible trigger) to close
+		const trigger = page.locator('[data-slot="sidebar-group-label"]').first();
+		await trigger.click();
+
+		// Scene items should be hidden
+		await expect(page.getByText('Overworld')).not.toBeVisible();
+		await expect(page.getByText('New Scene')).not.toBeVisible();
+
+		// Click again to reopen
+		await trigger.click();
+		await expect(page.getByText('Overworld')).toBeVisible();
 	});
 
 	test('sidebar toggle collapses sidebar', async ({ page }) => {

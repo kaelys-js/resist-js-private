@@ -222,7 +222,6 @@ describe('Multiple flags disabled simultaneously', () => {
 					'appNameInSidebar',
 					'projectDropdown',
 					'sceneList',
-					'assetBrowser',
 				],
 			},
 		});

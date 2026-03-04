@@ -52,7 +52,6 @@ test.describe('collapsed sidebar — state', () => {
 		// Text labels visible again
 		await expect(page.getByText('Scenes')).toBeVisible();
 		await expect(page.getByText('Overworld')).toBeVisible();
-		await expect(page.getByText('Assets')).toBeVisible();
 	});
 
 	test('collapsed sidebar state persists across reload', async ({ page }) => {
@@ -97,29 +96,6 @@ test.describe('collapsed sidebar — tooltips', () => {
 		const tooltip = page.locator('[data-slot="tooltip-content"]');
 		await expect(tooltip).toBeVisible();
 		await expect(tooltip).toContainText('Overworld');
-	});
-
-	test('hovering asset item in collapsed sidebar shows tooltip', async ({ page }) => {
-		await page.goto('/');
-		await page.locator('body').click();
-
-		// Collapse sidebar
-		await page.keyboard.press('ControlOrMeta+b');
-		await expect(page.locator('[data-slot="sidebar"]').first()).toHaveAttribute(
-			'data-state',
-			'collapsed',
-		);
-
-		// Hover the Tilesets menu button
-		const assetButton = page
-			.locator('[data-sidebar="menu-button"]')
-			.filter({ hasText: 'Tilesets' });
-		await assetButton.hover();
-
-		// Tooltip should appear
-		const tooltip = page.locator('[data-slot="tooltip-content"]');
-		await expect(tooltip).toBeVisible();
-		await expect(tooltip).toContainText('Tilesets');
 	});
 
 	test('tooltip disappears on mouse leave', async ({ page }) => {

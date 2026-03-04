@@ -55,7 +55,6 @@ export const FeatureFlagsSchema = v.strictObject({
 	modeToggle: v.optional(v.boolean(), true),
 	sidebar: v.optional(v.boolean(), true),
 	sceneList: v.optional(v.boolean(), true),
-	assetBrowser: v.optional(v.boolean(), true),
 	resizableSidebar: v.optional(v.boolean(), true),
 	breadcrumb: v.optional(v.boolean(), true),
 	sidebarToggle: v.optional(v.boolean(), true),

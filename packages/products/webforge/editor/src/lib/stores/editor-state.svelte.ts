@@ -48,7 +48,6 @@ const FEATURE_DEFAULTS: FeatureFlags = {
 	modeToggle: true,
 	sidebar: true,
 	sceneList: true,
-	assetBrowser: true,
 	resizableSidebar: true,
 	breadcrumb: true,
 	sidebarToggle: true,
