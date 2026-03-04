@@ -190,6 +190,19 @@ $effect(() => {
 	});
 });
 
+// ── Store → PaneForge sidebar sync ────────────────────────────────────
+// When the sidebar open state changes externally (e.g., DevToolbar toggle),
+// sync the PaneForge pane to match.
+$effect(() => {
+	const wantOpen: boolean = store.app.sidebarOpen;
+	if (!useResizable) return;
+	if (wantOpen) {
+		sidebarPane?.expand();
+	} else {
+		sidebarPane?.collapse();
+	}
+});
+
 const metaDescription = $derived(
 	t(localeStore.t.meta.description, 'WebForge RPG — HD-2D game creation suite'),
 );

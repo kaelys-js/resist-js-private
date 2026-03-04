@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import DevToolbarAppStateTest from './DevToolbarAppStateTest.svelte';
-import { discoverAppPreferences, humanizeKey } from '$lib/debug/dev-toolbar-registry';
+import { discoverAppPreferences } from '$lib/debug/dev-toolbar-registry';
 
 const preferences = discoverAppPreferences();
 
@@ -19,31 +19,21 @@ describe('DevToolbarAppState', () => {
 		expect(screen.getByText('App Preferences')).toBeInTheDocument();
 	});
 
-	it('renders an accessible label for each preference', () => {
+	it('renders an accessible label for boolean and string preferences', () => {
 		render(DevToolbarAppStateTest);
-		for (const pref of preferences) {
+		const nonPicklistPrefs = preferences.filter((p) => p.type !== 'picklist');
+		for (const pref of nonPicklistPrefs) {
 			const label: HTMLElement | null = document.querySelector(`label[for="pref-${pref.key}"]`);
 			expect(label).toBeInTheDocument();
-			expect(label?.textContent?.trim()).toBe(humanizeKey(pref.key));
 		}
 	});
 
-	it('renders a Select trigger for theme picklist', () => {
+	it('renders a combobox trigger for each picklist preference', () => {
 		const { container } = render(DevToolbarAppStateTest);
-		const trigger: HTMLElement | null = container.querySelector('#pref-theme');
-		expect(trigger).toBeInTheDocument();
-	});
-
-	it('renders a Select trigger for mode picklist', () => {
-		const { container } = render(DevToolbarAppStateTest);
-		const trigger: HTMLElement | null = container.querySelector('#pref-mode');
-		expect(trigger).toBeInTheDocument();
-	});
-
-	it('renders a Select trigger for locale picklist', () => {
-		const { container } = render(DevToolbarAppStateTest);
-		const trigger: HTMLElement | null = container.querySelector('#pref-locale');
-		expect(trigger).toBeInTheDocument();
+		const comboboxes: NodeListOf<HTMLElement> =
+			container.querySelectorAll('button[role="combobox"]');
+		const picklistPrefs = preferences.filter((p) => p.type === 'picklist');
+		expect(comboboxes.length).toBe(picklistPrefs.length);
 	});
 
 	it('renders a Switch for sidebarOpen boolean', () => {

@@ -4,7 +4,7 @@ import { messageTemplate } from '@/locale/template';
 /**
  * Editor locale schema — defines all translatable strings.
  *
- * Namespaces: meta, common, sidebar, header, settings, project, scenes, errors, debug.
+ * Namespaces: meta, common, sidebar, header, settings, project, scenes, debug, devToolbar, errors.
  * Each key uses `messageTemplate()` for static strings or
  * `messageTemplate({ param: Schema })` for parameterized strings.
  */
@@ -73,6 +73,65 @@ export const EditorLocaleSchema = v.strictObject({
 		disabled: messageTemplate(),
 		logLevel: messageTemplate({ level: v.string() }),
 		urlOverride: messageTemplate({ key: v.string(), value: v.string() }),
+	}),
+	devToolbar: v.strictObject({
+		title: messageTemplate(),
+		featureFlags: messageTemplate(),
+		featureFlagsBadge: messageTemplate({ enabled: v.string(), total: v.string() }),
+		appPreferences: messageTemplate(),
+		debugSettings: messageTemplate(),
+		cycleTheme: messageTemplate({ mode: v.string() }),
+		copyStateJson: messageTemplate(),
+		resetAllDefaults: messageTemplate(),
+		expandToolbar: messageTemplate(),
+		collapseToolbar: messageTemplate(),
+		searchFlags: messageTemplate(),
+		clearSearch: messageTemplate(),
+		noResultsFound: messageTemplate(),
+		noResultsHint: messageTemplate(),
+		enableAll: messageTemplate(),
+		disableAll: messageTemplate(),
+		search: messageTemplate(),
+		noMatch: messageTemplate(),
+		resetToDefaults: messageTemplate(),
+		quickActions: messageTemplate(),
+		logState: messageTemplate(),
+		logFeatures: messageTemplate(),
+		copyDebugUrl: messageTemplate(),
+		urlOverrides: messageTemplate(),
+		logLevelTrace: messageTemplate(),
+		logLevelDebug: messageTemplate(),
+		logLevelInfo: messageTemplate(),
+		logLevelWarn: messageTemplate(),
+		logLevelError: messageTemplate(),
+		labels: v.strictObject({
+			// Feature flag labels
+			settings: messageTemplate(),
+			themeSelection: messageTemplate(),
+			languageSelection: messageTemplate(),
+			modeToggle: messageTemplate(),
+			sidebar: messageTemplate(),
+			sceneList: messageTemplate(),
+			assetBrowser: messageTemplate(),
+			resizableSidebar: messageTemplate(),
+			breadcrumb: messageTemplate(),
+			sidebarToggle: messageTemplate(),
+			sidebarHelp: messageTemplate(),
+			projectDropdown: messageTemplate(),
+			projectDropdownSettings: messageTemplate(),
+			projectDropdownIcon: messageTemplate(),
+			appIconInSidebar: messageTemplate(),
+			appNameInSidebar: messageTemplate(),
+			// App preference labels
+			appName: messageTemplate(),
+			theme: messageTemplate(),
+			mode: messageTemplate(),
+			locale: messageTemplate(),
+			sidebarOpen: messageTemplate(),
+			// Debug field labels
+			enabled: messageTemplate(),
+			logLevel: messageTemplate(),
+		}),
 	}),
 	errors: v.strictObject({
 		badRequest: messageTemplate(),
