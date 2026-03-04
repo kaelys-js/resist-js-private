@@ -143,6 +143,7 @@ export const EditorLocaleSchema = v.strictObject({
 		tryAgain: messageTemplate(),
 		errorId: messageTemplate({ id: v.string() }),
 		copied: messageTemplate(),
+		copyErrorId: messageTemplate(),
 	}),
 });
 

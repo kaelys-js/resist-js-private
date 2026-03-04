@@ -60,3 +60,57 @@ describe('error.html static fallback', () => {
 		expect(errorHtml).toContain('{{errors.goHome}}');
 	});
 });
+
+describe('error.html WCAG accessibility', () => {
+	it('has <main> landmark wrapping content', () => {
+		expect(errorHtml).toContain('<main');
+	});
+
+	it('has role="alert" on error message container (not on main)', () => {
+		expect(errorHtml).not.toMatch(/<main[^>]*role="alert"/);
+		expect(errorHtml).toMatch(/role="alert"/);
+	});
+
+	it('has aria-live="polite" status region for copy feedback', () => {
+		expect(errorHtml).toContain('role="status"');
+		expect(errorHtml).toContain('aria-live="polite"');
+	});
+
+	it('copy button has aria-label', () => {
+		expect(errorHtml).toMatch(/<button[^>]*aria-label=/);
+	});
+
+	it('all inline SVGs have aria-hidden="true"', () => {
+		const svgCount: number = (errorHtml.match(/<svg[\s\S]*?>/g) ?? []).length;
+		const hiddenCount: number = (errorHtml.match(/<svg[^>]*aria-hidden="true"/g) ?? []).length;
+		expect(hiddenCount).toBe(svgCount);
+	});
+
+	it('all inline SVGs have focusable="false"', () => {
+		const svgCount: number = (errorHtml.match(/<svg[\s\S]*?>/g) ?? []).length;
+		const focusableCount: number = (errorHtml.match(/<svg[^>]*focusable="false"/g) ?? []).length;
+		expect(focusableCount).toBe(svgCount);
+	});
+
+	it('has focus-visible styles', () => {
+		expect(errorHtml).toContain(':focus-visible');
+	});
+
+	it('respects prefers-reduced-motion', () => {
+		expect(errorHtml).toContain('prefers-reduced-motion');
+	});
+
+	it('supports forced-colors mode', () => {
+		expect(errorHtml).toContain('forced-colors: active');
+	});
+
+	it('does not have user-select: none on body', () => {
+		const bodyMatch: RegExpMatchArray | null = errorHtml.match(/body\s*\{[^}]*user-select:\s*none/);
+		expect(bodyMatch).toBeNull();
+	});
+
+	it('viewport meta does not restrict zoom', () => {
+		expect(errorHtml).not.toContain('maximum-scale');
+		expect(errorHtml).not.toContain('user-scalable=no');
+	});
+});

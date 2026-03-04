@@ -136,5 +136,6 @@ export const en: EditorLocaleRaw = {
 		tryAgain: 'Try again',
 		errorId: 'Reference: {id}',
 		copied: 'Copied!',
+		copyErrorId: 'Copy error ID to clipboard',
 	},
 };

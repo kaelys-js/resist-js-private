@@ -71,6 +71,7 @@ describe('resolveErrorHtml', () => {
 <h1>{{errors.serverError}}</h1>
 <p>{{errors.serverErrorDescription}}</p>
 <a>{{errors.goHome}}</a>
+<button aria-label="{{errors.copyErrorId}}">Copy</button>
 <script>
 var prefix = '{{errors.errorIdPrefix}}';
 var copied = '{{errors.copied}}';
