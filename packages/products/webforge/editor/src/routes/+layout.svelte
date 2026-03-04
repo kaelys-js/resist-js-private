@@ -17,7 +17,7 @@ import { initDebugStore } from '$lib/stores/debug-state.svelte';
 import { applyUrlOverrides } from '$lib/utils/url-params';
 import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
 import DevToolbar from '$lib/components/DevToolbar.svelte';
-import { APP_TAGLINE, THEME_COLORS } from '$lib/config/app-meta';
+import { APP_TAGLINE, THEME_COLORS, storageKey } from '$lib/config/app-meta';
 
 const { children, data } = $props();
 
@@ -53,7 +53,7 @@ $effect(() => {
 // ── Resizable sidebar ─────────────────────────────────────────────────
 // Default sidebar width: calc(var(--spacing) * 72) = 0.25rem * 72 = 18rem = 288px
 const SIDEBAR_DEFAULT_PX = 288;
-const SIDEBAR_PX_KEY = 'app:sidebar-px';
+const SIDEBAR_PX_KEY: string = storageKey('sidebar-px');
 
 // Compute initial sidebar percentage from saved pixel width to prevent flash on load.
 function getInitialSidebarPercent(): number {
@@ -256,7 +256,7 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 	<meta property="og:locale" content={ogLocale} />
 </svelte:head>
 
-<ModeWatcher defaultMode="system" disableTransitions={false} />
+<ModeWatcher defaultMode="system" disableTransitions={false} modeStorageKey={storageKey('mode')} themeStorageKey={storageKey('theme')} />
 <Sidebar.Provider
 	bind:ref={providerEl}
 	open={store.app.sidebarOpen}

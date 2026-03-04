@@ -20,13 +20,14 @@ import {
 	type UrlOverrides,
 } from '$lib/schemas/debug-state';
 import { parseDebugParams } from '$lib/utils/url-params';
+import { storageKey } from '$lib/config/app-meta';
 
 // =============================================================================
 // Constants
 // =============================================================================
 
 /** localStorage key for persisting debug state. */
-export const STORAGE_KEY = 'app:debug-state';
+export const STORAGE_KEY: string = storageKey('debug-state');
 
 // =============================================================================
 // Defaults
