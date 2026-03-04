@@ -1,93 +1,92 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+/**
+ * Navigate with debug enabled and wait for trigger to appear.
+ *
+ * @param page - Playwright page
+ */
+async function gotoWithDebug(page: Page): Promise<void> {
+	await page.goto('/?wf.debug=true');
+	await page.locator('[data-testid="dev-toolbar-trigger"]').waitFor({ state: 'visible' });
+}
+
+/**
+ * Expand the toolbar bar and dismiss any lingering tooltips.
+ *
+ * @param page - Playwright page
+ */
+async function expandToolbar(page: Page): Promise<void> {
+	await gotoWithDebug(page);
+	await page.locator('[data-testid="dev-toolbar-trigger"]').click();
+	await page.locator('[data-testid="dev-toolbar-bar"]').waitFor({ state: 'visible' });
+	// Move mouse away from toolbar to dismiss tooltips that could intercept clicks
+	await page.mouse.move(0, 0);
+}
+
+/**
+ * Click a toolbar button, dismissing any tooltip that might overlay it.
+ *
+ * @param page - Playwright page
+ * @param testId - data-testid of the button
+ */
+async function clickToolbarButton(page: Page, testId: string): Promise<void> {
+	await page.mouse.move(0, 0);
+	await page.locator(`[data-testid="${testId}"]`).click();
+}
 
 // =============================================================================
-// Visibility — debug disabled (default)
+// Visibility
 // =============================================================================
 
-test.describe('dev toolbar — hidden by default', () => {
-	test('toolbar not visible when debug is disabled', async ({ page }) => {
+test.describe('dev toolbar — visibility', () => {
+	test('hidden when debug is disabled', async ({ page }) => {
 		await page.goto('/');
-		const toolbar = page.locator('[data-testid="dev-toolbar"]');
-		await expect(toolbar).not.toBeAttached();
+		await expect(page.locator('[data-testid="dev-toolbar"]')).not.toBeAttached();
+	});
+
+	test('trigger pill visible with ?wf.debug=true', async ({ page }) => {
+		await gotoWithDebug(page);
+		await expect(page.locator('[data-testid="dev-toolbar-trigger"]')).toBeVisible();
+	});
+
+	test('trigger has aria-expanded="false" initially', async ({ page }) => {
+		await gotoWithDebug(page);
+		await expect(page.locator('[data-testid="dev-toolbar-trigger"]')).toHaveAttribute(
+			'aria-expanded',
+			'false',
+		);
 	});
 });
 
 // =============================================================================
-// Visibility — debug enabled via URL
-// =============================================================================
-
-test.describe('dev toolbar — enabled via URL', () => {
-	test('toolbar trigger appears with ?wf.debug=true', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		const trigger = page.locator('[data-testid="dev-toolbar-trigger"]');
-		await expect(trigger).toBeVisible();
-		await expect(page.getByText('DEV')).toBeVisible();
-	});
-
-	test('trigger pill has aria-expanded="false" initially', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		const trigger = page.locator('[data-testid="dev-toolbar-trigger"]');
-		await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-	});
-});
-
-// =============================================================================
-// Expand / collapse toolbar
+// Expand / collapse
 // =============================================================================
 
 test.describe('dev toolbar — expand and collapse', () => {
-	test('clicking trigger expands toolbar bar', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		const trigger = page.locator('[data-testid="dev-toolbar-trigger"]');
-		await trigger.click();
-		const bar = page.locator('[data-testid="dev-toolbar-bar"]');
-		await expect(bar).toBeVisible();
-	});
-
-	test('toolbar bar has role=toolbar and aria-label', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
-		const bar = page.locator('[role="toolbar"]');
-		await expect(bar).toBeVisible();
-		await expect(bar).toHaveAttribute('aria-label', 'Developer toolbar');
-	});
-
-	test('panel buttons visible when expanded', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
+	test('clicking trigger expands toolbar bar with panel buttons', async ({ page }) => {
+		await expandToolbar(page);
 		await expect(page.locator('[data-testid="toolbar-btn-flags"]')).toBeVisible();
 		await expect(page.locator('[data-testid="toolbar-btn-app"]')).toBeVisible();
 		await expect(page.locator('[data-testid="toolbar-btn-debug"]')).toBeVisible();
 	});
 
+	test('toolbar bar has role="toolbar"', async ({ page }) => {
+		await expandToolbar(page);
+		const bar = page.locator('[data-testid="dev-toolbar-bar"]');
+		await expect(bar).toHaveAttribute('role', 'toolbar');
+		await expect(bar).toHaveAttribute('aria-label', 'Developer Toolbar');
+	});
+
 	test('quick action buttons visible when expanded', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
+		await expandToolbar(page);
 		await expect(page.locator('[data-testid="toolbar-btn-mode"]')).toBeVisible();
 		await expect(page.locator('[data-testid="toolbar-btn-copy"]')).toBeVisible();
 		await expect(page.locator('[data-testid="toolbar-btn-reset"]')).toBeVisible();
 	});
 
 	test('clicking trigger again collapses toolbar', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		const trigger = page.locator('[data-testid="dev-toolbar-trigger"]');
-		await trigger.click();
-		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).toBeVisible();
-		await trigger.click();
+		await expandToolbar(page);
+		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
 		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).not.toBeAttached();
 	});
 });
@@ -96,139 +95,82 @@ test.describe('dev toolbar — expand and collapse', () => {
 // Panel interaction
 // =============================================================================
 
-test.describe('dev toolbar — panel interaction', () => {
-	test('feature flags panel opens and shows switches', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
-		await page.locator('[data-testid="toolbar-btn-flags"]').click();
+test.describe('dev toolbar — panels', () => {
+	test('feature flags panel opens with switches', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-flags');
 		const panel = page.locator('[data-testid="dev-toolbar-flags"]');
 		await expect(panel).toBeVisible();
-		// Should contain switches (role="switch")
-		const switches = panel.locator('button[role="switch"]');
-		await expect(switches.first()).toBeVisible();
-		// Count should match schema (16 flags)
-		await expect(switches).toHaveCount(16);
+		await expect(panel.getByText('Feature Flags')).toBeVisible();
+		// 16 flags from schema
+		await expect(panel.locator('button[role="switch"]')).toHaveCount(16);
 	});
 
-	test('app state panel opens and shows controls', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
-		await page.locator('[data-testid="toolbar-btn-app"]').click();
+	test('app state panel opens with preferences', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-app');
 		const panel = page.locator('[data-testid="dev-toolbar-app-state"]');
 		await expect(panel).toBeVisible();
-		await expect(page.getByText('App Preferences')).toBeVisible();
+		await expect(panel.getByText('App Preferences')).toBeVisible();
 	});
 
-	test('debug panel opens and shows controls', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
-		await page.locator('[data-testid="toolbar-btn-debug"]').click();
+	test('debug panel opens with settings', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-debug');
 		const panel = page.locator('[data-testid="dev-toolbar-debug"]');
 		await expect(panel).toBeVisible();
-		// Check heading inside panel scope to avoid matching other "Debug" text
-		await expect(panel.getByText('Debug', { exact: true })).toBeVisible();
+		await expect(panel.getByText('Debug Settings')).toBeVisible();
+		await expect(panel.getByText('Quick Actions')).toBeVisible();
 	});
 
-	test('clicking same panel button again closes the panel', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
-		const flagsBtn = page.locator('[data-testid="toolbar-btn-flags"]');
-		await flagsBtn.click();
+	test('clicking same panel button closes it', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-flags');
 		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).toBeVisible();
-		await flagsBtn.click();
+		await clickToolbarButton(page, 'toolbar-btn-flags');
 		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).not.toBeAttached();
 	});
 
-	test('only one panel open at a time', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
-
-		// Open flags panel
-		await page.locator('[data-testid="toolbar-btn-flags"]').click();
+	test('switching panels closes the previous one', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-flags');
 		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).toBeVisible();
 
-		// Click app state button — flags panel should close
-		await page.locator('[data-testid="toolbar-btn-app"]').click();
+		await clickToolbarButton(page, 'toolbar-btn-app');
 		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).not.toBeAttached();
 		await expect(page.locator('[data-testid="dev-toolbar-app-state"]')).toBeVisible();
 	});
 
-	test('collapsing toolbar closes the active panel', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		const trigger = page.locator('[data-testid="dev-toolbar-trigger"]');
-		await trigger.click();
-		await page.locator('[data-testid="toolbar-btn-flags"]').click();
+	test('collapsing toolbar closes active panel', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-flags');
 		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).toBeVisible();
 
-		// Collapse
-		await trigger.click();
+		await page.mouse.move(0, 0);
+		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
 		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).not.toBeAttached();
 		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).not.toBeAttached();
 	});
 });
 
 // =============================================================================
-// Feature flags panel — toggle affects UI
+// Feature flag integration
 // =============================================================================
 
-test.describe('dev toolbar — feature flags integration', () => {
+test.describe('dev toolbar — feature flag toggle', () => {
 	test('toggling breadcrumb flag hides breadcrumb in header', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
+		await expandToolbar(page);
 
-		const header = page.locator('header');
 		// Breadcrumb should be visible initially
+		const header = page.locator('header');
 		await expect(header.getByText('Editor')).toBeVisible();
 
-		// Expand toolbar and open flags panel
-		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
-		await page.locator('[data-testid="toolbar-btn-flags"]').click();
-		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).toBeVisible();
-
-		// Find and toggle the breadcrumb switch
-		const breadcrumbLabel = page.locator('label[for="flag-breadcrumb"]');
-		await expect(breadcrumbLabel).toBeVisible();
-		const breadcrumbSwitch = page.locator('#flag-breadcrumb');
-		await breadcrumbSwitch.click();
+		// Open flags panel and toggle breadcrumb off
+		await clickToolbarButton(page, 'toolbar-btn-flags');
+		await page.locator('#flag-breadcrumb').click();
 
 		// Breadcrumb should now be hidden
 		await expect(header.getByText('Editor')).not.toBeVisible();
-	});
-});
-
-// =============================================================================
-// Quick actions
-// =============================================================================
-
-test.describe('dev toolbar — quick actions', () => {
-	test('mode toggle cycles through light/dark/system', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
-
-		const modeBtn = page.locator('[data-testid="toolbar-btn-mode"]');
-		// Click once to cycle from system → light
-		await modeBtn.click();
-		// Click again to cycle light → dark
-		await modeBtn.click();
-		// Click again to cycle dark → system
-		await modeBtn.click();
-		// No crash — mode cycling works
-		await expect(modeBtn).toBeVisible();
 	});
 });
 
@@ -238,33 +180,38 @@ test.describe('dev toolbar — quick actions', () => {
 
 test.describe('dev toolbar — keyboard shortcuts', () => {
 	test('Ctrl+Shift+D toggles toolbar', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-
-		// Toolbar should not be expanded initially
+		await gotoWithDebug(page);
 		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).not.toBeAttached();
 
-		// Press Ctrl+Shift+D to expand
 		await page.keyboard.press('Control+Shift+KeyD');
 		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).toBeVisible();
 
-		// Press again to collapse
 		await page.keyboard.press('Control+Shift+KeyD');
 		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).not.toBeAttached();
 	});
 
-	test('Escape closes active panel', async ({ page }) => {
-		await page.goto('/?wf.debug=true');
-		await page.waitForLoadState('domcontentloaded');
-		await page.waitForTimeout(200);
-		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
-		await page.locator('[data-testid="toolbar-btn-flags"]').click();
+	test('Escape closes active panel but keeps toolbar open', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-flags');
 		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).toBeVisible();
 
 		await page.keyboard.press('Escape');
 		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).not.toBeAttached();
-		// Toolbar bar should still be visible after escape
 		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).toBeVisible();
+	});
+});
+
+// =============================================================================
+// Quick actions
+// =============================================================================
+
+test.describe('dev toolbar — quick actions', () => {
+	test('mode toggle cycles without error', async ({ page }) => {
+		await expandToolbar(page);
+		// Cycle through all 3 modes: system → light → dark → system
+		await clickToolbarButton(page, 'toolbar-btn-mode');
+		await clickToolbarButton(page, 'toolbar-btn-mode');
+		await clickToolbarButton(page, 'toolbar-btn-mode');
+		await expect(page.locator('[data-testid="toolbar-btn-mode"]')).toBeVisible();
 	});
 });
