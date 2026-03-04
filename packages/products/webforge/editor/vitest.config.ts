@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { svelteTesting } from '@testing-library/svelte/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -5,6 +6,11 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
 	plugins: [tsconfigPaths(), svelte({ hot: false }), svelteTesting()],
+	resolve: {
+		alias: {
+			'$app/environment': path.resolve(import.meta.dirname, 'src/test-mocks/app-environment.ts'),
+		},
+	},
 	test: {
 		name: 'editor',
 		environment: 'jsdom',
