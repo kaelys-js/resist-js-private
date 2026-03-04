@@ -57,12 +57,12 @@ test.describe('head meta — normal page (/)', () => {
 		await expect(themeColor).toHaveAttribute('content', '#ffffff');
 	});
 
-	test('theme-color dark is #0a0a0a', async ({ page }) => {
+	test('theme-color dark is #242424', async ({ page }) => {
 		await page.goto('/');
 		const themeColor = page.locator(
 			'meta[name="theme-color"][media="(prefers-color-scheme: dark)"]',
 		);
-		await expect(themeColor).toHaveAttribute('content', '#0a0a0a');
+		await expect(themeColor).toHaveAttribute('content', '#242424');
 	});
 
 	test('og:title is WebForge', async ({ page }) => {
@@ -119,6 +119,24 @@ test.describe('head meta — normal page (/)', () => {
 		await page.goto('/');
 		const formatDetection = page.locator('meta[name="format-detection"]');
 		await expect(formatDetection).toHaveAttribute('content', 'telephone=no');
+	});
+
+	test('apple-mobile-web-app-capable is yes', async ({ page }) => {
+		await page.goto('/');
+		const meta = page.locator('meta[name="apple-mobile-web-app-capable"]');
+		await expect(meta).toHaveAttribute('content', 'yes');
+	});
+
+	test('apple-mobile-web-app-status-bar-style is default', async ({ page }) => {
+		await page.goto('/');
+		const meta = page.locator('meta[name="apple-mobile-web-app-status-bar-style"]');
+		await expect(meta).toHaveAttribute('content', 'default');
+	});
+
+	test('apple-mobile-web-app-title is WebForge', async ({ page }) => {
+		await page.goto('/');
+		const meta = page.locator('meta[name="apple-mobile-web-app-title"]');
+		await expect(meta).toHaveAttribute('content', 'WebForge');
 	});
 });
 
@@ -222,12 +240,12 @@ test.describe('head meta — error page (/test-error/404)', () => {
 		await expect(themeColor).toHaveAttribute('content', '#ffffff');
 	});
 
-	test('theme-color dark is #0a0a0a', async ({ page }) => {
+	test('theme-color dark is #242424', async ({ page }) => {
 		await page.goto('/test-error/404');
 		const themeColor = page.locator(
 			'meta[name="theme-color"][media="(prefers-color-scheme: dark)"]',
 		);
-		await expect(themeColor).toHaveAttribute('content', '#0a0a0a');
+		await expect(themeColor).toHaveAttribute('content', '#242424');
 	});
 
 	test('og:title is WebForge', async ({ page }) => {
@@ -278,5 +296,23 @@ test.describe('head meta — error page (/test-error/404)', () => {
 		const manifest = page.locator('link[rel="manifest"]');
 		await expect(manifest).toBeAttached();
 		await expect(manifest).toHaveAttribute('href', /manifest\.webmanifest/);
+	});
+
+	test('apple-mobile-web-app-capable is yes', async ({ page }) => {
+		await page.goto('/test-error/404');
+		const meta = page.locator('meta[name="apple-mobile-web-app-capable"]');
+		await expect(meta).toHaveAttribute('content', 'yes');
+	});
+
+	test('apple-mobile-web-app-status-bar-style is default', async ({ page }) => {
+		await page.goto('/test-error/404');
+		const meta = page.locator('meta[name="apple-mobile-web-app-status-bar-style"]');
+		await expect(meta).toHaveAttribute('content', 'default');
+	});
+
+	test('apple-mobile-web-app-title is WebForge', async ({ page }) => {
+		await page.goto('/test-error/404');
+		const meta = page.locator('meta[name="apple-mobile-web-app-title"]');
+		await expect(meta).toHaveAttribute('content', 'WebForge');
 	});
 });

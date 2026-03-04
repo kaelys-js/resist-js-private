@@ -188,6 +188,23 @@ The dev harness (`dev/test-map.ts` + `dev/dev.ts`) includes a hand-crafted 32×3
 
 The test map showcases every rendering feature: fog, shadows, glow, height map, day/night cycle, point lights, volumetric lighting, and post-processing effects.
 
+## Browser Configuration & App Metadata
+
+All browser configuration (manifest, robots.txt, security.txt, meta tags) is generated from a single source of truth: `editor/src/lib/config/app-meta.ts`.
+
+| File | Type | Description |
+|------|------|-------------|
+| `app-meta.ts` | Config module | App identity (name, description), theme colors (12 themes × light/dark hex), icon definitions, security contact info |
+| `manifest.webmanifest/+server.ts` | Prerendered route | PWA manifest with all required fields (name, id, scope, categories, icons) |
+| `robots.txt/+server.ts` | Prerendered route | Blocks AI training crawlers (GPTBot, CCBot, etc.), allows AI search (ChatGPT-User, Claude-Web) |
+| `.well-known/security.txt/+server.ts` | Prerendered route | RFC 9116 security contact (Expires auto-set to build date + 1 year) |
+| `+layout.svelte` | Dynamic meta | `theme-color` meta tags react to `store.app.theme` via THEME_COLORS map |
+| `app.html` | Static template | Apple PWA meta tags (capable, status-bar-style, title) |
+
+**Theme colors:** Light mode is always `#ffffff` for all themes. Dark mode background varies per theme (oklch values in `app.css` → pre-computed hex in `app-meta.ts`). The `THEME_COLORS` map covers all 12 themes in `SUPPORTED_THEMES`.
+
+All `+server.ts` routes use `export const prerender = true` — adapter-static generates static files at build time.
+
 ## Editor Debug / Developer Mode
 
 The editor includes a full debug system activated via URL params (`?wf.debug=true`) or programmatically. When enabled, it provides:
