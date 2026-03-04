@@ -15,7 +15,7 @@ let { user }: { user: { name: string; avatar: string } } = $props();
 const store = useEditorStore();
 const sidebar = Sidebar.useSidebar();
 
-/** Two-letter monogram from the project name (e.g. "WebForge Project" → "WP"). */
+/** Monogram from the project name (e.g. "My Project" → "MP", "Project" → "P"). */
 const monogram: string = $derived(
 	user.name
 		.split(/\s+/)
@@ -46,7 +46,7 @@ const monogram: string = $derived(
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-medium">{user.name}</span>
 							<span class="truncate text-xs text-muted-foreground"
-								>{store.app.appName}</span
+								>—</span
 							>
 						</div>
 						<ChevronsUpDown class="ml-auto size-4" />
@@ -70,7 +70,7 @@ const monogram: string = $derived(
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-medium">{user.name}</span>
 							<span class="truncate text-xs text-muted-foreground"
-								>{store.app.appName}</span
+								>—</span
 							>
 						</div>
 					</div>

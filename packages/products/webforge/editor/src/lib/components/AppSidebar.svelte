@@ -41,7 +41,7 @@ const navSecondary = $derived([
 ]);
 
 const user = {
-	name: 'WebForge Project',
+	name: 'Project',
 	avatar: '',
 };
 </script>

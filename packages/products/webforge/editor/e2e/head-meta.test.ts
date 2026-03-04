@@ -89,22 +89,30 @@ test.describe('head meta — normal page (/)', () => {
 		await expect(ogLocale).toHaveAttribute('content', 'en_US');
 	});
 
+	test('favicon ICO link is present', async ({ page }) => {
+		await page.goto('/');
+		const favicon = page.locator('link[rel="icon"][sizes="32x32"]');
+		await expect(favicon).toBeAttached();
+		await expect(favicon).toHaveAttribute('href', /favicon\.ico/);
+	});
+
 	test('favicon SVG link is present', async ({ page }) => {
 		await page.goto('/');
 		const favicon = page.locator('link[rel="icon"][type="image/svg+xml"]');
 		await expect(favicon).toBeAttached();
 	});
 
-	test('favicon PNG 32x32 link is present', async ({ page }) => {
+	test('apple-touch-icon link is present', async ({ page }) => {
 		await page.goto('/');
-		const favicon = page.locator('link[rel="icon"][type="image/png"][sizes="32x32"]');
-		await expect(favicon).toBeAttached();
+		const icon = page.locator('link[rel="apple-touch-icon"]');
+		await expect(icon).toBeAttached();
 	});
 
-	test('apple-touch-icon 180x180 link is present', async ({ page }) => {
+	test('manifest link is present', async ({ page }) => {
 		await page.goto('/');
-		const icon = page.locator('link[rel="apple-touch-icon"][sizes="180x180"]');
-		await expect(icon).toBeAttached();
+		const manifest = page.locator('link[rel="manifest"]');
+		await expect(manifest).toBeAttached();
+		await expect(manifest).toHaveAttribute('href', /manifest\.webmanifest/);
 	});
 
 	test('format-detection disables telephone linking', async ({ page }) => {
@@ -246,21 +254,29 @@ test.describe('head meta — error page (/test-error/404)', () => {
 		await expect(ogLocale).toHaveAttribute('content', 'en_US');
 	});
 
+	test('favicon ICO link is present', async ({ page }) => {
+		await page.goto('/test-error/404');
+		const favicon = page.locator('link[rel="icon"][sizes="32x32"]');
+		await expect(favicon).toBeAttached();
+		await expect(favicon).toHaveAttribute('href', /favicon\.ico/);
+	});
+
 	test('favicon SVG link is present', async ({ page }) => {
 		await page.goto('/test-error/404');
 		const favicon = page.locator('link[rel="icon"][type="image/svg+xml"]');
 		await expect(favicon).toBeAttached();
 	});
 
-	test('favicon PNG 32x32 link is present', async ({ page }) => {
+	test('apple-touch-icon link is present', async ({ page }) => {
 		await page.goto('/test-error/404');
-		const favicon = page.locator('link[rel="icon"][type="image/png"][sizes="32x32"]');
-		await expect(favicon).toBeAttached();
+		const icon = page.locator('link[rel="apple-touch-icon"]');
+		await expect(icon).toBeAttached();
 	});
 
-	test('apple-touch-icon 180x180 link is present', async ({ page }) => {
+	test('manifest link is present', async ({ page }) => {
 		await page.goto('/test-error/404');
-		const icon = page.locator('link[rel="apple-touch-icon"][sizes="180x180"]');
-		await expect(icon).toBeAttached();
+		const manifest = page.locator('link[rel="manifest"]');
+		await expect(manifest).toBeAttached();
+		await expect(manifest).toHaveAttribute('href', /manifest\.webmanifest/);
 	});
 });

@@ -37,6 +37,6 @@ describe('AppSidebar', () => {
 
 	it('renders user section in footer', () => {
 		render(AppSidebarTest);
-		expect(screen.getByText('WebForge Project')).toBeInTheDocument();
+		expect(screen.getByText('Project')).toBeInTheDocument();
 	});
 });

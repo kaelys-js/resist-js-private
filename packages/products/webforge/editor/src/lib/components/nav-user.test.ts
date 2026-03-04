@@ -8,9 +8,9 @@ describe('NavUser', () => {
 		expect(screen.getByText('Test User')).toBeInTheDocument();
 	});
 
-	it('renders app name', () => {
+	it('renders placeholder subtitle', () => {
 		render(NavUserTest);
-		expect(screen.getByText('WebForge')).toBeInTheDocument();
+		expect(screen.getByText('—')).toBeInTheDocument();
 	});
 
 	it('renders chevron icon', () => {

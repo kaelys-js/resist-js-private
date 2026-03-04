@@ -92,21 +92,17 @@ describe('AppSidebar feature flags', () => {
 	// --- appIconInSidebar ---
 	it('renders WebForge logo when appIconInSidebar flag is enabled (default)', () => {
 		const { container } = render(AppSidebarFlagsTest);
-		// The logo is inside a div with specific styling classes
-		const logoContainer: HTMLElement | null = container.querySelector(
-			'.bg-sidebar-primary.text-sidebar-primary-foreground',
-		);
-		expect(logoContainer).toBeInTheDocument();
+		// The logo renders as an img with class logo-img
+		const logoImg: HTMLElement | null = container.querySelector('img.logo-img');
+		expect(logoImg).toBeInTheDocument();
 	});
 
 	it('hides WebForge logo when appIconInSidebar flag is disabled', () => {
 		const { container } = render(AppSidebarFlagsTest, {
 			props: { disabledFlags: ['appIconInSidebar'] },
 		});
-		const logoContainer: HTMLElement | null = container.querySelector(
-			'.bg-sidebar-primary.text-sidebar-primary-foreground',
-		);
-		expect(logoContainer).not.toBeInTheDocument();
+		const logoImg: HTMLElement | null = container.querySelector('img.logo-img');
+		expect(logoImg).not.toBeInTheDocument();
 	});
 
 	// --- appNameInSidebar ---
@@ -126,13 +122,13 @@ describe('AppSidebar feature flags', () => {
 	// --- projectDropdown ---
 	it('renders NavUser when projectDropdown flag is enabled (default)', () => {
 		render(AppSidebarFlagsTest);
-		// NavUser contains the project name — "WebForge Project"
-		expect(screen.getByText('WebForge Project')).toBeInTheDocument();
+		// NavUser contains the project name — "Project"
+		expect(screen.getByText('Project')).toBeInTheDocument();
 	});
 
 	it('hides NavUser when projectDropdown flag is disabled', () => {
 		render(AppSidebarFlagsTest, { props: { disabledFlags: ['projectDropdown'] } });
-		expect(screen.queryByText('WebForge Project')).not.toBeInTheDocument();
+		expect(screen.queryByText('Project')).not.toBeInTheDocument();
 	});
 });
 
@@ -233,6 +229,6 @@ describe('Multiple flags disabled simultaneously', () => {
 		// Sidebar root should still render
 		expect(screen.queryByText('Settings')).not.toBeInTheDocument();
 		expect(screen.queryByText('Help')).not.toBeInTheDocument();
-		expect(screen.queryByText('WebForge Project')).not.toBeInTheDocument();
+		expect(screen.queryByText('Project')).not.toBeInTheDocument();
 	});
 });

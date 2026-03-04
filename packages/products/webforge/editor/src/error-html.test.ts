@@ -31,14 +31,19 @@ describe('error.html static fallback', () => {
 		expect(errorHtml).toContain('type="image/svg+xml"');
 	});
 
-	it('contains PNG favicon link', () => {
-		expect(errorHtml).toContain('type="image/png"');
+	it('contains ICO favicon link', () => {
+		expect(errorHtml).toContain('href="/favicon.ico"');
 		expect(errorHtml).toContain('sizes="32x32"');
 	});
 
 	it('contains apple-touch-icon link', () => {
 		expect(errorHtml).toContain('rel="apple-touch-icon"');
-		expect(errorHtml).toContain('sizes="180x180"');
+		expect(errorHtml).toContain('href="/apple-touch-icon.png"');
+	});
+
+	it('contains manifest link', () => {
+		expect(errorHtml).toContain('rel="manifest"');
+		expect(errorHtml).toContain('href="/manifest.webmanifest"');
 	});
 
 	it('contains title with friendly text and WebForge', () => {

@@ -28,11 +28,12 @@ let { size = 24, class: className = '' }: { size?: number; class?: string } = $p
 		justify-content: center;
 	}
 
+	/* Delay matches sidebar width transition (300ms) so the grow
+	   doesn't stack with the sidebar expanding on mount. */
 	.logo-img {
-		animation: logo-appear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+		animation: logo-appear 0.5s 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
 
-	/* Fade in + scale up with a slight overshoot */
 	@keyframes logo-appear {
 		0% {
 			opacity: 0;
@@ -44,43 +45,54 @@ let { size = 24, class: className = '' }: { size?: number; class?: string } = $p
 		}
 	}
 
-	/* Sparkle overlay — a bright sweep that crosses the crystal */
+	/* Sparkle overlay — masked to the crystal silhouette so light
+	   only shines through the crystal shape, not a rectangular box. */
 	.logo-sparkle {
 		position: absolute;
 		inset: 0;
-		overflow: hidden;
 		pointer-events: none;
-		border-radius: 2px;
+		-webkit-mask-image: url('/favicon.svg');
+		mask-image: url('/favicon.svg');
+		-webkit-mask-size: contain;
+		mask-size: contain;
+		-webkit-mask-position: center;
+		mask-position: center;
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+		overflow: hidden;
 	}
 
 	.logo-sparkle::after {
 		content: '';
 		position: absolute;
-		top: -20%;
-		left: -60%;
-		width: 40%;
-		height: 140%;
+		top: -40%;
+		left: -100%;
+		width: 45%;
+		height: 180%;
 		background: linear-gradient(
 			105deg,
-			transparent 30%,
-			rgba(255, 255, 255, 0.6) 45%,
-			rgba(255, 255, 255, 0.8) 50%,
-			rgba(255, 255, 255, 0.6) 55%,
-			transparent 70%
+			transparent 25%,
+			rgba(255, 255, 255, 0.25) 38%,
+			rgba(255, 255, 255, 0.7) 50%,
+			rgba(255, 255, 255, 0.25) 62%,
+			transparent 75%
 		);
-		animation: logo-sparkle 0.8s 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+		animation: logo-sparkle 1.4s 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 	}
 
 	@keyframes logo-sparkle {
 		0% {
-			transform: translateX(0) skewX(-15deg);
+			transform: translateX(0) skewX(-12deg);
 			opacity: 0;
 		}
-		20% {
+		8% {
 			opacity: 1;
 		}
+		85% {
+			opacity: 0.6;
+		}
 		100% {
-			transform: translateX(350%) skewX(-15deg);
+			transform: translateX(500%) skewX(-12deg);
 			opacity: 0;
 		}
 	}
