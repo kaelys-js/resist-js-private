@@ -175,6 +175,12 @@ export const de: EditorLocaleRaw = {
 			dirtyNo: 'Nein',
 		},
 	},
+	home: {
+		welcome: 'Willkommen bei {appName}',
+		selectScene:
+			'Wählen Sie eine Szene in der Seitenleiste aus, um mit der Bearbeitung zu beginnen.',
+		orCreateNew: 'Oder erstellen Sie eine neue, um loszulegen.',
+	},
 	errors: {
 		badRequest: 'Ungültige Anfrage',
 		badRequestDescription:

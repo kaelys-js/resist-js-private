@@ -78,14 +78,14 @@ async function selectOption(key: string, value: string): Promise<void> {
 function handleLogin(): void {
 	const url = new URL(page.url);
 	url.searchParams.delete('wf.auth');
-	goto(url.toString());
+	goto(url.toString(), { invalidateAll: true });
 }
 
 /** Navigate to current page with `?wf.auth=false` to simulate logout. */
 function handleLogout(): void {
 	const url = new URL(page.url);
 	url.searchParams.set('wf.auth', 'false');
-	goto(url.toString());
+	goto(url.toString(), { invalidateAll: true });
 }
 
 /** Toggle `?wf.scenes=empty` to simulate an empty scene list. */
@@ -96,7 +96,7 @@ function toggleEmptyScenes(): void {
 	} else {
 		url.searchParams.set('wf.scenes', 'empty');
 	}
-	goto(url.toString());
+	goto(url.toString(), { invalidateAll: true });
 }
 
 let resetState: 'idle' | 'success' = $state('idle');
@@ -169,7 +169,7 @@ function optionLabel(key: string, value: string): string {
 						{t(localeStore.t.devToolbar.logIn, 'Log In')}
 					</Button>
 				{:else}
-					<Button variant="secondary" size="sm" class="h-7 text-xs flex-1" onclick={handleLogout}>
+					<Button variant="outline" size="sm" class="h-7 text-xs flex-1" onclick={handleLogout}>
 						<LogOutIcon class="size-3 mr-1" />
 						{t(localeStore.t.devToolbar.logOut, 'Log Out')}
 					</Button>

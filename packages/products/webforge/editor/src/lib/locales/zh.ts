@@ -175,6 +175,11 @@ export const zh: EditorLocaleRaw = {
 			dirtyNo: '否',
 		},
 	},
+	home: {
+		welcome: '欢迎使用 {appName}',
+		selectScene: '从侧栏选择一个场景开始编辑。',
+		orCreateNew: '或者创建一个新场景来开始。',
+	},
 	errors: {
 		badRequest: '请求无效',
 		badRequestDescription: '请求内容似乎有误，请检查后重试。',

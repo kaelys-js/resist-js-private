@@ -261,13 +261,16 @@ const errorTitleMap: Record<number, () => string> = {
 	500: () => t(localeStore.t.errors.serverError, 'Something went wrong'),
 };
 
-// Active scene name — derived from server data scenes array.
-// Only show active scene when NOT on the home route (/) to avoid stale breadcrumbs.
-const activeSceneName: string = $derived(
+// On the home route (/), no scene should be marked active — clear isActive to
+// prevent stale highlighting in the sidebar and breadcrumb.
+const displayScenes = $derived(
 	page.url.pathname === '/'
-		? ''
-		: (data.scenes?.find((s: { isActive: boolean }) => s.isActive)?.title ?? ''),
+		? (data.scenes ?? []).map((s) => ({ ...s, isActive: false }))
+		: (data.scenes ?? []),
 );
+
+// Active scene name — derived from displayScenes (already route-aware).
+const activeSceneName: string = $derived(displayScenes.find((s) => s.isActive)?.title ?? '');
 
 // Breadcrumb segment for page title — mirrors SiteHeader's breadcrumb leaf.
 const breadcrumbSegment: string = $derived.by(() => {
@@ -330,7 +333,7 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 				onExpand={handleExpand}
 				class="!overflow-visible"
 			>
-				<AppSidebar user={data.user} project={data.project} scenes={data.scenes ?? []} />
+				<AppSidebar user={data.user} project={data.project} scenes={displayScenes} />
 			</Resizable.Pane>
 			<Resizable.Handle
 				class="w-1.5 bg-transparent hover:bg-border data-[active]:bg-ring transition-colors"
@@ -346,7 +349,7 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 			</Resizable.Pane>
 		</Resizable.PaneGroup>
 	{:else}
-		<AppSidebar user={data.user} project={data.project} scenes={data.scenes ?? []} />
+		<AppSidebar user={data.user} project={data.project} scenes={displayScenes} />
 		<Sidebar.Inset>
 			<SiteHeader isError={Boolean(page.error)} user={data.user} {activeSceneName} />
 			<div class="flex flex-1 flex-col">
