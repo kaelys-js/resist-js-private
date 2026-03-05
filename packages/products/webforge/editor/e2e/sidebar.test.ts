@@ -4,7 +4,9 @@ test.describe('sidebar', () => {
 	test('sidebar renders with Storylyne branding', async ({ page }) => {
 		await page.goto('/');
 		await expect(page.getByText('Storylyne', { exact: true }).first()).toBeVisible();
-		await expect(page.getByText('Your Story, Rendered', { exact: true })).toBeVisible();
+		await expect(
+			page.locator('[data-slot="sidebar"]').getByText('Your Story, Rendered', { exact: true }),
+		).toBeVisible();
 	});
 
 	test('scene list renders with default scenes', async ({ page }) => {

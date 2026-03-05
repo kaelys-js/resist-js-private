@@ -46,7 +46,9 @@ test.describe('feature flags — default state', () => {
 
 		// AppSidebar: branding visible
 		await expect(page.getByText('Storylyne', { exact: true }).first()).toBeVisible();
-		await expect(page.getByText('Your Story, Rendered', { exact: true })).toBeVisible();
+		await expect(
+			page.locator('[data-slot="sidebar"]').getByText('Your Story, Rendered', { exact: true }),
+		).toBeVisible();
 
 		// AppSidebar: Help visible
 		await expect(page.getByText('Help')).toBeVisible();
@@ -97,7 +99,9 @@ test.describe('feature flags — individual toggles', () => {
 
 	test('appNameInSidebar=false hides name text in sidebar header', async ({ page }) => {
 		await setFlags(page, { appNameInSidebar: false });
-		await expect(page.getByText('Your Story, Rendered', { exact: true })).not.toBeAttached();
+		await expect(
+			page.locator('[data-slot="sidebar"]').getByText('Your Story, Rendered', { exact: true }),
+		).not.toBeAttached();
 	});
 
 	test('projectDropdown=false hides NavUser in sidebar footer', async ({ page }) => {

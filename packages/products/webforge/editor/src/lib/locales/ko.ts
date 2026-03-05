@@ -175,6 +175,11 @@ export const ko: EditorLocaleRaw = {
 			dirtyNo: '아니오',
 		},
 	},
+	home: {
+		welcome: '{appName}에 오신 것을 환영합니다',
+		selectScene: '사이드바에서 장면을 선택하여 편집을 시작하세요.',
+		orCreateNew: '또는 새 장면을 만들어 시작하세요.',
+	},
 	errors: {
 		badRequest: '잘못된 요청',
 		badRequestDescription: '요청에 문제가 있는 것 같습니다. 확인 후 다시 시도해 주세요.',

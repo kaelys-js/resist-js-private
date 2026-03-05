@@ -175,6 +175,11 @@ export const es: EditorLocaleRaw = {
 			dirtyNo: 'No',
 		},
 	},
+	home: {
+		welcome: 'Bienvenido a {appName}',
+		selectScene: 'Selecciona una escena de la barra lateral para empezar a editar.',
+		orCreateNew: 'O crea una nueva para comenzar.',
+	},
 	errors: {
 		badRequest: 'Solicitud no válida',
 		badRequestDescription: 'Algo en esa solicitud no se veía bien. Revisa e inténtalo de nuevo.',

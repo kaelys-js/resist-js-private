@@ -175,6 +175,11 @@ export const ja: EditorLocaleRaw = {
 			dirtyNo: 'なし',
 		},
 	},
+	home: {
+		welcome: '{appName}へようこそ',
+		selectScene: 'サイドバーからシーンを選択して編集を開始しましょう。',
+		orCreateNew: 'または新しいシーンを作成して始めましょう。',
+	},
 	errors: {
 		badRequest: '不正なリクエスト',
 		badRequestDescription: 'リクエストの内容に問題がありました。確認してもう一度お試しください。',
