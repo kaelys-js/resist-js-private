@@ -42,6 +42,13 @@ function disableAll(): void {
 	}
 }
 
+const allEnabled: boolean = $derived(
+	flags.every((f) => editorStore.features[f.key as keyof FeatureFlags]),
+);
+const allDisabled: boolean = $derived(
+	flags.every((f) => !editorStore.features[f.key as keyof FeatureFlags]),
+);
+
 function labelFor(key: string): string {
 	const entry = (localeStore.t.devToolbar.labels as unknown as Record<string, () => Result<Str>>)[
 		key
@@ -105,10 +112,10 @@ function labelFor(key: string): string {
 	</ScrollArea.Root>
 
 	<div class="flex gap-2 border-t border-border pt-2">
-		<Button variant="secondary" size="sm" class="h-7 text-xs flex-1" onclick={enableAll}>
+		<Button variant="secondary" size="sm" class="h-7 text-xs flex-1" onclick={enableAll} disabled={allEnabled}>
 			{t(localeStore.t.devToolbar.enableAll, 'Enable All')}
 		</Button>
-		<Button variant="secondary" size="sm" class="h-7 text-xs flex-1" onclick={disableAll}>
+		<Button variant="secondary" size="sm" class="h-7 text-xs flex-1" onclick={disableAll} disabled={allDisabled}>
 			{t(localeStore.t.devToolbar.disableAll, 'Disable All')}
 		</Button>
 	</div>

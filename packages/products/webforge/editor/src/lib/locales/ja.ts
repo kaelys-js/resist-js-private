@@ -90,6 +90,8 @@ export const ja: EditorLocaleRaw = {
 		logState: '状態をログ出力',
 		logFeatures: '機能をログ出力',
 		copyDebugUrl: 'デバッグURLをコピー',
+		logged: 'ログ出力済み！',
+		resetDone: 'リセット済み！',
 		urlOverrides: 'URLオーバーライド',
 		buildInfo: 'ビルド情報',
 		copyBuildInfo: 'ビルド情報をコピー',

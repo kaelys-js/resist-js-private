@@ -90,6 +90,8 @@ export const ko: EditorLocaleRaw = {
 		logState: '상태 로그',
 		logFeatures: '기능 로그',
 		copyDebugUrl: '디버그 URL 복사',
+		logged: '로그 출력됨!',
+		resetDone: '초기화됨!',
 		urlOverrides: 'URL 오버라이드',
 		buildInfo: '빌드 정보',
 		copyBuildInfo: '빌드 정보 복사',

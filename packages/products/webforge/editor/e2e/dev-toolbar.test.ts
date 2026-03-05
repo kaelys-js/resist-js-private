@@ -217,6 +217,101 @@ test.describe('dev toolbar — quick actions', () => {
 });
 
 // =============================================================================
+// Build Info section
+// =============================================================================
+
+test.describe('dev toolbar — build info', () => {
+	test('debug panel shows build info section', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-debug');
+		const panel = page.locator('[data-testid="dev-toolbar-debug"]');
+		await expect(panel.locator('[data-testid="build-info"]')).toBeVisible();
+		await expect(panel.getByRole('heading', { name: 'Build Info' })).toBeVisible();
+	});
+
+	test('build info shows version, commit, branch, dirty, built', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-debug');
+		const buildInfo = page.locator('[data-testid="build-info"]');
+		await expect(buildInfo.getByText('Version')).toBeVisible();
+		await expect(buildInfo.getByText('Commit')).toBeVisible();
+		await expect(buildInfo.getByText('Branch')).toBeVisible();
+		await expect(buildInfo.getByText('Dirty')).toBeVisible();
+		await expect(buildInfo.getByText('Built')).toBeVisible();
+	});
+});
+
+// =============================================================================
+// Copy feedback — Copy Build Info
+// =============================================================================
+
+test.describe('dev toolbar — copy build info feedback', () => {
+	test('Copy Build Info shows checkmark on success', async ({ page, context }) => {
+		await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-debug');
+		const btn = page.locator('[data-testid="copy-build-info"]');
+		await expect(btn).toContainText('Copy Build Info');
+		await btn.click();
+		await expect(btn).toContainText(/copied/i);
+	});
+
+	test('Copy Build Info reverts after timeout', async ({ page, context }) => {
+		await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-debug');
+		const btn = page.locator('[data-testid="copy-build-info"]');
+		await btn.click();
+		await expect(btn).toContainText(/copied/i);
+		await expect(btn).toContainText('Copy Build Info', { timeout: 5000 });
+	});
+
+	test('Copy Build Info copies text to clipboard', async ({ page, context }) => {
+		await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-debug');
+		await page.locator('[data-testid="copy-build-info"]').click();
+		const clipboardText: string = await page.evaluate(() => navigator.clipboard.readText());
+		expect(clipboardText).toContain('Version:');
+		expect(clipboardText).toContain('Branch:');
+	});
+});
+
+// =============================================================================
+// Copy feedback — Copy Debug URL
+// =============================================================================
+
+test.describe('dev toolbar — copy debug url feedback', () => {
+	test('Copy Debug URL shows checkmark on success', async ({ page, context }) => {
+		await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-debug');
+		const btn = page.locator('[data-testid="copy-debug-url"]');
+		await expect(btn).toContainText('Copy Debug URL');
+		await btn.click();
+		await expect(btn).toContainText(/copied/i);
+	});
+
+	test('Copy Debug URL reverts after timeout', async ({ page, context }) => {
+		await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-debug');
+		const btn = page.locator('[data-testid="copy-debug-url"]');
+		await btn.click();
+		await expect(btn).toContainText(/copied/i);
+		await expect(btn).toContainText('Copy Debug URL', { timeout: 5000 });
+	});
+
+	test('Copy Debug URL has link icon', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-debug');
+		const btn = page.locator('[data-testid="copy-debug-url"]');
+		// Button should have an SVG icon (the link icon)
+		await expect(btn.locator('svg')).toBeVisible();
+	});
+});
+
+// =============================================================================
 // Viewport resize — toolbar stays visible
 // =============================================================================
 

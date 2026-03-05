@@ -80,7 +80,8 @@ export type DebugStore = {
 function save(): Result<Void> {
 	if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
 	try {
-		const data = { enabled: _debug.enabled, logLevel: _debug.logLevel };
+		// Only persist logLevel — `enabled` is session-only (set via URL param or keyboard shortcut)
+		const data = { logLevel: _debug.logLevel };
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 		return okUnchecked<Void>(undefined);
 	} catch {

@@ -109,7 +109,7 @@ describe('setEnabled', () => {
 		expect(store.debug.enabled).toBe(false);
 	});
 
-	it('persists to localStorage', () => {
+	it('does not persist enabled to localStorage (session-only)', () => {
 		const result = createDebugStore();
 		if (!result.ok) throw new Error('should be ok');
 		result.data.setEnabled(true);
@@ -117,7 +117,7 @@ describe('setEnabled', () => {
 		const saved: string | null = localStorageMock.getItem(STORAGE_KEY);
 		expect(saved).not.toBeNull();
 		const parsed = JSON.parse(saved!);
-		expect(parsed.enabled).toBe(true);
+		expect(parsed.enabled).toBeUndefined();
 	});
 
 	it('rejects non-boolean', () => {
