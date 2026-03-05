@@ -36,7 +36,6 @@ const scenesLabel = $derived(t(localeStore.t.sidebar.scenes, 'Scenes'));
 				tooltipContent={scene.title}
 				isActive={scene.isActive}
 				aria-current={scene.isActive ? 'page' : undefined}
-				size="sm"
 			>
 				<MapIcon aria-hidden="true" />
 				<span>{scene.title}</span>
@@ -69,7 +68,7 @@ const scenesLabel = $derived(t(localeStore.t.sidebar.scenes, 'Scenes'));
 		</Sidebar.MenuItem>
 	{/each}
 	<Sidebar.MenuItem>
-		<Sidebar.MenuButton class="text-sidebar-foreground/70" size="sm">
+		<Sidebar.MenuButton class="text-sidebar-foreground/70">
 			<Plus />
 			<span>{t(localeStore.t.sidebar.newScene, 'New Scene')}</span>
 		</Sidebar.MenuButton>
