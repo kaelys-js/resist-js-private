@@ -1,6 +1,7 @@
 <script lang="ts">
 import CheckIcon from '@lucide/svelte/icons/check';
 import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
 import { tick } from 'svelte';
 import { Switch } from '$lib/components/ui/switch/index.js';
 import { Label } from '$lib/components/ui/label/index.js';
@@ -55,10 +56,18 @@ async function selectOption(key: string, value: string): Promise<void> {
 	triggerRefs[key]?.focus();
 }
 
+let resetState: 'idle' | 'success' = $state('idle');
+let resetTimeout: ReturnType<typeof setTimeout> | undefined = $state(undefined);
+
 function resetDefaults(): void {
 	for (const pref of preferences) {
 		callSetter(pref.key, pref.default);
 	}
+	resetState = 'success';
+	clearTimeout(resetTimeout);
+	resetTimeout = setTimeout(() => {
+		resetState = 'idle';
+	}, 2000);
 }
 
 function labelFor(key: string): string {
@@ -168,8 +177,20 @@ function optionLabel(key: string, value: string): string {
 	</div>
 
 	<div class="border-t border-border pt-2">
-		<Button variant="secondary" size="sm" class="h-7 text-xs w-full" onclick={resetDefaults}>
-			{t(localeStore.t.devToolbar.resetToDefaults, 'Reset to Defaults')}
+		<Button
+			variant="secondary"
+			size="sm"
+			class="h-7 text-xs w-full {resetState === 'success' ? 'text-green-500' : ''}"
+			onclick={resetDefaults}
+			data-testid="reset-defaults-btn"
+		>
+			{#if resetState === 'success'}
+				<CheckIcon class="size-3 mr-1" />
+				{t(localeStore.t.devToolbar.resetDone, 'Reset!')}
+			{:else}
+				<RotateCcwIcon class="size-3 mr-1" />
+				{t(localeStore.t.devToolbar.resetToDefaults, 'Reset to Defaults')}
+			{/if}
 		</Button>
 	</div>
 </div>

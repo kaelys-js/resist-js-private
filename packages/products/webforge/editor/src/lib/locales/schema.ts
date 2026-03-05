@@ -98,6 +98,8 @@ export const EditorLocaleSchema = v.strictObject({
 		logState: messageTemplate(),
 		logFeatures: messageTemplate(),
 		copyDebugUrl: messageTemplate(),
+		logged: messageTemplate(),
+		resetDone: messageTemplate(),
 		urlOverrides: messageTemplate(),
 		buildInfo: messageTemplate(),
 		copyBuildInfo: messageTemplate(),

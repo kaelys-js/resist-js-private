@@ -90,6 +90,8 @@ export const en: EditorLocaleRaw = {
 		logState: 'Log State',
 		logFeatures: 'Log Features',
 		copyDebugUrl: 'Copy Debug URL',
+		logged: 'Logged!',
+		resetDone: 'Reset!',
 		urlOverrides: 'URL Overrides',
 		buildInfo: 'Build Info',
 		copyBuildInfo: 'Copy Build Info',

@@ -45,11 +45,18 @@ if (browser && debugStore) {
 	applyUrlOverrides(store, debugStore, debugStore.urlOverrides);
 }
 
-// ── Window build info global (client-only) ──────────────────────────
+// ── Window build info global + startup log (client-only) ─────────────
 if (browser) {
 	const buildResult = getBuildInfo();
 	if (buildResult.ok) {
 		window.__STORYLYNE_BUILD__ = buildResult.data;
+		const b = buildResult.data;
+		// eslint-disable-next-line no-console -- Intentional startup log
+		console.log(
+			`%c${store.app.appName}%c v${b.version} (${b.branch}@${b.commit}${b.dirty ? ', dirty' : ''}) — built ${b.buildTimestamp}`,
+			'color:#8cf;font-weight:bold',
+			'color:#aaa',
+		);
 	}
 }
 

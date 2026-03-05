@@ -90,6 +90,8 @@ export const zh: EditorLocaleRaw = {
 		logState: '输出状态日志',
 		logFeatures: '输出功能日志',
 		copyDebugUrl: '复制调试URL',
+		logged: '已输出！',
+		resetDone: '已重置！',
 		urlOverrides: 'URL覆盖',
 		buildInfo: '构建信息',
 		copyBuildInfo: '复制构建信息',
