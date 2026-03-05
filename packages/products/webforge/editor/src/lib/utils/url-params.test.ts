@@ -152,6 +152,7 @@ describe('applyUrlOverrides', () => {
 			userName: 'User',
 			userEmail: '',
 			userAvatar: '',
+			mockDataDelay: 0,
 		},
 		features: {
 			settings: true,
@@ -159,6 +160,7 @@ describe('applyUrlOverrides', () => {
 			languageSelection: true,
 			modeToggle: true,
 			sidebar: true,
+			sidebarHome: true,
 			sceneList: true,
 			resizableSidebar: true,
 			breadcrumb: true,
@@ -190,6 +192,7 @@ describe('applyUrlOverrides', () => {
 		setUserName: vi.fn(okVoid),
 		setUserEmail: vi.fn(okVoid),
 		setUserAvatar: vi.fn(okVoid),
+		setMockDataDelay: vi.fn(okVoid),
 		setFeature: vi.fn(okVoid),
 		save: vi.fn(okVoid),
 		load: vi.fn(okVoid),
@@ -315,5 +318,30 @@ describe('applyUrlOverrides', () => {
 	it('applies appName override to editor store', () => {
 		applyUrlOverrides(editorStore, debugStore, { appName: 'MyRPG' });
 		expect(editorStore.setAppName).toHaveBeenCalledWith('MyRPG');
+	});
+
+	it('applies userName override to editor store', () => {
+		applyUrlOverrides(editorStore, debugStore, { userName: 'Alice' });
+		expect(editorStore.setUserName).toHaveBeenCalledWith('Alice');
+	});
+
+	it('applies userEmail override to editor store', () => {
+		applyUrlOverrides(editorStore, debugStore, { userEmail: 'alice@example.com' });
+		expect(editorStore.setUserEmail).toHaveBeenCalledWith('alice@example.com');
+	});
+
+	it('applies userAvatar override to editor store', () => {
+		applyUrlOverrides(editorStore, debugStore, { userAvatar: 'https://example.com/avatar.png' });
+		expect(editorStore.setUserAvatar).toHaveBeenCalledWith('https://example.com/avatar.png');
+	});
+
+	it('applies mockDataDelay as number to editor store', () => {
+		applyUrlOverrides(editorStore, debugStore, { mockDataDelay: '2000' });
+		expect(editorStore.setMockDataDelay).toHaveBeenCalledWith(2000);
+	});
+
+	it('applies mockDataDelay=0 for non-numeric string', () => {
+		applyUrlOverrides(editorStore, debugStore, { mockDataDelay: 'abc' });
+		expect(editorStore.setMockDataDelay).toHaveBeenCalledWith(0);
 	});
 });

@@ -262,8 +262,11 @@ const errorTitleMap: Record<number, () => string> = {
 };
 
 // Active scene name — derived from server data scenes array.
+// Only show active scene when NOT on the home route (/) to avoid stale breadcrumbs.
 const activeSceneName: string = $derived(
-	data.scenes?.find((s: { isActive: boolean }) => s.isActive)?.title ?? '',
+	page.url.pathname === '/'
+		? ''
+		: (data.scenes?.find((s: { isActive: boolean }) => s.isActive)?.title ?? ''),
 );
 
 // Breadcrumb segment for page title — mirrors SiteHeader's breadcrumb leaf.
@@ -343,7 +346,7 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 			</Resizable.Pane>
 		</Resizable.PaneGroup>
 	{:else}
-		<AppSidebar />
+		<AppSidebar user={data.user} project={data.project} scenes={data.scenes ?? []} />
 		<Sidebar.Inset>
 			<SiteHeader isError={Boolean(page.error)} user={data.user} {activeSceneName} />
 			<div class="flex flex-1 flex-col">

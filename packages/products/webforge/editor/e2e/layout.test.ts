@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('layout', () => {
 	test('page loads with correct title', async ({ page }) => {
 		await page.goto('/');
-		await expect(page).toHaveTitle('Storylyne - Overworld - Your Story, Rendered');
+		await expect(page).toHaveTitle('Storylyne - Home - Your Story, Rendered');
 	});
 
 	test('sidebar is visible on desktop', async ({ page }) => {
@@ -12,18 +12,10 @@ test.describe('layout', () => {
 		await expect(sidebar.first()).toBeAttached();
 	});
 
-	test('breadcrumb contains Home and active scene name', async ({ page }) => {
+	test('breadcrumb shows Home on home route', async ({ page }) => {
 		await page.goto('/');
 		const breadcrumb = page.locator('nav[aria-label="breadcrumb"], ol');
 		await expect(breadcrumb.getByText('Home')).toBeVisible();
-		await expect(breadcrumb.getByText('Overworld')).toBeVisible();
-	});
-
-	test('breadcrumb Home links to /', async ({ page }) => {
-		await page.goto('/');
-		const breadcrumb = page.locator('nav[aria-label="breadcrumb"], ol');
-		const homeLink = breadcrumb.getByRole('link', { name: 'Home' });
-		await expect(homeLink).toHaveAttribute('href', '/');
 	});
 
 	test('sidebar Home nav item is visible', async ({ page }) => {

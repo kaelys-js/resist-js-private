@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 test.describe('project & user data — default state', () => {
 	test('project name "Sample Project" visible in sidebar footer', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.getByText('Sample Project')).toBeVisible();
+		await expect(page.getByText('Sample Project', { exact: true })).toBeVisible();
 	});
 
 	test('project subtitle visible in sidebar footer', async ({ page }) => {
@@ -40,7 +40,7 @@ test.describe('project & user data — auth override (?wf.auth=false)', () => {
 
 	test('project dropdown hidden when logged out', async ({ page }) => {
 		await page.goto('/?wf.auth=false');
-		await expect(page.getByText('Sample Project')).not.toBeAttached();
+		await expect(page.getByText('Sample Project', { exact: true })).not.toBeAttached();
 	});
 
 	test('scene list hidden when logged out', async ({ page }) => {
