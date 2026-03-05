@@ -12,7 +12,9 @@ test.describe('tooltips', () => {
 		await trigger.hover();
 		const tooltip = page.locator(tooltipSelector);
 		await expect(tooltip).toBeVisible();
-		await expect(tooltip).toHaveText('Toggle Sidebar');
+		// Tooltip now includes a keyboard shortcut hint (e.g. "Toggle Sidebar ⌘b" or "Toggle Sidebar Ctrl+b")
+		const text: string = (await tooltip.textContent()) ?? '';
+		expect(text).toContain('Toggle Sidebar');
 	});
 
 	test('sidebar trigger tooltip disappears on mouse leave', async ({ page }) => {

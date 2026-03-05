@@ -1,6 +1,6 @@
 import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
 import { getContext, setContext } from 'svelte';
-import { SIDEBAR_KEYBOARD_SHORTCUT } from './constants.js';
+import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
 
 type Getter<T> = () => T;
 
@@ -42,7 +42,7 @@ class SidebarState {
 
 	// Event handler to apply to the `<svelte:window>`
 	handleShortcutKeydown = (e: KeyboardEvent) => {
-		if (e.key === SIDEBAR_KEYBOARD_SHORTCUT && (e.metaKey || e.ctrlKey)) {
+		if (shortcutStore.matches(e, 'TOGGLE_SIDEBAR')) {
 			e.preventDefault();
 			this.toggle();
 		}
