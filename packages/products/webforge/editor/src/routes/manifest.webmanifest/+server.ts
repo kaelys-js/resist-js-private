@@ -5,6 +5,10 @@
  * Prerendered at build time by adapter-static → produces a static JSON file.
  */
 
+// TODO: Proper Commenting
+// TODO: Proper Response Headers (Shared With Other Routes)
+// TODO: Proper Schema For Manifest
+
 import type { RequestHandler } from './$types';
 import {
 	APP_CATEGORIES,

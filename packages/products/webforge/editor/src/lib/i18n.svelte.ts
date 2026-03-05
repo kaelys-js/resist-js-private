@@ -19,10 +19,10 @@ const registryResult = createLocaleRegistry({
 	fallbackLocales: ['en'],
 });
 
-if (!registryResult.ok) throw new Error('Locale registry failed');
+if (!registryResult.ok) throw new Error('Locale registry failed'); // TODO: Shouldn't include the AppError?
 
 const storeResult = createLocaleStore<typeof EditorLocaleSchema>(registryResult.data);
-if (!storeResult.ok) throw new Error('Locale store failed');
+if (!storeResult.ok) throw new Error('Locale store failed'); // TODO: Shouldn't include the AppError?
 
 export const localeStore = storeResult.data;
 

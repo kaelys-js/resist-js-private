@@ -12,6 +12,8 @@
  * @module
  */
 
+// TODO: Can localize everything?
+
 import { styles } from '$lib/debug/console-styles';
 import { createStateLogger } from '$lib/debug/state-logger.svelte';
 import { createDevtoolsAPI, DEVTOOLS_KEY } from '$lib/debug/devtools-api.svelte';
@@ -137,14 +139,14 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): voi
 
 	// ── Header ────────────────────────────────────────────────────
 	console.log(
-		'%c[Debug] %c%s — debug mode enabled',
+		'%c[Debug] %c%s — debug mode enabled', // T
 		'color:#8cf;font-weight:bold',
 		'color:#aaa',
 		app.appName,
 	);
 
 	// ── Current State (teal badge) ────────────────────────────────
-	console.groupCollapsed('%c Current State ', BADGE_STATE);
+	console.groupCollapsed('%c Current State ', BADGE_STATE); // T
 	const stateBlock = buildKVBlock([
 		['theme', app.theme || '(system default)'],
 		['mode', app.mode],
@@ -156,7 +158,7 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): voi
 	console.groupEnd();
 
 	// ── Feature Flags (green badge) ───────────────────────────────
-	console.groupCollapsed('%c Feature Flags ', BADGE_FLAGS);
+	console.groupCollapsed('%c Feature Flags ', BADGE_FLAGS); // T
 	const flagEntries: Array<[string, string]> = Object.entries(features).map(([key, val]) => [
 		key,
 		String(val),

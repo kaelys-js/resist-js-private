@@ -8,7 +8,7 @@
  */
 
 /** All locale codes the editor supports. */
-export const SUPPORTED_LOCALE_CODES = new Set(['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es']);
+export const SUPPORTED_LOCALE_CODES = new Set(['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es']); // TODO: From editor-state if possible so supported locale codes are in one place
 
 /**
  * Detects the best matching locale from an Accept-Language header.

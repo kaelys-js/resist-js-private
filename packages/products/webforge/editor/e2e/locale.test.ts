@@ -8,21 +8,21 @@ test.describe('locale', () => {
 	});
 
 	test('cookie sets locale on page load', async ({ context, page }) => {
-		await context.addCookies([{ name: 'locale', value: 'ja', url: 'http://localhost:4173' }]);
+		await context.addCookies([{ name: 'locale', value: 'ja', url: 'http://127.0.0.1:4173' }]);
 		await page.goto('/');
 		const lang = await page.locator('html').getAttribute('lang');
 		expect(lang).toBe('ja');
 	});
 
 	test('og:locale updates with locale cookie', async ({ context, page }) => {
-		await context.addCookies([{ name: 'locale', value: 'fr', url: 'http://localhost:4173' }]);
+		await context.addCookies([{ name: 'locale', value: 'fr', url: 'http://127.0.0.1:4173' }]);
 		await page.goto('/');
 		const ogLocale = page.locator('meta[property="og:locale"]');
 		await expect(ogLocale).toHaveAttribute('content', 'fr_FR');
 	});
 
 	test('meta description changes with locale', async ({ context, page }) => {
-		await context.addCookies([{ name: 'locale', value: 'ja', url: 'http://localhost:4173' }]);
+		await context.addCookies([{ name: 'locale', value: 'ja', url: 'http://127.0.0.1:4173' }]);
 		await page.goto('/');
 		const description = page.locator('meta[name="description"]');
 		const content = await description.getAttribute('content');

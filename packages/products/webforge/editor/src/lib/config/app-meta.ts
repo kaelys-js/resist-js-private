@@ -6,6 +6,8 @@
  * robots.txt, security.txt) import from here.
  */
 
+// TODO: Proper commenting
+
 import type { SUPPORTED_THEMES } from '$lib/schemas/editor-state';
 
 // ── App identity ─────────────────────────────────────────────────────────────
@@ -18,7 +20,7 @@ export const APP_ID = '/';
 export const APP_SCOPE = '/';
 export const APP_START_URL = '/';
 export const APP_DISPLAY = 'standalone';
-export const APP_CATEGORIES: readonly string[] = ['games', 'developer tools', 'design'];
+export const APP_CATEGORIES: readonly string[] = ['games', 'developer tools', 'design']; // TODO: Proper Valibot Schema
 
 // ── Storage ──────────────────────────────────────────────────────────────────
 
@@ -35,7 +37,7 @@ export const STORAGE_PREFIX = 'app';
  * storageKey('editor-state') // 'app:editor-state'
  * storageKey('mode')         // 'app:mode'
  */
-export function storageKey(suffix: string): string {
+export function storageKey(suffix: string): string { // TODO: Proper Valibot Types + Result System
 	return `${STORAGE_PREFIX}:${suffix}`;
 }
 
@@ -44,7 +46,7 @@ export function storageKey(suffix: string): string {
 // Light mode is always #ffffff (all themes use oklch(1 0 0) as :root default).
 // Dark mode varies per theme.
 
-type ThemeColorEntry = { readonly light: string; readonly dark: string };
+type ThemeColorEntry = { readonly light: string; readonly dark: string }; // TODO: Proper Valibot Schema
 
 /**
  * Map of theme identifier → hex background colors for light and dark modes.
@@ -52,7 +54,7 @@ type ThemeColorEntry = { readonly light: string; readonly dark: string };
  *
  * oklch → hex conversions computed offline (see design doc for values).
  */
-export const THEME_COLORS: Record<(typeof SUPPORTED_THEMES)[number], ThemeColorEntry> = {
+export const THEME_COLORS: Record<(typeof SUPPORTED_THEMES)[number], ThemeColorEntry> = { // TODO: Proper Valibot Schema
 	'': { light: '#ffffff', dark: '#242424' },
 	midnight: { light: '#ffffff', dark: '#1a1f2e' },
 	warm: { light: '#ffffff', dark: '#2a2420' },
@@ -70,7 +72,7 @@ export const THEME_COLORS: Record<(typeof SUPPORTED_THEMES)[number], ThemeColorE
 // ── Icons ────────────────────────────────────────────────────────────────────
 // Must match the files in static/. Shared by manifest route and meta tags.
 
-type IconEntry = {
+type IconEntry = { // TODO: Proper Valibot Schema
 	readonly src: string;
 	readonly sizes: string;
 	readonly type: string;
@@ -95,7 +97,7 @@ export const FONT_FAMILIES =
 /** CSS font-family stack for display/accent text (Rajdhani). */
 export const FONT_DISPLAY_FAMILIES = "'Rajdhani', ui-sans-serif, system-ui, sans-serif";
 
-type FontFaceEntry = {
+type FontFaceEntry = { // TODO: Proper Valibot Schema
 	readonly family: string;
 	readonly style: string;
 	readonly weight: string;
@@ -112,7 +114,7 @@ export const FONT_FACES: readonly FontFaceEntry[] = [
 // ── Security / contact ───────────────────────────────────────────────────────
 // Used by security.txt route.
 
-export const SECURITY_CONTACT_URL = 'https://github.com/nicholascostadev/webforge/security';
-export const SECURITY_POLICY_URL = 'https://github.com/nicholascostadev/webforge/security/policy';
-export const SECURITY_CANONICAL_URL = 'https://webforge.dev/.well-known/security.txt';
-export const SECURITY_PREFERRED_LANGUAGES = 'en, ja, zh, ko, fr, de, es';
+export const SECURITY_CONTACT_URL = 'https://github.com/nicholascostadev/webforge/security'; // TODO: Wrong
+export const SECURITY_POLICY_URL = 'https://github.com/nicholascostadev/webforge/security/policy'; // TODO: Wrong
+export const SECURITY_CANONICAL_URL = 'https://webforge.dev/.well-known/security.txt'; // TODO: Wrong
+export const SECURITY_PREFERRED_LANGUAGES = 'en, ja, zh, ko, fr, de, es'; // TODO: Should be dynamic based on actual available languages

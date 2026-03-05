@@ -1,6 +1,8 @@
 // oxlint-disable-next-line import/no-unassigned-import -- setup file for jest-dom matchers
 import '@testing-library/jest-dom/vitest';
 
+// TODO: Proper Commenting
+
 // jsdom does not implement window.matchMedia — required by shadcn-svelte Sidebar
 // and Svelte's MediaQuery class.
 // oxlint-disable-next-line no-empty-function -- intentional no-op for mock

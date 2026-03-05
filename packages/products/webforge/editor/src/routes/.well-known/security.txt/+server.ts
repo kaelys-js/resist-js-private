@@ -5,6 +5,10 @@
  * Expires field is set to 1 year from build time. Prerendered at build time.
  */
 
+// TODO: Proper Commenting
+// TODO: Proper Response Headers (Shared With Other Routes)
+// TODO: Proper Schema For security.txt
+
 import type { RequestHandler } from './$types';
 import {
 	SECURITY_CANONICAL_URL,

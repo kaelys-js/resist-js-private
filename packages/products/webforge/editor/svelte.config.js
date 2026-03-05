@@ -2,8 +2,10 @@ import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import path from 'node:path';
 
-const root = path.resolve(import.meta.dirname, '../../../..');
-const isDev = process.env.NODE_ENV !== 'production';
+// TODO: Proper Commenting
+
+const root = path.resolve(import.meta.dirname, '../../../..'); // TODO: Valibot Types
+const isDev = process.env.NODE_ENV !== 'production'; // TODO: Valibot Types
 
 /**
  * CSP directives for production builds.
