@@ -63,9 +63,9 @@ function handleSubOpenChange(open: boolean): void {
 		<Globe aria-hidden="true" class="mr-2 size-4" />
 		{t(localeStore.t.settings.language, 'Language')}
 	</DropdownMenu.SubTrigger>
-	<DropdownMenu.SubContent class="max-h-80 overflow-y-auto bg-white/[0.08] dark:bg-white/[0.06] backdrop-blur-2xl backdrop-saturate-150 border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_1px_rgba(255,255,255,0.1)_inset]">
-		<!-- Search input -->
-		<div class="sticky top-0 z-10 px-2 pt-1.5 pb-2 border-b border-border/50">
+	<DropdownMenu.SubContent class="max-h-80 flex flex-col overflow-hidden bg-white/[0.08] dark:bg-white/[0.06] backdrop-blur-2xl backdrop-saturate-150 border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_1px_rgba(255,255,255,0.1)_inset]">
+		<!-- Search input (fixed above scrollable list) -->
+		<div class="shrink-0 px-2 pt-1.5 pb-2 border-b border-border/50">
 			<div class="relative">
 				<Search class="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
 				<input
@@ -89,26 +89,29 @@ function handleSubOpenChange(open: boolean): void {
 			</div>
 		</div>
 
-		{#each filteredLanguages as lang (lang.code)}
-			<DropdownMenu.Item onclick={() => switchLanguage(lang.code)} aria-current={store.app.locale === lang.code ? 'true' : undefined} textValue={lang.endonym}>
-				{#if store.app.locale === lang.code}
-					<Check aria-hidden="true" class="mr-2 size-4" />
-				{:else}
-					<span class="mr-2 size-4 inline-block"></span>
-				{/if}
-				<span lang={lang.code}>{lang.endonym}</span>
-				{#if !isDuplicate(lang)}
-					<span class="text-muted-foreground ml-1">({lang.exonym})</span>
-				{/if}
-			</DropdownMenu.Item>
-		{:else}
-			<div class="flex flex-col items-center gap-2 py-6 text-muted-foreground">
-				<SearchX class="size-6" />
-				<div class="flex flex-col items-center gap-0.5">
-					<p class="text-xs font-medium">{t(localeStore.t.settings.noLanguagesFound, 'No languages found')}</p>
-					<p class="text-[11px]">{t(localeStore.t.devToolbar.noResultsHint, 'Try a different search term')}</p>
+		<!-- Scrollable item list -->
+		<div class="min-h-0 flex-1 overflow-y-auto">
+			{#each filteredLanguages as lang (lang.code)}
+				<DropdownMenu.Item onclick={() => switchLanguage(lang.code)} aria-current={store.app.locale === lang.code ? 'true' : undefined} textValue={lang.endonym}>
+					{#if store.app.locale === lang.code}
+						<Check aria-hidden="true" class="mr-2 size-4" />
+					{:else}
+						<span class="mr-2 size-4 inline-block"></span>
+					{/if}
+					<span lang={lang.code}>{lang.endonym}</span>
+					{#if !isDuplicate(lang)}
+						<span class="text-muted-foreground ml-1">({lang.exonym})</span>
+					{/if}
+				</DropdownMenu.Item>
+			{:else}
+				<div class="flex flex-col items-center gap-2 py-6 text-muted-foreground">
+					<SearchX class="size-6" />
+					<div class="flex flex-col items-center gap-0.5">
+						<p class="text-xs font-medium">{t(localeStore.t.settings.noLanguagesFound, 'No languages found')}</p>
+						<p class="text-[11px]">{t(localeStore.t.devToolbar.noResultsHint, 'Try a different search term')}</p>
+					</div>
 				</div>
-			</div>
-		{/each}
+			{/each}
+		</div>
 	</DropdownMenu.SubContent>
 </DropdownMenu.Sub>

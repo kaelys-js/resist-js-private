@@ -175,6 +175,40 @@ test.describe('dev toolbar — feature flag toggle', () => {
 });
 
 // =============================================================================
+// Panel close buttons
+// =============================================================================
+
+test.describe('dev toolbar — panel close buttons', () => {
+	test('flags panel close button closes it', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-flags');
+		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).toBeVisible();
+		await page.locator('[data-testid="panel-close-flags"]').click();
+		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).not.toBeAttached();
+		// Toolbar bar remains open
+		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).toBeVisible();
+	});
+
+	test('app state panel close button closes it', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-app');
+		await expect(page.locator('[data-testid="dev-toolbar-app-state"]')).toBeVisible();
+		await page.locator('[data-testid="panel-close-app"]').click();
+		await expect(page.locator('[data-testid="dev-toolbar-app-state"]')).not.toBeAttached();
+		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).toBeVisible();
+	});
+
+	test('debug panel close button closes it', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-debug');
+		await expect(page.locator('[data-testid="dev-toolbar-debug"]')).toBeVisible();
+		await page.locator('[data-testid="panel-close-debug"]').click();
+		await expect(page.locator('[data-testid="dev-toolbar-debug"]')).not.toBeAttached();
+		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).toBeVisible();
+	});
+});
+
+// =============================================================================
 // Keyboard shortcuts
 // =============================================================================
 
@@ -198,6 +232,54 @@ test.describe('dev toolbar — keyboard shortcuts', () => {
 		await page.keyboard.press('Escape');
 		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).not.toBeAttached();
 		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).toBeVisible();
+	});
+
+	test('Escape closes toolbar when no panel is active', async ({ page }) => {
+		await expandToolbar(page);
+		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).toBeVisible();
+
+		await page.keyboard.press('Escape');
+		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).not.toBeAttached();
+	});
+
+	test('number key 1 toggles flags panel', async ({ page }) => {
+		await expandToolbar(page);
+		await page.keyboard.press('Digit1');
+		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).toBeVisible();
+		await page.keyboard.press('Digit1');
+		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).not.toBeAttached();
+	});
+
+	test('number key 2 toggles app state panel', async ({ page }) => {
+		await expandToolbar(page);
+		await page.keyboard.press('Digit2');
+		await expect(page.locator('[data-testid="dev-toolbar-app-state"]')).toBeVisible();
+		await page.keyboard.press('Digit2');
+		await expect(page.locator('[data-testid="dev-toolbar-app-state"]')).not.toBeAttached();
+	});
+
+	test('number key 3 toggles debug panel', async ({ page }) => {
+		await expandToolbar(page);
+		await page.keyboard.press('Digit3');
+		await expect(page.locator('[data-testid="dev-toolbar-debug"]')).toBeVisible();
+		await page.keyboard.press('Digit3');
+		await expect(page.locator('[data-testid="dev-toolbar-debug"]')).not.toBeAttached();
+	});
+
+	test('number key 4 cycles mode', async ({ page }) => {
+		await expandToolbar(page);
+		// Read initial mode from the mode button aria-label
+		const modeBtn = page.locator('[data-testid="toolbar-btn-mode"]');
+		const initialLabel: string = (await modeBtn.getAttribute('aria-label')) ?? '';
+		// Click body to ensure no button captures the key
+		await page.mouse.click(10, 10);
+		await page.keyboard.press('Digit4');
+		// Button label should change (mode cycles light→dark→system)
+		await expect
+			.poll(async () => {
+				return (await modeBtn.getAttribute('aria-label')) ?? '';
+			})
+			.not.toBe(initialLabel);
 	});
 });
 
