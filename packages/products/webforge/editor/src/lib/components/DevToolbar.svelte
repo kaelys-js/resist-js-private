@@ -99,7 +99,6 @@ function onDragEnd(): void {
 	if (didDrag) savePos();
 }
 
-
 // ── Clamp position on viewport resize ─────────────────────────────────
 $effect(() => {
 	/**
