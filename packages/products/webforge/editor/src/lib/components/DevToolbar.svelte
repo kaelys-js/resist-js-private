@@ -422,7 +422,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_FLAGS_PANEL')}</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')} <kbd class="hidden md:inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_FLAGS_PANEL')}</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -447,7 +447,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_APP_PANEL')}</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')} <kbd class="hidden md:inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_APP_PANEL')}</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -472,7 +472,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_DEBUG_PANEL')}</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')} <kbd class="hidden md:inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_DEBUG_PANEL')}</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -503,7 +503,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{cycleThemeLabel} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_CYCLE_MODE')}</kbd></span>
+						<span class="flex items-center gap-1.5">{cycleThemeLabel} <kbd class="hidden md:inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_CYCLE_MODE')}</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -538,7 +538,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.copyStateJson, 'Copy State as JSON')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_COPY_STATE')}</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.copyStateJson, 'Copy State as JSON')} <kbd class="hidden md:inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_COPY_STATE')}</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -573,7 +573,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.resetAllDefaults, 'Reset All to Defaults')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_RESET_ALL')}</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.resetAllDefaults, 'Reset All to Defaults')} <kbd class="hidden md:inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_RESET_ALL')}</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 			</div>
@@ -604,7 +604,7 @@ $effect(() => {
 			</Tooltip.Trigger>
 			{#if !toolbarOpen}
 				<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-					<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.title, 'Developer Toolbar')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('TOGGLE_DEV_TOOLBAR')}</kbd></span>
+					<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.title, 'Developer Toolbar')} <kbd class="hidden md:inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('TOGGLE_DEV_TOOLBAR')}</kbd></span>
 				</Tooltip.Content>
 			{/if}
 		</Tooltip.Root>
