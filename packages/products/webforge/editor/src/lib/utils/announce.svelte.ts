@@ -21,7 +21,7 @@ let message: string = $state('');
  *
  * @param text - The message to announce
  */
-export function announce(text: string): void {
+export function announce(text: string): void { // TODO: Valibot Type
 	message = '';
 	requestAnimationFrame(() => {
 		message = text;
@@ -33,6 +33,6 @@ export function announce(text: string): void {
  *
  * @returns The current announcement text (empty string when idle)
  */
-export function getAnnouncement(): string {
+export function getAnnouncement(): string { // TODO: Valibot Type
 	return message;
 }

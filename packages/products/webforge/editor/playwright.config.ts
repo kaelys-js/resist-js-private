@@ -2,6 +2,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 const isCI = Boolean(process.env.CI);
 
+// TODO: Proper Commenting
+// TODO: Host & Port From Shared Constant
+
 export default defineConfig({
 	testDir: './e2e',
 	fullyParallel: true,
@@ -12,7 +15,7 @@ export default defineConfig({
 	expect: { timeout: 5000 },
 	reporter: isCI ? [['html', { open: 'never' }], ['github']] : [['list']],
 	use: {
-		baseURL: 'http://localhost:4173',
+		baseURL: 'http://127.0.0.1:4173',
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',
 		video: 'retain-on-failure',
@@ -26,8 +29,8 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: 'pnpm build && pnpm preview --port 4173',
-		url: 'http://localhost:4173',
+		command: 'pnpm build && pnpm preview --port 4173 --host 127.0.0.1',
+		url: 'http://127.0.0.1:4173',
 		reuseExistingServer: !isCI,
 		timeout: 120_000,
 		stdout: 'ignore',

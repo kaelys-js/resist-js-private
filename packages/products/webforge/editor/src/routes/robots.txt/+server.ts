@@ -9,6 +9,10 @@ import type { RequestHandler } from './$types';
 
 export const prerender = true;
 
+// TODO: Proper Commenting
+// TODO: Proper Response Headers (Shared With Other Routes)
+// TODO: Proper Schema For Manifest
+
 const ROBOTS = `User-agent: *
 Disallow: /api/
 Allow: /

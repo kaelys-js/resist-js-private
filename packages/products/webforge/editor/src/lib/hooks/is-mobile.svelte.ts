@@ -1,5 +1,7 @@
 import { MediaQuery } from 'svelte/reactivity';
 
+// TODO: Proper Commenting
+
 const DEFAULT_MOBILE_BREAKPOINT = 768;
 
 export class IsMobile extends MediaQuery {

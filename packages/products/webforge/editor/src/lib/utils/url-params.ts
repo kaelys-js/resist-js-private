@@ -44,7 +44,7 @@ const FF_PREFIX = 'ff.';
  * isValidAppKey('unknown'); // false
  * ```
  */
-export function isValidAppKey(key: string): boolean {
+export function isValidAppKey(key: string): boolean { // TODO: Valibot Type + Result System
 	return APP_KEYS.has(key);
 }
 
@@ -61,7 +61,7 @@ export function isValidAppKey(key: string): boolean {
  * isValidFeatureFlag('unknown'); // false
  * ```
  */
-export function isValidFeatureFlag(key: string): boolean {
+export function isValidFeatureFlag(key: string): boolean { // TODO: Valibot Type + Result System
 	return FEATURE_FLAG_KEYS.has(key);
 }
 
@@ -167,7 +167,7 @@ export function applyUrlOverrides(
 		// Unknown key — warn so typos are caught (e.g., wf.logLesel instead of wf.logLevel)
 		// eslint-disable-next-line no-console -- Intentional debug warning for bad URL params
 		console.warn(
-			`[Editor] Unknown URL override: wf.${key}=${value} — valid: debug, logLevel, theme, mode, locale, sidebarOpen, appName, ff.<flag>`,
+			`[Editor] Unknown URL override: wf.${key}=${value} — valid: debug, logLevel, theme, mode, locale, sidebarOpen, appName, ff.<flag>`, // TODO: wf. and ff. from their constants so dont need to update here if it changes
 		);
 	}
 

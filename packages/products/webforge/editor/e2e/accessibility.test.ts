@@ -38,8 +38,11 @@ test.describe('accessibility — skip link & landmarks', () => {
 
 	test('sidebar has aria-label', async ({ page }) => {
 		await page.goto('/');
-		const sidebar = page.locator('[data-slot="sidebar"]');
-		await expect(sidebar.first()).toHaveAttribute('aria-label');
+		// aria-label is spread via restProps onto the sidebar-container div
+		const sidebar = page.locator('[data-slot="sidebar-container"][aria-label]');
+		await expect(sidebar.first()).toBeAttached();
+		const label = await sidebar.first().getAttribute('aria-label');
+		expect(label).toBeTruthy();
 	});
 });
 
@@ -56,7 +59,9 @@ test.describe('accessibility — header & navigation', () => {
 
 	test('ModeToggle button has localized aria-label', async ({ page }) => {
 		await page.goto('/');
-		const modeToggle = page.locator('button').filter({ has: page.locator('[class*="lucide-sun"], [class*="lucide-moon"]') });
+		const modeToggle = page
+			.locator('button')
+			.filter({ has: page.locator('[class*="lucide-sun"], [class*="lucide-moon"]') });
 		// The button should have an aria-label (not empty)
 		const label = await modeToggle.first().getAttribute('aria-label');
 		expect(label).toBeTruthy();
@@ -83,9 +88,12 @@ test.describe('accessibility — active state indicators', () => {
 test.describe('accessibility — dev toolbar', () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto('/?wf.debug=true');
-		// Open toolbar via keyboard shortcut
-		await page.keyboard.press('Control+Shift+D');
-		await page.waitForSelector('[data-testid="dev-toolbar-bar"]');
+		// Wait for trigger pill, then click to expand
+		await page.locator('[data-testid="dev-toolbar-trigger"]').waitFor({ state: 'visible' });
+		await page.locator('[data-testid="dev-toolbar-trigger"]').click();
+		await page.locator('[data-testid="dev-toolbar-bar"]').waitFor({ state: 'visible' });
+		// Move mouse away to dismiss tooltips
+		await page.mouse.move(0, 0);
 	});
 
 	test('toolbar has aria-label and role="toolbar"', async ({ page }) => {
@@ -119,7 +127,8 @@ test.describe('accessibility — dev toolbar', () => {
 	});
 
 	test('Switch elements do NOT have scale-75 class', async ({ page }) => {
-		// Open feature flags panel
+		// Dismiss tooltip, then open feature flags panel
+		await page.mouse.move(0, 0);
 		await page.locator('[data-testid="toolbar-btn-flags"]').click();
 		await page.waitForSelector('[data-testid="dev-toolbar-flags"]');
 		const switches = page.locator('[data-testid="dev-toolbar-flags"] button[role="switch"]');
@@ -132,7 +141,8 @@ test.describe('accessibility — dev toolbar', () => {
 	});
 
 	test('search input has aria-label', async ({ page }) => {
-		// Open feature flags panel
+		// Dismiss tooltip, then open feature flags panel
+		await page.mouse.move(0, 0);
 		await page.locator('[data-testid="toolbar-btn-flags"]').click();
 		await page.waitForSelector('[data-testid="dev-toolbar-flags"]');
 		const searchInput = page.locator('[data-testid="dev-toolbar-flags"] input[type="text"]');

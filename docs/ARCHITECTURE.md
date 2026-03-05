@@ -253,6 +253,57 @@ A floating Astro-style developer toolbar rendered at the bottom center of the vi
 
 **Styling:** The toolbar uses a fixed dark theme (zinc/slate colors) independent of the app's current theme, ensuring consistent readability regardless of light/dark mode.
 
+**Accessibility:** The toolbar follows the WAI-ARIA Toolbar pattern with roving tabindex (`ArrowLeft`/`ArrowRight`/`Home`/`End` navigation), `Escape` to close, and automatic focus management into panel content.
+
+## Accessibility (WCAG 2.2 AA)
+
+The editor targets WCAG 2.2 Level AA conformance across all custom components (shadcn-svelte primitives provide their own ARIA).
+
+### Skip Navigation & Landmarks
+
+`+layout.svelte` provides a skip link (`<a href="#main-content">`) as the first focusable element, a `<main id="main-content" tabindex={-1}>` landmark, and an `aria-live="polite"` region for screen reader announcements.
+
+### Screen Reader Announcements
+
+The `announce.svelte.ts` utility (`$lib/utils/`) provides a reactive announcement pattern:
+
+```typescript
+import { announce } from '$lib/utils/announce.svelte';
+announce('3 results found');  // Spoken by screen readers via aria-live region
+```
+
+Uses Svelte 5 `$state()` with a `requestAnimationFrame` gap to ensure DOM mutation is detected by assistive technology.
+
+### ARIA Patterns
+
+| Pattern | Where | Implementation |
+|---------|-------|----------------|
+| `aria-hidden="true"` | Decorative Lucide icons | Prevents icon names from cluttering screen reader output |
+| `aria-current="page"` | Active scene in NavScenes | Identifies the currently selected scene |
+| `aria-current="true"` | Active theme/language in dropdowns | Identifies the selected item |
+| `aria-label` | Sidebar, ModeToggle, copy buttons | Localized via `t(localeStore.t.*.key, 'fallback')` |
+| `role="separator"` | SiteHeader divider | Overrides Bits UI default to provide correct semantics |
+| `textValue` | DropdownMenu items | Provides accessible name for items with complex content |
+| Roving tabindex | DevToolbar | Arrow key navigation with `tabindex={0 | -1}` |
+
+### Motion Safety
+
+`app.css` includes a `prefers-reduced-motion: reduce` media query that disables all CSS animations and transitions. `AppLogo.svelte` has a component-level override for its keyframe animations.
+
+### Contrast & Target Size
+
+- Focus ring (`--ring`) uses `oklch(0.556 0 0)` for 3:1+ contrast against both light and dark backgrounds (SC 1.4.11)
+- All interactive elements meet the 24x24px minimum target size (SC 2.5.8) — `scale-75` removed from Switch components
+- `<kbd>` elements in DevToolbar use `bg-secondary` for sufficient contrast
+
+### Locale Keys
+
+Accessibility strings are in the `common` namespace: `skipToContent`, `toggleMode`, `sidebarLabel`, `more`. All 7 locale files (en, ja, zh, ko, fr, de, es) include translations.
+
+### E2E Coverage
+
+`e2e/accessibility.test.ts` covers skip link visibility, main landmark, aria-live region, sidebar label, SiteHeader separator, ModeToggle label, active scene state, and DevToolbar keyboard navigation.
+
 ## Security Headers & Response Hardening
 
 The editor applies security headers through two complementary mechanisms:

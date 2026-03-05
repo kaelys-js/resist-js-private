@@ -194,7 +194,7 @@ export const handleError: HandleServerError = ({ error, event, status, message }
 	if (extracted.code === ERRORS.INTERNAL.UNEXPECTED) {
 		const result = err(
 			ERRORS.INTERNAL.UNEXPECTED,
-			`Unexpected server error (${status}): ${message}`,
+			`Unexpected server error (${status}): ${message}`, // TODO: Clearer message
 			{
 				cause: extracted,
 				meta: {
