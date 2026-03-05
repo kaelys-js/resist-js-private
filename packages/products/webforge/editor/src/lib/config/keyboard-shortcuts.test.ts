@@ -24,6 +24,7 @@ import {
 	type ShortcutRegistry,
 } from './keyboard-shortcuts';
 import { safeParse } from '@/utils/result/safe';
+import type { Bool, Str } from '@/schemas/common';
 
 // ── Test helpers ────────────────────────────────────────────────────────────
 
@@ -35,12 +36,12 @@ import { safeParse } from '@/utils/result/safe';
  * @returns A KeyboardEvent-compatible object
  */
 function mockEvent(
-	key: string,
+	key: Str,
 	opts: {
-		ctrlKey?: boolean;
-		metaKey?: boolean;
-		shiftKey?: boolean;
-		altKey?: boolean;
+		ctrlKey?: Bool;
+		metaKey?: Bool;
+		shiftKey?: Bool;
+		altKey?: Bool;
 		target?: EventTarget | null;
 	} = {},
 ): KeyboardEvent {
@@ -488,7 +489,7 @@ describe('detectConflicts', () => {
 		};
 		const conflicts = detectConflicts(registry);
 		expect(conflicts.length).toBeGreaterThan(0);
-		const ids: string[] = conflicts.flatMap((c) => [c.a, c.b]);
+		const ids: Str[] = conflicts.flatMap((c) => [c.a, c.b]);
 		expect(ids).toContain('DEV_FLAGS_PANEL');
 		expect(ids).toContain('DEV_APP_PANEL');
 	});
@@ -557,15 +558,15 @@ describe('getAllShortcuts', () => {
 
 	it('sorts by context first', () => {
 		const all = getAllShortcuts(DEFAULT_SHORTCUTS);
-		const contexts: string[] = all.map((s) => s.context);
-		const sorted: string[] = [...contexts].toSorted();
+		const contexts: Str[] = all.map((s) => s.context);
+		const sorted: Str[] = [...contexts].toSorted();
 		expect(contexts).toEqual(sorted);
 	});
 
 	it('sorts by label within same context', () => {
 		const all = getAllShortcuts(DEFAULT_SHORTCUTS);
 		// Group by context and verify label order within each group
-		const byContext = new Map<string, string[]>();
+		const byContext = new Map<Str, Str[]>();
 		for (const s of all) {
 			const labels = byContext.get(s.context) ?? [];
 			labels.push(s.label);

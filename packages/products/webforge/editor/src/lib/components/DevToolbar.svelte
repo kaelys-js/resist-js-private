@@ -15,6 +15,7 @@ import { Separator } from '$lib/components/ui/separator/index.js';
 import { useEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';
 import { useDebugStore, type DebugStore } from '$lib/stores/debug-state.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
+import { log } from '@/utils/core/logger';
 import type { Str, Num, Bool, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import DevToolbarFeatureFlags from './DevToolbarFeatureFlags.svelte';
@@ -47,7 +48,7 @@ function loadPos(): { x: Num; b: Num } {
 			}
 		}
 	} catch (_) {
-		/* noop */
+		/* localStorage unavailable (SSR/incognito) — toolbar position is non-critical */
 	}
 	return { x: window.innerWidth / 2, b: 16 };
 }
@@ -67,7 +68,7 @@ function savePos(): Void {
 	try {
 		localStorage.setItem(POS_KEY, JSON.stringify({ x: posX, b: posBottom }));
 	} catch (_) {
-		/* noop */
+		/* localStorage unavailable (SSR/incognito) — toolbar position is non-critical */
 	}
 }
 
@@ -145,6 +146,10 @@ const cycleThemeLabel: Str = $derived(
 		const result: Result<Str> = (
 			localeStore.t.devToolbar.cycleTheme as (p: { mode: Str }) => Result<Str>
 		)({ mode: modeDisplayName });
+		if (!result.ok) {
+			log.warn(`Locale devToolbar.cycleTheme error: ${result.error.code}`);
+		}
+		// UI boundary — locale error logged, fallback used
 		return result.ok ? result.data : `Cycle Theme (${modeDisplayName})`;
 	})(),
 );
@@ -203,7 +208,7 @@ function resetAll(): Void {
 		localStorage.removeItem(POS_KEY);
 		localStorage.removeItem(storageKey('sidebar-px'));
 	} catch (_) {
-		/* noop */
+		/* localStorage unavailable (SSR/incognito) — toolbar position is non-critical */
 	}
 	posX = window.innerWidth / 2;
 	posBottom = 16;

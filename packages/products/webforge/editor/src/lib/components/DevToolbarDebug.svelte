@@ -22,6 +22,7 @@ import {
 import { getBuildInfo } from '$lib/config/build-info';
 import type { BuildInfo } from '$lib/schemas/build-info';
 import { localeStore, t } from '$lib/i18n.svelte';
+import { log } from '@/utils/core/logger';
 import { announce } from '$lib/utils/announce.svelte';
 import * as v from 'valibot';
 import type { Str, Bool, Void } from '@/schemas/common';
@@ -134,6 +135,10 @@ async function copyDebugUrl(): Promise<Void> {
 }
 
 const buildInfoResult: Result<BuildInfo> = getBuildInfo();
+if (!buildInfoResult.ok) {
+	log.warn(`Build info error: ${buildInfoResult.error.code}`);
+}
+// UI boundary — build info error logged, fallback used
 const buildInfo: BuildInfo | null = buildInfoResult.ok ? buildInfoResult.data : null;
 
 async function copyBuildInfo(): Promise<Void> {

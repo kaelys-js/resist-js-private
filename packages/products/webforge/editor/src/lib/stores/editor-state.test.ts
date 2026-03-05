@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { Bool, NullableStr, Str, Void } from '@/schemas/common';
 import {
 	createEditorStore,
 	initEditorStore,
@@ -8,16 +9,16 @@ import {
 import { APP_NAME } from '$lib/config/app-meta';
 
 // Mock localStorage — jsdom's built-in localStorage is incomplete
-const storage = new Map<string, string>();
+const storage = new Map<Str, Str>();
 vi.stubGlobal('localStorage', {
-	getItem: (key: string): string | null => storage.get(key) ?? null,
-	setItem: (key: string, value: string): void => {
+	getItem: (key: Str): NullableStr => storage.get(key) ?? null,
+	setItem: (key: Str, value: Str): Void => {
 		storage.set(key, value);
 	},
-	removeItem: (key: string): void => {
+	removeItem: (key: Str): Void => {
 		storage.delete(key);
 	},
-	clear: (): void => {
+	clear: (): Void => {
 		storage.clear();
 	},
 });
@@ -274,7 +275,7 @@ describe('EditorStore', () => {
 	// ── setTheme — all supported themes ───────────────────────────────────
 
 	it('setTheme() accepts all 12 supported theme values', () => {
-		const themes: readonly string[] = [
+		const themes: readonly Str[] = [
 			'',
 			'midnight',
 			'warm',
@@ -319,7 +320,7 @@ describe('EditorStore', () => {
 	// ── setLocale — all supported locales ─────────────────────────────────
 
 	it('setLocale() accepts all 7 supported locale codes', () => {
-		const locales: readonly string[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
+		const locales: readonly Str[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
 		for (const locale of locales) {
 			const result = createEditorStore();
 			if (!result.ok) throw new Error('Store creation failed');
@@ -360,7 +361,7 @@ describe('EditorStore', () => {
 	// ── setFeature — all 15 flags ─────────────────────────────────────────
 
 	it('setFeature() toggles all 15 flags individually', () => {
-		const flags: readonly string[] = [
+		const flags: readonly Str[] = [
 			'settings',
 			'themeSelection',
 			'languageSelection',
@@ -384,15 +385,11 @@ describe('EditorStore', () => {
 		for (const flag of flags) {
 			const off = store.setFeature(flag, false);
 			expect(off.ok, `setFeature('${flag}', false) should succeed`).toBe(true);
-			expect((store.features as Record<string, boolean>)[flag], `${flag} should be false`).toBe(
-				false,
-			);
+			expect((store.features as Record<Str, Bool>)[flag], `${flag} should be false`).toBe(false);
 
 			const on = store.setFeature(flag, true);
 			expect(on.ok, `setFeature('${flag}', true) should succeed`).toBe(true);
-			expect((store.features as Record<string, boolean>)[flag], `${flag} should be true`).toBe(
-				true,
-			);
+			expect((store.features as Record<Str, Bool>)[flag], `${flag} should be true`).toBe(true);
 		}
 	});
 

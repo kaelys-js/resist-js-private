@@ -9,6 +9,7 @@ import { getTextDirection, type TextDirection } from '@/locale/direction';
 import type { Bool, Str, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import { localeStore, t } from '$lib/i18n.svelte';
+import { log } from '@/utils/core/logger';
 import { useEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';
 import { SUPPORTED_LOCALES } from '$lib/schemas/editor-state';
 import { getLanguageDisplayNames, type LanguageDisplayInfo } from '$lib/utils/locale-display';
@@ -44,6 +45,10 @@ function switchLanguage(code: Str): Void {
 		document.cookie = `locale=${code};path=/;max-age=31536000;SameSite=Lax`;
 		document.documentElement.lang = code;
 		const dirResult: Result<TextDirection> = getTextDirection(code);
+		if (!dirResult.ok) {
+			log.warn(`Locale direction error: ${dirResult.error.code}`);
+		}
+		// UI boundary — locale/direction error logged, fallback used
 		document.documentElement.dir = dirResult.ok ? dirResult.data : 'ltr';
 	};
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SUPPORTED_LOCALES } from '$lib/schemas/editor-state';
 import { OG_LOCALES } from './og-locales';
+import type { Str } from '@/schemas/common';
 
 describe('OG_LOCALES', () => {
 	it('has a mapping for every supported locale', () => {
@@ -10,7 +11,7 @@ describe('OG_LOCALES', () => {
 	});
 
 	it('has no extra mappings beyond supported locales', () => {
-		const keys: readonly string[] = Object.keys(OG_LOCALES);
+		const keys: readonly Str[] = Object.keys(OG_LOCALES);
 		expect([...keys].toSorted()).toEqual([...SUPPORTED_LOCALES].toSorted());
 	});
 

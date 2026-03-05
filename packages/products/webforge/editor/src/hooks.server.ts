@@ -1,6 +1,6 @@
 import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { building, dev } from '$app/environment';
-import type { Bool } from '@/schemas/common';
+import type { Bool, Num, Str, Void } from '@/schemas/common';
 import type { CapturedError } from '@/schemas/result/captured-error';
 import { getTextDirection } from '@/locale/direction';
 import { ERRORS, err, type AppError } from '@/schemas/result/result';
@@ -62,10 +62,10 @@ setupGlobalErrorHandling({
  * @param stack - The stack trace string from an AppError
  * @returns A short `file:line:col` string, or `'unknown'` if no app frame is found
  */
-function extractSource(stack: string): string {
-	const lines: string[] = stack.split('\n');
+function extractSource(stack: Str): Str {
+	const lines: Str[] = stack.split('\n');
 	for (const line of lines) {
-		const trimmed: string = line.trim();
+		const trimmed: Str = line.trim();
 		if (!trimmed.startsWith('at ')) continue;
 		// Skip internal frames — we want the application call site, not library internals
 		if (trimmed.includes('node_modules') || trimmed.includes('node:internal')) continue;
@@ -74,8 +74,8 @@ function extractSource(stack: string): string {
 		if (match) {
 			const [, fullPath, lineNo, colNo] = match;
 			// Strip everything up to and including 'packages/' for a project-relative path
-			const pkgIdx: number = fullPath.indexOf('packages/');
-			const relativePath: string = pkgIdx >= 0 ? fullPath.slice(pkgIdx) : fullPath;
+			const pkgIdx: Num = fullPath.indexOf('packages/');
+			const relativePath: Str = pkgIdx >= 0 ? fullPath.slice(pkgIdx) : fullPath;
 			return `${relativePath}:${lineNo}:${colNo}`;
 		}
 	}
@@ -88,8 +88,8 @@ function extractSource(stack: string): string {
  * @param root - The top-level AppError to walk
  * @returns Array of `{ code, message }` objects from root through all nested causes
  */
-function collectCauseChain(root: AppError): Array<{ code: string; message: string }> {
-	const chain: Array<{ code: string; message: string }> = [];
+function collectCauseChain(root: AppError): Array<{ code: Str; message: Str }> {
+	const chain: Array<{ code: Str; message: Str }> = [];
 	let current: AppError | undefined = root.cause;
 	while (current) {
 		chain.push({ code: current.code, message: current.message });
@@ -106,12 +106,12 @@ function collectCauseChain(root: AppError): Array<{ code: string; message: strin
  *
  * @param captured - The CapturedError envelope containing the AppError + context
  */
-function logCapturedError(captured: CapturedError): void {
+function logCapturedError(captured: CapturedError): Void {
 	const appError: AppError = captured.error;
-	const source: string = extractSource(appError.stack);
-	const causeChain: Array<{ code: string; message: string }> = collectCauseChain(appError);
+	const source: Str = extractSource(appError.stack);
+	const causeChain: Array<{ code: Str; message: Str }> = collectCauseChain(appError);
 
-	const isSignal: boolean = captured.type === 'signal';
+	const isSignal: Bool = captured.type === 'signal';
 	const logFn: typeof log.error = isSignal ? log.info : log.error;
 	logFn(`[${captured.type}] ${appError.code}: ${appError.message}`, {
 		captureId: captured.id,
@@ -154,7 +154,7 @@ function logCapturedError(captured: CapturedError): void {
  * @returns The resolved ServerUser, or null if auth is overridden to false
  */
 function resolveAuth(url: URL): ServerUser | null {
-	const authParam: string | null = url.searchParams.get('wf.auth');
+	const authParam: Str | null = url.searchParams.get('wf.auth');
 	if (authParam === 'false') return null;
 	return MOCK_USER;
 }
@@ -165,25 +165,29 @@ export const handle: Handle = async ({ event, resolve }) => {
 		throw new Error('Simulated catastrophic failure — tests error.html fallback');
 	}
 
-	const cookie: string = event.cookies.get('locale') ?? '';
-	const header: string | null = event.request.headers.get('accept-language');
-	const locale: string = resolveLocale(cookie, header);
+	const cookie: Str = event.cookies.get('locale') ?? '';
+	const header: Str | null = event.request.headers.get('accept-language');
+	const locale: Str = resolveLocale(cookie, header);
 
 	event.locals.locale = locale;
 	// During prerendering, url.searchParams is not accessible — use default mock user.
 	event.locals.user = building ? MOCK_USER : resolveAuth(event.url);
 	// Read mock data delay from URL param (e.g., ?wf.mockDelay=1500) or cookie.
-	const mockDelayParam: string | null = building
-		? null
-		: event.url.searchParams.get('wf.mockDelay');
-	const mockDelayCookie: string = event.cookies.get('mockDataDelay') ?? '0';
-	const mockDelayMs: number = Math.max(
+	const mockDelayParam: Str | null = building ? null : event.url.searchParams.get('wf.mockDelay');
+	const mockDelayCookie: Str = event.cookies.get('mockDataDelay') ?? '0';
+	const mockDelayMs: Num = Math.max(
 		0,
 		Math.min(10_000, Number(mockDelayParam ?? mockDelayCookie) || 0),
 	);
 	event.locals.db = createDataService(event.platform, mockDelayMs);
 	const dirResult = getTextDirection(locale);
-	const dir: string = dirResult.ok ? dirResult.data : 'ltr';
+	// UI boundary — log direction lookup failure, fall back to LTR
+	if (!dirResult.ok) {
+		log.warn(
+			`Failed to resolve text direction for locale "${locale}" (${dirResult.error.code}), defaulting to ltr`,
+		);
+	}
+	const dir: Str = dirResult.ok ? dirResult.data : 'ltr';
 
 	const response: Response = await resolve(event, {
 		transformPageChunk: ({ html }) => html.replace('%lang%', locale).replace('%dir%', dir),
@@ -198,9 +202,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-Git-Commit', __GIT_COMMIT__);
 
 	// Prevent caching of HTML responses (skip SvelteKit immutable assets).
-	const contentType: string = response.headers.get('content-type') ?? '';
-	const isHtml: boolean = contentType.includes('text/html');
-	const isImmutable: boolean = event.url.pathname.startsWith('/_app/immutable/');
+	const contentType: Str = response.headers.get('content-type') ?? '';
+	const isHtml: Bool = contentType.includes('text/html');
+	const isImmutable: Bool = event.url.pathname.startsWith('/_app/immutable/');
 	if (isHtml && !isImmutable) {
 		response.headers.set('Cache-Control', 'private, no-cache');
 	}
@@ -267,6 +271,7 @@ export const handleError: HandleServerError = ({ error, event, status, message }
 	// Route through CapturedError pipeline — reportError() wraps the AppError
 	// with breadcrumbs, fingerprint, environment, etc. and fires onError which
 	// calls logCapturedError with the full CapturedError.
+	// literal false — reportError expects Bool alias, not bare boolean
 	reportError(appError, false as Bool);
 
 	try {

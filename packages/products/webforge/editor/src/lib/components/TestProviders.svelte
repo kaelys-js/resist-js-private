@@ -1,9 +1,10 @@
 <script lang="ts">
+import type { Bool } from '@/schemas/common';
 import type { Snippet } from 'svelte';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 import { initEditorStore } from '$lib/stores/editor-state.svelte';
 
-let { children, sidebarOpen = true }: { children: Snippet; sidebarOpen?: boolean } = $props();
+let { children, sidebarOpen = true }: { children: Snippet; sidebarOpen?: Bool } = $props();
 
 initEditorStore();
 </script>

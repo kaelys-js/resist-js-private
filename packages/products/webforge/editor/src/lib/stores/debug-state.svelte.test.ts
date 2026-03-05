@@ -1,24 +1,25 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import type { Num, NullableStr, Str } from '@/schemas/common';
 import { createDebugStore, initDebugStore, useDebugStore, STORAGE_KEY } from './debug-state.svelte';
 
 // Mock localStorage
 const localStorageMock = (() => {
-	let store: Record<string, string> = {};
+	let store: Record<Str, Str> = {};
 	return {
-		getItem: vi.fn((key: string): string | null => store[key] ?? null),
-		setItem: vi.fn((key: string, value: string) => {
+		getItem: vi.fn((key: Str): NullableStr => store[key] ?? null),
+		setItem: vi.fn((key: Str, value: Str) => {
 			store[key] = value;
 		}),
-		removeItem: vi.fn((key: string) => {
+		removeItem: vi.fn((key: Str) => {
 			store = Object.fromEntries(Object.entries(store).filter(([k]) => k !== key));
 		}),
 		clear: vi.fn(() => {
 			store = {};
 		}),
-		get length(): number {
+		get length(): Num {
 			return Object.keys(store).length;
 		},
-		key: vi.fn((): string | null => null),
+		key: vi.fn((): NullableStr => null),
 	};
 })();
 
@@ -114,7 +115,7 @@ describe('setEnabled', () => {
 		if (!result.ok) throw new Error('should be ok');
 		result.data.setEnabled(true);
 
-		const saved: string | null = localStorageMock.getItem(STORAGE_KEY);
+		const saved: NullableStr = localStorageMock.getItem(STORAGE_KEY);
 		expect(saved).not.toBeNull();
 		const parsed = JSON.parse(saved!);
 		expect(parsed.enabled).toBeUndefined();
@@ -151,7 +152,7 @@ describe('setLogLevel', () => {
 		if (!result.ok) throw new Error('should be ok');
 		result.data.setLogLevel('error');
 
-		const saved: string | null = localStorageMock.getItem(STORAGE_KEY);
+		const saved: NullableStr = localStorageMock.getItem(STORAGE_KEY);
 		expect(saved).not.toBeNull();
 		const parsed = JSON.parse(saved!);
 		expect(parsed.logLevel).toBe('error');

@@ -1,4 +1,5 @@
 <script lang="ts">
+import type { Str } from '@/schemas/common';
 import FeatureFlagsTestProviders from './FeatureFlagsTestProviders.svelte';
 import AppSidebar from './AppSidebar.svelte';
 import type { ServerUser, ServerProject, ServerScene } from '$lib/server/data/types';
@@ -29,7 +30,7 @@ let {
 	project = defaultProject,
 	scenes = defaultScenes,
 }: {
-	disabledFlags?: string[];
+	disabledFlags?: Str[];
 	user?: ServerUser | null;
 	project?: ServerProject | null;
 	scenes?: readonly ServerScene[];

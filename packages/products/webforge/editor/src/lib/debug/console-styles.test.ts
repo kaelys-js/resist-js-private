@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { styles, formatTimestamp, diffSnapshot } from './console-styles';
+import type { Str } from '@/schemas/common';
 
 describe('styles', () => {
 	it('has all expected keys', () => {
@@ -41,14 +42,14 @@ describe('formatTimestamp', () => {
 	it('returns HH:MM:SS.mmm format', () => {
 		// Set a known time: 2026-01-15T14:30:45.123Z
 		vi.setSystemTime(new Date('2026-01-15T14:30:45.123Z'));
-		const ts: string = formatTimestamp();
+		const ts: Str = formatTimestamp();
 		// Should match HH:MM:SS.mmm pattern (timezone-dependent, so check format only)
 		expect(ts).toMatch(/^\d{2}:\d{2}:\d{2}\.\d{3}$/);
 	});
 
 	it('includes milliseconds', () => {
 		vi.setSystemTime(new Date('2026-06-01T00:00:00.789Z'));
-		const ts: string = formatTimestamp();
+		const ts: Str = formatTimestamp();
 		expect(ts).toMatch(/\.789$/);
 	});
 });

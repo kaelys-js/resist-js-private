@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { Num, Str } from '@/schemas/common';
 
 /**
  * Tests for +error.svelte integration behavior.
@@ -9,7 +10,7 @@ import { describe, expect, it } from 'vitest';
  */
 describe('+error.svelte integration logic', () => {
 	it('maps 400 status to badRequest locale key', () => {
-		const statusKeyMap: Record<number, string> = {
+		const statusKeyMap: Record<Num, Str> = {
 			400: 'badRequest',
 			403: 'forbidden',
 			404: 'notFound',
@@ -19,7 +20,7 @@ describe('+error.svelte integration logic', () => {
 	});
 
 	it('maps 404 status to notFound locale key', () => {
-		const statusKeyMap: Record<number, string> = {
+		const statusKeyMap: Record<Num, Str> = {
 			400: 'badRequest',
 			403: 'forbidden',
 			404: 'notFound',
@@ -29,7 +30,7 @@ describe('+error.svelte integration logic', () => {
 	});
 
 	it('maps 403 status to forbidden locale key', () => {
-		const statusKeyMap: Record<number, string> = {
+		const statusKeyMap: Record<Num, Str> = {
 			400: 'badRequest',
 			403: 'forbidden',
 			404: 'notFound',
@@ -39,7 +40,7 @@ describe('+error.svelte integration logic', () => {
 	});
 
 	it('maps 500 status to serverError locale key', () => {
-		const statusKeyMap: Record<number, string> = {
+		const statusKeyMap: Record<Num, Str> = {
 			400: 'badRequest',
 			403: 'forbidden',
 			404: 'notFound',
@@ -49,13 +50,13 @@ describe('+error.svelte integration logic', () => {
 	});
 
 	it('unknown status falls back to genericTitle', () => {
-		const statusKeyMap: Record<number, string> = {
+		const statusKeyMap: Record<Num, Str> = {
 			400: 'badRequest',
 			403: 'forbidden',
 			404: 'notFound',
 			500: 'serverError',
 		};
-		const key: string = statusKeyMap[418] ?? 'genericTitle';
+		const key: Str = statusKeyMap[418] ?? 'genericTitle';
 		expect(key).toBe('genericTitle');
 	});
 

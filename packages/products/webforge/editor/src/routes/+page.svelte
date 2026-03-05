@@ -4,6 +4,7 @@ import type { Str } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import { useEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
+import { log } from '@/utils/core/logger';
 import { APP_TAGLINE } from '$lib/config/app-meta';
 
 const store: EditorStore = useEditorStore();
@@ -13,6 +14,10 @@ const welcomeText: Str = $derived.by(() => {
 	const result: Result<Str> = (localeStore.t.home.welcome as (p: { appName: Str }) => Result<Str>)({
 		appName: store.app.appName,
 	});
+	if (!result.ok) {
+		log.warn(`Locale home.welcome error: ${result.error.code}`);
+	}
+	// UI boundary — locale error logged, fallback used
 	return result.ok ? result.data : `Welcome to ${store.app.appName}`;
 });
 

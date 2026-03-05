@@ -1,4 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import type { Bool, Str, Void } from '@/schemas/common';
 import { activateDebugServices, syncDebugServices, type DebugServicesHandle } from './init.svelte';
 import { DEVTOOLS_KEY } from './devtools-api.svelte';
 import { APP_NAME } from '$lib/config/app-meta';
@@ -10,10 +11,10 @@ vi.mock('./state-logger.svelte', () => ({
 
 vi.mock('./devtools-api.svelte', () => ({
 	DEVTOOLS_KEY: '__EDITOR_DEVTOOLS__',
-	createDevtoolsAPI: vi.fn((): { destroy(): void } => {
-		(window as unknown as Record<string, unknown>).__EDITOR_DEVTOOLS__ = { stub: true };
+	createDevtoolsAPI: vi.fn((): { destroy(): Void } => {
+		(window as unknown as Record<Str, unknown>).__EDITOR_DEVTOOLS__ = { stub: true };
 		return {
-			destroy(): void {
+			destroy(): Void {
 				Object.defineProperty(window, '__EDITOR_DEVTOOLS__', {
 					value: undefined,
 					writable: true,
@@ -94,7 +95,7 @@ const createMockEditorStore = () => ({
 	load: vi.fn(okVoid),
 });
 
-const createMockDebugStore = (enabled: boolean) => ({
+const createMockDebugStore = (enabled: Bool) => ({
 	debug: { enabled, logLevel: 'info' as const },
 	urlOverrides: {},
 	setEnabled: vi.fn(okVoid),
@@ -120,7 +121,7 @@ describe('activateDebugServices', () => {
 		const debugStore = createMockDebugStore(true);
 		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		expect((window as unknown as Record<string, unknown>)[DEVTOOLS_KEY]).toBeDefined();
+		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBeDefined();
 		handle.destroy();
 	});
 
@@ -130,7 +131,7 @@ describe('activateDebugServices', () => {
 
 		// Welcome banner includes the app name as a %s substitution arg
 		const { calls } = consoleSpy.mock;
-		const hasWelcome: boolean = calls.some(
+		const hasWelcome: Bool = calls.some(
 			(args: unknown[]) =>
 				typeof args[0] === 'string' &&
 				args[0].includes('[Debug]') &&
@@ -146,7 +147,7 @@ describe('activateDebugServices', () => {
 
 		handle.destroy();
 
-		expect((window as unknown as Record<string, unknown>)[DEVTOOLS_KEY]).toBeUndefined();
+		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBeUndefined();
 		expect(consoleSpy).toHaveBeenCalledWith(
 			'%c DEBUG %c Debug mode disabled',
 			expect.any(String),
@@ -161,7 +162,7 @@ describe('syncDebugServices', () => {
 		const result = syncDebugServices(editorStore, debugStore, null);
 
 		expect(result).toBeNull();
-		expect((window as unknown as Record<string, unknown>)[DEVTOOLS_KEY]).toBeUndefined();
+		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBeUndefined();
 	});
 
 	it('activates when debug is enabled and no handle', () => {
@@ -169,7 +170,7 @@ describe('syncDebugServices', () => {
 		const result = syncDebugServices(editorStore, debugStore, null);
 
 		expect(result).not.toBeNull();
-		expect((window as unknown as Record<string, unknown>)[DEVTOOLS_KEY]).toBeDefined();
+		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBeDefined();
 		result?.destroy();
 	});
 
@@ -181,7 +182,7 @@ describe('syncDebugServices', () => {
 		const result = syncDebugServices(editorStore, disabledStore, handle);
 
 		expect(result).toBeNull();
-		expect((window as unknown as Record<string, unknown>)[DEVTOOLS_KEY]).toBeUndefined();
+		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBeUndefined();
 	});
 
 	it('returns existing handle when debug is enabled and handle exists', () => {

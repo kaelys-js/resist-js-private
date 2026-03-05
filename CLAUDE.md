@@ -64,6 +64,29 @@ return err(ERRORS.SCENE.LOAD_FAILED, 'Scene asset missing');
 - Every function input must be validated with a Valibot schema
 - Every function output must return `Result<T>` — ALL callers must check `.ok`
 
+**UI Boundary Exception:** In Svelte `$derived`/`$effect` reactive contexts where you cannot propagate `Result` (must produce a value), the ternary fallback `result.ok ? result.data : fallback` is allowed **only if** the error is logged first with `log.warn()`. Always add an inline comment explaining why:
+
+```typescript
+// UI boundary — $derived must produce a value; error logged above
+const label: Str = $derived.by(() => {
+  const r: Result<Str> = localeStore.t.ns.key();
+  if (!r.ok) log.warn(`locale key failed (${r.error.code})`);
+  return r.ok ? r.data : 'Fallback';
+});
+```
+
+**`catch` block comments:** Every `catch` block that intentionally swallows an error must have an inline comment explaining WHY the error is non-critical and safe to ignore. Empty `catch {}` blocks are never acceptable.
+
+```typescript
+// CORRECT
+catch (_) {
+  /* localStorage unavailable (SSR/incognito) — position is non-critical */
+}
+
+// WRONG — silent swallow with no explanation
+catch (_) {}
+```
+
 ### Valibot Types (CRITICAL)
 
 Use Valibot types everywhere. Never use TypeScript builtins for data.
@@ -79,12 +102,14 @@ function loadScene(path: string, debug: boolean): Result<SceneData> { ... }
 ```
 
 **Rules:**
-- **NEVER** use TypeScript builtins (`string`, `number`, `boolean`, `void`) for data types
+- **NEVER** use TypeScript builtins (`string`, `number`, `boolean`, `void`) for data types — this applies to ALL files: production, test, and test component `$props()` types. The **only** exception is `Promise<void>` (TypeScript requires `void` in Promise generics)
 - **NEVER** use TypeScript `type` or `interface` for data — use `v.strictObject()` + `v.InferOutput`
 - **ALWAYS** use `v.strictObject()` (never `v.object()`)
 - **ALWAYS** add type annotations to every declaration — no exceptions
-- **NEVER** use `as` casts — no exceptions
+- **NEVER** use `as` casts without an inline comment explaining WHY the cast is necessary. Every `as` cast must document what makes it safe (e.g., `// DeepReadonly mangles locale function signatures — cast to callable form`)
 - Import Valibot as namespace: `import * as v from 'valibot'`
+- **ALWAYS** add JSDoc comments to every field in `v.strictObject()` schemas — undocumented schema fields are violations
+- **ALWAYS** use the most specific Valibot validator: prefer `v.picklist([...])` over `v.string()`, `v.pipe(v.string(), v.url())` over bare `v.string()`, `v.pipe(v.string(), v.regex(...))` for constrained formats
 
 ### Imports
 
@@ -180,6 +205,7 @@ export function loadScene(path: Path, options: SceneLoadOptions): Result<SceneDa
 - Presets from `@/config/test` (base, node, svelte)
 - Test harness from `@/config/test/harness` — temp dirs, console capture, async helpers, fake clock
 - Run tests: `pnpm qa:test`
+- **Test files follow the SAME coding standards as production code** — Valibot types (`Str`, `Bool`, `Num`, `Void`), type annotations on every declaration, no bare `as` casts. The only exception is `Promise<void>`.
 
 ```typescript
 import { createTestHarness } from '@/config/test/harness';

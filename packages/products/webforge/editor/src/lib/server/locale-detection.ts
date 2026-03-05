@@ -7,6 +7,7 @@
  * @module
  */
 
+import type { Str } from '@/schemas/common';
 import { SUPPORTED_LOCALES } from '$lib/schemas/editor-state';
 
 /**
@@ -14,7 +15,7 @@ import { SUPPORTED_LOCALES } from '$lib/schemas/editor-state';
  * Derived from the canonical {@link SUPPORTED_LOCALES} array in editor-state
  * so new locales added there are automatically recognized by SSR detection.
  */
-export const SUPPORTED_LOCALE_CODES: ReadonlySet<string> = new Set(SUPPORTED_LOCALES);
+export const SUPPORTED_LOCALE_CODES: ReadonlySet<Str> = new Set(SUPPORTED_LOCALES);
 
 /**
  * Detects the best matching locale from an Accept-Language header.
@@ -29,13 +30,11 @@ export const SUPPORTED_LOCALE_CODES: ReadonlySet<string> = new Set(SUPPORTED_LOC
  * detectFromHeader(null);                         // ''
  * ```
  */
-export function detectFromHeader(acceptLanguage: string | null): string {
+export function detectFromHeader(acceptLanguage: Str | null): Str {
 	if (!acceptLanguage) return '';
-	const tags: readonly string[] = acceptLanguage
-		.split(',')
-		.map((s) => s.split(';')[0]?.trim() ?? '');
+	const tags: readonly Str[] = acceptLanguage.split(',').map((s) => s.split(';')[0]?.trim() ?? '');
 	for (const tag of tags) {
-		const code: string = (tag.split('-')[0] ?? '').toLowerCase();
+		const code: Str = (tag.split('-')[0] ?? '').toLowerCase();
 		if (SUPPORTED_LOCALE_CODES.has(code)) return code;
 	}
 	return '';
@@ -58,9 +57,9 @@ export function detectFromHeader(acceptLanguage: string | null): string {
  * resolveLocale('invalid', 'ko');                  // 'ko' (invalid cookie, header fallback)
  * ```
  */
-export function resolveLocale(cookie: string, acceptLanguage: string | null): string {
+export function resolveLocale(cookie: Str, acceptLanguage: Str | null): Str {
 	if (SUPPORTED_LOCALE_CODES.has(cookie)) return cookie;
-	const fromHeader: string = detectFromHeader(acceptLanguage);
+	const fromHeader: Str = detectFromHeader(acceptLanguage);
 	if (SUPPORTED_LOCALE_CODES.has(fromHeader)) return fromHeader;
 	return 'en';
 }

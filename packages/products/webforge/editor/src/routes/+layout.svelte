@@ -19,6 +19,7 @@ import { initDebugStore, type DebugStore } from '$lib/stores/debug-state.svelte'
 import { applyUrlOverrides } from '$lib/utils/url-params';
 import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
 import DevToolbar from '$lib/components/DevToolbar.svelte';
+import { log } from '@/utils/core/logger';
 import { APP_TAGLINE, THEME_COLORS, storageKey } from '$lib/config/app-meta';
 import { getBuildInfo } from '$lib/config/build-info';
 import { getAnnouncement } from '$lib/utils/announce.svelte';
@@ -106,9 +107,9 @@ let currentSidebarPx: Num = SIDEBAR_DEFAULT_PX;
 // Custom storage: persists sidebar width in pixels and converts to/from
 // PaneForge percentages based on current viewport width. This ensures the
 // sidebar maintains a consistent pixel width across different screen sizes.
-// Param types match PaneGroupStorage interface contract.
+// Param types match PaneGroupStorage interface contract (Str = string, Void ⊂ void).
 const paneStorage: PaneGroupStorage = {
-	getItem(_name: string): string | null {
+	getItem(_name: Str): Str | null {
 		if (typeof window === 'undefined') return null;
 		const savedPx: Str | null = localStorage.getItem(SIDEBAR_PX_KEY);
 		const sidebarPx: Num = savedPx ? Number(savedPx) : SIDEBAR_DEFAULT_PX;
@@ -117,7 +118,7 @@ const paneStorage: PaneGroupStorage = {
 		const sidebarPercent: Num = (sidebarPx / viewportWidth) * 100;
 		return JSON.stringify([sidebarPercent, 100 - sidebarPercent]);
 	},
-	setItem(_name: string, value: string): void {
+	setItem(_name: Str, value: Str): Void {
 		if (typeof window === 'undefined') return;
 		try {
 			const layout: Num[] = JSON.parse(value);
@@ -249,6 +250,10 @@ const metaDescription: Str = $derived(
 		const result: Result<Str> = (
 			localeStore.t.meta.description as (p: { appName: Str }) => Result<Str>
 		)({ appName: store.app.appName });
+		if (!result.ok) {
+			log.warn(`Locale meta.description error: ${result.error.code}`);
+		}
+		// UI boundary — locale error logged, fallback used
 		return result.ok ? result.data : `${store.app.appName} — ${APP_TAGLINE}`;
 	})(),
 );

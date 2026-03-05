@@ -3,8 +3,9 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { storageKey } from '$lib/config/app-meta';
+import type { Str } from '@/schemas/common';
 
-const appHtml: string = readFileSync(
+const appHtml: Str = readFileSync(
 	resolve(dirname(fileURLToPath(import.meta.url)), 'app.html'),
 	'utf8',
 );

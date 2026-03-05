@@ -608,6 +608,7 @@ export const handleError: HandleClientError = ({ error, status, message }) => {
 	// Route through CapturedError pipeline — reportError() wraps the AppError
 	// with breadcrumbs, fingerprint, environment, etc. and fires onError which
 	// calls logErrorToConsole with the full CapturedError.
+	// literal false — reportError expects Bool alias, not bare boolean
 	reportError(appError, false as Bool);
 
 	return { message, errorId: appError.id };

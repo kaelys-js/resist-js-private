@@ -1,4 +1,5 @@
 <script lang="ts">
+import type { Str } from '@/schemas/common';
 import FeatureFlagsTestProviders from './FeatureFlagsTestProviders.svelte';
 import NavScenes from './NavScenes.svelte';
 import type { ServerScene } from '$lib/server/data/types';
@@ -6,7 +7,7 @@ import type { ServerScene } from '$lib/server/data/types';
 let {
 	disabledFlags = [],
 	scenes = [],
-}: { disabledFlags?: string[]; scenes?: readonly ServerScene[] } = $props();
+}: { disabledFlags?: Str[]; scenes?: readonly ServerScene[] } = $props();
 </script>
 
 <FeatureFlagsTestProviders {disabledFlags}>

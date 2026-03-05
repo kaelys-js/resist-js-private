@@ -157,7 +157,7 @@ function save(): Result<Void> {
 function load(): Result<Void> {
 	if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
 	try {
-		const raw: string | null = localStorage.getItem(STORAGE_KEY);
+		const raw: Str | null = localStorage.getItem(STORAGE_KEY);
 		if (raw === null) return okUnchecked<Void>(undefined);
 
 		const parsed: unknown = JSON.parse(raw);

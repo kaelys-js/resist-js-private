@@ -44,8 +44,10 @@ export function t(
 		| (() => Result<Str>)
 		| ((_args: object) => Result<Str>)
 		| ((params: Record<string, never>) => Result<Str>),
-	fallback: string,
-): string {
+	fallback: Str,
+): Str {
+	// DeepReadonly mangles locale function signatures — cast to callable form
 	const result: Result<Str> = (fn as () => Result<Str>)();
+	// UI boundary — t() is the designated fallback point; locale errors are non-fatal
 	return result.ok ? result.data : fallback;
 }
