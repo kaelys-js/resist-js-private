@@ -34,7 +34,7 @@ test.describe('head meta — normal page (/)', () => {
 
 	test('title includes app name, breadcrumb, and tagline', async ({ page }) => {
 		await page.goto('/');
-		await expect(page).toHaveTitle('Storylyne - Overworld - Your Story, Rendered');
+		await expect(page).toHaveTitle('Storylyne - Home - Your Story, Rendered');
 	});
 
 	test('description contains tagline', async ({ page }) => {

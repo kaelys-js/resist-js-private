@@ -342,7 +342,7 @@ $effect(() => {
 		{#if toolbarOpen && activePanel}
 			<div
 				transition:fly={{ y: 8, duration: 150 }}
-				class="w-80 max-h-[60vh] overflow-auto rounded-lg bg-popover/80 backdrop-blur-xl border border-border shadow-2xl shadow-black/20"
+				class="w-80 max-h-[60vh] overflow-hidden rounded-lg bg-popover/80 backdrop-blur-xl border border-border shadow-2xl shadow-black/20"
 				data-testid="dev-toolbar-panel"
 			>
 				{#if activePanel === 'flags'}

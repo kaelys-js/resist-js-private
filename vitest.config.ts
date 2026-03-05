@@ -132,6 +132,7 @@ export default defineConfig({
 					alias: {
 						$lib: path.join(editorSrc, 'lib'),
 						'$app/environment': path.join(editorSrc, 'test-mocks/app-environment.ts'),
+						'$app/navigation': path.join(editorSrc, 'test-mocks/app-navigation.ts'),
 						'$app/state': path.join(editorSrc, 'test-mocks/app-state.ts'),
 					},
 					server: {

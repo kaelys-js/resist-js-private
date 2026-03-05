@@ -57,7 +57,7 @@ function labelFor(key: string): string {
 }
 </script>
 
-<div class="flex max-h-[60vh] flex-col p-3" data-testid="dev-toolbar-flags">
+<div class="flex h-full flex-col p-3" data-testid="dev-toolbar-flags">
 	<!-- Sticky header: title + search -->
 	<div class="flex shrink-0 flex-col gap-3 pb-3">
 		<h3 class="text-sm font-semibold text-foreground">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')}</h3>
@@ -68,7 +68,7 @@ function labelFor(key: string): string {
 				type="text"
 				placeholder={t(localeStore.t.devToolbar.searchFlags, 'Search flags…')}
 				aria-label={t(localeStore.t.devToolbar.searchFlags, 'Search flags…')}
-				class="h-8 pl-8 {searchQuery ? 'pr-8' : 'pr-3'} text-xs"
+				class="h-8 pl-8 {searchQuery ? 'pr-8' : 'pr-3'} text-xs md:text-xs"
 				value={searchQuery}
 				oninput={(e: Event) => {
 					searchQuery = (e.target as HTMLInputElement).value;

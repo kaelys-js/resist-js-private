@@ -33,9 +33,9 @@ test.describe('feature flags — default state', () => {
 		await page.goto('/');
 
 		// SiteHeader: breadcrumb visible (scoped to header)
+		// On home route, only "Home" shows (no active scene)
 		const header = page.locator('header');
 		await expect(header.getByText('Home')).toBeVisible();
-		await expect(header.getByText('Overworld')).toBeVisible();
 
 		// SiteHeader: sidebar trigger visible
 		const trigger = page.locator('button[data-sidebar="trigger"]');
@@ -55,7 +55,7 @@ test.describe('feature flags — default state', () => {
 		await expect(page.getByText('Settings').first()).toBeVisible();
 
 		// AppSidebar: NavUser / project dropdown visible
-		await expect(page.getByText('Sample Project')).toBeVisible();
+		await expect(page.getByText('Sample Project', { exact: true })).toBeVisible();
 
 		// SiteHeader: user dropdown trigger visible
 		await expect(page.getByTestId('header-user-trigger')).toBeVisible();
@@ -102,7 +102,7 @@ test.describe('feature flags — individual toggles', () => {
 
 	test('projectDropdown=false hides NavUser in sidebar footer', async ({ page }) => {
 		await setFlags(page, { projectDropdown: false });
-		await expect(page.getByText('Sample Project')).not.toBeAttached();
+		await expect(page.getByText('Sample Project', { exact: true })).not.toBeAttached();
 	});
 
 	test('settings=false hides Settings in sidebar secondary nav', async ({ page }) => {
@@ -162,7 +162,7 @@ test.describe('feature flags — combined', () => {
 		});
 
 		// Page should load without errors
-		await expect(page).toHaveTitle('Storylyne - Overworld - Your Story, Rendered');
+		await expect(page).toHaveTitle('Storylyne - Home - Your Story, Rendered');
 
 		// Header should still render (even if empty of controlled content)
 		const header = page.locator('header');
@@ -177,7 +177,7 @@ test.describe('feature flags — combined', () => {
 		await expect(page.locator('button[data-sidebar="trigger"]')).not.toBeAttached();
 		await expect(page.getByRole('button', { name: /toggle mode/i })).not.toBeAttached();
 		await expect(page.getByText('Help')).not.toBeAttached();
-		await expect(page.getByText('Sample Project')).not.toBeAttached();
+		await expect(page.getByText('Sample Project', { exact: true })).not.toBeAttached();
 	});
 });
 

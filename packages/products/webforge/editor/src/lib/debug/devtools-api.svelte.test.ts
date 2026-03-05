@@ -26,6 +26,7 @@ const createMockEditorStore = () => ({
 		userName: 'User',
 		userEmail: '',
 		userAvatar: '',
+		mockDataDelay: 0,
 	},
 	features: {
 		settings: true,
@@ -33,6 +34,7 @@ const createMockEditorStore = () => ({
 		languageSelection: true,
 		modeToggle: true,
 		sidebar: true,
+		sidebarHome: true,
 		sceneList: true,
 		resizableSidebar: true,
 		breadcrumb: true,
@@ -64,6 +66,7 @@ const createMockEditorStore = () => ({
 	setUserName: vi.fn(okVoid),
 	setUserEmail: vi.fn(okVoid),
 	setUserAvatar: vi.fn(okVoid),
+	setMockDataDelay: vi.fn(okVoid),
 	setFeature: vi.fn(okVoid),
 	save: vi.fn(okVoid),
 	load: vi.fn(okVoid),

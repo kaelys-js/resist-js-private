@@ -103,6 +103,10 @@ const APP_SETTER_MAP: Record<string, keyof EditorStore> = {
 	mode: 'setMode',
 	locale: 'setLocale',
 	sidebarOpen: 'setSidebarOpen',
+	userName: 'setUserName',
+	userEmail: 'setUserEmail',
+	userAvatar: 'setUserAvatar',
+	mockDataDelay: 'setMockDataDelay',
 };
 
 /**
@@ -159,6 +163,8 @@ export function applyUrlOverrides(
 				// sidebarOpen needs boolean conversion
 				if (key === 'sidebarOpen') {
 					setter(value === 'true');
+				} else if (key === 'mockDataDelay') {
+					setter(Number(value) || 0);
 				} else {
 					setter(value);
 				}
@@ -169,7 +175,7 @@ export function applyUrlOverrides(
 		// Unknown key — warn so typos are caught (e.g., wf.logLesel instead of wf.logLevel)
 		// eslint-disable-next-line no-console -- Intentional debug warning for bad URL params
 		console.warn(
-			`[Editor] Unknown URL override: wf.${key}=${value} — valid: debug, logLevel, theme, mode, locale, sidebarOpen, appName, ff.<flag>`, // TODO: wf. and ff. from their constants so dont need to update here if it changes
+			`[Editor] Unknown URL override: wf.${key}=${value} — valid: debug, logLevel, ${[...Object.keys(APP_SETTER_MAP)].join(', ')}, ff.<flag>`,
 		);
 	}
 

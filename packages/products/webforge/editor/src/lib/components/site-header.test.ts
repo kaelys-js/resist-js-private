@@ -19,9 +19,19 @@ describe('SiteHeader', () => {
 		expect(screen.getByText('My Scene')).toBeInTheDocument();
 	});
 
+	it('renders "Scenes" in breadcrumb when scene is active', () => {
+		render(SiteHeaderTest, { props: { activeSceneName: 'My Scene' } });
+		expect(screen.getByText('Scenes')).toBeInTheDocument();
+	});
+
 	it('renders breadcrumb with "Home" when no active scene', () => {
 		render(SiteHeaderTest);
 		expect(screen.getAllByText('Home').length).toBeGreaterThanOrEqual(1);
+	});
+
+	it('does not show "Scenes" when no active scene', () => {
+		render(SiteHeaderTest);
+		expect(screen.queryByText('Scenes')).not.toBeInTheDocument();
 	});
 
 	it('renders breadcrumb with "Error" text when isError is true', () => {

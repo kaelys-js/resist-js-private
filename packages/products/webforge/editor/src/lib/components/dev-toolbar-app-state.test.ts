@@ -57,7 +57,34 @@ describe('DevToolbarAppState', () => {
 	});
 
 	it('renders correct number of preferences from schema', () => {
-		expect(preferences.length).toBe(8);
+		expect(preferences.length).toBe(9);
+	});
+
+	it('renders App section header', () => {
+		render(DevToolbarAppStateTest);
+		expect(screen.getByText('App')).toBeInTheDocument();
+	});
+
+	it('renders User section header', () => {
+		render(DevToolbarAppStateTest);
+		expect(screen.getByText('User')).toBeInTheDocument();
+	});
+
+	it('renders Scenes section header', () => {
+		render(DevToolbarAppStateTest);
+		expect(screen.getByText('Scenes')).toBeInTheDocument();
+	});
+
+	it('renders Log Out button when not logged out', () => {
+		render(DevToolbarAppStateTest);
+		expect(screen.getByText('Log Out')).toBeInTheDocument();
+	});
+
+	it('renders Simulate Empty Scenes switch', () => {
+		const { container } = render(DevToolbarAppStateTest);
+		const toggle: HTMLElement | null = container.querySelector('#pref-simulate-empty-scenes');
+		expect(toggle).toBeInTheDocument();
+		expect(toggle?.getAttribute('role')).toBe('switch');
 	});
 
 	it('appName input reflects default store value', () => {

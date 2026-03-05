@@ -10,7 +10,7 @@ import type { LayoutServerLoad } from './$types';
  * @param event - SvelteKit layout server load event
  * @returns Layout data containing locale, user, project, and scenes
  */
-export const load: LayoutServerLoad = async ({ locals }) => {
+export const load: LayoutServerLoad = async ({ locals, url }) => {
 	const { user } = locals;
 
 	if (!user) {
@@ -22,6 +22,11 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 
 	if (!project) {
 		return { locale: locals.locale, user, project: null, scenes: [] };
+	}
+
+	// Simulate empty scene list via URL override (?wf.scenes=empty)
+	if (url.searchParams.get('wf.scenes') === 'empty') {
+		return { locale: locals.locale, user, project, scenes: [] };
 	}
 
 	const scenesResult = await locals.db.scenes.getByProject(project.id);

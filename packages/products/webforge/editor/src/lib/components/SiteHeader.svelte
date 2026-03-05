@@ -20,11 +20,8 @@ const store = useEditorStore();
 
 const homeHref: string = $derived(page.url.search ? `/${page.url.search}` : '/');
 
-const breadcrumbLeaf: string = $derived.by(() => {
-	if (isError) return t(localeStore.t.header.error, 'Error');
-	if (activeSceneName) return activeSceneName;
-	return t(localeStore.t.header.home, 'Home');
-});
+/** Whether to show scene-level breadcrumb segments. */
+const showSceneCrumbs: boolean = $derived(!isError && Boolean(activeSceneName));
 
 const toggleSidebarLabel: string = $derived(
 	t(localeStore.t.header.toggleSidebar, 'Toggle Sidebar'),
@@ -51,13 +48,34 @@ const toggleSidebarLabel: string = $derived(
 		{#if store.features.breadcrumb}
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
-				<Breadcrumb.Item class="hidden md:block">
-					<Breadcrumb.Link href={homeHref}>{t(localeStore.t.header.home, 'Home')}</Breadcrumb.Link>
-				</Breadcrumb.Item>
-				<Breadcrumb.Separator class="hidden md:block" />
-				<Breadcrumb.Item>
-					<Breadcrumb.Page>{breadcrumbLeaf}</Breadcrumb.Page>
-				</Breadcrumb.Item>
+				{#if isError}
+					<!-- Error: Home > Error -->
+					<Breadcrumb.Item class="hidden md:block">
+						<Breadcrumb.Link href={homeHref}>{t(localeStore.t.header.home, 'Home')}</Breadcrumb.Link>
+					</Breadcrumb.Item>
+					<Breadcrumb.Separator class="hidden md:block" />
+					<Breadcrumb.Item>
+						<Breadcrumb.Page>{t(localeStore.t.header.error, 'Error')}</Breadcrumb.Page>
+					</Breadcrumb.Item>
+				{:else if showSceneCrumbs}
+					<!-- Scene active: Home > Scenes > Scene Name -->
+					<Breadcrumb.Item class="hidden md:block">
+						<Breadcrumb.Link href={homeHref}>{t(localeStore.t.header.home, 'Home')}</Breadcrumb.Link>
+					</Breadcrumb.Item>
+					<Breadcrumb.Separator class="hidden md:block" />
+					<Breadcrumb.Item class="hidden md:block">
+						<Breadcrumb.Link href={homeHref}>{t(localeStore.t.sidebar.scenes, 'Scenes')}</Breadcrumb.Link>
+					</Breadcrumb.Item>
+					<Breadcrumb.Separator class="hidden md:block" />
+					<Breadcrumb.Item>
+						<Breadcrumb.Page>{activeSceneName}</Breadcrumb.Page>
+					</Breadcrumb.Item>
+				{:else}
+					<!-- Home (no scene active): just Home -->
+					<Breadcrumb.Item>
+						<Breadcrumb.Page>{t(localeStore.t.header.home, 'Home')}</Breadcrumb.Page>
+					</Breadcrumb.Item>
+				{/if}
 			</Breadcrumb.List>
 		</Breadcrumb.Root>
 		{/if}

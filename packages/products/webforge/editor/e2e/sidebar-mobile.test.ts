@@ -44,12 +44,12 @@ test.describe('mobile sidebar — open/close/toggle', () => {
 		await expect(mobileSidebar.getByText('Storylyne', { exact: true }).first()).toBeVisible();
 		await expect(mobileSidebar.getByText('Your Story, Rendered', { exact: true })).toBeVisible();
 
-		// Scenes
-		await expect(mobileSidebar.getByText('Scenes')).toBeVisible();
+		// Scenes (wait for hydration — mobile sheet may need extra time)
+		await expect(mobileSidebar.getByText('Scenes')).toBeVisible({ timeout: 10_000 });
 		await expect(mobileSidebar.getByText('Overworld')).toBeVisible();
 
 		// Footer
-		await expect(mobileSidebar.getByText('Sample Project')).toBeVisible();
+		await expect(mobileSidebar.getByText('Sample Project', { exact: true })).toBeVisible();
 	});
 
 	test('clicking overlay closes mobile sidebar', async ({ page }) => {
@@ -91,9 +91,9 @@ test.describe('mobile sidebar — open/close/toggle', () => {
 		const header = page.locator('header');
 		await expect(header).toBeVisible();
 
-		// On mobile, only the leaf breadcrumb (active scene name) is visible
-		// ("Home" breadcrumb has class="hidden md:block")
-		await expect(header.getByText('Overworld')).toBeVisible();
+		// On mobile on home route, breadcrumb shows just "Home"
+		// (no active scene on home route)
+		await expect(header.getByText('Home')).toBeVisible();
 	});
 });
 
