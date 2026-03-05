@@ -5,140 +5,327 @@
     Canonical source for ALL brand assets.
     NEVER edit files in static/ directly — regenerate with: pnpm generate-icons
 
-    Design: Faceted crystal with gradient lighting, inner glow, and spark accent.
-    Adapts to light/dark via prefers-color-scheme.
+    Design: Faceted crystal with gradient lighting, inner glow, refraction
+    caustics, and spark accent. Adapts to light/dark via prefers-color-scheme.
   -->
   <defs>
-    <!-- Top cap gradient (brightest — direct light) -->
-    <linearGradient id="g-top" x1="0" y1="0" x2="0" y2="1">
+    <!-- ── Crystal body gradients ─────────────────────────────── -->
+
+    <!-- Crown cap — brightest facet (direct light from above) -->
+    <linearGradient id="g-crown" x1="0.3" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#bfdbfe"/>
+      <stop offset="40%" stop-color="#93c5fd"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+
+    <!-- Crown left sub-facet -->
+    <linearGradient id="g-crown-l" x1="1" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#93c5fd"/>
       <stop offset="100%" stop-color="#60a5fa"/>
     </linearGradient>
 
-    <!-- Upper-left facet -->
-    <linearGradient id="g-ul" x1="1" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#60a5fa"/>
+    <!-- Crown right sub-facet -->
+    <linearGradient id="g-crown-r" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7dd3fc"/>
       <stop offset="100%" stop-color="#3b82f6"/>
     </linearGradient>
 
-    <!-- Upper-right facet -->
-    <linearGradient id="g-ur" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#3b82f6"/>
+    <!-- Upper-left pavilion -->
+    <linearGradient id="g-ul" x1="1" y1="0" x2="0.1" y2="1">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
       <stop offset="100%" stop-color="#2563eb"/>
     </linearGradient>
 
-    <!-- Mid-left facet -->
-    <linearGradient id="g-ml" x1="1" y1="0" x2="0" y2="1">
+    <!-- Upper-right pavilion -->
+    <linearGradient id="g-ur" x1="0" y1="0" x2="0.9" y2="1">
       <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="50%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+
+    <!-- Mid-left facet -->
+    <linearGradient id="g-ml" x1="0.8" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="40%" stop-color="#2563eb"/>
       <stop offset="100%" stop-color="#1d4ed8"/>
     </linearGradient>
 
     <!-- Mid-right facet -->
-    <linearGradient id="g-mr" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="g-mr" x1="0.2" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="40%" stop-color="#1d4ed8"/>
       <stop offset="100%" stop-color="#1e40af"/>
     </linearGradient>
 
-    <!-- Lower-left facet (deepest shadow) -->
-    <linearGradient id="g-ll" x1="0.5" y1="0" x2="0" y2="1">
+    <!-- Lower-left facet (deep shadow) -->
+    <linearGradient id="g-ll" x1="0.6" y1="0" x2="0.2" y2="1">
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="50%" stop-color="#1e40af"/>
+      <stop offset="100%" stop-color="#1e3a8a"/>
+    </linearGradient>
+
+    <!-- Lower-right facet (deepest) -->
+    <linearGradient id="g-lr" x1="0.4" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#1e40af"/>
+      <stop offset="50%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#172554"/>
+    </linearGradient>
+
+    <!-- Lower center — deep interior -->
+    <linearGradient id="g-lc" x1="0.5" y1="0" x2="0.5" y2="1">
       <stop offset="0%" stop-color="#1d4ed8"/>
       <stop offset="100%" stop-color="#1e3a8a"/>
     </linearGradient>
 
-    <!-- Lower-right facet -->
-    <linearGradient id="g-lr" x1="0.5" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1e40af"/>
-      <stop offset="100%" stop-color="#172554"/>
-    </linearGradient>
+    <!-- ── Light effects ──────────────────────────────────────── -->
 
-    <!-- Center highlight (inner glow) -->
-    <radialGradient id="g-glow" cx="0.45" cy="0.35" r="0.5">
-      <stop offset="0%" stop-color="#dbeafe" stop-opacity="0.6"/>
-      <stop offset="60%" stop-color="#93c5fd" stop-opacity="0.15"/>
+    <!-- Primary inner glow (upper-left catch) -->
+    <radialGradient id="g-glow" cx="0.4" cy="0.3" r="0.45" fx="0.35" fy="0.25">
+      <stop offset="0%" stop-color="#dbeafe" stop-opacity="0.55"/>
+      <stop offset="35%" stop-color="#93c5fd" stop-opacity="0.25"/>
+      <stop offset="70%" stop-color="#60a5fa" stop-opacity="0.08"/>
       <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
     </radialGradient>
 
-    <!-- Spark gradient -->
+    <!-- Secondary deep glow (lower interior refraction) -->
+    <radialGradient id="g-deep" cx="0.55" cy="0.6" r="0.35" fx="0.5" fy="0.55">
+      <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.2"/>
+      <stop offset="60%" stop-color="#3b82f6" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Caustic rainbow refraction (subtle) -->
+    <linearGradient id="g-caustic" x1="0.2" y1="0.3" x2="0.8" y2="0.7">
+      <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0"/>
+      <stop offset="20%" stop-color="#c4b5fd" stop-opacity="0.12"/>
+      <stop offset="40%" stop-color="#7dd3fc" stop-opacity="0.1"/>
+      <stop offset="60%" stop-color="#86efac" stop-opacity="0.06"/>
+      <stop offset="80%" stop-color="#fde68a" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#fde68a" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Edge highlight line (left edge catch light) -->
+    <linearGradient id="g-edge-l" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e0f2fe" stop-opacity="0.95"/>
+      <stop offset="30%" stop-color="#bfdbfe" stop-opacity="0.5"/>
+      <stop offset="70%" stop-color="#93c5fd" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#60a5fa" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Edge highlight (right edge, subtler) -->
+    <linearGradient id="g-edge-r" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bfdbfe" stop-opacity="0.4"/>
+      <stop offset="50%" stop-color="#93c5fd" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#60a5fa" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- ── Spark (star) gradients ─────────────────────────────── -->
+
+    <!-- Main spark body -->
     <radialGradient id="g-spark" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0%" stop-color="#fef3c7"/>
-      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="0%" stop-color="#fefce8"/>
+      <stop offset="30%" stop-color="#fef3c7"/>
+      <stop offset="60%" stop-color="#fbbf24"/>
       <stop offset="100%" stop-color="#f59e0b"/>
     </radialGradient>
 
-    <!-- Edge highlight line gradient -->
-    <linearGradient id="g-edge" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#dbeafe" stop-opacity="0.9"/>
-      <stop offset="50%" stop-color="#bfdbfe" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#93c5fd" stop-opacity="0"/>
-    </linearGradient>
+    <!-- Spark outer glow -->
+    <radialGradient id="g-spark-glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#fef3c7" stop-opacity="0.5"/>
+      <stop offset="50%" stop-color="#fbbf24" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- ── Filters ────────────────────────────────────────────── -->
+
+    <!-- Soft outer glow + feathered edges for blending -->
+    <filter id="f-crystal-glow" x="-12%" y="-12%" width="124%" height="124%">
+      <!-- Outer ambient glow -->
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="glow-blur"/>
+      <feFlood flood-color="#60a5fa" flood-opacity="0.25" result="glow-color"/>
+      <feComposite in="glow-color" in2="glow-blur" operator="in" result="outer-glow"/>
+      <!-- Soften the crystal edges slightly -->
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.8" result="soft-src"/>
+      <feMerge>
+        <feMergeNode in="outer-glow"/>
+        <feMergeNode in="soft-src"/>
+      </feMerge>
+    </filter>
   </defs>
 
-  <!-- === Crystal body === -->
+  <!-- === Crystal body (faceted gem) === -->
+  <g filter="url(#f-crystal-glow)">
+    <!-- Crown top — brightest facet receiving direct light -->
+    <polygon fill="url(#g-crown)" points="256,32 340,148 172,148"/>
 
-  <!-- Top cap (crown) — brightest facet -->
-  <polygon fill="url(#g-top)" points="256,32 340,152 172,152"/>
+    <!-- Crown left sub-facet (light splits off top-left) -->
+    <polygon fill="url(#g-crown-l)" points="256,32 172,148 210,130" opacity="0.6"/>
 
-  <!-- Upper-left facet -->
-  <polygon fill="url(#g-ul)" points="172,152 256,188 120,248"/>
+    <!-- Crown right sub-facet -->
+    <polygon fill="url(#g-crown-r)" points="256,32 340,148 302,130" opacity="0.5"/>
 
-  <!-- Upper-right facet -->
-  <polygon fill="url(#g-ur)" points="340,152 256,188 392,248"/>
+    <!-- Upper bridge (connects crown to girdle) -->
+    <polygon fill="url(#g-crown)" points="172,148 340,148 256,190" opacity="0.8"/>
 
-  <!-- Upper center bridge -->
-  <polygon fill="url(#g-top)" points="172,152 340,152 256,188" opacity="0.85"/>
+    <!-- Upper-left pavilion facet -->
+    <polygon fill="url(#g-ul)" points="172,148 256,190 118,252"/>
 
-  <!-- Mid-left facet -->
-  <polygon fill="url(#g-ml)" points="120,248 256,188 256,340 140,348"/>
+    <!-- Upper-right pavilion facet -->
+    <polygon fill="url(#g-ur)" points="340,148 256,190 394,252"/>
 
-  <!-- Mid-right facet -->
-  <polygon fill="url(#g-mr)" points="392,248 256,188 256,340 372,348"/>
+    <!-- Mid-left main facet -->
+    <polygon fill="url(#g-ml)" points="118,252 256,190 256,340 136,350"/>
 
-  <!-- Lower-left facet -->
-  <polygon fill="url(#g-ll)" points="140,348 256,340 256,484"/>
+    <!-- Mid-left interior sub-facet (refracted light) -->
+    <polygon fill="#3b82f6" opacity="0.12" points="118,252 200,260 210,330 136,350"/>
 
-  <!-- Lower-right facet -->
-  <polygon fill="url(#g-lr)" points="372,348 256,340 256,484"/>
+    <!-- Mid-right main facet -->
+    <polygon fill="url(#g-mr)" points="394,252 256,190 256,340 376,350"/>
 
-  <!-- === Internal facet lines (crystal structure) === -->
-  <line x1="256" y1="32" x2="256" y2="484" stroke="#93c5fd" stroke-opacity="0.2" stroke-width="1.5"/>
-  <line x1="172" y1="152" x2="392" y2="248" stroke="#93c5fd" stroke-opacity="0.12" stroke-width="1"/>
-  <line x1="340" y1="152" x2="120" y2="248" stroke="#93c5fd" stroke-opacity="0.12" stroke-width="1"/>
-  <line x1="140" y1="348" x2="372" y2="348" stroke="#93c5fd" stroke-opacity="0.1" stroke-width="1"/>
+    <!-- Mid-right interior sub-facet -->
+    <polygon fill="#2563eb" opacity="0.1" points="394,252 312,260 302,330 376,350"/>
 
-  <!-- === Inner glow overlay === -->
-  <ellipse cx="240" cy="210" rx="100" ry="130" fill="url(#g-glow)"/>
+    <!-- Lower-left facet -->
+    <polygon fill="url(#g-ll)" points="136,350 256,340 256,488"/>
 
-  <!-- === Edge highlight (left edge catch light) === -->
+    <!-- Lower center-left sub-facet -->
+    <polygon fill="url(#g-lc)" points="196,370 256,340 256,488" opacity="0.5"/>
+
+    <!-- Lower-right facet -->
+    <polygon fill="url(#g-lr)" points="376,350 256,340 256,488"/>
+
+    <!-- Lower center-right sub-facet -->
+    <polygon fill="url(#g-lc)" points="316,370 256,340 256,488" opacity="0.4"/>
+  </g>
+
+  <!-- === Internal facet lines (crystal lattice structure) === -->
+  <g opacity="0.7">
+    <!-- Vertical axis -->
+    <line x1="256" y1="32" x2="256" y2="488"
+          stroke="#93c5fd" stroke-opacity="0.18" stroke-width="1.2"/>
+
+    <!-- Upper diagonals (crossing at girdle) -->
+    <line x1="172" y1="148" x2="394" y2="252"
+          stroke="#93c5fd" stroke-opacity="0.1" stroke-width="0.8"/>
+    <line x1="340" y1="148" x2="118" y2="252"
+          stroke="#93c5fd" stroke-opacity="0.1" stroke-width="0.8"/>
+
+    <!-- Girdle horizontal -->
+    <line x1="136" y1="350" x2="376" y2="350"
+          stroke="#93c5fd" stroke-opacity="0.08" stroke-width="0.8"/>
+
+    <!-- Interior refraction lines -->
+    <line x1="200" y1="260" x2="256" y2="340"
+          stroke="#bfdbfe" stroke-opacity="0.07" stroke-width="0.6"/>
+    <line x1="312" y1="260" x2="256" y2="340"
+          stroke="#bfdbfe" stroke-opacity="0.06" stroke-width="0.6"/>
+
+    <!-- Crown sub-facet lines -->
+    <line x1="210" y1="130" x2="256" y2="190"
+          stroke="#bfdbfe" stroke-opacity="0.1" stroke-width="0.6"/>
+    <line x1="302" y1="130" x2="256" y2="190"
+          stroke="#bfdbfe" stroke-opacity="0.08" stroke-width="0.6"/>
+
+    <!-- Lower sub-facet lines -->
+    <line x1="196" y1="370" x2="256" y2="488"
+          stroke="#93c5fd" stroke-opacity="0.06" stroke-width="0.5"/>
+    <line x1="316" y1="370" x2="256" y2="488"
+          stroke="#93c5fd" stroke-opacity="0.05" stroke-width="0.5"/>
+  </g>
+
+  <!-- === Inner glow overlays === -->
+
+  <!-- Primary glow (upper-left light catch) -->
+  <ellipse cx="230" cy="205" rx="95" ry="120" fill="url(#g-glow)"/>
+
+  <!-- Secondary deep glow (interior refraction) -->
+  <ellipse cx="268" cy="310" rx="70" ry="90" fill="url(#g-deep)"/>
+
+  <!-- Caustic rainbow band (subtle prismatic refraction) -->
+  <polygon fill="url(#g-caustic)"
+           points="190,200 322,200 340,280 256,340 172,280"/>
+
+  <!-- === Edge highlights (specular catch lights) === -->
+
+  <!-- Left edge — strong catch light -->
   <polyline
-    points="256,32 172,152 120,248"
+    points="256,32 172,148 118,252"
     fill="none"
-    stroke="url(#g-edge)"
+    stroke="url(#g-edge-l)"
     stroke-width="2.5"
     stroke-linecap="round"
     stroke-linejoin="round"
   />
 
-  <!-- === Top highlight (specular) === -->
-  <polygon fill="#dbeafe" opacity="0.35" points="256,32 300,100 220,100"/>
+  <!-- Right edge — subtle secondary catch -->
+  <polyline
+    points="256,32 340,148 394,252"
+    fill="none"
+    stroke="url(#g-edge-r)"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
 
-  <!-- === Spark — 4-pointed star accent === -->
-  <polygon fill="url(#g-spark)" points="
-    400,56
-    408,80
-    432,88
-    408,96
-    400,120
-    392,96
-    368,88
-    392,80
-  "/>
-  <!-- Spark inner bright core -->
-  <circle cx="400" cy="88" r="6" fill="#fef3c7" opacity="0.9"/>
+  <!-- === Crown specular highlights === -->
+
+  <!-- Primary specular (brightest spot on crown) -->
+  <polygon fill="#e0f2fe" opacity="0.4" points="256,32 296,95 224,95"/>
+
+  <!-- Secondary specular (wider, softer) -->
+  <polygon fill="#dbeafe" opacity="0.15" points="240,70 310,120 200,120"/>
+
+  <!-- Tiny point highlight at apex -->
+  <circle cx="256" cy="48" r="4" fill="#f0f9ff" opacity="0.6"/>
+
+  <!-- === Spark — 8-pointed star accent === -->
+  <g transform="translate(400,86)">
+    <!-- Outer glow halo -->
+    <circle cx="0" cy="0" r="28" fill="url(#g-spark-glow)"/>
+
+    <!-- Main 4-pointed star (large axes) -->
+    <polygon fill="url(#g-spark)" points="
+      0,-36
+      5,-10
+      36,0
+      5,10
+      0,36
+      -5,10
+      -36,0
+      -5,-10
+    "/>
+
+    <!-- Secondary 4-pointed star (45° rotated, smaller) -->
+    <polygon fill="url(#g-spark)" opacity="0.5" points="
+      0,-20
+      4,-4
+      20,0
+      4,4
+      0,20
+      -4,4
+      -20,0
+      -4,-4
+    " transform="rotate(45)"/>
+
+    <!-- Bright core -->
+    <circle cx="0" cy="0" r="5.5" fill="#fefce8" opacity="0.95"/>
+
+    <!-- Inner white hot core -->
+    <circle cx="0" cy="0" r="2.5" fill="#ffffff" opacity="0.8"/>
+
+    <!-- Tiny ray flares -->
+    <line x1="0" y1="-38" x2="0" y2="-44" stroke="#fef3c7" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+    <line x1="38" y1="0" x2="44" y2="0" stroke="#fef3c7" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+    <line x1="0" y1="38" x2="0" y2="44" stroke="#fef3c7" stroke-opacity="0.3" stroke-width="1" stroke-linecap="round"/>
+    <line x1="-38" y1="0" x2="-44" y2="0" stroke="#fef3c7" stroke-opacity="0.3" stroke-width="1" stroke-linecap="round"/>
+  </g>
 
   <style>
     @media (prefers-color-scheme: dark) {
-      /* In dark mode, boost brightness of all gradient stops */
-      /* SVG CSS can't redefine gradient stops, so we add a brightness overlay */
+      /* Dark mode: SVG CSS cannot redefine gradient stops, but the
+         crystal already uses deep blue tones that look natural on dark
+         backgrounds. The outer glow filter provides sufficient lift. */
     }
   </style>
 </svg>
