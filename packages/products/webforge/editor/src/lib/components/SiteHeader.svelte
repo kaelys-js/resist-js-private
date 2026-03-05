@@ -4,12 +4,15 @@ import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import ModeToggle from './ModeToggle.svelte';
+import { page } from '$app/state';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 
 let { isError = false }: { isError?: boolean } = $props();
 
 const store = useEditorStore();
+
+const homeHref: string = $derived(page.url.search ? `/${page.url.search}` : '/');
 
 const breadcrumbLeaf: string = $derived(
 	isError ? t(localeStore.t.header.error, 'Error') : t(localeStore.t.header.scene, 'Scene'),
@@ -41,7 +44,7 @@ const toggleSidebarLabel: string = $derived(
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item class="hidden md:block">
-					<Breadcrumb.Link href="/">{t(localeStore.t.header.home, 'Home')}</Breadcrumb.Link>
+					<Breadcrumb.Link href={homeHref}>{t(localeStore.t.header.home, 'Home')}</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
