@@ -105,7 +105,9 @@ function logCapturedError(captured: CapturedError): void {
 	const source: string = extractSource(appError.stack);
 	const causeChain: Array<{ code: string; message: string }> = collectCauseChain(appError);
 
-	log.error(`[${captured.type}] ${appError.code}: ${appError.message}`, {
+	const isSignal: boolean = captured.type === 'signal';
+	const logFn: typeof log.error = isSignal ? log.info : log.error;
+	logFn(`[${captured.type}] ${appError.code}: ${appError.message}`, {
 		captureId: captured.id,
 		errorId: appError.id,
 		errorCode: appError.code,
