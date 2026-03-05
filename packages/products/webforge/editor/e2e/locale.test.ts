@@ -26,8 +26,8 @@ test.describe('locale', () => {
 		await page.goto('/');
 		const description = page.locator('meta[name="description"]');
 		const content = await description.getAttribute('content');
-		// Japanese description should contain Storyline but differ from English
-		expect(content).toContain('Storyline');
+		// Japanese description should contain Storylyne but differ from English
+		expect(content).toContain('Storylyne');
 		expect(content).toMatch(/[\u3000-\u9FFF]/);
 	});
 

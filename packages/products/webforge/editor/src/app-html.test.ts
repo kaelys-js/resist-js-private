@@ -40,7 +40,7 @@ describe('app.html meta tags use placeholders', () => {
 			for (const meta of metaContents) {
 				// Skip viewport, color-scheme, robots, format-detection, mobile-web-app-capable, status-bar-style
 				if (/content="(width|light dark|noindex|telephone|yes|default|{{)/.test(meta)) continue;
-				expect(meta).not.toContain('Storyline');
+				expect(meta).not.toContain('Storylyne');
 			}
 		}
 	});

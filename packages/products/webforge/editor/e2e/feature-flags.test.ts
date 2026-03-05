@@ -45,7 +45,7 @@ test.describe('feature flags — default state', () => {
 		await expect(page.getByRole('button', { name: /toggle mode/i })).toBeVisible();
 
 		// AppSidebar: branding visible
-		await expect(page.getByText('Storyline', { exact: true }).first()).toBeVisible();
+		await expect(page.getByText('Storylyne', { exact: true }).first()).toBeVisible();
 		await expect(page.getByText('Your Story, Rendered', { exact: true })).toBeVisible();
 
 		// AppSidebar: Help visible
@@ -159,7 +159,7 @@ test.describe('feature flags — combined', () => {
 		});
 
 		// Page should load without errors
-		await expect(page).toHaveTitle('Storyline - Scene - Your Story, Rendered');
+		await expect(page).toHaveTitle('Storylyne - Scene - Your Story, Rendered');
 
 		// Header should still render (even if empty of controlled content)
 		const header = page.locator('header');

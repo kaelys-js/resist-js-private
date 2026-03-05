@@ -40,8 +40,8 @@ test.describe('mobile sidebar — open/close/toggle', () => {
 		const mobileSidebar = page.locator('[data-mobile="true"][data-sidebar="sidebar"]');
 		await expect(mobileSidebar).toBeVisible();
 
-		// Branding (use .first() because "Storyline" appears in header and footer)
-		await expect(mobileSidebar.getByText('Storyline', { exact: true }).first()).toBeVisible();
+		// Branding (use .first() because "Storylyne" appears in header and footer)
+		await expect(mobileSidebar.getByText('Storylyne', { exact: true }).first()).toBeVisible();
 		await expect(mobileSidebar.getByText('Your Story, Rendered', { exact: true })).toBeVisible();
 
 		// Scenes

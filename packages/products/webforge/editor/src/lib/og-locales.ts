@@ -8,7 +8,8 @@
  */
 
 /** Maps supported locale codes to Open Graph locale format. */
-export const OG_LOCALES: Readonly<Record<string, string>> = { // TODO: Valibot Type + Should Be Dynamic Based On Available Locales
+export const OG_LOCALES: Readonly<Record<string, string>> = {
+	// TODO: Valibot Type + Should Be Dynamic Based On Available Locales
 	en: 'en_US',
 	ja: 'ja_JP',
 	zh: 'zh_CN',
