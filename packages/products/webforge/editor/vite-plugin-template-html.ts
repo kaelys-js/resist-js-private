@@ -8,14 +8,14 @@
  * `src/app.html` with the app name from `app-meta.ts`.
  *
  * Both restore original template content after build or on process exit.
+ *
+ * @module
  */
-
-// TODO: Proper Commenting
-// TODO: Proper Valibot Useage
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Plugin } from 'vite';
+import type { Str } from '@/schemas/common';
 
 import { APP_NAME, FONT_FACES, FONT_FAMILIES } from './src/lib/config/app-meta.js';
 import { en } from './src/lib/locales/en.js';
@@ -31,8 +31,7 @@ import { en } from './src/lib/locales/en.js';
  * generateFontFaceCss()
  * // @font-face { font-family: 'Inter'; ... }
  */
-export function generateFontFaceCss(): string {
-	// TODO: Valibot Schema + Result System
+export function generateFontFaceCss(): Str {
 	return FONT_FACES.map(
 		(f) =>
 			`@font-face {\n\tfont-family: '${f.family}';\n\tfont-style: ${f.style};\n\tfont-weight: ${f.weight};\n\tfont-display: swap;\n\tsrc: url('${f.src}') format('woff2');\n}`,
@@ -49,8 +48,7 @@ export function generateFontFaceCss(): string {
  * @example
  * deriveErrorIdPrefix('Reference: {id}') // "Reference: "
  */
-export function deriveErrorIdPrefix(template: string): string {
-	// TODO: Valibot Schema + Result System
+export function deriveErrorIdPrefix(template: Str): Str {
 	const idx = template.indexOf('{id}');
 	return idx >= 0 ? template.slice(0, idx) : template;
 }
@@ -61,10 +59,8 @@ export function deriveErrorIdPrefix(template: string): string {
  * @param template - Raw error.html content with `{{placeholders}}`
  * @returns Resolved HTML with all placeholders replaced
  */
-export function resolveErrorHtml(template: string): string {
-	// TODO: Valibot Schema + Result System
-	const replacements: Record<string, string> = {
-		// TODO: Valibot Schema + Result System
+export function resolveErrorHtml(template: Str): Str {
+	const replacements: Record<Str, Str> = {
 		'{{APP_NAME}}': APP_NAME,
 		'{{FONT_FAMILIES}}': FONT_FAMILIES,
 		'{{FONT_FACE_CSS}}': generateFontFaceCss(),
@@ -90,8 +86,7 @@ export function resolveErrorHtml(template: string): string {
  * @param template - Raw app.html content with `{{APP_NAME}}`
  * @returns Resolved HTML with placeholder replaced
  */
-export function resolveAppHtml(template: string): string {
-	// TODO: Valibot Schema + Result System
+export function resolveAppHtml(template: Str): Str {
 	return template.replaceAll('{{APP_NAME}}', APP_NAME);
 }
 

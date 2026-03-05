@@ -1,12 +1,24 @@
+/**
+ * SvelteKit configuration.
+ *
+ * Configures adapter-static for SPA output, CSP directives for production,
+ * git commit versioning for cache invalidation, and workspace `@/` path aliases
+ * that mirror the root tsconfig so SvelteKit can resolve shared packages.
+ *
+ * This is a plain `.js` config file loaded directly by SvelteKit's Node.js
+ * tooling — Valibot schemas and TypeScript types are not available here.
+ */
+
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 
-// TODO: Proper Commenting
+/** Monorepo root directory (4 levels up from editor package). */
+const root = path.resolve(import.meta.dirname, '../../../..');
 
-const root = path.resolve(import.meta.dirname, '../../../..'); // TODO: Valibot Types
-const isDev = process.env.NODE_ENV !== 'production'; // TODO: Valibot Types
+/** Whether we're in development mode (non-production NODE_ENV). */
+const isDev = process.env.NODE_ENV !== 'production';
 
 /**
  * CSP directives for production builds.

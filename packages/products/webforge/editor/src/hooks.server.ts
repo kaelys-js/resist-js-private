@@ -240,7 +240,7 @@ export const handleError: HandleServerError = ({ error, event, status, message }
 	if (extracted.code === ERRORS.INTERNAL.UNEXPECTED) {
 		const result = err(
 			ERRORS.INTERNAL.UNEXPECTED,
-			`Unexpected server error (${status}): ${message}`, // TODO: Clearer message
+			`Unhandled ${event.request.method} ${event.url.pathname} failed (${status}): ${message}`,
 			{
 				cause: extracted,
 				meta: {

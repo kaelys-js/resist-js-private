@@ -10,7 +10,9 @@
  * announce('Copied to clipboard');
  */
 
-let message: string = $state('');
+import type { Str } from '@/schemas/common';
+
+let message: Str = $state('');
 
 /**
  * Announce a message to screen readers via the global live region.
@@ -21,8 +23,7 @@ let message: string = $state('');
  *
  * @param text - The message to announce
  */
-export function announce(text: string): void {
-	// TODO: Valibot Type
+export function announce(text: Str): void {
 	message = '';
 	requestAnimationFrame(() => {
 		message = text;
@@ -34,7 +35,6 @@ export function announce(text: string): void {
  *
  * @returns The current announcement text (empty string when idle)
  */
-export function getAnnouncement(): string {
-	// TODO: Valibot Type
+export function getAnnouncement(): Str {
 	return message;
 }

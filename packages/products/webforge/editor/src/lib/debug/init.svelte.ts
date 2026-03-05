@@ -12,7 +12,8 @@
  * @module
  */
 
-// TODO: Can localize everything?
+// Debug console output stays English-only — it targets developer DevTools,
+// not end users, and console.log %c styling doesn't support locale functions.
 
 import { styles } from '$lib/debug/console-styles';
 import { createStateLogger } from '$lib/debug/state-logger.svelte';

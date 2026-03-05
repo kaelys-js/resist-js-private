@@ -10,7 +10,7 @@
  * @module
  */
 
-import type { Void } from '@/schemas/common';
+import type { Bool, Str, Void } from '@/schemas/common';
 import { okUnchecked, type Result } from '@/schemas/result/result';
 import { AppPreferencesSchema, FeatureFlagsSchema } from '$lib/schemas/editor-state';
 import { URL_PARAM_PREFIX, type UrlOverrides } from '$lib/schemas/debug-state';
@@ -18,8 +18,8 @@ import type { EditorStore } from '$lib/stores/editor-state.svelte';
 
 /** Debug store interface expected by applyUrlOverrides. */
 type DebugStoreLike = {
-	setEnabled(enabled: boolean): Result<Void>;
-	setLogLevel(level: string): Result<Void>;
+	setEnabled(enabled: Bool): Result<Void>;
+	setLogLevel(level: Str): Result<Void>;
 };
 
 /** Valid app preference keys, derived from schema. */
@@ -44,8 +44,7 @@ const FF_PREFIX = 'ff.';
  * isValidAppKey('unknown'); // false
  * ```
  */
-export function isValidAppKey(key: string): boolean {
-	// TODO: Valibot Type + Result System
+export function isValidAppKey(key: Str): Bool {
 	return APP_KEYS.has(key);
 }
 
@@ -62,8 +61,7 @@ export function isValidAppKey(key: string): boolean {
  * isValidFeatureFlag('unknown'); // false
  * ```
  */
-export function isValidFeatureFlag(key: string): boolean {
-	// TODO: Valibot Type + Result System
+export function isValidFeatureFlag(key: Str): Bool {
 	return FEATURE_FLAG_KEYS.has(key);
 }
 

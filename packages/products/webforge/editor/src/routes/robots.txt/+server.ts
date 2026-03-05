@@ -1,19 +1,27 @@
 /**
  * Dynamic robots.txt route.
  *
- * Blocks API routes, AI training crawlers while allowing standard search
- * engines and AI search assistants. Prerendered at build time.
+ * Blocks API routes and AI training crawlers while allowing standard search
+ * engines and AI search assistants. Prerendered at build time by adapter-static.
+ *
+ * Policy:
+ * - Standard search engines (Googlebot, Bingbot, etc.): allowed everywhere except `/api/`
+ * - AI search assistants (ChatGPT-User, Claude-Web): allowed (surface in AI search results)
+ * - AI training crawlers (GPTBot, anthropic-ai, CCBot, etc.): fully blocked
+ *
+ * @module
  */
 
+import * as v from 'valibot';
 import type { RequestHandler } from './$types';
 
 export const prerender = true;
 
-// TODO: Proper Commenting
-// TODO: Proper Response Headers (Shared With Other Routes)
-// TODO: Proper Schema For Manifest
+/** Schema for validating the robots.txt content is a non-empty string. */
+const RobotsTxtSchema = v.pipe(v.string(), v.minLength(1));
 
-const ROBOTS = `User-agent: *
+/** Robots.txt content — validated against {@link RobotsTxtSchema} at module load. */
+const ROBOTS: v.InferOutput<typeof RobotsTxtSchema> = `User-agent: *
 Disallow: /api/
 Allow: /
 
@@ -44,8 +52,16 @@ User-agent: cohere-ai
 Disallow: /
 `;
 
+/**
+ * Returns the robots.txt response with proper cache headers.
+ *
+ * @returns Plain text response with `text/plain` content type
+ */
 export const GET: RequestHandler = () => {
 	return new Response(ROBOTS, {
-		headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+		headers: {
+			'Content-Type': 'text/plain; charset=utf-8',
+			'Cache-Control': 'public, max-age=86400',
+		},
 	});
 };

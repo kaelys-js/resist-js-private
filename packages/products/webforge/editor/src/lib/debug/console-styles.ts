@@ -7,6 +7,9 @@
  * @module
  */
 
+import * as v from 'valibot';
+import type { Str } from '@/schemas/common';
+
 /**
  * CSS style strings for console badge/pill formatting.
  * Palette matches the SvelteKit client hook error system for visual consistency.
@@ -47,22 +50,24 @@ export const styles = {
  * formatTimestamp(); // "14:30:45.123"
  * ```
  */
-export function formatTimestamp(): string {
-	// TODO: Valibot Type + Result System
+export function formatTimestamp(): Str {
 	const now: Date = new Date();
-	const h: string = String(now.getHours()).padStart(2, '0');
-	const m: string = String(now.getMinutes()).padStart(2, '0');
-	const s: string = String(now.getSeconds()).padStart(2, '0');
-	const ms: string = String(now.getMilliseconds()).padStart(3, '0');
+	const h: Str = String(now.getHours()).padStart(2, '0');
+	const m: Str = String(now.getMinutes()).padStart(2, '0');
+	const s: Str = String(now.getSeconds()).padStart(2, '0');
+	const ms: Str = String(now.getMilliseconds()).padStart(3, '0');
 	return `${h}:${m}:${s}.${ms}`;
 }
 
+/** Schema for a single snapshot diff entry. */
+export const SnapshotDiffSchema = v.strictObject({
+	key: v.string(),
+	old: v.unknown(),
+	new: v.unknown(),
+});
+
 /** A single diff entry: which key changed, from what, to what. */
-export type SnapshotDiff = {
-	key: string;
-	old: unknown;
-	new: unknown;
-};
+export type SnapshotDiff = v.InferOutput<typeof SnapshotDiffSchema>;
 
 /**
  * Shallow-compares two plain objects and returns changed keys with old/new values.
