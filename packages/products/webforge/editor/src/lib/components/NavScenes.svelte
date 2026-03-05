@@ -48,7 +48,18 @@ const scenesLabel = $derived(t(localeStore.t.sidebar.scenes, 'Scenes'));
 							</Sidebar.MenuAction>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-48 rounded-lg" side="bottom" align="end">
+					<DropdownMenu.Content class="w-48 rounded-lg bg-white/[0.08] dark:bg-white/[0.06] backdrop-blur-2xl backdrop-saturate-150 border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_1px_rgba(255,255,255,0.1)_inset]" side="bottom" align="end">
+						<DropdownMenu.Label class="p-0 font-normal -m-1">
+							<div class="flex items-center gap-2 px-3 py-2.5 pb-3 text-left text-sm bg-white/[0.06] border-b border-white/[0.06] rounded-t-lg">
+								<div class="flex size-8 items-center justify-center rounded-lg bg-white/[0.06]">
+									<MapIcon aria-hidden="true" class="size-4 text-muted-foreground" />
+								</div>
+								<div class="grid flex-1 text-left text-sm leading-tight">
+									<span class="truncate font-medium">{scene.title}</span>
+								</div>
+							</div>
+						</DropdownMenu.Label>
+						<DropdownMenu.Separator />
 						<DropdownMenu.Item>
 							<Pencil aria-hidden="true" class="mr-2 size-4 text-muted-foreground" />
 							<span>{t(localeStore.t.scenes.rename, 'Rename')}</span>

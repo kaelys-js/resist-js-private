@@ -41,7 +41,7 @@ const toggleSidebarLabel: string = $derived(
 					{/snippet}
 				</Tooltip.Trigger>
 				<Tooltip.Content side="right" sideOffset={4}>
-					<span class="flex items-center gap-1.5">{toggleSidebarLabel} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('TOGGLE_SIDEBAR')}</kbd></span>
+					<span class="flex items-center gap-1.5">{toggleSidebarLabel} <kbd class="hidden md:inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('TOGGLE_SIDEBAR')}</kbd></span>
 				</Tooltip.Content>
 			</Tooltip.Root>
 			<Separator orientation="vertical" role="separator" class="mx-2 data-[orientation=vertical]:h-4" />
