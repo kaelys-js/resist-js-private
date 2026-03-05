@@ -1,4 +1,16 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+/**
+ * Opens the language sub-menu via the sidebar footer user dropdown.
+ *
+ * @param page - Playwright page
+ */
+async function openLanguageSubMenu(page: Page): Promise<void> {
+	await page.getByText('Sample Project', { exact: true }).click();
+	await expect(page.getByText('Language')).toBeVisible();
+	await page.getByText('Language').hover();
+	await page.waitForTimeout(300);
+}
 
 test.describe('language switcher', () => {
 	test('opens user menu and shows language sub-menu', async ({ page }) => {
@@ -93,5 +105,65 @@ test.describe('language switcher', () => {
 		await page.waitForTimeout(300);
 		// Japanese exonym in French locale should be "japonais"
 		await expect(page.getByText(/japonais/i)).toBeVisible();
+	});
+});
+
+// =============================================================================
+// Language search
+// =============================================================================
+
+test.describe('language switcher — search', () => {
+	test('search input is visible in language sub-menu', async ({ page }) => {
+		await page.goto('/');
+		await openLanguageSubMenu(page);
+		const searchInput = page.getByPlaceholder('Search languages');
+		await expect(searchInput).toBeVisible();
+	});
+
+	test('typing in search filters languages by endonym', async ({ page }) => {
+		await page.goto('/');
+		await openLanguageSubMenu(page);
+		const searchInput = page.getByPlaceholder('Search languages');
+		await searchInput.fill('fran');
+		// français should match (endonym may be lowercase per Intl.DisplayNames)
+		await expect(page.getByRole('menuitem', { name: /fran[cç]ais/i })).toBeVisible();
+		// Japanese should be filtered out
+		await expect(page.getByRole('menuitem', { name: /日本語/ })).not.toBeVisible();
+	});
+
+	test('search filters by exonym', async ({ page }) => {
+		await page.goto('/');
+		await openLanguageSubMenu(page);
+		const searchInput = page.getByPlaceholder('Search languages');
+		await searchInput.fill('Japanese');
+		await expect(page.getByRole('menuitem', { name: /日本語/ })).toBeVisible();
+	});
+
+	test('search filters by language code', async ({ page }) => {
+		await page.goto('/');
+		await openLanguageSubMenu(page);
+		const searchInput = page.getByPlaceholder('Search languages');
+		await searchInput.fill('ko');
+		await expect(page.getByRole('menuitem', { name: /한국어/ })).toBeVisible();
+	});
+
+	test('clearing search restores all languages', async ({ page }) => {
+		await page.goto('/');
+		await openLanguageSubMenu(page);
+		const searchInput = page.getByPlaceholder('Search languages');
+		await searchInput.fill('fran');
+		await expect(page.getByRole('menuitem', { name: /日本語/ })).not.toBeVisible();
+		await page.getByLabel('Clear search').click();
+		await expect(page.getByRole('menuitem', { name: /日本語/ })).toBeVisible();
+		await expect(page.getByRole('menuitem', { name: /English/ })).toBeVisible();
+	});
+
+	test('no match shows empty placeholder', async ({ page }) => {
+		await page.goto('/');
+		await openLanguageSubMenu(page);
+		const searchInput = page.getByPlaceholder('Search languages');
+		await searchInput.fill('xyznonexistent');
+		await expect(page.getByText('No languages found')).toBeVisible();
+		await expect(page.getByText('Try a different search term')).toBeVisible();
 	});
 });

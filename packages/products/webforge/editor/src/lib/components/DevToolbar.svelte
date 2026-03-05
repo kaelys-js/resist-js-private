@@ -99,6 +99,7 @@ function onDragEnd(): void {
 	if (didDrag) savePos();
 }
 
+
 // ── Clamp position on viewport resize ─────────────────────────────────
 $effect(() => {
 	/**
@@ -369,7 +370,7 @@ $effect(() => {
 	<Tooltip.Provider delayDuration={300}>
 		<div
 			class="fixed z-[99999] flex flex-col items-center gap-2"
-			style="left: {posX}px; bottom: {posBottom}px; transform: translateX(-50%)"
+			style="left: {posX}px; bottom: {posBottom}px; transform: translateX(-50%); pointer-events: auto;"
 			data-testid="dev-toolbar"
 		>
 		<!-- Active panel popover content (rendered above toolbar) -->

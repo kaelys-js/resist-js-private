@@ -147,9 +147,9 @@ function handleSubOpenChange(open: boolean): void {
 		<Palette aria-hidden="true" class="mr-2 size-4" />
 		{t(localeStore.t.settings.theme, 'Theme')}
 	</DropdownMenu.SubTrigger>
-	<DropdownMenu.SubContent class="max-h-80 overflow-y-auto bg-white/[0.08] dark:bg-white/[0.06] backdrop-blur-2xl backdrop-saturate-150 border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_1px_rgba(255,255,255,0.1)_inset]">
-		<!-- Search input -->
-		<div class="sticky top-0 z-10 px-2 pt-1.5 pb-2 border-b border-border/50">
+	<DropdownMenu.SubContent class="max-h-80 flex flex-col overflow-hidden bg-white/[0.08] dark:bg-white/[0.06] backdrop-blur-2xl backdrop-saturate-150 border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_1px_rgba(255,255,255,0.1)_inset]">
+		<!-- Search input (fixed above scrollable list) -->
+		<div class="shrink-0 px-2 pt-1.5 pb-2 border-b border-border/50">
 			<div class="relative">
 				<Search class="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
 				<input
@@ -173,28 +173,31 @@ function handleSubOpenChange(open: boolean): void {
 			</div>
 		</div>
 
-		{#each filteredThemes as th (th.id)}
-			<DropdownMenu.Item onclick={() => store.setTheme(th.id)} aria-current={store.app.theme === th.id ? 'true' : undefined} textValue={th.label()}>
-				{#if store.app.theme === th.id}
-					<Check aria-hidden="true" class="mr-2 size-4 shrink-0" />
-				{:else}
-					<span class="mr-2 size-4 inline-block shrink-0"></span>
-				{/if}
-				<span
-					aria-hidden="true"
-					class="mr-2 size-4 shrink-0 rounded-full shadow-sm ring-1 ring-white/10"
-					style="background-color: {th.dots[0]}"
-				></span>
-				{th.label()}
-			</DropdownMenu.Item>
-		{:else}
-			<div class="flex flex-col items-center gap-2 py-6 text-muted-foreground">
-				<SearchX class="size-6" />
-				<div class="flex flex-col items-center gap-0.5">
-					<p class="text-xs font-medium">{t(localeStore.t.settings.noThemesFound, 'No themes found')}</p>
-					<p class="text-[11px]">{t(localeStore.t.devToolbar.noResultsHint, 'Try a different search term')}</p>
+		<!-- Scrollable item list -->
+		<div class="min-h-0 flex-1 overflow-y-auto">
+			{#each filteredThemes as th (th.id)}
+				<DropdownMenu.Item onclick={() => store.setTheme(th.id)} aria-current={store.app.theme === th.id ? 'true' : undefined} textValue={th.label()}>
+					{#if store.app.theme === th.id}
+						<Check aria-hidden="true" class="mr-2 size-4 shrink-0" />
+					{:else}
+						<span class="mr-2 size-4 inline-block shrink-0"></span>
+					{/if}
+					<span
+						aria-hidden="true"
+						class="mr-2 size-4 shrink-0 rounded-full shadow-sm ring-1 ring-white/10"
+						style="background-color: {th.dots[0]}"
+					></span>
+					{th.label()}
+				</DropdownMenu.Item>
+			{:else}
+				<div class="flex flex-col items-center gap-2 py-6 text-muted-foreground">
+					<SearchX class="size-6" />
+					<div class="flex flex-col items-center gap-0.5">
+						<p class="text-xs font-medium">{t(localeStore.t.settings.noThemesFound, 'No themes found')}</p>
+						<p class="text-[11px]">{t(localeStore.t.devToolbar.noResultsHint, 'Try a different search term')}</p>
+					</div>
 				</div>
-			</div>
-		{/each}
+			{/each}
+		</div>
 	</DropdownMenu.SubContent>
 </DropdownMenu.Sub>
