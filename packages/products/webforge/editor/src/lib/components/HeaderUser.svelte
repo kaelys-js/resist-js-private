@@ -67,9 +67,9 @@ const hasToolsGroup: boolean = $derived(
 			</button>
 		{/snippet}
 	</DropdownMenu.Trigger>
-	<DropdownMenu.Content class="w-56 overflow-hidden bg-popover/70 backdrop-blur-2xl border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5" align="end" sideOffset={8}>
-		<DropdownMenu.Label class="p-0 font-normal bg-muted/50 -m-1 mb-0">
-			<div class="flex items-center gap-2 px-3 py-2.5 text-left text-sm">
+	<DropdownMenu.Content class="w-56 bg-popover/60 backdrop-blur-2xl border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5" align="end" sideOffset={8}>
+		<DropdownMenu.Label class="p-0 font-normal -m-1 mb-0">
+			<div class="flex items-center gap-2 px-3 py-2.5 text-left text-sm bg-muted/50 rounded-t-md">
 				<Avatar.Root class="size-8">
 					{#if store.features.headerUserAvatar && store.app.userAvatar}
 						<Avatar.Image src={store.app.userAvatar} alt={store.app.userName} />

@@ -132,7 +132,7 @@ const themes = [
 		<Palette aria-hidden="true" class="mr-2 size-4" />
 		{t(localeStore.t.settings.theme, 'Theme')}
 	</DropdownMenu.SubTrigger>
-	<DropdownMenu.SubContent class="max-h-80 overflow-y-auto">
+	<DropdownMenu.SubContent class="max-h-80 overflow-y-auto bg-popover/60 backdrop-blur-2xl border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5">
 		{#each themes as th (th.id)}
 			<DropdownMenu.Item onclick={() => store.setTheme(th.id)} aria-current={store.app.theme === th.id ? 'true' : undefined} textValue={th.label()}>
 				{#if store.app.theme === th.id}

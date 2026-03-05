@@ -61,13 +61,13 @@ const monogram: string = $derived(
 				{/snippet}
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Content
-				class="w-[--bits-dropdown-menu-anchor-width] min-w-56 rounded-lg overflow-hidden bg-popover/70 backdrop-blur-2xl border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5"
+				class="w-[--bits-dropdown-menu-anchor-width] min-w-56 rounded-lg bg-popover/60 backdrop-blur-2xl border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5"
 				side={sidebar.isMobile ? 'bottom' : 'right'}
 				align="end"
 				sideOffset={4}
 			>
-				<DropdownMenu.Label class="p-0 font-normal bg-muted/50 -m-1 mb-0">
-					<div class="flex items-center gap-2 px-3 py-2.5 text-left text-sm">
+				<DropdownMenu.Label class="p-0 font-normal -m-1 mb-0">
+					<div class="flex items-center gap-2 px-3 py-2.5 text-left text-sm bg-muted/50 rounded-t-lg">
 						<Avatar.Root class="h-8 w-8 rounded-lg">
 							<Avatar.Image src="" alt={projectName} />
 							<Avatar.Fallback class="rounded-lg text-xs font-medium">

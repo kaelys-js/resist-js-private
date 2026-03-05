@@ -43,7 +43,7 @@ function isDuplicate(info: LanguageDisplayInfo): boolean {
 		<Globe aria-hidden="true" class="mr-2 size-4" />
 		{t(localeStore.t.settings.language, 'Language')}
 	</DropdownMenu.SubTrigger>
-	<DropdownMenu.SubContent>
+	<DropdownMenu.SubContent class="bg-popover/60 backdrop-blur-2xl border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5">
 		{#each languages as lang (lang.code)}
 			<DropdownMenu.Item onclick={() => switchLanguage(lang.code)} aria-current={store.app.locale === lang.code ? 'true' : undefined} textValue={lang.endonym}>
 				{#if store.app.locale === lang.code}
