@@ -8,12 +8,15 @@ import { Button } from '$lib/components/ui/button/index.js';
 import * as Command from '$lib/components/ui/command/index.js';
 import * as Popover from '$lib/components/ui/popover/index.js';
 import { cn } from '$lib/utils.js';
+import CopyIcon from '@lucide/svelte/icons/copy';
+import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
 import {
 	discoverDebugFields,
 	generateDebugUrl,
 	humanizeKey,
 	humanizeOption,
 } from '$lib/debug/dev-toolbar-registry';
+import { getBuildInfo } from '$lib/config/build-info';
 import { localeStore, t } from '$lib/i18n.svelte';
 import type { Str } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
@@ -76,6 +79,27 @@ function logFeatures(): void {
 async function copyDebugUrl(): Promise<void> {
 	const url: string = generateDebugUrl(editorStore, debugStore);
 	await navigator.clipboard.writeText(url);
+}
+
+const buildInfoResult = getBuildInfo();
+const buildInfo = buildInfoResult.ok ? buildInfoResult.data : null;
+
+async function copyBuildInfo(): Promise<void> {
+	if (!buildInfo) return;
+	const dirtyLabel: string = t(
+		buildInfo.dirty
+			? localeStore.t.devToolbar.labels.dirtyYes
+			: localeStore.t.devToolbar.labels.dirtyNo,
+		buildInfo.dirty ? 'Yes' : 'No',
+	);
+	const text = [
+		`Version: ${buildInfo.version}`,
+		`Commit: ${buildInfo.commit}`,
+		`Branch: ${buildInfo.branch}`,
+		`Dirty: ${dirtyLabel}`,
+		`Built: ${buildInfo.buildTimestamp}`,
+	].join('\n');
+	await navigator.clipboard.writeText(text);
 }
 
 function labelFor(key: string): string {
@@ -185,6 +209,46 @@ function optionLabel(key: string, value: string): string {
 					</div>
 				{/each}
 			</div>
+		</div>
+	{/if}
+
+	{#if buildInfo}
+		<div class="flex flex-col gap-1.5 border-t border-border pt-2" data-testid="build-info">
+			<h4 class="text-xs font-medium text-muted-foreground">{t(localeStore.t.devToolbar.buildInfo, 'Build Info')}</h4>
+			<div class="flex flex-col gap-0.5 text-xs">
+				<div class="flex justify-between">
+					<span class="text-muted-foreground">{t(localeStore.t.devToolbar.labels.version, 'Version')}</span>
+					<span class="font-mono">{buildInfo.version}</span>
+				</div>
+				<div class="flex justify-between">
+					<span class="text-muted-foreground">{t(localeStore.t.devToolbar.labels.commit, 'Commit')}</span>
+					<span class="font-mono">{buildInfo.commit}</span>
+				</div>
+				<div class="flex justify-between">
+					<span class="text-muted-foreground">{t(localeStore.t.devToolbar.labels.branch, 'Branch')}</span>
+					<span class="font-mono">{buildInfo.branch}</span>
+				</div>
+				<div class="flex items-center justify-between">
+					<span class="text-muted-foreground">{t(localeStore.t.devToolbar.labels.dirty, 'Dirty')}</span>
+					<span class="flex items-center gap-1 font-mono">
+						{#if buildInfo.dirty}
+							<TriangleAlertIcon class="size-3 text-yellow-500" />
+						{/if}
+						{t(
+							buildInfo.dirty ? localeStore.t.devToolbar.labels.dirtyYes : localeStore.t.devToolbar.labels.dirtyNo,
+							buildInfo.dirty ? 'Yes' : 'No',
+						)}
+					</span>
+				</div>
+				<div class="flex justify-between">
+					<span class="text-muted-foreground">{t(localeStore.t.devToolbar.labels.built, 'Built')}</span>
+					<span class="font-mono text-[10px]">{buildInfo.buildTimestamp}</span>
+				</div>
+			</div>
+			<Button variant="secondary" size="sm" class="h-7 text-xs w-full mt-1" onclick={copyBuildInfo}>
+				<CopyIcon class="size-3 mr-1" />
+				{t(localeStore.t.devToolbar.copyBuildInfo, 'Copy Build Info')}
+			</Button>
 		</div>
 	{/if}
 </div>

@@ -42,6 +42,9 @@ function getSecurityHeaders(): ReadonlyArray<readonly [string, string]> {
 
 setupLogging({ service: 'editor-server', initFromEnv: true, format: 'json' });
 setupGlobalErrorHandling({
+	release: __APP_VERSION__,
+	serverName: __GIT_COMMIT__,
+	tags: { branch: __GIT_BRANCH__, side: 'server' },
 	onError: (captured) => {
 		logCapturedError(captured);
 	},
@@ -119,6 +122,12 @@ function logCapturedError(captured: CapturedError): void {
 		...(appError.httpStatus !== undefined && { httpStatus: appError.httpStatus }),
 		...(appError.meta && { errorMeta: appError.meta }),
 		...(appError.validation && { validation: appError.validation }),
+		...(appError.help && { help: appError.help }),
+		...(appError.source && { errorSource: appError.source }),
+		...(appError.related &&
+			appError.related.length > 0 && {
+				related: appError.related.map((e) => ({ code: e.code, message: e.message })),
+			}),
 		...(causeChain.length > 0 && { causeChain }),
 		...(captured.meta && { meta: captured.meta }),
 		...(captured.breadcrumbs &&
@@ -126,6 +135,7 @@ function logCapturedError(captured: CapturedError): void {
 		...(captured.fingerprint && { fingerprint: captured.fingerprint }),
 		...(captured.tags && { tags: captured.tags }),
 		...(captured.user && { user: captured.user }),
+		...(captured.contexts && { contexts: captured.contexts }),
 		...(captured.release !== undefined && { release: captured.release }),
 		...(captured.serverName !== undefined && { serverName: captured.serverName }),
 	});
@@ -152,6 +162,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 	for (const [name, value] of getSecurityHeaders()) {
 		response.headers.set(name, value);
 	}
+
+	// Build info headers — useful for debugging deployed versions.
+	response.headers.set('X-App-Version', __APP_VERSION__);
+	response.headers.set('X-Git-Commit', __GIT_COMMIT__);
 
 	// Prevent caching of HTML responses (skip SvelteKit immutable assets).
 	const contentType: string = response.headers.get('content-type') ?? '';
@@ -205,6 +219,11 @@ export const handleError: HandleServerError = ({ error, event, status, message }
 					url: event.url.pathname,
 					method: event.request.method,
 					route: event.route?.id ?? null,
+					locale: event.locals.locale,
+					userAgent: event.request.headers.get('user-agent'),
+					referer: event.request.headers.get('referer'),
+					searchParams: Object.fromEntries(event.url.searchParams),
+					isDataRequest: event.isDataRequest,
 				},
 			},
 		);

@@ -63,7 +63,13 @@
 		"localStorage": "readonly",
 		"GPUPowerPreference": "readonly",
 		"ResizeObserver": "readonly",
-		"require": "readonly"
+		"require": "readonly",
+		"__APP_VERSION__": "readonly",
+		"__GIT_COMMIT__": "readonly",
+		"__GIT_COMMIT_FULL__": "readonly",
+		"__GIT_BRANCH__": "readonly",
+		"__GIT_DIRTY__": "readonly",
+		"__BUILD_TIMESTAMP__": "readonly"
 	},
 	"rules": {
 		"no-inline-comments": "off",

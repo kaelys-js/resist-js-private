@@ -115,6 +115,14 @@ export default defineConfig({
 			{
 				extends: true,
 				plugins: [svelte({ hot: false }), svelteTesting()],
+				define: {
+					__APP_VERSION__: JSON.stringify('0.0.0-test'),
+					__GIT_COMMIT__: JSON.stringify('abc1234'),
+					__GIT_COMMIT_FULL__: JSON.stringify('abc1234def5678901234567890abcdef12345678'),
+					__GIT_BRANCH__: JSON.stringify('test-branch'),
+					__GIT_DIRTY__: 'false',
+					__BUILD_TIMESTAMP__: JSON.stringify('2026-01-01T00:00:00.000Z'),
+				},
 				test: {
 					name: 'editor',
 					root: 'packages/products/webforge/editor',
