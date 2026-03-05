@@ -220,7 +220,8 @@ $effect(() => {
 $effect(() => {
 	const delay: number = store.app.mockDataDelay;
 	if (!browser) return;
-	document.cookie = `mockDataDelay=${delay};path=/;max-age=31536000;SameSite=Lax`;
+	// eslint-disable-next-line unicorn/no-document-cookie -- Cookie Store API is async; synchronous set needed here
+	document.cookie = `mockDataDelay=${delay};path=/;max-age=31_536_000;SameSite=Lax`;
 });
 
 // ── Store → PaneForge sidebar sync ────────────────────────────────────

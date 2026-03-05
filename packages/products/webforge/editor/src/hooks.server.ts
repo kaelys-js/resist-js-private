@@ -179,7 +179,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const mockDelayCookie: string = event.cookies.get('mockDataDelay') ?? '0';
 	const mockDelayMs: number = Math.max(
 		0,
-		Math.min(10000, Number(mockDelayParam ?? mockDelayCookie) || 0),
+		Math.min(10_000, Number(mockDelayParam ?? mockDelayCookie) || 0),
 	);
 	event.locals.db = createDataService(event.platform, mockDelayMs);
 	const dirResult = getTextDirection(locale);

@@ -1,25 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
-
-const STORAGE_KEY = 'app:editor-state';
-
-/**
- * Sets feature flags in localStorage before navigating.
- * Flags not specified default to true (schema defaults).
- */
-async function setFlags(page: Page, flags: Record<string, boolean>): Promise<void> {
-	await page.goto('/');
-	await page.evaluate(
-		({ key, flagOverrides }) => {
-			const raw: string | null = localStorage.getItem(key);
-			const state = raw ? JSON.parse(raw) : { app: {}, features: {} };
-			state.features = { ...state.features, ...flagOverrides };
-			localStorage.setItem(key, JSON.stringify(state));
-		},
-		{ key: STORAGE_KEY, flagOverrides: flags },
-	);
-	await page.reload();
-	await page.waitForLoadState('domcontentloaded');
-}
+import { test, expect } from '@playwright/test';
 
 // =============================================================================
 // HeaderUser — visibility and trigger

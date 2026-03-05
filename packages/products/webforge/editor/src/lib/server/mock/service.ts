@@ -19,10 +19,13 @@ import { MOCK_PROJECT, MOCK_SCENES } from './data';
  * Sleeps for the specified number of milliseconds.
  *
  * @param ms - Duration in milliseconds (0 = no delay)
+ * @returns A promise that resolves after the specified delay
  */
 function sleep(ms: number): Promise<void> {
 	if (ms <= 0) return Promise.resolve();
-	return new Promise((resolve) => setTimeout(resolve, ms));
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms);
+	});
 }
 
 /**
@@ -39,7 +42,7 @@ function sleep(ms: number): Promise<void> {
  * // With simulated latency for skeleton testing
  * const service = createMockService(1500);
  */
-export function createMockService(delayMs: number = 0): DataService {
+export function createMockService(delayMs = 0): DataService {
 	return {
 		projects: {
 			async getByOwner(ownerId: Str): Promise<Result<ServerProject | null>> {

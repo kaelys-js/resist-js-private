@@ -7,7 +7,9 @@ import type { LayoutServerLoad } from './$types';
  * When no user is authenticated, returns nulls/empty arrays so auth-gated
  * UI can conditionally hide.
  *
- * @param event - SvelteKit layout server load event
+ * @param root0 - SvelteKit layout server load event
+ * @param root0.locals - Server-side locals containing user, locale, and db
+ * @param root0.url - The current request URL
  * @returns Layout data containing locale, user, project, and scenes
  */
 export const load: LayoutServerLoad = async ({ locals, url }) => {
