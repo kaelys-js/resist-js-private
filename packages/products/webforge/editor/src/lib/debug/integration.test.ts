@@ -6,6 +6,7 @@
  * and unknown param detection work together correctly.
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import type { Bool, Num, Str } from '@/schemas/common';
 import {
 	parseDebugParams,
 	applyUrlOverrides,
@@ -99,12 +100,12 @@ const createMockEditorStore = () => ({
 	load: vi.fn(okVoid),
 });
 
-const createMockDebugStore = (enabled: boolean, logLevel = 'info') => ({
+const createMockDebugStore = (enabled: Bool, logLevel = 'info') => ({
 	debug: {
 		enabled,
 		logLevel: logLevel as 'trace' | 'debug' | 'info' | 'warn' | 'error',
 	},
-	urlOverrides: {} as Record<string, string>,
+	urlOverrides: {} as Record<Str, Str>,
 	setEnabled: vi.fn(okVoid),
 	setLogLevel: vi.fn(okVoid),
 });
@@ -623,11 +624,11 @@ describe('devtools API extension registry', () => {
 	it('register makes namespace accessible', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__! as EditorDevtools & Record<string, unknown>;
+		const devtools = window.__EDITOR_DEVTOOLS__! as EditorDevtools & Record<Str, unknown>;
 
 		devtools.register('test', { ping: () => 'pong' });
 
-		const ext = devtools.test as Record<string, () => string>;
+		const ext = devtools.test as Record<Str, () => Str>;
 		expect(ext.ping()).toBe('pong');
 
 		api.destroy();
@@ -636,7 +637,7 @@ describe('devtools API extension registry', () => {
 	it('unregister removes namespace', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__! as EditorDevtools & Record<string, unknown>;
+		const devtools = window.__EDITOR_DEVTOOLS__! as EditorDevtools & Record<Str, unknown>;
 
 		devtools.register('test', { ping: () => 'pong' });
 		devtools.unregister('test');
@@ -649,13 +650,13 @@ describe('devtools API extension registry', () => {
 	it('multiple extensions can coexist', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__! as EditorDevtools & Record<string, unknown>;
+		const devtools = window.__EDITOR_DEVTOOLS__! as EditorDevtools & Record<Str, unknown>;
 
 		devtools.register('audio', { volume: 0.8 });
 		devtools.register('scene', { name: 'town' });
 
-		expect((devtools.audio as Record<string, number>).volume).toBe(0.8);
-		expect((devtools.scene as Record<string, string>).name).toBe('town');
+		expect((devtools.audio as Record<Str, Num>).volume).toBe(0.8);
+		expect((devtools.scene as Record<Str, Str>).name).toBe('town');
 
 		api.destroy();
 	});
@@ -1039,7 +1040,7 @@ describe('full debug activation flow', () => {
 		const debugStore = createMockDebugStore(true);
 		activateDebugServices(editorStore, debugStore);
 
-		expect((window as unknown as Record<string, unknown>)[DEVTOOLS_KEY]).toBe(
+		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBe(
 			window.__EDITOR_DEVTOOLS__,
 		);
 	});

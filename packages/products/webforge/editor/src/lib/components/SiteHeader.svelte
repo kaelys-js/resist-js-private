@@ -16,7 +16,7 @@ let {
 	isError = false,
 	user = null,
 	activeSceneName = '',
-}: { isError?: boolean; user?: ServerUser | null; activeSceneName?: string } = $props();
+}: { isError?: Bool; user?: ServerUser | null; activeSceneName?: Str } = $props();
 
 const store: ReturnType<typeof useEditorStore> = useEditorStore();
 

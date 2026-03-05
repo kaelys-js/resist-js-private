@@ -10,7 +10,7 @@
  * announce('Copied to clipboard');
  */
 
-import type { Str } from '@/schemas/common';
+import type { Str, Void } from '@/schemas/common';
 
 let message: Str = $state('');
 
@@ -23,7 +23,7 @@ let message: Str = $state('');
  *
  * @param text - The message to announce
  */
-export function announce(text: Str): void {
+export function announce(text: Str): Void {
 	message = '';
 	requestAnimationFrame(() => {
 		message = text;

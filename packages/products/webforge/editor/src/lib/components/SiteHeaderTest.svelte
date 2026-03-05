@@ -1,9 +1,9 @@
 <script lang="ts">
+import type { Bool, Str } from '@/schemas/common';
 import TestProviders from './TestProviders.svelte';
 import SiteHeader from './SiteHeader.svelte';
 
-let { isError = false, activeSceneName = '' }: { isError?: boolean; activeSceneName?: string } =
-	$props();
+let { isError = false, activeSceneName = '' }: { isError?: Bool; activeSceneName?: Str } = $props();
 
 const user = {
 	id: 'user-1',

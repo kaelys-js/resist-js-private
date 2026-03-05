@@ -83,7 +83,7 @@ export function parseDebugParams(url: URL): Result<UrlOverrides> {
 
 	for (const [key, value] of url.searchParams) {
 		if (key.startsWith(URL_PARAM_PREFIX)) {
-			const unprefixed: string = key.slice(URL_PARAM_PREFIX.length);
+			const unprefixed: Str = key.slice(URL_PARAM_PREFIX.length);
 			overrides[unprefixed] = value;
 		}
 	}
@@ -146,7 +146,7 @@ export function applyUrlOverrides(
 
 		// Feature flag params: ff.* → setFeature
 		if (key.startsWith(FF_PREFIX)) {
-			const flagKey: string = key.slice(FF_PREFIX.length);
+			const flagKey: Str = key.slice(FF_PREFIX.length);
 			if (isValidFeatureFlag(flagKey)) {
 				editorStore.setFeature(flagKey, value === 'true');
 			}

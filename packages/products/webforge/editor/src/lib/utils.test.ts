@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cn } from './utils';
+import type { Str } from '@/schemas/common';
 
 describe('cn()', () => {
 	it('returns empty string for no arguments', () => {
@@ -41,7 +42,7 @@ describe('cn()', () => {
 	});
 
 	it('merges complex mix of inputs', () => {
-		const result: string = cn('base', ['arr-1', 'arr-2'], { conditional: true }, undefined);
+		const result: Str = cn('base', ['arr-1', 'arr-2'], { conditional: true }, undefined);
 		expect(result).toBe('base arr-1 arr-2 conditional');
 	});
 });

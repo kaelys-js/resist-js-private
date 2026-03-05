@@ -1,4 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import type { Str } from '@/schemas/common';
 import { createDevtoolsAPI, DEVTOOLS_KEY, type EditorDevtools } from './devtools-api.svelte';
 import { APP_NAME } from '$lib/config/app-meta';
 
@@ -102,21 +103,21 @@ describe('DEVTOOLS_KEY', () => {
 describe('createDevtoolsAPI', () => {
 	it('registers window global', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		expect((window as unknown as Record<string, unknown>)[DEVTOOLS_KEY]).toBeDefined();
+		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBeDefined();
 		api.destroy();
 	});
 
 	it('destroy removes window global', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
 		api.destroy();
-		expect((window as unknown as Record<string, unknown>)[DEVTOOLS_KEY]).toBeUndefined();
+		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBeUndefined();
 	});
 });
 
 describe('devtools.state', () => {
 	it('returns current app state', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		expect(devtools.state.app.theme).toBe('');
 		expect(devtools.state.app.locale).toBe('en');
 		api.destroy();
@@ -124,14 +125,14 @@ describe('devtools.state', () => {
 
 	it('returns current features state', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		expect(devtools.state.features.settings).toBe(true);
 		api.destroy();
 	});
 
 	it('returns current debug state', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		expect(devtools.state.debug.enabled).toBe(true);
 		api.destroy();
 	});
@@ -140,7 +141,7 @@ describe('devtools.state', () => {
 describe('devtools convenience methods', () => {
 	it('setTheme calls editor store', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.setTheme('midnight');
 		expect(editorStore.setTheme).toHaveBeenCalledWith('midnight');
 		api.destroy();
@@ -148,7 +149,7 @@ describe('devtools convenience methods', () => {
 
 	it('setMode calls editor store', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.setMode('dark');
 		expect(editorStore.setMode).toHaveBeenCalledWith('dark');
 		api.destroy();
@@ -156,7 +157,7 @@ describe('devtools convenience methods', () => {
 
 	it('setLocale calls editor store', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.setLocale('ja');
 		expect(editorStore.setLocale).toHaveBeenCalledWith('ja');
 		api.destroy();
@@ -164,7 +165,7 @@ describe('devtools convenience methods', () => {
 
 	it('setSidebarOpen calls editor store', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.setSidebarOpen(false);
 		expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(false);
 		api.destroy();
@@ -172,7 +173,7 @@ describe('devtools convenience methods', () => {
 
 	it('setFeature calls editor store', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.setFeature('settings', false);
 		expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
 		api.destroy();
@@ -180,7 +181,7 @@ describe('devtools convenience methods', () => {
 
 	it('setLogLevel calls debug store', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.setLogLevel('trace');
 		expect(debugStore.setLogLevel).toHaveBeenCalledWith('trace');
 		api.destroy();
@@ -188,7 +189,7 @@ describe('devtools convenience methods', () => {
 
 	it('enable calls debug store', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.enable();
 		expect(debugStore.setEnabled).toHaveBeenCalledWith(true);
 		api.destroy();
@@ -196,7 +197,7 @@ describe('devtools convenience methods', () => {
 
 	it('disable calls debug store', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.disable();
 		expect(debugStore.setEnabled).toHaveBeenCalledWith(false);
 		api.destroy();
@@ -206,7 +207,7 @@ describe('devtools convenience methods', () => {
 describe('devtools.set (generic setter)', () => {
 	it('sets app.theme via path', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.set('app.theme', 'ocean');
 		expect(editorStore.setTheme).toHaveBeenCalledWith('ocean');
 		api.destroy();
@@ -214,7 +215,7 @@ describe('devtools.set (generic setter)', () => {
 
 	it('sets features.sidebar via path', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.set('features.sidebar', false);
 		expect(editorStore.setFeature).toHaveBeenCalledWith('sidebar', false);
 		api.destroy();
@@ -222,7 +223,7 @@ describe('devtools.set (generic setter)', () => {
 
 	it('sets debug.logLevel via path', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.set('debug.logLevel', 'error');
 		expect(debugStore.setLogLevel).toHaveBeenCalledWith('error');
 		api.destroy();
@@ -230,7 +231,7 @@ describe('devtools.set (generic setter)', () => {
 
 	it('sets debug.enabled via path', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.set('debug.enabled', false);
 		expect(debugStore.setEnabled).toHaveBeenCalledWith(false);
 		api.destroy();
@@ -240,20 +241,20 @@ describe('devtools.set (generic setter)', () => {
 describe('devtools.register / unregister', () => {
 	it('registers a custom namespace', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.register('test', { ping: () => 'pong' });
-		expect((devtools as Record<string, unknown>).test).toBeDefined();
-		const ext = (devtools as Record<string, unknown>).test as Record<string, () => string>;
+		expect((devtools as Record<Str, unknown>).test).toBeDefined();
+		const ext = (devtools as Record<Str, unknown>).test as Record<Str, () => Str>;
 		expect(ext.ping()).toBe('pong');
 		api.destroy();
 	});
 
 	it('unregisters a custom namespace', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.register('test', { ping: () => 'pong' });
 		devtools.unregister('test');
-		expect((devtools as Record<string, unknown>).test).toBeUndefined();
+		expect((devtools as Record<Str, unknown>).test).toBeUndefined();
 		api.destroy();
 	});
 });
@@ -262,7 +263,7 @@ describe('devtools.logState / logFeatures', () => {
 	it('logState calls console.log', () => {
 		const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.logState();
 		expect(spy).toHaveBeenCalled();
 		spy.mockRestore();
@@ -272,7 +273,7 @@ describe('devtools.logState / logFeatures', () => {
 	it('logFeatures calls console.table', () => {
 		const spy = vi.spyOn(console, 'table').mockImplementation(() => {});
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.logFeatures();
 		expect(spy).toHaveBeenCalled();
 		spy.mockRestore();
@@ -283,7 +284,7 @@ describe('devtools.logState / logFeatures', () => {
 describe('devtools.registerWatcher / unregisterWatcher', () => {
 	it('registerWatcher creates a watcher', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		let callCount = 0;
 		devtools.registerWatcher('test', () => {
 			callCount++;
@@ -296,7 +297,7 @@ describe('devtools.registerWatcher / unregisterWatcher', () => {
 
 	it('unregisterWatcher removes a watcher', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.registerWatcher('test', () => ({ value: 1 }));
 		devtools.unregisterWatcher('test');
 		// Should not throw after unregistering
@@ -305,7 +306,7 @@ describe('devtools.registerWatcher / unregisterWatcher', () => {
 
 	it('unregisterWatcher is safe for unknown names', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		// Should not throw
 		devtools.unregisterWatcher('nonexistent');
 		api.destroy();
@@ -313,7 +314,7 @@ describe('devtools.registerWatcher / unregisterWatcher', () => {
 
 	it('registerWatcher replaces existing watcher with same name', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.registerWatcher('test', () => ({ value: 1 }));
 		// Re-register with same name — should replace, not duplicate
 		devtools.registerWatcher('test', () => ({ value: 2 }));
@@ -322,7 +323,7 @@ describe('devtools.registerWatcher / unregisterWatcher', () => {
 
 	it('destroy cleans up all registered watchers', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		devtools.registerWatcher('w1', () => ({ a: 1 }));
 		devtools.registerWatcher('w2', () => ({ b: 2 }));
 		// destroy should clean up both watchers without errors
@@ -333,14 +334,14 @@ describe('devtools.registerWatcher / unregisterWatcher', () => {
 describe('devtools meta', () => {
 	it('exposes appName', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		expect(devtools.appName).toBe(APP_NAME);
 		api.destroy();
 	});
 
 	it('exposes version string', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
 		expect(typeof devtools.version).toBe('string');
 		expect(devtools.version.length).toBeGreaterThan(0);
 		api.destroy();

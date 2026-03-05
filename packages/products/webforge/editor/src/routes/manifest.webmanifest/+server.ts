@@ -28,16 +28,27 @@ export const prerender = true;
 
 /** Schema for the PWA web manifest JSON. */
 const WebManifestSchema = v.strictObject({
+	/** Full application name for PWA manifest. */
 	name: v.string(),
+	/** Abbreviated name for home screen display. */
 	short_name: v.string(),
+	/** Application description for stores and install prompts. */
 	description: v.string(),
+	/** URL launched when the PWA is opened. */
 	start_url: v.string(),
+	/** Unique application identifier for PWA manifest. */
 	id: v.string(),
+	/** Navigation scope restricting URLs the PWA can navigate to. */
 	scope: v.string(),
-	display: v.string(),
-	background_color: v.string(),
-	theme_color: v.string(),
+	/** PWA display mode (standalone, fullscreen, minimal-ui, browser). */
+	display: v.picklist(['standalone', 'fullscreen', 'minimal-ui', 'browser']),
+	/** Background color shown during app loading (hex). */
+	background_color: v.pipe(v.string(), v.regex(/^#[0-9a-fA-F]{6}$/)),
+	/** Theme color for browser chrome and task switcher (hex). */
+	theme_color: v.pipe(v.string(), v.regex(/^#[0-9a-fA-F]{6}$/)),
+	/** App store categories for discovery. */
 	categories: v.array(v.string()),
+	/** PWA icon definitions for various sizes and purposes. */
 	icons: v.array(IconEntrySchema),
 });
 

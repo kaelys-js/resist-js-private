@@ -15,6 +15,7 @@ import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 import { Button } from '$lib/components/ui/button/index.js';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
+import { log } from '@/utils/core/logger';
 import { announce } from '$lib/utils/announce.svelte';
 
 let { status, message, errorId }: { status: Num; message: Str; errorId?: Str } = $props();
@@ -105,6 +106,10 @@ const errorIdLabel: Str = $derived.by(() => {
 	const result: Result<Str> = (localeStore.t.errors.errorId as (p: { id: Str }) => Result<Str>)({
 		id: errorId,
 	});
+	if (!result.ok) {
+		log.warn(`Locale errors.errorId error: ${result.error.code}`);
+	}
+	// UI boundary — locale error logged, fallback used
 	return result.ok ? result.data : `Reference: ${errorId}`;
 });
 

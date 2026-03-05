@@ -8,9 +8,10 @@ import { ko } from './ko';
 import { fr } from './fr';
 import { de } from './de';
 import { es } from './es';
+import type { Num, Str } from '@/schemas/common';
 
-const ALL_LOCALES: Record<string, EditorLocaleRaw> = { en, ja, zh, ko, fr, de, es };
-const LOCALE_CODES: readonly string[] = Object.keys(ALL_LOCALES);
+const ALL_LOCALES: Record<Str, EditorLocaleRaw> = { en, ja, zh, ko, fr, de, es };
+const LOCALE_CODES: readonly Str[] = Object.keys(ALL_LOCALES);
 
 /**
  * Recursively collect all leaf keys as dot-paths (e.g. "meta.description").
@@ -19,12 +20,12 @@ const LOCALE_CODES: readonly string[] = Object.keys(ALL_LOCALES);
  * @param prefix - Dot-path prefix for recursion
  * @returns Sorted array of dot-path keys
  */
-function leafKeys(obj: Record<string, unknown>, prefix = ''): string[] {
-	const keys: string[] = [];
+function leafKeys(obj: Record<Str, unknown>, prefix = ''): Str[] {
+	const keys: Str[] = [];
 	for (const [k, v] of Object.entries(obj)) {
-		const path: string = prefix ? `${prefix}.${k}` : k;
+		const path: Str = prefix ? `${prefix}.${k}` : k;
 		if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
-			keys.push(...leafKeys(v as Record<string, unknown>, path));
+			keys.push(...leafKeys(v as Record<Str, unknown>, path));
 		} else {
 			keys.push(path);
 		}
@@ -32,7 +33,7 @@ function leafKeys(obj: Record<string, unknown>, prefix = ''): string[] {
 	return keys.toSorted();
 }
 
-const enKeys: readonly string[] = leafKeys(en);
+const enKeys: readonly Str[] = leafKeys(en);
 
 // =============================================================================
 // Structural parity — every locale has the exact same key set
@@ -41,7 +42,7 @@ const enKeys: readonly string[] = leafKeys(en);
 describe('locale structural parity', () => {
 	for (const code of LOCALE_CODES) {
 		it(`${code} has the same key set as en`, () => {
-			const keys: readonly string[] = leafKeys(ALL_LOCALES[code]!);
+			const keys: readonly Str[] = leafKeys(ALL_LOCALES[code]!);
 			expect(keys).toEqual(enKeys);
 		});
 	}
@@ -58,12 +59,12 @@ describe('locale structural parity', () => {
  * @param prefix - Dot-path prefix for recursion
  * @returns Array of [path, value] tuples
  */
-function leafEntries(obj: Record<string, unknown>, prefix = ''): Array<[string, unknown]> {
-	const entries: Array<[string, unknown]> = [];
+function leafEntries(obj: Record<Str, unknown>, prefix = ''): Array<[Str, unknown]> {
+	const entries: Array<[Str, unknown]> = [];
 	for (const [k, v] of Object.entries(obj)) {
-		const path: string = prefix ? `${prefix}.${k}` : k;
+		const path: Str = prefix ? `${prefix}.${k}` : k;
 		if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
-			entries.push(...leafEntries(v as Record<string, unknown>, path));
+			entries.push(...leafEntries(v as Record<Str, unknown>, path));
 		} else {
 			entries.push([path, v]);
 		}
@@ -99,7 +100,7 @@ describe('description template', () => {
 // Namespace coverage — every schema namespace exists
 // =============================================================================
 
-const EXPECTED_NAMESPACES: readonly string[] = [
+const EXPECTED_NAMESPACES: readonly Str[] = [
 	'meta',
 	'common',
 	'sidebar',
@@ -118,7 +119,7 @@ const EXPECTED_NAMESPACES: readonly string[] = [
 describe('namespace coverage', () => {
 	for (const code of LOCALE_CODES) {
 		it(`${code} has all ${EXPECTED_NAMESPACES.length} namespaces`, () => {
-			const namespaces: readonly string[] = Object.keys(ALL_LOCALES[code]!).toSorted();
+			const namespaces: readonly Str[] = Object.keys(ALL_LOCALES[code]!).toSorted();
 			expect(namespaces).toEqual([...EXPECTED_NAMESPACES].toSorted());
 		});
 	}
@@ -154,7 +155,7 @@ describe('schema validation', () => {
 // Namespace key counts — guard against accidental additions/removals
 // =============================================================================
 
-const NAMESPACE_KEY_COUNTS: Record<string, number> = {
+const NAMESPACE_KEY_COUNTS: Record<Str, Num> = {
 	meta: 2,
 	common: 13,
 	sidebar: 3,
@@ -170,8 +171,8 @@ const NAMESPACE_KEY_COUNTS: Record<string, number> = {
 describe('namespace key counts', () => {
 	for (const [ns, expectedCount] of Object.entries(NAMESPACE_KEY_COUNTS)) {
 		it(`en.${ns} has ${expectedCount} keys`, () => {
-			const actual: number = Object.keys(
-				en[ns as keyof EditorLocaleRaw] as Record<string, unknown>,
+			const actual: Num = Object.keys(
+				en[ns as keyof EditorLocaleRaw] as Record<Str, unknown>,
 			).length;
 			expect(actual).toBe(expectedCount);
 		});

@@ -16,7 +16,7 @@ import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import type { FeatureFlags } from '$lib/schemas/editor-state';
 
-let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => void } = $props();
+let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => Void } = $props();
 
 const flags = discoverFeatureFlags();
 let searchQuery: Str = $state('');

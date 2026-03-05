@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { RequestEvent, ResolveOptions } from '@sveltejs/kit';
 import { ERRORS, err } from '@/schemas/result/result';
+import type { Str, Num, Bool, NullableStr } from '@/schemas/common';
 
 /** Controls the mocked value of `dev` from `$app/environment`. */
 let mockDev = true;
@@ -24,11 +25,10 @@ const { handle, handleError } = await import('./hooks.server');
  * @param pathname - URL pathname for the request
  * @returns Mock RequestEvent with cookies and request headers
  */
-function mockEvent(cookie: string, acceptLanguage: string | null, pathname = '/'): RequestEvent {
+function mockEvent(cookie: Str, acceptLanguage: NullableStr, pathname = '/'): RequestEvent {
 	return {
 		cookies: {
-			get: (name: string): string | undefined =>
-				name === 'locale' ? cookie || undefined : undefined,
+			get: (name: Str): Str | undefined => (name === 'locale' ? cookie || undefined : undefined),
 			set: vi.fn(),
 			delete: vi.fn(),
 			getAll: vi.fn(),
@@ -36,11 +36,11 @@ function mockEvent(cookie: string, acceptLanguage: string | null, pathname = '/'
 		},
 		request: {
 			headers: {
-				get: (name: string): string | null => (name === 'accept-language' ? acceptLanguage : null),
+				get: (name: Str): NullableStr => (name === 'accept-language' ? acceptLanguage : null),
 			},
 		},
 		url: new URL(`http://localhost${pathname}`),
-		locals: {} as Record<string, string>,
+		locals: {} as Record<Str, Str>,
 	} as unknown as RequestEvent;
 }
 
@@ -51,18 +51,18 @@ function mockEvent(cookie: string, acceptLanguage: string | null, pathname = '/'
  */
 function mockResolve(): {
 	resolve: (event: RequestEvent, opts?: ResolveOptions) => Promise<Response>;
-	getTransformed: (html: string) => string;
+	getTransformed: (html: Str) => Str;
 } {
-	let transformer: ((input: { html: string }) => string) | null = null;
+	let transformer: ((input: { html: Str }) => Str) | null = null;
 	const resolve = vi.fn((_event: RequestEvent, opts?: ResolveOptions): Promise<Response> => {
 		if (opts?.transformPageChunk) {
-			transformer = opts.transformPageChunk as (input: { html: string }) => string;
+			transformer = opts.transformPageChunk as (input: { html: Str }) => Str;
 		}
 		return Promise.resolve(new Response('ok'));
 	});
 	return {
 		resolve,
-		getTransformed: (html: string): string => {
+		getTransformed: (html: Str): Str => {
 			if (!transformer) throw new Error('transformPageChunk not set');
 			return transformer({ html });
 		},
@@ -95,7 +95,7 @@ describe('hooks.server handle', () => {
 		const event = mockEvent('ja', null);
 		const { resolve, getTransformed } = mockResolve();
 		await handle({ event, resolve });
-		const html: string = getTransformed('<html lang="%lang%" dir="%dir%">');
+		const html: Str = getTransformed('<html lang="%lang%" dir="%dir%">');
 		expect(html).toBe('<html lang="ja" dir="ltr">');
 	});
 
@@ -104,7 +104,7 @@ describe('hooks.server handle', () => {
 		const event = mockEvent('en', null);
 		const { resolve, getTransformed } = mockResolve();
 		await handle({ event, resolve });
-		const html: string = getTransformed('<html lang="%lang%" dir="%dir%">');
+		const html: Str = getTransformed('<html lang="%lang%" dir="%dir%">');
 		expect(html).toContain('dir="ltr"');
 	});
 
@@ -154,11 +154,11 @@ describe('hooks.server handle', () => {
 function createMockErrorEvent(
 	pathname = '/test-page',
 	overrides?: {
-		locale?: string;
-		userAgent?: string;
-		referer?: string;
-		searchParams?: Record<string, string>;
-		isDataRequest?: boolean;
+		locale?: Str;
+		userAgent?: Str;
+		referer?: Str;
+		searchParams?: Record<Str, Str>;
+		isDataRequest?: Bool;
 	},
 ): {
 	event: RequestEvent;
@@ -171,7 +171,7 @@ function createMockErrorEvent(
 			url.searchParams.set(k, v);
 		}
 	}
-	const headerMap: Record<string, string | null> = {
+	const headerMap: Record<Str, NullableStr> = {
 		'user-agent': overrides?.userAgent ?? null,
 		referer: overrides?.referer ?? null,
 	};
@@ -182,7 +182,7 @@ function createMockErrorEvent(
 			request: {
 				method: 'GET',
 				headers: {
-					get: (name: string): string | null => headerMap[name] ?? null,
+					get: (name: Str): NullableStr => headerMap[name] ?? null,
 				},
 			},
 			route: { id: pathname },
@@ -201,14 +201,14 @@ function createMockErrorEvent(
  */
 function callServerHandleError(params: {
 	error: unknown;
-	status: number;
-	message: string;
-	pathname?: string;
-	locale?: string;
-	userAgent?: string;
-	referer?: string;
-	searchParams?: Record<string, string>;
-	isDataRequest?: boolean;
+	status: Num;
+	message: Str;
+	pathname?: Str;
+	locale?: Str;
+	userAgent?: Str;
+	referer?: Str;
+	searchParams?: Record<Str, Str>;
+	isDataRequest?: Bool;
 }): {
 	result: App.Error;
 	setHeaders: ReturnType<typeof vi.fn>;
@@ -232,8 +232,8 @@ function callServerHandleError(params: {
 
 describe('security headers', () => {
 	async function getResponseFromHandle(
-		cookie: string,
-		acceptLanguage: string | null,
+		cookie: Str,
+		acceptLanguage: NullableStr,
 		pathname = '/',
 	): Promise<Response> {
 		const event = mockEvent(cookie, acceptLanguage, pathname);
@@ -259,7 +259,7 @@ describe('security headers', () => {
 
 	it('sets Permissions-Policy with camera, microphone, geolocation, and interest-cohort', async () => {
 		const response: Response = await getResponseFromHandle('en', null);
-		const policy: string | null = response.headers.get('Permissions-Policy');
+		const policy: NullableStr = response.headers.get('Permissions-Policy');
 		expect(policy).toBeTruthy();
 		expect(policy).toContain('camera=()');
 		expect(policy).toContain('microphone=()');
@@ -314,10 +314,7 @@ describe('security headers', () => {
 });
 
 describe('cache-control', () => {
-	async function getResponseWithContentType(
-		contentType: string,
-		pathname = '/',
-	): Promise<Response> {
+	async function getResponseWithContentType(contentType: Str, pathname = '/'): Promise<Response> {
 		const event = mockEvent('en', null, pathname);
 		const resolve = vi.fn((_event: RequestEvent, opts?: ResolveOptions): Promise<Response> => {
 			if (opts?.transformPageChunk) {
@@ -395,11 +392,11 @@ describe('handleError', () => {
 			pathname: '/api/scenes',
 		});
 		// logCapturedError outputs via log.error() → console.error in json mode
-		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
+		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
 		expect(logOutput).toContain(result.errorId);
 		expect(logOutput).toContain('INTERNAL.UNEXPECTED');
-		const parsed: Record<string, unknown> = JSON.parse(logOutput);
-		const data = parsed.data as Record<string, unknown>;
+		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
+		const data = parsed.data as Record<Str, unknown>;
 		// AppError fields
 		expect(data).toMatchObject({
 			errorId: result.errorId,
@@ -413,7 +410,7 @@ describe('handleError', () => {
 		expect(data.source).toBeDefined();
 		expect(typeof data.source).toBe('string');
 		// Request context in errorMeta (from UNEXPECTED wrapper's meta)
-		const errorMeta = data.errorMeta as Record<string, unknown>;
+		const errorMeta = data.errorMeta as Record<Str, unknown>;
 		expect(errorMeta.url).toBe('/api/scenes');
 		expect(errorMeta.method).toBe('GET');
 		expect(errorMeta.status).toBe(500);
@@ -456,8 +453,8 @@ describe('handleError', () => {
 		});
 		// The errorId should come from the original AppError, not a new wrapper
 		expect(result.errorId).toBe(validationErr.error.id);
-		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
-		const parsed: Record<string, unknown> = JSON.parse(logOutput);
+		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
 		expect(parsed.data).toMatchObject({
 			errorCode: 'VALIDATION.SCHEMA_FAILED',
 		});
@@ -472,15 +469,15 @@ describe('handleError', () => {
 			message: 'Internal Error',
 			pathname: '/test',
 		});
-		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
-		const parsed: Record<string, unknown> = JSON.parse(logOutput);
+		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
 		expect(parsed.data).toMatchObject({
 			errorCode: 'INTERNAL.UNEXPECTED',
 		});
 		// The cause chain should include the wrapped plain error
-		const data = parsed.data as Record<string, unknown>;
+		const data = parsed.data as Record<Str, unknown>;
 		expect(data.causeChain).toBeDefined();
-		const chain = data.causeChain as Array<{ code: string; message: string }>;
+		const chain = data.causeChain as Array<{ code: Str; message: Str }>;
 		expect(chain[0]?.code).toBe('INTERNAL.UNEXPECTED');
 		expect(chain[0]?.message).toBe('plain crash');
 		expect(result.errorId).toBeTruthy();
@@ -504,10 +501,10 @@ describe('handleError', () => {
 			searchParams: { page: '2', sort: 'asc' },
 			isDataRequest: true,
 		});
-		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
-		const parsed: Record<string, unknown> = JSON.parse(logOutput);
-		const data = parsed.data as Record<string, unknown>;
-		const errorMeta = data.errorMeta as Record<string, unknown>;
+		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
+		const data = parsed.data as Record<Str, unknown>;
+		const errorMeta = data.errorMeta as Record<Str, unknown>;
 		expect(errorMeta.locale).toBe('ja');
 		expect(errorMeta.userAgent).toBe('Mozilla/5.0');
 		expect(errorMeta.referer).toBe('http://localhost/previous');
@@ -529,9 +526,9 @@ describe('enhanced logCapturedError fields', () => {
 			status: 400,
 			message: 'Bad Request',
 		});
-		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
-		const parsed: Record<string, unknown> = JSON.parse(logOutput);
-		const data = parsed.data as Record<string, unknown>;
+		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
+		const data = parsed.data as Record<Str, unknown>;
 		expect(data.help).toBe('Check field format');
 		spy.mockRestore();
 	});
@@ -547,9 +544,9 @@ describe('enhanced logCapturedError fields', () => {
 			status: 400,
 			message: 'Bad Request',
 		});
-		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
-		const parsed: Record<string, unknown> = JSON.parse(logOutput);
-		const data = parsed.data as Record<string, unknown>;
+		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
+		const data = parsed.data as Record<Str, unknown>;
 		expect(data.source).toBeDefined();
 		// Note: data.source is the extractSource() source, and data.errorSource is the appError.source
 		expect(data.errorSource).toEqual({ pointer: '/data/email', parameter: 'email' });
@@ -570,11 +567,11 @@ describe('enhanced logCapturedError fields', () => {
 			status: 400,
 			message: 'Bad Request',
 		});
-		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
-		const parsed: Record<string, unknown> = JSON.parse(logOutput);
-		const data = parsed.data as Record<string, unknown>;
+		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
+		const data = parsed.data as Record<Str, unknown>;
 		expect(data.related).toBeDefined();
-		const related = data.related as Array<{ code: string; message: string }>;
+		const related = data.related as Array<{ code: Str; message: Str }>;
 		expect(related).toHaveLength(2);
 		expect(related[0]?.code).toBe('VALIDATION.MISSING_FIELD');
 		expect(related[1]?.code).toBe('VALIDATION.INVALID_FORMAT');
@@ -584,8 +581,8 @@ describe('enhanced logCapturedError fields', () => {
 
 describe('response headers', () => {
 	async function getResponseFromHandle(
-		cookie: string,
-		acceptLanguage: string | null,
+		cookie: Str,
+		acceptLanguage: NullableStr,
 		pathname = '/',
 	): Promise<Response> {
 		const event = mockEvent(cookie, acceptLanguage, pathname);
@@ -596,14 +593,14 @@ describe('response headers', () => {
 
 	it('sets X-App-Version header', async () => {
 		const response: Response = await getResponseFromHandle('en', null);
-		const version: string | null = response.headers.get('X-App-Version');
+		const version: NullableStr = response.headers.get('X-App-Version');
 		expect(version).toBeTruthy();
 		expect(typeof version).toBe('string');
 	});
 
 	it('sets X-Git-Commit header', async () => {
 		const response: Response = await getResponseFromHandle('en', null);
-		const commit: string | null = response.headers.get('X-Git-Commit');
+		const commit: NullableStr = response.headers.get('X-Git-Commit');
 		expect(commit).toBeTruthy();
 		expect(typeof commit).toBe('string');
 	});

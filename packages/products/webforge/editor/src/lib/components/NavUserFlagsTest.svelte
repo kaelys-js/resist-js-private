@@ -1,8 +1,9 @@
 <script lang="ts">
+import type { Str } from '@/schemas/common';
 import FeatureFlagsTestProviders from './FeatureFlagsTestProviders.svelte';
 import NavUser from './NavUser.svelte';
 
-let { disabledFlags = [] }: { disabledFlags?: string[] } = $props();
+let { disabledFlags = [] }: { disabledFlags?: Str[] } = $props();
 
 const project = {
 	id: 'test-1',

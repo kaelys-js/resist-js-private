@@ -19,6 +19,7 @@
  * ```
  */
 
+import type { Num } from '@/schemas/common';
 import { MediaQuery } from 'svelte/reactivity';
 
 /** Default mobile breakpoint in pixels (matches Tailwind `md` = 768px). */
@@ -38,7 +39,7 @@ const DEFAULT_MOBILE_BREAKPOINT = 768;
  * ```
  */
 export class IsMobile extends MediaQuery {
-	constructor(breakpoint: number = DEFAULT_MOBILE_BREAKPOINT) {
+	constructor(breakpoint: Num = DEFAULT_MOBILE_BREAKPOINT) {
 		super(`max-width: ${breakpoint - 1}px`);
 	}
 }

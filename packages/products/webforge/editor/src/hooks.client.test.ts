@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ERRORS, err } from '@/schemas/result/result';
+import type { Num, Str } from '@/schemas/common';
 import { handleError } from './hooks.client';
 
 /**
@@ -8,7 +9,7 @@ import { handleError } from './hooks.client';
  * @param params - Parameters to pass to handleError
  * @returns The App.Error result with message and errorId
  */
-function callHandleError(params: { error: unknown; status: number; message: string }): App.Error {
+function callHandleError(params: { error: unknown; status: Num; message: Str }): App.Error {
 	const result = handleError({
 		error: params.error,
 		event: {} as any,

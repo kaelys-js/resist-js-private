@@ -26,11 +26,16 @@ export const prerender = true;
 
 /** Schema for the security.txt fields. */
 const SecurityTxtFieldsSchema = v.strictObject({
-	contact: v.string(),
-	expires: v.string(),
+	/** Security vulnerability reporting contact URL. */
+	contact: v.pipe(v.string(), v.url()),
+	/** ISO 8601 expiration date for this security.txt. */
+	expires: v.pipe(v.string(), v.isoTimestamp()),
+	/** Comma-separated BCP 47 language tags for preferred communication. */
 	preferredLanguages: v.string(),
-	canonical: v.string(),
-	policy: v.string(),
+	/** Canonical URL where this security.txt is hosted. */
+	canonical: v.pipe(v.string(), v.url()),
+	/** URL to the project's security disclosure policy. */
+	policy: v.pipe(v.string(), v.url()),
 });
 
 /**

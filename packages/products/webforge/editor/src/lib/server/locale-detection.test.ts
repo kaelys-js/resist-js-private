@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SUPPORTED_LOCALE_CODES, detectFromHeader, resolveLocale } from './locale-detection';
+import type { Str } from '@/schemas/common';
 
 // =============================================================================
 // SUPPORTED_LOCALE_CODES
@@ -11,7 +12,7 @@ describe('SUPPORTED_LOCALE_CODES', () => {
 	});
 
 	it('contains all expected codes', () => {
-		const expected: readonly string[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
+		const expected: readonly Str[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
 		for (const code of expected) {
 			expect(SUPPORTED_LOCALE_CODES.has(code), `should have '${code}'`).toBe(true);
 		}
@@ -111,14 +112,14 @@ describe('resolveLocale', () => {
 	});
 
 	it('accepts all 7 supported locales via cookie', () => {
-		const codes: readonly string[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
+		const codes: readonly Str[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
 		for (const code of codes) {
 			expect(resolveLocale(code, null), `cookie '${code}' should resolve`).toBe(code);
 		}
 	});
 
 	it('accepts all 7 supported locales via Accept-Language', () => {
-		const codes: readonly string[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
+		const codes: readonly Str[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
 		for (const code of codes) {
 			expect(resolveLocale('', code), `header '${code}' should resolve`).toBe(code);
 		}

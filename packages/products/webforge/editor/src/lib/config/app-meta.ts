@@ -35,8 +35,11 @@ export const APP_SCOPE: Str = '/';
 /** PWA manifest start URL. */
 export const APP_START_URL: Str = '/';
 
+/** Schema for valid PWA display modes. */
+export const AppDisplaySchema = v.picklist(['standalone', 'fullscreen', 'minimal-ui', 'browser']);
+
 /** PWA manifest display mode. */
-export const APP_DISPLAY: Str = 'standalone';
+export const APP_DISPLAY: v.InferOutput<typeof AppDisplaySchema> = 'standalone';
 
 /** Schema for valid app category strings (PWA manifest `categories` field). */
 export const AppCategoriesSchema = v.array(v.string());
@@ -75,9 +78,9 @@ export function storageKey(suffix: Str): Str {
 /** Schema for a single theme color entry (light + dark hex values). */
 export const ThemeColorEntrySchema = v.strictObject({
 	/** Light mode hex background color. */
-	light: v.string(),
+	light: v.pipe(v.string(), v.regex(/^#[0-9a-fA-F]{6}$/)),
 	/** Dark mode hex background color. */
-	dark: v.string(),
+	dark: v.pipe(v.string(), v.regex(/^#[0-9a-fA-F]{6}$/)),
 });
 
 /** A light/dark pair of hex background colors for a specific theme. */
@@ -112,9 +115,9 @@ export const IconEntrySchema = v.strictObject({
 	/** Path to icon file (relative to static/). */
 	src: v.string(),
 	/** Icon dimensions (e.g. `'192x192'`). */
-	sizes: v.string(),
+	sizes: v.pipe(v.string(), v.regex(/^\d+x\d+$/)),
 	/** MIME type of the icon (e.g. `'image/png'`). */
-	type: v.string(),
+	type: v.picklist(['image/png', 'image/svg+xml']),
 	/** Icon purpose (e.g. `'maskable'`). */
 	purpose: v.optional(v.string()),
 });
@@ -145,7 +148,7 @@ export const FontFaceEntrySchema = v.strictObject({
 	/** CSS font-family name. */
 	family: v.string(),
 	/** Font style (e.g. `'normal'`, `'italic'`). */
-	style: v.string(),
+	style: v.picklist(['normal', 'italic']),
 	/** Font weight or weight range (e.g. `'600'`, `'100 900'`). */
 	weight: v.string(),
 	/** Path to font file (relative to static/). */

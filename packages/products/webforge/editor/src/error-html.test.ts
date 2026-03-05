@@ -2,8 +2,9 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import type { Num, Str } from '@/schemas/common';
 
-const errorHtml: string = readFileSync(
+const errorHtml: Str = readFileSync(
 	resolve(dirname(fileURLToPath(import.meta.url)), 'error.html'),
 	'utf8',
 );
@@ -81,14 +82,14 @@ describe('error.html WCAG accessibility', () => {
 	});
 
 	it('all inline SVGs have aria-hidden="true"', () => {
-		const svgCount: number = (errorHtml.match(/<svg[\s\S]*?>/g) ?? []).length;
-		const hiddenCount: number = (errorHtml.match(/<svg[^>]*aria-hidden="true"/g) ?? []).length;
+		const svgCount: Num = (errorHtml.match(/<svg[\s\S]*?>/g) ?? []).length;
+		const hiddenCount: Num = (errorHtml.match(/<svg[^>]*aria-hidden="true"/g) ?? []).length;
 		expect(hiddenCount).toBe(svgCount);
 	});
 
 	it('all inline SVGs have focusable="false"', () => {
-		const svgCount: number = (errorHtml.match(/<svg[\s\S]*?>/g) ?? []).length;
-		const focusableCount: number = (errorHtml.match(/<svg[^>]*focusable="false"/g) ?? []).length;
+		const svgCount: Num = (errorHtml.match(/<svg[\s\S]*?>/g) ?? []).length;
+		const focusableCount: Num = (errorHtml.match(/<svg[^>]*focusable="false"/g) ?? []).length;
 		expect(focusableCount).toBe(svgCount);
 	});
 
@@ -160,7 +161,7 @@ describe('error.html script robustness', () => {
 	it('script has multiple console.error calls', () => {
 		const scriptMatch: RegExpMatchArray | null = errorHtml.match(/<script>([\s\S]*?)<\/script>/);
 		expect(scriptMatch).not.toBeNull();
-		const script: string = scriptMatch![1]!;
+		const script: Str = scriptMatch![1]!;
 		const errorCalls: RegExpMatchArray | null = script.match(/console\.error\(/g);
 		expect(errorCalls).not.toBeNull();
 		expect(errorCalls!.length).toBeGreaterThanOrEqual(2);

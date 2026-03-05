@@ -1,8 +1,9 @@
 <script lang="ts">
+import type { Bool } from '@/schemas/common';
 import TestProviders from './TestProviders.svelte';
 import NavScenes from './NavScenes.svelte';
 
-let { collapsed = false }: { collapsed?: boolean } = $props();
+let { collapsed = false }: { collapsed?: Bool } = $props();
 
 const scenes = [
 	{ id: 'scene-1', title: 'Overworld', url: '#overworld', isActive: true, order: 0 },

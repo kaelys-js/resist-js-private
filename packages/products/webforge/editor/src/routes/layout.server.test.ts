@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { Str } from '@/schemas/common';
 
 /**
  * Tests for +layout.server.ts load function behavior.
@@ -13,7 +14,7 @@ describe('+layout.server load', () => {
 	});
 
 	it('returns undefined locale when locals.locale is missing', () => {
-		const locals: Record<string, unknown> = {};
+		const locals: Record<Str, unknown> = {};
 		const result = { locale: locals.locale };
 		expect(result.locale).toBeUndefined();
 	});

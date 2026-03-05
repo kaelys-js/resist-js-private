@@ -18,6 +18,7 @@
 import { styles } from '$lib/debug/console-styles';
 import { createStateLogger } from '$lib/debug/state-logger.svelte';
 import { createDevtoolsAPI, DEVTOOLS_KEY } from '$lib/debug/devtools-api.svelte';
+import type { Bool, Str, Void } from '@/schemas/common';
 import { isValidAppKey, isValidFeatureFlag } from '$lib/utils/url-params';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import type { DebugStore } from '$lib/stores/debug-state.svelte';
@@ -29,7 +30,7 @@ import type { DebugStore } from '$lib/stores/debug-state.svelte';
 /** Handle returned by `activateDebugServices` for cleanup. */
 export type DebugServicesHandle = {
 	/** Destroys all active debug services. */
-	destroy(): void;
+	destroy(): Void;
 };
 
 // =============================================================================
@@ -61,7 +62,7 @@ export function activateDebugServices(
 	logWelcomeBanner(editorStore, debugStore);
 
 	return {
-		destroy(): void {
+		destroy(): Void {
 			loggerCleanup.destroy();
 			devtoolsCleanup.destroy();
 
@@ -85,7 +86,7 @@ const FF_PREFIX = 'ff.';
  * @param key - Unprefixed override key (e.g., 'debug', 'theme', 'ff.settings')
  * @returns True if the key maps to a known store setter
  */
-function isRecognizedOverrideKey(key: string): boolean {
+function isRecognizedOverrideKey(key: Str): Bool {
 	if (key === 'debug' || key === 'logLevel') return true;
 	if (key.startsWith(FF_PREFIX)) {
 		return isValidFeatureFlag(key.slice(FF_PREFIX.length));
@@ -119,9 +120,9 @@ const BADGE_API =
  * @param pad - Padding width for the key column
  * @returns Tuple of `[formatString, ...styleArgs]` for `console.log`
  */
-function buildKVBlock(entries: Array<[string, string]>, pad = 14): [string, ...string[]] {
-	const parts: string[] = [];
-	const styleArgs: string[] = [];
+function buildKVBlock(entries: Array<[Str, Str]>, pad = 14): [Str, ...Str[]] {
+	const parts: Str[] = [];
+	const styleArgs: Str[] = [];
 	for (const [key, value] of entries) {
 		parts.push(`  %c${key.padEnd(pad)}%c ${value}`);
 		styleArgs.push(styles.keyLabel, styles.valueText);
@@ -129,12 +130,12 @@ function buildKVBlock(entries: Array<[string, string]>, pad = 14): [string, ...s
 	return [parts.join('\n'), ...styleArgs];
 }
 
-function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): void {
+function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): Void {
 	const globalName = `window.${DEVTOOLS_KEY}`;
 	const { logLevel } = debugStore.debug;
 	const { app, features } = editorStore;
-	const overrides: Record<string, string> = debugStore.urlOverrides;
-	const overrideKeys: string[] = Object.keys(overrides);
+	const overrides: Record<Str, Str> = debugStore.urlOverrides;
+	const overrideKeys: Str[] = Object.keys(overrides);
 
 	/* eslint-disable no-console -- Intentional welcome banner output */
 
@@ -160,7 +161,7 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): voi
 
 	// ── Feature Flags (green badge) ───────────────────────────────
 	console.groupCollapsed('%c Feature Flags ', BADGE_FLAGS); // T
-	const flagEntries: Array<[string, string]> = Object.entries(features).map(([key, val]) => [
+	const flagEntries: Array<[Str, Str]> = Object.entries(features).map(([key, val]) => [
 		key,
 		String(val),
 	]);
@@ -170,8 +171,8 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): voi
 
 	// ── URL Overrides (amber badge) ───────────────────────────────
 	if (overrideKeys.length > 0) {
-		const validKeys: string[] = [];
-		const unknownKeys: string[] = [];
+		const validKeys: Str[] = [];
+		const unknownKeys: Str[] = [];
 		for (const key of overrideKeys) {
 			if (isRecognizedOverrideKey(key)) {
 				validKeys.push(key);
@@ -183,7 +184,7 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): voi
 		const suffix = `${validKeys.length} applied${unknownKeys.length > 0 ? `, ${unknownKeys.length} unknown` : ''}`;
 		console.groupCollapsed(`%c URL Overrides %c ${suffix}`, BADGE_OVERRIDES, 'color:#aaa');
 		if (validKeys.length > 0) {
-			const validEntries: Array<[string, string]> = validKeys.map((key) => [
+			const validEntries: Array<[Str, Str]> = validKeys.map((key) => [
 				`wf.${key}`,
 				overrides[key] ?? '',
 			]);

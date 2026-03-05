@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { localeStore, t } from './i18n.svelte';
 import { APP_NAME } from '$lib/config/app-meta';
 import type { Result } from '@/schemas/result/result';
+import type { Str } from '@/schemas/common';
 
-const SUPPORTED: readonly string[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
+const SUPPORTED: readonly Str[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'];
 
 // =============================================================================
 // localeStore initialization
@@ -58,15 +59,15 @@ describe('localeStore.setLocale', () => {
 
 	it('switching locale changes t strings', () => {
 		localeStore.setLocale('en');
-		const enDescFn = localeStore.t.meta.description as (p: { appName: string }) => Result<string>;
+		const enDescFn = localeStore.t.meta.description as (p: { appName: Str }) => Result<Str>;
 		const enResult = enDescFn({ appName: APP_NAME });
-		const enDesc: string = enResult.ok ? enResult.data : '';
+		const enDesc: Str = enResult.ok ? enResult.data : '';
 		expect(enDesc).toContain(APP_NAME);
 
 		localeStore.setLocale('ja');
-		const jaDescFn = localeStore.t.meta.description as (p: { appName: string }) => Result<string>;
+		const jaDescFn = localeStore.t.meta.description as (p: { appName: Str }) => Result<Str>;
 		const jaResult = jaDescFn({ appName: APP_NAME });
-		const jaDesc: string = jaResult.ok ? jaResult.data : '';
+		const jaDesc: Str = jaResult.ok ? jaResult.data : '';
 		expect(jaDesc).toContain(APP_NAME);
 		expect(jaDesc).not.toBe(enDesc);
 
@@ -82,12 +83,12 @@ describe('localeStore.setLocale', () => {
 describe('t() helper', () => {
 	it('returns translated string for valid locale function', () => {
 		localeStore.setLocale('en');
-		const result: string = t(localeStore.t.common.settings, 'FALLBACK');
+		const result: Str = t(localeStore.t.common.settings, 'FALLBACK');
 		expect(result).toBe('Settings');
 	});
 
 	it('returns fallback when locale function errors', () => {
-		const result: string = t(
+		const result: Str = t(
 			(() => ({
 				ok: false,
 				data: null,
@@ -107,27 +108,27 @@ describe('all locales produce valid translations', () => {
 	for (const code of SUPPORTED) {
 		it(`${code} meta.description returns non-empty string`, () => {
 			localeStore.setLocale(code);
-			const descFn = localeStore.t.meta.description as (p: { appName: string }) => Result<string>;
+			const descFn = localeStore.t.meta.description as (p: { appName: Str }) => Result<Str>;
 			const result = descFn({ appName: APP_NAME });
-			const desc: string = result.ok ? result.data : '';
+			const desc: Str = result.ok ? result.data : '';
 			expect(desc.length).toBeGreaterThan(0);
 		});
 
 		it(`${code} common.settings returns non-empty string`, () => {
 			localeStore.setLocale(code);
-			const val: string = t(localeStore.t.common.settings, '');
+			const val: Str = t(localeStore.t.common.settings, '');
 			expect(val.length).toBeGreaterThan(0);
 		});
 
 		it(`${code} sidebar.scenes returns non-empty string`, () => {
 			localeStore.setLocale(code);
-			const val: string = t(localeStore.t.sidebar.scenes, '');
+			const val: Str = t(localeStore.t.sidebar.scenes, '');
 			expect(val.length).toBeGreaterThan(0);
 		});
 
 		it(`${code} header.home returns non-empty string`, () => {
 			localeStore.setLocale(code);
-			const val: string = t(localeStore.t.header.home, '');
+			const val: Str = t(localeStore.t.header.home, '');
 			expect(val.length).toBeGreaterThan(0);
 		});
 	}
@@ -147,7 +148,7 @@ describe('description contains app name', () => {
 	for (const code of SUPPORTED) {
 		it(`${code} meta.description contains APP_NAME`, () => {
 			localeStore.setLocale(code);
-			const descFn = localeStore.t.meta.description as (p: { appName: string }) => Result<string>;
+			const descFn = localeStore.t.meta.description as (p: { appName: Str }) => Result<Str>;
 			const result = descFn({ appName: APP_NAME });
 			expect(result.ok).toBe(true);
 			if (!result.ok) return;
@@ -168,19 +169,19 @@ describe('description contains app name', () => {
 describe('settings namespace coverage', () => {
 	it('en settings.appearance returns non-empty string', () => {
 		localeStore.setLocale('en');
-		const val: string = t(localeStore.t.settings.appearance, '');
+		const val: Str = t(localeStore.t.settings.appearance, '');
 		expect(val.length).toBeGreaterThan(0);
 	});
 
 	it('en settings.themeDefault returns non-empty string', () => {
 		localeStore.setLocale('en');
-		const val: string = t(localeStore.t.settings.themeDefault, '');
+		const val: Str = t(localeStore.t.settings.themeDefault, '');
 		expect(val.length).toBeGreaterThan(0);
 	});
 
 	it('en settings.themeMidnight returns non-empty string', () => {
 		localeStore.setLocale('en');
-		const val: string = t(localeStore.t.settings.themeMidnight, '');
+		const val: Str = t(localeStore.t.settings.themeMidnight, '');
 		expect(val.length).toBeGreaterThan(0);
 	});
 });

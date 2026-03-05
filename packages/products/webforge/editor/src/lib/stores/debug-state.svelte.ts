@@ -10,7 +10,7 @@
  */
 
 import * as v from 'valibot';
-import type { Void } from '@/schemas/common';
+import type { Bool, Str, Void } from '@/schemas/common';
 import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import {
@@ -27,7 +27,7 @@ import { storageKey } from '$lib/config/app-meta';
 // =============================================================================
 
 /** localStorage key for persisting debug state. */
-export const STORAGE_KEY: string = storageKey('debug-state');
+export const STORAGE_KEY: Str = storageKey('debug-state');
 
 // =============================================================================
 // Defaults
@@ -61,9 +61,9 @@ export type DebugStore = {
 	/** URL overrides parsed from query params (session-only, not persisted). */
 	readonly urlOverrides: UrlOverrides;
 	/** Enable or disable debug mode. */
-	setEnabled(enabled: boolean): Result<Void>;
+	setEnabled(enabled: Bool): Result<Void>;
 	/** Set the active log level. Must be a valid LogLevel. */
-	setLogLevel(level: string): Result<Void>;
+	setLogLevel(level: Str): Result<Void>;
 };
 
 // =============================================================================
@@ -98,7 +98,7 @@ function save(): Result<Void> {
 function load(): Result<Void> {
 	if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
 	try {
-		const raw: string | null = localStorage.getItem(STORAGE_KEY);
+		const raw: Str | null = localStorage.getItem(STORAGE_KEY);
 		if (raw === null) return okUnchecked<Void>(undefined);
 
 		const parsed: unknown = JSON.parse(raw);
@@ -125,7 +125,7 @@ function load(): Result<Void> {
  * @param enabled - Boolean flag
  * @returns `Result<Void>` — error if value is not boolean
  */
-function setEnabled(enabled: boolean): Result<Void> {
+function setEnabled(enabled: Bool): Result<Void> {
 	const result = safeParse(v.boolean(), enabled);
 	if (!result.ok) return result;
 
@@ -139,7 +139,7 @@ function setEnabled(enabled: boolean): Result<Void> {
  * @param level - Must be one of LOG_LEVELS
  * @returns `Result<Void>` — error if level is invalid
  */
-function setLogLevel(level: string): Result<Void> {
+function setLogLevel(level: Str): Result<Void> {
 	const result = safeParse(LogLevelSchema, level);
 	if (!result.ok) return result;
 
@@ -196,6 +196,7 @@ export function createDebugStore(url?: URL): Result<DebugStore> {
 		ok: true as const,
 		data: store,
 		error: null,
+		// Cast required: Object.freeze literal doesn't narrow to Result<T> discriminant
 	}) as Result<DebugStore>;
 }
 
