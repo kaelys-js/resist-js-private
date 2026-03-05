@@ -21,11 +21,12 @@ export const ko: EditorLocaleRaw = {
 		more: '더보기',
 	},
 	sidebar: {
+		home: '홈',
 		scenes: '씬',
 		newScene: '새 씬',
 	},
 	header: {
-		editor: '에디터',
+		home: '홈',
 		scene: '씬',
 		error: '오류',
 		toggleSidebar: '사이드바 전환',

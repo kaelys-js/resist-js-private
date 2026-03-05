@@ -21,11 +21,12 @@ export const es: EditorLocaleRaw = {
 		more: 'Más',
 	},
 	sidebar: {
+		home: 'Inicio',
 		scenes: 'Escenas',
 		newScene: 'Nueva escena',
 	},
 	header: {
-		editor: 'Editor',
+		home: 'Inicio',
 		scene: 'Escena',
 		error: 'Error',
 		toggleSidebar: 'Alternar barra lateral',

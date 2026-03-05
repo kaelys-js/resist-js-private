@@ -41,7 +41,7 @@ const toggleSidebarLabel: string = $derived(
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item class="hidden md:block">
-					<Breadcrumb.Link href="#">{t(localeStore.t.header.editor, 'Editor')}</Breadcrumb.Link>
+					<Breadcrumb.Link href="/">{t(localeStore.t.header.home, 'Home')}</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>

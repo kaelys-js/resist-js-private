@@ -29,11 +29,12 @@ export const EditorLocaleSchema = v.strictObject({
 		more: messageTemplate(),
 	}),
 	sidebar: v.strictObject({
+		home: messageTemplate(),
 		scenes: messageTemplate(),
 		newScene: messageTemplate(),
 	}),
 	header: v.strictObject({
-		editor: messageTemplate(),
+		home: messageTemplate(),
 		scene: messageTemplate(),
 		error: messageTemplate(),
 		toggleSidebar: messageTemplate(),

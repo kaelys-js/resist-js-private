@@ -35,13 +35,13 @@ describe('SiteHeader feature flags', () => {
 	// --- breadcrumb ---
 	it('renders breadcrumb when breadcrumb flag is enabled (default)', () => {
 		render(SiteHeaderFlagsTest);
-		expect(screen.getByText('Editor')).toBeInTheDocument();
+		expect(screen.getByText('Home')).toBeInTheDocument();
 		expect(screen.getByText('Scene')).toBeInTheDocument();
 	});
 
 	it('hides breadcrumb when breadcrumb flag is disabled', () => {
 		render(SiteHeaderFlagsTest, { props: { disabledFlags: ['breadcrumb'] } });
-		expect(screen.queryByText('Editor')).not.toBeInTheDocument();
+		expect(screen.queryByText('Home')).not.toBeInTheDocument();
 		expect(screen.queryByText('Scene')).not.toBeInTheDocument();
 	});
 
@@ -209,7 +209,7 @@ describe('Multiple flags disabled simultaneously', () => {
 		expect(header).toBeInTheDocument();
 		// But all controlled elements should be absent
 		expect(screen.queryByRole('button', { name: /toggle mode/i })).not.toBeInTheDocument();
-		expect(screen.queryByText('Editor')).not.toBeInTheDocument();
+		expect(screen.queryByText('Home')).not.toBeInTheDocument();
 		expect(container.querySelector('[data-slot="tooltip-trigger"]')).not.toBeInTheDocument();
 	});
 

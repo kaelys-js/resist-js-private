@@ -547,7 +547,7 @@ $effect(() => {
 		{/if}
 
 		<!-- Trigger pill -->
-		<Tooltip.Root delayDuration={300}>
+		<Tooltip.Root delayDuration={1500}>
 			<Tooltip.Trigger>
 				{#snippet child({ props })}
 					<button

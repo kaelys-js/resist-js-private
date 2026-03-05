@@ -163,14 +163,14 @@ test.describe('dev toolbar — feature flag toggle', () => {
 
 		// Breadcrumb should be visible initially
 		const header = page.locator('header');
-		await expect(header.getByText('Editor')).toBeVisible();
+		await expect(header.getByText('Home')).toBeVisible();
 
 		// Open flags panel and toggle breadcrumb off
 		await clickToolbarButton(page, 'toolbar-btn-flags');
 		await page.locator('#flag-breadcrumb').click();
 
 		// Breadcrumb should now be hidden
-		await expect(header.getByText('Editor')).not.toBeVisible();
+		await expect(header.getByText('Home')).not.toBeVisible();
 	});
 });
 

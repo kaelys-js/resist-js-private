@@ -31,7 +31,7 @@ test.describe('collapsed sidebar — state', () => {
 		await page.keyboard.press('ControlOrMeta+b');
 
 		const header = page.locator('header');
-		await expect(header.getByText('Editor')).toBeVisible();
+		await expect(header.getByText('Home')).toBeVisible();
 		await expect(header.getByText('Scene')).toBeVisible();
 	});
 

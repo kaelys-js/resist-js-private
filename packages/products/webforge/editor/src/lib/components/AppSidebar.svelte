@@ -1,4 +1,5 @@
 <script lang="ts">
+import House from '@lucide/svelte/icons/house';
 import Settings from '@lucide/svelte/icons/settings';
 import CircleHelp from '@lucide/svelte/icons/circle-help';
 import type { ComponentProps } from 'svelte';
@@ -64,6 +65,21 @@ const user = {
 		</Sidebar.Menu>
 	</Sidebar.Header>
 	<Sidebar.Content>
+		<Sidebar.Group>
+			<Sidebar.Menu>
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton
+						tooltipContent={t(localeStore.t.sidebar.home, 'Home')}
+						isActive={true}
+						aria-current="page"
+						data-testid="sidebar-home"
+					>
+						<House aria-hidden="true" />
+						<span>{t(localeStore.t.sidebar.home, 'Home')}</span>
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+			</Sidebar.Menu>
+		</Sidebar.Group>
 		{#if store.features.sceneList}
 			<NavScenes {scenes} />
 		{/if}

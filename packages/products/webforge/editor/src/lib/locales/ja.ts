@@ -21,11 +21,12 @@ export const ja: EditorLocaleRaw = {
 		more: 'その他',
 	},
 	sidebar: {
+		home: 'ホーム',
 		scenes: 'シーン',
 		newScene: '新規シーン',
 	},
 	header: {
-		editor: 'エディタ',
+		home: 'ホーム',
 		scene: 'シーン',
 		error: 'エラー',
 		toggleSidebar: 'サイドバーの切り替え',

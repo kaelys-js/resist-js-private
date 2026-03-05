@@ -9,9 +9,9 @@ describe('SiteHeader', () => {
 		expect(header).toBeInTheDocument();
 	});
 
-	it('renders breadcrumb with "Editor" text', () => {
+	it('renders breadcrumb with "Home" text', () => {
 		render(SiteHeaderTest);
-		expect(screen.getByText('Editor')).toBeInTheDocument();
+		expect(screen.getByText('Home')).toBeInTheDocument();
 	});
 
 	it('renders breadcrumb with "Scene" text when not on error page', () => {
