@@ -8,6 +8,7 @@ import ModeToggle from './ModeToggle.svelte';
 import { page } from '$app/state';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
+import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
 import type { ServerUser } from '$lib/server/data/types';
 
 let {
@@ -40,7 +41,7 @@ const toggleSidebarLabel: string = $derived(
 					{/snippet}
 				</Tooltip.Trigger>
 				<Tooltip.Content side="right" sideOffset={4}>
-					{toggleSidebarLabel}
+					<span class="flex items-center gap-1.5">{toggleSidebarLabel} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('TOGGLE_SIDEBAR')}</kbd></span>
 				</Tooltip.Content>
 			</Tooltip.Root>
 			<Separator orientation="vertical" role="separator" class="mx-2 data-[orientation=vertical]:h-4" />

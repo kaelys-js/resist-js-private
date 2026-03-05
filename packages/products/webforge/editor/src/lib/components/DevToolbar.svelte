@@ -22,14 +22,11 @@ import DevToolbarAppState from './DevToolbarAppState.svelte';
 import DevToolbarDebug from './DevToolbarDebug.svelte';
 import { discoverFeatureFlags, discoverAppPreferences } from '$lib/debug/dev-toolbar-registry';
 import { storageKey } from '$lib/config/app-meta';
+import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
 import { scale, fly } from 'svelte/transition';
 
 const editorStore = useEditorStore();
 const debugStore = useDebugStore();
-
-const isMac: boolean =
-	typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent);
-const shortcutHint: string = isMac ? '⌃ Shift D' : 'Ctrl+Shift+D';
 
 let toolbarOpen = $state(false);
 let activePanel: string | null = $state(null);
@@ -299,64 +296,56 @@ $effect(() => {
 	});
 });
 
-// ── Keyboard shortcuts ────────────────────────────────────────────────
+// ── Keyboard shortcuts (via central registry) ────────────────────────
 $effect(() => {
 	/**
 	 * Global keydown handler for toolbar shortcuts.
+	 * Uses the central shortcut registry for matching.
 	 *
 	 * @param e - Keyboard event
 	 */
 	function handleKeydown(e: KeyboardEvent): void {
 		// Ctrl+Shift+D: toggle toolbar + enable debug
-		if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+		if (shortcutStore.matches(e, 'TOGGLE_DEV_TOOLBAR')) {
 			e.preventDefault();
 			if (!debugStore.debug.enabled) {
 				debugStore.setEnabled(true);
 			}
 			toolbarOpen = !toolbarOpen;
+			return;
 		}
 
 		// Escape: close active panel, or close toolbar if no panel active
-		if (e.key === 'Escape') {
+		if (shortcutStore.matches(e, 'CLOSE_PANEL')) {
 			if (activePanel) {
 				activePanel = null;
 			} else if (toolbarOpen) {
 				toolbarOpen = false;
 			}
+			return;
 		}
 
-		// Number shortcuts 1-6: only active when toolbar is open
-		if (toolbarOpen && !e.ctrlKey && !e.metaKey && !e.altKey) {
-			const num = Number(e.key);
-			if (num >= 1 && num <= 6) {
-				e.preventDefault();
-				switch (num) {
-					case 1: {
-						togglePanel('flags');
-						break;
-					}
-					case 2: {
-						togglePanel('app');
-						break;
-					}
-					case 3: {
-						togglePanel('debug');
-						break;
-					}
-					case 4: {
-						cycleMode();
-						break;
-					}
-					case 5: {
-						copyDebugInfo();
-						break;
-					}
-					case 6: {
-						resetAll();
-						break;
-					}
-				}
-			}
+		// Panel/action shortcuts: only active when toolbar is open
+		if (!toolbarOpen) return;
+
+		if (shortcutStore.matches(e, 'DEV_FLAGS_PANEL')) {
+			e.preventDefault();
+			togglePanel('flags');
+		} else if (shortcutStore.matches(e, 'DEV_APP_PANEL')) {
+			e.preventDefault();
+			togglePanel('app');
+		} else if (shortcutStore.matches(e, 'DEV_DEBUG_PANEL')) {
+			e.preventDefault();
+			togglePanel('debug');
+		} else if (shortcutStore.matches(e, 'DEV_CYCLE_MODE')) {
+			e.preventDefault();
+			cycleMode();
+		} else if (shortcutStore.matches(e, 'DEV_COPY_STATE')) {
+			e.preventDefault();
+			copyDebugInfo();
+		} else if (shortcutStore.matches(e, 'DEV_RESET_ALL')) {
+			e.preventDefault();
+			resetAll();
 		}
 	}
 
@@ -433,7 +422,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">1</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_FLAGS_PANEL')}</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -458,7 +447,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">2</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_APP_PANEL')}</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -483,7 +472,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">3</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_DEBUG_PANEL')}</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -514,7 +503,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{cycleThemeLabel} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">4</kbd></span>
+						<span class="flex items-center gap-1.5">{cycleThemeLabel} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_CYCLE_MODE')}</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -549,7 +538,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.copyStateJson, 'Copy State as JSON')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">5</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.copyStateJson, 'Copy State as JSON')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_COPY_STATE')}</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -584,7 +573,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.resetAllDefaults, 'Reset All to Defaults')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">6</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.resetAllDefaults, 'Reset All to Defaults')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_RESET_ALL')}</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 			</div>
@@ -615,7 +604,7 @@ $effect(() => {
 			</Tooltip.Trigger>
 			{#if !toolbarOpen}
 				<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-					<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.title, 'Developer Toolbar')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutHint}</kbd></span>
+					<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.title, 'Developer Toolbar')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('TOGGLE_DEV_TOOLBAR')}</kbd></span>
 				</Tooltip.Content>
 			{/if}
 		</Tooltip.Root>

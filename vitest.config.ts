@@ -128,6 +128,8 @@ export default defineConfig({
 					root: 'packages/products/webforge/editor',
 					environment: 'jsdom',
 					globals: true,
+					include: ['src/**/*.test.ts'],
+					exclude: ['e2e/**', 'node_modules/**', '.svelte-kit/**'],
 					setupFiles: ['./src/test-setup-component.ts'],
 					alias: {
 						$lib: path.join(editorSrc, 'lib'),

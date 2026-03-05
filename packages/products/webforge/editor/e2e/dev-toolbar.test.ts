@@ -242,44 +242,65 @@ test.describe('dev toolbar — keyboard shortcuts', () => {
 		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).not.toBeAttached();
 	});
 
-	test('number key 1 toggles flags panel', async ({ page }) => {
+	test('Ctrl+1 toggles flags panel', async ({ page }) => {
 		await expandToolbar(page);
-		await page.keyboard.press('Digit1');
+		await page.keyboard.press('Control+Digit1');
 		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).toBeVisible();
-		await page.keyboard.press('Digit1');
+		await page.keyboard.press('Control+Digit1');
 		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).not.toBeAttached();
 	});
 
-	test('number key 2 toggles app state panel', async ({ page }) => {
+	test('Ctrl+2 toggles app state panel', async ({ page }) => {
 		await expandToolbar(page);
-		await page.keyboard.press('Digit2');
+		await page.keyboard.press('Control+Digit2');
 		await expect(page.locator('[data-testid="dev-toolbar-app-state"]')).toBeVisible();
-		await page.keyboard.press('Digit2');
+		await page.keyboard.press('Control+Digit2');
 		await expect(page.locator('[data-testid="dev-toolbar-app-state"]')).not.toBeAttached();
 	});
 
-	test('number key 3 toggles debug panel', async ({ page }) => {
+	test('Ctrl+3 toggles debug panel', async ({ page }) => {
 		await expandToolbar(page);
-		await page.keyboard.press('Digit3');
+		await page.keyboard.press('Control+Digit3');
 		await expect(page.locator('[data-testid="dev-toolbar-debug"]')).toBeVisible();
-		await page.keyboard.press('Digit3');
+		await page.keyboard.press('Control+Digit3');
 		await expect(page.locator('[data-testid="dev-toolbar-debug"]')).not.toBeAttached();
 	});
 
-	test('number key 4 cycles mode', async ({ page }) => {
+	test('Ctrl+4 cycles mode', async ({ page }) => {
 		await expandToolbar(page);
 		// Read initial mode from the mode button aria-label
 		const modeBtn = page.locator('[data-testid="toolbar-btn-mode"]');
 		const initialLabel: string = (await modeBtn.getAttribute('aria-label')) ?? '';
 		// Click body to ensure no button captures the key
 		await page.mouse.click(10, 10);
-		await page.keyboard.press('Digit4');
+		await page.keyboard.press('Control+Digit4');
 		// Button label should change (mode cycles light→dark→system)
 		await expect
 			.poll(async () => {
 				return (await modeBtn.getAttribute('aria-label')) ?? '';
 			})
 			.not.toBe(initialLabel);
+	});
+
+	test('bare number keys do NOT trigger panel shortcuts', async ({ page }) => {
+		await expandToolbar(page);
+		// Press bare 1 — flags panel should NOT open (Ctrl required now)
+		await page.keyboard.press('Digit1');
+		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).not.toBeAttached();
+	});
+
+	test('shortcuts do not fire when typing in search input', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-flags');
+		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).toBeVisible();
+
+		// Focus the search input inside the flags panel
+		const searchInput = page.locator('[data-testid="dev-toolbar-flags"] input[type="text"]');
+		await searchInput.click();
+		await searchInput.fill('test');
+
+		// The flags panel should still be visible (shortcut didn't close it)
+		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).toBeVisible();
 	});
 });
 
@@ -459,5 +480,68 @@ test.describe('dev toolbar — viewport resize', () => {
 				return box ? box.y : -9999;
 			})
 			.toBeGreaterThanOrEqual(0);
+	});
+});
+
+// =============================================================================
+// Keyboard shortcut hints in tooltips
+// =============================================================================
+
+test.describe('dev toolbar — shortcut hints in tooltips', () => {
+	test('toolbar trigger tooltip shows Ctrl+Shift+D hint', async ({ page }) => {
+		await gotoWithDebug(page);
+		const trigger = page.locator('[data-testid="dev-toolbar-trigger"]');
+		await trigger.hover();
+		// bits-ui v1.8.0 does not set role="tooltip" — use data-slot attribute
+		const kbd = page.locator('[data-slot="tooltip-content"] kbd');
+		await expect(kbd).toBeVisible({ timeout: 3000 });
+		const text: string = (await kbd.textContent()) ?? '';
+		// Should show platform-appropriate modifier + Shift + D
+		expect(text).toMatch(/Ctrl\+Shift\+D|⌃⇧D/);
+	});
+
+	test('panel button tooltips show Ctrl+number hints', async ({ page }) => {
+		await expandToolbar(page);
+		// Hover over flags button to see its tooltip
+		await page.locator('[data-testid="toolbar-btn-flags"]').hover();
+		const kbd = page.locator('[data-slot="tooltip-content"] kbd');
+		await expect(kbd).toBeVisible({ timeout: 3000 });
+		const text: string = (await kbd.textContent()) ?? '';
+		// Should show Ctrl+1 or ⌃1
+		expect(text).toMatch(/Ctrl\+1|⌃1/);
+	});
+});
+
+// =============================================================================
+// Sidebar toggle keyboard shortcut
+// =============================================================================
+
+test.describe('sidebar — keyboard shortcut', () => {
+	test('Ctrl/Cmd+B toggles sidebar visibility', async ({ page }) => {
+		await page.goto('/');
+		// Use .first() — there are two sidebar elements (desktop + mobile)
+		const sidebar = page.locator('[data-slot="sidebar"]').first();
+		await expect(sidebar).toHaveAttribute('data-state', 'expanded');
+
+		// Press Ctrl/Cmd+B to close (ControlOrMeta sends Meta on Mac, Ctrl on Win/Linux)
+		await page.locator('body').click();
+		await page.keyboard.press('ControlOrMeta+b');
+		await expect(sidebar).toHaveAttribute('data-state', 'collapsed');
+
+		// Press Ctrl/Cmd+B to open again
+		await page.keyboard.press('ControlOrMeta+b');
+		await expect(sidebar).toHaveAttribute('data-state', 'expanded');
+	});
+
+	test('sidebar toggle tooltip shows Ctrl+b or ⌘b hint', async ({ page }) => {
+		await page.goto('/');
+		// Hover over the sidebar trigger button
+		const trigger = page.locator('[data-sidebar="trigger"]');
+		await trigger.hover();
+		const kbd = page.locator('[data-slot="tooltip-content"] kbd');
+		await expect(kbd).toBeVisible({ timeout: 3000 });
+		const text: string = (await kbd.textContent()) ?? '';
+		// cmdOrCtrl formats as ⌘b on Mac, Ctrl+b on PC
+		expect(text).toMatch(/Ctrl\+b|⌘b/);
 	});
 });
