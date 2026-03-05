@@ -339,6 +339,7 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 				class="w-1.5 bg-transparent hover:bg-border data-[active]:bg-ring transition-colors"
 				ondblclick={handleDoubleClickResize}
 			/>
+			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 			<Resizable.Pane defaultSize={100 - initialSidebarPercent} class="flex flex-col !overflow-y-auto !overflow-x-hidden">
 				<Sidebar.Inset class={insetClass}>
 					<SiteHeader isError={Boolean(page.error)} user={data.user} {activeSceneName} />

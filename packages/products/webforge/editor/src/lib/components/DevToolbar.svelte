@@ -324,6 +324,40 @@ $effect(() => {
 				toolbarOpen = false;
 			}
 		}
+
+		// Number shortcuts 1-6: only active when toolbar is open
+		if (toolbarOpen && !e.ctrlKey && !e.metaKey && !e.altKey) {
+			const num = Number(e.key);
+			if (num >= 1 && num <= 6) {
+				e.preventDefault();
+				switch (num) {
+					case 1: {
+						togglePanel('flags');
+						break;
+					}
+					case 2: {
+						togglePanel('app');
+						break;
+					}
+					case 3: {
+						togglePanel('debug');
+						break;
+					}
+					case 4: {
+						cycleMode();
+						break;
+					}
+					case 5: {
+						copyDebugInfo();
+						break;
+					}
+					case 6: {
+						resetAll();
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	window.addEventListener('keydown', handleKeydown);
@@ -342,15 +376,15 @@ $effect(() => {
 		{#if toolbarOpen && activePanel}
 			<div
 				transition:fly={{ y: 8, duration: 150 }}
-				class="w-80 max-h-[60vh] flex flex-col overflow-hidden rounded-lg bg-popover/80 backdrop-blur-xl border border-border shadow-2xl shadow-black/20"
+				class="w-80 max-h-[60vh] flex flex-col overflow-hidden rounded-lg bg-popover/70 backdrop-blur-2xl border border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5"
 				data-testid="dev-toolbar-panel"
 			>
 				{#if activePanel === 'flags'}
-					<DevToolbarFeatureFlags {editorStore} />
+					<DevToolbarFeatureFlags {editorStore} onclose={() => { activePanel = null; }} />
 				{:else if activePanel === 'app'}
-					<DevToolbarAppState {editorStore} />
+					<DevToolbarAppState {editorStore} onclose={() => { activePanel = null; }} />
 				{:else if activePanel === 'debug'}
-					<DevToolbarDebug {editorStore} {debugStore} />
+					<DevToolbarDebug {editorStore} {debugStore} onclose={() => { activePanel = null; }} />
 				{/if}
 			</div>
 		{/if}
@@ -364,7 +398,7 @@ $effect(() => {
 				aria-orientation="horizontal"
 				onkeydown={handleToolbarKeydown}
 				transition:scale={{ start: 0.6, duration: 150 }}
-				class="flex items-center gap-1 px-2 py-1.5 rounded-full bg-popover/80 backdrop-blur-xl border border-border shadow-2xl shadow-black/20 origin-bottom"
+				class="flex items-center gap-1 px-2 py-1.5 rounded-full bg-popover/70 backdrop-blur-2xl border border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5 origin-bottom"
 				data-testid="dev-toolbar-bar"
 			>
 				<!-- Panel buttons -->
@@ -389,7 +423,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">1</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -414,7 +448,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">2</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -439,7 +473,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">3</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -470,7 +504,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						{cycleThemeLabel}
+						<span class="flex items-center gap-1.5">{cycleThemeLabel} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">4</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -505,7 +539,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						{t(localeStore.t.devToolbar.copyStateJson, 'Copy State as JSON')}
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.copyStateJson, 'Copy State as JSON')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">5</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 
@@ -540,19 +574,19 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-						{t(localeStore.t.devToolbar.resetAllDefaults, 'Reset All to Defaults')}
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.resetAllDefaults, 'Reset All to Defaults')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">6</kbd></span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 			</div>
 		{/if}
 
 		<!-- Trigger pill -->
-		<Tooltip.Root delayDuration={1500} open={toolbarOpen ? false : undefined}>
+		<Tooltip.Root delayDuration={1500}>
 			<Tooltip.Trigger>
 				{#snippet child({ props })}
 					<button
 						{...props}
-						class="flex items-center justify-center size-9 rounded-full bg-popover/80 backdrop-blur-xl border border-border shadow-2xl shadow-black/20 text-popover-foreground hover:bg-accent transition-colors touch-none {dragging ? 'cursor-grabbing' : 'cursor-grab'}"
+						class="flex items-center justify-center size-9 rounded-full bg-popover/70 backdrop-blur-2xl border border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5 text-popover-foreground hover:bg-accent transition-colors touch-none {dragging ? 'cursor-grabbing' : 'cursor-grab'}"
 						onclick={() => {
 							if (didDrag) return;
 							toolbarOpen = !toolbarOpen;
@@ -569,9 +603,11 @@ $effect(() => {
 					</button>
 				{/snippet}
 			</Tooltip.Trigger>
-			<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
-				<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.title, 'Developer Toolbar')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutHint}</kbd></span>
-			</Tooltip.Content>
+			{#if !toolbarOpen}
+				<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
+					<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.title, 'Developer Toolbar')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutHint}</kbd></span>
+				</Tooltip.Content>
+			{/if}
 		</Tooltip.Root>
 		</div>
 	</Tooltip.Provider>
