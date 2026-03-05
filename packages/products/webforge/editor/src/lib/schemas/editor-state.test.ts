@@ -112,11 +112,11 @@ describe('FeatureFlagsSchema', () => {
 		expect(flags.appNameInSidebar).toBe(true);
 	});
 
-	it('has exactly 15 flag keys', () => {
+	it('has exactly 24 flag keys', () => {
 		const result = safeParse(FeatureFlagsSchema, {});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(Object.keys(result.data)).toHaveLength(15);
+		expect(Object.keys(result.data)).toHaveLength(24);
 	});
 
 	it('accepts partial override with only new flags', () => {

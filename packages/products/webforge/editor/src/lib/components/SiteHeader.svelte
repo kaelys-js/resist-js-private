@@ -3,6 +3,7 @@ import { Separator } from '$lib/components/ui/separator/index.js';
 import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+import HeaderUser from './HeaderUser.svelte';
 import ModeToggle from './ModeToggle.svelte';
 import { page } from '$app/state';
 import { localeStore, t } from '$lib/i18n.svelte';
@@ -54,6 +55,9 @@ const toggleSidebarLabel: string = $derived(
 		</Breadcrumb.Root>
 		{/if}
 		<div class="ml-auto flex items-center gap-2">
+			{#if store.features.headerUserDropdown}
+				<HeaderUser />
+			{/if}
 			{#if store.features.modeToggle}
 				<ModeToggle />
 			{/if}

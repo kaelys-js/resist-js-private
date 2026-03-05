@@ -56,6 +56,9 @@ test.describe('feature flags — default state', () => {
 
 		// AppSidebar: NavUser / project dropdown visible
 		await expect(page.getByText('Project')).toBeVisible();
+
+		// SiteHeader: user dropdown trigger visible
+		await expect(page.getByTestId('header-user-trigger')).toBeVisible();
 	});
 });
 

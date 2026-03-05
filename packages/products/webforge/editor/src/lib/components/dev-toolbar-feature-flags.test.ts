@@ -60,6 +60,6 @@ describe('DevToolbarFeatureFlags', () => {
 	});
 
 	it('count of flags matches schema entries', () => {
-		expect(flags.length).toBe(15);
+		expect(flags.length).toBe(24);
 	});
 });

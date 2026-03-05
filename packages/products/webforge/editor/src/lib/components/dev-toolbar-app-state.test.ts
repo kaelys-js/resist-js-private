@@ -57,7 +57,7 @@ describe('DevToolbarAppState', () => {
 	});
 
 	it('renders correct number of preferences from schema', () => {
-		expect(preferences.length).toBe(5);
+		expect(preferences.length).toBe(8);
 	});
 
 	it('appName input reflects default store value', () => {

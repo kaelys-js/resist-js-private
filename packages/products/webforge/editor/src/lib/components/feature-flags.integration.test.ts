@@ -196,6 +196,57 @@ describe('NavUser feature flags', () => {
 });
 
 // =============================================================================
+// HeaderUser feature flags (in SiteHeader)
+// =============================================================================
+
+describe('HeaderUser feature flags', () => {
+	// --- headerUserDropdown ---
+	it('renders user trigger when headerUserDropdown flag is enabled (default)', () => {
+		const { container } = render(SiteHeaderFlagsTest);
+		const trigger: HTMLElement | null = container.querySelector(
+			'[data-testid="header-user-trigger"]',
+		);
+		expect(trigger).toBeInTheDocument();
+	});
+
+	it('hides user trigger when headerUserDropdown flag is disabled', () => {
+		const { container } = render(SiteHeaderFlagsTest, {
+			props: { disabledFlags: ['headerUserDropdown'] },
+		});
+		const trigger: HTMLElement | null = container.querySelector(
+			'[data-testid="header-user-trigger"]',
+		);
+		expect(trigger).not.toBeInTheDocument();
+	});
+
+	// --- headerUserAvatar ---
+	// NOTE: headerUserAvatar controls avatar image rendering. The fallback monogram
+	// always renders. With default empty userAvatar, no image is rendered regardless.
+	// Avatar image visibility is verified via E2E tests with a userAvatar URL set.
+	it('renders avatar fallback in trigger when headerUserAvatar flag is enabled (default)', () => {
+		const { container } = render(SiteHeaderFlagsTest);
+		const trigger: HTMLElement | null = container.querySelector(
+			'[data-testid="header-user-trigger"]',
+		);
+		const fallback: HTMLElement | null =
+			trigger?.querySelector('[data-slot="avatar-fallback"]') ?? null;
+		expect(fallback).toBeInTheDocument();
+	});
+
+	// --- Multiple HeaderUser flags disabled ---
+	it('handles headerUserDropdown disabled with other header flags', () => {
+		const { container } = render(SiteHeaderFlagsTest, {
+			props: { disabledFlags: ['headerUserDropdown', 'modeToggle'] },
+		});
+		const trigger: HTMLElement | null = container.querySelector(
+			'[data-testid="header-user-trigger"]',
+		);
+		expect(trigger).not.toBeInTheDocument();
+		expect(screen.queryByRole('button', { name: /toggle mode/i })).not.toBeInTheDocument();
+	});
+});
+
+// =============================================================================
 // Cross-component: multiple flags disabled
 // =============================================================================
 
