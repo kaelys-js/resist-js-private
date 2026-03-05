@@ -43,7 +43,7 @@ const monogram: string = $derived(
 						{...props}
 					>
 						{#if store.features.projectDropdownIcon}
-							<Avatar.Root class="h-8 w-8 rounded-lg">
+							<Avatar.Root class="h-8 w-8 rounded-lg shadow-sm">
 								<Avatar.Image src="" alt={projectName} />
 								<Avatar.Fallback class="rounded-lg text-xs font-medium">
 									{monogram}
@@ -67,7 +67,7 @@ const monogram: string = $derived(
 				sideOffset={4}
 			>
 				<DropdownMenu.Label class="p-0 font-normal -m-1">
-					<div class="flex items-center gap-2 px-3 py-2.5 pb-3 text-left text-sm bg-muted/50 rounded-t-lg">
+					<div class="flex items-center gap-2 px-3 py-2.5 pb-3 text-left text-sm bg-white/[0.06] border-b border-white/[0.06] rounded-t-lg">
 						<Avatar.Root class="h-8 w-8 rounded-lg">
 							<Avatar.Image src="" alt={projectName} />
 							<Avatar.Fallback class="rounded-lg text-xs font-medium">

@@ -175,8 +175,8 @@ function optionLabel(key: string, value: string): string {
 }
 </script>
 
-<div class="flex flex-col" data-testid="dev-toolbar-debug">
-	<div class="flex items-center justify-between border-b border-border bg-muted/50 px-3 py-2.5">
+<div class="flex flex-1 min-h-0 flex-col overflow-hidden" data-testid="dev-toolbar-debug">
+	<div class="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.06] px-3 py-2.5">
 		<h3 class="text-sm font-semibold text-foreground">{t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')}</h3>
 		{#if onclose}
 			<Tooltip.Root delayDuration={300}>
@@ -199,7 +199,7 @@ function optionLabel(key: string, value: string): string {
 			</Tooltip.Root>
 		{/if}
 	</div>
-	<div class="flex flex-col gap-3 p-3">
+	<div class="min-h-0 flex-1 overflow-y-auto flex flex-col gap-3 p-3">
 
 	<div class="flex flex-col gap-3">
 		{#each debugFields as field (field.key)}
@@ -228,7 +228,7 @@ function optionLabel(key: string, value: string): string {
 									{...props}
 									variant="outline"
 									size="sm"
-									class="h-8 w-36 justify-between text-xs"
+									class="h-8 w-36 justify-between text-xs bg-white/[0.10] border-white/[0.08] hover:bg-white/[0.15]"
 									role="combobox"
 									aria-expanded={openPicklists[field.key]}
 								>
@@ -263,13 +263,13 @@ function optionLabel(key: string, value: string): string {
 		{/each}
 	</div>
 
-	<div class="flex flex-col gap-2 border-t border-border pt-2">
+	<div class="flex flex-col gap-2 border-t border-white/[0.06] pt-2">
 		<h4 class="text-xs font-medium text-muted-foreground">{t(localeStore.t.devToolbar.quickActions, 'Quick Actions')}</h4>
 		<div class="flex gap-2">
 			<Button
 				variant="secondary"
 				size="sm"
-				class="h-7 text-xs flex-1 {logStateState === 'success' ? 'text-green-500' : ''}"
+				class="h-7 text-xs flex-1 bg-white/[0.10] hover:bg-white/[0.15] border-white/[0.08] {logStateState === 'success' ? 'text-green-500' : ''}"
 				onclick={logState}
 				data-testid="log-state-btn"
 			>
@@ -284,7 +284,7 @@ function optionLabel(key: string, value: string): string {
 			<Button
 				variant="secondary"
 				size="sm"
-				class="h-7 text-xs flex-1 {logFeaturesState === 'success' ? 'text-green-500' : ''}"
+				class="h-7 text-xs flex-1 bg-white/[0.10] hover:bg-white/[0.15] border-white/[0.08] {logFeaturesState === 'success' ? 'text-green-500' : ''}"
 				onclick={logFeatures}
 				data-testid="log-features-btn"
 			>
@@ -300,7 +300,7 @@ function optionLabel(key: string, value: string): string {
 		<Button
 			variant="secondary"
 			size="sm"
-			class="h-7 text-xs w-full {debugUrlCopyState === 'success' ? 'text-green-500' : ''}{debugUrlCopyState === 'failed' ? 'text-red-500' : ''}"
+			class="h-7 text-xs w-full bg-white/[0.10] hover:bg-white/[0.15] border-white/[0.08] {debugUrlCopyState === 'success' ? 'text-green-500' : ''}{debugUrlCopyState === 'failed' ? 'text-red-500' : ''}"
 			onclick={copyDebugUrl}
 			data-testid="copy-debug-url"
 		>
@@ -318,7 +318,7 @@ function optionLabel(key: string, value: string): string {
 	</div>
 
 	{#if hasOverrides}
-		<div class="flex flex-col gap-1 border-t border-border pt-2" data-testid="url-overrides">
+		<div class="flex flex-col gap-1 border-t border-white/[0.06] pt-2" data-testid="url-overrides">
 			<h4 class="text-xs font-medium text-muted-foreground">{t(localeStore.t.devToolbar.urlOverrides, 'URL Overrides')}</h4>
 			<div class="flex flex-col gap-0.5">
 				{#each urlOverrideEntries as [key, value] (key)}
@@ -331,7 +331,7 @@ function optionLabel(key: string, value: string): string {
 	{/if}
 
 	{#if buildInfo}
-		<div class="flex flex-col gap-1.5 border-t border-border pt-2" data-testid="build-info">
+		<div class="flex flex-col gap-1.5 border-t border-white/[0.06] pt-2" data-testid="build-info">
 			<h4 class="text-xs font-medium text-muted-foreground">{t(localeStore.t.devToolbar.buildInfo, 'Build Info')}</h4>
 			<div class="flex flex-col gap-0.5 text-xs">
 				<div class="flex justify-between">
@@ -366,7 +366,7 @@ function optionLabel(key: string, value: string): string {
 			<Button
 				variant="secondary"
 				size="sm"
-				class="h-7 text-xs w-full mt-1 {buildInfoCopyState === 'success' ? 'text-green-500' : ''}{buildInfoCopyState === 'failed' ? 'text-red-500' : ''}"
+				class="h-7 text-xs w-full mt-1 bg-white/[0.10] hover:bg-white/[0.15] border-white/[0.08] {buildInfoCopyState === 'success' ? 'text-green-500' : ''}{buildInfoCopyState === 'failed' ? 'text-red-500' : ''}"
 				onclick={copyBuildInfo}
 				data-testid="copy-build-info"
 			>

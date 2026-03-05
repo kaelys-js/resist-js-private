@@ -51,6 +51,10 @@ export const zh: EditorLocaleRaw = {
 		themeCopper: '铜色',
 		themeAurora: '极光',
 		themeAmethyst: '紫水晶',
+		searchThemes: '搜索主题…',
+		searchLanguages: '搜索语言…',
+		noThemesFound: '未找到主题',
+		noLanguagesFound: '未找到语言',
 	},
 	project: {
 		openProject: '打开项目',

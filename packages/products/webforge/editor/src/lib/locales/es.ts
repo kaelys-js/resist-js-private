@@ -51,6 +51,10 @@ export const es: EditorLocaleRaw = {
 		themeCopper: 'Cobre',
 		themeAurora: 'Aurora',
 		themeAmethyst: 'Amatista',
+		searchThemes: 'Buscar temas…',
+		searchLanguages: 'Buscar idiomas…',
+		noThemesFound: 'No se encontraron temas',
+		noLanguagesFound: 'No se encontraron idiomas',
 	},
 	project: {
 		openProject: 'Abrir proyecto',

@@ -6,7 +6,7 @@ import { Switch } from '$lib/components/ui/switch/index.js';
 import { Label } from '$lib/components/ui/label/index.js';
 import { Input } from '$lib/components/ui/input/index.js';
 import { Button } from '$lib/components/ui/button/index.js';
-import * as ScrollArea from '$lib/components/ui/scroll-area/index.js';
+
 import { discoverFeatureFlags, humanizeKey } from '$lib/debug/dev-toolbar-registry';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { announce } from '$lib/utils/announce.svelte';
@@ -58,9 +58,9 @@ function labelFor(key: string): string {
 }
 </script>
 
-<div class="flex h-full flex-col" data-testid="dev-toolbar-flags">
+<div class="flex flex-1 min-h-0 flex-col overflow-hidden" data-testid="dev-toolbar-flags">
 	<!-- Sticky header: title + close + search -->
-	<div class="flex shrink-0 flex-col gap-3 border-b border-border bg-muted/50 px-3 py-2.5">
+	<div class="flex shrink-0 flex-col gap-3 border-b border-white/[0.06] bg-white/[0.06] px-3 py-2.5">
 		<div class="flex items-center justify-between">
 			<h3 class="text-sm font-semibold text-foreground">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')}</h3>
 			{#if onclose}
@@ -91,7 +91,7 @@ function labelFor(key: string): string {
 				type="text"
 				placeholder={t(localeStore.t.devToolbar.searchFlags, 'Search flags…')}
 				aria-label={t(localeStore.t.devToolbar.searchFlags, 'Search flags…')}
-				class="h-8 pl-8 {searchQuery ? 'pr-8' : 'pr-3'} text-xs md:text-xs"
+				class="h-8 pl-8 {searchQuery ? 'pr-8' : 'pr-3'} text-xs md:text-xs bg-white/[0.10] border-white/[0.08]"
 				value={searchQuery}
 				oninput={(e: Event) => {
 					searchQuery = (e.target as HTMLInputElement).value;
@@ -112,8 +112,8 @@ function labelFor(key: string): string {
 	</div>
 
 	<!-- Scrollable flag list -->
-	<ScrollArea.Root class="min-h-0 flex-1 px-3 pt-3">
-		<div class="flex flex-col gap-2">
+	<div class="min-h-0 flex-1 overflow-y-auto px-3 pt-3">
+		<div class="flex flex-col gap-2 pb-1">
 			{#each filteredFlags as flag (flag.key)}
 				{@const checked = editorStore.features[flag.key as keyof FeatureFlags]}
 				<div class="flex items-center justify-between gap-2 py-0.5">
@@ -136,14 +136,14 @@ function labelFor(key: string): string {
 				</div>
 			{/each}
 		</div>
-	</ScrollArea.Root>
+	</div>
 
 	<!-- Sticky footer: Enable/Disable All buttons -->
-	<div class="flex shrink-0 gap-2 border-t border-border pt-2 mt-3 mx-3 mb-3">
-		<Button variant="secondary" size="sm" class="h-7 text-xs flex-1" onclick={enableAll} disabled={allEnabled}>
+	<div class="flex shrink-0 gap-2 border-t border-white/[0.06] pt-2 mt-3 mx-3 mb-3">
+		<Button variant="secondary" size="sm" class="h-7 text-xs flex-1 bg-white/[0.10] hover:bg-white/[0.15] border-white/[0.08]" onclick={enableAll} disabled={allEnabled}>
 			{t(localeStore.t.devToolbar.enableAll, 'Enable All')}
 		</Button>
-		<Button variant="secondary" size="sm" class="h-7 text-xs flex-1" onclick={disableAll} disabled={allDisabled}>
+		<Button variant="secondary" size="sm" class="h-7 text-xs flex-1 bg-white/[0.10] hover:bg-white/[0.15] border-white/[0.08]" onclick={disableAll} disabled={allDisabled}>
 			{t(localeStore.t.devToolbar.disableAll, 'Disable All')}
 		</Button>
 	</div>

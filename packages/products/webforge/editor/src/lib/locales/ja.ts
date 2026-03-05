@@ -51,6 +51,10 @@ export const ja: EditorLocaleRaw = {
 		themeCopper: 'コッパー',
 		themeAurora: 'オーロラ',
 		themeAmethyst: 'アメジスト',
+		searchThemes: 'テーマを検索…',
+		searchLanguages: '言語を検索…',
+		noThemesFound: 'テーマが見つかりません',
+		noLanguagesFound: '言語が見つかりません',
 	},
 	project: {
 		openProject: 'プロジェクトを開く',

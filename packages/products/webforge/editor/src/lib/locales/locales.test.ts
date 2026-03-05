@@ -159,7 +159,7 @@ const NAMESPACE_KEY_COUNTS: Record<string, number> = {
 	common: 13,
 	sidebar: 3,
 	header: 4,
-	settings: 19,
+	settings: 23,
 	project: 2,
 	user: 9,
 	data: 6,
