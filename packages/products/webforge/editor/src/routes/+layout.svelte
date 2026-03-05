@@ -18,6 +18,7 @@ import { applyUrlOverrides } from '$lib/utils/url-params';
 import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
 import DevToolbar from '$lib/components/DevToolbar.svelte';
 import { APP_TAGLINE, THEME_COLORS, storageKey } from '$lib/config/app-meta';
+import { getBuildInfo } from '$lib/config/build-info';
 import { getAnnouncement } from '$lib/utils/announce.svelte';
 
 const { children, data } = $props();
@@ -42,6 +43,14 @@ if (serverLocale !== localeStore.locale) {
 const debugStore = browser ? initDebugStore(page.url) : undefined;
 if (browser && debugStore) {
 	applyUrlOverrides(store, debugStore, debugStore.urlOverrides);
+}
+
+// ── Window build info global (client-only) ──────────────────────────
+if (browser) {
+	const buildResult = getBuildInfo();
+	if (buildResult.ok) {
+		window.__STORYLYNE_BUILD__ = buildResult.data;
+	}
 }
 
 // Reactive debug service lifecycle — watches debugStore.debug.enabled

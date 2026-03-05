@@ -243,7 +243,7 @@ A floating Astro-style developer toolbar rendered at the bottom center of the vi
 | `DevToolbar.svelte` | `components/` | Root toolbar: trigger pill, expandable icon bar, panel management, keyboard shortcuts |
 | `DevToolbarFeatureFlags.svelte` | `components/` | Feature flags panel: Switch per flag, search filter, Enable/Disable All, badge count |
 | `DevToolbarAppState.svelte` | `components/` | App preferences panel: auto-mapped Select/Switch/Input controls per field type |
-| `DevToolbarDebug.svelte` | `components/` | Debug panel: log level, quick actions (Log State, Log Features, Copy Debug URL), URL overrides display |
+| `DevToolbarDebug.svelte` | `components/` | Debug panel: log level, quick actions, URL overrides, build info section with Copy Build Info |
 
 **Keyboard shortcuts:**
 - `Ctrl+Shift+D` — toggle toolbar visibility (also enables debug mode if inactive)
@@ -339,6 +339,35 @@ Key directives for Babylon.js compatibility: `wasm-unsafe-eval` (WebAssembly), `
 ### Dev Guard
 
 `hooks.server.ts` imports `dev` from `$app/environment` and splits headers into `BASE_HEADERS` (always applied) and `PROD_HEADERS` (production only). HSTS is the only prod-only header since it breaks localhost.
+
+## Build Info & Error Handling
+
+### Build-Time Metadata
+
+Vite `define` constants inject git and version info at compile time. The `BuildInfoSchema` (Valibot) validates these constants, and `getBuildInfo()` returns `Result<BuildInfo>`.
+
+| Constant | Source | Example |
+|----------|--------|---------|
+| `__APP_VERSION__` | `package.json` version | `0.1.0` |
+| `__GIT_COMMIT__` | `git rev-parse --short HEAD` | `abc1234` |
+| `__GIT_COMMIT_FULL__` | `git rev-parse HEAD` | `abc1234...` (40 chars) |
+| `__GIT_BRANCH__` | `git rev-parse --abbrev-ref HEAD` | `main` |
+| `__GIT_DIRTY__` | `git diff --quiet` exit code | `true` / `false` |
+| `__BUILD_TIMESTAMP__` | `new Date().toISOString()` | `2026-03-04T...` |
+
+**Window global:** `window.__STORYLYNE_BUILD__` is set in `+layout.svelte` on client init, exposing validated `BuildInfo` to browser devtools.
+
+**Response headers:** `handle` hook adds `X-App-Version` and `X-Git-Commit` to every response for debugging deployed instances.
+
+**SvelteKit version:** `kit.version.name` in `svelte.config.js` is set to the git commit hash for client-side cache invalidation.
+
+### Enhanced Error Logging
+
+Both `hooks.server.ts` and `hooks.client.ts` call `setupGlobalErrorHandling()` with ambient context (release, tags, serverName) so every `CapturedError` automatically carries build and environment metadata.
+
+**Server (`hooks.server.ts`):** Structured JSON logging via `logCapturedError` includes AppError fields (help, source, related), CapturedError fields (contexts, release, serverName), and request metadata (locale, userAgent, referer, searchParams, isDataRequest).
+
+**Client (`hooks.client.ts`):** Console group logging via `logErrorToConsole` renders Release/Server entries, Tags, User context, Contexts, Help suggestions, Source pointers, and Related errors in styled console output.
 
 ## Testing
 

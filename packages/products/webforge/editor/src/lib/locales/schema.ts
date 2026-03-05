@@ -99,6 +99,8 @@ export const EditorLocaleSchema = v.strictObject({
 		logFeatures: messageTemplate(),
 		copyDebugUrl: messageTemplate(),
 		urlOverrides: messageTemplate(),
+		buildInfo: messageTemplate(),
+		copyBuildInfo: messageTemplate(),
 		logLevelTrace: messageTemplate(),
 		logLevelDebug: messageTemplate(),
 		logLevelInfo: messageTemplate(),
@@ -130,6 +132,14 @@ export const EditorLocaleSchema = v.strictObject({
 			// Debug field labels
 			enabled: messageTemplate(),
 			logLevel: messageTemplate(),
+			// Build info labels
+			version: messageTemplate(),
+			commit: messageTemplate(),
+			branch: messageTemplate(),
+			dirty: messageTemplate(),
+			built: messageTemplate(),
+			dirtyYes: messageTemplate(),
+			dirtyNo: messageTemplate(),
 		}),
 	}),
 	errors: v.strictObject({

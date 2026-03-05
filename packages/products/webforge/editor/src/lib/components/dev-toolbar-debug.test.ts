@@ -86,4 +86,57 @@ describe('DevToolbarDebug', () => {
 		render(DevToolbarDebugOverridesTest);
 		expect(screen.getByText('URL Overrides')).toBeInTheDocument();
 	});
+
+	describe('Build Info section', () => {
+		it('renders "Build Info" section header', () => {
+			render(DevToolbarDebugTest);
+			expect(screen.getByText('Build Info')).toBeInTheDocument();
+		});
+
+		it('renders build-info section with data-testid', () => {
+			const { container } = render(DevToolbarDebugTest);
+			const section: HTMLElement | null = container.querySelector('[data-testid="build-info"]');
+			expect(section).toBeInTheDocument();
+		});
+
+		it('renders version value', () => {
+			const { container } = render(DevToolbarDebugTest);
+			const section: HTMLElement | null = container.querySelector('[data-testid="build-info"]');
+			expect(section).toBeInTheDocument();
+			expect(section?.textContent).toContain('Version');
+		});
+
+		it('renders commit value', () => {
+			const { container } = render(DevToolbarDebugTest);
+			const section: HTMLElement | null = container.querySelector('[data-testid="build-info"]');
+			expect(section).toBeInTheDocument();
+			expect(section?.textContent).toContain('Commit');
+		});
+
+		it('renders branch value', () => {
+			const { container } = render(DevToolbarDebugTest);
+			const section: HTMLElement | null = container.querySelector('[data-testid="build-info"]');
+			expect(section).toBeInTheDocument();
+			expect(section?.textContent).toContain('Branch');
+		});
+
+		it('renders dirty value', () => {
+			const { container } = render(DevToolbarDebugTest);
+			const section: HTMLElement | null = container.querySelector('[data-testid="build-info"]');
+			expect(section).toBeInTheDocument();
+			expect(section?.textContent).toContain('Dirty');
+		});
+
+		it('renders built timestamp', () => {
+			const { container } = render(DevToolbarDebugTest);
+			const section: HTMLElement | null = container.querySelector('[data-testid="build-info"]');
+			expect(section).toBeInTheDocument();
+			expect(section?.textContent).toContain('Built');
+		});
+
+		it('renders "Copy Build Info" button', () => {
+			render(DevToolbarDebugTest);
+			expect(screen.getByText('Copy Build Info')).toBeInTheDocument();
+		});
+	});
 });

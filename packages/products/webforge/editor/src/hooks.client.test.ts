@@ -226,6 +226,135 @@ describe('handleError', () => {
 		vi.restoreAllMocks();
 	});
 
+	it('logs Release entry when captured.release is present', async () => {
+		vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+		const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+		callHandleError({
+			error: new Error('crash'),
+			status: 500,
+			message: 'Error',
+		});
+
+		await flushAsync();
+
+		// The key-value block should include Release (from ambient options)
+		const [kvCall] = logSpy.mock.calls;
+		expect(kvCall[0]).toContain('Release');
+		expect(kvCall).toContain('0.0.0-test');
+
+		vi.restoreAllMocks();
+	});
+
+	it('logs Tags section when captured.tags has entries', async () => {
+		vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+		const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+		callHandleError({
+			error: new Error('crash'),
+			status: 500,
+			message: 'Error',
+		});
+
+		await flushAsync();
+
+		// Should log a Tags: section (from ambient tags)
+		expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Tags'), expect.any(String));
+
+		vi.restoreAllMocks();
+	});
+
+	it('logs Help when appError.help is present', async () => {
+		vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+		const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+		const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
+			help: 'Check the field format',
+		});
+		if (result.ok) throw new Error('err() should return error');
+
+		callHandleError({
+			error: result.error,
+			status: 400,
+			message: 'Bad Request',
+		});
+
+		await flushAsync();
+
+		expect(logSpy).toHaveBeenCalledWith(
+			expect.stringContaining('Help'),
+			expect.any(String),
+			expect.any(String),
+			'Check the field format',
+		);
+
+		vi.restoreAllMocks();
+	});
+
+	it('logs Source pointer when appError.source is present', async () => {
+		vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+		const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+		const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
+			source: { pointer: '/data/email', parameter: 'email' },
+		});
+		if (result.ok) throw new Error('err() should return error');
+
+		callHandleError({
+			error: result.error,
+			status: 400,
+			message: 'Bad Request',
+		});
+
+		await flushAsync();
+
+		expect(logSpy).toHaveBeenCalledWith(
+			expect.stringContaining('Source pointer'),
+			expect.any(String),
+		);
+
+		vi.restoreAllMocks();
+	});
+
+	it('logs Related errors when appError.related has entries', async () => {
+		vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+		const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+		const related1 = err(ERRORS.VALIDATION.MISSING_FIELD, 'Missing name');
+		const related2 = err(ERRORS.VALIDATION.INVALID_FORMAT, 'Bad email');
+		if (related1.ok || related2.ok) throw new Error('err() should return error');
+
+		const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Multiple issues', {
+			related: [related1.error, related2.error],
+		});
+		if (result.ok) throw new Error('err() should return error');
+
+		callHandleError({
+			error: result.error,
+			status: 400,
+			message: 'Bad Request',
+		});
+
+		await flushAsync();
+
+		expect(logSpy).toHaveBeenCalledWith(
+			expect.stringContaining('Related errors'),
+			expect.any(String),
+		);
+
+		vi.restoreAllMocks();
+	});
+
 	it('logs cause chain when AppError has causes', async () => {
 		vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
 		vi.spyOn(console, 'error').mockImplementation(() => {});

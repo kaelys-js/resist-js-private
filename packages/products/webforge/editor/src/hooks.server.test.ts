@@ -124,19 +124,46 @@ describe('hooks.server handle', () => {
  * Creates a mock RequestEvent with a stubbed setHeaders method for testing handleError.
  *
  * @param pathname - URL pathname for the mock request
+ * @param overrides - Optional overrides for locale, userAgent, referer, searchParams, isDataRequest
  * @returns Mock event and setHeaders spy
  */
-function createMockErrorEvent(pathname = '/test-page'): {
+function createMockErrorEvent(
+	pathname = '/test-page',
+	overrides?: {
+		locale?: string;
+		userAgent?: string;
+		referer?: string;
+		searchParams?: Record<string, string>;
+		isDataRequest?: boolean;
+	},
+): {
 	event: RequestEvent;
 	setHeaders: ReturnType<typeof vi.fn>;
 } {
 	const setHeaders = vi.fn();
+	const url = new URL(`http://localhost${pathname}`);
+	if (overrides?.searchParams) {
+		for (const [k, v] of Object.entries(overrides.searchParams)) {
+			url.searchParams.set(k, v);
+		}
+	}
+	const headerMap: Record<string, string | null> = {
+		'user-agent': overrides?.userAgent ?? null,
+		referer: overrides?.referer ?? null,
+	};
 	return {
 		event: {
 			setHeaders,
-			url: new URL(`http://localhost${pathname}`),
-			request: { method: 'GET', headers: { get: () => null } },
+			url,
+			request: {
+				method: 'GET',
+				headers: {
+					get: (name: string): string | null => headerMap[name] ?? null,
+				},
+			},
 			route: { id: pathname },
+			locals: { locale: overrides?.locale ?? 'en' },
+			isDataRequest: overrides?.isDataRequest ?? false,
 		} as unknown as RequestEvent,
 		setHeaders,
 	};
@@ -153,11 +180,22 @@ function callServerHandleError(params: {
 	status: number;
 	message: string;
 	pathname?: string;
+	locale?: string;
+	userAgent?: string;
+	referer?: string;
+	searchParams?: Record<string, string>;
+	isDataRequest?: boolean;
 }): {
 	result: App.Error;
 	setHeaders: ReturnType<typeof vi.fn>;
 } {
-	const { event, setHeaders } = createMockErrorEvent(params.pathname);
+	const { event, setHeaders } = createMockErrorEvent(params.pathname, {
+		locale: params.locale,
+		userAgent: params.userAgent,
+		referer: params.referer,
+		searchParams: params.searchParams,
+		isDataRequest: params.isDataRequest,
+	});
 	const returned = handleError({
 		error: params.error,
 		event,
@@ -427,5 +465,122 @@ describe('handleError', () => {
 		expect(data.fatal).toBe(false);
 		expect(data.fingerprint).toBeDefined();
 		spy.mockRestore();
+	});
+
+	it('includes locale, userAgent, referer, searchParams, and isDataRequest in meta', () => {
+		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		callServerHandleError({
+			error: new Error('crash'),
+			status: 500,
+			message: 'Error',
+			pathname: '/api/test',
+			locale: 'ja',
+			userAgent: 'Mozilla/5.0',
+			referer: 'http://localhost/previous',
+			searchParams: { page: '2', sort: 'asc' },
+			isDataRequest: true,
+		});
+		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
+		const parsed: Record<string, unknown> = JSON.parse(logOutput);
+		const data = parsed.data as Record<string, unknown>;
+		const errorMeta = data.errorMeta as Record<string, unknown>;
+		expect(errorMeta.locale).toBe('ja');
+		expect(errorMeta.userAgent).toBe('Mozilla/5.0');
+		expect(errorMeta.referer).toBe('http://localhost/previous');
+		expect(errorMeta.searchParams).toEqual({ page: '2', sort: 'asc' });
+		expect(errorMeta.isDataRequest).toBe(true);
+		spy.mockRestore();
+	});
+});
+
+describe('enhanced logCapturedError fields', () => {
+	it('logs help when present on AppError', () => {
+		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
+			help: 'Check field format',
+		});
+		if (result.ok) throw new Error('err() should return error');
+		callServerHandleError({
+			error: result.error,
+			status: 400,
+			message: 'Bad Request',
+		});
+		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
+		const parsed: Record<string, unknown> = JSON.parse(logOutput);
+		const data = parsed.data as Record<string, unknown>;
+		expect(data.help).toBe('Check field format');
+		spy.mockRestore();
+	});
+
+	it('logs source when present on AppError', () => {
+		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
+			source: { pointer: '/data/email', parameter: 'email' },
+		});
+		if (result.ok) throw new Error('err() should return error');
+		callServerHandleError({
+			error: result.error,
+			status: 400,
+			message: 'Bad Request',
+		});
+		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
+		const parsed: Record<string, unknown> = JSON.parse(logOutput);
+		const data = parsed.data as Record<string, unknown>;
+		expect(data.source).toBeDefined();
+		// Note: data.source is the extractSource() source, and data.errorSource is the appError.source
+		expect(data.errorSource).toEqual({ pointer: '/data/email', parameter: 'email' });
+		spy.mockRestore();
+	});
+
+	it('logs related errors when present on AppError', () => {
+		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const related1 = err(ERRORS.VALIDATION.MISSING_FIELD, 'Field too long');
+		const related2 = err(ERRORS.VALIDATION.INVALID_FORMAT, 'Bad format');
+		if (related1.ok || related2.ok) throw new Error('err() should return error');
+		const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Multiple issues', {
+			related: [related1.error, related2.error],
+		});
+		if (result.ok) throw new Error('err() should return error');
+		callServerHandleError({
+			error: result.error,
+			status: 400,
+			message: 'Bad Request',
+		});
+		const logOutput: string = spy.mock.calls[0]?.[0] ?? '';
+		const parsed: Record<string, unknown> = JSON.parse(logOutput);
+		const data = parsed.data as Record<string, unknown>;
+		expect(data.related).toBeDefined();
+		const related = data.related as Array<{ code: string; message: string }>;
+		expect(related).toHaveLength(2);
+		expect(related[0]?.code).toBe('VALIDATION.MISSING_FIELD');
+		expect(related[1]?.code).toBe('VALIDATION.INVALID_FORMAT');
+		spy.mockRestore();
+	});
+});
+
+describe('response headers', () => {
+	async function getResponseFromHandle(
+		cookie: string,
+		acceptLanguage: string | null,
+		pathname = '/',
+	): Promise<Response> {
+		const event = mockEvent(cookie, acceptLanguage, pathname);
+		const { resolve } = mockResolve();
+		const response = await handle({ event, resolve });
+		return response as Response;
+	}
+
+	it('sets X-App-Version header', async () => {
+		const response: Response = await getResponseFromHandle('en', null);
+		const version: string | null = response.headers.get('X-App-Version');
+		expect(version).toBeTruthy();
+		expect(typeof version).toBe('string');
+	});
+
+	it('sets X-Git-Commit header', async () => {
+		const response: Response = await getResponseFromHandle('en', null);
+		const commit: string | null = response.headers.get('X-Git-Commit');
+		expect(commit).toBeTruthy();
+		expect(typeof commit).toBe('string');
 	});
 });

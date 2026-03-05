@@ -1,5 +1,6 @@
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import { execSync } from 'node:child_process';
 import path from 'node:path';
 
 // TODO: Proper Commenting
@@ -36,10 +37,27 @@ const csp = isDev
 			},
 		};
 
+/**
+ * Short git commit hash for SvelteKit version tracking.
+ * Used by `kit.version.name` for client-side cache invalidation.
+ *
+ * @type {string}
+ */
+const gitCommit = (() => {
+	try {
+		return execSync('git rev-parse --short HEAD').toString().trim();
+	} catch {
+		return 'unknown';
+	}
+})();
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	preprocess: vitePreprocess(),
 	kit: {
+		version: {
+			name: gitCommit,
+		},
 		adapter: adapter({
 			pages: 'dist',
 			assets: 'dist',

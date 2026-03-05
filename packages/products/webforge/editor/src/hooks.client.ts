@@ -8,6 +8,8 @@ import { fromUnknownError } from '@/utils/result/safe';
 
 setupLogging({ service: 'editor-client', initFromEnv: true });
 setupGlobalErrorHandling({
+	release: __APP_VERSION__,
+	tags: { branch: __GIT_BRANCH__, side: 'client' },
 	onError: (captured) => {
 		// Async fire-and-forget — resolves source maps before logging.
 		// logErrorToConsole never rejects (internal try-catch), safe to ignore promise.
@@ -384,6 +386,12 @@ async function logErrorToConsole(captured: CapturedError): Promise<void> {
 	if (captured.fingerprint) {
 		entries.push(['Fingerprint', captured.fingerprint.join(', ')]);
 	}
+	if (captured.release) {
+		entries.push(['Release', captured.release]);
+	}
+	if (captured.serverName) {
+		entries.push(['Server', captured.serverName]);
+	}
 	const fmt: string = entries.map(([k]) => `%c  ${k.padEnd(pad)}%c%s`).join('\n');
 	const kvArgs: string[] = entries.flatMap(([, v]) => [dim, bright, v]);
 	// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
@@ -403,6 +411,54 @@ async function logErrorToConsole(captured: CapturedError): Promise<void> {
 		console.log('%cBreadcrumbs:', 'color: #666; font-style: italic');
 		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log(captured.breadcrumbs);
+	}
+
+	// Tags
+	if (captured.tags && Object.keys(captured.tags).length > 0) {
+		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
+		console.log('%cTags:', 'color: #666; font-style: italic');
+		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
+		console.log(captured.tags);
+	}
+
+	// User context
+	if (captured.user) {
+		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
+		console.log('%cUser:', 'color: #666; font-style: italic');
+		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
+		console.log(captured.user);
+	}
+
+	// Structured contexts
+	if (captured.contexts && Object.keys(captured.contexts).length > 0) {
+		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
+		console.log('%cContexts:', 'color: #666; font-style: italic');
+		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
+		console.log(captured.contexts);
+	}
+
+	// Help suggestion
+	if (appError.help) {
+		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
+		console.log('%cHelp: %c%s', 'color: #666; font-style: italic', 'color: #6c6', appError.help);
+	}
+
+	// Error source pointer
+	if (appError.source) {
+		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
+		console.log('%cSource pointer:', 'color: #666; font-style: italic');
+		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
+		console.log(appError.source);
+	}
+
+	// Related errors
+	if (appError.related && appError.related.length > 0) {
+		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
+		console.log('%cRelated errors:', 'color: #666; font-style: italic');
+		for (const rel of appError.related) {
+			// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
+			console.log(`  [${rel.code}] ${rel.message}`);
+		}
 	}
 
 	// Raw error object
