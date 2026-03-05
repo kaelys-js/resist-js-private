@@ -34,7 +34,7 @@ test.describe('head meta — normal page (/)', () => {
 
 	test('title includes app name, breadcrumb, and tagline', async ({ page }) => {
 		await page.goto('/');
-		await expect(page).toHaveTitle('Storyline - Scene - Your Story, Rendered');
+		await expect(page).toHaveTitle('Storylyne - Scene - Your Story, Rendered');
 	});
 
 	test('description contains tagline', async ({ page }) => {
@@ -43,10 +43,10 @@ test.describe('head meta — normal page (/)', () => {
 		await expect(description).toHaveAttribute('content', /Your Story, Rendered/);
 	});
 
-	test('application-name is Storyline', async ({ page }) => {
+	test('application-name is Storylyne', async ({ page }) => {
 		await page.goto('/');
 		const appName = page.locator('meta[name="application-name"]');
-		await expect(appName).toHaveAttribute('content', 'Storyline');
+		await expect(appName).toHaveAttribute('content', 'Storylyne');
 	});
 
 	test('theme-color light is #ffffff', async ({ page }) => {
@@ -65,10 +65,10 @@ test.describe('head meta — normal page (/)', () => {
 		await expect(themeColor).toHaveAttribute('content', '#242424');
 	});
 
-	test('og:title is Storyline', async ({ page }) => {
+	test('og:title is Storylyne', async ({ page }) => {
 		await page.goto('/');
 		const ogTitle = page.locator('meta[property="og:title"]');
-		await expect(ogTitle).toHaveAttribute('content', 'Storyline');
+		await expect(ogTitle).toHaveAttribute('content', 'Storylyne');
 	});
 
 	test('og:description contains tagline', async ({ page }) => {
@@ -133,10 +133,10 @@ test.describe('head meta — normal page (/)', () => {
 		await expect(meta).toHaveAttribute('content', 'default');
 	});
 
-	test('apple-mobile-web-app-title is Storyline', async ({ page }) => {
+	test('apple-mobile-web-app-title is Storylyne', async ({ page }) => {
 		await page.goto('/');
 		const meta = page.locator('meta[name="apple-mobile-web-app-title"]');
-		await expect(meta).toHaveAttribute('content', 'Storyline');
+		await expect(meta).toHaveAttribute('content', 'Storylyne');
 	});
 });
 
@@ -215,9 +215,9 @@ test.describe('head meta — error page (/test-error/404)', () => {
 		await expect(robots).toHaveAttribute('content', /nofollow/);
 	});
 
-	test('title includes error text and Storyline', async ({ page }) => {
+	test('title includes error text and Storylyne', async ({ page }) => {
 		await page.goto('/test-error/404');
-		await expect(page).toHaveTitle(/Storyline.*Page not found.*Your Story, Rendered/i);
+		await expect(page).toHaveTitle(/Storylyne.*Page not found.*Your Story, Rendered/i);
 	});
 
 	test('description is inherited from layout', async ({ page }) => {
@@ -229,7 +229,7 @@ test.describe('head meta — error page (/test-error/404)', () => {
 	test('application-name is inherited from layout', async ({ page }) => {
 		await page.goto('/test-error/404');
 		const appName = page.locator('meta[name="application-name"]');
-		await expect(appName).toHaveAttribute('content', 'Storyline');
+		await expect(appName).toHaveAttribute('content', 'Storylyne');
 	});
 
 	test('theme-color light is #ffffff', async ({ page }) => {
@@ -248,10 +248,10 @@ test.describe('head meta — error page (/test-error/404)', () => {
 		await expect(themeColor).toHaveAttribute('content', '#242424');
 	});
 
-	test('og:title is Storyline', async ({ page }) => {
+	test('og:title is Storylyne', async ({ page }) => {
 		await page.goto('/test-error/404');
 		const ogTitle = page.locator('meta[property="og:title"]');
-		await expect(ogTitle).toHaveAttribute('content', 'Storyline');
+		await expect(ogTitle).toHaveAttribute('content', 'Storylyne');
 	});
 
 	test('og:description is inherited from layout', async ({ page }) => {
@@ -310,9 +310,9 @@ test.describe('head meta — error page (/test-error/404)', () => {
 		await expect(meta).toHaveAttribute('content', 'default');
 	});
 
-	test('apple-mobile-web-app-title is Storyline', async ({ page }) => {
+	test('apple-mobile-web-app-title is Storylyne', async ({ page }) => {
 		await page.goto('/test-error/404');
 		const meta = page.locator('meta[name="apple-mobile-web-app-title"]');
-		await expect(meta).toHaveAttribute('content', 'Storyline');
+		await expect(meta).toHaveAttribute('content', 'Storylyne');
 	});
 });

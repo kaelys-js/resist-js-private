@@ -107,6 +107,7 @@ for size in "${MASKABLE_SIZES[@]}"; do
 
   magick -size "${size}x${size}" "xc:${MASKABLE_BG}" \
     "$TEMP_CRYSTAL" -gravity center -composite \
+    -strip \
     "$STATIC_DIR/$filename"
 done
 

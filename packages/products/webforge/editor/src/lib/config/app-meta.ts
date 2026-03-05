@@ -12,8 +12,8 @@ import type { SUPPORTED_THEMES } from '$lib/schemas/editor-state';
 
 // ── App identity ─────────────────────────────────────────────────────────────
 
-export const APP_NAME = 'Storyline';
-export const APP_SHORT_NAME = 'Storyline';
+export const APP_NAME = 'Storylyne';
+export const APP_SHORT_NAME = 'Storylyne';
 export const APP_TAGLINE = 'Your Story, Rendered';
 export const APP_DESCRIPTION = 'Your Story, Rendered';
 export const APP_ID = '/';
@@ -37,7 +37,8 @@ export const STORAGE_PREFIX = 'app';
  * storageKey('editor-state') // 'app:editor-state'
  * storageKey('mode')         // 'app:mode'
  */
-export function storageKey(suffix: string): string { // TODO: Proper Valibot Types + Result System
+export function storageKey(suffix: string): string {
+	// TODO: Proper Valibot Types + Result System
 	return `${STORAGE_PREFIX}:${suffix}`;
 }
 
@@ -54,7 +55,8 @@ type ThemeColorEntry = { readonly light: string; readonly dark: string }; // TOD
  *
  * oklch → hex conversions computed offline (see design doc for values).
  */
-export const THEME_COLORS: Record<(typeof SUPPORTED_THEMES)[number], ThemeColorEntry> = { // TODO: Proper Valibot Schema
+export const THEME_COLORS: Record<(typeof SUPPORTED_THEMES)[number], ThemeColorEntry> = {
+	// TODO: Proper Valibot Schema
 	'': { light: '#ffffff', dark: '#242424' },
 	midnight: { light: '#ffffff', dark: '#1a1f2e' },
 	warm: { light: '#ffffff', dark: '#2a2420' },
@@ -72,7 +74,8 @@ export const THEME_COLORS: Record<(typeof SUPPORTED_THEMES)[number], ThemeColorE
 // ── Icons ────────────────────────────────────────────────────────────────────
 // Must match the files in static/. Shared by manifest route and meta tags.
 
-type IconEntry = { // TODO: Proper Valibot Schema
+type IconEntry = {
+	// TODO: Proper Valibot Schema
 	readonly src: string;
 	readonly sizes: string;
 	readonly type: string;
@@ -97,7 +100,8 @@ export const FONT_FAMILIES =
 /** CSS font-family stack for display/accent text (Rajdhani). */
 export const FONT_DISPLAY_FAMILIES = "'Rajdhani', ui-sans-serif, system-ui, sans-serif";
 
-type FontFaceEntry = { // TODO: Proper Valibot Schema
+type FontFaceEntry = {
+	// TODO: Proper Valibot Schema
 	readonly family: string;
 	readonly style: string;
 	readonly weight: string;

@@ -44,7 +44,8 @@ const FF_PREFIX = 'ff.';
  * isValidAppKey('unknown'); // false
  * ```
  */
-export function isValidAppKey(key: string): boolean { // TODO: Valibot Type + Result System
+export function isValidAppKey(key: string): boolean {
+	// TODO: Valibot Type + Result System
 	return APP_KEYS.has(key);
 }
 
@@ -61,7 +62,8 @@ export function isValidAppKey(key: string): boolean { // TODO: Valibot Type + Re
  * isValidFeatureFlag('unknown'); // false
  * ```
  */
-export function isValidFeatureFlag(key: string): boolean { // TODO: Valibot Type + Result System
+export function isValidFeatureFlag(key: string): boolean {
+	// TODO: Valibot Type + Result System
 	return FEATURE_FLAG_KEYS.has(key);
 }
 

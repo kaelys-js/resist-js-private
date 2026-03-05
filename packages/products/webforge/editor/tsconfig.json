@@ -9,25 +9,6 @@
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
-		"moduleResolution": "bundler",
-		"baseUrl": "../../../..",
-		"paths": {
-			"@/schemas/common": ["packages/shared/schemas/common/src/index.ts"],
-			"@/schemas/result": ["packages/shared/schemas/result/src/result.ts"],
-			"@/schemas/result/*": ["packages/shared/schemas/result/src/*.ts"],
-			"@/schemas/function": ["packages/shared/schemas/function/src/function.ts"],
-			"@/schemas/function/*": ["packages/shared/schemas/function/src/*.ts"],
-			"@/schemas/generic/*": ["packages/shared/schemas/generic/src/*.ts"],
-			"@/utils/result/*": ["packages/shared/utils/result/src/*.ts"],
-			"@/utils/core": ["packages/shared/utils/core/src/index.ts"],
-			"@/utils/core/*": ["packages/shared/utils/core/src/*.ts"],
-			"@/locale/svelte": ["packages/shared/locale/src/svelte.svelte.ts"],
-			"@/locale/*": ["packages/shared/locale/src/*.ts"],
-			"@/config/test/*": ["packages/shared/config/test/src/*.ts"],
-			"@/config/test/harness": ["packages/shared/config/test/src/harness/index.ts"],
-			"@/config/test/harness/*": ["packages/shared/config/test/src/harness/*.ts"],
-			"$lib": ["packages/products/webforge/editor/src/lib"],
-			"$lib/*": ["packages/products/webforge/editor/src/lib/*"]
-		}
+		"moduleResolution": "bundler"
 	}
 }

@@ -90,7 +90,7 @@ var failed = '{{errors.copyFailed}}';
 
 	it('inserts APP_NAME from app-meta', () => {
 		const result = resolveErrorHtml(TEMPLATE);
-		expect(result).toContain('Storyline');
+		expect(result).toContain('Storylyne');
 	});
 
 	it('inserts font-family stack', () => {
@@ -151,9 +151,9 @@ describe('resolveAppHtml', () => {
 		expect(result).not.toContain('{{APP_NAME}}');
 	});
 
-	it('inserts Storyline from app-meta', () => {
+	it('inserts Storylyne from app-meta', () => {
 		const result = resolveAppHtml(APP_TEMPLATE);
-		expect(result).toContain('content="Storyline"');
-		expect(result).toContain("'[Storyline]");
+		expect(result).toContain('content="Storylyne"');
+		expect(result).toContain("'[Storylyne]");
 	});
 });

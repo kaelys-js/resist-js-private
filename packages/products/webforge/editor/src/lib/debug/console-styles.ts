@@ -47,7 +47,8 @@ export const styles = {
  * formatTimestamp(); // "14:30:45.123"
  * ```
  */
-export function formatTimestamp(): string { // TODO: Valibot Type + Result System
+export function formatTimestamp(): string {
+	// TODO: Valibot Type + Result System
 	const now: Date = new Date();
 	const h: string = String(now.getHours()).padStart(2, '0');
 	const m: string = String(now.getMinutes()).padStart(2, '0');

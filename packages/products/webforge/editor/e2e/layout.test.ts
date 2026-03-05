@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('layout', () => {
 	test('page loads with correct title', async ({ page }) => {
 		await page.goto('/');
-		await expect(page).toHaveTitle('Storyline - Scene - Your Story, Rendered');
+		await expect(page).toHaveTitle('Storylyne - Scene - Your Story, Rendered');
 	});
 
 	test('sidebar is visible on desktop', async ({ page }) => {
