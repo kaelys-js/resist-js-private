@@ -175,7 +175,7 @@ export function applyUrlOverrides(
 		// Unknown key — warn so typos are caught (e.g., wf.logLesel instead of wf.logLevel)
 		// eslint-disable-next-line no-console -- Intentional debug warning for bad URL params
 		console.warn(
-			`[Editor] Unknown URL override: wf.${key}=${value} — valid: debug, logLevel, ${[...Object.keys(APP_SETTER_MAP)].join(', ')}, ff.<flag>`,
+			`[Editor] Unknown URL override: wf.${key}=${value} — valid: debug, logLevel, ${Object.keys(APP_SETTER_MAP).join(', ')}, ff.<flag>`,
 		);
 	}
 

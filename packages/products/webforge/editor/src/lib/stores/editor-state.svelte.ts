@@ -296,11 +296,11 @@ function setUserAvatar(url: string): Result<Void> {
 /**
  * Sets the mock data delay in milliseconds.
  *
- * @param ms - Delay in milliseconds (0–10000)
+ * @param ms - Delay in milliseconds (0–10_000)
  * @returns `Result<Void>` — error if value is out of range
  */
 function setMockDataDelay(ms: number): Result<Void> {
-	const msSchema = v.pipe(v.number(), v.minValue(0), v.maxValue(10000));
+	const msSchema = v.pipe(v.number(), v.minValue(0), v.maxValue(10_000));
 	const result = safeParse(msSchema, ms);
 	if (!result.ok) return result;
 

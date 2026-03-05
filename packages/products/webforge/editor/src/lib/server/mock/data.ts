@@ -27,7 +27,7 @@ export const MOCK_PROJECT: ServerProject = {
 };
 
 /** Mock scenes matching the original hardcoded sidebar data. */
-export const MOCK_SCENES: ReadonlyArray<ServerScene> = [
+export const MOCK_SCENES: readonly ServerScene[] = [
 	{ id: 'scene-001', title: 'Overworld', url: '#overworld', isActive: true, order: 0 },
 	{ id: 'scene-002', title: 'Town Interior', url: '#town-interior', isActive: false, order: 1 },
 	{ id: 'scene-003', title: 'Dungeon B1', url: '#dungeon-b1', isActive: false, order: 2 },
