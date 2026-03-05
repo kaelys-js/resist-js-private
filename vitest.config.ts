@@ -1,7 +1,10 @@
+import path from 'node:path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { svelteTesting } from '@testing-library/svelte/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
+
+const editorSrc = path.resolve(import.meta.dirname, 'packages/products/webforge/editor/src');
 
 export default defineConfig({
 	plugins: [tsconfigPaths()],
@@ -119,11 +122,9 @@ export default defineConfig({
 					globals: true,
 					setupFiles: ['./src/test-setup-component.ts'],
 					alias: {
-						$lib: 'packages/products/webforge/editor/src/lib',
-						'$lib/*': 'packages/products/webforge/editor/src/lib/*',
-						'$app/environment':
-							'packages/products/webforge/editor/src/test-mocks/app-environment.ts',
-						'$app/state': 'packages/products/webforge/editor/src/test-mocks/app-state.ts',
+						$lib: path.join(editorSrc, 'lib'),
+						'$app/environment': path.join(editorSrc, 'test-mocks/app-environment.ts'),
+						'$app/state': path.join(editorSrc, 'test-mocks/app-state.ts'),
 					},
 					server: {
 						deps: {
