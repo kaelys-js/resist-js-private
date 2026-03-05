@@ -19,8 +19,8 @@ import type { Str } from '@/schemas/common';
  * @example
  * const result = safeParse(ServerUserSchema, {
  *     id: 'user-001',
- *     displayName: 'Coleb',
- *     email: 'coleb@example.com',
+ *     displayName: 'Test User',
+ *     email: 'test-user@example.com',
  *     avatarUrl: 'https://example.com/avatar.png',
  * });
  */
@@ -42,8 +42,8 @@ export type ServerUser = v.InferOutput<typeof ServerUserSchema>;
  * @example
  * const result = safeParse(ServerProjectSchema, {
  *     id: 'proj-001',
- *     name: 'My First RPG',
- *     subtitle: 'An HD-2D Adventure',
+ *     name: 'Sample Project',
+ *     subtitle: 'Sample Project Description',
  *     ownerId: 'user-001',
  * });
  */

@@ -36,14 +36,13 @@ describe('SiteHeader feature flags', () => {
 	// --- breadcrumb ---
 	it('renders breadcrumb when breadcrumb flag is enabled (default)', () => {
 		render(SiteHeaderFlagsTest);
-		expect(screen.getByText('Home')).toBeInTheDocument();
-		expect(screen.getByText('Scene')).toBeInTheDocument();
+		expect(screen.getAllByText('Home').length).toBeGreaterThanOrEqual(1);
 	});
 
 	it('hides breadcrumb when breadcrumb flag is disabled', () => {
 		render(SiteHeaderFlagsTest, { props: { disabledFlags: ['breadcrumb'] } });
-		expect(screen.queryByText('Home')).not.toBeInTheDocument();
-		expect(screen.queryByText('Scene')).not.toBeInTheDocument();
+		const homeLinks: HTMLElement[] = screen.queryAllByText('Home');
+		expect(homeLinks.length).toBe(0);
 	});
 
 	// --- sidebarToggle ---

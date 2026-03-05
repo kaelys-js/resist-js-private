@@ -53,8 +53,8 @@ test.describe('header user dropdown', () => {
 		// User label with name and email — use toContainText on the label div
 		const label = content.locator('[data-slot="dropdown-menu-label"]');
 		await expect(label).toBeVisible();
-		await expect(label).toContainText('Coleb');
-		await expect(label).toContainText('coleb@example.com');
+		await expect(label).toContainText('Test User');
+		await expect(label).toContainText('test-user@example.com');
 	});
 
 	test('all 7 menu items visible in dropdown', async ({ page }) => {

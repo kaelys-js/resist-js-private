@@ -49,7 +49,7 @@ test.describe('mobile sidebar — open/close/toggle', () => {
 		await expect(mobileSidebar.getByText('Overworld')).toBeVisible();
 
 		// Footer
-		await expect(mobileSidebar.getByText('My First RPG')).toBeVisible();
+		await expect(mobileSidebar.getByText('Sample Project')).toBeVisible();
 	});
 
 	test('clicking overlay closes mobile sidebar', async ({ page }) => {
@@ -91,9 +91,9 @@ test.describe('mobile sidebar — open/close/toggle', () => {
 		const header = page.locator('header');
 		await expect(header).toBeVisible();
 
-		// On mobile, only the leaf breadcrumb "Scene" is visible
-		// ("Editor" breadcrumb has class="hidden md:block")
-		await expect(header.getByText('Scene')).toBeVisible();
+		// On mobile, only the leaf breadcrumb (active scene name) is visible
+		// ("Home" breadcrumb has class="hidden md:block")
+		await expect(header.getByText('Overworld')).toBeVisible();
 	});
 });
 

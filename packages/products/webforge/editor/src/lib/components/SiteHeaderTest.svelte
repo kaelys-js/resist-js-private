@@ -2,7 +2,7 @@
 import TestProviders from './TestProviders.svelte';
 import SiteHeader from './SiteHeader.svelte';
 
-let { isError = false }: { isError?: boolean } = $props();
+let { isError = false, activeSceneName = '' }: { isError?: boolean; activeSceneName?: string } = $props();
 
 const user = {
 	id: 'user-1',
@@ -13,5 +13,5 @@ const user = {
 </script>
 
 <TestProviders>
-	<SiteHeader {isError} {user} />
+	<SiteHeader {isError} {user} {activeSceneName} />
 </TestProviders>

@@ -135,6 +135,7 @@ export const EditorLocaleSchema = v.strictObject({
 			languageSelection: messageTemplate(),
 			modeToggle: messageTemplate(),
 			sidebar: messageTemplate(),
+			sidebarHome: messageTemplate(),
 			sceneList: messageTemplate(),
 			resizableSidebar: messageTemplate(),
 			breadcrumb: messageTemplate(),
@@ -166,6 +167,7 @@ export const EditorLocaleSchema = v.strictObject({
 			userName: messageTemplate(),
 			userEmail: messageTemplate(),
 			userAvatar: messageTemplate(),
+			mockDataDelay: messageTemplate(),
 			// Debug field labels
 			enabled: messageTemplate(),
 			logLevel: messageTemplate(),

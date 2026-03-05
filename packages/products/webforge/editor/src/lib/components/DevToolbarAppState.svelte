@@ -160,6 +160,20 @@ function optionLabel(key: string, value: string): string {
 						</Popover.Content>
 					</Popover.Root>
 				</div>
+			{:else if pref.type === 'number'}
+				<div class="flex items-center justify-between gap-3">
+					<Label class="text-xs shrink-0" for="pref-{pref.key}">
+						{labelFor(pref.key)}
+					</Label>
+					<Input
+						id="pref-{pref.key}"
+						type="number"
+						value={String(currentValue)}
+						placeholder="0"
+						class="h-8 text-xs w-36"
+						oninput={(e: Event) => callSetter(pref.key, Number((e.target as HTMLInputElement).value) || 0)}
+					/>
+				</div>
 			{:else}
 				<div class="flex items-center justify-between gap-3">
 					<Label class="text-xs shrink-0" for="pref-{pref.key}">
@@ -168,6 +182,7 @@ function optionLabel(key: string, value: string): string {
 					<Input
 						id="pref-{pref.key}"
 						value={String(currentValue)}
+						placeholder={pref.key === 'userAvatar' ? 'https://...' : ''}
 						class="h-8 text-xs w-36"
 						oninput={(e: Event) => callSetter(pref.key, (e.target as HTMLInputElement).value)}
 					/>

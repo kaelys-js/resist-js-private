@@ -20,6 +20,7 @@ describe('AppPreferencesSchema', () => {
 		expect(prefs.mode).toBe('system');
 		expect(prefs.locale).toBe('en');
 		expect(prefs.sidebarOpen).toBe(true);
+		expect(prefs.mockDataDelay).toBe(0);
 	});
 
 	it('accepts full valid object', () => {
@@ -29,6 +30,7 @@ describe('AppPreferencesSchema', () => {
 			mode: 'dark',
 			locale: 'ja',
 			sidebarOpen: false,
+			mockDataDelay: 500,
 		});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
@@ -37,6 +39,7 @@ describe('AppPreferencesSchema', () => {
 		expect(result.data.mode).toBe('dark');
 		expect(result.data.locale).toBe('ja');
 		expect(result.data.sidebarOpen).toBe(false);
+		expect(result.data.mockDataDelay).toBe(500);
 	});
 
 	it('rejects invalid theme value', () => {
@@ -100,6 +103,7 @@ describe('FeatureFlagsSchema', () => {
 		expect(flags.languageSelection).toBe(true);
 		expect(flags.modeToggle).toBe(true);
 		expect(flags.sidebar).toBe(true);
+		expect(flags.sidebarHome).toBe(true);
 		expect(flags.sceneList).toBe(true);
 		expect(flags.resizableSidebar).toBe(true);
 		expect(flags.breadcrumb).toBe(true);
@@ -115,11 +119,11 @@ describe('FeatureFlagsSchema', () => {
 		expect(flags.skeletonLoading).toBe(true);
 	});
 
-	it('has exactly 27 flag keys', () => {
+	it('has exactly 28 flag keys', () => {
 		const result = safeParse(FeatureFlagsSchema, {});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(Object.keys(result.data)).toHaveLength(27);
+		expect(Object.keys(result.data)).toHaveLength(28);
 	});
 
 	it('accepts partial override with only new flags', () => {

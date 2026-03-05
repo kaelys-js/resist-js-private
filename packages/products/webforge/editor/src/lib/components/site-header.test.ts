@@ -14,9 +14,14 @@ describe('SiteHeader', () => {
 		expect(screen.getByText('Home')).toBeInTheDocument();
 	});
 
-	it('renders breadcrumb with "Scene" text when not on error page', () => {
+	it('renders breadcrumb with active scene name when provided', () => {
+		render(SiteHeaderTest, { props: { activeSceneName: 'My Scene' } });
+		expect(screen.getByText('My Scene')).toBeInTheDocument();
+	});
+
+	it('renders breadcrumb with "Home" when no active scene', () => {
 		render(SiteHeaderTest);
-		expect(screen.getByText('Scene')).toBeInTheDocument();
+		expect(screen.getAllByText('Home').length).toBeGreaterThanOrEqual(1);
 	});
 
 	it('renders breadcrumb with "Error" text when isError is true', () => {
@@ -24,9 +29,9 @@ describe('SiteHeader', () => {
 		expect(screen.getByText('Error')).toBeInTheDocument();
 	});
 
-	it('does not show "Scene" in breadcrumb when isError is true', () => {
-		render(SiteHeaderTest, { props: { isError: true } });
-		expect(screen.queryByText('Scene')).not.toBeInTheDocument();
+	it('does not show active scene in breadcrumb when isError is true', () => {
+		render(SiteHeaderTest, { props: { isError: true, activeSceneName: 'My Scene' } });
+		expect(screen.queryByText('My Scene')).not.toBeInTheDocument();
 	});
 
 	it('renders mode toggle button when modeToggle feature flag is true (default)', () => {

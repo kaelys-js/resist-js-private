@@ -163,9 +163,9 @@ describe('handleError', () => {
 			timestamp: new Date().toISOString(),
 			stack: [
 				'Error: test',
-				'    at err (http://localhost:5173/@fs/Users/coleb/Desktop/webforge/packages/shared/schemas/result/src/result.ts?t=1772535466719:123:10)',
-				'    at safeParse (http://localhost:5173/@fs/Users/coleb/Desktop/webforge/packages/shared/utils/result/src/safe.ts?t=1772535466719:45:12)',
-				'    at http://localhost:5173/@fs/Users/coleb/Desktop/webforge/packages/products/webforge/editor/src/routes/(testing)/test-error/validation-client/+page.svelte:21:22',
+				'    at err (http://localhost:5173/@fs/Users/Test User/Desktop/webforge/packages/shared/schemas/result/src/result.ts?t=1772535466719:123:10)',
+				'    at safeParse (http://localhost:5173/@fs/Users/Test User/Desktop/webforge/packages/shared/utils/result/src/safe.ts?t=1772535466719:45:12)',
+				'    at http://localhost:5173/@fs/Users/Test User/Desktop/webforge/packages/products/webforge/editor/src/routes/(testing)/test-error/validation-client/+page.svelte:21:22',
 			].join('\n'),
 		};
 
@@ -182,7 +182,7 @@ describe('handleError', () => {
 		const [kvCall] = logSpy.mock.calls;
 		expect(kvCall[0]).toContain('Source');
 		expect(kvCall).toContain(
-			'http://localhost:5173/@fs/Users/coleb/Desktop/webforge/packages/products/webforge/editor/src/routes/(testing)/test-error/validation-client/+page.svelte:21:22',
+			'http://localhost:5173/@fs/Users/Test User/Desktop/webforge/packages/products/webforge/editor/src/routes/(testing)/test-error/validation-client/+page.svelte:21:22',
 		);
 
 		vi.unstubAllGlobals();

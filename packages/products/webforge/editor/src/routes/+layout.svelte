@@ -215,6 +215,14 @@ $effect(() => {
 	});
 });
 
+// ── Store → mockDataDelay cookie sync ────────────────────────────────
+// Persist mock data delay to a cookie so the server can read it on next request.
+$effect(() => {
+	const delay: number = store.app.mockDataDelay;
+	if (!browser) return;
+	document.cookie = `mockDataDelay=${delay};path=/;max-age=31536000;SameSite=Lax`;
+});
+
 // ── Store → PaneForge sidebar sync ────────────────────────────────────
 // When the sidebar open state changes externally (e.g., DevToolbar toggle),
 // sync the PaneForge pane to match.
@@ -253,6 +261,11 @@ const errorTitleMap: Record<number, () => string> = {
 	500: () => t(localeStore.t.errors.serverError, 'Something went wrong'),
 };
 
+// Active scene name — derived from server data scenes array.
+const activeSceneName: string = $derived(
+	data.scenes?.find((s: { isActive: boolean }) => s.isActive)?.title ?? '',
+);
+
 // Breadcrumb segment for page title — mirrors SiteHeader's breadcrumb leaf.
 const breadcrumbSegment: string = $derived.by(() => {
 	if (page.error) {
@@ -260,7 +273,8 @@ const breadcrumbSegment: string = $derived.by(() => {
 			errorTitleMap[page.status] ?? (() => t(localeStore.t.errors.genericTitle, 'Error'));
 		return titleFn();
 	}
-	return t(localeStore.t.header.scene, 'Scene');
+	if (activeSceneName) return activeSceneName;
+	return t(localeStore.t.header.home, 'Home');
 });
 
 const tagline: string = $derived(t(localeStore.t.meta.tagline, APP_TAGLINE));
@@ -321,7 +335,7 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 			/>
 			<Resizable.Pane defaultSize={100 - initialSidebarPercent} class="flex flex-col !overflow-y-auto !overflow-x-hidden">
 				<Sidebar.Inset class={insetClass}>
-					<SiteHeader isError={Boolean(page.error)} user={data.user} />
+					<SiteHeader isError={Boolean(page.error)} user={data.user} {activeSceneName} />
 					<main id="main-content" tabindex={-1} class="flex flex-1 flex-col outline-none">
 						{@render children()}
 					</main>
@@ -331,7 +345,7 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 	{:else}
 		<AppSidebar />
 		<Sidebar.Inset>
-			<SiteHeader isError={Boolean(page.error)} user={data.user} />
+			<SiteHeader isError={Boolean(page.error)} user={data.user} {activeSceneName} />
 			<div class="flex flex-1 flex-col">
 				{@render children()}
 			</div>

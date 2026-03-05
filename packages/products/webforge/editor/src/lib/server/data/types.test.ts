@@ -6,15 +6,15 @@ describe('ServerUserSchema', () => {
 	it('parses a valid user with all fields', () => {
 		const result = safeParse(ServerUserSchema, {
 			id: 'user-001',
-			displayName: 'Coleb',
-			email: 'coleb@example.com',
+			displayName: 'Test User',
+			email: 'test-user@example.com',
 			avatarUrl: 'https://example.com/avatar.png',
 		});
 		expect(result.ok).toBe(true);
 		if (result.ok) {
 			expect(result.data.id).toBe('user-001');
-			expect(result.data.displayName).toBe('Coleb');
-			expect(result.data.email).toBe('coleb@example.com');
+			expect(result.data.displayName).toBe('Test User');
+			expect(result.data.email).toBe('test-user@example.com');
 			expect(result.data.avatarUrl).toBe('https://example.com/avatar.png');
 		}
 	});
@@ -22,8 +22,8 @@ describe('ServerUserSchema', () => {
 	it('applies default empty string for optional avatarUrl', () => {
 		const result = safeParse(ServerUserSchema, {
 			id: 'user-001',
-			displayName: 'Coleb',
-			email: 'coleb@example.com',
+			displayName: 'Test User',
+			email: 'test-user@example.com',
 		});
 		expect(result.ok).toBe(true);
 		if (result.ok) {
@@ -34,7 +34,7 @@ describe('ServerUserSchema', () => {
 	it('rejects missing displayName', () => {
 		const result = safeParse(ServerUserSchema, {
 			id: 'user-001',
-			email: 'coleb@example.com',
+			email: 'test-user@example.com',
 		});
 		expect(result.ok).toBe(false);
 	});
@@ -43,7 +43,7 @@ describe('ServerUserSchema', () => {
 		const result = safeParse(ServerUserSchema, {
 			id: 'user-001',
 			displayName: '',
-			email: 'coleb@example.com',
+			email: 'test-user@example.com',
 		});
 		expect(result.ok).toBe(false);
 	});
@@ -51,7 +51,7 @@ describe('ServerUserSchema', () => {
 	it('rejects invalid email', () => {
 		const result = safeParse(ServerUserSchema, {
 			id: 'user-001',
-			displayName: 'Coleb',
+			displayName: 'Test User',
 			email: 'not-an-email',
 		});
 		expect(result.ok).toBe(false);
@@ -62,15 +62,15 @@ describe('ServerProjectSchema', () => {
 	it('parses a valid project with all fields', () => {
 		const result = safeParse(ServerProjectSchema, {
 			id: 'proj-001',
-			name: 'My First RPG',
-			subtitle: 'An HD-2D Adventure',
+			name: 'Sample Project',
+			subtitle: 'Sample Project Description',
 			ownerId: 'user-001',
 		});
 		expect(result.ok).toBe(true);
 		if (result.ok) {
 			expect(result.data.id).toBe('proj-001');
-			expect(result.data.name).toBe('My First RPG');
-			expect(result.data.subtitle).toBe('An HD-2D Adventure');
+			expect(result.data.name).toBe('Sample Project');
+			expect(result.data.subtitle).toBe('Sample Project Description');
 			expect(result.data.ownerId).toBe('user-001');
 		}
 	});
@@ -78,7 +78,7 @@ describe('ServerProjectSchema', () => {
 	it('applies default empty string for optional subtitle', () => {
 		const result = safeParse(ServerProjectSchema, {
 			id: 'proj-001',
-			name: 'My First RPG',
+			name: 'Sample Project',
 			ownerId: 'user-001',
 		});
 		expect(result.ok).toBe(true);
