@@ -1,7 +1,17 @@
+/**
+ * Vitest component test setup.
+ *
+ * Registers jest-dom matchers and polyfills browser APIs that jsdom
+ * doesn't implement but our Svelte components require:
+ * - `window.matchMedia` — shadcn-svelte Sidebar + Svelte MediaQuery
+ * - `ResizeObserver` — ScrollArea + Tooltip internals
+ * - `Element.prototype.animate` — Svelte transitions
+ *
+ * @module
+ */
+
 // oxlint-disable-next-line import/no-unassigned-import -- setup file for jest-dom matchers
 import '@testing-library/jest-dom/vitest';
-
-// TODO: Proper Commenting
 
 // jsdom does not implement window.matchMedia — required by shadcn-svelte Sidebar
 // and Svelte's MediaQuery class.

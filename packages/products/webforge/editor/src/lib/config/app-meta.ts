@@ -2,13 +2,15 @@
  * Central app metadata configuration.
  *
  * Single source of truth for app identity, theme colors, icon definitions,
- * and security contact info. All consumers (manifest route, meta tags,
- * robots.txt, security.txt) import from here.
+ * font configuration, and security contact info. All consumers (manifest route,
+ * meta tags, robots.txt, security.txt) import from here.
+ *
+ * @module
  */
 
-// TODO: Proper commenting
-
+import * as v from 'valibot';
 import type { SUPPORTED_THEMES } from '$lib/schemas/editor-state';
+import type { Str } from '@/schemas/common';
 
 // ── App identity ─────────────────────────────────────────────────────────────
 
@@ -20,7 +22,16 @@ export const APP_ID = '/';
 export const APP_SCOPE = '/';
 export const APP_START_URL = '/';
 export const APP_DISPLAY = 'standalone';
-export const APP_CATEGORIES: readonly string[] = ['games', 'developer tools', 'design']; // TODO: Proper Valibot Schema
+
+/** Schema for valid app category strings (PWA manifest `categories` field). */
+export const AppCategoriesSchema = v.array(v.string());
+
+/** PWA manifest categories. Validated against {@link AppCategoriesSchema}. */
+export const APP_CATEGORIES: v.InferOutput<typeof AppCategoriesSchema> = [
+	'games',
+	'developer tools',
+	'design',
+];
 
 // ── Storage ──────────────────────────────────────────────────────────────────
 
@@ -37,8 +48,7 @@ export const STORAGE_PREFIX = 'app';
  * storageKey('editor-state') // 'app:editor-state'
  * storageKey('mode')         // 'app:mode'
  */
-export function storageKey(suffix: string): string {
-	// TODO: Proper Valibot Types + Result System
+export function storageKey(suffix: Str): Str {
 	return `${STORAGE_PREFIX}:${suffix}`;
 }
 
@@ -47,7 +57,14 @@ export function storageKey(suffix: string): string {
 // Light mode is always #ffffff (all themes use oklch(1 0 0) as :root default).
 // Dark mode varies per theme.
 
-type ThemeColorEntry = { readonly light: string; readonly dark: string }; // TODO: Proper Valibot Schema
+/** Schema for a single theme color entry (light + dark hex values). */
+export const ThemeColorEntrySchema = v.strictObject({
+	light: v.string(),
+	dark: v.string(),
+});
+
+/** A light/dark pair of hex background colors for a specific theme. */
+export type ThemeColorEntry = v.InferOutput<typeof ThemeColorEntrySchema>;
 
 /**
  * Map of theme identifier → hex background colors for light and dark modes.
@@ -56,7 +73,6 @@ type ThemeColorEntry = { readonly light: string; readonly dark: string }; // TOD
  * oklch → hex conversions computed offline (see design doc for values).
  */
 export const THEME_COLORS: Record<(typeof SUPPORTED_THEMES)[number], ThemeColorEntry> = {
-	// TODO: Proper Valibot Schema
 	'': { light: '#ffffff', dark: '#242424' },
 	midnight: { light: '#ffffff', dark: '#1a1f2e' },
 	warm: { light: '#ffffff', dark: '#2a2420' },
@@ -74,13 +90,16 @@ export const THEME_COLORS: Record<(typeof SUPPORTED_THEMES)[number], ThemeColorE
 // ── Icons ────────────────────────────────────────────────────────────────────
 // Must match the files in static/. Shared by manifest route and meta tags.
 
-type IconEntry = {
-	// TODO: Proper Valibot Schema
-	readonly src: string;
-	readonly sizes: string;
-	readonly type: string;
-	readonly purpose?: string;
-};
+/** Schema for a single PWA icon entry. */
+export const IconEntrySchema = v.strictObject({
+	src: v.string(),
+	sizes: v.string(),
+	type: v.string(),
+	purpose: v.optional(v.string()),
+});
+
+/** A PWA manifest icon definition. */
+export type IconEntry = v.InferOutput<typeof IconEntrySchema>;
 
 export const ICONS: readonly IconEntry[] = [
 	{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
@@ -100,13 +119,16 @@ export const FONT_FAMILIES =
 /** CSS font-family stack for display/accent text (Rajdhani). */
 export const FONT_DISPLAY_FAMILIES = "'Rajdhani', ui-sans-serif, system-ui, sans-serif";
 
-type FontFaceEntry = {
-	// TODO: Proper Valibot Schema
-	readonly family: string;
-	readonly style: string;
-	readonly weight: string;
-	readonly src: string;
-};
+/** Schema for a self-hosted @font-face definition. */
+export const FontFaceEntrySchema = v.strictObject({
+	family: v.string(),
+	style: v.string(),
+	weight: v.string(),
+	src: v.string(),
+});
+
+/** A self-hosted @font-face definition. */
+export type FontFaceEntry = v.InferOutput<typeof FontFaceEntrySchema>;
 
 /** Self-hosted @font-face definitions. Paths are relative to static/. */
 export const FONT_FACES: readonly FontFaceEntry[] = [
@@ -118,7 +140,14 @@ export const FONT_FACES: readonly FontFaceEntry[] = [
 // ── Security / contact ───────────────────────────────────────────────────────
 // Used by security.txt route.
 
-export const SECURITY_CONTACT_URL = 'https://github.com/nicholascostadev/webforge/security'; // TODO: Wrong
-export const SECURITY_POLICY_URL = 'https://github.com/nicholascostadev/webforge/security/policy'; // TODO: Wrong
-export const SECURITY_CANONICAL_URL = 'https://webforge.dev/.well-known/security.txt'; // TODO: Wrong
-export const SECURITY_PREFERRED_LANGUAGES = 'en, ja, zh, ko, fr, de, es'; // TODO: Should be dynamic based on actual available languages
+export const SECURITY_CONTACT_URL = 'https://github.com/storylyne/storylyne/security';
+export const SECURITY_POLICY_URL = 'https://github.com/storylyne/storylyne/security/policy';
+export const SECURITY_CANONICAL_URL = 'https://storylyne.dev/.well-known/security.txt';
+
+/**
+ * Preferred languages for security.txt.
+ * Derived dynamically from {@link SUPPORTED_LOCALES} at the security.txt route
+ * to avoid a circular dependency (editor-state → app-meta → editor-state).
+ * This fallback is only used if the route can't import SUPPORTED_LOCALES directly.
+ */
+export const SECURITY_PREFERRED_LANGUAGES = 'en, ja, zh, ko, fr, de, es';

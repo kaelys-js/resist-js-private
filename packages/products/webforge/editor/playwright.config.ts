@@ -1,9 +1,25 @@
+/**
+ * Playwright E2E test configuration.
+ *
+ * Runs the SvelteKit preview server on `PREVIEW_HOST:PREVIEW_PORT`,
+ * then executes Chromium-based E2E tests against it. In CI, retries
+ * failed tests twice and generates HTML + GitHub reporter output.
+ *
+ * @module
+ */
+
 import { defineConfig, devices } from '@playwright/test';
 
 const isCI = Boolean(process.env.CI);
 
-// TODO: Proper Commenting
-// TODO: Host & Port From Shared Constant
+/** Host address for the preview server. */
+const PREVIEW_HOST = '127.0.0.1';
+
+/** Port for the preview server. */
+const PREVIEW_PORT = 4173;
+
+/** Base URL for all test navigation. */
+const PREVIEW_URL = `http://${PREVIEW_HOST}:${PREVIEW_PORT}`;
 
 export default defineConfig({
 	testDir: './e2e',
@@ -15,7 +31,7 @@ export default defineConfig({
 	expect: { timeout: 5000 },
 	reporter: isCI ? [['html', { open: 'never' }], ['github']] : [['list']],
 	use: {
-		baseURL: 'http://127.0.0.1:4173',
+		baseURL: PREVIEW_URL,
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',
 		video: 'retain-on-failure',
@@ -29,8 +45,8 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: 'pnpm build && pnpm preview --port 4173 --host 127.0.0.1',
-		url: 'http://127.0.0.1:4173',
+		command: `pnpm build && pnpm preview --port ${PREVIEW_PORT} --host ${PREVIEW_HOST}`,
+		url: PREVIEW_URL,
 		reuseExistingServer: !isCI,
 		timeout: 120_000,
 		stdout: 'ignore',

@@ -9,8 +9,6 @@
  * @module
  */
 
-// TODO: Clearer Error Messages
-
 import * as v from 'valibot';
 import type { Void } from '@/schemas/common';
 import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
@@ -85,7 +83,10 @@ function save(): Result<Void> {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 		return okUnchecked<Void>(undefined);
 	} catch {
-		return err(ERRORS.IO.WRITE_FAILED, 'Failed to save debug state to localStorage');
+		return err(
+			ERRORS.IO.WRITE_FAILED,
+			`Failed to save debug state to localStorage key "${STORAGE_KEY}" (logLevel: ${_debug.logLevel})`,
+		);
 	}
 }
 
@@ -107,7 +108,10 @@ function load(): Result<Void> {
 		_debug = { ...result.data };
 		return okUnchecked<Void>(undefined);
 	} catch {
-		return err(ERRORS.IO.READ_FAILED, 'Failed to load debug state from localStorage');
+		return err(
+			ERRORS.IO.READ_FAILED,
+			`Failed to load debug state from localStorage key "${STORAGE_KEY}" — data may be corrupted`,
+		);
 	}
 }
 

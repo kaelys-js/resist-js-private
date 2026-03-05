@@ -7,8 +7,14 @@
  * @module
  */
 
-/** All locale codes the editor supports. */
-export const SUPPORTED_LOCALE_CODES = new Set(['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es']); // TODO: From editor-state if possible so supported locale codes are in one place
+import { SUPPORTED_LOCALES } from '$lib/schemas/editor-state';
+
+/**
+ * All locale codes the editor supports.
+ * Derived from the canonical {@link SUPPORTED_LOCALES} array in editor-state
+ * so new locales added there are automatically recognized by SSR detection.
+ */
+export const SUPPORTED_LOCALE_CODES: ReadonlySet<string> = new Set(SUPPORTED_LOCALES);
 
 /**
  * Detects the best matching locale from an Accept-Language header.

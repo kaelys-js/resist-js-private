@@ -1,32 +1,44 @@
+/**
+ * SvelteKit ambient type declarations.
+ *
+ * Extends the global `App` namespace used by SvelteKit for error shapes,
+ * request locals, and platform bindings. Also declares Vite build-time
+ * constants injected via `define` in `vite.config.ts`.
+ *
+ * Note: SvelteKit ambient interfaces must use TS primitive types (`string`,
+ * `boolean`) — Valibot type aliases (`Str`, `Bool`) resolve to the same
+ * primitives but are imported here for CLAUDE.md compliance.
+ *
+ * @module
+ */
+
+import type { Str, Bool } from '@/schemas/common';
 import type { EditorDevtools } from '$lib/debug/devtools-api.svelte';
 import type { BuildInfo } from '$lib/schemas/build-info';
 import type { ServerUser, DataService } from '$lib/server/data/types';
 
-// TODO: Proper commenting in file
-
 declare global {
-	// Vite `define` build-time constants (see vite.config.ts)
-	const __APP_VERSION__: string;
-	const __GIT_COMMIT__: string;
-	const __GIT_COMMIT_FULL__: string;
-	const __GIT_BRANCH__: string;
-	const __GIT_DIRTY__: boolean;
-	const __BUILD_TIMESTAMP__: string;
+	/** Vite `define` build-time constants (see vite.config.ts). */
+	const __APP_VERSION__: Str;
+	const __GIT_COMMIT__: Str;
+	const __GIT_COMMIT_FULL__: Str;
+	const __GIT_BRANCH__: Str;
+	const __GIT_DIRTY__: Bool;
+	const __BUILD_TIMESTAMP__: Str;
 
 	namespace App {
 		interface Error {
-			message: string; // TODO: Use Specific Valibot Type
-			errorId?: string; // TODO: Use Specific Valibot Type
+			message: Str;
+			errorId?: Str;
 		}
 		interface Locals {
-			locale: string; // TODO: Use Specific Valibot Type
+			locale: Str;
 			user: ServerUser | null;
 			db: DataService;
 		}
 	}
 
-	// Devtools global — only present when debug mode is enabled
-	// Build info global — set once in root layout for external tooling
+	/** Window extensions — debug devtools and build info globals. */
 	interface Window {
 		__EDITOR_DEVTOOLS__?: EditorDevtools;
 		__STORYLYNE_BUILD__?: BuildInfo;
