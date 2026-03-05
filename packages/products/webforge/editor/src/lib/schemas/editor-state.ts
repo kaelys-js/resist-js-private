@@ -77,6 +77,9 @@ export const FeatureFlagsSchema = v.strictObject({
 	headerUserSettings: v.optional(v.boolean(), true),
 	headerUserWhatsNew: v.optional(v.boolean(), true),
 	headerUserLogout: v.optional(v.boolean(), true),
+	authGatedUi: v.optional(v.boolean(), true),
+	emptyScenePlaceholder: v.optional(v.boolean(), true),
+	skeletonLoading: v.optional(v.boolean(), true),
 });
 
 /** Inferred type for feature flags. */

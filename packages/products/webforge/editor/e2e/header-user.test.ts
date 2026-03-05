@@ -42,13 +42,19 @@ test.describe('header user dropdown', () => {
 		await expect(content).toBeVisible();
 	});
 
-	test('dropdown shows user info label with default name "User"', async ({ page }) => {
+	test('dropdown shows user info label with mock user name', async ({ page }) => {
 		await page.goto('/');
 		const trigger = page.getByTestId('header-user-trigger');
 		await trigger.click();
 
+		// Wait for dropdown content to appear
 		const content = page.locator('[data-slot="dropdown-menu-content"]');
-		await expect(content.getByText('User')).toBeVisible();
+		await expect(content).toBeVisible();
+		// User label with name and email — use toContainText on the label div
+		const label = content.locator('[data-slot="dropdown-menu-label"]');
+		await expect(label).toBeVisible();
+		await expect(label).toContainText('Coleb');
+		await expect(label).toContainText('coleb@example.com');
 	});
 
 	test('all 7 menu items visible in dropdown', async ({ page }) => {

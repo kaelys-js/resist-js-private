@@ -110,13 +110,16 @@ describe('FeatureFlagsSchema', () => {
 		expect(flags.projectDropdownIcon).toBe(true);
 		expect(flags.appIconInSidebar).toBe(true);
 		expect(flags.appNameInSidebar).toBe(true);
+		expect(flags.authGatedUi).toBe(true);
+		expect(flags.emptyScenePlaceholder).toBe(true);
+		expect(flags.skeletonLoading).toBe(true);
 	});
 
-	it('has exactly 24 flag keys', () => {
+	it('has exactly 27 flag keys', () => {
 		const result = safeParse(FeatureFlagsSchema, {});
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
-		expect(Object.keys(result.data)).toHaveLength(24);
+		expect(Object.keys(result.data)).toHaveLength(27);
 	});
 
 	it('accepts partial override with only new flags', () => {

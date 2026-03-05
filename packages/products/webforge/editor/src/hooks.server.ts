@@ -1,5 +1,5 @@
 import type { Handle, HandleServerError } from '@sveltejs/kit';
-import { dev } from '$app/environment';
+import { building, dev } from '$app/environment';
 import type { Bool } from '@/schemas/common';
 import type { CapturedError } from '@/schemas/result/captured-error';
 import { getTextDirection } from '@/locale/direction';
@@ -8,6 +8,9 @@ import { setupLogging, log } from '@/utils/core/logger';
 import { reportError, setupGlobalErrorHandling } from '@/utils/core/signal';
 import { fromUnknownError } from '@/utils/result/safe';
 import { resolveLocale } from '$lib/server/locale-detection';
+import type { ServerUser } from '$lib/server/data/types';
+import { MOCK_USER } from '$lib/server/mock/data';
+import { createDataService } from '$lib/server/data/index';
 
 /** Security headers applied to every response (safe in both dev and prod). */
 const BASE_HEADERS: ReadonlyArray<readonly [string, string]> = [
@@ -141,6 +144,21 @@ function logCapturedError(captured: CapturedError): void {
 	});
 }
 
+/**
+ * Resolves the current user from the request URL.
+ *
+ * In dev mode, returns a mock user by default. The `?wf.auth=false` URL
+ * parameter simulates a logged-out state for testing auth-gated UI.
+ *
+ * @param url - The request URL to check for auth overrides
+ * @returns The resolved ServerUser, or null if auth is overridden to false
+ */
+function resolveAuth(url: URL): ServerUser | null {
+	const authParam: string | null = url.searchParams.get('wf.auth');
+	if (authParam === 'false') return null;
+	return MOCK_USER;
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
 	// Testing-only: simulate catastrophic handle failure for error.html fallback testing.
 	if (event.url.pathname === '/test-error/catastrophic') {
@@ -152,6 +170,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const locale: string = resolveLocale(cookie, header);
 
 	event.locals.locale = locale;
+	// During prerendering, url.searchParams is not accessible — use default mock user.
+	event.locals.user = building ? MOCK_USER : resolveAuth(event.url);
+	event.locals.db = createDataService(event.platform);
 	const dirResult = getTextDirection(locale);
 	const dir: string = dirResult.ok ? dirResult.data : 'ltr';
 
@@ -222,7 +243,7 @@ export const handleError: HandleServerError = ({ error, event, status, message }
 					locale: event.locals.locale,
 					userAgent: event.request.headers.get('user-agent'),
 					referer: event.request.headers.get('referer'),
-					searchParams: Object.fromEntries(event.url.searchParams),
+					searchParams: building ? {} : Object.fromEntries(event.url.searchParams),
 					isDataRequest: event.isDataRequest,
 				},
 			},

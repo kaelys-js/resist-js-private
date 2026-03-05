@@ -102,8 +102,8 @@ test.describe('dev toolbar — panels', () => {
 		const panel = page.locator('[data-testid="dev-toolbar-flags"]');
 		await expect(panel).toBeVisible();
 		await expect(panel.getByText('Feature Flags')).toBeVisible();
-		// 24 flags from schema
-		await expect(panel.locator('button[role="switch"]')).toHaveCount(24);
+		// 27 flags from schema (24 original + authGatedUi, emptyScenePlaceholder, skeletonLoading)
+		await expect(panel.locator('button[role="switch"]')).toHaveCount(27);
 	});
 
 	test('app state panel opens with preferences', async ({ page }) => {

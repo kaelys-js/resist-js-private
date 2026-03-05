@@ -8,8 +8,9 @@ import ModeToggle from './ModeToggle.svelte';
 import { page } from '$app/state';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
+import type { ServerUser } from '$lib/server/data/types';
 
-let { isError = false }: { isError?: boolean } = $props();
+let { isError = false, user = null }: { isError?: boolean; user?: ServerUser | null } = $props();
 
 const store = useEditorStore();
 
@@ -55,7 +56,7 @@ const toggleSidebarLabel: string = $derived(
 		</Breadcrumb.Root>
 		{/if}
 		<div class="ml-auto flex items-center gap-2">
-			{#if store.features.headerUserDropdown}
+			{#if store.features.headerUserDropdown && (!store.features.authGatedUi || user)}
 				<HeaderUser />
 			{/if}
 			{#if store.features.modeToggle}

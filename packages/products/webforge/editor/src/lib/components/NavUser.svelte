@@ -9,15 +9,22 @@ import ThemeSwitcher from './ThemeSwitcher.svelte';
 import LanguageSwitcher from './LanguageSwitcher.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
+import type { ServerProject } from '$lib/server/data/types';
 
-let { user }: { user: { name: string; avatar: string } } = $props();
+let { project = null }: { project?: ServerProject | null } = $props();
 
 const store = useEditorStore();
 const sidebar = Sidebar.useSidebar();
 
+/** Display name from project or fallback. */
+const projectName: string = $derived(project?.name ?? 'Project');
+
+/** Subtitle from project or fallback dash. */
+const projectSubtitle: string = $derived(project?.subtitle || '\u2014');
+
 /** Monogram from the project name (e.g. "My Project" → "MP", "Project" → "P"). */
 const monogram: string = $derived(
-	user.name
+	projectName
 		.split(/\s+/)
 		.slice(0, 2)
 		.map((w: string) => w[0]?.toUpperCase() ?? '')
@@ -37,16 +44,16 @@ const monogram: string = $derived(
 					>
 						{#if store.features.projectDropdownIcon}
 							<Avatar.Root class="h-8 w-8 rounded-lg">
-								<Avatar.Image src={user.avatar} alt={user.name} />
+								<Avatar.Image src="" alt={projectName} />
 								<Avatar.Fallback class="rounded-lg text-xs font-medium">
 									{monogram}
 								</Avatar.Fallback>
 							</Avatar.Root>
 						{/if}
 						<div class="grid flex-1 text-left text-sm leading-tight">
-							<span class="truncate font-medium">{user.name}</span>
+							<span class="truncate font-medium">{projectName}</span>
 							<span class="truncate text-xs text-muted-foreground"
-								>—</span
+								>{projectSubtitle}</span
 							>
 						</div>
 						<ChevronsUpDown aria-hidden="true" class="ml-auto size-4" />
@@ -62,15 +69,15 @@ const monogram: string = $derived(
 				<DropdownMenu.Label class="p-0 font-normal">
 					<div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 						<Avatar.Root class="h-8 w-8 rounded-lg">
-							<Avatar.Image src={user.avatar} alt={user.name} />
+							<Avatar.Image src="" alt={projectName} />
 							<Avatar.Fallback class="rounded-lg text-xs font-medium">
 								{monogram}
 							</Avatar.Fallback>
 						</Avatar.Root>
 						<div class="grid flex-1 text-left text-sm leading-tight">
-							<span class="truncate font-medium">{user.name}</span>
+							<span class="truncate font-medium">{projectName}</span>
 							<span class="truncate text-xs text-muted-foreground"
-								>—</span
+								>{projectSubtitle}</span
 							>
 						</div>
 					</div>

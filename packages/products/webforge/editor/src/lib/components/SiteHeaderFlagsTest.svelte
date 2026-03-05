@@ -1,10 +1,21 @@
 <script lang="ts">
 import FeatureFlagsTestProviders from './FeatureFlagsTestProviders.svelte';
 import SiteHeader from './SiteHeader.svelte';
+import type { ServerUser } from '$lib/server/data/types';
 
-let { disabledFlags = [] }: { disabledFlags?: string[] } = $props();
+const defaultUser: ServerUser = {
+	id: 'user-1',
+	displayName: 'Test User',
+	email: 'test@example.com',
+	avatarUrl: '',
+};
+
+let {
+	disabledFlags = [],
+	user = defaultUser,
+}: { disabledFlags?: string[]; user?: ServerUser | null } = $props();
 </script>
 
 <FeatureFlagsTestProviders {disabledFlags}>
-	<SiteHeader />
+	<SiteHeader {user} />
 </FeatureFlagsTestProviders>

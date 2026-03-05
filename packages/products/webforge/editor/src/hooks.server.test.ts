@@ -118,6 +118,30 @@ describe('hooks.server handle', () => {
 			expect.objectContaining({ transformPageChunk: expect.any(Function) }),
 		);
 	});
+
+	it('sets event.locals.user to mock user by default', async () => {
+		const event = mockEvent('en', null);
+		const { resolve } = mockResolve();
+		await handle({ event, resolve });
+		expect(event.locals.user).not.toBeNull();
+		expect(event.locals.user?.displayName).toBe('Coleb');
+	});
+
+	it('sets event.locals.user to null when ?wf.auth=false', async () => {
+		const event = mockEvent('en', null, '/?wf.auth=false');
+		const { resolve } = mockResolve();
+		await handle({ event, resolve });
+		expect(event.locals.user).toBeNull();
+	});
+
+	it('sets event.locals.db to a DataService', async () => {
+		const event = mockEvent('en', null);
+		const { resolve } = mockResolve();
+		await handle({ event, resolve });
+		expect(event.locals.db).toBeDefined();
+		expect(event.locals.db.projects).toBeDefined();
+		expect(event.locals.db.scenes).toBeDefined();
+	});
 });
 
 /**

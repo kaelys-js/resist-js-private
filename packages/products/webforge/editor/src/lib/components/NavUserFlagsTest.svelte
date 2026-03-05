@@ -4,9 +4,14 @@ import NavUser from './NavUser.svelte';
 
 let { disabledFlags = [] }: { disabledFlags?: string[] } = $props();
 
-const user = { name: 'Test User', avatar: '' };
+const project = {
+	id: 'test-1',
+	name: 'Test Project',
+	subtitle: 'Test Subtitle',
+	ownerId: 'user-1',
+};
 </script>
 
 <FeatureFlagsTestProviders {disabledFlags}>
-	<NavUser {user} />
+	<NavUser {project} />
 </FeatureFlagsTestProviders>

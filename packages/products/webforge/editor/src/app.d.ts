@@ -1,5 +1,7 @@
 import type { EditorDevtools } from '$lib/debug/devtools-api.svelte';
 import type { BuildInfo } from '$lib/schemas/build-info';
+import type { ServerUser } from '$lib/server/data/types';
+import type { DataService } from '$lib/server/data/types';
 
 // TODO: Proper commenting in file
 
@@ -19,6 +21,8 @@ declare global {
 		}
 		interface Locals {
 			locale: string; // TODO: Use Specific Valibot Type
+			user: ServerUser | null;
+			db: DataService;
 		}
 	}
 
