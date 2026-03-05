@@ -50,6 +50,9 @@ const createMockEditorStore = () => ({
 		mode: 'system' as 'light' | 'dark' | 'system',
 		locale: 'en' as 'en' | 'ja' | 'zh' | 'ko' | 'fr' | 'de' | 'es',
 		sidebarOpen: true,
+		userName: 'User',
+		userEmail: '',
+		userAvatar: '',
 	},
 	features: {
 		settings: true,
@@ -67,12 +70,24 @@ const createMockEditorStore = () => ({
 		projectDropdownIcon: true,
 		appIconInSidebar: true,
 		appNameInSidebar: true,
+		headerUserDropdown: true,
+		headerUserAvatar: true,
+		headerUserAccount: true,
+		headerUserSubscription: true,
+		headerUserNotifications: true,
+		headerUserShortcuts: true,
+		headerUserSettings: true,
+		headerUserWhatsNew: true,
+		headerUserLogout: true,
 	},
 	setAppName: vi.fn(okVoid),
 	setTheme: vi.fn(okVoid),
 	setMode: vi.fn(okVoid),
 	setLocale: vi.fn(okVoid),
 	setSidebarOpen: vi.fn(okVoid),
+	setUserName: vi.fn(okVoid),
+	setUserEmail: vi.fn(okVoid),
+	setUserAvatar: vi.fn(okVoid),
 	setFeature: vi.fn(okVoid),
 	save: vi.fn(okVoid),
 	load: vi.fn(okVoid),
@@ -237,7 +252,16 @@ describe('URL parsing → override application flow', () => {
 
 describe('schema-driven validation helpers', () => {
 	it('isValidAppKey accepts all AppPreferences fields', () => {
-		for (const key of ['appName', 'theme', 'mode', 'locale', 'sidebarOpen']) {
+		for (const key of [
+			'appName',
+			'theme',
+			'mode',
+			'locale',
+			'sidebarOpen',
+			'userName',
+			'userEmail',
+			'userAvatar',
+		]) {
 			expect(isValidAppKey(key)).toBe(true);
 		}
 	});
@@ -265,6 +289,15 @@ describe('schema-driven validation helpers', () => {
 			'projectDropdownIcon',
 			'appIconInSidebar',
 			'appNameInSidebar',
+			'headerUserDropdown',
+			'headerUserAvatar',
+			'headerUserAccount',
+			'headerUserSubscription',
+			'headerUserNotifications',
+			'headerUserShortcuts',
+			'headerUserSettings',
+			'headerUserWhatsNew',
+			'headerUserLogout',
 		]) {
 			expect(isValidFeatureFlag(key)).toBe(true);
 		}

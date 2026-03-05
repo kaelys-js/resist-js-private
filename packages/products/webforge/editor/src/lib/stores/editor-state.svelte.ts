@@ -40,6 +40,9 @@ const APP_DEFAULTS: AppPreferences = {
 	mode: 'system',
 	locale: 'en',
 	sidebarOpen: true,
+	userName: 'User',
+	userEmail: '',
+	userAvatar: '',
 };
 
 const FEATURE_DEFAULTS: FeatureFlags = {
@@ -58,6 +61,15 @@ const FEATURE_DEFAULTS: FeatureFlags = {
 	projectDropdownIcon: true,
 	appIconInSidebar: true,
 	appNameInSidebar: true,
+	headerUserDropdown: true,
+	headerUserAvatar: true,
+	headerUserAccount: true,
+	headerUserSubscription: true,
+	headerUserNotifications: true,
+	headerUserShortcuts: true,
+	headerUserSettings: true,
+	headerUserWhatsNew: true,
+	headerUserLogout: true,
 };
 
 /** All valid feature flag keys. */
@@ -95,6 +107,12 @@ export type EditorStore = {
 	setLocale(locale: string): Result<Void>;
 	/** Set whether the sidebar is open. */
 	setSidebarOpen(open: boolean): Result<Void>;
+	/** Set the user display name. Must be non-empty. */
+	setUserName(name: string): Result<Void>;
+	/** Set the user email address. */
+	setUserEmail(email: string): Result<Void>;
+	/** Set the user avatar URL. */
+	setUserAvatar(url: string): Result<Void>;
 	/** Toggle an individual feature flag. Flag key must exist. */
 	setFeature(flag: string, enabled: boolean): Result<Void>;
 	/** Persist current state to localStorage. */
@@ -226,6 +244,49 @@ function setSidebarOpen(open: boolean): Result<Void> {
 }
 
 /**
+ * Sets the user display name.
+ *
+ * @param name - Non-empty string
+ * @returns `Result<Void>` — error if name is empty
+ */
+function setUserName(name: string): Result<Void> {
+	const nameSchema = v.pipe(v.string(), v.minLength(1));
+	const result = safeParse(nameSchema, name);
+	if (!result.ok) return result;
+
+	_app = { ..._app, userName: result.data };
+	return save();
+}
+
+/**
+ * Sets the user email address.
+ *
+ * @param email - Email string (empty string allowed)
+ * @returns `Result<Void>`
+ */
+function setUserEmail(email: string): Result<Void> {
+	const result = safeParse(v.string(), email);
+	if (!result.ok) return result;
+
+	_app = { ..._app, userEmail: result.data };
+	return save();
+}
+
+/**
+ * Sets the user avatar URL.
+ *
+ * @param url - Avatar URL string (empty string allowed)
+ * @returns `Result<Void>`
+ */
+function setUserAvatar(url: string): Result<Void> {
+	const result = safeParse(v.string(), url);
+	if (!result.ok) return result;
+
+	_app = { ..._app, userAvatar: result.data };
+	return save();
+}
+
+/**
  * Toggles an individual feature flag.
  *
  * @param flag - Key name of the feature flag (must exist in FeatureFlags)
@@ -282,6 +343,9 @@ export function createEditorStore(): Result<EditorStore> {
 		setMode,
 		setLocale,
 		setSidebarOpen,
+		setUserName,
+		setUserEmail,
+		setUserAvatar,
 		setFeature,
 		save,
 		load,

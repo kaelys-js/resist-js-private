@@ -66,7 +66,16 @@ describe('parseDebugParams', () => {
 // ── isValidAppKey / isValidFeatureFlag ──────────────────────────────────
 
 describe('isValidAppKey', () => {
-	it.each(['appName', 'theme', 'mode', 'locale', 'sidebarOpen'])('returns true for: %s', (key) => {
+	it.each([
+		'appName',
+		'theme',
+		'mode',
+		'locale',
+		'sidebarOpen',
+		'userName',
+		'userEmail',
+		'userAvatar',
+	])('returns true for: %s', (key) => {
 		expect(isValidAppKey(key)).toBe(true);
 	});
 
@@ -96,6 +105,15 @@ describe('isValidFeatureFlag', () => {
 		'projectDropdownIcon',
 		'appIconInSidebar',
 		'appNameInSidebar',
+		'headerUserDropdown',
+		'headerUserAvatar',
+		'headerUserAccount',
+		'headerUserSubscription',
+		'headerUserNotifications',
+		'headerUserShortcuts',
+		'headerUserSettings',
+		'headerUserWhatsNew',
+		'headerUserLogout',
 	])('returns true for: %s', (key) => {
 		expect(isValidFeatureFlag(key)).toBe(true);
 	});
@@ -131,6 +149,9 @@ describe('applyUrlOverrides', () => {
 			mode: 'system' as 'light' | 'dark' | 'system',
 			locale: 'en' as 'en' | 'ja' | 'zh' | 'ko' | 'fr' | 'de' | 'es',
 			sidebarOpen: true,
+			userName: 'User',
+			userEmail: '',
+			userAvatar: '',
 		},
 		features: {
 			settings: true,
@@ -148,12 +169,24 @@ describe('applyUrlOverrides', () => {
 			projectDropdownIcon: true,
 			appIconInSidebar: true,
 			appNameInSidebar: true,
+			headerUserDropdown: true,
+			headerUserAvatar: true,
+			headerUserAccount: true,
+			headerUserSubscription: true,
+			headerUserNotifications: true,
+			headerUserShortcuts: true,
+			headerUserSettings: true,
+			headerUserWhatsNew: true,
+			headerUserLogout: true,
 		},
 		setAppName: vi.fn(okVoid),
 		setTheme: vi.fn(okVoid),
 		setMode: vi.fn(okVoid),
 		setLocale: vi.fn(okVoid),
 		setSidebarOpen: vi.fn(okVoid),
+		setUserName: vi.fn(okVoid),
+		setUserEmail: vi.fn(okVoid),
+		setUserAvatar: vi.fn(okVoid),
 		setFeature: vi.fn(okVoid),
 		save: vi.fn(okVoid),
 		load: vi.fn(okVoid),

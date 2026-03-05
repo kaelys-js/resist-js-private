@@ -255,6 +255,38 @@ A floating Astro-style developer toolbar rendered at the bottom center of the vi
 
 **Accessibility:** The toolbar follows the WAI-ARIA Toolbar pattern with roving tabindex (`ArrowLeft`/`ArrowRight`/`Home`/`End` navigation), `Escape` to close, and automatic focus management into panel content.
 
+## Header User Dropdown
+
+A user avatar dropdown in the SiteHeader, providing account-related navigation items.
+
+### Component
+
+`HeaderUser.svelte` (`$lib/components/`) — renders a ghost-styled trigger button with an avatar (image or monogram fallback), opening a `DropdownMenu` with 3 groups: Account (Account, Subscription, Notifications), Tools (Keyboard Shortcuts, Settings, What's New), and Log Out (destructive styling).
+
+Integrated into `SiteHeader.svelte` before the ModeToggle, gated by `headerUserDropdown` feature flag.
+
+### Feature Flags (9)
+
+`headerUserDropdown`, `headerUserAvatar`, `headerUserAccount`, `headerUserSubscription`, `headerUserNotifications`, `headerUserShortcuts`, `headerUserSettings`, `headerUserWhatsNew`, `headerUserLogout`
+
+### State Fields
+
+| Field | Schema | Default | Description |
+|-------|--------|---------|-------------|
+| `userName` | `v.pipe(v.string(), v.minLength(1))` | `'User'` | Display name, drives monogram |
+| `userEmail` | `v.string()` | `''` | Shown below name in dropdown label |
+| `userAvatar` | `v.string()` | `''` | Avatar image URL; empty = monogram fallback |
+
+### Locale Namespace
+
+`user` — 9 keys: `user`, `account`, `subscription`, `notifications`, `keyboardShortcuts`, `settings`, `whatsNew`, `logout`, `userMenu`. All 7 locale files (en, ja, zh, ko, fr, de, es) include translations.
+
+### Tests
+
+- **Unit:** `header-user.test.ts` — trigger rendering, aria-label, monogram fallback
+- **Integration:** `feature-flags.integration.test.ts` — HeaderUser feature flag toggling
+- **E2E:** `e2e/header-user.test.ts` — trigger visibility, dropdown interaction, menu items, Escape close, destructive styling, URL override
+
 ## Accessibility (WCAG 2.2 AA)
 
 The editor targets WCAG 2.2 Level AA conformance across all custom components (shadcn-svelte primitives provide their own ARIA).

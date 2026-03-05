@@ -39,6 +39,9 @@ export const AppPreferencesSchema = v.strictObject({
 	mode: v.optional(v.picklist(SUPPORTED_MODES), 'system'),
 	locale: v.optional(v.picklist(SUPPORTED_LOCALES), 'en'),
 	sidebarOpen: v.optional(v.boolean(), true),
+	userName: v.optional(v.pipe(v.string(), v.minLength(1)), 'User'),
+	userEmail: v.optional(v.string(), ''),
+	userAvatar: v.optional(v.string(), ''),
 });
 
 /** Inferred type for application preferences. */
@@ -65,6 +68,15 @@ export const FeatureFlagsSchema = v.strictObject({
 	projectDropdownIcon: v.optional(v.boolean(), true),
 	appIconInSidebar: v.optional(v.boolean(), true),
 	appNameInSidebar: v.optional(v.boolean(), true),
+	headerUserDropdown: v.optional(v.boolean(), true),
+	headerUserAvatar: v.optional(v.boolean(), true),
+	headerUserAccount: v.optional(v.boolean(), true),
+	headerUserSubscription: v.optional(v.boolean(), true),
+	headerUserNotifications: v.optional(v.boolean(), true),
+	headerUserShortcuts: v.optional(v.boolean(), true),
+	headerUserSettings: v.optional(v.boolean(), true),
+	headerUserWhatsNew: v.optional(v.boolean(), true),
+	headerUserLogout: v.optional(v.boolean(), true),
 });
 
 /** Inferred type for feature flags. */
