@@ -25,9 +25,13 @@ import type { Str } from '@/schemas/common';
  * });
  */
 export const ServerUserSchema = v.strictObject({
+	/** Unique user identifier. */
 	id: v.pipe(v.string(), v.minLength(1)),
+	/** User's display name. */
 	displayName: v.pipe(v.string(), v.minLength(1)),
+	/** User's email address. */
 	email: v.pipe(v.string(), v.email()),
+	/** URL to the user's avatar image. */
 	avatarUrl: v.optional(v.string(), ''),
 });
 
@@ -48,9 +52,13 @@ export type ServerUser = v.InferOutput<typeof ServerUserSchema>;
  * });
  */
 export const ServerProjectSchema = v.strictObject({
+	/** Unique project identifier. */
 	id: v.pipe(v.string(), v.minLength(1)),
+	/** Project display name. */
 	name: v.pipe(v.string(), v.minLength(1)),
+	/** Optional project subtitle or description. */
 	subtitle: v.optional(v.string(), ''),
+	/** ID of the user who owns this project. */
 	ownerId: v.pipe(v.string(), v.minLength(1)),
 });
 
@@ -72,10 +80,15 @@ export type ServerProject = v.InferOutput<typeof ServerProjectSchema>;
  * });
  */
 export const ServerSceneSchema = v.strictObject({
+	/** Unique scene identifier. */
 	id: v.pipe(v.string(), v.minLength(1)),
+	/** Scene display title. */
 	title: v.string(),
+	/** Scene URL path or hash fragment. */
 	url: v.string(),
+	/** Whether this scene is the currently active one. */
 	isActive: v.optional(v.boolean(), false),
+	/** Sort order within the project's scene list. */
 	order: v.optional(v.number(), 0),
 });
 

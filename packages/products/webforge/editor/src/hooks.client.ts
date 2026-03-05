@@ -1,10 +1,21 @@
+/**
+ * SvelteKit client-side error handler and console error logger.
+ *
+ * Handles uncaught client errors, resolves source maps for accurate
+ * file/line/column display, and logs structured error details to the
+ * browser console with colored grouping and cause chains.
+ *
+ * @module
+ */
+
+import * as v from 'valibot';
 import type { HandleClientError } from '@sveltejs/kit';
 import type { CapturedError } from '@/schemas/result/captured-error';
-import type { Bool } from '@/schemas/common';
+import type { Str, Num, Bool, Void } from '@/schemas/common';
 import { ERRORS, err, type AppError } from '@/schemas/result/result';
 import { setupLogging } from '@/utils/core/logger';
 import { reportError, setupGlobalErrorHandling } from '@/utils/core/signal';
-import { fromUnknownError } from '@/utils/result/safe';
+import { fromUnknownError, safeParse } from '@/utils/result/safe';
 
 setupLogging({ service: 'editor-client', initFromEnv: true });
 setupGlobalErrorHandling({
@@ -21,17 +32,22 @@ setupGlobalErrorHandling({
 // Source Location Extraction
 // =============================================================================
 
-/** Parsed source location: display-friendly path, clickable URL, and raw position for source map resolution. */
-type SourceLocation = {
-	display: string;
-	url: string | undefined;
+/** Schema for a parsed source location: display-friendly path, clickable URL, and raw position for source map resolution. */
+const SourceLocationSchema = v.strictObject({
+	/** Display-friendly path (e.g. `packages/editor/src/foo.ts:42:10`). */
+	display: v.string(),
+	/** Clickable URL with line:col (browser dev server). */
+	url: v.optional(v.string()),
 	/** Raw file URL (no line:col) for fetching the source map. */
-	fileUrl: string | undefined;
+	fileUrl: v.optional(v.string()),
 	/** Generated line number (1-based) from the stack trace. */
-	genLine: number | undefined;
+	genLine: v.optional(v.number()),
 	/** Generated column number (1-based) from the stack trace. */
-	genCol: number | undefined;
-};
+	genCol: v.optional(v.number()),
+});
+
+/** Parsed source location. */
+type SourceLocation = v.InferOutput<typeof SourceLocationSchema>;
 
 /**
  * Extracts the first application-level source location from an AppError stack trace.
@@ -43,10 +59,10 @@ type SourceLocation = {
  * @param stack - The stack trace string from an AppError
  * @returns Display path + original clickable URL + raw position for source map resolution
  */
-function extractSource(stack: string): SourceLocation {
-	const lines: string[] = stack.split('\n');
+function extractSource(stack: Str): SourceLocation {
+	const lines: Str[] = stack.split('\n');
 	for (const line of lines) {
-		const trimmed: string = line.trim();
+		const trimmed: Str = line.trim();
 		if (!trimmed.startsWith('at ')) continue;
 		// Skip internal frames — we want the application call site, not library internals
 		if (trimmed.includes('node_modules') || trimmed.includes('node:internal')) continue;
@@ -59,18 +75,18 @@ function extractSource(stack: string): SourceLocation {
 		if (urlMatch) {
 			const [, origin, rawUrlPath, lineNo, colNo] = urlMatch;
 			// Strip query string (e.g., ?t=1772535466719)
-			const qIdx: number = rawUrlPath.indexOf('?');
-			const urlPath: string = qIdx >= 0 ? rawUrlPath.slice(0, qIdx) : rawUrlPath;
+			const qIdx: Num = rawUrlPath.indexOf('?');
+			const urlPath: Str = qIdx >= 0 ? rawUrlPath.slice(0, qIdx) : rawUrlPath;
 			// Build clickable URL (strip query string but keep origin + path + line:col)
-			const clickableUrl = `${origin}${urlPath}:${lineNo}:${colNo}`;
+			const clickableUrl: Str = `${origin}${urlPath}:${lineNo}:${colNo}`;
 			// Full file URL for source map fetching (with query string for cache busting)
-			const fileUrl = `${origin}${rawUrlPath.split(':')[0]}`;
-			const genLine = Number(lineNo);
-			const genCol = Number(colNo);
+			const fileUrl: Str = `${origin}${rawUrlPath.split(':')[0]}`;
+			const genLine: Num = Number(lineNo);
+			const genCol: Num = Number(colNo);
 			// Strip Vite @fs/ prefix to get filesystem path
-			const fsPath: string = urlPath.startsWith('@fs/') ? urlPath.slice(4) : urlPath;
+			const fsPath: Str = urlPath.startsWith('@fs/') ? urlPath.slice(4) : urlPath;
 			// Extract project-relative path from packages/ onward
-			const pkgIdx: number = fsPath.indexOf('packages/');
+			const pkgIdx: Num = fsPath.indexOf('packages/');
 			if (pkgIdx >= 0) {
 				return {
 					display: `${fsPath.slice(pkgIdx)}:${lineNo}:${colNo}`,
@@ -102,8 +118,8 @@ function extractSource(stack: string): SourceLocation {
 		const fsMatch: RegExpMatchArray | null = trimmed.match(/\(?(\/[^)]+):(\d+):(\d+)\)?$/);
 		if (fsMatch) {
 			const [, fullPath, lineNo, colNo] = fsMatch;
-			const pkgIdx: number = fullPath.indexOf('packages/');
-			const relativePath: string = pkgIdx >= 0 ? fullPath.slice(pkgIdx) : fullPath;
+			const pkgIdx: Num = fullPath.indexOf('packages/');
+			const relativePath: Str = pkgIdx >= 0 ? fullPath.slice(pkgIdx) : fullPath;
 			return {
 				display: `${relativePath}:${lineNo}:${colNo}`,
 				url: undefined,
@@ -132,19 +148,31 @@ const VLQ_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345678
 /** Regex to find the sourceMappingURL comment at the end of a JS file. */
 const SOURCE_MAP_URL_RE = /\/\/[#@]\s*sourceMappingURL=(.+)$/m;
 
+/** Schema for a minimal source map JSON shape (v3). */
+const SourceMapV3Schema = v.strictObject({
+	/** Source map version (must be 3). */
+	version: v.number(),
+	/** Array of original source file paths. */
+	sources: v.array(v.string()),
+	/** VLQ-encoded mapping string. */
+	mappings: v.string(),
+});
+
 /** Minimal source map JSON shape (v3). */
-type SourceMapV3 = {
-	version: number;
-	sources: string[];
-	mappings: string;
-};
+type SourceMapV3 = v.InferOutput<typeof SourceMapV3Schema>;
+
+/** Schema for a resolved original source position from a source map. */
+const ResolvedPositionSchema = v.strictObject({
+	/** Original source file path. */
+	source: v.string(),
+	/** Original line number (1-based). */
+	line: v.number(),
+	/** Original column number (1-based). */
+	col: v.number(),
+});
 
 /** Resolved original source position from a source map. */
-type ResolvedPosition = {
-	source: string;
-	line: number;
-	col: number;
-};
+type ResolvedPosition = v.InferOutput<typeof ResolvedPositionSchema>;
 
 /**
  * Decodes a Base64 VLQ-encoded string into an array of signed integers.
@@ -156,20 +184,20 @@ type ResolvedPosition = {
  * @param encoded - VLQ-encoded string (e.g., "AAAA", "gBACE")
  * @returns Array of decoded signed integers
  */
-function decodeVLQ(encoded: string): number[] {
-	const values: number[] = [];
-	let shift = 0;
-	let value = 0;
+function decodeVLQ(encoded: Str): Num[] {
+	const values: Num[] = [];
+	let shift: Num = 0;
+	let value: Num = 0;
 	for (const char of encoded) {
-		const digit: number = VLQ_CHARS.indexOf(char);
+		const digit: Num = VLQ_CHARS.indexOf(char);
 		if (digit === -1) continue;
-		const hasContinuation: boolean = (digit & 32) !== 0;
+		const hasContinuation: Bool = (digit & 32) !== 0;
 		value += (digit & 31) << shift;
 		if (hasContinuation) {
 			shift += 5;
 		} else {
-			const isNegative: boolean = (value & 1) !== 0;
-			const decoded: number = value >> 1;
+			const isNegative: Bool = (value & 1) !== 0;
+			const decoded: Num = value >> 1;
 			values.push(isNegative ? -decoded : decoded);
 			value = 0;
 			shift = 0;
@@ -179,7 +207,7 @@ function decodeVLQ(encoded: string): number[] {
 }
 
 /** Cache for fetched source maps to avoid re-fetching for multiple errors from same file. */
-const _sourceMapCache = new Map<string, SourceMapV3 | null>();
+const _sourceMapCache: Map<Str, SourceMapV3 | null> = new Map<Str, SourceMapV3 | null>();
 
 /**
  * Fetches and parses the source map for a given file URL.
@@ -191,7 +219,7 @@ const _sourceMapCache = new Map<string, SourceMapV3 | null>();
  * @param fileUrl - The URL of the compiled JS file
  * @returns Parsed source map, or null if unavailable
  */
-async function fetchSourceMap(fileUrl: string): Promise<SourceMapV3 | null> {
+async function fetchSourceMap(fileUrl: Str): Promise<SourceMapV3 | null> {
 	if (_sourceMapCache.has(fileUrl)) return _sourceMapCache.get(fileUrl) ?? null;
 
 	try {
@@ -200,23 +228,23 @@ async function fetchSourceMap(fileUrl: string): Promise<SourceMapV3 | null> {
 			_sourceMapCache.set(fileUrl, null);
 			return null;
 		}
-		const code: string = await response.text();
+		const code: Str = await response.text();
 
 		const match: RegExpMatchArray | null = code.match(SOURCE_MAP_URL_RE);
 		if (!match) {
 			_sourceMapCache.set(fileUrl, null);
 			return null;
 		}
-		const mapUrl: string = match[1].trim();
+		const mapUrl: Str = match[1].trim();
 
-		let mapJson: string;
+		let mapJson: Str;
 		if (mapUrl.startsWith('data:')) {
 			// Inline source map: data:application/json;base64,...
-			const base64: string = mapUrl.split(',')[1] ?? '';
+			const base64: Str = mapUrl.split(',')[1] ?? '';
 			mapJson = atob(base64);
 		} else {
 			// External source map file
-			const resolved: string = new URL(mapUrl, fileUrl).href;
+			const resolved: Str = new URL(mapUrl, fileUrl).href;
 			const mapResponse: Response = await fetch(resolved);
 			if (!mapResponse.ok) {
 				_sourceMapCache.set(fileUrl, null);
@@ -225,7 +253,16 @@ async function fetchSourceMap(fileUrl: string): Promise<SourceMapV3 | null> {
 			mapJson = await mapResponse.text();
 		}
 
-		const map: SourceMapV3 = JSON.parse(mapJson) as SourceMapV3;
+		const parseResult = safeParse(SourceMapV3Schema, JSON.parse(mapJson));
+		if (!parseResult.ok) {
+			_sourceMapCache.set(fileUrl, null);
+			return null;
+		}
+		const map: SourceMapV3 = {
+			version: parseResult.data.version,
+			sources: [...parseResult.data.sources],
+			mappings: parseResult.data.mappings,
+		};
 		if (map.version !== 3) {
 			_sourceMapCache.set(fileUrl, null);
 			return null;
@@ -252,29 +289,29 @@ async function fetchSourceMap(fileUrl: string): Promise<SourceMapV3 | null> {
  * @returns Original position with source file, line, and column; or null if unresolvable
  */
 async function resolveSourcePosition(
-	fileUrl: string,
-	genLine: number,
-	genCol: number,
+	fileUrl: Str,
+	genLine: Num,
+	genCol: Num,
 ): Promise<ResolvedPosition | null> {
 	const map: SourceMapV3 | null = await fetchSourceMap(fileUrl);
 	if (!map) return null;
 
-	const mappingLines: string[] = map.mappings.split(';');
+	const mappingLines: Str[] = map.mappings.split(';');
 	if (genLine < 1 || genLine > mappingLines.length) return null;
 
 	// Delta-encoded state that persists across all lines
-	let sourceIndex = 0;
-	let originalLine = 0;
-	let originalCol = 0;
+	let sourceIndex: Num = 0;
+	let originalLine: Num = 0;
+	let originalCol: Num = 0;
 
 	// Process all lines before the target to maintain delta state
-	for (let i = 0; i < genLine - 1; i++) {
-		const lineMapping: string = mappingLines[i] ?? '';
+	for (let i: Num = 0; i < genLine - 1; i++) {
+		const lineMapping: Str = mappingLines[i] ?? '';
 		if (!lineMapping) continue;
-		const segments: string[] = lineMapping.split(',');
+		const segments: Str[] = lineMapping.split(',');
 		for (const segment of segments) {
 			if (!segment) continue;
-			const decoded: number[] = decodeVLQ(segment);
+			const decoded: Num[] = decodeVLQ(segment);
 			// decoded[0] = generated column delta (resets per line, but we don't need it here)
 			if (decoded.length >= 4) {
 				sourceIndex += decoded[1] ?? 0;
@@ -285,16 +322,16 @@ async function resolveSourcePosition(
 	}
 
 	// Process the target line to find the best matching segment
-	const targetLineMapping: string = mappingLines[genLine - 1] ?? '';
+	const targetLineMapping: Str = mappingLines[genLine - 1] ?? '';
 	if (!targetLineMapping) return null;
 
-	const targetSegments: string[] = targetLineMapping.split(',');
-	let genColAccum = 0;
+	const targetSegments: Str[] = targetLineMapping.split(',');
+	let genColAccum: Num = 0;
 	let bestMatch: ResolvedPosition | null = null;
 
 	for (const segment of targetSegments) {
 		if (!segment) continue;
-		const decoded: number[] = decodeVLQ(segment);
+		const decoded: Num[] = decodeVLQ(segment);
 		genColAccum += decoded[0] ?? 0;
 		if (decoded.length >= 4) {
 			sourceIndex += decoded[1] ?? 0;
@@ -330,9 +367,9 @@ async function resolveSourcePosition(
  *
  * @param captured - The CapturedError envelope containing the AppError + context
  */
-async function logErrorToConsole(captured: CapturedError): Promise<void> {
+async function logErrorToConsole(captured: CapturedError): Promise<Void> {
 	const appError: AppError = captured.error;
-	const label: string = captured.type === 'resultError' ? 'Error' : 'Uncaught';
+	const label: Str = captured.type === 'resultError' ? 'Error' : 'Uncaught';
 	const source: SourceLocation = extractSource(appError.stack);
 
 	// Try to resolve original source position via source map
@@ -344,8 +381,8 @@ async function logErrorToConsole(captured: CapturedError): Promise<void> {
 		);
 		if (resolved) {
 			// Extract short display path from resolved source
-			const pkgIdx: number = resolved.source.indexOf('packages/');
-			const shortPath: string =
+			const pkgIdx: Num = resolved.source.indexOf('packages/');
+			const shortPath: Str =
 				pkgIdx >= 0
 					? resolved.source.slice(pkgIdx)
 					: resolved.source.replace(/^\.\.\//, '').replace(/^\.\//, '');
@@ -353,9 +390,9 @@ async function logErrorToConsole(captured: CapturedError): Promise<void> {
 		}
 	}
 
-	const pad = 14;
-	const dim = 'color: #888';
-	const bright = 'color: #eee';
+	const pad: Num = 14;
+	const dim: Str = 'color: #888';
+	const bright: Str = 'color: #eee';
 
 	// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 	console.groupCollapsed(
@@ -366,7 +403,7 @@ async function logErrorToConsole(captured: CapturedError): Promise<void> {
 		'color: #aaa',
 	);
 
-	const entries: Array<[string, string]> = [
+	const entries: Array<[Str, Str]> = [
 		['Code', appError.code],
 		['Source', source.url ?? source.display],
 		['Message', appError.message],
@@ -392,8 +429,8 @@ async function logErrorToConsole(captured: CapturedError): Promise<void> {
 	if (captured.serverName) {
 		entries.push(['Server', captured.serverName]);
 	}
-	const fmt: string = entries.map(([k]) => `%c  ${k.padEnd(pad)}%c%s`).join('\n');
-	const kvArgs: string[] = entries.flatMap(([, v]) => [dim, bright, v]);
+	const fmt: Str = entries.map(([k]) => `%c  ${k.padEnd(pad)}%c%s`).join('\n');
+	const kvArgs: Str[] = entries.flatMap(([, val]) => [dim, bright, val]);
 	// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 	console.log(fmt, ...kvArgs);
 
@@ -475,9 +512,9 @@ async function logErrorToConsole(captured: CapturedError): Promise<void> {
 		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.groupCollapsed('%cCause chain', 'color: #888; font-style: italic');
 		let current: AppError | undefined = appError.cause;
-		let depth = 0;
+		let depth: Num = 0;
 		while (current) {
-			const indent: string = '  '.repeat(depth);
+			const indent: Str = '  '.repeat(depth);
 			// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 			console.log(
 				`${indent}%c[${current.code}]%c ${current.message}`,
@@ -502,16 +539,14 @@ async function logErrorToConsole(captured: CapturedError): Promise<void> {
 		);
 		const issues = appError.validation.issues ?? [];
 		if (issues.length > 0) {
-			const issueEntries: Array<[string, string]> = issues.map((issue) => {
-				const path: string =
+			const issueEntries: Array<[Str, Str]> = issues.map((issue) => {
+				const path: Str =
 					issue.path?.map((p: { key?: unknown }) => String(p.key ?? '?')).join('.') ?? '(root)';
 				return [path, issue.message ?? 'Invalid'];
 			});
-			const issuePad: number = Math.max(pad, ...issueEntries.map(([k]) => k.length + 2));
-			const issueFmt: string = issueEntries
-				.map(([k]) => `%c  ${k.padEnd(issuePad)}%c%s`)
-				.join('\n');
-			const issueArgs: string[] = issueEntries.flatMap(([, v]) => [dim, bright, v]);
+			const issuePad: Num = Math.max(pad, ...issueEntries.map(([k]) => k.length + 2));
+			const issueFmt: Str = issueEntries.map(([k]) => `%c  ${k.padEnd(issuePad)}%c%s`).join('\n');
+			const issueArgs: Str[] = issueEntries.flatMap(([, val]) => [dim, bright, val]);
 			// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 			console.log(issueFmt, ...issueArgs);
 		}

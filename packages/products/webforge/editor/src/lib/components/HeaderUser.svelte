@@ -12,35 +12,36 @@ import { goto } from '$app/navigation';
 import { page } from '$app/state';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
+import type { Bool, Str, Void } from '@/schemas/common';
 
-const store = useEditorStore();
+const store: ReturnType<typeof useEditorStore> = useEditorStore();
 
 /**
  * Handles Log Out click: navigates to the current page with `?wf.auth=false`
  * to simulate a logged-out state in dev mode.
  */
-function handleLogOut(): void {
-	const url = new URL(page.url);
+function handleLogOut(): Void {
+	const url: URL = new URL(page.url);
 	url.searchParams.set('wf.auth', 'false');
 	goto(url.toString());
 }
 
 /** Monogram from the user name (e.g. "John Doe" → "JD", "User" → "U"). */
-const monogram: string = $derived(
+const monogram: Str = $derived(
 	store.app.userName
 		.split(/\s+/)
 		.slice(0, 2)
-		.map((w: string) => w[0]?.toUpperCase() ?? '')
+		.map((w: Str) => w[0]?.toUpperCase() ?? '')
 		.join(''),
 );
 
-const hasAccountGroup: boolean = $derived(
+const hasAccountGroup: Bool = $derived(
 	store.features.headerUserAccount ||
 		store.features.headerUserSubscription ||
 		store.features.headerUserNotifications,
 );
 
-const hasToolsGroup: boolean = $derived(
+const hasToolsGroup: Bool = $derived(
 	store.features.headerUserShortcuts ||
 		store.features.headerUserSettings ||
 		store.features.headerUserWhatsNew,

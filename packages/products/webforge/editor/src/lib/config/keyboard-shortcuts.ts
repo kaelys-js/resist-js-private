@@ -28,7 +28,7 @@
 import * as v from 'valibot';
 import { safeParse } from '@/utils/result/safe';
 import { type Result, okUnchecked, err, ERRORS } from '@/schemas/result/result';
-import type { Str, Bool } from '@/schemas/common';
+import type { Str, Num, Bool } from '@/schemas/common';
 
 // ── Platform detection ───────────────────────────────────────────────────────
 
@@ -65,24 +65,24 @@ export type ShortcutContext = v.InferOutput<typeof ShortcutContextSchema>;
 
 /** Schema for a single keyboard shortcut definition. */
 export const KeyboardShortcutSchema = v.strictObject({
-	/** Unique identifier (e.g., `'TOGGLE_SIDEBAR'`). */
-	id: v.string(),
-	/** The key to press (e.g., `'b'`, `'1'`, `'Escape'`, `'D'`). Case-sensitive. */
-	key: v.string(),
-	/** Required modifier keys (order-independent). */
-	modifiers: v.pipe(v.array(ModifierKeySchema), v.readonly()),
-	/** Short human-readable label for the action. */
-	label: v.string(),
-	/** Longer description for accessibility / help dialogs. */
-	description: v.string(),
+	/** Unique identifier (e.g., `'TOGGLE_SIDEBAR'`). Must be non-empty. */
+	id: v.pipe(v.string(), v.minLength(1)),
+	/** The key to press (e.g., `'b'`, `'1'`, `'Escape'`, `'D'`). Case-sensitive. Must be non-empty. */
+	key: v.pipe(v.string(), v.minLength(1)),
+	/** Required modifier keys (order-independent). Maximum 4 modifiers. */
+	modifiers: v.pipe(v.array(ModifierKeySchema), v.maxLength(4), v.readonly()),
+	/** Short human-readable label for the action. Must be non-empty. */
+	label: v.pipe(v.string(), v.minLength(1)),
+	/** Longer description for accessibility / help dialogs. Must be non-empty. */
+	description: v.pipe(v.string(), v.minLength(1)),
 	/** Context in which this shortcut is active. */
 	context: ShortcutContextSchema,
 	/** Whether the shortcut is currently enabled. */
 	enabled: v.boolean(),
-	/** Original default key (for reset). */
-	defaultKey: v.string(),
-	/** Original default modifiers (for reset). */
-	defaultModifiers: v.pipe(v.array(ModifierKeySchema), v.readonly()),
+	/** Original default key (for reset). Must be non-empty. */
+	defaultKey: v.pipe(v.string(), v.minLength(1)),
+	/** Original default modifiers (for reset). Maximum 4 modifiers. */
+	defaultModifiers: v.pipe(v.array(ModifierKeySchema), v.maxLength(4), v.readonly()),
 });
 
 /** Inferred keyboard shortcut type. */
@@ -364,10 +364,15 @@ export function formatShortcut(shortcut: KeyboardShortcut): Str {
 
 /** A detected shortcut conflict between two entries. */
 export const ShortcutConflictSchema = v.strictObject({
-	a: v.string(),
-	b: v.string(),
-	key: v.string(),
-	modifiers: v.pipe(v.array(ModifierKeySchema), v.readonly()),
+	/** ID of the first conflicting shortcut. */
+	a: v.pipe(v.string(), v.minLength(1)),
+	/** ID of the second conflicting shortcut. */
+	b: v.pipe(v.string(), v.minLength(1)),
+	/** The conflicting key binding. */
+	key: v.pipe(v.string(), v.minLength(1)),
+	/** The conflicting modifier combination. */
+	modifiers: v.pipe(v.array(ModifierKeySchema), v.maxLength(4), v.readonly()),
+	/** The context in which the conflict occurs. */
 	context: ShortcutContextSchema,
 });
 
@@ -395,8 +400,8 @@ export function detectConflicts(registry: ShortcutRegistry): ShortcutConflict[] 
 	const conflicts: ShortcutConflict[] = [];
 	const entries: KeyboardShortcut[] = Object.values(registry).filter((s) => s.enabled);
 
-	for (let i = 0; i < entries.length; i++) {
-		for (let j: number = i + 1; j < entries.length; j++) {
+	for (let i: Num = 0; i < entries.length; i++) {
+		for (let j: Num = i + 1; j < entries.length; j++) {
 			const a: KeyboardShortcut = entries[i];
 			const b: KeyboardShortcut = entries[j];
 
@@ -444,7 +449,7 @@ export function detectConflicts(registry: ShortcutRegistry): ShortcutConflict[] 
  */
 export function getAllShortcuts(registry: ShortcutRegistry): KeyboardShortcut[] {
 	return Object.values(registry).toSorted((a, b) => {
-		const contextCmp: number = a.context.localeCompare(b.context);
+		const contextCmp: Num = a.context.localeCompare(b.context);
 		if (contextCmp !== 0) return contextCmp;
 		return a.label.localeCompare(b.label);
 	});
@@ -478,7 +483,7 @@ export function updateShortcut(
 	key: Str,
 	modifiers: readonly ModifierKey[],
 ): Result<ShortcutRegistry> {
-	const idResult = safeParse(ShortcutIdSchema, id);
+	const idResult: Result<ShortcutId> = safeParse(ShortcutIdSchema, id);
 	if (!idResult.ok) return err(ERRORS.VALIDATION.SCHEMA_FAILED, `Unknown shortcut ID: ${id}`);
 
 	const validId: ShortcutId = idResult.data;
@@ -522,7 +527,7 @@ export function updateShortcut(
  * ```
  */
 export function resetShortcut(registry: ShortcutRegistry, id: Str): Result<ShortcutRegistry> {
-	const idResult = safeParse(ShortcutIdSchema, id);
+	const idResult: Result<ShortcutId> = safeParse(ShortcutIdSchema, id);
 	if (!idResult.ok) return err(ERRORS.VALIDATION.SCHEMA_FAILED, `Unknown shortcut ID: ${id}`);
 
 	const validId: ShortcutId = idResult.data;
@@ -549,5 +554,6 @@ export function resetShortcut(registry: ShortcutRegistry, id: Str): Result<Short
  * ```
  */
 export function resetAllShortcuts(): ShortcutRegistry {
+	// structuredClone erases the Record<ShortcutId, ...> refinement
 	return structuredClone(DEFAULT_SHORTCUTS) as ShortcutRegistry;
 }

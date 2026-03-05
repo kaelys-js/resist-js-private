@@ -16,8 +16,11 @@ import { safeParse } from '@/utils/result/safe';
  * Schema for a language's display name information.
  */
 const LanguageDisplayInfoSchema = v.strictObject({
+	/** BCP 47 language code (e.g., `'ja'`, `'fr'`). */
 	code: v.string(),
+	/** Native name of the language (e.g., `'日本語'` for Japanese). */
 	endonym: v.string(),
+	/** Name of the language in the current display locale (e.g., `'Japanese'`). */
 	exonym: v.string(),
 });
 
@@ -51,8 +54,8 @@ export function getLanguageDisplayName(code: Str, currentLocale: Str): Result<La
 	const endonymDisplay = new Intl.DisplayNames([codeResult.data], { type: 'language' });
 	const exonymDisplay = new Intl.DisplayNames([localeResult.data], { type: 'language' });
 
-	const endonym: string | undefined = endonymDisplay.of(codeResult.data);
-	const exonym: string | undefined = exonymDisplay.of(codeResult.data);
+	const endonym: Str | undefined = endonymDisplay.of(codeResult.data);
+	const exonym: Str | undefined = exonymDisplay.of(codeResult.data);
 
 	if (!endonym || !exonym) {
 		return err(

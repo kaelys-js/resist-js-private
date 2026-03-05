@@ -8,6 +8,8 @@
  * @module
  */
 
+import * as v from 'valibot';
+import type { Str, Bool } from '@/schemas/common';
 import {
 	AppPreferencesSchema,
 	FeatureFlagsSchema,
@@ -22,7 +24,7 @@ import type { DebugStore } from '$lib/stores/debug-state.svelte';
 // =============================================================================
 
 /**
- * Descriptor for a discovered feature flag.
+ * Schema for a discovered feature flag descriptor.
  *
  * @example
  * ```typescript
@@ -30,15 +32,21 @@ import type { DebugStore } from '$lib/stores/debug-state.svelte';
  * // [{ key: 'settings', default: true }, { key: 'sceneList', default: true }, ...]
  * ```
  */
-export type FlagDescriptor = {
+export const FlagDescriptorSchema = v.strictObject({
 	/** Schema key name (e.g., 'settings', 'sceneList'). */
-	key: string;
+	key: v.string(),
 	/** Default boolean value from the schema. */
-	default: boolean;
-};
+	default: v.boolean(),
+});
+
+/** A discovered feature flag descriptor. */
+export type FlagDescriptor = v.InferOutput<typeof FlagDescriptorSchema>;
+
+/** Valid field control types for UI rendering. */
+const FieldControlTypeSchema = v.picklist(['boolean', 'picklist', 'string', 'number']);
 
 /**
- * Descriptor for a discovered schema field with control type information.
+ * Schema for a discovered schema field with control type information.
  *
  * @example
  * ```typescript
@@ -46,16 +54,19 @@ export type FlagDescriptor = {
  * // [{ key: 'theme', type: 'picklist', options: ['', 'midnight', ...], default: '' }, ...]
  * ```
  */
-export type FieldDescriptor = {
+export const FieldDescriptorSchema = v.strictObject({
 	/** Schema key name (e.g., 'theme', 'sidebarOpen'). */
-	key: string;
+	key: v.string(),
 	/** Control type to render: Switch for boolean, Select for picklist, Input for string/number. */
-	type: 'boolean' | 'picklist' | 'string' | 'number';
+	type: FieldControlTypeSchema,
 	/** Available options for picklist fields. Undefined for non-picklist types. */
-	options?: readonly string[];
+	options: v.optional(v.array(v.string())),
 	/** Default value from the schema. */
-	default: unknown;
-};
+	default: v.unknown(),
+});
+
+/** A discovered schema field with control type information. */
+export type FieldDescriptor = v.InferOutput<typeof FieldDescriptorSchema>;
 
 // =============================================================================
 // Valibot introspection helpers
@@ -68,22 +79,25 @@ export type FieldDescriptor = {
  * @param entry - A Valibot schema node
  * @returns Object with detected type, options array, and default value
  */
-function introspectEntry(entry: Record<string, unknown>): {
+function introspectEntry(entry: Record<Str, unknown>): {
 	type: 'boolean' | 'picklist' | 'string' | 'number';
-	options?: readonly string[];
+	options?: Str[];
 	default: unknown;
 } {
 	// Unwrap v.optional() — entry.type === 'optional', entry.wrapped is inner schema
 	const defaultValue: unknown = entry.default;
-	let inner: Record<string, unknown> = entry;
+	// Schema introspection — cast required for Valibot internal structure walking
+	let inner: Record<Str, unknown> = entry;
 
 	if (entry.type === 'optional' && entry.wrapped) {
-		inner = entry.wrapped as Record<string, unknown>;
+		// Schema introspection — unwrapping v.optional() wrapper
+		inner = entry.wrapped as Record<Str, unknown>;
 	}
 
 	// Unwrap v.pipe() — inner.type === 'pipe', inner.pipe is array of schemas
 	if (inner.type === 'pipe' && Array.isArray(inner.pipe)) {
-		inner = inner.pipe[0] as Record<string, unknown>;
+		// Schema introspection — unwrapping v.pipe() to get base schema
+		inner = inner.pipe[0] as Record<Str, unknown>;
 	}
 
 	// Detect type
@@ -98,7 +112,8 @@ function introspectEntry(entry: Record<string, unknown>): {
 	if (inner.type === 'picklist' && Array.isArray(inner.options)) {
 		return {
 			type: 'picklist',
-			options: inner.options as readonly string[],
+			// Schema introspection — Valibot's picklist options are readonly string arrays
+			options: inner.options as Str[],
 			default: defaultValue,
 		};
 	}
@@ -125,9 +140,10 @@ function introspectEntry(entry: Record<string, unknown>): {
  * ```
  */
 export function discoverFeatureFlags(): FlagDescriptor[] {
-	const entries = FeatureFlagsSchema.entries as unknown as Record<string, Record<string, unknown>>;
-	return Object.keys(entries).map((key: string): FlagDescriptor => {
-		const entry = entries[key];
+	// Schema introspection — cast required for Valibot schema entry walking
+	const entries = FeatureFlagsSchema.entries as unknown as Record<Str, Record<Str, unknown>>;
+	return Object.keys(entries).map((key: Str): FlagDescriptor => {
+		const entry: Record<Str, unknown> = entries[key];
 		const defaultValue: unknown = entry.default;
 		return {
 			key,
@@ -152,12 +168,14 @@ export function discoverFeatureFlags(): FlagDescriptor[] {
  * ```
  */
 export function discoverAppPreferences(): FieldDescriptor[] {
-	const entries = AppPreferencesSchema.entries as unknown as Record<
-		string,
-		Record<string, unknown>
-	>;
-	return Object.keys(entries).map((key: string): FieldDescriptor => {
-		const info = introspectEntry(entries[key]);
+	// Schema introspection — cast required for Valibot schema entry walking
+	const entries = AppPreferencesSchema.entries as unknown as Record<Str, Record<Str, unknown>>;
+	return Object.keys(entries).map((key: Str): FieldDescriptor => {
+		const info: {
+			type: 'boolean' | 'picklist' | 'string' | 'number';
+			options?: Str[];
+			default: unknown;
+		} = introspectEntry(entries[key]);
 		return { key, ...info };
 	});
 }
@@ -176,9 +194,14 @@ export function discoverAppPreferences(): FieldDescriptor[] {
  * ```
  */
 export function discoverDebugFields(): FieldDescriptor[] {
-	const entries = DebugStateSchema.entries as unknown as Record<string, Record<string, unknown>>;
-	return Object.keys(entries).map((key: string): FieldDescriptor => {
-		const info = introspectEntry(entries[key]);
+	// Schema introspection — cast required for Valibot schema entry walking
+	const entries = DebugStateSchema.entries as unknown as Record<Str, Record<Str, unknown>>;
+	return Object.keys(entries).map((key: Str): FieldDescriptor => {
+		const info: {
+			type: 'boolean' | 'picklist' | 'string' | 'number';
+			options?: Str[];
+			default: unknown;
+		} = introspectEntry(entries[key]);
 		return { key, ...info };
 	});
 }
@@ -205,11 +228,11 @@ export function discoverDebugFields(): FieldDescriptor[] {
 export function generateDebugUrl(
 	editorStore: EditorStore,
 	debugStore: DebugStore,
-	baseUrl?: string,
-): string {
-	const base: string =
+	baseUrl?: Str,
+): Str {
+	const base: Str =
 		baseUrl ?? (typeof window === 'undefined' ? '/' : window.location.href.split('?')[0]);
-	const params = new URLSearchParams();
+	const params: URLSearchParams = new URLSearchParams();
 
 	// Debug state
 	params.set('wf.debug', String(debugStore.debug.enabled));
@@ -224,9 +247,9 @@ export function generateDebugUrl(
 
 	// Feature flags — only include non-default (disabled) flags to keep URL concise
 	const { features } = editorStore;
-	const flags = discoverFeatureFlags();
+	const flags: FlagDescriptor[] = discoverFeatureFlags();
 	for (const flag of flags) {
-		const current: boolean = features[flag.key as keyof FeatureFlags];
+		const current: Bool = features[flag.key as keyof FeatureFlags];
 		if (current !== flag.default) {
 			params.set(`wf.ff.${flag.key}`, String(current));
 		}
@@ -251,14 +274,14 @@ export function generateDebugUrl(
  * humanizeKey('appName');   // 'App Name'
  * ```
  */
-export function humanizeKey(key: string): string {
+export function humanizeKey(key: Str): Str {
 	// Insert space before uppercase letters, then capitalize first letter
-	const spaced: string = key.replaceAll(/([A-Z])/g, ' $1');
+	const spaced: Str = key.replaceAll(/([A-Z])/g, ' $1');
 	return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
 /** Known display labels for picklist option values, keyed by field key. */
-const OPTION_LABELS: Record<string, Record<string, string>> = {
+const OPTION_LABELS: Record<Str, Record<Str, Str>> = {
 	theme: { '': 'Default' },
 	locale: {
 		en: 'English',
@@ -287,8 +310,8 @@ const OPTION_LABELS: Record<string, Record<string, string>> = {
  * humanizeOption('mode', 'dark');  // 'Dark'
  * ```
  */
-export function humanizeOption(key: string, value: string): string {
-	const fieldLabels = OPTION_LABELS[key];
+export function humanizeOption(key: Str, value: Str): Str {
+	const fieldLabels: Record<Str, Str> | undefined = OPTION_LABELS[key];
 	if (fieldLabels && value in fieldLabels) return fieldLabels[value];
 	if (!value) return 'Default';
 	return value.charAt(0).toUpperCase() + value.slice(1);

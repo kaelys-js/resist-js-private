@@ -12,6 +12,7 @@ import { localeStore, t } from '$lib/i18n.svelte';
 import { APP_TAGLINE } from '$lib/config/app-meta';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 import type { ServerUser, ServerProject, ServerScene } from '$lib/server/data/types';
+import type { Str } from '@/schemas/common';
 
 type Props = ComponentProps<typeof Sidebar.Root> & {
 	user?: ServerUser | null;
@@ -20,9 +21,9 @@ type Props = ComponentProps<typeof Sidebar.Root> & {
 };
 let { user = null, project = null, scenes = [], ...restProps }: Props = $props();
 
-const store = useEditorStore();
+const store: ReturnType<typeof useEditorStore> = useEditorStore();
 
-const navSecondary = $derived([
+const navSecondary: Array<{ title: Str; url: Str; icon: typeof Settings }> = $derived([
 	...(store.features.settings && (!store.features.authGatedUi || user)
 		? [{ title: t(localeStore.t.common.settings, 'Settings'), url: '#settings', icon: Settings }]
 		: []),

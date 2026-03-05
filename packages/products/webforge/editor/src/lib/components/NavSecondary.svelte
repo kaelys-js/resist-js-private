@@ -1,14 +1,15 @@
 <script lang="ts">
 import type { Component } from 'svelte';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+import type { Str } from '@/schemas/common';
 
 type NavItem = {
-	title: string;
-	url: string;
+	title: Str;
+	url: Str;
 	icon: Component;
 };
 
-let { items, ...restProps }: { items: NavItem[] } & Record<string, unknown> = $props();
+let { items, ...restProps }: { items: NavItem[] } & Record<Str, unknown> = $props();
 </script>
 
 <Sidebar.Group {...restProps}>

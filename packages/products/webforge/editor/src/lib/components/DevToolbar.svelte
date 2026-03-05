@@ -12,10 +12,10 @@ import Check from '@lucide/svelte/icons/check';
 import { Button } from '$lib/components/ui/button/index.js';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import { Separator } from '$lib/components/ui/separator/index.js';
-import { useEditorStore } from '$lib/stores/editor-state.svelte';
-import { useDebugStore } from '$lib/stores/debug-state.svelte';
+import { useEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';
+import { useDebugStore, type DebugStore } from '$lib/stores/debug-state.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
-import type { Str } from '@/schemas/common';
+import type { Str, Num, Bool, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import DevToolbarFeatureFlags from './DevToolbarFeatureFlags.svelte';
 import DevToolbarAppState from './DevToolbarAppState.svelte';
@@ -25,21 +25,21 @@ import { storageKey } from '$lib/config/app-meta';
 import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
 import { scale, fly } from 'svelte/transition';
 
-const editorStore = useEditorStore();
-const debugStore = useDebugStore();
+const editorStore: EditorStore = useEditorStore();
+const debugStore: DebugStore = useDebugStore();
 
-let toolbarOpen = $state(false);
-let activePanel: string | null = $state(null);
-let copySuccess = $state(false);
-let resetSuccess = $state(false);
+let toolbarOpen: Bool = $state(false);
+let activePanel: Str | null = $state(null);
+let copySuccess: Bool = $state(false);
+let resetSuccess: Bool = $state(false);
 
 // ── Draggable position (persisted to localStorage) ───────────────────
-const POS_KEY: string = storageKey('dev-toolbar-pos');
+const POS_KEY: Str = storageKey('dev-toolbar-pos');
 
-function loadPos(): { x: number; b: number } {
+function loadPos(): { x: Num; b: Num } {
 	if (typeof window === 'undefined') return { x: 0, b: 16 };
 	try {
-		const raw: string | null = localStorage.getItem(POS_KEY);
+		const raw: Str | null = localStorage.getItem(POS_KEY);
 		if (raw) {
 			const p = JSON.parse(raw);
 			if (typeof p.x === 'number' && typeof p.b === 'number') {
@@ -52,18 +52,18 @@ function loadPos(): { x: number; b: number } {
 	return { x: window.innerWidth / 2, b: 16 };
 }
 
-const initPos = loadPos();
-let posX: number = $state(initPos.x);
-let posBottom: number = $state(initPos.b);
+const initPos: { x: Num; b: Num } = loadPos();
+let posX: Num = $state(initPos.x);
+let posBottom: Num = $state(initPos.b);
 
-let dragging = $state(false);
-let dragStartClientX = 0;
-let dragStartClientY = 0;
-let dragOriginX = 0;
-let dragOriginBottom = 0;
-let didDrag = false;
+let dragging: Bool = $state(false);
+let dragStartClientX: Num = 0;
+let dragStartClientY: Num = 0;
+let dragOriginX: Num = 0;
+let dragOriginBottom: Num = 0;
+let didDrag: Bool = false;
 
-function savePos(): void {
+function savePos(): Void {
 	try {
 		localStorage.setItem(POS_KEY, JSON.stringify({ x: posX, b: posBottom }));
 	} catch (_) {
@@ -71,27 +71,29 @@ function savePos(): void {
 	}
 }
 
-function onDragStart(e: PointerEvent): void {
+function onDragStart(e: PointerEvent): Void {
 	dragging = true;
 	didDrag = false;
 	dragStartClientX = e.clientX;
 	dragStartClientY = e.clientY;
 	dragOriginX = posX;
 	dragOriginBottom = posBottom;
-	(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+	if (e.currentTarget instanceof HTMLElement) {
+		e.currentTarget.setPointerCapture(e.pointerId);
+	}
 }
 
-function onDragMove(e: PointerEvent): void {
+function onDragMove(e: PointerEvent): Void {
 	if (!dragging) return;
-	const dx: number = e.clientX - dragStartClientX;
-	const dy: number = e.clientY - dragStartClientY;
+	const dx: Num = e.clientX - dragStartClientX;
+	const dy: Num = e.clientY - dragStartClientY;
 	if (!didDrag && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
 	didDrag = true;
 	posX = Math.max(24, Math.min(window.innerWidth - 24, dragOriginX + dx));
 	posBottom = Math.max(8, Math.min(window.innerHeight - 48, dragOriginBottom - dy));
 }
 
-function onDragEnd(): void {
+function onDragEnd(): Void {
 	dragging = false;
 	if (didDrag) savePos();
 }
@@ -101,10 +103,10 @@ $effect(() => {
 	/**
 	 * Clamps toolbar position to visible bounds when viewport resizes.
 	 */
-	function onResize(): void {
-		const maxX: number = window.innerWidth - 24;
-		const maxB: number = window.innerHeight - 48;
-		let changed = false;
+	function onResize(): Void {
+		const maxX: Num = window.innerWidth - 24;
+		const maxB: Num = window.innerHeight - 48;
+		let changed: Bool = false;
 		if (posX > maxX) {
 			posX = Math.max(24, maxX);
 			changed = true;
@@ -120,13 +122,14 @@ $effect(() => {
 });
 
 // ── Badge data ────────────────────────────────────────────────────────
-const flags = discoverFeatureFlags();
-type LocaleFn = (params: Record<string, never>) => Result<Str>;
-const MODE_FALLBACKS: Record<string, string> = { light: 'Light', dark: 'Dark', system: 'System' };
-const modeDisplayName: string = $derived(
+const flags: ReturnType<typeof discoverFeatureFlags> = discoverFeatureFlags();
+/** Locale function type — workaround for DeepReadonly type mangling. */
+type LocaleFn = (params: Record<Str, never>) => Result<Str>;
+const MODE_FALLBACKS: Record<Str, Str> = { light: 'Light', dark: 'Dark', system: 'System' };
+const modeDisplayName: Str = $derived(
 	(() => {
 		const { mode } = editorStore.app;
-		const lookup: Record<string, LocaleFn> = {
+		const lookup: Record<Str, LocaleFn> = {
 			light: localeStore.t.settings.light as LocaleFn,
 			dark: localeStore.t.settings.dark as LocaleFn,
 			system: localeStore.t.settings.system as LocaleFn,
@@ -136,10 +139,11 @@ const modeDisplayName: string = $derived(
 		return t(fn, MODE_FALLBACKS[mode] ?? mode);
 	})(),
 );
-const cycleThemeLabel: string = $derived(
+const cycleThemeLabel: Str = $derived(
 	(() => {
+		// Locale DeepReadonly workaround — parametric locale function needs cast
 		const result: Result<Str> = (
-			localeStore.t.devToolbar.cycleTheme as (p: { mode: string }) => Result<Str>
+			localeStore.t.devToolbar.cycleTheme as (p: { mode: Str }) => Result<Str>
 		)({ mode: modeDisplayName });
 		return result.ok ? result.data : `Cycle Theme (${modeDisplayName})`;
 	})(),
@@ -151,9 +155,10 @@ const MODES = ['light', 'dark', 'system'] as const;
 /**
  * Cycles through light → dark → system → light.
  */
-function cycleMode(): void {
-	const currentIdx: number = MODES.indexOf(editorStore.app.mode as (typeof MODES)[number]);
-	const nextIdx: number = (currentIdx + 1) % MODES.length;
+function cycleMode(): Void {
+	// Mode narrowing — editorStore.app.mode is Str but MODES.indexOf needs literal union
+	const currentIdx: Num = MODES.indexOf(editorStore.app.mode as (typeof MODES)[number]);
+	const nextIdx: Num = (currentIdx + 1) % MODES.length;
 	editorStore.setMode(MODES[nextIdx]);
 }
 
@@ -162,7 +167,7 @@ function cycleMode(): void {
 /**
  * Copies full state JSON to clipboard.
  */
-async function copyDebugInfo(): Promise<void> {
+async function copyDebugInfo(): Promise<Void> {
 	const state = {
 		app: { ...editorStore.app },
 		features: { ...editorStore.features },
@@ -178,11 +183,12 @@ async function copyDebugInfo(): Promise<void> {
 /**
  * Resets all state to defaults.
  */
-function resetAll(): void {
-	const prefs = discoverAppPreferences();
+function resetAll(): Void {
+	const prefs: ReturnType<typeof discoverAppPreferences> = discoverAppPreferences();
 	for (const pref of prefs) {
-		const setterName = `set${pref.key.charAt(0).toUpperCase()}${pref.key.slice(1)}`;
-		const setter = (editorStore as unknown as Record<string, (v: unknown) => unknown>)[setterName];
+		const setterName: Str = `set${pref.key.charAt(0).toUpperCase()}${pref.key.slice(1)}`;
+		// Dynamic setter access — store type doesn't expose string-indexed setters
+		const setter = (editorStore as unknown as Record<Str, (v: unknown) => unknown>)[setterName];
 		if (typeof setter === 'function') {
 			setter(pref.default);
 		}
@@ -215,17 +221,17 @@ function resetAll(): void {
  *
  * @param panel - Panel identifier ('flags', 'app', 'debug')
  */
-function togglePanel(panel: string): void {
+function togglePanel(panel: Str): Void {
 	activePanel = activePanel === panel ? null : panel;
 }
 
 // Popover open states — driven by activePanel
-const flagsOpen: boolean = $derived(activePanel === 'flags');
-const appOpen: boolean = $derived(activePanel === 'app');
-const debugOpen: boolean = $derived(activePanel === 'debug');
+const flagsOpen: Bool = $derived(activePanel === 'flags');
+const appOpen: Bool = $derived(activePanel === 'app');
+const debugOpen: Bool = $derived(activePanel === 'debug');
 
 // ── Roving tabindex ──────────────────────────────────────────────────
-const TOOLBAR_BUTTON_IDS: readonly string[] = [
+const TOOLBAR_BUTTON_IDS: readonly Str[] = [
 	'toolbar-btn-flags',
 	'toolbar-btn-app',
 	'toolbar-btn-debug',
@@ -234,16 +240,16 @@ const TOOLBAR_BUTTON_IDS: readonly string[] = [
 	'toolbar-btn-reset',
 ];
 
-let focusedIndex: number = $state(0);
+let focusedIndex: Num = $state(0);
 
 /**
  * WAI-ARIA toolbar keyboard navigation — roving tabindex pattern.
  *
  * @param e - Keyboard event from the toolbar container
  */
-function handleToolbarKeydown(e: KeyboardEvent): void {
-	const count: number = TOOLBAR_BUTTON_IDS.length;
-	let nextIndex: number | null = null;
+function handleToolbarKeydown(e: KeyboardEvent): Void {
+	const count: Num = TOOLBAR_BUTTON_IDS.length;
+	let nextIndex: Num | null = null;
 
 	switch (e.key) {
 		case 'ArrowRight': {
@@ -304,7 +310,7 @@ $effect(() => {
 	 *
 	 * @param e - Keyboard event
 	 */
-	function handleKeydown(e: KeyboardEvent): void {
+	function handleKeydown(e: KeyboardEvent): Void {
 		// Ctrl+Shift+D: toggle toolbar + enable debug
 		if (shortcutStore.matches(e, 'TOGGLE_DEV_TOOLBAR')) {
 			e.preventDefault();

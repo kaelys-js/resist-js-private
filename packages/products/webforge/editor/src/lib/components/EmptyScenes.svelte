@@ -5,7 +5,7 @@ import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 
-const store = useEditorStore();
+const store: ReturnType<typeof useEditorStore> = useEditorStore();
 </script>
 
 {#if store.features.emptyScenePlaceholder}

@@ -1,5 +1,12 @@
+/**
+ * French (fr) locale strings for the WebForge editor.
+ *
+ * @module
+ */
+
 import type { EditorLocaleRaw } from './schema';
 
+/** French locale data. */
 export const fr: EditorLocaleRaw = {
 	meta: {
 		tagline: 'Votre histoire, rendue vivante',

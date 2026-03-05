@@ -7,10 +7,11 @@ import Check from '@lucide/svelte/icons/check';
 import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
+import type { Bool, Str, Void } from '@/schemas/common';
 
-const store = useEditorStore();
+const store: ReturnType<typeof useEditorStore> = useEditorStore();
 
-let searchQuery: string = $state('');
+let searchQuery: Str = $state('');
 
 /* Dots: [primary, accent/secondary, sidebar, sidebar-primary] */
 const themes = [
@@ -131,13 +132,13 @@ const themes = [
 	},
 ] as const;
 
-const filteredThemes = $derived(
+const filteredThemes: ReadonlyArray<(typeof themes)[number]> = $derived(
 	searchQuery.length === 0
 		? themes
 		: themes.filter((th) => th.label().toLowerCase().includes(searchQuery.toLowerCase())),
 );
 
-function handleSubOpenChange(open: boolean): void {
+function handleSubOpenChange(open: Bool): Void {
 	if (!open) searchQuery = '';
 }
 </script>

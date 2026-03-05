@@ -10,6 +10,7 @@
  * @module
  */
 
+import type { Str, Bool, Void } from '@/schemas/common';
 import { styles } from '$lib/debug/console-styles';
 import { createWatcher, type WatcherCleanup } from '$lib/debug/state-logger.svelte';
 import {
@@ -27,10 +28,10 @@ import type { DebugState } from '$lib/schemas/debug-state';
 // =============================================================================
 
 /** The window global key for the devtools API. */
-export const DEVTOOLS_KEY = '__EDITOR_DEVTOOLS__';
+export const DEVTOOLS_KEY: Str = '__EDITOR_DEVTOOLS__';
 
 /** App version exposed via devtools. */
-const VERSION = '0.1.0';
+const VERSION: Str = '0.1.0';
 
 // =============================================================================
 // Types
@@ -55,30 +56,30 @@ export type EditorDevtools = {
 	 * @param path - Dot-separated path (e.g., 'app.theme', 'features.settings', 'debug.logLevel')
 	 * @param value - Value to set
 	 */
-	set(path: string, value: unknown): void;
+	set(path: Str, value: unknown): Void;
 
 	/** Set the active theme. */
-	setTheme(theme: string): void;
+	setTheme(theme: Str): Void;
 	/** Set the color mode. */
-	setMode(mode: string): void;
+	setMode(mode: Str): Void;
 	/** Set the active locale. */
-	setLocale(locale: string): void;
+	setLocale(locale: Str): Void;
 	/** Set whether the sidebar is open. */
-	setSidebarOpen(open: boolean): void;
+	setSidebarOpen(open: Bool): Void;
 	/** Toggle a feature flag. */
-	setFeature(flag: string, enabled: boolean): void;
+	setFeature(flag: Str, enabled: Bool): Void;
 	/** Set the log level. */
-	setLogLevel(level: string): void;
+	setLogLevel(level: Str): Void;
 
 	/** Enable debug mode. */
-	enable(): void;
+	enable(): Void;
 	/** Disable debug mode. */
-	disable(): void;
+	disable(): Void;
 
 	/** Pretty-print full state to console. */
-	logState(): void;
+	logState(): Void;
 	/** Pretty-print feature flags as a console table. */
-	logFeatures(): void;
+	logFeatures(): Void;
 
 	/**
 	 * Register a reactive state watcher for change tracking.
@@ -88,14 +89,14 @@ export type EditorDevtools = {
 	 * @param name - Section name shown in console output (e.g., 'sidebar')
 	 * @param getter - Function that returns a plain snapshot of reactive state
 	 */
-	registerWatcher(name: string, getter: () => Record<string, unknown>): void;
+	registerWatcher(name: Str, getter: () => Record<Str, unknown>): Void;
 
 	/**
 	 * Remove a previously registered watcher by name.
 	 *
 	 * @param name - Section name used in `registerWatcher`
 	 */
-	unregisterWatcher(name: string): void;
+	unregisterWatcher(name: Str): Void;
 
 	/**
 	 * Register a custom namespace on the devtools API.
@@ -103,19 +104,19 @@ export type EditorDevtools = {
 	 * @param namespace - Name for the extension (e.g., 'scene', 'audio')
 	 * @param api - Object with methods/properties to expose
 	 */
-	register(namespace: string, api: Record<string, unknown>): void;
+	register(namespace: Str, api: Record<Str, unknown>): Void;
 
 	/**
 	 * Remove a previously registered namespace.
 	 *
 	 * @param namespace - Name of the extension to remove
 	 */
-	unregister(namespace: string): void;
+	unregister(namespace: Str): Void;
 
 	/** Current app name from editor state. */
-	readonly appName: string;
+	readonly appName: Str;
 	/** Devtools API version. */
-	readonly version: string;
+	readonly version: Str;
 };
 
 // =============================================================================
@@ -123,14 +124,14 @@ export type EditorDevtools = {
 // =============================================================================
 
 /** Map of app preference keys to their setter method names on EditorStore. */
-const APP_SETTER_MAP: Record<string, string> = {};
+const APP_SETTER_MAP: Record<Str, Str> = {};
 for (const key of Object.keys(AppPreferencesSchema.entries)) {
-	const capitalized: string = key.charAt(0).toUpperCase() + key.slice(1);
+	const capitalized: Str = key.charAt(0).toUpperCase() + key.slice(1);
 	APP_SETTER_MAP[key] = `set${capitalized}`;
 }
 
 /** Set of valid feature flag keys, derived from schema. */
-const FEATURE_KEYS = new Set<string>(Object.keys(FeatureFlagsSchema.entries));
+const FEATURE_KEYS: Set<Str> = new Set<Str>(Object.keys(FeatureFlagsSchema.entries));
 
 // =============================================================================
 // Factory
@@ -153,9 +154,9 @@ const FEATURE_KEYS = new Set<string>(Object.keys(FeatureFlagsSchema.entries));
 export function createDevtoolsAPI(
 	editorStore: EditorStore,
 	debugStore: DebugStore,
-): { destroy(): void } {
-	const extensions = new Map<string, Record<string, unknown>>();
-	const watchers = new Map<string, WatcherCleanup>();
+): { destroy(): Void } {
+	const extensions: Map<Str, Record<Str, unknown>> = new Map<Str, Record<Str, unknown>>();
+	const watchers: Map<Str, WatcherCleanup> = new Map<Str, WatcherCleanup>();
 
 	const devtools: EditorDevtools = {
 		get state() {
@@ -166,59 +167,61 @@ export function createDevtoolsAPI(
 			};
 		},
 
-		set(path: string, value: unknown): void {
+		set(path: Str, value: unknown): Void {
 			const [section, key] = path.split('.');
 			if (!section || !key) return;
 
 			if (section === 'app') {
-				const setterName: string | undefined = APP_SETTER_MAP[key];
+				const setterName: Str | undefined = APP_SETTER_MAP[key];
 				if (setterName) {
-					const setter = (editorStore as Record<string, unknown>)[setterName];
+					// Dynamic setter access — store type doesn't expose string-indexed setters
+					const setter = (editorStore as Record<Str, unknown>)[setterName];
 					if (typeof setter === 'function') {
-						(setter as (v: unknown) => void)(value);
+						(setter as (v: unknown) => Void)(value);
 					}
 				}
 			} else if (section === 'features') {
 				if (FEATURE_KEYS.has(key)) {
-					editorStore.setFeature(key, value as boolean);
+					// Value must be boolean for feature flags
+					editorStore.setFeature(key, value as Bool);
 				}
 			} else if (section === 'debug') {
 				if (key === 'enabled') {
-					debugStore.setEnabled(value as boolean);
+					debugStore.setEnabled(value as Bool);
 				} else if (key === 'logLevel') {
-					debugStore.setLogLevel(value as string);
+					debugStore.setLogLevel(value as Str);
 				}
 			}
 		},
 
-		setTheme(theme: string): void {
+		setTheme(theme: Str): Void {
 			editorStore.setTheme(theme);
 		},
-		setMode(mode: string): void {
+		setMode(mode: Str): Void {
 			editorStore.setMode(mode);
 		},
-		setLocale(locale: string): void {
+		setLocale(locale: Str): Void {
 			editorStore.setLocale(locale);
 		},
-		setSidebarOpen(open: boolean): void {
+		setSidebarOpen(open: Bool): Void {
 			editorStore.setSidebarOpen(open);
 		},
-		setFeature(flag: string, enabled: boolean): void {
+		setFeature(flag: Str, enabled: Bool): Void {
 			editorStore.setFeature(flag, enabled);
 		},
-		setLogLevel(level: string): void {
+		setLogLevel(level: Str): Void {
 			debugStore.setLogLevel(level);
 		},
 
-		enable(): void {
+		enable(): Void {
 			debugStore.setEnabled(true);
 		},
-		disable(): void {
+		disable(): Void {
 			debugStore.setEnabled(false);
 		},
 
-		logState(): void {
-			const snapshot = devtools.state;
+		logState(): Void {
+			const snapshot: EditorDevtools['state'] = devtools.state;
 			// eslint-disable-next-line no-console -- Intentional devtools output
 			console.log('%c Editor State %c', styles.storeBadge, styles.reset);
 			for (const [key, val] of Object.entries(snapshot.app)) {
@@ -235,19 +238,19 @@ export function createDevtoolsAPI(
 			}
 		},
 
-		logFeatures(): void {
+		logFeatures(): Void {
 			// eslint-disable-next-line no-console -- Intentional devtools output
 			console.table(devtools.state.features);
 		},
 
-		registerWatcher(name: string, getter: () => Record<string, unknown>): void {
+		registerWatcher(name: Str, getter: () => Record<Str, unknown>): Void {
 			// Unregister existing watcher with same name to avoid duplicates
 			const existing: WatcherCleanup | undefined = watchers.get(name);
 			if (existing) existing();
 			watchers.set(name, createWatcher(name, getter, debugStore));
 		},
 
-		unregisterWatcher(name: string): void {
+		unregisterWatcher(name: Str): Void {
 			const cleanup: WatcherCleanup | undefined = watchers.get(name);
 			if (cleanup) {
 				cleanup();
@@ -255,7 +258,7 @@ export function createDevtoolsAPI(
 			}
 		},
 
-		register(namespace: string, api: Record<string, unknown>): void {
+		register(namespace: Str, api: Record<Str, unknown>): Void {
 			extensions.set(namespace, api);
 			Object.defineProperty(devtools, namespace, {
 				value: api,
@@ -264,26 +267,26 @@ export function createDevtoolsAPI(
 			});
 		},
 
-		unregister(namespace: string): void {
+		unregister(namespace: Str): Void {
 			extensions.delete(namespace);
-			// eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Intentional extension cleanup
-			delete (devtools as Record<string, unknown>)[namespace];
+			// eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Intentional extension unregistration
+			delete (devtools as Record<Str, unknown>)[namespace];
 		},
 
-		get appName(): string {
+		get appName(): Str {
 			return editorStore.app.appName;
 		},
 
-		get version(): string {
+		get version(): Str {
 			return VERSION;
 		},
 	};
 
-	// Register on window
-	(window as unknown as Record<string, unknown>)[DEVTOOLS_KEY] = devtools;
+	// Register on window — cast required for global property assignment
+	(window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = devtools;
 
 	return {
-		destroy(): void {
+		destroy(): Void {
 			// Clean up all registered watchers
 			for (const cleanup of watchers.values()) {
 				cleanup();
@@ -291,7 +294,7 @@ export function createDevtoolsAPI(
 			watchers.clear();
 
 			// eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- Intentional global cleanup
-			delete (window as unknown as Record<string, unknown>)[DEVTOOLS_KEY];
+			delete (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY];
 		},
 	};
 }

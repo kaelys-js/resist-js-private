@@ -11,7 +11,7 @@
  */
 
 import { okUnchecked, type Result } from '@/schemas/result/result';
-import type { Str } from '@/schemas/common';
+import type { Num, Str, Void } from '@/schemas/common';
 import type { DataService, ServerProject, ServerScene } from '../data/types';
 import { MOCK_PROJECT, MOCK_SCENES } from './data';
 
@@ -21,8 +21,8 @@ import { MOCK_PROJECT, MOCK_SCENES } from './data';
  * @param ms - Duration in milliseconds (0 = no delay)
  * @returns A promise that resolves after the specified delay
  */
-function sleep(ms: number): Promise<void> {
-	if (ms <= 0) return Promise.resolve();
+function sleep(ms: Num): Promise<Void> {
+	if (ms <= 0) return Promise.resolve(undefined);
 	return new Promise((resolve) => {
 		setTimeout(resolve, ms);
 	});
@@ -42,7 +42,7 @@ function sleep(ms: number): Promise<void> {
  * // With simulated latency for skeleton testing
  * const service = createMockService(1500);
  */
-export function createMockService(delayMs = 0): DataService {
+export function createMockService(delayMs: Num = 0): DataService {
 	return {
 		projects: {
 			async getByOwner(ownerId: Str): Promise<Result<ServerProject | null>> {

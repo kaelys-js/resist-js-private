@@ -10,7 +10,7 @@ import { Button } from '$lib/components/ui/button/index.js';
 import { discoverFeatureFlags, humanizeKey } from '$lib/debug/dev-toolbar-registry';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { announce } from '$lib/utils/announce.svelte';
-import type { Str } from '@/schemas/common';
+import type { Bool, Str, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
@@ -19,7 +19,7 @@ import type { FeatureFlags } from '$lib/schemas/editor-state';
 let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => void } = $props();
 
 const flags = discoverFeatureFlags();
-let searchQuery: string = $state('');
+let searchQuery: Str = $state('');
 
 const filteredFlags = $derived(
 	searchQuery.length === 0
@@ -27,33 +27,36 @@ const filteredFlags = $derived(
 		: flags.filter((f) => f.key.toLowerCase().includes(searchQuery.toLowerCase())),
 );
 
-function handleToggle(key: string, checked: boolean): void {
+function handleToggle(key: Str, checked: Bool): Void {
 	editorStore.setFeature(key, checked);
 }
 
-function enableAll(): void {
+function enableAll(): Void {
 	for (const flag of flags) {
 		editorStore.setFeature(flag.key, true);
 	}
 }
 
-function disableAll(): void {
+function disableAll(): Void {
 	for (const flag of flags) {
 		editorStore.setFeature(flag.key, false);
 	}
 }
 
-const allEnabled: boolean = $derived(
+const allEnabled: Bool = $derived(
+	// Dynamic key access requires keyof cast
 	flags.every((f) => editorStore.features[f.key as keyof FeatureFlags]),
 );
-const allDisabled: boolean = $derived(
+const allDisabled: Bool = $derived(
+	// Dynamic key access requires keyof cast
 	flags.every((f) => !editorStore.features[f.key as keyof FeatureFlags]),
 );
 
-function labelFor(key: string): string {
-	const entry = (localeStore.t.devToolbar.labels as unknown as Record<string, () => Result<Str>>)[
-		key
-	];
+function labelFor(key: Str): Str {
+	// Locale labels object is typed as DeepReadonly; cast needed to access dynamic keys
+	const entry: (() => Result<Str>) | undefined = (
+		localeStore.t.devToolbar.labels as unknown as Record<string, () => Result<Str>>
+	)[key];
 	return entry === undefined ? humanizeKey(key) : t(entry, humanizeKey(key));
 }
 </script>

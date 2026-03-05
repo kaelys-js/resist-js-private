@@ -1,5 +1,7 @@
 <script lang="ts">
-let { size = 24, class: className = '' }: { size?: number; class?: string } = $props();
+import type { Num, Str } from '@/schemas/common';
+
+let { size = 24, class: className = '' }: { size?: Num; class?: Str } = $props();
 </script>
 
 <!--

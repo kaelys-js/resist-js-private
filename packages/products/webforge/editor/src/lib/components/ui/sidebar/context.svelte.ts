@@ -1,6 +1,17 @@
+/**
+ * Sidebar state management via Svelte context.
+ *
+ * Provides a reactive `SidebarState` class that tracks open/collapsed state
+ * for both desktop and mobile, handles the sidebar toggle keyboard shortcut,
+ * and exposes context helpers (`setSidebar` / `useSidebar`) for child components.
+ *
+ * @module
+ */
+
 import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
 import { getContext, setContext } from 'svelte';
 import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
+import type { Bool, Str, Void } from '@/schemas/common';
 
 type Getter<T> = () => T;
 
@@ -20,50 +31,95 @@ export type SidebarStateProps = {
 	setOpen: (open: boolean) => void;
 };
 
+/**
+ * Reactive sidebar state.
+ *
+ * Tracks desktop open/collapsed and mobile open/closed state, provides a
+ * keyboard shortcut handler, and exposes derived `state` and `isMobile` getters.
+ * Instantiate via {@link setSidebar} inside the Sidebar.Provider component.
+ */
 class SidebarState {
+	/** Original props passed to the constructor. */
 	readonly props: SidebarStateProps;
-	open = $derived.by(() => this.props.open());
-	openMobile = $state(false);
-	setOpen: SidebarStateProps['setOpen'];
-	#isMobile: IsMobile;
-	state = $derived.by(() => (this.open ? 'expanded' : 'collapsed'));
 
+	/** Whether the sidebar is open on desktop (derived from props getter). */
+	open: Bool = $derived.by(() => this.props.open());
+
+	/** Whether the sidebar is open on mobile. */
+	openMobile: Bool = $state(false);
+
+	/** Setter for the desktop open state. */
+	setOpen: SidebarStateProps['setOpen'];
+
+	#isMobile: IsMobile;
+
+	/** Sidebar expansion state string: `'expanded'` or `'collapsed'`. */
+	state: Str = $derived.by(() => (this.open ? 'expanded' : 'collapsed'));
+
+	/** @param props - Desktop open getter and setter for bind:open support */
 	constructor(props: SidebarStateProps) {
 		this.setOpen = props.setOpen;
 		this.#isMobile = new IsMobile();
 		this.props = props;
 	}
 
-	// Convenience getter for checking if the sidebar is mobile
-	// without this, we would need to use `sidebar.isMobile.current` everywhere
-	get isMobile() {
+	/**
+	 * Whether the current viewport is mobile-sized.
+	 *
+	 * Convenience getter so consumers can write `sidebar.isMobile`
+	 * instead of `sidebar.isMobile.current`.
+	 *
+	 * @returns Whether the viewport is mobile-sized
+	 */
+	get isMobile(): Bool {
 		return this.#isMobile.current;
 	}
 
-	// Event handler to apply to the `<svelte:window>`
-	handleShortcutKeydown = (e: KeyboardEvent) => {
+	/**
+	 * Keyboard event handler for the sidebar toggle shortcut.
+	 *
+	 * Attach to `<svelte:window on:keydown>`.
+	 *
+	 * @param e - The keyboard event to check
+	 */
+	handleShortcutKeydown = (e: KeyboardEvent): Void => {
 		if (shortcutStore.matches(e, 'TOGGLE_SIDEBAR')) {
 			e.preventDefault();
 			this.toggle();
 		}
 	};
 
-	setOpenMobile = (value: boolean) => {
+	/**
+	 * Sets the mobile sidebar open state.
+	 *
+	 * @param value - Whether the mobile sidebar should be open
+	 */
+	setOpenMobile = (value: Bool): Void => {
 		this.openMobile = value;
 	};
 
-	toggle = () => {
-		return this.#isMobile.current ? (this.openMobile = !this.openMobile) : this.setOpen(!this.open);
+	/** Toggles the sidebar open/closed, handling mobile vs desktop. */
+	toggle = (): Void => {
+		if (this.#isMobile.current) {
+			this.openMobile = !this.openMobile;
+		} else {
+			this.setOpen(!this.open);
+		}
 	};
 }
 
-const SYMBOL_KEY = 'scn-sidebar';
+const SYMBOL_KEY: Str = 'scn-sidebar';
 
 /**
  * Instantiates a new `SidebarState` instance and sets it in the context.
  *
- * @param props The constructor props for the `SidebarState` class.
- * @returns  The `SidebarState` instance.
+ * @param props - The constructor props for the `SidebarState` class.
+ * @returns The `SidebarState` instance.
+ *
+ * @example
+ * ```typescript
+ * const sidebar = setSidebar({ open: () => isOpen, setOpen: (v) => { isOpen = v; } });
+ * ```
  */
 export function setSidebar(props: SidebarStateProps): SidebarState {
 	return setContext(Symbol.for(SYMBOL_KEY), new SidebarState(props));
@@ -72,7 +128,14 @@ export function setSidebar(props: SidebarStateProps): SidebarState {
 /**
  * Retrieves the `SidebarState` instance from the context. This is a class instance,
  * so you cannot destructure it.
+ *
  * @returns The `SidebarState` instance.
+ *
+ * @example
+ * ```typescript
+ * const sidebar = useSidebar();
+ * sidebar.toggle();
+ * ```
  */
 export function useSidebar(): SidebarState {
 	return getContext(Symbol.for(SYMBOL_KEY));

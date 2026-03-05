@@ -21,19 +21,19 @@ import {
 	type FieldDescriptor,
 } from '$lib/debug/dev-toolbar-registry';
 import { localeStore, t } from '$lib/i18n.svelte';
-import type { Str } from '@/schemas/common';
+import type { Str, Bool, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import X from '@lucide/svelte/icons/x';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import type { AppPreferences } from '$lib/schemas/editor-state';
 
-let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => void } = $props();
+let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => Void } = $props();
 
-const preferences = discoverAppPreferences();
+const preferences: FieldDescriptor[] = discoverAppPreferences();
 
 /** Keys that belong to the User section. */
-const USER_KEYS = new Set(['userName', 'userEmail', 'userAvatar']);
+const USER_KEYS = new Set<Str>(['userName', 'userEmail', 'userAvatar']);
 
 /** App-level preferences (theme, mode, locale, etc.). */
 const appPrefs: FieldDescriptor[] = preferences.filter((p) => !USER_KEYS.has(p.key));
@@ -42,17 +42,17 @@ const appPrefs: FieldDescriptor[] = preferences.filter((p) => !USER_KEYS.has(p.k
 const userPrefs: FieldDescriptor[] = preferences.filter((p) => USER_KEYS.has(p.key));
 
 // Track open state per picklist — initialize all keys to avoid bind:open={undefined}
-const picklistKeys = preferences.filter((p) => p.type === 'picklist').map((p) => p.key);
-let openPicklists: Record<string, boolean> = $state(
+const picklistKeys: Str[] = preferences.filter((p) => p.type === 'picklist').map((p) => p.key);
+let openPicklists: Record<Str, Bool> = $state(
 	Object.fromEntries(picklistKeys.map((k) => [k, false])),
 );
-let triggerRefs: Record<string, HTMLButtonElement | null> = $state(
+let triggerRefs: Record<Str, HTMLButtonElement | null> = $state(
 	Object.fromEntries(picklistKeys.map((k) => [k, null])),
 );
 
 // Auth & scene simulation state from URL params
-const isLoggedOut: boolean = $derived(page.url.searchParams.get('wf.auth') === 'false');
-const isEmptyScenes: boolean = $derived(page.url.searchParams.get('wf.scenes') === 'empty');
+const isLoggedOut: Bool = $derived(page.url.searchParams.get('wf.auth') === 'false');
+const isEmptyScenes: Bool = $derived(page.url.searchParams.get('wf.scenes') === 'empty');
 
 /**
  * Auto-maps a preference key to its setter method name.
@@ -61,15 +61,16 @@ const isEmptyScenes: boolean = $derived(page.url.searchParams.get('wf.scenes') =
  * @param key - The preference key
  * @param value - The value to set
  */
-function callSetter(key: string, value: unknown): void {
-	const setterName = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
-	const setter = (editorStore as unknown as Record<string, (v: unknown) => unknown>)[setterName];
+function callSetter(key: Str, value: unknown): Void {
+	const setterName: Str = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+	// Dynamic setter access — store type doesn't expose string-indexed setters
+	const setter = (editorStore as unknown as Record<Str, (v: unknown) => unknown>)[setterName];
 	if (typeof setter === 'function') {
 		setter(value);
 	}
 }
 
-async function selectOption(key: string, value: string): Promise<void> {
+async function selectOption(key: Str, value: Str): Promise<Void> {
 	callSetter(key, value);
 	openPicklists[key] = false;
 	await tick();
@@ -77,22 +78,22 @@ async function selectOption(key: string, value: string): Promise<void> {
 }
 
 /** Navigate to current page with `?wf.auth` removed to simulate login. */
-function handleLogin(): void {
-	const url = new URL(page.url);
+function handleLogin(): Void {
+	const url: URL = new URL(page.url);
 	url.searchParams.delete('wf.auth');
 	goto(url.toString(), { invalidateAll: true });
 }
 
 /** Navigate to current page with `?wf.auth=false` to simulate logout. */
-function handleLogout(): void {
-	const url = new URL(page.url);
+function handleLogout(): Void {
+	const url: URL = new URL(page.url);
 	url.searchParams.set('wf.auth', 'false');
 	goto(url.toString(), { invalidateAll: true });
 }
 
 /** Toggle `?wf.scenes=empty` to simulate an empty scene list. */
-function toggleEmptyScenes(): void {
-	const url = new URL(page.url);
+function toggleEmptyScenes(): Void {
+	const url: URL = new URL(page.url);
 	if (isEmptyScenes) {
 		url.searchParams.delete('wf.scenes');
 	} else {
@@ -104,7 +105,7 @@ function toggleEmptyScenes(): void {
 let resetState: 'idle' | 'success' = $state('idle');
 let resetTimeout: ReturnType<typeof setTimeout> | undefined = $state(undefined);
 
-function resetDefaults(): void {
+function resetDefaults(): Void {
 	for (const pref of preferences) {
 		callSetter(pref.key, pref.default);
 	}
@@ -115,29 +116,28 @@ function resetDefaults(): void {
 	}, 2000);
 }
 
-function labelFor(key: string): string {
-	const entry = (localeStore.t.devToolbar.labels as unknown as Record<string, () => Result<Str>>)[
-		key
-	];
+function labelFor(key: Str): Str {
+	// Locale DeepReadonly workaround — dynamic key access needs cast
+	const entry = (localeStore.t.devToolbar.labels as unknown as Record<Str, () => Result<Str>>)[key];
 	return entry === undefined ? humanizeKey(key) : t(entry, humanizeKey(key));
 }
 
-function optionLabel(key: string, value: string): string {
+function optionLabel(key: Str, value: Str): Str {
 	if (key === 'theme') {
-		const themeKey =
+		const themeKey: Str =
 			value === '' ? 'themeDefault' : `theme${value.charAt(0).toUpperCase()}${value.slice(1)}`;
-		const entry = (localeStore.t.settings as unknown as Record<string, () => Result<Str>>)[
-			themeKey
-		];
+		// Locale DeepReadonly workaround — dynamic key access needs cast
+		const entry = (localeStore.t.settings as unknown as Record<Str, () => Result<Str>>)[themeKey];
 		return entry === undefined ? humanizeOption(key, value) : t(entry, humanizeOption(key, value));
 	}
 	if (key === 'mode') {
-		const entry = (localeStore.t.settings as unknown as Record<string, () => Result<Str>>)[value];
+		// Locale DeepReadonly workaround — dynamic key access needs cast
+		const entry = (localeStore.t.settings as unknown as Record<Str, () => Result<Str>>)[value];
 		return entry === undefined ? humanizeOption(key, value) : t(entry, humanizeOption(key, value));
 	}
 	if (key === 'locale') {
-		const display = new Intl.DisplayNames([value], { type: 'language' });
-		const endonym: string | undefined = display.of(value);
+		const display: Intl.DisplayNames = new Intl.DisplayNames([value], { type: 'language' });
+		const endonym: Str | undefined = display.of(value);
 		return endonym ?? humanizeOption(key, value);
 	}
 	return humanizeOption(key, value);
