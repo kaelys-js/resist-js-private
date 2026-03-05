@@ -376,7 +376,7 @@ $effect(() => {
 		{#if toolbarOpen && activePanel}
 			<div
 				transition:fly={{ y: 8, duration: 150 }}
-				class="w-80 max-h-[60vh] flex flex-col overflow-hidden rounded-lg bg-popover/70 backdrop-blur-2xl border border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5"
+				class="w-80 max-h-[60vh] flex flex-col overflow-hidden rounded-lg bg-popover/60 backdrop-blur-2xl border border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5"
 				data-testid="dev-toolbar-panel"
 			>
 				{#if activePanel === 'flags'}
@@ -398,7 +398,7 @@ $effect(() => {
 				aria-orientation="horizontal"
 				onkeydown={handleToolbarKeydown}
 				transition:scale={{ start: 0.6, duration: 150 }}
-				class="flex items-center gap-1 px-2 py-1.5 rounded-full bg-popover/70 backdrop-blur-2xl border border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5 origin-bottom"
+				class="flex items-center gap-1 px-2 py-1.5 rounded-full bg-popover/60 backdrop-blur-2xl border border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5 origin-bottom"
 				data-testid="dev-toolbar-bar"
 			>
 				<!-- Panel buttons -->
@@ -586,7 +586,7 @@ $effect(() => {
 				{#snippet child({ props })}
 					<button
 						{...props}
-						class="flex items-center justify-center size-9 rounded-full bg-popover/70 backdrop-blur-2xl border border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5 text-popover-foreground hover:bg-accent transition-colors touch-none {dragging ? 'cursor-grabbing' : 'cursor-grab'}"
+						class="flex items-center justify-center size-9 rounded-full bg-popover/60 backdrop-blur-2xl border border-border/60 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset] ring-1 ring-white/5 text-popover-foreground hover:bg-accent transition-colors touch-none {dragging ? 'cursor-grabbing' : 'cursor-grab'}"
 						onclick={() => {
 							if (didDrag) return;
 							toolbarOpen = !toolbarOpen;
