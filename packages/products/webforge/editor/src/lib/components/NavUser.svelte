@@ -66,8 +66,8 @@ const monogram: string = $derived(
 				align="end"
 				sideOffset={4}
 			>
-				<DropdownMenu.Label class="p-0 font-normal -m-1 mb-0">
-					<div class="flex items-center gap-2 px-3 py-2.5 text-left text-sm bg-muted/50 rounded-t-lg">
+				<DropdownMenu.Label class="p-0 font-normal -m-1">
+					<div class="flex items-center gap-2 px-3 py-2.5 pb-3 text-left text-sm bg-muted/50 rounded-t-lg">
 						<Avatar.Root class="h-8 w-8 rounded-lg">
 							<Avatar.Image src="" alt={projectName} />
 							<Avatar.Fallback class="rounded-lg text-xs font-medium">
