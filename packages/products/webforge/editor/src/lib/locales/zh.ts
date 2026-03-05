@@ -21,11 +21,12 @@ export const zh: EditorLocaleRaw = {
 		more: '更多',
 	},
 	sidebar: {
+		home: '主页',
 		scenes: '场景',
 		newScene: '新建场景',
 	},
 	header: {
-		editor: '编辑器',
+		home: '主页',
 		scene: '场景',
 		error: '错误',
 		toggleSidebar: '切换侧边栏',

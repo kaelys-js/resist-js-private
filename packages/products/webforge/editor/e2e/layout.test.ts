@@ -12,11 +12,32 @@ test.describe('layout', () => {
 		await expect(sidebar.first()).toBeAttached();
 	});
 
-	test('breadcrumb contains Editor and Scene', async ({ page }) => {
+	test('breadcrumb contains Home and Scene', async ({ page }) => {
 		await page.goto('/');
 		const breadcrumb = page.locator('nav[aria-label="breadcrumb"], ol');
-		await expect(breadcrumb.getByText('Editor')).toBeVisible();
+		await expect(breadcrumb.getByText('Home')).toBeVisible();
 		await expect(breadcrumb.getByText('Scene')).toBeVisible();
+	});
+
+	test('breadcrumb Home links to /', async ({ page }) => {
+		await page.goto('/');
+		const breadcrumb = page.locator('nav[aria-label="breadcrumb"], ol');
+		const homeLink = breadcrumb.getByRole('link', { name: 'Home' });
+		await expect(homeLink).toHaveAttribute('href', '/');
+	});
+
+	test('sidebar Home nav item is visible', async ({ page }) => {
+		await page.goto('/');
+		const sidebar = page.locator('[data-slot="sidebar"]').first();
+		const homeButton = sidebar.getByTestId('sidebar-home');
+		await expect(homeButton).toBeVisible();
+		await expect(homeButton).toHaveText(/Home/);
+	});
+
+	test('sidebar Home nav item is marked as active', async ({ page }) => {
+		await page.goto('/');
+		const homeButton = page.getByTestId('sidebar-home');
+		await expect(homeButton).toHaveAttribute('data-active', 'true');
 	});
 });
 

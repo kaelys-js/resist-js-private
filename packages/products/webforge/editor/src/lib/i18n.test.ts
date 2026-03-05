@@ -125,9 +125,9 @@ describe('all locales produce valid translations', () => {
 			expect(val.length).toBeGreaterThan(0);
 		});
 
-		it(`${code} header.editor returns non-empty string`, () => {
+		it(`${code} header.home returns non-empty string`, () => {
 			localeStore.setLocale(code);
-			const val: string = t(localeStore.t.header.editor, '');
+			const val: string = t(localeStore.t.header.home, '');
 			expect(val.length).toBeGreaterThan(0);
 		});
 	}

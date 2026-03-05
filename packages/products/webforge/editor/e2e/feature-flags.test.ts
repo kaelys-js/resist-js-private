@@ -34,7 +34,7 @@ test.describe('feature flags — default state', () => {
 
 		// SiteHeader: breadcrumb visible (scoped to header)
 		const header = page.locator('header');
-		await expect(header.getByText('Editor')).toBeVisible();
+		await expect(header.getByText('Home')).toBeVisible();
 		await expect(header.getByText('Scene')).toBeVisible();
 
 		// SiteHeader: sidebar trigger visible
@@ -67,7 +67,7 @@ test.describe('feature flags — individual toggles', () => {
 	test('breadcrumb=false hides breadcrumb', async ({ page }) => {
 		await setFlags(page, { breadcrumb: false });
 		const header = page.locator('header');
-		await expect(header.getByText('Editor')).not.toBeVisible();
+		await expect(header.getByText('Home')).not.toBeVisible();
 	});
 
 	test('sidebarToggle=false hides sidebar trigger', async ({ page }) => {
@@ -119,25 +119,25 @@ test.describe('feature flags — persistence', () => {
 		await setFlags(page, { breadcrumb: false });
 		const header = page.locator('header');
 		// Verify hidden
-		await expect(header.getByText('Editor')).not.toBeVisible();
+		await expect(header.getByText('Home')).not.toBeVisible();
 
 		// Reload
 		await page.reload();
 		await page.waitForLoadState('domcontentloaded');
 
 		// Still hidden
-		await expect(header.getByText('Editor')).not.toBeVisible();
+		await expect(header.getByText('Home')).not.toBeVisible();
 	});
 
 	test('re-enabling flag after reload restores element', async ({ page }) => {
 		const header = page.locator('header');
 		// First disable
 		await setFlags(page, { breadcrumb: false });
-		await expect(header.getByText('Editor')).not.toBeVisible();
+		await expect(header.getByText('Home')).not.toBeVisible();
 
 		// Re-enable
 		await setFlags(page, { breadcrumb: true });
-		await expect(header.getByText('Editor')).toBeVisible();
+		await expect(header.getByText('Home')).toBeVisible();
 	});
 });
 
@@ -170,7 +170,7 @@ test.describe('feature flags — combined', () => {
 		await expect(sidebar).toBeAttached();
 
 		// Controlled elements should all be absent
-		await expect(header.getByText('Editor')).not.toBeVisible();
+		await expect(header.getByText('Home')).not.toBeVisible();
 		await expect(page.locator('button[data-sidebar="trigger"]')).not.toBeAttached();
 		await expect(page.getByRole('button', { name: /toggle mode/i })).not.toBeAttached();
 		await expect(page.getByText('Help')).not.toBeAttached();
@@ -189,7 +189,7 @@ test.describe('feature flags — URL overrides', () => {
 		// Wait for client-side hydration to apply URL overrides
 		await page.waitForTimeout(200);
 		const header = page.locator('header');
-		await expect(header.getByText('Editor')).not.toBeVisible();
+		await expect(header.getByText('Home')).not.toBeVisible();
 	});
 
 	test('wf.ff.modeToggle=false disables mode toggle via URL', async ({ page }) => {
