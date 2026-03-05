@@ -13,9 +13,10 @@ import { announce } from '$lib/utils/announce.svelte';
 import type { Str } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
+import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import type { FeatureFlags } from '$lib/schemas/editor-state';
 
-let { editorStore }: { editorStore: EditorStore } = $props();
+let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => void } = $props();
 
 const flags = discoverFeatureFlags();
 let searchQuery: string = $state('');
@@ -57,10 +58,32 @@ function labelFor(key: string): string {
 }
 </script>
 
-<div class="flex h-full flex-col p-3" data-testid="dev-toolbar-flags">
-	<!-- Sticky header: title + search -->
-	<div class="flex shrink-0 flex-col gap-3 pb-3">
-		<h3 class="text-sm font-semibold text-foreground">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')}</h3>
+<div class="flex h-full flex-col" data-testid="dev-toolbar-flags">
+	<!-- Sticky header: title + close + search -->
+	<div class="flex shrink-0 flex-col gap-3 border-b border-border bg-muted/50 px-3 py-2.5">
+		<div class="flex items-center justify-between">
+			<h3 class="text-sm font-semibold text-foreground">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')}</h3>
+			{#if onclose}
+				<Tooltip.Root delayDuration={300}>
+					<Tooltip.Trigger>
+						{#snippet child({ props })}
+							<button
+								{...props}
+								onclick={onclose}
+								class="size-6 inline-flex items-center justify-center rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+								aria-label={t(localeStore.t.common.close, 'Close')}
+								data-testid="panel-close-flags"
+							>
+								<X class="size-3.5" />
+							</button>
+						{/snippet}
+					</Tooltip.Trigger>
+					<Tooltip.Content side="top" sideOffset={4} class="z-[100000]">
+						<span class="flex items-center gap-1.5">{t(localeStore.t.common.close, 'Close')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
+					</Tooltip.Content>
+				</Tooltip.Root>
+			{/if}
+		</div>
 
 		<div class="relative">
 			<Search class="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
@@ -89,7 +112,7 @@ function labelFor(key: string): string {
 	</div>
 
 	<!-- Scrollable flag list -->
-	<ScrollArea.Root class="min-h-0 flex-1">
+	<ScrollArea.Root class="min-h-0 flex-1 px-3 pt-3">
 		<div class="flex flex-col gap-2">
 			{#each filteredFlags as flag (flag.key)}
 				{@const checked = editorStore.features[flag.key as keyof FeatureFlags]}
@@ -116,7 +139,7 @@ function labelFor(key: string): string {
 	</ScrollArea.Root>
 
 	<!-- Sticky footer: Enable/Disable All buttons -->
-	<div class="flex shrink-0 gap-2 border-t border-border pt-2 mt-3">
+	<div class="flex shrink-0 gap-2 border-t border-border pt-2 mt-3 mx-3 mb-3">
 		<Button variant="secondary" size="sm" class="h-7 text-xs flex-1" onclick={enableAll} disabled={allEnabled}>
 			{t(localeStore.t.devToolbar.enableAll, 'Enable All')}
 		</Button>

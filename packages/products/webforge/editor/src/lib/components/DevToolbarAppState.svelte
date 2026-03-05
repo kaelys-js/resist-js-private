@@ -24,9 +24,11 @@ import { localeStore, t } from '$lib/i18n.svelte';
 import type { Str } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
+import X from '@lucide/svelte/icons/x';
+import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import type { AppPreferences } from '$lib/schemas/editor-state';
 
-let { editorStore }: { editorStore: EditorStore } = $props();
+let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => void } = $props();
 
 const preferences = discoverAppPreferences();
 
@@ -142,8 +144,31 @@ function optionLabel(key: string, value: string): string {
 }
 </script>
 
-<div class="flex flex-col gap-3 p-3" data-testid="dev-toolbar-app-state">
-	<h3 class="text-sm font-semibold text-foreground">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')}</h3>
+<div class="flex flex-col" data-testid="dev-toolbar-app-state">
+	<div class="flex items-center justify-between border-b border-border bg-muted/50 px-3 py-2.5">
+		<h3 class="text-sm font-semibold text-foreground">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')}</h3>
+		{#if onclose}
+			<Tooltip.Root delayDuration={300}>
+				<Tooltip.Trigger>
+					{#snippet child({ props })}
+						<button
+							{...props}
+							onclick={onclose}
+							class="size-6 inline-flex items-center justify-center rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+							aria-label={t(localeStore.t.common.close, 'Close')}
+							data-testid="panel-close-app"
+						>
+							<X class="size-3.5" />
+						</button>
+					{/snippet}
+				</Tooltip.Trigger>
+				<Tooltip.Content side="top" sideOffset={4} class="z-[100000]">
+					<span class="flex items-center gap-1.5">{t(localeStore.t.common.close, 'Close')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
+				</Tooltip.Content>
+			</Tooltip.Root>
+		{/if}
+	</div>
+	<div class="flex flex-col gap-3 p-3">
 
 	<!-- App Section -->
 	<div class="flex flex-col gap-1">
@@ -210,6 +235,7 @@ function optionLabel(key: string, value: string): string {
 				{t(localeStore.t.devToolbar.resetToDefaults, 'Reset to Defaults')}
 			{/if}
 		</Button>
+	</div>
 	</div>
 </div>
 

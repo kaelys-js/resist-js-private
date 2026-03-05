@@ -27,9 +27,14 @@ import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import type { DebugStore } from '$lib/stores/debug-state.svelte';
 import type { DebugState } from '$lib/schemas/debug-state';
+import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import type { EditorDevtools } from '$lib/debug/devtools-api.svelte';
 
-let { editorStore, debugStore }: { editorStore: EditorStore; debugStore: DebugStore } = $props();
+let {
+	editorStore,
+	debugStore,
+	onclose,
+}: { editorStore: EditorStore; debugStore: DebugStore; onclose?: () => void } = $props();
 
 const debugFields = discoverDebugFields();
 
@@ -170,8 +175,31 @@ function optionLabel(key: string, value: string): string {
 }
 </script>
 
-<div class="flex flex-col gap-3 p-3" data-testid="dev-toolbar-debug">
-	<h3 class="text-sm font-semibold text-foreground">{t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')}</h3>
+<div class="flex flex-col" data-testid="dev-toolbar-debug">
+	<div class="flex items-center justify-between border-b border-border bg-muted/50 px-3 py-2.5">
+		<h3 class="text-sm font-semibold text-foreground">{t(localeStore.t.devToolbar.debugSettings, 'Debug Settings')}</h3>
+		{#if onclose}
+			<Tooltip.Root delayDuration={300}>
+				<Tooltip.Trigger>
+					{#snippet child({ props })}
+						<button
+							{...props}
+							onclick={onclose}
+							class="size-6 inline-flex items-center justify-center rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+							aria-label={t(localeStore.t.common.close, 'Close')}
+							data-testid="panel-close-debug"
+						>
+							<XIcon class="size-3.5" />
+						</button>
+					{/snippet}
+				</Tooltip.Trigger>
+				<Tooltip.Content side="top" sideOffset={4} class="z-[100000]">
+					<span class="flex items-center gap-1.5">{t(localeStore.t.common.close, 'Close')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
+				</Tooltip.Content>
+			</Tooltip.Root>
+		{/if}
+	</div>
+	<div class="flex flex-col gap-3 p-3">
 
 	<div class="flex flex-col gap-3">
 		{#each debugFields as field (field.key)}
@@ -355,4 +383,5 @@ function optionLabel(key: string, value: string): string {
 			</Button>
 		</div>
 	{/if}
+	</div>
 </div>
