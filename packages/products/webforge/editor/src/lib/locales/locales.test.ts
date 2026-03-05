@@ -107,6 +107,7 @@ const EXPECTED_NAMESPACES: readonly string[] = [
 	'settings',
 	'project',
 	'user',
+	'data',
 	'scenes',
 	'debug',
 	'devToolbar',
@@ -160,6 +161,7 @@ const NAMESPACE_KEY_COUNTS: Record<string, number> = {
 	settings: 19,
 	project: 2,
 	user: 9,
+	data: 6,
 	scenes: 3,
 	errors: 16,
 };

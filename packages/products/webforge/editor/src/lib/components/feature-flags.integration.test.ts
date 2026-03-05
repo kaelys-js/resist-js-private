@@ -14,6 +14,7 @@ import { describe, expect, it } from 'vitest';
 import SiteHeaderFlagsTest from './SiteHeaderFlagsTest.svelte';
 import AppSidebarFlagsTest from './AppSidebarFlagsTest.svelte';
 import NavUserFlagsTest from './NavUserFlagsTest.svelte';
+import EmptyScenesFlagsTest from './EmptyScenesFlagsTest.svelte';
 import { APP_NAME, APP_TAGLINE } from '$lib/config/app-meta';
 
 // =============================================================================
@@ -123,13 +124,13 @@ describe('AppSidebar feature flags', () => {
 	// --- projectDropdown ---
 	it('renders NavUser when projectDropdown flag is enabled (default)', () => {
 		render(AppSidebarFlagsTest);
-		// NavUser contains the project name — "Project"
-		expect(screen.getByText('Project')).toBeInTheDocument();
+		// NavUser contains the project name
+		expect(screen.getByText('Test Project')).toBeInTheDocument();
 	});
 
 	it('hides NavUser when projectDropdown flag is disabled', () => {
 		render(AppSidebarFlagsTest, { props: { disabledFlags: ['projectDropdown'] } });
-		expect(screen.queryByText('Project')).not.toBeInTheDocument();
+		expect(screen.queryByText('Test Project')).not.toBeInTheDocument();
 	});
 });
 
@@ -168,7 +169,7 @@ describe('NavUser feature flags', () => {
 		// The store is initialized with all flags true by FeatureFlagsTestProviders
 		// If these flags didn't exist, the store creation would have failed
 		// and no render would occur. This test verifies the flags are wired.
-		expect(screen.getByText('Test User')).toBeInTheDocument();
+		expect(screen.getByText('Test Project')).toBeInTheDocument();
 	});
 
 	it('themeSelection and languageSelection can be disabled without errors', () => {
@@ -176,7 +177,7 @@ describe('NavUser feature flags', () => {
 			props: { disabledFlags: ['themeSelection', 'languageSelection'] },
 		});
 		// Should render without errors even with these flags disabled
-		expect(screen.getByText('Test User')).toBeInTheDocument();
+		expect(screen.getByText('Test Project')).toBeInTheDocument();
 	});
 
 	// --- Multiple flags disabled simultaneously ---
@@ -191,7 +192,7 @@ describe('NavUser feature flags', () => {
 		const avatar: HTMLElement | null = triggerBtn?.querySelector('[data-slot="avatar"]') ?? null;
 		expect(avatar).not.toBeInTheDocument();
 		// User name should still be visible
-		expect(screen.getByText('Test User')).toBeInTheDocument();
+		expect(screen.getByText('Test Project')).toBeInTheDocument();
 	});
 });
 
@@ -281,5 +282,84 @@ describe('Multiple flags disabled simultaneously', () => {
 		expect(screen.queryByText('Settings')).not.toBeInTheDocument();
 		expect(screen.queryByText('Help')).not.toBeInTheDocument();
 		expect(screen.queryByText('Project')).not.toBeInTheDocument();
+	});
+});
+
+// =============================================================================
+// Auth-gating feature flag (authGatedUi)
+// =============================================================================
+
+describe('authGatedUi feature flag', () => {
+	// --- HeaderUser auth-gating ---
+	it('hides HeaderUser when authGatedUi enabled and user is null', () => {
+		const { container } = render(SiteHeaderFlagsTest, {
+			props: { user: null },
+		});
+		const trigger: HTMLElement | null = container.querySelector(
+			'[data-testid="header-user-trigger"]',
+		);
+		expect(trigger).not.toBeInTheDocument();
+	});
+
+	it('shows HeaderUser when authGatedUi disabled regardless of user state', () => {
+		const { container } = render(SiteHeaderFlagsTest, {
+			props: { disabledFlags: ['authGatedUi'], user: null },
+		});
+		const trigger: HTMLElement | null = container.querySelector(
+			'[data-testid="header-user-trigger"]',
+		);
+		expect(trigger).toBeInTheDocument();
+	});
+
+	// --- AppSidebar auth-gating ---
+	it('hides scene list when authGatedUi enabled and user is null', () => {
+		render(AppSidebarFlagsTest, {
+			props: { user: null },
+		});
+		expect(screen.queryByText('Overworld')).not.toBeInTheDocument();
+	});
+
+	it('hides project dropdown when authGatedUi enabled and user is null', () => {
+		render(AppSidebarFlagsTest, {
+			props: { user: null },
+		});
+		expect(screen.queryByText('Test Project')).not.toBeInTheDocument();
+	});
+
+	it('hides Settings when authGatedUi enabled and user is null', () => {
+		render(AppSidebarFlagsTest, {
+			props: { user: null },
+		});
+		expect(screen.queryByText('Settings')).not.toBeInTheDocument();
+	});
+
+	it('shows scene list when authGatedUi disabled regardless of user state', () => {
+		render(AppSidebarFlagsTest, {
+			props: { disabledFlags: ['authGatedUi'], user: null },
+		});
+		expect(screen.getByText('Overworld')).toBeInTheDocument();
+	});
+});
+
+// =============================================================================
+// Empty scene placeholder feature flag (emptyScenePlaceholder)
+// =============================================================================
+
+describe('emptyScenePlaceholder feature flag', () => {
+	it('shows empty state when emptyScenePlaceholder enabled and scenes empty', () => {
+		const { container } = render(EmptyScenesFlagsTest, {
+			props: { scenes: [] },
+		});
+		const emptyState: HTMLElement | null = container.querySelector('[data-testid="empty-scenes"]');
+		expect(emptyState).toBeInTheDocument();
+		expect(screen.getByText('No scenes yet')).toBeInTheDocument();
+	});
+
+	it('hides empty state when emptyScenePlaceholder disabled and scenes empty', () => {
+		const { container } = render(EmptyScenesFlagsTest, {
+			props: { disabledFlags: ['emptyScenePlaceholder'], scenes: [] },
+		});
+		const emptyState: HTMLElement | null = container.querySelector('[data-testid="empty-scenes"]');
+		expect(emptyState).not.toBeInTheDocument();
 	});
 });

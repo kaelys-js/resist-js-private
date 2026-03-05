@@ -28,6 +28,13 @@ const serverLocale: string = data.locale ?? 'en';
 
 const store = initEditorStore();
 
+// Sync server user data into editor store so HeaderUser reads from store state.
+if (data.user) {
+	store.setUserName(data.user.displayName);
+	store.setUserEmail(data.user.email);
+	if (data.user.avatarUrl) store.setUserAvatar(data.user.avatarUrl);
+}
+
 // Hydrate locale from server-detected value (cookie → Accept-Language → 'en').
 // Both stores must be set synchronously BEFORE rendering so SSR outputs
 // correct locale strings. $effect is client-only, so localeStore would
@@ -306,7 +313,7 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 				onExpand={handleExpand}
 				class="!overflow-visible"
 			>
-				<AppSidebar />
+				<AppSidebar user={data.user} project={data.project} scenes={data.scenes ?? []} />
 			</Resizable.Pane>
 			<Resizable.Handle
 				class="w-1.5 bg-transparent hover:bg-border data-[active]:bg-ring transition-colors"
@@ -314,7 +321,7 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 			/>
 			<Resizable.Pane defaultSize={100 - initialSidebarPercent} class="flex flex-col !overflow-y-auto !overflow-x-hidden">
 				<Sidebar.Inset class={insetClass}>
-					<SiteHeader isError={Boolean(page.error)} />
+					<SiteHeader isError={Boolean(page.error)} user={data.user} />
 					<main id="main-content" tabindex={-1} class="flex flex-1 flex-col outline-none">
 						{@render children()}
 					</main>
@@ -324,7 +331,7 @@ const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} 
 	{:else}
 		<AppSidebar />
 		<Sidebar.Inset>
-			<SiteHeader isError={Boolean(page.error)} />
+			<SiteHeader isError={Boolean(page.error)} user={data.user} />
 			<div class="flex flex-1 flex-col">
 				{@render children()}
 			</div>

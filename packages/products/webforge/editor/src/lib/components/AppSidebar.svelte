@@ -11,31 +11,25 @@ import NavUser from './NavUser.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { APP_TAGLINE } from '$lib/config/app-meta';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
+import type { ServerUser, ServerProject, ServerScene } from '$lib/server/data/types';
 
-type Props = ComponentProps<typeof Sidebar.Root>;
-let { ...restProps }: Props = $props();
+type Props = ComponentProps<typeof Sidebar.Root> & {
+	user?: ServerUser | null;
+	project?: ServerProject | null;
+	scenes?: readonly ServerScene[];
+};
+let { user = null, project = null, scenes = [], ...restProps }: Props = $props();
 
 const store = useEditorStore();
 
-const scenes = [
-	{ title: 'Overworld', url: '#overworld', isActive: true },
-	{ title: 'Town Interior', url: '#town-interior' },
-	{ title: 'Dungeon B1', url: '#dungeon-b1' },
-];
-
 const navSecondary = $derived([
-	...(store.features.settings
+	...(store.features.settings && (!store.features.authGatedUi || user)
 		? [{ title: t(localeStore.t.common.settings, 'Settings'), url: '#settings', icon: Settings }]
 		: []),
 	...(store.features.sidebarHelp
 		? [{ title: t(localeStore.t.common.help, 'Help'), url: '#help', icon: CircleHelp }]
 		: []),
 ]);
-
-const user = {
-	name: 'Project',
-	avatar: '',
-};
 </script>
 
 <Sidebar.Root variant="inset" collapsible="icon" aria-label={t(localeStore.t.common.sidebarLabel, 'Application sidebar')} {...restProps}>
@@ -80,14 +74,14 @@ const user = {
 				</Sidebar.MenuItem>
 			</Sidebar.Menu>
 		</Sidebar.Group>
-		{#if store.features.sceneList}
+		{#if store.features.sceneList && (!store.features.authGatedUi || user)}
 			<NavScenes {scenes} />
 		{/if}
 		<NavSecondary items={navSecondary} class="mt-auto" />
 	</Sidebar.Content>
 	<Sidebar.Footer>
-		{#if store.features.projectDropdown}
-			<NavUser {user} />
+		{#if store.features.projectDropdown && (!store.features.authGatedUi || user)}
+			<NavUser {project} />
 		{/if}
 	</Sidebar.Footer>
 </Sidebar.Root>

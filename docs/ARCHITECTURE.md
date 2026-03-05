@@ -287,6 +287,77 @@ Integrated into `SiteHeader.svelte` before the ModeToggle, gated by `headerUserD
 - **Integration:** `feature-flags.integration.test.ts` — HeaderUser feature flag toggling
 - **E2E:** `e2e/header-user.test.ts` — trigger visibility, dropdown interaction, menu items, Escape close, destructive styling, URL override
 
+## Project & User Data
+
+Server-side data loading system that provides user, project, and scene data to all editor routes. Uses a DataService abstraction for mock data in development, designed to swap to Cloudflare D1 in production.
+
+### Data Flow
+
+```
+hooks.server.ts         → resolveAuth(url)        → event.locals.user
+                        → createDataService()      → event.locals.db
++layout.server.ts       → locals.db.projects/scenes → { user, project, scenes }
++layout.svelte          → data.user/project/scenes  → AppSidebar, SiteHeader props
+AppSidebar              → NavUser(project)          → Project name/subtitle
+                        → NavScenes(scenes)         → Scene list or EmptyScenes
+SiteHeader              → HeaderUser (if user)      → User avatar dropdown
+```
+
+### DataService Abstraction
+
+`DataService` interface (`$lib/server/data/types.ts`) with two method groups:
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `projects.getByOwner(ownerId)` | `Result<ServerProject \| null>` | Find project by owner ID |
+| `scenes.getByProject(projectId)` | `Result<ServerScene[]>` | List scenes for a project |
+
+Factory function `createDataService(platform?)` returns `MockDataService` in dev. When Cloudflare D1 is available via `platform.env.DB`, it will return a D1-backed implementation.
+
+### Auth Gating
+
+Components use the pattern `(!store.features.authGatedUi || user)` to conditionally hide when no user is authenticated:
+
+- **SiteHeader:** HeaderUser dropdown hidden when logged out
+- **AppSidebar:** Scene list, project dropdown, and Settings hidden when logged out
+- **Always visible:** Help link, breadcrumb, sidebar branding
+
+### URL Override
+
+`?wf.auth=false` — server-side parameter in `hooks.server.ts` that simulates a logged-out state. Sets `locals.user` to `null`, causing `+layout.server.ts` to return no user/project/scene data.
+
+### Mock Data
+
+Constants in `$lib/server/mock/data.ts`:
+
+| Constant | Value |
+|----------|-------|
+| `MOCK_USER` | Coleb (coleb@example.com) |
+| `MOCK_PROJECT` | "My First RPG" / "An HD-2D Adventure" |
+| `MOCK_SCENES` | Overworld, Town Interior, Dungeon B1 |
+
+### Feature Flags (3)
+
+| Flag | Default | Controls |
+|------|---------|----------|
+| `authGatedUi` | `true` | Auth-gating of scene list, project dropdown, Settings, HeaderUser |
+| `emptyScenePlaceholder` | `true` | Empty state component when project has no scenes |
+| `skeletonLoading` | `true` | Skeleton loading components (prepared for D1 streaming) |
+
+### Locale Namespace
+
+`data` — 6 keys: `loading`, `noScenes`, `noScenesDescription`, `newScene`, `signInPrompt`, `signIn`. All 7 locale files include translations.
+
+### Skeleton Components
+
+`NavScenesSkeleton.svelte` and `NavUserSkeleton.svelte` — shadcn Skeleton-based loading placeholders. Not wired to streaming in the mock data phase; ready for `{#await}` integration when D1 is connected.
+
+### Tests
+
+- **Unit:** `types.test.ts` (schema validation), `service.test.ts` (mock service), `empty-scenes.test.ts` (empty state component)
+- **Integration:** `feature-flags.integration.test.ts` — auth-gating and empty scene placeholder flag tests
+- **E2E:** `e2e/project-user-data.test.ts` — default state, `?wf.auth=false` override
+
 ## Accessibility (WCAG 2.2 AA)
 
 The editor targets WCAG 2.2 Level AA conformance across all custom components (shadcn-svelte primitives provide their own ARIA).

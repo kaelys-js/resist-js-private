@@ -49,7 +49,7 @@ test.describe('mobile sidebar — open/close/toggle', () => {
 		await expect(mobileSidebar.getByText('Overworld')).toBeVisible();
 
 		// Footer
-		await expect(mobileSidebar.getByText('Project')).toBeVisible();
+		await expect(mobileSidebar.getByText('My First RPG')).toBeVisible();
 	});
 
 	test('clicking overlay closes mobile sidebar', async ({ page }) => {

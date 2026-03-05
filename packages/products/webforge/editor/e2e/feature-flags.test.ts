@@ -55,7 +55,7 @@ test.describe('feature flags — default state', () => {
 		await expect(page.getByText('Settings').first()).toBeVisible();
 
 		// AppSidebar: NavUser / project dropdown visible
-		await expect(page.getByText('Project')).toBeVisible();
+		await expect(page.getByText('My First RPG')).toBeVisible();
 
 		// SiteHeader: user dropdown trigger visible
 		await expect(page.getByTestId('header-user-trigger')).toBeVisible();
@@ -102,7 +102,7 @@ test.describe('feature flags — individual toggles', () => {
 
 	test('projectDropdown=false hides NavUser in sidebar footer', async ({ page }) => {
 		await setFlags(page, { projectDropdown: false });
-		await expect(page.getByText('Project')).not.toBeAttached();
+		await expect(page.getByText('My First RPG')).not.toBeAttached();
 	});
 
 	test('settings=false hides Settings in sidebar secondary nav', async ({ page }) => {
@@ -177,7 +177,7 @@ test.describe('feature flags — combined', () => {
 		await expect(page.locator('button[data-sidebar="trigger"]')).not.toBeAttached();
 		await expect(page.getByRole('button', { name: /toggle mode/i })).not.toBeAttached();
 		await expect(page.getByText('Help')).not.toBeAttached();
-		await expect(page.getByText('Project')).not.toBeAttached();
+		await expect(page.getByText('My First RPG')).not.toBeAttached();
 	});
 });
 

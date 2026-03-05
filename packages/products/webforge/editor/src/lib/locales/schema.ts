@@ -75,6 +75,14 @@ export const EditorLocaleSchema = v.strictObject({
 		logout: messageTemplate(),
 		userMenu: messageTemplate(),
 	}),
+	data: v.strictObject({
+		loading: messageTemplate(),
+		noScenes: messageTemplate(),
+		noScenesDescription: messageTemplate(),
+		newScene: messageTemplate(),
+		signInPrompt: messageTemplate(),
+		signIn: messageTemplate(),
+	}),
 	scenes: v.strictObject({
 		rename: messageTemplate(),
 		duplicate: messageTemplate(),
@@ -146,6 +154,9 @@ export const EditorLocaleSchema = v.strictObject({
 			headerUserSettings: messageTemplate(),
 			headerUserWhatsNew: messageTemplate(),
 			headerUserLogout: messageTemplate(),
+			authGatedUi: messageTemplate(),
+			emptyScenePlaceholder: messageTemplate(),
+			skeletonLoading: messageTemplate(),
 			// App preference labels
 			appName: messageTemplate(),
 			theme: messageTemplate(),

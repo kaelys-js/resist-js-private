@@ -56,7 +56,7 @@ test.describe('theme and mode', () => {
 	test('NavUser dropdown does NOT contain mode toggle', async ({ page }) => {
 		await page.goto('/');
 		// Open NavUser dropdown
-		await page.getByText('Project').click();
+		await page.getByText('My First RPG').click();
 		await page.waitForTimeout(200);
 		// ModeToggle renders a button with aria-label "Toggle mode"
 		// It should NOT be inside the NavUser dropdown menu

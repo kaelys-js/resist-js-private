@@ -1,0 +1,34 @@
+/**
+ * Mock data for development — simulates a logged-in user with a sample project.
+ *
+ * These constants are used by `MockDataService` and `resolveAuth` in hooks.
+ * They preserve the same scene names as the original hardcoded sidebar data
+ * for visual continuity during development.
+ *
+ * @module
+ */
+
+import type { ServerUser, ServerProject, ServerScene } from '../data/types';
+
+/** Mock user profile simulating a logged-in developer. */
+export const MOCK_USER: ServerUser = {
+	id: 'user-mock-001',
+	displayName: 'Coleb',
+	email: 'coleb@example.com',
+	avatarUrl: '',
+};
+
+/** Mock project with an HD-2D theme. */
+export const MOCK_PROJECT: ServerProject = {
+	id: 'proj-mock-001',
+	name: 'My First RPG',
+	subtitle: 'An HD-2D Adventure',
+	ownerId: 'user-mock-001',
+};
+
+/** Mock scenes matching the original hardcoded sidebar data. */
+export const MOCK_SCENES: ReadonlyArray<ServerScene> = [
+	{ id: 'scene-001', title: 'Overworld', url: '#overworld', isActive: true, order: 0 },
+	{ id: 'scene-002', title: 'Town Interior', url: '#town-interior', isActive: false, order: 1 },
+	{ id: 'scene-003', title: 'Dungeon B1', url: '#dungeon-b1', isActive: false, order: 2 },
+];

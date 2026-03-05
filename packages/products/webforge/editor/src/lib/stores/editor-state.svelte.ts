@@ -70,6 +70,9 @@ const FEATURE_DEFAULTS: FeatureFlags = {
 	headerUserSettings: true,
 	headerUserWhatsNew: true,
 	headerUserLogout: true,
+	authGatedUi: true,
+	emptyScenePlaceholder: true,
+	skeletonLoading: true,
 };
 
 /** All valid feature flag keys. */
