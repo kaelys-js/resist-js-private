@@ -144,8 +144,8 @@ function optionLabel(key: string, value: string): string {
 }
 </script>
 
-<div class="flex flex-col" data-testid="dev-toolbar-app-state">
-	<div class="flex items-center justify-between border-b border-border bg-muted/50 px-3 py-2.5">
+<div class="flex flex-1 min-h-0 flex-col overflow-hidden" data-testid="dev-toolbar-app-state">
+	<div class="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.06] px-3 py-2.5">
 		<h3 class="text-sm font-semibold text-foreground">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')}</h3>
 		{#if onclose}
 			<Tooltip.Root delayDuration={300}>
@@ -168,7 +168,7 @@ function optionLabel(key: string, value: string): string {
 			</Tooltip.Root>
 		{/if}
 	</div>
-	<div class="flex flex-col gap-3 p-3">
+	<div class="min-h-0 flex-1 overflow-y-auto flex flex-col gap-3 p-3">
 
 	<!-- App Section -->
 	<div class="flex flex-col gap-1">
@@ -181,7 +181,7 @@ function optionLabel(key: string, value: string): string {
 	</div>
 
 	<!-- User Section -->
-	<div class="flex flex-col gap-1 border-t border-border pt-2">
+	<div class="flex flex-col gap-1 border-t border-white/[0.06] pt-2">
 		<h4 class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t(localeStore.t.devToolbar.sectionUser, 'User')}</h4>
 		<div class="flex flex-col gap-3">
 			{#each userPrefs as pref (pref.key)}
@@ -189,12 +189,12 @@ function optionLabel(key: string, value: string): string {
 			{/each}
 			<div class="flex gap-2">
 				{#if isLoggedOut}
-					<Button variant="secondary" size="sm" class="h-7 text-xs flex-1" onclick={handleLogin}>
+					<Button variant="secondary" size="sm" class="h-7 text-xs flex-1 bg-white/[0.10] hover:bg-white/[0.15] border-white/[0.08]" onclick={handleLogin}>
 						<LogInIcon class="size-3 mr-1" />
 						{t(localeStore.t.devToolbar.logIn, 'Log In')}
 					</Button>
 				{:else}
-					<Button variant="outline" size="sm" class="h-7 text-xs flex-1" onclick={handleLogout}>
+					<Button variant="secondary" size="sm" class="h-7 text-xs flex-1 bg-white/[0.10] hover:bg-white/[0.15] border-white/[0.08]" onclick={handleLogout}>
 						<LogOutIcon class="size-3 mr-1" />
 						{t(localeStore.t.devToolbar.logOut, 'Log Out')}
 					</Button>
@@ -204,7 +204,7 @@ function optionLabel(key: string, value: string): string {
 	</div>
 
 	<!-- Scenes Section -->
-	<div class="flex flex-col gap-1 border-t border-border pt-2">
+	<div class="flex flex-col gap-1 border-t border-white/[0.06] pt-2">
 		<h4 class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t(localeStore.t.devToolbar.sectionScenes, 'Scenes')}</h4>
 		<div class="flex items-center justify-between gap-2 py-0.5">
 			<Label class="text-xs" for="pref-simulate-empty-scenes">
@@ -219,11 +219,11 @@ function optionLabel(key: string, value: string): string {
 	</div>
 
 	<!-- Reset to Defaults -->
-	<div class="border-t border-border pt-2">
+	<div class="border-t border-white/[0.06] pt-2">
 		<Button
 			variant="secondary"
 			size="sm"
-			class="h-7 text-xs w-full {resetState === 'success' ? 'text-green-500' : ''}"
+			class="h-7 text-xs w-full bg-white/[0.10] hover:bg-white/[0.15] border-white/[0.08] {resetState === 'success' ? 'text-green-500' : ''}"
 			onclick={resetDefaults}
 			data-testid="reset-defaults-btn"
 		>
@@ -265,7 +265,7 @@ function optionLabel(key: string, value: string): string {
 							{...props}
 							variant="outline"
 							size="sm"
-							class="h-8 w-36 justify-between text-xs"
+							class="h-8 w-36 justify-between text-xs bg-white/[0.10] border-white/[0.08] hover:bg-white/[0.15]"
 							role="combobox"
 							aria-expanded={openPicklists[pref.key]}
 						>
@@ -306,7 +306,7 @@ function optionLabel(key: string, value: string): string {
 				type="number"
 				value={String(currentValue)}
 				placeholder="0"
-				class="h-8 text-xs md:text-xs w-36"
+				class="h-8 text-xs md:text-xs w-36 bg-white/[0.10] border-white/[0.08]"
 				oninput={(e: Event) => callSetter(pref.key, Number((e.target as HTMLInputElement).value) || 0)}
 			/>
 		</div>
@@ -319,7 +319,7 @@ function optionLabel(key: string, value: string): string {
 				id="pref-{pref.key}"
 				value={String(currentValue)}
 				placeholder={pref.key === 'userAvatar' ? 'https://...' : ''}
-				class="h-8 text-xs md:text-xs w-36"
+				class="h-8 text-xs md:text-xs w-36 bg-white/[0.10] border-white/[0.08]"
 				oninput={(e: Event) => callSetter(pref.key, (e.target as HTMLInputElement).value)}
 			/>
 		</div>

@@ -51,6 +51,10 @@ export const ko: EditorLocaleRaw = {
 		themeCopper: '구리',
 		themeAurora: '오로라',
 		themeAmethyst: '자수정',
+		searchThemes: '테마 검색…',
+		searchLanguages: '언어 검색…',
+		noThemesFound: '테마를 찾을 수 없습니다',
+		noLanguagesFound: '언어를 찾을 수 없습니다',
 	},
 	project: {
 		openProject: '프로젝트 열기',

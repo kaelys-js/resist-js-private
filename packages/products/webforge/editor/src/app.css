@@ -460,6 +460,24 @@
 	[contenteditable] {
 		user-select: text;
 	}
+
+	/* All clickable elements should show pointer cursor */
+	button,
+	[role='button'],
+	[role='menuitem'],
+	[role='menuitemradio'],
+	[role='menuitemcheckbox'],
+	[role='option'],
+	[role='switch'],
+	[role='tab'],
+	[role='combobox'],
+	[data-slot='sidebar-menu-button'],
+	[data-slot='dropdown-menu-item'],
+	[data-slot='dropdown-menu-sub-trigger'],
+	[data-slot='switch'],
+	summary {
+		cursor: pointer;
+	}
 }
 
 /* View Transitions API — smooth crossfade for locale switching */

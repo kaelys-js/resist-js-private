@@ -1,5 +1,5 @@
 <script lang="ts">
-import Sparkles from '@lucide/svelte/icons/sparkles';
+import AppLogo from '$lib/components/AppLogo.svelte';
 import type { Str } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
@@ -25,8 +25,8 @@ const orCreateNew: string = $derived(
 </script>
 
 <div class="flex flex-1 flex-col items-center justify-center gap-2 px-4 text-center">
-	<div class="mb-2 text-primary/60" aria-hidden="true">
-		<Sparkles size={48} strokeWidth={1.5} />
+	<div class="mb-2" aria-hidden="true">
+		<AppLogo size={48} />
 	</div>
 
 	<h1 class="text-2xl font-semibold tracking-tight">{welcomeText}</h1>

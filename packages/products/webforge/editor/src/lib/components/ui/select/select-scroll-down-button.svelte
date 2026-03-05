@@ -13,7 +13,7 @@ let {
 <SelectPrimitive.ScrollDownButton
 	bind:ref
 	data-slot="select-scroll-down-button"
-	class={cn("flex cursor-default items-center justify-center py-1", className)}
+	class={cn("flex items-center justify-center py-1", className)}
 	{...restProps}
 >
 	<ChevronDownIcon class="size-4" />

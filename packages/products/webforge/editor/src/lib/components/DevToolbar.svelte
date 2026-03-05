@@ -379,6 +379,16 @@ $effect(() => {
 				class="w-80 max-h-[60vh] flex flex-col overflow-hidden rounded-lg bg-white/[0.08] dark:bg-white/[0.06] backdrop-blur-2xl backdrop-saturate-150 border border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_1px_rgba(255,255,255,0.1)_inset]"
 				data-testid="dev-toolbar-panel"
 			>
+				<!-- Drag handle -->
+				<div
+					class="flex items-center justify-center py-1.5 shrink-0 touch-none {dragging ? 'cursor-grabbing' : 'cursor-grab'}"
+					onpointerdown={onDragStart}
+					onpointermove={onDragMove}
+					onpointerup={onDragEnd}
+					aria-hidden="true"
+				>
+					<div class="w-8 h-1 rounded-full bg-white/[0.15]"></div>
+				</div>
 				{#if activePanel === 'flags'}
 					<DevToolbarFeatureFlags {editorStore} onclose={() => { activePanel = null; }} />
 				{:else if activePanel === 'app'}

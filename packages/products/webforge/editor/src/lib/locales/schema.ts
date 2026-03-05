@@ -59,6 +59,10 @@ export const EditorLocaleSchema = v.strictObject({
 		themeCopper: messageTemplate(),
 		themeAurora: messageTemplate(),
 		themeAmethyst: messageTemplate(),
+		searchThemes: messageTemplate(),
+		searchLanguages: messageTemplate(),
+		noThemesFound: messageTemplate(),
+		noLanguagesFound: messageTemplate(),
 	}),
 	project: v.strictObject({
 		openProject: messageTemplate(),
