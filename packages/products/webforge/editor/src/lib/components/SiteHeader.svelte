@@ -10,15 +10,21 @@ import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 import type { ServerUser } from '$lib/server/data/types';
 
-let { isError = false, user = null }: { isError?: boolean; user?: ServerUser | null } = $props();
+let {
+	isError = false,
+	user = null,
+	activeSceneName = '',
+}: { isError?: boolean; user?: ServerUser | null; activeSceneName?: string } = $props();
 
 const store = useEditorStore();
 
 const homeHref: string = $derived(page.url.search ? `/${page.url.search}` : '/');
 
-const breadcrumbLeaf: string = $derived(
-	isError ? t(localeStore.t.header.error, 'Error') : t(localeStore.t.header.scene, 'Scene'),
-);
+const breadcrumbLeaf: string = $derived.by(() => {
+	if (isError) return t(localeStore.t.header.error, 'Error');
+	if (activeSceneName) return activeSceneName;
+	return t(localeStore.t.header.home, 'Home');
+});
 
 const toggleSidebarLabel: string = $derived(
 	t(localeStore.t.header.toggleSidebar, 'Toggle Sidebar'),

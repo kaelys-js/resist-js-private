@@ -42,6 +42,7 @@ export const AppPreferencesSchema = v.strictObject({
 	userName: v.optional(v.pipe(v.string(), v.minLength(1)), 'User'),
 	userEmail: v.optional(v.string(), ''),
 	userAvatar: v.optional(v.string(), ''),
+	mockDataDelay: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(10000)), 0),
 });
 
 /** Inferred type for application preferences. */
@@ -58,6 +59,7 @@ export const FeatureFlagsSchema = v.strictObject({
 	languageSelection: v.optional(v.boolean(), true),
 	modeToggle: v.optional(v.boolean(), true),
 	sidebar: v.optional(v.boolean(), true),
+	sidebarHome: v.optional(v.boolean(), true),
 	sceneList: v.optional(v.boolean(), true),
 	resizableSidebar: v.optional(v.boolean(), true),
 	breadcrumb: v.optional(v.boolean(), true),

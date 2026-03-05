@@ -8,10 +8,22 @@ import Sparkles from '@lucide/svelte/icons/sparkles';
 import LogOut from '@lucide/svelte/icons/log-out';
 import * as Avatar from '$lib/components/ui/avatar/index.js';
 import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+import { goto } from '$app/navigation';
+import { page } from '$app/state';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 
 const store = useEditorStore();
+
+/**
+ * Handles Log Out click: navigates to the current page with `?wf.auth=false`
+ * to simulate a logged-out state in dev mode.
+ */
+function handleLogOut(): void {
+	const url = new URL(page.url);
+	url.searchParams.set('wf.auth', 'false');
+	goto(url.toString());
+}
 
 /** Monogram from the user name (e.g. "John Doe" → "JD", "User" → "U"). */
 const monogram: string = $derived(
@@ -128,7 +140,7 @@ const hasToolsGroup: boolean = $derived(
 		{#if store.features.headerUserLogout}
 			<DropdownMenu.Separator />
 			<DropdownMenu.Group>
-				<DropdownMenu.Item class="text-destructive focus:text-destructive">
+				<DropdownMenu.Item class="text-destructive focus:text-destructive" onclick={handleLogOut}>
 					<LogOut aria-hidden="true" class="mr-2 size-4" />
 					{t(localeStore.t.user.logout, 'Log Out')}
 				</DropdownMenu.Item>

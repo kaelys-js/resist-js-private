@@ -49,8 +49,8 @@ export type FlagDescriptor = {
 export type FieldDescriptor = {
 	/** Schema key name (e.g., 'theme', 'sidebarOpen'). */
 	key: string;
-	/** Control type to render: Switch for boolean, Select for picklist, Input for string. */
-	type: 'boolean' | 'picklist' | 'string';
+	/** Control type to render: Switch for boolean, Select for picklist, Input for string/number. */
+	type: 'boolean' | 'picklist' | 'string' | 'number';
 	/** Available options for picklist fields. Undefined for non-picklist types. */
 	options?: readonly string[];
 	/** Default value from the schema. */
@@ -69,7 +69,7 @@ export type FieldDescriptor = {
  * @returns Object with detected type, options array, and default value
  */
 function introspectEntry(entry: Record<string, unknown>): {
-	type: 'boolean' | 'picklist' | 'string';
+	type: 'boolean' | 'picklist' | 'string' | 'number';
 	options?: readonly string[];
 	default: unknown;
 } {
@@ -89,6 +89,10 @@ function introspectEntry(entry: Record<string, unknown>): {
 	// Detect type
 	if (inner.type === 'boolean') {
 		return { type: 'boolean', default: defaultValue };
+	}
+
+	if (inner.type === 'number') {
+		return { type: 'number', default: defaultValue };
 	}
 
 	if (inner.type === 'picklist' && Array.isArray(inner.options)) {

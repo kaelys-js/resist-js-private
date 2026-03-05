@@ -5,14 +5,14 @@ import { test, expect } from '@playwright/test';
 // =============================================================================
 
 test.describe('project & user data — default state', () => {
-	test('project name "My First RPG" visible in sidebar footer', async ({ page }) => {
+	test('project name "Sample Project" visible in sidebar footer', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.getByText('My First RPG')).toBeVisible();
+		await expect(page.getByText('Sample Project')).toBeVisible();
 	});
 
 	test('project subtitle visible in sidebar footer', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.getByText('An HD-2D Adventure')).toBeVisible();
+		await expect(page.getByText('Sample Project Description')).toBeVisible();
 	});
 
 	test('3 scenes visible — Overworld, Town Interior, Dungeon B1', async ({ page }) => {
@@ -40,7 +40,7 @@ test.describe('project & user data — auth override (?wf.auth=false)', () => {
 
 	test('project dropdown hidden when logged out', async ({ page }) => {
 		await page.goto('/?wf.auth=false');
-		await expect(page.getByText('My First RPG')).not.toBeAttached();
+		await expect(page.getByText('Sample Project')).not.toBeAttached();
 	});
 
 	test('scene list hidden when logged out', async ({ page }) => {

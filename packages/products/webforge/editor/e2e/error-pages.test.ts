@@ -149,7 +149,7 @@ test.describe('Error pages', () => {
 			await expect(page).toHaveTitle(/Page not found/i);
 			await page.getByRole('link', { name: /go to homepage/i }).click();
 			await expect(page).toHaveURL('/');
-			await expect(page).toHaveTitle('Storylyne - Scene - Your Story, Rendered');
+			await expect(page).toHaveTitle('Storylyne - Overworld - Your Story, Rendered');
 		});
 
 		test('title reverts to app name after navigating home from 500', async ({ page }) => {
@@ -157,7 +157,7 @@ test.describe('Error pages', () => {
 			await expect(page).toHaveTitle(/Something went wrong/i);
 			await page.getByRole('link', { name: /go to homepage/i }).click();
 			await expect(page).toHaveURL('/');
-			await expect(page).toHaveTitle('Storylyne - Scene - Your Story, Rendered');
+			await expect(page).toHaveTitle('Storylyne - Overworld - Your Story, Rendered');
 		});
 
 		test('og:title reverts after navigating home from error page', async ({ page }) => {
@@ -178,7 +178,7 @@ test.describe('Error pages', () => {
 	});
 
 	test.describe('Accessibility', () => {
-		test('error page breadcrumb shows "Error" instead of "Scene"', async ({ page }) => {
+		test('error page breadcrumb shows "Error" instead of scene name', async ({ page }) => {
 			await page.goto('/test-error/404');
 			await expect(page.getByText('Error', { exact: true })).toBeVisible();
 		});

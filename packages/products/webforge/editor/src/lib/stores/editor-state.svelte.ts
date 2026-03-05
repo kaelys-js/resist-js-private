@@ -43,6 +43,7 @@ const APP_DEFAULTS: AppPreferences = {
 	userName: 'User',
 	userEmail: '',
 	userAvatar: '',
+	mockDataDelay: 0,
 };
 
 const FEATURE_DEFAULTS: FeatureFlags = {
@@ -51,6 +52,7 @@ const FEATURE_DEFAULTS: FeatureFlags = {
 	languageSelection: true,
 	modeToggle: true,
 	sidebar: true,
+	sidebarHome: true,
 	sceneList: true,
 	resizableSidebar: true,
 	breadcrumb: true,
@@ -116,6 +118,8 @@ export type EditorStore = {
 	setUserEmail(email: string): Result<Void>;
 	/** Set the user avatar URL. */
 	setUserAvatar(url: string): Result<Void>;
+	/** Set the mock data delay in milliseconds (0–10000). */
+	setMockDataDelay(ms: number): Result<Void>;
 	/** Toggle an individual feature flag. Flag key must exist. */
 	setFeature(flag: string, enabled: boolean): Result<Void>;
 	/** Persist current state to localStorage. */
@@ -290,6 +294,21 @@ function setUserAvatar(url: string): Result<Void> {
 }
 
 /**
+ * Sets the mock data delay in milliseconds.
+ *
+ * @param ms - Delay in milliseconds (0–10000)
+ * @returns `Result<Void>` — error if value is out of range
+ */
+function setMockDataDelay(ms: number): Result<Void> {
+	const msSchema = v.pipe(v.number(), v.minValue(0), v.maxValue(10000));
+	const result = safeParse(msSchema, ms);
+	if (!result.ok) return result;
+
+	_app = { ..._app, mockDataDelay: result.data };
+	return save();
+}
+
+/**
  * Toggles an individual feature flag.
  *
  * @param flag - Key name of the feature flag (must exist in FeatureFlags)
@@ -349,6 +368,7 @@ export function createEditorStore(): Result<EditorStore> {
 		setUserName,
 		setUserEmail,
 		setUserAvatar,
+		setMockDataDelay,
 		setFeature,
 		save,
 		load,

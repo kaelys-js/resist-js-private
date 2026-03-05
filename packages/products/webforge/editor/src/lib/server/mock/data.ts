@@ -13,16 +13,16 @@ import type { ServerUser, ServerProject, ServerScene } from '../data/types';
 /** Mock user profile simulating a logged-in developer. */
 export const MOCK_USER: ServerUser = {
 	id: 'user-mock-001',
-	displayName: 'Coleb',
-	email: 'coleb@example.com',
+	displayName: 'Test User',
+	email: 'test-user@example.com',
 	avatarUrl: '',
 };
 
 /** Mock project with an HD-2D theme. */
 export const MOCK_PROJECT: ServerProject = {
 	id: 'proj-mock-001',
-	name: 'My First RPG',
-	subtitle: 'An HD-2D Adventure',
+	name: 'Sample Project',
+	subtitle: 'Sample Project Description',
 	ownerId: 'user-mock-001',
 };
 

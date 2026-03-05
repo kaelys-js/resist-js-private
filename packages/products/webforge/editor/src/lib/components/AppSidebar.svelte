@@ -59,6 +59,7 @@ const navSecondary = $derived([
 		</Sidebar.Menu>
 	</Sidebar.Header>
 	<Sidebar.Content>
+		{#if store.features.sidebarHome}
 		<Sidebar.Group>
 			<Sidebar.Menu>
 				<Sidebar.MenuItem>
@@ -74,6 +75,7 @@ const navSecondary = $derived([
 				</Sidebar.MenuItem>
 			</Sidebar.Menu>
 		</Sidebar.Group>
+		{/if}
 		{#if store.features.sceneList && (!store.features.authGatedUi || user)}
 			<NavScenes {scenes} />
 		{/if}

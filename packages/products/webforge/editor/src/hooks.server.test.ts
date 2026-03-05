@@ -124,7 +124,7 @@ describe('hooks.server handle', () => {
 		const { resolve } = mockResolve();
 		await handle({ event, resolve });
 		expect(event.locals.user).not.toBeNull();
-		expect(event.locals.user?.displayName).toBe('Coleb');
+		expect(event.locals.user?.displayName).toBe('Test User');
 	});
 
 	it('sets event.locals.user to null when ?wf.auth=false', async () => {

@@ -32,7 +32,7 @@ test.describe('collapsed sidebar — state', () => {
 
 		const header = page.locator('header');
 		await expect(header.getByText('Home')).toBeVisible();
-		await expect(header.getByText('Scene')).toBeVisible();
+		await expect(header.getByText('Overworld')).toBeVisible();
 	});
 
 	test('toggle back expands sidebar and shows text labels', async ({ page }) => {
