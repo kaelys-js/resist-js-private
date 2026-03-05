@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { Str } from '@/schemas/common';
+import type { Str, Num, Bool, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { Component } from 'svelte';
 import { fade } from 'svelte/transition';
@@ -17,12 +17,12 @@ import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { announce } from '$lib/utils/announce.svelte';
 
-let { status, message, errorId }: { status: number; message: string; errorId?: string } = $props();
+let { status, message, errorId }: { status: Num; message: Str; errorId?: Str } = $props();
 
-let copied: boolean = $state(false);
+let copied: Bool = $state(false);
 let copyTimeout: ReturnType<typeof setTimeout> | undefined = $state(undefined);
 
-async function copyErrorId(): Promise<void> {
+async function copyErrorId(): Promise<Void> {
 	if (!errorId) return;
 	try {
 		await navigator.clipboard.writeText(errorId);
@@ -37,14 +37,14 @@ async function copyErrorId(): Promise<void> {
 	}
 }
 
-const titleKey: Record<number, () => string> = {
+const titleKey: Record<Num, () => Str> = {
 	400: () => t(localeStore.t.errors.badRequest, 'Bad request'),
 	403: () => t(localeStore.t.errors.forbidden, 'Access denied'),
 	404: () => t(localeStore.t.errors.notFound, 'Page not found'),
 	500: () => t(localeStore.t.errors.serverError, 'Something went wrong'),
 };
 
-const descriptionKey: Record<number, () => string> = {
+const descriptionKey: Record<Num, () => Str> = {
 	400: () =>
 		t(
 			localeStore.t.errors.badRequestDescription,
@@ -67,24 +67,24 @@ const descriptionKey: Record<number, () => string> = {
 		),
 };
 
-const iconMap: Record<number, Component> = {
+const iconMap: Record<Num, Component> = {
 	400: CircleAlert,
 	403: ShieldOff,
 	404: FileQuestion,
 	500: ServerCrash,
 };
 
-const iconColorMap: Record<number, string> = {
+const iconColorMap: Record<Num, Str> = {
 	400: 'text-blue-500',
 	403: 'text-amber-500',
 	500: 'text-red-500',
 };
 
-const title: string = $derived(
+const title: Str = $derived(
 	(titleKey[status] ?? (() => t(localeStore.t.errors.genericTitle, 'Error')))(),
 );
 
-const description: string = $derived(
+const description: Str = $derived(
 	(
 		descriptionKey[status] ??
 		(() =>
@@ -95,23 +95,24 @@ const description: string = $derived(
 	)(),
 );
 
-const goHomeLabel: string = $derived(t(localeStore.t.errors.goHome, 'Go to homepage'));
-const tryAgainLabel: string = $derived(t(localeStore.t.errors.tryAgain, 'Try again'));
-const copiedLabel: string = $derived(t(localeStore.t.errors.copied, 'Copied!'));
+const goHomeLabel: Str = $derived(t(localeStore.t.errors.goHome, 'Go to homepage'));
+const tryAgainLabel: Str = $derived(t(localeStore.t.errors.tryAgain, 'Try again'));
+const copiedLabel: Str = $derived(t(localeStore.t.errors.copied, 'Copied!'));
 
-const errorIdLabel: string = $derived.by(() => {
+const errorIdLabel: Str = $derived.by(() => {
 	if (!errorId) return '';
-	const result: Result<Str> = (localeStore.t.errors.errorId as (p: { id: string }) => Result<Str>)({
+	// Locale DeepReadonly workaround — parametric locale function needs cast
+	const result: Result<Str> = (localeStore.t.errors.errorId as (p: { id: Str }) => Result<Str>)({
 		id: errorId,
 	});
 	return result.ok ? result.data : `Reference: ${errorId}`;
 });
 
-const tooltipText: string = $derived(copied ? copiedLabel : 'Click to copy');
+const tooltipText: Str = $derived(copied ? copiedLabel : 'Click to copy');
 
-const showTryAgain: boolean = $derived(status >= 500);
+const showTryAgain: Bool = $derived(status >= 500);
 const StatusIcon: Component = $derived(iconMap[status] ?? TriangleAlert);
-const iconColor: string = $derived(iconColorMap[status] ?? 'text-muted-foreground');
+const iconColor: Str = $derived(iconColorMap[status] ?? 'text-muted-foreground');
 </script>
 
 <div

@@ -18,8 +18,9 @@
  * ```
  */
 
-import type { Void, Str } from '@/schemas/common';
+import type { Void, Str, Bool } from '@/schemas/common';
 import { type Result, okUnchecked, err, ERRORS } from '@/schemas/result/result';
+import { safeParse } from '@/utils/result/safe';
 import {
 	matchesShortcut,
 	formatShortcut,
@@ -28,6 +29,7 @@ import {
 	updateShortcut,
 	resetShortcut,
 	resetAllShortcuts,
+	ShortcutRegistrySchema,
 	type ShortcutRegistry,
 	type ShortcutId,
 	type KeyboardShortcut,
@@ -73,29 +75,33 @@ function save(): Result<Void> {
 function load(): Result<Void> {
 	if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
 	try {
-		const raw: string | null = localStorage.getItem(SHORTCUTS_STORAGE_KEY);
+		const raw: Str | null = localStorage.getItem(SHORTCUTS_STORAGE_KEY);
 		if (!raw) return okUnchecked<Void>(undefined);
 
 		const parsed: unknown = JSON.parse(raw);
-		if (typeof parsed !== 'object' || parsed === null) {
+		// v.record(picklist, schema) infers partial — keys are optional in Valibot record output
+		const result: Result<Partial<ShortcutRegistry>> = safeParse(ShortcutRegistrySchema, parsed);
+		if (!result.ok) {
+			// Saved data is invalid or stale — reset to defaults
 			_registry = resetAllShortcuts();
 			return okUnchecked<Void>(undefined);
 		}
 
-		// Merge saved customizations over defaults
+		// Merge validated saved customizations over defaults
 		const defaults: ShortcutRegistry = resetAllShortcuts();
-		const saved = parsed as Record<string, unknown>;
+		const saved: Partial<ShortcutRegistry> = result.data;
 
+		// as ShortcutId[] — Object.keys returns string[], but defaults keys are ShortcutId by construction
 		for (const id of Object.keys(defaults) as ShortcutId[]) {
-			const savedEntry = saved[id];
-			if (typeof savedEntry === 'object' && savedEntry !== null) {
-				const entry = savedEntry as Record<string, unknown>;
+			const savedEntry: KeyboardShortcut | undefined = saved[id];
+			if (savedEntry) {
 				// Only merge key, modifiers, and enabled — everything else comes from defaults
-				if (typeof entry.key === 'string') defaults[id].key = entry.key;
-				if (Array.isArray(entry.modifiers)) {
-					defaults[id] = { ...defaults[id], modifiers: [...entry.modifiers] };
-				}
-				if (typeof entry.enabled === 'boolean') defaults[id].enabled = entry.enabled;
+				defaults[id] = {
+					...defaults[id],
+					key: savedEntry.key,
+					modifiers: [...savedEntry.modifiers],
+					enabled: savedEntry.enabled,
+				};
 			}
 		}
 
@@ -121,7 +127,7 @@ export type KeyboardShortcutsStore = {
 	/** Get a specific shortcut by ID. */
 	get(id: ShortcutId): KeyboardShortcut;
 	/** Check if a keyboard event matches a shortcut. */
-	matches(e: KeyboardEvent, id: ShortcutId): boolean;
+	matches(e: KeyboardEvent, id: ShortcutId): Bool;
 	/** Format a shortcut for display (platform-aware). */
 	format(id: ShortcutId): Str;
 	/** Get all shortcuts as a sorted array. */
@@ -171,7 +177,7 @@ export const shortcutStore: KeyboardShortcutsStore = {
 		return _registry[id];
 	},
 
-	matches(e: KeyboardEvent, id: ShortcutId): boolean {
+	matches(e: KeyboardEvent, id: ShortcutId): Bool {
 		return matchesShortcut(e, _registry[id]);
 	},
 
@@ -188,16 +194,18 @@ export const shortcutStore: KeyboardShortcutsStore = {
 	},
 
 	update(id, key, modifiers): Result<Void> {
-		const result = updateShortcut(_registry, id, key, modifiers);
+		const result: Result<ShortcutRegistry> = updateShortcut(_registry, id, key, modifiers);
 		if (!result.ok) return result;
+		// as ShortcutRegistry — structuredClone widens Record<ShortcutId, T> to Record<string, T>
 		_registry = structuredClone(result.data) as ShortcutRegistry;
 		save();
 		return okUnchecked<Void>(undefined);
 	},
 
 	reset(id): Result<Void> {
-		const result = resetShortcut(_registry, id);
+		const result: Result<ShortcutRegistry> = resetShortcut(_registry, id);
 		if (!result.ok) return result;
+		// as ShortcutRegistry — structuredClone widens Record<ShortcutId, T> to Record<string, T>
 		_registry = structuredClone(result.data) as ShortcutRegistry;
 		save();
 		return okUnchecked<Void>(undefined);

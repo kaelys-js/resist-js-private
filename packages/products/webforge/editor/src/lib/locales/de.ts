@@ -1,5 +1,12 @@
+/**
+ * German (de) locale strings for the WebForge editor.
+ *
+ * @module
+ */
+
 import type { EditorLocaleRaw } from './schema';
 
+/** German locale data. */
 export const de: EditorLocaleRaw = {
 	meta: {
 		tagline: 'Deine Geschichte, zum Leben erweckt',

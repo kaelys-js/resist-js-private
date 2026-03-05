@@ -13,16 +13,17 @@ import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 import { localeStore, t } from '$lib/i18n.svelte';
 import type { ServerScene } from '$lib/server/data/types';
+import type { Bool, Str } from '@/schemas/common';
 import EmptyScenes from './EmptyScenes.svelte';
 
 let { scenes }: { scenes: readonly ServerScene[] } = $props();
 
-let open = $state(true);
+let open: Bool = $state(true);
 
-const sidebar = useSidebar();
-const isIconCollapsed = $derived(sidebar.state === 'collapsed' && !sidebar.isMobile);
+const sidebar: ReturnType<typeof useSidebar> = useSidebar();
+const isIconCollapsed: Bool = $derived(sidebar.state === 'collapsed' && !sidebar.isMobile);
 
-const scenesLabel = $derived(t(localeStore.t.sidebar.scenes, 'Scenes'));
+const scenesLabel: Str = $derived(t(localeStore.t.sidebar.scenes, 'Scenes'));
 </script>
 
 {#snippet sceneList()}

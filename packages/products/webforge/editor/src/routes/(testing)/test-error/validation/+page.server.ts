@@ -1,3 +1,9 @@
+/**
+ * Test route that simulates a Valibot schema validation error.
+ *
+ * @module
+ */
+
 import * as v from 'valibot';
 import { safeParse } from '@/utils/result/safe';
 import type { PageServerLoad } from './$types';

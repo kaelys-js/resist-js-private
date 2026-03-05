@@ -8,10 +8,11 @@ import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
+import type { Str } from '@/schemas/common';
 
-const store = useEditorStore();
+const store: ReturnType<typeof useEditorStore> = useEditorStore();
 
-const toggleThemeLabel: string = $derived(t(localeStore.t.settings.toggleTheme, 'Toggle theme'));
+const toggleThemeLabel: Str = $derived(t(localeStore.t.settings.toggleTheme, 'Toggle theme'));
 </script>
 
 <Tooltip.Root delayDuration={700}>

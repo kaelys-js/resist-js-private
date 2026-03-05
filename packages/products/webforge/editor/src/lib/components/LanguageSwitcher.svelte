@@ -5,40 +5,45 @@ import X from '@lucide/svelte/icons/x';
 import Globe from '@lucide/svelte/icons/globe';
 import Check from '@lucide/svelte/icons/check';
 import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-import { getTextDirection } from '@/locale/direction';
+import { getTextDirection, type TextDirection } from '@/locale/direction';
+import type { Bool, Str, Void } from '@/schemas/common';
+import type { Result } from '@/schemas/result/result';
 import { localeStore, t } from '$lib/i18n.svelte';
-import { useEditorStore } from '$lib/stores/editor-state.svelte';
+import { useEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';
 import { SUPPORTED_LOCALES } from '$lib/schemas/editor-state';
 import { getLanguageDisplayNames, type LanguageDisplayInfo } from '$lib/utils/locale-display';
 
-const store = useEditorStore();
+const store: EditorStore = useEditorStore();
 
-let searchQuery: string = $state('');
+let searchQuery: Str = $state('');
 
 const languages: readonly LanguageDisplayInfo[] = $derived.by(() => {
-	const result = getLanguageDisplayNames(SUPPORTED_LOCALES, store.app.locale);
+	const result: Result<LanguageDisplayInfo[]> = getLanguageDisplayNames(
+		SUPPORTED_LOCALES,
+		store.app.locale,
+	);
 	if (!result.ok) return [];
 	return result.data;
 });
 
-const filteredLanguages = $derived(
+const filteredLanguages: readonly LanguageDisplayInfo[] = $derived(
 	searchQuery.length === 0
 		? languages
 		: languages.filter(
-				(lang) =>
+				(lang: LanguageDisplayInfo) =>
 					lang.endonym.toLowerCase().includes(searchQuery.toLowerCase()) ||
 					lang.exonym.toLowerCase().includes(searchQuery.toLowerCase()) ||
 					lang.code.toLowerCase().includes(searchQuery.toLowerCase()),
 			),
 );
 
-function switchLanguage(code: string): void {
-	const apply = (): void => {
+function switchLanguage(code: Str): Void {
+	const apply: () => Void = (): Void => {
 		store.setLocale(code);
 		// oxlint-disable-next-line unicorn/no-document-cookie -- Cookie Store API lacks Safari/Firefox support
 		document.cookie = `locale=${code};path=/;max-age=31536000;SameSite=Lax`;
 		document.documentElement.lang = code;
-		const dirResult = getTextDirection(code);
+		const dirResult: Result<TextDirection> = getTextDirection(code);
 		document.documentElement.dir = dirResult.ok ? dirResult.data : 'ltr';
 	};
 
@@ -49,11 +54,11 @@ function switchLanguage(code: string): void {
 	}
 }
 
-function isDuplicate(info: LanguageDisplayInfo): boolean {
+function isDuplicate(info: LanguageDisplayInfo): Bool {
 	return info.endonym.localeCompare(info.exonym, undefined, { sensitivity: 'base' }) === 0;
 }
 
-function handleSubOpenChange(open: boolean): void {
+function handleSubOpenChange(open: Bool): Void {
 	if (!open) searchQuery = '';
 }
 </script>

@@ -1,5 +1,12 @@
+/**
+ * English (en) locale strings for the WebForge editor.
+ *
+ * @module
+ */
+
 import type { EditorLocaleRaw } from './schema';
 
+/** English locale data — default/fallback language. */
 export const en: EditorLocaleRaw = {
 	meta: {
 		tagline: 'Your Story, Rendered',

@@ -10,7 +10,14 @@
 
 import type { ServerUser, ServerProject, ServerScene } from '../data/types';
 
-/** Mock user profile simulating a logged-in developer. */
+/**
+ * Mock user profile simulating a logged-in developer.
+ *
+ * @example
+ * ```typescript
+ * if (ownerId === MOCK_USER.id) { ... }
+ * ```
+ */
 export const MOCK_USER: ServerUser = {
 	id: 'user-mock-001',
 	displayName: 'Test User',
@@ -18,7 +25,14 @@ export const MOCK_USER: ServerUser = {
 	avatarUrl: '',
 };
 
-/** Mock project with an HD-2D theme. */
+/**
+ * Mock project with an HD-2D theme.
+ *
+ * @example
+ * ```typescript
+ * if (projectId === MOCK_PROJECT.id) { ... }
+ * ```
+ */
 export const MOCK_PROJECT: ServerProject = {
 	id: 'proj-mock-001',
 	name: 'Sample Project',
@@ -26,7 +40,14 @@ export const MOCK_PROJECT: ServerProject = {
 	ownerId: 'user-mock-001',
 };
 
-/** Mock scenes matching the original hardcoded sidebar data. */
+/**
+ * Mock scenes matching the original hardcoded sidebar data.
+ *
+ * @example
+ * ```typescript
+ * if (projectId === MOCK_PROJECT.id) return [...MOCK_SCENES];
+ * ```
+ */
 export const MOCK_SCENES: readonly ServerScene[] = [
 	{ id: 'scene-001', title: 'Overworld', url: '#overworld', isActive: true, order: 0 },
 	{ id: 'scene-002', title: 'Town Interior', url: '#town-interior', isActive: false, order: 1 },

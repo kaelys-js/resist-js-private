@@ -10,24 +10,25 @@ import LanguageSwitcher from './LanguageSwitcher.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 import type { ServerProject } from '$lib/server/data/types';
+import type { Str } from '@/schemas/common';
 
 let { project = null }: { project?: ServerProject | null } = $props();
 
-const store = useEditorStore();
-const sidebar = Sidebar.useSidebar();
+const store: ReturnType<typeof useEditorStore> = useEditorStore();
+const sidebar: ReturnType<typeof Sidebar.useSidebar> = Sidebar.useSidebar();
 
 /** Display name from project or fallback. */
-const projectName: string = $derived(project?.name ?? 'Project');
+const projectName: Str = $derived(project?.name ?? 'Project');
 
 /** Subtitle from project or fallback dash. */
-const projectSubtitle: string = $derived(project?.subtitle || '\u2014');
+const projectSubtitle: Str = $derived(project?.subtitle || '\u2014');
 
 /** Monogram from the project name (e.g. "My Project" → "MP", "Project" → "P"). */
-const monogram: string = $derived(
+const monogram: Str = $derived(
 	projectName
 		.split(/\s+/)
 		.slice(0, 2)
-		.map((w: string) => w[0]?.toUpperCase() ?? '')
+		.map((w: Str) => w[0]?.toUpperCase() ?? '')
 		.join(''),
 );
 </script>

@@ -1,5 +1,12 @@
+/**
+ * Korean (ko) locale strings for the WebForge editor.
+ *
+ * @module
+ */
+
 import type { EditorLocaleRaw } from './schema';
 
+/** Korean locale data. */
 export const ko: EditorLocaleRaw = {
 	meta: {
 		tagline: '당신의 이야기, 렌더링되다',

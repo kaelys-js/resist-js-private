@@ -1,3 +1,12 @@
+/**
+ * Debug state schemas — controls debug mode, log level, and URL overrides.
+ *
+ * Persisted under `'app:debug-state'` localStorage key. URL overrides
+ * use the `wf.` prefix (e.g., `?wf.debug=true`, `?wf.theme=midnight`).
+ *
+ * @module
+ */
+
 import * as v from 'valibot';
 
 /**
@@ -36,7 +45,9 @@ export const URL_PARAM_PREFIX = 'wf.' as const;
  * ```
  */
 export const DebugStateSchema = v.strictObject({
+	/** Whether debug mode is active. Defaults to `false`. */
 	enabled: v.optional(v.boolean(), false),
+	/** Current log verbosity level. Defaults to `'info'`. */
 	logLevel: v.optional(LogLevelSchema, 'info'),
 });
 
@@ -46,6 +57,11 @@ export type DebugState = v.InferOutput<typeof DebugStateSchema>;
 /**
  * Schema for parsed URL overrides. Keys are unprefixed (e.g., `'theme'`, not `'wf.theme'`).
  * Values are raw strings — validated against target schemas when applied.
+ *
+ * @example
+ * ```typescript
+ * const result = safeParse(UrlOverridesSchema, { theme: 'midnight', locale: 'ja' });
+ * ```
  */
 export const UrlOverridesSchema = v.record(v.string(), v.string());
 

@@ -14,14 +14,29 @@ import type { Str } from '@/schemas/common';
 
 // ── App identity ─────────────────────────────────────────────────────────────
 
-export const APP_NAME = 'Storylyne';
-export const APP_SHORT_NAME = 'Storylyne';
-export const APP_TAGLINE = 'Your Story, Rendered';
-export const APP_DESCRIPTION = 'Your Story, Rendered';
-export const APP_ID = '/';
-export const APP_SCOPE = '/';
-export const APP_START_URL = '/';
-export const APP_DISPLAY = 'standalone';
+/** Application display name. */
+export const APP_NAME: Str = 'Storylyne';
+
+/** Short name for PWA manifest and home screen. */
+export const APP_SHORT_NAME: Str = 'Storylyne';
+
+/** Marketing tagline shown in meta tags. */
+export const APP_TAGLINE: Str = 'Your Story, Rendered';
+
+/** App description for PWA manifest and meta tags. */
+export const APP_DESCRIPTION: Str = 'Your Story, Rendered';
+
+/** PWA manifest application ID. */
+export const APP_ID: Str = '/';
+
+/** PWA manifest scope. */
+export const APP_SCOPE: Str = '/';
+
+/** PWA manifest start URL. */
+export const APP_START_URL: Str = '/';
+
+/** PWA manifest display mode. */
+export const APP_DISPLAY: Str = 'standalone';
 
 /** Schema for valid app category strings (PWA manifest `categories` field). */
 export const AppCategoriesSchema = v.array(v.string());
@@ -36,7 +51,7 @@ export const APP_CATEGORIES: v.InferOutput<typeof AppCategoriesSchema> = [
 // ── Storage ──────────────────────────────────────────────────────────────────
 
 /** Prefix for all localStorage keys. Prevents collisions with other apps on the same origin. */
-export const STORAGE_PREFIX = 'app';
+export const STORAGE_PREFIX: Str = 'app';
 
 /**
  * Builds a namespaced localStorage key.
@@ -59,7 +74,9 @@ export function storageKey(suffix: Str): Str {
 
 /** Schema for a single theme color entry (light + dark hex values). */
 export const ThemeColorEntrySchema = v.strictObject({
+	/** Light mode hex background color. */
 	light: v.string(),
+	/** Dark mode hex background color. */
 	dark: v.string(),
 });
 
@@ -92,9 +109,13 @@ export const THEME_COLORS: Record<(typeof SUPPORTED_THEMES)[number], ThemeColorE
 
 /** Schema for a single PWA icon entry. */
 export const IconEntrySchema = v.strictObject({
+	/** Path to icon file (relative to static/). */
 	src: v.string(),
+	/** Icon dimensions (e.g. `'192x192'`). */
 	sizes: v.string(),
+	/** MIME type of the icon (e.g. `'image/png'`). */
 	type: v.string(),
+	/** Icon purpose (e.g. `'maskable'`). */
 	purpose: v.optional(v.string()),
 });
 
@@ -113,17 +134,21 @@ export const ICONS: readonly IconEntry[] = [
 // the Vite HTML template plugin (error.html inline styles).
 
 /** CSS font-family stack for body text (Inter + system fallbacks). */
-export const FONT_FAMILIES =
+export const FONT_FAMILIES: Str =
 	"'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'";
 
 /** CSS font-family stack for display/accent text (Rajdhani). */
-export const FONT_DISPLAY_FAMILIES = "'Rajdhani', ui-sans-serif, system-ui, sans-serif";
+export const FONT_DISPLAY_FAMILIES: Str = "'Rajdhani', ui-sans-serif, system-ui, sans-serif";
 
 /** Schema for a self-hosted @font-face definition. */
 export const FontFaceEntrySchema = v.strictObject({
+	/** CSS font-family name. */
 	family: v.string(),
+	/** Font style (e.g. `'normal'`, `'italic'`). */
 	style: v.string(),
+	/** Font weight or weight range (e.g. `'600'`, `'100 900'`). */
 	weight: v.string(),
+	/** Path to font file (relative to static/). */
 	src: v.string(),
 });
 
@@ -140,9 +165,14 @@ export const FONT_FACES: readonly FontFaceEntry[] = [
 // ── Security / contact ───────────────────────────────────────────────────────
 // Used by security.txt route.
 
-export const SECURITY_CONTACT_URL = 'https://github.com/storylyne/storylyne/security';
-export const SECURITY_POLICY_URL = 'https://github.com/storylyne/storylyne/security/policy';
-export const SECURITY_CANONICAL_URL = 'https://storylyne.dev/.well-known/security.txt';
+/** Security vulnerability contact URL for security.txt. */
+export const SECURITY_CONTACT_URL: Str = 'https://github.com/storylyne/storylyne/security';
+
+/** Security policy URL for security.txt. */
+export const SECURITY_POLICY_URL: Str = 'https://github.com/storylyne/storylyne/security/policy';
+
+/** Canonical URL for security.txt. */
+export const SECURITY_CANONICAL_URL: Str = 'https://storylyne.dev/.well-known/security.txt';
 
 /**
  * Preferred languages for security.txt.
@@ -150,4 +180,5 @@ export const SECURITY_CANONICAL_URL = 'https://storylyne.dev/.well-known/securit
  * to avoid a circular dependency (editor-state → app-meta → editor-state).
  * This fallback is only used if the route can't import SUPPORTED_LOCALES directly.
  */
-export const SECURITY_PREFERRED_LANGUAGES = 'en, ja, zh, ko, fr, de, es';
+/** Preferred languages for security.txt (comma-separated BCP 47 tags). */
+export const SECURITY_PREFERRED_LANGUAGES: Str = 'en, ja, zh, ko, fr, de, es';

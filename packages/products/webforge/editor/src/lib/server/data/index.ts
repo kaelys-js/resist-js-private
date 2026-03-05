@@ -8,6 +8,7 @@
  * @module
  */
 
+import type { Num } from '@/schemas/common';
 import type { DataService } from './types';
 import { createMockService } from '../mock/service';
 
@@ -26,7 +27,7 @@ import { createMockService } from '../mock/service';
  * // With simulated latency for skeleton testing:
  * event.locals.db = createDataService(event.platform, 1500);
  */
-export function createDataService(_platform?: App.Platform, delayMs = 0): DataService {
+export function createDataService(_platform?: App.Platform, delayMs: Num = 0): DataService {
 	// Future: if (_platform?.env?.DB) return createD1Service(_platform.env.DB);
 	return createMockService(delayMs);
 }

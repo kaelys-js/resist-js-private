@@ -16,13 +16,14 @@ import { styles, formatTimestamp, diffSnapshot } from '$lib/debug/console-styles
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import type { DebugStore } from '$lib/stores/debug-state.svelte';
 import type { LogLevel } from '$lib/schemas/debug-state';
+import type { Bool, Num, Str, Void } from '@/schemas/common';
 
 // =============================================================================
 // Types
 // =============================================================================
 
 /** Cleanup function returned by `createWatcher` — call to stop watching. */
-export type WatcherCleanup = () => void;
+export type WatcherCleanup = () => Void;
 
 // =============================================================================
 // Log Level Priority
@@ -32,7 +33,7 @@ export type WatcherCleanup = () => void;
  * Numeric priority for each log level. Lower = more verbose.
  * State change logs are emitted at `debug` level.
  */
-export const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
+export const LOG_LEVEL_PRIORITY: Record<LogLevel, Num> = {
 	trace: 0,
 	debug: 1,
 	info: 2,
@@ -54,7 +55,7 @@ export const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
  * shouldLog('debug', 'info');  // false — info blocks debug messages
  * ```
  */
-export function shouldLog(messageLevel: LogLevel, currentLevel: LogLevel): boolean {
+export function shouldLog(messageLevel: LogLevel, currentLevel: LogLevel): Bool {
 	return LOG_LEVEL_PRIORITY[messageLevel] >= LOG_LEVEL_PRIORITY[currentLevel];
 }
 
@@ -77,10 +78,10 @@ export function shouldLog(messageLevel: LogLevel, currentLevel: LogLevel): boole
  * @param oldVal - Previous value
  * @param newVal - New value
  */
-function logChange(section: string, key: string, oldVal: unknown, newVal: unknown): void {
-	const ts: string = formatTimestamp();
-	const oldStr: string = JSON.stringify(oldVal);
-	const newStr: string = JSON.stringify(newVal);
+function logChange(section: Str, key: Str, oldVal: unknown, newVal: unknown): Void {
+	const ts: Str = formatTimestamp();
+	const oldStr: Str = JSON.stringify(oldVal);
+	const newStr: Str = JSON.stringify(newVal);
 
 	// eslint-disable-next-line no-console -- Intentional debug console output
 	console.groupCollapsed(
@@ -130,15 +131,16 @@ function logChange(section: string, key: string, oldVal: unknown, newVal: unknow
  * ```
  */
 export function createWatcher(
-	name: string,
-	getter: () => Record<string, unknown>,
+	name: Str,
+	getter: () => Record<Str, unknown>,
 	debugStore: DebugStore,
 ): WatcherCleanup {
-	let prev: Record<string, unknown> = { ...getter() };
+	let prev: Record<Str, unknown> = { ...getter() };
 
-	return $effect.root(() => {
+	// Svelte framework return — $effect.root() returns () => void, wrap to match () => Void
+	const dispose: () => void = $effect.root(() => {
 		$effect(() => {
-			const current: Record<string, unknown> = { ...getter() };
+			const current: Record<Str, unknown> = { ...getter() };
 
 			if (!shouldLog('debug', debugStore.debug.logLevel)) return;
 
@@ -149,6 +151,9 @@ export function createWatcher(
 			prev = current;
 		});
 	});
+	return (): Void => {
+		dispose();
+	};
 }
 
 // =============================================================================
@@ -178,7 +183,7 @@ export function createWatcher(
 export function createStateLogger(
 	editorStore: EditorStore,
 	debugStore: DebugStore,
-): { destroy(): void } {
+): { destroy(): Void } {
 	const cleanups: WatcherCleanup[] = [
 		createWatcher('app', () => ({ ...editorStore.app }), debugStore),
 		createWatcher('features', () => ({ ...editorStore.features }), debugStore),
@@ -186,7 +191,7 @@ export function createStateLogger(
 	];
 
 	return {
-		destroy(): void {
+		destroy(): Void {
 			for (const cleanup of cleanups) {
 				cleanup();
 			}

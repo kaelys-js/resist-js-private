@@ -1,5 +1,12 @@
+/**
+ * Spanish (es) locale strings for the WebForge editor.
+ *
+ * @module
+ */
+
 import type { EditorLocaleRaw } from './schema';
 
+/** Spanish locale data. */
 export const es: EditorLocaleRaw = {
 	meta: {
 		tagline: 'Tu historia, hecha realidad',

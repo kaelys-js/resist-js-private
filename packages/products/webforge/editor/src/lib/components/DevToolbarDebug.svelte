@@ -20,9 +20,11 @@ import {
 	humanizeOption,
 } from '$lib/debug/dev-toolbar-registry';
 import { getBuildInfo } from '$lib/config/build-info';
+import type { BuildInfo } from '$lib/schemas/build-info';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { announce } from '$lib/utils/announce.svelte';
-import type { Str } from '@/schemas/common';
+import * as v from 'valibot';
+import type { Str, Bool, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import type { DebugStore } from '$lib/stores/debug-state.svelte';
@@ -34,18 +36,19 @@ let {
 	editorStore,
 	debugStore,
 	onclose,
-}: { editorStore: EditorStore; debugStore: DebugStore; onclose?: () => void } = $props();
+}: { editorStore: EditorStore; debugStore: DebugStore; onclose?: () => Void } = $props();
 
-const debugFields = discoverDebugFields();
+const debugFields: Array<import('$lib/debug/dev-toolbar-registry').FieldDescriptor> =
+	discoverDebugFields();
 
-const urlOverrideEntries = $derived(Object.entries(debugStore.urlOverrides));
-const hasOverrides: boolean = $derived(urlOverrideEntries.length > 0);
+const urlOverrideEntries: Array<[Str, unknown]> = $derived(Object.entries(debugStore.urlOverrides));
+const hasOverrides: Bool = $derived(urlOverrideEntries.length > 0);
 
-const picklistKeys = debugFields.filter((f) => f.type === 'picklist').map((f) => f.key);
-let openPicklists: Record<string, boolean> = $state(
+const picklistKeys: Str[] = debugFields.filter((f) => f.type === 'picklist').map((f) => f.key);
+let openPicklists: Record<Str, Bool> = $state(
 	Object.fromEntries(picklistKeys.map((k) => [k, false])),
 );
-let triggerRefs: Record<string, HTMLButtonElement | null> = $state(
+let triggerRefs: Record<Str, HTMLButtonElement | null> = $state(
 	Object.fromEntries(picklistKeys.map((k) => [k, null])),
 );
 
@@ -56,23 +59,27 @@ let triggerRefs: Record<string, HTMLButtonElement | null> = $state(
  * @param key - The debug field key
  * @param value - The value to set
  */
-function callSetter(key: string, value: unknown): void {
-	const setterName = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
-	const setter = (debugStore as unknown as Record<string, (v: unknown) => unknown>)[setterName];
+function callSetter(key: Str, value: unknown): Void {
+	const setterName: Str = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+	// Dynamic setter access — store type doesn't expose string-indexed setters
+	const setter = (debugStore as unknown as Record<Str, (v: unknown) => unknown>)[setterName];
 	if (typeof setter === 'function') {
 		setter(value);
 	}
 }
 
-async function selectOption(key: string, value: string): Promise<void> {
+async function selectOption(key: Str, value: Str): Promise<Void> {
 	callSetter(key, value);
 	openPicklists[key] = false;
 	await tick();
 	triggerRefs[key]?.focus();
 }
 
-/** Feedback state type: idle → success/failed → idle (after timeout). */
-type FeedbackState = 'idle' | 'success' | 'failed';
+/** Schema for feedback state: idle → success/failed → idle (after timeout). */
+const FeedbackStateSchema = v.picklist(['idle', 'success', 'failed']);
+
+/** Feedback state type. */
+type FeedbackState = v.InferOutput<typeof FeedbackStateSchema>;
 
 let logStateState: FeedbackState = $state('idle');
 let logFeaturesState: FeedbackState = $state('idle');
@@ -84,8 +91,9 @@ let logFeaturesTimeout: ReturnType<typeof setTimeout> | undefined = $state(undef
 let debugUrlCopyTimeout: ReturnType<typeof setTimeout> | undefined = $state(undefined);
 let buildInfoCopyTimeout: ReturnType<typeof setTimeout> | undefined = $state(undefined);
 
-function logState(): void {
-	const devtools = (window as unknown as Record<string, EditorDevtools | undefined>)[
+function logState(): Void {
+	// Window global access — cast required for devtools API on window
+	const devtools = (window as unknown as Record<Str, EditorDevtools | undefined>)[
 		'__EDITOR_DEVTOOLS__'
 	];
 	devtools?.logState();
@@ -96,8 +104,9 @@ function logState(): void {
 	}, 2000);
 }
 
-function logFeatures(): void {
-	const devtools = (window as unknown as Record<string, EditorDevtools | undefined>)[
+function logFeatures(): Void {
+	// Window global access — cast required for devtools API on window
+	const devtools = (window as unknown as Record<Str, EditorDevtools | undefined>)[
 		'__EDITOR_DEVTOOLS__'
 	];
 	devtools?.logFeatures();
@@ -108,9 +117,9 @@ function logFeatures(): void {
 	}, 2000);
 }
 
-async function copyDebugUrl(): Promise<void> {
+async function copyDebugUrl(): Promise<Void> {
 	try {
-		const url: string = generateDebugUrl(editorStore, debugStore);
+		const url: Str = generateDebugUrl(editorStore, debugStore);
 		await navigator.clipboard.writeText(url);
 		debugUrlCopyState = 'success';
 		announce(t(localeStore.t.errors.copied, 'Copied!'));
@@ -124,13 +133,13 @@ async function copyDebugUrl(): Promise<void> {
 	}, 2000);
 }
 
-const buildInfoResult = getBuildInfo();
-const buildInfo = buildInfoResult.ok ? buildInfoResult.data : null;
+const buildInfoResult: Result<BuildInfo> = getBuildInfo();
+const buildInfo: BuildInfo | null = buildInfoResult.ok ? buildInfoResult.data : null;
 
-async function copyBuildInfo(): Promise<void> {
+async function copyBuildInfo(): Promise<Void> {
 	if (!buildInfo) return;
 	try {
-		const dirtyLabel: string = t(
+		const dirtyLabel: Str = t(
 			buildInfo.dirty
 				? localeStore.t.devToolbar.labels.dirtyYes
 				: localeStore.t.devToolbar.labels.dirtyNo,
@@ -156,17 +165,17 @@ async function copyBuildInfo(): Promise<void> {
 	}, 2000);
 }
 
-function labelFor(key: string): string {
-	const entry = (localeStore.t.devToolbar.labels as unknown as Record<string, () => Result<Str>>)[
-		key
-	];
+function labelFor(key: Str): Str {
+	// Locale DeepReadonly workaround — dynamic key access needs cast
+	const entry = (localeStore.t.devToolbar.labels as unknown as Record<Str, () => Result<Str>>)[key];
 	return entry === undefined ? humanizeKey(key) : t(entry, humanizeKey(key));
 }
 
-function optionLabel(key: string, value: string): string {
+function optionLabel(key: Str, value: Str): Str {
 	if (key === 'logLevel') {
-		const logLevelKey = `logLevel${value.charAt(0).toUpperCase()}${value.slice(1)}`;
-		const entry = (localeStore.t.devToolbar as unknown as Record<string, () => Result<Str>>)[
+		const logLevelKey: Str = `logLevel${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+		// Locale DeepReadonly workaround — dynamic key access needs cast
+		const entry = (localeStore.t.devToolbar as unknown as Record<Str, () => Result<Str>>)[
 			logLevelKey
 		];
 		return entry === undefined ? humanizeOption(key, value) : t(entry, humanizeOption(key, value));

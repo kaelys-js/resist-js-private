@@ -1,5 +1,12 @@
+/**
+ * Chinese Simplified (zh) locale strings for the WebForge editor.
+ *
+ * @module
+ */
+
 import type { EditorLocaleRaw } from './schema';
 
+/** Chinese Simplified locale data. */
 export const zh: EditorLocaleRaw = {
 	meta: {
 		tagline: '你的故事，跃然呈现',

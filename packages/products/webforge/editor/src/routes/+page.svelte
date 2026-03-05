@@ -2,24 +2,25 @@
 import AppLogo from '$lib/components/AppLogo.svelte';
 import type { Str } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
-import { useEditorStore } from '$lib/stores/editor-state.svelte';
+import { useEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { APP_TAGLINE } from '$lib/config/app-meta';
 
-const store = useEditorStore();
+const store: EditorStore = useEditorStore();
 
-const welcomeText: string = $derived.by(() => {
-	const result: Result<Str> = (
-		localeStore.t.home.welcome as (p: { appName: string }) => Result<Str>
-	)({ appName: store.app.appName });
+const welcomeText: Str = $derived.by(() => {
+	// as (p: ...) => Result<Str> — locale template functions are typed as unknown at runtime
+	const result: Result<Str> = (localeStore.t.home.welcome as (p: { appName: Str }) => Result<Str>)({
+		appName: store.app.appName,
+	});
 	return result.ok ? result.data : `Welcome to ${store.app.appName}`;
 });
 
-const tagline: string = $derived(t(localeStore.t.meta.tagline, APP_TAGLINE));
-const selectScene: string = $derived(
+const tagline: Str = $derived(t(localeStore.t.meta.tagline, APP_TAGLINE));
+const selectScene: Str = $derived(
 	t(localeStore.t.home.selectScene, 'Select a scene from the sidebar to start editing.'),
 );
-const orCreateNew: string = $derived(
+const orCreateNew: Str = $derived(
 	t(localeStore.t.home.orCreateNew, 'Or create a new one to get started.'),
 );
 </script>

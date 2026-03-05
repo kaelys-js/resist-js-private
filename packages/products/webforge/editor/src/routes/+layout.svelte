@@ -10,10 +10,12 @@ import AppSidebar from '$lib/components/AppSidebar.svelte';
 import SiteHeader from '$lib/components/SiteHeader.svelte';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
+import type { Str, Num, Bool, Void } from '@/schemas/common';
+import type { Result } from '@/schemas/result/result';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { OG_LOCALES } from '$lib/og-locales';
-import { initEditorStore } from '$lib/stores/editor-state.svelte';
-import { initDebugStore } from '$lib/stores/debug-state.svelte';
+import { initEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';
+import { initDebugStore, type DebugStore } from '$lib/stores/debug-state.svelte';
 import { applyUrlOverrides } from '$lib/utils/url-params';
 import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
 import DevToolbar from '$lib/components/DevToolbar.svelte';
@@ -24,9 +26,9 @@ import { getAnnouncement } from '$lib/utils/announce.svelte';
 const { children, data } = $props();
 
 // Extract server locale immediately — intentionally capturing initial value only.
-const serverLocale: string = data.locale ?? 'en';
+const serverLocale: Str = data.locale ?? 'en';
 
-const store = initEditorStore();
+const store: EditorStore = initEditorStore();
 
 // Sync server user data into editor store so HeaderUser reads from store state.
 if (data.user) {
@@ -47,7 +49,7 @@ if (serverLocale !== localeStore.locale) {
 }
 
 // ── Debug store + URL overrides (client-only) ───────────────────────
-const debugStore = browser ? initDebugStore(page.url) : undefined;
+const debugStore: DebugStore | undefined = browser ? initDebugStore(page.url) : undefined;
 if (browser && debugStore) {
 	applyUrlOverrides(store, debugStore, debugStore.urlOverrides);
 }
@@ -57,7 +59,7 @@ if (browser) {
 	const buildResult = getBuildInfo();
 	if (buildResult.ok) {
 		window.__STORYLYNE_BUILD__ = buildResult.data;
-		const b = buildResult.data;
+		const b: typeof buildResult.data = buildResult.data;
 		// eslint-disable-next-line no-console -- Intentional startup log
 		console.log(
 			`%c${store.app.appName}%c v${b.version} (${b.branch}@${b.commit}${b.dirty ? ', dirty' : ''}) — built ${b.buildTimestamp}`,
@@ -76,22 +78,22 @@ $effect(() => {
 
 // ── Resizable sidebar ─────────────────────────────────────────────────
 // Default sidebar width: calc(var(--spacing) * 72) = 0.25rem * 72 = 18rem = 288px
-const SIDEBAR_DEFAULT_PX = 288;
-const SIDEBAR_PX_KEY: string = storageKey('sidebar-px');
+const SIDEBAR_DEFAULT_PX: Num = 288;
+const SIDEBAR_PX_KEY: Str = storageKey('sidebar-px');
 
 // Compute initial sidebar percentage from saved pixel width to prevent flash on load.
-function getInitialSidebarPercent(): number {
+function getInitialSidebarPercent(): Num {
 	if (typeof window === 'undefined') return 20;
 	// Clean stale PaneForge internal storage that bypasses our adapter.
 	localStorage.removeItem('paneforge:app:sidebar-width');
-	const saved: string | null = localStorage.getItem(SIDEBAR_PX_KEY);
-	const px: number = saved ? Number(saved) : SIDEBAR_DEFAULT_PX;
+	const saved: Str | null = localStorage.getItem(SIDEBAR_PX_KEY);
+	const px: Num = saved ? Number(saved) : SIDEBAR_DEFAULT_PX;
 	return (px / window.innerWidth) * 100;
 }
-const initialSidebarPercent: number = getInitialSidebarPercent();
+const initialSidebarPercent: Num = getInitialSidebarPercent();
 
 const isMobile = new IsMobile();
-const useResizable: boolean = $derived(
+const useResizable: Bool = $derived(
 	browser && store.features.resizableSidebar && !isMobile.current,
 );
 
@@ -99,27 +101,28 @@ let sidebarPane: PaneAPI | undefined = $state();
 let providerEl: HTMLDivElement | null = $state(null);
 
 // Track current pixel width so ResizeObserver can maintain it on viewport changes.
-let currentSidebarPx: number = SIDEBAR_DEFAULT_PX;
+let currentSidebarPx: Num = SIDEBAR_DEFAULT_PX;
 
 // Custom storage: persists sidebar width in pixels and converts to/from
 // PaneForge percentages based on current viewport width. This ensures the
 // sidebar maintains a consistent pixel width across different screen sizes.
+// Param types match PaneGroupStorage interface contract.
 const paneStorage: PaneGroupStorage = {
 	getItem(_name: string): string | null {
 		if (typeof window === 'undefined') return null;
-		const savedPx: string | null = localStorage.getItem(SIDEBAR_PX_KEY);
-		const sidebarPx: number = savedPx ? Number(savedPx) : SIDEBAR_DEFAULT_PX;
+		const savedPx: Str | null = localStorage.getItem(SIDEBAR_PX_KEY);
+		const sidebarPx: Num = savedPx ? Number(savedPx) : SIDEBAR_DEFAULT_PX;
 		currentSidebarPx = sidebarPx;
-		const viewportWidth: number = window.innerWidth;
-		const sidebarPercent: number = (sidebarPx / viewportWidth) * 100;
+		const viewportWidth: Num = window.innerWidth;
+		const sidebarPercent: Num = (sidebarPx / viewportWidth) * 100;
 		return JSON.stringify([sidebarPercent, 100 - sidebarPercent]);
 	},
 	setItem(_name: string, value: string): void {
 		if (typeof window === 'undefined') return;
 		try {
-			const layout: number[] = JSON.parse(value);
-			const viewportWidth: number = window.innerWidth;
-			const sidebarPx: number = Math.round((layout[0] / 100) * viewportWidth);
+			const layout: Num[] = JSON.parse(value);
+			const viewportWidth: Num = window.innerWidth;
+			const sidebarPx: Num = Math.round((layout[0] / 100) * viewportWidth);
 			currentSidebarPx = sidebarPx;
 			localStorage.setItem(SIDEBAR_PX_KEY, String(sidebarPx));
 		} catch {
@@ -128,26 +131,26 @@ const paneStorage: PaneGroupStorage = {
 	},
 };
 
-function handleSidebarResize(size: number): void {
+function handleSidebarResize(size: Num): Void {
 	if (!providerEl) return;
 	const groupEl: Element | null = providerEl.querySelector('[data-pane-group]');
 	if (!groupEl) return;
-	const widthPx: number = Math.round(groupEl.clientWidth * (size / 100));
+	const widthPx: Num = Math.round(groupEl.clientWidth * (size / 100));
 	currentSidebarPx = widthPx;
 	providerEl.style.setProperty('--sidebar-width', `${widthPx}px`);
 	// Persist pixel width directly — PaneForge's internal storage bypasses our adapter.
 	localStorage.setItem(SIDEBAR_PX_KEY, String(widthPx));
 }
 
-function handleCollapse(): void {
+function handleCollapse(): Void {
 	if (store.app.sidebarOpen) store.setSidebarOpen(false);
 }
 
-function handleExpand(): void {
+function handleExpand(): Void {
 	if (!store.app.sidebarOpen) store.setSidebarOpen(true);
 }
 
-function handleSidebarOpenChange(open: boolean): void {
+function handleSidebarOpenChange(open: Bool): Void {
 	if (open) {
 		sidebarPane?.expand();
 	} else {
@@ -157,24 +160,24 @@ function handleSidebarOpenChange(open: boolean): void {
 
 // PaneForge breaks Tailwind peer-data selectors between sidebar and inset
 // because they're in separate Pane wrappers. Apply inset variant styles directly.
-const insetClass: string = $derived.by(() => {
+const insetClass: Str = $derived.by(() => {
 	if (!useResizable) return '';
 	return store.app.sidebarOpen
 		? 'md:m-2 md:ms-0 md:rounded-xl md:shadow-sm'
 		: 'md:m-2 md:rounded-xl md:shadow-sm';
 });
 
-function handleDoubleClickResize(): void {
+function handleDoubleClickResize(): Void {
 	const groupEl: Element | null | undefined = providerEl?.querySelector('[data-pane-group]');
 	if (!groupEl) return;
-	const defaultPercent: number = (SIDEBAR_DEFAULT_PX / groupEl.clientWidth) * 100;
+	const defaultPercent: Num = (SIDEBAR_DEFAULT_PX / groupEl.clientWidth) * 100;
 	sidebarPane?.resize(defaultPercent);
 }
 
 // Maintain fixed pixel sidebar width when the viewport resizes.
 // PaneForge stores sizes as percentages — without this, the sidebar width
 // would change proportionally when the browser window is resized.
-let resizeRafId = 0;
+let resizeRafId: Num = 0;
 $effect(() => {
 	if (!useResizable || !providerEl) return;
 	const groupEl: Element | null = providerEl.querySelector('[data-pane-group]');
@@ -183,11 +186,11 @@ $effect(() => {
 	const observer: ResizeObserver = new ResizeObserver(() => {
 		cancelAnimationFrame(resizeRafId);
 		resizeRafId = requestAnimationFrame(() => {
-			const groupWidth: number = (groupEl as HTMLElement).clientWidth;
+			const groupWidth: Num = groupEl instanceof HTMLElement ? groupEl.clientWidth : 0;
 			if (groupWidth === 0) return;
 			// Resize PaneForge pane to maintain the saved pixel width.
-			const targetPercent: number = (currentSidebarPx / groupWidth) * 100;
-			const currentSize: number | undefined = sidebarPane?.getSize();
+			const targetPercent: Num = (currentSidebarPx / groupWidth) * 100;
+			const currentSize: Num | undefined = sidebarPane?.getSize();
 			if (currentSize !== undefined && Math.abs(currentSize - targetPercent) > 0.5) {
 				sidebarPane?.resize(targetPercent);
 			}
@@ -218,7 +221,7 @@ $effect(() => {
 // ── Store → mockDataDelay cookie sync ────────────────────────────────
 // Persist mock data delay to a cookie so the server can read it on next request.
 $effect(() => {
-	const delay: number = store.app.mockDataDelay;
+	const delay: Num = store.app.mockDataDelay;
 	if (!browser) return;
 	// eslint-disable-next-line unicorn/no-document-cookie -- Cookie Store API is async; synchronous set needed here
 	document.cookie = `mockDataDelay=${delay};path=/;max-age=31_536_000;SameSite=Lax`;
@@ -228,7 +231,7 @@ $effect(() => {
 // When the sidebar open state changes externally (e.g., DevToolbar toggle),
 // sync the PaneForge pane to match.
 $effect(() => {
-	const wantOpen: boolean = store.app.sidebarOpen;
+	const wantOpen: Bool = store.app.sidebarOpen;
 	if (!useResizable) return;
 	if (wantOpen) {
 		sidebarPane?.expand();
@@ -237,25 +240,24 @@ $effect(() => {
 	}
 });
 
-const themeColorLight: string = $derived(THEME_COLORS[store.app.theme]?.light ?? '#ffffff');
-const themeColorDark: string = $derived(THEME_COLORS[store.app.theme]?.dark ?? '#242424');
+const themeColorLight: Str = $derived(THEME_COLORS[store.app.theme]?.light ?? '#ffffff');
+const themeColorDark: Str = $derived(THEME_COLORS[store.app.theme]?.dark ?? '#242424');
 
-const metaDescription: string = $derived(
+const metaDescription: Str = $derived(
 	(() => {
-		const result = (
-			localeStore.t.meta.description as (p: {
-				appName: string;
-			}) => import('@/schemas/result/result').Result<string>
+		// Locale DeepReadonly workaround — parametric locale function needs cast
+		const result: Result<Str> = (
+			localeStore.t.meta.description as (p: { appName: Str }) => Result<Str>
 		)({ appName: store.app.appName });
 		return result.ok ? result.data : `${store.app.appName} — ${APP_TAGLINE}`;
 	})(),
 );
-const ogLocale = $derived(OG_LOCALES[store.app.locale] ?? 'en_US');
+const ogLocale: Str = $derived(OG_LOCALES[store.app.locale] ?? 'en_US');
 
 // Error title map — must live in layout so title reactively clears on navigation.
 // Svelte's <svelte:head> sets document.title directly; when +error.svelte unmounts,
 // the title doesn't revert. Keeping it here ensures page.error → null updates the title.
-const errorTitleMap: Record<number, () => string> = {
+const errorTitleMap: Record<Num, () => Str> = {
 	400: () => t(localeStore.t.errors.badRequest, 'Bad request'),
 	403: () => t(localeStore.t.errors.forbidden, 'Access denied'),
 	404: () => t(localeStore.t.errors.notFound, 'Page not found'),
@@ -271,10 +273,10 @@ const displayScenes = $derived(
 );
 
 // Active scene name — derived from displayScenes (already route-aware).
-const activeSceneName: string = $derived(displayScenes.find((s) => s.isActive)?.title ?? '');
+const activeSceneName: Str = $derived(displayScenes.find((s) => s.isActive)?.title ?? '');
 
 // Breadcrumb segment for page title — mirrors SiteHeader's breadcrumb leaf.
-const breadcrumbSegment: string = $derived.by(() => {
+const breadcrumbSegment: Str = $derived.by(() => {
 	if (page.error) {
 		const titleFn =
 			errorTitleMap[page.status] ?? (() => t(localeStore.t.errors.genericTitle, 'Error'));
@@ -284,9 +286,9 @@ const breadcrumbSegment: string = $derived.by(() => {
 	return t(localeStore.t.header.home, 'Home');
 });
 
-const tagline: string = $derived(t(localeStore.t.meta.tagline, APP_TAGLINE));
+const tagline: Str = $derived(t(localeStore.t.meta.tagline, APP_TAGLINE));
 
-const pageTitle: string = $derived(`${store.app.appName} - ${breadcrumbSegment} - ${tagline}`);
+const pageTitle: Str = $derived(`${store.app.appName} - ${breadcrumbSegment} - ${tagline}`);
 </script>
 
 <svelte:head>

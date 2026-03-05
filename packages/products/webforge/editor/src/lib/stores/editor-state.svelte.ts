@@ -10,7 +10,7 @@
  */
 
 import * as v from 'valibot';
-import type { Void } from '@/schemas/common';
+import type { Str, Num, Bool, Void } from '@/schemas/common';
 import { ERRORS, err, type Result, okUnchecked } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import {
@@ -28,7 +28,7 @@ import { APP_NAME, storageKey } from '$lib/config/app-meta';
 // =============================================================================
 
 /** localStorage key for persisting editor state. */
-export const STORAGE_KEY: string = storageKey('editor-state');
+export const STORAGE_KEY: Str = storageKey('editor-state');
 
 // =============================================================================
 // Defaults (derived from schema defaults via safeParse of empty object)
@@ -78,7 +78,7 @@ const FEATURE_DEFAULTS: FeatureFlags = {
 };
 
 /** All valid feature flag keys. */
-const FEATURE_KEYS = new Set<string>(Object.keys(FEATURE_DEFAULTS));
+const FEATURE_KEYS: Set<Str> = new Set<Str>(Object.keys(FEATURE_DEFAULTS));
 
 // =============================================================================
 // Module-level reactive state
@@ -103,25 +103,25 @@ export type EditorStore = {
 	/** Current feature flags (reactive via `$state`). */
 	readonly features: FeatureFlags;
 	/** Set the application display name. Must be non-empty. */
-	setAppName(name: string): Result<Void>;
+	setAppName(name: Str): Result<Void>;
 	/** Set the active theme. Must be a value in `SUPPORTED_THEMES`. */
-	setTheme(theme: string): Result<Void>;
+	setTheme(theme: Str): Result<Void>;
 	/** Set the color mode. Must be `'light'`, `'dark'`, or `'system'`. */
-	setMode(mode: string): Result<Void>;
+	setMode(mode: Str): Result<Void>;
 	/** Set the active locale. Must be a value in `SUPPORTED_LOCALES`. */
-	setLocale(locale: string): Result<Void>;
+	setLocale(locale: Str): Result<Void>;
 	/** Set whether the sidebar is open. */
-	setSidebarOpen(open: boolean): Result<Void>;
+	setSidebarOpen(open: Bool): Result<Void>;
 	/** Set the user display name. Must be non-empty. */
-	setUserName(name: string): Result<Void>;
+	setUserName(name: Str): Result<Void>;
 	/** Set the user email address. */
-	setUserEmail(email: string): Result<Void>;
+	setUserEmail(email: Str): Result<Void>;
 	/** Set the user avatar URL. */
-	setUserAvatar(url: string): Result<Void>;
+	setUserAvatar(url: Str): Result<Void>;
 	/** Set the mock data delay in milliseconds (0–10000). */
-	setMockDataDelay(ms: number): Result<Void>;
+	setMockDataDelay(ms: Num): Result<Void>;
 	/** Toggle an individual feature flag. Flag key must exist. */
-	setFeature(flag: string, enabled: boolean): Result<Void>;
+	setFeature(flag: Str, enabled: Bool): Result<Void>;
 	/** Persist current state to localStorage. */
 	save(): Result<Void>;
 	/** Load state from localStorage. Falls back to defaults on failure. */
@@ -182,7 +182,7 @@ function load(): Result<Void> {
  * @param name - Non-empty string
  * @returns `Result<Void>` — error if name is empty
  */
-function setAppName(name: string): Result<Void> {
+function setAppName(name: Str): Result<Void> {
 	const nameSchema = v.pipe(v.string(), v.minLength(1));
 	const result = safeParse(nameSchema, name);
 	if (!result.ok) return result;
@@ -197,7 +197,7 @@ function setAppName(name: string): Result<Void> {
  * @param theme - Must be a value in `SUPPORTED_THEMES`
  * @returns `Result<Void>` — error if theme is not in the supported list
  */
-function setTheme(theme: string): Result<Void> {
+function setTheme(theme: Str): Result<Void> {
 	const themeSchema = v.picklist([...SUPPORTED_THEMES]);
 	const result = safeParse(themeSchema, theme);
 	if (!result.ok) return result;
@@ -212,7 +212,7 @@ function setTheme(theme: string): Result<Void> {
  * @param mode - Must be `'light'`, `'dark'`, or `'system'`
  * @returns `Result<Void>` — error if mode is not in the supported list
  */
-function setMode(mode: string): Result<Void> {
+function setMode(mode: Str): Result<Void> {
 	const modeSchema = v.picklist([...SUPPORTED_MODES]);
 	const result = safeParse(modeSchema, mode);
 	if (!result.ok) return result;
@@ -227,7 +227,7 @@ function setMode(mode: string): Result<Void> {
  * @param locale - Must be a value in `SUPPORTED_LOCALES`
  * @returns `Result<Void>` — error if locale is not in the supported list
  */
-function setLocale(locale: string): Result<Void> {
+function setLocale(locale: Str): Result<Void> {
 	const localeSchema = v.picklist([...SUPPORTED_LOCALES]);
 	const result = safeParse(localeSchema, locale);
 	if (!result.ok) return result;
@@ -242,7 +242,7 @@ function setLocale(locale: string): Result<Void> {
  * @param open - Boolean
  * @returns `Result<Void>`
  */
-function setSidebarOpen(open: boolean): Result<Void> {
+function setSidebarOpen(open: Bool): Result<Void> {
 	const result = safeParse(v.boolean(), open);
 	if (!result.ok) return result;
 
@@ -256,7 +256,7 @@ function setSidebarOpen(open: boolean): Result<Void> {
  * @param name - Non-empty string
  * @returns `Result<Void>` — error if name is empty
  */
-function setUserName(name: string): Result<Void> {
+function setUserName(name: Str): Result<Void> {
 	const nameSchema = v.pipe(v.string(), v.minLength(1));
 	const result = safeParse(nameSchema, name);
 	if (!result.ok) return result;
@@ -271,7 +271,7 @@ function setUserName(name: string): Result<Void> {
  * @param email - Email string (empty string allowed)
  * @returns `Result<Void>`
  */
-function setUserEmail(email: string): Result<Void> {
+function setUserEmail(email: Str): Result<Void> {
 	const result = safeParse(v.string(), email);
 	if (!result.ok) return result;
 
@@ -285,7 +285,7 @@ function setUserEmail(email: string): Result<Void> {
  * @param url - Avatar URL string (empty string allowed)
  * @returns `Result<Void>`
  */
-function setUserAvatar(url: string): Result<Void> {
+function setUserAvatar(url: Str): Result<Void> {
 	const result = safeParse(v.string(), url);
 	if (!result.ok) return result;
 
@@ -299,7 +299,7 @@ function setUserAvatar(url: string): Result<Void> {
  * @param ms - Delay in milliseconds (0–10_000)
  * @returns `Result<Void>` — error if value is out of range
  */
-function setMockDataDelay(ms: number): Result<Void> {
+function setMockDataDelay(ms: Num): Result<Void> {
 	const msSchema = v.pipe(v.number(), v.minValue(0), v.maxValue(10_000));
 	const result = safeParse(msSchema, ms);
 	if (!result.ok) return result;
@@ -315,7 +315,7 @@ function setMockDataDelay(ms: number): Result<Void> {
  * @param enabled - Whether the feature is enabled
  * @returns `Result<Void>` — error if the flag key does not exist
  */
-function setFeature(flag: string, enabled: boolean): Result<Void> {
+function setFeature(flag: Str, enabled: Bool): Result<Void> {
 	if (!FEATURE_KEYS.has(flag)) {
 		return err(ERRORS.VALIDATION.INVALID_FORMAT, `Unknown feature flag: ${flag}`);
 	}
@@ -376,6 +376,7 @@ export function createEditorStore(): Result<EditorStore> {
 
 	// Shallow-freeze only the Result wrapper — the store contains $state proxies
 	// that reject deep-freezing (Svelte's state_descriptors_fixed error).
+	// Cast required: Object.freeze literal doesn't narrow to Result<T> discriminant
 	return Object.freeze({
 		ok: true as const,
 		data: store,

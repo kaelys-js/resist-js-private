@@ -230,7 +230,7 @@
 			}
 		],
 		"typescript/ban-tslint-comment": "error",
-		"typescript/consistent-generic-constructors": "error",
+		"typescript/consistent-generic-constructors": "off",
 		"typescript/consistent-indexed-object-style": ["error", "record"],
 		"typescript/consistent-type-definitions": ["error", "type"],
 		"typescript/consistent-type-imports": [
@@ -259,7 +259,7 @@
 		"typescript/no-for-in-array": "error",
 		"typescript/no-implied-eval": "error",
 		"typescript/no-import-type-side-effects": "error",
-		"typescript/no-inferrable-types": "error",
+		"typescript/no-inferrable-types": "off",
 		"typescript/no-misused-new": "error",
 		"typescript/no-misused-promises": "error",
 		"typescript/no-misused-spread": "error",

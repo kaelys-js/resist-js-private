@@ -1,3 +1,9 @@
+/**
+ * Editor locale schema — defines the shape of all translatable strings.
+ *
+ * @module
+ */
+
 import * as v from 'valibot';
 import { messageTemplate } from '@/locale/template';
 
@@ -7,6 +13,12 @@ import { messageTemplate } from '@/locale/template';
  * Namespaces: meta, common, sidebar, header, settings, project, scenes, debug, devToolbar, home, errors.
  * Each key uses `messageTemplate()` for static strings or
  * `messageTemplate({ param: Schema })` for parameterized strings.
+ *
+ * @example
+ * ```typescript
+ * const result = safeParse(EditorLocaleSchema, en);
+ * if (!result.ok) return result;
+ * ```
  */
 export const EditorLocaleSchema = v.strictObject({
 	meta: v.strictObject({
@@ -216,4 +228,5 @@ export const EditorLocaleSchema = v.strictObject({
 	}),
 });
 
+/** Inferred raw locale data shape — unprocessed message templates. */
 export type EditorLocaleRaw = v.InferOutput<typeof EditorLocaleSchema>;

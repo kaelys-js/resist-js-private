@@ -10,6 +10,7 @@ import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
 import type { ServerUser } from '$lib/server/data/types';
+import type { Bool, Str } from '@/schemas/common';
 
 let {
 	isError = false,
@@ -17,16 +18,14 @@ let {
 	activeSceneName = '',
 }: { isError?: boolean; user?: ServerUser | null; activeSceneName?: string } = $props();
 
-const store = useEditorStore();
+const store: ReturnType<typeof useEditorStore> = useEditorStore();
 
-const homeHref: string = $derived(page.url.search ? `/${page.url.search}` : '/');
+const homeHref: Str = $derived(page.url.search ? `/${page.url.search}` : '/');
 
 /** Whether to show scene-level breadcrumb segments. */
-const showSceneCrumbs: boolean = $derived(!isError && Boolean(activeSceneName));
+const showSceneCrumbs: Bool = $derived(!isError && Boolean(activeSceneName));
 
-const toggleSidebarLabel: string = $derived(
-	t(localeStore.t.header.toggleSidebar, 'Toggle Sidebar'),
-);
+const toggleSidebarLabel: Str = $derived(t(localeStore.t.header.toggleSidebar, 'Toggle Sidebar'));
 </script>
 
 <header

@@ -1,5 +1,12 @@
+/**
+ * Japanese (ja) locale strings for the WebForge editor.
+ *
+ * @module
+ */
+
 import type { EditorLocaleRaw } from './schema';
 
+/** Japanese locale data. */
 export const ja: EditorLocaleRaw = {
 	meta: {
 		tagline: 'あなたの物語を、描き出す',
