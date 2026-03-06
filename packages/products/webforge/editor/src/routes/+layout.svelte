@@ -23,6 +23,7 @@ import { log } from '@/utils/core/logger';
 import { APP_TAGLINE, THEME_COLORS, storageKey } from '$lib/config/app-meta';
 import { getBuildInfo } from '$lib/config/build-info';
 import { getAnnouncement } from '$lib/utils/announce.svelte';
+import type { ServerProject, ServerScene } from '$lib/server/data/types';
 
 const { children, data } = $props();
 
@@ -75,6 +76,72 @@ let debugHandle: DebugServicesHandle | null = $state(null);
 $effect(() => {
 	if (!debugStore) return;
 	debugHandle = syncDebugServices(store, debugStore, debugHandle);
+});
+
+// ── Streaming data resolution ─────────────────────────────────────────
+// Server load returns project/scenes as Promises (streaming) or plain
+// values (eager, e.g. no-user path). Resolve into reactive state so
+// $derived values work uniformly. Loading flags drive skeleton display.
+let projectLoading: Bool = $state(data.project instanceof Promise);
+let scenesLoading: Bool = $state(!Array.isArray(data.scenes));
+let resolvedProject: ServerProject | null = $state(
+	data.project instanceof Promise ? null : (data.project ?? null),
+);
+let resolvedScenes: readonly ServerScene[] = $state(Array.isArray(data.scenes) ? data.scenes : []);
+
+$effect(() => {
+	const { project, scenes } = data;
+	let cancelled: Bool = false;
+
+	// Resolve project (may be Promise or plain value)
+	if (project instanceof Promise) {
+		projectLoading = true;
+		(async () => {
+			try {
+				const p: ServerProject | null = await project;
+				if (!cancelled) {
+					resolvedProject = p;
+					projectLoading = false;
+				}
+			} catch {
+				/* DB query failed — show null project instead of stuck skeleton */
+				if (!cancelled) {
+					resolvedProject = null;
+					projectLoading = false;
+				}
+			}
+		})();
+	} else {
+		resolvedProject = project ?? null;
+		projectLoading = false;
+	}
+
+	// Resolve scenes (may be Promise or plain array)
+	if (scenes instanceof Promise) {
+		scenesLoading = true;
+		(async () => {
+			try {
+				const s: readonly ServerScene[] = await scenes;
+				if (!cancelled) {
+					resolvedScenes = s;
+					scenesLoading = false;
+				}
+			} catch {
+				/* DB query failed — show empty list instead of stuck skeleton */
+				if (!cancelled) {
+					resolvedScenes = [];
+					scenesLoading = false;
+				}
+			}
+		})();
+	} else {
+		resolvedScenes = scenes ?? [];
+		scenesLoading = false;
+	}
+
+	return () => {
+		cancelled = true;
+	};
 });
 
 // ── Resizable sidebar ─────────────────────────────────────────────────
@@ -273,8 +340,8 @@ const errorTitleMap: Record<Num, () => Str> = {
 // prevent stale highlighting in the sidebar and breadcrumb.
 const displayScenes = $derived(
 	page.url.pathname === '/'
-		? (data.scenes ?? []).map((s) => ({ ...s, isActive: false }))
-		: (data.scenes ?? []),
+		? resolvedScenes.map((s) => ({ ...s, isActive: false }))
+		: resolvedScenes,
 );
 
 // Active scene name — derived from displayScenes (already route-aware).
@@ -341,7 +408,7 @@ const pageTitle: Str = $derived(`${store.app.appName} - ${breadcrumbSegment} - $
 				onExpand={handleExpand}
 				class="!overflow-visible"
 			>
-				<AppSidebar user={data.user} project={data.project} scenes={displayScenes} />
+				<AppSidebar user={data.user} project={resolvedProject} scenes={displayScenes} {projectLoading} {scenesLoading} />
 			</Resizable.Pane>
 			<Resizable.Handle
 				class="w-1.5 bg-transparent hover:bg-border data-[active]:bg-ring transition-colors"
@@ -358,7 +425,7 @@ const pageTitle: Str = $derived(`${store.app.appName} - ${breadcrumbSegment} - $
 			</Resizable.Pane>
 		</Resizable.PaneGroup>
 	{:else}
-		<AppSidebar user={data.user} project={data.project} scenes={displayScenes} />
+		<AppSidebar user={data.user} project={resolvedProject} scenes={displayScenes} {projectLoading} {scenesLoading} />
 		<Sidebar.Inset>
 			<SiteHeader isError={Boolean(page.error)} user={data.user} {activeSceneName} />
 			<div class="flex flex-1 flex-col">
