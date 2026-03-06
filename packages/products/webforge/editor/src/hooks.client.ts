@@ -30,6 +30,11 @@ import {
 } from '$lib/perf/connection.svelte';
 import type { VitalsMetric } from '$lib/perf/vitals-payload';
 import { reportVitalToPanel } from '$lib/perf/vitals-panel-store.svelte';
+import {
+	setupDiagnosticObservers,
+	collectDiagnostics,
+	type VitalDiagnostics,
+} from '$lib/perf/vitals-diagnostics';
 
 setupLogging({ service: 'editor-client', initFromEnv: true });
 initFetchBreadcrumbs();
@@ -58,6 +63,9 @@ initConnection();
 
 // Set up vitals beacon (registers visibilitychange → flushVitals)
 setupVitalsBeacon();
+
+// Start diagnostic observers (long tasks, event timings) before metrics fire
+setupDiagnosticObservers();
 
 /** Tracks whether Perfume.js device info has been captured (reported once per page load). */
 let deviceInfoCaptured: Bool = false;
@@ -96,8 +104,11 @@ function analyticsTracker(options: AnalyticsTrackerOptions): Void {
 	// Null rating means Perfume.js didn't evaluate a threshold — default to 'good'
 	const safeRating: VitalsMetric['rating'] = rating ?? 'good';
 
+	// Collect diagnostics for non-good metrics (queries Performance APIs for attribution)
+	const diagnostics: VitalDiagnostics | null = collectDiagnostics(metricName, data, safeRating);
+
 	// Log to console (color-coded by rating in dev, warnings-only in prod)
-	logVital(metricName, data, safeRating);
+	logVital(metricName, data, safeRating, diagnostics);
 
 	// Queue for beacon (flushed on visibilitychange → hidden or at MAX_QUEUE_SIZE)
 	queueVital({
@@ -108,7 +119,7 @@ function analyticsTracker(options: AnalyticsTrackerOptions): Void {
 	});
 
 	// Feed dev toolbar performance panel (reactive $state store)
-	reportVitalToPanel(metricName, data, safeRating);
+	reportVitalToPanel(metricName, data, safeRating, diagnostics);
 
 	return undefined;
 }
