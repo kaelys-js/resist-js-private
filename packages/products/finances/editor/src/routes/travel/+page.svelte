@@ -2,6 +2,7 @@
 import type { Str, Num, Bool } from '@/schemas/common';
 import type { Travel } from '$lib/schemas/finances';
 import { invalidateAll } from '$app/navigation';
+import { localeStore, t } from '$lib/i18n.svelte';
 import { Badge } from '$lib/components/ui/badge/index.js';
 import { Button } from '$lib/components/ui/button/index.js';
 import * as Card from '$lib/components/ui/card/index.js';
@@ -101,12 +102,12 @@ async function handleDelete(id: Str): Promise<void> {
 	<!-- Header -->
 	<div class="flex items-center justify-between">
 		<div class="flex items-center gap-3">
-			<h1 class="text-2xl font-semibold tracking-tight">Travel</h1>
+			<h1 class="text-2xl font-semibold tracking-tight">{t(localeStore.t.sidebar.travel, 'Travel')}</h1>
 			<Badge variant="secondary">
-				Total: ${totalBudget.toFixed(2)}
+				{t(localeStore.t.finance.total, 'Total')}: ${totalBudget.toFixed(2)}
 			</Badge>
 		</div>
-		<Button onclick={() => (addOpen = true)}>Add Trip</Button>
+		<Button onclick={() => (addOpen = true)}>{t(localeStore.t.finance.addItem, 'Add Trip')}</Button>
 	</div>
 
 	<!-- Trips table -->
@@ -115,12 +116,12 @@ async function handleDelete(id: Str): Promise<void> {
 			<Table.Table>
 				<Table.TableHeader>
 					<Table.TableRow>
-						<Table.TableHead>Name</Table.TableHead>
-						<Table.TableHead class="text-right">Budget ($)</Table.TableHead>
-						<Table.TableHead>Estimated?</Table.TableHead>
-						<Table.TableHead>Planned?</Table.TableHead>
-						<Table.TableHead>Notes</Table.TableHead>
-						<Table.TableHead class="text-right">Actions</Table.TableHead>
+						<Table.TableHead>{t(localeStore.t.finance.name, 'Name')}</Table.TableHead>
+						<Table.TableHead class="text-right">{t(localeStore.t.finance.budget, 'Budget')} ($)</Table.TableHead>
+						<Table.TableHead>{t(localeStore.t.finance.estimated, 'Estimated')}?</Table.TableHead>
+						<Table.TableHead>{t(localeStore.t.finance.planned, 'Planned')}?</Table.TableHead>
+						<Table.TableHead>{t(localeStore.t.finance.notes, 'Notes')}</Table.TableHead>
+						<Table.TableHead class="text-right">{t(localeStore.t.finance.actions, 'Actions')}</Table.TableHead>
 					</Table.TableRow>
 				</Table.TableHeader>
 				<Table.TableBody>
@@ -130,22 +131,22 @@ async function handleDelete(id: Str): Promise<void> {
 							<Table.TableCell class="text-right">${trip.budget.toFixed(2)}</Table.TableCell>
 							<Table.TableCell>
 								<Badge variant={trip.isEstimate ? 'outline' : 'secondary'}>
-									{trip.isEstimate ? 'Yes' : 'No'}
+									{trip.isEstimate ? t(localeStore.t.finance.yes, 'Yes') : t(localeStore.t.finance.no, 'No')}
 								</Badge>
 							</Table.TableCell>
 							<Table.TableCell>
 								<Badge variant={trip.planned ? 'default' : 'outline'}>
-									{trip.planned ? 'Yes' : 'No'}
+									{trip.planned ? t(localeStore.t.finance.yes, 'Yes') : t(localeStore.t.finance.no, 'No')}
 								</Badge>
 							</Table.TableCell>
 							<Table.TableCell class="max-w-[200px] truncate">{trip.notes}</Table.TableCell>
 							<Table.TableCell class="text-right">
 								<div class="flex items-center justify-end gap-2">
 									<Button variant="outline" size="sm" onclick={() => openEdit(trip)}>
-										Edit
+										{t(localeStore.t.finance.editItem, 'Edit')}
 									</Button>
 									<Button variant="destructive" size="sm" onclick={() => handleDelete(trip.id)}>
-										Delete
+										{t(localeStore.t.finance.deleteItem, 'Delete')}
 									</Button>
 								</div>
 							</Table.TableCell>
@@ -153,7 +154,7 @@ async function handleDelete(id: Str): Promise<void> {
 					{:else}
 						<Table.TableRow>
 							<Table.TableCell colspan={6} class="text-muted-foreground py-8 text-center">
-								No trips yet. Click "Add Trip" to get started.
+								{t(localeStore.t.finance.noTrips, 'No trips yet.')}
 							</Table.TableCell>
 						</Table.TableRow>
 					{/each}
@@ -166,36 +167,36 @@ async function handleDelete(id: Str): Promise<void> {
 	<Dialog.Dialog bind:open={addOpen}>
 		<Dialog.DialogContent>
 			<Dialog.DialogHeader>
-				<Dialog.DialogTitle>Add Trip</Dialog.DialogTitle>
+				<Dialog.DialogTitle>{t(localeStore.t.finance.addItem, 'Add Trip')}</Dialog.DialogTitle>
 				<Dialog.DialogDescription>
-					Add a new travel destination or trip to your budget.
+					{t(localeStore.t.finance.addTripDesc, 'Add a new travel destination or trip to your budget.')}
 				</Dialog.DialogDescription>
 			</Dialog.DialogHeader>
 			<div class="flex flex-col gap-4 py-4">
 				<div class="flex flex-col gap-2">
-					<Label for="add-name">Name</Label>
-					<Input id="add-name" bind:value={addName} placeholder="e.g. Japan" />
+					<Label for="add-name">{t(localeStore.t.finance.name, 'Name')}</Label>
+					<Input id="add-name" bind:value={addName} placeholder={t(localeStore.t.finance.placeholderEgJapan, 'e.g. Japan')} />
 				</div>
 				<div class="flex flex-col gap-2">
-					<Label for="add-budget">Budget ($)</Label>
+					<Label for="add-budget">{t(localeStore.t.finance.budget, 'Budget')} ($)</Label>
 					<Input id="add-budget" type="number" step="0.01" bind:value={addBudget} />
 				</div>
 				<div class="flex items-center gap-3">
 					<Switch id="add-estimate" bind:checked={addIsEstimate} />
-					<Label for="add-estimate">Estimated budget</Label>
+					<Label for="add-estimate">{t(localeStore.t.finance.estimatedBudget, 'Estimated budget')}</Label>
 				</div>
 				<div class="flex items-center gap-3">
 					<Switch id="add-planned" bind:checked={addPlanned} />
-					<Label for="add-planned">Planned trip</Label>
+					<Label for="add-planned">{t(localeStore.t.finance.plannedTrip, 'Planned trip')}</Label>
 				</div>
 				<div class="flex flex-col gap-2">
-					<Label for="add-notes">Notes</Label>
-					<Input id="add-notes" bind:value={addNotes} placeholder="Optional notes" />
+					<Label for="add-notes">{t(localeStore.t.finance.notes, 'Notes')}</Label>
+					<Input id="add-notes" bind:value={addNotes} placeholder={t(localeStore.t.finance.optionalNotes, 'Optional notes')} />
 				</div>
 			</div>
 			<Dialog.DialogFooter>
-				<Button variant="outline" onclick={() => (addOpen = false)}>Cancel</Button>
-				<Button onclick={handleAdd} disabled={!addName}>Save</Button>
+				<Button variant="outline" onclick={() => (addOpen = false)}>{t(localeStore.t.common.cancel, 'Cancel')}</Button>
+				<Button onclick={handleAdd} disabled={!addName}>{t(localeStore.t.common.save, 'Save')}</Button>
 			</Dialog.DialogFooter>
 		</Dialog.DialogContent>
 	</Dialog.Dialog>
@@ -204,36 +205,36 @@ async function handleDelete(id: Str): Promise<void> {
 	<Dialog.Dialog bind:open={editOpen}>
 		<Dialog.DialogContent>
 			<Dialog.DialogHeader>
-				<Dialog.DialogTitle>Edit Trip</Dialog.DialogTitle>
+				<Dialog.DialogTitle>{t(localeStore.t.finance.editItem, 'Edit Trip')}</Dialog.DialogTitle>
 				<Dialog.DialogDescription>
-					Update the details for this trip.
+					{t(localeStore.t.finance.editTripDesc, 'Update the details for this trip.')}
 				</Dialog.DialogDescription>
 			</Dialog.DialogHeader>
 			<div class="flex flex-col gap-4 py-4">
 				<div class="flex flex-col gap-2">
-					<Label for="edit-name">Name</Label>
-					<Input id="edit-name" bind:value={editName} placeholder="e.g. Japan" />
+					<Label for="edit-name">{t(localeStore.t.finance.name, 'Name')}</Label>
+					<Input id="edit-name" bind:value={editName} placeholder={t(localeStore.t.finance.placeholderEgJapan, 'e.g. Japan')} />
 				</div>
 				<div class="flex flex-col gap-2">
-					<Label for="edit-budget">Budget ($)</Label>
+					<Label for="edit-budget">{t(localeStore.t.finance.budget, 'Budget')} ($)</Label>
 					<Input id="edit-budget" type="number" step="0.01" bind:value={editBudget} />
 				</div>
 				<div class="flex items-center gap-3">
 					<Switch id="edit-estimate" bind:checked={editIsEstimate} />
-					<Label for="edit-estimate">Estimated budget</Label>
+					<Label for="edit-estimate">{t(localeStore.t.finance.estimatedBudget, 'Estimated budget')}</Label>
 				</div>
 				<div class="flex items-center gap-3">
 					<Switch id="edit-planned" bind:checked={editPlanned} />
-					<Label for="edit-planned">Planned trip</Label>
+					<Label for="edit-planned">{t(localeStore.t.finance.plannedTrip, 'Planned trip')}</Label>
 				</div>
 				<div class="flex flex-col gap-2">
-					<Label for="edit-notes">Notes</Label>
-					<Input id="edit-notes" bind:value={editNotes} placeholder="Optional notes" />
+					<Label for="edit-notes">{t(localeStore.t.finance.notes, 'Notes')}</Label>
+					<Input id="edit-notes" bind:value={editNotes} placeholder={t(localeStore.t.finance.optionalNotes, 'Optional notes')} />
 				</div>
 			</div>
 			<Dialog.DialogFooter>
-				<Button variant="outline" onclick={() => (editOpen = false)}>Cancel</Button>
-				<Button onclick={handleEdit} disabled={!editName}>Save</Button>
+				<Button variant="outline" onclick={() => (editOpen = false)}>{t(localeStore.t.common.cancel, 'Cancel')}</Button>
+				<Button onclick={handleEdit} disabled={!editName}>{t(localeStore.t.common.save, 'Save')}</Button>
 			</Dialog.DialogFooter>
 		</Dialog.DialogContent>
 	</Dialog.Dialog>

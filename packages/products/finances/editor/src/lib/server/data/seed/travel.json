@@ -1,13 +1,5 @@
 [
 	{
-		"id": "trv-002",
-		"name": "South Korea",
-		"budget": 3500,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
 		"id": "trv-003",
 		"name": "Thailand",
 		"budget": 2500,

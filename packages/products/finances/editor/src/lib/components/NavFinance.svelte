@@ -8,6 +8,7 @@ import Plane from '@lucide/svelte/icons/plane';
 import Clock from '@lucide/svelte/icons/clock';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 import { page } from '$app/state';
+import { localeStore, t } from '$lib/i18n.svelte';
 import type { Str } from '@/schemas/common';
 
 type NavItem = {
@@ -19,19 +20,19 @@ type NavItem = {
 	icon: typeof LayoutDashboard;
 };
 
-const items: readonly NavItem[] = [
-	{ title: 'Overview', url: '/', icon: LayoutDashboard },
-	{ title: 'Income', url: '/income', icon: TrendingUp },
-	{ title: 'Debt', url: '/debt', icon: CreditCard },
-	{ title: 'Monthly', url: '/monthly', icon: Calendar },
-	{ title: 'Purchases', url: '/purchases', icon: ShoppingBag },
-	{ title: 'Travel', url: '/travel', icon: Plane },
-	{ title: 'Lifetime', url: '/lifetime', icon: Clock },
-];
+const items: readonly NavItem[] = $derived([
+	{ title: t(localeStore.t.sidebar.overview, 'Overview'), url: '/', icon: LayoutDashboard },
+	{ title: t(localeStore.t.sidebar.income, 'Income'), url: '/income', icon: TrendingUp },
+	{ title: t(localeStore.t.sidebar.debt, 'Debt'), url: '/debt', icon: CreditCard },
+	{ title: t(localeStore.t.sidebar.monthly, 'Monthly'), url: '/monthly', icon: Calendar },
+	{ title: t(localeStore.t.sidebar.purchases, 'Purchases'), url: '/purchases', icon: ShoppingBag },
+	{ title: t(localeStore.t.sidebar.travel, 'Travel'), url: '/travel', icon: Plane },
+	{ title: t(localeStore.t.sidebar.lifetime, 'Lifetime'), url: '/lifetime', icon: Clock },
+]);
 </script>
 
 <Sidebar.Group>
-	<Sidebar.GroupLabel>Finance</Sidebar.GroupLabel>
+	<Sidebar.GroupLabel>{t(localeStore.t.sidebar.finance, 'Finance')}</Sidebar.GroupLabel>
 	<Sidebar.Menu>
 		{#each items as item (item.url)}
 			<Sidebar.MenuItem>
@@ -40,10 +41,12 @@ const items: readonly NavItem[] = [
 					isActive={page.url.pathname === item.url}
 					aria-current={page.url.pathname === item.url ? 'page' : undefined}
 				>
-					<a href={item.url} class="flex items-center gap-2">
-						<item.icon aria-hidden="true" />
-						<span>{item.title}</span>
-					</a>
+					{#snippet child({ props })}
+						<a href={item.url} {...props}>
+							<item.icon aria-hidden="true" />
+							<span>{item.title}</span>
+						</a>
+					{/snippet}
 				</Sidebar.MenuButton>
 			</Sidebar.MenuItem>
 		{/each}

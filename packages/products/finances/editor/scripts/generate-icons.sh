@@ -29,8 +29,8 @@ EDITOR_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 MASTER_SVG="$EDITOR_DIR/branding/logo.svg"
 STATIC_DIR="$EDITOR_DIR/static"
 
-# Background color for maskable icons (dark blue matching crystal base)
-MASKABLE_BG="#0f172a"
+# Background color for maskable icons (emerald green matching logo)
+MASKABLE_BG="#047857"
 
 # ── Preflight ────────────────────────────────────────────────
 
