@@ -41,6 +41,7 @@ import {
 	type NullableAbortController,
 	type OptionalNodeProcess,
 	type RuntimeKind,
+	type Num,
 	type Str,
 	type TeardownFn,
 	type Void,
@@ -472,10 +473,40 @@ function registerBrowserHandlers(options: GlobalErrorHandlerOptions, runtime: Ru
 		safeInvoke(options.onError, captured);
 	});
 
-	// CSP violations
+	// CSP violations — rate-limited to prevent console floods.
+	// Identical violations (same directive + blockedURI) are coalesced:
+	// the first CSP_RATE_LIMIT_MAX fires per key within CSP_RATE_LIMIT_WINDOW_MS
+	// are reported normally; subsequent ones are suppressed and counted.
+	// After the window expires the counter resets.
 	if (options.captureCSP !== false && globalThis.document !== undefined) {
+		/** Max CSP violations per unique key before suppressing. */
+		const CSP_RATE_LIMIT_MAX: Num = 5;
+		/** Window (ms) after which the rate-limit counter resets. */
+		const CSP_RATE_LIMIT_WINDOW_MS: Num = 10_000;
+
+		const cspCounts: Map<Str, { count: Num; firstSeen: Num }> = new Map();
+
 		addListener(globalThis.document, 'securitypolicyviolation', (event: unknown): Void => {
+			// SecurityPolicyViolationEvent — cast required because the
+			// generic event listener signature doesn't know the event subtype.
 			const cspEvent: SecurityPolicyViolationEvent = event as SecurityPolicyViolationEvent;
+			const rateKey: Str = `${cspEvent.violatedDirective}|${cspEvent.blockedURI}`;
+			const now: Num = Date.now();
+			let entry = cspCounts.get(rateKey);
+
+			if (!entry || now - entry.firstSeen > CSP_RATE_LIMIT_WINDOW_MS) {
+				// First occurrence or window expired — reset counter.
+				entry = { count: 0, firstSeen: now };
+				cspCounts.set(rateKey, entry);
+			}
+
+			entry.count++;
+
+			if (entry.count > CSP_RATE_LIMIT_MAX) {
+				// Suppress — already logged enough for this window.
+				return;
+			}
+
 			const captured: CapturedError = createCapturedError(
 				'cspViolation',
 				new Error(`CSP violation: ${cspEvent.violatedDirective}`),
