@@ -33,7 +33,7 @@ let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => Void }
 const preferences: FieldDescriptor[] = discoverAppPreferences();
 
 /** Keys that belong to the User section. */
-const USER_KEYS = new Set<Str>(['userName', 'userEmail', 'userAvatar']);
+const USER_KEYS = new Set<Str>(['userName', 'userEmail', 'userAvatar', 'subscriptionPlan']);
 
 /** App-level preferences (theme, mode, locale, etc.). */
 const appPrefs: FieldDescriptor[] = preferences.filter((p) => !USER_KEYS.has(p.key));
@@ -139,6 +139,12 @@ function optionLabel(key: Str, value: Str): Str {
 		const display: Intl.DisplayNames = new Intl.DisplayNames([value], { type: 'language' });
 		const endonym: Str | undefined = display.of(value);
 		return endonym ?? humanizeOption(key, value);
+	}
+	if (key === 'subscriptionPlan') {
+		const planKey: Str = `plan${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+		// Locale DeepReadonly workaround — dynamic key access needs cast
+		const entry = (localeStore.t.devToolbar as unknown as Record<Str, () => Result<Str>>)[planKey];
+		return entry === undefined ? humanizeOption(key, value) : t(entry, humanizeOption(key, value));
 	}
 	return humanizeOption(key, value);
 }

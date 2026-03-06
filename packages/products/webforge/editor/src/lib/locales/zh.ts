@@ -137,6 +137,10 @@ export const zh: EditorLocaleRaw = {
 		logLevelInfo: '信息',
 		logLevelWarn: '警告',
 		logLevelError: '错误',
+		planFree: '免费',
+		planStarter: '入门',
+		planPro: '专业',
+		planEnterprise: '企业',
 		labels: {
 			settings: '设置',
 			themeSelection: '主题选择',
@@ -175,6 +179,7 @@ export const zh: EditorLocaleRaw = {
 			userEmail: '电子邮件',
 			userAvatar: '头像',
 			mockDataDelay: '模拟数据延迟 (ms)',
+			subscriptionPlan: '订阅计划',
 			enabled: '启用',
 			logLevel: '日志级别',
 			version: '版本',

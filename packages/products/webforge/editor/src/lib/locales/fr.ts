@@ -137,6 +137,10 @@ export const fr: EditorLocaleRaw = {
 		logLevelInfo: 'Info',
 		logLevelWarn: 'Avertissement',
 		logLevelError: 'Erreur',
+		planFree: 'Gratuit',
+		planStarter: 'D\u00E9butant',
+		planPro: 'Pro',
+		planEnterprise: 'Entreprise',
 		labels: {
 			settings: 'Paramètres',
 			themeSelection: 'Sélection du thème',
@@ -175,6 +179,7 @@ export const fr: EditorLocaleRaw = {
 			userEmail: 'E-mail',
 			userAvatar: 'Avatar',
 			mockDataDelay: 'Délai données fictives (ms)',
+			subscriptionPlan: 'Plan d\u2019abonnement',
 			enabled: 'Activé',
 			logLevel: 'Niveau de log',
 			version: 'Version',

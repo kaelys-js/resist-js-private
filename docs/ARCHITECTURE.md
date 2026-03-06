@@ -261,7 +261,7 @@ A user avatar dropdown in the SiteHeader, providing account-related navigation i
 
 ### Component
 
-`HeaderUser.svelte` (`$lib/components/`) — renders a ghost-styled trigger button with an avatar (image or monogram fallback), opening a `DropdownMenu` with 3 groups: Account (Account, Subscription, Notifications), Tools (Keyboard Shortcuts, Settings, What's New), and Log Out (destructive styling).
+`HeaderUser.svelte` (`$lib/components/`) — renders a ghost-styled trigger button with an avatar (image or monogram fallback), opening a `DropdownMenu` with 3 groups: Account (Account, Subscription, Notifications), Tools (Keyboard Shortcuts, Settings, What's New), and Log Out (`variant="destructive"`).
 
 Integrated into `SiteHeader.svelte` before the ModeToggle, gated by `headerUserDropdown` feature flag.
 
@@ -276,6 +276,7 @@ Integrated into `SiteHeader.svelte` before the ModeToggle, gated by `headerUserD
 | `userName` | `v.pipe(v.string(), v.minLength(1))` | `'User'` | Display name, drives monogram |
 | `userEmail` | `v.string()` | `''` | Shown below name in dropdown label |
 | `userAvatar` | `v.string()` | `''` | Avatar image URL; empty = monogram fallback |
+| `subscriptionPlan` | `v.picklist(SUPPORTED_PLANS)` | `'pro'` | Plan tier; controls feature flag presets |
 
 ### Locale Namespace
 
@@ -286,6 +287,44 @@ Integrated into `SiteHeader.svelte` before the ModeToggle, gated by `headerUserD
 - **Unit:** `header-user.test.ts` — trigger rendering, aria-label, monogram fallback
 - **Integration:** `feature-flags.integration.test.ts` — HeaderUser feature flag toggling
 - **E2E:** `e2e/header-user.test.ts` — trigger visibility, dropdown interaction, menu items, Escape close, destructive styling, URL override
+
+## Subscription Plans
+
+Subscription plan tiers that control feature flag presets. Changing the plan bulk-applies a set of feature flag overrides while keeping individual flags overridable in the dev toolbar.
+
+### Plan Tiers
+
+| Plan | Flags Disabled | Description |
+|------|---------------|-------------|
+| `free` | 10 | No settings, themes, languages, resizable sidebar, project dropdown, shortcuts |
+| `starter` | 3 | No project dropdown settings, shortcuts, or settings in user menu |
+| `pro` | 0 | All features enabled (default) |
+| `enterprise` | 0 | All features enabled |
+
+### Module
+
+`subscription-plans.ts` (`$lib/config/`) — defines `PLAN_PRESETS` mapping each tier to its disabled flags, `getPresetForPlan(plan)` for partial overrides, and `applyPlanPreset(plan)` for complete flag sets. The `ALL_ENABLED` baseline is derived from `FeatureFlagsSchema` introspection.
+
+### Store Integration
+
+`EditorStore.setSubscriptionPlan(plan)` validates the plan, updates `app.subscriptionPlan`, calls `applyPlanPreset()` to bulk-reset all flags, and persists to localStorage. Individual `setFeature()` calls still work after a plan change for dev testing.
+
+### Dev Toolbar
+
+The `subscriptionPlan` picklist is auto-discovered from `AppPreferencesSchema` and rendered in the User section of the App Preferences panel. Selecting a plan immediately updates the Feature Flags panel reactively.
+
+### Locale Keys
+
+`devToolbar` namespace — `planFree`, `planStarter`, `planPro`, `planEnterprise` (tier display names), `subscriptionPlan` (control label). All 7 locale files include translations.
+
+## Destructive Menu Item Pattern
+
+Destructive actions (Delete Scene, Log Out) use `variant="destructive"` on `DropdownMenu.Item`, which sets `data-variant="destructive"` in the DOM. The component's CSS conditionally applies `text-destructive`, `bg-destructive/10` highlight, and `!text-destructive` on child SVG icons via Tailwind data-attribute selectors. This replaces manual `text-destructive` class application.
+
+### Usage
+
+- `NavScenes.svelte` — Delete Scene item
+- `HeaderUser.svelte` — Log Out item
 
 ## Project & User Data
 

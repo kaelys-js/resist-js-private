@@ -137,6 +137,10 @@ export const ja: EditorLocaleRaw = {
 		logLevelInfo: '情報',
 		logLevelWarn: '警告',
 		logLevelError: 'エラー',
+		planFree: '無料',
+		planStarter: 'スターター',
+		planPro: 'プロ',
+		planEnterprise: 'エンタープライズ',
 		labels: {
 			settings: '設定',
 			themeSelection: 'テーマ選択',
@@ -175,6 +179,7 @@ export const ja: EditorLocaleRaw = {
 			userEmail: 'メールアドレス',
 			userAvatar: 'アバター',
 			mockDataDelay: 'モックデータ遅延 (ms)',
+			subscriptionPlan: 'サブスクリプションプラン',
 			enabled: '有効',
 			logLevel: 'ログレベル',
 			version: 'バージョン',

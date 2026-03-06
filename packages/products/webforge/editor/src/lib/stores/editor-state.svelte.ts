@@ -17,11 +17,13 @@ import {
 	EditorStateSchema,
 	SUPPORTED_LOCALES,
 	SUPPORTED_MODES,
+	SUPPORTED_PLANS,
 	SUPPORTED_THEMES,
 	type AppPreferences,
 	type FeatureFlags,
 } from '$lib/schemas/editor-state';
 import { APP_NAME, storageKey } from '$lib/config/app-meta';
+import { applyPlanPreset } from '$lib/config/subscription-plans';
 
 // =============================================================================
 // Constants
@@ -43,6 +45,7 @@ const APP_DEFAULTS: AppPreferences = {
 	userName: 'User',
 	userEmail: '',
 	userAvatar: '',
+	subscriptionPlan: 'pro',
 	mockDataDelay: 0,
 };
 
@@ -118,6 +121,8 @@ export type EditorStore = {
 	setUserEmail(email: Str): Result<Void>;
 	/** Set the user avatar URL. */
 	setUserAvatar(url: Str): Result<Void>;
+	/** Set the user's subscription plan. Bulk-applies feature flag preset for the plan. */
+	setSubscriptionPlan(plan: Str): Result<Void>;
 	/** Set the mock data delay in milliseconds (0–10000). */
 	setMockDataDelay(ms: Num): Result<Void>;
 	/** Toggle an individual feature flag. Flag key must exist. */
@@ -309,6 +314,22 @@ function setMockDataDelay(ms: Num): Result<Void> {
 }
 
 /**
+ * Sets the user's subscription plan and bulk-applies the corresponding feature flag preset.
+ *
+ * @param plan - Plan tier (must be a value in `SUPPORTED_PLANS`)
+ * @returns `Result<Void>` — error if plan is not in the supported list
+ */
+function setSubscriptionPlan(plan: Str): Result<Void> {
+	const planSchema = v.picklist([...SUPPORTED_PLANS]);
+	const result = safeParse(planSchema, plan);
+	if (!result.ok) return result;
+
+	_app = { ..._app, subscriptionPlan: result.data };
+	_features = applyPlanPreset(result.data);
+	return save();
+}
+
+/**
  * Toggles an individual feature flag.
  *
  * @param flag - Key name of the feature flag (must exist in FeatureFlags)
@@ -368,6 +389,7 @@ export function createEditorStore(): Result<EditorStore> {
 		setUserName,
 		setUserEmail,
 		setUserAvatar,
+		setSubscriptionPlan,
 		setMockDataDelay,
 		setFeature,
 		save,

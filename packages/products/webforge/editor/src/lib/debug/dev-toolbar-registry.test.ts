@@ -5,6 +5,7 @@ import {
 	discoverFeatureFlags,
 	generateDebugUrl,
 	humanizeKey,
+	humanizeOption,
 } from '$lib/debug/dev-toolbar-registry';
 import { FeatureFlagsSchema, AppPreferencesSchema } from '$lib/schemas/editor-state';
 import { DebugStateSchema } from '$lib/schemas/debug-state';
@@ -140,6 +141,40 @@ describe('discoverAppPreferences', () => {
 
 		const sidebar = prefs.find((p) => p.key === 'sidebarOpen');
 		expect(sidebar?.default).toBe(true);
+	});
+
+	it('detects subscriptionPlan as picklist type with plan options', () => {
+		const prefs = discoverAppPreferences();
+		const plan = prefs.find((p) => p.key === 'subscriptionPlan');
+		expect(plan).toBeDefined();
+		expect(plan?.type).toBe('picklist');
+		expect(plan?.options).toContain('free');
+		expect(plan?.options).toContain('starter');
+		expect(plan?.options).toContain('pro');
+		expect(plan?.options).toContain('enterprise');
+		expect(plan?.default).toBe('pro');
+	});
+});
+
+// =============================================================================
+// humanizeOption — subscriptionPlan labels
+// =============================================================================
+
+describe('humanizeOption — subscriptionPlan', () => {
+	it("returns 'Free' for subscriptionPlan 'free'", () => {
+		expect(humanizeOption('subscriptionPlan', 'free')).toBe('Free');
+	});
+
+	it("returns 'Starter' for subscriptionPlan 'starter'", () => {
+		expect(humanizeOption('subscriptionPlan', 'starter')).toBe('Starter');
+	});
+
+	it("returns 'Pro' for subscriptionPlan 'pro'", () => {
+		expect(humanizeOption('subscriptionPlan', 'pro')).toBe('Pro');
+	});
+
+	it("returns 'Enterprise' for subscriptionPlan 'enterprise'", () => {
+		expect(humanizeOption('subscriptionPlan', 'enterprise')).toBe('Enterprise');
 	});
 });
 

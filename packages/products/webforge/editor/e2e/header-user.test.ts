@@ -63,7 +63,7 @@ test.describe('header user dropdown', () => {
 		await expect(content).not.toBeVisible();
 	});
 
-	test('Log Out item has destructive styling', async ({ page }) => {
+	test('Log Out item has destructive variant', async ({ page }) => {
 		await page.goto('/');
 		const trigger = page.getByTestId('header-user-trigger');
 		await trigger.click();
@@ -72,7 +72,7 @@ test.describe('header user dropdown', () => {
 		const logOutItem = content.locator('[data-slot="dropdown-menu-item"]', {
 			hasText: 'Log Out',
 		});
-		await expect(logOutItem).toHaveClass(/text-destructive/);
+		await expect(logOutItem).toHaveAttribute('data-variant', 'destructive');
 	});
 
 	test('headerUserDropdown=false hides trigger via URL override', async ({ page }) => {

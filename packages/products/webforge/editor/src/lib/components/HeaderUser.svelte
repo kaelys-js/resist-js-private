@@ -141,7 +141,7 @@ const hasToolsGroup: Bool = $derived(
 		{#if store.features.headerUserLogout}
 			<DropdownMenu.Separator />
 			<DropdownMenu.Group>
-				<DropdownMenu.Item class="text-destructive focus:text-destructive" onclick={handleLogOut}>
+				<DropdownMenu.Item variant="destructive" onclick={handleLogOut}>
 					<LogOut aria-hidden="true" class="mr-2 size-4" />
 					{t(localeStore.t.user.logout, 'Log Out')}
 				</DropdownMenu.Item>
