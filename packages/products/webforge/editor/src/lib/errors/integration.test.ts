@@ -7,7 +7,6 @@
  * Also tests that the breadcrumb + beacon modules work together correctly.
  */
 
-// oxlint-disable no-undef -- Response/Blob are browser globals available in test environment
 // oxlint-disable require-await -- async mocks return Response directly (no await needed)
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Str, Bool, Void } from '@/schemas/common';

@@ -1,4 +1,3 @@
-// oxlint-disable new-cap -- SvelteKit convention: POST() is a request handler, not a constructor
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Str, Bool } from '@/schemas/common';
 import type { AppError } from '@/schemas/result/result';

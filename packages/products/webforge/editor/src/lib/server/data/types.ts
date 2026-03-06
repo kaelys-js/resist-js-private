@@ -1,7 +1,7 @@
 /**
  * Server-side data schemas and service interface for project/user data.
  *
- * These schemas model data from the database (currently mock, future D1).
+ * These schemas model data from the database (currently mock).
  * They are server-only — not part of the editor client store.
  *
  * @module

@@ -148,7 +148,6 @@ export function teardownFetchBreadcrumbs(): Void {
 function extractUrl(input: RequestInfo | URL): Str {
 	if (typeof input === 'string') return input as Str;
 	if (input instanceof URL) return input.pathname as Str;
-	// oxlint-disable-next-line no-undef -- Request is a browser global
 	if (input instanceof Request) return input.url as Str;
 	return '(unknown)' as Str;
 }
@@ -162,7 +161,6 @@ function extractUrl(input: RequestInfo | URL): Str {
  */
 function extractMethod(input: RequestInfo | URL, init?: RequestInit): Str {
 	if (init?.method) return init.method.toUpperCase() as Str;
-	// oxlint-disable-next-line no-undef -- Request is a browser global
 	if (input instanceof Request) return input.method.toUpperCase() as Str;
 	return 'GET' as Str;
 }

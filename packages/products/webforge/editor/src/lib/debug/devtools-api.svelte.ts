@@ -266,24 +266,19 @@ export function createDevtoolsAPI(
 
 		logState(): Void {
 			const snapshot: EditorDevtools['state'] = devtools.state;
-			// eslint-disable-next-line no-console -- Intentional devtools output
 			console.log('%c Editor State %c', styles.storeBadge, styles.reset);
 			for (const [key, val] of Object.entries(snapshot.app)) {
-				// eslint-disable-next-line no-console -- Intentional devtools output
 				console.log(`  %capp.${key}%c  ${JSON.stringify(val)}`, styles.propPath, styles.reset);
 			}
 			for (const [key, val] of Object.entries(snapshot.features)) {
-				// eslint-disable-next-line no-console -- Intentional devtools output
 				console.log(`  %cfeatures.${key}%c  ${JSON.stringify(val)}`, styles.propPath, styles.reset);
 			}
 			for (const [key, val] of Object.entries(snapshot.debug)) {
-				// eslint-disable-next-line no-console -- Intentional devtools output
 				console.log(`  %cdebug.${key}%c  ${JSON.stringify(val)}`, styles.propPath, styles.reset);
 			}
 		},
 
 		logFeatures(): Void {
-			// eslint-disable-next-line no-console -- Intentional devtools output
 			console.table(devtools.state.features);
 		},
 
@@ -335,7 +330,6 @@ export function createDevtoolsAPI(
 					setter(pref.default);
 				}
 			}
-			// eslint-disable-next-line no-console -- Intentional devtools output
 			console.log(
 				'%c[Reset] %cApp preferences reset to defaults',
 				'color:#fa0;font-weight:bold',
@@ -356,7 +350,6 @@ export function createDevtoolsAPI(
 			// Reset debug log level
 			debugStore.setLogLevel('info');
 
-			// eslint-disable-next-line no-console -- Intentional devtools output
 			console.log(
 				'%c[Reset] %cAll state reset to defaults (preferences, features, debug)',
 				'color:#fa0;font-weight:bold',
@@ -368,12 +361,10 @@ export function createDevtoolsAPI(
 			try {
 				const url: Str = generateDebugUrl(editorStore, debugStore);
 				await navigator.clipboard.writeText(url);
-				// eslint-disable-next-line no-console -- Intentional devtools output
 				console.log('%c[Copied] %c%s', 'color:#4f4;font-weight:bold', 'color:#aaa', url);
 			} catch {
 				/* clipboard API unavailable — log URL instead */
 				const url: Str = generateDebugUrl(editorStore, debugStore);
-				// eslint-disable-next-line no-console -- Intentional devtools output
 				console.log('%c[Debug URL] %c%s', 'color:#fa0;font-weight:bold', 'color:#aaa', url);
 			}
 		},
@@ -401,8 +392,6 @@ export function createDevtoolsAPI(
 
 		help(): Void {
 			const globalName = `window.${DEVTOOLS_KEY}`;
-
-			/* eslint-disable no-console -- Intentional help output */
 
 			// eslint-disable-next-line unicorn/no-console-spaces -- Intentional badge padding for %c styled output
 			console.log(`%c ${APP_NAME} Devtools `, HELP_HEADER);

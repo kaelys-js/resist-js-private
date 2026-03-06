@@ -72,7 +72,6 @@ export function activateDebugServices(
 			loggerCleanup.destroy();
 			devtoolsCleanup.destroy();
 
-			// eslint-disable-next-line no-console -- Intentional debug deactivation log
 			console.log(`%c ${APP_NAME} %c Debug mode disabled`, styles.debugBadge, styles.reset);
 		},
 	};
@@ -144,8 +143,6 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): Voi
 	const { features } = editorStore;
 	const overrides: Record<Str, Str> = debugStore.urlOverrides;
 	const overrideKeys: Str[] = Object.keys(overrides);
-
-	/* eslint-disable no-console -- Intentional welcome banner output */
 
 	// ── Header ────────────────────────────────────────────────────
 	console.log(`%c[${APP_NAME}] %cDebug mode enabled`, 'color:#8cf;font-weight:bold', 'color:#aaa');

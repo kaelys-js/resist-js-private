@@ -10,13 +10,13 @@
  * @module
  */
 
+// oxlint-disable no-empty-function -- test setup file: all mocks are intentional no-ops
 // oxlint-disable-next-line import/no-unassigned-import -- setup file for jest-dom matchers
 import '@testing-library/jest-dom/vitest';
 import type { Str, Void } from '@/schemas/common';
 
 // jsdom does not implement window.matchMedia — required by shadcn-svelte Sidebar
 // and Svelte's MediaQuery class.
-// oxlint-disable-next-line no-empty-function -- intentional no-op for mock
 const noop = (): Void => {};
 
 Object.defineProperty(window, 'matchMedia', {
@@ -34,26 +34,19 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // jsdom does not implement ResizeObserver — required by ScrollArea + Tooltip internals.
-// oxlint-disable-next-line no-empty-function -- intentional no-op mock methods
 globalThis.ResizeObserver ??= class {
-	// oxlint-disable-next-line no-empty-function -- intentional no-op for mock
 	observe(): Void {}
-	// oxlint-disable-next-line no-empty-function -- intentional no-op for mock
 	unobserve(): Void {}
-	// oxlint-disable-next-line no-empty-function -- intentional no-op for mock
 	disconnect(): Void {}
 } as unknown as typeof ResizeObserver;
 
 // jsdom does not implement Element.prototype.animate — required by Svelte transitions.
-// oxlint-disable-next-line no-undef -- Element is a global in jsdom browser environment
 if (!Element.prototype.animate) {
-	// oxlint-disable-next-line no-undef -- Element is a global in jsdom browser environment
 	Element.prototype.animate = function () {
 		return {
 			finished: new Promise<void>((resolve) => {
 				resolve();
 			}),
-			// oxlint-disable-next-line no-empty-function -- intentional no-op for mock
 			cancel(): Void {},
 			onfinish: null,
 		} as unknown as Animation;

@@ -1,4 +1,3 @@
-// oxlint-disable no-undef -- Response/Request are browser globals available in test environment
 // oxlint-disable require-await -- async mocks return Response directly (no await needed)
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Str } from '@/schemas/common';

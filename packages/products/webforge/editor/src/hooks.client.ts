@@ -32,7 +32,7 @@ setupGlobalErrorHandling({
 	onError: (captured) => {
 		// Async fire-and-forget — resolves source maps before logging.
 		// logErrorToConsole never rejects (internal try-catch), safe to ignore promise.
-		logErrorToConsole(captured); // eslint-disable-line no-void
+		logErrorToConsole(captured);
 		// Beacon PII-stripped error to /api/errors (no-op in dev mode)
 		beaconError(captured);
 	},
@@ -404,7 +404,6 @@ async function logErrorToConsole(captured: CapturedError): Promise<Void> {
 	const dim: Str = 'color: #888';
 	const bright: Str = 'color: #eee';
 
-	// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 	console.groupCollapsed(
 		`%c[${label}] %c${appError.code} %cat ${source.url ?? source.display} %c— ${appError.message}`,
 		'color: #f44; font-weight: bold',
@@ -441,91 +440,70 @@ async function logErrorToConsole(captured: CapturedError): Promise<Void> {
 	}
 	const fmt: Str = entries.map(([k]) => `%c  ${k.padEnd(pad)}%c%s`).join('\n');
 	const kvArgs: Str[] = entries.flatMap(([, val]) => [dim, bright, val]);
-	// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 	console.log(fmt, ...kvArgs);
 
 	// Meta context (correlationId, log context, etc.)
 	if (captured.meta && Object.keys(captured.meta).length > 0) {
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log('%cMeta:', 'color: #666; font-style: italic');
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log(captured.meta);
 	}
 
 	// Breadcrumbs
 	if (captured.breadcrumbs && captured.breadcrumbs.length > 0) {
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log('%cBreadcrumbs:', 'color: #666; font-style: italic');
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log(captured.breadcrumbs);
 	}
 
 	// Tags
 	if (captured.tags && Object.keys(captured.tags).length > 0) {
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log('%cTags:', 'color: #666; font-style: italic');
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log(captured.tags);
 	}
 
 	// User context
 	if (captured.user) {
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log('%cUser:', 'color: #666; font-style: italic');
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log(captured.user);
 	}
 
 	// Structured contexts
 	if (captured.contexts && Object.keys(captured.contexts).length > 0) {
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log('%cContexts:', 'color: #666; font-style: italic');
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log(captured.contexts);
 	}
 
 	// Help suggestion
 	if (appError.help) {
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log('%cHelp: %c%s', 'color: #666; font-style: italic', 'color: #6c6', appError.help);
 	}
 
 	// Error source pointer
 	if (appError.source) {
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log('%cSource pointer:', 'color: #666; font-style: italic');
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log(appError.source);
 	}
 
 	// Related errors
 	if (appError.related && appError.related.length > 0) {
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log('%cRelated errors:', 'color: #666; font-style: italic');
 		for (const rel of appError.related) {
-			// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 			console.log(`  [${rel.code}] ${rel.message}`);
 		}
 	}
 
 	// Raw error object
-	// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 	console.log('%cRaw error:', 'color: #666; font-style: italic');
-	// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 	console.log(captured.original);
 
-	// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 	console.groupEnd();
 
 	// Cause chain — top-level group so it can be expanded independently
 	if (appError.cause) {
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.groupCollapsed('%cCause chain', 'color: #888; font-style: italic');
 		let current: AppError | undefined = appError.cause;
 		let depth: Num = 0;
 		while (current) {
 			const indent: Str = '  '.repeat(depth);
-			// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 			console.log(
 				`${indent}%c[${current.code}]%c ${current.message}`,
 				'color: #fa0',
@@ -534,13 +512,11 @@ async function logErrorToConsole(captured: CapturedError): Promise<Void> {
 			current = current.cause;
 			depth++;
 		}
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.groupEnd();
 	}
 
 	// Validation details — top-level group, same key-value format as main entries + raw JSON
 	if (appError.validation) {
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.groupCollapsed(
 			`%cValidation issues %cat ${source.url ?? source.display} %c— ${appError.message}`,
 			'color: #f44; font-weight: bold',
@@ -557,14 +533,10 @@ async function logErrorToConsole(captured: CapturedError): Promise<Void> {
 			const issuePad: Num = Math.max(pad, ...issueEntries.map(([k]) => k.length + 2));
 			const issueFmt: Str = issueEntries.map(([k]) => `%c  ${k.padEnd(issuePad)}%c%s`).join('\n');
 			const issueArgs: Str[] = issueEntries.flatMap(([, val]) => [dim, bright, val]);
-			// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 			console.log(issueFmt, ...issueArgs);
 		}
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log('%cRaw:', 'color: #666; font-style: italic');
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.log(appError.validation);
-		// eslint-disable-next-line no-console -- Intentional browser dev console output for error reporting
 		console.groupEnd();
 	}
 }
