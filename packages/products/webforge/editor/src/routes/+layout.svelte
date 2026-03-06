@@ -26,6 +26,7 @@ import { getBuildInfo } from '$lib/config/build-info';
 import { getAnnouncement } from '$lib/utils/announce.svelte';
 import type { ServerProject, ServerScene } from '$lib/server/data/types';
 import { addNavigationBreadcrumb } from '$lib/errors/breadcrumbs';
+import { setPreferenceCookie } from '$lib/utils/preference-cookie';
 
 const { children, data } = $props();
 
@@ -207,6 +208,7 @@ const paneStorage: PaneGroupStorage = {
 			const sidebarPx: Num = Math.round((layout[0] / 100) * viewportWidth);
 			currentSidebarPx = sidebarPx;
 			localStorage.setItem(SIDEBAR_PX_KEY, String(sidebarPx));
+			setPreferenceCookie('sidebar-px', String(sidebarPx));
 		} catch {
 			/* ignore malformed data */
 		}
@@ -222,6 +224,7 @@ function handleSidebarResize(size: Num): Void {
 	providerEl.style.setProperty('--sidebar-width', `${widthPx}px`);
 	// Persist pixel width directly — PaneForge's internal storage bypasses our adapter.
 	localStorage.setItem(SIDEBAR_PX_KEY, String(widthPx));
+	setPreferenceCookie('sidebar-px', String(widthPx));
 }
 
 function handleCollapse(): Void {

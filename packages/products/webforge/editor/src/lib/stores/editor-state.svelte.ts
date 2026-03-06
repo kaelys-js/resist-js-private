@@ -24,6 +24,7 @@ import {
 } from '$lib/schemas/editor-state';
 import { APP_NAME, storageKey } from '$lib/config/app-meta';
 import { applyPlanPreset } from '$lib/config/subscription-plans';
+import { setPreferenceCookie } from '$lib/utils/preference-cookie';
 
 // =============================================================================
 // Constants
@@ -208,6 +209,9 @@ function setTheme(theme: Str): Result<Void> {
 	if (!result.ok) return result;
 
 	_app = { ..._app, theme: result.data };
+	// Persist theme to cookie so hooks.server.ts can inject it via transformPageChunk
+	// to prevent theme flash during hydration.
+	if (typeof document !== 'undefined') setPreferenceCookie('theme', result.data);
 	return save();
 }
 

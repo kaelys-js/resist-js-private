@@ -23,9 +23,29 @@ describe('app.html script robustness', () => {
 		expect(appHtml).toContain("'[{{APP_NAME}}]");
 	});
 
-	it('reads theme preference from namespaced localStorage key', () => {
+	it('reads mode preference from namespaced localStorage key', () => {
 		expect(appHtml).toContain(`localStorage.getItem('${storageKey('mode')}')`);
 		expect(appHtml).not.toContain('mode-watcher-mode');
+	});
+
+	it('reads theme from data-theme attribute with localStorage fallback', () => {
+		expect(appHtml).toContain("getAttribute('data-theme')");
+		expect(appHtml).toContain(`localStorage.getItem('${storageKey('theme')}')`);
+	});
+
+	it('reads sidebar width from data-sidebar-width attribute', () => {
+		expect(appHtml).toContain("getAttribute('data-sidebar-width')");
+		expect(appHtml).toContain("'--sidebar-width'");
+	});
+});
+
+describe('app.html hydration flash prevention attributes', () => {
+	it('has data-theme attribute on html tag', () => {
+		expect(appHtml).toContain('data-theme=""');
+	});
+
+	it('has data-sidebar-width attribute on html tag', () => {
+		expect(appHtml).toContain('data-sidebar-width=""');
 	});
 });
 
