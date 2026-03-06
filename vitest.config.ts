@@ -5,6 +5,10 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
 const editorSrc = path.resolve(import.meta.dirname, 'packages/products/webforge/editor/src');
+const financesEditorSrc = path.resolve(
+	import.meta.dirname,
+	'packages/products/finances/editor/src',
+);
 
 export default defineConfig({
 	plugins: [tsconfigPaths()],
@@ -136,6 +140,38 @@ export default defineConfig({
 						'$app/environment': path.join(editorSrc, 'test-mocks/app-environment.ts'),
 						'$app/navigation': path.join(editorSrc, 'test-mocks/app-navigation.ts'),
 						'$app/state': path.join(editorSrc, 'test-mocks/app-state.ts'),
+					},
+					server: {
+						deps: {
+							inline: ['@lucide/svelte', 'bits-ui', 'mode-watcher', 'runed', 'svelte-toolbelt'],
+						},
+					},
+				},
+			},
+			{
+				extends: true,
+				plugins: [svelte({ hot: false }), svelteTesting()],
+				define: {
+					__APP_VERSION__: JSON.stringify('0.0.0-test'),
+					__GIT_COMMIT__: JSON.stringify('abc1234'),
+					__GIT_COMMIT_FULL__: JSON.stringify('abc1234def5678901234567890abcdef12345678'),
+					__GIT_BRANCH__: JSON.stringify('test-branch'),
+					__GIT_DIRTY__: 'false',
+					__BUILD_TIMESTAMP__: JSON.stringify('2026-01-01T00:00:00.000Z'),
+				},
+				test: {
+					name: 'finances-editor',
+					root: 'packages/products/finances/editor',
+					environment: 'jsdom',
+					globals: true,
+					include: ['src/**/*.test.ts'],
+					exclude: ['e2e/**', 'node_modules/**', '.svelte-kit/**'],
+					setupFiles: ['./src/test-setup-component.ts'],
+					alias: {
+						$lib: path.join(financesEditorSrc, 'lib'),
+						'$app/environment': path.join(financesEditorSrc, 'test-mocks/app-environment.ts'),
+						'$app/navigation': path.join(financesEditorSrc, 'test-mocks/app-navigation.ts'),
+						'$app/state': path.join(financesEditorSrc, 'test-mocks/app-state.ts'),
 					},
 					server: {
 						deps: {
