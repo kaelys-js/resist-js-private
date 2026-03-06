@@ -2,11 +2,12 @@
 import Activity from '@lucide/svelte/icons/activity';
 import Wifi from '@lucide/svelte/icons/wifi';
 import Radio from '@lucide/svelte/icons/radio';
+import ChevronDown from '@lucide/svelte/icons/chevron-down';
 import XIcon from '@lucide/svelte/icons/x';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import { Separator } from '$lib/components/ui/separator/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
-import type { Str, Num, Void } from '@/schemas/common';
+import type { Str, Num, Bool, Void } from '@/schemas/common';
 import {
 	getConnectionQuality,
 	getEffectiveType,
@@ -18,6 +19,7 @@ import {
 } from '$lib/perf/connection.svelte';
 import { getBeaconStatus } from '$lib/perf/vitals-beacon';
 import { getVitalsPanelMetrics, type PanelMetric } from '$lib/perf/vitals-panel-store.svelte';
+import { formatThresholds } from '$lib/perf/vitals-diagnostics';
 
 let { onclose }: { onclose?: () => Void } = $props();
 
@@ -58,6 +60,39 @@ function ratingClass(rating: Str): Str {
 	if (rating === 'needsImprovement') return 'bg-yellow-500/20 text-yellow-400';
 	if (rating === 'poor') return 'bg-red-500/20 text-red-400';
 	return 'bg-muted text-muted-foreground';
+}
+
+// ── Diagnostics expand/collapse ────────────────────────────────────
+/** Tracks which metric names have their diagnostics expanded. */
+let expandedMetrics: Set<Str> = $state(new Set<Str>());
+
+/**
+ * Toggles the expanded state of a metric's diagnostics.
+ *
+ * @param name - Metric name to toggle
+ */
+function toggleDiagnostics(name: Str): Void {
+	const next: Set<Str> = new Set<Str>(expandedMetrics);
+	if (next.has(name)) {
+		next.delete(name);
+	} else {
+		next.add(name);
+	}
+	expandedMetrics = next;
+}
+
+/**
+ * Whether a metric has diagnostics data to show.
+ *
+ * @param metric - The panel metric
+ * @returns True if diagnostics are available
+ */
+function hasDiagnostics(metric: PanelMetric): Bool {
+	return (
+		metric.diagnostics !== null &&
+		metric.diagnostics !== undefined &&
+		metric.diagnostics.findings.length > 0
+	);
 }
 
 /**
@@ -168,22 +203,70 @@ $effect(() => {
 			{:else}
 				<div class="space-y-1">
 					{#each panelMetrics as metric (metric.name)}
-						<div
-							class="flex items-center justify-between text-xs"
-							data-testid="perf-metric-{metric.name}"
-						>
-							<span class="font-mono text-popover-foreground">{metric.name}</span>
-							<div class="flex items-center gap-1.5">
-								<span class="font-mono text-popover-foreground">
-									{formatValue(metric.name, metric.value)}
-								</span>
-								<span
-									class="px-1.5 py-0.5 rounded text-[10px] font-medium {ratingClass(metric.rating)}"
-									data-testid="perf-rating-{metric.name}"
+						<div data-testid="perf-metric-{metric.name}">
+							<!-- Metric header row -->
+							{#if hasDiagnostics(metric)}
+								<button
+									class="flex w-full items-center justify-between text-xs hover:bg-white/[0.04] rounded px-0.5 -mx-0.5 transition-colors"
+									onclick={() => toggleDiagnostics(metric.name)}
+									data-testid="perf-metric-toggle-{metric.name}"
 								>
-									{metric.rating}
-								</span>
-							</div>
+									<span class="font-mono text-popover-foreground inline-flex items-center gap-1">
+										<ChevronDown class="size-3 text-muted-foreground transition-transform {expandedMetrics.has(metric.name) ? '' : '-rotate-90'}" />
+										{metric.name}
+									</span>
+									<div class="flex items-center gap-1.5">
+										<span class="font-mono text-popover-foreground">
+											{formatValue(metric.name, metric.value)}
+										</span>
+										<span
+											class="px-1.5 py-0.5 rounded text-[10px] font-medium {ratingClass(metric.rating)}"
+											data-testid="perf-rating-{metric.name}"
+										>
+											{metric.rating}
+										</span>
+									</div>
+								</button>
+							{:else}
+								<div class="flex items-center justify-between text-xs">
+									<span class="font-mono text-popover-foreground">{metric.name}</span>
+									<div class="flex items-center gap-1.5">
+										<span class="font-mono text-popover-foreground">
+											{formatValue(metric.name, metric.value)}
+										</span>
+										<span
+											class="px-1.5 py-0.5 rounded text-[10px] font-medium {ratingClass(metric.rating)}"
+											data-testid="perf-rating-{metric.name}"
+										>
+											{metric.rating}
+										</span>
+									</div>
+								</div>
+							{/if}
+
+							<!-- Expandable diagnostics detail -->
+							{#if hasDiagnostics(metric) && expandedMetrics.has(metric.name)}
+								<div
+									class="mt-0.5 mb-1 ml-4 rounded bg-white/[0.03] p-1.5 space-y-0.5"
+									data-testid="perf-diagnostics-{metric.name}"
+								>
+									<!-- Threshold context -->
+									{#if metric.diagnostics}
+										<div class="text-[10px] text-muted-foreground/70 italic mb-0.5">
+											{formatThresholds(metric.diagnostics.thresholds)}
+										</div>
+										<!-- Findings -->
+										{#each metric.diagnostics.findings as finding}
+											<div class="flex text-[10px] font-mono gap-1.5">
+												{#if finding.label}
+													<span class="text-muted-foreground shrink-0">{finding.label}</span>
+												{/if}
+												<span class="text-popover-foreground break-all">{finding.value}</span>
+											</div>
+										{/each}
+									{/if}
+								</div>
+							{/if}
 						</div>
 					{/each}
 				</div>

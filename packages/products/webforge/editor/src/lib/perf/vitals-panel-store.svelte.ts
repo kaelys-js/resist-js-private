@@ -12,6 +12,7 @@
 
 import * as v from 'valibot';
 import type { Str, Num, Void } from '@/schemas/common';
+import { VitalDiagnosticsSchema, type VitalDiagnostics } from '$lib/perf/vitals-diagnostics';
 
 // ── Schema ──────────────────────────────────────────────────────────────────
 
@@ -25,6 +26,8 @@ export const PanelMetricSchema = v.strictObject({
 	rating: v.string(),
 	/** Timestamp when the metric was reported (ms since epoch). */
 	timestamp: v.number(),
+	/** Actionable diagnostics — present only for non-good metrics. */
+	diagnostics: v.optional(v.nullable(VitalDiagnosticsSchema)),
 });
 
 /** Inferred type for a panel metric entry. */
@@ -45,9 +48,18 @@ let metrics: PanelMetric[] = $state([]);
  * @param name - The Web Vital metric name
  * @param value - The metric value
  * @param rating - The performance rating
+ * @param diagnostics - Optional actionable diagnostics for non-good metrics
  */
-export function reportVitalToPanel(name: Str, value: Num, rating: Str): Void {
-	metrics = [...metrics, { name, value, rating, timestamp: Date.now() }];
+export function reportVitalToPanel(
+	name: Str,
+	value: Num,
+	rating: Str,
+	diagnostics?: VitalDiagnostics | null,
+): Void {
+	metrics = [
+		...metrics,
+		{ name, value, rating, timestamp: Date.now(), diagnostics: diagnostics ?? null },
+	];
 }
 
 /**

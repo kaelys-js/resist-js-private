@@ -391,8 +391,10 @@ test.describe('Error pages', () => {
 		test('no raw {{placeholders}} remain in rendered page', async ({ page }) => {
 			await page.goto('/test-error/catastrophic');
 			const html: string = await page.content();
-			expect(html).not.toContain('{{');
-			expect(html).not.toContain('}}');
+			// Match actual template placeholders (e.g. {{APP_NAME}}, {{errors.serverError}})
+			// but not random '}}' in injected scripts (console-ninja, etc.)
+			const placeholders: RegExpMatchArray | null = html.match(/\{\{[A-Za-z_.]+\}\}/g);
+			expect(placeholders).toBeNull();
 		});
 
 		test('APP_NAME is resolved to Storylyne in title', async ({ page }) => {

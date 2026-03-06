@@ -216,8 +216,10 @@ const harness = createTestHarness();
 ## Formatting & Linting
 
 - **Biome** — tabs, single quotes, semicolons always, 100 char width
-- **oxlint** — full ruleset
+- **oxlint** — full ruleset, config at `.oxlintrc.json` in workspace root
 - Run `pnpm qa:format` to format, `pnpm qa:lint` to lint
+- **NEVER use lint disable comments** (`eslint-disable`, `oxlint-ignore`, `/* global */`, etc.) — fix the code instead. Add missing browser globals to `.oxlintrc.json` globals section. Only `max-lines` and `max-lines-per-function` are OK to disable.
+- **NEVER dismiss failing tests** — every test failure must be investigated and fixed. Never say "pre-existing" or "unrelated" without proving it (git blame, run on base branch).
 
 ## Browser Tools
 

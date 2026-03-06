@@ -34,6 +34,7 @@ import { goto } from '$app/navigation';
 import { getVitalsPanelMetrics, type PanelMetric } from '$lib/perf/vitals-panel-store.svelte';
 import { getBeaconStatus } from '$lib/perf/vitals-beacon';
 import { getConnectionSnapshot, type ConnectionSnapshot } from '$lib/perf/connection.svelte';
+import { formatThresholds } from '$lib/perf/vitals-diagnostics';
 
 // =============================================================================
 // Constants
@@ -398,6 +399,27 @@ export function createDevtoolsAPI(
 						'color:#ccc',
 						ratingColor,
 					);
+
+					// Show diagnostics for non-good metrics
+					if (m.diagnostics && m.rating !== 'good') {
+						console.log(
+							'    %cThresholds: %c%s',
+							'color:#666;font-style:italic',
+							'color:#999',
+							formatThresholds(m.diagnostics.thresholds),
+						);
+						for (const finding of m.diagnostics.findings) {
+							if (finding.label) {
+								console.log(
+									`    %c${finding.label.padEnd(16)}%c ${finding.value}`,
+									'color:#888;font-family:monospace',
+									'color:#bbb',
+								);
+							} else {
+								console.log(`    %c${finding.value}`, 'color:#bbb');
+							}
+						}
+					}
 				}
 			},
 
