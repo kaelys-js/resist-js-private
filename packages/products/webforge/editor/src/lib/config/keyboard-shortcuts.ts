@@ -305,11 +305,11 @@ export function matchesShortcut(e: KeyboardEvent, shortcut: KeyboardShortcut): B
 
 // ── Display formatting ───────────────────────────────────────────────────────
 
-/** Mac modifier symbols. */
+/** Mac modifier symbols. Uses word 'Shift' instead of ⇧ — the symbol renders too small in most fonts. */
 const MAC_SYMBOLS: Readonly<Record<ModifierKey, Str>> = {
 	ctrl: '⌃',
 	meta: '⌘',
-	shift: '⇧',
+	shift: 'Shift',
 	alt: '⌥',
 	cmdOrCtrl: '⌘',
 };
@@ -329,8 +329,8 @@ const MODIFIER_ORDER: readonly ModifierKey[] = ['ctrl', 'cmdOrCtrl', 'meta', 'sh
 /**
  * Formats a shortcut for display in tooltips and UI.
  *
- * Returns platform-appropriate symbols:
- * - Mac: `⌃1`, `⌘B`, `⌃⇧D`
+ * Returns platform-appropriate symbols with `+` separator:
+ * - Mac: `⌃+1`, `⌘+B`, `⌃+Shift+D`
  * - Windows/Linux: `Ctrl+1`, `Ctrl+B`, `Ctrl+Shift+D`
  *
  * @param shortcut - The shortcut to format
@@ -338,8 +338,8 @@ const MODIFIER_ORDER: readonly ModifierKey[] = ['ctrl', 'cmdOrCtrl', 'meta', 'sh
  *
  * @example
  * ```typescript
- * formatShortcut(shortcuts.TOGGLE_SIDEBAR); // "⌘B" on Mac, "Ctrl+B" on Win
- * formatShortcut(shortcuts.DEV_FLAGS_PANEL); // "⌃1" on Mac, "Ctrl+1" on Win
+ * formatShortcut(shortcuts.TOGGLE_SIDEBAR); // "⌘+B" on Mac, "Ctrl+B" on Win
+ * formatShortcut(shortcuts.DEV_FLAGS_PANEL); // "⌃+1" on Mac, "Ctrl+1" on Win
  * ```
  */
 export function formatShortcut(shortcut: KeyboardShortcut): Str {
@@ -350,14 +350,9 @@ export function formatShortcut(shortcut: KeyboardShortcut): Str {
 	if (shortcut.key === 'Escape') keyDisplay = 'Esc';
 	else if (shortcut.key === ' ') keyDisplay = 'Space';
 
-	if (IS_MAC) {
-		const modStr: Str = mods.map((m) => MAC_SYMBOLS[m]).join('');
-		return `${modStr}${keyDisplay}`;
-	}
-
-	const parts: Str[] = mods.map((m) => PC_LABELS[m]);
-	parts.push(keyDisplay);
-	return parts.join('+');
+	const labels: Str[] = mods.map((m) => (IS_MAC ? MAC_SYMBOLS[m] : PC_LABELS[m]));
+	labels.push(keyDisplay);
+	return labels.join('+');
 }
 
 // ── Conflict detection ───────────────────────────────────────────────────────

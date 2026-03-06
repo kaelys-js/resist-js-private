@@ -567,3 +567,133 @@ E2E tests use Playwright (`editor/playwright.config.ts`) with a build+preview we
 - **Timeouts**: test 30s, expect 5s, action 10s, navigation 15s, web server 120s
 - **Failure artifacts**: screenshots on failure, video retained on failure
 - **Web server**: `pnpm build && pnpm preview --port 4173`, URL-based readiness check
+
+## Platform Compatibility
+
+The runtime targets **WebGPU primary + WebGL2 fallback**. WebGPU covers ~70% of browsers globally (2026); WebGL2 covers ~92%. Together they reach every modern platform.
+
+### Tier 1: Full Support (Desktop Browsers)
+
+| Browser | WebGPU | WebGL2 | Min Version (WebGPU) | Min Version (WebGL2) |
+|---------|--------|--------|----------------------|----------------------|
+| Chrome | Full (D3D12 Win, Metal macOS) | Full | 113+ | 56+ |
+| Edge | Full (Chromium engine) | Full | 113+ | 79+ |
+| Firefox | Windows only (macOS Apple Silicon in 145+) | Full | 141+ | 51+ |
+| Safari | Full (Metal backend) | Full | 26.0+ (macOS Tahoe 26) | 15.1+ |
+| Opera | Full (Chromium engine) | Full | 100+ | 43+ |
+| Brave | Full (Chromium engine) | Full | 2024+ | Chromium-inherited |
+| Samsung Internet | Full | Full | 25+ | 7.2+ |
+
+**Firefox gaps:** WebGPU not available on Linux stable or Intel Macs. WebGL2 fallback activates on these.
+
+**Safari gap:** WebGPU requires macOS Tahoe 26 — older macOS falls back to WebGL2.
+
+### Tier 2: Full Support (Mobile)
+
+| Platform | WebGPU | WebGL2 | Notes |
+|----------|--------|--------|-------|
+| iOS (all browsers) | Full (iOS 26+) | Full (iOS 15.6+) | All iOS browsers use WebKit — WebGPU depends on iOS version, not browser brand. A14+ chips recommended. Thermal throttling on sustained GPU loads |
+| Android (Chrome) | Partial (Chrome 121+, Android 12+) | Full | Limited to Qualcomm/ARM GPUs. MediaTek not yet supported. Huge device fragmentation — budget devices will struggle |
+| Android (Firefox) | Behind flag (targeting 2026) | Full | WebGL2 fallback for now |
+| Android (Samsung Internet) | Full (v25+) | Full | Good on flagship Samsung devices |
+
+### Tier 3: Desktop Distribution (Packaged Apps)
+
+| Method | Platforms | WebGPU | Bundle Size | Notes |
+|--------|-----------|--------|-------------|-------|
+| **Electron** | Windows, macOS, Linux | Yes (flags required) | ~100+ MB | Controlled Chromium environment. Requires `--enable-unsafe-webgpu`, `--enable-webgl`, `--ignore-gpu-blacklist`. Performance measurably slower than direct Chrome |
+| **Tauri** | Windows, macOS, Linux | Inconsistent | ~10 MB | **Avoid** — uses system webview, so WebGPU support varies by OS/version. Windows (WebView2) likely works; macOS needs Tahoe 26; Linux varies wildly |
+| **Babylon Native** | Windows, macOS, iOS, Android, Linux | N/A (native D3D12/Metal/Vulkan) | Native | **Public preview only** — API unstable. Bypasses web APIs entirely. Touch input only on mobile. Single view only. No Expo support |
+| **Babylon React Native** | iOS, Android, Windows | N/A (via Babylon Native) | Native | Same limitations as Babylon Native plus React Native overhead |
+
+**Recommendation:** Electron for Steam/itch.io distribution. Avoid Tauri for WebGPU-first projects.
+
+### Tier 4: PWA (Progressive Web App) Installability
+
+| Platform | PWA Install | Notes |
+|----------|-------------|-------|
+| Android (Chrome/Edge/Samsung) | Full | Add to Home Screen, standalone window, offline, push notifications |
+| iOS (Safari) | Yes (iOS 16.4+) | Share > Add to Home Screen. Chrome/Edge can install since iOS 17. Push since 16.4 |
+| Windows (Chrome/Edge) | Full | Installs to Start Menu. Firefox 143+ added PWA support |
+| macOS (Chrome/Edge/Brave) | Full | Installs to Dock/Applications |
+| Linux (Chrome/Edge) | Full | Desktop integration via .desktop files |
+| ChromeOS | Full | First-class PWA support |
+| Xbox (Edge) | Partial | PWAs available via Microsoft Store |
+| Smart TVs | No | webOS, Tizen, Fire TV lack PWA support |
+
+### Tier 5: Handheld Gaming
+
+| Device | Can Run | WebGPU | WebGL2 | Notes |
+|--------|---------|--------|--------|-------|
+| **Steam Deck** | Yes (WebGL2) | Experimental (flags) | Full | SteamOS = Linux. Install Chrome via Flatpak in Desktop Mode. AMD RDNA 2 hardware is capable; browser WebGPU support is the bottleneck. Stock Firefox install is often outdated |
+| **Nintendo Switch** | No | None | None | Browser is captive-portal only (hotel WiFi). WebGL disabled. 20-min timeout. No address bar. Nintendo disables WebGL to prevent homebrew exploits |
+| **Nintendo Switch 2** | No (likely) | Unknown | Unknown | Same captive-portal browser (WebKit 613.0). Hardware is absolutely capable (NVIDIA Ampere, 12GB LPDDR5X, 1536 CUDA cores) but Nintendo locks it out |
+
+### Tier 6: Home Consoles
+
+| Console | Can Run | Best API | Notes |
+|---------|---------|----------|-------|
+| **Xbox Series X/S** | Partial | WebGL1 confirmed, WebGL2 has issues | Only console with a real browser (Edge/Chromium). No WebGPU. Resource-limited alongside games. Controller works via Gamepad API. WebGL2 context creation has reported issues |
+| **Xbox One** | No | WebGL1 only | Edge/Chromium but D3D11 FL 10_0 — WebGL2 requires FL 10_1. Babylon.js 6+ dropped WebGL1 |
+| **Xbox 360** | No | None | IE-based browser, no WebGL. 512MB shared RAM |
+| **Xbox (Original)** | No | None | No browser. 64MB RAM |
+| **PS5** | No | None | Hidden browser (no address bar, no tabs). No WebGL — Sony builds their UI on WebGL internally but blocks it in the user-facing browser |
+| **PS4** | No | None | WebKit browser, same WebGL block as PS5 |
+| **PS3** | No | None | Ancient browser, Cell processor has no WebGL drivers |
+| **PS2** | No | None | No browser exists. 32MB RAM. Released 2000, predates WebGL by 11 years |
+| **Wii** | No | None | Opera circa 2007. 88MB RAM. GPU predates OpenGL ES 2.0 |
+| **Wii U** | No | Canvas 2D only | WebKit browser, no WebGL. Audio API broken |
+
+**Console path forward:** Babylon Native (public preview) bypasses web APIs and uses native D3D12/Metal/Vulkan. Would require separate engineering effort and is not yet production-ready.
+
+### Tier 7: Portable Consoles (Legacy)
+
+| Device | Can Run | Why |
+|--------|---------|-----|
+| **DS** | No | 4MB RAM, 67MHz ARM, Opera cartridge for basic HTML only |
+| **DSi** | No | 16MB RAM, 133MHz ARM, Opera 9.5 browser |
+| **3DS** | No | HTML5test 80/555 (original) / 311/555 (New). GPU supports OpenGL ES 1.1 not 2.0 (WebGL minimum) |
+
+### Tier 8: VR/AR Headsets
+
+| Device | Can Run | WebGPU | WebGL2 | WebXR | Notes |
+|--------|---------|--------|--------|-------|-------|
+| **Meta Quest 2/3/Pro** | Yes | None (native browser) | Full | Full (immersive-ar, hand tracking, hit testing) | De facto WebXR platform. No native WebGPU (Meta decision, not hardware). Falls back to WebGL2. Babylon.js has first-class WebXR support |
+| **Apple Vision Pro** | Yes | Full (Safari 26.0, visionOS 26) | Full | immersive-vr only (no passthrough AR) | Safari 26.2 added WebXR + WebGPU integration. Gaze-and-pinch input via W3C transient-pointer mode |
+
+### Tier 9: Other Platforms
+
+| Platform | Can Run | Notes |
+|----------|---------|-------|
+| **ChromeOS** | Yes | Full WebGPU + WebGL2 via Chrome. Performance depends on hardware tier (ARM Chromebooks struggle, Intel i5+ are fine) |
+| **Smart TVs** | No (practical) | No WebGPU. Unreliable WebGL2. GPUs designed for video decode not 3D. No PWA support. Remote control input only |
+
+### Compatibility Summary
+
+```
+FULL SUPPORT          Windows · macOS · iOS · Android · ChromeOS
+                      Chrome · Edge · Safari 26+ · Firefox 141+ · Opera · Brave
+
+WEBGL2 FALLBACK       Linux (WebGPU behind flags) · Steam Deck · older iOS/macOS
+                      Firefox on macOS/Linux · Android (non-Qualcomm GPUs)
+
+PARTIAL               Xbox Series X/S (Edge browser, WebGL2 issues)
+
+CANNOT RUN            All PlayStation · All Nintendo · Xbox One/360/Original
+                      DS/DSi/3DS · Smart TVs · Legacy handhelds
+
+VR/AR                 Meta Quest 2/3 (WebGL2 + WebXR) · Vision Pro (WebGPU + WebXR)
+
+DISTRIBUTION          Browser (primary) · PWA · Electron · Capacitor
+                      Babylon Native (future — public preview only)
+```
+
+### Key Decisions for Future Work
+
+1. **WebGPU + WebGL2 fallback is correct** — covers every modern platform today
+2. **Electron for desktop distribution** — controlled Chromium, supports Steam/itch.io
+3. **Capacitor for mobile app stores** — system webview, near-native performance
+4. **Console distribution requires Babylon Native** — no browser-based path exists for PlayStation or Nintendo. Babylon Native is public preview only (API unstable, touch-only input, single view). Monitor for production readiness
+5. **Switch 2 is the most painful miss** — NVIDIA Ampere with 1536 CUDA cores could easily run WebForge, but Nintendo blocks WebGL entirely
+6. **VR/AR is a strong opportunity** — Quest for mass market (WebXR), Vision Pro for premium (WebGPU + WebXR). Babylon.js has first-class WebXR support
+7. **Linux/Steam Deck WebGPU gap** — last major holdout. WebGL2 fallback handles it cleanly. Monitor Chrome/Firefox Linux WebGPU rollout

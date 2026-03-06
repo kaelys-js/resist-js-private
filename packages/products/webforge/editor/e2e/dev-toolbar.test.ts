@@ -497,7 +497,7 @@ test.describe('dev toolbar — shortcut hints in tooltips', () => {
 		await expect(kbd).toBeVisible({ timeout: 3000 });
 		const text: string = (await kbd.textContent()) ?? '';
 		// Should show platform-appropriate modifier + Shift + D
-		expect(text).toMatch(/Ctrl\+Shift\+D|⌃⇧D/);
+		expect(text).toMatch(/Ctrl\+Shift\+D|⌃\+Shift\+D/);
 	});
 
 	test('panel button tooltips show Ctrl+number hints', async ({ page }) => {
@@ -507,8 +507,8 @@ test.describe('dev toolbar — shortcut hints in tooltips', () => {
 		const kbd = page.locator('[data-slot="tooltip-content"] kbd');
 		await expect(kbd).toBeVisible({ timeout: 3000 });
 		const text: string = (await kbd.textContent()) ?? '';
-		// Should show Ctrl+1 or ⌃1
-		expect(text).toMatch(/Ctrl\+1|⌃1/);
+		// Should show Ctrl+1 or ⌃+1
+		expect(text).toMatch(/Ctrl\+1|⌃\+1/);
 	});
 });
 

@@ -392,7 +392,7 @@ describe('formatShortcut', () => {
 		const s = testShortcut({ key: '1', modifiers: ['ctrl'] });
 		const result = formatShortcut(s);
 		if (IS_MAC) {
-			expect(result).toBe('⌃1');
+			expect(result).toBe('⌃+1');
 		} else {
 			expect(result).toBe('Ctrl+1');
 		}
@@ -402,7 +402,7 @@ describe('formatShortcut', () => {
 		const s = testShortcut({ key: 'D', modifiers: ['ctrl', 'shift'] });
 		const result = formatShortcut(s);
 		if (IS_MAC) {
-			expect(result).toBe('⌃⇧D');
+			expect(result).toBe('⌃+Shift+D');
 		} else {
 			expect(result).toBe('Ctrl+Shift+D');
 		}
@@ -412,7 +412,7 @@ describe('formatShortcut', () => {
 		const s = testShortcut({ key: 'b', modifiers: ['meta'] });
 		const result = formatShortcut(s);
 		if (IS_MAC) {
-			expect(result).toBe('⌘b');
+			expect(result).toBe('⌘+b');
 		} else {
 			expect(result).toBe('Win+b');
 		}
@@ -422,7 +422,7 @@ describe('formatShortcut', () => {
 		const s = testShortcut({ key: 'b', modifiers: ['cmdOrCtrl'] });
 		const result = formatShortcut(s);
 		if (IS_MAC) {
-			expect(result).toBe('⌘b');
+			expect(result).toBe('⌘+b');
 		} else {
 			expect(result).toBe('Ctrl+b');
 		}
@@ -432,7 +432,7 @@ describe('formatShortcut', () => {
 		const s = testShortcut({ key: 'z', modifiers: ['cmdOrCtrl', 'shift'] });
 		const result = formatShortcut(s);
 		if (IS_MAC) {
-			expect(result).toBe('⌘⇧z');
+			expect(result).toBe('⌘+Shift+z');
 		} else {
 			expect(result).toBe('Ctrl+Shift+z');
 		}
@@ -447,7 +447,7 @@ describe('formatShortcut', () => {
 		const s = testShortcut({ key: ' ', modifiers: ['ctrl'] });
 		const result = formatShortcut(s);
 		if (IS_MAC) {
-			expect(result).toBe('⌃Space');
+			expect(result).toBe('⌃+Space');
 		} else {
 			expect(result).toBe('Ctrl+Space');
 		}
@@ -458,7 +458,7 @@ describe('formatShortcut', () => {
 		const result = formatShortcut(s);
 		if (IS_MAC) {
 			// Order: ctrl, meta, shift, alt
-			expect(result).toBe('⌃⌘⇧⌥x');
+			expect(result).toBe('⌃+⌘+Shift+⌥+x');
 		} else {
 			expect(result).toBe('Ctrl+Win+Shift+Alt+x');
 		}
@@ -736,7 +736,7 @@ describe('integration: full customization workflow', () => {
 		if (result.ok) {
 			const formatted = formatShortcut(result.data.DEV_FLAGS_PANEL);
 			if (IS_MAC) {
-				expect(formatted).toBe('⌃⇧F');
+				expect(formatted).toBe('⌃+Shift+F');
 			} else {
 				expect(formatted).toBe('Ctrl+Shift+F');
 			}
