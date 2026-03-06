@@ -19,19 +19,19 @@ const store: ReturnType<typeof useEditorStore> = useEditorStore();
 const homeHref: Str = $derived(page.url.search ? `/${page.url.search}` : '/');
 
 /** Map route path to a display label for breadcrumbs. */
-const routeLabels: Record<Str, Str> = {
-	'/': 'Overview',
-	'/income': 'Income',
-	'/debt': 'Debt',
-	'/monthly': 'Monthly',
-	'/purchases': 'Purchases',
-	'/travel': 'Travel',
-	'/lifetime': 'Lifetime',
-	'/settings': 'Settings',
-};
+const routeLabels: Record<Str, Str> = $derived({
+	'/': t(localeStore.t.sidebar.overview, 'Overview'),
+	'/income': t(localeStore.t.sidebar.income, 'Income'),
+	'/debt': t(localeStore.t.sidebar.debt, 'Debt'),
+	'/monthly': t(localeStore.t.sidebar.monthly, 'Monthly'),
+	'/purchases': t(localeStore.t.sidebar.purchases, 'Purchases'),
+	'/travel': t(localeStore.t.sidebar.travel, 'Travel'),
+	'/lifetime': t(localeStore.t.sidebar.lifetime, 'Lifetime'),
+	'/settings': t(localeStore.t.common.settings, 'Settings'),
+});
 
 /** Current page label from the route. */
-const currentLabel: Str = $derived(routeLabels[page.url.pathname] ?? 'Home');
+const currentLabel: Str = $derived(routeLabels[page.url.pathname] ?? t(localeStore.t.header.home, 'Home'));
 
 /** Whether we're on a sub-page (not the root). */
 const isSubPage: Bool = $derived(!isError && page.url.pathname !== '/');

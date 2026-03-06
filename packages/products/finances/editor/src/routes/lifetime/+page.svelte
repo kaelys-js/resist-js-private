@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { Num, Str, Bool } from '@/schemas/common';
+import { localeStore, t } from '$lib/i18n.svelte';
 import type {
 	MonthlyExpense,
 	LifetimeExpense,
@@ -21,7 +22,12 @@ import { Badge } from '$lib/components/ui/badge';
 import { Separator } from '$lib/components/ui/separator';
 import { Switch } from '$lib/components/ui/switch';
 import { Label } from '$lib/components/ui/label';
+import { Input } from '$lib/components/ui/input';
+import { Button } from '$lib/components/ui/button';
 import * as Table from '$lib/components/ui/table';
+import { Chart, Svg, Axis, Area, Spline } from 'layerchart';
+import { scaleLinear } from 'd3-scale';
+import { invalidateAll } from '$app/navigation';
 
 type PageData = {
 	monthlyExpenses: MonthlyExpense[];
@@ -76,27 +82,90 @@ const projectionGrandTotal: Num = $derived(
 
 const categoryLabel = (cat: Str): Str => {
 	const labels: Record<Str, Str> = {
-		monthly: 'Monthly',
-		'lifetime-expense': 'Lifetime',
-		'lifetime-replacement': 'Replacement',
-		travel: 'Travel',
-		purchase: 'Purchase',
+		monthly: t(localeStore.t.finance.categoryMonthly, 'Monthly'),
+		'lifetime-expense': t(localeStore.t.finance.categoryLifetime, 'Lifetime'),
+		'lifetime-replacement': t(localeStore.t.finance.categoryReplacements, 'Replacements'),
+		travel: t(localeStore.t.finance.categoryTravel, 'Travel'),
+		purchase: t(localeStore.t.finance.categoryPurchases, 'Purchases'),
 	};
 	return labels[cat] ?? cat;
 };
+
+// ── Cumulative cost curve data ──────────────────────────────────────
+
+type CumulativePoint = {
+	year: Num;
+	cumulative: Num;
+	yearTotal: Num;
+};
+
+const cumulativeData: CumulativePoint[] = $derived.by(() => {
+	let running: Num = 0;
+	return displayProjections.map((p: YearlyProjection) => {
+		running += p.total;
+		return {
+			year: p.year,
+			cumulative: Math.round(running * 100) / 100,
+			yearTotal: p.total,
+		};
+	});
+});
+
+const cumulativeMax: Num = $derived.by(() => {
+	if (cumulativeData.length === 0) return 1;
+	return cumulativeData[cumulativeData.length - 1]?.cumulative ?? 1;
+});
+
+// ── Inflation config editing ────────────────────────────────────────
+
+const inflationCategories = ['housing', 'food', 'general', 'travel'] as const;
+
+const inflationCategoryLabels: Record<string, Str> = $derived({
+	housing: t(localeStore.t.finance.categoryHousing, 'Housing'),
+	food: t(localeStore.t.finance.categoryFood, 'Food'),
+	general: t(localeStore.t.finance.categoryGeneral, 'General'),
+	travel: t(localeStore.t.finance.categoryTravel, 'Travel'),
+});
+
+let inflationEdits: Record<string, string> = $state({});
+
+// Initialize inflation edits from data
+$effect(() => {
+	const edits: Record<string, string> = {};
+	for (const cat of inflationCategories) {
+		const existing = data.inflation.find((c: InflationConfig) => c.category === cat);
+		edits[cat] = existing
+			? String((existing.rate * 100).toFixed(1))
+			: String((data.settings.defaultInflationRate * 100).toFixed(1));
+	}
+	inflationEdits = edits;
+});
+
+async function saveInflationRate(category: string): Promise<void> {
+	const ratePercent = Number.parseFloat(inflationEdits[category] ?? '2');
+	if (Number.isNaN(ratePercent)) return;
+	const rate = ratePercent / 100;
+
+	await fetch('/api/inflation', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ category, rate }),
+	});
+	await invalidateAll();
+}
 </script>
 
 <div class="flex flex-col gap-6 p-6">
 	<!-- Page header -->
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 		<div>
-			<h1 class="text-2xl font-semibold tracking-tight">Lifetime Costs</h1>
-			<p class="text-muted-foreground text-sm">Projected expenses from now until retirement.</p>
+			<h1 class="text-2xl font-semibold tracking-tight">{t(localeStore.t.finance.lifetimeExpenses, 'Lifetime Costs')}</h1>
+			<p class="text-muted-foreground text-sm">{t(localeStore.t.finance.projectedUntilRetirement, 'Projected expenses from now until retirement.')}</p>
 		</div>
 		<div class="flex items-center gap-3">
 			{#if lifetimeSummary}
-				<Badge variant="secondary">Nominal: {fmt(lifetimeSummary.nominalGrandTotal)}</Badge>
-				<Badge variant="default">Inflated: {fmt(lifetimeSummary.inflatedGrandTotal)}</Badge>
+				<Badge variant="secondary">{t(localeStore.t.finance.nominal, 'Nominal')}: {fmt(lifetimeSummary.nominalGrandTotal)}</Badge>
+				<Badge variant="default">{t(localeStore.t.finance.inflationAdjusted, 'Inflated')}: {fmt(lifetimeSummary.inflatedGrandTotal)}</Badge>
 			{/if}
 		</div>
 	</div>
@@ -106,24 +175,88 @@ const categoryLabel = (cat: Str): Str => {
 	<!-- Inflation toggle -->
 	<div class="flex items-center gap-3">
 		<Switch bind:checked={applyInflation} id="inflation-toggle" />
-		<Label for="inflation-toggle">Apply Inflation</Label>
+		<Label for="inflation-toggle">{t(localeStore.t.finance.showInflationToggle, 'Apply Inflation')}</Label>
 	</div>
+
+	<!-- Per-Category Inflation Rates -->
+	<Card>
+		<CardHeader>
+			<CardTitle>{t(localeStore.t.finance.perCategoryInflation, 'Inflation Rates by Category')}</CardTitle>
+		</CardHeader>
+		<CardContent>
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+				{#each inflationCategories as cat}
+					<div class="flex flex-col gap-2">
+						<Label for="inflation-{cat}">{inflationCategoryLabels[cat]}</Label>
+						<div class="flex items-center gap-2">
+							<Input
+								id="inflation-{cat}"
+								type="number"
+								step="0.1"
+								min="0"
+								max="100"
+								bind:value={inflationEdits[cat]}
+								class="w-24"
+							/>
+							<span class="text-sm text-muted-foreground">%</span>
+							<Button variant="outline" size="sm" onclick={() => saveInflationRate(cat)}>
+								{t(localeStore.t.common.save, 'Save')}
+							</Button>
+						</div>
+					</div>
+				{/each}
+			</div>
+			<p class="mt-3 text-xs text-muted-foreground">
+				{t(localeStore.t.finance.defaultRateHint, 'Default rate')}: {(data.settings.defaultInflationRate * 100).toFixed(1)}%
+			</p>
+		</CardContent>
+	</Card>
+
+	<!-- Cumulative Cost Curve -->
+	{#if cumulativeData.length > 0}
+		<Card>
+			<CardHeader>
+				<CardTitle>{t(localeStore.t.finance.cumulativeCosts, 'Cumulative Cost Curve')}</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<div class="h-[350px]">
+					<Chart
+						data={cumulativeData}
+						x="year"
+						y="cumulative"
+						xScale={scaleLinear()}
+						xDomain={[cumulativeData[0]?.year ?? 0, cumulativeData[cumulativeData.length - 1]?.year ?? 1]}
+						yDomain={[0, cumulativeMax]}
+						yNice
+						padding={{ top: 20, right: 16, bottom: 40, left: 80 }}
+					>
+						<Svg>
+							<Axis placement="left" format={(d) => `$${(d / 1000).toFixed(0)}k`} />
+							<Axis placement="bottom" format={(d) => String(Math.round(d))} />
+							<Area fill="#3b82f6" fillOpacity={0.15} class="stroke-none" />
+							<Spline stroke="#3b82f6" class="fill-none stroke-2" />
+						</Svg>
+					</Chart>
+				</div>
+			</CardContent>
+		</Card>
+	{/if}
 
 	<!-- Per-item breakdown table -->
 	{#if sortedItems.length > 0}
 		<Card>
 			<CardHeader>
-				<CardTitle>Per-Item Breakdown</CardTitle>
+				<CardTitle>{t(localeStore.t.finance.perItemBreakdown, 'Per-Item Breakdown')}</CardTitle>
 			</CardHeader>
 			<CardContent>
 				<Table.Root>
 					<Table.Header>
 						<Table.Row>
-							<Table.Head>Name</Table.Head>
-							<Table.Head>Category</Table.Head>
-							<Table.Head class="text-right">Annual Cost</Table.Head>
-							<Table.Head class="text-right">Nominal Total</Table.Head>
-							<Table.Head class="text-right">Inflation-Adjusted Total</Table.Head>
+							<Table.Head>{t(localeStore.t.finance.name, 'Name')}</Table.Head>
+							<Table.Head>{t(localeStore.t.finance.category, 'Category')}</Table.Head>
+							<Table.Head class="text-right">{t(localeStore.t.finance.annualCostLabel, 'Annual Cost')}</Table.Head>
+							<Table.Head class="text-right">{t(localeStore.t.finance.nominal, 'Nominal Total')}</Table.Head>
+							<Table.Head class="text-right">{t(localeStore.t.finance.inflationAdjusted, 'Inflation-Adjusted Total')}</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
@@ -143,7 +276,7 @@ const categoryLabel = (cat: Str): Str => {
 					</Table.Body>
 					<Table.Footer>
 						<Table.Row>
-							<Table.Cell colspan={3} class="font-semibold">Grand Total</Table.Cell>
+							<Table.Cell colspan={3} class="font-semibold">{t(localeStore.t.finance.grandTotal, 'Grand Total')}</Table.Cell>
 							<Table.Cell class="text-right font-mono font-semibold">
 								{#if lifetimeSummary}
 									{fmt(lifetimeSummary.nominalGrandTotal)}
@@ -165,20 +298,20 @@ const categoryLabel = (cat: Str): Str => {
 	{#if displayProjections.length > 0}
 		<Card>
 			<CardHeader>
-				<CardTitle>Year-by-Year Projection</CardTitle>
+				<CardTitle>{t(localeStore.t.finance.yearByYear, 'Year-by-Year Projection')}</CardTitle>
 			</CardHeader>
 			<CardContent>
 				<div class="overflow-x-auto">
 					<Table.Root>
 						<Table.Header>
 							<Table.Row>
-								<Table.Head>Year</Table.Head>
-								<Table.Head class="text-right">Monthly</Table.Head>
-								<Table.Head class="text-right">Lifetime Expenses</Table.Head>
-								<Table.Head class="text-right">Replacements</Table.Head>
-								<Table.Head class="text-right">Travel</Table.Head>
-								<Table.Head class="text-right">Purchases</Table.Head>
-								<Table.Head class="text-right">Total</Table.Head>
+								<Table.Head>{t(localeStore.t.finance.year, 'Year')}</Table.Head>
+								<Table.Head class="text-right">{t(localeStore.t.finance.monthlyBurnRate, 'Monthly')}</Table.Head>
+								<Table.Head class="text-right">{t(localeStore.t.finance.lifetimeExpenses, 'Lifetime Expenses')}</Table.Head>
+								<Table.Head class="text-right">{t(localeStore.t.finance.replacementCosts, 'Replacements')}</Table.Head>
+								<Table.Head class="text-right">{t(localeStore.t.finance.categoryTravel, 'Travel')}</Table.Head>
+								<Table.Head class="text-right">{t(localeStore.t.finance.upcomingPurchases, 'Purchases')}</Table.Head>
+								<Table.Head class="text-right">{t(localeStore.t.finance.total, 'Total')}</Table.Head>
 							</Table.Row>
 						</Table.Header>
 						<Table.Body>
@@ -196,7 +329,7 @@ const categoryLabel = (cat: Str): Str => {
 						</Table.Body>
 						<Table.Footer>
 							<Table.Row>
-								<Table.Cell colspan={6} class="font-semibold">Grand Total</Table.Cell>
+								<Table.Cell colspan={6} class="font-semibold">{t(localeStore.t.finance.grandTotal, 'Grand Total')}</Table.Cell>
 								<Table.Cell class="text-right font-mono font-bold">{fmt(projectionGrandTotal)}</Table.Cell>
 							</Table.Row>
 						</Table.Footer>

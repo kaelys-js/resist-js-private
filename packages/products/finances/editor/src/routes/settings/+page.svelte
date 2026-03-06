@@ -2,12 +2,15 @@
 import type { Str, Num } from '@/schemas/common';
 import type { Settings, InflationConfig } from '$lib/schemas/finances';
 import { invalidateAll } from '$app/navigation';
+import { localeStore, t } from '$lib/i18n.svelte';
 import { Button } from '$lib/components/ui/button/index.js';
 import * as Card from '$lib/components/ui/card/index.js';
 import { Input } from '$lib/components/ui/input/index.js';
 import { Label } from '$lib/components/ui/label/index.js';
 import { Separator } from '$lib/components/ui/separator/index.js';
 import * as Table from '$lib/components/ui/table/index.js';
+import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 
 type PageData = { settings: Settings; inflation: InflationConfig[] };
 let { data }: { data: PageData } = $props();
@@ -60,24 +63,24 @@ $effect(() => {
 </script>
 
 <div class="flex flex-1 flex-col gap-6 p-6">
-	<h1 class="text-2xl font-semibold tracking-tight">Settings</h1>
+	<h1 class="text-2xl font-semibold tracking-tight">{t(localeStore.t.common.settings, 'Settings')}</h1>
 
 	<!-- General Settings -->
 	<Card.Card>
 		<Card.CardHeader>
-			<Card.CardTitle>General Settings</Card.CardTitle>
+			<Card.CardTitle>{t(localeStore.t.finance.generalSettings, 'General Settings')}</Card.CardTitle>
 			<Card.CardDescription>
-				Configure your birth date, retirement age, and default inflation rate.
+				{t(localeStore.t.finance.settingsDesc, 'Configure your birth date, retirement age, and default inflation rate.')}
 			</Card.CardDescription>
 		</Card.CardHeader>
 		<Card.CardContent>
 			<div class="flex flex-col gap-4">
 				<div class="flex flex-col gap-2">
-					<Label for="birth-date">Birth Date</Label>
+					<Label for="birth-date">{t(localeStore.t.finance.birthDate, 'Birth Date')}</Label>
 					<Input id="birth-date" type="date" bind:value={birthDate} />
 				</div>
 				<div class="flex flex-col gap-2">
-					<Label for="retirement-age">Retirement Age</Label>
+					<Label for="retirement-age">{t(localeStore.t.finance.retirementAge, 'Retirement Age')}</Label>
 					<Input
 						id="retirement-age"
 						type="number"
@@ -87,7 +90,7 @@ $effect(() => {
 					/>
 				</div>
 				<div class="flex flex-col gap-2">
-					<Label for="inflation-rate">Default Inflation Rate</Label>
+					<Label for="inflation-rate">{t(localeStore.t.finance.inflationRate, 'Default Inflation Rate')}</Label>
 					<Input
 						id="inflation-rate"
 						type="number"
@@ -97,14 +100,38 @@ $effect(() => {
 						bind:value={defaultInflationRate}
 					/>
 					<p class="text-muted-foreground text-sm">
-						Enter as a decimal (e.g. 0.02 for 2%).
+						{t(localeStore.t.finance.decimalHint, 'Enter as a decimal (e.g. 0.02 for 2%).')}
 					</p>
 				</div>
 			</div>
 		</Card.CardContent>
 		<Card.CardFooter>
-			<Button onclick={saveSettings}>Save Settings</Button>
+			<Button onclick={saveSettings}>{t(localeStore.t.finance.saveChanges, 'Save Settings')}</Button>
 		</Card.CardFooter>
+	</Card.Card>
+
+	<Separator />
+
+	<!-- Appearance -->
+	<Card.Card>
+		<Card.CardHeader>
+			<Card.CardTitle>{t(localeStore.t.settings.appearance, 'Appearance')}</Card.CardTitle>
+			<Card.CardDescription>
+				{t(localeStore.t.finance.appearanceDesc, 'Choose a colour theme for the editor.')}
+			</Card.CardDescription>
+		</Card.CardHeader>
+		<Card.CardContent>
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger>
+					{#snippet child({ props })}
+						<Button variant='outline' {...props}>{t(localeStore.t.finance.themeSelection, 'Change theme')}</Button>
+					{/snippet}
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content align='start'>
+					<ThemeSwitcher />
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
+		</Card.CardContent>
 	</Card.Card>
 
 	<Separator />
@@ -112,9 +139,9 @@ $effect(() => {
 	<!-- Inflation Rates by Category -->
 	<Card.Card>
 		<Card.CardHeader>
-			<Card.CardTitle>Inflation Rates by Category</Card.CardTitle>
+			<Card.CardTitle>{t(localeStore.t.finance.perCategoryInflation, 'Inflation Rates by Category')}</Card.CardTitle>
 			<Card.CardDescription>
-				Override the default inflation rate for specific expense categories.
+				{t(localeStore.t.finance.inflationOverrideDesc, 'Override the default inflation rate for specific expense categories.')}
 			</Card.CardDescription>
 		</Card.CardHeader>
 		<Card.CardContent class="p-0">
@@ -122,14 +149,14 @@ $effect(() => {
 				<Table.Table>
 					<Table.TableHeader>
 						<Table.TableRow>
-							<Table.TableHead>Category</Table.TableHead>
-							<Table.TableHead class="text-right">Rate (%)</Table.TableHead>
+							<Table.TableHead>{t(localeStore.t.finance.category, 'Category')}</Table.TableHead>
+							<Table.TableHead class="text-right">{t(localeStore.t.finance.ratePercent, 'Rate (%)')}</Table.TableHead>
 						</Table.TableRow>
 					</Table.TableHeader>
 					<Table.TableBody>
 						{#each inflationRates as item, index (item.category)}
 							<Table.TableRow>
-								<Table.TableCell class="font-medium capitalize">
+								<Table.TableCell class="font-medium">
 									{item.category}
 								</Table.TableCell>
 								<Table.TableCell class="text-right">
@@ -152,13 +179,13 @@ $effect(() => {
 				</Table.Table>
 			{:else}
 				<div class="text-muted-foreground py-8 text-center text-sm">
-					No category-specific inflation rates configured.
+					{t(localeStore.t.finance.noInflationRates, 'No category-specific inflation rates configured.')}
 				</div>
 			{/if}
 		</Card.CardContent>
 		{#if inflationRates.length > 0}
 			<Card.CardFooter>
-				<Button onclick={saveInflation}>Save Inflation Rates</Button>
+				<Button onclick={saveInflation}>{t(localeStore.t.finance.saveChanges, 'Save Inflation Rates')}</Button>
 			</Card.CardFooter>
 		{/if}
 	</Card.Card>

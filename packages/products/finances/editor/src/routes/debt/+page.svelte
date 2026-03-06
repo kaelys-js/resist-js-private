@@ -1,4 +1,5 @@
 <script lang="ts">
+import { localeStore, t } from '$lib/i18n.svelte';
 import type { Str, Num, Bool } from '@/schemas/common';
 import type { DebtItem } from '$lib/schemas/finances';
 import { invalidateAll } from '$app/navigation';
@@ -29,7 +30,7 @@ let formNotes: Str = $state('');
 // ── Derived ─────────────────────────────────────────────────────────
 const totalDebt: Num = $derived(data.debts.reduce((sum: Num, d: DebtItem) => sum + d.balance, 0));
 
-const dialogTitle: Str = $derived(editingId ? 'Edit Debt' : 'Add Debt');
+const dialogTitle: Str = $derived(editingId ? t(localeStore.t.finance.editItem, 'Edit Debt') : t(localeStore.t.finance.addItem, 'Add Debt'));
 
 // ── Formatting ──────────────────────────────────────────────────────
 function formatCurrency(value: Num): Str {
@@ -94,10 +95,10 @@ async function handleDelete(id: Str): Promise<void> {
 	<!-- Header -->
 	<div class="flex items-center justify-between">
 		<div class="flex items-center gap-3">
-			<h1 class="text-2xl font-semibold tracking-tight">Debt</h1>
+			<h1 class="text-2xl font-semibold tracking-tight">{t(localeStore.t.finance.totalDebt, 'Debt')}</h1>
 			<Badge variant="secondary">{formatCurrency(totalDebt)}</Badge>
 		</div>
-		<Button onclick={openAddDialog}>Add Debt</Button>
+		<Button onclick={openAddDialog}>{t(localeStore.t.finance.addItem, 'Add Debt')}</Button>
 	</div>
 
 	<Separator />
@@ -106,11 +107,11 @@ async function handleDelete(id: Str): Promise<void> {
 	<Table.Root>
 		<Table.Header>
 			<Table.Row>
-				<Table.Head>Name</Table.Head>
-				<Table.Head class="text-right">Balance</Table.Head>
-				<Table.Head>Estimated?</Table.Head>
-				<Table.Head>Notes</Table.Head>
-				<Table.Head class="text-right">Actions</Table.Head>
+				<Table.Head>{t(localeStore.t.finance.name, 'Name')}</Table.Head>
+				<Table.Head class="text-right">{t(localeStore.t.finance.balance, 'Balance')}</Table.Head>
+				<Table.Head>{t(localeStore.t.finance.estimated, 'Estimated?')}</Table.Head>
+				<Table.Head>{t(localeStore.t.finance.notes, 'Notes')}</Table.Head>
+				<Table.Head class="text-right">{t(localeStore.t.finance.actions, 'Actions')}</Table.Head>
 			</Table.Row>
 		</Table.Header>
 		<Table.Body>
@@ -120,7 +121,7 @@ async function handleDelete(id: Str): Promise<void> {
 					<Table.Cell class="text-right">{formatCurrency(debt.balance)}</Table.Cell>
 					<Table.Cell>
 						<Badge variant={debt.isEstimate ? 'outline' : 'secondary'}>
-							{debt.isEstimate ? 'Yes' : 'No'}
+							{debt.isEstimate ? t(localeStore.t.finance.yes, 'Yes') : t(localeStore.t.finance.no, 'No')}
 						</Badge>
 					</Table.Cell>
 					<Table.Cell class="text-muted-foreground max-w-[200px] truncate">
@@ -129,10 +130,10 @@ async function handleDelete(id: Str): Promise<void> {
 					<Table.Cell class="text-right">
 						<div class="flex justify-end gap-2">
 							<Button variant="outline" size="sm" onclick={() => openEditDialog(debt)}>
-								Edit
+								{t(localeStore.t.finance.editItem, 'Edit')}
 							</Button>
 							<Button variant="destructive" size="sm" onclick={() => handleDelete(debt.id)}>
-								Delete
+								{t(localeStore.t.finance.deleteItem, 'Delete')}
 							</Button>
 						</div>
 					</Table.Cell>
@@ -140,7 +141,7 @@ async function handleDelete(id: Str): Promise<void> {
 			{:else}
 				<Table.Row>
 					<Table.Cell colspan={5} class="text-muted-foreground text-center">
-						No debts recorded.
+						{t(localeStore.t.finance.noDebtsRecorded, 'No debts recorded.')}
 					</Table.Cell>
 				</Table.Row>
 			{/each}
@@ -153,7 +154,7 @@ async function handleDelete(id: Str): Promise<void> {
 			<Dialog.Header>
 				<Dialog.Title>{dialogTitle}</Dialog.Title>
 				<Dialog.Description>
-					{editingId ? 'Update the debt details below.' : 'Enter the details for the new debt.'}
+					{editingId ? t(localeStore.t.finance.editDebtDesc, 'Update the debt details below.') : t(localeStore.t.finance.addDebtDesc, 'Enter the details for the new debt.')}
 				</Dialog.Description>
 			</Dialog.Header>
 
@@ -165,38 +166,38 @@ async function handleDelete(id: Str): Promise<void> {
 				}}
 			>
 				<div class="flex flex-col gap-2">
-					<Label for="debt-name">Name</Label>
-					<Input id="debt-name" bind:value={formName} placeholder="e.g. Credit Card" required />
+					<Label for="debt-name">{t(localeStore.t.finance.name, 'Name')}</Label>
+					<Input id="debt-name" bind:value={formName} placeholder={t(localeStore.t.finance.placeholderEgCreditCard, 'e.g. Credit Card')} required />
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<Label for="debt-balance">Balance ($)</Label>
+					<Label for="debt-balance">{t(localeStore.t.finance.balance, 'Balance')} ($)</Label>
 					<Input
 						id="debt-balance"
 						type="number"
 						step="0.01"
 						min="0"
 						bind:value={formBalance}
-						placeholder="0.00"
+						placeholder={t(localeStore.t.finance.placeholderAmount, '0.00')}
 						required
 					/>
 				</div>
 
 				<div class="flex items-center gap-3">
 					<Switch id="debt-estimate" bind:checked={formIsEstimate} />
-					<Label for="debt-estimate">Estimated balance</Label>
+					<Label for="debt-estimate">{t(localeStore.t.finance.estimated, 'Estimated')} {t(localeStore.t.finance.balance, 'balance')}</Label>
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<Label for="debt-notes">Notes</Label>
-					<Input id="debt-notes" bind:value={formNotes} placeholder="Optional notes" />
+					<Label for="debt-notes">{t(localeStore.t.finance.notes, 'Notes')}</Label>
+					<Input id="debt-notes" bind:value={formNotes} placeholder={t(localeStore.t.finance.optionalNotes, 'Optional notes')} />
 				</div>
 
 				<Dialog.Footer>
 					<Button type="button" variant="outline" onclick={() => (dialogOpen = false)}>
-						Cancel
+						{t(localeStore.t.common.cancel, 'Cancel')}
 					</Button>
-					<Button type="submit">{editingId ? 'Save Changes' : 'Add Debt'}</Button>
+					<Button type="submit">{editingId ? t(localeStore.t.finance.saveChanges, 'Save Changes') : t(localeStore.t.finance.addItem, 'Add Debt')}</Button>
 				</Dialog.Footer>
 			</form>
 		</Dialog.Content>
