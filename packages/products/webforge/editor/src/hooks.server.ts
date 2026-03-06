@@ -211,6 +211,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Values are sanitized to prevent XSS via HTML attribute interpolation.
 	const sidebarPxRaw: Str | undefined = event.cookies.get('app:sidebar-px');
 	const sidebarPx: Num | null = sanitizeSidebarWidth(sidebarPxRaw ?? null);
+	event.locals.sidebarPx = sidebarPx;
 	const themeRaw: Str | undefined = event.cookies.get('app:theme');
 	const theme: Str = sanitizeTheme(themeRaw ?? null);
 

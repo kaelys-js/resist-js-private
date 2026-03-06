@@ -1,8 +1,16 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import LanguageSwitcherTest from './LanguageSwitcherTest.svelte';
 
 describe('LanguageSwitcher', () => {
+	// bits-ui's BodyScrollLock schedules a 24ms setTimeout on destroy.
+	// Without fake timers, the callback fires after jsdom teardown → "document is not defined".
+	beforeEach(() => vi.useFakeTimers());
+	afterEach(() => {
+		vi.runAllTimers();
+		vi.useRealTimers();
+	});
+
 	it('renders sub-trigger with "Language" text', () => {
 		render(LanguageSwitcherTest);
 		expect(screen.getByText('Language')).toBeInTheDocument();

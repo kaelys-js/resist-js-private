@@ -37,6 +37,7 @@ export const load: LayoutServerLoad = ({ locals, url }) => {
 	if (!user) {
 		return {
 			locale: locals.locale,
+			sidebarPx: locals.sidebarPx,
 			user: null,
 			project: null,
 			scenes: [] as readonly ServerScene[],
@@ -66,5 +67,11 @@ export const load: LayoutServerLoad = ({ locals, url }) => {
 		return result.ok ? result.data : ([] as readonly ServerScene[]);
 	})();
 
-	return { locale: locals.locale, user, project: projectPromise, scenes: scenesPromise };
+	return {
+		locale: locals.locale,
+		sidebarPx: locals.sidebarPx,
+		user,
+		project: projectPromise,
+		scenes: scenesPromise,
+	};
 };

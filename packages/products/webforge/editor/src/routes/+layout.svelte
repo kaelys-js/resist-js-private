@@ -184,7 +184,8 @@ let sidebarPane: PaneAPI | undefined = $state();
 let providerEl: HTMLDivElement | null = $state(null);
 
 // Track current pixel width so ResizeObserver can maintain it on viewport changes.
-let currentSidebarPx: Num = SIDEBAR_DEFAULT_PX;
+// Initialize from server data (cookie) to prevent sidebar width flash on first paint.
+let currentSidebarPx: Num = data.sidebarPx ?? SIDEBAR_DEFAULT_PX;
 
 // Custom storage: persists sidebar width in pixels and converts to/from
 // PaneForge percentages based on current viewport width. This ensures the
@@ -404,7 +405,7 @@ const pageTitle: Str = $derived(`${store.app.appName} - ${breadcrumbSegment} - $
 	open={store.app.sidebarOpen}
 	onOpenChange={useResizable ? handleSidebarOpenChange : undefined}
 	class="min-w-[450px]"
-	style="--sidebar-width: {SIDEBAR_DEFAULT_PX}px; --header-height: calc(var(--spacing) * 12);"
+	style="--sidebar-width: {data.sidebarPx ?? SIDEBAR_DEFAULT_PX}px; --header-height: calc(var(--spacing) * 12);"
 >
 	{#if useResizable}
 		<Resizable.PaneGroup
@@ -443,6 +444,8 @@ const pageTitle: Str = $derived(`${store.app.appName} - ${breadcrumbSegment} - $
 		</Resizable.PaneGroup>
 	{:else}
 		<AppSidebar user={data.user} project={resolvedProject} scenes={displayScenes} {projectLoading} {scenesLoading} />
+		<!-- Spacer matches the Resizable.Handle width (w-1.5 = 6px) to prevent layout shift when hydration enables the resize handle. -->
+		<div class="w-1.5 shrink-0"></div>
 		<Sidebar.Inset>
 			<SiteHeader isError={Boolean(page.error)} user={data.user} {activeSceneName} />
 			<div class="flex flex-1 flex-col">
