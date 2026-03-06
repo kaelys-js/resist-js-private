@@ -12,7 +12,7 @@
  * @module
  */
 
-import type { Str, Bool } from '@/schemas/common';
+import type { Str, Bool, Num } from '@/schemas/common';
 import type { EditorDevtools } from '$lib/debug/devtools-api.svelte';
 import type { BuildInfo } from '$lib/schemas/build-info';
 import type { ServerUser, DataService } from '$lib/server/data/types';
@@ -37,6 +37,8 @@ declare global {
 			db: DataService;
 			/** Whether the client sent `Save-Data: on` (data-saver mode). */
 			saveData: Bool;
+			/** Sanitized sidebar width from `app:sidebar-px` cookie, or `null` if absent/invalid. */
+			sidebarPx: Num | null;
 		}
 		interface Platform {
 			env: {
