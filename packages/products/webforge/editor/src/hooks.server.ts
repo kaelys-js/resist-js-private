@@ -11,6 +11,7 @@ import { resolveLocale } from '$lib/server/locale-detection';
 import type { ServerUser } from '$lib/server/data/types';
 import { MOCK_USER } from '$lib/server/mock/data';
 import { createDataService } from '$lib/server/data/index';
+import { sanitizeSidebarWidth, sanitizeTheme } from '$lib/utils/preference-cookie';
 
 /** Security headers applied to every response (safe in both dev and prod). */
 const BASE_HEADERS: ReadonlyArray<readonly [string, string]> = [
@@ -204,6 +205,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 		Math.min(10_000, Number(mockDelayParam ?? mockDelayCookie) || 0),
 	);
 	event.locals.db = createDataService(event.platform, mockDelayMs);
+	event.locals.saveData = event.request.headers.get('save-data') === 'on';
+
+	// Read client preference cookies for SSR hydration flash prevention.
+	// Values are sanitized to prevent XSS via HTML attribute interpolation.
+	const sidebarPxRaw: Str | undefined = event.cookies.get('app:sidebar-px');
+	const sidebarPx: Num | null = sanitizeSidebarWidth(sidebarPxRaw ?? null);
+	const themeRaw: Str | undefined = event.cookies.get('app:theme');
+	const theme: Str = sanitizeTheme(themeRaw ?? null);
+
 	const dirResult = getTextDirection(locale);
 	// UI boundary — log direction lookup failure, fall back to LTR
 	if (!dirResult.ok) {
@@ -213,8 +223,18 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 	const dir: Str = dirResult.ok ? dirResult.data : 'ltr';
 
+	const sidebarAttr: Str =
+		sidebarPx === null ? 'data-sidebar-width=""' : `data-sidebar-width="${String(sidebarPx)}"`;
+
+	const themeAttr: Str = theme ? `data-theme="${theme}"` : 'data-theme=""';
+
 	const response: Response = await resolve(event, {
-		transformPageChunk: ({ html }) => html.replace('%lang%', locale).replace('%dir%', dir),
+		transformPageChunk: ({ html }) =>
+			html
+				.replace('%lang%', locale)
+				.replace('%dir%', dir)
+				.replace('data-sidebar-width=""', sidebarAttr)
+				.replace('data-theme=""', themeAttr),
 	});
 
 	// Safety net: strip CSP headers in dev mode. SvelteKit's SSR renderer

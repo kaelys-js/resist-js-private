@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="%lang%" dir="%dir%">
+<html lang="%lang%" dir="%dir%" data-theme="" data-sidebar-width="">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -15,11 +15,19 @@
 		<link rel="manifest" href="/manifest.webmanifest" />
 		<script nonce="%sveltekit.nonce%">
 			(function () { try {
+				var d = document.documentElement;
+				// Mode — prevent dark/light flash (existing)
 				var m = localStorage.getItem('app:mode');
 				var dark = m === 'dark' || (m !== 'light' && matchMedia('(prefers-color-scheme:dark)').matches);
-				if (dark) document.documentElement.classList.add('dark');
-				document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
-			} catch (e) { console.error('[{{APP_NAME}}] Theme preference could not be loaded — falling back to system default:', e); }
+				if (dark) d.classList.add('dark');
+				d.style.colorScheme = dark ? 'dark' : 'light';
+				// Theme — server injects data-theme via cookie; localStorage fallback for first visit
+				var t = d.getAttribute('data-theme');
+				if (!t) { t = localStorage.getItem('app:theme') || ''; if (t) d.setAttribute('data-theme', t); }
+				// Sidebar width — server injects data-sidebar-width via cookie
+				var sw = d.getAttribute('data-sidebar-width');
+				if (sw && +sw > 0) d.style.setProperty('--sidebar-width', sw + 'px');
+			} catch (e) { console.error('[{{APP_NAME}}] Preferences could not be loaded:', e); }
 			})();
 		</script>
 		%sveltekit.head%

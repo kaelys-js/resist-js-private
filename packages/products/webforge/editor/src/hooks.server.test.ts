@@ -23,12 +23,24 @@ const { handle, handleError } = await import('./hooks.server');
  * @param cookie - Value for the 'locale' cookie
  * @param acceptLanguage - Value for the Accept-Language header
  * @param pathname - URL pathname for the request
+ * @param extraCookies - Additional cookie name→value pairs (e.g. `{ 'app:theme': 'midnight' }`)
+ * @param extraHeaders - Additional header name→value pairs (e.g. `{ 'save-data': 'on' }`)
  * @returns Mock RequestEvent with cookies and request headers
  */
-function mockEvent(cookie: Str, acceptLanguage: NullableStr, pathname = '/'): RequestEvent {
+function mockEvent(
+	cookie: Str,
+	acceptLanguage: NullableStr,
+	pathname = '/',
+	extraCookies: Record<Str, Str> = {},
+	extraHeaders: Record<Str, Str> = {},
+): RequestEvent {
+	const allCookies: Record<Str, Str | undefined> = {
+		locale: cookie || undefined,
+		...extraCookies,
+	};
 	return {
 		cookies: {
-			get: (name: Str): Str | undefined => (name === 'locale' ? cookie || undefined : undefined),
+			get: (name: Str): Str | undefined => allCookies[name],
 			set: vi.fn(),
 			delete: vi.fn(),
 			getAll: vi.fn(),
@@ -36,7 +48,11 @@ function mockEvent(cookie: Str, acceptLanguage: NullableStr, pathname = '/'): Re
 		},
 		request: {
 			headers: {
-				get: (name: Str): NullableStr => (name === 'accept-language' ? acceptLanguage : null),
+				get: (name: Str): NullableStr => {
+					if (name === 'accept-language') return acceptLanguage;
+					const lower: Str = name.toLowerCase();
+					return extraHeaders[lower] ?? null;
+				},
 			},
 		},
 		url: new URL(`http://localhost${pathname}`),
@@ -141,6 +157,70 @@ describe('hooks.server handle', () => {
 		expect(event.locals.db).toBeDefined();
 		expect(event.locals.db.projects).toBeDefined();
 		expect(event.locals.db.scenes).toBeDefined();
+	});
+
+	// ── Hydration flash prevention (sidebar + theme cookies) ────────────
+	it('injects sidebar width from cookie into transformPageChunk', async () => {
+		const event = mockEvent('en', null, '/', { 'app:sidebar-px': '350' });
+		const { resolve, getTransformed } = mockResolve();
+		await handle({ event, resolve });
+		const html: Str = getTransformed('<html data-sidebar-width="" data-theme="">');
+		expect(html).toContain('data-sidebar-width="350"');
+	});
+
+	it('injects theme from cookie into transformPageChunk', async () => {
+		const event = mockEvent('en', null, '/', { 'app:theme': 'midnight' });
+		const { resolve, getTransformed } = mockResolve();
+		await handle({ event, resolve });
+		const html: Str = getTransformed('<html data-sidebar-width="" data-theme="">');
+		expect(html).toContain('data-theme="midnight"');
+	});
+
+	it('leaves data-sidebar-width empty when cookie is missing', async () => {
+		const event = mockEvent('en', null);
+		const { resolve, getTransformed } = mockResolve();
+		await handle({ event, resolve });
+		const html: Str = getTransformed('<html data-sidebar-width="" data-theme="">');
+		expect(html).toContain('data-sidebar-width=""');
+	});
+
+	it('leaves data-theme empty when cookie is missing', async () => {
+		const event = mockEvent('en', null);
+		const { resolve, getTransformed } = mockResolve();
+		await handle({ event, resolve });
+		const html: Str = getTransformed('<html data-theme="">');
+		expect(html).toContain('data-theme=""');
+	});
+
+	it('sanitizes invalid sidebar cookie (non-numeric)', async () => {
+		const event = mockEvent('en', null, '/', { 'app:sidebar-px': '"><script>alert(1)</script>' });
+		const { resolve, getTransformed } = mockResolve();
+		await handle({ event, resolve });
+		const html: Str = getTransformed('<html data-sidebar-width="">');
+		expect(html).toContain('data-sidebar-width=""');
+	});
+
+	it('sanitizes invalid theme cookie (unsupported value)', async () => {
+		const event = mockEvent('en', null, '/', { 'app:theme': 'neon' });
+		const { resolve, getTransformed } = mockResolve();
+		await handle({ event, resolve });
+		const html: Str = getTransformed('<html data-theme="">');
+		expect(html).toContain('data-theme=""');
+	});
+
+	// ── Save-Data header ────────────────────────────────────────────────
+	it('sets event.locals.saveData to true when Save-Data header is on', async () => {
+		const event = mockEvent('en', null, '/', {}, { 'save-data': 'on' });
+		const { resolve } = mockResolve();
+		await handle({ event, resolve });
+		expect(event.locals.saveData).toBe(true);
+	});
+
+	it('sets event.locals.saveData to false when header is missing', async () => {
+		const event = mockEvent('en', null);
+		const { resolve } = mockResolve();
+		await handle({ event, resolve });
+		expect(event.locals.saveData).toBe(false);
 	});
 });
 

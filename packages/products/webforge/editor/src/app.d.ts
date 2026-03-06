@@ -35,6 +35,8 @@ declare global {
 			locale: Str;
 			user: ServerUser | null;
 			db: DataService;
+			/** Whether the client sent `Save-Data: on` (data-saver mode). */
+			saveData: Bool;
 		}
 		interface Platform {
 			env: {
