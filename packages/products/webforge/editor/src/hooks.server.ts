@@ -193,6 +193,18 @@ export const handle: Handle = async ({ event, resolve }) => {
 		transformPageChunk: ({ html }) => html.replace('%lang%', locale).replace('%dir%', dir),
 	});
 
+	// Safety net: strip CSP headers in dev mode. SvelteKit's SSR renderer
+	// (render.js) injects a content-security-policy header when internal.js
+	// has truthy CSP directives. If a concurrent `pnpm build` or similar
+	// regenerates .svelte-kit/generated/server/internal.js with production
+	// CSP while the dev server is running, the dev server picks up the new
+	// file and starts enforcing CSP — blocking Vite's HMR inline scripts.
+	// This guard ensures CSP never leaks into dev regardless of internal.js state.
+	if (dev) {
+		response.headers.delete('content-security-policy');
+		response.headers.delete('content-security-policy-report-only');
+	}
+
 	for (const [name, value] of getSecurityHeaders()) {
 		response.headers.set(name, value);
 	}
