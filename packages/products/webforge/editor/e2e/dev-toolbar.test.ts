@@ -266,14 +266,14 @@ test.describe('dev toolbar — keyboard shortcuts', () => {
 		await expect(page.locator('[data-testid="dev-toolbar-debug"]')).not.toBeAttached();
 	});
 
-	test('Ctrl+4 cycles mode', async ({ page }) => {
+	test('Ctrl+5 cycles mode', async ({ page }) => {
 		await expandToolbar(page);
 		// Read initial mode from the mode button aria-label
 		const modeBtn = page.locator('[data-testid="toolbar-btn-mode"]');
 		const initialLabel: string = (await modeBtn.getAttribute('aria-label')) ?? '';
 		// Click body to ensure no button captures the key
 		await page.mouse.click(10, 10);
-		await page.keyboard.press('Control+Digit4');
+		await page.keyboard.press('Control+Digit5');
 		// Button label should change (mode cycles light→dark→system)
 		await expect
 			.poll(async () => {
@@ -543,5 +543,152 @@ test.describe('sidebar — keyboard shortcut', () => {
 		const text: string = (await kbd.textContent()) ?? '';
 		// cmdOrCtrl formats as ⌘b on Mac, Ctrl+b on PC
 		expect(text).toMatch(/Ctrl\+b|⌘b/);
+	});
+});
+
+// =============================================================================
+// Performance panel
+// =============================================================================
+
+test.describe('dev toolbar — performance panel', () => {
+	test('perf button visible in expanded toolbar', async ({ page }) => {
+		await expandToolbar(page);
+		await expect(page.locator('[data-testid="toolbar-btn-perf"]')).toBeVisible();
+	});
+
+	test('perf panel opens with Web Vitals section', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		const panel = page.locator('[data-testid="dev-toolbar-perf"]');
+		await expect(panel).toBeVisible();
+		await expect(panel.getByText('Performance')).toBeVisible();
+		await expect(panel.locator('[data-testid="dev-toolbar-perf-vitals"]')).toBeVisible();
+	});
+
+	test('perf panel shows Device & Connection section', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		const panel = page.locator('[data-testid="dev-toolbar-perf"]');
+		await expect(panel.locator('[data-testid="dev-toolbar-perf-device"]')).toBeVisible();
+	});
+
+	test('perf panel shows Beacon section', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		const panel = page.locator('[data-testid="dev-toolbar-perf"]');
+		await expect(panel.locator('[data-testid="dev-toolbar-perf-beacon"]')).toBeVisible();
+	});
+
+	test('perf panel shows "No data yet" for vitals before metrics arrive', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		const panel = page.locator('[data-testid="dev-toolbar-perf"]');
+		// On initial load before metrics populate, may show "No data yet"
+		// OR metrics may have already arrived — either is valid
+		const noData = panel.locator('[data-testid="perf-no-data"]');
+		const metrics = panel.locator('[data-testid^="perf-metric-"]');
+		// Either no data placeholder or at least one metric should be present
+		const noDataVisible: boolean = await noData.isVisible().catch(() => false);
+		const metricsCount: number = await metrics.count();
+		expect(noDataVisible || metricsCount > 0).toBe(true);
+	});
+
+	test('device section shows Connection Quality with colored dot', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		const qualityEl = page.locator('[data-testid="perf-quality"]');
+		await expect(qualityEl).toBeVisible();
+		// Should contain a colored dot (span with bg-* class)
+		const dot = qualityEl.locator('span.rounded-full');
+		await expect(dot).toBeVisible();
+	});
+
+	test('device section shows Network Speed', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		await expect(page.locator('[data-testid="perf-effective-type"]')).toBeVisible();
+	});
+
+	test('device section shows Device Memory', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		await expect(page.locator('[data-testid="perf-device-memory"]')).toBeVisible();
+	});
+
+	test('device section shows CPU Cores', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		await expect(page.locator('[data-testid="perf-hw-concurrency"]')).toBeVisible();
+	});
+
+	test('beacon section shows queue count', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		const queueEl = page.locator('[data-testid="perf-beacon-queued"]');
+		await expect(queueEl).toBeVisible();
+		// Should show format like "N/10"
+		const text: string = (await queueEl.textContent()) ?? '';
+		expect(text).toMatch(/\d+\/\d+/);
+	});
+
+	test('beacon section shows session ID (truncated)', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		const sessionEl = page.locator('[data-testid="perf-beacon-session"]');
+		await expect(sessionEl).toBeVisible();
+		// Session ID is truncated to 8 chars + ellipsis
+		const text: string = (await sessionEl.textContent()) ?? '';
+		expect(text).toMatch(/.{8}…/);
+	});
+
+	test('beacon section shows last sent time', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		const flushEl = page.locator('[data-testid="perf-beacon-flush"]');
+		await expect(flushEl).toBeVisible();
+		// Should show "Never" or a time string
+		const text: string = (await flushEl.textContent()) ?? '';
+		expect(text.length).toBeGreaterThan(0);
+	});
+
+	test('perf panel close button closes it', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		await expect(page.locator('[data-testid="dev-toolbar-perf"]')).toBeVisible();
+		await page.locator('[data-testid="panel-close-perf"]').click();
+		await expect(page.locator('[data-testid="dev-toolbar-perf"]')).not.toBeAttached();
+		// Toolbar bar remains open
+		await expect(page.locator('[data-testid="dev-toolbar-bar"]')).toBeVisible();
+	});
+
+	test('clicking perf button again closes panel', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		await expect(page.locator('[data-testid="dev-toolbar-perf"]')).toBeVisible();
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		await expect(page.locator('[data-testid="dev-toolbar-perf"]')).not.toBeAttached();
+	});
+
+	test('switching from perf to another panel closes perf', async ({ page }) => {
+		await expandToolbar(page);
+		await clickToolbarButton(page, 'toolbar-btn-perf');
+		await expect(page.locator('[data-testid="dev-toolbar-perf"]')).toBeVisible();
+		await clickToolbarButton(page, 'toolbar-btn-flags');
+		await expect(page.locator('[data-testid="dev-toolbar-perf"]')).not.toBeAttached();
+		await expect(page.locator('[data-testid="dev-toolbar-flags"]')).toBeVisible();
+	});
+});
+
+// =============================================================================
+// Performance panel — keyboard shortcut
+// =============================================================================
+
+test.describe('dev toolbar — perf keyboard shortcut', () => {
+	test('Ctrl+4 toggles perf panel', async ({ page }) => {
+		await expandToolbar(page);
+		await page.keyboard.press('Control+Digit4');
+		await expect(page.locator('[data-testid="dev-toolbar-perf"]')).toBeVisible();
+		await page.keyboard.press('Control+Digit4');
+		await expect(page.locator('[data-testid="dev-toolbar-perf"]')).not.toBeAttached();
 	});
 });

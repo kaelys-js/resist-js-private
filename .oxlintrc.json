@@ -564,7 +564,8 @@
 				"**/hooks.client.ts",
 				"**/debug/init.svelte.ts",
 				"**/debug/state-logger.svelte.ts",
-				"**/debug/devtools-api.svelte.ts"
+				"**/debug/devtools-api.svelte.ts",
+				"**/perf/vitals-logger.ts"
 			],
 			"rules": {
 				"no-console": "off"

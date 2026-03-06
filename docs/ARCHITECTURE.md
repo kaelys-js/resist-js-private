@@ -511,6 +511,95 @@ Both `hooks.server.ts` and `hooks.client.ts` call `setupGlobalErrorHandling()` w
 
 **Client (`hooks.client.ts`):** Console group logging via `logErrorToConsole` renders Release/Server entries, Tags, User context, Contexts, Help suggestions, Source pointers, and Related errors in styled console output.
 
+## Client Observability
+
+Real-time Web Vitals collection, beacon reporting, and connection quality awareness powered by Perfume.js.
+
+### Architecture
+
+```
+Browser (Perfume.js)
+  → analyticsTracker callback
+    → logVital()          — colorized %c console output (dev only)
+    → reportVitalToPanel() — pushes to DevToolbarPerf reactive store
+    → queueVital()        — adds to beacon queue
+    → updateFromNavigatorInfo() — updates connection quality state
+      ↓
+Beacon queue (max 10 metrics)
+  → flushVitals() on visibilitychange / queue full
+    → navigator.sendBeacon('/api/vitals', payload)
+      ↓
+/api/vitals POST endpoint
+  → validates VitalsBeaconPayloadSchema (strict, PII-stripped)
+  → log.info() structured output → Workers Logs → Logpush
+```
+
+### Key Modules
+
+| Module | Path | Purpose |
+|--------|------|---------|
+| `perfume.svelte.ts` | `src/lib/perf/` | Perfume.js initialization, binds analyticsTracker |
+| `vitals-logger.ts` | `src/lib/perf/` | Colorized `%c` console output for metric ratings |
+| `vitals-beacon.ts` | `src/lib/perf/` | Queue + flush via `sendBeacon` / `fetch` fallback |
+| `vitals-payload.ts` | `src/lib/perf/` | `VitalsBeaconPayloadSchema` — strict wire format |
+| `vitals-panel-store.svelte.ts` | `src/lib/perf/` | Reactive store for DevToolbarPerf panel display |
+| `connection.svelte.ts` | `src/lib/perf/` | Connection quality, effective type, device capabilities |
+| `+server.ts` | `src/routes/api/vitals/` | POST receiver — validates, logs, returns 204 |
+
+### Connection Quality
+
+Derived from `navigator.connection` API (where available):
+
+- **Quality tier:** `fast` / `medium` / `slow` / `unknown` — based on effectiveType + saveData + RTT
+- **Device capability:** `isLowEndDevice` (memory ≤ 2GB or cores ≤ 2), `isLowEndExperience` (low-end device + slow connection)
+- **Reactive:** Module-level `$state` runes update on `change` events
+
+### Dev Toolbar Performance Panel
+
+Fourth panel in the dev toolbar (Ctrl+4). Three sections:
+
+1. **Web Vitals** — Real-time metric values with color-coded rating badges (green/yellow/red)
+2. **Device & Connection** — Connection quality with colored dot indicator, friendly network type labels, memory, cores, data saver, low-end detection
+3. **Beacon** — Queue count (N/max) with tooltip explaining flush behavior, queued items detail view, session ID (truncated + full in tooltip), last sent time with explanatory tooltip
+
+### Beacon Behavior
+
+- Queue accumulates metrics until `visibilitychange` (tab hide) or queue reaches 10 items
+- Payload is PII-stripped: URL has query params removed, no user identifiers
+- Content-Type: `text/plain` (avoids CORS preflight with sendBeacon)
+- Falls back to `fetch({ keepalive: true })` if `sendBeacon` unavailable
+- Skipped entirely in dev mode (`import.meta.env.DEV`)
+
+## Hydration Flash Prevention
+
+Prevents layout shift and theme flash during Svelte hydration by injecting client preferences into SSR HTML.
+
+### Cookie Pattern
+
+Client-side JavaScript writes preference cookies via `setPreferenceCookie()` in `preference-cookie.ts`:
+
+| Cookie | Value | Example |
+|--------|-------|---------|
+| `app:sidebar-px` | Sidebar width in pixels | `350` |
+| `app:theme` | Theme identifier | `midnight` |
+
+Cookies use `max-age=1y`, `path=/`, `SameSite=Lax` to ensure they're sent with every SSR request.
+
+### SSR Injection (`hooks.server.ts`)
+
+1. `handle` hook reads `app:sidebar-px` and `app:theme` cookies
+2. Values are sanitized via `sanitizeSidebarWidth()` and `sanitizeTheme()` to prevent XSS via HTML attribute interpolation
+3. `transformPageChunk` replaces placeholder attributes in `app.html`:
+   - `data-sidebar-width=""` → `data-sidebar-width="350"`
+   - `data-theme=""` → `data-theme="midnight"`
+4. Client-side inline script reads these attributes on first paint to set CSS variables before Svelte hydrates
+
+### Security
+
+- `sanitizeSidebarWidth()` validates numeric range [100, 1000], rejects NaN/Infinity/non-numeric
+- `sanitizeTheme()` validates against `SUPPORTED_THEMES` picklist, rejects unknown values
+- Both sanitizers return safe defaults (empty string / null) for any invalid input
+
 ## Testing
 
 All modules have colocated `.test.ts` files (2753+ tests total). Pure math modules use logic tests; modules touching Babylon.js use NullEngine integration tests. Test harness from `@/config/test/harness` provides temp dirs, console capture, async helpers, and fake clock.
