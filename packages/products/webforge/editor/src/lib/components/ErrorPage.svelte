@@ -118,10 +118,22 @@ const tooltipText: Str = $derived(copied ? copiedLabel : 'Click to copy');
 const showTryAgain: Bool = $derived(status >= 500);
 const StatusIcon: Component = $derived(iconMap[status] ?? TriangleAlert);
 const iconColor: Str = $derived(iconColorMap[status] ?? 'text-muted-foreground');
+
+// Fade-in on client mount only — prevents visible→invisible→fade flash
+// caused by the layout's {#if useResizable} branch swap during hydration.
+let animate: Bool = $state(false);
+$effect(() => {
+	let rafId: ReturnType<typeof requestAnimationFrame> = requestAnimationFrame(() => {
+		rafId = requestAnimationFrame(() => {
+			animate = true;
+		});
+	});
+	return () => cancelAnimationFrame(rafId);
+});
 </script>
 
 <div
-	class="flex min-h-[60vh] flex-col items-center justify-center gap-2 px-4 text-center animate-in fade-in duration-300"
+	class="flex min-h-[60vh] flex-col items-center justify-center gap-2 px-4 text-center transition-opacity duration-300 ease-out {animate ? 'opacity-100' : 'opacity-0'}"
 	role="alert"
 >
 	<div class="{iconColor} mb-2" aria-hidden="true">
