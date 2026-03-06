@@ -246,11 +246,13 @@ function handleSidebarOpenChange(open: Bool): Void {
 
 // PaneForge breaks Tailwind peer-data selectors between sidebar and inset
 // because they're in separate Pane wrappers. Apply inset variant styles directly.
+// !w-auto overrides the component's w-full so flex-col stretch respects margins
+// (w-full = width:100% ignores margins in a column flex, causing 8px overflow).
 const insetClass: Str = $derived.by(() => {
 	if (!useResizable) return '';
 	return store.app.sidebarOpen
-		? 'md:m-2 md:ms-0 md:rounded-xl md:shadow-sm'
-		: 'md:m-2 md:rounded-xl md:shadow-sm';
+		? 'md:m-2 md:ms-0 md:!w-auto md:rounded-xl md:shadow-sm'
+		: 'md:m-2 md:!w-auto md:rounded-xl md:shadow-sm';
 });
 
 function handleDoubleClickResize(): Void {
@@ -444,7 +446,9 @@ const pageTitle: Str = $derived(`${store.app.appName} - ${breadcrumbSegment} - $
 		</Resizable.PaneGroup>
 	{:else}
 		<AppSidebar user={data.user} project={resolvedProject} scenes={displayScenes} {projectLoading} {scenesLoading} />
-		<!-- Spacer matches the Resizable.Handle width (w-1.5 = 6px) to prevent layout shift when hydration enables the resize handle. -->
+		<!-- Spacer pre-allocates Resizable.Handle width (w-1.5 = 6px) so content doesn't shift
+			 when hydration swaps in the real handle. Inset styling is handled by the component's
+			 peer-data-[variant=inset] selectors (sidebar and inset are siblings in this path). -->
 		<div class="w-1.5 shrink-0"></div>
 		<Sidebar.Inset>
 			<SiteHeader isError={Boolean(page.error)} user={data.user} {activeSceneName} />
