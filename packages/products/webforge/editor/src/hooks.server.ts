@@ -159,7 +159,31 @@ function resolveAuth(url: URL): ServerUser | null {
 	return MOCK_USER;
 }
 
+/**
+ * Request-scoped `waitUntil` function from Cloudflare Workers ExecutionContext.
+ *
+ * Captured per-request in the `handle` hook so that downstream handlers
+ * (e.g., `handleError`) can defer non-critical async work (e.g., log flushing,
+ * external transport calls) without blocking the response.
+ *
+ * `null` in dev mode or when `event.platform` is not available (prerendering).
+ */
+let _waitUntil: ((promise: Promise<unknown>) => void) | null = null;
+
+/**
+ * Returns the current request's `waitUntil` function, or `null` if unavailable.
+ *
+ * @returns The `waitUntil` function from Cloudflare's ExecutionContext, or `null`.
+ */
+export function getWaitUntil(): ((promise: Promise<unknown>) => void) | null {
+	return _waitUntil;
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
+	// Capture Cloudflare ExecutionContext.waitUntil for downstream use.
+	// Not available during prerendering or in dev mode without wrangler.
+	_waitUntil = event.platform?.ctx?.waitUntil?.bind(event.platform.ctx) ?? null;
+
 	// Testing-only: simulate catastrophic handle failure for error.html fallback testing.
 	if (event.url.pathname === '/test-error/catastrophic') {
 		throw new Error('Simulated catastrophic failure — tests error.html fallback');

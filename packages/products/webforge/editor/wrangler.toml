@@ -18,6 +18,21 @@ compatibility_flags = ["nodejs_als"]
 binding = "ASSETS"
 directory = ".svelte-kit/cloudflare"
 
+# ── Observability (Workers Logs) ──────────────────────────────────────
+# Captures all console output (log.error, log.info, etc.) as structured
+# events in Workers Logs. These can be forwarded to external destinations
+# (R2, Datadog, Splunk, etc.) via Logpush:
+#   https://developers.cloudflare.com/workers/observability/logpush/
+#
+# To set up Logpush, configure a destination in the Cloudflare dashboard:
+#   Workers & Pages → your worker → Logs → Add Logpush destination
+#
+# Tail Workers are an alternative for real-time log processing but add
+# complexity — start with Logpush unless you need custom filtering.
+[observability]
+enabled = true
+head_sampling_rate = 1.0  # Capture all requests; tune down in high-traffic production
+
 # ── D1 Database (uncomment when ready) ───────────────────────────────
 # [[d1_databases]]
 # binding = "DB"
