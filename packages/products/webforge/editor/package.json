@@ -21,7 +21,7 @@
 		"@/schemas/common": "workspace:*",
 		"@/schemas/result": "workspace:*",
 		"@/utils/result": "workspace:*",
-		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/adapter-cloudflare": "^7.2.8",
 		"@sveltejs/kit": "^2.53.2",
 		"bits-ui": "^2.16.2",
 		"clsx": "^2.1.1",
@@ -33,6 +33,7 @@
 	},
 	"devDependencies": {
 		"@/config/test": "workspace:*",
+		"@cloudflare/workers-types": "^4.20260305.1",
 		"@internationalized/date": "^3.11.0",
 		"@lucide/svelte": "^0.561.0",
 		"@playwright/test": "^1.58.2",
@@ -47,6 +48,7 @@
 		"typescript": "^5.9.3",
 		"vite": "^7.3.1",
 		"vite-plugin-devtools-json": "^1.0.0",
-		"vitest": "^4.0.18"
+		"vitest": "^4.0.18",
+		"wrangler": "^4.71.0"
 	}
 }

@@ -2,8 +2,8 @@
  * Dynamic web app manifest route.
  *
  * Generates `manifest.webmanifest` from the central app metadata config
- * ({@link module:$lib/config/app-meta}). Prerendered at build time by
- * adapter-static → produces a static JSON file in the output directory.
+ * ({@link module:$lib/config/app-meta}). Prerendered at build time →
+ * produces a static JSON file in the output directory.
  *
  * @module
  */

@@ -1,15 +1,16 @@
 /**
  * SvelteKit configuration.
  *
- * Configures adapter-static for SPA output, CSP directives for production,
- * git commit versioning for cache invalidation, and workspace `@/` path aliases
- * that mirror the root tsconfig so SvelteKit can resolve shared packages.
+ * Configures adapter-cloudflare for Cloudflare Workers SSR, CSP directives
+ * for production, git commit versioning for cache invalidation, and workspace
+ * `@/` path aliases that mirror the root tsconfig so SvelteKit can resolve
+ * shared packages.
  *
  * This is a plain `.js` config file loaded directly by SvelteKit's Node.js
  * tooling — Valibot schemas and TypeScript types are not available here.
  */
 
-import adapter from '@sveltejs/adapter-static';
+import adapter from '@sveltejs/adapter-cloudflare';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
@@ -25,14 +26,20 @@ const isDev = process.env.NODE_ENV !== 'production';
  *
  * Disabled in dev because Vite injects inline HMR scripts that SvelteKit
  * cannot add nonces to, causing CSP violations that block hot reloading.
- * In production (adapter-static), SvelteKit embeds CSP as <meta> tags with hashes.
+ *
+ * Uses `'auto'` mode: hashes for prerendered pages (manifest, robots.txt,
+ * security.txt) and nonces for SSR pages. Nonces are required because:
+ * 1. SvelteKit streams deferred data as inline `<script>` tags — these
+ *    appear after the CSP header is sent, so hashes can't cover them.
+ * 2. The FOUC prevention script in `app.html` uses `%sveltekit.nonce%`.
+ * Each inline script receives the same per-request nonce.
  *
  * @type {import('@sveltejs/kit').Config['kit']['csp'] | undefined}
  */
 const csp = isDev
 	? undefined
 	: {
-			mode: /** @type {const} */ ('hash'),
+			mode: /** @type {const} */ ('auto'),
 			directives: {
 				'default-src': [/** @type {const} */ ('self')],
 				'script-src': [/** @type {const} */ ('self'), 'wasm-unsafe-eval'],
@@ -71,9 +78,9 @@ const config = {
 			name: gitCommit,
 		},
 		adapter: adapter({
-			pages: 'dist',
-			assets: 'dist',
-			fallback: 'index.html',
+			platformProxy: {
+				persist: true,
+			},
 		}),
 		csp,
 		alias: {

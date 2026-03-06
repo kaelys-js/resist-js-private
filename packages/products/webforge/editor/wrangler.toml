@@ -1,0 +1,25 @@
+# Cloudflare Workers configuration for the WebForge editor.
+#
+# Used by adapter-cloudflare at build time and by wrangler for local
+# dev/preview emulation. The adapter reads this to locate the build
+# output and configure the Worker entrypoint.
+#
+# Compatibility flags:
+#   - nodejs_als: required by SvelteKit for AsyncLocalStorage context.
+#
+# See: https://developers.cloudflare.com/workers/configuration/
+
+name = "webforge-editor"
+main = ".svelte-kit/cloudflare/_worker.js"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_als"]
+
+[assets]
+binding = "ASSETS"
+directory = ".svelte-kit/cloudflare"
+
+# ── D1 Database (uncomment when ready) ───────────────────────────────
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "webforge-db"
+# database_id = "<your-database-id>"

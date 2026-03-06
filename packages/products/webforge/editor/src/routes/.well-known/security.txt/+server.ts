@@ -3,7 +3,7 @@
  *
  * Provides security contact information at `/.well-known/security.txt`.
  * Expires field is set to 1 year from build time per RFC 9116 recommendations.
- * Prerendered at build time by adapter-static.
+ * Prerendered at build time.
  *
  * Preferred-Languages is derived dynamically from {@link SUPPORTED_LOCALES}
  * to stay in sync when locales are added or removed.

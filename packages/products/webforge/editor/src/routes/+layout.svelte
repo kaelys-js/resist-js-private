@@ -375,7 +375,7 @@ const pageTitle: Str = $derived(`${store.app.appName} - ${breadcrumbSegment} - $
 	<meta property="og:locale" content={ogLocale} />
 </svelte:head>
 
-<ModeWatcher defaultMode="system" disableTransitions={false} modeStorageKey={storageKey('mode')} themeStorageKey={storageKey('theme')} />
+<ModeWatcher defaultMode="system" disableTransitions={false} disableHeadScriptInjection modeStorageKey={storageKey('mode')} themeStorageKey={storageKey('theme')} />
 <a
 	href="#main-content"
 	class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:rounded-md focus:bg-background focus:text-foreground focus:border-2 focus:border-ring focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg"
