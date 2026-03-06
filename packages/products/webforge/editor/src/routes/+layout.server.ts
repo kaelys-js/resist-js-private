@@ -5,10 +5,22 @@
  * When no user is authenticated, returns nulls/empty arrays so auth-gated
  * UI can conditionally hide.
  *
+ * **Project and scene data are returned as promises (not awaited)** so
+ * SvelteKit can stream them to the client. The page renders immediately
+ * with skeleton placeholders; data fills in when each promise resolves.
+ *
+ * - `adapter-static`: promises are awaited during prerendering (no streaming).
+ * - `adapter-cloudflare`: promises stream via HTTP chunked encoding.
+ * - `vite dev`: dev server streams, so skeletons are visible during development.
+ *
+ * User data is always returned synchronously because it's small (set by
+ * the auth hook). Project/scene data may grow large, so it streams.
+ *
  * @module
  */
 
 import type { LayoutServerLoad } from './$types';
+import type { ServerProject, ServerScene } from '$lib/server/data/types';
 
 /**
  * Root layout server load function.
@@ -16,31 +28,37 @@ import type { LayoutServerLoad } from './$types';
  * @param root0 - SvelteKit layout server load event
  * @param root0.locals - Server-side locals containing user, locale, and db
  * @param root0.url - The current request URL
- * @returns Layout data containing locale, user, project, and scenes
+ * @returns Layout data containing locale, user (sync), project (streamed), and scenes (streamed)
  */
-export const load: LayoutServerLoad = async ({ locals, url }) => {
+export const load: LayoutServerLoad = ({ locals, url }) => {
 	const { user } = locals;
 
 	if (!user) {
-		return { locale: locals.locale, user: null, project: null, scenes: [] };
+		return {
+			locale: locals.locale,
+			user: null,
+			project: null,
+			scenes: [] as readonly ServerScene[],
+		};
 	}
 
-	const projectResult = await locals.db.projects.getByOwner(user.id);
-	if (!projectResult.ok) return { locale: locals.locale, user, project: null, scenes: [] };
-	const project = projectResult.data;
+	// Stream project — page renders immediately with NavUserSkeleton.
+	// Async IIFE avoids .then() chains (prefer-await-to-then lint rule).
+	const projectPromise: Promise<ServerProject | null> = (async () => {
+		const result = await locals.db.projects.getByOwner(user.id);
+		return result.ok ? (result.data ?? null) : null;
+	})();
 
-	if (!project) {
-		return { locale: locals.locale, user, project: null, scenes: [] };
-	}
+	// Stream scenes — chained from project since scenes need project ID.
+	// While project loads, NavScenesSkeleton shows. Once project resolves,
+	// scenes load; if project is null, scenes resolve to empty immediately.
+	const scenesPromise: Promise<readonly ServerScene[]> = (async () => {
+		const project = await projectPromise;
+		if (!project) return [] as readonly ServerScene[];
+		if (url.searchParams.get('wf.scenes') === 'empty') return [] as readonly ServerScene[];
+		const result = await locals.db.scenes.getByProject(project.id);
+		return result.ok ? result.data : ([] as readonly ServerScene[]);
+	})();
 
-	// Simulate empty scene list via URL override (?wf.scenes=empty)
-	if (url.searchParams.get('wf.scenes') === 'empty') {
-		return { locale: locals.locale, user, project, scenes: [] };
-	}
-
-	const scenesResult = await locals.db.scenes.getByProject(project.id);
-	if (!scenesResult.ok) return { locale: locals.locale, user, project, scenes: [] };
-	const scenes = scenesResult.data;
-
-	return { locale: locals.locale, user, project, scenes };
+	return { locale: locals.locale, user, project: projectPromise, scenes: scenesPromise };
 };

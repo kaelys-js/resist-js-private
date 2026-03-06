@@ -6,20 +6,36 @@ import type { ComponentProps } from 'svelte';
 import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 import AppLogo from './AppLogo.svelte';
 import NavScenes from './NavScenes.svelte';
+import NavScenesSkeleton from './NavScenesSkeleton.svelte';
 import NavSecondary from './NavSecondary.svelte';
 import NavUser from './NavUser.svelte';
+import NavUserSkeleton from './NavUserSkeleton.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { APP_TAGLINE } from '$lib/config/app-meta';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 import type { ServerUser, ServerProject, ServerScene } from '$lib/server/data/types';
-import type { Str } from '@/schemas/common';
+import type { Str, Bool } from '@/schemas/common';
 
 type Props = ComponentProps<typeof Sidebar.Root> & {
+	/** Authenticated user, or null when logged out. */
 	user?: ServerUser | null;
+	/** Current project, or null when none exists. */
 	project?: ServerProject | null;
+	/** Resolved scene list. */
 	scenes?: readonly ServerScene[];
+	/** Whether project is still loading (streaming). Shows NavUserSkeleton when true. */
+	projectLoading?: Bool;
+	/** Whether scenes are still loading (streaming). Shows NavScenesSkeleton when true. */
+	scenesLoading?: Bool;
 };
-let { user = null, project = null, scenes = [], ...restProps }: Props = $props();
+let {
+	user = null,
+	project = null,
+	scenes = [],
+	projectLoading = false,
+	scenesLoading = false,
+	...restProps
+}: Props = $props();
 
 const store: ReturnType<typeof useEditorStore> = useEditorStore();
 
@@ -78,13 +94,21 @@ const navSecondary: Array<{ title: Str; url: Str; icon: typeof Settings }> = $de
 		</Sidebar.Group>
 		{/if}
 		{#if store.features.sceneList && (!store.features.authGatedUi || user)}
-			<NavScenes {scenes} />
+			{#if scenesLoading}
+				<NavScenesSkeleton />
+			{:else}
+				<NavScenes {scenes} />
+			{/if}
 		{/if}
 		<NavSecondary items={navSecondary} class="mt-auto" />
 	</Sidebar.Content>
 	<Sidebar.Footer>
 		{#if store.features.projectDropdown && (!store.features.authGatedUi || user)}
-			<NavUser {project} />
+			{#if projectLoading}
+				<NavUserSkeleton />
+			{:else}
+				<NavUser {project} />
+			{/if}
 		{/if}
 	</Sidebar.Footer>
 </Sidebar.Root>
