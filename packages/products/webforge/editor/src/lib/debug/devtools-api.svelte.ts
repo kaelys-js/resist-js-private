@@ -10,7 +10,7 @@
  * @module
  */
 
-import type { Str, Bool, Void } from '@/schemas/common';
+import type { Str, Num, Bool, Void } from '@/schemas/common';
 import { styles } from '$lib/debug/console-styles';
 import { createWatcher, type WatcherCleanup } from '$lib/debug/state-logger.svelte';
 import {
@@ -31,6 +31,9 @@ import {
 	generateDebugUrl,
 } from '$lib/debug/dev-toolbar-registry';
 import { goto } from '$app/navigation';
+import { getVitalsPanelMetrics, type PanelMetric } from '$lib/perf/vitals-panel-store.svelte';
+import { getBeaconStatus } from '$lib/perf/vitals-beacon';
+import { getConnectionSnapshot, type ConnectionSnapshot } from '$lib/perf/connection.svelte';
 
 // =============================================================================
 // Constants
@@ -42,6 +45,37 @@ export const DEVTOOLS_KEY: Str = `__${APP_NAME.toUpperCase()}_DEVTOOLS__`;
 // =============================================================================
 // Types
 // =============================================================================
+
+/** Beacon status snapshot returned by `perf.beacon()`. */
+export type BeaconStatus = {
+	/** Number of metrics currently queued. */
+	readonly queued: Num;
+	/** Summary of each queued metric. */
+	readonly queuedItems: ReadonlyArray<{ name: Str; value: Num; rating: Str }>;
+	/** ISO timestamp of last successful flush, or `null` if never flushed. */
+	readonly lastFlushAt: Str | null;
+	/** Random UUID for the current page session (not persisted). */
+	readonly sessionId: Str;
+	/** Maximum metrics before auto-flush. */
+	readonly maxQueueSize: Num;
+};
+
+/**
+ * Performance namespace on the devtools API.
+ * Exposes Web Vitals, beacon queue, and device/connection data.
+ */
+export type DevtoolsPerf = {
+	/** Returns the current list of collected Web Vitals metrics. */
+	vitals(): PanelMetric[];
+	/** Returns the beacon queue status (queued count, session ID, last sent). */
+	beacon(): BeaconStatus;
+	/** Returns a snapshot of device and connection info. */
+	device(): ConnectionSnapshot;
+	/** Pretty-prints current Web Vitals to the console. */
+	logVitals(): Void;
+	/** Pretty-prints device and connection info to the console. */
+	logDevice(): Void;
+};
 
 /**
  * The devtools API surface exposed on the window object.
@@ -123,6 +157,9 @@ export type EditorDevtools = {
 	readonly appName: Str;
 	/** Build-time metadata (version, commit, branch, etc.). */
 	readonly buildInfo: BuildInfo | null;
+
+	/** Performance namespace — Web Vitals, beacon queue, and device/connection data. */
+	readonly perf: DevtoolsPerf;
 
 	/** Reset app preferences to their schema defaults. */
 	resetToDefaults(): Void;
@@ -320,6 +357,70 @@ export function createDevtoolsAPI(
 			return BUILD_INFO;
 		},
 
+		perf: {
+			vitals(): PanelMetric[] {
+				return getVitalsPanelMetrics();
+			},
+
+			beacon(): BeaconStatus {
+				return getBeaconStatus();
+			},
+
+			device(): ConnectionSnapshot {
+				return getConnectionSnapshot();
+			},
+
+			logVitals(): Void {
+				const metrics: PanelMetric[] = getVitalsPanelMetrics();
+				if (metrics.length === 0) {
+					console.log(
+						'%c[Perf] %cNo Web Vitals collected yet',
+						'color:#8cf;font-weight:bold',
+						'color:#aaa',
+					);
+					return;
+				}
+				// eslint-disable-next-line unicorn/no-console-spaces -- Intentional badge padding for %c styled output
+				console.log('%c Web Vitals ', HELP_HEADER);
+				for (const m of metrics) {
+					const isTimingMetric: Bool =
+						m.name !== 'CLS' && m.name !== 'navigationTiming' && m.name !== 'networkInformation';
+					const formatted: Str = isTimingMetric
+						? `${Math.round(m.value)}ms`
+						: String(Math.round(m.value * 10_000) / 10_000);
+					let ratingColor: Str = 'color:#f44';
+					if (m.rating === 'good') ratingColor = 'color:#4f4';
+					else if (m.rating === 'needsImprovement') ratingColor = 'color:#fa0';
+					console.log(
+						`  %c${m.name.padEnd(6)}%c ${formatted.padEnd(10)} %c${m.rating}`,
+						'color:#8cf;font-weight:bold',
+						'color:#ccc',
+						ratingColor,
+					);
+				}
+			},
+
+			logDevice(): Void {
+				const snap: ConnectionSnapshot = getConnectionSnapshot();
+				// eslint-disable-next-line unicorn/no-console-spaces -- Intentional badge padding for %c styled output
+				console.log('%c Device & Connection ', HELP_HEADER);
+				const entries: Array<[Str, Str]> = [
+					['Quality', snap.quality],
+					['Effective Type', snap.effectiveType || '—'],
+					['RTT', `${String(snap.rtt)}ms`],
+					['Downlink', `${String(snap.downlink)} Mbps`],
+					['Data Saver', snap.saveData ? 'Yes' : 'No'],
+					['Device Memory', snap.deviceMemory > 0 ? `${String(snap.deviceMemory)} GB` : '—'],
+					['CPU Cores', snap.hardwareConcurrency > 0 ? String(snap.hardwareConcurrency) : '—'],
+					['Low-End Device', snap.isLowEndDevice ? 'Yes' : 'No'],
+					['Low-End Experience', snap.isLowEndExperience ? 'Yes' : 'No'],
+				];
+				for (const [key, val] of entries) {
+					console.log(`  %c${key.padEnd(18)}%c ${val}`, styles.keyLabel, styles.valueText);
+				}
+			},
+		},
+
 		resetToDefaults(): Void {
 			const prefs = discoverAppPreferences();
 			for (const pref of prefs) {
@@ -474,6 +575,35 @@ export function createDevtoolsAPI(
 			);
 			console.log(
 				'  %c.copyDebugUrl()           %c Copy shareable debug URL to clipboard',
+				HELP_METHOD,
+				HELP_DESC,
+			);
+			console.log('');
+
+			// ── Performance
+			console.log('%c📊 Performance (.perf)', HELP_SECTION);
+			console.log(
+				'  %c.perf.vitals()      %c Current Web Vitals (LCP, FCP, CLS, INP, …)',
+				HELP_METHOD,
+				HELP_DESC,
+			);
+			console.log(
+				'  %c.perf.beacon()      %c Beacon queue status (queued, sessionId, lastSent)',
+				HELP_METHOD,
+				HELP_DESC,
+			);
+			console.log(
+				'  %c.perf.device()      %c Device & connection info (memory, CPU, network)',
+				HELP_METHOD,
+				HELP_DESC,
+			);
+			console.log(
+				'  %c.perf.logVitals()   %c Pretty-print Web Vitals to console',
+				HELP_METHOD,
+				HELP_DESC,
+			);
+			console.log(
+				'  %c.perf.logDevice()   %c Pretty-print device & connection to console',
 				HELP_METHOD,
 				HELP_DESC,
 			);
