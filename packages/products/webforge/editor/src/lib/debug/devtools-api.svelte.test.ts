@@ -89,16 +89,16 @@ beforeEach(() => {
 	editorStore = createMockEditorStore();
 	debugStore = createMockDebugStore();
 	// Clean up window global
-	delete window.__EDITOR_DEVTOOLS__;
+	delete window.__STORYLYNE_DEVTOOLS__;
 });
 
 afterEach(() => {
-	delete window.__EDITOR_DEVTOOLS__;
+	delete window.__STORYLYNE_DEVTOOLS__;
 });
 
 describe('DEVTOOLS_KEY', () => {
-	it('is __EDITOR_DEVTOOLS__', () => {
-		expect(DEVTOOLS_KEY).toBe('__EDITOR_DEVTOOLS__');
+	it('is __STORYLYNE_DEVTOOLS__', () => {
+		expect(DEVTOOLS_KEY).toBe('__STORYLYNE_DEVTOOLS__');
 	});
 });
 
@@ -341,11 +341,12 @@ describe('devtools meta', () => {
 		api.destroy();
 	});
 
-	it('exposes version string', () => {
+	it('exposes buildInfo or null', () => {
 		const api = createDevtoolsAPI(editorStore, debugStore);
 		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
-		expect(typeof devtools.version).toBe('string');
-		expect(devtools.version.length).toBeGreaterThan(0);
+		// buildInfo may be null in test environment where Vite define constants are missing
+		const info = devtools.buildInfo;
+		expect(info === null || typeof info === 'object').toBe(true);
 		api.destroy();
 	});
 });

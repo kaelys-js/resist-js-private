@@ -82,11 +82,16 @@ $effect(() => {
 // Server load returns project/scenes as Promises (streaming) or plain
 // values (eager, e.g. no-user path). Resolve into reactive state so
 // $derived values work uniformly. Loading flags drive skeleton display.
+// Initial `data` reads are intentional — $effect handles reactive updates.
+// svelte-ignore state_referenced_locally
 let projectLoading: Bool = $state(data.project instanceof Promise);
+// svelte-ignore state_referenced_locally
 let scenesLoading: Bool = $state(!Array.isArray(data.scenes));
+// svelte-ignore state_referenced_locally
 let resolvedProject: ServerProject | null = $state(
 	data.project instanceof Promise ? null : (data.project ?? null),
 );
+// svelte-ignore state_referenced_locally
 let resolvedScenes: readonly ServerScene[] = $state(Array.isArray(data.scenes) ? data.scenes : []);
 
 $effect(() => {

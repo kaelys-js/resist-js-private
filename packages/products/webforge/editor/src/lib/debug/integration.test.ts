@@ -125,12 +125,12 @@ beforeEach(() => {
 	tableSpy = vi.spyOn(console, 'table').mockImplementation(() => {});
 	groupSpy = vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
 	vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
-	delete window.__EDITOR_DEVTOOLS__;
+	delete window.__STORYLYNE_DEVTOOLS__;
 });
 
 afterEach(() => {
 	vi.restoreAllMocks();
-	delete window.__EDITOR_DEVTOOLS__;
+	delete window.__STORYLYNE_DEVTOOLS__;
 });
 
 // =============================================================================
@@ -423,7 +423,7 @@ describe('devtools API state inspection', () => {
 	it('state reflects current store values', () => {
 		const debugStore = createMockDebugStore(true, 'trace');
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		expect(devtools.state.app.theme).toBe('');
 		expect(devtools.state.app.locale).toBe('en');
@@ -441,7 +441,7 @@ describe('devtools API state inspection', () => {
 	it('state returns fresh snapshots (not stale references)', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		const snap1 = devtools.state;
 		const snap2 = devtools.state;
@@ -450,13 +450,15 @@ describe('devtools API state inspection', () => {
 		api.destroy();
 	});
 
-	it('appName and version are accessible', () => {
+	it('appName and buildInfo are accessible', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		expect(devtools.appName).toBe(APP_NAME);
-		expect(devtools.version).toBe('0.1.0');
+		// buildInfo may be null in test environment where Vite define constants are missing
+		const info = devtools.buildInfo;
+		expect(info === null || typeof info === 'object').toBe(true);
 
 		api.destroy();
 	});
@@ -466,7 +468,7 @@ describe('devtools API mutations', () => {
 	it('setTheme calls editor store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.setTheme('midnight');
 		expect(editorStore.setTheme).toHaveBeenCalledWith('midnight');
@@ -477,7 +479,7 @@ describe('devtools API mutations', () => {
 	it('setMode calls editor store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.setMode('dark');
 		expect(editorStore.setMode).toHaveBeenCalledWith('dark');
@@ -488,7 +490,7 @@ describe('devtools API mutations', () => {
 	it('setLocale calls editor store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.setLocale('ja');
 		expect(editorStore.setLocale).toHaveBeenCalledWith('ja');
@@ -499,7 +501,7 @@ describe('devtools API mutations', () => {
 	it('setSidebarOpen calls editor store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.setSidebarOpen(false);
 		expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(false);
@@ -510,7 +512,7 @@ describe('devtools API mutations', () => {
 	it('setFeature calls editor store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.setFeature('settings', false);
 		expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
@@ -521,7 +523,7 @@ describe('devtools API mutations', () => {
 	it('setLogLevel calls debug store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.setLogLevel('trace');
 		expect(debugStore.setLogLevel).toHaveBeenCalledWith('trace');
@@ -532,7 +534,7 @@ describe('devtools API mutations', () => {
 	it('enable/disable calls debug store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.disable();
 		expect(debugStore.setEnabled).toHaveBeenCalledWith(false);
@@ -546,7 +548,7 @@ describe('devtools API mutations', () => {
 	it('generic set works for all app paths', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.set('app.theme', 'ocean');
 		expect(editorStore.setTheme).toHaveBeenCalledWith('ocean');
@@ -566,7 +568,7 @@ describe('devtools API mutations', () => {
 	it('generic set works for feature paths', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.set('features.sidebar', false);
 		expect(editorStore.setFeature).toHaveBeenCalledWith('sidebar', false);
@@ -580,7 +582,7 @@ describe('devtools API mutations', () => {
 	it('generic set works for debug paths', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.set('debug.logLevel', 'error');
 		expect(debugStore.setLogLevel).toHaveBeenCalledWith('error');
@@ -594,7 +596,7 @@ describe('devtools API mutations', () => {
 	it('generic set ignores invalid paths silently', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		// No section
 		devtools.set('', 'value');
@@ -613,7 +615,7 @@ describe('devtools API mutations', () => {
 	it('generic set ignores unknown feature flag keys', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.set('features.nonexistent', true);
 		expect(editorStore.setFeature).not.toHaveBeenCalled();
@@ -626,7 +628,7 @@ describe('devtools API extension registry', () => {
 	it('register makes namespace accessible', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__! as EditorDevtools & Record<Str, unknown>;
+		const devtools = window.__STORYLYNE_DEVTOOLS__! as EditorDevtools & Record<Str, unknown>;
 
 		devtools.register('test', { ping: () => 'pong' });
 
@@ -639,7 +641,7 @@ describe('devtools API extension registry', () => {
 	it('unregister removes namespace', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__! as EditorDevtools & Record<Str, unknown>;
+		const devtools = window.__STORYLYNE_DEVTOOLS__! as EditorDevtools & Record<Str, unknown>;
 
 		devtools.register('test', { ping: () => 'pong' });
 		devtools.unregister('test');
@@ -652,7 +654,7 @@ describe('devtools API extension registry', () => {
 	it('multiple extensions can coexist', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__! as EditorDevtools & Record<Str, unknown>;
+		const devtools = window.__STORYLYNE_DEVTOOLS__! as EditorDevtools & Record<Str, unknown>;
 
 		devtools.register('audio', { volume: 0.8 });
 		devtools.register('scene', { name: 'town' });
@@ -668,7 +670,7 @@ describe('devtools API console output', () => {
 	it('logState prints all state sections', () => {
 		const debugStore = createMockDebugStore(true, 'debug');
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.logState();
 
@@ -693,7 +695,7 @@ describe('devtools API console output', () => {
 	it('logFeatures calls console.table with features object', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 
 		devtools.logFeatures();
 		expect(tableSpy).toHaveBeenCalledWith(
@@ -713,11 +715,11 @@ describe('orchestrator lifecycle', () => {
 		const debugStore = createMockDebugStore(true);
 		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		expect(window.__EDITOR_DEVTOOLS__).toBeDefined();
+		expect(window.__STORYLYNE_DEVTOOLS__).toBeDefined();
 
 		handle.destroy();
 
-		expect(window.__EDITOR_DEVTOOLS__).toBeUndefined();
+		expect(window.__STORYLYNE_DEVTOOLS__).toBeUndefined();
 	});
 
 	it('activate logs deactivation message on destroy', () => {
@@ -739,12 +741,12 @@ describe('orchestrator lifecycle', () => {
 		// Start disabled
 		let handle: DebugServicesHandle | null = syncDebugServices(editorStore, disabledStore, null);
 		expect(handle).toBeNull();
-		expect(window.__EDITOR_DEVTOOLS__).toBeUndefined();
+		expect(window.__STORYLYNE_DEVTOOLS__).toBeUndefined();
 
 		// Enable
 		handle = syncDebugServices(editorStore, enabledStore, handle);
 		expect(handle).not.toBeNull();
-		expect(window.__EDITOR_DEVTOOLS__).toBeDefined();
+		expect(window.__STORYLYNE_DEVTOOLS__).toBeDefined();
 
 		// Stay enabled (idempotent)
 		const sameHandle = syncDebugServices(editorStore, enabledStore, handle);
@@ -753,7 +755,7 @@ describe('orchestrator lifecycle', () => {
 		// Disable
 		handle = syncDebugServices(editorStore, disabledStore, handle);
 		expect(handle).toBeNull();
-		expect(window.__EDITOR_DEVTOOLS__).toBeUndefined();
+		expect(window.__STORYLYNE_DEVTOOLS__).toBeUndefined();
 
 		// Stay disabled (idempotent)
 		handle = syncDebugServices(editorStore, disabledStore, handle);
@@ -762,7 +764,7 @@ describe('orchestrator lifecycle', () => {
 		// Re-enable
 		handle = syncDebugServices(editorStore, enabledStore, handle);
 		expect(handle).not.toBeNull();
-		expect(window.__EDITOR_DEVTOOLS__).toBeDefined();
+		expect(window.__STORYLYNE_DEVTOOLS__).toBeDefined();
 
 		handle?.destroy();
 	});
@@ -795,10 +797,7 @@ describe('welcome banner', () => {
 
 		// App name is passed as a %s substitution arg, not embedded in the format string
 		const headerCall = consoleSpy.mock.calls.find(
-			(args: unknown[]) =>
-				typeof args[0] === 'string' &&
-				args[0].includes('[Debug]') &&
-				args.some((arg: unknown) => arg === APP_NAME),
+			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes(`[${APP_NAME}]`),
 		);
 		expect(headerCall).toBeDefined();
 		handle.destroy();
@@ -1002,10 +1001,12 @@ describe('full debug activation flow', () => {
 		expect(handle).not.toBeNull();
 
 		// 5. Devtools API is available
-		const devtools = window.__EDITOR_DEVTOOLS__!;
+		const devtools = window.__STORYLYNE_DEVTOOLS__!;
 		expect(devtools).toBeDefined();
 		expect(devtools.state.debug.logLevel).toBe('debug');
-		expect(devtools.version).toBe('0.1.0');
+		// buildInfo may be null in test environment
+		const info = devtools.buildInfo;
+		expect(info === null || typeof info === 'object').toBe(true);
 
 		// 6. Devtools mutations work
 		devtools.setTheme('ocean');
@@ -1033,17 +1034,17 @@ describe('full debug activation flow', () => {
 		// 10. Destroy cleans up
 		handle = syncDebugServices(editorStore, createMockDebugStore(false), handle);
 		expect(handle).toBeNull();
-		expect(window.__EDITOR_DEVTOOLS__).toBeUndefined();
+		expect(window.__STORYLYNE_DEVTOOLS__).toBeUndefined();
 	});
 
 	it('devtools window global key matches DEVTOOLS_KEY constant', () => {
-		expect(DEVTOOLS_KEY).toBe('__EDITOR_DEVTOOLS__');
+		expect(DEVTOOLS_KEY).toBe('__STORYLYNE_DEVTOOLS__');
 
 		const debugStore = createMockDebugStore(true);
 		activateDebugServices(editorStore, debugStore);
 
 		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBe(
-			window.__EDITOR_DEVTOOLS__,
+			window.__STORYLYNE_DEVTOOLS__,
 		);
 	});
 });

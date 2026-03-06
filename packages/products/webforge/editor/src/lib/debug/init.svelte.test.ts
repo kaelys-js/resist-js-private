@@ -10,12 +10,15 @@ vi.mock('./state-logger.svelte', () => ({
 }));
 
 vi.mock('./devtools-api.svelte', () => ({
-	DEVTOOLS_KEY: '__EDITOR_DEVTOOLS__',
+	DEVTOOLS_KEY: '__STORYLYNE_DEVTOOLS__',
 	createDevtoolsAPI: vi.fn((): { destroy(): Void } => {
-		(window as unknown as Record<Str, unknown>).__EDITOR_DEVTOOLS__ = { stub: true };
+		(window as unknown as Record<Str, unknown>).__STORYLYNE_DEVTOOLS__ = {
+			stub: true,
+			logState: vi.fn(),
+		};
 		return {
 			destroy(): Void {
-				Object.defineProperty(window, '__EDITOR_DEVTOOLS__', {
+				Object.defineProperty(window, '__STORYLYNE_DEVTOOLS__', {
 					value: undefined,
 					writable: true,
 					configurable: true,
@@ -110,12 +113,12 @@ let consoleSpy: ReturnType<typeof vi.spyOn>;
 beforeEach(() => {
 	editorStore = createMockEditorStore();
 	consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-	delete window.__EDITOR_DEVTOOLS__;
+	delete window.__STORYLYNE_DEVTOOLS__;
 });
 
 afterEach(() => {
 	consoleSpy.mockRestore();
-	delete window.__EDITOR_DEVTOOLS__;
+	delete window.__STORYLYNE_DEVTOOLS__;
 });
 
 describe('activateDebugServices', () => {
@@ -131,13 +134,10 @@ describe('activateDebugServices', () => {
 		const debugStore = createMockDebugStore(true);
 		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		// Welcome banner includes the app name as a %s substitution arg
+		// Welcome banner header includes the app name in the format string
 		const { calls } = consoleSpy.mock;
 		const hasWelcome: Bool = calls.some(
-			(args: unknown[]) =>
-				typeof args[0] === 'string' &&
-				args[0].includes('[Debug]') &&
-				args.some((arg: unknown) => arg === APP_NAME),
+			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes(`[${APP_NAME}]`),
 		);
 		expect(hasWelcome).toBe(true);
 		handle.destroy();
@@ -151,7 +151,7 @@ describe('activateDebugServices', () => {
 
 		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBeUndefined();
 		expect(consoleSpy).toHaveBeenCalledWith(
-			'%c DEBUG %c Debug mode disabled',
+			`%c ${APP_NAME} %c Debug mode disabled`,
 			expect.any(String),
 			expect.any(String),
 		);

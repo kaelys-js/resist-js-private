@@ -32,7 +32,7 @@ import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import type { DebugStore } from '$lib/stores/debug-state.svelte';
 import type { DebugState } from '$lib/schemas/debug-state';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-import type { EditorDevtools } from '$lib/debug/devtools-api.svelte';
+import { DEVTOOLS_KEY, type EditorDevtools } from '$lib/debug/devtools-api.svelte';
 
 let {
 	editorStore,
@@ -96,9 +96,7 @@ let buildInfoCopyTimeout: ReturnType<typeof setTimeout> | undefined = $state(und
 
 function logState(): Void {
 	// Window global access — cast required for devtools API on window
-	const devtools = (window as unknown as Record<Str, EditorDevtools | undefined>)[
-		'__EDITOR_DEVTOOLS__'
-	];
+	const devtools = (window as unknown as Record<Str, EditorDevtools | undefined>)[DEVTOOLS_KEY];
 	devtools?.logState();
 	logStateState = 'success';
 	clearTimeout(logStateTimeout);
@@ -109,9 +107,7 @@ function logState(): Void {
 
 function logFeatures(): Void {
 	// Window global access — cast required for devtools API on window
-	const devtools = (window as unknown as Record<Str, EditorDevtools | undefined>)[
-		'__EDITOR_DEVTOOLS__'
-	];
+	const devtools = (window as unknown as Record<Str, EditorDevtools | undefined>)[DEVTOOLS_KEY];
 	devtools?.logFeatures();
 	logFeaturesState = 'success';
 	clearTimeout(logFeaturesTimeout);

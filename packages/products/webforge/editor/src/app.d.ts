@@ -52,7 +52,7 @@ declare global {
 
 	/** Window extensions — debug devtools and build info globals. */
 	interface Window {
-		__EDITOR_DEVTOOLS__?: EditorDevtools;
+		__STORYLYNE_DEVTOOLS__?: EditorDevtools;
 		__STORYLYNE_BUILD__?: BuildInfo;
 	}
 }
