@@ -225,6 +225,9 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): Voi
 		[
 			['.state', 'Full state snapshot (app, features, debug)'],
 			['.buildInfo', 'Build metadata (version, commit, branch)'],
+			['.perf.vitals()', 'Current Web Vitals (LCP, FCP, CLS, INP, …)'],
+			['.perf.beacon()', 'Beacon queue status (queued, sessionId, lastSent)'],
+			['.perf.device()', 'Device & connection info (memory, CPU, network)'],
 			['.set(path, value)', 'Generic setter — e.g. .set("app.theme", "midnight")'],
 			['.enable() / .disable()', 'Toggle debug mode on/off'],
 			['.logState()', 'Pretty-print full state to console'],

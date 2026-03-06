@@ -1,7 +1,70 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import type { Str } from '@/schemas/common';
+import type { Str, Num, Bool } from '@/schemas/common';
 import { createDevtoolsAPI, DEVTOOLS_KEY, type EditorDevtools } from './devtools-api.svelte';
 import { APP_NAME } from '$lib/config/app-meta';
+import type { PanelMetric } from '$lib/perf/vitals-panel-store.svelte';
+import type { ConnectionSnapshot } from '$lib/perf/connection.svelte';
+
+// ── Perf module mocks ────────────────────────────────────────────────────────
+
+const mockPanelMetrics: PanelMetric[] = [
+	{ name: 'LCP', value: 1200, rating: 'good', timestamp: 1000 },
+	{ name: 'CLS', value: 0.05, rating: 'good', timestamp: 1001 },
+];
+
+const mockBeaconStatus = {
+	queued: 2 as Num,
+	queuedItems: [
+		{ name: 'LCP' as Str, value: 1200 as Num, rating: 'good' as Str },
+		{ name: 'CLS' as Str, value: 0.05 as Num, rating: 'good' as Str },
+	],
+	lastFlushAt: '2026-03-06T12:00:00Z' as Str | null,
+	sessionId: 'test-session-id' as Str,
+	maxQueueSize: 10 as Num,
+};
+
+const mockConnectionSnapshot: ConnectionSnapshot = {
+	effectiveType: '4g',
+	saveData: false,
+	rtt: 50,
+	downlink: 10,
+	quality: 'fast',
+	isLowEndDevice: false,
+	isLowEndExperience: false,
+	deviceMemory: 8,
+	hardwareConcurrency: 8,
+};
+
+vi.mock('$lib/perf/vitals-panel-store.svelte', () => ({
+	getVitalsPanelMetrics: (): PanelMetric[] => mockPanelMetrics,
+	reportVitalToPanel: vi.fn(),
+	resetPanelMetrics: vi.fn(),
+}));
+
+vi.mock('$lib/perf/vitals-beacon', () => ({
+	getBeaconStatus: () => mockBeaconStatus,
+	queueVital: vi.fn(),
+	flushVitals: vi.fn(),
+	setupVitalsBeacon: vi.fn(),
+	setDeviceInfo: vi.fn(),
+	resetBeacon: vi.fn(),
+}));
+
+vi.mock('$lib/perf/connection.svelte', () => ({
+	getConnectionSnapshot: (): ConnectionSnapshot => mockConnectionSnapshot,
+	getConnectionQuality: () => 'fast' as const,
+	getEffectiveType: () => '4g',
+	getSaveData: () => false as Bool,
+	getRtt: () => 50 as Num,
+	getDownlink: () => 10 as Num,
+	getIsLowEndDevice: () => false as Bool,
+	getIsLowEndExperience: () => false as Bool,
+	getDeviceMemory: () => 8 as Num,
+	getHardwareConcurrency: () => 8 as Num,
+	initConnection: vi.fn(),
+	updateFromNavigatorInfo: vi.fn(),
+	resetConnection: vi.fn(),
+}));
 
 const okVoid = () => ({ ok: true as const, data: undefined, error: null });
 
@@ -347,6 +410,71 @@ describe('devtools meta', () => {
 		// buildInfo may be null in test environment where Vite define constants are missing
 		const info = devtools.buildInfo;
 		expect(info === null || typeof info === 'object').toBe(true);
+		api.destroy();
+	});
+});
+
+describe('devtools.perf namespace', () => {
+	it('exposes perf as a property', () => {
+		const api = createDevtoolsAPI(editorStore, debugStore);
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		expect(devtools.perf).toBeDefined();
+		expect(typeof devtools.perf).toBe('object');
+		api.destroy();
+	});
+
+	it('perf.vitals() returns current panel metrics', () => {
+		const api = createDevtoolsAPI(editorStore, debugStore);
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const vitals: PanelMetric[] = devtools.perf.vitals();
+		expect(vitals).toHaveLength(2);
+		expect(vitals[0]?.name).toBe('LCP');
+		expect(vitals[1]?.name).toBe('CLS');
+		api.destroy();
+	});
+
+	it('perf.beacon() returns beacon status', () => {
+		const api = createDevtoolsAPI(editorStore, debugStore);
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const beacon = devtools.perf.beacon();
+		expect(beacon.queued).toBe(2);
+		expect(beacon.sessionId).toBe('test-session-id');
+		expect(beacon.lastFlushAt).toBe('2026-03-06T12:00:00Z');
+		expect(beacon.maxQueueSize).toBe(10);
+		expect(beacon.queuedItems).toHaveLength(2);
+		api.destroy();
+	});
+
+	it('perf.device() returns connection snapshot', () => {
+		const api = createDevtoolsAPI(editorStore, debugStore);
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		const device: ConnectionSnapshot = devtools.perf.device();
+		expect(device.effectiveType).toBe('4g');
+		expect(device.quality).toBe('fast');
+		expect(device.deviceMemory).toBe(8);
+		expect(device.hardwareConcurrency).toBe(8);
+		expect(device.saveData).toBe(false);
+		expect(device.isLowEndDevice).toBe(false);
+		api.destroy();
+	});
+
+	it('perf.logVitals() prints to console', () => {
+		const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+		const api = createDevtoolsAPI(editorStore, debugStore);
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		devtools.perf.logVitals();
+		expect(spy).toHaveBeenCalled();
+		spy.mockRestore();
+		api.destroy();
+	});
+
+	it('perf.logDevice() prints to console', () => {
+		const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+		const api = createDevtoolsAPI(editorStore, debugStore);
+		const devtools = (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools;
+		devtools.perf.logDevice();
+		expect(spy).toHaveBeenCalled();
+		spy.mockRestore();
 		api.destroy();
 	});
 });
