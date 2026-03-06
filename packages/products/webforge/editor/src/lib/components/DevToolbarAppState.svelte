@@ -2,6 +2,7 @@
 import CheckIcon from '@lucide/svelte/icons/check';
 import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
+import SearchX from '@lucide/svelte/icons/search-x';
 import LogInIcon from '@lucide/svelte/icons/log-in';
 import LogOutIcon from '@lucide/svelte/icons/log-out';
 import { tick } from 'svelte';
@@ -49,6 +50,7 @@ let openPicklists: Record<Str, Bool> = $state(
 let triggerRefs: Record<Str, HTMLButtonElement | null> = $state(
 	Object.fromEntries(picklistKeys.map((k) => [k, null])),
 );
+let searchValues: Record<Str, Str> = $state(Object.fromEntries(picklistKeys.map((k) => [k, ''])));
 
 // Auth & scene simulation state from URL params
 const isLoggedOut: Bool = $derived(page.url.searchParams.get('wf.auth') === 'false');
@@ -271,7 +273,7 @@ function optionLabel(key: Str, value: Str): Str {
 							{...props}
 							variant="outline"
 							size="sm"
-							class="h-8 w-36 justify-between text-xs bg-white/[0.10] border-white/[0.08] hover:bg-white/[0.15]"
+							class="h-8 w-36 justify-between text-xs bg-white/[0.06] border-white/[0.08] hover:bg-white/[0.12]"
 							role="combobox"
 							aria-expanded={openPicklists[pref.key]}
 						>
@@ -282,9 +284,27 @@ function optionLabel(key: Str, value: Str): Str {
 				</Popover.Trigger>
 				<Popover.Content class="z-[100000] w-36 p-0 animation-duration-150 data-[state=closed]:animation-duration-150" side="bottom" align="end" sideOffset={4}>
 					<Command.Root>
-						<Command.Input placeholder={t(localeStore.t.devToolbar.search, 'Search…')} class="h-8 text-xs" />
+						<div class="relative">
+							<Command.Input bind:value={searchValues[pref.key]} placeholder={t(localeStore.t.devToolbar.search, 'Search…')} class="h-8 text-xs" />
+							{#if searchValues[pref.key]}
+								<button
+									type="button"
+									class="absolute right-1.5 top-1/2 -translate-y-1/2 z-10 size-5 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+									onclick={() => { searchValues[pref.key] = ''; }}
+									aria-label={t(localeStore.t.devToolbar.clearSearch, 'Clear search')}
+								>
+									<X class="size-3" />
+								</button>
+							{/if}
+						</div>
 						<Command.List>
-							<Command.Empty class="py-3 text-center text-xs">{t(localeStore.t.devToolbar.noMatch, 'No match')}</Command.Empty>
+							<Command.Empty>
+									<div class="flex flex-col items-center gap-1.5 py-4 text-muted-foreground">
+										<SearchX class="size-5" />
+										<p class="text-xs font-medium">{t(localeStore.t.devToolbar.noResultsFound, 'No results found')}</p>
+										<p class="text-[10px] text-muted-foreground/70">{t(localeStore.t.devToolbar.noResultsHint, 'Try a different search term')}</p>
+									</div>
+								</Command.Empty>
 							<Command.Group>
 								{#each pref.options as option (option)}
 									<Command.Item
@@ -312,7 +332,7 @@ function optionLabel(key: Str, value: Str): Str {
 				type="number"
 				value={String(currentValue)}
 				placeholder="0"
-				class="h-8 text-xs md:text-xs w-36 bg-white/[0.10] border-white/[0.08]"
+				class="h-8 text-xs md:text-xs w-36 bg-white/[0.06] border-white/[0.08]"
 				oninput={(e: Event) => callSetter(pref.key, Number((e.target as HTMLInputElement).value) || 0)}
 			/>
 		</div>
@@ -325,7 +345,7 @@ function optionLabel(key: Str, value: Str): Str {
 				id="pref-{pref.key}"
 				value={String(currentValue)}
 				placeholder={pref.key === 'userAvatar' ? 'https://...' : ''}
-				class="h-8 text-xs md:text-xs w-36 bg-white/[0.10] border-white/[0.08]"
+				class="h-8 text-xs md:text-xs w-36 bg-white/[0.06] border-white/[0.08]"
 				oninput={(e: Event) => callSetter(pref.key, (e.target as HTMLInputElement).value)}
 			/>
 		</div>

@@ -94,7 +94,7 @@ function labelFor(key: Str): Str {
 				type="text"
 				placeholder={t(localeStore.t.devToolbar.searchFlags, 'Search flags…')}
 				aria-label={t(localeStore.t.devToolbar.searchFlags, 'Search flags…')}
-				class="h-8 pl-8 {searchQuery ? 'pr-8' : 'pr-3'} text-xs md:text-xs bg-white/[0.10] border-white/[0.08]"
+				class="h-8 pl-8 {searchQuery ? 'pr-8' : 'pr-3'} text-xs md:text-xs bg-white/[0.06] border-white/[0.08]"
 				value={searchQuery}
 				oninput={(e: Event) => {
 					searchQuery = (e.target as HTMLInputElement).value;
