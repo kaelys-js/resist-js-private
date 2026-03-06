@@ -68,7 +68,6 @@ export function beaconError(captured: CapturedError): Result<Void> {
 	try {
 		const json: string = JSON.stringify(payloadResult.data);
 		// text/plain avoids CORS preflight — sendBeacon only allows simple content types
-		// oxlint-disable-next-line no-undef -- Blob is a browser global
 		const blob: Blob = new Blob([json], { type: 'text/plain' });
 		navigator.sendBeacon(BEACON_URL, blob);
 	} catch {

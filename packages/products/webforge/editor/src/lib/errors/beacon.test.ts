@@ -66,10 +66,8 @@ describe('beaconError', () => {
 		expect(result.ok).toBe(true);
 		expect(sendBeaconSpy).toHaveBeenCalledOnce();
 
-		// oxlint-disable-next-line no-undef -- Blob is a browser global
 		const [url, blob]: [Str, Blob] = sendBeaconSpy.mock.calls[0] as [Str, Blob];
 		expect(url).toBe('/api/errors');
-		// oxlint-disable-next-line no-undef -- Blob is a browser global
 		expect(blob).toBeInstanceOf(Blob);
 	});
 
@@ -77,7 +75,6 @@ describe('beaconError', () => {
 		const captured: CapturedError = makeCaptured();
 		beaconError(captured);
 
-		// oxlint-disable-next-line no-undef -- Blob is a browser global
 		const blob: Blob = sendBeaconSpy.mock.calls[0]![1] as Blob;
 		const text: Str = (await blob.text()) as Str;
 		const parsed: Record<Str, unknown> = JSON.parse(text) as Record<Str, unknown>;
@@ -93,9 +90,7 @@ describe('beaconError', () => {
 		beaconError(captured);
 
 		expect(sendBeaconSpy).toHaveBeenCalledOnce();
-		// oxlint-disable-next-line no-undef -- Blob is a browser global
 		const blob: Blob = sendBeaconSpy.mock.calls[0]![1] as Blob;
-		// oxlint-disable-next-line no-undef -- Blob is a browser global
 		expect(blob).toBeInstanceOf(Blob);
 		expect(blob.type).toBe('text/plain');
 	});
@@ -156,7 +151,6 @@ describe('beaconError', () => {
 		beaconError(captured);
 
 		expect(sendBeaconSpy).toHaveBeenCalledOnce();
-		// oxlint-disable-next-line no-undef -- Blob is a browser global
 		const blob: Blob = sendBeaconSpy.mock.calls[0]![1] as Blob;
 		const text: Str = (await blob.text()) as Str;
 		const parsed: Record<Str, unknown> = JSON.parse(text) as Record<Str, unknown>;

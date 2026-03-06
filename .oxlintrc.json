@@ -57,9 +57,15 @@
 		"$props": "readonly",
 		"$bindable": "readonly",
 		"$inspect": "readonly",
+		"Element": "readonly",
 		"HTMLElement": "readonly",
 		"HTMLCanvasElement": "readonly",
 		"HTMLInputElement": "readonly",
+		"Blob": "readonly",
+		"File": "readonly",
+		"FileReader": "readonly",
+		"FormData": "readonly",
+		"getComputedStyle": "readonly",
 		"localStorage": "readonly",
 		"GPUPowerPreference": "readonly",
 		"ResizeObserver": "readonly",
@@ -546,11 +552,20 @@
 				"typescript/no-unsafe-call": "off",
 				"typescript/no-unsafe-member-access": "off",
 				"no-empty-function": "off",
-				"no-await-in-loop": "off"
+				"no-await-in-loop": "off",
+				"new-cap": "off"
 			}
 		},
 		{
-			"files": ["**/logger.ts", "**/terminal.ts", "**/signal.ts"],
+			"files": [
+				"**/logger.ts",
+				"**/terminal.ts",
+				"**/signal.ts",
+				"**/hooks.client.ts",
+				"**/debug/init.svelte.ts",
+				"**/debug/state-logger.svelte.ts",
+				"**/debug/devtools-api.svelte.ts"
+			],
 			"rules": {
 				"no-console": "off"
 			}
@@ -581,6 +596,7 @@
 			],
 			"rules": {
 				"import/no-default-export": "off",
+				"new-cap": "off",
 				"unicorn/filename-case": "off"
 			}
 		},

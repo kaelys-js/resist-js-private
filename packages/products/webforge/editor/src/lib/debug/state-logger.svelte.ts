@@ -83,7 +83,6 @@ function logChange(section: Str, key: Str, oldVal: unknown, newVal: unknown): Vo
 	const oldStr: Str = JSON.stringify(oldVal);
 	const newStr: Str = JSON.stringify(newVal);
 
-	// eslint-disable-next-line no-console -- Intentional debug console output
 	console.groupCollapsed(
 		`%c EditorStore %c ${section}.${key} %c ${oldStr} → ${newStr} %c ${ts}`,
 		styles.storeBadge,
@@ -91,11 +90,8 @@ function logChange(section: Str, key: Str, oldVal: unknown, newVal: unknown): Vo
 		styles.reset,
 		styles.timestamp,
 	);
-	// eslint-disable-next-line no-console -- Intentional debug console output
 	console.log('%cold:%c %o', styles.oldValue, styles.reset, oldVal);
-	// eslint-disable-next-line no-console -- Intentional debug console output
 	console.log('%cnew:%c %o', styles.newValue, styles.reset, newVal);
-	// eslint-disable-next-line no-console -- Intentional debug console output
 	console.groupEnd();
 }
 
