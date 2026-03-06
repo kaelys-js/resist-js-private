@@ -10,6 +10,7 @@
 
 import * as v from 'valibot';
 import type { HandleClientError } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 import type { CapturedError } from '@/schemas/result/captured-error';
 import type { Str, Num, Bool, Void } from '@/schemas/common';
 import { ERRORS, err, type AppError } from '@/schemas/result/result';
@@ -21,6 +22,10 @@ setupLogging({ service: 'editor-client', initFromEnv: true });
 setupGlobalErrorHandling({
 	release: __APP_VERSION__,
 	tags: { branch: __GIT_BRANCH__, side: 'client' },
+	// Disable CSP capture in dev — CSP is intentionally off in dev mode
+	// (svelte.config.js sets `csp = undefined` for dev), so any violations
+	// come from browser extensions or external tools and are pure noise.
+	captureCSP: !dev,
 	onError: (captured) => {
 		// Async fire-and-forget — resolves source maps before logging.
 		// logErrorToConsole never rejects (internal try-catch), safe to ignore promise.
