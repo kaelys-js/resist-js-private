@@ -2,6 +2,7 @@
 import '../app.css';
 import { untrack } from 'svelte';
 import { browser } from '$app/environment';
+import { afterNavigate } from '$app/navigation';
 import { page } from '$app/state';
 import { ModeWatcher, setMode, setTheme } from 'mode-watcher';
 import * as Resizable from '$lib/components/ui/resizable/index.js';
@@ -24,8 +25,16 @@ import { APP_TAGLINE, THEME_COLORS, storageKey } from '$lib/config/app-meta';
 import { getBuildInfo } from '$lib/config/build-info';
 import { getAnnouncement } from '$lib/utils/announce.svelte';
 import type { ServerProject, ServerScene } from '$lib/server/data/types';
+import { addNavigationBreadcrumb } from '$lib/errors/breadcrumbs';
 
 const { children, data } = $props();
+
+// Track navigation events for error breadcrumb trail
+afterNavigate(({ from, to }) => {
+	const fromPath: Str | null = (from?.url.pathname as Str | null) ?? null;
+	const toPath: Str = (to?.url.pathname ?? '/') as Str;
+	addNavigationBreadcrumb(fromPath, toPath);
+});
 
 // Extract server locale immediately — intentionally capturing initial value only.
 const serverLocale: Str = data.locale ?? 'en';

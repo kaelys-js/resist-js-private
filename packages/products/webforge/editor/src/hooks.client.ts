@@ -17,8 +17,11 @@ import { ERRORS, err, type AppError } from '@/schemas/result/result';
 import { setupLogging } from '@/utils/core/logger';
 import { reportError, setupGlobalErrorHandling } from '@/utils/core/signal';
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
+import { beaconError } from '$lib/errors/beacon';
+import { initFetchBreadcrumbs } from '$lib/errors/breadcrumbs';
 
 setupLogging({ service: 'editor-client', initFromEnv: true });
+initFetchBreadcrumbs();
 setupGlobalErrorHandling({
 	release: __APP_VERSION__,
 	tags: { branch: __GIT_BRANCH__, side: 'client' },
@@ -30,6 +33,8 @@ setupGlobalErrorHandling({
 		// Async fire-and-forget — resolves source maps before logging.
 		// logErrorToConsole never rejects (internal try-catch), safe to ignore promise.
 		logErrorToConsole(captured); // eslint-disable-line no-void
+		// Beacon PII-stripped error to /api/errors (no-op in dev mode)
+		beaconError(captured);
 	},
 });
 
