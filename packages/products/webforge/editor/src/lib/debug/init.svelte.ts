@@ -17,7 +17,12 @@
 
 import { styles } from '$lib/debug/console-styles';
 import { createStateLogger } from '$lib/debug/state-logger.svelte';
-import { createDevtoolsAPI, DEVTOOLS_KEY } from '$lib/debug/devtools-api.svelte';
+import {
+	createDevtoolsAPI,
+	DEVTOOLS_KEY,
+	type EditorDevtools,
+} from '$lib/debug/devtools-api.svelte';
+import { APP_NAME } from '$lib/config/app-meta';
 import { getBuildInfo } from '$lib/config/build-info';
 import type { Bool, Str, Void } from '@/schemas/common';
 import { isValidAppKey, isValidFeatureFlag } from '$lib/utils/url-params';
@@ -49,7 +54,7 @@ export type DebugServicesHandle = {
  * @example
  * ```typescript
  * const handle = activateDebugServices(editorStore, debugStore);
- * // window.__EDITOR_DEVTOOLS__ is now available
+ * // window.__STORYLYNE_DEVTOOLS__ is now available
  * handle.destroy(); // removes everything
  * ```
  */
@@ -68,7 +73,7 @@ export function activateDebugServices(
 			devtoolsCleanup.destroy();
 
 			// eslint-disable-next-line no-console -- Intentional debug deactivation log
-			console.log('%c DEBUG %c Debug mode disabled', styles.debugBadge, styles.reset);
+			console.log(`%c ${APP_NAME} %c Debug mode disabled`, styles.debugBadge, styles.reset);
 		},
 	};
 }
@@ -136,25 +141,20 @@ function buildKVBlock(entries: Array<[Str, Str]>, pad = 14): [Str, ...Str[]] {
 function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): Void {
 	const globalName = `window.${DEVTOOLS_KEY}`;
 	const { logLevel } = debugStore.debug;
-	const { app, features } = editorStore;
+	const { features } = editorStore;
 	const overrides: Record<Str, Str> = debugStore.urlOverrides;
 	const overrideKeys: Str[] = Object.keys(overrides);
 
 	/* eslint-disable no-console -- Intentional welcome banner output */
 
 	// ── Header ────────────────────────────────────────────────────
-	console.log(
-		'%c[Debug] %c%s — debug mode enabled', // T
-		'color:#8cf;font-weight:bold',
-		'color:#aaa',
-		app.appName,
-	);
+	console.log(`%c[${APP_NAME}] %cDebug mode enabled`, 'color:#8cf;font-weight:bold', 'color:#aaa');
 
 	// ── Build Info (gold badge) ───────────────────────────────────
 	const buildResult = getBuildInfo();
 	if (buildResult.ok) {
 		const b = buildResult.data;
-		console.groupCollapsed('%c Build Info ', BADGE_BUILD);
+		console.groupCollapsed(`%c ${APP_NAME} · Build Info `, BADGE_BUILD);
 		const buildBlock = buildKVBlock([
 			['version', b.version],
 			['commit', b.commit],
@@ -166,20 +166,16 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): Voi
 		console.groupEnd();
 	}
 
-	// ── Current State (teal badge) ────────────────────────────────
-	console.groupCollapsed('%c Current State ', BADGE_STATE); // T
-	const stateBlock = buildKVBlock([
-		['theme', app.theme || '(system default)'],
-		['mode', app.mode],
-		['locale', app.locale],
-		['sidebarOpen', String(app.sidebarOpen)],
-		['logLevel', logLevel],
-	]);
-	console.log(...stateBlock);
+	// ── Current State (teal badge) — delegates to logState() ─────
+	console.groupCollapsed(`%c ${APP_NAME} · Current State `, BADGE_STATE);
+	const devtools = (window as unknown as Record<Str, EditorDevtools | undefined>)[DEVTOOLS_KEY];
+	if (devtools) {
+		devtools.logState();
+	}
 	console.groupEnd();
 
 	// ── Feature Flags (green badge) ───────────────────────────────
-	console.groupCollapsed('%c Feature Flags ', BADGE_FLAGS); // T
+	console.groupCollapsed(`%c ${APP_NAME} · Feature Flags `, BADGE_FLAGS);
 	const flagEntries: Array<[Str, Str]> = Object.entries(features).map(([key, val]) => [
 		key,
 		String(val),
@@ -201,7 +197,11 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): Voi
 		}
 
 		const suffix = `${validKeys.length} applied${unknownKeys.length > 0 ? `, ${unknownKeys.length} unknown` : ''}`;
-		console.groupCollapsed(`%c URL Overrides %c ${suffix}`, BADGE_OVERRIDES, 'color:#aaa');
+		console.groupCollapsed(
+			`%c ${APP_NAME} · URL Overrides %c ${suffix}`,
+			BADGE_OVERRIDES,
+			'color:#aaa',
+		);
 		if (validKeys.length > 0) {
 			const validEntries: Array<[Str, Str]> = validKeys.map((key) => [
 				`wf.${key}`,
@@ -217,21 +217,24 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): Voi
 	}
 
 	// ── Devtools API (purple badge) ───────────────────────────────
-	console.groupCollapsed(`%c Devtools API %c ${globalName}`, BADGE_API, 'color:#aaa');
+	console.groupCollapsed(`%c ${APP_NAME} · Devtools API %c ${globalName}`, BADGE_API, 'color:#aaa');
+	console.log(
+		`%cType %c${globalName}.help()%c for a full API reference`,
+		'color:#aaa',
+		'color:#c8f;font-weight:bold',
+		'color:#aaa',
+	);
 	const apiBlock = buildKVBlock(
 		[
 			['.state', 'Full state snapshot (app, features, debug)'],
+			['.buildInfo', 'Build metadata (version, commit, branch)'],
 			['.set(path, value)', 'Generic setter — e.g. .set("app.theme", "midnight")'],
-			['.setTheme(t)', 'Change editor theme'],
-			['.setMode(m)', 'Set color mode (light / dark / system)'],
-			['.setLocale(l)', 'Set locale (en, ja, zh, ko, fr, de, es)'],
-			['.setSidebarOpen(b)', 'Toggle sidebar (true / false)'],
-			['.setFeature(f, b)', 'Toggle feature flag'],
-			['.setLogLevel(l)', 'Set log level (trace / debug / info / warn / error)'],
 			['.enable() / .disable()', 'Toggle debug mode on/off'],
 			['.logState()', 'Pretty-print full state to console'],
-			['.logFeatures()', 'Print feature flags as console table'],
-			['.register(ns, api)', 'Add custom extension namespace'],
+			['.resetAllToDefaults()', 'Reset all state to defaults'],
+			['.copyDebugUrl()', 'Copy shareable debug URL to clipboard'],
+			['.login() / .logout()', 'Simulate auth state via URL params'],
+			['.help()', 'Print full API reference'],
 		],
 		22,
 	);
@@ -246,7 +249,8 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): Voi
 	// ── State Logger Hint ──────────────────────────────────────────
 	if (logLevel !== 'trace' && logLevel !== 'debug') {
 		console.log(
-			'%c[Tip] %cState change logging requires logLevel "debug" or "trace". Currently: "%s". Set via: %s.setLogLevel("debug")',
+			`%c[${APP_NAME}] %c[Tip] %cState change logging requires logLevel "debug" or "trace". Currently: "%s". Set via: %s.setLogLevel("debug")`,
+			'color:#8cf;font-weight:bold',
 			'color:#fa0;font-weight:bold',
 			'color:#aaa',
 			logLevel,
@@ -254,7 +258,8 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): Voi
 		);
 	} else {
 		console.log(
-			'%c[Logger] %cState change logging active — store mutations will be logged below',
+			`%c[${APP_NAME}] %c[Logger] %cState change logging active — store mutations will be logged below`,
+			'color:#8cf;font-weight:bold',
 			'color:#4f4;font-weight:bold',
 			'color:#aaa',
 		);

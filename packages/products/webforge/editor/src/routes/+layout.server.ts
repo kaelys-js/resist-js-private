@@ -19,6 +19,7 @@
  * @module
  */
 
+import type { Bool } from '@/schemas/common';
 import type { LayoutServerLoad } from './$types';
 import type { ServerProject, ServerScene } from '$lib/server/data/types';
 
@@ -42,6 +43,11 @@ export const load: LayoutServerLoad = ({ locals, url }) => {
 		};
 	}
 
+	// Capture URL params synchronously before entering async context.
+	// SvelteKit warns about URL access in promise handlers, but we only
+	// need a snapshot of the search params at load time.
+	const emptyScenes: Bool = url.searchParams.get('wf.scenes') === 'empty';
+
 	// Stream project — page renders immediately with NavUserSkeleton.
 	// Async IIFE avoids .then() chains (prefer-await-to-then lint rule).
 	const projectPromise: Promise<ServerProject | null> = (async () => {
@@ -55,7 +61,7 @@ export const load: LayoutServerLoad = ({ locals, url }) => {
 	const scenesPromise: Promise<readonly ServerScene[]> = (async () => {
 		const project = await projectPromise;
 		if (!project) return [] as readonly ServerScene[];
-		if (url.searchParams.get('wf.scenes') === 'empty') return [] as readonly ServerScene[];
+		if (emptyScenes) return [] as readonly ServerScene[];
 		const result = await locals.db.scenes.getByProject(project.id);
 		return result.ok ? result.data : ([] as readonly ServerScene[]);
 	})();
