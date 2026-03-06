@@ -292,6 +292,12 @@ const OPTION_LABELS: Record<Str, Record<Str, Str>> = {
 		de: 'German',
 		es: 'Spanish',
 	},
+	subscriptionPlan: {
+		free: 'Free',
+		starter: 'Starter',
+		pro: 'Pro',
+		enterprise: 'Enterprise',
+	},
 };
 
 /**

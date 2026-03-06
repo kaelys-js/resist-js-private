@@ -34,4 +34,24 @@ test.describe('scene navigation', () => {
 			await expect(page.getByText('Delete')).toBeVisible();
 		}
 	});
+
+	test('Delete Scene item has destructive variant', async ({ page }) => {
+		await page.goto('/');
+		// Hover over first scene to reveal the "More" action
+		await page.getByText('Overworld').hover();
+		const moreButton = page.getByRole('button', { name: 'More' }).first();
+		await moreButton.click();
+
+		// Delete item should have the destructive data-variant attribute
+		const deleteItem = page.locator('[data-slot="dropdown-menu-item"]', {
+			hasText: 'Delete',
+		});
+		await expect(deleteItem).toHaveAttribute('data-variant', 'destructive');
+
+		// Other items should NOT have destructive variant
+		const renameItem = page.locator('[data-slot="dropdown-menu-item"]', {
+			hasText: 'Rename',
+		});
+		await expect(renameItem).not.toHaveAttribute('data-variant', 'destructive');
+	});
 });

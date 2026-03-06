@@ -70,8 +70,8 @@ const scenesLabel: Str = $derived(t(localeStore.t.sidebar.scenes, 'Scenes'));
 							<span>{t(localeStore.t.scenes.duplicate, 'Duplicate')}</span>
 						</DropdownMenu.Item>
 						<DropdownMenu.Separator />
-						<DropdownMenu.Item>
-							<Trash2 aria-hidden="true" class="mr-2 size-4 text-muted-foreground" />
+						<DropdownMenu.Item variant="destructive">
+							<Trash2 aria-hidden="true" class="mr-2 size-4" />
 							<span>{t(localeStore.t.scenes.delete, 'Delete')}</span>
 						</DropdownMenu.Item>
 					</DropdownMenu.Content>

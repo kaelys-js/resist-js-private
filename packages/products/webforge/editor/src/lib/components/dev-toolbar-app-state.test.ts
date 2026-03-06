@@ -57,7 +57,7 @@ describe('DevToolbarAppState', () => {
 	});
 
 	it('renders correct number of preferences from schema', () => {
-		expect(preferences.length).toBe(9);
+		expect(preferences.length).toBe(10);
 	});
 
 	it('renders App section header', () => {

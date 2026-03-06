@@ -150,6 +150,10 @@ export const EditorLocaleSchema = v.strictObject({
 		logLevelInfo: messageTemplate(),
 		logLevelWarn: messageTemplate(),
 		logLevelError: messageTemplate(),
+		planFree: messageTemplate(),
+		planStarter: messageTemplate(),
+		planPro: messageTemplate(),
+		planEnterprise: messageTemplate(),
 		labels: v.strictObject({
 			// Feature flag labels
 			settings: messageTemplate(),
@@ -190,6 +194,7 @@ export const EditorLocaleSchema = v.strictObject({
 			userEmail: messageTemplate(),
 			userAvatar: messageTemplate(),
 			mockDataDelay: messageTemplate(),
+			subscriptionPlan: messageTemplate(),
 			// Debug field labels
 			enabled: messageTemplate(),
 			logLevel: messageTemplate(),

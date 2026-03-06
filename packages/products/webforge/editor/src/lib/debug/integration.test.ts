@@ -54,6 +54,7 @@ const createMockEditorStore = () => ({
 		userName: 'User',
 		userEmail: '',
 		userAvatar: '',
+		subscriptionPlan: 'pro' as 'free' | 'starter' | 'pro' | 'enterprise',
 		mockDataDelay: 0,
 	},
 	features: {
@@ -94,6 +95,7 @@ const createMockEditorStore = () => ({
 	setUserName: vi.fn(okVoid),
 	setUserEmail: vi.fn(okVoid),
 	setUserAvatar: vi.fn(okVoid),
+	setSubscriptionPlan: vi.fn(okVoid),
 	setMockDataDelay: vi.fn(okVoid),
 	setFeature: vi.fn(okVoid),
 	save: vi.fn(okVoid),

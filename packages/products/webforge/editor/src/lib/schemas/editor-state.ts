@@ -40,6 +40,12 @@ export const SUPPORTED_THEMES = [
 export const SUPPORTED_MODES = ['light', 'dark', 'system'] as const;
 
 /**
+ * Supported subscription plan tiers.
+ * Controls which feature flags are enabled by default.
+ */
+export const SUPPORTED_PLANS = ['free', 'starter', 'pro', 'enterprise'] as const;
+
+/**
  * Schema for user-global application preferences.
  * Persisted to localStorage.
  *
@@ -68,6 +74,8 @@ export const AppPreferencesSchema = v.strictObject({
 	userEmail: v.optional(v.string(), ''),
 	/** URL or path to the current user's avatar image. */
 	userAvatar: v.optional(v.string(), ''),
+	/** User's subscription plan tier. Controls default feature flag availability. */
+	subscriptionPlan: v.optional(v.picklist(SUPPORTED_PLANS), 'pro'),
 	/** Artificial delay (ms) added to mock data fetches for skeleton loading testing. */
 	mockDataDelay: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(10_000)), 0),
 });

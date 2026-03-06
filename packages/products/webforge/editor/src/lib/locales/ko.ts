@@ -137,6 +137,10 @@ export const ko: EditorLocaleRaw = {
 		logLevelInfo: '정보',
 		logLevelWarn: '경고',
 		logLevelError: '오류',
+		planFree: '무료',
+		planStarter: '스타터',
+		planPro: '프로',
+		planEnterprise: '엔터프라이즈',
 		labels: {
 			settings: '설정',
 			themeSelection: '테마 선택',
@@ -175,6 +179,7 @@ export const ko: EditorLocaleRaw = {
 			userEmail: '이메일',
 			userAvatar: '아바타',
 			mockDataDelay: '모의 데이터 지연 (ms)',
+			subscriptionPlan: '구독 플랜',
 			enabled: '활성화',
 			logLevel: '로그 레벨',
 			version: '버전',

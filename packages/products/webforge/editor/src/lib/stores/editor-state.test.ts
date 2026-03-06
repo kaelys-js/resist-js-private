@@ -192,6 +192,121 @@ describe('EditorStore', () => {
 		expect(setResult.ok).toBe(false);
 	});
 
+	// ── setSubscriptionPlan ───────────────────────────────────────────────
+
+	it("setSubscriptionPlan('free') sets plan and disables 10 feature flags", () => {
+		const result = createEditorStore();
+		if (!result.ok) throw new Error('Store creation failed');
+		const store = result.data;
+
+		const setResult = store.setSubscriptionPlan('free');
+		expect(setResult.ok).toBe(true);
+		expect(store.app.subscriptionPlan).toBe('free');
+
+		// 10 flags should be false
+		expect(store.features.settings).toBe(false);
+		expect(store.features.themeSelection).toBe(false);
+		expect(store.features.languageSelection).toBe(false);
+		expect(store.features.resizableSidebar).toBe(false);
+		expect(store.features.projectDropdown).toBe(false);
+		expect(store.features.projectDropdownSettings).toBe(false);
+		expect(store.features.projectDropdownIcon).toBe(false);
+		expect(store.features.headerUserNotifications).toBe(false);
+		expect(store.features.headerUserShortcuts).toBe(false);
+		expect(store.features.headerUserSettings).toBe(false);
+
+		// Other flags should still be true
+		expect(store.features.modeToggle).toBe(true);
+		expect(store.features.sidebar).toBe(true);
+		expect(store.features.headerUserDropdown).toBe(true);
+	});
+
+	it("setSubscriptionPlan('starter') sets plan and disables 3 feature flags", () => {
+		const result = createEditorStore();
+		if (!result.ok) throw new Error('Store creation failed');
+		const store = result.data;
+
+		const setResult = store.setSubscriptionPlan('starter');
+		expect(setResult.ok).toBe(true);
+		expect(store.app.subscriptionPlan).toBe('starter');
+
+		expect(store.features.projectDropdownSettings).toBe(false);
+		expect(store.features.headerUserShortcuts).toBe(false);
+		expect(store.features.headerUserSettings).toBe(false);
+
+		// Other flags should be true
+		expect(store.features.settings).toBe(true);
+		expect(store.features.themeSelection).toBe(true);
+	});
+
+	it("setSubscriptionPlan('pro') sets plan and enables all flags", () => {
+		const result = createEditorStore();
+		if (!result.ok) throw new Error('Store creation failed');
+		const store = result.data;
+
+		// First switch to free to disable some
+		store.setSubscriptionPlan('free');
+		expect(store.features.settings).toBe(false);
+
+		// Switch to pro — should re-enable all
+		const setResult = store.setSubscriptionPlan('pro');
+		expect(setResult.ok).toBe(true);
+		expect(store.app.subscriptionPlan).toBe('pro');
+		expect(store.features.settings).toBe(true);
+		expect(store.features.themeSelection).toBe(true);
+		expect(store.features.headerUserSettings).toBe(true);
+	});
+
+	it("setSubscriptionPlan('enterprise') enables all flags", () => {
+		const result = createEditorStore();
+		if (!result.ok) throw new Error('Store creation failed');
+		const store = result.data;
+
+		const setResult = store.setSubscriptionPlan('enterprise');
+		expect(setResult.ok).toBe(true);
+		expect(store.app.subscriptionPlan).toBe('enterprise');
+		expect(store.features.settings).toBe(true);
+	});
+
+	it("setSubscriptionPlan('invalid') returns error, state unchanged", () => {
+		const result = createEditorStore();
+		if (!result.ok) throw new Error('Store creation failed');
+		const store = result.data;
+
+		const setResult = store.setSubscriptionPlan('invalid');
+		expect(setResult.ok).toBe(false);
+		expect(store.app.subscriptionPlan).toBe('pro');
+	});
+
+	it("after setSubscriptionPlan('free'), individual setFeature still works", () => {
+		const result = createEditorStore();
+		if (!result.ok) throw new Error('Store creation failed');
+		const store = result.data;
+
+		store.setSubscriptionPlan('free');
+		expect(store.features.settings).toBe(false);
+
+		// Override individual flag
+		const setResult = store.setFeature('settings', true);
+		expect(setResult.ok).toBe(true);
+		expect(store.features.settings).toBe(true);
+	});
+
+	it('setSubscriptionPlan persists to localStorage', () => {
+		const result = createEditorStore();
+		if (!result.ok) throw new Error('Store creation failed');
+		const store = result.data;
+
+		store.setSubscriptionPlan('starter');
+
+		const raw = localStorage.getItem(STORAGE_KEY);
+		expect(raw).not.toBeNull();
+
+		const parsed = JSON.parse(raw!);
+		expect(parsed.app.subscriptionPlan).toBe('starter');
+		expect(parsed.features.headerUserShortcuts).toBe(false);
+	});
+
 	// ── save / load ────────────────────────────────────────────────────────
 
 	it("save() writes to localStorage key 'app:editor-state'", () => {
