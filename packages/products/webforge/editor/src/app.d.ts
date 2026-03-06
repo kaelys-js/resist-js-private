@@ -36,6 +36,18 @@ declare global {
 			user: ServerUser | null;
 			db: DataService;
 		}
+		interface Platform {
+			env: {
+				/** Cloudflare D1 database binding (available when deployed). */
+				DB?: D1Database;
+			};
+			/** Cloudflare Workers execution context. */
+			ctx: ExecutionContext;
+			/** Cloudflare Workers cache storage. */
+			caches: CacheStorage;
+			/** Cloudflare request properties (geo, TLS, etc.). */
+			cf?: IncomingRequestCfProperties;
+		}
 	}
 
 	/** Window extensions — debug devtools and build info globals. */

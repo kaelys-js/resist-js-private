@@ -2,7 +2,7 @@
  * Dynamic robots.txt route.
  *
  * Blocks API routes and AI training crawlers while allowing standard search
- * engines and AI search assistants. Prerendered at build time by adapter-static.
+ * engines and AI search assistants. Prerendered at build time.
  *
  * Policy:
  * - Standard search engines (Googlebot, Bingbot, etc.): allowed everywhere except `/api/`

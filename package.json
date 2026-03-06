@@ -24,7 +24,8 @@
 	"pnpm": {
 		"onlyBuiltDependencies": [
 			"@biomejs/biome",
-			"esbuild"
+			"esbuild",
+			"workerd"
 		]
 	},
 	"devDependencies": {
