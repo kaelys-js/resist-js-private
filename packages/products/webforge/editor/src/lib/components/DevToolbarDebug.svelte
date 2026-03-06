@@ -1,6 +1,7 @@
 <script lang="ts">
 import CheckIcon from '@lucide/svelte/icons/check';
 import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+import SearchX from '@lucide/svelte/icons/search-x';
 import { tick } from 'svelte';
 import { Switch } from '$lib/components/ui/switch/index.js';
 import { Label } from '$lib/components/ui/label/index.js';
@@ -52,6 +53,7 @@ let openPicklists: Record<Str, Bool> = $state(
 let triggerRefs: Record<Str, HTMLButtonElement | null> = $state(
 	Object.fromEntries(picklistKeys.map((k) => [k, null])),
 );
+let searchValues: Record<Str, Str> = $state(Object.fromEntries(picklistKeys.map((k) => [k, ''])));
 
 /**
  * Auto-maps a debug field key to its setter method name on DebugStore.
@@ -242,7 +244,7 @@ function optionLabel(key: Str, value: Str): Str {
 									{...props}
 									variant="outline"
 									size="sm"
-									class="h-8 w-36 justify-between text-xs bg-white/[0.10] border-white/[0.08] hover:bg-white/[0.15]"
+									class="h-8 w-36 justify-between text-xs bg-white/[0.06] border-white/[0.08] hover:bg-white/[0.12]"
 									role="combobox"
 									aria-expanded={openPicklists[field.key]}
 								>
@@ -253,9 +255,27 @@ function optionLabel(key: Str, value: Str): Str {
 						</Popover.Trigger>
 						<Popover.Content class="z-[100000] w-36 p-0 animation-duration-150 data-[state=closed]:animation-duration-150" side="bottom" align="end" sideOffset={4}>
 							<Command.Root>
-								<Command.Input placeholder={t(localeStore.t.devToolbar.search, 'Search…')} class="h-8 text-xs" />
+								<div class="relative">
+									<Command.Input bind:value={searchValues[field.key]} placeholder={t(localeStore.t.devToolbar.search, 'Search…')} class="h-8 text-xs" />
+									{#if searchValues[field.key]}
+										<button
+											type="button"
+											class="absolute right-1.5 top-1/2 -translate-y-1/2 z-10 size-5 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+											onclick={() => { searchValues[field.key] = ''; }}
+											aria-label={t(localeStore.t.devToolbar.clearSearch, 'Clear search')}
+										>
+											<XIcon class="size-3" />
+										</button>
+									{/if}
+								</div>
 								<Command.List>
-									<Command.Empty class="py-3 text-center text-xs">{t(localeStore.t.devToolbar.noMatch, 'No match')}</Command.Empty>
+									<Command.Empty>
+										<div class="flex flex-col items-center gap-1.5 py-4 text-muted-foreground">
+											<SearchX class="size-5" />
+											<p class="text-xs font-medium">{t(localeStore.t.devToolbar.noResultsFound, 'No results found')}</p>
+											<p class="text-[10px] text-muted-foreground/70">{t(localeStore.t.devToolbar.noResultsHint, 'Try a different search term')}</p>
+										</div>
+									</Command.Empty>
 									<Command.Group>
 										{#each field.options as option (option)}
 											<Command.Item

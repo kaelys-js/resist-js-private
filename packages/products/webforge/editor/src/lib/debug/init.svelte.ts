@@ -18,6 +18,7 @@
 import { styles } from '$lib/debug/console-styles';
 import { createStateLogger } from '$lib/debug/state-logger.svelte';
 import { createDevtoolsAPI, DEVTOOLS_KEY } from '$lib/debug/devtools-api.svelte';
+import { getBuildInfo } from '$lib/config/build-info';
 import type { Bool, Str, Void } from '@/schemas/common';
 import { isValidAppKey, isValidFeatureFlag } from '$lib/utils/url-params';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
@@ -109,6 +110,8 @@ const BADGE_FLAGS =
 	'background:#1a3a2a;color:#8f8;padding:1px 6px;border-radius:3px;font-weight:bold';
 const BADGE_OVERRIDES =
 	'background:#3a3a1a;color:#fc8;padding:1px 6px;border-radius:3px;font-weight:bold';
+const BADGE_BUILD =
+	'background:#2a2a1a;color:#fd8;padding:1px 6px;border-radius:3px;font-weight:bold';
 const BADGE_API =
 	'background:#2a1a3a;color:#c8f;padding:1px 6px;border-radius:3px;font-weight:bold';
 
@@ -146,6 +149,22 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): Voi
 		'color:#aaa',
 		app.appName,
 	);
+
+	// ── Build Info (gold badge) ───────────────────────────────────
+	const buildResult = getBuildInfo();
+	if (buildResult.ok) {
+		const b = buildResult.data;
+		console.groupCollapsed('%c Build Info ', BADGE_BUILD);
+		const buildBlock = buildKVBlock([
+			['version', b.version],
+			['commit', b.commit],
+			['branch', b.branch],
+			['dirty', b.dirty ? 'Yes' : 'No'],
+			['built', b.buildTimestamp],
+		]);
+		console.log(...buildBlock);
+		console.groupEnd();
+	}
 
 	// ── Current State (teal badge) ────────────────────────────────
 	console.groupCollapsed('%c Current State ', BADGE_STATE); // T
