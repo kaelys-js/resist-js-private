@@ -99,6 +99,26 @@ export function sanitizeSidebarWidth(raw: Str | null): Num | null {
 }
 
 /**
+ * Sanitizes a raw sidebar open/closed state cookie value.
+ *
+ * Accepts only `'true'` or `'false'` strings. Returns `null` for any
+ * invalid or missing input so the caller can fall back to the store default.
+ *
+ * @param raw - Raw cookie string value, or `null`
+ * @returns `true` (expanded), `false` (collapsed), or `null` (unknown/invalid)
+ *
+ * @example
+ * sanitizeSidebarOpen('true')         // true
+ * sanitizeSidebarOpen('false')        // false
+ * sanitizeSidebarOpen('"><script>')   // null (XSS attempt)
+ */
+export function sanitizeSidebarOpen(raw: Str | null): boolean | null {
+	if (raw === 'true') return true;
+	if (raw === 'false') return false;
+	return null;
+}
+
+/**
  * Sanitizes a raw theme cookie value.
  *
  * Validates against the `SUPPORTED_THEMES` picklist. Returns empty string
