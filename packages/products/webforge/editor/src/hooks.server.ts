@@ -11,7 +11,11 @@ import { resolveLocale } from '$lib/server/locale-detection';
 import type { ServerUser } from '$lib/server/data/types';
 import { MOCK_USER } from '$lib/server/mock/data';
 import { createDataService } from '$lib/server/data/index';
-import { sanitizeSidebarWidth, sanitizeTheme } from '$lib/utils/preference-cookie';
+import {
+	sanitizeSidebarOpen,
+	sanitizeSidebarWidth,
+	sanitizeTheme,
+} from '$lib/utils/preference-cookie';
 
 /** Security headers applied to every response (safe in both dev and prod). */
 const BASE_HEADERS: ReadonlyArray<readonly [string, string]> = [
@@ -214,6 +218,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.sidebarPx = sidebarPx;
 	const themeRaw: Str | undefined = event.cookies.get('app:theme');
 	const theme: Str = sanitizeTheme(themeRaw ?? null);
+	const sidebarOpenRaw: Str | undefined = event.cookies.get('app:sidebar-open');
+	const sidebarOpen: boolean | null = sanitizeSidebarOpen(sidebarOpenRaw ?? null);
+	event.locals.sidebarOpen = sidebarOpen;
 
 	const dirResult = getTextDirection(locale);
 	// UI boundary — log direction lookup failure, fall back to LTR

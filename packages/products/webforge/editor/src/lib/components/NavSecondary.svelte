@@ -20,7 +20,7 @@ let { items, ...restProps }: { items: NavItem[] } & Record<Str, unknown> = $prop
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
 							<a href={item.url} {...props}>
-								<span aria-hidden="true"><item.icon /></span>
+								<item.icon aria-hidden="true" />
 								<span>{item.title}</span>
 							</a>
 						{/snippet}

@@ -60,6 +60,16 @@ if (serverLocale !== localeStore.locale) {
 	localeStore.setLocale(serverLocale);
 }
 
+// Hydrate sidebar open state from server cookie to prevent expanded→collapsed flash.
+// Must be set synchronously BEFORE rendering so SSR outputs the correct sidebar state.
+if (
+	data.sidebarOpen !== null &&
+	data.sidebarOpen !== undefined &&
+	data.sidebarOpen !== store.app.sidebarOpen
+) {
+	store.setSidebarOpen(data.sidebarOpen);
+}
+
 // ── Debug store + URL overrides (client-only) ───────────────────────
 const debugStore: DebugStore | undefined = browser ? initDebugStore(page.url) : undefined;
 if (browser && debugStore) {
@@ -313,6 +323,15 @@ $effect(() => {
 	if (!browser) return;
 	// eslint-disable-next-line unicorn/no-document-cookie -- Cookie Store API is async; synchronous set needed here
 	document.cookie = `mockDataDelay=${delay};path=/;max-age=31_536_000;SameSite=Lax`;
+});
+
+// ── Store → sidebar open cookie sync ──────────────────────────────────
+// Persist sidebar open/closed state to cookie so hooks.server.ts can inject
+// the correct state during SSR — prevents expanded→collapsed flash.
+$effect(() => {
+	const open: Bool = store.app.sidebarOpen;
+	if (!browser) return;
+	setPreferenceCookie('sidebar-open', String(open));
 });
 
 // ── Store → PaneForge sidebar sync ────────────────────────────────────

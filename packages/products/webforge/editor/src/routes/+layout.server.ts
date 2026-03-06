@@ -38,6 +38,7 @@ export const load: LayoutServerLoad = ({ locals, url }) => {
 		return {
 			locale: locals.locale,
 			sidebarPx: locals.sidebarPx,
+			sidebarOpen: locals.sidebarOpen,
 			user: null,
 			project: null,
 			scenes: [] as readonly ServerScene[],
@@ -70,6 +71,7 @@ export const load: LayoutServerLoad = ({ locals, url }) => {
 	return {
 		locale: locals.locale,
 		sidebarPx: locals.sidebarPx,
+		sidebarOpen: locals.sidebarOpen,
 		user,
 		project: projectPromise,
 		scenes: scenesPromise,

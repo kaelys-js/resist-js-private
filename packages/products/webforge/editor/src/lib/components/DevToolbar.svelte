@@ -26,7 +26,7 @@ import DevToolbarPerf from './DevToolbarPerf.svelte';
 import { discoverFeatureFlags, discoverAppPreferences } from '$lib/debug/dev-toolbar-registry';
 import { storageKey } from '$lib/config/app-meta';
 import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
-import { scale, fly } from 'svelte/transition';
+import { scale, fly, fade } from 'svelte/transition';
 
 const editorStore: EditorStore = useEditorStore();
 const debugStore: DebugStore = useDebugStore();
@@ -35,6 +35,13 @@ let toolbarOpen: Bool = $state(false);
 let activePanel: Str | null = $state(null);
 let copySuccess: Bool = $state(false);
 let resetSuccess: Bool = $state(false);
+
+// Delayed flag so the {#if} block always transitions from false→true on mount.
+// Without this, transition:fade doesn't play when debug is already enabled on load.
+let showToolbar: Bool = $state(false);
+$effect(() => {
+	showToolbar = debugStore.debug.enabled;
+});
 
 // ── Draggable position (persisted to localStorage) ───────────────────
 const POS_KEY: Str = storageKey('dev-toolbar-pos');
@@ -372,9 +379,10 @@ $effect(() => {
 });
 </script>
 
-{#if debugStore.debug.enabled}
+{#if showToolbar}
 	<Tooltip.Provider delayDuration={300}>
 		<div
+			transition:fade={{ duration: 200 }}
 			class="fixed z-[99999] flex flex-col items-center gap-2"
 			style="left: {posX}px; bottom: {posBottom}px; transform: translateX(-50%); pointer-events: auto;"
 			data-testid="dev-toolbar"

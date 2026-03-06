@@ -39,6 +39,8 @@ declare global {
 			saveData: Bool;
 			/** Sanitized sidebar width from `app:sidebar-px` cookie, or `null` if absent/invalid. */
 			sidebarPx: Num | null;
+			/** Sanitized sidebar open state from `app:sidebar-open` cookie, or `null` if absent/invalid. */
+			sidebarOpen: Bool | null;
 		}
 		interface Platform {
 			env: {
