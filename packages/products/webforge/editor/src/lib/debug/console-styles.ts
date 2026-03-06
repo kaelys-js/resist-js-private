@@ -38,6 +38,16 @@ export const styles = {
 	valueText: 'color:#eee',
 	/** Reset to default inherited color. */
 	reset: 'color:inherit',
+	/** Cyan prefix for app name in vitals output (matches debug banner). */
+	vitalPrefix: 'color:#8cf;font-weight:bold',
+	/** White bold for metric name in vitals output. */
+	metricName: 'color:#fff;font-weight:bold',
+	/** Green bold for good-rated vitals metrics. */
+	ratingGood: 'color:#4caf50;font-weight:bold',
+	/** Amber bold for needs-improvement vitals metrics. */
+	ratingWarn: 'color:#ff9800;font-weight:bold',
+	/** Red bold for poor-rated vitals metrics. */
+	ratingPoor: 'color:#f44;font-weight:bold',
 } as const;
 
 /**

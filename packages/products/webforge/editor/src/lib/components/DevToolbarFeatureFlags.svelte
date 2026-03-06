@@ -1,4 +1,5 @@
 <script lang="ts">
+import Flag from '@lucide/svelte/icons/flag';
 import Search from '@lucide/svelte/icons/search';
 import SearchX from '@lucide/svelte/icons/search-x';
 import X from '@lucide/svelte/icons/x';
@@ -65,7 +66,7 @@ function labelFor(key: Str): Str {
 	<!-- Sticky header: title + close + search -->
 	<div class="flex shrink-0 flex-col gap-3 border-b border-white/[0.06] bg-white/[0.06] px-3 py-2.5">
 		<div class="flex items-center justify-between">
-			<h3 class="text-sm font-semibold text-foreground">{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')}</h3>
+			<h3 class="text-sm font-semibold text-foreground inline-flex items-center gap-2"><Flag class="size-4 text-primary" />{t(localeStore.t.devToolbar.featureFlags, 'Feature Flags')}</h3>
 			{#if onclose}
 				<Tooltip.Root delayDuration={300}>
 					<Tooltip.Trigger>

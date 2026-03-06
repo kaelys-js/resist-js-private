@@ -1,33 +1,19 @@
 /**
  * Tests for the vitals console logger.
  *
- * Verifies correct log level selection (info vs warn), format strings,
- * metric unit handling, and dev/prod mode behavior.
+ * Verifies colorized `%c` CSS formatting, correct log level selection
+ * (console.log vs console.warn), format strings, metric unit handling,
+ * and dev/prod mode behavior.
  *
  * @module
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { Str, Void } from '@/schemas/common';
+import type { Str, Num, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import { logVital } from './vitals-logger';
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
-
-const mockLogInfo = vi.fn();
-const mockLogWarn = vi.fn();
-
-vi.mock('@/utils/core/logger', () => ({
-	log: {
-		info: (...args: unknown[]) => mockLogInfo(...args),
-		warn: (...args: unknown[]) => mockLogWarn(...args),
-		error: vi.fn(),
-		debug: vi.fn(),
-		trace: vi.fn(),
-		json: vi.fn(),
-	},
-	setupLogging: vi.fn(),
-}));
 
 // Default: dev = true (from test mock)
 let mockDev: boolean = true;
@@ -40,16 +26,25 @@ vi.mock('$app/environment', () => ({
 	version: 'test',
 }));
 
+vi.mock('$lib/config/app-meta', () => ({
+	APP_NAME: 'TestApp',
+}));
+
 // ── Tests ──────────────────────────────────────────────────────────────────
 
 describe('vitals logger', () => {
+	let mockConsoleLog: ReturnType<typeof vi.spyOn>;
+	let mockConsoleWarn: ReturnType<typeof vi.spyOn>;
+
 	beforeEach(() => {
-		mockLogInfo.mockClear();
-		mockLogWarn.mockClear();
 		mockDev = true;
+		mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
+		mockConsoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 	});
 
 	afterEach(() => {
+		mockConsoleLog.mockRestore();
+		mockConsoleWarn.mockRestore();
 		mockDev = true;
 	});
 
@@ -58,56 +53,71 @@ describe('vitals logger', () => {
 	describe('format', () => {
 		it('formats timing metrics with ms suffix', () => {
 			logVital('LCP', 2450, 'needsImprovement');
-			expect(mockLogInfo).toHaveBeenCalledOnce();
-			const msg: Str = mockLogInfo.mock.calls[0][0] as Str;
-			expect(msg).toContain('LCP');
-			expect(msg).toContain('2450ms');
-			expect(msg).toContain('needsImprovement');
+			expect(mockConsoleLog).toHaveBeenCalledOnce();
+			const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
+			expect(fmt).toContain('LCP');
+			expect(fmt).toContain('2450ms');
+			expect(fmt).toContain('needsImprovement');
 		});
 
 		it('formats non-timing metrics without ms suffix', () => {
 			logVital('CLS', 0.05, 'good');
-			expect(mockLogInfo).toHaveBeenCalledOnce();
-			const msg: Str = mockLogInfo.mock.calls[0][0] as Str;
-			expect(msg).toContain('CLS');
-			expect(msg).toContain('0.05');
-			expect(msg).not.toContain('ms');
+			expect(mockConsoleLog).toHaveBeenCalledOnce();
+			const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
+			expect(fmt).toContain('CLS');
+			expect(fmt).toContain('0.05');
+			expect(fmt).not.toContain('ms');
 		});
 
 		it('rounds timing metric values', () => {
 			logVital('FCP', 1234.567, 'good');
-			const msg: Str = mockLogInfo.mock.calls[0][0] as Str;
-			expect(msg).toContain('1235ms');
+			const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
+			expect(fmt).toContain('1235ms');
 		});
 
 		it('does not round non-timing metrics', () => {
 			logVital('CLS', 0.123, 'good');
-			const msg: Str = mockLogInfo.mock.calls[0][0] as Str;
-			expect(msg).toContain('0.123');
+			const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
+			expect(fmt).toContain('0.123');
 		});
 
 		it('includes rating icon for good', () => {
 			logVital('TTFB', 100, 'good');
-			const msg: Str = mockLogInfo.mock.calls[0][0] as Str;
-			expect(msg).toContain('✓');
+			const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
+			expect(fmt).toContain('✓');
 		});
 
 		it('includes rating icon for needsImprovement', () => {
 			logVital('LCP', 3000, 'needsImprovement');
-			const msg: Str = mockLogInfo.mock.calls[0][0] as Str;
-			expect(msg).toContain('⚠');
+			const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
+			expect(fmt).toContain('⚠');
 		});
 
 		it('includes rating icon for poor', () => {
 			logVital('INP', 650, 'poor');
-			const msg: Str = mockLogWarn.mock.calls[0][0] as Str;
-			expect(msg).toContain('✗');
+			const fmt: Str = mockConsoleWarn.mock.calls[0][0] as Str;
+			expect(fmt).toContain('✗');
 		});
 
-		it('includes [perf] prefix', () => {
+		it('includes app name prefix', () => {
 			logVital('FCP', 1000, 'good');
-			const msg: Str = mockLogInfo.mock.calls[0][0] as Str;
-			expect(msg).toContain('[perf]');
+			const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
+			expect(fmt).toContain('[TestApp]');
+		});
+
+		it('uses %c CSS formatting with style arguments', () => {
+			logVital('LCP', 2450, 'good');
+			const call: unknown[] = mockConsoleLog.mock.calls[0] as unknown[];
+			const fmt: Str = call[0] as Str;
+			// Format string should contain 4 %c directives
+			const directiveCount: Num = (fmt.match(/%c/g) ?? []).length;
+			expect(directiveCount).toBe(4);
+			// Should have format string + 4 CSS style arguments = 5 total args
+			expect(call).toHaveLength(5);
+			// All 4 style args should be CSS strings containing 'color:'
+			for (let i: Num = 1; i < call.length; i++) {
+				expect(call[i]).toMatch(/color:/);
+			}
 		});
 	});
 
@@ -115,25 +125,23 @@ describe('vitals logger', () => {
 
 	describe('timing metrics', () => {
 		const timingMetrics: readonly Str[] = ['TTFB', 'FCP', 'LCP', 'FID', 'INP', 'TBT', 'NTBT'];
-		for (const metric of timingMetrics) {
-			it(`treats ${metric} as a timing metric (ms suffix)`, () => {
-				logVital(metric, 100, 'good');
-				const msg: Str = mockLogInfo.mock.calls[0][0] as Str;
-				expect(msg).toContain('ms');
-				mockLogInfo.mockClear();
-			});
-		}
+
+		it.each(timingMetrics)('treats %s as a timing metric (ms suffix)', (metric: Str) => {
+			logVital(metric, 100, 'good');
+			const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
+			expect(fmt).toContain('ms');
+		});
 
 		it('treats CLS as a non-timing metric (no ms suffix)', () => {
 			logVital('CLS', 0.1, 'good');
-			const msg: Str = mockLogInfo.mock.calls[0][0] as Str;
-			expect(msg).not.toContain('ms');
+			const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
+			expect(fmt).not.toContain('ms');
 		});
 
 		it('treats navigationTiming as a non-timing metric', () => {
 			logVital('navigationTiming', 0, 'good');
-			const msg: Str = mockLogInfo.mock.calls[0][0] as Str;
-			expect(msg).not.toContain('ms');
+			const fmt: Str = mockConsoleLog.mock.calls[0][0] as Str;
+			expect(fmt).not.toContain('ms');
 		});
 	});
 
@@ -144,22 +152,22 @@ describe('vitals logger', () => {
 			mockDev = true;
 		});
 
-		it('logs good metrics via log.info in dev', () => {
+		it('logs good metrics via console.log in dev', () => {
 			logVital('CLS', 0.05, 'good');
-			expect(mockLogInfo).toHaveBeenCalledOnce();
-			expect(mockLogWarn).not.toHaveBeenCalled();
+			expect(mockConsoleLog).toHaveBeenCalledOnce();
+			expect(mockConsoleWarn).not.toHaveBeenCalled();
 		});
 
-		it('logs needsImprovement metrics via log.info in dev', () => {
+		it('logs needsImprovement metrics via console.log in dev', () => {
 			logVital('LCP', 2500, 'needsImprovement');
-			expect(mockLogInfo).toHaveBeenCalledOnce();
-			expect(mockLogWarn).not.toHaveBeenCalled();
+			expect(mockConsoleLog).toHaveBeenCalledOnce();
+			expect(mockConsoleWarn).not.toHaveBeenCalled();
 		});
 
-		it('logs poor metrics via log.warn in dev', () => {
+		it('logs poor metrics via console.warn in dev', () => {
 			logVital('INP', 650, 'poor');
-			expect(mockLogWarn).toHaveBeenCalledOnce();
-			expect(mockLogInfo).not.toHaveBeenCalled();
+			expect(mockConsoleWarn).toHaveBeenCalledOnce();
+			expect(mockConsoleLog).not.toHaveBeenCalled();
 		});
 	});
 
@@ -172,20 +180,20 @@ describe('vitals logger', () => {
 
 		it('does not log good metrics in prod', () => {
 			logVital('CLS', 0.05, 'good');
-			expect(mockLogInfo).not.toHaveBeenCalled();
-			expect(mockLogWarn).not.toHaveBeenCalled();
+			expect(mockConsoleLog).not.toHaveBeenCalled();
+			expect(mockConsoleWarn).not.toHaveBeenCalled();
 		});
 
 		it('does not log needsImprovement metrics in prod', () => {
 			logVital('LCP', 2500, 'needsImprovement');
-			expect(mockLogInfo).not.toHaveBeenCalled();
-			expect(mockLogWarn).not.toHaveBeenCalled();
+			expect(mockConsoleLog).not.toHaveBeenCalled();
+			expect(mockConsoleWarn).not.toHaveBeenCalled();
 		});
 
-		it('logs poor metrics via log.warn in prod', () => {
+		it('logs poor metrics via console.warn in prod', () => {
 			logVital('INP', 650, 'poor');
-			expect(mockLogWarn).toHaveBeenCalledOnce();
-			expect(mockLogInfo).not.toHaveBeenCalled();
+			expect(mockConsoleWarn).toHaveBeenCalledOnce();
+			expect(mockConsoleLog).not.toHaveBeenCalled();
 		});
 	});
 

@@ -136,8 +136,8 @@ describe('DEFAULT_SHORTCUTS', () => {
 		}
 	});
 
-	it('has 9 default shortcuts', () => {
-		expect(Object.keys(DEFAULT_SHORTCUTS)).toHaveLength(9);
+	it('has 10 default shortcuts', () => {
+		expect(Object.keys(DEFAULT_SHORTCUTS)).toHaveLength(10);
 	});
 
 	it('all shortcuts are enabled by default', () => {
@@ -175,11 +175,12 @@ describe('DEFAULT_SHORTCUTS', () => {
 		expect(s.context).toBe('global');
 	});
 
-	it('DEV panel shortcuts (1-6) use Ctrl modifier', () => {
+	it('DEV panel shortcuts (1-7) use Ctrl modifier', () => {
 		const panelIds: Array<keyof ShortcutRegistry> = [
 			'DEV_FLAGS_PANEL',
 			'DEV_APP_PANEL',
 			'DEV_DEBUG_PANEL',
+			'DEV_PERF_PANEL',
 			'DEV_CYCLE_MODE',
 			'DEV_COPY_STATE',
 			'DEV_RESET_ALL',
@@ -626,10 +627,10 @@ describe('updateShortcut', () => {
 
 	it('allows update to non-conflicting binding', () => {
 		const registry = freshRegistry();
-		const result = updateShortcut(registry, 'DEV_FLAGS_PANEL', '7', ['ctrl']);
+		const result = updateShortcut(registry, 'DEV_FLAGS_PANEL', '8', ['ctrl']);
 		expect(result.ok).toBe(true);
 		if (result.ok) {
-			expect(result.data.DEV_FLAGS_PANEL.key).toBe('7');
+			expect(result.data.DEV_FLAGS_PANEL.key).toBe('8');
 		}
 	});
 });
@@ -705,13 +706,13 @@ describe('integration: full customization workflow', () => {
 		let registry = freshRegistry();
 		expect(detectConflicts(registry)).toHaveLength(0);
 
-		// Step 2: Update DEV_FLAGS_PANEL to Ctrl+7 (no conflict)
-		const step2 = updateShortcut(registry, 'DEV_FLAGS_PANEL', '7', ['ctrl']);
+		// Step 2: Update DEV_FLAGS_PANEL to Ctrl+8 (no conflict)
+		const step2 = updateShortcut(registry, 'DEV_FLAGS_PANEL', '8', ['ctrl']);
 		expect(step2.ok).toBe(true);
 		if (step2.ok) registry = step2.data;
 
-		// Step 3: Try to set DEV_APP_PANEL to Ctrl+7 too (conflict!)
-		const step3 = updateShortcut(registry, 'DEV_APP_PANEL', '7', ['ctrl']);
+		// Step 3: Try to set DEV_APP_PANEL to Ctrl+8 too (conflict!)
+		const step3 = updateShortcut(registry, 'DEV_APP_PANEL', '8', ['ctrl']);
 		expect(step3.ok).toBe(false);
 
 		// Step 4: Reset DEV_FLAGS_PANEL back to default
@@ -719,8 +720,8 @@ describe('integration: full customization workflow', () => {
 		expect(step4.ok).toBe(true);
 		if (step4.ok) registry = step4.data;
 
-		// Step 5: Now Ctrl+7 is free, DEV_APP_PANEL can use it
-		const step5 = updateShortcut(registry, 'DEV_APP_PANEL', '7', ['ctrl']);
+		// Step 5: Now Ctrl+8 is free, DEV_APP_PANEL can use it
+		const step5 = updateShortcut(registry, 'DEV_APP_PANEL', '8', ['ctrl']);
 		expect(step5.ok).toBe(true);
 
 		// Step 6: Verify no conflicts

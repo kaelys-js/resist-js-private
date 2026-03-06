@@ -19,6 +19,17 @@ import { reportError, setupGlobalErrorHandling } from '@/utils/core/signal';
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
 import { beaconError } from '$lib/errors/beacon';
 import { initFetchBreadcrumbs } from '$lib/errors/breadcrumbs';
+import { setupPerfume, type AnalyticsTrackerOptions } from '$lib/perf/perfume';
+import { logVital } from '$lib/perf/vitals-logger';
+import { queueVital, setupVitalsBeacon, setDeviceInfo } from '$lib/perf/vitals-beacon';
+import {
+	initConnection,
+	updateFromNavigatorInfo,
+	getEffectiveType,
+	getSaveData,
+} from '$lib/perf/connection.svelte';
+import type { VitalsMetric } from '$lib/perf/vitals-payload';
+import { reportVitalToPanel } from '$lib/perf/vitals-panel-store.svelte';
 
 setupLogging({ service: 'editor-client', initFromEnv: true });
 initFetchBreadcrumbs();
@@ -37,6 +48,72 @@ setupGlobalErrorHandling({
 		beaconError(captured);
 	},
 });
+
+// =============================================================================
+// Web Vitals Collection (Perfume.js + beacon + connection)
+// =============================================================================
+
+// Initialize connection quality monitoring (reads navigator.connection)
+initConnection();
+
+// Set up vitals beacon (registers visibilitychange → flushVitals)
+setupVitalsBeacon();
+
+/** Tracks whether Perfume.js device info has been captured (reported once per page load). */
+let deviceInfoCaptured: Bool = false;
+
+/**
+ * Perfume.js analytics tracker callback.
+ *
+ * Called once per metric (TTFB, FCP, LCP, CLS, INP, TBT, NTBT, navigationTiming,
+ * networkInformation). Routes each metric to the console logger and beacon queue.
+ * Captures device info on the first callback to populate connection store and
+ * beacon payloads.
+ *
+ * @param options - Perfume.js analytics tracker options (metric data, rating, device info)
+ * @returns `Void` — fire-and-forget, always succeeds
+ */
+function analyticsTracker(options: AnalyticsTrackerOptions): Void {
+	const { metricName, data, rating, navigatorInformation, navigationType } = options;
+
+	// Capture device info once — Perfume.js reports navigatorInformation with every callback
+	if (!deviceInfoCaptured) {
+		deviceInfoCaptured = true;
+		updateFromNavigatorInfo(navigatorInformation);
+		setDeviceInfo({
+			isLowEndDevice: navigatorInformation.isLowEndDevice ?? false,
+			isLowEndExperience: navigatorInformation.isLowEndExperience ?? false,
+			deviceMemory: navigatorInformation.deviceMemory ?? 0,
+			hardwareConcurrency: navigatorInformation.hardwareConcurrency ?? 0,
+			effectiveType: getEffectiveType(),
+			saveData: getSaveData(),
+		});
+	}
+
+	// Skip non-vital meta-metrics (navigationTiming, networkInformation are objects, not numbers)
+	if (typeof data !== 'number') return;
+
+	// Null rating means Perfume.js didn't evaluate a threshold — default to 'good'
+	const safeRating: VitalsMetric['rating'] = rating ?? 'good';
+
+	// Log to console (color-coded by rating in dev, warnings-only in prod)
+	logVital(metricName, data, safeRating);
+
+	// Queue for beacon (flushed on visibilitychange → hidden or at MAX_QUEUE_SIZE)
+	queueVital({
+		name: metricName,
+		value: data,
+		rating: safeRating,
+		navigationType: navigationType ?? 'navigate',
+	});
+
+	// Feed dev toolbar performance panel (reactive $state store)
+	reportVitalToPanel(metricName, data, safeRating);
+
+	return undefined;
+}
+
+setupPerfume(analyticsTracker);
 
 // =============================================================================
 // Source Location Extraction

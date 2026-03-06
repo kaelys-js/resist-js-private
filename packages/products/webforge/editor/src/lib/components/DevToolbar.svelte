@@ -3,6 +3,7 @@ import Code from '@lucide/svelte/icons/code';
 import Flag from '@lucide/svelte/icons/flag';
 import Settings2 from '@lucide/svelte/icons/settings-2';
 import Bug from '@lucide/svelte/icons/bug';
+import Activity from '@lucide/svelte/icons/activity';
 import Sun from '@lucide/svelte/icons/sun';
 import Moon from '@lucide/svelte/icons/moon';
 import Monitor from '@lucide/svelte/icons/monitor';
@@ -21,6 +22,7 @@ import type { Result } from '@/schemas/result/result';
 import DevToolbarFeatureFlags from './DevToolbarFeatureFlags.svelte';
 import DevToolbarAppState from './DevToolbarAppState.svelte';
 import DevToolbarDebug from './DevToolbarDebug.svelte';
+import DevToolbarPerf from './DevToolbarPerf.svelte';
 import { discoverFeatureFlags, discoverAppPreferences } from '$lib/debug/dev-toolbar-registry';
 import { storageKey } from '$lib/config/app-meta';
 import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
@@ -234,12 +236,14 @@ function togglePanel(panel: Str): Void {
 const flagsOpen: Bool = $derived(activePanel === 'flags');
 const appOpen: Bool = $derived(activePanel === 'app');
 const debugOpen: Bool = $derived(activePanel === 'debug');
+const perfOpen: Bool = $derived(activePanel === 'perf');
 
 // ── Roving tabindex ──────────────────────────────────────────────────
 const TOOLBAR_BUTTON_IDS: readonly Str[] = [
 	'toolbar-btn-flags',
 	'toolbar-btn-app',
 	'toolbar-btn-debug',
+	'toolbar-btn-perf',
 	'toolbar-btn-mode',
 	'toolbar-btn-copy',
 	'toolbar-btn-reset',
@@ -348,6 +352,9 @@ $effect(() => {
 		} else if (shortcutStore.matches(e, 'DEV_DEBUG_PANEL')) {
 			e.preventDefault();
 			togglePanel('debug');
+		} else if (shortcutStore.matches(e, 'DEV_PERF_PANEL')) {
+			e.preventDefault();
+			togglePanel('perf');
 		} else if (shortcutStore.matches(e, 'DEV_CYCLE_MODE')) {
 			e.preventDefault();
 			cycleMode();
@@ -395,6 +402,8 @@ $effect(() => {
 					<DevToolbarAppState {editorStore} onclose={() => { activePanel = null; }} />
 				{:else if activePanel === 'debug'}
 					<DevToolbarDebug {editorStore} {debugStore} onclose={() => { activePanel = null; }} />
+				{:else if activePanel === 'perf'}
+					<DevToolbarPerf onclose={() => { activePanel = null; }} />
 				{/if}
 			</div>
 		{/if}
@@ -487,6 +496,31 @@ $effect(() => {
 					</Tooltip.Content>
 				</Tooltip.Root>
 
+				<Tooltip.Root delayDuration={300}>
+					<Tooltip.Trigger>
+						{#snippet child({ props })}
+							<Button
+								{...props}
+								variant="ghost"
+								size="icon"
+								tabindex={focusedIndex === 3 ? 0 : -1}
+								class="size-8 hover:bg-transparent! transition-colors duration-200 {perfOpen
+									? 'text-primary'
+									: 'text-muted-foreground hover:text-primary'}"
+								onclick={() => togglePanel('perf')}
+								aria-label={t(localeStore.t.devToolbar.performance, 'Performance')}
+								aria-pressed={perfOpen}
+								data-testid="toolbar-btn-perf"
+							>
+								<Activity class="size-4" />
+							</Button>
+						{/snippet}
+					</Tooltip.Trigger>
+					<Tooltip.Content side="top" sideOffset={8} class="z-[100000]">
+						<span class="flex items-center gap-1.5">{t(localeStore.t.devToolbar.performance, 'Performance')} <kbd class="hidden md:inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">{shortcutStore.format('DEV_PERF_PANEL')}</kbd></span>
+					</Tooltip.Content>
+				</Tooltip.Root>
+
 				<Separator orientation="vertical" class="mx-1 h-5 bg-border" />
 
 				<!-- Quick action: cycle mode -->
@@ -497,7 +531,7 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
-								tabindex={focusedIndex === 3 ? 0 : -1}
+								tabindex={focusedIndex === 4 ? 0 : -1}
 								class="size-8 hover:bg-transparent! transition-colors duration-200 text-muted-foreground hover:text-primary"
 								onclick={cycleMode}
 								aria-label={cycleThemeLabel}
@@ -526,7 +560,7 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
-								tabindex={focusedIndex === 4 ? 0 : -1}
+								tabindex={focusedIndex === 5 ? 0 : -1}
 								class="size-8 hover:bg-transparent! transition-colors duration-200 {copySuccess
 								? 'text-green-500'
 								: 'text-muted-foreground hover:text-primary'}"
@@ -561,7 +595,7 @@ $effect(() => {
 								{...props}
 								variant="ghost"
 								size="icon"
-								tabindex={focusedIndex === 5 ? 0 : -1}
+								tabindex={focusedIndex === 6 ? 0 : -1}
 								class="size-8 hover:bg-transparent! transition-colors duration-200 {resetSuccess
 								? 'text-green-500'
 								: 'text-muted-foreground hover:text-primary'}"

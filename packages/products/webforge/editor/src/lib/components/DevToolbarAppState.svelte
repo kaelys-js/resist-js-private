@@ -3,6 +3,7 @@ import CheckIcon from '@lucide/svelte/icons/check';
 import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
 import SearchX from '@lucide/svelte/icons/search-x';
+import Settings2 from '@lucide/svelte/icons/settings-2';
 import LogInIcon from '@lucide/svelte/icons/log-in';
 import LogOutIcon from '@lucide/svelte/icons/log-out';
 import { tick } from 'svelte';
@@ -154,7 +155,7 @@ function optionLabel(key: Str, value: Str): Str {
 
 <div class="flex flex-1 min-h-0 flex-col overflow-hidden" data-testid="dev-toolbar-app-state">
 	<div class="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.06] px-3 py-2.5">
-		<h3 class="text-sm font-semibold text-foreground">{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')}</h3>
+		<h3 class="text-sm font-semibold text-foreground inline-flex items-center gap-2"><Settings2 class="size-4 text-primary" />{t(localeStore.t.devToolbar.appPreferences, 'App Preferences')}</h3>
 		{#if onclose}
 			<Tooltip.Root delayDuration={300}>
 				<Tooltip.Trigger>
