@@ -359,7 +359,8 @@ export function createDevtoolsAPI(
 
 		perf: {
 			vitals(): PanelMetric[] {
-				return getVitalsPanelMetrics();
+				// Unwrap Svelte $state Proxy so console shows plain data
+				return $state.snapshot(getVitalsPanelMetrics()) as PanelMetric[];
 			},
 
 			beacon(): BeaconStatus {
