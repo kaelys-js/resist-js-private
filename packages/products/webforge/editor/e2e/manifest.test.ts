@@ -85,6 +85,54 @@ test.describe('manifest.webmanifest', () => {
 		expect(manifest.categories.length).toBeGreaterThan(0);
 	});
 
+	test('display_override starts with window-controls-overlay', async ({ request }) => {
+		const response = await request.get('/manifest.webmanifest');
+		const manifest = await response.json();
+		expect(Array.isArray(manifest.display_override)).toBe(true);
+		expect(manifest.display_override.length).toBeGreaterThanOrEqual(2);
+		expect(manifest.display_override[0]).toBe('window-controls-overlay');
+		expect(manifest.display_override[1]).toBe('standalone');
+	});
+
+	test('has 2 screenshot entries', async ({ request }) => {
+		const response = await request.get('/manifest.webmanifest');
+		const manifest = await response.json();
+		expect(manifest.screenshots).toHaveLength(2);
+	});
+
+	test('has wide screenshot with form_factor', async ({ request }) => {
+		const response = await request.get('/manifest.webmanifest');
+		const manifest = await response.json();
+		const wide = manifest.screenshots.find(
+			(s: { form_factor: string }) => s.form_factor === 'wide',
+		);
+		expect(wide).toBeTruthy();
+		expect(wide.type).toBe('image/png');
+		expect(wide.sizes).toMatch(/^\d+x\d+$/);
+		expect(wide.label).toBeTruthy();
+	});
+
+	test('has narrow screenshot with form_factor', async ({ request }) => {
+		const response = await request.get('/manifest.webmanifest');
+		const manifest = await response.json();
+		const narrow = manifest.screenshots.find(
+			(s: { form_factor: string }) => s.form_factor === 'narrow',
+		);
+		expect(narrow).toBeTruthy();
+		expect(narrow.type).toBe('image/png');
+		expect(narrow.sizes).toMatch(/^\d+x\d+$/);
+		expect(narrow.label).toBeTruthy();
+	});
+
+	test('all screenshot src paths resolve to 200', async ({ request }) => {
+		const response = await request.get('/manifest.webmanifest');
+		const manifest = await response.json();
+		for (const screenshot of manifest.screenshots) {
+			const screenshotResponse = await request.get(screenshot.src);
+			expect(screenshotResponse.status(), `${screenshot.src} should return 200`).toBe(200);
+		}
+	});
+
 	test('has 4 icon entries', async ({ request }) => {
 		const response = await request.get('/manifest.webmanifest');
 		const manifest = await response.json();

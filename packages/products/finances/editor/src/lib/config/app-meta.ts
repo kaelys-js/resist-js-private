@@ -112,6 +112,25 @@ export const THEME_COLORS: Record<(typeof SUPPORTED_THEMES)[number], ThemeColorE
 	amethyst: { light: '#ffffff', dark: '#261b2c' },
 };
 
+// ── Display override ─────────────────────────────────────────────────────────
+// Preferred display modes in priority order. Enables Window Controls Overlay
+// when supported, falling back to standalone.
+
+/** Schema for valid display override modes. */
+export const DisplayOverrideSchema = v.array(
+	v.picklist(['window-controls-overlay', 'standalone', 'fullscreen', 'minimal-ui', 'browser']),
+);
+
+/**
+ * PWA manifest `display_override` array.
+ * Browsers try each mode in order and use the first one supported.
+ * `window-controls-overlay` enables the title bar area for app content.
+ */
+export const DISPLAY_OVERRIDE: v.InferOutput<typeof DisplayOverrideSchema> = [
+	'window-controls-overlay',
+	'standalone',
+];
+
 // ── Icons ────────────────────────────────────────────────────────────────────
 // Must match the files in static/. Shared by manifest route and meta tags.
 
@@ -135,6 +154,46 @@ export const ICONS: readonly IconEntry[] = [
 	{ src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
 	{ src: '/icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
 	{ src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+];
+
+// ── Screenshots ─────────────────────────────────────────────────────────────
+// PWA install UI screenshots. Must match the files in static/.
+// At least one "wide" and one "narrow" screenshot are required for richer
+// install prompts on desktop and mobile respectively.
+
+/** Schema for a single PWA screenshot entry. */
+export const ScreenshotEntrySchema = v.strictObject({
+	/** Path to screenshot file (relative to static/). */
+	src: v.string(),
+	/** Screenshot dimensions (e.g. `'1280x720'`). */
+	sizes: v.pipe(v.string(), v.regex(/^\d+x\d+$/)),
+	/** MIME type of the screenshot (e.g. `'image/png'`). */
+	type: v.picklist(['image/png', 'image/jpeg', 'image/webp']),
+	/** Form factor: `'wide'` for desktop, `'narrow'` for mobile. */
+	form_factor: v.picklist(['wide', 'narrow']),
+	/** Descriptive label for accessibility. */
+	label: v.string(),
+});
+
+/** A PWA manifest screenshot definition. */
+export type ScreenshotEntry = v.InferOutput<typeof ScreenshotEntrySchema>;
+
+/** PWA manifest screenshots for richer install UI. */
+export const SCREENSHOTS: readonly ScreenshotEntry[] = [
+	{
+		src: '/screenshots/desktop.png',
+		sizes: '1280x720',
+		type: 'image/png',
+		form_factor: 'wide',
+		label: 'Finances dashboard — desktop view',
+	},
+	{
+		src: '/screenshots/mobile.png',
+		sizes: '540x720',
+		type: 'image/png',
+		form_factor: 'narrow',
+		label: 'Finances dashboard — mobile view',
+	},
 ];
 
 // ── Fonts ────────────────────────────────────────────────────────────────────
