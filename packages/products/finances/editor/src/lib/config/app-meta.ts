@@ -70,10 +70,10 @@ export function storageKey(suffix: Str): Str {
 }
 
 /**
- * Short prefix for URL debug/override parameters (e.g. `?fin.debug=true`).
- * Derived from app name abbreviation to prevent collisions with other query params.
+ * Short prefix for URL debug/override parameters.
+ * Derived from the first 3 characters of {@link APP_NAME} to prevent collisions with other query params.
  */
-export const URL_PARAM_PREFIX: Str = 'fin.';
+export const URL_PARAM_PREFIX: Str = `${APP_NAME.slice(0, 3).toLowerCase()}.`;
 
 // ── Theme colors ─────────────────────────────────────────────────────────────
 // Hex equivalents of the oklch --background values from app.css.

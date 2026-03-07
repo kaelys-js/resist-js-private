@@ -2,7 +2,7 @@
  * Debug state schemas — controls debug mode, log level, and URL overrides.
  *
  * Persisted under the app-specific localStorage key. URL overrides
- * use the app-specific prefix (e.g., `?sl.debug=true`, `?sl.theme=midnight`).
+ * use {@link URL_PARAM_PREFIX} (e.g., `?${URL_PARAM_PREFIX}debug=true`).
  *
  * @module
  */
@@ -51,7 +51,7 @@ export const DebugStateSchema = v.strictObject({
 export type DebugState = v.InferOutput<typeof DebugStateSchema>;
 
 /**
- * Schema for parsed URL overrides. Keys are unprefixed (e.g., `'theme'`, not `'sl.theme'`).
+ * Schema for parsed URL overrides. Keys are unprefixed (e.g., `'theme'`, not `'${URL_PARAM_PREFIX}theme'`).
  * Values are raw strings — validated against target schemas when applied.
  *
  * @example

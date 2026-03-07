@@ -202,7 +202,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.locale = locale;
 	// During prerendering, url.searchParams is not accessible — use default mock user.
 	event.locals.user = building ? MOCK_USER : resolveAuth(event.url);
-	// Read mock data delay from URL param (e.g., ?sl.mockDelay=1500) or cookie.
+	// Read mock data delay from URL param (e.g., ?${URL_PARAM_PREFIX}mockDelay=1500) or cookie.
 	const mockDelayParam: Str | null = building
 		? null
 		: event.url.searchParams.get(`${URL_PARAM_PREFIX}mockDelay`);

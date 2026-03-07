@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { URL_PARAM_PREFIX } from '../src/lib/config/app-meta';
 
 // =============================================================================
 // HeaderUser — visibility and trigger
@@ -76,7 +77,9 @@ test.describe('header user dropdown', () => {
 	});
 
 	test('headerUserDropdown=false hides trigger via URL override', async ({ page }) => {
-		await page.goto('/?fin.debug=true&fin.ff.headerUserDropdown=false');
+		await page.goto(
+			`/?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}ff.headerUserDropdown=false`,
+		);
 		await page.waitForLoadState('domcontentloaded');
 		await page.waitForTimeout(200);
 		const trigger = page.getByTestId('header-user-trigger');

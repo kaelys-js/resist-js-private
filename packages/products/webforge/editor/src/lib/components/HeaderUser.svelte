@@ -18,7 +18,7 @@ import type { Bool, Str, Void } from '@/schemas/common';
 const store: ReturnType<typeof useEditorStore> = useEditorStore();
 
 /**
- * Handles Log Out click: navigates to the current page with `?sl.auth=false`
+ * Handles Log Out click: navigates to the current page with `?${URL_PARAM_PREFIX}auth=false`
  * to simulate a logged-out state in dev mode.
  */
 function handleLogOut(): Void {

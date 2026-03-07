@@ -9,6 +9,7 @@ import {
 } from '$lib/debug/dev-toolbar-registry';
 import { FeatureFlagsSchema, AppPreferencesSchema } from '$lib/schemas/editor-state';
 import { DebugStateSchema } from '$lib/schemas/debug-state';
+import { URL_PARAM_PREFIX } from '$lib/config/app-meta';
 import { createEditorStore } from '$lib/stores/editor-state.svelte';
 import { createDebugStore } from '$lib/stores/debug-state.svelte';
 
@@ -212,16 +213,16 @@ describe('discoverDebugFields', () => {
 // =============================================================================
 
 describe('generateDebugUrl', () => {
-	it('builds URL with sl.* params from store state', () => {
+	it('builds URL with app-prefixed params from store state', () => {
 		const editorResult = createEditorStore();
 		const debugResult = createDebugStore();
 		if (!editorResult.ok || !debugResult.ok) throw new Error('Store creation failed');
 
 		const url = generateDebugUrl(editorResult.data, debugResult.data);
-		expect(url).toContain('sl.debug=');
-		expect(url).toContain('sl.theme=');
-		expect(url).toContain('sl.mode=');
-		expect(url).toContain('sl.locale=');
+		expect(url).toContain(`${URL_PARAM_PREFIX}debug=`);
+		expect(url).toContain(`${URL_PARAM_PREFIX}theme=`);
+		expect(url).toContain(`${URL_PARAM_PREFIX}mode=`);
+		expect(url).toContain(`${URL_PARAM_PREFIX}locale=`);
 	});
 
 	it('includes feature flag overrides for non-default flags', () => {
@@ -233,7 +234,7 @@ describe('generateDebugUrl', () => {
 		editorResult.data.setFeature('settings', false);
 
 		const url = generateDebugUrl(editorResult.data, debugResult.data);
-		expect(url).toContain('sl.ff.settings=false');
+		expect(url).toContain(`${URL_PARAM_PREFIX}ff.settings=false`);
 	});
 
 	it('uses provided base URL', () => {
@@ -252,6 +253,6 @@ describe('generateDebugUrl', () => {
 
 		const url = generateDebugUrl(editorResult.data, debugResult.data);
 		// In test env, window.location.href is 'http://localhost:3000/' or similar
-		expect(url).toContain('?sl.');
+		expect(url).toContain(`?${URL_PARAM_PREFIX}`);
 	});
 });

@@ -21,7 +21,7 @@ import { applyUrlOverrides } from '$lib/utils/url-params';
 import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
 import DevToolbar from '$lib/components/DevToolbar.svelte';
 import { log } from '@/utils/core/logger';
-import { APP_TAGLINE, THEME_COLORS, storageKey } from '$lib/config/app-meta';
+import { APP_TAGLINE, STORAGE_PREFIX, THEME_COLORS, storageKey } from '$lib/config/app-meta';
 import { getBuildInfo } from '$lib/config/build-info';
 import { getAnnouncement } from '$lib/utils/announce.svelte';
 import { addNavigationBreadcrumb } from '$lib/errors/breadcrumbs';
@@ -106,7 +106,7 @@ const SIDEBAR_PX_KEY: Str = storageKey('sidebar-px');
 function getInitialSidebarPercent(): Num {
 	if (typeof window === 'undefined') return 20;
 	// Clean stale PaneForge internal storage that bypasses our adapter.
-	localStorage.removeItem('paneforge:app:sidebar-width');
+	localStorage.removeItem(`paneforge:${STORAGE_PREFIX}:sidebar-width`);
 	const saved: Str | null = localStorage.getItem(SIDEBAR_PX_KEY);
 	const px: Num = saved ? Number(saved) : SIDEBAR_DEFAULT_PX;
 	return (px / window.innerWidth) * 100;
@@ -358,7 +358,7 @@ const pageTitle: Str = $derived(`${store.app.appName} - ${breadcrumbSegment} - $
 	{#if useResizable}
 		<Resizable.PaneGroup
 			direction="horizontal"
-			autoSaveId="app:sidebar-width"
+			autoSaveId={`${STORAGE_PREFIX}:sidebar-width`}
 			storage={paneStorage}
 			class="min-h-svh"
 		>

@@ -17,7 +17,7 @@ import { createDevtoolsAPI, DEVTOOLS_KEY, type EditorDevtools } from './devtools
 import { activateDebugServices, syncDebugServices, type DebugServicesHandle } from './init.svelte';
 import { diffSnapshot, formatTimestamp } from './console-styles';
 import { shouldLog } from './state-logger.svelte';
-import { APP_NAME } from '$lib/config/app-meta';
+import { APP_NAME, URL_PARAM_PREFIX } from '$lib/config/app-meta';
 
 // Mock state-logger to avoid $effect in tests
 vi.mock('./state-logger.svelte', async () => {
@@ -138,7 +138,7 @@ afterEach(() => {
 describe('URL parsing → override application flow', () => {
 	it('parses and applies all override categories simultaneously', () => {
 		const url = new URL(
-			'http://localhost?fin.debug=true&fin.logLevel=trace&fin.theme=midnight&fin.mode=dark&fin.locale=ja&fin.sidebarOpen=false&fin.appName=MyRPG&fin.ff.settings=false&fin.ff.sidebar=false',
+			`http://localhost?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}logLevel=trace&${URL_PARAM_PREFIX}theme=midnight&${URL_PARAM_PREFIX}mode=dark&${URL_PARAM_PREFIX}locale=ja&${URL_PARAM_PREFIX}sidebarOpen=false&${URL_PARAM_PREFIX}appName=MyRPG&${URL_PARAM_PREFIX}ff.settings=false&${URL_PARAM_PREFIX}ff.sidebar=false`,
 		);
 		const debugStore = createMockDebugStore(false);
 
@@ -170,7 +170,7 @@ describe('URL parsing → override application flow', () => {
 
 		expect(warnSpy).toHaveBeenCalledTimes(1);
 		const warnMsg = warnSpy.mock.calls[0]?.[0] as string;
-		expect(warnMsg).toContain('Unknown URL override: fin.logLesel=debug');
+		expect(warnMsg).toContain(`Unknown URL override: ${URL_PARAM_PREFIX}logLesel=debug`);
 		expect(warnMsg).toContain('valid:');
 		expect(warnMsg).toContain('debug');
 		expect(warnMsg).toContain('logLevel');
@@ -182,8 +182,8 @@ describe('URL parsing → override application flow', () => {
 		applyUrlOverrides(editorStore, debugStore, { foo: 'bar', baz: 'qux' });
 
 		expect(warnSpy).toHaveBeenCalledTimes(2);
-		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('fin.foo=bar'));
-		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('fin.baz=qux'));
+		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining(`${URL_PARAM_PREFIX}foo=bar`));
+		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining(`${URL_PARAM_PREFIX}baz=qux`));
 	});
 
 	it('does not warn for any valid param', () => {
@@ -244,7 +244,9 @@ describe('URL parsing → override application flow', () => {
 	});
 
 	it('ignores non-wf URL params during parsing', () => {
-		const url = new URL('http://localhost?foo=bar&page=1&fin.debug=true&utm_source=test');
+		const url = new URL(
+			`http://localhost?foo=bar&page=1&${URL_PARAM_PREFIX}debug=true&utm_source=test`,
+		);
 		const result = parseDebugParams(url);
 		expect(result.ok).toBe(true);
 		if (result.ok) {
@@ -921,14 +923,14 @@ describe('welcome banner', () => {
 		const validBlock = consoleSpy.mock.calls.find(
 			(args: unknown[]) =>
 				typeof args[0] === 'string' &&
-				args[0].includes('fin.debug') &&
-				args[0].includes('fin.theme'),
+				args[0].includes(`${URL_PARAM_PREFIX}debug`) &&
+				args[0].includes(`${URL_PARAM_PREFIX}theme`),
 		);
 		expect(validBlock).toBeDefined();
 
 		// Unknown override warned with console.warn
 		const unknownWarns = warnSpy.mock.calls.filter(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('✗ fin.'),
+			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes(`✗ ${URL_PARAM_PREFIX}`),
 		);
 		expect(unknownWarns.length).toBe(1); // logLesel
 		expect(unknownWarns[0]?.[0]).toContain('logLesel');
@@ -960,7 +962,8 @@ describe('welcome banner', () => {
 
 		// Valid ff.* override logged as a block via console.log
 		const validBlock = consoleSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('fin.ff.settings'),
+			(args: unknown[]) =>
+				typeof args[0] === 'string' && args[0].includes(`${URL_PARAM_PREFIX}ff.settings`),
 		);
 		expect(validBlock).toBeDefined();
 		expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('ff.settings'));
@@ -976,7 +979,9 @@ describe('welcome banner', () => {
 describe('full debug activation flow', () => {
 	it('simulates complete URL → parse → apply → activate → devtools cycle', () => {
 		// 1. Parse URL with debug params
-		const url = new URL('http://localhost?fin.debug=true&fin.logLevel=debug&fin.theme=midnight');
+		const url = new URL(
+			`http://localhost?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}logLevel=debug&${URL_PARAM_PREFIX}theme=midnight`,
+		);
 		const parseResult = parseDebugParams(url);
 		expect(parseResult.ok).toBe(true);
 		if (!parseResult.ok) return;

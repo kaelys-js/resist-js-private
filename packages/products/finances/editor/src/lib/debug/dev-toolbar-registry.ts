@@ -211,7 +211,7 @@ export function discoverDebugFields(): FieldDescriptor[] {
 // =============================================================================
 
 /**
- * Generates a debug URL with `fin.*` params reflecting current store state.
+ * Generates a debug URL with `${URL_PARAM_PREFIX}*` params reflecting current store state.
  * Includes all app preferences, debug state, and non-default feature flags.
  *
  * @param editorStore - The editor state store
