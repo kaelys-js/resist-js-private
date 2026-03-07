@@ -19,8 +19,12 @@ import {
 	APP_SCOPE,
 	APP_SHORT_NAME,
 	APP_START_URL,
+	DISPLAY_OVERRIDE,
+	DisplayOverrideSchema,
 	IconEntrySchema,
 	ICONS,
+	SCREENSHOTS,
+	ScreenshotEntrySchema,
 	THEME_COLORS,
 } from '$lib/config/app-meta';
 
@@ -42,6 +46,8 @@ const WebManifestSchema = v.strictObject({
 	scope: v.string(),
 	/** PWA display mode (standalone, fullscreen, minimal-ui, browser). */
 	display: v.picklist(['standalone', 'fullscreen', 'minimal-ui', 'browser']),
+	/** Preferred display modes in priority order (Window Controls Overlay → standalone). */
+	display_override: DisplayOverrideSchema,
 	/** Background color shown during app loading (hex). */
 	background_color: v.pipe(v.string(), v.regex(/^#[0-9a-fA-F]{6}$/)),
 	/** Theme color for browser chrome and task switcher (hex). */
@@ -50,6 +56,8 @@ const WebManifestSchema = v.strictObject({
 	categories: v.array(v.string()),
 	/** PWA icon definitions for various sizes and purposes. */
 	icons: v.array(IconEntrySchema),
+	/** PWA screenshots for richer install UI on desktop and mobile. */
+	screenshots: v.array(ScreenshotEntrySchema),
 });
 
 /**
@@ -69,10 +77,12 @@ export const GET: RequestHandler = () => {
 		id: APP_ID,
 		scope: APP_SCOPE,
 		display: APP_DISPLAY,
+		display_override: [...DISPLAY_OVERRIDE],
 		background_color: THEME_COLORS[''].dark,
 		theme_color: THEME_COLORS[''].dark,
 		categories: [...APP_CATEGORIES],
 		icons: [...ICONS],
+		screenshots: [...SCREENSHOTS],
 	};
 
 	return new Response(JSON.stringify(manifest, null, '\t'), {
