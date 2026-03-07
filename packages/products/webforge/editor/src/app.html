@@ -17,13 +17,13 @@
 			(function () { try {
 				var d = document.documentElement;
 				// Mode — prevent dark/light flash (existing)
-				var m = localStorage.getItem('app:mode');
+				var m = localStorage.getItem('{{STORAGE_PREFIX}}:mode');
 				var dark = m === 'dark' || (m !== 'light' && matchMedia('(prefers-color-scheme:dark)').matches);
 				if (dark) d.classList.add('dark');
 				d.style.colorScheme = dark ? 'dark' : 'light';
 				// Theme — server injects data-theme via cookie; localStorage fallback for first visit
 				var t = d.getAttribute('data-theme');
-				if (!t) { t = localStorage.getItem('app:theme') || ''; if (t) d.setAttribute('data-theme', t); }
+				if (!t) { t = localStorage.getItem('{{STORAGE_PREFIX}}:theme') || ''; if (t) d.setAttribute('data-theme', t); }
 				// Sidebar width — server injects data-sidebar-width via cookie
 				var sw = d.getAttribute('data-sidebar-width');
 				if (sw && +sw > 0) d.style.setProperty('--sidebar-width', sw + 'px');

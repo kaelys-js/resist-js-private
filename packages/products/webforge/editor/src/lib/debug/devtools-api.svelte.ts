@@ -22,7 +22,7 @@ import {
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import type { DebugStore } from '$lib/stores/debug-state.svelte';
 import type { DebugState } from '$lib/schemas/debug-state';
-import { APP_NAME } from '$lib/config/app-meta';
+import { APP_NAME, URL_PARAM_PREFIX } from '$lib/config/app-meta';
 import { getBuildInfo } from '$lib/config/build-info';
 import type { BuildInfo } from '$lib/schemas/build-info';
 import {
@@ -169,9 +169,9 @@ export type EditorDevtools = {
 	/** Copy a shareable debug URL to the clipboard. */
 	copyDebugUrl(): Promise<Void>;
 
-	/** Simulate login (removes ?wf.auth param). */
+	/** Simulate login (removes ?sl.auth param). */
 	login(): Void;
-	/** Simulate logout (sets ?wf.auth=false). */
+	/** Simulate logout (sets ?sl.auth=false). */
 	logout(): Void;
 
 	/** Print a formatted reference of all available API methods. */
@@ -495,13 +495,13 @@ export function createDevtoolsAPI(
 
 		login(): Void {
 			const url: URL = new URL(window.location.href);
-			url.searchParams.delete('wf.auth');
+			url.searchParams.delete(`${URL_PARAM_PREFIX}auth`);
 			goto(url.toString(), { invalidateAll: true });
 		},
 
 		logout(): Void {
 			const url: URL = new URL(window.location.href);
-			url.searchParams.set('wf.auth', 'false');
+			url.searchParams.set(`${URL_PARAM_PREFIX}auth`, 'false');
 			goto(url.toString(), { invalidateAll: true });
 		},
 

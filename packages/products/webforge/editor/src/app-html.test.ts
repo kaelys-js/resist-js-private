@@ -2,7 +2,6 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { storageKey } from '$lib/config/app-meta';
 import type { Str } from '@/schemas/common';
 
 const appHtml: Str = readFileSync(
@@ -23,14 +22,16 @@ describe('app.html script robustness', () => {
 		expect(appHtml).toContain("'[{{APP_NAME}}]");
 	});
 
-	it('reads mode preference from namespaced localStorage key', () => {
-		expect(appHtml).toContain(`localStorage.getItem('${storageKey('mode')}')`);
+	it('reads mode preference from STORAGE_PREFIX placeholder key', () => {
+		expect(appHtml).toContain("localStorage.getItem('{{STORAGE_PREFIX}}:mode')");
 		expect(appHtml).not.toContain('mode-watcher-mode');
+		expect(appHtml).not.toContain("'app:mode'");
 	});
 
-	it('reads theme from data-theme attribute with localStorage fallback', () => {
+	it('reads theme from data-theme attribute with STORAGE_PREFIX placeholder fallback', () => {
 		expect(appHtml).toContain("getAttribute('data-theme')");
-		expect(appHtml).toContain(`localStorage.getItem('${storageKey('theme')}')`);
+		expect(appHtml).toContain("localStorage.getItem('{{STORAGE_PREFIX}}:theme')");
+		expect(appHtml).not.toContain("'app:theme'");
 	});
 
 	it('reads sidebar width from data-sidebar-width attribute', () => {

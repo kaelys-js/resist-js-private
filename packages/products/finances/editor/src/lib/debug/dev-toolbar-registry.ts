@@ -15,7 +15,7 @@ import {
 	FeatureFlagsSchema,
 	type FeatureFlags,
 } from '$lib/schemas/editor-state';
-import { DebugStateSchema } from '$lib/schemas/debug-state';
+import { DebugStateSchema, URL_PARAM_PREFIX } from '$lib/schemas/debug-state';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import type { DebugStore } from '$lib/stores/debug-state.svelte';
 
@@ -211,7 +211,7 @@ export function discoverDebugFields(): FieldDescriptor[] {
 // =============================================================================
 
 /**
- * Generates a debug URL with `wf.*` params reflecting current store state.
+ * Generates a debug URL with `fin.*` params reflecting current store state.
  * Includes all app preferences, debug state, and non-default feature flags.
  *
  * @param editorStore - The editor state store
@@ -235,14 +235,14 @@ export function generateDebugUrl(
 	const params: URLSearchParams = new URLSearchParams();
 
 	// Debug state
-	params.set('wf.debug', String(debugStore.debug.enabled));
-	params.set('wf.logLevel', debugStore.debug.logLevel);
+	params.set(`${URL_PARAM_PREFIX}debug`, String(debugStore.debug.enabled));
+	params.set(`${URL_PARAM_PREFIX}logLevel`, debugStore.debug.logLevel);
 
 	// App preferences
 	const { app } = editorStore;
 	for (const key of Object.keys(AppPreferencesSchema.entries)) {
 		const value: unknown = app[key as keyof typeof app];
-		params.set(`wf.${key}`, String(value));
+		params.set(`${URL_PARAM_PREFIX}${key}`, String(value));
 	}
 
 	// Feature flags — only include non-default (disabled) flags to keep URL concise
@@ -251,7 +251,7 @@ export function generateDebugUrl(
 	for (const flag of flags) {
 		const current: Bool = features[flag.key as keyof FeatureFlags];
 		if (current !== flag.default) {
-			params.set(`wf.ff.${flag.key}`, String(current));
+			params.set(`${URL_PARAM_PREFIX}ff.${flag.key}`, String(current));
 		}
 	}
 

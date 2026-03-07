@@ -22,6 +22,7 @@
 import type { Bool } from '@/schemas/common';
 import type { LayoutServerLoad } from './$types';
 import type { ServerProject, ServerScene } from '$lib/server/data/types';
+import { URL_PARAM_PREFIX } from '$lib/config/app-meta';
 
 /**
  * Root layout server load function.
@@ -48,7 +49,7 @@ export const load: LayoutServerLoad = ({ locals, url }) => {
 	// Capture URL params synchronously before entering async context.
 	// SvelteKit warns about URL access in promise handlers, but we only
 	// need a snapshot of the search params at load time.
-	const emptyScenes: Bool = url.searchParams.get('wf.scenes') === 'empty';
+	const emptyScenes: Bool = url.searchParams.get(`${URL_PARAM_PREFIX}scenes`) === 'empty';
 
 	// Stream project — page renders immediately with NavUserSkeleton.
 	// Async IIFE avoids .then() chains (prefer-await-to-then lint rule).

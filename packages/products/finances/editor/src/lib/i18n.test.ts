@@ -120,9 +120,9 @@ describe('all locales produce valid translations', () => {
 			expect(val.length).toBeGreaterThan(0);
 		});
 
-		it(`${code} sidebar.scenes returns non-empty string`, () => {
+		it(`${code} sidebar.overview returns non-empty string`, () => {
 			localeStore.setLocale(code);
-			const val: Str = t(localeStore.t.sidebar.scenes, '');
+			const val: Str = t(localeStore.t.sidebar.overview, '');
 			expect(val.length).toBeGreaterThan(0);
 		});
 

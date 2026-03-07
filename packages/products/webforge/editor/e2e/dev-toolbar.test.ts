@@ -6,7 +6,7 @@ import { test, expect, type Page } from '@playwright/test';
  * @param page - Playwright page
  */
 async function gotoWithDebug(page: Page): Promise<void> {
-	await page.goto('/?wf.debug=true');
+	await page.goto('/?sl.debug=true');
 	await page.locator('[data-testid="dev-toolbar-trigger"]').waitFor({ state: 'visible' });
 }
 
@@ -44,7 +44,7 @@ test.describe('dev toolbar — visibility', () => {
 		await expect(page.locator('[data-testid="dev-toolbar"]')).not.toBeAttached();
 	});
 
-	test('trigger pill visible with ?wf.debug=true', async ({ page }) => {
+	test('trigger pill visible with ?sl.debug=true', async ({ page }) => {
 		await gotoWithDebug(page);
 		await expect(page.locator('[data-testid="dev-toolbar-trigger"]')).toBeVisible();
 	});
@@ -430,7 +430,7 @@ test.describe('dev toolbar — viewport resize', () => {
 		});
 
 		// Navigate with debug — toolbar loads at x=1100
-		await page.goto('/?wf.debug=true');
+		await page.goto('/?sl.debug=true');
 		await page.locator('[data-testid="dev-toolbar-trigger"]').waitFor({ state: 'visible' });
 
 		// Shrink viewport so x=1100 is offscreen
@@ -460,7 +460,7 @@ test.describe('dev toolbar — viewport resize', () => {
 			localStorage.setItem('dev-toolbar-pos', JSON.stringify({ x: 600, b: 700 }));
 		});
 
-		await page.goto('/?wf.debug=true');
+		await page.goto('/?sl.debug=true');
 		await page.locator('[data-testid="dev-toolbar-trigger"]').waitFor({ state: 'visible' });
 
 		// Shrink height so bottom=700 is offscreen

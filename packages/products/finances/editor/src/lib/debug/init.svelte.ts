@@ -22,7 +22,7 @@ import {
 	DEVTOOLS_KEY,
 	type EditorDevtools,
 } from '$lib/debug/devtools-api.svelte';
-import { APP_NAME } from '$lib/config/app-meta';
+import { APP_NAME, URL_PARAM_PREFIX } from '$lib/config/app-meta';
 import { getBuildInfo } from '$lib/config/build-info';
 import type { Bool, Str, Void } from '@/schemas/common';
 import { isValidAppKey, isValidFeatureFlag } from '$lib/utils/url-params';
@@ -81,7 +81,7 @@ export function activateDebugServices(
 // Welcome Banner
 // =============================================================================
 
-/** Feature flag override prefix within wf.* params. */
+/** Feature flag override prefix within fin.* params. */
 const FF_PREFIX = 'ff.';
 
 /**
@@ -201,14 +201,14 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): Voi
 		);
 		if (validKeys.length > 0) {
 			const validEntries: Array<[Str, Str]> = validKeys.map((key) => [
-				`wf.${key}`,
+				`${URL_PARAM_PREFIX}${key}`,
 				overrides[key] ?? '',
 			]);
 			const validBlock = buildKVBlock(validEntries, 20);
 			console.log(...validBlock);
 		}
 		for (const key of unknownKeys) {
-			console.warn(`  ✗ wf.${key} = ${overrides[key]}  (unknown — ignored)`);
+			console.warn(`  ✗ ${URL_PARAM_PREFIX}${key} = ${overrides[key]}  (unknown — ignored)`);
 		}
 		console.groupEnd();
 	}
@@ -240,7 +240,7 @@ function logWelcomeBanner(editorStore: EditorStore, debugStore: DebugStore): Voi
 	);
 	console.log(...apiBlock);
 	console.log(
-		'  %cURL params%c ?wf.debug=true&wf.theme=midnight&wf.logLevel=debug&wf.ff.settings=false',
+		`  %cURL params%c ?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}theme=midnight&${URL_PARAM_PREFIX}logLevel=debug&${URL_PARAM_PREFIX}ff.settings=false`,
 		styles.keyLabel,
 		styles.valueText,
 	);

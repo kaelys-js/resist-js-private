@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const STORAGE_KEY = 'app:editor-state';
+const STORAGE_KEY = 'storylyne:editor-state';
 
 /**
  * Feature flags that the free plan disables (10 flags).
@@ -51,7 +51,7 @@ async function setPlanWithFlags(
  * @param page - Playwright page
  */
 async function gotoWithDebug(page: Page): Promise<void> {
-	await page.goto('/?wf.debug=true');
+	await page.goto('/?sl.debug=true');
 	await page.locator('[data-testid="dev-toolbar-trigger"]').waitFor({ state: 'visible' });
 }
 

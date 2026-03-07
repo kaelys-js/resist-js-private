@@ -212,16 +212,16 @@ describe('discoverDebugFields', () => {
 // =============================================================================
 
 describe('generateDebugUrl', () => {
-	it('builds URL with wf.* params from store state', () => {
+	it('builds URL with fin.* params from store state', () => {
 		const editorResult = createEditorStore();
 		const debugResult = createDebugStore();
 		if (!editorResult.ok || !debugResult.ok) throw new Error('Store creation failed');
 
 		const url = generateDebugUrl(editorResult.data, debugResult.data);
-		expect(url).toContain('wf.debug=');
-		expect(url).toContain('wf.theme=');
-		expect(url).toContain('wf.mode=');
-		expect(url).toContain('wf.locale=');
+		expect(url).toContain('fin.debug=');
+		expect(url).toContain('fin.theme=');
+		expect(url).toContain('fin.mode=');
+		expect(url).toContain('fin.locale=');
 	});
 
 	it('includes feature flag overrides for non-default flags', () => {
@@ -233,7 +233,7 @@ describe('generateDebugUrl', () => {
 		editorResult.data.setFeature('settings', false);
 
 		const url = generateDebugUrl(editorResult.data, debugResult.data);
-		expect(url).toContain('wf.ff.settings=false');
+		expect(url).toContain('fin.ff.settings=false');
 	});
 
 	it('uses provided base URL', () => {
@@ -252,6 +252,6 @@ describe('generateDebugUrl', () => {
 
 		const url = generateDebugUrl(editorResult.data, debugResult.data);
 		// In test env, window.location.href is 'http://localhost:3000/' or similar
-		expect(url).toContain('?wf.');
+		expect(url).toContain('?fin.');
 	});
 });

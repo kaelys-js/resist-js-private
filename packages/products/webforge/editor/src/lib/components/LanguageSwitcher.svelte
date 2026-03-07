@@ -13,6 +13,7 @@ import { log } from '@/utils/core/logger';
 import { useEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';
 import { SUPPORTED_LOCALES } from '$lib/schemas/editor-state';
 import { getLanguageDisplayNames, type LanguageDisplayInfo } from '$lib/utils/locale-display';
+import { setPreferenceCookie } from '$lib/utils/preference-cookie';
 
 const store: EditorStore = useEditorStore();
 
@@ -41,8 +42,7 @@ const filteredLanguages: readonly LanguageDisplayInfo[] = $derived(
 function switchLanguage(code: Str): Void {
 	const apply: () => Void = (): Void => {
 		store.setLocale(code);
-		// oxlint-disable-next-line unicorn/no-document-cookie -- Cookie Store API lacks Safari/Firefox support
-		document.cookie = `locale=${code};path=/;max-age=31536000;SameSite=Lax`;
+		setPreferenceCookie('locale', code);
 		document.documentElement.lang = code;
 		const dirResult: Result<TextDirection> = getTextDirection(code);
 		if (!dirResult.ok) {

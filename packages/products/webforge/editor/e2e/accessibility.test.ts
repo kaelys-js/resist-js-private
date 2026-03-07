@@ -87,7 +87,7 @@ test.describe('accessibility — active state indicators', () => {
 
 test.describe('accessibility — dev toolbar', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/?wf.debug=true');
+		await page.goto('/?sl.debug=true');
 		// Wait for trigger pill, then click to expand
 		await page.locator('[data-testid="dev-toolbar-trigger"]').waitFor({ state: 'visible' });
 		await page.locator('[data-testid="dev-toolbar-trigger"]').click();

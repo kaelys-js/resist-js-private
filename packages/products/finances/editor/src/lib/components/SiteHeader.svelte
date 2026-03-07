@@ -31,7 +31,9 @@ const routeLabels: Record<Str, Str> = $derived({
 });
 
 /** Current page label from the route. */
-const currentLabel: Str = $derived(routeLabels[page.url.pathname] ?? t(localeStore.t.header.home, 'Home'));
+const currentLabel: Str = $derived(
+	routeLabels[page.url.pathname] ?? t(localeStore.t.header.home, 'Home'),
+);
 
 /** Whether we're on a sub-page (not the root). */
 const isSubPage: Bool = $derived(!isError && page.url.pathname !== '/');

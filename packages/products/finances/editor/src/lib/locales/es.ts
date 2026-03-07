@@ -154,6 +154,12 @@ export const es: EditorLocaleRaw = {
 		qualityMedium: 'Media',
 		qualitySlow: 'Lenta',
 		qualityUnknown: 'Desconocida',
+		ratingGood: 'Bueno',
+		ratingNeedsWork: 'Necesita mejora',
+		ratingPoor: 'Deficiente',
+		lastSentTooltip: 'Última vez que las métricas en cola se enviaron al servidor',
+		thresholdGood: 'bueno',
+		thresholdPoor: 'deficiente',
 		planFree: 'Gratis',
 		planStarter: 'Inicial',
 		planPro: 'Pro',
@@ -306,7 +312,8 @@ export const es: EditorLocaleRaw = {
 		onetimePurchasesTotal: 'Compras únicas — Total',
 		recurringReplacementsAnnual: 'Reemplazos recurrentes — Anual',
 		generalSettings: 'Configuración general',
-		settingsDesc: 'Configura tu fecha de nacimiento, edad de jubilación y tasa de inflación predeterminada.',
+		settingsDesc:
+			'Configura tu fecha de nacimiento, edad de jubilación y tasa de inflación predeterminada.',
 		decimalHint: 'Ingresa como decimal (ej. 0.02 para 2%).',
 		appearanceDesc: 'Elige un tema de color para el editor.',
 		inflationOverrideDesc: 'Anula la tasa de inflación predeterminada para categorías específicas.',
@@ -337,7 +344,8 @@ export const es: EditorLocaleRaw = {
 	},
 	errors: {
 		badRequest: 'Solicitud no v\u00E1lida',
-		badRequestDescription: 'Algo en esa solicitud no se ve\u00EDa bien. Revisa e int\u00E9ntalo de nuevo.',
+		badRequestDescription:
+			'Algo en esa solicitud no se ve\u00EDa bien. Revisa e int\u00E9ntalo de nuevo.',
 		notFound: 'P\u00E1gina no encontrada',
 		notFoundDescription:
 			'Buscamos por todas partes, pero esta p\u00E1gina parece haberse perdido. Puede que se haya movido o eliminado.',

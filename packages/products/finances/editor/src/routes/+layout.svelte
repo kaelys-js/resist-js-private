@@ -249,8 +249,7 @@ $effect(() => {
 $effect(() => {
 	const delay: Num = store.app.mockDataDelay;
 	if (!browser) return;
-	// eslint-disable-next-line unicorn/no-document-cookie -- Cookie Store API is async; synchronous set needed here
-	document.cookie = `mockDataDelay=${delay};path=/;max-age=31_536_000;SameSite=Lax`;
+	setPreferenceCookie('mockDataDelay', String(delay));
 });
 
 // ── Store → sidebar open cookie sync ──────────────────────────────────
@@ -303,6 +302,18 @@ const errorTitleMap: Record<Num, () => Str> = {
 	500: () => t(localeStore.t.errors.serverError, 'Something went wrong'),
 };
 
+// Route → label map for page title — mirrors SiteHeader's breadcrumb labels.
+const routeLabels: Record<Str, Str> = $derived({
+	'/': t(localeStore.t.sidebar.overview, 'Overview'),
+	'/income': t(localeStore.t.sidebar.income, 'Income'),
+	'/debt': t(localeStore.t.sidebar.debt, 'Debt'),
+	'/monthly': t(localeStore.t.sidebar.monthly, 'Monthly'),
+	'/purchases': t(localeStore.t.sidebar.purchases, 'Purchases'),
+	'/travel': t(localeStore.t.sidebar.travel, 'Travel'),
+	'/lifetime': t(localeStore.t.sidebar.lifetime, 'Lifetime'),
+	'/settings': t(localeStore.t.common.settings, 'Settings'),
+});
+
 // Breadcrumb segment for page title — mirrors SiteHeader's breadcrumb leaf.
 const breadcrumbSegment: Str = $derived.by(() => {
 	if (page.error) {
@@ -310,7 +321,7 @@ const breadcrumbSegment: Str = $derived.by(() => {
 			errorTitleMap[page.status] ?? (() => t(localeStore.t.errors.genericTitle, 'Error'));
 		return titleFn();
 	}
-	return t(localeStore.t.header.home, 'Home');
+	return routeLabels[page.url.pathname] ?? t(localeStore.t.header.home, 'Home');
 });
 
 const tagline: Str = $derived(t(localeStore.t.meta.tagline, APP_TAGLINE));

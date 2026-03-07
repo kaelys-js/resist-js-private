@@ -12,17 +12,18 @@ import { goto } from '$app/navigation';
 import { page } from '$app/state';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
+import { URL_PARAM_PREFIX } from '$lib/config/app-meta';
 import type { Bool, Str, Void } from '@/schemas/common';
 
 const store: ReturnType<typeof useEditorStore> = useEditorStore();
 
 /**
- * Handles Log Out click: navigates to the current page with `?wf.auth=false`
+ * Handles Log Out click: navigates to the current page with `?fin.auth=false`
  * to simulate a logged-out state in dev mode.
  */
 function handleLogOut(): Void {
 	const url: URL = new URL(page.url);
-	url.searchParams.set('wf.auth', 'false');
+	url.searchParams.set(`${URL_PARAM_PREFIX}auth`, 'false');
 	goto(url.toString());
 }
 

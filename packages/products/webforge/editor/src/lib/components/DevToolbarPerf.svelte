@@ -19,7 +19,6 @@ import {
 } from '$lib/perf/connection.svelte';
 import { getBeaconStatus } from '$lib/perf/vitals-beacon';
 import { getVitalsPanelMetrics, type PanelMetric } from '$lib/perf/vitals-panel-store.svelte';
-import { formatThresholds } from '$lib/perf/vitals-diagnostics';
 
 let { onclose }: { onclose?: () => Void } = $props();
 
@@ -60,6 +59,41 @@ function ratingClass(rating: Str): Str {
 	if (rating === 'needsImprovement') return 'bg-yellow-500/20 text-yellow-400';
 	if (rating === 'poor') return 'bg-red-500/20 text-red-400';
 	return 'bg-muted text-muted-foreground';
+}
+
+/**
+ * Returns a friendly, localized label for a vitals rating.
+ *
+ * @param rating - Raw rating value ('good', 'needsImprovement', 'poor')
+ * @returns Localized friendly label
+ */
+function friendlyRating(rating: Str): Str {
+	if (rating === 'good') return t(localeStore.t.devToolbar.ratingGood, 'Good');
+	if (rating === 'needsImprovement')
+		return t(localeStore.t.devToolbar.ratingNeedsWork, 'Needs Work');
+	if (rating === 'poor') return t(localeStore.t.devToolbar.ratingPoor, 'Poor');
+	return rating;
+}
+
+/**
+ * Formats threshold boundaries with localized labels.
+ *
+ * @param thresholds - Threshold data from diagnostics
+ * @returns Localized threshold string (e.g. "Good < 2500ms · Poor > 4000ms")
+ */
+function localizedThresholds(thresholds: { good: Num; poor: Num; unit: Str }): Str {
+	const suffix: Str = thresholds.unit === 'ms' ? 'ms' : '';
+	const goodVal: Str =
+		thresholds.unit === 'score'
+			? thresholds.good.toString()
+			: Math.round(thresholds.good).toString();
+	const poorVal: Str =
+		thresholds.unit === 'score'
+			? thresholds.poor.toString()
+			: Math.round(thresholds.poor).toString();
+	const goodLabel: Str = t(localeStore.t.devToolbar.thresholdGood, 'good');
+	const poorLabel: Str = t(localeStore.t.devToolbar.thresholdPoor, 'poor');
+	return `${goodLabel} < ${goodVal}${suffix} · ${poorLabel} > ${poorVal}${suffix}`;
 }
 
 // ── Diagnostics expand/collapse ────────────────────────────────────
@@ -223,7 +257,7 @@ $effect(() => {
 											class="px-1.5 py-0.5 rounded text-[10px] font-medium {ratingClass(metric.rating)}"
 											data-testid="perf-rating-{metric.name}"
 										>
-											{metric.rating}
+											{friendlyRating(metric.rating)}
 										</span>
 									</div>
 								</button>
@@ -238,7 +272,7 @@ $effect(() => {
 											class="px-1.5 py-0.5 rounded text-[10px] font-medium {ratingClass(metric.rating)}"
 											data-testid="perf-rating-{metric.name}"
 										>
-											{metric.rating}
+											{friendlyRating(metric.rating)}
 										</span>
 									</div>
 								</div>
@@ -253,7 +287,7 @@ $effect(() => {
 									<!-- Threshold context -->
 									{#if metric.diagnostics}
 										<div class="text-[10px] text-muted-foreground/70 italic mb-0.5">
-											{formatThresholds(metric.diagnostics.thresholds)}
+											{localizedThresholds(metric.diagnostics.thresholds)}
 										</div>
 										<!-- Findings -->
 										{#each metric.diagnostics.findings as finding}
@@ -358,7 +392,7 @@ $effect(() => {
 								<span class="text-popover-foreground">{item.name}</span>
 								<div class="flex items-center gap-1">
 									<span class="text-popover-foreground">{formatValue(item.name, item.value)}</span>
-									<span class="px-1 py-0 rounded text-[9px] {ratingClass(item.rating)}">{item.rating}</span>
+									<span class="px-1 py-0 rounded text-[9px] {ratingClass(item.rating)}">{friendlyRating(item.rating)}</span>
 								</div>
 							</div>
 						{/each}
@@ -393,7 +427,7 @@ $effect(() => {
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={4} class="z-[100000] max-w-xs">
-						<span class="text-xs">Last time queued metrics were flushed to the server</span>
+						<span class="text-xs">{t(localeStore.t.devToolbar.lastSentTooltip, 'Last time queued metrics were flushed to the server')}</span>
 					</Tooltip.Content>
 				</Tooltip.Root>
 				<span class="text-popover-foreground font-mono" data-testid="perf-beacon-flush">

@@ -321,8 +321,7 @@ $effect(() => {
 $effect(() => {
 	const delay: Num = store.app.mockDataDelay;
 	if (!browser) return;
-	// eslint-disable-next-line unicorn/no-document-cookie -- Cookie Store API is async; synchronous set needed here
-	document.cookie = `mockDataDelay=${delay};path=/;max-age=31_536_000;SameSite=Lax`;
+	setPreferenceCookie('mockDataDelay', String(delay));
 });
 
 // ── Store → sidebar open cookie sync ──────────────────────────────────

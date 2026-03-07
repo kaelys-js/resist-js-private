@@ -39,7 +39,11 @@ const totalAssets: Num = $derived(
 	data.income.reduce((sum: Num, s: IncomeSource) => sum + s.amount, 0),
 );
 
-const dialogTitle: Str = $derived(editingId ? t(localeStore.t.finance.editItem, 'Edit Income') : t(localeStore.t.finance.addItem, 'Add Income'));
+const dialogTitle: Str = $derived(
+	editingId
+		? t(localeStore.t.finance.editItem, 'Edit Income')
+		: t(localeStore.t.finance.addItem, 'Add Income'),
+);
 
 // ── Chart data ──────────────────────────────────────────────────────
 

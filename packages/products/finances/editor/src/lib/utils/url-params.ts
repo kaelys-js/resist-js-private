@@ -1,11 +1,11 @@
 /**
  * URL parameter parsing and override application for the debug system.
  *
- * All debug-related URL params use the `wf.` prefix to prevent collisions:
- * - `?wf.debug=true` — enable debug mode
- * - `?wf.logLevel=trace` — set log level
- * - `?wf.theme=midnight` — override editor theme
- * - `?wf.ff.settings=false` — override feature flag
+ * All debug-related URL params use the app-specific prefix to prevent collisions:
+ * - `?fin.debug=true` — enable debug mode
+ * - `?fin.logLevel=trace` — set log level
+ * - `?fin.theme=midnight` — override editor theme
+ * - `?fin.ff.settings=false` — override feature flag
  *
  * @module
  */
@@ -28,7 +28,7 @@ const APP_KEYS = new Set<string>(Object.keys(AppPreferencesSchema.entries));
 /** Valid feature flag keys, derived from schema. */
 const FEATURE_FLAG_KEYS = new Set<string>(Object.keys(FeatureFlagsSchema.entries));
 
-/** Feature flag override prefix within wf.* params. */
+/** Feature flag override prefix within app-specific URL params. */
 const FF_PREFIX = 'ff.';
 
 /**
@@ -66,7 +66,7 @@ export function isValidFeatureFlag(key: Str): Bool {
 }
 
 /**
- * Extracts all `wf.*` prefixed parameters from a URL.
+ * Extracts all app-prefixed parameters from a URL.
  * Returns unprefixed keys mapped to raw string values.
  *
  * @param url - The URL to parse
@@ -74,7 +74,7 @@ export function isValidFeatureFlag(key: Str): Bool {
  *
  * @example
  * ```typescript
- * const result = parseDebugParams(new URL('http://localhost?wf.debug=true&wf.theme=midnight'));
+ * const result = parseDebugParams(new URL('http://localhost?fin.debug=true&fin.theme=midnight'));
  * // result.data = { debug: 'true', theme: 'midnight' }
  * ```
  */
@@ -170,10 +170,10 @@ export function applyUrlOverrides(
 			continue;
 		}
 
-		// Unknown key — warn so typos are caught (e.g., wf.logLesel instead of wf.logLevel)
+		// Unknown key — warn so typos are caught
 		// eslint-disable-next-line no-console -- Intentional debug warning for bad URL params
 		console.warn(
-			`[Editor] Unknown URL override: wf.${key}=${value} — valid: debug, logLevel, ${Object.keys(APP_SETTER_MAP).join(', ')}, ff.<flag>`,
+			`[Editor] Unknown URL override: ${URL_PARAM_PREFIX}${key}=${value} — valid: debug, logLevel, ${Object.keys(APP_SETTER_MAP).join(', ')}, ff.<flag>`,
 		);
 	}
 

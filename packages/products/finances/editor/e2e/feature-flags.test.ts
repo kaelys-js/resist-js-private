@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const STORAGE_KEY = 'app:editor-state';
+const STORAGE_KEY = 'finances:editor-state';
 
 /**
  * Sets feature flags in localStorage before navigating.
@@ -190,8 +190,8 @@ test.describe('feature flags — combined', () => {
 // =============================================================================
 
 test.describe('feature flags — URL overrides', () => {
-	test('wf.ff.breadcrumb=false disables breadcrumb via URL', async ({ page }) => {
-		await page.goto('/?wf.debug=true&wf.ff.breadcrumb=false');
+	test('fin.ff.breadcrumb=false disables breadcrumb via URL', async ({ page }) => {
+		await page.goto('/?fin.debug=true&fin.ff.breadcrumb=false');
 		await page.waitForLoadState('domcontentloaded');
 		// Wait for client-side hydration to apply URL overrides
 		await page.waitForTimeout(200);
@@ -199,8 +199,8 @@ test.describe('feature flags — URL overrides', () => {
 		await expect(header.getByText('Home')).not.toBeVisible();
 	});
 
-	test('wf.ff.modeToggle=false disables mode toggle via URL', async ({ page }) => {
-		await page.goto('/?wf.debug=true&wf.ff.modeToggle=false');
+	test('fin.ff.modeToggle=false disables mode toggle via URL', async ({ page }) => {
+		await page.goto('/?fin.debug=true&fin.ff.modeToggle=false');
 		await page.waitForLoadState('domcontentloaded');
 		await page.waitForTimeout(200);
 		await expect(page.getByRole('button', { name: /toggle mode/i })).not.toBeAttached();
