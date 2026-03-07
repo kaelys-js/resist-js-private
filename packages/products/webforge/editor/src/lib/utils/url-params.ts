@@ -1,11 +1,11 @@
 /**
  * URL parameter parsing and override application for the debug system.
  *
- * All debug-related URL params use the app-specific prefix to prevent collisions:
- * - `?sl.debug=true` — enable debug mode
- * - `?sl.logLevel=trace` — set log level
- * - `?sl.theme=midnight` — override editor theme
- * - `?sl.ff.settings=false` — override feature flag
+ * All debug-related URL params use {@link URL_PARAM_PREFIX} to prevent collisions:
+ * - `?${URL_PARAM_PREFIX}debug=true` — enable debug mode
+ * - `?${URL_PARAM_PREFIX}logLevel=trace` — set log level
+ * - `?${URL_PARAM_PREFIX}theme=midnight` — override editor theme
+ * - `?${URL_PARAM_PREFIX}ff.settings=false` — override feature flag
  *
  * @module
  */
@@ -74,7 +74,7 @@ export function isValidFeatureFlag(key: Str): Bool {
  *
  * @example
  * ```typescript
- * const result = parseDebugParams(new URL('http://localhost?sl.debug=true&sl.theme=midnight'));
+ * const result = parseDebugParams(new URL('http://localhost?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}theme=midnight'));
  * // result.data = { debug: 'true', theme: 'midnight' }
  * ```
  */

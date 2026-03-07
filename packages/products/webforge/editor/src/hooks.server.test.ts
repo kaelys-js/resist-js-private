@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { RequestEvent, ResolveOptions } from '@sveltejs/kit';
 import { ERRORS, err } from '@/schemas/result/result';
 import type { Str, Num, Bool, NullableStr } from '@/schemas/common';
+import { URL_PARAM_PREFIX } from '$lib/config/app-meta';
 
 /** Controls the mocked value of `dev` from `$app/environment`. */
 let mockDev = true;
@@ -143,8 +144,8 @@ describe('hooks.server handle', () => {
 		expect(event.locals.user?.displayName).toBe('Test User');
 	});
 
-	it('sets event.locals.user to null when ?sl.auth=false', async () => {
-		const event = mockEvent('en', null, '/?sl.auth=false');
+	it(`sets event.locals.user to null when ?${URL_PARAM_PREFIX}auth=false`, async () => {
+		const event = mockEvent('en', null, `/?${URL_PARAM_PREFIX}auth=false`);
 		const { resolve } = mockResolve();
 		await handle({ event, resolve });
 		expect(event.locals.user).toBeNull();

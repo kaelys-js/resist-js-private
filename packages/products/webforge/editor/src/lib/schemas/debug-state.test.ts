@@ -68,8 +68,8 @@ describe('DebugStateSchema', () => {
 });
 
 describe('URL_PARAM_PREFIX', () => {
-	it('is "sl."', () => {
-		expect(URL_PARAM_PREFIX).toBe('sl.');
+	it('is derived from APP_NAME (first 3 chars + ".")', () => {
+		expect(URL_PARAM_PREFIX).toBe('sto.');
 	});
 });
 

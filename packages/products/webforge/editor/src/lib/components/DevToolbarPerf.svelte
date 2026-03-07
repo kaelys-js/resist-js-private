@@ -96,6 +96,63 @@ function localizedThresholds(thresholds: { good: Num; poor: Num; unit: Str }): S
 	return `${goodLabel} < ${goodVal}${suffix} · ${poorLabel} > ${poorVal}${suffix}`;
 }
 
+/**
+ * Maps a diagnostic finding label to its localized equivalent.
+ * Labels come from vitals-diagnostics.ts as English keys; this
+ * function translates them at the rendering boundary.
+ *
+ * @param label - English label from DiagnosticFinding
+ * @returns Localized label string
+ */
+function localizeLabel(label: Str): Str {
+	const dt = localeStore.t.devToolbar;
+	const trimmed: Str = label.trim();
+	const map: Record<Str, () => Str> = {
+		'LCP Element': () => t(dt.diagLcpElement, 'LCP Element'),
+		Resource: () => t(dt.diagResource, 'Resource'),
+		Timing: () => t(dt.diagTiming, 'Timing'),
+		'Render Time': () => t(dt.diagRenderTime, 'Render Time'),
+		'Load Time': () => t(dt.diagLoadTime, 'Load Time'),
+		'Element Size': () => t(dt.diagElementSize, 'Element Size'),
+		'Layout Shifts': () => t(dt.diagLayoutShifts, 'Layout Shifts'),
+		'Largest Shift': () => t(dt.diagLargestShift, 'Largest Shift'),
+		Waterfall: () => t(dt.diagWaterfall, 'Waterfall'),
+		Bottleneck: () => t(dt.diagBottleneck, 'Bottleneck'),
+		'Render-Blocking': () => t(dt.diagRenderBlocking, 'Render-Blocking'),
+		'TTFB Impact': () => t(dt.diagTtfbImpact, 'TTFB Impact'),
+		Note: () => t(dt.diagNote, 'Note'),
+		Slowest: () => t(dt.diagSlowest, 'Slowest'),
+		Breakdown: () => t(dt.diagBreakdown, 'Breakdown'),
+		Interactions: () => t(dt.diagInteractions, 'Interactions'),
+		'Long Tasks': () => t(dt.diagLongTasks, 'Long Tasks'),
+		Longest: () => t(dt.diagLongest, 'Longest'),
+	};
+	const resolver = map[trimmed];
+	// Preserve leading whitespace (indented "  Resource" labels)
+	if (resolver) {
+		const indent: Str = label.slice(0, label.length - trimmed.length);
+		return `${indent}${resolver()}`;
+	}
+	return label;
+}
+
+/**
+ * Localizes a diagnostic finding value if it's a known English phrase.
+ *
+ * @param value - English value from DiagnosticFinding
+ * @returns Localized value string
+ */
+function localizeValue(value: Str): Str {
+	const dt = localeStore.t.devToolbar;
+	if (value === 'No interactions recorded yet — interact with the page first') {
+		return t(dt.diagNoInteractions, value);
+	}
+	if (value === 'None observed (main thread was responsive)') {
+		return t(dt.diagNoneLongTasks, value);
+	}
+	return value;
+}
+
 // ── Diagnostics expand/collapse ────────────────────────────────────
 /** Tracks which metric names have their diagnostics expanded. */
 let expandedMetrics: Set<Str> = $state(new Set<Str>());
@@ -293,9 +350,9 @@ $effect(() => {
 										{#each metric.diagnostics.findings as finding}
 											<div class="flex text-[10px] font-mono gap-1.5">
 												{#if finding.label}
-													<span class="text-muted-foreground shrink-0">{finding.label}</span>
+													<span class="text-muted-foreground shrink-0">{localizeLabel(finding.label)}</span>
 												{/if}
-												<span class="text-popover-foreground break-all">{finding.value}</span>
+												<span class="text-popover-foreground break-all">{localizeValue(finding.value)}</span>
 											</div>
 										{/each}
 									{/if}

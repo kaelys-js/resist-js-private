@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { URL_PARAM_PREFIX } from '../src/lib/config/app-meta';
 
 // =============================================================================
 // WCAG 2.2 AA — Skip link & landmarks
@@ -87,7 +88,7 @@ test.describe('accessibility — active state indicators', () => {
 
 test.describe('accessibility — dev toolbar', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/?fin.debug=true');
+		await page.goto(`/?${URL_PARAM_PREFIX}debug=true`);
 		// Wait for trigger pill, then click to expand
 		await page.locator('[data-testid="dev-toolbar-trigger"]').waitFor({ state: 'visible' });
 		await page.locator('[data-testid="dev-toolbar-trigger"]').click();

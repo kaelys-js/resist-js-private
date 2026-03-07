@@ -85,21 +85,21 @@ async function selectOption(key: Str, value: Str): Promise<Void> {
 	triggerRefs[key]?.focus();
 }
 
-/** Navigate to current page with `?sl.auth` removed to simulate login. */
+/** Navigate to current page with `?${URL_PARAM_PREFIX}auth` removed to simulate login. */
 function handleLogin(): Void {
 	const url: URL = new URL(page.url);
 	url.searchParams.delete(`${URL_PARAM_PREFIX}auth`);
 	goto(url.toString(), { invalidateAll: true });
 }
 
-/** Navigate to current page with `?sl.auth=false` to simulate logout. */
+/** Navigate to current page with `?${URL_PARAM_PREFIX}auth=false` to simulate logout. */
 function handleLogout(): Void {
 	const url: URL = new URL(page.url);
 	url.searchParams.set(`${URL_PARAM_PREFIX}auth`, 'false');
 	goto(url.toString(), { invalidateAll: true });
 }
 
-/** Toggle `?sl.scenes=empty` to simulate an empty scene list. */
+/** Toggle `?${URL_PARAM_PREFIX}scenes=empty` to simulate an empty scene list. */
 function toggleEmptyScenes(): Void {
 	const url: URL = new URL(page.url);
 	if (isEmptyScenes) {

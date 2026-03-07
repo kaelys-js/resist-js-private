@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { URL_PARAM_PREFIX } from '../src/lib/config/app-meta';
 
 const STORAGE_KEY = 'storylyne:editor-state';
 
@@ -190,8 +191,8 @@ test.describe('feature flags — combined', () => {
 // =============================================================================
 
 test.describe('feature flags — URL overrides', () => {
-	test('sl.ff.breadcrumb=false disables breadcrumb via URL', async ({ page }) => {
-		await page.goto('/?sl.debug=true&sl.ff.breadcrumb=false');
+	test(`${URL_PARAM_PREFIX}ff.breadcrumb=false disables breadcrumb via URL`, async ({ page }) => {
+		await page.goto(`/?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}ff.breadcrumb=false`);
 		await page.waitForLoadState('domcontentloaded');
 		// Wait for client-side hydration to apply URL overrides
 		await page.waitForTimeout(200);
@@ -199,8 +200,8 @@ test.describe('feature flags — URL overrides', () => {
 		await expect(header.getByText('Home')).not.toBeVisible();
 	});
 
-	test('sl.ff.modeToggle=false disables mode toggle via URL', async ({ page }) => {
-		await page.goto('/?sl.debug=true&sl.ff.modeToggle=false');
+	test(`${URL_PARAM_PREFIX}ff.modeToggle=false disables mode toggle via URL`, async ({ page }) => {
+		await page.goto(`/?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}ff.modeToggle=false`);
 		await page.waitForLoadState('domcontentloaded');
 		await page.waitForTimeout(200);
 		await expect(page.getByRole('button', { name: /toggle mode/i })).not.toBeAttached();

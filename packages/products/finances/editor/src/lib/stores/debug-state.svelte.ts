@@ -155,12 +155,12 @@ function setLogLevel(level: Str): Result<Void> {
  * Creates a new debug store, resetting module-level state to defaults
  * and loading any persisted state from localStorage.
  *
- * @param url - Optional URL to parse `fin.*` debug params from
+ * @param url - Optional URL to parse `${URL_PARAM_PREFIX}*` debug params from
  * @returns `Result<DebugStore>` — always ok
  *
  * @example
  * ```typescript
- * const result = createDebugStore(new URL('http://localhost?fin.debug=true'));
+ * const result = createDebugStore(new URL('http://localhost?${URL_PARAM_PREFIX}debug=true'));
  * if (!result.ok) throw new Error('Store creation failed');
  * const store = result.data;
  * ```

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { Num, NullableStr, Str } from '@/schemas/common';
 import { createDebugStore, initDebugStore, useDebugStore, STORAGE_KEY } from './debug-state.svelte';
+import { URL_PARAM_PREFIX } from '$lib/config/app-meta';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -57,7 +58,9 @@ describe('createDebugStore', () => {
 	});
 
 	it('parses URL params when URL provided', () => {
-		const url = new URL('http://localhost?fin.debug=true&fin.logLevel=trace');
+		const url = new URL(
+			`http://localhost?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}logLevel=trace`,
+		);
 		const result = createDebugStore(url);
 		if (!result.ok) throw new Error('should be ok');
 		expect(result.data.urlOverrides).toEqual({ debug: 'true', logLevel: 'trace' });
@@ -182,7 +185,7 @@ describe('singleton pattern', () => {
 	});
 
 	it('initDebugStore with URL populates urlOverrides', () => {
-		const url = new URL('http://localhost?fin.theme=midnight');
+		const url = new URL(`http://localhost?${URL_PARAM_PREFIX}theme=midnight`);
 		const store = initDebugStore(url);
 		expect(store.urlOverrides).toEqual({ theme: 'midnight' });
 	});

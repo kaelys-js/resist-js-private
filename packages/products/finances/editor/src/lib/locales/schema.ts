@@ -179,6 +179,47 @@ export const EditorLocaleSchema = v.strictObject({
 		thresholdGood: messageTemplate(),
 		/** Localized "poor" label used in threshold display. */
 		thresholdPoor: messageTemplate(),
+		// ── Diagnostic finding labels (vitals-diagnostics.ts) ────────────
+		/** Diagnostic label: LCP element identification. */
+		diagLcpElement: messageTemplate(),
+		/** Diagnostic label: resource URL. */
+		diagResource: messageTemplate(),
+		/** Diagnostic label: timing breakdown. */
+		diagTiming: messageTemplate(),
+		/** Diagnostic label: render time. */
+		diagRenderTime: messageTemplate(),
+		/** Diagnostic label: load time. */
+		diagLoadTime: messageTemplate(),
+		/** Diagnostic label: element pixel area. */
+		diagElementSize: messageTemplate(),
+		/** Diagnostic label: CLS layout shift count. */
+		diagLayoutShifts: messageTemplate(),
+		/** Diagnostic label: largest single layout shift. */
+		diagLargestShift: messageTemplate(),
+		/** Diagnostic label: TTFB network waterfall. */
+		diagWaterfall: messageTemplate(),
+		/** Diagnostic label: biggest timing bottleneck. */
+		diagBottleneck: messageTemplate(),
+		/** Diagnostic label: render-blocking resources. */
+		diagRenderBlocking: messageTemplate(),
+		/** Diagnostic label: TTFB impact on first paint. */
+		diagTtfbImpact: messageTemplate(),
+		/** Diagnostic label: informational note. */
+		diagNote: messageTemplate(),
+		/** Diagnostic label: slowest interaction. */
+		diagSlowest: messageTemplate(),
+		/** Diagnostic label: INP timing breakdown. */
+		diagBreakdown: messageTemplate(),
+		/** Diagnostic label: interaction count. */
+		diagInteractions: messageTemplate(),
+		/** Diagnostic label: long task count. */
+		diagLongTasks: messageTemplate(),
+		/** Diagnostic label: longest blocking task. */
+		diagLongest: messageTemplate(),
+		/** Diagnostic value: no interactions recorded yet. */
+		diagNoInteractions: messageTemplate(),
+		/** Diagnostic value: no long tasks observed. */
+		diagNoneLongTasks: messageTemplate(),
 		planFree: messageTemplate(),
 		planStarter: messageTemplate(),
 		planPro: messageTemplate(),

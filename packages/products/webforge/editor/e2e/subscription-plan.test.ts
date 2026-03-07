@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { URL_PARAM_PREFIX } from '../src/lib/config/app-meta';
 
 const STORAGE_KEY = 'storylyne:editor-state';
 
@@ -51,7 +52,7 @@ async function setPlanWithFlags(
  * @param page - Playwright page
  */
 async function gotoWithDebug(page: Page): Promise<void> {
-	await page.goto('/?sl.debug=true');
+	await page.goto(`/?${URL_PARAM_PREFIX}debug=true`);
 	await page.locator('[data-testid="dev-toolbar-trigger"]').waitFor({ state: 'visible' });
 }
 

@@ -81,7 +81,7 @@ export function activateDebugServices(
 // Welcome Banner
 // =============================================================================
 
-/** Feature flag override prefix within fin.* params. */
+/** Feature flag override prefix within {@link URL_PARAM_PREFIX}-prefixed params. */
 const FF_PREFIX = 'ff.';
 
 /**

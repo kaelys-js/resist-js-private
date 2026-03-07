@@ -169,9 +169,9 @@ export type EditorDevtools = {
 	/** Copy a shareable debug URL to the clipboard. */
 	copyDebugUrl(): Promise<Void>;
 
-	/** Simulate login (removes ?sl.auth param). */
+	/** Simulate login (removes ?${URL_PARAM_PREFIX}auth param). */
 	login(): Void;
-	/** Simulate logout (sets ?sl.auth=false). */
+	/** Simulate logout (sets ?${URL_PARAM_PREFIX}auth=false). */
 	logout(): Void;
 
 	/** Print a formatted reference of all available API methods. */
