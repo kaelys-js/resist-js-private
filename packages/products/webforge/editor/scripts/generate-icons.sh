@@ -91,7 +91,7 @@ done
 # solid background so the icon looks correct in any mask shape.
 
 MASKABLE_SIZES=(192 512)
-TEMP_CRYSTAL=$(mktemp /tmp/wf-crystal-XXXXXX.png)
+TEMP_CRYSTAL=$(mktemp "/tmp/wf-crystal-$$-XXXXXX.png")
 
 for size in "${MASKABLE_SIZES[@]}"; do
   crystal_size=$((size * 75 / 100))

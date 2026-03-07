@@ -167,6 +167,18 @@ export const EditorLocaleSchema = v.strictObject({
 		qualityMedium: messageTemplate(),
 		qualitySlow: messageTemplate(),
 		qualityUnknown: messageTemplate(),
+		/** Rating label for "good" vitals score. */
+		ratingGood: messageTemplate(),
+		/** Rating label for "needs improvement" vitals score. */
+		ratingNeedsWork: messageTemplate(),
+		/** Rating label for "poor" vitals score. */
+		ratingPoor: messageTemplate(),
+		/** Tooltip explaining the "Last Sent" beacon timestamp. */
+		lastSentTooltip: messageTemplate(),
+		/** Localized "good" label used in threshold display. */
+		thresholdGood: messageTemplate(),
+		/** Localized "poor" label used in threshold display. */
+		thresholdPoor: messageTemplate(),
 		planFree: messageTemplate(),
 		planStarter: messageTemplate(),
 		planPro: messageTemplate(),

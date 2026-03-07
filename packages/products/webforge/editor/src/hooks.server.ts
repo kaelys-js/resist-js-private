@@ -16,6 +16,7 @@ import {
 	sanitizeSidebarWidth,
 	sanitizeTheme,
 } from '$lib/utils/preference-cookie';
+import { APP_NAME, STORAGE_PREFIX, storageKey, URL_PARAM_PREFIX } from '$lib/config/app-meta';
 
 /** Security headers applied to every response (safe in both dev and prod). */
 const BASE_HEADERS: ReadonlyArray<readonly [string, string]> = [
@@ -152,14 +153,14 @@ function logCapturedError(captured: CapturedError): Void {
 /**
  * Resolves the current user from the request URL.
  *
- * In dev mode, returns a mock user by default. The `?wf.auth=false` URL
+ * In dev mode, returns a mock user by default. The `?{URL_PARAM_PREFIX}auth=false` URL
  * parameter simulates a logged-out state for testing auth-gated UI.
  *
  * @param url - The request URL to check for auth overrides
  * @returns The resolved ServerUser, or null if auth is overridden to false
  */
 function resolveAuth(url: URL): ServerUser | null {
-	const authParam: Str | null = url.searchParams.get('wf.auth');
+	const authParam: Str | null = url.searchParams.get(`${URL_PARAM_PREFIX}auth`);
 	if (authParam === 'false') return null;
 	return MOCK_USER;
 }
@@ -194,16 +195,18 @@ export const handle: Handle = async ({ event, resolve }) => {
 		throw new Error('Simulated catastrophic failure — tests error.html fallback');
 	}
 
-	const cookie: Str = event.cookies.get('locale') ?? '';
+	const cookie: Str = event.cookies.get(storageKey('locale')) ?? '';
 	const header: Str | null = event.request.headers.get('accept-language');
 	const locale: Str = resolveLocale(cookie, header);
 
 	event.locals.locale = locale;
 	// During prerendering, url.searchParams is not accessible — use default mock user.
 	event.locals.user = building ? MOCK_USER : resolveAuth(event.url);
-	// Read mock data delay from URL param (e.g., ?wf.mockDelay=1500) or cookie.
-	const mockDelayParam: Str | null = building ? null : event.url.searchParams.get('wf.mockDelay');
-	const mockDelayCookie: Str = event.cookies.get('mockDataDelay') ?? '0';
+	// Read mock data delay from URL param (e.g., ?sl.mockDelay=1500) or cookie.
+	const mockDelayParam: Str | null = building
+		? null
+		: event.url.searchParams.get(`${URL_PARAM_PREFIX}mockDelay`);
+	const mockDelayCookie: Str = event.cookies.get(storageKey('mockDataDelay')) ?? '0';
 	const mockDelayMs: Num = Math.max(
 		0,
 		Math.min(10_000, Number(mockDelayParam ?? mockDelayCookie) || 0),
@@ -213,12 +216,12 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	// Read client preference cookies for SSR hydration flash prevention.
 	// Values are sanitized to prevent XSS via HTML attribute interpolation.
-	const sidebarPxRaw: Str | undefined = event.cookies.get('app:sidebar-px');
+	const sidebarPxRaw: Str | undefined = event.cookies.get(storageKey('sidebar-px'));
 	const sidebarPx: Num | null = sanitizeSidebarWidth(sidebarPxRaw ?? null);
 	event.locals.sidebarPx = sidebarPx;
-	const themeRaw: Str | undefined = event.cookies.get('app:theme');
+	const themeRaw: Str | undefined = event.cookies.get(storageKey('theme'));
 	const theme: Str = sanitizeTheme(themeRaw ?? null);
-	const sidebarOpenRaw: Str | undefined = event.cookies.get('app:sidebar-open');
+	const sidebarOpenRaw: Str | undefined = event.cookies.get(storageKey('sidebar-open'));
 	const sidebarOpen: boolean | null = sanitizeSidebarOpen(sidebarOpenRaw ?? null);
 	event.locals.sidebarOpen = sidebarOpen;
 
@@ -242,7 +245,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 				.replace('%lang%', locale)
 				.replace('%dir%', dir)
 				.replace('data-sidebar-width=""', sidebarAttr)
-				.replace('data-theme=""', themeAttr),
+				.replace('data-theme=""', themeAttr)
+				.replaceAll('{{APP_NAME}}', APP_NAME)
+				.replaceAll('{{STORAGE_PREFIX}}', STORAGE_PREFIX),
 	});
 
 	// Safety net: strip CSP headers in dev mode. SvelteKit's SSR renderer

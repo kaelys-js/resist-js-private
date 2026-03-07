@@ -106,13 +106,13 @@ const EXPECTED_NAMESPACES: readonly Str[] = [
 	'sidebar',
 	'header',
 	'settings',
-	'project',
+	'finances',
 	'user',
 	'data',
-	'scenes',
 	'debug',
 	'devToolbar',
 	'home',
+	'finance',
 	'errors',
 ];
 
@@ -158,13 +158,12 @@ describe('schema validation', () => {
 const NAMESPACE_KEY_COUNTS: Record<Str, Num> = {
 	meta: 2,
 	common: 13,
-	sidebar: 3,
+	sidebar: 8,
 	header: 4,
 	settings: 23,
-	project: 2,
+	finances: 1,
 	user: 9,
-	data: 6,
-	scenes: 3,
+	data: 5,
 	errors: 16,
 };
 

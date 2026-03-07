@@ -316,7 +316,7 @@ describe('EditorStore', () => {
 
 	// ── save / load ────────────────────────────────────────────────────────
 
-	it("save() writes to localStorage key 'app:editor-state'", () => {
+	it("save() writes to localStorage key 'finances:editor-state'", () => {
 		const result = createEditorStore();
 		if (!result.ok) throw new Error('Store creation failed');
 		const store = result.data;

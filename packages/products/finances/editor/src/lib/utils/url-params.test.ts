@@ -12,21 +12,21 @@ const okVoid = () => ({ ok: true as const, data: undefined, error: null });
 // ── parseDebugParams ────────────────────────────────────────────────────
 
 describe('parseDebugParams', () => {
-	it('returns empty overrides for URL with no wf.* params', () => {
+	it('returns empty overrides for URL with no fin.* params', () => {
 		const result = parseDebugParams(new URL('http://localhost'));
 		expect(result.ok).toBe(true);
 		if (result.ok) expect(result.data).toEqual({});
 	});
 
-	it('extracts single wf.* param', () => {
-		const result = parseDebugParams(new URL('http://localhost?wf.debug=true'));
+	it('extracts single fin.* param', () => {
+		const result = parseDebugParams(new URL('http://localhost?fin.debug=true'));
 		expect(result.ok).toBe(true);
 		if (result.ok) expect(result.data).toEqual({ debug: 'true' });
 	});
 
-	it('extracts multiple wf.* params', () => {
+	it('extracts multiple fin.* params', () => {
 		const result = parseDebugParams(
-			new URL('http://localhost?wf.debug=true&wf.logLevel=trace&wf.theme=midnight'),
+			new URL('http://localhost?fin.debug=true&fin.logLevel=trace&fin.theme=midnight'),
 		);
 		expect(result.ok).toBe(true);
 		if (result.ok) {
@@ -39,25 +39,25 @@ describe('parseDebugParams', () => {
 	});
 
 	it('ignores non-wf params', () => {
-		const result = parseDebugParams(new URL('http://localhost?foo=bar&wf.debug=true&baz=qux'));
+		const result = parseDebugParams(new URL('http://localhost?foo=bar&fin.debug=true&baz=qux'));
 		expect(result.ok).toBe(true);
 		if (result.ok) expect(result.data).toEqual({ debug: 'true' });
 	});
 
 	it('handles feature flag params with ff. prefix', () => {
-		const result = parseDebugParams(new URL('http://localhost?wf.ff.settings=false'));
+		const result = parseDebugParams(new URL('http://localhost?fin.ff.settings=false'));
 		expect(result.ok).toBe(true);
 		if (result.ok) expect(result.data).toEqual({ 'ff.settings': 'false' });
 	});
 
 	it('handles empty value', () => {
-		const result = parseDebugParams(new URL('http://localhost?wf.debug='));
+		const result = parseDebugParams(new URL('http://localhost?fin.debug='));
 		expect(result.ok).toBe(true);
 		if (result.ok) expect(result.data).toEqual({ debug: '' });
 	});
 
 	it('handles URL with hash and path', () => {
-		const result = parseDebugParams(new URL('http://localhost/editor?wf.debug=true#section'));
+		const result = parseDebugParams(new URL('http://localhost/editor?fin.debug=true#section'));
 		expect(result.ok).toBe(true);
 		if (result.ok) expect(result.data).toEqual({ debug: 'true' });
 	});
@@ -281,7 +281,7 @@ describe('applyUrlOverrides', () => {
 		expect(editorStore.setTheme).not.toHaveBeenCalled();
 		expect(editorStore.setFeature).not.toHaveBeenCalled();
 		expect(warnSpy).toHaveBeenCalledWith(
-			expect.stringContaining('Unknown URL override: wf.unknownKey=value'),
+			expect.stringContaining('Unknown URL override: fin.unknownKey=value'),
 		);
 	});
 
@@ -289,7 +289,7 @@ describe('applyUrlOverrides', () => {
 		applyUrlOverrides(editorStore, debugStore, { logLesel: 'debug' });
 		expect(debugStore.setLogLevel).not.toHaveBeenCalled();
 		expect(warnSpy).toHaveBeenCalledWith(
-			expect.stringContaining('Unknown URL override: wf.logLesel=debug'),
+			expect.stringContaining('Unknown URL override: fin.logLesel=debug'),
 		);
 	});
 

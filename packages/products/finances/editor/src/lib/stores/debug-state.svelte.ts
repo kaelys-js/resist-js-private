@@ -4,7 +4,7 @@
  * Centralized, reactive debug/developer mode state.
  * Module-level `$state` runes provide fine-grained reactivity.
  * All mutations return `Result<Void>` — no exceptions.
- * Persists to localStorage under `'app:debug-state'`.
+ * Persists to localStorage under the app-prefixed key (e.g. `'finances:debug-state'`).
  *
  * @module
  */
@@ -155,12 +155,12 @@ function setLogLevel(level: Str): Result<Void> {
  * Creates a new debug store, resetting module-level state to defaults
  * and loading any persisted state from localStorage.
  *
- * @param url - Optional URL to parse `wf.*` debug params from
+ * @param url - Optional URL to parse `fin.*` debug params from
  * @returns `Result<DebugStore>` — always ok
  *
  * @example
  * ```typescript
- * const result = createDebugStore(new URL('http://localhost?wf.debug=true'));
+ * const result = createDebugStore(new URL('http://localhost?fin.debug=true'));
  * if (!result.ok) throw new Error('Store creation failed');
  * const store = result.data;
  * ```

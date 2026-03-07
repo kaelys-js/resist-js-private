@@ -140,7 +140,7 @@ afterEach(() => {
 describe('URL parsing → override application flow', () => {
 	it('parses and applies all override categories simultaneously', () => {
 		const url = new URL(
-			'http://localhost?wf.debug=true&wf.logLevel=trace&wf.theme=midnight&wf.mode=dark&wf.locale=ja&wf.sidebarOpen=false&wf.appName=MyRPG&wf.ff.settings=false&wf.ff.sidebar=false',
+			'http://localhost?sl.debug=true&sl.logLevel=trace&sl.theme=midnight&sl.mode=dark&sl.locale=ja&sl.sidebarOpen=false&sl.appName=MyRPG&sl.ff.settings=false&sl.ff.sidebar=false',
 		);
 		const debugStore = createMockDebugStore(false);
 
@@ -172,7 +172,7 @@ describe('URL parsing → override application flow', () => {
 
 		expect(warnSpy).toHaveBeenCalledTimes(1);
 		const warnMsg = warnSpy.mock.calls[0]?.[0] as string;
-		expect(warnMsg).toContain('Unknown URL override: wf.logLesel=debug');
+		expect(warnMsg).toContain('Unknown URL override: sl.logLesel=debug');
 		expect(warnMsg).toContain('valid:');
 		expect(warnMsg).toContain('debug');
 		expect(warnMsg).toContain('logLevel');
@@ -184,8 +184,8 @@ describe('URL parsing → override application flow', () => {
 		applyUrlOverrides(editorStore, debugStore, { foo: 'bar', baz: 'qux' });
 
 		expect(warnSpy).toHaveBeenCalledTimes(2);
-		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('wf.foo=bar'));
-		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('wf.baz=qux'));
+		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('sl.foo=bar'));
+		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('sl.baz=qux'));
 	});
 
 	it('does not warn for any valid param', () => {
@@ -246,7 +246,7 @@ describe('URL parsing → override application flow', () => {
 	});
 
 	it('ignores non-wf URL params during parsing', () => {
-		const url = new URL('http://localhost?foo=bar&page=1&wf.debug=true&utm_source=test');
+		const url = new URL('http://localhost?foo=bar&page=1&sl.debug=true&utm_source=test');
 		const result = parseDebugParams(url);
 		expect(result.ok).toBe(true);
 		if (result.ok) {
@@ -920,13 +920,13 @@ describe('welcome banner', () => {
 		// Valid overrides logged as a single block via console.log
 		const validBlock = consoleSpy.mock.calls.find(
 			(args: unknown[]) =>
-				typeof args[0] === 'string' && args[0].includes('wf.debug') && args[0].includes('wf.theme'),
+				typeof args[0] === 'string' && args[0].includes('sl.debug') && args[0].includes('sl.theme'),
 		);
 		expect(validBlock).toBeDefined();
 
 		// Unknown override warned with console.warn
 		const unknownWarns = warnSpy.mock.calls.filter(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('✗ wf.'),
+			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('✗ sl.'),
 		);
 		expect(unknownWarns.length).toBe(1); // logLesel
 		expect(unknownWarns[0]?.[0]).toContain('logLesel');
@@ -958,7 +958,7 @@ describe('welcome banner', () => {
 
 		// Valid ff.* override logged as a block via console.log
 		const validBlock = consoleSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('wf.ff.settings'),
+			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('sl.ff.settings'),
 		);
 		expect(validBlock).toBeDefined();
 		expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('ff.settings'));
@@ -974,7 +974,7 @@ describe('welcome banner', () => {
 describe('full debug activation flow', () => {
 	it('simulates complete URL → parse → apply → activate → devtools cycle', () => {
 		// 1. Parse URL with debug params
-		const url = new URL('http://localhost?wf.debug=true&wf.logLevel=debug&wf.theme=midnight');
+		const url = new URL('http://localhost?sl.debug=true&sl.logLevel=debug&sl.theme=midnight');
 		const parseResult = parseDebugParams(url);
 		expect(parseResult.ok).toBe(true);
 		if (!parseResult.ok) return;

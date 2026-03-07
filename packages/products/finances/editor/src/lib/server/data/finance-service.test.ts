@@ -110,8 +110,8 @@ describe('readCollection', () => {
 		const result = await readCollection('travel.json', TravelSchema);
 		expect(result.ok).toBe(true);
 		if (result.ok) {
-			expect(result.data.length).toBe(16);
-			expect(result.data[0].name).toBe('South Korea');
+			expect(result.data.length).toBe(15);
+			expect(result.data[0].name).toBe('Thailand');
 		}
 	});
 

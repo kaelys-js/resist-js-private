@@ -23,6 +23,7 @@ import {
 	type FieldDescriptor,
 } from '$lib/debug/dev-toolbar-registry';
 import { localeStore, t } from '$lib/i18n.svelte';
+import { URL_PARAM_PREFIX } from '$lib/config/app-meta';
 import type { Str, Bool, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
@@ -54,7 +55,9 @@ let triggerRefs: Record<Str, HTMLButtonElement | null> = $state(
 let searchValues: Record<Str, Str> = $state(Object.fromEntries(picklistKeys.map((k) => [k, ''])));
 
 // Auth simulation state from URL params
-const isLoggedOut: Bool = $derived(page.url.searchParams.get('wf.auth') === 'false');
+const isLoggedOut: Bool = $derived(
+	page.url.searchParams.get(`${URL_PARAM_PREFIX}auth`) === 'false',
+);
 
 /**
  * Auto-maps a preference key to its setter method name.
@@ -79,17 +82,17 @@ async function selectOption(key: Str, value: Str): Promise<Void> {
 	triggerRefs[key]?.focus();
 }
 
-/** Navigate to current page with `?wf.auth` removed to simulate login. */
+/** Navigate to current page with `?fin.auth` removed to simulate login. */
 function handleLogin(): Void {
 	const url: URL = new URL(page.url);
-	url.searchParams.delete('wf.auth');
+	url.searchParams.delete(`${URL_PARAM_PREFIX}auth`);
 	goto(url.toString(), { invalidateAll: true });
 }
 
-/** Navigate to current page with `?wf.auth=false` to simulate logout. */
+/** Navigate to current page with `?fin.auth=false` to simulate logout. */
 function handleLogout(): Void {
 	const url: URL = new URL(page.url);
-	url.searchParams.set('wf.auth', 'false');
+	url.searchParams.set(`${URL_PARAM_PREFIX}auth`, 'false');
 	goto(url.toString(), { invalidateAll: true });
 }
 

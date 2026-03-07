@@ -23,7 +23,7 @@ const { handle, handleError } = await import('./hooks.server');
  * @param cookie - Value for the 'locale' cookie
  * @param acceptLanguage - Value for the Accept-Language header
  * @param pathname - URL pathname for the request
- * @param extraCookies - Additional cookie name→value pairs (e.g. `{ 'app:theme': 'midnight' }`)
+ * @param extraCookies - Additional cookie name→value pairs (e.g. `{ 'storylyne:theme': 'midnight' }`)
  * @param extraHeaders - Additional header name→value pairs (e.g. `{ 'save-data': 'on' }`)
  * @returns Mock RequestEvent with cookies and request headers
  */
@@ -35,7 +35,7 @@ function mockEvent(
 	extraHeaders: Record<Str, Str> = {},
 ): RequestEvent {
 	const allCookies: Record<Str, Str | undefined> = {
-		locale: cookie || undefined,
+		'storylyne:locale': cookie || undefined,
 		...extraCookies,
 	};
 	return {
@@ -143,8 +143,8 @@ describe('hooks.server handle', () => {
 		expect(event.locals.user?.displayName).toBe('Test User');
 	});
 
-	it('sets event.locals.user to null when ?wf.auth=false', async () => {
-		const event = mockEvent('en', null, '/?wf.auth=false');
+	it('sets event.locals.user to null when ?sl.auth=false', async () => {
+		const event = mockEvent('en', null, '/?sl.auth=false');
 		const { resolve } = mockResolve();
 		await handle({ event, resolve });
 		expect(event.locals.user).toBeNull();
@@ -161,7 +161,7 @@ describe('hooks.server handle', () => {
 
 	// ── Hydration flash prevention (sidebar + theme cookies) ────────────
 	it('injects sidebar width from cookie into transformPageChunk', async () => {
-		const event = mockEvent('en', null, '/', { 'app:sidebar-px': '350' });
+		const event = mockEvent('en', null, '/', { 'storylyne:sidebar-px': '350' });
 		const { resolve, getTransformed } = mockResolve();
 		await handle({ event, resolve });
 		const html: Str = getTransformed('<html data-sidebar-width="" data-theme="">');
@@ -169,7 +169,7 @@ describe('hooks.server handle', () => {
 	});
 
 	it('injects theme from cookie into transformPageChunk', async () => {
-		const event = mockEvent('en', null, '/', { 'app:theme': 'midnight' });
+		const event = mockEvent('en', null, '/', { 'storylyne:theme': 'midnight' });
 		const { resolve, getTransformed } = mockResolve();
 		await handle({ event, resolve });
 		const html: Str = getTransformed('<html data-sidebar-width="" data-theme="">');
@@ -193,7 +193,9 @@ describe('hooks.server handle', () => {
 	});
 
 	it('sanitizes invalid sidebar cookie (non-numeric)', async () => {
-		const event = mockEvent('en', null, '/', { 'app:sidebar-px': '"><script>alert(1)</script>' });
+		const event = mockEvent('en', null, '/', {
+			'storylyne:sidebar-px': '"><script>alert(1)</script>',
+		});
 		const { resolve, getTransformed } = mockResolve();
 		await handle({ event, resolve });
 		const html: Str = getTransformed('<html data-sidebar-width="">');
@@ -201,7 +203,7 @@ describe('hooks.server handle', () => {
 	});
 
 	it('sanitizes invalid theme cookie (unsupported value)', async () => {
-		const event = mockEvent('en', null, '/', { 'app:theme': 'neon' });
+		const event = mockEvent('en', null, '/', { 'storylyne:theme': 'neon' });
 		const { resolve, getTransformed } = mockResolve();
 		await handle({ event, resolve });
 		const html: Str = getTransformed('<html data-theme="">');

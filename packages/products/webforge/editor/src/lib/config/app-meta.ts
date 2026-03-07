@@ -53,22 +53,28 @@ export const APP_CATEGORIES: v.InferOutput<typeof AppCategoriesSchema> = [
 
 // ── Storage ──────────────────────────────────────────────────────────────────
 
-/** Prefix for all localStorage keys. Prevents collisions with other apps on the same origin. */
-export const STORAGE_PREFIX: Str = 'app';
+/** Prefix for all localStorage and cookie keys. Derived from {@link APP_NAME} to prevent collisions with other apps on the same origin. */
+export const STORAGE_PREFIX: Str = APP_NAME.toLowerCase();
 
 /**
- * Builds a namespaced localStorage key.
+ * Builds a namespaced localStorage/cookie key.
  *
  * @param suffix - The key-specific suffix (e.g. 'editor-state', 'mode')
- * @returns Prefixed key string (e.g. 'app:editor-state')
+ * @returns Prefixed key string (e.g. 'storylyne:editor-state')
  *
  * @example
- * storageKey('editor-state') // 'app:editor-state'
- * storageKey('mode')         // 'app:mode'
+ * storageKey('editor-state') // 'storylyne:editor-state'
+ * storageKey('mode')         // 'storylyne:mode'
  */
 export function storageKey(suffix: Str): Str {
 	return `${STORAGE_PREFIX}:${suffix}`;
 }
+
+/**
+ * Short prefix for URL debug/override parameters (e.g. `?sl.debug=true`).
+ * Derived from app name abbreviation to prevent collisions with other query params.
+ */
+export const URL_PARAM_PREFIX: Str = 'sl.';
 
 // ── Theme colors ─────────────────────────────────────────────────────────────
 // Hex equivalents of the oklch --background values from app.css.

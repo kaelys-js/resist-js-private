@@ -30,7 +30,11 @@ let formNotes: Str = $state('');
 // ── Derived ─────────────────────────────────────────────────────────
 const totalDebt: Num = $derived(data.debts.reduce((sum: Num, d: DebtItem) => sum + d.balance, 0));
 
-const dialogTitle: Str = $derived(editingId ? t(localeStore.t.finance.editItem, 'Edit Debt') : t(localeStore.t.finance.addItem, 'Add Debt'));
+const dialogTitle: Str = $derived(
+	editingId
+		? t(localeStore.t.finance.editItem, 'Edit Debt')
+		: t(localeStore.t.finance.addItem, 'Add Debt'),
+);
 
 // ── Formatting ──────────────────────────────────────────────────────
 function formatCurrency(value: Num): Str {

@@ -68,8 +68,8 @@ describe('DebugStateSchema', () => {
 });
 
 describe('URL_PARAM_PREFIX', () => {
-	it('is "wf."', () => {
-		expect(URL_PARAM_PREFIX).toBe('wf.');
+	it('is "fin."', () => {
+		expect(URL_PARAM_PREFIX).toBe('fin.');
 	});
 });
 

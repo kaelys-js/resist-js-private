@@ -1,13 +1,15 @@
 /**
  * Debug state schemas — controls debug mode, log level, and URL overrides.
  *
- * Persisted under `'app:debug-state'` localStorage key. URL overrides
- * use the `wf.` prefix (e.g., `?wf.debug=true`, `?wf.theme=midnight`).
+ * Persisted under the app-specific localStorage key. URL overrides
+ * use the app-specific prefix (e.g., `?fin.debug=true`, `?fin.theme=midnight`).
  *
  * @module
  */
 
 import * as v from 'valibot';
+
+export { URL_PARAM_PREFIX } from '$lib/config/app-meta';
 
 /**
  * Supported log level values in ascending severity order.
@@ -30,14 +32,8 @@ export const LogLevelSchema = v.picklist(LOG_LEVELS);
 export type LogLevel = v.InferOutput<typeof LogLevelSchema>;
 
 /**
- * URL parameter prefix to prevent collisions with other query params.
- * All debug-related params use this prefix: `?wf.debug=true`, `?wf.theme=midnight`.
- */
-export const URL_PARAM_PREFIX = 'wf.' as const;
-
-/**
  * Schema for debug state. Persisted separately from editor state
- * under `'app:debug-state'` localStorage key.
+ * under the app-specific localStorage key.
  *
  * @example
  * ```typescript
@@ -55,7 +51,7 @@ export const DebugStateSchema = v.strictObject({
 export type DebugState = v.InferOutput<typeof DebugStateSchema>;
 
 /**
- * Schema for parsed URL overrides. Keys are unprefixed (e.g., `'theme'`, not `'wf.theme'`).
+ * Schema for parsed URL overrides. Keys are unprefixed (e.g., `'theme'`, not `'fin.theme'`).
  * Values are raw strings — validated against target schemas when applied.
  *
  * @example

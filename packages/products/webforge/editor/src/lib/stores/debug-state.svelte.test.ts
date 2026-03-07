@@ -32,7 +32,7 @@ beforeEach(() => {
 
 describe('STORAGE_KEY', () => {
 	it('uses storageKey helper with debug-state suffix', () => {
-		expect(STORAGE_KEY).toBe('app:debug-state');
+		expect(STORAGE_KEY).toBe('storylyne:debug-state');
 		expect(STORAGE_KEY).toContain(':debug-state');
 	});
 });
@@ -57,7 +57,7 @@ describe('createDebugStore', () => {
 	});
 
 	it('parses URL params when URL provided', () => {
-		const url = new URL('http://localhost?wf.debug=true&wf.logLevel=trace');
+		const url = new URL('http://localhost?sl.debug=true&sl.logLevel=trace');
 		const result = createDebugStore(url);
 		if (!result.ok) throw new Error('should be ok');
 		expect(result.data.urlOverrides).toEqual({ debug: 'true', logLevel: 'trace' });
@@ -182,7 +182,7 @@ describe('singleton pattern', () => {
 	});
 
 	it('initDebugStore with URL populates urlOverrides', () => {
-		const url = new URL('http://localhost?wf.theme=midnight');
+		const url = new URL('http://localhost?sl.theme=midnight');
 		const store = initDebugStore(url);
 		expect(store.urlOverrides).toEqual({ theme: 'midnight' });
 	});

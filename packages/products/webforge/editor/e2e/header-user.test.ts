@@ -76,7 +76,7 @@ test.describe('header user dropdown', () => {
 	});
 
 	test('headerUserDropdown=false hides trigger via URL override', async ({ page }) => {
-		await page.goto('/?wf.debug=true&wf.ff.headerUserDropdown=false');
+		await page.goto('/?sl.debug=true&sl.ff.headerUserDropdown=false');
 		await page.waitForLoadState('domcontentloaded');
 		await page.waitForTimeout(200);
 		const trigger = page.getByTestId('header-user-trigger');

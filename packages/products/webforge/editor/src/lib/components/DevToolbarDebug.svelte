@@ -31,7 +31,7 @@ import type { Str, Bool, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import type { DebugStore } from '$lib/stores/debug-state.svelte';
-import type { DebugState } from '$lib/schemas/debug-state';
+import { URL_PARAM_PREFIX, type DebugState } from '$lib/schemas/debug-state';
 import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 import { DEVTOOLS_KEY, type EditorDevtools } from '$lib/debug/devtools-api.svelte';
 
@@ -354,7 +354,7 @@ function optionLabel(key: Str, value: Str): Str {
 			<div class="flex flex-col gap-0.5">
 				{#each urlOverrideEntries as [key, value] (key)}
 					<div class="text-xs font-mono text-muted-foreground">
-						<span class="text-primary">wf.{key}</span> = {value}
+						<span class="text-primary">{URL_PARAM_PREFIX}{key}</span> = {value}
 					</div>
 				{/each}
 			</div>
