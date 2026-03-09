@@ -1,0 +1,497 @@
+<script lang="ts">
+import '../../app.css';
+import { untrack } from 'svelte';
+import { browser } from '$app/environment';
+import { afterNavigate } from '$app/navigation';
+import { page } from '$app/state';
+import { ModeWatcher, setMode, setTheme } from 'mode-watcher';
+import * as Resizable from '@/ui/resizable/index.js';
+import type { PaneAPI, PaneGroupStorage } from 'paneforge';
+import AppSidebar from '$lib/components/AppSidebar.svelte';
+import SiteHeader from '$lib/components/SiteHeader.svelte';
+import * as Sidebar from '@/ui/sidebar/index.js';
+import { IsMobile } from '@/ui/hooks/is-mobile.svelte.js';
+import type { Str, Num, Bool, Void } from '@/schemas/common';
+import type { Result } from '@/schemas/result/result';
+import { localeStore, t } from '$lib/i18n.svelte';
+import { OG_LOCALES } from '$lib/og-locales';
+import { initEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';
+import { initDebugStore, type DebugStore } from '$lib/stores/debug-state.svelte';
+import { applyUrlOverrides } from '$lib/utils/url-params';
+import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
+import { BUILD_KEY } from '$lib/debug/devtools-api.svelte';
+import DevToolbar from '$lib/components/DevToolbar.svelte';
+import PageFadeIn from '@/ui/page-fade-in/PageFadeIn.svelte';
+import { log } from '@/utils/core/logger';
+import { APP_TAGLINE, STORAGE_PREFIX, THEME_COLORS, storageKey } from '$lib/config/app-meta';
+import { getBuildInfo } from '$lib/config/build-info';
+import { getAnnouncement } from '$lib/utils/announce.svelte';
+import type { ServerProject, ServerScene } from '$lib/server/data/types';
+import { addNavigationBreadcrumb } from '$lib/errors/breadcrumbs';
+import { setPreferenceCookie } from '$lib/utils/preference-cookie';
+import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
+
+const { children, data } = $props();
+
+// Track navigation events for error breadcrumb trail
+afterNavigate(({ from, to }) => {
+	const fromPath: Str | null = (from?.url?.pathname as Str | null) ?? null;
+	const toPath: Str = (to?.url?.pathname ?? '/') as Str;
+	addNavigationBreadcrumb(fromPath, toPath);
+});
+
+// Extract server locale immediately — intentionally capturing initial value only.
+const serverLocale: Str = data.locale ?? 'en';
+
+const store: EditorStore = initEditorStore();
+
+// Sync server user data into editor store so HeaderUser reads from store state.
+if (data.user) {
+	store.setUserName(data.user.displayName);
+	store.setUserEmail(data.user.email);
+	if (data.user.avatarUrl) store.setUserAvatar(data.user.avatarUrl);
+}
+
+// Hydrate locale from server-detected value (cookie → Accept-Language → 'en').
+// Both stores must be set synchronously BEFORE rendering so SSR outputs
+// correct locale strings. $effect is client-only, so localeStore would
+// stay at 'en' during SSR without this direct call.
+if (serverLocale !== store.app.locale) {
+	store.setLocale(serverLocale);
+}
+if (serverLocale !== localeStore.locale) {
+	localeStore.setLocale(serverLocale);
+}
+
+// Hydrate sidebar open state from server cookie to prevent expanded→collapsed flash.
+// Must be set synchronously BEFORE rendering so SSR outputs the correct sidebar state.
+if (
+	data.sidebarOpen !== null &&
+	data.sidebarOpen !== undefined &&
+	data.sidebarOpen !== store.app.sidebarOpen
+) {
+	store.setSidebarOpen(data.sidebarOpen);
+}
+
+// ── Debug store + URL overrides (client-only) ───────────────────────
+const debugStore: DebugStore | undefined = browser ? initDebugStore(page.url) : undefined;
+if (browser && debugStore) {
+	applyUrlOverrides(store, debugStore, debugStore.urlOverrides);
+}
+
+// ── Window build info global + startup log (client-only) ─────────────
+if (browser) {
+	const buildResult = getBuildInfo();
+	if (buildResult.ok) {
+		// Window interface uses literal key; computed access requires cast
+		(window as unknown as Record<Str, unknown>)[BUILD_KEY] = buildResult.data;
+		const b: typeof buildResult.data = buildResult.data;
+		// eslint-disable-next-line no-console -- Intentional startup log
+		console.log(
+			`%c${store.app.appName}%c v${b.version} (${b.branch}@${b.commit}${b.dirty ? ', dirty' : ''}) — built ${b.buildTimestamp}`,
+			'color:#8cf;font-weight:bold',
+			'color:#aaa',
+		);
+	}
+}
+
+// Reactive debug service lifecycle — watches debugStore.debug.enabled
+let debugHandle: DebugServicesHandle | null = $state(null);
+$effect(() => {
+	if (!debugStore) return;
+	debugHandle = syncDebugServices(store, debugStore, debugHandle);
+});
+
+// ── Streaming data resolution ─────────────────────────────────────────
+// Server load returns project/scenes as Promises (streaming) or plain
+// values (eager, e.g. no-user path). Resolve into reactive state so
+// $derived values work uniformly. Loading flags drive skeleton display.
+// Initial `data` reads are intentional — $effect handles reactive updates.
+// svelte-ignore state_referenced_locally
+let projectLoading: Bool = $state(data.project instanceof Promise);
+// svelte-ignore state_referenced_locally
+let scenesLoading: Bool = $state(!Array.isArray(data.scenes));
+// svelte-ignore state_referenced_locally
+let resolvedProject: ServerProject | null = $state(
+	data.project instanceof Promise ? null : (data.project ?? null),
+);
+// svelte-ignore state_referenced_locally
+let resolvedScenes: readonly ServerScene[] = $state(Array.isArray(data.scenes) ? data.scenes : []);
+
+$effect(() => {
+	const { project, scenes } = data;
+	let cancelled: Bool = false;
+
+	// Resolve project (may be Promise or plain value)
+	if (project instanceof Promise) {
+		projectLoading = true;
+		(async () => {
+			try {
+				const p: ServerProject | null = await project;
+				if (!cancelled) {
+					resolvedProject = p;
+					projectLoading = false;
+				}
+			} catch {
+				/* DB query failed — show null project instead of stuck skeleton */
+				if (!cancelled) {
+					resolvedProject = null;
+					projectLoading = false;
+				}
+			}
+		})();
+	} else {
+		resolvedProject = project ?? null;
+		projectLoading = false;
+	}
+
+	// Resolve scenes (may be Promise or plain array)
+	if (scenes instanceof Promise) {
+		scenesLoading = true;
+		(async () => {
+			try {
+				const s: readonly ServerScene[] = await scenes;
+				if (!cancelled) {
+					resolvedScenes = s;
+					scenesLoading = false;
+				}
+			} catch {
+				/* DB query failed — show empty list instead of stuck skeleton */
+				if (!cancelled) {
+					resolvedScenes = [];
+					scenesLoading = false;
+				}
+			}
+		})();
+	} else {
+		resolvedScenes = scenes ?? [];
+		scenesLoading = false;
+	}
+
+	return () => {
+		cancelled = true;
+	};
+});
+
+// ── Resizable sidebar ─────────────────────────────────────────────────
+// Default sidebar width: calc(var(--spacing) * 72) = 0.25rem * 72 = 18rem = 288px
+const SIDEBAR_DEFAULT_PX: Num = 288;
+const SIDEBAR_PX_KEY: Str = storageKey('sidebar-px');
+
+// Compute initial sidebar percentage from saved pixel width to prevent flash on load.
+function getInitialSidebarPercent(): Num {
+	if (typeof window === 'undefined') return 20;
+	// Clean stale PaneForge internal storage that bypasses our adapter.
+	localStorage.removeItem(`paneforge:${STORAGE_PREFIX}:sidebar-width`);
+	const saved: Str | null = localStorage.getItem(SIDEBAR_PX_KEY);
+	const px: Num = saved ? Number(saved) : SIDEBAR_DEFAULT_PX;
+	return (px / window.innerWidth) * 100;
+}
+const initialSidebarPercent: Num = getInitialSidebarPercent();
+
+const isMobile = new IsMobile();
+const useResizable: Bool = $derived(
+	browser && store.features.resizableSidebar && !isMobile.current,
+);
+
+let sidebarPane: PaneAPI | undefined = $state();
+let providerEl: HTMLDivElement | null = $state(null);
+
+// Track current pixel width so ResizeObserver can maintain it on viewport changes.
+// Initialize from server data (cookie) to prevent sidebar width flash on first paint.
+let currentSidebarPx: Num = data.sidebarPx ?? SIDEBAR_DEFAULT_PX;
+
+// Custom storage: persists sidebar width in pixels and converts to/from
+// PaneForge percentages based on current viewport width. This ensures the
+// sidebar maintains a consistent pixel width across different screen sizes.
+// Param types match PaneGroupStorage interface contract (Str = string, Void ⊂ void).
+const paneStorage: PaneGroupStorage = {
+	getItem(_name: Str): Str | null {
+		if (typeof window === 'undefined') return null;
+		const savedPx: Str | null = localStorage.getItem(SIDEBAR_PX_KEY);
+		const sidebarPx: Num = savedPx ? Number(savedPx) : SIDEBAR_DEFAULT_PX;
+		currentSidebarPx = sidebarPx;
+		const viewportWidth: Num = window.innerWidth;
+		const sidebarPercent: Num = (sidebarPx / viewportWidth) * 100;
+		return JSON.stringify([sidebarPercent, 100 - sidebarPercent]);
+	},
+	setItem(_name: Str, value: Str): Void {
+		if (typeof window === 'undefined') return;
+		try {
+			const layout: Num[] = JSON.parse(value);
+			const viewportWidth: Num = window.innerWidth;
+			const sidebarPx: Num = Math.round((layout[0] / 100) * viewportWidth);
+			currentSidebarPx = sidebarPx;
+			localStorage.setItem(SIDEBAR_PX_KEY, String(sidebarPx));
+			setPreferenceCookie('sidebar-px', String(sidebarPx));
+		} catch {
+			/* ignore malformed data */
+		}
+	},
+};
+
+function handleSidebarResize(size: Num): Void {
+	if (!providerEl) return;
+	const groupEl: Element | null = providerEl.querySelector('[data-pane-group]');
+	if (!groupEl) return;
+	const widthPx: Num = Math.round(groupEl.clientWidth * (size / 100));
+	currentSidebarPx = widthPx;
+	providerEl.style.setProperty('--sidebar-width', `${widthPx}px`);
+	// Persist pixel width directly — PaneForge's internal storage bypasses our adapter.
+	localStorage.setItem(SIDEBAR_PX_KEY, String(widthPx));
+	setPreferenceCookie('sidebar-px', String(widthPx));
+}
+
+function handleCollapse(): Void {
+	if (store.app.sidebarOpen) store.setSidebarOpen(false);
+}
+
+function handleExpand(): Void {
+	if (!store.app.sidebarOpen) store.setSidebarOpen(true);
+}
+
+function handleSidebarOpenChange(open: Bool): Void {
+	if (open) {
+		sidebarPane?.expand();
+	} else {
+		sidebarPane?.collapse();
+	}
+}
+
+// PaneForge breaks Tailwind peer-data selectors between sidebar and inset
+// because they're in separate Pane wrappers. Apply inset variant styles directly.
+// !w-auto overrides the component's w-full so flex-col stretch respects margins
+// (w-full = width:100% ignores margins in a column flex, causing 8px overflow).
+const insetClass: Str = $derived.by(() => {
+	if (!useResizable) return '';
+	return store.app.sidebarOpen
+		? 'md:m-2 md:ms-0 md:!w-auto md:rounded-xl md:shadow-sm'
+		: 'md:m-2 md:!w-auto md:rounded-xl md:shadow-sm';
+});
+
+function handleDoubleClickResize(): Void {
+	const groupEl: Element | null | undefined = providerEl?.querySelector('[data-pane-group]');
+	if (!groupEl) return;
+	const defaultPercent: Num = (SIDEBAR_DEFAULT_PX / groupEl.clientWidth) * 100;
+	sidebarPane?.resize(defaultPercent);
+}
+
+// Maintain fixed pixel sidebar width when the viewport resizes.
+// PaneForge stores sizes as percentages — without this, the sidebar width
+// would change proportionally when the browser window is resized.
+let resizeRafId: Num = 0;
+$effect(() => {
+	if (!useResizable || !providerEl) return;
+	const groupEl: Element | null = providerEl.querySelector('[data-pane-group]');
+	if (!groupEl) return;
+
+	const observer: ResizeObserver = new ResizeObserver(() => {
+		cancelAnimationFrame(resizeRafId);
+		resizeRafId = requestAnimationFrame(() => {
+			const groupWidth: Num = groupEl instanceof HTMLElement ? groupEl.clientWidth : 0;
+			if (groupWidth === 0) return;
+			// Resize PaneForge pane to maintain the saved pixel width.
+			const targetPercent: Num = (currentSidebarPx / groupWidth) * 100;
+			const currentSize: Num | undefined = sidebarPane?.getSize();
+			if (currentSize !== undefined && Math.abs(currentSize - targetPercent) > 0.5) {
+				sidebarPane?.resize(targetPercent);
+			}
+			providerEl?.style.setProperty('--sidebar-width', `${currentSidebarPx}px`);
+		});
+	});
+	observer.observe(groupEl);
+	return () => {
+		observer.disconnect();
+		cancelAnimationFrame(resizeRafId);
+	};
+});
+
+// ── Store → mode-watcher sync ─────────────────────────────────────────
+// untrack() prevents reactive cycle: setMode/setTheme read mode-watcher's
+// internal $state, which would re-trigger this effect and loop infinitely.
+$effect(() => {
+	const { mode, theme, locale } = store.app;
+	untrack(() => {
+		setMode(mode);
+		setTheme(theme);
+		if (locale !== localeStore.locale) {
+			localeStore.setLocale(locale);
+		}
+	});
+});
+
+// ── Store → mockDataDelay cookie sync ────────────────────────────────
+// Persist mock data delay to a cookie so the server can read it on next request.
+$effect(() => {
+	const delay: Num = store.app.mockDataDelay;
+	if (!browser) return;
+	setPreferenceCookie('mockDataDelay', String(delay));
+});
+
+// ── Store → sidebar open cookie sync ──────────────────────────────────
+// Persist sidebar open/closed state to cookie so hooks.server.ts can inject
+// the correct state during SSR — prevents expanded→collapsed flash.
+$effect(() => {
+	const open: Bool = store.app.sidebarOpen;
+	if (!browser) return;
+	setPreferenceCookie('sidebar-open', String(open));
+});
+
+// ── Store → PaneForge sidebar sync ────────────────────────────────────
+// When the sidebar open state changes externally (e.g., DevToolbar toggle),
+// sync the PaneForge pane to match.
+$effect(() => {
+	const wantOpen: Bool = store.app.sidebarOpen;
+	if (!useResizable) return;
+	if (wantOpen) {
+		sidebarPane?.expand();
+	} else {
+		sidebarPane?.collapse();
+	}
+});
+
+const themeColorLight: Str = $derived(THEME_COLORS[store.app.theme]?.light ?? '#ffffff');
+const themeColorDark: Str = $derived(THEME_COLORS[store.app.theme]?.dark ?? '#242424');
+
+const metaDescription: Str = $derived(
+	(() => {
+		// Locale DeepReadonly workaround — parametric locale function needs cast
+		const result: Result<Str> = (
+			localeStore.t.meta.description as (p: { appName: Str }) => Result<Str>
+		)({ appName: store.app.appName });
+		if (!result.ok) {
+			log.warn(`Locale meta.description error: ${result.error.code}`);
+		}
+		// UI boundary — locale error logged, fallback used
+		return result.ok ? result.data : `${store.app.appName} — ${APP_TAGLINE}`;
+	})(),
+);
+const ogLocale: Str = $derived(OG_LOCALES[store.app.locale] ?? 'en_US');
+
+// Error title map — must live in layout so title reactively clears on navigation.
+// Svelte's <svelte:head> sets document.title directly; when +error.svelte unmounts,
+// the title doesn't revert. Keeping it here ensures page.error → null updates the title.
+const errorTitleMap: Record<Num, () => Str> = {
+	400: () => t(localeStore.t.errors.badRequest, 'Bad request'),
+	403: () => t(localeStore.t.errors.forbidden, 'Access denied'),
+	404: () => t(localeStore.t.errors.notFound, 'Page not found'),
+	500: () => t(localeStore.t.errors.serverError, 'Something went wrong'),
+};
+
+// On the home route (/), no scene should be marked active — clear isActive to
+// prevent stale highlighting in the sidebar and breadcrumb.
+const displayScenes = $derived(
+	page.url.pathname === '/'
+		? resolvedScenes.map((s) => ({ ...s, isActive: false }))
+		: resolvedScenes,
+);
+
+// Active scene name — derived from displayScenes (already route-aware).
+const activeSceneName: Str = $derived(displayScenes.find((s) => s.isActive)?.title ?? '');
+
+// Breadcrumb segment for page title — mirrors SiteHeader's breadcrumb leaf.
+const breadcrumbSegment: Str = $derived.by(() => {
+	if (page.error) {
+		const titleFn =
+			errorTitleMap[page.status] ?? (() => t(localeStore.t.errors.genericTitle, 'Error'));
+		return titleFn();
+	}
+	if (activeSceneName) return activeSceneName;
+	return t(localeStore.t.header.home, 'Home');
+});
+
+const tagline: Str = $derived(t(localeStore.t.meta.tagline, APP_TAGLINE));
+
+const pageTitle: Str = $derived(`${store.app.appName} - ${breadcrumbSegment} - ${tagline}`);
+</script>
+
+<svelte:head>
+	<title>{pageTitle}</title>
+	<meta name="description" content={metaDescription} />
+	<meta name="application-name" content={store.app.appName} />
+	<meta name="theme-color" content={themeColorLight} media="(prefers-color-scheme: light)" />
+	<meta name="theme-color" content={themeColorDark} media="(prefers-color-scheme: dark)" />
+	<meta property="og:title" content={store.app.appName} />
+	<meta property="og:description" content={metaDescription} />
+	<meta property="og:type" content="website" />
+	<meta property="og:locale" content={ogLocale} />
+</svelte:head>
+
+<ModeWatcher defaultMode="system" disableTransitions={false} disableHeadScriptInjection modeStorageKey={storageKey('mode')} themeStorageKey={storageKey('theme')} />
+<a
+	href="#main-content"
+	class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:rounded-md focus:bg-background focus:text-foreground focus:border-2 focus:border-ring focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg"
+>
+	{t(localeStore.t.common.skipToContent, 'Skip to main content')}
+</a>
+<Sidebar.Provider
+	bind:ref={providerEl}
+	open={store.app.sidebarOpen}
+	onOpenChange={useResizable ? handleSidebarOpenChange : undefined}
+	matchToggleShortcut={(e) => shortcutStore.matches(e, 'TOGGLE_SIDEBAR')}
+	class="min-w-[450px]"
+	style="--sidebar-width: {data.sidebarPx ?? SIDEBAR_DEFAULT_PX}px; --header-height: calc(var(--spacing) * 12);"
+>
+	{#if useResizable}
+		<Resizable.PaneGroup
+			direction="horizontal"
+			autoSaveId={`${STORAGE_PREFIX}:sidebar-width`}
+			storage={paneStorage}
+			class="min-h-svh"
+		>
+			<Resizable.Pane
+				bind:this={sidebarPane}
+				defaultSize={initialSidebarPercent}
+				minSize={5}
+				maxSize={40}
+				collapsible={true}
+				collapsedSize={2}
+				onResize={handleSidebarResize}
+				onCollapse={handleCollapse}
+				onExpand={handleExpand}
+				class="!overflow-visible"
+			>
+				<AppSidebar user={data.user} project={resolvedProject} scenes={displayScenes} {projectLoading} {scenesLoading} />
+			</Resizable.Pane>
+			<Resizable.Handle
+				class="w-1.5 bg-transparent hover:bg-border data-[active]:bg-ring transition-colors"
+				ondblclick={handleDoubleClickResize}
+			/>
+			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+			<Resizable.Pane defaultSize={100 - initialSidebarPercent} class="flex flex-col !overflow-y-auto !overflow-x-hidden">
+				<Sidebar.Inset class={insetClass}>
+					<SiteHeader isError={Boolean(page.error)} user={data.user} {activeSceneName} />
+					<main id="main-content" tabindex={-1} class="flex flex-1 flex-col outline-none">
+						{#key page.url.pathname}
+							<PageFadeIn>
+								{@render children()}
+							</PageFadeIn>
+						{/key}
+					</main>
+				</Sidebar.Inset>
+			</Resizable.Pane>
+		</Resizable.PaneGroup>
+	{:else}
+		<AppSidebar user={data.user} project={resolvedProject} scenes={displayScenes} {projectLoading} {scenesLoading} />
+		<!-- Spacer pre-allocates Resizable.Handle width (w-1.5 = 6px) so content doesn't shift
+			 when hydration swaps in the real handle. Inset styling is handled by the component's
+			 peer-data-[variant=inset] selectors (sidebar and inset are siblings in this path). -->
+		<div class="w-1.5 shrink-0"></div>
+		<Sidebar.Inset>
+			<SiteHeader isError={Boolean(page.error)} user={data.user} {activeSceneName} />
+			<div class="flex flex-1 flex-col">
+				{#key page.url.pathname}
+					<PageFadeIn>
+						{@render children()}
+					</PageFadeIn>
+				{/key}
+			</div>
+		</Sidebar.Inset>
+	{/if}
+</Sidebar.Provider>
+
+{#if browser && debugStore}
+	<DevToolbar />
+{/if}
+
+<div aria-live="polite" aria-atomic="true" class="sr-only">{getAnnouncement()}</div>

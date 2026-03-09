@@ -2,6 +2,7 @@
 import type { Bool, Str, Void } from '@/schemas/common';
 import Check from '@lucide/svelte/icons/check';
 import Copy from '@lucide/svelte/icons/copy';
+import X from '@lucide/svelte/icons/x';
 import { fade } from 'svelte/transition';
 import * as Tooltip from '../tooltip/index.js';
 import { cn } from '../utils.js';
@@ -10,7 +11,8 @@ import { cn } from '../utils.js';
  * Code badge with a copy-to-clipboard button and tooltip feedback.
  *
  * Displays a monospace code badge alongside a copy icon. Clicking the
- * icon copies text to the clipboard and shows a brief "Copied!" tooltip.
+ * icon copies text to the clipboard with visual feedback (success or failure).
+ * Uses `navigator.clipboard` with `document.execCommand` fallback.
  *
  * @example
  * ```svelte
@@ -29,30 +31,64 @@ type CopyImportProps = {
 
 const { text, copyText, class: className }: CopyImportProps = $props();
 
-let copied: Bool = $state(false);
+/** Copy result: 'idle' (default), 'success', or 'failed'. */
+let copyState: 'idle' | 'success' | 'failed' = $state('idle');
 let copyTimeout: ReturnType<typeof setTimeout> | undefined = $state(undefined);
 
 /**
- * Copy text to the clipboard and show visual feedback.
+ * Copy text to clipboard with legacy fallback.
  *
- * Uses `navigator.clipboard.writeText` with a 2-second reset timer.
- * The tooltip switches to "Copied!" while the icon transitions to a
- * green check mark.
+ * Uses `navigator.clipboard.writeText()` when available, falls back to
+ * `document.execCommand('copy')` for insecure contexts / older browsers.
+ *
+ * @param clipText - The string to copy
+ * @returns Whether the copy succeeded
  */
-async function copyToClipboard(): Promise<Void> {
+async function clipboardCopy(clipText: Str): Promise<Bool> {
+	if (navigator.clipboard?.writeText) {
+		try {
+			await navigator.clipboard.writeText(clipText);
+			return true;
+		} catch {
+			/* clipboard API rejected — fall through to legacy */
+		}
+	}
+	// Legacy fallback: hidden textarea + execCommand
 	try {
-		await navigator.clipboard.writeText(copyText ?? text);
-		copied = true;
-		clearTimeout(copyTimeout);
-		copyTimeout = setTimeout((): void => {
-			copied = false;
-		}, 2000);
+		const ta: HTMLTextAreaElement = document.createElement('textarea');
+		ta.value = clipText;
+		ta.style.position = 'fixed';
+		ta.style.opacity = '0';
+		// insertBefore(node, null) appends — avoids ParentNode.append vs Body.append type conflict
+		document.body.insertBefore(ta, null);
+		ta.select();
+		const ok: Bool = document.execCommand('copy');
+		ta.remove();
+		return ok;
 	} catch {
-		/* clipboard API unavailable (SSR, insecure context, or denied permission) — user sees no feedback */
+		/* execCommand not available — copy failed entirely */
+		return false;
 	}
 }
 
-const tooltipText: Str = $derived(copied ? 'Copied!' : 'Click to copy');
+/**
+ * Handle copy button click — copies text and shows visual feedback.
+ */
+async function handleCopy(): Promise<Void> {
+	const success: Bool = await clipboardCopy(copyText ?? text);
+	copyState = success ? 'success' : 'failed';
+	clearTimeout(copyTimeout);
+	copyTimeout = setTimeout((): void => {
+		copyState = 'idle';
+	}, 2000);
+}
+
+const tooltipText: Str = $derived.by(() => {
+	const state: typeof copyState = copyState;
+	if (state === 'success') return 'Copied!';
+	if (state === 'failed') return 'Copy failed';
+	return 'Click to copy';
+});
 </script>
 
 <span class={cn('inline-flex items-center gap-1.5', className)}>
@@ -60,19 +96,23 @@ const tooltipText: Str = $derived(copied ? 'Copied!' : 'Click to copy');
 		{text}
 	</code>
 	<Tooltip.Provider>
-		<Tooltip.Root delayDuration={300} open={copied ? true : undefined}>
+		<Tooltip.Root delayDuration={300} open={copyState !== 'idle' ? true : undefined}>
 			<Tooltip.Trigger>
 				{#snippet child({ props })}
 					<button
 						{...props}
 						type="button"
 						class="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-						onclick={copyToClipboard}
+						onclick={handleCopy}
 						aria-label="Copy to clipboard"
 					>
-						{#if copied}
+						{#if copyState === 'success'}
 							<span in:fade={{ duration: 150 }}>
 								<Check class="size-3.5 text-green-500" aria-hidden="true" />
+							</span>
+						{:else if copyState === 'failed'}
+							<span in:fade={{ duration: 150 }}>
+								<X class="size-3.5 text-red-500" aria-hidden="true" />
 							</span>
 						{:else}
 							<span in:fade={{ duration: 150 }}>
@@ -87,4 +127,9 @@ const tooltipText: Str = $derived(copied ? 'Copied!' : 'Click to copy');
 			</Tooltip.Content>
 		</Tooltip.Root>
 	</Tooltip.Provider>
+
+	<!-- Aria-live region for clipboard feedback -->
+	<span class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+		{#if copyState === 'success'}Copied!{:else if copyState === 'failed'}Copy failed{/if}
+	</span>
 </span>

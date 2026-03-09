@@ -1,6 +1,18 @@
 <script lang="ts">
+import type { Bool, Str } from '@/schemas/common';
 import ErrorPage from './ErrorPage.svelte';
 import DemoSection from '../demo-section/DemoSection.svelte';
+
+/**
+ * Simulates a clipboard failure for the copy-failure demo.
+ *
+ * @param _text - Ignored — always returns failure
+ * @returns A resolved promise with `false` (copy failed)
+ */
+const failingCopy = (_text: Str): Promise<Bool> =>
+	new Promise<Bool>((resolve) => {
+		resolve(false);
+	});
 </script>
 
 <div class="flex flex-col gap-6">
@@ -14,6 +26,7 @@ import DemoSection from '../demo-section/DemoSection.svelte';
 				goHome: 'Go to homepage',
 				tryAgain: 'Try again',
 				copied: 'Copied!',
+				copyFailed: 'Copy failed',
 				errorIdLabel: '',
 				copyErrorIdAriaLabel: '',
 				clickToCopy: '',
@@ -34,6 +47,7 @@ import DemoSection from '../demo-section/DemoSection.svelte';
 				goHome: 'Go to homepage',
 				tryAgain: 'Try again',
 				copied: 'Copied!',
+				copyFailed: 'Copy failed',
 				errorIdLabel: '',
 				copyErrorIdAriaLabel: '',
 				clickToCopy: '',
@@ -54,10 +68,34 @@ import DemoSection from '../demo-section/DemoSection.svelte';
 				goHome: 'Go to homepage',
 				tryAgain: 'Try again',
 				copied: 'Copied!',
+				copyFailed: 'Copy failed',
 				errorIdLabel: '',
 				copyErrorIdAriaLabel: '',
 				clickToCopy: '',
 			}}
+		/>
+	</DemoSection>
+
+	<DemoSection
+		title="Copy Failure"
+		description="Error page where clipboard copy fails — shows red X and 'Copy failed' state."
+	>
+		<ErrorPage
+			status={500}
+			message="Internal Server Error"
+			errorId="err-fail-demo"
+			title="Something went wrong"
+			description="Click the error ID below to see the failure state."
+			labels={{
+				goHome: 'Go to homepage',
+				tryAgain: 'Try again',
+				copied: 'Copied!',
+				copyFailed: 'Copy failed',
+				errorIdLabel: 'Reference: err-fail-demo',
+				copyErrorIdAriaLabel: 'Copy error ID to clipboard',
+				clickToCopy: 'Click to copy (will fail)',
+			}}
+			copyOverride={failingCopy}
 		/>
 	</DemoSection>
 
@@ -75,6 +113,7 @@ import DemoSection from '../demo-section/DemoSection.svelte';
 				goHome: 'Go to homepage',
 				tryAgain: 'Try again',
 				copied: 'Copied!',
+				copyFailed: 'Copy failed',
 				errorIdLabel: 'Reference: err-a1b2c3d4',
 				copyErrorIdAriaLabel: 'Copy error ID to clipboard',
 				clickToCopy: 'Click to copy',
