@@ -304,6 +304,7 @@ export const EditorLocaleSchema = v.strictObject({
 		copied: messageTemplate(),
 		copyFailed: messageTemplate(),
 		copyErrorId: messageTemplate(),
+		clickToCopy: messageTemplate(),
 	}),
 });
 

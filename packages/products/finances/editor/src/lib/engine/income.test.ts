@@ -48,7 +48,7 @@ describe('projectIncome', () => {
 		const retirementYear: Num = getRetirementYear(testSettings);
 		expect(result.data.length).toBe(retirementYear - currentYear);
 		expect(result.data[0].year).toBe(currentYear);
-		expect(result.data[result.data.length - 1].year).toBe(retirementYear - 1);
+		expect(result.data.at(-1)?.year).toBe(retirementYear - 1);
 	});
 
 	it('one-time income appears only in the start year', () => {
@@ -92,11 +92,11 @@ describe('projectIncome', () => {
 		if (!result.ok) return;
 
 		// For a full year starting in January, amount * 26
-		expect(result.data[0].total).toBe(26000);
+		expect(result.data[0].total).toBe(26_000);
 
 		// A full middle year should also be 26000
 		if (result.data.length > 1) {
-			expect(result.data[1].total).toBe(26000);
+			expect(result.data[1].total).toBe(26_000);
 		}
 	});
 
@@ -143,7 +143,7 @@ describe('projectIncome', () => {
 		];
 		const result = projectIncome(sources, testSettings);
 		if (!result.ok) return;
-		expect(result.data[0].total).toBe(60000);
+		expect(result.data[0].total).toBe(60_000);
 	});
 
 	it('monthly income starting mid-year is prorated', () => {
@@ -167,7 +167,7 @@ describe('projectIncome', () => {
 
 		// Full subsequent year
 		if (result.data.length > 1) {
-			expect(result.data[1].total).toBe(60000);
+			expect(result.data[1].total).toBe(60_000);
 		}
 	});
 
@@ -243,7 +243,7 @@ describe('projectIncome', () => {
 		];
 		const result = projectIncome(sources, testSettings);
 		if (!result.ok) return;
-		expect(result.data[0].total).toBe(61000);
+		expect(result.data[0].total).toBe(61_000);
 		expect(result.data[0].sources.length).toBe(2);
 	});
 
@@ -272,7 +272,7 @@ describe('projectIncome', () => {
 		const result = projectIncome(sources, testSettings);
 		if (!result.ok) return;
 		expect(result.data[0].sources[0].name).toBe('Salary');
-		expect(result.data[0].sources[0].amount).toBe(36000);
+		expect(result.data[0].sources[0].amount).toBe(36_000);
 	});
 
 	it('monthly income ending mid-year in end year is prorated', () => {
@@ -303,14 +303,14 @@ describe('projectIncome', () => {
 describe('calculateNetPosition', () => {
 	const testDebts: readonly DebtItem[] = [
 		{ id: 'debt-001', name: 'Credit Card', balance: 5000, isEstimate: false, notes: '' },
-		{ id: 'debt-002', name: 'Loan', balance: 10000, isEstimate: false, notes: '' },
+		{ id: 'debt-002', name: 'Loan', balance: 10_000, isEstimate: false, notes: '' },
 	];
 
 	const testAssets: readonly IncomeSource[] = [
 		{
 			id: 'inc-001',
 			name: 'Savings',
-			amount: 20000,
+			amount: 20_000,
 			frequency: 'one-time',
 			startDate: `${currentYear}-01-01`,
 			notes: '',
@@ -318,7 +318,7 @@ describe('calculateNetPosition', () => {
 		{
 			id: 'inc-002',
 			name: 'Investments',
-			amount: 30000,
+			amount: 30_000,
 			frequency: 'one-time',
 			startDate: `${currentYear}-01-01`,
 			notes: '',
@@ -326,63 +326,63 @@ describe('calculateNetPosition', () => {
 	];
 
 	it('returns ok result', () => {
-		const result = calculateNetPosition(100000, 80000, testDebts, testAssets);
+		const result = calculateNetPosition(100_000, 80_000, testDebts, testAssets);
 		expect(result.ok).toBe(true);
 	});
 
 	it('calculates total debt correctly', () => {
-		const result = calculateNetPosition(100000, 80000, testDebts, testAssets);
+		const result = calculateNetPosition(100_000, 80_000, testDebts, testAssets);
 		if (!result.ok) return;
-		expect(result.data.totalDebt).toBe(15000);
+		expect(result.data.totalDebt).toBe(15_000);
 	});
 
 	it('calculates total assets correctly', () => {
-		const result = calculateNetPosition(100000, 80000, testDebts, testAssets);
+		const result = calculateNetPosition(100_000, 80_000, testDebts, testAssets);
 		if (!result.ok) return;
-		expect(result.data.totalAssets).toBe(50000);
+		expect(result.data.totalAssets).toBe(50_000);
 	});
 
 	it('calculates net worth as assets minus debt', () => {
-		const result = calculateNetPosition(100000, 80000, testDebts, testAssets);
+		const result = calculateNetPosition(100_000, 80_000, testDebts, testAssets);
 		if (!result.ok) return;
-		expect(result.data.netWorth).toBe(35000);
+		expect(result.data.netWorth).toBe(35_000);
 	});
 
 	it('calculates net position as assets + income - debt - expenses', () => {
-		const result = calculateNetPosition(100000, 80000, testDebts, testAssets);
+		const result = calculateNetPosition(100_000, 80_000, testDebts, testAssets);
 		if (!result.ok) return;
 		// 50000 + 100000 - 15000 - 80000 = 55000
-		expect(result.data.netPosition).toBe(55000);
+		expect(result.data.netPosition).toBe(55_000);
 	});
 
 	it('stores income and expenses in result', () => {
-		const result = calculateNetPosition(100000, 80000, testDebts, testAssets);
+		const result = calculateNetPosition(100_000, 80_000, testDebts, testAssets);
 		if (!result.ok) return;
-		expect(result.data.totalIncome).toBe(100000);
-		expect(result.data.totalExpenses).toBe(80000);
+		expect(result.data.totalIncome).toBe(100_000);
+		expect(result.data.totalExpenses).toBe(80_000);
 	});
 
 	it('handles zero debts', () => {
-		const result = calculateNetPosition(50000, 40000, [], testAssets);
+		const result = calculateNetPosition(50_000, 40_000, [], testAssets);
 		if (!result.ok) return;
 		expect(result.data.totalDebt).toBe(0);
-		expect(result.data.netWorth).toBe(50000);
-		expect(result.data.netPosition).toBe(60000);
+		expect(result.data.netWorth).toBe(50_000);
+		expect(result.data.netPosition).toBe(60_000);
 	});
 
 	it('handles zero assets', () => {
-		const result = calculateNetPosition(50000, 40000, testDebts, []);
+		const result = calculateNetPosition(50_000, 40_000, testDebts, []);
 		if (!result.ok) return;
 		expect(result.data.totalAssets).toBe(0);
-		expect(result.data.netWorth).toBe(-15000);
+		expect(result.data.netWorth).toBe(-15_000);
 		expect(result.data.netPosition).toBe(-5000);
 	});
 
 	it('handles scenario where expenses exceed income', () => {
-		const result = calculateNetPosition(30000, 100000, testDebts, testAssets);
+		const result = calculateNetPosition(30_000, 100_000, testDebts, testAssets);
 		if (!result.ok) return;
 		// 50000 + 30000 - 15000 - 100000 = -35000
-		expect(result.data.netPosition).toBe(-35000);
+		expect(result.data.netPosition).toBe(-35_000);
 	});
 
 	it('rounds values to 2 decimal places', () => {
@@ -399,12 +399,12 @@ describe('calculateNetPosition', () => {
 				notes: '',
 			},
 		];
-		const result = calculateNetPosition(10000, 5000, debts, assets);
+		const result = calculateNetPosition(10_000, 5000, debts, assets);
 		if (!result.ok) return;
 		expect(result.data.totalDebt).toBe(1234.56);
 		expect(result.data.totalAssets).toBe(5678.12);
 		expect(result.data.netWorth).toBe(4443.56);
-		expect(result.data.totalIncome).toBe(10000);
+		expect(result.data.totalIncome).toBe(10_000);
 		expect(result.data.totalExpenses).toBe(5000);
 		expect(result.data.netPosition).toBe(9443.56);
 	});

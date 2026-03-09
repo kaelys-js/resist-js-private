@@ -4,7 +4,7 @@
  * Centralized, reactive debug/developer mode state.
  * Module-level `$state` runes provide fine-grained reactivity.
  * All mutations return `Result<Void>` — no exceptions.
- * Persists to localStorage under the app-prefixed key (e.g. `'finances:debug-state'`).
+ * Persists to localStorage under the app-prefixed key (via `storageKey('debug-state')`).
  *
  * @module
  */

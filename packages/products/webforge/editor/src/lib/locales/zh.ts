@@ -260,5 +260,6 @@ export const zh: EditorLocaleRaw = {
 		copied: '已复制！',
 		copyFailed: '复制失败',
 		copyErrorId: '将错误ID复制到剪贴板',
+		clickToCopy: '点击复制',
 	},
 };

@@ -48,7 +48,7 @@ test.describe('accessibility — skip link & landmarks', () => {
 });
 
 // =============================================================================
-// WCAG 2.2 AA — SiteHeader & NavUser
+// WCAG 2.2 AA — SiteHeader & NavProject
 // =============================================================================
 
 test.describe('accessibility — header & navigation', () => {

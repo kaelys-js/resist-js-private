@@ -161,7 +161,7 @@ type ReplacementBar = {
 const replacementChartData: ReplacementBar[] = $derived(
 	[...replacements]
 		.map((r) => ({ name: r.name, annualCost: replacementAnnualCost(r) }))
-		.sort((a, b) => b.annualCost - a.annualCost),
+		.toSorted((a, b) => b.annualCost - a.annualCost),
 );
 
 const replacementChartMax: Num = $derived.by(() => {

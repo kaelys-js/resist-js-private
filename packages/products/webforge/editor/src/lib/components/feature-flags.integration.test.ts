@@ -13,7 +13,7 @@ import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import SiteHeaderFlagsTest from './SiteHeaderFlagsTest.svelte';
 import AppSidebarFlagsTest from './AppSidebarFlagsTest.svelte';
-import NavUserFlagsTest from './NavUserFlagsTest.svelte';
+import NavProjectFlagsTest from './NavProjectFlagsTest.svelte';
 import EmptyScenesFlagsTest from './EmptyScenesFlagsTest.svelte';
 import { APP_NAME, APP_TAGLINE } from '$lib/config/app-meta';
 
@@ -121,33 +121,33 @@ describe('AppSidebar feature flags', () => {
 	});
 
 	// --- projectDropdown ---
-	it('renders NavUser when projectDropdown flag is enabled (default)', () => {
+	it('renders NavProject when projectDropdown flag is enabled (default)', () => {
 		render(AppSidebarFlagsTest);
-		// NavUser contains the project name
+		// NavProject contains the project name
 		expect(screen.getByText('Test Project')).toBeInTheDocument();
 	});
 
-	it('hides NavUser when projectDropdown flag is disabled', () => {
+	it('hides NavProject when projectDropdown flag is disabled', () => {
 		render(AppSidebarFlagsTest, { props: { disabledFlags: ['projectDropdown'] } });
 		expect(screen.queryByText('Test Project')).not.toBeInTheDocument();
 	});
 });
 
 // =============================================================================
-// NavUser feature flags
+// NavProject feature flags
 // =============================================================================
 
-describe('NavUser feature flags', () => {
+describe('NavProject feature flags', () => {
 	// --- projectDropdownIcon ---
 	it('renders avatar when projectDropdownIcon flag is enabled (default)', () => {
-		const { container } = render(NavUserFlagsTest);
+		const { container } = render(NavProjectFlagsTest);
 		// Avatar.Root uses data-slot="avatar" or has class "rounded-lg" with img/fallback
 		const avatar: HTMLElement | null = container.querySelector('[data-slot="avatar"]');
 		expect(avatar).toBeInTheDocument();
 	});
 
 	it('hides avatar when projectDropdownIcon flag is disabled', () => {
-		const { container } = render(NavUserFlagsTest, {
+		const { container } = render(NavProjectFlagsTest, {
 			props: { disabledFlags: ['projectDropdownIcon'] },
 		});
 		// The trigger should NOT contain an avatar
@@ -164,7 +164,7 @@ describe('NavUser feature flags', () => {
 	// Their {#if} wiring is verified via E2E tests (Task 7). Here we verify the
 	// flags exist in the store and are controllable.
 	it('themeSelection and languageSelection flags default to true in store', () => {
-		render(NavUserFlagsTest);
+		render(NavProjectFlagsTest);
 		// The store is initialized with all flags true by FeatureFlagsTestProviders
 		// If these flags didn't exist, the store creation would have failed
 		// and no render would occur. This test verifies the flags are wired.
@@ -172,7 +172,7 @@ describe('NavUser feature flags', () => {
 	});
 
 	it('themeSelection and languageSelection can be disabled without errors', () => {
-		render(NavUserFlagsTest, {
+		render(NavProjectFlagsTest, {
 			props: { disabledFlags: ['themeSelection', 'languageSelection'] },
 		});
 		// Should render without errors even with these flags disabled
@@ -181,7 +181,7 @@ describe('NavUser feature flags', () => {
 
 	// --- Multiple flags disabled simultaneously ---
 	it('handles multiple flags disabled simultaneously', () => {
-		const { container } = render(NavUserFlagsTest, {
+		const { container } = render(NavProjectFlagsTest, {
 			props: { disabledFlags: ['projectDropdownIcon', 'projectDropdownSettings'] },
 		});
 		// Avatar should be hidden

@@ -1,26 +1,26 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
-import NavUserTest from './NavUserTest.svelte';
+import NavProjectTest from './NavProjectTest.svelte';
 
-describe('NavUser', () => {
+describe('NavProject', () => {
 	it('renders user name', () => {
-		render(NavUserTest);
+		render(NavProjectTest);
 		expect(screen.getByText('Test User')).toBeInTheDocument();
 	});
 
 	it('renders placeholder subtitle', () => {
-		render(NavUserTest);
+		render(NavProjectTest);
 		expect(screen.getByText('—')).toBeInTheDocument();
 	});
 
 	it('renders chevron icon', () => {
-		const { container } = render(NavUserTest);
+		const { container } = render(NavProjectTest);
 		const svgs: NodeListOf<SVGSVGElement> = container.querySelectorAll('svg');
 		expect(svgs.length).toBeGreaterThanOrEqual(1);
 	});
 
 	it('does NOT render ModeToggle button', () => {
-		render(NavUserTest);
+		render(NavProjectTest);
 		// ModeToggle renders a button with aria-label "Toggle mode"
 		expect(screen.queryByRole('button', { name: /toggle mode/i })).not.toBeInTheDocument();
 	});

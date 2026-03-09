@@ -113,7 +113,7 @@ const cumulativeData: CumulativePoint[] = $derived.by(() => {
 
 const cumulativeMax: Num = $derived.by(() => {
 	if (cumulativeData.length === 0) return 1;
-	return cumulativeData[cumulativeData.length - 1]?.cumulative ?? 1;
+	return cumulativeData.at(-1)?.cumulative ?? 1;
 });
 
 // ── Inflation config editing ────────────────────────────────────────

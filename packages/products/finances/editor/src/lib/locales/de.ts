@@ -394,5 +394,6 @@ export const de: EditorLocaleRaw = {
 		copied: 'Kopiert!',
 		copyFailed: 'Kopieren fehlgeschlagen',
 		copyErrorId: 'Fehler-ID in die Zwischenablage kopieren',
+		clickToCopy: 'Zum Kopieren klicken',
 	},
 };

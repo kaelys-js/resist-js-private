@@ -264,5 +264,6 @@ export const fr: EditorLocaleRaw = {
 		copied: 'Copié\u00A0!',
 		copyFailed: 'Échec de la copie',
 		copyErrorId: "Copier l'identifiant d'erreur",
+		clickToCopy: 'Cliquer pour copier',
 	},
 };

@@ -18,7 +18,7 @@ let { data }: { data: PageData } = $props();
 
 let trips: Travel[] = $derived(data.trips);
 
-let totalBudget: Num = $derived(trips.reduce((sum: Num, t: Travel) => sum + t.budget, 0));
+let totalBudget: Num = $derived(trips.reduce((sum: Num, trip: Travel) => sum + trip.budget, 0));
 
 // ── Delete confirmation state ──────────────────────────────────────
 let confirmOpen: Bool = $state(false);

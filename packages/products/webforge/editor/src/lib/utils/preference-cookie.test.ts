@@ -15,6 +15,7 @@ import {
 	sanitizeSidebarWidth,
 	sanitizeTheme,
 } from './preference-cookie';
+import { storageKey } from '$lib/config/app-meta';
 
 describe('preference-cookie', () => {
 	// ── setPreferenceCookie ──────────────────────────────────────────────
@@ -30,7 +31,7 @@ describe('preference-cookie', () => {
 		it('sets a cookie with correct attributes', () => {
 			const result = setPreferenceCookie('sidebar-px', '350');
 			expect(result.ok).toBe(true);
-			expect(document.cookie).toContain('storylyne:sidebar-px=350');
+			expect(document.cookie).toContain(`${storageKey('sidebar-px')}=350`);
 			expect(document.cookie).toContain('max-age=31536000');
 			expect(document.cookie).toContain('path=/');
 			expect(document.cookie).toContain('SameSite=Lax');
@@ -39,7 +40,7 @@ describe('preference-cookie', () => {
 		it('sets an empty value cookie', () => {
 			const result = setPreferenceCookie('theme', '');
 			expect(result.ok).toBe(true);
-			expect(document.cookie).toContain('storylyne:theme=');
+			expect(document.cookie).toContain(`${storageKey('theme')}=`);
 		});
 
 		it('returns ok for valid inputs', () => {
@@ -53,7 +54,7 @@ describe('preference-cookie', () => {
 		it('reads an existing cookie value', () => {
 			Object.defineProperty(document, 'cookie', {
 				writable: true,
-				value: 'storylyne:sidebar-px=350; other=foo',
+				value: `${storageKey('sidebar-px')}=350; other=foo`,
 			});
 			const value: Str | null = getPreferenceCookie('sidebar-px');
 			expect(value).toBe('350');
@@ -80,7 +81,7 @@ describe('preference-cookie', () => {
 		it('handles multiple cookies correctly', () => {
 			Object.defineProperty(document, 'cookie', {
 				writable: true,
-				value: 'storylyne:mode=dark; storylyne:theme=midnight; storylyne:sidebar-px=400',
+				value: `${storageKey('mode')}=dark; ${storageKey('theme')}=midnight; ${storageKey('sidebar-px')}=400`,
 			});
 			expect(getPreferenceCookie('theme')).toBe('midnight');
 			expect(getPreferenceCookie('sidebar-px')).toBe('400');
@@ -90,7 +91,7 @@ describe('preference-cookie', () => {
 		it('handles cookie value with leading whitespace', () => {
 			Object.defineProperty(document, 'cookie', {
 				writable: true,
-				value: 'storylyne:theme= midnight',
+				value: `${storageKey('theme')}= midnight`,
 			});
 			// Cookie parsing should trim but the raw value has a space prefix
 			expect(getPreferenceCookie('theme')).toBe('midnight');

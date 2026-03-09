@@ -263,5 +263,6 @@ export const es: EditorLocaleRaw = {
 		copied: '¡Copiado!',
 		copyFailed: 'Error al copiar',
 		copyErrorId: 'Copiar ID de error al portapapeles',
+		clickToCopy: 'Haz clic para copiar',
 	},
 };

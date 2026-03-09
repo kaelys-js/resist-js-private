@@ -32,13 +32,13 @@ const SIDEBAR_MAX_PX: Num = 1000;
  * The cookie is set with `max-age=1y`, `path=/`, and `SameSite=Lax` to
  * ensure it's sent with every SSR request and persists across sessions.
  *
- * @param name - Cookie suffix (e.g. `'sidebar-px'` → `'storylyne:sidebar-px'`)
+ * @param name - Cookie suffix (e.g. `'sidebar-px'` → `'${STORAGE_PREFIX}:sidebar-px'`)
  * @param value - Cookie value (must be pre-sanitized by caller)
  * @returns Result indicating success
  *
  * @example
  * setPreferenceCookie('sidebar-px', '350');
- * // Sets: storylyne:sidebar-px=350; max-age=31536000; path=/; SameSite=Lax
+ * // Sets: ${STORAGE_PREFIX}:sidebar-px=350; max-age=31536000; path=/; SameSite=Lax
  */
 export function setPreferenceCookie(name: Str, value: Str): Result<Void> {
 	const cookieName: Str = `${STORAGE_PREFIX}:${name}`;
@@ -50,7 +50,7 @@ export function setPreferenceCookie(name: Str, value: Str): Result<Void> {
 /**
  * Reads a namespaced preference cookie value.
  *
- * @param name - Cookie suffix (e.g. `'sidebar-px'` → looks for `'storylyne:sidebar-px'`)
+ * @param name - Cookie suffix (e.g. `'sidebar-px'` → looks for `'${STORAGE_PREFIX}:sidebar-px'`)
  * @returns The cookie value, or `null` if not found
  *
  * @example

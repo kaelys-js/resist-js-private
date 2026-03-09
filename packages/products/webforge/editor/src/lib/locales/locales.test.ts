@@ -165,7 +165,7 @@ const NAMESPACE_KEY_COUNTS: Record<Str, Num> = {
 	user: 9,
 	data: 6,
 	scenes: 3,
-	errors: 16,
+	errors: 17,
 };
 
 describe('namespace key counts', () => {

@@ -6,7 +6,7 @@ import {
 	useEditorStore,
 	STORAGE_KEY,
 } from './editor-state.svelte';
-import { APP_NAME } from '$lib/config/app-meta';
+import { APP_NAME, storageKey } from '$lib/config/app-meta';
 
 // Mock localStorage — jsdom's built-in localStorage is incomplete
 const storage = new Map<Str, Str>();
@@ -309,7 +309,7 @@ describe('EditorStore', () => {
 
 	// ── save / load ────────────────────────────────────────────────────────
 
-	it("save() writes to localStorage key 'storylyne:editor-state'", () => {
+	it(`save() writes to localStorage key '${storageKey('editor-state')}'`, () => {
 		const result = createEditorStore();
 		if (!result.ok) throw new Error('Store creation failed');
 		const store = result.data;

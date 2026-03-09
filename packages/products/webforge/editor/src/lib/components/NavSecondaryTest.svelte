@@ -2,7 +2,7 @@
 import CircleHelp from '@lucide/svelte/icons/circle-help';
 import Settings from '@lucide/svelte/icons/settings';
 import TestProviders from './TestProviders.svelte';
-import NavSecondary from './NavSecondary.svelte';
+import NavSecondary from '@/ui/nav-secondary/NavSecondary.svelte';
 
 const items = [
 	{ title: 'Settings', url: '#settings', icon: Settings },

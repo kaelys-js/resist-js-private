@@ -9,10 +9,10 @@ import { Button } from '@/ui/button/index.js';
  * A delete/destructive confirmation dialog using shadcn Dialog.
  * Shows a title, description, and Cancel/Confirm buttons.
  *
- * @property open - Bindable boolean controlling dialog visibility.
- * @property title - Dialog title text.
- * @property description - Descriptive text explaining the action to confirm.
- * @property onConfirm - Callback invoked when the destructive Confirm button is clicked.
+ * @property {Bool} open - Bindable boolean controlling dialog visibility.
+ * @property {Str} title - Dialog title text.
+ * @property {Str} description - Descriptive text explaining the action to confirm.
+ * @property {() => void} onConfirm - Callback invoked when the destructive Confirm button is clicked.
  */
 type Props = {
 	open: Bool;

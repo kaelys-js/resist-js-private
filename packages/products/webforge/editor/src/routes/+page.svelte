@@ -1,5 +1,5 @@
 <script lang="ts">
-import AppLogo from '$lib/components/AppLogo.svelte';
+import AppLogo from '@/ui/app-logo/AppLogo.svelte';
 import type { Str } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import { useEditorStore, type EditorStore } from '$lib/stores/editor-state.svelte';

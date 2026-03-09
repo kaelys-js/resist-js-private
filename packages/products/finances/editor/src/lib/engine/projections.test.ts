@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { Num } from '@/schemas/common';
 import type {
 	Settings,
@@ -118,7 +118,7 @@ describe('monthlyToAnnual', () => {
 			category: 'fixed',
 			notes: '',
 		};
-		expect(monthlyToAnnual(expense)).toBe(12000);
+		expect(monthlyToAnnual(expense)).toBe(12_000);
 	});
 
 	it('calculates annual cost for bimonthly billing', () => {
@@ -296,7 +296,7 @@ describe('projectYearlyExpenses', () => {
 		const retirementYear: Num = getRetirementYear(testSettings);
 		expect(result.data.length).toBe(retirementYear - currentYear);
 		expect(result.data[0].year).toBe(currentYear);
-		expect(result.data[result.data.length - 1].year).toBe(retirementYear - 1);
+		expect(result.data.at(-1)?.year).toBe(retirementYear - 1);
 	});
 
 	it('includes purchases only in the current year', () => {
@@ -342,7 +342,7 @@ describe('projectYearlyExpenses', () => {
 		const result = projectYearlyExpenses(testData, testSettings, testInflationConfig, false);
 		if (!result.ok) return;
 		// Monthly base: 1000*12 + 60*6 = 12360
-		const expectedMonthly = 12360;
+		const expectedMonthly = 12_360;
 		for (const proj of result.data) {
 			expect(proj.monthly).toBe(expectedMonthly);
 		}

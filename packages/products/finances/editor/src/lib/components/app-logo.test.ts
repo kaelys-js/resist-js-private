@@ -1,6 +1,6 @@
 import { render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
-import AppLogo from './AppLogo.svelte';
+import AppLogo from '@/ui/app-logo/AppLogo.svelte';
 
 /**
  * Queries the rendered logo img element from the container.
