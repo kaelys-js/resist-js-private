@@ -5,6 +5,7 @@ import { cn } from '../utils.js';
 
 let {
 	ref = $bindable(null),
+	/** Whether to inset the label for icon alignment. */
 	inset,
 	children,
 	class: className,

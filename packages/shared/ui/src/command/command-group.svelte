@@ -11,7 +11,9 @@ let {
 	ref = $bindable(null),
 	class: className,
 	children,
+	/** Group heading label text. @values Actions, Settings, Navigation */
 	heading,
+	/** Group value for filtering. @values actions, settings, navigation */
 	value,
 	...restProps
 }: CommandPrimitive.GroupProps & {

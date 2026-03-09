@@ -32,9 +32,12 @@
 
 	let {
 		ref = $bindable(null),
+		/** Whether the toggle is pressed/active. */
 		pressed = $bindable(false),
 		class: className,
+		/** Toggle size preset. @values default, sm, lg */
 		size = "default",
+		/** Toggle style variant. @values default, outline */
 		variant = "default",
 		...restProps
 	}: TogglePrimitive.RootProps & {

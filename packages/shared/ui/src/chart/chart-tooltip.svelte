@@ -13,15 +13,25 @@ function defaultFormatter(value: any, _payload: TooltipPayload[]) {
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Whether to hide the tooltip label. */
 	hideLabel = false,
+	/** Tooltip indicator shape. @values dot, line, dashed */
 	indicator = 'dot',
+	/** Whether to hide the color indicator. */
 	hideIndicator = false,
+	/** Data key used for the tooltip label. @values label, name, category */
 	labelKey,
+	/** Static label text override. @values Total, Revenue, Users */
 	label,
+	/** Custom function to format the tooltip label. */
 	labelFormatter = defaultFormatter,
+	/** CSS class applied to the label element. @values text-muted-foreground, font-bold, text-xs */
 	labelClassName,
+	/** Custom function to format tooltip values. */
 	formatter,
+	/** Data key for series identification. @values name, key, id */
 	nameKey,
+	/** Override color for the tooltip indicator. */
 	color,
 	...restProps
 }: WithoutChildren<WithElementRef<HTMLAttributes<HTMLDivElement>>> & {

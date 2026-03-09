@@ -14,7 +14,7 @@ let {
 	ref = $bindable(null),
 	/** Additional CSS classes to apply. */
 	class: className,
-	/** Distance in pixels from the trigger edge. */
+	/** Distance in pixels from the trigger edge. @values 0, 4, 8, 16 */
 	sideOffset = 4,
 	/** Props forwarded to the portal wrapper. */
 	portalProps,

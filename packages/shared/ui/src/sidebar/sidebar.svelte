@@ -13,8 +13,11 @@ import { useSidebar } from './context.svelte.js';
 
 let {
 	ref = $bindable(null),
+	/** Which side the sidebar appears on. @values left, right */
 	side = 'left',
+	/** Sidebar visual variant. @values sidebar, floating, inset */
 	variant = 'sidebar',
+	/** Collapse behavior mode. @values offcanvas, icon, none */
 	collapsible = 'offcanvas',
 	class: className,
 	children,

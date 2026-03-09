@@ -8,6 +8,7 @@
 	let {
 		ref = $bindable(null),
 		class: className,
+		/** Props forwarded to the portal container. */
 		portalProps,
 		...restProps
 	}: WithoutChild<AlertDialogPrimitive.ContentProps> & {

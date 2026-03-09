@@ -4,6 +4,7 @@ import { cn } from '../utils.js';
 
 let {
 	ref = $bindable(null),
+	/** OTP cell data containing the character and selection state. */
 	cell,
 	class: className,
 	...restProps

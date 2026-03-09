@@ -6,6 +6,7 @@
 	let {
 		ref = $bindable(null),
 		class: className,
+		/** Heading level for the trigger wrapper. @values 1, 2, 3, 4, 5, 6 */
 		level = 3,
 		children,
 		...restProps

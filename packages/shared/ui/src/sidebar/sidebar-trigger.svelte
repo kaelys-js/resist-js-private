@@ -11,6 +11,7 @@ import { useSidebar } from './context.svelte.js';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Click handler for the sidebar toggle button. */
 	onclick,
 	...restProps
 }: ComponentProps<typeof Button> & {

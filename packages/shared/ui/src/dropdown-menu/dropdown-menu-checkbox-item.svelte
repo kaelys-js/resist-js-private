@@ -7,7 +7,9 @@ import type { Snippet } from 'svelte';
 
 let {
 	ref = $bindable(null),
+	/** Whether the item is checked. */
 	checked = $bindable(false),
+	/** Whether the item shows an indeterminate state. */
 	indeterminate = $bindable(false),
 	class: className,
 	children: childrenProp,

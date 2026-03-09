@@ -6,8 +6,11 @@
 	let {
 		ref = $bindable(null),
 		class: className,
+		/** Link button size preset. @values default, sm, lg, icon */
 		size = "icon",
+		/** Whether this page link is the active page. */
 		isActive,
+		/** Page data object from the pagination primitive. */
 		page,
 		children,
 		...restProps

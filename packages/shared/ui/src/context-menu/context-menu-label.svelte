@@ -5,6 +5,7 @@
 	let {
 		ref = $bindable(null),
 		class: className,
+		/** Whether to inset the label for icon alignment. */
 		inset,
 		children,
 		...restProps

@@ -8,7 +8,9 @@ import { cn, type WithoutChildrenOrChild } from '../utils.js';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Whether the item is checked. */
 	checked = $bindable(false),
+	/** Whether the item shows an indeterminate state. */
 	indeterminate = $bindable(false),
 	children: childrenProp,
 	...restProps

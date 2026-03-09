@@ -5,7 +5,9 @@
 	let {
 		ref = $bindable(null),
 		class: className,
+		/** Maximum value of the progress bar. @values 50, 100, 200, 1000 */
 		max = 100,
+		/** Current progress value. */
 		value,
 		...restProps
 	}: WithoutChildrenOrChild<ProgressPrimitive.RootProps> = $props();

@@ -6,6 +6,7 @@
 
 	let {
 		ref = $bindable(null),
+		/** Props forwarded to the portal container. */
 		portalProps,
 		class: className,
 		...restProps

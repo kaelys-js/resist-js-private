@@ -7,7 +7,7 @@
 import type { Num, Str } from '@/schemas/common';
 
 let {
-	/** Pixel dimensions (width and height) of the logo image. */
+	/** Pixel dimensions (width and height) of the logo image. @values 16, 24, 32, 48 */
 	size = 24,
 	/** Additional CSS classes for the root element. */
 	class: className = '',

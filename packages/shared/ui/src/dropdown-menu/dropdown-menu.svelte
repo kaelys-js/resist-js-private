@@ -6,7 +6,7 @@
  */
 import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 
-let { open = $bindable(false), ...restProps }: DropdownMenuPrimitive.RootProps = $props();
+let { /** Whether the dropdown menu is open. */ open = $bindable(false), ...restProps }: DropdownMenuPrimitive.RootProps = $props();
 </script>
 
 <DropdownMenuPrimitive.Root bind:open {...restProps} />

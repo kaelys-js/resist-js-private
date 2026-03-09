@@ -6,7 +6,9 @@ import { cn, type WithoutChildrenOrChild } from '../utils.js';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Currently selected month value. */
 	value,
+	/** Change handler called when a month is selected. */
 	onchange,
 	...restProps
 }: WithoutChildrenOrChild<CalendarPrimitive.MonthSelectProps> = $props();

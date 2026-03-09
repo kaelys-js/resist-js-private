@@ -10,6 +10,7 @@ let {
 	ref = $bindable(null),
 	class: className,
 	children,
+	/** Trigger button size preset. @values default, sm, lg */
 	size = 'default',
 	...restProps
 }: WithoutChild<SelectPrimitive.TriggerProps> & {

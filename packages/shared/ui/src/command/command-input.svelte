@@ -11,6 +11,7 @@ import { cn } from '../utils.js';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** The current input text value. @values search, filter, find */
 	value = $bindable(''),
 	...restProps
 }: CommandPrimitive.InputProps = $props();

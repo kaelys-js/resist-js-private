@@ -6,6 +6,7 @@ import type { HTMLAttributes } from 'svelte/elements';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Whether to show an icon placeholder circle. */
 	showIcon = false,
 	children,
 	...restProps

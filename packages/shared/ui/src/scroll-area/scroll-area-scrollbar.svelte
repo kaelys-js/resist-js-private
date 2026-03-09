@@ -5,6 +5,7 @@ import { cn, type WithoutChild } from '../utils.js';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Scrollbar axis orientation. @values horizontal, vertical */
 	orientation = 'vertical',
 	children,
 	...restProps

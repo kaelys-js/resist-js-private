@@ -4,6 +4,7 @@
 
 	let {
 		ref = $bindable(null),
+		/** The textarea text content. */
 		value = $bindable(),
 		class: className,
 		"data-slot": dataSlot = "textarea",

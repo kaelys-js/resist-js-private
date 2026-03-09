@@ -8,6 +8,7 @@ import { cn } from '../utils.js';
 
 let {
 	ref = $bindable(null),
+	/** The input text value. @values search, filter */
 	value = $bindable(''),
 	class: className,
 	...restProps

@@ -4,6 +4,7 @@
 
 	let {
 		ref = $bindable(null),
+		/** The active tab value. @values tab-1, tab-2, tab-3 */
 		value = $bindable(""),
 		class: className,
 		...restProps

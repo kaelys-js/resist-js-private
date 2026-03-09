@@ -6,7 +6,7 @@
  */
 import { Dialog as DialogPrimitive } from 'bits-ui';
 
-let { open = $bindable(false), ...restProps }: DialogPrimitive.RootProps = $props();
+let { /** Whether the dialog is open. */ open = $bindable(false), ...restProps }: DialogPrimitive.RootProps = $props();
 </script>
 
 <DialogPrimitive.Root bind:open {...restProps} />

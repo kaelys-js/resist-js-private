@@ -5,6 +5,7 @@ import { cn, type WithoutChild } from '../utils.js';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** CSS class applied to each error message. */
 	errorClasses,
 	children: childrenProp,
 	...restProps

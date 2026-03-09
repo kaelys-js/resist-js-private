@@ -5,6 +5,7 @@
 	let {
 		ref = $bindable(null),
 		class: className,
+		/** Whether to inset the heading for icon alignment. */
 		inset,
 		...restProps
 	}: ContextMenuPrimitive.GroupHeadingProps & {

@@ -4,7 +4,11 @@
  */
 import { Tooltip as TooltipPrimitive } from 'bits-ui';
 
-let { open = $bindable(false), ...restProps }: TooltipPrimitive.RootProps = $props();
+let {
+	/** Whether the tooltip is visible. */
+	open = $bindable(false),
+	...restProps
+}: TooltipPrimitive.RootProps = $props();
 </script>
 
 <TooltipPrimitive.Root bind:open {...restProps} />

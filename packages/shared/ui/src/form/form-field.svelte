@@ -11,7 +11,9 @@ import type { HTMLAttributes } from "svelte/elements";
 let {
 		ref = $bindable(null),
 		class: className,
+		/** SuperForm instance for form state management. */
 		form,
+		/** The field name in the form schema. */
 		name,
 		children: childrenProp,
 		...restProps

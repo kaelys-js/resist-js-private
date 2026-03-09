@@ -12,13 +12,13 @@ let {
 	ref = $bindable(null),
 	/** Additional CSS classes to apply. */
 	class: className,
-	/** Distance in pixels from the trigger edge. */
+	/** Distance in pixels from the trigger edge. @values 0, 4, 8, 16 */
 	sideOffset = 0,
-	/** Which side of the trigger to place the tooltip. */
+	/** Which side of the trigger to place the tooltip. @values top, right, bottom, left */
 	side = 'top',
 	/** The tooltip body content. */
 	children,
-	/** Additional CSS classes for the arrow element. */
+	/** Additional CSS classes for the arrow element. @values fill-primary, fill-popover, fill-muted */
 	arrowClasses,
 	/** Props forwarded to the portal wrapper. */
 	portalProps,
