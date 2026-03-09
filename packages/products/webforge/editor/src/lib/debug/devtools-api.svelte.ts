@@ -1,7 +1,7 @@
 /**
  * Devtools Window Global API
  *
- * Registers `window.__STORYLYNE_DEVTOOLS__` when debug mode is enabled.
+ * Registers `window[DEVTOOLS_KEY]` when debug mode is enabled.
  * Provides state inspection, mutation, and an extension registry.
  *
  * Auto-discovers state fields — `.state` returns `$state.snapshot()` on each
@@ -42,6 +42,9 @@ import { formatThresholds } from '$lib/perf/vitals-diagnostics';
 
 /** The window global key for the devtools API, derived from APP_NAME. */
 export const DEVTOOLS_KEY: Str = `__${APP_NAME.toUpperCase()}_DEVTOOLS__`;
+
+/** The window global key for build info, derived from APP_NAME. */
+export const BUILD_KEY: Str = `__${APP_NAME.toUpperCase()}_BUILD__`;
 
 // =============================================================================
 // Types
@@ -179,7 +182,7 @@ export type EditorDevtools = {
 
 	/** Returns a human-readable description for console display. */
 	toString(): Str;
-	/** Custom tag for Object.prototype.toString — shows `[object Storylyne Devtools]`. */
+	/** Custom tag for Object.prototype.toString — shows `[object <AppName> Devtools]`. */
 	readonly [Symbol.toStringTag]: Str;
 };
 
@@ -229,7 +232,7 @@ const HELP_DESC = 'color:#888;font-size:11px';
  * @example
  * ```typescript
  * const api = createDevtoolsAPI(editorStore, debugStore);
- * // window.__STORYLYNE_DEVTOOLS__ is now available
+ * // window[DEVTOOLS_KEY] is now available
  * api.destroy(); // removes it
  * ```
  */

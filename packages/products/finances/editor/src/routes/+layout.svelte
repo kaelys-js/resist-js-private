@@ -19,6 +19,7 @@ import { initEditorStore, type EditorStore } from '$lib/stores/editor-state.svel
 import { initDebugStore, type DebugStore } from '$lib/stores/debug-state.svelte';
 import { applyUrlOverrides } from '$lib/utils/url-params';
 import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
+import { BUILD_KEY } from '$lib/debug/devtools-api.svelte';
 import DevToolbar from '$lib/components/DevToolbar.svelte';
 import PageFadeIn from '@/ui/page-fade-in/PageFadeIn.svelte';
 import { log } from '@/utils/core/logger';
@@ -81,7 +82,8 @@ if (browser && debugStore) {
 if (browser) {
 	const buildResult = getBuildInfo();
 	if (buildResult.ok) {
-		window.__FINANCES_BUILD__ = buildResult.data;
+		// Window interface uses literal key; computed access requires cast
+		(window as unknown as Record<Str, unknown>)[BUILD_KEY] = buildResult.data;
 		const b: typeof buildResult.data = buildResult.data;
 		// eslint-disable-next-line no-console -- Intentional startup log
 		console.log(

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { APP_NAME, APP_TAGLINE } from '../src/lib/config/app-meta';
 
 const MOBILE_VIEWPORT = { width: 375, height: 812 };
 
@@ -40,9 +41,9 @@ test.describe('mobile sidebar — open/close/toggle', () => {
 		const mobileSidebar = page.locator('[data-mobile="true"][data-sidebar="sidebar"]');
 		await expect(mobileSidebar).toBeVisible();
 
-		// Branding (use .first() because "Storylyne" appears in header and footer)
-		await expect(mobileSidebar.getByText('Storylyne', { exact: true }).first()).toBeVisible();
-		await expect(mobileSidebar.getByText('Your Story, Rendered', { exact: true })).toBeVisible();
+		// Branding (use .first() because app name appears in header and footer)
+		await expect(mobileSidebar.getByText(APP_NAME, { exact: true }).first()).toBeVisible();
+		await expect(mobileSidebar.getByText(APP_TAGLINE, { exact: true })).toBeVisible();
 
 		// Scenes (wait for hydration — mobile sheet may need extra time)
 		await expect(mobileSidebar.getByText('Scenes')).toBeVisible({ timeout: 10_000 });

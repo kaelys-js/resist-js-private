@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
+import { APP_NAME, APP_TAGLINE } from '../src/lib/config/app-meta';
 
 test.describe('sidebar', () => {
-	test('sidebar renders with Storylyne branding', async ({ page }) => {
+	test(`sidebar renders with ${APP_NAME} branding`, async ({ page }) => {
 		await page.goto('/');
-		await expect(page.getByText('Storylyne', { exact: true }).first()).toBeVisible();
+		await expect(page.getByText(APP_NAME, { exact: true }).first()).toBeVisible();
 		await expect(
-			page.locator('[data-slot="sidebar"]').getByText('Your Story, Rendered', { exact: true }),
+			page.locator('[data-slot="sidebar"]').getByText(APP_TAGLINE, { exact: true }),
 		).toBeVisible();
 	});
 

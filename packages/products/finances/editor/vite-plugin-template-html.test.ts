@@ -7,6 +7,7 @@ import {
 	templateAppHtml,
 	templateErrorHtml,
 } from './vite-plugin-template-html';
+import { APP_NAME } from './src/lib/config/app-meta';
 
 describe('templateErrorHtml plugin', () => {
 	it('returns a Vite plugin object with correct name', () => {
@@ -90,7 +91,7 @@ var failed = '{{errors.copyFailed}}';
 
 	it('inserts APP_NAME from app-meta', () => {
 		const result = resolveErrorHtml(TEMPLATE);
-		expect(result).toContain('Storylyne');
+		expect(result).toContain(APP_NAME);
 	});
 
 	it('inserts font-family stack', () => {
@@ -151,9 +152,9 @@ describe('resolveAppHtml', () => {
 		expect(result).not.toContain('{{APP_NAME}}');
 	});
 
-	it('inserts Storylyne from app-meta', () => {
+	it(`inserts ${APP_NAME} from app-meta`, () => {
 		const result = resolveAppHtml(APP_TEMPLATE);
-		expect(result).toContain('content="Storylyne"');
-		expect(result).toContain("'[Storylyne]");
+		expect(result).toContain(`content="${APP_NAME}"`);
+		expect(result).toContain(`'[${APP_NAME}]`);
 	});
 });

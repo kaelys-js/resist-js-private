@@ -152,16 +152,16 @@ beforeEach(() => {
 	editorStore = createMockEditorStore();
 	debugStore = createMockDebugStore();
 	// Clean up window global
-	delete window.__STORYLYNE_DEVTOOLS__;
+	(window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
 });
 
 afterEach(() => {
-	delete window.__STORYLYNE_DEVTOOLS__;
+	(window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
 });
 
 describe('DEVTOOLS_KEY', () => {
-	it('is __STORYLYNE_DEVTOOLS__', () => {
-		expect(DEVTOOLS_KEY).toBe('__STORYLYNE_DEVTOOLS__');
+	it('derives from APP_NAME', () => {
+		expect(DEVTOOLS_KEY).toBe(`__${APP_NAME.toUpperCase()}_DEVTOOLS__`);
 	});
 });
 

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { APP_NAME, APP_SHORT_NAME } from '../src/lib/config/app-meta';
 
 /**
  * Web manifest integration tests.
@@ -24,16 +25,16 @@ test.describe('manifest.webmanifest', () => {
 		expect(() => JSON.parse(text)).not.toThrow();
 	});
 
-	test('name is Storylyne', async ({ request }) => {
+	test(`name is ${APP_NAME}`, async ({ request }) => {
 		const response = await request.get('/manifest.webmanifest');
 		const manifest = await response.json();
-		expect(manifest.name).toBe('Storylyne');
+		expect(manifest.name).toBe(APP_NAME);
 	});
 
-	test('short_name is Storylyne', async ({ request }) => {
+	test(`short_name is ${APP_SHORT_NAME}`, async ({ request }) => {
 		const response = await request.get('/manifest.webmanifest');
 		const manifest = await response.json();
-		expect(manifest.short_name).toBe('Storylyne');
+		expect(manifest.short_name).toBe(APP_SHORT_NAME);
 	});
 
 	test('description is non-empty', async ({ request }) => {

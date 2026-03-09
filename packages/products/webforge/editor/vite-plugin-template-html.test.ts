@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import type { Str } from '@/schemas/common';
+import { APP_NAME } from './src/lib/config/app-meta';
 import {
 	deriveErrorIdPrefix,
 	generateFontFaceCss,
@@ -89,8 +91,8 @@ var failed = '{{errors.copyFailed}}';
 	});
 
 	it('inserts APP_NAME from app-meta', () => {
-		const result = resolveErrorHtml(TEMPLATE);
-		expect(result).toContain('Storylyne');
+		const result: Str = resolveErrorHtml(TEMPLATE);
+		expect(result).toContain(APP_NAME);
 	});
 
 	it('inserts font-family stack', () => {
@@ -151,9 +153,9 @@ describe('resolveAppHtml', () => {
 		expect(result).not.toContain('{{APP_NAME}}');
 	});
 
-	it('inserts Storylyne from app-meta', () => {
-		const result = resolveAppHtml(APP_TEMPLATE);
-		expect(result).toContain('content="Storylyne"');
-		expect(result).toContain("'[Storylyne]");
+	it('inserts APP_NAME from app-meta', () => {
+		const result: Str = resolveAppHtml(APP_TEMPLATE);
+		expect(result).toContain(`content="${APP_NAME}"`);
+		expect(result).toContain(`'[${APP_NAME}]`);
 	});
 });

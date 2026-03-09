@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { APP_NAME, APP_TAGLINE } from '../src/lib/config/app-meta';
 
 test.describe('Error pages', () => {
 	test.describe('400 Bad Request', () => {
@@ -20,7 +21,7 @@ test.describe('Error pages', () => {
 
 		test('page title includes error text', async ({ page }) => {
 			await page.goto('/test-error/400');
-			await expect(page).toHaveTitle(/Storylyne.*Bad request.*Your Story, Rendered/i);
+			await expect(page).toHaveTitle(new RegExp(`${APP_NAME}.*Bad request.*${APP_TAGLINE}`, 'i'));
 		});
 	});
 
@@ -43,7 +44,7 @@ test.describe('Error pages', () => {
 
 		test('page title includes error text', async ({ page }) => {
 			await page.goto('/test-error/403');
-			await expect(page).toHaveTitle(/Storylyne.*Access denied.*Your Story, Rendered/i);
+			await expect(page).toHaveTitle(new RegExp(`${APP_NAME}.*Access denied.*${APP_TAGLINE}`, 'i'));
 		});
 	});
 
@@ -66,7 +67,9 @@ test.describe('Error pages', () => {
 
 		test('page title includes error text', async ({ page }) => {
 			await page.goto('/test-error/404');
-			await expect(page).toHaveTitle(/Storylyne.*Page not found.*Your Story, Rendered/i);
+			await expect(page).toHaveTitle(
+				new RegExp(`${APP_NAME}.*Page not found.*${APP_TAGLINE}`, 'i'),
+			);
 		});
 
 		test('nonexistent route shows 404 page', async ({ page }) => {
@@ -89,7 +92,9 @@ test.describe('Error pages', () => {
 
 		test('page title includes error text', async ({ page }) => {
 			await page.goto('/test-error/500');
-			await expect(page).toHaveTitle(/Storylyne.*Something went wrong.*Your Story, Rendered/i);
+			await expect(page).toHaveTitle(
+				new RegExp(`${APP_NAME}.*Something went wrong.*${APP_TAGLINE}`, 'i'),
+			);
 		});
 
 		test('homepage link navigates home from 500 page', async ({ page }) => {
@@ -149,7 +154,7 @@ test.describe('Error pages', () => {
 			await expect(page).toHaveTitle(/Page not found/i);
 			await page.getByRole('link', { name: /go to homepage/i }).click();
 			await expect(page).toHaveURL('/');
-			await expect(page).toHaveTitle('Storylyne - Home - Your Story, Rendered');
+			await expect(page).toHaveTitle(`${APP_NAME} - Home - ${APP_TAGLINE}`);
 		});
 
 		test('title reverts to app name after navigating home from 500', async ({ page }) => {
@@ -157,7 +162,7 @@ test.describe('Error pages', () => {
 			await expect(page).toHaveTitle(/Something went wrong/i);
 			await page.getByRole('link', { name: /go to homepage/i }).click();
 			await expect(page).toHaveURL('/');
-			await expect(page).toHaveTitle('Storylyne - Home - Your Story, Rendered');
+			await expect(page).toHaveTitle(`${APP_NAME} - Home - ${APP_TAGLINE}`);
 		});
 
 		test('og:title reverts after navigating home from error page', async ({ page }) => {
@@ -165,7 +170,7 @@ test.describe('Error pages', () => {
 			await page.getByRole('link', { name: /go to homepage/i }).click();
 			await expect(page).toHaveURL('/');
 			const ogTitle = page.locator('meta[property="og:title"]');
-			await expect(ogTitle).toHaveAttribute('content', 'Storylyne');
+			await expect(ogTitle).toHaveAttribute('content', APP_NAME);
 		});
 
 		test('description meta persists after navigating home from error page', async ({ page }) => {
@@ -173,7 +178,7 @@ test.describe('Error pages', () => {
 			await page.getByRole('link', { name: /go to homepage/i }).click();
 			await expect(page).toHaveURL('/');
 			const description = page.locator('meta[name="description"]');
-			await expect(description).toHaveAttribute('content', /Your Story, Rendered/);
+			await expect(description).toHaveAttribute('content', new RegExp(APP_TAGLINE));
 		});
 	});
 
@@ -354,9 +359,9 @@ test.describe('Error pages', () => {
 			await expect(page).toHaveURL('/');
 		});
 
-		test('page title includes friendly text and Storylyne', async ({ page }) => {
+		test(`page title includes friendly text and ${APP_NAME}`, async ({ page }) => {
 			await page.goto('/test-error/catastrophic');
-			await expect(page).toHaveTitle(/something went wrong.*Storylyne/i);
+			await expect(page).toHaveTitle(new RegExp(`something went wrong.*${APP_NAME}`, 'i'));
 		});
 
 		test('has required meta tags', async ({ page }) => {
@@ -397,9 +402,9 @@ test.describe('Error pages', () => {
 			expect(placeholders).toBeNull();
 		});
 
-		test('APP_NAME is resolved to Storylyne in title', async ({ page }) => {
+		test(`APP_NAME is resolved to ${APP_NAME} in title`, async ({ page }) => {
 			await page.goto('/test-error/catastrophic');
-			await expect(page).toHaveTitle(/Storylyne/);
+			await expect(page).toHaveTitle(new RegExp(APP_NAME));
 		});
 
 		test('heading text comes from errors.serverError locale', async ({ page }) => {

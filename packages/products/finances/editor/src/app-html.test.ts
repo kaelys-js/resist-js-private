@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import type { Str } from '@/schemas/common';
+import { APP_NAME } from '$lib/config/app-meta';
 
 const appHtml: Str = readFileSync(
 	resolve(dirname(fileURLToPath(import.meta.url)), 'app.html'),
@@ -62,7 +63,7 @@ describe('app.html meta tags use placeholders', () => {
 			for (const meta of metaContents) {
 				// Skip viewport, color-scheme, robots, format-detection, mobile-web-app-capable, status-bar-style
 				if (/content="(width|light dark|noindex|telephone|yes|default|{{)/.test(meta)) continue;
-				expect(meta).not.toContain('Storylyne');
+				expect(meta).not.toContain(APP_NAME);
 			}
 		}
 	});

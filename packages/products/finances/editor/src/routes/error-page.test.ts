@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Num, Str } from '@/schemas/common';
+import { APP_NAME } from '$lib/config/app-meta';
 
 /**
  * Tests for +error.svelte integration behavior.
@@ -78,9 +79,9 @@ describe('+error.svelte integration logic', () => {
 	});
 
 	it('error title format includes error name and app name', () => {
-		const errorTitle = 'Page not found';
-		const appName = 'Storylyne';
-		const title = `${errorTitle} | ${appName}`;
-		expect(title).toBe('Page not found | Storylyne');
+		const errorTitle: Str = 'Page not found';
+		const appName: Str = APP_NAME;
+		const title: Str = `${errorTitle} | ${appName}`;
+		expect(title).toBe(`Page not found | ${APP_NAME}`);
 	});
 });
