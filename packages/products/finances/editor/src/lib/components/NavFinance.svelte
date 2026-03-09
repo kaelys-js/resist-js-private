@@ -6,7 +6,7 @@ import Calendar from '@lucide/svelte/icons/calendar';
 import ShoppingBag from '@lucide/svelte/icons/shopping-bag';
 import Plane from '@lucide/svelte/icons/plane';
 import Clock from '@lucide/svelte/icons/clock';
-import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+import * as Sidebar from '@/ui/sidebar/index.js';
 import { page } from '$app/state';
 import { localeStore, t } from '$lib/i18n.svelte';
 import type { Str } from '@/schemas/common';

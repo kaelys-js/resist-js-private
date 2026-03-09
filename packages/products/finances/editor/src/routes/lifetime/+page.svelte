@@ -17,14 +17,14 @@ import {
 	type LifetimeItemCost,
 	type YearlyProjection,
 } from '$lib/engine/projections';
-import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-import { Badge } from '$lib/components/ui/badge';
-import { Separator } from '$lib/components/ui/separator';
-import { Switch } from '$lib/components/ui/switch';
-import { Label } from '$lib/components/ui/label';
-import { Input } from '$lib/components/ui/input';
-import { Button } from '$lib/components/ui/button';
-import * as Table from '$lib/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Badge } from '@/ui/badge';
+import { Separator } from '@/ui/separator';
+import { Switch } from '@/ui/switch';
+import { Label } from '@/ui/label';
+import { Input } from '@/ui/input';
+import { Button } from '@/ui/button';
+import * as Table from '@/ui/table';
 import { Chart, Svg, Axis, Area, Spline } from 'layerchart';
 import { scaleLinear } from 'd3-scale';
 import { invalidateAll } from '$app/navigation';
@@ -248,15 +248,15 @@ async function saveInflationRate(category: string): Promise<void> {
 			<CardHeader>
 				<CardTitle>{t(localeStore.t.finance.perItemBreakdown, 'Per-Item Breakdown')}</CardTitle>
 			</CardHeader>
-			<CardContent>
+			<CardContent class="p-0">
 				<Table.Root>
-					<Table.Header>
+					<Table.Header class="bg-muted sticky top-0 z-10">
 						<Table.Row>
-							<Table.Head>{t(localeStore.t.finance.name, 'Name')}</Table.Head>
-							<Table.Head>{t(localeStore.t.finance.category, 'Category')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.annualCostLabel, 'Annual Cost')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.nominal, 'Nominal Total')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.inflationAdjusted, 'Inflation-Adjusted Total')}</Table.Head>
+							<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.name, 'Name')}</Table.Head>
+							<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.category, 'Category')}</Table.Head>
+							<Table.Head class="text-muted-foreground text-right text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.annualCostLabel, 'Annual Cost')}</Table.Head>
+							<Table.Head class="text-muted-foreground text-right text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.nominal, 'Nominal Total')}</Table.Head>
+							<Table.Head class="text-muted-foreground text-right text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.inflationAdjusted, 'Inflation-Adjusted Total')}</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
@@ -300,18 +300,18 @@ async function saveInflationRate(category: string): Promise<void> {
 			<CardHeader>
 				<CardTitle>{t(localeStore.t.finance.yearByYear, 'Year-by-Year Projection')}</CardTitle>
 			</CardHeader>
-			<CardContent>
+			<CardContent class="p-0">
 				<div class="overflow-x-auto">
 					<Table.Root>
-						<Table.Header>
+						<Table.Header class="bg-muted sticky top-0 z-10">
 							<Table.Row>
-								<Table.Head>{t(localeStore.t.finance.year, 'Year')}</Table.Head>
-								<Table.Head class="text-right">{t(localeStore.t.finance.monthlyBurnRate, 'Monthly')}</Table.Head>
-								<Table.Head class="text-right">{t(localeStore.t.finance.lifetimeExpenses, 'Lifetime Expenses')}</Table.Head>
-								<Table.Head class="text-right">{t(localeStore.t.finance.replacementCosts, 'Replacements')}</Table.Head>
-								<Table.Head class="text-right">{t(localeStore.t.finance.categoryTravel, 'Travel')}</Table.Head>
-								<Table.Head class="text-right">{t(localeStore.t.finance.upcomingPurchases, 'Purchases')}</Table.Head>
-								<Table.Head class="text-right">{t(localeStore.t.finance.total, 'Total')}</Table.Head>
+								<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.year, 'Year')}</Table.Head>
+								<Table.Head class="text-muted-foreground text-right text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.monthlyBurnRate, 'Monthly')}</Table.Head>
+								<Table.Head class="text-muted-foreground text-right text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.lifetimeExpenses, 'Lifetime Expenses')}</Table.Head>
+								<Table.Head class="text-muted-foreground text-right text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.replacementCosts, 'Replacements')}</Table.Head>
+								<Table.Head class="text-muted-foreground text-right text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.categoryTravel, 'Travel')}</Table.Head>
+								<Table.Head class="text-muted-foreground text-right text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.upcomingPurchases, 'Purchases')}</Table.Head>
+								<Table.Head class="text-muted-foreground text-right text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.total, 'Total')}</Table.Head>
 							</Table.Row>
 						</Table.Header>
 						<Table.Body>

@@ -3,14 +3,15 @@ import type { Str, Num, Bool } from '@/schemas/common';
 import type { Travel } from '$lib/schemas/finances';
 import { invalidateAll } from '$app/navigation';
 import { localeStore, t } from '$lib/i18n.svelte';
-import { Badge } from '$lib/components/ui/badge/index.js';
-import { Button } from '$lib/components/ui/button/index.js';
-import * as Card from '$lib/components/ui/card/index.js';
-import * as Dialog from '$lib/components/ui/dialog/index.js';
-import { Input } from '$lib/components/ui/input/index.js';
-import { Label } from '$lib/components/ui/label/index.js';
-import { Switch } from '$lib/components/ui/switch/index.js';
-import * as Table from '$lib/components/ui/table/index.js';
+import { Badge } from '@/ui/badge/index.js';
+import { Button } from '@/ui/button/index.js';
+import * as Card from '@/ui/card/index.js';
+import * as Dialog from '@/ui/dialog/index.js';
+import { Input } from '@/ui/input/index.js';
+import { Label } from '@/ui/label/index.js';
+import { Switch } from '@/ui/switch/index.js';
+import * as Table from '@/ui/table/index.js';
+import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 
 type PageData = { trips: Travel[] };
 let { data }: { data: PageData } = $props();
@@ -18,6 +19,46 @@ let { data }: { data: PageData } = $props();
 let trips: Travel[] = $derived(data.trips);
 
 let totalBudget: Num = $derived(trips.reduce((sum: Num, t: Travel) => sum + t.budget, 0));
+
+// ── Delete confirmation state ──────────────────────────────────────
+let confirmOpen: Bool = $state(false);
+let pendingDeleteId: Str | null = $state(null);
+
+// ── Search & sort state ────────────────────────────────────────────
+let searchQuery: Str = $state('');
+let sortKey: Str = $state('name');
+let sortDir: Str = $state('asc');
+
+// ── Sorted & filtered rows ─────────────────────────────────────────
+const sortedRows: Travel[] = $derived.by(() => {
+	const rows: Travel[] = [...trips];
+	const dir: Num = sortDir === 'asc' ? 1 : -1;
+	rows.sort((a: Travel, b: Travel) => {
+		if (sortKey === 'name') return a.name.localeCompare(b.name) * dir;
+		if (sortKey === 'budget') return (a.budget - b.budget) * dir;
+		return 0;
+	});
+	return rows;
+});
+
+const filteredRows: Travel[] = $derived(
+	sortedRows.filter((row: Travel) => row.name.toLowerCase().includes(searchQuery.toLowerCase())),
+);
+
+// ── Sort helpers ───────────────────────────────────────────────────
+function toggleSort(key: Str): void {
+	if (sortKey === key) {
+		sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+	} else {
+		sortKey = key;
+		sortDir = 'asc';
+	}
+}
+
+function sortIndicator(key: Str): Str {
+	if (sortKey !== key) return ' ↕';
+	return sortDir === 'asc' ? ' ↑' : ' ↓';
+}
 
 // ── Add dialog state ────────────────────────────────────────────
 let addOpen: Bool = $state(false);
@@ -92,8 +133,15 @@ async function handleEdit(): Promise<void> {
 }
 
 // ── Delete ──────────────────────────────────────────────────────
-async function handleDelete(id: Str): Promise<void> {
-	await fetch(`/api/travel/${id}`, { method: 'DELETE' });
+function requestDelete(id: Str): void {
+	pendingDeleteId = id;
+	confirmOpen = true;
+}
+
+async function performDelete(): Promise<void> {
+	if (!pendingDeleteId) return;
+	await fetch(`/api/travel/${pendingDeleteId}`, { method: 'DELETE' });
+	pendingDeleteId = null;
 	await invalidateAll();
 }
 </script>
@@ -110,68 +158,96 @@ async function handleDelete(id: Str): Promise<void> {
 		<Button onclick={() => (addOpen = true)}>{t(localeStore.t.finance.addItem, 'Add Trip')}</Button>
 	</div>
 
+	<!-- Search -->
+	<div class="flex items-center gap-4">
+		<Input
+			type="search"
+			placeholder={t(localeStore.t.finance.searchPlaceholder, 'Search trips...')}
+			class="max-w-sm"
+			bind:value={searchQuery}
+		/>
+	</div>
+
 	<!-- Trips table -->
-	<Card.Card>
-		<Card.CardContent class="p-0">
-			<Table.Table>
-				<Table.TableHeader>
-					<Table.TableRow>
-						<Table.TableHead>{t(localeStore.t.finance.name, 'Name')}</Table.TableHead>
-						<Table.TableHead class="text-right">{t(localeStore.t.finance.budget, 'Budget')} ($)</Table.TableHead>
-						<Table.TableHead>{t(localeStore.t.finance.estimated, 'Estimated')}?</Table.TableHead>
-						<Table.TableHead>{t(localeStore.t.finance.planned, 'Planned')}?</Table.TableHead>
-						<Table.TableHead>{t(localeStore.t.finance.notes, 'Notes')}</Table.TableHead>
-						<Table.TableHead class="text-right">{t(localeStore.t.finance.actions, 'Actions')}</Table.TableHead>
-					</Table.TableRow>
-				</Table.TableHeader>
-				<Table.TableBody>
-					{#each trips as trip (trip.id)}
-						<Table.TableRow>
-							<Table.TableCell class="font-medium">{trip.name}</Table.TableCell>
-							<Table.TableCell class="text-right">${trip.budget.toFixed(2)}</Table.TableCell>
-							<Table.TableCell>
+	<div class="overflow-hidden rounded-lg border">
+		<Table.Root>
+			<Table.Header class="bg-muted sticky top-0 z-10">
+					<Table.Row>
+						<Table.Head
+							class="text-muted-foreground cursor-pointer text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+							onclick={() => toggleSort('name')}
+						>
+							{t(localeStore.t.finance.name, 'Name')}{sortIndicator('name')}
+						</Table.Head>
+						<Table.Head
+							class="text-muted-foreground cursor-pointer text-right text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+							onclick={() => toggleSort('budget')}
+						>
+							{t(localeStore.t.finance.budget, 'Budget')} ($){sortIndicator('budget')}
+						</Table.Head>
+						<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+							{t(localeStore.t.finance.estimated, 'Estimated')}?
+						</Table.Head>
+						<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+							{t(localeStore.t.finance.planned, 'Planned')}?
+						</Table.Head>
+						<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+							{t(localeStore.t.finance.notes, 'Notes')}
+						</Table.Head>
+						<Table.Head class="text-muted-foreground w-[100px] text-right text-xs font-medium uppercase tracking-wide">
+							{t(localeStore.t.finance.actions, 'Actions')}
+						</Table.Head>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
+					{#each filteredRows as trip (trip.id)}
+						<Table.Row>
+							<Table.Cell class="font-medium">{trip.name}</Table.Cell>
+							<Table.Cell class="text-right">${trip.budget.toFixed(2)}</Table.Cell>
+							<Table.Cell>
 								<Badge variant={trip.isEstimate ? 'outline' : 'secondary'}>
 									{trip.isEstimate ? t(localeStore.t.finance.yes, 'Yes') : t(localeStore.t.finance.no, 'No')}
 								</Badge>
-							</Table.TableCell>
-							<Table.TableCell>
+							</Table.Cell>
+							<Table.Cell>
 								<Badge variant={trip.planned ? 'default' : 'outline'}>
 									{trip.planned ? t(localeStore.t.finance.yes, 'Yes') : t(localeStore.t.finance.no, 'No')}
 								</Badge>
-							</Table.TableCell>
-							<Table.TableCell class="max-w-[200px] truncate">{trip.notes}</Table.TableCell>
-							<Table.TableCell class="text-right">
+							</Table.Cell>
+							<Table.Cell class="max-w-[200px] truncate">{trip.notes}</Table.Cell>
+							<Table.Cell class="text-right">
 								<div class="flex items-center justify-end gap-2">
 									<Button variant="outline" size="sm" onclick={() => openEdit(trip)}>
 										{t(localeStore.t.finance.editItem, 'Edit')}
 									</Button>
-									<Button variant="destructive" size="sm" onclick={() => handleDelete(trip.id)}>
+									<Button variant="destructive" size="sm" onclick={() => requestDelete(trip.id)}>
 										{t(localeStore.t.finance.deleteItem, 'Delete')}
 									</Button>
 								</div>
-							</Table.TableCell>
-						</Table.TableRow>
+							</Table.Cell>
+						</Table.Row>
 					{:else}
-						<Table.TableRow>
-							<Table.TableCell colspan={6} class="text-muted-foreground py-8 text-center">
-								{t(localeStore.t.finance.noTrips, 'No trips yet.')}
-							</Table.TableCell>
-						</Table.TableRow>
+						<Table.Row>
+							<Table.Cell colspan={6} class="text-muted-foreground py-8 text-center">
+								{searchQuery
+									? t(localeStore.t.finance.noMatchingResults, 'No matching results.')
+									: t(localeStore.t.finance.noTrips, 'No trips yet.')}
+							</Table.Cell>
+						</Table.Row>
 					{/each}
-				</Table.TableBody>
-			</Table.Table>
-		</Card.CardContent>
-	</Card.Card>
+				</Table.Body>
+			</Table.Root>
+	</div>
 
 	<!-- Add Trip dialog -->
-	<Dialog.Dialog bind:open={addOpen}>
-		<Dialog.DialogContent>
-			<Dialog.DialogHeader>
-				<Dialog.DialogTitle>{t(localeStore.t.finance.addItem, 'Add Trip')}</Dialog.DialogTitle>
-				<Dialog.DialogDescription>
+	<Dialog.Root bind:open={addOpen}>
+		<Dialog.Content>
+			<Dialog.Header>
+				<Dialog.Title>{t(localeStore.t.finance.addItem, 'Add Trip')}</Dialog.Title>
+				<Dialog.Description>
 					{t(localeStore.t.finance.addTripDesc, 'Add a new travel destination or trip to your budget.')}
-				</Dialog.DialogDescription>
-			</Dialog.DialogHeader>
+				</Dialog.Description>
+			</Dialog.Header>
 			<div class="flex flex-col gap-4 py-4">
 				<div class="flex flex-col gap-2">
 					<Label for="add-name">{t(localeStore.t.finance.name, 'Name')}</Label>
@@ -194,22 +270,22 @@ async function handleDelete(id: Str): Promise<void> {
 					<Input id="add-notes" bind:value={addNotes} placeholder={t(localeStore.t.finance.optionalNotes, 'Optional notes')} />
 				</div>
 			</div>
-			<Dialog.DialogFooter>
+			<Dialog.Footer>
 				<Button variant="outline" onclick={() => (addOpen = false)}>{t(localeStore.t.common.cancel, 'Cancel')}</Button>
 				<Button onclick={handleAdd} disabled={!addName}>{t(localeStore.t.common.save, 'Save')}</Button>
-			</Dialog.DialogFooter>
-		</Dialog.DialogContent>
-	</Dialog.Dialog>
+			</Dialog.Footer>
+		</Dialog.Content>
+	</Dialog.Root>
 
 	<!-- Edit Trip dialog -->
-	<Dialog.Dialog bind:open={editOpen}>
-		<Dialog.DialogContent>
-			<Dialog.DialogHeader>
-				<Dialog.DialogTitle>{t(localeStore.t.finance.editItem, 'Edit Trip')}</Dialog.DialogTitle>
-				<Dialog.DialogDescription>
+	<Dialog.Root bind:open={editOpen}>
+		<Dialog.Content>
+			<Dialog.Header>
+				<Dialog.Title>{t(localeStore.t.finance.editItem, 'Edit Trip')}</Dialog.Title>
+				<Dialog.Description>
 					{t(localeStore.t.finance.editTripDesc, 'Update the details for this trip.')}
-				</Dialog.DialogDescription>
-			</Dialog.DialogHeader>
+				</Dialog.Description>
+			</Dialog.Header>
 			<div class="flex flex-col gap-4 py-4">
 				<div class="flex flex-col gap-2">
 					<Label for="edit-name">{t(localeStore.t.finance.name, 'Name')}</Label>
@@ -232,10 +308,18 @@ async function handleDelete(id: Str): Promise<void> {
 					<Input id="edit-notes" bind:value={editNotes} placeholder={t(localeStore.t.finance.optionalNotes, 'Optional notes')} />
 				</div>
 			</div>
-			<Dialog.DialogFooter>
+			<Dialog.Footer>
 				<Button variant="outline" onclick={() => (editOpen = false)}>{t(localeStore.t.common.cancel, 'Cancel')}</Button>
 				<Button onclick={handleEdit} disabled={!editName}>{t(localeStore.t.common.save, 'Save')}</Button>
-			</Dialog.DialogFooter>
-		</Dialog.DialogContent>
-	</Dialog.Dialog>
+			</Dialog.Footer>
+		</Dialog.Content>
+	</Dialog.Root>
+
+	<!-- Delete Confirmation -->
+	<ConfirmDialog
+		bind:open={confirmOpen}
+		title={t(localeStore.t.finance.deleteConfirmTitle, 'Delete Trip?')}
+		description={t(localeStore.t.finance.deleteConfirmDesc, 'This action cannot be undone. This will permanently delete this trip.')}
+		onConfirm={performDelete}
+	/>
 </div>

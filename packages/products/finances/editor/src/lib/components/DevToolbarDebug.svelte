@@ -4,12 +4,12 @@ import CheckIcon from '@lucide/svelte/icons/check';
 import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 import SearchX from '@lucide/svelte/icons/search-x';
 import { tick } from 'svelte';
-import { Switch } from '$lib/components/ui/switch/index.js';
-import { Label } from '$lib/components/ui/label/index.js';
-import { Button } from '$lib/components/ui/button/index.js';
-import * as Command from '$lib/components/ui/command/index.js';
-import * as Popover from '$lib/components/ui/popover/index.js';
-import { cn } from '$lib/utils.js';
+import { Switch } from '@/ui/switch/index.js';
+import { Label } from '@/ui/label/index.js';
+import { Button } from '@/ui/button/index.js';
+import * as Command from '@/ui/command/index.js';
+import * as Popover from '@/ui/popover/index.js';
+import { cn } from '@/ui/utils.js';
 import CopyIcon from '@lucide/svelte/icons/copy';
 import LinkIcon from '@lucide/svelte/icons/link';
 import TerminalIcon from '@lucide/svelte/icons/terminal';
@@ -32,7 +32,7 @@ import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import type { DebugStore } from '$lib/stores/debug-state.svelte';
 import { URL_PARAM_PREFIX, type DebugState } from '$lib/schemas/debug-state';
-import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+import * as Tooltip from '@/ui/tooltip/index.js';
 import { DEVTOOLS_KEY, type EditorDevtools } from '$lib/debug/devtools-api.svelte';
 
 let {

@@ -2,7 +2,7 @@
 import Settings from '@lucide/svelte/icons/settings';
 import CircleHelp from '@lucide/svelte/icons/circle-help';
 import type { ComponentProps } from 'svelte';
-import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+import * as Sidebar from '@/ui/sidebar/index.js';
 import AppLogo from './AppLogo.svelte';
 import NavFinance from './NavFinance.svelte';
 import NavSecondary from './NavSecondary.svelte';

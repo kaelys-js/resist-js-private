@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { Str } from '@/schemas/common';
-import * as Table from '$lib/components/ui/table/index.js';
-import { Button } from '$lib/components/ui/button/index.js';
+import * as Table from '@/ui/table/index.js';
+import { Button } from '@/ui/button/index.js';
 
 /**
  * Props for the DataTable component.

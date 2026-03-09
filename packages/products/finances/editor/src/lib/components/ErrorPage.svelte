@@ -12,8 +12,8 @@ import RotateCw from '@lucide/svelte/icons/rotate-cw';
 import ServerCrash from '@lucide/svelte/icons/server-crash';
 import ShieldOff from '@lucide/svelte/icons/shield-off';
 import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
-import { Button } from '$lib/components/ui/button/index.js';
-import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+import { Button } from '@/ui/button/index.js';
+import * as Tooltip from '@/ui/tooltip/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { log } from '@/utils/core/logger';
 import { announce } from '$lib/utils/announce.svelte';
@@ -119,21 +119,11 @@ const showTryAgain: Bool = $derived(status >= 500);
 const StatusIcon: Component = $derived(iconMap[status] ?? TriangleAlert);
 const iconColor: Str = $derived(iconColorMap[status] ?? 'text-muted-foreground');
 
-// Fade-in on client mount only — prevents visible→invisible→fade flash
-// caused by the layout's {#if useResizable} branch swap during hydration.
-let animate: Bool = $state(false);
-$effect(() => {
-	let rafId: ReturnType<typeof requestAnimationFrame> = requestAnimationFrame(() => {
-		rafId = requestAnimationFrame(() => {
-			animate = true;
-		});
-	});
-	return () => cancelAnimationFrame(rafId);
-});
+// Fade-in is handled by PageFadeIn in the layout — no inline animation needed.
 </script>
 
 <div
-	class="flex min-h-[60vh] flex-col items-center justify-center gap-2 px-4 text-center transition-opacity duration-300 ease-out {animate ? 'opacity-100' : 'opacity-0'}"
+	class="flex min-h-[60vh] flex-col items-center justify-center gap-2 px-4 text-center"
 	role="alert"
 >
 	<div class="{iconColor} mb-2" aria-hidden="true">

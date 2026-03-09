@@ -404,6 +404,22 @@ export const EditorLocaleSchema = v.strictObject({
 		placeholderAmount: messageTemplate(),
 		placeholderEgCreditCard: messageTemplate(),
 		placeholderExpenseName: messageTemplate(),
+		/** Search input placeholder text. */
+		searchPlaceholder: messageTemplate(),
+		/** Empty-state text shown when a search filter returns no rows. */
+		noMatchingResults: messageTemplate(),
+		/** Title for the delete confirmation dialog. */
+		deleteConfirmTitle: messageTemplate(),
+		/** Description for the delete confirmation dialog. */
+		deleteConfirmDesc: messageTemplate(),
+		/** Dashboard: debt overview card description. */
+		debtOverviewDesc: messageTemplate(),
+		/** Dashboard: net position card description. */
+		netPositionDesc: messageTemplate(),
+		/** Dashboard: expenses-by-category chart description. */
+		expensesByCategoryDesc: messageTemplate(),
+		/** Dashboard: income-vs-expenses chart description. */
+		incomeVsExpensesDesc: messageTemplate(),
 	}),
 	errors: v.strictObject({
 		badRequest: messageTemplate(),

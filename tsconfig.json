@@ -33,7 +33,9 @@
 			"@/locale/*": ["./packages/shared/locale/src/*.ts"],
 			"@/config/test/*": ["./packages/shared/config/test/src/*.ts"],
 			"@/config/test/harness": ["./packages/shared/config/test/src/harness/index.ts"],
-			"@/config/test/harness/*": ["./packages/shared/config/test/src/harness/*.ts"]
+			"@/config/test/harness/*": ["./packages/shared/config/test/src/harness/*.ts"],
+			"@/ui": ["./packages/shared/ui/src/index.ts"],
+			"@/ui/*": ["./packages/shared/ui/src/*"]
 		}
 	},
 	"exclude": ["node_modules", "dist", ".svelte-kit"]

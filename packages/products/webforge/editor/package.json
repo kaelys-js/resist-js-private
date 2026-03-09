@@ -20,6 +20,7 @@
 	"dependencies": {
 		"@/schemas/common": "workspace:*",
 		"@/schemas/result": "workspace:*",
+		"@/ui": "workspace:*",
 		"@/utils/result": "workspace:*",
 		"@sveltejs/adapter-cloudflare": "^7.2.8",
 		"@sveltejs/kit": "^2.53.2",

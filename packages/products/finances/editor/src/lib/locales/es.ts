@@ -361,6 +361,16 @@ export const es: EditorLocaleRaw = {
 		placeholderAmount: '0.00',
 		placeholderEgCreditCard: 'ej. Tarjeta de cr\u00E9dito',
 		placeholderExpenseName: 'Nombre del gasto',
+		searchPlaceholder: 'Buscar\u2026',
+		noMatchingResults: 'No hay resultados coincidentes.',
+		deleteConfirmTitle: 'Confirmar eliminaci\u00F3n',
+		deleteConfirmDesc:
+			'Esta acci\u00F3n no se puede deshacer. Este elemento se eliminar\u00E1 permanentemente.',
+		debtOverviewDesc: 'Saldos pendientes en todos los elementos de deuda.',
+		netPositionDesc: 'Ingresos proyectados menos gastos proyectados y deuda a lo largo de tu vida.',
+		expensesByCategoryDesc: 'Desglose apilado de los costos anuales proyectados por tipo de gasto.',
+		incomeVsExpensesDesc:
+			'Comparaci\u00F3n a\u00F1o tras a\u00F1o de ingresos y gastos proyectados.',
 	},
 	errors: {
 		badRequest: 'Solicitud no v\u00E1lida',

@@ -1,8 +1,8 @@
 <script lang="ts">
-import { Separator } from '$lib/components/ui/separator/index.js';
-import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+import { Separator } from '@/ui/separator/index.js';
+import * as Breadcrumb from '@/ui/breadcrumb/index.js';
+import * as Sidebar from '@/ui/sidebar/index.js';
+import * as Tooltip from '@/ui/tooltip/index.js';
 import HeaderUser from './HeaderUser.svelte';
 import ModeToggle from './ModeToggle.svelte';
 import { page } from '$app/state';

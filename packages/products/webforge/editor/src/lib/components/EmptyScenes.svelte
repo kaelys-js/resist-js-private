@@ -1,7 +1,7 @@
 <script lang="ts">
 import Map from '@lucide/svelte/icons/map';
 import Plus from '@lucide/svelte/icons/plus';
-import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+import * as Sidebar from '@/ui/sidebar/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 
