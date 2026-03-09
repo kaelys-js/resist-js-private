@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Scrollable container for command palette results with a constrained max height.
+ */
 import { Command as CommandPrimitive } from 'bits-ui';
 import { cn } from '../utils.js';
 

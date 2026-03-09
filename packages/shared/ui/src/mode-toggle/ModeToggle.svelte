@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Light/dark/system color mode toggle with animated sun/moon icon and dropdown menu.
+ */
 import Sun from '@lucide/svelte/icons/sun';
 import Moon from '@lucide/svelte/icons/moon';
 import Monitor from '@lucide/svelte/icons/monitor';
@@ -9,28 +12,33 @@ import * as Tooltip from '../tooltip/index.js';
 import type { Str } from '@/schemas/common';
 
 /**
+ * Localized labels for the ModeToggle UI.
+ */
+type ModeToggleLabels = {
+	/** Tooltip label (e.g. "Toggle theme"). @values Toggle theme, Switch theme, Change mode */
+	toggleTheme: Str;
+	/** Accessible aria-label (e.g. "Toggle mode"). @values Toggle mode, Switch color mode, Change appearance */
+	toggleMode: Str;
+	/** Light mode option label. @values Light, Light Mode, Day */
+	light: Str;
+	/** Dark mode option label. @values Dark, Dark Mode, Night */
+	dark: Str;
+	/** System mode option label. @values System, Auto, Follow System */
+	system: Str;
+};
+
+/**
  * Props for the shared ModeToggle component.
  *
  * Each product editor provides its own mode state, setter, and locale labels.
  */
 type ModeToggleProps = {
-	/** Current color mode. */
+	/** Current color mode. @values light, dark, system */
 	mode: Str;
 	/** Callback to change the color mode. */
 	setMode: (mode: Str) => void;
 	/** Localized labels for the toggle UI. */
-	labels: {
-		/** Tooltip label (e.g. "Toggle theme"). */
-		toggleTheme: Str;
-		/** Accessible aria-label (e.g. "Toggle mode"). */
-		toggleMode: Str;
-		/** Light mode option label. */
-		light: Str;
-		/** Dark mode option label. */
-		dark: Str;
-		/** System mode option label. */
-		system: Str;
-	};
+	labels: ModeToggleLabels;
 };
 
 let { mode, setMode, labels }: ModeToggleProps = $props();

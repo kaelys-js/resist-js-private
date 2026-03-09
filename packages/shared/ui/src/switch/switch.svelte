@@ -1,10 +1,16 @@
 <script lang="ts">
+/**
+ * Toggle switch control for binary on/off settings with animated thumb transition.
+ */
 import { Switch as SwitchPrimitive } from 'bits-ui';
 import { cn, type WithoutChildrenOrChild } from '../utils.js';
 
 let {
+	/** The underlying DOM element reference. */
 	ref = $bindable(null),
+	/** Additional CSS classes to apply. */
 	class: className,
+	/** Whether the switch is on or off. */
 	checked = $bindable(false),
 	...restProps
 }: WithoutChildrenOrChild<SwitchPrimitive.RootProps> = $props();

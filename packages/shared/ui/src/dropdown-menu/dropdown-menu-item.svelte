@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * An individual actionable item within a dropdown menu.
+ *
+ * Supports default and destructive variants, optional inset padding, and keyboard/pointer highlight states.
+ */
 import { cn } from '../utils.js';
 import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 

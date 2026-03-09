@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Select dropdown content panel with scroll buttons, rendered inside a portal.
+ */
 import { Select as SelectPrimitive } from 'bits-ui';
 import SelectPortal from './select-portal.svelte';
 import SelectScrollUpButton from './select-scroll-up-button.svelte';
@@ -7,11 +10,17 @@ import { cn, type WithoutChild, type WithoutChildrenOrChild } from '../utils.js'
 import type { ComponentProps } from 'svelte';
 
 let {
+	/** The underlying DOM element reference. */
 	ref = $bindable(null),
+	/** Additional CSS classes to apply. */
 	class: className,
+	/** Distance in pixels from the trigger edge. */
 	sideOffset = 4,
+	/** Props forwarded to the portal wrapper. */
 	portalProps,
+	/** The select option items. */
 	children,
+	/** Whether to prevent page scrolling while open. */
 	preventScroll = true,
 	...restProps
 }: WithoutChild<SelectPrimitive.ContentProps> & {

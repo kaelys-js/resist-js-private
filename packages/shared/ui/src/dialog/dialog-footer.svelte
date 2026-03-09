@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Footer area of a dialog, typically containing action buttons.
+ *
+ * Stacks children vertically on mobile and aligns them horizontally (end-justified) on larger screens.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

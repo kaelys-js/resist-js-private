@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Root container for a command palette with fuzzy search and keyboard navigation.
+ *
+ * Provides the search context and styling wrapper for CommandInput, CommandList, CommandGroup, and CommandItem children.
+ */
 import { cn } from '../utils.js';
 import { Command as CommandPrimitive } from 'bits-ui';
 

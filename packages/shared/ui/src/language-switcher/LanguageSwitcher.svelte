@@ -1,4 +1,10 @@
 <script lang="ts">
+/**
+ * Language/locale selector rendered as a searchable dropdown sub-menu.
+ *
+ * Displays language options with endonym and exonym names, a search filter,
+ * and a checkmark on the currently active locale.
+ */
 import Search from '@lucide/svelte/icons/search';
 import SearchX from '@lucide/svelte/icons/search-x';
 import X from '@lucide/svelte/icons/x';
@@ -11,12 +17,28 @@ import type { Bool, Str, Void } from '@/schemas/common';
  * A single language option with endonym/exonym display names.
  */
 type LanguageOption = {
-	/** BCP-47 locale code (e.g. "en", "ja"). */
+	/** BCP-47 locale code (e.g. "en", "ja"). @values en, ja, de, fr, es, ko, zh */
 	code: Str;
-	/** Native name of the language (e.g. "日本語"). */
+	/** Native name of the language (e.g. "日本語"). @values English, 日本語, Deutsch, Français */
 	endonym: Str;
-	/** Name of the language in the current locale (e.g. "Japanese"). */
+	/** Name of the language in the current locale (e.g. "Japanese"). @values English, Japanese, German, French */
 	exonym: Str;
+};
+
+/**
+ * Localized UI labels for the LanguageSwitcher.
+ */
+type LanguageSwitcherLabels = {
+	/** Sub-menu trigger label (e.g. "Language"). @values Language, Locale, Display Language */
+	language: Str;
+	/** Search input placeholder (e.g. "Search languages…"). @values Search languages…, Find a language…, Filter languages */
+	searchLanguages: Str;
+	/** Clear search button aria-label (e.g. "Clear search"). @values Clear search, Reset search, Clear */
+	clearSearch: Str;
+	/** Empty state heading (e.g. "No languages found"). @values No languages found, No results, No matching languages */
+	noLanguagesFound: Str;
+	/** Empty state hint (e.g. "Try a different search term"). @values Try a different search term, Adjust your search, Clear the filter */
+	noResultsHint: Str;
 };
 
 /**
@@ -25,25 +47,14 @@ type LanguageOption = {
  * Each product editor resolves locale strings, store state, and side effects.
  */
 type LanguageSwitcherProps = {
-	/** Current active locale code. */
+	/** Current active locale code. @values en, ja, de, fr, es, ko, zh */
 	locale: Str;
 	/** Callback to switch locale — wrapper handles cookie/document side effects. */
 	switchLanguage: (code: Str) => void;
 	/** Available language options with pre-resolved display names. */
 	languages: readonly LanguageOption[];
 	/** Localized UI labels. */
-	labels: {
-		/** Sub-menu trigger label (e.g. "Language"). */
-		language: Str;
-		/** Search input placeholder (e.g. "Search languages…"). */
-		searchLanguages: Str;
-		/** Clear search button aria-label (e.g. "Clear search"). */
-		clearSearch: Str;
-		/** Empty state heading (e.g. "No languages found"). */
-		noLanguagesFound: Str;
-		/** Empty state hint (e.g. "Try a different search term"). */
-		noResultsHint: Str;
-	};
+	labels: LanguageSwitcherLabels;
 };
 
 let { locale, switchLanguage, languages, labels }: LanguageSwitcherProps = $props();

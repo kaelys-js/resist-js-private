@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Keyboard shortcut badge rendered as a styled `<kbd>` element.
+ *
+ * Hidden on mobile by default; set `alwaysVisible` to show on all breakpoints.
+ */
 import type { Str } from '@/schemas/common';
 
 /**
@@ -8,7 +13,7 @@ import type { Str } from '@/schemas/common';
  * By default hidden on mobile and shown on `md+` breakpoints; set `alwaysVisible` to override.
  */
 type KbdProps = {
-	/** The formatted shortcut string (e.g. "⌘B", "Ctrl+1", "Esc"). */
+	/** The formatted shortcut string (e.g. "⌘B", "Ctrl+1", "Esc"). @values ⌘B, Ctrl+K, Esc, ⌘⇧P */
 	label: Str;
 	/** When true, the badge is always visible instead of hidden on mobile. */
 	alwaysVisible?: boolean;

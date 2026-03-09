@@ -94,6 +94,13 @@ export default defineConfig({
 			{
 				extends: true,
 				test: {
+					name: 'ui',
+					root: 'packages/shared/ui',
+				},
+			},
+			{
+				extends: true,
+				test: {
 					name: 'runtime',
 					root: 'packages/products/webforge/runtime',
 					setupFiles: ['./src/test-setup.ts'],

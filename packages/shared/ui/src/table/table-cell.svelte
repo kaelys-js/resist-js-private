@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Table data cell (`<td>`) with consistent padding and vertical alignment.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLTdAttributes } from 'svelte/elements';
 

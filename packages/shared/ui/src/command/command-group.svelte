@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * A labeled group of related command items within a command palette.
+ *
+ * Renders an optional heading above its child items and automatically generates a unique group value for filtering.
+ */
 import { Command as CommandPrimitive, useId } from 'bits-ui';
 import { cn } from '../utils.js';
 

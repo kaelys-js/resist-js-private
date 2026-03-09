@@ -22,14 +22,24 @@ export type BadgeVariant = VariantProps<typeof badgeVariants>['variant'];
 </script>
 
 <script lang="ts">
+	/**
+	 * Small inline label for status indicators, counts, or categories.
+	 *
+	 * Supports default, secondary, destructive, and outline variants. Renders as a link when href is provided.
+	 */
 	import type { HTMLAnchorAttributes } from "svelte/elements";
 	import { cn, type WithElementRef } from "../utils.js";
 
 	let {
+		/** The underlying DOM element reference. */
 		ref = $bindable(null),
+		/** When set, renders as an anchor element instead of a span. */
 		href,
+		/** Additional CSS classes to apply. */
 		class: className,
+		/** The visual style variant. */
 		variant = "default",
+		/** The badge content. */
 		children,
 		...restProps
 	}: WithElementRef<HTMLAnchorAttributes> & {

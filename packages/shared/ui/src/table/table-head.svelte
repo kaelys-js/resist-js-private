@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Table header cell (`<th>`) with bold foreground text and consistent alignment.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLThAttributes } from 'svelte/elements';
 

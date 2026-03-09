@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Table footer section (`<tfoot>`) with a muted background and top border.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Search input field for a command palette with a leading search icon.
+ *
+ * Binds to the command palette's search value and filters results as the user types.
+ */
 import { Command as CommandPrimitive } from 'bits-ui';
 import SearchIcon from '@lucide/svelte/icons/search';
 import { cn } from '../utils.js';

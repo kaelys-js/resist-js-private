@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Styled text input field supporting all standard HTML input types including file uploads.
+ *
+ * Provides focus-visible ring, validation error states, and bindable value/files props.
+ */
 import type { HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 import { cn, type WithElementRef } from '../utils.js';
 
@@ -10,11 +15,17 @@ type Props = WithElementRef<
 >;
 
 let {
+	/** The underlying DOM element reference. */
 	ref = $bindable(null),
+	/** The current input value. */
 	value = $bindable(),
+	/** The HTML input type (text, email, password, file, etc.). */
 	type,
+	/** The selected files when type is "file". */
 	files = $bindable(),
+	/** Additional CSS classes to apply. */
 	class: className,
+	/** The data-slot attribute for styling hooks. */
 	'data-slot': dataSlot = 'input',
 	...restProps
 }: Props = $props();

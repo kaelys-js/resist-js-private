@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Select dropdown root that manages open/close state and the selected value.
+ */
 import { Select as SelectPrimitive } from 'bits-ui';
 
 let {

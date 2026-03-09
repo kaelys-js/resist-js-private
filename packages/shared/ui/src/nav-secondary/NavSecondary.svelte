@@ -1,11 +1,19 @@
 <script lang="ts">
+/**
+ * Secondary navigation link list rendered as a sidebar menu group.
+ *
+ * Accepts an array of icon+title+url items and renders them as sidebar menu buttons.
+ */
 import type { Component } from 'svelte';
 import * as Sidebar from '../sidebar/index.js';
 import type { Str } from '@/schemas/common';
 
 type NavItem = {
+	/** Display label. @values Settings, Help, Support, Feedback */
 	title: Str;
+	/** Link href. @values /settings, /help, /support, /feedback */
 	url: Str;
+	/** Lucide icon component. */
 	icon: Component;
 };
 

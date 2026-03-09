@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Primary title text within a Card header, rendered with semibold font weight.
+ */
 import type { HTMLAttributes } from 'svelte/elements';
 import { cn, type WithElementRef } from '../utils.js';
 

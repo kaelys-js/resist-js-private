@@ -1,13 +1,22 @@
 <script lang="ts">
+/**
+ * Floating content panel for a dropdown menu, rendered inside a portal with animated open/close transitions.
+ *
+ * Positions itself relative to the trigger with a configurable side offset and constrains its height to available viewport space.
+ */
 import { cn, type WithoutChildrenOrChild } from '../utils.js';
 import DropdownMenuPortal from './dropdown-menu-portal.svelte';
 import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 import type { ComponentProps } from 'svelte';
 
 let {
+	/** The underlying DOM element reference. */
 	ref = $bindable(null),
+	/** Distance in pixels from the trigger edge. */
 	sideOffset = 4,
+	/** Props forwarded to the portal wrapper. */
 	portalProps,
+	/** Additional CSS classes to apply. */
 	class: className,
 	...restProps
 }: DropdownMenuPrimitive.ContentProps & {

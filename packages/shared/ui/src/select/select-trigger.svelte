@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Select trigger button that displays the current value and a chevron indicator.
+ */
 import { Select as SelectPrimitive } from 'bits-ui';
 import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 import { cn, type WithoutChild } from '../utils.js';

@@ -26,6 +26,11 @@ export type SidebarMenuButtonSize = VariantProps<typeof sidebarMenuButtonVariant
 </script>
 
 <script lang="ts">
+	/**
+	 * Sidebar menu item button with optional tooltip shown when the sidebar is collapsed.
+	 *
+	 * Supports variant/size presets and custom element rendering via child snippet.
+	 */
 	import * as Tooltip from "../tooltip/index.js";
 	import { cn, type WithElementRef, type WithoutChildrenOrChild } from "../utils.js";
 	import { mergeProps } from "bits-ui";
@@ -34,14 +39,23 @@ export type SidebarMenuButtonSize = VariantProps<typeof sidebarMenuButtonVariant
 	import { useSidebar } from "./context.svelte.js";
 
 	let {
+		/** The underlying DOM element reference. */
 		ref = $bindable(null),
+		/** Additional CSS classes to apply. */
 		class: className,
+		/** The default button content. */
 		children,
+		/** Render-prop snippet for custom element rendering. */
 		child,
+		/** The visual style variant. */
 		variant = "default",
+		/** The size preset. */
 		size = "default",
+		/** Whether this item represents the current page. */
 		isActive = false,
+		/** Tooltip shown when the sidebar is collapsed. */
 		tooltipContent,
+		/** Props forwarded to the tooltip content wrapper. */
 		tooltipContentProps,
 		...restProps
 	}: WithElementRef<HTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {

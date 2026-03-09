@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Sheet description text rendered in a muted style below the sheet title.
+ */
 import { Dialog as SheetPrimitive } from 'bits-ui';
 import { cn } from '../utils.js';
 

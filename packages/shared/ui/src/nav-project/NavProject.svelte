@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Project navigation switcher displayed in the sidebar header with avatar and dropdown menu.
+ *
+ * Shows the current project/user name and subtitle, with product-specific menu items injected via snippet.
+ */
 import type { Snippet } from 'svelte';
 import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 import * as Avatar from '../avatar/index.js';
@@ -12,11 +17,11 @@ import type { Bool, Str } from '@/schemas/common';
  * Each product editor resolves project/user data and injects menu items via snippet.
  */
 type NavProjectProps = {
-	/** Display name (project or user). */
+	/** Display name (project or user). @values WebForge RPG, My Project, Demo App */
 	name: Str;
-	/** Subtitle text (project subtitle, email, or em dash). */
+	/** Subtitle text (project subtitle, email, or em dash). @values v1.0.0, Production, Development */
 	subtitle: Str;
-	/** Avatar image URL (empty string for no image). */
+	/** Avatar image URL (empty string for no image). @values https://example.com/avatar.png, /avatars/user.jpg */
 	avatarSrc: Str;
 	/** Whether to show the avatar icon in the trigger button. */
 	showIcon: Bool;

@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * User profile avatar button with a dropdown menu for account, settings, and logout actions.
+ *
+ * Renders an avatar trigger that opens a feature-flagged dropdown with configurable menu groups.
+ */
 import UserIcon from '@lucide/svelte/icons/user';
 import CreditCard from '@lucide/svelte/icons/credit-card';
 import Bell from '@lucide/svelte/icons/bell';
@@ -32,41 +37,44 @@ type HeaderUserFeatures = {
 	logout: Bool;
 };
 
+/** Localized UI labels for the HeaderUser component. */
+type HeaderUserLabels = {
+	/** Trigger button aria-label (e.g. "User menu"). @values User menu, Open user menu, Account menu */
+	userMenu: Str;
+	/** "Account" menu item label. @values Account, My Account, Profile */
+	account: Str;
+	/** "Subscription" menu item label. @values Subscription, Billing, Plan */
+	subscription: Str;
+	/** "Notifications" menu item label. @values Notifications, Alerts, Updates */
+	notifications: Str;
+	/** "Keyboard Shortcuts" menu item label. @values Keyboard Shortcuts, Shortcuts, Hotkeys */
+	keyboardShortcuts: Str;
+	/** "Settings" menu item label. @values Settings, Preferences, Options */
+	settings: Str;
+	/** "What's New" menu item label. @values What's New, Changelog, Updates */
+	whatsNew: Str;
+	/** "Log Out" menu item label. @values Log Out, Sign Out, Logout */
+	logout: Str;
+};
+
 /**
  * Props for the shared HeaderUser component.
  *
  * Each product editor resolves locale strings, user data, and the logout callback.
  */
 type HeaderUserProps = {
-	/** User display name. */
+	/** User display name. @values John Doe, Jane Smith, Demo User */
 	userName: Str;
-	/** Optional user email. */
+	/** Optional user email. @values john@example.com, jane@example.com, demo@example.com */
 	userEmail?: Str;
-	/** Optional avatar image URL. */
+	/** Optional avatar image URL. @values https://example.com/avatar.png, /avatars/user.jpg */
 	userAvatar?: Str;
 	/** Callback when "Log Out" is clicked. */
 	onLogOut: () => void;
 	/** Feature flags controlling menu item visibility. */
 	features: HeaderUserFeatures;
 	/** Localized UI labels. */
-	labels: {
-		/** Trigger button aria-label (e.g. "User menu"). */
-		userMenu: Str;
-		/** "Account" menu item label. */
-		account: Str;
-		/** "Subscription" menu item label. */
-		subscription: Str;
-		/** "Notifications" menu item label. */
-		notifications: Str;
-		/** "Keyboard Shortcuts" menu item label. */
-		keyboardShortcuts: Str;
-		/** "Settings" menu item label. */
-		settings: Str;
-		/** "What's New" menu item label. */
-		whatsNew: Str;
-		/** "Log Out" menu item label. */
-		logout: Str;
-	};
+	labels: HeaderUserLabels;
 };
 
 let { userName, userEmail, userAvatar, onLogOut, features, labels }: HeaderUserProps = $props();

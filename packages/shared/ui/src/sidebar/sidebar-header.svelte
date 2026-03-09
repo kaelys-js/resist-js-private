@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Sidebar top section for branding, project switcher, or navigation header content.
+ */
 import type { HTMLAttributes } from 'svelte/elements';
 import { cn, type WithElementRef } from '../utils.js';
 

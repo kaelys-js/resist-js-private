@@ -36,20 +36,36 @@ export type ButtonSize = VariantProps<typeof buttonVariants>['size'];
 
 export type ButtonProps = WithElementRef<HTMLButtonAttributes> &
 	WithElementRef<HTMLAnchorAttributes> & {
+		/** The visual style variant. */
 		variant?: ButtonVariant;
+		/** The size preset. */
 		size?: ButtonSize;
 	};
 </script>
 
 <script lang="ts">
+	/**
+	 * Interactive button supporting multiple style variants and sizes.
+	 *
+	 * Renders as a `<button>` by default or as an `<a>` when href is provided. Disabled anchors
+	 * receive `aria-disabled` instead of the native disabled attribute for proper accessibility.
+	 */
 	let {
+		/** Additional CSS classes to apply. */
 		class: className,
+		/** The visual style variant. */
 		variant = "default",
+		/** The size preset. */
 		size = "default",
+		/** The underlying DOM element reference. */
 		ref = $bindable(null),
+		/** When set, renders as an anchor element instead of a button. */
 		href,
+		/** The HTML button type attribute. */
 		type = "button",
+		/** When true, the button is non-interactive. */
 		disabled,
+		/** The button content. */
 		children,
 		...restProps
 	}: ButtonProps = $props();

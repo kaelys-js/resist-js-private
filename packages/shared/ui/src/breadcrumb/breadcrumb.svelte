@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Root navigation landmark for breadcrumb trails.
+ *
+ * Renders a semantic `<nav>` element with an aria-label of "breadcrumb".
+ */
 import type { WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

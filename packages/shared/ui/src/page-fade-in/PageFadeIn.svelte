@@ -21,6 +21,12 @@ this component, so the fade always plays from a clean state.
 ```
 -->
 <script lang="ts">
+/**
+ * Page enter animation wrapper that fades content in on mount.
+ *
+ * Uses double `requestAnimationFrame` to ensure the browser paints the transparent
+ * frame before transitioning. SSR-safe: content renders fully visible on the server.
+ */
 import type { Bool } from '@/schemas/common';
 import type { Snippet } from 'svelte';
 

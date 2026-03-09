@@ -21,6 +21,11 @@ export type Side = VariantProps<typeof sheetVariants>['side'];
 </script>
 
 <script lang="ts">
+	/**
+	 * Sheet slide-in panel content with overlay backdrop and close button.
+	 *
+	 * Supports top/bottom/left/right slide directions via the `side` prop.
+	 */
 	import { Dialog as SheetPrimitive } from "bits-ui";
 	import XIcon from "@lucide/svelte/icons/x";
 	import type { Snippet, ComponentProps } from "svelte";
@@ -29,10 +34,15 @@ export type Side = VariantProps<typeof sheetVariants>['side'];
 	import { cn, type WithoutChildrenOrChild } from "../utils.js";
 
 	let {
+		/** The underlying DOM element reference. */
 		ref = $bindable(null),
+		/** Additional CSS classes to apply. */
 		class: className,
+		/** The edge from which the sheet slides in. */
 		side = "right",
+		/** Props forwarded to the portal wrapper. */
 		portalProps,
+		/** The sheet body content. */
 		children,
 		...restProps
 	}: WithoutChildrenOrChild<SheetPrimitive.ContentProps> & {

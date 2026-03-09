@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Search input with a popover autocomplete dropdown powered by cmdk-sv.
+ *
+ * Supports grouped items, keyboard navigation, and navigation links or selection callbacks.
+ */
 import type { Bool, Str } from '@/schemas/common';
 import SearchIcon from '@lucide/svelte/icons/search';
 import type { SearchItem } from './search-item.js';
@@ -24,13 +29,13 @@ import { cn } from '../utils.js';
 type SearchAutocompleteProps = {
 	/** The list of items to search through. */
 	items: SearchItem[];
-	/** Placeholder text for the search input. */
+	/** Placeholder text for the search input. @values Search..., Find components, Type to search */
 	placeholder?: Str;
 	/** Additional CSS classes for the trigger button. */
 	class?: Str;
 	/** Callback fired when an item is selected. */
 	onSelect?: (item: SearchItem) => void;
-	/** Text shown when no items match the search query. */
+	/** Text shown when no items match the search query. @values No results found, Nothing here, Try a different search */
 	emptyText?: Str;
 };
 
@@ -111,6 +116,7 @@ function handleSelect(item: SearchItem): void {
 									<Command.LinkItem
 										href={item.href}
 										value={item.value}
+										keywords={item.keywords}
 										onSelect={() => handleSelect(item)}
 									>
 										{item.label}
@@ -118,6 +124,7 @@ function handleSelect(item: SearchItem): void {
 								{:else}
 									<Command.Item
 										value={item.value}
+										keywords={item.keywords}
 										onSelect={() => handleSelect(item)}
 									>
 										{item.label}
@@ -131,6 +138,7 @@ function handleSelect(item: SearchItem): void {
 								<Command.LinkItem
 									href={item.href}
 									value={item.value}
+									keywords={item.keywords}
 									onSelect={() => handleSelect(item)}
 								>
 									{item.label}
@@ -138,6 +146,7 @@ function handleSelect(item: SearchItem): void {
 							{:else}
 								<Command.Item
 									value={item.value}
+									keywords={item.keywords}
 									onSelect={() => handleSelect(item)}
 								>
 									{item.label}
