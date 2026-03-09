@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Header area of a Card with a grid layout for title, description, and optional action slots.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

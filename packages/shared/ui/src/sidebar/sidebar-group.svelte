@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Sidebar group container for organizing related menu items under an optional label.
+ */
 import type { HTMLAttributes } from 'svelte/elements';
 import { cn, type WithElementRef } from '../utils.js';
 

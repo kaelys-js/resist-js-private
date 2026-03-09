@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Thin sidebar rail edge for toggling the sidebar via click in collapsed mode.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 import { useSidebar } from './context.svelte.js';

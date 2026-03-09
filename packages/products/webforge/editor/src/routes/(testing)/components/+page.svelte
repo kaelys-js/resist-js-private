@@ -1,8 +1,8 @@
 <script lang="ts">
 /**
- * Component gallery landing page.
+ * Lens landing page.
  *
- * Displays a welcome placeholder prompting the user to select a component
+ * Displays a welcome screen prompting the user to select a component
  * from the sidebar. The sidebar (in the parent layout) handles discovery,
  * search, and navigation.
  */
@@ -14,9 +14,9 @@ import LayoutGrid from '@lucide/svelte/icons/layout-grid';
 		<LayoutGrid class="size-8 text-primary" />
 	</div>
 	<div>
-		<h1 class="text-2xl font-bold tracking-tight">Component Gallery</h1>
+		<h1 class="text-2xl font-bold tracking-tight">Lens</h1>
 		<p class="mt-2 max-w-sm text-sm text-muted-foreground">
-			Select a component from the sidebar to view its interactive demo.
+			Select a component from the sidebar to view its auto-generated documentation.
 		</p>
 	</div>
 </div>

@@ -1,8 +1,17 @@
 <script lang="ts">
+/**
+ * Form field label with disabled-state styling and peer association support.
+ */
 import { Label as LabelPrimitive } from 'bits-ui';
 import { cn } from '../utils.js';
 
-let { ref = $bindable(null), class: className, ...restProps }: LabelPrimitive.RootProps = $props();
+let {
+	/** The underlying DOM element reference. */
+	ref = $bindable(null),
+	/** Additional CSS classes to apply. */
+	class: className,
+	...restProps
+}: LabelPrimitive.RootProps = $props();
 </script>
 
 <LabelPrimitive.Root

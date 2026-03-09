@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Section label within a select dropdown for grouping related options.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

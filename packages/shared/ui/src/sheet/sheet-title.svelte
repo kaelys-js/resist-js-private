@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Sheet heading text rendered with semibold foreground styling.
+ */
 import { Dialog as SheetPrimitive } from 'bits-ui';
 import { cn } from '../utils.js';
 

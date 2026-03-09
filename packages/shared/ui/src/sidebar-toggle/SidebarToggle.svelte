@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Sidebar toggle button with a tooltip showing the label and keyboard shortcut.
+ *
+ * Renders the sidebar trigger wrapped in a tooltip, followed by a vertical separator.
+ */
 import * as Sidebar from '../sidebar/index.js';
 import * as Tooltip from '../tooltip/index.js';
 import { Separator } from '../separator/index.js';
@@ -11,9 +16,9 @@ import type { Str } from '@/schemas/common';
  * Each product editor provides its own locale label and formatted shortcut string.
  */
 type SidebarToggleProps = {
-	/** Localized "Toggle Sidebar" label for the tooltip. */
+	/** Localized "Toggle Sidebar" label for the tooltip. @values Toggle Sidebar, Show/Hide Sidebar, Sidebar */
 	label: Str;
-	/** Formatted keyboard shortcut display string (e.g. "⌘B"). */
+	/** Formatted keyboard shortcut display string (e.g. "⌘B"). @values ⌘B, Ctrl+B, ⌘\\ */
 	shortcutLabel: Str;
 };
 

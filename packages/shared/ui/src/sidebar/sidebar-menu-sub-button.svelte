@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Submenu item button rendered as an anchor link with active-state and size variants.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { Snippet } from 'svelte';
 import type { HTMLAnchorAttributes } from 'svelte/elements';

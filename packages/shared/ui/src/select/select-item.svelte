@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Individual select option with a checkmark indicator for the selected state.
+ */
 import CheckIcon from '@lucide/svelte/icons/check';
 import { Select as SelectPrimitive } from 'bits-ui';
 import { cn, type WithoutChild } from '../utils.js';

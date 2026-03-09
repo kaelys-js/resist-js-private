@@ -1,0 +1,22 @@
+import type { LensExample, LensMeta } from '../lens/types.js';
+
+export const meta: LensMeta = {
+	category: 'overlay',
+	tags: ['shadcn', 'compound'],
+	description: 'Command palette with search and keyboard navigation.',
+};
+
+const examples: LensExample[] = [
+	{
+		name: 'inline',
+		title: 'Inline Command',
+		description: 'A command palette rendered inline with grouped items.',
+	},
+	{
+		name: 'dialog',
+		title: 'Command Dialog',
+		description: 'A command palette inside a dialog overlay.',
+	},
+];
+
+export default examples;

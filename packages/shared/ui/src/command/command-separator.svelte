@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * A horizontal rule used to visually separate groups within a command palette.
+ */
 import { Command as CommandPrimitive } from 'bits-ui';
 import { cn } from '../utils.js';
 

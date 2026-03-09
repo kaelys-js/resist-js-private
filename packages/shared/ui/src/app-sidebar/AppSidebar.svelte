@@ -1,4 +1,10 @@
 <script lang="ts">
+/**
+ * Shared application sidebar shell with branding header, secondary navigation, and product-specific content slots.
+ *
+ * Each product editor provides its own main content and footer via Svelte snippets while sharing
+ * the common layout, logo, and secondary nav items (Settings, Help, etc.).
+ */
 import type { Snippet, Component } from 'svelte';
 import * as Sidebar from '../sidebar/index.js';
 import AppLogo from '../app-logo/AppLogo.svelte';
@@ -9,9 +15,9 @@ import type { Bool, Str } from '@/schemas/common';
  * A secondary nav item (Settings, Help, etc.).
  */
 type NavItem = {
-	/** Display label. */
+	/** Display label. @values Settings, Help, Support, Feedback */
 	title: Str;
-	/** Link href. */
+	/** Link href. @values /settings, /help, /support, /feedback */
 	url: Str;
 	/** Lucide icon component. */
 	icon: Component;
@@ -23,11 +29,11 @@ type NavItem = {
  * Each product editor provides content/footer snippets and resolves locale/store data.
  */
 type AppSidebarProps = {
-	/** Application display name. */
+	/** Application display name. @values WebForge RPG, Finance Tracker, My App */
 	appName: Str;
-	/** Pre-resolved tagline. */
+	/** Pre-resolved tagline. @values Build your world, Track your finances, Create something great */
 	tagline: Str;
-	/** Sidebar root aria-label. */
+	/** Sidebar root aria-label. @values Main sidebar, Application sidebar, Navigation */
 	sidebarLabel: Str;
 	/** Whether to show the app icon in the header. */
 	showIcon: Bool;

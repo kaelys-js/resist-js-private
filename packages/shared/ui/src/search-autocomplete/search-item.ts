@@ -19,6 +19,8 @@ export const SearchItemSchema = v.strictObject({
 	href: v.optional(v.string()),
 	/** Optional group heading for categorization. */
 	group: v.optional(v.string()),
+	/** Optional search keywords for filtering (not displayed). */
+	keywords: v.optional(v.array(v.string())),
 });
 
 /** A single autocomplete search item. */

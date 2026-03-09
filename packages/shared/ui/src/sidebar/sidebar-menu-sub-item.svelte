@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Submenu list item (`<li>`) wrapper for nested sidebar navigation entries.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

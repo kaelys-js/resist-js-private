@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Data table root wrapped in a horizontally-scrollable container.
+ */
 import type { HTMLTableAttributes } from 'svelte/elements';
 import { cn, type WithElementRef } from '../utils.js';
 

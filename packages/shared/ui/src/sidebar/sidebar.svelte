@@ -1,4 +1,10 @@
 <script lang="ts">
+/**
+ * Collapsible sidebar layout container with desktop and mobile variants.
+ *
+ * On desktop, renders a fixed sidebar panel with collapsible modes (offcanvas, icon, none).
+ * On mobile, renders as a sheet/drawer overlay.
+ */
 import * as Sheet from '../sheet/index.js';
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';

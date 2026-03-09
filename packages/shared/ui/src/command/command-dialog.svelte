@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * A dialog-wrapped command palette that opens as a modal overlay.
+ *
+ * Combines Dialog and Command primitives into a single component with accessible title/description and a bindable open state.
+ */
 import type { Command as CommandPrimitive, Dialog as DialogPrimitive } from 'bits-ui';
 import type { Snippet } from 'svelte';
 import Command from './command.svelte';
@@ -6,12 +11,19 @@ import * as Dialog from '../dialog/index.js';
 import type { WithoutChildrenOrChild } from '../utils.js';
 
 let {
+	/** Whether the command dialog is open. */
 	open = $bindable(false),
+	/** The underlying DOM element reference. */
 	ref = $bindable(null),
+	/** The current search query. */
 	value = $bindable(''),
+	/** Accessible title for screen readers. */
 	title = 'Command Palette',
+	/** Accessible description for screen readers. */
 	description = 'Search for a command to run',
+	/** Props forwarded to the portal wrapper. */
 	portalProps,
+	/** The command palette content (input, groups, items). */
 	children,
 	...restProps
 }: WithoutChildrenOrChild<DialogPrimitive.RootProps> &

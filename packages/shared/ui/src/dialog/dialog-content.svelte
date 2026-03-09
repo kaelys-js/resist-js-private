@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Modal content panel centered on screen with an overlay backdrop and animated open/close transitions.
+ *
+ * Renders inside a portal with an optional close button in the top-right corner.
+ */
 import { Dialog as DialogPrimitive } from 'bits-ui';
 import DialogPortal from './dialog-portal.svelte';
 import DialogOverlay from './dialog-overlay.svelte';
@@ -7,10 +12,15 @@ import type { Snippet, ComponentProps } from 'svelte';
 import { cn, type WithoutChildrenOrChild } from '../utils.js';
 
 let {
+	/** The underlying DOM element reference. */
 	ref = $bindable(null),
+	/** Additional CSS classes to apply. */
 	class: className,
+	/** Props forwarded to the portal wrapper. */
 	portalProps,
+	/** The dialog body content. */
 	children,
+	/** Whether to render the close button in the top-right corner. */
 	showCloseButton = true,
 	...restProps
 }: WithoutChildrenOrChild<DialogPrimitive.ContentProps> & {

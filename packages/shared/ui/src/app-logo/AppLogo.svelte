@@ -1,7 +1,17 @@
 <script lang="ts">
+/**
+ * Renders the application brand logo from favicon.svg with an animated entrance.
+ *
+ * Plays a fade-in, grow, and sparkle animation on mount. Respects prefers-reduced-motion.
+ */
 import type { Num, Str } from '@/schemas/common';
 
-let { size = 24, class: className = '' }: { size?: Num; class?: Str } = $props();
+let {
+	/** Pixel dimensions (width and height) of the logo image. */
+	size = 24,
+	/** Additional CSS classes for the root element. */
+	class: className = '',
+}: { size?: Num; class?: Str } = $props();
 </script>
 
 <!--

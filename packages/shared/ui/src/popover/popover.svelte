@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Popover root that manages open/close state and anchors content to a trigger element.
+ */
 import { Popover as PopoverPrimitive } from 'bits-ui';
 
 let { open = $bindable(false), ...restProps }: PopoverPrimitive.RootProps = $props();

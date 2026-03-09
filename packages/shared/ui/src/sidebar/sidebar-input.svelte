@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Search input styled for use inside a sidebar with reduced height and no shadow.
+ */
 import type { ComponentProps } from 'svelte';
 import { Input } from '../input/index.js';
 import { cn } from '../utils.js';

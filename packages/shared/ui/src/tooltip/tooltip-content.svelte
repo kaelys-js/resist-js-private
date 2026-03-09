@@ -1,16 +1,26 @@
 <script lang="ts">
+/**
+ * Tooltip popup content rendered inside a portal with enter/exit animations and an arrow.
+ */
 import { Tooltip as TooltipPrimitive } from 'bits-ui';
 import { cn, type WithoutChildrenOrChild } from '../utils.js';
 import TooltipPortal from './tooltip-portal.svelte';
 import type { ComponentProps } from 'svelte';
 
 let {
+	/** The underlying DOM element reference. */
 	ref = $bindable(null),
+	/** Additional CSS classes to apply. */
 	class: className,
+	/** Distance in pixels from the trigger edge. */
 	sideOffset = 0,
+	/** Which side of the trigger to place the tooltip. */
 	side = 'top',
+	/** The tooltip body content. */
 	children,
+	/** Additional CSS classes for the arrow element. */
 	arrowClasses,
+	/** Props forwarded to the portal wrapper. */
 	portalProps,
 	...restProps
 }: TooltipPrimitive.ContentProps & {

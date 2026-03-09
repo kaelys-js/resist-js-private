@@ -1,10 +1,18 @@
 <script lang="ts">
+/**
+ * Displays a circular user avatar with loading state tracking.
+ *
+ * Wraps the bits-ui Avatar primitive with consistent sizing and rounded styling.
+ */
 import { Avatar as AvatarPrimitive } from 'bits-ui';
 import { cn } from '../utils.js';
 
 let {
+	/** The underlying DOM element reference. */
 	ref = $bindable(null),
+	/** The image loading status (loading, loaded, or error). */
 	loadingStatus = $bindable('loading'),
+	/** Additional CSS classes to apply. */
 	class: className,
 	...restProps
 }: AvatarPrimitive.RootProps = $props();

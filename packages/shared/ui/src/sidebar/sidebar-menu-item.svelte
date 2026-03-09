@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Sidebar menu list item (`<li>`) wrapper that provides group context for menu buttons.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

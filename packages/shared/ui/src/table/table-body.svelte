@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Table body section (`<tbody>`) with last-row border removal.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

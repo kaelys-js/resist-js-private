@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Table header row group (`<thead>`) with bottom-bordered rows.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

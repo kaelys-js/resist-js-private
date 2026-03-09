@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Financial data card displaying a labeled value with optional trend badge and subtitle.
+ *
+ * Composes shadcn Card primitives in the dashboard-01 `section-cards` pattern.
+ */
 import type { Str } from '@/schemas/common';
 import { Badge } from '../badge/index.js';
 import * as Card from '../card/index.js';
@@ -20,15 +25,15 @@ import * as Card from '../card/index.js';
  * @property {Str} [valueClass] - Optional Tailwind class(es) applied to the Card.Title value (e.g. `text-destructive`).
  */
 type Props = {
-	/** Muted description text above the value (rendered via Card.Description). */
+	/** Muted description text above the value (rendered via Card.Description). @values Revenue, Expenses, Net Income */
 	label: Str;
-	/** Large bold display value (rendered via Card.Title). */
+	/** Large bold display value (rendered via Card.Title). @values $1,234.56, $5,678.90, -$900.00 */
 	value: Str;
-	/** Optional footer text below the card header. */
+	/** Optional footer text below the card header. @values +12.5% from last month, -3.2% from last month, No change */
 	subtitle?: Str;
 	/** Optional trend badge: "up" (green ↑), "down" (red ↓), or "neutral" (muted —). */
 	trend?: 'up' | 'down' | 'neutral';
-	/** Optional Tailwind class(es) applied to the Card.Title value (e.g. `text-destructive`). */
+	/** Optional Tailwind class(es) applied to the Card.Title value (e.g. `text-destructive`). @values text-destructive, text-green-500, text-primary */
 	valueClass?: Str;
 };
 

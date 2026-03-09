@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Individual list item within a breadcrumb trail.
+ *
+ * Wraps a breadcrumb link or page indicator as an inline flex `<li>` element.
+ */
 import type { HTMLLiAttributes } from 'svelte/elements';
 import { cn, type WithElementRef } from '../utils.js';
 

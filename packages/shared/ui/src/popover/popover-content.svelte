@@ -1,14 +1,22 @@
 <script lang="ts">
+/**
+ * Popover content panel rendered inside a portal with enter/exit animations.
+ */
 import { Popover as PopoverPrimitive } from 'bits-ui';
 import PopoverPortal from './popover-portal.svelte';
 import { cn, type WithoutChildrenOrChild } from '../utils.js';
 import type { ComponentProps } from 'svelte';
 
 let {
+	/** The underlying DOM element reference. */
 	ref = $bindable(null),
+	/** Additional CSS classes to apply. */
 	class: className,
+	/** Distance in pixels from the trigger edge. */
 	sideOffset = 4,
+	/** Horizontal alignment relative to the trigger. */
 	align = 'center',
+	/** Props forwarded to the portal wrapper. */
 	portalProps,
 	...restProps
 }: PopoverPrimitive.ContentProps & {

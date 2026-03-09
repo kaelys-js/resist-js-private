@@ -10,6 +10,7 @@
 		"bits-ui": "^2.16.2",
 		"clsx": "^2.1.1",
 		"paneforge": "^1.0.2",
+		"shiki": "^4.0.2",
 		"tailwind-merge": "^3.5.0",
 		"tailwind-variants": "^3.2.2",
 		"valibot": "^1.2.0"

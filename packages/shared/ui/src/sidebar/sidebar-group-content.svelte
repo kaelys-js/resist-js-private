@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Sidebar group content wrapper that contains the menu items within a group.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

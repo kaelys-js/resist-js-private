@@ -1,4 +1,9 @@
 <script lang="ts">
+/**
+ * Non-interactive section label within a dropdown menu, rendered as semibold small text.
+ *
+ * Use to visually group related menu items under a heading.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

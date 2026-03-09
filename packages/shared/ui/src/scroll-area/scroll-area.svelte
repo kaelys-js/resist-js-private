@@ -1,15 +1,25 @@
 <script lang="ts">
+/**
+ * Custom scrollbar container with styled vertical and/or horizontal scrollbar tracks.
+ */
 import { ScrollArea as ScrollAreaPrimitive } from 'bits-ui';
 import Scrollbar from './scroll-area-scrollbar.svelte';
 import { cn, type WithoutChild } from '../utils.js';
 
 let {
+	/** The underlying DOM element reference. */
 	ref = $bindable(null),
+	/** Reference to the scrollable viewport element. */
 	viewportRef = $bindable(null),
+	/** Additional CSS classes to apply. */
 	class: className,
+	/** Which scrollbar directions to show. */
 	orientation = 'vertical',
+	/** Additional CSS classes for the horizontal scrollbar. */
 	scrollbarXClasses = '',
+	/** Additional CSS classes for the vertical scrollbar. */
 	scrollbarYClasses = '',
+	/** The scrollable content. */
 	children,
 	...restProps
 }: WithoutChild<ScrollAreaPrimitive.RootProps> & {

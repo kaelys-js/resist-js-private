@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Table caption text displayed below the table in a muted style.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

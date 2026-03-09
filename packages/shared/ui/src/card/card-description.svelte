@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Muted subtitle or description text within a Card header.
+ */
 import type { HTMLAttributes } from 'svelte/elements';
 import { cn, type WithElementRef } from '../utils.js';
 

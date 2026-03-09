@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Top header bar with optional sidebar toggle, breadcrumb navigation, and right-side action slots.
+ */
 import type { Snippet } from 'svelte';
 import * as Breadcrumb from '../breadcrumb/index.js';
 import SidebarToggle from '../sidebar-toggle/SidebarToggle.svelte';
@@ -12,9 +15,9 @@ import type { Bool, Str } from '@/schemas/common';
 type SiteHeaderProps = {
 	/** Whether to show the sidebar toggle button. */
 	showSidebarToggle: Bool;
-	/** Sidebar toggle aria-label. */
+	/** Sidebar toggle aria-label. @values Toggle Sidebar, Show/Hide Sidebar, Sidebar */
 	sidebarToggleLabel: Str;
-	/** Sidebar toggle keyboard shortcut display string. */
+	/** Sidebar toggle keyboard shortcut display string. @values ⌘B, Ctrl+B, ⌘\\ */
 	sidebarToggleShortcut: Str;
 	/** Whether to show the breadcrumb bar. */
 	showBreadcrumb: Bool;

@@ -1,12 +1,15 @@
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { cleanup, render, screen, fireEvent } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import LanguageSwitcherTest from './LanguageSwitcherTest.svelte';
 
 describe('LanguageSwitcher', () => {
 	// bits-ui's BodyScrollLock schedules a 24ms setTimeout on destroy.
-	// Without fake timers, the callback fires after jsdom teardown → "document is not defined".
+	// testing-library's auto-cleanup runs AFTER afterEach (via beforeEach return),
+	// so the timer is scheduled after fake timers are already restored.
+	// Fix: explicit cleanup() first → schedules timer → runAllTimers flushes it.
 	beforeEach(() => vi.useFakeTimers());
 	afterEach(() => {
+		cleanup();
 		vi.runAllTimers();
 		vi.useRealTimers();
 	});

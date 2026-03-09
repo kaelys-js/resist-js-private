@@ -1,0 +1,440 @@
+/**
+ * Lint rules for the Lens automated component documentation system.
+ *
+ * Validates shared UI components follow Lens conventions:
+ * 1. `@values` on every `Str`/`Num` field in type definitions
+ * 2. No inline object types in Props (use named types)
+ * 3. JSDoc on every type definition field
+ * 4. Component description JSDoc on every `.svelte` file
+ * 5. No orphaned `Demo.svelte` files
+ */
+import { readdirSync, readFileSync } from 'node:fs';
+import { basename, dirname, join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import * as v from 'valibot';
+import { describe, expect, it } from 'vitest';
+import { LensMetaSchema } from './types.js';
+
+const LENS_DIR: string = dirname(fileURLToPath(import.meta.url));
+const UI_SRC: string = join(LENS_DIR, '..');
+
+/** All .svelte component files in the shared UI library (excludes examples/). */
+const svelteFiles: string[] = readdirSync(UI_SRC, { recursive: true })
+	.filter(
+		(f): f is string => typeof f === 'string' && f.endsWith('.svelte') && !f.includes('examples/'),
+	)
+	.map((f: string): string => join(UI_SRC, f));
+
+/** Props excluded from @values checks — CSS passthrough, never rendered in docs. */
+const SKIP_VALUES_FIELDS: ReadonlySet<string> = new Set(['class']);
+
+/**
+ * Short relative path for error messages.
+ *
+ * @param path - Absolute file path
+ * @returns Relative path from UI_SRC
+ */
+function rel(path: string): string {
+	return relative(UI_SRC, path);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Find matching closing brace for an opening brace.
+ *
+ * @param source - Full source code string
+ * @param openIdx - Index of the opening brace
+ * @returns Index of the matching closing brace, or -1
+ */
+function matchBrace(source: string, openIdx: number): number {
+	let depth: number = 0;
+	let inStr: string | null = null;
+
+	for (let i: number = openIdx; i < source.length; i++) {
+		const ch: string = source[i] ?? '';
+		const prev: string = source[i - 1] ?? '';
+
+		if (!inStr && (ch === '"' || ch === "'" || ch === '`')) {
+			inStr = ch;
+			continue;
+		}
+		if (inStr && ch === inStr && prev !== '\\') {
+			inStr = null;
+			continue;
+		}
+		if (inStr) continue;
+
+		if (ch === '{') depth++;
+		else if (ch === '}') {
+			depth--;
+			if (depth === 0) return i;
+		}
+	}
+
+	return -1;
+}
+
+/** A named type definition block extracted from source. */
+type TypeBlock = { name: string; body: string };
+
+/**
+ * Extract all `type X = { ... }` blocks (handles intersection types).
+ *
+ * @param source - Full source code string
+ * @returns Array of extracted type blocks
+ */
+function findTypeBlocks(source: string): TypeBlock[] {
+	const blocks: TypeBlock[] = [];
+	const regex: RegExp = /type\s+(\w+)\s*=/g;
+	let match: RegExpExecArray | null;
+
+	while ((match = regex.exec(source)) !== null) {
+		const name: string = match[1] ?? '';
+		const afterEq: number = (match.index ?? 0) + match[0].length;
+
+		// Find first top-level `{` (skip nested generics/parens)
+		let depth: number = 0;
+		let braceIdx: number = -1;
+		for (let i: number = afterEq; i < source.length; i++) {
+			const ch: string = source[i] ?? '';
+			if (ch === '<' || ch === '(') depth++;
+			else if (ch === '>' || ch === ')') depth--;
+			else if (ch === '{' && depth === 0) {
+				braceIdx = i;
+				break;
+			} else if (ch === ';' && depth === 0) break;
+		}
+
+		if (braceIdx === -1) continue;
+		const closeIdx: number = matchBrace(source, braceIdx);
+		if (closeIdx === -1) continue;
+		blocks.push({ name, body: source.slice(braceIdx + 1, closeIdx) });
+	}
+
+	return blocks;
+}
+
+/** Parsed field info from a type block. */
+type FieldInfo = { name: string; type: string; jsdoc: string };
+
+/**
+ * Parse top-level fields from a type block body.
+ *
+ * Returns each field's name, type, and the JSDoc text preceding it.
+ * Tracks brace depth to skip nested objects and multi-line function types.
+ *
+ * @param body - The inner content of a type block (between braces)
+ * @returns Array of parsed field info
+ */
+function parseFields(body: string): FieldInfo[] {
+	const fields: FieldInfo[] = [];
+	const lines: string[] = body.split('\n');
+	let pendingJSDoc: string = '';
+	let inJSDoc: boolean = false;
+	let jsdocBuf: string[] = [];
+	let skipDepth: number = 0;
+
+	for (const line of lines) {
+		const t: string = line.trim();
+		if (!t) continue;
+
+		// Skip nested blocks (inline objects, multi-line functions)
+		if (skipDepth > 0) {
+			for (const ch of t) {
+				if (ch === '{' || ch === '(') skipDepth++;
+				else if (ch === '}' || ch === ')') skipDepth--;
+			}
+			if (skipDepth <= 0) {
+				skipDepth = 0;
+				pendingJSDoc = '';
+			}
+			continue;
+		}
+
+		// Multi-line JSDoc open
+		if (t.startsWith('/**') && !t.endsWith('*/')) {
+			inJSDoc = true;
+			jsdocBuf = [];
+			const after: string = t.slice(3).trim();
+			if (after) jsdocBuf.push(after);
+			continue;
+		}
+
+		// Multi-line JSDoc body/close
+		if (inJSDoc) {
+			if (t.endsWith('*/')) {
+				const before: string = t
+					.slice(0, -2)
+					.replace(/^\*\s*/, '')
+					.trim();
+				if (before) jsdocBuf.push(before);
+				pendingJSDoc = jsdocBuf.filter(Boolean).join(' ');
+				inJSDoc = false;
+				jsdocBuf = [];
+			} else {
+				const content: string = t.replace(/^\*\s*/, '').trim();
+				if (content) jsdocBuf.push(content);
+			}
+			continue;
+		}
+
+		// Single-line JSDoc
+		const singleMatch: RegExpMatchArray | null = t.match(/^\/\*\*\s*(.*?)\s*\*\/$/);
+		if (singleMatch) {
+			pendingJSDoc = singleMatch[1] ?? '';
+			continue;
+		}
+
+		// Index signature — skip
+		if (t.startsWith('[')) {
+			pendingJSDoc = '';
+			continue;
+		}
+
+		// Field line: name?: Type;
+		const fieldMatch: RegExpMatchArray | null = t.match(/^(\w+)\??\s*:\s*(.+?)\s*[;,]?\s*$/);
+		if (fieldMatch) {
+			const fieldName: string = fieldMatch[1] ?? '';
+			const fieldType: string = (fieldMatch[2] ?? '').trim();
+
+			// Check for unbalanced braces/parens (multi-line type)
+			let bal: number = 0;
+			for (const ch of fieldType) {
+				if (ch === '{' || ch === '(') bal++;
+				else if (ch === '}' || ch === ')') bal--;
+			}
+			if (bal > 0) {
+				skipDepth = bal;
+				pendingJSDoc = '';
+				continue;
+			}
+
+			fields.push({ name: fieldName, type: fieldType, jsdoc: pendingJSDoc });
+			pendingJSDoc = '';
+			continue;
+		}
+
+		// Unmatched line — check for lone opening brace
+		let lineBal: number = 0;
+		for (const ch of t) {
+			if (ch === '{' || ch === '(') lineBal++;
+			else if (ch === '}' || ch === ')') lineBal--;
+		}
+		if (lineBal > 0) {
+			skipDepth = lineBal;
+		}
+		pendingJSDoc = '';
+	}
+
+	return fields;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Tests                                                              */
+/* ------------------------------------------------------------------ */
+
+describe('Lens lint', () => {
+	describe('Rule 1: @values required on Str/Num fields', () => {
+		const violations: string[] = [];
+
+		for (const file of svelteFiles) {
+			const source: string = readFileSync(file, 'utf8');
+			for (const block of findTypeBlocks(source)) {
+				for (const field of parseFields(block.body)) {
+					if (
+						(field.type === 'Str' || field.type === 'Num') &&
+						!field.jsdoc.includes('@values') &&
+						!SKIP_VALUES_FIELDS.has(field.name)
+					) {
+						violations.push(`${rel(file)} → ${block.name}.${field.name}`);
+					}
+				}
+			}
+		}
+
+		it('every Str/Num field has @values', () => {
+			expect(violations, `Missing @values:\n${violations.join('\n')}`).toHaveLength(0);
+		});
+	});
+
+	describe('Rule 2: No inline object types in Props', () => {
+		const violations: string[] = [];
+
+		for (const file of svelteFiles) {
+			const source: string = readFileSync(file, 'utf8');
+			for (const block of findTypeBlocks(source)) {
+				if (!block.name.endsWith('Props')) continue;
+
+				const lines: string[] = block.body.split('\n');
+				let skipDepth: number = 0;
+
+				for (const line of lines) {
+					const t: string = line.trim();
+					if (!t) continue;
+
+					if (skipDepth > 0) {
+						for (const ch of t) {
+							if (ch === '{' || ch === '(') skipDepth++;
+							else if (ch === '}' || ch === ')') skipDepth--;
+						}
+						continue;
+					}
+
+					const fieldMatch: RegExpMatchArray | null = t.match(/^(\w+)\??\s*:\s*\{/);
+					if (fieldMatch) {
+						violations.push(`${rel(file)} → ${block.name}.${fieldMatch[1]}`);
+						skipDepth = 1;
+					}
+				}
+			}
+		}
+
+		it('no Props types have inline object fields', () => {
+			expect(violations, `Inline objects in Props:\n${violations.join('\n')}`).toHaveLength(0);
+		});
+	});
+
+	describe('Rule 3: JSDoc required on type definition fields', () => {
+		const violations: string[] = [];
+
+		for (const file of svelteFiles) {
+			const source: string = readFileSync(file, 'utf8');
+			for (const block of findTypeBlocks(source)) {
+				for (const field of parseFields(block.body)) {
+					if (!field.jsdoc) {
+						violations.push(`${rel(file)} → ${block.name}.${field.name}`);
+					}
+				}
+			}
+		}
+
+		it('every field in type definitions has JSDoc', () => {
+			expect(violations, `Missing JSDoc:\n${violations.join('\n')}`).toHaveLength(0);
+		});
+	});
+
+	describe('Rule 4: Component description required', () => {
+		const violations: string[] = [];
+
+		for (const file of svelteFiles) {
+			const source: string = readFileSync(file, 'utf8');
+
+			// Only enforce on components that define their own type blocks
+			// (shadcn sub-component wrappers with no type defs are excluded)
+			if (findTypeBlocks(source).length === 0) continue;
+
+			// Find instance <script lang="ts"> (not module)
+			const scriptMatch: RegExpMatchArray | null = source.match(
+				/<script\s+lang=["']ts["']>([\s\S]*?)<\/script>/,
+			);
+			if (!scriptMatch) continue;
+			const content: string = scriptMatch[1] ?? '';
+			// Check for a JSDoc block anywhere in the script (may appear after imports)
+			if (!/\/\*\*[\s\S]*?\*\//.test(content)) {
+				violations.push(rel(file));
+			}
+		}
+
+		it('components with type definitions have a description JSDoc', () => {
+			expect(violations, `Missing description:\n${violations.join('\n')}`).toHaveLength(0);
+		});
+	});
+
+	describe('Rule 5: No orphaned Demo.svelte files', () => {
+		it('no Demo.svelte files exist', () => {
+			const demoFiles: string[] = readdirSync(UI_SRC, { recursive: true }).filter(
+				(f): f is string => typeof f === 'string' && basename(f) === 'Demo.svelte',
+			);
+			expect(demoFiles, `Orphaned Demo.svelte:\n${demoFiles.join('\n')}`).toHaveLength(0);
+		});
+	});
+
+	describe('Rule 6: Every component directory needs valid lens.ts', () => {
+		/** Directories that are infrastructure, not components — no lens.ts needed. */
+		const SKIP_DIRS: ReadonlySet<string> = new Set(['hooks', 'lens']);
+
+		/** All component directories with .svelte files. */
+		const componentDirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+			.filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
+			.filter((d) => readdirSync(join(UI_SRC, d.name)).some((f: string) => f.endsWith('.svelte')))
+			.map((d) => d.name);
+
+		it('every component directory has a lens.ts file', () => {
+			const missing: string[] = componentDirs.filter(
+				(dir: string): boolean => !readdirSync(join(UI_SRC, dir)).includes('lens.ts'),
+			);
+			expect(missing, `Missing lens.ts:\n${missing.join('\n')}`).toHaveLength(0);
+		});
+
+		it('every lens.ts exports a valid meta matching LensMetaSchema', () => {
+			const invalid: string[] = [];
+
+			for (const dir of componentDirs) {
+				const lensPath: string = join(UI_SRC, dir, 'lens.ts');
+				const files: string[] = readdirSync(join(UI_SRC, dir));
+				if (!files.includes('lens.ts')) continue;
+
+				const source: string = readFileSync(lensPath, 'utf8');
+
+				// Verify `export const meta` exists
+				if (!/export\s+const\s+meta\s*[=:]/.test(source)) {
+					invalid.push(`${dir}/lens.ts — missing \`export const meta\``);
+					continue;
+				}
+
+				// Verify the meta type annotation references LensMeta
+				if (!source.includes('LensMeta')) {
+					invalid.push(`${dir}/lens.ts — meta not typed as LensMeta`);
+					continue;
+				}
+
+				// Parse individual fields from the meta literal via regex
+				const catMatch: RegExpMatchArray | null = source.match(/category:\s*'([^']+)'/);
+				if (!catMatch) {
+					invalid.push(`${dir}/lens.ts — missing or unparseable category field`);
+					continue;
+				}
+
+				const tagsMatch: RegExpMatchArray | null = source.match(/tags:\s*\[(.*?)\]/s);
+				if (!tagsMatch) {
+					invalid.push(`${dir}/lens.ts — missing tags field`);
+					continue;
+				}
+
+				const descMatch: RegExpMatchArray | null = source.match(/description:\s*'([^']*)'/);
+				if (!descMatch) {
+					invalid.push(`${dir}/lens.ts — missing description field`);
+					continue;
+				}
+
+				// Build object from parsed fields and validate against schema
+				const tagStrings: string[] = (tagsMatch[1] ?? '')
+					.split(',')
+					.map((t: string): string => t.trim().replaceAll(/^'|'$/g, ''))
+					.filter((t: string): boolean => t.length > 0);
+
+				const metaObj: unknown = {
+					category: catMatch[1],
+					tags: tagStrings,
+					description: descMatch[1] ?? '',
+				};
+
+				const result: v.SafeParseResult<typeof LensMetaSchema> = v.safeParse(
+					LensMetaSchema,
+					metaObj,
+				);
+				if (!result.success) {
+					const issues: string = result.issues
+						.map((i: v.BaseIssue<unknown>): string => i.message)
+						.join(', ');
+					invalid.push(`${dir}/lens.ts — schema validation failed: ${issues}`);
+				}
+			}
+
+			expect(invalid, `Invalid lens.ts:\n${invalid.join('\n')}`).toHaveLength(0);
+		});
+	});
+});

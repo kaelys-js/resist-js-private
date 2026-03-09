@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Sidebar toggle trigger button that expands or collapses the sidebar on click.
+ */
 import { Button } from '../button/index.js';
 import { cn } from '../utils.js';
 import PanelLeftIcon from '@lucide/svelte/icons/panel-left';

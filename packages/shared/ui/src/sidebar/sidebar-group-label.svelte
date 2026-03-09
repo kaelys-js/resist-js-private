@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Sidebar group heading label that collapses with the sidebar in icon mode.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { Snippet } from 'svelte';
 import type { HTMLAttributes } from 'svelte/elements';

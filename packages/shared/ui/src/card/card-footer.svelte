@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Footer area of a Card for action buttons or supplementary content.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

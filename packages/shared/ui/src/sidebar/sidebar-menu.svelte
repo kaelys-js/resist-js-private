@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Sidebar menu list (`<ul>`) that vertically stacks menu items with consistent gap spacing.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

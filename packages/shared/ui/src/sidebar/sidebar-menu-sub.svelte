@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Nested sidebar submenu list indented with a left border, hidden when collapsed to icon mode.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Sheet footer area pinned to the bottom of the panel for action buttons.
+ */
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAttributes } from 'svelte/elements';
 

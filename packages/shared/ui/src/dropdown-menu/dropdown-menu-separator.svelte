@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * A horizontal divider line used to visually separate sections within a dropdown menu.
+ */
 import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 import { cn } from '../utils.js';
 

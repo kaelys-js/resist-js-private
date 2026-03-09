@@ -1,4 +1,7 @@
 <script lang="ts">
+/**
+ * Sidebar bottom section for persistent footer content like user menus.
+ */
 import type { HTMLAttributes } from 'svelte/elements';
 import { cn, type WithElementRef } from '../utils.js';
 
