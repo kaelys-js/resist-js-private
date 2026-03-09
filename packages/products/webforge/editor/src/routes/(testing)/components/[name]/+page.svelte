@@ -58,6 +58,15 @@ const exampleLiveModules: Record<Str, () => Promise<unknown>> = import.meta.glob
 );
 
 /**
+ * Raw .ts sources for cross-file type resolution (e.g. imported types).
+ * Eager for the same Vite 7 MIME type reason as `rawSources`.
+ */
+const rawTsSources: Record<Str, Str> = import.meta.glob(
+	'@/ui/*/*.ts',
+	{ query: '?raw', import: 'default', eager: true },
+) as Record<Str, Str>;
+
+/**
  * Raw example sources for code display.
  *
  * Eager for the same Vite 7 + Svelte MIME type reason as `rawSources`.
@@ -118,7 +127,10 @@ $effect(() => {
 
 			const srcStr: Str = rawSources[sourceKey] ?? '';
 			rawSource = srcStr;
-			props = extractProps(srcStr);
+
+			// Pass all .ts sources for cross-file type resolution (e.g. imported types)
+			const tsSources: Str[] = Object.values(rawTsSources);
+			props = extractProps(srcStr, tsSources.length > 0 ? tsSources : undefined);
 			variantMeta = extractVariants(srcStr);
 			componentDescription = extractDescription(srcStr);
 

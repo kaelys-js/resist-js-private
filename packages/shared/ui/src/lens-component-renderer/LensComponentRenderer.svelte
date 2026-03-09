@@ -35,8 +35,13 @@ import ExternalLink from '@lucide/svelte/icons/external-link';
 import Eye from '@lucide/svelte/icons/eye';
 import Grid3x3 from '@lucide/svelte/icons/grid-3x3';
 import Maximize from '@lucide/svelte/icons/maximize';
+import Monitor from '@lucide/svelte/icons/monitor';
+import Moon from '@lucide/svelte/icons/moon';
 import Paintbrush from '@lucide/svelte/icons/paintbrush';
+import Palette from '@lucide/svelte/icons/palette';
 import Search from '@lucide/svelte/icons/search';
+import Smartphone from '@lucide/svelte/icons/smartphone';
+import Sun from '@lucide/svelte/icons/sun';
 import SquareDashedMousePointer from '@lucide/svelte/icons/square-dashed-mouse-pointer';
 import ZoomIn from '@lucide/svelte/icons/zoom-in';
 import ZoomOut from '@lucide/svelte/icons/zoom-out';
@@ -44,6 +49,7 @@ import * as DropdownMenu from '../dropdown-menu/index.js';
 import * as Tooltip from '../tooltip/index.js';
 import { slide } from 'svelte/transition';
 import { cn } from '../utils.js';
+import LensPortalScope from './LensPortalScope.svelte';
 
 type LensComponentRendererProps = {
 	/** The Svelte component to render. */
@@ -103,6 +109,36 @@ let cardGrids: Record<Str, Str> = $state({});
 
 /** Per-card grid size in pixels keyed by card identifier. */
 let cardGridSizes: Record<Str, Num> = $state({});
+
+/** Per-card orientation keyed by card identifier ('default' = no rotation). */
+let cardOrientations: Record<Str, Str> = $state({});
+
+/** Per-card color mode keyed by card identifier ('auto' = inherit from page). */
+let cardModes: Record<Str, Str> = $state({});
+
+/** Per-card theme keyed by card identifier ('' = inherit from page). */
+let cardThemes: Record<Str, Str> = $state({});
+
+/**
+ * Tracks whether the page is in dark mode (html has `.dark` class).
+ * Used to mirror the page mode on per-card preview divs when mode is "auto"
+ * so that CSS selectors like `[data-theme='X'].dark` match correctly.
+ */
+let pageIsDark: Bool = $state(false);
+
+$effect(() => {
+	const html: HTMLElement = document.documentElement;
+	pageIsDark = html.classList.contains('dark');
+
+	const observer: MutationObserver = new MutationObserver((): Void => {
+		pageIsDark = html.classList.contains('dark');
+	});
+	observer.observe(html, { attributes: true, attributeFilter: ['class'] });
+
+	return (): Void => {
+		observer.disconnect();
+	};
+});
 
 /** Search query for filtering accessibility simulation items. */
 let simSearchQuery: Str = $state('');
@@ -180,6 +216,46 @@ const GRID_PRESETS: Array<{ id: Str; label: Str; color: Str }> = [
 	{ id: 'red', label: 'Red', color: 'rgba(239, 68, 68, 0.15)' },
 	{ id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.2)' },
 	{ id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.2)' },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Orientation presets                                                */
+/* ------------------------------------------------------------------ */
+
+const ORIENTATION_PRESETS: Array<{ id: Str; label: Str; rotation: Num }> = [
+	{ id: 'portrait-primary', label: 'Portrait Primary (0°)', rotation: 0 },
+	{ id: 'portrait-secondary', label: 'Portrait Secondary (180°)', rotation: 180 },
+	{ id: 'landscape-primary', label: 'Landscape Primary (90°)', rotation: 90 },
+	{ id: 'landscape-secondary', label: 'Landscape Secondary (270°)', rotation: 270 },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Color mode presets                                                 */
+/* ------------------------------------------------------------------ */
+
+const MODE_PRESETS: Array<{ id: Str; label: Str; icon: Component }> = [
+	{ id: 'auto', label: 'Auto (inherit)', icon: Monitor },
+	{ id: 'light', label: 'Light', icon: Sun },
+	{ id: 'dark', label: 'Dark', icon: Moon },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Theme presets                                                      */
+/* ------------------------------------------------------------------ */
+
+const THEME_PRESETS: Array<{ id: Str; label: Str; dot: Str }> = [
+	{ id: '', label: 'Default (inherit)', dot: '' },
+	{ id: 'midnight', label: 'Midnight', dot: 'oklch(0.55 0.22 260)' },
+	{ id: 'warm', label: 'Warm', dot: 'oklch(0.50 0.16 50)' },
+	{ id: 'forest', label: 'Forest', dot: 'oklch(0.50 0.16 155)' },
+	{ id: 'ocean', label: 'Ocean', dot: 'oklch(0.52 0.15 200)' },
+	{ id: 'rose', label: 'Rose', dot: 'oklch(0.55 0.18 350)' },
+	{ id: 'lavender', label: 'Lavender', dot: 'oklch(0.52 0.20 290)' },
+	{ id: 'sunset', label: 'Sunset', dot: 'oklch(0.55 0.20 30)' },
+	{ id: 'slate', label: 'Slate', dot: 'oklch(0.48 0.08 240)' },
+	{ id: 'copper', label: 'Copper', dot: 'oklch(0.52 0.16 60)' },
+	{ id: 'aurora', label: 'Aurora', dot: 'oklch(0.52 0.15 170)' },
+	{ id: 'amethyst', label: 'Amethyst', dot: 'oklch(0.52 0.22 310)' },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -380,6 +456,50 @@ function getGridStyle(key: Str): Str {
 }
 
 /**
+ * Set orientation for a card.
+ *
+ * @param key - Card key
+ * @param orientationId - Orientation preset ID or 'default'
+ */
+function setOrientation(key: Str, orientationId: Str): Void {
+	cardOrientations[key] = orientationId;
+}
+
+/**
+ * Get the CSS transform style for a card's orientation rotation.
+ *
+ * @param key - Card key
+ * @returns CSS style string or empty
+ */
+function getOrientationStyle(key: Str): Str {
+	const id: Str = cardOrientations[key] ?? 'default';
+	if (id === 'default') return '';
+	const preset = ORIENTATION_PRESETS.find((p) => p.id === id);
+	if (!preset || preset.rotation === 0) return '';
+	return `transform: rotate(${preset.rotation}deg)`;
+}
+
+/**
+ * Set color mode for a card.
+ *
+ * @param key - Card key
+ * @param modeId - Color mode: 'auto', 'light', or 'dark'
+ */
+function setCardMode(key: Str, modeId: Str): Void {
+	cardModes[key] = modeId;
+}
+
+/**
+ * Set theme for a card.
+ *
+ * @param key - Card key
+ * @param themeId - Theme ID or '' for default (inherit)
+ */
+function setCardTheme(key: Str, themeId: Str): Void {
+	cardThemes[key] = themeId;
+}
+
+/**
  * Open component in isolation in a new tab.
  *
  * @param variantKey - Optional variant prop name
@@ -534,6 +654,9 @@ function isIconOption(option: Str): boolean {
 	{@const activeZoom: Num = cardZoom[cardKey] ?? 1}
 	{@const activeOutline: Str = cardOutlines[cardKey] ?? 'none'}
 	{@const activeGrid: Str = cardGrids[cardKey] ?? 'none'}
+	{@const activeOrientation: Str = cardOrientations[cardKey] ?? 'default'}
+	{@const activeMode: Str = cardModes[cardKey] ?? 'auto'}
+	{@const activeTheme: Str = cardThemes[cardKey] ?? ''}
 	<div class="overflow-hidden rounded-md border bg-background">
 		<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
 			<div class="flex items-center gap-1.5">
@@ -553,12 +676,27 @@ function isIconOption(option: Str): boolean {
 						grid
 					</span>
 				{/if}
+				{#if activeOrientation !== 'default'}
+					<span class="rounded-full bg-orange-500/10 px-1.5 py-0.5 text-[9px] font-medium text-orange-600 dark:text-orange-400">
+						{activeOrientation.replace('-', ' ')}
+					</span>
+				{/if}
+				{#if activeMode !== 'auto'}
+					<span class="rounded-full bg-violet-500/10 px-1.5 py-0.5 text-[9px] font-medium text-violet-600 dark:text-violet-400">
+						{activeMode}
+					</span>
+				{/if}
+				{#if activeTheme}
+					<span class="rounded-full bg-pink-500/10 px-1.5 py-0.5 text-[9px] font-medium text-pink-600 dark:text-pink-400">
+						{activeTheme}
+					</span>
+				{/if}
 			</div>
 			<div class="flex items-center gap-0.5">
 				{@render toolbarButton(ZoomOut, 'Zoom out', () => zoomOut(cardKey), activeZoom <= ZOOM_MIN)}
 				{@render toolbarButton(ZoomIn, 'Zoom in', () => zoomIn(cardKey), activeZoom >= ZOOM_MAX)}
 				{@render toolbarButton(Maximize, 'Fit (100%)', () => zoomFit(cardKey), activeZoom === 1)}
-				{#if tagName}
+				{#if tagName || codeText}
 					<Tooltip.Provider>
 						<Tooltip.Root delayDuration={300}>
 							<Tooltip.Trigger>
@@ -583,7 +721,7 @@ function isIconOption(option: Str): boolean {
 							</Tooltip.Content>
 						</Tooltip.Root>
 					</Tooltip.Provider>
-					<CopyButton text={snippet} label="Copy code" class="size-5 [&_svg]:size-2.5" />
+					<CopyButton text={codeText ?? snippet} label="Copy code" class="size-5 [&_svg]:size-2.5" />
 				{/if}
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger
@@ -756,6 +894,84 @@ function isIconOption(option: Str): boolean {
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
 
+						<!-- Orientation submenu -->
+						<DropdownMenu.Sub>
+							<DropdownMenu.SubTrigger>
+								<Smartphone class="size-4" />
+								Orientation
+							</DropdownMenu.SubTrigger>
+							<DropdownMenu.SubContent class="w-64">
+								<DropdownMenu.Item onclick={() => setOrientation(cardKey, 'default')}>
+									<Check class={cn('size-4 shrink-0', activeOrientation !== 'default' && 'opacity-0')} />
+									Default (none)
+								</DropdownMenu.Item>
+								<DropdownMenu.Separator />
+								{#each ORIENTATION_PRESETS as preset (preset.id)}
+									<DropdownMenu.Item onclick={() => setOrientation(cardKey, preset.id)}>
+										<div class="flex items-center gap-2">
+											<Check class={cn('size-4 shrink-0', activeOrientation !== preset.id && 'opacity-0')} />
+											<span
+												class="relative inline-flex items-center justify-center"
+												style="width: 16px; height: 16px;"
+											>
+												<span
+													class="rounded-[2px] border border-current"
+													style="width: 8px; height: 14px; transform: rotate({preset.rotation}deg);"
+												>
+													<span
+														class="absolute rounded-full bg-current"
+														style="width: 3px; height: 3px; bottom: 1px; left: 50%; transform: translateX(-50%);"
+													></span>
+												</span>
+											</span>
+											{preset.label}
+										</div>
+									</DropdownMenu.Item>
+								{/each}
+							</DropdownMenu.SubContent>
+						</DropdownMenu.Sub>
+
+						<!-- Color Mode submenu -->
+						<DropdownMenu.Sub>
+							<DropdownMenu.SubTrigger>
+								<Sun class="size-4" />
+								Color Mode
+							</DropdownMenu.SubTrigger>
+							<DropdownMenu.SubContent class="w-52">
+								{#each MODE_PRESETS as preset (preset.id)}
+									<DropdownMenu.Item onclick={() => setCardMode(cardKey, preset.id)}>
+										<Check class={cn('size-4 shrink-0', activeMode !== preset.id && 'opacity-0')} />
+										<preset.icon class="size-4" />
+										{preset.label}
+									</DropdownMenu.Item>
+								{/each}
+							</DropdownMenu.SubContent>
+						</DropdownMenu.Sub>
+
+						<!-- Theme submenu -->
+						<DropdownMenu.Sub>
+							<DropdownMenu.SubTrigger>
+								<Palette class="size-4" />
+								Theme
+							</DropdownMenu.SubTrigger>
+							<DropdownMenu.SubContent class="w-52">
+								{#each THEME_PRESETS as preset (preset.id)}
+									<DropdownMenu.Item onclick={() => setCardTheme(cardKey, preset.id)}>
+										<div class="flex items-center gap-2">
+											<Check class={cn('size-4 shrink-0', activeTheme !== preset.id && 'opacity-0')} />
+											{#if preset.dot}
+												<span
+													class="inline-block size-3.5 shrink-0 rounded-full shadow-sm ring-1 ring-black/10"
+													style="background-color: {preset.dot}"
+												></span>
+											{/if}
+											{preset.label}
+										</div>
+									</DropdownMenu.Item>
+								{/each}
+							</DropdownMenu.SubContent>
+						</DropdownMenu.Sub>
+
 						<DropdownMenu.Separator />
 
 						<!-- Accessibility submenu -->
@@ -814,8 +1030,16 @@ function isIconOption(option: Str): boolean {
 			</div>
 		</div>
 		<div
-			class="relative flex w-full items-center justify-center overflow-auto p-4"
-			style={getBackgroundStyle(cardKey)}
+			class={cn(
+				'relative flex w-full items-center justify-center overflow-auto p-4',
+				activeMode === 'dark' && 'dark bg-background text-foreground',
+				activeMode === 'light' && 'lens-force-light bg-background text-foreground',
+				activeMode === 'auto' && activeTheme && pageIsDark && 'dark',
+				activeMode === 'auto' && activeTheme && !pageIsDark && 'lens-force-light',
+				activeTheme && 'bg-background text-foreground',
+			)}
+			style={[getBackgroundStyle(cardKey), activeMode === 'light' ? 'color-scheme: light' : '', activeMode === 'dark' ? 'color-scheme: dark' : '', activeMode === 'auto' && activeTheme && !pageIsDark ? 'color-scheme: light' : '', activeMode === 'auto' && activeTheme && pageIsDark ? 'color-scheme: dark' : ''].filter(Boolean).join('; ')}
+			data-theme={activeTheme || undefined}
 		>
 			{#if hasColorMatrixSim(cardKey)}
 				<svg class="absolute size-0 overflow-hidden" aria-hidden="true">
@@ -826,34 +1050,36 @@ function isIconOption(option: Str): boolean {
 					</defs>
 				</svg>
 			{/if}
-			<div
-				class={cn(activeOutline !== 'none' && 'lens-outline')}
-				style={[getSimulationFilter(cardKey), getZoomStyle(cardKey), activeOutline !== 'none' ? `--lens-outline-color: ${getOutlineColor(cardKey)}` : ''].filter(Boolean).join('; ')}
-			>
-				{#if children}
-					{@render children()}
-				{:else}
-					<Target {...baseProps} {...extraProps}>
-						{#if useIcon}
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-							>
-								<circle cx="12" cy="12" r="10"></circle>
-							</svg>
-						{:else}
-							{label}
-						{/if}
-					</Target>
-				{/if}
-			</div>
+			<LensPortalScope mode={activeMode} theme={activeTheme} {pageIsDark}>
+				<div
+					class={cn(activeOutline !== 'none' && 'lens-outline')}
+					style={[getSimulationFilter(cardKey), getZoomStyle(cardKey), getOrientationStyle(cardKey), activeOutline !== 'none' ? `--lens-outline-color: ${getOutlineColor(cardKey)}` : ''].filter(Boolean).join('; ')}
+				>
+					{#if children}
+						{@render children()}
+					{:else}
+						<Target {...baseProps} {...extraProps}>
+							{#if useIcon}
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<circle cx="12" cy="12" r="10"></circle>
+								</svg>
+							{:else}
+								{label}
+							{/if}
+						</Target>
+					{/if}
+				</div>
+			</LensPortalScope>
 			{#if hasTunnelVision(cardKey)}
 				<div
 					class="pointer-events-none absolute inset-0"
@@ -927,5 +1153,36 @@ function isIconOption(option: Str): boolean {
 <style>
 	:global(.lens-outline *) {
 		outline: 1px solid var(--lens-outline-color, rgba(239, 68, 68, 0.25));
+	}
+
+	/* Force light mode variables on a card preview, overriding .dark ancestor cascade. */
+	:global(.lens-force-light) {
+		--background: oklch(1 0 0);
+		--foreground: oklch(0.145 0 0);
+		--card: oklch(1 0 0);
+		--card-foreground: oklch(0.145 0 0);
+		--popover: oklch(1 0 0);
+		--popover-foreground: oklch(0.145 0 0);
+		--primary: oklch(0.205 0 0);
+		--primary-foreground: oklch(0.985 0 0);
+		--secondary: oklch(0.965 0 0);
+		--secondary-foreground: oklch(0.205 0 0);
+		--muted: oklch(0.965 0 0);
+		--muted-foreground: oklch(0.556 0 0);
+		--accent: oklch(0.965 0 0);
+		--accent-foreground: oklch(0.205 0 0);
+		--destructive: oklch(0.577 0.245 27.325);
+		--destructive-foreground: oklch(0.577 0.245 27.325);
+		--border: oklch(0.922 0 0);
+		--input: oklch(0.922 0 0);
+		--ring: oklch(0.556 0 0);
+		--sidebar: oklch(0.985 0 0);
+		--sidebar-foreground: oklch(0.145 0 0);
+		--sidebar-primary: oklch(0.205 0 0);
+		--sidebar-primary-foreground: oklch(0.985 0 0);
+		--sidebar-accent: oklch(0.965 0 0);
+		--sidebar-accent-foreground: oklch(0.205 0 0);
+		--sidebar-border: oklch(0.922 0 0);
+		--sidebar-ring: oklch(0.556 0 0);
 	}
 </style>

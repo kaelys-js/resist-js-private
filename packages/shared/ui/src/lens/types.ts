@@ -7,6 +7,22 @@
 import * as v from 'valibot';
 
 /**
+ * A single field within a resolved type definition, for display in tooltips.
+ *
+ * Used when a prop type resolves to an object schema — each field gets its own
+ * row in a mini-table inside the type tooltip.
+ */
+export const TypeFieldSchema = v.strictObject({
+	/** The field name (e.g., `category`, `tags`). */
+	field: v.string(),
+	/** Human-readable description of accepted values (e.g., "text", "display, form, layout, ..."). */
+	accepts: v.string(),
+	/** JSDoc description from the schema field comment. */
+	description: v.string(),
+});
+export type TypeField = v.InferOutput<typeof TypeFieldSchema>;
+
+/**
  * Metadata for a single component prop, extracted from a `$props()` block.
  *
  * @example
@@ -33,6 +49,8 @@ export const PropMetaSchema = v.strictObject({
 	bindable: v.boolean(),
 	/** Full resolved type definition body, if available (e.g. the actual union values). */
 	typeDefinition: v.optional(v.string()),
+	/** Structured type fields for tooltip display, if the type resolves to an object schema. */
+	typeFields: v.optional(v.array(TypeFieldSchema)),
 	/** Explicit mock values from `@values` JSDoc tag for variant generation. */
 	mockValues: v.optional(v.array(v.string())),
 });

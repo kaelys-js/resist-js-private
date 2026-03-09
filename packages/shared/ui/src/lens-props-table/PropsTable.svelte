@@ -185,15 +185,37 @@ function explainType(type: Str): Str {
 													</button>
 												{/snippet}
 											</Tooltip.Trigger>
-											<Tooltip.Content side="top" sideOffset={4} class="max-w-96">
-												<div class="space-y-1.5">
-													<code class="block rounded bg-primary-foreground/15 px-1.5 py-0.5 font-mono text-[11px]">{prop.type}</code>
-													{#if prop.typeDefinition}
-														<code class="block whitespace-pre-wrap rounded bg-primary-foreground/10 px-1.5 py-1 font-mono text-[10px] leading-relaxed">{prop.typeDefinition}</code>
-													{:else}
-														<p class="text-xs leading-relaxed">{explainType(prop.type)}</p>
-													{/if}
-												</div>
+											<Tooltip.Content side="top" sideOffset={4} class="max-w-[28rem] overflow-hidden rounded-lg border border-border bg-popover p-0 shadow-lg">
+												{#if prop.typeFields && prop.typeFields.length > 0}
+													<div>
+														<div class="border-b border-border/50 bg-muted/40 px-3 py-1.5">
+															<code class="font-mono text-[11px] font-semibold text-popover-foreground">{prop.type}</code>
+														</div>
+														<table class="w-full text-[11px]">
+															<thead>
+																<tr class="border-b border-border/40">
+																	<th class="px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Field</th>
+																	<th class="px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Accepts</th>
+																	<th class="px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Description</th>
+																</tr>
+															</thead>
+															<tbody>
+																{#each prop.typeFields as tf (tf.field)}
+																	<tr class="border-b border-border/20 last:border-b-0">
+																		<td class="px-3 py-1.5 font-mono text-[11px] font-semibold text-popover-foreground">{tf.field}</td>
+																		<td class="px-3 py-1.5 text-[11px] text-popover-foreground/70">{tf.accepts}</td>
+																		<td class="max-w-40 px-3 py-1.5 text-[11px] text-popover-foreground/60">{tf.description || '—'}</td>
+																	</tr>
+																{/each}
+															</tbody>
+														</table>
+													</div>
+												{:else}
+													<div class="space-y-1.5 p-3">
+														<code class="block rounded bg-muted/50 px-1.5 py-0.5 font-mono text-[11px] text-popover-foreground">{prop.type}</code>
+														<p class="text-xs leading-relaxed text-popover-foreground/70">{explainType(prop.type)}</p>
+													</div>
+												{/if}
 											</Tooltip.Content>
 										</Tooltip.Root>
 									</Tooltip.Provider>
