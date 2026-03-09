@@ -263,5 +263,6 @@ export const ja: EditorLocaleRaw = {
 		copied: 'コピーしました！',
 		copyFailed: 'コピーに失敗しました',
 		copyErrorId: 'エラーIDをクリップボードにコピー',
+		clickToCopy: 'クリックしてコピー',
 	},
 };

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { Num, NullableStr, Str } from '@/schemas/common';
-import { URL_PARAM_PREFIX } from '$lib/config/app-meta';
+import { URL_PARAM_PREFIX, storageKey } from '$lib/config/app-meta';
 import { createDebugStore, initDebugStore, useDebugStore, STORAGE_KEY } from './debug-state.svelte';
 
 // Mock localStorage
@@ -33,7 +33,7 @@ beforeEach(() => {
 
 describe('STORAGE_KEY', () => {
 	it('uses storageKey helper with debug-state suffix', () => {
-		expect(STORAGE_KEY).toBe('storylyne:debug-state');
+		expect(STORAGE_KEY).toBe(storageKey('debug-state'));
 		expect(STORAGE_KEY).toContain(':debug-state');
 	});
 });

@@ -262,5 +262,6 @@ export const ko: EditorLocaleRaw = {
 		copied: '복사됨!',
 		copyFailed: '복사 실패',
 		copyErrorId: '오류 ID를 클립보드에 복사',
+		clickToCopy: '클릭하여 복사',
 	},
 };

@@ -10,12 +10,12 @@ import { Button } from '@/ui/button/index.js';
  * A generic add/edit dialog wrapping shadcn Dialog with a form.
  * The `children` snippet is rendered inside the form for custom field content.
  *
- * @property open - Bindable boolean controlling dialog visibility.
- * @property title - Dialog header title text.
- * @property description - Optional description shown below the title.
- * @property children - Snippet rendered inside the form body for custom fields.
- * @property onSave - Callback invoked when the form is submitted.
- * @property saveLabel - Optional label for the save button (defaults to "Save").
+ * @property {Bool} open - Bindable boolean controlling dialog visibility.
+ * @property {Str} title - Dialog header title text.
+ * @property {Str} [description] - Optional description shown below the title.
+ * @property {Snippet} children - Snippet rendered inside the form body for custom fields.
+ * @property {() => void} onSave - Callback invoked when the form is submitted.
+ * @property {Str} [saveLabel] - Optional label for the save button (defaults to "Save").
  */
 type Props = {
 	open: Bool;

@@ -51,7 +51,7 @@ export const load: LayoutServerLoad = ({ locals, url }) => {
 	// need a snapshot of the search params at load time.
 	const emptyScenes: Bool = url.searchParams.get(`${URL_PARAM_PREFIX}scenes`) === 'empty';
 
-	// Stream project — page renders immediately with NavUserSkeleton.
+	// Stream project — page renders immediately with NavProjectSkeleton.
 	// Async IIFE avoids .then() chains (prefer-await-to-then lint rule).
 	const projectPromise: Promise<ServerProject | null> = (async () => {
 		const result = await locals.db.projects.getByOwner(user.id);

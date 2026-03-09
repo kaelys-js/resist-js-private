@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { storageKey } from '../src/lib/config/app-meta';
 
 // =============================================================================
 // Hydration flash prevention — sidebar width cookie
@@ -12,7 +13,7 @@ test.describe('hydration flash — sidebar width', () => {
 		// Set the preference cookie before navigating
 		await context.addCookies([
 			{
-				name: 'finances:sidebar-px',
+				name: storageKey('sidebar-px'),
 				value: '350',
 				domain: '127.0.0.1',
 				path: '/',
@@ -38,7 +39,7 @@ test.describe('hydration flash — sidebar width', () => {
 		// Set an invalid cookie value (non-numeric / XSS attempt)
 		await context.addCookies([
 			{
-				name: 'finances:sidebar-px',
+				name: storageKey('sidebar-px'),
 				value: '"><script>alert(1)</script>',
 				domain: '127.0.0.1',
 				path: '/',
@@ -59,7 +60,7 @@ test.describe('hydration flash — sidebar width', () => {
 		// 50 is below minimum (100)
 		await context.addCookies([
 			{
-				name: 'finances:sidebar-px',
+				name: storageKey('sidebar-px'),
 				value: '50',
 				domain: '127.0.0.1',
 				path: '/',
@@ -85,7 +86,7 @@ test.describe('hydration flash — theme', () => {
 		// Set the preference cookie before the request
 		await context.addCookies([
 			{
-				name: 'finances:theme',
+				name: storageKey('theme'),
 				value: 'midnight',
 				domain: '127.0.0.1',
 				path: '/',
@@ -99,7 +100,7 @@ test.describe('hydration flash — theme', () => {
 		// The cookie-based injection is what prevents the visual flash on first paint.
 		const response = await request.get('/', {
 			headers: {
-				cookie: 'finances:theme=midnight',
+				cookie: `${storageKey('theme')}=midnight`,
 			},
 		});
 		const body = await response.text();
@@ -120,7 +121,7 @@ test.describe('hydration flash — theme', () => {
 		// 'neon' is not a supported theme
 		const response = await request.get('/', {
 			headers: {
-				cookie: 'finances:theme=neon',
+				cookie: `${storageKey('theme')}=neon`,
 			},
 		});
 		const body = await response.text();
@@ -132,7 +133,7 @@ test.describe('hydration flash — theme', () => {
 	test('XSS theme cookie value is sanitized', async ({ request }) => {
 		const response = await request.get('/', {
 			headers: {
-				cookie: 'finances:theme="><img src=x onerror=alert(1)>',
+				cookie: `${storageKey('theme')}="><img src=x onerror=alert(1)>`,
 			},
 		});
 		const body = await response.text();

@@ -20,7 +20,7 @@ import { initDebugStore, type DebugStore } from '$lib/stores/debug-state.svelte'
 import { applyUrlOverrides } from '$lib/utils/url-params';
 import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
 import DevToolbar from '$lib/components/DevToolbar.svelte';
-import PageFadeIn from '$lib/components/PageFadeIn.svelte';
+import PageFadeIn from '@/ui/page-fade-in/PageFadeIn.svelte';
 import { log } from '@/utils/core/logger';
 import { APP_TAGLINE, STORAGE_PREFIX, THEME_COLORS, storageKey } from '$lib/config/app-meta';
 import { getBuildInfo } from '$lib/config/build-info';

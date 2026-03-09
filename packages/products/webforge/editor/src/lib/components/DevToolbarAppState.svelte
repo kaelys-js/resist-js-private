@@ -29,6 +29,7 @@ import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import X from '@lucide/svelte/icons/x';
 import * as Tooltip from '@/ui/tooltip/index.js';
+import TooltipLabel from '@/ui/tooltip-label/TooltipLabel.svelte';
 import type { AppPreferences } from '$lib/schemas/editor-state';
 
 let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => Void } = $props();
@@ -177,7 +178,7 @@ function optionLabel(key: Str, value: Str): Str {
 					{/snippet}
 				</Tooltip.Trigger>
 				<Tooltip.Content side="top" sideOffset={4} class="z-[100000]">
-					<span class="flex items-center gap-1.5">{t(localeStore.t.common.close, 'Close')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
+					<TooltipLabel label={t(localeStore.t.common.close, 'Close')} shortcutLabel="Esc" shortcutAlwaysVisible />
 				</Tooltip.Content>
 			</Tooltip.Root>
 		{/if}

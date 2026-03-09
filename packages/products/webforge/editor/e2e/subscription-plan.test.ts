@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
-import { URL_PARAM_PREFIX } from '../src/lib/config/app-meta';
+import { URL_PARAM_PREFIX, storageKey } from '../src/lib/config/app-meta';
 
-const STORAGE_KEY = 'storylyne:editor-state';
+const STORAGE_KEY: string = storageKey('editor-state');
 
 /**
  * Feature flags that the free plan disables (10 flags).

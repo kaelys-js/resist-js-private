@@ -1,6 +1,6 @@
 <script lang="ts">
-import { Skeleton } from '@/ui/skeleton/index.js';
-import * as Sidebar from '@/ui/sidebar/index.js';
+import { Skeleton } from '../skeleton/index.js';
+import * as Sidebar from '../sidebar/index.js';
 </script>
 
 <Sidebar.Menu>

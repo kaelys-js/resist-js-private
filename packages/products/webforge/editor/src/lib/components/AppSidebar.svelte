@@ -2,28 +2,26 @@
 import House from '@lucide/svelte/icons/house';
 import Settings from '@lucide/svelte/icons/settings';
 import CircleHelp from '@lucide/svelte/icons/circle-help';
-import type { ComponentProps } from 'svelte';
 import * as Sidebar from '@/ui/sidebar/index.js';
-import AppLogo from './AppLogo.svelte';
+import SharedAppSidebar from '@/ui/app-sidebar/AppSidebar.svelte';
 import NavScenes from './NavScenes.svelte';
 import NavScenesSkeleton from './NavScenesSkeleton.svelte';
-import NavSecondary from './NavSecondary.svelte';
-import NavUser from './NavUser.svelte';
-import NavUserSkeleton from './NavUserSkeleton.svelte';
+import NavProject from './NavProject.svelte';
+import NavProjectSkeleton from '@/ui/nav-project/NavProjectSkeleton.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { APP_TAGLINE } from '$lib/config/app-meta';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 import type { ServerUser, ServerProject, ServerScene } from '$lib/server/data/types';
 import type { Str, Bool } from '@/schemas/common';
 
-type Props = ComponentProps<typeof Sidebar.Root> & {
+type AppSidebarProps = {
 	/** Authenticated user, or null when logged out. */
 	user?: ServerUser | null;
 	/** Current project, or null when none exists. */
 	project?: ServerProject | null;
 	/** Resolved scene list. */
 	scenes?: readonly ServerScene[];
-	/** Whether project is still loading (streaming). Shows NavUserSkeleton when true. */
+	/** Whether project is still loading (streaming). Shows NavProjectSkeleton when true. */
 	projectLoading?: Bool;
 	/** Whether scenes are still loading (streaming). Shows NavScenesSkeleton when true. */
 	scenesLoading?: Bool;
@@ -34,8 +32,7 @@ let {
 	scenes = [],
 	projectLoading = false,
 	scenesLoading = false,
-	...restProps
-}: Props = $props();
+}: AppSidebarProps = $props();
 
 const store: ReturnType<typeof useEditorStore> = useEditorStore();
 
@@ -49,33 +46,15 @@ const navSecondary: Array<{ title: Str; url: Str; icon: typeof Settings }> = $de
 ]);
 </script>
 
-<Sidebar.Root variant="inset" collapsible="icon" aria-label={t(localeStore.t.common.sidebarLabel, 'Application sidebar')} {...restProps}>
-	<Sidebar.Header>
-		<Sidebar.Menu>
-			<Sidebar.MenuItem>
-				<Sidebar.MenuButton size="lg">
-					{#if store.features.appIconInSidebar}
-						<div
-							class="flex aspect-square size-8 items-center justify-center"
-						>
-							<AppLogo size={28} />
-						</div>
-					{/if}
-					{#if store.features.appNameInSidebar}
-						<div class="grid flex-1 text-left leading-tight">
-							<span
-								class="truncate text-base font-semibold tracking-tight"
-								style="font-family: 'Rajdhani', sans-serif;"
-								>{store.app.appName}</span
-							>
-							<span class="truncate text-xs text-muted-foreground">{t(localeStore.t.meta.tagline, APP_TAGLINE)}</span>
-						</div>
-					{/if}
-				</Sidebar.MenuButton>
-			</Sidebar.MenuItem>
-		</Sidebar.Menu>
-	</Sidebar.Header>
-	<Sidebar.Content>
+<SharedAppSidebar
+	appName={store.app.appName}
+	tagline={t(localeStore.t.meta.tagline, APP_TAGLINE)}
+	sidebarLabel={t(localeStore.t.common.sidebarLabel, 'Application sidebar')}
+	showIcon={store.features.appIconInSidebar}
+	showName={store.features.appNameInSidebar}
+	navItems={navSecondary}
+>
+	{#snippet content()}
 		{#if store.features.sidebarHome}
 		<Sidebar.Group>
 			<Sidebar.Menu>
@@ -100,15 +79,14 @@ const navSecondary: Array<{ title: Str; url: Str; icon: typeof Settings }> = $de
 				<NavScenes {scenes} />
 			{/if}
 		{/if}
-		<NavSecondary items={navSecondary} class="mt-auto" />
-	</Sidebar.Content>
-	<Sidebar.Footer>
+	{/snippet}
+	{#snippet footer()}
 		{#if store.features.projectDropdown && (!store.features.authGatedUi || user)}
 			{#if projectLoading}
-				<NavUserSkeleton />
+				<NavProjectSkeleton />
 			{:else}
-				<NavUser {project} />
+				<NavProject {project} />
 			{/if}
 		{/if}
-	</Sidebar.Footer>
-</Sidebar.Root>
+	{/snippet}
+</SharedAppSidebar>

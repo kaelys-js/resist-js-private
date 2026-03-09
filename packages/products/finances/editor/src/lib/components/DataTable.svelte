@@ -9,16 +9,16 @@ import { Button } from '@/ui/button/index.js';
  * A generic table wrapper that renders a shadcn Table with optional row actions.
  * Uses snippet props for cell formatting rather than TypeScript generics.
  *
- * @property columns - Column definitions with key, label, and optional alignment.
- * @property rows - Array of row data objects keyed by column key.
- * @property onEdit - Optional callback invoked when the Edit button is clicked for a row.
- * @property onDelete - Optional callback invoked when the Delete button is clicked for a row.
- * @property emptyMessage - Message displayed when rows is empty.
- * @property formatCell - Optional cell formatter; returns a display string for a given key/value pair.
+ * @property {ReadonlyArray<{key: Str, label: Str, align?: 'left' | 'right'}>} columns - Column definitions with key, label, and optional alignment.
+ * @property {ReadonlyArray<Record<Str, unknown>>} rows - Array of row data objects keyed by column key.
+ * @property {(row: Record<Str, unknown>) => void} [onEdit] - Optional callback invoked when the Edit button is clicked for a row.
+ * @property {(row: Record<Str, unknown>) => void} [onDelete] - Optional callback invoked when the Delete button is clicked for a row.
+ * @property {Str} [emptyMessage] - Message displayed when rows is empty.
+ * @property {(key: Str, value: unknown) => Str} [formatCell] - Optional cell formatter; returns a display string for a given key/value pair.
  */
 type Props = {
-	columns: readonly { key: Str; label: Str; align?: 'left' | 'right' }[];
-	rows: readonly Record<Str, unknown>[];
+	columns: ReadonlyArray<{ key: Str; label: Str; align?: 'left' | 'right' }>;
+	rows: ReadonlyArray<Record<Str, unknown>>;
 	onEdit?: (row: Record<Str, unknown>) => void;
 	onDelete?: (row: Record<Str, unknown>) => void;
 	emptyMessage?: Str;
@@ -34,7 +34,7 @@ const {
 	formatCell,
 }: Props = $props();
 
-const hasActions: boolean = $derived(!!onEdit || !!onDelete);
+const hasActions: boolean = $derived(Boolean(onEdit) || Boolean(onDelete));
 
 function displayValue(key: Str, value: unknown): Str {
 	if (formatCell) return formatCell(key, value);

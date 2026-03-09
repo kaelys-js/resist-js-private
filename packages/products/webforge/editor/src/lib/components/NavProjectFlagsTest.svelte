@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { Str } from '@/schemas/common';
 import FeatureFlagsTestProviders from './FeatureFlagsTestProviders.svelte';
-import NavUser from './NavUser.svelte';
+import NavProject from './NavProject.svelte';
 
 let { disabledFlags = [] }: { disabledFlags?: Str[] } = $props();
 
@@ -14,5 +14,5 @@ const project = {
 </script>
 
 <FeatureFlagsTestProviders {disabledFlags}>
-	<NavUser {project} />
+	<NavProject {project} />
 </FeatureFlagsTestProviders>

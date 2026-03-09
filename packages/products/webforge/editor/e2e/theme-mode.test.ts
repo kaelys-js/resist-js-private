@@ -53,13 +53,13 @@ test.describe('theme and mode', () => {
 		await expect(page.locator('html')).not.toHaveClass(/dark/);
 	});
 
-	test('NavUser dropdown does NOT contain mode toggle', async ({ page }) => {
+	test('NavProject dropdown does NOT contain mode toggle', async ({ page }) => {
 		await page.goto('/');
-		// Open NavUser dropdown
+		// Open NavProject dropdown
 		await page.getByText('Sample Project', { exact: true }).click();
 		await page.waitForTimeout(200);
 		// ModeToggle renders a button with aria-label "Toggle mode"
-		// It should NOT be inside the NavUser dropdown menu
+		// It should NOT be inside the NavProject dropdown menu
 		const dropdown = page.locator('[role="menu"]');
 		await expect(dropdown).toBeVisible();
 		await expect(dropdown.getByRole('button', { name: /toggle mode/i })).not.toBeVisible();

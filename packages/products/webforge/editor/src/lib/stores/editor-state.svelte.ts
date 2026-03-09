@@ -4,7 +4,7 @@
  * Centralized, reactive, Valibot-validated editor state.
  * Module-level `$state` runes provide fine-grained reactivity.
  * All mutations return `Result<Void>` — no exceptions.
- * Persists to localStorage under the app-prefixed key (e.g. `'storylyne:editor-state'`).
+ * Persists to localStorage under the app-prefixed key (via `storageKey('editor-state')`).
  *
  * @module
  */

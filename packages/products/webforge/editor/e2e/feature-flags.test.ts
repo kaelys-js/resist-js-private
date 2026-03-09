@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
-import { URL_PARAM_PREFIX } from '../src/lib/config/app-meta';
+import { URL_PARAM_PREFIX, storageKey } from '../src/lib/config/app-meta';
 
-const STORAGE_KEY = 'storylyne:editor-state';
+const STORAGE_KEY: string = storageKey('editor-state');
 
 /**
  * Sets feature flags in localStorage before navigating.
@@ -57,7 +57,7 @@ test.describe('feature flags — default state', () => {
 		// AppSidebar: Settings visible
 		await expect(page.getByText('Settings').first()).toBeVisible();
 
-		// AppSidebar: NavUser / project dropdown visible
+		// AppSidebar: NavProject / project dropdown visible
 		await expect(page.getByText('Sample Project', { exact: true })).toBeVisible();
 
 		// SiteHeader: user dropdown trigger visible
@@ -105,7 +105,7 @@ test.describe('feature flags — individual toggles', () => {
 		).not.toBeAttached();
 	});
 
-	test('projectDropdown=false hides NavUser in sidebar footer', async ({ page }) => {
+	test('projectDropdown=false hides NavProject in sidebar footer', async ({ page }) => {
 		await setFlags(page, { projectDropdown: false });
 		await expect(page.getByText('Sample Project', { exact: true })).not.toBeAttached();
 	});

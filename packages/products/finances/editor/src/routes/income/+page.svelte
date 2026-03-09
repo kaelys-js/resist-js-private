@@ -113,7 +113,7 @@ const biweeklyPayments: PaymentDate[] = $derived.by(() => {
 			current = new Date(current.getTime() + 14 * 24 * 60 * 60 * 1000);
 		}
 	}
-	return payments.sort((a, b) => a.date.localeCompare(b.date));
+	return payments.toSorted((a, b) => a.date.localeCompare(b.date));
 });
 
 // ── Sort helpers ───────────────────────────────────────────────────

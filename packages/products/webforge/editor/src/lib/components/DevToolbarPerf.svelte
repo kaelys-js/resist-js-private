@@ -5,6 +5,7 @@ import Radio from '@lucide/svelte/icons/radio';
 import ChevronDown from '@lucide/svelte/icons/chevron-down';
 import XIcon from '@lucide/svelte/icons/x';
 import * as Tooltip from '@/ui/tooltip/index.js';
+import TooltipLabel from '@/ui/tooltip-label/TooltipLabel.svelte';
 import { Separator } from '@/ui/separator/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
 import type { Str, Num, Bool, Void } from '@/schemas/common';
@@ -276,7 +277,7 @@ $effect(() => {
 					{/snippet}
 				</Tooltip.Trigger>
 				<Tooltip.Content side="top" sideOffset={4} class="z-[100000]">
-					<span class="flex items-center gap-1.5">{t(localeStore.t.common.close, 'Close')} <kbd class="inline-flex items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm">Esc</kbd></span>
+					<TooltipLabel label={t(localeStore.t.common.close, 'Close')} shortcutLabel="Esc" shortcutAlwaysVisible />
 				</Tooltip.Content>
 			</Tooltip.Root>
 		{/if}

@@ -390,5 +390,6 @@ export const en: EditorLocaleRaw = {
 		copied: 'Copied!',
 		copyFailed: 'Copy failed',
 		copyErrorId: 'Copy error ID to clipboard',
+		clickToCopy: 'Click to copy',
 	},
 };
