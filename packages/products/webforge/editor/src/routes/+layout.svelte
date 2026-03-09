@@ -35,8 +35,8 @@ const { children, data } = $props();
 
 // Track navigation events for error breadcrumb trail
 afterNavigate(({ from, to }) => {
-	const fromPath: Str | null = (from?.url.pathname as Str | null) ?? null;
-	const toPath: Str = (to?.url.pathname ?? '/') as Str;
+	const fromPath: Str | null = (from?.url?.pathname as Str | null) ?? null;
+	const toPath: Str = (to?.url?.pathname ?? '/') as Str;
 	addNavigationBreadcrumb(fromPath, toPath);
 });
 
