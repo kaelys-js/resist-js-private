@@ -12,7 +12,7 @@
  * // [{ name: 'variant', type: 'string', default: '"default"', description: '...', bindable: false }]
  * ```
  */
-import type { PropMeta, VariantKeyMeta } from './types.js';
+import type { PropMeta, TypeField, VariantKeyMeta } from './types.js';
 
 /** No-op function used as placeholder for function-typed props. */
 function noop(): void {
@@ -45,9 +45,10 @@ const SKIP_PROPS: ReadonlySet<string> = new Set(['ref', 'class', 'children', 'ch
  * prop for name/default/bindable/JSDoc, and enriches with inline type info.
  *
  * @param source - Raw `.svelte` file content
+ * @param supplementarySources - Optional raw `.ts` sources from the same directory for cross-file type resolution
  * @returns Array of PropMeta for user-facing props
  */
-export function extractProps(source: string): PropMeta[] {
+export function extractProps(source: string, supplementarySources?: string[]): PropMeta[] {
 	if (!source) return [];
 
 	const block: PropsBlock | null = findPropsBlock(source);
@@ -70,6 +71,11 @@ export function extractProps(source: string): PropMeta[] {
 	// Pre-compute inherited parent type name for props with no inline type
 	const parentTypeName: string = extractInheritedTypeName(block.typeAnnotation);
 
+	// Combine primary source with supplementary sources for type resolution
+	const combinedSource: string = supplementarySources
+		? [source, ...supplementarySources].join('\n')
+		: source;
+
 	const result: PropMeta[] = [];
 	for (const raw of rawProps) {
 		if (SKIP_PROPS.has(raw.name)) continue;
@@ -90,13 +96,15 @@ export function extractProps(source: string): PropMeta[] {
 		const mockValues: string[] =
 			raw.mockValues.length > 0 ? raw.mockValues : (typeDef?.mockValues ?? []);
 
+		const rawTypeDef: string | undefined = resolveTypeDefinition(resolvedType, combinedSource);
 		result.push({
 			name: raw.name,
 			type: resolvedType,
 			default: raw.defaultValue,
 			description,
 			bindable: raw.bindable,
-			typeDefinition: resolveTypeDefinition(resolvedType, source),
+			typeDefinition: rawTypeDef,
+			typeFields: rawTypeDef ? parseTypeFieldsForDisplay(rawTypeDef) : undefined,
 			mockValues: mockValues.length > 0 ? mockValues : undefined,
 		});
 	}
@@ -304,6 +312,7 @@ function buildPlaceholderObject(typeSummary: string): Record<string, string> | n
  * @param definition - Resolved type definition string starting with `{`
  * @returns Placeholder object mapping field names to mock values, or null if empty
  */
+// eslint-disable-next-line jsdoc/require-returns -- false positive: @returns IS present; oxlint misparses due to star-slash in string/regex literals
 function buildPlaceholderFromDefinition(definition: string): Record<string, string> | null {
 	const inner: string = definition.slice(1, -1).trim();
 	if (!inner) return null;
@@ -979,20 +988,28 @@ function extractInheritedTypeName(typeAnnotation: string): string {
 function resolveTypeDefinition(typeName: string, source: string): string | undefined {
 	if (!typeName || !source) return undefined;
 
+	// Strip array notation (e.g. SearchItem[] → SearchItem) before lookup
+	const isArray: boolean = typeName.endsWith('[]');
+	let baseTypeName: string = isArray ? typeName.slice(0, -2) : typeName;
+
+	// Strip nullable wrappers (e.g. LensMeta | null → LensMeta) before lookup
+	baseTypeName = baseTypeName.replaceAll(/\s*\|\s*(null|undefined)\b/g, '').trim();
+	baseTypeName = baseTypeName.replaceAll(/^(null|undefined)\s*\|\s*/g, '').trim();
+
 	// Skip primitives and simple types — no definition to resolve
-	if (/^(string|number|boolean|Str|Num|Bool|Void|Snippet|Component)$/.test(typeName)) {
+	if (/^(string|number|boolean|Str|Num|Bool|Void|Snippet|Component)$/.test(baseTypeName)) {
 		return undefined;
 	}
 
 	// Skip indexed access types — can't resolve without full TS
-	if (typeName.includes("['")) return undefined;
+	if (baseTypeName.includes("['")) return undefined;
 
-	// Skip union types — they ARE the definition already
-	if (typeName.includes(' | ')) return undefined;
+	// Skip union types — they ARE the definition already (after nullable strip)
+	if (baseTypeName.includes(' | ')) return undefined;
 
 	// Find `type <name> = ...` or `export type <name> = ...`
 	const typeDefRegex: RegExp = new RegExp(
-		`(?:export\\s+)?type\\s+${typeName.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)}\\s*=\\s*`,
+		`(?:export\\s+)?type\\s+${baseTypeName.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)}\\s*=\\s*`,
 	);
 	const match: RegExpExecArray | null = typeDefRegex.exec(source);
 	if (!match) return undefined;
@@ -1039,6 +1056,432 @@ function resolveTypeDefinition(typeName: string, source: string): string | undef
 
 	const definition: string = source.slice(afterEquals, end).trim();
 	if (!definition || definition === typeName) return undefined;
+
+	// Resolve Valibot inferred types: v.InferOutput<typeof SchemaName> → schema RHS
+	const inferMatch: RegExpMatchArray | null = definition.match(/^v\.InferOutput<typeof\s+(\w+)>/);
+	if (inferMatch) {
+		const schemaName: string = inferMatch[1] ?? '';
+		if (schemaName) {
+			const resolved: string | undefined = resolveConstDefinition(schemaName, source);
+			if (resolved) return resolved;
+		}
+	}
+
+	return definition;
+}
+
+/**
+ * Parse a resolved type definition string into structured TypeField[] for tooltip display.
+ *
+ * Handles Valibot object schemas (`v.strictObject({...})`), plain object types (`{ field: type }`),
+ * and non-object types (returns a single-field array with the humanized type).
+ *
+ * @param definition - Raw resolved type definition string
+ * @returns Array of TypeField for display, or undefined if not parseable
+ */
+function parseTypeFieldsForDisplay(definition: string): TypeField[] | undefined {
+	const trimmed: string = definition.trim();
+
+	// v.strictObject({ ... }) or v.object({ ... })
+	const objMatch: RegExpMatchArray | null = trimmed.match(
+		/^v\.(?:strict)?[Oo]bject\(\{([\s\S]*)\}\)$/,
+	);
+	if (objMatch) {
+		return parseValibotObjectFields(objMatch[1] ?? '');
+	}
+
+	// Plain object type { field: type; ... }
+	if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+		return parsePlainObjectFields(trimmed.slice(1, -1));
+	}
+
+	// Non-object type — return single field summarizing it
+	const humanized: string = humanizeValibotExpr(trimmed);
+	if (humanized && humanized !== trimmed) {
+		return [{ field: '(value)', accepts: humanized, description: '' }];
+	}
+
+	return undefined;
+}
+
+/**
+ * Parse fields from a Valibot object schema body into TypeField[].
+ *
+ * @param body - Inner content of `v.strictObject({ ... })` without the outer braces
+ * @returns Array of TypeField
+ */
+function parseValibotObjectFields(body: string): TypeField[] {
+	const fields: TypeField[] = [];
+	let pos: number = 0;
+	let pendingDescription: string = '';
+
+	while (pos < body.length) {
+		// Skip whitespace
+		while (pos < body.length && /\s/.test(body[pos] ?? '')) pos++;
+		if (pos >= body.length) break;
+
+		// JSDoc comment: /** ... */
+		if (body.slice(pos, pos + 3) === JSDOC_OPEN) {
+			const closeIdx: number = body.indexOf(JSDOC_CLOSE, pos + 3);
+			if (closeIdx === -1) break;
+			const commentBody: string = body.slice(pos + 3, closeIdx);
+			pendingDescription = commentBody
+				.split('\n')
+				.map((l: string): string => l.trim().replace(/^\*\s*/, '').trim())
+				.filter(Boolean)
+				.join(' ');
+			pos = closeIdx + 2;
+			continue;
+		}
+
+		// Line comment: // ...
+		if (body.slice(pos, pos + 2) === '//') {
+			const nlIdx: number = body.indexOf('\n', pos);
+			pos = nlIdx === -1 ? body.length : nlIdx + 1;
+			continue;
+		}
+
+		// Field: identifier followed by ':'
+		const fieldStart: RegExpExecArray | null = /^(\w+)\s*:\s*/.exec(body.slice(pos));
+		if (!fieldStart) {
+			const nl: number = body.indexOf('\n', pos);
+			pos = nl === -1 ? body.length : nl + 1;
+			continue;
+		}
+
+		const fieldName: string = fieldStart[1] ?? '';
+		const valueStart: number = pos + fieldStart[0].length;
+
+		// Extract the full value expression by tracking depth until comma at depth 0
+		let depth: number = 0;
+		let inString: string | null = null;
+		let valueEnd: number = valueStart;
+
+		for (let i: number = valueStart; i < body.length; i++) {
+			const ch: string = body[i] ?? '';
+			const prev: string = body[i - 1] ?? '';
+
+			if (!inString && (ch === '"' || ch === "'" || ch === '`')) {
+				inString = ch;
+				continue;
+			}
+			if (inString && ch === inString && prev !== '\\') {
+				inString = null;
+				continue;
+			}
+			if (inString) continue;
+
+			if (ch === '(' || ch === '[' || ch === '{') depth++;
+			else if (ch === ')' || ch === ']' || ch === '}') depth--;
+
+			if (depth === 0 && ch === ',') {
+				valueEnd = i;
+				break;
+			}
+			if (depth < 0) {
+				valueEnd = i;
+				break;
+			}
+			valueEnd = i + 1;
+		}
+
+		const schemaExpr: string = body.slice(valueStart, valueEnd).trim();
+		pos = valueEnd + 1;
+
+		if (fieldName && schemaExpr) {
+			fields.push({
+				field: fieldName,
+				accepts: humanizeValibotExpr(schemaExpr),
+				description: pendingDescription,
+			});
+			pendingDescription = '';
+		}
+	}
+
+	return fields.length > 0 ? fields : [];
+}
+
+/**
+ * Parse fields from a plain TypeScript object type body into TypeField[].
+ *
+ * @param body - Inner content of `{ ... }` without outer braces
+ * @returns Array of TypeField
+ */
+function parsePlainObjectFields(body: string): TypeField[] {
+	const fields: TypeField[] = [];
+	const parts: string[] = body
+		.split(';')
+		.map((s: string): string => s.trim())
+		.filter(Boolean);
+
+	for (const part of parts) {
+		const match: RegExpMatchArray | null = part.match(/^(\w+)\??\s*:\s*(.+)$/);
+		if (match) {
+			fields.push({
+				field: match[1] ?? '',
+				accepts: match[2]?.trim() ?? '',
+				description: '',
+			});
+		}
+	}
+
+	return fields.length > 0 ? fields : [];
+}
+
+/**
+ * Convert a single Valibot expression into human-readable "accepts" text.
+ *
+ * @param expr - Valibot expression (e.g. `v.string()`, `v.picklist([...])`)
+ * @returns Human-friendly description of what the field accepts
+ */
+function humanizeValibotExpr(expr: string): string {
+	const t: string = expr.trim();
+
+	// Primitives
+	if (t === 'v.string()') return 'text';
+	if (t === 'v.number()') return 'number';
+	if (t === 'v.boolean()') return 'true / false';
+	if (t === 'v.any()' || t === 'v.unknown()') return 'any value';
+
+	// Literals
+	const litMatch: RegExpMatchArray | null = t.match(/^v\.literal\((.+)\)$/);
+	if (litMatch) {
+		const val: string = (litMatch[1] ?? '').replaceAll(/^['"]|['"]$/g, '');
+		return val;
+	}
+
+	// Picklist — extract values and show as comma-separated
+	const pickMatch: RegExpMatchArray | null = t.match(/^v\.picklist\(\[(.+)\]\)$/s);
+	if (pickMatch) {
+		const items: string[] = (pickMatch[1] ?? '')
+			.split(',')
+			.map((s: string): string => s.trim().replaceAll(/^['"]|['"]$/g, ''))
+			.filter(Boolean);
+		return items.join(', ');
+	}
+
+	// Pipe — humanize the base schema, append validator hints
+	const pipeMatch: RegExpMatchArray | null = t.match(/^v\.pipe\((.+)\)$/s);
+	if (pipeMatch) {
+		const args: string[] = splitPipeArgs(pipeMatch[1] ?? '');
+		const base: string = humanizeValibotExpr(args[0] ?? '');
+		const hints: string[] = [];
+		for (let i: number = 1; i < args.length; i++) {
+			const hint: string = humanizeValidator(args[i] ?? '');
+			if (hint) hints.push(hint);
+		}
+		return hints.length > 0 ? `${base} (${hints.join(', ')})` : base;
+	}
+
+	// Array
+	const arrayMatch: RegExpMatchArray | null = t.match(/^v\.array\((.+)\)$/s);
+	if (arrayMatch) {
+		const inner: string = humanizeValibotExpr(arrayMatch[1] ?? '');
+		return `list of ${inner}`;
+	}
+
+	// Optional
+	const optMatch: RegExpMatchArray | null = t.match(/^v\.optional\((.+)\)$/s);
+	if (optMatch) {
+		const args: string[] = splitPipeArgs(optMatch[1] ?? '');
+		return humanizeValibotExpr(args[0] ?? '');
+	}
+
+	// Nullable
+	const nullMatch: RegExpMatchArray | null = t.match(/^v\.nullable\((.+)\)$/s);
+	if (nullMatch) {
+		const args: string[] = splitPipeArgs(nullMatch[1] ?? '');
+		return `${humanizeValibotExpr(args[0] ?? '')} or empty`;
+	}
+
+	// Union
+	const unionMatch: RegExpMatchArray | null = t.match(/^v\.union\(\[(.+)\]\)$/s);
+	if (unionMatch) {
+		const args: string[] = splitPipeArgs(unionMatch[1] ?? '');
+		return args.map((a: string): string => humanizeValibotExpr(a)).join(' or ');
+	}
+
+	// Nested strictObject — just say "object"
+	if (t.startsWith('v.strictObject(') || t.startsWith('v.object(')) return 'object';
+
+	// Record
+	if (t.startsWith('v.record(')) return 'key-value map';
+
+	// Tuple
+	if (t.startsWith('v.tuple(')) return 'fixed list';
+
+	// Fallback — extract human-readable name from v.xxx(...) pattern
+	const fnMatch: RegExpMatchArray | null = t.match(/^v\.(\w+)\(/);
+	if (fnMatch) return fnMatch[1] ?? t;
+	return t;
+}
+
+/**
+ * Humanize a Valibot pipe validator into a short hint string.
+ *
+ * @param validator - Validator expression (e.g. `v.minLength(1)`, `v.url()`)
+ * @returns Short hint like "min 1", "URL format", or empty string if unknown
+ */
+function humanizeValidator(validator: string): string {
+	const t: string = validator.trim();
+	const minLen: RegExpMatchArray | null = t.match(/^v\.minLength\((\d+)\)$/);
+	if (minLen) return `min ${minLen[1]}`;
+	const maxLen: RegExpMatchArray | null = t.match(/^v\.maxLength\((\d+)\)$/);
+	if (maxLen) return `max ${maxLen[1]}`;
+	const minVal: RegExpMatchArray | null = t.match(/^v\.minValue\((\d+)\)$/);
+	if (minVal) return `min ${minVal[1]}`;
+	const maxVal: RegExpMatchArray | null = t.match(/^v\.maxValue\((\d+)\)$/);
+	if (maxVal) return `max ${maxVal[1]}`;
+	if (t === 'v.url()') return 'URL format';
+	if (t === 'v.email()') return 'email format';
+	if (t.startsWith('v.regex(')) return 'pattern';
+	if (t === 'v.readonly()') return 'read-only';
+	return '';
+}
+
+/**
+ * Split pipe/function arguments at top-level commas, respecting nesting.
+ *
+ * @param str - Comma-separated arguments
+ * @returns Array of argument strings
+ */
+function splitPipeArgs(str: string): string[] {
+	const result: string[] = [];
+	let depth: number = 0;
+	let start: number = 0;
+
+	for (let i: number = 0; i < str.length; i++) {
+		const ch: string = str[i] ?? '';
+		if (ch === '(' || ch === '[' || ch === '{') depth++;
+		else if (ch === ')' || ch === ']' || ch === '}') depth--;
+		else if (ch === ',' && depth === 0) {
+			result.push(str.slice(start, i).trim());
+			start = i + 1;
+		}
+	}
+	const last: string = str.slice(start).trim();
+	if (last) result.push(last);
+	return result;
+}
+
+/**
+ * Resolve a `const <name> = <value>` definition from source.
+ *
+ * Used to follow Valibot schema references so that `v.InferOutput<typeof X>`
+ * resolves to the actual schema body instead of the opaque wrapper type.
+ *
+ * @param constName - The constant name to look up
+ * @param source - Combined source to search
+ * @returns The RHS of the const assignment, or undefined
+ */
+function resolveConstDefinition(constName: string, source: string): string | undefined {
+	const constRegex: RegExp = new RegExp(
+		`(?:export\\s+)?const\\s+${constName.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)}\\s*=\\s*`,
+	);
+	const match: RegExpExecArray | null = constRegex.exec(source);
+	if (!match) return undefined;
+
+	const afterEquals: number = (match.index ?? 0) + match[0].length;
+	let depth: number = 0;
+	let inString: string | null = null;
+	let end: number = afterEquals;
+
+	for (let i: number = afterEquals; i < source.length; i++) {
+		const ch: string = source[i] ?? '';
+		const prev: string = source[i - 1] ?? '';
+
+		if (!inString && (ch === '"' || ch === "'" || ch === '`')) {
+			inString = ch;
+			continue;
+		}
+		if (inString && ch === inString && prev !== '\\') {
+			inString = null;
+			continue;
+		}
+		if (inString) continue;
+
+		if (ch === '{' || ch === '<' || ch === '(' || ch === '[') depth++;
+		else if (ch === '}' || ch === '>' || ch === ')' || ch === ']') depth--;
+
+		if (depth === 0 && ch === ';') {
+			end = i;
+			break;
+		}
+		end = i + 1;
+	}
+
+	const definition: string = source.slice(afterEquals, end).trim();
+	if (!definition) return undefined;
+
+	// Inline nested schema references (one level deep to avoid infinite recursion)
+	return inlineSchemaReferences(definition, source, constName);
+}
+
+/**
+ * Replace schema identifier references inside a definition with their resolved values.
+ *
+ * Matches identifiers ending in `Schema` (e.g. `LensCategorySchema`) and replaces
+ * them inline with the const's RHS. Skips the parent schema to avoid recursion.
+ *
+ * @param definition - The resolved schema body
+ * @param source - Combined source to search for referenced schemas
+ * @param parentName - The schema name being resolved (to skip self-references)
+ * @returns Definition with nested schema references inlined
+ */
+function inlineSchemaReferences(definition: string, source: string, parentName: string): string {
+	return definition.replaceAll(/\b(\w+Schema)\b/g, (_match: string, name: string): string => {
+		// Skip self-references and the Valibot namespace prefix
+		if (name === parentName) return name;
+		const resolved: string | undefined = resolveConstDefinitionShallow(name, source);
+		return resolved ?? name;
+	});
+}
+
+/**
+ * Shallow const resolution — same as resolveConstDefinition but without recursive inlining.
+ *
+ * @param constName - The constant name to look up
+ * @param source - Combined source to search
+ * @returns The RHS of the const assignment, or undefined
+ */
+function resolveConstDefinitionShallow(constName: string, source: string): string | undefined {
+	const constRegex: RegExp = new RegExp(
+		`(?:export\\s+)?const\\s+${constName.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)}\\s*=\\s*`,
+	);
+	const match: RegExpExecArray | null = constRegex.exec(source);
+	if (!match) return undefined;
+
+	const afterEquals: number = (match.index ?? 0) + match[0].length;
+	let depth: number = 0;
+	let inString: string | null = null;
+	let end: number = afterEquals;
+
+	for (let i: number = afterEquals; i < source.length; i++) {
+		const ch: string = source[i] ?? '';
+		const prev: string = source[i - 1] ?? '';
+
+		if (!inString && (ch === '"' || ch === "'" || ch === '`')) {
+			inString = ch;
+			continue;
+		}
+		if (inString && ch === inString && prev !== '\\') {
+			inString = null;
+			continue;
+		}
+		if (inString) continue;
+
+		if (ch === '{' || ch === '<' || ch === '(' || ch === '[') depth++;
+		else if (ch === '}' || ch === '>' || ch === ')' || ch === ']') depth--;
+
+		if (depth === 0 && ch === ';') {
+			end = i;
+			break;
+		}
+		end = i + 1;
+	}
+
+	const definition: string = source.slice(afterEquals, end).trim();
+	if (!definition) return undefined;
 	return definition;
 }
 

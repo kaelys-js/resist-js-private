@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { RequestEvent, ResolveOptions } from '@sveltejs/kit';
 import { ERRORS, err } from '@/schemas/result/result';
 import type { Str, Num, Bool, NullableStr } from '@/schemas/common';
@@ -423,6 +423,15 @@ describe('cache-control', () => {
 });
 
 describe('handleError', () => {
+	/** Suppress console.error from handleError's structured logging — prevents Vitest "Unhandled Errors" noise. */
+	let errorSpy: ReturnType<typeof vi.spyOn>;
+	beforeEach(() => {
+		errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+	});
+	afterEach(() => {
+		errorSpy.mockRestore();
+	});
+
 	it('returns App.Error with message containing errorId and separate errorId field', () => {
 		const { result } = callServerHandleError({
 			error: new Error('test crash'),
@@ -458,7 +467,6 @@ describe('handleError', () => {
 	});
 
 	it('logs structured CapturedError with errorId, error code, and CapturedError fields', () => {
-		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const { result } = callServerHandleError({
 			error: new Error('crash'),
 			status: 500,
@@ -466,7 +474,7 @@ describe('handleError', () => {
 			pathname: '/api/scenes',
 		});
 		// logCapturedError outputs via log.error() → console.error in json mode
-		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const logOutput: Str = errorSpy.mock.calls[0]?.[0] ?? '';
 		expect(logOutput).toContain(result.errorId);
 		expect(logOutput).toContain('INTERNAL.UNEXPECTED');
 		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
@@ -488,7 +496,6 @@ describe('handleError', () => {
 		expect(errorMeta.url).toBe('/api/scenes');
 		expect(errorMeta.method).toBe('GET');
 		expect(errorMeta.status).toBe(500);
-		spy.mockRestore();
 	});
 
 	it('generates unique errorIds for each call', () => {
@@ -515,7 +522,6 @@ describe('handleError', () => {
 	});
 
 	it('preserves domain-specific AppError code when thrown error is an AppError', () => {
-		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const validationErr = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
 			meta: { field: 'email' },
 		});
@@ -527,23 +533,21 @@ describe('handleError', () => {
 		});
 		// The errorId should come from the original AppError, not a new wrapper
 		expect(result.errorId).toBe(validationErr.error.id);
-		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const logOutput: Str = errorSpy.mock.calls[0]?.[0] ?? '';
 		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
 		expect(parsed.data).toMatchObject({
 			errorCode: 'VALIDATION.SCHEMA_FAILED',
 		});
-		spy.mockRestore();
 	});
 
 	it('wraps plain Error in INTERNAL.UNEXPECTED with cause chain', () => {
-		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const { result } = callServerHandleError({
 			error: new Error('plain crash'),
 			status: 500,
 			message: 'Internal Error',
 			pathname: '/test',
 		});
-		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const logOutput: Str = errorSpy.mock.calls[0]?.[0] ?? '';
 		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
 		expect(parsed.data).toMatchObject({
 			errorCode: 'INTERNAL.UNEXPECTED',
@@ -559,11 +563,9 @@ describe('handleError', () => {
 		expect(data.captureId).toBeDefined();
 		expect(data.fatal).toBe(false);
 		expect(data.fingerprint).toBeDefined();
-		spy.mockRestore();
 	});
 
 	it('includes locale, userAgent, referer, searchParams, and isDataRequest in meta', () => {
-		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		callServerHandleError({
 			error: new Error('crash'),
 			status: 500,
@@ -575,7 +577,7 @@ describe('handleError', () => {
 			searchParams: { page: '2', sort: 'asc' },
 			isDataRequest: true,
 		});
-		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const logOutput: Str = errorSpy.mock.calls[0]?.[0] ?? '';
 		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
 		const data = parsed.data as Record<Str, unknown>;
 		const errorMeta = data.errorMeta as Record<Str, unknown>;
@@ -584,13 +586,21 @@ describe('handleError', () => {
 		expect(errorMeta.referer).toBe('http://localhost/previous');
 		expect(errorMeta.searchParams).toEqual({ page: '2', sort: 'asc' });
 		expect(errorMeta.isDataRequest).toBe(true);
-		spy.mockRestore();
 	});
 });
 
 describe('enhanced logCapturedError fields', () => {
+	let errorSpy: ReturnType<typeof vi.spyOn>;
+
+	beforeEach(() => {
+		errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+	});
+
+	afterEach(() => {
+		errorSpy.mockRestore();
+	});
+
 	it('logs help when present on AppError', () => {
-		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
 			help: 'Check field format',
 		});
@@ -600,15 +610,13 @@ describe('enhanced logCapturedError fields', () => {
 			status: 400,
 			message: 'Bad Request',
 		});
-		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const logOutput: Str = errorSpy.mock.calls[0]?.[0] ?? '';
 		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
 		const data = parsed.data as Record<Str, unknown>;
 		expect(data.help).toBe('Check field format');
-		spy.mockRestore();
 	});
 
 	it('logs source when present on AppError', () => {
-		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
 			source: { pointer: '/data/email', parameter: 'email' },
 		});
@@ -618,17 +626,15 @@ describe('enhanced logCapturedError fields', () => {
 			status: 400,
 			message: 'Bad Request',
 		});
-		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const logOutput: Str = errorSpy.mock.calls[0]?.[0] ?? '';
 		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
 		const data = parsed.data as Record<Str, unknown>;
 		expect(data.source).toBeDefined();
 		// Note: data.source is the extractSource() source, and data.errorSource is the appError.source
 		expect(data.errorSource).toEqual({ pointer: '/data/email', parameter: 'email' });
-		spy.mockRestore();
 	});
 
 	it('logs related errors when present on AppError', () => {
-		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const related1 = err(ERRORS.VALIDATION.MISSING_FIELD, 'Field too long');
 		const related2 = err(ERRORS.VALIDATION.INVALID_FORMAT, 'Bad format');
 		if (related1.ok || related2.ok) throw new Error('err() should return error');
@@ -641,7 +647,7 @@ describe('enhanced logCapturedError fields', () => {
 			status: 400,
 			message: 'Bad Request',
 		});
-		const logOutput: Str = spy.mock.calls[0]?.[0] ?? '';
+		const logOutput: Str = errorSpy.mock.calls[0]?.[0] ?? '';
 		const parsed: Record<Str, unknown> = JSON.parse(logOutput);
 		const data = parsed.data as Record<Str, unknown>;
 		expect(data.related).toBeDefined();
@@ -649,7 +655,6 @@ describe('enhanced logCapturedError fields', () => {
 		expect(related).toHaveLength(2);
 		expect(related[0]?.code).toBe('VALIDATION.MISSING_FIELD');
 		expect(related[1]?.code).toBe('VALIDATION.INVALID_FORMAT');
-		spy.mockRestore();
 	});
 });
 
