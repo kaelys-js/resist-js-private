@@ -9,24 +9,28 @@ vi.mock('./state-logger.svelte', () => ({
 	createStateLogger: vi.fn(() => ({ destroy: vi.fn() })),
 }));
 
-vi.mock('./devtools-api.svelte', () => ({
-	DEVTOOLS_KEY: '__FINANCES_DEVTOOLS__',
-	createDevtoolsAPI: vi.fn((): { destroy(): Void } => {
-		(window as unknown as Record<Str, unknown>).__FINANCES_DEVTOOLS__ = {
-			stub: true,
-			logState: vi.fn(),
-		};
-		return {
-			destroy(): Void {
-				Object.defineProperty(window, '__FINANCES_DEVTOOLS__', {
-					value: undefined,
-					writable: true,
-					configurable: true,
-				});
-			},
-		};
-	}),
-}));
+vi.mock('./devtools-api.svelte', async () => {
+	const { APP_NAME: appName } = await import('$lib/config/app-meta');
+	const key: Str = `__${appName.toUpperCase()}_DEVTOOLS__`;
+	return {
+		DEVTOOLS_KEY: key,
+		createDevtoolsAPI: vi.fn((): { destroy(): Void } => {
+			(window as unknown as Record<Str, unknown>)[key] = {
+				stub: true,
+				logState: vi.fn(),
+			};
+			return {
+				destroy(): Void {
+					Object.defineProperty(window, key, {
+						value: undefined,
+						writable: true,
+						configurable: true,
+					});
+				},
+			};
+		}),
+	};
+});
 
 const okVoid = () => ({ ok: true as const, data: undefined, error: null });
 
@@ -111,12 +115,12 @@ let consoleSpy: ReturnType<typeof vi.spyOn>;
 beforeEach(() => {
 	editorStore = createMockEditorStore();
 	consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-	delete window.__FINANCES_DEVTOOLS__;
+	(window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
 });
 
 afterEach(() => {
 	consoleSpy.mockRestore();
-	delete window.__FINANCES_DEVTOOLS__;
+	(window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
 });
 
 describe('activateDebugServices', () => {

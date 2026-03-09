@@ -54,7 +54,7 @@ export type DebugServicesHandle = {
  * @example
  * ```typescript
  * const handle = activateDebugServices(editorStore, debugStore);
- * // window.__FINANCES_DEVTOOLS__ is now available
+ * // window[DEVTOOLS_KEY] is now available
  * handle.destroy(); // removes everything
  * ```
  */

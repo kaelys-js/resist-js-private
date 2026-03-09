@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { storageKey } from '../src/lib/config/app-meta';
+import { APP_NAME, storageKey } from '../src/lib/config/app-meta';
 
 const LOCALE_COOKIE: string = storageKey('locale');
 
@@ -29,8 +29,8 @@ test.describe('locale', () => {
 		await page.goto('/');
 		const description = page.locator('meta[name="description"]');
 		const content = await description.getAttribute('content');
-		// Japanese description should contain Storylyne but differ from English
-		expect(content).toContain('Storylyne');
+		// Japanese description should contain app name but differ from English
+		expect(content).toContain(APP_NAME);
 		expect(content).toMatch(/[\u3000-\u9FFF]/);
 	});
 

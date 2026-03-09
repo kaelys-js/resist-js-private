@@ -233,13 +233,13 @@ export const FONT_FACES: readonly FontFaceEntry[] = [
 // Used by security.txt route.
 
 /** Security vulnerability contact URL for security.txt. */
-export const SECURITY_CONTACT_URL: Str = 'https://github.com/storylyne/storylyne/security';
+export const SECURITY_CONTACT_URL: Str = 'https://github.com/finances-app/finances/security';
 
 /** Security policy URL for security.txt. */
-export const SECURITY_POLICY_URL: Str = 'https://github.com/storylyne/storylyne/security/policy';
+export const SECURITY_POLICY_URL: Str = 'https://github.com/finances-app/finances/security/policy';
 
 /** Canonical URL for security.txt. */
-export const SECURITY_CANONICAL_URL: Str = 'https://storylyne.dev/.well-known/security.txt';
+export const SECURITY_CANONICAL_URL: Str = 'https://finances.dev/.well-known/security.txt';
 
 /**
  * Preferred languages for security.txt.

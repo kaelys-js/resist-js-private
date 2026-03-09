@@ -8,9 +8,9 @@
  *
  * **Console output example:**
  * ```
- * [Storylyne] LCP 2450ms ⚠ needsImprovement   (amber)
- * [Storylyne] CLS 0.05 ✓ good                  (green)
- * [Storylyne] INP 650ms ✗ poor                  (red, console.warn)
+ * [AppName] LCP 2450ms ⚠ needsImprovement   (amber)
+ * [AppName] CLS 0.05 ✓ good                  (green)
+ * [AppName] INP 650ms ✗ poor                  (red, console.warn)
  * ```
  *
  * **Dev mode:** Logs ALL metrics with color-coded rating icons:
@@ -76,7 +76,7 @@ const THRESHOLD_STYLE: Str = 'color:#666;font-style:italic;font-size:0.9em';
 /**
  * Logs a Web Vitals metric to the console with colorized `%c` CSS formatting.
  *
- * Uses the application name prefix (e.g. `[Storylyne]`) in cyan, the metric
+ * Uses the application name prefix (e.g. `[AppName]`) in cyan, the metric
  * name in white bold, and the value + rating in a color matching the rating
  * (green for good, amber for needsImprovement, red for poor). This matches
  * the visual style of the debug banner and state logger.
@@ -97,12 +97,12 @@ const THRESHOLD_STYLE: Str = 'color:#666;font-style:italic;font-size:0.9em';
  *
  * @example
  * logVital('LCP', 2450, 'needsImprovement');
- * // Console: %c[Storylyne] %cLCP %c2450ms %c⚠ needsImprovement
+ * // Console: %c[AppName] %cLCP %c2450ms %c⚠ needsImprovement
  * // Styled:  cyan prefix, white name, amber value, amber rating
  *
  * @example
  * logVital('CLS', 0.05, 'good');
- * // Console (dev only): %c[Storylyne] %cCLS %c0.05 %c✓ good
+ * // Console (dev only): %c[AppName] %cCLS %c0.05 %c✓ good
  * // Styled: cyan prefix, white name, green value, green rating
  */
 export function logVital(

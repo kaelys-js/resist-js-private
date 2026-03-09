@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { APP_NAME, APP_TAGLINE } from '../src/lib/config/app-meta';
 
 test.describe('layout', () => {
 	test('page loads with correct title', async ({ page }) => {
 		await page.goto('/');
-		await expect(page).toHaveTitle('Storylyne - Home - Your Story, Rendered');
+		await expect(page).toHaveTitle(`${APP_NAME} - Home - ${APP_TAGLINE}`);
 	});
 
 	test('sidebar is visible on desktop', async ({ page }) => {

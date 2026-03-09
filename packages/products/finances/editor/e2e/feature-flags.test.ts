@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { URL_PARAM_PREFIX, storageKey } from '../src/lib/config/app-meta';
+import { APP_NAME, APP_TAGLINE, URL_PARAM_PREFIX, storageKey } from '../src/lib/config/app-meta';
 
 const STORAGE_KEY: string = storageKey('editor-state');
 
@@ -46,9 +46,9 @@ test.describe('feature flags — default state', () => {
 		await expect(page.getByRole('button', { name: /toggle mode/i })).toBeVisible();
 
 		// AppSidebar: branding visible
-		await expect(page.getByText('Storylyne', { exact: true }).first()).toBeVisible();
+		await expect(page.getByText(APP_NAME, { exact: true }).first()).toBeVisible();
 		await expect(
-			page.locator('[data-slot="sidebar"]').getByText('Your Story, Rendered', { exact: true }),
+			page.locator('[data-slot="sidebar"]').getByText(APP_TAGLINE, { exact: true }),
 		).toBeVisible();
 
 		// AppSidebar: Help visible
@@ -101,7 +101,7 @@ test.describe('feature flags — individual toggles', () => {
 	test('appNameInSidebar=false hides name text in sidebar header', async ({ page }) => {
 		await setFlags(page, { appNameInSidebar: false });
 		await expect(
-			page.locator('[data-slot="sidebar"]').getByText('Your Story, Rendered', { exact: true }),
+			page.locator('[data-slot="sidebar"]').getByText(APP_TAGLINE, { exact: true }),
 		).not.toBeAttached();
 	});
 
@@ -167,7 +167,7 @@ test.describe('feature flags — combined', () => {
 		});
 
 		// Page should load without errors
-		await expect(page).toHaveTitle('Storylyne - Home - Your Story, Rendered');
+		await expect(page).toHaveTitle(`${APP_NAME} - Home - ${APP_TAGLINE}`);
 
 		// Header should still render (even if empty of controlled content)
 		const header = page.locator('header');

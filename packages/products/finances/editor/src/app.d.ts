@@ -55,7 +55,13 @@ declare global {
 		}
 	}
 
-	/** Window extensions — debug devtools and build info globals. */
+	/**
+	 * Window extensions — debug devtools and build info globals.
+	 *
+	 * Property names are derived from APP_NAME at runtime via DEVTOOLS_KEY and BUILD_KEY
+	 * (see devtools-api.svelte.ts). TypeScript ambient declarations require literal names,
+	 * so these must be updated manually if APP_NAME changes.
+	 */
 	interface Window {
 		__FINANCES_DEVTOOLS__?: EditorDevtools;
 		__FINANCES_BUILD__?: BuildInfo;

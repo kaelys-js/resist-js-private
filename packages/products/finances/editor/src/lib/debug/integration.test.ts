@@ -30,6 +30,14 @@ vi.mock('./state-logger.svelte', async () => {
 	};
 });
 
+/**
+ * Typed accessor for the devtools window global (avoids hardcoded key).
+ *
+ * @returns The devtools instance or undefined if not registered
+ */
+const devtoolsGlobal = (): EditorDevtools | undefined =>
+	(window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools | undefined;
+
 const okVoid = () => ({ ok: true as const, data: undefined, error: null });
 
 const createMockEditorStore = () => ({
@@ -123,12 +131,12 @@ beforeEach(() => {
 	tableSpy = vi.spyOn(console, 'table').mockImplementation(() => {});
 	groupSpy = vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
 	vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
-	delete window.__FINANCES_DEVTOOLS__;
+	(window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
 });
 
 afterEach(() => {
 	vi.restoreAllMocks();
-	delete window.__FINANCES_DEVTOOLS__;
+	(window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
 });
 
 // =============================================================================
@@ -425,7 +433,7 @@ describe('devtools API state inspection', () => {
 	it('state reflects current store values', () => {
 		const debugStore = createMockDebugStore(true, 'trace');
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		expect(devtools.state.app.theme).toBe('');
 		expect(devtools.state.app.locale).toBe('en');
@@ -443,7 +451,7 @@ describe('devtools API state inspection', () => {
 	it('state returns fresh snapshots (not stale references)', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		const snap1 = devtools.state;
 		const snap2 = devtools.state;
@@ -455,7 +463,7 @@ describe('devtools API state inspection', () => {
 	it('appName and buildInfo are accessible', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		expect(devtools.appName).toBe(APP_NAME);
 		// buildInfo may be null in test environment where Vite define constants are missing
@@ -470,7 +478,7 @@ describe('devtools API mutations', () => {
 	it('setTheme calls editor store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.setTheme('midnight');
 		expect(editorStore.setTheme).toHaveBeenCalledWith('midnight');
@@ -481,7 +489,7 @@ describe('devtools API mutations', () => {
 	it('setMode calls editor store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.setMode('dark');
 		expect(editorStore.setMode).toHaveBeenCalledWith('dark');
@@ -492,7 +500,7 @@ describe('devtools API mutations', () => {
 	it('setLocale calls editor store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.setLocale('ja');
 		expect(editorStore.setLocale).toHaveBeenCalledWith('ja');
@@ -503,7 +511,7 @@ describe('devtools API mutations', () => {
 	it('setSidebarOpen calls editor store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.setSidebarOpen(false);
 		expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(false);
@@ -514,7 +522,7 @@ describe('devtools API mutations', () => {
 	it('setFeature calls editor store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.setFeature('settings', false);
 		expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
@@ -525,7 +533,7 @@ describe('devtools API mutations', () => {
 	it('setLogLevel calls debug store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.setLogLevel('trace');
 		expect(debugStore.setLogLevel).toHaveBeenCalledWith('trace');
@@ -536,7 +544,7 @@ describe('devtools API mutations', () => {
 	it('enable/disable calls debug store', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.disable();
 		expect(debugStore.setEnabled).toHaveBeenCalledWith(false);
@@ -550,7 +558,7 @@ describe('devtools API mutations', () => {
 	it('generic set works for all app paths', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.set('app.theme', 'ocean');
 		expect(editorStore.setTheme).toHaveBeenCalledWith('ocean');
@@ -570,7 +578,7 @@ describe('devtools API mutations', () => {
 	it('generic set works for feature paths', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.set('features.sidebar', false);
 		expect(editorStore.setFeature).toHaveBeenCalledWith('sidebar', false);
@@ -584,7 +592,7 @@ describe('devtools API mutations', () => {
 	it('generic set works for debug paths', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.set('debug.logLevel', 'error');
 		expect(debugStore.setLogLevel).toHaveBeenCalledWith('error');
@@ -598,7 +606,7 @@ describe('devtools API mutations', () => {
 	it('generic set ignores invalid paths silently', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		// No section
 		devtools.set('', 'value');
@@ -617,7 +625,7 @@ describe('devtools API mutations', () => {
 	it('generic set ignores unknown feature flag keys', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.set('features.nonexistent', true);
 		expect(editorStore.setFeature).not.toHaveBeenCalled();
@@ -630,7 +638,7 @@ describe('devtools API extension registry', () => {
 	it('register makes namespace accessible', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__! as EditorDevtools & Record<Str, unknown>;
+		const devtools = devtoolsGlobal()! as EditorDevtools & Record<Str, unknown>;
 
 		devtools.register('test', { ping: () => 'pong' });
 
@@ -643,7 +651,7 @@ describe('devtools API extension registry', () => {
 	it('unregister removes namespace', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__! as EditorDevtools & Record<Str, unknown>;
+		const devtools = devtoolsGlobal()! as EditorDevtools & Record<Str, unknown>;
 
 		devtools.register('test', { ping: () => 'pong' });
 		devtools.unregister('test');
@@ -656,7 +664,7 @@ describe('devtools API extension registry', () => {
 	it('multiple extensions can coexist', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__! as EditorDevtools & Record<Str, unknown>;
+		const devtools = devtoolsGlobal()! as EditorDevtools & Record<Str, unknown>;
 
 		devtools.register('audio', { volume: 0.8 });
 		devtools.register('scene', { name: 'town' });
@@ -672,7 +680,7 @@ describe('devtools API console output', () => {
 	it('logState prints all state sections', () => {
 		const debugStore = createMockDebugStore(true, 'debug');
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.logState();
 
@@ -697,7 +705,7 @@ describe('devtools API console output', () => {
 	it('logFeatures calls console.table with features object', () => {
 		const debugStore = createMockDebugStore(true);
 		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 
 		devtools.logFeatures();
 		expect(tableSpy).toHaveBeenCalledWith(
@@ -717,11 +725,11 @@ describe('orchestrator lifecycle', () => {
 		const debugStore = createMockDebugStore(true);
 		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		expect(window.__FINANCES_DEVTOOLS__).toBeDefined();
+		expect(devtoolsGlobal()).toBeDefined();
 
 		handle.destroy();
 
-		expect(window.__FINANCES_DEVTOOLS__).toBeUndefined();
+		expect(devtoolsGlobal()).toBeUndefined();
 	});
 
 	it('activate logs deactivation message on destroy', () => {
@@ -743,12 +751,12 @@ describe('orchestrator lifecycle', () => {
 		// Start disabled
 		let handle: DebugServicesHandle | null = syncDebugServices(editorStore, disabledStore, null);
 		expect(handle).toBeNull();
-		expect(window.__FINANCES_DEVTOOLS__).toBeUndefined();
+		expect(devtoolsGlobal()).toBeUndefined();
 
 		// Enable
 		handle = syncDebugServices(editorStore, enabledStore, handle);
 		expect(handle).not.toBeNull();
-		expect(window.__FINANCES_DEVTOOLS__).toBeDefined();
+		expect(devtoolsGlobal()).toBeDefined();
 
 		// Stay enabled (idempotent)
 		const sameHandle = syncDebugServices(editorStore, enabledStore, handle);
@@ -757,7 +765,7 @@ describe('orchestrator lifecycle', () => {
 		// Disable
 		handle = syncDebugServices(editorStore, disabledStore, handle);
 		expect(handle).toBeNull();
-		expect(window.__FINANCES_DEVTOOLS__).toBeUndefined();
+		expect(devtoolsGlobal()).toBeUndefined();
 
 		// Stay disabled (idempotent)
 		handle = syncDebugServices(editorStore, disabledStore, handle);
@@ -766,7 +774,7 @@ describe('orchestrator lifecycle', () => {
 		// Re-enable
 		handle = syncDebugServices(editorStore, enabledStore, handle);
 		expect(handle).not.toBeNull();
-		expect(window.__FINANCES_DEVTOOLS__).toBeDefined();
+		expect(devtoolsGlobal()).toBeDefined();
 
 		handle?.destroy();
 	});
@@ -1008,7 +1016,7 @@ describe('full debug activation flow', () => {
 		expect(handle).not.toBeNull();
 
 		// 5. Devtools API is available
-		const devtools = window.__FINANCES_DEVTOOLS__!;
+		const devtools = devtoolsGlobal()!;
 		expect(devtools).toBeDefined();
 		expect(devtools.state.debug.logLevel).toBe('debug');
 		// buildInfo may be null in test environment
@@ -1041,17 +1049,15 @@ describe('full debug activation flow', () => {
 		// 10. Destroy cleans up
 		handle = syncDebugServices(editorStore, createMockDebugStore(false), handle);
 		expect(handle).toBeNull();
-		expect(window.__FINANCES_DEVTOOLS__).toBeUndefined();
+		expect(devtoolsGlobal()).toBeUndefined();
 	});
 
-	it('devtools window global key matches DEVTOOLS_KEY constant', () => {
-		expect(DEVTOOLS_KEY).toBe('__FINANCES_DEVTOOLS__');
+	it('devtools window global key derives from APP_NAME', () => {
+		expect(DEVTOOLS_KEY).toBe(`__${APP_NAME.toUpperCase()}_DEVTOOLS__`);
 
 		const debugStore = createMockDebugStore(true);
 		activateDebugServices(editorStore, debugStore);
 
-		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBe(
-			window.__FINANCES_DEVTOOLS__,
-		);
+		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBe(devtoolsGlobal());
 	});
 });

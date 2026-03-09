@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { APP_NAME, APP_TAGLINE } from '../src/lib/config/app-meta';
 
 /**
  * Comprehensive head meta tag tests for both normal and error pages.
@@ -34,19 +35,19 @@ test.describe('head meta — normal page (/)', () => {
 
 	test('title includes app name, breadcrumb, and tagline', async ({ page }) => {
 		await page.goto('/');
-		await expect(page).toHaveTitle('Storylyne - Home - Your Story, Rendered');
+		await expect(page).toHaveTitle(`${APP_NAME} - Home - ${APP_TAGLINE}`);
 	});
 
 	test('description contains tagline', async ({ page }) => {
 		await page.goto('/');
 		const description = page.locator('meta[name="description"]');
-		await expect(description).toHaveAttribute('content', /Your Story, Rendered/);
+		await expect(description).toHaveAttribute('content', new RegExp(APP_TAGLINE));
 	});
 
-	test('application-name is Storylyne', async ({ page }) => {
+	test(`application-name is ${APP_NAME}`, async ({ page }) => {
 		await page.goto('/');
 		const appName = page.locator('meta[name="application-name"]');
-		await expect(appName).toHaveAttribute('content', 'Storylyne');
+		await expect(appName).toHaveAttribute('content', APP_NAME);
 	});
 
 	test('theme-color light is #ffffff', async ({ page }) => {
@@ -65,16 +66,16 @@ test.describe('head meta — normal page (/)', () => {
 		await expect(themeColor).toHaveAttribute('content', '#242424');
 	});
 
-	test('og:title is Storylyne', async ({ page }) => {
+	test(`og:title is ${APP_NAME}`, async ({ page }) => {
 		await page.goto('/');
 		const ogTitle = page.locator('meta[property="og:title"]');
-		await expect(ogTitle).toHaveAttribute('content', 'Storylyne');
+		await expect(ogTitle).toHaveAttribute('content', APP_NAME);
 	});
 
 	test('og:description contains tagline', async ({ page }) => {
 		await page.goto('/');
 		const ogDescription = page.locator('meta[property="og:description"]');
-		await expect(ogDescription).toHaveAttribute('content', /Your Story, Rendered/);
+		await expect(ogDescription).toHaveAttribute('content', new RegExp(APP_TAGLINE));
 	});
 
 	test('og:type is website', async ({ page }) => {
@@ -133,10 +134,10 @@ test.describe('head meta — normal page (/)', () => {
 		await expect(meta).toHaveAttribute('content', 'default');
 	});
 
-	test('apple-mobile-web-app-title is Storylyne', async ({ page }) => {
+	test(`apple-mobile-web-app-title is ${APP_NAME}`, async ({ page }) => {
 		await page.goto('/');
 		const meta = page.locator('meta[name="apple-mobile-web-app-title"]');
-		await expect(meta).toHaveAttribute('content', 'Storylyne');
+		await expect(meta).toHaveAttribute('content', APP_NAME);
 	});
 });
 
@@ -215,21 +216,21 @@ test.describe('head meta — error page (/test-error/404)', () => {
 		await expect(robots).toHaveAttribute('content', /nofollow/);
 	});
 
-	test('title includes error text and Storylyne', async ({ page }) => {
+	test(`title includes error text and ${APP_NAME}`, async ({ page }) => {
 		await page.goto('/test-error/404');
-		await expect(page).toHaveTitle(/Storylyne.*Page not found.*Your Story, Rendered/i);
+		await expect(page).toHaveTitle(new RegExp(`${APP_NAME}.*Page not found.*${APP_TAGLINE}`, 'i'));
 	});
 
 	test('description is inherited from layout', async ({ page }) => {
 		await page.goto('/test-error/404');
 		const description = page.locator('meta[name="description"]');
-		await expect(description).toHaveAttribute('content', /Your Story, Rendered/);
+		await expect(description).toHaveAttribute('content', new RegExp(APP_TAGLINE));
 	});
 
 	test('application-name is inherited from layout', async ({ page }) => {
 		await page.goto('/test-error/404');
-		const appName = page.locator('meta[name="application-name"]');
-		await expect(appName).toHaveAttribute('content', 'Storylyne');
+		const appNameMeta = page.locator('meta[name="application-name"]');
+		await expect(appNameMeta).toHaveAttribute('content', APP_NAME);
 	});
 
 	test('theme-color light is #ffffff', async ({ page }) => {
@@ -248,16 +249,16 @@ test.describe('head meta — error page (/test-error/404)', () => {
 		await expect(themeColor).toHaveAttribute('content', '#242424');
 	});
 
-	test('og:title is Storylyne', async ({ page }) => {
+	test(`og:title is ${APP_NAME}`, async ({ page }) => {
 		await page.goto('/test-error/404');
 		const ogTitle = page.locator('meta[property="og:title"]');
-		await expect(ogTitle).toHaveAttribute('content', 'Storylyne');
+		await expect(ogTitle).toHaveAttribute('content', APP_NAME);
 	});
 
 	test('og:description is inherited from layout', async ({ page }) => {
 		await page.goto('/test-error/404');
 		const ogDescription = page.locator('meta[property="og:description"]');
-		await expect(ogDescription).toHaveAttribute('content', /Your Story, Rendered/);
+		await expect(ogDescription).toHaveAttribute('content', new RegExp(APP_TAGLINE));
 	});
 
 	test('og:type is website', async ({ page }) => {
@@ -310,9 +311,9 @@ test.describe('head meta — error page (/test-error/404)', () => {
 		await expect(meta).toHaveAttribute('content', 'default');
 	});
 
-	test('apple-mobile-web-app-title is Storylyne', async ({ page }) => {
+	test(`apple-mobile-web-app-title is ${APP_NAME}`, async ({ page }) => {
 		await page.goto('/test-error/404');
 		const meta = page.locator('meta[name="apple-mobile-web-app-title"]');
-		await expect(meta).toHaveAttribute('content', 'Storylyne');
+		await expect(meta).toHaveAttribute('content', APP_NAME);
 	});
 });
