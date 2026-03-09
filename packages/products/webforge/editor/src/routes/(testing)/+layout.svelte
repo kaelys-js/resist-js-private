@@ -11,7 +11,9 @@ import { page } from '$app/state';
 import { storageKey } from '$lib/config/app-meta';
 import type { Str } from '@/schemas/common';
 import type { LensMeta, CategoryGroup } from '@/ui/lens/types.js';
-import { extractDir, toTitle } from '@/ui/lens/lens-utils.js';
+import type { Result } from '@/schemas/result/result';
+import { extractDir, toTitle, parseLensMeta } from '@/ui/lens/lens-utils.js';
+import { log } from '@/utils/core/logger';
 import * as Sidebar from '@/ui/sidebar/index.js';
 import * as Breadcrumb from '@/ui/breadcrumb/index.js';
 import * as Collapsible from '@/ui/collapsible/index.js';
@@ -22,6 +24,7 @@ import ModeToggle from '@/ui/mode-toggle/ModeToggle.svelte';
 import AppLogo from '@/ui/app-logo/AppLogo.svelte';
 import Badge from '@/ui/badge/badge.svelte';
 import ComponentIcon from '@lucide/svelte/icons/component';
+import * as Tooltip from '@/ui/tooltip/index.js';
 import ChevronRight from '@lucide/svelte/icons/chevron-right';
 
 const { children } = $props();
@@ -48,12 +51,23 @@ const componentNames: Str[] = [
 
 /**
  * Build a metadata lookup by component name from lens.ts glob results.
+ * Each meta is validated against LensMetaSchema via the Result pattern.
+ * Invalid metadata surfaces as a visible error in the sidebar.
  */
 const metaByName: Map<Str, LensMeta> = new Map();
+const metaErrors: Map<Str, Str> = new Map();
 for (const [key, mod] of Object.entries(lensMetaModules)) {
 	const dir: Str = extractDir(key);
 	if (mod.meta) {
-		metaByName.set(dir, mod.meta);
+		const result: Result<LensMeta> = parseLensMeta(mod.meta);
+		if (result.ok) {
+			// Spread to unfreeze — Result.data is deep-frozen but Map<Str, LensMeta> needs mutable shape
+			metaByName.set(dir, { ...result.data, tags: [...result.data.tags] });
+		} else {
+			// UI boundary — sidebar must render; error stored for visible indicator
+			log.warn(`Invalid lens.ts for "${dir}": ${result.error.message}`);
+			metaErrors.set(dir, result.error.message);
+		}
 	}
 }
 
@@ -144,7 +158,7 @@ const setMode = (m: Str): void => {
 		<Sidebar.Content>
 			<Collapsible.Root open class="group/collapsible">
 				<Sidebar.Group>
-					<Sidebar.GroupLabel>
+					<Sidebar.GroupLabel class="text-sm">
 						{#snippet child({ props })}
 							<Collapsible.Trigger {...props}>
 								Components
@@ -162,21 +176,40 @@ const setMode = (m: Str): void => {
 										class="flex w-full items-center gap-1.5 rounded-md px-3 py-1 transition-colors hover:bg-accent/50"
 									>
 										<ChevronRight class="size-3 text-muted-foreground/50 transition-transform group-data-[state=open]/category:rotate-90" />
-										<span class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60">{group.label}</span>
-										<Badge variant="secondary" class="h-4 rounded px-1 text-[10px] leading-none">{group.components.length}</Badge>
+										<span class="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">{group.label}</span>
+										<Badge variant="secondary" class="ml-auto h-5 rounded px-1.5 text-[11px] leading-none">{group.components.length}</Badge>
 									</Collapsible.Trigger>
 									<Collapsible.Content>
-										<Sidebar.Menu>
+										<Sidebar.Menu class="pl-4">
 											{#each group.components as name (name)}
+												{@const itemMeta = metaByName.get(name)}
 												<Sidebar.MenuItem>
-													<Sidebar.MenuButton isActive={currentName === name}>
-														{#snippet child({ props })}
-															<a href="/components/{name}" {...props}>
-																<ComponentIcon class="size-4" />
-																<span>{toTitle(name)}</span>
-															</a>
-														{/snippet}
-													</Sidebar.MenuButton>
+													<Tooltip.Root delayDuration={400}>
+														<Tooltip.Trigger>
+															{#snippet child({ props: tooltipProps })}
+																<Sidebar.MenuButton isActive={currentName === name} {...tooltipProps}>
+																	{#snippet child({ props })}
+																		<a href="/components/{name}" {...props}>
+																			<ComponentIcon class="size-4" />
+																			<span>{toTitle(name)}</span>
+																		</a>
+																	{/snippet}
+																</Sidebar.MenuButton>
+															{/snippet}
+														</Tooltip.Trigger>
+														{#if itemMeta?.description}
+															<Tooltip.Content side="right" sideOffset={8} class="max-w-64">
+																<p class="text-xs">{itemMeta.description}</p>
+																{#if itemMeta.tags.length > 0}
+																	<div class="mt-1 flex flex-wrap gap-1">
+																		{#each itemMeta.tags as tag (tag)}
+																			<span class="rounded bg-primary-foreground/20 px-1 py-0.5 text-[10px]">{tag}</span>
+																		{/each}
+																	</div>
+																{/if}
+															</Tooltip.Content>
+														{/if}
+													</Tooltip.Root>
 												</Sidebar.MenuItem>
 											{/each}
 										</Sidebar.Menu>

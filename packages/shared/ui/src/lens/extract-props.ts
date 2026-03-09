@@ -19,6 +19,15 @@ function noop(): void {
 	/* intentionally empty — placeholder for function-typed props in variant previews */
 }
 
+/** JSDoc open marker — extracted to avoid confusing oxlint's JSDoc parser. */
+const JSDOC_OPEN: string = '/**';
+
+/** JSDoc close marker — extracted to avoid confusing oxlint's JSDoc parser. */
+const JSDOC_CLOSE: string = '*/';
+
+/** Regex matching single-line JSDoc comments — extracted to keep oxlint's parser from misinterpreting. */
+const SINGLE_JSDOC_RE: RegExp = /^\/\*\*\s*(.*?)\s*\*\/$/;
+
 /**
  * Props to exclude from extraction — internal/inherited, not user-facing.
  *
@@ -290,11 +299,10 @@ function buildPlaceholderObject(typeSummary: string): Record<string, string> | n
 
 /**
  * Extract field names from a resolved type definition body and build a placeholder object.
- *
  * Parses JSDoc values tags from the definition body to populate placeholder values.
  *
  * @param definition - Resolved type definition string starting with `{`
- * @return Placeholder object with field names as keys, or null
+ * @returns Placeholder object with field names as keys, or null if unparseable
  */
 function buildPlaceholderFromDefinition(definition: string): Record<string, string> | null {
 	const inner: string = definition.slice(1, -1).trim();
@@ -311,7 +319,7 @@ function buildPlaceholderFromDefinition(definition: string): Record<string, stri
 		if (!trimmed) continue;
 
 		// Multi-line JSDoc start
-		if (trimmed.startsWith('/**') && !trimmed.endsWith('*/')) {
+		if (trimmed.startsWith(JSDOC_OPEN) && !trimmed.endsWith(JSDOC_CLOSE)) {
 			inJSDoc = true;
 			jsdocLines = [];
 			const afterOpen: string = trimmed.slice(3).trim();
@@ -321,7 +329,7 @@ function buildPlaceholderFromDefinition(definition: string): Record<string, stri
 
 		// Multi-line JSDoc continuation
 		if (inJSDoc) {
-			if (trimmed.endsWith('*/')) {
+			if (trimmed.endsWith(JSDOC_CLOSE)) {
 				const beforeClose: string = trimmed
 					.slice(0, -2)
 					.replace(/^\*\s*/, '')
@@ -338,7 +346,7 @@ function buildPlaceholderFromDefinition(definition: string): Record<string, stri
 		}
 
 		// Single-line JSDoc
-		const singleJSDoc: RegExpMatchArray | null = trimmed.match(/^\/\*\*\s*(.*?)\s*\*\/$/);
+		const singleJSDoc: RegExpMatchArray | null = trimmed.match(SINGLE_JSDOC_RE);
 		if (singleJSDoc) {
 			pendingDescription = singleJSDoc[1] ?? '';
 			continue;
@@ -655,7 +663,7 @@ function parseTypeBlockFields(
 		}
 
 		// Multi-line JSDoc start
-		if (trimmed.startsWith('/**') && !trimmed.endsWith('*/')) {
+		if (trimmed.startsWith(JSDOC_OPEN) && !trimmed.endsWith(JSDOC_CLOSE)) {
 			inJSDoc = true;
 			jsdocLines = [];
 			const afterOpen: string = trimmed.slice(3).trim();
@@ -665,7 +673,7 @@ function parseTypeBlockFields(
 
 		// Multi-line JSDoc continuation
 		if (inJSDoc) {
-			if (trimmed.endsWith('*/')) {
+			if (trimmed.endsWith(JSDOC_CLOSE)) {
 				const beforeClose: string = trimmed
 					.slice(0, -2)
 					.replace(/^\*\s*/, '')
@@ -682,7 +690,7 @@ function parseTypeBlockFields(
 		}
 
 		// Single-line JSDoc
-		const singleJSDoc: RegExpMatchArray | null = trimmed.match(/^\/\*\*\s*(.*?)\s*\*\/$/);
+		const singleJSDoc: RegExpMatchArray | null = trimmed.match(SINGLE_JSDOC_RE);
 		if (singleJSDoc) {
 			pendingDescription = singleJSDoc[1] ?? '';
 			continue;
@@ -764,7 +772,7 @@ function parseDestructuring(destructuring: string): RawProp[] {
 		if (!trimmed) continue;
 
 		// Multi-line JSDoc start
-		if (trimmed.startsWith('/**') && !trimmed.endsWith('*/')) {
+		if (trimmed.startsWith(JSDOC_OPEN) && !trimmed.endsWith(JSDOC_CLOSE)) {
 			inJSDoc = true;
 			jsdocLines = [];
 			// Extract text after /** on the opening line
@@ -775,7 +783,7 @@ function parseDestructuring(destructuring: string): RawProp[] {
 
 		// Multi-line JSDoc continuation
 		if (inJSDoc) {
-			if (trimmed.endsWith('*/')) {
+			if (trimmed.endsWith(JSDOC_CLOSE)) {
 				// Closing line — extract text before */
 				const beforeClose: string = trimmed
 					.slice(0, -2)
@@ -794,7 +802,7 @@ function parseDestructuring(destructuring: string): RawProp[] {
 		}
 
 		// Single-line JSDoc: /** ... */
-		const singleJSDoc: RegExpMatchArray | null = trimmed.match(/^\/\*\*\s*(.*?)\s*\*\/$/);
+		const singleJSDoc: RegExpMatchArray | null = trimmed.match(SINGLE_JSDOC_RE);
 		if (singleJSDoc) {
 			pendingDescription = singleJSDoc[1] ?? '';
 			continue;

@@ -123,8 +123,8 @@ export type LensCategory = v.InferOutput<typeof LensCategorySchema>;
 export const LensMetaSchema = v.strictObject({
 	/** Sidebar grouping category. */
 	category: LensCategorySchema,
-	/** Freeform tags for search and badge display. */
-	tags: v.array(v.string()),
+	/** Freeform tags for search and badge display (at least one required). */
+	tags: v.pipe(v.array(v.string()), v.minLength(1)),
 	/** Short component description for search and page header. */
 	description: v.string(),
 });

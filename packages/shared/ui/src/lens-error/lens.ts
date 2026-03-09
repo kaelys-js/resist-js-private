@@ -1,7 +1,7 @@
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
-	category: 'display',
+	category: 'lens',
 	tags: ['error', 'feedback'],
-	description: 'Full-page error display with status code and message.',
+	description: 'Error boundary display for Lens documentation system failures.',
 };

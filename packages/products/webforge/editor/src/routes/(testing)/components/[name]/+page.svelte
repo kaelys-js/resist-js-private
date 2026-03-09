@@ -8,18 +8,20 @@
 import type { Bool, Str } from '@/schemas/common';
 import type { Component } from 'svelte';
 import type { PropMeta, VariantMeta, VariantKeyMeta, LensExample, LensMeta } from '@/ui/lens/types.js';
-import { extractProps, extractDescription, extractPropsVariants, buildBaseProps } from '@/ui/lens/extract-props.js';
+import { extractProps, extractDescription, extractPropsVariants } from '@/ui/lens/extract-props.js';
 import { extractVariants } from '@/ui/lens/extract-variants.js';
-import { extractDir, extractStem, toTitle, isInternalFile, findPrimaryKey } from '@/ui/lens/lens-utils.js';
+import type { Result } from '@/schemas/result/result';
+import { extractDir, extractStem, toTitle, isInternalFile, findPrimaryKey, parseLensMeta } from '@/ui/lens/lens-utils.js';
 import { page } from '$app/state';
-import Badge from '@/ui/badge/badge.svelte';
-import CopyImport from '@/ui/copy-import/CopyImport.svelte';
 import LensEmpty from '@/ui/lens-empty/LensEmpty.svelte';
+import LensError from '@/ui/lens-error/LensError.svelte';
+import LensHeader from '@/ui/lens-header/LensHeader.svelte';
 import LensSection from '@/ui/lens-section/LensSection.svelte';
-import PropsTable from '@/ui/props-table/PropsTable.svelte';
+import LensSource from '@/ui/lens-source/LensSource.svelte';
+import PropsTable from '@/ui/lens-props-table/PropsTable.svelte';
 import CodeBlock from '@/ui/code-block/CodeBlock.svelte';
-import VariantGrid from '@/ui/variant-grid/VariantGrid.svelte';
-import ComponentIcon from '@lucide/svelte/icons/component';
+import LensDefaultPreview from '@/ui/lens-default-preview/LensDefaultPreview.svelte';
+import VariantGrid from '@/ui/lens-variant-grid/VariantGrid.svelte';
 
 /* ------------------------------------------------------------------ */
 /*  Globs                                                             */
@@ -147,9 +149,17 @@ $effect(() => {
 				if (Array.isArray(examples)) {
 					lensExamples = examples as LensExample[];
 				}
-				// Extract component meta (category, tags, description)
-				if (lm.meta && typeof lm.meta === 'object') {
-					lensMeta = lm.meta as LensMeta;
+				// Validate component meta against LensMetaSchema
+				if (lm.meta) {
+					const metaResult: Result<LensMeta> = parseLensMeta(lm.meta);
+					if (metaResult.ok) {
+						// Spread to unfreeze — Result.data is deep-frozen but $state needs mutable shape
+						lensMeta = { ...metaResult.data, tags: [...metaResult.data.tags] };
+					} else {
+						// Error propagates to loadError — renders visible error state
+						if (!cancelled) loadError = `Invalid lens metadata: ${metaResult.error.message}`;
+						return;
+					}
 				}
 			}
 
@@ -224,9 +234,6 @@ const allVariants: VariantKeyMeta[] = $derived.by((): VariantKeyMeta[] => {
 const hasVariants: Bool = $derived(allVariants.length > 0);
 const hasExamples: Bool = $derived(lensExamples.length > 0);
 
-/** Base props for default render — fills required props with defaults/mocks/placeholders. */
-const pageBaseProps: Record<Str, unknown> = $derived(buildBaseProps(props));
-
 /**
  * Build a PascalCase tag name from a kebab-case component directory name.
  *
@@ -237,46 +244,14 @@ function toTag(componentName: Str): Str {
 	return toTitle(componentName).replaceAll(' ', '');
 }
 
-/**
- * Generate a code snippet showing usage of a specific variant option.
- *
- * @param componentName - The component directory name (kebab-case)
- * @param propName - The prop/variant key name
- * @param optionValue - The selected option value
- * @returns A Svelte code snippet string
- */
-function variantCodeSnippet(componentName: Str, propName: Str, optionValue: Str): Str {
-	const tag: Str = toTag(componentName);
-	return `<${tag} ${propName}="${optionValue}">Example</${tag}>`;
-}
-
 </script>
 
-<div class="w-full px-8 py-10">
-	<!-- Component header -->
-	<div class="mb-8 flex items-start gap-4">
-		<div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-			<ComponentIcon class="size-6 text-primary" />
-		</div>
-		<div>
-			<h1 class="text-3xl font-bold tracking-tight">{toTitle(name)}</h1>
-			{#if componentDescription}
-				<p class="mt-1 text-sm text-muted-foreground">{componentDescription}</p>
-			{/if}
-			{#if lensMeta}
-				<div class="mt-2 flex flex-wrap items-center gap-1.5">
-					<Badge variant="secondary" class="text-xs capitalize">{lensMeta.category}</Badge>
-					{#each lensMeta.tags as tag (tag)}
-						<Badge variant="outline" class="text-xs">{tag}</Badge>
-					{/each}
-				</div>
-			{/if}
-			<div class="mt-1.5">
-				<CopyImport text="@/ui/{name}" copyText="import ... from '@/ui/{name}/...';" />
-			</div>
-		</div>
+<div class="w-full">
+	<div class="sticky top-(--header-height) z-10 border-b bg-background px-8 pb-4 pt-10">
+		<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} />
 	</div>
 
+	<div class="px-8 py-8">
 	{#if loading}
 		<div class="flex items-center justify-center rounded-xl border py-20">
 			<div
@@ -284,46 +259,37 @@ function variantCodeSnippet(componentName: Str, propName: Str, optionValue: Str)
 			></div>
 		</div>
 	{:else if loadError}
-		<LensEmpty title={loadError} description="Check that the component exists and has a valid source file." variant="destructive" />
+		<LensError title={loadError} description="Check that the component exists and has a valid source file." />
 	{:else}
 		<div class="space-y-10">
 			<!-- ═══ Props ═══ -->
-			<section>
+			<section id="props" class="scroll-mt-60">
 				<h2 class="mb-3 text-lg font-semibold">Props</h2>
-				<PropsTable {props} />
+				<PropsTable {props} variantKeys={allVariants.map((v) => v.key)} />
 			</section>
 
 			<!-- ═══ Default ═══ -->
 			{#if PrimaryComponent && hasVariants}
-				<section>
+				<section id="default" class="scroll-mt-60">
 					<h2 class="mb-3 text-lg font-semibold">Default</h2>
 					<LensSection title="Default" description="Component rendered with default props.">
-						<div class="flex w-full items-center justify-center">
-							<svelte:boundary>
-								<PrimaryComponent {...pageBaseProps}>Example</PrimaryComponent>
-								{#snippet failed()}
-									<span class="text-xs text-muted-foreground">Preview unavailable</span>
-								{/snippet}
-							</svelte:boundary>
-						</div>
+						<LensDefaultPreview component={PrimaryComponent} {props} tagName={toTag(name)} />
 					</LensSection>
 				</section>
 			{/if}
 
 			<!-- ═══ Variants ═══ -->
-			<section>
+			<section id="variants" class="scroll-mt-60">
 				<h2 class="mb-3 text-lg font-semibold">Variants</h2>
 				{#if hasVariants && PrimaryComponent}
 					<div class="space-y-4">
 						{#each allVariants as variantKey (variantKey.key)}
 							{@const singleMeta: VariantMeta = { variants: [variantKey] }}
-							{@const codeLines: Str = variantKey.options.map((o: Str): Str => variantCodeSnippet(name, variantKey.key, o)).join('\n')}
-							<LensSection title={toTitle(variantKey.key)} description="Options for the {variantKey.key} prop." propName={variantKey.key} codeText={codeLines}>
-								{#snippet code()}
-									<CodeBlock code={codeLines} lang="svelte" />
-								{/snippet}
-								<VariantGrid component={PrimaryComponent} meta={singleMeta} {props} />
-							</LensSection>
+							<div id="variant-{variantKey.key}" class="scroll-mt-60">
+								<LensSection title={toTitle(variantKey.key)} description="Options for the {variantKey.key} prop." propName={variantKey.key}>
+									<VariantGrid component={PrimaryComponent} meta={singleMeta} {props} tagName={toTag(name)} />
+								</LensSection>
+							</div>
 						{/each}
 					</div>
 				{:else}
@@ -332,7 +298,7 @@ function variantCodeSnippet(componentName: Str, propName: Str, optionValue: Str)
 			</section>
 
 			<!-- ═══ Examples ═══ -->
-			<section>
+			<section id="examples" class="scroll-mt-60">
 				<h2 class="mb-3 text-lg font-semibold">Examples</h2>
 				{#if hasExamples}
 					<div class="space-y-4">
@@ -358,15 +324,9 @@ function variantCodeSnippet(componentName: Str, propName: Str, optionValue: Str)
 
 			<!-- ═══ Source ═══ -->
 			{#if rawSource}
-				<section>
-					<h2 class="mb-3 text-lg font-semibold">Source</h2>
-					<LensSection title={toTitle(name)} description="Component source code." codeText={rawSource}>
-						{#snippet code()}
-							<CodeBlock code={rawSource} lang="svelte" />
-						{/snippet}
-					</LensSection>
-				</section>
+				<LensSource {name} source={rawSource} />
 			{/if}
 		</div>
 	{/if}
+	</div>
 </div>
