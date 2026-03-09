@@ -361,6 +361,17 @@ export const de: EditorLocaleRaw = {
 		placeholderAmount: '0.00',
 		placeholderEgCreditCard: 'z.B. Kreditkarte',
 		placeholderExpenseName: 'Ausgabenname',
+		searchPlaceholder: 'Suchen\u2026',
+		noMatchingResults: 'Keine passenden Ergebnisse.',
+		deleteConfirmTitle: 'L\u00F6schung best\u00E4tigen',
+		deleteConfirmDesc:
+			'Diese Aktion kann nicht r\u00FCckg\u00E4ngig gemacht werden. Dieses Element wird dauerhaft gel\u00F6scht.',
+		debtOverviewDesc: 'Offene Salden \u00FCber alle Schuldenpositionen.',
+		netPositionDesc:
+			'Voraussichtliches Einkommen minus voraussichtliche Ausgaben und Schulden \u00FCber Ihre Lebenszeit.',
+		expensesByCategoryDesc:
+			'Gestapelte Aufschl\u00FCsselung der voraussichtlichen j\u00E4hrlichen Kosten nach Ausgabentyp.',
+		incomeVsExpensesDesc: 'Jahresvergleich von voraussichtlichem Einkommen und Ausgaben.',
 	},
 	errors: {
 		badRequest: 'Ung\u00FCltige Anfrage',

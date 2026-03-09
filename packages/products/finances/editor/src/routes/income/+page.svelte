@@ -3,18 +3,19 @@ import { localeStore, t } from '$lib/i18n.svelte';
 import type { Str, Num, Bool } from '@/schemas/common';
 import { INCOME_FREQUENCIES, type IncomeSource, type Settings } from '$lib/schemas/finances';
 import { invalidateAll } from '$app/navigation';
-import { Button } from '$lib/components/ui/button';
-import { Badge } from '$lib/components/ui/badge';
-import { Input } from '$lib/components/ui/input';
-import { Label } from '$lib/components/ui/label';
-import { Separator } from '$lib/components/ui/separator';
-import * as Dialog from '$lib/components/ui/dialog';
-import * as Table from '$lib/components/ui/table';
-import * as Select from '$lib/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+import { Button } from '@/ui/button';
+import { Badge } from '@/ui/badge';
+import { Input } from '@/ui/input';
+import { Label } from '@/ui/label';
+import { Separator } from '@/ui/separator';
+import * as Dialog from '@/ui/dialog';
+import * as Table from '@/ui/table';
+import * as Select from '@/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { projectIncome, type YearlyIncome } from '$lib/engine/income';
 import { Chart, Svg, Axis, Bars } from 'layerchart';
 import { scaleBand, scaleLinear } from 'd3-scale';
+import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 
 type PageData = {
 	income: IncomeSource[];
@@ -34,6 +35,15 @@ let formStartDate: Str = $state('');
 let formEndDate: Str = $state('');
 let formNotes: Str = $state('');
 
+// ── Delete confirmation state ──────────────────────────────────────
+let confirmOpen: Bool = $state(false);
+let pendingDeleteId: Str | null = $state(null);
+
+// ── Search & sort state ────────────────────────────────────────────
+let searchQuery: Str = $state('');
+let sortKey: Str = $state('name');
+let sortDir: Str = $state('asc');
+
 // ── Derived ─────────────────────────────────────────────────────────
 const totalAssets: Num = $derived(
 	data.income.reduce((sum: Num, s: IncomeSource) => sum + s.amount, 0),
@@ -43,6 +53,25 @@ const dialogTitle: Str = $derived(
 	editingId
 		? t(localeStore.t.finance.editItem, 'Edit Income')
 		: t(localeStore.t.finance.addItem, 'Add Income'),
+);
+
+const sortedRows: IncomeSource[] = $derived.by(() => {
+	const rows: IncomeSource[] = [...data.income];
+	const dir: Num = sortDir === 'asc' ? 1 : -1;
+	rows.sort((a: IncomeSource, b: IncomeSource) => {
+		if (sortKey === 'name') return a.name.localeCompare(b.name) * dir;
+		if (sortKey === 'amount') return (a.amount - b.amount) * dir;
+		if (sortKey === 'frequency') return a.frequency.localeCompare(b.frequency) * dir;
+		if (sortKey === 'startDate') return a.startDate.localeCompare(b.startDate) * dir;
+		return 0;
+	});
+	return rows;
+});
+
+const filteredRows: IncomeSource[] = $derived(
+	sortedRows.filter((row: IncomeSource) =>
+		row.name.toLowerCase().includes(searchQuery.toLowerCase()),
+	),
 );
 
 // ── Chart data ──────────────────────────────────────────────────────
@@ -86,6 +115,21 @@ const biweeklyPayments: PaymentDate[] = $derived.by(() => {
 	}
 	return payments.sort((a, b) => a.date.localeCompare(b.date));
 });
+
+// ── Sort helpers ───────────────────────────────────────────────────
+function toggleSort(key: Str): void {
+	if (sortKey === key) {
+		sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+	} else {
+		sortKey = key;
+		sortDir = 'asc';
+	}
+}
+
+function sortIndicator(key: Str): Str {
+	if (sortKey !== key) return ' ↕';
+	return sortDir === 'asc' ? ' ↑' : ' ↓';
+}
 
 // ── Formatting ──────────────────────────────────────────────────────
 function formatCurrency(value: Num): Str {
@@ -156,8 +200,15 @@ async function handleSave(): Promise<void> {
 	await invalidateAll();
 }
 
-async function handleDelete(id: Str): Promise<void> {
-	await fetch(`/api/income/${id}`, { method: 'DELETE' });
+function requestDelete(id: Str): void {
+	pendingDeleteId = id;
+	confirmOpen = true;
+}
+
+async function performDelete(): Promise<void> {
+	if (!pendingDeleteId) return;
+	await fetch(`/api/income/${pendingDeleteId}`, { method: 'DELETE' });
+	pendingDeleteId = null;
 	await invalidateAll();
 }
 </script>
@@ -174,21 +225,58 @@ async function handleDelete(id: Str): Promise<void> {
 
 	<Separator />
 
+	<!-- Search -->
+	<div class="flex items-center gap-4">
+		<Input
+			type="search"
+			placeholder={t(localeStore.t.finance.searchPlaceholder, 'Search income...')}
+			class="max-w-sm"
+			bind:value={searchQuery}
+		/>
+	</div>
+
 	<!-- Table -->
+	<div class="overflow-hidden rounded-lg border">
 	<Table.Root>
-		<Table.Header>
+		<Table.Header class="bg-muted sticky top-0 z-10">
 			<Table.Row>
-				<Table.Head>{t(localeStore.t.finance.name, 'Name')}</Table.Head>
-				<Table.Head class="text-right">{t(localeStore.t.finance.amount, 'Amount')}</Table.Head>
-				<Table.Head>{t(localeStore.t.finance.frequency, 'Frequency')}</Table.Head>
-				<Table.Head>{t(localeStore.t.finance.startDate, 'Start Date')}</Table.Head>
-				<Table.Head>{t(localeStore.t.finance.endDate, 'End Date')}</Table.Head>
-				<Table.Head>{t(localeStore.t.finance.notes, 'Notes')}</Table.Head>
-				<Table.Head class="text-right">{t(localeStore.t.finance.actions, 'Actions')}</Table.Head>
+				<Table.Head
+					class="text-muted-foreground cursor-pointer text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+					onclick={() => toggleSort('name')}
+				>
+					{t(localeStore.t.finance.name, 'Name')}{sortIndicator('name')}
+				</Table.Head>
+				<Table.Head
+					class="text-muted-foreground cursor-pointer text-right text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+					onclick={() => toggleSort('amount')}
+				>
+					{t(localeStore.t.finance.amount, 'Amount')}{sortIndicator('amount')}
+				</Table.Head>
+				<Table.Head
+					class="text-muted-foreground cursor-pointer text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+					onclick={() => toggleSort('frequency')}
+				>
+					{t(localeStore.t.finance.frequency, 'Frequency')}{sortIndicator('frequency')}
+				</Table.Head>
+				<Table.Head
+					class="text-muted-foreground cursor-pointer text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+					onclick={() => toggleSort('startDate')}
+				>
+					{t(localeStore.t.finance.startDate, 'Start Date')}{sortIndicator('startDate')}
+				</Table.Head>
+				<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+					{t(localeStore.t.finance.endDate, 'End Date')}
+				</Table.Head>
+				<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+					{t(localeStore.t.finance.notes, 'Notes')}
+				</Table.Head>
+				<Table.Head class="text-muted-foreground w-[100px] text-right text-xs font-medium uppercase tracking-wide">
+					{t(localeStore.t.finance.actions, 'Actions')}
+				</Table.Head>
 			</Table.Row>
 		</Table.Header>
 		<Table.Body>
-			{#each data.income as source (source.id)}
+			{#each filteredRows as source (source.id)}
 				<Table.Row>
 					<Table.Cell class="font-medium">{source.name}</Table.Cell>
 					<Table.Cell class="text-right">{formatCurrency(source.amount)}</Table.Cell>
@@ -205,7 +293,7 @@ async function handleDelete(id: Str): Promise<void> {
 							<Button variant="outline" size="sm" onclick={() => openEditDialog(source)}>
 								{t(localeStore.t.finance.editItem, 'Edit')}
 							</Button>
-							<Button variant="destructive" size="sm" onclick={() => handleDelete(source.id)}>
+							<Button variant="destructive" size="sm" onclick={() => requestDelete(source.id)}>
 								{t(localeStore.t.finance.deleteItem, 'Delete')}
 							</Button>
 						</div>
@@ -214,12 +302,15 @@ async function handleDelete(id: Str): Promise<void> {
 			{:else}
 				<Table.Row>
 					<Table.Cell colspan={7} class="text-muted-foreground text-center">
-						{t(localeStore.t.finance.noIncomeRecorded, 'No income sources recorded.')}
+						{searchQuery
+							? t(localeStore.t.finance.noMatchingResults, 'No matching results.')
+							: t(localeStore.t.finance.noIncomeRecorded, 'No income sources recorded.')}
 					</Table.Cell>
 				</Table.Row>
 			{/each}
 		</Table.Body>
 	</Table.Root>
+	</div>
 
 	<!-- Income Projection Chart -->
 	{#if yearlyIncome.length > 0}
@@ -255,14 +346,14 @@ async function handleDelete(id: Str): Promise<void> {
 			<CardHeader>
 				<CardTitle>{t(localeStore.t.finance.eiSchedule, 'Biweekly Payment Schedule')}</CardTitle>
 			</CardHeader>
-			<CardContent>
-				<div class="max-h-[400px] overflow-y-auto">
+			<CardContent class="p-0">
+				<div class="max-h-[400px] overflow-y-auto rounded-lg">
 					<Table.Root>
-						<Table.Header>
+						<Table.Header class="bg-muted sticky top-0 z-10">
 							<Table.Row>
-								<Table.Head>{t(localeStore.t.finance.date, 'Date')}</Table.Head>
-								<Table.Head>{t(localeStore.t.finance.source, 'Source')}</Table.Head>
-								<Table.Head class="text-right">{t(localeStore.t.finance.amount, 'Amount')}</Table.Head>
+								<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.date, 'Date')}</Table.Head>
+								<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.source, 'Source')}</Table.Head>
+								<Table.Head class="text-muted-foreground text-right text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.amount, 'Amount')}</Table.Head>
 							</Table.Row>
 						</Table.Header>
 						<Table.Body>
@@ -375,4 +466,12 @@ async function handleDelete(id: Str): Promise<void> {
 			</form>
 		</Dialog.Content>
 	</Dialog.Root>
+
+	<!-- Delete Confirmation -->
+	<ConfirmDialog
+		bind:open={confirmOpen}
+		title={t(localeStore.t.finance.deleteConfirmTitle, 'Delete Income Source?')}
+		description={t(localeStore.t.finance.deleteConfirmDesc, 'This action cannot be undone. This will permanently delete this income source.')}
+		onConfirm={performDelete}
+	/>
 </div>

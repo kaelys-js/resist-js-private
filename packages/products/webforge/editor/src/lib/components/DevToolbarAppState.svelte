@@ -9,13 +9,13 @@ import LogOutIcon from '@lucide/svelte/icons/log-out';
 import { tick } from 'svelte';
 import { page } from '$app/state';
 import { goto } from '$app/navigation';
-import { Switch } from '$lib/components/ui/switch/index.js';
-import { Label } from '$lib/components/ui/label/index.js';
-import { Input } from '$lib/components/ui/input/index.js';
-import { Button } from '$lib/components/ui/button/index.js';
-import * as Command from '$lib/components/ui/command/index.js';
-import * as Popover from '$lib/components/ui/popover/index.js';
-import { cn } from '$lib/utils.js';
+import { Switch } from '@/ui/switch/index.js';
+import { Label } from '@/ui/label/index.js';
+import { Input } from '@/ui/input/index.js';
+import { Button } from '@/ui/button/index.js';
+import * as Command from '@/ui/command/index.js';
+import * as Popover from '@/ui/popover/index.js';
+import { cn } from '@/ui/utils.js';
 import {
 	discoverAppPreferences,
 	humanizeKey,
@@ -28,7 +28,7 @@ import type { Str, Bool, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
 import X from '@lucide/svelte/icons/x';
-import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+import * as Tooltip from '@/ui/tooltip/index.js';
 import type { AppPreferences } from '$lib/schemas/editor-state';
 
 let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => Void } = $props();

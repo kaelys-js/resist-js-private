@@ -519,7 +519,13 @@
 			}
 		},
 		{
-			"files": ["**/components/ui/**/*.svelte", "**/components/ui/**/*.ts", "**/hooks/*.svelte.ts"],
+			"files": [
+				"**/components/ui/**/*.svelte",
+				"**/components/ui/**/*.ts",
+				"**/hooks/*.svelte.ts",
+				"packages/shared/ui/src/**/*.svelte",
+				"packages/shared/ui/src/**/*.ts"
+			],
 			"rules": {
 				"unicorn/filename-case": "off",
 				"unicorn/no-useless-undefined": "off",

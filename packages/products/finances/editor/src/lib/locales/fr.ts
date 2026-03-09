@@ -362,6 +362,18 @@ export const fr: EditorLocaleRaw = {
 		placeholderAmount: '0.00',
 		placeholderEgCreditCard: 'ex. Carte de cr\u00E9dit',
 		placeholderExpenseName: 'Nom de la d\u00E9pense',
+		searchPlaceholder: 'Rechercher\u2026',
+		noMatchingResults: 'Aucun r\u00E9sultat correspondant.',
+		deleteConfirmTitle: 'Confirmer la suppression',
+		deleteConfirmDesc:
+			'Cette action est irr\u00E9versible. Cet \u00E9l\u00E9ment sera d\u00E9finitivement supprim\u00E9.',
+		debtOverviewDesc: 'Soldes impay\u00E9s sur tous les postes de dette.',
+		netPositionDesc:
+			'Revenus pr\u00E9vus moins d\u00E9penses pr\u00E9vues et dette sur toute votre vie.',
+		expensesByCategoryDesc:
+			'R\u00E9partition empil\u00E9e des co\u00FBts annuels pr\u00E9vus par type de d\u00E9pense.',
+		incomeVsExpensesDesc:
+			'Comparaison ann\u00E9e apr\u00E8s ann\u00E9e des revenus et d\u00E9penses pr\u00E9vus.',
 	},
 	errors: {
 		badRequest: 'Requ\u00EAte invalide',

@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { Component } from 'svelte';
-import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+import * as Sidebar from '@/ui/sidebar/index.js';
 import type { Str } from '@/schemas/common';
 
 type NavItem = {

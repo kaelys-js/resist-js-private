@@ -7,17 +7,18 @@ import {
 } from '$lib/schemas/finances';
 import { invalidateAll } from '$app/navigation';
 import { localeStore, t } from '$lib/i18n.svelte';
-import * as Card from '$lib/components/ui/card/index.js';
-import * as Table from '$lib/components/ui/table/index.js';
-import * as Dialog from '$lib/components/ui/dialog/index.js';
-import * as Select from '$lib/components/ui/select/index.js';
-import { Button } from '$lib/components/ui/button/index.js';
-import { Badge } from '$lib/components/ui/badge/index.js';
-import { Input } from '$lib/components/ui/input/index.js';
-import { Label } from '$lib/components/ui/label/index.js';
-import { Separator } from '$lib/components/ui/separator/index.js';
+import * as Card from '@/ui/card/index.js';
+import * as Table from '@/ui/table/index.js';
+import * as Dialog from '@/ui/dialog/index.js';
+import * as Select from '@/ui/select/index.js';
+import { Button } from '@/ui/button/index.js';
+import { Badge } from '@/ui/badge/index.js';
+import { Input } from '@/ui/input/index.js';
+import { Label } from '@/ui/label/index.js';
+import { Separator } from '@/ui/separator/index.js';
 import { Chart, Svg, Axis, Bars } from 'layerchart';
 import { scaleBand, scaleLinear } from 'd3-scale';
+import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 
 const { data } = $props();
 
@@ -44,6 +45,111 @@ const totalPurchases: Num = $derived(purchases.reduce((sum, p) => sum + p.amount
 const totalReplacementAnnual: Num = $derived(
 	replacements.reduce((sum, r) => sum + replacementAnnualCost(r), 0),
 );
+
+// ── Delete confirmation state ──────────────────────────────────────
+let confirmOpen: Bool = $state(false);
+let pendingDeleteId: Str | null = $state(null);
+let pendingDeleteType: Str = $state('purchase');
+
+const confirmTitle: Str = $derived(
+	pendingDeleteType === 'purchase'
+		? t(localeStore.t.finance.deleteConfirmTitle, 'Delete Purchase?')
+		: t(localeStore.t.finance.deleteConfirmTitle, 'Delete Replacement?'),
+);
+
+const confirmDescription: Str = $derived(
+	pendingDeleteType === 'purchase'
+		? t(
+				localeStore.t.finance.deleteConfirmDesc,
+				'This action cannot be undone. This will permanently delete this purchase.',
+			)
+		: t(
+				localeStore.t.finance.deleteConfirmDesc,
+				'This action cannot be undone. This will permanently delete this replacement.',
+			),
+);
+
+// ── Search state ───────────────────────────────────────────────────
+let searchQuery: Str = $state('');
+
+// ── Purchase sort state ────────────────────────────────────────────
+let purchaseSortKey: Str = $state('name');
+let purchaseSortDir: Str = $state('asc');
+
+// ── Replacement sort state ─────────────────────────────────────────
+let replacementSortKey: Str = $state('name');
+let replacementSortDir: Str = $state('asc');
+
+// ── Sorted & filtered purchases ────────────────────────────────────
+const sortedPurchases: Purchase[] = $derived.by(() => {
+	const rows: Purchase[] = [...purchases];
+	const dir: Num = purchaseSortDir === 'asc' ? 1 : -1;
+	rows.sort((a: Purchase, b: Purchase) => {
+		if (purchaseSortKey === 'name') return a.name.localeCompare(b.name) * dir;
+		if (purchaseSortKey === 'amount') return (a.amount - b.amount) * dir;
+		if (purchaseSortKey === 'category') return a.category.localeCompare(b.category) * dir;
+		return 0;
+	});
+	return rows;
+});
+
+const filteredPurchases: Purchase[] = $derived(
+	sortedPurchases.filter((row: Purchase) =>
+		row.name.toLowerCase().includes(searchQuery.toLowerCase()),
+	),
+);
+
+// ── Sorted & filtered replacements ─────────────────────────────────
+const sortedReplacements: LifetimeReplacement[] = $derived.by(() => {
+	const rows: LifetimeReplacement[] = [...replacements];
+	const dir: Num = replacementSortDir === 'asc' ? 1 : -1;
+	rows.sort((a: LifetimeReplacement, b: LifetimeReplacement) => {
+		if (replacementSortKey === 'name') return a.name.localeCompare(b.name) * dir;
+		if (replacementSortKey === 'totalBudget') return (a.totalBudget - b.totalBudget) * dir;
+		if (replacementSortKey === 'cycleYears') return (a.cycleYears - b.cycleYears) * dir;
+		if (replacementSortKey === 'annualCost')
+			return (replacementAnnualCost(a) - replacementAnnualCost(b)) * dir;
+		if (replacementSortKey === 'lifetimeCost')
+			return (replacementLifetimeCost(a) - replacementLifetimeCost(b)) * dir;
+		return 0;
+	});
+	return rows;
+});
+
+const filteredReplacements: LifetimeReplacement[] = $derived(
+	sortedReplacements.filter((row: LifetimeReplacement) =>
+		row.name.toLowerCase().includes(searchQuery.toLowerCase()),
+	),
+);
+
+// ── Sort helpers ───────────────────────────────────────────────────
+function togglePurchaseSort(key: Str): void {
+	if (purchaseSortKey === key) {
+		purchaseSortDir = purchaseSortDir === 'asc' ? 'desc' : 'asc';
+	} else {
+		purchaseSortKey = key;
+		purchaseSortDir = 'asc';
+	}
+}
+
+function purchaseSortIndicator(key: Str): Str {
+	if (purchaseSortKey !== key) return ' ↕';
+	return purchaseSortDir === 'asc' ? ' ↑' : ' ↓';
+}
+
+function toggleReplacementSort(key: Str): void {
+	if (replacementSortKey === key) {
+		replacementSortDir = replacementSortDir === 'asc' ? 'desc' : 'asc';
+	} else {
+		replacementSortKey = key;
+		replacementSortDir = 'asc';
+	}
+}
+
+function replacementSortIndicator(key: Str): Str {
+	if (replacementSortKey !== key) return ' ↕';
+	return replacementSortDir === 'asc' ? ' ↑' : ' ↓';
+}
 
 // ── Replacement cost chart data ─────────────────────────────────
 
@@ -135,11 +241,6 @@ async function handlePurchaseSubmit(): Promise<void> {
 	await invalidateAll();
 }
 
-async function handlePurchaseDelete(id: Str): Promise<void> {
-	await fetch(`/api/purchases/${id}`, { method: 'DELETE' });
-	await invalidateAll();
-}
-
 // ── Replacement Dialog ───────────────────────────────────────────
 let replacementDialogOpen: Bool = $state(false);
 let replacementIsEditing: Bool = $state(false);
@@ -212,8 +313,21 @@ async function handleReplacementSubmit(): Promise<void> {
 	await invalidateAll();
 }
 
-async function handleReplacementDelete(id: Str): Promise<void> {
-	await fetch(`/api/lifetime-replacements/${id}`, { method: 'DELETE' });
+// ── Delete ───────────────────────────────────────────────────────
+function requestDelete(id: Str, type: Str): void {
+	pendingDeleteId = id;
+	pendingDeleteType = type;
+	confirmOpen = true;
+}
+
+async function performDelete(): Promise<void> {
+	if (!pendingDeleteId) return;
+	if (pendingDeleteType === 'purchase') {
+		await fetch(`/api/purchases/${pendingDeleteId}`, { method: 'DELETE' });
+	} else {
+		await fetch(`/api/lifetime-replacements/${pendingDeleteId}`, { method: 'DELETE' });
+	}
+	pendingDeleteId = null;
 	await invalidateAll();
 }
 </script>
@@ -222,6 +336,16 @@ async function handleReplacementDelete(id: Str): Promise<void> {
 	<!-- Header -->
 	<div class="flex items-center gap-3">
 		<h1 class="text-2xl font-semibold tracking-tight">{t(localeStore.t.finance.upcomingPurchases, 'Purchases')} &amp; {t(localeStore.t.finance.lifetimeReplacements, 'Replacements')}</h1>
+	</div>
+
+	<!-- Search -->
+	<div class="flex items-center gap-4">
+		<Input
+			type="search"
+			placeholder={t(localeStore.t.finance.searchPlaceholder, 'Search purchases & replacements...')}
+			class="max-w-sm"
+			bind:value={searchQuery}
+		/>
 	</div>
 
 	<!-- Upcoming Purchases -->
@@ -235,22 +359,45 @@ async function handleReplacementDelete(id: Str): Promise<void> {
 			</div>
 			<Button size="sm" onclick={openAddPurchase}>{t(localeStore.t.finance.addItem, 'Add Purchase')}</Button>
 		</Card.Header>
-		<Card.Content>
-			{#if purchases.length === 0}
-				<p class="text-muted-foreground text-sm">{t(localeStore.t.finance.noPurchases, 'No purchases yet.')}</p>
+		<Card.Content class="p-0">
+			{#if filteredPurchases.length === 0}
+				<p class="text-muted-foreground p-6 text-sm">
+					{searchQuery
+						? t(localeStore.t.finance.noMatchingResults, 'No matching results.')
+						: t(localeStore.t.finance.noPurchases, 'No purchases yet.')}
+				</p>
 			{:else}
 				<Table.Root>
-					<Table.Header>
+					<Table.Header class="bg-muted sticky top-0 z-10">
 						<Table.Row>
-							<Table.Head>{t(localeStore.t.finance.name, 'Name')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.amount, 'Amount')}</Table.Head>
-							<Table.Head>{t(localeStore.t.finance.category, 'Category')}</Table.Head>
-							<Table.Head>{t(localeStore.t.finance.notes, 'Notes')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.actions, 'Actions')}</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => togglePurchaseSort('name')}
+							>
+								{t(localeStore.t.finance.name, 'Name')}{purchaseSortIndicator('name')}
+							</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-right text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => togglePurchaseSort('amount')}
+							>
+								{t(localeStore.t.finance.amount, 'Amount')}{purchaseSortIndicator('amount')}
+							</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => togglePurchaseSort('category')}
+							>
+								{t(localeStore.t.finance.category, 'Category')}{purchaseSortIndicator('category')}
+							</Table.Head>
+							<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+								{t(localeStore.t.finance.notes, 'Notes')}
+							</Table.Head>
+							<Table.Head class="text-muted-foreground w-[100px] text-right text-xs font-medium uppercase tracking-wide">
+								{t(localeStore.t.finance.actions, 'Actions')}
+							</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{#each purchases as purchase (purchase.id)}
+						{#each filteredPurchases as purchase (purchase.id)}
 							<Table.Row>
 								<Table.Cell class="font-medium">{purchase.name}</Table.Cell>
 								<Table.Cell class="text-right">{fmt(purchase.amount)}</Table.Cell>
@@ -260,8 +407,8 @@ async function handleReplacementDelete(id: Str): Promise<void> {
 								<Table.Cell class="text-muted-foreground max-w-[200px] truncate">{purchase.notes}</Table.Cell>
 								<Table.Cell class="text-right">
 									<div class="flex justify-end gap-2">
-										<Button variant="ghost" size="sm" onclick={() => openEditPurchase(purchase)}>{t(localeStore.t.finance.editItem, 'Edit')}</Button>
-										<Button variant="ghost" size="sm" onclick={() => handlePurchaseDelete(purchase.id)}>{t(localeStore.t.finance.deleteItem, 'Delete')}</Button>
+										<Button variant="outline" size="sm" onclick={() => openEditPurchase(purchase)}>{t(localeStore.t.finance.editItem, 'Edit')}</Button>
+										<Button variant="destructive" size="sm" onclick={() => requestDelete(purchase.id, 'purchase')}>{t(localeStore.t.finance.deleteItem, 'Delete')}</Button>
 									</div>
 								</Table.Cell>
 							</Table.Row>
@@ -313,24 +460,57 @@ async function handleReplacementDelete(id: Str): Promise<void> {
 			</div>
 			<Button size="sm" onclick={openAddReplacement}>{t(localeStore.t.finance.addItem, 'Add Replacement')}</Button>
 		</Card.Header>
-		<Card.Content>
-			{#if replacements.length === 0}
-				<p class="text-muted-foreground text-sm">{t(localeStore.t.finance.noReplacements, 'No lifetime replacements yet.')}</p>
+		<Card.Content class="p-0">
+			{#if filteredReplacements.length === 0}
+				<p class="text-muted-foreground p-6 text-sm">
+					{searchQuery
+						? t(localeStore.t.finance.noMatchingResults, 'No matching results.')
+						: t(localeStore.t.finance.noReplacements, 'No lifetime replacements yet.')}
+				</p>
 			{:else}
 				<Table.Root>
-					<Table.Header>
+					<Table.Header class="bg-muted sticky top-0 z-10">
 						<Table.Row>
-							<Table.Head>{t(localeStore.t.finance.name, 'Name')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.budget, 'Budget')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.cycleYears, 'Cycle (years)')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.annualCostLabel, 'Annual Cost')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.lifetimeCost, 'Lifetime Cost')}</Table.Head>
-							<Table.Head>{t(localeStore.t.finance.notes, 'Notes')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.actions, 'Actions')}</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleReplacementSort('name')}
+							>
+								{t(localeStore.t.finance.name, 'Name')}{replacementSortIndicator('name')}
+							</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-right text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleReplacementSort('totalBudget')}
+							>
+								{t(localeStore.t.finance.budget, 'Budget')}{replacementSortIndicator('totalBudget')}
+							</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-right text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleReplacementSort('cycleYears')}
+							>
+								{t(localeStore.t.finance.cycleYears, 'Cycle (years)')}{replacementSortIndicator('cycleYears')}
+							</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-right text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleReplacementSort('annualCost')}
+							>
+								{t(localeStore.t.finance.annualCostLabel, 'Annual Cost')}{replacementSortIndicator('annualCost')}
+							</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-right text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleReplacementSort('lifetimeCost')}
+							>
+								{t(localeStore.t.finance.lifetimeCost, 'Lifetime Cost')}{replacementSortIndicator('lifetimeCost')}
+							</Table.Head>
+							<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+								{t(localeStore.t.finance.notes, 'Notes')}
+							</Table.Head>
+							<Table.Head class="text-muted-foreground w-[100px] text-right text-xs font-medium uppercase tracking-wide">
+								{t(localeStore.t.finance.actions, 'Actions')}
+							</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{#each replacements as replacement (replacement.id)}
+						{#each filteredReplacements as replacement (replacement.id)}
 							<Table.Row>
 								<Table.Cell class="font-medium">{replacement.name}</Table.Cell>
 								<Table.Cell class="text-right">{fmt(replacement.totalBudget)}</Table.Cell>
@@ -340,8 +520,8 @@ async function handleReplacementDelete(id: Str): Promise<void> {
 								<Table.Cell class="text-muted-foreground max-w-[200px] truncate">{replacement.notes}</Table.Cell>
 								<Table.Cell class="text-right">
 									<div class="flex justify-end gap-2">
-										<Button variant="ghost" size="sm" onclick={() => openEditReplacement(replacement)}>{t(localeStore.t.finance.editItem, 'Edit')}</Button>
-										<Button variant="ghost" size="sm" onclick={() => handleReplacementDelete(replacement.id)}>{t(localeStore.t.finance.deleteItem, 'Delete')}</Button>
+										<Button variant="outline" size="sm" onclick={() => openEditReplacement(replacement)}>{t(localeStore.t.finance.editItem, 'Edit')}</Button>
+										<Button variant="destructive" size="sm" onclick={() => requestDelete(replacement.id, 'replacement')}>{t(localeStore.t.finance.deleteItem, 'Delete')}</Button>
 									</div>
 								</Table.Cell>
 							</Table.Row>
@@ -428,4 +608,12 @@ async function handleReplacementDelete(id: Str): Promise<void> {
 			</Dialog.Footer>
 		</Dialog.Content>
 	</Dialog.Root>
+
+	<!-- Delete Confirmation -->
+	<ConfirmDialog
+		bind:open={confirmOpen}
+		title={confirmTitle}
+		description={confirmDescription}
+		onConfirm={performDelete}
+	/>
 </div>

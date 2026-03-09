@@ -1,6 +1,9 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* Scan shared UI workspace package for Tailwind classes */
+@source '../../../../shared/ui/src';
+
 /* Self-hosted fonts — see app-meta.ts FONT_FACES for config */
 @font-face {
 	font-family: 'Inter';

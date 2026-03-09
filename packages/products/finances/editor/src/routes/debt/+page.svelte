@@ -3,14 +3,15 @@ import { localeStore, t } from '$lib/i18n.svelte';
 import type { Str, Num, Bool } from '@/schemas/common';
 import type { DebtItem } from '$lib/schemas/finances';
 import { invalidateAll } from '$app/navigation';
-import { Button } from '$lib/components/ui/button';
-import { Badge } from '$lib/components/ui/badge';
-import { Input } from '$lib/components/ui/input';
-import { Label } from '$lib/components/ui/label';
-import { Switch } from '$lib/components/ui/switch';
-import { Separator } from '$lib/components/ui/separator';
-import * as Dialog from '$lib/components/ui/dialog';
-import * as Table from '$lib/components/ui/table';
+import { Button } from '@/ui/button';
+import { Badge } from '@/ui/badge';
+import { Input } from '@/ui/input';
+import { Label } from '@/ui/label';
+import { Switch } from '@/ui/switch';
+import { Separator } from '@/ui/separator';
+import * as Dialog from '@/ui/dialog';
+import * as Table from '@/ui/table';
+import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 
 type PageData = {
 	debts: DebtItem[];
@@ -27,6 +28,15 @@ let formBalance: Str = $state('');
 let formIsEstimate: Bool = $state(false);
 let formNotes: Str = $state('');
 
+// ── Delete confirmation state ──────────────────────────────────────
+let confirmOpen: Bool = $state(false);
+let pendingDeleteId: Str | null = $state(null);
+
+// ── Search & sort state ────────────────────────────────────────────
+let searchQuery: Str = $state('');
+let sortKey: Str = $state('name');
+let sortDir: Str = $state('asc');
+
 // ── Derived ─────────────────────────────────────────────────────────
 const totalDebt: Num = $derived(data.debts.reduce((sum: Num, d: DebtItem) => sum + d.balance, 0));
 
@@ -35,6 +45,36 @@ const dialogTitle: Str = $derived(
 		? t(localeStore.t.finance.editItem, 'Edit Debt')
 		: t(localeStore.t.finance.addItem, 'Add Debt'),
 );
+
+const sortedRows: DebtItem[] = $derived.by(() => {
+	const rows: DebtItem[] = [...data.debts];
+	const dir: Num = sortDir === 'asc' ? 1 : -1;
+	rows.sort((a: DebtItem, b: DebtItem) => {
+		if (sortKey === 'name') return a.name.localeCompare(b.name) * dir;
+		if (sortKey === 'balance') return (a.balance - b.balance) * dir;
+		return 0;
+	});
+	return rows;
+});
+
+const filteredRows: DebtItem[] = $derived(
+	sortedRows.filter((row: DebtItem) => row.name.toLowerCase().includes(searchQuery.toLowerCase())),
+);
+
+// ── Sort helpers ───────────────────────────────────────────────────
+function toggleSort(key: Str): void {
+	if (sortKey === key) {
+		sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+	} else {
+		sortKey = key;
+		sortDir = 'asc';
+	}
+}
+
+function sortIndicator(key: Str): Str {
+	if (sortKey !== key) return ' ↕';
+	return sortDir === 'asc' ? ' ↑' : ' ↓';
+}
 
 // ── Formatting ──────────────────────────────────────────────────────
 function formatCurrency(value: Num): Str {
@@ -89,8 +129,15 @@ async function handleSave(): Promise<void> {
 	await invalidateAll();
 }
 
-async function handleDelete(id: Str): Promise<void> {
-	await fetch(`/api/debts/${id}`, { method: 'DELETE' });
+function requestDelete(id: Str): void {
+	pendingDeleteId = id;
+	confirmOpen = true;
+}
+
+async function performDelete(): Promise<void> {
+	if (!pendingDeleteId) return;
+	await fetch(`/api/debts/${pendingDeleteId}`, { method: 'DELETE' });
+	pendingDeleteId = null;
 	await invalidateAll();
 }
 </script>
@@ -107,19 +154,46 @@ async function handleDelete(id: Str): Promise<void> {
 
 	<Separator />
 
+	<!-- Search -->
+	<div class="flex items-center gap-4">
+		<Input
+			type="search"
+			placeholder={t(localeStore.t.finance.searchPlaceholder, 'Search debts...')}
+			class="max-w-sm"
+			bind:value={searchQuery}
+		/>
+	</div>
+
 	<!-- Table -->
+	<div class="overflow-hidden rounded-lg border">
 	<Table.Root>
-		<Table.Header>
+		<Table.Header class="bg-muted sticky top-0 z-10">
 			<Table.Row>
-				<Table.Head>{t(localeStore.t.finance.name, 'Name')}</Table.Head>
-				<Table.Head class="text-right">{t(localeStore.t.finance.balance, 'Balance')}</Table.Head>
-				<Table.Head>{t(localeStore.t.finance.estimated, 'Estimated?')}</Table.Head>
-				<Table.Head>{t(localeStore.t.finance.notes, 'Notes')}</Table.Head>
-				<Table.Head class="text-right">{t(localeStore.t.finance.actions, 'Actions')}</Table.Head>
+				<Table.Head
+					class="text-muted-foreground cursor-pointer text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+					onclick={() => toggleSort('name')}
+				>
+					{t(localeStore.t.finance.name, 'Name')}{sortIndicator('name')}
+				</Table.Head>
+				<Table.Head
+					class="text-muted-foreground cursor-pointer text-right text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+					onclick={() => toggleSort('balance')}
+				>
+					{t(localeStore.t.finance.balance, 'Balance')}{sortIndicator('balance')}
+				</Table.Head>
+				<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+					{t(localeStore.t.finance.estimated, 'Estimated?')}
+				</Table.Head>
+				<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+					{t(localeStore.t.finance.notes, 'Notes')}
+				</Table.Head>
+				<Table.Head class="text-muted-foreground w-[100px] text-right text-xs font-medium uppercase tracking-wide">
+					{t(localeStore.t.finance.actions, 'Actions')}
+				</Table.Head>
 			</Table.Row>
 		</Table.Header>
 		<Table.Body>
-			{#each data.debts as debt (debt.id)}
+			{#each filteredRows as debt (debt.id)}
 				<Table.Row>
 					<Table.Cell class="font-medium">{debt.name}</Table.Cell>
 					<Table.Cell class="text-right">{formatCurrency(debt.balance)}</Table.Cell>
@@ -136,7 +210,7 @@ async function handleDelete(id: Str): Promise<void> {
 							<Button variant="outline" size="sm" onclick={() => openEditDialog(debt)}>
 								{t(localeStore.t.finance.editItem, 'Edit')}
 							</Button>
-							<Button variant="destructive" size="sm" onclick={() => handleDelete(debt.id)}>
+							<Button variant="destructive" size="sm" onclick={() => requestDelete(debt.id)}>
 								{t(localeStore.t.finance.deleteItem, 'Delete')}
 							</Button>
 						</div>
@@ -145,12 +219,15 @@ async function handleDelete(id: Str): Promise<void> {
 			{:else}
 				<Table.Row>
 					<Table.Cell colspan={5} class="text-muted-foreground text-center">
-						{t(localeStore.t.finance.noDebtsRecorded, 'No debts recorded.')}
+						{searchQuery
+							? t(localeStore.t.finance.noMatchingResults, 'No matching results.')
+							: t(localeStore.t.finance.noDebtsRecorded, 'No debts recorded.')}
 					</Table.Cell>
 				</Table.Row>
 			{/each}
 		</Table.Body>
 	</Table.Root>
+	</div>
 
 	<!-- Add / Edit Dialog -->
 	<Dialog.Root bind:open={dialogOpen}>
@@ -206,4 +283,12 @@ async function handleDelete(id: Str): Promise<void> {
 			</form>
 		</Dialog.Content>
 	</Dialog.Root>
+
+	<!-- Delete Confirmation -->
+	<ConfirmDialog
+		bind:open={confirmOpen}
+		title={t(localeStore.t.finance.deleteConfirmTitle, 'Delete Debt?')}
+		description={t(localeStore.t.finance.deleteConfirmDesc, 'This action cannot be undone. This will permanently delete this debt entry.')}
+		onConfirm={performDelete}
+	/>
 </div>

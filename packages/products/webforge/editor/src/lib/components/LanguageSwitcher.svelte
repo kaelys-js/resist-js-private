@@ -4,7 +4,7 @@ import SearchX from '@lucide/svelte/icons/search-x';
 import X from '@lucide/svelte/icons/x';
 import Globe from '@lucide/svelte/icons/globe';
 import Check from '@lucide/svelte/icons/check';
-import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
 import { getTextDirection, type TextDirection } from '@/locale/direction';
 import type { Bool, Str, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';

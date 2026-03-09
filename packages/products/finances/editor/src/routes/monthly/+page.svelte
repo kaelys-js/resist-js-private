@@ -3,26 +3,22 @@ import type { Str, Num, Bool } from '@/schemas/common';
 import { BILLING_CYCLES, MONTHLY_CATEGORIES, type MonthlyExpense } from '$lib/schemas/finances';
 import { invalidateAll } from '$app/navigation';
 import { localeStore, t } from '$lib/i18n.svelte';
-import * as Card from '$lib/components/ui/card/index.js';
-import * as Table from '$lib/components/ui/table/index.js';
-import * as Dialog from '$lib/components/ui/dialog/index.js';
-import * as Select from '$lib/components/ui/select/index.js';
-import { Button } from '$lib/components/ui/button/index.js';
-import { Badge } from '$lib/components/ui/badge/index.js';
-import { Input } from '$lib/components/ui/input/index.js';
-import { Label } from '$lib/components/ui/label/index.js';
-import { Separator } from '$lib/components/ui/separator/index.js';
+import * as Card from '@/ui/card/index.js';
+import * as Table from '@/ui/table/index.js';
+import * as Dialog from '@/ui/dialog/index.js';
+import * as Select from '@/ui/select/index.js';
+import { Button } from '@/ui/button/index.js';
+import { Badge } from '@/ui/badge/index.js';
+import { Input } from '@/ui/input/index.js';
+import { Label } from '@/ui/label/index.js';
+import { Separator } from '@/ui/separator/index.js';
 import { Chart, Svg, Pie, Arc, Group, Text } from 'layerchart';
 import { scaleOrdinal } from 'd3-scale';
+import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 
 const { data } = $props();
 
 const expenses: MonthlyExpense[] = $derived(data.expenses as MonthlyExpense[]);
-
-const fixedExpenses: MonthlyExpense[] = $derived(expenses.filter((e) => e.category === 'fixed'));
-const estimatedExpenses: MonthlyExpense[] = $derived(
-	expenses.filter((e) => e.category === 'estimated'),
-);
 
 function annualCost(expense: MonthlyExpense): Num {
 	return expense.billingCycle === 'monthly' ? expense.amount * 12 : expense.amount * 6;
@@ -55,6 +51,57 @@ function categoryLabel(cat: Str): Str {
 		estimated: t(localeStore.t.finance.estimated, 'Estimated'),
 	};
 	return labels[cat] ?? cat;
+}
+
+// ── Delete confirmation state ──────────────────────────────────────
+let confirmOpen: Bool = $state(false);
+let pendingDeleteId: Str | null = $state(null);
+
+// ── Search & sort state ────────────────────────────────────────────
+let searchQuery: Str = $state('');
+let sortKey: Str = $state('name');
+let sortDir: Str = $state('asc');
+
+// ── Sorted & filtered expenses ─────────────────────────────────────
+const sortedExpenses: MonthlyExpense[] = $derived.by(() => {
+	const rows: MonthlyExpense[] = [...expenses];
+	const dir: Num = sortDir === 'asc' ? 1 : -1;
+	rows.sort((a: MonthlyExpense, b: MonthlyExpense) => {
+		if (sortKey === 'name') return a.name.localeCompare(b.name) * dir;
+		if (sortKey === 'amount') return (a.amount - b.amount) * dir;
+		if (sortKey === 'billingCycle') return a.billingCycle.localeCompare(b.billingCycle) * dir;
+		if (sortKey === 'annualCost') return (annualCost(a) - annualCost(b)) * dir;
+		return 0;
+	});
+	return rows;
+});
+
+const filteredExpenses: MonthlyExpense[] = $derived(
+	sortedExpenses.filter((row: MonthlyExpense) =>
+		row.name.toLowerCase().includes(searchQuery.toLowerCase()),
+	),
+);
+
+const fixedExpenses: MonthlyExpense[] = $derived(
+	filteredExpenses.filter((e) => e.category === 'fixed'),
+);
+const estimatedExpenses: MonthlyExpense[] = $derived(
+	filteredExpenses.filter((e) => e.category === 'estimated'),
+);
+
+// ── Sort helpers ───────────────────────────────────────────────────
+function toggleSort(key: Str): void {
+	if (sortKey === key) {
+		sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+	} else {
+		sortKey = key;
+		sortDir = 'asc';
+	}
+}
+
+function sortIndicator(key: Str): Str {
+	if (sortKey !== key) return ' ↕';
+	return sortDir === 'asc' ? ' ↑' : ' ↓';
 }
 
 // ── Pie chart data ───────────────────────────────────────────────
@@ -165,8 +212,15 @@ async function handleSubmit(): Promise<void> {
 	await invalidateAll();
 }
 
-async function handleDelete(id: Str): Promise<void> {
-	await fetch(`/api/monthly-expenses/${id}`, { method: 'DELETE' });
+function requestDelete(id: Str): void {
+	pendingDeleteId = id;
+	confirmOpen = true;
+}
+
+async function performDelete(): Promise<void> {
+	if (!pendingDeleteId) return;
+	await fetch(`/api/monthly-expenses/${pendingDeleteId}`, { method: 'DELETE' });
+	pendingDeleteId = null;
 	await invalidateAll();
 }
 </script>
@@ -217,25 +271,63 @@ async function handleDelete(id: Str): Promise<void> {
 		</Card.Root>
 	{/if}
 
+	<!-- Search -->
+	<div class="flex items-center gap-4">
+		<Input
+			type="search"
+			placeholder={t(localeStore.t.finance.searchPlaceholder, 'Search expenses...')}
+			class="max-w-sm"
+			bind:value={searchQuery}
+		/>
+	</div>
+
 	<!-- Fixed Expenses -->
 	<Card.Root>
 		<Card.Header>
 			<Card.Title>{t(localeStore.t.finance.fixed, 'Fixed')}</Card.Title>
 			<Card.Description>{t(localeStore.t.finance.fixedDesc, 'Recurring fixed-cost expenses')}</Card.Description>
 		</Card.Header>
-		<Card.Content>
+		<Card.Content class="p-0">
 			{#if fixedExpenses.length === 0}
-				<p class="text-muted-foreground text-sm">{t(localeStore.t.finance.noFixedExpenses, 'No fixed expenses yet.')}</p>
+				<p class="text-muted-foreground p-6 text-sm">
+					{searchQuery
+						? t(localeStore.t.finance.noMatchingResults, 'No matching results.')
+						: t(localeStore.t.finance.noFixedExpenses, 'No fixed expenses yet.')}
+				</p>
 			{:else}
 				<Table.Root>
-					<Table.Header>
+					<Table.Header class="bg-muted sticky top-0 z-10">
 						<Table.Row>
-							<Table.Head>{t(localeStore.t.finance.name, 'Name')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.amount, 'Amount')}</Table.Head>
-							<Table.Head>{t(localeStore.t.finance.billingCycle, 'Billing Cycle')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.annualCostLabel, 'Annual Cost')}</Table.Head>
-							<Table.Head>{t(localeStore.t.finance.notes, 'Notes')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.actions, 'Actions')}</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleSort('name')}
+							>
+								{t(localeStore.t.finance.name, 'Name')}{sortIndicator('name')}
+							</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-right text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleSort('amount')}
+							>
+								{t(localeStore.t.finance.amount, 'Amount')}{sortIndicator('amount')}
+							</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleSort('billingCycle')}
+							>
+								{t(localeStore.t.finance.billingCycle, 'Billing Cycle')}{sortIndicator('billingCycle')}
+							</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-right text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleSort('annualCost')}
+							>
+								{t(localeStore.t.finance.annualCostLabel, 'Annual Cost')}{sortIndicator('annualCost')}
+							</Table.Head>
+							<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+								{t(localeStore.t.finance.notes, 'Notes')}
+							</Table.Head>
+							<Table.Head class="text-muted-foreground w-[100px] text-right text-xs font-medium uppercase tracking-wide">
+								{t(localeStore.t.finance.actions, 'Actions')}
+							</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
@@ -248,8 +340,8 @@ async function handleDelete(id: Str): Promise<void> {
 								<Table.Cell class="text-muted-foreground max-w-[200px] truncate">{expense.notes}</Table.Cell>
 								<Table.Cell class="text-right">
 									<div class="flex justify-end gap-2">
-										<Button variant="ghost" size="sm" onclick={() => openEditDialog(expense)}>{t(localeStore.t.finance.editItem, 'Edit')}</Button>
-										<Button variant="ghost" size="sm" onclick={() => handleDelete(expense.id)}>{t(localeStore.t.finance.deleteItem, 'Delete')}</Button>
+										<Button variant="outline" size="sm" onclick={() => openEditDialog(expense)}>{t(localeStore.t.finance.editItem, 'Edit')}</Button>
+										<Button variant="destructive" size="sm" onclick={() => requestDelete(expense.id)}>{t(localeStore.t.finance.deleteItem, 'Delete')}</Button>
 									</div>
 								</Table.Cell>
 							</Table.Row>
@@ -266,19 +358,47 @@ async function handleDelete(id: Str): Promise<void> {
 			<Card.Title>{t(localeStore.t.finance.estimated, 'Estimated')}</Card.Title>
 			<Card.Description>{t(localeStore.t.finance.estimatedDesc, 'Recurring expenses with estimated amounts')}</Card.Description>
 		</Card.Header>
-		<Card.Content>
+		<Card.Content class="p-0">
 			{#if estimatedExpenses.length === 0}
-				<p class="text-muted-foreground text-sm">{t(localeStore.t.finance.noEstimatedExpenses, 'No estimated expenses yet.')}</p>
+				<p class="text-muted-foreground p-6 text-sm">
+					{searchQuery
+						? t(localeStore.t.finance.noMatchingResults, 'No matching results.')
+						: t(localeStore.t.finance.noEstimatedExpenses, 'No estimated expenses yet.')}
+				</p>
 			{:else}
 				<Table.Root>
-					<Table.Header>
+					<Table.Header class="bg-muted sticky top-0 z-10">
 						<Table.Row>
-							<Table.Head>{t(localeStore.t.finance.name, 'Name')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.amount, 'Amount')}</Table.Head>
-							<Table.Head>{t(localeStore.t.finance.billingCycle, 'Billing Cycle')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.annualCostLabel, 'Annual Cost')}</Table.Head>
-							<Table.Head>{t(localeStore.t.finance.notes, 'Notes')}</Table.Head>
-							<Table.Head class="text-right">{t(localeStore.t.finance.actions, 'Actions')}</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleSort('name')}
+							>
+								{t(localeStore.t.finance.name, 'Name')}{sortIndicator('name')}
+							</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-right text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleSort('amount')}
+							>
+								{t(localeStore.t.finance.amount, 'Amount')}{sortIndicator('amount')}
+							</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleSort('billingCycle')}
+							>
+								{t(localeStore.t.finance.billingCycle, 'Billing Cycle')}{sortIndicator('billingCycle')}
+							</Table.Head>
+							<Table.Head
+								class="text-muted-foreground cursor-pointer text-right text-xs font-medium uppercase tracking-wide select-none hover:bg-muted/50"
+								onclick={() => toggleSort('annualCost')}
+							>
+								{t(localeStore.t.finance.annualCostLabel, 'Annual Cost')}{sortIndicator('annualCost')}
+							</Table.Head>
+							<Table.Head class="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+								{t(localeStore.t.finance.notes, 'Notes')}
+							</Table.Head>
+							<Table.Head class="text-muted-foreground w-[100px] text-right text-xs font-medium uppercase tracking-wide">
+								{t(localeStore.t.finance.actions, 'Actions')}
+							</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
@@ -291,8 +411,8 @@ async function handleDelete(id: Str): Promise<void> {
 								<Table.Cell class="text-muted-foreground max-w-[200px] truncate">{expense.notes}</Table.Cell>
 								<Table.Cell class="text-right">
 									<div class="flex justify-end gap-2">
-										<Button variant="ghost" size="sm" onclick={() => openEditDialog(expense)}>{t(localeStore.t.finance.editItem, 'Edit')}</Button>
-										<Button variant="ghost" size="sm" onclick={() => handleDelete(expense.id)}>{t(localeStore.t.finance.deleteItem, 'Delete')}</Button>
+										<Button variant="outline" size="sm" onclick={() => openEditDialog(expense)}>{t(localeStore.t.finance.editItem, 'Edit')}</Button>
+										<Button variant="destructive" size="sm" onclick={() => requestDelete(expense.id)}>{t(localeStore.t.finance.deleteItem, 'Delete')}</Button>
 									</div>
 								</Table.Cell>
 							</Table.Row>
@@ -367,4 +487,12 @@ async function handleDelete(id: Str): Promise<void> {
 			</Dialog.Footer>
 		</Dialog.Content>
 	</Dialog.Root>
+
+	<!-- Delete Confirmation -->
+	<ConfirmDialog
+		bind:open={confirmOpen}
+		title={t(localeStore.t.finance.deleteConfirmTitle, 'Delete Expense?')}
+		description={t(localeStore.t.finance.deleteConfirmDesc, 'This action cannot be undone. This will permanently delete this expense.')}
+		onConfirm={performDelete}
+	/>
 </div>

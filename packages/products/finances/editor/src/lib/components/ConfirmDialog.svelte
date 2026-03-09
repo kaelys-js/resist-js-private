@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { Str, Bool } from '@/schemas/common';
-import * as Dialog from '$lib/components/ui/dialog/index.js';
-import { Button } from '$lib/components/ui/button/index.js';
+import * as Dialog from '@/ui/dialog/index.js';
+import { Button } from '@/ui/button/index.js';
 
 /**
  * Props for the ConfirmDialog component.

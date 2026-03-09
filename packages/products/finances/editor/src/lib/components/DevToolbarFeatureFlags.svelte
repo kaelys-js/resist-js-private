@@ -3,10 +3,10 @@ import Flag from '@lucide/svelte/icons/flag';
 import Search from '@lucide/svelte/icons/search';
 import SearchX from '@lucide/svelte/icons/search-x';
 import X from '@lucide/svelte/icons/x';
-import { Switch } from '$lib/components/ui/switch/index.js';
-import { Label } from '$lib/components/ui/label/index.js';
-import { Input } from '$lib/components/ui/input/index.js';
-import { Button } from '$lib/components/ui/button/index.js';
+import { Switch } from '@/ui/switch/index.js';
+import { Label } from '@/ui/label/index.js';
+import { Input } from '@/ui/input/index.js';
+import { Button } from '@/ui/button/index.js';
 
 import { discoverFeatureFlags, humanizeKey } from '$lib/debug/dev-toolbar-registry';
 import { localeStore, t } from '$lib/i18n.svelte';
@@ -14,7 +14,7 @@ import { announce } from '$lib/utils/announce.svelte';
 import type { Bool, Str, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
-import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+import * as Tooltip from '@/ui/tooltip/index.js';
 import type { FeatureFlags } from '$lib/schemas/editor-state';
 
 let { editorStore, onclose }: { editorStore: EditorStore; onclose?: () => Void } = $props();

@@ -5,12 +5,12 @@ import { browser } from '$app/environment';
 import { afterNavigate } from '$app/navigation';
 import { page } from '$app/state';
 import { ModeWatcher, setMode, setTheme } from 'mode-watcher';
-import * as Resizable from '$lib/components/ui/resizable/index.js';
+import * as Resizable from '@/ui/resizable/index.js';
 import type { PaneAPI, PaneGroupStorage } from 'paneforge';
 import AppSidebar from '$lib/components/AppSidebar.svelte';
 import SiteHeader from '$lib/components/SiteHeader.svelte';
-import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
+import * as Sidebar from '@/ui/sidebar/index.js';
+import { IsMobile } from '@/ui/hooks/is-mobile.svelte.js';
 import type { Str, Num, Bool, Void } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 import { localeStore, t } from '$lib/i18n.svelte';
@@ -20,6 +20,7 @@ import { initDebugStore, type DebugStore } from '$lib/stores/debug-state.svelte'
 import { applyUrlOverrides } from '$lib/utils/url-params';
 import { syncDebugServices, type DebugServicesHandle } from '$lib/debug/init.svelte';
 import DevToolbar from '$lib/components/DevToolbar.svelte';
+import PageFadeIn from '$lib/components/PageFadeIn.svelte';
 import { log } from '@/utils/core/logger';
 import { APP_TAGLINE, STORAGE_PREFIX, THEME_COLORS, storageKey } from '$lib/config/app-meta';
 import { getBuildInfo } from '$lib/config/build-info';
@@ -27,6 +28,7 @@ import { getAnnouncement } from '$lib/utils/announce.svelte';
 import type { ServerProject, ServerScene } from '$lib/server/data/types';
 import { addNavigationBreadcrumb } from '$lib/errors/breadcrumbs';
 import { setPreferenceCookie } from '$lib/utils/preference-cookie';
+import { shortcutStore } from '$lib/stores/keyboard-shortcuts-store.svelte';
 
 const { children, data } = $props();
 
@@ -424,6 +426,7 @@ const pageTitle: Str = $derived(`${store.app.appName} - ${breadcrumbSegment} - $
 	bind:ref={providerEl}
 	open={store.app.sidebarOpen}
 	onOpenChange={useResizable ? handleSidebarOpenChange : undefined}
+	matchToggleShortcut={(e) => shortcutStore.matches(e, 'TOGGLE_SIDEBAR')}
 	class="min-w-[450px]"
 	style="--sidebar-width: {data.sidebarPx ?? SIDEBAR_DEFAULT_PX}px; --header-height: calc(var(--spacing) * 12);"
 >
@@ -457,7 +460,11 @@ const pageTitle: Str = $derived(`${store.app.appName} - ${breadcrumbSegment} - $
 				<Sidebar.Inset class={insetClass}>
 					<SiteHeader isError={Boolean(page.error)} user={data.user} {activeSceneName} />
 					<main id="main-content" tabindex={-1} class="flex flex-1 flex-col outline-none">
-						{@render children()}
+						{#key page.url.pathname}
+							<PageFadeIn>
+								{@render children()}
+							</PageFadeIn>
+						{/key}
 					</main>
 				</Sidebar.Inset>
 			</Resizable.Pane>
@@ -471,7 +478,11 @@ const pageTitle: Str = $derived(`${store.app.appName} - ${breadcrumbSegment} - $
 		<Sidebar.Inset>
 			<SiteHeader isError={Boolean(page.error)} user={data.user} {activeSceneName} />
 			<div class="flex flex-1 flex-col">
-				{@render children()}
+				{#key page.url.pathname}
+					<PageFadeIn>
+						{@render children()}
+					</PageFadeIn>
+				{/key}
 			</div>
 		</Sidebar.Inset>
 	{/if}

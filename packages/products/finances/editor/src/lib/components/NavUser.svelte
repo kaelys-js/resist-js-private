@@ -1,9 +1,9 @@
 <script lang="ts">
 import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 import SettingsIcon from '@lucide/svelte/icons/settings';
-import * as Avatar from '$lib/components/ui/avatar/index.js';
-import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+import * as Avatar from '@/ui/avatar/index.js';
+import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
+import * as Sidebar from '@/ui/sidebar/index.js';
 import ThemeSwitcher from './ThemeSwitcher.svelte';
 import LanguageSwitcher from './LanguageSwitcher.svelte';
 import { localeStore, t } from '$lib/i18n.svelte';

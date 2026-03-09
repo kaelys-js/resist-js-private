@@ -22,9 +22,10 @@ import {
 	type YearlyProjection,
 } from '$lib/engine/projections';
 import { projectIncome, calculateNetPosition, type YearlyIncome } from '$lib/engine/income';
-import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-import { Badge } from '$lib/components/ui/badge';
-import { Separator } from '$lib/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/ui/card';
+import { Badge } from '@/ui/badge';
+import { FinanceCard } from '@/ui';
+import { Separator } from '@/ui/separator';
 import { Chart, Svg, Axis, Bars, Spline } from 'layerchart';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import { stack, stackOffsetNone } from 'd3-shape';
@@ -227,51 +228,33 @@ const netPosition: Num = $derived(totalProjectedIncome - totalProjectedExpenses 
 	<Separator />
 
 	<!-- Summary stat cards -->
-	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-		<Card>
-			<CardHeader>
-				<CardTitle class="text-sm font-medium text-muted-foreground">{t(localeStore.t.finance.totalDebt, 'Total Debt')}</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<p class="text-2xl font-bold text-destructive">{fmt(totalDebt)}</p>
-			</CardContent>
-		</Card>
-
-		<Card>
-			<CardHeader>
-				<CardTitle class="text-sm font-medium text-muted-foreground">{t(localeStore.t.finance.monthlyBurnRate, 'Monthly Burn Rate')}</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<p class="text-2xl font-bold">{fmt(monthlyBurnRate)}</p>
-			</CardContent>
-		</Card>
-
-		<Card>
-			<CardHeader>
-				<CardTitle class="text-sm font-medium text-muted-foreground">{t(localeStore.t.finance.annualCost, 'Annual Cost')}</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<p class="text-2xl font-bold">{fmt(annualCost)}</p>
-			</CardContent>
-		</Card>
-
-		<Card>
-			<CardHeader>
-				<CardTitle class="text-sm font-medium text-muted-foreground">{t(localeStore.t.finance.yearsToRetirement, 'Years to Retirement')}</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<p class="text-2xl font-bold">{yearsToRetirement}</p>
-			</CardContent>
-		</Card>
-
-		<Card>
-			<CardHeader>
-				<CardTitle class="text-sm font-medium text-muted-foreground">{t(localeStore.t.finance.totalAssets, 'Total Assets')}</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<p class="text-2xl font-bold text-green-600 dark:text-green-400">{fmt(totalAssets)}</p>
-			</CardContent>
-		</Card>
+	<div class="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs sm:grid-cols-2 lg:grid-cols-5">
+		<FinanceCard
+			label={t(localeStore.t.finance.totalDebt, 'Total Debt')}
+			value={fmt(totalDebt)}
+			valueClass="text-destructive"
+			trend="down"
+		/>
+		<FinanceCard
+			label={t(localeStore.t.finance.monthlyBurnRate, 'Monthly Burn Rate')}
+			value={fmt(monthlyBurnRate)}
+			trend="neutral"
+		/>
+		<FinanceCard
+			label={t(localeStore.t.finance.annualCost, 'Annual Cost')}
+			value={fmt(annualCost)}
+			trend="neutral"
+		/>
+		<FinanceCard
+			label={t(localeStore.t.finance.yearsToRetirement, 'Years to Retirement')}
+			value={String(yearsToRetirement)}
+		/>
+		<FinanceCard
+			label={t(localeStore.t.finance.totalAssets, 'Total Assets')}
+			value={fmt(totalAssets)}
+			valueClass="text-green-600 dark:text-green-400"
+			trend="up"
+		/>
 	</div>
 
 	<!-- Debt overview section -->
@@ -279,6 +262,7 @@ const netPosition: Num = $derived(totalProjectedIncome - totalProjectedExpenses 
 		<Card>
 			<CardHeader>
 				<CardTitle>{t(localeStore.t.finance.debtProgress, 'Debt Overview')}</CardTitle>
+				<CardDescription>{t(localeStore.t.finance.debtOverviewDesc, 'Outstanding balances across all debt items.')}</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<div class="flex flex-col gap-4">
@@ -317,6 +301,7 @@ const netPosition: Num = $derived(totalProjectedIncome - totalProjectedExpenses 
 	<Card>
 		<CardHeader>
 			<CardTitle>{t(localeStore.t.finance.netPosition, 'Net Position Summary')}</CardTitle>
+				<CardDescription>{t(localeStore.t.finance.netPositionDesc, 'Projected income minus projected expenses and debt over your lifetime.')}</CardDescription>
 		</CardHeader>
 		<CardContent>
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -343,6 +328,7 @@ const netPosition: Num = $derived(totalProjectedIncome - totalProjectedExpenses 
 		<Card>
 			<CardHeader>
 				<CardTitle>{t(localeStore.t.finance.expensesByCategory, 'Annual Expenses by Category')}</CardTitle>
+				<CardDescription>{t(localeStore.t.finance.expensesByCategoryDesc, 'Stacked breakdown of projected annual costs by expense type.')}</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<div class="mb-4 flex flex-wrap gap-3">
@@ -393,6 +379,7 @@ const netPosition: Num = $derived(totalProjectedIncome - totalProjectedExpenses 
 		<Card>
 			<CardHeader>
 				<CardTitle>{t(localeStore.t.finance.incomeVsExpenses, 'Income vs Expenses Over Time')}</CardTitle>
+				<CardDescription>{t(localeStore.t.finance.incomeVsExpensesDesc, 'Year-over-year comparison of projected income and expenses.')}</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<div class="mb-4 flex gap-4">

@@ -4,7 +4,7 @@ import SearchX from '@lucide/svelte/icons/search-x';
 import X from '@lucide/svelte/icons/x';
 import Palette from '@lucide/svelte/icons/palette';
 import Check from '@lucide/svelte/icons/check';
-import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
 import { useEditorStore } from '$lib/stores/editor-state.svelte';
 import type { Bool, Str, Void } from '@/schemas/common';

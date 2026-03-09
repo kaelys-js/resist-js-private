@@ -98,6 +98,8 @@ const config = {
 			'@/config/test/*': path.join(root, 'packages/shared/config/test/src/*'),
 			'@/config/test/harness': path.join(root, 'packages/shared/config/test/src/harness/index.ts'),
 			'@/config/test/harness/*': path.join(root, 'packages/shared/config/test/src/harness/*'),
+			'@/ui': path.join(root, 'packages/shared/ui/src/index.ts'),
+			'@/ui/*': path.join(root, 'packages/shared/ui/src/*'),
 		},
 	},
 };

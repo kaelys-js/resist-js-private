@@ -3,13 +3,13 @@ import type { Str, Num } from '@/schemas/common';
 import type { Settings, InflationConfig } from '$lib/schemas/finances';
 import { invalidateAll } from '$app/navigation';
 import { localeStore, t } from '$lib/i18n.svelte';
-import { Button } from '$lib/components/ui/button/index.js';
-import * as Card from '$lib/components/ui/card/index.js';
-import { Input } from '$lib/components/ui/input/index.js';
-import { Label } from '$lib/components/ui/label/index.js';
-import { Separator } from '$lib/components/ui/separator/index.js';
-import * as Table from '$lib/components/ui/table/index.js';
-import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+import { Button } from '@/ui/button/index.js';
+import * as Card from '@/ui/card/index.js';
+import { Input } from '@/ui/input/index.js';
+import { Label } from '@/ui/label/index.js';
+import { Separator } from '@/ui/separator/index.js';
+import * as Table from '@/ui/table/index.js';
+import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
 import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 
 type PageData = { settings: Settings; inflation: InflationConfig[] };
@@ -147,10 +147,10 @@ $effect(() => {
 		<Card.CardContent class="p-0">
 			{#if inflationRates.length > 0}
 				<Table.Table>
-					<Table.TableHeader>
+					<Table.TableHeader class="bg-muted sticky top-0 z-10">
 						<Table.TableRow>
-							<Table.TableHead>{t(localeStore.t.finance.category, 'Category')}</Table.TableHead>
-							<Table.TableHead class="text-right">{t(localeStore.t.finance.ratePercent, 'Rate (%)')}</Table.TableHead>
+							<Table.TableHead class="text-muted-foreground text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.category, 'Category')}</Table.TableHead>
+							<Table.TableHead class="text-muted-foreground text-right text-xs font-medium uppercase tracking-wide">{t(localeStore.t.finance.ratePercent, 'Rate (%)')}</Table.TableHead>
 						</Table.TableRow>
 					</Table.TableHeader>
 					<Table.TableBody>

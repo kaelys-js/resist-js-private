@@ -4,8 +4,8 @@ import Wifi from '@lucide/svelte/icons/wifi';
 import Radio from '@lucide/svelte/icons/radio';
 import ChevronDown from '@lucide/svelte/icons/chevron-down';
 import XIcon from '@lucide/svelte/icons/x';
-import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-import { Separator } from '$lib/components/ui/separator/index.js';
+import * as Tooltip from '@/ui/tooltip/index.js';
+import { Separator } from '@/ui/separator/index.js';
 import { localeStore, t } from '$lib/i18n.svelte';
 import type { Str, Num, Bool, Void } from '@/schemas/common';
 import {
