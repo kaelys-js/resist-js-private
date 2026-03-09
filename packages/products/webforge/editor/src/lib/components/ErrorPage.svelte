@@ -70,6 +70,7 @@ const labels: {
 	goHome: Str;
 	tryAgain: Str;
 	copied: Str;
+	copyFailed: Str;
 	errorIdLabel: Str;
 	copyErrorIdAriaLabel: Str;
 	clickToCopy: Str;
@@ -77,6 +78,7 @@ const labels: {
 	goHome: t(localeStore.t.errors.goHome, 'Go to homepage'),
 	tryAgain: t(localeStore.t.errors.tryAgain, 'Try again'),
 	copied: t(localeStore.t.errors.copied, 'Copied!'),
+	copyFailed: t(localeStore.t.errors.copyFailed, 'Copy failed'),
 	errorIdLabel,
 	copyErrorIdAriaLabel: t(localeStore.t.errors.copyErrorId, 'Copy error ID to clipboard'),
 	clickToCopy: t(localeStore.t.errors.clickToCopy, 'Click to copy'),

@@ -6,7 +6,7 @@ import { cn, type WithElementRef } from '../utils.js';
 let {
 	ref = $bindable(null),
 	class: className,
-	href = undefined,
+	href,
 	child,
 	children,
 	...restProps

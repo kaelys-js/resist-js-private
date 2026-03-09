@@ -515,45 +515,13 @@
 				"import/no-mutable-exports": "off",
 				"import/max-dependencies": ["error", { "max": 50 }],
 				"typescript/consistent-type-imports": "off",
-				"unicorn/filename-case": ["error", { "case": "pascalCase" }]
+				"unicorn/filename-case": "off"
 			}
 		},
 		{
-			"files": [
-				"**/hooks/*.svelte.ts",
-				"packages/shared/ui/src/avatar/**",
-				"packages/shared/ui/src/badge/**",
-				"packages/shared/ui/src/breadcrumb/**",
-				"packages/shared/ui/src/button/**",
-				"packages/shared/ui/src/card/**",
-				"packages/shared/ui/src/collapsible/**",
-				"packages/shared/ui/src/command/**",
-				"packages/shared/ui/src/dialog/**",
-				"packages/shared/ui/src/dropdown-menu/**",
-				"packages/shared/ui/src/input/**",
-				"packages/shared/ui/src/label/**",
-				"packages/shared/ui/src/popover/**",
-				"packages/shared/ui/src/resizable/**",
-				"packages/shared/ui/src/scroll-area/**",
-				"packages/shared/ui/src/select/**",
-				"packages/shared/ui/src/separator/**",
-				"packages/shared/ui/src/sheet/**",
-				"packages/shared/ui/src/sidebar/**",
-				"packages/shared/ui/src/skeleton/**",
-				"packages/shared/ui/src/switch/**",
-				"packages/shared/ui/src/table/**",
-				"packages/shared/ui/src/tooltip/**"
-			],
+			"files": ["**/hooks/*.svelte.ts"],
 			"rules": {
-				"unicorn/filename-case": "off",
-				"unicorn/no-useless-undefined": "off",
-				"unicorn/no-document-cookie": "off",
-				"no-empty-function": "off",
-				"no-duplicate-imports": "off",
-				"import/no-duplicates": "off",
-				"import/max-dependencies": "off",
-				"import/no-cycle": "off",
-				"typescript/ban-types": "off"
+				"unicorn/filename-case": "off"
 			}
 		},
 		{
@@ -624,6 +592,12 @@
 				"import/no-default-export": "off",
 				"new-cap": "off",
 				"unicorn/filename-case": "off"
+			}
+		},
+		{
+			"files": ["**/ui/src/**/index.ts"],
+			"rules": {
+				"import/max-dependencies": ["error", { "max": 50 }]
 			}
 		},
 		{
