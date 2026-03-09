@@ -5,9 +5,10 @@
  * Extracts props, TV variants, and examples from raw component source
  * at runtime — no hand-written Demo.svelte files needed.
  */
-import type { Bool, Str } from '@/schemas/common';
+import type { Bool, Str, Void } from '@/schemas/common';
 import type { Component } from 'svelte';
 import type { PropMeta, VariantMeta, VariantKeyMeta, LensExample, LensMeta } from '@/ui/lens/types.js';
+import type { SearchItem } from '@/ui/search-autocomplete/search-item.js';
 import { extractProps, extractDescription, extractPropsVariants } from '@/ui/lens/extract-props.js';
 import { extractVariants } from '@/ui/lens/extract-variants.js';
 import type { Result } from '@/schemas/result/result';
@@ -20,8 +21,11 @@ import LensSection from '@/ui/lens-section/LensSection.svelte';
 import LensSource from '@/ui/lens-source/LensSource.svelte';
 import PropsTable from '@/ui/lens-props-table/PropsTable.svelte';
 import CodeBlock from '@/ui/code-block/CodeBlock.svelte';
-import LensDefaultPreview from '@/ui/lens-default-preview/LensDefaultPreview.svelte';
-import VariantGrid from '@/ui/lens-variant-grid/VariantGrid.svelte';
+import LensComponentRenderer from '@/ui/lens-component-renderer/LensComponentRenderer.svelte';
+import TableProperties from '@lucide/svelte/icons/table-properties';
+import ComponentIcon from '@lucide/svelte/icons/component';
+import Layers from '@lucide/svelte/icons/layers';
+import BookOpen from '@lucide/svelte/icons/book-open';
 
 /* ------------------------------------------------------------------ */
 /*  Globs                                                             */
@@ -39,7 +43,7 @@ const rawSources: Record<Str, Str> = import.meta.glob(
 	{ query: '?raw', import: 'default', eager: true },
 ) as Record<Str, Str>;
 
-/** Live component modules for VariantGrid rendering. */
+/** Live component modules for LensComponentRenderer rendering. */
 const componentModules: Record<Str, () => Promise<unknown>> = import.meta.glob(
 	'@/ui/*/*.svelte',
 );
@@ -119,7 +123,7 @@ $effect(() => {
 			variantMeta = extractVariants(srcStr);
 			componentDescription = extractDescription(srcStr);
 
-			// 2. Load live component for VariantGrid
+			// 2. Load live component for LensComponentRenderer
 			const compKey: Str | undefined = Object.keys(componentModules).find(
 				(k: Str): boolean =>
 					extractDir(k) === currentName
@@ -244,11 +248,69 @@ function toTag(componentName: Str): Str {
 	return toTitle(componentName).replaceAll(' ', '');
 }
 
+/**
+ * Unified search items combining props, variants, and examples.
+ * Grouped by section for the SearchAutocomplete dropdown.
+ */
+const searchItems: SearchItem[] = $derived.by((): SearchItem[] => {
+	const items: SearchItem[] = [];
+
+	// Props — searchable by name, type, default, description
+	for (const prop of props) {
+		items.push({
+			value: `prop:${prop.name}`,
+			label: prop.name,
+			group: 'Props',
+			keywords: [prop.type, prop.default, prop.description].filter(Boolean),
+		});
+	}
+
+	// Variants — searchable by key name and option values
+	for (const v of allVariants) {
+		items.push({
+			value: `variant:${v.key}`,
+			label: toTitle(v.key),
+			group: 'Variants',
+			keywords: v.options,
+		});
+	}
+
+	// Examples — searchable by title, name, description
+	for (const ex of lensExamples) {
+		items.push({
+			value: `example:${ex.name}`,
+			label: ex.title,
+			group: 'Examples',
+			keywords: [ex.name, ex.description].filter(Boolean),
+		});
+	}
+
+	return items;
+});
+
+/**
+ * Handle search item selection — scroll to the matching section element.
+ *
+ * @param item - The selected search item
+ */
+function handleSearchSelect(item: SearchItem): Void {
+	const [section, id]: Str[] = item.value.split(':');
+	let selector: Str = '';
+
+	if (section === 'prop') selector = `#prop-${id}`;
+	else if (section === 'variant') selector = `#variant-${id}`;
+	else if (section === 'example') selector = `#example-${id}`;
+
+	if (selector) {
+		document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth' });
+	}
+}
+
 </script>
 
 <div class="w-full">
 	<div class="sticky top-(--header-height) z-10 border-b bg-background px-8 pb-4 pt-10">
-		<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} />
+		<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} searchItems={loading || loadError ? [] : searchItems} onSearchSelect={handleSearchSelect} />
 	</div>
 
 	<div class="px-8 py-8">
@@ -264,30 +326,30 @@ function toTag(componentName: Str): Str {
 		<div class="space-y-10">
 			<!-- ═══ Props ═══ -->
 			<section id="props" class="scroll-mt-60">
-				<h2 class="mb-3 text-lg font-semibold">Props</h2>
+				<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><TableProperties class="size-5" /> Props</h2>
 				<PropsTable {props} variantKeys={allVariants.map((v) => v.key)} />
 			</section>
 
 			<!-- ═══ Default ═══ -->
 			{#if PrimaryComponent && hasVariants}
 				<section id="default" class="scroll-mt-60">
-					<h2 class="mb-3 text-lg font-semibold">Default</h2>
+					<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><ComponentIcon class="size-5" /> Default</h2>
 					<LensSection title="Default" description="Component rendered with default props.">
-						<LensDefaultPreview component={PrimaryComponent} {props} tagName={toTag(name)} />
+						<LensComponentRenderer component={PrimaryComponent} {props} tagName={toTag(name)} componentName={name} />
 					</LensSection>
 				</section>
 			{/if}
 
 			<!-- ═══ Variants ═══ -->
 			<section id="variants" class="scroll-mt-60">
-				<h2 class="mb-3 text-lg font-semibold">Variants</h2>
+				<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><Layers class="size-5" /> Variants</h2>
 				{#if hasVariants && PrimaryComponent}
 					<div class="space-y-4">
 						{#each allVariants as variantKey (variantKey.key)}
 							{@const singleMeta: VariantMeta = { variants: [variantKey] }}
 							<div id="variant-{variantKey.key}" class="scroll-mt-60">
 								<LensSection title={toTitle(variantKey.key)} description="Options for the {variantKey.key} prop." propName={variantKey.key}>
-									<VariantGrid component={PrimaryComponent} meta={singleMeta} {props} tagName={toTag(name)} />
+									<LensComponentRenderer component={PrimaryComponent} meta={singleMeta} {props} tagName={toTag(name)} componentName={name} />
 								</LensSection>
 							</div>
 						{/each}
@@ -299,21 +361,23 @@ function toTag(componentName: Str): Str {
 
 			<!-- ═══ Examples ═══ -->
 			<section id="examples" class="scroll-mt-60">
-				<h2 class="mb-3 text-lg font-semibold">Examples</h2>
+				<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><BookOpen class="size-5" /> Examples</h2>
 				{#if hasExamples}
 					<div class="space-y-4">
 						{#each lensExamples as example (example.name)}
 							{@const ExComponent: Component | undefined = exampleComponents.get(example.name)}
 							{@const exSource: Str = exampleSources.get(example.name) ?? ''}
 							{#if ExComponent}
-								<LensSection title={example.title} description={example.description} codeText={exSource}>
-									{#snippet code()}
-										{#if exSource}
-											<CodeBlock code={exSource} lang="svelte" />
-										{/if}
-									{/snippet}
-									<ExComponent />
-								</LensSection>
+								<div id="example-{example.name}" class="scroll-mt-60">
+									<LensSection title={example.title} description={example.description} codeText={exSource}>
+										{#snippet code()}
+											{#if exSource}
+												<CodeBlock code={exSource} lang="svelte" />
+											{/if}
+										{/snippet}
+										<ExComponent />
+									</LensSection>
+								</div>
 							{/if}
 						{/each}
 					</div>

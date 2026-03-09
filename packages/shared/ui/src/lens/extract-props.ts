@@ -302,7 +302,7 @@ function buildPlaceholderObject(typeSummary: string): Record<string, string> | n
  * Parses JSDoc values tags from the definition body to populate placeholder values.
  *
  * @param definition - Resolved type definition string starting with `{`
- * @returns Placeholder object with field names as keys, or null if unparseable
+ * @returns Placeholder object mapping field names to mock values, or null if empty
  */
 function buildPlaceholderFromDefinition(definition: string): Record<string, string> | null {
 	const inner: string = definition.slice(1, -1).trim();
