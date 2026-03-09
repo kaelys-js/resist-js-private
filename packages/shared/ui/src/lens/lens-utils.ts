@@ -5,6 +5,9 @@
  * used by both the Lens layout sidebar and component detail pages.
  */
 import type { Str } from '@/schemas/common';
+import type { Result } from '@/schemas/result/result';
+import { safeParse } from '@/utils/result/safe';
+import { type LensMeta, LensMetaSchema } from './types.js';
 
 /**
  * Extract directory name from a glob key like `.../button/button.svelte`.
@@ -90,4 +93,16 @@ export function findPrimaryKey(dir: Str, rawSources: Record<Str, unknown>): Str 
 		(k: Str): boolean => extractDir(k) === dir && !isInternalFile(k),
 	);
 	return keys.find((k: Str): boolean => extractStem(k) === dir) ?? keys[0];
+}
+
+/**
+ * Validate raw lens.ts metadata against LensMetaSchema.
+ *
+ * Returns `Result<LensMeta>` — callers propagate errors via the Result pattern.
+ *
+ * @param raw - The raw meta export from a lens.ts module
+ * @returns Validated LensMeta on success, or AppError on failure
+ */
+export function parseLensMeta(raw: unknown): Result<LensMeta> {
+	return safeParse(LensMetaSchema, raw);
 }
