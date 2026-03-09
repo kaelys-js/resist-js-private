@@ -15,11 +15,11 @@ import Input from '../input/input.svelte';
 import { cn } from '../utils.js';
 
 type ColorPickerProps = {
-	/** Current hex color value (e.g. '#ff0000'). */
+	/** Current hex color value (e.g. '#ff0000'). @values #000000, #ffffff, #ff0000, #00ff00, #0000ff */
 	value?: Str;
 	/** Callback when color changes. */
 	onValueChange?: (value: Str) => void;
-	/** Placeholder text for the hex input. */
+	/** Placeholder text for the hex input. @values #000000, #ffffff, #ff0000 */
 	placeholder?: Str;
 	/** Additional CSS classes for the root element. */
 	class?: Str;

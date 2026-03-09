@@ -7,13 +7,19 @@
  * 3. JSDoc on every type definition field
  * 4. Component description JSDoc on every `.svelte` file
  * 5. No orphaned `Demo.svelte` files
+ * 6. Every component directory needs valid `lens.ts`
+ * 7. Every extracted prop (via `extractProps`) has a JSDoc description
+ * 8. Every extracted `Str`/`Num`/`string`/`number` prop has `@values`
+ * 9. Every primary component has renderable Lens content (props, variants, or examples)
  */
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
-import { LensMetaSchema } from './types.js';
+import { extractProps } from './extract-props.js';
+import { extractVariants } from './extract-variants.js';
+import { LensMetaSchema, type PropMeta, type VariantMeta } from './types.js';
 
 const LENS_DIR: string = dirname(fileURLToPath(import.meta.url));
 const UI_SRC: string = join(LENS_DIR, '..');
@@ -437,4 +443,113 @@ describe('Lens lint', () => {
 			expect(invalid, `Invalid lens.ts:\n${invalid.join('\n')}`).toHaveLength(0);
 		});
 	});
+
+	describe('Rule 7: JSDoc required on extracted props (covers imported-type components)', () => {
+		const violations: string[] = [];
+
+		for (const file of svelteFiles) {
+			const source: string = readFileSync(file, 'utf8');
+			const props: PropMeta[] = extractProps(source);
+			for (const prop of props) {
+				if (!prop.description) {
+					violations.push(`${rel(file)} → ${prop.name}`);
+				}
+			}
+		}
+
+		it('every extracted prop has a JSDoc description', () => {
+			expect(violations, `Missing prop JSDoc:\n${violations.join('\n')}`).toHaveLength(0);
+		});
+	});
+
+	describe('Rule 8: @values required on extracted Str/Num props (covers imported-type components)', () => {
+		/** Types that require explicit `@values` for variant grid rendering. */
+		const NEEDS_VALUES: ReadonlySet<string> = new Set(['Str', 'Num', 'string', 'number']);
+		const violations: string[] = [];
+
+		for (const file of svelteFiles) {
+			const source: string = readFileSync(file, 'utf8');
+			const props: PropMeta[] = extractProps(source);
+			for (const prop of props) {
+				if (NEEDS_VALUES.has(prop.type) && (!prop.mockValues || prop.mockValues.length === 0)) {
+					violations.push(`${rel(file)} → ${prop.name} (type: ${prop.type})`);
+				}
+			}
+		}
+
+		it('every Str/Num extracted prop has @values', () => {
+			expect(
+				violations,
+				`Missing @values on extracted props:\n${violations.join('\n')}`,
+			).toHaveLength(0);
+		});
+	});
+
+	describe('Rule 9: Every primary component has renderable Lens content', () => {
+		/** Infrastructure dirs — not user-facing components. */
+		const INFRA_DIRS: ReadonlySet<string> = new Set([
+			'hooks',
+			'lens',
+			'lens-component-renderer',
+			'lens-default-preview',
+			'lens-empty',
+			'lens-error',
+			'lens-header',
+			'lens-props-table',
+			'lens-section',
+			'lens-source',
+			'lens-variant-grid',
+		]);
+
+		const empty: string[] = [];
+
+		const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+			.filter((d) => d.isDirectory() && !INFRA_DIRS.has(d.name))
+			.map((d) => d.name);
+
+		for (const dir of dirs) {
+			const dirPath: string = join(UI_SRC, dir);
+			const files: string[] = readdirSync(dirPath);
+
+			// Find primary .svelte file (name matches directory)
+			const primaryFile: string | undefined = files.find(
+				(f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
+			);
+			if (!primaryFile) continue;
+
+			const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+			const props: PropMeta[] = extractProps(source);
+			const variants: VariantMeta | null = extractVariants(source);
+			const hasExamples: boolean =
+				existsSync(join(dirPath, 'examples')) &&
+				readdirSync(join(dirPath, 'examples')).some((f: string) => f.endsWith('.svelte'));
+
+			const hasProps: boolean = props.length > 0;
+			const hasVariants: boolean = variants !== null && variants.variants.length > 0;
+
+			if (!hasProps && !hasVariants && !hasExamples) {
+				empty.push(dir);
+			}
+		}
+
+		it('every primary component has extractable props, TV variants, or examples', () => {
+			expect(
+				empty,
+				`Components with no renderable Lens content (add props, variants, or examples/):\n${empty.join('\n')}`,
+			).toHaveLength(0);
+		});
+	});
 });
+
+/**
+ * Convert kebab-case to PascalCase for matching component file names.
+ *
+ * @param kebab - Kebab-case string
+ * @returns PascalCase string
+ */
+function toPascal(kebab: string): string {
+	return kebab
+		.split('-')
+		.map((s: string): string => s.charAt(0).toUpperCase() + s.slice(1))
+		.join('');
+}

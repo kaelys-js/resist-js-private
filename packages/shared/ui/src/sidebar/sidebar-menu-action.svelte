@@ -6,6 +6,7 @@ import type { HTMLButtonAttributes } from 'svelte/elements';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Whether to only show the action on parent hover. */
 	showOnHover = false,
 	children,
 	child,

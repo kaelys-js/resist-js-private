@@ -6,9 +6,12 @@
 
 	let {
 		ref = $bindable(null),
+		/** The value submitted when this item is selected. */
 		value = $bindable(),
 		class: className,
+		/** Item size preset (inherits from group). @values default, sm, lg */
 		size,
+		/** Item style variant (inherits from group). @values default, outline */
 		variant,
 		...restProps
 	}: ToggleGroupPrimitive.ItemProps & ToggleVariants = $props();

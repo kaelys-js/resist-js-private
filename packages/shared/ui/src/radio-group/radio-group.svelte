@@ -5,6 +5,7 @@
 	let {
 		ref = $bindable(null),
 		class: className,
+		/** The selected radio button value. @values option-1, option-2, option-3 */
 		value = $bindable(""),
 		...restProps
 	}: RadioGroupPrimitive.RootProps = $props();

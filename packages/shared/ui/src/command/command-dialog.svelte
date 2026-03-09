@@ -15,11 +15,11 @@ let {
 	open = $bindable(false),
 	/** The underlying DOM element reference. */
 	ref = $bindable(null),
-	/** The current search query. */
+	/** The current search query. @values search, filter, find */
 	value = $bindable(''),
-	/** Accessible title for screen readers. */
+	/** Accessible title for screen readers. @values Command Palette, Search, Actions */
 	title = 'Command Palette',
-	/** Accessible description for screen readers. */
+	/** Accessible description for screen readers. @values Search for a command to run, Type to search, Find an action */
 	description = 'Search for a command to run',
 	/** Props forwarded to the portal wrapper. */
 	portalProps,

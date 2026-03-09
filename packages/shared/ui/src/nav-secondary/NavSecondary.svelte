@@ -17,7 +17,11 @@ type NavItem = {
 	icon: Component;
 };
 
-let { items, ...restProps }: { items: NavItem[] } & Record<Str, unknown> = $props();
+let {
+	/** Array of navigation item objects to render. */
+	items,
+	...restProps
+}: { items: NavItem[] } & Record<Str, unknown> = $props();
 </script>
 
 <Sidebar.Group {...restProps}>

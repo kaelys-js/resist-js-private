@@ -6,6 +6,7 @@ import { cn, type WithoutChildrenOrChild } from '../utils.js';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Whether to show a visible drag handle indicator. */
 	withHandle = false,
 	...restProps
 }: WithoutChildrenOrChild<ResizablePrimitive.PaneResizerProps> & {

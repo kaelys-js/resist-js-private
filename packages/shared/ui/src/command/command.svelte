@@ -10,8 +10,10 @@ import { Command as CommandPrimitive } from 'bits-ui';
 export type CommandRootApi = CommandPrimitive.Root;
 
 let {
+	/** Command menu API instance for external control. */
 	api = $bindable(null),
 	ref = $bindable(null),
+	/** The current input search value. @values search, filter, find */
 	value = $bindable(''),
 	class: className,
 	...restProps

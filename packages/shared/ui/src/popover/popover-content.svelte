@@ -12,9 +12,9 @@ let {
 	ref = $bindable(null),
 	/** Additional CSS classes to apply. */
 	class: className,
-	/** Distance in pixels from the trigger edge. */
+	/** Distance in pixels from the trigger. @values 0, 4, 8, 16 */
 	sideOffset = 4,
-	/** Horizontal alignment relative to the trigger. */
+	/** Horizontal alignment relative to the trigger. @values start, center, end */
 	align = 'center',
 	/** Props forwarded to the portal wrapper. */
 	portalProps,

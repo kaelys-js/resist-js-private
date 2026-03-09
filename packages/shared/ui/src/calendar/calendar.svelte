@@ -21,18 +21,28 @@ import CalendarPrevButton from './calendar-prev-button.svelte';
 
 let {
 	ref = $bindable(null),
+	/** The selected date value(s). */
 	value = $bindable(),
+	/** Placeholder date used when no selection exists. */
 	placeholder = $bindable(),
 	class: className,
+	/** Format for day-of-week headers. @values long, short, narrow */
 	weekdayFormat = 'short',
+	/** Button variant for navigation arrows. @values outline, ghost */
 	buttonVariant = 'ghost',
+	/** Calendar caption display mode. @values dropdown, dropdown-months, dropdown-years, label */
 	captionLayout = 'label',
+	/** Locale identifier for internationalization. @values en, en-US, en-GB, fr, de, ja, zh */
 	locale = 'en-US',
 	months: monthsProp,
+	/** Array of year values for the dropdown. */
 	years,
 	monthFormat: monthFormatProp,
+	/** Format string for year display. @values numeric, 2-digit */
 	yearFormat = 'numeric',
+	/** Custom day cell snippet renderer. */
 	day,
+	/** Whether to disable days outside the current month. */
 	disableDaysOutsideMonth = false,
 	...restProps
 }: WithoutChildrenOrChild<CalendarPrimitive.RootProps> & {

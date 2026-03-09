@@ -20,7 +20,6 @@ import LensHeader from '@/ui/lens-header/LensHeader.svelte';
 import LensSection from '@/ui/lens-section/LensSection.svelte';
 import LensSource from '@/ui/lens-source/LensSource.svelte';
 import PropsTable from '@/ui/lens-props-table/PropsTable.svelte';
-import CodeBlock from '@/ui/code-block/CodeBlock.svelte';
 import LensComponentRenderer from '@/ui/lens-component-renderer/LensComponentRenderer.svelte';
 import TableProperties from '@lucide/svelte/icons/table-properties';
 import ComponentIcon from '@lucide/svelte/icons/component';
@@ -331,7 +330,7 @@ function handleSearchSelect(item: SearchItem): Void {
 			</section>
 
 			<!-- ═══ Default ═══ -->
-			{#if PrimaryComponent && hasVariants}
+			{#if PrimaryComponent}
 				<section id="default" class="scroll-mt-60">
 					<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><ComponentIcon class="size-5" /> Default</h2>
 					<LensSection title="Default" description="Component rendered with default props.">
@@ -369,13 +368,12 @@ function handleSearchSelect(item: SearchItem): Void {
 							{@const exSource: Str = exampleSources.get(example.name) ?? ''}
 							{#if ExComponent}
 								<div id="example-{example.name}" class="scroll-mt-60">
-									<LensSection title={example.title} description={example.description} codeText={exSource}>
-										{#snippet code()}
-											{#if exSource}
-												<CodeBlock code={exSource} lang="svelte" />
-											{/if}
-										{/snippet}
-										<ExComponent />
+									<LensSection title={example.title} description={example.description}>
+										<LensComponentRenderer component={ExComponent} componentName={name} codeText={exSource}>
+											{#snippet children()}
+												<ExComponent />
+											{/snippet}
+										</LensComponentRenderer>
 									</LensSection>
 								</div>
 							{/if}

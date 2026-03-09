@@ -61,7 +61,7 @@ export type ButtonProps = WithElementRef<HTMLButtonAttributes> &
 		ref = $bindable(null),
 		/** When set, renders as an anchor element instead of a button. */
 		href,
-		/** The HTML button type attribute. */
+		/** The HTML button type attribute. @values button, submit, reset */
 		type = "button",
 		/** When true, the button is non-interactive. */
 		disabled,

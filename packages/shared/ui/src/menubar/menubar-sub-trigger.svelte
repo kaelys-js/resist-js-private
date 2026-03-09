@@ -6,6 +6,7 @@ import { cn, type WithoutChild } from '../utils.js';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Whether to inset the trigger for icon alignment. */
 	inset,
 	children,
 	...restProps

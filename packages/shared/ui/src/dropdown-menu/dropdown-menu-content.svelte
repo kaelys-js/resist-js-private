@@ -12,7 +12,7 @@ import type { ComponentProps } from 'svelte';
 let {
 	/** The underlying DOM element reference. */
 	ref = $bindable(null),
-	/** Distance in pixels from the trigger edge. */
+	/** Distance in pixels from the trigger edge. @values 0, 4, 8, 16 */
 	sideOffset = 4,
 	/** Props forwarded to the portal wrapper. */
 	portalProps,

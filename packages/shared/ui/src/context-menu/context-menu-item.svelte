@@ -5,7 +5,9 @@
 	let {
 		ref = $bindable(null),
 		class: className,
+		/** Whether to inset the item for icon alignment. */
 		inset,
+		/** Item style variant. @values default, destructive */
 		variant = "default",
 		...restProps
 	}: ContextMenuPrimitive.ItemProps & {

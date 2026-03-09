@@ -1,7 +1,12 @@
 <script lang="ts">
 import { type ChartConfig, THEMES } from './chart-utils.js';
 
-let { id, config }: { id: string; config: ChartConfig } = $props();
+let {
+	/** Matching chart container identifier. @values chart-1, chart-2, chart-3 */
+	id,
+	/** Chart color and label configuration object. */
+	config,
+}: { id: string; config: ChartConfig } = $props();
 
 const colorConfig = $derived(
 	config ? Object.entries(config).filter(([, itemCfg]) => itemCfg.theme || itemCfg.color) : null,

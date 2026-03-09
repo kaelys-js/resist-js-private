@@ -5,6 +5,7 @@ import { cn } from '../utils.js';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** The current OTP input value. @values 1234, 567890, ABCDEF */
 	value = $bindable(''),
 	...restProps
 }: InputOTPPrimitive.RootProps = $props();

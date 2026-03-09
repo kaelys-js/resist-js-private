@@ -9,11 +9,15 @@ import {
 
 let {
 	ref = $bindable(null),
+	/** Embla carousel options for scroll behavior and snapping. */
 	opts = {},
+	/** Array of Embla carousel plugins. */
 	plugins = [],
+	/** Callback to receive the carousel API instance. */
 	setApi = () => {
 		/* no-op — default callback */
 	},
+	/** Scroll direction of the carousel. @values horizontal, vertical */
 	orientation = 'horizontal',
 	class: className,
 	children,

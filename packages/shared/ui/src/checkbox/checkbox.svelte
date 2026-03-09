@@ -6,7 +6,9 @@
 
 	let {
 		ref = $bindable(null),
+		/** Whether the checkbox is checked. */
 		checked = $bindable(false),
+		/** Whether the checkbox shows an indeterminate state. */
 		indeterminate = $bindable(false),
 		class: className,
 		...restProps

@@ -6,6 +6,7 @@
 	type ToggleVariants = VariantProps<typeof toggleVariants>;
 
 	type ToggleGroupContext = {
+		/** Gap spacing between toggle items in pixels. @values 0, 1, 2, 4 */
 		spacing?: number;
 	} & ToggleVariants;
 
@@ -24,10 +25,14 @@
 
 	let {
 		ref = $bindable(null),
+		/** The selected toggle value(s). */
 		value = $bindable(),
 		class: className,
+		/** Toggle group item size preset. @values default, sm, lg */
 		size = "default",
+		/** Gap spacing between toggle items in pixels. @values 0, 1, 2, 4 */
 		spacing = 0,
+		/** Toggle group style variant. @values default, outline */
 		variant = "default",
 		...restProps
 	}: ToggleGroupPrimitive.RootProps & ToggleVariants & { spacing?: number } = $props();

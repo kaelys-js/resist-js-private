@@ -11,7 +11,9 @@ let {
 	children,
 	child,
 	class: className,
+	/** Sub-button size preset. @values sm, md */
 	size = 'md',
+	/** Whether this sub-button is the active item. */
 	isActive = false,
 	...restProps
 }: WithElementRef<HTMLAnchorAttributes> & {

@@ -6,14 +6,23 @@ import RangeCalendarMonthSelect from './range-calendar-month-select.svelte';
 import RangeCalendarYearSelect from './range-calendar-year-select.svelte';
 
 let {
+	/** Calendar caption display mode. @values dropdown, dropdown-months, dropdown-years, label */
 	captionLayout,
+	/** Array of month data objects for the calendar grid. */
 	months,
+	/** Format string for month display. @values long, short, narrow, numeric, 2-digit */
 	monthFormat,
+	/** Array of year values for the dropdown. */
 	years,
+	/** Format string for year display. @values numeric, 2-digit */
 	yearFormat,
+	/** The displayed month reference date. */
 	month,
+	/** Locale identifier for internationalization. @values en, en-US, en-GB, fr, de, ja, zh */
 	locale,
+	/** Placeholder date used when no selection exists. */
 	placeholder = $bindable(),
+	/** Index of the current month being displayed. @values 0, 1, 2, 3 */
 	monthIndex = 0,
 }: {
 	captionLayout: ComponentProps<typeof RangeCalendar>['captionLayout'];

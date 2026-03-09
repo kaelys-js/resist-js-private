@@ -8,9 +8,11 @@ const uid = $props.id();
 
 let {
 	ref = $bindable(null),
+	/** Unique identifier for the chart container. @values chart-1, chart-2, chart-3 */
 	id = uid,
 	class: className,
 	children,
+	/** Chart color and label configuration object. */
 	config,
 	...restProps
 }: WithElementRef<HTMLAttributes<HTMLElement>> & {

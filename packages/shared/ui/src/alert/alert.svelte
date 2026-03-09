@@ -25,6 +25,7 @@
 	let {
 		ref = $bindable(null),
 		class: className,
+		/** The alert style variant. @values default, destructive */
 		variant = "default",
 		children,
 		...restProps

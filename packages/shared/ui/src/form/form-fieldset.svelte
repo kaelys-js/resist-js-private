@@ -9,7 +9,9 @@ import { cn, type WithoutChild } from '../utils.js';
 let {
 		ref = $bindable(null),
 		class: className,
+		/** SuperForm instance for form state management. */
 		form,
+		/** The fieldset name in the form schema. */
 		name,
 		...restProps
 	}: WithoutChild<FormPrimitive.FieldsetProps<T, U>> = $props();

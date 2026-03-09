@@ -7,8 +7,11 @@
 	let {
 		ref = $bindable(null),
 		class: className,
+		/** Horizontal alignment relative to the trigger. @values start, center, end */
 		align = "center",
+		/** Distance in pixels from the trigger. @values 0, 4, 8, 16 */
 		sideOffset = 4,
+		/** Props forwarded to the portal container. */
 		portalProps,
 		...restProps
 	}: HoverCardPrimitive.ContentProps & {

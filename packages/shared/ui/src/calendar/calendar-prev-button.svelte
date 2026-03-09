@@ -8,6 +8,7 @@ let {
 	ref = $bindable(null),
 	class: className,
 	children,
+	/** Button style variant. @values outline, ghost */
 	variant = 'ghost',
 	...restProps
 }: CalendarPrimitive.PrevButtonProps & {

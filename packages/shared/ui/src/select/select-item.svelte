@@ -9,7 +9,9 @@ import { cn, type WithoutChild } from '../utils.js';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** The option value submitted when selected. */
 	value,
+	/** Display text for the option. */
 	label,
 	children: childrenProp,
 	...restProps

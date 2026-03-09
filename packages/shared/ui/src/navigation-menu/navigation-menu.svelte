@@ -6,6 +6,7 @@ import NavigationMenuViewport from './navigation-menu-viewport.svelte';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Whether to render the navigation viewport container. */
 	viewport = true,
 	children,
 	...restProps

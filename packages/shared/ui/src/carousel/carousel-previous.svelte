@@ -8,7 +8,9 @@ import { getEmblaContext } from './context.js';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Button style variant. @values default, outline, ghost */
 	variant = 'outline',
+	/** Button size preset. @values default, sm, lg, icon */
 	size = 'icon',
 	...restProps
 }: WithoutChildren<Props> = $props();

@@ -3,6 +3,7 @@
 
 	let {
 		ref = $bindable(null),
+		/** The currently expanded item value(s). */
 		value = $bindable(),
 		...restProps
 	}: AccordionPrimitive.RootProps = $props();

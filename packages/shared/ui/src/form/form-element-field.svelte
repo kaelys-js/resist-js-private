@@ -10,7 +10,9 @@ import { cn, type WithElementRef, type WithoutChildren } from '../utils.js';
 let {
 		ref = $bindable(null),
 		class: className,
+		/** SuperForm instance for form state management. */
 		form,
+		/** The field name in the form schema. */
 		name,
 		children: childrenProp,
 		...restProps

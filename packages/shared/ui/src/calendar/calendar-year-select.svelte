@@ -6,6 +6,7 @@ import { cn, type WithoutChildrenOrChild } from '../utils.js';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Currently selected year value. */
 	value,
 	...restProps
 }: WithoutChildrenOrChild<CalendarPrimitive.YearSelectProps> = $props();

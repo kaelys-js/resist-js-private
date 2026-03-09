@@ -10,7 +10,7 @@ import { cn } from '../utils.js';
 let {
 	/** The underlying DOM element reference. */
 	ref = $bindable(null),
-	/** The image loading status (loading, loaded, or error). */
+	/** The image loading status (loading, loaded, or error). @values loading, loaded, error */
 	loadingStatus = $bindable('loading'),
 	/** Additional CSS classes to apply. */
 	class: className,

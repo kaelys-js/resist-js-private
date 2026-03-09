@@ -7,10 +7,15 @@ import MenubarPortal from './menubar-portal.svelte';
 let {
 	ref = $bindable(null),
 	class: className,
+	/** Distance in pixels from the trigger. @values 0, 4, 8, 16 */
 	sideOffset = 8,
+	/** Offset in pixels for alignment adjustment. @values -8, -4, 0, 4 */
 	alignOffset = -4,
+	/** Horizontal alignment relative to the trigger. @values start, center, end */
 	align = 'start',
+	/** Which side of the trigger to position on. @values top, right, bottom, left */
 	side = 'bottom',
+	/** Props forwarded to the portal container. */
 	portalProps,
 	...restProps
 }: MenubarPrimitive.ContentProps & {

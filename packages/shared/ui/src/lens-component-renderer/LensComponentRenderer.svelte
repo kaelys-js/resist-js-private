@@ -20,7 +20,7 @@
  */
 import type { Bool, Num, Str, Void } from '@/schemas/common';
 import type { PropMeta, VariantMeta } from '../lens/types.js';
-import type { Component } from 'svelte';
+import type { Component, Snippet } from 'svelte';
 import { buildBaseProps } from '../lens/extract-props.js';
 import LensError from '../lens-error/LensError.svelte';
 import CopyButton from '../copy-button/CopyButton.svelte';
@@ -33,6 +33,7 @@ import Check from '@lucide/svelte/icons/check';
 import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
 import ExternalLink from '@lucide/svelte/icons/external-link';
 import Eye from '@lucide/svelte/icons/eye';
+import Grid3x3 from '@lucide/svelte/icons/grid-3x3';
 import Maximize from '@lucide/svelte/icons/maximize';
 import Paintbrush from '@lucide/svelte/icons/paintbrush';
 import Search from '@lucide/svelte/icons/search';
@@ -57,6 +58,10 @@ type LensComponentRendererProps = {
 	componentName?: Str;
 	/** Default slot content text for each rendered component. @values Example, Click me, Label */
 	label?: Str;
+	/** Custom content to render instead of the auto-instantiated component. Used for hand-written examples. */
+	children?: Snippet;
+	/** Code snippet text to display instead of auto-generated snippet. @values <Button>Click</Button>, <Input placeholder="Type..." />, <Badge>New</Badge> */
+	codeText?: Str;
 	/** Additional CSS classes for the root element. */
 	class?: Str;
 };
@@ -68,6 +73,8 @@ const {
 	tagName,
 	componentName,
 	label = 'Example',
+	children,
+	codeText,
 	class: className,
 }: LensComponentRendererProps = $props();
 
@@ -90,6 +97,12 @@ let cardZoom: Record<Str, Num> = $state({});
 
 /** Per-card outline color keyed by card identifier ('none' = off). */
 let cardOutlines: Record<Str, Str> = $state({});
+
+/** Per-card grid style keyed by card identifier ('none' = off). */
+let cardGrids: Record<Str, Str> = $state({});
+
+/** Per-card grid size in pixels keyed by card identifier. */
+let cardGridSizes: Record<Str, Num> = $state({});
 
 /** Search query for filtering accessibility simulation items. */
 let simSearchQuery: Str = $state('');
@@ -152,6 +165,21 @@ const OUTLINE_PRESETS: Array<{ id: Str; label: Str; color: Str }> = [
 	{ id: 'yellow', label: 'Yellow', color: 'rgba(234, 179, 8, 0.35)' },
 	{ id: 'white', label: 'White', color: 'rgba(255, 255, 255, 0.5)' },
 	{ id: 'black', label: 'Black', color: 'rgba(0, 0, 0, 0.25)' },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Grid presets                                                       */
+/* ------------------------------------------------------------------ */
+
+const GRID_DEFAULT_SIZE: Num = 16;
+
+const GRID_PRESETS: Array<{ id: Str; label: Str; color: Str }> = [
+	{ id: 'light', label: 'Light', color: 'rgba(0, 0, 0, 0.06)' },
+	{ id: 'medium', label: 'Medium', color: 'rgba(0, 0, 0, 0.12)' },
+	{ id: 'dark', label: 'Dark', color: 'rgba(0, 0, 0, 0.25)' },
+	{ id: 'red', label: 'Red', color: 'rgba(239, 68, 68, 0.15)' },
+	{ id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.2)' },
+	{ id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.2)' },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -305,6 +333,53 @@ function getOutlineColor(key: Str): Str {
 }
 
 /**
+ * Set grid style for a card.
+ *
+ * @param key - Card key
+ * @param gridId - Grid preset ID, custom hex color, or 'none'
+ */
+function setGrid(key: Str, gridId: Str): Void {
+	cardGrids[key] = gridId;
+}
+
+/**
+ * Set grid size for a card.
+ *
+ * @param key - Card key
+ * @param size - Grid cell size in pixels
+ */
+function setGridSize(key: Str, size: Num): Void {
+	cardGridSizes[key] = Math.min(128, Math.max(4, size));
+}
+
+/**
+ * Get the resolved grid CSS color value for a card.
+ *
+ * @param key - Card key
+ * @returns CSS color string or empty if no grid
+ */
+function getGridColor(key: Str): Str {
+	const id: Str = cardGrids[key] ?? 'none';
+	if (id === 'none') return '';
+	if (id.startsWith('#') || id.startsWith('rgb')) return id;
+	const preset = GRID_PRESETS.find((p) => p.id === id);
+	return preset?.color ?? '';
+}
+
+/**
+ * Get the CSS background-image style for a grid overlay.
+ *
+ * @param key - Card key
+ * @returns CSS style string or empty
+ */
+function getGridStyle(key: Str): Str {
+	const color: Str = getGridColor(key);
+	if (!color) return '';
+	const size: Num = cardGridSizes[key] ?? GRID_DEFAULT_SIZE;
+	return `background-image: linear-gradient(${color} 1px, transparent 1px), linear-gradient(90deg, ${color} 1px, transparent 1px); background-size: ${size}px ${size}px`;
+}
+
+/**
  * Open component in isolation in a new tab.
  *
  * @param variantKey - Optional variant prop name
@@ -368,7 +443,7 @@ function getBackgroundStyle(key: Str): Str {
 function getZoomStyle(key: Str): Str {
 	const zoom: Num = cardZoom[key] ?? 1;
 	if (zoom === 1) return '';
-	return `transform: scale(${zoom}); transform-origin: center`;
+	return `zoom: ${zoom}`;
 }
 
 /**
@@ -458,6 +533,7 @@ function isIconOption(option: Str): boolean {
 	{@const activeBg: Str = cardBackgrounds[cardKey] ?? 'default'}
 	{@const activeZoom: Num = cardZoom[cardKey] ?? 1}
 	{@const activeOutline: Str = cardOutlines[cardKey] ?? 'none'}
+	{@const activeGrid: Str = cardGrids[cardKey] ?? 'none'}
 	<div class="overflow-hidden rounded-md border bg-background">
 		<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
 			<div class="flex items-center gap-1.5">
@@ -470,6 +546,11 @@ function isIconOption(option: Str): boolean {
 				{#if activeZoom !== 1}
 					<span class="rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-medium text-blue-600 dark:text-blue-400">
 						{getZoomLabel(cardKey)}
+					</span>
+				{/if}
+				{#if activeGrid !== 'none'}
+					<span class="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-600 dark:text-emerald-400">
+						grid
 					</span>
 				{/if}
 			</div>
@@ -628,6 +709,53 @@ function isIconOption(option: Str): boolean {
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
 
+						<!-- Grid submenu -->
+						<DropdownMenu.Sub>
+							<DropdownMenu.SubTrigger>
+								<Grid3x3 class="size-4" />
+								Grid
+							</DropdownMenu.SubTrigger>
+							<DropdownMenu.SubContent class="w-52">
+								<DropdownMenu.Item onclick={() => setGrid(cardKey, 'none')}>
+									<Check class={cn('size-4 shrink-0', activeGrid !== 'none' && 'opacity-0')} />
+									None
+								</DropdownMenu.Item>
+								<DropdownMenu.Separator />
+								{#each GRID_PRESETS as preset (preset.id)}
+									<DropdownMenu.Item onclick={() => setGrid(cardKey, preset.id)}>
+										<div class="flex items-center gap-2">
+											<Check class={cn('size-4 shrink-0', activeGrid !== preset.id && 'opacity-0')} />
+											<span
+												class="inline-block size-3.5 shrink-0 rounded-sm border"
+												style="background-color: {preset.color}"
+											></span>
+											{preset.label}
+										</div>
+									</DropdownMenu.Item>
+								{/each}
+								<DropdownMenu.Separator />
+								<div class="px-2 py-1.5">
+									<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom</p>
+									<ColorPicker
+										value={activeGrid.startsWith('#') ? activeGrid : '#000000'}
+										onValueChange={(v) => setGrid(cardKey, v)}
+									/>
+								</div>
+								<DropdownMenu.Separator />
+								<div class="px-2 py-1.5">
+									<p class="mb-1.5 text-xs font-medium text-muted-foreground">Size ({cardGridSizes[cardKey] ?? GRID_DEFAULT_SIZE}px)</p>
+									<Slider
+										type="single"
+										value={cardGridSizes[cardKey] ?? GRID_DEFAULT_SIZE}
+										min={4}
+										max={128}
+										step={4}
+										onValueChange={(v) => setGridSize(cardKey, v)}
+									/>
+								</div>
+							</DropdownMenu.SubContent>
+						</DropdownMenu.Sub>
+
 						<DropdownMenu.Separator />
 
 						<!-- Accessibility submenu -->
@@ -702,25 +830,29 @@ function isIconOption(option: Str): boolean {
 				class={cn(activeOutline !== 'none' && 'lens-outline')}
 				style={[getSimulationFilter(cardKey), getZoomStyle(cardKey), activeOutline !== 'none' ? `--lens-outline-color: ${getOutlineColor(cardKey)}` : ''].filter(Boolean).join('; ')}
 			>
-				<Target {...baseProps} {...extraProps}>
-					{#if useIcon}
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="16"
-							height="16"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						>
-							<circle cx="12" cy="12" r="10"></circle>
-						</svg>
-					{:else}
-						{label}
-					{/if}
-				</Target>
+				{#if children}
+					{@render children()}
+				{:else}
+					<Target {...baseProps} {...extraProps}>
+						{#if useIcon}
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<circle cx="12" cy="12" r="10"></circle>
+							</svg>
+						{:else}
+							{label}
+						{/if}
+					</Target>
+				{/if}
 			</div>
 			{#if hasTunnelVision(cardKey)}
 				<div
@@ -728,11 +860,17 @@ function isIconOption(option: Str): boolean {
 					style="background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.85) 60%)"
 				></div>
 			{/if}
+			{#if activeGrid !== 'none'}
+				<div
+					class="pointer-events-none absolute inset-0"
+					style={getGridStyle(cardKey)}
+				></div>
+			{/if}
 		</div>
-		{#if tagName && openCards[cardKey]}
+		{#if (tagName || codeText) && openCards[cardKey]}
 			<div class="overflow-hidden border-t bg-muted/20" transition:slide={{ duration: 200 }}>
 				<div class="min-w-0 overflow-x-auto p-3 text-sm">
-					<CodeBlock code={snippet} lang="svelte" />
+					<CodeBlock code={codeText ?? snippet} lang="svelte" />
 				</div>
 			</div>
 		{/if}
