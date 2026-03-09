@@ -134,7 +134,7 @@ function explainType(type: Str): Str {
 			</thead>
 			<tbody>
 				{#each props as prop (prop.name)}
-					<tr class="border-b last:border-b-0">
+					<tr id="prop-{prop.name}" class="border-b last:border-b-0">
 						<td class="px-4 py-2 font-mono text-xs font-medium">
 							{prop.name}
 							{#if prop.bindable}

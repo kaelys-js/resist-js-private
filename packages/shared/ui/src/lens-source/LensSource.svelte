@@ -9,6 +9,7 @@ import type { Str } from '@/schemas/common';
 import { toTitle } from '../lens/lens-utils.js';
 import LensSection from '../lens-section/LensSection.svelte';
 import CodeBlock from '../code-block/CodeBlock.svelte';
+import FileCode from '@lucide/svelte/icons/file-code';
 
 type LensSourceProps = {
 	/** Component directory name (kebab-case). @values button, dialog, sidebar */
@@ -21,7 +22,7 @@ const { name, source }: LensSourceProps = $props();
 </script>
 
 <section id="source" class="scroll-mt-60">
-	<h2 class="mb-3 text-lg font-semibold">Source</h2>
+	<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><FileCode class="size-5" /> Source</h2>
 	<LensSection title={toTitle(name)} description="Component source code." codeText={source}>
 		{#snippet code()}
 			<CodeBlock code={source} lang="svelte" />
