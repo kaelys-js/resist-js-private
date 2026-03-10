@@ -19,6 +19,68 @@ function noop(): void {
 	/* intentionally empty — placeholder for function-typed props in variant previews */
 }
 
+/** Check if a prop type represents a function (Snippet, Component, callback). */
+function isFunctionType(type: string, typeDefinition?: string): boolean {
+	return type === 'Snippet' || type === 'Component'
+		|| type.includes(') =>') || (typeDefinition?.includes(') =>') ?? false);
+}
+
+/**
+ * Try to parse a JS-like object/array literal string into an actual value.
+ *
+ * Handles unquoted keys (`{name: "val"}`) by quoting them before JSON.parse.
+ *
+ * @param str - String like `{key: "value"}` or `[{key: true}]`
+ * @returns Parsed value, or undefined if unparseable
+ */
+function tryParseJsLiteral(str: string): unknown {
+	// Try JSON.parse first (already valid JSON)
+	try {
+		return JSON.parse(str);
+	} catch {
+		/* not valid JSON — try fixing unquoted keys */
+	}
+	// Quote unquoted keys: {key: "val"} → {"key": "val"}
+	const fixed: string = str.replace(/([{,])\s*(\w+)\s*:/g, '$1"$2":');
+	try {
+		return JSON.parse(fixed);
+	} catch {
+		/* still unparseable */
+	}
+	return undefined;
+}
+
+/**
+ * Coerce a string mockValue to its actual JS type based on prop type info.
+ *
+ * @param mv - Raw string mockValue from @values tag
+ * @param type - Prop type string (e.g. 'boolean', 'Snippet', 'object')
+ * @param typeDefinition - Optional resolved type definition
+ * @returns Properly typed value: boolean, number, noop function, parsed object/array, or string
+ */
+function coerceMockValue(mv: string, type: string, typeDefinition?: string): unknown {
+	const isArrayType: boolean = type.endsWith('[]');
+
+	// Function types — provide a callable noop instead of string
+	if (isFunctionType(type, typeDefinition)) return noop;
+	// Booleans — coerce string to actual boolean, wrap in array if array-typed
+	if (mv === 'true') return isArrayType ? [true] : true;
+	if (mv === 'false') return isArrayType ? [false] : false;
+	// Numbers — coerce string to actual number, wrap in array if array-typed
+	if (mv !== '' && !Number.isNaN(Number(mv))) {
+		const num: number = Number(mv);
+		return isArrayType ? [num] : num;
+	}
+	// Object/array literals — try to parse into actual JS values
+	if (mv.startsWith('{') || mv.startsWith('[')) {
+		const parsed: unknown = tryParseJsLiteral(mv);
+		if (parsed !== undefined) return parsed;
+		return undefined;
+	}
+	// Everything else is a string, wrap in array if array-typed
+	return isArrayType ? [mv] : mv;
+}
+
 /** JSDoc open marker — extracted to avoid confusing oxlint's JSDoc parser. */
 const JSDOC_OPEN: string = '/**';
 
@@ -243,12 +305,16 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
 	for (const { type, name, default: defaultVal, typeDefinition, mockValues } of props) {
 		if (!type) continue;
 
+		// Skip function types — can't render Snippet/Component/callback props as string variant options
+		if (isFunctionType(type, typeDefinition)) continue;
+
 		// @values JSDoc tag: highest priority — explicit author declaration
 		if (mockValues && mockValues.length > 1) {
 			variants.push({
 				key: name,
 				options: mockValues,
 				default: defaultVal ? defaultVal.replaceAll("'", '') : '',
+				coerce: type.endsWith('[]') ? 'array' : undefined,
 			});
 			continue;
 		}
@@ -310,8 +376,11 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
 	}
 
 	// Scan typeFields for enumerable sub-fields (picklists, booleans)
+	// Skip array-typed props — their typeFields are inner item fields (from unwrapping
+	// v.array()), and dotted variants would produce Objects where Arrays are expected.
 	for (const prop of props) {
 		if (!prop.typeFields || prop.typeFields.length === 0) continue;
+		if (prop.type.endsWith('[]')) continue;
 		for (const tf of prop.typeFields) {
 			const parsed: TypeFieldVariantResult = parseTypeFieldAccepts(tf);
 			if (parsed.options.length > 1) {
@@ -415,7 +484,10 @@ export function buildBaseProps(propsMeta: PropMeta[]): Record<string, unknown> {
 				base[prop.name] = Number(d);
 			}
 		} else if (prop.mockValues && prop.mockValues.length > 0) {
-			base[prop.name] = prop.mockValues[0] ?? '';
+			// Coerce mockValues to actual types — @values are always strings
+			const coerced: unknown = coerceMockValue(prop.mockValues[0] ?? '', prop.type, prop.typeDefinition);
+			// Only set if coercion produced a value — undefined means type can't be coerced from string
+			if (coerced !== undefined) base[prop.name] = coerced;
 		} else if (prop.type.startsWith('{ ')) {
 			// Inline object type summary — construct placeholder with empty string values
 			const placeholder: Record<string, string> | null = buildPlaceholderObject(prop.type);
@@ -633,12 +705,45 @@ function extractValuesTag(text: string): ValuesTagResult {
 		? afterTag.slice(0, nextTagMatch.index ?? afterTag.length)
 		: afterTag;
 
-	const mockValues: string[] = rawValues
-		.split(',')
-		.map((v: string): string => v.trim())
-		.filter((v: string): boolean => v.length > 0);
+	const mockValues: string[] = splitValuesRespectingBrackets(rawValues);
 
 	return { description, mockValues };
+}
+
+/**
+ * Split a comma-separated @values string while respecting nested brackets/braces.
+ *
+ * Commas inside `{...}`, `[...]`, or `(...)` are NOT treated as separators.
+ * This allows @values like `{category: "display", tags: ["interactive"]}` to remain
+ * as a single value instead of being fragmented.
+ *
+ * @param raw - The raw @values content after the tag
+ * @returns Array of trimmed, non-empty value strings
+ */
+function splitValuesRespectingBrackets(raw: string): string[] {
+	const result: string[] = [];
+	let depth: number = 0;
+	let current: string = '';
+
+	for (let i: number = 0; i < raw.length; i++) {
+		const ch: string = raw[i] ?? '';
+		if (ch === '{' || ch === '[' || ch === '(') {
+			depth++;
+			current += ch;
+		} else if (ch === '}' || ch === ']' || ch === ')') {
+			depth--;
+			current += ch;
+		} else if (ch === ',' && depth === 0) {
+			const trimmed: string = current.trim();
+			if (trimmed.length > 0) result.push(trimmed);
+			current = '';
+		} else {
+			current += ch;
+		}
+	}
+	const trimmed: string = current.trim();
+	if (trimmed.length > 0) result.push(trimmed);
+	return result;
 }
 
 /**
@@ -874,9 +979,7 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
 				const content: string = singleMatch[1] ?? '';
 				const valuesMatch: RegExpMatchArray | null = content.match(/@values\s+(.+)/);
 				if (valuesMatch) {
-					pendingMockValues = (valuesMatch[1] ?? '')
-						.split(',')
-						.map((s: string): string => s.trim());
+					pendingMockValues = splitValuesRespectingBrackets(valuesMatch[1] ?? '');
 					pendingDescription = content.replace(/@values\s+.+/, '').trim();
 				} else {
 					pendingDescription = content;
@@ -901,9 +1004,7 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
 				const fullDoc: string = jsdocLines.join(' ');
 				const valuesMatch: RegExpMatchArray | null = fullDoc.match(/@values\s+(.+)/);
 				if (valuesMatch) {
-					pendingMockValues = (valuesMatch[1] ?? '')
-						.split(',')
-						.map((s: string): string => s.trim());
+					pendingMockValues = splitValuesRespectingBrackets(valuesMatch[1] ?? '');
 					pendingDescription = fullDoc.replace(/@values\s+.+/, '').trim();
 				} else {
 					pendingDescription = fullDoc;
