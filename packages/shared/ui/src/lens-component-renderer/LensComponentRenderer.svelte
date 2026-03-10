@@ -71,12 +71,20 @@ import Moon from '@lucide/svelte/icons/moon';
 import Paintbrush from '@lucide/svelte/icons/paintbrush';
 import Palette from '@lucide/svelte/icons/palette';
 import Search from '@lucide/svelte/icons/search';
+import SearchX from '@lucide/svelte/icons/search-x';
 import Settings2 from '@lucide/svelte/icons/settings-2';
 import Smartphone from '@lucide/svelte/icons/smartphone';
 import Sun from '@lucide/svelte/icons/sun';
 import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
 import SquareDashedMousePointer from '@lucide/svelte/icons/square-dashed-mouse-pointer';
+import Tablet from '@lucide/svelte/icons/tablet';
+import Tv from '@lucide/svelte/icons/tv';
+import Watch from '@lucide/svelte/icons/watch';
+import Car from '@lucide/svelte/icons/car';
+import Glasses from '@lucide/svelte/icons/glasses';
+import Refrigerator from '@lucide/svelte/icons/refrigerator';
+import MonitorSmartphone from '@lucide/svelte/icons/monitor-smartphone';
 import Wifi from '@lucide/svelte/icons/wifi';
 import WifiOff from '@lucide/svelte/icons/wifi-off';
 import ZoomIn from '@lucide/svelte/icons/zoom-in';
@@ -142,6 +150,9 @@ let cardNetworkSim: Record<Str, Str> = $state({});
 
 /** Per-card network loading state (true while simulated latency overlay is visible). */
 let cardNetworkLoading: Record<Str, Bool> = $state({});
+
+/** Per-card viewport constraint keyed by card identifier ('auto' = full width). */
+let cardViewports: Record<Str, Str> = $state({});
 
 /** Per-card measured visual height of the inner content (accounts for zoom + rotation transforms). */
 let cardContentHeights: Record<Str, Num> = $state({});
@@ -252,6 +263,54 @@ $effect(() => {
 
 /** Search query for filtering accessibility simulation items. */
 let simSearchQuery: Str = $state('');
+
+/** Search query for filtering viewport/device presets. */
+let viewportSearchQuery: Str = $state('');
+
+/** Search query for filtering network simulation presets. */
+let networkSearchQuery: Str = $state('');
+
+/** Search query for filtering background presets. */
+let bgSearchQuery: Str = $state('');
+
+/** Search query for filtering outline presets. */
+let outlineSearchQuery: Str = $state('');
+
+/** Search query for filtering grid presets. */
+let gridSearchQuery: Str = $state('');
+
+/** Search query for filtering color mode presets. */
+let modeSearchQuery: Str = $state('');
+
+/** Search query for filtering theme presets. */
+let themeSearchQuery: Str = $state('');
+
+/** Search query for filtering orientation presets. */
+let orientationSearchQuery: Str = $state('');
+
+/** Search query for filtering media preference groups. */
+let mediaPrefSearchQuery: Str = $state('');
+
+/**
+ * Svelte action that locks an element's height to its initial rendered value.
+ * Prevents dropdown SubContent from shrinking when search filtering reduces
+ * the item count, which would trigger bits-ui's GraceArea pointerleave and
+ * close the submenu before the user can click a filtered result.
+ *
+ * @param node - The scrollable container element inside a SubContent
+ * @returns Action lifecycle with destroy cleanup
+ */
+function lockHeight(node: HTMLElement): { destroy: () => void } {
+	const raf: Num = requestAnimationFrame((): void => {
+		node.style.minHeight = `${node.offsetHeight}px`;
+	});
+	return {
+		destroy(): void {
+			cancelAnimationFrame(raf);
+			node.style.minHeight = '';
+		},
+	};
+}
 
 /* ------------------------------------------------------------------ */
 /*  Background presets                                                */
@@ -418,11 +477,143 @@ const MEDIA_PREF_GROUPS: Array<{ pref: Str; label: Str; defaultValue: Str; optio
 /* ------------------------------------------------------------------ */
 
 /** Network simulation presets with latency delays in ms (-1 = permanent/offline). */
-const NETWORK_PRESETS: Array<{ id: Str; label: Str; delay: Num; description: Str }> = [
-	{ id: 'none', label: 'No throttling', delay: 0, description: '' },
-	{ id: 'fast-3g', label: 'Fast 3G', delay: 500, description: '~500ms latency' },
-	{ id: 'slow-3g', label: 'Slow 3G', delay: 2000, description: '~2s latency' },
-	{ id: 'offline', label: 'Offline', delay: -1, description: 'No connection' },
+const NETWORK_PRESETS: Array<{ id: Str; label: Str; delay: Num; description: Str; category: Str }> = [
+	{ id: 'none', label: 'No throttling', delay: 0, description: '', category: '' },
+	// Mobile
+	{ id: 'gprs', label: 'GPRS', delay: 500, description: '~50 kbps, 500ms RTT', category: 'Mobile' },
+	{ id: '2g-edge', label: '2G / EDGE', delay: 300, description: '~240 kbps, 300ms RTT', category: 'Mobile' },
+	{ id: '3g', label: '3G', delay: 2000, description: '~400 kbps, 2s RTT', category: 'Mobile' },
+	{ id: '3g-hspa', label: '3G / HSPA', delay: 120, description: '~1.5 Mbps, 120ms RTT', category: 'Mobile' },
+	{ id: '3g-hspa-plus', label: '3G / HSPA+', delay: 80, description: '~4 Mbps, 80ms RTT', category: 'Mobile' },
+	{ id: 'slow-4g', label: 'Slow 4G', delay: 562, description: '~1.4 Mbps, 562ms RTT', category: 'Mobile' },
+	{ id: 'fast-4g', label: 'Fast 4G / LTE', delay: 165, description: '~9 Mbps, 165ms RTT', category: 'Mobile' },
+	{ id: 'lte-a', label: 'LTE-Advanced', delay: 30, description: '~15 Mbps, 30ms RTT', category: 'Mobile' },
+	{ id: '5g-sub6', label: '5G Sub-6 GHz', delay: 10, description: '~100 Mbps, 10ms RTT', category: 'Mobile' },
+	{ id: '5g-mmwave', label: '5G mmWave', delay: 5, description: '~1 Gbps, 5ms RTT', category: 'Mobile' },
+	{ id: '5g-plus', label: '5G+ / 5G UC', delay: 3, description: '~2 Gbps, 3ms RTT', category: 'Mobile' },
+	// Fixed
+	{ id: '56k', label: '56K Dial-up', delay: 120, description: '~50 kbps, 120ms RTT', category: 'Fixed' },
+	{ id: 'dsl', label: 'DSL', delay: 25, description: '~2 Mbps, 25ms RTT', category: 'Fixed' },
+	{ id: 'cable-5', label: 'Cable 5 Mbps', delay: 28, description: '~5 Mbps, 28ms RTT', category: 'Fixed' },
+	{ id: 'cable-50', label: 'Cable 50 Mbps', delay: 10, description: '~50 Mbps, 10ms RTT', category: 'Fixed' },
+	{ id: 'cable-100', label: 'Cable 100 Mbps', delay: 8, description: '~100 Mbps, 8ms RTT', category: 'Fixed' },
+	{ id: 'wifi', label: 'Wi-Fi', delay: 5, description: '~30 Mbps, 5ms RTT', category: 'Fixed' },
+	{ id: 'wifi-6', label: 'Wi-Fi 6', delay: 3, description: '~100 Mbps, 3ms RTT', category: 'Fixed' },
+	{ id: 'fiber', label: 'Fiber / FIOS', delay: 4, description: '~100 Mbps, 4ms RTT', category: 'Fixed' },
+	{ id: 'fiber-gigabit', label: 'Fiber Gigabit', delay: 2, description: '~1 Gbps, 2ms RTT', category: 'Fixed' },
+	{ id: 'fiber-10g', label: '10G Fiber', delay: 1, description: '~10 Gbps, 1ms RTT', category: 'Fixed' },
+	{ id: 'wifi-6e', label: 'Wi-Fi 6E', delay: 2, description: '~200 Mbps, 2ms RTT', category: 'Fixed' },
+	{ id: 'wifi-7', label: 'Wi-Fi 7', delay: 1, description: '~300 Mbps, 1ms RTT', category: 'Fixed' },
+	// Satellite
+	{ id: 'satellite-geo', label: 'Satellite GEO (HughesNet)', delay: 600, description: '~25 Mbps, 600ms RTT', category: 'Satellite' },
+	{ id: 'satellite-leo', label: 'Satellite LEO (Starlink)', delay: 25, description: '~50 Mbps, 25ms RTT', category: 'Satellite' },
+	// Special
+	{ id: 'offline', label: 'Offline', delay: -1, description: 'No connection', category: 'Special' },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Viewport / device simulation presets                               */
+/* ------------------------------------------------------------------ */
+
+/** Viewport presets organized by device category. Width and height in CSS pixels. */
+const VIEWPORT_PRESETS: Array<{ id: Str; label: Str; width: Num; height: Num; category: Str }> = [
+	// ── Watches ──
+	{ id: 'watch-sm', label: 'Apple Watch (38–40mm)', width: 197, height: 162, category: 'Watches' },
+	{ id: 'watch-md', label: 'Apple Watch (42–44mm)', width: 224, height: 184, category: 'Watches' },
+	{ id: 'watch-ultra', label: 'Apple Watch Ultra (49mm)', width: 205, height: 251, category: 'Watches' },
+	{ id: 'watch-galaxy', label: 'Galaxy Watch', width: 240, height: 240, category: 'Watches' },
+	{ id: 'watch-wear-os', label: 'Wear OS (round)', width: 240, height: 240, category: 'Watches' },
+	// ── Phones ──
+	{ id: 'galaxy-z-fold-cover', label: 'Galaxy Z Fold (Cover)', width: 323, height: 694, category: 'Phones' },
+	{ id: 'galaxy-s25', label: 'Galaxy S25 / S24 / S23', width: 360, height: 800, category: 'Phones' },
+	{ id: 'galaxy-a-760', label: 'Galaxy A (budget, 760)', width: 360, height: 760, category: 'Phones' },
+	{ id: 'galaxy-a-780', label: 'Galaxy A13 / A23', width: 360, height: 780, category: 'Phones' },
+	{ id: 'galaxy-a-804', label: 'Galaxy A (mid, 804)', width: 360, height: 804, category: 'Phones' },
+	{ id: 'galaxy-a-806', label: 'Galaxy A / Xiaomi (806)', width: 360, height: 806, category: 'Phones' },
+	{ id: 'iphone-se', label: 'iPhone SE', width: 375, height: 667, category: 'Phones' },
+	{ id: 'iphone-x', label: 'iPhone X / XS / 12 Mini / 13 Mini', width: 375, height: 812, category: 'Phones' },
+	{ id: 'galaxy-s24', label: 'Galaxy S24 / A55', width: 384, height: 832, category: 'Phones' },
+	{ id: 'galaxy-a-854', label: 'Galaxy A14 / A series (854)', width: 384, height: 854, category: 'Phones' },
+	{ id: 'galaxy-a-857', label: 'Galaxy A series (857)', width: 384, height: 857, category: 'Phones' },
+	{ id: 'galaxy-s25-new', label: 'Galaxy S25 / S25+', width: 385, height: 854, category: 'Phones' },
+	{ id: 'iphone-16', label: 'iPhone 16 / 15 / 14 / 13', width: 390, height: 844, category: 'Phones' },
+	{ id: 'xiaomi-851', label: 'Xiaomi / Samsung (851)', width: 393, height: 851, category: 'Phones' },
+	{ id: 'iphone-16-pro', label: 'iPhone 16 Pro / 15 Pro / Z Flip', width: 393, height: 852, category: 'Phones' },
+	{ id: 'galaxy-a54', label: 'Galaxy A54 / A55', width: 393, height: 873, category: 'Phones' },
+	{ id: 'iphone-17', label: 'iPhone 17 / 17 Pro', width: 402, height: 874, category: 'Phones' },
+	{ id: 'pixel-10-pro', label: 'Pixel 10 Pro', width: 410, height: 892, category: 'Phones' },
+	{ id: 'pixel-9-pro', label: 'Pixel 9 Pro / OnePlus', width: 412, height: 892, category: 'Phones' },
+	{ id: 'pixel-10', label: 'Pixel 10 / 9 / 8 / Galaxy S Ultra', width: 412, height: 915, category: 'Phones' },
+	{ id: 'iphone-11', label: 'iPhone 11 / XR / Pixel Pro XL', width: 414, height: 896, category: 'Phones' },
+	{ id: 'iphone-16-plus', label: 'iPhone 16 Plus / 15 Plus', width: 428, height: 926, category: 'Phones' },
+	{ id: 'iphone-16-pro-max', label: 'iPhone 16 Pro Max / 15 Pro Max', width: 430, height: 932, category: 'Phones' },
+	{ id: 'iphone-17-pro-max', label: 'iPhone 17 Pro Max', width: 440, height: 956, category: 'Phones' },
+	// ── Foldables (unfolded) ──
+	{ id: 'galaxy-z-fold-main', label: 'Galaxy Z Fold (Main)', width: 619, height: 876, category: 'Foldables' },
+	{ id: 'pixel-fold-main', label: 'Pixel Fold (Main)', width: 692, height: 1004, category: 'Foldables' },
+	// ── E-Readers ──
+	{ id: 'kindle-pw', label: 'Kindle Paperwhite', width: 632, height: 842, category: 'E-Readers' },
+	{ id: 'kindle-oasis', label: 'Kindle Oasis', width: 640, height: 920, category: 'E-Readers' },
+	// ── Fire Tablets ──
+	{ id: 'fire-7', label: 'Amazon Fire 7', width: 600, height: 1024, category: 'Fire Tablets' },
+	{ id: 'fire-hd-8', label: 'Amazon Fire HD 8', width: 601, height: 1007, category: 'Fire Tablets' },
+	{ id: 'fire-hd-10', label: 'Amazon Fire HD 10', width: 810, height: 1080, category: 'Fire Tablets' },
+	{ id: 'fire-max-11', label: 'Amazon Fire Max 11', width: 1200, height: 2000, category: 'Fire Tablets' },
+	// ── Tablets ──
+	{ id: 'ipad-mini', label: 'iPad Mini', width: 744, height: 1133, category: 'Tablets' },
+	{ id: 'surface-go', label: 'Surface Go', width: 768, height: 1024, category: 'Tablets' },
+	{ id: 'galaxy-tab', label: 'Galaxy Tab S7+', width: 800, height: 1280, category: 'Tablets' },
+	{ id: 'ipad-10', label: 'iPad 10th gen', width: 810, height: 1080, category: 'Tablets' },
+	{ id: 'ipad-air', label: 'iPad Air', width: 820, height: 1180, category: 'Tablets' },
+	{ id: 'ipad-pro-11', label: 'iPad Pro 11"', width: 834, height: 1194, category: 'Tablets' },
+	{ id: 'surface-pro', label: 'Surface Pro', width: 912, height: 1368, category: 'Tablets' },
+	{ id: 'ipad-pro-12', label: 'iPad Pro 12.9"', width: 1024, height: 1366, category: 'Tablets' },
+	{ id: 'xiaomi-pad', label: 'Xiaomi Pad 6', width: 1200, height: 2000, category: 'Tablets' },
+	// ── Chromebooks ──
+	{ id: 'chromebook', label: 'Chromebook (common)', width: 1366, height: 768, category: 'Chromebooks' },
+	{ id: 'chromebook-hd', label: 'Chromebook HD+', width: 1536, height: 864, category: 'Chromebooks' },
+	// ── Handhelds ──
+	{ id: 'steam-deck', label: 'Steam Deck', width: 1280, height: 800, category: 'Handhelds' },
+	{ id: 'steam-deck-oled', label: 'Steam Deck OLED', width: 1280, height: 800, category: 'Handhelds' },
+	{ id: 'switch', label: 'Nintendo Switch', width: 1280, height: 720, category: 'Handhelds' },
+	{ id: 'switch-oled', label: 'Nintendo Switch OLED', width: 1280, height: 720, category: 'Handhelds' },
+	{ id: 'switch-2', label: 'Nintendo Switch 2', width: 1920, height: 1080, category: 'Handhelds' },
+	{ id: 'ps-portal', label: 'PlayStation Portal', width: 1920, height: 1080, category: 'Handhelds' },
+	{ id: 'rog-ally', label: 'ASUS ROG Ally', width: 1920, height: 1080, category: 'Handhelds' },
+	{ id: 'lenovo-legion-go', label: 'Lenovo Legion Go', width: 2560, height: 1600, category: 'Handhelds' },
+	// ── Laptop / Desktop ──
+	{ id: 'laptop-sm', label: 'Laptop (small)', width: 1280, height: 800, category: 'Laptop / Desktop' },
+	{ id: 'laptop-lg', label: 'Laptop (large)', width: 1440, height: 900, category: 'Laptop / Desktop' },
+	{ id: 'desktop-fhd', label: 'Desktop Full HD', width: 1920, height: 1080, category: 'Laptop / Desktop' },
+	{ id: 'desktop-qhd', label: 'Desktop QHD', width: 2560, height: 1440, category: 'Laptop / Desktop' },
+	{ id: 'ultrawide', label: 'Ultrawide', width: 3440, height: 1440, category: 'Laptop / Desktop' },
+	{ id: 'desktop-4k', label: 'Desktop 4K', width: 3840, height: 2160, category: 'Laptop / Desktop' },
+	// ── Smart Displays ──
+	{ id: 'echo-show-5', label: 'Echo Show 5', width: 960, height: 480, category: 'Smart Displays' },
+	{ id: 'nest-hub', label: 'Google Nest Hub', width: 1024, height: 600, category: 'Smart Displays' },
+	{ id: 'echo-show-8', label: 'Echo Show 8', width: 1200, height: 800, category: 'Smart Displays' },
+	{ id: 'echo-show-10', label: 'Echo Show 10', width: 1200, height: 800, category: 'Smart Displays' },
+	{ id: 'nest-hub-max', label: 'Google Nest Hub Max', width: 1280, height: 800, category: 'Smart Displays' },
+	{ id: 'echo-show-15', label: 'Echo Show 15', width: 1920, height: 1080, category: 'Smart Displays' },
+	// ── Automotive ──
+	{ id: 'car-cluster', label: 'Car Instrument Cluster', width: 1280, height: 480, category: 'Automotive' },
+	{ id: 'tesla-rear', label: 'Tesla Rear Display', width: 1440, height: 900, category: 'Automotive' },
+	{ id: 'tesla-3y', label: 'Tesla Model 3 / Y', width: 1920, height: 1200, category: 'Automotive' },
+	{ id: 'tesla-sx', label: 'Tesla Model S / X', width: 2200, height: 1300, category: 'Automotive' },
+	{ id: 'mbux', label: 'Mercedes MBUX Hyperscreen', width: 2400, height: 900, category: 'Automotive' },
+	// ── VR / AR ──
+	{ id: 'quest-browser', label: 'Meta Quest Browser', width: 1280, height: 670, category: 'VR / AR' },
+	{ id: 'vision-pro', label: 'Apple Vision Pro (Safari)', width: 1280, height: 720, category: 'VR / AR' },
+	// ── Smart Appliances ──
+	{ id: 'family-hub', label: 'Samsung Family Hub (21.5")', width: 1920, height: 1080, category: 'Smart Appliances' },
+	{ id: 'family-hub-plus', label: 'Samsung Family Hub+ (32")', width: 1920, height: 1080, category: 'Smart Appliances' },
+	// ── Kiosk / Signage ──
+	{ id: 'kiosk-portrait', label: 'Kiosk Portrait', width: 1080, height: 1920, category: 'Kiosk / Signage' },
+	{ id: 'kiosk-landscape', label: 'Kiosk Landscape', width: 1920, height: 1080, category: 'Kiosk / Signage' },
+	// ── TV ──
+	{ id: 'tv-hd', label: 'TV 720p / HD', width: 1280, height: 720, category: 'TV' },
+	{ id: 'tv-fhd', label: 'TV 1080p / Full HD', width: 1920, height: 1080, category: 'TV' },
+	{ id: 'tv-4k', label: 'TV 4K / Ultra HD', width: 3840, height: 2160, category: 'TV' },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -476,6 +667,81 @@ const filteredColorItems: Array<{ id: Str; label: Str }> = $derived(
 /** Vision impairment items filtered by search query. */
 const filteredVisionItems: Array<{ id: Str; label: Str }> = $derived(
 	VISION_ITEMS.filter((item) => item.label.toLowerCase().includes(simSearchQuery.toLowerCase())),
+);
+
+/** Viewport presets filtered by search query. */
+const filteredViewportPresets: Array<{ id: Str; label: Str; width: Num; height: Num; category: Str }> = $derived(
+	VIEWPORT_PRESETS.filter((item) => item.label.toLowerCase().includes(viewportSearchQuery.toLowerCase())),
+);
+
+/** Unique viewport categories present after filtering. */
+const filteredViewportCategories: Str[] = $derived(
+	[...new Set(filteredViewportPresets.map((p) => p.category))],
+);
+
+/** Network presets filtered by search query (excludes 'No throttling' from search). */
+const filteredNetworkPresets: Array<{ id: Str; label: Str; delay: Num; description: Str; category: Str }> = $derived(
+	NETWORK_PRESETS.filter(
+		(item) => item.id === 'none' || item.label.toLowerCase().includes(networkSearchQuery.toLowerCase()),
+	),
+);
+
+/** Unique network categories present after filtering (excludes empty category for 'none'). */
+const filteredNetworkCategories: Str[] = $derived(
+	[...new Set(filteredNetworkPresets.filter((p) => p.category).map((p) => p.category))],
+);
+
+/** Background presets filtered by search query. */
+const filteredBgPresets: Array<{ id: Str; label: Str; style: Str }> = $derived(
+	bgSearchQuery.length === 0
+		? BG_PRESETS
+		: BG_PRESETS.filter((p) => p.label.toLowerCase().includes(bgSearchQuery.toLowerCase())),
+);
+
+/** Outline presets filtered by search query. */
+const filteredOutlinePresets: Array<{ id: Str; label: Str; color: Str }> = $derived(
+	outlineSearchQuery.length === 0
+		? OUTLINE_PRESETS
+		: OUTLINE_PRESETS.filter((p) => p.label.toLowerCase().includes(outlineSearchQuery.toLowerCase())),
+);
+
+/** Grid presets filtered by search query. */
+const filteredGridPresets: Array<{ id: Str; label: Str; color: Str }> = $derived(
+	gridSearchQuery.length === 0
+		? GRID_PRESETS
+		: GRID_PRESETS.filter((p) => p.label.toLowerCase().includes(gridSearchQuery.toLowerCase())),
+);
+
+/** Color mode presets filtered by search query. */
+const filteredModePresets: Array<{ id: Str; label: Str; icon: Component }> = $derived(
+	modeSearchQuery.length === 0
+		? MODE_PRESETS
+		: MODE_PRESETS.filter((p) => p.label.toLowerCase().includes(modeSearchQuery.toLowerCase())),
+);
+
+/** Theme presets filtered by search query. */
+const filteredThemePresets: Array<{ id: Str; label: Str; dot: Str }> = $derived(
+	themeSearchQuery.length === 0
+		? THEME_PRESETS
+		: THEME_PRESETS.filter((p) => p.label.toLowerCase().includes(themeSearchQuery.toLowerCase())),
+);
+
+/** Orientation presets filtered by search query. */
+const filteredOrientationPresets: Array<{ id: Str; label: Str; rotation: Num }> = $derived(
+	orientationSearchQuery.length === 0
+		? ORIENTATION_PRESETS
+		: ORIENTATION_PRESETS.filter((p) => p.label.toLowerCase().includes(orientationSearchQuery.toLowerCase())),
+);
+
+/** Media preference groups filtered by search query (matches group label OR option labels). */
+const filteredMediaPrefGroups: Array<{ pref: Str; label: Str; defaultValue: Str; options: Array<{ value: Str; label: Str }> }> = $derived(
+	mediaPrefSearchQuery.length === 0
+		? MEDIA_PREF_GROUPS
+		: MEDIA_PREF_GROUPS.filter(
+				(g) =>
+					g.label.toLowerCase().includes(mediaPrefSearchQuery.toLowerCase()) ||
+					g.options.some((o) => o.label.toLowerCase().includes(mediaPrefSearchQuery.toLowerCase())),
+			),
 );
 
 /* ------------------------------------------------------------------ */
@@ -824,6 +1090,12 @@ function getActiveSettings(key: Str): Array<{ label: Str; value: Str }> {
 		const netPreset = NETWORK_PRESETS.find((p) => p.id === netSim);
 		settings.push({ label: 'Network', value: netPreset?.label ?? netSim });
 	}
+	// Viewport
+	const viewport: Str = cardViewports[key] ?? 'auto';
+	if (viewport !== 'auto') {
+		const vpPreset = VIEWPORT_PRESETS.find((p) => p.id === viewport);
+		settings.push({ label: 'Viewport', value: vpPreset ? `${vpPreset.label} (${vpPreset.width} \u00D7 ${vpPreset.height})` : viewport });
+	}
 	return settings;
 }
 
@@ -922,6 +1194,136 @@ function setNetworkSim(key: Str, simId: Str): Void {
 }
 
 /**
+ * Set viewport constraint for a card.
+ *
+ * @param key - Card key
+ * @param viewportId - Viewport preset ID or 'auto'
+ */
+function setViewport(key: Str, viewportId: Str): Void {
+	cardViewports[key] = viewportId;
+}
+
+/**
+ * Get the CSS style for the outer device frame wrapper.
+ * Applies width and category-specific border-radius.
+ *
+ * @param key - Card key
+ * @returns CSS style string or empty
+ */
+function getViewportFrameStyle(key: Str): Str {
+	const preset = getViewportPreset(key);
+	if (!preset) return '';
+	return `width: ${preset.width}px; border-radius: ${getViewportRadius(preset.category)}`;
+}
+
+/**
+ * Get the CSS style for the inner viewport content scroll area.
+ * Applies fixed height so content scrolls within the device frame.
+ *
+ * @param key - Card key
+ * @returns CSS style string or empty
+ */
+function getViewportContentStyle(key: Str): Str {
+	const preset = getViewportPreset(key);
+	if (!preset) return '';
+	return `height: ${preset.height}px`;
+}
+
+/**
+ * Check whether a card has an active (non-auto) viewport constraint.
+ *
+ * @param key - Card key
+ * @returns True if a viewport preset is active
+ */
+function hasViewport(key: Str): Bool {
+	return (cardViewports[key] ?? 'auto') !== 'auto';
+}
+
+/**
+ * Get the active viewport preset for a card (or null if auto).
+ *
+ * @param key - Card key
+ * @returns The active preset object or null
+ */
+function getViewportPreset(key: Str): { id: Str; label: Str; width: Num; height: Num; category: Str } | null {
+	const id: Str = cardViewports[key] ?? 'auto';
+	if (id === 'auto') return null;
+	return VIEWPORT_PRESETS.find((p) => p.id === id) ?? null;
+}
+
+/**
+ * Get the border-radius CSS value appropriate for a viewport category.
+ * Phones/watches get more rounded corners, desktops get subtle rounding.
+ *
+ * @param category - Device category string
+ * @returns CSS border-radius value
+ */
+function getViewportRadius(category: Str): Str {
+	switch (category) {
+		case 'Watches': {
+			return '50%';
+		}
+		case 'Phones':
+		case 'Foldables': {
+			return '2rem';
+		}
+		case 'Tablets':
+		case 'Fire Tablets':
+		case 'E-Readers':
+		case 'Handhelds': {
+			return '1rem';
+		}
+		case 'Smart Displays':
+		case 'Smart Appliances': {
+			return '0.75rem';
+		}
+		default: {
+			return '0.5rem';
+		}
+	}
+}
+
+/**
+ * Get the CSS class suffix for a viewport category's device chrome style.
+ * Returns the modifier class name (e.g. 'lens-device-frame-phone') or empty.
+ *
+ * @param category - Device category string
+ * @returns CSS class name or empty string
+ */
+function getViewportFrameClass(category: Str): Str {
+	switch (category) {
+		case 'Watches': {
+			return 'lens-device-frame-watch';
+		}
+		case 'Phones':
+		case 'Foldables': {
+			return 'lens-device-frame-phone';
+		}
+		case 'Tablets':
+		case 'Fire Tablets':
+		case 'E-Readers': {
+			return 'lens-device-frame-tablet';
+		}
+		case 'Handhelds': {
+			return 'lens-device-frame-handheld';
+		}
+		case 'TV': {
+			return 'lens-device-frame-tv';
+		}
+		case 'Laptop / Desktop':
+		case 'Chromebooks': {
+			return 'lens-device-frame-monitor';
+		}
+		case 'Automotive': {
+			return 'lens-device-frame-auto';
+		}
+		default: {
+			return '';
+		}
+	}
+}
+
+/**
  * Reset all per-card customizations back to defaults for a given card.
  * Deletes every per-card state entry so the card returns to its initial appearance.
  *
@@ -940,6 +1342,7 @@ function resetCard(key: Str): Void {
 	cardMediaPrefs[key] = {};
 	cardNetworkSim[key] = 'none';
 	cardNetworkLoading[key] = false;
+	cardViewports[key] = 'auto';
 	cardContentHeights[key] = 0;
 }
 
@@ -1058,13 +1461,13 @@ function isIconOption(option: Str): boolean {
 						type="button"
 						{...tipProps}
 						class={cn(
-							'inline-flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors',
+							'inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors',
 							disabled ? 'cursor-not-allowed opacity-30' : 'hover:bg-muted hover:text-foreground',
 						)}
 						onclick={disabled ? undefined : onclick}
 						aria-disabled={disabled}
 					>
-						<Icon class="size-3" aria-hidden="true" />
+						<Icon class="size-3.5" aria-hidden="true" />
 					</button>
 				{/snippet}
 			</Tooltip.Trigger>
@@ -1086,9 +1489,9 @@ function isIconOption(option: Str): boolean {
 	{@const activeTheme: Str = cardThemes[cardKey] ?? ''}
 	{@const activeSettings = getActiveSettings(cardKey)}
 	<div class="overflow-hidden rounded-md border bg-background">
-		<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
-			<div class="flex items-center gap-1.5">
-				<code class="text-xs text-muted-foreground">{cardLabel}</code>
+		<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-2">
+			<div class="flex items-center gap-2">
+				<code class="text-sm text-muted-foreground">{cardLabel}</code>
 				{#if activeSettings.length > 0}
 					<Tooltip.Provider>
 						<Tooltip.Root delayDuration={200}>
@@ -1097,10 +1500,10 @@ function isIconOption(option: Str): boolean {
 									<button
 										type="button"
 										{...tipProps}
-										class="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+										class="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-muted-foreground/60 transition-colors hover:text-muted-foreground"
 									>
-										<Settings2 class="size-3" aria-hidden="true" />
-										<span class="text-[9px] font-medium">{activeSettings.length}</span>
+										<Settings2 class="size-3.5" aria-hidden="true" />
+										<span class="text-[10px] font-medium">{activeSettings.length}</span>
 										<span class="sr-only">{activeSettings.length} active settings</span>
 									</button>
 								{/snippet}
@@ -1119,7 +1522,7 @@ function isIconOption(option: Str): boolean {
 					</Tooltip.Provider>
 				{/if}
 			</div>
-			<div class="flex items-center gap-0.5">
+			<div class="flex items-center gap-1">
 				{@render toolbarButton(ZoomOut, 'Zoom out', () => zoomOut(cardKey), activeZoom <= ZOOM_MIN)}
 				{@render toolbarButton(ZoomIn, 'Zoom in', () => zoomIn(cardKey), activeZoom >= ZOOM_MAX)}
 				{@render toolbarButton(Maximize, 'Fit (100%)', () => zoomFit(cardKey), activeZoom === 1)}
@@ -1131,13 +1534,13 @@ function isIconOption(option: Str): boolean {
 									<button
 										type="button"
 										{...tipProps}
-										class="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+										class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 										onclick={() => toggleCode(cardKey)}
 										aria-expanded={Boolean(openCards[cardKey])}
 									>
-										<Code class="size-3" aria-hidden="true" />
+										<Code class="size-3.5" aria-hidden="true" />
 										<ChevronDown
-											class={cn('size-2.5 transition-transform', openCards[cardKey] && 'rotate-180')}
+											class={cn('size-3 transition-transform', openCards[cardKey] && 'rotate-180')}
 											aria-hidden="true"
 										/>
 									</button>
@@ -1148,13 +1551,13 @@ function isIconOption(option: Str): boolean {
 							</Tooltip.Content>
 						</Tooltip.Root>
 					</Tooltip.Provider>
-					<CopyButton text={codeText ?? snippet} label="Copy code" class="size-5 [&_svg]:size-2.5" />
+					<CopyButton text={codeText ?? snippet} label="Copy code" class="size-7 [&_svg]:size-3.5" />
 				{/if}
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger
-						class="inline-flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+						class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 					>
-						<EllipsisVertical class="size-3" aria-hidden="true" />
+						<EllipsisVertical class="size-3.5" aria-hidden="true" />
 						<span class="sr-only">Card options</span>
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content align="end" class="w-56">
@@ -1167,33 +1570,59 @@ function isIconOption(option: Str): boolean {
 						{/if}
 
 						<!-- Background submenu -->
-						<DropdownMenu.Sub>
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) bgSearchQuery = '';
+							}}
+						>
 							<DropdownMenu.SubTrigger>
 								<Paintbrush class="size-4" />
 								Background
 							</DropdownMenu.SubTrigger>
-							<DropdownMenu.SubContent class="w-52">
-								{#each BG_PRESETS as preset (preset.id)}
-									<DropdownMenu.Item onclick={() => setBackground(cardKey, preset.id)}>
-										<div class="flex items-center gap-2">
-											<Check class={cn('size-4 shrink-0', activeBg !== preset.id && 'opacity-0')} />
-											{#if preset.id !== 'default'}
-												<span
-													class="inline-block size-3.5 shrink-0 rounded-sm border"
-													style={preset.style || 'background-color: transparent'}
-												></span>
-											{/if}
-											{preset.label}
+							<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search backgrounds..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={bgSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
+								</div>
+								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									{#each filteredBgPresets as preset (preset.id)}
+										<DropdownMenu.Item onclick={() => setBackground(cardKey, preset.id)}>
+											<div class="flex items-center gap-2">
+												<Check class={cn('size-4 shrink-0', activeBg !== preset.id && 'opacity-0')} />
+												{#if preset.id !== 'default'}
+													<span
+														class="inline-block size-3.5 shrink-0 rounded-sm border"
+														style={preset.style || 'background-color: transparent'}
+													></span>
+												{/if}
+												{preset.label}
+											</div>
+										</DropdownMenu.Item>
+									{:else}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No backgrounds found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
 										</div>
-									</DropdownMenu.Item>
-								{/each}
-								<DropdownMenu.Separator />
-								<div class="px-2 py-1.5">
-									<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom</p>
-									<ColorPicker
-										value={activeBg.startsWith('#') ? activeBg : '#ffffff'}
-										onValueChange={(v) => setBackground(cardKey, v)}
-									/>
+									{/each}
+									<DropdownMenu.Separator />
+									<div class="px-2 py-1.5">
+										<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom</p>
+										<ColorPicker
+											value={activeBg.startsWith('#') ? activeBg : '#ffffff'}
+											onValueChange={(v) => setBackground(cardKey, v)}
+										/>
+									</div>
 								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
@@ -1240,212 +1669,456 @@ function isIconOption(option: Str): boolean {
 						</DropdownMenu.Sub>
 
 						<!-- Outline submenu -->
-						<DropdownMenu.Sub>
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) outlineSearchQuery = '';
+							}}
+						>
 							<DropdownMenu.SubTrigger>
 								<SquareDashedMousePointer class="size-4" />
 								Outline
 							</DropdownMenu.SubTrigger>
-							<DropdownMenu.SubContent class="w-52">
-								<DropdownMenu.Item onclick={() => setOutline(cardKey, 'none')}>
-									<Check class={cn('size-4 shrink-0', activeOutline !== 'none' && 'opacity-0')} />
-									None
-								</DropdownMenu.Item>
-								<DropdownMenu.Separator />
-								{#each OUTLINE_PRESETS as preset (preset.id)}
-									<DropdownMenu.Item onclick={() => setOutline(cardKey, preset.id)}>
-										<div class="flex items-center gap-2">
-											<Check class={cn('size-4 shrink-0', activeOutline !== preset.id && 'opacity-0')} />
-											<span
-												class="inline-block size-3.5 shrink-0 rounded-sm border"
-												style="background-color: {preset.color}"
-											></span>
-											{preset.label}
-										</div>
+							<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search outlines..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={outlineSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
+								</div>
+								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Item onclick={() => setOutline(cardKey, 'none')}>
+										<Check class={cn('size-4 shrink-0', activeOutline !== 'none' && 'opacity-0')} />
+										None
 									</DropdownMenu.Item>
-								{/each}
-								<DropdownMenu.Separator />
-								<div class="px-2 py-1.5">
-									<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom</p>
-									<ColorPicker
-										value={activeOutline.startsWith('#') ? activeOutline : '#ef4444'}
-										onValueChange={(v) => setOutline(cardKey, v)}
-									/>
+									{#each filteredOutlinePresets as preset (preset.id)}
+										<DropdownMenu.Item onclick={() => setOutline(cardKey, preset.id)}>
+											<div class="flex items-center gap-2">
+												<Check class={cn('size-4 shrink-0', activeOutline !== preset.id && 'opacity-0')} />
+												<span
+													class="inline-block size-3.5 shrink-0 rounded-sm border"
+													style="background-color: {preset.color}"
+												></span>
+												{preset.label}
+											</div>
+										</DropdownMenu.Item>
+									{:else}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No outlines found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
+										</div>
+									{/each}
+									<DropdownMenu.Separator />
+									<div class="px-2 py-1.5">
+										<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom</p>
+										<ColorPicker
+											value={activeOutline.startsWith('#') ? activeOutline : '#ef4444'}
+											onValueChange={(v) => setOutline(cardKey, v)}
+										/>
+									</div>
 								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
 
 						<!-- Grid submenu -->
-						<DropdownMenu.Sub>
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) gridSearchQuery = '';
+							}}
+						>
 							<DropdownMenu.SubTrigger>
 								<Grid3x3 class="size-4" />
 								Grid
 							</DropdownMenu.SubTrigger>
-							<DropdownMenu.SubContent class="w-52">
-								<DropdownMenu.Item onclick={() => setGrid(cardKey, 'none')}>
-									<Check class={cn('size-4 shrink-0', activeGrid !== 'none' && 'opacity-0')} />
-									None
-								</DropdownMenu.Item>
-								<DropdownMenu.Separator />
-								{#each GRID_PRESETS as preset (preset.id)}
-									<DropdownMenu.Item onclick={() => setGrid(cardKey, preset.id)}>
-										<div class="flex items-center gap-2">
-											<Check class={cn('size-4 shrink-0', activeGrid !== preset.id && 'opacity-0')} />
-											<span
-												class="inline-block size-3.5 shrink-0 rounded-sm border"
-												style="background-color: {preset.color}"
-											></span>
-											{preset.label}
-										</div>
-									</DropdownMenu.Item>
-								{/each}
-								<DropdownMenu.Separator />
-								<div class="px-2 py-1.5">
-									<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom</p>
-									<ColorPicker
-										value={activeGrid.startsWith('#') ? activeGrid : '#000000'}
-										onValueChange={(v) => setGrid(cardKey, v)}
-									/>
+							<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search grids..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={gridSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
 								</div>
-								<DropdownMenu.Separator />
-								<div class="px-2 py-1.5">
-									<p class="mb-1.5 text-xs font-medium text-muted-foreground">Size ({cardGridSizes[cardKey] ?? GRID_DEFAULT_SIZE}px)</p>
-									<Slider
-										type="single"
-										value={cardGridSizes[cardKey] ?? GRID_DEFAULT_SIZE}
-										min={4}
-										max={128}
-										step={4}
-										onValueChange={(v) => setGridSize(cardKey, v)}
-									/>
+								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Item onclick={() => setGrid(cardKey, 'none')}>
+										<Check class={cn('size-4 shrink-0', activeGrid !== 'none' && 'opacity-0')} />
+										None
+									</DropdownMenu.Item>
+									{#each filteredGridPresets as preset (preset.id)}
+										<DropdownMenu.Item onclick={() => setGrid(cardKey, preset.id)}>
+											<div class="flex items-center gap-2">
+												<Check class={cn('size-4 shrink-0', activeGrid !== preset.id && 'opacity-0')} />
+												<span
+													class="inline-block size-3.5 shrink-0 rounded-sm border"
+													style="background-color: {preset.color}"
+												></span>
+												{preset.label}
+											</div>
+										</DropdownMenu.Item>
+									{:else}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No grid styles found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
+										</div>
+									{/each}
+									<DropdownMenu.Separator />
+									<div class="px-2 py-1.5">
+										<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom</p>
+										<ColorPicker
+											value={activeGrid.startsWith('#') ? activeGrid : '#000000'}
+											onValueChange={(v) => setGrid(cardKey, v)}
+										/>
+									</div>
+									<DropdownMenu.Separator />
+									<div class="px-2 py-1.5">
+										<p class="mb-1.5 text-xs font-medium text-muted-foreground">Size ({cardGridSizes[cardKey] ?? GRID_DEFAULT_SIZE}px)</p>
+										<Slider
+											type="single"
+											value={cardGridSizes[cardKey] ?? GRID_DEFAULT_SIZE}
+											min={4}
+											max={128}
+											step={4}
+											onValueChange={(v) => setGridSize(cardKey, v)}
+										/>
+									</div>
 								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
 
 						<!-- Orientation submenu -->
-						<DropdownMenu.Sub>
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) orientationSearchQuery = '';
+							}}
+						>
 							<DropdownMenu.SubTrigger>
 								<Smartphone class="size-4" />
 								Orientation
 							</DropdownMenu.SubTrigger>
-							<DropdownMenu.SubContent class="w-64">
-								<DropdownMenu.Item onclick={() => setOrientation(cardKey, 'default')}>
-									<Check class={cn('size-4 shrink-0', activeOrientation !== 'default' && 'opacity-0')} />
-									Default (none)
-								</DropdownMenu.Item>
-								<DropdownMenu.Separator />
-								{#each ORIENTATION_PRESETS as preset (preset.id)}
-									<DropdownMenu.Item onclick={() => setOrientation(cardKey, preset.id)}>
-										<div class="flex items-center gap-2">
-											<Check class={cn('size-4 shrink-0', activeOrientation !== preset.id && 'opacity-0')} />
-											<span
-												class="relative inline-flex items-center justify-center"
-												style="width: 16px; height: 16px;"
-											>
+							<DropdownMenu.SubContent class="flex max-h-80 w-64 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search orientations..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={orientationSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
+								</div>
+								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Item onclick={() => setOrientation(cardKey, 'default')}>
+										<Check class={cn('size-4 shrink-0', activeOrientation !== 'default' && 'opacity-0')} />
+										Default (none)
+									</DropdownMenu.Item>
+									{#each filteredOrientationPresets as preset (preset.id)}
+										<DropdownMenu.Item onclick={() => setOrientation(cardKey, preset.id)}>
+											<div class="flex items-center gap-2">
+												<Check class={cn('size-4 shrink-0', activeOrientation !== preset.id && 'opacity-0')} />
 												<span
-													class="rounded-[2px] border border-current"
-													style="width: 8px; height: 14px; transform: rotate({preset.rotation}deg);"
+													class="relative inline-flex items-center justify-center"
+													style="width: 16px; height: 16px;"
 												>
 													<span
-														class="absolute rounded-full bg-current"
-														style="width: 3px; height: 3px; bottom: 1px; left: 50%; transform: translateX(-50%);"
-													></span>
+														class="rounded-[2px] border border-current"
+														style="width: 8px; height: 14px; transform: rotate({preset.rotation}deg);"
+													>
+														<span
+															class="absolute rounded-full bg-current"
+															style="width: 3px; height: 3px; bottom: 1px; left: 50%; transform: translateX(-50%);"
+														></span>
+													</span>
 												</span>
-											</span>
-											{preset.label}
+												{preset.label}
+											</div>
+										</DropdownMenu.Item>
+									{:else}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No orientations found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
 										</div>
-									</DropdownMenu.Item>
-								{/each}
+									{/each}
+								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
 
 						<!-- Color Mode submenu -->
-						<DropdownMenu.Sub>
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) modeSearchQuery = '';
+							}}
+						>
 							<DropdownMenu.SubTrigger>
 								<Sun class="size-4" />
 								Color Mode
 							</DropdownMenu.SubTrigger>
-							<DropdownMenu.SubContent class="w-52">
-								{#each MODE_PRESETS as preset (preset.id)}
-									<DropdownMenu.Item onclick={() => setCardMode(cardKey, preset.id)}>
-										<Check class={cn('size-4 shrink-0', activeMode !== preset.id && 'opacity-0')} />
-										<preset.icon class="size-4" />
-										{preset.label}
-									</DropdownMenu.Item>
-								{/each}
+							<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search modes..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={modeSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
+								</div>
+								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									{#each filteredModePresets as preset (preset.id)}
+										<DropdownMenu.Item onclick={() => setCardMode(cardKey, preset.id)}>
+											<Check class={cn('size-4 shrink-0', activeMode !== preset.id && 'opacity-0')} />
+											<preset.icon class="size-4" />
+											{preset.label}
+										</DropdownMenu.Item>
+									{:else}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No color modes found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
+										</div>
+									{/each}
+								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
 
 						<!-- Theme submenu -->
-						<DropdownMenu.Sub>
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) themeSearchQuery = '';
+							}}
+						>
 							<DropdownMenu.SubTrigger>
 								<Palette class="size-4" />
 								Theme
 							</DropdownMenu.SubTrigger>
-							<DropdownMenu.SubContent class="w-52">
-								{#each THEME_PRESETS as preset (preset.id)}
-									<DropdownMenu.Item onclick={() => setCardTheme(cardKey, preset.id)}>
-										<div class="flex items-center gap-2">
-											<Check class={cn('size-4 shrink-0', activeTheme !== preset.id && 'opacity-0')} />
-											{#if preset.dot}
-												<span
-													class="inline-block size-3.5 shrink-0 rounded-full shadow-sm ring-1 ring-black/10"
-													style="background-color: {preset.dot}"
-												></span>
-											{/if}
-											{preset.label}
+							<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search themes..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={themeSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
+								</div>
+								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									{#each filteredThemePresets as preset (preset.id)}
+										<DropdownMenu.Item onclick={() => setCardTheme(cardKey, preset.id)}>
+											<div class="flex items-center gap-2">
+												<Check class={cn('size-4 shrink-0', activeTheme !== preset.id && 'opacity-0')} />
+												{#if preset.dot}
+													<span
+														class="inline-block size-3.5 shrink-0 rounded-full shadow-sm ring-1 ring-black/10"
+														style="background-color: {preset.dot}"
+													></span>
+												{/if}
+												{preset.label}
+											</div>
+										</DropdownMenu.Item>
+									{:else}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No themes found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
 										</div>
-									</DropdownMenu.Item>
-								{/each}
+									{/each}
+								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
 
 						<!-- Media Query Preferences submenu -->
-						<DropdownMenu.Sub>
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) mediaPrefSearchQuery = '';
+							}}
+						>
 							<DropdownMenu.SubTrigger>
 								<SlidersHorizontal class="size-4" />
 								Media Preferences
 							</DropdownMenu.SubTrigger>
-							<DropdownMenu.SubContent class="w-56">
-								{#each MEDIA_PREF_GROUPS as group (group.pref)}
-									<DropdownMenu.Label>{group.label}</DropdownMenu.Label>
-									{#each group.options as option (option.value)}
-										<DropdownMenu.Item onclick={() => setMediaPref(cardKey, group.pref, option.value)}>
-											<Check class={cn('size-4 shrink-0', getMediaPref(cardKey, group.pref) !== option.value && 'opacity-0')} />
-											{option.label}
-										</DropdownMenu.Item>
+							<DropdownMenu.SubContent class="flex max-h-80 w-56 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search preferences..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={mediaPrefSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
+								</div>
+								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									{#each filteredMediaPrefGroups as group (group.pref)}
+										<DropdownMenu.Label>{group.label}</DropdownMenu.Label>
+										{#each group.options as option (option.value)}
+											<DropdownMenu.Item onclick={() => setMediaPref(cardKey, group.pref, option.value)}>
+												<Check class={cn('size-4 shrink-0', getMediaPref(cardKey, group.pref) !== option.value && 'opacity-0')} />
+												{option.label}
+											</DropdownMenu.Item>
+										{/each}
+										{#if group !== filteredMediaPrefGroups[filteredMediaPrefGroups.length - 1]}
+											<DropdownMenu.Separator />
+										{/if}
+									{:else}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No preferences found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
+										</div>
 									{/each}
-									{#if group !== MEDIA_PREF_GROUPS[MEDIA_PREF_GROUPS.length - 1]}
-										<DropdownMenu.Separator />
-									{/if}
-								{/each}
+								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
 
-						<!-- Network Conditions submenu -->
-						<DropdownMenu.Sub>
+						<!-- Network Simulation submenu -->
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) networkSearchQuery = '';
+							}}
+						>
 							<DropdownMenu.SubTrigger>
 								<Wifi class="size-4" />
-								Network Conditions
+								Network Simulation
 							</DropdownMenu.SubTrigger>
-							<DropdownMenu.SubContent class="w-52">
-								{#each NETWORK_PRESETS as preset (preset.id)}
-									<DropdownMenu.Item onclick={() => setNetworkSim(cardKey, preset.id)}>
-										<div class="flex items-center gap-2">
-											<Check class={cn('size-4 shrink-0', (cardNetworkSim[cardKey] ?? 'none') !== preset.id && 'opacity-0')} />
-											{#if preset.id === 'offline'}
-												<WifiOff class="size-3.5 text-destructive" />
-											{/if}
-											<span>{preset.label}</span>
-											{#if preset.description}
-												<span class="text-xs text-muted-foreground">{preset.description}</span>
-											{/if}
-										</div>
+							<DropdownMenu.SubContent class="w-72">
+								<div class="px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={networkSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
+								</div>
+								<div class="flex max-h-72 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Item onclick={() => setNetworkSim(cardKey, 'none')}>
+										<Check class={cn('size-4 shrink-0', (cardNetworkSim[cardKey] ?? 'none') !== 'none' && 'opacity-0')} />
+										No throttling
 									</DropdownMenu.Item>
-								{/each}
+									{#each filteredNetworkCategories as category (category)}
+										<DropdownMenu.Separator />
+										<DropdownMenu.Label>{category}</DropdownMenu.Label>
+										{#each filteredNetworkPresets.filter((p) => p.category === category) as preset (preset.id)}
+											<DropdownMenu.Item onclick={() => setNetworkSim(cardKey, preset.id)}>
+												<div class="flex items-center gap-2">
+													<Check class={cn('size-4 shrink-0', (cardNetworkSim[cardKey] ?? 'none') !== preset.id && 'opacity-0')} />
+													{#if preset.id === 'offline'}
+														<WifiOff class="size-3.5 text-destructive" />
+													{/if}
+													<div class="flex flex-col">
+														<span>{preset.label}</span>
+														{#if preset.description}
+															<span class="text-[10px] leading-tight text-muted-foreground">{preset.description}</span>
+														{/if}
+													</div>
+												</div>
+											</DropdownMenu.Item>
+										{/each}
+									{/each}
+									{#if filteredNetworkCategories.length === 0}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No network presets found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
+										</div>
+									{/if}
+								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
 
-						<DropdownMenu.Separator />
+						<!-- Viewport / Device Simulation submenu -->
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) viewportSearchQuery = '';
+							}}
+						>
+							<DropdownMenu.SubTrigger>
+								<Tablet class="size-4" />
+								Viewport
+							</DropdownMenu.SubTrigger>
+							<DropdownMenu.SubContent class="w-72">
+								<div class="px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search devices..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={viewportSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
+								</div>
+								<div class="flex max-h-72 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Item onclick={() => setViewport(cardKey, 'auto')}>
+										<Check class={cn('size-4 shrink-0', (cardViewports[cardKey] ?? 'auto') !== 'auto' && 'opacity-0')} />
+										Auto (full width)
+									</DropdownMenu.Item>
+									{#each filteredViewportCategories as category (category)}
+										<DropdownMenu.Separator />
+										<DropdownMenu.Label>{category}</DropdownMenu.Label>
+										{#each filteredViewportPresets.filter((p) => p.category === category) as preset (preset.id)}
+											<DropdownMenu.Item onclick={() => setViewport(cardKey, preset.id)}>
+												<div class="flex items-center gap-2">
+													<Check class={cn('size-4 shrink-0', (cardViewports[cardKey] ?? 'auto') !== preset.id && 'opacity-0')} />
+													<div class="flex flex-col">
+														<span class="truncate">{preset.label}</span>
+														<span class="text-[10px] leading-tight text-muted-foreground">{preset.width} &times; {preset.height}</span>
+													</div>
+												</div>
+											</DropdownMenu.Item>
+										{/each}
+									{/each}
+									{#if filteredViewportCategories.length === 0}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No devices found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
+										</div>
+									{/if}
+								</div>
+							</DropdownMenu.SubContent>
+						</DropdownMenu.Sub>
 
 						<!-- Accessibility submenu -->
 						<DropdownMenu.Sub
@@ -1470,7 +2143,7 @@ function isIconOption(option: Str): boolean {
 										/>
 									</div>
 								</div>
-								<div class="max-h-60 overflow-y-auto">
+								<div class="flex max-h-60 flex-col overflow-y-auto" use:lockHeight>
 									{#if filteredColorItems.length > 0}
 										<DropdownMenu.Label>Color Vision</DropdownMenu.Label>
 										{#each filteredColorItems as item (item.id)}
@@ -1493,7 +2166,13 @@ function isIconOption(option: Str): boolean {
 										{/each}
 									{/if}
 									{#if filteredColorItems.length === 0 && filteredVisionItems.length === 0}
-										<div class="px-2 py-4 text-center text-xs text-muted-foreground">No results</div>
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No simulations found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
+										</div>
 									{/if}
 								</div>
 							</DropdownMenu.SubContent>
@@ -1511,7 +2190,8 @@ function isIconOption(option: Str): boolean {
 		</div>
 		<div
 			class={cn(
-				'relative flex w-full items-center justify-center overflow-auto p-4',
+				'relative flex w-full items-center overflow-auto p-4',
+			!hasViewport(cardKey) && 'justify-center',
 				activeMode === 'dark' && 'dark bg-background text-foreground',
 				activeMode === 'light' && 'lens-force-light bg-background text-foreground',
 				activeMode === 'auto' && activeTheme && pageIsDark && 'dark',
@@ -1530,6 +2210,95 @@ function isIconOption(option: Str): boolean {
 					</defs>
 				</svg>
 			{/if}
+			<div class={cn(hasViewport(cardKey) && 'flex max-w-full flex-col items-start overflow-x-auto')}>
+			{#if hasViewport(cardKey)}
+				{@const vpLabel = getViewportPreset(cardKey)}
+				{@const vpOrientation = ORIENTATION_PRESETS.find((p) => p.id === (cardOrientations[cardKey] ?? 'default'))}
+				{#if vpLabel}
+					<div class="mb-3 flex items-center gap-2">
+						<span class="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+							{#if vpLabel.category === 'Watches'}
+								<Watch class="size-3" />
+							{:else if vpLabel.category === 'Phones' || vpLabel.category === 'Foldables'}
+								<Smartphone class="size-3" />
+							{:else if vpLabel.category === 'Tablets' || vpLabel.category === 'Fire Tablets' || vpLabel.category === 'E-Readers'}
+								<Tablet class="size-3" />
+							{:else if vpLabel.category === 'Chromebooks' || vpLabel.category === 'Laptop / Desktop'}
+								<Monitor class="size-3" />
+							{:else if vpLabel.category === 'Handhelds' || vpLabel.category === 'Smart Displays'}
+								<MonitorSmartphone class="size-3" />
+							{:else if vpLabel.category === 'Automotive'}
+								<Car class="size-3" />
+							{:else if vpLabel.category === 'VR / AR'}
+								<Glasses class="size-3" />
+							{:else if vpLabel.category === 'Smart Appliances'}
+								<Refrigerator class="size-3" />
+							{:else if vpLabel.category === 'TV'}
+								<Tv class="size-3" />
+							{:else}
+								<Monitor class="size-3" />
+							{/if}
+							<span class="truncate">{vpLabel.label}</span>
+						</span>
+						<span class="font-mono text-[9px] tabular-nums text-muted-foreground/40">{vpLabel.width}&times;{vpLabel.height}</span>
+						{#if vpOrientation}
+							<span class="flex items-center gap-1 text-muted-foreground/50">
+								<span class="relative inline-flex items-center justify-center" style="width: 12px; height: 12px;">
+									<span
+										class="rounded-[1.5px] border border-current"
+										style="width: 6px; height: 10px; transform: rotate({vpOrientation.rotation}deg);"
+									></span>
+								</span>
+								<span class="text-[9px]">{vpOrientation.rotation}°</span>
+							</span>
+						{/if}
+					</div>
+				{/if}
+			{/if}
+			<div
+				class={cn('relative', hasViewport(cardKey) && 'lens-device-frame flex max-h-full flex-col', hasViewport(cardKey) && getViewportFrameClass(getViewportPreset(cardKey)?.category ?? ''))}
+				style={getViewportFrameStyle(cardKey)}
+			>
+			{#if hasViewport(cardKey)}
+				{@const vpChrome = getViewportPreset(cardKey)}
+				{#if vpChrome}
+					{#if vpChrome.category === 'Phones' || vpChrome.category === 'Foldables'}
+						<!-- Phone: Dynamic Island / notch bar -->
+						<div class="lens-device-header flex items-center justify-center px-3 py-1.5">
+							<div class="lens-device-notch"></div>
+						</div>
+					{:else if vpChrome.category === 'Tablets' || vpChrome.category === 'Fire Tablets'}
+						<!-- Tablet: thin camera strip -->
+						<div class="lens-device-header flex items-center justify-center py-1">
+							<div class="lens-device-camera"></div>
+						</div>
+					{:else if vpChrome.category === 'Laptop / Desktop' || vpChrome.category === 'Chromebooks'}
+						<!-- Monitor/Laptop: webcam + brand bar -->
+						<div class="lens-device-header flex items-center justify-center py-1.5">
+							<div class="lens-device-camera"></div>
+						</div>
+					{:else if vpChrome.category === 'TV'}
+						<!-- TV: thin top bezel only (no camera) -->
+						<div class="lens-device-header py-0.5"></div>
+					{:else if vpChrome.category === 'Automotive'}
+						<!-- Automotive: status bar with signal indicators -->
+						<div class="lens-device-header flex items-center justify-between px-3 py-1">
+							<span class="text-[8px] font-medium opacity-40">HUD</span>
+							<span class="text-[8px] tabular-nums opacity-30">--:--</span>
+						</div>
+					{:else if vpChrome.category === 'Smart Displays'}
+						<!-- Smart Display: status bar with time placeholder -->
+						<div class="lens-device-header flex items-center justify-end px-3 py-1">
+							<div class="lens-device-camera mr-auto"></div>
+							<span class="text-[8px] tabular-nums opacity-30">12:00</span>
+						</div>
+					{/if}
+				{/if}
+			{/if}
+			<div
+				class={cn('relative', hasViewport(cardKey) && (getViewportPreset(cardKey)?.category === 'Watches' ? 'lens-device-content overflow-hidden' : 'lens-device-content overflow-auto'))}
+				style={getViewportContentStyle(cardKey)}
+			>
 			<LensPortalScope mode={activeMode} theme={activeTheme} {pageIsDark}>
 				<div
 					use:trackContentSize={{ key: cardKey, landscape: isLandscapeOrientation(cardKey) }}
@@ -1586,6 +2355,33 @@ function isIconOption(option: Str): boolean {
 					{/if}
 				</div>
 			{/if}
+			</div>
+			{#if hasViewport(cardKey)}
+				{@const vpBottom = getViewportPreset(cardKey)}
+				{#if vpBottom}
+					{#if vpBottom.category === 'Phones' || vpBottom.category === 'Foldables'}
+						<!-- Phone: home indicator bar -->
+						<div class="lens-device-footer flex items-center justify-center py-1.5">
+							<div class="lens-device-home-indicator"></div>
+						</div>
+					{:else if vpBottom.category === 'Tablets' || vpBottom.category === 'Fire Tablets'}
+						<!-- Tablet: thin bottom bezel -->
+						<div class="lens-device-footer py-1"></div>
+					{:else if vpBottom.category === 'TV'}
+						<!-- TV: bottom bezel with brand area -->
+						<div class="lens-device-footer flex items-center justify-center py-1.5">
+							<div class="h-px w-8 rounded-full bg-current opacity-20"></div>
+						</div>
+					{:else if vpBottom.category === 'Laptop / Desktop' || vpBottom.category === 'Chromebooks'}
+						<!-- Monitor: chin with logo area -->
+						<div class="lens-device-footer flex items-center justify-center py-1">
+							<div class="h-px w-6 rounded-full bg-current opacity-15"></div>
+						</div>
+					{/if}
+				{/if}
+			{/if}
+			</div>
+			</div>
 		</div>
 		{#if (tagName || codeText) && openCards[cardKey]}
 			<div class="overflow-hidden border-t bg-muted/20" transition:slide={{ duration: 200 }}>
@@ -1640,6 +2436,112 @@ function isIconOption(option: Str): boolean {
 {/if}
 
 <style>
+	/* ── Device viewport frame — uses theme CSS variables for dark/light/theme awareness ── */
+
+	:global(.lens-device-frame) {
+		background: color-mix(in oklch, var(--muted) 80%, black 20%);
+		border: 3px solid var(--border);
+		box-shadow:
+			0 0 0 1px color-mix(in oklch, var(--border) 60%, black 40%),
+			0 2px 4px oklch(0 0 0 / 0.2),
+			0 12px 40px -8px oklch(0 0 0 / 0.3),
+			inset 0 1px 0 color-mix(in oklch, var(--muted) 50%, white 50%),
+			inset 0 -1px 0 color-mix(in oklch, var(--border) 70%, black 30%);
+		overflow: hidden;
+		padding: 6px;
+	}
+
+	:global(.lens-device-header) {
+		background: color-mix(in oklch, var(--muted) 70%, black 30%);
+		border-bottom: 1px solid color-mix(in oklch, var(--border) 80%, black 20%);
+		border-radius: inherit;
+		border-bottom-left-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+
+	/** Content area — the viewport's inner scrollable region between header and footer. */
+	:global(.lens-device-content) {
+		background: var(--background, #fff);
+	}
+
+	:global(.lens-device-footer) {
+		background: color-mix(in oklch, var(--muted) 70%, black 30%);
+		border-top: 1px solid color-mix(in oklch, var(--border) 80%, black 20%);
+		color: var(--muted-foreground);
+	}
+
+	/* ── Phone / Foldable chrome ── */
+
+	/** Phone Dynamic Island / notch pill. */
+	:global(.lens-device-notch) {
+		width: 80px;
+		height: 6px;
+		border-radius: 3px;
+		background: color-mix(in oklch, var(--muted) 50%, black 50%);
+		box-shadow: inset 0 1px 2px oklch(0 0 0 / 0.3);
+	}
+
+	/** Phone home indicator bar at the bottom. */
+	:global(.lens-device-home-indicator) {
+		width: 40%;
+		max-width: 140px;
+		height: 4px;
+		border-radius: 2px;
+		background: color-mix(in oklch, var(--muted-foreground) 40%, transparent 60%);
+	}
+
+	:global(.lens-device-frame-phone) {
+		padding: 4px;
+	}
+
+	/* ── Watch chrome ── */
+
+	:global(.lens-device-frame-watch) {
+		padding: 12px;
+	}
+
+	/* ── Tablet chrome ── */
+
+	/** Camera dot for tablets and monitors. */
+	:global(.lens-device-camera) {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: color-mix(in oklch, var(--muted) 40%, black 60%);
+		box-shadow: inset 0 0.5px 1px oklch(0 0 0 / 0.4);
+	}
+
+	:global(.lens-device-frame-tablet) {
+		padding: 6px;
+	}
+
+	/* ── Handheld (Steam Deck, Switch) chrome ── */
+
+	:global(.lens-device-frame-handheld) {
+		padding: 8px;
+	}
+
+	/* ── TV chrome ── */
+
+	:global(.lens-device-frame-tv) {
+		padding: 3px;
+		border-width: 4px;
+	}
+
+	/* ── Monitor / Laptop chrome ── */
+
+	:global(.lens-device-frame-monitor) {
+		padding: 4px;
+		border-width: 2px;
+	}
+
+	/* ── Automotive chrome ── */
+
+	:global(.lens-device-frame-auto) {
+		padding: 4px;
+		border-width: 2px;
+	}
+
 	:global(.lens-outline *) {
 		outline: 1px solid var(--lens-outline-color, rgba(239, 68, 68, 0.25));
 	}
