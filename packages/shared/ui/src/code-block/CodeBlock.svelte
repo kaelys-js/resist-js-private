@@ -32,12 +32,13 @@ import { safeParse } from '@/utils/result/safe';
 import { cn } from '../utils.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: CodeBlockProps = $props();
+const validated: CodeBlockProps = $derived.by(() => {
+	const rawProps: CodeBlockProps = stripSvelteProps(allProps);
 	const result = safeParse(CodeBlockPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as CodeBlockProps;
 });
 
 /** Whether we're currently in dark mode. */

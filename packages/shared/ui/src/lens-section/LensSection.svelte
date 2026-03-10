@@ -48,11 +48,12 @@ import Code from '@lucide/svelte/icons/code';
 import { slide } from 'svelte/transition';
 import { cn } from '../utils.js';
 
-const rawProps = $props();
-const validated = $derived.by(() => {
+const rawProps: LensSectionProps = $props();
+const validated: LensSectionProps = $derived.by(() => {
 	const result = safeParse(LensSectionPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as LensSectionProps;
 });
 
 /** Whether the code panel is visible. */

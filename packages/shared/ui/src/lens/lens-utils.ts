@@ -24,19 +24,20 @@ const SVELTE_INTERNAL_PROPS: ReadonlySet<Str> = new Set(['children', 'child']);
  *
  * @example
  * ```typescript
- * const allProps = $props();
+ * const allProps: MyProps = $props();
  * const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
  * const validated = safeParse(MySchema, rawProps);
  * ```
  */
-export function stripSvelteProps(props: Record<Str, unknown>): Record<Str, unknown> {
+export function stripSvelteProps<T extends Record<Str, unknown>>(props: T): T {
 	const result: Record<Str, unknown> = {};
 	for (const [key, value] of Object.entries(props)) {
 		if (!SVELTE_INTERNAL_PROPS.has(key)) {
 			result[key] = value;
 		}
 	}
-	return result;
+	// Stripped keys are Svelte internals (children, child) not present in T
+	return result as T;
 }
 
 /**

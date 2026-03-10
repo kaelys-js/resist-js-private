@@ -29,12 +29,13 @@ import type { Str } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: KbdProps = $props();
+const validated: KbdProps = $derived.by(() => {
+	const rawProps: KbdProps = stripSvelteProps(allProps);
 	const result = safeParse(KbdPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as KbdProps;
 });
 </script>
 

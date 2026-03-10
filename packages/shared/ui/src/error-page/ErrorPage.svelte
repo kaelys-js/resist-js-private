@@ -70,12 +70,13 @@ import { Button } from '../button/index.js';
 import * as Tooltip from '../tooltip/index.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: ErrorPageProps = $props();
+const validated: ErrorPageProps = $derived.by(() => {
+	const rawProps: ErrorPageProps = stripSvelteProps(allProps);
 	const result = safeParse(ErrorPagePropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as ErrorPageProps;
 });
 
 /** Copy result: 'idle' (default), 'success', or 'failed'. */

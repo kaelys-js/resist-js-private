@@ -41,9 +41,9 @@ import AppLogo from '../app-logo/AppLogo.svelte';
 import NavSecondary from '../nav-secondary/NavSecondary.svelte';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: AppSidebarProps = $props();
+const validated: AppSidebarProps = $derived.by(() => {
+	const rawProps: AppSidebarProps = stripSvelteProps(allProps);
 	const result = safeParse(AppSidebarPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
 	// Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates

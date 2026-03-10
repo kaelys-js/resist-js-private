@@ -35,9 +35,9 @@ import { safeParse } from '@/utils/result/safe';
 import * as Sidebar from '../sidebar/index.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: NavSecondaryProps = $props();
+const validated: NavSecondaryProps = $derived.by(() => {
+	const rawProps: NavSecondaryProps = stripSvelteProps(allProps);
 	const result = safeParse(NavSecondaryPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
 	// Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates

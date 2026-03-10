@@ -30,12 +30,13 @@ import { Separator } from '../separator/index.js';
 import TooltipLabel from '../tooltip-label/TooltipLabel.svelte';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: SidebarToggleProps = $props();
+const validated: SidebarToggleProps = $derived.by(() => {
+	const rawProps: SidebarToggleProps = stripSvelteProps(allProps);
 	const result = safeParse(SidebarTogglePropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as SidebarToggleProps;
 });
 </script>
 

@@ -38,12 +38,13 @@ import { clipboardCopy } from '../lens/clipboard.js';
 import { cn } from '../utils.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: CopyButtonProps = $props();
+const validated: CopyButtonProps = $derived.by(() => {
+	const rawProps: CopyButtonProps = stripSvelteProps(allProps);
 	const result = safeParse(CopyButtonPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as CopyButtonProps;
 });
 
 /** Copy result: 'idle' (default), 'success', or 'failed'. */

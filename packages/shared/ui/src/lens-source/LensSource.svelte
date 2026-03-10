@@ -27,12 +27,13 @@ import LensSection from '../lens-section/LensSection.svelte';
 import CodeBlock from '../code-block/CodeBlock.svelte';
 import FileCode from '@lucide/svelte/icons/file-code';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: LensSourceProps = $props();
+const validated: LensSourceProps = $derived.by(() => {
+	const rawProps: LensSourceProps = stripSvelteProps(allProps);
 	const result = safeParse(LensSourcePropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as LensSourceProps;
 });
 </script>
 

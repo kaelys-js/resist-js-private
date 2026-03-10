@@ -34,12 +34,13 @@ import * as DropdownMenu from '../dropdown-menu/index.js';
 import * as Sidebar from '../sidebar/index.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: NavProjectProps = $props();
+const validated: NavProjectProps = $derived.by(() => {
+	const rawProps: NavProjectProps = stripSvelteProps(allProps);
 	const result = safeParse(NavProjectPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as NavProjectProps;
 });
 
 const sidebar: ReturnType<typeof Sidebar.useSidebar> = Sidebar.useSidebar();

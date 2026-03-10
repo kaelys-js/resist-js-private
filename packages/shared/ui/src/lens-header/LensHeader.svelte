@@ -54,12 +54,13 @@ import Layers from '@lucide/svelte/icons/layers';
 import BookOpen from '@lucide/svelte/icons/book-open';
 import FileCode from '@lucide/svelte/icons/file-code';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: LensHeaderProps = $props();
+const validated: LensHeaderProps = $derived.by(() => {
+	const rawProps: LensHeaderProps = stripSvelteProps(allProps);
 	const result = safeParse(LensHeaderPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as LensHeaderProps;
 });
 
 /** Whether the search popover is open. */
