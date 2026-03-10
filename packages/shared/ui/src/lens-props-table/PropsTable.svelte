@@ -293,7 +293,7 @@ const colCount: Num = $derived(variantKeys.length > 0 ? 7 : 6);
 
 <div class={cn('overflow-x-auto rounded-lg border', validated.class)}>
 	{#if validated.props.length === 0}
-		<LensEmpty title="No custom props" description="This component accepts only standard HTML attributes." />
+		<LensEmpty title="No props detected" description="This component's $props() destructuring has no typed fields. Add typed props or a Valibot schema to see them here." />
 	{:else}
 		<table class="w-full table-fixed text-sm">
 			<thead>

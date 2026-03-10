@@ -173,42 +173,49 @@ let cardCustomNetwork: Record<Str, { delay: Num; label: Str }> = $state({});
 let cardContentHeights: Record<Str, Num> = $state({});
 
 /**
- * Extract a human-readable message from a caught error and log it.
- * Handles Error instances, AppError objects (with .message + .validation), and unknown values.
- * Logs via the shared logger so errors are visible without a full reporting pipeline.
+ * Extract a short human-readable cause from a caught error.
  *
  * @param error - The caught error value
- * @returns A formatted error message string
+ * @returns A one-line error cause string
  */
-function formatBoundaryError(error: unknown): Str {
+function getErrorCause(error: unknown): Str {
 	if (!silent) log.warn('Component preview error', { error });
 	if (error instanceof Error) return error.message;
 	if (typeof error === 'object' && error !== null) {
 		// Cast once for property access — error is an unknown object from svelte:boundary
 		const obj: Record<Str, unknown> = error as Record<Str, unknown>;
 		const code: Str = typeof obj.code === 'string' ? obj.code : '';
-
-		// AppError with validation details — extract field-level messages
-		if (typeof obj.validation === 'object' && obj.validation !== null) {
-			const val: Record<Str, unknown> = obj.validation as Record<Str, unknown>;
-			if (typeof val.flattened === 'object' && val.flattened !== null) {
-				const flat: Record<Str, unknown> = val.flattened as Record<Str, unknown>;
-				const nested: Record<Str, unknown> = (flat.nested ?? {}) as Record<Str, unknown>;
-				const fields: Str[] = [];
-				for (const [key, msgs] of Object.entries(nested)) {
-					if (Array.isArray(msgs) && msgs.length > 0) {
-						fields.push(`${key}: ${String(msgs[0])}`);
-					}
-				}
-				if (fields.length > 0) {
-					const header: Str = code ? `[${code}]` : 'Validation failed';
-					return `${header}\n${fields.map((f: Str): Str => `  • ${f}`).join('\n')}`;
-				}
-			}
-		}
-
 		const msg: Str = typeof obj.message === 'string' ? obj.message : '';
 		if (msg) return code ? `[${code}] ${msg}` : msg;
+		if (code) return code;
+	}
+	return String(error);
+}
+
+/**
+ * Serialize a caught error into a formatted JSON string for code display.
+ * Handles Error instances (extracts name/message/stack), AppError objects
+ * (includes validation details), and unknown values.
+ *
+ * @param error - The caught error value
+ * @returns A pretty-printed JSON string of the error details
+ */
+function serializeError(error: unknown): Str {
+	if (error instanceof Error) {
+		const errorObj: Record<Str, unknown> = {
+			name: error.name,
+			message: error.message,
+		};
+		if (error.stack) errorObj.stack = error.stack;
+		return JSON.stringify(errorObj, null, 2);
+	}
+	if (typeof error === 'object' && error !== null) {
+		try {
+			return JSON.stringify(error, null, 2);
+		} catch {
+			// Circular reference or non-serializable — fall back to String
+			return String(error);
+		}
 	}
 	return String(error);
 }
@@ -2691,6 +2698,18 @@ function isIconOption(option: Str): boolean {
 	</div>
 {/snippet}
 
+{#snippet errorCard(cardLabel: Str, error: unknown)}
+	<div class="overflow-hidden rounded-md border border-dashed bg-background">
+		<div class="border-b bg-muted/30 px-3 py-1.5">
+			<code class="text-xs text-muted-foreground">{cardLabel}</code>
+		</div>
+		<LensError title="Render error" description={getErrorCause(error)} class="rounded-none border-0 py-4" />
+		<div class="max-h-48 overflow-auto border-t bg-muted/20 text-xs">
+			<CodeBlock code={serializeError(error)} lang="json" />
+		</div>
+	</div>
+{/snippet}
+
 {#if hasVariants}
 	<!-- Variant mode: render per-option cards -->
 	<div class={cn('space-y-4', className)}>
@@ -2705,12 +2724,7 @@ function isIconOption(option: Str): boolean {
 					<svelte:boundary>
 						{@render card(option, cardKey, snippet, variantProps, isIconOption(option), variantName, option)}
 						{#snippet failed(error)}
-							<div class="overflow-hidden rounded-md border border-dashed bg-background">
-								<div class="border-b bg-muted/30 px-3 py-1.5">
-									<code class="text-xs text-muted-foreground">{option}</code>
-								</div>
-								<LensError title="Preview unavailable" description={formatBoundaryError(error)} class="rounded-none border-0 py-4" />
-							</div>
+							{@render errorCard(option, error)}
 						{/snippet}
 					</svelte:boundary>
 				{/each}
@@ -2723,11 +2737,7 @@ function isIconOption(option: Str): boolean {
 		<svelte:boundary>
 			{@render card('default', 'default', codeSnippet('', ''), {}, false, '', '')}
 			{#snippet failed(error)}
-				<LensError
-					title="Preview unavailable"
-					description={formatBoundaryError(error)}
-					class="w-full rounded-none border-0 py-4"
-				/>
+				{@render errorCard(label || componentName || 'default', error)}
 			{/snippet}
 		</svelte:boundary>
 	</div>

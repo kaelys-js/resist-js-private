@@ -13,6 +13,8 @@ import {
 	formatThresholds,
 	setupDiagnosticObservers,
 	resetDiagnostics,
+	_injectLCPEntries,
+	_injectLayoutShiftEntries,
 	type VitalThresholds,
 	type VitalDiagnostics,
 } from './vitals-diagnostics';
@@ -219,20 +221,15 @@ describe('vitals-diagnostics', () => {
 	describe('LCP diagnostics', () => {
 		it('identifies LCP element by tag and class', () => {
 			const el: Element = mockElement('img', 'hero-image');
-			vi.spyOn(performance, 'getEntriesByType').mockImplementation((type: Str) => {
-				if (type === 'largest-contentful-paint') {
-					return [
-						mockLCPEntry({
-							element: el,
-							url: '/images/hero.jpg',
-							renderTime: 2500,
-							loadTime: 1800,
-							size: 450_000,
-						}),
-					] as unknown as PerformanceEntry[];
-				}
-				return [];
-			});
+			_injectLCPEntries([
+				mockLCPEntry({
+					element: el,
+					url: '/images/hero.jpg',
+					renderTime: 2500,
+					loadTime: 1800,
+					size: 450_000,
+				}),
+			]);
 
 			const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 3000, 'needsImprovement');
 			expect(diag).not.toBeNull();
@@ -244,50 +241,28 @@ describe('vitals-diagnostics', () => {
 
 			const elementFinding = diag!.findings.find((f) => f.label === 'LCP Element');
 			expect(elementFinding!.value).toBe('<img.hero-image>');
-
-			vi.restoreAllMocks();
 		});
 
 		it('identifies LCP element by ID when available', () => {
 			const el: Element = mockElement('div', 'main-banner', true);
-			vi.spyOn(performance, 'getEntriesByType').mockImplementation((type: Str) => {
-				if (type === 'largest-contentful-paint') {
-					return [mockLCPEntry({ element: el, renderTime: 3000 })] as unknown as PerformanceEntry[];
-				}
-				return [];
-			});
+			_injectLCPEntries([mockLCPEntry({ element: el, renderTime: 3000 })]);
 
 			const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 3500, 'poor');
 			const elementFinding = diag!.findings.find((f) => f.label === 'LCP Element');
 			expect(elementFinding!.value).toBe('<div#main-banner>');
-
-			vi.restoreAllMocks();
 		});
 
 		it('shows timing breakdown with load and render delay', () => {
-			vi.spyOn(performance, 'getEntriesByType').mockImplementation((type: Str) => {
-				if (type === 'largest-contentful-paint') {
-					return [
-						mockLCPEntry({ loadTime: 1500, renderTime: 2200 }),
-					] as unknown as PerformanceEntry[];
-				}
-				return [];
-			});
+			_injectLCPEntries([mockLCPEntry({ loadTime: 1500, renderTime: 2200 })]);
 
 			const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 2800, 'needsImprovement');
 			const timing = diag!.findings.find((f) => f.label === 'Timing');
 			expect(timing!.value).toBe('load 1500ms + render delay 700ms');
-
-			vi.restoreAllMocks();
 		});
 
 		it('returns empty findings when no LCP entries exist', () => {
-			vi.spyOn(performance, 'getEntriesByType').mockReturnValue([]);
-
 			const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 5000, 'poor');
 			expect(diag!.findings).toHaveLength(0);
-
-			vi.restoreAllMocks();
 		});
 	});
 
@@ -295,52 +270,38 @@ describe('vitals-diagnostics', () => {
 
 	describe('CLS diagnostics', () => {
 		it('counts unexpected layout shifts', () => {
-			vi.spyOn(performance, 'getEntriesByType').mockImplementation((type: Str) => {
-				if (type === 'layout-shift') {
-					return [
-						mockLayoutShiftEntry({ value: 0.05, hadRecentInput: false }),
-						mockLayoutShiftEntry({ value: 0.03, hadRecentInput: false }),
-						mockLayoutShiftEntry({ value: 0.02, hadRecentInput: true }),
-					] as unknown as PerformanceEntry[];
-				}
-				return [];
-			});
+			_injectLayoutShiftEntries([
+				mockLayoutShiftEntry({ value: 0.05, hadRecentInput: false }),
+				mockLayoutShiftEntry({ value: 0.03, hadRecentInput: false }),
+				mockLayoutShiftEntry({ value: 0.02, hadRecentInput: true }),
+			]);
 
 			const diag: VitalDiagnostics | null = collectDiagnostics('CLS', 0.15, 'needsImprovement');
 			const shiftCount = diag!.findings.find((f) => f.label === 'Layout Shifts');
 			expect(shiftCount!.value).toBe('2 unexpected (3 total)');
-
-			vi.restoreAllMocks();
 		});
 
 		it('identifies the largest shifting element', () => {
 			const el: Element = mockElement('div', 'ad-banner');
-			vi.spyOn(performance, 'getEntriesByType').mockImplementation((type: Str) => {
-				if (type === 'layout-shift') {
-					return [
-						mockLayoutShiftEntry({
-							value: 0.12,
-							hadRecentInput: false,
-							sources: [
-								{
-									node: el,
-									previousRect: { top: 400, left: 0, width: 300, height: 100 } as DOMRectReadOnly,
-									currentRect: { top: 542, left: 0, width: 300, height: 100 } as DOMRectReadOnly,
-								},
-							],
-						}),
-					] as unknown as PerformanceEntry[];
-				}
-				return [];
-			});
+			_injectLayoutShiftEntries([
+				mockLayoutShiftEntry({
+					value: 0.12,
+					hadRecentInput: false,
+					sources: [
+						{
+							node: el,
+							previousRect: { top: 400, left: 0, width: 300, height: 100 } as DOMRectReadOnly,
+							currentRect: { top: 542, left: 0, width: 300, height: 100 } as DOMRectReadOnly,
+						},
+					],
+				}),
+			]);
 
 			const diag: VitalDiagnostics | null = collectDiagnostics('CLS', 0.3, 'poor');
 			const largest = diag!.findings.find((f) => f.label === 'Largest Shift');
 			expect(largest).toBeDefined();
 			expect(largest!.value).toContain('<div.ad-banner>');
 			expect(largest!.value).toContain('142px vertical');
-
-			vi.restoreAllMocks();
 		});
 	});
 
@@ -480,25 +441,18 @@ describe('vitals-diagnostics', () => {
 			vi.restoreAllMocks();
 		});
 
-		it('handles performance.getEntriesByType throwing', () => {
+		it('handles performance.getEntriesByType throwing for TTFB', () => {
 			vi.spyOn(performance, 'getEntriesByType').mockImplementation(() => {
 				throw new Error('Not supported');
 			});
 
-			const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 5000, 'poor');
+			const diag: VitalDiagnostics | null = collectDiagnostics('TTFB', 2000, 'poor');
 			expect(diag).not.toBeNull();
 			expect(diag!.findings).toHaveLength(0);
 		});
 
 		it('handles LCP entry with null element gracefully', () => {
-			vi.spyOn(performance, 'getEntriesByType').mockImplementation((type: Str) => {
-				if (type === 'largest-contentful-paint') {
-					return [
-						mockLCPEntry({ element: null, loadTime: 1500, renderTime: 2000 }),
-					] as unknown as PerformanceEntry[];
-				}
-				return [];
-			});
+			_injectLCPEntries([mockLCPEntry({ element: null, loadTime: 1500, renderTime: 2000 })]);
 
 			const diag: VitalDiagnostics | null = collectDiagnostics('LCP', 3000, 'needsImprovement');
 			const labels: Str[] = diag!.findings.map((f) => f.label);
