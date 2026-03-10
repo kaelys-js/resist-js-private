@@ -927,4 +927,24 @@ export type DepTree = {
 		expect(typeof base['features']).toBe('object');
 		expect(typeof base['labels']).toBe('object');
 	});
+
+	it('preserves commas within @values entries (splits on ", " not bare ",")', (): void => {
+		const source: string = readFileSync(
+			resolve(__dirname, '../finance-card/FinanceCard.svelte'),
+			'utf8',
+		);
+		const props: PropMeta[] = extractProps(source);
+
+		// value prop has @values $1,234.56, $5,678.90, -$900.00 — commas in dollar amounts must be preserved
+		const valueProp: PropMeta | undefined = props.find(
+			(p: PropMeta): boolean => p.name === 'value',
+		);
+		expect(valueProp?.mockValues).toEqual(['$1,234.56', '$5,678.90', '-$900.00']);
+
+		// trend prop has @values up, down, neutral — simple comma-space splitting still works
+		const trendProp: PropMeta | undefined = props.find(
+			(p: PropMeta): boolean => p.name === 'trend',
+		);
+		expect(trendProp?.mockValues).toEqual(['up', 'down', 'neutral']);
+	});
 });
