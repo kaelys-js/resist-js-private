@@ -862,7 +862,8 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
 	let inJSDoc: boolean = false;
 	let jsdocLines: string[] = [];
 
-	for (const line of lines) {
+	for (let idx: number = 0; idx < lines.length; idx++) {
+		const line: string = lines[idx] ?? '';
 		const trimmed: string = line.trim();
 		if (!trimmed) continue;
 
@@ -915,11 +916,37 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
 			continue;
 		}
 
-		// Parse field: <name>: v.<validator>(...),
-		const fieldMatch: RegExpMatchArray | null = trimmed.match(/^(\w+)\s*:\s*(.+?),?\s*$/);
-		if (fieldMatch) {
-			const fieldName: string = fieldMatch[1] ?? '';
-			const validatorExpr: string = fieldMatch[2] ?? '';
+		// Parse field start: <name>: v.<validator>(...)
+		// Validators may span multiple lines when inlineSchemaReferences expands named
+		// schemas into multiline bodies. Accumulate lines until parens/braces are balanced.
+		const fieldStartMatch: RegExpMatchArray | null = trimmed.match(/^(\w+)\s*:\s*([\s\S]+)$/);
+		if (fieldStartMatch) {
+			const fieldName: string = fieldStartMatch[1] ?? '';
+			let expr: string = fieldStartMatch[2] ?? '';
+
+			// Count brace/paren depth to detect multiline validators
+			let depth: number = 0;
+			for (const ch of expr) {
+				if (ch === '(' || ch === '{' || ch === '[') depth++;
+				else if (ch === ')' || ch === '}' || ch === ']') depth--;
+			}
+
+			// If unbalanced, accumulate subsequent lines until balanced
+			if (depth > 0) {
+				for (let li: number = idx + 1; li < lines.length && depth > 0; li++) {
+					const nextLine: string = lines[li] ?? '';
+					expr += `\n${nextLine}`;
+					for (const ch of nextLine) {
+						if (ch === '(' || ch === '{' || ch === '[') depth++;
+						else if (ch === ')' || ch === '}' || ch === ']') depth--;
+					}
+					// Advance outer loop past consumed lines
+					idx = li;
+				}
+			}
+
+			// Strip trailing comma and whitespace
+			const validatorExpr: string = expr.replace(/,\s*$/, '').trim();
 			const isOptional: boolean = validatorExpr.trimStart().startsWith('v.optional(');
 			const readableType: string = valibotToReadableType(validatorExpr);
 			types.set(fieldName, readableType);
@@ -984,7 +1011,8 @@ function valibotToReadableType(expr: string): string {
 	if (customMatch) return customMatch[1] ?? 'unknown';
 
 	// v.array(v.xxx()) → extract inner type and append []
-	const arrayMatch: RegExpMatchArray | null = trimmed.match(/^v\.array\((.+)\)$/);
+	// Use [\s\S] instead of . to match across newlines from inlined multiline schemas
+	const arrayMatch: RegExpMatchArray | null = trimmed.match(/^v\.array\(([\s\S]+)\)$/);
 	if (arrayMatch) {
 		const inner: string = valibotToReadableType(arrayMatch[1] ?? '');
 		return `${inner}[]`;
@@ -1522,12 +1550,23 @@ function parseTypeFieldsForDisplay(definition: string, source?: string): TypeFie
 		trimmed = trimmed.slice(prefix.length, -1).trim();
 	}
 
+	// After unwrapping, if we have a named schema ref (e.g. DepEntrySchema from
+	// v.array(DepEntrySchema)), resolve it and re-parse so sub-fields expand —
+	// same pattern Records use at line 1576 for value schema resolution.
+	if (/^\w+Schema$/.test(trimmed) && source) {
+		const resolved: string | undefined = resolveConstDefinition(trimmed, source);
+		if (resolved) {
+			const nestedFields: TypeField[] | undefined = parseTypeFieldsForDisplay(resolved, source);
+			if (nestedFields && nestedFields.length > 0) return nestedFields;
+		}
+	}
+
 	// v.strictObject({ ... }) or v.object({ ... })
 	const objMatch: RegExpMatchArray | null = trimmed.match(
 		/^v\.(?:strict)?[Oo]bject\(\{([\s\S]*)\}\)$/,
 	);
 	if (objMatch) {
-		return parseValibotObjectFields(objMatch[1] ?? '');
+		return parseValibotObjectFields(objMatch[1] ?? '', source);
 	}
 
 	// v.record(keyValidator, valueValidator) — resolve value schema fields if possible
@@ -1594,9 +1633,10 @@ function parseTypeFieldsForDisplay(definition: string, source?: string): TypeFie
  * Parse fields from a Valibot object schema body into TypeField[].
  *
  * @param body - Inner content of `v.strictObject({ ... })` without the outer braces
+ * @param source - Optional combined source for resolving nested schema references
  * @returns Array of TypeField
  */
-function parseValibotObjectFields(body: string): TypeField[] {
+function parseValibotObjectFields(body: string, source?: string): TypeField[] {
 	const fields: TypeField[] = [];
 	let pos: number = 0;
 	let pendingDescription: string = '';
@@ -1684,12 +1724,17 @@ function parseValibotObjectFields(body: string): TypeField[] {
 
 		if (fieldName && schemaExpr) {
 			const isOptionalField: boolean = schemaExpr.trimStart().startsWith('v.optional(');
+			// Recursively expand sub-fields for nested object types (same as Records)
+			const nestedFields: TypeField[] | undefined = source
+				? parseTypeFieldsForDisplay(schemaExpr, source)
+				: undefined;
 			fields.push({
 				field: fieldName,
 				type: valibotToReadableType(schemaExpr),
 				required: !isOptionalField,
 				accepts: humanizeValibotExpr(schemaExpr),
 				description: pendingDescription,
+				typeFields: nestedFields && nestedFields.length > 0 ? nestedFields : undefined,
 			});
 			pendingDescription = '';
 		}
