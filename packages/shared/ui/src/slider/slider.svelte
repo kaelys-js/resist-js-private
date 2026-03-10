@@ -15,7 +15,7 @@ import { cn, type WithoutChildrenOrChild } from '../utils.js';
 
 let {
 	ref = $bindable(null),
-	/** The current slider value(s). */
+	/** The current slider value(s). @values [50], [25, 75] */
 	value = $bindable(),
 	/** Slider track orientation. @values horizontal, vertical */
 	orientation = 'horizontal',

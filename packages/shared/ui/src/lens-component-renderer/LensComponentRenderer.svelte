@@ -26,6 +26,8 @@ export const LensComponentRendererPropsSchema = v.strictObject({
 	class: v.optional(StrSchema),
 	/** Suppress error logging for intentional boundary errors (e.g., Error Boundary demo section). */
 	silent: v.optional(v.boolean()),
+	/** Optional wrapper component providing required parent context (e.g. DropdownMenu.Root for Sub components). */
+	contextWrapper: v.optional(v.custom<Component>((val: unknown): boolean => typeof val === 'function')),
 });
 /** Props for the LensComponentRenderer component. */
 export type LensComponentRendererProps = v.InferOutput<typeof LensComponentRendererPropsSchema>;
@@ -52,6 +54,7 @@ export type LensComponentRendererProps = v.InferOutput<typeof LensComponentRende
  * ```
  */
 import type { Bool, Num, Str, Void } from '@/schemas/common';
+import { log } from '@/utils/core/logger';
 import type { PropMeta, VariantMeta } from '../lens/types.js';
 import { buildBaseProps } from '../lens/extract-props.js';
 import LensError from '../lens-error/LensError.svelte';
@@ -107,6 +110,7 @@ const {
 	codeText,
 	class: className,
 	silent = false,
+	contextWrapper: ContextWrapper,
 }: LensComponentRendererProps = $props();
 
 const baseProps: Record<Str, unknown> = $derived(buildBaseProps(propsMeta));
@@ -177,7 +181,7 @@ let cardContentHeights: Record<Str, Num> = $state({});
  * @returns A formatted error message string
  */
 function formatBoundaryError(error: unknown): Str {
-	if (!silent) console.warn('Component preview error:', error);
+	if (!silent) log.warn('Component preview error', { error });
 	if (error instanceof Error) return error.message;
 	if (typeof error === 'object' && error !== null) {
 		// Cast once for property access — error is an unknown object from svelte:boundary
@@ -2579,6 +2583,28 @@ function isIconOption(option: Str): boolean {
 				>
 					{#if children}
 						{@render children()}
+					{:else if ContextWrapper}
+					<ContextWrapper>
+						<Target {...baseProps} {...extraProps}>
+							{#if useIcon}
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<circle cx="12" cy="12" r="10"></circle>
+								</svg>
+							{:else}
+								{label}
+							{/if}
+						</Target>
+					</ContextWrapper>
 					{:else}
 						<Target {...baseProps} {...extraProps}>
 							{#if useIcon}
