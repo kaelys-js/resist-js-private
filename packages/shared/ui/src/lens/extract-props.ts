@@ -19,10 +19,20 @@ function noop(): void {
 	/* intentionally empty — placeholder for function-typed props in variant previews */
 }
 
-/** Check if a prop type represents a function (Snippet, Component, callback). */
+/**
+ * Check if a prop type represents a function (Snippet, Component, callback).
+ *
+ * @param type - The resolved type string
+ * @param typeDefinition - Optional resolved type definition body
+ * @returns True if the type represents a function/callback/Snippet
+ */
 function isFunctionType(type: string, typeDefinition?: string): boolean {
-	return type === 'Snippet' || type === 'Component'
-		|| type.includes(') =>') || (typeDefinition?.includes(') =>') ?? false);
+	return (
+		type === 'Snippet' ||
+		type === 'Component' ||
+		type.includes(') =>') ||
+		(typeDefinition?.includes(') =>') ?? false)
+	);
 }
 
 /**
@@ -41,7 +51,7 @@ function tryParseJsLiteral(str: string): unknown {
 		/* not valid JSON — try fixing unquoted keys */
 	}
 	// Quote unquoted keys: {key: "val"} → {"key": "val"}
-	const fixed: string = str.replace(/([{,])\s*(\w+)\s*:/g, '$1"$2":');
+	const fixed: string = str.replaceAll(/([{,])\s*(\w+)\s*:/g, '$1"$2":');
 	try {
 		return JSON.parse(fixed);
 	} catch {
@@ -381,14 +391,22 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
 	for (const prop of props) {
 		if (!prop.typeFields || prop.typeFields.length === 0) continue;
 		if (prop.type.endsWith('[]')) continue;
+		const isRecordParent: boolean =
+			prop.type.startsWith('Record<') || (prop.typeDefinition?.startsWith('Record<') ?? false);
 		for (const tf of prop.typeFields) {
+			// Skip [key] placeholder for Record types — the key isn't a real field
+			if (isRecordParent && tf.field === '[key]') continue;
 			const parsed: TypeFieldVariantResult = parseTypeFieldAccepts(tf);
 			if (parsed.options.length > 1) {
+				// Record value sub-fields need special coercion in the renderer
+				const coerce: 'array' | 'record-value' | undefined = isRecordParent
+					? 'record-value'
+					: parsed.coerce;
 				variants.push({
 					key: `${prop.name}.${tf.field}`,
 					options: parsed.options,
 					default: '',
-					coerce: parsed.coerce,
+					coerce,
 				});
 			}
 		}
@@ -401,8 +419,8 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
 type TypeFieldVariantResult = {
 	/** Option strings for variant generation. */
 	options: string[];
-	/** Coercion hint for the renderer — 'array' means split comma-separated strings into arrays. */
-	coerce: 'array' | undefined;
+	/** Coercion hint for the renderer — 'array' splits comma-separated strings into arrays, 'record-value' modifies values within Record entries. */
+	coerce: 'array' | 'record-value' | undefined;
 };
 
 /**
@@ -413,11 +431,36 @@ type TypeFieldVariantResult = {
  * sensible example values. Array types get coerce hint so renderer splits
  * comma-separated strings into actual arrays.
  *
+ * When a TypeField has explicit mockValues from @values JSDoc, those are
+ * used as variant options — this ensures complex types (array-of-objects,
+ * nested schemas) get structurally valid mock data instead of fallback strings.
+ *
  * @param tf - The TypeField to parse
  * @returns Options and coercion hint for variant generation
  */
 function parseTypeFieldAccepts(tf: TypeField): TypeFieldVariantResult {
 	const accepts: string = tf.accepts.trim();
+
+	// Explicit @values mockValues — highest priority, same as prop-level @values
+	if (tf.mockValues && tf.mockValues.length > 1) {
+		// For array-typed fields, check if mockValues are complex (objects/arrays)
+		// and need JSON coercion rather than string splitting
+		if (tf.type.endsWith('[]')) {
+			const firstParsed: unknown = tryParseJsLiteral(tf.mockValues[0] ?? '');
+			if (firstParsed !== undefined && typeof firstParsed === 'object') {
+				// Complex array items — store as JSON strings, renderer parses them
+				return {
+					options: tf.mockValues.map((mv: string): string => {
+						const parsed: unknown = tryParseJsLiteral(mv);
+						if (parsed === undefined) return mv;
+						return JSON.stringify(parsed);
+					}),
+					coerce: 'array',
+				};
+			}
+		}
+		return { options: tf.mockValues, coerce: tf.type.endsWith('[]') ? 'array' : undefined };
+	}
 
 	// Boolean fields
 	if (accepts === 'true / false' || tf.type === 'Bool' || tf.type === 'boolean') {
@@ -448,6 +491,27 @@ function parseTypeFieldAccepts(tf: TypeField): TypeFieldVariantResult {
 
 	// List/array fields — generate example list variants with array coercion
 	if (accepts.startsWith('list of ')) {
+		const innerType: string = accepts.slice('list of '.length).trim();
+		const isSimpleInner: boolean =
+			innerType === 'text' || innerType === 'number' || innerType === 'true / false';
+
+		if (!isSimpleInner) {
+			// Complex inner type (e.g. DepEntry) — use @values template if available
+			if (tf.mockValues && tf.mockValues.length > 0) {
+				const template: unknown = tryParseJsLiteral(tf.mockValues[0] ?? '');
+				if (template !== undefined) {
+					const item: unknown = Array.isArray(template) ? template[0] : template;
+					if (item !== undefined) {
+						const one: string = JSON.stringify([item]);
+						const two: string = JSON.stringify([item, item]);
+						return { options: [one, two], coerce: 'array' };
+					}
+				}
+			}
+			// No parseable template — can't generate structurally valid variants
+			return { options: [], coerce: undefined };
+		}
+
 		return { options: ['one', 'one, two', 'one, two, three'], coerce: 'array' };
 	}
 
@@ -485,7 +549,11 @@ export function buildBaseProps(propsMeta: PropMeta[]): Record<string, unknown> {
 			}
 		} else if (prop.mockValues && prop.mockValues.length > 0) {
 			// Coerce mockValues to actual types — @values are always strings
-			const coerced: unknown = coerceMockValue(prop.mockValues[0] ?? '', prop.type, prop.typeDefinition);
+			const coerced: unknown = coerceMockValue(
+				prop.mockValues[0] ?? '',
+				prop.type,
+				prop.typeDefinition,
+			);
 			// Only set if coercion produced a value — undefined means type can't be coerced from string
 			if (coerced !== undefined) base[prop.name] = coerced;
 		} else if (prop.type.startsWith('{ ')) {
@@ -725,8 +793,7 @@ function splitValuesRespectingBrackets(raw: string): string[] {
 	let depth: number = 0;
 	let current: string = '';
 
-	for (let i: number = 0; i < raw.length; i++) {
-		const ch: string = raw[i] ?? '';
+	for (const ch of raw) {
 		if (ch === '{' || ch === '[' || ch === '(') {
 			depth++;
 			current += ch;
@@ -1741,6 +1808,7 @@ function parseValibotObjectFields(body: string, source?: string): TypeField[] {
 	const fields: TypeField[] = [];
 	let pos: number = 0;
 	let pendingDescription: string = '';
+	let pendingMockValues: string[] = [];
 
 	while (pos < body.length) {
 		// Skip whitespace
@@ -1762,9 +1830,10 @@ function parseValibotObjectFields(body: string, source?: string): TypeField[] {
 				)
 				.filter(Boolean)
 				.join(' ');
-			// Strip @values tag — same as parseValibotSchemaFields
+			// Strip @values tag and propagate mock values to TypeField
 			const parsedDoc: ValuesTagResult = extractValuesTag(rawDoc);
 			pendingDescription = parsedDoc.description;
+			pendingMockValues = parsedDoc.mockValues;
 			pos = closeIdx + 2;
 			continue;
 		}
@@ -1835,9 +1904,11 @@ function parseValibotObjectFields(body: string, source?: string): TypeField[] {
 				required: !isOptionalField,
 				accepts: humanizeValibotExpr(schemaExpr),
 				description: pendingDescription,
+				mockValues: pendingMockValues.length > 0 ? [...pendingMockValues] : undefined,
 				typeFields: nestedFields && nestedFields.length > 0 ? nestedFields : undefined,
 			});
 			pendingDescription = '';
+			pendingMockValues = [];
 		}
 	}
 

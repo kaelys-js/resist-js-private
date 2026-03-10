@@ -24,6 +24,8 @@ export const TypeFieldSchema: v.GenericSchema<TypeField> = v.strictObject({
 	accepts: StrSchema,
 	/** JSDoc description from the schema field comment. */
 	description: StrSchema,
+	/** Explicit mock values from `@values` JSDoc tag for variant generation. */
+	mockValues: v.optional(v.array(StrSchema)),
 	/** Nested type fields for recursive expansion (e.g., array-of-object sub-fields). */
 	typeFields: v.optional(v.lazy((): v.GenericSchema<TypeField[]> => v.array(TypeFieldSchema))),
 });
@@ -39,6 +41,8 @@ export type TypeField = {
 	accepts: string;
 	/** JSDoc description. */
 	description: string;
+	/** Explicit mock values from `@values` JSDoc tag. */
+	mockValues?: string[];
 	/** Nested type fields for recursive expansion. */
 	typeFields?: TypeField[];
 };
@@ -99,7 +103,7 @@ export const VariantKeyMetaSchema = v.strictObject({
 	/** The default value from `defaultVariants`, or empty. */
 	default: StrSchema,
 	/** Coercion hint for the renderer — how to convert string options to the expected type. */
-	coerce: v.optional(v.picklist(['array'])),
+	coerce: v.optional(v.picklist(['array', 'record-value'])),
 });
 export type VariantKeyMeta = v.InferOutput<typeof VariantKeyMetaSchema>;
 
