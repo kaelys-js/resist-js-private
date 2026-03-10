@@ -23,6 +23,7 @@ import PropsTable from '@/ui/lens-props-table/PropsTable.svelte';
 import LensComponentRenderer from '@/ui/lens-component-renderer/LensComponentRenderer.svelte';
 import TableProperties from '@lucide/svelte/icons/table-properties';
 import ComponentIcon from '@lucide/svelte/icons/component';
+import ShieldAlert from '@lucide/svelte/icons/shield-alert';
 import Layers from '@lucide/svelte/icons/layers';
 import BookOpen from '@lucide/svelte/icons/book-open';
 
@@ -266,13 +267,24 @@ function toTag(componentName: Str): Str {
 const searchItems: SearchItem[] = $derived.by((): SearchItem[] => {
 	const items: SearchItem[] = [];
 
-	// Props — searchable by name, type, default, description
+	// Props — searchable by name, type, default, description, typeFields, mockValues
 	for (const prop of props) {
+		const kw: Str[] = [prop.type, prop.default, prop.description].filter(Boolean);
+		// Include nested field names, types, accepts, and descriptions from expandable schemas
+		if (prop.typeFields) {
+			for (const tf of prop.typeFields) {
+				kw.push(tf.field, tf.type, tf.accepts, tf.description);
+			}
+		}
+		// Include explicit @values JSDoc annotations
+		if (prop.mockValues) {
+			kw.push(...prop.mockValues);
+		}
 		items.push({
 			value: `prop:${prop.name}`,
 			label: prop.name,
 			group: 'Props',
-			keywords: [prop.type, prop.default, prop.description].filter(Boolean),
+			keywords: kw.filter(Boolean),
 		});
 	}
 
@@ -296,6 +308,14 @@ const searchItems: SearchItem[] = $derived.by((): SearchItem[] => {
 		});
 	}
 
+	// Sections — navigable section anchors
+	items.push({
+		value: 'section:error-boundary',
+		label: 'Error Boundary',
+		group: 'Sections',
+		keywords: ['error', 'boundary', 'validation', 'safeParse', 'fallback'],
+	});
+
 	return items;
 });
 
@@ -311,6 +331,7 @@ function handleSearchSelect(item: SearchItem): Void {
 	if (section === 'prop') selector = `#prop-${id}`;
 	else if (section === 'variant') selector = `#variant-${id}`;
 	else if (section === 'example') selector = `#example-${id}`;
+	else if (section === 'section') selector = `#${id}`;
 
 	if (selector) {
 		document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth' });
@@ -348,6 +369,24 @@ function handleSearchSelect(item: SearchItem): Void {
 					<LensSection title="Default" description="Component rendered with default props.">
 						<LensComponentRenderer component={PrimaryComponent} {props} tagName={toTag(name)} componentName={name} />
 					</LensSection>
+				</section>
+			{/if}
+
+			<!-- ═══ Error Boundary ═══ -->
+			{#if PrimaryComponent}
+				<section id="error-boundary" class="scroll-mt-60">
+					<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><ShieldAlert class="size-5" /> Error Boundary</h2>
+					<div class="space-y-4">
+						<LensSection title="Missing Required Props" description="Component rendered with no props — triggers safeParse validation and shows the error boundary fallback.">
+							<LensComponentRenderer component={PrimaryComponent} tagName={toTag(name)} componentName={name} label="" codeText={`<!-- Missing required props — validation error -->\n<${toTag(name)} />`} />
+						</LensSection>
+						<LensSection title="Invalid Props" description="Component rendered with an unknown prop key — triggers strictObject validation and shows the error boundary fallback.">
+							<LensComponentRenderer component={PrimaryComponent} props={[{ name: '__invalid__', type: 'unknown', default: "'test'", optional: false, bindable: false, description: '' }]} tagName={toTag(name)} componentName={name} label="" codeText={`<!-- Unknown prop key — strictObject rejection -->\n<${toTag(name)} __invalid__="test" />`} />
+						</LensSection>
+						<LensSection title="Only Required Props" description="Component rendered with only required props at minimum values — shows the baseline functional state.">
+							<LensComponentRenderer component={PrimaryComponent} props={props.filter((p) => !p.optional && p.default === '')} tagName={toTag(name)} componentName={name} label="" codeText={`<!-- Only required props (minimum values) -->\n<${toTag(name)} ... />`} />
+						</LensSection>
+					</div>
 				</section>
 			{/if}
 
