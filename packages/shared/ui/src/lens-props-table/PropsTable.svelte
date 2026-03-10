@@ -1,7 +1,7 @@
 <script module lang="ts">
 import * as v from 'valibot';
 import { StrSchema } from '@/schemas/common';
-import { PropMetaSchema, type PropMeta } from '../lens/types.js';
+import { PropMetaSchema, type PropMeta, type TypeField } from '../lens/types.js';
 
 export const PropsTablePropsSchema = v.strictObject({
 	/** Array of prop metadata to render. @values [{name: "variant", type: "Str", default: "default", description: "Visual style", bindable: false}] */
@@ -254,6 +254,16 @@ function parseAcceptsMembers(accepts: Str): Str[] {
 		.filter(Boolean);
 }
 
+/**
+ * Check whether a TypeField has nested expandable sub-fields.
+ *
+ * @param tf - The type field to check
+ * @returns True if the field has nested typeFields
+ */
+function hasNestedFields(tf: TypeField): Bool {
+	return tf.typeFields !== undefined && tf.typeFields.length > 0;
+}
+
 /** Number of columns in the table — 7 if variant actions shown, else 6. */
 const colCount: Num = $derived(variantKeys.length > 0 ? 7 : 6);
 </script>
@@ -430,9 +440,34 @@ const colCount: Num = $derived(variantKeys.length > 0 ? 7 : 6);
 									<table class="w-full table-fixed text-sm">
 										<tbody>
 											{#each prop.typeFields ?? [] as tf (tf.field)}
+												{@const nestedKey = `${prop.name}.${tf.field}`}
 												<tr class="border-b bg-muted/30 last:border-b-0">
 													<td class="py-1.5 pl-12 pr-4 font-mono text-xs text-muted-foreground">
-														{tf.field}
+														{#if hasNestedFields(tf)}
+															<span class="inline-flex items-center gap-1">
+																<button
+																	type="button"
+																	class="inline-flex size-4 shrink-0 items-center justify-center rounded text-muted-foreground/60 transition-all hover:text-foreground"
+																	onclick={() => toggleTypeFields(nestedKey)}
+																	aria-expanded={expandedTypeFields.has(nestedKey)}
+																	aria-label="Toggle {tf.field} type fields"
+																>
+																	<ChevronRight
+																		class="size-3 transition-transform duration-200 {expandedTypeFields.has(nestedKey) ? 'rotate-90' : ''}"
+																		aria-hidden="true"
+																	/>
+																</button>
+																<button
+																	type="button"
+																	class="cursor-pointer hover:text-foreground hover:underline"
+																	onclick={() => toggleTypeFields(nestedKey)}
+																>
+																	{tf.field}
+																</button>
+															</span>
+														{:else}
+															{tf.field}
+														{/if}
 													</td>
 													<td class="px-4 py-1.5">
 														{#if tf.required}
@@ -484,7 +519,7 @@ const colCount: Num = $derived(variantKeys.length > 0 ? 7 : 6);
 														{/if}
 													</td>
 													{#if variantKeys.length > 0}
-														<td class="px-2 py-1.5">
+														<td class="w-10 px-2 py-1.5">
 															{#if variantKeySet.has(`${prop.name}.${tf.field}`)}
 																<DropdownMenu.Root>
 																	<DropdownMenu.Trigger>
@@ -510,6 +545,67 @@ const colCount: Num = $derived(variantKeys.length > 0 ? 7 : 6);
 														</td>
 													{/if}
 												</tr>
+												{#if hasNestedFields(tf) && expandedTypeFields.has(nestedKey)}
+													{#each tf.typeFields ?? [] as ntf (ntf.field)}
+														<tr class="border-b bg-muted/20 last:border-b-0">
+															<td class="py-1.5 pl-20 pr-4 font-mono text-xs text-muted-foreground/80">
+																{ntf.field}
+															</td>
+															<td class="px-4 py-1.5">
+																{#if ntf.required}
+																	<Badge variant="default" class="rounded-md px-1.5 py-0 text-[10px]">Required</Badge>
+																{:else}
+																	<Badge variant="secondary" class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground">Optional</Badge>
+																{/if}
+															</td>
+															<td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
+																{#if isUnionType(ntf.type)}
+																	<span class="inline-flex flex-wrap items-center gap-1">
+																		{#each parseUnionMembers(ntf.type) as member, mi (mi)}
+																			{#if mi > 0}
+																				<span class="text-[10px] text-muted-foreground/40">|</span>
+																			{/if}
+																			<code class="rounded bg-muted px-1 py-0.5 text-[11px]">{member}</code>
+																		{/each}
+																	</span>
+																{:else if ntf.type}
+																	{ntf.type}
+																{:else}
+																	<span class="text-muted-foreground/40">—</span>
+																{/if}
+															</td>
+															<td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
+																{#if isAcceptsUnion(ntf.accepts)}
+																	<span class="inline-flex flex-wrap items-center gap-1">
+																		{#each parseAcceptsMembers(ntf.accepts) as member, mi (mi)}
+																			{#if mi > 0}
+																				<span class="text-[10px] text-muted-foreground/40">|</span>
+																			{/if}
+																			<code class="rounded bg-muted px-1 py-0.5 text-[11px]">{member}</code>
+																		{/each}
+																	</span>
+																{:else if ntf.accepts}
+																	{ntf.accepts}
+																{:else}
+																	<span class="text-muted-foreground/40">—</span>
+																{/if}
+															</td>
+															<td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
+																<span class="text-muted-foreground/40">—</span>
+															</td>
+															<td class="px-4 py-1.5 text-xs text-muted-foreground">
+																{#if ntf.description}
+																	{ntf.description}
+																{:else}
+																	<span class="text-muted-foreground/40">—</span>
+																{/if}
+															</td>
+															{#if variantKeys.length > 0}
+																<td class="w-10 px-2 py-1.5"></td>
+															{/if}
+														</tr>
+													{/each}
+												{/if}
 											{/each}
 										</tbody>
 									</table>

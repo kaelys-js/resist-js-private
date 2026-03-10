@@ -13,7 +13,7 @@ import { StrSchema, BoolSchema } from '@/schemas/common';
  * Used when a prop type resolves to an object schema — each field gets its own
  * row in a mini-table inside the type tooltip.
  */
-export const TypeFieldSchema = v.strictObject({
+export const TypeFieldSchema: v.GenericSchema<TypeField> = v.strictObject({
 	/** The field name (e.g., `category`, `tags`). */
 	field: StrSchema,
 	/** Resolved type string for the field (e.g., `Str`, `Bool`, `'a' | 'b'`). */
@@ -24,8 +24,24 @@ export const TypeFieldSchema = v.strictObject({
 	accepts: StrSchema,
 	/** JSDoc description from the schema field comment. */
 	description: StrSchema,
+	/** Nested type fields for recursive expansion (e.g., array-of-object sub-fields). */
+	typeFields: v.optional(v.lazy((): v.GenericSchema<TypeField[]> => v.array(TypeFieldSchema))),
 });
-export type TypeField = v.InferOutput<typeof TypeFieldSchema>;
+/** A single field within a resolved type definition. */
+export type TypeField = {
+	/** The field name. */
+	field: string;
+	/** Resolved type string. */
+	type: string;
+	/** Whether required. */
+	required: boolean;
+	/** Human-readable accepted values. */
+	accepts: string;
+	/** JSDoc description. */
+	description: string;
+	/** Nested type fields for recursive expansion. */
+	typeFields?: TypeField[];
+};
 
 /**
  * Metadata for a single component prop, extracted from a `$props()` block.
