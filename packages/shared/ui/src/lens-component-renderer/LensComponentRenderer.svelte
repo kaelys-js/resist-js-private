@@ -133,6 +133,9 @@ let cardGrids: Record<Str, Str> = $state({});
 /** Per-card grid size in pixels keyed by card identifier. */
 let cardGridSizes: Record<Str, Num> = $state({});
 
+/** Per-card grid fill/background color keyed by card identifier ('none' = transparent). */
+let cardGridFills: Record<Str, Str> = $state({});
+
 /** Per-card orientation keyed by card identifier ('default' = no rotation). */
 let cardOrientations: Record<Str, Str> = $state({});
 
@@ -391,6 +394,15 @@ const GRID_PRESETS: Array<{ id: Str; label: Str; color: Str }> = [
 	{ id: 'red', label: 'Red', color: 'rgba(239, 68, 68, 0.15)' },
 	{ id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.2)' },
 	{ id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.2)' },
+];
+
+const GRID_FILL_PRESETS: Array<{ id: Str; label: Str; color: Str }> = [
+	{ id: 'white', label: 'White', color: 'rgba(255, 255, 255, 0.5)' },
+	{ id: 'black', label: 'Black', color: 'rgba(0, 0, 0, 0.3)' },
+	{ id: 'red', label: 'Red', color: 'rgba(239, 68, 68, 0.08)' },
+	{ id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.08)' },
+	{ id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.08)' },
+	{ id: 'yellow', label: 'Yellow', color: 'rgba(234, 179, 8, 0.08)' },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -868,6 +880,16 @@ function setGridSize(key: Str, size: Num): Void {
 }
 
 /**
+ * Set grid fill (cell background) color for a card.
+ *
+ * @param key - Card key
+ * @param fillId - Fill color preset ID, hex color, or 'none'
+ */
+function setGridFill(key: Str, fillId: Str): Void {
+	cardGridFills[key] = fillId;
+}
+
+/**
  * Get the resolved grid CSS color value for a card.
  *
  * @param key - Card key
@@ -882,6 +904,20 @@ function getGridColor(key: Str): Str {
 }
 
 /**
+ * Get the resolved grid fill CSS color value for a card.
+ *
+ * @param key - Card key
+ * @returns CSS color string or empty if no fill
+ */
+function getGridFillColor(key: Str): Str {
+	const id: Str = cardGridFills[key] ?? 'none';
+	if (id === 'none') return '';
+	if (id.startsWith('#') || id.startsWith('rgb')) return id;
+	const preset = GRID_FILL_PRESETS.find((p) => p.id === id);
+	return preset?.color ?? '';
+}
+
+/**
  * Get the CSS background-image style for a grid overlay.
  *
  * @param key - Card key
@@ -891,7 +927,9 @@ function getGridStyle(key: Str): Str {
 	const color: Str = getGridColor(key);
 	if (!color) return '';
 	const size: Num = cardGridSizes[key] ?? GRID_DEFAULT_SIZE;
-	return `background-image: linear-gradient(${color} 1px, transparent 1px), linear-gradient(90deg, ${color} 1px, transparent 1px); background-size: ${size}px ${size}px`;
+	const fillColor: Str = getGridFillColor(key);
+	const fillStyle: Str = fillColor ? `; background-color: ${fillColor}` : '';
+	return `background-image: linear-gradient(${color} 1px, transparent 1px), linear-gradient(90deg, ${color} 1px, transparent 1px); background-size: ${size}px ${size}px${fillStyle}`;
 }
 
 /**
@@ -1127,6 +1165,11 @@ function getActiveSettings(key: Str): Array<{ label: Str; value: Str }> {
 		const gridPreset = GRID_PRESETS.find((p) => p.id === grid);
 		settings.push({ label: 'Grid', value: gridPreset?.label ?? grid });
 	}
+	const gridFill: Str = cardGridFills[key] ?? 'none';
+	if (gridFill !== 'none') {
+		const fillPreset = GRID_FILL_PRESETS.find((p) => p.id === gridFill);
+		settings.push({ label: 'Grid Fill', value: fillPreset?.label ?? gridFill });
+	}
 	const orientation: Str = cardOrientations[key] ?? 'default';
 	if (orientation !== 'default') {
 		const orientPreset = ORIENTATION_PRESETS.find((p) => p.id === orientation);
@@ -1160,8 +1203,13 @@ function getActiveSettings(key: Str): Array<{ label: Str; value: Str }> {
 	// Network simulation
 	const netSim: Str = cardNetworkSim[key] ?? 'none';
 	if (netSim !== 'none') {
-		const netPreset = NETWORK_PRESETS.find((p) => p.id === netSim);
-		settings.push({ label: 'Network', value: netPreset?.label ?? netSim });
+		if (netSim === 'custom') {
+			const delay: Num = cardCustomNetwork[key]?.delay ?? 200;
+			settings.push({ label: 'Network', value: `${delay}ms latency` });
+		} else {
+			const netPreset = NETWORK_PRESETS.find((p) => p.id === netSim);
+			settings.push({ label: 'Network', value: netPreset?.label ?? netSim });
+		}
 	}
 	// Viewport
 	const viewport: Str = cardViewports[key] ?? 'auto';
@@ -1440,6 +1488,7 @@ function resetCard(key: Str): Void {
 	cardOutlines[key] = 'none';
 	cardGrids[key] = 'none';
 	cardGridSizes[key] = GRID_DEFAULT_SIZE;
+	cardGridFills[key] = 'none';
 	cardOrientations[key] = 'default';
 	cardModes[key] = 'auto';
 	cardThemes[key] = '';
@@ -1860,7 +1909,7 @@ function isIconOption(option: Str): boolean {
 									</div>
 								</div>
 								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-									<DropdownMenu.Label class="text-xs">Grid Overlay</DropdownMenu.Label>
+									<DropdownMenu.Label class="text-xs">Grid Background Color</DropdownMenu.Label>
 									<DropdownMenu.Item onclick={() => setGrid(cardKey, 'none')}>
 										<Check class={cn('size-4 shrink-0', activeGrid !== 'none' && 'opacity-0')} />
 										None
@@ -1887,10 +1936,36 @@ function isIconOption(option: Str): boolean {
 									{/each}
 									<DropdownMenu.Separator />
 									<div class="px-2 py-1.5">
-										<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom</p>
+										<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom Grid Background Color</p>
 										<ColorPicker
 											value={activeGrid.startsWith('#') ? activeGrid : '#000000'}
 											onValueChange={(v) => setGrid(cardKey, v)}
+										/>
+									</div>
+									<DropdownMenu.Separator />
+									<DropdownMenu.Label class="text-xs">Grid Fill Color</DropdownMenu.Label>
+									<DropdownMenu.Item onclick={() => setGridFill(cardKey, 'none')}>
+										<Check class={cn('size-4 shrink-0', (cardGridFills[cardKey] ?? 'none') !== 'none' && 'opacity-0')} />
+										None (transparent)
+									</DropdownMenu.Item>
+									{#each GRID_FILL_PRESETS as preset (preset.id)}
+										<DropdownMenu.Item onclick={() => setGridFill(cardKey, preset.id)}>
+											<div class="flex items-center gap-2">
+												<Check class={cn('size-4 shrink-0', (cardGridFills[cardKey] ?? 'none') !== preset.id && 'opacity-0')} />
+												<span
+													class="inline-block size-3.5 shrink-0 rounded-sm border"
+													style="background-color: {preset.color}"
+												></span>
+												{preset.label}
+											</div>
+										</DropdownMenu.Item>
+									{/each}
+									<DropdownMenu.Separator />
+									<div class="px-2 py-1.5">
+										<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom Grid Fill Color</p>
+										<ColorPicker
+											value={(cardGridFills[cardKey] ?? 'none').startsWith('#') ? (cardGridFills[cardKey] ?? '#ffffff') : '#ffffff'}
+											onValueChange={(v) => setGridFill(cardKey, v)}
 										/>
 									</div>
 									<DropdownMenu.Separator />
@@ -2125,8 +2200,8 @@ function isIconOption(option: Str): boolean {
 								<Wifi class="size-4" />
 								Network Simulation
 							</DropdownMenu.SubTrigger>
-							<DropdownMenu.SubContent class="w-72">
-								<div class="px-2 pb-1.5 pt-1">
+							<DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
 									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
 										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
 										<input
@@ -2144,46 +2219,6 @@ function isIconOption(option: Str): boolean {
 										<Check class={cn('size-4 shrink-0', (cardNetworkSim[cardKey] ?? 'none') !== 'none' && 'opacity-0')} />
 										No throttling
 									</DropdownMenu.Item>
-									<DropdownMenu.Item onclick={() => {
-										if (!cardCustomNetwork[cardKey]) cardCustomNetwork[cardKey] = { delay: 200, label: 'Custom' };
-										setNetworkSim(cardKey, 'custom');
-									}}>
-										<Check class={cn('size-4 shrink-0', (cardNetworkSim[cardKey] ?? 'none') !== 'custom' && 'opacity-0')} />
-										Custom…
-									</DropdownMenu.Item>
-									{#if (cardNetworkSim[cardKey] ?? 'none') === 'custom'}
-										<div class="flex items-center gap-1.5 px-3 py-1.5">
-											<span class="text-xs text-muted-foreground">Latency</span>
-											<input
-												type="number"
-												min="0"
-												max="30000"
-												value={cardCustomNetwork[cardKey]?.delay ?? 200}
-												class="w-16 rounded border bg-transparent px-1.5 py-0.5 text-xs tabular-nums outline-none"
-												onkeydown={(e) => e.stopPropagation()}
-												oninput={(e) => {
-													const v: Num = Number((e.target as HTMLInputElement).value);
-													if (v >= 0 && v <= 30000) {
-														cardCustomNetwork[cardKey] = { delay: v, label: cardCustomNetwork[cardKey]?.label ?? 'Custom' };
-														setNetworkSim(cardKey, 'custom');
-													}
-												}}
-											/>
-											<span class="text-[10px] text-muted-foreground">ms</span>
-										</div>
-										<div class="flex items-center gap-1.5 px-3 pb-1.5">
-											<span class="text-xs text-muted-foreground">Label</span>
-											<input
-												type="text"
-												value={cardCustomNetwork[cardKey]?.label ?? 'Custom'}
-												class="flex-1 rounded border bg-transparent px-1.5 py-0.5 text-xs outline-none"
-												onkeydown={(e) => e.stopPropagation()}
-												oninput={(e) => {
-													cardCustomNetwork[cardKey] = { ...cardCustomNetwork[cardKey], label: (e.target as HTMLInputElement).value };
-												}}
-											/>
-										</div>
-									{/if}
 									{#each filteredNetworkCategories as category (category)}
 										<DropdownMenu.Separator />
 										<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
@@ -2214,6 +2249,23 @@ function isIconOption(option: Str): boolean {
 										</div>
 									{/if}
 								</div>
+								<DropdownMenu.Separator />
+								<div class="shrink-0 px-2 py-1.5">
+									<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom Latency ({cardCustomNetwork[cardKey]?.delay ?? 200}ms)</p>
+									<Slider
+										type="single"
+										value={cardCustomNetwork[cardKey]?.delay ?? 200}
+										min={0}
+										max={10000}
+										step={50}
+										onValueChange={(v: Num) => {
+											cardCustomNetwork[cardKey] = { delay: v, label: cardCustomNetwork[cardKey]?.label ?? 'Custom' };
+										}}
+										onValueCommit={() => {
+											setNetworkSim(cardKey, 'custom');
+										}}
+									/>
+								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
 
@@ -2227,8 +2279,8 @@ function isIconOption(option: Str): boolean {
 								<Tablet class="size-4" />
 								Viewport
 							</DropdownMenu.SubTrigger>
-							<DropdownMenu.SubContent class="w-72">
-								<div class="px-2 pb-1.5 pt-1">
+							<DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
 									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
 										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
 										<input
@@ -2246,49 +2298,6 @@ function isIconOption(option: Str): boolean {
 										<Check class={cn('size-4 shrink-0', (cardViewports[cardKey] ?? 'auto') !== 'auto' && 'opacity-0')} />
 										Auto (full width)
 									</DropdownMenu.Item>
-									<DropdownMenu.Item onclick={() => {
-										if (!cardCustomViewports[cardKey]) cardCustomViewports[cardKey] = { w: 1024, h: 768 };
-										setViewport(cardKey, 'custom');
-									}}>
-										<Check class={cn('size-4 shrink-0', (cardViewports[cardKey] ?? 'auto') !== 'custom' && 'opacity-0')} />
-										Custom size…
-									</DropdownMenu.Item>
-									{#if (cardViewports[cardKey] ?? 'auto') === 'custom'}
-										<div class="flex items-center gap-1.5 px-3 py-1.5">
-											<input
-												type="number"
-												min="100"
-												max="7680"
-												value={cardCustomViewports[cardKey]?.w ?? 1024}
-												class="w-16 rounded border bg-transparent px-1.5 py-0.5 text-xs tabular-nums outline-none"
-												onkeydown={(e) => e.stopPropagation()}
-												oninput={(e) => {
-													const v: Num = Number((e.target as HTMLInputElement).value);
-													if (v >= 100 && v <= 7680) {
-														cardCustomViewports[cardKey] = { ...cardCustomViewports[cardKey], w: v };
-														cardViewports[cardKey] = 'custom';
-													}
-												}}
-											/>
-											<span class="text-xs text-muted-foreground">&times;</span>
-											<input
-												type="number"
-												min="100"
-												max="4320"
-												value={cardCustomViewports[cardKey]?.h ?? 768}
-												class="w-16 rounded border bg-transparent px-1.5 py-0.5 text-xs tabular-nums outline-none"
-												onkeydown={(e) => e.stopPropagation()}
-												oninput={(e) => {
-													const v: Num = Number((e.target as HTMLInputElement).value);
-													if (v >= 100 && v <= 4320) {
-														cardCustomViewports[cardKey] = { ...cardCustomViewports[cardKey], h: v };
-														cardViewports[cardKey] = 'custom';
-													}
-												}}
-											/>
-											<span class="text-[10px] text-muted-foreground">px</span>
-										</div>
-									{/if}
 									{#each filteredViewportCategories as category (category)}
 										<DropdownMenu.Separator />
 										<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
@@ -2313,6 +2322,39 @@ function isIconOption(option: Str): boolean {
 											</div>
 										</div>
 									{/if}
+								</div>
+								<DropdownMenu.Separator />
+								<div class="shrink-0 px-2 py-1.5">
+									<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom Width ({cardCustomViewports[cardKey]?.w ?? 1024}px)</p>
+									<Slider
+										type="single"
+										value={cardCustomViewports[cardKey]?.w ?? 1024}
+										min={100}
+										max={3840}
+										step={10}
+										onValueChange={(v: Num) => {
+											cardCustomViewports[cardKey] = { w: v, h: cardCustomViewports[cardKey]?.h ?? 768 };
+										}}
+										onValueCommit={() => {
+											setViewport(cardKey, 'custom');
+										}}
+									/>
+								</div>
+								<div class="shrink-0 px-2 py-1.5">
+									<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom Height ({cardCustomViewports[cardKey]?.h ?? 768}px)</p>
+									<Slider
+										type="single"
+										value={cardCustomViewports[cardKey]?.h ?? 768}
+										min={100}
+										max={2160}
+										step={10}
+										onValueChange={(v: Num) => {
+											cardCustomViewports[cardKey] = { w: cardCustomViewports[cardKey]?.w ?? 1024, h: v };
+										}}
+										onValueCommit={() => {
+											setViewport(cardKey, 'custom');
+										}}
+									/>
 								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
@@ -2547,7 +2589,7 @@ function isIconOption(option: Str): boolean {
 					{:else}
 						<div class="size-5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-primary"></div>
 						<span class="text-xs text-muted-foreground">
-							{(cardNetworkSim[cardKey] ?? 'none') === 'custom' ? (cardCustomNetwork[cardKey]?.label || 'Custom') : (NETWORK_PRESETS.find((p) => p.id === (cardNetworkSim[cardKey] ?? 'none'))?.label ?? 'Loading')}...
+							{(cardNetworkSim[cardKey] ?? 'none') === 'custom' ? `${cardCustomNetwork[cardKey]?.delay ?? 200}ms latency` : (NETWORK_PRESETS.find((p) => p.id === (cardNetworkSim[cardKey] ?? 'none'))?.label ?? 'Loading')}...
 						</span>
 					{/if}
 				</div>

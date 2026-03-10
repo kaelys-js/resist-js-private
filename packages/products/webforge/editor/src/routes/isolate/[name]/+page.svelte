@@ -13,6 +13,7 @@ import { extractProps, extractDescription, buildBaseProps } from '@/ui/lens/extr
 import { extractDir, extractStem, toTitle, isInternalFile, findPrimaryKey } from '@/ui/lens/lens-utils.js';
 import { page } from '$app/state';
 import LensError from '@/ui/lens-error/LensError.svelte';
+import * as Tooltip from '@/ui/tooltip/index.js';
 
 /* ------------------------------------------------------------------ */
 /*  Globs                                                             */
@@ -237,9 +238,11 @@ const mediaPrefClasses: Str = $derived(cardStyles.mp ?? '');
 						style={contentStyle}
 					>
 						<svelte:boundary>
-							<PrimaryComponent {...baseProps} {...variantProps}>
-								Example
-							</PrimaryComponent>
+							<Tooltip.Provider>
+								<PrimaryComponent {...baseProps} {...variantProps}>
+									Example
+								</PrimaryComponent>
+							</Tooltip.Provider>
 							{#snippet failed(error)}
 								<LensError
 									title="Render failed"
@@ -258,9 +261,11 @@ const mediaPrefClasses: Str = $derived(cardStyles.mp ?? '');
 					style={contentStyle}
 				>
 					<svelte:boundary>
-						<PrimaryComponent {...baseProps} {...variantProps}>
-							Example
-						</PrimaryComponent>
+						<Tooltip.Provider>
+							<PrimaryComponent {...baseProps} {...variantProps}>
+								Example
+							</PrimaryComponent>
+						</Tooltip.Provider>
 						{#snippet failed(error)}
 							<LensError
 								title="Render failed"
