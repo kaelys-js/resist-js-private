@@ -52,7 +52,7 @@ export type LanguageSwitcherProps = v.InferOutput<typeof LanguageSwitcherPropsSc
  * Displays language options with endonym and exonym names, a search filter,
  * and a checkmark on the currently active locale.
  */
-import type { Bool, Void } from '@/schemas/common';
+import type { Bool, Num, Void } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 import Search from '@lucide/svelte/icons/search';
@@ -92,6 +92,25 @@ function isDuplicate(info: LanguageOption): Bool {
 function handleSubOpenChange(open: Bool): Void {
 	if (!open) searchQuery = '';
 }
+
+/**
+ * Svelte action that locks an element's height to its initial rendered value.
+ * Prevents SubContent from shrinking when filtering, avoiding GraceArea close.
+ *
+ * @param node - The scrollable container element
+ * @returns Action lifecycle with destroy cleanup
+ */
+function lockHeight(node: HTMLElement): { destroy: () => void } {
+	const raf: Num = requestAnimationFrame((): void => {
+		node.style.minHeight = `${node.offsetHeight}px`;
+	});
+	return {
+		destroy(): void {
+			cancelAnimationFrame(raf);
+			node.style.minHeight = '';
+		},
+	};
+}
 </script>
 
 <DropdownMenu.Sub onOpenChange={handleSubOpenChange}>
@@ -126,7 +145,7 @@ function handleSubOpenChange(open: Bool): Void {
 		</div>
 
 		<!-- Scrollable item list -->
-		<div class="min-h-0 flex-1 overflow-y-auto">
+		<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
 			{#each filteredLanguages as lang (lang.code)}
 				<DropdownMenu.Item onclick={() => validated.switchLanguage(lang.code)} aria-current={validated.locale === lang.code ? 'true' : undefined} textValue={lang.endonym}>
 					{#if validated.locale === lang.code}
@@ -140,7 +159,7 @@ function handleSubOpenChange(open: Bool): Void {
 					{/if}
 				</DropdownMenu.Item>
 			{:else}
-				<div class="flex flex-col items-center gap-2 py-6 text-muted-foreground">
+				<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
 					<SearchX class="size-6" />
 					<div class="flex flex-col items-center gap-0.5">
 						<p class="text-xs font-medium">{validated.labels.noLanguagesFound}</p>
