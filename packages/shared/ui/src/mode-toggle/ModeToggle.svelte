@@ -35,6 +35,8 @@ export type ModeToggleProps = v.InferOutput<typeof ModeTogglePropsSchema>;
 /**
  * Light/dark/system color mode toggle with animated sun/moon icon and dropdown menu.
  */
+import type { Str as StrType } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
 import Sun from '@lucide/svelte/icons/sun';
 import Moon from '@lucide/svelte/icons/moon';
 import Monitor from '@lucide/svelte/icons/monitor';
@@ -42,8 +44,15 @@ import Check from '@lucide/svelte/icons/check';
 import { Button } from '../button/index.js';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 import * as Tooltip from '../tooltip/index.js';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-let { mode, setMode, labels }: ModeToggleProps = $props();
+const allProps = $props();
+const validated = $derived.by(() => {
+	const rawProps: Record<StrType, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(ModeTogglePropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 </script>
 
 <Tooltip.Root delayDuration={700}>
@@ -58,7 +67,7 @@ let { mode, setMode, labels }: ModeToggleProps = $props();
 							class="relative"
 							{...tooltipProps}
 							{...menuProps}
-							aria-label={labels.toggleMode}
+							aria-label={validated.labels.toggleMode}
 						>
 							<Sun
 								aria-hidden="true"
@@ -74,27 +83,27 @@ let { mode, setMode, labels }: ModeToggleProps = $props();
 			{/snippet}
 		</Tooltip.Trigger>
 		<Tooltip.Content side="bottom" sideOffset={4}>
-			{labels.toggleTheme}
+			{validated.labels.toggleTheme}
 		</Tooltip.Content>
 		<DropdownMenu.Content align="end">
-			<DropdownMenu.Item onclick={() => setMode('light')}>
+			<DropdownMenu.Item onclick={() => validated.setMode('light')}>
 				<Sun class="mr-2 size-4" />
-				{labels.light}
-				{#if mode === 'light'}
+				{validated.labels.light}
+				{#if validated.mode === 'light'}
 					<Check class="ml-auto size-4 text-muted-foreground" />
 				{/if}
 			</DropdownMenu.Item>
-			<DropdownMenu.Item onclick={() => setMode('dark')}>
+			<DropdownMenu.Item onclick={() => validated.setMode('dark')}>
 				<Moon class="mr-2 size-4" />
-				{labels.dark}
-				{#if mode === 'dark'}
+				{validated.labels.dark}
+				{#if validated.mode === 'dark'}
 					<Check class="ml-auto size-4 text-muted-foreground" />
 				{/if}
 			</DropdownMenu.Item>
-			<DropdownMenu.Item onclick={() => setMode('system')}>
+			<DropdownMenu.Item onclick={() => validated.setMode('system')}>
 				<Monitor class="mr-2 size-4" />
-				{labels.system}
-				{#if mode === 'system'}
+				{validated.labels.system}
+				{#if validated.mode === 'system'}
 					<Check class="ml-auto size-4 text-muted-foreground" />
 				{/if}
 			</DropdownMenu.Item>

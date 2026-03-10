@@ -81,12 +81,20 @@ import LogOut from '@lucide/svelte/icons/log-out';
 import * as Avatar from '../avatar/index.js';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 import type { Bool, Str } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-let { userName, userEmail, userAvatar, onLogOut, features, labels }: HeaderUserProps = $props();
+const allProps = $props();
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(HeaderUserPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 
 /** Monogram from the user name (e.g. "John Doe" → "JD", "User" → "U"). */
 const monogram: Str = $derived(
-	userName
+	validated.userName
 		.split(/\s+/)
 		.slice(0, 2)
 		.map((w: Str) => w[0]?.toUpperCase() ?? '')
@@ -94,10 +102,10 @@ const monogram: Str = $derived(
 );
 
 const hasAccountGroup: Bool = $derived(
-	features.account || features.subscription || features.notifications,
+	validated.features.account || validated.features.subscription || validated.features.notifications,
 );
 
-const hasToolsGroup: Bool = $derived(features.shortcuts || features.settings || features.whatsNew);
+const hasToolsGroup: Bool = $derived(validated.features.shortcuts || validated.features.settings || validated.features.whatsNew);
 </script>
 
 <DropdownMenu.Root>
@@ -105,13 +113,13 @@ const hasToolsGroup: Bool = $derived(features.shortcuts || features.settings || 
 		{#snippet child({ props })}
 			<button
 				class="inline-flex items-center justify-center rounded-full size-8 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-				aria-label={labels.userMenu}
+				aria-label={validated.labels.userMenu}
 				data-testid="header-user-trigger"
 				{...props}
 			>
 				<Avatar.Root class="size-8">
-					{#if features.avatar && userAvatar}
-						<Avatar.Image src={userAvatar} alt={userName} />
+					{#if validated.features.avatar && validated.userAvatar}
+						<Avatar.Image src={validated.userAvatar} alt={validated.userName} />
 					{/if}
 					<Avatar.Fallback class="text-xs font-medium">
 						{monogram}
@@ -124,18 +132,18 @@ const hasToolsGroup: Bool = $derived(features.shortcuts || features.settings || 
 		<DropdownMenu.Label class="p-0 font-normal -m-1">
 			<div class="flex items-center gap-2 px-3 py-2.5 pb-3 text-left text-sm bg-white/[0.06] border-b border-white/[0.06] rounded-t-lg">
 				<Avatar.Root class="size-8">
-					{#if features.avatar && userAvatar}
-						<Avatar.Image src={userAvatar} alt={userName} />
+					{#if validated.features.avatar && validated.userAvatar}
+						<Avatar.Image src={validated.userAvatar} alt={validated.userName} />
 					{/if}
 					<Avatar.Fallback class="text-xs font-medium">
 						{monogram}
 					</Avatar.Fallback>
 				</Avatar.Root>
 				<div class="grid flex-1 text-left text-sm leading-tight">
-					<span class="truncate font-medium">{userName}</span>
-					{#if userEmail}
+					<span class="truncate font-medium">{validated.userName}</span>
+					{#if validated.userEmail}
 						<span class="truncate text-xs text-muted-foreground">
-							{userEmail}
+							{validated.userEmail}
 						</span>
 					{/if}
 				</div>
@@ -145,22 +153,22 @@ const hasToolsGroup: Bool = $derived(features.shortcuts || features.settings || 
 		{#if hasAccountGroup}
 			<DropdownMenu.Separator />
 			<DropdownMenu.Group>
-				{#if features.account}
+				{#if validated.features.account}
 					<DropdownMenu.Item>
 						<UserIcon aria-hidden="true" class="mr-2 size-4" />
-						{labels.account}
+						{validated.labels.account}
 					</DropdownMenu.Item>
 				{/if}
-				{#if features.subscription}
+				{#if validated.features.subscription}
 					<DropdownMenu.Item>
 						<CreditCard aria-hidden="true" class="mr-2 size-4" />
-						{labels.subscription}
+						{validated.labels.subscription}
 					</DropdownMenu.Item>
 				{/if}
-				{#if features.notifications}
+				{#if validated.features.notifications}
 					<DropdownMenu.Item>
 						<Bell aria-hidden="true" class="mr-2 size-4" />
-						{labels.notifications}
+						{validated.labels.notifications}
 					</DropdownMenu.Item>
 				{/if}
 			</DropdownMenu.Group>
@@ -169,33 +177,33 @@ const hasToolsGroup: Bool = $derived(features.shortcuts || features.settings || 
 		{#if hasToolsGroup}
 			<DropdownMenu.Separator />
 			<DropdownMenu.Group>
-				{#if features.shortcuts}
+				{#if validated.features.shortcuts}
 					<DropdownMenu.Item>
 						<Keyboard aria-hidden="true" class="mr-2 size-4" />
-						{labels.keyboardShortcuts}
+						{validated.labels.keyboardShortcuts}
 					</DropdownMenu.Item>
 				{/if}
-				{#if features.settings}
+				{#if validated.features.settings}
 					<DropdownMenu.Item>
 						<SettingsIcon aria-hidden="true" class="mr-2 size-4" />
-						{labels.settings}
+						{validated.labels.settings}
 					</DropdownMenu.Item>
 				{/if}
-				{#if features.whatsNew}
+				{#if validated.features.whatsNew}
 					<DropdownMenu.Item>
 						<Sparkles aria-hidden="true" class="mr-2 size-4" />
-						{labels.whatsNew}
+						{validated.labels.whatsNew}
 					</DropdownMenu.Item>
 				{/if}
 			</DropdownMenu.Group>
 		{/if}
 
-		{#if features.logout}
+		{#if validated.features.logout}
 			<DropdownMenu.Separator />
 			<DropdownMenu.Group>
-				<DropdownMenu.Item variant="destructive" onclick={onLogOut}>
+				<DropdownMenu.Item variant="destructive" onclick={validated.onLogOut}>
 					<LogOut aria-hidden="true" class="mr-2 size-4" />
-					{labels.logout}
+					{validated.labels.logout}
 				</DropdownMenu.Item>
 			</DropdownMenu.Group>
 		{/if}
