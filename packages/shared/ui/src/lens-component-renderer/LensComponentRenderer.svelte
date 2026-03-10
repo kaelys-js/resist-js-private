@@ -1559,8 +1559,19 @@ function buildVariantProps(variantName: Str, option: Str, coerceHint?: Str): Rec
 	if (option === 'true' || option === 'false') {
 		coerced = option === 'true';
 	} else if (coerceHint === 'array') {
-		// Array coercion — split comma-separated option into array items
-		coerced = option.split(', ').map((s: Str): Str => s.trim());
+		// Array coercion — try JSON parse first (for complex objects from @values),
+		// then fall back to comma-separated string splitting
+		try {
+			const parsed: unknown = JSON.parse(option);
+			if (Array.isArray(parsed)) {
+				coerced = parsed;
+			} else {
+				coerced = [parsed];
+			}
+		} catch {
+			/* not JSON — use comma splitting */
+			coerced = option.split(', ').map((s: Str): Str => s.trim());
+		}
 	} else if (!Number.isNaN(Number(option)) && option !== '') {
 		coerced = Number(option);
 	}
@@ -1570,6 +1581,26 @@ function buildVariantProps(variantName: Str, option: Str, coerceHint?: Str): Rec
 		const dotIdx: Num = variantName.indexOf('.');
 		const parent: Str = variantName.slice(0, dotIdx);
 		const child: Str = variantName.slice(dotIdx + 1);
+
+		// Record-value coercion: modify the child field within each Record entry
+		if (coerceHint === 'record-value') {
+			const existing: unknown = baseProps[parent];
+			if (typeof existing === 'object' && existing !== null) {
+				// Clone the Record and update the child field in every value
+				const cloned: Record<Str, unknown> = {};
+				for (const [k, v] of Object.entries(existing as Record<Str, unknown>)) {
+					if (typeof v === 'object' && v !== null) {
+						cloned[k] = { ...(v as Record<Str, unknown>), [child]: coerced };
+					} else {
+						cloned[k] = v;
+					}
+				}
+				return { [parent]: cloned };
+			}
+			// No base Record — construct a single-entry Record with the value
+			return { [parent]: { example: { [child]: coerced } } };
+		}
+
 		const existing: unknown = baseProps[parent];
 		let parentObj: Record<Str, unknown>;
 		if (typeof existing === 'object' && existing !== null) {
