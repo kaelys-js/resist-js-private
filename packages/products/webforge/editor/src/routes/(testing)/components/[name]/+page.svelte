@@ -270,7 +270,8 @@ const allVariants: VariantKeyMeta[] = $derived.by((): VariantKeyMeta[] => {
 			merged.push(pk);
 		}
 	}
-	return merged;
+	// Filter out entries with falsy keys to prevent each_key_duplicate errors
+	return merged.filter((v: VariantKeyMeta): boolean => Boolean(v.key));
 });
 
 const hasVariants: Bool = $derived(allVariants.length > 0);
@@ -464,10 +465,10 @@ function handleSearchSelect(item: SearchItem): Void {
 					<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><ShieldAlert class="size-5" /> Error Boundary</h2>
 					<div class="space-y-4">
 						<LensSection title="Missing Required Props" description="Component rendered with no props — triggers safeParse validation and shows the error boundary fallback.">
-							<LensComponentRenderer component={PrimaryComponent} tagName={toTag(name)} componentName={name} label="" codeText={`<!-- Missing required props — validation error -->\n<${toTag(name)} />`} />
+							<LensComponentRenderer component={PrimaryComponent} tagName={toTag(name)} componentName={name} label="" silent={true} codeText={`<!-- Missing required props — validation error -->\n<${toTag(name)} />`} />
 						</LensSection>
 						<LensSection title="Invalid Props" description="Component rendered with an unknown prop key — triggers strictObject validation and shows the error boundary fallback.">
-							<LensComponentRenderer component={PrimaryComponent} props={[{ name: '__invalid__', type: 'unknown', default: "'test'", optional: false, bindable: false, description: '' }]} tagName={toTag(name)} componentName={name} label="" codeText={`<!-- Unknown prop key — strictObject rejection -->\n<${toTag(name)} __invalid__="test" />`} />
+							<LensComponentRenderer component={PrimaryComponent} props={[{ name: '__invalid__', type: 'unknown', default: "'test'", optional: false, bindable: false, description: '' }]} tagName={toTag(name)} componentName={name} label="" silent={true} codeText={`<!-- Unknown prop key — strictObject rejection -->\n<${toTag(name)} __invalid__="test" />`} />
 						</LensSection>
 						<LensSection title="Only Required Props" description="Component rendered with only required props at minimum values — shows the baseline functional state.">
 							<LensComponentRenderer component={PrimaryComponent} props={props.filter((p) => !p.optional && p.default === '')} tagName={toTag(name)} componentName={name} label="" codeText={`<!-- Only required props (minimum values) -->\n<${toTag(name)} ... />`} />

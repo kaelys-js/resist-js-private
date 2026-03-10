@@ -24,6 +24,8 @@ export const LensComponentRendererPropsSchema = v.strictObject({
 	codeText: v.optional(StrSchema),
 	/** Additional CSS classes for the root element. */
 	class: v.optional(StrSchema),
+	/** Suppress error logging for intentional boundary errors (e.g., Error Boundary demo section). */
+	silent: v.optional(v.boolean()),
 });
 /** Props for the LensComponentRenderer component. */
 export type LensComponentRendererProps = v.InferOutput<typeof LensComponentRendererPropsSchema>;
@@ -50,7 +52,6 @@ export type LensComponentRendererProps = v.InferOutput<typeof LensComponentRende
  * ```
  */
 import type { Bool, Num, Str, Void } from '@/schemas/common';
-import { log } from '@/utils/core/logger';
 import type { PropMeta, VariantMeta } from '../lens/types.js';
 import { buildBaseProps } from '../lens/extract-props.js';
 import LensError from '../lens-error/LensError.svelte';
@@ -105,6 +106,7 @@ const {
 	children,
 	codeText,
 	class: className,
+	silent = false,
 }: LensComponentRendererProps = $props();
 
 const baseProps: Record<Str, unknown> = $derived(buildBaseProps(propsMeta));
@@ -175,7 +177,7 @@ let cardContentHeights: Record<Str, Num> = $state({});
  * @returns A formatted error message string
  */
 function formatBoundaryError(error: unknown): Str {
-	log.warn(`Component preview error: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
+	if (!silent) console.warn('Component preview error:', error);
 	if (error instanceof Error) return error.message;
 	if (typeof error === 'object' && error !== null) {
 		// Cast once for property access — error is an unknown object from svelte:boundary
@@ -2635,7 +2637,7 @@ function isIconOption(option: Str): boolean {
 {#if hasVariants}
 	<!-- Variant mode: render per-option cards -->
 	<div class={cn('space-y-4', className)}>
-		{#each meta?.variants ?? [] as variantKey (variantKey.key)}
+		{#each (meta?.variants ?? []).filter((v) => v.key) as variantKey, vi (variantKey.key ?? `fallback-${vi}`)}
 			{@const variantName: Str = variantKey.key}
 			{@const options: Str[] = variantKey.options}
 			<div class="grid gap-3">

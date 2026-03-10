@@ -182,12 +182,33 @@ function explainType(type: Str): Str {
  * @returns Comma-separated accepted values, or '—' if none
  */
 function getAccepts(prop: PropMeta): Str {
-	// Primitives — same logic as humanizeValibotExpr for TypeField accepts
-	if (prop.type === 'string' || prop.type === 'Str') return 'text';
-	if (prop.type === 'number' || prop.type === 'Num') return 'number';
-	if (prop.type === 'boolean' || prop.type === 'Bool') return 'true, false';
+	// Normalize type: strip nullable/undefined suffixes and array brackets for base matching
+	const baseType: Str = prop.type
+		.replaceAll(/\s*\|\s*(null|undefined)\b/g, '')
+		.replaceAll(/^(null|undefined)\s*\|\s*/g, '')
+		.replace(/\[]$/, '')
+		.trim();
+	const isNullable: Bool = prop.type.includes('| null');
+	const isArray: Bool = prop.type.endsWith('[]');
 
-	// Inline string literal union: 'a' | 'b' | 'c'
+	// Primitives — match base type after stripping nullable/array wrappers
+	const primitiveMap: Record<Str, Str> = {
+		string: 'text',
+		Str: 'text',
+		number: 'number',
+		Num: 'number',
+		boolean: 'true, false',
+		Bool: 'true, false',
+		Snippet: 'snippet',
+		Component: 'component',
+	};
+	const primitiveAccepts: Str | undefined = primitiveMap[baseType];
+	if (primitiveAccepts) {
+		const label: Str = isArray ? `list of ${primitiveAccepts}` : primitiveAccepts;
+		return isNullable ? `${label} or empty` : label;
+	}
+
+	// Inline string literal union: 'a' | 'b' | 'c' (possibly with null/undefined)
 	if (prop.type.includes(' | ')) {
 		const options: Str[] = prop.type.split(' | ').map((o: Str): Str => o.trim());
 		const allLiterals: Bool = options.every(
@@ -199,6 +220,8 @@ function getAccepts(prop: PropMeta): Str {
 				.map((o: Str): Str => o.replaceAll(/^'|'$/g, ''))
 				.join(', ');
 		}
+		// Non-literal union with a primitive base (e.g., Str | null handled above,
+		// but mixed unions like Str | Num fall through)
 	}
 
 	// Resolved type definition: named type → 'default' | 'secondary' | ...
