@@ -495,6 +495,9 @@ importers:
       '@/schemas/common':
         specifier: workspace:*
         version: link:../schemas/common
+      '@internationalized/date':
+        specifier: ^3.11.0
+        version: 3.11.0
       '@lucide/svelte':
         specifier: ^0.561.0
         version: 0.561.0(svelte@5.53.5)
@@ -510,6 +513,9 @@ importers:
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
+      svelte-sonner:
+        specifier: ^1.1.0
+        version: 1.1.0(svelte@5.53.5)
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
@@ -519,6 +525,9 @@ importers:
       valibot:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
+      vaul-svelte:
+        specifier: 1.0.0-next.7
+        version: 1.0.0-next.7(svelte@5.53.5)
     devDependencies:
       svelte:
         specifier: ^5.53.5

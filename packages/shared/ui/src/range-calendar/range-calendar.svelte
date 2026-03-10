@@ -102,7 +102,7 @@ const monthFormat = $derived.by(() => {
 					<RangeCalendarGrid>
 						<RangeCalendarGridHead>
 							<RangeCalendarGridRow class="select-none">
-								{#each weekdays as weekday (weekday)}
+								{#each weekdays as weekday, i (i)}
 									<RangeCalendarHeadCell>
 										{weekday.slice(0, 2)}
 									</RangeCalendarHeadCell>

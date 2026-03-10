@@ -8,7 +8,7 @@ import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import type { PropMeta } from './types.js';
-import { extractProps } from './extract-props.js';
+import { extractProps, buildBaseProps } from './extract-props.js';
 
 describe('extractProps', () => {
 	it('extracts simple props with string defaults', () => {
@@ -881,5 +881,50 @@ export type DepTree = {
 		const fieldNames: string[] = (depsProp?.typeFields ?? []).map((f) => f.field);
 		expect(fieldNames).toContain('internal');
 		expect(fieldNames).toContain('external');
+	});
+
+	it('builds correct baseProps for header-user with nested object @values', () => {
+		const source: string = readFileSync(
+			resolve(__dirname, '../header-user/HeaderUser.svelte'),
+			'utf8',
+		);
+		const props: PropMeta[] = extractProps(source);
+
+		// Verify labels prop extraction
+		const labelsProp: PropMeta | undefined = props.find(
+			(p: PropMeta): boolean => p.name === 'labels',
+		);
+		expect(labelsProp).toBeDefined();
+		expect(labelsProp?.type).toBe('HeaderUserLabels');
+		expect(labelsProp?.mockValues).toBeDefined();
+		expect(labelsProp?.mockValues?.length).toBeGreaterThan(0);
+		// mockValues[0] should be the full object literal
+		expect(labelsProp?.mockValues?.[0]).toContain('userMenu');
+		// typeDefinition should NOT contain ') =>' (angle bracket bug would include onLogOut's JSDoc)
+		expect(labelsProp?.typeDefinition).toBeDefined();
+		expect(labelsProp?.typeDefinition).not.toContain(') =>');
+		// typeDefinition should be reasonable length (schema body only, not entire file)
+		expect((labelsProp?.typeDefinition ?? '').length).toBeLessThan(2000);
+
+		// Verify features prop extraction
+		const featuresProp: PropMeta | undefined = props.find(
+			(p: PropMeta): boolean => p.name === 'features',
+		);
+		expect(featuresProp).toBeDefined();
+		expect(featuresProp?.mockValues).toBeDefined();
+		expect(featuresProp?.mockValues?.length).toBeGreaterThan(0);
+
+		// Verify onLogOut
+		const onLogOutProp: PropMeta | undefined = props.find(
+			(p: PropMeta): boolean => p.name === 'onLogOut',
+		);
+		expect(onLogOutProp?.type).toContain(') =>');
+
+		// Build base props and check labels is an object (not a function)
+		const base: Record<string, unknown> = buildBaseProps(props);
+		expect(typeof base['onLogOut']).toBe('function');
+		expect(typeof base['userName']).toBe('string');
+		expect(typeof base['features']).toBe('object');
+		expect(typeof base['labels']).toBe('object');
 	});
 });

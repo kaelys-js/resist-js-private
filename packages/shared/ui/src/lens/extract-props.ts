@@ -27,6 +27,9 @@ function noop(): void {
  * @returns True if the type represents a function/callback/Snippet
  */
 function isFunctionType(type: string, typeDefinition?: string): boolean {
+	// Array-of-object types can have inner fields with function validators
+	// (e.g., v.custom<Component>(...)) — those are NOT function types themselves
+	if (type.endsWith('[]')) return false;
 	return (
 		type === 'Snippet' ||
 		type === 'Component' ||
@@ -566,8 +569,12 @@ export function buildBaseProps(propsMeta: PropMeta[]): Record<string, unknown> {
 				prop.typeDefinition,
 			);
 			if (placeholder) base[prop.name] = placeholder;
-		} else if (prop.type.includes(') =>') || prop.typeDefinition?.includes(') =>')) {
+		} else if (
+			!prop.type.endsWith('[]') &&
+			(prop.type.includes(') =>') || prop.typeDefinition?.includes(') =>'))
+		) {
 			// Function type — provide a no-op that satisfies the prop requirement
+			// Guard against array types whose inner fields have function validators
 			base[prop.name] = noop;
 		}
 	}
@@ -1577,6 +1584,62 @@ function extractInheritedTypeName(typeAnnotation: string): string {
 }
 
 /**
+ * Find the end of a statement starting at `start` using bracket depth tracking.
+ *
+ * Skips string literals, block comments, and line comments so that brackets and
+ * semicolons inside comments or strings don't affect depth.
+ *
+ * @param source - Full source text
+ * @param start - Index after the `=` in a `const x = ...` or `type x = ...`
+ * @returns Index of the terminating semicolon, or source.length
+ */
+function findStatementEnd(source: string, start: number): number {
+	let depth: number = 0;
+	let inString: string | null = null;
+
+	for (let i: number = start; i < source.length; i++) {
+		const ch: string = source[i] ?? '';
+		const next: string = source[i + 1] ?? '';
+		const prev: string = source[i - 1] ?? '';
+
+		// Skip block comments: /* ... */
+		if (!inString && ch === '/' && next === '*') {
+			const closeIdx: number = source.indexOf('*/', i + 2);
+			if (closeIdx === -1) return source.length;
+			i = closeIdx + 1; // skip past */
+			continue;
+		}
+
+		// Skip line comments: // ...
+		if (!inString && ch === '/' && next === '/') {
+			const nlIdx: number = source.indexOf('\n', i + 2);
+			if (nlIdx === -1) return source.length;
+			i = nlIdx;
+			continue;
+		}
+
+		// String tracking
+		if (!inString && (ch === '"' || ch === "'" || ch === '`')) {
+			inString = ch;
+			continue;
+		}
+		if (inString && ch === inString && prev !== '\\') {
+			inString = null;
+			continue;
+		}
+		if (inString) continue;
+
+		// Bracket depth (skip angle brackets — they break on Svelte HTML templates)
+		if (ch === '{' || ch === '(' || ch === '[') depth++;
+		else if (ch === '}' || ch === ')' || ch === ']') depth--;
+
+		if (depth === 0 && ch === ';') return i;
+	}
+
+	return source.length;
+}
+
+/**
  * Resolve the full type definition body for a given type name from the source.
  *
  * Handles three patterns:
@@ -1643,35 +1706,7 @@ function resolveTypeDefinition(typeName: string, source: string): string | undef
 		return resolveVariantValues(variantKey, source);
 	}
 
-	// Extract the RHS up to the next semicolon or unbalanced statement
-	let depth: number = 0;
-	let inString: string | null = null;
-	let end: number = afterEquals;
-
-	for (let i: number = afterEquals; i < source.length; i++) {
-		const ch: string = source[i] ?? '';
-		const prev: string = source[i - 1] ?? '';
-
-		if (!inString && (ch === '"' || ch === "'" || ch === '`')) {
-			inString = ch;
-			continue;
-		}
-		if (inString && ch === inString && prev !== '\\') {
-			inString = null;
-			continue;
-		}
-		if (inString) continue;
-
-		if (ch === '{' || ch === '<' || ch === '(' || ch === '[') depth++;
-		else if (ch === '}' || ch === '>' || ch === ')' || ch === ']') depth--;
-
-		if (depth === 0 && ch === ';') {
-			end = i;
-			break;
-		}
-		end = i + 1;
-	}
-
+	const end: number = findStatementEnd(source, afterEquals);
 	const definition: string = source.slice(afterEquals, end).trim();
 	if (!definition || definition === typeName) return undefined;
 
@@ -2107,34 +2142,7 @@ function resolveConstDefinition(constName: string, source: string): string | und
 	if (!match) return undefined;
 
 	const afterEquals: number = (match.index ?? 0) + match[0].length;
-	let depth: number = 0;
-	let inString: string | null = null;
-	let end: number = afterEquals;
-
-	for (let i: number = afterEquals; i < source.length; i++) {
-		const ch: string = source[i] ?? '';
-		const prev: string = source[i - 1] ?? '';
-
-		if (!inString && (ch === '"' || ch === "'" || ch === '`')) {
-			inString = ch;
-			continue;
-		}
-		if (inString && ch === inString && prev !== '\\') {
-			inString = null;
-			continue;
-		}
-		if (inString) continue;
-
-		if (ch === '{' || ch === '<' || ch === '(' || ch === '[') depth++;
-		else if (ch === '}' || ch === '>' || ch === ')' || ch === ']') depth--;
-
-		if (depth === 0 && ch === ';') {
-			end = i;
-			break;
-		}
-		end = i + 1;
-	}
-
+	const end: number = findStatementEnd(source, afterEquals);
 	const definition: string = source.slice(afterEquals, end).trim();
 	if (!definition) return undefined;
 
@@ -2177,34 +2185,7 @@ function resolveConstDefinitionShallow(constName: string, source: string): strin
 	if (!match) return undefined;
 
 	const afterEquals: number = (match.index ?? 0) + match[0].length;
-	let depth: number = 0;
-	let inString: string | null = null;
-	let end: number = afterEquals;
-
-	for (let i: number = afterEquals; i < source.length; i++) {
-		const ch: string = source[i] ?? '';
-		const prev: string = source[i - 1] ?? '';
-
-		if (!inString && (ch === '"' || ch === "'" || ch === '`')) {
-			inString = ch;
-			continue;
-		}
-		if (inString && ch === inString && prev !== '\\') {
-			inString = null;
-			continue;
-		}
-		if (inString) continue;
-
-		if (ch === '{' || ch === '<' || ch === '(' || ch === '[') depth++;
-		else if (ch === '}' || ch === '>' || ch === ')' || ch === ']') depth--;
-
-		if (depth === 0 && ch === ';') {
-			end = i;
-			break;
-		}
-		end = i + 1;
-	}
-
+	const end: number = findStatementEnd(source, afterEquals);
 	const definition: string = source.slice(afterEquals, end).trim();
 	if (!definition) return undefined;
 	return definition;

@@ -742,13 +742,14 @@ function dispatchNonJson(level: LogLevel, message: Str, data?: unknown): void {
  */
 export const log = {
 	/**
-	 * Print an info message to stdout. Respects log level (info).
-	 * In JSON mode, emits a structured {@link LogEntry}.
+	 * Print an info message to stdout with optional data. Respects log level (info).
+	 * In JSON mode, emits a structured {@link LogEntry} with the data payload.
 	 *
 	 * @param message - Message to print.
+	 * @param data - Optional serializable data to include.
 	 * @returns `Result<Void>` — success, or a log-level/validation error.
 	 */
-	info: (message: Str): Result<Void> => {
+	info: (message: Str, data?: JsonData): Result<Void> => {
 		const input: Result<Str> = safeParse(StrSchema, message);
 		if (!input.ok) return input;
 		const allowed: Result<Bool> = shouldLog('info');
@@ -756,10 +757,14 @@ export const log = {
 		if (allowed.data) {
 			if (!shouldSample('info')) return ok(VoidSchema, undefined);
 			if (isJsonOutput()) {
-				return emitStructured('info', input.data, 'stdout');
+				return emitStructured('info', input.data, 'stdout', data);
 			}
-			dispatchNonJson('info', input.data);
-			console.log(input.data);
+			dispatchNonJson('info', input.data, data);
+			if (data === undefined) {
+				console.log(input.data);
+			} else {
+				console.log(input.data, data);
+			}
 		}
 		return ok(VoidSchema, undefined);
 	},
@@ -821,13 +826,14 @@ export const log = {
 	},
 
 	/**
-	 * Print a warning message to stdout. Respects log level (warn).
-	 * In JSON mode, emits a structured {@link LogEntry}.
+	 * Print a warning message to stdout with optional data. Respects log level (warn).
+	 * In JSON mode, emits a structured {@link LogEntry} with the data payload.
 	 *
 	 * @param message - Message to print.
+	 * @param data - Optional serializable data to include.
 	 * @returns `Result<Void>` — success, or a log-level/validation error.
 	 */
-	warn: (message: Str): Result<Void> => {
+	warn: (message: Str, data?: JsonData): Result<Void> => {
 		const input: Result<Str> = safeParse(StrSchema, message);
 		if (!input.ok) return input;
 		const allowed: Result<Bool> = shouldLog('warn');
@@ -835,22 +841,27 @@ export const log = {
 		if (allowed.data) {
 			if (!shouldSample('warn')) return ok(VoidSchema, undefined);
 			if (isJsonOutput()) {
-				return emitStructured('warn', input.data, 'stdout');
+				return emitStructured('warn', input.data, 'stdout', data);
 			}
-			dispatchNonJson('warn', input.data);
-			console.log(input.data);
+			dispatchNonJson('warn', input.data, data);
+			if (data === undefined) {
+				console.log(input.data);
+			} else {
+				console.log(input.data, data);
+			}
 		}
 		return ok(VoidSchema, undefined);
 	},
 
 	/**
-	 * Print a success message to stdout. Respects log level (info).
-	 * In JSON mode, emits a structured {@link LogEntry}.
+	 * Print a success message to stdout with optional data. Respects log level (info).
+	 * In JSON mode, emits a structured {@link LogEntry} with the data payload.
 	 *
 	 * @param message - Message to print.
+	 * @param data - Optional serializable data to include.
 	 * @returns `Result<Void>` — success, or a log-level/validation error.
 	 */
-	success: (message: Str): Result<Void> => {
+	success: (message: Str, data?: JsonData): Result<Void> => {
 		const input: Result<Str> = safeParse(StrSchema, message);
 		if (!input.ok) return input;
 		const allowed: Result<Bool> = shouldLog('info');
@@ -858,10 +869,14 @@ export const log = {
 		if (allowed.data) {
 			if (!shouldSample('info')) return ok(VoidSchema, undefined);
 			if (isJsonOutput()) {
-				return emitStructured('info', input.data, 'stdout');
+				return emitStructured('info', input.data, 'stdout', data);
 			}
-			dispatchNonJson('info', input.data);
-			console.log(input.data);
+			dispatchNonJson('info', input.data, data);
+			if (data === undefined) {
+				console.log(input.data);
+			} else {
+				console.log(input.data, data);
+			}
 		}
 		return ok(VoidSchema, undefined);
 	},
@@ -1003,16 +1018,16 @@ export type ChildLoggerOptions = v.InferOutput<typeof ChildLoggerOptionsSchema>;
  * Go zerolog `logger.With()`, and zap `logger.With()`.
  */
 export type ChildLogger = {
-	/** Log an info message. @param message - Message text. @returns `Result<Void>` */
-	info: (message: Str) => Result<Void>;
+	/** Log an info message with optional data. @param message - Message text. @param data - Optional data. @returns `Result<Void>` */
+	info: (message: Str, data?: JsonData) => Result<Void>;
 	/** Log a debug message with optional data. @param message - Message text. @param data - Optional data. @returns `Result<Void>` */
 	debug: (message: Str, data?: JsonData) => Result<Void>;
 	/** Log an error message with optional data. @param message - Message text. @param data - Optional data. @returns `Result<Void>` */
 	error: (message: Str, data?: JsonData) => Result<Void>;
-	/** Log a warning message. @param message - Message text. @returns `Result<Void>` */
-	warn: (message: Str) => Result<Void>;
-	/** Log a success message. @param message - Message text. @returns `Result<Void>` */
-	success: (message: Str) => Result<Void>;
+	/** Log a warning message with optional data. @param message - Message text. @param data - Optional data. @returns `Result<Void>` */
+	warn: (message: Str, data?: JsonData) => Result<Void>;
+	/** Log a success message with optional data. @param message - Message text. @param data - Optional data. @returns `Result<Void>` */
+	success: (message: Str, data?: JsonData) => Result<Void>;
 	/** Log a trace message with optional data. @param message - Message text. @param data - Optional data. @returns `Result<Void>` */
 	trace: (message: Str, data?: JsonData) => Result<Void>;
 	/** Log structured JSON data. @param data - Serializable data. @param indent - Indentation. @returns `Result<Void>` */
@@ -1098,15 +1113,19 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
 	}
 
 	const childLogger: ChildLogger = {
-		info: (message: Str): Result<Void> => {
+		info: (message: Str, data?: JsonData): Result<Void> => {
 			const msgInput: Result<Str> = safeParse(StrSchema, message);
 			if (!msgInput.ok) return msgInput;
 			const allowed: Result<Bool> = shouldLogChild('info');
 			if (!allowed.ok) return allowed;
 			if (allowed.data) {
 				if (!shouldSample('info')) return ok(VoidSchema, undefined);
-				if (isJsonOutput()) return emitChildStructured('info', msgInput.data, 'stdout');
-				console.log(msgInput.data);
+				if (isJsonOutput()) return emitChildStructured('info', msgInput.data, 'stdout', data);
+				if (data === undefined) {
+					console.log(msgInput.data);
+				} else {
+					console.log(msgInput.data, data);
+				}
 			}
 			return ok(VoidSchema, undefined);
 		},
@@ -1145,28 +1164,36 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
 			return ok(VoidSchema, undefined);
 		},
 
-		warn: (message: Str): Result<Void> => {
+		warn: (message: Str, data?: JsonData): Result<Void> => {
 			const msgInput: Result<Str> = safeParse(StrSchema, message);
 			if (!msgInput.ok) return msgInput;
 			const allowed: Result<Bool> = shouldLogChild('warn');
 			if (!allowed.ok) return allowed;
 			if (allowed.data) {
 				if (!shouldSample('warn')) return ok(VoidSchema, undefined);
-				if (isJsonOutput()) return emitChildStructured('warn', msgInput.data, 'stdout');
-				console.log(msgInput.data);
+				if (isJsonOutput()) return emitChildStructured('warn', msgInput.data, 'stdout', data);
+				if (data === undefined) {
+					console.log(msgInput.data);
+				} else {
+					console.log(msgInput.data, data);
+				}
 			}
 			return ok(VoidSchema, undefined);
 		},
 
-		success: (message: Str): Result<Void> => {
+		success: (message: Str, data?: JsonData): Result<Void> => {
 			const msgInput: Result<Str> = safeParse(StrSchema, message);
 			if (!msgInput.ok) return msgInput;
 			const allowed: Result<Bool> = shouldLogChild('info');
 			if (!allowed.ok) return allowed;
 			if (allowed.data) {
 				if (!shouldSample('info')) return ok(VoidSchema, undefined);
-				if (isJsonOutput()) return emitChildStructured('info', msgInput.data, 'stdout');
-				console.log(msgInput.data);
+				if (isJsonOutput()) return emitChildStructured('info', msgInput.data, 'stdout', data);
+				if (data === undefined) {
+					console.log(msgInput.data);
+				} else {
+					console.log(msgInput.data, data);
+				}
 			}
 			return ok(VoidSchema, undefined);
 		},

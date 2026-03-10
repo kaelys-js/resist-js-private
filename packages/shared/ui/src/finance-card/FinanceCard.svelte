@@ -15,7 +15,7 @@ import { StrSchema } from '@/schemas/common';
 export const FinanceCardPropsSchema = v.strictObject({
 	/** Muted description text above the value. @values Revenue, Expenses, Net Income */
 	label: StrSchema,
-	/** Large bold display value. @values $1,234.56, $5,678.90, -$900.00 */
+	/** Large bold display value. @values $1234.56, $5678.90, -$900.00 */
 	value: StrSchema,
 	/** Optional footer text below the card header. @values +12.5% from last month, -3.2% from last month, No change */
 	subtitle: v.optional(StrSchema),
