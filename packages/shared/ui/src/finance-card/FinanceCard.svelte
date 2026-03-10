@@ -1,5 +1,6 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
 
 /**
  * Finance stat card following the shadcn-svelte dashboard-01 `section-cards` pattern.
@@ -13,15 +14,15 @@ import * as v from 'valibot';
  */
 export const FinanceCardPropsSchema = v.strictObject({
 	/** Muted description text above the value. @values Revenue, Expenses, Net Income */
-	label: v.string(),
+	label: StrSchema,
 	/** Large bold display value. @values $1,234.56, $5,678.90, -$900.00 */
-	value: v.string(),
+	value: StrSchema,
 	/** Optional footer text below the card header. @values +12.5% from last month, -3.2% from last month, No change */
-	subtitle: v.optional(v.string()),
+	subtitle: v.optional(StrSchema),
 	/** Optional trend badge direction. */
 	trend: v.optional(v.picklist(['up', 'down', 'neutral'])),
 	/** Optional Tailwind classes for the value. @values text-destructive, text-green-500, text-primary */
-	valueClass: v.optional(v.string()),
+	valueClass: v.optional(StrSchema),
 });
 /** Props for the FinanceCard component. */
 export type FinanceCardProps = v.InferOutput<typeof FinanceCardPropsSchema>;
@@ -33,11 +34,14 @@ export type FinanceCardProps = v.InferOutput<typeof FinanceCardPropsSchema>;
  *
  * Composes shadcn Card primitives in the dashboard-01 `section-cards` pattern.
  */
+import type { Str } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import { Badge } from '../badge/index.js';
 import * as Card from '../card/index.js';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const rawProps = $props();
+const allProps = $props();
+const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
 const validated = safeParse(FinanceCardPropsSchema, rawProps);
 if (!validated.ok) throw validated.error;
 const { label, value, subtitle, trend, valueClass }: FinanceCardProps = validated.data;

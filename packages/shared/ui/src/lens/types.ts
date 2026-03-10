@@ -5,6 +5,7 @@
  * files at runtime — props, TV variants, and example definitions.
  */
 import * as v from 'valibot';
+import { StrSchema, BoolSchema } from '@/schemas/common';
 
 /**
  * A single field within a resolved type definition, for display in tooltips.
@@ -14,11 +15,15 @@ import * as v from 'valibot';
  */
 export const TypeFieldSchema = v.strictObject({
 	/** The field name (e.g., `category`, `tags`). */
-	field: v.string(),
+	field: StrSchema,
+	/** Resolved type string for the field (e.g., `Str`, `Bool`, `'a' | 'b'`). */
+	type: StrSchema,
+	/** Whether the field is required (not wrapped in `v.optional()`). */
+	required: BoolSchema,
 	/** Human-readable description of accepted values (e.g., "text", "display, form, layout, ..."). */
-	accepts: v.string(),
+	accepts: StrSchema,
 	/** JSDoc description from the schema field comment. */
-	description: v.string(),
+	description: StrSchema,
 });
 export type TypeField = v.InferOutput<typeof TypeFieldSchema>;
 
@@ -38,23 +43,23 @@ export type TypeField = v.InferOutput<typeof TypeFieldSchema>;
  */
 export const PropMetaSchema = v.strictObject({
 	/** The prop name as it appears in the destructuring (e.g., `variant`, `size`). */
-	name: v.string(),
+	name: StrSchema,
 	/** The TypeScript type annotation or inferred type (e.g., `Str`, `boolean`). */
-	type: v.string(),
+	type: StrSchema,
 	/** The default value as a source string, or empty if no default. */
-	default: v.string(),
+	default: StrSchema,
 	/** JSDoc description from the comment above the prop, or empty. */
-	description: v.string(),
+	description: StrSchema,
 	/** Whether the prop uses `$bindable()`. */
-	bindable: v.boolean(),
+	bindable: BoolSchema,
 	/** Full resolved type definition body, if available (e.g. the actual union values). */
-	typeDefinition: v.optional(v.string()),
+	typeDefinition: v.optional(StrSchema),
 	/** Structured type fields for tooltip display, if the type resolves to an object schema. */
 	typeFields: v.optional(v.array(TypeFieldSchema)),
 	/** Explicit mock values from `@values` JSDoc tag for variant generation. */
-	mockValues: v.optional(v.array(v.string())),
+	mockValues: v.optional(v.array(StrSchema)),
 	/** Whether the prop is optional (from `v.optional()` or `?:` in type). */
-	optional: v.optional(v.boolean()),
+	optional: v.optional(BoolSchema),
 });
 export type PropMeta = v.InferOutput<typeof PropMetaSchema>;
 
@@ -72,11 +77,11 @@ export type PropMeta = v.InferOutput<typeof PropMetaSchema>;
  */
 export const VariantKeyMetaSchema = v.strictObject({
 	/** The variant key name (e.g., `variant`, `size`). */
-	key: v.string(),
+	key: StrSchema,
 	/** All available option values for this variant key. */
-	options: v.array(v.string()),
+	options: v.array(StrSchema),
 	/** The default value from `defaultVariants`, or empty. */
-	default: v.string(),
+	default: StrSchema,
 });
 export type VariantKeyMeta = v.InferOutput<typeof VariantKeyMetaSchema>;
 
@@ -103,11 +108,11 @@ export type VariantMeta = v.InferOutput<typeof VariantMetaSchema>;
  */
 export const LensExampleSchema = v.strictObject({
 	/** Filename stem matching `examples/<name>.svelte` (e.g., `basic`, `with-form`). */
-	name: v.string(),
+	name: StrSchema,
 	/** Human-readable title for the example section. */
-	title: v.string(),
+	title: StrSchema,
 	/** Optional description shown below the title. */
-	description: v.optional(v.string(), ''),
+	description: v.optional(StrSchema, ''),
 });
 export type LensExample = v.InferOutput<typeof LensExampleSchema>;
 
@@ -144,9 +149,9 @@ export const LensMetaSchema = v.strictObject({
 	/** Sidebar grouping category. */
 	category: LensCategorySchema,
 	/** Freeform tags for search and badge display (at least one required). */
-	tags: v.pipe(v.array(v.string()), v.minLength(1)),
+	tags: v.pipe(v.array(StrSchema), v.minLength(1)),
 	/** Short component description for search and page header. */
-	description: v.string(),
+	description: StrSchema,
 });
 export type LensMeta = v.InferOutput<typeof LensMetaSchema>;
 
@@ -166,10 +171,10 @@ export type LensMeta = v.InferOutput<typeof LensMetaSchema>;
  */
 export const CategoryGroupSchema = v.strictObject({
 	/** Category key matching LensCategory values. */
-	name: v.string(),
+	name: StrSchema,
 	/** Title-cased display label. */
-	label: v.string(),
+	label: StrSchema,
 	/** Sorted list of component directory names in this category. */
-	components: v.array(v.string()),
+	components: v.array(StrSchema),
 });
 export type CategoryGroup = v.InferOutput<typeof CategoryGroupSchema>;

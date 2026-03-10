@@ -1,14 +1,15 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema, BoolSchema } from '@/schemas/common';
 import type { Snippet } from 'svelte';
 
 export const LensPortalScopePropsSchema = v.strictObject({
 	/** Per-card color mode. @values auto, light, dark */
 	mode: v.picklist(['auto', 'light', 'dark']),
 	/** Per-card theme id (empty string for default). @values midnight, ocean, forest */
-	theme: v.string(),
+	theme: StrSchema,
 	/** Whether the page-level dark mode is active (for auto mode mirroring). */
-	pageIsDark: v.boolean(),
+	pageIsDark: BoolSchema,
 	/** Content to render inside the scoped portal context. */
 	children: v.custom<Snippet>((val) => typeof val === 'function'),
 });
@@ -24,12 +25,14 @@ export type LensPortalScopeProps = v.InferOutput<typeof LensPortalScopePropsSche
  * class and `data-theme` attribute, then wraps children in `<BitsConfig>`
  * to route all portals there instead of bare `document.body`.
  */
-import type { Void } from '@/schemas/common';
+import type { Str, Void } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import { BitsConfig } from 'bits-ui';
 import { cn } from '../utils.js';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const rawProps = $props();
+const allProps = $props();
+const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
 const validated = safeParse(LensPortalScopePropsSchema, rawProps);
 if (!validated.ok) throw validated.error;
 const { mode, theme, pageIsDark, children }: LensPortalScopeProps = validated.data;

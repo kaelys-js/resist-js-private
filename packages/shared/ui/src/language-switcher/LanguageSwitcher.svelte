@@ -1,15 +1,15 @@
 <script module lang="ts">
 import * as v from 'valibot';
-import type { Str } from '@/schemas/common';
+import { StrSchema, type Str } from '@/schemas/common';
 
 /** Schema for a single language option with endonym/exonym display names. */
 export const LanguageOptionSchema = v.strictObject({
 	/** BCP-47 locale code (e.g. "en", "ja"). @values en, ja, de, fr, es, ko, zh */
-	code: v.string(),
+	code: StrSchema,
 	/** Native name of the language (e.g. "日本語"). @values English, 日本語, Deutsch, Français */
-	endonym: v.string(),
+	endonym: StrSchema,
 	/** Name of the language in the current locale (e.g. "Japanese"). @values English, Japanese, German, French */
-	exonym: v.string(),
+	exonym: StrSchema,
 });
 /** A single language option. */
 export type LanguageOption = v.InferOutput<typeof LanguageOptionSchema>;
@@ -17,15 +17,15 @@ export type LanguageOption = v.InferOutput<typeof LanguageOptionSchema>;
 /** Schema for localized UI labels in the LanguageSwitcher. */
 export const LanguageSwitcherLabelsSchema = v.strictObject({
 	/** Sub-menu trigger label (e.g. "Language"). @values Language, Locale, Display Language */
-	language: v.string(),
+	language: StrSchema,
 	/** Search input placeholder (e.g. "Search languages…"). @values Search languages…, Find a language…, Filter languages */
-	searchLanguages: v.string(),
+	searchLanguages: StrSchema,
 	/** Clear search button aria-label (e.g. "Clear search"). @values Clear search, Reset search, Clear */
-	clearSearch: v.string(),
+	clearSearch: StrSchema,
 	/** Empty state heading (e.g. "No languages found"). @values No languages found, No results, No matching languages */
-	noLanguagesFound: v.string(),
+	noLanguagesFound: StrSchema,
 	/** Empty state hint (e.g. "Try a different search term"). @values Try a different search term, Adjust your search, Clear the filter */
-	noResultsHint: v.string(),
+	noResultsHint: StrSchema,
 });
 /** Localized UI labels for the LanguageSwitcher. */
 export type LanguageSwitcherLabels = v.InferOutput<typeof LanguageSwitcherLabelsSchema>;
@@ -33,7 +33,7 @@ export type LanguageSwitcherLabels = v.InferOutput<typeof LanguageSwitcherLabels
 /** Schema for the LanguageSwitcher component props. */
 export const LanguageSwitcherPropsSchema = v.strictObject({
 	/** Current active locale code. @values en, ja, de, fr, es, ko, zh */
-	locale: v.string(),
+	locale: StrSchema,
 	/** Callback to switch locale — wrapper handles cookie/document side effects. */
 	switchLanguage: v.custom<(code: Str) => void>((val: unknown): boolean => typeof val === 'function'),
 	/** Available language options with pre-resolved display names. */

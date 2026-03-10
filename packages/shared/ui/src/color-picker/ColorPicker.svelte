@@ -1,17 +1,17 @@
 <script module lang="ts">
 import * as v from 'valibot';
-import type { Str } from '@/schemas/common';
+import { StrSchema, type Str } from '@/schemas/common';
 
 /** Schema for the ColorPicker component props. */
 export const ColorPickerPropsSchema = v.strictObject({
 	/** Current hex color value (e.g. '#ff0000'). @values #000000, #ffffff, #ff0000, #00ff00, #0000ff */
-	value: v.optional(v.string()),
+	value: v.optional(StrSchema),
 	/** Callback when color changes. */
 	onValueChange: v.optional(v.custom<(value: Str) => void>((val: unknown): boolean => typeof val === 'function')),
 	/** Placeholder text for the hex input. @values #000000, #ffffff, #ff0000 */
-	placeholder: v.optional(v.string()),
+	placeholder: v.optional(StrSchema),
 	/** Additional CSS classes for the root element. */
-	class: v.optional(v.string()),
+	class: v.optional(StrSchema),
 });
 /** Props for the ColorPicker component. */
 export type ColorPickerProps = v.InferOutput<typeof ColorPickerPropsSchema>;

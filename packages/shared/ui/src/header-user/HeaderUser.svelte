@@ -1,24 +1,25 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema, BoolSchema } from '@/schemas/common';
 
 /** Schema for feature flags controlling which menu items are visible. */
 export const HeaderUserFeaturesSchema = v.strictObject({
 	/** Show avatar image (vs monogram-only). */
-	avatar: v.boolean(),
+	avatar: BoolSchema,
 	/** Show "Account" menu item. */
-	account: v.boolean(),
+	account: BoolSchema,
 	/** Show "Subscription" menu item. */
-	subscription: v.boolean(),
+	subscription: BoolSchema,
 	/** Show "Notifications" menu item. */
-	notifications: v.boolean(),
+	notifications: BoolSchema,
 	/** Show "Keyboard Shortcuts" menu item. */
-	shortcuts: v.boolean(),
+	shortcuts: BoolSchema,
 	/** Show "Settings" menu item. */
-	settings: v.boolean(),
+	settings: BoolSchema,
 	/** Show "What's New" menu item. */
-	whatsNew: v.boolean(),
+	whatsNew: BoolSchema,
 	/** Show "Log Out" menu item. */
-	logout: v.boolean(),
+	logout: BoolSchema,
 });
 /** Feature flags controlling which menu items are visible. */
 export type HeaderUserFeatures = v.InferOutput<typeof HeaderUserFeaturesSchema>;
@@ -26,21 +27,21 @@ export type HeaderUserFeatures = v.InferOutput<typeof HeaderUserFeaturesSchema>;
 /** Schema for localized UI labels in the HeaderUser component. */
 export const HeaderUserLabelsSchema = v.strictObject({
 	/** Trigger button aria-label (e.g. "User menu"). @values User menu, Open user menu, Account menu */
-	userMenu: v.string(),
+	userMenu: StrSchema,
 	/** "Account" menu item label. @values Account, My Account, Profile */
-	account: v.string(),
+	account: StrSchema,
 	/** "Subscription" menu item label. @values Subscription, Billing, Plan */
-	subscription: v.string(),
+	subscription: StrSchema,
 	/** "Notifications" menu item label. @values Notifications, Alerts, Updates */
-	notifications: v.string(),
+	notifications: StrSchema,
 	/** "Keyboard Shortcuts" menu item label. @values Keyboard Shortcuts, Shortcuts, Hotkeys */
-	keyboardShortcuts: v.string(),
+	keyboardShortcuts: StrSchema,
 	/** "Settings" menu item label. @values Settings, Preferences, Options */
-	settings: v.string(),
+	settings: StrSchema,
 	/** "What's New" menu item label. @values What's New, Changelog, Updates */
-	whatsNew: v.string(),
+	whatsNew: StrSchema,
 	/** "Log Out" menu item label. @values Log Out, Sign Out, Logout */
-	logout: v.string(),
+	logout: StrSchema,
 });
 /** Localized UI labels for the HeaderUser component. */
 export type HeaderUserLabels = v.InferOutput<typeof HeaderUserLabelsSchema>;
@@ -48,11 +49,11 @@ export type HeaderUserLabels = v.InferOutput<typeof HeaderUserLabelsSchema>;
 /** Schema for the HeaderUser component props. */
 export const HeaderUserPropsSchema = v.strictObject({
 	/** User display name. @values John Doe, Jane Smith, Demo User */
-	userName: v.string(),
+	userName: StrSchema,
 	/** Optional user email. @values john@example.com, jane@example.com, demo@example.com */
-	userEmail: v.optional(v.string()),
+	userEmail: v.optional(StrSchema),
 	/** Optional avatar image URL. @values https://example.com/avatar.png, /avatars/user.jpg */
-	userAvatar: v.optional(v.string()),
+	userAvatar: v.optional(StrSchema),
 	/** Callback when "Log Out" is clicked. */
 	onLogOut: v.custom<() => void>((val: unknown): boolean => typeof val === 'function'),
 	/** Feature flags controlling menu item visibility. */

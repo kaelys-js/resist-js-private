@@ -1,5 +1,6 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema, BoolSchema } from '@/schemas/common';
 import type { Snippet } from 'svelte';
 
 /**
@@ -9,13 +10,13 @@ import type { Snippet } from 'svelte';
  */
 export const SiteHeaderPropsSchema = v.strictObject({
 	/** Whether to show the sidebar toggle button. */
-	showSidebarToggle: v.boolean(),
+	showSidebarToggle: BoolSchema,
 	/** Sidebar toggle aria-label. @values Toggle Sidebar, Show/Hide Sidebar, Sidebar */
-	sidebarToggleLabel: v.string(),
+	sidebarToggleLabel: StrSchema,
 	/** Sidebar toggle keyboard shortcut display string. @values ⌘B, Ctrl+B, ⌘\\ */
-	sidebarToggleShortcut: v.string(),
+	sidebarToggleShortcut: StrSchema,
 	/** Whether to show the breadcrumb bar. */
-	showBreadcrumb: v.boolean(),
+	showBreadcrumb: BoolSchema,
 	/** Product-specific breadcrumb list children. */
 	breadcrumbs: v.custom<Snippet>((val: unknown): boolean => typeof val === 'function'),
 	/** Right-side action controls (HeaderUser, ModeToggle, etc.). */
@@ -29,11 +30,14 @@ export type SiteHeaderProps = v.InferOutput<typeof SiteHeaderPropsSchema>;
 /**
  * Top header bar with optional sidebar toggle, breadcrumb navigation, and right-side action slots.
  */
+import type { Str } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import * as Breadcrumb from '../breadcrumb/index.js';
 import SidebarToggle from '../sidebar-toggle/SidebarToggle.svelte';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const rawProps = $props();
+const allProps = $props();
+const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
 const validated = safeParse(SiteHeaderPropsSchema, rawProps);
 if (!validated.ok) throw validated.error;
 let {

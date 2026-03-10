@@ -1,15 +1,15 @@
 <script module lang="ts">
 import * as v from 'valibot';
-import type { Str } from '@/schemas/common';
+import { StrSchema, type Str } from '@/schemas/common';
 
 /** Schema for a single theme option with color preview dots. */
 export const ThemeOptionSchema = v.strictObject({
 	/** Theme identifier (empty string for default). @values default, ocean, forest, sunset */
-	id: v.string(),
+	id: StrSchema,
 	/** Localized display label. @values Default, Ocean, Forest, Sunset */
-	label: v.string(),
+	label: StrSchema,
 	/** Color dots: [primary, accent/secondary, sidebar, sidebar-primary]. */
-	dots: v.pipe(v.array(v.string()), v.length(4)),
+	dots: v.pipe(v.array(StrSchema), v.length(4)),
 });
 /** A single theme option. */
 export type ThemeOption = v.InferOutput<typeof ThemeOptionSchema>;
@@ -17,15 +17,15 @@ export type ThemeOption = v.InferOutput<typeof ThemeOptionSchema>;
 /** Schema for localized UI labels in the ThemeSwitcher. */
 export const ThemeSwitcherLabelsSchema = v.strictObject({
 	/** Sub-menu trigger label (e.g. "Theme"). @values Theme, Color Theme, Palette */
-	theme: v.string(),
+	theme: StrSchema,
 	/** Search input placeholder (e.g. "Search themes…"). @values Search themes…, Find a theme…, Filter themes */
-	searchThemes: v.string(),
+	searchThemes: StrSchema,
 	/** Clear search button aria-label (e.g. "Clear search"). @values Clear search, Reset search, Clear */
-	clearSearch: v.string(),
+	clearSearch: StrSchema,
 	/** Empty state heading (e.g. "No themes found"). @values No themes found, No results, No matching themes */
-	noThemesFound: v.string(),
+	noThemesFound: StrSchema,
 	/** Empty state hint (e.g. "Try a different search term"). @values Try a different search term, Adjust your search, Clear the filter */
-	noResultsHint: v.string(),
+	noResultsHint: StrSchema,
 });
 /** Localized UI labels for the ThemeSwitcher. */
 export type ThemeSwitcherLabels = v.InferOutput<typeof ThemeSwitcherLabelsSchema>;
@@ -33,7 +33,7 @@ export type ThemeSwitcherLabels = v.InferOutput<typeof ThemeSwitcherLabelsSchema
 /** Schema for the ThemeSwitcher component props. */
 export const ThemeSwitcherPropsSchema = v.strictObject({
 	/** Current active theme id. @values default, ocean, forest, sunset */
-	theme: v.string(),
+	theme: StrSchema,
 	/** Callback to change the theme. */
 	setTheme: v.custom<(id: Str) => void>((val: unknown): boolean => typeof val === 'function'),
 	/** Available theme options with pre-resolved locale labels. */

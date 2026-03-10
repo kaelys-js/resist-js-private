@@ -1,16 +1,17 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
 import type { Snippet } from 'svelte';
 
 export const LensErrorPropsSchema = v.strictObject({
 	/** Primary error message. @values Load failed, Invalid metadata, Render error */
-	title: v.string(),
+	title: StrSchema,
 	/** Secondary detail text below the title. @values Check the component source file., Schema validation returned errors. */
-	description: v.optional(v.string()),
+	description: v.optional(StrSchema),
 	/** Optional icon snippet — defaults to CircleAlert. */
 	icon: v.optional(v.custom<Snippet>((val) => typeof val === 'function')),
 	/** Additional CSS classes for the root element. */
-	class: v.optional(v.string()),
+	class: v.optional(StrSchema),
 });
 export type LensErrorProps = v.InferOutput<typeof LensErrorPropsSchema>;
 </script>
@@ -23,11 +24,14 @@ export type LensErrorProps = v.InferOutput<typeof LensErrorPropsSchema>;
  * optional description. Used for schema validation failures, load
  * errors, and component render crashes.
  */
+import type { Str } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import { cn } from '../utils.js';
 import CircleAlert from '@lucide/svelte/icons/circle-alert';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const rawProps = $props();
+const allProps = $props();
+const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
 const validated = safeParse(LensErrorPropsSchema, rawProps);
 if (!validated.ok) throw validated.error;
 const { title, description, icon, class: className }: LensErrorProps = validated.data;

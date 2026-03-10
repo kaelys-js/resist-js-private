@@ -1,18 +1,19 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
 import type { Snippet } from 'svelte';
 
 export const LensEmptyPropsSchema = v.strictObject({
 	/** Primary message text. @values No variants found, No examples yet, Component not found */
-	title: v.string(),
+	title: StrSchema,
 	/** Secondary description text below the title. @values This component has no renderable variants., Add examples to see them here. */
-	description: v.optional(v.string()),
+	description: v.optional(StrSchema),
 	/** Optional icon snippet — defaults to PackageOpen. */
 	icon: v.optional(v.custom<Snippet>((val) => typeof val === 'function')),
 	/** Visual variant. @values default, destructive */
 	variant: v.optional(v.picklist(['default', 'destructive'])),
 	/** Additional CSS classes for the root element. */
-	class: v.optional(v.string()),
+	class: v.optional(StrSchema),
 });
 export type LensEmptyProps = v.InferOutput<typeof LensEmptyPropsSchema>;
 </script>
@@ -24,11 +25,14 @@ export type LensEmptyProps = v.InferOutput<typeof LensEmptyPropsSchema>;
  * Renders a styled dashed-border card with optional icon, title, and
  * description. Supports a `destructive` variant for error states.
  */
+import type { Str } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import { cn } from '../utils.js';
 import PackageOpen from '@lucide/svelte/icons/package-open';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const rawProps = $props();
+const allProps = $props();
+const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
 const validated = safeParse(LensEmptyPropsSchema, rawProps);
 if (!validated.ok) throw validated.error;
 const { title, description, icon, variant = 'default', class: className }: LensEmptyProps = validated.data;
