@@ -777,13 +777,17 @@ function codeSnippet(variantKey: Str, option: Str): Str {
  *
  * @param variantName - The variant key (may contain `.`)
  * @param option - The option value string
+ * @param coerceHint - Optional coercion hint ('array' splits comma-separated values into arrays)
  * @returns Props record to spread onto the component
  */
-function buildVariantProps(variantName: Str, option: Str): Record<Str, unknown> {
-	// Coerce option to correct type
+function buildVariantProps(variantName: Str, option: Str, coerceHint?: Str): Record<Str, unknown> {
+	// Coerce option string to correct type
 	let coerced: unknown = option;
 	if (option === 'true' || option === 'false') {
 		coerced = option === 'true';
+	} else if (coerceHint === 'array') {
+		// Array coercion — split comma-separated option into array items
+		coerced = option.split(', ').map((s: Str): Str => s.trim());
 	} else if (!Number.isNaN(Number(option)) && option !== '') {
 		coerced = Number(option);
 	}
@@ -1305,8 +1309,8 @@ function isIconOption(option: Str): boolean {
 			{@const variantName: Str = variantKey.key}
 			{@const options: Str[] = variantKey.options}
 			<div class="grid gap-3">
-				{#each options as option (option)}
-					{@const variantProps: Record<Str, unknown> = buildVariantProps(variantName, option)}
+				{#each options as option, oi (oi)}
+					{@const variantProps: Record<Str, unknown> = buildVariantProps(variantName, option, variantKey.coerce)}
 					{@const cardKey: Str = `${variantName}:${option}`}
 					{@const snippet: Str = codeSnippet(variantName, option)}
 					<svelte:boundary>

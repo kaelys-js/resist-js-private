@@ -119,10 +119,10 @@ function handleSelect(item: SearchItem): void {
 			<Command.Input placeholder={validated.placeholder ?? 'Search...'} bind:value={searchValue} />
 			<Command.List>
 				<Command.Empty>{validated.emptyText ?? 'No results.'}</Command.Empty>
-				{#each groupedItems as group (group.name)}
+				{#each groupedItems as group, gi (gi)}
 					{#if group.name}
 						<Command.Group heading={group.name}>
-							{#each group.items as item (item.value)}
+							{#each group.items as item, ii (item.value ?? ii)}
 								{#if item.href}
 									<Command.LinkItem
 										href={item.href}
@@ -144,7 +144,7 @@ function handleSelect(item: SearchItem): void {
 							{/each}
 						</Command.Group>
 					{:else}
-						{#each group.items as item (item.value)}
+						{#each group.items as item, ii (item.value ?? ii)}
 							{#if item.href}
 								<Command.LinkItem
 									href={item.href}

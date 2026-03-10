@@ -153,10 +153,10 @@ function handleSelect(item: SearchItem): Void {
 								<Command.Input placeholder="Search props, variants..." bind:value={searchValue} />
 								<Command.List>
 									<Command.Empty>No matches.</Command.Empty>
-									{#each groupedItems as group (group.name)}
+									{#each groupedItems as group, gi (gi)}
 										{#if group.name}
 											<Command.Group heading={group.name}>
-												{#each group.items as item (item.value)}
+												{#each group.items as item, ii (item.value ?? ii)}
 													<Command.Item
 														value={item.value}
 														keywords={item.keywords}
@@ -167,7 +167,7 @@ function handleSelect(item: SearchItem): Void {
 												{/each}
 											</Command.Group>
 										{:else}
-											{#each group.items as item (item.value)}
+											{#each group.items as item, ii (item.value ?? ii)}
 												<Command.Item
 													value={item.value}
 													keywords={item.keywords}
@@ -243,7 +243,7 @@ function handleSelect(item: SearchItem): Void {
 		{#if meta}
 			<div class="mt-2 flex flex-wrap items-center gap-1.5">
 				<Badge variant="secondary" class="text-xs capitalize">{meta.category}</Badge>
-				{#each meta.tags as tag (tag)}
+				{#each meta.tags as tag, i (i)}
 					<Badge variant="outline" class="text-xs">{tag}</Badge>
 				{/each}
 			</div>
