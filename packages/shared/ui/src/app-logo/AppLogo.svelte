@@ -1,3 +1,18 @@
+<script module lang="ts">
+import * as v from 'valibot';
+import { StrSchema, NumSchema } from '@/schemas/common';
+
+/** Schema for the AppLogo component props. */
+export const AppLogoPropsSchema = v.strictObject({
+	/** Pixel dimensions (width and height) of the logo image. @values 16, 24, 32, 48 */
+	size: v.optional(NumSchema),
+	/** Additional CSS classes for the root element. */
+	class: v.optional(StrSchema),
+});
+/** Props for the AppLogo component. */
+export type AppLogoProps = v.InferOutput<typeof AppLogoPropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Renders the application brand logo from favicon.svg with an animated entrance.
@@ -5,13 +20,20 @@
  * Plays a fade-in, grow, and sparkle animation on mount. Respects prefers-reduced-motion.
  */
 import type { Num, Str } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-let {
-	/** Pixel dimensions (width and height) of the logo image. @values 16, 24, 32, 48 */
-	size = 24,
-	/** Additional CSS classes for the root element. */
-	class: className = '',
-}: { size?: Num; class?: Str } = $props();
+const allProps: AppLogoProps = $props();
+const validated: AppLogoProps = $derived.by(() => {
+	const rawProps: AppLogoProps = stripSvelteProps(allProps);
+	const result = safeParse(AppLogoPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as AppLogoProps;
+});
+
+const size: Num = $derived(validated.size ?? 24);
+const className: Str = $derived(validated.class ?? '');
 </script>
 
 <!--

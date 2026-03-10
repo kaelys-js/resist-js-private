@@ -50,6 +50,7 @@ export type LensComponentRendererProps = v.InferOutput<typeof LensComponentRende
  * ```
  */
 import type { Bool, Num, Str, Void } from '@/schemas/common';
+import { log } from '@/utils/core/logger';
 import type { PropMeta, VariantMeta } from '../lens/types.js';
 import { buildBaseProps } from '../lens/extract-props.js';
 import LensError from '../lens-error/LensError.svelte';
@@ -133,13 +134,15 @@ let cardThemes: Record<Str, Str> = $state({});
 let cardContentHeights: Record<Str, Num> = $state({});
 
 /**
- * Extract a human-readable message from a caught error.
+ * Extract a human-readable message from a caught error and log it.
  * Handles Error instances, AppError objects (with .message + .validation), and unknown values.
+ * Logs via the shared logger so errors are visible without a full reporting pipeline.
  *
  * @param error - The caught error value
  * @returns A formatted error message string
  */
 function formatBoundaryError(error: unknown): Str {
+	log.warn(`Component preview error: ${error instanceof Error ? error.message : String(error)}`);
 	if (error instanceof Error) return error.message;
 	if (typeof error === 'object' && error !== null) {
 		// Cast once for property access — error is an unknown object from svelte:boundary

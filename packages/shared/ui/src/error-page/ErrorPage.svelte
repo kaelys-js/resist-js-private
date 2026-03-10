@@ -25,7 +25,7 @@ export type ErrorPageLabels = v.InferOutput<typeof ErrorPageLabelsSchema>;
 /** Schema for the ErrorPage component props. */
 export const ErrorPagePropsSchema = v.strictObject({
 	/** HTTP status code. @values 400, 403, 404, 500 */
-	status: NumSchema,
+	status: v.pipe(NumSchema, v.integer()),
 	/** Error message. @values Not Found, Forbidden, Internal Server Error */
 	message: StrSchema,
 	/** Optional error reference ID for user support. @values err-abc-123, err-def-456 */

@@ -5,7 +5,7 @@ import { StrSchema, type Str } from '@/schemas/common';
 /** Schema for a single language option with endonym/exonym display names. */
 export const LanguageOptionSchema = v.strictObject({
 	/** BCP-47 locale code (e.g. "en", "ja"). @values en, ja, de, fr, es, ko, zh */
-	code: StrSchema,
+	code: v.pipe(StrSchema, v.minLength(2), v.maxLength(5)),
 	/** Native name of the language (e.g. "日本語"). @values English, 日本語, Deutsch, Français */
 	endonym: StrSchema,
 	/** Name of the language in the current locale (e.g. "Japanese"). @values English, Japanese, German, French */

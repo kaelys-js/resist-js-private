@@ -53,6 +53,7 @@ import TableProperties from '@lucide/svelte/icons/table-properties';
 import Layers from '@lucide/svelte/icons/layers';
 import BookOpen from '@lucide/svelte/icons/book-open';
 import FileCode from '@lucide/svelte/icons/file-code';
+import ShieldAlert from '@lucide/svelte/icons/shield-alert';
 
 const allProps: LensHeaderProps = $props();
 const validated: LensHeaderProps = $derived.by(() => {
@@ -230,6 +231,10 @@ function handleSelect(item: SearchItem): Void {
 						<DropdownMenu.Item onclick={() => scrollTo('default')}>
 							<ComponentIcon class="mr-2 size-4" />
 							Go to Default
+						</DropdownMenu.Item>
+						<DropdownMenu.Item onclick={() => scrollTo('error-boundary')}>
+							<ShieldAlert class="mr-2 size-4" />
+							Go to Error Boundary
 						</DropdownMenu.Item>
 						<DropdownMenu.Item onclick={() => scrollTo('variants')}>
 							<Layers class="mr-2 size-4" />
