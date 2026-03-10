@@ -33,10 +33,12 @@ import { cn } from '../utils.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(CodeBlockPropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-const { code, lang = 'svelte', class: className }: CodeBlockProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(CodeBlockPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 
 /** Whether we're currently in dark mode. */
 const isDark: Bool = $derived(
@@ -56,8 +58,8 @@ let loading: Bool = $state(true);
  * Runs whenever `code`, `lang`, or `isDark` change.
  */
 $effect(() => {
-	const currentCode: Str = code;
-	const currentLang: Str = lang;
+	const currentCode: Str = validated.code;
+	const currentLang: Str = validated.lang ?? 'svelte';
 	const currentDark: Bool = isDark;
 	let cancelled: Bool = false;
 
@@ -91,13 +93,13 @@ $effect(() => {
 });
 </script>
 
-<div class={cn('max-w-full overflow-x-auto rounded-md text-sm [&_pre]:overflow-x-auto [&_pre]:p-4', className)}>
+<div class={cn('max-w-full overflow-x-auto rounded-md text-sm [&_pre]:overflow-x-auto [&_pre]:p-4', validated.class)}>
 	{#if loading}
-		<pre class="p-4"><code>{code}</code></pre>
+		<pre class="p-4"><code>{validated.code}</code></pre>
 	{:else if highlightedHtml}
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -- Shiki produces trusted HTML -->
 		{@html highlightedHtml}
 	{:else}
-		<pre class="p-4"><code>{code}</code></pre>
+		<pre class="p-4"><code>{validated.code}</code></pre>
 	{/if}
 </div>

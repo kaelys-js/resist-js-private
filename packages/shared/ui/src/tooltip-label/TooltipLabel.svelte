@@ -30,14 +30,16 @@ import Kbd from '../kbd/Kbd.svelte';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(TooltipLabelPropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-let { label, shortcutLabel, shortcutAlwaysVisible = false }: TooltipLabelProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(TooltipLabelPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 </script>
 
-{#if shortcutLabel}
-	<span class="flex items-center gap-1.5">{label} <Kbd label={shortcutLabel} alwaysVisible={shortcutAlwaysVisible} /></span>
+{#if validated.shortcutLabel}
+	<span class="flex items-center gap-1.5">{validated.label} <Kbd label={validated.shortcutLabel} alwaysVisible={validated.shortcutAlwaysVisible ?? false} /></span>
 {:else}
-	{label}
+	{validated.label}
 {/if}

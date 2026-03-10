@@ -25,17 +25,17 @@ export type LensPortalScopeProps = v.InferOutput<typeof LensPortalScopePropsSche
  * class and `data-theme` attribute, then wraps children in `<BitsConfig>`
  * to route all portals there instead of bare `document.body`.
  */
-import type { Str, Void } from '@/schemas/common';
+import type { Void } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import { BitsConfig } from 'bits-ui';
 import { cn } from '../utils.js';
-import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(LensPortalScopePropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-const { mode, theme, pageIsDark, children }: LensPortalScopeProps = validated.data;
+const rawProps = $props();
+const validated = $derived.by(() => {
+	const result = safeParse(LensPortalScopePropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 
 /** Body-level div that serves as the portal target. */
 let portalEl: HTMLDivElement | undefined = $state(undefined);
@@ -65,14 +65,14 @@ $effect(() => {
 	if (!portalEl) return;
 	// Reset classes — mirror page dark state when mode is auto + theme is set
 	portalEl.className = cn(
-		mode === 'dark' && 'dark',
-		mode === 'light' && 'lens-force-light',
-		mode === 'auto' && theme && pageIsDark && 'dark',
-		mode === 'auto' && theme && !pageIsDark && 'lens-force-light',
+		validated.mode === 'dark' && 'dark',
+		validated.mode === 'light' && 'lens-force-light',
+		validated.mode === 'auto' && validated.theme && validated.pageIsDark && 'dark',
+		validated.mode === 'auto' && validated.theme && !validated.pageIsDark && 'lens-force-light',
 	);
 	// Sync theme attribute
-	if (theme) {
-		portalEl.dataset.theme = theme;
+	if (validated.theme) {
+		portalEl.dataset.theme = validated.theme;
 	} else {
 		delete portalEl.dataset.theme;
 	}
@@ -81,8 +81,8 @@ $effect(() => {
 
 {#if portalEl}
 	<BitsConfig defaultPortalTo={portalEl}>
-		{@render children()}
+		{@render validated.children()}
 	</BitsConfig>
 {:else}
-	{@render children()}
+	{@render validated.children()}
 {/if}

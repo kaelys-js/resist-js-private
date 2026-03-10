@@ -49,17 +49,12 @@ import { cn } from '../utils.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(SearchAutocompletePropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-const {
-	items,
-	placeholder = 'Search...',
-	class: className,
-	onSelect,
-	emptyText = 'No results.',
-// Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates
-}: SearchAutocompleteProps = validated.data as SearchAutocompleteProps;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(SearchAutocompletePropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 
 let open: Bool = $state(false);
 let searchValue: Str = $state('');
@@ -73,7 +68,9 @@ let searchValue: Str = $state('');
  */
 const groupedItems: Array<{ name: Str; items: SearchItem[] }> = $derived.by(() => {
 	const groups: Map<Str, SearchItem[]> = new Map();
-	for (const item of items) {
+	for (const frozenItem of validated.items) {
+		// Shallow-copy to thaw deep-frozen Result.data — keywords becomes mutable string[]
+		const item: SearchItem = { ...frozenItem, keywords: frozenItem.keywords ? [...frozenItem.keywords] : undefined };
 		const key: Str = item.group ?? '';
 		const existing: SearchItem[] | undefined = groups.get(key);
 		if (existing) {
@@ -94,7 +91,7 @@ const groupedItems: Array<{ name: Str; items: SearchItem[] }> = $derived.by(() =
  * @param item - The selected search item
  */
 function handleSelect(item: SearchItem): void {
-	onSelect?.(item);
+	validated.onSelect?.(item);
 	open = false;
 	searchValue = '';
 }
@@ -108,20 +105,20 @@ function handleSelect(item: SearchItem): void {
 				type="button"
 				class={cn(
 					'inline-flex h-9 items-center gap-2 rounded-md border bg-card px-3 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground',
-					className,
+					validated.class,
 				)}
 				aria-label="Search"
 			>
 				<SearchIcon class="size-4" aria-hidden="true" />
-				<span>{placeholder}</span>
+				<span>{validated.placeholder ?? 'Search...'}</span>
 			</button>
 		{/snippet}
 	</Popover.Trigger>
 	<Popover.Content class="w-[280px] p-0" align="start" sideOffset={8}>
 		<Command.Root shouldFilter={true}>
-			<Command.Input placeholder={placeholder} bind:value={searchValue} />
+			<Command.Input placeholder={validated.placeholder ?? 'Search...'} bind:value={searchValue} />
 			<Command.List>
-				<Command.Empty>{emptyText}</Command.Empty>
+				<Command.Empty>{validated.emptyText ?? 'No results.'}</Command.Empty>
 				{#each groupedItems as group (group.name)}
 					{#if group.name}
 						<Command.Group heading={group.name}>

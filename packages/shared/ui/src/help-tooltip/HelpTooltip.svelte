@@ -34,22 +34,24 @@ import * as Tooltip from '../tooltip/index.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(HelpTooltipPropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-const { text, side = 'top', class: className = '', size = 16 }: HelpTooltipProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(HelpTooltipPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 </script>
 
 <Tooltip.Provider>
 	<Tooltip.Root>
 		<Tooltip.Trigger
 			class="inline-flex cursor-help"
-			aria-label={text}
+			aria-label={validated.text}
 		>
-			<CircleHelp class="text-muted-foreground {className}" {size} />
+			<CircleHelp class="text-muted-foreground {validated.class ?? ''}" size={validated.size ?? 16} />
 		</Tooltip.Trigger>
-		<Tooltip.Content {side}>
-			{text}
+		<Tooltip.Content side={validated.side ?? 'top'}>
+			{validated.text}
 		</Tooltip.Content>
 	</Tooltip.Root>
 </Tooltip.Provider>

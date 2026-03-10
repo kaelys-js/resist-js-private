@@ -47,14 +47,13 @@ import ChevronDown from '@lucide/svelte/icons/chevron-down';
 import Code from '@lucide/svelte/icons/code';
 import { slide } from 'svelte/transition';
 import { cn } from '../utils.js';
-import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(LensSectionPropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-const { title, description, children, code, codeText, propName, class: className }: LensSectionProps =
-	validated.data;
+const rawProps = $props();
+const validated = $derived.by(() => {
+	const result = safeParse(LensSectionPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 
 /** Whether the code panel is visible. */
 let codeOpen: Bool = $state(false);
@@ -64,7 +63,7 @@ let codeRef: HTMLDivElement | undefined = $state(undefined);
 
 /** Text to copy — prefers codeText prop, falls back to DOM text. */
 const copyText: Str = $derived.by((): Str => {
-	if (codeText) return codeText;
+	if (validated.codeText) return validated.codeText;
 	const ref: HTMLDivElement | undefined = codeRef;
 	return ref?.textContent ?? '';
 });
@@ -77,20 +76,20 @@ function toggleCode(): Void {
 }
 </script>
 
-<section class={cn('overflow-hidden rounded-lg border bg-card', className)}>
+<section class={cn('overflow-hidden rounded-lg border bg-card', validated.class)}>
 	<div class="flex items-center justify-between border-b bg-muted/50 px-5 py-3">
 		<div>
 			<div class="flex items-center gap-2">
-				<h3 class="text-sm font-semibold">{title}</h3>
-				{#if propName}
-					<Badge variant="outline" class="rounded-md font-mono text-[10px]">{propName}</Badge>
+				<h3 class="text-sm font-semibold">{validated.title}</h3>
+				{#if validated.propName}
+					<Badge variant="outline" class="rounded-md font-mono text-[10px]">{validated.propName}</Badge>
 				{/if}
 			</div>
-			{#if description}
-				<p class="mt-0.5 text-xs text-muted-foreground">{description}</p>
+			{#if validated.description}
+				<p class="mt-0.5 text-xs text-muted-foreground">{validated.description}</p>
 			{/if}
 		</div>
-		{#if code}
+		{#if validated.code}
 			<div class="flex items-center gap-1">
 				<button
 					type="button"
@@ -112,16 +111,16 @@ function toggleCode(): Void {
 		{/if}
 	</div>
 
-	{#if children}
+	{#if validated.children}
 		<div class="p-6">
-			{@render children()}
+			{@render validated.children()}
 		</div>
 	{/if}
 
-	{#if code && codeOpen}
+	{#if validated.code && codeOpen}
 		<div class="overflow-hidden border-t" transition:slide={{ duration: 200 }}>
 			<div bind:this={codeRef} class="min-w-0 overflow-x-auto p-4 text-sm">
-				{@render code()}
+				{@render validated.code()}
 			</div>
 		</div>
 	{/if}

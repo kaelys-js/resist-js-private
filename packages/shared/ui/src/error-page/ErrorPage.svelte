@@ -71,19 +71,12 @@ import * as Tooltip from '../tooltip/index.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(ErrorPagePropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-let {
-	status,
-	message,
-	errorId,
-	title,
-	description,
-	labels,
-	announce,
-	copyOverride,
-}: ErrorPageProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(ErrorPagePropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 
 /** Copy result: 'idle' (default), 'success', or 'failed'. */
 let copyState: 'idle' | 'success' | 'failed' = $state('idle');
@@ -127,10 +120,10 @@ async function copyToClipboard(text: Str): Promise<Bool> {
 }
 
 async function handleCopyClick(): Promise<Void> {
-	if (!errorId) return;
-	const success: Bool = copyOverride ? await copyOverride(errorId) : await copyToClipboard(errorId);
+	if (!validated.errorId) return;
+	const success: Bool = validated.copyOverride ? await validated.copyOverride(validated.errorId) : await copyToClipboard(validated.errorId);
 	copyState = success ? 'success' : 'failed';
-	announce?.(success ? labels.copied : labels.copyFailed);
+	validated.announce?.(success ? validated.labels.copied : validated.labels.copyFailed);
 	clearTimeout(copyTimeout);
 	copyTimeout = setTimeout(() => {
 		copyState = 'idle';
@@ -152,14 +145,14 @@ const iconColorMap: Record<Num, Str> = {
 
 const tooltipText: Str = $derived.by(() => {
 	const state: typeof copyState = copyState;
-	if (state === 'success') return labels.copied;
-	if (state === 'failed') return labels.copyFailed;
-	return labels.clickToCopy;
+	if (state === 'success') return validated.labels.copied;
+	if (state === 'failed') return validated.labels.copyFailed;
+	return validated.labels.clickToCopy;
 });
 
-const showTryAgain: Bool = $derived(status >= 500);
-const StatusIcon: Component = $derived(iconMap[status] ?? TriangleAlert);
-const iconColor: Str = $derived(iconColorMap[status] ?? 'text-muted-foreground');
+const showTryAgain: Bool = $derived(validated.status >= 500);
+const StatusIcon: Component = $derived(iconMap[validated.status] ?? TriangleAlert);
+const iconColor: Str = $derived(iconColorMap[validated.status] ?? 'text-muted-foreground');
 </script>
 
 <div
@@ -170,23 +163,23 @@ const iconColor: Str = $derived(iconColorMap[status] ?? 'text-muted-foreground')
 		<StatusIcon size={48} strokeWidth={1.5} />
 	</div>
 
-	<h1 class="text-2xl font-semibold tracking-tight">{title}</h1>
-	<p class="text-muted-foreground mt-1 max-w-md text-sm leading-relaxed">{description}</p>
+	<h1 class="text-2xl font-semibold tracking-tight">{validated.title}</h1>
+	<p class="text-muted-foreground mt-1 max-w-md text-sm leading-relaxed">{validated.description}</p>
 
 	<div class="mt-8 flex gap-3">
 		<Button variant="default" href="/">
 			<ArrowLeft aria-hidden="true" size={16} />
-			{labels.goHome}
+			{validated.labels.goHome}
 		</Button>
 		{#if showTryAgain}
 			<Button variant="outline" onclick={() => window.location.reload()}>
 				<RotateCw aria-hidden="true" size={16} />
-				{labels.tryAgain}
+				{validated.labels.tryAgain}
 			</Button>
 		{/if}
 	</div>
 
-	{#if errorId}
+	{#if validated.errorId}
 		<Tooltip.Provider>
 			<Tooltip.Root delayDuration={300} open={copyState !== 'idle' ? true : undefined}>
 				<Tooltip.Trigger>
@@ -196,8 +189,8 @@ const iconColor: Str = $derived(iconColorMap[status] ?? 'text-muted-foreground')
 							type="button"
 							class="text-muted-foreground hover:text-foreground relative mt-8 inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md border border-transparent px-2.5 font-mono text-xs transition-all duration-200 hover:border-border hover:bg-muted/50"
 							onclick={handleCopyClick}
-							aria-label={labels.copyErrorIdAriaLabel}
-							data-error-id={errorId}
+							aria-label={validated.labels.copyErrorIdAriaLabel}
+							data-error-id={validated.errorId}
 						>
 							{#if copyState === 'success'}
 								<span
@@ -205,7 +198,7 @@ const iconColor: Str = $derived(iconColorMap[status] ?? 'text-muted-foreground')
 									in:fade={{ duration: 150 }}
 								>
 									<Check aria-hidden="true" size={12} />
-									<span>{labels.copied}</span>
+									<span>{validated.labels.copied}</span>
 								</span>
 							{:else if copyState === 'failed'}
 								<span
@@ -213,7 +206,7 @@ const iconColor: Str = $derived(iconColorMap[status] ?? 'text-muted-foreground')
 									in:fade={{ duration: 150 }}
 								>
 									<X aria-hidden="true" size={12} />
-									<span>{labels.copyFailed}</span>
+									<span>{validated.labels.copyFailed}</span>
 								</span>
 							{:else}
 								<span
@@ -221,7 +214,7 @@ const iconColor: Str = $derived(iconColorMap[status] ?? 'text-muted-foreground')
 									in:fade={{ duration: 150 }}
 								>
 									<Copy aria-hidden="true" size={12} />
-									<span>{labels.errorIdLabel}</span>
+									<span>{validated.labels.errorIdLabel}</span>
 								</span>
 							{/if}
 						</button>
@@ -236,6 +229,6 @@ const iconColor: Str = $derived(iconColorMap[status] ?? 'text-muted-foreground')
 
 	<!-- Aria-live region for clipboard feedback — announced by screen readers -->
 	<div id="copy-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true">
-		{#if copyState === 'success'}{labels.copied}{:else if copyState === 'failed'}{labels.copyFailed}{/if}
+		{#if copyState === 'success'}{validated.labels.copied}{:else if copyState === 'failed'}{validated.labels.copyFailed}{/if}
 	</div>
 </div>

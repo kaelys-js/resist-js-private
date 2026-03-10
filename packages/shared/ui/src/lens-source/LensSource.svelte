@@ -28,17 +28,19 @@ import CodeBlock from '../code-block/CodeBlock.svelte';
 import FileCode from '@lucide/svelte/icons/file-code';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(LensSourcePropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-const { name, source }: LensSourceProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(LensSourcePropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 </script>
 
 <section id="source" class="scroll-mt-60">
 	<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><FileCode class="size-5" /> Source</h2>
-	<LensSection title={toTitle(name)} description="Component source code." codeText={source}>
+	<LensSection title={toTitle(validated.name)} description="Component source code." codeText={validated.source}>
 		{#snippet code()}
-			<CodeBlock code={source} lang="svelte" />
+			<CodeBlock code={validated.source} lang="svelte" />
 		{/snippet}
 	</LensSection>
 </section>

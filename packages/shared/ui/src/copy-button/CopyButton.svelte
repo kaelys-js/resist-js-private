@@ -39,10 +39,12 @@ import { cn } from '../utils.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(CopyButtonPropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-const { text, label = 'Copy to clipboard', class: className }: CopyButtonProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(CopyButtonPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 
 /** Copy result: 'idle' (default), 'success', or 'failed'. */
 let copyState: 'idle' | 'success' | 'failed' = $state('idle');
@@ -53,14 +55,14 @@ const tooltipText: Str = $derived.by((): Str => {
 	const state: typeof copyState = copyState;
 	if (state === 'success') return 'Copied!';
 	if (state === 'failed') return 'Copy failed';
-	return label;
+	return validated.label ?? 'Copy to clipboard';
 });
 
 /**
  * Handle click — copies text and shows visual feedback for 2 seconds.
  */
 async function handleCopy(): Promise<Void> {
-	const success: Bool = await clipboardCopy(text);
+	const success: Bool = await clipboardCopy(validated.text);
 	copyState = success ? 'success' : 'failed';
 	clearTimeout(copyTimeout);
 	copyTimeout = setTimeout((): void => {
@@ -78,10 +80,10 @@ async function handleCopy(): Promise<Void> {
 					type="button"
 					class={cn(
 						'rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
-						className,
+						validated.class,
 					)}
 					onclick={handleCopy}
-					aria-label={label}
+					aria-label={validated.label ?? 'Copy to clipboard'}
 				>
 					{#if copyState === 'success'}
 						<span in:fade={{ duration: 150 }}>

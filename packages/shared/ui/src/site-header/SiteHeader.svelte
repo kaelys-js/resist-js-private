@@ -37,35 +37,30 @@ import SidebarToggle from '../sidebar-toggle/SidebarToggle.svelte';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(SiteHeaderPropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-let {
-	showSidebarToggle,
-	sidebarToggleLabel,
-	sidebarToggleShortcut,
-	showBreadcrumb,
-	breadcrumbs,
-	actions,
-}: SiteHeaderProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(SiteHeaderPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 </script>
 
 <header
 	class="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height,color,background-color,border-color] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)"
 >
 	<div class="flex w-full items-center gap-1 px-4">
-		{#if showSidebarToggle}
-			<SidebarToggle label={sidebarToggleLabel} shortcutLabel={sidebarToggleShortcut} />
+		{#if validated.showSidebarToggle}
+			<SidebarToggle label={validated.sidebarToggleLabel} shortcutLabel={validated.sidebarToggleShortcut} />
 		{/if}
-		{#if showBreadcrumb}
+		{#if validated.showBreadcrumb}
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
-				{@render breadcrumbs()}
+				{@render validated.breadcrumbs()}
 			</Breadcrumb.List>
 		</Breadcrumb.Root>
 		{/if}
 		<div class="ml-auto flex items-center gap-2">
-			{@render actions()}
+			{@render validated.actions()}
 		</div>
 	</div>
 </header>

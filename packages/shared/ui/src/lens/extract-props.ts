@@ -52,7 +52,12 @@ export function extractProps(source: string, supplementarySources?: string[]): P
 	if (!source) return [];
 
 	const block: PropsBlock | null = findPropsBlock(source);
-	if (!block) return [];
+
+	// Pattern 3: No destructuring — schema-based $derived.by() + safeParse pattern
+	// e.g., `const allProps = $props(); const validated = $derived.by(() => { safeParse(XxxSchema, ...) })`
+	if (!block) {
+		return extractSchemaBasedProps(source, supplementarySources);
+	}
 
 	let inlineTypes: Map<string, string> = parseInlineTypes(block.typeAnnotation);
 	let typeDefs: Map<string, TypeDefField> = new Map();
@@ -109,6 +114,61 @@ export function extractProps(source: string, supplementarySources?: string[]): P
 			typeFields: rawTypeDef ? parseTypeFieldsForDisplay(rawTypeDef) : undefined,
 			mockValues: mockValues.length > 0 ? mockValues : undefined,
 			optional: isOptional || undefined,
+		});
+	}
+
+	return result;
+}
+
+/**
+ * Extract props from schema-based components that use `$derived.by()` + `safeParse`.
+ *
+ * These components have `const allProps = $props()` (no destructuring) and
+ * define their props via a `v.strictObject({...})` schema in `<script module>`.
+ * Finds the schema name from `safeParse(XxxSchema, ...)` in the instance script,
+ * then parses schema fields into PropMeta[].
+ *
+ * @param source - Raw `.svelte` file content
+ * @param supplementarySources - Optional raw `.ts` sources for cross-file type resolution
+ * @returns Array of PropMeta for user-facing props
+ */
+function extractSchemaBasedProps(source: string, supplementarySources?: string[]): PropMeta[] {
+	// Must have $props() somewhere
+	if (!source.includes('$props()')) return [];
+
+	// Find schema name from safeParse(XxxSchema, ...) in the instance script
+	const safeParseMatch: RegExpMatchArray | null = source.match(/safeParse\(\s*(\w+Schema)\s*,/);
+	if (!safeParseMatch) return [];
+
+	const schemaName: string = safeParseMatch[1] ?? '';
+	if (!schemaName) return [];
+
+	// Resolve the schema to field types and descriptions
+	const resolved: ResolvedTypeDef | null = resolveValibotSchema(source, schemaName);
+	if (!resolved) return [];
+
+	// Combine primary source with supplementary sources for type resolution
+	const combinedSource: string = supplementarySources
+		? [source, ...supplementarySources].join('\n')
+		: source;
+
+	const result: PropMeta[] = [];
+	for (const [fieldName, fieldDef] of resolved.fields) {
+		if (SKIP_PROPS.has(fieldName)) continue;
+
+		const readableType: string = fieldDef.type;
+		const rawTypeDef: string | undefined = resolveTypeDefinition(readableType, combinedSource);
+
+		result.push({
+			name: fieldName,
+			type: readableType,
+			default: '',
+			description: fieldDef.description,
+			bindable: false,
+			typeDefinition: rawTypeDef,
+			typeFields: rawTypeDef ? parseTypeFieldsForDisplay(rawTypeDef) : undefined,
+			mockValues: fieldDef.mockValues.length > 0 ? fieldDef.mockValues : undefined,
+			optional: fieldDef.optional || undefined,
 		});
 	}
 
@@ -236,7 +296,68 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
 		}
 	}
 
+	// Scan typeFields for enumerable sub-fields (picklists, booleans)
+	for (const prop of props) {
+		if (!prop.typeFields || prop.typeFields.length === 0) continue;
+		for (const tf of prop.typeFields) {
+			const options: string[] | null = parseTypeFieldAccepts(tf);
+			if (options && options.length > 1) {
+				variants.push({
+					key: `${prop.name}.${tf.field}`,
+					options,
+					default: '',
+				});
+			}
+		}
+	}
+
 	return variants;
+}
+
+/**
+ * Parse a TypeField's accepts string into variant options.
+ *
+ * ALL typeFields generate variants. Enumerable types (picklists, booleans)
+ * use their actual accepted values. Freeform types (text, number) get
+ * sensible example values.
+ *
+ * @param tf - The TypeField to parse
+ * @returns Array of option strings for variant generation
+ */
+function parseTypeFieldAccepts(tf: TypeField): string[] {
+	const accepts: string = tf.accepts.trim();
+
+	// Boolean fields
+	if (accepts === 'true / false' || tf.type === 'Bool' || tf.type === 'boolean') {
+		return ['true', 'false'];
+	}
+
+	// Comma-separated picklist values
+	if (accepts.includes(', ')) {
+		const items: string[] = accepts
+			.split(', ')
+			.map((s: string): string => s.trim())
+			.filter(Boolean);
+		if (items.length > 1) return items;
+	}
+
+	// Number fields — generate example values
+	if (accepts === 'number' || tf.type === 'Num' || tf.type === 'number') {
+		return ['0', '1', '5', '10'];
+	}
+
+	// Text fields — generate example text variants
+	if (accepts === 'text' || tf.type === 'Str' || tf.type === 'string') {
+		return ['Short', 'A medium example', 'A longer example text for testing'];
+	}
+
+	// List fields — generate example list variants
+	if (accepts.startsWith('list of ')) {
+		return ['one', 'one, two', 'one, two, three'];
+	}
+
+	// Fallback — generate generic placeholders
+	return ['value-a', 'value-b', 'value-c'];
 }
 
 /**

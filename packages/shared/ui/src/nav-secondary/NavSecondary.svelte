@@ -36,17 +36,23 @@ import * as Sidebar from '../sidebar/index.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(NavSecondaryPropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-// Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates
-let { items, ...restProps }: NavSecondaryProps = validated.data as NavSecondaryProps;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(NavSecondaryPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	// Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates
+	return result.data as NavSecondaryProps;
+});
+const restProps = $derived.by(() => {
+	const { items: _items, ...rest }: NavSecondaryProps = validated;
+	return rest;
+});
 </script>
 
 <Sidebar.Group {...restProps}>
 	<Sidebar.GroupContent>
 		<Sidebar.Menu>
-			{#each items as item (item.title)}
+			{#each validated.items as item (item.title)}
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
