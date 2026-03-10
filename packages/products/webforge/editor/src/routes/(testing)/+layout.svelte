@@ -112,7 +112,7 @@ const searchItems: SearchItem[] = componentNames.map(
 const currentName: Str = $derived(page.params.name ?? '');
 
 /** Current mode from mode-watcher for the toggle. */
-const currentMode: Str = $derived(derivedMode.current ?? 'system');
+const currentMode: 'light' | 'dark' | 'system' = $derived(derivedMode.current ?? 'system');
 
 /**
  * Wrapper around mode-watcher's `setMode` to accept `Str` (from shared ModeToggle).

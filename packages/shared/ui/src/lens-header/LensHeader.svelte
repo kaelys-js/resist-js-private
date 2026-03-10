@@ -1,3 +1,33 @@
+<script module lang="ts">
+import * as v from 'valibot';
+import { LensMetaSchema, type LensMeta } from '../lens/types.js';
+import { SearchItemSchema, type SearchItem } from '../search-autocomplete/search-item.js';
+
+/** Schema for the LensHeader component props. */
+export const LensHeaderPropsSchema = v.strictObject({
+	/** Component directory name (kebab-case). @values button, dialog, sidebar */
+	name: v.string(),
+	/** Component description extracted from source JSDoc. @values A clickable button, An overlay dialog, A navigation sidebar */
+	description: v.optional(v.string()),
+	/** Validated lens metadata for category/tag badges. */
+	meta: v.optional(v.nullable(LensMetaSchema)),
+	/** Import path shown in the copy-import chip. @values @/ui/button, @/ui/dialog, @/ui/sidebar */
+	importPath: v.optional(v.string()),
+	/** Whether the component has renderable variants. */
+	hasVariants: v.optional(v.boolean()),
+	/** Whether the component has hand-written examples. */
+	hasExamples: v.optional(v.boolean()),
+	/** Whether the component has raw source available. */
+	hasSource: v.optional(v.boolean()),
+	/** Search items for the search popover. Empty array hides the search button. */
+	searchItems: v.optional(v.array(SearchItemSchema)),
+	/** Callback fired when a search item is selected. */
+	onSearchSelect: v.optional(v.custom<(item: SearchItem) => void>((val: unknown): boolean => typeof val === 'function')),
+});
+/** Props for the LensHeader component. */
+export type LensHeaderProps = v.InferOutput<typeof LensHeaderPropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Component header for Lens documentation pages.
@@ -7,8 +37,6 @@
  * an optional search popover for filtering props/variants/examples.
  */
 import type { Bool, Str, Void } from '@/schemas/common';
-import type { LensMeta } from '../lens/types.js';
-import type { SearchItem } from '../search-autocomplete/search-item.js';
 import { toTitle } from '../lens/lens-utils.js';
 import Badge from '../badge/badge.svelte';
 import CopyImport from '../copy-import/CopyImport.svelte';
@@ -23,27 +51,6 @@ import TableProperties from '@lucide/svelte/icons/table-properties';
 import Layers from '@lucide/svelte/icons/layers';
 import BookOpen from '@lucide/svelte/icons/book-open';
 import FileCode from '@lucide/svelte/icons/file-code';
-
-type LensHeaderProps = {
-	/** Component directory name (kebab-case). @values button, dialog, sidebar */
-	name: Str;
-	/** Component description extracted from source JSDoc. @values A clickable button, An overlay dialog, A navigation sidebar */
-	description?: Str;
-	/** Validated lens metadata for category/tag badges. */
-	meta?: LensMeta | null;
-	/** Import path shown in the copy-import chip. @values @/ui/button, @/ui/dialog, @/ui/sidebar */
-	importPath?: Str;
-	/** Whether the component has renderable variants. */
-	hasVariants?: Bool;
-	/** Whether the component has hand-written examples. */
-	hasExamples?: Bool;
-	/** Whether the component has raw source available. */
-	hasSource?: Bool;
-	/** Search items for the search popover. Empty array hides the search button. */
-	searchItems?: SearchItem[];
-	/** Callback fired when a search item is selected. */
-	onSearchSelect?: (item: SearchItem) => void;
-};
 
 const {
 	name,

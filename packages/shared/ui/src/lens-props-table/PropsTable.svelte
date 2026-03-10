@@ -1,40 +1,60 @@
+<script module lang="ts">
+import * as v from 'valibot';
+import { PropMetaSchema, type PropMeta } from '../lens/types.js';
+
+export const PropsTablePropsSchema = v.strictObject({
+	/** Array of prop metadata to render. */
+	props: v.array(PropMetaSchema),
+	/** Variant key names — props matching these get a "See variants" action. @values variant, size, disabled */
+	variantKeys: v.optional(v.array(v.string())),
+	/** Additional CSS classes for the root element. */
+	class: v.optional(v.string()),
+});
+/** Props for the PropsTable component. */
+export type PropsTableProps = v.InferOutput<typeof PropsTablePropsSchema>;
+</script>
+
 <script lang="ts">
+/**
+ * Renders a table of component props extracted by the Lens system.
+ *
+ * Displays Name, Required, Type, Accepts, Default, and Description columns from
+ * auto-extracted `PropMeta[]` data. Props with complex object types show collapsible
+ * child rows for their type fields, indented with a lighter background.
+ */
 import type { Bool, Str, Void } from '@/schemas/common';
-import type { PropMeta } from '../lens/types.js';
 import Badge from '../badge/badge.svelte';
 import LensEmpty from '../lens-empty/LensEmpty.svelte';
 import * as DropdownMenu from '../dropdown-menu/index.js';
+import ChevronRight from '@lucide/svelte/icons/chevron-right';
 import CircleHelp from '@lucide/svelte/icons/circle-help';
 import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
 import Layers from '@lucide/svelte/icons/layers';
 import * as Tooltip from '../tooltip/index.js';
 import { cn } from '../utils.js';
 
-/**
- * Renders a table of component props extracted by the Lens system.
- *
- * Displays Name, Type, Default, and Description columns from
- * auto-extracted `PropMeta[]` data. Complex types and bindable props
- * include help icons with explanatory tooltips.
- *
- * @example
- * ```svelte
- * <PropsTable props={extractedProps} />
- * ```
- */
-type PropsTableProps = {
-	/** Array of prop metadata to render. */
-	props: PropMeta[];
-	/** Variant key names — props matching these get a "See variants" action. @values variant, size, disabled */
-	variantKeys?: Str[];
-	/** Additional CSS classes for the root element. */
-	class?: Str;
-};
-
 const { props, variantKeys = [], class: className }: PropsTableProps = $props();
 
 /** Set of variant keys for O(1) lookup. */
 const variantKeySet: Set<Str> = $derived(new Set(variantKeys));
+
+/** Set of prop names whose type fields are currently expanded. */
+let expandedTypeFields: Set<Str> = $state(new Set());
+
+/**
+ * Toggle the expanded state of a prop's type fields.
+ *
+ * @param propName - The prop name to toggle
+ */
+function toggleTypeFields(propName: Str): Void {
+	const next: Set<Str> = new Set(expandedTypeFields);
+	if (next.has(propName)) {
+		next.delete(propName);
+	} else {
+		next.add(propName);
+	}
+	expandedTypeFields = next;
+}
 
 /**
  * Smooth-scroll to a specific variant section by prop name.
@@ -46,12 +66,13 @@ function scrollToVariant(propName: Str): Void {
 }
 
 /**
- * Determine if a prop is required (has no default value).
+ * Determine if a prop is required (no default value and not marked optional).
  *
  * @param prop - The prop metadata
- * @returns True if the prop has no default value
+ * @returns True if the prop has no default and is not optional
  */
 function isRequired(prop: PropMeta): Bool {
+	if (prop.optional) return false;
 	return !prop.default;
 }
 
@@ -63,9 +84,7 @@ function isRequired(prop: PropMeta): Bool {
  */
 function isComplexType(type: Str): Bool {
 	if (!type || type === '—') return false;
-	// Simple primitives don't need help
 	if (/^(string|number|boolean|Str|Num|Bool|Void)$/.test(type)) return false;
-	// Simple string literals don't need help
 	if (/^'[^']*'$/.test(type)) return false;
 	return true;
 }
@@ -83,19 +102,16 @@ function explainType(type: Str): Str {
 	if (type === 'Snippet | undefined')
 		return 'An optional Svelte snippet — a reusable template block.';
 
-	// Indexed access: HTMLAnchorAttributes['href']
 	if (type.includes("['")) {
 		const parent: Str = type.split("['")[0] ?? '';
 		return `Type inherited from ${parent}. See the parent type definition for details.`;
 	}
 
-	// Array types: NavItem[], string[], etc.
 	if (type.endsWith('[]')) {
 		const base: Str = type.slice(0, -2);
 		return `An array of ${base} values.`;
 	}
 
-	// Union types with |
 	if (type.includes(' | ')) {
 		const options: Str[] = type.split(' | ').map((o: Str): Str => o.trim());
 		const allLiterals: Bool = options.every(
@@ -105,13 +121,50 @@ function explainType(type: Str): Str {
 		return `A union type — can be any of: ${options.join(', ')}`;
 	}
 
-	// Generic types: Map<K, V>, Record<K, V>, etc.
 	if (type.includes('<')) {
 		const baseName: Str = type.split('<')[0] ?? '';
 		return `A ${baseName} generic type. See TypeScript docs for details.`;
 	}
 
 	return `Type: ${type}`;
+}
+
+/**
+ * Get accepted values for the Accepts column.
+ *
+ * Prefers explicit `@values` (mockValues), then parses string literal unions
+ * from the type string.
+ *
+ * @param prop - The prop metadata
+ * @returns Comma-separated accepted values, or '—' if none
+ */
+function getAccepts(prop: PropMeta): Str {
+	if (prop.mockValues && prop.mockValues.length > 0) {
+		return prop.mockValues.join(', ');
+	}
+	if (prop.type.includes(' | ')) {
+		const options: Str[] = prop.type.split(' | ').map((o: Str): Str => o.trim());
+		const allLiterals: Bool = options.every(
+			(o: Str): boolean => o.startsWith("'") || o === 'undefined' || o === 'null',
+		);
+		if (allLiterals) {
+			return options
+				.filter((o: Str): boolean => o !== 'undefined' && o !== 'null')
+				.map((o: Str): Str => o.replaceAll(/^'|'$/g, ''))
+				.join(', ');
+		}
+	}
+	return '—';
+}
+
+/**
+ * Whether a prop has expandable type fields.
+ *
+ * @param prop - The prop metadata
+ * @returns True if the prop has type fields to display
+ */
+function hasTypeFields(prop: PropMeta): Bool {
+	return prop.typeFields !== undefined && prop.typeFields.length > 0;
 }
 </script>
 
@@ -125,6 +178,7 @@ function explainType(type: Str): Str {
 					<th class="px-4 py-2 text-left font-medium text-muted-foreground">Name</th>
 					<th class="px-4 py-2 text-left font-medium text-muted-foreground">Required</th>
 					<th class="px-4 py-2 text-left font-medium text-muted-foreground">Type</th>
+					<th class="px-4 py-2 text-left font-medium text-muted-foreground">Accepts</th>
 					<th class="px-4 py-2 text-left font-medium text-muted-foreground">Default</th>
 					<th class="px-4 py-2 text-left font-medium text-muted-foreground">Description</th>
 					{#if variantKeys.length > 0}
@@ -136,7 +190,23 @@ function explainType(type: Str): Str {
 				{#each props as prop (prop.name)}
 					<tr id="prop-{prop.name}" class="border-b last:border-b-0">
 						<td class="px-4 py-2 font-mono text-xs font-medium">
-							{prop.name}
+							<span class="inline-flex items-center gap-1">
+								{#if hasTypeFields(prop)}
+									<button
+										type="button"
+										class="inline-flex size-4 shrink-0 items-center justify-center rounded text-muted-foreground/60 transition-all hover:text-foreground"
+										onclick={() => toggleTypeFields(prop.name)}
+										aria-expanded={expandedTypeFields.has(prop.name)}
+										aria-label="Toggle {prop.name} type fields"
+									>
+										<ChevronRight
+											class="size-3 transition-transform duration-200 {expandedTypeFields.has(prop.name) ? 'rotate-90' : ''}"
+											aria-hidden="true"
+										/>
+									</button>
+								{/if}
+								{prop.name}
+							</span>
 							{#if prop.bindable}
 								<Tooltip.Provider>
 									<Tooltip.Root delayDuration={300}>
@@ -153,8 +223,7 @@ function explainType(type: Str): Str {
 											{/snippet}
 										</Tooltip.Trigger>
 										<Tooltip.Content side="top" sideOffset={4}>
-											Supports two-way binding with bind:
-											{prop.name}
+											Supports two-way binding with bind:{prop.name}
 										</Tooltip.Content>
 									</Tooltip.Root>
 								</Tooltip.Provider>
@@ -185,37 +254,8 @@ function explainType(type: Str): Str {
 													</button>
 												{/snippet}
 											</Tooltip.Trigger>
-											<Tooltip.Content side="top" sideOffset={4} class="max-w-[28rem] overflow-hidden rounded-lg border border-border bg-popover p-0 shadow-lg">
-												{#if prop.typeFields && prop.typeFields.length > 0}
-													<div>
-														<div class="border-b border-border/50 bg-muted/40 px-3 py-1.5">
-															<code class="font-mono text-[11px] font-semibold text-popover-foreground">{prop.type}</code>
-														</div>
-														<table class="w-full text-[11px]">
-															<thead>
-																<tr class="border-b border-border/40">
-																	<th class="px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Field</th>
-																	<th class="px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Accepts</th>
-																	<th class="px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Description</th>
-																</tr>
-															</thead>
-															<tbody>
-																{#each prop.typeFields as tf (tf.field)}
-																	<tr class="border-b border-border/20 last:border-b-0">
-																		<td class="px-3 py-1.5 font-mono text-[11px] font-semibold text-popover-foreground">{tf.field}</td>
-																		<td class="px-3 py-1.5 text-[11px] text-popover-foreground/70">{tf.accepts}</td>
-																		<td class="max-w-40 px-3 py-1.5 text-[11px] text-popover-foreground/60">{tf.description || '—'}</td>
-																	</tr>
-																{/each}
-															</tbody>
-														</table>
-													</div>
-												{:else}
-													<div class="space-y-1.5 p-3">
-														<code class="block rounded bg-muted/50 px-1.5 py-0.5 font-mono text-[11px] text-popover-foreground">{prop.type}</code>
-														<p class="text-xs leading-relaxed text-popover-foreground/70">{explainType(prop.type)}</p>
-													</div>
-												{/if}
+											<Tooltip.Content side="top" sideOffset={4}>
+												{explainType(prop.type)}
 											</Tooltip.Content>
 										</Tooltip.Root>
 									</Tooltip.Provider>
@@ -223,6 +263,9 @@ function explainType(type: Str): Str {
 							{:else}
 								{prop.type || '—'}
 							{/if}
+						</td>
+						<td class="max-w-48 px-4 py-2 font-mono text-xs text-muted-foreground">
+							{getAccepts(prop)}
 						</td>
 						<td class="px-4 py-2 font-mono text-xs text-muted-foreground">
 							{prop.default || '—'}
@@ -257,6 +300,27 @@ function explainType(type: Str): Str {
 							</td>
 						{/if}
 					</tr>
+					{#if hasTypeFields(prop) && expandedTypeFields.has(prop.name)}
+						{#each prop.typeFields ?? [] as tf (tf.field)}
+							<tr class="border-b bg-muted/30 last:border-b-0">
+								<td class="py-1.5 pl-12 pr-4 font-mono text-[11px] text-muted-foreground">
+									{tf.field}
+								</td>
+								<td class="px-4 py-1.5 text-[11px] text-muted-foreground">—</td>
+								<td class="px-4 py-1.5 text-[11px] text-muted-foreground">—</td>
+								<td class="px-4 py-1.5 font-mono text-[11px] text-muted-foreground">
+									{tf.accepts || '—'}
+								</td>
+								<td class="px-4 py-1.5 text-[11px] text-muted-foreground">—</td>
+								<td class="px-4 py-1.5 text-[11px] text-muted-foreground">
+									{tf.description || '—'}
+								</td>
+								{#if variantKeys.length > 0}
+									<td class="px-2 py-1.5"></td>
+								{/if}
+							</tr>
+						{/each}
+					{/if}
 				{/each}
 			</tbody>
 		</table>

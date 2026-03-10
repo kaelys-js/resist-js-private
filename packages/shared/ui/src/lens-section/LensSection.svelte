@@ -1,13 +1,28 @@
-<script lang="ts">
-import type { Bool, Str, Void } from '@/schemas/common';
-import Badge from '../badge/badge.svelte';
-import CopyButton from '../copy-button/CopyButton.svelte';
-import ChevronDown from '@lucide/svelte/icons/chevron-down';
-import Code from '@lucide/svelte/icons/code';
+<script module lang="ts">
+import * as v from 'valibot';
 import type { Snippet } from 'svelte';
-import { slide } from 'svelte/transition';
-import { cn } from '../utils.js';
 
+export const LensSectionPropsSchema = v.strictObject({
+	/** Section heading. @values Basic Usage, With Form, Custom Styles */
+	title: v.string(),
+	/** Optional description text below the heading. @values Default configuration., Advanced usage with custom props., Responsive layout example. */
+	description: v.optional(v.string()),
+	/** The demo content to render inside the preview area. */
+	children: v.optional(v.custom<Snippet>((val: unknown): boolean => typeof val === 'function')),
+	/** Optional code snippet to show in a collapsible panel. */
+	code: v.optional(v.custom<Snippet>((val: unknown): boolean => typeof val === 'function')),
+	/** Raw code text for clipboard copy. @values <Button>Click me</Button>, <Input placeholder="..." />, const x = 1 */
+	codeText: v.optional(v.string()),
+	/** Prop name to display as a Badge. @values variant, size, disabled */
+	propName: v.optional(v.string()),
+	/** Additional CSS classes for the root element. */
+	class: v.optional(v.string()),
+});
+/** Props for the LensSection component. */
+export type LensSectionProps = v.InferOutput<typeof LensSectionPropsSchema>;
+</script>
+
+<script lang="ts">
 /**
  * Section card for the Lens component documentation system.
  *
@@ -23,25 +38,20 @@ import { cn } from '../utils.js';
  * </LensSection>
  * ```
  */
-type LensSectionProps = {
-	/** Section heading. @values Basic Usage, With Form, Custom Styles */
-	title: Str;
-	/** Optional description text below the heading. @values Default configuration., Advanced usage with custom props., Responsive layout example. */
-	description?: Str;
-	/** The demo content to render inside the preview area. */
-	children?: Snippet;
-	/** Optional code snippet to show in a collapsible panel. */
-	code?: Snippet;
-	/** Raw code text for clipboard copy (avoids DOM extraction). @values <Button>Click me</Button>, <Input placeholder="..." />, const x = 1 */
-	codeText?: Str;
-	/** Prop name to display as a Badge next to the title. @values variant, size, disabled */
-	propName?: Str;
-	/** Additional CSS classes for the root element. */
-	class?: Str;
-};
+import type { Bool, Str, Void } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
+import Badge from '../badge/badge.svelte';
+import CopyButton from '../copy-button/CopyButton.svelte';
+import ChevronDown from '@lucide/svelte/icons/chevron-down';
+import Code from '@lucide/svelte/icons/code';
+import { slide } from 'svelte/transition';
+import { cn } from '../utils.js';
 
+const rawProps = $props();
+const validated = safeParse(LensSectionPropsSchema, rawProps);
+if (!validated.ok) throw validated.error;
 const { title, description, children, code, codeText, propName, class: className }: LensSectionProps =
-	$props();
+	validated.data;
 
 /** Whether the code panel is visible. */
 let codeOpen: Bool = $state(false);

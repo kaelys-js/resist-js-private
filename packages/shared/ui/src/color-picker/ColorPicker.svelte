@@ -1,3 +1,22 @@
+<script module lang="ts">
+import * as v from 'valibot';
+import type { Str } from '@/schemas/common';
+
+/** Schema for the ColorPicker component props. */
+export const ColorPickerPropsSchema = v.strictObject({
+	/** Current hex color value (e.g. '#ff0000'). @values #000000, #ffffff, #ff0000, #00ff00, #0000ff */
+	value: v.optional(v.string()),
+	/** Callback when color changes. */
+	onValueChange: v.optional(v.custom<(value: Str) => void>((val: unknown): boolean => typeof val === 'function')),
+	/** Placeholder text for the hex input. @values #000000, #ffffff, #ff0000 */
+	placeholder: v.optional(v.string()),
+	/** Additional CSS classes for the root element. */
+	class: v.optional(v.string()),
+});
+/** Props for the ColorPicker component. */
+export type ColorPickerProps = v.InferOutput<typeof ColorPickerPropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Compact color picker with hex text input and native color swatch.
@@ -10,21 +29,10 @@
  * <ColorPicker bind:value={color} />
  * ```
  */
-import type { Str } from '@/schemas/common';
 import Input from '../input/input.svelte';
 import { cn } from '../utils.js';
 
-type ColorPickerProps = {
-	/** Current hex color value (e.g. '#ff0000'). @values #000000, #ffffff, #ff0000, #00ff00, #0000ff */
-	value?: Str;
-	/** Callback when color changes. */
-	onValueChange?: (value: Str) => void;
-	/** Placeholder text for the hex input. @values #000000, #ffffff, #ff0000 */
-	placeholder?: Str;
-	/** Additional CSS classes for the root element. */
-	class?: Str;
-};
-
+// Uses $bindable() — cannot use safeParse/validated.data pattern
 let {
 	value = $bindable('#000000'),
 	onValueChange,

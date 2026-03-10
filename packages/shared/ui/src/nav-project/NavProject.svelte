@@ -1,33 +1,35 @@
+<script module lang="ts">
+import * as v from 'valibot';
+import type { Snippet } from 'svelte';
+
+/** Schema for the NavProject component props. */
+export const NavProjectPropsSchema = v.strictObject({
+	/** Display name (project or user). @values WebForge RPG, My Project, Demo App */
+	name: v.string(),
+	/** Subtitle text (project subtitle, email, or em dash). @values v1.0.0, Production, Development */
+	subtitle: v.string(),
+	/** Avatar image URL (empty string for no image). @values https://example.com/avatar.png, /avatars/user.jpg */
+	avatarSrc: v.string(),
+	/** Whether to show the avatar icon in the trigger button. */
+	showIcon: v.boolean(),
+	/** Product-specific dropdown menu items. */
+	menuItems: v.custom<Snippet>((val: unknown): boolean => typeof val === 'function'),
+});
+/** Props for the NavProject component. */
+export type NavProjectProps = v.InferOutput<typeof NavProjectPropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Project navigation switcher displayed in the sidebar header with avatar and dropdown menu.
  *
  * Shows the current project/user name and subtitle, with product-specific menu items injected via snippet.
  */
-import type { Snippet } from 'svelte';
+import type { Str } from '@/schemas/common';
 import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 import * as Avatar from '../avatar/index.js';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 import * as Sidebar from '../sidebar/index.js';
-import type { Bool, Str } from '@/schemas/common';
-
-/**
- * Props for the shared NavProject component.
- *
- * Each product editor resolves project/user data and injects menu items via snippet.
- */
-type NavProjectProps = {
-	/** Display name (project or user). @values WebForge RPG, My Project, Demo App */
-	name: Str;
-	/** Subtitle text (project subtitle, email, or em dash). @values v1.0.0, Production, Development */
-	subtitle: Str;
-	/** Avatar image URL (empty string for no image). @values https://example.com/avatar.png, /avatars/user.jpg */
-	avatarSrc: Str;
-	/** Whether to show the avatar icon in the trigger button. */
-	showIcon: Bool;
-	/** Product-specific dropdown menu items. */
-	menuItems: Snippet;
-};
 
 let { name, subtitle, avatarSrc, showIcon, menuItems }: NavProjectProps = $props();
 

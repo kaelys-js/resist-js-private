@@ -1,12 +1,5 @@
-<script lang="ts">
-/**
- * Help icon with a tooltip that displays explanatory text on hover.
- *
- * Self-contained with its own Tooltip.Provider, so it works both standalone and nested.
- */
-import type { Num, Str } from '@/schemas/common';
-import CircleHelp from '@lucide/svelte/icons/circle-help';
-import * as Tooltip from '../tooltip/index.js';
+<script module lang="ts">
+import * as v from 'valibot';
 
 /**
  * A help icon (`CircleHelp`) wrapped in a tooltip.
@@ -14,18 +7,33 @@ import * as Tooltip from '../tooltip/index.js';
  * Self-contained — includes its own `Tooltip.Provider`, so it works both
  * standalone and inside an existing Provider (bits-ui providers nest safely).
  */
-type HelpTooltipProps = {
+export const HelpTooltipPropsSchema = v.strictObject({
 	/** The tooltip text displayed on hover. @values Click to edit, Required field, More information */
-	text: Str;
+	text: v.string(),
 	/** Which side of the icon the tooltip appears on. @values top, bottom, left, right */
-	side?: 'top' | 'bottom' | 'left' | 'right';
+	side: v.optional(v.picklist(['top', 'bottom', 'left', 'right'])),
 	/** Additional CSS classes for the icon element. */
-	class?: Str;
+	class: v.optional(v.string()),
 	/** Icon size in pixels. @values 14, 16, 20, 24 */
-	size?: Num;
-};
+	size: v.optional(v.number()),
+});
+export type HelpTooltipProps = v.InferOutput<typeof HelpTooltipPropsSchema>;
+</script>
 
-const { text, side = 'top', class: className = '', size = 16 }: HelpTooltipProps = $props();
+<script lang="ts">
+/**
+ * Help icon with a tooltip that displays explanatory text on hover.
+ *
+ * Self-contained with its own Tooltip.Provider, so it works both standalone and nested.
+ */
+import { safeParse } from '@/utils/result/safe';
+import CircleHelp from '@lucide/svelte/icons/circle-help';
+import * as Tooltip from '../tooltip/index.js';
+
+const rawProps = $props();
+const validated = safeParse(HelpTooltipPropsSchema, rawProps);
+if (!validated.ok) throw validated.error;
+const { text, side = 'top', class: className = '', size = 16 }: HelpTooltipProps = validated.data;
 </script>
 
 <Tooltip.Provider>

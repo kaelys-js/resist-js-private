@@ -150,10 +150,10 @@ const variantProps: Record<Str, Str | boolean | number> = $derived.by(() => {
 				<PrimaryComponent {...baseProps} {...variantProps}>
 					Example
 				</PrimaryComponent>
-				{#snippet failed()}
+				{#snippet failed(error)}
 					<LensError
 						title="Render failed"
-						description="This component could not be rendered with the given props."
+						description={error instanceof Error ? error.message : (typeof error === 'object' && error !== null && 'message' in error ? String((error as Record<string, unknown>).message) : String(error))}
 					/>
 				{/snippet}
 			</svelte:boundary>

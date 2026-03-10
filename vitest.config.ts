@@ -4,11 +4,78 @@ import { svelteTesting } from '@testing-library/svelte/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
-const editorSrc = path.resolve(import.meta.dirname, 'packages/products/webforge/editor/src');
-const financesEditorSrc = path.resolve(
-	import.meta.dirname,
-	'packages/products/finances/editor/src',
-);
+const root = import.meta.dirname;
+const editorSrc = path.resolve(root, 'packages/products/webforge/editor/src');
+const financesEditorSrc = path.resolve(root, 'packages/products/finances/editor/src');
+
+/**
+ * Explicit `@/` path aliases for Svelte test projects.
+ *
+ * The `vite-tsconfig-paths` plugin doesn't resolve `@/` value imports from Svelte-compiled
+ * component output. These prefix aliases mirror root tsconfig paths so Vite's resolver
+ * can handle extension mapping (`.js` → `.ts`) normally after prefix substitution.
+ */
+const sharedPathAliases: Array<{ find: string; replacement: string }> = [
+	// Order: specific exact paths → slash-suffixed prefixes → bare entrypoints
+	// 1. Specific subpath files that have a non-standard extension or need exact resolution
+	{
+		find: '@/locale/svelte',
+		replacement: path.resolve(root, 'packages/shared/locale/src/svelte.svelte.ts'),
+	},
+	{
+		find: '@/config/test/harness/',
+		replacement: `${path.resolve(root, 'packages/shared/config/test/src/harness')}/`,
+	},
+	{
+		find: '@/config/test/harness',
+		replacement: path.resolve(root, 'packages/shared/config/test/src/harness/index.ts'),
+	},
+	// 2. Slash-suffixed prefixes — match subpath imports, let Vite resolve extensions
+	{
+		find: '@/schemas/result/',
+		replacement: `${path.resolve(root, 'packages/shared/schemas/result/src')}/`,
+	},
+	{
+		find: '@/schemas/function/',
+		replacement: `${path.resolve(root, 'packages/shared/schemas/function/src')}/`,
+	},
+	{
+		find: '@/schemas/generic/',
+		replacement: `${path.resolve(root, 'packages/shared/schemas/generic/src')}/`,
+	},
+	{
+		find: '@/utils/result/',
+		replacement: `${path.resolve(root, 'packages/shared/utils/result/src')}/`,
+	},
+	{
+		find: '@/utils/core/',
+		replacement: `${path.resolve(root, 'packages/shared/utils/core/src')}/`,
+	},
+	{ find: '@/locale/', replacement: `${path.resolve(root, 'packages/shared/locale/src')}/` },
+	{
+		find: '@/config/test/',
+		replacement: `${path.resolve(root, 'packages/shared/config/test/src')}/`,
+	},
+	{ find: '@/ui/', replacement: `${path.resolve(root, 'packages/shared/ui/src')}/` },
+	// 3. Bare entrypoints — exact package imports
+	{
+		find: '@/schemas/common',
+		replacement: path.resolve(root, 'packages/shared/schemas/common/src/index.ts'),
+	},
+	{
+		find: '@/schemas/result',
+		replacement: path.resolve(root, 'packages/shared/schemas/result/src/result.ts'),
+	},
+	{
+		find: '@/schemas/function',
+		replacement: path.resolve(root, 'packages/shared/schemas/function/src/function.ts'),
+	},
+	{
+		find: '@/utils/core',
+		replacement: path.resolve(root, 'packages/shared/utils/core/src/index.ts'),
+	},
+	{ find: '@/ui', replacement: path.resolve(root, 'packages/shared/ui/src/index.ts') },
+];
 
 export default defineConfig({
 	plugins: [tsconfigPaths()],
@@ -142,12 +209,19 @@ export default defineConfig({
 					include: ['src/**/*.test.ts'],
 					exclude: ['e2e/**', 'node_modules/**', '.svelte-kit/**'],
 					setupFiles: ['./src/test-setup-component.ts'],
-					alias: {
-						$lib: path.join(editorSrc, 'lib'),
-						'$app/environment': path.join(editorSrc, 'test-mocks/app-environment.ts'),
-						'$app/navigation': path.join(editorSrc, 'test-mocks/app-navigation.ts'),
-						'$app/state': path.join(editorSrc, 'test-mocks/app-state.ts'),
-					},
+					alias: [
+						{ find: '$lib', replacement: path.join(editorSrc, 'lib') },
+						{
+							find: '$app/environment',
+							replacement: path.join(editorSrc, 'test-mocks/app-environment.ts'),
+						},
+						{
+							find: '$app/navigation',
+							replacement: path.join(editorSrc, 'test-mocks/app-navigation.ts'),
+						},
+						{ find: '$app/state', replacement: path.join(editorSrc, 'test-mocks/app-state.ts') },
+						...sharedPathAliases,
+					],
 					server: {
 						deps: {
 							inline: ['@lucide/svelte', 'bits-ui', 'mode-watcher', 'runed', 'svelte-toolbelt'],
@@ -174,12 +248,22 @@ export default defineConfig({
 					include: ['src/**/*.test.ts'],
 					exclude: ['e2e/**', 'node_modules/**', '.svelte-kit/**'],
 					setupFiles: ['./src/test-setup-component.ts'],
-					alias: {
-						$lib: path.join(financesEditorSrc, 'lib'),
-						'$app/environment': path.join(financesEditorSrc, 'test-mocks/app-environment.ts'),
-						'$app/navigation': path.join(financesEditorSrc, 'test-mocks/app-navigation.ts'),
-						'$app/state': path.join(financesEditorSrc, 'test-mocks/app-state.ts'),
-					},
+					alias: [
+						{ find: '$lib', replacement: path.join(financesEditorSrc, 'lib') },
+						{
+							find: '$app/environment',
+							replacement: path.join(financesEditorSrc, 'test-mocks/app-environment.ts'),
+						},
+						{
+							find: '$app/navigation',
+							replacement: path.join(financesEditorSrc, 'test-mocks/app-navigation.ts'),
+						},
+						{
+							find: '$app/state',
+							replacement: path.join(financesEditorSrc, 'test-mocks/app-state.ts'),
+						},
+						...sharedPathAliases,
+					],
 					server: {
 						deps: {
 							inline: ['@lucide/svelte', 'bits-ui', 'mode-watcher', 'runed', 'svelte-toolbelt'],

@@ -1,6 +1,5 @@
-<script lang="ts">
-import type { Bool, Str } from '@/schemas/common';
-import { cn } from '../utils.js';
+<script module lang="ts">
+import * as v from 'valibot';
 
 /**
  * Syntax-highlighted code block powered by Shiki.
@@ -14,16 +13,27 @@ import { cn } from '../utils.js';
  * <CodeBlock code={rawSource} lang="svelte" />
  * ```
  */
-type CodeBlockProps = {
+export const CodeBlockPropsSchema = v.strictObject({
 	/** Raw source code to highlight. @values console.log('hello'), const x = 42, <div>Hello</div> */
-	code: Str;
+	code: v.string(),
 	/** Language grammar to use. @values svelte, typescript, javascript, html, css, json, markdown, bash */
-	lang?: Str;
+	lang: v.optional(v.string()),
 	/** Additional CSS classes for the root element. */
-	class?: Str;
-};
+	class: v.optional(v.string()),
+});
+/** Props for the CodeBlock component. */
+export type CodeBlockProps = v.InferOutput<typeof CodeBlockPropsSchema>;
+</script>
 
-const { code, lang = 'svelte', class: className }: CodeBlockProps = $props();
+<script lang="ts">
+import type { Bool, Str } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
+import { cn } from '../utils.js';
+
+const rawProps = $props();
+const validated = safeParse(CodeBlockPropsSchema, rawProps);
+if (!validated.ok) throw validated.error;
+const { code, lang = 'svelte', class: className }: CodeBlockProps = validated.data;
 
 /** Whether we're currently in dark mode. */
 const isDark: Bool = $derived(

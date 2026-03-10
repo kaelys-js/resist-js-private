@@ -1,3 +1,50 @@
+<script module lang="ts">
+import * as v from 'valibot';
+import type { Str, Bool } from '@/schemas/common';
+
+/** Schema for localized UI labels in the ErrorPage component. */
+export const ErrorPageLabelsSchema = v.strictObject({
+	/** "Go to homepage" button label. @values Go Home, Back to Home, Return Home */
+	goHome: v.string(),
+	/** "Try again" button label. @values Try Again, Retry, Reload */
+	tryAgain: v.string(),
+	/** "Copied!" confirmation text. @values Copied!, Copied to clipboard */
+	copied: v.string(),
+	/** "Copy failed" error text. @values Copy failed, Failed to copy */
+	copyFailed: v.string(),
+	/** Formatted error ID reference. @values Reference: err-abc-123, Reference: err-def-456 */
+	errorIdLabel: v.string(),
+	/** Aria-label for the copy button. @values Copy error ID to clipboard, Copy reference ID */
+	copyErrorIdAriaLabel: v.string(),
+	/** Tooltip text when not yet copied. @values Click to copy, Copy to clipboard */
+	clickToCopy: v.string(),
+});
+/** Localized UI labels for the ErrorPage component. */
+export type ErrorPageLabels = v.InferOutput<typeof ErrorPageLabelsSchema>;
+
+/** Schema for the ErrorPage component props. */
+export const ErrorPagePropsSchema = v.strictObject({
+	/** HTTP status code. @values 400, 403, 404, 500 */
+	status: v.number(),
+	/** Error message. @values Not Found, Forbidden, Internal Server Error */
+	message: v.string(),
+	/** Optional error reference ID for user support. @values err-abc-123, err-def-456 */
+	errorId: v.optional(v.string()),
+	/** Pre-resolved title for the status code. @values Bad Request, Forbidden, Not Found, Server Error */
+	title: v.string(),
+	/** Pre-resolved description. @values The page you requested could not be found., You do not have permission to access this resource. */
+	description: v.string(),
+	/** Localized UI labels. */
+	labels: ErrorPageLabelsSchema,
+	/** Optional callback for screen reader announcements. */
+	announce: v.optional(v.custom<(msg: Str) => void>((val: unknown): boolean => typeof val === 'function')),
+	/** Optional override for clipboard copy. */
+	copyOverride: v.optional(v.custom<(text: Str) => Promise<Bool>>((val: unknown): boolean => typeof val === 'function')),
+});
+/** Props for the ErrorPage component. */
+export type ErrorPageProps = v.InferOutput<typeof ErrorPagePropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Full-page error display with status code, icon, message, and action buttons.
@@ -5,7 +52,8 @@
  * Renders a centered error layout with a status-specific icon, title, description,
  * navigation/retry actions, and an optional copyable error reference ID.
  */
-import type { Str, Num, Bool, Void } from '@/schemas/common';
+import type { Num, Void } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
 import type { Component } from 'svelte';
 import { fade } from 'svelte/transition';
 import ArrowLeft from '@lucide/svelte/icons/arrow-left';
@@ -21,48 +69,9 @@ import X from '@lucide/svelte/icons/x';
 import { Button } from '../button/index.js';
 import * as Tooltip from '../tooltip/index.js';
 
-/** Localized UI labels for the ErrorPage component. */
-type ErrorPageLabels = {
-	/** "Go to homepage" button label. @values Go Home, Back to Home, Return Home */
-	goHome: Str;
-	/** "Try again" button label. @values Try Again, Retry, Reload */
-	tryAgain: Str;
-	/** "Copied!" confirmation text. @values Copied!, Copied to clipboard */
-	copied: Str;
-	/** "Copy failed" error text. @values Copy failed, Failed to copy */
-	copyFailed: Str;
-	/** Formatted error ID reference (e.g. "Reference: abc-123"). @values Reference: err-abc-123, Reference: err-def-456 */
-	errorIdLabel: Str;
-	/** Aria-label for the copy button (e.g. "Copy error ID to clipboard"). @values Copy error ID to clipboard, Copy reference ID */
-	copyErrorIdAriaLabel: Str;
-	/** Tooltip text when not yet copied (e.g. "Click to copy"). @values Click to copy, Copy to clipboard */
-	clickToCopy: Str;
-};
-
-/**
- * Props for the shared ErrorPage component.
- *
- * Each product editor resolves locale strings and provides the announce callback.
- */
-type ErrorPageProps = {
-	/** HTTP status code. @values 400, 403, 404, 500 */
-	status: Num;
-	/** Error message (available for future use). @values Not Found, Forbidden, Internal Server Error */
-	message: Str;
-	/** Optional error reference ID for user support. @values err-abc-123, err-def-456 */
-	errorId?: Str;
-	/** Pre-resolved title for the status code. @values Bad Request, Forbidden, Not Found, Server Error */
-	title: Str;
-	/** Pre-resolved description for the status code. @values The page you requested could not be found., You do not have permission to access this resource. */
-	description: Str;
-	/** Localized UI labels. */
-	labels: ErrorPageLabels;
-	/** Optional callback for screen reader announcements. */
-	announce?: (msg: Str) => void;
-	/** Optional override for clipboard copy — returns success/failure. Used for testing. */
-	copyOverride?: (text: Str) => Promise<Bool>;
-};
-
+const rawProps = $props();
+const validated = safeParse(ErrorPagePropsSchema, rawProps);
+if (!validated.ok) throw validated.error;
 let {
 	status,
 	message,
@@ -72,7 +81,7 @@ let {
 	labels,
 	announce,
 	copyOverride,
-}: ErrorPageProps = $props();
+}: ErrorPageProps = validated.data;
 
 /** Copy result: 'idle' (default), 'success', or 'failed'. */
 let copyState: 'idle' | 'success' | 'failed' = $state('idle');

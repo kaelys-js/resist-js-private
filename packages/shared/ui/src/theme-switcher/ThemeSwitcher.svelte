@@ -1,61 +1,65 @@
+<script module lang="ts">
+import * as v from 'valibot';
+import type { Str } from '@/schemas/common';
+
+/** Schema for a single theme option with color preview dots. */
+export const ThemeOptionSchema = v.strictObject({
+	/** Theme identifier (empty string for default). @values default, ocean, forest, sunset */
+	id: v.string(),
+	/** Localized display label. @values Default, Ocean, Forest, Sunset */
+	label: v.string(),
+	/** Color dots: [primary, accent/secondary, sidebar, sidebar-primary]. */
+	dots: v.pipe(v.array(v.string()), v.length(4)),
+});
+/** A single theme option. */
+export type ThemeOption = v.InferOutput<typeof ThemeOptionSchema>;
+
+/** Schema for localized UI labels in the ThemeSwitcher. */
+export const ThemeSwitcherLabelsSchema = v.strictObject({
+	/** Sub-menu trigger label (e.g. "Theme"). @values Theme, Color Theme, Palette */
+	theme: v.string(),
+	/** Search input placeholder (e.g. "Search themes…"). @values Search themes…, Find a theme…, Filter themes */
+	searchThemes: v.string(),
+	/** Clear search button aria-label (e.g. "Clear search"). @values Clear search, Reset search, Clear */
+	clearSearch: v.string(),
+	/** Empty state heading (e.g. "No themes found"). @values No themes found, No results, No matching themes */
+	noThemesFound: v.string(),
+	/** Empty state hint (e.g. "Try a different search term"). @values Try a different search term, Adjust your search, Clear the filter */
+	noResultsHint: v.string(),
+});
+/** Localized UI labels for the ThemeSwitcher. */
+export type ThemeSwitcherLabels = v.InferOutput<typeof ThemeSwitcherLabelsSchema>;
+
+/** Schema for the ThemeSwitcher component props. */
+export const ThemeSwitcherPropsSchema = v.strictObject({
+	/** Current active theme id. @values default, ocean, forest, sunset */
+	theme: v.string(),
+	/** Callback to change the theme. */
+	setTheme: v.custom<(id: Str) => void>((val: unknown): boolean => typeof val === 'function'),
+	/** Available theme options with pre-resolved locale labels. */
+	themes: v.array(ThemeOptionSchema),
+	/** Localized UI labels. */
+	labels: ThemeSwitcherLabelsSchema,
+});
+/** Props for the ThemeSwitcher component. */
+export type ThemeSwitcherProps = v.InferOutput<typeof ThemeSwitcherPropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Theme color palette switcher rendered as a searchable dropdown sub-menu.
  *
  * Displays available themes with color preview dots and a checkmark on the active theme.
  */
+import type { Bool, Void } from '@/schemas/common';
 import Search from '@lucide/svelte/icons/search';
 import SearchX from '@lucide/svelte/icons/search-x';
 import X from '@lucide/svelte/icons/x';
 import Palette from '@lucide/svelte/icons/palette';
 import Check from '@lucide/svelte/icons/check';
 import * as DropdownMenu from '../dropdown-menu/index.js';
-import type { Bool, Str, Void } from '@/schemas/common';
 
-/**
- * A single theme option with its color preview dots.
- */
-type ThemeOption = {
-	/** Theme identifier (empty string for default). @values default, ocean, forest, sunset */
-	id: Str;
-	/** Localized display label. @values Default, Ocean, Forest, Sunset */
-	label: Str;
-	/** Color dots: [primary, accent/secondary, sidebar, sidebar-primary]. */
-	dots: readonly [Str, Str, Str, Str];
-};
-
-/**
- * Localized UI labels for the ThemeSwitcher.
- */
-type ThemeSwitcherLabels = {
-	/** Sub-menu trigger label (e.g. "Theme"). @values Theme, Color Theme, Palette */
-	theme: Str;
-	/** Search input placeholder (e.g. "Search themes…"). @values Search themes…, Find a theme…, Filter themes */
-	searchThemes: Str;
-	/** Clear search button aria-label (e.g. "Clear search"). @values Clear search, Reset search, Clear */
-	clearSearch: Str;
-	/** Empty state heading (e.g. "No themes found"). @values No themes found, No results, No matching themes */
-	noThemesFound: Str;
-	/** Empty state hint (e.g. "Try a different search term"). @values Try a different search term, Adjust your search, Clear the filter */
-	noResultsHint: Str;
-};
-
-/**
- * Props for the shared ThemeSwitcher component.
- *
- * Each product editor resolves locale strings and provides store state/setter.
- */
-type ThemeSwitcherProps = {
-	/** Current active theme id. @values default, ocean, forest, sunset */
-	theme: Str;
-	/** Callback to change the theme. */
-	setTheme: (id: Str) => void;
-	/** Available theme options with pre-resolved locale labels. */
-	themes: readonly ThemeOption[];
-	/** Localized UI labels. */
-	labels: ThemeSwitcherLabels;
-};
-
+// Reactive props — theme changes when user switches theme
 let { theme, setTheme, themes, labels }: ThemeSwitcherProps = $props();
 
 let searchQuery: Str = $state('');

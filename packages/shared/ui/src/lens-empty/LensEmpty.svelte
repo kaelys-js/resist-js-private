@@ -1,3 +1,22 @@
+<script module lang="ts">
+import * as v from 'valibot';
+import type { Snippet } from 'svelte';
+
+export const LensEmptyPropsSchema = v.strictObject({
+	/** Primary message text. @values No variants found, No examples yet, Component not found */
+	title: v.string(),
+	/** Secondary description text below the title. @values This component has no renderable variants., Add examples to see them here. */
+	description: v.optional(v.string()),
+	/** Optional icon snippet — defaults to PackageOpen. */
+	icon: v.optional(v.custom<Snippet>((val) => typeof val === 'function')),
+	/** Visual variant. @values default, destructive */
+	variant: v.optional(v.picklist(['default', 'destructive'])),
+	/** Additional CSS classes for the root element. */
+	class: v.optional(v.string()),
+});
+export type LensEmptyProps = v.InferOutput<typeof LensEmptyPropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Empty state placeholder for the Lens documentation system.
@@ -5,33 +24,14 @@
  * Renders a styled dashed-border card with optional icon, title, and
  * description. Supports a `destructive` variant for error states.
  */
-import type { Str } from '@/schemas/common';
-import type { Snippet } from 'svelte';
+import { safeParse } from '@/utils/result/safe';
 import { cn } from '../utils.js';
 import PackageOpen from '@lucide/svelte/icons/package-open';
 
-type LensEmptyVariant = 'default' | 'destructive';
-
-type LensEmptyProps = {
-	/** Primary message text. @values No variants found, No examples yet, Component not found */
-	title: Str;
-	/** Secondary description text below the title. @values This component has no renderable variants., Add examples to see them here. */
-	description?: Str;
-	/** Optional icon snippet — defaults to PackageOpen. */
-	icon?: Snippet;
-	/** Visual variant. @values default, destructive */
-	variant?: LensEmptyVariant;
-	/** Additional CSS classes for the root element. */
-	class?: Str;
-};
-
-const {
-	title,
-	description,
-	icon,
-	variant = 'default',
-	class: className,
-}: LensEmptyProps = $props();
+const rawProps = $props();
+const validated = safeParse(LensEmptyPropsSchema, rawProps);
+if (!validated.ok) throw validated.error;
+const { title, description, icon, variant = 'default', class: className }: LensEmptyProps = validated.data;
 </script>
 
 <div

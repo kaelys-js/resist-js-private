@@ -1,3 +1,50 @@
+<script module lang="ts">
+import * as v from 'valibot';
+import type { Str } from '@/schemas/common';
+
+/** Schema for a single language option with endonym/exonym display names. */
+export const LanguageOptionSchema = v.strictObject({
+	/** BCP-47 locale code (e.g. "en", "ja"). @values en, ja, de, fr, es, ko, zh */
+	code: v.string(),
+	/** Native name of the language (e.g. "日本語"). @values English, 日本語, Deutsch, Français */
+	endonym: v.string(),
+	/** Name of the language in the current locale (e.g. "Japanese"). @values English, Japanese, German, French */
+	exonym: v.string(),
+});
+/** A single language option. */
+export type LanguageOption = v.InferOutput<typeof LanguageOptionSchema>;
+
+/** Schema for localized UI labels in the LanguageSwitcher. */
+export const LanguageSwitcherLabelsSchema = v.strictObject({
+	/** Sub-menu trigger label (e.g. "Language"). @values Language, Locale, Display Language */
+	language: v.string(),
+	/** Search input placeholder (e.g. "Search languages…"). @values Search languages…, Find a language…, Filter languages */
+	searchLanguages: v.string(),
+	/** Clear search button aria-label (e.g. "Clear search"). @values Clear search, Reset search, Clear */
+	clearSearch: v.string(),
+	/** Empty state heading (e.g. "No languages found"). @values No languages found, No results, No matching languages */
+	noLanguagesFound: v.string(),
+	/** Empty state hint (e.g. "Try a different search term"). @values Try a different search term, Adjust your search, Clear the filter */
+	noResultsHint: v.string(),
+});
+/** Localized UI labels for the LanguageSwitcher. */
+export type LanguageSwitcherLabels = v.InferOutput<typeof LanguageSwitcherLabelsSchema>;
+
+/** Schema for the LanguageSwitcher component props. */
+export const LanguageSwitcherPropsSchema = v.strictObject({
+	/** Current active locale code. @values en, ja, de, fr, es, ko, zh */
+	locale: v.string(),
+	/** Callback to switch locale — wrapper handles cookie/document side effects. */
+	switchLanguage: v.custom<(code: Str) => void>((val: unknown): boolean => typeof val === 'function'),
+	/** Available language options with pre-resolved display names. */
+	languages: v.array(LanguageOptionSchema),
+	/** Localized UI labels. */
+	labels: LanguageSwitcherLabelsSchema,
+});
+/** Props for the LanguageSwitcher component. */
+export type LanguageSwitcherProps = v.InferOutput<typeof LanguageSwitcherPropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Language/locale selector rendered as a searchable dropdown sub-menu.
@@ -11,52 +58,9 @@ import X from '@lucide/svelte/icons/x';
 import Globe from '@lucide/svelte/icons/globe';
 import Check from '@lucide/svelte/icons/check';
 import * as DropdownMenu from '../dropdown-menu/index.js';
-import type { Bool, Str, Void } from '@/schemas/common';
+import type { Bool, Void } from '@/schemas/common';
 
-/**
- * A single language option with endonym/exonym display names.
- */
-type LanguageOption = {
-	/** BCP-47 locale code (e.g. "en", "ja"). @values en, ja, de, fr, es, ko, zh */
-	code: Str;
-	/** Native name of the language (e.g. "日本語"). @values English, 日本語, Deutsch, Français */
-	endonym: Str;
-	/** Name of the language in the current locale (e.g. "Japanese"). @values English, Japanese, German, French */
-	exonym: Str;
-};
-
-/**
- * Localized UI labels for the LanguageSwitcher.
- */
-type LanguageSwitcherLabels = {
-	/** Sub-menu trigger label (e.g. "Language"). @values Language, Locale, Display Language */
-	language: Str;
-	/** Search input placeholder (e.g. "Search languages…"). @values Search languages…, Find a language…, Filter languages */
-	searchLanguages: Str;
-	/** Clear search button aria-label (e.g. "Clear search"). @values Clear search, Reset search, Clear */
-	clearSearch: Str;
-	/** Empty state heading (e.g. "No languages found"). @values No languages found, No results, No matching languages */
-	noLanguagesFound: Str;
-	/** Empty state hint (e.g. "Try a different search term"). @values Try a different search term, Adjust your search, Clear the filter */
-	noResultsHint: Str;
-};
-
-/**
- * Props for the shared LanguageSwitcher component.
- *
- * Each product editor resolves locale strings, store state, and side effects.
- */
-type LanguageSwitcherProps = {
-	/** Current active locale code. @values en, ja, de, fr, es, ko, zh */
-	locale: Str;
-	/** Callback to switch locale — wrapper handles cookie/document side effects. */
-	switchLanguage: (code: Str) => void;
-	/** Available language options with pre-resolved display names. */
-	languages: readonly LanguageOption[];
-	/** Localized UI labels. */
-	labels: LanguageSwitcherLabels;
-};
-
+// Reactive props — locale changes when user switches language
 let { locale, switchLanguage, languages, labels }: LanguageSwitcherProps = $props();
 
 let searchQuery: Str = $state('');

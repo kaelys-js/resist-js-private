@@ -53,6 +53,8 @@ export const PropMetaSchema = v.strictObject({
 	typeFields: v.optional(v.array(TypeFieldSchema)),
 	/** Explicit mock values from `@values` JSDoc tag for variant generation. */
 	mockValues: v.optional(v.array(v.string())),
+	/** Whether the prop is optional (from `v.optional()` or `?:` in type). */
+	optional: v.optional(v.boolean()),
 });
 export type PropMeta = v.InferOutput<typeof PropMetaSchema>;
 

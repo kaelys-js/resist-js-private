@@ -1,3 +1,36 @@
+<script module lang="ts">
+import * as v from 'valibot';
+import type { Str } from '@/schemas/common';
+
+/** Schema for localized labels in the ModeToggle UI. */
+export const ModeToggleLabelsSchema = v.strictObject({
+	/** Tooltip label. @values Toggle theme, Switch theme, Change mode */
+	toggleTheme: v.string(),
+	/** Accessible aria-label. @values Toggle mode, Switch color mode, Change appearance */
+	toggleMode: v.string(),
+	/** Light mode option label. @values Light, Light Mode, Day */
+	light: v.string(),
+	/** Dark mode option label. @values Dark, Dark Mode, Night */
+	dark: v.string(),
+	/** System mode option label. @values System, Auto, Follow System */
+	system: v.string(),
+});
+/** Localized labels for the ModeToggle UI. */
+export type ModeToggleLabels = v.InferOutput<typeof ModeToggleLabelsSchema>;
+
+/** Schema for the ModeToggle component props. */
+export const ModeTogglePropsSchema = v.strictObject({
+	/** Current color mode. @values light, dark, system */
+	mode: v.picklist(['light', 'dark', 'system']),
+	/** Callback to change the color mode. */
+	setMode: v.custom<(mode: Str) => void>((val: unknown): boolean => typeof val === 'function'),
+	/** Localized labels for the toggle UI. */
+	labels: ModeToggleLabelsSchema,
+});
+/** Props for the ModeToggle component. */
+export type ModeToggleProps = v.InferOutput<typeof ModeTogglePropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Light/dark/system color mode toggle with animated sun/moon icon and dropdown menu.
@@ -9,37 +42,6 @@ import Check from '@lucide/svelte/icons/check';
 import { Button } from '../button/index.js';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 import * as Tooltip from '../tooltip/index.js';
-import type { Str } from '@/schemas/common';
-
-/**
- * Localized labels for the ModeToggle UI.
- */
-type ModeToggleLabels = {
-	/** Tooltip label (e.g. "Toggle theme"). @values Toggle theme, Switch theme, Change mode */
-	toggleTheme: Str;
-	/** Accessible aria-label (e.g. "Toggle mode"). @values Toggle mode, Switch color mode, Change appearance */
-	toggleMode: Str;
-	/** Light mode option label. @values Light, Light Mode, Day */
-	light: Str;
-	/** Dark mode option label. @values Dark, Dark Mode, Night */
-	dark: Str;
-	/** System mode option label. @values System, Auto, Follow System */
-	system: Str;
-};
-
-/**
- * Props for the shared ModeToggle component.
- *
- * Each product editor provides its own mode state, setter, and locale labels.
- */
-type ModeToggleProps = {
-	/** Current color mode. @values light, dark, system */
-	mode: Str;
-	/** Callback to change the color mode. */
-	setMode: (mode: Str) => void;
-	/** Localized labels for the toggle UI. */
-	labels: ModeToggleLabels;
-};
 
 let { mode, setMode, labels }: ModeToggleProps = $props();
 </script>

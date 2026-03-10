@@ -1,15 +1,6 @@
-<script lang="ts">
-/**
- * Search input with a popover autocomplete dropdown powered by cmdk-sv.
- *
- * Supports grouped items, keyboard navigation, and navigation links or selection callbacks.
- */
-import type { Bool, Str } from '@/schemas/common';
-import SearchIcon from '@lucide/svelte/icons/search';
-import type { SearchItem } from './search-item.js';
-import * as Command from '../command/index.js';
-import * as Popover from '../popover/index.js';
-import { cn } from '../utils.js';
+<script module lang="ts">
+import * as v from 'valibot';
+import { SearchItemSchema, type SearchItem } from './search-item.js';
 
 /**
  * Search input with popover autocomplete dropdown.
@@ -26,26 +17,46 @@ import { cn } from '../utils.js';
  * />
  * ```
  */
-type SearchAutocompleteProps = {
+export const SearchAutocompletePropsSchema = v.strictObject({
 	/** The list of items to search through. */
-	items: SearchItem[];
+	items: v.array(SearchItemSchema),
 	/** Placeholder text for the search input. @values Search..., Find components, Type to search */
-	placeholder?: Str;
+	placeholder: v.optional(v.string()),
 	/** Additional CSS classes for the trigger button. */
-	class?: Str;
+	class: v.optional(v.string()),
 	/** Callback fired when an item is selected. */
-	onSelect?: (item: SearchItem) => void;
-	/** Text shown when no items match the search query. @values No results found, Nothing here, Try a different search */
-	emptyText?: Str;
-};
+	onSelect: v.optional(v.custom<(item: SearchItem) => void>((val: unknown): boolean => typeof val === 'function')),
+	/** Text shown when no items match. @values No results found, Nothing here, Try a different search */
+	emptyText: v.optional(v.string()),
+});
+/** Props for the SearchAutocomplete component. */
+export type SearchAutocompleteProps = v.InferOutput<typeof SearchAutocompletePropsSchema>;
+</script>
 
+<script lang="ts">
+/**
+ * Search input with a popover autocomplete dropdown powered by cmdk-sv.
+ *
+ * Supports grouped items, keyboard navigation, and navigation links or selection callbacks.
+ */
+import type { Bool, Str } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
+import SearchIcon from '@lucide/svelte/icons/search';
+import * as Command from '../command/index.js';
+import * as Popover from '../popover/index.js';
+import { cn } from '../utils.js';
+
+const rawProps = $props();
+const validated = safeParse(SearchAutocompletePropsSchema, rawProps);
+if (!validated.ok) throw validated.error;
 const {
 	items,
 	placeholder = 'Search...',
 	class: className,
 	onSelect,
 	emptyText = 'No results.',
-}: SearchAutocompleteProps = $props();
+// Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates
+}: SearchAutocompleteProps = validated.data as SearchAutocompleteProps;
 
 let open: Bool = $state(false);
 let searchValue: Str = $state('');

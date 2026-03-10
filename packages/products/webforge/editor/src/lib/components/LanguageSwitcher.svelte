@@ -12,13 +12,14 @@ import { setPreferenceCookie } from '$lib/utils/preference-cookie';
 
 const store: EditorStore = useEditorStore();
 
-const languages: readonly LanguageDisplayInfo[] = $derived.by(() => {
+const languages: LanguageDisplayInfo[] = $derived.by(() => {
 	const result: Result<LanguageDisplayInfo[]> = getLanguageDisplayNames(
 		SUPPORTED_LOCALES,
 		store.app.locale,
 	);
 	if (!result.ok) return [];
-	return result.data;
+	// Spread to unfreeze — Result.data is deep-frozen via Object.freeze
+	return [...result.data];
 });
 
 const labels: {
