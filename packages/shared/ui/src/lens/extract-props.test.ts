@@ -3,6 +3,8 @@
  *
  * Tests regex-based extraction of `$props()` metadata from raw Svelte source.
  */
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import type { PropMeta } from './types.js';
@@ -347,5 +349,537 @@ export const buttonVariants = tv({
 		);
 		expect(variantProp?.default).toBe('"default"');
 		expect(variantProp?.type).toBe('string');
+	});
+
+	it('resolves named schema const refs into expandable typeFields (schema-based path)', () => {
+		const source: string = `<script module lang="ts">
+import * as v from 'valibot';
+import { StrSchema, NumSchema } from '@/schemas/common';
+
+const DepKindSchema = v.picklist(['type', 'namespace', 'named', 'default']);
+
+export const DepEntrySchema = v.strictObject({
+	/** The import specifier path. @values ../button/index.js */
+	path: StrSchema,
+	/** Imported names. @values Button, cn */
+	names: v.array(StrSchema),
+	/** Component directory name. @values button, dialog */
+	component: StrSchema,
+	/** How this import was declared. @values type, named */
+	kind: DepKindSchema,
+});
+
+export const DepTreeSchema = v.strictObject({
+	/** Internal deps. */
+	internal: v.array(DepEntrySchema),
+	/** Workspace deps. */
+	workspace: v.array(DepEntrySchema),
+	/** External deps. */
+	external: v.array(DepEntrySchema),
+});
+
+export const SizeSchema = v.strictObject({
+	/** Source size. @values 1024, 2048 */
+	source: NumSchema,
+	/** Gzip size. @values 256, 512 */
+	gzip: v.optional(NumSchema),
+});
+
+export const MyPropsSchema = v.strictObject({
+	/** The dependency tree. */
+	deps: DepTreeSchema,
+	/** Per-component sizes. */
+	sizes: v.optional(v.record(v.string(), SizeSchema)),
+	/** Class name. */
+	class: v.optional(StrSchema),
+});
+export type MyProps = v.InferOutput<typeof MyPropsSchema>;
+</script>
+
+<script lang="ts">
+import { safeParse } from '@/utils/result/safe';
+const allProps: MyProps = $props();
+const validated = $derived.by(() => {
+	const result = safeParse(MyPropsSchema, allProps);
+	if (!result.ok) throw result.error;
+	return result.data as MyProps;
+});
+</script>`;
+		const props: PropMeta[] = extractProps(source);
+		const names: string[] = props.map((p: PropMeta): string => p.name);
+		expect(names).toContain('deps');
+		expect(names).toContain('sizes');
+
+		// deps should have type 'DepTree' and be expandable
+		const depsProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'deps');
+		expect(depsProp?.type).toBe('DepTree');
+		expect(depsProp?.typeDefinition).toBeDefined();
+		expect(depsProp?.typeFields).toBeDefined();
+		expect(depsProp?.typeFields?.length).toBeGreaterThan(0);
+
+		// sizes should have type 'Record<string, Size>' and be expandable
+		const sizesProp: PropMeta | undefined = props.find(
+			(p: PropMeta): boolean => p.name === 'sizes',
+		);
+		expect(sizesProp?.type).toBe('Record<string, Size>');
+		expect(sizesProp?.typeFields).toBeDefined();
+		expect(sizesProp?.typeFields?.length).toBeGreaterThan(0);
+	});
+
+	it('expands DepTree into its sub-fields (internal, workspace, external)', () => {
+		const source: string = `<script module lang="ts">
+import * as v from 'valibot';
+import { StrSchema, NumSchema } from '@/schemas/common';
+
+const DepKindSchema = v.picklist(['type', 'namespace', 'named', 'default']);
+
+export const DepEntrySchema = v.strictObject({
+	/** The import specifier path. @values ../button/index.js */
+	path: StrSchema,
+	/** Imported names. @values Button, cn */
+	names: v.array(StrSchema),
+	/** Component directory name. @values button, dialog */
+	component: StrSchema,
+	/** How this import was declared. @values type, named */
+	kind: DepKindSchema,
+});
+
+export const DepTreeSchema = v.strictObject({
+	/** Internal deps. */
+	internal: v.array(DepEntrySchema),
+	/** Workspace deps. */
+	workspace: v.array(DepEntrySchema),
+	/** External deps. */
+	external: v.array(DepEntrySchema),
+});
+
+export const MyPropsSchema = v.strictObject({
+	/** The dependency tree. */
+	deps: DepTreeSchema,
+});
+export type MyProps = v.InferOutput<typeof MyPropsSchema>;
+</script>
+
+<script lang="ts">
+import { safeParse } from '@/utils/result/safe';
+const allProps: MyProps = $props();
+const validated = $derived.by(() => {
+	const result = safeParse(MyPropsSchema, allProps);
+	if (!result.ok) throw result.error;
+	return result.data as MyProps;
+});
+</script>`;
+		const props: PropMeta[] = extractProps(source);
+		const depsProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'deps');
+		expect(depsProp).toBeDefined();
+		expect(depsProp?.typeFields).toBeDefined();
+		expect(depsProp?.typeFields?.length).toBeGreaterThan(0);
+		// Verify actual sub-field names
+		const fieldNames: string[] = (depsProp?.typeFields ?? []).map((f) => f.field);
+		expect(fieldNames).toContain('internal');
+		expect(fieldNames).toContain('workspace');
+		expect(fieldNames).toContain('external');
+	});
+
+	it('expands Record<string, Size> to show value schema sub-fields', () => {
+		const source: string = `<script module lang="ts">
+import * as v from 'valibot';
+import { StrSchema, NumSchema } from '@/schemas/common';
+
+export const SizeSchema = v.strictObject({
+	/** Source size. @values 1024, 2048 */
+	source: NumSchema,
+	/** Gzip size. @values 256, 512 */
+	gzip: v.optional(NumSchema),
+});
+
+export const MyPropsSchema = v.strictObject({
+	/** Per-component sizes. */
+	sizes: v.optional(v.record(v.string(), SizeSchema)),
+});
+export type MyProps = v.InferOutput<typeof MyPropsSchema>;
+</script>
+
+<script lang="ts">
+import { safeParse } from '@/utils/result/safe';
+const allProps: MyProps = $props();
+const validated = $derived.by(() => {
+	const result = safeParse(MyPropsSchema, allProps);
+	if (!result.ok) throw result.error;
+	return result.data as MyProps;
+});
+</script>`;
+		const props: PropMeta[] = extractProps(source);
+		const sizesProp: PropMeta | undefined = props.find(
+			(p: PropMeta): boolean => p.name === 'sizes',
+		);
+		expect(sizesProp).toBeDefined();
+		expect(sizesProp?.type).toBe('Record<string, Size>');
+		expect(sizesProp?.typeFields).toBeDefined();
+		expect(sizesProp?.typeFields?.length).toBeGreaterThan(0);
+		// Should have [key] + expanded value schema fields (source, gzip)
+		const fieldNames: string[] = (sizesProp?.typeFields ?? []).map((f) => f.field);
+		expect(fieldNames).toContain('[key]');
+		expect(fieldNames).toContain('source');
+		expect(fieldNames).toContain('gzip');
+	});
+
+	it('includes @values as mockValues for schema-based fields', () => {
+		const source: string = `<script module lang="ts">
+import * as v from 'valibot';
+import { StrSchema, NumSchema } from '@/schemas/common';
+
+export const TestPropsSchema = v.strictObject({
+	/** Component name. @values button, dialog, sidebar */
+	name: StrSchema,
+	/** Size in bytes. @values 1024, 2048 */
+	size: NumSchema,
+});
+export type TestProps = v.InferOutput<typeof TestPropsSchema>;
+</script>
+
+<script lang="ts">
+import { safeParse } from '@/utils/result/safe';
+const allProps: TestProps = $props();
+const validated = $derived.by(() => {
+	const result = safeParse(TestPropsSchema, allProps);
+	if (!result.ok) throw result.error;
+	return result.data as TestProps;
+});
+</script>`;
+		const props: PropMeta[] = extractProps(source);
+		const nameProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'name');
+		expect(nameProp?.mockValues).toEqual(['button', 'dialog', 'sidebar']);
+
+		const sizeProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'size');
+		expect(sizeProp?.mockValues).toEqual(['1024', '2048']);
+	});
+
+	it('every LensDependencyTree prop has @values (mockValues)', () => {
+		const source: string = `<script module lang="ts">
+import * as v from 'valibot';
+import { StrSchema, NumSchema } from '@/schemas/common';
+
+const DepKindSchema = v.picklist(['type', 'namespace', 'named', 'default']);
+
+export const DepEntrySchema = v.strictObject({
+	/** The import specifier path. @values ../button/index.js */
+	path: StrSchema,
+	/** Imported names. @values Button, cn */
+	names: v.array(StrSchema),
+	/** Component directory name. @values button, dialog */
+	component: StrSchema,
+	/** How this import was declared. @values type, named */
+	kind: DepKindSchema,
+});
+
+export const DepTreeSchema = v.strictObject({
+	/** Internal deps. @values [{path: "../button/index.js", names: ["Button"], component: "button", kind: "named"}] */
+	internal: v.array(DepEntrySchema),
+	/** Workspace deps. @values [{path: "@/ui/tooltip", names: ["Tooltip"], component: "", kind: "named"}] */
+	workspace: v.array(DepEntrySchema),
+	/** External deps. @values [{path: "bits-ui", names: ["Dialog"], component: "", kind: "named"}] */
+	external: v.array(DepEntrySchema),
+});
+
+export const ReverseDepSchema = v.strictObject({
+	/** Component name. @values sidebar, dialog */
+	component: StrSchema,
+	/** Imported names. @values Button, buttonVariants */
+	names: v.array(StrSchema),
+	/** Import kind. @values type, named */
+	kind: DepKindSchema,
+});
+
+export const ComponentSizeSchema = v.strictObject({
+	/** Raw source size in chars. @values 1024, 2048 */
+	source: NumSchema,
+	/** Minified JS size. @values 512, 1024 */
+	compiled: v.optional(NumSchema),
+	/** Gzip size. @values 256, 512 */
+	gzip: v.optional(NumSchema),
+});
+
+export const LensDependencyTreePropsSchema = v.strictObject({
+	/** Categorized dependency tree. @values {internal: [], workspace: [], external: []} */
+	deps: DepTreeSchema,
+	/** Reverse deps. @values [{component: "sidebar", names: ["Button"], kind: "named"}] */
+	usedBy: v.optional(v.array(ReverseDepSchema)),
+	/** Current component name. @values button, dialog, sidebar */
+	currentComponent: v.optional(StrSchema),
+	/** Per-component sizes. @values {button: {source: 1024, compiled: 512, gzip: 256}} */
+	sizes: v.optional(v.record(v.string(), ComponentSizeSchema)),
+	/** Known component names. @values button, dialog, tooltip */
+	knownComponents: v.optional(v.array(StrSchema)),
+	/** Raw source strings. @values {"/ui/button/index.js": "import..."} */
+	rawSources: v.optional(v.record(v.string(), StrSchema)),
+	/** CSS classes. @values mt-4, space-y-2 */
+	class: v.optional(StrSchema),
+});
+export type LensDependencyTreeProps = v.InferOutput<typeof LensDependencyTreePropsSchema>;
+</script>
+
+<script lang="ts">
+import { safeParse } from '@/utils/result/safe';
+const allProps: LensDependencyTreeProps = $props();
+const validated = $derived.by(() => {
+	const result = safeParse(LensDependencyTreePropsSchema, allProps);
+	if (!result.ok) throw result.error;
+	return result.data as LensDependencyTreeProps;
+});
+</script>`;
+		const props: PropMeta[] = extractProps(source);
+		// Every prop should have @values — if any are missing, this test fails
+		for (const prop of props) {
+			expect(prop.mockValues, `Prop "${prop.name}" is missing @values annotation`).toBeDefined();
+			expect(prop.mockValues?.length, `Prop "${prop.name}" has empty @values`).toBeGreaterThan(0);
+		}
+	});
+
+	it('every schema-based component has @values on all props', () => {
+		// Reads ALL real schema-based component .svelte files from disk and verifies
+		// every extracted prop has @values. If you add a new schema-based component or
+		// add a field to a schema, you MUST add @values or this test will fail.
+		const uiDir: string = resolve(__dirname, '..');
+		const dirs: string[] = readdirSync(uiDir).filter((d: string): boolean => {
+			const full: string = join(uiDir, d);
+			return statSync(full).isDirectory();
+		});
+
+		const failures: string[] = [];
+
+		for (const dir of dirs) {
+			const dirPath: string = join(uiDir, dir);
+			const svelteFiles: string[] = readdirSync(dirPath).filter((f: string): boolean =>
+				f.endsWith('.svelte'),
+			);
+
+			for (const file of svelteFiles) {
+				const filePath: string = join(dirPath, file);
+				const source: string = readFileSync(filePath, 'utf8');
+
+				// Only check schema-based components (safeParse pattern)
+				if (!source.includes('safeParse(') || !source.includes('$props()')) continue;
+
+				const props: PropMeta[] = extractProps(source);
+				for (const prop of props) {
+					if (!prop.mockValues || prop.mockValues.length === 0) {
+						failures.push(`${dir}/${file} → prop "${prop.name}" missing @values`);
+					}
+				}
+			}
+		}
+
+		expect(failures, `Schema props missing @values:\n${failures.join('\n')}`).toHaveLength(0);
+	});
+
+	it('strips @values from expanded type field descriptions', () => {
+		const source: string = `<script module lang="ts">
+import * as v from 'valibot';
+import { StrSchema, NumSchema } from '@/schemas/common';
+
+export const ItemSchema = v.strictObject({
+	/** The label text. @values Hello, World */
+	label: StrSchema,
+	/** Count of items. @values 10, 20, 30 */
+	count: NumSchema,
+});
+
+export const MyPropsSchema = v.strictObject({
+	/** The item. */
+	item: ItemSchema,
+});
+export type MyProps = v.InferOutput<typeof MyPropsSchema>;
+</script>
+
+<script lang="ts">
+import { safeParse } from '@/utils/result/safe';
+const allProps: MyProps = $props();
+const validated = $derived.by(() => {
+	const result = safeParse(MyPropsSchema, allProps);
+	if (!result.ok) throw result.error;
+	return result.data as MyProps;
+});
+</script>`;
+		const props: PropMeta[] = extractProps(source);
+		const itemProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'item');
+		expect(itemProp?.typeFields).toBeDefined();
+		// Descriptions must NOT contain @values tag text
+		const labelField = itemProp?.typeFields?.find((f) => f.field === 'label');
+		expect(labelField?.description).toBe('The label text.');
+		expect(labelField?.description).not.toContain('@values');
+		const countField = itemProp?.typeFields?.find((f) => f.field === 'count');
+		expect(countField?.description).toBe('Count of items.');
+		expect(countField?.description).not.toContain('@values');
+	});
+
+	it('renders v.strictObject type as "object" not raw schema text', () => {
+		const source: string = `<script module lang="ts">
+import * as v from 'valibot';
+import { StrSchema, NumSchema } from '@/schemas/common';
+
+export const InnerSchema = v.strictObject({
+	/** A field. */
+	name: StrSchema,
+});
+
+export const MyPropsSchema = v.strictObject({
+	/** Object prop. */
+	inner: InnerSchema,
+});
+export type MyProps = v.InferOutput<typeof MyPropsSchema>;
+</script>
+
+<script lang="ts">
+import { safeParse } from '@/utils/result/safe';
+const allProps: MyProps = $props();
+const validated = $derived.by(() => {
+	const result = safeParse(MyPropsSchema, allProps);
+	if (!result.ok) throw result.error;
+	return result.data as MyProps;
+});
+</script>`;
+		const props: PropMeta[] = extractProps(source);
+		const innerProp: PropMeta | undefined = props.find(
+			(p: PropMeta): boolean => p.name === 'inner',
+		);
+		expect(innerProp).toBeDefined();
+		// Type fields in the inner schema — the "accepts" for object-typed fields
+		// should show "object" not raw v.strictObject(...) text
+		expect(innerProp?.typeFields).toBeDefined();
+		const nameField = innerProp?.typeFields?.find((f) => f.field === 'name');
+		expect(nameField).toBeDefined();
+		// Verify the parent type itself is resolved (should be 'Inner' from schema const name)
+		expect(innerProp?.type).toBe('Inner');
+	});
+
+	it('unwraps v.array() around v.strictObject for expanded type fields', () => {
+		const source: string = `<script module lang="ts">
+import * as v from 'valibot';
+import { StrSchema, NumSchema } from '@/schemas/common';
+
+export const EntrySchema = v.strictObject({
+	/** Entry name. */
+	name: StrSchema,
+	/** Entry count. @values 1, 2, 3 */
+	count: NumSchema,
+});
+
+export const MyPropsSchema = v.strictObject({
+	/** List of entries. */
+	items: v.array(EntrySchema),
+});
+export type MyProps = v.InferOutput<typeof MyPropsSchema>;
+</script>
+
+<script lang="ts">
+import { safeParse } from '@/utils/result/safe';
+const allProps: MyProps = $props();
+const validated = $derived.by(() => {
+	const result = safeParse(MyPropsSchema, allProps);
+	if (!result.ok) throw result.error;
+	return result.data as MyProps;
+});
+</script>`;
+		const props: PropMeta[] = extractProps(source);
+		const itemsProp: PropMeta | undefined = props.find(
+			(p: PropMeta): boolean => p.name === 'items',
+		);
+		expect(itemsProp).toBeDefined();
+		// v.array(EntrySchema) should unwrap to show Entry sub-fields
+		expect(itemsProp?.typeFields).toBeDefined();
+		expect(itemsProp?.typeFields?.length).toBeGreaterThan(0);
+		const fieldNames: string[] = (itemsProp?.typeFields ?? []).map((f) => f.field);
+		expect(fieldNames).toContain('name');
+		expect(fieldNames).toContain('count');
+	});
+
+	it('handles nested v.optional(v.array(v.strictObject())) unwrapping', () => {
+		const source: string = `<script module lang="ts">
+import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
+
+export const TagSchema = v.strictObject({
+	/** Tag label. */
+	label: StrSchema,
+	/** Tag color. @values red, blue, green */
+	color: StrSchema,
+});
+
+export const MyPropsSchema = v.strictObject({
+	/** Optional list of tags. */
+	tags: v.optional(v.array(TagSchema)),
+});
+export type MyProps = v.InferOutput<typeof MyPropsSchema>;
+</script>
+
+<script lang="ts">
+import { safeParse } from '@/utils/result/safe';
+const allProps: MyProps = $props();
+const validated = $derived.by(() => {
+	const result = safeParse(MyPropsSchema, allProps);
+	if (!result.ok) throw result.error;
+	return result.data as MyProps;
+});
+</script>`;
+		const props: PropMeta[] = extractProps(source);
+		const tagsProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'tags');
+		expect(tagsProp).toBeDefined();
+		// v.optional(v.array(TagSchema)) — should unwrap both layers to show Tag sub-fields
+		expect(tagsProp?.typeFields).toBeDefined();
+		expect(tagsProp?.typeFields?.length).toBeGreaterThan(0);
+		const fieldNames: string[] = (tagsProp?.typeFields ?? []).map((f) => f.field);
+		expect(fieldNames).toContain('label');
+		expect(fieldNames).toContain('color');
+	});
+
+	it('prefers schema-const over TS type definition when both exist', () => {
+		// Simulates DepTree being defined as both `const DepTreeSchema = v.strictObject(...)` (in svelte)
+		// AND `type DepTree = { ... }` (in supplementary TS sources). Schema-const should win.
+		const svelteSource: string = `<script module lang="ts">
+import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
+
+export const DepTreeSchema = v.strictObject({
+	/** Internal deps. */
+	internal: v.array(StrSchema),
+	/** External deps. */
+	external: v.array(StrSchema),
+});
+
+export const MyPropsSchema = v.strictObject({
+	/** The tree. */
+	deps: DepTreeSchema,
+});
+export type MyProps = v.InferOutput<typeof MyPropsSchema>;
+</script>
+
+<script lang="ts">
+import { safeParse } from '@/utils/result/safe';
+const allProps: MyProps = $props();
+const validated = $derived.by(() => {
+	const result = safeParse(MyPropsSchema, allProps);
+	if (!result.ok) throw result.error;
+	return result.data as MyProps;
+});
+</script>`;
+		// Supplementary TS source has a plain type definition (with JSDoc that parsePlainObjectFields
+		// previously couldn't handle — this verifies schema-const takes priority)
+		const tsSource: string = `
+export type DepTree = {
+	/** Internal imports. */
+	internal: string[];
+	/** External imports. */
+	external: string[];
+};`;
+		const props: PropMeta[] = extractProps(svelteSource, [tsSource]);
+		const depsProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'deps');
+		expect(depsProp).toBeDefined();
+		expect(depsProp?.typeFields).toBeDefined();
+		expect(depsProp?.typeFields?.length).toBeGreaterThan(0);
+		// Schema-const produces Valibot-parsed fields; TS type would have different structure
+		const fieldNames: string[] = (depsProp?.typeFields ?? []).map((f) => f.field);
+		expect(fieldNames).toContain('internal');
+		expect(fieldNames).toContain('external');
 	});
 });

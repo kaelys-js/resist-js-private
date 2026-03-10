@@ -261,7 +261,7 @@ const setMode = (m: Str): void => {
 				</div>
 			</div>
 		</header>
-		<main class="flex min-w-0 flex-1 flex-col">
+		<main class="flex min-w-0 flex-1 flex-col select-text">
 			{@render children()}
 		</main>
 	</Sidebar.Inset>

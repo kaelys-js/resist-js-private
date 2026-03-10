@@ -17,7 +17,7 @@ export type NavItem = v.InferOutput<typeof NavItemSchema>;
 
 /** Schema for NavSecondary — uses objectWithRest to allow passthrough props. */
 export const NavSecondaryPropsSchema = v.objectWithRest({
-	/** Array of navigation item objects to render. */
+	/** Array of navigation item objects to render. @values [{title: "Settings", url: "/settings", icon: Settings}] */
 	items: v.array(NavItemSchema),
 }, v.unknown());
 /** Props for the NavSecondary component. */

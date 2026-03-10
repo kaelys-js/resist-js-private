@@ -10,7 +10,7 @@ export const LensSectionPropsSchema = v.strictObject({
 	description: v.optional(StrSchema),
 	/** The demo content to render inside the preview area. */
 	children: v.optional(v.custom<Snippet>((val: unknown): boolean => typeof val === 'function')),
-	/** Optional code snippet to show in a collapsible panel. */
+	/** Optional code snippet to show in a collapsible panel. @values <div>content</div> */
 	code: v.optional(v.custom<Snippet>((val: unknown): boolean => typeof val === 'function')),
 	/** Raw code text for clipboard copy. @values <Button>Click me</Button>, <Input placeholder="..." />, const x = 1 */
 	codeText: v.optional(StrSchema),

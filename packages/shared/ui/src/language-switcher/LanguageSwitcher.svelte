@@ -34,11 +34,11 @@ export type LanguageSwitcherLabels = v.InferOutput<typeof LanguageSwitcherLabels
 export const LanguageSwitcherPropsSchema = v.strictObject({
 	/** Current active locale code. @values en, ja, de, fr, es, ko, zh */
 	locale: StrSchema,
-	/** Callback to switch locale — wrapper handles cookie/document side effects. */
+	/** Callback to switch locale — wrapper handles cookie/document side effects. @values () => void */
 	switchLanguage: v.custom<(code: Str) => void>((val: unknown): boolean => typeof val === 'function'),
-	/** Available language options with pre-resolved display names. */
+	/** Available language options with pre-resolved display names. @values [{code: "en", endonym: "English", exonym: "English"}, {code: "ja", endonym: "日本語", exonym: "Japanese"}] */
 	languages: v.array(LanguageOptionSchema),
-	/** Localized UI labels. */
+	/** Localized UI labels. @values {language: "Language", searchLanguages: "Search languages…", clearSearch: "Clear search", noLanguagesFound: "No languages found", noResultsHint: "Try a different search term"} */
 	labels: LanguageSwitcherLabelsSchema,
 });
 /** Props for the LanguageSwitcher component. */

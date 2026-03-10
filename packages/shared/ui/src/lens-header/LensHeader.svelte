@@ -10,25 +10,25 @@ export const LensHeaderPropsSchema = v.strictObject({
 	name: StrSchema,
 	/** Component description extracted from source JSDoc. @values A clickable button, An overlay dialog, A navigation sidebar */
 	description: v.optional(StrSchema),
-	/** Validated lens metadata for category/tag badges. */
+	/** Validated lens metadata for category/tag badges. @values {category: "display", tags: ["interactive"], description: "A clickable button"} */
 	meta: v.optional(v.nullable(LensMetaSchema)),
 	/** Import path shown in the copy-import chip. @values @/ui/button, @/ui/dialog, @/ui/sidebar */
 	importPath: v.optional(StrSchema),
-	/** Whether the component has renderable variants. */
+	/** Whether the component has renderable variants. @values true, false */
 	hasVariants: v.optional(BoolSchema),
-	/** Whether the component has hand-written examples. */
+	/** Whether the component has hand-written examples. @values true, false */
 	hasExamples: v.optional(BoolSchema),
-	/** Whether the component has raw source available. */
+	/** Whether the component has raw source available. @values true, false */
 	hasSource: v.optional(BoolSchema),
-	/** Whether the component has any import dependencies. */
+	/** Whether the component has any import dependencies. @values true, false */
 	hasDeps: v.optional(BoolSchema),
-	/** Search items for the search popover. Empty array hides the search button. */
+	/** Search items for the search popover. Empty array hides the search button. @values [{value: "variant", label: "variant", group: "Props"}] */
 	searchItems: v.optional(v.array(SearchItemSchema)),
-	/** Callback fired when a search item is selected. */
+	/** Callback fired when a search item is selected. @values () => void */
 	onSearchSelect: v.optional(v.custom<(item: SearchItem) => void>((val: unknown): boolean => typeof val === 'function')),
-	/** Previous component name for sequential navigation (kebab-case). */
+	/** Previous component name for sequential navigation (kebab-case). @values button, dialog, sidebar */
 	prevComponent: v.optional(v.nullable(StrSchema)),
-	/** Next component name for sequential navigation (kebab-case). */
+	/** Next component name for sequential navigation (kebab-case). @values button, dialog, sidebar */
 	nextComponent: v.optional(v.nullable(StrSchema)),
 });
 /** Props for the LensHeader component. */

@@ -54,11 +54,11 @@ export const HeaderUserPropsSchema = v.strictObject({
 	userEmail: v.optional(StrSchema),
 	/** Optional avatar image URL. @values https://example.com/avatar.png, /avatars/user.jpg */
 	userAvatar: v.optional(StrSchema),
-	/** Callback when "Log Out" is clicked. */
+	/** Callback when "Log Out" is clicked. @values () => void */
 	onLogOut: v.custom<() => void>((val: unknown): boolean => typeof val === 'function'),
-	/** Feature flags controlling menu item visibility. */
+	/** Feature flags controlling menu item visibility. @values {avatar: true, account: true, subscription: true, notifications: true, shortcuts: true, settings: true, whatsNew: true, logout: true} */
 	features: HeaderUserFeaturesSchema,
-	/** Localized UI labels. */
+	/** Localized UI labels. @values {userMenu: "User menu", account: "Account", subscription: "Subscription", notifications: "Notifications", keyboardShortcuts: "Keyboard Shortcuts", settings: "Settings", whatsNew: "What's New", logout: "Log Out"} */
 	labels: HeaderUserLabelsSchema,
 });
 /** Props for the HeaderUser component. */

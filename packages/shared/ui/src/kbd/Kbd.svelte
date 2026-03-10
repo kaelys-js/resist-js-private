@@ -11,7 +11,7 @@ import { StrSchema, BoolSchema } from '@/schemas/common';
 export const KbdPropsSchema = v.strictObject({
 	/** The formatted shortcut string (e.g. "⌘B", "Ctrl+1", "Esc"). @values ⌘B, Ctrl+K, Esc, ⌘⇧P */
 	label: StrSchema,
-	/** When true, the badge is always visible instead of hidden on mobile. */
+	/** When true, the badge is always visible instead of hidden on mobile. @values true, false */
 	alwaysVisible: v.optional(BoolSchema),
 	/** Additional CSS classes. */
 	class: v.optional(StrSchema),

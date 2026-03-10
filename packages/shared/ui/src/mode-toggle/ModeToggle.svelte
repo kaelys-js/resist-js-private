@@ -22,9 +22,9 @@ export type ModeToggleLabels = v.InferOutput<typeof ModeToggleLabelsSchema>;
 export const ModeTogglePropsSchema = v.strictObject({
 	/** Current color mode. @values light, dark, system */
 	mode: v.picklist(['light', 'dark', 'system']),
-	/** Callback to change the color mode. */
+	/** Callback to change the color mode. @values (mode) => void */
 	setMode: v.custom<(mode: Str) => void>((val: unknown): boolean => typeof val === 'function'),
-	/** Localized labels for the toggle UI. */
+	/** Localized labels for the toggle UI. @values {toggleTheme: "Toggle theme", toggleMode: "Toggle mode", light: "Light", dark: "Dark", system: "System"} */
 	labels: ModeToggleLabelsSchema,
 });
 /** Props for the ModeToggle component. */

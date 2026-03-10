@@ -34,11 +34,11 @@ export type ThemeSwitcherLabels = v.InferOutput<typeof ThemeSwitcherLabelsSchema
 export const ThemeSwitcherPropsSchema = v.strictObject({
 	/** Current active theme id. @values default, ocean, forest, sunset */
 	theme: StrSchema,
-	/** Callback to change the theme. */
+	/** Callback to change the theme. @values (id) => void */
 	setTheme: v.custom<(id: Str) => void>((val: unknown): boolean => typeof val === 'function'),
-	/** Available theme options with pre-resolved locale labels. */
+	/** Available theme options with pre-resolved locale labels. @values [{id: "ocean", label: "Ocean", dots: ["#0ea5e9", "#38bdf8", "#0c4a6e", "#075985"]}] */
 	themes: v.array(ThemeOptionSchema),
-	/** Localized UI labels. */
+	/** Localized UI labels. @values {theme: "Theme", searchThemes: "Search themes…", clearSearch: "Clear search", noThemesFound: "No themes found", noResultsHint: "Try a different search term"} */
 	labels: ThemeSwitcherLabelsSchema,
 });
 /** Props for the ThemeSwitcher component. */

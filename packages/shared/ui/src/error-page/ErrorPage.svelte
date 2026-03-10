@@ -34,11 +34,11 @@ export const ErrorPagePropsSchema = v.strictObject({
 	title: StrSchema,
 	/** Pre-resolved description. @values The page you requested could not be found., You do not have permission to access this resource. */
 	description: StrSchema,
-	/** Localized UI labels. */
+	/** Localized UI labels. @values {goHome: "Go Home", tryAgain: "Try Again", copied: "Copied!", copyFailed: "Copy failed", errorIdLabel: "Reference: err-abc-123", copyErrorIdAriaLabel: "Copy error ID", clickToCopy: "Click to copy"} */
 	labels: ErrorPageLabelsSchema,
-	/** Optional callback for screen reader announcements. */
+	/** Optional callback for screen reader announcements. @values () => void */
 	announce: v.optional(v.custom<(msg: Str) => void>((val: unknown): boolean => typeof val === 'function')),
-	/** Optional override for clipboard copy. */
+	/** Optional override for clipboard copy. @values () => void */
 	copyOverride: v.optional(v.custom<(text: Str) => Promise<Bool>>((val: unknown): boolean => typeof val === 'function')),
 });
 /** Props for the ErrorPage component. */

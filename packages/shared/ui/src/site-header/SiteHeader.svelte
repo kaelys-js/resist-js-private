@@ -9,17 +9,17 @@ import type { Snippet } from 'svelte';
  * Product-specific breadcrumb content and right-side actions are injected via snippets.
  */
 export const SiteHeaderPropsSchema = v.strictObject({
-	/** Whether to show the sidebar toggle button. */
+	/** Whether to show the sidebar toggle button. @values true, false */
 	showSidebarToggle: BoolSchema,
 	/** Sidebar toggle aria-label. @values Toggle Sidebar, Show/Hide Sidebar, Sidebar */
 	sidebarToggleLabel: StrSchema,
 	/** Sidebar toggle keyboard shortcut display string. @values ⌘B, Ctrl+B, ⌘\\ */
 	sidebarToggleShortcut: StrSchema,
-	/** Whether to show the breadcrumb bar. */
+	/** Whether to show the breadcrumb bar. @values true, false */
 	showBreadcrumb: BoolSchema,
-	/** Product-specific breadcrumb list children. */
+	/** Product-specific breadcrumb list children. @values <div>content</div> */
 	breadcrumbs: v.custom<Snippet>((val: unknown): boolean => typeof val === 'function'),
-	/** Right-side action controls (HeaderUser, ModeToggle, etc.). */
+	/** Right-side action controls (HeaderUser, ModeToggle, etc.). @values <div>content</div> */
 	actions: v.custom<Snippet>((val: unknown): boolean => typeof val === 'function'),
 });
 /** Props for the SiteHeader component. */
