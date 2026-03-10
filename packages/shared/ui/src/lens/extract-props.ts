@@ -800,17 +800,20 @@ function splitValuesRespectingBrackets(raw: string): string[] {
 	let depth: number = 0;
 	let current: string = '';
 
-	for (const ch of raw) {
+	for (let i: number = 0; i < raw.length; i++) {
+		const ch: string = raw[i] ?? '';
 		if (ch === '{' || ch === '[' || ch === '(') {
 			depth++;
 			current += ch;
 		} else if (ch === '}' || ch === ']' || ch === ')') {
 			depth--;
 			current += ch;
-		} else if (ch === ',' && depth === 0) {
+		} else if (ch === ',' && depth === 0 && raw[i + 1] === ' ') {
+			// Split on ", " (comma-space) — preserves commas within values like $1,234.56
 			const trimmed: string = current.trim();
 			if (trimmed.length > 0) result.push(trimmed);
 			current = '';
+			i++; // skip the space after comma
 		} else {
 			current += ch;
 		}
