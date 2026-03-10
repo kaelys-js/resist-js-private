@@ -300,12 +300,13 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
 	for (const prop of props) {
 		if (!prop.typeFields || prop.typeFields.length === 0) continue;
 		for (const tf of prop.typeFields) {
-			const options: string[] | null = parseTypeFieldAccepts(tf);
-			if (options && options.length > 1) {
+			const parsed: TypeFieldVariantResult = parseTypeFieldAccepts(tf);
+			if (parsed.options.length > 1) {
 				variants.push({
 					key: `${prop.name}.${tf.field}`,
-					options,
+					options: parsed.options,
 					default: '',
+					coerce: parsed.coerce,
 				});
 			}
 		}
@@ -314,50 +315,62 @@ export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
 	return variants;
 }
 
+/** Result of parsing a TypeField's accepts string for variant generation. */
+type TypeFieldVariantResult = {
+	/** Option strings for variant generation. */
+	options: string[];
+	/** Coercion hint for the renderer — 'array' means split comma-separated strings into arrays. */
+	coerce: 'array' | undefined;
+};
+
 /**
  * Parse a TypeField's accepts string into variant options.
  *
  * ALL typeFields generate variants. Enumerable types (picklists, booleans)
  * use their actual accepted values. Freeform types (text, number) get
- * sensible example values.
+ * sensible example values. Array types get coerce hint so renderer splits
+ * comma-separated strings into actual arrays.
  *
  * @param tf - The TypeField to parse
- * @returns Array of option strings for variant generation
+ * @returns Options and coercion hint for variant generation
  */
-function parseTypeFieldAccepts(tf: TypeField): string[] {
+function parseTypeFieldAccepts(tf: TypeField): TypeFieldVariantResult {
 	const accepts: string = tf.accepts.trim();
 
 	// Boolean fields
 	if (accepts === 'true / false' || tf.type === 'Bool' || tf.type === 'boolean') {
-		return ['true', 'false'];
+		return { options: ['true', 'false'], coerce: undefined };
 	}
 
 	// Comma-separated picklist values
-	if (accepts.includes(', ')) {
+	if (accepts.includes(', ') && !accepts.startsWith('list of ')) {
 		const items: string[] = accepts
 			.split(', ')
 			.map((s: string): string => s.trim())
 			.filter(Boolean);
-		if (items.length > 1) return items;
+		if (items.length > 1) return { options: items, coerce: undefined };
 	}
 
 	// Number fields — generate example values
 	if (accepts === 'number' || tf.type === 'Num' || tf.type === 'number') {
-		return ['0', '1', '5', '10'];
+		return { options: ['0', '1', '5', '10'], coerce: undefined };
 	}
 
 	// Text fields — generate example text variants
 	if (accepts === 'text' || tf.type === 'Str' || tf.type === 'string') {
-		return ['Short', 'A medium example', 'A longer example text for testing'];
+		return {
+			options: ['Short', 'A medium example', 'A longer example text for testing'],
+			coerce: undefined,
+		};
 	}
 
-	// List fields — generate example list variants
+	// List/array fields — generate example list variants with array coercion
 	if (accepts.startsWith('list of ')) {
-		return ['one', 'one, two', 'one, two, three'];
+		return { options: ['one', 'one, two', 'one, two, three'], coerce: 'array' };
 	}
 
 	// Fallback — generate generic placeholders
-	return ['value-a', 'value-b', 'value-c'];
+	return { options: ['value-a', 'value-b', 'value-c'], coerce: undefined };
 }
 
 /**

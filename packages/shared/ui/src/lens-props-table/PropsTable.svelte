@@ -23,7 +23,8 @@ export type PropsTableProps = v.InferOutput<typeof PropsTablePropsSchema>;
  * auto-extracted `PropMeta[]` data. Props with complex object types show collapsible
  * child rows for their type fields, indented with a lighter background.
  */
-import type { Bool, Str, Void } from '@/schemas/common';
+import { slide } from 'svelte/transition';
+import type { Bool, Num, Str, Void } from '@/schemas/common';
 import Badge from '../badge/badge.svelte';
 import LensEmpty from '../lens-empty/LensEmpty.svelte';
 import * as DropdownMenu from '../dropdown-menu/index.js';
@@ -89,7 +90,33 @@ function isComplexType(type: Str): Bool {
 	if (!type || type === '—') return false;
 	if (/^(string|number|boolean|Str|Num|Bool|Void)$/.test(type)) return false;
 	if (/^'[^']*'$/.test(type)) return false;
+	// Union types get their own pretty rendering — not "complex"
+	if (isUnionType(type)) return false;
 	return true;
+}
+
+/**
+ * Check whether a type string is a pipe-separated union (e.g., `'a' | 'b' | 'c'`).
+ *
+ * @param type - The TypeScript type string
+ * @returns True if the type contains ` | `
+ */
+function isUnionType(type: Str): Bool {
+	return type.includes(' | ');
+}
+
+/**
+ * Split a union type string into individual members, stripping surrounding quotes.
+ *
+ * @param type - Union type string like `'a' | 'b' | undefined`
+ * @returns Array of cleaned member strings
+ */
+function parseUnionMembers(type: Str): Str[] {
+	return type
+		.split(' | ')
+		.map((m: Str): Str => m.trim())
+		.filter(Boolean)
+		.map((m: Str): Str => m.replaceAll(/^'|'$/g, ''));
 }
 
 /**
@@ -187,6 +214,35 @@ function getAccepts(prop: PropMeta): Str {
 function hasTypeFields(prop: PropMeta): Bool {
 	return prop.typeFields !== undefined && prop.typeFields.length > 0;
 }
+
+/**
+ * Check whether a comma-separated accepts string represents a union of literal values.
+ *
+ * @param accepts - The accepts string from a TypeField
+ * @returns True if it looks like a comma-separated union
+ */
+function isAcceptsUnion(accepts: Str): Bool {
+	if (!accepts || accepts === '—') return false;
+	// "text", "number", "true / false" are not unions
+	if (/^(text|number|true \/ false|true, false)$/.test(accepts)) return false;
+	return accepts.includes(', ');
+}
+
+/**
+ * Split an accepts string into individual members for chip rendering.
+ *
+ * @param accepts - Comma-separated accepts string
+ * @returns Array of individual values
+ */
+function parseAcceptsMembers(accepts: Str): Str[] {
+	return accepts
+		.split(', ')
+		.map((m: Str): Str => m.trim())
+		.filter(Boolean);
+}
+
+/** Column count for colspan on expanded rows. */
+const colCount: Num = $derived(variantKeys.length > 0 ? 7 : 6);
 </script>
 
 <div class={cn('overflow-x-auto rounded-lg border', className)}>
@@ -225,8 +281,16 @@ function hasTypeFields(prop: PropMeta): Bool {
 											aria-hidden="true"
 										/>
 									</button>
+									<button
+										type="button"
+										class="cursor-pointer hover:text-foreground hover:underline"
+										onclick={() => toggleTypeFields(prop.name)}
+									>
+										{prop.name}
+									</button>
+								{:else}
+									{prop.name}
 								{/if}
-								{prop.name}
 							</span>
 							{#if prop.bindable}
 								<Tooltip.Provider>
@@ -258,7 +322,16 @@ function hasTypeFields(prop: PropMeta): Bool {
 							{/if}
 						</td>
 						<td class="px-4 py-2 font-mono text-xs text-muted-foreground">
-							{#if isComplexType(prop.type)}
+							{#if isUnionType(prop.type)}
+								<span class="inline-flex flex-wrap items-center gap-1">
+									{#each parseUnionMembers(prop.type) as member, mi (mi)}
+										{#if mi > 0}
+											<span class="text-[10px] text-muted-foreground/40">|</span>
+										{/if}
+										<code class="rounded bg-muted px-1 py-0.5 text-[11px]">{member}</code>
+									{/each}
+								</span>
+							{:else if isComplexType(prop.type)}
 								<span class="inline-flex items-center gap-1">
 									<code>{prop.type}</code>
 									<Tooltip.Provider>
@@ -282,17 +355,33 @@ function hasTypeFields(prop: PropMeta): Bool {
 									</Tooltip.Provider>
 								</span>
 							{:else}
-								{prop.type || '—'}
+								{#if prop.type}
+									{prop.type}
+								{:else}
+									<span class="text-muted-foreground/40">—</span>
+								{/if}
 							{/if}
 						</td>
 						<td class="max-w-48 px-4 py-2 font-mono text-xs text-muted-foreground">
-							{getAccepts(prop)}
+							{#if getAccepts(prop) === '—'}
+								<span class="text-muted-foreground/40">—</span>
+							{:else}
+								{getAccepts(prop)}
+							{/if}
 						</td>
 						<td class="px-4 py-2 font-mono text-xs text-muted-foreground">
-							{prop.default || '—'}
+							{#if prop.default}
+								{prop.default}
+							{:else}
+								<span class="text-muted-foreground/40">—</span>
+							{/if}
 						</td>
 						<td class="px-4 py-2 text-xs text-muted-foreground">
-							{prop.description || '—'}
+							{#if prop.description}
+								{prop.description}
+							{:else}
+								<span class="text-muted-foreground/40">—</span>
+							{/if}
 						</td>
 						{#if variantKeys.length > 0}
 							<td class="px-2 py-2">
@@ -322,56 +411,98 @@ function hasTypeFields(prop: PropMeta): Bool {
 						{/if}
 					</tr>
 					{#if hasTypeFields(prop) && expandedTypeFields.has(prop.name)}
-						{#each prop.typeFields ?? [] as tf (tf.field)}
-							<tr class="border-b bg-muted/30 last:border-b-0">
-								<td class="py-1.5 pl-12 pr-4 font-mono text-[11px] text-muted-foreground">
-									{tf.field}
-								</td>
-								<td class="px-4 py-1.5 text-[11px] text-muted-foreground">
-									{#if tf.required}
-										<Badge variant="default" class="rounded-md px-1.5 py-0 text-[10px]">Required</Badge>
-									{:else}
-										<Badge variant="secondary" class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground">Optional</Badge>
-									{/if}
-								</td>
-								<td class="px-4 py-1.5 font-mono text-[11px] text-muted-foreground">
-									{tf.type || '—'}
-								</td>
-								<td class="px-4 py-1.5 font-mono text-[11px] text-muted-foreground">
-									{tf.accepts || '—'}
-								</td>
-								<td class="px-4 py-1.5 text-[11px] text-muted-foreground">—</td>
-								<td class="px-4 py-1.5 text-[11px] text-muted-foreground">
-									{tf.description || '—'}
-								</td>
-								{#if variantKeys.length > 0}
-									<td class="px-2 py-1.5">
-										{#if variantKeySet.has(`${prop.name}.${tf.field}`)}
-											<DropdownMenu.Root>
-												<DropdownMenu.Trigger>
-													{#snippet child({ props: triggerProps })}
-														<button
-															type="button"
-															class="inline-flex size-6 items-center justify-center rounded text-muted-foreground/60 transition-colors hover:bg-accent hover:text-foreground"
-															{...triggerProps}
-														>
-															<EllipsisVertical class="size-3.5" />
-															<span class="sr-only">Field actions</span>
-														</button>
-													{/snippet}
-												</DropdownMenu.Trigger>
-												<DropdownMenu.Content align="end" sideOffset={4}>
-													<DropdownMenu.Item onclick={() => scrollToVariant(`${prop.name}.${tf.field}`)}>
-														<Layers class="mr-2 size-4" />
-														See variants
-													</DropdownMenu.Item>
-												</DropdownMenu.Content>
-											</DropdownMenu.Root>
-										{/if}
-									</td>
-								{/if}
-							</tr>
-						{/each}
+						<tr class="border-b">
+							<td colspan={colCount} class="p-0">
+								<div transition:slide={{ duration: 150 }} class="overflow-hidden">
+									<table class="w-full text-sm">
+										<tbody>
+											{#each prop.typeFields ?? [] as tf (tf.field)}
+												<tr class="border-b bg-muted/30 last:border-b-0">
+													<td class="py-1.5 pl-12 pr-4 font-mono text-xs text-muted-foreground">
+														{tf.field}
+													</td>
+													<td class="px-4 py-1.5">
+														{#if tf.required}
+															<Badge variant="default" class="rounded-md px-1.5 py-0 text-[10px]">Required</Badge>
+														{:else}
+															<Badge variant="secondary" class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground">Optional</Badge>
+														{/if}
+													</td>
+													<td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
+														{#if isUnionType(tf.type)}
+															<span class="inline-flex flex-wrap items-center gap-1">
+																{#each parseUnionMembers(tf.type) as member, mi (mi)}
+																	{#if mi > 0}
+																		<span class="text-[10px] text-muted-foreground/40">|</span>
+																	{/if}
+																	<code class="rounded bg-muted px-1 py-0.5 text-[11px]">{member}</code>
+																{/each}
+															</span>
+														{:else if tf.type}
+															{tf.type}
+														{:else}
+															<span class="text-muted-foreground/40">—</span>
+														{/if}
+													</td>
+													<td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
+														{#if isAcceptsUnion(tf.accepts)}
+															<span class="inline-flex flex-wrap items-center gap-1">
+																{#each parseAcceptsMembers(tf.accepts) as member, mi (mi)}
+																	{#if mi > 0}
+																		<span class="text-[10px] text-muted-foreground/40">|</span>
+																	{/if}
+																	<code class="rounded bg-muted px-1 py-0.5 text-[11px]">{member}</code>
+																{/each}
+															</span>
+														{:else if tf.accepts}
+															{tf.accepts}
+														{:else}
+															<span class="text-muted-foreground/40">—</span>
+														{/if}
+													</td>
+													<td class="px-4 py-1.5 font-mono text-xs text-muted-foreground">
+														<span class="text-muted-foreground/40">—</span>
+													</td>
+													<td class="px-4 py-1.5 text-xs text-muted-foreground">
+														{#if tf.description}
+															{tf.description}
+														{:else}
+															<span class="text-muted-foreground/40">—</span>
+														{/if}
+													</td>
+													{#if variantKeys.length > 0}
+														<td class="px-2 py-1.5">
+															{#if variantKeySet.has(`${prop.name}.${tf.field}`)}
+																<DropdownMenu.Root>
+																	<DropdownMenu.Trigger>
+																		{#snippet child({ props: triggerProps })}
+																			<button
+																				type="button"
+																				class="inline-flex size-6 items-center justify-center rounded text-muted-foreground/60 transition-colors hover:bg-accent hover:text-foreground"
+																				{...triggerProps}
+																			>
+																				<EllipsisVertical class="size-3.5" />
+																				<span class="sr-only">Field actions</span>
+																			</button>
+																		{/snippet}
+																	</DropdownMenu.Trigger>
+																	<DropdownMenu.Content align="end" sideOffset={4}>
+																		<DropdownMenu.Item onclick={() => scrollToVariant(`${prop.name}.${tf.field}`)}>
+																			<Layers class="mr-2 size-4" />
+																			See variants
+																		</DropdownMenu.Item>
+																	</DropdownMenu.Content>
+																</DropdownMenu.Root>
+															{/if}
+														</td>
+													{/if}
+												</tr>
+											{/each}
+										</tbody>
+									</table>
+								</div>
+							</td>
+						</tr>
 					{/if}
 				{/each}
 			</tbody>

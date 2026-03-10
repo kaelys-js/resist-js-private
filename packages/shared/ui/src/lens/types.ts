@@ -82,6 +82,8 @@ export const VariantKeyMetaSchema = v.strictObject({
 	options: v.array(StrSchema),
 	/** The default value from `defaultVariants`, or empty. */
 	default: StrSchema,
+	/** Coercion hint for the renderer — how to convert string options to the expected type. */
+	coerce: v.optional(v.picklist(['array'])),
 });
 export type VariantKeyMeta = v.InferOutput<typeof VariantKeyMetaSchema>;
 

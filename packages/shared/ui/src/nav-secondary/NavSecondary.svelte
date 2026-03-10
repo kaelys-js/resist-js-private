@@ -52,7 +52,7 @@ const restProps = $derived.by(() => {
 <Sidebar.Group {...restProps}>
 	<Sidebar.GroupContent>
 		<Sidebar.Menu>
-			{#each validated.items as item (item.title)}
+			{#each validated.items as item, i (item.title ?? i)}
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
