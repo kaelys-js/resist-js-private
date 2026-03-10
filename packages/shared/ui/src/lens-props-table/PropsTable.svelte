@@ -63,7 +63,9 @@ function toggleTypeFields(propName: Str): Void {
  * @param propName - The prop/variant key name to scroll to
  */
 function scrollToVariant(propName: Str): Void {
-	document.querySelector(`#variant-${propName}`)?.scrollIntoView({ behavior: 'smooth' });
+	// Escape dots for CSS selector (dotted keys like meta.category → meta\.category)
+	const escaped: Str = propName.replaceAll('.', String.raw`\.`);
+	document.querySelector(`#variant-${escaped}`)?.scrollIntoView({ behavior: 'smooth' });
 }
 
 /**
@@ -140,12 +142,12 @@ function explainType(type: Str): Str {
  * @returns Comma-separated accepted values, or '—' if none
  */
 function getAccepts(prop: PropMeta): Str {
-	if (prop.mockValues && prop.mockValues.length > 0) {
-		return prop.mockValues.join(', ');
-	}
-	if (prop.type === 'boolean' || prop.type === 'Bool') {
-		return 'true, false';
-	}
+	// Primitives — same logic as humanizeValibotExpr for TypeField accepts
+	if (prop.type === 'string' || prop.type === 'Str') return 'text';
+	if (prop.type === 'number' || prop.type === 'Num') return 'number';
+	if (prop.type === 'boolean' || prop.type === 'Bool') return 'true, false';
+
+	// Inline string literal union: 'a' | 'b' | 'c'
 	if (prop.type.includes(' | ')) {
 		const options: Str[] = prop.type.split(' | ').map((o: Str): Str => o.trim());
 		const allLiterals: Bool = options.every(
@@ -158,6 +160,21 @@ function getAccepts(prop: PropMeta): Str {
 				.join(', ');
 		}
 	}
+
+	// Resolved type definition: named type → 'default' | 'secondary' | ...
+	if (prop.typeDefinition?.includes(' | ')) {
+		const options: Str[] = prop.typeDefinition.split(' | ').map((o: Str): Str => o.trim());
+		const allLiterals: Bool = options.every(
+			(o: Str): boolean => o.startsWith("'") || o === 'undefined' || o === 'null',
+		);
+		if (allLiterals) {
+			return options
+				.filter((o: Str): boolean => o !== 'undefined' && o !== 'null')
+				.map((o: Str): Str => o.replaceAll(/^'|'$/g, ''))
+				.join(', ');
+		}
+	}
+
 	return '—';
 }
 
@@ -328,7 +345,30 @@ function hasTypeFields(prop: PropMeta): Bool {
 									{tf.description || '—'}
 								</td>
 								{#if variantKeys.length > 0}
-									<td class="px-2 py-1.5"></td>
+									<td class="px-2 py-1.5">
+										{#if variantKeySet.has(`${prop.name}.${tf.field}`)}
+											<DropdownMenu.Root>
+												<DropdownMenu.Trigger>
+													{#snippet child({ props: triggerProps })}
+														<button
+															type="button"
+															class="inline-flex size-6 items-center justify-center rounded text-muted-foreground/60 transition-colors hover:bg-accent hover:text-foreground"
+															{...triggerProps}
+														>
+															<EllipsisVertical class="size-3.5" />
+															<span class="sr-only">Field actions</span>
+														</button>
+													{/snippet}
+												</DropdownMenu.Trigger>
+												<DropdownMenu.Content align="end" sideOffset={4}>
+													<DropdownMenu.Item onclick={() => scrollToVariant(`${prop.name}.${tf.field}`)}>
+														<Layers class="mr-2 size-4" />
+														See variants
+													</DropdownMenu.Item>
+												</DropdownMenu.Content>
+											</DropdownMenu.Root>
+										{/if}
+									</td>
 								{/if}
 							</tr>
 						{/each}

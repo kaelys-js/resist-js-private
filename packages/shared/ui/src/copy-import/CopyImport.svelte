@@ -33,15 +33,17 @@ import { cn } from '../utils.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(CopyImportPropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-const { text, copyText, class: className }: CopyImportProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(CopyImportPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 </script>
 
-<span class={cn('inline-flex items-center gap-1.5', className)}>
+<span class={cn('inline-flex items-center gap-1.5', validated.class)}>
 	<code class="rounded bg-muted px-2 py-0.5 text-xs font-mono text-muted-foreground">
-		{text}
+		{validated.text}
 	</code>
-	<CopyButton text={copyText ?? text} label="Copy to clipboard" />
+	<CopyButton text={validated.copyText ?? validated.text} label="Copy to clipboard" />
 </span>

@@ -31,29 +31,31 @@ import CircleAlert from '@lucide/svelte/icons/circle-alert';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(LensErrorPropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-const { title, description, icon, class: className }: LensErrorProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(LensErrorPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 </script>
 
 <div
 	class={cn(
 		'flex flex-col items-center justify-center rounded-lg border border-dashed border-destructive/50 bg-destructive/5 py-16 text-center',
-		className,
+		validated.class,
 	)}
 >
 	<div class="mb-3 text-destructive/50">
-		{#if icon}
-			{@render icon()}
+		{#if validated.icon}
+			{@render validated.icon()}
 		{:else}
 			<CircleAlert class="size-10" strokeWidth={1.5} />
 		{/if}
 	</div>
 	<p class="text-sm font-medium text-destructive">
-		{title}
+		{validated.title}
 	</p>
-	{#if description}
-		<p class="mt-1 max-w-md whitespace-pre-line text-left text-xs text-muted-foreground/70">{description}</p>
+	{#if validated.description}
+		<p class="mt-1 max-w-md whitespace-pre-line text-left text-xs text-muted-foreground/70">{validated.description}</p>
 	{/if}
 </div>

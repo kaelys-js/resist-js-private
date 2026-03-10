@@ -32,24 +32,26 @@ import PackageOpen from '@lucide/svelte/icons/package-open';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(LensEmptyPropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-const { title, description, icon, variant = 'default', class: className }: LensEmptyProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(LensEmptyPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 </script>
 
 <div
 	class={cn(
 		'flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center',
-		variant === 'destructive'
+		(validated.variant ?? 'default') === 'destructive'
 			? 'border-destructive/50 bg-destructive/5'
 			: 'bg-muted/5',
-		className,
+		validated.class,
 	)}
 >
-	<div class={cn('mb-3', variant === 'destructive' ? 'text-destructive/50' : 'text-muted-foreground/40')}>
-		{#if icon}
-			{@render icon()}
+	<div class={cn('mb-3', (validated.variant ?? 'default') === 'destructive' ? 'text-destructive/50' : 'text-muted-foreground/40')}>
+		{#if validated.icon}
+			{@render validated.icon()}
 		{:else}
 			<PackageOpen class="size-10" strokeWidth={1.5} />
 		{/if}
@@ -57,12 +59,12 @@ const { title, description, icon, variant = 'default', class: className }: LensE
 	<p
 		class={cn(
 			'text-sm font-medium',
-			variant === 'destructive' ? 'text-destructive' : 'text-muted-foreground',
+			(validated.variant ?? 'default') === 'destructive' ? 'text-destructive' : 'text-muted-foreground',
 		)}
 	>
-		{title}
+		{validated.title}
 	</p>
-	{#if description}
-		<p class="mt-1 max-w-xs text-xs text-muted-foreground/70">{description}</p>
+	{#if validated.description}
+		<p class="mt-1 max-w-xs text-xs text-muted-foreground/70">{validated.description}</p>
 	{/if}
 </div>

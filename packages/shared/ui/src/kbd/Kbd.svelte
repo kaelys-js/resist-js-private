@@ -30,10 +30,12 @@ import { safeParse } from '@/utils/result/safe';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(KbdPropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-let { label, alwaysVisible = false, class: className = '' }: KbdProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(KbdPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 </script>
 
-<kbd class="{alwaysVisible ? 'inline-flex' : 'hidden md:inline-flex'} items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm {className}">{label}</kbd>
+<kbd class="{(validated.alwaysVisible ?? false) ? 'inline-flex' : 'hidden md:inline-flex'} items-center rounded border border-border bg-secondary px-1.5 py-0.5 text-xs font-mono leading-none text-muted-foreground shadow-sm {validated.class ?? ''}">{validated.label}</kbd>

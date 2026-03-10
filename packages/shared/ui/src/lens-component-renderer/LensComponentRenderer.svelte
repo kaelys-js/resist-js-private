@@ -760,7 +760,49 @@ function hasTunnelVision(key: Str): Bool {
 function codeSnippet(variantKey: Str, option: Str): Str {
 	if (!tagName) return '';
 	if (!variantKey) return `<${tagName}>${label}</${tagName}>`;
+	// Dotted key: show as nested prop syntax
+	if (variantKey.includes('.')) {
+		const [parent, child]: Str[] = variantKey.split('.');
+		return `<${tagName} ${parent}={{ ${child}: '${option}' }}>${label}</${tagName}>`;
+	}
 	return `<${tagName} ${variantKey}="${option}">${label}</${tagName}>`;
+}
+
+/**
+ * Build variant props object, handling dotted keys for nested object props.
+ *
+ * For flat keys like `variant`, returns `{ variant: option }`.
+ * For dotted keys like `meta.category`, merges with the base prop:
+ * `{ meta: { ...baseProps.meta, category: option } }`.
+ *
+ * @param variantName - The variant key (may contain `.`)
+ * @param option - The option value string
+ * @returns Props record to spread onto the component
+ */
+function buildVariantProps(variantName: Str, option: Str): Record<Str, unknown> {
+	// Coerce option to correct type
+	let coerced: unknown = option;
+	if (option === 'true' || option === 'false') {
+		coerced = option === 'true';
+	} else if (!Number.isNaN(Number(option)) && option !== '') {
+		coerced = Number(option);
+	}
+
+	// Dotted key: nested object prop
+	if (variantName.includes('.')) {
+		const dotIdx: Num = variantName.indexOf('.');
+		const parent: Str = variantName.slice(0, dotIdx);
+		const child: Str = variantName.slice(dotIdx + 1);
+		const existing: unknown = baseProps[parent];
+		const parentObj: Record<Str, unknown> =
+			typeof existing === 'object' && existing !== null
+				? { ...(existing as Record<Str, unknown>) }
+				: {};
+		parentObj[child] = coerced;
+		return { [parent]: parentObj };
+	}
+
+	return { [variantName]: coerced };
 }
 
 /**
@@ -1264,12 +1306,7 @@ function isIconOption(option: Str): boolean {
 			{@const options: Str[] = variantKey.options}
 			<div class="grid gap-3">
 				{#each options as option (option)}
-					{@const variantProps: Record<Str, Str | boolean | number> =
-						option === 'true' || option === 'false'
-							? { [variantName]: option === 'true' }
-							: !Number.isNaN(Number(option)) && option !== ''
-								? { [variantName]: Number(option) }
-								: { [variantName]: option }}
+					{@const variantProps: Record<Str, unknown> = buildVariantProps(variantName, option)}
 					{@const cardKey: Str = `${variantName}:${option}`}
 					{@const snippet: Str = codeSnippet(variantName, option)}
 					<svelte:boundary>

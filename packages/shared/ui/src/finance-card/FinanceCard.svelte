@@ -41,24 +41,26 @@ import * as Card from '../card/index.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(FinanceCardPropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-const { label, value, subtitle, trend, valueClass }: FinanceCardProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(FinanceCardPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 </script>
 
 <Card.Root class="@container/card">
 	<Card.Header>
-		<Card.Description>{label}</Card.Description>
-		<Card.Title class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl {valueClass ?? ''}">
-			{value}
+		<Card.Description>{validated.label}</Card.Description>
+		<Card.Title class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl {validated.valueClass ?? ''}">
+			{validated.value}
 		</Card.Title>
-		{#if trend}
+		{#if validated.trend}
 			<Card.Action>
 				<Badge variant="outline">
-					{#if trend === 'up'}
+					{#if validated.trend === 'up'}
 						<span class="text-green-500">↑</span>
-					{:else if trend === 'down'}
+					{:else if validated.trend === 'down'}
 						<span class="text-red-500">↓</span>
 					{:else}
 						<span class="text-muted-foreground">—</span>
@@ -67,9 +69,9 @@ const { label, value, subtitle, trend, valueClass }: FinanceCardProps = validate
 			</Card.Action>
 		{/if}
 	</Card.Header>
-	{#if subtitle}
+	{#if validated.subtitle}
 		<Card.Footer class="flex-col items-start gap-1.5 text-sm">
-			<div class="text-muted-foreground">{subtitle}</div>
+			<div class="text-muted-foreground">{validated.subtitle}</div>
 		</Card.Footer>
 	{/if}
 </Card.Root>

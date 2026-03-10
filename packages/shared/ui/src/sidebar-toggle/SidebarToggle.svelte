@@ -31,10 +31,12 @@ import TooltipLabel from '../tooltip-label/TooltipLabel.svelte';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
 const allProps = $props();
-const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
-const validated = safeParse(SidebarTogglePropsSchema, rawProps);
-if (!validated.ok) throw validated.error;
-let { label, shortcutLabel }: SidebarToggleProps = validated.data;
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(SidebarTogglePropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 </script>
 
 <Tooltip.Root delayDuration={700}>
@@ -44,7 +46,7 @@ let { label, shortcutLabel }: SidebarToggleProps = validated.data;
 		{/snippet}
 	</Tooltip.Trigger>
 	<Tooltip.Content side="right" sideOffset={4}>
-		<TooltipLabel {label} {shortcutLabel} />
+		<TooltipLabel label={validated.label} shortcutLabel={validated.shortcutLabel} />
 	</Tooltip.Content>
 </Tooltip.Root>
 <Separator orientation="vertical" role="separator" class="mx-2 data-[orientation=vertical]:h-4" />

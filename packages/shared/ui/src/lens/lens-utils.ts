@@ -86,6 +86,13 @@ export function extractStem(key: Str): Str {
  * ```
  */
 export function toTitle(name: Str): Str {
+	// Handle dotted keys: meta.category → Meta · Category
+	if (name.includes('.')) {
+		return name
+			.split('.')
+			.map((part: Str): Str => toTitle(part))
+			.join(' · ');
+	}
 	return name
 		.split('-')
 		.map((w: Str): Str => w.charAt(0).toUpperCase() + w.slice(1))
