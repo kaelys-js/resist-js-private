@@ -4,6 +4,7 @@
  * @module
  */
 import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
 
 /**
  * Schema for a single autocomplete search item.
@@ -12,15 +13,15 @@ import * as v from 'valibot';
  */
 export const SearchItemSchema = v.strictObject({
 	/** Unique identifier for the item, also used as the filter key. */
-	value: v.string(),
+	value: StrSchema,
 	/** Display label shown in the dropdown. */
-	label: v.string(),
+	label: StrSchema,
 	/** Optional navigation URL — selects the item and follows the link. */
-	href: v.optional(v.string()),
+	href: v.optional(StrSchema),
 	/** Optional group heading for categorization. */
-	group: v.optional(v.string()),
+	group: v.optional(StrSchema),
 	/** Optional search keywords for filtering (not displayed). */
-	keywords: v.optional(v.array(v.string())),
+	keywords: v.optional(v.array(StrSchema)),
 });
 
 /** A single autocomplete search item. */

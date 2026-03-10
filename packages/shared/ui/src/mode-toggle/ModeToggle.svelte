@@ -1,19 +1,19 @@
 <script module lang="ts">
 import * as v from 'valibot';
-import type { Str } from '@/schemas/common';
+import { StrSchema, type Str } from '@/schemas/common';
 
 /** Schema for localized labels in the ModeToggle UI. */
 export const ModeToggleLabelsSchema = v.strictObject({
 	/** Tooltip label. @values Toggle theme, Switch theme, Change mode */
-	toggleTheme: v.string(),
+	toggleTheme: StrSchema,
 	/** Accessible aria-label. @values Toggle mode, Switch color mode, Change appearance */
-	toggleMode: v.string(),
+	toggleMode: StrSchema,
 	/** Light mode option label. @values Light, Light Mode, Day */
-	light: v.string(),
+	light: StrSchema,
 	/** Dark mode option label. @values Dark, Dark Mode, Night */
-	dark: v.string(),
+	dark: StrSchema,
 	/** System mode option label. @values System, Auto, Follow System */
-	system: v.string(),
+	system: StrSchema,
 });
 /** Localized labels for the ModeToggle UI. */
 export type ModeToggleLabels = v.InferOutput<typeof ModeToggleLabelsSchema>;

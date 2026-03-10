@@ -1,17 +1,18 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema, BoolSchema } from '@/schemas/common';
 import type { Snippet } from 'svelte';
 
 /** Schema for the NavProject component props. */
 export const NavProjectPropsSchema = v.strictObject({
 	/** Display name (project or user). @values WebForge RPG, My Project, Demo App */
-	name: v.string(),
+	name: StrSchema,
 	/** Subtitle text (project subtitle, email, or em dash). @values v1.0.0, Production, Development */
-	subtitle: v.string(),
+	subtitle: StrSchema,
 	/** Avatar image URL (empty string for no image). @values https://example.com/avatar.png, /avatars/user.jpg */
-	avatarSrc: v.string(),
+	avatarSrc: StrSchema,
 	/** Whether to show the avatar icon in the trigger button. */
-	showIcon: v.boolean(),
+	showIcon: BoolSchema,
 	/** Product-specific dropdown menu items. */
 	menuItems: v.custom<Snippet>((val: unknown): boolean => typeof val === 'function'),
 });

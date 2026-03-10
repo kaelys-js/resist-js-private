@@ -1,20 +1,21 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema, BoolSchema } from '@/schemas/common';
 import type { Snippet } from 'svelte';
 import { NavItemSchema } from '../nav-secondary/NavSecondary.svelte';
 
 /** Schema for the AppSidebar component props — uses objectWithRest to allow passthrough props. */
 export const AppSidebarPropsSchema = v.objectWithRest({
 	/** Application display name. @values WebForge RPG, Finance Tracker, My App */
-	appName: v.string(),
+	appName: StrSchema,
 	/** Pre-resolved tagline. @values Build your world, Track your finances, Create something great */
-	tagline: v.string(),
+	tagline: StrSchema,
 	/** Sidebar root aria-label. @values Main sidebar, Application sidebar, Navigation */
-	sidebarLabel: v.string(),
+	sidebarLabel: StrSchema,
 	/** Whether to show the app icon in the header. */
-	showIcon: v.boolean(),
+	showIcon: BoolSchema,
 	/** Whether to show the app name in the header. */
-	showName: v.boolean(),
+	showName: BoolSchema,
 	/** Secondary nav items (Settings, Help, etc.). */
 	navItems: v.array(NavItemSchema),
 	/** Product-specific main content area (scene list, finance nav, etc.). */

@@ -1,13 +1,14 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
 
 export const CopyImportPropsSchema = v.strictObject({
 	/** The text displayed inside the code badge. @values @/ui/button, @/ui/dialog, @/ui/input */
-	text: v.string(),
+	text: StrSchema,
 	/** Text copied to clipboard. Defaults to `text` when omitted. @values npm install @/ui/button, pnpm add @/ui/dialog */
-	copyText: v.optional(v.string()),
+	copyText: v.optional(StrSchema),
 	/** Additional CSS classes for the root element. */
-	class: v.optional(v.string()),
+	class: v.optional(StrSchema),
 });
 export type CopyImportProps = v.InferOutput<typeof CopyImportPropsSchema>;
 </script>
@@ -25,11 +26,14 @@ export type CopyImportProps = v.InferOutput<typeof CopyImportPropsSchema>;
  * <CopyImport text="@/ui/dialog" copyText="import { Dialog } from '@/ui/dialog/index.js';" />
  * ```
  */
+import type { Str } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import CopyButton from '../copy-button/CopyButton.svelte';
 import { cn } from '../utils.js';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const rawProps = $props();
+const allProps = $props();
+const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
 const validated = safeParse(CopyImportPropsSchema, rawProps);
 if (!validated.ok) throw validated.error;
 const { text, copyText, class: className }: CopyImportProps = validated.data;

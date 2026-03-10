@@ -1,13 +1,14 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
 
 export const CopyButtonPropsSchema = v.strictObject({
 	/** The text to copy to the clipboard when clicked. @values npm install valibot, <Button>Click me</Button>, const x = 42 */
-	text: v.string(),
+	text: StrSchema,
 	/** Accessible label for the button. @values Copy code, Copy to clipboard, Copy import */
-	label: v.optional(v.string()),
+	label: v.optional(StrSchema),
 	/** Additional CSS classes for the button element. */
-	class: v.optional(v.string()),
+	class: v.optional(StrSchema),
 });
 export type CopyButtonProps = v.InferOutput<typeof CopyButtonPropsSchema>;
 </script>
@@ -35,8 +36,10 @@ import { fade } from 'svelte/transition';
 import * as Tooltip from '../tooltip/index.js';
 import { clipboardCopy } from '../lens/clipboard.js';
 import { cn } from '../utils.js';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const rawProps = $props();
+const allProps = $props();
+const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
 const validated = safeParse(CopyButtonPropsSchema, rawProps);
 if (!validated.ok) throw validated.error;
 const { text, label = 'Copy to clipboard', class: className }: CopyButtonProps = validated.data;

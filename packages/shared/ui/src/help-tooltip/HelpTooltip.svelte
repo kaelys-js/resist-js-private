@@ -1,5 +1,6 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema, NumSchema } from '@/schemas/common';
 
 /**
  * A help icon (`CircleHelp`) wrapped in a tooltip.
@@ -9,13 +10,13 @@ import * as v from 'valibot';
  */
 export const HelpTooltipPropsSchema = v.strictObject({
 	/** The tooltip text displayed on hover. @values Click to edit, Required field, More information */
-	text: v.string(),
+	text: StrSchema,
 	/** Which side of the icon the tooltip appears on. @values top, bottom, left, right */
 	side: v.optional(v.picklist(['top', 'bottom', 'left', 'right'])),
 	/** Additional CSS classes for the icon element. */
-	class: v.optional(v.string()),
+	class: v.optional(StrSchema),
 	/** Icon size in pixels. @values 14, 16, 20, 24 */
-	size: v.optional(v.number()),
+	size: v.optional(NumSchema),
 });
 export type HelpTooltipProps = v.InferOutput<typeof HelpTooltipPropsSchema>;
 </script>
@@ -26,11 +27,14 @@ export type HelpTooltipProps = v.InferOutput<typeof HelpTooltipPropsSchema>;
  *
  * Self-contained with its own Tooltip.Provider, so it works both standalone and nested.
  */
+import type { Str } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import CircleHelp from '@lucide/svelte/icons/circle-help';
 import * as Tooltip from '../tooltip/index.js';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const rawProps = $props();
+const allProps = $props();
+const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
 const validated = safeParse(HelpTooltipPropsSchema, rawProps);
 if (!validated.ok) throw validated.error;
 const { text, side = 'top', class: className = '', size = 16 }: HelpTooltipProps = validated.data;

@@ -803,6 +803,12 @@ function valibotToReadableType(expr: string): string {
 		return valibotToReadableType(inner);
 	}
 
+	// v.nullable(...) — unwrap and append ' | null'
+	if (trimmed.startsWith('v.nullable(')) {
+		const inner: string = trimmed.slice('v.nullable('.length, -1);
+		return `${valibotToReadableType(inner)} | null`;
+	}
+
 	// v.string() → string
 	if (trimmed === 'v.string()') return 'string';
 
@@ -1335,7 +1341,15 @@ function parseTypeFieldsForDisplay(definition: string): TypeField[] | undefined 
 	// Non-object type — return single field summarizing it
 	const humanized: string = humanizeValibotExpr(trimmed);
 	if (humanized && humanized !== trimmed) {
-		return [{ field: '(value)', accepts: humanized, description: '' }];
+		return [
+			{
+				field: '(value)',
+				type: valibotToReadableType(trimmed),
+				required: true,
+				accepts: humanized,
+				description: '',
+			},
+		];
 	}
 
 	return undefined;
@@ -1431,8 +1445,11 @@ function parseValibotObjectFields(body: string): TypeField[] {
 		pos = valueEnd + 1;
 
 		if (fieldName && schemaExpr) {
+			const isOptionalField: boolean = schemaExpr.trimStart().startsWith('v.optional(');
 			fields.push({
 				field: fieldName,
+				type: valibotToReadableType(schemaExpr),
+				required: !isOptionalField,
 				accepts: humanizeValibotExpr(schemaExpr),
 				description: pendingDescription,
 			});
@@ -1457,11 +1474,14 @@ function parsePlainObjectFields(body: string): TypeField[] {
 		.filter(Boolean);
 
 	for (const part of parts) {
-		const match: RegExpMatchArray | null = part.match(/^(\w+)\??\s*:\s*(.+)$/);
+		const match: RegExpMatchArray | null = part.match(/^(\w+)(\?)?\s*:\s*(.+)$/);
 		if (match) {
+			const typeStr: string = match[3]?.trim() ?? '';
 			fields.push({
 				field: match[1] ?? '',
-				accepts: match[2]?.trim() ?? '',
+				type: typeStr,
+				required: !match[2],
+				accepts: typeStr,
 				description: '',
 			});
 		}
@@ -1480,9 +1500,9 @@ function humanizeValibotExpr(expr: string): string {
 	const t: string = expr.trim();
 
 	// Primitives
-	if (t === 'v.string()') return 'text';
-	if (t === 'v.number()') return 'number';
-	if (t === 'v.boolean()') return 'true / false';
+	if (t === 'v.string()' || t === 'StrSchema') return 'text';
+	if (t === 'v.number()' || t === 'NumSchema') return 'number';
+	if (t === 'v.boolean()' || t === 'BoolSchema') return 'true / false';
 	if (t === 'v.any()' || t === 'v.unknown()') return 'any value';
 
 	// Literals

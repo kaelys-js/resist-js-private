@@ -1,5 +1,6 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
 
 /**
  * Syntax-highlighted code block powered by Shiki.
@@ -15,11 +16,11 @@ import * as v from 'valibot';
  */
 export const CodeBlockPropsSchema = v.strictObject({
 	/** Raw source code to highlight. @values console.log('hello'), const x = 42, <div>Hello</div> */
-	code: v.string(),
+	code: StrSchema,
 	/** Language grammar to use. @values svelte, typescript, javascript, html, css, json, markdown, bash */
-	lang: v.optional(v.string()),
+	lang: v.optional(StrSchema),
 	/** Additional CSS classes for the root element. */
-	class: v.optional(v.string()),
+	class: v.optional(StrSchema),
 });
 /** Props for the CodeBlock component. */
 export type CodeBlockProps = v.InferOutput<typeof CodeBlockPropsSchema>;
@@ -29,8 +30,10 @@ export type CodeBlockProps = v.InferOutput<typeof CodeBlockPropsSchema>;
 import type { Bool, Str } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import { cn } from '../utils.js';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const rawProps = $props();
+const allProps = $props();
+const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
 const validated = safeParse(CodeBlockPropsSchema, rawProps);
 if (!validated.ok) throw validated.error;
 const { code, lang = 'svelte', class: className }: CodeBlockProps = validated.data;

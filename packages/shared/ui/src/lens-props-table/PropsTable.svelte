@@ -1,14 +1,15 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
 import { PropMetaSchema, type PropMeta } from '../lens/types.js';
 
 export const PropsTablePropsSchema = v.strictObject({
 	/** Array of prop metadata to render. */
 	props: v.array(PropMetaSchema),
 	/** Variant key names — props matching these get a "See variants" action. @values variant, size, disabled */
-	variantKeys: v.optional(v.array(v.string())),
+	variantKeys: v.optional(v.array(StrSchema)),
 	/** Additional CSS classes for the root element. */
-	class: v.optional(v.string()),
+	class: v.optional(StrSchema),
 });
 /** Props for the PropsTable component. */
 export type PropsTableProps = v.InferOutput<typeof PropsTablePropsSchema>;
@@ -141,6 +142,9 @@ function explainType(type: Str): Str {
 function getAccepts(prop: PropMeta): Str {
 	if (prop.mockValues && prop.mockValues.length > 0) {
 		return prop.mockValues.join(', ');
+	}
+	if (prop.type === 'boolean' || prop.type === 'Bool') {
+		return 'true, false';
 	}
 	if (prop.type.includes(' | ')) {
 		const options: Str[] = prop.type.split(' | ').map((o: Str): Str => o.trim());
@@ -306,8 +310,16 @@ function hasTypeFields(prop: PropMeta): Bool {
 								<td class="py-1.5 pl-12 pr-4 font-mono text-[11px] text-muted-foreground">
 									{tf.field}
 								</td>
-								<td class="px-4 py-1.5 text-[11px] text-muted-foreground">—</td>
-								<td class="px-4 py-1.5 text-[11px] text-muted-foreground">—</td>
+								<td class="px-4 py-1.5 text-[11px] text-muted-foreground">
+									{#if tf.required}
+										<Badge variant="default" class="rounded-md px-1.5 py-0 text-[10px]">Required</Badge>
+									{:else}
+										<Badge variant="secondary" class="rounded-md px-1.5 py-0 text-[10px] text-muted-foreground">Optional</Badge>
+									{/if}
+								</td>
+								<td class="px-4 py-1.5 font-mono text-[11px] text-muted-foreground">
+									{tf.type || '—'}
+								</td>
 								<td class="px-4 py-1.5 font-mono text-[11px] text-muted-foreground">
 									{tf.accepts || '—'}
 								</td>

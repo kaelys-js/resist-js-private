@@ -1,24 +1,25 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema, BoolSchema } from '@/schemas/common';
 import { LensMetaSchema, type LensMeta } from '../lens/types.js';
 import { SearchItemSchema, type SearchItem } from '../search-autocomplete/search-item.js';
 
 /** Schema for the LensHeader component props. */
 export const LensHeaderPropsSchema = v.strictObject({
 	/** Component directory name (kebab-case). @values button, dialog, sidebar */
-	name: v.string(),
+	name: StrSchema,
 	/** Component description extracted from source JSDoc. @values A clickable button, An overlay dialog, A navigation sidebar */
-	description: v.optional(v.string()),
+	description: v.optional(StrSchema),
 	/** Validated lens metadata for category/tag badges. */
 	meta: v.optional(v.nullable(LensMetaSchema)),
 	/** Import path shown in the copy-import chip. @values @/ui/button, @/ui/dialog, @/ui/sidebar */
-	importPath: v.optional(v.string()),
+	importPath: v.optional(StrSchema),
 	/** Whether the component has renderable variants. */
-	hasVariants: v.optional(v.boolean()),
+	hasVariants: v.optional(BoolSchema),
 	/** Whether the component has hand-written examples. */
-	hasExamples: v.optional(v.boolean()),
+	hasExamples: v.optional(BoolSchema),
 	/** Whether the component has raw source available. */
-	hasSource: v.optional(v.boolean()),
+	hasSource: v.optional(BoolSchema),
 	/** Search items for the search popover. Empty array hides the search button. */
 	searchItems: v.optional(v.array(SearchItemSchema)),
 	/** Callback fired when a search item is selected. */

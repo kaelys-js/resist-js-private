@@ -1,5 +1,6 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
 import { PropMetaSchema, VariantMetaSchema } from '../lens/types.js';
 import type { Component, Snippet } from 'svelte';
 
@@ -12,17 +13,17 @@ export const LensComponentRendererPropsSchema = v.strictObject({
 	/** Full prop metadata for building base props from defaults/mock values. */
 	props: v.optional(v.array(PropMetaSchema)),
 	/** PascalCase tag name for generating code snippets. @values Button, Input, Badge */
-	tagName: v.optional(v.string()),
+	tagName: v.optional(StrSchema),
 	/** Component directory name for building isolation URLs. @values button, badge, input */
-	componentName: v.optional(v.string()),
+	componentName: v.optional(StrSchema),
 	/** Default slot content text for each rendered component. @values Example, Click me, Label */
-	label: v.optional(v.string()),
+	label: v.optional(StrSchema),
 	/** Custom content to render instead of the auto-instantiated component. Used for hand-written examples. */
 	children: v.optional(v.custom<Snippet>((val: unknown): boolean => typeof val === 'function')),
 	/** Code snippet text to display instead of auto-generated snippet. @values <Button>Click</Button>, <Input placeholder="Type..." />, <Badge>New</Badge> */
-	codeText: v.optional(v.string()),
+	codeText: v.optional(StrSchema),
 	/** Additional CSS classes for the root element. */
-	class: v.optional(v.string()),
+	class: v.optional(StrSchema),
 });
 /** Props for the LensComponentRenderer component. */
 export type LensComponentRendererProps = v.InferOutput<typeof LensComponentRendererPropsSchema>;

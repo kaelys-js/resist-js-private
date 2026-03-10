@@ -1,13 +1,14 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
 import type { Component } from 'svelte';
 
 /** Schema for a single navigation item. */
 export const NavItemSchema = v.strictObject({
 	/** Display label. @values Settings, Help, Support, Feedback */
-	title: v.string(),
+	title: StrSchema,
 	/** Link href. @values /settings, /help, /support, /feedback */
-	url: v.string(),
+	url: StrSchema,
 	/** Lucide icon component. */
 	icon: v.custom<Component>((val: unknown): boolean => typeof val === 'function'),
 });
@@ -29,10 +30,13 @@ export type NavSecondaryProps = v.InferOutput<typeof NavSecondaryPropsSchema>;
  *
  * Accepts an array of icon+title+url items and renders them as sidebar menu buttons.
  */
+import type { Str } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import * as Sidebar from '../sidebar/index.js';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const rawProps = $props();
+const allProps = $props();
+const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
 const validated = safeParse(NavSecondaryPropsSchema, rawProps);
 if (!validated.ok) throw validated.error;
 // Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates

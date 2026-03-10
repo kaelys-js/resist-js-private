@@ -9,6 +9,36 @@ import type { Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import { type LensMeta, LensMetaSchema } from './types.js';
 
+/** Set of Svelte-internal prop names that must be stripped before schema validation. */
+const SVELTE_INTERNAL_PROPS: ReadonlySet<Str> = new Set(['children', 'child']);
+
+/**
+ * Strip Svelte-internal props (children, child) from a raw props object.
+ *
+ * Svelte 5 injects `children` (default slot snippet) and `child` (shadcn snippet
+ * pattern) into props. These must be removed before `v.strictObject()` validation
+ * since the component schemas don't include them.
+ *
+ * @param props - The raw $props() object
+ * @returns A shallow copy with Svelte-internal keys removed
+ *
+ * @example
+ * ```typescript
+ * const allProps = $props();
+ * const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+ * const validated = safeParse(MySchema, rawProps);
+ * ```
+ */
+export function stripSvelteProps(props: Record<Str, unknown>): Record<Str, unknown> {
+	const result: Record<Str, unknown> = {};
+	for (const [key, value] of Object.entries(props)) {
+		if (!SVELTE_INTERNAL_PROPS.has(key)) {
+			result[key] = value;
+		}
+	}
+	return result;
+}
+
 /**
  * Extract directory name from a glob key like `.../button/button.svelte`.
  *

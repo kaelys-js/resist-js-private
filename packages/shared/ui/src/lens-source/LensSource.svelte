@@ -1,12 +1,13 @@
 <script module lang="ts">
 import * as v from 'valibot';
+import { StrSchema } from '@/schemas/common';
 
 /** Schema for LensSource component props. */
 export const LensSourcePropsSchema = v.strictObject({
 	/** Component directory name (kebab-case). @values button, dialog, sidebar */
-	name: v.string(),
+	name: StrSchema,
 	/** Raw source code string. @values let x = 1, const y = 2, export default z */
-	source: v.string(),
+	source: StrSchema,
 });
 /** Props for the LensSource component. */
 export type LensSourceProps = v.InferOutput<typeof LensSourcePropsSchema>;
@@ -19,13 +20,15 @@ export type LensSourceProps = v.InferOutput<typeof LensSourcePropsSchema>;
  * Wraps LensSection + CodeBlock to display component source code
  * with collapsible code toggle and copy-to-clipboard.
  */
+import type { Str } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
-import { toTitle } from '../lens/lens-utils.js';
+import { stripSvelteProps, toTitle } from '../lens/lens-utils.js';
 import LensSection from '../lens-section/LensSection.svelte';
 import CodeBlock from '../code-block/CodeBlock.svelte';
 import FileCode from '@lucide/svelte/icons/file-code';
 
-const rawProps = $props();
+const allProps = $props();
+const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
 const validated = safeParse(LensSourcePropsSchema, rawProps);
 if (!validated.ok) throw validated.error;
 const { name, source }: LensSourceProps = validated.data;

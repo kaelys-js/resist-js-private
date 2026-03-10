@@ -1,23 +1,23 @@
 <script module lang="ts">
 import * as v from 'valibot';
-import type { Str, Bool } from '@/schemas/common';
+import { StrSchema, NumSchema, type Str, type Bool } from '@/schemas/common';
 
 /** Schema for localized UI labels in the ErrorPage component. */
 export const ErrorPageLabelsSchema = v.strictObject({
 	/** "Go to homepage" button label. @values Go Home, Back to Home, Return Home */
-	goHome: v.string(),
+	goHome: StrSchema,
 	/** "Try again" button label. @values Try Again, Retry, Reload */
-	tryAgain: v.string(),
+	tryAgain: StrSchema,
 	/** "Copied!" confirmation text. @values Copied!, Copied to clipboard */
-	copied: v.string(),
+	copied: StrSchema,
 	/** "Copy failed" error text. @values Copy failed, Failed to copy */
-	copyFailed: v.string(),
+	copyFailed: StrSchema,
 	/** Formatted error ID reference. @values Reference: err-abc-123, Reference: err-def-456 */
-	errorIdLabel: v.string(),
+	errorIdLabel: StrSchema,
 	/** Aria-label for the copy button. @values Copy error ID to clipboard, Copy reference ID */
-	copyErrorIdAriaLabel: v.string(),
+	copyErrorIdAriaLabel: StrSchema,
 	/** Tooltip text when not yet copied. @values Click to copy, Copy to clipboard */
-	clickToCopy: v.string(),
+	clickToCopy: StrSchema,
 });
 /** Localized UI labels for the ErrorPage component. */
 export type ErrorPageLabels = v.InferOutput<typeof ErrorPageLabelsSchema>;
@@ -25,15 +25,15 @@ export type ErrorPageLabels = v.InferOutput<typeof ErrorPageLabelsSchema>;
 /** Schema for the ErrorPage component props. */
 export const ErrorPagePropsSchema = v.strictObject({
 	/** HTTP status code. @values 400, 403, 404, 500 */
-	status: v.number(),
+	status: NumSchema,
 	/** Error message. @values Not Found, Forbidden, Internal Server Error */
-	message: v.string(),
+	message: StrSchema,
 	/** Optional error reference ID for user support. @values err-abc-123, err-def-456 */
-	errorId: v.optional(v.string()),
+	errorId: v.optional(StrSchema),
 	/** Pre-resolved title for the status code. @values Bad Request, Forbidden, Not Found, Server Error */
-	title: v.string(),
+	title: StrSchema,
 	/** Pre-resolved description. @values The page you requested could not be found., You do not have permission to access this resource. */
-	description: v.string(),
+	description: StrSchema,
 	/** Localized UI labels. */
 	labels: ErrorPageLabelsSchema,
 	/** Optional callback for screen reader announcements. */
@@ -68,8 +68,10 @@ import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 import X from '@lucide/svelte/icons/x';
 import { Button } from '../button/index.js';
 import * as Tooltip from '../tooltip/index.js';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const rawProps = $props();
+const allProps = $props();
+const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
 const validated = safeParse(ErrorPagePropsSchema, rawProps);
 if (!validated.ok) throw validated.error;
 let {
