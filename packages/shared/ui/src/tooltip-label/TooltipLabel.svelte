@@ -12,7 +12,7 @@ export const TooltipLabelPropsSchema = v.strictObject({
 	label: StrSchema,
 	/** Optional formatted keyboard shortcut string (e.g. "⌘B"). @values ⌘B, Ctrl+K, Esc */
 	shortcutLabel: v.optional(StrSchema),
-	/** When true, the kbd badge is always visible instead of hidden on mobile. */
+	/** When true, the kbd badge is always visible instead of hidden on mobile. @values true, false */
 	shortcutAlwaysVisible: v.optional(BoolSchema),
 });
 export type TooltipLabelProps = v.InferOutput<typeof TooltipLabelPropsSchema>;

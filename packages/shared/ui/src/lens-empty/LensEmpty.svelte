@@ -8,7 +8,7 @@ export const LensEmptyPropsSchema = v.strictObject({
 	title: StrSchema,
 	/** Secondary description text below the title. @values This component has no renderable variants., Add examples to see them here. */
 	description: v.optional(StrSchema),
-	/** Optional icon snippet — defaults to PackageOpen. */
+	/** Optional icon snippet — defaults to PackageOpen. @values <div>content</div> */
 	icon: v.optional(v.custom<Snippet>((val) => typeof val === 'function')),
 	/** Visual variant. @values default, destructive */
 	variant: v.optional(v.picklist(['default', 'destructive'])),

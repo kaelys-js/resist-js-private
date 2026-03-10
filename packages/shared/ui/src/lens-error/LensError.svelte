@@ -8,7 +8,7 @@ export const LensErrorPropsSchema = v.strictObject({
 	title: StrSchema,
 	/** Secondary detail text below the title. @values Check the component source file., Schema validation returned errors. */
 	description: v.optional(StrSchema),
-	/** Optional icon snippet — defaults to CircleAlert. */
+	/** Optional icon snippet — defaults to CircleAlert. @values <div>content</div> */
 	icon: v.optional(v.custom<Snippet>((val) => typeof val === 'function')),
 	/** Additional CSS classes for the root element. */
 	class: v.optional(StrSchema),

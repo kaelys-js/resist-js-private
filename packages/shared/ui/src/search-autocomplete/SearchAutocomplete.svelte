@@ -19,13 +19,13 @@ import { SearchItemSchema, type SearchItem } from './search-item.js';
  * ```
  */
 export const SearchAutocompletePropsSchema = v.strictObject({
-	/** The list of items to search through. */
+	/** The list of items to search through. @values [{value: "button", label: "Button", href: "/components/button"}] */
 	items: v.array(SearchItemSchema),
 	/** Placeholder text for the search input. @values Search..., Find components, Type to search */
 	placeholder: v.optional(StrSchema),
 	/** Additional CSS classes for the trigger button. */
 	class: v.optional(StrSchema),
-	/** Callback fired when an item is selected. */
+	/** Callback fired when an item is selected. @values (item) => void */
 	onSelect: v.optional(v.custom<(item: SearchItem) => void>((val: unknown): boolean => typeof val === 'function')),
 	/** Text shown when no items match. @values No results found, Nothing here, Try a different search */
 	emptyText: v.optional(StrSchema),

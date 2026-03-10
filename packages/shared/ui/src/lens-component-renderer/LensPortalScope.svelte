@@ -8,7 +8,7 @@ export const LensPortalScopePropsSchema = v.strictObject({
 	mode: v.picklist(['auto', 'light', 'dark']),
 	/** Per-card theme id (empty string for default). @values midnight, ocean, forest */
 	theme: StrSchema,
-	/** Whether the page-level dark mode is active (for auto mode mirroring). */
+	/** Whether the page-level dark mode is active (for auto mode mirroring). @values true, false */
 	pageIsDark: BoolSchema,
 	/** Content to render inside the scoped portal context. */
 	children: v.custom<Snippet>((val) => typeof val === 'function'),

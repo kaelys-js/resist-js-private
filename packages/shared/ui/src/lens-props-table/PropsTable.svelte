@@ -4,7 +4,7 @@ import { StrSchema } from '@/schemas/common';
 import { PropMetaSchema, type PropMeta } from '../lens/types.js';
 
 export const PropsTablePropsSchema = v.strictObject({
-	/** Array of prop metadata to render. */
+	/** Array of prop metadata to render. @values [{name: "variant", type: "Str", default: "default", description: "Visual style", bindable: false}] */
 	props: v.array(PropMetaSchema),
 	/** Variant key names — props matching these get a "See variants" action. @values variant, size, disabled */
 	variantKeys: v.optional(v.array(StrSchema)),
@@ -21,7 +21,8 @@ export type PropsTableProps = v.InferOutput<typeof PropsTablePropsSchema>;
  *
  * Displays Name, Required, Type, Accepts, Default, and Description columns from
  * auto-extracted `PropMeta[]` data. Props with complex object types show collapsible
- * child rows for their type fields, indented with a lighter background.
+ * child rows for their type fields inside a `transition:slide` wrapper. Both parent
+ * and nested tables use `table-layout: fixed` to guarantee column alignment.
  */
 import { slide } from 'svelte/transition';
 import type { Bool, Num, Str, Void } from '@/schemas/common';
@@ -253,7 +254,7 @@ function parseAcceptsMembers(accepts: Str): Str[] {
 		.filter(Boolean);
 }
 
-/** Column count for colspan on expanded rows. */
+/** Number of columns in the table — 7 if variant actions shown, else 6. */
 const colCount: Num = $derived(variantKeys.length > 0 ? 7 : 6);
 </script>
 
@@ -261,7 +262,7 @@ const colCount: Num = $derived(variantKeys.length > 0 ? 7 : 6);
 	{#if validated.props.length === 0}
 		<LensEmpty title="No custom props" description="This component accepts only standard HTML attributes." />
 	{:else}
-		<table class="w-full text-sm">
+		<table class="w-full table-fixed text-sm">
 			<thead>
 				<tr class="border-b bg-muted/50">
 					<th class="px-4 py-2 text-left font-medium text-muted-foreground">Name</th>
@@ -426,7 +427,7 @@ const colCount: Num = $derived(variantKeys.length > 0 ? 7 : 6);
 						<tr class="border-b">
 							<td colspan={colCount} class="p-0">
 								<div transition:slide={{ duration: 150 }} class="overflow-hidden">
-									<table class="w-full text-sm">
+									<table class="w-full table-fixed text-sm">
 										<tbody>
 											{#each prop.typeFields ?? [] as tf (tf.field)}
 												<tr class="border-b bg-muted/30 last:border-b-0">

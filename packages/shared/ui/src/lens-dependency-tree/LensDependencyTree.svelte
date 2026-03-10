@@ -7,61 +7,61 @@ const DepKindSchema = v.picklist(['type', 'namespace', 'named', 'default']);
 
 /** Schema for a single dependency entry. */
 export const DepEntrySchema = v.strictObject({
-	/** The import specifier path. */
+	/** The import specifier path. @values ../button/index.js, @/ui/tooltip, bits-ui */
 	path: StrSchema,
-	/** Imported names. */
+	/** Imported names. @values Button, cn, Tooltip */
 	names: v.array(StrSchema),
-	/** UI component directory name (only for internal deps). */
+	/** UI component directory name (only for internal deps). @values button, dialog, tooltip, badge */
 	component: StrSchema,
-	/** How this import was declared. */
+	/** How this import was declared. @values type, namespace, named, default */
 	kind: DepKindSchema,
 });
 
 /** Schema for a categorized dependency tree. */
 export const DepTreeSchema = v.strictObject({
-	/** Sibling UI component imports. */
+	/** Sibling UI component imports. @values [{path: "../button/index.js", names: ["Button"], component: "button", kind: "named"}] */
 	internal: v.array(DepEntrySchema),
-	/** Workspace package imports. */
+	/** Workspace package imports. @values [{path: "@/ui/tooltip", names: ["Tooltip"], component: "", kind: "named"}] */
 	workspace: v.array(DepEntrySchema),
-	/** External npm package imports. */
+	/** External npm package imports. @values [{path: "bits-ui", names: ["Dialog"], component: "", kind: "named"}] */
 	external: v.array(DepEntrySchema),
 });
 
 /** Schema for a reverse dependency entry (a component that imports the current one). */
 export const ReverseDepSchema = v.strictObject({
-	/** The component directory name that imports the current component. */
+	/** The component directory name that imports the current component. @values sidebar, dialog, dropdown-menu */
 	component: StrSchema,
-	/** Imported names from the current component. */
+	/** Imported names from the current component. @values Button, buttonVariants */
 	names: v.array(StrSchema),
-	/** Import kind used by the consumer. */
+	/** Import kind used by the consumer. @values type, namespace, named, default */
 	kind: DepKindSchema,
 });
 
 /** Schema for a single component's size data. */
 export const ComponentSizeSchema = v.strictObject({
-	/** Raw source file size in characters. */
+	/** Raw source file size in characters. @values 1024, 2048, 4096 */
 	source: NumSchema,
-	/** Minified client JS size in bytes (from Svelte compile + esbuild minify). */
+	/** Minified client JS size in bytes (from Svelte compile + esbuild minify). @values 512, 1024, 2048 */
 	compiled: v.optional(NumSchema),
-	/** Gzip-compressed minified JS size in bytes — closest to actual download size. */
+	/** Gzip-compressed minified JS size in bytes — closest to actual download size. @values 256, 512, 1024 */
 	gzip: v.optional(NumSchema),
 });
 
 /** Schema for the LensDependencyTree component props. */
 export const LensDependencyTreePropsSchema = v.strictObject({
-	/** Categorized dependency tree to render. */
+	/** Categorized dependency tree to render. @values {internal: [], workspace: [], external: []} */
 	deps: DepTreeSchema,
-	/** Components that import the current component (reverse dependencies). */
+	/** Components that import the current component (reverse dependencies). @values [{component: "sidebar", names: ["Button"], kind: "named"}] */
 	usedBy: v.optional(v.array(ReverseDepSchema)),
 	/** Current component name — used to build links to sibling component pages. @values button, dialog, sidebar */
 	currentComponent: v.optional(StrSchema),
-	/** Per-component size data (source + compiled + gzip). Keyed by component directory name. */
+	/** Per-component size data (source + compiled + gzip). Keyed by component directory name. @values {button: {source: 1024, compiled: 512, gzip: 256}} */
 	sizes: v.optional(v.record(v.string(), ComponentSizeSchema)),
-	/** Known component directory names from glob discovery — used to distinguish UI components from utility imports. */
+	/** Known component directory names from glob discovery — used to distinguish UI components from utility imports. @values button, dialog, tooltip, badge */
 	knownComponents: v.optional(v.array(StrSchema)),
-	/** Raw source strings keyed by glob path — used for recursive dependency chain resolution. */
+	/** Raw source strings keyed by glob path — used for recursive dependency chain resolution. @values {"/ui/button/index.js": "import..."} */
 	rawSources: v.optional(v.record(v.string(), StrSchema)),
-	/** Additional CSS classes for the root element. */
+	/** Additional CSS classes for the root element. @values mt-4, space-y-2 */
 	class: v.optional(StrSchema),
 });
 /** Props for the LensDependencyTree component. */

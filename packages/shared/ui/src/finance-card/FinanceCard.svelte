@@ -19,7 +19,7 @@ export const FinanceCardPropsSchema = v.strictObject({
 	value: StrSchema,
 	/** Optional footer text below the card header. @values +12.5% from last month, -3.2% from last month, No change */
 	subtitle: v.optional(StrSchema),
-	/** Optional trend badge direction. */
+	/** Optional trend badge direction. @values up, down, neutral */
 	trend: v.optional(v.picklist(['up', 'down', 'neutral'])),
 	/** Optional Tailwind classes for the value. @values text-destructive, text-green-500, text-primary */
 	valueClass: v.optional(StrSchema),

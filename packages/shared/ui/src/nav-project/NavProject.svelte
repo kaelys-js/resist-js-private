@@ -11,9 +11,9 @@ export const NavProjectPropsSchema = v.strictObject({
 	subtitle: StrSchema,
 	/** Avatar image URL (empty string for no image). @values https://example.com/avatar.png, /avatars/user.jpg */
 	avatarSrc: StrSchema,
-	/** Whether to show the avatar icon in the trigger button. */
+	/** Whether to show the avatar icon in the trigger button. @values true, false */
 	showIcon: BoolSchema,
-	/** Product-specific dropdown menu items. */
+	/** Product-specific dropdown menu items. @values <div>content</div> */
 	menuItems: v.custom<Snippet>((val: unknown): boolean => typeof val === 'function'),
 });
 /** Props for the NavProject component. */

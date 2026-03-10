@@ -12,15 +12,15 @@ export const AppSidebarPropsSchema = v.objectWithRest({
 	tagline: StrSchema,
 	/** Sidebar root aria-label. @values Main sidebar, Application sidebar, Navigation */
 	sidebarLabel: StrSchema,
-	/** Whether to show the app icon in the header. */
+	/** Whether to show the app icon in the header. @values true, false */
 	showIcon: BoolSchema,
-	/** Whether to show the app name in the header. */
+	/** Whether to show the app name in the header. @values true, false */
 	showName: BoolSchema,
-	/** Secondary nav items (Settings, Help, etc.). */
+	/** Secondary nav items (Settings, Help, etc.). @values [{title: "Settings", url: "/settings", icon: "settings"}] */
 	navItems: v.array(NavItemSchema),
-	/** Product-specific main content area (scene list, finance nav, etc.). */
+	/** Product-specific main content area (scene list, finance nav, etc.). @values <div>content</div> */
 	content: v.custom<Snippet>((val: unknown): boolean => typeof val === 'function'),
-	/** Product-specific footer area (NavProject dropdown, etc.). */
+	/** Product-specific footer area (NavProject dropdown, etc.). @values <div>content</div> */
 	footer: v.custom<Snippet>((val: unknown): boolean => typeof val === 'function'),
 }, v.unknown());
 /** Props for the AppSidebar component. */

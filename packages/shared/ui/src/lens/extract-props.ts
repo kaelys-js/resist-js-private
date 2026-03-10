@@ -111,7 +111,7 @@ export function extractProps(source: string, supplementarySources?: string[]): P
 			description,
 			bindable: raw.bindable,
 			typeDefinition: rawTypeDef,
-			typeFields: rawTypeDef ? parseTypeFieldsForDisplay(rawTypeDef) : undefined,
+			typeFields: rawTypeDef ? parseTypeFieldsForDisplay(rawTypeDef, combinedSource) : undefined,
 			mockValues: mockValues.length > 0 ? mockValues : undefined,
 			optional: isOptional || undefined,
 		});
@@ -159,14 +159,27 @@ function extractSchemaBasedProps(source: string, supplementarySources?: string[]
 		const readableType: string = fieldDef.type;
 		const rawTypeDef: string | undefined = resolveTypeDefinition(readableType, combinedSource);
 
+		// Fallback: use original Valibot validator expression for typeFields when resolveTypeDefinition
+		// can't resolve the type (e.g., v.record() which produces Record<K, V> with no type alias).
+		// Match complex validators anywhere in the expression (handles v.optional(v.record(...)) wrappers).
+		// Excludes v.optional(StrSchema) etc. that only contain primitives.
+		const validatorFallback: string | undefined =
+			fieldDef.validatorExpr &&
+			/v\.(?:record|strict[Oo]bject|object)\(/.test(fieldDef.validatorExpr)
+				? fieldDef.validatorExpr
+				: undefined;
+		const typeFieldSource: string | undefined = rawTypeDef ?? validatorFallback;
+
 		result.push({
 			name: fieldName,
 			type: readableType,
 			default: '',
 			description: fieldDef.description,
 			bindable: false,
-			typeDefinition: rawTypeDef,
-			typeFields: rawTypeDef ? parseTypeFieldsForDisplay(rawTypeDef) : undefined,
+			typeDefinition: rawTypeDef ?? validatorFallback,
+			typeFields: typeFieldSource
+				? parseTypeFieldsForDisplay(typeFieldSource, combinedSource)
+				: undefined,
 			mockValues: fieldDef.mockValues.length > 0 ? fieldDef.mockValues : undefined,
 			optional: fieldDef.optional || undefined,
 		});
@@ -560,6 +573,8 @@ type TypeDefField = {
 	mockValues: string[];
 	/** Whether this field is optional (from `v.optional()` or `?:` syntax). */
 	optional: boolean;
+	/** Original Valibot validator expression (for schema-based extraction). */
+	validatorExpr?: string;
 };
 
 /** Result of resolving a named type definition. */
@@ -913,6 +928,7 @@ function parseValibotSchemaFields(body: string): ResolvedTypeDef {
 				description: pendingDescription,
 				mockValues: pendingMockValues.length > 0 ? [...pendingMockValues] : [],
 				optional: isOptional,
+				validatorExpr,
 			});
 			pendingDescription = '';
 			pendingMockValues = [];
@@ -974,6 +990,15 @@ function valibotToReadableType(expr: string): string {
 		return `${inner}[]`;
 	}
 
+	// v.record(keyValidator, valueValidator) → Record<key, value>
+	if (trimmed.startsWith('v.record(')) {
+		const inner: string = trimmed.slice('v.record('.length, -1);
+		const args: string[] = splitTopLevel(inner, ',');
+		const keyType: string = args[0] ? valibotToReadableType(args[0]) : 'string';
+		const valueType: string = args[1] ? valibotToReadableType(args[1]) : 'unknown';
+		return `Record<${keyType}, ${valueType}>`;
+	}
+
 	// v.pipe(...) → try to extract the base type
 	if (trimmed.startsWith('v.pipe(')) {
 		const inner: string = trimmed.slice('v.pipe('.length);
@@ -984,6 +1009,11 @@ function valibotToReadableType(expr: string): string {
 	// Named schema reference (e.g., ModeToggleLabelsSchema) → use schema name sans "Schema"
 	if (/^\w+Schema$/.test(trimmed)) {
 		return trimmed.replace(/Schema$/, '');
+	}
+
+	// Inline object schemas — return clean "object" instead of dumping raw body
+	if (trimmed.startsWith('v.strictObject(') || trimmed.startsWith('v.object(')) {
+		return 'object';
 	}
 
 	// Fallback — return expression cleaned up
@@ -1384,12 +1414,27 @@ function resolveTypeDefinition(typeName: string, source: string): string | undef
 	// Skip union types — they ARE the definition already (after nullable strip)
 	if (baseTypeName.includes(' | ')) return undefined;
 
+	// Skip generic types (Record<K,V>, Map<K,V>, etc.) — no type alias to resolve
+	if (baseTypeName.includes('<')) return undefined;
+
+	// PRIORITY: Try schema-const resolution FIRST — `const <Name>Schema = v.strictObject(...)`
+	// Schema-const definitions have richer metadata (JSDoc, @values, nested schemas) than
+	// plain TS type definitions. This also avoids issues where `type Xxx = { ... }` from
+	// supplementary sources has JSDoc comments that parsePlainObjectFields can't handle.
+	const schemaConstName: string = `${baseTypeName}Schema`;
+	const schemaResolved: string | undefined = resolveConstDefinition(schemaConstName, source);
+	if (schemaResolved && /^v\.(?:strict)?[Oo]bject\(/.test(schemaResolved)) {
+		return schemaResolved;
+	}
+
 	// Find `type <name> = ...` or `export type <name> = ...`
 	const typeDefRegex: RegExp = new RegExp(
 		`(?:export\\s+)?type\\s+${baseTypeName.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)}\\s*=\\s*`,
 	);
 	const match: RegExpExecArray | null = typeDefRegex.exec(source);
-	if (!match) return undefined;
+	if (!match) {
+		return undefined;
+	}
 
 	const afterEquals: number = (match.index ?? 0) + match[0].length;
 
@@ -1450,14 +1495,32 @@ function resolveTypeDefinition(typeName: string, source: string): string | undef
 /**
  * Parse a resolved type definition string into structured TypeField[] for tooltip display.
  *
- * Handles Valibot object schemas (`v.strictObject({...})`), plain object types (`{ field: type }`),
- * and non-object types (returns a single-field array with the humanized type).
+ * Handles Valibot object schemas (`v.strictObject({...})`), records (`v.record(...)`),
+ * plain object types (`{ field: type }`), and non-object types. Automatically unwraps
+ * `v.optional()` and `v.nullable()` wrappers. For records with named schema values,
+ * resolves and expands the value schema's fields when `source` is provided.
  *
  * @param definition - Raw resolved type definition string
+ * @param source - Optional combined source for resolving nested schema references
  * @returns Array of TypeField for display, or undefined if not parseable
  */
-function parseTypeFieldsForDisplay(definition: string): TypeField[] | undefined {
-	const trimmed: string = definition.trim();
+function parseTypeFieldsForDisplay(definition: string, source?: string): TypeField[] | undefined {
+	let trimmed: string = definition.trim();
+
+	// Unwrap v.optional(...), v.nullable(...), and v.array(...) wrappers — they don't affect field structure
+	while (
+		trimmed.startsWith('v.optional(') ||
+		trimmed.startsWith('v.nullable(') ||
+		trimmed.startsWith('v.array(')
+	) {
+		let prefix: string = 'v.array(';
+		if (trimmed.startsWith('v.optional(')) {
+			prefix = 'v.optional(';
+		} else if (trimmed.startsWith('v.nullable(')) {
+			prefix = 'v.nullable(';
+		}
+		trimmed = trimmed.slice(prefix.length, -1).trim();
+	}
 
 	// v.strictObject({ ... }) or v.object({ ... })
 	const objMatch: RegExpMatchArray | null = trimmed.match(
@@ -1465,6 +1528,44 @@ function parseTypeFieldsForDisplay(definition: string): TypeField[] | undefined 
 	);
 	if (objMatch) {
 		return parseValibotObjectFields(objMatch[1] ?? '');
+	}
+
+	// v.record(keyValidator, valueValidator) — resolve value schema fields if possible
+	if (trimmed.startsWith('v.record(')) {
+		const inner: string = trimmed.slice('v.record('.length, -1);
+		const args: string[] = splitTopLevel(inner, ',');
+		const valueExpr: string = (args[1] ?? '').trim();
+		const keyField: TypeField = {
+			field: '[key]',
+			type: valibotToReadableType(args[0] ?? 'v.string()'),
+			required: true,
+			accepts: humanizeValibotExpr(args[0] ?? 'v.string()'),
+			description: 'Record key',
+		};
+
+		// If the value is a named schema (e.g. ComponentSizeSchema), resolve it and
+		// expand its fields so users see the actual sub-fields, not just [key]/[value].
+		if (/^\w+Schema$/.test(valueExpr) && source) {
+			const resolved: string | undefined = resolveConstDefinition(valueExpr, source);
+			if (resolved) {
+				const valueFields: TypeField[] | undefined = parseTypeFieldsForDisplay(resolved);
+				if (valueFields && valueFields.length > 0) {
+					return [keyField, ...valueFields];
+				}
+			}
+		}
+
+		// Fallback: show [key] + [value] placeholder
+		return [
+			keyField,
+			{
+				field: '[value]',
+				type: valibotToReadableType(valueExpr || 'unknown'),
+				required: true,
+				accepts: humanizeValibotExpr(valueExpr || 'unknown'),
+				description: 'Record value',
+			},
+		];
 	}
 
 	// Plain object type { field: type; ... }
@@ -1510,7 +1611,7 @@ function parseValibotObjectFields(body: string): TypeField[] {
 			const closeIdx: number = body.indexOf(JSDOC_CLOSE, pos + 3);
 			if (closeIdx === -1) break;
 			const commentBody: string = body.slice(pos + 3, closeIdx);
-			pendingDescription = commentBody
+			const rawDoc: string = commentBody
 				.split('\n')
 				.map((l: string): string =>
 					l
@@ -1520,6 +1621,9 @@ function parseValibotObjectFields(body: string): TypeField[] {
 				)
 				.filter(Boolean)
 				.join(' ');
+			// Strip @values tag — same as parseValibotSchemaFields
+			const parsedDoc: ValuesTagResult = extractValuesTag(rawDoc);
+			pendingDescription = parsedDoc.description;
 			pos = closeIdx + 2;
 			continue;
 		}
@@ -1602,7 +1706,10 @@ function parseValibotObjectFields(body: string): TypeField[] {
  */
 function parsePlainObjectFields(body: string): TypeField[] {
 	const fields: TypeField[] = [];
-	const parts: string[] = body
+	// Strip JSDoc comments (/** ... */) before splitting — TS type definitions
+	// from supplementary sources may include JSDoc on each field.
+	const stripped: string = body.replaceAll(/\/\*\*[\s\S]*?\*\//g, '');
+	const parts: string[] = stripped
 		.split(';')
 		.map((s: string): string => s.trim())
 		.filter(Boolean);
@@ -1700,8 +1807,13 @@ function humanizeValibotExpr(expr: string): string {
 	// Nested strictObject — just say "object"
 	if (t.startsWith('v.strictObject(') || t.startsWith('v.object(')) return 'object';
 
-	// Record
-	if (t.startsWith('v.record(')) return 'key-value map';
+	// Record — show key → value types
+	if (t.startsWith('v.record(')) {
+		const inner: string = t.slice('v.record('.length, -1);
+		const args: string[] = splitPipeArgs(inner);
+		const valueHuman: string = args[1] ? humanizeValibotExpr(args[1]) : 'value';
+		return `map of text → ${valueHuman}`;
+	}
 
 	// Tuple
 	if (t.startsWith('v.tuple(')) return 'fixed list';
