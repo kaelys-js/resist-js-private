@@ -241,6 +241,7 @@ let {
 			default: '',
 			description: 'Optional error ID.',
 			bindable: false,
+			optional: true,
 		});
 	});
 

@@ -6,7 +6,7 @@ import type { Str } from '@/schemas/common';
 
 const store: ReturnType<typeof useEditorStore> = useEditorStore();
 
-const themes: ReadonlyArray<{ id: Str; label: Str; dots: readonly [Str, Str, Str, Str] }> =
+const themes: Array<{ id: Str; label: Str; dots: Str[] }> =
 	$derived([
 		{
 			id: '',

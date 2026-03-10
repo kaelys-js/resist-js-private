@@ -97,6 +97,8 @@ export function extractProps(source: string, supplementarySources?: string[]): P
 			raw.mockValues.length > 0 ? raw.mockValues : (typeDef?.mockValues ?? []);
 
 		const rawTypeDef: string | undefined = resolveTypeDefinition(resolvedType, combinedSource);
+		// Optional if: no default AND type definition says optional (v.optional or ?:)
+		const isOptional: boolean = !raw.defaultValue && (typeDef?.optional ?? false);
 		result.push({
 			name: raw.name,
 			type: resolvedType,
@@ -106,6 +108,7 @@ export function extractProps(source: string, supplementarySources?: string[]): P
 			typeDefinition: rawTypeDef,
 			typeFields: rawTypeDef ? parseTypeFieldsForDisplay(rawTypeDef) : undefined,
 			mockValues: mockValues.length > 0 ? mockValues : undefined,
+			optional: isOptional || undefined,
 		});
 	}
 
@@ -421,6 +424,8 @@ type TypeDefField = {
 	description: string;
 	/** Explicit mock values from `@values` JSDoc tag. */
 	mockValues: string[];
+	/** Whether this field is optional (from `v.optional()` or `?:` syntax). */
+	optional: boolean;
 };
 
 /** Result of resolving a named type definition. */
@@ -497,37 +502,68 @@ function extractValuesTag(text: string): ValuesTagResult {
  * @returns The parsed block or null if no `$props()` found
  */
 function findPropsBlock(source: string): PropsBlock | null {
-	// Match: let/const { <destructuring> }: <typeAnnotation> = $props();
-	// The type annotation can span multiple lines and contain nested braces/generics.
-	// We use a two-pass approach: first find `let {` or `const {`, then find the matching `}` and `: ... = $props()`.
+	// Supports two patterns:
+	// 1. Direct:    let/const { ... }: Type = $props()
+	// 2. Validated: const raw = $props(); safeParse(...); const/let { ... }: Type = var.data
 
 	const propsStart: number = source.indexOf('$props()');
 	if (propsStart === -1) return null;
 
-	// Search backwards from $props() for `let {` or `const {`
+	// --- Pattern 1: Direct destructuring before $props() ---
 	const letIdx: number = source.lastIndexOf('let {', propsStart);
 	const constIdx: number = source.lastIndexOf('const {', propsStart);
 	const declIdx: number = Math.max(letIdx, constIdx);
-	if (declIdx === -1) return null;
 
-	const openBrace: number = source.indexOf('{', declIdx);
-	if (openBrace === -1) return null;
+	if (declIdx !== -1) {
+		const openBrace: number = source.indexOf('{', declIdx);
+		if (openBrace !== -1) {
+			const closeBrace: number = findMatchingBrace(source, openBrace);
+			if (closeBrace !== -1) {
+				const destructuring: string = source.slice(openBrace + 1, closeBrace);
+				const afterBrace: string = source.slice(closeBrace + 1, propsStart);
+				const typeAnnotation: string = afterBrace
+					.replace(/^\s*:\s*/, '')
+					.replace(/\s*=\s*$/, '')
+					.trim();
+				if (typeAnnotation) {
+					return { destructuring, typeAnnotation };
+				}
+			}
+		}
+	}
 
-	// Find the matching close brace for the destructuring
-	const closeBrace: number = findMatchingBrace(source, openBrace);
-	if (closeBrace === -1) return null;
+	// --- Pattern 2: Validated — destructuring from .data after $props() ---
+	const afterProps: string = source.slice(propsStart + 8);
+	const newLetIdx: number = afterProps.indexOf('let {');
+	const newConstIdx: number = afterProps.indexOf('const {');
+	let newDeclIdx: number = -1;
+	if (newLetIdx !== -1 && newConstIdx !== -1) {
+		newDeclIdx = Math.min(newLetIdx, newConstIdx);
+	} else {
+		newDeclIdx = Math.max(newLetIdx, newConstIdx);
+	}
 
-	const destructuring: string = source.slice(openBrace + 1, closeBrace);
+	if (newDeclIdx !== -1) {
+		const absIdx: number = propsStart + 8 + newDeclIdx;
+		const openBrace: number = source.indexOf('{', absIdx);
+		if (openBrace !== -1) {
+			const closeBrace: number = findMatchingBrace(source, openBrace);
+			if (closeBrace !== -1) {
+				const afterClose: string = source.slice(closeBrace + 1);
+				const typeDataMatch: RegExpMatchArray | null = afterClose.match(
+					/^\s*:\s*(.+?)\s*=\s*\w+\.data/,
+				);
+				if (typeDataMatch) {
+					return {
+						destructuring: source.slice(openBrace + 1, closeBrace),
+						typeAnnotation: (typeDataMatch[1] ?? '').trim(),
+					};
+				}
+			}
+		}
+	}
 
-	// Type annotation is between `}: ` and `= $props()`
-	const afterBrace: string = source.slice(closeBrace + 1, propsStart);
-	// Remove leading `:` and trailing `=`
-	const typeAnnotation: string = afterBrace
-		.replace(/^\s*:\s*/, '')
-		.replace(/\s*=\s*$/, '')
-		.trim();
-
-	return { destructuring, typeAnnotation };
+	return null;
 }
 
 /**
@@ -587,9 +623,19 @@ function resolveNamedType(source: string, typeAnnotation: string): ResolvedTypeD
 	if (!match) return null;
 
 	const afterEquals: number = (match.index ?? 0) + match[0].length;
+	const afterEqualsText: string = source.slice(afterEquals, afterEquals + 200).trim();
 
-	// Find the full type body — look for the first `{` and its matching `}`
-	// Handle intersection types: `SomeType & { ... }` or direct `{ ... }`
+	// --- Valibot schema path: type X = v.InferOutput<typeof YSchema> ---
+	const inferMatch: RegExpMatchArray | null = afterEqualsText.match(
+		/v\.InferOutput\s*<\s*typeof\s+(\w+)\s*>/,
+	);
+	if (inferMatch) {
+		const schemaName: string = inferMatch[1] ?? '';
+		const resolved: ResolvedTypeDef | null = resolveValibotSchema(source, schemaName);
+		if (resolved) return resolved;
+	}
+
+	// --- TypeScript type path: type X = { ... } or SomeType & { ... } ---
 	const types: Map<string, string> = new Map();
 	const fields: Map<string, TypeDefField> = new Map();
 
@@ -616,6 +662,192 @@ function resolveNamedType(source: string, typeAnnotation: string): ResolvedTypeD
 
 	if (types.size === 0 && fields.size === 0) return null;
 	return { types, fields };
+}
+
+/**
+ * Resolve a Valibot schema definition to field types and descriptions.
+ *
+ * Finds `const <name> = v.strictObject({ ... })` or `v.objectWithRest({ ... }, ...)`
+ * and parses each field's Valibot validator into a readable type string.
+ *
+ * @param source - Full raw source
+ * @param schemaName - Name of the schema constant (e.g., `LensEmptyPropsSchema`)
+ * @returns Resolved types and field metadata, or null
+ */
+function resolveValibotSchema(source: string, schemaName: string): ResolvedTypeDef | null {
+	// Find: const <name> = v.strictObject({ ... }) or v.objectWithRest({ ... }, ...)
+	const schemaRegex: RegExp = new RegExp(
+		`(?:const|export\\s+const)\\s+${schemaName}\\s*=\\s*v\\.(?:strictObject|objectWithRest|looseObject)\\s*\\(`,
+	);
+	const schemaMatch: RegExpExecArray | null = schemaRegex.exec(source);
+	if (!schemaMatch) return null;
+
+	const parenStart: number = (schemaMatch.index ?? 0) + schemaMatch[0].length - 1;
+	// Find the opening `{` of the schema fields object
+	const braceStart: number = source.indexOf('{', parenStart);
+	if (braceStart === -1) return null;
+
+	const braceEnd: number = findMatchingBrace(source, braceStart);
+	if (braceEnd === -1) return null;
+
+	const schemaBody: string = source.slice(braceStart + 1, braceEnd);
+	return parseValibotSchemaFields(schemaBody);
+}
+
+/**
+ * Parse field entries from a Valibot `v.strictObject({ ... })` body.
+ *
+ * Extracts field name, converts Valibot validator to readable type, and
+ * captures JSDoc description and @values.
+ *
+ * @param body - Content between `{` and `}` of `v.strictObject()`
+ * @returns Resolved type definitions
+ */
+function parseValibotSchemaFields(body: string): ResolvedTypeDef {
+	const types: Map<string, string> = new Map();
+	const fields: Map<string, TypeDefField> = new Map();
+
+	const lines: string[] = body.split('\n');
+	let pendingDescription: string = '';
+	let pendingMockValues: string[] = [];
+	let inJSDoc: boolean = false;
+	let jsdocLines: string[] = [];
+
+	for (const line of lines) {
+		const trimmed: string = line.trim();
+		if (!trimmed) continue;
+
+		// JSDoc collection (same as parseTypeBlockFields)
+		if (trimmed.startsWith(JSDOC_OPEN)) {
+			const singleMatch: RegExpMatchArray | null = trimmed.match(SINGLE_JSDOC_RE);
+			if (singleMatch) {
+				const content: string = singleMatch[1] ?? '';
+				const valuesMatch: RegExpMatchArray | null = content.match(/@values\s+(.+)/);
+				if (valuesMatch) {
+					pendingMockValues = (valuesMatch[1] ?? '')
+						.split(',')
+						.map((s: string): string => s.trim());
+					pendingDescription = content.replace(/@values\s+.+/, '').trim();
+				} else {
+					pendingDescription = content;
+				}
+				continue;
+			}
+			inJSDoc = true;
+			jsdocLines = [];
+			const afterOpen: string = trimmed.slice(JSDOC_OPEN.length).trim();
+			if (afterOpen && !afterOpen.startsWith('*')) {
+				jsdocLines.push(afterOpen);
+			}
+			continue;
+		}
+		if (inJSDoc) {
+			if (trimmed.includes(JSDOC_CLOSE)) {
+				const beforeClose: string = trimmed
+					.replace(/\*\/.*$/, '')
+					.replace(/^\*\s?/, '')
+					.trim();
+				if (beforeClose) jsdocLines.push(beforeClose);
+				const fullDoc: string = jsdocLines.join(' ');
+				const valuesMatch: RegExpMatchArray | null = fullDoc.match(/@values\s+(.+)/);
+				if (valuesMatch) {
+					pendingMockValues = (valuesMatch[1] ?? '')
+						.split(',')
+						.map((s: string): string => s.trim());
+					pendingDescription = fullDoc.replace(/@values\s+.+/, '').trim();
+				} else {
+					pendingDescription = fullDoc;
+				}
+				inJSDoc = false;
+				continue;
+			}
+			const cleaned: string = trimmed.replace(/^\*\s?/, '').trim();
+			if (cleaned) jsdocLines.push(cleaned);
+			continue;
+		}
+
+		// Parse field: <name>: v.<validator>(...),
+		const fieldMatch: RegExpMatchArray | null = trimmed.match(/^(\w+)\s*:\s*(.+?),?\s*$/);
+		if (fieldMatch) {
+			const fieldName: string = fieldMatch[1] ?? '';
+			const validatorExpr: string = fieldMatch[2] ?? '';
+			const isOptional: boolean = validatorExpr.trimStart().startsWith('v.optional(');
+			const readableType: string = valibotToReadableType(validatorExpr);
+			types.set(fieldName, readableType);
+			fields.set(fieldName, {
+				type: readableType,
+				description: pendingDescription,
+				mockValues: pendingMockValues.length > 0 ? [...pendingMockValues] : [],
+				optional: isOptional,
+			});
+			pendingDescription = '';
+			pendingMockValues = [];
+		}
+	}
+
+	return { types, fields };
+}
+
+/**
+ * Convert a Valibot validator expression to a human-readable type string.
+ *
+ * @param expr - Valibot expression (e.g., `v.optional(v.string())`, `v.picklist(['a', 'b'])`)
+ * @returns Readable type string (e.g., `string`, `'a' | 'b'`)
+ */
+function valibotToReadableType(expr: string): string {
+	const trimmed: string = expr.trim();
+
+	// v.optional(...) — unwrap and mark optional
+	if (trimmed.startsWith('v.optional(')) {
+		const inner: string = trimmed.slice('v.optional('.length, -1);
+		return valibotToReadableType(inner);
+	}
+
+	// v.string() → string
+	if (trimmed === 'v.string()') return 'string';
+
+	// v.number() → number
+	if (trimmed === 'v.number()') return 'number';
+
+	// v.boolean() → boolean
+	if (trimmed === 'v.boolean()') return 'boolean';
+
+	// v.picklist([...]) → extract literal union
+	const picklistMatch: RegExpMatchArray | null = trimmed.match(/^v\.picklist\(\[([^\]]*)\]\)/);
+	if (picklistMatch) {
+		const items: string = picklistMatch[1] ?? '';
+		return items
+			.split(',')
+			.map((s: string): string => s.trim())
+			.filter(Boolean)
+			.join(' | ');
+	}
+
+	// v.custom<Type>(...) → extract the generic parameter
+	const customMatch: RegExpMatchArray | null = trimmed.match(/^v\.custom<(.+?)>\(/);
+	if (customMatch) return customMatch[1] ?? 'unknown';
+
+	// v.array(v.xxx()) → extract inner type and append []
+	const arrayMatch: RegExpMatchArray | null = trimmed.match(/^v\.array\((.+)\)$/);
+	if (arrayMatch) {
+		const inner: string = valibotToReadableType(arrayMatch[1] ?? '');
+		return `${inner}[]`;
+	}
+
+	// v.pipe(...) → try to extract the base type
+	if (trimmed.startsWith('v.pipe(')) {
+		const inner: string = trimmed.slice('v.pipe('.length);
+		const firstArg: string = inner.split(',')[0]?.trim() ?? '';
+		return valibotToReadableType(firstArg);
+	}
+
+	// Named schema reference (e.g., ModeToggleLabelsSchema) → use schema name sans "Schema"
+	if (/^\w+Schema$/.test(trimmed)) {
+		return trimmed.replace(/Schema$/, '');
+	}
+
+	// Fallback — return expression cleaned up
+	return trimmed.replace(/^v\./, '').replace(/\(\)$/, '');
 }
 
 /**
@@ -662,6 +894,7 @@ function parseTypeBlockFields(
 						type: summary,
 						description: parsed.description,
 						mockValues: parsed.mockValues,
+						optional: false,
 					});
 				}
 				nestedFieldName = '';
@@ -706,10 +939,13 @@ function parseTypeBlockFields(
 		}
 
 		// Match field: `fieldName?: TypeExpression;` (with optional trailing semicolon/comma)
-		const fieldMatch: RegExpMatchArray | null = trimmed.match(/^(\w+)\??\s*:\s*(.+?)\s*[;,]?\s*$/);
+		const fieldMatch: RegExpMatchArray | null = trimmed.match(
+			/^(\w+)(\??)\s*:\s*(.+?)\s*[;,]?\s*$/,
+		);
 		if (fieldMatch) {
 			const fieldName: string = fieldMatch[1] ?? '';
-			const fieldType: string = (fieldMatch[2] ?? '').trim();
+			const isOptional: boolean = fieldMatch[2] === '?';
+			const fieldType: string = (fieldMatch[3] ?? '').trim();
 
 			// Inline object or function type spanning multiple lines — skip until balanced
 			if (fieldType === '{' || fieldType.endsWith('=> {') || fieldType === '(') {
@@ -725,6 +961,7 @@ function parseTypeBlockFields(
 					type: fieldType,
 					description: parsed.description,
 					mockValues: parsed.mockValues,
+					optional: isOptional,
 				});
 			}
 			pendingDescription = '';
@@ -1127,7 +1364,12 @@ function parseValibotObjectFields(body: string): TypeField[] {
 			const commentBody: string = body.slice(pos + 3, closeIdx);
 			pendingDescription = commentBody
 				.split('\n')
-				.map((l: string): string => l.trim().replace(/^\*\s*/, '').trim())
+				.map((l: string): string =>
+					l
+						.trim()
+						.replace(/^\*\s*/, '')
+						.trim(),
+				)
 				.filter(Boolean)
 				.join(' ');
 			pos = closeIdx + 2;

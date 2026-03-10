@@ -1,27 +1,42 @@
+<script module lang="ts">
+import * as v from 'valibot';
+import type { Component } from 'svelte';
+
+/** Schema for a single navigation item. */
+export const NavItemSchema = v.strictObject({
+	/** Display label. @values Settings, Help, Support, Feedback */
+	title: v.string(),
+	/** Link href. @values /settings, /help, /support, /feedback */
+	url: v.string(),
+	/** Lucide icon component. */
+	icon: v.custom<Component>((val: unknown): boolean => typeof val === 'function'),
+});
+/** A single navigation item. */
+export type NavItem = v.InferOutput<typeof NavItemSchema>;
+
+/** Schema for NavSecondary — uses objectWithRest to allow passthrough props. */
+export const NavSecondaryPropsSchema = v.objectWithRest({
+	/** Array of navigation item objects to render. */
+	items: v.array(NavItemSchema),
+}, v.unknown());
+/** Props for the NavSecondary component. */
+export type NavSecondaryProps = v.InferOutput<typeof NavSecondaryPropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Secondary navigation link list rendered as a sidebar menu group.
  *
  * Accepts an array of icon+title+url items and renders them as sidebar menu buttons.
  */
-import type { Component } from 'svelte';
+import { safeParse } from '@/utils/result/safe';
 import * as Sidebar from '../sidebar/index.js';
-import type { Str } from '@/schemas/common';
 
-type NavItem = {
-	/** Display label. @values Settings, Help, Support, Feedback */
-	title: Str;
-	/** Link href. @values /settings, /help, /support, /feedback */
-	url: Str;
-	/** Lucide icon component. */
-	icon: Component;
-};
-
-let {
-	/** Array of navigation item objects to render. */
-	items,
-	...restProps
-}: { items: NavItem[] } & Record<Str, unknown> = $props();
+const rawProps = $props();
+const validated = safeParse(NavSecondaryPropsSchema, rawProps);
+if (!validated.ok) throw validated.error;
+// Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates
+let { items, ...restProps }: NavSecondaryProps = validated.data as NavSecondaryProps;
 </script>
 
 <Sidebar.Group {...restProps}>

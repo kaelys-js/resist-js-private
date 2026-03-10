@@ -1,3 +1,33 @@
+<script module lang="ts">
+import * as v from 'valibot';
+import { PropMetaSchema, VariantMetaSchema } from '../lens/types.js';
+import type { Component, Snippet } from 'svelte';
+
+/** Schema for the LensComponentRenderer component props. */
+export const LensComponentRendererPropsSchema = v.strictObject({
+	/** The Svelte component to render. */
+	component: v.custom<Component>((val: unknown): boolean => typeof val === 'function'),
+	/** Variant metadata — when provided, renders per-option cards. When absent, renders a single default card. */
+	meta: v.optional(VariantMetaSchema),
+	/** Full prop metadata for building base props from defaults/mock values. */
+	props: v.optional(v.array(PropMetaSchema)),
+	/** PascalCase tag name for generating code snippets. @values Button, Input, Badge */
+	tagName: v.optional(v.string()),
+	/** Component directory name for building isolation URLs. @values button, badge, input */
+	componentName: v.optional(v.string()),
+	/** Default slot content text for each rendered component. @values Example, Click me, Label */
+	label: v.optional(v.string()),
+	/** Custom content to render instead of the auto-instantiated component. Used for hand-written examples. */
+	children: v.optional(v.custom<Snippet>((val: unknown): boolean => typeof val === 'function')),
+	/** Code snippet text to display instead of auto-generated snippet. @values <Button>Click</Button>, <Input placeholder="Type..." />, <Badge>New</Badge> */
+	codeText: v.optional(v.string()),
+	/** Additional CSS classes for the root element. */
+	class: v.optional(v.string()),
+});
+/** Props for the LensComponentRenderer component. */
+export type LensComponentRendererProps = v.InferOutput<typeof LensComponentRendererPropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Unified component renderer for Lens documentation pages.
@@ -20,7 +50,6 @@
  */
 import type { Bool, Num, Str, Void } from '@/schemas/common';
 import type { PropMeta, VariantMeta } from '../lens/types.js';
-import type { Component, Snippet } from 'svelte';
 import { buildBaseProps } from '../lens/extract-props.js';
 import LensError from '../lens-error/LensError.svelte';
 import CopyButton from '../copy-button/CopyButton.svelte';
@@ -40,6 +69,7 @@ import Moon from '@lucide/svelte/icons/moon';
 import Paintbrush from '@lucide/svelte/icons/paintbrush';
 import Palette from '@lucide/svelte/icons/palette';
 import Search from '@lucide/svelte/icons/search';
+import Settings2 from '@lucide/svelte/icons/settings-2';
 import Smartphone from '@lucide/svelte/icons/smartphone';
 import Sun from '@lucide/svelte/icons/sun';
 import SquareDashedMousePointer from '@lucide/svelte/icons/square-dashed-mouse-pointer';
@@ -50,27 +80,6 @@ import * as Tooltip from '../tooltip/index.js';
 import { slide } from 'svelte/transition';
 import { cn } from '../utils.js';
 import LensPortalScope from './LensPortalScope.svelte';
-
-type LensComponentRendererProps = {
-	/** The Svelte component to render. */
-	component: Component;
-	/** Variant metadata — when provided, renders per-option cards. When absent, renders a single default card. */
-	meta?: VariantMeta;
-	/** Full prop metadata for building base props from defaults/mock values. */
-	props?: PropMeta[];
-	/** PascalCase tag name for generating code snippets. @values Button, Input, Badge */
-	tagName?: Str;
-	/** Component directory name for building isolation URLs. @values button, badge, input */
-	componentName?: Str;
-	/** Default slot content text for each rendered component. @values Example, Click me, Label */
-	label?: Str;
-	/** Custom content to render instead of the auto-instantiated component. Used for hand-written examples. */
-	children?: Snippet;
-	/** Code snippet text to display instead of auto-generated snippet. @values <Button>Click</Button>, <Input placeholder="Type..." />, <Badge>New</Badge> */
-	codeText?: Str;
-	/** Additional CSS classes for the root element. */
-	class?: Str;
-};
 
 const {
 	component: Target,
@@ -118,6 +127,90 @@ let cardModes: Record<Str, Str> = $state({});
 
 /** Per-card theme keyed by card identifier ('' = inherit from page). */
 let cardThemes: Record<Str, Str> = $state({});
+
+/** Per-card measured visual height of the inner content (accounts for zoom + rotation transforms). */
+let cardContentHeights: Record<Str, Num> = $state({});
+
+/**
+ * Extract a human-readable message from a caught error.
+ * Handles Error instances, AppError objects (with .message + .validation), and unknown values.
+ *
+ * @param error - The caught error value
+ * @returns A formatted error message string
+ */
+function formatBoundaryError(error: unknown): Str {
+	if (error instanceof Error) return error.message;
+	if (typeof error === 'object' && error !== null) {
+		// Cast once for property access — error is an unknown object from svelte:boundary
+		const obj: Record<Str, unknown> = error as Record<Str, unknown>;
+		const code: Str = typeof obj.code === 'string' ? obj.code : '';
+
+		// AppError with validation details — extract field-level messages
+		if (typeof obj.validation === 'object' && obj.validation !== null) {
+			const val: Record<Str, unknown> = obj.validation as Record<Str, unknown>;
+			if (typeof val.flattened === 'object' && val.flattened !== null) {
+				const flat: Record<Str, unknown> = val.flattened as Record<Str, unknown>;
+				const nested: Record<Str, unknown> = (flat.nested ?? {}) as Record<Str, unknown>;
+				const fields: Str[] = [];
+				for (const [key, msgs] of Object.entries(nested)) {
+					if (Array.isArray(msgs) && msgs.length > 0) {
+						fields.push(`${key}: ${String(msgs[0])}`);
+					}
+				}
+				if (fields.length > 0) {
+					const header: Str = code ? `[${code}]` : 'Validation failed';
+					return `${header}\n${fields.map((f: Str): Str => `  • ${f}`).join('\n')}`;
+				}
+			}
+		}
+
+		const msg: Str = typeof obj.message === 'string' ? obj.message : '';
+		if (msg) return code ? `[${code}] ${msg}` : msg;
+	}
+	return String(error);
+}
+
+/**
+ * Svelte action that measures an element's visual bounding height via getBoundingClientRect.
+ * Re-measures on resize and when the `landscape` param changes (orientation toggle).
+ * Used to set container min-height so rotated+zoomed content fits without clipping.
+ *
+ * @param node - The DOM element to observe
+ * @param params - Card key and whether landscape orientation is active
+ * @returns Svelte action lifecycle with update and destroy methods
+ */
+function trackContentSize(
+	node: HTMLElement,
+	params: { key: Str; landscape: Bool },
+): { update: (p: { key: Str; landscape: Bool }) => Void; destroy: () => Void } {
+	let current: { key: Str; landscape: Bool } = params;
+
+	function measure(): Void {
+		if (current.landscape) {
+			const rect: DOMRect = node.getBoundingClientRect();
+			cardContentHeights[current.key] = rect.height;
+		} else {
+			cardContentHeights[current.key] = 0;
+		}
+	}
+
+	const observer: ResizeObserver = new ResizeObserver((): Void => {
+		requestAnimationFrame(measure);
+	});
+	observer.observe(node);
+	requestAnimationFrame(measure);
+
+	return {
+		update(newParams: { key: Str; landscape: Bool }): Void {
+			current = newParams;
+			requestAnimationFrame(measure);
+		},
+		destroy(): Void {
+			observer.disconnect();
+			cardContentHeights[current.key] = 0;
+		},
+	};
+}
 
 /**
  * Tracks whether the page is in dark mode (html has `.dark` class).
@@ -476,7 +569,20 @@ function getOrientationStyle(key: Str): Str {
 	if (id === 'default') return '';
 	const preset = ORIENTATION_PRESETS.find((p) => p.id === id);
 	if (!preset || preset.rotation === 0) return '';
-	return `transform: rotate(${preset.rotation}deg)`;
+	return `transform: rotate(${preset.rotation}deg); transform-origin: center center`;
+}
+
+/**
+ * Check if a card's orientation is landscape (90° or 270°).
+ *
+ * @param key - Card key
+ * @returns True if the rotation swaps width/height
+ */
+function isLandscapeOrientation(key: Str): Bool {
+	const id: Str = cardOrientations[key] ?? 'default';
+	if (id === 'default') return false;
+	const preset = ORIENTATION_PRESETS.find((p) => p.id === id);
+	return preset?.rotation === 90 || preset?.rotation === 270;
 }
 
 /**
@@ -589,6 +695,51 @@ function hasColorMatrixSim(key: Str): Bool {
 }
 
 /**
+ * Collect all non-default settings for a card as label/value pairs.
+ *
+ * @param key - Card key
+ * @returns Array of active settings (empty when all defaults)
+ */
+function getActiveSettings(key: Str): Array<{ label: Str; value: Str }> {
+	const settings: Array<{ label: Str; value: Str }> = [];
+	const sim: Str = cardSimulations[key] ?? 'none';
+	if (sim !== 'none') {
+		const simItem = COLOR_VISION_ITEMS.find((i) => i.id === sim) ?? VISION_ITEMS.find((i) => i.id === sim);
+		settings.push({ label: 'Accessibility', value: simItem?.label ?? sim });
+	}
+	const zoom: Num = cardZoom[key] ?? 1;
+	if (zoom !== 1) settings.push({ label: 'Zoom', value: getZoomLabel(key) });
+	const grid: Str = cardGrids[key] ?? 'none';
+	if (grid !== 'none') {
+		const gridPreset = GRID_PRESETS.find((p) => p.id === grid);
+		settings.push({ label: 'Grid', value: gridPreset?.label ?? grid });
+	}
+	const orientation: Str = cardOrientations[key] ?? 'default';
+	if (orientation !== 'default') {
+		const orientPreset = ORIENTATION_PRESETS.find((p) => p.id === orientation);
+		settings.push({ label: 'Orientation', value: orientPreset?.label ?? orientation });
+	}
+	const mode: Str = cardModes[key] ?? 'auto';
+	if (mode !== 'auto') settings.push({ label: 'Mode', value: mode === 'dark' ? 'Dark' : 'Light' });
+	const theme: Str = cardThemes[key] ?? '';
+	if (theme) {
+		const themePreset = THEME_PRESETS.find((p) => p.id === theme);
+		settings.push({ label: 'Theme', value: themePreset?.label ?? theme });
+	}
+	const outline: Str = cardOutlines[key] ?? 'none';
+	if (outline !== 'none') {
+		const outlinePreset = OUTLINE_PRESETS.find((p) => p.id === outline);
+		settings.push({ label: 'Outline', value: outlinePreset?.label ?? outline });
+	}
+	const bg: Str = cardBackgrounds[key] ?? 'default';
+	if (bg !== 'default') {
+		const bgPreset = BG_PRESETS.find((p) => p.id === bg);
+		settings.push({ label: 'Background', value: bgPreset?.label ?? bg });
+	}
+	return settings;
+}
+
+/**
  * Check if a card has the tunnel vision simulation active.
  *
  * @param key - Card key
@@ -657,39 +808,39 @@ function isIconOption(option: Str): boolean {
 	{@const activeOrientation: Str = cardOrientations[cardKey] ?? 'default'}
 	{@const activeMode: Str = cardModes[cardKey] ?? 'auto'}
 	{@const activeTheme: Str = cardThemes[cardKey] ?? ''}
+	{@const activeSettings = getActiveSettings(cardKey)}
 	<div class="overflow-hidden rounded-md border bg-background">
 		<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
 			<div class="flex items-center gap-1.5">
 				<code class="text-xs text-muted-foreground">{cardLabel}</code>
-				{#if activeSim !== 'none'}
-					<span class="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium text-primary">
-						{activeSim}
-					</span>
-				{/if}
-				{#if activeZoom !== 1}
-					<span class="rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-medium text-blue-600 dark:text-blue-400">
-						{getZoomLabel(cardKey)}
-					</span>
-				{/if}
-				{#if activeGrid !== 'none'}
-					<span class="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-600 dark:text-emerald-400">
-						grid
-					</span>
-				{/if}
-				{#if activeOrientation !== 'default'}
-					<span class="rounded-full bg-orange-500/10 px-1.5 py-0.5 text-[9px] font-medium text-orange-600 dark:text-orange-400">
-						{activeOrientation.replace('-', ' ')}
-					</span>
-				{/if}
-				{#if activeMode !== 'auto'}
-					<span class="rounded-full bg-violet-500/10 px-1.5 py-0.5 text-[9px] font-medium text-violet-600 dark:text-violet-400">
-						{activeMode}
-					</span>
-				{/if}
-				{#if activeTheme}
-					<span class="rounded-full bg-pink-500/10 px-1.5 py-0.5 text-[9px] font-medium text-pink-600 dark:text-pink-400">
-						{activeTheme}
-					</span>
+				{#if activeSettings.length > 0}
+					<Tooltip.Provider>
+						<Tooltip.Root delayDuration={200}>
+							<Tooltip.Trigger>
+								{#snippet child({ props: tipProps })}
+									<button
+										type="button"
+										{...tipProps}
+										class="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+									>
+										<Settings2 class="size-3" aria-hidden="true" />
+										<span class="text-[9px] font-medium">{activeSettings.length}</span>
+										<span class="sr-only">{activeSettings.length} active settings</span>
+									</button>
+								{/snippet}
+							</Tooltip.Trigger>
+							<Tooltip.Content side="bottom" sideOffset={4} class="max-w-[20rem] p-0">
+								<div class="space-y-0">
+									{#each activeSettings as setting (setting.label)}
+										<div class="flex items-center justify-between gap-4 border-b border-primary-foreground/10 px-3 py-1 last:border-b-0">
+											<span class="text-[10px] text-primary-foreground/60">{setting.label}</span>
+											<span class="font-mono text-[10px] font-medium text-primary-foreground">{setting.value}</span>
+										</div>
+									{/each}
+								</div>
+							</Tooltip.Content>
+						</Tooltip.Root>
+					</Tooltip.Provider>
 				{/if}
 			</div>
 			<div class="flex items-center gap-0.5">
@@ -1038,7 +1189,7 @@ function isIconOption(option: Str): boolean {
 				activeMode === 'auto' && activeTheme && !pageIsDark && 'lens-force-light',
 				activeTheme && 'bg-background text-foreground',
 			)}
-			style={[getBackgroundStyle(cardKey), activeMode === 'light' ? 'color-scheme: light' : '', activeMode === 'dark' ? 'color-scheme: dark' : '', activeMode === 'auto' && activeTheme && !pageIsDark ? 'color-scheme: light' : '', activeMode === 'auto' && activeTheme && pageIsDark ? 'color-scheme: dark' : ''].filter(Boolean).join('; ')}
+			style={[getBackgroundStyle(cardKey), cardContentHeights[cardKey] ? `min-height: ${cardContentHeights[cardKey] + 32}px` : '', activeMode === 'light' ? 'color-scheme: light' : '', activeMode === 'dark' ? 'color-scheme: dark' : '', activeMode === 'auto' && activeTheme && !pageIsDark ? 'color-scheme: light' : '', activeMode === 'auto' && activeTheme && pageIsDark ? 'color-scheme: dark' : ''].filter(Boolean).join('; ')}
 			data-theme={activeTheme || undefined}
 		>
 			{#if hasColorMatrixSim(cardKey)}
@@ -1052,6 +1203,7 @@ function isIconOption(option: Str): boolean {
 			{/if}
 			<LensPortalScope mode={activeMode} theme={activeTheme} {pageIsDark}>
 				<div
+					use:trackContentSize={{ key: cardKey, landscape: isLandscapeOrientation(cardKey) }}
 					class={cn(activeOutline !== 'none' && 'lens-outline')}
 					style={[getSimulationFilter(cardKey), getZoomStyle(cardKey), getOrientationStyle(cardKey), activeOutline !== 'none' ? `--lens-outline-color: ${getOutlineColor(cardKey)}` : ''].filter(Boolean).join('; ')}
 				>
@@ -1121,12 +1273,12 @@ function isIconOption(option: Str): boolean {
 					{@const snippet: Str = codeSnippet(variantName, option)}
 					<svelte:boundary>
 						{@render card(option, cardKey, snippet, variantProps, isIconOption(option), variantName, option)}
-						{#snippet failed()}
+						{#snippet failed(error)}
 							<div class="overflow-hidden rounded-md border border-dashed bg-background">
 								<div class="border-b bg-muted/30 px-3 py-1.5">
 									<code class="text-xs text-muted-foreground">{option}</code>
 								</div>
-								<LensError title="Preview unavailable" description="Could not render this variant option." class="rounded-none border-0 py-4" />
+								<LensError title="Preview unavailable" description={formatBoundaryError(error)} class="rounded-none border-0 py-4" />
 							</div>
 						{/snippet}
 					</svelte:boundary>
@@ -1139,10 +1291,10 @@ function isIconOption(option: Str): boolean {
 	<div class={cn('', className)}>
 		<svelte:boundary>
 			{@render card('default', 'default', codeSnippet('', ''), {}, false, '', '')}
-			{#snippet failed()}
+			{#snippet failed(error)}
 				<LensError
 					title="Preview unavailable"
-					description="This component could not be rendered with default props."
+					description={formatBoundaryError(error)}
 					class="w-full rounded-none border-0 py-4"
 				/>
 			{/snippet}

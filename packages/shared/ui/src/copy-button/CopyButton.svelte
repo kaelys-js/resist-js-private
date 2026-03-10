@@ -1,3 +1,17 @@
+<script module lang="ts">
+import * as v from 'valibot';
+
+export const CopyButtonPropsSchema = v.strictObject({
+	/** The text to copy to the clipboard when clicked. @values npm install valibot, <Button>Click me</Button>, const x = 42 */
+	text: v.string(),
+	/** Accessible label for the button. @values Copy code, Copy to clipboard, Copy import */
+	label: v.optional(v.string()),
+	/** Additional CSS classes for the button element. */
+	class: v.optional(v.string()),
+});
+export type CopyButtonProps = v.InferOutput<typeof CopyButtonPropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Copy-to-clipboard button with tooltip feedback and accessible status.
@@ -13,6 +27,7 @@
  * ```
  */
 import type { Bool, Str, Void } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
 import Check from '@lucide/svelte/icons/check';
 import Copy from '@lucide/svelte/icons/copy';
 import X from '@lucide/svelte/icons/x';
@@ -21,16 +36,10 @@ import * as Tooltip from '../tooltip/index.js';
 import { clipboardCopy } from '../lens/clipboard.js';
 import { cn } from '../utils.js';
 
-type CopyButtonProps = {
-	/** The text to copy to the clipboard when clicked. @values npm install valibot, <Button>Click me</Button>, const x = 42 */
-	text: Str;
-	/** Accessible label for the button. @values Copy code, Copy to clipboard, Copy import */
-	label?: Str;
-	/** Additional CSS classes for the button element. */
-	class?: Str;
-};
-
-const { text, label = 'Copy to clipboard', class: className }: CopyButtonProps = $props();
+const rawProps = $props();
+const validated = safeParse(CopyButtonPropsSchema, rawProps);
+if (!validated.ok) throw validated.error;
+const { text, label = 'Copy to clipboard', class: className }: CopyButtonProps = validated.data;
 
 /** Copy result: 'idle' (default), 'success', or 'failed'. */
 let copyState: 'idle' | 'success' | 'failed' = $state('idle');

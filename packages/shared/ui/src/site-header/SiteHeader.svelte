@@ -1,32 +1,41 @@
-<script lang="ts">
-/**
- * Top header bar with optional sidebar toggle, breadcrumb navigation, and right-side action slots.
- */
+<script module lang="ts">
+import * as v from 'valibot';
 import type { Snippet } from 'svelte';
-import * as Breadcrumb from '../breadcrumb/index.js';
-import SidebarToggle from '../sidebar-toggle/SidebarToggle.svelte';
-import type { Bool, Str } from '@/schemas/common';
 
 /**
  * Props for the shared SiteHeader component.
  *
  * Product-specific breadcrumb content and right-side actions are injected via snippets.
  */
-type SiteHeaderProps = {
+export const SiteHeaderPropsSchema = v.strictObject({
 	/** Whether to show the sidebar toggle button. */
-	showSidebarToggle: Bool;
+	showSidebarToggle: v.boolean(),
 	/** Sidebar toggle aria-label. @values Toggle Sidebar, Show/Hide Sidebar, Sidebar */
-	sidebarToggleLabel: Str;
+	sidebarToggleLabel: v.string(),
 	/** Sidebar toggle keyboard shortcut display string. @values ⌘B, Ctrl+B, ⌘\\ */
-	sidebarToggleShortcut: Str;
+	sidebarToggleShortcut: v.string(),
 	/** Whether to show the breadcrumb bar. */
-	showBreadcrumb: Bool;
+	showBreadcrumb: v.boolean(),
 	/** Product-specific breadcrumb list children. */
-	breadcrumbs: Snippet;
+	breadcrumbs: v.custom<Snippet>((val: unknown): boolean => typeof val === 'function'),
 	/** Right-side action controls (HeaderUser, ModeToggle, etc.). */
-	actions: Snippet;
-};
+	actions: v.custom<Snippet>((val: unknown): boolean => typeof val === 'function'),
+});
+/** Props for the SiteHeader component. */
+export type SiteHeaderProps = v.InferOutput<typeof SiteHeaderPropsSchema>;
+</script>
 
+<script lang="ts">
+/**
+ * Top header bar with optional sidebar toggle, breadcrumb navigation, and right-side action slots.
+ */
+import { safeParse } from '@/utils/result/safe';
+import * as Breadcrumb from '../breadcrumb/index.js';
+import SidebarToggle from '../sidebar-toggle/SidebarToggle.svelte';
+
+const rawProps = $props();
+const validated = safeParse(SiteHeaderPropsSchema, rawProps);
+if (!validated.ok) throw validated.error;
 let {
 	showSidebarToggle,
 	sidebarToggleLabel,
@@ -34,7 +43,7 @@ let {
 	showBreadcrumb,
 	breadcrumbs,
 	actions,
-}: SiteHeaderProps = $props();
+}: SiteHeaderProps = validated.data;
 </script>
 
 <header

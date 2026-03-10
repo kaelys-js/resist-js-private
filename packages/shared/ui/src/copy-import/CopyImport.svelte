@@ -1,3 +1,17 @@
+<script module lang="ts">
+import * as v from 'valibot';
+
+export const CopyImportPropsSchema = v.strictObject({
+	/** The text displayed inside the code badge. @values @/ui/button, @/ui/dialog, @/ui/input */
+	text: v.string(),
+	/** Text copied to clipboard. Defaults to `text` when omitted. @values npm install @/ui/button, pnpm add @/ui/dialog */
+	copyText: v.optional(v.string()),
+	/** Additional CSS classes for the root element. */
+	class: v.optional(v.string()),
+});
+export type CopyImportProps = v.InferOutput<typeof CopyImportPropsSchema>;
+</script>
+
 <script lang="ts">
 /**
  * Monospace code badge with a copy-to-clipboard button and tooltip feedback.
@@ -11,20 +25,14 @@
  * <CopyImport text="@/ui/dialog" copyText="import { Dialog } from '@/ui/dialog/index.js';" />
  * ```
  */
-import type { Str } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
 import CopyButton from '../copy-button/CopyButton.svelte';
 import { cn } from '../utils.js';
 
-type CopyImportProps = {
-	/** The text displayed inside the code badge. @values @/ui/button, @/ui/dialog, @/ui/input */
-	text: Str;
-	/** Text copied to clipboard. Defaults to `text` when omitted. @values npm install @/ui/button, pnpm add @/ui/dialog */
-	copyText?: Str;
-	/** Additional CSS classes for the root element. */
-	class?: Str;
-};
-
-const { text, copyText, class: className }: CopyImportProps = $props();
+const rawProps = $props();
+const validated = safeParse(CopyImportPropsSchema, rawProps);
+if (!validated.ok) throw validated.error;
+const { text, copyText, class: className }: CopyImportProps = validated.data;
 </script>
 
 <span class={cn('inline-flex items-center gap-1.5', className)}>
