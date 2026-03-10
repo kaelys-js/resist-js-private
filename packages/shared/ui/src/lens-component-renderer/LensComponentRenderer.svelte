@@ -154,6 +154,12 @@ let cardNetworkLoading: Record<Str, Bool> = $state({});
 /** Per-card viewport constraint keyed by card identifier ('auto' = full width). */
 let cardViewports: Record<Str, Str> = $state({});
 
+/** Per-card custom viewport dimensions keyed by card identifier. Used when viewport is 'custom'. */
+let cardCustomViewports: Record<Str, { w: Num; h: Num }> = $state({});
+
+/** Per-card custom network conditions keyed by card identifier. Used when network is 'custom'. */
+let cardCustomNetwork: Record<Str, { delay: Num; label: Str }> = $state({});
+
 /** Per-card measured visual height of the inner content (accounts for zoom + rotation transforms). */
 let cardContentHeights: Record<Str, Num> = $state({});
 
@@ -946,18 +952,85 @@ function setCardTheme(key: Str, themeId: Str): Void {
 }
 
 /**
+ * Collect all non-default computed styles for a card as a serialisable map.
+ *
+ * Adding a new card-level state? Just add one block here — the isolation
+ * page will pick it up automatically because it applies computed CSS, not
+ * raw preset IDs.
+ *
+ * @param key - Card key
+ * @returns Flat record of style keys → CSS values (only non-default entries)
+ */
+function collectCardStyles(key: Str): Record<Str, Str> {
+	const s: Record<Str, Str> = {};
+	const bg: Str = getBackgroundStyle(key);
+	if (bg) s.bg = bg;
+	const zoom: Str = getZoomStyle(key);
+	if (zoom) s.zoom = zoom;
+	const outline: Str = cardOutlines[key] ?? 'none';
+	if (outline !== 'none') s.outlineColor = getOutlineColor(key);
+	const grid: Str = getGridStyle(key);
+	if (grid) s.grid = grid;
+	const orient: Str = getOrientationStyle(key);
+	if (orient) s.orient = orient;
+	const mode: Str = cardModes[key] ?? 'auto';
+	if (mode !== 'auto') s.mode = mode;
+	const theme: Str = cardThemes[key] ?? '';
+	if (theme) s.theme = theme;
+	const mp: Str = getMediaPrefClasses(key);
+	if (mp) s.mp = mp;
+	const sim: Str = cardSimulations[key] ?? 'none';
+	if (sim !== 'none') {
+		s.simId = sim;
+		if (sim in COLOR_MATRICES) s.simMatrix = COLOR_MATRICES[sim];
+		if (sim in CSS_FILTERS) s.simCss = CSS_FILTERS[sim];
+	}
+	if (hasTunnelVision(key)) s.tunnel = '1';
+	const net: Str = cardNetworkSim[key] ?? 'none';
+	if (net !== 'none') {
+		if (net === 'custom') {
+			const custom = cardCustomNetwork[key];
+			s.net = custom ? `Custom (${custom.delay}ms)` : 'Custom';
+		} else {
+			const preset = NETWORK_PRESETS.find((p) => p.id === net);
+			s.net = preset?.label ?? net;
+		}
+	}
+	const vp: Str = cardViewports[key] ?? 'auto';
+	if (vp !== 'auto') {
+		if (vp === 'custom') {
+			const dims = cardCustomViewports[key];
+			if (dims) s.vp = `${dims.w}x${dims.h}`;
+		} else {
+			const preset = VIEWPORT_PRESETS.find((p) => p.id === vp);
+			if (preset) s.vp = `${preset.width}x${preset.height}`;
+		}
+	}
+	return s;
+}
+
+/**
  * Open component in isolation in a new tab.
  *
+ * Serialises all non-default toolbar state as computed CSS in a single `s`
+ * query param (base64 JSON). The isolation page decodes and applies it with
+ * no preset knowledge required.
+ *
+ * @param key - Card key for reading toolbar state
  * @param variantKey - Optional variant prop name
  * @param option - Optional variant option value
  */
-function openIsolation(variantKey: Str, option: Str): Void {
+function openIsolation(key: Str, variantKey: Str, option: Str): Void {
 	if (!componentName) return;
-	let url: Str = `/isolate/${componentName}`;
-	const params: Str[] = [];
-	if (variantKey) params.push(`variant=${encodeURIComponent(variantKey)}`);
-	if (option) params.push(`option=${encodeURIComponent(option)}`);
-	if (params.length > 0) url += `?${params.join('&')}`;
+	const params: URLSearchParams = new URLSearchParams();
+	if (variantKey) params.set('variant', variantKey);
+	if (option) params.set('option', option);
+	const styles: Record<Str, Str> = collectCardStyles(key);
+	if (Object.keys(styles).length > 0) {
+		params.set('s', btoa(JSON.stringify(styles)));
+	}
+	const qs: Str = params.toString();
+	const url: Str = `/isolate/${componentName}${qs ? `?${qs}` : ''}`;
 	window.open(url, '_blank');
 }
 
@@ -1093,8 +1166,21 @@ function getActiveSettings(key: Str): Array<{ label: Str; value: Str }> {
 	// Viewport
 	const viewport: Str = cardViewports[key] ?? 'auto';
 	if (viewport !== 'auto') {
-		const vpPreset = VIEWPORT_PRESETS.find((p) => p.id === viewport);
-		settings.push({ label: 'Viewport', value: vpPreset ? `${vpPreset.label} (${vpPreset.width} \u00D7 ${vpPreset.height})` : viewport });
+		if (viewport === 'custom') {
+			const dims = cardCustomViewports[key];
+			if (dims) settings.push({ label: 'Viewport', value: `Custom (${dims.w} \u00D7 ${dims.h})` });
+		} else {
+			const vpPreset = VIEWPORT_PRESETS.find((p) => p.id === viewport);
+			settings.push({ label: 'Viewport', value: vpPreset ? `${vpPreset.label} (${vpPreset.width} \u00D7 ${vpPreset.height})` : viewport });
+		}
+	}
+	// Custom network
+	const customNet = cardCustomNetwork[key];
+	if ((cardNetworkSim[key] ?? 'none') === 'custom' && customNet) {
+		// Replace preset entry with custom
+		const netIdx: Num = settings.findIndex((s) => s.label === 'Network');
+		if (netIdx >= 0) settings[netIdx] = { label: 'Network', value: `Custom (${customNet.delay}ms)` };
+		else settings.push({ label: 'Network', value: `Custom (${customNet.delay}ms)` });
 	}
 	return settings;
 }
@@ -1180,6 +1266,19 @@ function hasMediaPrefs(key: Str): Bool {
  */
 function setNetworkSim(key: Str, simId: Str): Void {
 	cardNetworkSim[key] = simId;
+	if (simId === 'custom') {
+		const custom = cardCustomNetwork[key];
+		const delay: Num = custom?.delay ?? 0;
+		if (delay > 0) {
+			cardNetworkLoading[key] = true;
+			setTimeout((): void => {
+				cardNetworkLoading[key] = false;
+			}, delay);
+		} else {
+			cardNetworkLoading[key] = false;
+		}
+		return;
+	}
 	const preset = NETWORK_PRESETS.find((p) => p.id === simId);
 	if (preset && preset.delay > 0) {
 		cardNetworkLoading[key] = true;
@@ -1248,6 +1347,11 @@ function hasViewport(key: Str): Bool {
 function getViewportPreset(key: Str): { id: Str; label: Str; width: Num; height: Num; category: Str } | null {
 	const id: Str = cardViewports[key] ?? 'auto';
 	if (id === 'auto') return null;
+	if (id === 'custom') {
+		const dims = cardCustomViewports[key];
+		if (!dims) return null;
+		return { id: 'custom', label: 'Custom', width: dims.w, height: dims.h, category: 'Custom' };
+	}
 	return VIEWPORT_PRESETS.find((p) => p.id === id) ?? null;
 }
 
@@ -1562,7 +1666,7 @@ function isIconOption(option: Str): boolean {
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content align="end" class="w-56">
 						{#if componentName}
-							<DropdownMenu.Item onclick={() => openIsolation(variantKey, variantOption)}>
+							<DropdownMenu.Item onclick={() => openIsolation(cardKey, variantKey, variantOption)}>
 								<ExternalLink class="size-4" />
 								Open in new tab
 							</DropdownMenu.Item>
@@ -2031,6 +2135,46 @@ function isIconOption(option: Str): boolean {
 										<Check class={cn('size-4 shrink-0', (cardNetworkSim[cardKey] ?? 'none') !== 'none' && 'opacity-0')} />
 										No throttling
 									</DropdownMenu.Item>
+									<DropdownMenu.Item onclick={() => {
+										if (!cardCustomNetwork[cardKey]) cardCustomNetwork[cardKey] = { delay: 200, label: 'Custom' };
+										setNetworkSim(cardKey, 'custom');
+									}}>
+										<Check class={cn('size-4 shrink-0', (cardNetworkSim[cardKey] ?? 'none') !== 'custom' && 'opacity-0')} />
+										Custom…
+									</DropdownMenu.Item>
+									{#if (cardNetworkSim[cardKey] ?? 'none') === 'custom'}
+										<div class="flex items-center gap-1.5 px-3 py-1.5">
+											<span class="text-xs text-muted-foreground">Latency</span>
+											<input
+												type="number"
+												min="0"
+												max="30000"
+												value={cardCustomNetwork[cardKey]?.delay ?? 200}
+												class="w-16 rounded border bg-transparent px-1.5 py-0.5 text-xs tabular-nums outline-none"
+												onkeydown={(e) => e.stopPropagation()}
+												oninput={(e) => {
+													const v: Num = Number((e.target as HTMLInputElement).value);
+													if (v >= 0 && v <= 30000) {
+														cardCustomNetwork[cardKey] = { delay: v, label: cardCustomNetwork[cardKey]?.label ?? 'Custom' };
+														setNetworkSim(cardKey, 'custom');
+													}
+												}}
+											/>
+											<span class="text-[10px] text-muted-foreground">ms</span>
+										</div>
+										<div class="flex items-center gap-1.5 px-3 pb-1.5">
+											<span class="text-xs text-muted-foreground">Label</span>
+											<input
+												type="text"
+												value={cardCustomNetwork[cardKey]?.label ?? 'Custom'}
+												class="flex-1 rounded border bg-transparent px-1.5 py-0.5 text-xs outline-none"
+												onkeydown={(e) => e.stopPropagation()}
+												oninput={(e) => {
+													cardCustomNetwork[cardKey] = { ...cardCustomNetwork[cardKey], label: (e.target as HTMLInputElement).value };
+												}}
+											/>
+										</div>
+									{/if}
 									{#each filteredNetworkCategories as category (category)}
 										<DropdownMenu.Separator />
 										<DropdownMenu.Label>{category}</DropdownMenu.Label>
@@ -2092,6 +2236,49 @@ function isIconOption(option: Str): boolean {
 										<Check class={cn('size-4 shrink-0', (cardViewports[cardKey] ?? 'auto') !== 'auto' && 'opacity-0')} />
 										Auto (full width)
 									</DropdownMenu.Item>
+									<DropdownMenu.Item onclick={() => {
+										if (!cardCustomViewports[cardKey]) cardCustomViewports[cardKey] = { w: 1024, h: 768 };
+										setViewport(cardKey, 'custom');
+									}}>
+										<Check class={cn('size-4 shrink-0', (cardViewports[cardKey] ?? 'auto') !== 'custom' && 'opacity-0')} />
+										Custom size…
+									</DropdownMenu.Item>
+									{#if (cardViewports[cardKey] ?? 'auto') === 'custom'}
+										<div class="flex items-center gap-1.5 px-3 py-1.5">
+											<input
+												type="number"
+												min="100"
+												max="7680"
+												value={cardCustomViewports[cardKey]?.w ?? 1024}
+												class="w-16 rounded border bg-transparent px-1.5 py-0.5 text-xs tabular-nums outline-none"
+												onkeydown={(e) => e.stopPropagation()}
+												oninput={(e) => {
+													const v: Num = Number((e.target as HTMLInputElement).value);
+													if (v >= 100 && v <= 7680) {
+														cardCustomViewports[cardKey] = { ...cardCustomViewports[cardKey], w: v };
+														cardViewports[cardKey] = 'custom';
+													}
+												}}
+											/>
+											<span class="text-xs text-muted-foreground">&times;</span>
+											<input
+												type="number"
+												min="100"
+												max="4320"
+												value={cardCustomViewports[cardKey]?.h ?? 768}
+												class="w-16 rounded border bg-transparent px-1.5 py-0.5 text-xs tabular-nums outline-none"
+												onkeydown={(e) => e.stopPropagation()}
+												oninput={(e) => {
+													const v: Num = Number((e.target as HTMLInputElement).value);
+													if (v >= 100 && v <= 4320) {
+														cardCustomViewports[cardKey] = { ...cardCustomViewports[cardKey], h: v };
+														cardViewports[cardKey] = 'custom';
+													}
+												}}
+											/>
+											<span class="text-[10px] text-muted-foreground">px</span>
+										</div>
+									{/if}
 									{#each filteredViewportCategories as category (category)}
 										<DropdownMenu.Separator />
 										<DropdownMenu.Label>{category}</DropdownMenu.Label>
@@ -2350,7 +2537,7 @@ function isIconOption(option: Str): boolean {
 					{:else}
 						<div class="size-5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-primary"></div>
 						<span class="text-xs text-muted-foreground">
-							{NETWORK_PRESETS.find((p) => p.id === (cardNetworkSim[cardKey] ?? 'none'))?.label ?? 'Loading'}...
+							{(cardNetworkSim[cardKey] ?? 'none') === 'custom' ? (cardCustomNetwork[cardKey]?.label || 'Custom') : (NETWORK_PRESETS.find((p) => p.id === (cardNetworkSim[cardKey] ?? 'none'))?.label ?? 'Loading')}...
 						</span>
 					{/if}
 				</div>
