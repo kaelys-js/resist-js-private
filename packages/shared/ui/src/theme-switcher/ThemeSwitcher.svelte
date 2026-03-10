@@ -52,6 +52,8 @@ export type ThemeSwitcherProps = v.InferOutput<typeof ThemeSwitcherPropsSchema>;
  * Displays available themes with color preview dots and a checkmark on the active theme.
  */
 import type { Bool, Void } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 import Search from '@lucide/svelte/icons/search';
 import SearchX from '@lucide/svelte/icons/search-x';
 import X from '@lucide/svelte/icons/x';
@@ -59,15 +61,21 @@ import Palette from '@lucide/svelte/icons/palette';
 import Check from '@lucide/svelte/icons/check';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 
-// Reactive props — theme changes when user switches theme
-let { theme, setTheme, themes, labels }: ThemeSwitcherProps = $props();
+const allProps = $props();
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(ThemeSwitcherPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 
 let searchQuery: Str = $state('');
 
-const filteredThemes: readonly ThemeOption[] = $derived(
+// Inferred type — validated.themes is deeply readonly from safeParse
+const filteredThemes = $derived(
 	searchQuery.length === 0
-		? themes
-		: themes.filter((th) => th.label.toLowerCase().includes(searchQuery.toLowerCase())),
+		? validated.themes
+		: validated.themes.filter((th) => th.label.toLowerCase().includes(searchQuery.toLowerCase())),
 );
 
 function handleSubOpenChange(open: Bool): Void {
@@ -78,7 +86,7 @@ function handleSubOpenChange(open: Bool): Void {
 <DropdownMenu.Sub onOpenChange={handleSubOpenChange}>
 	<DropdownMenu.SubTrigger>
 		<Palette aria-hidden="true" class="mr-2 size-4" />
-		{labels.theme}
+		{validated.labels.theme}
 	</DropdownMenu.SubTrigger>
 	<DropdownMenu.SubContent class="max-h-80 flex flex-col overflow-hidden bg-white/[0.08] dark:bg-white/[0.06] backdrop-blur-2xl backdrop-saturate-150 border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_1px_rgba(255,255,255,0.1)_inset]">
 		<!-- Search input (fixed above scrollable list) -->
@@ -87,7 +95,7 @@ function handleSubOpenChange(open: Bool): Void {
 				<Search class="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
 				<input
 					type="text"
-					placeholder={labels.searchThemes}
+					placeholder={validated.labels.searchThemes}
 					class="h-8 w-full rounded-md bg-background/50 pl-8 {searchQuery ? 'pr-8' : 'pr-3'} text-xs outline-none border border-border/50 focus:border-ring transition-colors"
 					value={searchQuery}
 					oninput={(e: Event) => { searchQuery = (e.target as HTMLInputElement).value; }}
@@ -98,7 +106,7 @@ function handleSubOpenChange(open: Bool): Void {
 						type="button"
 						class="absolute right-1.5 top-1/2 -translate-y-1/2 size-6 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
 						onclick={() => { searchQuery = ''; }}
-						aria-label={labels.clearSearch}
+						aria-label={validated.labels.clearSearch}
 					>
 						<X class="size-3.5" />
 					</button>
@@ -109,8 +117,8 @@ function handleSubOpenChange(open: Bool): Void {
 		<!-- Scrollable item list -->
 		<div class="min-h-0 flex-1 overflow-y-auto">
 			{#each filteredThemes as th (th.id)}
-				<DropdownMenu.Item onclick={() => setTheme(th.id)} aria-current={theme === th.id ? 'true' : undefined} textValue={th.label}>
-					{#if theme === th.id}
+				<DropdownMenu.Item onclick={() => validated.setTheme(th.id)} aria-current={validated.theme === th.id ? 'true' : undefined} textValue={th.label}>
+					{#if validated.theme === th.id}
 						<Check aria-hidden="true" class="mr-2 size-4 shrink-0" />
 					{:else}
 						<span class="mr-2 size-4 inline-block shrink-0"></span>
@@ -126,8 +134,8 @@ function handleSubOpenChange(open: Bool): Void {
 				<div class="flex flex-col items-center gap-2 py-6 text-muted-foreground">
 					<SearchX class="size-6" />
 					<div class="flex flex-col items-center gap-0.5">
-						<p class="text-xs font-medium">{labels.noThemesFound}</p>
-						<p class="text-[11px]">{labels.noResultsHint}</p>
+						<p class="text-xs font-medium">{validated.labels.noThemesFound}</p>
+						<p class="text-[11px]">{validated.labels.noResultsHint}</p>
 					</div>
 				</div>
 			{/each}

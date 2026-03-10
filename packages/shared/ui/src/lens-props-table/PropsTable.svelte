@@ -25,6 +25,7 @@ export type PropsTableProps = v.InferOutput<typeof PropsTablePropsSchema>;
  */
 import { slide } from 'svelte/transition';
 import type { Bool, Num, Str, Void } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
 import Badge from '../badge/badge.svelte';
 import LensEmpty from '../lens-empty/LensEmpty.svelte';
 import * as DropdownMenu from '../dropdown-menu/index.js';
@@ -34,8 +35,19 @@ import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
 import Layers from '@lucide/svelte/icons/layers';
 import * as Tooltip from '../tooltip/index.js';
 import { cn } from '../utils.js';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const { props, variantKeys = [], class: className }: PropsTableProps = $props();
+const allProps = $props();
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(PropsTablePropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	// Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates
+	return result.data as PropsTableProps;
+});
+
+/** Resolved variant keys with empty-array default. */
+const variantKeys: readonly Str[] = $derived(validated.variantKeys ?? []);
 
 /** Set of variant keys for O(1) lookup. */
 const variantKeySet: Set<Str> = $derived(new Set(variantKeys));
@@ -245,8 +257,8 @@ function parseAcceptsMembers(accepts: Str): Str[] {
 const colCount: Num = $derived(variantKeys.length > 0 ? 7 : 6);
 </script>
 
-<div class={cn('overflow-x-auto rounded-lg border', className)}>
-	{#if props.length === 0}
+<div class={cn('overflow-x-auto rounded-lg border', validated.class)}>
+	{#if validated.props.length === 0}
 		<LensEmpty title="No custom props" description="This component accepts only standard HTML attributes." />
 	{:else}
 		<table class="w-full text-sm">
@@ -264,7 +276,7 @@ const colCount: Num = $derived(variantKeys.length > 0 ? 7 : 6);
 				</tr>
 			</thead>
 			<tbody>
-				{#each props as prop (prop.name)}
+				{#each validated.props as prop (prop.name)}
 					<tr id="prop-{prop.name}" class="border-b last:border-b-0">
 						<td class="px-4 py-2 font-mono text-xs font-medium">
 							<span class="inline-flex items-center gap-1">

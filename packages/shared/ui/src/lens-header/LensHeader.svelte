@@ -38,7 +38,8 @@ export type LensHeaderProps = v.InferOutput<typeof LensHeaderPropsSchema>;
  * an optional search popover for filtering props/variants/examples.
  */
 import type { Bool, Str, Void } from '@/schemas/common';
-import { toTitle } from '../lens/lens-utils.js';
+import { safeParse } from '@/utils/result/safe';
+import { toTitle, stripSvelteProps } from '../lens/lens-utils.js';
 import Badge from '../badge/badge.svelte';
 import CopyImport from '../copy-import/CopyImport.svelte';
 import * as Command from '../command/index.js';
@@ -53,23 +54,34 @@ import Layers from '@lucide/svelte/icons/layers';
 import BookOpen from '@lucide/svelte/icons/book-open';
 import FileCode from '@lucide/svelte/icons/file-code';
 
-const {
-	name,
-	description,
-	meta,
-	importPath,
-	hasVariants = false,
-	hasExamples = false,
-	hasSource = false,
-	searchItems = [],
-	onSearchSelect,
-}: LensHeaderProps = $props();
+const allProps = $props();
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(LensHeaderPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 
 /** Whether the search popover is open. */
 let searchOpen: Bool = $state(false);
 
 /** Current search input value. */
 let searchValue: Str = $state('');
+
+/** Mutable copy of validated search items (frozen data needs spreading for Array methods). */
+const searchItems: SearchItem[] = $derived(
+	// safeParse freezes data — spread to mutable array for grouping logic
+	[...(validated.searchItems ?? [])] as SearchItem[],
+);
+
+/** Whether the component has renderable variants. */
+const hasVariants: Bool = $derived(validated.hasVariants ?? false);
+
+/** Whether the component has hand-written examples. */
+const hasExamples: Bool = $derived(validated.hasExamples ?? false);
+
+/** Whether the component has raw source available. */
+const hasSource: Bool = $derived(validated.hasSource ?? false);
 
 /**
  * Smooth-scroll to a section by its element ID.
@@ -108,7 +120,7 @@ const groupedItems: Array<{ name: Str; items: SearchItem[] }> = $derived.by(() =
  * @param item - The selected search item
  */
 function handleSelect(item: SearchItem): Void {
-	onSearchSelect?.(item);
+	validated.onSearchSelect?.(item);
 	searchOpen = false;
 	searchValue = '';
 }
@@ -120,10 +132,10 @@ function handleSelect(item: SearchItem): Void {
 	</div>
 	<div class="min-w-0 flex-1">
 		<div class="flex items-baseline gap-4">
-			<h1 class="text-3xl font-bold tracking-tight">{toTitle(name)}</h1>
+			<h1 class="text-3xl font-bold tracking-tight">{toTitle(validated.name)}</h1>
 
 			<div class="flex items-center gap-1">
-				<!-- Search icon → Popover → Command search -->
+				<!-- Search icon -> Popover -> Command search -->
 				{#if searchItems.length > 0}
 					<Popover.Root bind:open={searchOpen}>
 						<Tooltip.Root delayDuration={300}>
@@ -237,19 +249,19 @@ function handleSelect(item: SearchItem): Void {
 			</DropdownMenu.Root>
 			</div>
 		</div>
-		{#if description}
-			<p class="mt-1 text-sm text-muted-foreground">{description}</p>
+		{#if validated.description}
+			<p class="mt-1 text-sm text-muted-foreground">{validated.description}</p>
 		{/if}
-		{#if meta}
+		{#if validated.meta}
 			<div class="mt-2 flex flex-wrap items-center gap-1.5">
-				<Badge variant="secondary" class="text-xs capitalize">{meta.category}</Badge>
-				{#each meta.tags as tag, i (i)}
+				<Badge variant="secondary" class="text-xs capitalize">{validated.meta.category}</Badge>
+				{#each validated.meta.tags as tag, i (i)}
 					<Badge variant="outline" class="text-xs">{tag}</Badge>
 				{/each}
 			</div>
 		{/if}
 		<div class="mt-1.5">
-			<CopyImport text={importPath ?? `@/ui/${name}`} copyText="import ... from '@/ui/{name}/...';" />
+			<CopyImport text={validated.importPath ?? `@/ui/${validated.name}`} copyText="import ... from '@/ui/{validated.name}/...';" />
 		</div>
 	</div>
 </div>

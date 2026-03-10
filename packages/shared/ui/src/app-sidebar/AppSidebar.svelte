@@ -34,43 +34,47 @@ export type AppSidebarProps = v.InferOutput<typeof AppSidebarPropsSchema>;
  * Each product editor provides its own main content and footer via Svelte snippets while sharing
  * the common layout, logo, and secondary nav items (Settings, Help, etc.).
  */
+import type { Str } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
 import * as Sidebar from '../sidebar/index.js';
 import AppLogo from '../app-logo/AppLogo.svelte';
 import NavSecondary from '../nav-secondary/NavSecondary.svelte';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-let {
-	appName,
-	tagline,
-	sidebarLabel,
-	showIcon,
-	showName,
-	navItems,
-	content,
-	footer,
-	...restProps
-}: AppSidebarProps = $props();
+const allProps = $props();
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(AppSidebarPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	// Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates
+	return result.data as AppSidebarProps;
+});
+const restProps = $derived.by(() => {
+	const { appName: _a, tagline: _b, sidebarLabel: _c, showIcon: _d, showName: _e, navItems: _f, content: _g, footer: _h, ...rest }: AppSidebarProps = validated;
+	return rest;
+});
 </script>
 
-<Sidebar.Root variant="inset" collapsible="icon" aria-label={sidebarLabel} {...restProps}>
+<Sidebar.Root variant="inset" collapsible="icon" aria-label={validated.sidebarLabel} {...restProps}>
 	<Sidebar.Header>
 		<Sidebar.Menu>
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton size="lg">
-					{#if showIcon}
+					{#if validated.showIcon}
 						<div
 							class="flex aspect-square size-8 items-center justify-center"
 						>
 							<AppLogo size={28} />
 						</div>
 					{/if}
-					{#if showName}
+					{#if validated.showName}
 						<div class="grid flex-1 text-left leading-tight">
 							<span
 								class="truncate text-base font-semibold tracking-tight"
 								style="font-family: 'Rajdhani', sans-serif;"
-								>{appName}</span
+								>{validated.appName}</span
 							>
-							<span class="truncate text-xs text-muted-foreground">{tagline}</span>
+							<span class="truncate text-xs text-muted-foreground">{validated.tagline}</span>
 						</div>
 					{/if}
 				</Sidebar.MenuButton>
@@ -78,10 +82,10 @@ let {
 		</Sidebar.Menu>
 	</Sidebar.Header>
 	<Sidebar.Content>
-		{@render content()}
-		<NavSecondary items={navItems} class="mt-auto" />
+		{@render validated.content()}
+		<NavSecondary items={validated.navItems} class="mt-auto" />
 	</Sidebar.Content>
 	<Sidebar.Footer>
-		{@render footer()}
+		{@render validated.footer()}
 	</Sidebar.Footer>
 </Sidebar.Root>

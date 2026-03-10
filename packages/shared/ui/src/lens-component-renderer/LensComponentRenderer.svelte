@@ -769,6 +769,28 @@ function codeSnippet(variantKey: Str, option: Str): Str {
 }
 
 /**
+ * Generate a sensible default value for a TypeField based on its type string.
+ *
+ * Used to seed required sibling fields when building dotted variant props
+ * so nested schemas pass safeParse validation.
+ *
+ * @param type - The TypeScript type string (e.g. `Str`, `Bool`, `Str[]`)
+ * @param accepts - The accepts hint (e.g. `text`, `true, false`, `display, form, ...`)
+ * @returns A placeholder value matching the type
+ */
+function defaultForType(type: Str, accepts: Str): unknown {
+	if (type === 'Bool' || type === 'boolean') return false;
+	if (type === 'Num' || type === 'number') return 0;
+	if (type.endsWith('[]')) return ['example'];
+	// Pick first accepted value if available
+	if (accepts && accepts !== '—' && accepts.includes(', ')) {
+		const [first]: Str[] = accepts.split(', ');
+		if (first) return first;
+	}
+	return 'example';
+}
+
+/**
  * Build variant props object, handling dotted keys for nested object props.
  *
  * For flat keys like `variant`, returns `{ variant: option }`.
@@ -798,10 +820,24 @@ function buildVariantProps(variantName: Str, option: Str, coerceHint?: Str): Rec
 		const parent: Str = variantName.slice(0, dotIdx);
 		const child: Str = variantName.slice(dotIdx + 1);
 		const existing: unknown = baseProps[parent];
-		const parentObj: Record<Str, unknown> =
-			typeof existing === 'object' && existing !== null
-				? { ...(existing as Record<Str, unknown>) }
-				: {};
+		let parentObj: Record<Str, unknown>;
+		if (typeof existing === 'object' && existing !== null) {
+			parentObj = { ...(existing as Record<Str, unknown>) };
+		} else {
+			// No base value — seed required sibling fields from typeFields metadata
+			// so nested schemas (e.g. LensMetaSchema) pass safeParse validation
+			parentObj = {};
+			const parentProp: PropMeta | undefined = propsMeta.find(
+				(p: PropMeta): boolean => p.name === parent,
+			);
+			if (parentProp?.typeFields) {
+				for (const tf of parentProp.typeFields) {
+					if (tf.required && tf.field !== child) {
+						parentObj[tf.field] = defaultForType(tf.type, tf.accepts);
+					}
+				}
+			}
+		}
 		parentObj[child] = coerced;
 		return { [parent]: parentObj };
 	}

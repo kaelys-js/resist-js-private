@@ -52,24 +52,32 @@ export type LanguageSwitcherProps = v.InferOutput<typeof LanguageSwitcherPropsSc
  * Displays language options with endonym and exonym names, a search filter,
  * and a checkmark on the currently active locale.
  */
+import type { Bool, Void } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 import Search from '@lucide/svelte/icons/search';
 import SearchX from '@lucide/svelte/icons/search-x';
 import X from '@lucide/svelte/icons/x';
 import Globe from '@lucide/svelte/icons/globe';
 import Check from '@lucide/svelte/icons/check';
 import * as DropdownMenu from '../dropdown-menu/index.js';
-import type { Bool, Void } from '@/schemas/common';
 
-// Reactive props — locale changes when user switches language
-let { locale, switchLanguage, languages, labels }: LanguageSwitcherProps = $props();
+const allProps = $props();
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(LanguageSwitcherPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 
 let searchQuery: Str = $state('');
 
-const filteredLanguages: readonly LanguageOption[] = $derived(
+// Inferred type — validated.languages is deeply readonly from safeParse
+const filteredLanguages = $derived(
 	searchQuery.length === 0
-		? languages
-		: languages.filter(
-				(lang: LanguageOption) =>
+		? validated.languages
+		: validated.languages.filter(
+				(lang) =>
 					lang.endonym.toLowerCase().includes(searchQuery.toLowerCase()) ||
 					lang.exonym.toLowerCase().includes(searchQuery.toLowerCase()) ||
 					lang.code.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -88,7 +96,7 @@ function handleSubOpenChange(open: Bool): Void {
 <DropdownMenu.Sub onOpenChange={handleSubOpenChange}>
 	<DropdownMenu.SubTrigger>
 		<Globe aria-hidden="true" class="mr-2 size-4" />
-		{labels.language}
+		{validated.labels.language}
 	</DropdownMenu.SubTrigger>
 	<DropdownMenu.SubContent class="max-h-80 flex flex-col overflow-hidden bg-white/[0.08] dark:bg-white/[0.06] backdrop-blur-2xl backdrop-saturate-150 border-white/[0.12] shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_1px_rgba(255,255,255,0.1)_inset]">
 		<!-- Search input (fixed above scrollable list) -->
@@ -97,7 +105,7 @@ function handleSubOpenChange(open: Bool): Void {
 				<Search class="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
 				<input
 					type="text"
-					placeholder={labels.searchLanguages}
+					placeholder={validated.labels.searchLanguages}
 					class="h-8 w-full rounded-md bg-background/50 pl-8 {searchQuery ? 'pr-8' : 'pr-3'} text-xs outline-none border border-border/50 focus:border-ring transition-colors"
 					value={searchQuery}
 					oninput={(e: Event) => { searchQuery = (e.target as HTMLInputElement).value; }}
@@ -108,7 +116,7 @@ function handleSubOpenChange(open: Bool): Void {
 						type="button"
 						class="absolute right-1.5 top-1/2 -translate-y-1/2 size-6 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
 						onclick={() => { searchQuery = ''; }}
-						aria-label={labels.clearSearch}
+						aria-label={validated.labels.clearSearch}
 					>
 						<X class="size-3.5" />
 					</button>
@@ -119,8 +127,8 @@ function handleSubOpenChange(open: Bool): Void {
 		<!-- Scrollable item list -->
 		<div class="min-h-0 flex-1 overflow-y-auto">
 			{#each filteredLanguages as lang (lang.code)}
-				<DropdownMenu.Item onclick={() => switchLanguage(lang.code)} aria-current={locale === lang.code ? 'true' : undefined} textValue={lang.endonym}>
-					{#if locale === lang.code}
+				<DropdownMenu.Item onclick={() => validated.switchLanguage(lang.code)} aria-current={validated.locale === lang.code ? 'true' : undefined} textValue={lang.endonym}>
+					{#if validated.locale === lang.code}
 						<Check aria-hidden="true" class="mr-2 size-4" />
 					{:else}
 						<span class="mr-2 size-4 inline-block"></span>
@@ -134,8 +142,8 @@ function handleSubOpenChange(open: Bool): Void {
 				<div class="flex flex-col items-center gap-2 py-6 text-muted-foreground">
 					<SearchX class="size-6" />
 					<div class="flex flex-col items-center gap-0.5">
-						<p class="text-xs font-medium">{labels.noLanguagesFound}</p>
-						<p class="text-[11px]">{labels.noResultsHint}</p>
+						<p class="text-xs font-medium">{validated.labels.noLanguagesFound}</p>
+						<p class="text-[11px]">{validated.labels.noResultsHint}</p>
 					</div>
 				</div>
 			{/each}

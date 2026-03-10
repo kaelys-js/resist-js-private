@@ -27,18 +27,26 @@ export type NavProjectProps = v.InferOutput<typeof NavProjectPropsSchema>;
  * Shows the current project/user name and subtitle, with product-specific menu items injected via snippet.
  */
 import type { Str } from '@/schemas/common';
+import { safeParse } from '@/utils/result/safe';
 import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 import * as Avatar from '../avatar/index.js';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 import * as Sidebar from '../sidebar/index.js';
+import { stripSvelteProps } from '../lens/lens-utils.js';
 
-let { name, subtitle, avatarSrc, showIcon, menuItems }: NavProjectProps = $props();
+const allProps = $props();
+const validated = $derived.by(() => {
+	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+	const result = safeParse(NavProjectPropsSchema, rawProps);
+	if (!result.ok) throw result.error;
+	return result.data;
+});
 
 const sidebar: ReturnType<typeof Sidebar.useSidebar> = Sidebar.useSidebar();
 
-/** Monogram from the name (e.g. "My Project" → "MP", "Project" → "P"). */
+/** Monogram from the name (e.g. "My Project" -> "MP", "Project" -> "P"). */
 const monogram: Str = $derived(
-	name
+	validated.name
 		.split(/\s+/)
 		.slice(0, 2)
 		.map((w: Str) => w[0]?.toUpperCase() ?? '')
@@ -56,18 +64,18 @@ const monogram: Str = $derived(
 						class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						{...props}
 					>
-						{#if showIcon}
+						{#if validated.showIcon}
 							<Avatar.Root class="h-8 w-8 rounded-lg shadow-sm">
-								<Avatar.Image src={avatarSrc} alt={name} />
+								<Avatar.Image src={validated.avatarSrc} alt={validated.name} />
 								<Avatar.Fallback class="rounded-lg text-xs font-medium">
 									{monogram}
 								</Avatar.Fallback>
 							</Avatar.Root>
 						{/if}
 						<div class="grid flex-1 text-left text-sm leading-tight">
-							<span class="truncate font-medium">{name}</span>
+							<span class="truncate font-medium">{validated.name}</span>
 							<span class="truncate text-xs text-muted-foreground"
-								>{subtitle}</span
+								>{validated.subtitle}</span
 							>
 						</div>
 						<ChevronsUpDown aria-hidden="true" class="ml-auto size-4" />
@@ -83,22 +91,22 @@ const monogram: Str = $derived(
 				<DropdownMenu.Label class="p-0 font-normal -m-1">
 					<div class="flex items-center gap-2 px-3 py-2.5 pb-3 text-left text-sm bg-white/[0.06] border-b border-white/[0.06] rounded-t-lg">
 						<Avatar.Root class="h-8 w-8 rounded-lg">
-							<Avatar.Image src={avatarSrc} alt={name} />
+							<Avatar.Image src={validated.avatarSrc} alt={validated.name} />
 							<Avatar.Fallback class="rounded-lg text-xs font-medium">
 								{monogram}
 							</Avatar.Fallback>
 						</Avatar.Root>
 						<div class="grid flex-1 text-left text-sm leading-tight">
-							<span class="truncate font-medium">{name}</span>
+							<span class="truncate font-medium">{validated.name}</span>
 							<span class="truncate text-xs text-muted-foreground"
-								>{subtitle}</span
+								>{validated.subtitle}</span
 							>
 						</div>
 					</div>
 				</DropdownMenu.Label>
 				<DropdownMenu.Separator />
 				<DropdownMenu.Group>
-					{@render menuItems()}
+					{@render validated.menuItems()}
 				</DropdownMenu.Group>
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>
