@@ -11,6 +11,7 @@ import type { PropMeta, VariantMeta, VariantKeyMeta, LensExample, LensMeta } fro
 import type { SearchItem } from '@/ui/search-autocomplete/search-item.js';
 import { extractProps, extractDescription, extractPropsVariants } from '@/ui/lens/extract-props.js';
 import { extractVariants } from '@/ui/lens/extract-variants.js';
+import { extractDeps, type DepTree } from '@/ui/lens/extract-deps.js';
 import type { Result } from '@/schemas/result/result';
 import { extractDir, extractStem, toTitle, isInternalFile, findPrimaryKey, parseLensMeta } from '@/ui/lens/lens-utils.js';
 import { page } from '$app/state';
@@ -19,6 +20,7 @@ import LensError from '@/ui/lens-error/LensError.svelte';
 import LensHeader from '@/ui/lens-header/LensHeader.svelte';
 import LensSection from '@/ui/lens-section/LensSection.svelte';
 import LensSource from '@/ui/lens-source/LensSource.svelte';
+import LensDependencyTree from '@/ui/lens-dependency-tree/LensDependencyTree.svelte';
 import PropsTable from '@/ui/lens-props-table/PropsTable.svelte';
 import LensComponentRenderer from '@/ui/lens-component-renderer/LensComponentRenderer.svelte';
 import TableProperties from '@lucide/svelte/icons/table-properties';
@@ -26,6 +28,7 @@ import ComponentIcon from '@lucide/svelte/icons/component';
 import ShieldAlert from '@lucide/svelte/icons/shield-alert';
 import Layers from '@lucide/svelte/icons/layers';
 import BookOpen from '@lucide/svelte/icons/book-open';
+import GitFork from '@lucide/svelte/icons/git-fork';
 
 /* ------------------------------------------------------------------ */
 /*  Globs                                                             */
@@ -250,6 +253,12 @@ const allVariants: VariantKeyMeta[] = $derived.by((): VariantKeyMeta[] => {
 const hasVariants: Bool = $derived(allVariants.length > 0);
 const hasExamples: Bool = $derived(lensExamples.length > 0);
 
+/** Categorized dependency tree extracted from raw component source. */
+const deps: DepTree = $derived(rawSource ? extractDeps(rawSource) : { internal: [], workspace: [], external: [] });
+
+/** Whether the component has any dependencies. */
+const hasDeps: Bool = $derived(deps.internal.length + deps.workspace.length + deps.external.length > 0);
+
 /**
  * Build a PascalCase tag name from a kebab-case component directory name.
  *
@@ -315,6 +324,14 @@ const searchItems: SearchItem[] = $derived.by((): SearchItem[] => {
 		group: 'Sections',
 		keywords: ['error', 'boundary', 'validation', 'safeParse', 'fallback'],
 	});
+	if (hasDeps) {
+		items.push({
+			value: 'section:dependencies',
+			label: 'Dependencies',
+			group: 'Sections',
+			keywords: ['deps', 'imports', 'internal', 'external', 'workspace', 'packages'],
+		});
+	}
 
 	return items;
 });
@@ -342,10 +359,11 @@ function handleSearchSelect(item: SearchItem): Void {
 
 <div class="w-full">
 	<div class="sticky top-(--header-height) z-10 border-b bg-background px-8 pb-4 pt-10">
-		<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} searchItems={loading || loadError ? [] : searchItems} onSearchSelect={handleSearchSelect} />
+		<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} {hasDeps} searchItems={loading || loadError ? [] : searchItems} onSearchSelect={handleSearchSelect} />
 	</div>
 
 	<div class="px-8 py-8">
+	<svelte:boundary>
 	{#if loading}
 		<div class="flex items-center justify-center rounded-xl border py-20">
 			<div
@@ -439,7 +457,19 @@ function handleSearchSelect(item: SearchItem): Void {
 			{#if rawSource}
 				<LensSource {name} source={rawSource} />
 			{/if}
+
+			<!-- ═══ Dependencies ═══ -->
+			{#if hasDeps}
+				<section id="dependencies" class="scroll-mt-60">
+					<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><GitFork class="size-5" /> Dependencies</h2>
+					<LensDependencyTree {deps} currentComponent={name} />
+				</section>
+			{/if}
 		</div>
 	{/if}
+	{#snippet failed(error)}
+		<LensError title="Page render error" description={error instanceof Error ? error.message : JSON.stringify(error)} />
+	{/snippet}
+	</svelte:boundary>
 	</div>
 </div>

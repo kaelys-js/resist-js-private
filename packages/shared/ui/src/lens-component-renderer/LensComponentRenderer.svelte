@@ -74,7 +74,11 @@ import Search from '@lucide/svelte/icons/search';
 import Settings2 from '@lucide/svelte/icons/settings-2';
 import Smartphone from '@lucide/svelte/icons/smartphone';
 import Sun from '@lucide/svelte/icons/sun';
+import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
 import SquareDashedMousePointer from '@lucide/svelte/icons/square-dashed-mouse-pointer';
+import Wifi from '@lucide/svelte/icons/wifi';
+import WifiOff from '@lucide/svelte/icons/wifi-off';
 import ZoomIn from '@lucide/svelte/icons/zoom-in';
 import ZoomOut from '@lucide/svelte/icons/zoom-out';
 import * as DropdownMenu from '../dropdown-menu/index.js';
@@ -130,6 +134,15 @@ let cardModes: Record<Str, Str> = $state({});
 /** Per-card theme keyed by card identifier ('' = inherit from page). */
 let cardThemes: Record<Str, Str> = $state({});
 
+/** Per-card media query preferences keyed by card identifier. Values: Record<prefName, activeValue>. */
+let cardMediaPrefs: Record<Str, Record<Str, Str>> = $state({});
+
+/** Per-card network simulation keyed by card identifier ('none' = no throttle). */
+let cardNetworkSim: Record<Str, Str> = $state({});
+
+/** Per-card network loading state (true while simulated latency overlay is visible). */
+let cardNetworkLoading: Record<Str, Bool> = $state({});
+
 /** Per-card measured visual height of the inner content (accounts for zoom + rotation transforms). */
 let cardContentHeights: Record<Str, Num> = $state({});
 
@@ -142,7 +155,7 @@ let cardContentHeights: Record<Str, Num> = $state({});
  * @returns A formatted error message string
  */
 function formatBoundaryError(error: unknown): Str {
-	log.warn(`Component preview error: ${error instanceof Error ? error.message : String(error)}`);
+	log.warn(`Component preview error: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
 	if (error instanceof Error) return error.message;
 	if (typeof error === 'object' && error !== null) {
 		// Cast once for property access — error is an unknown object from svelte:boundary
@@ -353,6 +366,63 @@ const THEME_PRESETS: Array<{ id: Str; label: Str; dot: Str }> = [
 	{ id: 'copper', label: 'Copper', dot: 'oklch(0.52 0.16 60)' },
 	{ id: 'aurora', label: 'Aurora', dot: 'oklch(0.52 0.15 170)' },
 	{ id: 'amethyst', label: 'Amethyst', dot: 'oklch(0.52 0.22 310)' },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Media query preference presets                                     */
+/* ------------------------------------------------------------------ */
+
+/** Media query preference groups with their options. */
+const MEDIA_PREF_GROUPS: Array<{ pref: Str; label: Str; defaultValue: Str; options: Array<{ value: Str; label: Str }> }> = [
+	{
+		pref: 'reduced-motion',
+		label: 'Reduced Motion',
+		defaultValue: 'no-preference',
+		options: [
+			{ value: 'no-preference', label: 'No Preference' },
+			{ value: 'reduce', label: 'Reduce' },
+		],
+	},
+	{
+		pref: 'contrast',
+		label: 'Contrast',
+		defaultValue: 'no-preference',
+		options: [
+			{ value: 'no-preference', label: 'No Preference' },
+			{ value: 'more', label: 'More' },
+			{ value: 'less', label: 'Less' },
+		],
+	},
+	{
+		pref: 'reduced-transparency',
+		label: 'Reduced Transparency',
+		defaultValue: 'no-preference',
+		options: [
+			{ value: 'no-preference', label: 'No Preference' },
+			{ value: 'reduce', label: 'Reduce' },
+		],
+	},
+	{
+		pref: 'forced-colors',
+		label: 'Forced Colors',
+		defaultValue: 'none',
+		options: [
+			{ value: 'none', label: 'None' },
+			{ value: 'active', label: 'Active' },
+		],
+	},
+];
+
+/* ------------------------------------------------------------------ */
+/*  Network condition presets                                          */
+/* ------------------------------------------------------------------ */
+
+/** Network simulation presets with latency delays in ms (-1 = permanent/offline). */
+const NETWORK_PRESETS: Array<{ id: Str; label: Str; delay: Num; description: Str }> = [
+	{ id: 'none', label: 'No throttling', delay: 0, description: '' },
+	{ id: 'fast-3g', label: 'Fast 3G', delay: 500, description: '~500ms latency' },
+	{ id: 'slow-3g', label: 'Slow 3G', delay: 2000, description: '~2s latency' },
+	{ id: 'offline', label: 'Offline', delay: -1, description: 'No connection' },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -740,6 +810,20 @@ function getActiveSettings(key: Str): Array<{ label: Str; value: Str }> {
 		const bgPreset = BG_PRESETS.find((p) => p.id === bg);
 		settings.push({ label: 'Background', value: bgPreset?.label ?? bg });
 	}
+	// Media query preferences
+	for (const group of MEDIA_PREF_GROUPS) {
+		const val: Str = getMediaPref(key, group.pref);
+		if (val !== group.defaultValue) {
+			const opt = group.options.find((o) => o.value === val);
+			settings.push({ label: group.label, value: opt?.label ?? val });
+		}
+	}
+	// Network simulation
+	const netSim: Str = cardNetworkSim[key] ?? 'none';
+	if (netSim !== 'none') {
+		const netPreset = NETWORK_PRESETS.find((p) => p.id === netSim);
+		settings.push({ label: 'Network', value: netPreset?.label ?? netSim });
+	}
 	return settings;
 }
 
@@ -751,6 +835,112 @@ function getActiveSettings(key: Str): Array<{ label: Str; value: Str }> {
  */
 function hasTunnelVision(key: Str): Bool {
 	return cardSimulations[key] === 'tunnel-vision';
+}
+
+/**
+ * Get a media query preference value for a card.
+ *
+ * @param key - Card key
+ * @param pref - Media feature name (e.g. 'reduced-motion')
+ * @returns Active value or the default for that preference
+ */
+function getMediaPref(key: Str, pref: Str): Str {
+	const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+	if (!prefs) {
+		const group = MEDIA_PREF_GROUPS.find((g) => g.pref === pref);
+		return group?.defaultValue ?? 'no-preference';
+	}
+	const group = MEDIA_PREF_GROUPS.find((g) => g.pref === pref);
+	return prefs[pref] ?? group?.defaultValue ?? 'no-preference';
+}
+
+/**
+ * Set a media query preference for a card.
+ *
+ * @param key - Card key
+ * @param pref - Media feature name
+ * @param value - New preference value
+ */
+function setMediaPref(key: Str, pref: Str, value: Str): Void {
+	if (!cardMediaPrefs[key]) cardMediaPrefs[key] = {};
+	cardMediaPrefs[key] = { ...cardMediaPrefs[key], [pref]: value };
+}
+
+/**
+ * Build CSS class names for active media query preference emulations.
+ *
+ * @param key - Card key
+ * @returns Space-separated class names or empty string
+ */
+function getMediaPrefClasses(key: Str): Str {
+	const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+	if (!prefs) return '';
+	const classes: Str[] = [];
+	if (prefs['reduced-motion'] === 'reduce') classes.push('lens-reduced-motion');
+	if (prefs['contrast'] === 'more') classes.push('lens-contrast-more');
+	if (prefs['contrast'] === 'less') classes.push('lens-contrast-less');
+	if (prefs['reduced-transparency'] === 'reduce') classes.push('lens-reduced-transparency');
+	if (prefs['forced-colors'] === 'active') classes.push('lens-forced-colors');
+	return classes.join(' ');
+}
+
+/**
+ * Check if any media query preferences are non-default for a card.
+ *
+ * @param key - Card key
+ * @returns True if any preference is overridden
+ */
+function hasMediaPrefs(key: Str): Bool {
+	const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+	if (!prefs) return false;
+	return MEDIA_PREF_GROUPS.some((g) => {
+		const val: Str = prefs[g.pref] ?? g.defaultValue;
+		return val !== g.defaultValue;
+	});
+}
+
+/**
+ * Set network simulation for a card. Triggers a loading overlay for the
+ * preset's delay duration, then clears it. Offline is permanent.
+ *
+ * @param key - Card key
+ * @param simId - Network preset ID ('none', 'fast-3g', 'slow-3g', 'offline')
+ */
+function setNetworkSim(key: Str, simId: Str): Void {
+	cardNetworkSim[key] = simId;
+	const preset = NETWORK_PRESETS.find((p) => p.id === simId);
+	if (preset && preset.delay > 0) {
+		cardNetworkLoading[key] = true;
+		setTimeout((): void => {
+			cardNetworkLoading[key] = false;
+		}, preset.delay);
+	} else if (simId === 'offline') {
+		cardNetworkLoading[key] = true;
+	} else {
+		cardNetworkLoading[key] = false;
+	}
+}
+
+/**
+ * Reset all per-card customizations back to defaults for a given card.
+ * Deletes every per-card state entry so the card returns to its initial appearance.
+ *
+ * @param key - Card key to reset
+ */
+function resetCard(key: Str): Void {
+	cardSimulations[key] = 'none';
+	cardBackgrounds[key] = 'default';
+	cardZoom[key] = 1;
+	cardOutlines[key] = 'none';
+	cardGrids[key] = 'none';
+	cardGridSizes[key] = GRID_DEFAULT_SIZE;
+	cardOrientations[key] = 'default';
+	cardModes[key] = 'auto';
+	cardThemes[key] = '';
+	cardMediaPrefs[key] = {};
+	cardNetworkSim[key] = 'none';
+	cardNetworkLoading[key] = false;
+	cardContentHeights[key] = 0;
 }
 
 /**
@@ -1209,6 +1399,52 @@ function isIconOption(option: Str): boolean {
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
 
+						<!-- Media Query Preferences submenu -->
+						<DropdownMenu.Sub>
+							<DropdownMenu.SubTrigger>
+								<SlidersHorizontal class="size-4" />
+								Media Preferences
+							</DropdownMenu.SubTrigger>
+							<DropdownMenu.SubContent class="w-56">
+								{#each MEDIA_PREF_GROUPS as group (group.pref)}
+									<DropdownMenu.Label>{group.label}</DropdownMenu.Label>
+									{#each group.options as option (option.value)}
+										<DropdownMenu.Item onclick={() => setMediaPref(cardKey, group.pref, option.value)}>
+											<Check class={cn('size-4 shrink-0', getMediaPref(cardKey, group.pref) !== option.value && 'opacity-0')} />
+											{option.label}
+										</DropdownMenu.Item>
+									{/each}
+									{#if group !== MEDIA_PREF_GROUPS[MEDIA_PREF_GROUPS.length - 1]}
+										<DropdownMenu.Separator />
+									{/if}
+								{/each}
+							</DropdownMenu.SubContent>
+						</DropdownMenu.Sub>
+
+						<!-- Network Conditions submenu -->
+						<DropdownMenu.Sub>
+							<DropdownMenu.SubTrigger>
+								<Wifi class="size-4" />
+								Network Conditions
+							</DropdownMenu.SubTrigger>
+							<DropdownMenu.SubContent class="w-52">
+								{#each NETWORK_PRESETS as preset (preset.id)}
+									<DropdownMenu.Item onclick={() => setNetworkSim(cardKey, preset.id)}>
+										<div class="flex items-center gap-2">
+											<Check class={cn('size-4 shrink-0', (cardNetworkSim[cardKey] ?? 'none') !== preset.id && 'opacity-0')} />
+											{#if preset.id === 'offline'}
+												<WifiOff class="size-3.5 text-destructive" />
+											{/if}
+											<span>{preset.label}</span>
+											{#if preset.description}
+												<span class="text-xs text-muted-foreground">{preset.description}</span>
+											{/if}
+										</div>
+									</DropdownMenu.Item>
+								{/each}
+							</DropdownMenu.SubContent>
+						</DropdownMenu.Sub>
+
 						<DropdownMenu.Separator />
 
 						<!-- Accessibility submenu -->
@@ -1262,6 +1498,13 @@ function isIconOption(option: Str): boolean {
 								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
+						{#if getActiveSettings(cardKey).length > 0}
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item onclick={() => resetCard(cardKey)}>
+								<RotateCcw class="size-4" />
+								Reset to Defaults
+							</DropdownMenu.Item>
+						{/if}
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
 			</div>
@@ -1290,7 +1533,7 @@ function isIconOption(option: Str): boolean {
 			<LensPortalScope mode={activeMode} theme={activeTheme} {pageIsDark}>
 				<div
 					use:trackContentSize={{ key: cardKey, landscape: isLandscapeOrientation(cardKey) }}
-					class={cn(activeOutline !== 'none' && 'lens-outline')}
+					class={cn(activeOutline !== 'none' && 'lens-outline', getMediaPrefClasses(cardKey))}
 					style={[getSimulationFilter(cardKey), getZoomStyle(cardKey), getOrientationStyle(cardKey), activeOutline !== 'none' ? `--lens-outline-color: ${getOutlineColor(cardKey)}` : ''].filter(Boolean).join('; ')}
 				>
 					{#if children}
@@ -1329,6 +1572,19 @@ function isIconOption(option: Str): boolean {
 					class="pointer-events-none absolute inset-0"
 					style={getGridStyle(cardKey)}
 				></div>
+			{/if}
+			{#if cardNetworkLoading[cardKey]}
+				<div class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-background/80 backdrop-blur-sm">
+					{#if (cardNetworkSim[cardKey] ?? 'none') === 'offline'}
+						<WifiOff class="size-6 text-destructive" />
+						<span class="text-xs font-medium text-destructive">Offline</span>
+					{:else}
+						<div class="size-5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-primary"></div>
+						<span class="text-xs text-muted-foreground">
+							{NETWORK_PRESETS.find((p) => p.id === (cardNetworkSim[cardKey] ?? 'none'))?.label ?? 'Loading'}...
+						</span>
+					{/if}
+				</div>
 			{/if}
 		</div>
 		{#if (tagName || codeText) && openCards[cardKey]}
@@ -1386,6 +1642,67 @@ function isIconOption(option: Str): boolean {
 <style>
 	:global(.lens-outline *) {
 		outline: 1px solid var(--lens-outline-color, rgba(239, 68, 68, 0.25));
+	}
+
+	/* ── Media Query Preference emulation ── */
+
+	/** Emulate prefers-reduced-motion: reduce — kill all animations and transitions. */
+	:global(.lens-reduced-motion *),
+	:global(.lens-reduced-motion *::before),
+	:global(.lens-reduced-motion *::after) {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+		scroll-behavior: auto !important;
+	}
+
+	/** Emulate prefers-contrast: more — boost contrast on the card content. */
+	:global(.lens-contrast-more) {
+		filter: contrast(1.5);
+	}
+
+	/** Emulate prefers-contrast: less — reduce contrast on the card content. */
+	:global(.lens-contrast-less) {
+		filter: contrast(0.75);
+	}
+
+	/** Emulate prefers-reduced-transparency: reduce — force full opacity. */
+	:global(.lens-reduced-transparency) {
+		backdrop-filter: none !important;
+	}
+
+	:global(.lens-reduced-transparency *) {
+		backdrop-filter: none !important;
+		opacity: 1 !important;
+	}
+
+	/** Emulate forced-colors: active — high contrast black/white mode. */
+	:global(.lens-forced-colors) {
+		background: Canvas !important;
+		color: CanvasText !important;
+		forced-color-adjust: none;
+	}
+
+	:global(.lens-forced-colors *) {
+		color: CanvasText !important;
+		background: Canvas !important;
+		border-color: CanvasText !important;
+		outline-color: CanvasText !important;
+		fill: CanvasText !important;
+		stroke: CanvasText !important;
+		forced-color-adjust: none;
+	}
+
+	:global(.lens-forced-colors a),
+	:global(.lens-forced-colors a *) {
+		color: LinkText !important;
+	}
+
+	:global(.lens-forced-colors button),
+	:global(.lens-forced-colors [role='button']) {
+		border: 2px solid ButtonText !important;
+		color: ButtonText !important;
+		background: ButtonFace !important;
 	}
 
 	/* Force light mode variables on a card preview, overriding .dark ancestor cascade. */

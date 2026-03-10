@@ -20,6 +20,8 @@ export const LensHeaderPropsSchema = v.strictObject({
 	hasExamples: v.optional(BoolSchema),
 	/** Whether the component has raw source available. */
 	hasSource: v.optional(BoolSchema),
+	/** Whether the component has any import dependencies. */
+	hasDeps: v.optional(BoolSchema),
 	/** Search items for the search popover. Empty array hides the search button. */
 	searchItems: v.optional(v.array(SearchItemSchema)),
 	/** Callback fired when a search item is selected. */
@@ -54,6 +56,7 @@ import Layers from '@lucide/svelte/icons/layers';
 import BookOpen from '@lucide/svelte/icons/book-open';
 import FileCode from '@lucide/svelte/icons/file-code';
 import ShieldAlert from '@lucide/svelte/icons/shield-alert';
+import GitFork from '@lucide/svelte/icons/git-fork';
 
 const allProps: LensHeaderProps = $props();
 const validated: LensHeaderProps = $derived.by(() => {
@@ -84,6 +87,9 @@ const hasExamples: Bool = $derived(validated.hasExamples ?? false);
 
 /** Whether the component has raw source available. */
 const hasSource: Bool = $derived(validated.hasSource ?? false);
+
+/** Whether the component has any import dependencies. */
+const hasDeps: Bool = $derived(validated.hasDeps ?? false);
 
 /**
  * Smooth-scroll to a section by its element ID.
@@ -249,6 +255,12 @@ function handleSelect(item: SearchItem): Void {
 						<DropdownMenu.Item onclick={() => scrollTo('source')}>
 							<FileCode class="mr-2 size-4" />
 							Go to Source
+						</DropdownMenu.Item>
+					{/if}
+					{#if hasDeps}
+						<DropdownMenu.Item onclick={() => scrollTo('dependencies')}>
+							<GitFork class="mr-2 size-4" />
+							Go to Dependencies
 						</DropdownMenu.Item>
 					{/if}
 				</DropdownMenu.Content>
