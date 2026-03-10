@@ -37,9 +37,9 @@ import * as Tooltip from '../tooltip/index.js';
 import { cn } from '../utils.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: PropsTableProps = $props();
+const validated: PropsTableProps = $derived.by(() => {
+	const rawProps: PropsTableProps = stripSvelteProps(allProps);
 	const result = safeParse(PropsTablePropsSchema, rawProps);
 	if (!result.ok) throw result.error;
 	// Cast to mutable — Result.data is deep-frozen via Object.freeze but component only reads, never mutates

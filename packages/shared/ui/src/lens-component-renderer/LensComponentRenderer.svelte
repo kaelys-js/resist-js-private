@@ -889,7 +889,7 @@ function isIconOption(option: Str): boolean {
 	{@const activeOutline: Str = cardOutlines[cardKey] ?? 'none'}
 	{@const activeGrid: Str = cardGrids[cardKey] ?? 'none'}
 	{@const activeOrientation: Str = cardOrientations[cardKey] ?? 'default'}
-	{@const activeMode: Str = cardModes[cardKey] ?? 'auto'}
+	{@const activeMode: 'auto' | 'light' | 'dark' = (cardModes[cardKey] as 'auto' | 'light' | 'dark' | undefined) ?? 'auto'}
 	{@const activeTheme: Str = cardThemes[cardKey] ?? ''}
 	{@const activeSettings = getActiveSettings(cardKey)}
 	<div class="overflow-hidden rounded-md border bg-background">

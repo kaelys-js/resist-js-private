@@ -33,12 +33,13 @@ import CircleHelp from '@lucide/svelte/icons/circle-help';
 import * as Tooltip from '../tooltip/index.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: HelpTooltipProps = $props();
+const validated: HelpTooltipProps = $derived.by(() => {
+	const rawProps: HelpTooltipProps = stripSvelteProps(allProps);
 	const result = safeParse(HelpTooltipPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as HelpTooltipProps;
 });
 </script>
 

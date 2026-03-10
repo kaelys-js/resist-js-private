@@ -61,12 +61,13 @@ import Palette from '@lucide/svelte/icons/palette';
 import Check from '@lucide/svelte/icons/check';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: ThemeSwitcherProps = $props();
+const validated: ThemeSwitcherProps = $derived.by(() => {
+	const rawProps: ThemeSwitcherProps = stripSvelteProps(allProps);
 	const result = safeParse(ThemeSwitcherPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as ThemeSwitcherProps;
 });
 
 let searchQuery: Str = $state('');

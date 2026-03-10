@@ -30,11 +30,12 @@ import { safeParse } from '@/utils/result/safe';
 import { BitsConfig } from 'bits-ui';
 import { cn } from '../utils.js';
 
-const rawProps = $props();
-const validated = $derived.by(() => {
+const rawProps: LensPortalScopeProps = $props();
+const validated: LensPortalScopeProps = $derived.by(() => {
 	const result = safeParse(LensPortalScopePropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as LensPortalScopeProps;
 });
 
 /** Body-level div that serves as the portal target. */

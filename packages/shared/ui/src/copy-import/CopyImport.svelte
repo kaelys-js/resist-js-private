@@ -32,12 +32,13 @@ import CopyButton from '../copy-button/CopyButton.svelte';
 import { cn } from '../utils.js';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: CopyImportProps = $props();
+const validated: CopyImportProps = $derived.by(() => {
+	const rawProps: CopyImportProps = stripSvelteProps(allProps);
 	const result = safeParse(CopyImportPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as CopyImportProps;
 });
 </script>
 

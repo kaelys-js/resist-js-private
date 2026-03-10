@@ -36,12 +36,13 @@ import * as Breadcrumb from '../breadcrumb/index.js';
 import SidebarToggle from '../sidebar-toggle/SidebarToggle.svelte';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: SiteHeaderProps = $props();
+const validated: SiteHeaderProps = $derived.by(() => {
+	const rawProps: SiteHeaderProps = stripSvelteProps(allProps);
 	const result = safeParse(SiteHeaderPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as SiteHeaderProps;
 });
 </script>
 

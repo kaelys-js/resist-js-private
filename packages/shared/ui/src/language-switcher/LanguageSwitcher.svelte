@@ -62,12 +62,13 @@ import Globe from '@lucide/svelte/icons/globe';
 import Check from '@lucide/svelte/icons/check';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: LanguageSwitcherProps = $props();
+const validated: LanguageSwitcherProps = $derived.by(() => {
+	const rawProps: LanguageSwitcherProps = stripSvelteProps(allProps);
 	const result = safeParse(LanguageSwitcherPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as LanguageSwitcherProps;
 });
 
 let searchQuery: Str = $state('');

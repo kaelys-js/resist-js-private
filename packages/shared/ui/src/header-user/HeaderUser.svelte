@@ -84,12 +84,13 @@ import type { Bool, Str } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: HeaderUserProps = $props();
+const validated: HeaderUserProps = $derived.by(() => {
+	const rawProps: HeaderUserProps = stripSvelteProps(allProps);
 	const result = safeParse(HeaderUserPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as HeaderUserProps;
 });
 
 /** Monogram from the user name (e.g. "John Doe" → "JD", "User" → "U"). */

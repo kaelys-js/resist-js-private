@@ -29,12 +29,13 @@ import { safeParse } from '@/utils/result/safe';
 import Kbd from '../kbd/Kbd.svelte';
 import { stripSvelteProps } from '../lens/lens-utils.js';
 
-const allProps = $props();
-const validated = $derived.by(() => {
-	const rawProps: Record<Str, unknown> = stripSvelteProps(allProps);
+const allProps: TooltipLabelProps = $props();
+const validated: TooltipLabelProps = $derived.by(() => {
+	const rawProps: TooltipLabelProps = stripSvelteProps(allProps);
 	const result = safeParse(TooltipLabelPropsSchema, rawProps);
 	if (!result.ok) throw result.error;
-	return result.data;
+	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
+	return result.data as TooltipLabelProps;
 });
 </script>
 
