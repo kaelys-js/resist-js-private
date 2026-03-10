@@ -5,13 +5,14 @@
  * Extracts props, TV variants, and examples from raw component source
  * at runtime — no hand-written Demo.svelte files needed.
  */
-import type { Bool, Str, Void } from '@/schemas/common';
+import type { Bool, Num, Str, Void } from '@/schemas/common';
 import type { Component } from 'svelte';
 import type { PropMeta, VariantMeta, VariantKeyMeta, LensExample, LensMeta } from '@/ui/lens/types.js';
 import type { SearchItem } from '@/ui/search-autocomplete/search-item.js';
 import { extractProps, extractDescription, extractPropsVariants } from '@/ui/lens/extract-props.js';
 import { extractVariants } from '@/ui/lens/extract-variants.js';
-import { extractDeps, type DepTree } from '@/ui/lens/extract-deps.js';
+import { extractDeps, extractReverseDeps, type DepTree, type ReverseDep } from '@/ui/lens/extract-deps.js';
+import { extractSourceSizes } from '@/ui/lens/extract-sizes.js';
 import type { Result } from '@/schemas/result/result';
 import { extractDir, extractStem, toTitle, isInternalFile, findPrimaryKey, parseLensMeta } from '@/ui/lens/lens-utils.js';
 import { page } from '$app/state';
@@ -85,6 +86,28 @@ const exampleRawModules: Record<Str, Str> = import.meta.glob(
 /* ------------------------------------------------------------------ */
 
 const name: Str = $derived(page.params.name ?? '');
+
+/**
+ * Sorted list of all component directory names derived from the raw source glob.
+ * Used for Previous/Next navigation in the LensHeader.
+ */
+const componentNames: Str[] = [
+	...new Set(Object.keys(rawSources).map(extractDir)),
+]
+	.filter((n: Str): boolean => n.length > 0)
+	.toSorted();
+
+/** Previous component in the sorted list (null if first). */
+const prevComponent: Str | null = $derived.by((): Str | null => {
+	const idx: number = componentNames.indexOf(name);
+	return idx > 0 ? (componentNames[idx - 1] ?? null) : null;
+});
+
+/** Next component in the sorted list (null if last). */
+const nextComponent: Str | null = $derived.by((): Str | null => {
+	const idx: number = componentNames.indexOf(name);
+	return idx >= 0 && idx < componentNames.length - 1 ? (componentNames[idx + 1] ?? null) : null;
+});
 
 let rawSource: Str = $state('');
 let props: PropMeta[] = $state([]);
@@ -256,8 +279,53 @@ const hasExamples: Bool = $derived(lensExamples.length > 0);
 /** Categorized dependency tree extracted from raw component source. */
 const deps: DepTree = $derived(rawSource ? extractDeps(rawSource) : { internal: [], workspace: [], external: [] });
 
-/** Whether the component has any dependencies. */
-const hasDeps: Bool = $derived(deps.internal.length + deps.workspace.length + deps.external.length > 0);
+/** Reverse dependencies — components that import the current one. */
+const usedBy: ReverseDep[] = $derived(name ? extractReverseDeps(name, rawSources, extractDir) : []);
+
+/** Whether the component has any dependencies or reverse dependencies. */
+const hasDeps: Bool = $derived(deps.internal.length + deps.workspace.length + deps.external.length > 0 || usedBy.length > 0);
+
+/** Source sizes per component directory (computed from raw sources). */
+const sourceSizes: Record<Str, Num> = extractSourceSizes(rawSources, extractDir);
+
+/** Compiled bundle sizes fetched from the server API (svelte compile + esbuild minify + gzip). */
+let bundleSizes: Record<Str, { compiled: Num; gzip: Num }> = $state({});
+
+/** Combined sizes map passed to LensDependencyTree. */
+const componentSizes: Record<Str, { source: Num; compiled?: Num; gzip?: Num }> = $derived.by(() => {
+	const result: Record<Str, { source: Num; compiled?: Num; gzip?: Num }> = {};
+	for (const [dir, source] of Object.entries(sourceSizes)) {
+		const bundle = bundleSizes[dir];
+		result[dir] = {
+			source: source as Num,
+			compiled: bundle?.compiled,
+			gzip: bundle?.gzip,
+		};
+	}
+	return result;
+});
+
+// Fetch compiled sizes from server API (non-blocking, populates async)
+$effect(() => {
+	let cancelled: Bool = false;
+	(async (): Promise<void> => {
+		try {
+			const response: Response = await fetch('/api/lens/bundle-sizes');
+			if (cancelled) return;
+			if (response.ok) {
+				const data: unknown = await response.json();
+				if (cancelled) return;
+				// Server returns Record<string, { compiled, gzip }> — safe to assign
+				bundleSizes = data as Record<Str, { compiled: Num; gzip: Num }>;
+			}
+		} catch {
+			/* Bundle size fetch failed — sizes remain empty, source sizes still shown */
+		}
+	})();
+	return (): void => {
+		cancelled = true;
+	};
+});
 
 /**
  * Build a PascalCase tag name from a kebab-case component directory name.
@@ -359,7 +427,7 @@ function handleSearchSelect(item: SearchItem): Void {
 
 <div class="w-full">
 	<div class="sticky top-(--header-height) z-10 border-b bg-background px-8 pb-4 pt-10">
-		<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} {hasDeps} searchItems={loading || loadError ? [] : searchItems} onSearchSelect={handleSearchSelect} />
+		<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} {hasDeps} searchItems={loading || loadError ? [] : searchItems} onSearchSelect={handleSearchSelect} {prevComponent} {nextComponent} />
 	</div>
 
 	<div class="px-8 py-8">
@@ -462,7 +530,7 @@ function handleSearchSelect(item: SearchItem): Void {
 			{#if hasDeps}
 				<section id="dependencies" class="scroll-mt-60">
 					<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><GitFork class="size-5" /> Dependencies</h2>
-					<LensDependencyTree {deps} currentComponent={name} />
+					<LensDependencyTree {deps} {usedBy} currentComponent={name} sizes={componentSizes} knownComponents={componentNames} {rawSources} />
 				</section>
 			{/if}
 		</div>

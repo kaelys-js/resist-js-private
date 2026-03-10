@@ -15,6 +15,9 @@
  */
 import type { Str } from '@/schemas/common';
 
+/** Import kind — how the symbol was imported. */
+export type DepKind = 'type' | 'namespace' | 'named' | 'default';
+
 /**
  * A single import dependency extracted from source.
  */
@@ -25,6 +28,8 @@ export type DepEntry = {
 	names: Str[];
 	/** The UI component directory name, if this is a sibling component import (e.g., `button`). */
 	component: Str;
+	/** How this import was declared (`type`, `namespace`, `named`, `default`). */
+	kind: DepKind;
 };
 
 /**
@@ -48,18 +53,26 @@ const NAMED_RE: RegExp = /\{([^}]+)\}/;
 /** Regex to extract a component directory name from a relative path like `../button/index.js`. */
 const COMPONENT_DIR_RE: RegExp = /\.\.\/([^/]+)\//;
 
+/** Parsed import result with names and kind. */
+type ParsedImport = {
+	/** Imported names. */
+	names: Str[];
+	/** Import kind. */
+	kind: DepKind;
+};
+
 /**
- * Parse import names from an import clause string.
+ * Parse import names and kind from an import clause string.
  *
  * Handles: `{ A, B }`, `* as X`, `Default`, `Default, { A }`, `type { A }`.
  *
  * @param clause - The import clause (everything between `import` and `from`)
- * @returns Array of imported names
+ * @returns Parsed import with names and kind
  */
-function parseImportNames(clause: Str): Str[] {
+function parseImport(clause: Str): ParsedImport {
 	const names: Str[] = [];
 
-	// Skip pure type imports
+	// Pure type imports: `import type { A } from '...'` or `import type Foo from '...'`
 	if (clause.startsWith('type ')) {
 		const inner: Str = clause.slice(5).trim();
 		const namedMatch: RegExpMatchArray | null = inner.match(NAMED_RE);
@@ -77,14 +90,14 @@ function parseImportNames(clause: Str): Str[] {
 			// `type Foo` — single type import
 			names.push(inner);
 		}
-		return names;
+		return { names, kind: 'type' };
 	}
 
 	// Namespace: `* as X`
 	if (clause.includes('* as ')) {
 		const nsMatch: RegExpMatchArray | null = clause.match(/\*\s+as\s+(\w+)/);
 		if (nsMatch?.[1]) names.push(nsMatch[1]);
-		return names;
+		return { names, kind: 'namespace' };
 	}
 
 	// Named imports: `{ A, B as C }`
@@ -107,9 +120,12 @@ function parseImportNames(clause: Str): Str[] {
 		.trim();
 	if (defaultPart && !defaultPart.startsWith('*')) {
 		names.push(defaultPart);
+		// If we have BOTH named and default, classify as 'named' since named is more useful
+		if (namedMatch) return { names, kind: 'named' };
+		return { names, kind: 'default' };
 	}
 
-	return names;
+	return { names, kind: 'named' };
 }
 
 /**
@@ -157,12 +173,13 @@ export function extractDeps(source: Str): DepTree {
 	let match: RegExpExecArray | null = IMPORT_RE.exec(fullScript);
 	while (match) {
 		const [, clause, specifier]: RegExpExecArray = match;
-		const names: Str[] = parseImportNames(clause);
+		const parsed: ParsedImport = parseImport(clause);
 
 		const entry: DepEntry = {
 			path: specifier,
-			names,
+			names: parsed.names,
 			component: '',
+			kind: parsed.kind,
 		};
 
 		if (specifier.startsWith('../') || specifier.startsWith('./')) {
@@ -182,4 +199,65 @@ export function extractDeps(source: Str): DepTree {
 	}
 
 	return { internal, workspace, external };
+}
+
+/**
+ * A reverse dependency entry — a component that imports the current one.
+ */
+export type ReverseDep = {
+	/** The component directory name that imports the current component. */
+	component: Str;
+	/** Imported names that reference the current component. */
+	names: Str[];
+	/** Import kind used by the consumer. */
+	kind: DepKind;
+};
+
+/**
+ * Extract reverse dependencies — find all components that import the given component.
+ *
+ * Scans all provided raw sources, extracts their dependencies, and returns
+ * entries where the dependency is an internal import pointing to `targetComponent`.
+ *
+ * @param targetComponent - The component directory name to find consumers of
+ * @param allSources - Map of glob keys → raw source strings for ALL components
+ * @param extractDirFn - Function to extract directory name from a glob key
+ * @returns Array of components that import the target component
+ *
+ * @example
+ * ```typescript
+ * const usedBy = extractReverseDeps('button', rawSources, extractDir);
+ * // [{ component: 'dialog', names: ['Button'], kind: 'named' }]
+ * ```
+ */
+export function extractReverseDeps(
+	targetComponent: Str,
+	allSources: Record<Str, Str>,
+	extractDirFn: (key: Str) => Str,
+): ReverseDep[] {
+	const results: ReverseDep[] = [];
+	/** Track unique consumer components to avoid duplicates from multi-file dirs. */
+	const seen: Set<Str> = new Set();
+
+	for (const [key, source] of Object.entries(allSources)) {
+		const dir: Str = extractDirFn(key);
+		// Skip the target component itself and already-processed dirs
+		if (!dir || dir === targetComponent || seen.has(dir)) continue;
+
+		const deps: DepTree = extractDeps(source);
+		for (const dep of deps.internal) {
+			if (dep.component === targetComponent && !seen.has(dir)) {
+				seen.add(dir);
+				results.push({
+					component: dir,
+					names: dep.names,
+					kind: dep.kind,
+				});
+			}
+		}
+	}
+
+	return results.toSorted((a: ReverseDep, b: ReverseDep): number =>
+		a.component.localeCompare(b.component),
+	);
 }

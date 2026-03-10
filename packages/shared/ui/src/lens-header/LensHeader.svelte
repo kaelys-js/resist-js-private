@@ -26,6 +26,10 @@ export const LensHeaderPropsSchema = v.strictObject({
 	searchItems: v.optional(v.array(SearchItemSchema)),
 	/** Callback fired when a search item is selected. */
 	onSearchSelect: v.optional(v.custom<(item: SearchItem) => void>((val: unknown): boolean => typeof val === 'function')),
+	/** Previous component name for sequential navigation (kebab-case). */
+	prevComponent: v.optional(v.nullable(StrSchema)),
+	/** Next component name for sequential navigation (kebab-case). */
+	nextComponent: v.optional(v.nullable(StrSchema)),
 });
 /** Props for the LensHeader component. */
 export type LensHeaderProps = v.InferOutput<typeof LensHeaderPropsSchema>;
@@ -57,6 +61,8 @@ import BookOpen from '@lucide/svelte/icons/book-open';
 import FileCode from '@lucide/svelte/icons/file-code';
 import ShieldAlert from '@lucide/svelte/icons/shield-alert';
 import GitFork from '@lucide/svelte/icons/git-fork';
+import ChevronLeft from '@lucide/svelte/icons/chevron-left';
+import ChevronRight from '@lucide/svelte/icons/chevron-right';
 
 const allProps: LensHeaderProps = $props();
 const validated: LensHeaderProps = $derived.by(() => {
@@ -139,10 +145,11 @@ function handleSelect(item: SearchItem): Void {
 		<ComponentIcon class="size-6 text-primary" />
 	</div>
 	<div class="min-w-0 flex-1">
-		<div class="flex items-baseline gap-4">
-			<h1 class="text-3xl font-bold tracking-tight">{toTitle(validated.name)}</h1>
+		<div class="flex items-center gap-4">
+			<div class="flex items-baseline gap-4">
+				<h1 class="text-3xl font-bold tracking-tight">{toTitle(validated.name)}</h1>
 
-			<div class="flex items-center gap-1">
+				<div class="flex items-center gap-1">
 				<!-- Search icon -> Popover -> Command search -->
 				{#if searchItems.length > 0}
 					<Popover.Root bind:open={searchOpen}>
@@ -265,6 +272,57 @@ function handleSelect(item: SearchItem): Void {
 					{/if}
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
+				</div>
+			</div>
+
+			<!-- Previous / Next component navigation -->
+			<div class="ml-auto flex items-center gap-1">
+				{#if validated.prevComponent}
+					<Tooltip.Root delayDuration={300}>
+						<Tooltip.Trigger>
+							{#snippet child({ props: tooltipProps })}
+								<a
+									href="/components/{validated.prevComponent}"
+									class="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+									{...tooltipProps}
+								>
+									<ChevronLeft class="size-4" />
+									<span class="sr-only">Previous: {toTitle(validated.prevComponent ?? '')}</span>
+								</a>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content side="bottom" sideOffset={4}>
+							{toTitle(validated.prevComponent ?? '')}
+						</Tooltip.Content>
+					</Tooltip.Root>
+				{:else}
+					<span class="inline-flex size-8 items-center justify-center text-muted-foreground/30">
+						<ChevronLeft class="size-4" />
+					</span>
+				{/if}
+				{#if validated.nextComponent}
+					<Tooltip.Root delayDuration={300}>
+						<Tooltip.Trigger>
+							{#snippet child({ props: tooltipProps })}
+								<a
+									href="/components/{validated.nextComponent}"
+									class="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+									{...tooltipProps}
+								>
+									<ChevronRight class="size-4" />
+									<span class="sr-only">Next: {toTitle(validated.nextComponent ?? '')}</span>
+								</a>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content side="bottom" sideOffset={4}>
+							{toTitle(validated.nextComponent ?? '')}
+						</Tooltip.Content>
+					</Tooltip.Root>
+				{:else}
+					<span class="inline-flex size-8 items-center justify-center text-muted-foreground/30">
+						<ChevronRight class="size-4" />
+					</span>
+				{/if}
 			</div>
 		</div>
 		{#if validated.description}
