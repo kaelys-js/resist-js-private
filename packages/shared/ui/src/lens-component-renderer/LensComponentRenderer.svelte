@@ -1697,6 +1697,7 @@ function isIconOption(option: Str): boolean {
 									</div>
 								</div>
 								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Label class="text-xs">Background Color</DropdownMenu.Label>
 									{#each filteredBgPresets as preset (preset.id)}
 										<DropdownMenu.Item onclick={() => setBackground(cardKey, preset.id)}>
 											<div class="flex items-center gap-2">
@@ -1738,6 +1739,7 @@ function isIconOption(option: Str): boolean {
 								Zoom
 							</DropdownMenu.SubTrigger>
 							<DropdownMenu.SubContent class="w-52">
+								<DropdownMenu.Label class="text-xs">Zoom Actions</DropdownMenu.Label>
 								<DropdownMenu.Item onclick={() => zoomIn(cardKey)} disabled={activeZoom >= ZOOM_MAX}>
 									<ZoomIn class="size-4" />
 									Zoom in
@@ -1751,6 +1753,7 @@ function isIconOption(option: Str): boolean {
 									Fit (100%)
 								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
+								<DropdownMenu.Label class="text-xs">Zoom Level</DropdownMenu.Label>
 								{#each ZOOM_PRESETS as preset (preset.value)}
 									<DropdownMenu.Item onclick={() => setZoom(cardKey, preset.value)}>
 										<Check class={cn('size-4', activeZoom !== preset.value && 'opacity-0')} />
@@ -1796,6 +1799,7 @@ function isIconOption(option: Str): boolean {
 									</div>
 								</div>
 								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Label class="text-xs">Outline Color</DropdownMenu.Label>
 									<DropdownMenu.Item onclick={() => setOutline(cardKey, 'none')}>
 										<Check class={cn('size-4 shrink-0', activeOutline !== 'none' && 'opacity-0')} />
 										None
@@ -1856,6 +1860,7 @@ function isIconOption(option: Str): boolean {
 									</div>
 								</div>
 								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Label class="text-xs">Grid Overlay</DropdownMenu.Label>
 									<DropdownMenu.Item onclick={() => setGrid(cardKey, 'none')}>
 										<Check class={cn('size-4 shrink-0', activeGrid !== 'none' && 'opacity-0')} />
 										None
@@ -1928,6 +1933,7 @@ function isIconOption(option: Str): boolean {
 									</div>
 								</div>
 								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Label class="text-xs">Orientation</DropdownMenu.Label>
 									<DropdownMenu.Item onclick={() => setOrientation(cardKey, 'default')}>
 										<Check class={cn('size-4 shrink-0', activeOrientation !== 'default' && 'opacity-0')} />
 										Default (none)
@@ -1990,6 +1996,7 @@ function isIconOption(option: Str): boolean {
 									</div>
 								</div>
 								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Label class="text-xs">Color Mode</DropdownMenu.Label>
 									{#each filteredModePresets as preset (preset.id)}
 										<DropdownMenu.Item onclick={() => setCardMode(cardKey, preset.id)}>
 											<Check class={cn('size-4 shrink-0', activeMode !== preset.id && 'opacity-0')} />
@@ -2033,6 +2040,7 @@ function isIconOption(option: Str): boolean {
 									</div>
 								</div>
 								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Label class="text-xs">Theme</DropdownMenu.Label>
 									{#each filteredThemePresets as preset (preset.id)}
 										<DropdownMenu.Item onclick={() => setCardTheme(cardKey, preset.id)}>
 											<div class="flex items-center gap-2">
@@ -2084,7 +2092,7 @@ function isIconOption(option: Str): boolean {
 								</div>
 								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
 									{#each filteredMediaPrefGroups as group (group.pref)}
-										<DropdownMenu.Label>{group.label}</DropdownMenu.Label>
+										<DropdownMenu.Label class="text-xs">{group.label}</DropdownMenu.Label>
 										{#each group.options as option (option.value)}
 											<DropdownMenu.Item onclick={() => setMediaPref(cardKey, group.pref, option.value)}>
 												<Check class={cn('size-4 shrink-0', getMediaPref(cardKey, group.pref) !== option.value && 'opacity-0')} />
@@ -2131,6 +2139,7 @@ function isIconOption(option: Str): boolean {
 									</div>
 								</div>
 								<div class="flex max-h-72 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Label class="text-xs">Throttling</DropdownMenu.Label>
 									<DropdownMenu.Item onclick={() => setNetworkSim(cardKey, 'none')}>
 										<Check class={cn('size-4 shrink-0', (cardNetworkSim[cardKey] ?? 'none') !== 'none' && 'opacity-0')} />
 										No throttling
@@ -2177,7 +2186,7 @@ function isIconOption(option: Str): boolean {
 									{/if}
 									{#each filteredNetworkCategories as category (category)}
 										<DropdownMenu.Separator />
-										<DropdownMenu.Label>{category}</DropdownMenu.Label>
+										<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
 										{#each filteredNetworkPresets.filter((p) => p.category === category) as preset (preset.id)}
 											<DropdownMenu.Item onclick={() => setNetworkSim(cardKey, preset.id)}>
 												<div class="flex items-center gap-2">
@@ -2232,6 +2241,7 @@ function isIconOption(option: Str): boolean {
 									</div>
 								</div>
 								<div class="flex max-h-72 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Label class="text-xs">Size</DropdownMenu.Label>
 									<DropdownMenu.Item onclick={() => setViewport(cardKey, 'auto')}>
 										<Check class={cn('size-4 shrink-0', (cardViewports[cardKey] ?? 'auto') !== 'auto' && 'opacity-0')} />
 										Auto (full width)
@@ -2281,7 +2291,7 @@ function isIconOption(option: Str): boolean {
 									{/if}
 									{#each filteredViewportCategories as category (category)}
 										<DropdownMenu.Separator />
-										<DropdownMenu.Label>{category}</DropdownMenu.Label>
+										<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
 										{#each filteredViewportPresets.filter((p) => p.category === category) as preset (preset.id)}
 											<DropdownMenu.Item onclick={() => setViewport(cardKey, preset.id)}>
 												<div class="flex items-center gap-2">
@@ -2332,7 +2342,7 @@ function isIconOption(option: Str): boolean {
 								</div>
 								<div class="flex max-h-60 flex-col overflow-y-auto" use:lockHeight>
 									{#if filteredColorItems.length > 0}
-										<DropdownMenu.Label>Color Vision</DropdownMenu.Label>
+										<DropdownMenu.Label class="text-xs">Color Vision</DropdownMenu.Label>
 										{#each filteredColorItems as item (item.id)}
 											<DropdownMenu.Item onclick={() => toggleSimulation(cardKey, item.id)}>
 												<Check class={cn('size-4', activeSim !== item.id && 'opacity-0')} />
@@ -2344,7 +2354,7 @@ function isIconOption(option: Str): boolean {
 										{#if filteredColorItems.length > 0}
 											<DropdownMenu.Separator />
 										{/if}
-										<DropdownMenu.Label>Vision Impairments</DropdownMenu.Label>
+										<DropdownMenu.Label class="text-xs">Vision Impairments</DropdownMenu.Label>
 										{#each filteredVisionItems as item (item.id)}
 											<DropdownMenu.Item onclick={() => toggleSimulation(cardKey, item.id)}>
 												<Check class={cn('size-4', activeSim !== item.id && 'opacity-0')} />
