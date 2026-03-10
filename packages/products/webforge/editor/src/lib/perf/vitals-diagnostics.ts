@@ -169,6 +169,12 @@ type LongTaskEntry = PerformanceEntry & {
 // Observer Data Collection
 // =============================================================================
 
+/** Collected LCP entries from PerformanceObserver. */
+let lcpEntries: LCPEntry[] = [];
+
+/** Collected layout shift entries from PerformanceObserver. */
+let layoutShiftEntries: LayoutShiftEntry[] = [];
+
 /** Collected long task entries from PerformanceObserver. */
 let longTasks: LongTaskEntry[] = [];
 
@@ -197,6 +203,30 @@ export function setupDiagnosticObservers(): Void {
 	if (observersActive) return;
 	if (typeof PerformanceObserver === 'undefined') return;
 	observersActive = true;
+
+	// LCP observer — collects largest-contentful-paint entries (deprecated via getEntriesByType)
+	try {
+		const lcpObserver: PerformanceObserver = new PerformanceObserver((list) => {
+			for (const entry of list.getEntries()) {
+				lcpEntries.push(entry as LCPEntry);
+			}
+		});
+		lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+	} catch {
+		// LCP API not supported in this browser — diagnostics will be partial
+	}
+
+	// Layout shift observer — collects layout-shift entries (deprecated via getEntriesByType)
+	try {
+		const clsObserver: PerformanceObserver = new PerformanceObserver((list) => {
+			for (const entry of list.getEntries()) {
+				layoutShiftEntries.push(entry as LayoutShiftEntry);
+			}
+		});
+		clsObserver.observe({ type: 'layout-shift', buffered: true });
+	} catch {
+		// Layout Shift API not supported in this browser — diagnostics will be partial
+	}
 
 	// Long task observer — collects main-thread blocking tasks > 50ms
 	try {
@@ -232,9 +262,31 @@ export function setupDiagnosticObservers(): Void {
  * Intended for test isolation.
  */
 export function resetDiagnostics(): Void {
+	lcpEntries = [];
+	layoutShiftEntries = [];
 	longTasks = [];
 	eventTimings = [];
 	observersActive = false;
+}
+
+/**
+ * Injects mock LCP entries for testing. Test-only — not part of the public API.
+ *
+ * @param entries - Mock LCP entries to inject
+ */
+export function _injectLCPEntries(entries: unknown[]): Void {
+	// Test helper — cast from unknown is safe because only test mocks are passed
+	lcpEntries = entries as LCPEntry[];
+}
+
+/**
+ * Injects mock layout shift entries for testing. Test-only — not part of the public API.
+ *
+ * @param entries - Mock layout shift entries to inject
+ */
+export function _injectLayoutShiftEntries(entries: unknown[]): Void {
+	// Test helper — cast from unknown is safe because only test mocks are passed
+	layoutShiftEntries = entries as LayoutShiftEntry[];
 }
 
 // =============================================================================
@@ -300,11 +352,10 @@ function diagnoseLCP(): DiagnosticFinding[] {
 	const findings: DiagnosticFinding[] = [];
 
 	try {
-		const entries: PerformanceEntryList = performance.getEntriesByType('largest-contentful-paint');
-		if (entries.length === 0) return findings;
+		if (lcpEntries.length === 0) return findings;
 
-		// Cast needed: PerformanceEntry → LCPEntry (extended type not in TS DOM lib)
-		const lcp: LCPEntry = entries.at(-1) as LCPEntry;
+		// Use the latest LCP entry from the observer
+		const lcp: LCPEntry = lcpEntries.at(-1) as LCPEntry;
 
 		// Identify the LCP element
 		if (lcp.element) {
@@ -352,10 +403,9 @@ function diagnoseCLS(): DiagnosticFinding[] {
 	const findings: DiagnosticFinding[] = [];
 
 	try {
-		const entries: PerformanceEntryList = performance.getEntriesByType('layout-shift');
-		if (entries.length === 0) return findings;
+		if (layoutShiftEntries.length === 0) return findings;
 
-		const shifts: LayoutShiftEntry[] = entries as LayoutShiftEntry[];
+		const shifts: LayoutShiftEntry[] = layoutShiftEntries;
 		const unexpectedShifts: LayoutShiftEntry[] = shifts.filter((s) => !s.hadRecentInput);
 
 		findings.push({

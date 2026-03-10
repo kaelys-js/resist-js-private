@@ -24,12 +24,15 @@ import LensSource from '@/ui/lens-source/LensSource.svelte';
 import LensDependencyTree from '@/ui/lens-dependency-tree/LensDependencyTree.svelte';
 import PropsTable from '@/ui/lens-props-table/PropsTable.svelte';
 import LensComponentRenderer from '@/ui/lens-component-renderer/LensComponentRenderer.svelte';
+import CodeBlock from '@/ui/code-block/CodeBlock.svelte';
 import TableProperties from '@lucide/svelte/icons/table-properties';
 import ComponentIcon from '@lucide/svelte/icons/component';
 import ShieldAlert from '@lucide/svelte/icons/shield-alert';
 import Layers from '@lucide/svelte/icons/layers';
 import BookOpen from '@lucide/svelte/icons/book-open';
 import GitFork from '@lucide/svelte/icons/git-fork';
+import SearchX from '@lucide/svelte/icons/search-x';
+import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 
 /* ------------------------------------------------------------------ */
 /*  Globs                                                             */
@@ -438,9 +441,11 @@ function handleSearchSelect(item: SearchItem): Void {
 </script>
 
 <div class="w-full">
-	<div class="sticky top-(--header-height) z-10 border-b bg-background px-8 pb-4 pt-10">
-		<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} {hasDeps} searchItems={loading || loadError ? [] : searchItems} onSearchSelect={handleSearchSelect} {prevComponent} {nextComponent} />
-	</div>
+	{#if !loadError}
+		<div class="sticky top-(--header-height) z-10 border-b bg-background px-8 pb-4 pt-10">
+			<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} {hasDeps} searchItems={loading || loadError ? [] : searchItems} onSearchSelect={handleSearchSelect} {prevComponent} {nextComponent} />
+		</div>
+	{/if}
 
 	<div class="px-8 py-8">
 	<svelte:boundary>
@@ -451,7 +456,15 @@ function handleSearchSelect(item: SearchItem): Void {
 			></div>
 		</div>
 	{:else if loadError}
-		<LensError title={loadError} description="Check that the component exists and has a valid source file." />
+		<div class="flex flex-col items-center justify-center py-20 text-center">
+			<SearchX class="mb-4 size-12 text-muted-foreground/30" strokeWidth={1.5} />
+			<h2 class="text-lg font-semibold text-muted-foreground">Component not found</h2>
+			<p class="mt-1 max-w-sm text-sm text-muted-foreground/70">There is no component named "{name}". Check the URL or use search to find what you're looking for.</p>
+			<a href="/components" class="mt-6 inline-flex items-center gap-2 rounded-md border bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+				<ArrowLeft class="size-4" />
+				Back to gallery
+			</a>
+		</div>
 	{:else}
 		<div class="space-y-10">
 			<!-- ═══ Props ═══ -->
@@ -503,7 +516,7 @@ function handleSearchSelect(item: SearchItem): Void {
 						{/each}
 					</div>
 				{:else}
-					<LensEmpty title="No renderable variants" description="This component has no detected variant props or TV definitions." />
+					<LensEmpty title="No variants detected" description="Add a tv() call in the component's <script module> to auto-generate variant cards." />
 				{/if}
 			</section>
 
@@ -529,7 +542,7 @@ function handleSearchSelect(item: SearchItem): Void {
 						{/each}
 					</div>
 				{:else}
-					<LensEmpty title="No hand-written examples" description="Add examples to this component's examples/ directory." />
+					<LensEmpty title="No examples" description="Create a lens.ts and examples/ directory in this component's folder to add live examples." />
 				{/if}
 			</section>
 
@@ -548,7 +561,12 @@ function handleSearchSelect(item: SearchItem): Void {
 		</div>
 	{/if}
 	{#snippet failed(error)}
-		<LensError title="Page render error" description={error instanceof Error ? error.message : JSON.stringify(error)} />
+		<div class="overflow-hidden rounded-lg border border-dashed">
+			<LensError title="Page render error" description={error instanceof Error ? error.message : String(error)} class="rounded-none border-0 py-4" />
+			<div class="max-h-64 overflow-auto border-t bg-muted/20 text-xs">
+				<CodeBlock code={error instanceof Error ? JSON.stringify({ name: error.name, message: error.message, stack: error.stack }, null, 2) : JSON.stringify(error, null, 2)} lang="json" />
+			</div>
+		</div>
 	{/snippet}
 	</svelte:boundary>
 	</div>
