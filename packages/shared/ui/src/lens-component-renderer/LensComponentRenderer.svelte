@@ -70,6 +70,8 @@ import ExternalLink from '@lucide/svelte/icons/external-link';
 import Eye from '@lucide/svelte/icons/eye';
 import Grid3x3 from '@lucide/svelte/icons/grid-3x3';
 import Maximize from '@lucide/svelte/icons/maximize';
+import Maximize2 from '@lucide/svelte/icons/maximize-2';
+import Minimize2 from '@lucide/svelte/icons/minimize-2';
 import Monitor from '@lucide/svelte/icons/monitor';
 import Moon from '@lucide/svelte/icons/moon';
 import Paintbrush from '@lucide/svelte/icons/paintbrush';
@@ -179,6 +181,29 @@ let cardCustomNetwork: Record<Str, { delay: Num; label: Str }> = $state({});
 
 /** Per-card measured visual height of the inner content (accounts for zoom + rotation transforms). */
 let cardContentHeights: Record<Str, Num> = $state({});
+
+/** Per-card fullscreen state keyed by card identifier. */
+let cardFullscreen: Record<Str, Bool> = $state({});
+
+/**
+ * Toggle fullscreen mode for a specific card.
+ *
+ * @param key - Card identifier
+ */
+function toggleFullscreen(key: Str): Void {
+	cardFullscreen[key] = !cardFullscreen[key];
+}
+
+/**
+ * Exit fullscreen for any card that's currently fullscreen (ESC handler).
+ */
+function exitFullscreen(): Void {
+	for (const key of Object.keys(cardFullscreen)) {
+		if (cardFullscreen[key]) {
+			cardFullscreen[key] = false;
+		}
+	}
+}
 
 /** DOM references to card preview areas for export. */
 let cardPreviewRefs: Record<Str, HTMLDivElement | undefined> = $state({});
@@ -1723,6 +1748,8 @@ function isIconOption(option: Str): boolean {
 }
 </script>
 
+<svelte:window onkeydown={(e) => { if (e.key === 'Escape') exitFullscreen(); }} />
+
 {#snippet toolbarButton(Icon: Component, tooltipText: Str, onclick: () => void, disabled: Bool)}
 	<Tooltip.Provider>
 		<Tooltip.Root delayDuration={300}>
@@ -1759,7 +1786,11 @@ function isIconOption(option: Str): boolean {
 	{@const activeMode: 'auto' | 'light' | 'dark' = (cardModes[cardKey] as 'auto' | 'light' | 'dark' | undefined) ?? 'auto'}
 	{@const activeTheme: Str = cardThemes[cardKey] ?? ''}
 	{@const activeSettings = getActiveSettings(cardKey)}
-	<div class="overflow-hidden rounded-md border bg-background">
+	{@const isFullscreen: Bool = Boolean(cardFullscreen[cardKey])}
+	{#if isFullscreen}
+		<div class="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm" role="presentation"></div>
+	{/if}
+	<div class={cn('overflow-hidden rounded-md border bg-background', isFullscreen && 'fixed inset-4 z-50 flex flex-col')}>
 		<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-2">
 			<div class="flex items-center gap-2">
 				<code class="text-sm text-muted-foreground">{cardLabel}</code>
@@ -1797,6 +1828,7 @@ function isIconOption(option: Str): boolean {
 				{@render toolbarButton(ZoomOut, 'Zoom out', () => zoomOut(cardKey), activeZoom <= ZOOM_MIN)}
 				{@render toolbarButton(ZoomIn, 'Zoom in', () => zoomIn(cardKey), activeZoom >= ZOOM_MAX)}
 				{@render toolbarButton(Maximize, 'Fit (100%)', () => zoomFit(cardKey), activeZoom === 1)}
+				{@render toolbarButton(isFullscreen ? Minimize2 : Maximize2, isFullscreen ? 'Exit fullscreen' : 'Fullscreen', () => toggleFullscreen(cardKey), false)}
 				{#if tagName || codeText}
 					<Tooltip.Provider>
 						<Tooltip.Root delayDuration={300}>
@@ -2596,6 +2628,7 @@ function isIconOption(option: Str): boolean {
 			bind:this={cardPreviewRefs[cardKey]}
 			class={cn(
 				'relative flex w-full items-center overflow-auto p-4',
+				isFullscreen && 'flex-1',
 			!hasViewport(cardKey) && 'justify-center',
 				activeMode === 'dark' && 'dark bg-background text-foreground',
 				activeMode === 'light' && 'lens-force-light bg-background text-foreground',
