@@ -230,6 +230,7 @@ const propsWithDefaultsCount: Num = $derived(
 /* ------------------------------------------------------------------ */
 
 /** Collapsible section open states for the stats popover. */
+let budgetExpanded: Record<Str, Bool> = $state({});
 let statsReportOpen: Bool = $state(true);
 let statsVitalsOpen: Bool = $state(true);
 let statsDomOpen: Bool = $state(true);
@@ -2213,30 +2214,146 @@ function isIconOption(option: Str): boolean {
 								<p class="mb-1 mt-0.5 text-[10px] text-muted-foreground">Performance and accessibility budget metrics. Hover for details.</p>
 								<div class="space-y-0 divide-y text-xs">
 									{#each stats.budgets as budget (budget.label)}
-										<Tooltip.Provider>
-											<Tooltip.Root delayDuration={200}>
-												<Tooltip.Trigger>
-													{#snippet child({ props: tipProps })}
-														<div
-															{...tipProps}
-															class="flex cursor-help items-center justify-between px-3 py-1.5 transition-colors hover:bg-muted/50"
-														>
-															<div class="flex items-center gap-2">
-																<span class={cn('text-base leading-none', budgetColor(budget.level))}>●</span>
-																<span class="text-muted-foreground">{budget.label}</span>
+										{@const hasDetails = budget.level !== 'green' && (
+											budget.label === 'Console Errors' && stats.consoleMessages.length > 0
+											|| budget.label === 'Unlabeled Interactive' && stats.a11y.unlabeled.length > 0
+											|| budget.label === 'Focus Order' && stats.a11y.focusOrderIssues.length > 0
+											|| budget.label === 'Contrast' && stats.a11y.contrastIssues.length > 0
+											|| budget.label === 'Images Alt' && stats.a11y.imagesWithoutAlt > 0
+											|| budget.label === 'ARIA Usage' && stats.a11y.ariaIssues.length > 0
+											|| budget.label === 'SVG Labels' && stats.a11y.svgsWithoutLabel > 0
+											|| budget.label === 'Motion Safety'
+											|| budget.label === 'A11y Labels' && stats.a11y.unlabeled.length > 0
+											|| budget.label === 'Headings' && stats.a11y.headings.length > 0
+										)}
+										<div>
+											<Tooltip.Provider>
+												<Tooltip.Root delayDuration={200}>
+													<Tooltip.Trigger>
+														{#snippet child({ props: tipProps })}
+															<div
+																{...tipProps}
+																class={cn(
+																	'flex items-center justify-between px-3 py-1.5 transition-colors hover:bg-muted/50',
+																	hasDetails ? 'cursor-pointer' : 'cursor-help',
+																)}
+																role={hasDetails ? 'button' : undefined}
+																tabindex={hasDetails ? 0 : undefined}
+																onclick={hasDetails ? ((): Void => { budgetExpanded[budget.label] = !budgetExpanded[budget.label]; }) : undefined}
+																onkeydown={hasDetails ? ((e: KeyboardEvent): Void => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); budgetExpanded[budget.label] = !budgetExpanded[budget.label]; } }) : undefined}
+															>
+																<div class="flex items-center gap-2">
+																	{#if hasDetails}
+																		<svelte:component this={budgetExpanded[budget.label] ? ChevronDown : ChevronRight} class="size-2.5 text-muted-foreground/60" />
+																	{/if}
+																	<span class={cn('text-base leading-none', budgetColor(budget.level))}>●</span>
+																	<span class="text-muted-foreground">{budget.label}</span>
+																</div>
+																<span class="font-mono font-medium">{budget.value}</span>
 															</div>
-															<span class="font-mono font-medium">{budget.value}</span>
+														{/snippet}
+													</Tooltip.Trigger>
+													<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+														<div class="space-y-1 px-3 py-2">
+															<p class="text-xs text-primary-foreground">{budget.description}</p>
+															<p class="font-mono text-[10px] text-primary-foreground/70">{budget.thresholds}</p>
 														</div>
-													{/snippet}
-												</Tooltip.Trigger>
-												<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
-													<div class="space-y-1 px-3 py-2">
-														<p class="text-xs text-primary-foreground">{budget.description}</p>
-														<p class="font-mono text-[10px] text-primary-foreground/70">{budget.thresholds}</p>
-													</div>
-												</Tooltip.Content>
-											</Tooltip.Root>
-										</Tooltip.Provider>
+													</Tooltip.Content>
+												</Tooltip.Root>
+											</Tooltip.Provider>
+
+											<!-- Expandable detail panel -->
+											{#if hasDetails && budgetExpanded[budget.label]}
+												<div class="border-t border-dashed bg-muted/20 px-4 py-1.5 text-[10px]">
+													{#if budget.label === 'Console Errors'}
+														{#each stats.consoleMessages.slice(0, 5) as msg (msg.message)}
+															<div class="flex items-start gap-1.5 truncate">
+																<span class={msg.level === 'error' ? 'text-red-500' : 'text-amber-500'}>
+																	{msg.level === 'error' ? '✕' : '⚠'}
+																</span>
+																<span class="truncate font-mono text-muted-foreground">{msg.message}</span>
+															</div>
+														{/each}
+														{#if stats.consoleMessages.length > 5}
+															<span class="text-muted-foreground/50">…and {stats.consoleMessages.length - 5} more</span>
+														{/if}
+
+													{:else if budget.label === 'Unlabeled Interactive' || budget.label === 'A11y Labels'}
+														{#each stats.a11y.unlabeled.slice(0, 5) as el (el.tag + el.classes)}
+															<div class="truncate font-mono text-red-400">
+																&lt;{el.tag}{el.classes ? ` class="${el.classes}"` : ''}&gt;
+																{#if el.parentContext}
+																	<span class="text-red-400/60"> in {el.parentContext}</span>
+																{/if}
+															</div>
+														{/each}
+														{#if stats.a11y.unlabeled.length > 5}
+															<span class="text-muted-foreground/50">…and {stats.a11y.unlabeled.length - 5} more</span>
+														{/if}
+
+													{:else if budget.label === 'Focus Order'}
+														{#each stats.a11y.focusOrderIssues.slice(0, 5) as issue (issue.tag + issue.tabindex)}
+															<div class="truncate font-mono text-red-400">
+																&lt;{issue.tag} tabindex="{issue.tabindex}"&gt; {issue.text}
+															</div>
+														{/each}
+														{#if stats.a11y.focusOrderIssues.length > 5}
+															<span class="text-muted-foreground/50">…and {stats.a11y.focusOrderIssues.length - 5} more</span>
+														{/if}
+
+													{:else if budget.label === 'Contrast'}
+														{#each stats.a11y.contrastIssues.slice(0, 5) as ci (ci.tag + ci.text)}
+															<div class="truncate font-mono text-amber-500">
+																&lt;{ci.tag}&gt; {ci.text} — {ci.ratio}:1 (need {ci.required}:1)
+															</div>
+														{/each}
+														{#if stats.a11y.contrastIssues.length > 5}
+															<span class="text-muted-foreground/50">…and {stats.a11y.contrastIssues.length - 5} more</span>
+														{/if}
+
+													{:else if budget.label === 'Images Alt'}
+														<div class="text-red-400">
+															{stats.a11y.imagesWithoutAlt} &lt;img&gt; element{stats.a11y.imagesWithoutAlt === 1 ? '' : 's'} missing alt attribute (WCAG 1.1.1)
+														</div>
+
+													{:else if budget.label === 'ARIA Usage'}
+														{#each stats.a11y.ariaIssues.slice(0, 5) as ai (ai.tag + ai.issue)}
+															<div class="truncate text-amber-500">
+																<span class="font-mono">&lt;{ai.tag}&gt;</span> {ai.issue}
+															</div>
+														{/each}
+														{#if stats.a11y.ariaIssues.length > 5}
+															<span class="text-muted-foreground/50">…and {stats.a11y.ariaIssues.length - 5} more</span>
+														{/if}
+
+													{:else if budget.label === 'SVG Labels'}
+														<div class="text-amber-500">
+															{stats.a11y.svgsWithoutLabel} &lt;svg&gt; element{stats.a11y.svgsWithoutLabel === 1 ? '' : 's'} missing aria-label, &lt;title&gt;, or role="presentation"
+														</div>
+
+													{:else if budget.label === 'Motion Safety'}
+														<div class="text-amber-500">
+															{stats.a11y.animatedElementCount} animated element{stats.a11y.animatedElementCount === 1 ? '' : 's'} — no prefers-reduced-motion override detected in stylesheets
+														</div>
+
+													{:else if budget.label === 'Headings'}
+														<div class="space-y-0">
+															{#each stats.a11y.headings.slice(0, 6) as heading (heading.text + heading.level)}
+																<div class="flex items-center gap-1" style="padding-left: {(heading.level - 1) * 8}px">
+																	<span class={cn('font-mono font-medium', stats.a11y.headingSkipsLevel ? 'text-amber-500' : 'text-muted-foreground')}>
+																		h{heading.level}
+																	</span>
+																	<span class="truncate text-muted-foreground">{heading.text}</span>
+																</div>
+															{/each}
+															{#if stats.a11y.headings.length > 6}
+																<span class="text-muted-foreground/50">…and {stats.a11y.headings.length - 6} more</span>
+															{/if}
+														</div>
+													{/if}
+												</div>
+											{/if}
+										</div>
 									{/each}
 								</div>
 								</div>{/if}
