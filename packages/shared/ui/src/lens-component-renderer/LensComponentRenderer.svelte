@@ -1,6 +1,6 @@
 <script module lang="ts">
 import * as v from 'valibot';
-import { StrSchema } from '@/schemas/common';
+import { StrSchema, BoolSchema } from '@/schemas/common';
 import { PropMetaSchema, VariantMetaSchema } from '../lens/types.js';
 import type { Component, Snippet } from 'svelte';
 
@@ -25,7 +25,7 @@ export const LensComponentRendererPropsSchema = v.strictObject({
 	/** Additional CSS classes for the root element. */
 	class: v.optional(StrSchema),
 	/** Suppress error logging for intentional boundary errors (e.g., Error Boundary demo section). */
-	silent: v.optional(v.boolean()),
+	silent: v.optional(BoolSchema),
 	/** Optional wrapper component providing required parent context (e.g. DropdownMenu.Root for Sub components). */
 	contextWrapper: v.optional(v.custom<Component>((val: unknown): boolean => typeof val === 'function')),
 });
@@ -58,10 +58,13 @@ import { log } from '@/utils/core/logger';
 import type { PropMeta, VariantMeta } from '../lens/types.js';
 import { buildBaseProps } from '../lens/extract-props.js';
 import LensError from '../lens-error/LensError.svelte';
+import LensStats from '../lens-stats/LensStats.svelte';
+import type { LensStatsData, BudgetLevel, MetricBudget } from '../lens-stats/types.js';
 import CopyButton from '../copy-button/CopyButton.svelte';
 import CodeBlock from '../code-block/CodeBlock.svelte';
 import ColorPicker from '../color-picker/ColorPicker.svelte';
 import { Slider } from '../slider/index.js';
+import Activity from '@lucide/svelte/icons/activity';
 import ChevronDown from '@lucide/svelte/icons/chevron-down';
 import Code from '@lucide/svelte/icons/code';
 import Check from '@lucide/svelte/icons/check';
@@ -103,6 +106,7 @@ import FileCode from '@lucide/svelte/icons/file-code';
 import Link from '@lucide/svelte/icons/link';
 import Globe from '@lucide/svelte/icons/globe';
 import * as DropdownMenu from '../dropdown-menu/index.js';
+import * as Popover from '../popover/index.js';
 import { exportPng, exportJpeg, exportSvg, exportWebp, copyImageToClipboard, copyHtml, copyDataUri, downloadHtml, downloadStandaloneHtml } from '../lens/export-utils.js';
 import * as Tooltip from '../tooltip/index.js';
 import { slide } from 'svelte/transition';
@@ -184,6 +188,36 @@ let cardContentHeights: Record<Str, Num> = $state({});
 
 /** Per-card fullscreen state keyed by card identifier. */
 let cardFullscreen: Record<Str, Bool> = $state({});
+
+/** Per-card performance statistics collected by LensStats wrapper. */
+let cardStats: Record<Str, LensStatsData> = $state({});
+
+/**
+ * Callback for LensStats to report collected statistics.
+ *
+ * @param key - Card identifier
+ * @param data - Collected stats data
+ */
+function handleStats(key: Str, data: LensStatsData): Void {
+	cardStats[key] = data;
+}
+
+/**
+ * Get the CSS color for a budget level traffic light dot.
+ *
+ * @param level - Budget level
+ * @returns Tailwind text color class
+ */
+function budgetColor(level: BudgetLevel): Str {
+	if (level === 'green') return 'text-emerald-500';
+	if (level === 'yellow') return 'text-amber-500';
+	return 'text-red-500';
+}
+
+/** Count of props with default values for prop coverage metric. */
+const propsWithDefaultsCount: Num = $derived(
+	propsMeta.filter((p: PropMeta): Bool => p.default !== '').length,
+);
 
 /**
  * Toggle fullscreen mode for a specific card.
@@ -1842,6 +1876,357 @@ function isIconOption(option: Str): boolean {
 				{@render toolbarButton(ZoomIn, 'Zoom in', () => zoomIn(cardKey), activeZoom >= ZOOM_MAX)}
 				{@render toolbarButton(Maximize, 'Fit (100%)', () => zoomFit(cardKey), activeZoom === 1)}
 				{@render toolbarButton(isFullscreen ? Minimize2 : Maximize2, isFullscreen ? 'Exit fullscreen' : 'Fullscreen', () => toggleFullscreen(cardKey), false)}
+				{#if cardStats[cardKey]}
+					{@const stats: LensStatsData = cardStats[cardKey]}
+					<Popover.Root>
+						<Popover.Trigger>
+							<button
+								type="button"
+								class={cn(
+									'inline-flex size-7 items-center justify-center rounded-md transition-colors hover:bg-muted',
+									budgetColor(stats.overallHealth),
+								)}
+								aria-label="Performance statistics"
+							>
+								<Activity class="size-3.5" aria-hidden="true" />
+							</button>
+						</Popover.Trigger>
+						<Popover.Content side="bottom" align="end" class="w-96 max-h-[28rem] overflow-y-auto p-0">
+							<!-- Header -->
+							<div class="border-b px-3 py-2">
+								<h4 class="text-xs font-semibold">Performance Statistics</h4>
+								<p class="text-[10px] text-muted-foreground">Measured at mount time. Hover metrics for details.</p>
+							</div>
+
+							<!-- Budget metrics with tooltip explanations -->
+							<div class="space-y-0 divide-y text-xs">
+								{#each stats.budgets as budget (budget.label)}
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div
+														{...tipProps}
+														class="flex cursor-help items-center justify-between px-3 py-1.5 transition-colors hover:bg-muted/50"
+													>
+														<div class="flex items-center gap-2">
+															<span class={cn('text-base leading-none', budgetColor(budget.level))}>●</span>
+															<span class="text-muted-foreground">{budget.label}</span>
+														</div>
+														<span class="font-mono font-medium">{budget.value}</span>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">{budget.description}</p>
+													<p class="font-mono text-[10px] text-primary-foreground/70">{budget.thresholds}</p>
+												</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+								{/each}
+							</div>
+
+							<!-- DOM section -->
+							<div class="border-t px-3 py-2">
+								<h4 class="mb-0.5 text-xs font-semibold">DOM Structure</h4>
+								<p class="mb-1.5 text-[10px] text-muted-foreground">Element count and nesting depth of the rendered component.</p>
+								<div class="grid grid-cols-3 gap-2 text-xs">
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="cursor-help">
+														<span class="text-muted-foreground">Nodes</span>
+														<div class="font-mono font-medium">{stats.nodeCount}</div>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="bottom" sideOffset={4}>
+												Total DOM elements inside the component
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="cursor-help">
+														<span class="text-muted-foreground">Depth</span>
+														<div class="font-mono font-medium">{stats.domDepth}</div>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="bottom" sideOffset={4}>
+												Maximum nesting depth of the DOM tree
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="cursor-help">
+														<span class="text-muted-foreground">Text</span>
+														<div class="font-mono font-medium">{stats.textNodeCount}</div>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="bottom" sideOffset={4}>
+												Number of text nodes (visible text content)
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+								</div>
+							</div>
+
+							<!-- Memory (Chrome only) -->
+							{#if stats.memoryDeltaBytes >= 0}
+								<div class="border-t px-3 py-2">
+									<h4 class="mb-0.5 text-xs font-semibold">Memory</h4>
+									<p class="mb-1 text-[10px] text-muted-foreground">JS heap size at time of measurement (Chrome only).</p>
+									<span class="font-mono text-xs font-medium">{(stats.memoryDeltaBytes / 1_048_576).toFixed(1)} MB</span>
+								</div>
+							{/if}
+
+							<!-- Accessibility section -->
+							<div class="border-t px-3 py-2">
+								<h4 class="mb-0.5 text-xs font-semibold">Accessibility</h4>
+								<p class="mb-1.5 text-[10px] text-muted-foreground">Interactive elements, labels, landmarks, and focus order.</p>
+								<div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="flex cursor-help justify-between">
+														<span class="text-muted-foreground">Focusable</span>
+														<span class="font-mono">{stats.a11y.focusableCount}</span>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={4}>
+												Elements reachable via Tab key (links, buttons, inputs)
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="flex cursor-help justify-between">
+														<span class="text-muted-foreground">Labeled</span>
+														<span class={cn('font-mono', stats.a11y.labeledCount < stats.a11y.focusableCount && 'text-amber-500')}>
+															{stats.a11y.labeledCount}/{stats.a11y.focusableCount}
+														</span>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={4}>
+												Elements with aria-label, aria-labelledby, title, or associated label
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+									<div class="flex justify-between">
+										<span class="text-muted-foreground">Buttons</span>
+										<span class="font-mono">{stats.a11y.buttonCount}</span>
+									</div>
+									<div class="flex justify-between">
+										<span class="text-muted-foreground">Links</span>
+										<span class="font-mono">{stats.a11y.linkCount}</span>
+									</div>
+									<div class="flex justify-between">
+										<span class="text-muted-foreground">Inputs</span>
+										<span class="font-mono">{stats.a11y.inputCount}</span>
+									</div>
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="flex cursor-help justify-between">
+														<span class="text-muted-foreground">Listeners</span>
+														<span class="font-mono">{stats.eventListenerCount}</span>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={4}>
+												Elements with inline event handlers (onclick, onkeydown, etc.)
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+								</div>
+
+								<!-- Roles -->
+								{#if stats.a11y.roles.length > 0}
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="mt-1.5 cursor-help">
+														<span class="text-[10px] text-muted-foreground">ARIA Roles: </span>
+														<span class="font-mono text-[10px]">{stats.a11y.roles.join(', ')}</span>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="bottom" sideOffset={4}>
+												Unique ARIA role attributes found in the component
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+								{/if}
+
+								<!-- Landmarks -->
+								{#if stats.a11y.landmarks.length > 0}
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="mt-1 cursor-help">
+														<span class="text-[10px] text-muted-foreground">Landmarks: </span>
+														<span class="font-mono text-[10px]">{stats.a11y.landmarks.join(', ')}</span>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="bottom" sideOffset={4}>
+												Landmark regions (main, nav, header, footer, aside) for screen reader navigation
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+								{/if}
+
+								<!-- Headings -->
+								{#if stats.a11y.headings.length > 0}
+									<div class="mt-1.5">
+										<Tooltip.Provider>
+											<Tooltip.Root delayDuration={200}>
+												<Tooltip.Trigger>
+													{#snippet child({ props: tipProps })}
+														<span {...tipProps} class="cursor-help text-[10px] font-medium text-muted-foreground">
+															Headings ({stats.a11y.headings.length})
+															{#if stats.a11y.headingSkipsLevel}
+																<span class="text-amber-500"> — skips levels</span>
+															{/if}
+														</span>
+													{/snippet}
+												</Tooltip.Trigger>
+												<Tooltip.Content side="bottom" sideOffset={4}>
+													Heading hierarchy should be sequential (h1 → h2 → h3). Skipping levels confuses screen readers.
+												</Tooltip.Content>
+											</Tooltip.Root>
+										</Tooltip.Provider>
+										<div class="mt-0.5 space-y-0">
+											{#each stats.a11y.headings.slice(0, 5) as heading (heading.text + heading.level)}
+												<div class="flex items-center gap-1 text-[10px]" style="padding-left: {(heading.level - 1) * 8}px">
+													<span class={cn('font-mono font-medium', stats.a11y.headingSkipsLevel ? 'text-amber-500' : 'text-muted-foreground')}>
+														h{heading.level}
+													</span>
+													<span class="truncate text-muted-foreground">{heading.text}</span>
+												</div>
+											{/each}
+										</div>
+									</div>
+								{/if}
+
+								<!-- Unlabeled elements -->
+								{#if stats.a11y.unlabeled.length > 0}
+									<div class="mt-1.5 rounded bg-red-500/10 px-2 py-1">
+										<span class="text-[10px] font-medium text-red-500">
+											{stats.a11y.unlabeled.length} unlabeled interactive element{stats.a11y.unlabeled.length === 1 ? '' : 's'}
+										</span>
+										{#each stats.a11y.unlabeled.slice(0, 3) as el (el.tag + el.classes)}
+											<div class="truncate font-mono text-[10px] text-red-400">
+												&lt;{el.tag}{el.classes ? ` class="${el.classes}"` : ''}&gt;
+												{#if el.parentContext}
+													<span class="text-red-400/60"> in {el.parentContext}</span>
+												{/if}
+											</div>
+										{/each}
+									</div>
+								{/if}
+
+								<!-- Focus order issues -->
+								{#if stats.a11y.focusOrderIssues.length > 0}
+									<div class="mt-1.5 rounded bg-red-500/10 px-2 py-1">
+										<span class="text-[10px] font-medium text-red-500">
+											{stats.a11y.focusOrderIssues.length} positive tabindex (anti-pattern)
+										</span>
+										{#each stats.a11y.focusOrderIssues.slice(0, 3) as issue (issue.tag + issue.tabindex)}
+											<div class="truncate font-mono text-[10px] text-red-400">
+												&lt;{issue.tag} tabindex="{issue.tabindex}"&gt; {issue.text}
+											</div>
+										{/each}
+									</div>
+								{/if}
+							</div>
+
+							<!-- Console messages -->
+							{#if stats.consoleMessages.length > 0}
+								<div class="border-t px-3 py-2">
+									<h4 class="mb-0.5 text-xs font-semibold">Console ({stats.consoleMessages.length})</h4>
+									<p class="mb-1 text-[10px] text-muted-foreground">Warnings and errors logged during component mount.</p>
+									<div class="max-h-20 space-y-0.5 overflow-auto">
+										{#each stats.consoleMessages.slice(0, 5) as msg (msg.message)}
+											<div class="flex items-start gap-1.5 text-[10px]">
+												<span class={msg.level === 'error' ? 'text-red-500' : 'text-amber-500'}>
+													{msg.level === 'error' ? '✕' : '⚠'}
+												</span>
+												<span class="truncate text-muted-foreground">{msg.message}</span>
+											</div>
+										{/each}
+										{#if stats.consoleMessages.length > 5}
+											<span class="text-[10px] text-muted-foreground/60">…and {stats.consoleMessages.length - 5} more</span>
+										{/if}
+									</div>
+								</div>
+							{/if}
+
+							<!-- Lifecycle flags -->
+							{#if stats.hasAsyncContent}
+								<div class="border-t px-3 py-1.5">
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<span {...tipProps} class="cursor-help text-[10px] text-muted-foreground">
+														⚡ Async content detected
+													</span>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="bottom" sideOffset={4}>
+												The DOM changed after initial mount — the component loads content asynchronously.
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+								</div>
+							{/if}
+
+							<!-- Prop coverage -->
+							<div class="border-t px-3 py-2">
+								<Tooltip.Provider>
+									<Tooltip.Root delayDuration={200}>
+										<Tooltip.Trigger>
+											{#snippet child({ props: tipProps })}
+												<h4 {...tipProps} class="mb-1 cursor-help text-xs font-semibold">Prop Coverage</h4>
+											{/snippet}
+										</Tooltip.Trigger>
+										<Tooltip.Content side="left" sideOffset={4}>
+											Ratio of props with default values. Higher coverage = more usable without configuration.
+										</Tooltip.Content>
+									</Tooltip.Root>
+								</Tooltip.Provider>
+								<div class="flex items-center gap-2 text-xs">
+									<div class="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+										<div
+											class="h-full rounded-full bg-emerald-500 transition-all"
+											style="width: {stats.propsTotal > 0 ? Math.round((stats.propsWithDefaults / stats.propsTotal) * 100) : 0}%"
+										></div>
+									</div>
+									<span class="font-mono text-muted-foreground">{stats.propsWithDefaults}/{stats.propsTotal}</span>
+								</div>
+							</div>
+						</Popover.Content>
+					</Popover.Root>
+				{/if}
 				{#if tagName || codeText}
 					<Tooltip.Provider>
 						<Tooltip.Root delayDuration={300}>
@@ -2756,6 +3141,7 @@ function isIconOption(option: Str): boolean {
 					class={cn(activeOutline !== 'none' && 'lens-outline', getMediaPrefClasses(cardKey))}
 					style={[getSimulationFilter(cardKey), getZoomStyle(cardKey), getOrientationStyle(cardKey), activeOutline !== 'none' ? `--lens-outline-color: ${getOutlineColor(cardKey)}` : ''].filter(Boolean).join('; ')}
 				>
+					<LensStats cardKey={cardKey} onstats={handleStats} propsTotal={propsMeta.length} propsWithDefaults={propsWithDefaultsCount}>
 					{#if children}
 						{@render children()}
 					{:else if ContextWrapper}
@@ -2801,6 +3187,7 @@ function isIconOption(option: Str): boolean {
 							{/if}
 						</Target>
 					{/if}
+					</LensStats>
 				</div>
 			</LensPortalScope>
 			{#if hasTunnelVision(cardKey)}

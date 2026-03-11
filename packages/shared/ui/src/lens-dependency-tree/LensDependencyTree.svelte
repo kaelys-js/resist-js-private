@@ -201,6 +201,63 @@ $effect(() => {
 	};
 });
 
+/** DOM reference to the graph canvas scroll container for drag panning. */
+let chainCanvasRef: HTMLDivElement | undefined = $state(undefined);
+
+/** Whether the user is currently drag-panning the graph canvas. */
+let isDragging: Bool = $state(false);
+
+/** Mouse X at drag start (client coords). */
+let dragStartX: Num = $state(0);
+
+/** Mouse Y at drag start (client coords). */
+let dragStartY: Num = $state(0);
+
+/** scrollLeft at drag start. */
+let scrollStartX: Num = $state(0);
+
+/** scrollTop at drag start. */
+let scrollStartY: Num = $state(0);
+
+/**
+ * Begin drag-panning on mousedown. Skips interactive elements (links, buttons).
+ *
+ * @param e - Mouse event
+ */
+function onCanvasPointerDown(e: MouseEvent): Void {
+	if (e.button !== 0) return;
+	const target: HTMLElement = e.target as HTMLElement;
+	// Skip drag when clicking interactive elements so node links/buttons still work
+	if (target.closest('a, button, [role="button"]')) return;
+	if (!chainCanvasRef) return;
+	isDragging = true;
+	dragStartX = e.clientX;
+	dragStartY = e.clientY;
+	scrollStartX = chainCanvasRef.scrollLeft;
+	scrollStartY = chainCanvasRef.scrollTop;
+	e.preventDefault();
+}
+
+/**
+ * Update scroll position during drag.
+ *
+ * @param e - Mouse event
+ */
+function onCanvasPointerMove(e: MouseEvent): Void {
+	if (!isDragging || !chainCanvasRef) return;
+	const dx: Num = e.clientX - dragStartX;
+	const dy: Num = e.clientY - dragStartY;
+	chainCanvasRef.scrollLeft = scrollStartX - dx;
+	chainCanvasRef.scrollTop = scrollStartY - dy;
+}
+
+/**
+ * End drag-panning.
+ */
+function onCanvasPointerUp(): Void {
+	isDragging = false;
+}
+
 /**
  * Copy an import path to the clipboard with visual feedback.
  *
@@ -855,8 +912,18 @@ async function handleChainExport(formatId: Str): Promise<void> {
 						</DropdownMenu.Root>
 					</div>
 				</div>
-				<!-- Graph canvas -->
-				<div class={cn('overflow-auto border-t bg-muted/20 p-4', chainFullscreen && 'flex-1')} style={chainFullscreen ? '' : 'max-height: 500px;'}>
+				<!-- Graph canvas (drag to pan) -->
+				<div
+					bind:this={chainCanvasRef}
+					class={cn('overflow-auto border-t bg-muted/20 p-4', chainFullscreen && 'flex-1', isDragging ? 'cursor-grabbing' : 'cursor-grab')}
+					style={chainFullscreen ? '' : 'max-height: 500px;'}
+					onmousedown={onCanvasPointerDown}
+					onmousemove={onCanvasPointerMove}
+					onmouseup={onCanvasPointerUp}
+					onmouseleave={onCanvasPointerUp}
+					role="application"
+					aria-label="Dependency chain graph — drag to pan"
+				>
 					<div
 						class="relative origin-top-left transition-transform"
 						style="width: {graphLayout.width}px; height: {graphLayout.height}px; min-width: 200px; zoom: {chainZoom};"
