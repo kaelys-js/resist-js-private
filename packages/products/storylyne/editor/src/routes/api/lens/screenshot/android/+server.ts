@@ -34,6 +34,7 @@ import { acquireEmulator, releaseEmulator } from '$lib/server/simulator/android-
 import { captureEmulatorScreenshot } from '$lib/server/simulator/android-screenshot';
 import { checkAndroidSdk } from '$lib/server/simulator/android-sdk';
 import { openUrlInEmulator, setupPortForward } from '$lib/server/simulator/android-navigate';
+import { findDeviceFrameByName, type DeviceFrame } from '$lib/server/simulator/device-frames';
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -161,6 +162,9 @@ export const GET: RequestHandler = async ({ url }) => {
         instance.serial,
       );
 
+      /* Look up a matching device frame bezel */
+      const deviceFrame: DeviceFrame | null = findDeviceFrameByName(avdName);
+
       /* Build response JSON */
       const responseBody: Record<Str, unknown> = {
         image: imageBase64,
@@ -176,6 +180,14 @@ export const GET: RequestHandler = async ({ url }) => {
           source: entry.source,
         })),
         performance: {},
+        ...(deviceFrame
+          ? {
+              deviceFrame: {
+                frameId: deviceFrame.framePath,
+                screenRegion: deviceFrame.screenRegion,
+              },
+            }
+          : {}),
       };
 
       return new Response(JSON.stringify(responseBody), {

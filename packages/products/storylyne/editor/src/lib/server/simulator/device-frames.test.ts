@@ -6,7 +6,7 @@
 
 import type { Str } from '@/schemas/common';
 import { describe, expect, it } from 'vitest';
-import { getDeviceFrame, listDeviceFrames } from './device-frames';
+import { findDeviceFrameByName, getDeviceFrame, listDeviceFrames } from './device-frames';
 
 describe('device-frames', () => {
   describe('listDeviceFrames', () => {
@@ -41,6 +41,31 @@ describe('device-frames', () => {
       expect(firstFrame).toBeDefined();
       const found = getDeviceFrame(firstFrame.id);
       expect(found).not.toBeNull();
+    });
+  });
+
+  describe('findDeviceFrameByName', () => {
+    it('finds frame by exact device name', () => {
+      const frame = findDeviceFrameByName('iPhone 16 Pro' as Str);
+      expect(frame).not.toBeNull();
+      expect(frame?.id).toBe('iphone-16-pro');
+    });
+
+    it('finds frame by case-insensitive name', () => {
+      const frame = findDeviceFrameByName('iphone 16 pro' as Str);
+      expect(frame).not.toBeNull();
+      expect(frame?.id).toBe('iphone-16-pro');
+    });
+
+    it('returns null for unknown device name', () => {
+      const frame = findDeviceFrameByName('Samsung Galaxy S99' as Str);
+      expect(frame).toBeNull();
+    });
+
+    it('finds Android device frame by name', () => {
+      const frame = findDeviceFrameByName('Pixel 9 Pro' as Str);
+      expect(frame).not.toBeNull();
+      expect(frame?.platform).toBe('android');
     });
   });
 });

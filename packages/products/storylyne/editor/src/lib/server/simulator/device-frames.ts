@@ -141,3 +141,24 @@ export function getDeviceFrame(frameId: Str): DeviceFrame | null {
   const entry: DeviceFrame | undefined = FRAMES.find((f: DeviceFrame): boolean => f.id === frameId);
   return entry ?? null;
 }
+
+/**
+ * Find a matching device frame by device name (case-insensitive substring).
+ *
+ * Useful for automatically matching a simulator device name (e.g. 'iPhone 16 Pro')
+ * to a registered frame without requiring the exact kebab-case frame ID.
+ *
+ * @param deviceName - Human-readable device name (e.g. 'iPhone 16 Pro Max')
+ * @returns Matching device frame or null
+ *
+ * @example
+ * const frame = findDeviceFrameByName('iPhone 16 Pro');
+ * // { id: 'iphone-16-pro', name: 'iPhone 16 Pro', ... }
+ */
+export function findDeviceFrameByName(deviceName: Str): DeviceFrame | null {
+  const lower: Str = (deviceName as string).toLowerCase() as Str;
+  const entry: DeviceFrame | undefined = FRAMES.find((f: DeviceFrame): boolean =>
+    (lower as string).includes((f.name as string).toLowerCase()),
+  );
+  return entry ?? null;
+}
