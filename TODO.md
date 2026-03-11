@@ -10,12 +10,24 @@ Several Issues (build-editor OR fix-bug if needed):
 ----
 
 Several Issues:
-- LensComponentRender (in general and the toolbar options, dropdown options)
-  - Think hard about what's missing and provide suggestions.
-  - I have thought of these but will defer for now: Measure/Inspect, Logging/State Changes/etc
+- LensComponentRenderer Real Browser
+  - For Local:
+    - Live view from playwright (basically display a cloned variant card below with a badge in the header for current browser/etc) that clones exact state/interactivity
+      - We could stream playwright/ios/android engines to a canvas? And pass clicks between over websocket or something?
+      - After that: Diff between variants
+    - Screenshot comparison/diff view — Side-by-side or overlay comparison between browser engines, with pixel diff highlighting
+    - Batch capture — Capture screenshots across multiple browsers/devices in one action
 
 Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
 
+- BrowserRender: Real Devices
+- LensComponentRenderer Performance Statistics: Are they missing INP?
+- The Sidebar/CommandSearch components don't render right contained to preview (use playwright mcp any you will see what i mean)
+- The "bundle size" route won't work outside dev like in cloudflare and what about the import globbing and that used for component listing/source reding/global search/etc?
+- Intelligent Automatic Examples Instead of examples/
+- Sidebar Component Entries:
+  - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the overall component?
+- Do the component conversions
 - Create Shared Components Following Existing Shared Components Supporting Lens System:
   - Dropdown Search Input
   - Dropdown Color Circle
@@ -27,23 +39,6 @@ Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
   - CopyIconButton (LensComponentRenderer Toolbar Copy, CopyImport, LensSource)
   - LensComponentRenderer Section Header With Icon
   - LensHeader Icon
-
-- The Sidebar/CommandSearch components don't render right contained to preview (use playwright mcp any you will see what i mean)
-- The "bundle size" route won't work outside dev like in cloudflare and what about the import globbing and that used for component listing/source reding/global search/etc?
-- Intelligent Automatic Examples Instead of examples/
-- LensComponentRenderer
-  - Measure/Inspect
-  - Logging/State Changes/etc
-  - Network Conditions (Real)
-  - Browser + Resolution + Device + Browser Version + Device Version (Real)
-- New Component Sections
-  - ** Need to consider: Global Search, Go to menu, ?
-  - Live Component Editing: LensComponentRenderer
-  - Design Token Viewer
-  - Changelog/Version History
-  - Custom Component Documentation
-- Sidebar Component Entries:
-  - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the overall component?
 - Fully localize
 
 * Shaded Workspace Components
