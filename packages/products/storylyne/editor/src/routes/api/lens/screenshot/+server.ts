@@ -5,12 +5,15 @@
  * browser engines (Chromium, Firefox, WebKit) with full device emulation.
  * Navigates a headless browser to the `/isolate/[name]` route, applies
  * all card styles and media emulation, takes a screenshot, and returns
- * the PNG buffer.
+ * JSON with base64 image, console logs, and performance timing.
  *
  * Features:
  * - 3 browser engines: Chromium (Chrome/Edge), Firefox, WebKit (Safari)
  * - 100+ device profiles with accurate viewport, scale, and user agent
  * - Media emulation: colorScheme, reducedMotion, forcedColors
+ * - Console log capture during page load
+ * - Performance timing (navigation, DOMContentLoaded, load, first paint)
+ * - Browser version reporting
  * - Persistent browser instances (~50ms context creation per request)
  * - Dev-only — returns 404 in production builds
  *
@@ -19,7 +22,7 @@
 
 import type { RequestHandler } from './$types';
 import type { Num, Str } from '@/schemas/common';
-import type { Browser, BrowserContext, BrowserType, Page } from 'playwright';
+import type { Browser, BrowserContext, BrowserType, ConsoleMessage, Page } from 'playwright';
 import { dev } from '$app/environment';
 
 /* ------------------------------------------------------------------ */
@@ -63,11 +66,28 @@ async function getOrLaunchBrowser(engine: Str): Promise<Browser> {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Display name helpers                                               */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Map engine IDs to human-readable display names.
+ *
+ * @param engine - Raw engine identifier
+ * @returns Capitalized display name
+ */
+function engineDisplayName(engine: Str): Str {
+  if (engine === 'firefox') return 'Firefox' as Str;
+  if (engine === 'webkit') return 'WebKit' as Str;
+  return 'Chromium' as Str;
+}
+
+/* ------------------------------------------------------------------ */
 /*  GET handler                                                        */
 /* ------------------------------------------------------------------ */
 
 /**
- * GET handler — renders a component in a real browser and returns a PNG screenshot.
+ * GET handler — renders a component in a real browser and returns JSON
+ * with base64 screenshot, console logs, and performance timing.
  *
  * Query params:
  * - `component` (required) — component directory name (e.g., 'button')
@@ -78,12 +98,13 @@ async function getOrLaunchBrowser(engine: Str): Promise<Browser> {
  * - `colorScheme` — 'dark' | 'light' (Playwright media emulation)
  * - `reducedMotion` — 'reduce' | 'no-preference'
  * - `forcedColors` — 'active' | 'none'
+ * - `networkThrottle` — delay in ms applied to every network request (e.g., '200' for 3G sim)
  * - `s` — base64 JSON card styles (pass-through to isolate route)
  * - `variant` + `option` — variant overrides (pass-through to isolate route)
  *
  * @param root0 - SvelteKit request event
  * @param root0.url - Request URL with query parameters
- * @returns PNG image buffer (200) or JSON error (400/404/500)
+ * @returns JSON with image, consoleLogs, performance, browserVersion (200) or JSON error (400/404/500)
  */
 export const GET: RequestHandler = async ({ url }) => {
   if (!dev) {
@@ -117,6 +138,7 @@ export const GET: RequestHandler = async ({ url }) => {
   const colorScheme: Str = (url.searchParams.get('colorScheme') ?? '') as Str;
   const reducedMotion: Str = (url.searchParams.get('reducedMotion') ?? '') as Str;
   const forcedColors: Str = (url.searchParams.get('forcedColors') ?? '') as Str;
+  const networkThrottle: Str = (url.searchParams.get('networkThrottle') ?? '') as Str;
 
   /* Pass-through params for isolate route */
   const cardStylesParam: Str = (url.searchParams.get('s') ?? '') as Str;
@@ -183,18 +205,44 @@ export const GET: RequestHandler = async ({ url }) => {
       contextOptions.forcedColors = forcedColors;
     }
 
-    /* ---- Launch browser, navigate, screenshot ---- */
+    /* ---- Launch browser, navigate, capture ---- */
 
     const browser: Browser = await getOrLaunchBrowser(engine);
     const context: BrowserContext = await browser.newContext(contextOptions);
 
-    let screenshotBuf: ArrayBuffer;
+    /** Collected console messages during page load. */
+    const consoleLogs: Array<{ level: Str; text: Str }> = [];
+
+    let imageBase64: Str;
+    let perfTiming: Record<Str, Num> = {};
+
     try {
       const page: Page = await context.newPage();
 
+      /* Collect console messages */
+      page.on('console', (msg: ConsoleMessage): void => {
+        consoleLogs.push({
+          level: msg.type() as Str,
+          text: msg.text() as Str,
+        });
+      });
+
+      /* Network throttling via route-level delay (works across all engines) */
+      if (networkThrottle) {
+        const delayMs: Num = Number(networkThrottle) as Num;
+        if (!Number.isNaN(delayMs) && delayMs > 0) {
+          await page.route('**/*', async (route) => {
+            await new Promise<void>((resolve) => {
+              setTimeout(resolve, delayMs);
+            });
+            await route.continue();
+          });
+        }
+      }
+
       await page.goto(isolateUrl.toString(), {
         waitUntil: 'networkidle',
-        timeout: 15_000,
+        timeout: networkThrottle ? 30_000 : 15_000,
       });
 
       /* Wait for the isolate page to signal component is rendered */
@@ -203,25 +251,59 @@ export const GET: RequestHandler = async ({ url }) => {
       /* Brief extra delay for CSS transitions to settle */
       await page.waitForTimeout(200);
 
+      /* Collect performance timing */
+      perfTiming = (await page.evaluate((): Record<string, number> => {
+        const nav: PerformanceNavigationTiming | undefined = performance.getEntriesByType(
+          'navigation',
+        )[0] as PerformanceNavigationTiming | undefined;
+        const paint: PerformanceEntry[] = performance.getEntriesByType('paint');
+        const fp: PerformanceEntry | undefined = paint.find(
+          (e: PerformanceEntry) => e.name === 'first-paint',
+        );
+        const fcp: PerformanceEntry | undefined = paint.find(
+          (e: PerformanceEntry) => e.name === 'first-contentful-paint',
+        );
+
+        const result: Record<string, number> = {};
+        if (nav) {
+          result.domContentLoaded = Math.round(nav.domContentLoadedEventEnd - nav.startTime);
+          result.load = Math.round(nav.loadEventEnd - nav.startTime);
+          result.domInteractive = Math.round(nav.domInteractive - nav.startTime);
+          result.responseEnd = Math.round(nav.responseEnd - nav.startTime);
+        }
+        if (fp) result.firstPaint = Math.round(fp.startTime);
+        if (fcp) result.firstContentfulPaint = Math.round(fcp.startTime);
+
+        return result;
+      })) as Record<Str, Num>;
+
       const rawBuf: Buffer = (await page.screenshot({
         type: 'png',
         fullPage: true,
       })) as Buffer;
-      // Buffer → ArrayBuffer slice for BodyInit compatibility (TS 5.7+)
-      screenshotBuf = rawBuf.buffer.slice(
-        rawBuf.byteOffset,
-        rawBuf.byteOffset + rawBuf.byteLength,
-      ) as ArrayBuffer;
+
+      imageBase64 = rawBuf.toString('base64') as Str;
     } finally {
       await context.close();
     }
 
-    return new Response(screenshotBuf, {
+    /* Build response JSON */
+    const browserVersion: Str = browser.version() as Str;
+
+    const responseBody: Record<Str, unknown> = {
+      image: imageBase64,
+      browser: engine,
+      browserDisplayName: engineDisplayName(engine),
+      browserVersion,
+      device: deviceName || 'custom',
+      consoleLogs,
+      performance: perfTiming,
+    };
+
+    return new Response(JSON.stringify(responseBody), {
       headers: {
-        'Content-Type': 'image/png',
+        'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
-        'X-Lens-Browser': engine,
-        'X-Lens-Device': deviceName || 'custom',
       },
     });
   } catch (error: unknown) {
