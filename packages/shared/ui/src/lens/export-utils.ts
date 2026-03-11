@@ -602,5 +602,57 @@ export function copyChainMarkdown(nodes: ChainExportNode[], componentName: Str):
   return clipboardCopy(lines.join('\n'));
 }
 
+/* ------------------------------------------------------------------ */
+/*  Standalone HTML (compiled Svelte)                                  */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Download a compiled, self-contained standalone HTML file for a Svelte component.
+ * Calls the server-side `/api/lens/compile-standalone` endpoint which runs
+ * the Svelte compiler + esbuild bundler + Tailwind CSS generator.
+ *
+ * The resulting HTML file is fully interactive — it contains the compiled
+ * component JS, Svelte runtime, and scoped Tailwind CSS all inlined.
+ *
+ * @param componentDir - Component directory name (e.g. 'button')
+ * @param props - Props to pass to the component
+ * @param children - Text content for children/slots
+ * @param darkMode - Whether dark mode is active
+ * @param theme - Active theme name
+ * @returns Whether the download succeeded
+ */
+export async function downloadStandaloneHtml(
+  componentDir: Str,
+  props?: Record<Str, unknown>,
+  children?: Str,
+  darkMode?: Bool,
+  theme?: Str,
+): Promise<Bool> {
+  try {
+    const response: Response = await fetch('/api/lens/compile-standalone', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        componentDir,
+        props: props ?? {},
+        children: children ?? '',
+        darkMode: darkMode ?? false,
+        theme: theme ?? '',
+      }),
+    });
+
+    if (!response.ok) {
+      return false as Bool;
+    }
+
+    const blob: Blob = await response.blob();
+    downloadBlob(blob, `${componentDir}-standalone.html`);
+    return true as Bool;
+  } catch {
+    /* Network/fetch error — standalone HTML compilation unavailable */
+    return false as Bool;
+  }
+}
+
 export { ExportFormatSchema, ExportOptionsSchema, ChainExportNodeSchema };
 export type { ExportFormat, ExportOptions, ChainExportNode };
