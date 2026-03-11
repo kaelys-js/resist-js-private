@@ -112,6 +112,9 @@ import ChevronRight from '@lucide/svelte/icons/chevron-right';
 import FileJson from '@lucide/svelte/icons/file-json';
 import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
 import CopyCheck from '@lucide/svelte/icons/copy-check';
+import Ruler from '@lucide/svelte/icons/ruler';
+import ScanLine from '@lucide/svelte/icons/scan-line';
+import MousePointerClick from '@lucide/svelte/icons/mouse-pointer-click';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 import * as Popover from '../popover/index.js';
 import { exportPng, exportJpeg, exportSvg, exportWebp, copyImageToClipboard, copyHtml, copyDataUri, downloadHtml, downloadStandaloneHtml } from '../lens/export-utils.js';
@@ -198,6 +201,45 @@ let cardTextDir: Record<Str, Str> = $state({});
 
 /** Per-card font size override keyed by card identifier (0 = default, else px value). */
 let cardFontSize: Record<Str, Num> = $state({});
+
+/** Per-card debug outline mode (Pesticide-style element-type outlines). */
+let cardDebugOutline: Record<Str, Bool> = $state({});
+
+/** Per-card measure mode (hover box model overlay). */
+let cardMeasureActive: Record<Str, Bool> = $state({});
+
+/** Per-card inspect mode (click element to see computed CSS). */
+let cardInspectActive: Record<Str, Bool> = $state({});
+
+/** Per-card inspected element data (computed styles + bounding rect). */
+let cardInspectedEl: Record<Str, {
+	/** Element tag name. */
+	tag: Str;
+	/** Element CSS classes. */
+	classes: Str;
+	/** Element id attribute. */
+	id: Str;
+	/** Bounding client rect dimensions. */
+	rect: { width: Num; height: Num; top: Num; left: Num };
+	/** Key computed CSS properties grouped by category. */
+	styles: Record<Str, Record<Str, Str>>;
+} | null> = $state({});
+
+/** Per-card measure overlay data (hovered element box model). */
+let cardMeasureData: Record<Str, {
+	/** Content box dimensions and position relative to preview container. */
+	content: { x: Num; y: Num; w: Num; h: Num };
+	/** Padding values in px. */
+	padding: { top: Num; right: Num; bottom: Num; left: Num };
+	/** Border values in px. */
+	border: { top: Num; right: Num; bottom: Num; left: Num };
+	/** Margin values in px. */
+	margin: { top: Num; right: Num; bottom: Num; left: Num };
+	/** Overall element dimensions. */
+	width: Num;
+	/** Overall element height. */
+	height: Num;
+} | null> = $state({});
 
 /** Per-card fullscreen state keyed by card identifier. */
 let cardFullscreen: Record<Str, Bool> = $state({});
@@ -1454,6 +1496,9 @@ function collectCardStyles(key: Str): Record<Str, Str> {
 	if (dir !== 'auto') s.dir = dir;
 	const fontSize: Num = cardFontSize[key] ?? 0;
 	if (fontSize > 0) s.fontSize = `${fontSize}px (${(fontSize / 16).toFixed(2)}x)`;
+	if (cardDebugOutline[key]) s.debugOutline = '1';
+	if (cardMeasureActive[key]) s.measure = '1';
+	if (cardInspectActive[key]) s.inspect = '1';
 	return s;
 }
 
@@ -1624,6 +1669,169 @@ function getFontSizeVars(key: Str): Str {
 	return TW_TEXT_VARS.map((v) => `${v.prop}: ${(v.rem * scale).toFixed(4)}rem`).join('; ');
 }
 
+/* ------------------------------------------------------------------ */
+/*  Debug Outline CSS (Pesticide-inspired)                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * CSS rules for debug outline mode — colored outlines per HTML element type.
+ * Inspired by Pesticide CSS debugger. Applied inside the preview container only.
+ */
+/**
+ * Build scoped debug outline CSS for a specific card's preview container.
+ * Uses `[data-lens-debug]` attribute selector to scope outlines to only that container.
+ *
+ * @param cardKey - Card key used as the data attribute value
+ * @returns Scoped CSS string
+ */
+function buildDebugOutlineCSS(cardKey: Str): Str {
+	const s: Str = `[data-lens-debug="${cardKey}"]`;
+	return [
+		`${s} article,${s} nav,${s} aside,${s} section,${s} header,${s} footer,${s} main{outline:1px solid rgba(59,130,246,0.6)!important}`,
+		`${s} h1,${s} h2,${s} h3,${s} h4,${s} h5,${s} h6{outline:1px solid rgba(99,102,241,0.6)!important}`,
+		`${s} div{outline:1px solid rgba(147,197,253,0.4)!important}`,
+		`${s} p,${s} hr,${s} pre,${s} blockquote{outline:1px solid rgba(96,165,250,0.5)!important}`,
+		`${s} ol,${s} ul,${s} li,${s} dl,${s} dt,${s} dd{outline:1px solid rgba(239,68,68,0.5)!important}`,
+		`${s} figure,${s} img,${s} iframe,${s} video,${s} audio,${s} canvas,${s} svg{outline:1px solid rgba(168,85,247,0.6)!important}`,
+		`${s} table,${s} thead,${s} tbody,${s} tfoot,${s} tr,${s} th,${s} td,${s} caption{outline:1px solid rgba(20,184,166,0.5)!important}`,
+		`${s} button,${s} input,${s} select,${s} textarea,${s} form,${s} fieldset,${s} label,${s} legend{outline:1px solid rgba(249,115,22,0.6)!important}`,
+		`${s} a{outline:1px solid rgba(236,72,153,0.5)!important}`,
+		`${s} em,${s} strong,${s} i,${s} b,${s} u,${s} s,${s} code,${s} kbd,${s} samp,${s} var,${s} mark,${s} small,${s} sub,${s} sup,${s} abbr,${s} time,${s} span{outline:1px solid rgba(244,63,94,0.4)!important}`,
+	].join('\n');
+}
+
+/* ------------------------------------------------------------------ */
+/*  Measure / Inspect helpers                                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * CSS property groups to display in the Inspect panel.
+ */
+const INSPECT_GROUPS: ReadonlyArray<{ label: Str; props: readonly Str[] }> = [
+	{ label: 'Layout', props: ['display', 'position', 'width', 'height', 'box-sizing', 'overflow', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns', 'grid-template-rows'] },
+	{ label: 'Spacing', props: ['margin-top', 'margin-right', 'margin-bottom', 'margin-left', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left'] },
+	{ label: 'Typography', props: ['font-family', 'font-size', 'font-weight', 'line-height', 'letter-spacing', 'text-align', 'color'] },
+	{ label: 'Border', props: ['border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width', 'border-radius', 'border-color', 'border-style'] },
+	{ label: 'Background', props: ['background-color', 'background-image', 'opacity'] },
+];
+
+/**
+ * Collect box model data for the hovered element relative to the preview container.
+ *
+ * @param el - The hovered DOM element
+ * @param container - The preview container div
+ * @returns Box model data or null
+ */
+function collectBoxModel(el: Element, container: HTMLDivElement): typeof cardMeasureData[Str] {
+	const cs: CSSStyleDeclaration = getComputedStyle(el);
+	const elRect: DOMRect = el.getBoundingClientRect();
+	const cRect: DOMRect = container.getBoundingClientRect();
+
+	const pt: Num = Number.parseFloat(cs.paddingTop) || 0;
+	const pr: Num = Number.parseFloat(cs.paddingRight) || 0;
+	const pb: Num = Number.parseFloat(cs.paddingBottom) || 0;
+	const pl: Num = Number.parseFloat(cs.paddingLeft) || 0;
+
+	const bt: Num = Number.parseFloat(cs.borderTopWidth) || 0;
+	const br: Num = Number.parseFloat(cs.borderRightWidth) || 0;
+	const bb: Num = Number.parseFloat(cs.borderBottomWidth) || 0;
+	const bl: Num = Number.parseFloat(cs.borderLeftWidth) || 0;
+
+	const mt: Num = Number.parseFloat(cs.marginTop) || 0;
+	const mr: Num = Number.parseFloat(cs.marginRight) || 0;
+	const mb: Num = Number.parseFloat(cs.marginBottom) || 0;
+	const ml: Num = Number.parseFloat(cs.marginLeft) || 0;
+
+	const x: Num = elRect.left - cRect.left + container.scrollLeft;
+	const y: Num = elRect.top - cRect.top + container.scrollTop;
+
+	return {
+		content: { x: x + bl + pl, y: y + bt + pt, w: elRect.width - bl - br - pl - pr, h: elRect.height - bt - bb - pt - pb },
+		padding: { top: pt, right: pr, bottom: pb, left: pl },
+		border: { top: bt, right: br, bottom: bb, left: bl },
+		margin: { top: mt, right: mr, bottom: mb, left: ml },
+		width: elRect.width,
+		height: elRect.height,
+	};
+}
+
+/**
+ * Collect computed CSS properties for the inspected element.
+ *
+ * @param el - The clicked DOM element
+ * @returns Grouped computed styles
+ */
+function collectInspectData(el: Element): typeof cardInspectedEl[Str] {
+	const cs: CSSStyleDeclaration = getComputedStyle(el);
+	const rect: DOMRect = el.getBoundingClientRect();
+	const styles: Record<Str, Record<Str, Str>> = {};
+
+	for (const group of INSPECT_GROUPS) {
+		const groupStyles: Record<Str, Str> = {};
+		for (const prop of group.props) {
+			const val: Str = cs.getPropertyValue(prop);
+			if (val && val !== 'none' && val !== 'normal' && val !== '0px' && val !== 'auto' && val !== 'rgba(0, 0, 0, 0)') {
+				groupStyles[prop] = val;
+			}
+		}
+		if (Object.keys(groupStyles).length > 0) {
+			styles[group.label] = groupStyles;
+		}
+	}
+
+	return {
+		tag: el.tagName.toLowerCase(),
+		classes: el.className && typeof el.className === 'string' ? el.className.split(/\s+/).slice(0, 8).join(' ') : '',
+		id: el.id || '',
+		rect: { width: Math.round(rect.width), height: Math.round(rect.height), top: Math.round(rect.top), left: Math.round(rect.left) },
+		styles,
+	};
+}
+
+/**
+ * Handle mousemove in measure mode — update box model data for hovered element.
+ *
+ * @param e - Mouse event
+ * @param key - Card key
+ */
+function handleMeasureMove(e: MouseEvent, key: Str): Void {
+	if (!cardMeasureActive[key]) return;
+	const container: HTMLDivElement | undefined = cardPreviewRefs[key];
+	if (!container) return;
+	const target: Element | null = document.elementFromPoint(e.clientX, e.clientY);
+	if (!target || target === container || !container.contains(target)) {
+		cardMeasureData[key] = null;
+		return;
+	}
+	cardMeasureData[key] = collectBoxModel(target, container);
+}
+
+/**
+ * Handle mouseleave in measure mode — clear box model data.
+ *
+ * @param key - Card key
+ */
+function handleMeasureLeave(key: Str): Void {
+	cardMeasureData[key] = null;
+}
+
+/**
+ * Handle click in inspect mode — capture element styles.
+ *
+ * @param e - Mouse event
+ * @param key - Card key
+ */
+function handleInspectClick(e: MouseEvent, key: Str): Void {
+	if (!cardInspectActive[key]) return;
+	const container: HTMLDivElement | undefined = cardPreviewRefs[key];
+	if (!container) return;
+	const target: Element | null = document.elementFromPoint(e.clientX, e.clientY);
+	if (!target || target === container || !container.contains(target)) return;
+	e.preventDefault();
+	e.stopPropagation();
+	cardInspectedEl[key] = collectInspectData(target);
+}
+
 /**
  * Check if a card has an active color matrix simulation.
  *
@@ -1726,6 +1934,10 @@ function getActiveSettings(key: Str): Array<{ label: Str; value: Str }> {
 	// Font size
 	const fontSize: Num = cardFontSize[key] ?? 0;
 	if (fontSize > 0) settings.push({ label: 'Font Size', value: `${fontSize}px (${(fontSize / 16).toFixed(1)}x)` });
+	// Dev tools
+	if (cardDebugOutline[key]) settings.push({ label: 'Debug Outline', value: 'On' });
+	if (cardMeasureActive[key]) settings.push({ label: 'Measure', value: 'On' });
+	if (cardInspectActive[key]) settings.push({ label: 'Inspect', value: 'On' });
 	return settings;
 }
 
@@ -1995,6 +2207,11 @@ function resetCard(key: Str): Void {
 	cardContentHeights[key] = 0;
 	cardTextDir[key] = 'auto';
 	cardFontSize[key] = 0;
+	cardDebugOutline[key] = false;
+	cardMeasureActive[key] = false;
+	cardInspectActive[key] = false;
+	cardInspectedEl[key] = null;
+	cardMeasureData[key] = null;
 }
 
 /**
@@ -2046,6 +2263,9 @@ function applySettingsToAll(sourceKey: Str): Void {
 		}
 		cardTextDir[key] = cardTextDir[sourceKey] ?? 'auto';
 		cardFontSize[key] = cardFontSize[sourceKey] ?? 0;
+		cardDebugOutline[key] = cardDebugOutline[sourceKey] ?? false;
+		cardMeasureActive[key] = cardMeasureActive[sourceKey] ?? false;
+		cardInspectActive[key] = cardInspectActive[sourceKey] ?? false;
 	}
 }
 
@@ -2252,6 +2472,32 @@ function isIconOption(option: Str): boolean {
 	</Tooltip.Provider>
 {/snippet}
 
+{#snippet toolbarToggle(Icon: Component, tooltipText: Str, active: Bool, onclick: () => void)}
+	<Tooltip.Provider>
+		<Tooltip.Root delayDuration={300}>
+			<Tooltip.Trigger>
+				{#snippet child({ props: tipProps })}
+					<button
+						type="button"
+						{...tipProps}
+						class={cn(
+							'inline-flex size-7 items-center justify-center rounded-md transition-colors',
+							active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+						)}
+						onclick={onclick}
+						aria-pressed={active}
+					>
+						<Icon class="size-3.5" aria-hidden="true" />
+					</button>
+				{/snippet}
+			</Tooltip.Trigger>
+			<Tooltip.Content side="top" sideOffset={4}>
+				{tooltipText}
+			</Tooltip.Content>
+		</Tooltip.Root>
+	</Tooltip.Provider>
+{/snippet}
+
 {#snippet card(cardLabel: Str, cardKey: Str, snippet: Str, extraProps: Record<Str, unknown>, useIcon: Bool, variantKey: Str, variantOption: Str)}
 	{@const activeSim: Str = cardSimulations[cardKey] ?? 'none'}
 	{@const activeBg: Str = cardBackgrounds[cardKey] ?? 'default'}
@@ -2309,6 +2555,11 @@ function isIconOption(option: Str): boolean {
 				{/if}
 				{@render toolbarButton(ZoomIn, 'Zoom in', () => zoomIn(cardKey), activeZoom >= ZOOM_MAX)}
 				{@render toolbarButton(Maximize, 'Fit (100%)', () => zoomFit(cardKey), activeZoom === 1)}
+				<span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
+				{@render toolbarToggle(ScanLine, 'Debug outlines', cardDebugOutline[cardKey] ?? false, () => { cardDebugOutline[cardKey] = !cardDebugOutline[cardKey]; })}
+				{@render toolbarToggle(Ruler, 'Measure', cardMeasureActive[cardKey] ?? false, () => { cardMeasureActive[cardKey] = !cardMeasureActive[cardKey]; if (!cardMeasureActive[cardKey]) cardMeasureData[cardKey] = null; })}
+				{@render toolbarToggle(MousePointerClick, 'Inspect', cardInspectActive[cardKey] ?? false, () => { cardInspectActive[cardKey] = !cardInspectActive[cardKey]; if (!cardInspectActive[cardKey]) cardInspectedEl[cardKey] = null; })}
+				<span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
 				{@render toolbarButton(isFullscreen ? Minimize2 : Maximize2, isFullscreen ? 'Exit fullscreen' : 'Fullscreen', () => toggleFullscreen(cardKey), false)}
 				{#if cardStats[cardKey]}
 					{@const stats: LensStatsData = cardStats[cardKey]}
@@ -4375,6 +4626,7 @@ function isIconOption(option: Str): boolean {
 				</DropdownMenu.Root>
 			</div>
 		</div>
+		<!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
 		<div
 			bind:this={cardPreviewRefs[cardKey]}
 			class={cn(
@@ -4386,12 +4638,18 @@ function isIconOption(option: Str): boolean {
 				activeMode === 'auto' && activeTheme && pageIsDark && 'dark',
 				activeMode === 'auto' && activeTheme && !pageIsDark && 'lens-force-light',
 				activeTheme && 'bg-background text-foreground',
+				(cardMeasureActive[cardKey] || cardInspectActive[cardKey]) && 'cursor-crosshair',
 			)}
 			style={[getBackgroundStyle(cardKey), cardContentHeights[cardKey] ? `min-height: ${cardContentHeights[cardKey] + 32}px` : '', activeMode === 'light' ? 'color-scheme: light' : '', activeMode === 'dark' ? 'color-scheme: dark' : '', activeMode === 'auto' && activeTheme && !pageIsDark ? 'color-scheme: light' : '', activeMode === 'auto' && activeTheme && pageIsDark ? 'color-scheme: dark' : '', getFontSizeVars(cardKey)].filter(Boolean).join('; ')}
 			data-theme={activeTheme || undefined}
+			data-lens-debug={cardDebugOutline[cardKey] ? cardKey : undefined}
 			dir={(cardTextDir[cardKey] ?? 'auto') !== 'auto'
 				? /* Guard ensures 'ltr' | 'rtl' — Str too wide for dir attr */ (cardTextDir[cardKey] as 'ltr' | 'rtl')
 				: undefined}
+			onmousemove={(e) => handleMeasureMove(e, cardKey)}
+			onmouseleave={() => handleMeasureLeave(cardKey)}
+			onclickcapture={(e) => handleInspectClick(e, cardKey)}
+			onkeydown={(e) => { if (cardInspectActive[cardKey] && e.key === 'Escape') { cardInspectActive[cardKey] = false; cardInspectedEl[cardKey] = null; } }}
 		>
 			{#if hasColorMatrixSim(cardKey)}
 				<svg class="absolute size-0 overflow-hidden" aria-hidden="true">
@@ -4598,7 +4856,71 @@ function isIconOption(option: Str): boolean {
 			{/if}
 			</div>
 			</div>
+			{#if cardDebugOutline[cardKey]}
+				{@html `<style data-lens-debug-outline>${buildDebugOutlineCSS(cardKey)}</style>`}
+			{/if}
+			{#if cardMeasureActive[cardKey] && cardMeasureData[cardKey]}
+				{@const m = cardMeasureData[cardKey]}
+				{#if m}
+				<!-- Margin overlay -->
+				<div class="pointer-events-none absolute" style="left:{m.content.x - m.padding.left - m.border.left - m.margin.left}px;top:{m.content.y - m.padding.top - m.border.top - m.margin.top}px;width:{m.width + m.margin.left + m.margin.right}px;height:{m.height + m.margin.top + m.margin.bottom}px;background:rgba(246,178,107,0.25);"></div>
+				<!-- Border overlay -->
+				<div class="pointer-events-none absolute" style="left:{m.content.x - m.padding.left - m.border.left}px;top:{m.content.y - m.padding.top - m.border.top}px;width:{m.width}px;height:{m.height}px;background:rgba(255,229,153,0.3);"></div>
+				<!-- Padding overlay -->
+				<div class="pointer-events-none absolute" style="left:{m.content.x - m.padding.left}px;top:{m.content.y - m.padding.top}px;width:{m.content.w + m.padding.left + m.padding.right}px;height:{m.content.h + m.padding.top + m.padding.bottom}px;background:rgba(147,196,125,0.3);"></div>
+				<!-- Content overlay -->
+				<div class="pointer-events-none absolute" style="left:{m.content.x}px;top:{m.content.y}px;width:{m.content.w}px;height:{m.content.h}px;background:rgba(111,168,220,0.3);"></div>
+				<!-- Dimension label -->
+				<div class="pointer-events-none absolute rounded bg-gray-900/90 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-white" style="left:{m.content.x}px;top:{m.content.y - 20}px;">
+					{Math.round(m.width)} × {Math.round(m.height)}
+				</div>
+				<!-- Margin labels -->
+				{#if m.margin.top > 0}
+					<div class="pointer-events-none absolute font-mono text-[9px] font-medium text-orange-700" style="left:{m.content.x + m.content.w / 2 - 8}px;top:{m.content.y - m.padding.top - m.border.top - m.margin.top + 1}px;">{Math.round(m.margin.top)}</div>
+				{/if}
+				{#if m.margin.bottom > 0}
+					<div class="pointer-events-none absolute font-mono text-[9px] font-medium text-orange-700" style="left:{m.content.x + m.content.w / 2 - 8}px;top:{m.content.y + m.content.h + m.padding.bottom + m.border.bottom + 1}px;">{Math.round(m.margin.bottom)}</div>
+				{/if}
+				<!-- Padding labels -->
+				{#if m.padding.top > 0}
+					<div class="pointer-events-none absolute font-mono text-[9px] font-medium text-green-700" style="left:{m.content.x + m.content.w / 2 - 8}px;top:{m.content.y - m.padding.top + 1}px;">{Math.round(m.padding.top)}</div>
+				{/if}
+				{#if m.padding.bottom > 0}
+					<div class="pointer-events-none absolute font-mono text-[9px] font-medium text-green-700" style="left:{m.content.x + m.content.w / 2 - 8}px;top:{m.content.y + m.content.h + 1}px;">{Math.round(m.padding.bottom)}</div>
+				{/if}
+				{/if}
+			{/if}
 		</div>
+		{#if cardInspectActive[cardKey] && cardInspectedEl[cardKey]}
+			{@const el = cardInspectedEl[cardKey]}
+			{#if el}
+			<div class="border-t bg-muted/30 px-3 py-2 text-xs" transition:slide={{ duration: 200 }}>
+				<div class="mb-1.5 flex items-center gap-2">
+					<code class="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-primary">&lt;{el.tag}&gt;</code>
+					{#if el.id}<code class="font-mono text-[10px] text-muted-foreground">#{el.id}</code>{/if}
+					<span class="ml-auto font-mono text-[10px] text-muted-foreground">{el.rect.width} × {el.rect.height}px</span>
+				</div>
+				{#if el.classes}
+					<div class="mb-1.5 flex flex-wrap gap-1">
+						{#each el.classes.split(' ').filter(Boolean) as cls (cls)}
+							<code class="rounded bg-muted px-1 py-0.5 font-mono text-[9px] text-muted-foreground">.{cls}</code>
+						{/each}
+					</div>
+				{/if}
+				{#each Object.entries(el.styles) as [group, props] (group)}
+					<div class="mb-1">
+						<h5 class="mb-0.5 text-[10px] font-semibold text-muted-foreground">{group}</h5>
+						<div class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0">
+							{#each Object.entries(props) as [prop, val] (prop)}
+								<span class="font-mono text-[10px] text-muted-foreground">{prop}</span>
+								<span class="truncate font-mono text-[10px]">{val}</span>
+							{/each}
+						</div>
+					</div>
+				{/each}
+			</div>
+			{/if}
+		{/if}
 		{#if (tagName || codeText) && openCards[cardKey]}
 			<div class="overflow-hidden border-t bg-muted/20" transition:slide={{ duration: 200 }}>
 				<div class="min-w-0 overflow-x-auto p-3 text-sm">
