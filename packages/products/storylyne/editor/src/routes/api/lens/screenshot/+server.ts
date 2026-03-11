@@ -82,6 +82,29 @@ function engineDisplayName(engine: Str): Str {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Console formatting helpers                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Strip `%c` format specifiers from console message text.
+ *
+ * Playwright's `msg.text()` preserves raw `%c` markers from
+ * `console.log('%cHello', 'color:red')` but drops the CSS arguments.
+ * This removes the `%c` markers for clean display.
+ *
+ * @param text - Raw console message text
+ * @returns Text with `%c` specifiers removed
+ */
+function stripConsoleFormatting(text: Str): Str {
+  /* Remove %c markers, then collapse multiple spaces from the gaps */
+  let cleaned: Str = text.replaceAll('%c', '') as Str;
+  while (cleaned.includes('  ')) {
+    cleaned = cleaned.replaceAll('  ', ' ') as Str;
+  }
+  return cleaned.trim() as Str;
+}
+
+/* ------------------------------------------------------------------ */
 /*  GET handler                                                        */
 /* ------------------------------------------------------------------ */
 
@@ -219,11 +242,13 @@ export const GET: RequestHandler = async ({ url }) => {
     try {
       const page: Page = await context.newPage();
 
-      /* Collect console messages */
+      /* Collect console messages — strip %c CSS format specifiers */
       page.on('console', (msg: ConsoleMessage): void => {
+        const cleaned: Str = stripConsoleFormatting(msg.text() as Str);
+        if (!cleaned) return;
         consoleLogs.push({
           level: msg.type() as Str,
-          text: msg.text() as Str,
+          text: cleaned,
         });
       });
 

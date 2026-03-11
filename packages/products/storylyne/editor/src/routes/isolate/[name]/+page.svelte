@@ -196,6 +196,9 @@ const vpDimensions: { w: Num; h: Num } | null = $derived.by((): { w: Num; h: Num
 
 /** Media preference CSS classes. */
 const mediaPrefClasses: Str = $derived(cardStyles.mp ?? '');
+
+/** Debug outline class when enabled via accessibility toolbar. */
+const debugOutlineClass: Str = $derived(cardStyles.debugOutline === '1' ? 'lens-debug-outline' : '');
 </script>
 
 <svelte:head>
@@ -247,7 +250,7 @@ const mediaPrefClasses: Str = $derived(cardStyles.mp ?? '');
 					style="width: {vpDimensions.w}px; max-height: {vpDimensions.h}px"
 				>
 					<div
-						class="relative {cardStyles.outlineColor ? 'lens-outline' : ''} {mediaPrefClasses}"
+						class="relative {cardStyles.outlineColor ? 'lens-outline' : ''} {mediaPrefClasses} {debugOutlineClass}"
 						style={contentStyle}
 						dir={textDir}
 					>
@@ -271,7 +274,7 @@ const mediaPrefClasses: Str = $derived(cardStyles.mp ?? '');
 				</div>
 			{:else}
 				<div
-					class="relative {cardStyles.outlineColor ? 'lens-outline' : ''} {mediaPrefClasses}"
+					class="relative {cardStyles.outlineColor ? 'lens-outline' : ''} {mediaPrefClasses} {debugOutlineClass}"
 					style={contentStyle}
 					dir={textDir}
 				>
@@ -361,6 +364,103 @@ const mediaPrefClasses: Str = $derived(cardStyles.mp ?? '');
 		border: 2px solid ButtonText !important;
 		color: ButtonText !important;
 		background: ButtonFace !important;
+	}
+
+	/* ── Debug outline — color-coded element type outlines ── */
+
+	:global(.lens-debug-outline article),
+	:global(.lens-debug-outline nav),
+	:global(.lens-debug-outline aside),
+	:global(.lens-debug-outline section),
+	:global(.lens-debug-outline header),
+	:global(.lens-debug-outline footer),
+	:global(.lens-debug-outline main) {
+		outline: 1px solid rgba(59, 130, 246, 0.6) !important;
+	}
+
+	:global(.lens-debug-outline h1),
+	:global(.lens-debug-outline h2),
+	:global(.lens-debug-outline h3),
+	:global(.lens-debug-outline h4),
+	:global(.lens-debug-outline h5),
+	:global(.lens-debug-outline h6) {
+		outline: 1px solid rgba(99, 102, 241, 0.6) !important;
+	}
+
+	:global(.lens-debug-outline div) {
+		outline: 1px solid rgba(147, 197, 253, 0.4) !important;
+	}
+
+	:global(.lens-debug-outline p),
+	:global(.lens-debug-outline hr),
+	:global(.lens-debug-outline pre),
+	:global(.lens-debug-outline blockquote) {
+		outline: 1px solid rgba(96, 165, 250, 0.5) !important;
+	}
+
+	:global(.lens-debug-outline ol),
+	:global(.lens-debug-outline ul),
+	:global(.lens-debug-outline li),
+	:global(.lens-debug-outline dl),
+	:global(.lens-debug-outline dt),
+	:global(.lens-debug-outline dd) {
+		outline: 1px solid rgba(239, 68, 68, 0.5) !important;
+	}
+
+	:global(.lens-debug-outline figure),
+	:global(.lens-debug-outline img),
+	:global(.lens-debug-outline iframe),
+	:global(.lens-debug-outline video),
+	:global(.lens-debug-outline audio),
+	:global(.lens-debug-outline canvas),
+	:global(.lens-debug-outline svg) {
+		outline: 1px solid rgba(168, 85, 247, 0.6) !important;
+	}
+
+	:global(.lens-debug-outline table),
+	:global(.lens-debug-outline thead),
+	:global(.lens-debug-outline tbody),
+	:global(.lens-debug-outline tfoot),
+	:global(.lens-debug-outline tr),
+	:global(.lens-debug-outline th),
+	:global(.lens-debug-outline td),
+	:global(.lens-debug-outline caption) {
+		outline: 1px solid rgba(20, 184, 166, 0.5) !important;
+	}
+
+	:global(.lens-debug-outline button),
+	:global(.lens-debug-outline input),
+	:global(.lens-debug-outline select),
+	:global(.lens-debug-outline textarea),
+	:global(.lens-debug-outline form),
+	:global(.lens-debug-outline fieldset),
+	:global(.lens-debug-outline label),
+	:global(.lens-debug-outline legend) {
+		outline: 1px solid rgba(249, 115, 22, 0.6) !important;
+	}
+
+	:global(.lens-debug-outline a) {
+		outline: 1px solid rgba(236, 72, 153, 0.5) !important;
+	}
+
+	:global(.lens-debug-outline em),
+	:global(.lens-debug-outline strong),
+	:global(.lens-debug-outline i),
+	:global(.lens-debug-outline b),
+	:global(.lens-debug-outline u),
+	:global(.lens-debug-outline s),
+	:global(.lens-debug-outline code),
+	:global(.lens-debug-outline kbd),
+	:global(.lens-debug-outline samp),
+	:global(.lens-debug-outline var),
+	:global(.lens-debug-outline mark),
+	:global(.lens-debug-outline small),
+	:global(.lens-debug-outline sub),
+	:global(.lens-debug-outline sup),
+	:global(.lens-debug-outline abbr),
+	:global(.lens-debug-outline time),
+	:global(.lens-debug-outline span) {
+		outline: 1px solid rgba(244, 63, 94, 0.4) !important;
 	}
 
 	:global(.lens-force-light) {

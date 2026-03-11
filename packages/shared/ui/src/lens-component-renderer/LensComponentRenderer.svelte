@@ -5864,21 +5864,30 @@ function isIconOption(option: Str): boolean {
 						<span class="text-xs font-semibold text-muted-foreground">Screenshots</span>
 						<span class="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{(cardScreenshots[cardKey] ?? []).length}</span>
 					</div>
-					<button
-						type="button"
-						title="Clear all screenshots"
-						class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-						onclick={() => {
-							const captures: ScreenshotCapture[] = cardScreenshots[cardKey] ?? [];
-							for (const c of captures) URL.revokeObjectURL(c.imageUrl);
-							cardScreenshots[cardKey] = [];
-						}}
-					>
-						<Trash2 class="size-3.5" aria-hidden="true" />
-						Clear All
-					</button>
+					<Tooltip.Root delayDuration={300}>
+						<Tooltip.Trigger>
+							{#snippet child({ props: triggerProps })}
+								<button
+									{...triggerProps}
+									type="button"
+									class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+									onclick={() => {
+										const captures: ScreenshotCapture[] = cardScreenshots[cardKey] ?? [];
+										for (const c of captures) URL.revokeObjectURL(c.imageUrl);
+										cardScreenshots[cardKey] = [];
+									}}
+								>
+									<Trash2 class="size-3.5" aria-hidden="true" />
+									Clear All
+								</button>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content side="top" sideOffset={4}>
+							Clear all screenshots
+						</Tooltip.Content>
+					</Tooltip.Root>
 				</div>
-				<div class="flex flex-wrap gap-3 p-3">
+				<div class="flex max-h-[32rem] flex-wrap gap-3 overflow-y-auto p-3">
 					{#each (cardScreenshots[cardKey] ?? []) as capture, idx (capture.timestamp)}
 						<div class="w-80 overflow-hidden rounded-md border bg-background shadow-sm">
 							<!-- Header: browser name + version + device + delete -->
@@ -5894,15 +5903,24 @@ function isIconOption(option: Str): boolean {
 								{#if capture.deviceOS}
 									<span class="rounded bg-muted px-1 text-[9px] text-muted-foreground/70">{capture.deviceOS}</span>
 								{/if}
-								<button
-									type="button"
-									title="Remove this screenshot"
-									class="ml-auto rounded p-1 text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
-									onclick={() => removeScreenshot(cardKey, idx as Num)}
-									aria-label="Remove screenshot"
-								>
-									<Trash2 class="size-3.5" />
-								</button>
+								<Tooltip.Root delayDuration={300}>
+									<Tooltip.Trigger>
+										{#snippet child({ props: triggerProps })}
+											<button
+												{...triggerProps}
+												type="button"
+												class="ml-auto rounded p-1 text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
+												onclick={() => removeScreenshot(cardKey, idx as Num)}
+												aria-label="Remove screenshot"
+											>
+												<Trash2 class="size-3.5" />
+											</button>
+										{/snippet}
+									</Tooltip.Trigger>
+									<Tooltip.Content side="top" sideOffset={4}>
+										Remove this screenshot
+									</Tooltip.Content>
+								</Tooltip.Root>
 							</div>
 							<!-- Screenshot image -->
 							<a href={capture.imageUrl} target="_blank" rel="noopener" class="block border-b">
