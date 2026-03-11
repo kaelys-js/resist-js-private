@@ -273,8 +273,63 @@ function inlineComputedStyles(clone: HTMLElement, source: HTMLElement): void {
 }
 
 /**
+ * Extract CSS custom property declarations from all document stylesheets.
+ * Collects rules matching :root, .dark, [data-theme] selectors and returns
+ * them as a single CSS string suitable for injection into a standalone HTML.
+ *
+ * @param isDark - Whether dark mode is active
+ * @param theme - Active theme name (empty string if none)
+ * @returns CSS text containing custom property declarations
+ */
+function extractCssCustomProperties(isDark: Bool, theme: Str): Str {
+  const rules: Str[] = [];
+
+  try {
+    for (const sheet of document.styleSheets) {
+      let cssRules: CSSRuleList;
+      try {
+        ({ cssRules } = sheet);
+      } catch {
+        /* Cross-origin stylesheet — skip silently */
+        continue;
+      }
+
+      for (const rule of cssRules) {
+        if (!(rule instanceof CSSStyleRule)) continue;
+        const sel: Str = rule.selectorText;
+
+        // Collect :root vars (base theme)
+        const isRoot: Bool = sel === ':root' || sel === ':root, ::backdrop';
+        // Collect .dark vars when in dark mode
+        const isDarkRule: Bool = isDark && (sel === '.dark' || sel.includes('.dark'));
+        // Collect theme-specific vars
+        const isThemeRule: Bool = theme !== '' && sel.includes(`[data-theme="${theme}"]`);
+
+        if (!isRoot && !isDarkRule && !isThemeRule) continue;
+
+        // Extract only custom property declarations
+        const props: Str[] = [];
+        for (const prop of rule.style) {
+          if (prop.startsWith('--')) {
+            props.push(`  ${prop}: ${rule.style.getPropertyValue(prop)};`);
+          }
+        }
+        if (props.length > 0) {
+          rules.push(`:root {\n${props.join('\n')}\n}`);
+        }
+      }
+    }
+  } catch {
+    /* StyleSheet access failed entirely — return empty */
+  }
+
+  return rules.join('\n');
+}
+
+/**
  * Build a self-contained HTML string from a DOM element.
- * Clones the element, inlines all computed styles, and wraps in a minimal HTML document.
+ * Clones the element, inlines all computed styles, injects CSS custom properties
+ * from the active theme/mode, and wraps in a minimal HTML document.
  *
  * @param element - Target DOM element
  * @returns Self-contained HTML document string
@@ -289,6 +344,9 @@ function buildSelfContainedHtml(element: HTMLElement): Str {
   const computed: CSSStyleDeclaration = getComputedStyle(element);
   const { backgroundColor: bgColor, color: textColor, colorScheme }: CSSStyleDeclaration = computed;
 
+  // Extract CSS custom properties so var(--*) references resolve in standalone HTML
+  const cssVars: Str = extractCssCustomProperties(isDark, theme);
+
   const htmlAttrs: Str[] = ['lang="en"'];
   if (isDark) htmlAttrs.push('class="dark"');
   if (theme) htmlAttrs.push(`data-theme="${theme}"`);
@@ -298,10 +356,16 @@ function buildSelfContainedHtml(element: HTMLElement): Str {
   if (textColor) bodyStyles.push(`color: ${textColor}`);
   if (colorScheme) bodyStyles.push(`color-scheme: ${colorScheme}`);
 
+  const headParts: Str[] = [
+    '<meta charset="utf-8">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1">',
+  ];
+  if (cssVars) headParts.push(`<style>\n${cssVars}\n</style>`);
+
   return [
     '<!DOCTYPE html>',
     `<html ${htmlAttrs.join(' ')}>`,
-    '<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>',
+    `<head>${headParts.join('')}</head>`,
     `<body style="${bodyStyles.join('; ')}">`,
     clone.outerHTML,
     '</body>',
