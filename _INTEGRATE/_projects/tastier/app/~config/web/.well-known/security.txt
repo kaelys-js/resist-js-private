@@ -1,0 +1,17 @@
+Contact: mailto:{{EMAIL_SECURITY}}@{{MARKETING_DOMAIN}}
+
+Contact: https:/{{MARKETING_DOMAIN}}/{{MARKETING_ROUTE_SECURITY}}
+
+Canonical: https://{{MARKETING_DOMAIN}}/.well-known/security.txt
+
+Preferred-Languages: {{SECURITY_LOCALE}}
+
+Policy: https://{{MARKETING_DOMAIN}}/{{MARKETING_ROUTE_SECURITY_POLICY}}
+
+Encryption: https://{{MARKETING_DOMAIN}}/.well-known/pgp-key.txt
+
+Acknowledgments: https://{{MARKETING_DOMAIN}}/{{MARKETING_ROUTE_SECURITY_ACKNOWLEDGEMENTS}}
+
+Hiring: https://{{MARKETING_DOMAIN}}/{{MARKETING_ROUTE_CAREERS}}
+
+Expires: {{WELL_KNOWN_SECURITY_TXT_EXPIRY}}

@@ -1,0 +1,117 @@
+{
+	"$schema": "https://unpkg.com/syncpack@latest/dist/schema.json",
+	"dependencyTypes": [
+		"dev",
+		"peer",
+		"pnpmOverrides",
+		"prod",
+		"resolutions",
+		"overrides"
+	],
+	"filter": ".",
+	"indent": "\t",
+	"sortAz": [
+		"contributors",
+		"dependencies",
+		"devDependencies",
+		"keywords",
+		"optionalDependencies",
+		"peerDependencies",
+		"pnpm.overrides",
+		"resolutions",
+		"overrides",
+		"scripts"
+	],
+	"sortFirst": [
+		"name",
+		"version",
+		"private",
+		"type",
+		"description",
+		"license",
+		"author",
+		"maintainers",
+		"contributors",
+		"homepage",
+		"repository",
+		"bugs",
+		"keywords",
+		"publishConfig",
+		"workspaces",
+		"engines",
+		"packageManager",
+		"main",
+		"module",
+		"types",
+		"typings",
+		"exports",
+		"imports",
+		"bin",
+		"files",
+		"sideEffects",
+		"scripts",
+		"dependencies",
+		"peerDependencies",
+		"peerDependenciesMeta",
+		"optionalDependencies",
+		"devDependencies",
+		"overrides",
+		"resolutions",
+		"pnpm"
+	],
+	"source": [
+		"package.json",
+		"packages/*/package.json",
+		"shared/*/package.json",
+		"products/*/package.json",
+		"products/*/*/package.json"
+	],
+	"specifierTypes": [
+		"exact",
+		"latest",
+		"range",
+		"tag",
+		"workspace-protocol"
+	],
+	"versionGroups": [
+		{
+			"label": "Use workspace protocol for internal packages",
+			"dependencies": ["@resist/*"],
+			"dependencyTypes": ["dev", "prod", "peer"],
+			"pinVersion": "workspace:*"
+		},
+		{
+			"label": "TypeScript should be consistent across packages",
+			"dependencies": ["typescript"],
+			"policy": "sameRange"
+		},
+		{
+			"label": "Valibot should be consistent across packages",
+			"dependencies": ["valibot"],
+			"policy": "sameRange"
+		},
+		{
+			"label": "Testing libraries should be consistent",
+			"dependencies": ["vitest", "@vitest/*", "playwright", "@playwright/*"],
+			"policy": "sameRange"
+		},
+		{
+			"label": "Build tools should be consistent",
+			"dependencies": ["vite", "@sveltejs/*", "svelte"],
+			"policy": "sameRange"
+		}
+	],
+	"semverGroups": [
+		{
+			"label": "Dependencies should use exact versions in production packages",
+			"range": "",
+			"dependencyTypes": ["prod"],
+			"packages": ["products/**"]
+		},
+		{
+			"label": "DevDependencies can use caret range",
+			"range": "^",
+			"dependencyTypes": ["dev"]
+		}
+	]
+}

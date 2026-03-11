@@ -1,0 +1,13 @@
+- Screen Mockups
+    - Permission Requests
+        - Notifications
+- Font: M Plus Rounded 1c
+- fastlane.tools
+- https://forum.ionicframework.com/t/making-native-desktop-application/237124
+- Assets
+    - Do TODOs
+    - Splash Screen Mascots
+        - 1 Per Day Of Week
+        - For Each Holiday
+        - App Name Text Shadow
+        - Meal Plan Cook Complete

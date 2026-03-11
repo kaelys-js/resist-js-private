@@ -1,0 +1,93 @@
+; =========================
+; Core site + app routing
+; =========================
+
+; Root domain → primary web app / marketing site
+tastier.app.        A       300     203.0.113.10
+; IPv6 support (recommended)
+tastier.app.        AAAA    300     2001:db8::10
+
+; WWW hostname (canonical redirect target)
+www.tastier.app.    CNAME   300     tastier.app.
+
+; App subdomain (if split from marketing)
+app.tastier.app.    CNAME   300     tastier.app.
+
+; API endpoint (if separate origin)
+api.tastier.app.    CNAME   300     api-origin.example.com.
+
+; =========================
+; Cloudflare verification / platform glue
+; =========================
+
+; Cloudflare Pages / Workers / hosting verification
+_cf-custom-hostname.tastier.app. TXT 300 "cf-custom-hostname-verification=REPLACE"
+
+; =========================
+; Email – sending + receiving
+; =========================
+
+; Mail exchanger (example: Google Workspace)
+tastier.app.        MX      300     1 smtp.google.com.
+
+; SPF – authorized senders
+tastier.app.        TXT     300     "v=spf1 include:_spf.google.com ~all"
+
+; DKIM – cryptographic email signing (selector example)
+google._domainkey.tastier.app. TXT 300 "v=DKIM1; k=rsa; p=REPLACE_PUBLIC_KEY"
+
+; DMARC – enforcement and reporting
+_dmarc.tastier.app. TXT     300     "v=DMARC1; p=quarantine; rua=mailto:dmarc@tastier.app; ruf=mailto:dmarc@tastier.app; fo=1; adkim=s; aspf=s"
+
+; =========================
+; Security & trust
+; =========================
+
+; MTA-STS policy declaration (email transport security)
+_mta-sts.tastier.app. TXT   300     "v=STSv1; id=20260101"
+
+; TLS-RPT – reports for failed SMTP TLS delivery
+_smtp._tls.tastier.app. TXT 300     "v=TLSRPTv1; rua=mailto:tlsrpt@tastier.app"
+
+; =========================
+; Verification records (common)
+; =========================
+
+; Google Search Console
+tastier.app.        TXT     300     "google-site-verification=REPLACE"
+
+; Apple App Store / iCloud services (if applicable)
+tastier.app.        TXT     300     "apple-domain-verification=REPLACE"
+
+; Microsoft services (Azure AD, Store, etc.)
+tastier.app.        TXT     300     "ms-domain-verification=REPLACE"
+
+; =========================
+; Optional sub-services
+; =========================
+
+; CDN or media host
+media.tastier.app.  CNAME   300     cdn.example.com.
+
+; Status page
+status.tastier.app. CNAME   300     statuspage.io.
+
+; Allow only Let’s Encrypt to issue certificates
+tastier.app.   CAA 300 0 issue "letsencrypt.org"
+
+; Allow Let’s Encrypt wildcard certificates
+tastier.app.   CAA 300 0 issuewild "letsencrypt.org"
+
+; Email for CA violation reports
+tastier.app.   CAA 300 0 iodef "mailto:security@tastier.app"
+
+_acme-challenge.tastier.app. TXT 300 "REPLACE_WITH_TOKEN"
+
+DNS: _mta-sts.{{MARKETING_DOMAIN}}.  TXT  "v=STSv1; id={{MTA_STS}}"
+
+; =========================
+; Notes
+; =========================
+; - All proxied (orange-cloud) records in Cloudflare should be HTTP(S) only.
+; - MX, SPF, DKIM, DMARC, MTA-STS, TLS-RPT must be DNS-only (gray-cloud).
+; - TTL 300 is typical during active development; increase later.

@@ -1,0 +1,113 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+stages:
+  - notify
+  - audit
+  - lint
+  - cleanup
+  - metrics
+
+remind:stale-mrs:
+  stage: notify
+  script: ./scripts/ci/remind-stale-mrs.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+remind:unassigned-mrs:
+  stage: notify
+  script: ./scripts/ci/remind-unassigned-mrs.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+remind:unlabeled-mrs:
+  stage: notify
+  script: ./scripts/ci/remind-unlabeled-mrs.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+remind:open-too-long:
+  stage: notify
+  script: ./scripts/ci/remind-open-too-long.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+remind:missing-codeowners:
+  stage: lint
+  script: ./scripts/ci/remind-missing-codeowners.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+notify:missing-releases:
+  stage: notify
+  script: ./scripts/ci/notify-missing-releases.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+audit:ci-drift:
+  stage: audit
+  script: ./scripts/ci/audit-ci-drift.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+audit:unused-env-vars:
+  stage: audit
+  script: ./scripts/ci/audit-unused-env-vars.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+cleanup:old-preview-dbs:
+  stage: cleanup
+  script: ./scripts/ci/cleanup-old-preview-dbs.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+lint:scheduled-validations:
+  stage: lint
+  script: ./scripts/ci/run-checks.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+notify:license-changes:
+  stage: notify
+  script: ./scripts/ci/notify-license-changes.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+watchdog:force-pushes:
+  stage: audit
+  script: ./scripts/ci/watchdog-force-push.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+metrics:repo-size:
+  stage: metrics
+  script: ./scripts/ci/metrics-repo-size.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+remind:missing-coverage-threshold:
+  stage: lint
+  script: ./scripts/ci/remind-missing-coverage-threshold.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]
+
+docs:remind-missing-frontmatter:
+  stage: lint
+  script: ./scripts/ci/remind-missing-frontmatter.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  tags: [cron]

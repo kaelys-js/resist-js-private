@@ -1,0 +1,23 @@
+CREATE TABLE recipe_generation (
+  id TEXT PRIMARY KEY,                 -- UUID
+
+  -- Source ingestion
+  cuisine TEXT NOT NULL,               -- derived from filename (e.g. "Japanese")
+  recipe_name TEXT NOT NULL,           -- one line from file
+
+  -- Generation lifecycle
+  generation_status TEXT NOT NULL CHECK (
+    generation_status IN (
+      'pending',        -- not sent to LLM yet
+      'in_progress',    -- request issued
+      'generated',      -- response received
+      'validated',      -- schema-valid
+      'failed'          -- terminal failure
+    )
+  ),
+
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+
+  UNIQUE (cuisine, recipe_name)
+);

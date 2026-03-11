@@ -1,0 +1,123 @@
+- [Research]
+   - [AI]
+     - agentation.dev
+   - [Marketing]
+    	- https://docs.google.com/document/d/1bOXukva76JMLq-xmW4xFpATvLzFvDzKwbfRXaTQWpCQ/mobilebasic
+   - [GH Actions]
+     - Automation for Housekeeping Reminders As Issues (https://github.com/actions-ecosystem/action-create-issue)
+     - https://github.com/reviewdog/reviewdog
+     - https://github.com/trufflesecurity/trufflehog/
+     - https://github.com/sdras/awesome-actions
+     - https://github.com/renovatebot/renovate
+     - https://github.com/sdras/awesome-actions#github-tools-and-management
+     - https://github.com/actions/first-interaction
+     - https://github.com/lycheeverse/lychee-action
+     - https://github.com/foo-software/lighthouse-check-action
+     - https://github.com/WPO-Foundation/webpagetest-github-action
+     - https://github.com/jakejarvis/lighthouse-action
+     - https://github.com/chromaui/action
+     - https://github.com/cypress-io/github-action
+     - https://github.com/actions/stale
+     - https://github.com/actions/delete-package-versions
+     - https://github.com/dessant/lock-threads
+     - https://github.com/talos-systems/conform
+     - https://github.com/c-hive/gha-remove-artifacts
+     - https://github.com/hashicorp/setup-terraform
+     - https://github.com/lycheeverse/lychee-action
+     - https://github.com/foo-software/lighthouse-check-action
+     - https://github.com/WPO-Foundation/webpagetest-github-action
+     - https://github.com/aquasecurity/trivy
+     - https://github.com/returntocorp/semgrep
+     - https://github.com/traceo-dev/traceo
+     - https://github.com/mpiorowski/rusve
+     - https://gitdailies.com/
+     - [Install Welcome Bot](https://probot.github.io/apps/welcome/)
+     - [Install Stale Bot](https://probot.github.io/apps/stale/)
+     - [Install Slack Bot](https://slack.github.com/)
+     - [Install Sentiment Bot](https://probot.github.io/apps/sentiment-bot/)
+     - [Install Request Info Bot](https://probot.github.io/apps/request-info/)
+     - [Install Generated Files Bot](https://github.com/apps/generated-files-bot)
+     - [Install Merge On Green Bot](https://github.com/apps/gcf-merge-on-green)
+     - [Install Create Issue Branch Bot](https://github.com/apps/create-issue-branch)
+     - [Install Background Check Bot](https://github.com/apps/background-check)
+     - [Install Auto Comment Bot](https://github.com/apps/auto-comment)
+     - [Install All Contributors Bot](https://github.com/apps/allcontributors/installations/new)
+   - [UX]
+    	- mitosis.builder.io
+    	- masco.ai
+      - https://www.skeleton.dev/
+      - https://www.svelteui.org/core/text
+      - https://www.radix-ui.com/primitives/docs/components/select
+      - https://daisyui.com
+      - https://github.com/kidonng/unocss-preset-daisy
+      - https://www.hyperui.dev/
+      - preline.co
+      - https://openv0.com/
+      - https://svelte-ux.techniq.dev/
+   - [Lint]
+      - https://unlighthouse.dev/guide/getting-started
+      - https://kodiakhq.com/
+      - https://docs.gitlab.com/ee/development/dangerbot.html
+      - https://medium.com/@ivan.ha/integrate-danger-js-in-5-minutes-55515bc5355d
+      - https://rules.sonarsource.com/javascript
+      - https://megalinter.io/6.22.2/descriptors/action_actionlint/
+      - https://accesslint.com/
+      - https://megalinter.io/latest/descriptors/repository_checkov/
+      - https://github.com/Thinkmill/manypkg#checks
+      - https://github.com/ai/size-limit
+      - https://github.com/johnsoncodehk/typescript-linter
+      - https://knip.dev/blog/knip-v4
+      - https://github.com/marcinguy/betterscan-ce
+      - http://github.com/webpro/knip
+      - https://www.npmjs.com/package/@node-rs/deno-lint
+      - https://github.com/dotenv-linter/dotenv-linter
+      - https://dprint.dev/plugins/toml/
+      - https://typescript-eslint.io/rules/naming-convention/
+      - https://typescript-eslint.io/rules/explicit-member-accessibility/
+      - https://typescript-eslint.io/rules/parameter-properties/
+      - https://github.com/EvgenyOrekhov/eslint-config-hardcore/blob/master/base.json
+      - https://github.com/DukeLuo/eslint-plugin-check-file
+      - https://github.com/eduhdm/eslint-plugin-repo-structure
+      - https://github.com/mmkal/eslint-plugin-codegen
+      - https://github.com/bmish/eslint-doc-generator
+      - https://github.com/javierbrea/eslint-plugin-boundaries
+      - https://github.com/svg/svgo#built-in-plugins
+      - https://github.com/imagemin/image min-cli
+      - https://github.com/rsaryev/auto-copilot-cli
+      - https://github.com/azat-io/eslint-plugin-perfectionist
+   - [Doc]
+      - https://github.com/scalar/scalar
+      - https://gource.io/
+      - https://github.com/dyatko/arkit
+   - [Locale]
+      - https://gitlocalize.com/
+   - [Utils]
+      - https://www.jsonviewer.tools/editor
+      - https://youmightnotneed.com/lodash
+      - https://github.com/remeda/remeda
+      - https://github.com/angus-c/just
+      - https://github.com/unjs
+      - https://github.com/thoughtspile/awesome-tiny-js
+      - https://obfuscator.io/
+      - util-string: https://github.com/gustavoguichard/string-ts
+      - util-patterns: https://github.com/gvergnaud/ts-pattern
+      - util-notifications: https://github.com/novuhq/novu
+      - util-email-template: https://github.com/mjmlio/mjml-app
+      - util-test: https://github.com/goldbergyoni/javascript-testing-best-practices
+      - util-benchmark: https://www.npmjs.com/package/artillery
+      - https://github.com/nolanlawson/fuite
+      - https://miragejs.com/
+      - util-random: https://chriscavs.github.io/aimless-demo/
+      - utl-cli: https://github.com/google/zx
+      - https://www.npmjs.com/package/commander
+      - https://www.npmjs.com/package/nanothreads
+   - [Test]
+      - https://webdriver.io
+      - https://www.npmjs.com/package/loki
+      - https://github.com/lost-pixel/lost-pixel
+      - https://uitest.com/
+   - [Test - CWV]
+      - https://gist.github.com/paulirish/5d52fb081b3570c81e3a
+      - https://github.com/harlan-zw/unlighthouse
+   - [CI/CD]
+      - https://medium.com/codeapprove/the-best-modern-code-review-tools-2022-468b51751fa

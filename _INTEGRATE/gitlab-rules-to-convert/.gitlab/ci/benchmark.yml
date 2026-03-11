@@ -1,0 +1,38 @@
+# ------------------------------------------------------------------------------
+# 🚀 benchmark — Run performance benchmarks across all workspaces
+# ------------------------------------------------------------------------------
+# This job executes performance benchmarks defined in each workspace's
+# `package.json`, aggregated via the root-level `pnpm benchmark` script.
+#
+# ✅ What it does:
+#   - Measures execution speed, latency, memory use, etc. for core logic
+#   - Aggregates benchmarks from monorepo workspaces using `pnpm -r run benchmark`
+#   - Pipes output to `.benchmark-results.md` for artifact traceability
+#
+# ✅ Why it matters:
+#   - Detects performance regressions before merge or deploy
+#   - Provides traceable output to compare performance over time
+#   - Can be extended to fail pipeline on significant deviation (optional)
+#
+# ✅ Current behavior:
+#   - Only runs on `main` and `staging` branches
+#   - Benchmark output is saved as a Markdown artifact for later inspection
+#   - Does not block deploys (pipeline continues even if perf drops)
+#
+# 🧠 Suggested future enhancements:
+#   - Parse `.benchmark-results.md` into `.json` for structured comparisons
+#   - Compare to baseline (e.g. `main`) and fail on threshold regression
+#   - Post results as Merge Request comments for visibility
+benchmark:
+  stage: test
+  script:
+    - pnpm benchmark | tee .benchmark-summary.md
+  needs:
+    - setup:check-env
+  artifacts:
+    paths:
+      - .benchmark-summary.md
+    expire_in: 1 week
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "staging"'
+  timeout: 5m

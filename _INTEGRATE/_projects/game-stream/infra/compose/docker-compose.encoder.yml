@@ -1,0 +1,12 @@
+services:
+  encoder-service:
+    build: ./encoder-service
+    container_name: "${PRODUCT}-encoder-service-${ENV}"
+    networks:
+      - gamenet
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    volumes:
+      - audio-socket:/tmp/audio-socket
+      - video-socket:/tmp/.X11-unix

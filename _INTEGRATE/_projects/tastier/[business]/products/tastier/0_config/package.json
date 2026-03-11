@@ -1,0 +1,8 @@
+{
+    "name": "@tastier/config",
+    "version": "0.0.0",
+    "dependencies": {
+        "valibot": "^1.2.0",
+        "zod": "4.3.6"
+    }
+}

@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# 🧹 Data & Environment Cleanup
+# ------------------------------------------------------------------------------
+# This stage handles cleanup tasks that keep the system lean and prevent buildup
+# of stale data in development environments.
+#
+# ✅ cleanup:d1:
+#    - Deletes old analytics rows from the staging D1 database
+#    - Controlled by RETENTION_DAYS (default = 1 day)
+#    - Scoped to `staging` branch only to avoid touching production data
+#    - Uses direct SQL query via `wrangler d1 execute`
+#
+# ✅ cleanup:expired-previews:
+#    - Scans for stale preview resources (D1, KV, R2) created by feature branches
+#    - Deletes expired or orphaned previews to reclaim resources
+#    - Runs only on the `main` branch, typically scheduled or triggered post-merge
+#    - Controlled via ./src/scripts/cleanup-expired-previews.sh
+
+# 🧼 cleanup:d1 — Purge old analytics data from staging D1 database
+# Deletes rows older than RETENTION_DAYS (default: 1) to keep staging DB lean
+# Only runs on the staging branch to avoid affecting production data
+cleanup:d1:
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+  script:
+     - cleanup_stale_analytics_data | tee cleanup-d1-summary.md
+  artifacts:
+    paths:
+      - .cleanup-d1-summary.md
+    expire_in: 7 days
+  needs:
+    - setup:check-env
+
+# 🧹 cleanup:expired-previews — Remove stale preview databases, KV, and R2 buckets
+# Runs only on main branch to periodically garbage collect expired preview resources
+cleanup:expired-previews:
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  script:
+    - ./src/scripts/cleanup-expired-previews.sh | tee cleanup-expired-previews-summary
+  artifacts:
+    paths:
+      - .cleanup-expired-previews-summary.md
+    expire_in: 7 days
+  needs:
+    - setup:check-env

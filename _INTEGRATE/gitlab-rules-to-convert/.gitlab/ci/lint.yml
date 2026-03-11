@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# 📋 Code Linting
+# ------------------------------------------------------------------------------
+# lint — Performs static analysis and formatting checks across the codebase.
+#
+# This job runs early in the pipeline to enforce:
+# - Code style and formatting (via Biome)
+# - Syntax and anti-pattern checks (via Biome, Oxlint or custom rule engines)
+# - Type-safe consistency, if linters are integrated with TypeScript
+#
+# ✅ Prevents low-level issues and formatting drift from reaching test/build stages
+# ✅ Typically fails fast for broken files, invalid configs, or unsafe code
+# ✅ Can be run manually via `pnpm lint` or as part of pre-commit hooks
+lint:
+  stage: lint
+  # 📋 Lint all source files using your configured linter (e.g. pnpm lint → Biome/Oxlint)
+  # Ensures code quality, formatting, and syntax standards before testing or deployment
+  script:
+    - pnpm lint | tee .lint-summary.md
+  artifacts:
+    paths:
+      - .lint-summary.md
+    when: always
+    expire_in: 1 day

@@ -1,0 +1,6 @@
+{
+    "$schema": "https://developers.cloudflare.com/workers/wrangler/config-schema.json",
+    "name": "snippet-harness-static-assets",
+    "main": "./dist/snippet.js",
+    "compatibility_date": "2026-01-01"
+}

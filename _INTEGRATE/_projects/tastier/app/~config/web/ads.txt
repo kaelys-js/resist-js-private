@@ -1,0 +1,8 @@
+# Authorized Digital Sellers for {{APP_NAME}}
+# Contact: {{EMAIL_ADS}}@{{MARKETING_DOMAIN}}
+# Last updated: {{ADS_TXT_LAST_UPDATED}}
+
+# Format:
+# <ad system domain>, <publisher ID>, <relationship type>, [certification authority ID]
+
+{{ADS_TXT_CONTENT}}

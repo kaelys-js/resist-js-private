@@ -1,0 +1,219 @@
+// TODO: Implement
+/*{
+    "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+    "id": "/?source=pwa",
+    "name": {
+      "en-US": "Tastier"
+    },
+    "short_name": {
+      "en-US": "Tastier"
+    },
+    "description": {
+      "en-US": "Tastier is a cross-platform app for discovering, saving, and organizing better food experiences."
+    },
+    "lang": "en-US",
+    "dir": "ltr",
+    "start_url": "/?source=pwa",
+    "scope": "/",
+    "display": "standalone",
+    "display_override": [
+      "window-controls-overlay",
+      "standalone",
+      "minimal-ui"
+    ],
+    "orientation": "any",
+    "background_color": "#FFFFFF",
+    "theme_color": "{{THEME_COLOR}}",
+    "categories": [
+      "food",
+      "lifestyle",
+      "productivity",
+      "utilities"
+    ],
+    "icons": [
+      {
+        "src": "/icons/icon.svg",
+        "sizes": "any",
+        "type": "image/svg+xml",
+        "purpose": "any"
+      },
+      {
+        "src": "/icons/128x128.png",
+        "sizes": "128x128",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "/icons/144x144.png",
+        "sizes": "144x144",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "/icons/152x152.png",
+        "sizes": "152x152",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "/icons/192x192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "/icons/256x256.png",
+        "sizes": "256x256",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "/icons/512x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "/icons/192x192-maskable.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "maskable"
+      },
+      {
+        "src": "/icons/512x512-maskable.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable"
+      },
+      {
+        "src": "/icons/512x512-monochrome.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "monochrome"
+      }
+    ],
+    "screenshots": [
+      {
+        "src": "/screenshots/desktop-wide.png",
+        "sizes": "1920x1080",
+        "type": "image/png",
+        "form_factor": "wide",
+        "platform": "desktop",
+        "label": "Desktop home screen"
+      },
+      {
+        "src": "/screenshots/desktop-narrow.png",
+        "sizes": "1280x800",
+        "type": "image/png",
+        "form_factor": "narrow",
+        "platform": "desktop",
+        "label": "Desktop compact layout"
+      },
+      {
+        "src": "/screenshots/mobile-portrait.png",
+        "sizes": "750x1334",
+        "type": "image/png",
+        "form_factor": "narrow",
+        "platform": "mobile",
+        "label": "Mobile portrait view"
+      },
+      {
+        "src": "/screenshots/mobile-landscape.png",
+        "sizes": "1334x750",
+        "type": "image/png",
+        "form_factor": "wide",
+        "platform": "mobile",
+        "label": "Mobile landscape view"
+      }
+    ],
+    "shortcuts": [
+      {
+        "name": "Dashboard",
+        "short_name": "Dashboard",
+        "description": "Open your dashboard",
+        "url": "/dashboard",
+        "icons": [
+          {
+            "src": "/icons/shortcut-dashboard.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any"
+          }
+        ]
+      },
+      {
+        "name": "Settings",
+        "short_name": "Settings",
+        "description": "Open settings",
+        "url": "/settings",
+        "icons": [
+          {
+            "src": "/icons/shortcut-settings.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any"
+          }
+        ]
+      }
+    ],
+    "launch_handler": {
+      "client_mode": "focus-existing"
+    },
+    "handle_links": "preferred",
+    "share_target": {
+      "action": "/share",
+      "method": "POST",
+      "enctype": "multipart/form-data",
+      "params": {
+        "title": "title",
+        "text": "text",
+        "url": "url",
+        "files": [
+          {
+            "name": "files",
+            "accept": [
+              "image/*"
+            ]
+          }
+        ]
+      }
+    },
+    "protocol_handlers": [
+      {
+        "protocol": "web+tastier",
+        "url": "/protocol?url=%s"
+      }
+    ],
+    "file_handlers": [
+      {
+        "action": "/open",
+        "accept": {
+          "image/*": [
+            ".png",
+            ".jpg",
+            ".jpeg"
+          ]
+        }
+      }
+    ],
+    "scope_extensions": [
+      {
+        "origin": "https://media.tastier.app"
+      }
+    ],
+    "widgets": [],
+    "related_applications": [],
+    "prefer_related_applications": false,
+    "iarc_rating_id": "",
+    "edge_side_panel": {
+      "preferred_width": 400
+    }
+  }*/
+
+import { parse, strictObject } from "valibot";
+
+export const ManifestJsonSchema = strictObject({})
+
+export function output(config: ManifestJSON): ManifestJSON {
+  return parse(ManifestJsonSchema, config)
+}

@@ -1,0 +1,3946 @@
+Congee
+Rice Porridge
+Plain Congee
+Pork Congee
+Beef Congee
+Chicken Congee
+Fish Congee
+Century Egg Congee
+Century Egg and Pork Congee
+Shrimp Congee
+Vegetable Congee
+Eight Treasure Congee
+Baizhou (White Congee)
+Youtiao
+Soy Milk
+Soy Milk with Youtiao
+Steamed Buns
+Steamed Pork Buns
+Char Siu Bao
+Red Bean Paste Buns
+Custard Buns
+Vegetable Buns
+Sticky Rice in Lotus Leaf
+Sticky Rice Rolls
+Rice Noodle Rolls
+Plain Rice Noodle Rolls
+Shrimp Rice Noodle Rolls
+Beef Rice Noodle Rolls
+Egg Rice Noodle Rolls
+Scallion Pancake
+Chinese Egg Pancake
+Jianbing
+Turnip Cake
+Taro Cake
+Steamed Dumplings
+Pork Dumplings
+Shrimp Dumplings
+Pan-Fried Dumplings
+Soup Dumplings
+Tea Eggs
+Salted Duck Egg
+Preserved Duck Egg
+Fried Dough Twists
+Fried Sesame Balls
+Red Bean Sesame Balls
+Hong Kong Egg Waffles
+Bubble Waffles
+Egg Tarts
+Pineapple Buns
+Pineapple Bun with Butter
+Milk Tea
+Hot Soy Milk
+
+Mantou (Steamed Wheat Bread)
+Whole Wheat Mantou (Whole Wheat Steamed Bread)
+Milk Mantou (Milk Steamed Bread)
+Sweet Mantou (Sweet Steamed Bread)
+Fried Mantou (Deep-Fried Steamed Bread)
+Hua Juan (Steamed Flower Roll Bread)
+Scallion Hua Juan (Scallion Steamed Flower Roll Bread)
+Baozi (Steamed Stuffed Bun)
+Char Siu Bao (Steamed Barbecue Pork Bun)
+Vegetable Bao (Steamed Vegetable Bun)
+Red Bean Bao (Steamed Red Bean Bun)
+Lotus Seed Bao (Steamed Lotus Seed Bun)
+Nai Wong Bao (Steamed Custard Bun)
+Jian Bao (Pan-Fried Stuffed Bun)
+Sheng Jian Bao (Pan-Fried Soup Bun)
+Gua Bao (Steamed Pork Belly Bun)
+Shaobing (Baked Sesame Flatbread)
+Sweet Shaobing (Sweet Baked Flatbread)
+Savory Shaobing (Savory Baked Flatbread)
+Cong You Bing (Scallion Flatbread)
+Scallion Pancake Bread (Layered Scallion Flatbread)
+You Bing (Fried Flatbread)
+Bing (Chinese Flatbread)
+Xinjiang Nang (Uyghur Flatbread)
+Uyghur Naan (Uyghur Baked Flatbread)
+Tang Bing (Sugar Flatbread)
+Jianbing Wrapper (Savory Crepe Flatbread)
+Mantou Toast (Toasted Steamed Bread)
+Milk Bread Roll (Soft Chinese Bakery Bread)
+Coconut Bun (Chinese Bakery Coconut Bread)
+Pineapple Bun (Chinese Sweet Crust Bread)
+Hot Dog Bun (Chinese Bakery Sausage Bread)
+Red Bean Bun (Sweet Red Bean Bakery Bread)
+Custard Bun (Baked Custard Bread)
+Sesame Roll (Sesame Bread Roll)
+
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)
+Sweet and Sour Chicken (Crispy Chicken in Sweet and Sour Sauce)
+General Tso’s Chicken (Crispy Fried Chicken in Sweet Spicy Sauce)
+Orange Chicken (Crispy Chicken in Orange Sauce)
+Lemon Chicken (Crispy Chicken with Lemon Sauce)
+Sesame Chicken (Crispy Chicken with Sesame Sauce)
+Black Pepper Chicken (Stir-Fried Chicken with Black Pepper Sauce)
+Cashew Chicken (Stir-Fried Chicken with Cashews)
+Moo Goo Gai Pan (Stir-Fried Chicken with Mushrooms)
+Chicken with Broccoli (Stir-Fried Chicken and Broccoli)
+Chicken Chow Mein (Stir-Fried Noodles with Chicken)
+Chicken Lo Mein (Soft Noodles with Chicken)
+Chicken Fried Rice (Stir-Fried Rice with Chicken)
+Steamed Chicken with Ginger and Scallions
+Poached Chicken with Ginger Scallion Sauce
+White Cut Chicken (Cantonese Poached Chicken)
+Soy Sauce Chicken (Braised Chicken in Soy Sauce)
+Roast Chicken Cantonese Style
+Tea-Smoked Chicken
+Beggar’s Chicken (Clay-Baked Whole Chicken)
+Three Cup Chicken (Chicken Braised with Soy Sauce, Rice Wine, and Basil)
+Hainanese Chicken Rice (Poached Chicken with Rice and Ginger Sauce)
+Red-Cooked Chicken (Chicken Braised in Soy Sauce and Spices)
+Braised Chicken with Mushrooms
+Braised Chicken with Potatoes
+Braised Chicken with Chestnuts
+Clay Pot Chicken (Chicken Cooked in Clay Pot)
+Salt and Pepper Chicken (Crispy Chicken with Chili and Garlic)
+Popcorn Chicken Chinese Style (Crispy Fried Chicken Bites)
+Crispy Fried Chicken Chinese Style
+Chicken with Garlic Sauce
+Chicken with Oyster Sauce
+Chicken with Snow Peas
+Chicken with Mixed Vegetables
+Chicken in Black Bean Sauce
+Chicken with Chili Sauce
+Chicken Hot Pot
+Chicken Wonton Soup
+Chicken Noodle Soup Chinese Style
+Chicken Dumplings (Chicken-Filled Dumplings)
+
+Beef and Broccoli
+Stir-Fried Beef with Broccoli
+Stir-Fried Beef with Oyster Sauce
+Stir-Fried Beef with Black Bean Sauce
+Stir-Fried Beef with Green Peppers
+Stir-Fried Beef with Onions
+Stir-Fried Beef with Garlic
+Stir-Fried Beef with Ginger and Scallions
+Stir-Fried Beef with Snow Peas
+Stir-Fried Beef with Celery
+Stir-Fried Beef with Mushrooms
+Cumin Beef Stir-Fry
+Spicy Cumin Beef
+Sichuan Spicy Beef Stir-Fry
+Beef in Chili Oil
+Dry-Fried Beef
+Twice-Cooked Beef
+Beef with Garlic Sauce
+Beef with XO Sauce
+Beef with Satay Sauce
+Beef Chow Fun (Stir-Fried Beef Rice Noodles)
+Beef Lo Mein
+Beef Fried Rice
+Beef Ho Fun (Flat Rice Noodles with Beef)
+Beef Dan Dan Noodles
+Beef Lanzhou Noodle Soup
+Beef Noodle Soup
+Red-Braised Beef
+Soy-Braised Beef
+Five-Spice Braised Beef
+Braised Beef Brisket
+Braised Beef Shank
+Braised Beef with Daikon
+Braised Beef Clay Pot
+Clay Pot Beef with Vegetables
+Cantonese Beef Stew
+Taiwanese Braised Beef Noodle Soup
+Beef Hot Pot
+Sliced Beef Hot Pot
+Beef with Enoki Mushrooms
+Beef and Tofu Stir-Fry
+Beef and Bitter Melon
+Beef and Tomato Stir-Fry
+Beef with Eggplant
+Beef and Asparagus Stir-Fry
+Beef with Bamboo Shoots
+Beef Dumplings
+Beef Potstickers
+Steamed Beef Dumplings
+Beef Wontons
+Beef Spring Rolls
+Beef Pancake Rolls
+Beef Scallion Pancake Rolls
+Beef Bao (Steamed Beef Buns)
+Braised Beef Bao
+Beef Stuffed Steamed Buns
+Beef Skewers
+Xinjiang Spiced Beef Skewers
+Cumin Beef Skewers
+Beef Jerky Chinese Style
+Spiced Dried Beef
+Cold Sliced Braised Beef
+Marinated Beef Salad
+Beef Tendon in Chili Oil
+Braised Beef Tendon
+Beef Tripe with Chili Sauce
+Braised Beef Tripe
+Beef Liver Stir-Fry
+Beef Tongue Braised Chinese Style
+
+Hong Shao Rou (Red-Braised Pork Belly)
+Dongpo Rou (Hangzhou Braised Pork Belly)
+Hui Guo Rou (Twice-Cooked Pork)
+Yu Xiang Rou Si (Fish-Fragrant Shredded Pork)
+Gong Bao Pork (Kung Pao Pork)
+Mu Shu Pork (Shredded Pork with Eggs and Wood Ear Mushrooms)
+Sweet and Sour Pork
+Cantonese Roast Pork (Char Siu)
+Crispy Roast Pork Belly
+Steamed Pork with Preserved Vegetables (Mei Cai Kou Rou)
+Steamed Pork Ribs with Black Bean Sauce
+Braised Pork Ribs
+Sweet Soy Braised Pork
+Soy Sauce Braised Pork Trotters
+Stewed Pork Knuckles
+Pork and Chive Dumpling Filling
+Pork and Cabbage Dumpling Filling
+Pan-Fried Pork Dumplings
+Steamed Pork Buns (Char Siu Bao)
+Braised Pork Bao
+Pork and Shrimp Wontons
+Wonton Soup with Pork
+Pork Fried Rice
+Pork Chow Mein
+Pork Lo Mein
+Shredded Pork with Garlic Sauce
+Pork with Green Peppers
+Pork with Chinese Broccoli
+Pork with Snow Peas
+Pork and Eggplant Stir-Fry
+Mapo Tofu with Pork
+Ants Climbing a Tree (Ground Pork with Glass Noodles)
+Pork Congee
+Century Egg and Pork Congee
+Cantonese BBQ Pork Rice
+Pork and Pickled Mustard Greens Soup
+Pork Bone Soup
+Pork and Lotus Root Soup
+
+Kung Pao Shrimp
+Sweet and Sour Shrimp
+Salt and Pepper Shrimp
+Honey Walnut Shrimp
+Sichuan Spicy Shrimp
+Garlic Shrimp Chinese Style
+Ginger Scallion Shrimp
+Shrimp with Lobster Sauce
+Shrimp Fried Rice
+Shrimp Chow Mein
+Shrimp Lo Mein
+Shrimp with Snow Peas
+Shrimp with Broccoli
+Shrimp with Chinese Vegetables
+Stir-Fried Shrimp
+Shrimp in Black Bean Sauce
+Shrimp in Garlic Sauce
+Shrimp with Chili Sauce
+Crispy Fried Shrimp Chinese Style
+Steamed Shrimp with Garlic
+Steamed Shrimp with Soy Sauce
+Shrimp Dumplings (Har Gow / Crystal Shrimp Dumplings)
+Shrimp Spring Rolls
+Shrimp Wontons
+Shrimp Wonton Soup
+Shrimp and Egg Stir-Fry
+Shrimp with Scrambled Eggs
+Shrimp Rice Noodle Rolls (Cheung Fun with Shrimp)
+Shrimp Congee
+Shrimp Hot Pot
+Tea-Smoked Shrimp
+Drunken Shrimp (Marinated Raw Shrimp)
+Shrimp with XO Sauce
+Shrimp with Oyster Sauce
+Shrimp with Cashew Nuts
+Shrimp with Asparagus
+Shrimp and Chive Dumplings
+Shrimp Pancake (Chinese Shrimp Omelette)
+Shrimp in Chili Oil
+Shrimp with Pickled Mustard Greens
+Shrimp Clay Pot
+Shrimp and Tofu Stir-Fry
+
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)
+Sweet and Sour Pork (Crispy Pork in Sweet and Sour Sauce)
+Mapo Tofu (Spicy Sichuan Tofu with Minced Pork)
+Peking Duck (Roast Duck with Pancakes)
+General Tso’s Chicken (Crispy Sweet-Spicy Fried Chicken)
+Orange Chicken (Citrus-Glazed Fried Chicken)
+Beef and Broccoli (Stir-Fried Beef with Broccoli)
+Chow Mein (Stir-Fried Egg Noodles)
+Lo Mein (Soft Wheat Noodles Tossed in Sauce)
+Fried Rice (Stir-Fried Rice with Egg and Vegetables)
+Yangzhou Fried Rice (Shrimp and Ham Fried Rice)
+Hot and Sour Soup (Spicy Sour Broth with Tofu and Mushrooms)
+Wonton Soup (Pork Wontons in Clear Broth)
+Egg Drop Soup (Silky Egg Flower Soup)
+Spring Rolls (Crispy Vegetable Rolls)
+Dumplings (Boiled or Pan-Fried Meat Dumplings)
+Potstickers (Pan-Fried Dumplings)
+Xiao Long Bao (Soup Dumplings)
+Char Siu (Cantonese Barbecue Pork)
+Roast Pork (Cantonese Crispy Pork Belly)
+Roast Duck (Cantonese Roast Duck)
+BBQ Pork Buns (Char Siu Bao – Steamed Pork Buns)
+Steamed Buns (Mantou – Plain Steamed Bread)
+Scallion Pancakes (Cong You Bing – Savory Flatbread)
+Dan Dan Noodles (Spicy Sichuan Sesame Noodles)
+Zhajiangmian (Noodles with Savory Soy Bean Sauce)
+Beef Noodle Soup (Braised Beef with Wheat Noodles)
+Lanzhou Beef Noodle Soup (Hand-Pulled Beef Noodles)
+Biang Biang Noodles (Wide Belt Noodles with Chili Oil)
+Chongqing Chicken (Spicy Mala Chicken with Chilies)
+Twice-Cooked Pork (Sichuan Pork Belly Stir-Fry)
+Fish-Fragrant Eggplant (Yu Xiang Eggplant)
+Steamed Fish with Ginger and Scallions (Cantonese Steamed Fish)
+Salt and Pepper Shrimp (Crispy Shrimp with Chili and Garlic)
+Salt and Pepper Squid (Crispy Squid with Chili and Garlic)
+Tea-Smoked Duck (Smoked Duck with Tea Leaves)
+Clay Pot Rice (Chinese Sausage Rice in Clay Pot)
+Century Egg and Pork Congee (Rice Porridge with Preserved Egg)
+Jianbing (Chinese Savory Breakfast Crepe)
+Youtiao (Chinese Fried Dough Sticks)
+Soy Milk with Fried Dough (Doujiang and Youtiao Breakfast)
+
+Steamed Scallops with Garlic and Vermicelli
+Steamed Scallops with Garlic Sauce
+Steamed Scallops with Black Bean Sauce
+Steamed Scallops with Soy Sauce
+Steamed Scallops with Ginger and Scallions
+Steamed Dried Scallops with Egg Whites
+Pan-Seared Scallops Chinese Style
+Pan-Seared Scallops with XO Sauce
+Stir-Fried Scallops with Vegetables
+Stir-Fried Scallops with Snow Peas
+Stir-Fried Scallops with Asparagus
+Stir-Fried Scallops with Broccoli
+Scallops in Oyster Sauce
+Scallops in Garlic Sauce
+Scallops in Ginger Garlic Sauce
+Scallops in Black Pepper Sauce
+Deep-Fried Scallops
+Salt and Pepper Scallops
+Crispy Fried Scallops
+Scallop and Egg White Stir-Fry
+Scallop and Shrimp Stir-Fry
+Scallop Fried Rice
+Scallop and Vegetable Fried Rice
+Scallop Congee
+Dried Scallop Congee
+Dried Scallop and Winter Melon Soup
+Dried Scallop and Chicken Soup
+Dried Scallop with Bok Choy
+Braised Dried Scallops
+Braised Scallops with Mushrooms
+Scallops with Chinese Broccoli
+Scallops with Garlic Chives
+Scallops with Celery
+Scallops with Bean Curd
+Scallops with Tofu
+Scallops with Chili Garlic Sauce
+Scallops with Sichuan Peppercorns
+Scallops in Superior Stock
+Scallops with Shaoxing Wine
+Scallops in Light Soy Sauce
+Scallops with Fermented Black Beans
+Scallops with Vermicelli Noodles
+Scallops and Glass Noodles Stir-Fry
+
+Soy Sauce (Light Soy Sauce)
+Soy Sauce (Dark Soy Sauce)
+Sweet Soy Sauce (Sweetened Soy Sauce)
+Black Vinegar Sauce (Chinkiang Black Vinegar Sauce)
+Red Vinegar Sauce (Red Rice Vinegar Sauce)
+White Vinegar Sauce (White Rice Vinegar Sauce)
+Chili Oil
+Chili Oil with Sediment (Chili Crisp)
+Garlic Chili Oil
+Sichuan Chili Oil
+Ginger Scallion Sauce
+Garlic Soy Dipping Sauce
+Soy Ginger Dipping Sauce
+Scallion Oil Sauce
+Sesame Oil Sauce
+Sesame Paste Sauce (Chinese Sesame Sauce)
+Hot Sesame Sauce
+Hoisin Sauce
+Sweet Bean Sauce (Tianmianjiang Sweet Flour Sauce)
+Fermented Bean Paste (Doubanjiang Chili Bean Sauce)
+Fermented Yellow Bean Sauce
+Black Bean Garlic Sauce
+Oyster Sauce
+Vegetarian Oyster Sauce (Mushroom Oyster Sauce)
+Plum Sauce (Chinese Plum Sauce)
+Sweet and Sour Sauce
+Sweet and Sour Dipping Sauce
+Orange Sauce
+Lemon Sauce
+General Tso’s Sauce
+Kung Pao Sauce
+Mapo Tofu Sauce
+Five Spice Sauce
+Spicy Garlic Sauce
+Honey Garlic Sauce
+Sha Cha Sauce (Barbecue Seafood Sauce)
+XO Sauce (Spicy Seafood Sauce)
+Mustard Sauce (Chinese Hot Mustard)
+Peanut Sesame Sauce
+Dumpling Dipping Sauce
+Hot Pot Dipping Sauce
+Hot Pot Sesame Sauce
+Hot Pot Peanut Sauce
+Scallion Ginger Soy Sauce
+Vinegar Garlic Sauce
+Chili Vinegar Sauce
+Fermented Tofu Sauce (Furu Sauce)
+
+Mooncake (Yuebing – Traditional Chinese Mooncake)
+Snow Skin Mooncake (Bing Pi Yuebing – Snowy Mooncake)
+Lotus Seed Paste Mooncake (Lian Rong Yuebing – Lotus Mooncake)
+Red Bean Mooncake (Hong Dou Yuebing – Red Bean Mooncake)
+Five Kernel Mooncake (Wu Ren Yuebing – Five Nut Mooncake)
+Egg Yolk Mooncake (Dan Huang Yuebing – Salted Egg Yolk Mooncake)
+Pineapple Cake (Feng Li Su – Taiwanese Pineapple Cake)
+Almond Cookie (Xing Ren Bing – Chinese Almond Cookie)
+Sesame Cookie (Zhi Ma Bing – Black Sesame Cookie)
+Walnut Cookie (He Tao Bing – Walnut Cookie)
+Chinese Egg Cake (Ji Dan Gao – Sponge Egg Cake)
+Steamed Sponge Cake (Ma Lai Gao – Cantonese Steamed Cake)
+Brown Sugar Sponge Cake (Hong Tang Gao – Brown Sugar Cake)
+Red Bean Cake (Hong Dou Gao – Red Bean Cake)
+Rice Flour Cake (Nian Gao – Glutinous Rice Cake)
+Sticky Rice Cake (Bai Tang Gao – White Sugar Rice Cake)
+Steamed Rice Cake (Fa Gao – Prosperity Cake)
+Osmanthus Cake (Gui Hua Gao – Osmanthus Jelly Cake)
+Chestnut Cake (Li Zi Gao – Chestnut Cake)
+Taro Cake (Yu Tou Gao – Taro Cake)
+Mung Bean Cake (Lu Dou Gao – Mung Bean Cake)
+Peanut Candy (Hua Sheng Tang – Peanut Candy)
+Sesame Candy (Zhi Ma Tang – Sesame Candy)
+Dragon Beard Candy (Long Xu Tang – Dragon Beard Candy)
+Tanghulu (Candied Fruit Skewers)
+Sweet Sesame Balls (Jian Dui – Fried Sesame Balls)
+Glutinous Rice Balls (Tang Yuan – Sweet Rice Dumplings)
+Eight Treasure Rice Pudding (Ba Bao Fan – Eight Treasure Dessert Rice)
+Sweet Tofu Pudding (Douhua – Sweet Soy Pudding)
+Almond Tofu Dessert (Xing Ren Dou Fu – Almond Jelly)
+Grass Jelly Dessert (Xian Cao Dong – Herbal Jelly Dessert)
+Mango Sago Dessert (Yang Zhi Gan Lu – Mango Pomelo Sago)
+Sweet Red Bean Soup (Hong Dou Tang – Red Bean Dessert Soup)
+Sweet Black Sesame Soup (Zhi Ma Hu – Black Sesame Dessert Soup)
+Sweet Peanut Soup (Hua Sheng Tang Shui – Peanut Dessert Soup)
+Sweet Lotus Seed Soup (Lian Zi Tang – Lotus Seed Dessert Soup)
+Sweet Taro Soup (Yu Tou Tang – Taro Dessert Soup)
+Egg Tart (Dan Ta – Chinese Egg Custard Tart)
+Puff Pastry Egg Tart (Su Pi Dan Ta – Flaky Egg Tart)
+Coconut Jelly (Ye Zi Gao – Coconut Jelly Dessert)
+Milk Pudding (Shuang Pi Nai – Double Skin Milk Pudding)
+Steamed Custard Cake (Dan Gao – Custard Cake)
+
+Char Siu (Cantonese Barbecued Pork)
+Honey Char Siu (Honey-Glazed Cantonese Barbecued Pork)
+Char Siu Bao Filling (Barbecued Pork Filling)
+Roast Duck (Cantonese Barbecued Duck)
+Peking Duck (Beijing Roasted Duck)
+Crispy Roast Pork Belly (Cantonese Barbecued Pork Belly)
+Siu Yuk (Crispy Cantonese Roast Pork)
+Soy Sauce Chicken (Cantonese Barbecued Soy Chicken)
+Tea-Smoked Duck (Chinese Smoked Barbecue Duck)
+Five-Spice Roast Chicken (Chinese Barbecued Chicken)
+Five-Spice Roast Pork (Chinese Barbecued Pork)
+Red-Cooked Barbecued Pork (Soy-Braised and Roasted Pork)
+Chinese BBQ Ribs (Cantonese Barbecued Pork Ribs)
+Honey Garlic BBQ Ribs (Chinese-Style Honey Barbecued Ribs)
+Sticky Hoisin BBQ Chicken (Chinese Hoisin-Glazed Barbecue Chicken)
+BBQ Pork Skewers (Chinese-Style Pork Skewers)
+BBQ Lamb Skewers (Xinjiang-Style Barbecued Lamb Skewers)
+Cumin Lamb Skewers (Chinese Muslim Barbecue Lamb Skewers)
+BBQ Chicken Skewers (Chinese-Style Barbecued Chicken Skewers)
+BBQ Beef Skewers (Chinese-Style Barbecued Beef Skewers)
+Roasted Goose (Cantonese Barbecued Goose)
+BBQ Pork Belly Skewers (Chinese-Style Barbecued Pork Belly)
+Chinese BBQ Sausage (Cantonese Sweet Pork Sausage)
+Chinese BBQ Chicken Wings (Cantonese Barbecued Chicken Wings)
+Honey Soy BBQ Chicken Wings (Chinese Honey Soy Barbecue Wings)
+BBQ Eggplant (Chinese-Style Grilled Eggplant)
+BBQ Mushrooms (Chinese-Style Grilled Mushrooms)
+BBQ Tofu Skewers (Chinese-Style Grilled Tofu)
+BBQ Squid (Chinese-Style Grilled Squid)
+BBQ Prawns (Chinese-Style Grilled Prawns)
+
+Steamed White Rice
+Steamed Jasmine Rice
+Steamed Short-Grain Rice
+Plain Cooked Rice
+Clay Pot Rice
+Cantonese Clay Pot Rice
+Chicken Clay Pot Rice
+Chinese Sausage Clay Pot Rice
+Egg Fried Rice
+Yangzhou Fried Rice (Yangzhou-Style Fried Rice)
+House Special Fried Rice
+Shrimp Fried Rice
+Chicken Fried Rice
+Beef Fried Rice
+Pork Fried Rice
+Vegetable Fried Rice
+Golden Fried Rice (Egg Yolk Fried Rice)
+Pineapple Fried Rice
+Salted Fish Fried Rice
+Fujian Fried Rice
+Soy Sauce Fried Rice
+Sticky Rice
+Steamed Sticky Rice
+Lotus Leaf Sticky Rice (Lo Mai Gai)
+Sticky Rice with Red Bean Paste
+Sticky Rice with Chinese Sausage
+Sticky Rice with Pork
+Sticky Rice with Dates
+Congee (Rice Porridge)
+Plain Rice Congee
+Chicken Rice Congee
+Pork Rice Congee
+Century Egg and Pork Congee
+Fish Rice Congee
+Shrimp Rice Congee
+Eight Treasure Rice Pudding
+Red Bean Rice
+Black Rice Sweet Pudding
+Glutinous Rice Balls in Sweet Soup
+Rice with Stewed Pork Belly
+Rice with Roast Duck
+Rice with Char Siu Pork
+Rice with Soy-Braised Chicken
+Rice with Braised Eggplant
+Rice with Mapo Tofu
+Rice with Stir-Fried Vegetables
+Rice with Braised Beef
+Rice with Salt and Pepper Shrimp
+Rice with Sweet and Sour Pork
+Rice with Tomato and Egg Stir-Fry
+Rice with Garlic Sauce
+Rice with Oyster Sauce Vegetables
+Rice with Chinese Mushroom Sauce
+Rice with Braised Tofu
+Rice with Black Bean Sauce
+Rice with Ginger Scallion Sauce
+
+White Rabbit Milk Candy
+Haw Flakes (Hawthorn Candy Discs)
+Hawthorn Candy Sticks
+Tanghulu (Candied Fruit Skewers)
+Candied Hawthorn Balls
+Sesame Peanut Brittle
+Black Sesame Candy
+Peanut Candy Brittle
+Mung Bean Candy
+Red Bean Candy
+Lotus Seed Candy
+Osmanthus Sugar Candy
+Rock Sugar Candy
+Ginger Candy Cubes
+Preserved Ginger Candy
+Winter Melon Candy
+Candied Winter Melon
+Candied Lotus Root
+Candied Sweet Potato
+Candied Chestnuts
+Dragon Beard Candy (Chinese Cotton Candy)
+Sesame Honey Candy
+Peanut Honey Candy
+Milk Tablet Candy
+Almond Sugar Candy
+Pine Nut Candy
+Candied Orange Peel
+Candied Kumquat
+Candied Ginger Slices
+Black Sugar Candy
+Brown Sugar Peanut Candy
+Chocolate Mooncakes
+Chocolate-Filled Mooncakes
+Chocolate Tangyuan (Chocolate Rice Balls)
+Chocolate Sesame Balls
+Chocolate Red Bean Candy
+Chocolate Almond Candy
+Chocolate Peanut Candy
+Chocolate-Coated Dried Fruit
+Chocolate-Coated Ginger Candy
+
+Stir-Fried Bok Choy with Garlic
+Stir-Fried Chinese Broccoli with Oyster Sauce
+Stir-Fried Snow Peas
+Stir-Fried Sugar Snap Peas
+Stir-Fried Napa Cabbage
+Stir-Fried Napa Cabbage with Glass Noodles
+Stir-Fried Water Spinach with Garlic
+Stir-Fried Water Spinach with Fermented Bean Curd
+Stir-Fried Chinese Eggplant with Garlic Sauce
+Yu Xiang Qie Zi (Fish-Fragrant Eggplant)
+Stir-Fried Chinese Eggplant with Basil
+Steamed Chinese Broccoli with Oyster Sauce
+Steamed Bok Choy
+Steamed Napa Cabbage
+Braised Napa Cabbage
+Braised Napa Cabbage with Mushrooms
+Braised Chinese Cabbage with Vermicelli
+Sauteed Mixed Chinese Vegetables
+Eight Treasure Vegetables
+Stir-Fried Mixed Vegetables
+Dry-Fried Green Beans
+Dry-Fried Green Beans with Minced Pork
+Dry-Fried Green Beans with Preserved Vegetables
+Stir-Fried Long Beans
+Stir-Fried Long Beans with Garlic
+Stir-Fried Lotus Root
+Sweet and Sour Lotus Root
+Stir-Fried Lotus Root with Black Vinegar
+Braised Lotus Root
+Stir-Fried Bitter Melon
+Bitter Melon with Black Bean Sauce
+Bitter Melon with Egg
+Stir-Fried Winter Melon
+Braised Winter Melon
+Winter Melon with Dried Shrimp
+Stir-Fried Chinese Chives
+Chinese Chives with Scrambled Eggs
+Stir-Fried Bean Sprouts
+Bean Sprouts with Garlic Chives
+Cold Bean Sprout Salad
+Stir-Fried Bamboo Shoots
+Braised Bamboo Shoots
+Bamboo Shoots with Mushrooms
+Stir-Fried Snow Fungus
+Braised Shiitake Mushrooms
+Stir-Fried Mixed Mushrooms
+Stir-Fried King Oyster Mushrooms
+Stir-Fried Enoki Mushrooms
+Enoki Mushrooms with Garlic
+Stir-Fried Wood Ear Mushrooms
+Cold Wood Ear Mushroom Salad
+Stir-Fried Spinach with Garlic
+Blanched Spinach with Sesame Sauce
+Chinese Spinach with Oyster Sauce
+Stir-Fried Mustard Greens
+Braised Mustard Greens
+Pickled Mustard Greens Stir-Fry
+Stir-Fried Turnip Greens
+Braised Turnip Greens
+Stir-Fried Daikon Radish
+Braised Daikon Radish
+Daikon Radish with Soy Sauce
+Pickled Daikon Radish
+Stir-Fried Cucumber
+Smashed Cucumber Salad
+Garlic Cucumber Salad
+Cucumber with Sesame Oil
+Stir-Fried Tomatoes with Egg
+Tomato and Egg Stir-Fry
+Stir-Fried Pea Shoots
+Pea Shoots with Garlic
+Stir-Fried Lettuce with Garlic
+Braised Lettuce with Oyster Sauce
+Stir-Fried Celery
+Celery with Garlic
+Celery with Fermented Bean Curd
+Stir-Fried Tofu Skin with Vegetables
+Braised Tofu Skin with Mushrooms
+Cold Tofu Skin Salad
+Chinese Pickled Vegetables
+Preserved Vegetable Stir-Fry
+Stir-Fried Preserved Vegetables
+Stir-Fried Seaweed Salad
+Cold Seaweed Salad with Sesame
+Braised Seaweed with Garlic
+
+Mapo Tofu (Spicy Sichuan Tofu with Minced Pork)
+Ma Po Dou Fu (Sichuan Chili Bean Tofu)
+Steamed Tofu with Soy Sauce
+Steamed Tofu with Minced Garlic
+Steamed Tofu with Ginger and Scallions
+Braised Tofu in Brown Sauce
+Braised Tofu with Mushrooms
+Braised Tofu with Vegetables
+Braised Tofu with Pork Belly
+Pan-Fried Tofu
+Pan-Fried Tofu with Garlic Sauce
+Pan-Fried Tofu with Chili Sauce
+Crispy Fried Tofu
+Salt and Pepper Tofu
+Deep-Fried Tofu with Sweet Soy Sauce
+Tofu Stir-Fry
+Tofu and Vegetable Stir-Fry
+Tofu and Beef Stir-Fry
+Tofu and Pork Stir-Fry
+Tofu and Shrimp Stir-Fry
+Clay Pot Tofu
+Clay Pot Tofu with Seafood
+Clay Pot Tofu with Pork
+Home-Style Tofu
+Home-Style Braised Tofu
+Family-Style Tofu
+Sichuan Braised Tofu
+Hunan Spicy Tofu
+Chili Garlic Tofu
+Black Bean Sauce Tofu
+Fermented Black Bean Tofu
+Tofu with Oyster Sauce
+Tofu with XO Sauce
+Tofu with Garlic Chives
+Tofu with Chinese Chives
+Tofu with Snow Peas
+Tofu with Bok Choy
+Tofu with Napa Cabbage
+Tofu and Egg Stir-Fry
+Scrambled Eggs with Tofu
+Tofu Omelette Chinese Style
+Egg Tofu with Soy Sauce
+Egg Tofu Stir-Fry
+Egg Tofu with Shrimp
+Egg Tofu with Crab Roe Sauce
+Egg Tofu with Minced Pork
+Tofu Skin Rolls
+Tofu Skin Rolls with Vegetables
+Tofu Skin Rolls with Pork
+Tofu Skin Salad
+Cold Tofu Salad
+Cold Silken Tofu with Soy Sauce
+Cold Silken Tofu with Century Egg
+Cold Silken Tofu with Chili Oil
+Cold Tofu with Scallions
+Cold Tofu with Sesame Oil
+Cold Tofu with Garlic Sauce
+Cold Tofu with Spicy Sauce
+Tofu Soup
+Tofu and Vegetable Soup
+Tofu and Seaweed Soup
+Tofu and Mushroom Soup
+Tofu and Pork Soup
+Tofu and Fish Soup
+Sour Soup with Tofu
+Hot and Sour Soup with Tofu
+Tofu Hot Pot
+Tofu and Seafood Hot Pot
+Tofu and Vegetable Hot Pot
+Stuffed Tofu
+Stuffed Tofu with Minced Pork
+Stuffed Tofu with Shrimp Paste
+Stuffed Tofu in Black Bean Sauce
+Stuffed Tofu in Brown Sauce
+Lion’s Head Meatballs with Tofu
+Eight Treasure Tofu
+Braised Tofu Puffs
+Tofu Puffs with Vegetables
+Tofu Puffs with Pork
+Tofu Puffs in Soy Sauce
+Five-Spice Braised Tofu
+Tea-Braised Tofu
+Soy-Braised Tofu
+Red-Braised Tofu
+Vegetarian Buddhist Tofu
+Monk-Style Braised Tofu
+Mock Meat Tofu Dish
+Smoked Tofu Chinese Style
+
+Wonton Soup
+Pork Wonton Soup
+Shrimp Wonton Soup
+Hot and Sour Soup
+Egg Drop Soup
+Chicken Egg Drop Soup
+Sweet Corn Soup
+Chicken Sweet Corn Soup
+Chinese Vegetable Soup
+Chinese Chicken Soup
+Chinese Beef Soup
+Chinese Pork Bone Soup
+Winter Melon Soup
+Winter Melon and Pork Rib Soup
+Lotus Root Soup
+Lotus Root and Pork Rib Soup
+Daikon Radish Soup
+Daikon Radish and Beef Soup
+Seaweed Soup (Chinese Seaweed Soup)
+Fish Ball Soup
+Beef Ball Soup
+Pork Ball Soup
+Tomato and Egg Soup
+Chinese Tomato Beef Soup
+Chinese Mushroom Soup
+Chicken and Mushroom Soup
+Chinese Herbal Chicken Soup
+Ginseng Chicken Soup (Chinese Style)
+Angelica Root Chicken Soup
+Goji Berry Chicken Soup
+Chinese Herbal Pork Soup
+Eight Treasure Soup (Mixed Chinese Herbal Soup)
+Black Chicken Soup (Silkie Chicken Soup)
+Hot Pot Soup Base (Clear Broth)
+Hot Pot Soup Base (Spicy Broth)
+Sichuan Spicy Soup Base
+Chinese Lamb Soup
+Lamb and Radish Soup
+Fish Head Soup (Chinese Style)
+Sour Mustard Greens Soup
+Mustard Greens and Pork Soup
+Pickled Mustard Greens Soup
+Chinese Seafood Soup
+Crab and Tofu Soup
+Fish Maw Soup
+Fish Maw and Chicken Soup
+Shark Fin Soup (Imitation Shark Fin Soup)
+Bird’s Nest Soup
+Chinese Pumpkin Soup
+Chinese Corn Soup
+Chinese Spinach Soup
+Chinese Noodle Soup
+Beef Noodle Soup (Chinese Style)
+Clear Beef Broth Soup
+Clear Chicken Broth Soup
+
+Jianbing (Chinese Savory Breakfast Crepe)
+Cong You Bing (Scallion Pancake)
+Roujiamo (Chinese Pork Flatbread Sandwich)
+Baozi (Steamed Stuffed Buns)
+Char Siu Bao (Barbecue Pork Steamed Bun)
+Shengjian Bao (Pan-Fried Soup Buns)
+Xiaolongbao (Soup Dumplings)
+Jiaozi (Boiled Dumplings)
+Guotie (Pan-Fried Dumplings)
+Wonton Soup (Pork and Shrimp Wonton Soup)
+Youtiao (Chinese Fried Dough Sticks)
+Doujiang (Warm Soy Milk)
+Fan Tuan (Sticky Rice Roll with Fillings)
+Zongzi (Sticky Rice Dumplings)
+Lo Bak Go (Turnip Cake)
+Cheung Fun (Rice Noodle Rolls)
+Zha Ji (Chinese Fried Chicken)
+Salt and Pepper Squid (Cantonese Fried Squid)
+Chuan’r (Chinese Lamb Skewers)
+Spicy Beef Skewers (Street-Style Beef Skewers)
+Malatang (Spicy Sichuan Hot Pot Skewers)
+Tanghulu (Candied Fruit Skewers)
+Jianbing Guozi (Crispy Crepe with Crackers)
+Scallion Oil Noodles (Street-Style Scallion Noodles)
+Biang Biang Noodles (Wide Hand-Pulled Noodles)
+Dan Dan Noodles (Sichuan Spicy Noodles)
+Cold Sesame Noodles (Street-Style Sesame Noodles)
+Fried Rice Noodles (Street-Style Chow Fun)
+Egg Fried Rice (Street-Style Fried Rice)
+Stinky Tofu (Fermented Fried Tofu)
+Fried Tofu Skewers (Crispy Tofu Skewers)
+Tea Eggs (Soy Sauce Braised Eggs)
+Braised Pork Rice (Street-Style Pork Rice Bowl)
+Scallion Pancake Wrap (Pancake with Fried Fillings)
+Sugar-Coated Hawthorn Balls (Candied Hawthorn Snacks)
+Chestnut Street Roast (Roasted Chestnuts)
+Sweet Red Bean Buns (Red Bean Steamed Buns)
+Glutinous Rice Cakes (Street-Style Rice Cakes)
+
+Steamed White Rice
+Fried Rice
+Scallion Oil Noodles
+Stir-Fried Bok Choy
+Garlic Stir-Fried Chinese Broccoli (Gai Lan)
+Stir-Fried Napa Cabbage
+Stir-Fried Snow Peas
+Stir-Fried Green Beans
+Dry-Fried Green Beans (Gan Bian Si Ji Dou / Dry-Fried String Beans)
+Stir-Fried Bean Sprouts
+Stir-Fried Spinach with Garlic
+Stir-Fried Mushrooms
+Stir-Fried Mixed Vegetables
+Chinese Pickled Vegetables
+Pickled Mustard Greens (Zha Cai / Pickled Mustard Tuber)
+Pickled Cucumber Salad
+Smashed Cucumber Salad (Pai Huang Gua / Smashed Cucumber Salad)
+Cold Wood Ear Mushroom Salad
+Cold Tofu Salad
+Century Egg Salad
+Tea Eggs (Cha Ye Dan / Tea-Marinated Eggs)
+Soy Sauce Eggs
+Steamed Egg Custard (Zheng Shui Dan / Steamed Egg Custard)
+Braised Tofu
+Mapo Tofu (Mapo Doufu / Spicy Tofu with Minced Pork)
+Silken Tofu with Soy Sauce
+Tofu with Scallion Oil
+Stir-Fried Tofu with Vegetables
+Chinese Dumplings (Jiaozi / Boiled Dumplings)
+Pan-Fried Dumplings (Guo Tie / Potstickers)
+Steamed Dumplings
+Scallion Pancakes (Cong You Bing / Scallion Flatbread)
+Chinese Flatbread
+Steamed Buns (Mantou / Steamed Bread)
+Stuffed Steamed Buns (Baozi / Steamed Stuffed Buns)
+Sticky Rice Dumplings (Zongzi / Glutinous Rice Dumplings)
+Lo Mein Noodles
+Chow Mein Noodles
+Cold Sesame Noodles
+Hot and Sour Shredded Potatoes (Suan La Tu Dou Si / Spicy Sour Potato Strips)
+Braised Eggplant
+Yu Xiang Eggplant (Fish-Fragrant Eggplant)
+Stir-Fried Eggplant with Garlic Sauce
+Stir-Fried Tomatoes and Eggs
+Chinese Pickled Radish
+Braised Daikon Radish
+Stir-Fried Lotus Root
+Cold Lotus Root Salad
+Stir-Fried Bamboo Shoots
+Stir-Fried Chinese Chives
+Stir-Fried Shrimp Paste Vegetables
+Stir-Fried Preserved Vegetables
+Fermented Black Bean Vegetables
+Steamed Chinese Sausage
+Chinese Sausage with Rice
+Stir-Fried Peanuts
+Salt and Pepper Tofu
+Salt and Pepper Eggplant
+
+Spring Rolls (Chinese Spring Rolls)
+Vegetable Spring Rolls (Vegetable Chinese Spring Rolls)
+Pork Spring Rolls (Pork Chinese Spring Rolls)
+Shrimp Spring Rolls (Shrimp Chinese Spring Rolls)
+Egg Rolls (Chinese Egg Rolls)
+Pork Egg Rolls (Pork Egg Rolls)
+Vegetable Egg Rolls (Vegetable Egg Rolls)
+Steamed Dumplings (Steamed Chinese Dumplings)
+Pork Dumplings (Pork Dumplings)
+Chicken Dumplings (Chicken Dumplings)
+Shrimp Dumplings (Shrimp Dumplings)
+Vegetable Dumplings (Vegetable Dumplings)
+Pan-Fried Dumplings (Potstickers)
+Boiled Dumplings (Boiled Chinese Dumplings)
+Soup Dumplings (Xiaolongbao – Soup-Filled Dumplings)
+Shrimp Har Gow (Har Gow – Shrimp Dumplings)
+Pork Siu Mai (Siu Mai – Pork Dumplings)
+Vegetable Siu Mai (Vegetable Siu Mai Dumplings)
+Scallion Pancakes (Chinese Scallion Pancakes)
+Stuffed Scallion Pancakes (Stuffed Scallion Pancakes)
+Crispy Wontons (Fried Wontons)
+Cream Cheese Wontons (Crab Rangoon)
+Shrimp Wontons (Shrimp Wontons)
+Wontons in Chili Oil (Spicy Chili Oil Wontons)
+Cold Sesame Noodles (Cold Chinese Sesame Noodles)
+Cold Cucumber Salad (Chinese Smashed Cucumber Salad)
+Wood Ear Mushroom Salad (Cold Wood Ear Mushroom Salad)
+Century Egg with Tofu (Preserved Egg and Tofu)
+Tea Eggs (Chinese Tea-Infused Eggs)
+Soy Sauce Eggs (Chinese Soy-Braised Eggs)
+Five-Spice Peanuts (Chinese Spiced Peanuts)
+Salt and Pepper Tofu (Crispy Salt and Pepper Tofu)
+Salt and Pepper Shrimp (Salt and Pepper Fried Shrimp)
+Salt and Pepper Squid (Salt and Pepper Squid)
+Crispy Fried Calamari (Chinese Fried Squid)
+Crispy Fried Shrimp Balls (Shrimp Balls)
+Turnip Cake (Lo Bak Go – Savory Turnip Cake)
+Taro Cake (Savory Taro Cake)
+Sticky Rice Dumplings (Zongzi – Sticky Rice Parcels)
+Stuffed Lotus Root (Stuffed Lotus Root Slices)
+Braised Peanuts (Soy-Braised Peanuts)
+Marinated Jellyfish (Cold Jellyfish Salad)
+Cold Chicken with Chili Sauce (Chili Chicken Appetizer)
+Char Siu Pork Slices (Barbecue Pork Appetizer)
+Roast Duck Slices (Cantonese Roast Duck Appetizer)
+Peking Duck Pancakes (Duck Pancakes Appetizer)
+
+Har Gow (Steamed Shrimp Dumplings)
+Siu Mai (Pork and Shrimp Dumplings)
+Char Siu Bao (Barbecue Pork Steamed Buns)
+Baked Char Siu Bao (Baked Barbecue Pork Buns)
+Cheung Fun (Rice Noodle Rolls)
+Shrimp Rice Noodle Rolls
+Beef Rice Noodle Rolls
+Char Siu Rice Noodle Rolls
+Lo Mai Gai (Sticky Rice in Lotus Leaf)
+Xiao Long Bao (Soup Dumplings)
+Shanghai Soup Dumplings (Xiao Long Bao with Pork)
+Pan-Fried Pork Buns (Sheng Jian Bao)
+Steamed Vegetable Dumplings
+Chive Dumplings (Chiu Chow Dumplings)
+Crystal Dumplings (Translucent Tapioca Dumplings)
+Turnip Cake (Chinese Radish Cake)
+Taro Cake (Taro Root Cake)
+Pan-Fried Turnip Cake
+Pan-Fried Taro Cake
+Spring Rolls (Cantonese Spring Rolls)
+Shrimp Spring Rolls
+Pan-Fried Dumplings (Potstickers)
+Steamed Pork Dumplings
+Steamed Shrimp Dumplings with Bamboo Shoots
+Phoenix Claws (Steamed Chicken Feet)
+Black Bean Chicken Feet
+Steamed Spare Ribs with Black Bean Sauce
+Steamed Beef Meatballs
+Steamed Pork Meatballs
+Sticky Rice Dumplings (Zongzi – Savory)
+Fried Sesame Balls (Jian Dui)
+Red Bean Sesame Balls
+Lotus Seed Paste Sesame Balls
+Egg Tarts (Cantonese Egg Tarts)
+Portuguese Egg Tarts (Macanese Egg Tarts)
+Steamed Custard Buns (Nai Wong Bao)
+Salted Egg Yolk Custard Buns
+Sweet Red Bean Paste Buns
+Steamed Sponge Cake (Ma Lai Go)
+Almond Jelly Dessert
+Mango Pudding
+Double Skin Milk Pudding
+Sweet Tofu Pudding (Douhua)
+Steamed Rice Flour Rolls
+Fried Glutinous Rice Dumplings
+Pan-Fried Chive Pancakes
+Pan-Fried Shrimp Pancakes
+Steamed Fish Dumplings
+Steamed Mushroom Dumplings
+Steamed Scallop Dumplings
+Shrimp Toast (Cantonese Shrimp Toast)
+Fried Wontons
+Steamed Wontons
+Shrimp Wontons
+Beef Tripe with Ginger and Scallions
+Steamed Pork Ribs with Taro
+Pan-Fried Lotus Root Cake
+Sweet Coconut Milk Buns
+
+Soy Sauce Dressing
+Light Soy Sauce Dressing
+Dark Soy Sauce Dressing
+Sweet Soy Sauce Dressing
+Soy Sauce and Sesame Oil Dressing
+Soy Sauce and Black Vinegar Dressing
+Garlic Soy Sauce Dressing
+Ginger Soy Sauce Dressing
+Scallion Soy Sauce Dressing
+Black Vinegar Dressing
+Chinkiang Black Vinegar Dressing
+Black Vinegar and Sugar Dressing
+Black Vinegar and Chili Oil Dressing
+Sesame Oil Dressing
+Sesame Oil and Soy Sauce Dressing
+Sesame Paste Dressing
+Chinese Sesame Dressing (Zhima Jiang Dressing)
+Peanut Sesame Dressing
+Chili Oil
+Chili Oil Dressing
+Chili Crisp Sauce
+Chili Garlic Sauce
+Chili Garlic Oil
+Spicy Chili Vinegar Dressing
+Sichuan Red Oil Dressing
+Sichuan Peppercorn Oil
+Sichuan Chili Oil Marinade
+Five-Spice Marinade
+Soy Sauce Five-Spice Marinade
+Hoisin Sauce
+Hoisin Marinade
+Hoisin Garlic Marinade
+Char Siu Marinade (Chinese Barbecue Marinade)
+Honey Soy Marinade
+Sweet Soy Garlic Marinade
+Shaoxing Wine Marinade
+Shaoxing Wine Soy Marinade
+Oyster Sauce
+Oyster Sauce Marinade
+Oyster Sauce Garlic Marinade
+Fish Sauce Marinade (Chinese Style)
+Sweet and Sour Sauce
+Sweet and Sour Marinade
+Plum Sauce
+Plum Sauce Marinade
+Ginger Garlic Marinade
+Ginger Scallion Sauce
+Ginger Scallion Marinade
+Scallion Oil
+Scallion Oil Dressing
+Fermented Bean Paste Sauce
+Fermented Black Bean Sauce
+Fermented Black Bean Marinade
+Doubanjiang Sauce (Spicy Fermented Bean Paste Sauce)
+Doubanjiang Marinade
+Mapo Chili Bean Sauce
+Hot Pot Dipping Sauce
+Hot Pot Sesame Sauce
+Hot Pot Soy Sauce
+Hot Pot Garlic Sauce
+Cold Noodle Sesame Dressing
+Cold Noodle Peanut Sauce
+Cold Chicken Soy Sauce Dressing
+Cucumber Garlic Dressing
+Chinese Mustard Sauce
+Sweet Mustard Soy Dressing
+
+Five-Spice Powder (Chinese Five-Spice Blend)
+Cantonese Roast Meat Spice Blend
+Sichuan Pepper Salt (Sichuan Peppercorn Salt)
+Salt and Pepper Seasoning (Chinese Salt and Pepper Mix)
+Chili Salt (Chinese Chili Salt)
+Cumin Chili Spice Blend (Xinjiang-Style Cumin Rub)
+Barbecue Pork Spice Blend (Char Siu Spice Blend)
+Tea-Smoked Duck Spice Blend
+Star Anise and Cinnamon Spice Blend
+Red-Braised Spice Blend (Red Cooking Spice Mix)
+Hot Pot Dry Spice Mix
+Dry Pot Spice Blend (Mala Dry Pot Seasoning)
+Mala Spice Blend (Numbing Chili Spice Mix)
+Sichuan Chili Powder
+Fermented Bean Chili Spice Blend
+Garlic Ginger Pepper Rub
+White Pepper Salt
+Five-Spice Chili Rub
+Black Pepper Garlic Rub
+Soy Sauce Dry Marinade Spice Blend
+
+Deep-Fried Spring Rolls
+Deep-Fried Egg Rolls
+Deep-Fried Wontons
+Deep-Fried Crab Rangoon (Cream Cheese Wontons)
+Deep-Fried Sesame Balls (Jian Dui – Glutinous Rice Balls)
+Deep-Fried Sweet and Sour Pork
+Deep-Fried Sweet and Sour Chicken
+Deep-Fried Orange Chicken
+Deep-Fried General Tso’s Chicken
+Deep-Fried Sesame Chicken
+Deep-Fried Lemon Chicken
+Deep-Fried Crispy Chicken
+Deep-Fried Salt and Pepper Chicken
+Deep-Fried Salt and Pepper Shrimp
+Deep-Fried Salt and Pepper Squid
+Deep-Fried Crispy Pork Belly
+Deep-Fried Crispy Pork Ribs
+Deep-Fried Crispy Beef
+Deep-Fried Crispy Duck
+Deep-Fried Crispy Tofu
+Deep-Fried Five-Spice Tofu
+Deep-Fried Stuffed Tofu
+Deep-Fried Crispy Eggplant
+Deep-Fried Crispy Lotus Root
+Deep-Fried Crispy Mushrooms
+Deep-Fried Crispy Green Beans
+Deep-Fried Crispy Chicken Wings
+Deep-Fried Crispy Chicken Feet
+Deep-Fried Crispy Fish Fillets
+Deep-Fried Whole Fish
+Deep-Fried Crispy Shrimp Balls
+Deep-Fried Pork Balls
+Deep-Fried Beef Balls
+Deep-Fried Fish Balls
+Deep-Fried Turnip Cake
+Deep-Fried Taro Cake
+Deep-Fried Chinese Donuts (Youtiao – Fried Dough Sticks)
+Deep-Fried Banana Fritters
+Deep-Fried Sesame Shrimp Toast
+Deep-Fried Stuffed Crab Claws
+Deep-Fried Crispy Noodles
+Deep-Fried Honey Walnut Shrimp
+
+Whole Steamed Fish with Ginger and Scallions
+Steamed Sea Bass with Soy Sauce
+Steamed Tilapia with Black Bean Sauce
+Steamed Grouper Cantonese Style
+Steamed Cod with Preserved Vegetables
+Steamed Pork Ribs with Black Bean Sauce
+Steamed Pork Belly with Preserved Mustard Greens
+Steamed Minced Pork with Salted Fish
+Steamed Minced Pork with Water Chestnuts
+Steamed Chicken with Ginger and Scallions
+Steamed Chicken with Chinese Sausage
+Steamed Chicken with Mushrooms
+Steamed Duck with Taro
+Steamed Egg Custard
+Steamed Egg with Minced Pork
+Steamed Egg with Seafood
+Steamed Tofu with Soy Sauce
+Steamed Tofu with Minced Pork
+Steamed Tofu with Mushrooms
+Steamed Shrimp with Garlic
+Steamed Shrimp with Vermicelli
+Steamed Crab with Rice Wine
+Steamed Scallops with Garlic and Glass Noodles
+Braised Pork Belly in Soy Sauce
+Red Braised Pork Belly
+Braised Pork Trotters
+Braised Pork Ribs
+Braised Beef Brisket
+Braised Beef with Daikon
+Braised Chicken with Mushrooms
+Braised Chicken with Soy Sauce
+Braised Duck with Soy Sauce
+Braised Duck with Taro
+Braised Fish in Soy Sauce
+Braised Fish with Tofu
+Braised Eggplant with Garlic Sauce
+Braised Tofu with Mushrooms
+Braised Tofu with Minced Pork
+Braised Sea Cucumber
+Braised Abalone
+Braised Shiitake Mushrooms
+Braised Bamboo Shoots
+Braised Daikon Radish
+Braised Napa Cabbage
+
+Whole Roasted Peking Duck
+Roast Duck (Cantonese Roast Duck)
+Soy Sauce Chicken
+White Cut Chicken (Poached Chicken)
+Red Cooked Pork Belly
+Braised Pork Belly with Preserved Vegetables
+Eight Treasure Duck
+Braised Abalone with Mushrooms
+Braised Sea Cucumber
+Steamed Fish with Ginger and Scallions
+Steamed Grouper
+Steamed Sea Bass
+Steamed Whole Fish (New Year Fish)
+Longevity Noodles
+Stir-Fried Longevity Noodles
+Braised Longevity Noodles
+Eight Treasure Rice
+Sticky Rice with Red Bean Paste
+Sticky Rice with Jujube
+Sticky Rice with Lotus Seeds
+Glutinous Rice Balls (Sweet Rice Dumplings)
+Sweet Glutinous Rice Balls in Ginger Syrup
+Savory Glutinous Rice Balls
+Chinese Dumplings (Boiled Dumplings)
+Pan-Fried Dumplings
+Steamed Dumplings
+Pork and Chive Dumplings
+Shrimp Dumplings
+Wontons
+Wonton Soup
+Spring Rolls
+Crispy Spring Rolls
+Vegetable Spring Rolls
+Sweet and Sour Fish
+Sweet and Sour Pork
+Sweet and Sour Chicken
+Braised Whole Chicken
+Braised Duck with Taro
+Steamed Abalone with Oyster Sauce
+Braised Mushrooms with Oyster Sauce
+Braised Black Moss with Oysters
+Braised Black Moss with Dried Oysters
+Buddha’s Delight (Mixed Vegetarian Stew)
+Braised Mixed Vegetables (New Year Vegetables)
+Steamed Scallops with Garlic
+Steamed Shrimp with Vermicelli
+Salt and Pepper Shrimp
+Salt and Pepper Squid
+Steamed Crab
+Braised Crab with Ginger and Scallions
+Roast Pork Belly (Crispy Pork Belly)
+Char Siu (Chinese Barbecue Pork)
+Braised Beef Brisket
+Braised Lamb with Scallions
+Braised Fish Maw Soup
+Shark Fin Style Soup
+Hot and Sour Soup
+Double-Boiled Chicken Soup
+Lotus Root Soup with Pork
+Winter Melon Soup
+Turnip Cake (Savory Radish Cake)
+Pan-Fried Turnip Cake
+Glutinous Rice Cake (New Year Rice Cake)
+Pan-Fried Glutinous Rice Cake
+Sweet Glutinous Rice Cake
+Nian Gao with Red Bean
+Nian Gao with Dates
+Sesame Balls
+Fried Sesame Balls with Red Bean Paste
+Sweet Peanut Brittle
+Candied Winter Melon
+Eight Treasure Sweet Soup
+Sweet Red Bean Soup
+Sweet Lotus Seed Soup
+
+Chow Mein (Stir-Fried Wheat Noodles)
+Lo Mein (Soft Tossed Egg Noodles)
+Beef Chow Fun (Stir-Fried Rice Noodles with Beef)
+Chicken Chow Fun (Stir-Fried Rice Noodles with Chicken)
+Singapore Noodles (Curry Rice Vermicelli)
+Dan Dan Mian (Sichuan Spicy Noodles with Minced Pork)
+Zhajiangmian (Noodles with Fermented Soybean Sauce)
+Lan Zhou Beef Noodles (Hand-Pulled Beef Noodle Soup)
+Knife-Cut Noodles (Hand-Cut Wheat Noodles)
+Hot Dry Noodles (Wuhan Sesame Noodles)
+Scallion Oil Noodles (Shanghai Scallion Noodles)
+Cold Sesame Noodles (Chilled Sesame Noodles)
+Wonton Noodle Soup (Noodles with Wontons)
+Beef Brisket Noodle Soup (Braised Beef Noodle Soup)
+Tomato Egg Noodles (Tomato and Scrambled Egg Noodles)
+Fried Rice (Chinese-Style Fried Rice)
+Yangzhou Fried Rice (Cantonese Fried Rice)
+Egg Fried Rice (Classic Egg Fried Rice)
+Chicken Fried Rice (Chicken Fried Rice)
+Pork Fried Rice (Pork Fried Rice)
+Shrimp Fried Rice (Shrimp Fried Rice)
+Steamed White Rice (Plain Steamed Rice)
+Clay Pot Rice (Cantonese Clay Pot Rice)
+Char Siu Rice (Barbecue Pork over Rice)
+Roast Duck Rice (Roast Duck over Rice)
+Soy Sauce Chicken Rice (Poached Chicken with Soy Sauce)
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Mapo Tofu (Spicy Tofu with Minced Pork)
+Kung Pao Chicken (Stir-Fried Chicken with Peanuts)
+Sweet and Sour Pork (Sweet and Sour Pork)
+Sweet and Sour Chicken (Sweet and Sour Chicken)
+General Tso’s Chicken (Crispy Sweet Spicy Chicken)
+Orange Chicken (Orange-Flavored Crispy Chicken)
+Black Pepper Beef (Stir-Fried Beef with Black Pepper)
+Beef and Broccoli (Stir-Fried Beef with Broccoli)
+Twice-Cooked Pork (Sichuan Double-Cooked Pork Belly)
+Red-Braised Pork Belly (Soy-Braised Pork Belly)
+Steamed Fish with Ginger and Scallions (Cantonese Steamed Fish)
+Braised Fish in Soy Sauce (Soy-Braised Fish)
+Salt and Pepper Shrimp (Crispy Pepper Shrimp)
+Stir-Fried Green Beans (Dry-Fried Green Beans)
+Chinese Eggplant with Garlic Sauce (Garlic Eggplant)
+Buddha’s Delight (Mixed Vegetable Stir-Fry)
+Wonton Soup (Pork Wonton Soup)
+Hot and Sour Soup (Spicy Sour Soup)
+Egg Drop Soup (Silky Egg Soup)
+Sichuan Boiled Beef (Spicy Boiled Beef Slices)
+Sichuan Boiled Fish (Spicy Boiled Fish Fillets)
+Peking Duck Pancakes (Roast Duck with Pancakes)
+Chinese Dumplings (Boiled Pork Dumplings)
+Pan-Fried Dumplings (Potstickers)
+Steamed Dumplings (Steamed Pork Dumplings)
+Soup Dumplings (Xiao Long Bao Soup Dumplings)
+
+ung Pao Chicken (Gong Bao Chicken)
+Sweet and Sour Pork (Sweet and Sour Pork with Pineapple)
+Sweet and Sour Chicken (Sweet and Sour Chicken Stir-Fry)
+Mapo Tofu (Spicy Sichuan Tofu with Minced Pork)
+Twice-Cooked Pork (Sichuan Double-Cooked Pork Belly)
+Red-Braised Pork Belly (Hong Shao Rou – Red-Cooked Pork)
+Chairman Mao’s Red-Braised Pork (Hunan Red-Braised Pork Belly)
+Peking Duck (Roast Beijing Duck)
+Cantonese Roast Duck (Crispy Roast Duck)
+Soy Sauce Chicken (Cantonese Poached Soy Sauce Chicken)
+White Cut Chicken (Poached Chicken with Ginger Scallion Sauce)
+Hainanese Chicken Rice (Chinese-Style Poached Chicken with Rice)
+General Tso’s Chicken (Sweet Spicy Fried Chicken)
+Orange Chicken (Crispy Orange Sauce Chicken)
+Sesame Chicken (Sweet Sesame Fried Chicken)
+Black Pepper Beef (Stir-Fried Beef with Black Pepper Sauce)
+Beef and Broccoli (Stir-Fried Beef with Broccoli)
+Mongolian Beef (Sweet Savory Sliced Beef)
+Cumin Lamb (Xinjiang Spiced Lamb Stir-Fry)
+Spicy Boiled Beef (Sichuan Boiled Beef in Chili Oil)
+Spicy Boiled Fish (Sichuan Boiled Fish Fillets)
+Steamed Whole Fish with Ginger and Scallions (Cantonese Steamed Fish)
+Braised Fish in Soy Sauce (Red-Braised Fish)
+Salt and Pepper Shrimp (Crispy Peppercorn Shrimp)
+Kung Pao Shrimp (Spicy Peanut Shrimp Stir-Fry)
+Stir-Fried Shrimp with Eggs (Shrimp and Egg Stir-Fry)
+Braised Abalone with Mushrooms (Luxury Braised Abalone Dish)
+Braised Sea Cucumber (Braised Sea Cucumber with Scallions)
+Hot Pot (Chinese Communal Hot Pot)
+Sichuan Hot Pot (Spicy Chili Oil Hot Pot)
+Cantonese Clay Pot Rice (Clay Pot Rice with Chinese Sausage)
+Fried Rice (Classic Chinese Fried Rice)
+Yangzhou Fried Rice (Yangzhou Style Fried Rice)
+Steamed Pork Ribs with Black Bean Sauce (Dim Sum Pork Ribs)
+Braised Eggplant (Chinese Braised Eggplant in Garlic Sauce)
+Fish-Fragrant Eggplant (Yu Xiang Eggplant)
+Stir-Fried Green Beans with Minced Pork (Dry-Fried Green Beans)
+Ma La Xiang Guo (Spicy Dry Pot Stir-Fry)
+Lion’s Head Meatballs (Braised Pork Meatballs)
+Braised Tofu with Mushrooms (Home-Style Braised Tofu)
+Eight Treasure Duck (Stuffed Braised Duck)
+Scallion Ginger Lobster (Cantonese Lobster Stir-Fry)
+Crispy Pork Belly (Roasted Pork Belly with Crackling)
+Chinese BBQ Pork (Char Siu – Cantonese Barbecue Pork)
+
+Huo Guo (Chinese Hot Pot)
+Qing Tang Huo Guo (Clear Broth Hot Pot)
+Hong You Huo Guo (Chili Oil Hot Pot)
+Ma La Huo Guo (Sichuan Spicy Hot Pot)
+Yuan Yang Huo Guo (Dual-Flavored Hot Pot)
+Suan Cai Huo Guo (Pickled Mustard Green Hot Pot)
+Fan Qie Huo Guo (Tomato Hot Pot)
+Guo Bian Hu (Goji Berry Herbal Hot Pot)
+Yang Rou Huo Guo (Mutton Hot Pot)
+Niu Rou Huo Guo (Beef Hot Pot)
+Hai Xian Huo Guo (Seafood Hot Pot)
+Ji Rou Huo Guo (Chicken Hot Pot)
+Pai Gu Huo Guo (Pork Rib Hot Pot)
+Xiang Gu Ji Tang Guo (Mushroom Chicken Hot Pot)
+Jun Guo (Mushroom Hot Pot)
+Shan Zhen Huo Guo (Wild Mushroom Hot Pot)
+Yao Shan Huo Guo (Chinese Herbal Hot Pot)
+Dang Gui Huo Guo (Angelica Root Herbal Hot Pot)
+Suan La Huo Guo (Hot and Sour Hot Pot)
+Ma Jiang Huo Guo (Sesame Paste Hot Pot)
+Chong Qing Huo Guo (Chongqing Spicy Hot Pot)
+Chao Shan Niu Rou Guo (Chaoshan Beef Hot Pot)
+Hai Di Lao Style Hot Pot (Restaurant-Style Chinese Hot Pot)
+Beijing Shuan Yang Rou (Beijing Lamb Hot Pot)
+Dong Bei Suan Cai Guo (Northeastern Pickled Cabbage Hot Pot)
+Yunnan Mushroom Hot Pot (Yunnan Wild Mushroom Hot Pot)
+Cantonese Seafood Hot Pot (Guangdong-Style Seafood Hot Pot)
+
+Baijiu Cocktail (Chinese White Spirit Cocktail)
+Classic Baijiu Highball (Baijiu and Soda Cocktail)
+Baijiu Sour (Chinese White Spirit Sour)
+Baijiu Martini (Baijiu-Based Martini)
+Baijiu Negroni (Baijiu Negroni Cocktail)
+Baijiu Old Fashioned (Baijiu Old Fashioned Cocktail)
+Baijiu Ginger Cocktail (Baijiu and Ginger Drink)
+Baijiu Lychee Cocktail (Baijiu Lychee Cocktail)
+Baijiu Plum Cocktail (Baijiu Plum Cocktail)
+Baijiu Honey Lemon Cocktail (Baijiu Honey Lemon Drink)
+Shaoxing Wine Cocktail (Chinese Rice Wine Cocktail)
+Shaoxing Wine Spritz (Rice Wine Spritz Cocktail)
+Shaoxing Wine Sour (Rice Wine Sour Cocktail)
+Shaoxing Ginger Cocktail (Rice Wine Ginger Cocktail)
+Plum Wine Cocktail (Chinese Plum Wine Cocktail)
+Plum Wine Spritz (Plum Wine Spritz Cocktail)
+Plum Wine Sour (Plum Wine Sour Cocktail)
+Lychee Martini (Lychee Vodka Martini Cocktail)
+Lychee Highball (Lychee Soda Cocktail)
+Lychee Rose Cocktail (Lychee Rose Drink)
+Longan Cocktail (Longan Fruit Cocktail)
+Osmanthus Cocktail (Osmanthus Flower Cocktail)
+Osmanthus Gin Cocktail (Osmanthus Gin Drink)
+Chrysanthemum Cocktail (Chrysanthemum Flower Cocktail)
+Jasmine Tea Cocktail (Jasmine Tea Cocktail)
+Oolong Tea Cocktail (Oolong Tea Cocktail)
+Pu-erh Tea Cocktail (Pu-erh Tea Cocktail)
+Green Tea Highball (Green Tea Soda Cocktail)
+Honey Pomelo Cocktail (Pomelo Honey Cocktail)
+Kumquat Cocktail (Kumquat Citrus Cocktail)
+Mandarin Orange Cocktail (Mandarin Orange Cocktail)
+Five Spice Old Fashioned (Chinese Five Spice Old Fashioned)
+Ginger Lychee Mocktail (Ginger Lychee Non-Alcoholic Drink)
+Plum Juice Mocktail (Chinese Plum Juice Drink)
+Sour Plum Drink (Suan Mei Tang Plum Mocktail)
+Winter Melon Tea (Winter Melon Sweet Tea Mocktail)
+Honey Lemon Tea (Chinese Honey Lemon Drink)
+Ginger Tea (Chinese Ginger Drink)
+Chrysanthemum Tea (Chrysanthemum Flower Tea)
+Jasmine Tea (Jasmine Flower Tea)
+Osmanthus Tea (Osmanthus Flower Tea)
+Longan Red Date Tea (Longan and Jujube Tea)
+Lychee Juice Drink (Lychee Juice Mocktail)
+
+Steamed White Rice
+Congee (Rice Porridge)
+Egg Fried Rice
+Yangzhou Fried Rice (Yangzhou-Style Fried Rice)
+Shrimp Fried Rice
+Pork Fried Rice
+Chicken Fried Rice
+Vegetable Fried Rice
+Salted Fish Fried Rice
+Golden Fried Rice (Egg Yolk Fried Rice)
+Clay Pot Rice (Clay Pot Cooked Rice)
+Lap Cheong Clay Pot Rice (Chinese Sausage Clay Pot Rice)
+
+Plain Wheat Noodles
+Hand-Pulled Noodles (Hand-Pulled Wheat Noodles)
+Knife-Cut Noodles (Knife-Shaved Wheat Noodles)
+Longevity Noodles (Birthday Noodles)
+Soy Sauce Chow Mein
+Cantonese Chow Mein (Crispy Egg Noodles with Gravy)
+Beef Chow Mein
+Chicken Chow Mein
+Vegetable Chow Mein
+Seafood Chow Mein
+Dan Dan Mian (Spicy Sichuan Noodles)
+Zhajiangmian (Noodles with Soybean Paste Sauce)
+Hot Dry Noodles (Wuhan Sesame Noodles)
+Beef Noodle Soup (Braised Beef Noodles)
+Lanzhou Beef Noodle Soup (Lanzhou Hand-Pulled Beef Noodles)
+Wonton Noodle Soup
+Scallion Oil Noodles
+
+Steamed Dumplings (Jiaozi)
+Pork Dumplings
+Pork and Chive Dumplings
+Pork and Napa Cabbage Dumplings
+Shrimp Dumplings (Har Gow)
+Chicken Dumplings
+Vegetable Dumplings
+Boiled Dumplings
+Pan-Fried Dumplings (Potstickers)
+Soup Dumplings (Xiaolongbao)
+Shanghai Soup Dumplings
+Siu Mai (Open-Faced Pork Dumplings)
+Crystal Dumplings (Tapioca Dumplings)
+
+Spring Rolls (Chinese Spring Rolls)
+Egg Rolls (Chinese-Style Egg Rolls)
+Shrimp Spring Rolls
+Vegetable Spring Rolls
+
+Sweet and Sour Pork
+Sweet and Sour Chicken
+Sweet and Sour Fish
+General Tso’s Chicken
+Orange Chicken
+Kung Pao Chicken
+Kung Pao Shrimp
+Kung Pao Tofu
+Black Pepper Beef
+Black Pepper Chicken
+Mongolian Beef
+Beef with Broccoli
+Chicken with Broccoli
+Shrimp with Broccoli
+Cashew Chicken
+Almond Chicken
+Lemon Chicken
+
+Mapo Tofu (Spicy Sichuan Tofu)
+Braised Tofu with Mushrooms
+Home-Style Tofu
+Salt and Pepper Tofu
+
+Red-Braised Pork Belly (Hong Shao Rou)
+Chairman Mao’s Red-Braised Pork
+Twice-Cooked Pork (Sichuan Pork Belly)
+Dongpo Pork (Braised Pork Belly)
+Char Siu (Cantonese Barbecued Pork)
+Roast Pork Belly (Crispy Roast Pork)
+Sweet and Sour Spare Ribs
+Salt and Pepper Spare Ribs
+
+Steamed Whole Fish with Ginger and Scallions
+Soy Sauce Steamed Fish
+Sweet and Sour Fish
+Braised Fish with Soy Sauce
+Salt and Pepper Squid
+Salt and Pepper Shrimp
+Shrimp with Lobster Sauce
+
+Peking Duck (Beijing Roast Duck)
+Cantonese Roast Duck
+Soy Sauce Chicken
+White Cut Chicken (Poached Chicken)
+Hainanese Chicken Rice
+Tea-Smoked Duck
+
+Hot and Sour Soup
+Egg Drop Soup
+Wonton Soup
+Corn Soup with Egg Drop
+Winter Melon Soup
+Chinese Chicken Soup with Goji Berries
+
+Stir-Fried Green Beans with Pork
+Dry-Fried Green Beans (Sichuan Green Beans)
+Stir-Fried Bok Choy
+Garlic Chinese Broccoli (Gai Lan with Garlic)
+Stir-Fried Napa Cabbage
+Stir-Fried Snow Peas
+Stir-Fried Mixed Vegetables
+
+Scallion Pancakes (Chinese Savory Pancakes)
+Sesame Flatbread
+Chinese Steamed Buns (Mantou)
+Char Siu Bao (Barbecue Pork Buns)
+Steamed Custard Buns
+Pineapple Buns (Sweet Bakery Buns)
+
+Chinese Omelette
+Tomato and Egg Stir-Fry
+Steamed Egg Custard
+
+Ma Po Eggplant (Spicy Eggplant)
+Garlic Eggplant
+Braised Eggplant with Minced Pork
+
+Hot Pot (Chinese Hot Pot)
+Sichuan Spicy Hot Pot
+Mild Herbal Hot Pot
+Lamb Hot Pot
+
+Eight Treasure Rice (Sticky Rice Dessert)
+Sweet Red Bean Soup
+Black Sesame Soup
+Almond Jelly
+Mango Pudding
+Sesame Balls (Fried Glutinous Rice Balls)
+
+Chow Mein (Stir-Fried Wheat Noodles)
+Lo Mein (Tossed Wheat Noodles)
+Fried Rice (Chinese-Style Fried Rice)
+Yangzhou Fried Rice (Yangzhou-Style Fried Rice)
+Egg Fried Rice (Egg Fried Rice)
+Char Siu Fried Rice (Barbecued Pork Fried Rice)
+Steamed White Rice (Plain Steamed Rice)
+Congee (Rice Porridge)
+Century Egg Congee (Preserved Egg Rice Porridge)
+Chicken Congee (Chicken Rice Porridge)
+Hot and Sour Soup (Hot and Sour Soup)
+Egg Drop Soup (Egg Flower Soup)
+Wonton Soup (Wonton Dumpling Soup)
+Sweet Corn Soup (Chinese Corn Soup)
+Tomato Egg Soup (Tomato and Egg Soup)
+Mapo Tofu (Spicy Sichuan Tofu)
+Ma La Xiang Guo (Dry Pot Stir-Fry)
+Kung Pao Chicken (Spicy Diced Chicken with Peanuts)
+General Tso’s Chicken (Crispy Sweet-Spicy Chicken)
+Sweet and Sour Pork (Sweet and Sour Pork)
+Sweet and Sour Chicken (Sweet and Sour Chicken)
+Orange Chicken (Orange-Glazed Fried Chicken)
+Lemon Chicken (Lemon Sauce Chicken)
+Black Pepper Beef (Black Pepper Beef Stir-Fry)
+Beef and Broccoli (Beef with Broccoli)
+Mongolian Beef (Mongolian-Style Beef)
+Stir-Fried Green Beans (Dry-Fried Green Beans)
+Stir-Fried Bok Choy (Garlic Bok Choy)
+Garlic Chinese Broccoli (Gai Lan with Garlic)
+Twice-Cooked Pork (Sichuan Twice-Cooked Pork)
+Red-Braised Pork Belly (Hong Shao Rou – Red-Braised Pork Belly)
+Soy Sauce Chicken (Cantonese Soy Sauce Chicken)
+White Cut Chicken (Poached Chicken)
+Roast Duck (Cantonese Roast Duck)
+Peking Duck (Beijing Roast Duck with Pancakes)
+Char Siu (Chinese Barbecued Pork)
+Crispy Roast Pork Belly (Siu Yuk – Crispy Pork Belly)
+Salt and Pepper Pork Chops (Crispy Salt and Pepper Pork)
+Salt and Pepper Shrimp (Salt and Pepper Prawns)
+Steamed Fish with Ginger and Scallions (Cantonese Steamed Fish)
+Braised Fish in Soy Sauce (Soy-Braised Fish)
+Sichuan Boiled Fish (Spicy Poached Fish)
+Shrimp with Lobster Sauce (Cantonese Shrimp with Lobster Sauce)
+Clams with Black Bean Sauce (Black Bean Clams)
+Stir-Fried Squid (Stir-Fried Calamari)
+Wontons (Pork and Shrimp Dumplings)
+Boiled Dumplings (Shui Jiao – Boiled Dumplings)
+Pan-Fried Dumplings (Guo Tie – Potstickers)
+Soup Dumplings (Xiao Long Bao – Soup-Filled Dumplings)
+Steamed Pork Buns (Baozi – Steamed Buns)
+Barbecued Pork Buns (Char Siu Bao – Steamed BBQ Pork Buns)
+Baked Barbecued Pork Buns (Baked BBQ Pork Buns)
+Scallion Pancakes (Cong You Bing – Scallion Flatbread)
+Turnip Cake (Lo Bak Go – Radish Cake)
+Spring Rolls (Chinese Spring Rolls)
+Egg Rolls (Chinese Egg Rolls)
+Sticky Rice in Lotus Leaf (Lo Mai Gai – Lotus Leaf Rice)
+Zongzi (Sticky Rice Dumplings)
+Chinese Sausage Fried Rice (Lap Cheong Fried Rice)
+Chinese Sausage Steamed Rice (Lap Cheong with Rice)
+Hand-Pulled Noodles (La Mian – Hand-Pulled Wheat Noodles)
+Knife-Cut Noodles (Dao Xiao Mian – Knife-Cut Noodles)
+Dan Dan Noodles (Spicy Sichuan Noodles)
+Zhajiangmian (Noodles with Soybean Paste Sauce)
+Beef Noodle Soup (Chinese Beef Noodle Soup)
+Braised Pork Noodle Soup (Braised Pork Noodles)
+Chow Fun (Stir-Fried Flat Rice Noodles)
+Beef Chow Fun (Stir-Fried Beef with Flat Rice Noodles)
+Singapore Noodles (Curry Rice Vermicelli)
+Rice Vermicelli Stir-Fry (Stir-Fried Rice Vermicelli)
+Glass Noodle Stir-Fry (Cellophane Noodle Stir-Fry)
+Hot Pot (Chinese Hot Pot)
+Spicy Sichuan Hot Pot (Sichuan Mala Hot Pot)
+Lamb Hot Pot (Mongolian-Style Lamb Hot Pot)
+Tea Eggs (Chinese Tea-Infused Eggs)
+Century Eggs (Preserved Duck Eggs)
+Salted Duck Eggs (Salted Duck Eggs)
+Tea-Smoked Duck (Tea-Smoked Duck)
+Eight Treasure Rice (Ba Bao Fan – Sweet Sticky Rice Dessert)
+Mango Pudding (Chinese Mango Pudding)
+Almond Jelly (Almond Tofu Dessert)
+Sesame Balls (Jian Dui – Fried Sesame Rice Balls)
+Egg Tarts (Hong Kong Egg Tarts)
+Pineapple Buns (Bo Lo Bao – Pineapple Crust Buns)
+Mooncakes (Chinese Mooncakes)
+Chinese Steamed Sponge Cake (Ma Lai Gao)
+
+Rock Sugar Syrup
+Yellow Rock Sugar Syrup
+White Rock Sugar Syrup
+Cantonese Rock Sugar Syrup
+Old Rock Sugar Syrup
+Brown Sugar Syrup (Chinese Brown Sugar Syrup)
+Black Sugar Syrup (Chinese Black Sugar Syrup)
+Ginger Brown Sugar Syrup
+Ginger Black Sugar Syrup
+Red Date Syrup (Jujube Syrup)
+Red Date and Ginger Syrup
+Longan Syrup
+Dried Longan Syrup
+Osmanthus Syrup
+Osmanthus Honey Syrup
+Osmanthus Rock Sugar Syrup
+Hawthorn Syrup
+Hawthorn Berry Syrup
+Sour Plum Syrup (Suan Mei Tang Concentrate)
+Traditional Sour Plum Syrup
+Mulberry Syrup
+Black Mulberry Syrup
+Lychee Syrup
+Canned Lychee Syrup
+Winter Melon Syrup
+Dong Gua Tang (Winter Melon Sugar Syrup)
+Chrysanthemum Syrup
+Chrysanthemum Rock Sugar Syrup
+Snow Fungus Syrup (White Fungus Sweet Syrup)
+Snow Fungus and Rock Sugar Syrup
+Pear Syrup (Chinese Stewed Pear Syrup)
+Stewed Pear and Rock Sugar Syrup
+Loquat Syrup
+Loquat and Rock Sugar Syrup
+Herbal Cooling Syrup (Chinese Herbal Sweet Syrup)
+Five-Flower Tea Syrup
+Licorice Root Syrup (Chinese Licorice Syrup)
+Tangerine Peel Syrup (Chenpi Syrup)
+Ginger Syrup (Chinese Ginger Sugar Syrup)
+Maltose Syrup (Chinese Malt Syrup)
+Barley Malt Syrup
+Rice Malt Syrup
+Honey Rock Sugar Syrup
+Coconut Rock Sugar Syrup
+
+Mantou (Steamed Wheat Buns)
+Plain Mantou (Basic Steamed Buns)
+Sweet Mantou (Sweet Steamed Buns)
+Whole Wheat Mantou (Whole Wheat Steamed Buns)
+Flower Mantou (Decorative Steamed Buns)
+Golden Mantou (Deep-Fried Steamed Buns)
+Milk Mantou (Milk Steamed Buns)
+Corn Mantou (Cornmeal Steamed Buns)
+Red Date Mantou (Jujube Steamed Buns)
+Pumpkin Mantou (Pumpkin Steamed Buns)
+
+Huajuan (Twisted Steamed Buns)
+Scallion Huajuan (Scallion Flower Rolls)
+Sesame Huajuan (Sesame Flower Rolls)
+Spiced Huajuan (Five-Spice Flower Rolls)
+
+Shaobing (Baked Flatbread)
+Beijing Sesame Shaobing (Beijing Sesame Flatbread)
+Hebei Shaobing (Hebei-Style Flatbread)
+Sweet Shaobing (Sweet Baked Flatbread)
+Savory Shaobing (Savory Baked Flatbread)
+Stuffed Shaobing (Filled Baked Flatbread)
+
+Youtiao (Chinese Fried Dough Sticks)
+Plain Youtiao (Classic Fried Dough Sticks)
+Sesame Youtiao (Sesame Fried Dough Sticks)
+Whole Wheat Youtiao (Whole Wheat Fried Dough Sticks)
+
+Cong You Bing (Scallion Pancakes)
+Northern-Style Scallion Pancakes (Northern Wheat Scallion Pancakes)
+Taiwanese Scallion Pancakes (Taiwan-Style Scallion Pancakes)
+Crispy Scallion Pancakes (Extra-Crispy Scallion Pancakes)
+
+Fa Gao (Prosperity Steamed Cakes)
+Brown Sugar Fa Gao (Brown Sugar Steamed Prosperity Cakes)
+Plain Fa Gao (Plain Steamed Prosperity Cakes)
+
+Bing (Chinese Flatbread)
+Plain Wheat Bing (Basic Wheat Flatbread)
+Sesame Bing (Sesame Flatbread)
+Stuffed Bing (Filled Flatbread)
+
+Naan-Style Xinjiang Nang (Xinjiang Flatbread)
+Sesame Xinjiang Nang (Sesame Xinjiang Flatbread)
+Onion Xinjiang Nang (Onion Xinjiang Flatbread)
+
+Chuanr (Xinjiang Lamb Skewers)
+Yang Rou Chuan (Cumin Lamb Skewers)
+Kao Rou串 (Chinese-Style Grilled Meat Skewers)
+Kao Yu (Chinese Grilled Fish)
+Zhi Zi Ji (Paper-Wrapped Chicken)
+Jiao Yan Ji (Salt and Pepper Grilled Chicken)
+Jiao Yan Pai Gu (Salt and Pepper Grilled Pork Ribs)
+Kao Ji Chi Bang (Chinese-Style Grilled Chicken Wings)
+Beggar’s Chicken (Mud-Baked Whole Chicken)
+Zhu Tong Fan (Bamboo Tube Rice)
+Clay Pot Rice (Hong Kong-Style Claypot Rice)
+Ye Zi Fan (Lotus Leaf Wrapped Sticky Rice)
+Fan Shu (Chinese Roasted Sweet Potato)
+Kao Yu Mi (Grilled Corn Chinese Style)
+Jian Bing (Chinese Savory Street Pancake)
+Cong You Bing (Scallion Pancake)
+Shou Zhua Bing (Hand-Grasped Pancake Flatbread)
+Rou Jia Mo (Chinese Pork Flatbread Sandwich)
+Baozi (Steamed Stuffed Buns)
+Mantou (Steamed Plain Buns)
+Cha Ye Dan (Chinese Tea Eggs)
+Lu Dan (Soy-Braised Eggs)
+Lu Rou (Red-Braised Pork for Outdoor Cooking)
+Hong Shao Rou (Red-Braised Pork Belly)
+Kao Qie Zi (Grilled Chinese Eggplant with Garlic)
+Kao Qing Jiao (Grilled Green Peppers Chinese Style)
+Gan Guo Ye Cai (Dry Pot Mixed Vegetables)
+Gan Guo Ji (Dry Pot Chicken)
+Gan Guo Hua Cai (Dry Pot Cauliflower)
+Ma La Xiang Guo (Spicy Mala Dry Pot)
+Sichuan Hot Pot (Outdoor Chinese Hot Pot)
+Chongqing Hot Pot (Spicy Chongqing Hot Pot)
+Suan Cai Yu Hot Pot (Pickled Mustard Green Fish Hot Pot)
+Shuan Yang Rou (Beijing Lamb Hot Pot)
+Fan Qie Chao Dan (Tomato and Egg Stir-Fry)
+Qing Chao Shi Shu (Simple Chinese Stir-Fried Vegetables)
+Chao Fan (Chinese Fried Rice)
+Yangzhou Fried Rice (Yangzhou Chao Fan)
+Chao Mian (Chinese Stir-Fried Noodles)
+Chow Mein (Cantonese Fried Noodles)
+He Fen Chao (Stir-Fried Rice Noodles)
+Jie Zi Rou (Foil-Baked Chinese Pork Parcels)
+Foil-Baked Garlic Shrimp (Chinese-Style Garlic Shrimp in Foil)
+
+Jiāng Bǐng (Scallion Pancake Crackers)
+Cōng Yóu Bǐng (Scallion Oil Flatbread Crackers)
+Xiāng Cōng Bǐng (Fragrant Scallion Crackers)
+Má Bǐng (Sesame Crackers)
+Bái Zhī Má Bǐng (White Sesame Crackers)
+Hēi Zhī Má Bǐng (Black Sesame Crackers)
+Shāobǐng (Crispy Sesame Flatbread Crackers)
+Tián Shāobǐng (Sweet Sesame Flatbread Crackers)
+Xián Shāobǐng (Savory Sesame Flatbread Crackers)
+Báo Bǐng (Thin Crisp Wheat Crackers)
+Xiǎo Mài Bǐng Gān (Wheat Crackers)
+Gǔ Wù Bǐng Gān (Multigrain Crackers)
+Mǐ Bǐng (Rice Crackers)
+Zhà Mǐ Bǐng (Fried Rice Crackers)
+Kǎo Mǐ Bǐng (Baked Rice Crackers)
+Là Jiāo Mǐ Bǐng (Chili Rice Crackers)
+Wǔ Xiāng Bǐng Gān (Five-Spice Crackers)
+Huā Jiāo Bǐng Gān (Sichuan Peppercorn Crackers)
+Càiyóu Bǐng (Vegetable Oil Crackers)
+Zhà Miàn Bǐng (Fried Wheat Crackers)
+Xiǎo Chī Cuì Bǐng (Street-Style Crispy Crackers)
+Tián Mǐ Bǐng Gān (Sweet Rice Crackers)
+Hóng Táng Mǐ Bǐng (Brown Sugar Rice Crackers)
+Zhī Má Tián Bǐng (Sweet Sesame Crackers)
+Dòu Fěn Bǐng (Bean Flour Crackers)
+Lǜ Dòu Bǐng Gān (Mung Bean Crackers)
+Shān Yào Bǐng (Chinese Yam Crackers)
+Zhà Xiāng Cōng Bǐng Cuì (Fried Crispy Scallion Crackers)
+
+Smashed Cucumber Salad
+Smashed Cucumber Salad with Garlic and Chili Oil
+Liangban Huanggua (Cold Dressed Cucumber Salad)
+Liangban Muer (Cold Wood Ear Mushroom Salad)
+Wood Ear Mushroom Salad with Garlic and Vinegar
+Liangban Haidai (Cold Kelp Seaweed Salad)
+Chinese Seaweed Salad
+Liangban Fensi (Cold Glass Noodle Salad)
+Cold Glass Noodle Salad with Sesame Sauce
+Liangban Jidou (Cold Green Bean Salad)
+Cold Chinese Long Bean Salad
+Liangban Doufu (Cold Silken Tofu Salad)
+Cold Tofu Salad with Scallions and Soy Sauce
+Liangban Dougan (Cold Five-Spice Tofu Salad)
+Chinese Shredded Chicken Salad
+Liangban Jisi (Cold Shredded Chicken Salad)
+Bang Bang Chicken (Sichuan Cold Chicken Salad)
+Cold Chicken Salad with Sesame Sauce
+Liangban Zhu’er (Cold Pig Ear Salad)
+Chinese Pig Ear Salad
+Liangban Niu Rou (Cold Beef Shank Salad)
+Chinese Spiced Beef Shank Salad
+Liangban Yangdu (Cold Beef Tripe Salad)
+Chinese Beef Tripe Salad
+Liangban Haizhe (Cold Jellyfish Salad)
+Chinese Jellyfish Salad
+Liangban Hai Zhe Pi (Cold Jellyfish Skin Salad)
+Liangban Huangdouya (Cold Soybean Sprout Salad)
+Chinese Soybean Sprout Salad
+Liangban Lü Douya (Cold Mung Bean Sprout Salad)
+Chinese Mung Bean Sprout Salad
+Liangban Fucai (Cold Preserved Vegetable Salad)
+Chinese Pickled Mustard Green Salad
+Liangban Luobo Si (Cold Shredded Daikon Salad)
+Chinese Shredded Radish Salad
+Liangban Xiangcai (Cold Cilantro Salad)
+Cilantro Salad with Chili Oil
+Liangban Qiezi (Cold Eggplant Salad)
+Chinese Eggplant Salad with Garlic Sauce
+Liangban Xihongshi (Cold Tomato Salad)
+Chinese Tomato Salad with Sugar and Vinegar
+Liangban San Si (Three-Shredded Vegetable Salad)
+Cold Mixed Vegetable Shred Salad
+Liangban Tofu Skin Salad
+Cold Tofu Skin Salad with Sesame Dressing
+Liangban Yuba (Cold Dried Bean Curd Sheet Salad)
+Chinese Yuba Salad
+Liangban Haixian (Cold Seafood Salad, Chinese Style)
+
+Roujiamo (Chinese Pork Flatbread Sandwich)
+Lamb Roujiamo (Lamb Flatbread Sandwich)
+Beef Roujiamo (Beef Flatbread Sandwich)
+Spicy Pork Roujiamo (Spicy Pork Flatbread Sandwich)
+Laobing Roujiamo (Crispy Flatbread Meat Sandwich)
+Jiaji Roujiamo (Shaanxi Pork Sandwich with Green Peppers)
+Gua Bao (Taiwanese Braised Pork Belly Sandwich)
+Braised Pork Belly Gua Bao (Steamed Bun Pork Belly Sandwich)
+Fried Chicken Gua Bao (Fried Chicken Steamed Bun Sandwich)
+Braised Beef Gua Bao (Braised Beef Steamed Bun Sandwich)
+Taiwanese Hamburger (Gua Bao Style Sandwich)
+Char Siu Bao Sandwich (Barbecue Pork Bun Sandwich)
+Roast Duck Bao (Roast Duck Steamed Bun Sandwich)
+Peking Duck Pancake Wrap (Peking Duck Sandwich Wrap)
+Beijing Duck Pancake Sandwich (Mandarin Pancake Duck Sandwich)
+Scallion Pancake Sandwich (Chinese Scallion Flatbread Sandwich)
+Scallion Pancake with Beef (Beef Scallion Pancake Sandwich)
+Scallion Pancake with Egg (Egg Scallion Pancake Sandwich)
+Scallion Pancake with Pork Floss (Pork Floss Pancake Sandwich)
+Jianbing (Chinese Savory Breakfast Crêpe Sandwich)
+Jianbing with Crispy Wonton (Chinese Breakfast Pancake Sandwich)
+Jianbing with Ham (Chinese Breakfast Ham Pancake Sandwich)
+Jianbing with Sausage (Chinese Sausage Pancake Sandwich)
+Cong You Bing Sandwich (Stuffed Scallion Pancake Sandwich)
+You Tiao Sandwich (Chinese Fried Dough Stick Sandwich)
+Soy Milk and You Tiao Sandwich (Fried Dough Breakfast Sandwich)
+Shaobing Sandwich (Chinese Sesame Flatbread Sandwich)
+Shaobing with Beef (Beef Sesame Flatbread Sandwich)
+Shaobing with Pork (Pork Sesame Flatbread Sandwich)
+Shaobing with Egg (Egg Sesame Flatbread Sandwich)
+Hujiao Bing (Pepper Pork Bun Sandwich)
+Pepper Beef Bing (Pepper Beef Stuffed Bun Sandwich)
+Chinese Hamburger (Roujiamo Style Meat Sandwich)
+Steamed Bun Sandwich (Mantou Filled Sandwich)
+Mantou with Fried Pork Cutlet (Chinese Pork Cutlet Sandwich)
+Mantou with Braised Pork (Braised Pork Bun Sandwich)
+Mantou with Pickled Mustard Greens (Preserved Vegetable Bun Sandwich)
+Hong Shao Rou Mantou (Red-Braised Pork Bun Sandwich)
+Char Siu Mantou (Barbecue Pork Bun Sandwich)
+Duck Mantou Sandwich (Duck Meat Bun Sandwich)
+Fish Fillet Mantou Sandwich (Fish Bun Sandwich)
+Chinese Fried Chicken Bun (Fried Chicken Mantou Sandwich)
+
+Chinese Brown Sauce (All-Purpose Stir-Fry Gravy)
+Cantonese Chow Mein Gravy (Cantonese Stir-Fry Gravy)
+Seafood White Sauce (Cantonese White Gravy)
+Ginger Scallion Sauce (Ginger-Scallion Gravy)
+Oyster Sauce Gravy (Hao You Qian, Oyster-Based Gravy)
+Superior Stock Gravy (Supreme Broth Reduction Gravy)
+Master Stock Gravy (Lu Shui Reduction Gravy)
+Red-Braised Sauce (Hong Shao Gravy)
+Black Bean Sauce Gravy (Dou Chi Gravy)
+Garlic Sauce (Chinese Garlic Gravy)
+XO Sauce Gravy (XO Seafood Gravy)
+Hoisin Sauce Gravy (Sweet Soy Gravy)
+Sweet and Sour Sauce (Sweet-and-Sour Gravy)
+Plum Sauce (Chinese Plum Gravy)
+Duck Sauce (Chinese-American Sweet Fruit Gravy)
+Lobster Sauce (Chinese-American Lobster Gravy)
+Egg Foo Young Gravy (Chinese-American Brown Gravy)
+Clay Pot Sauce (Claypot Gravy)
+Peking Duck Sauce (Roast Duck Gravy)
+Sichuan Peppercorn Sauce (Sichuan Pepper Gravy)
+Chili Garlic Sauce (Chili-Garlic Gravy)
+Chili Oil Sauce (Red Chili Oil Gravy)
+
+Plum Sauce (Suan Mei Jiang / Chinese Plum Sauce)
+Sweet Plum Sauce (Tian Suan Mei Jiang / Sweet Chinese Plum Sauce)
+Salted Plum Jam (Xian Mei Jiang / Salted Plum Jam)
+Preserved Plum Paste (Hua Mei Gao / Preserved Plum Paste)
+Hawthorn Jam (Shan Zha Jiang / Hawthorn Berry Jam)
+Hawthorn Jelly Candy (Shan Zha Gao / Hawthorn Jelly)
+Hawthorn Fruit Leather (Guo Dan Pi / Hawthorn Fruit Sheet)
+Osmanthus Jam (Gui Hua Jiang / Osmanthus Flower Jam)
+Osmanthus Sugar Preserve (Gui Hua Tang / Osmanthus Syrup Preserve)
+Rose Petal Jam (Mei Gui Hua Jiang / Rose Jam)
+Ginger Jam (Jiang Jiang / Chinese Ginger Jam)
+Honey Ginger Preserve (Jiang Mi Gao / Ginger Honey Preserve)
+Kumquat Jam (Jin Ju Jiang / Kumquat Jam)
+Candied Kumquat Preserve (Tang Jin Ju / Candied Kumquat Preserve)
+Lychee Jam (Li Zhi Jiang / Lychee Jam)
+Longan Jam (Long Yan Jiang / Dried Longan Jam)
+Red Date Jam (Hong Zao Jiang / Jujube Date Jam)
+Black Date Paste (Hei Zao Gao / Black Jujube Paste)
+Lotus Root Syrup Jelly (Ou Fen Gao / Lotus Root Starch Jelly)
+Winter Melon Candy Paste (Dong Gua Gao / Winter Melon Paste)
+Winter Melon Sugar Preserve (Dong Gua Tang / Winter Melon Preserve)
+Tangerine Peel Preserve (Chen Pi Gao / Aged Tangerine Peel Paste)
+Pomelo Peel Preserve (You Pi Gao / Pomelo Peel Jam)
+Mulberry Jam (Sang Shen Jiang / Mulberry Jam)
+Apricot Kernel Sweet Paste (Xing Ren Gao / Apricot Paste)
+Sweet Bean Paste (Hong Dou Sha / Sweet Red Bean Paste)
+Lotus Seed Paste (Lian Rong / Lotus Seed Paste)
+
+Suan Cai (Chinese Pickled Mustard Greens)
+Dongbei Suan Cai (Northeastern Chinese Pickled Cabbage)
+Zha Cai (Pickled Mustard Stem)
+Ya Cai (Sichuan Preserved Mustard Greens)
+Mei Cai (Sweet Preserved Mustard Greens)
+Xue Cai (Snow Vegetable Pickles)
+Bao Cai (Sichuan Pickled Vegetables)
+Sichuan Paocai (Sichuan Fermented Vegetable Pickles)
+Paocai Radish (Sichuan Pickled Radish)
+Paocai Napa Cabbage (Sichuan Pickled Napa Cabbage)
+Paocai Green Beans (Sichuan Pickled Long Beans)
+Suan Dou Jiao (Pickled Long Beans)
+Suan Cai Xin (Pickled Mustard Greens Hearts)
+Yan Cai (Salted Chinese Greens)
+Luo Bo Gan (Dried and Pickled Daikon Radish)
+Suan Luo Bo (Pickled Radish)
+Tang Cu Luo Bo (Sweet and Sour Pickled Radish)
+Chao Luo Bo (Fried Preserved Radish Pickle)
+Xiang La Luo Bo (Spicy Pickled Radish)
+La Jiao Jiang (Pickled Chili Peppers)
+Pao La Jiao (Pickled Fresh Chilies)
+Dou Jiao (Fermented Green Bean Pickles)
+Xian Cai (Salted Preserved Greens)
+Fu Cai (Fujian Preserved Mustard Greens)
+Chao Zhou Xian Cai (Teochew Salted Mustard Greens)
+Tian Suan Cai (Sweet Pickled Mustard Greens)
+Jiang Cai (Soy Sauce Pickled Vegetables)
+Jiang Luo Bo (Soy Sauce Pickled Radish)
+Jiang Huang Gua (Soy Sauce Pickled Cucumber)
+Suan Huang Gua (Pickled Cucumber)
+La Huang Gua (Spicy Pickled Cucumber)
+Zui Huang Gua (Drunken Pickled Cucumber)
+Suan Cai Tou (Pickled Mustard Root)
+Xian Cai Tou (Salted Mustard Root Pickles)
+Jiang Cai Xin (Soy Pickled Mustard Greens Hearts)
+Suan Jiang Cai (Fermented Soy Pickled Greens)
+Dou Fu Ru (Fermented Bean Curd Pickle)
+Hong Dou Fu Ru (Red Fermented Bean Curd)
+Bai Dou Fu Ru (White Fermented Bean Curd)
+Chou Dou Fu Ru (Stinky Fermented Bean Curd)
+Xiang Chun Ya (Pickled Chinese Toon Shoots)
+Suan Sun (Pickled Bamboo Shoots)
+Yan Sun (Salted Bamboo Shoots)
+Mei Gan Cai (Dried and Pickled Mustard Greens)
+Jiang Cai Gan (Soy Pickled Dried Vegetables)
+La Ba Suan (Laba Garlic Pickles)
+La Ba Suan Huang Gua (Laba Pickled Cucumber)
+Cu Suan (Vinegar Pickled Garlic)
+Yan Suan (Salted Garlic Pickles)
+Zui Suan (Drunken Garlic Pickles)
+Tang Suan (Sweet Pickled Garlic)
+Suan Cai Gua (Pickled Melon)
+Yan Gua (Salted Pickled Melon)
+Zha Cai Si (Shredded Pickled Mustard Stem)
+Ya Cai Mo (Minced Preserved Mustard Greens)
+
+Scallion Pancake Pizza
+Green Onion Pancake Pizza
+Chinese Sausage Pizza
+Lap Cheong Pizza (Chinese Sausage Pizza)
+Peking Duck Pizza
+Roast Duck Pizza (Cantonese-Style Duck Pizza)
+Char Siu Pizza (Cantonese Barbecue Pork Pizza)
+Cumin Lamb Pizza (Xinjiang-Style Lamb Pizza)
+Mala Chicken Pizza (Sichuan Peppercorn Chili Pizza)
+Mala Beef Pizza
+Mapo Tofu Pizza
+Salt and Pepper Shrimp Pizza (Cantonese-Style)
+Sweet and Sour Chicken Pizza
+Kung Pao Chicken Pizza
+Five-Spice Pork Belly Pizza
+Hoisin Chicken Pizza
+Black Bean Sauce Beef Pizza
+XO Sauce Seafood Pizza
+Seafood Supreme Pizza (Hong Kong–Style Seafood Pizza)
+Crab and Sweet Corn Pizza (Chinese-Style Crab Pizza)
+Teriyaki Chicken Pizza (Chinese Restaurant–Style)
+BBQ Pork and Pineapple Pizza (Chinese-Style BBQ Pork Pizza)
+Vegetable Spring Onion Pizza
+Egg and Tomato Pizza (Chinese-Style Tomato Egg Pizza)
+
+Mantou Dough (Steamed Bread Dough)
+Baozi Dough (Steamed Stuffed Bun Dough)
+Char Siu Bao Dough (Barbecue Pork Bun Dough)
+Xiaolongbao Dough (Soup Dumpling Wrapper Dough)
+Jiaozi Wrapper Dough (Northern Chinese Dumpling Dough)
+Wonton Wrapper Dough (Cantonese Dumpling Dough)
+Shumai Wrapper Dough (Open-Top Dumpling Dough)
+Har Gow Dough (Shrimp Dumpling Wheat Starch Dough)
+Crystal Dumpling Dough (Transparent Wheat Starch Dough)
+Scallion Pancake Dough (Cong You Bing Dough)
+Chinese Flatbread Dough (Bing Dough)
+Shaobing Dough (Sesame Flatbread Dough)
+Hua Juan Dough (Steamed Flower Roll Dough)
+Youtiao Dough (Chinese Fried Cruller Dough)
+Tang Bing Dough (Sweet Flatbread Dough)
+Laobing Dough (Northern Chinese Pan Bread Dough)
+Hand-Pulled Noodle Dough (Lamian Dough)
+Knife-Cut Noodle Dough (Dao Xiao Mian Dough)
+Biangbiang Noodle Dough (Wide Belt Noodle Dough)
+Longevity Noodle Dough (Yi Mein Dough)
+Egg Noodle Dough (Chinese Wheat Egg Noodle Dough)
+Rice Noodle Batter (Fresh Rice Noodle Dough)
+Cheung Fun Batter (Steamed Rice Roll Batter)
+Rice Dumpling Dough (Glutinous Rice Dough)
+Sticky Rice Cake Dough (Nian Gao Dough)
+Snow Skin Mooncake Dough (Snowy Mooncake Dough)
+Traditional Mooncake Dough (Baked Mooncake Pastry Dough)
+Shortcrust Mooncake Dough (Cantonese Mooncake Dough)
+Lotus Bun Dough (Sweet Filled Steamed Bun Dough)
+Sesame Ball Dough (Jian Dui Glutinous Dough)
+Chinese Pastry Puff Dough (Chinese Flaky Pastry Dough)
+Wife Cake Dough (Sweet Pastry Dough)
+Turnip Cake Batter (Savory Rice Cake Batter)
+
+Red-Braised Pork Belly Stew (Hong Shao Rou)
+Red-Braised Beef Stew (Hong Shao Niu Rou)
+Red-Braised Chicken Stew (Hong Shao Ji)
+Red-Braised Lamb Stew (Hong Shao Yang Rou)
+Chairman Mao’s Red-Braised Pork (Mao Shi Hong Shao Rou)
+Soy-Braised Pork Trotter Stew (Hong Shao Zhu Jiao)
+Soy-Braised Pork Knuckle Stew (Hong Shao Ti Pang)
+Soy-Braised Beef Brisket Stew
+Soy-Braised Beef Tendon Stew
+Soy-Braised Mixed Offal Stew
+Master Stock Braised Pork Stew (Lu Rou)
+Master Stock Braised Beef Stew
+Master Stock Braised Duck Stew
+Master Stock Braised Tofu Stew
+Brown Sauce Braised Assorted Meats Stew (Lu Wei)
+Cantonese Beef Brisket Stew with Daikon
+Cantonese Beef Brisket Stew with Chu Hou Paste
+Cantonese Lamb Brisket Stew
+Cantonese Ox Tail Stew
+Clay Pot Beef Brisket Stew (Bo Zai Niu Nan)
+Clay Pot Lamb Stew
+Clay Pot Pork Belly Stew
+Clay Pot Tofu and Mushroom Stew
+Sichuan Beef Stew with Chili Bean Paste (Douban Braised Beef)
+Sichuan Beef and Potato Stew
+Sichuan Beef Tendon and Tripe Stew
+Sichuan Spicy Offal Stew (Fu Qi Fei Pian Stew Variant)
+Sichuan Lamb Stew with Chili Oil
+Sichuan Braised Duck Stew
+Hunan Red-Braised Pork Stew
+Hunan Braised Beef Stew
+Hunan Braised Pork Rib Stew
+Hunan Braised Fish Stew
+Dongpo Pork Stew (Dongpo Rou)
+Shanghai Red-Braised Pork Belly Stew
+Shanghai Braised Pork Knuckle Stew
+Shanghai Braised Fish Head Stew
+Shanghai Braised Mixed Vegetable Stew
+Northern Chinese Lamb Stew with Daikon
+Northern Chinese Beef Stew with Radish
+Northern Chinese Mutton Stew
+Clear-Braised Lamb Stew (Qing Dun Yang Rou)
+Clear-Braised Beef Stew (Qing Dun Niu Rou)
+Clear-Braised Chicken Stew (Qing Dun Ji)
+Clear-Braised Pork Rib Stew
+Herbal Chicken Stew with Chinese Medicinal Herbs
+Herbal Duck Stew with Angelica Root
+Herbal Pork Rib Stew
+Herbal Lamb Stew
+Eight-Treasure Stew (Ba Bao Dun)
+Buddha’s Delight Vegetable Stew (Luo Han Zhai)
+Vegetarian Mixed Mushroom Stew
+Tofu and Napa Cabbage Stew
+Winter Melon Stew with Pork
+Winter Melon Stew with Duck
+Fish Head Tofu Stew (Yu Tou Dou Fu Tang)
+Carp Stew with Tofu
+Catfish Stew with Chili
+Braised Eel Stew
+Braised Frog Stew
+Braised Soft-Shell Turtle Stew
+Braised Abalone Stew
+Braised Sea Cucumber Stew
+Braised Shark Fin Stew
+Braised Fish Maw Stew
+Braised Assorted Seafood Stew
+Cantonese Seafood Clay Pot Stew
+Home-Style Pork and Potato Stew
+Home-Style Chicken and Mushroom Stew
+Home-Style Beef and Tomato Stew
+Home-Style Mixed Vegetable Stew
+
+Mantou (Steamed Wheat Bread Loaf)
+White Mantou (Plain Steamed Bread Loaf)
+Whole Wheat Mantou (Whole Wheat Steamed Bread Loaf)
+Milk Mantou (Milk Steamed Bread Loaf)
+Sweet Mantou (Sweetened Steamed Bread Loaf)
+Red Bean Mantou (Red Bean Filled Steamed Bread Loaf)
+Pumpkin Mantou (Pumpkin Steamed Bread Loaf)
+Corn Mantou (Cornmeal Steamed Bread Loaf)
+Black Sesame Mantou (Black Sesame Steamed Bread Loaf)
+Purple Sweet Potato Mantou (Purple Sweet Potato Steamed Bread Loaf)
+Char Siu Mantou (Barbecue Pork Steamed Bread Loaf)
+
+Fa Gao (Steamed Prosperity Cake Loaf)
+White Sugar Fa Gao (White Sugar Steamed Cake Loaf)
+Brown Sugar Fa Gao (Brown Sugar Steamed Cake Loaf)
+Red Bean Fa Gao (Red Bean Steamed Cake Loaf)
+
+Chinese Milk Bread Loaf
+Hong Kong Style Milk Bread Loaf
+Chinese Bakery Soft White Bread Loaf
+Chinese Coconut Milk Bread Loaf
+
+Turnip Cake Loaf (Lo Bak Go Steamed Radish Loaf)
+Taro Cake Loaf (Steamed Taro Savory Loaf)
+Rice Cake Loaf (Nian Gao Sweet Rice Loaf)
+Brown Sugar Rice Cake Loaf (Brown Sugar Nian Gao Loaf)
+Eight Treasure Rice Cake Loaf (Eight Treasure Nian Gao Loaf)
+
+Steamed Rice Flour Bread Loaf
+Fermented Rice Bread Loaf (Lao Mian Rice Bread Loaf)
+
+Hoisin Sauce (Sweet Soybean Garlic Glaze)
+Char Siu Sauce (Cantonese Barbecue Pork Glaze)
+Honey Char Siu Glaze (Honey Cantonese Barbecue Glaze)
+Maltose Char Siu Glaze (Traditional Cantonese Barbecue Glaze)
+Red Fermented Bean Curd Glaze (Red Fu Ru Savory Glaze)
+Five-Spice Soy Glaze (Chinese Five-Spice Reduction)
+Light Soy Sauce Glaze (Clear Soy Reduction Glaze)
+Dark Soy Sauce Glaze (Aged Soy Caramel Glaze)
+Double Soy Sauce Glaze (Light and Dark Soy Reduction)
+Oyster Sauce Glaze (Cantonese Oyster Reduction)
+Premium Oyster Sauce Glaze (Chef-Grade Oyster Reduction)
+Abalone Sauce Glaze (Luxury Seafood Umami Glaze)
+Shaoxing Wine Glaze (Chinese Rice Wine Reduction)
+Shaoxing Soy Glaze (Rice Wine Soy Reduction)
+Ginger Scallion Glaze (Cantonese Ginger-Spring Onion Oil Glaze)
+Garlic Soy Glaze (Chinese Garlic Soy Reduction)
+Honey Soy Glaze (Chinese Honey Soy Reduction)
+Rock Sugar Soy Glaze (Traditional Rock Sugar Soy Glaze)
+Rock Sugar Red-Braised Glaze (Hong Shao Sweet-Savory Glaze)
+Hong Shao Sauce (Red-Braised Soy Sugar Glaze)
+Master Stock Glaze (Luqian Reduction Glaze)
+Tea-Smoked Glaze (Chinese Tea Smoke Reduction)
+Black Vinegar Glaze (Chinkiang Black Vinegar Reduction)
+Sweet Black Vinegar Glaze (Zhenjiang Vinegar Sugar Glaze)
+Plum Sauce Glaze (Chinese Sweet Plum Glaze)
+Duck Sauce Glaze (Cantonese Sweet Fruit Glaze)
+Tangerine Peel Glaze (Chenpi Citrus Glaze)
+Orange Peel Soy Glaze (Cantonese Citrus Soy Glaze)
+XO Sauce Glaze (Cantonese Seafood Chili Reduction)
+Chili Garlic Glaze (Chinese Chili Garlic Reduction)
+Chili Bean Paste Glaze (Doubanjiang Spicy Glaze)
+Sichuan Peppercorn Glaze (Mala Peppercorn Reduction)
+Mala Chili Oil Glaze (Numbing Spicy Oil Glaze)
+Sweet Chili Glaze (Chinese Sweet Chili Reduction)
+Sesame Soy Glaze (Roasted Sesame Soy Reduction)
+Black Sesame Glaze (Sweet Black Sesame Reduction)
+Fermented Black Bean Glaze (Douchi Savory Glaze)
+Garlic Black Bean Glaze (Douchi Garlic Reduction)
+Honey Black Bean Glaze (Sweet Douchi Glaze)
+Lychee Glaze (Sweet Lychee Reduction)
+Hawthorn Glaze (Tanghulu Sugar Glaze)
+Crispy Sugar Glaze (Chinese Caramelized Sugar Shell)
+
+Peking Roast Duck (Beijing Roast Duck)
+Cantonese Roast Duck (Siuyap / Cantonese-Style Roast Duck)
+Crispy Roast Duck (Crispy-Skin Roast Duck)
+Tea-Smoked Roast Duck (Tea-Smoked Duck)
+Roast Goose (Cantonese Roast Goose)
+Crispy Roast Goose (Crispy-Skin Roast Goose)
+Char Siu (Cantonese Barbecued Roast Pork)
+Honey Roast Pork (Honey-Glazed Roast Pork)
+Roast Pork Belly (Crispy Roast Pork Belly)
+Siu Yuk (Cantonese Crispy Roast Pork)
+Roast Suckling Pig (Cantonese Roast Suckling Pig)
+Five-Spice Roast Pork (Five-Spice Roasted Pork)
+Red Roast Pork (Red-Cooked Roast Pork)
+Roast Chicken (Cantonese Roast Chicken)
+Soy Sauce Roast Chicken (Soy-Roasted Chicken)
+Five-Spice Roast Chicken (Five-Spice Roasted Chicken)
+Garlic Roast Chicken (Garlic-Roasted Chicken)
+Salt-Baked Roast Chicken (Salt-Baked Roasted Chicken)
+Roast Quail (Cantonese Roast Quail)
+Roast Pigeon (Cantonese Roast Squab)
+Crispy Roast Pigeon (Crispy-Skin Roast Squab)
+Roast Lamb (Northern-Style Roast Lamb)
+Cumin Roast Lamb (Cumin-Spiced Roast Lamb)
+Roast Lamb Ribs (Roasted Lamb Ribs)
+Whole Roast Fish (Cantonese-Style Roasted Fish)
+Five-Spice Roast Fish (Five-Spice Roasted Fish)
+Roast Eggplant (Chinese-Style Roasted Eggplant)
+Garlic Roast Eggplant (Garlic-Roasted Eggplant)
+Roast Pumpkin (Chinese-Style Roasted Pumpkin)
+Five-Spice Roast Sweet Potato (Five-Spice Roasted Sweet Potato)
+Roast Taro (Roasted Taro Root)
+Roast Chestnuts (Chinese-Style Roasted Chestnuts)
+
+Char Siu (Cantonese Barbecue Pork, Oven-Roasted)
+Roast Duck (Cantonese Roast Duck)
+Peking Duck (Beijing Roast Duck)
+Roast Pork Belly (Cantonese Crispy Roast Pork)
+Roast Chicken (Cantonese Soy Sauce Roast Chicken)
+Roast Goose (Cantonese Roast Goose)
+Baked Pork Chop Rice (Hong Kong–Style Baked Pork Chop Rice)
+Baked Portuguese Chicken Rice (Hong Kong–Style Baked Portuguese Chicken)
+Baked Cream Sauce Seafood Rice (Hong Kong–Style Baked Seafood Rice)
+Baked Curry Chicken Rice (Hong Kong–Style Baked Curry Chicken)
+Baked Tomato Sauce Pork Chop Rice (Hong Kong–Style Baked Pork Chop Rice with Tomato Sauce)
+Baked Cheese Lobster (Cantonese Baked Lobster with Cheese)
+Baked Garlic Scallops (Cantonese Baked Scallops with Garlic)
+Baked Crab Shell (Cantonese Baked Crab Stuffed Shell)
+Baked Salted Egg Yolk Prawns (Cantonese Baked Prawns with Salted Egg Yolk)
+Baked Whole Fish with Soy Sauce (Cantonese Oven-Baked Fish)
+Char Siu Bao (Baked Barbecue Pork Bun)
+Bolo Bao (Hong Kong Pineapple Bun)
+Nai Wong Bao (Baked Custard Bun)
+Char Siu Sou (Baked Barbecue Pork Puff Pastry)
+Wife Cake (Lou Po Beng, Cantonese Sweet Pastry)
+Mooncake (Traditional Baked Mooncake)
+White Lotus Seed Paste Mooncake (Baked Lotus Seed Mooncake)
+Red Bean Paste Mooncake (Baked Red Bean Mooncake)
+Hong Kong Egg Tart (Cantonese Baked Egg Tart)
+Almond Cookie (Cantonese Baked Almond Biscuit)
+
+Tanghulu (Candied Hawthorn Skewers)
+Bingtanghulu (Crystal Sugar Candied Fruit Skewers)
+Candied Hawthorn Slices
+Candied Hawthorn Balls
+Hawthorn Fruit Leather (Shanzha Fruit Leather)
+Hawthorn Jelly Dessert
+Hawthorn Paste Dessert
+
+Eight Treasure Fruit Salad (Ba Bao Guo Pan)
+Eight Treasure Sweet Soup with Fruits
+Eight Treasure Glutinous Rice with Fruits
+
+Steamed Pear with Rock Sugar
+Steamed Pear with Rock Sugar and Goji Berries
+Steamed Pear with Rock Sugar and Snow Fungus
+Steamed Asian Pear with Honey
+
+Snow Fungus and Pear Sweet Soup
+Snow Fungus and Papaya Sweet Soup
+Snow Fungus and Red Dates Sweet Soup
+
+Papaya Milk Dessert Soup
+Papaya and Snow Fungus Dessert
+Steamed Papaya with Rock Sugar
+
+Mango Pomelo Sago Dessert
+Mango Sago Sweet Soup
+Chilled Mango Sago Dessert
+
+Sweet Red Bean Soup with Tangerine Peel
+Sweet Red Bean Soup with Longan
+Sweet Red Bean Soup with Lotus Seeds
+
+Sweet Green Bean Soup with Tangerine Peel
+Sweet Green Bean Soup with Lily Bulb
+
+Sweet Osmanthus Jelly with Fruit
+Osmanthus Pear Dessert
+Osmanthus Mango Dessert
+
+Lychee Jelly Dessert
+Lychee Sweet Soup
+Fresh Lychee with Rock Sugar Syrup
+
+Longan Red Date Sweet Soup
+Longan Lotus Seed Sweet Soup
+Fresh Longan in Light Syrup
+
+Steamed Orange with Salt
+Candied Orange Peel
+Orange Peel Sweet Soup
+
+Steamed Apple with Rock Sugar
+Apple Snow Fungus Sweet Soup
+
+Poached Peaches in Light Syrup
+Steamed Peach with Rock Sugar
+
+Winter Melon and Rock Sugar Dessert
+Winter Melon Sweet Soup
+
+Sweet Corn and Pineapple Soup
+Pineapple Sweet Soup
+
+Chilled Mixed Fruit with Sweet Syrup
+Cantonese Fruit Dessert Platter
+
+Deep-Fried Banana Fritters
+Crispy Fried Banana with Honey
+
+Caramelized Banana Dessert
+Banana Coconut Milk Dessert
+
+Sweet Tofu Pudding with Fruit Toppings
+Silken Tofu Dessert with Mango
+
+Sweet Rice Wine with Fruit
+Sweet Fermented Rice Balls with Fruit
+
+Candied Lotus Root with Osmanthus
+Candied Sweet Potato and Fruit
+
+Steamed Lotus Seed and Fruit Dessert
+
+Mantou (Steamed Wheat Bread)
+Plain Mantou (Plain Steamed Bread)
+Whole Wheat Mantou (Whole Wheat Steamed Bread)
+Sweet Mantou (Sweet Steamed Bread)
+Flower Mantou (Twisted Steamed Bread)
+Golden Mantou (Fried Steamed Bread)
+Milk Mantou (Milk Steamed Bread)
+Corn Mantou (Cornmeal Steamed Bread)
+Red Date Mantou (Jujube Steamed Bread)
+
+Baozi (Steamed Stuffed Bun)
+Char Siu Bao (Barbecue Pork Steamed Bun)
+Vegetable Baozi (Mixed Vegetable Steamed Bun)
+Pork Baozi (Pork Steamed Bun)
+Beef Baozi (Beef Steamed Bun)
+Lamb Baozi (Lamb Steamed Bun)
+Egg Custard Bao (Steamed Custard Bun)
+Sweet Red Bean Bao (Red Bean Paste Steamed Bun)
+Lotus Seed Paste Bao (Lotus Paste Steamed Bun)
+Salted Egg Yolk Custard Bao (Salted Egg Custard Steamed Bun)
+
+Shengjian Mantou (Pan-Fried Soup Bun)
+Xiaolongbao (Soup Dumpling Bun)
+Tangbao (Large Soup-Filled Bun)
+
+You Tiao (Chinese Fried Dough Stick)
+Sweet You Tiao (Sweet Fried Dough Stick)
+
+Shaobing (Chinese Baked Flatbread)
+Sesame Shaobing (Sesame Flatbread)
+Sweet Shaobing (Sweet Baked Flatbread)
+Meat Shaobing (Stuffed Baked Flatbread)
+
+Cong You Bing (Scallion Pancake Bread)
+Thick Scallion Pancake (Layered Scallion Flatbread)
+
+Dan Bing (Egg Flatbread)
+
+Naan-Style Xinjiang Nang (Uyghur Baked Bread)
+Xinjiang Sesame Nang (Sesame Uyghur Bread)
+
+Mooncake (Traditional Baked Mooncake)
+Cantonese Mooncake (Cantonese-Style Mooncake)
+Lotus Seed Paste Mooncake (Lotus Paste Mooncake)
+Red Bean Paste Mooncake (Red Bean Mooncake)
+Five Kernel Mooncake (Mixed Nut Mooncake)
+Snow Skin Mooncake (No-Bake Mooncake)
+Salted Egg Yolk Mooncake (Egg Yolk Mooncake)
+
+Pineapple Bun (Bolo Bao / Pineapple Crust Bun)
+Butter Pineapple Bun (Butter Bolo Bun)
+
+Cocktail Bun (Coconut Filling Bun)
+
+Hot Dog Bun (Hong Kong–Style Sausage Bun)
+
+Milk Bread Roll (Hong Kong Milk Bread)
+
+Wife Cake (Sweet Pastry with Winter Melon Filling)
+
+Egg Tart (Hong Kong Egg Tart)
+Portuguese-Style Egg Tart (Macau Egg Tart)
+
+Crispy Sesame Ball (Jian Dui / Fried Sesame Ball)
+
+Honey Twist Bread (Mahua Sweet Fried Bread)
+
+Dragon Beard Pastry (Flaky Shredded Pastry)
+
+Almond Cookie (Chinese Almond Biscuit)
+
+Walnut Cookie (Chinese Walnut Biscuit)
+
+Phoenix Roll (Egg Roll Cookie)
+
+Sachima (Fried Dough Cake with Syrup)
+
+Steamed Rice Cake (Bai Tang Gao / White Sugar Cake)
+
+Brown Sugar Steamed Cake (Brown Sugar Sponge Cake)
+
+Osmanthus Cake (Sweet Rice Flour Cake)
+
+Red Bean Rice Cake (Red Bean Sticky Rice Cake)
+
+Peking Duck (Beijing Roast Duck)
+Cantonese Roast Duck
+Cantonese Roast Pork (Char Siu Barbecued Pork)
+Cantonese Crispy Roast Pork Belly (Siu Yuk)
+Soy Sauce Chicken (Cantonese Poached Chicken)
+White Cut Chicken (Cantonese Poached Chicken)
+Hainanese Chicken Rice (Poached Chicken with Rice)
+Roast Goose (Cantonese Roast Goose)
+Sweet and Sour Pork (Cantonese Style Sweet and Sour Pork)
+Sweet and Sour Fish (Cantonese Sweet and Sour Fish)
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)
+General Tso’s Chicken (Crispy Sweet Spicy Chicken)
+Orange Chicken (Crispy Orange Sauce Chicken)
+Lemon Chicken (Cantonese Lemon Sauce Chicken)
+Black Pepper Beef (Stir-Fried Beef with Black Pepper Sauce)
+Beef and Broccoli (Stir-Fried Beef with Broccoli)
+Mongolian Beef (Sweet Soy Beef Stir-Fry)
+Ma Po Tofu (Spicy Sichuan Tofu with Minced Pork)
+Twice-Cooked Pork (Sichuan Double-Cooked Pork Belly)
+Fish-Fragrant Eggplant (Sichuan Eggplant with Garlic Chili Sauce)
+Fish-Fragrant Pork (Sichuan Shredded Pork in Garlic Sauce)
+Hot and Sour Soup (Sichuan Hot and Sour Soup)
+Wonton Soup (Pork and Shrimp Wonton Soup)
+Egg Drop Soup (Chinese Egg Flower Soup)
+Shark Fin Soup (Braised Shark Fin Soup)
+Bird’s Nest Soup (Edible Bird’s Nest Soup)
+Braised Abalone with Oyster Sauce
+Braised Sea Cucumber with Scallions
+Steamed Whole Fish with Ginger and Scallions
+Steamed Sea Bass with Soy Sauce
+Salt and Pepper Shrimp (Cantonese Salt and Pepper Prawns)
+Salt and Pepper Squid (Cantonese Salt and Pepper Calamari)
+Honey Walnut Shrimp (Crispy Shrimp with Honey Walnut Sauce)
+Crispy Aromatic Duck (Shredded Crispy Duck Pancakes)
+Tea-Smoked Duck (Sichuan Tea-Smoked Duck)
+Clay Pot Rice (Cantonese Clay Pot Rice)
+Yangzhou Fried Rice (Yangchow Fried Rice)
+House Special Fried Rice (Chinese Restaurant Fried Rice)
+Shrimp Fried Rice (Chinese Shrimp Fried Rice)
+Chicken Fried Rice (Chinese Chicken Fried Rice)
+Vegetable Fried Rice (Chinese Mixed Vegetable Fried Rice)
+Chow Mein (Stir-Fried Egg Noodles)
+Cantonese Chow Mein (Crispy Noodles with Gravy)
+Lo Mein (Soft Egg Noodles Tossed with Sauce)
+Beef Chow Fun (Stir-Fried Flat Rice Noodles with Beef)
+Singapore Fried Noodles (Curry Rice Vermicelli)
+Dan Dan Noodles (Sichuan Spicy Sesame Noodles)
+Zhajiangmian (Beijing Noodles with Soybean Paste Sauce)
+Lantern Dumplings (Glutinous Rice Balls Dessert)
+Pork Dumplings (Chinese Boiled Dumplings)
+Pan-Fried Dumplings (Potstickers)
+Soup Dumplings (Xiao Long Bao Soup Dumplings)
+Shrimp Dumplings (Har Gow Steamed Shrimp Dumplings)
+Pork Siu Mai (Steamed Pork Dumplings)
+BBQ Pork Buns (Char Siu Bao)
+Steamed Custard Buns (Nai Wong Bao Custard Buns)
+Spring Rolls (Cantonese Spring Rolls)
+Egg Rolls (Chinese-American Egg Rolls)
+Scallion Pancakes (Chinese Green Onion Pancakes)
+Turnip Cake (Cantonese Radish Cake)
+Sticky Rice in Lotus Leaf (Lo Mai Gai)
+Red-Braised Pork Belly (Chairman Mao’s Braised Pork)
+Red-Braised Beef (Soy-Braised Beef)
+Red-Braised Fish (Soy-Braised Fish)
+Dongpo Pork (Braised Pork Belly Hangzhou Style)
+West Lake Beef Soup (Hangzhou Beef Soup)
+Beggar’s Chicken (Clay-Baked Whole Chicken)
+Eight-Treasure Duck (Stuffed Duck with Glutinous Rice)
+Lion’s Head Meatballs (Braised Pork Meatballs)
+Sweet Red Bean Soup (Chinese Red Bean Dessert Soup)
+Mango Pudding (Hong Kong Style Mango Pudding)
+
+Lap Cheong (Chinese Cured Pork Sausage)
+Yun Chang (Air-Dried Cantonese Pork Sausage)
+Xiang Chang (Spicy Sichuan Cured Pork Sausage)
+Gan Chang (Sweet Dried Chinese Sausage)
+Lap Yuk (Cantonese Cured Pork Belly)
+Nan Xiang La Rou (Southern Chinese Cured Pork)
+Sichuan La Rou (Sichuan Cured Pork)
+Hunan La Rou (Hunan Smoked and Cured Pork)
+Anhui La Rou (Anhui-Style Cured Pork)
+Yunnan Xuanwei Ham (Xuanwei Dry-Cured Ham)
+Jinhua Ham (Dry-Cured Jinhua Ham)
+Rugao Ham (Rugao Salt-Cured Ham)
+Anfu Ham (Anfu Dry-Cured Ham)
+Chinese Salt-Cured Duck
+Nanjing Salted Duck (Nanjing Salt-Cured Duck)
+Cantonese Wind-Dried Duck (Air-Dried Cured Duck)
+Sichuan Salt-Cured Duck
+Chinese Salt-Cured Chicken
+Cantonese Wind-Dried Chicken (Air-Dried Cured Chicken)
+Hakka Salt-Baked Chicken (Salt-Cured Chicken)
+Chinese Salt-Cured Fish
+Cantonese Salted Mackerel (Salt-Cured Mackerel)
+Cantonese Salted Croaker (Salt-Cured Yellow Croaker)
+Zhejiang Salt-Cured Ribbonfish
+Anhui Salt-Cured Mandarin Fish
+Chinese Waxed Fish (Air-Dried Cured Fish)
+Chinese Salt-Cured Egg Yolk (Salted Duck Egg Yolk)
+Chinese Salted Duck Eggs (Salt-Cured Duck Eggs)
+Chinese Salted Chicken Eggs (Salt-Cured Chicken Eggs)
+Preserved Mustard Greens (Salt-Cured Chinese Mustard Greens)
+Zha Cai (Sichuan Salt-Cured Mustard Stem)
+Preserved Radish (Salt-Cured Chinese Radish)
+Preserved Turnip (Salt-Cured White Turnip)
+
+Peking Duck Pancake (Mandarin Pancake Duck Wrap)
+Peking Duck with Scallion Pancakes (Beijing Roast Duck Wrap)
+Moo Shu Pancake (Mandarin Pancake Wrap)
+Moo Shu Pork Pancake (Mandarin Pancake Pork Wrap)
+Moo Shu Chicken Pancake (Mandarin Pancake Chicken Wrap)
+Jianbing (Chinese Savory Crepe Wrap)
+Traditional Jianbing (Chinese Breakfast Crepe Wrap)
+Scallion Pancake Wrap (Cong You Bing Wrap)
+Scallion Pancake Beef Wrap (Beef-Stuffed Scallion Pancake)
+Scallion Pancake Egg Wrap (Egg-Stuffed Scallion Pancake)
+Roujiamo (Chinese Pork Flatbread Sandwich)
+Beijing Roujiamo (Northern Chinese Pork Flatbread Wrap)
+Shaanxi Roujiamo (Braised Pork Flatbread Wrap)
+Gua Bao (Taiwanese Steamed Bun Pork Belly Wrap)
+Braised Pork Belly Gua Bao (Taiwanese Pork Belly Bun Wrap)
+San Choy Bow (Chinese Lettuce Wraps)
+Minced Pork Lettuce Wraps (Chinese Pork Lettuce Wraps)
+Chicken Lettuce Wraps (Chinese Chicken Lettuce Wraps)
+Popiah (Fujian Fresh Spring Roll Wrap)
+Hokkien Popiah (Fresh Chinese Vegetable Wrap)
+Spring Roll (Chinese Fried Wrap)
+Fresh Spring Roll (Chinese Unfried Wrap)
+
+Steamed Whole Fish with Ginger and Scallions
+Cantonese Steamed Fish with Soy Sauce
+Steamed Sea Bass Cantonese Style
+Steamed Tilapia with Ginger and Scallions
+Steamed Grouper with Soy Sauce
+Steamed Pomfret with Ginger and Scallions
+Steamed Fish Head with Ginger and Scallions
+Steamed Fish with Black Bean Sauce
+Cantonese-Style Poached Fish
+Soy Sauce Steamed Fish
+White Cut Fish (Plain Poached Fish with Dipping Sauce)
+
+Sweet and Sour Fish
+Sweet and Sour Whole Fish
+Sweet and Sour Crispy Fish
+Sweet and Sour Fish Fillet
+Sweet and Sour Carp
+
+Deep-Fried Whole Fish
+Crispy Fried Fish with Soy Sauce
+Cantonese Crispy Fish
+Fried Fish with Ginger and Scallions
+Fried Pomfret Cantonese Style
+
+Braised Fish in Soy Sauce
+Red-Braised Fish (Hong Shao Fish)
+Braised Yellow Croaker
+Braised Grass Carp
+Braised Carp with Ginger and Scallions
+
+Fish with Black Bean Sauce
+Steamed Fish with Fermented Black Beans
+Stir-Fried Fish with Black Bean Sauce
+
+Salt and Pepper Fish
+Salt and Pepper Fish Fillet
+Salt and Pepper Whole Fish
+
+Fish Congee (Chinese Fish Porridge)
+Cantonese Fish Congee
+Sliced Fish Congee
+
+Fish Ball Soup
+Fish Ball Noodle Soup
+Fish Ball and Fish Cake Soup
+
+Poached Fish in Chili Oil (Shui Zhu Fish)
+Sichuan Boiled Fish in Chili Oil
+Spicy Sichuan Fish Fillet
+Sichuan Fish Hot Pot
+
+Braised Fish with Pickled Vegetables
+Fish with Pickled Mustard Greens
+Sichuan Pickled Chili Fish
+
+Steamed Fish Head with Chili
+Spicy Steamed Fish Head
+Hunan Steamed Fish Head with Chopped Chili
+
+Fish Fragrant Fish (Yu Xiang Fish)
+Fish-Fragrant Fish Fillet
+Fish-Fragrant Crispy Fish
+
+West Lake Sweet and Sour Fish
+Hangzhou Sweet and Sour Carp
+Zhejiang-Style Sweet and Sour Fish
+
+Mandarin Fish Sweet and Sour
+Sweet and Sour Mandarin Fish
+Crispy Mandarin Fish with Sweet and Sour Sauce
+
+Braised Mandarin Fish
+Mandarin Fish with Soy Sauce
+
+Beer-Braised Fish
+Beer-Stewed Fish
+
+Fish with Tofu
+Braised Fish with Tofu
+Fish Head with Tofu Soup
+
+Clay Pot Fish
+Clay Pot Fish with Ginger and Scallions
+
+Fish Stir-Fried with Chives
+Fish with Chinese Chives
+
+Cured Fish Stir-Fry
+Air-Dried Fish Stir-Fry
+
+Steamed Fish with Preserved Vegetables
+Fish with Preserved Mustard Greens
+
+Fish in Sour Soup
+Guizhou Sour Fish Soup
+
+Crispy Fish with Garlic Sauce
+Garlic Sauce Fried Fish
+
+Scallion Ginger Butter
+Ginger Scallion Butter
+Scallion Oil Butter
+Garlic Chive Butter
+Chinese Five-Spice Butter
+Sichuan Peppercorn Butter
+Sichuan Chili Butter
+Chili Crisp Butter
+Lao Gan Ma Chili Crisp Butter
+Fermented Black Bean Butter
+Douchi Butter (Fermented Black Bean Butter)
+XO Sauce Butter
+Fermented Tofu Butter
+Red Fermented Tofu Butter
+Shaoxing Wine Butter
+Soy Sauce Butter
+Sweet Soy Butter
+Black Vinegar Butter
+Star Anise Butter
+Tea-Smoked Butter
+Roasted Garlic Soy Butter
+White Pepper Butter
+Salted Duck Egg Yolk Butter
+Cured Pork and Scallion Butter
+Prawn Head Butter
+Crab Roe Butter
+Chinese Garlic Butter
+
+Mantou (Steamed Wheat Bread)
+Hua Juan (Steamed Scallion Flower Rolls)
+Baozi (Steamed Stuffed Buns)
+Char Siu Bao (Steamed Barbecue Pork Buns)
+Shengjian Mantou (Pan-Fried Soup Buns)
+Xiaolongbao (Soup Dumplings)
+Jiaozi (Boiled Dumplings)
+Guotie (Potstickers)
+Wonton (Pork and Shrimp Wontons)
+Har Gow (Shrimp Dumplings)
+Shumai (Pork and Shrimp Dumplings)
+Spring Rolls (Crispy Fried Spring Rolls)
+Chive Pockets (Pan-Fried Chive Dumplings)
+Cong You Bing (Scallion Pancake)
+Dan Bing (Chinese Egg Crepe)
+Jianbing (Chinese Breakfast Crepe)
+You Tiao (Fried Dough Sticks)
+Shaobing (Sesame Flatbread)
+Lamian (Hand-Pulled Wheat Noodles)
+Biang Biang Noodles (Wide Hand-Pulled Noodles)
+Dao Xiao Mian (Knife-Cut Noodles)
+Zhajiangmian (Noodles with Fermented Soybean Sauce)
+Dan Dan Noodles (Spicy Sichuan Noodles)
+Chow Mein (Stir-Fried Wheat Noodles)
+Lo Mein (Tossed Wheat Noodles)
+Yi Mein (Crispy Egg Noodles)
+Rice Noodle Rolls (Cheung Fun)
+Beef Chow Fun (Stir-Fried Flat Rice Noodles with Beef)
+Shahe Fen (Flat Rice Noodles)
+Guilin Rice Noodles
+Crossing-the-Bridge Rice Noodles
+Liangpi (Cold Wheat or Rice Noodles)
+Cellophane Noodles with Garlic Sauce
+Sweet Rice Dumplings (Tangyuan)
+Sticky Rice Cakes (Nian Gao)
+Turnip Cake (Lo Bak Go)
+Taro Cake (Wu Tao Go)
+Steamed Sponge Cake (Ma Lai Go)
+Almond Cookies (Chinese Almond Biscuits)
+Wife Cake (Sweetheart Pastry)
+Mooncakes (Traditional Baked Mooncakes)
+Snow Skin Mooncakes
+Sesame Balls (Jian Dui)
+Egg Tarts (Hong Kong Egg Tart)
+Pineapple Buns (Sweet Crust Buns)
+Lotus Seed Paste Buns
+Red Bean Paste Buns
+
+Bing Tang (Chinese Rock Sugar)
+Huang Bing Tang (Yellow Rock Sugar)
+Bai Bing Tang (White Rock Sugar)
+Hong Tang (Chinese Brown Sugar Slabs)
+Gan Zhe Tang (Cane Sugar Blocks)
+Bai Sha Tang (Chinese White Granulated Sugar)
+Hong Sha Tang (Chinese Brown Granulated Sugar)
+Mai Ya Tang (Maltose Syrup / Malt Sugar)
+Mai Ya Tang Gao (Thick Malt Syrup)
+Mai Ya Tang Xi (Liquid Malt Syrup)
+Zhu Tang (Pearl Sugar for Chinese Pastry)
+Gui Hua Tang (Osmanthus Sugar Syrup)
+Gui Hua Mi Tang (Osmanthus Honey Syrup)
+Jiang Zhi Hong Tang (Ginger Brown Sugar Syrup)
+Hong Tang Jiang Tang (Brown Sugar Ginger Syrup)
+Zao Tang (Red Date Sugar Syrup)
+Hong Zao Hong Tang (Red Date Brown Sugar Syrup)
+Long Yan Tang (Longan Sugar Syrup)
+Zhe Tang Shui (Cane Sugar Syrup)
+Tang Shui Ji Tang (Chinese Sweet Syrup Base)
+Tang Jiang (Chinese Sugar Syrup)
+Tang Xi (Light Sugar Syrup)
+Tang Gao (Thick Sugar Syrup)
+Bing Tang Shui (Rock Sugar Syrup)
+Hong Tang Shui (Brown Sugar Syrup)
+Tang Hua (Spun Sugar Threads)
+Tang Se (Caramelized Sugar)
+
+Rǔlào (Fermented Tofu Cheese)
+Furu (Chinese Fermented Bean Curd Cheese)
+Red Fermented Tofu (Red Yeast Rice Bean Curd Cheese)
+White Fermented Tofu (Plain Fermented Bean Curd Cheese)
+Spicy Fermented Tofu (Chili Bean Curd Cheese)
+Sesame Oil Fermented Tofu (Sesame-Infused Bean Curd Cheese)
+Preserved Tofu Cheese Cubes
+Fermented Tofu Cheese in Brine
+
+Rǔshān (Yunnan Cheese Sheet)
+Grilled Rushan (Grilled Yunnan Cheese)
+Fried Rushan (Fried Yunnan Cheese)
+Rushan with Honey (Sweet Yunnan Cheese)
+Rushan with Chili Sauce (Spicy Yunnan Cheese)
+
+Rǔbǐng (Yunnan Cheese Cake)
+Pan-Fried Rubing (Pan-Fried Yunnan Cheese Cake)
+Deep-Fried Rubing (Crispy Yunnan Cheese Cake)
+Rubing with Ham (Yunnan Cheese Cake with Cured Ham)
+Rubing with Mushrooms (Yunnan Cheese Cake with Wild Mushrooms)
+
+Milk Fan (Dali Dairy Cheese Skin)
+Grilled Milk Fan (Grilled Dali Cheese Sheet)
+Fried Milk Fan (Fried Dali Cheese Skin)
+
+Tibetan Yak Cheese (Yak Milk Cheese)
+Dried Yak Cheese Cubes
+Fresh Yak Cheese Curds
+
+Naizha (Fresh Milk Curd Cheese)
+Sweet Milk Curd Cheese
+Savory Milk Curd Cheese
+
+Mongolian Milk Cheese (Mongolian Dried Milk Curd)
+Air-Dried Milk Cheese
+
+Cheese-Stuffed Mantou (Steamed Bun with Cheese Filling)
+Cheese-Stuffed Jianbing (Chinese Crepe with Cheese)
+Cheese Baked Rice (Chinese-Style Baked Rice with Cheese)
+Cheese Baked Noodles (Chinese-Style Baked Noodles with Cheese)
+
+Zhenjiang Aromatic Vinegar (Chinese Black Rice Vinegar)
+Shanxi Aged Vinegar (Shanxi Mature Vinegar)
+Red Rice Vinegar (Chinese Red Vinegar)
+White Rice Vinegar (Chinese White Vinegar)
+Sweet and Sour Vinegar Sauce (Chinese Sweet and Sour Sauce)
+Hot and Sour Vinegar Soup (Suan La Tang – Hot and Sour Soup)
+Cold Black Fungus with Vinegar (Liang Ban Mu Er – Vinegar-Dressed Wood Ear Mushrooms)
+Cucumber Salad with Garlic Vinegar (Smashed Cucumber with Vinegar and Garlic)
+Vinegar-Braised Peanuts (Old Vinegar Peanuts)
+Chinese Pickled Napa Cabbage in Vinegar (Suan Bai Cai – Sour Napa Cabbage)
+Sugar and Vinegar Spare Ribs (Sweet and Sour Pork Ribs)
+Sweet and Sour Pork (Gu Lao Rou – Cantonese Sweet and Sour Pork)
+Sweet and Sour Fish (Sweet and Sour Whole Fish)
+Sweet and Sour Chicken (Chinese Sweet and Sour Chicken)
+Zhenjiang Vinegar Dipping Sauce (Black Vinegar Dipping Sauce)
+Crab with Ginger and Black Vinegar (Hairy Crab with Ginger Vinegar Sauce)
+Pig’s Trotters in Sweet Vinegar (Cantonese Sweet Vinegar Pork Trotters)
+Eggs in Sweet Vinegar (Cantonese Sweet Vinegar Eggs)
+Braised Pork with Black Vinegar (Black Vinegar Braised Pork)
+Chili Oil with Black Vinegar (Spicy Black Vinegar Sauce)
+Dumpling Dipping Sauce with Vinegar (Chinese Dumpling Vinegar Sauce)
+
+Mi Zhi Char Siu (Honey Glazed Barbecue Pork)
+Mi Zhi Cha Shao Bao (Honey Barbecue Pork Buns)
+Mi Zhi Kao Ya (Honey Glazed Roast Duck)
+Mi Zhi Kao Ji (Honey Glazed Roast Chicken)
+Mi Zhi Tang Cu Ji (Honey Sweet and Sour Chicken)
+Mi Zhi Tang Cu Li Ji (Honey Sweet and Sour Pork)
+Mi Zhi Zha Ji (Honey Fried Chicken)
+Mi Zhi Pai Gu (Honey Glazed Pork Ribs)
+Mi Zhi Kao Pai Gu (Honey Roasted Spare Ribs)
+Mi Zhi Niu Rou (Honey Glazed Beef)
+Mi Zhi Ji Chi (Honey Soy Chicken Wings)
+Mi Zhi Kao Ji Chi (Honey Roasted Chicken Wings)
+Mi Zhi Shao Rou (Honey Roasted Pork Belly)
+Mi Zhi Kao Rou (Honey Roasted Pork)
+Mi Zhi Yu (Honey Glazed Fish)
+Mi Zhi Zha Yu (Honey Fried Fish)
+Mi Zhi Xia (Honey Glazed Shrimp)
+Mi Zhi He Tao (Honey Walnut Shrimp)
+Mi Zhi Zha Xia (Honey Fried Shrimp)
+Mi Zhi Dou Fu (Honey Glazed Tofu)
+Mi Zhi Zha Dou Fu (Honey Fried Tofu)
+Mi Zhi Qie Zi (Honey Glazed Eggplant)
+Mi Zhi Fan Qie (Honey Glazed Tomatoes)
+Mi Zhi Lian Ou (Honey Glazed Lotus Root)
+Mi Zhi Hong Shu (Honey Glazed Sweet Potato)
+Mi Zhi Jin Gua (Honey Glazed Pumpkin)
+Mi Zhi Bao Cai (Honey Glazed Cabbage)
+Mi Zhi Song Zi (Honey Pine Nut Stir Fry)
+Mi Zhi Nian Gao (Honey Glutinous Rice Cake)
+Mi Zhi Ma Hua (Honey Fried Dough Twists)
+Mi Zhi Sha Qi Ma (Honey Egg Cake Bars)
+Mi Zhi You Zha Gui (Honey Fried Glutinous Rice Dumplings)
+Mi Zhi Tang Yuan (Honey Glutinous Rice Balls)
+Mi Zhi Lian Zi Geng (Honey Lotus Seed Dessert Soup)
+Mi Zhi Hong Zao (Honey Glazed Red Dates)
+Mi Zhi Gui Yuan (Honey Longan Dessert)
+Mi Zhi Ba Bao Fan (Honey Eight Treasure Rice)
+Mi Zhi Bing (Honey Pancakes)
+Mi Zhi You Bing (Honey Fried Pancakes)
+Mi Zhi Hua Juan (Honey Steamed Flower Rolls)
+Mi Zhi Mantou (Honey Steamed Buns)
+
+Green Tea (Chinese Green Tea)
+Longjing (Dragon Well Green Tea)
+Biluochun (Green Snail Spring Green Tea)
+Huangshan Maofeng (Yellow Mountain Fuzzy Tip Green Tea)
+Xinyang Maojian (Xinyang Fuzzy Tip Green Tea)
+Taiping Houkui (Taiping Monkey King Green Tea)
+Lu’an Guapian (Lu’an Melon Seed Green Tea)
+Anji Baicha (Anji White Tea Style Green Tea)
+Zisun Tea (Purple Bamboo Shoot Green Tea)
+
+White Tea (Chinese White Tea)
+Baihao Yinzhen (Silver Needle White Tea)
+Bai Mudan (White Peony Tea)
+Shoumei (Longevity Eyebrow White Tea)
+
+Yellow Tea (Chinese Yellow Tea)
+Junshan Yinzhen (Junshan Silver Needle Yellow Tea)
+Huoshanshuangya (Huoshan Yellow Bud Tea)
+
+Oolong Tea (Chinese Oolong Tea)
+Tieguanyin (Iron Goddess Oolong Tea)
+Da Hong Pao (Big Red Robe Oolong Tea)
+Wuyi Rock Tea (Wuyi Yancha Oolong Tea)
+Shui Xian (Water Sprite Oolong Tea)
+Rou Gui (Cinnamon Oolong Tea)
+Phoenix Dan Cong (Single Bush Phoenix Oolong Tea)
+
+Black Tea (Chinese Red Tea)
+Keemun (Qimen Black Tea)
+Dianhong (Yunnan Black Tea)
+Lapsang Souchong (Smoked Pine Black Tea)
+Jinjunmei (Golden Eyebrow Black Tea)
+
+Dark Tea (Chinese Fermented Tea)
+Pu’er Sheng (Raw Pu’er Tea)
+Pu’er Shou (Ripe Pu’er Tea)
+Liu Bao Tea (Six堡 Dark Tea)
+Anhua Heicha (Anhua Dark Tea)
+
+Scented Tea (Chinese Flower-Scented Tea)
+Jasmine Green Tea (Jasmine-Scented Green Tea)
+Jasmine Pearl Tea (Hand-Rolled Jasmine Green Tea)
+Osmanthus Oolong Tea (Osmanthus-Scented Oolong Tea)
+Rose Black Tea (Rose-Scented Black Tea)
+
+Herbal and Specialty Teas (Traditional Chinese Herbal Teas)
+Chrysanthemum Tea (Chrysanthemum Flower Tea)
+Eight Treasures Tea (Ba Bao Cha Herbal Tea)
+Monk Fruit Tea (Luo Han Guo Herbal Tea)
+Tangerine Peel Pu’er Tea (Chenpi Pu’er Tea)
+Ginger Tea (Fresh Ginger Infusion)
+Goji Berry Tea (Gouqi Herbal Tea)
+Barley-Free Buckwheat Tea (Ku Qiao Tea)
+
+Regional and Cultural Preparations (Chinese Tea Traditions)
+Gongfu Tea (Gongfu-Style Tea Brewing)
+Boiled Tea (Traditional Chinese Boiled Tea)
+Tibetan Butter Tea (Yak Butter Salt Tea)
+
+Soy Milk (Doujiang, Chinese Soy Milk)
+Sweet Soy Milk (Sweet Doujiang)
+Savory Soy Milk (Savory Doujiang)
+Hot Soy Milk (Re Doujiang, Hot Soy Milk)
+Cold Soy Milk (Liang Doujiang, Cold Soy Milk)
+Black Soy Milk (Heidou Doujiang, Black Soy Milk)
+Homemade Fresh Soy Milk (Xian Mo Doujiang, Fresh-Ground Soy Milk)
+Stone-Ground Soy Milk (Shimo Doujiang, Stone-Milled Soy Milk)
+Unsweetened Soy Milk (Wu Tang Doujiang, Unsweetened Soy Milk)
+
+Almond Milk (Xing Ren Nai, Chinese Almond Milk)
+Southern Almond Milk (Nan Xing Nai, Sweet Almond Milk)
+Northern Almond Milk (Bei Xing Nai, Bitter Almond Milk)
+Warm Almond Milk Dessert (Re Xing Ren Nai, Hot Almond Milk)
+
+Walnut Milk (He Tao Nai, Walnut Milk)
+Black Sesame Milk (Hei Zhi Ma Nai, Black Sesame Milk)
+Peanut Milk (Hua Sheng Nai, Peanut Milk)
+Rice Milk (Mi Jiang, Rice Milk Drink)
+Millet Milk (Xiao Mi Nai, Millet Milk)
+
+Double Skin Milk (Shuang Pi Nai, Cantonese Milk Pudding)
+Steamed Milk Custard (Zheng Nai, Steamed Milk Custard)
+Ginger Milk Curd (Jiang Zhi Zhuang Nai, Ginger Milk Pudding)
+Hong Kong–Style Steamed Milk (Gang Shi Zheng Nai, Hong Kong Milk Custard)
+
+Milk Tea (Nai Cha, Chinese Milk Tea)
+Hong Kong–Style Milk Tea (Gang Shi Nai Cha, Silk-Stocking Milk Tea)
+Yunnan Milk Tea (Dian Shi Nai Cha, Yunnan-Style Milk Tea)
+Tibetan Butter Milk Tea (Po Cha, Tibetan Butter Milk Tea)
+Inner Mongolian Milk Tea (Meng Gu Nai Cha, Mongolian Milk Tea)
+
+Sweetened Condensed Milk Drink (Lian Ru Nai Yin, Condensed Milk Beverage)
+Boiled Milk with Sugar (Tang Nai, Sweet Milk Drink)
+
+Eight Treasure Rice (Glutinous Rice with Dried Fruits and Nuts)
+Eight Treasure Congee (Sweet Rice Porridge with Dried Fruits)
+Eight Treasure Tea (Chinese Herbal Tea with Dried Fruits)
+Red Date and Longan Sweet Soup (Jujube and Dried Longan Dessert Soup)
+Snow Fungus and Red Date Sweet Soup (White Fungus Dessert with Dried Jujubes)
+Snow Fungus, Pear, and Dried Apricot Sweet Soup
+Steamed Pear with Dried Apricot and Rock Sugar
+Braised Chicken with Red Dates and Dried Longan
+Double-Boiled Chicken Soup with Red Dates and Goji Berries
+Pork Rib Soup with Dried Figs and Red Dates
+Lotus Root Soup with Peanuts and Dried Tangerine Peel
+Steamed Chicken with Red Dates and Wolfberries
+Red Date Cake (Chinese Jujube Cake)
+Dried Longan Glutinous Rice Balls (Sweet Tangyuan with Longan)
+Osmanthus Jelly with Dried Longan
+Cantonese Sweet Vinegar with Ginger and Dried Dates
+Braised Duck with Dried Tangerine Peel and Red Dates
+Buddha Jumps Over the Wall (Abalone Soup with Dried Fruits and Delicacies)
+Braised Pork Belly with Red Dates
+Steamed Spare Ribs with Fermented Black Beans and Dried Tangerine Peel
+Chinese Herbal Pork Soup with Red Dates and Dried Longan
+Sticky Rice with Chinese Sausage and Dried Shrimp
+Red Date Steamed Sponge Cake
+Wolfberry and Red Date Tea (Goji and Jujube Tea)
+
+Dried Shiitake Mushrooms
+Dried Black Fungus (Wood Ear Mushrooms)
+Dried Snow Fungus (Tremella Mushrooms)
+Dried Daylily Buds (Golden Needles)
+Dried Bamboo Shoots
+Dried Lotus Root Slices
+Dried Chinese Yam (Huai Shan)
+Dried Taro Slices
+Dried Daikon Radish
+Dried Mustard Greens
+Dried Napa Cabbage
+Dried Spinach
+Dried Chinese Chives
+Dried Ginger Slices
+Dried Galangal Slices
+Dried Garlic Slices
+Dried Scallions
+Dried Chili Peppers
+Dried Sichuan Chilies
+Dried Tianjin Preserved Vegetable (Dehydrated Preserved Mustard Tuber)
+Dried Preserved Radish (Chai Po)
+Dried Preserved Turnip
+Dried Preserved Mustard Greens (Mei Gan Cai)
+Dried Preserved Olive Vegetable
+Dried Shrimp
+Dried Small Shrimp (Xia Pi)
+Dried Scallops (Conpoy, Dried Scallop Adductor Muscle)
+Dried Oysters
+Dried Squid
+Dried Cuttlefish
+Dried Abalone
+Dried Sea Cucumber
+Dried Fish Maw
+Dried Anchovies
+Dried Whitebait
+Dried Salted Fish
+Dried Pork Belly
+Dried Chinese Sausage (Lap Cheong, Air-Dried Pork Sausage)
+Dried Duck Sausage (Lap Aap Cheong)
+Dried Beef Jerky (Chinese-Style Dried Beef)
+Dried Pork Jerky (Chinese-Style Dried Pork)
+Dried Duck
+Dried Chicken
+Dried Tofu Skin (Bean Curd Sheets)
+Dried Tofu Sticks
+Dried Fermented Black Beans
+Dried Red Dates (Jujubes)
+Dried Longan
+Dried Lychee
+Dried Tangerine Peel (Chen Pi)
+Dried Kumquat
+Dried Hawthorn Fruit
+Dried Goji Berries
+Dried Lotus Seeds
+Dried Ginkgo Nuts
+Dried Chestnuts
+Dried Persimmon
+Dried Plum
+Dried Bamboo Fungus (Veiled Lady Mushroom)
+
+Suan Nai (Chinese Yogurt)
+Lao Beijing Suan Nai (Old Beijing Yogurt)
+Xinjiang Suan Nai (Xinjiang Yogurt)
+Xinjiang Yogurt Drink with Honey (Xinjiang Honey Yogurt Drink)
+Xinjiang Yogurt with Raisins (Xinjiang Yogurt and Dried Fruit)
+Xinjiang Yogurt with Walnuts (Xinjiang Yogurt and Nuts)
+Uyghur Suan Nai (Uyghur-Style Yogurt)
+Yak Milk Yogurt (Tibetan Yak Yogurt)
+Tibetan Yogurt with Barley (Yak Yogurt with Roasted Barley Flour)
+Sweet Yogurt Dessert (Sweetened Chinese Yogurt)
+Plain Chinese Yogurt (Unsweetened Suan Nai)
+Homemade Chinese Yogurt (Traditional Suan Nai)
+Beijing Yogurt in Porcelain Jars (Old-Style Beijing Yogurt)
+Xinjiang Frozen Yogurt (Xinjiang Yogurt Ice Dessert)
+
+Soy Sauce (Chinese Soy Sauce)
+Light Soy Sauce (Light Chinese Soy Sauce)
+Dark Soy Sauce (Dark Chinese Soy Sauce)
+Double Black Soy Sauce (Premium Dark Soy Sauce)
+Mushroom Soy Sauce (Mushroom-Infused Soy Sauce)
+Tamari-Style Soy Sauce (Wheat-Free Soy Sauce)
+Seasoned Soy Sauce (Pre-Seasoned Chinese Soy Sauce)
+Steamed Fish Soy Sauce (Seafood Seasoning Soy Sauce)
+
+Chinkiang Vinegar (Chinese Black Vinegar)
+Shanxi Mature Vinegar (Aged Shanxi Black Vinegar)
+Red Rice Vinegar (Chinese Red Vinegar)
+White Rice Vinegar (Chinese White Vinegar)
+Sweet Rice Vinegar (Sweetened Rice Vinegar)
+
+Shaoxing Wine (Chinese Cooking Wine)
+Hua Tiao Wine (Aged Shaoxing Cooking Wine)
+Rose Wine (Chinese Rose-Infused Cooking Wine)
+
+Oyster Sauce (Chinese Oyster Sauce)
+Premium Oyster Sauce (Extra Thick Oyster Sauce)
+Vegetarian Oyster Sauce (Mushroom Oyster Sauce)
+
+Hoisin Sauce (Chinese Sweet Bean Sauce)
+Sweet Bean Sauce (Tian Mian Jiang – Sweet Flour Sauce)
+Yellow Bean Sauce (Fermented Yellow Soybean Sauce)
+Ground Bean Sauce (Crushed Fermented Bean Sauce)
+
+Doubanjiang (Fermented Broad Bean Chili Paste)
+Pixian Doubanjiang (Pixian-Style Chili Bean Paste)
+Chili Garlic Sauce (Garlic Chili Paste)
+Chili Bean Sauce (Spicy Fermented Bean Sauce)
+
+Fermented Black Bean Sauce (Douchi Sauce)
+Black Bean Garlic Sauce (Fermented Black Bean and Garlic Sauce)
+
+Sesame Oil (Toasted Chinese Sesame Oil)
+White Sesame Oil (Untoasted Sesame Oil)
+
+Five-Spice Powder (Chinese Five-Spice Blend)
+Eight-Spice Powder (Expanded Chinese Spice Blend)
+Sichuan Peppercorn Powder (Ground Sichuan Pepper)
+
+Sichuan Peppercorn Oil (Sichuan Pepper Oil)
+Chili Oil (Chinese Chili Oil)
+Red Chili Oil (Spicy Chili Infused Oil)
+Chili Crisp (Crunchy Chili Oil)
+Spicy Chili Sauce (Hot Chili Condiment)
+
+Shrimp Paste (Chinese Shrimp Paste)
+Shrimp Sauce (Fermented Shrimp Sauce)
+
+Fermented Red Bean Curd (Red Fermented Tofu)
+Fermented White Bean Curd (White Fermented Tofu)
+Chili Bean Curd (Spicy Fermented Tofu)
+
+Plum Sauce (Chinese Plum Sauce)
+Duck Sauce (Sweet Plum Sauce)
+
+Sweet and Sour Sauce (Chinese Sweet and Sour Sauce)
+Black Pepper Sauce (Chinese Black Pepper Sauce)
+Ginger Scallion Sauce (Ginger and Green Onion Sauce)
+Garlic Sauce (Chinese Garlic Sauce)
+
+XO Sauce (Luxury Seafood Chili Sauce)
+Abalone Sauce (Abalone-Based Savory Sauce)
+Scallop Sauce (Dried Scallop Umami Sauce)
+
+Chicken Bouillon Powder (Chinese Chicken Essence Powder)
+Mushroom Bouillon Powder (Vegetarian Mushroom Seasoning)
+
+Rock Sugar Syrup (Chinese Rock Sugar Syrup)
+Maltose Syrup (Chinese Malt Sugar Syrup)
+
+Fried Pork Chop with Garlic Breadcrumbs
+Crispy Salt and Pepper Pork Chops with Breadcrumbs
+Cantonese-Style Crispy Fried Pork Cutlet
+Shanghai-Style Pan-Fried Pork Chop
+Golden Sand Pork Chops (Salted Egg Yolk Breadcrumb Pork Chops)
+Crispy Garlic Pork Ribs with Breadcrumbs
+Deep-Fried Spare Ribs with Breadcrumb Crust
+Crispy Chicken Wings with Breadcrumb Coating
+Cantonese Crispy Chicken Cutlet
+Fried Chicken Cutlet with Garlic Breadcrumbs
+Crispy Prawn Cutlets with Breadcrumbs
+Deep-Fried Shrimp Balls with Breadcrumbs
+Crispy Crab Claws with Breadcrumbs
+Deep-Fried Fish Fillet with Breadcrumb Crust
+Crispy Cod Cutlets Chinese Style
+Cantonese Fried Fish with Garlic Breadcrumbs
+Crispy Tofu with Breadcrumb Coating
+Deep-Fried Tofu Cutlets with Breadcrumbs
+Crispy Eggplant with Breadcrumb Crust
+Fried Eggplant Cutlets with Breadcrumbs
+Crispy Lotus Root Slices with Breadcrumbs
+Deep-Fried Lotus Root with Breadcrumb Coating
+Crispy Pumpkin Fritters with Breadcrumbs
+Cantonese Fried Pumpkin with Breadcrumb Crust
+Crispy Panko-Crusted Pork Cutlet Chinese Style
+Hong Kong–Style Crispy Pork Cutlet
+Crispy Garlic Scallops with Breadcrumbs
+Deep-Fried Scallops with Breadcrumb Crust
+Crispy Abalone with Garlic Breadcrumbs
+
+Scallion Oil (Chinese Scallion-Infused Oil)
+Ginger Oil (Chinese Ginger-Infused Oil)
+Garlic Oil (Chinese Garlic-Infused Oil)
+Sichuan Chili Oil (Sichuan Spicy Chili Oil)
+Hong You (Sichuan Red Chili Oil)
+La You (Chinese Chili Oil)
+Fragrant Chili Oil (Chinese Aromatic Chili Oil)
+Spiced Chili Oil (Chinese Five-Spice Chili Oil)
+Chili Crisp Oil (Chinese Chili Crisp Oil)
+Chili Bean Oil (Douban Chili Oil)
+Peppercorn Oil (Sichuan Peppercorn-Infused Oil)
+Green Sichuan Pepper Oil (Green Peppercorn Oil)
+Black Peppercorn Oil (Chinese Black Pepper Oil)
+Scallion Ginger Oil (Chinese Scallion and Ginger Oil)
+Garlic Chili Oil (Chinese Garlic Chili Oil)
+Scallion Chili Oil (Chinese Scallion Chili Oil)
+Shallot Oil (Chinese Fried Shallot Oil)
+Fried Shallot Oil (Cantonese Shallot Oil)
+Fried Garlic Oil (Chinese Fried Garlic Oil)
+Leek Oil (Chinese Leek-Infused Oil)
+Celery Oil (Chinese Celery-Infused Oil)
+Chinese Herb Oil (Traditional Chinese Herbal Oil)
+Star Anise Oil (Chinese Star Anise-Infused Oil)
+Cassia Oil (Chinese Cassia Cinnamon Oil)
+Clove Oil (Chinese Clove-Infused Oil)
+Bay Leaf Oil (Chinese Bay Leaf Oil)
+Five-Spice Oil (Chinese Five-Spice Infused Oil)
+Sesame Oil (Chinese Toasted Sesame Oil)
+Cold-Pressed Sesame Oil (Chinese Raw Sesame Oil)
+Blended Sesame Oil (Chinese Mixed Sesame Cooking Oil)
+Scallion Sesame Oil (Chinese Scallion Sesame Oil)
+Chili Sesame Oil (Chinese Chili Sesame Oil)
+Peanut Oil (Chinese Peanut Cooking Oil)
+Tea Seed Oil (Chinese Camellia Seed Oil)
+Rapeseed Oil (Chinese Rapeseed Cooking Oil)
+Soybean Oil (Chinese Soybean Cooking Oil)
+Lard Oil (Chinese Rendered Pork Fat Oil)
+
+Chinese Black Vinegar Dressing
+Chinkiang Vinegar Dressing
+Zhenjiang Vinegar Dressing
+Shanxi Aged Vinegar Dressing
+Sweet and Sour Vinaigrette (Chinese Style)
+Soy Sauce and Vinegar Dressing
+Sesame Oil Vinegar Dressing
+Ginger-Scallion Vinegar Sauce
+Garlic Vinegar Dressing
+Sichuan Red Oil Vinegar Dressing
+Chili Oil and Vinegar Dressing
+Chili Crisp Vinegar Dressing
+Hot and Sour Vinaigrette
+Sugar and Vinegar Dressing (Chinese Cold Dish Style)
+Mustard Vinegar Dressing (Chinese Style)
+Fermented Bean Curd Vinegar Dressing
+Black Vinegar and Sugar Dressing
+Rice Vinegar Dressing (Chinese Style)
+Cold Dish Vinegar Dressing (Liangban Vinegar Dressing)
+Dumpling Vinegar Dipping Sauce (Chinese Vinegar Dressing)
+Cucumber Salad Vinegar Dressing (Chinese Style)
+Wood Ear Mushroom Vinegar Dressing
+
+Lap Cheong (Cantonese Sweet Pork Sausage)
+Yun Cheong (Cantonese Duck Liver Sausage)
+Xiang Chang (Chinese Fresh Pork Sausage)
+La Chang (Chinese Cured Pork Sausage)
+Sichuan Mala Sausage (Spicy Sichuan Pork Sausage)
+Hunan Spicy Pork Sausage (Hunan La Chang)
+Yunnan Xuanwei Ham Sausage (Xuanwei Style Pork Sausage)
+Guangdong Rose Wine Sausage (Cantonese Rose-Flavored Pork Sausage)
+Cantonese Liver Sausage (Pork Liver Sausage)
+Cantonese Fatty Pork Sausage (White Fat Lap Cheong)
+Cantonese Lean Pork Sausage (Lean Meat Lap Cheong)
+Taiwanese Sweet Sausage (Taiwan-Style Sugar-Cured Pork Sausage)
+Taiwanese Garlic Sausage (Garlic Pork Sausage)
+Harbin Red Sausage (Northeastern Smoked Pork Sausage)
+Northeastern Garlic Sausage (Dongbei Garlic Pork Sausage)
+Northeastern Blood Sausage (Pork Blood Sausage)
+Shanghai Sweet Wine Sausage (Shaoxing Wine Pork Sausage)
+Jiangsu Sweet Pork Sausage (Jiangnan-Style Pork Sausage)
+Fujian Red Yeast Rice Sausage (Red Fermented Rice Pork Sausage)
+Hakka Salted Pork Sausage (Hakka-Style Preserved Pork Sausage)
+Hakka Wine Sausage (Hakka Rice Wine Pork Sausage)
+Teochew Sweet Pork Sausage (Chaoshan Sweet Pork Sausage)
+Cantonese Sausage with Dried Shrimp (Lap Cheong with Dried Shrimp)
+Cantonese Sausage with Mushrooms (Lap Cheong with Dried Shiitake)
+Cantonese Sausage and Sticky Rice (Lap Cheong Sticky Rice Lo Mai Fan)
+Steamed Chinese Sausage with Rice (Steamed Lap Cheong over Rice)
+Clay Pot Rice with Chinese Sausage (Lap Cheong Clay Pot Rice)
+
+Fermented Soybean Paste (Doubanjiang Chili Bean Paste)
+Pixian Broad Bean Paste (Pixian Doubanjiang Chili Bean Paste)
+Spicy Chili Bean Paste (Chili Broad Bean Sauce)
+Sweet Bean Sauce (Tianmianjiang Sweet Wheat Paste)
+Yellow Soybean Paste (Huangdoujiang Yellow Bean Paste)
+Fermented Soybean Paste (Douchi Black Bean Paste)
+Fermented Black Bean and Chili Paste (Spicy Douchi Paste)
+Ground Fermented Soybean Paste (Doujiang Fermented Soy Paste)
+Sesame Paste (Chinese Sesame Seed Paste)
+Pure Sesame Paste (Zhima Jiang Pure Sesame Paste)
+Sweet Sesame Paste (Sweetened Sesame Spread)
+Peanut Sesame Paste (Peanut-Sesame Blended Paste)
+Peanut Paste (Chinese Peanut Butter Style Paste)
+Sweet Red Bean Paste (Hongdou Sha Sweet Adzuki Paste)
+Smooth Red Bean Paste (Fine Red Bean Paste)
+Chunky Red Bean Paste (Coarse Red Bean Paste)
+Sweet Lotus Seed Paste (Lianrong Lotus Seed Paste)
+White Lotus Seed Paste (White Lotus Paste)
+Sweet Black Bean Paste (Sweet Fermented Black Bean Paste)
+Fermented Chili Paste (La Jiao Jiang Chili Paste)
+Garlic Chili Paste (Garlic Chili Sauce)
+Chili Oil with Sediment (Chili Crisp Oil)
+Chili Crisp (Fried Chili in Oil Spread)
+Sichuan Chili Oil (Red Chili Oil)
+Scallion Oil (Scallion Infused Oil Spread)
+Shrimp Paste (Chinese Fermented Shrimp Paste)
+XO Sauce (Luxury Seafood Chili Sauce)
+Dried Shrimp Chili Paste (Shrimp Chili Sauce)
+Fermented Tofu Spread (Furu Fermented Bean Curd Paste)
+Red Fermented Tofu Paste (Red Bean Curd Spread)
+White Fermented Tofu Paste (White Bean Curd Spread)
+Sweet Rice Paste (Sweet Fermented Rice Paste)
+Sweet Osmanthus Paste (Osmanthus Flower Jam)
+Sweet Hawthorn Paste (Haw Flake Fruit Paste)
+Sweet Jujube Paste (Red Date Paste)
+Sweet Chestnut Paste (Chinese Chestnut Paste)
+Sweet Pumpkin Seed Paste (Pumpkin Seed Spread)
+Sweet Walnut Paste (Walnut Kernel Paste)
+
+Congee (Rice Porridge)
+Plain White Rice Congee (Basic Rice Porridge)
+Century Egg and Pork Congee (Preserved Egg and Lean Pork Rice Porridge)
+Chicken Congee (Chicken Rice Porridge)
+Fish Congee (Fish Rice Porridge)
+Seafood Congee (Mixed Seafood Rice Porridge)
+Abalone Congee (Abalone Rice Porridge)
+Scallop Congee (Dried Scallop Rice Porridge)
+Pumpkin Congee (Pumpkin Rice Porridge)
+Millet Congee (Millet Porridge)
+Eight Treasure Congee (Eight-Grain Sweet Rice Porridge)
+
+Steamed White Rice (Plain Steamed Rice)
+Fragrant Jasmine Rice (Steamed Jasmine Rice)
+Glutinous Rice (Steamed Sticky Rice)
+Mixed Grain Rice (Multigrain Steamed Rice)
+Brown Rice (Steamed Brown Rice)
+
+Fried Rice (Chinese Fried Rice)
+Yangzhou Fried Rice (Yangzhou-Style Fried Rice)
+Egg Fried Rice (Egg Fried Rice)
+Pork Fried Rice (Pork Fried Rice)
+Seafood Fried Rice (Seafood Fried Rice)
+Vegetable Fried Rice (Vegetable Fried Rice)
+Salted Fish and Chicken Fried Rice (Salted Fish Chicken Fried Rice)
+
+Sticky Rice in Lotus Leaf (Lotus Leaf Glutinous Rice)
+Cantonese Sticky Rice (Cantonese-Style Glutinous Rice)
+Red Bean Sticky Rice (Sweet Red Bean Glutinous Rice)
+Black Sesame Sticky Rice (Black Sesame Glutinous Rice)
+
+Zongzi (Sticky Rice Dumplings)
+Pork Zongzi (Pork-Filled Sticky Rice Dumplings)
+Red Bean Zongzi (Sweet Red Bean Sticky Rice Dumplings)
+Jujube Zongzi (Red Date Sticky Rice Dumplings)
+
+Eight Treasure Rice (Eight Treasure Glutinous Rice Dessert)
+Sweet Sticky Rice with Brown Sugar (Brown Sugar Glutinous Rice)
+
+Steamed Millet Cake (Millet Rice Cake)
+Sticky Rice Cake (Chinese New Year Rice Cake)
+Nian Gao (Glutinous Rice New Year Cake)
+
+Roasted Barley Tea Rice (Barley Rice Blend)
+Black Rice (Steamed Black Rice)
+Red Rice (Steamed Red Rice)
+
+Chinese Fried Potato Chips (Crispy Sliced Potatoes)
+Sichuan Spicy Potato Chips (Mala Potato Chips)
+Cumin-Spiced Potato Chips (Xinjiang Style Potato Chips)
+Salt and Pepper Potato Chips (Cantonese-Style Crispy Potatoes)
+Garlic Chili Potato Chips (Hot Garlic Potato Chips)
+Sweet and Sour Potato Chips (Sweet Vinegar Fried Potatoes)
+Shredded Potato Chips (Crispy Julienne Potatoes)
+Iron Plate Potato Chips (Sizzling Plate Crispy Potatoes)
+Five-Spice Potato Chips (Five-Spice Crispy Potatoes)
+Black Pepper Potato Chips (Chinese Black Pepper Potatoes)
+Chili Oil Potato Chips (Red Oil Crispy Potatoes)
+Sour and Spicy Potato Chips (Hot and Sour Crispy Potatoes)
+Dry-Fried Potato Chips (Gan Bian Crispy Potatoes)
+Peppercorn Potato Chips (Sichuan Pepper Crispy Potatoes)
+Sweet Soy Potato Chips (Soy-Glazed Crispy Potatoes)
+Crispy Lotus Root Chips (Fried Lotus Root Chips)
+Spicy Lotus Root Chips (Chili Lotus Root Chips)
+Salt and Pepper Lotus Root Chips (Cantonese Lotus Root Chips)
+Crispy Taro Chips (Fried Taro Chips)
+Sweet Taro Chips (Sugar-Coated Taro Chips)
+Five-Spice Taro Chips (Five-Spice Fried Taro)
+Crispy Sweet Potato Chips (Chinese Sweet Potato Chips)
+Honey Sweet Potato Chips (Honey-Glazed Sweet Potato Chips)
+Spicy Sweet Potato Chips (Chili Sweet Potato Chips)
+Crispy Yam Chips (Chinese Yam Chips)
+Salt and Pepper Yam Chips (Cantonese Yam Chips)
+Crispy Bitter Melon Chips (Fried Bitter Gourd Chips)
+Spicy Bitter Melon Chips (Chili Bitter Gourd Chips)
+Crispy Eggplant Chips (Fried Eggplant Chips)
+Sichuan-Style Eggplant Chips (Spicy Fried Eggplant Chips)
+Crispy Pumpkin Chips (Fried Pumpkin Chips)
+Five-Spice Pumpkin Chips (Five-Spice Fried Pumpkin)
+Bian Rou (Ancient Fujian Wonton Soup)
+Ji Niang Chun Bing (Han Dynasty Spring Pancakes)
+Hu Bing (Han Dynasty Flatbread)
+Geng (Ancient Chinese Thick Grain Soup)
+Zhou (Ancient Rice Congee)
+Shi Zi Tou (Lion’s Head Meatballs)
+Dongpo Rou (Dongpo Braised Pork)
+Cong You Bing (Scallion Pancake)
+Tang Yuan (Glutinous Rice Balls)
+Jiaozi (Boiled Dumplings)
+Shui Jiao (Water-Boiled Dumplings)
+Zheng Jiao (Steamed Dumplings)
+Guo Tie (Pan-Fried Dumplings)
+Baozi (Steamed Stuffed Buns)
+Mantou (Steamed Wheat Buns)
+You Bing (Fried Flatbread)
+Chao Fan (Fried Rice)
+Yangzhou Chao Fan (Yangzhou Fried Rice)
+Ba Bao Fan (Eight Treasure Rice)
+Fan Tuan (Rice Rolls)
+Zongzi (Glutinous Rice Dumplings)
+Lu Wei (Master Stock Braised Dishes)
+Bai Qie Ji (White-Cut Chicken)
+Hong Shao Rou (Red-Braised Pork Belly)
+Kao Ya (Roast Duck)
+Beijing Kao Ya (Peking Roast Duck)
+Shaobing (Sesame Flatbread)
+You Tiao (Fried Dough Sticks)
+Douhua (Soft Tofu Pudding)
+Mapo Doufu (Pockmarked Grandma’s Tofu)
+Qing Chao Shi Shu (Simple Stir-Fried Vegetables)
+Suan La Tang (Hot and Sour Soup)
+Ji Si Tang (Shredded Chicken Soup)
+Wonton Tang (Wonton Soup)
+Cha Siu (Cantonese Barbecued Pork)
+Buddha Jumps Over the Wall (Luxury Fujian Soup)
+Luobo Gao (Turnip Cake)
+Niangao (Glutinous Rice Cake)
+Fa Gao (Steamed Prosperity Cake)
+Jiuniang (Sweet Fermented Rice)
+Dou Chi (Fermented Black Beans)
+Doujiang (Soy Milk Smoothie)
+Hongdou Nai Xi (Red Bean Milk Smoothie)
+Lü Dou Nai Xi (Mung Bean Milk Smoothie)
+He Tao Nai Xi (Walnut Milk Smoothie)
+Hei Zhi Ma Nai Xi (Black Sesame Smoothie)
+Hua Sheng Nai Xi (Peanut Milk Smoothie)
+Yin Er Nai Xi (White Fungus Smoothie)
+Hong Zao Nai Xi (Red Date Smoothie)
+Gui Yuan Nai Xi (Longan Smoothie)
+Xing Ren Nai Xi (Almond Milk Smoothie)
+Dou Fu Nai Xi (Silken Tofu Smoothie)
+Nan Gua Nai Xi (Pumpkin Smoothie)
+Zi Shu Nai Xi (Purple Sweet Potato Smoothie)
+Yu Mi Nai Xi (Sweet Corn Smoothie)
+Mang Guo Nai Xi (Mango Smoothie)
+Cao Mei Nai Xi (Strawberry Smoothie)
+Mu Gua Nai Xi (Papaya Smoothie)
+Xiang Jiao Nai Xi (Banana Smoothie)
+Li Zi Nai Xi (Pear Smoothie)
+Ping Guo Nai Xi (Apple Smoothie)
+Xue Li Bai He Yin (Snow Pear and Lily Bulb Smoothie)
+Mu Gua Niu Nai Yin (Papaya Milk Smoothie)
+Mang Guo Xi Mi Lu (Mango Sago Smoothie)
+Yang Zhi Gan Lu (Mango Pomelo Sago Smoothie)
+Hei Nuo Mi Nai Xi (Black Glutinous Rice Smoothie)
+Ba Bao Zhou Nai Xi (Eight Treasure Grain Smoothie)
+Lu Dou Sha Nai Xi (Mung Bean Paste Smoothie)
+Hong Dou Sha Nai Xi (Red Bean Paste Smoothie)
+Baijiu (Chinese Clear Sorghum Spirit)
+Erguotou Baijiu (Beijing Style Clear Spirit)
+Maotai Baijiu (Sauce Aroma Sorghum Spirit)
+Luzhou Laojiao Baijiu (Strong Aroma Sorghum Spirit)
+Fenjiu Baijiu (Light Aroma Sorghum Spirit)
+Wuliangye Baijiu (Five-Grain Sorghum Spirit)
+Huangjiu (Chinese Yellow Rice Wine)
+Shaoxing Huangjiu (Shaoxing Yellow Rice Wine)
+Huadiao Huangjiu (Aged Yellow Rice Wine in Decorated Jars)
+Jiafan Huangjiu (Fortified Yellow Rice Wine)
+Shanniang Huangjiu (Sweet Yellow Rice Wine)
+Mijiu (Chinese Sweet Rice Wine)
+Jiuniang (Fermented Sweet Rice Wine Dessert Drink)
+Laomijiu (Aged Sweet Rice Wine)
+Nuomijiu (Glutinous Rice Wine)
+Hongqu Mijiu (Red Yeast Rice Wine)
+Litchi Wine (Lychee Fruit Wine)
+Plum Wine (Chinese Plum Wine)
+Yangmei Wine (Chinese Bayberry Wine)
+Osmanthus Wine (Guihua Wine)
+Chrysanthemum Wine (Chrysanthemum Flower Wine)
+Peach Blossom Wine (Peach Flower Wine)
+Ginseng Wine (Chinese Medicinal Ginseng Wine)
+Wolfberry Wine (Goji Berry Medicinal Wine)
+Snake Wine (Chinese Medicinal Snake Wine)
+Tiger Bone Wine (Traditional Medicinal Bone Wine)
+Five-Flavor Medicinal Wine (Wu Jia Pi Wine)
+Rice Wine Egg Drop Drink (Sweet Rice Wine with Egg)
+Rice Wine Dumpling Drink (Tangyuan Rice Wine Drink)
+Rice Wine Ginger Drink (Ginger-Infused Rice Wine)
+Huangjiu (Chinese Yellow Wine)
+Shaoxing Wine (Shaoxing Rice Wine)
+Shaoxing Huadiao Wine (Aged Shaoxing Flower Carved Wine)
+Yuanhong Wine (Traditional Shaoxing Red-Sealed Wine)
+Jiafanjiu (Fortified Shaoxing Rice Wine)
+Nu’er Hong (Daughter’s Red Rice Wine)
+Mijiu (Sweet Rice Wine)
+Jiuniang (Fermented Sweet Rice Wine)
+Laozao (Sweet Fermented Rice Wine)
+Glutinous Rice Wine (Sticky Rice Wine)
+Millet Wine (Foxtail Millet Wine)
+Sorghum Wine (Sorghum-Based Chinese Wine)
+Baijiu (Chinese Distilled Grain Spirit)
+Erguotou (Chinese Sorghum Spirit)
+Maotai (Sauce-Aroma Chinese Spirit)
+Fenjiu (Light-Aroma Chinese Spirit)
+Luzhou Laojiao (Strong-Aroma Chinese Spirit)
+Kaoliang Wine (Sorghum Wine)
+Osmanthus Wine (Guihua Jiu)
+Chrysanthemum Wine (Juhua Jiu)
+Plum Wine (Mei Jiu)
+Lychee Wine (Lychee Fruit Wine)
+Longan Wine (Longan Fruit Wine)
+Mulberry Wine (Mulberry Fruit Wine)
+Hawthorn Wine (Hawthorn Fruit Wine)
+Ginseng Wine (Medicinal Ginseng Wine)
+Deer Antler Wine (Medicinal Deer Antler Wine)
+Snake Wine (Medicinal Snake-Infused Wine)
+Five-Herb Medicinal Wine (Traditional Chinese Herbal Wine)
+Eight-Treasure Wine (Ba Zhen Jiu)
+Shaoxing Cooking Wine (Chinese Cooking Rice Wine)
+Pijiu (Chinese-Style Lager Beer)
+Qingdao Pijiu (Tsingtao-Style Chinese Lager Beer)
+Yanjing Pijiu (Beijing-Style Chinese Lager Beer)
+Xuehua Pijiu (Snow Beer–Style Chinese Lager Beer)
+Harbin Pijiu (Harbin-Style Chinese Lager Beer)
+Wusu Pijiu (Xinjiang Strong Lager Beer)
+Pearl River Pijiu (Guangzhou-Style Pale Lager Beer)
+Reeb Pijiu (Shandong-Style Light Lager Beer)
+Chinese Rice Beer (Rice-Based Chinese Beer)
+Chinese Sorghum Beer (Sorghum-Based Chinese Beer)
+Chinese Wheat Beer (Chinese-Style Wheat Beer)
+Honey Rice Beer (Chinese Honey Rice Beer)
+Osmanthus Rice Beer (Osmanthus-Infused Chinese Beer)
+Ginger Rice Beer (Chinese Ginger Beer)
+Lychee Beer (Lychee-Flavored Chinese Beer)
+Green Tea Beer (Chinese Green Tea Beer)
+Jasmine Tea Beer (Jasmine Tea–Infused Chinese Beer)
+Plum Beer (Chinese Plum-Flavored Beer)
+Hawthorn Beer (Hawthorn-Flavored Chinese Beer)
+Beer with Rock Sugar (Sweetened Chinese Beer)
+Warm Beer with Ginger (Traditional Warmed Chinese Beer)
+Beer Lemon Shandy (Chinese Lemon Beer)
+Beer with Salted Plum (Suanmei Beer Drink)
+Gan Bei (Bottoms Up Shot)
+Maotai (Sauce Aroma Baijiu Shot)
+Erguotou (Chinese Sorghum Liquor Shot)
+Wuliangye (Five-Grain Baijiu Shot)
+Fenjiu (Light Aroma Baijiu Shot)
+Zhuyeqing (Bamboo Leaf Green Liqueur Shot)
+Osmanthus Baijiu Shot
+Lychee Liqueur Shot
+Plum Baijiu Shot
+Shaoxing Oyster Shooter
+Five-Spice Powder (Wǔxiāng Fěn – Chinese Five-Spice Blend)
+Sichuan Peppercorn Powder (Huājiāo Fěn – Ground Sichuan Pepper)
+Sichuan Pepper Salt (Huājiāo Yán – Sichuan Pepper Salt)
+Chili Oil (Là Yóu – Chinese Chili Oil)
+Chili Crisp (Làjiāo Cuì – Crispy Chili Condiment)
+Fermented Chili Paste (Làjiāo Jiàng – Chinese Chili Paste)
+Doubanjiang (Pixian Chili Bean Paste)
+Tianmianjiang (Sweet Wheat Sauce)
+Hoisin Sauce (Chinese Sweet Bean Sauce)
+Ground White Pepper (Chinese White Pepper Powder)
+Star Anise Powder (Bājiǎo Fěn – Ground Star Anise)
+Cassia Cinnamon Powder (Ròuguì Fěn – Chinese Cinnamon Powder)
+Dried Tangerine Peel Powder (Chénpí Fěn – Aged Citrus Peel Spice)
+Five-Spice Salt (Wǔxiāng Yán – Five-Spice Seasoned Salt)
+Barbecue Spice Mix (Chinese BBQ Spice Blend)
+Roast Duck Spice Mix (Peking Duck Spice Blend)
+Tea-Smoked Spice Mix (Chinese Tea-Smoking Spice Blend)
+Cumin Chili Spice Mix (Xinjiang-Style Cumin Chili Blend)
+Xinjiang Cumin Spice (Zīrán Lào – Uyghur Cumin Chili Spice)
+Mala Spice Mix (Má Là Tiáoliào – Numbing-Spicy Blend)
+Hot Pot Spice Base Powder (Huǒguō Xiāngliào Fěn – Hot Pot Spice Mix)
+Dry Pot Spice Mix (Gān Guō Xiāngliào – Dry Pot Seasoning)
+Salt and Pepper Seasoning (Jiāoyán – Chinese Salt and Pepper Mix)
+Scallion Ginger Spice Mix (Cōng Jiāng Fěn – Scallion Ginger Powder)
+Garlic Chili Powder (Suàn Là Fěn – Garlic Chili Spice)
+Spiced Soy Salt (Jiàngyóu Yán – Soy Sauce Salt Seasoning)
+虾片 (Chinese Shrimp Crackers)
+龙虾片 (Chinese Prawn Crackers)
+锅巴 (Crispy Scorched Rice Chips)
+香辣锅巴 (Spicy Crispy Rice Chips)
+蒜香锅巴 (Garlic Crispy Rice Chips)
+芋头片 (Fried Taro Chips)
+香芋脆片 (Crispy Taro Chips)
+地瓜片 (Sweet Potato Chips)
+香脆红薯片 (Crispy Sweet Potato Chips)
+莲藕片 (Crispy Lotus Root Chips)
+香炸莲藕片 (Deep-Fried Lotus Root Chips)
+山药片 (Chinese Yam Chips)
+香脆山药片 (Crispy Chinese Yam Chips)
+土豆片 (Chinese Potato Chips)
+香辣土豆片 (Spicy Potato Chips)
+椒盐土豆片 (Salt and Pepper Potato Chips)
+炸紫薯片 (Purple Sweet Potato Chips)
+豆腐皮脆片 (Crispy Tofu Skin Chips)
+炸腐竹片 (Fried Beancurd Stick Chips)
+海带脆片 (Crispy Kelp Chips)
+紫菜脆片 (Crispy Seaweed Chips)
+花生脆片 (Crispy Peanut Chips)
+芝麻脆片 (Sesame Seed Chips)
+米纸脆片 (Crispy Rice Paper Chips)
+五香米片 (Five-Spice Rice Chips)
+鸭皮脆片 (Crispy Duck Skin Chips)
+香酥鸡皮脆片 (Crispy Chicken Skin Chips)
+辣椒脆片 (Crispy Chili Chips)
+蒜香辣椒脆片 (Garlic Chili Chips)
+香酥南瓜片 (Crispy Pumpkin Chips)
+炸芥蓝叶脆片 (Crispy Chinese Broccoli Leaf Chips)
+Steamed Egg Custard
+Steamed Egg Custard with Minced Pork
+Steamed Egg Custard with Shrimp
+Steamed Egg Custard with Century Egg
+Silky Steamed Egg Custard
+Chinese Steamed Eggs with Soy Sauce
+Scrambled Eggs with Tomatoes
+Scrambled Eggs with Tomatoes and Scallions
+Scrambled Eggs with Chives
+Scrambled Eggs with Shrimp
+Scrambled Eggs with Dried Shrimp
+Scrambled Eggs with Crab Roe
+Scrambled Eggs with Lobster
+Scrambled Eggs with Milk
+Fluffy Cantonese Scrambled Eggs
+Egg Foo Young
+Shrimp Egg Foo Young
+Chicken Egg Foo Young
+Vegetable Egg Foo Young
+Century Egg (Preserved Egg)
+Century Egg with Silken Tofu
+Century Egg and Lean Pork Congee
+Century Egg and Pickled Ginger
+Tea Eggs (Chinese Tea-Marinated Eggs)
+Soy Sauce Eggs
+Five-Spice Tea Eggs
+Braised Eggs in Soy Sauce
+Braised Eggs with Pork Belly
+Braised Eggs with Shiitake Mushrooms
+Salted Duck Egg
+Salted Duck Egg Yolk Sauce
+Salted Duck Egg with Bitter Melon
+Salted Duck Egg Fried Rice
+Salted Duck Egg Custard Bun Filling
+Stir-Fried Crab with Egg
+Stir-Fried Shrimp with Egg
+Stir-Fried Beef with Egg
+Stir-Fried Chives and Eggs
+Stir-Fried Leeks and Eggs
+Oyster Omelette (Chinese-Style Oyster Omelet)
+Shrimp Omelette
+Chinese Omelette with Chives
+Chinese Omelette with Minced Pork
+Chinese Omelette with Bitter Melon
+Egg Drop Soup
+Egg Drop Soup with Tomato
+Egg Drop Soup with Corn
+Egg Drop Soup with Spinach
+Egg Flower Soup
+Double-Steamed Egg Soup
+Chicken and Egg Stir-Fry
+Egg and Tofu Stir-Fry
+Egg and Shrimp Stir-Fry
+Egg Fried Rice
+Yangzhou Fried Rice
+Golden Fried Rice (Egg Yolk Fried Rice)
+Golden Shrimp Fried Rice
+Egg Yolk Pumpkin Stir-Fry
+Egg Yolk Crab
+Egg Yolk Prawns
+Egg Yolk Corn Stir-Fry
+Egg Tofu (Japanese-Style Egg Tofu Used in Chinese Cooking)
+Egg Tofu with Minced Pork
+Egg Tofu with Shrimp
+Egg Tofu in Brown Sauce
+Steamed Egg Tofu with Seafood
+Deep-Fried Egg Tofu
+Tea-Smoked Eggs
+Soy-Braised Tea Eggs
+Egg Pancakes (Chinese Egg Pancakes)
+Scallion Egg Pancakes
+Egg Crepes (Chinese-Style Egg Crepes)
+Lamian (Hand-Pulled Wheat Noodles)
+Beijing Zhajiangmian (Beijing Noodles with Fried Bean Sauce)
+Old Beijing Zhajiangmian (Traditional Beijing Noodles with Soybean Paste)
+Sichuan Dandanmian (Sichuan Spicy Sesame Noodles)
+Chongqing Xiaomian (Chongqing Spicy Street Noodles)
+Wuhan Reganmian (Wuhan Hot Dry Noodles)
+Guangzhou Wonton Noodles (Cantonese Shrimp Wonton Egg Noodles)
+Hong Kong Style Wonton Noodles (Cantonese Wonton Egg Noodles)
+Beef Lamian (Hand-Pulled Noodles with Braised Beef)
+Lanzhou Niurou Lamian (Lanzhou Beef Hand-Pulled Noodles)
+Biangbiangmian (Shaanxi Wide Belt Noodles)
+Shaanxi Youpo Mian (Shaanxi Chili Oil Splash Noodles)
+Shaanxi Qishan Saozi Noodles (Shaanxi Minced Pork Sour Broth Noodles)
+Xinjiang Big Plate Chicken Noodles (Xinjiang Da Pan Ji Noodles)
+Henan Hui Mian (Henan Braised Lamb Hand-Pulled Noodles)
+Knife-Cut Noodles (Shanxi Dao Xiao Mian)
+Shanxi Aged Vinegar Noodles (Shanxi Vinegar-Forward Noodles)
+Cold Sesame Noodles (Chinese Sesame Paste Noodles)
+Sichuan Cold Noodles (Sichuan Liangmian with Chili Oil)
+Shanghai Scallion Oil Noodles (Shanghai Cong You Ban Mian)
+Shanghai Yangchun Noodles (Shanghai Clear Broth Noodles)
+Shanghai Braised Pork Noodles (Shanghai Hong Shao Rou Mian)
+Fujian Peanut Sauce Noodles (Fujian Peanut Butter Noodles)
+Fuzhou Fish Ball Noodles (Fuzhou Fish Ball Wheat Noodles)
+Taiwanese Beef Noodle Soup (Taiwan Red-Braised Beef Noodles)
+Taiwan Dry Toss Noodles (Taiwanese Mixed Noodles)
+Hakka Salt-Baked Chicken Noodles (Hakka Style Chicken Noodles)
+Cantonese Soy Sauce Chow Mein (Cantonese Soy Sauce Fried Noodles)
+Cantonese Seafood Chow Mein (Cantonese Crispy Fried Noodles with Seafood)
+Cantonese Pan-Fried Noodles (Hong Kong Crispy Noodles)
+Beef Chow Fun (Stir-Fried Rice Noodles with Beef)
+Dry Fried Ho Fun (Cantonese Dry-Fried Rice Noodles)
+Singapore-Style Fried Rice Vermicelli (Cantonese Curry Vermicelli)
+Fujian Fried Noodles (Fujian Hokkien Fried Noodles)
+Hokkien Mee (Fujian Braised Yellow Noodles)
+Xiamen Satay Noodles (Xiamen Sha Cha Noodles)
+Chaoshan Beef Noodles (Teochew Beef Broth Noodles)
+Teochew Oyster Noodles (Teochew Oyster Wheat Noodles)
+Guizhou Sour Soup Noodles (Guizhou Fermented Chili Broth Noodles)
+Yunnan Rice Noodles (Yunnan Crossing-the-Bridge Noodles)
+Crossing-the-Bridge Noodles (Yunnan Over-the-Bridge Rice Noodles)
+Kunming Small Pot Rice Noodles (Yunnan Xiao Guo Mi Xian)
+Yunnan Cold Rice Noodles (Yunnan Liang Mi Xian)
+Hunan Rice Noodles (Hunan Spicy Rice Noodles)
+Changsha Rice Noodles (Changsha Pork Bone Rice Noodles)
+Guangxi Guilin Rice Noodles (Guilin Beef Rice Noodles)
+Liuzhou Luosifen (Snail Rice Noodles)
+Nanning Old Friend Noodles (Guangxi Sour-Spicy Noodles)
+Ningbo Yellow Croaker Noodles (Ningbo Fish Broth Noodles)
+Zhejiang Shrimp Roe Noodles (Shrimp Roe Wheat Noodles)
+Hangzhou Pian’er Chuan (Hangzhou Pork and Bamboo Shoot Noodles)
+Jiangsu Three-Topping Noodles (Jiangsu San Xia Mian)
+Suzhou Red Oil Explosion Fish Noodles (Suzhou Fish Noodles)
+Anhui Ban Mian (Anhui Flat Wheat Noodles)
+Soy Sauce (Chinese Light Soy Sauce)
+Dark Soy Sauce (Chinese Dark Soy Sauce)
+Premium Aged Soy Sauce (Superior Soy Sauce)
+Mushroom Soy Sauce (Straw Mushroom Soy Sauce)
+Tamari-Style Soy Sauce (Chinese Wheat-Free Soy Sauce)
+Sweet Soy Sauce (Chinese Sweetened Soy Sauce)
+Chinkiang Vinegar (Black Rice Vinegar)
+Shanxi Aged Vinegar (Aged Black Vinegar)
+White Rice Vinegar (Chinese White Vinegar)
+Red Rice Vinegar (Red Yeast Rice Vinegar)
+Zhenjiang Aromatic Vinegar (Fragrant Black Vinegar)
+Doubanjiang (Fermented Broad Bean Chili Paste)
+Pixian Doubanjiang (Pixian Fermented Chili Bean Paste)
+Huangdoujiang (Yellow Soybean Paste)
+Tianmianjiang (Sweet Wheat Paste)
+Miso-Style Soybean Paste (Chinese Fermented Soybean Paste)
+Zhajiang (Fried Sauce for Noodles)
+Chili Oil (Chinese Chili Oil)
+Lao Gan Ma Chili Crisp (Spicy Chili Crisp Sauce)
+Chili Garlic Sauce (Garlic Chili Sauce)
+Fermented Chili Paste (Chinese Fermented Red Chili Paste)
+Sichuan Peppercorn Oil (Prickly Ash Oil)
+Scallion Oil (Chinese Green Onion Oil)
+Sesame Oil (Chinese Toasted Sesame Oil)
+Shrimp Paste (Fermented Shrimp Paste)
+XO Sauce (Chinese-Style Seafood Chili Sauce)
+Hoisin Sauce (Chinese Sweet Bean Sauce)
+Oyster Sauce (Chinese Oyster Sauce)
+Premium Oyster Sauce (Superior Oyster Sauce)
+Abalone Sauce (Abalone Flavored Oyster Sauce)
+Plum Sauce (Chinese Plum Sauce)
+Sweet and Sour Sauce (Chinese Sweet and Sour Sauce)
+Garlic Sauce (Chinese Garlic Stir-Fry Sauce)
+Ginger Sauce (Chinese Ginger Sauce)
+Black Bean Sauce (Fermented Black Bean Sauce)
+Garlic Black Bean Sauce (Black Bean Garlic Sauce)
+Chili Black Bean Sauce (Spicy Black Bean Sauce)
+Five Spice Salt (Chinese Five Spice Seasoned Salt)
+Spiced Salt and Pepper Mix (Chinese Salt and Pepper Seasoning)
+Fermented Tofu (Preserved Bean Curd)
+Red Fermented Tofu (Red Bean Curd Sauce)
+White Fermented Tofu (White Preserved Bean Curd)
+Rose Fermented Tofu (Rose-Infused Bean Curd)
+Sweet Chili Sauce (Chinese Sweet Chili Sauce)
+Soy Ginger Dipping Sauce (Chinese Soy Ginger Sauce)
+Hot Mustard Paste (Chinese Hot Mustard)
+Mapo Tofu (Pockmarked Grandma’s Bean Curd)
+Braised Tofu with Black Bean Sauce (Douchi Braised Tofu)
+Stir-Fried Tofu with Garlic Chives (Garlic Chive Tofu Stir-Fry)
+Salt and Pepper Tofu (Crispy Spiced Tofu)
+Home-Style Braised Tofu (Family-Style Red-Braised Tofu)
+Red-Braised Tofu (Hong Shao Doufu / Red-Cooked Tofu)
+Steamed Tofu with Soy Sauce (Simple Steamed Bean Curd)
+Cold Silken Tofu with Century Egg (Century Egg Tofu Salad)
+Sichuan Spicy Cold Tofu (Sichuan Liangban Doufu / Cold Dressed Tofu)
+Tofu with Minced Pork (Pork and Tofu Stir-Fry)
+Clay Pot Tofu (Casserole-Cooked Tofu)
+Tofu Skin Rolls (Bean Curd Sheet Rolls)
+Braised Tofu Skin Knots (Bean Curd Knot Stew)
+Vegetarian Mock Duck (Braised Tofu Skin “Duck”)
+Dry-Fried Green Beans (Sichuan Dry-Fried String Beans)
+Garlic Stir-Fried Green Beans (Garlic Green Bean Stir-Fry)
+Green Beans with Preserved Olive Vegetable (Olive Vegetable Green Beans)
+Stir-Fried Snow Peas with Garlic (Garlic Snow Pea Stir-Fry)
+Snow Peas with Water Chestnuts (Snow Pea Stir-Fry with Water Chestnut)
+Stir-Fried Chinese Long Beans (Yardlong Bean Stir-Fry)
+Chinese Long Beans with Minced Pork (Pork and Yardlong Bean Stir-Fry)
+Braised Broad Beans (Fava Bean Stew)
+Fresh Fava Beans with Garlic (Garlic Fava Bean Stir-Fry)
+Stir-Fried Edamame with Garlic (Garlic Soybean Stir-Fry)
+Salted Edamame (Boiled Soybeans with Salt)
+Soybean Sprout Stir-Fry (Stir-Fried Soy Sprouts)
+Mung Bean Sprout Stir-Fry (Stir-Fried Bean Sprouts)
+Hot and Sour Bean Sprouts (Spicy Sour Sprout Stir-Fry)
+Peanuts with Chili and Sichuan Peppercorn (Spicy Sichuan Peanuts)
+Boiled Peanuts (Soft-Cooked Peanuts)
+Peanuts with Preserved Vegetables (Peanuts with Pickled Greens)
+Braised Peanuts in Soy Sauce (Soy-Braised Peanuts)
+Black Bean Sauce Chicken (Chicken with Fermented Black Beans)
+Stir-Fried Clams with Black Bean Sauce (Black Bean Clams)
+Black Bean Tofu (Fermented Black Bean Tofu Stir-Fry)
+Sweet Red Bean Soup (Red Bean Dessert Soup)
+Red Bean Paste Buns (Steamed Red Bean Buns)
+Mung Bean Jelly (Green Bean Starch Jelly)
+Mung Bean Soup (Cooling Green Bean Soup)
+Kung Pao Peanuts
+Gong Bao Peanuts (Spicy Stir-Fried Peanuts)
+Five-Spice Roasted Peanuts
+Soy Sauce Braised Peanuts
+Salt and Pepper Peanuts
+Spicy Sichuan Peanuts
+Garlic Chili Peanuts
+Black Vinegar Peanuts
+Pickled Peanuts
+Tea-Smoked Peanuts
+Candied Peanuts
+Honey-Glazed Peanuts
+Caramelized Peanuts
+Peanuts with Dried Chili
+Peanuts with Sichuan Peppercorn
+Peanuts with Scallion Oil
+Peanuts with Sesame Oil
+Cold Dressed Peanuts
+Peanuts with Preserved Mustard Greens
+Peanuts with Dried Shrimp
+Peanuts with Fermented Black Beans
+Peanuts with Garlic and Cilantro
+Peanut Brittle (Chinese Peanut Candy)
+Hua Sheng Tang (Sweet Peanut Soup)
+Peanut Sesame Paste (Chinese Sesame-Peanut Sauce)
+Peanut Chili Oil
+Peanut Sauce for Cold Noodles
+Peanut Sauce for Hot Pot
+Peanut Sauce for Dumplings
+Peanut Sauce for Bang Bang Chicken
+Bang Bang Chicken Peanut Sauce
+Sesame Peanut Dressing
+Peanut Crumble Topping
+Peanut Powder Topping
+Peanut Sugar Coating
+Peanut Crisp (Chinese Peanut Crunch)
+Roasted Chestnuts
+Sugar-Roasted Chestnuts
+Five-Spice Chestnuts
+Chestnuts with Rock Sugar
+Braised Chestnuts
+Chestnuts with Chicken
+Chestnuts with Pork Belly
+Chestnuts with Duck
+Chestnuts in Brown Sauce
+Chestnut Puree (Chinese Style)
+Sweet Chestnut Paste
+Candied Chestnuts
+Chestnut Dessert Filling
+Sesame-Coated Chestnuts
+Almond Tofu (Sweet Almond Jelly)
+Sweet Almond Soup
+Almond Cream Dessert
+Almond Paste Filling
+Almond Cookies (Chinese Almond Biscuits)
+Almond Brittle
+Almond Sugar Candy
+Sweet Walnut Paste
+Walnut Black Sesame Paste
+Candied Walnuts
+Honey-Glazed Walnuts
+Caramelized Walnuts
+Spicy Walnuts
+Walnuts with Rock Sugar
+Walnut Soup
+Walnut Sesame Candy
+Black Sesame Paste
+Black Sesame Peanut Paste
+Black Sesame Walnut Paste
+Sesame Seed Brittle
+Sesame Peanut Candy
+Sesame Walnut Candy
+Bingqilin (Chinese Milk Ice Cream)
+Chinese Almond Ice Cream
+Black Sesame Ice Cream
+Black Sesame Gelato
+Red Bean Ice Cream
+Sweet Red Bean Ice Cream
+Mung Bean Ice Cream
+Taro Ice Cream
+Taro Gelato
+Lychee Ice Cream
+Longan Ice Cream
+Mango Ice Cream
+Mango Gelato
+Durian Ice Cream
+Durian Gelato
+Osmanthus Ice Cream
+Osmanthus Gelato
+Jasmine Tea Ice Cream
+Oolong Tea Ice Cream
+Pu-erh Tea Ice Cream
+Peanut Ice Cream
+Peanut Ice Cream Roll
+Ginger Milk Ice Cream
+Ginger Gelato
+Sweet Corn Ice Cream
+Sweet Corn Gelato
+Lotus Seed Ice Cream
+Lotus Seed Gelato
+Goji Berry Ice Cream
+Goji Berry Gelato
+Chinese Five-Spice Ice Cream
+Sichuan Pepper Ice Cream
+Sichuan Pepper Gelato

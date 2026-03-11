@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# 🧱 Create & Bootstrap Preview D1
+# ------------------------------------------------------------------------------
+# preview:bootstrap-db — Creates a branch-specific preview D1 database for feature environments.
+#
+# ✅ Automatically provisions a uniquely scoped D1 database:
+#    - Named as `preview_${CI_COMMIT_REF_SLUG}` (e.g. preview-feature-login-page)
+#    - Isolated from staging/production to prevent state leakage
+#
+# ✅ Bootstraps schema using the same base process as production
+#    - Runs ./src/scripts/bootstrap-d1.sh with DB_NAME scoped to preview
+#
+# ✅ Emits `.env.preview` with DB_NAME for use by downstream preview jobs:
+#    - preview:bootstrap-storage
+#    - preview:deploy
+#
+# ✅ Idempotent: safely skips creation if DB already exists (logs success)
+#
+# This job ensures all preview environments have independent, ephemeral DBs
+# that mirror production structure for safe testing and UI preview workflows.
+preview:bootstrap-db:
+  stage: deploy
+  needs:
+    - setup:check-env
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^feature\/.+$/'
+  script:
+    - create_and_bootstrap_preview_d1 | tee .bootstrap-db-summary.md
+  artifacts:
+    reports:
+      dotenv: .env.preview
+    paths:
+      - .bootstrap-db-summary.md
+    expire_in: 7 days
+  environment:
+    name: preview/$CI_COMMIT_REF_NAME
+    action: prepare
+    auto_stop_in: 7 days
+
+# ------------------------------------------------------------------------------
+# ☁️ Create & Bootstrap Preview Storage (Secrets, KV, R2, DO)
+# ------------------------------------------------------------------------------
+# preview:bootstrap-storage — Provisions all necessary storage and secrets
+# for the current preview environment (feature branch).
+#
+# ✅ What it does:
+#    - Injects secrets (e.g. SENTRY_DSN, SENTRY_PROJECT) into `wrangler secret` for preview
+#    - Initializes all declared KV namespaces, R2 buckets, and DO namespaces
+#      using the same script as production: ./src/scripts/bootstrap-storage.sh
+#    - Appends exported values to `.env.preview` to maintain environment continuity
+#
+# ✅ Scope & Safety:
+#    - Runs only for branches matching /^feature\\/.+$/ to ensure isolation
+#    - Uses ENVIRONMENT=preview explicitly to prevent cross-env resource pollution
+#    - Fails on missing secrets to prevent misconfigured deployments
+#
+# ✅ Artifacts:
+#    - Outputs `.env.preview` with secrets and resource context for use by:
+#      - preview:deploy
+#      - validate:preview-url
+preview:bootstrap-storage:
+  stage: deploy
+  needs: [preview:bootstrap-db]
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^feature\/.+$/'
+  script:
+    - bootstrap_preview_storage_with_secrets | tee .bootstrap-storage-summary.md
+  artifacts:
+    reports:
+      dotenv: .env.preview
+    paths:
+      - .bootstrap-storage-summary.md
+    expire_in: 7 days
+  environment:
+    name: preview/$CI_COMMIT_REF_NAME
+    action: prepare
+    auto_stop_in: 7 days

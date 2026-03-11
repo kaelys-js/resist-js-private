@@ -1,0 +1,9 @@
+# OpenPGP public key for {{APP_NAME}} security disclosures
+# Fingerprint: 1234567890ABCDEF1234567890ABCDEF12345678
+# Usage: security, compliance, legal
+# Contact: {{EMAIL_SECURITY}}@{{MARKETING_DOMAIN}}
+# Last-Updated: {{WELL_KNOWN_SECURITY_TXT_PGP_KEY_LAST_UPDATED}}
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+{{WELL_KNOWN_SECURITY_TXT_PGP_KEY}}
+-----END PGP PUBLIC KEY BLOCK-----

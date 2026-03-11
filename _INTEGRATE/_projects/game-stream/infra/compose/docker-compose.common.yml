@@ -1,0 +1,17 @@
+x-game-common: &game-common
+  build: ./game-session
+  cap_add:
+    - SYS_ADMIN
+    - NET_ADMIN
+  devices:
+    - /dev/uinput:/dev/uinput
+  networks:
+    - gamenet
+  restart: unless-stopped
+  volumes:
+    - ./games:/games:ro
+    - ./saves:/saves
+    - ./game-session/headless.cfg:/headless.cfg:ro
+    - audio-socket:/tmp/audio-socket
+    - video-socket:/tmp/.X11-unix
+    - game-session-socket:/tmp

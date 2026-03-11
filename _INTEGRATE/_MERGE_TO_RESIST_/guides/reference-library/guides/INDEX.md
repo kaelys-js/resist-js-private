@@ -1,0 +1,560 @@
+# Complete Guide Index
+
+*544 guides | Last updated: 2026-03-06*
+
+**Progress:** 0/544 guides completed
+
+---
+
+## E
+
+- Essential Documents to Have Ready (ID, Medical, Legal, Financial, Insurance, Property) *(not yet written)*
+## H
+
+- How Baking Differs From Cooking (Why Precision Matters) *(not yet written)*
+- How Basic Household Circuits Work (Breakers, Outlets, Grounding, GFCI) *(not yet written)*
+- How Long Cooked Food Can Sit Out Safely *(not yet written)*
+- How to Abandon a Vehicle Safely *(not yet written)*
+- How to Act When All Options Are Bad (Least-Worst Decision-Making) *(not yet written)*
+- How to Alter Clothing for Fit *(not yet written)*
+- How to Assert Rights Without Escalation *(not yet written)*
+- How to Assess and Repair Roof Damage *(not yet written)*
+- How to Assess and Respond to Malnutrition *(not yet written)*
+- How to Assess Canned and Jarred Foods for Safety *(not yet written)*
+- How to Assess Dehydration (Skin Turgor, Urine, Capillary Refill) *(not yet written)*
+- How to Assess Frozen Food After Thawing *(not yet written)*
+- How to Assess Refrigerated Food After Power Loss *(not yet written)*
+- How to Assess Source Credibility *(not yet written)*
+- How to Assist Emergency Childbirth *(not yet written)*
+- How to Audit Preparedness Gaps *(not yet written)*
+- How to Avoid and De-Escalate Conflict *(not yet written)*
+- How to Avoid Common Kitchen Injuries *(not yet written)*
+- How to Avoid Financial Scams During Crises *(not yet written)*
+- How to Avoid Foodborne Illness While Cooking *(not yet written)*
+- How to Avoid Manipulation and Coercion *(not yet written)*
+- How to Avoid Panic Decisions, Normalcy Bias, and Sunk-Cost Traps *(not yet written)*
+- How to Balance Salt, Fat, Acid, and Heat *(not yet written)*
+- How to Balance Work, Rest, and Recovery *(not yet written)*
+- How to Become a Refugee or Displaced Person (What to Take, Where to Go, How to Register) *(not yet written)*
+- How to Boil, Simmer, Poach, and Blanch *(not yet written)*
+- How to Budget Under Scarcity *(not yet written)*
+- How to Build a Fire in All Conditions (Wet, Wind, Cold, Snow) *(not yet written)*
+- How to Build a Fire Indoors Safely (Fireplaces, Stoves, Ventilation) *(not yet written)*
+- How to Build a Personal Emergency Framework *(not yet written)*
+- How to Build an Improvised Water Filter *(not yet written)*
+- How to Build and Use Improvised Stoves (Rocket, Dakota Hole, Tin Can) *(not yet written)*
+- How to Build First Aid and Trauma Kits (Home, Vehicle, Go-Bag) *(not yet written)*
+- How to Build Flavor Layers in a Dish *(not yet written)*
+- How to Build Go-Bags (72-Hour, Vehicle, Extended Evacuation) *(not yet written)*
+- How to Build Redundancy Into Daily Systems (Water, Power, Communication, Supplies) *(not yet written)*
+- How to Build Skills Before You Need Them (Training, Practice, Drills) *(not yet written)*
+- How to Build Temporary Shelter (Tarp, Debris, Snow Cave, Urban Improvised) *(not yet written)*
+- How to Cache Supplies Along Routes (Location, Concealment, Weather Protection) *(not yet written)*
+- How to Can Food Safely (Water Bath vs Pressure Canning, Acidity Rules) *(not yet written)*
+- How to Care for Disabled or Mobility-Impaired Dependents *(not yet written)*
+- How to Care for Elderly Dependents Without Professional Help *(not yet written)*
+- How to Care for Pets Without Infrastructure (Feeding, Shelter, Veterinary Basics) *(not yet written)*
+- How to Carry Loads Efficiently on Foot (Pack Fitting, Weight Distribution, Pacing) *(not yet written)*
+- How to Caulk and Seal Gaps (Windows, Doors, Bathrooms) *(not yet written)*
+- How to Change a Tire and Use a Spare *(not yet written)*
+- How to Change Dressings and Monitor Healing *(not yet written)*
+- How to Change Filters (Furnace, AC, Range Hood, Dryer) *(not yet written)*
+- How to Change Wiper Blades *(not yet written)*
+- How to Charge Devices Without Grid Power *(not yet written)*
+- How to Check and Add All Vehicle Fluids *(not yet written)*
+- How to Choose Clothing for Weather Conditions *(not yet written)*
+- How to Choose the Right Cooking Method for an Ingredient *(not yet written)*
+- How to Choose the Right Knife for the Task *(not yet written)*
+- How to Clean and Dress Wounds *(not yet written)*
+- How to Clean as You Cook *(not yet written)*
+- How to Clean Different Surface Types Safely (Wood, Stone, Glass, Metal, Tile, Laminate) *(not yet written)*
+- How to Clean Safely With Chemicals (What Never to Mix) *(not yet written)*
+- How to Clean Without Damaging Finishes *(not yet written)*
+- How to Close Wounds (Butterfly Strips, Steri-Strips, Suture as Last Resort) *(not yet written)*
+- How to Collect Rainwater (Setup, Storage, Legal Considerations) *(not yet written)*
+- How to Communicate With Children During Emergencies (Age-Appropriate, Honest, Calming) *(not yet written)*
+- How to Communicate Without Phones or Internet *(not yet written)*
+- How to Compost Without Infrastructure *(not yet written)*
+- How to Continue Leading or Functioning After Losing Someone Close *(not yet written)*
+- How to Control Bleeding (Direct Pressure, Tourniquets, Wound Packing) *(not yet written)*
+- How to Control Insects and Rodents Without Professional Services *(not yet written)*
+- How to Control Temperature Without Thermometers *(not yet written)*
+- How to Convert Between Metric and Imperial *(not yet written)*
+- How to Convert Between Volume and Weight *(not yet written)*
+- How to Cook for Allergies and Dietary Restrictions *(not yet written)*
+- How to Cook for Large Groups (Scaling, Timing, Equipment) *(not yet written)*
+- How to Cook in Unfamiliar Kitchens *(not yet written)*
+- How to Cook With Foraged or Unfamiliar Ingredients *(not yet written)*
+- How to Cook With Limited Ingredients *(not yet written)*
+- How to Cook Without Power (Fire, Solar, Retained Heat) *(not yet written)*
+- How to Cook Without Recipes (Principles of Improvised Cooking) *(not yet written)*
+- How to Cooperate With Strangers Temporarily *(not yet written)*
+- How to Coordinate Evacuation for a Group *(not yet written)*
+- How to Create a Basic Will *(not yet written)*
+- How to Create a Medical Directive / Advance Care Plan *(not yet written)*
+- How to Create a Power of Attorney *(not yet written)*
+- How to Create and Follow Waypoints and Route Markers *(not yet written)*
+- How to Create Emergency Plans for Your Household (Meeting Points, Communication Trees, Triggers) *(not yet written)*
+- How to Cross Borders During Emergencies *(not yet written)*
+- How to Deal With Pest Infestation Without Professional Services *(not yet written)*
+- How to Decontaminate Yourself and Your Space *(not yet written)*
+- How to Dehydrate Food (Sun, Oven, Dehydrator, Rehydration) *(not yet written)*
+- How to Detect and Respond to Water Damage *(not yet written)*
+- How to Detect Contaminated Water (Visual, Smell, Test Strips, Context Clues) *(not yet written)*
+- How to Detect Gas Leaks *(not yet written)*
+- How to Detect Misinformation and Disinformation *(not yet written)*
+- How to Detect Structural Instability *(not yet written)*
+- How to Diagnose Common Engine Problems *(not yet written)*
+- How to Diagnose Electrical Problems (Alternator, Starter, Fuses, Relays) *(not yet written)*
+- How to Dispose of Medical Waste Safely *(not yet written)*
+- How to Distinguish Rumor From Fact During a Crisis *(not yet written)*
+- How to Do Laundry Correctly (Sorting, Temperature, Detergent, Cycle Selection) *(not yet written)*
+- How to Document Damage for Legal and Insurance Purposes *(not yet written)*
+- How to Document Property and Possessions for Insurance *(not yet written)*
+- How to Drive in Snow, Ice, Flood, Sand, and High Wind *(not yet written)*
+- How to Dry Clothing Without a Dryer *(not yet written)*
+- How to Dry Materials After Water Damage *(not yet written)*
+- How to Educate Children Without Schools *(not yet written)*
+- How to Establish a Security Watch (Group Rotation, Communication, Response Plan) *(not yet written)*
+- How to Establish Baselines for "Normal" (So You Notice When Things Change) *(not yet written)*
+- How to Establish Communication Plans With Family and Groups *(not yet written)*
+- How to Establish Roles and Decision-Making in a Group *(not yet written)*
+- How to Establish Rules and Resolve Disputes Without Authority *(not yet written)*
+- How to Establish Value and Pricing Without Markets *(not yet written)*
+- How to Establish Yourself in a New Location After Displacement *(not yet written)*
+- How to Estimate Distance and Travel Time on Foot *(not yet written)*
+- How to Estimate Time Without Clocks *(not yet written)*
+- How to Evacuate a City Under Chaotic Conditions *(not yet written)*
+- How to Evacuate Safely (Route Planning, Timing, Checklists, Alternatives) *(not yet written)*
+- How to Extend the Growing Season (Cold Frames, Row Covers, Succession Planting) *(not yet written)*
+- How to Extinguish Fires Safely *(not yet written)*
+- How to Feed Children Safely With Limited Resources *(not yet written)*
+- How to Feed Infants and Young Children During Disruption (Breastfeeding Support, Formula Alternatives) *(not yet written)*
+- How to Ferment Food Safely (Lacto-Fermentation, Vinegar Pickling, Kimchi, Sauerkraut) *(not yet written)*
+- How to File Insurance Claims After Disaster *(not yet written)*
+- How to Find Water in Nature (Terrain, Vegetation, Animal Indicators) *(not yet written)*
+- How to Find Water in Urban Areas *(not yet written)*
+- How to Fish Without Modern Gear (Improvised Hooks, Lines, Traps, Nets) *(not yet written)*
+- How to Fix a Running Toilet *(not yet written)*
+- How to Fix Bland, Over-Salted, Over-Sweet, Too-Spicy, or Bitter Food *(not yet written)*
+- How to Fix Burnt Food (What's Salvageable, What's Not) *(not yet written)*
+- How to Fix Curdled or Separated Dishes *(not yet written)*
+- How to Fix Dense, Flat, Dry, or Sunken Bakes *(not yet written)*
+- How to Fix Dry or Overcooked Meat *(not yet written)*
+- How to Fix Leaking Faucets and Pipes *(not yet written)*
+- How to Fix Watery, Broken, or Lumpy Sauces *(not yet written)*
+- How to Forage Safely (Principles, Common Edibles, Deadly Lookalikes) *(not yet written)*
+- How to Function During a Pandemic (Quarantine, Decontamination, Isolation Protocols) *(not yet written)*
+- How to Function During Communication Blackouts (Internet, Cell, Phone) *(not yet written)*
+- How to Function During Extended Power Grid Failure *(not yet written)*
+- How to Function During Fuel Shortages *(not yet written)*
+- How to Function During Garbage and Sanitation Service Failure *(not yet written)*
+- How to Function During Hospital and Medical System Overload *(not yet written)*
+- How to Function During Hyperinflation or Currency Collapse *(not yet written)*
+- How to Function During Supply Chain Disruption (Food, Fuel, Medicine Shortages) *(not yet written)*
+- How to Function During Water System Failure (Contamination, Loss of Pressure) *(not yet written)*
+- How to Function When Banks Are Closed or Inaccessible *(not yet written)*
+- How to Function When Electronic Payments Fail *(not yet written)*
+- How to Function When Electronic Payments Fail (Cash, Barter, Alternative Value) *(not yet written)*
+- How to Grill and Broil *(not yet written)*
+- How to Grow Food in Limited Space (Balcony, Windowsill, Vertical Growing) *(not yet written)*
+- How to Grow Food in Poor Soil (Amendments, Raised Beds, Companion Planting) *(not yet written)*
+- How to Grow Food Indoors (Lighting, Containers, Pollination) *(not yet written)*
+- How to Handle a Death When Authorities Aren't Available *(not yet written)*
+- How to Handle Animal Bites (Infection Risk, Rabies Protocol) *(not yet written)*
+- How to Handle Choking (Adult, Child, Infant, Self) *(not yet written)*
+- How to Handle Contaminated Water and Sewage Exposure *(not yet written)*
+- How to Handle Death of a Pet or Livestock *(not yet written)*
+- How to Handle Dental Emergencies (Broken Tooth, Abscess, Lost Filling, Knocked-Out Tooth) *(not yet written)*
+- How to Handle Encounters With Aggressive Animals (Dogs, Bears, Cougars, Moose, Snakes) *(not yet written)*
+- How to Handle Eye Infections (Conjunctivitis, Stye) *(not yet written)*
+- How to Handle Eye Injuries (Chemical Splash, Foreign Object, Blunt Trauma) *(not yet written)*
+- How to Handle Fuel Contamination *(not yet written)*
+- How to Handle Grease Fires *(not yet written)*
+- How to Handle Hostile Strangers and Unknown Visitors *(not yet written)*
+- How to Handle Interrogation or Aggressive Questioning *(not yet written)*
+- How to Handle Mass Casualty Situations *(not yet written)*
+- How to Handle Medication Withdrawal Safely *(not yet written)*
+- How to Handle Moral Injury and Difficult Ethical Decisions *(not yet written)*
+- How to Handle Newborn Emergencies *(not yet written)*
+- How to Handle Pediatric Emergencies (Febrile Seizures, Croup, Dehydration) *(not yet written)*
+- How to Handle Poisoning and Overdose (Ingested, Inhaled, Absorbed) *(not yet written)*
+- How to Handle Pregnancy Emergencies (Preeclampsia, Hemorrhage, Premature Labor) *(not yet written)*
+- How to Handle Raw Poultry Without Cross-Contamination *(not yet written)*
+- How to Handle Remains Safely (Hygiene, Cultural Respect, Burial, Cremation) *(not yet written)*
+- How to Handle Snakebites (Identification, First Aid, What Not to Do) *(not yet written)*
+- How to Handle Toxic Plant Exposure *(not yet written)*
+- How to Handle Venomous Insect Stings (Bees, Wasps, Scorpions, Spiders) *(not yet written)*
+- How to Hunt Responsibly (Ethics, Legality, Shot Placement, Tracking) *(not yet written)*
+- How to Identify and Avoid Contaminated Zones *(not yet written)*
+- How to Identify Cosmetic vs Structural Damage *(not yet written)*
+- How to Identify Early Heat Stress and Cold Stress *(not yet written)*
+- How to Identify Edible vs Poisonous Plants (Universal Edibility Test, Key Families) *(not yet written)*
+- How to Identify Essential vs Non-Essential Expenses *(not yet written)*
+- How to Identify Fire Classes (A, B, C, D, K) and Correct Extinguishing Methods *(not yet written)*
+- How to Identify Foodborne Illness Symptoms and Respond *(not yet written)*
+- How to Identify Load-Bearing vs Non-Load-Bearing Walls *(not yet written)*
+- How to Identify Medication Interactions *(not yet written)*
+- How to Identify Wiring Problems (Flickering, Warm Outlets, Burning Smell) *(not yet written)*
+- How to Improvise Clothing and Insulation *(not yet written)*
+- How to Improvise Medical Supplies (Splints, Slings, Bandages, Stretchers) *(not yet written)*
+- How to Improvise Tools From Available Materials *(not yet written)*
+- How to Inflate Tires Correctly and Check Tire Wear *(not yet written)*
+- How to Insulate a Space Without Power *(not yet written)*
+- How to Integrate Newcomers Safely *(not yet written)*
+- How to Interact With Law Enforcement Safely *(not yet written)*
+- How to Interpret Expiration and Best-Before Labels *(not yet written)*
+- How to Jump-Start a Vehicle Safely *(not yet written)*
+- How to Keep Goats (Milk, Brush Clearing, Basic Husbandry) *(not yet written)*
+- How to Layer Correctly (Base, Mid, Outer — Materials and Function) *(not yet written)*
+- How to Leave Messages and Waypoints for Others *(not yet written)*
+- How to Maintain a Bicycle (Tires, Chain, Brakes, Derailleurs) *(not yet written)*
+- How to Maintain a Motorcycle or Scooter *(not yet written)*
+- How to Maintain a Sense of Purpose During Collapse *(not yet written)*
+- How to Maintain a Water Heater *(not yet written)*
+- How to Maintain Air Conditioning Systems *(not yet written)*
+- How to Maintain and Sharpen Knives *(not yet written)*
+- How to Maintain and Store Tools *(not yet written)*
+- How to Maintain Batteries (Testing, Cleaning, Replacement) *(not yet written)*
+- How to Maintain Brakes (Pads, Rotors, Fluid, Warning Signs) *(not yet written)*
+- How to Maintain Circadian Rhythm Without Normal Light Cycles *(not yet written)*
+- How to Maintain Clothing Longevity *(not yet written)*
+- How to Maintain Cooling Systems (Coolant, Hoses, Thermostat, Radiator) *(not yet written)*
+- How to Maintain Focus Without Stimulants *(not yet written)*
+- How to Maintain Footwear (Cleaning, Waterproofing, Resoling, Drying) *(not yet written)*
+- How to Maintain Furnaces and Boilers *(not yet written)*
+- How to Maintain Gutters and Drainage *(not yet written)*
+- How to Maintain Indoor Air Quality *(not yet written)*
+- How to Maintain Kitchen Equipment (Seasoning, Descaling, Sharpening) *(not yet written)*
+- How to Maintain Major Appliances (Fridge, Washer, Dryer, Dishwasher) *(not yet written)*
+- How to Maintain Normalcy for Dependents During Civil Disruption *(not yet written)*
+- How to Maintain Oral Hygiene Without Dental Products *(not yet written)*
+- How to Maintain Personal Hygiene Without Running Water *(not yet written)*
+- How to Maintain Physical Fitness With No Equipment *(not yet written)*
+- How to Maintain Physical Function During Prolonged Inactivity *(not yet written)*
+- How to Maintain Preparedness Over Time (Rotation, Updates, Motivation) *(not yet written)*
+- How to Maintain Records and Accountability Without Technology *(not yet written)*
+- How to Maintain Routine and Morale During Extended Disruption *(not yet written)*
+- How to Maintain Routine for Children Under Stress *(not yet written)*
+- How to Maintain Septic Systems *(not yet written)*
+- How to Maintain Situational Awareness *(not yet written)*
+- How to Maintain Solar and Battery Systems Long-Term *(not yet written)*
+- How to Maintain Wells and Hand Pumps *(not yet written)*
+- How to Make and Store Jerky *(not yet written)*
+- How to Make Decisions Under Stress (OODA Loop, Prioritization Frameworks) *(not yet written)*
+- How to Make Decisions Without Consensus or Expert Access *(not yet written)*
+- How to Make Rope and Cordage From Natural Materials *(not yet written)*
+- How to Manage Air Quality Emergencies (Industrial Pollution, Volcanic Ash, Tear Gas, Smoke) *(not yet written)*
+- How to Manage Asthma Without Full Medication Access *(not yet written)*
+- How to Manage Boredom and Monotony During Extended Isolation *(not yet written)*
+- How to Manage Chronic Pain Without Overmedication *(not yet written)*
+- How to Manage Colds and Flu Without a Doctor *(not yet written)*
+- How to Manage Conflict Within a Group *(not yet written)*
+- How to Manage Diabetes When Supplies Are Limited *(not yet written)*
+- How to Manage Ear Infections and Earaches *(not yet written)*
+- How to Manage Epilepsy During Disruption *(not yet written)*
+- How to Manage Garden Pests and Disease Without Chemicals *(not yet written)*
+- How to Manage GI Illness (Vomiting, Diarrhea, Food Poisoning) *(not yet written)*
+- How to Manage Grief While Maintaining Function *(not yet written)*
+- How to Manage Grief While Maintaining Function *(not yet written)*
+- How to Manage Human Waste Without Plumbing (Latrines, Cat Holes, Bucket Systems) *(not yet written)*
+- How to Manage Hygiene for Infants and Bedridden Dependents *(not yet written)*
+- How to Manage Hypertension Without Medication *(not yet written)*
+- How to Manage Information Overload and Filter for Relevance *(not yet written)*
+- How to Manage Livestock Health Without a Vet *(not yet written)*
+- How to Manage Menstrual Hygiene Without Commercial Products *(not yet written)*
+- How to Manage Mental Health Medications Running Out (SSRI, Benzo, Antipsychotic Withdrawal) *(not yet written)*
+- How to Manage Power Consumption and Prioritize Loads *(not yet written)*
+- How to Manage Respiratory Infections (Bronchitis, Pneumonia Warning Signs) *(not yet written)*
+- How to Manage Sinus Infections *(not yet written)*
+- How to Manage Skin Infections and Rashes *(not yet written)*
+- How to Manage Sleep Debt and Recover From Exhaustion *(not yet written)*
+- How to Manage Urinary Tract Infections *(not yet written)*
+- How to Manage Vision Problems Without an Optometrist *(not yet written)*
+- How to Measure Baking Ingredients Correctly *(not yet written)*
+- How to Measure Without Measuring Tools *(not yet written)*
+- How to Minimize Food Waste During Prep *(not yet written)*
+- How to Move Supplies Without Vehicles (Carts, Sleds, Travois, Carries) *(not yet written)*
+- How to Navigate by Sun and Stars *(not yet written)*
+- How to Navigate Curfews and Movement Restrictions *(not yet written)*
+- How to Navigate Government Emergency Aid (Applications, Eligibility, Timelines) *(not yet written)*
+- How to Navigate Martial Law or Emergency Declarations *(not yet written)*
+- How to Navigate Unclear Authority Situations (Checkpoints, Martial Law, Aid Distribution) *(not yet written)*
+- How to Navigate Urban Areas When Infrastructure Is Disrupted *(not yet written)*
+- How to Navigate Without GPS *(not yet written)*
+- How to Negotiate Prices and Terms *(not yet written)*
+- How to Notify Next of Kin and Manage Affairs *(not yet written)*
+- How to Operate When Instructions or Sources Conflict *(not yet written)*
+- How to Operate Without Internet *(not yet written)*
+- How to Organize a Kitchen for Efficiency *(not yet written)*
+- How to Organize a Neighborhood for Mutual Aid *(not yet written)*
+- How to Organize Security and Watch Rotations *(not yet written)*
+- How to Paint Interior Walls Properly *(not yet written)*
+- How to Patch Drywall and Plaster *(not yet written)*
+- How to Peel, Core, Seed, and Trim Common Ingredients *(not yet written)*
+- How to Perform CPR (Adult, Child, Infant) *(not yet written)*
+- How to Perform Emergency Dental Care (Temporary Filling, Pain Management, Infection Control) *(not yet written)*
+- How to Perform Field Repairs (Duct Tape, Wire, Epoxy, Hose Clamps, JB Weld) *(not yet written)*
+- How to Perform Risk Assessment for Your Location and Situation *(not yet written)*
+- How to Perform Roadside Repairs With Minimal Tools *(not yet written)*
+- How to Perform Routine Vehicle Maintenance (Oil, Filters, Fluids, Belts) *(not yet written)*
+- How to Perform Triage (Multiple Casualties, Priority Assessment) *(not yet written)*
+- How to Plan a Meal From Available Ingredients *(not yet written)*
+- How to Plan and Execute a Multi-Day Movement on Foot *(not yet written)*
+- How to Pool and Distribute Resources Fairly *(not yet written)*
+- How to Preheat Properly (Pans, Ovens, Grills) *(not yet written)*
+- How to Prep Meat Safely (Trimming, Portioning, Tenderizing) *(not yet written)*
+- How to Prep Vegetables (Cuts, Shapes, Uniformity) *(not yet written)*
+- How to Prepare a Vehicle for Long-Term Storage *(not yet written)*
+- How to Prepare for Specific Scenarios (Tailored Plans by Location, Season, Risk) *(not yet written)*
+- How to Prepare Wild Game Safely (Field Dressing, Parasites, Cooking) *(not yet written)*
+- How to Preserve Access Credentials Offline *(not yet written)*
+- How to Preserve Food Without Electricity (Root Cellaring, Evaporative Cooling, Spring Houses) *(not yet written)*
+- How to Preserve Knowledge Without Technology (Written Records, Teaching, Oral) *(not yet written)*
+- How to Preserve Value Without Banking (Physical Assets, Barter Goods) *(not yet written)*
+- How to Prevent Accidental Fires (Home, Camp, Wildfire Defensible Space) *(not yet written)*
+- How to Prevent and Manage Back Pain *(not yet written)*
+- How to Prevent and Treat Mold Growth *(not yet written)*
+- How to Prevent Blisters and Foot Injury *(not yet written)*
+- How to Prevent Carbon Monoxide Exposure *(not yet written)*
+- How to Prevent Cognitive Decline Under Prolonged Stress *(not yet written)*
+- How to Prevent Cross-Contamination in the Kitchen *(not yet written)*
+- How to Prevent Disease Spread in Close Quarters *(not yet written)*
+- How to Prevent Food From Sticking *(not yet written)*
+- How to Prevent Frozen Pipes *(not yet written)*
+- How to Prevent Kitchen Fires *(not yet written)*
+- How to Prevent Overmixing *(not yet written)*
+- How to Prevent Overuse Injuries During Physical Labor or Travel *(not yet written)*
+- How to Prevent Pest Infestation (Insects, Rodents, Pantry Moths) *(not yet written)*
+- How to Prioritize Preparedness Spending *(not yet written)*
+- How to Prioritize Spending When Resources Are Limited *(not yet written)*
+- How to Proof Yeast *(not yet written)*
+- How to Protect Important Financial Records *(not yet written)*
+- How to Protect Personal Data (Passwords, Encryption, 2FA, Backups) *(not yet written)*
+- How to Protect Supplies and Resources From Theft *(not yet written)*
+- How to Protect Yourself During Looting and Property Crime *(not yet written)*
+- How to Protect Yourself From Exploitation During Vulnerability *(not yet written)*
+- How to Prove Identity When Documents Are Destroyed *(not yet written)*
+- How to Purify Water by Boiling (Time, Altitude Adjustments) *(not yet written)*
+- How to Purify Water Chemically (Bleach, Iodine, Chlorine Dioxide Tablets) *(not yet written)*
+- How to Purify Water Mechanically (Ceramic Filters, UV, Solar Disinfection) *(not yet written)*
+- How to Raise Chickens for Eggs (Housing, Feeding, Health, Winter Care) *(not yet written)*
+- How to Raise Rabbits for Meat *(not yet written)*
+- How to Ration Medications Safely *(not yet written)*
+- How to Ration Water (Minimum Needs, Prioritization, Reducing Loss) *(not yet written)*
+- How to Read and Interpret Recipes *(not yet written)*
+- How to Read Dashboard Warning Lights *(not yet written)*
+- How to Read Human Intent and Detect Deception *(not yet written)*
+- How to Read Topographic Maps *(not yet written)*
+- How to Read Weather Patterns Without Forecasts (Clouds, Wind, Pressure, Animal Behavior) *(not yet written)*
+- How to Recognize Allergic Reactions and Anaphylaxis *(not yet written)*
+- How to Recognize and Interrupt Panic *(not yet written)*
+- How to Recognize and Treat Shock *(not yet written)*
+- How to Recognize and Treat Wound Infections *(not yet written)*
+- How to Recognize Anxiety and Panic Attacks vs Physical Illness *(not yet written)*
+- How to Recognize Cognitive Bias in Yourself *(not yet written)*
+- How to Recognize Early Warning Signs of Systemic Failure *(not yet written)*
+- How to Recognize Sepsis *(not yet written)*
+- How to Recognize Signs of Heart Attack (Men vs Women) *(not yet written)*
+- How to Recognize Signs of Stroke *(not yet written)*
+- How to Recover a Stuck Vehicle (Mud, Snow, Sand, Ditch) *(not yet written)*
+- How to Recover Financially After Major Loss *(not yet written)*
+- How to Recover From Bad Decisions *(not yet written)*
+- How to Recover From Missed Steps or Wrong Ingredients *(not yet written)*
+- How to Recover From Physical Overexertion *(not yet written)*
+- How to Recover Lost Information and Files *(not yet written)*
+- How to Reduce Dependency on Devices *(not yet written)*
+- How to Refinish Wood Surfaces *(not yet written)*
+- How to Regulate Body Temperature Indoors *(not yet written)*
+- How to Reheat Food Safely (Microwave, Oven, Stovetop) *(not yet written)*
+- How to Remove Common Stains (Fabric, Carpet, Hard Surfaces) *(not yet written)*
+- How to Remove Odors (Source Identification and Treatment) *(not yet written)*
+- How to Render and Store Fat (Lard, Tallow) *(not yet written)*
+- How to Repair Clothing (Hand Sewing, Patching, Buttons, Hems, Zippers) *(not yet written)*
+- How to Repair Clothing and Gear in the Field (Sewing, Patching, Seam Sealing) *(not yet written)*
+- How to Replace Outlets, Switches, and Light Fixtures Safely *(not yet written)*
+- How to Replace Spark Plugs and Ignition Components *(not yet written)*
+- How to Resolve Disputes Without Authority *(not yet written)*
+- How to Respond to Active Threats (Home Intrusion, Assault, Carjacking) *(not yet written)*
+- How to Respond to Biological Threats (Outbreaks, Contaminated Areas) *(not yet written)*
+- How to Respond to Burns, Cuts, and Scalds in the Kitchen *(not yet written)*
+- How to Respond to Chemical Spills and Industrial Accidents Nearby *(not yet written)*
+- How to Respond to Chemical Spills or Exposure at Home *(not yet written)*
+- How to Respond to Civil Unrest (Protests, Riots, Looting) *(not yet written)*
+- How to Respond to Civil Unrest as a Bystander *(not yet written)*
+- How to Respond to Municipal Water Contamination (Boil Advisories, Chemical Spills) *(not yet written)*
+- How to Respond to Nuclear or Radiological Events (Fallout, Shelter Timing, Decontamination) *(not yet written)*
+- How to Roast and Bake *(not yet written)*
+- How to Rotate Stored Food Effectively *(not yet written)*
+- How to Rotate Tires *(not yet written)*
+- How to Safely Reset a Tripped Breaker *(not yet written)*
+- How to Salt and Cure Food (Dry Cure, Brine, Nitrates) *(not yet written)*
+- How to Sauté, Pan-Fry, and Deep-Fry *(not yet written)*
+- How to Save Seeds for Next Season *(not yet written)*
+- How to Say No and Set Boundaries Safely *(not yet written)*
+- How to Scale Recipes Up or Down *(not yet written)*
+- How to Season Food Properly (When, How Much, What Kind) *(not yet written)*
+- How to Secure a Home or Living Space (Locks, Reinforcement, Lighting, Concealment) *(not yet written)*
+- How to Secure and Transport Loads *(not yet written)*
+- How to Secure Important Documents (Physical and Digital Copies) *(not yet written)*
+- How to Select and Maintain Packs and Bags (Fitting, Load Distribution, Repair) *(not yet written)*
+- How to Select, Process, and Store Firewood *(not yet written)*
+- How to Send and Receive Morse Code (Basics) *(not yet written)*
+- How to Set Up Communication Between Households *(not yet written)*
+- How to Set Up Long-Term Camp (Layout, Sanitation, Water, Security) *(not yet written)*
+- How to Set Up Sanitation for Groups (Camp, Shelter, Extended Stay) *(not yet written)*
+- How to Sharpen Blades (Knives, Axes, Saws, Chisels) *(not yet written)*
+- How to Shelter in Place (Sealing, Supplies, Duration Planning, Communication) *(not yet written)*
+- How to Shelter in Place for Airborne Threats (Sealing, Duration, Air Filtration) *(not yet written)*
+- How to Shut Off Gas and Power in an Emergency *(not yet written)*
+- How to Shut Off Gas Safely *(not yet written)*
+- How to Shut Off Water (Fixture, House Main, Street Valve) *(not yet written)*
+- How to Signal for Rescue (Visual: Mirror, Fire, Markers; Audible: Whistle, Horn) *(not yet written)*
+- How to Smoke Food for Preservation (Cold Smoke vs Hot Smoke) *(not yet written)*
+- How to Start a Fire Without Modern Tools (Friction, Flint, Solar, Battery) *(not yet written)*
+- How to Start a Garden From Nothing (Soil, Containers, Seeds, Climate) *(not yet written)*
+- How to Stay Cool Without Power (Shade, Cross-Ventilation, Evaporative Cooling, Underground) *(not yet written)*
+- How to Stay Warm Without Power (Layering, Retained Heat, Thermal Mass, Insulation) *(not yet written)*
+- How to Steam, Braise, and Stew *(not yet written)*
+- How to Store and Maintain Batteries (Lead-Acid, Lithium, NiMH, Alkaline) *(not yet written)*
+- How to Store and Rotate Fuel *(not yet written)*
+- How to Store Food Long-Term (Dry Goods, Vacuum Seal, Root Cellar) *(not yet written)*
+- How to Store Food Short-Term (Fridge, Counter, Pantry) *(not yet written)*
+- How to Store Fuel Safely (Gasoline, Diesel, Propane, Kerosene) *(not yet written)*
+- How to Store Grains and Dried Goods Long-Term (Mylar, Oxygen Absorbers, Rotation) *(not yet written)*
+- How to Store Household Chemicals Safely *(not yet written)*
+- How to Store Medications Properly (Temperature, Light, Humidity) *(not yet written)*
+- How to Store Water Long-Term (Containers, Treatment, Rotation) *(not yet written)*
+- How to Structure Days Without External Cues *(not yet written)*
+- How to Substitute Baking Ingredients Safely *(not yet written)*
+- How to Substitute Kitchen Tools *(not yet written)*
+- How to Support Others Emotionally Without Professional Training *(not yet written)*
+- How to Support Others Through Trauma and Loss *(not yet written)*
+- How to Survive a Sinkhole Event *(not yet written)*
+- How to Survive and Respond to Avalanches *(not yet written)*
+- How to Survive and Respond to Drought *(not yet written)*
+- How to Survive and Respond to Earthquakes *(not yet written)*
+- How to Survive and Respond to Extreme Cold Events (Polar Vortex, Ice Storms) *(not yet written)*
+- How to Survive and Respond to Extreme Heat Events *(not yet written)*
+- How to Survive and Respond to Floods (Flash, River, Coastal) *(not yet written)*
+- How to Survive and Respond to House Fires *(not yet written)*
+- How to Survive and Respond to Hurricanes and Tropical Storms *(not yet written)*
+- How to Survive and Respond to Landslides and Mudslides *(not yet written)*
+- How to Survive and Respond to Severe Thunderstorms (Lightning, Hail, Wind) *(not yet written)*
+- How to Survive and Respond to Tornadoes *(not yet written)*
+- How to Survive and Respond to Tsunamis *(not yet written)*
+- How to Survive and Respond to Volcanic Eruptions and Ashfall *(not yet written)*
+- How to Survive and Respond to Wildfires and Smoke Events *(not yet written)*
+- How to Survive Being Lost (Urban vs Wilderness) *(not yet written)*
+- How to Survive Extended Power Outages (Days to Weeks) *(not yet written)*
+- How to Take Vital Signs Without Equipment (Pulse, Respiration, Temperature Estimation) *(not yet written)*
+- How to Taste and Adjust During Cooking *(not yet written)*
+- How to Tell When Baked Goods Are Done *(not yet written)*
+- How to Tell When Eggs Are Cooked Safely *(not yet written)*
+- How to Tell When Fish Is Done *(not yet written)*
+- How to Tell When Meat Is Done Without a Thermometer *(not yet written)*
+- How to Temporarily Seal Leaks (Roof, Pipe, Window, Foundation) *(not yet written)*
+- How to Thaw Food Safely (Fridge, Water, Microwave) *(not yet written)*
+- How to Tie Essential Knots (Bowline, Clove Hitch, Trucker's Hitch, Taut-Line, Figure Eight, Sheet Bend) *(not yet written)*
+- How to Time Multiple Dishes to Finish Together *(not yet written)*
+- How to Tow Safely (Proper Attachment, Weight Limits, Braking) *(not yet written)*
+- How to Trade Goods and Services Safely *(not yet written)*
+- How to Transition From Normal Operations to Crisis Operations *(not yet written)*
+- How to Transport Dependents Safely (Infants, Toddlers, Elderly, Disabled) *(not yet written)*
+- How to Trap Small Game (Snares, Deadfalls, Legality) *(not yet written)*
+- How to Travel Safely at Night *(not yet written)*
+- How to Treat Altitude Sickness *(not yet written)*
+- How to Treat Burns (Thermal, Chemical, Electrical — Severity Assessment) *(not yet written)*
+- How to Treat Crush Injuries *(not yet written)*
+- How to Treat Drowning and Near-Drowning *(not yet written)*
+- How to Treat Fractures (Identification, Splinting, Immobilization) *(not yet written)*
+- How to Treat Frostbite *(not yet written)*
+- How to Treat Head Injuries and Concussions *(not yet written)*
+- How to Treat Heat Exhaustion and Heat Stroke *(not yet written)*
+- How to Treat Hypothermia (Mild, Moderate, Severe) *(not yet written)*
+- How to Treat Lightning Strike Injuries *(not yet written)*
+- How to Treat Puncture Wounds and Impaled Objects *(not yet written)*
+- How to Treat Spinal Injuries (When Not to Move Someone) *(not yet written)*
+- How to Treat Sprains and Dislocations *(not yet written)*
+- How to Troubleshoot Appliance Failures Before Calling Repair *(not yet written)*
+- How to Unclog Drains (Sink, Toilet, Shower — Mechanical and Chemical) *(not yet written)*
+- How to Understand Baking Chemistry (Gluten, Leavening, Emulsification) *(not yet written)*
+- How to Understand Common Cooking Terminology *(not yet written)*
+- How to Understand Contracts and Agreements Before Signing *(not yet written)*
+- How to Understand Core Cooking Ratios (Stocks, Braises, Doughs, Batters) *(not yet written)*
+- How to Understand Your Rights During Emergencies (Search, Seizure, Curfew, Property) *(not yet written)*
+- How to Use a Compass (Including Declination) *(not yet written)*
+- How to Use a Fire Extinguisher in a Kitchen *(not yet written)*
+- How to Use a Multimeter for Basic Diagnostics *(not yet written)*
+- How to Use a Vehicle as Emergency Shelter *(not yet written)*
+- How to Use an AED *(not yet written)*
+- How to Use Common Kitchen Tools (Peelers, Mandolines, Thermometers, Scales) *(not yet written)*
+- How to Use Common OTC Medications Effectively (Dosing, Timing, Contraindications) *(not yet written)*
+- How to Use Cutting Boards Safely (Material, Hygiene, Stability) *(not yet written)*
+- How to Use Different Cookware Materials (Cast Iron, Stainless, Nonstick, Carbon Steel, Enameled) *(not yet written)*
+- How to Use Emergency Radios (AM/FM, NOAA Weather, Shortwave) *(not yet written)*
+- How to Use Fire for Cooking, Heat, and Water Purification *(not yet written)*
+- How to Use Fresh and Dried Herbs *(not yet written)*
+- How to Use Generators Safely (Placement, Ventilation, Load Management, Grounding) *(not yet written)*
+- How to Use HAM Radio Basics (Licensing, Frequencies, Protocols) *(not yet written)*
+- How to Use Hand Tools Safely (Hammer, Saw, Drill, Pliers, Wrenches, Chisels) *(not yet written)*
+- How to Use Heat Levels Correctly (Low, Medium, High — What They Mean) *(not yet written)*
+- How to Use Knives Safely and Efficiently *(not yet written)*
+- How to Use Manual and Human-Powered Alternatives (Hand Crank, Bicycle Generator) *(not yet written)*
+- How to Use Mesh Networks and Offline Communication Apps *(not yet written)*
+- How to Use Ovens Accurately (Hot Spots, Calibration, Rack Position) *(not yet written)*
+- How to Use Pressure Cookers Safely *(not yet written)*
+- How to Use Slow Cookers Effectively *(not yet written)*
+- How to Use Solar Power (Panels, Charge Controllers, Inverters, Battery Banks) *(not yet written)*
+- How to Use Spices (Whole, Ground, Blooming, Toasting) *(not yet written)*
+- How to Use Two-Way Radios (FRS, GMRS, CB — Range and Limitations) *(not yet written)*
+- How to Use Wind Power (Small Turbines, Siting, Limitations) *(not yet written)*
+- How to Ventilate Confined Spaces *(not yet written)*
+- How to Ventilate Safely (CO2 Buildup, Smoke, Fumes, Condensation) *(not yet written)*
+- How to Verify Information Quickly *(not yet written)*
+- How to Walk Long Distances Safely (Pacing, Hydration, Foot Care, Rest Cycles) *(not yet written)*
+- How to Wash Produce Properly *(not yet written)*
+- How to Wash Without Machines *(not yet written)*
+- How to Waterproof a Shelter *(not yet written)*
+- How to Waterproof Clothing and Gear *(not yet written)*
+- How to Weatherproof a Home (Storm Preparation, Window Boarding, Sandbagging) *(not yet written)*
+- How to Wipe Devices Securely Before Abandoning Them *(not yet written)*
+- How to Wire Basic 120V/240V Systems Safely (Home, Generator Hookup) *(not yet written)*
+- How to Wire Basic 12V Systems Safely (Vehicles, Off-Grid, Portable) *(not yet written)*
+- How to Work With Adhesives, Tapes, and Fasteners (When to Use What) *(not yet written)*
+- How to Work With Concrete and Mortar (Mixing, Patching, Forming) *(not yet written)*
+- How to Work With Dough (Kneading, Resting, Shaping) *(not yet written)*
+- How to Work With Metal (Cutting, Bending, Drilling, Basic Welding Concepts) *(not yet written)*
+- How to Work With Rope, Cordage, and Lashing *(not yet written)*
+- How to Work With Wood (Cutting, Joining, Fastening, Basic Joinery) *(not yet written)*
+## M
+
+- Maintenance Differences: Gasoline vs Diesel vs Hybrid vs Electric *(not yet written)*
+## W
+
+- When a Fever Is Concerning (Adults vs Children, Duration, Red Flags) *(not yet written)*
+- When Abdominal Pain Needs Medical Attention *(not yet written)*
+- When Bread and Grains Are Safe After Mold Exposure *(not yet written)*
+- When Breathing Difficulty Is an Emergency *(not yet written)*
+- When Cheese Is Safe Despite Mold *(not yet written)*
+- When Chest Pain Is an Emergency vs Benign *(not yet written)*
+- When Cooked Food Is Still Safe at Room Temperature *(not yet written)*
+- When Cooking Oils Are Rancid *(not yet written)*
+- When Dairy Products Are Safe or Spoiled *(not yet written)*
+- When Dizziness Indicates a Serious Problem *(not yet written)*
+- When Eggs Are Fresh, Old, or Unsafe *(not yet written)*
+- When Fish and Seafood Are Fresh, Spoiled, or Toxic *(not yet written)*
+- When Fruits Are Unripe, Ripe, Overripe, and Unsafe *(not yet written)*
+- When Garlic Is Sprouting, Bitter, or Toxic *(not yet written)*
+- When Ginger Is Fresh vs Fibrous vs Moldy *(not yet written)*
+- When Headaches Are Concerning (Migraine, Tension, Warning Signs) *(not yet written)*
+- When Leafy Greens Are Safe vs Pathogenic *(not yet written)*
+- When Meat Is Fresh, Aging, Spoiled, or Dangerous *(not yet written)*
+- When Numbness or Tingling Is Dangerous *(not yet written)*
+- When Nuts and Seeds Are Unsafe *(not yet written)*
+- When Pain Indicates Injury vs Normal Strain *(not yet written)*
+- When Poultry Is Safe vs High-Risk *(not yet written)*
+- When Root Vegetables Are Safe After Storage *(not yet written)*
+- When to Seek Emergency Care vs Urgent Care vs Self-Treat *(not yet written)*
+- When to Stop and Call an Electrician *(not yet written)*
+- When Vegetables Are Fresh, Wilting, Spoiled, or Toxic *(not yet written)*

@@ -1,0 +1,91 @@
+{
+  "section_id": "04",
+  "section_name": "KITCHEN SAFETY & EMERGENCIES",
+  "folder": "04-kitchen-safety-emergencies",
+  "guides": [
+    {
+      "id": "04-001",
+      "title": "How to Prevent Kitchen Fires",
+      "slug": "how-to-prevent-kitchen-fires",
+      "status": "not_started",
+      "tier": 1,
+      "output_path": "guides/04-kitchen-safety-emergencies/how-to-prevent-kitchen-fires.md",
+      "created_at": null,
+      "verified_at": null,
+      "flagged": false,
+      "flag_reason": null,
+      "verification_notes": null,
+      "cross_references": []
+    },
+    {
+      "id": "04-002",
+      "title": "How to Handle Grease Fires",
+      "slug": "how-to-handle-grease-fires",
+      "status": "not_started",
+      "tier": 2,
+      "output_path": "guides/04-kitchen-safety-emergencies/how-to-handle-grease-fires.md",
+      "created_at": null,
+      "verified_at": null,
+      "flagged": false,
+      "flag_reason": null,
+      "verification_notes": null,
+      "cross_references": []
+    },
+    {
+      "id": "04-003",
+      "title": "How to Use a Fire Extinguisher in a Kitchen",
+      "slug": "how-to-use-a-fire-extinguisher-in-a-kitchen",
+      "status": "not_started",
+      "tier": 2,
+      "output_path": "guides/04-kitchen-safety-emergencies/how-to-use-a-fire-extinguisher-in-a-kitchen.md",
+      "created_at": null,
+      "verified_at": null,
+      "flagged": false,
+      "flag_reason": null,
+      "verification_notes": null,
+      "cross_references": []
+    },
+    {
+      "id": "04-004",
+      "title": "How to Shut Off Gas Safely",
+      "slug": "how-to-shut-off-gas-safely",
+      "status": "not_started",
+      "tier": 2,
+      "output_path": "guides/04-kitchen-safety-emergencies/how-to-shut-off-gas-safely.md",
+      "created_at": null,
+      "verified_at": null,
+      "flagged": false,
+      "flag_reason": null,
+      "verification_notes": null,
+      "cross_references": []
+    },
+    {
+      "id": "04-005",
+      "title": "How to Detect Gas Leaks",
+      "slug": "how-to-detect-gas-leaks",
+      "status": "not_started",
+      "tier": 2,
+      "output_path": "guides/04-kitchen-safety-emergencies/how-to-detect-gas-leaks.md",
+      "created_at": null,
+      "verified_at": null,
+      "flagged": false,
+      "flag_reason": null,
+      "verification_notes": null,
+      "cross_references": []
+    },
+    {
+      "id": "04-006",
+      "title": "How to Respond to Burns, Cuts, and Scalds in the Kitchen",
+      "slug": "how-to-respond-to-burns-cuts-and-scalds-in-the-kitchen",
+      "status": "not_started",
+      "tier": 1,
+      "output_path": "guides/04-kitchen-safety-emergencies/how-to-respond-to-burns-cuts-and-scalds-in-the-kitchen.md",
+      "created_at": null,
+      "verified_at": null,
+      "flagged": false,
+      "flag_reason": null,
+      "verification_notes": null,
+      "cross_references": []
+    }
+  ]
+}

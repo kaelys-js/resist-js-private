@@ -1,0 +1,5667 @@
+[
+	{
+		"system": "3DO Interactive Multiplayer",
+		"retroarch_core": "Opera",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Amstrad CPC",
+		"retroarch_core": "Caprice32",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Apple II",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "RAppleWin"
+	},
+	{
+		"system": "Arcade (MAME)",
+		"retroarch_core": "MAME",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Arcade (FinalBurn Neo)",
+		"retroarch_core": "FinalBurn Neo",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Atari 2600",
+		"retroarch_core": "Stella",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Atari 5200",
+		"retroarch_core": "Atari800",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Atari 7800",
+		"retroarch_core": "ProSystem",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Atari Jaguar",
+		"retroarch_core": "Virtual Jaguar",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Atari Lynx",
+		"retroarch_core": "Mednafen Handy",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Atari ST",
+		"retroarch_core": "Hatari",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Bandai WonderSwan",
+		"retroarch_core": "Mednafen",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Bandai WonderSwan Color",
+		"retroarch_core": "Mednafen",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "ColecoVision",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore 64",
+		"retroarch_core": "VICE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore Amiga",
+		"retroarch_core": "PUAE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore PET",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VICE"
+	},
+	{
+		"system": "Commodore VIC-20",
+		"retroarch_core": "VICE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore Plus/4",
+		"retroarch_core": "VICE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore 128",
+		"retroarch_core": "VICE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "DOS",
+		"retroarch_core": "DOSBox-Pure",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Fairchild Channel F",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "FreeChaF"
+	},
+	{
+		"system": "Famicom Disk System",
+		"retroarch_core": "Nestopia",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Game Boy",
+		"retroarch_core": "Gambatte",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Game Boy Color",
+		"retroarch_core": "Gambatte",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Game Boy Advance",
+		"retroarch_core": "mGBA",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Game Gear",
+		"retroarch_core": "Genesis Plus GX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Intellivision",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "jzIntv"
+	},
+	{
+		"system": "Magnavox Odyssey²",
+		"retroarch_core": "O2EM",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Mattel Aquarius",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VirtualAquarius"
+	},
+	{
+		"system": "MSX",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "NEC PC-8801",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "M88"
+	},
+	{
+		"system": "NEC PC-9801",
+		"retroarch_core": "Neko Project II",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "NEC PC-FX",
+		"retroarch_core": "Mednafen",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Neo Geo",
+		"retroarch_core": "FinalBurn Neo",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Neo Geo Pocket",
+		"retroarch_core": "Mednafen",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Neo Geo Pocket Color",
+		"retroarch_core": "Mednafen",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo 64",
+		"retroarch_core": "Mupen64Plus",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo DS",
+		"retroarch_core": "melonDS",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo 3DS",
+		"retroarch_core": "Citra",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo Entertainment System (NES)",
+		"retroarch_core": "FCEUmm",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo GameCube",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Dolphin"
+	},
+	{
+		"system": "Nintendo Wii",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Dolphin"
+	},
+	{
+		"system": "Nintendo Wii U",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Cemu"
+	},
+	{
+		"system": "Nintendo Switch",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Ryujinx"
+	},
+	{
+		"system": "PC Engine / TurboGrafx-16",
+		"retroarch_core": "Mednafen",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "PC Engine CD / TurboGrafx-CD",
+		"retroarch_core": "Mednafen",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "PlayStation",
+		"retroarch_core": "DuckStation",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "PlayStation 2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PCSX2"
+	},
+	{
+		"system": "PlayStation 3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "RPCS3"
+	},
+	{
+		"system": "PlayStation Portable",
+		"retroarch_core": "PPSSPP",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+
+	{
+		"system": "PlayStation Vita",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Vita3K"
+	},
+	{
+		"system": "RCA Studio II",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Emma 02"
+	},
+	{
+		"system": "Sega 32X",
+		"retroarch_core": "PicoDrive",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sega CD / Mega CD",
+		"retroarch_core": "Genesis Plus GX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sega Dreamcast",
+		"retroarch_core": "Flycast",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sega Game Gear",
+		"retroarch_core": "Genesis Plus GX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sega Genesis / Mega Drive",
+		"retroarch_core": "Genesis Plus GX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sega Master System",
+		"retroarch_core": "Genesis Plus GX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sega Saturn",
+		"retroarch_core": "Beetle Saturn",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "SG-1000",
+		"retroarch_core": "Genesis Plus GX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sharp X1",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "QUASI88"
+	},
+	{
+		"system": "Sharp X68000",
+		"retroarch_core": "PX68k",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sinclair ZX Spectrum",
+		"retroarch_core": "Fuse",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "SNK Neo Geo CD",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "NeoCD"
+	},
+	{
+		"system": "SNK Neo Geo MVS/AES",
+		"retroarch_core": "FinalBurn Neo",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "SNK Neo Geo Pocket",
+		"retroarch_core": "Mednafen",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "SNK Neo Geo Pocket Color",
+		"retroarch_core": "Mednafen",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sony PlayStation",
+		"retroarch_core": "Beetle PSX HW",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sony PlayStation 2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PCSX2"
+	},
+	{
+		"system": "Sony PlayStation 3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "RPCS3"
+	},
+	{
+		"system": "Sony PlayStation Portable",
+		"retroarch_core": "PPSSPP",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sony PlayStation Vita",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Vita3K"
+	},
+	{
+		"system": "Super Nintendo Entertainment System (SNES)",
+		"retroarch_core": "bsnes",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Tandy Color Computer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "XRoar"
+	},
+	{
+		"system": "Thomson MO5",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DCMOTO"
+	},
+	{
+		"system": "TI-99/4A",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Classic99"
+	},
+	{
+		"system": "Tomy Tutor / Pyuta",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "TurboExpress",
+		"retroarch_core": "Mednafen PCE Fast",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Vectrex",
+		"retroarch_core": "Vecx",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Virtual Boy",
+		"retroarch_core": "Mednafen VB",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Watara Supervision",
+		"retroarch_core": "Potator",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Windows 3.x",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DOSBox-X with Windows image"
+	},
+	{
+		"system": "Windows 9x",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PCem"
+	},
+	{
+		"system": "Windows XP-era PC",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VMware/VirtualBox"
+	},
+	{
+		"system": "X68000",
+		"retroarch_core": "PX68k",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "ZX81 / Timex Sinclair 1000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "EightyOne"
+	},
+	{
+		"system": "BBC Micro",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "BeebEm"
+	},
+	{
+		"system": "Oric-1 / Atmos",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Euphoric"
+	},
+	{
+		"system": "Camputers Lynx",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "FM-7 / FM-77AV",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "XM7"
+	},
+	{
+		"system": "Amstrad GX4000",
+		"retroarch_core": "Caprice32",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sega Pico",
+		"retroarch_core": "PicoDrive",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Mega Duck / Cougar Boy",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Casio Loopy",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Super A'Can",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Philips CD-i",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "CD-i Emulator"
+	},
+	{
+		"system": "Nuon",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "LeapFrog Didj",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DidjEmu"
+	},
+	{
+		"system": "LeapFrog Leapster",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Leapster Explorer Emulator"
+	},
+	{
+		"system": "LeapFrog LeapPad",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "VTech V.Smile",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "VTech CreatiVision",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Bandai Playdia",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Bandai Pippin",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SheepShaver (Mac OS)"
+	},
+	{
+		"system": "Mattel HyperScan",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Apple Pippin",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SheepShaver"
+	},
+	{
+		"system": "Apple Macintosh (Classic)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Mini vMac"
+	},
+	{
+		"system": "Apple Macintosh (68k/PPC)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Basilisk II / SheepShaver"
+	},
+	{
+		"system": "Apple Lisa",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Philips Videopac+ G7400",
+		"retroarch_core": "O2EM",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo Super Famicom",
+		"retroarch_core": "bsnes",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Funtech Super A'Can",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Epoch Cassette Vision",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Epoch Super Cassette Vision",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Sharp MZ Series",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Casio PV-1000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Casio PV-2000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Casio Loopy",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Acorn Archimedes",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Arculator / RPCEmu"
+	},
+	{
+		"system": "Acorn Electron",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Elkulator"
+	},
+	{
+		"system": "Acorn BBC Master",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "BeebEm"
+	},
+	{
+		"system": "Sord M5",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Interton VC 4000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Philips Tele-Spiel",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Binatone TV Master",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Pong emulation in MAME"
+	},
+	{
+		"system": "Magnavox Odyssey",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS (incomplete)"
+	},
+	{
+		"system": "Tomytronic 3D",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Custom emulation tools"
+	},
+	{
+		"system": "Microvision",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS (experimental)"
+	},
+	{
+		"system": "Gamate",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Bit Corporation Gamate",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Tiger Game.com",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Hartung Game Master",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Tomy Tutor",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Radio Shack TV Scoreboard",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Pong systems in MAME"
+	},
+	{
+		"system": "Fairchild Channel F System II",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "FreeChaF"
+	},
+	{
+		"system": "Pioneer LaserActive",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS (partial)"
+	},
+	{
+		"system": "Tatung Einstein",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Exidy Sorcerer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Enterprise 128",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "EP128Emu"
+	},
+	{
+		"system": "Jupiter Ace",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Laser 200",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Laser 310",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Memotech MTX",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Sam Coupe",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimCoupe"
+	},
+	{
+		"system": "Spectravideo SVI-318",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "blueMSX"
+	},
+	{
+		"system": "Spectravideo SVI-328",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "blueMSX"
+	},
+	{
+		"system": "Thomson TO7",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DCMOTO"
+	},
+	{
+		"system": "Thomson MO6",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DCMOTO"
+	},
+	{
+		"system": "Thomson TO8",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DCMOTO"
+	},
+	{
+		"system": "Yeno SC-3000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Sega Teradrive",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Modified DOSBox + Genesis emulator"
+	},
+	{
+		"system": "Sega AI Computer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS (early dev)"
+	},
+	{
+		"system": "FM Towns Marty",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "UNZ"
+	},
+	{
+		"system": "FM Towns",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "UNZ"
+	},
+	{
+		"system": "Toshiba Pasopia",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Toshiba Pasopia 7",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Toshiba Pasopia 16",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Sony SMC-70",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Sony Hit-Bit (MSX compatible)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sony PlayStation Classic",
+		"retroarch_core": "Beetle PSX HW",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "MSX2",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "MSX2+",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "MSX TurboR",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore CDTV",
+		"retroarch_core": "PUAE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore CD32",
+		"retroarch_core": "PUAE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore C16",
+		"retroarch_core": "VICE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore Plus/4",
+		"retroarch_core": "VICE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore 128",
+		"retroarch_core": "VICE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore B128",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VICE (experimental)"
+	},
+	{
+		"system": "Commodore CBM-II",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VICE (experimental)"
+	},
+	{
+		"system": "Enterprise 64",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "EP128Emu"
+	},
+	{
+		"system": "TI-99/4",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Classic99"
+	},
+	{
+		"system": "Philips VG 5000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Dragon 32/64",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "XRoar"
+	},
+	{
+		"system": "LaserDisc (general)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Daphne"
+	},
+	{
+		"system": "Daphne (LaserDisc emulator)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Daphne"
+	},
+	{
+		"system": "Astrocade",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Radofin 1292 Advanced Programmable Video System",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "VC4000 (Interton)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Creatronic Mega Duck",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Emerson Arcadia 2001",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "CreatiVision",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Luxor ABC 80",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "ABC80Sim"
+	},
+	{
+		"system": "Vector-06C",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS / Emu80"
+	},
+	{
+		"system": "Elektronika BK",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "BK-0010/11M Emulator"
+	},
+	{
+		"system": "PDP-1 (Spacewar!)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "DEC VT100/220 terminals",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "Minicomputer PDP-11",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "Sega Beena",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Beena Emu (in development)"
+	},
+	{
+		"system": "Nintendo Pokemini",
+		"retroarch_core": "PokeMini",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "LeapFrog LeapTV",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "VTech MobiGo",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Tomy Edutainment TV",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Tiger R-Zone",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "RZone emulator (incomplete)"
+	},
+	{
+		"system": "Gizmondo",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Tapwave Zodiac",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "StyleTap (Palm OS)"
+	},
+	{
+		"system": "Palm OS PDAs",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "StyleTap"
+	},
+	{
+		"system": "Microsoft Zune HD",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Nokia N-Gage",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "EKA2L1"
+	},
+	{
+		"system": "Symbian S60",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "EKA2L1"
+	},
+	{
+		"system": "Symbian UIQ",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "EKA2L1"
+	},
+	{
+		"system": "BlackBerry OS",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Windows CE / Pocket PC",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "X86Emu / MAME"
+	},
+	{
+		"system": "Amazon Fire TV Games",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Apple Watch",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "iOS (Classic)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Corellium / Cider"
+	},
+	{
+		"system": "tvOS",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Android (generic)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator (AVD)"
+	},
+	{
+		"system": "Steam Deck",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Runs native Linux / SteamOS"
+	},
+	{
+		"system": "Playdate",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Playdate Simulator (Panic SDK)"
+	},
+	{
+		"system": "Analogue Pocket",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "FPGA / core loader (no emulation)"
+	},
+	{
+		"system": "MiSTer FPGA",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Hardware-based cores"
+	},
+	{
+		"system": "AYANEO Handhelds",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native PC OS"
+	},
+	{
+		"system": "OneXPlayer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native PC OS"
+	},
+	{
+		"system": "Evercade",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Proprietary (no known emulator)"
+	},
+	{
+		"system": "Polymega",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Uses RetroArch internally"
+	},
+	{
+		"system": "Intellivision Amico",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (unreleased)"
+	},
+	{
+		"system": "Atari VCS (2020)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Runs Linux/PC games"
+	},
+	{
+		"system": "OUYA",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "GameStick",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "GCW Zero",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Runs native Linux emulators"
+	},
+	{
+		"system": "Pandora Handheld",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native Linux emulation"
+	},
+	{
+		"system": "GPD XD",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "GPD Win",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows-based emulators"
+	},
+	{
+		"system": "Tomb Raider Handheld (Tiger)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Tiger emulation (MESS)"
+	},
+	{
+		"system": "McDonald's eCD Handheld",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Custom video emulation"
+	},
+	{
+		"system": "Pepsi Invaders (Atari 2600 variant)",
+		"retroarch_core": "Stella",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo DS iQue",
+		"retroarch_core": "melonDS",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "iQue Player",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Custom iQue emulator (experimental)"
+	},
+	{
+		"system": "TRS-80 Model I",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "TRS32"
+	},
+	{
+		"system": "TRS-80 Model III",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "TRS32"
+	},
+	{
+		"system": "TRS-80 Color Computer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "XRoar"
+	},
+	{
+		"system": "Tiki-100",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Digital VT180",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "DEC Rainbow 100",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "DECmate",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "Microtan 65",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Poly-88",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "Tandem 16",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "SOL-20",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH / MESS"
+	},
+	{
+		"system": "IBM 5100",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS / SimH (partial)"
+	},
+	{
+		"system": "Heathkit H8",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "Altair 8800",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "IMSAI 8080",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH / AltairZ80"
+	},
+	{
+		"system": "Ohio Scientific Challenger",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Xerox Alto",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "ContrAlto"
+	},
+	{
+		"system": "Xerox Star",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS (partial)"
+	},
+	{
+		"system": "Canon Cat",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Kaypro II",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH / MESS"
+	},
+	{
+		"system": "Commodore PET 2001",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VICE"
+	},
+	{
+		"system": "Tandy 1000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DOSBox"
+	},
+	{
+		"system": "Tandy 2000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DOSBox (partial)"
+	},
+	{
+		"system": "Tandy 6000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Texas Instruments SR-56",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator (calculator)"
+	},
+	{
+		"system": "HP-41C",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "HP41UC"
+	},
+	{
+		"system": "Palm Pilot",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "StyleTap / POSE"
+	},
+	{
+		"system": "Casio FX-850P",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Virtual Casio"
+	},
+	{
+		"system": "Sharp PC-1500",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Sharp PC-1211",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PC1211 Emulator"
+	},
+	{
+		"system": "Psion Series 3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Psion Series 5",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Series 5 emulator (unofficial)"
+	},
+	{
+		"system": "TRS-80 Model 4",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "TRS32"
+	},
+	{
+		"system": "Commodore 65",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "XEMU"
+	},
+	{
+		"system": "Philips P2000T",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Robotron KC 85/3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "KCemu"
+	},
+	{
+		"system": "Robotron Z1013",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Z1013 emulators (various)"
+	},
+	{
+		"system": "ZX Microdrive",
+		"retroarch_core": "Fuse",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "ZX Interface 1",
+		"retroarch_core": "Fuse",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "ZX Spectrum +3",
+		"retroarch_core": "Fuse",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Thomson TO9",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DCMOTO"
+	},
+	{
+		"system": "Thomson TO9+",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DCMOTO"
+	},
+	{
+		"system": "Comx-35",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "ComxEmu"
+	},
+	{
+		"system": "VideoBrain Family Computer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Hector HRX",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Laser 500",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Victor Lambda",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Sega Genesis Nomad",
+		"retroarch_core": "Genesis Plus GX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sega Genesis CDX",
+		"retroarch_core": "Genesis Plus GX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sega TeraDrive",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DOSBox + Genesis Plus GX"
+	},
+	{
+		"system": "Sega Pluto",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Sega Saturn emulator"
+	},
+	{
+		"system": "Sega Neptune",
+		"retroarch_core": "Genesis Plus GX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo 64DD",
+		"retroarch_core": "Mupen64Plus",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo Virtual Console (Wii)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wii + NAND dump"
+	},
+	{
+		"system": "Nintendo e-Reader",
+		"retroarch_core": "mGBA",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo Satellaview",
+		"retroarch_core": "bsnes",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo 3DS Virtual Console",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Citra with VC ROMs"
+	},
+	{
+		"system": "PlayStation TV",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Vita3K"
+	},
+	{
+		"system": "Coleco Adam",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Tatung Einstein TC-01",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "VTech Laser 310",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Didaktik M",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Fuse (partial)"
+	},
+	{
+		"system": "Tesla PMD 85",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Galaksija",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Galaksija emulator (Zeljko Nastasic)"
+	},
+	{
+		"system": "Elektor Junior",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "PDP-8",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "PDP-10",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "PDP-11/70",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "PDP-12",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "Altair 8800b",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "AltairZ80 (SimH)"
+	},
+	{
+		"system": "DEC VT05",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH (partial)"
+	},
+	{
+		"system": "Philips Videopac G7000",
+		"retroarch_core": "O2EM",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Philips Videopac C7010",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "O2EM (partial)"
+	},
+	{
+		"system": "Bally Astrocade",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "APF-M1000 / MP-1000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Intervision 2001",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "BitCorp Gamate",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Epoch Game Pocket Computer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Watara Supervision",
+		"retroarch_core": "Potator",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Casio Loopy",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Nintendo Game & Watch",
+		"retroarch_core": "GW",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Tiger LCD Handhelds",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Hannah emulator (MAME/MESS experimental)"
+	},
+	{
+		"system": "Various Plug and Play TV Games",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No universal emulator (device-specific)"
+	},
+	{
+		"system": "MAME Discrete Test Platforms",
+		"retroarch_core": "MAME",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Discrete Pong Systems",
+		"retroarch_core": "MAME",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Misc Arcade Bootlegs",
+		"retroarch_core": "FinalBurn Neo",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Homebrew Fantasy Consoles (e.g., TIC-80)",
+		"retroarch_core": "TIC-80",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "PICO-8 (Fantasy Console)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PICO-8 (official binary only)"
+	},
+	{
+		"system": "UZebox",
+		"retroarch_core": "UZebox",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "LowRes NX",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "LowRes NX IDE"
+	},
+	{
+		"system": "MegaZeux",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MegaZeux official interpreter"
+	},
+	{
+		"system": "Dingoo A320",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native emulators (Linux-based)"
+	},
+	{
+		"system": "Revo K101",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native GBA emulator"
+	},
+	{
+		"system": "OpenPandora",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native Linux emulation"
+	},
+	{
+		"system": "PlayStation VR",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PS4 proprietary (no emu)"
+	},
+	{
+		"system": "Meta Quest (VR)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Runs Android emulators directly"
+	},
+	{
+		"system": "HTC Vive",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native PC emulators"
+	},
+	{
+		"system": "Valve Index",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native PC emulators"
+	},
+	{
+		"system": "Game Boy Camera",
+		"retroarch_core": "Gambatte",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Game Boy Printer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "GB Printer emulation in emulators (partial)"
+	},
+	{
+		"system": "GBC e-Reader",
+		"retroarch_core": "mGBA",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sony PSP Go",
+		"retroarch_core": "PPSSPP",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo Switch Lite",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Ryujinx / Yuzu"
+	},
+	{
+		"system": "Nintendo Switch OLED",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Ryujinx / Yuzu"
+	},
+	{
+		"system": "PlayStation 5",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "None (no working emulator)"
+	},
+	{
+		"system": "Xbox Series X",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "None (no working emulator)"
+	},
+	{
+		"system": "Xbox One",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "None (no working emulator)"
+	},
+	{
+		"system": "PlayStation 4",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Orbital (early WIP)"
+	},
+	{
+		"system": "Xbox 360",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Xenia"
+	},
+	{
+		"system": "Original Xbox",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Cxbx-Reloaded / xemu"
+	},
+	{
+		"system": "Nintendo Mini Classics",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME (partial)"
+	},
+	{
+		"system": "Philips CD-i Mini",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "CD-i Emulator"
+	},
+	{
+		"system": "Panasonic Jungle",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "VTech Socrates",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "VTech PreComputer 1000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "LeapFrog My Own Leaptop",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "LeapFrog ClickStart",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Kiddie Computers (80s-90s)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS (varies)"
+	},
+	{
+		"system": "Funkey S",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native Linux (no emulation)"
+	},
+	{
+		"system": "RG351P",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Runs RetroArch/Linux natively"
+	},
+	{
+		"system": "RG552",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Runs RetroArch/Linux natively"
+	},
+	{
+		"system": "Trimui Model S",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Custom Linux-based emulators"
+	},
+	{
+		"system": "Tetris Jr. (LCD handheld)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "LCD simulation (experimental)"
+	},
+	{
+		"system": "Game Wizard",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Konami Picno",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "VTech Power Pad",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS (unconfirmed)"
+	},
+	{
+		"system": "LeapFrog LeapPad3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "LeapFrog RockIt Twist",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Playaway Launchpad",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator (custom Android fork)"
+	},
+	{
+		"system": "Netflix Bandersnatch",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Interactive video (not emulatable)"
+	},
+	{
+		"system": "GameKey Compatible TV Plug and Play",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No universal emulator"
+	},
+	{
+		"system": "Fisher-Price Smart Cycle",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "VTech MobiGo 2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Plug It In & Play TV Games (Jakks Pacific)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Device-specific emulation"
+	},
+	{
+		"system": "Samsung Smart TV Games",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Runs HTML5/Android games"
+	},
+	{
+		"system": "LG Smart TV Games",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "OnLive MicroConsole",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (streaming)"
+	},
+	{
+		"system": "GameTree TV",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Smart TV platform, no emulator"
+	},
+	{
+		"system": "Game Wave Family Entertainment System",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS (partial)"
+	},
+	{
+		"system": "Neo Geo X",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Linux emulator frontend"
+	},
+	{
+		"system": "Hyper Neo Geo 64",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No working emulator"
+	},
+	{
+		"system": "Netflix Trivia Quest",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Interactive video (non-emulatable)"
+	},
+	{
+		"system": "Ouya 2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android-based"
+	},
+	{
+		"system": "Mi Box Games",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android games"
+	},
+	{
+		"system": "Nokia N-Gage QD",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "EKA2L1"
+	},
+	{
+		"system": "Benesse Pocket Challenge V2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Tamagotchi Game Boy",
+		"retroarch_core": "Gambatte",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Hasbro VideoNow",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Custom video emulation"
+	},
+	{
+		"system": "WowWee Rovio Game Mode",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (hardware robot)"
+	},
+	{
+		"system": "Bauhn GameBox (Aldi)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android fork"
+	},
+	{
+		"system": "Mini PC Console Emulators (AliExpress)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Linux/RetroArch based"
+	},
+	{
+		"system": "Aigo Patriot GP300",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native Linux emulators"
+	},
+	{
+		"system": "GameShell by ClockworkPi",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Linux + RetroArch"
+	},
+	{
+		"system": "GPD Win Max",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native PC"
+	},
+	{
+		"system": "Tegra Note 7",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "DragonBox Pyra",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Linux RetroArch"
+	},
+	{
+		"system": "Analogue Duo",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "FPGA system"
+	},
+	{
+		"system": "Retroid Pocket 3+",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android-based emulators"
+	},
+	{
+		"system": "Game Kiddy G5",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Custom Linux"
+	},
+	{
+		"system": "Lenovo Legion Go",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native PC OS (Windows/Linux)"
+	},
+	{
+		"system": "ASUS ROG Ally",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native PC OS (Windows)"
+	},
+	{
+		"system": "Ayn Loki",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native PC OS"
+	},
+	{
+		"system": "Ayn Odin",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android"
+	},
+	{
+		"system": "AYN Odin 2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android"
+	},
+	{
+		"system": "AYN Loki Max",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows"
+	},
+	{
+		"system": "Logitech G Cloud",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android"
+	},
+	{
+		"system": "Abandonware DOS PC",
+		"retroarch_core": "DOSBox-Pure",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Interactive VCR Games (e.g. Captain Power)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Video playback (non-emulatable)"
+	},
+	{
+		"system": "Jakks Pacific Motion Games",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Nuby Personal Arcade",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Runs NES-on-a-chip"
+	},
+	{
+		"system": "TV Boy",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Atari 2600-on-a-chip (Stella compatible)"
+	},
+	{
+		"system": "Mattel Juice Box",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator (multimedia player)"
+	},
+	{
+		"system": "VTech Whiz Kid",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Kurio Smart",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows-based tablet"
+	},
+	{
+		"system": "Kurio Tab",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android"
+	},
+	{
+		"system": "LeapFrog Epic",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android (locked down)"
+	},
+	{
+		"system": "Mochi Robot",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Non-digital (physical/educational toy)"
+	},
+	{
+		"system": "Sifteo Cubes",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Fujitsu FM-11",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Fujitsu FM-8",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Tomy Bit Char-G",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulation – RC car with game-like features"
+	},
+	{
+		"system": "Honda Internavi Navigation Console",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Hitachi Basic Master Level 3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Panasonic JR-200",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "National JR-100",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Sharp MZ-80A",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS / EmuZ-80"
+	},
+	{
+		"system": "Casio PB-1000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "IBM 3270 terminal",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH (partial)"
+	},
+	{
+		"system": "Digital VT320",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "Digital VT420",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "Altair 8800c",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "MSX-DOS (Operating System)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Gamate Color",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Nintendo 64 iQue Version",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Custom iQue emulator"
+	},
+	{
+		"system": "Amiga CDXL Movies",
+		"retroarch_core": "PUAE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Apple IIc Plus",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "AppleWin"
+	},
+	{
+		"system": "Apple IIgs",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "GSplus"
+	},
+	{
+		"system": "Apple III",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS (partial)"
+	},
+	{
+		"system": "Altair 8800 clone (IMSAI 8080 variant)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH / AltairZ80"
+	},
+	{
+		"system": "National PC-8001",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "National PC-6001",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "SEGA SC-3000H",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS / Genesis Plus GX (partial)"
+	},
+	{
+		"system": "Television Tennis (early 70s Pong clone)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Discrete Pong emulator in MAME"
+	},
+	{
+		"system": "Coleco Tabletop Arcade Games",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME experimental drivers"
+	},
+	{
+		"system": "Munchman Jr. (Tomy handheld)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "LCD simulator"
+	},
+	{
+		"system": "Apogee BK-01",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Intel 8080 Evaluation Board",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH / Emulator101"
+	},
+	{
+		"system": "Cromemco Z-2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "Heathkit H89",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "Netronics ELF II",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "TinyELF"
+	},
+	{
+		"system": "VIPER (Vanderbilt Instructional Personal Educational Resource)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Custom simulators"
+	},
+	{
+		"system": "Elektor SC/MP Emulator",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH or custom"
+	},
+	{
+		"system": "Homelab-3 (Microkey Primo)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Hungarian HT-1080Z",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "EmuZ-80 (fork)"
+	},
+	{
+		"system": "ZX Spectrum Clone – Pentagon",
+		"retroarch_core": "Fuse",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "ZX Spectrum Clone – Scorpion",
+		"retroarch_core": "Fuse",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "ZX Spectrum Clone – Profi",
+		"retroarch_core": "Fuse",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Timex Sinclair 2068",
+		"retroarch_core": "Fuse",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Compukit UK101",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Philips VG-8020 (MSX)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Zenith Z-89",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "Sanyo PHC-25",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Philips P2000M",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Canon V-20 (MSX)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Olivetti Prodest PC128",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VICE (C128 mode)"
+	},
+	{
+		"system": "Acorn System 1",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Panasonic FS-A1WX (MSX2+)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Canon X-07",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Canon emulator (experimental)"
+	},
+	{
+		"system": "Casio FX-702P",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Virtual calculators"
+	},
+	{
+		"system": "National JR-200U",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Matsushita JR Series",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "BBC Micro Model B+",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "BeebEm"
+	},
+	{
+		"system": "BBC Master Compact",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "BeebEm"
+	},
+	{
+		"system": "Enterprise 64 (Hungarian Home Computer)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "EP128Emu"
+	},
+	{
+		"system": "Dragon 200",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "XRoar"
+	},
+	{
+		"system": "Dragon MSX Clone",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Laser 3000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "SEGA AI Computer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS (early)"
+	},
+	{
+		"system": "Hitachi MB-H2",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Bondwell 2 (CP/M portable)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH CP/M"
+	},
+	{
+		"system": "Cambridge Z88",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "OZvm"
+	},
+	{
+		"system": "Pravetz 8M",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Apple II emulator (partial)"
+	},
+	{
+		"system": "Izot 1030 (Bulgarian Apple II Clone)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "AppleWin"
+	},
+	{
+		"system": "Vector-06c (Soviet home computer)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Emu80"
+	},
+	{
+		"system": "Agat-7",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS (partial)"
+	},
+	{
+		"system": "Galeb (Yugoslav 8-bit computer)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "ORAO (Yugoslav computer)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Robby (East German school computer)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "KCEmu fork"
+	},
+	{
+		"system": "ETL 2440 (East German lab computer)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH / Custom"
+	},
+	{
+		"system": "BASIC Engine (open source computer)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Emulator provided by BASIC Engine GitHub"
+	},
+	{
+		"system": "Uzebox Clone (e.g., Fuzebox)",
+		"retroarch_core": "UZebox",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Minimig (Amiga FPGA)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Hardware core – no emulation"
+	},
+	{
+		"system": "SiDi FPGA System",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "FPGA-based cores only"
+	},
+	{
+		"system": "ZX Spectrum Next",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "CSpect"
+	},
+	{
+		"system": "MSXVR",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Hardware MSX2+/Turbo-R clone"
+	},
+	{
+		"system": "Bangle.js Smartwatch",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Espruino JS VM"
+	},
+	{
+		"system": "Sharp MZ-700",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "EmuZ-700"
+	},
+	{
+		"system": "Sharp MZ-800",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS / EmuZ-800"
+	},
+	{
+		"system": "Sharp MZ-1500",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS / EmuZ-1500"
+	},
+	{
+		"system": "Tatung TW-120",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Tatung emulator (custom)"
+	},
+	{
+		"system": "Telmac 1800",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Emma 02"
+	},
+	{
+		"system": "Elektor Junior Computer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS / SimH"
+	},
+	{
+		"system": "COSMAC ELF",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "TinyELF"
+	},
+	{
+		"system": "Philips VG-8235 (MSX2)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Canon V-10 (MSX)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sanyo MPC-100 (MSX)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sony Hit-Bit HB-75",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "National CF-3300 (MSX)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Toshiba HX-10 (MSX)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Yamaha YIS-503 (MSX)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "JVC HC-7GB (MSX)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Spectravideo SV-328MKII",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "blueMSX"
+	},
+	{
+		"system": "Commodore MAX Machine",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VICE"
+	},
+	{
+		"system": "Commodore 116",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VICE"
+	},
+	{
+		"system": "Commodore 232",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VICE"
+	},
+	{
+		"system": "Commodore 264",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VICE"
+	},
+	{
+		"system": "Commodore 16 (PAL variant)",
+		"retroarch_core": "VICE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore Educator 64",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VICE"
+	},
+	{
+		"system": "Commodore 610 (C64 clone)",
+		"retroarch_core": "VICE",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore C65",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "XEMU"
+	},
+	{
+		"system": "Sirius 1 (Victor 9000)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Luxor ABC 800",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "ABC80Sim / MESS"
+	},
+	{
+		"system": "Luxor ABC 1600",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Altos ACS-8000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "Osborne 1",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS / CP/M Sim"
+	},
+	{
+		"system": "Kaypro 10",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH / MESS"
+	},
+	{
+		"system": "Dynalogic Hyperion",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DOSBox"
+	},
+	{
+		"system": "Sord M23",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "NCR Decision Mate V",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH / DOSBox (partial)"
+	},
+	{
+		"system": "Panasonic FS-A1F (MSX2)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Aleste 520EX",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Z80-based emulator (partial)"
+	},
+	{
+		"system": "ZX-Uno (FPGA Spectrum clone)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Runs Fuse-compatible cores"
+	},
+	{
+		"system": "Samurai (Russian ZX clone)",
+		"retroarch_core": "Fuse",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Leningrad-1",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Z80 emulators (custom builds)"
+	},
+	{
+		"system": "Orion-128",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Emu80"
+	},
+	{
+		"system": "Dubna 48K",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Fuse (partial)"
+	},
+	{
+		"system": "ZX Evolution",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "FPGA, not emulated"
+	},
+	{
+		"system": "Vector-06C DIY Variant",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS / Emu80 (with modifications)"
+	},
+	{
+		"system": "Corvus Concept",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Exidy Max-A-Flex",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME (arcade)"
+	},
+	{
+		"system": "VTech Genius Leader 8000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Interton Video Computer 4000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Roland Sound Canvas SC-55 (MIDI module)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VirtualMIDISynth / FluidSynth"
+	},
+	{
+		"system": "Yamaha MU90r (MIDI module)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MIDI emulation (software synthesizers)"
+	},
+	{
+		"system": "Korg M1",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Korg Legacy Collection"
+	},
+	{
+		"system": "Yamaha CX5M (MSX-based music computer)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Toshiba Pasopia IQ",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Thomson TO7/70",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DCMOTO"
+	},
+	{
+		"system": "Minsk-32 (Soviet mainframe)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "VAXstation 3100",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "DECstation 5000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "GXemul"
+	},
+	{
+		"system": "IBM System/370",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Hercules mainframe emulator"
+	},
+	{
+		"system": "IBM System/36",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator (business mainframe)"
+	},
+	{
+		"system": "IBM 1401",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH (partial)"
+	},
+	{
+		"system": "Philips Tele-Spiel ES 2201",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME (experimental)"
+	},
+	{
+		"system": "Pecom 64",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Matra Alice",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DCMOTO / MESS"
+	},
+	{
+		"system": "EACA EG2000 Colour Genie",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS / XRoar (partial)"
+	},
+	{
+		"system": "Exatron Stringy Floppy (peripheral)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Simulated in MESS for TRS-80"
+	},
+	{
+		"system": "Robotron A 5120",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS (experimental)"
+	},
+	{
+		"system": "Toshiba T3100",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DOSBox"
+	},
+	{
+		"system": "Amstrad PPC640",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DOSBox"
+	},
+	{
+		"system": "DEC Rainbow 100+",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "RC2014 (Z80 hobbyist computer)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH Z80 (unofficial forks)"
+	},
+	{
+		"system": "TRS-80 Pocket Computer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Virtual scientific calculator"
+	},
+	{
+		"system": "Archos GamePad",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "iReady Personal Tutor",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (educational Android)"
+	},
+	{
+		"system": "LeapFrog LeapPad Ultra",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "ViewSonic ViewPad 7e",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "Kurzweil K2000 (synthesizer)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "VST emulation only"
+	},
+	{
+		"system": "Texas Instruments Speak & Spell",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME (experimental driver)"
+	},
+	{
+		"system": "VTech Alphabet Apple",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "LeapFrog Tag Reading System",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "USB reader tool (not emulatable)"
+	},
+	{
+		"system": "Speak & Math",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME (TI speech driver)"
+	},
+	{
+		"system": "LeapPad2 Explorer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Canon Cat (word processor)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "IBM PC Convertible (5155)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DOSBox"
+	},
+	{
+		"system": "IBM PS/2 Model 30",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DOSBox (partial)"
+	},
+	{
+		"system": "DEC VT240",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH (terminal)"
+	},
+	{
+		"system": "DEC VAX 11/780",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "DEC PDP-15",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH (early support)"
+	},
+	{
+		"system": "NCR 53C90 (SCSI emulator)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "QEMU device emulation"
+	},
+	{
+		"system": "Ricoh 2A03 Sound Emulator",
+		"retroarch_core": "FCEUmm",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "TurboK3 (Russian Z80 clone)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Z80 sim (custom)"
+	},
+	{
+		"system": "Elwro 800 Junior",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "BBC Micro FPGA",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Hardware – not emulated"
+	},
+	{
+		"system": "DEC VT05",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH (partial terminal emulation)"
+	},
+	{
+		"system": "NewBrain",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Elektronika MK-90",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Russian emulators (unofficial)"
+	},
+	{
+		"system": "Olivetti M24",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DOSBox (partial)"
+	},
+	{
+		"system": "Laser PC4",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Mera-Elzab Meritum I",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Panasonic CF-2700 (MSX)",
+		"retroarch_core": "blueMSX",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Amstrad NC100",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "NC100 emulator (unofficial)"
+	},
+	{
+		"system": "Amstrad NC200",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "NC200 emulator (unofficial)"
+	},
+	{
+		"system": "Bondwell Model 8",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "CP/M emulator / SimH"
+	},
+	{
+		"system": "Commodore PC-10",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DOSBox"
+	},
+	{
+		"system": "Digital Group Z80",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH (custom builds)"
+	},
+	{
+		"system": "EACA Video Genie",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "XRoar / MESS"
+	},
+	{
+		"system": "Intertec Superbrain",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "CP/M emulator"
+	},
+	{
+		"system": "Kaypro 2X",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH CP/M"
+	},
+	{
+		"system": "LNW-80",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "TRS-80 emulator (custom fork)"
+	},
+	{
+		"system": "Morrow Designs Micro Decision",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "CP/M emulator"
+	},
+	{
+		"system": "Osborne Executive",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "CP/M emulator / SimH"
+	},
+	{
+		"system": "Tandberg TDV-2324 Terminal",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH (partial terminal emulation)"
+	},
+	{
+		"system": "Televideo TS-803",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "CP/M emulator"
+	},
+	{
+		"system": "Vector Graphic Vector 3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH / CP/M"
+	},
+	{
+		"system": "Zilog Z80 Starter Kit",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH / Z80 trainers"
+	},
+	{
+		"system": "WaveMate Bullet",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH / CP/M"
+	},
+	{
+		"system": "DECmate II",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH"
+	},
+	{
+		"system": "MicroBee 128",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Alpha Micro AM-100",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "TRS-80 Model 12",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "TRS-80 emulator (partial)"
+	},
+	{
+		"system": "TRS-80 Model 16B",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "TRS32 (partial)"
+	},
+	{
+		"system": "DEC VT52",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SimH terminal emulation"
+	},
+	{
+		"system": "BeBox (BeOS)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "QEMU (limited support)"
+	},
+	{
+		"system": "Paladin Pad",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "HTC Shift X9500",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native Windows OS"
+	},
+	{
+		"system": "Panasonic Toughbook CF-U1",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows XP emulation"
+	},
+	{
+		"system": "Sony Vaio UX180P",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows XP emulator"
+	},
+	{
+		"system": "HP Jornada 720",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows CE emulator"
+	},
+	{
+		"system": "Sharp Mobilon HC-4500",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows CE / MAME (partial)"
+	},
+	{
+		"system": "Psion Revo",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Psion emulator (unofficial)"
+	},
+	{
+		"system": "Atari Portfolio",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "OQO Model 01+",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native Windows XP / VirtualBox"
+	},
+	{
+		"system": "NEC MobilePro 900",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows CE emulator"
+	},
+	{
+		"system": "HP 200LX",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DOSBox (partial)"
+	},
+	{
+		"system": "Toshiba Libretto 100CT",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows 98 emulator"
+	},
+	{
+		"system": "Fujitsu U820",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Native Windows emulator"
+	},
+	{
+		"system": "Dell Axim X51v",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows Mobile 5 emulator"
+	},
+	{
+		"system": "Palm Tungsten C",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "POSE / StyleTap"
+	},
+	{
+		"system": "Palm Treo 650",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "POSE / StyleTap"
+	},
+	{
+		"system": "Compaq iPAQ h5550",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows Mobile emulator"
+	},
+	{
+		"system": "Yopy Linux PDA",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "QEMU (custom image)"
+	},
+	{
+		"system": "Archos 605 WiFi",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Custom Linux emulator (partial)"
+	},
+	{
+		"system": "Archos GamePad 2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "Samsung Galaxy Player 5.0",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "Creative ZEN Vision:M",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator (media-only)"
+	},
+	{
+		"system": "SanDisk Sansa Fuze",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator (media-only)"
+	},
+	{
+		"system": "iRiver H300 Series",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Rockbox emulator (partial)"
+	},
+	{
+		"system": "Sony NWZ-A17",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Zune 30",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Zune 80",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Zune HD 16/32/64",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Pebble Smartwatch",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (custom RTOS)"
+	},
+	{
+		"system": "Fitbit Versa",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Fitbit Ionic",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Garmin Forerunner 645",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (custom firmware)"
+	},
+	{
+		"system": "Sony SmartWatch 3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator (limited)"
+	},
+	{
+		"system": "LG Watch Urbane",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator (Wear OS)"
+	},
+	{
+		"system": "Moto 360 Gen 2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator (Wear OS)"
+	},
+	{
+		"system": "TicWatch Pro",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator (Wear OS)"
+	},
+	{
+		"system": "Samsung Galaxy Watch (Tizen)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Tizen emulator"
+	},
+	{
+		"system": "Samsung Galaxy Watch4",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Nubia RedMagic Watch",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Casio Pro Trek Smart",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Asus ZenWatch 2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Fossil Gen 5",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Misfit Vapor",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Skagen Falster 3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Mobvoi TicWatch C2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Polar M600",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Sony Ericsson LiveView",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (custom BT interface)"
+	},
+	{
+		"system": "Alcatel OneTouch Watch",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (custom firmware)"
+	},
+	{
+		"system": "Omate TrueSmart",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "InWatch Z",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "Kospet Prime SE",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "Microwear H1",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "Zeblaze Thor 4",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "LEMFO LEM T",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "KW88 Pro",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "Rogbid Brave",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "LEMFO LEM12 Pro",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulator"
+	},
+	{
+		"system": "TicWatch E3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "TicWatch Pro 3 Ultra",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Garmin Fenix 6",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Suunto 9 Baro",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Huawei Watch GT2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "LiteOS emulator (not public)"
+	},
+	{
+		"system": "Realme Watch 2 Pro",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "BoAt Xtend Smartwatch",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Fire-Boltt Beast",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Noise ColorFit Pro 3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No known emulator"
+	},
+	{
+		"system": "Xiaomi Mi Watch Revolve",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator (partial)"
+	},
+	{
+		"system": "Amazfit GTS",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (RTOS-based)"
+	},
+	{
+		"system": "Amazfit Bip U Pro",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (RTOS-based)"
+	},
+	{
+		"system": "Mobvoi TicWatch GTX",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (custom OS)"
+	},
+	{
+		"system": "Timex Ironman R300",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Fossil Hybrid HR",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (proprietary firmware)"
+	},
+	{
+		"system": "Citizen CZ Smart",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Michael Kors Access Gen 5E",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "TAG Heuer Connected Modular 45",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Montblanc Summit 2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Emporio Armani Smartwatch 3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Diesel On Axial",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "Skagen Jorn Hybrid HR",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (hybrid firmware)"
+	},
+	{
+		"system": "TCL MOVETIME",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Matrix PowerWatch",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (RTOS-based)"
+	},
+	{
+		"system": "Withings Steel HR",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (hybrid firmware)"
+	},
+	{
+		"system": "Misfit Command",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (hybrid firmware)"
+	},
+	{
+		"system": "Gionee Smart Life",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Zebronics Zeb-Fit1220CH",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Hugo Boss Touch",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Wear OS emulator"
+	},
+	{
+		"system": "TomTom Spark 3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator (custom firmware)"
+	},
+	{
+		"system": "Sony SmartBand Talk SWR30",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Fitbit Charge 4",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Fitbit Luxe",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Realme Band",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Honor Band 5",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Xiaomi Mi Band 6",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Huawei Band 6",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "LiteOS emulator (not public)"
+	},
+	{
+		"system": "OnePlus Band",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Noise ColorFit Pulse",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Zeblaze GTR",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Fire-Boltt Ninja",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "boAt Watch Enigma",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Fastrack Reflex Beat+",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Titan Smart 2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Hammer Pulse 3.0",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Gizmore GizFit 910",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Ubon SW-81",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Intex FitRist",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Infinix Xband 3",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Karbonn Smart Band",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Portronics Kronos Beta",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Crossbeats Ignite S5",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Fire-Boltt Phoenix",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Gionee StylFit GSW7",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Helix Smart 2.0",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Bingo T30",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Basic RTOS device, no emulator"
+	},
+	{
+		"system": "NoiseFit Halo",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Xtouch Wave",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Zakk Blaze",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Realme Watch S",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Toreto Bloom 2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "AQFit W15",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Ambrane Wise Eon",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Pebble Cosmos Ultra",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Actrix System 512",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Altair 8800",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SIMH"
+	},
+	{
+		"system": "Amstrad CPC 472",
+		"retroarch_core": "cap32",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Amstrad PCW",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "JOE emulator"
+	},
+	{
+		"system": "APF Imagination Machine",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Applied Technology Microbee",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Atari Falcon",
+		"retroarch_core": "hatari",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Atari Portfolio",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "DosBox"
+	},
+	{
+		"system": "Bandai Datach Joint ROM System",
+		"retroarch_core": "mesen",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Bally Astrocade",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "BBC Bridge Companion",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Camputers Lynx",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Canon Cat",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Commodore PET",
+		"retroarch_core": "vice_xpet",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore Plus/4",
+		"retroarch_core": "vice_xplus4",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore SuperPET",
+		"retroarch_core": "vice_xpet",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "DEC PDP-1",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SIMH"
+	},
+	{
+		"system": "DEC PDP-11",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SIMH"
+	},
+	{
+		"system": "DEC PDP-8",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SIMH"
+	},
+	{
+		"system": "Dragon 64",
+		"retroarch_core": "xroar",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Dynalogic Hyperion",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PCem"
+	},
+	{
+		"system": "EACA Colour Genie",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Epson HX-20",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Epson PX-8",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Exidy Sorcerer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Franklin Ace 1000",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Gavilan SC",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PCem"
+	},
+	{
+		"system": "GRiD Compass",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PCem"
+	},
+	{
+		"system": "Heathkit H89",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SIMH"
+	},
+	{
+		"system": "IMSAI 8080",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SIMH"
+	},
+	{
+		"system": "Intertec Superbrain",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Jupiter Ace",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Ace32"
+	},
+	{
+		"system": "Kaypro II",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "LNW-80",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "xtrs"
+	},
+	{
+		"system": "Luxor ABC 800",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Mattel Aquarius",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "MTX512",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "NEC PC-8801",
+		"retroarch_core": "quasi88",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "NEC PC-6001",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Olivetti M20",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Panasonic JR-200",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Philips P2000T",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Research Machines 380Z",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Sanyo MBC-550",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PCem"
+	},
+	{
+		"system": "Sharp MZ-80K",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Sharp X1",
+		"retroarch_core": "x1",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Siemens PC-D",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PCem"
+	},
+	{
+		"system": "Spectravideo SV-328",
+		"retroarch_core": "bluemsx",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "SWTPC 6800",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SIMH"
+	},
+	{
+		"system": "Tandy 2000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PCem"
+	},
+	{
+		"system": "Tandy TRS-80 Model 100",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "xtrs"
+	},
+	{
+		"system": "Tatung Einstein",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Texas Instruments TI-99/4",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Thomson MO5",
+		"retroarch_core": "theodore",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Thomson TO7",
+		"retroarch_core": "theodore",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Timex Sinclair 2068",
+		"retroarch_core": "fuse",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Toshiba Pasopia",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Vector-06C",
+		"retroarch_core": "81",
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "VTech Laser 200",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "VTech Laser 310",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "VTech PreComputer 1000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "VTech PreComputer 2000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Wang Professional Computer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Xerox 820",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "SIMH"
+	},
+	{
+		"system": "ZX Spectrum Next",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "CSpect"
+	},
+	{
+		"system": "Elwro 800 Junior",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Elektronika BK",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "BKBTL"
+	},
+	{
+		"system": "Apogee BK-01",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "BKBTL"
+	},
+	{
+		"system": "Robotron KC 85",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "KCemu"
+	},
+	{
+		"system": "Juku E5101",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "KCemu"
+	},
+	{
+		"system": "MSX TurboR",
+		"retroarch_core": "bluemsx",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Canon V-20",
+		"retroarch_core": "bluemsx",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Toshiba HX-10",
+		"retroarch_core": "bluemsx",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Yamaha CX5M",
+		"retroarch_core": "bluemsx",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sony HB-F1XD",
+		"retroarch_core": "bluemsx",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sharp X68000 XVI",
+		"retroarch_core": "px68k",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sharp X68030",
+		"retroarch_core": "px68k",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Fujitsu FM-7",
+		"retroarch_core": "quasi88",
+		"core_supported": false,
+		"alternative_emulator": "XM7"
+	},
+	{
+		"system": "Fujitsu FM Towns",
+		"retroarch_core": "tsugaru",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sony SMC-70",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Acorn Atom",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Acorn Electron",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Enterprise 128",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "ep128emu"
+	},
+	{
+		"system": "Oric Atmos",
+		"retroarch_core": "oric",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Pecom 64",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Philips VG 5000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Video Technology Laser 350",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Tiki 100",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Eastern Block PC",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PCem"
+	},
+	{
+		"system": "Jupiter Ace 4000",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Ace32"
+	},
+	{
+		"system": "Holborn 9100",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "None"
+	},
+	{
+		"system": "D4E Multitech MPF-I",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "MicroAce",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "ZX Spectrum emulator"
+	},
+	{
+		"system": "Interton VC 4000",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Acetronic MPU 1000",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Tele-Fever",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "VideoBrain Family Computer",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "APF TV Fun",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "BSS 01",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "KCemu"
+	},
+	{
+		"system": "Bandai Design Master Denshi Mangajuku",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Bandai Playdia",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Bandai Super Vision 8000",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Casio PV-1000",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Casio PV-2000",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Creatronic Mega Duck",
+		"retroarch_core": "sameboy",
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Epoch Game Pocket Computer",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Epoch Super Cassette Vision",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Gamate",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Hartung Game Master",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "LeapFrog Leapster",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "LeapFrog LeapPad",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "LeapFrog Didj",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Mattel Hyperscan",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Mega Duck/Cougar Boy",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Nintendo Color TV-Game",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Nintendo Pokémon Mini",
+		"retroarch_core": "pokemini",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "PC-FX GA (Graphics Accelerator)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "RCA Studio II",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "RZone",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Sega Beena",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Sega Advanced Pico BEENA",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Sega Pico",
+		"retroarch_core": "pico",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sega SG-1000 II",
+		"retroarch_core": "gearcoleco",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Supervision",
+		"retroarch_core": "potator",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "TIGER game.com",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "TIGER R-Zone",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Tomy Pyuuta",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Tomy Tutor",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "VTech CreatiVision",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Watara Supervision",
+		"retroarch_core": "potator",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Bandai WonderSwan",
+		"retroarch_core": "mednafen_wswan",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Bandai WonderSwan Color",
+		"retroarch_core": "mednafen_wswan",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nokia N-Gage",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "EKA2L1"
+	},
+	{
+		"system": "EPOC32 / Symbian OS",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "EKA2L1"
+	},
+	{
+		"system": "Palm OS",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "StyleTap"
+	},
+	{
+		"system": "Windows CE",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "QEMU"
+	},
+	{
+		"system": "iPod Click Wheel Games",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "None"
+	},
+	{
+		"system": "Apple Pippin",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Casio Loopy",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Konami Picno",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "VTech V.Smile",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "LeapFrog LeapTV",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Mattel Juice Box",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Digital Keystone RePlay TV",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "None"
+	},
+	{
+		"system": "Philips CD-i",
+		"retroarch_core": "cdimono1",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Tandy Memorex VIS",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Commodore CDTV",
+		"retroarch_core": "puae",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Commodore CD32",
+		"retroarch_core": "puae",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sony PSX DVR",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Panasonic 3DO M2 (cancelled)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Gizmondo",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Tapwave Zodiac",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "StyleTap"
+	},
+	{
+		"system": "GamePark GP32",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "GeePee32"
+	},
+	{
+		"system": "GamePark GP2X",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "GamePark Wiz",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "GamePark Caanoo",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Pandora",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Pyra",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "No emulator"
+	},
+	{
+		"system": "Smach Z",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows PC"
+	},
+	{
+		"system": "Ouya",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulation"
+	},
+	{
+		"system": "NVIDIA Shield",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulation"
+	},
+	{
+		"system": "Steam Machine",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PC"
+	},
+	{
+		"system": "Steam Deck",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "PC"
+	},
+	{
+		"system": "Playdate",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Playdate SDK"
+	},
+	{
+		"system": "Analogue Pocket",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "FPGA (native)"
+	},
+	{
+		"system": "Analogue Nt Mini",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "FPGA (native)"
+	},
+	{
+		"system": "Evercade",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "None"
+	},
+	{
+		"system": "Polymega",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Hybrid FPGA + emulation"
+	},
+	{
+		"system": "Anbernic RG351P",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Linux emulation stack"
+	},
+	{
+		"system": "Anbernic RG552",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Linux emulation stack"
+	},
+	{
+		"system": "Miyoo Mini",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Linux emulation stack"
+	},
+	{
+		"system": "Powkiddy RGB20S",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Linux emulation stack"
+	},
+	{
+		"system": "Ambernic RG35XX",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Linux emulation stack"
+	},
+	{
+		"system": "Retroid Pocket 2+",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulation stack"
+	},
+	{
+		"system": "Retroid Pocket 3+",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulation stack"
+	},
+	{
+		"system": "Logitech G Cloud",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulation stack"
+	},
+	{
+		"system": "Ayn Odin",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulation stack"
+	},
+	{
+		"system": "AYN Loki",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows PC"
+	},
+	{
+		"system": "GPD Win 2",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows PC"
+	},
+	{
+		"system": "GPD Win Max",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows PC"
+	},
+	{
+		"system": "ONEXPLAYER",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows PC"
+	},
+	{
+		"system": "AYN Loki Zero",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows PC"
+	},
+	{
+		"system": "GPD XD Plus",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Android emulation"
+	},
+	{
+		"system": "Nintendo Switch (homebrew)",
+		"retroarch_core": "various (libnx)",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "PS Vita (homebrew)",
+		"retroarch_core": "various (vita)",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "PSP (homebrew)",
+		"retroarch_core": "various (psp)",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "PS3 (homebrew)",
+		"retroarch_core": "various (ps3)",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Xbox (homebrew)",
+		"retroarch_core": "various (xbox1)",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Xbox 360 (homebrew)",
+		"retroarch_core": "various (xbox360)",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Xbox One (dev mode)",
+		"retroarch_core": "various (uwp)",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "PlayStation 4 (jailbroken)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Not yet stable"
+	},
+	{
+		"system": "PlayStation 5 (jailbroken)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Not yet stable"
+	},
+	{
+		"system": "Nintendo 64DD",
+		"retroarch_core": "parallel_n64",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo Satellaview",
+		"retroarch_core": "bsnes",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo Famicom Disk System",
+		"retroarch_core": "nestopia",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Nintendo Super Famicom Box",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Sega Mega Play",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sega Mega-Tech",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Namco System 22",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Capcom CPS Changer",
+		"retroarch_core": "fbneo",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Arcade (Taito Type X)",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Windows PC"
+	},
+	{
+		"system": "Exa-Arcadia",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "None (modern arcade)"
+	},
+	{
+		"system": "PC Engine LT",
+		"retroarch_core": "mednafen_pce",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "PC Engine SuperGrafx",
+		"retroarch_core": "mednafen_supergrafx",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Amstrad GX4000",
+		"retroarch_core": "caprice32",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Enterprise 128",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "ep128emu"
+	},
+	{
+		"system": "Philips Videopac+ G7400",
+		"retroarch_core": "o2em",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "ITT 2020 (Apple II clone)",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "MSX Turbo-R",
+		"retroarch_core": "bluemsx",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Sharp MZ Series",
+		"retroarch_core": "mame",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Spectravideo SV-328",
+		"retroarch_core": "bluemsx",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Tomy Tutor Jr.",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MAME"
+	},
+	{
+		"system": "Camputers Lynx",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "SAM Coupé",
+		"retroarch_core": "fuse",
+		"core_supported": true,
+		"alternative_emulator": null
+	},
+	{
+		"system": "Oric Atmos",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "Oricutron"
+	},
+	{
+		"system": "Laser 200/310",
+		"retroarch_core": null,
+		"core_supported": false,
+		"alternative_emulator": "MESS"
+	},
+	{
+		"system": "Microdigital TK90X",
+		"retroarch_core": "fuse",
+		"core_supported": true,
+		"alternative_emulator": null
+	}
+]

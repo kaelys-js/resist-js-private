@@ -1,0 +1,8 @@
+services:
+  game-session-x86_64:
+    <<: *game-common
+    container_name: "${PRODUCT}-game-session-x86_64-${ENV}"
+    devices:
+      - /dev/dri
+    profiles:
+      - x86_64

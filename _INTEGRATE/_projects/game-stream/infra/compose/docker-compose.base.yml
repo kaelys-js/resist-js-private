@@ -1,0 +1,10 @@
+version: '3.8'
+
+networks:
+  gamenet:
+    driver: bridge
+
+volumes:
+  audio-socket:
+  video-socket:
+  game-session-socket:

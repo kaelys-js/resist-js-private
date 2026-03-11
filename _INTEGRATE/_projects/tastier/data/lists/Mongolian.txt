@@ -1,0 +1,2615 @@
+Buuz (Steamed Meat Dumplings)
+Khuushuur (Fried Meat Pockets)
+Tsuivan (Stir-Fried Noodle with Meat)
+Bantan (Flour Drop Soup with Meat Broth)
+Khorkhog (Mongolian Stone-Grilled Lamb)
+Boodog (Whole Goat Cooked with Hot Stones)
+Guriltai Shul (Noodle Soup with Mutton)
+Aaruul (Dried Curd Snacks)
+Chanasan Makh (Boiled Mutton with Fat)
+Tsuivan with Camel Meat
+Khuushuur with Yak Meat
+Sheep’s Head Feast
+Ul Boov (Festive Layered Biscuits)
+Suutei Tsai (Milk Tea with Salt)
+Airag (Fermented Mare’s Milk Beverage)
+Boortsog (Fried Dough Biscuits)
+Shar Tos (Clarified Butter Sauce)
+Eezgii (Roasted Curds)
+Uuz (Steamed Sheep Back)
+Tavan Bogd Banquet Platter
+Milk Skin Layered Cake
+Goat Tripe Stew
+Camel Milk Cream with Boortsog
+Yak Butter Milk Tea
+Lamb Fat Dumplings
+Fermented Camel Milk Jelly
+Boiled Yak Rib Cuts
+Steamed Suutei Khorkhog
+Goat Blood Sausage Soup
+Wheat Porridge with Salted Milk
+Mutton Khorkhog with Root Vegetables
+Mongolian Barbecue (Hotplate Stir-Fry)
+Barbagh (Baked Flatbread with Butter)
+Yogurt Cream Dumplings
+Horse Meat Tartare
+Goat Milk Paneer Dumplings
+Spiced Tallow-Fried Liver
+Fermented Milk Curd Fritters
+Caramelized Yak Milk Squares
+Sweetened Clotted Cream Layers
+Steamed Sheep Intestine Rolls
+Milk Curd Layer Cake
+Wild Onion and Mutton Noodles
+Winter Meat Jelly with Garlic
+Salted Cheese Pancakes
+Clay-Pot Steamed Khorkhog
+Baked Mutton Pie with Lard Crust
+Foal Meat with Rice Dumplings
+Horse Rib Stew
+Aaruul Crumble Porridge
+Curd-Crusted Lamb Shank
+Spiced Mongolian Organ Sausage
+Lamb Suutei Tsai Stew
+Airag Highball (Fermented Mare’s Milk Highball)
+Chigirtai Tsai Cooler (Salted Milk Tea Mocktail)
+Suutei Tsai Spritz (Sparkling Milk Tea Mocktail)
+Airag Sour (Fermented Mare’s Milk Sour)
+Yak Milk and Honey Fizz
+Chagaan Idea (White Drink Cocktail)
+Baruun Milk Toddy (Western Mongolian Hot Milk Punch)
+Fermented Milk and Sea Buckthorn Cooler
+Sea Buckthorn Sparkler
+Salted Yak Milk Lassi (Savory Milk Mocktail)
+Mongol Snowcap (Milk and Vodka Dessert Cocktail)
+Steamed Milk and Ginger Elixir
+Mongolian Butter Tea Grog
+Frozen Airag Daiquiri
+Wild Rhubarb Shrub and Milk Punch
+Mongolian Milk Mead Flip
+Milk and Pine Syrup Spritz
+Iced Suutei Tsai with Clove Foam
+Chinggis Gold (Yak Milk and Brandy Cocktail)
+Cedar Smoked Milk Old Fashioned
+Boortsog (Fried Dough Breakfast Pastry)
+Gambir (Mongolian Pancakes)
+Budaatai Khuurga (Fried Rice Breakfast)
+Khar Shöl (Lamb Bone Broth Breakfast Soup)
+Aaruul (Dried Curd with Tea)
+Suutei Tsai (Milk Tea Breakfast)
+Tsuivan (Breakfast Noodle Stir-Fry)
+Bansh (Boiled Dumplings in Broth)
+Guriltai Shöl (Noodle Soup with Meat)
+Byatsaakh Makh (Cold Boiled Meat Breakfast)
+Uuts (Boiled Sheep Back Breakfast)
+Eezgii (Clarified Curd Snack)
+Khailmag (Fried Clotted Cream with Flour)
+Shar Tos (Yellow Rendered Butter Breakfast Spread)
+Savory Khuushuur (Fried Meat Pastry Breakfast)
+Breakfast Khorkhog (Morning Stone-Cooked Lamb)
+Chalcha (Fried Blood and Offal Breakfast)
+Bantan (Meat Flour Porridge)
+Breakfast Tsuivan with Aaruul
+Tömör Shaazgai (Cast-Iron Seared Mutton Strips)
+Bansh (Boiled Meat Dumplings)
+Buuz (Steamed Meat Dumplings)
+Khuushuur (Fried Meat Pies)
+Tsuivan (Stir-Fried Noodles with Meat and Vegetables)
+Bantan (Flour Soup with Minced Meat)
+Khorkhog (Stone-Grilled Mutton)
+Guriltai Shul (Noodle Soup with Meat)
+Mongol Talh (Mongolian Bread with Savory Toppings)
+Sharvin (Pan-Fried Pancake with Fillings)
+Korkhoi Makhr (Hand-Pulled Noodles with Meat Sauce)
+Mongolian Barbecue (Griddle-Fried Meat and Vegetables)
+Chanasan Makh (Boiled Mutton with Root Vegetables)
+Boortsog (Fried Dough with Savory Fillings)
+Mongolian Beef (Wok-Seared Sliced Beef with Garlic Sauce)
+Mongolian Lamb Stir-Fry (Spiced Lamb with Vegetables)
+Ul Boov Stack (Layered Hard Cake with Cream and Savory Layers)
+Boodog (Whole Goat Cooked with Hot Stones)
+Eezgii (Dried Milk Curd Snack with Meat)
+Aaruul Lunch Platter (Dried Curd with Savory Additions)
+Tavan Nuden (Five-Eye Dumpling Arrangement)
+Mongolian Lunch Tray (Assorted Hot Dishes with Rice and Soup)
+Tsuivan with Horse Meat (Stir-Fried Horse Meat Noodles)
+Goat Intestine Soup (Organ Meat Stew with Root Vegetables)
+Yak Milk Noodle Soup (Creamy Soup with Noodles and Meat)
+Camel Meat Cutlets (Pan-Seared Camel Mince Patties)
+Khar Shul (Dark Broth with Lamb Bones and Herbs)
+Milk Tea Lunch Set (Suutei Tsai with Meat Bites and Bread)
+Steamed Rice with Camel Jerky (Savory Rice and Dried Meat)
+Barbecue Skewered Mutton (Grilled Marinated Lamb Skewers)
+Spicy Tsuivan (Chili-Spiked Noodles with Beef and Onion)
+Fried Rice with Goat Sausage (Rice Tossed with Ulaan Makh)
+Horse Jerky and Flatbread (Dried Horse Meat with Talh)
+Lamb Bone Broth and Dumpling Combo (Lunch Set Special)
+Mongolian Mixed Grill (Assorted Meats with Root Vegetables)
+Mountain Forager’s Platter (Wild Greens, Mutton, Bread)
+Oat Gruel with Savory Toppings (Guril Zutan with Lamb)
+Buckwheat Flatbread Wraps (Savory Meat-Filled Blini)
+Air-Dried Meat Platter (Assorted Jerky with Accompaniments)
+Fried Dough Pockets with Yak Cheese and Herbs
+Goat Blood Sausage with Potato Flatbread
+Bulgur Stew with Organ Meats and Root Vegetables
+Stuffed Yak Tripe with Noodles and Egg
+Steamed Millet with Lamb Fat Drizzle
+Chopped Camel Stir-Fry with Barley Bread
+Charcoal Lamb Rib Cutlets with Savory Porridge
+Barley Noodle Soup with Wild Game Stock
+Creamed Horse Meat Stew with Caramelized Onions
+Pressed Meat Cake with Fermented Grain Dressing
+Smoked Goat Loin with Mountain Greens on Flatbread
+Bansh (Mongolian Dumpling Soup)
+Khuushuur (Fried Meat Pastries)
+Buuz (Steamed Meat Dumplings)
+Guriltai Shul (Mongolian Noodle Soup)
+Tsuivan (Stir-Fried Noodles with Meat)
+Boortsog (Fried Dough Biscuits)
+Aaruul (Dried Curd Snack)
+Byaslag (Homemade Mongolian Cheese)
+Tarag (Fermented Mongolian Yogurt)
+Khailmag (Mongolian Clotted Cream)
+Tsagaan Idee (White Food Platter)
+Uuts (Steamed Sheep Back)
+Suutei Tsai (Milk Tea with Salt)
+Eezgii (Milk-Curd Granules)
+Shar Tos (Clarified Yellow Butter)
+Airag (Fermented Mare’s Milk)
+Zoologiin Khool (Soft Morning Porridge)
+Nogoon Tsai (Green Tea with Cream)
+Shul (Morning Bone Broth)
+Uujin Tsai (Guest Milk Tea)
+Shimiin Arkhi (Milk-Based Spirit)
+Khailuun Khool (Hearty Hot Brunch Plate)
+Tsuivan with Horsemeat (Horsemeat Noodle Stir Fry)
+Baursak (Fried Yeast Dough Bites)
+Bantan (Flour and Meat Soup)
+Eezgiin Khool (Brunch with Eezgii and Jam)
+Boortsog with Jam (Fried Dough with Jam)
+Khar Shul (Black Soup with Blood Sausage)
+Javkhlan Shul (Weekend Festival Soup)
+Boodog-Style Egg Scramble (Stuffed Brunch Style Egg)
+Uurag Khool (Mare’s Milk Morning Stew)
+Dundad Tsai (Midday Brunch Tea with Snacks)
+Khar Tokhoi Khool (Black Elbow Style Brunch Plate)
+Tosny Khool (Butter-Rich Brunch Bowl)
+Tsagaan Khool (White Brunch Spread)
+Buuz (Steamed Meat Dumplings)
+Khuushuur (Fried Meat Pockets)
+Bansh (Boiled Dumplings)
+Tsuivan (Stir-Fried Noodle with Meat)
+Guriltai Shul (Noodle Soup with Meat)
+Boodog (Whole Goat Cooked with Hot Stones)
+Khorkhog (Lamb Cooked with Hot Stones)
+Chanasan Makh (Boiled Meat with Vegetables)
+Bantan (Flour and Meat Porridge)
+Uuts (Steamed Sheep Back for Festive Occasions)
+Shar Tsai (Mongolian Milk Tea with Fat and Dumplings)
+Tarag Khorloo (Fried Yogurt-Curd with Meat)
+Budaatai Khuurga (Fried Rice with Meat)
+Nogoon Salat (Mongolian Potato and Vegetable Salad)
+Tsuivan with Horse Meat (Stir-Fried Noodles with Horse Meat)
+Sharsan Bansh (Pan-Fried Dumplings)
+Airag-Tsagaan Idee (Fermented Mare’s Milk with Dairy Side Dishes)
+Zuurmag Khurim (Sour Pancake with Meat Stuffing)
+Lamb Ribs with Garlic and Rock Salt
+Wild Boar Khorkhog (Stone-Cooked Wild Boar)
+Yak Steak with Juniper Reduction
+Grilled Venison with Smoked Stone Salt
+Mutton Spine Broth with Root Vegetables
+Charred Camel Hump with Mountain Herbs
+Boiled Yak Meat with Dried Cheese Garnish
+Steamed Horse Sausage with Sour Cream
+Roasted Lamb with Tallow Glaze
+Fire-Grilled Goat Liver Skewers
+Lamb Brain and Bone Marrow Stew
+Highland Beef Tartare with Sea Buckthorn Emulsion
+Coal-Baked Flatbread with Spiced Mutton
+Barley Porridge with Blood Sausage and Offal
+Nomadic Charcuterie Plate (Dried Meat, Organs, Fat)
+Salt-Baked Mutton Shoulder with Wild Garlic
+Camel Milk Glazed Duck with Buckwheat
+Air-Dried Yak Heart with Hot Pepper Oil
+Steamed Dumplings in Fermented Cream Sauce
+Stone-Cooked Goose with Caramelized Onions
+Pan-Roasted Elk Cutlets with Dairy-Fermented Beet Slaw
+Boortsog (Fried Dough Bread)
+Gambir (Layered Fried Pancake Bread)
+Ul Boov (Traditional Festival Bread)
+Tavan Nuden (Five-Eye Ritual Bread)
+Aaruul Eezgiiin Talh (Hard Curd Bread)
+Sav Khii Talh (Steam-Baked Milk Bread)
+Eezgii Talh (Curd-Cooked Flatbread)
+Talh (Everyday Mongolian Loaf Bread)
+Khar Talh (Black Rye Bread)
+Süütei Talh (Milk Loaf Bread)
+Zairmag Talh (Frozen Milk Bread)
+Nermel Talh (Distilled Whey Bread)
+Bantan Talh (Porridge Dough Bread)
+Byaslag Talh (Cheese Bread)
+Savshaatai Talh (Layered Milk-Flour Bread)
+Airag Talh (Fermented Mare’s Milk Bread)
+Tsuivan Talh (Steamed Dough Strips Bread)
+Nogoon Talh (Herbed Green Bread)
+Tsagaan Talh (White Wheat Bread)
+Bulgur Talh (Cracked Wheat Bread)
+Tarag Talh (Yogurt Bread)
+Khuursh Talh (Charred Pan-Fried Bread)
+Khurim Talh (Wedding Celebration Bread)
+Daatgal Talh (Ritual Insurance Bread)
+Khorkhog Talh (Bread Cooked in Stone Pot)
+Naadam Talh (Festival-Style Flatbread)
+Mongolian Grilled Chicken Skewers
+Mongolian Chicken Stew with Root Vegetables
+Mongolian Hot Pot Chicken
+Mongolian Chicken with Green Onions
+Bantan (Mongolian Chicken Flour Soup)
+Mongolian-Style Fried Chicken
+Horhog-Style Chicken (Mongolian Stone-Cooked Chicken)
+Chicken Khorkhog (Mongolian Steamed Stone Pot Chicken)
+Chicken Buuz (Mongolian Steamed Chicken Dumplings)
+Chicken Khuushuur (Mongolian Fried Chicken Meat Pies)
+Guriltai Shul with Chicken (Mongolian Chicken Noodle Soup)
+Tsuivan with Chicken (Mongolian Chicken Stir-Fried Noodles)
+Tavan Bogd Chicken (Mongolian Five-Spice Chicken)
+Mongolian Chicken with Fermented Cream Sauce
+Chicken with Aaruul Sauce (Mongolian Dry Curd Cheese Sauce)
+Milk-Braised Mongolian Chicken
+Airag-Marinated Chicken (Fermented Mare’s Milk Chicken)
+Chicken with Wild Garlic and Yak Butter
+Smoked Chicken with Juniper and Pine
+Mongolian Campfire-Roasted Chicken
+Boodog-Style Chicken (Chicken Cooked in Its Own Skin with Hot Stones)
+Mongolian Chicken with Buckwheat and Sea Buckthorn
+Mongolian Chicken Stir-Fry with Spring Onions and Egg Noodles
+Mongolian Yakitori Chicken
+Highland Chicken Confit with Fermented Garlic Cream
+Mongolian Chicken with Sheep’s Tail Fat Reduction
+Mongolian Chicken with Barley and Horseradish
+Charred Chicken in Mongolian Black Stone Sauce
+Mongolian Spiced Chicken with Rhubarb Reduction
+Gobi Chicken with Smoked Salt and Fire-Roasted Tomatoes
+Chicken Chanasan Makh (Boiled Mongolian Chicken with Salted Broth)
+Steppe Chicken with Burnt Milk Skin and Onion Ash
+Heritage Chicken in Ayrag and Rhubarb Glaze
+Mongolian Beef (Stir-Fried Beef with Scallions and Garlic)
+Khuushuur (Fried Beef Meat Pies)
+Buuz (Steamed Beef Dumplings)
+Bansh (Boiled Beef Dumplings)
+Tsuivan (Beef Noodle Stir-Fry)
+Khorkhog (Mongolian Fire-Roasted Beef Stew)
+Boortsog with Beef Drippings (Mongolian Fried Dough with Beef Fat)
+Shar Tsai (Beef Tea with Milk and Salt)
+Boodog (Stone-Cooked Whole Goat or Beef with Vegetables)
+Beef Shul (Mongolian Beef Soup)
+Uuts with Beef (Steamed Beef Ribs Feast)
+Grilled Beef Kebabs (Mongolian Style)
+Beef Khorovats (Charcoal-Grilled Mongolian Beef)
+Beef Tsuivan with Hand-Cut Noodles
+Chanasan Makh (Boiled Beef with Bone)
+Beef in Suutei Tsai Broth (Milk Tea Beef Soup)
+Airag-Marinated Beef Jerky (Fermented Mare’s Milk Beef Jerky)
+Beef Org Stew (Offal-Based Mongolian Beef Stew)
+Beef Shashlik with Onions (Mongolian Skewer BBQ)
+Sautéed Beef Liver with Wild Onions (Mongolian Style)
+Khuushuur (Fried Pork Meat Pastry)
+Buuz (Steamed Pork Dumplings)
+Bansh (Boiled Pork Dumplings)
+Tsuivan with Pork (Stir-Fried Noodles with Pork)
+Guriltai Shul with Pork (Noodle Soup with Pork)
+Boodog (Stone-Cooked Whole Pork)
+Khorkhog with Pork (Stone-Cooked Pork Stew)
+Sharsan Gakhai Makh (Pan-Fried Pork)
+Chanakhi Pork (Clay Pot Pork Stew)
+Pork Khar Shul (Clear Pork Bone Broth)
+Pork Khar Makh (Boiled Pork with Vegetables)
+Pork Goulash Mongolian Style
+Pork and Potato Tsuivan (Noodle-Potato-Pork Stir Fry)
+Pork Stew with Turnip and Onion
+Pork Tsuivan with Fermented Vegetables
+Pork Bantan (Thick Soup with Dough and Pork)
+Slow-Roasted Mongolian Pork with Wild Herbs
+Pork Liver Khorhog (Stone-Cooked Pork Offal)
+Pork and Buckwheat Dumpling Stew
+Pork Boodog Sausage-Style Stuffing
+Oven-Baked Pork Khorkhog
+Fermented Pork Blood Sausage
+Pork Lungs with Noodles
+Charred Pork Fatback with Wild Onion
+Sharsan Gakhai Khurga (Fried Pork Offal Platter)
+Pork-Stuffed Horhog Tail Cut
+Smoked Pork Belly in Nomadic Style
+Barbecue Pork Ribs with Wild Juniper
+Pork Uuts (Shoulder Blade Feast Cut)
+Mountain Mushroom and Pork Stir-Fry
+Pork and Rhubarb Leaf Khorkhog
+Chopped Pork Aspic in Winter Gelatin
+Frozen Shaved Pork with Garlic Chives
+Pork and Barley Bone Broth
+Nomadic Pork Hotpot with Bone Marrow
+Roasted Pork Head with Caraway
+Pig’s Feet Soup with Horseradish
+Wild Garlic Pork Rib Stir-Fry
+Pork Shashlik (Skewered Pork)
+Salt-Dried Pork with Juniper Smoke
+Pork Goulash in Fermented Milk Sauce
+Pork-Studded Tsuivan with Preserved Turnip
+Clay-Roasted Pork and Root Vegetables
+Wok-Seared Pork with Onions and Fenugreek
+Horse Fat Fried Pork Loin
+Slow-Cooked Pork Neck with Sea Buckthorn Glaze
+Pork and Radish Dumpling Soup
+Spicy Fried Pork with Wild Chili Peppers
+Three-Day Salted Pork Belly Khorkhog
+Boiled Pork Ear and Liver Platter
+Pork Rib Soup with Fennel and Garlic
+Open-Fire Seared Pork with Birch Smoke
+Crispy Pork Skin with Pickled Garlic Shoots
+Minced Pork and Scallion Porridge
+Pressed Pork Fat Terrine with Juniper Ash
+Fried Pork Dumplings with Rhubarb Vinegar
+Double-Boiled Pork Knuckle with Wild Onion Stock
+Pork Bone Soup with Millet and Ginger
+Charcoal-Roasted Pork Chop with Wild Thyme
+Pork Jerky Marinated in Airag
+Steamed Milkfish with Wild Garlic
+Mongolian Spiced Shrimp with Hot Stone Oil
+Boiled Pike in Savory Milk Broth
+Fire-Roasted Scallops with Garlic Cream Reduction
+Salt-Cured Shrimp with Fermented Milk Drizzle
+Milk-Poached Arctic Char with Steppe Herbs
+Stone-Grilled Shrimp Skewers with Yak Butter Glaze
+Mongolian Fermented Cream Fish Curry
+Hot Pot with River Shrimp and Milk Tallow Base
+Wok-Seared Scallops in Burnt Cream Sauce
+Air-Dried Milkfish with Sheep Cheese Shavings
+Steppe-Style Scallops with Curdled Milk Emulsion
+Shrimp in Smoked Yogurt and Wild Onion Paste
+Stone-Boiled Catfish with Clotted Milk Layer
+Poached Sturgeon in Fermented Cream Broth
+Sour Milk Shrimp with Pickled Garlic Shoots
+Clay-Baked Milkfish in Salt-Crusted Cream Skin
+Mongolian Shrimp and Scallop Dumplings with Milk Glaze
+Griddled Scallops with Buttered Mare’s Milk Reduction
+Fermented Yak Cream Shrimp Pot
+Boortsog (Fried Dough Pastry)
+Uuts Boortsog (Festive Fried Pastry with Sheep Back)
+Khuurshuur Boortsog (Pan-Fried Pastry Dumpling)
+Ul Boov (Sole Shoe Pastry)
+Tos Boortsog (Oil-Fried Pastry)
+Tsagaan Idee Boortsog (Dairy Pastry in White Food Platter)
+Savory Boortsog (Salted Fried Dough Pastry)
+Honey Boortsog (Fried Pastry with Honey Glaze)
+Layered Ul Boov Stack (Festive Layered Sole Pastry Cake)
+Jamsran Boortsog (Twisted Fried Dough Pastry)
+Traditional Wedding Boortsog (Symbolic Celebration Pastry)
+Butter-Dipped Boortsog (Pastry with Clarified Butter)
+Milk Cream Boortsog (Pastry with Clotted Cream Center)
+Festive Pyramid Ul Boov (Layered Sole Pastry Tower)
+Curled Boortsog (Curly Twisted Fried Pastry)
+Sweet Boortsog (Sugar-Dusted Fried Pastry)
+Yumurtai Boortsog (Egg-Enriched Fried Pastry)
+Sütei Boortsog (Milk-Infused Fried Pastry)
+Barimttai Boortsog (Hand-Shaped Fried Pastry)
+Traditional Tsagaan Sar Pastry Stack (New Year Sole Pastry Platter)
+Airag Cream Boortsog (Fermented Mare’s Milk Cream Pastry)
+Aaruul-Topped Boortsog (Fried Pastry with Dried Curd Crumble)
+Khar Boortsog (Dark-Fried Pastry Variant)
+Mini Boortsog Bites (Small-Format Fried Dough Pastries)
+Milk Skin Pastry (Dried Milk Film Pastry)
+Sheep Fat Ul Boov (Rendered Fat Pastry Sole)
+Butter-Stacked Ul Boov (Layered Sole Pastry with Butter)
+Festival Boortsog Garland (Decorative Fried Pastry String)
+Ghee Boortsog (Clarified Butter Fried Pastry)
+Wheat Cream Boortsog (Pastry with Cream of Wheat Filling)
+Crispy Sole Pastry (Crispened Layered Sole Pastry)
+Boortsog (Fried Dough Cake)
+Ul Boov (Ceremonial Layer Cake)
+Byaslagin Bolo (Mongolian Cheese Cake)
+Tarag Cake (Yogurt Cake)
+Aaruul Cake (Dried Curd Cake)
+Guriltai Bolo (Flour-Based Cake)
+Suutei Bolo (Milk Cake)
+Sharsan Bolo (Pan-Fried Cake)
+Chaanachin Bolo (Steamed Sponge Cake)
+Tsamtsganii Bolo (Cream Cake)
+Airag Cake (Fermented Mare’s Milk Cake)
+Tsagaan Idee Cake (White Food Cake)
+Mongol Traditional Wedding Cake
+Dried Curd Layer Cake
+Barley Milk Cake
+Sutai Boortsog (Milk-Fried Dough Cake)
+Buckwheat Honey Cake
+Salted Cheese Butter Cake
+Layered Suutei Tsai Cake (Milk Tea Cake)
+Fermented Yogurt Sponge Cake
+Goat Milk Caramel Cake
+Mongolian Cream Honey Cake
+Boortsog (Fried Dough Cookie)
+Boortsog with Honey Glaze
+Boortsog with Clotted Cream
+Traditional Mongolian Fried Milk Cookie
+Baked Boortsog Cookie
+Sütei Boortsog (Milk Fried Cookie)
+Mongolian Sugar-Coated Butter Cookie
+Airag-Infused Dough Cookie
+Tsagaan Idee Shortbread (White Food Butter Cookie)
+Urum Cookie (Clotted Cream Cookie)
+Barimta Boortsog (Twisted Fried Cookie)
+Tos Boortsog (Butter-Fried Cookie)
+Steppe-Style Fried Sweet Cookie
+Yaks Butter Tea Cookie
+Winter Festival Boortsog Cookie
+Horse Milk Cream Cookie
+Süntei Guriltai Cookie (Milk & Flour Cookie)
+Nomadic Camel Milk Cookie
+Highland Yak Milk Crisp Cookie
+Ger Hearth Cookie (Coal-Fired Boortsog)
+Boortsog-Style Fried Muffins (Mongolian Fried Dough Muffins)
+Tsagaan Idee Milk Cupcakes (White Food Milk Cupcakes)
+Urum Layer Muffins (Clotted Cream Muffins)
+Airag Cupcakes (Fermented Mare’s Milk Cupcakes)
+Tosglog Butter Muffins (Clarified Butter Muffins)
+Suutei Tsai Cupcakes (Milk Tea Cupcakes)
+Yak Milk Muffins (Mountain Dairy Muffins)
+Traditional Mongolian Cream-Filled Muffins
+Salted Milk Tea Muffins (Nomadic Style)
+Sweet Fermented Milk Cupcakes (Traditional Ger Treats)
+Dried Milk Curd Muffins (Aaruul Muffins)
+Smoked Milk Muffins (Stone-Dried Milk Muffins)
+Caramelized Urum Muffins (Roasted Cream Muffins)
+Air-Dried Milk Cake Muffins (Winter Camp Style)
+Nomadic Yak Butter Cupcakes (Ger Hearth Variants)
+Sun-Dried Dairy Muffins (High Steppe Variation)
+Horse Milk Cupcakes (Traditional Celebration Cakes)
+Clotted Cream Sponge Muffins (Pasture Buttercakes)
+Barley Milk Muffins (Harvest Campfire Cakes)
+Mongolian Highland Dairy Cupcakes (Regional Milk Cakes)
+Boortsog (Fried Dough Dessert)
+Ul Boov (Sole Shoe Cake)
+Tarag Tsatsal (Sweet Yogurt with Dried Berries)
+Aaruul (Dried Curd Cheese Candy)
+Byaslag (Sweet Mongolian Cheese)
+Shar Toson Boortsog (Boortsog with Clarified Butter)
+Suutei Tsai Zavsar (Milk Tea with Sweet Add-ins)
+Tsotsgiiin Boortsog (Cream-Filled Fried Pastry)
+Khar Suutei Kheviin Boov (Black Milk Layered Cake)
+Uizen Tsonkh (Sweet Window Pane Pastry)
+Eezgii (Caramelized Dried Curds)
+Bantan Tsatsal (Sweet Dough Soup with Milk)
+Savsgar Kheviin Boov (Puffed Celebration Cake)
+Suun Budaa (Sweet Milk Rice)
+Khar Boortsog (Charcoal-Tinged Fried Dessert)
+Tsamtsanii Tsatsal (Milk Skin Dessert)
+Sakhartai Aaruul (Sweetened Dried Curd Candy)
+Savsgar Ul Boov (Layered Sole Cake with Sweet Filling)
+Suutei Guril (Sweet Milk Porridge)
+Zul Sar’s Kheviin Boov (New Year’s Festival Cake)
+Khar Salkhi Boortsog (Dark Wind Fried Cake)
+Guriltai Suun Tee (Flour Tea with Sweet Milk)
+Tsatsalchikhan Tarag (Light Yogurt Custard Dessert)
+Salkhiin Tsonkh (Wind Window Jelly)
+Eezgiin Tsonkh (Crumbled Curd Jelly Dessert)
+Shar Suun Puding (Yellow Milk Pudding)
+Aartsnii Tsatsal (Curdled Milk Dessert)
+Tsagaan Sar Boortsog (White Month Festival Fried Dessert)
+Suutei Aarts (Milk with Fermented Curd)
+Zakh Tsatsal (Market-Style Sweet Milk Treat)
+Nermel Suun Budaa (Distilled Milk Rice Dessert)
+Shar Tosnii Kheviin Boov (Layered Cake with Ghee)
+Bantan Eezgii (Dough and Curd Dessert)
+Zavsar Boortsog (Sweet Filling Fried Bread)
+Shar Budag Boortsog (Golden-Colored Fried Cake)
+Tsamtsagnii Aarts (Milk Skin and Curd Dessert)
+Suutei Savsgar (Puffed Milk Pastry)
+Nermel Khar Budaa (Distilled Dark Pudding)
+Guril Toson Kheviin Boov (Flour and Butter Layer Cake)
+Byaslagts Tsartsag (Fried Pastry with Sweet Cheese Filling)
+Khar Khar Khar (Sweetened Milk Fudge Squares)
+Shar Toson Eezgii (Clarified Butter Candy)
+Aaruul (Dried Curd Snack)
+Savtai Suun Budaa (Milk Rice Pudding with Sugar)
+Suutei Tsaiin Chikherei (Milk Tea Sugar Candy)
+Tosnii Guliin (Butter Honey Toffee)
+Uutsnii Khar Tsagaan Chikherei (Holiday White and Brown Candies)
+Eezgiiin Chikherei (Crumbled Dried Yogurt Candy)
+Ulaanbaatariin Chikherei (Ulaanbaatar City-Style Candy)
+Tsagaan Sar Chikherei (Lunar New Year Candy Assortment)
+Boortsog with Sugar Dusting (Fried Dough Candy-Style)
+Milk Skin Caramel Squares
+Caramelized Yak Milk Fudge
+Barimtlag Aaruul (Soft Sweet Aaruul Variant)
+Tsamtsganii Chikherei (Clotted Cream Candy)
+Khorhog Candy (Smoked Milk Toffee Inspired by Khorhog Technique)
+Salkhiin Guliin (Wind-Dried Sweetened Milk Bites)
+Yak Cream Truffle with Buckthorn
+Fermented Cream Sugar Drops
+Butterfat Honey Caramel Wrapped in Dried Milk Skin
+Khuushuur (Fried Meat Hand Pie)
+Bansh Khuurga (Steamed Dumpling Pie)
+Boortsog Tart (Fried Dough Sweet Tart)
+Uuts Pie (Lamb Back Pie)
+Aaruul Tart (Dried Curd Cheese Tart)
+Gambir Pie (Layered Pancake Pie)
+Byaslag Pie (Homemade Cheese Tart)
+Guriltai Khuurga Pie (Noodle Stir-Fry Pie)
+Tsuivan Pocket Pie (Noodle-Stuffed Flat Pie)
+Tsuivan Tart (Baked Noodle Tart)
+Khar Sholootai Pie (Black Tea and Milk Tart)
+Suutei Tsai Tart (Salted Milk Tea Tart)
+Shar Bus (Yellow Cream Tart)
+Tos Suu Pie (Clarified Milk Fat Pie)
+Tsagaan Idee Tart (White Dairy Food Tart)
+Eezgii Tart (Curd Crumble Tart)
+Aarts Tart (Curdled Milk Tart)
+Tarag Pie (Yogurt Tart)
+Heltei Khuushuur (Tongue-Stuffed Meat Pie)
+Chanasan Makh Pie (Boiled Meat Pie)
+Airag Cream Tart (Fermented Mare’s Milk Tart)
+Khailmag Tart (Milk Skin Tart)
+Urum Tart (Clotted Cream Tart)
+Tsatsarghan Cream Tart (Sea Buckthorn Tart)
+Uuts Khorovod (Mutton and Potato Platter)
+Tsuivan (Stir-Fried Noodles with Potatoes and Meat)
+Budaatai Khuurga (Fried Rice with Potatoes and Meat)
+Khuushuur with Potatoes (Fried Meat Pastries with Potato Filling)
+Bansh with Potato Filling (Steamed Dumplings with Potatoes)
+Boortsog-Style Potato Frybread
+Mongolian Potato Stew
+Lamb and Potato Khorkhog (Stone-Cooked Barbecue with Potatoes)
+Potato Salad (Mongol-style with Carrots, Eggs, and Pickles)
+Sheep Tail Fat and Potato Stir-Fry
+Potato and Dried Curd Soup
+Potato and Barley Gruel
+Crispy Boiled Potatoes with Mutton Drippings
+Chanasan Makh with Boiled Potatoes (Boiled Meat with Potatoes)
+Sautéed Offal with Potatoes
+Yak Butter Mashed Potatoes
+Guriltai Shul with Potatoes (Noodle Soup with Potatoes and Lamb)
+Mongolian Potato and Carrot Hash
+Potato and Suutei Tsai (Milk Tea Potato Side)
+Baked Potatoes in Hot Ash with Salted Mutton Fat
+Charred Potato Skins with Fermented Cream
+Air-Dried Mutton with Cold Potato Slices
+Boiled Goat Head with Potatoes
+Potato-Stuffed Tsuivan Rolls (Menu Variant)
+Jol (Broth) with Lamb Bones and Potatoes
+Salt-Fermented Potatoes with Yak Cheese Dressing
+Pan-Roasted Potatoes with Wild Onion and Mutton Strips
+Tsagaan Idee-Style Potato and Dairy Mash (White Food Plate Variant)
+Winter Pickled Potatoes in Vinegar and Sheep Fat
+Otgontenger Potato Soup (Named Festival Dish)
+Stone-Smashed Potatoes with Lard Glaze
+Mountain Herb Potato Cakes (Menu Regional Variant)
+Potato Khuushuur with Horse Sausage Filling
+Khailmag Potato Butter Fry (Traditional Dairy Dish with Potatoes)
+Potato and Fermented Cream Gratin (Luxury Menu Fusion)
+Milk-Poached Potatoes with Clotted Cream
+Potato and Maral Jerky Skillet (Wild Venison and Potato Dish)
+Crushed Potatoes with Smoked Goat Cheese
+Fermented Grain and Potato Mash with Hot Cream
+Potato Flatbread with Rendered Sheep Tail Fat
+Whole-Roasted Potatoes in Animal Hide Ash Pit
+Sour Milk Potato Porridge (Nomadic Cold-Season Dish)
+Potato-Stuffed Sheep Intestines (Traditional Offal-Based Dish)
+Oat and Potato Porridge with Burnt Yak Butter
+Buuz Khuushuur (Pan-Fried Vegetable Dumplings)
+Tsuivan (Stir-Fried Noodles with Vegetables)
+Bansh Soup (Vegetable Dumpling Soup)
+Vegetable Khorkhog (Stone-Cooked Vegetable Stew)
+Vegetarian Budaatai Khuurga (Fried Rice with Vegetables)
+Shar Guliash (Mongolian Vegetable Goulash)
+Vegetarian Khuushuur (Deep-Fried Hand Pie with Vegetables)
+Khar Shul (Black Vegetable Soup)
+Vegetable Bantan (Creamy Flour and Vegetable Porridge)
+Stir-Fried Wild Spinach
+Root Vegetable Tsai (Salted Milk Tea with Vegetables)
+Grilled Mongolian Cabbage Steaks
+Steamed Carrot and Potato Buuz (Steamed Dumplings with Root Vegetables)
+Stir-Fried Noodles with Mushroom and Cabbage
+Wild Onion Omelet (Vegetable Style)
+Spiced Turnip Stir-Fry
+Vegetarian Tsagaan Idee (White Foods Platter with Pickled Vegetables)
+Tsuivan with Wild Greens
+Potato and Carrot Stew in Milk Broth
+Vegetarian Goulash with Fermented Cream
+Barley Porridge with Roasted Vegetables
+Dried Turnip and Cabbage Soup
+Fermented Cabbage and Carrot Salad
+Pan-Roasted Upland Roots with Yak Butter
+Stuffed Bell Peppers with Barley and Local Greens
+Cold Pickled Wild Greens
+Boiled Turnips with Clotted Cream
+Savory Millet Cakes with Onion and Garlic
+Sheep Fat Roasted Carrots (Vegetarian Version with Butter Substitute)
+Charred Eggplant with Fermented Yogurt Dressing
+Tofu with Khorkhog-style Vegetables (Stone-Cooked Tofu Stew)
+Tofu Bansh (Tofu Dumplings)
+Tofu Khuushuur (Pan-Fried Tofu Hand Pies)
+Tofu Buuz (Steamed Tofu Dumplings)
+Tofu with Suutei Tsai Broth (Tofu in Milk Tea Soup)
+Stir-Fried Tofu with Mongolian Lamb Spices
+Tofu in Guriltai Shul (Tofu Noodle Soup)
+Tofu with Fermented Curds Sauce (Aaruul-Style Tofu)
+Tofu with Seabuckthorn Glaze (Highland Fruit-Glazed Tofu)
+Clay Pot Tofu with Mongolian Barbecue Sauce
+Mongolian Barbecue Tofu Skewers
+Tofu in Horhog Jus Reduction
+Wok-Seared Tofu with Spring Onions and Cumin
+Charred Tofu with Wild Garlic and Buckwheat Noodles
+Tofu and Root Vegetable Boodog (Nomadic Fire-Roasted Tofu Pouch)
+Stewed Tofu with Goat Milk Cream
+Air-Dried Tofu Jerky with Caraway
+Tofu with Smoked Camel Yogurt Sauce
+Pan-Crisped Tofu in Barley Broth
+Tofu and Mushroom Huushuur (Tofu & Wild Mushroom Fried Pockets)
+Roasted Tofu with Yak Butter Glaze
+Tofu in Fermented Barley Soup
+Mongolian Hot Pot with Silken Tofu
+Tofu Khorkhog (Stone Pot Braised Tofu)
+Tofu Shul with Carrots and Turnips (Tofu Clear Soup)
+Tofu with Savory Milk Skin Sauce
+Mongolian Tofu Lettuce Wraps with Chili-Garlic Paste
+Cold Pressed Tofu Salad with Horhog Fat Drizzle
+Tofu with Pine Nut and Wild Onion Confit
+Tofu and Buckwheat Noodle Stir Fry
+Sheep’s Tail Fat–Glazed Tofu Cubes
+Pan-Fried Tofu with Dried Wild Berries and Mint
+Smoked Tofu with Burnt Onion Ash
+Mongolian Five-Spice Tofu with Ginger Oil
+Nomadic-Style Tofu and Bean Stew
+Tofu Stir-Fried with Wild Greens and Air-Dried Meat Shreds
+Milk-Glazed Tofu with Baked Stone Salt
+Goat Cheese–Crusted Tofu Cutlets
+Salt-Cured Tofu with Sour Cream Reduction
+Steamed Tofu with Juniper-Smoked Vegetables
+Fermented Tofu with Barley Malt Drizzle
+Mongolian Tofu Egg Drop Soup
+Stir-Fried Tofu with Leeks and Suutei Tsai Reduction
+High-Altitude Grilled Tofu with Pepper Root Oil
+Spiced Tofu with Carrot and Sea Buckthorn Purée
+Tofu Noodle Bowl with Charred Scallion Broth
+Barley-Crusted Tofu with Mountain Herb Oil
+Boiled Tofu Dumplings with Sheep’s Yogurt Dipping Sauce
+Crispy Tofu on Roasted Onion Flatbread
+Silken Tofu with Salty Mongolian Curd and Chili Oil
+Lamb Jus-Braised Tofu in Clay Pot
+Tofu and Wild Onion Stuffed Flatbread (Tofu Khuushuur)
+Khorkhog (Mongolian Stone-Cooked Barbecue)
+Boodog (Whole Goat Barbecue)
+Sharsan Mah (Grilled Meat)
+Grilled Mutton Ribs
+Charcoal-Grilled Yak Meat
+Barbecued Camel Hump
+Barbecued Horse Sausage
+Mongolian Barbecued Lamb Skewers
+Griddled Goat Intestines
+Grilled Marinated Offal
+Mongolian Hot Stone Barbecue
+Wood-Fired Mutton Roast
+Barbecue-Style Khorkhog with Dumplings
+Barbecued Beef Tongue
+Spit-Roasted Lamb with Rock Salt
+Barbecued Liver Wrapped in Fat
+Grilled Lamb Neck Chops
+Skewered Marinated Yak Heart
+Barbecued Wild Game in Milk Skin
+Highland Barbecue Platter (Yak, Goat, Lamb)
+Barbecue-Style Chanasan Makh (Boiled-to-Grilled Transition Mutton)
+Barbecue Goat with Five-Spice Rub
+Charcoal Lamb Backstrap with Juniper Smoke
+Barbecued Yak Ribs with Mountain Herbs
+Boodog-Style Barbecue Goose
+Barbecued Jerky-Style Beef Slices (Hot-Smoked Finish)
+Barbecued Mongolian Sausage with Sheep Casings
+Barbecued Lamb Shanks with Juniper
+Pit-Cooked Mutton Shoulder Barbecue
+Barbecued Tripe with Stone-Smoke Finish
+Coal-Seared Camel Ribs
+Barbecued Lamb Fatback with Garlic Chive Oil
+Budaatai Khuurga (Mongolian Fried Rice)
+Tsagaan Budaatai Nuur (Steamed White Rice)
+Shar Budaatai Khuurga (Fried Yellow Rice)
+Bantan Budaatai (Rice with Flour Soup)
+Budaatai Shul (Rice Soup)
+Suutei Budaatai (Milk Rice Porridge)
+Budaatai Tsai (Rice Milk Tea)
+Boortsog Budaatai (Fried Dough with Rice)
+Tsuivan Budaatai (Stir-Fried Noodles with Rice)
+Khorkhog Budaatai (Stone-Cooked Lamb with Rice)
+Chanasan Makh Budaatai (Boiled Meat with Rice)
+Yakhny Khuurga (Braised Meat Fried Rice)
+Tarag Budaatai (Yogurt Rice)
+Khar Budaatai (Black Rice)
+Khorkhog Rice Bowl
+Mongolian Barbecue Rice Platter
+Lamb Fat Fried Rice
+Mongolian Braised Oxtail with Rice
+Horsemeat Rice Bowl
+Airag-Infused Sweet Rice
+Fermented Milk Rice with Dried Meat
+Mongolian Beef Rice with Spring Onion
+Wild Garlic and Rice Stew
+Foal Meat Rice Bowl
+Camel Hump Rice
+Roasted Bone Marrow Rice
+Mongolian Festival Rice Pudding
+Chilled Milk Rice with Dried Curd
+Sheep Liver Rice Hash
+Charred Scallion Rice
+Yak Milk Creamed Rice
+Crisped Lamb Skin Rice
+Blood Sausage Rice Casserole
+Goat Head Rice Platter
+Nomadic Herdsman’s Rice Stew
+Smoke-Dried Cheese and Rice Curd Stack
+Tsuivan (Mongolian Stir-Fried Noodles)
+Guriltai Shul (Noodle Soup with Meat)
+Bantan Guril (Hand-Torn Noodle Soup)
+Banshtei Guril (Soup with Dumpling Noodles)
+Tsuivan with Lamb and Vegetables
+Tsuivan with Beef and Cabbage
+Guriltei Budaatai Shul (Flour and Rice Noodle Soup)
+Hand-Cut Noodles in Bone Broth
+Mongolian Handmade Noodles with Mutton
+Steamed Noodle Tower with Lamb
+Milk Noodle Soup with Dried Meat
+Dry-Fried Tsuivan with Horse Meat
+Sautéed Tsuivan with Wild Onions
+Bantan with Dried Curd and Noodles
+Smoked Meat Tsuivan
+Mongolian Noodle Pie with Yak Meat
+Lamb Offal Noodle Soup
+Herbed Flat Noodles in Lamb Broth
+Carrot and Potato Tsuivan
+Fermented Noodle Broth with Goat
+Bantan (Flour-Thickened Mutton Soup)
+Guriltai Shul (Noodle and Mutton Soup)
+Tsuivan Shul (Steamed Noodle Soup with Meat)
+Tsuivan Tun (Soup with Hand-Cut Noodles and Vegetables)
+Tsuivan Shöl (Mutton Soup with Flat Noodles)
+Makhin Shöl (Plain Meat Broth)
+Khar Shöl (Black Soup with Roasted Flour and Fat)
+Khorkhog Shöl (Soup from Stone-Cooked Barbecue Drippings)
+Boortsog Shöl (Fried Dough Soup)
+Buuz Shöl (Dumpling Broth Soup)
+Khorkhog Broth Soup (Stone-Cooked Lamb Soup)
+Shöltei Khushuur (Fried Meat Pie in Broth)
+Tsagaan Idee Shöl (Dairy-Based Soup)
+Aaruul Shöl (Soup with Dried Curd)
+Tarak Shöl (Fermented Milk Soup)
+Airag Shöl (Mare’s Milk Broth)
+Suutei Tsai Shöl (Milk Tea Soup)
+Uutsny Shöl (Boiled Sheep Backbone Broth)
+Yolyn Am Shöl (Cold-Cured Soup with Wild Herbs)
+Zasgiin Shöl (Palace-Style Meat Broth)
+Oorts Shöl (Curdled Yogurt Soup)
+Chanasan Makhny Shöl (Boiled Meat Broth with Bones)
+Khuurga Shöl (Fried Rice Soup)
+Khar Baishin Shöl (Village-Style Black Broth)
+Goviin Shöl (Gobi Desert Herdsmen’s Soup)
+Nudeltei Shöl (Soup with Eye-Shaped Pasta)
+Nogoon Shöl (Green Herb Broth)
+Bantan Tun (Emergency Recovery Soup with Flour and Mutton)
+Tsatsargany Shöl (Sea Buckthorn Soup)
+Zoolon Makhny Shöl (Tenderized Mutton Broth)
+Tovchoon Shöl (Simple Country Broth)
+Chanasan Ükhriin Shöl (Boiled Beef Bone Soup)
+Yamiin Shöl (Goat Meat Soup)
+Tatlaga Shöl (Layered Meat and Root Soup)
+Zürkhnii Shöl (Heart Meat Broth)
+Khökhökh Tsai Shöl (Blue Tea Soup with Meat and Milk)
+Bansh (Mongolian Boiled Dumplings)
+Buuz (Steamed Meat Dumplings)
+Khuushuur (Fried Meat Pastries)
+Tsuivan (Stir-Fried Noodles with Meat)
+Guriltai Shul (Noodle Soup with Meat)
+Mongol Shorlog (Mongolian Skewered Meat)
+Khorhog (Traditional Stone-Cooked Mutton)
+Boortsog (Mongolian Fried Dough)
+Aaruul (Dried Curd Snacks)
+Ul Boov (Festival Layered Fried Cakes)
+Byaslag (Traditional Mongolian Cheese)
+Eezgii (Curdled Dried Milk Crumbles)
+Mongol Khorkhog Burger (Street-Style Khorkhog Sandwich)
+Suutei Tsai (Salted Milk Tea)
+Tsuivan Wrap (Street Noodle Wrap with Meat)
+Lamb Khuushuur Taco (Fusion Fried Lamb Pastry)
+Khuushuur Dog (Mongolian Fried Dumpling Hot Dog)
+Chanasan Makh (Boiled Meat Cuts Street Portion)
+Borts Burger (Dried Meat Burger with Flatbread)
+Fried Tsuivan Roll (Crispy Noodle Roll)
+Mongolian BBQ Wrap (Street Stir-Fried Lamb Wrap)
+Buuz Skewers (Skewered Steamed Dumplings)
+Mini Bansh Soup Cup (Street-Style Dumpling Broth)
+Deep-Fried Ul Boov Sandwich (Festival Cake Burger)
+Sheep Fat Fries (Crispy Lamb Tallow Potatoes)
+Horse Sausage Stick (Smoked Horse Sausage Skewer)
+Goat Liver Kebab (Charred Goat Organ Skewers)
+Milk Tea Ice Cream Cone (Frozen Suutei Tsai Dessert)
+Fermented Mare’s Milk Slushie (Airag Frozen Street Drink)
+Smoked Yak Jerky Packet (Street-Cured Yak Meat)
+Yak Butter Tea Latte (Creamy Street Tea Variant)
+Bansh (Boiled Dumplings as Side Dish)
+Tsuivan Side Portion (Noodle Stir-Fry Side Dish)
+Budaatai Khuurga Side Portion (Fried Rice Side Dish)
+Guriltai Shul Broth (Noodle Broth Side Dish)
+Aaruul Chips (Dried Curds Snack Side)
+Boortsog (Fried Dough Side Bites)
+Eezgii Crumble (Dried Cheese Curds Side Dish)
+Airag Reduction Dip (Fermented Mare’s Milk Sauce Side)
+Uuts Shavings (Boiled Sheep Back Fat Side Cut)
+Byaslag Slices (Mongolian Cheese Slices Side)
+Guriltai Salad (Noodle and Root Vegetable Cold Side)
+Mongolian Beetroot Side Salad
+Pickled Turnip Strips (Traditional Fermented Side)
+Suutei Tsai Broth (Milk Tea Broth as Side)
+Barbagshai (Savory Dough Nuggets Side Dish)
+Buuz Plate Garnish (Steamed Dumpling Side Accompaniment)
+Steamed Barley Side Porridge
+Khar Shuluun Guril (Black Stone Flour Side Cake)
+Curdled Milk Skin Rolls (Traditional Milk Skin Side)
+Steamed Root Vegetables in Suutei Tsai (Milk Tea Vegetable Side)
+Mongolian Spring Onion Pancake Side
+Fermented Cabbage with Mustard Seed (Mongolian Sauerkraut Side)
+Smoked Horse Sausage Slices (Cold Cut Side Dish)
+Boiled Sheep’s Liver Slices (Organ Meat Side Portion)
+Steamed White Wheat Bread (Mongolian Mantou Side)
+Fried Sheep Intestine Bits (Crisped Offal Side Portion)
+Boiled Potato with Dill Oil (Herbed Root Side)
+Air-Dried Beef Shavings (Jerky Side Cut)
+Cold Mutton Fat Shard Plate (Sliced Tallow Side)
+Milk-Cooked Millet (Sweet Millet Side Porridge)
+Buckwheat Cake Squares (Griddled Grain Side Dish)
+Spiced Blood Sausage Discs (Sliced Organ Side Dish)
+Mongolian Carrot and Yogurt Slaw Side
+Sour Cream Fermented Cucumber Salad
+Salted Mongolian Hard Cheese Cubes
+Tallow-Cooked Cabbage with Cumin (Hot Fatty Vegetable Side)
+Buuz (Steamed Meat Dumplings)
+Khuushuur (Fried Meat Pastries)
+Bansh (Boiled Dumplings)
+Tsuivan Spring Rolls (Noodle-Filled Spring Rolls)
+Airag Gelee (Fermented Mare’s Milk Jelly Appetizer)
+Boortsog (Fried Dough Bites)
+Bortsog with Aaruul (Fried Dough with Dried Curd)
+Uuts Cold Cut (Chilled Sheep Back Appetizer)
+Suutei Tsai Shooter (Salted Milk Tea Appetizer Portion)
+Tsagaan Idee Platter (Assorted White Dairy Appetizer)
+Khar Shölöög (Charred Liver Skewers)
+Grilled Sheep Tail Fat Bites
+Pickled Yak Tongue
+Sheep Head Cheese
+Camel Meat Tartare
+Smoked Horse Sausage Slices
+Mutton Liver Pâté Toast
+Fermented Yak Cheese Cubes
+Steamed Tripe Rolls
+Dried Beef Chips with Juniper Salt
+Mongolian Beef Jerky Sampler
+Fried Curds with Wild Onion
+Barbecued Offal Skewers
+Lamb Tartlet with Aaruul Cream
+Wild Garlic Dumpling Poppers
+Mini Khuushuur Sliders
+Yak Butter Bread Bites
+Chilled Camel Milk Soup Shot
+Salt-Cured Mutton Belly Strips
+Charcoal-Seared Horse Meat Coins
+Crisped Dough Knots with Honey
+Layered Air-Dried Cheese Ribbons
+Sheep Milk Curd Stack
+Mini Bansh with Dill Cream
+Boortsog (Fried Dough Snack)
+Khuushuur (Deep-Fried Meat Pastry)
+Bansh (Steamed Dumplings)
+Mongol-Style Fried Noodles (Tsuivan Snack Variant)
+Tsuivan Pockets (Pan-Fried Noodle-Stuffed Dough)
+Byansh (Mini Steamed Dumpling Snack)
+Korkhoi Makhs (Dried Jerky Snack Strips)
+Aaruul (Dried Curd Snack)
+Zaluu Aaruul (Fresh Milk Curd Snack)
+Khailmag (Caramelized Milk Cream Snack)
+Uuts Jerky Rolls (Rolled Lamb Fat Jerky Snack)
+Chanasan Makh Strips (Boiled Meat Snack Cuts)
+Boiled Sheep’s Head Slices (Snack Cuts)
+Borts (Air-Dried Meat Snack)
+Tovch Uuts (Compact Dried Sheep Tail Snack)
+Eezgii (Fried Milk Solids Snack)
+Suutei Tsai Crackers (Milk Tea Dipping Crackers)
+Airag-Soaked Flatbread (Fermented Mare’s Milk Snack)
+Fermented Camel Milk Curds (Snacking Aaruul Variant)
+Boiled Organs Snack Platter (Assorted Offal Cuts)
+Goat Fat Cracklings (Rendered Snack Chunks)
+Dried Milk Skin Chips (Dehydrated Urum Snack)
+Fried Flour Twists with Aaruul Dusting
+Sheep Tallow Fried Dough Cubes
+Deep-Fried Sweet Bansh (Dessert Dumpling Snack)
+Buckwheat Flatbread Chips (Soba Snack Variant)
+Barbecue Mutton Skewer Bites (Snack-Sized Shashlik)
+Horhog Drippings Bread Soak (Stew-Fat Snack Bread)
+Mini Mutton Pies (Bite-Sized Khuushuur Variant)
+Noodle-Wrapped Jerky Sticks
+Fat-Rubbed Barley Snacks (Tosgoito Khorogo Variant)
+Wild Onion Stuffed Dumpling Snacks
+Mutton Liver Pâté on Flatbread
+Charred Bone Marrow Snack Spoons
+Sheep Head Jelly Squares (Snack Aspic Variant)
+Cracked Bone Broth Snack Cups
+Chipped Dried Cheese Rounds (Aaruul Coin Variant)
+Pan-Fried Cheese Dough Sticks
+Boiled Intestine Rolls (Snack Length)
+Salted Milk Skin Crackers
+Uuz Slice Wraps (Tail Fat Wrapped in Flatbread)
+Nomadic Butter Tea Scones
+Fermented Milk Glazed Pastries
+Spiced Sheep Fat Chips (Crispy Variant)
+Lamb Brain Croquettes (Michelin Snack Style)
+Boiled Trotter Coin Snacks
+Cow Udders Snack Strips
+Fermented Millet Snack Squares
+Horse Jerky Chips (Tenderized Snack Variant)
+Sweetened Suutei Tsai Biscuits (Milk Tea Cookie Variant)
+Air-Dried Organ Mix Cubes
+Milk-Fried Dough Braids (Sweet Variant)
+Pan-Seared Mongol Cheese Coins
+Oxtail Crisp Bites
+Charred Root Vegetable Chips with Tallow
+Fermented Milk Skin Dip with Flatbread
+Milk Tea Tallow Popcorn (Infused Snack Variant)
+Buuz (Steamed Meat Dumplings)
+Khuushuur (Fried Meat Dumplings)
+Tsuivan Buuz (Steamed Dumplings with Noodles)
+Jin Buuz (Large Steamed Dumplings)
+Mini Buuz (Small Steamed Dumplings)
+Tavan Nuden Buuz (Five-Eye Steamed Dumplings)
+Chanasan Buuz (Boiled Dumplings)
+Khorhog Buuz (Steamed Dumplings in Stone Pot)
+Uutsnii Buuz (Lamb Back Dumplings)
+Khar Khuurga Buuz (Dark Stir-Fried Dumplings)
+Guriltai Buuz (Dumplings with Hand-Torn Noodles)
+Delgerekh Buuz (Open-Faced Dumplings)
+Tsagaan Sarmiin Buuz (Lunar New Year Steamed Dumplings)
+Airag Buuz (Fermented Mare’s Milk Dumplings)
+Yakhnii Buuz (Beef Dumplings)
+Khorkhog Khuushuur (Fried Dumplings Cooked in Stone Pot)
+Chuluun Khuushuur (Stone-Grilled Fried Dumplings)
+Khulan Khuushuur (Wild Ass Meat Fried Dumplings)
+Camel Khuushuur (Camel Meat Fried Dumplings)
+Yak Buuz (Yak Meat Steamed Dumplings)
+Banshtai Tsai (Milk Tea with Dumplings)
+Tsamtsganii Buuz (Cream-Curd Filled Dumplings)
+Shar Buuz (Pan-Fried Steamed Dumplings)
+Khan Buuz (Royal Steamed Dumplings)
+Urguu Buuz (Capital City-Style Steamed Dumplings)
+Chalgan Tos (Fried Garlic Oil Sauce)
+Shulyn Davs (Soup Salt Seasoning Sauce)
+Tarag Mayonnaise (Fermented Yogurt Mayonnaise Sauce)
+Toson Khuurga Sauce (Stir-fry Oil Sauce)
+Bortsnog Uusmel (Dried Meat Rehydration Broth)
+Boortsog Dipping Syrup (Honey Syrup for Fried Dough)
+Shar Tos (Clarified Yak Butter Sauce)
+Suutei Tsai Broth Reduction (Milk Tea Reduction Sauce)
+Khar Shuluun Davs (Black Stone Salt Dip)
+Kumis Dressing (Fermented Mare’s Milk Sauce)
+Hot Sauce with Wild Pepper (Mongolian Wild Pepper Hot Sauce)
+Fermented Curds Dip (Aaruul Softened Dip)
+Goat Fat Garlic Sauce
+Tallow Onion Gravy
+Chili Yak Sauce
+Horhog Jus (Stone Cooked Meat Jus Reduction)
+Uuts Glaze (Steamed Sheep Back Glazing Sauce)
+Yak Cream and Dill Sauce
+Camel Milk Yogurt Sauce
+Fermented Barley Soy Sauce
+Wok-Smoked Chili Oil
+Mongolian Chive and Yogurt Dip
+Wild Caraway Cream Sauce
+Burnt Milk Reduction Sauce
+Dried Curd Cheese Sauce
+Boodog Jus (Whole Goat Cooked in Skin Drippings Sauce)
+Siberian Pine Nut Butter Sauce
+Charred Onion Meat Drippings Sauce
+Horhog Bone Marrow Sauce
+Rock Salt and Suet Emulsion
+Fermented Turnip Sauce
+Boiled Organ Fat Dipping Sauce
+Blood Sauce with Garlic and Salt
+Chili Plum Sauce Mongolian Style
+Mongolian Mint Yogurt Sauce
+Carrot and Fermented Cream Sauce
+Chive Blossom Oil Dip
+Boiled Bone Broth Reduction Sauce
+Wild Rhubarb Sweet Sauce
+Tallow-Roasted Garlic Aioli
+Mongolian Mustard Sauce with Smoked Fat
+Yak Milk Cream Cheese Sauce
+Spiced Sheep Liver Pâté Dip
+Crispy Onion and Goat Butter Sauce
+Sweetened Dried Yogurt Sauce
+Fried Wheat Noodle Soy Drizzle Sauce
+Steamed Suet Glaze with Cumin
+Coriander Yogurt Dip Mongolian Style
+Dried Curd and Milk Sauce
+Mongolian Herbal Infused Vinegar Sauce
+Charcoal Seared Fat Sauce
+Smoked Bone Broth Syrup Sauce
+Fermented Mare’s Milk Dressing (Airag Marinade)
+Mongolian Barbecue Soy-Garlic Marinade
+Spicy Cumin Lamb Marinade
+Chive-Garlic Yogurt Dressing
+Barley Miso Sesame Dressing
+Black Pepper Horsemeat Marinade
+Sichuan Peppercorn Beef Marinade
+Airag Cream and Dill Dressing
+Charred Scallion and Coriander Marinade
+Pickled Onion Milk Dressing
+Traditional Mongolian Grilled Meat Marinade
+Camel Milk Yogurt and Garlic Dressing
+Burnt Chili and Horse Fat Marinade
+Smoked Sheep’s Milk Dressing
+Salted Fermented Milk Marinade (Tarag Marinade)
+Goat Milk and Sour Plum Dressing
+Wild Onion and Chili Oil Dressing
+Charred Tomato and Sheep Yogurt Dressing
+Vinegared Garlic Marinade for Boiled Meats
+Rock Salt and Wild Herb Fermented Milk Dressing
+Juniper and Black Garlic Marinade
+Sun-dried Chili Milk Dressing
+Wild Thyme and Fermented Cream Marinade
+Sour Cream and Wild Berries Dressing
+Mustard Seed and Goat Milk Marinade
+Mongolian Barbecue Spice Blend
+Dry-Fermented Cumin and Coriander Rub
+Mongolian Lamb Rub with Wild Onion and Black Pepper
+Burnt Milk Curd Spice Rub
+Air-Dried Yak Milk Chili Dust
+Horhog Spice Mix (Traditional Stone-Cooked Meat Blend)
+Black Rock Salt and Mustard Seed Rub
+Charred Barley and Sichuan Pepper Rub
+Smoked Goat Fat and Garlic Rub
+Dried Curd and Wild Thyme Seasoning
+Uukhai Spice Blend (Celebratory Roasted Meat Mix)
+Mongolian Black Garlic and Five Spice Rub
+Steppe Fermented Cream and Chili Rub
+Yak Butter and Sandalwood Bark Spice Paste
+Nomadic Herdsman Meat Rub
+Coal-Dried Leek and Sheep Fat Rub
+Tsagaan Idee Blend (White Food Ritual Spice)
+Cracked Pepper and Dried Yogurt Bark Rub
+Mongolian Wild Chive and Fermented Cheese Rub
+Dried Milk Skin and Charred Fennel Rub
+Tallow-Aged Garlic and Salt Rub
+Salt-Dried Horsemeat Seasoning Blend
+Seared Fatback and Burnt Chili Rub
+Gobi Desert Spice Mix
+Sun-Dried Onion and Sheep’s Milk Crumble Rub
+Sheep Tail Fat and Salted Milk Rub
+Tuvan Pepper and Goat Yogurt Rub
+Boodog Carving Rub (Whole Roasted Goat Stuffed with Stones)
+Spiced Fermented Cream Jerky Powder
+Roasted Bone Marrow and Black Cardamom Rub
+Steppe Warrior’s Griddle Rub
+Yurtside Smoked Fat and Chili Rub
+Boortsog (Deep-Fried Milk Dough Cookies)
+Khuushuur (Deep-Fried Meat Pies)
+Bansh Sharsan (Deep-Fried Dumplings)
+Khuitsaa Sharsan (Deep-Fried Offal Strips)
+Shar Tsagaan Ideesh (Deep-Fried White Cheese Curds)
+Sharsan Guriltai Guliash (Deep-Fried Noodle Goulash)
+Sharsan Khorkhog (Deep-Fried Khorkhog-Style Mutton Bites)
+Shar Tsatsal (Deep-Fried Blood Sausage)
+Shar Byaslag (Deep-Fried Mongolian Cheese)
+Tsuivan Sharsan (Deep-Fried Handmade Noodles)
+Sharsan Taragni Zairmag (Deep-Fried Yogurt Ice Cream)
+Sharsan Buuz (Deep-Fried Steamed Dumplings)
+Sharsan Uuts (Deep-Fried Sheep’s Back Fat)
+Sharsan Guliash (Deep-Fried Goulash Cubes)
+Sharsan Makh (Deep-Fried Lamb Strips)
+Sharsan Tsuivan Cake (Deep-Fried Noodle Cake)
+Sharsan Khar Shol (Deep-Fried Black Soup Nuggets)
+Sharsan Aaruul (Deep-Fried Dried Yogurt Curds)
+Sharsan Ulaan Bansh (Deep-Fried Red Bean Dumplings)
+Shar Modon Khool (Deep-Fried Wooden Plate Meal Style)
+Bansh (Steamed Dumplings)
+Buuz (Steamed Meat Dumplings)
+Khuushuur (Pan-Fried or Steamed Meat Pockets)
+Mongol Bantan (Braised Flour Soup with Meat)
+Tsuivan (Steamed Handmade Noodles with Braised Meat)
+Guriltai Shul (Braised Noodle Soup)
+Uuts (Steamed Whole Sheep Back)
+Yakhny Shul (Braised Mutton Soup)
+Chanasan Makh (Boiled and Braised Mutton with Bone)
+Khorkhog (Braised Stone-Cooked Lamb)
+Boodog (Whole Goat Braised in Its Own Skin)
+Borts Shul (Braised Dried Meat Soup)
+Sharsan Bansh (Pan-Steamed Dumplings)
+Budaatai Khuurga (Braised Rice with Mutton)
+Zoolon Guliash (Soft Braised Goulash with Noodles)
+Tsuivan Borts (Steamed Noodles with Braised Dried Meat)
+Buuz Borts (Steamed Dumplings with Dried Meat Filling)
+Steamed Mongolian Lamb Ribs
+Braised Beef with Root Vegetables
+Braised Mutton with Cabbage
+Steamed Bone Marrow Broth
+Braised Camel Meat with Dumplings
+Steamed Goat with Wild Onions
+Braised Offal with Barley Noodles
+Khorkhog Deluxe (Michelin-style Stone Braised Lamb)
+Steamed Yaks Milk Curd with Cream Reduction
+Borts Shul (Dried Meat Broth)
+Khorkhog Broth (Stone-Cooked Lamb Broth)
+Boodog Broth (Whole Goat Broth)
+Tsuivan Stock (Stir-Fried Noodle Stew Stock)
+Guriltai Shul (Noodle Soup Broth)
+Suutei Tsai Broth (Milk Tea Broth for Dumpling Soups)
+Khuushuur Jus (Fried Meat Pie Broth)
+Buuz Steaming Broth (Steamed Dumpling Broth)
+Shöl (Traditional Mongolian Broth)
+Bone Marrow Soup (Mongolian Style)
+Tail Soup (Oxtail Broth)
+Yak Bone Broth
+Goat Bone Broth
+Camel Bone Broth
+Horse Meat Broth
+Lamb Fat Broth
+Sheep Head Broth
+Barley Broth (Mongolian Style)
+Wild Game Bone Broth
+Inner Mongolia Lamb Bone Broth
+Nomadic Herdsmen’s Broth
+Milk and Bone Broth (Traditional Mongolian Style)
+Fermented Horse Milk Broth
+Mongolian Medicinal Bone Broth
+Mongolian Hot Pot (Traditional Lamb Bone Broth)
+Khorkhog Hot Pot (Stone-Cooked Lamb Hot Pot)
+Boodog Hot Pot (Whole Goat Hot Pot)
+Mongolian Beef and Mushroom Hot Pot
+Sheep Tail Fat Hot Pot
+Yak Milk Hot Pot
+Horse Meat Hot Pot
+Mongolian Mixed Offal Hot Pot
+Winter Vegetable and Mutton Hot Pot
+Nomadic Herder’s Hot Pot
+Mongolian Wild Game Hot Pot
+Spicy Mongolian Lamb Hot Pot
+Milk Tea Broth Hot Pot
+Fermented Camel Milk Hot Pot
+Hand-Sliced Mutton Hot Pot
+Lamb Tripe and Tendon Hot Pot
+Mongolian Barbecue Hot Pot
+Chili Pepper and Pickled Cabbage Hot Pot (Sichuan-style variant used in Mongolian menus)
+Black Goat Hot Pot (Gobi-style)
+Steamed Stone Hot Pot (Heated Granite in Broth)
+Genghis Khan Hot Pot (Highland Lamb and Root Vegetable Broth)
+Bone Marrow and Suet Hot Pot
+Smoked Lamb Rib Hot Pot
+Wheat Noodle and Lamb Broth Hot Pot
+Goat Cheese and Milk Broth Hot Pot
+Aaruul (Dried Curd Cheese)
+Suutei Tsai (Mongolian Milk Tea)
+Boortsog (Fried Milk Dough Pastries)
+Byaslag (Mongolian Fresh Milk Cheese)
+Uuz (Steamed Sheep’s Back with Milk Skin)
+Eezgii (Caramelized Milk Curd)
+Khar Shuus (Milk Stew with Meat)
+Tsagaan Idee (White Foods Milk Platter)
+Airag (Fermented Mare’s Milk)
+Tsuivan with Milk Broth (Stir-Fried Noodles with Milk-Based Sauce)
+Milk Skin Roll (Rolled Dried Milk Film)
+Sheep’s Head Boiled in Milk Broth
+Sutai Guriltai Shul (Milk Noodle Soup)
+Yak Butter Tea (Yak Milk Butter Beverage)
+Goat Milk Rice Porridge
+Sweet Milk Dumplings
+Steamed Milk Buns
+Creamed Barley in Milk
+Curdled Yak Milk Stew
+Milk Kofta with Dried Curd
+Milky Suutei Aral (Milk-Boiled Cheese Curd)
+Horse Milk Cream Spread
+Camel Milk Sweet Porridge
+Mongolian Rice with Sweetened Milk
+Milk-Fried Dough Twists
+Burnt Milk Sugar Candy
+Cold Milk Jelly with Curd
+Milk Glazed Lamb Ribs
+Layered Dried Milk Cakes
+Milk-Soaked Flatbreads
+Milk-Cooked Buckwheat Porridge
+Fermented Cow Milk Yogurt
+Mongolian Milk Cream Butter
+Sour Milk Pancakes
+Milk-Filled Dumplings with Sugar
+Milk-Glazed Turnip Stew
+Smoked Milk Cheese Balls
+Dried Milk Sheet with Honey
+Milky Goat Head Stew
+Milk-Cooked Millet with Mutton
+Steamed Milk Yogurt with Nuts
+Yak Milk Ice Cream
+Tsagaan Idee (White Food Platter)
+Boortsog (Fried Holiday Pastry)
+Ul Boov (Sole Cake for Lunar New Year)
+Tsuivan (Holiday Hand-Cut Noodle Stew)
+Bantan (Holiday Milk Flour Soup)
+Khailmag (Caramelized Clotted Cream Dessert)
+Byaslag (Pressed Cow Milk Cheese)
+Eezgii (Fried Dried Curd Snack)
+Aaruul (Dried Milk Curd for Lunar Offering)
+Shar Tos (Clarified Butter Offering)
+Suutei Tsai (Milk Tea for Guests)
+Airag (Fermented Mare’s Milk Celebration Drink)
+Khorkhog (Holiday Stone-Cooked Mutton)
+Boodog (Holiday Whole Goat with Hot Stones)
+Chanasan Makh (Holiday Boiled Meat Platter)
+Khuushuur (Holiday Fried Meat Pastry)
+Buuz (Holiday Steamed Meat Dumplings)
+Gambir (Pan-Fried Holiday Sweet Bread)
+Tsuivan Budaatai (Holiday Fried Noodles with Rice)
+Guriltai Shul (Holiday Noodle Soup with Meat)
+Uuts (Lunar New Year Sheep Backbone Presentation)
+Milk Vodka (Traditional Milk-Based Distilled Spirit)
+Kumis Ice Cream (Holiday Fermented Milk Ice Cream)
+Holiday Tsuivan with Suutei Tsai Pairing
+Boortsog Tower (Stacked Pastry Offering Tower)
+Sugar Syrup (Boiled Sugar Syrup)
+Urum Syrup (Clotted Cream Syrup)
+Mongol Arkhi Syrup (Fermented Milk Liquor Syrup)
+Milk Curd Syrup (Sweetened Aaruul Syrup)
+Jamsran Syrup (Wild Berries Syrup)
+Buckthorn Syrup (Sea Buckthorn Syrup)
+Caramelized Yak Milk Syrup
+Sweet Fermented Rice Syrup
+Burnt Flour Syrup (Toasted Wheat Syrup)
+Goat Milk Syrup (Traditional Mongolian Milk Syrup)
+Sour Cream Syrup (Fermented Cream Syrup)
+Date Syrup (Stewed Dried Date Syrup)
+Boortsog Syrup (Fried Dough Syrup)
+Tsuivan Syrup (Sweetened Stew Syrup Reduction)
+Dried Yogurt Syrup (Aaruul Extract Syrup)
+Yak Butter Syrup (Clarified Butter Syrup)
+Milk Tea Syrup (Tsai Syrup Reduction)
+Wild Rhubarb Syrup (Tavan Nuden Syrup)
+Horse Milk Syrup (Airag Syrup Reduction)
+Sour Milk Syrup (Tarag Syrup)
+Salted Cream Syrup (Salted Urum Syrup)
+Cereal Grain Syrup (Barley and Millet Syrup)
+Charred Wood Syrup (Smoked Syrup Reduction)
+Stone-Cooked Syrup (Heated Stone Milk Reduction Syrup)
+Horsetail Syrup (Field Herb Syrup)
+Burned Sugar Syrup (Dark Caramel Syrup)
+Milk Skin Syrup (Dried Urum Sheet Syrup)
+Steamed Yak Milk Syrup (Layered Cream Syrup)
+Mountain Honey Syrup (Mongol Wild Honey Syrup)
+Boodog Syrup (Roast Cavity Drip Syrup)
+Almond Yak Milk Syrup
+Dried Fruit Syrup (Apricot and Wild Grape Syrup)
+Frozen Milk Syrup (Winter-Cold Condensed Milk Syrup)
+Fermented Wheat Syrup (Sour Wheat Drink Syrup)
+Spring Sap Syrup (Birch Tree Sap Syrup)
+Stinging Nettle Syrup (Herbal Syrup Reduction)
+Black Stone Syrup (Traditional Char-Infused Syrup)
+Ulgii Syrup (Kazakh-Mongol Spiced Syrup)
+Boortsog (Fried Milk Biscuits)
+Khuushuur Boortsog (Stuffed Fried Milk Biscuits)
+Uutsnii Boortsog (Holiday Butter Biscuits)
+Sharsan Boortsog (Crispy Fried Dough Biscuits)
+Aaruul Bagel (Dried Curd Bagel)
+Tos Boortsog (Butter Dough Biscuits)
+Suutei Boortsog (Milk-enriched Biscuits)
+Suunii Bansh (Milk Dough Biscuits)
+Shar Tos Boortsog (Clarified Butter Fried Biscuits)
+Aaruul Boortsog (Curd Cheese Biscuits)
+Suutei Tsai Boortsog (Milk Tea Dipped Biscuits)
+Eezgii Boortsog (Rendered Milk Solids Biscuits)
+Tosond Sharsan Boortsog (Deep-fried Butter Biscuits)
+Mongol Bagel (Traditional Milk Dough Bagel)
+Boov (Festive Milk Biscuits)
+Ul Boov (Layered Sole Biscuits for Ritual Cakes)
+Suutei Tsai (Salted Milk Tea)
+Boortsog with Suutei Tsai (Fried Dough with Salted Milk Tea)
+Tsuivan with Tarag (Stir-Fried Noodles with Yogurt)
+Khailmag (Clotted Cream Milk Fudge)
+Aaruul (Dried Yogurt Curds)
+Eezgii (Clarified Milk Curd Crumbles)
+Byaslag (Homemade Milk Cheese)
+Urum (Milk Skin Cream)
+Tarag (Fermented Milk Yogurt)
+Khorkhog with Tarag (Stone-Cooked Mutton with Yogurt)
+Airag (Fermented Mare’s Milk)
+Shimiin Arkhi (Mongolian Milk Liquor)
+Khailmag with Boortsog (Milk Fudge with Fried Dough)
+Milk Porridge with Millet
+Milk Tea with Fried Dough Balls
+Milk Tea with Dumplings
+Horse Milk Yogurt
+Yak Milk Cheese
+Camel Milk Porridge
+Cow Milk Clotted Cream
+Mongolian Tent-Cooked Milk Porridge
+Wood-Fired Milk Tea
+Cow Udder Soup with Milk Base
+Fermented Camel Milk Yogurt
+Outdoor Stone-Cooked Milk Broth
+Milk-Boiled Wheat with Butter
+Ghee-Fried Milk Cake
+Milk-Boiled Dumpling Soup
+Airag Cream with Dried Cheese
+Goat Milk Soup with Wild Herbs
+Mountain Milk Custard with Wild Berries
+Boortsog (Fried Dough Crackers)
+Boortsog with Sugar Glaze (Sweet Fried Dough Crackers)
+Boortsog with Clotted Cream (Fried Dough Crackers with Öröm)
+Boortsog with Honey (Fried Dough Crackers with Honey)
+Savory Boortsog (Salted Fried Dough Crackers)
+Tsagaan Boortsog (White Flour Fried Crackers)
+Khaltar Boortsog (Brown Flour Fried Crackers)
+Ghee-Boortsog (Clarified Butter Fried Crackers)
+Barimttai Boortsog (Braided Fried Dough Crackers)
+Milk-Boortsog (Fried Dough Crackers with Milk)
+Ban Bagsha (Twisted Milk Crackers)
+Urga Boortsog (Rope-Shaped Fried Crackers)
+Cream-Filled Boortsog (Stuffed Fried Dough Crackers)
+Layered Boortsog (Multi-layered Fried Crackers)
+Festival Boortsog (Holiday Fried Crackers with Decorative Cuts)
+Boortsog with Poppy Seeds (Fried Dough Crackers with Seeds)
+Boortsog with Caraway (Spiced Fried Crackers with Caraway Seeds)
+Mini Boortsog (Bite-Sized Fried Dough Crackers)
+Horseback Boortsog (Travel-Stable Fried Crackers for Nomads)
+Boortsog with Barley Flour (Barley Fried Dough Crackers)
+Sun-Dried Boortsog (Crispy Air-Dried Dough Crackers)
+Hard Boortsog (Tooth-Breaker Fried Crackers for Long-Term Storage)
+Boortsog with Dried Cheese Dusting (Fried Crackers with Aaruul Powder)
+Boortsog with Dried Yoghurt Topping (Fried Crackers with Khuruud Crumble)
+Butter-Soaked Boortsog (Melted Butter Fried Dough Crackers)
+Mongol Tsagaan Idee (Mongolian White Salad)
+Uutsnii Salat (Boiled Mutton Salad)
+Makhsnii Salat (Cold Meat Salad)
+Tsuivan Salat (Noodle Salad with Meat)
+Aartsnii Salat (Curd Salad)
+Shar Tosnii Goymod (Noodle Salad with Yellow Butter)
+Buuz Salat (Dumpling Salad)
+Guriltai Salat (Pasta Salad with Horse Meat)
+Mongolian Potato and Carrot Salad
+Tsagaan Bainga Salat (White Radish Salad)
+Mongolian Beef Tongue Salad
+Mongolian Liver Salad
+Pickled Cucumber and Horse Sausage Salad
+Horhog Salat (Lamb Stew Salad)
+Aaruul Salat (Dried Curd Salad)
+Egg and Potato Salad with Mayonnaise
+Beet and Yogurt Salad
+Russian Olivier Salad (Mongolian-style)
+Samsa Salat (Meat Pastry Salad)
+Zuunii Salat (Century Salad with Sausage and Peas)
+Khuushuur (Fried Meat Pastry Sandwich)
+Boortsog Ice Cream Sandwich
+Tsuivan Bao Sandwich (Handmade Noodle and Meat Bao Sandwich)
+Khorkhog-in-a-Bun (Mongolian Barbecue Lamb Sandwich)
+Bansh Breakfast Sandwich (Steamed Dumpling Breakfast Sandwich)
+Buuz Slider (Steamed Meat Bun Sandwich)
+Aaruul Cream Cheese Sandwich (Dried Curd Cheese Sandwich)
+Mongolian Smoked Yak Cheese Sandwich
+Tsuivan Wrap Sandwich (Fried Noodle Flatbread Wrap)
+Lamb Liver Pâté Milk Bun Sandwich
+Mongolian Beef and Pickled Turnip Sandwich
+Uuts Slider (Smoked Sheep Back Sandwich)
+Camel Pastrami Flatbread Sandwich
+Yak Burger with Fermented Carrot Slaw
+Airag Marinated Chicken Sandwich (Fermented Mare’s Milk Chicken Sandwich)
+Mongolian Sausage Frybread Sandwich
+Guriltai Shul Melt (Noodle Soup Bread Sandwich)
+Goat Cheese and Wild Onion Milk Bread Sandwich
+Smoked Camel Brisket Flatbread Sandwich
+Fermented Cream and Dill Egg Sandwich on Aaruul Toast
+Lamb Khorkhog Gravy (Stone-Cooked Lamb Gravy)
+Beef Tsuivan Gravy (Stir-Fried Noodle Beef Gravy)
+Mutton Bansh Gravy (Boiled Dumpling Mutton Gravy)
+Mongolian Barbecue Gravy (Griddle-Cooked Meat Gravy)
+Boortsog Milk Gravy (Fried Dough Milk Gravy)
+Tsuivan Gravy (Hand-Cut Noodle Gravy)
+Buuz Gravy (Steamed Dumpling Gravy)
+Lamb Bone Broth Gravy (Slow-Simmered Bone Gravy)
+Khorhog Jus (Seared Lamb Juice Gravy)
+Mongolian Hot Pot Broth (Meat-Based Gravy Broth)
+Sheep Head Soup Gravy (Whole Head Broth Gravy)
+Horse Meat Gravy (Equine Protein Reduction Gravy)
+Camel Meat Gravy (Desert Livestock Gravy)
+Yak Butter Gravy (Mountain Livestock Butter Reduction)
+Milk Tea Reduction Gravy (Salted Tea Thick Gravy)
+Mongolian Black Pepper Lamb Gravy
+Wild Game Gravy (Venison or Boar Reduction Gravy)
+Barbecue Beef Rib Gravy (Charcoal-Roasted Rib Sauce)
+Fermented Mare’s Milk Gravy (Airag Sauce Reduction)
+Goat Liver Gravy (Offal-Based Gravy Sauce)
+Chanasan Makh Gravy (Boiled Meat Stock Gravy)
+Mongolian Chili Beef Gravy
+Nomadic Campfire Gravy (Field-Cooked Meat Sauce)
+Mongolian Creamed Organ Gravy
+Beef Fat and Onion Gravy (Tallow Reduction Sauce)
+Uuts Lamb Rack Gravy (Steamed Rib Gravy)
+Mongolian Smoked Mutton Gravy
+Shank Bone Marrow Gravy (Roasted Leg Gravy)
+Bilüü Jam (Wild Sea Buckthorn Jam)
+Bilüü Jelly (Wild Sea Buckthorn Jelly)
+Tsagaan Chagaan Budaa Jam (White Barley Milk Jam)
+Chonogol Jam (Red Currant Jam)
+Ulaan Budargana Jam (Wild Rosehip Jam)
+Toson Jam (Clarified Butter Jam with Sugar)
+Uuzin Tos Jam (Tail Fat Preserve Jam)
+Samar Jam (Pine Nut Jam)
+Yalguun Jam (Gooseberry Jam)
+Togoruu Jam (Cranberry Jam)
+Sütei Jam (Milk Jam)
+Suutei Tsai Syrup (Milk Tea Syrup Jelly)
+Bor Budaa Syrup Jelly (Brown Millet Jelly)
+Khar Budaa Preserve (Black Rice Preserve Jam)
+Boortsog Syrup Jelly (Fried Dough Syrup Jelly)
+Ulaan Ürgamal Jam (Wild Berry Jam)
+Chaga Mushroom Jam (Birch Fungus Jam)
+Töröl Büteegdehüünii Jam (Mixed Foraged Fruit Jam)
+Tarvaganii Öhöör Jam (Marmot Fat Caramel Jam)
+Yak Milk Jelly (Yak Milk Sweet Gelatin)
+Kumis Syrup Jelly (Fermented Mare’s Milk Jelly)
+Pickled Cucumber with Dill
+Pickled White Radish with Garlic
+Pickled Carrot and Turnip Slices
+Pickled Cabbage with Caraway
+Pickled Wild Garlic Shoots
+Pickled Horseradish Root
+Pickled Green Tomato Wedges
+Pickled Ramsons (Wild Onion Bulbs)
+Pickled Cowberry with Salt
+Pickled Sea Buckthorn with Honey
+Pickled Mushroom Medley in Brine
+Pickled Lamb Fat with Onions
+Pickled Fermented Milk Cream (Aaruul Brine Pickle)
+Pickled Yak Cheese Rind in Whey
+Pickled Curds in Salt Brine
+Pickled Sheep Intestines in Vinegar
+Pickled Marrow Bone Chunks
+Pickled Beef Tendons with Chili Brine
+Pickled Wild Onion Flowers
+Pickled Rhubarb with Clove Syrup
+Pickled Goat Liver Slices
+Pickled Juniper Berry Mash
+Pickled Dried Meat Bits in Garlic Brine
+Pickled Turnip Greens with Mustard Seed
+Pickled Smoked Sausage Ends in Brine
+Pickled Goat Cheese Scraps in Saltwater
+Pickled Suutei Tsai Cream Layer (Salt Milk Tea Film Pickle)
+Pickled Fermented Barley Mash
+Pickled River Fish in Sour Brine
+Pickled Horse Sausage Ends with Vinegar
+Pickled Camel Fat with Bay Leaf Brine
+Pickled Apple Cores in Saltwater
+Pickled Pine Cone Tips in Syrup
+Pickled Wild Plum Skins in Brine
+Pickled Fermented Milk Skin (Top Layer from Boiled Milk)
+Pickled Tallow Bits in Onion Brine
+Pickled Crushed Barley Sprouts
+Pickled Onion Relish with Goat Fat
+Pickled Beetroot with Dill and Caraway
+Pickled Fermented Cream Residue
+Bansh Shul (Lamb Dumpling Stew)
+Guriltai Shul (Hand-Cut Noodle and Meat Stew)
+Tsuivan Shul (Stewed Noodle and Meat Dish)
+Khorkhog (Stone-Cooked Mutton Stew)
+Boortsog Shul (Fried Dough and Meat Stew)
+Boodog Shul (Roasted Goat Stew)
+Bantan (Flour Crumble and Lamb Broth Stew)
+Nogoon Shul (Vegetable and Meat Stew)
+Tsamtsganii Shul (Fermented Cream Stew)
+Chanasan Makh Shul (Boiled Meat and Broth Stew)
+Shöltei Khorkhog (Brothy Stone-Cooked Lamb Stew)
+Mongol-Style Beef Rib Stew
+Yak Meat and Turnip Stew
+Goat Liver and Tripe Stew
+Camel Hump Fat and Root Vegetable Stew
+Horse Meat and Wild Onion Stew
+Lamb Bone Marrow and Dumpling Stew
+Yak Milk Skin and Barley Stew
+Intestine and Potato Stew (Household Winter Stew)
+Kidney and Blood Curd Stew
+Barley Noodle and Dried Meat Stew
+Air-Dried Jerky and Radish Stew
+Sour Curd and Sheep Fat Stew
+Tail Fat and Cabbage Stew
+Fermented Cheese and Goat Meat Stew
+Salted Butter and Mutton Neck Stew
+Innards and Onion Stew (Traditional Herder’s Stew)
+Steamed Meat Jelly Stew (Winter Aspic Broth)
+Sheep Head and Carrot Stew
+Milk Skin and Wild Garlic Stew
+Buckwheat Dumpling and Horse Broth Stew
+Lamb Tongue and Wild Herb Stew
+Frozen Fatback and Blood Sausage Stew
+Sour Yogurt and Roasted Bone Broth Stew
+Black Pudding and Root Stew
+Camel Milk and Barley Stew
+Mutton Knuckle and Mustard Leaf Stew
+Fermented Mare’s Milk and Offal Stew
+Wood-Fired Stone Pot Lamb Stew
+Charred Bone and Fermented Cream Stew
+Mongolian Five-Meat Stew (Traditional Festival Stew)
+Dried Curds and Turnip Leaf Stew
+Goat Tallow and Wild Turnip Stew
+Herders’ Midnight Stew (Leftover Meat and Broth)
+Horse Rib and Salt Curd Stew
+Nomadic Breakfast Stew (Lamb, Tea, Milk Broth)
+Mongolian Barbecue Glaze
+Fermented Milk Caramel Glaze
+Jamsran Sauce (Fermented Barley and Meat Glaze)
+Sweetened Sheep’s Milk Glaze
+Smoked Yogurt and Honey Glaze
+Charred Onion and Fermented Cream Glaze
+Goat Milk Reduction Glaze
+Sea Buckthorn and Yak Milk Glaze
+Burnt Butter and Suutei Tsai (Salted Milk Tea Glaze)
+Air-Dried Beef Fat Glaze
+Caramelized Fermented Milk Skin Glaze
+Mongolian Black Garlic Glaze
+Sorghum Molasses Glaze
+Charred Bone Marrow and Milk Glaze
+Stone-Burnt Dairy Ash Glaze
+Wild Juniper and Fermented Cream Glaze
+Wood-Fired Kumis Glaze (Fermented Mare’s Milk Glaze)
+Mutton Stock and Yogurt Glaze
+Mongolian Wild Thyme and Rendered Fat Glaze
+Salted Camel Milk Glaze
+Boodog (Whole Goat Roasted with Hot Stones)
+Khorkhog (Lamb Roasted with Hot Stones in Pressure Vessel)
+Tsuivan Baked Style (Baked Noodle and Meat Casserole)
+Guriltai Shul Oven-Baked (Baked Noodle and Lamb Broth Reduction)
+Tandoor-Style Mongolian Lamb Roast
+Mongolian Baked Goat with Rock Salt Crust
+Whole Roasted Yak Shoulder
+Baked Lamb with Wild Garlic and Onions
+Mongolian Spiced Leg of Mutton (Oven-Roasted)
+Uukhai Baked Dumplings (Victory Feast Roasted Dumplings)
+Baked Blood Sausage with Root Vegetables
+Mongolian Fire-Roasted Camel Hump
+Baked Sheep’s Head (Ceremonial Roasted Sheep’s Head)
+Stone-Oven Baked Buuz (Baked Dumpling Variant)
+Clay-Baked Marmot in Traditional Pit
+Roasted Horse Meat with Fermented Garlic Glaze
+Oven-Baked Uuz (Roasted Sheep’s Fatty Rump)
+Mongolian Barbecue-Style Baked Lamb Ribs
+Baked Tsuivan with Yak Milk Cheese Crust
+Roasted Root Vegetable and Goat Casserole
+Fire-Baked Bone Marrow with Wild Herbs
+Baked Khushuur (Baked Meat Pie Variant)
+Coal-Roasted Wild Boar Leg
+Open Fire Baked Bansh (Mini Dumpling Variant)
+Clay-Pot Roasted Milk Cake with Yak Butter
+Baked Buckwheat Flatbread with Charcoal Lamb
+Byaslag chanasan jims (Boiled Fruits with Cheese)
+Chanasan jims (Boiled Fruits)
+Tarag jimsnii salat (Yogurt Fruit Salad)
+Modnii jims (Wild Forest Fruit Medley)
+Jimsnii suutei shurguulga (Fruits in Sweet Milk Sauce)
+Ulaan jimsnii tsai (Red Fruit Herbal Tea)
+Khatan suutei jims (Royal Milk-Soaked Fruits)
+Airag jimsnii sorvoloo (Fermented Mare’s Milk with Fruits)
+Tsagaan idee jims (White Dairy Plate with Fruit Garnish)
+Khar khunsnii jims (Black Nutrient Fruit Mix)
+Nermel jims (Distilled Fruit Conserve)
+Tsatsalj khataasan jims (Sun-Dried Sprinkled Fruits)
+Khuushuur jims (Fruit-Filled Fried Pastry)
+Jimstei khushuur (Fried Turnover with Fruit Filling)
+Tsuivan jims (Sweet Stir-Fried Noodles with Fruit)
+Suutei jimsnii kholits (Milk-Fruit Compound)
+Zakh zeeliin jims (Market-Style Seasonal Fruit Plate)
+Jimsnii chutney (Mongolian Fruit Chutney)
+Chandmani jims (Heavenly Mixed Fruit Plate)
+Yam kholij jims (Tuber-Fruit Mash)
+Boortsog (Fried Dough Pastry)
+Khuurga Guril (Pan-Baked Noodle Bread)
+Tavan Bogd Talh (Five Peak Bread)
+Aaruul Talh (Curd Cheese Bread)
+Shar Talh (Yellow Sweet Bread)
+Khar Talh (Black Rye Bread)
+Tsagaan Guril Talh (White Flour Bread)
+Zuun Talh (Yeast-Risen White Bread)
+Bor Talh (Brown Barley Bread)
+Gambir (Mongolian Layered Pancake Bread)
+Tsagaan Gambir (White Flour Pancake Bread)
+Chagaan Shar Gambir (Sweet Layered Butter Pancake)
+Toson Guril (Oil-Fried Dough Bread)
+Uutsnii Boortsog (Festive Fried Dough Pastry)
+Suutei Boortsog (Milk-Enriched Fried Pastry)
+Suutei Gambir (Milk Flatbread Pancake)
+Byambyn Talh (Weekend Family Bread)
+Guliin Khuurga (Sugar-Fried Bread Crumble)
+Uguumur Boortsog (Honey-Dipped Fried Pastry)
+Zairmag Boortsog (Ice Cream-Filled Pastry)
+Talh Suutei Khuurga (Milk-Bread Crumble Pudding)
+Salkhit Talh (Wind-Dried Milk Bread)
+Suutei Shaartai Boortsog (Milk Dregs Pastry)
+Mongol Donut (Sweet Fried Dough Ring)
+Zuun Tuurai Talh (Hundred Hoofprint Bread)
+Tos Tokhoi Gambir (Elbow Grease Butter Pancake)
+Zuunii Khuurga (Century Bread Crumble)
+Guriltai Bantan Talh (Soup Dough Bread)
+Ereen Guril Talh (Striped Flour Bread)
+Tsagaan Sar Talh (Lunar New Year Holiday Bread)
+Altan Tos Boortsog (Golden Oil Pastry)
+Chigleltiin Gambir (Directional Layered Bread)
+Khevliin Khuurga (Pressed Dough Bread)
+Salkhiin Shar Talh (Wind-Blown Yellow Bread)
+Suutei Uguumur Gambir (Milky Sugar Pancake)
+Khan Talh (Khan’s Feast Bread)
+Gatsuurin Boortsog (Pine Tree Fried Dough)
+Bayariin Gambir (Celebration Sweet Pancake)
+Bansh (Boiled Meat Dumplings)
+Buuz (Steamed Meat Dumplings)
+Khuushuur (Fried Meat Pastries)
+Tsuivan (Hand-Cut Noodle Stir-Fry)
+Guriltai Shul (Noodle Soup with Meat)
+Khorkhog (Stone-Cooked Lamb Stew)
+Boodog (Whole Goat Cooked with Hot Stones)
+Sharsan Makh (Pan-Fried Meat)
+Uuts (Boiled Sheep’s Back and Tail)
+Chanasan Makh (Boiled Mutton with Bones)
+Byatsaakh (Deep-Fried Dough with Meat)
+Aaruul (Dried Yogurt Curds)
+Tarak (Fermented Mare’s Milk Yogurt Drink)
+Suutei Tsai (Salted Milk Tea)
+Airag (Fermented Mare’s Milk)
+Boortsog (Fried Sweet Dough)
+Eezgii (Dried Rendered Curd)
+Öröm (Clotted Cream)
+Zalgaatai Khushuur (Double-Filled Fried Meat Pastry)
+Tsuivan with Beef (Beef Hand-Cut Noodle Stir-Fry)
+Tsuivan with Mutton (Mutton Hand-Cut Noodle Stir-Fry)
+Fried Bansh (Pan-Fried Dumplings)
+Lamb Khorkhog (Stone-Cooked Lamb in Pressure Pot)
+Goat Boodog (Whole Goat with Stones and Herbs)
+Kumis Ice Cream (Airag Frozen Dessert)
+Chulun Deer Khorkhog (Stone-Cooked Venison)
+Yak Milk Pudding (Sweetened Yak Milk Dessert)
+Mongolian Hot Pot (Assorted Meats in Broth)
+Milk Skin Roll (Rolled Dried Milk Film)
+Mutton Bone Broth (Sheep Bone Soup)
+Sheep Head Soup (Boiled Sheep Head in Broth)
+Milk Liver Stew (Organ Meat and Milk Stew)
+Flour Soup (Boiled Dough Soup)
+Carrot and Suutei Tsai Porridge (Sweet Milk Tea Porridge)
+Urum-Topped Boortsog (Clotted Cream with Fried Dough)
+Barbecue Khorkhog (Grilled Stone Lamb Stew)
+Charred Boodog (Fire-Roasted Whole Goat)
+Yogurt-Stuffed Bansh (Fermented Milk Dumplings)
+Sour Milk Soup (Fermented Milk Broth)
+Milk Skin Noodles (Dried Cream with Noodles)
+Crispy Khuushuur (Thin Crust Fried Pastry)
+Buffalo Buuz (Steamed Buffalo Meat Dumplings)
+Vegetarian Tsuivan (Hand-Cut Noodles with Vegetables)
+Wild Onion Khuushuur (Fried Pastry with Spring Onion)
+Sheep Tail Fat Rice (Rendered Tail Fat Fried Rice)
+Fried Aaruul Pancake (Yogurt Curd Flatbread)
+Dried Milk Chips (Sweetened Milk Curds)
+Blood Sausage with Suutei Tsai (Steamed Blood Links with Milk Tea)
+Borts (Air-Dried Cured Meat)
+Chalgan Makh (Salt-Cured Fatback)
+Horhog-Cured Mutton (Stone-Cooked Cured Mutton)
+Air-Dried Goat Backstrap
+Salted Horsemeat Strips
+Fermented Yak Milk Curd (Cured Form)
+Cured Camel Jerky
+Shuz (Sun-Dried Cured Organ Meats)
+Cured Mutton Fat Tallow Blocks
+Smoked Mutton Intestine Sausage
+Salt-Cured Beef Rib Cuts
+Air-Dried Yak Jerky
+Cured Goat Tripe Rolls
+Sun-Cured Camel Loin
+Salt-Preserved Sheep Lung
+Stone-Cured Bone Marrow Pucks
+Cured Yak Meat with Wild Garlic
+Cured Horse Neck Fillet
+Salt-Cured Offal Mix (Traditional Winter Ration)
+Pressed and Salted Lamb Shoulder Sheets
+Boortsog Wrap (Fried Dough Bread Wrap)
+Khuushuur Wrap (Fried Meat Pastry Wrap)
+Bansh Wrap (Steamed Dumpling Wrap)
+Buuz Wrap (Steamed Meat Dumpling Wrap)
+Tsuivan Wrap (Hand-cut Noodle Stir-fry Wrap)
+Khorhog Wrap (Stone-cooked Mutton Wrap)
+Shorlog Wrap (Grilled Skewer Wrap)
+Airag-Marinated Beef Wrap (Fermented Mare’s Milk-Marinated Beef Wrap)
+Lamb Tail Fat Wrap (Rendered Lamb Fat Wrap)
+Suutei Tsai Chicken Wrap (Milk Tea Chicken Wrap)
+Guriltai Shul Wrap (Noodle Soup Wrap)
+Tsuivan-Khuushuur Fusion Wrap (Noodle and Fried Dumpling Wrap)
+Yak Milk Cheese Wrap (Aaruul Wrap)
+Wild Onion and Mutton Wrap
+Mongolian Hot Pot Wrap (Boodog-Style Wrap)
+Mutton Blood Sausage Wrap
+Goat Cheese and Fat Wrap
+Smoked Horsemeat Wrap
+Barbecue Mutton Rib Wrap
+Flour Cake Wrap (Gambir Wrap)
+Steamed Liver Pâté Wrap
+Fermented Cream Wrap (Öröm Wrap)
+Dried Curd and Meat Wrap (Byaslag-Tsagaan Idee Wrap)
+Charred Scallion and Mutton Wrap
+Roasted Bone Marrow Wrap
+Milky Rice Porridge Wrap (Savory Guriltai Budaatai Khuurga Wrap)
+Chanasan Makh Wrap (Boiled Meat Wrap)
+Wild Garlic and Yak Wrap
+Steamed Organ Meat Wrap
+Carrot and Suutei Tsai Wrap
+Fat-Fried Dough Wrap with Beef
+Sour Cream and Dried Meat Wrap
+Goat Blood Jelly Wrap
+Smoked Yak Heart Wrap
+Winter Fat and Garlic Chive Wrap
+Stewed Horsemeat and Turnip Wrap
+Camel Hump Wrap
+Charred Yogurt Cake Wrap
+Buurug Sharsan Zagas (Fried River Fish)
+Tsuivan Zagastai (Fish Noodle Stir-Fry)
+Chanasan Zagas (Boiled Freshwater Fish)
+Zagas Khorkhog (Fish Cooked in Hot Stone Pot)
+Zagas Khuits (Fish Cold Salad)
+Taimen Zasgal (Grilled Taimen Trout)
+Zagasny Shul (Mongolian Fish Soup)
+Zagastai Bansh (Fish Dumpling Soup)
+Zagas Chanaj Sharsan (Boiled then Pan-Fried Fish)
+Zagas Byambat (Baked Stuffed Fish with Barley)
+Taimen Jor (Poached Taimen with Salt and Herbs)
+Uuraar Bolgosen Zagas (Steamed River Fish)
+Zagas Tsuivan (Noodle Stir-Fry with River Fish)
+Zagastai Guriltai Shul (Fish and Noodle Broth)
+Zagasny Tsagaan Sos (Fish in White Sauce)
+Zagastai Khuurga (Fried Rice with Fish)
+Zagas Zuush (Fish Appetizer Platter)
+Taimen Khailmag (Fish and Fat Curd Hot Dish)
+Zagastai Budaa (Steamed Rice with Fish)
+Zagas Orooson (Fish Wrapped in Dough and Baked)
+Chigee (Mongolian Clarified Butter)
+Urum (Clotted Cream Butter)
+Tos (Basic Rendered Butter)
+Toson Khuurga (Fried Butter Rice)
+Urum Tos (Cream-Butter Blend)
+Tsagaan Tos (White Butter from Yak Milk)
+Süütei Tsai Tos (Butter for Milk Tea)
+Khar Tos (Smoked Yak Butter)
+Boortsog Butter Glaze
+Mongolian Yak Butter
+Salted Camel Milk Butter
+Airag Butter (Fermented Mare’s Milk Butter)
+Winter-Stored Yak Milk Butter
+Barimtlag Tos (Cultured Butter)
+Butter for Tsuivan (Stir-Fry Noodle Butter)
+Butter for Bansh Soup
+Butter-Fried Khuushuur
+Traditional Festival Butter Spread
+Dried Butter Chips for Travel
+Butter Preserved in Sheep Stomach Fat
+Yak Butter for Offerings (Ritual Butter)
+Bansh (Mongolian Dumplings with Flour Wrappers)
+Buuz (Steamed Flour Dumplings)
+Khuushuur (Fried Flour Meat Pockets)
+Gambir (Pan-Fried Sweet Flour Flatbread)
+Boortsog (Fried Flour Cookies)
+Uuz (Steamed Sheep Meat with Flour Dough Wrapping)
+Tsuivan (Stir-Fried Flour Noodle Stew)
+Tsuivan Khuurga (Flour Noodle Fried Rice Hybrid)
+Guriltai Shul (Flour Noodle Soup)
+Kheviin Boov (Layered Celebration Flour Cake)
+Bantan (Flour-Curdled Soup)
+Tarag Guril (Fermented Milk with Roasted Flour Paste)
+Eezgii Guril (Clarified Milk and Roasted Flour Nuggets)
+Huurai Guril (Dry Roasted Flour Base)
+Tsamts (Flour Dough Twists)
+Flour-Stuffed Mutton Fat Pancakes
+Roasted Flour Millet Porridge
+Chalh (Flour Soup with Rendered Fat)
+Flour Buckwheat Noodle Stew
+Steamed Flour Bread with Horse Fat
+Layered Flour Meat Pastries
+Jigdermel Guril (Fried Flour-Sugar Loops)
+Stone-Baked Flour Dumplings
+Camel Fat-Coated Fried Flour Discs
+Mountain Hunter’s Roasted Flour Cakes
+Festival Sweetened Flour Scrolls
+Nomadic Flour Pouches with Boiled Offal Filling
+Smoke-Dried Flour Dough Dumplings
+Yogurt-Filled Flour Discs
+Air-Dried Flour Crackers with Goat Cheese
+Wild Onion Flour Pocket Pies
+Sheep Tail Fat Flour Braids
+Flour Crust Pie with Blood Sausage Filling
+Churned Cream and Flour Crisps
+Sun-Dried Flour Dough Chips
+Flour Noodle and Yak Butter Broth
+Thickened Flour Soup with Wild Game
+Stone-Hot Flour Dumpling Stew
+Pressed Flour Dumplings with Dried Milk Filling
+Goat-Fat Basted Layered Flour Pillows
+Caramelized Flour Noodle Cluster
+Flour-Fried Air-Dried Jerky Wraps
+Flour Ribbon Stew with Horsemeat
+Wood-Smoked Flour Meat Casserole
+Boortsog (Fried Dough Cookies)
+Khar Sharsan Tsuurai (Crispy Brown Sugar Crust Pastries)
+Guriltai Suv (Sweet Milk Tea with Rock Sugar)
+Uutsny Khar Zairmag (Traditional Sugar-Fried Ice Cream)
+Mongol Tsartsaa (Mongolian Sugar Candy)
+Sugar-Dusted Buuz (Sweet Dumpling Variant)
+Khar Sharsan Boortsog (Dark Sugar Fried Dough)
+Karameljuulsan Tsagaan Idee (Caramelized Dairy Sweets)
+Sweet Uuz Pudding (Lamb Back Sweet Custard)
+Rock Sugar Milk Tea with Fried Dough
+Brown Sugar Fried Khushuur (Sweetened Fried Pastry)
+Sugar-Coated Aaruul (Sweetened Dried Curd)
+Honeyed Yak Milk Cake
+Sweet Milk Skin Rolls with Sugar Glaze
+Deep-Fried Milk Dough with Sugar
+Spiced Milk Sugar Jelly
+Molasses-Glazed Fried Dough Bites
+Traditional Milk Fudge with Cane Sugar
+Caramelized Clotted Cream Squares
+Thickened Milk Syrup with Brown Sugar
+Byaslag (Homemade Mongolian Curd Cheese)
+Aaruul (Sun-Dried Curd Cheese)
+Bor Aaruul (Brown Dried Cheese Curds)
+Tsagaan Aaruul (White Dried Cheese Curds)
+Khar Aaruul (Black Dried Cheese Curds)
+Zuutai Aaruul (Soft Sweet Cheese Curds)
+Savtai Aaruul (Molded Decorative Cheese Curds)
+Shar Tos Byaslag (Clarified Butter Cheese)
+Uuts Byaslag (Wrapped Festival Curd Cheese)
+Harts Byaslag (Wild Fermented Cheese)
+Undur Byaslag (Mountain-Style Dense Curd Cheese)
+Toson Aaruul (Fat-Enriched Dried Cheese Curds)
+Eezgii (Roasted Curd Cheese Nubs)
+Boortsog-Chocolate Aaruul (Fried Dough and Chocolate Cheese Bites)
+Tosgolog Aaruul (Cream-Filled Sweet Cheese Curds)
+Aaruul Khorkhoi (Cheese Worms)
+Arkhi Aaruul (Distilled Milk Cheese Residue)
+Suutei Aaruul (Milk-Soaked Cheese Curds)
+Shimiin Aaruul (Nutrient-Dense Cheese Curds)
+Yokhor Byaslag (Festival Butter Cheese)
+Tsonkhon Aaruul (Window-Dried Cheese Slabs)
+Zairmag Aaruul (Frozen Dessert Cheese Curds)
+Altan Aaruul (Golden Glazed Cheese Curds)
+Jinst Aaruul (Fruit-Infused Cheese Curds)
+Chagaan Sar Aaruul (Lunar New Year Cheese Assortment)
+Tuv Byaslag (Central Steppe Traditional Cheese)
+Goviin Aaruul (Gobi Desert Style Dried Cheese)
+Khot Aaruul (Urban Sweetened Cheese Curds)
+Baatar Aaruul (Hero’s Cheese Curds)
+Nomadic Rider’s Aaruul (Travel-Ready Cheese Curds)
+Khailmag Aaruul (Molten Butter Cheese Curds)
+Suutei Khailmag (Sweet Butter Melted Cheese)
+Delgerekh Byaslag (Flour-Enriched Fermented Cheese)
+Khar Suutei Byaslag (Black Milk Cheese)
+Ezen Byaslag (Master’s Aged Cheese)
+Eeremshsen Byaslag (Pressed Cottage Cheese)
+Shar Byaslag (Yellow Hard Cheese)
+Nogoon Aaruul (Herb-Infused Cheese Curds)
+Khushuu Byaslag (Fragrant Wood-Smoked Cheese)
+Süütei Tsai Vinegar Reduction (Milk Tea Vinegar Reduction)
+Airag Vinegar (Fermented Mare’s Milk Vinegar)
+Borts Marinade with Vinegar (Dried Meat Vinegar Marinade)
+Boortsog Pickled Vinegar Syrup (Fried Dough Vinegar Syrup)
+Suutei Gooli (Vinegared Milk Curds)
+Nomadic Onion Vinegar Dressing
+Horse Meat Vinegar Reduction Sauce
+Mongolian Pickled Wild Garlic in Vinegar
+Yak Milk Vinegar Glaze
+Chagaan Idee Preserved in Vinegar (White Food Vinegar Preservation)
+Siberian Rhubarb Vinegar Tincture
+Fermented Camel Milk Vinegar
+Sutai Shar (Vinegared Clarified Butter Infusion)
+Tsuivan Vinegar Seasoning (Stir-Fried Noodle Vinegar Sauce)
+Uuts Glaze with Malt Vinegar (Lamb Back Glazed with Vinegar)
+Fermented Wheat Vinegar Broth
+Vinegared Boiled Tail Fat
+Sea Buckthorn Leaf Vinegar Reduction
+Vinegar-Preserved Sheep Intestine
+Nomadic Vinegar-Infused Root Paste
+Mongolian Black Vinegar Infusion (Northern China–influenced, used in border stews)
+Wild Juniper Vinegar Steeping Liquid
+Mongolian Dumpling Vinegar Dip
+Sour Curd Vinegar Dressing
+Tarag Marinade with Apple Cider Vinegar (Yogurt-based Marinade)
+Vinegar-Pickled Carrot and Daikon Slaw (Used with Khorkhog)
+Chal Mongol Vinegar Soak (Central Asian Sourdough Vinegar Base)
+Smoked Goat Cheese with Herb Vinegar Glaze
+Mongolian Barley Vinegar Emulsion
+Mutton Rib Glaze with Grape Vinegar Reduction
+Vinegared Mushroom and Garlic Confit (used in urban modern menus)
+Salted Camel Jerky with Vinegar Dust
+Tallow Vinegar Gel (Michelin-style)
+Aaruul Vinegar Crumble (Dried Curd Cheese with Vinegar Crust)
+Yak Liver Tartare with Chive Vinegar
+Honey-Ghee Fried Bread (Boortsog with Honey Drizzle)
+Buckwheat Pancakes with Wild Honey
+Mongolian Yogurt with Steppe Honey
+Hot Milk Tea with Honey (Suutei Tsai with Honey)
+Fermented Mare’s Milk with Honey (Airag Honey Blend)
+Baked Boortsog with Honey Syrup Glaze
+Honey-Roasted Lamb with Wild Herbs
+Siberian Pine Nut Honey Spread
+Fried Dough Twists with Honey (Mongol Honey Twists)
+Sweet Cream Porridge with Honey (Tsuivan Sweet Milk Porridge)
+Goat Cheese and Honey Flatbread
+Honey-Sesame Fried Dumplings
+Honeyed Dried Curd Cheese Bites
+Nomadic Honey Milk Pudding
+Barley Balls in Honeyed Milk
+Chagaan Idee with Wildflower Honey
+Steppe Flower Honeycomb with Traditional Cheese
+Wild Honey and Walnut Tea Cakes
+Buckwheat Honey Glazed Root Vegetables
+Camel Milk Yogurt with Desert Honey
+Suutei Tsai (Salted Milk Tea)
+Süütei Tsai with Toasted Millet (Salted Milk Tea with Toasted Millet)
+Süütei Tsai with Butter (Salted Milk Tea with Butter)
+Süütei Tsai with Fried Dough (Salted Milk Tea with Fried Dough)
+Süütei Tsai with Airag (Salted Milk Tea with Fermented Mare’s Milk)
+Süütei Tsai with Dried Curds (Salted Milk Tea with Aaruul)
+Tsai Salkhin (Wind Tea with Butter and Salt)
+Yak Butter Tea (Tibetan-style Tea with Yak Butter, as served in Mongolian monasteries)
+Nomads’ Campfire Tea (Salted Milk Tea with Burnt Stones)
+Tsagaan Tsai (White Milk Tea with No Salt)
+Horhog Tsai (Steeped Tea Served with Steamed Meat Fat)
+Süütei Tsai with Brick Tea Base (Compressed Black Tea with Salt and Milk)
+Festival Milk Tea (High-Fat Milk Tea for Tsagaan Sar)
+Daily Herdsman’s Milk Tea (Everyday Salted Milk Tea Variant)
+Boortsog-Infused Milk Tea (Milk Tea with Mongolian Fried Dough)
+Ulaan Tsai (Red Tea without Milk or Salt)
+Chalcha Milk Tea (Western Mongolia Style with Fermented Cream)
+Buryat Sweet Milk Tea (Mongolian-Russian Border Style Sweet Tea)
+Tea with Tsuivan Broth (Savory Milk Tea Made with Noodle Stew Base)
+Milk Tea with Smoked Goat Fat (Regional Highland Variant)
+Milk Tea with Camel Milk (Gobi Region Variant of Salted Milk Tea)
+Suutei Tsai (Salted Milk Tea)
+Tarag (Fermented Yogurt Milk)
+Airag (Fermented Mare’s Milk)
+Shimiin Arkhi (Distilled Milk Liquor)
+Uutsnii Suunii Tsai (Milk Tea for Steamed Sheep’s Back)
+Aarts (Curdled Dried Yogurt Milk)
+Khailmag (Mongolian Clotted Cream Milk)
+Boortsog Dipped in Milk Tea
+Tos (Rendered Milk Fat with Clotted Milk Solids)
+Bantan with Milk (Milk-based Flour Soup)
+Eezgii (Dried Milk Curd)
+Milk Rice Porridge
+Baked Milk with Cream Layer
+Milk Skin Rolls
+Dried Yogurt Milk Balls (Aaruul)
+Mongolian Butter Milk
+Goat Milk Suutei Tsai
+Yak Milk Tarag
+Camel Milk Airag
+Oat Milk Suutei Tsai
+Sweetened Milk with Boortsog
+Herdsman’s Hot Milk Drink
+Milk Tea with Fried Dough
+Winter Clotted Cream Porridge
+Cow Milk Aarts
+Nomadic Milk Butter Spread
+Caramelized Milk with Burnt Cream
+Spring Milk Soup with Dumplings
+Mongolian Sweet Milk Custard
+Boortsog with Dried Fruit (Fried Dough with Dried Fruit)
+Suutei Tsai with Dried Fruit (Milk Tea with Dried Fruit Garnish)
+Uuz with Dried Wild Apricot Glaze (Baked Sheep Back with Dried Apricot Glaze)
+Dried Yak Milk Crumble with Raisins
+Ul Boov with Dried Fruit Layer (Ceremonial Tower Cake with Dried Fruit Layer)
+Chanasan Makh with Dried Berries (Boiled Meat with Dried Sea Buckthorn or Gooseberries)
+Tsagaan Idee Dried Fruit Curds (White Food Platter with Dried Milk and Fruit Confections)
+Byaslag with Dried Fruit (Pressed Cheese with Dried Fruit)
+Air-Dried Goat Cheese and Fruit Stack
+Dried Fruit Bantan (Milk and Flour Soup with Rehydrated Fruit)
+Traditional Fruit Leather Rolls (Dried Apricot or Apple Leather)
+Dried Sea Buckthorn Paste Balls
+Dried Wild Currant Infused Khailmag (Caramelized Cream with Currants)
+Tsatsal with Dried Fruit (Sprinkling Offering with Dried Fruit Bits)
+Milk Skin with Sun-Dried Apricot Purée
+Eezgii with Dried Fruit Garnish (Clarified Milk Curd with Fruit Bits)
+Dried Apple-Stuffed Dumplings in Milk Broth
+Horhog with Dried Fruit Glaze (Stone-Cooked Meat with Dried Fruit Reduction)
+Fruit-Infused Tsuivan (Handmade Noodles with Dried Fruit)
+Jamsran’s Festival Dried Fruit Medley (Named household version used in Lunar New Year rituals)
+Milk Fudge with Dried Gooseberries
+Pressed Dried Fruit Squares with Aruul (Dried Curd Candy Blend)
+Dried Date and Milk Skin Terrine
+Dried Fig and Goat Cheese Stack
+Dried Fruit-Stuffed Khuushuur (Pan-Fried Dumplings with Sweet Fruit Filling)
+Dried Cranberry and Yak Butter Flatbread
+Camel Milk and Dried Fruit Tart
+Fermented Milk and Dried Apricot Layer Cake
+Dried Sour Cherry Milk Porridge
+Glazed Dried Fruit Khushuur (Sweetened Dessert Dumpling with Dried Fruit)
+Orom with Compressed Dried Fruit (Milk Skin with Pressed Fruit Layer)
+Dried Pear in Sweet Milk Syrup
+Dried Juniper Berry and Cream Stew
+Borts (Air-Dried Stripped Beef)
+Bortslog (Pounded Dried Meat Paste)
+Dehydrated Yak Milk Curd
+Dehydrated Camel Milk Curd
+Aaruul (Dried Curd Cheese)
+Byaslag Aaruul (Dried Cow Cheese Curds)
+Huurhun Aaruul (Sweet Dried Curd)
+Chigirtma Aaruul (Soft Dried Curd)
+Sun-Dried Goat Meat
+Sun-Dried Horse Meat
+Dehydrated Camel Jerky
+Freeze-Dried Milk Bricks
+Dried Mongolian Blood Sausage
+Dried Sheep Lung Strips
+Sun-Dried Wild Onion Leaves
+Sun-Dried Turnip Slices
+Dehydrated Barley Dough Slices
+Air-Dried Dumpling Skins
+Air-Dried Noodle Sheets
+Dehydrated Fermented Milk Pellets
+Dried Fermented Mare’s Milk (Airag Powder)
+Dried Wild Garlic Flakes
+Dried Buckwheat Cakes
+Dehydrated Boortsog Dough Chips
+Sun-Dried Butter Cakes
+Salted Dried Mutton Fat Strips
+Dehydrated Suutei Tsai Base (Milk Tea Base Powder)
+Dried Uuz Fatback (Lamb Tail Fatback Slices)
+Dehydrated Camel Hump Shavings
+Freeze-Dried Beef Liver Slabs
+Sun-Crisped Goat Cheese Thins
+Jerky-Style Dried Goat Ribs
+Dried Fat-Coated Millet Blocks
+Air-Dried Sheep Rib Jerky
+Dried Meat-Stuffed Pastry Shells
+Fermented Whey Powder Cakes
+Lacto-Dried Yogurt Rounds
+Sun-Dried Camel Milk Sheets
+Stone-Dried Root Vegetable Wafers
+Smoke-Dried Curds with Salt
+Dehydrated Clotted Cream Spheres
+Vacuum-Dried Nomadic Stew Cubes
+Sun-Dried Khailmag Residue (Milk Skin Crust)
+Tarag (Mongolian Yogurt)
+Aaruul Tarag (Yogurt with Dried Curd Cheese)
+Khailmag Tarag (Caramelized Clotted Yogurt)
+Suutei Tarag (Milk Yogurt)
+Tsagaan Idee Tarag (White Food Yogurt)
+Eezgii Tarag (Roasted Milk Curd Yogurt)
+Isgelen Tarag (Naturally Fermented Yogurt)
+Boortsog Tarag (Yogurt with Fried Dough)
+Bituun Tarag (Winter Fermented Yogurt)
+Ulaan Tarag (Red Berry Yogurt)
+Zuunii Tarag (Centennial Yogurt)
+Traditional Mongolian Salt Blend
+Horhog Salt Rub (Mongolian Stone-Cooked Meat Seasoning)
+Tsuivan Spice Mix (Stir-Fried Noodle Seasoning)
+Mongolian Lamb Skewer Marinade
+Boortsog Sugar Spice Dust (Fried Dough Sweet Seasoning)
+Aaruul Spice Soak (Dried Curd Milk Seasoning Mix)
+Buuz Dumpling Spice Blend
+Guriltai Shul Broth Seasoning
+Khorkhog Meat Herb Mix
+Boodog Smoke Rub (Whole Roast Goat Seasoning)
+Mongolian Hot Pot Dipping Sauce
+Airag Fermented Milk Salt Tincture
+Tallow Garlic Spice Glaze
+Dried Curd Whey Brine Seasoning
+Camel Milk Herb Infusion
+Nomadic Fire Salt Mix
+Yak Milk Chive Rub
+Fermented Barley Chili Blend
+Sheep Fat Garlic Reduction
+Mountain Cumin Meat Dust
+Spring Onion Ferment Seasoning
+Charred Bone Marrow Salt
+Tallow Pepper Meat Sauce
+Uukhai Smoke Spice (Celebration Fire Seasoning)
+Mongolian Black Stone Lamb Rub
+Camel Jerky Brine Mix
+Horse Meat Smoke Salt
+Traditional Nomad Tea Spice (Milk Tea Seasoning)
+Steamed Dough Vinegar-Chili Dip
+Winter Fat Salt Infusion
+Spiced Burnt Milk Reduction Dust
+Wild Allium Meat Rub
+Dried Cheese Chili Salt
+Fermented Turnip Salt Blend
+Rock Salt Chive Dust
+Goat Yogurt Spice Condiment
+Flame-Licked Meat Drip Seasoning
+Milk Skin Crumble Spice Mix
+Lamb Liver Chili Paste
+Fermented Garlic Tallow Drizzle
+Clay Pot Meat Stock Seasoning
+Nomad Campfire Ash Rub
+Wheat Dough Ferment Sauce
+Warmed Milk Cream Spice Soak
+Caraway Fat Meat Rub
+Smoke-Dried Sheep Fat Dust
+Fermented Sour Cream Spice Base
+Steeped Hoof Bone Brine Mix
+Cow Tail Oil Salt Rub
+Tungluu (Wild Rhubarb) Leaf Salt
+Sour Milk Fat Emulsion Seasoning
+Spiced Cream Boil Reduction
+Warmed Butter Tea Leaf Dust
+Dried Mare’s Milk Paste Seasoning
+Alpine Wild Herb Salt
+Goat Milk Extract
+Yak Milk Extract
+Camel Milk Extract
+Mongol Arkhi (Fermented Milk Extract)
+Suutei Tsai Base Extract (Milk Tea Extract Base)
+Airag Serum Reduction (Fermented Mare’s Milk Extract)
+Dried Milk Curd Extract
+Boodog Fat Extract (Goat Fat-Milk Reduction Extract)
+Traditional Milk Skin Extract
+Butter Distillate from Suutei Tsai
+Milk Scalding Residue Extract
+Urum (Clotted Cream Extract)
+Fermented Yogurt Whey Extract
+Cheese Brine Extract
+Smoked Curd Extract
+Sour Milk Solids Extract
+Altain Milk Essence
+Steamed Milk Froth Essence
+Chigee (Sour Cream Extract)
+Tarag Whey Extract (Yogurt Whey Extract)
+Khar Tarag Reduction (Black Yogurt Extract)
+Goat Cheese Infusion Extract
+Milk Protein Skin Infusion Extract
+Yak Cream Distillation Extract
+Traditional Mongol Butterfat Essence
+Sheep Tail Fat Oil
+Boiled Sheep Tail Fat (Rendered Mutton Fat)
+Rendered Yak Milk Butter Oil
+Traditional Mongolian Clarified Butter
+Suun Tos (Mongolian Milk Fat Oil)
+Urum Tos (Cream-Fat Cooking Oil)
+Horse Fat Cooking Oil
+Camel Hump Fat Oil
+Wild Marmot Fat Oil
+Fermented Butter Oil (Airag Butter Fat)
+Stir-Fried Lamb with Sheep Fat Oil
+Goat Fat Frying Oil
+Tsagaan Tos (White Milk Oil Spread)
+Traditional Stone-Boiled Milk Oil
+Smoked Yak Fat Cooking Oil
+Camel Milk Clarified Oil
+Fried Boortsog in Sheep Fat Oil
+Seared Dumplings with Yak Butter Oil
+Nomadic Rendered Fat Cooking Oil
+High-Altitude Yak Butter Infused Oil
+Mongolian Lamb Oil Reduction Sauce
+Stewed Mutton Broth Fat Layer
+Chanasan Makh Oil Drizzle (Boiled Meat Fat Drizzle)
+Fire-Grilled Skewers with Tail Fat Glaze
+Goat Milk Butter Oil Emulsion
+Hand-Pressed Yak Milk Oil Spread
+Boiled Camel Fat Cooking Oil
+Fat-Dripped Hot Stone Pot (Huushuur with Dripping Fat)
+Fat-Poached Mutton in Stone Pot
+Air-Dried Sheep Fat Infusion
+Yak Bone Marrow Oil Reduction
+Tail Fat-Rendered Dumpling Sauce
+Milk Fat-Fried Dumpling Oil
+Traditional Mongolian Festival Frying Oil
+Ceremonial Clarified Yak Butter Oil
+Wood-Fired Mutton Fat Basting Oil
+Fermented Mare’s Milk Vinaigrette
+Airag (Fermented Milk Vinaigrette)
+Tara (Yogurt Dressing Vinaigrette)
+Yak Milk Vinaigrette
+Goat Milk and Garlic Vinaigrette
+Sour Cream and Vinegar Dressing
+Fermented Dairy and Herb Vinaigrette
+Creamed Yogurt and Shallot Vinaigrette
+Mongolian Style Fermented Milk Sauce
+Smoked Milk Vinaigrette Dressing
+Sheep Milk and Dill Vinaigrette
+Clotted Cream (Urum) Vinaigrette Dressing
+Barley Vinegar and Milk Emulsion Dressing
+Wild Onion and Fermented Milk Vinaigrette
+Chive and Goat Milk Dressing
+Traditional Mongolian Dairy Vinaigrette
+Khuushuur Makhs (Fried Meat Sausage Pastries)
+Bansh Makhs (Steamed Dumpling Sausages)
+Boortsog Makhs (Dried Sausage-style Meat Strips)
+Kazy Makhs (Air-Dried Horse Sausage)
+Chalh Makhs (Blood Sausage with Barley)
+Dairiin Khool Makhs (Military Field Sausage)
+Gambir Makhs (Stuffed Flatbread with Sausage Filling)
+Korkhog Sausage-Stuffed Version (Lamb Sausage Variation in Korkhog Format)
+Tsuivan Sausage Stir-fry (Hand-Cut Noodles with Sausage Strips)
+Uuts-Stuffed Sausage (Traditional Sheep Back Filled with Sausage Meat)
+Khorkhog-Stuffed Sausage (Mutton Bone-In Sausage Variation Cooked in Hot Stones)
+Sausage-Stuffed Buuz (Steamed Dumplings with Sausage Meat)
+Chanasan Makh Sausage (Boiled Sausage Meat)
+Shar Malgai Sausage (Yellow-Hatted Monk Style Sausage, Temple Variant)
+Sausage-Stuffed Gambir Rolls (Rolled Pancakes with Sausage Filling)
+Sausage-Stuffed Borts (Sun-Dried Jerky with Sausage Core)
+Hot Pot Sausage (Mongolian Firepot Style with Sausage Inclusion)
+Mongolian Airag Sausage Pairing (Sausage Served with Fermented Mare’s Milk)
+Luxury Lamb Sausage (Modern Fine Dining Variant from Ulaanbaatar)
+Yak Sausage (High-Altitude Variant from Khangai Region)
+Reindeer Sausage (Tsaatan Community Traditional Sausage)
+Smoked Camel Sausage (Gobi Region Nomadic Preparation)
+Winter Reserve Sausage (Preserved Cold-Season Sausage Format)
+Festival Celebration Sausage (Naadam Holiday-Specific Sausage)
+Nomadic Breakfast Sausage (Everyday Campfire Variant)
+Horse Blood Sausage (Traditional Dark Sausage with Millet or Rice)
+Genghis Khan Iron Sausage (Tourist Menu Variant from Historical-Themed Restaurants)
+Barbecue Sausage Skewer (Modern Urban Grilled Sausage Platter)
+Milk Sausage (Fermented Dairy-Fat-Infused Sausage from Steppe Diet)
+Chimeddorj Tos (Mongolian Clotted Cream Spread)
+Tsagaan Tos (White Fat Spread)
+Shar Tos (Rendered Butter Spread)
+Urum (Milk Skin Spread)
+Tsuivan Urum (Layered Milk Skin Spread)
+Aaruul Tos (Curd Butter Spread)
+Boortsog Butter Spread
+Yak Milk Curd Spread
+Fermented Yak Cream Spread
+Süütei Urum (Milk Cream Spread)
+Salkhin Tos (Wind-Churned Butter Spread)
+Ghee with Rock Salt Spread
+Ulaanbaatar Café Butter Spread
+Nomadic Yak Butter Spread
+Horse Milk Cream Spread
+Camel Milk Yogurt Spread
+Sheep Tallow Spread
+Goat Milk Clotted Spread
+Smoked Yak Cream Spread
+Air-Dried Milk Fat Spread
+Tsagaan Idee (Traditional Mongolian White Foods – Grain-Based Selection)
+Bansh Khuurga (Fried Rice with Dumplings)
+Guriltai Shul (Noodle Soup with Mutton)
+Budaatai Khuurga (Mongolian Fried Rice)
+Tsuivan (Hand-Cut Noodles with Meat and Vegetables)
+Boortsog Porridge (Fried Dough Grain Porridge)
+Suutei Tsai Guril (Milk Tea with Toasted Flour)
+Aaruul Guril Khuurga (Fried Grain with Dried Curd)
+Guriltei Khailmag (Sweet Milk Porridge with Flour)
+Savkhan Gurtai Budaatai Shul (Rice Soup with Milk Skin)
+Barley Tsai (Barley Milk Tea)
+Tsagaadai (Wheat Grits in Milk)
+Khurimyn Budaatai Shul (Wedding Rice Soup)
+Ulaan Budaatai Khuurga (Red Rice Stir-Fry)
+Huitsai Budaatai (Cold Dressed Rice Dish)
+Zalgaatai Guril (Layered Flatbread Noodles)
+Shaaral Malgaitai Budaatai (Steamed Grain with Clotted Cream Hat)
+Tarag Budaatai Shul (Rice and Yogurt Soup)
+Sav Khuurga (Rich Stir-Fried Grain and Meat)
+Chanasan Budaa (Boiled Plain Rice)
+Jav (Dry Roasted Barley Meal)
+Korkhoi Guril (Worm-Shaped Handmade Pasta)
+Aral Budaatai (Curd and Rice Porridge)
+Airag Guril (Fermented Mare’s Milk with Roasted Grain)
+Airag (Fermented Mare’s Milk)
+Suutei Tsai (Salted Milk Tea)
+Aaruul (Dried Curd Milk Snack)
+Tarag (Mongolian Yogurt)
+Urum (Clotted Cream)
+Tsagaan Idee (White Foods Platter)
+Eezgii (Fried Milk Curd)
+Khailmag (Sweet Fried Cream)
+Byaslag (Mongolian Fresh Cheese)
+Zuun Tos (Rendered Butterfat)
+Shar Tos (Clarified Butter)
+Tsotsgii (Sour Cream)
+Chagaan Tos (Whipped Milk Fat Spread)
+Boorlog (Layered Milk Cake)
+Khailmag with Dried Aaruul
+Suutei Budaa (Milk Rice Porridge)
+Milk Steamed Dumplings
+Uuz-Style Milk Glaze Drizzle
+Otgontenger Milk Custard
+Nomadic Buttered Milk Stones
+Winter Camp Milk Skin Roll
+Festival Curds with Wild Cream
+Steppe Milk Liqueur
+Sun-Dried Milk Twists
+Horse Cream Milk Preserves
+Fermented Camel Milk
+Yak Milk Clotted Cake
+Salt-Cured Butter Cheese Discs
+Nomad Milk Boil Reduction
+Alpine Milk Bread (Mongol Style)
+Boiled Milk Dough with Cream
+High Steppe Sweet Milk Drink
+Milk-Cooked Stone Pot Stew
+Dried Milk Curl Slices
+Milk-Fried Root Cheese
+Charred Milk Brick Slices
+Milk Wine Reduction Glaze
+Mare Milk Ice Snow Stew
+Mountain Festival Milk Spread
+Yak Butter Stamped Cakes
+Milk Butter Baked Root Mash
+Wild Milk Grape Infused Block
+Camel Cream Moon Festival Pudding
+Fire-Roasted Milk Log
+Sheep Milk Snow Crust Squares
+Ancient Ritual Milk Burn Cake
+Fermented Snow Milk Jelly
+Royal Milk Ring Bread
+Warrior’s Milk Mash with Curds
+Sacrificial Milk Drop Glaze
+Winter Fermented Milk Horn
+Khalkha Milk Char Buns
+Sacred White Milk Tallow Pastry
+Czar’s Dried Milk Coin Rounds
+Imperial Milk Ferment Bowl
+Gobi Milk Oil Reduction
+Nomad Milk and Millet Slab
+Tarag Shimik (Mongolian Yogurt Smoothie)
+Suutei Tsai Smoothie (Milk Tea Smoothie)
+Aaruul Banana Smoothie (Dried Curd Banana Smoothie)
+Airag Smoothie (Fermented Mare’s Milk Smoothie)
+Blueberry Yak Milk Smoothie
+Sea Buckthorn Milk Smoothie
+Aarts Fruit Smoothie (Curdled Milk Fruit Smoothie)
+Chaatar Smoothie (Mongolian Ricotta Milk Smoothie)
+Frozen Camel Milk Smoothie
+Salted Milk Tea and Date Smoothie
+Wild Berry Yak Yogurt Smoothie
+Aaruul Honey Smoothie (Dried Curd and Honey Smoothie)
+Camel Milk Mango Smoothie
+Yak Yogurt and Pine Nut Smoothie
+Airag and Sea Buckthorn Smoothie
+Suutei Tsai with Cinnamon Smoothie (Spiced Milk Tea Smoothie)
+Mongolian Milkshake (Yak Milk Vanilla Smoothie)
+Fermented Yak Milk and Plum Smoothie
+Aaruul and Apricot Smoothie
+Caramelized Suutei Tsai Smoothie (Burnt Milk Tea Smoothie)
+Airag (Fermented Mare’s Milk Alcohol)
+Shimiin Arkhi (Distilled Milk Spirit)
+Khorkhog Arkhi (Mongolian Milk Vodka from Khorkhog Cooking)
+Urum Arkhi (Cream Distillate Spirit)
+Tarag Arkhi (Yogurt-Based Distilled Alcohol)
+Aaruul Arkhi (Dried Curd Spirit)
+Tsuivan Arkhi (Distilled Spirit from Tsuivan Residue)
+Kumis Vodka (Horse Milk Vodka)
+Yak Milk Arkhi (Distilled Yak Milk Spirit)
+Goat Milk Arkhi (Goat Milk Distillate)
+Camel Milk Arkhi (Distilled Camel Milk Alcohol)
+Traditional Mongolian Vodka (Milk-Origin, Wood-Fired Distillation)
+Mongol Arkhi (Traditional Mongolian Milk Spirit)
+Nomadic Herdsman’s Arkhi (Wild-Fermented Milk Spirit)
+Baatar Arkhi (Hero’s Milk Liquor)
+Milk Brandy (Mongolian Style)
+Butter Milk Spirit (Traditional Nomadic Recipe)
+Fermented Yak Milk Wine
+Sour Milk Beer (Nomadic Fermented Alcohol)
+Traditional Mare’s Milk Brandy
+Airag (Fermented Mare’s Milk Wine)
+Shimiin Arkhi (Mongolian Milk Wine Spirit)
+Uurgui Arkhi (Non-Distilled Milk Wine)
+Tos Arkhi (Cream-Distilled Milk Wine)
+Khoormog Arkhi (Camel Milk Wine Spirit)
+Yak Arkhi (Yak Milk Wine)
+Goat Milk Arkhi (Goat Milk Wine)
+Sheep Milk Arkhi (Sheep Milk Wine)
+Cow Milk Arkhi (Cow Milk Wine)
+Aaruul-Infused Arkhi (Fermented Curdled Milk Wine)
+Hot Arkhi (Heated Milk Wine Spirit)
+Nomadic Arkhi (Traditional Fermented Milk Wine)
+Tsagaan Arkhi (White Milk Wine)
+Deluxe Arkhi (Premium Distilled Milk Wine)
+Festival Arkhi (Celebration Milk Wine)
+Homebrew Arkhi (Homemade Milk Wine)
+Restaurant-Style Arkhi (Refined Milk Wine Recipe)
+Distilled Mare’s Milk Arkhi (Strong Mare’s Milk Wine)
+Yak Cream Arkhi (Yak Cream-Based Milk Wine)
+Camel Cream Arkhi (Camel Cream-Based Milk Wine)
+Airag (Fermented Mare’s Milk Beer)
+Shimiin Arkhi (Distilled Airag Spirit Beer)
+Bor Khar (Dark Barley Beer)
+Chagaan Shimiin (White Fermented Grain Beer)
+Boortsog Brew (Fried Dough Beer Infusion)
+Tarag Lager (Fermented Yogurt Beer)
+Tsuivan Malt Ale (Noodle Brew Ale)
+Arkhi Beer Reduction Glaze
+Yak Milk Stout
+Black Salt Barley Beer
+Sutai Shimiin (Milky Grain Beer)
+Siberian Wild Hop Ale
+Altan Gobi Lager (Golden Gobi Lager)
+Ulaanbaatar Craft Ale
+Three Camel Pale Ale
+Nomadic Fermented Barley Beer
+Mountain Pine Smoked Ale
+Salted Milk Beer Reduction
+Fermented Millet Nomad Beer
+Ereen Brewed Grain Spirit Beer
+Wheat and Milk Kefir Beer
+Spiced Juniper Grain Ale
+Smoked Sheep’s Milk Ale
+Frozen Steppe Beer
+Baatar Warrior Lager
+Tsagaan Sar Celebration Ale
+Suutei Tsai Beer (Milk Tea Beer)
+Mongol Black Honey Beer
+Highland Birch Bark Ale
+Thousand Camel Ferment Ale
+Steppe Spring Herbal Beer
+Dried Curd Cream Ale
+Kumis Barrel-Aged Wheat Beer
+Wool-Fired Barley Beer
+Snow Ferment Ale
+Nomad Trail Malt Beer
+Caravan Herd Milk Ale
+Ger Hearth Roasted Barley Beer
+Yurt Smoked Grain Beer
+Horseman’s Milk Ale
+Jodgor Tsartsanlag (Seasoned Beef Fat and Rock Salt Rub)
+Shar Tavagtai Davs (Yellow Flat Salt Mix)
+Ziranchan Tansag (Luxurious Cumin Spice Blend)
+Davstai Khar Tsonkh (Black Pepper and Salt Rub)
+Bortsnii Davs (Dried Meat Salt Rub)
+Chakhaan Ulaan Tsonkh (Mild Red Chili Blend)
+Sogoo Jor (Wild Onion and Garlic Spice Mix)
+Tsagaan Davs (White Salt Blend for Dumplings)
+Sharkhnii Jor (Roasted Meat Spice Mix)
+Khorkhog Davs (Lamb Pot Spice Rub)
+Suutei Davs (Milk Salt Rub for Stews)
+Ulaan Tsonkhnii Jor (Chili Powder Spice Mix)
+Nogoon Tsonkhnii Davs (Green Pepper Rub)
+Bulganii Davs (Elk or Game Spice Rub)
+Süütei Tsonkh Jor (Spiced Milk Infusion Blend)
+Zairmag Davs (Cold Spice Blend for Fermented Milk Dishes)
+Bortsnii Khar Davs (Blackened Spice Rub for Dried Meats)
+Jorlog Davs (Pickling Salt with Local Herbs)
+Savand Davs (Pan-Frying Herb and Salt Mix)
+Talhnii Davs (Bread Spice Mix with Fennel and Cumin)
+Uurganii Jor (Breakfast Milk Spice Blend)
+Gants Ulaan Jor (Single Chili Spice Mix)
+Bayariin Davs (Festive Holiday Spice Blend)
+Taragnii Khar Jor (Black Spice Blend for Yogurt-Based Dishes)
+Khuurga Davs (Stir-Fry Seasoning with Wild Herbs)
+Airag Davs (Fermented Mare’s Milk Seasoning)
+Orts Jor (All-Purpose Nomadic Spice Mix)
+Tavan Tsenkher Davs (Five Blue Lakes Spice Blend)
+Dund Tsagaan Jor (Mild White Spice for Stews)
+Arkhinii Jor (Spice Mix for Distilled Spirits and Broths)
+Nogoon Shal Davs (Herbal Ground Spice Rub)
+Guriltai Jor (Spice Blend for Flour-Based Dishes)
+Banshnii Davs (Dumpling Filling Seasoning)
+Zoolon Jor (Soft Spice Blend for Children’s Food)
+Altai Urtiin Davs (Altai Mountain-Style Spice Rub)
+Korkhoi Sharsan Guril (Deep-Fried Noodle Chips)
+Boortsog (Fried Milk Dough Chips)
+Khailmag Chips (Clotted Cream Fried Chips)
+Ul Boov Chips (Ceremonial Layered Pastry Chips)
+Suutei Tsai Dried Milk Skin Chips (Milk Tea Film Chips)
+Eezgii Chips (Dried Curd Chips)
+Tsagaan Idee Curds (Dry Milk Curd Chips)
+Byaslag Fried Cheese Chips
+Aaruul Chips (Sun-Dried Milk Curd Chips)
+Sharsan Byaslag (Pan-Fried Cheese Chips)
+Fried Goat Cheese Crisps
+Sheep Tail Fat Cracklings
+Potato Chips with Dried Goat Cheese
+Crispy Suutei Tsai Foam Chips
+Mongolian Beef Tallow Chips
+Mutton Fat Fried Flour Chips
+Mongolian Bar Snack Crisps with Milk Powder
+Boortsog Dust Chips (Powdered Milk Sweet Chips)
+Khorkhog Bone Marrow Chips
+Mongolian Festival Butter Chips
+Nomadic Sun-Dried Yogurt Chips
+Yak Milk Fry Chips
+Mongolian Hot Stone Rendered Fat Chips
+Air-Dried Yogurt Bark Chips
+Goat Milk Skin Chips
+Sheep Milk Clotted Cream Chips
+Traditional Ger Cheese Crisps
+Salted Eezgii Crunch Chips
+Sharsan Aaruul (Pan-Fried Dried Curd Chips)
+Boortsog Egg Dip (Fried Dough with Sweet Egg Dip)
+Guriltai Shul with Egg (Noodle Soup with Egg)
+Khuurga with Fried Egg (Mongolian Fried Rice with Egg)
+Tsuivan with Scrambled Egg (Stir-Fried Noodles with Egg)
+Mongolian Egg Curry (Hard-Boiled Eggs in Spiced Sauce)
+Bantan with Poached Egg (Flour Soup with Egg)
+Egg and Yak Milk Custard (Steamed Egg Custard with Yak Milk)
+Mongolian Fried Egg on Tsagaan Idee (White Food Platter with Egg)
+Egg-Stuffed Buuz (Steamed Dumplings with Egg Filling)
+Khailmag Egg Pudding (Caramelized Clotted Cream with Egg)
+Suunii Khuits Egg Drink (Chilled Milk and Egg Beverage)
+Milk Tea with Beaten Egg (Suutei Tsai with Egg)
+Airag Egg Nog (Fermented Mare’s Milk with Egg)
+Traditional Mongolian Omelette
+Fried Dough with Egg Syrup Drizzle
+Steamed Egg over Buckwheat Mash
+Egg-Stuffed Tsuivan Roll
+Scorched Rice with Fried Egg
+Wood-Fire Boiled Egg in Bone Broth
+Scrambled Eggs with Wild Onions
+Pan-Fried Egg with Yak Butter
+Sun-Dried Egg Parchment (Nomadic Egg Jerky)
+Tsuivan (Stir-Fried Noodles with Meat and Vegetables)
+Guriltai Shul (Noodle Soup with Lamb)
+Bantan Guril (Hand-Torn Noodles in Brothy Soup)
+Mongol Lagman (Mongolian-Style Hand-Pulled Noodles)
+Uutsnii Guril (Boiled Noodles with Steamed Mutton Rib)
+Süütei Tsai Guril (Milk Tea with Noodles)
+Guriltei Banshtai Shul (Noodle and Dumpling Lamb Soup)
+Shar Guril (Fried Noodle Cakes)
+Saaral Guril (Brown Wheat Noodles with Broth)
+Khuushuur Guril (Noodle-Wrapped Fried Meat Dumplings)
+Budaatai Guril (Rice and Noodle Pilaf)
+Jamba (Fermented Curd Condiment)
+Suutei Tsai Reduction (Milk Tea Glaze)
+Uuts Dipping Sauce (Boiled Mutton Dipping Sauce)
+Jamsran Butter (Clarified Mongolian Butter)
+Boortsog Syrup Dip (Fried Dough Syrup)
+Airag Cream (Fermented Mare’s Milk Cream)
+Shar Tos (Yellow Butterfat Spread)
+Bantan Seasoning Mix (Traditional Soup Condiment Blend)
+Garlic Yogurt Sauce (Mongolian Style)
+Horse Fat Chutney (Rendered Equine Fat Relish)
+Barbecue Stone Sauce (Hot Stone BBQ Condiment)
+Milk Skin Butter (Dried Cream Spread)
+Fermented Yak Cream (Yak Milk Butter Spread)
+Horhog Jus Reduction (Mongolian Stew Sauce)
+Mongolian Pickled Scallions (Scallion Condiment in Vinegar Brine)
+Black Rock Salt Paste (Mineral Salt Condiment)
+Goat’s Curd Spread (Salted Goat Cheese Paste)
+Sour Cream with Dill (Mongolian-style Herbed Cream)
+Sheep’s Tail Fat Emulsion (Whipped Lamb Fat Condiment)
+Tsuivan Soy Drizzle (Noodle Sauce Condiment)
+Steamed Dumpling Chili Dip (Buuz Sauce)
+Wild Onion Oil (Mongolian Chive-Infused Oil)
+Fermented Cream with Wild Garlic (Herbed Dairy Condiment)
+Aaruul Dust (Powdered Dried Curd Garnish)
+Boortsog with Bean Paste (Fried Dough with Sweet Bean Filling)
+Budaatai Khuurga with Lentils (Fried Rice with Lentils)
+Tsagaan Idee with Roasted Peas (White Food Platter with Roasted Peas)
+Khorkhog with Kidney Beans (Stone-Cooked Mutton with Beans)
+Khuushuur with Chickpeas (Fried Meat Pie with Chickpea Filling)
+Tsuivan with Soybeans (Hand-Cut Noodle Stir Fry with Soybeans)
+Mongol-style Baked Pea Patties
+Roasted Broad Beans in Yak Butter
+Sweetened Red Bean Porridge (Mongolian-style Dessert Bean Soup)
+Walnut-stuffed Boortsog (Fried Dough with Walnut Filling)
+Fried Chickpea Dumplings in Mongolian Broth
+Barley and Bean Stew (Nomadic Field Variation)
+Sunflower Seed Nougat (Traditional Mongolian Nut Candy)
+Caramelized Walnut Blocks (Nomadic Sweets Standard)
+Lamb and Lentil Stuffed Dumplings (Variant of Buuz with Legumes)
+Black Bean and Onion Stir Fry (Modern Mongolian Fusion)
+Roasted Legume Snack Platter (Festival Variation with Salted Nuts and Peas)
+Pine Nut Butter with Yak Milk Cream
+White Bean Stew with Dried Beef
+Red Bean and Nut Pastries (Market Vendor Standard)
+Milk Tea with Roasted Soybeans (Savory Tea Variation)
+Green Pea Mash with Camel Fat Crust (Rural Winter Preparation)
+Sesame and Peanut Halva (Central Asian Influence Variant)
+Spiced Lentil Patties with Wild Garlic
+Crispy Mung Bean Fritters (Mongol Street Variant)
+Boiled Legume Medley with Salted Curds (Nomad Camp Preparation)
+Chickpea and Carrot Salad with Fermented Dressing (Seasonal Offering)
+Aaruul Mörmöörtsön (Frozen Curd Ice Cream)
+Tarag Möörmöörtsön (Fermented Yogurt Ice Cream)
+Khailmag Möörmöörtsön (Clotted Cream Ice Cream)
+Urum Möörmöörtsön (Cream Layer Ice Cream)
+Suutei Tsai Gelato (Milk Tea Gelato)
+Eezgii Möörmöörtsön (Dried Milk Curd Ice Cream)
+Airag Ice Cream (Fermented Mare’s Milk Ice Cream)
+Chalgan Möörmöörtsön (Wild Berry Ice Cream)
+Selem Suu Gelato (Raw Milk Gelato)
+Bor Khar Suu Möörmöörtsön (Dark Milk Ice Cream)
+Zoologiin Taram Möörmöörtsön (Animal Butter Ice Cream)
+Mongol Arhi Cream Gelato (Mongolian Milk Vodka Gelato)
+Jodgor Möörmöörtsön (Sea Buckthorn Ice Cream)
+Toson Tarag Ice Cream (Butter Yogurt Ice Cream)
+Nermel Suu Gelato (Distilled Milk Gelato)
+Tsagaan Idee Möörmöörtsön (White Food Dairy Ice Cream)
+Shar Tos Gelato (Clarified Butter Gelato)
+Yaruu Möörmöörtsön (Sweet Curd Ice Cream)

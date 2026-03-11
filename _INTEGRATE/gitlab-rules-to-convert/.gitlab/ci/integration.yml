@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# ✅ Post-Deploy Integration & Summary
+# ------------------------------------------------------------------------------
+# This stage runs after the staging deployment to verify system functionality
+# in a real deployed environment. It ensures critical workflows are intact
+# before allowing production deployment.
+#
+# ✅ integration:test:
+#    - Executes full integration tests against the deployed staging Worker
+#    - Sets ENV=$WRANGLER_ENV for correct scoped config
+#    - Uses test.analytics.ts as entry point for CI validation
+#    - Includes post-deploy health check (validates staging URL and behavior)
+#    - Persists output log as .integration-test.log for traceability
+#    - Required for promotion to production via `deploy` job
+
+# 🧪 integration:test — Run full end-to-end integration tests after staging deploy
+# Executes the main test script against the deployed staging environment
+# Includes post-deploy health check and persists integration log as artifact
+integration:test:
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+  script:
+    - run_integration_test_and_healthcheck | tee .integration-test-summary.md # TODO
+  artifacts:
+    name: staging-integration-summary
+    paths:
+      - .integration-test-summary.md
+    when: always
+    expire_in: 1 hour
+  environment:
+    name: staging
+    deployment_tier: staging

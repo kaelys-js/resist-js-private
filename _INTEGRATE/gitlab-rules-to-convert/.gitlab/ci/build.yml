@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# ⚙️ Build Step
+# ------------------------------------------------------------------------------
+# build — Compiles all deployable components across the monorepo.
+#
+# This stage prepares the system for deployment by building:
+# - Cloudflare Workers (e.g. analytics ingestion, consent logic)
+# - Supporting packages, shared libraries, or UI bundles
+#
+# ✅ Executes `pnpm -r run build` to respect per-workspace build scripts
+# ✅ Ensures any generated artifacts (e.g. dist/, .wrangler/, static assets) are created
+# ✅ Run after migrations and validation to guarantee correctness before deploy
+# ✅ Critical for preview, staging, and production deployments
+build:
+  stage: build
+  script:
+    - pnpm build | tee .build-summary.md
+  needs:
+    - setup:check-env
+  artifacts:
+    paths:
+      - .build-summary.md
+      - packages/**/dist

@@ -1,0 +1,144 @@
+# SQLFluff LINTING Configuration
+# https://docs.sqlfluff.com/en/stable/configuration.html
+# This config is for LINTING - see formatter-test/config for formatting
+
+[sqlfluff]
+# Dialect (e.g., ansi, postgres, mysql, bigquery, snowflake, redshift)
+dialect = postgres
+
+# Templater (jinja, python, placeholder, raw)
+templater = jinja
+
+# Output line length
+max_line_length = 100
+
+# Exclude paths
+exclude_rules = None
+
+# CPU processes to use
+processes = -1
+
+# Run in parallel
+large_file_skip_byte_limit = 0
+
+[sqlfluff:indentation]
+# Indentation settings
+indent_unit = space
+tab_space_size = 4
+indented_joins = False
+indented_ctes = False
+indented_using_on = True
+indented_on_contents = True
+allow_implicit_indents = False
+template_blocks_indent = True
+
+[sqlfluff:layout:type:comma]
+# Comma placement
+spacing_before = touch
+line_position = trailing
+
+[sqlfluff:layout:type:binary_operator]
+# Binary operator placement
+line_position = leading
+
+[sqlfluff:layout:type:statement_terminator]
+# Statement terminator placement
+spacing_before = touch
+line_position = trailing
+
+[sqlfluff:layout:type:end_of_file]
+# End of file placement
+spacing_before = touch
+
+[sqlfluff:layout:type:set_operator]
+# Set operator placement (UNION, INTERSECT, EXCEPT)
+line_position = alone:strict
+
+[sqlfluff:rules]
+# Enable all rules
+# Tab characters
+tab_space_size = 4
+# Line length
+max_line_length = 100
+# Allow trailing whitespace
+allow_scalar = True
+# Single table references
+single_table_references = consistent
+
+[sqlfluff:rules:capitalisation.keywords]
+# Keyword capitalization (upper, lower, capitalise, consistent)
+capitalisation_policy = upper
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:capitalisation.identifiers]
+# Identifier capitalization
+capitalisation_policy = lower
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:capitalisation.functions]
+# Function name capitalization
+extended_capitalisation_policy = upper
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:capitalisation.literals]
+# Literal capitalization (NULL, TRUE, FALSE)
+capitalisation_policy = upper
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:capitalisation.types]
+# Data type capitalization
+extended_capitalisation_policy = upper
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:aliasing.table]
+# Table aliasing policy
+aliasing = explicit
+
+[sqlfluff:rules:aliasing.column]
+# Column aliasing policy
+aliasing = explicit
+
+[sqlfluff:rules:aliasing.length]
+# Minimum alias length
+min_alias_length = 1
+max_alias_length = None
+
+[sqlfluff:rules:convention.select_trailing_comma]
+# SELECT trailing comma
+select_clause_trailing_comma = forbid
+
+[sqlfluff:rules:convention.count_rows]
+# COUNT(*) vs COUNT(1)
+prefer_count_1 = False
+prefer_count_0 = False
+
+[sqlfluff:rules:convention.terminator]
+# Statement terminator (semicolon)
+multiline_newline = False
+require_final_semicolon = True
+
+[sqlfluff:rules:convention.blocked_words]
+# Blocked words
+blocked_words = None
+blocked_regex = None
+match_source = False
+
+[sqlfluff:rules:convention.quoted_literals]
+# Quoted literal style
+preferred_quoted_literal_style = single_quotes
+force_enable = False
+
+[sqlfluff:rules:references.from]
+# FROM clause referencing
+force_enable = False
+
+[sqlfluff:rules:references.qualification]
+# Column qualification
+ignore_words = None
+ignore_words_regex = None
+single_table_references = consistent

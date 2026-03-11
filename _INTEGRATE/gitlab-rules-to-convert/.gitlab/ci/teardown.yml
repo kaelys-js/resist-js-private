@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# ❌ Teardown Preview
+# ------------------------------------------------------------------------------
+# preview:teardown — Manually destroys preview environment resources created for feature branches.
+#
+# ✅ This includes:
+#    - Preview D1 database (named preview_<branch-slug>)
+#    - All preview-scoped KV namespaces defined in wrangler.json
+#    - All preview-scoped R2 buckets defined in wrangler.json
+#
+# ✅ Execution:
+#    - Runs only for branches matching /^feature\\/.+$/
+#    - Marked as `when: manual` to require explicit user initiation
+#    - Safe to rerun — ignores missing resources or already-deleted items
+#
+# ⚠️ This job is typically triggered manually via GitLab UI
+# ⚠️ Use this to clean up expired or merged previews to avoid resource bloat
+preview:teardown:
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^feature\/.+$/'
+  when: manual
+  script:
+    - teardown_preview_resources | tee .preview-teardown-summary.md
+  artifacts:
+    paths:
+      - .preview-teardown-summary.md
+    when: always
+    expire_in: 3 days

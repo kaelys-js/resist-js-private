@@ -1,0 +1,9 @@
+[workspace]
+packages = [
+  "products/*",
+  "products/*/*",
+  "products/*/*/*",
+  "shared/*",
+  "shared/*/*",
+  "shared/*/*/*"
+]

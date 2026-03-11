@@ -1,0 +1,3 @@
+/*
+    any file in workspace root
+*/

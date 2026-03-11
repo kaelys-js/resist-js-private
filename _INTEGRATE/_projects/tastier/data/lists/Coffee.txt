@@ -1,0 +1,177 @@
+Drip Coffee
+Filtered Coffee
+Pour-Over Coffee
+French Press Coffee
+Cold Brew Coffee
+Japanese Iced Coffee
+Flash Brew Coffee
+Instant Coffee
+Decaffeinated Coffee
+
+Espresso
+Ristretto (Short Espresso)
+Lungo (Long Espresso)
+Doppio (Double Espresso)
+
+Americano
+Long Black
+
+Caffè Latte (Coffee with Milk)
+Cappuccino
+Flat White
+Cortado (Equal Coffee and Milk)
+Gibraltar (Cortado-Style Coffee)
+Caffè Macchiato (Espresso with Milk Foam)
+Latte Macchiato (Milk with Espresso)
+Piccolo Latte
+
+Caffè Mocha (Chocolate Coffee)
+White Chocolate Mocha
+
+Affogato al Caffè (Espresso with Ice Cream)
+
+Café au Lait (Coffee with Hot Milk)
+Café Crème (European Cream Coffee)
+
+Caffè Breve (Espresso with Half-and-Half)
+
+Caffè Con Panna (Espresso with Whipped Cream)
+
+Caffè Romano (Espresso with Lemon)
+
+Viennese Coffee (Coffee with Whipped Cream)
+Einspänner (Viennese Coffee with Cream)
+
+Turkish Coffee
+Greek Coffee
+Arabic Coffee
+
+Café Cubano (Cuban Espresso with Sugar)
+Café con Leche (Coffee with Milk)
+
+Café Bombón (Espresso with Condensed Milk)
+Café Cortado Condensada (Espresso with Condensed Milk)
+
+Café de Olla (Mexican Spiced Coffee)
+
+Phin Coffee (Vietnamese Drip Coffee)
+Vietnamese Iced Coffee (Coffee with Condensed Milk)
+Vietnamese Egg Coffee (Egg Cream Coffee)
+
+Kopi Tubruk (Indonesian Unfiltered Coffee)
+Kopi Luwak Coffee
+
+Kopi Tarik (Pulled Coffee)
+
+Iced Coffee
+Iced Latte
+Iced Americano
+
+Frappé Coffee
+Greek Frappé Coffee
+
+Caffè Shakerato (Shaken Iced Espresso)
+
+Espresso Tonic
+
+Nitro Cold Brew Coffee
+
+Butter Coffee (Bulletproof Coffee)
+
+Dalgona Coffee (Whipped Coffee)
+
+Irish Coffee
+
+Spanish Carajillo (Coffee with Liqueur)
+Italian Caffè Corretto (Espresso with Liquor)
+
+Red Eye Coffee (Coffee with Espresso Shot)
+Black Eye Coffee (Coffee with Double Espresso Shot)
+
+Moka Pot Coffee
+
+Milk Coffee
+Sweetened Milk Coffee
+
+Espresso
+Ristretto Espresso
+Lungo Espresso
+Doppio Espresso
+Americano Coffee
+Long Black Coffee
+Drip Brewed Coffee
+Pour-Over Coffee
+French Press Coffee
+Cold Brew Coffee
+Nitro Cold Brew Coffee
+Iced Coffee
+Iced Americano
+Iced Espresso
+Caffè Latte (Latte Coffee)
+Iced Caffè Latte (Iced Latte Coffee)
+Caffè Mocha (Mocha Coffee)
+Iced Caffè Mocha (Iced Mocha Coffee)
+White Chocolate Mocha Coffee
+Iced White Chocolate Mocha Coffee
+Cappuccino Coffee
+Iced Cappuccino Coffee
+Flat White Coffee
+Cortado Coffee
+Gibraltar Coffee
+Caffè Macchiato (Espresso with Milk Foam)
+Latte Macchiato (Milk with Espresso)
+Caffè Breve (Latte with Half-and-Half)
+Caffè Vienna (Espresso with Whipped Cream)
+Caffè Con Panna (Espresso with Cream)
+Affogato al Caffè (Espresso with Ice Cream)
+Caffè Romano (Espresso with Lemon)
+Red Eye Coffee
+Black Eye Coffee
+Dead Eye Coffee
+Turkish Coffee
+Greek Coffee
+Arabic Coffee
+Vietnamese Iced Coffee (Sweetened Condensed Milk Coffee)
+Vietnamese Hot Coffee (Sweetened Condensed Milk Coffee)
+Café au Lait (Coffee with Hot Milk)
+Café Crème (European Cream Coffee)
+Café Bombón (Espresso with Condensed Milk)
+Café Cubano (Cuban Sweet Espresso)
+Café con Leche (Coffee with Milk)
+Irish Coffee (Coffee with Irish Whiskey and Cream)
+Spanish Coffee (Coffee with Brandy and Cream)
+Mexican Coffee (Coffee with Cinnamon and Spirits)
+Mocha Frappuccino Blended Beverage
+Coffee Frappuccino Blended Beverage
+Espresso Frappuccino Blended Beverage
+Caramel Frappuccino Blended Beverage
+Caramel Ribbon Crunch Frappuccino Blended Beverage
+Java Chip Frappuccino Blended Beverage
+Double Chocolate Chip Frappuccino Blended Beverage
+White Chocolate Mocha Frappuccino Blended Beverage
+Mocha Cookie Crumble Frappuccino Blended Beverage
+Coffee Jelly Frappuccino Blended Beverage
+Vanilla Bean Frappuccino Blended Beverage
+Matcha Green Tea Frappuccino Blended Beverage
+Chai Crème Frappuccino Blended Beverage
+Pumpkin Spice Frappuccino Blended Beverage
+Peppermint Mocha Frappuccino Blended Beverage
+Toffee Nut Frappuccino Blended Beverage
+Hazelnut Frappuccino Blended Beverage
+Caffè Vanilla Frappuccino Blended Beverage
+Espresso Cream Frappuccino Blended Beverage
+Affogato Frappuccino Blended Beverage
+Iced Latte with Flavored Syrup
+Iced Vanilla Latte Coffee
+Iced Caramel Latte Coffee
+Iced Hazelnut Latte Coffee
+Iced Pumpkin Spice Latte Coffee
+Pumpkin Spice Latte Coffee
+Peppermint Mocha Latte Coffee
+Caramel Macchiato Coffee
+Iced Caramel Macchiato Coffee
+Honey Latte Coffee
+Brown Sugar Latte Coffee
+Oat Milk Latte Coffee
+Almond Milk Latte Coffee
+Soy Milk Latte Coffee

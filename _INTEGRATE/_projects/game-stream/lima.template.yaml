@@ -1,0 +1,48 @@
+vmType: vz
+arch: "${ARCH}" # or "x86_64" if needed
+memory: 4GiB
+cpus: 4
+
+images:
+  -  location: "https://cloud-images.ubuntu.com/minimal/releases/${UBUNTU_CODENAME}/release/ubuntu-${UBUNTU_VERSION}-minimal-cloudimg-${IMG_ARCH}.img"
+    arch: "${ARCH}"
+
+mounts:
+  - location: "~"
+    writable: true
+  - location: "/tmp"
+    writable: true
+
+video:
+  display: true
+  gpu: true
+
+provision:
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux
+      apt-get update
+      MOD_PACKAGE="linux-modules-extra-$(uname -r)"
+      if apt-cache show "$MOD_PACKAGE" > /dev/null 2>&1; then
+        apt-get install -y "$MOD_PACKAGE"
+      else
+        echo "⚠️  Warning: $MOD_PACKAGE not found. Skipping."
+      fi
+      apt-get install -y uinput mesa-utils \
+        sudo curl git ca-certificates libgl1-mesa-dri libglx-mesa0 \
+        libegl1-mesa libgbm1 libosmesa6 xvfb libgles2 mesa-utils-extra
+      echo uinput >> /etc/modules-load.d/uinput.conf
+      modprobe uinput || echo "⚠️ Failed to modprobe uinput"
+      [ -e /dev/uinput ] && chmod 666 /dev/uinput || echo "⚠️ /dev/uinput not found"
+
+containerd:
+  system: false
+  user: false
+
+ssh:
+  localPort: 0
+
+env:
+  LIBGL_ALWAYS_SOFTWARE: 0
+  DEBIAN_FRONTEND: noninteractive

@@ -1,0 +1,103 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ==============================================================================
+# 🚀 GitLab CI/CD Configuration for Cloudflare Workers + D1 (pnpm + wrangler)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 🗂️ GitLab CI/CD Stages
+# ------------------------------------------------------------------------------
+# Defines the execution order of pipeline stages.
+# Each job is assigned to a stage. Jobs in the same stage run in parallel.
+# Later stages wait for all jobs in the previous stage(s) to succeed.
+#
+# Stage Purpose:
+# - setup    → Validate environment, secrets, and configuration
+# - lint     → Run static code analysis (Biome, Oxlint, etc.)
+# - test     → Execute unit, integration, and validation tests
+# - migrate  → Check and apply DB migrations (D1)
+# - build    → Build all deployable artifacts (e.g. Worker bundles)
+# - deploy   → Preview, staging, canary, or production deploy flow
+stages:
+  - setup
+  - lint
+  - test
+  - migrate
+  - build
+  - deploy
+
+# ------------------------------------------------------------------------------
+# 🛠️ Required GitLab CI/CD Variables
+# ------------------------------------------------------------------------------
+# These environment variables must be defined in GitLab → Settings → CI/CD → Variables.
+# They are required for preview deploys, merge request integration, and Cloudflare automation.
+#
+# ✅ Critical Variables:
+#
+# 1. `GITLAB_API_TOKEN` — Project Access Token with `api` scope
+#    - Used to comment on merge requests (e.g., preview URL or deploy summaries)
+#    - Go to: Project → Settings → Access Tokens
+#    - Create token with `api` scope
+#    - Save under: CI/CD Variables → `GITLAB_API_TOKEN` (🔒 protected)
+#
+# 2. `CLOUDFLARE_API_TOKEN` — Cloudflare API token with permission:
+#       ✅ “Workers Scripts:Edit”
+#    - Required for wrangler deploy, secret sync, rollback, traffic weighting
+#    - Create via: https://dash.cloudflare.com/profile/api-tokens
+#    - Save as: `CLOUDFLARE_API_TOKEN` (🔒 protected)
+#
+# 3. `ACCOUNT_ID` — Your Cloudflare Account ID
+#    - Used for deployments and API operations
+#    - Save as: `ACCOUNT_ID` (🔒 protected)
+#
+# 4. `SERVICE_NAME` — The Wrangler service name (from wrangler.json → name)
+#    - Used in deploy and rollback commands
+#    - Save as: `SERVICE_NAME` (🔒 protected)
+#
+# ✅ Per-Branch Environment Configuration:
+# These must be set using GitLab’s “Scoped Variable” feature:
+#
+# - For `main` or `master` branches:
+#     DB_NAME=analytics_prod
+#     WRANGLER_ENV=production
+#
+# - For `staging` branch:
+#     DB_NAME=analytics_staging
+#     WRANGLER_ENV=staging
+
+# ------------------------------------------------------------------------------
+# 📦 Includes — Split CI configuration files
+# ------------------------------------------------------------------------------
+
+include:
+  - local: .gitlab/ci/_globals.yml
+
+  # 🧹 Lifecycle
+  - local: .gitlab/ci/cleanup.yml
+  - local: .gitlab/ci/teardown.yml
+
+  # 🚀 Deployment
+  - local: .gitlab/ci/deploy-preview.yml
+  - local: .gitlab/ci/deploy-staging.yml
+  - local: .gitlab/ci/deploy-canary-prod.yml
+  - local: .gitlab/ci/rollback.yml
+
+  # 🧪 Testing & Validation
+  - local: .gitlab/ci/test.yml
+  - local: .gitlab/ci/integration.yml
+  - local: .gitlab/ci/validate-infra.yml
+
+  # 🧰 Utilities
+  - local: .gitlab/ci/secrets.yml
+  - local: .gitlab/ci/mr.yml
+
+  # 🏗️ Project Work
+  - local: .gitlab/ci/benchmark.yml
+  - local: .gitlab/ci/check.yml
+  - local: .gitlab/ci/lint.yml
+  - local: .gitlab/ci/build.yml
+  - local: packages/apps/analytics/.gitlab/ci/migrate.yml
+
+  # ⚙️ Bootstrap Analytics
+  - local: packages/apps/analytics/.gitlab/ci/bootstrap.yml
+  - local: packages/apps/analytics/.gitlab/ci/bootstrap-preview.yml

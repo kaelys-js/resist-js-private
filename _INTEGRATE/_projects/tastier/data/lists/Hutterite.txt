@@ -1,0 +1,2473 @@
+Platz (Hutterite Sheet Bread)
+White Platz (Plain Yeasted Sheet Bread)
+Onion Platz (Onion-Topped Sheet Bread)
+Cream Platz (Cream-Enriched Sheet Bread)
+Knepfla (Hutterite Dumpling Soup)
+Chicken Knepfla Soup
+Beef Knepfla Soup
+Vereniki (Hutterite Cheese Dumplings)
+Potato Vereniki (Potato-Filled Dumplings)
+Cottage Cheese Vereniki (Cheese-Filled Dumplings)
+Fried Vereniki (Pan-Fried Dumplings)
+Borscht (Hutterite Beet Soup)
+Cream Borscht (Beet Soup with Cream)
+Summer Borscht (Cold Beet Soup)
+Kuchen (Hutterite Coffee Cake)
+Rhubarb Kuchen (Rhubarb Coffee Cake)
+Plum Kuchen (Plum Coffee Cake)
+Apricot Kuchen (Apricot Coffee Cake)
+Rollkuchen (Fried Pastry Twists)
+Zwieback (Twice-Baked Sweet Bread)
+Fresh Zwieback (Soft Sweet Bread Loaves)
+Schupfnudeln (Hutterite Potato Noodles)
+Fried Schupfnudeln (Pan-Fried Potato Noodles)
+Farmer Sausage with Potatoes
+Roast Chicken with Gravy
+Roast Pork with Dumplings
+Creamed Corn
+Creamed Peas
+Boiled Potatoes with Cream Gravy
+Cabbage Rolls (Hutterite Stuffed Cabbage)
+Sauerkraut with Pork
+Apple Strudel (Hutterite Apple Strudel)
+Berry Roll (Fruit-Filled Sweet Roll)
+Rice Pudding (Hutterite Rice Pudding)
+Bierocks (Cabbage and Beef Yeast Buns)
+Zwieback (Light Sweet Dinner Rolls)
+Kuchen (German Custard or Fruit Cake)
+Pluma Moos (Fruit Soup)
+Creamed Corn
+Mashed Potatoes with Gravy
+Roast Chicken Dinner
+Roast Beef with Brown Gravy
+Fried Chicken
+Chicken and Dumplings
+Beef and Barley Soup
+Vegetable Soup with Homemade Noodles
+Chicken Noodle Soup
+Homemade Egg Noodles
+Farmer Sausage
+Fried Farmer Sausage with Onions
+Boiled Farmer Sausage
+Cabbage Rolls (Stuffed Cabbage Rolls)
+Baked Ham
+Ham and Bean Soup
+Macaroni and Cheese
+Potato Salad
+Coleslaw
+Cucumber Salad
+Creamed Peas
+Buttered Green Beans
+Glazed Carrots
+Cornbread
+Dinner Rolls
+Fresh White Bread
+Rhubarb Pie
+Apple Pie
+Saskatoon Berry Pie
+Cherry Pie
+Plum Jam
+Strawberry Jam
+Homemade Butter
+Homemade Cottage Cheese
+Pancakes
+Waffles
+Scrambled Eggs
+Fried Eggs
+Baked Potatoes
+Fresh Milk (Chilled Farm Milk)
+Clabbered Milk (Naturally Fermented Milk Drink)
+Buttermilk (Cultured Buttermilk Drink)
+Sweet Cream Milk (Sweetened Fresh Cream Milk)
+Honey Milk (Warm Milk with Honey)
+Molasses Milk (Molasses-Sweetened Milk Drink)
+Warm Spiced Milk (Hot Milk with Cinnamon and Nutmeg)
+Cold Well Water (Chilled Well Water)
+Spring Water (Natural Spring Water)
+Homemade Lemonade (Fresh Lemon Juice Lemonade)
+Honey Lemonade (Honey-Sweetened Lemonade)
+Rhubarb Juice (Stewed Rhubarb Juice Drink)
+Sour Cherry Juice (Tart Cherry Juice Drink)
+Apple Juice (Pressed Farm Apple Juice)
+Crabapple Juice (Crabapple Juice Drink)
+Grape Juice (Non-Fermented Grape Juice)
+Plum Juice (Plum Juice Drink)
+Pear Juice (Pear Juice Drink)
+Mixed Berry Juice (Farm Berry Juice Drink)
+Elderberry Juice (Elderberry Juice Drink)
+Iced Tea (Unsweetened Black Iced Tea)
+Sweet Iced Tea (Sweetened Black Iced Tea)
+Herbal Tea (Non-Caffeinated Herbal Tea)
+Mint Tea (Fresh Mint Tea)
+Chamomile Tea (Chamomile Herbal Tea)
+Barley Water (Barley Infused Water Drink)
+Fruit Punch (Non-Alcoholic Fruit Punch)
+Cream Soda (Homemade Vanilla Cream Soda)
+Root Beer (Homemade Non-Alcoholic Root Beer)
+Raspberry Cordial (Raspberry Syrup Drink)
+Currant Cordial (Currant Syrup Drink)
+Apple Cider (Unfermented Apple Cider)
+Warm Apple Cider (Heated Spiced Apple Cider)
+Zwiebach (Double-Baked Sweet Bread)
+Fresh-Baked White Bread (Farmhouse White Bread)
+Whole Wheat Bread (Whole Wheat Farm Bread)
+Sourdough Bread (Traditional Sourdough Bread)
+Homemade Dinner Rolls (Farmhouse Yeast Rolls)
+Butterhorns (Crescent Dinner Rolls)
+Pancakes (Farm-Style Pancakes)
+Buckwheat Pancakes (Buckwheat Griddle Cakes)
+French Toast (Egg-Dipped Fried Bread)
+Scrambled Eggs (Farm Scrambled Eggs)
+Fried Eggs (Pan-Fried Eggs)
+Boiled Eggs (Hard-Boiled Farm Eggs)
+Eggs and Potatoes (Fried Potatoes with Eggs)
+Breakfast Sausage (Homemade Pork Breakfast Sausage)
+Fried Ham (Pan-Fried Ham Slices)
+Bacon (Cured Pork Bacon)
+Cream of Wheat (Hot Wheat Cereal)
+Oatmeal (Rolled Oats Porridge)
+Cracked Wheat Porridge (Boiled Cracked Wheat Cereal)
+Milk Toast (Warm Milk with Buttered Toast)
+Homemade Butter (Fresh-Churned Butter)
+Homemade Jam (Farm Fruit Preserves)
+Cottage Cheese (Fresh Curd Cheese)
+Fried Mushrooms (Pan-Fried Farm Mushrooms)
+Hash Browns (Pan-Fried Shredded Potatoes)
+Fried Potatoes (Skillet-Fried Potatoes)
+Apple Kuchen (Apple Breakfast Cake)
+Plum Kuchen (Plum Breakfast Cake)
+Fresh Farm Eggs with Cream Gravy
+Scrambled Farm Eggs with Cream
+Soft-Boiled Eggs with Buttered Bread
+Fried Eggs with Smoked Bacon
+Eggs with Ham and Potatoes
+Creamed Eggs on Bread
+Baked Eggs with Cream
+Cheese and Egg Skillet
+Farmer’s Breakfast Eggs
+
+Bratkartoffeln (Pan-Fried Potatoes)
+Creamed Potatoes
+Boiled Potatoes with Butter and Dill
+Mashed Potatoes with Cream
+Potato Pancakes (Kartoffelpuffer / Potato Fritters)
+Fried Potatoes with Onions
+
+Farmer Sausage (Smoked Pork Sausage)
+Pan-Fried Farmer Sausage
+Smoked Ham Slices
+Boiled Ham with Potatoes
+Bacon Rashers
+
+Zwieback (Twice-Baked Bread)
+Fresh White Bread (Homemade Farm Loaf)
+Whole Wheat Bread (Homemade Brown Bread)
+Buttered Bread with Jam
+Buttered Bread with Honey
+Buttered Bread with Apple Butter
+
+Käskuchen (German-Style Cheesecake)
+Coffee Cake (Yeast Coffee Cake)
+Cinnamon Buns (Sweet Yeast Rolls)
+Sweet Cream Buns
+Plain Yeast Rolls
+
+Plum Kuchen (Plum Coffee Cake)
+Apple Kuchen (Apple Coffee Cake)
+Rhubarb Kuchen (Rhubarb Coffee Cake)
+
+Homemade Cottage Cheese
+Fresh Cheese with Cream
+Cheese Curds
+Sliced Farm Cheese
+
+Cream Porridge
+Oatmeal with Cream and Sugar
+Cornmeal Mush with Milk
+
+Preserves Assortment (Homemade Jams)
+Pickled Beets
+Sweet Pickles
+
+Fresh Milk
+Cultured Buttermilk
+Strong Farm Coffee
+Roast Chicken Dinner
+Boiled Beef Dinner
+Baked Ham Dinner
+Fried Chicken Dinner
+Meatloaf Dinner
+Breaded Pork Chops
+Pan-Fried Sausages
+Roast Beef Dinner
+Boiled Chicken Dinner
+Chicken and Dumplings
+Beef and Noodles
+Chicken and Noodles
+Creamed Chicken Dinner
+Hamburger Gravy Dinner
+Sausage and Gravy Dinner
+Roast Turkey Dinner
+Stuffed Chicken Dinner
+Beef Pot Roast
+Pork Roast Dinner
+Smoked Sausage Dinner
+Ham and Bean Dinner
+Chicken Rice Dinner
+Beef Rice Dinner
+Cabbage Roll Dinner
+Fried Meat Patties Dinner
+Baked Chicken Dinner
+Chicken Cutlets Dinner
+Boiled Sausage Dinner
+Roast Duck Dinner
+Veal Roast Dinner
+Creamed Beef Dinner
+Chicken Fricassee Dinner
+Beef Stew Dinner
+Pork Stew Dinner
+Chicken Stew Dinner
+Meatballs and Gravy Dinner
+Schnitzel Dinner
+Baked Meatloaf with Gravy Dinner
+Brewed Coffee (Black Coffee)
+Milk (Fresh Whole Milk)
+Buttermilk (Cultured Buttermilk)
+Sweetened Iced Tea (Iced Black Tea)
+Unsweetened Iced Tea (Plain Iced Tea)
+Hot Tea (Brewed Black Tea)
+Herbal Tea (Herb Infusion Tea)
+Lemonade (Fresh Lemon Drink)
+Pink Lemonade (Sweetened Berry Lemonade)
+Rhubarb Juice (Rhubarb Drink)
+Rhubarb Lemonade (Rhubarb Lemon Drink)
+Apple Juice (Pressed Apple Juice)
+Apple Cider (Fresh Apple Cider)
+Grape Juice (Pressed Grape Juice)
+Berry Juice (Mixed Berry Juice)
+Saskatoon Berry Juice (Serviceberry Juice)
+Chokecherry Juice (Chokecherry Drink)
+Strawberry Milk (Sweetened Strawberry Milk)
+Chocolate Milk (Sweetened Chocolate Milk)
+Hot Chocolate (Cocoa Drink)
+Warm Milk with Honey (Sweetened Hot Milk)
+Homemade Fruit Punch (Mixed Fruit Drink)
+Iced Coffee with Milk (Cold Coffee with Milk)
+Homemade White Bread
+Hutterite White Bread (Traditional Colony White Bread)
+Whole Wheat Bread
+Hutterite Whole Wheat Bread (Stone-Ground Wheat Bread)
+Mixed Grain Bread
+Hutterite Multigrain Bread (Colony Mixed Grain Bread)
+Sourdough Bread
+Hutterite Sourdough Bread (Natural Fermented Colony Bread)
+Rye Bread
+Hutterite Rye Bread (Dark Farmhouse Rye Bread)
+Light Rye Bread
+Hutterite Light Rye Bread (Mild Colony Rye Bread)
+Brown Bread
+Hutterite Brown Bread (Molasses Wheat Bread)
+Molasses Bread
+Hutterite Molasses Bread (Sweet Dark Farm Bread)
+Oatmeal Bread
+Hutterite Oatmeal Bread (Rolled Oat Wheat Bread)
+Barley Bread
+Hutterite Barley Bread (Barley-Enriched Farm Bread)
+Cornbread
+Hutterite Cornbread (Colony-Style Skillet Cornbread)
+Bannock Bread
+Hutterite Bannock (Colony Fry Bread)
+Fried Bread
+Hutterite Fried Bread (Pan-Fried Yeast Bread)
+Dinner Buns
+Hutterite Buns (Soft Colony Dinner Rolls)
+White Dinner Rolls
+Hutterite White Rolls (Soft Yeast Rolls)
+Whole Wheat Rolls
+Hutterite Whole Wheat Rolls (Wheat Dinner Buns)
+Hamburger Buns
+Hutterite Hamburger Buns (Colony Sandwich Buns)
+Hot Dog Buns
+Hutterite Hot Dog Buns (Soft Sausage Rolls)
+Flatbread
+Hutterite Flatbread (Simple Yeast Flatbread)
+Pan Bread
+Hutterite Pan Bread (Everyday Colony Loaf)
+Farmhouse Bread
+Hutterite Farmhouse Bread (Rustic Daily Bread)
+Sweet Bread
+Hutterite Sweet Bread (Lightly Sweetened Yeast Bread)
+Milk Bread
+Hutterite Milk Bread (Enriched Soft White Bread)
+Egg Bread
+Hutterite Egg Bread (Rich Enriched Yeast Bread)
+Seeded Bread
+Hutterite Seeded Bread (Sunflower and Flax Bread)
+Cracked Wheat Bread
+Hutterite Cracked Wheat Bread (Coarse Wheat Farm Bread)
+Brathendl (Roast Chicken)
+Gebratenes Huhn (Pan-Fried Chicken)
+Hühnersuppe (Chicken Soup)
+Hühnernudelsuppe (Chicken Noodle Soup)
+Huhn mit Knödeln (Chicken with Dumplings)
+Hühnerfrikassee (Creamed Chicken Stew)
+Huhn in Rahmsauce (Chicken in Cream Sauce)
+Schmorhuhn (Braised Chicken)
+Huhn mit Kartoffeln (Chicken with Potatoes)
+Backofenhuhn (Oven-Roasted Chicken)
+Huhn mit Sauerkraut (Chicken with Sauerkraut)
+Huhn mit Spätzle (Chicken with Spätzle)
+Hühnerbraten mit Soße (Roast Chicken with Gravy)
+Huhn mit Gemüse (Chicken with Vegetables)
+Hühnerkeulen geschmort (Braised Chicken Legs)
+Huhn mit Reis (Chicken with Rice)
+Huhn mit Nudeln (Chicken with Egg Noodles)
+Hühnerbouillon (Chicken Broth)
+Huhn mit Wurzelgemüse (Chicken with Root Vegetables)
+Beef and Gravy
+Roast Beef Dinner
+Pot Roast
+Boiled Beef with Vegetables
+Braised Beef
+Beef Stew
+Beef Barley Soup
+Beef Noodle Soup
+Beef and Dumplings
+Beef and Spaetzle
+Beef Stroganoff
+Sauerbraten (German Marinated Beef Roast)
+Rinderbraten (German Beef Roast)
+Rindsgulasch (German Beef Goulash)
+Beef Goulash
+Beef and Cabbage
+Beef and Potato Hotdish
+Beef Hotdish
+Beef Casserole
+Hamburger Hotdish
+Hamburger Gravy
+Hamburger and Potatoes
+Hamburger and Cabbage Skillet
+Meatballs in Gravy
+German Meatballs (Beef Meatballs)
+Beef Meatloaf
+Hamburger Loaf
+Beef Cutlets
+Breaded Beef Cutlets
+Beef Schnitzel
+Rindschnitzel (Beef Schnitzel)
+Beef Sausage
+Fresh Beef Sausage
+Smoked Beef Sausage
+Farmer Sausage (Beef Farmer Sausage)
+Beef Kolbasa
+Beef Borscht
+Beef with Noodles
+Beef with Dumplings
+Beef and Onion Fry
+Beef Liver and Onions
+Beef Heart Stew
+Beef Tongue with Gravy
+Pickled Beef
+Corned Beef Dinner
+Beef and Beans
+Beef Chili
+Beef Pie
+Beef Pot Pie
+German Beef Pie (Beef Meat Pie)
+Roast Pork
+Roast Pork with Gravy
+Pork and Sauerkraut
+Roast Pork with Sauerkraut
+Smoked Pork Roast
+Boiled Pork with Potatoes
+Pork Chops
+Pan-Fried Pork Chops
+Breaded Pork Chops
+Baked Pork Chops
+Smothered Pork Chops
+Pork Schnitzel (Breaded Fried Pork Cutlet)
+Wiener Schnitzel vom Schwein (Vienna-Style Pork Schnitzel)
+Pork Cutlets
+Pork Roast with Potatoes
+Pork Roast with Root Vegetables
+Pork and Dumplings
+Pork and Noodles
+Pork Stew
+Pork Goulash
+Schweinegulasch (Pork Goulash)
+Pork Sausage
+Fresh Pork Sausage
+Smoked Pork Sausage
+Farmhouse Pork Sausage
+Bratwurst (German Pork Sausage)
+Bauernwurst (Farm Sausage)
+Pork and Beans
+Pork with Gravy
+Pork Hocks
+Smoked Pork Hocks
+Braised Pork Hocks
+Ham
+Baked Ham
+Smoked Ham
+Boiled Ham
+Ham with Cream Sauce
+Ham and Potatoes
+Ham and Noodles
+Pork Belly
+Roasted Pork Belly
+Braised Pork Belly
+Salt Pork
+Fried Salt Pork
+Pork Ribs
+Baked Pork Ribs
+Smoked Pork Ribs
+Pork Meatballs
+Pork Sausage Patties
+Head Cheese (Pork Terrine)
+Souse (Pickled Pork)
+Rendered Lard with Cracklings (Schmalz mit Grieben)
+Cracklings (Fried Pork Fat Pieces)
+Fried Fish
+Pan-Fried Fish Fillets
+Baked Fish
+Baked Cod
+Creamed Fish
+Fish Chowder
+Fish Soup
+Fish Stew
+Pickled Herring
+Creamed Herring
+Fish Patties
+Fish Cakes
+Salmon Loaf
+Tuna Casserole
+Tuna Noodle Casserole
+Shrimp Salad
+Cold Shrimp Salad
+Shrimp Macaroni Salad
+Creamy Shrimp Salad
+Boiled Shrimp with Butter
+Garlic Butter Shrimp
+Zwieback (Sweet Double-Baked Yeast Bread)
+Hutterite Zwieback (Traditional Sweet Yeast Zwieback)
+Kuchen (Custard Cake)
+Plum Kuchen (Plum Custard Cake)
+Apple Kuchen (Apple Custard Cake)
+Rhubarb Kuchen (Rhubarb Custard Cake)
+Cherry Kuchen (Cherry Custard Cake)
+Cream Kuchen (Cream Custard Cake)
+Platz (Hutterite Coffee Cake)
+Cinnamon Platz (Cinnamon Coffee Cake)
+Fruit Platz (Fruit-Topped Coffee Cake)
+Roll Kuchen (Fried Pastry Twists)
+Rollkuchen (Deep-Fried Yeast Pastry)
+Sugar Rollkuchen (Sweet Fried Pastry Twists)
+Jam-Filled Rollkuchen (Filled Fried Pastry)
+Hutterite Doughnuts (Yeast-Raised Doughnuts)
+Sugar Doughnuts (Plain Sweet Doughnuts)
+Jam Doughnuts (Filled Yeast Doughnuts)
+Buns (Sweet Yeast Buns)
+Dinner Buns (Plain Yeast Buns)
+Cinnamon Buns (Cinnamon Rolls)
+Sticky Buns (Caramel Cinnamon Rolls)
+Fruit Buns (Sweet Buns with Dried Fruit)
+Hefezopf (Braided Sweet Yeast Bread)
+Sweet Braided Bread (Hutterite Yeast Braid)
+Butterhorns (Crescent-Shaped Yeast Pastries)
+Jam Horns (Jam-Filled Crescent Pastries)
+Sweet Poppy Seed Roll (Poppy Seed Yeast Roll)
+Nut Roll (Sweet Walnut Yeast Roll)
+Raisin Roll (Sweet Raisin Yeast Roll)
+Hutterite Coffee Ring (Filled Yeast Ring Pastry)
+Apple Turnovers (Yeast Pastry Turnovers)
+Berry Turnovers (Fruit-Filled Yeast Turnovers)
+Zwieback Cake (Double-Baked Sweet Yeast Cake)
+Plum Kuchen (Fresh Plum Coffee Cake)
+Apple Kuchen (Fresh Apple Coffee Cake)
+Rhubarb Kuchen (Rhubarb Coffee Cake)
+Cherry Kuchen (Cherry Coffee Cake)
+Apricot Kuchen (Apricot Coffee Cake)
+Sour Cream Kuchen (Sour Cream Coffee Cake)
+Streusel Kuchen (Crumb-Topped Coffee Cake)
+Vanilla Kuchen (Vanilla Coffee Cake)
+Chocolate Kuchen (Chocolate Coffee Cake)
+Bienenstich (Bee Sting Cake with Custard and Almonds)
+Cream Pudding Cake (Custard-Filled Sheet Cake)
+Farmer’s Wife Cake (Classic Hutterite Community Cake)
+Egg Yolk Sponge Cake (Rich Yellow Sponge Cake)
+White Egg Sponge Cake (Light Egg White Sponge Cake)
+Chocolate Sheet Cake (Hutterite Chocolate Pan Cake)
+Marble Cake (Chocolate and Vanilla Marble Cake)
+Apple Sauce Cake (Spiced Applesauce Cake)
+Honey Cake (Honey-Sweetened Farm Cake)
+Molasses Cake (Molasses Spice Cake)
+Jam-Filled Layer Cake (Preserve-Filled Celebration Cake)
+Cream-Filled Layer Cake (Vanilla Cream Celebration Cake)
+Butter Cake (Plain Yeast Butter Cake)
+Crumb Butter Cake (Butter Cake with Streusel Topping)
+Cinnamon Roll Cake (Cinnamon Swirl Sheet Cake)
+Oatmeal Raisin Cookies
+Oatmeal Chocolate Chip Cookies
+Oatmeal Coconut Cookies
+Molasses Cookies
+Soft Molasses Cookies
+Gingersnap Cookies
+Peanut Butter Cookies
+Criss-Cross Peanut Butter Cookies
+Sugar Cookies
+Rolled Sugar Cookies
+Cut-Out Sugar Cookies
+Iced Sugar Cookies
+Snickerdoodle Cookies
+Chocolate Chip Cookies
+Thick Chocolate Chip Cookies
+Butter Cookies
+Shortbread Cookies
+Brown Sugar Cookies
+Hermit Cookies
+Raisin Spice Cookies
+Date Filled Cookies
+Jam Thumbprint Cookies
+Thumbprint Cookies
+Icebox Cookies
+Refrigerator Cookies
+Pinwheel Cookies
+Spritz Cookies
+Drop Butter Cookies
+Coconut Macaroons
+Oatmeal Drop Cookies
+Chocolate Oatmeal Cookies
+No-Bake Chocolate Oatmeal Cookies
+Anise Cookies
+Plain Tea Cookies
+Vanilla Drop Cookies
+Farmhouse Cookies
+Bran Muffins
+Whole Wheat Bran Muffins
+Molasses Bran Muffins
+Buttermilk Bran Muffins
+Oat Bran Muffins
+Raisin Bran Muffins
+Plain White Muffins
+Old-Fashioned Muffins
+Farmhouse Muffins
+Buttermilk Muffins
+Sour Cream Muffins
+Blueberry Muffins
+Wild Blueberry Muffins
+Saskatoon Berry Muffins
+Raspberry Muffins
+Strawberry Muffins
+Apple Muffins
+Apple Cinnamon Muffins
+Apple Raisin Muffins
+Rhubarb Muffins
+Rhubarb Streusel Muffins
+Pumpkin Muffins
+Pumpkin Spice Muffins
+Zucchini Muffins
+Carrot Muffins
+Carrot Raisin Muffins
+Banana Muffins
+Banana Nut Muffins
+Chocolate Chip Muffins
+Double Chocolate Muffins
+Corn Muffins
+Sweet Corn Muffins
+Honey Corn Muffins
+Cheese Muffins
+Cheddar Cheese Muffins
+Ham and Cheese Muffins
+Oatmeal Muffins
+Oatmeal Raisin Muffins
+Sunflower Seed Muffins
+Poppy Seed Muffins
+Lemon Poppy Seed Muffins
+Cinnamon Sugar Muffins
+Jam-Filled Muffins
+Peanut Butter Muffins
+Cocoa Muffins
+Vanilla Cupcakes
+Plain Vanilla Cupcakes
+Yellow Cupcakes
+White Cupcakes
+Chocolate Cupcakes
+Old-Fashioned Chocolate Cupcakes
+Butter Cupcakes
+Buttermilk Cupcakes
+Sour Cream Cupcakes
+Spice Cupcakes
+Molasses Spice Cupcakes
+Carrot Cupcakes
+Pumpkin Cupcakes
+Apple Spice Cupcakes
+Jam-Filled Cupcakes
+Chocolate Chip Cupcakes
+Vanilla Cupcakes with Buttercream Frosting
+Chocolate Cupcakes with Chocolate Frosting
+Apfelkuchen (Apple Kuchen Cake)
+Zwetschgenkuchen (Plum Kuchen Cake)
+Kirschkuchen (Cherry Kuchen Cake)
+Rhabarberkuchen (Rhubarb Kuchen Cake)
+Pflaumenkuchen (Plum Coffee Cake)
+Streuselkuchen (Crumb-Topped Coffee Cake)
+Butterkuchen (Butter Yeast Cake)
+Blechkuchen (Sheet Pan Fruit Cake)
+Obstkuchen (Fresh Fruit Cake)
+Apfelstreusel (Apple Crumble Cake)
+Zwetschgenstreusel (Plum Crumble Cake)
+Cream Puffs (Choux Pastry Puffs with Cream)
+Éclairs (Chocolate Iced Cream-Filled Pastries)
+Vanilla Cream Cake (Vanilla Custard Layer Cake)
+Chocolate Cream Cake (Chocolate Custard Layer Cake)
+Angel Food Cake (Egg White Sponge Cake)
+Sponge Cake (Plain Sponge Cake)
+Marble Cake (Chocolate and Vanilla Marble Cake)
+Chocolate Sheet Cake (Chocolate Pan Cake)
+White Celebration Cake (Vanilla Celebration Cake)
+Jam-Filled Layer Cake (Fruit Preserve Layer Cake)
+Bienenstich (Bee Sting Cake with Custard and Almonds)
+Apfelstrudel (Apple Strudel Pastry)
+Quark Strudel (Fresh Cheese Strudel)
+Cherry Strudel (Cherry Filled Strudel)
+Plum Strudel (Plum Filled Strudel)
+Farmer Cheese Cake (Fresh Cheese Cake)
+Baked Cheesecake (Baked Cream Cheese Cake)
+No-Bake Cheesecake (Chilled Cheesecake Dessert)
+Rice Pudding (Creamy Rice Pudding)
+Bread Pudding (Baked Bread Custard Dessert)
+Apple Bread Pudding (Apple Custard Bread Dessert)
+Custard Squares (Baked Custard Dessert Bars)
+Cream Squares (Vanilla Cream Dessert Bars)
+Apple Squares (Apple Dessert Bars)
+Date Squares (Date Filled Oat Bars)
+Raisin Bars (Raisin Filled Dessert Bars)
+Shortbread Cookies (Butter Shortbread Cookies)
+Sugar Cookies (Soft Sugar Cookies)
+Oatmeal Cookies (Oatmeal Drop Cookies)
+Peanut Butter Cookies (Peanut Butter Cookies)
+Jam Thumbprint Cookies (Jam Filled Butter Cookies)
+Apple Pie (Traditional Apple Pie)
+Cherry Pie (Cherry Pie)
+Saskatoon Berry Pie (Serviceberry Pie)
+Plum Pie (Plum Pie)
+Rhubarb Pie (Rhubarb Pie)
+Rhubarb Custard Pie (Rhubarb Custard Pie)
+Cream Pie (Vanilla Cream Pie)
+Chocolate Cream Pie (Chocolate Cream Pie)
+Pumpkin Pie (Spiced Pumpkin Pie)
+Apple Dumplings (Baked Apple Dumplings)
+Fruit Compote (Stewed Fruit Dessert)
+Canned Fruit with Cream (Sweet Cream Fruit Dessert)
+Boiled Icing (Cooked Egg White Frosting)
+Seven-Minute Frosting (Boiled Sugar Meringue Frosting)
+Classic Buttercream Frosting
+Cooked Buttercream Frosting
+Ermine Frosting (Cooked Flour Frosting)
+Powdered Sugar Icing
+Milk Icing
+Water Icing
+Vanilla Glaze Icing
+Chocolate Glaze Icing
+Chocolate Buttercream Frosting
+Brown Sugar Frosting
+Caramel Icing
+Cream Cheese Frosting
+Marshmallow Frosting
+Peanut Butter Frosting
+Lemon Glaze Icing
+Maple Icing
+Cocoa Icing
+Simple Sugar Glaze
+Apple Pie
+Sour Cherry Pie
+Rhubarb Pie
+Strawberry Rhubarb Pie
+Plum Pie
+Peach Pie
+Blueberry Pie
+Saskatoon Berry Pie
+Mixed Berry Pie
+Pumpkin Pie
+Custard Pie
+Sugar Cream Pie
+Cream Pie
+Buttermilk Pie
+Vinegar Pie
+Molasses Pie
+Poppy Seed Pie
+Cottage Cheese Pie
+Quark Pie (Fresh Cheese Pie)
+Farmer Cheese Pie
+Cinnamon Roll Pie
+Apple Custard Pie
+Apple Sour Cream Pie
+Apple Crumb Pie
+Rhubarb Custard Pie
+Cherry Streusel Pie
+Plum Streusel Pie
+Berry Streusel Pie
+Egg Noodle Pie
+Cream Cheese Pie
+Raisin Pie
+Date Pie
+Apricot Pie
+Apple Tart
+Fruit Tart
+Custard Tart
+Plum Tart
+Berry Tart
+Apple Streusel Tart
+Cheese Tart
+Buttermilk Tart
+Pumpkin Tart
+Kartoffelsalat (German Potato Salad)
+Cremiger Kartoffelsalat (Creamy Potato Salad)
+Warmer Kartoffelsalat mit Speck (Warm Bacon Potato Salad)
+Kartoffelbrei (Mashed Potatoes)
+Kartoffelstampf (Rustic Mashed Potatoes)
+Salzkartoffeln (Boiled Potatoes)
+Salzkartoffeln mit Dill (Boiled Potatoes with Dill)
+Bratkartoffeln (Pan-Fried Potatoes)
+Bratkartoffeln mit Zwiebeln (Pan-Fried Potatoes with Onions)
+Kartoffelpuffer (Potato Pancakes)
+Reibekuchen (Grated Potato Pancakes)
+Kartoffelklöße (Potato Dumplings)
+Kartoffelknödel (Potato Dumplings)
+Kartoffelsuppe (Potato Soup)
+Kartoffelsuppe mit Sahne (Creamy Potato Soup)
+Kartoffelauflauf (Scalloped Potato Casserole)
+Kartoffelgratin (Potato Gratin)
+Gebratene Kartoffeln (Fried Potatoes)
+Gekochte Kartoffeln mit Butter (Boiled Potatoes with Butter)
+Ofenkartoffeln (Oven-Roasted Potatoes)
+Kartoffeln mit Rahmsauce (Potatoes in Cream Sauce)
+Kartoffeln mit Speck und Zwiebeln (Potatoes with Bacon and Onions)
+Buttered Boiled Carrots
+Creamed Carrots
+Glazed Carrots
+Pickled Carrots
+Sweet and Sour Carrots
+Buttered Green Beans
+Creamed Green Beans
+Dill Green Beans
+Pickled Green Beans
+Boiled Cabbage with Butter
+Braised Cabbage
+Sweet and Sour Cabbage
+Creamed Cabbage
+Fried Cabbage
+Sauerkraut (Fermented Cabbage)
+Warm Sauerkraut with Bacon
+Boiled Potatoes
+Mashed Potatoes
+Creamed Potatoes
+Parsley Potatoes
+Fried Potatoes
+Scalloped Potatoes
+Potato Kugel (Baked Potato Pudding)
+Potato Pancakes
+Potato Dumplings
+Boiled Beets
+Pickled Beets
+Sweet Pickled Beets
+Creamed Beets
+Harvard Beets
+Boiled Turnips
+Mashed Turnips
+Creamed Turnips
+Glazed Turnips
+Boiled Rutabaga
+Mashed Rutabaga
+Creamed Rutabaga
+Boiled Corn
+Creamed Corn
+Buttered Corn Kernels
+Corn with Cream Sauce
+Stewed Tomatoes
+Canned Stewed Tomatoes
+Tomatoes with Bread Crumbs
+Fried Tomatoes
+Boiled Peas
+Creamed Peas
+Peas with Butter and Dill
+Boiled Squash
+Mashed Squash
+Baked Squash with Butter
+Creamed Squash
+Boiled Zucchini
+Fried Zucchini
+Zucchini with Cream Sauce
+Pickled Zucchini
+Boiled Onions
+Creamed Onions
+Glazed Pearl Onions
+Fried Onions
+Boiled Spinach
+Creamed Spinach
+Spinach with Butter
+Boiled Kohlrabi
+Creamed Kohlrabi
+Mashed Kohlrabi
+Pickled Kohlrabi
+Boiled Cauliflower
+Creamed Cauliflower
+Cauliflower with Butter Sauce
+Boiled Broccoli
+Broccoli with Butter
+Creamed Broccoli
+Mixed Boiled Vegetables
+Creamed Mixed Vegetables
+Pickled Mixed Vegetables
+Barbecued Chicken
+Barbecued Half Chicken
+Barbecued Chicken Quarters
+Barbecued Chicken Drumsticks
+Barbecued Chicken Thighs
+Barbecued Pork Chops
+Grilled Pork Chops
+Barbecued Pork Ribs
+Barbecued Back Ribs
+Barbecued Side Ribs
+Smoked Pork Ribs
+Barbecued Farmer Sausage
+Grilled Farmer Sausage
+Barbecued Smokies
+Grilled Smokies
+Barbecued Bratwurst
+Grilled Bratwurst
+Barbecued Kolbassa Sausage
+Grilled Kolbassa Sausage
+Barbecued Beef Steaks
+Grilled Beef Steaks
+Barbecued Sirloin Steak
+Grilled Sirloin Steak
+Barbecued T-Bone Steak
+Grilled T-Bone Steak
+Barbecued Hamburgers
+Grilled Hamburgers
+Cheeseburgers
+Barbecued Beef Patties
+Grilled Beef Patties
+Barbecued Hot Dogs
+Grilled Hot Dogs
+Barbecued Wieners
+Grilled Wieners
+Barbecued Pork Sausage Patties
+Grilled Pork Sausage Patties
+Barbecued Chicken Sausage
+Grilled Chicken Sausage
+Barbecued Pork Tenderloin
+Grilled Pork Tenderloin
+Barbecued Beef Kabobs
+Grilled Beef Kabobs
+Barbecued Chicken Kabobs
+Grilled Chicken Kabobs
+Barbecued Mixed Meat Skewers
+Grilled Mixed Meat Skewers
+Barbecued Corn on the Cob
+Grilled Corn on the Cob
+Barbecued Potatoes in Foil
+Grilled Potatoes in Foil
+Barbecued Vegetable Skewers
+Grilled Vegetable Skewers
+Milchreis (Rice Pudding)
+Baked Rice Pudding
+Rice Pudding with Cinnamon
+Rice Pudding with Raisins
+Butterreis (Buttered Rice)
+Plain Steamed Rice
+Reis Pilaw (Rice Pilaf)
+Vegetable Rice Pilaf
+Tomatenreis (Tomato Rice)
+Rice with Stewed Tomatoes
+Reisauflauf (Rice Casserole)
+Baked Rice Casserole
+Chicken and Rice Casserole
+Creamy Rice Casserole
+Rice and Mushroom Casserole
+Rice with Peas
+Rice with Carrots
+Rice with Onions
+Rice with Gravy
+Sunday Dinner Rice
+Farmhouse Butter Rice
+Spätzle (German Egg Dumpling Noodles)
+Käsespätzle (Cheese Spätzle Noodles)
+Plain Egg Noodles (Homemade Farm Egg Noodles)
+Wide Egg Noodles with Butter (Buttered Homemade Egg Noodles)
+Creamed Egg Noodles (Egg Noodles in Cream Sauce)
+Fried Egg Noodles (Pan-Fried Homemade Noodles)
+Macaroni and Tomatoes (Stewed Tomato Macaroni)
+Baked Macaroni and Tomatoes (Oven-Baked Tomato Macaroni)
+Creamy Macaroni (Macaroni in Cream Sauce)
+Macaroni with Ground Beef (Farm-Style Beef Macaroni)
+Macaroni with Sausage (Sausage Macaroni Skillet)
+Cheese Macaroni (Simple Farmhouse Mac and Cheese)
+Baked Cheese Macaroni (Oven-Baked Mac and Cheese)
+Noodle Kugel (Baked Egg Noodle Casserole)
+Savory Noodle Kugel (Egg Noodle Casserole with Onions)
+Butter Noodles with Bread Crumbs (Crumbed Buttered Egg Noodles)
+Cottage Cheese Noodles (Egg Noodles with Cottage Cheese)
+Cream Cheese Noodles (Egg Noodles with Cream Cheese Sauce)
+Onion Noodles (Egg Noodles with Fried Onions)
+Chicken and Noodles (Homestyle Chicken Egg Noodles)
+Knoephla Soup (Creamy Dumpling Soup)
+Chicken Knoephla Soup (Chicken Dumpling Soup)
+Knoephla mit Kartoffeln (Dumpling and Potato Soup)
+Borscht (Beet Soup)
+Red Borscht (Beet and Cabbage Soup)
+White Borscht (Creamed Beet Soup)
+Cabbage Borscht (Beet and Cabbage Soup)
+Chicken Noodle Soup (Homestyle Chicken Soup with Noodles)
+Beef Noodle Soup (Beef Soup with Egg Noodles)
+Chicken and Rice Soup (Chicken Rice Soup)
+Cream of Potato Soup (Creamy Potato Soup)
+Potato Soup with Dumplings (Potato Dumpling Soup)
+Ham and Bean Soup (Ham Bean Soup)
+Bean Soup with Dumplings (Bean and Dumpling Soup)
+Beef Barley Soup (Beef and Barley Soup)
+Vegetable Soup (Farmhouse Vegetable Soup)
+Chicken Vegetable Soup (Chicken and Garden Vegetable Soup)
+Tomato Soup (Homestyle Tomato Soup)
+Cream of Tomato Soup (Creamy Tomato Soup)
+Cream of Mushroom Soup (Creamy Mushroom Soup)
+Cream of Chicken Soup (Creamy Chicken Soup)
+Sauerkraut Soup (Fermented Cabbage Soup)
+Cabbage Soup (Simple Cabbage Soup)
+Chicken Dumpling Soup (Chicken Soup with Drop Dumplings)
+Lentil Soup (Lentil Vegetable Soup)
+Split Pea Soup (Pea Soup)
+Beef Soup (Clear Beef Broth Soup)
+Kartoffelsalat (Hutterite Potato Salad)
+Rahmsalat (Creamy Cucumber Salad)
+Krautsalat (Cabbage Slaw)
+Essiggurken (Pickled Cucumbers)
+Rote-Bete-Salat (Pickled Beet Salad)
+Bohnensalat (Green Bean Salad)
+Gurkensalat mit Rahm (Creamy Cucumber Salad with Sour Cream)
+Tomatensalat (Fresh Tomato Salad)
+Kohlrabi Salad (Kohlrabi Salad)
+Erbsensalat (Pea Salad)
+Coleslaw (Creamy Coleslaw)
+Dill Pickles (Homemade Dill Pickles)
+Bread and Butter Pickles (Sweet Pickled Cucumbers)
+Sauerkraut (Fermented Cabbage)
+Warm Potato Salad (German-Style Warm Potato Salad)
+Creamed Corn (Hutterite Creamed Corn)
+Buttered Egg Noodles (Homestyle Buttered Noodles)
+Spätzle (German Egg Dumplings)
+Mashed Potatoes (Farm-Style Mashed Potatoes)
+Parsley Potatoes (Boiled Potatoes with Butter and Parsley)
+Baked Beans (Homestyle Baked Beans)
+Green Beans with Bacon (Green Beans Cooked with Bacon)
+Cabbage and Noodles (Fried Cabbage with Egg Noodles)
+Fried Zucchini (Pan-Fried Zucchini Slices)
+Glazed Carrots (Butter-Glazed Carrots)
+Beet Pickles (Sweet Pickled Beets)
+Potato Dumplings (German Potato Dumplings)
+Cream Gravy (Homestyle Cream Gravy)
+Rollkuchen (Fried Bread Pastry)
+Vereniki (Cottage Cheese Dumplings)
+Zwieback (Twice-Baked Rusks)
+Plachinda (Stuffed Fried Flatbread)
+Kielke (Fried Mennonite Doughnuts)
+Farmer Sausage (Smoked Pork Sausage)
+Fresh Cheese Curds (Young Cheddar Curds)
+Cottage Cheese with Dill (Herbed Fresh Cheese)
+Pickled Beets (Sweet Vinegar Beets)
+Bread and Butter Pickles (Sweet Cucumber Pickles)
+Dill Pickles (Salt-Brined Cucumbers)
+Creamed Cucumbers (Sour Cream Cucumber Salad)
+Tomato and Onion Salad (Fresh Tomato Onion Salad)
+Coleslaw (Creamy Cabbage Slaw)
+Potato Salad (Creamy Potato Salad)
+Egg Salad (Chopped Egg Salad)
+Deviled Eggs (Stuffed Hard-Boiled Eggs)
+Cheese and Sausage Tray (Sliced Cheese and Smoked Sausage)
+Fresh Buns (Soft Dinner Rolls)
+Butterhorns (Crescent Dinner Rolls)
+Platz (Hutterite Coffee Cake)
+Rollkuchen (Fried Flatbread)
+Zwieback (Double-Baked Rusks)
+Faspa Buns (Hutterite Dinner Rolls)
+White Bread Buns (Hutterite Yeast Rolls)
+Farmer Sausage Bites (Smoked Pork Sausage Pieces)
+Cheese Curds (Fresh Farm Cheese Curds)
+Cottage Cheese with Chives (Fresh Curd Cheese Snack)
+Butterhorns (Crescent Dinner Rolls)
+Poppy Seed Roll (Poppy Seed Sweet Bread)
+Apple Kuchen (Apple Coffee Cake)
+Cherry Kuchen (Cherry Coffee Cake)
+Rhubarb Kuchen (Rhubarb Coffee Cake)
+Streusel Kuchen (Crumb-Topped Coffee Cake)
+Honey Buns (Sweet Yeast Rolls)
+Molasses Cookies (Soft Molasses Spice Cookies)
+Oatmeal Cookies (Farm-Style Oat Cookies)
+Peanut Butter Cookies (Classic Peanut Butter Cookies)
+Sugar Cookies (Plain Farmhouse Sugar Cookies)
+Jam-Filled Buns (Fruit Jam Yeast Buns)
+Cinnamon Rolls (Farm-Style Cinnamon Buns)
+Fried Dough Squares (Pan-Fried Bread Squares)
+Bread and Butter Pickles (Sweet Cucumber Pickles)
+Pickled Beets (Sweet-Sour Pickled Beets)
+Cheese and Bread Plate (Fresh Bread and Farm Cheese Snack)
+Sausage and Pickle Plate (Cold Sausage Snack Plate)
+Knepfla (Traditional Hutterite Dumplings)
+Knoephla (Potato Dumplings)
+Knoephla Soup Dumplings (Potato Dumplings for Soup)
+Mehlknöpfle (Flour Dumplings)
+Kartoffelknöpfle (Potato Dumplings)
+Semmelknödel (Bread Dumplings)
+Leberknödel (Liver Dumplings)
+Fleischknepfla (Meat Dumplings)
+Grießknödel (Semolina Dumplings)
+Zwetschgenknödel (Plum Dumplings)
+Aprikosenknödel (Apricot Dumplings)
+Topfenknödel (Fresh Cheese Dumplings)
+Dampfnudeln (Steamed Yeast Dumplings)
+Hefeknödel (Yeast Dumplings)
+Butterknepfla (Butter Dumplings)
+Speckknödel (Bacon Dumplings)
+Suppenknödel (Soup Dumplings)
+Cream Gravy
+Chicken Gravy
+Beef Gravy
+Pork Gravy
+Milk Gravy
+Sausage Gravy
+Brown Onion Gravy
+Roast Drippings Gravy
+White Cream Sauce
+Parsley Cream Sauce
+Mustard Cream Sauce
+Dill Cream Sauce
+Sour Cream Dill Sauce
+Sour Cream Onion Sauce
+Cucumber Sour Cream Sauce
+Chive Sour Cream Sauce
+Garlic Sour Cream Sauce
+Horseradish Cream Sauce
+Apple Butter
+Pear Butter
+Plum Butter
+Rhubarb Sauce
+Stewed Rhubarb Sauce
+Apple Sauce
+Cinnamon Apple Sauce
+Sweet and Sour Cucumber Dressing
+Sweet and Sour Bean Dressing
+Sweet and Sour Slaw Dressing
+Vinegar Cream Dressing
+Cooked Salad Dressing
+Boiled Salad Dressing
+Egg Yolk Salad Dressing
+Creamy Coleslaw Dressing
+Vinegar Coleslaw Dressing
+Mustard Vinegar Dressing
+Honey Mustard Dressing
+Farmhouse Ranch Dressing
+Buttermilk Ranch Dressing
+Garlic Ranch Dressing
+Creamy Dill Dip
+Vegetable Cream Dip
+Onion Sour Cream Dip
+Chive Sour Cream Dip
+Garlic Herb Dip
+Horseradish Dip
+Mustard Pickle Relish
+Sweet Cucumber Relish
+Beet Relish
+Chow Chow Relish
+Green Tomato Relish
+Pickled Pepper Relish
+Bread Sauce
+Milk Bread Sauce
+Butter Sauce
+Brown Butter Sauce
+Creamed Mushroom Sauce
+Onion Cream Sauce
+Gravy with Dumplings Sauce
+Cream Gravy
+Brown Gravy
+Chicken Gravy
+Roast Beef Gravy
+Milk Gravy
+Pan Gravy
+White Sauce
+Basic Vinegar Dressing
+Sweet Vinegar Dressing
+Creamy Vinegar Dressing
+Cooked Salad Dressing
+Boiled Dressing
+Cooked Mustard Dressing
+Sweet Mustard Dressing
+Cream Mustard Dressing
+Basic Oil and Vinegar Dressing
+Sugar and Vinegar Dressing
+Sour Cream Dressing
+Cream and Dill Dressing
+Cream and Chive Dressing
+Creamy Cucumber Dressing
+Buttermilk Dressing
+Cooked Egg Dressing
+Bacon Fat Dressing
+Warm Bacon Dressing
+Sweet and Sour Dressing
+Pickling Brine
+Sweet Pickling Brine
+Vinegar Pickling Brine
+Mustard Pickling Brine
+Salt Brine
+Simple Saltwater Brine
+Sugar Brine
+Chicken Marinade
+Pork Marinade
+Beef Marinade
+Vinegar Meat Marinade
+Garlic Vinegar Marinade
+Onion Marinade
+Milk Marinade
+Buttermilk Marinade
+Herb Marinade
+Simple Oil Marinade
+Salt and Pepper Seasoning
+Seasoned Salt
+Garlic Salt
+Onion Salt
+Celery Salt
+Poultry Seasoning
+Sausage Seasoning
+Farmer Sausage Seasoning
+Kolbasa Sausage Seasoning
+Pickling Spice
+Dill Pickle Seasoning
+Beef Roast Seasoning
+Pork Roast Seasoning
+Chicken Rub
+All-Purpose Herb Seasoning
+Caraway Seed Seasoning
+Mustard Seed Seasoning
+Bay Leaf Seasoning
+Peppercorn Seasoning
+Curing Salt Mix
+Fried Chicken
+Pan-Fried Chicken
+Fried Chicken Cutlets
+Chicken Fried Steak
+Fried Pork Chops
+Breaded Fried Pork Cutlets
+Fried Sausage Patties
+Fried Bologna
+Fried Ham Steak
+Fried Farmer Sausage
+Fried Wieners
+Fried Meatballs
+
+Fried Potatoes
+Pan-Fried Potatoes
+Fried Potato Cubes
+Fried Potato Slices
+Fried Hash Potatoes
+Fried Potato Patties
+
+Fried Onions
+Fried Onion Rings
+Fried Cabbage
+Fried Sauerkraut
+Fried Mushrooms
+Fried Zucchini
+Fried Corn Fritters
+Fried Vegetable Fritters
+
+Fried Perogies
+Fried Noodles
+Fried Spaetzle (Pan-Fried Egg Noodles)
+
+Kniepfla (Deep-Fried Dough Balls)
+Fried Bannock
+Fried Bread
+Fried Dough
+Fried Donuts
+Fried Yeast Doughnuts
+Fried Apple Fritters
+Fried Raisin Fritters
+
+Fried Eggs
+Fried Scrambled Eggs
+
+Fried Cheese Curds
+Fried Cheese Patties
+Dampfnudel (Steamed Yeast Dumpling)
+Salz Dampfnudel (Savory Steamed Yeast Dumpling)
+Süße Dampfnudel (Sweet Steamed Yeast Dumpling)
+Dampfnudel mit Vanillesauce (Steamed Yeast Dumpling with Vanilla Sauce)
+Germknödel (Steamed Yeast Dumpling with Poppy Seeds)
+Steamed Bread Dumplings
+Steamed Potato Dumplings
+Steamed Cabbage
+Steamed Carrots
+Steamed Green Beans
+Steamed Mixed Garden Vegetables
+Steamed Beets
+Steamed Turnips
+Steamed Rutabaga
+Steamed New Potatoes
+Steamed Spaetzle Dumplings
+Steamed Yeast Buns
+Steamed Milk Buns
+Steamed Wheat Dumplings
+Steamed Fruit Dumplings
+Steamed Apple Dumplings
+Steamed Plum Dumplings
+Sauerbraten (Braised Sweet-and-Sour Beef Roast)
+Rinderbraten (Braised Beef Roast)
+Schweinebraten (Braised Pork Roast)
+Kalbsbraten (Braised Veal Roast)
+Braised Beef with Onions
+Braised Pork Chops with Gravy
+Braised Chicken with Root Vegetables
+Braised Chicken Legs in Gravy
+Schmorkohl (Braised Cabbage)
+Rotkohl (Braised Red Cabbage)
+Braised Sauerkraut
+Braised Green Beans
+Braised Carrots with Butter
+Braised Turnips
+Braised Potatoes with Onions
+Braised Beef Short Ribs
+Braised Beef in Tomato Gravy
+Braised Pork Shoulder
+Braised Beef and Onions
+Braised Chicken and Dumplings
+Fleischbrühe (Meat Broth)
+Rindfleischbrühe (Beef Broth)
+Hühnerbrühe (Chicken Broth)
+Suppenhuhn Brühe (Boiling Hen Broth)
+Knochenbrühe (Bone Broth)
+Rinderknochenbrühe (Beef Bone Broth)
+Hühnerknochenbrühe (Chicken Bone Broth)
+Schweinebrühe (Pork Broth)
+Gemüsebrühe (Vegetable Broth)
+Wurzelgemüsebrühe (Root Vegetable Broth)
+Kraftsuppe (Clear Strengthened Broth)
+Klare Brühe (Clear Broth)
+Brühsuppe (Broth Soup Base)
+Suppenbasis (Soup Base Broth)
+Eintopfbrühe (Stew Broth)
+Brathuhnbrühe (Roast Chicken Broth)
+Rinderbratenbrühe (Roast Beef Broth)
+Hausgemachte Brühe (Homemade Broth)
+Winterbrühe (Winter Broth)
+Roast Turkey with Bread Stuffing
+Roast Goose with Apple Stuffing
+Baked Ham with Brown Sugar Glaze
+Prime Rib Roast
+Boiled Beef Dinner
+Chicken and Noodles
+Creamed Chicken on Bread
+Bread Stuffing (Traditional Bread Dressing)
+Mashed Potatoes
+Boiled Potatoes with Butter
+Brown Gravy
+Turkey Gravy
+Creamed Corn
+Buttered Peas
+Sweet and Sour Red Cabbage
+Boiled Carrots with Butter
+Cucumber Salad with Cream Dressing
+Pickled Beets
+Dill Pickles
+Homemade Sauerkraut
+Verenike (Cottage Cheese Dumplings)
+Verenike with Cream Gravy
+Knoephla (German Dumplings)
+Knoephla Soup (Cream Dumpling Soup)
+Borscht (Beet Soup)
+Chicken Soup with Homemade Noodles
+Homemade Egg Noodles
+Zwieback (Double-Baked Sweet Bread)
+White Bread Loaves
+Whole Wheat Bread
+Dinner Rolls
+Butterhorn Rolls
+Platz (Hutterite Coffee Cake)
+Apple Platz (Apple Coffee Cake)
+Cherry Platz (Cherry Coffee Cake)
+Rhubarb Platz (Rhubarb Coffee Cake)
+Rollkuchen (Fried Pastry Strips)
+Puff Cookies
+Sugar Cookies
+Molasses Cookies
+Gingerbread Cookies
+Spritz Cookies
+Shortbread Cookies
+Fruit Kuchen (Fruit Custard Cake)
+Apple Kuchen (Apple Custard Cake)
+Cream Pie
+Apple Pie
+Pumpkin Pie
+Mince Pie
+Raisin Pie
+Canned Fruit with Syrup
+Homemade Jam and Preserves
+Pork and Sauerkraut
+Roast Pork with Sauerkraut
+Smoked Pork Chops with Sauerkraut
+Farmer Sausage and Sauerkraut
+Kielbasa Sausage with Sauerkraut
+Boiled Ham with Sauerkraut
+Cabbage Rolls (Stuffed Cabbage Rolls)
+Beef and Rice Cabbage Rolls
+Sweet and Sour Cabbage Rolls
+Creamed Cabbage
+Braised Red Cabbage
+Mashed Potatoes
+Boiled Buttered Potatoes
+Creamed Potatoes
+Scalloped Potatoes
+Potato Dumplings
+Knoephla Soup (Potato Dumpling Soup)
+Chicken Knoephla Soup
+Verenika (Cottage Cheese Dumplings)
+Potato Verenika (Potato Dumplings)
+Fried Verenika with Cream Gravy
+Rollkuchen (Fried Flatbread)
+Platz (Fried Bread Squares)
+Zwieback (Double-Raised Dinner Buns)
+White Dinner Buns
+Cloverleaf Dinner Rolls
+Buttered Egg Noodles
+Homemade Spaetzle (German Egg Noodles)
+Creamed Corn
+Buttered Green Beans
+Pickled Beets
+Sweet Pickled Cucumbers
+Coleslaw
+Apple Slaw
+Cucumber Salad
+Bread and Butter Pickles
+Dill Pickles
+Beet Relish
+Homemade Applesauce
+Prune Sauce
+Plum Sauce
+Gravy (Roast Meat Gravy)
+Cream Gravy
+Kuchen (Custard Fruit Kuchen)
+Apple Kuchen
+Plum Kuchen
+Cherry Kuchen
+Raisin Kuchen
+Poppy Seed Roll (Mohnstrudel)
+Apple Strudel
+Cream-Filled Buns
+Jam-Filled Buns
+Sugar Cookies
+Molasses Cookies
+Shortbread Cookies
+Roast Turkey
+Herb-Roasted Turkey
+Bread Stuffing
+Sausage Stuffing
+Turkey Gravy
+Mashed Potatoes
+Buttered Potatoes
+Kartoffelklöße (Potato Dumplings)
+Nudeln (Buttered Egg Noodles)
+Knoephlasuppe (Creamy Dumpling Soup)
+Farmer Sausage
+Roast Chicken
+Baked Ham
+Sauerkraut
+Rotkohl (Sweet and Sour Red Cabbage)
+Buttered Green Beans
+Green Beans with Bacon
+Creamed Corn
+Corn Casserole
+Glazed Carrots
+Gurkensalat (Creamy Cucumber Salad)
+Beet Pickles
+Pickled Cucumbers
+Dinner Rolls
+Homemade White Bread
+Rye Bread
+Pumpkin Pie
+Apple Pie
+Zwetschgenkuchen (Plum Cake)
+Apfelstrudel (Apple Strudel)
+Vereniki (Boiled Dumplings with Cream Sauce)
+Fresh Cheese Kuchen (Baked Cottage Cheese Cake)
+Platz (Hutterite Yeast Sheet Cake)
+Schlupfkuchen (Hutterite Pull-Apart Sweet Bread)
+Rollkuchen (Hutterite Fried Bread Rolls)
+Knepfla (Hutterite Dumplings)
+Vereniki (Hutterite Cottage Cheese Dumplings)
+Bohnen Suppe (Hutterite Bean Soup)
+Gebackene Bohnen (Hutterite Baked Beans)
+Kartoffelsalat (Hutterite Potato Salad)
+Gurkensalat (Hutterite Creamy Cucumber Salad)
+Krautsalat (Hutterite Coleslaw)
+Sauerkraut (Hutterite Fermented Cabbage)
+Rote Beete Salat (Hutterite Pickled Beet Salad)
+Maisauflauf (Hutterite Creamed Corn Casserole)
+Reisauflauf (Hutterite Rice Casserole)
+Nudelsalat (Hutterite Noodle Salad)
+Schinken in Sahnesauce (Hutterite Ham in Cream Sauce)
+Gebratene Hähnchenteile (Hutterite Fried Chicken Pieces)
+Gebratene Wurst (Hutterite Pan-Fried Sausage)
+Apfelkuchen (Hutterite Apple Cake)
+Apfelstrudel (Hutterite Apple Strudel)
+Zwetschgenkuchen (Hutterite Plum Cake)
+Kirschkuchen (Hutterite Cherry Cake)
+Mohnkuchen (Hutterite Poppy Seed Cake)
+Quarkkuchen (Hutterite Fresh Cheese Cake)
+Bienenstich (Hutterite Bee Sting Cake)
+Zimtschnecken (Hutterite Cinnamon Rolls)
+Hefezopf (Hutterite Braided Yeast Bread)
+Festtagsbrot (Hutterite Holiday White Bread)
+Eiernudeln (Hutterite Homemade Egg Noodles)
+Rahmsauce (Hutterite Cream Gravy)
+Butterhörnchen (Hutterite Butter Crescent Rolls)
+Chokecherry Syrup
+Saskatoon Berry Syrup
+Rhubarb Syrup
+Strawberry Syrup
+Raspberry Syrup
+Plum Syrup
+Apple Syrup
+Crabapple Syrup
+Apricot Syrup
+Peach Syrup
+Blueberry Syrup
+Blackberry Syrup
+Elderberry Syrup
+Grape Syrup
+Honey Syrup
+Brown Sugar Syrup
+Vanilla Syrup
+Caramel Syrup
+Buttermilk Syrup
+Maple Syrup
+Fruit Sugar Syrup
+Beeren Sirup (Mixed Berry Syrup)
+Zwetschgensirup (Plum Syrup)
+Apfelsirup (Apple Syrup)
+Zwieback (Twice-Baked Rusks Biscuits)
+Hutterite Zwieback (Hutterite Twice-Baked Rusks)
+Plain Rusks (Twice-Baked Bread Biscuits)
+Milk Rusks (Milk-Enriched Rusks Biscuits)
+Tea Rusks (Tea Biscuits Rusks)
+White Bread Rusks (White Flour Rusks Biscuits)
+Whole Wheat Rusks (Whole Wheat Rusks Biscuits)
+Soft Baking Powder Biscuits (Baking Powder Biscuits)
+Buttermilk Biscuits (Buttermilk Biscuits)
+Drop Biscuits (Soft Drop Biscuits)
+Cream Biscuits (Heavy Cream Biscuits)
+Sour Cream Biscuits (Sour Cream Biscuits)
+Lard Biscuits (Lard-Based Biscuits)
+Farmhouse Biscuits (Plain Farm Biscuits)
+Hutterite Tea Biscuits (Hutterite Plain Tea Biscuits)
+Oat Biscuits (Oatmeal Biscuits)
+Whole Wheat Biscuits (Whole Wheat Baking Powder Biscuits)
+Cheese Biscuits (Cheese Baking Powder Biscuits)
+Dutch Oven Chicken and Potatoes
+Open-Fire Roasted Chicken
+Campfire Sausage and Onions
+Fried Farmer Sausage
+Smoked Farmer Sausage
+Campfire Bratwurst
+Boiled Sausage with Potatoes
+Campfire Potato Hash
+Skillet Fried Potatoes
+Campfire Mashed Potatoes
+Foil-Wrapped Campfire Potatoes
+Boiled New Potatoes with Butter
+Campfire Cabbage and Onions
+Fried Cabbage with Bacon
+Boiled Cabbage with Butter
+Campfire Carrots and Onions
+Glazed Campfire Carrots
+Skillet Green Beans with Bacon
+Campfire Corn on the Cob
+Boiled Corn on the Cob
+Campfire Bread Rolls
+Pan-Fried Bannock Bread
+Campfire Yeast Bread
+Skillet Fried Bread
+Campfire Flatbread
+Knepfla (German Dumplings) (Potato Dumplings)
+Campfire Potato Dumplings
+Boiled Egg Dumplings
+Campfire Spaetzle (German Egg Noodles) (Egg Noodles)
+Skillet Fried Spaetzle
+Boiled Spaetzle with Butter
+Campfire Egg Noodles
+Boiled Homemade Noodles
+Campfire Chicken Soup
+Open-Fire Vegetable Soup
+Campfire Beef and Barley Soup
+Boiled Meat and Potatoes
+Campfire Meat Stew
+Dutch Oven Beef Stew
+Campfire Lentil Soup
+Campfire Bean Soup
+Baked Beans over Open Fire
+Campfire Pea Soup
+Campfire Pickled Beets
+Boiled Beets with Vinegar
+Campfire Sauerkraut
+Warm Sauerkraut with Bacon
+Boiled Sauerkraut
+Campfire Cucumber Pickles
+Salted Campfire Cucumbers
+Campfire Coleslaw
+Simple Cabbage Slaw
+Campfire Apple Sauce
+Boiled Apple Sauce
+Campfire Apple Dumplings
+Dutch Oven Apple Crisp
+Campfire Plum Kuchen (German Plum Cake) (Plum Cake)
+Campfire Streusel Kuchen (German Crumb Cake) (Crumb Cake)
+Dutch Oven Kuchen (German Coffee Cake) (Coffee Cake)
+Campfire Cinnamon Buns
+Dutch Oven Dinner Buns
+Campfire Pancakes
+Skillet Fried Pancakes
+Campfire Egg and Potato Skillet
+Campfire Scrambled Eggs
+Boiled Eggs for Camp Meals
+Campfire Cheese and Bread Skillet
+Creamy Coleslaw
+Vinegar Coleslaw
+Creamy Cucumber Salad
+Dill Cucumber Salad
+Tomato and Onion Salad
+Creamy Potato Salad
+German-Style Potato Salad
+Macaroni Salad
+Pea Salad
+Three-Bean Salad
+Pickled Beet Salad
+Creamy Beet Salad
+Carrot Raisin Salad
+Broccoli Salad
+Corn Salad
+Sauerkraut Salad
+Egg Salad
+Ham Salad
+Chicken Salad
+Fruit Salad
+Ambrosia Salad
+Jello Salad
+Cottage Cheese Salad
+Seven-Layer Salad
+Waldorf Salad
+Homemade White Bread Sandwich
+Homemade Whole Wheat Bread Sandwich
+Butter and Bread Sandwich
+Cheese Sandwich
+Cheddar Cheese Sandwich
+Farmer Cheese Sandwich
+Ham Sandwich
+Ham and Cheese Sandwich
+Roast Beef Sandwich
+Cold Cut Sandwich
+Mixed Cold Cuts Sandwich
+Bologna Sandwich
+Fried Bologna Sandwich
+Liver Sausage Sandwich
+Head Cheese Sandwich
+Smoked Sausage Sandwich
+Turkey Sandwich
+Roast Turkey Sandwich
+Chicken Sandwich
+Roast Chicken Sandwich
+Chicken Salad Sandwich
+Egg Salad Sandwich
+Boiled Egg Sandwich
+Fried Egg Sandwich
+Pork Roast Sandwich
+Pulled Pork Sandwich
+Meatloaf Sandwich
+Leftover Meat Sandwich
+Cucumber Sandwich
+Tomato Sandwich
+Lettuce Sandwich
+Cheese and Tomato Sandwich
+Butter and Jam Sandwich
+Butter and Honey Sandwich
+Peanut Butter Sandwich
+Peanut Butter and Jam Sandwich
+Apple Butter Sandwich
+Homemade Sausage Sandwich
+Soß (Gravy)
+Bratensoß (Roast Gravy)
+Rindfleischsoß (Beef Gravy)
+Hühnersoß (Chicken Gravy)
+Truthahnssoß (Turkey Gravy)
+Schweinebratensoß (Pork Gravy)
+Bratpfannensoß (Pan Gravy)
+Braune Soß (Brown Gravy)
+Rahmsoß (Cream Gravy)
+Milchsoß (Milk Gravy)
+Wurstsoß (Sausage Gravy)
+Zwiebelsoß (Onion Gravy)
+Pilzsoß (Mushroom Gravy)
+Pfeffersoß (Pepper Gravy)
+Kräutersoß (Herb Gravy)
+Innereiensoß (Giblet Gravy)
+Chokecherry Jam
+Chokecherry Jelly
+Saskatoon Berry Jam
+Saskatoon Berry Jelly
+Crabapple Jelly
+Wild Plum Jam
+Plum Jam
+Apricot Jam
+Peach Jam
+Strawberry Jam
+Freezer Strawberry Jam
+Raspberry Jam
+Black Raspberry Jam
+Blueberry Jam
+Mixed Berry Jam
+Grape Jelly
+Red Currant Jelly
+Black Currant Jelly
+Gooseberry Jam
+Rhubarb Jam
+Rhubarb Strawberry Jam
+Apple Jelly
+Apple Butter
+Pear Jam
+Mint Jelly
+Rosehip Jam
+Elderberry Jelly
+Honey Jelly
+Low-Sugar Strawberry Jam
+No-Sugar Added Berry Jam
+Dill Pickles
+Garlic Dill Pickles
+Sweet Dill Pickles
+Bread and Butter Pickles
+Mustard Pickles
+Seven-Day Pickles
+Pickled Beets
+Sweet Pickled Beets
+Pickled Beets and Onions
+Pickled Carrots
+Pickled Green Beans
+Pickled Wax Beans
+Pickled Cucumbers
+Sour Pickles
+Half-Sour Pickles
+Sauerkraut
+Sauer Kraut (Fermented Cabbage Sauerkraut)
+Red Cabbage Sauerkraut
+Apple Sauerkraut
+Chow Chow Relish
+Green Tomato Chow Chow
+Pickled Green Tomatoes
+Pickled Peppers
+Pickled Cauliflower
+Mixed Vegetable Pickles
+Pickled Onions
+Pickled Eggs
+Canned Tomatoes
+Canned Stewed Tomatoes
+Canned Tomato Juice
+Canned Corn
+Canned Green Beans
+Canned Peas
+Canned Beets
+Canned Carrots
+Canned Sauerkraut
+Apple Butter
+Pear Butter
+Plum Butter
+Canned Applesauce
+Canned Peaches
+Canned Pears
+Canned Cherries
+Canned Plums
+Hutterite White Bread Dough
+Hutterite Whole Wheat Bread Dough
+Hutterite Sourdough Bread Dough
+Hutterite Rye Bread Dough
+Hutterite Bun Dough
+Hutterite Dinner Roll Dough
+Hutterite Sweet Roll Dough
+Hutterite Cinnamon Bun Dough
+Hutterite Zwieback Dough (Twice-Baked Bread Dough)
+Hutterite Kuchen Dough (Custard Cake Dough)
+Hutterite Platz Dough (Hutterite Pizza Dough)
+Hutterite Strudel Dough
+Hutterite Noodle Dough
+Hutterite Spaetzle Dough (Egg Dumpling Batter)
+Hutterite Vereniki Dough (Filled Dumpling Dough)
+Hutterite Perogy Dough (Potato Dumpling Dough)
+Hutterite Fleischkuekle Dough (Fried Meat Pie Dough)
+Hutterite Rollkuchen Dough (Fried Flatbread Dough)
+Hutterite Biscuit Dough
+Hutterite Pie Crust Dough
+Hutterite Pastry Dough
+Hutterite Egg Bread Dough
+Hutterite Holiday Sweet Bread Dough
+Eintopf (Hearty One-Pot Stew)
+Rindfleischeintopf (Beef Stew)
+Kalbfleischeintopf (Veal Stew)
+Schweinefleischeintopf (Pork Stew)
+Hühnerfrikassee (Creamed Chicken Stew)
+Hühnersuppe (Chicken Soup Stew)
+Fleischsuppe (Meat Broth Stew)
+Gulasch (Beef Goulash Stew)
+Kartoffeleintopf (Potato Stew)
+Kartoffelsuppe (Potato Soup Stew)
+Bohneneintopf (Bean Stew)
+Bohnensuppe (Bean Soup Stew)
+Linseneintopf (Lentil Stew)
+Erbseneintopf (Split Pea Stew)
+Sauerkrauteintopf (Sauerkraut Stew)
+Krauteintopf (Cabbage Stew)
+Kohlsuppe (Cabbage Soup Stew)
+Rübeneintopf (Turnip Stew)
+Wurzeleintopf (Root Vegetable Stew)
+Gemüseeintopf (Vegetable Stew)
+Rindfleisch mit Kartoffeln (Beef and Potatoes Stew)
+Schmorbraten mit Soße (Braised Beef Stew)
+Borschtsch (Beet Stew)
+Fleisch- und Gemüseeintopf (Meat and Vegetable Stew)
+Hutterite White Bread (White Farmhouse Bread)
+Hutterite Whole Wheat Bread (Whole Wheat Farm Bread)
+Hutterite Rye Bread (Rye Farm Bread)
+Hutterite Sourdough Bread (Sourdough Farm Loaf)
+Hutterite Potato Bread (Potato Farm Bread)
+Hutterite Milk Bread (Soft Milk Bread Loaf)
+Hutterite Egg Bread (Egg-Enriched Bread Loaf)
+Hutterite Oatmeal Bread (Oatmeal Bread Loaf)
+Hutterite Barley Bread (Barley Bread Loaf)
+Hutterite Molasses Bread (Molasses Bread Loaf)
+Hutterite Honey Wheat Bread (Honey Whole Wheat Bread)
+Hutterite Bran Bread (Bran Bread Loaf)
+Hutterite Seeded Bread (Mixed Seed Bread Loaf)
+Zopf (Braided Egg Bread Loaf)
+Bauernbrot (Rustic Farmer’s Bread Loaf)
+Vollkornbrot (Whole Grain Bread Loaf)
+Roggenbrot (German-Style Rye Bread Loaf)
+Kartoffelbrot (German-Style Potato Bread Loaf)
+Sauerteigbrot (Traditional Sourdough Bread Loaf)
+Hutterite Meatloaf (Traditional Farm Meatloaf)
+Fleischlaib (German-Style Meat Loaf)
+Hutterite Beef Meatloaf (Farmhouse Beef Meatloaf)
+Hutterite Pork Meatloaf (Farmhouse Pork Meatloaf)
+Hutterite Mixed Meat Meatloaf (Beef and Pork Meatloaf)
+Hutterite Meatloaf with Gravy (Farm Meatloaf with Pan Gravy)
+Brown Sugar Mustard Glaze
+Honey Mustard Glaze
+Maple Mustard Glaze
+Honey Garlic Glaze
+Brown Sugar Vinegar Glaze
+Sweet Vinegar Glaze
+Molasses Mustard Glaze
+Maple Syrup Glaze
+Honey Butter Glaze
+Butter Sugar Glaze
+Apple Cider Glaze
+Apple Butter Glaze
+Maple Butter Glaze
+Honey Dill Glaze
+Mustard Cream Glaze
+Simple Sugar Glaze
+Milk Sugar Glaze
+Buttercream Glaze
+Vanilla Sugar Glaze
+Cinnamon Sugar Glaze
+Maple Cinnamon Glaze
+Honey Oat Glaze
+Egg Wash Glaze
+Sweet Egg Wash Glaze
+Butter Egg Glaze
+Honey Egg Glaze
+Brown Sugar Ham Glaze
+Honey Ham Glaze
+Maple Ham Glaze
+Mustard Ham Glaze
+Vinegar Ham Glaze
+Honey Roast Chicken Glaze
+Maple Roast Chicken Glaze
+Butter Roast Chicken Glaze
+Honey Bread Glaze
+Milk Bread Glaze
+Butter Roll Glaze
+Sugar Bun Glaze
+Bratkartoffeln (Pan-Roasted Potatoes)
+Ofen Kartoffeln (Oven-Baked Potatoes)
+Kartoffelgratin (Potato Gratin)
+Kartoffelauflauf (Baked Potato Casserole)
+Bratkartoffeln mit Zwiebeln (Roasted Potatoes with Onions)
+Ofen Wurzelgemüse (Oven-Roasted Root Vegetables)
+Gebratene Karotten (Roasted Carrots)
+Gebackene Rüben (Baked Beets)
+Ofen Kohl (Oven-Roasted Cabbage)
+Gebackener Blumenkohl (Baked Cauliflower)
+Gebackener Brokkoli (Baked Broccoli)
+Ofen Kürbis (Oven-Roasted Squash)
+Gebackene Pastinaken (Baked Parsnips)
+Ofen Zwiebeln (Roasted Onions)
+Gebackene Bohnen (Baked Beans)
+Bohneneintopf aus dem Ofen (Oven-Baked Bean Casserole)
+Gebackener Mais (Baked Corn)
+Ofen Rosenkohl (Oven-Roasted Brussels Sprouts)
+Gebackene Tomaten (Baked Tomatoes)
+Gebackene Paprika (Baked Peppers)
+Gebackene Äpfel (Baked Apples)
+Apfelauflauf (Baked Apple Casserole)
+Zwetschgenauflauf (Baked Plum Casserole)
+Kürbisauflauf (Baked Squash Casserole)
+Gebackene Kartoffelscheiben (Baked Potato Slices)
+Kartoffelpfanne aus dem Ofen (Oven-Baked Potato Skillet)
+Gebackene Eiernudeln (Baked Egg Noodles)
+Nudelauflauf (Baked Noodle Casserole)
+Semmelauflauf (Baked Bread Casserole)
+Gebackener Reis (Baked Rice Casserole)
+Ofen Schmorkraut (Oven-Braised Cabbage)
+Gebackene Zucchini (Baked Zucchini)
+Gebackene Auberginen (Baked Eggplant)
+Ofen Gemüsepfanne (Oven-Baked Vegetable Medley)
+Gebackene Pilze (Baked Mushrooms)
+Ofen Sauerkraut (Oven-Baked Sauerkraut)
+Kartoffel-Sauerkraut-Auflauf (Potato and Sauerkraut Bake)
+Gebackene Käsekartoffeln (Baked Cheese Potatoes)
+Ofen Knödel (Oven-Baked Dumplings)
+Apfelmus (Apple Sauce)
+Apfelkompott (Stewed Apples)
+Birnenkompott (Stewed Pears)
+Pflaumenkompott (Stewed Plums)
+Kirschkompott (Stewed Cherries)
+Rhabarberkompott (Stewed Rhubarb)
+Eingemachte Birnen (Preserved Pears)
+Eingemachte Pflaumen (Preserved Plums)
+Einmachobst (Canned Mixed Fruit)
+Apfelgelee (Apple Jelly)
+Johannisbeergelee (Red Currant Jelly)
+Erdbeermarmelade (Strawberry Jam)
+Himbeermarmelade (Raspberry Jam)
+Pflaumenmus / Powidl (Plum Butter)
+Apfelkraut (Apple Butter)
+Apfelkuchen (Apple Cake)
+Apfelstreuselkuchen (Apple Crumb Cake)
+Obstkuchen (Mixed Fruit Cake)
+Zwetschgenkuchen (Plum Cake)
+Zwetschgenstreuselkuchen (Plum Crumb Cake)
+Kirschkuchen (Cherry Cake)
+Beerenkuchen (Berry Cake)
+Apfelstrudel (Apple Strudel)
+Apfelküchle (Apple Fritters)
+Apfelpfannkuchen (Apple Pancake)
+Zwetschgenknödel (Plum Dumplings)
+Aprikosenknödel (Apricot Dumplings)
+Obstsalat (Fruit Salad)
+Dörräpfel (Dried Apples)
+Dörrpflaumen (Dried Plums)
+Apfelringe (Dried Apple Rings)
+Apfelsaft (Apple Juice)
+Kuchen (Hutterite Fruit Kuchen Cake)
+Apfelkuchen (Apple Kuchen Cake)
+Pflaumenkuchen (Plum Kuchen Cake)
+Aprikosenkuchen (Apricot Kuchen Cake)
+Beerenkuchen (Mixed Berry Kuchen Cake)
+Platz (Hutterite Yeast Coffee Cake)
+Streuselplatz (Streusel Crumb Coffee Cake)
+Zimtplatz (Cinnamon Coffee Cake)
+Zwieback (Double-Baked Hutterite Bread)
+Hutterite White Bread (White Farmhouse Loaf)
+Hutterite Whole Wheat Bread (Whole Wheat Farmhouse Loaf)
+Roggenbrot (Rye Bread)
+Sauerteigbrot (Sourdough Bread)
+Rosinenbrot (Raisin Bread)
+Hutterite Dinner Buns (Soft White Buns)
+Butter Buns (Enriched Dinner Rolls)
+Zimtrollen (Cinnamon Rolls)
+Honigbuns (Honey Buns)
+Mohnstrudel (Poppy Seed Strudel)
+Nussstrudel (Nut Strudel)
+Apfelstrudel (Apple Strudel)
+Hefezopf (Braided Yeast Bread)
+Milchbrot (Milk Bread Loaf)
+Hutterite Tea Biscuits (Soft Baking Powder Biscuits)
+Hutterite Sugar Cookies (Soft Farmhouse Sugar Cookies)
+Hutterite Oatmeal Cookies (Oatmeal Cookies)
+Hutterite Fruit Pie Crust (Traditional Pie Pastry)
+Vereniki (Cheese and Potato Dumplings)
+Vereniki with Cottage Cheese (Cheese Dumplings)
+Vereniki with Sauerkraut (Sauerkraut Dumplings)
+Rollkuchen (Fried Flatbread)
+Rollkuchen with Syrup (Fried Flatbread with Syrup)
+Platz (Hutterite Yeast Bread)
+White Platz (Plain Yeast Bread)
+Whole Wheat Platz (Whole Wheat Yeast Bread)
+Buns (Soft Dinner Rolls)
+Fried Chicken (Pan-Fried Chicken)
+Roast Chicken (Oven-Roasted Chicken)
+Beef and Gravy (Slow-Roasted Beef with Gravy)
+Pork Roast (Oven-Roasted Pork)
+Sausage and Onions (Pan-Fried Sausage with Onions)
+Ham and Bean Soup (Ham and White Bean Soup)
+Chicken Noodle Soup (Homestyle Chicken Soup with Noodles)
+Creamed Corn (Cream-Style Corn)
+Mashed Potatoes (Creamy Mashed Potatoes)
+Boiled Potatoes (Plain Boiled Potatoes)
+Potato Salad (Creamy Potato Salad)
+Coleslaw (Creamy Cabbage Slaw)
+Cucumber Salad (Creamed Cucumbers)
+Green Bean Casserole (Baked Green Beans with Cream Sauce)
+Fried Cabbage (Pan-Fried Cabbage)
+Sauerkraut (Fermented Cabbage)
+Buttered Beets (Cooked Beets with Butter)
+Pickled Beets (Sweet Pickled Beets)
+Applesauce (Cooked Apple Sauce)
+Fruit Soup (Sweet Fruit Soup)
+Apple Kuchen (Apple Coffee Cake)
+Plum Kuchen (Plum Coffee Cake)
+Rhubarb Kuchen (Rhubarb Coffee Cake)
+Zwieback (Twice-Baked Sweet Bread)
+Buns with Jam (Bread Rolls with Preserves)
+Homemade Butter (Churned Farm Butter)
+Sauerkraut (Fermented Cabbage)
+Red Sauerkraut (Fermented Red Cabbage)
+Caraway Sauerkraut (Fermented Cabbage with Caraway)
+Speck (Cured Pork Belly)
+Smoked Speck (Smoked Cured Pork Belly)
+Farmer Sausage (Cured and Smoked Pork Sausage)
+Garlic Farmer Sausage (Garlic Cured Pork Sausage)
+Summer Sausage (Semi-Dry Cured Sausage)
+Smoked Summer Sausage (Smoked Semi-Dry Cured Sausage)
+Head Cheese (Cured Meat Terrine)
+Blood Sausage (Cured Blood Sausage)
+Ring Bologna (Cured Bologna Sausage)
+Smoked Ham (Cured and Smoked Ham)
+Dry-Cured Ham (Air-Dried Cured Ham)
+Pickled Beets (Vinegar-Cured Beets)
+Sweet Pickled Beets (Sweet Vinegar-Cured Beets)
+Dill Pickles (Salt-Cured Dill Cucumbers)
+Garlic Dill Pickles (Garlic Salt-Cured Cucumbers)
+Bread and Butter Pickles (Sweet Vinegar-Cured Cucumbers)
+Pickled Green Beans (Vinegar-Cured Green Beans)
+Pickled Cabbage (Vinegar-Cured Cabbage)
+Pickled Herring (Vinegar-Cured Herring)
+Homemade Flour Tortilla Wrap
+Whole Wheat Tortilla Wrap
+Fry Bread Wrap
+Chicken Salad Wrap
+Ham and Cheese Wrap
+Roast Beef Wrap
+Turkey and Cheese Wrap
+Egg Salad Wrap
+Garden Vegetable Wrap
+Coleslaw Wrap
+Pulled Pork Wrap
+Beef and Gravy Wrap
+Chicken and Gravy Wrap
+Sausage and Potato Wrap
+Fried Chicken Wrap
+Leftover Roast Wrap
+Cheese and Vegetable Wrap
+Cream Cheese and Cucumber Wrap
+Bacon, Lettuce, and Tomato Wrap
+Chicken Caesar Wrap
+Beef and Bean Wrap
+Scrambled Egg Breakfast Wrap
+Fried Fish Wrap
+Potato and Onion Wrap
+Pan-Fried Fish
+Breaded Fried Fish
+Baked White Fish
+Oven-Baked Fish with Butter
+Poached Fish
+Boiled Fish
+Fish Soup
+Fish Chowder
+Creamy Fish Soup
+Pickled Fish
+Vinegar Pickled Fish
+Sweet-Sour Pickled Fish
+Smoked Fish
+Cold-Smoked Fish
+Hot-Smoked Fish
+Fish Patties
+Fish Cakes
+Fish Loaf
+Fish and Potatoes
+Fish with Cream Sauce
+Fish with Dill Sauce
+Fish in Milk Sauce
+Fish Stew
+Fish and Noodles
+Fish with Fried Onions
+Fish with Root Vegetables
+Fish Casserole
+Fish Pie
+Salted Fish
+Dried Fish
+Fresh Churned Farm Butter
+Sweet Cream Butter
+Salted Sweet Cream Butter
+Unsalted Sweet Cream Butter
+Cultured Farmhouse Butter
+Clabbered Cream Butter
+Hand-Churned Butter
+Whipped Butter
+Honey Butter
+Garlic Butter
+Herb Butter (Compound Herb Butter)
+Brown Butter (Beurre Noisette Style Butter)
+Weissmehl (White Wheat Flour)
+All-Purpose Wheat Flour
+Bread Flour (High-Protein Wheat Flour)
+Hard Red Spring Wheat Flour
+Hard White Wheat Flour
+Whole Wheat Flour
+Stone-Ground Whole Wheat Flour
+Roggenmehl (Rye Flour)
+Whole Rye Flour
+Feines Roggenmehl (Light Rye Flour)
+Gerstenmehl (Barley Flour)
+Hafermehl (Oat Flour)
+Dinkelmehl (Spelt Flour)
+Vollkorn-Dinkelmehl (Whole Spelt Flour)
+Einkornmehl (Einkorn Wheat Flour)
+Emmermehl (Emmer Wheat Flour)
+Maismehl (Cornmeal / Corn Flour)
+Gelbes Maismehl (Yellow Cornmeal)
+Weisses Maismehl (White Cornmeal)
+Buchweizenmehl (Buckwheat Flour)
+Leinsamenmehl (Flaxseed Meal / Flax Flour)
+Erbsenmehl (Pea Flour)
+Kartoffelmehl (Potato Flour)
+Weizengrieß (Wheat Semolina Flour)
+Kuchenmehl (Cake Flour)
+Feines Backmehl (Pastry Flour)
+Beet Sugar (Granulated Beet Sugar)
+Brown Sugar (Moist Brown Sugar)
+Powdered Sugar (Confectioners’ Sugar)
+Beet Sugar Syrup (Boiled Beet Sugar Syrup)
+Sorghum Syrup (Sorghum Molasses Syrup)
+Molasses (Dark Cane Molasses)
+Light Molasses (Light Cane Molasses)
+Honey (Raw Farm Honey)
+Creamed Honey (Whipped Honey Spread)
+Maple Syrup (Pure Maple Syrup)
+Caramelized Sugar (Dry Caramel Sugar)
+Simple Syrup (Boiled Sugar Syrup)
+Vanilla Sugar (Vanilla-Infused Sugar)
+Cinnamon Sugar (Cinnamon Sugar Blend)
+Hutterite Cheese (Hutterite Brick-Style Cheese)
+Farmer Cheese (Fresh Farmer’s Cheese)
+Dry Curd Cottage Cheese (Dry Cottage Cheese)
+Creamed Cottage Cheese (Cottage Cheese with Cream)
+Fresh Curd Cheese (Fresh Cheese Curds)
+Quark-Style Fresh Cheese (Fresh Soft Cheese)
+Homestyle Cream Cheese (Fresh Cream Cheese)
+Colby Cheese (Colby-Style Cheese)
+Marble Cheese (Colby–Cheddar Marble Cheese)
+Mild Cheddar Cheese (Young Cheddar Cheese)
+Sharp Cheddar Cheese (Aged Cheddar Cheese)
+White Cheddar Cheese (White Cheddar Cheese)
+Mozzarella Cheese (Fresh Mozzarella Cheese)
+Pizza Mozzarella (Low-Moisture Mozzarella Cheese)
+Havarti-Style Cheese (Semi-Soft Havarti Cheese)
+Monterey Jack Cheese (Monterey Jack Cheese)
+Colony Brick Cheese (Brick Cheese)
+Fresh Goat Cheese (Fresh Goat Milk Cheese)
+Fresh Cow Milk Cheese (Fresh Cow’s Milk Cheese)
+Apple Cider Vinegar
+Homemade Apple Vinegar
+White Vinegar (Distilled Vinegar)
+Pickling Vinegar
+Malt Vinegar
+Red Wine Vinegar
+White Wine Vinegar
+Raspberry Vinegar
+Chokecherry Vinegar
+Plum Vinegar
+Honey Vinegar
+Herb Vinegar
+Raw Prairie Honey (Unpasteurized Prairie Honey)
+Creamed Honey (Whipped Honey)
+Liquid Clover Honey (Clover Blossom Honey)
+Alfalfa Honey (Alfalfa Blossom Honey)
+Canola Honey (Rapeseed Blossom Honey)
+Wildflower Honey (Mixed Prairie Wildflower Honey)
+Buckwheat Honey (Dark Buckwheat Honey)
+Sunflower Honey (Sunflower Blossom Honey)
+Basswood Honey (Linden Blossom Honey)
+Fireweed Honey (Fireweed Blossom Honey)
+Prairie Polyfloral Honey (Mixed Floral Prairie Honey)
+Chunk Honey (Honeycomb in Liquid Honey)
+Comb Honey (Cut Honeycomb)
+Cut-Comb Honey (Sectioned Honeycomb)
+Honey with Comb (Honey Packed with Honeycomb)
+Unfiltered Honey (Naturally Settled Honey)
+Light Amber Honey (Light Prairie Honey)
+Dark Amber Honey (Dark Prairie Honey)
+Spun Honey (Traditional Whipped Honey)
+Granulated Honey (Naturally Crystallized Honey)
+Honey Butter (Honey Spread with Butter)
+Honey Syrup (Table Honey Syrup)
+Kamillentee (Chamomile Tea)
+Pfefferminztee (Peppermint Tea)
+Kräutertee (Herbal Tea)
+Früchtetee (Fruit Tea)
+Schwarztee (Black Tea)
+Grüner Tee (Green Tea)
+Lindenblütentee (Linden Blossom Tea)
+Hagebuttentee (Rosehip Tea)
+Holunderblütentee (Elderflower Tea)
+Holunderbeerentee (Elderberry Tea)
+Himbeerblättertee (Raspberry Leaf Tea)
+Johannisbeerblättertee (Blackcurrant Leaf Tea)
+Brennnesseltee (Nettle Tea)
+Salbeitee (Sage Tea)
+Thymiantee (Thyme Tea)
+Fencheltee (Fennel Tea)
+Kümmeltee (Caraway Tea)
+Anistee (Anise Tea)
+Fenchel-Anis-Kümmel Tee (Fennel Anise Caraway Tea)
+Hibiskustee (Hibiscus Tea)
+Malventee (Mallow Tea)
+Lindenrindentee (Linden Bark Tea)
+Eistee (Iced Tea)
+Whole Milk
+Raw Milk
+Fresh Cow’s Milk
+Skim Milk
+Low-Fat Milk
+Cream Top Milk
+Heavy Cream
+Light Cream
+Half-and-Half
+Buttermilk
+Cultured Buttermilk
+Sweet Cream Milk
+Sour Milk
+Clabbered Milk
+Cultured Milk
+Homemade Yogurt Milk
+Scalded Milk
+Warm Milk
+Sweetened Milk
+Milk with Honey
+Milk with Molasses
+Dried Apple Rings
+Dried Apples
+Sweetened Dried Apples
+Dried Pear Slices
+Dried Pears
+Dried Prunes
+Dried Plums
+Dried Apricots
+Dried Peaches
+Dried Cherries
+Dried Saskatoon Berries
+Dried Strawberries
+Dried Raspberries
+Dried Blueberries
+Dried Cranberries
+Dried Grapes (Raisins)
+Golden Raisins
+Dried Mixed Fruit
+Apple Fruit Leather
+Pear Fruit Leather
+Plum Fruit Leather
+Dried Apples (Getrocknete Äpfel)
+Dried Apple Rings (Apfelringe)
+Dried Pears (Getrocknete Birnen)
+Dried Prunes (Getrocknete Pflaumen)
+Dried Cherries (Getrocknete Kirschen)
+Dried Saskatoon Berries (Getrocknete Saskatoonbeeren)
+Dried Blueberries (Getrocknete Heidelbeeren)
+Dried Raspberries (Getrocknete Himbeeren)
+Dried Strawberries (Getrocknete Erdbeeren)
+Dried Rhubarb (Getrockneter Rhabarber)
+Dried Pumpkin (Getrockneter Kürbis)
+Dried Sweet Corn (Getrockneter Zuckermais)
+Dried Green Beans (Getrocknete Bohnen)
+Dried Peas (Getrocknete Erbsen)
+Dried Carrots (Getrocknete Karotten)
+Dried Onions (Getrocknete Zwiebeln)
+Dried Garlic (Getrockneter Knoblauch)
+Dried Mushrooms (Getrocknete Pilze)
+Dried Morel Mushrooms (Getrocknete Morcheln)
+Dried Beef Jerky (Getrocknetes Rindfleisch)
+Dried Venison Jerky (Getrocknetes Wildfleisch)
+Dried Sausage (Getrocknete Wurst)
+Dried Farmer Sausage (Getrocknete Bauernwurst)
+Dried Ham (Getrockneter Schinken)
+Dried Chicken Soup Mix (Getrocknete Hühnersuppenmischung)
+Dried Vegetable Soup Mix (Getrocknete Gemüsesuppenmischung)
+Dried Egg Noodles (Getrocknete Eiernudeln)
+Dried Spaetzle (Getrocknete Spätzle)
+Dried Bread Cubes (Getrocknete Brotwürfel)
+Dried Bread Crumbs (Getrocknete Semmelbrösel)
+Dried Herb Mix (Getrocknete Kräutermischung)
+Dried Dill (Getrockneter Dill)
+Dried Parsley (Getrocknete Petersilie)
+Dried Chives (Getrockneter Schnittlauch)
+Homemade Plain Yogurt
+Whole Milk Homemade Yogurt
+Cream-Top Homemade Yogurt
+Farm-Style Set Yogurt
+Cultured Whole Milk Yogurt
+Cultured Skim Milk Yogurt
+Buttermilk Yogurt
+Cream-Enriched Yogurt
+Slow-Fermented Homemade Yogurt
+Fresh Churned Yogurt
+Honey-Sweetened Homemade Yogurt
+Maple-Sweetened Homemade Yogurt
+Vanilla Homemade Yogurt
+Fruit-on-the-Bottom Homemade Yogurt
+Berry Homemade Yogurt
+Apple Homemade Yogurt
+Rhubarb Homemade Yogurt
+Strained Homemade Yogurt
+Thick Farm Yogurt
+Breakfast Yogurt
+Table Yogurt
+Everyday Plain Yogurt
+Cold Cellar Yogurt
+Dill Pickling Spice
+Sweet Pickling Spice
+Garlic Salt
+Onion Salt
+Seasoned Salt
+Poultry Seasoning
+Sage Seasoning
+Dill Salt
+Caraway Seed Seasoning
+Mustard Powder
+Prepared Yellow Mustard
+Prepared Brown Mustard
+Creamed Horseradish
+Fresh Horseradish (Grated Horseradish Root)
+Beet Horseradish
+Vinegar Brine Seasoning
+Bread and Butter Pickle Spice
+Cucumber Pickling Spice
+Dry Onion Soup Mix
+Dry Ranch Seasoning Mix
+Seasoned Bread Crumbs
+Butter Salt
+Celery Salt
+Pepper and Salt Blend
+Paprika Seasoning
+White Pepper Seasoning
+Black Pepper Seasoning
+Herb Vinegar
+Dill Vinegar
+Garlic Vinegar
+Schmaltz with Onions (Rendered Chicken Fat with Onions)
+Zwiebelsalz (Onion Salt)
+Knoblauchsalz (Garlic Salt)
+Senfpulver (Mustard Powder)
+Meerrettich (Horseradish)
+Dillessig (Dill Vinegar)
+Pure Vanilla Extract
+Homemade Vanilla Extract
+Double-Fold Vanilla Extract
+Imitation Vanilla Flavoring
+Pure Almond Extract
+Bitter Almond Extract
+Pure Lemon Extract
+Pure Orange Extract
+Pure Anise Extract
+Pure Peppermint Extract
+Pure Spearmint Extract
+Pure Wintergreen Extract
+Pure Maple Extract
+Butter Flavor Extract
+Rum Flavor Extract
+Brandy Flavor Extract
+Banana Extract
+Coconut Extract
+Coffee Extract
+Chocolate Extract
+Strawberry Extract
+Raspberry Extract
+Cherry Extract
+Pineapple Extract
+Root Beer Extract
+Licorice Extract
+Caramel Extract
+Hazelnut Extract
+Butterscotch Extract
+Maple Flavoring
+Vanilla Powder Extract
+Alcohol-Free Vanilla Extract
+Semmelbrösel (Fine White Bread Crumbs)
+Fresh Bread Crumbs
+Dry Bread Crumbs
+Homemade Bread Crumbs
+Rye Bread Crumbs
+Whole Wheat Bread Crumbs
+Cracker Crumbs
+Saltine Cracker Crumbs
+Buttered Bread Crumbs
+Toasted Bread Crumbs
+Seasoned Bread Crumbs
+Herb Bread Crumbs
+Garlic Bread Crumbs
+Egg Bread Crumbs
+Milk-Soaked Bread Crumbs
+Sweet Bread Crumbs
+Zwieback Crumbs (Twice-Baked Bread Crumbs)
+Rendered Lard (Pork Lard)
+Leaf Lard (Rendered Leaf Fat)
+Clarified Butter (Drawn Butter)
+Cultured Butter (Churned Cream Butter)
+Brown Butter (Beurre Noisette)
+Schmaltz (Rendered Chicken Fat)
+Goose Fat (Rendered Goose Fat)
+Beef Tallow (Rendered Beef Fat)
+Sunflower Oil (Cold-Pressed Sunflower Oil)
+Canola Oil (Rapeseed Oil)
+Flaxseed Oil (Cold-Pressed Linseed Oil)
+Hemp Seed Oil (Cold-Pressed Hemp Oil)
+Mustard Oil (Pressed Mustard Seed Oil)
+Poppy Seed Oil (Cold-Pressed Poppy Seed Oil)
+Pumpkin Seed Oil (Roasted Pumpkin Seed Oil)
+Cream Drippings (Rendered Dairy Fat)
+Oil and Vinegar Dressing
+Sweet and Sour Dressing
+French Dressing (Sweet Ketchup Vinaigrette)
+Creamy Vinegar Dressing
+Dill Vinaigrette
+Cucumber Dill Dressing
+Beet Vinegar Dressing
+Onion Vinegar Dressing
+Mustard Vinaigrette
+Honey Vinegar Dressing
+Garlic Vinegar Dressing
+Öl und Essig Dressing (Oil and Vinegar Dressing)
+Süß-Sauer Dressing (Sweet and Sour Dressing)
+Kräuter Essig Dressing (Herb Vinegar Dressing)
+Hutterite Farmer Sausage (Coarse-Smoked Pork Sausage)
+Hutterite Garlic Sausage (Smoked Garlic Pork Sausage)
+Hutterite Ring Bologna (Smoked Beef and Pork Bologna)
+Hutterite Summer Sausage (Dry-Cured Smoked Sausage)
+Hutterite Fresh Pork Sausage (Unsmoked Farm Sausage)
+Hutterite Breakfast Sausage (Fresh Mild Pork Sausage)
+Hutterite Pepper Sausage (Smoked Pepper Pork Sausage)
+Hutterite Beef Sausage (Smoked Beef Sausage)
+Hutterite Wieners (Smoked Frankfurter-Style Sausages)
+Hutterite Coil Sausage (Fresh Coiled Pork Sausage)
+Hutterite Blood Sausage (Blood and Grain Sausage)
+Hutterite Liver Sausage (Liverwurst-Style Farm Sausage)
+Hutterite Head Cheese Sausage (Headcheese-Style Sausage)
+Hutterite Bologna Loaf (Smoked Bologna Sausage Loaf)
+Hutterite Garlic Ring Sausage (Smoked Garlic Ring Sausage)
+Fresh Churned Butter
+Salted Churned Butter
+Cultured Butter
+Sweet Cream Butter
+Garlic Herb Butter
+Honey Butter
+Schmear Cheese (Soft Farm Cheese Spread)
+Farmer Cheese Spread
+Cottage Cheese Spread
+Cream Cheese Spread
+Chive Cream Cheese Spread
+Onion Cream Cheese Spread
+Dill Cream Cheese Spread
+Lard Spread (Rendered Pork Fat Spread)
+Chicken Fat Spread (Schmaltz Spread)
+Apple Butter
+Plum Butter
+Rhubarb Jam
+Strawberry Jam
+Saskatoon Berry Jam
+Apricot Jam
+Peach Jam
+Mixed Berry Jam
+Honey Spread
+Creamed Honey
+Molasses Spread
+Maple Butter
+Egg Butter (Egg and Butter Spread)
+Cream of Wheat Porridge (Cream of Wheat Hot Cereal)
+Cracked Wheat Porridge (Cracked Wheat Hot Cereal)
+Rolled Oat Porridge (Oatmeal)
+Steel-Cut Oat Porridge (Steel-Cut Oatmeal)
+Barley Porridge (Pearl Barley Hot Cereal)
+Hulled Barley Porridge (Whole Barley Porridge)
+Wheat Berry Porridge (Whole Wheat Berry Cereal)
+Rye Berry Porridge (Whole Rye Berry Cereal)
+Mixed Grain Porridge (Seven-Grain Hot Cereal)
+Cornmeal Mush (Cornmeal Porridge)
+Creamed Cornmeal (Cream of Corn Cereal)
+Millet Porridge (Millet Hot Cereal)
+Buckwheat Groats Porridge (Buckwheat Hot Cereal)
+Farina Porridge (Farina Hot Cereal)
+Semolina Porridge (Semolina Hot Cereal)
+Homemade Toasted Grain Cereal (Toasted Mixed Grain Cereal)
+Homemade Granola (Baked Oat and Grain Granola)
+Honey Oat Granola (Honey-Sweetened Oat Granola)
+Maple Granola (Maple-Sweetened Granola)
+Barley Flake Cereal (Rolled Barley Cereal)
+Wheat Flake Cereal (Rolled Wheat Cereal)
+Rye Flake Cereal (Rolled Rye Cereal)
+Mixed Grain Flake Cereal (Rolled Mixed Grain Cereal)
+Cracked Corn Cereal (Cracked Corn Hot Cereal)
+Sweet Milk Porridge (Milk-Based Grain Porridge)
+Beef Jerky
+Peppered Beef Jerky
+Garlic Beef Jerky
+Smoked Beef Jerky
+Sweet Beef Jerky
+Dry Beef Jerky
+Venison Jerky
+Peppered Venison Jerky
+Smoked Venison Jerky
+Turkey Jerky
+Peppered Turkey Jerky
+Smoked Turkey Jerky
+Pork Jerky
+Peppered Pork Jerky
+Smoked Pork Jerky
+Homestyle Beef Jerky
+Farm-Style Beef Jerky
+Dry Pepperoni
+Smoked Pepperoni
+Beef Pepperoni
+Pork Pepperoni
+Beef and Pork Pepperoni
+Pepperoni Sticks
+Smoked Pepperoni Sticks
+Homemade Pepperoni
+Geräucherter Schinken (Smoked Ham)
+Geräucherter Schinken am Stück (Whole Smoked Ham)
+Schinkenaufschnitt (Sliced Ham)
+Geräucherter Speck (Smoked Bacon)
+Bauchspeck (Pork Belly Bacon)
+Rückenspeck (Back Bacon)
+Rauchfleisch (Smoked Pork)
+Rauchwurst (Smoked Sausage)
+Bauernwurst (Farmer Sausage)
+Sommerwurst (Summer Sausage)
+Ringwurst (Ring Sausage)
+Ring Bologna (Ring Bologna Sausage)
+Knackwurst (Garlic Knockwurst)
+Leberwurst (Liver Sausage)
+Leberkäse (Baked Meat Loaf Cold Cut)
+Blutwurst (Blood Sausage)
+Presswurst (Head Cheese)
+Sülze (Jellied Meat Head Cheese)
+Fleischkäse Aufschnitt (Cold Sliced Meat Loaf)
+Hausgemachte Wurst (Homemade Sausage)
+Hausgeräucherte Wurst (Home-Smoked Sausage)
+Schinkenwurst (Ham Sausage)
+Kochschinken (Cooked Ham)
+Corned Beef (Cured Beef)
+Pastrami-Style Beef (Smoked Cured Beef)
+Roast Beef Aufschnitt (Roast Beef Deli Meat)

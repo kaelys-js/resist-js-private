@@ -1,0 +1,298 @@
+Martini
+Dry Martini
+Wet Martini
+Perfect Martini
+Dirty Martini
+Vodka Martini
+Gibson Cocktail
+Vesper Martini
+Espresso Martini
+Negroni
+Negroni Sbagliato
+Boulevardier
+Americano Cocktail
+Old Fashioned
+Old Fashioned Whiskey Cocktail
+Brandy Old Fashioned
+Rum Old Fashioned
+Sazerac Cocktail
+Manhattan Cocktail
+Perfect Manhattan
+Rob Roy Cocktail
+Brooklyn Cocktail
+Martinez Cocktail
+Daiquiri
+Classic Daiquiri
+Hemingway Daiquiri
+Strawberry Daiquiri
+Margarita
+Classic Margarita
+Tommy’s Margarita
+Frozen Margarita
+Paloma Cocktail
+Sidecar Cocktail
+French 75 Cocktail
+French 76 Cocktail
+Mojito
+Mint Julep
+Caipirinha (Brazilian Lime Cocktail)
+Caipiroska (Vodka Lime Cocktail)
+Pisco Sour
+Amaretto Sour
+Whiskey Sour
+New York Sour
+Aperol Spritz
+Campari Spritz
+Limoncello Spritz
+Bellini Cocktail
+Mimosa Cocktail
+Bloody Mary
+Bloody Maria
+Corpse Reviver No. 2
+Last Word Cocktail
+Paper Plane Cocktail
+Aviation Cocktail
+Clover Club Cocktail
+Gin Fizz
+Ramos Gin Fizz
+Tom Collins
+John Collins
+Dark ’n’ Stormy
+Moscow Mule
+Kentucky Mule
+Mexican Mule
+Mai Tai
+Zombie Cocktail
+Planter’s Punch
+Painkiller Cocktail
+Piña Colada
+Hurricane Cocktail
+Singapore Sling
+Blue Lagoon Cocktail
+Sex on the Beach Cocktail
+Cosmopolitan
+White Russian
+Black Russian
+Irish Coffee
+Espresso Tonic
+Long Island Iced Tea
+Adios Motherfucker Cocktail
+French Martini
+Porn Star Martini
+Bee’s Knees Cocktail
+Southside Cocktail
+Vieux Carré Cocktail
+Milk Punch
+Clarified Milk Punch
+Sherry Cobbler
+Brandy Alexander
+Grasshopper Cocktail
+Screwdriver Cocktail
+Tequila Sunrise
+Greyhound Cocktail
+Salty Dog Cocktail
+Sea Breeze Cocktail
+Bay Breeze Cocktail
+Caesar Cocktail (Canadian Bloody Mary)
+
+Old Fashioned
+Old Fashioned Cocktail
+Brandy Old Fashioned
+Wisconsin Old Fashioned Sweet
+Wisconsin Old Fashioned Sour
+Smoked Old Fashioned
+Sazerac
+Sazerac Cocktail
+Vieux Carré
+Manhattan
+Classic Manhattan
+Perfect Manhattan
+Dry Manhattan
+Rob Roy
+Boulevardier
+Negroni
+Negroni Sbagliato
+White Negroni
+Americano Cocktail
+Gin and Tonic
+Vodka Tonic
+Gin Rickey
+Vodka Soda
+Moscow Mule
+Kentucky Mule
+Mexican Mule
+London Mule
+Dark ’n’ Stormy
+Martini
+Classic Dry Martini
+Vodka Martini
+Dirty Martini
+Gibson Martini
+Vesper Martini
+Espresso Martini
+Martinez Cocktail
+Cosmopolitan
+Sidecar
+Brandy Crusta
+French 75
+French 76
+French 95
+Tom Collins
+John Collins
+Gin Fizz
+Silver Fizz
+Golden Fizz
+Ramos Gin Fizz
+Whiskey Sour
+Amaretto Sour
+New York Sour
+Boston Sour
+Gold Rush
+Bee’s Knees
+Mint Julep
+Mojito
+Daiquiri
+Classic Daiquiri
+Hemingway Daiquiri
+Frozen Daiquiri
+Piña Colada
+Painkiller Cocktail
+Mai Tai
+Zombie Cocktail
+Planter’s Punch
+Rum Punch
+Caipirinha
+Caipiroska
+Batida Cocktail
+Paloma
+Margarita
+Classic Margarita
+Tommy’s Margarita
+Cadillac Margarita
+Frozen Margarita
+El Diablo Cocktail
+Tequila Sunrise
+Bloody Mary
+Bloody Maria
+Red Snapper Cocktail
+Michelada
+Caesar Cocktail
+Corpse Reviver No. 2
+Aviation Cocktail
+Last Word Cocktail
+Paper Plane Cocktail
+Aperol Spritz
+Campari Spritz
+Hugo Spritz
+Bellini
+Peach Bellini
+Rossini Cocktail
+Mimosa
+Buck’s Fizz
+Kir
+Kir Royale
+Champagne Cocktail
+Americano Highball
+Highball Cocktail
+Whiskey Highball
+Scotch Highball
+Irish Coffee
+Café Brulot
+White Russian
+Black Russian
+Mudslide Cocktail
+Alexander Cocktail
+Brandy Alexander
+Pink Lady Cocktail
+Clover Club
+Mary Pickford Cocktail
+Singapore Sling
+Pisco Sour
+Chilcano de Pisco (Pisco Highball)
+Caipiríssima (Rum Caipirinha)
+Batanga Cocktail
+Penicillin Cocktail
+Rusty Nail
+Godfather Cocktail
+Godmother Cocktail
+Harvey Wallbanger
+Bay Breeze
+Sea Breeze
+Cape Codder
+Sex on the Beach
+Long Island Iced Tea
+AMF Cocktail (Adios Motherfucker)
+Zombie Punch
+Mai Tai Royal
+Jungle Bird
+Saturn Cocktail
+Chartreuse Swizzle
+Ti’ Punch (Rhum Agricole Punch)
+
+B-52 Shot
+B-51 Shot
+B-53 Shot
+Kamikaze Shot
+Lemon Drop Shot
+Jägerbomb Shot
+Irish Car Bomb Shot
+Tequila Slammer Shot
+Tequila Sunrise Shot
+Tequila Rose Shot
+Mexican Flag Shot
+Sambuca Shot
+Buttery Nipple Shot
+Slippery Nipple Shot
+Baby Guinness Shot
+Mind Eraser Shot
+Brain Hemorrhage Shot
+Red Snapper Shot
+Prairie Fire Shot
+Washington Apple Shot
+Green Tea Shot
+White Tea Shot
+Pink Starburst Shot
+Blue Kamikaze Shot
+Purple Hooter Shot
+Scooby Snack Shot
+Vegas Bomb Shot
+Royal Flush Shot
+Surfer on Acid Shot
+Chocolate Cake Shot
+Blow Job Shot
+Cement Mixer Shot
+Alabama Slammer Shot
+Bacardi 151 Shot
+Flatliner Shot
+Gummy Bear Shot
+Jolly Rancher Shot
+Liquid Cocaine Shot
+Nutty Irishman Shot
+Orgasm Shot
+Peach Schnapps Shot
+Pickleback Shot
+Pineapple Upside-Down Cake Shot
+Redheaded Slut Shot
+Salty Dog Shot
+Screaming Orgasm Shot
+Silver Bullet Shot
+Three Wise Men Shot
+Tootsie Roll Shot
+Washington Red Apple Shot
+Woo Woo Shot
+Fireball Cinnamon Whisky Shot
+Goldschläger Cinnamon Schnapps Shot
+Sour Apple Pucker Shot
+Chocolate Martini Shot
+Espresso Shot
+Espresso Martini Shot
+Limoncello Shot
+Ouzo Shot
+Grappa Shot
+Aguardiente Shot
+Rakija Shot
+Soju Shot
+Sake Shot
+Absinthe Shot
+Fernet-Branca Shot
+Unicum Herbal Liqueur Shot

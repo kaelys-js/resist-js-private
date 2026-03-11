@@ -1,0 +1,36 @@
+# Applies to all crawlers by default
+User-agent: *
+
+# Allow full site indexing unless explicitly disallowed below
+Allow: /
+
+# Block internal or non-public paths
+Disallow: /api/
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /internal/
+Disallow: /debug/
+Disallow: /tmp/ 
+
+# Block query-string–based duplicate content (best-effort)
+Disallow: /*?*
+
+# Prevent indexing of common non-content file types
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /*.log$
+
+# Explicitly allow critical public assets
+Allow: /icons/
+Allow: /assets/
+Allow: /screenshots/
+
+# Crawl delay (respected by Bing, Yandex; ignored by Google)
+Crawl-delay: 10
+
+# Preferred canonical host (non-standard but widely tolerated)
+Host: {{MARKETING_DOMAIN}}
+
+# Location of XML sitemap(s)
+Sitemap: https://{{MARKETING_DOMAIN}}/sitemap.xml
+Sitemap: https://{{MARKETING_DOMAIN}}/sitemap-pages.xml

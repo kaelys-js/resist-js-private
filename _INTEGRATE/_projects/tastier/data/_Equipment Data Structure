@@ -1,0 +1,45 @@
+CREATE TABLE equipment (
+  id TEXT PRIMARY KEY,
+  canonical_key TEXT NOT NULL UNIQUE,
+  category TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE equipment_i18n (
+  equipment_id TEXT NOT NULL,
+  locale TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  PRIMARY KEY (equipment_id, locale),
+  FOREIGN KEY (equipment_id)
+    REFERENCES equipment(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE equipment_alternate (
+  equipment_id TEXT NOT NULL,
+  alternate_equipment_id TEXT NOT NULL,
+  PRIMARY KEY (equipment_id, alternate_equipment_id),
+  FOREIGN KEY (equipment_id)
+    REFERENCES equipment(id)
+    ON DELETE CASCADE,
+  FOREIGN KEY (alternate_equipment_id)
+    REFERENCES equipment(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE user_equipment (
+  user_id TEXT NOT NULL,
+  equipment_id TEXT NOT NULL,
+  state TEXT NOT NULL CHECK (
+    state IN ('have', 'dont_have', 'maybe', 'unknown')
+  ),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (user_id, equipment_id),
+  FOREIGN KEY (equipment_id)
+    REFERENCES equipment(id)
+    ON DELETE CASCADE
+);
+
+CREATE INDEX idx_user_equipment_state
+  ON user_equipment (state);

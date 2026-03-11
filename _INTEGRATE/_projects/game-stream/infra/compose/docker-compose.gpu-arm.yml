@@ -1,0 +1,8 @@
+services:
+  game-session-arm64:
+    <<: *game-common
+    container_name: "${PRODUCT}-game-session-arm64-${ENV}"
+    devices:
+      - /dev/dri
+    profiles:
+      - arm64

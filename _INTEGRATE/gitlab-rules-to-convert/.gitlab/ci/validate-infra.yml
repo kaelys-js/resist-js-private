@@ -1,0 +1,139 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# 🧪 Environment & Binding Validation
+# ------------------------------------------------------------------------------
+#
+# These jobs validate that all provisioned Cloudflare resources (D1, KV, R2, Tail Worker)
+# match the expected configuration defined in `wrangler.json` and env variables.
+#
+# ✅ Why it matters:
+#    - Prevents silent runtime failures by catching misconfigured or missing bindings early
+#    - Confirms Cloudflare-side resources were provisioned correctly via `bootstrap:*` jobs
+#    - Provides human-readable `.md` artifacts for auditing and postmortem debugging
+#
+# 🧠 Validation Strategy:
+#    - Each job uses `pnpm exec wrangler` CLI to query current resource state
+#    - Wrangles `wrangler.json`, `DB_NAME`, and account bindings per `WRANGLER_ENV`
+#    - Fails fast with clear errors on missing or unmatched resources
+#
+# 🧾 Artifact Naming:
+#    - Each job emits a Markdown file with details (`.validate-*.md`) stored for 3 days
+#    - These artifacts are always uploaded, even on failure (`when: always`)
+#
+# 🔗 Execution Order:
+#    - Most jobs depend on `setup:check-env` and `bootstrap:*` jobs via `needs:`
+#    - This ensures validation doesn't start until all setup steps are complete
+#
+# ✅ Validators Included:
+#    - validate:storage        → validates all storage bindings (KV, R2, D1)
+#    - validate:r2             → validates R2 bucket availability (individually)
+#    - validate:kv             → validates KV namespace bindings
+#    - validate:d1             → validates D1 database presence via DB_NAME
+#    - validate:tail-worker    → (non-blocking) checks tail worker connectivity
+validate:storage:
+  stage: test
+  needs:
+    - setup:check-env
+    - bootstrap:storage
+  script:
+    - validate_storage_bindings | tee .validate-storage-bindings-summary.md
+  artifacts:
+    paths:
+      - .validate-storage-bindings-summary.md
+    when: always
+    expire_in: 3 days
+
+# 🔁 validate:tail-worker — Test if the tail consumer is active and connectable
+validate:tail-worker:
+  stage: test
+  # 🧪 Check that the tail worker for the given WRANGLER_ENV is connectable
+  # Fails non-blockingly if the tail endpoint cannot be reached within 10s
+  needs:
+    - setup:check-env
+  script:
+    - check_tail_worker | tee .validate-tail-worker-summary.md
+  artifacts:
+    paths:
+      - .validate-tail-worker-summary.md
+    when: always
+    expire_in: 3 days
+
+# 📦 validate:r2 — Ensure R2 storage buckets are present for the environment
+validate:r2:
+  stage: test
+  # 🧪 Validate that required R2 buckets exist in the target WRANGLER_ENV
+  # Fails if any required buckets (e.g. analytics-archive) are missing
+  needs:
+    - setup:check-env
+    - bootstrap:storage
+  script:
+    - validate_r2 | tee .validate-r2-summary.md
+  artifacts:
+    paths:
+      - .validate-r2-summary.md
+    when: always
+    expire_in: 3 days
+
+# 🔐 validate:kv — Ensure all KV namespaces declared in wrangler.json are available
+validate:kv:
+  stage: test
+  # 🧪 Validates that all declared KV bindings for this environment exist in the account
+  # Uses wrangler kv namespace list + wrangler.json to compare configured vs provisioned
+  needs:
+    - setup:check-env
+    - bootstrap:db
+  script:
+    - validate_kv_namespaces | tee .validate-kv-namespaces-summary.md
+  artifacts:
+    paths:
+      - .validate-kv-namespaces-summary.md
+    when: always
+    expire_in: 3 days
+
+# 🧱 validate:d1 — Ensure D1 database is provisioned and matches expected DB_NAME
+validate:d1:
+  stage: test
+  # 🧪 Checks that the D1 database referenced by DB_NAME exists in the target account
+  # This prevents runtime errors if binding is missing or misnamed
+  needs:
+    - setup:check-env
+    - bootstrap:db
+  script:
+    - validate_d1_database | tee .validate-d1-summary.md
+  artifacts:
+    paths:
+      - .validate-d1-summary.md
+    when: always
+    expire_in: 3 days
+
+
+# ------------------------------------------------------------------------------
+# 🌐 Validate Preview URL Availability
+# ------------------------------------------------------------------------------
+# validate:preview-url — Verifies that the deployed preview environment is live
+# and responding with HTTP 200 after preview:deploy completes.
+#
+# ✅ What it does:
+#    - Extracts the PREVIEW_URL from .env.preview (set by preview:deploy)
+#    - Sends a HEAD-style request to the URL using curl
+#    - Checks that the returned status code is 200 (OK)
+#
+# ✅ Why it matters:
+#    - Catches deploys that succeed structurally but serve 404/500
+#    - Ensures the preview Worker is running and reachable by reviewers
+#
+# ⚠️ Fails the pipeline immediately if the preview URL is unreachable or unhealthy
+# ⚠️ This is scoped to feature branches only (preview deploys)
+validate:preview-url:
+  stage: deploy
+  needs: [preview:deploy]
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^feature\/.+$/'
+  script:
+    - validate_preview_url_health | tee .validate-preview-url-summary.md
+  artifacts:
+    paths:
+      - .validate-preview-url-summary.md
+    when: always
+    expire_in: 3 days

@@ -1,0 +1,1957 @@
+Bannock (Traditional Indigenous Fried Bread)
+Baked Bannock (Oven-Baked Indigenous Bread)
+Frybread Bannock (Pan-Fried Indigenous Bread)
+Campfire Bannock (Outdoor Cooked Indigenous Bread)
+Blueberry Bannock (Wild Berry Indigenous Bread)
+Saskatoon Berry Bannock (Prairie Berry Indigenous Bread)
+Three Sisters Bannock (Corn, Bean, Squash Bread)
+Salmon Bannock Sandwich (Smoked Salmon Indigenous Sandwich)
+Moose Meat Stew (Traditional Indigenous Game Stew)
+Venison Stew (Wild Deer Indigenous Stew)
+Caribou Stew (Arctic Indigenous Game Stew)
+Bison Stew (Plains Indigenous Buffalo Stew)
+Wild Game Stew (Mixed Indigenous Game Stew)
+Salmon Soup (Coastal Indigenous Fish Soup)
+Smoked Salmon (Traditional Indigenous Smoked Fish)
+Cedar-Planked Salmon (Coastal Indigenous Roasted Salmon)
+Salmon Candy (Sweet Smoked Indigenous Salmon)
+Salmon Jerky (Dried Indigenous Salmon)
+Eulachon Grease (Traditional Indigenous Fish Oil)
+Ooligan Grease (Rendered Candlefish Oil)
+Clam Bake (Coastal Indigenous Shellfish Feast)
+Steamed Clams (Traditional Indigenous Shellfish)
+Seaweed and Salmon Roe Salad (Coastal Indigenous Salad)
+Dried Seaweed Snack (Indigenous Harvested Seaweed)
+Smoked Oysters (Coastal Indigenous Smoked Shellfish)
+Wild Rice Pilaf (Manoomin Wild Rice Dish)
+Manoomin (Wild Rice)
+Wild Rice Soup (Indigenous Creamy Rice Soup)
+Wild Rice and Mushroom Stew (Forest Indigenous Stew)
+Three Sisters Stew (Corn, Bean, Squash Indigenous Stew)
+Roasted Squash with Maple (Indigenous Vegetable Dish)
+Maple-Glazed Root Vegetables (Indigenous Harvest Vegetables)
+Roasted Turnips and Carrots (Indigenous Root Vegetable Dish)
+Corn Soup (Traditional Indigenous Corn Soup)
+Hominy Corn Stew (Indigenous Nixtamalized Corn Stew)
+Pemmican (Dried Meat and Fat Survival Food)
+Pemmican with Berries (Sweetened Indigenous Pemmican)
+Dried Moose Meat (Indigenous Game Jerky)
+Dried Venison (Indigenous Deer Jerky)
+Dried Bison Meat (Indigenous Buffalo Jerky)
+Maple Syrup Candy (Indigenous Maple Sugar Candy)
+Maple Sugar (Traditional Indigenous Maple Sweetener)
+Maple Taffy on Snow (Indigenous Maple Candy)
+Berry Soup (Indigenous Wild Berry Soup)
+Saskatoon Berry Soup (Prairie Indigenous Dessert Soup)
+Blueberry Soup (Indigenous Berry Dessert Soup)
+Wild Berry Pudding (Indigenous Fruit Dessert)
+Roasted Duck with Berries (Indigenous Game Bird Dish)
+Goose Stew (Indigenous Waterfowl Stew)
+Rabbit Stew (Indigenous Small Game Stew)
+Smoked Whitefish (Great Lakes Indigenous Smoked Fish)
+Lake Trout Stew (Indigenous Freshwater Fish Stew)
+Pickerel Chowder (Indigenous Walleye Soup)
+Cedar Tea (Traditional Indigenous Herbal Tea)
+Labrador Tea (Indigenous Herbal Tea)
+Sweetgrass Tea (Ceremonial Indigenous Herbal Tea)
+Bannock (Fry Bread)
+Fried Bannock (Fry Bread)
+Baked Bannock (Baked Fry Bread)
+Blueberry Bannock (Blueberry Fry Bread)
+Wild Berry Bannock (Wild Berry Fry Bread)
+Three Sisters Succotash (Corn, Beans, Squash Succotash)
+Smoked Salmon (Traditional Smoked Salmon)
+Planked Salmon (Cedar-Planked Salmon)
+Salmon Candy (Candied Smoked Salmon)
+Dried Salmon (Sun-Dried Salmon)
+Smoked Whitefish (Smoked Freshwater Whitefish)
+Bison Jerky (Dried Bison Meat)
+Pemmican (Dried Meat and Fat Food)
+Venison Jerky (Dried Deer Meat)
+Moose Jerky (Dried Moose Meat)
+Wild Rice (Manoomin / Wild Rice Pilaf)
+Wild Rice and Mushrooms (Wild Rice with Foraged Mushrooms)
+Maple-Glazed Root Vegetables (Maple Roasted Roots)
+Roasted Squash (Roasted Winter Squash)
+Mashed Squash (Traditional Mashed Squash)
+Boiled Corn (Traditional Boiled Corn)
+Corn Soup (Traditional Indigenous Corn Soup)
+Bean and Corn Stew (Traditional Bean and Corn Stew)
+Bison Stew (Traditional Bison Stew)
+Venison Stew (Traditional Venison Stew)
+Moose Stew (Traditional Moose Stew)
+Clam Bake (Coastal Indigenous Clam Bake)
+Steamed Mussels (Steamed Coastal Mussels)
+Seaweed Salad (Harvested Seaweed Salad)
+Roasted Game Potatoes (Roasted Potatoes with Game Fat)
+Berry Soup (Traditional Wild Berry Soup)
+Cranberry Chutney (Wild Cranberry Chutney)
+Maple Baked Beans (Maple-Sweetened Baked Beans)
+Labrador Tea (Northern Herbal Tea)
+Labrador Tea Iced Tea (Chilled Labrador Tea)
+Labrador Tea Lemonade (Labrador Tea Citrus Drink)
+Wild Mint Tea (Indigenous Mint Herbal Tea)
+Wild Mint Iced Tea (Chilled Indigenous Mint Tea)
+Cedar Tea (Cedar Infusion)
+Cedar Tip Tonic (Cedar Infused Sparkling Drink)
+Spruce Tip Tea (Spruce Needle Herbal Tea)
+Spruce Tip Soda (Spruce Tip Soft Drink)
+Spruce Beer (Traditional Spruce Fermented Beverage)
+Birch Sap Water (Birch Water Drink)
+Birch Beer (Birch Sap Fermented Beverage)
+Saskatoon Berry Juice (Saskatoon Berry Drink)
+Saskatoon Berry Lemonade (Saskatoon Berry Citrus Drink)
+Saskatoon Berry Shrub (Saskatoon Berry Vinegar Drink)
+Saskatoon Berry Spritz (Saskatoon Berry Sparkling Cocktail)
+Wild Blueberry Juice (Wild Blueberry Drink)
+Wild Blueberry Shrub (Wild Blueberry Vinegar Drink)
+Wild Cranberry Juice (Lowbush Cranberry Drink)
+Lowbush Cranberry Spritzer (Cranberry Sparkling Drink)
+Rosehip Tea (Wild Rose Hip Herbal Tea)
+Rosehip Iced Tea (Chilled Rose Hip Tea)
+Juniper Berry Tea (Juniper Infusion)
+Juniper Berry Tonic (Juniper Infused Sparkling Drink)
+Juniper Berry Gin and Tonic (Juniper-Forward Gin Cocktail)
+Spruce Tip Gin Fizz (Spruce Tip Citrus Cocktail)
+Cedar Smoked Old Fashioned (Cedar-Infused Whiskey Cocktail)
+Saskatoon Berry Sour (Saskatoon Berry Whiskey Cocktail)
+Wild Blueberry Smash (Wild Blueberry Herb Cocktail)
+Lowbush Cranberry Margarita (Cranberry Lime Cocktail)
+Birch Syrup Old Fashioned (Birch Syrup Whiskey Cocktail)
+Birch Syrup Sour (Birch Sweetened Citrus Cocktail)
+Maple and Spruce Collins (Maple Spruce Long Drink)
+Maple Cranberry Mocktail (Maple Sweetened Cranberry Drink)
+Wild Berry Sparkling Water (Mixed Indigenous Berry Mocktail)
+Spruce Tip Lemon Fizz (Spruce Citrus Mocktail)
+Bannock (Traditional Indigenous Flatbread)
+Fried Bannock (Pan-Fried Indigenous Bread)
+Baked Bannock (Oven-Baked Indigenous Bread)
+Sweet Bannock (Sweetened Indigenous Bread)
+Berry Bannock (Bannock with Wild Berries)
+Blueberry Bannock (Wild Blueberry Indigenous Bread)
+Saskatoon Berry Bannock (Saskatoon Berry Indigenous Bread)
+Cranberry Bannock (Cranberry Indigenous Bread)
+Bannock and Jam (Bannock with Berry Preserves)
+Bannock with Maple Syrup (Bannock with Maple Sweetener)
+Bannock Breakfast Sandwich (Bannock with Eggs and Meat)
+
+Three Sisters Porridge (Corn, Beans, and Squash Porridge)
+Cornmeal Mush (Traditional Indigenous Corn Porridge)
+Blue Corn Porridge (Blue Corn Breakfast Porridge)
+Wild Rice Porridge (Manoomin Breakfast Porridge)
+Wild Rice with Berries (Sweet Wild Rice Breakfast Dish)
+
+Smoked Salmon and Bannock (Smoked Salmon Breakfast Plate)
+Smoked Whitefish and Bannock (Smoked Whitefish Breakfast Plate)
+Smoked Trout and Bannock (Smoked Trout Breakfast Plate)
+Dried Fish with Bannock (Traditional Dried Fish Breakfast)
+
+Moose Sausage (Indigenous Moose Breakfast Sausage)
+Venison Sausage (Deer Breakfast Sausage)
+Bison Sausage (Buffalo Breakfast Sausage)
+Caribou Sausage (Caribou Breakfast Sausage)
+
+Moose Hash (Moose Meat Breakfast Hash)
+Venison Hash (Deer Meat Breakfast Hash)
+Bison Hash (Buffalo Breakfast Hash)
+
+Eggs with Bannock (Eggs and Indigenous Bread)
+Scrambled Eggs with Smoked Fish (Eggs with Smoked Indigenous Fish)
+
+Maple-Cured Bacon (Maple-Cured Pork Breakfast Bacon)
+Maple-Glazed Venison (Maple-Glazed Deer Breakfast Meat)
+
+Berry Compote (Warm Wild Berry Breakfast Compote)
+Maple Berries (Wild Berries with Maple Syrup)
+
+Acorn Flour Pancakes (Indigenous Acorn Pancakes)
+Corn Pancakes (Indigenous Cornmeal Pancakes)
+
+Herbal Tea (Traditional Indigenous Herbal Tea)
+Labrador Tea (Wild Labrador Tea Beverage)
+Bannock (Fried Bread)
+Baked Bannock (Oven-Baked Bread)
+Campfire Bannock (Open-Fire Bread)
+Frybread Tacos (Indian Tacos)
+Three Sisters Soup (Corn Bean Squash Soup)
+Venison Stew (Deer Stew)
+Moose Stew (Moose Meat Stew)
+Caribou Stew (Caribou Meat Stew)
+Bison Stew (Buffalo Stew)
+Wild Rice Soup (Manoomin Soup)
+Manoomin (Wild Rice)
+Wild Rice and Mushrooms (Manoomin with Mushrooms)
+Smoked Salmon (Cold-Smoked Salmon)
+Hot-Smoked Salmon (Smoked Salmon Fillet)
+Salmon Chowder (Salmon Soup)
+Fish Soup (Traditional Fish Soup)
+Whitefish Chowder (Lake Whitefish Soup)
+Pickerel Chowder (Walleye Soup)
+Smoked Whitefish (Smoked Lake Whitefish)
+Dried Fish (Air-Dried Fish)
+Arctic Char (Char Fish Dish)
+Seal Soup (Seal Meat Soup)
+Caribou Dry Meat (Dried Caribou Meat)
+Pemmican (Dried Meat and Fat Mix)
+Berry Pemmican (Berry and Meat Pemmican)
+Moose Meat Sandwich (Moose Meat Bannock Sandwich)
+Smoked Meat Bannock Sandwich (Smoked Game Sandwich)
+Duck Soup (Wild Duck Soup)
+Goose Soup (Wild Goose Soup)
+Rabbit Stew (Rabbit Meat Stew)
+Fiddleheads with Butter (Cooked Fiddlehead Ferns)
+Roasted Root Vegetables (Traditional Root Vegetable Roast)
+Boiled Corn with Beans (Three Sisters Corn and Beans)
+Blueberry Soup (Blueberry Broth)
+Salmon and Bannock Plate (Salmon with Bannock)
+Wild Game Sausage (Traditional Game Sausage)
+Elk Stew (Elk Meat Stew)
+Maple Beans (Maple-Sweetened Beans)
+Cedar-Planked Salmon (Salmon Cooked on Cedar)
+Inuit Boiled Meat (Country Food Boil)
+Char Soup (Arctic Char Soup)
+Smoked Game Plate (Assorted Smoked Game Meats)
+Bannock (Traditional Indigenous Flatbread)
+Fried Bannock (Pan-Fried Bannock Bread)
+Baked Bannock (Oven-Baked Bannock Bread)
+Blueberry Bannock (Bannock with Wild Blueberries)
+Cranberry Bannock (Bannock with Dried Cranberries)
+Maple Bannock (Maple-Sweetened Bannock Bread)
+Savory Bannock (Herbed Bannock Bread)
+Bannock and Jam (Bannock with Berry Preserves)
+Bannock and Smoked Salmon (Bannock with Smoked Pacific Salmon)
+Bannock Breakfast Sandwich (Bannock with Eggs and Meat)
+Wild Salmon Hash (Pan-Fried Wild Salmon and Potatoes)
+Smoked Salmon and Bannock Plate (Smoked Salmon with Bannock Bread)
+Smoked Whitefish Plate (Smoked Freshwater Whitefish with Bannock)
+Smoked Arctic Char (Smoked Arctic Char Fillet)
+Lox-Style Smoked Salmon (Cured and Smoked Salmon Slices)
+Moose Breakfast Sausage (Ground Moose Breakfast Sausage)
+Venison Breakfast Sausage (Ground Venison Breakfast Sausage)
+Bison Breakfast Sausage (Ground Bison Breakfast Sausage)
+Bison Bacon (Cured and Smoked Bison Bacon)
+Maple-Glazed Venison (Venison with Maple Syrup Glaze)
+Scrambled Eggs with Smoked Salmon (Eggs Scrambled with Smoked Salmon)
+Scrambled Eggs with Wild Greens (Eggs with Foraged Greens)
+Three Sisters Hash (Corn, Beans, and Squash Hash)
+Wild Mushroom Hash (Foraged Mushroom Breakfast Hash)
+Roasted Root Vegetable Hash (Root Vegetable Breakfast Hash)
+Wild Rice Porridge (Slow-Cooked Wild Rice Breakfast Porridge)
+Wild Rice with Maple Syrup (Sweetened Wild Rice Breakfast Bowl)
+Wild Rice and Berry Bowl (Wild Rice with Berries)
+Maple Beans (Slow-Cooked Beans with Maple Syrup)
+Baked Beans with Venison (Beans Baked with Venison)
+Berry Compote (Stewed Wild Berry Compote)
+Saskatoon Berry Compote (Stewed Saskatoon Berries)
+Blueberry Stew (Traditional Blueberry Stew)
+Akutaq (Inuit Whipped Berry and Fat Dessert, “Eskimo Ice Cream”)
+Berry Akutaq (Whipped Berries and Fat Dessert)
+Caribou Meat and Eggs (Caribou with Eggs)
+Seal Sausage (Inuit Seal Meat Sausage)
+Smoked Duck Breast (Smoked Wild Duck Breast)
+Wild Goose Hash (Goose and Potato Breakfast Hash)
+Maple-Roasted Squash (Squash Roasted with Maple Syrup)
+Corn Soup (Traditional Indigenous Corn Soup)
+Fish Roe on Bannock (Fish Eggs Served with Bannock)
+Labrador Tea (Wild Labrador Tea Infusion)
+Labrador Tea with Berries (Wild Labrador Tea with Berries)
+Labrador Tea with Honey (Sweetened Labrador Tea)
+Spruce Tip Tea (Spruce Tip Infusion)
+Spruce Tip Iced Tea (Chilled Spruce Tip Tea)
+Spruce Beer (Traditional Spruce Fermented Drink)
+Non-Alcoholic Spruce Beer (Unfermented Spruce Beverage)
+Juniper Berry Tea (Juniper Infusion)
+Cedar Tea (Eastern White Cedar Tea)
+Sweetgrass Tea (Sweetgrass Infusion)
+Chaga Tea (Chaga Mushroom Tea)
+Birch Bark Tea (Birch Bark Infusion)
+Birch Sap Drink (Fresh Birch Sap Beverage)
+Maple Sap Drink (Fresh Maple Water)
+Maple Water with Lemon (Flavoured Maple Sap Drink)
+Berry Juice (Wild Berry Juice)
+Blueberry Juice (Wild Blueberry Juice)
+Saskatoon Berry Juice (Saskatoon Berry Drink)
+Cranberry Juice (Wild Cranberry Drink)
+Rosehip Tea (Rosehip Infusion)
+Fireweed Tea (Fireweed Leaf Tea)
+Fireweed Iced Tea (Chilled Fireweed Tea)
+Mint Tea (Wild Mint Infusion)
+Sweetened Herbal Tea (Sweetened Indigenous Herbal Tea)
+Bannock (Indigenous Flatbread)
+Fried Bannock (Pan-Fried Indigenous Bread)
+Baked Bannock (Oven-Baked Indigenous Bread)
+Ash Bannock (Ash-Cooked Indigenous Bread)
+Bannock on a Stick (Campfire-Cooked Indigenous Bread)
+Indian Fry Bread (Fried Indigenous Flatbread)
+Métis Bannock (Métis-Style Indigenous Bread)
+Cree Bannock (Cree-Style Indigenous Bread)
+Ojibwe Bannock (Ojibwe-Style Indigenous Bread)
+Inuit Bannock (Inuit-Style Indigenous Bread)
+Blueberry Bannock (Indigenous Blueberry Bread)
+Cheese Bannock (Indigenous Cheese Bread)
+Raisin Bannock (Indigenous Raisin Bread)
+Savory Bannock (Savory Indigenous Flatbread)
+Sweet Bannock (Sweet Indigenous Flatbread)
+Bannock Fried Chicken
+Crispy Bannock-Crusted Chicken
+Smoked Chicken with Saskatoon Berry Glaze
+Roasted Chicken with Saskatoon Berry Sauce
+Wild Rice and Chicken Soup
+Wild Rice Chicken Stew
+Three Sisters Chicken Stew
+Traditional Chicken and Corn Stew
+Cedar-Planked Chicken
+Maple-Glazed Roast Chicken
+Smoked Chicken Drumsticks
+Fire-Roasted Chicken with Root Vegetables
+Braised Chicken with Wild Mushrooms
+Chicken and Hominy Stew
+Chicken and Bean Three Sisters Stew
+Herb-Roasted Chicken with Foraged Greens
+Chicken Bannock Sandwich
+Slow-Braised Chicken with Berries
+Smoked Chicken and Wild Rice Salad
+Métis Tourtière (Métis Pork Meat Pie)
+Métis Pork Tourtière with Wild Game Spices (Métis Spiced Pork Pie)
+Bannock with Pulled Pork (Frybread with Pulled Pork)
+Bannock Taco with Ground Pork (Indigenous Frybread Pork Taco)
+Smoked Pork Ribs with Maple Glaze (Maple-Glazed Smoked Pork Ribs)
+Cedar-Planked Pork Loin (Cedar-Planked Roast Pork)
+Roasted Pork with Saskatoon Berry Sauce (Pork with Saskatoon Berry Reduction)
+Pork and Wild Rice Stew (Wild Rice Pork Stew)
+Pork and Three Sisters Stew (Pork Stew with Corn Beans and Squash)
+Slow-Roasted Pork Shoulder with Berry Compote (Berry-Braised Pork Shoulder)
+Smoked Pork Sausage with Wild Berries (Indigenous-Style Pork Sausage)
+Pork and Root Vegetable Stew (Pork Stew with Indigenous Root Vegetables)
+Maple-Cured Pork Belly (Maple-Cured Indigenous-Style Pork Belly)
+Open-Fire Roasted Pork with Juniper (Juniper-Rubbed Roast Pork)
+Pulled Pork with Berry Barbecue Sauce (Berry Barbecue Pulled Pork)
+Smoked Pacific Salmon
+Hot-Smoked Salmon
+Cold-Smoked Salmon
+Cedar-Plank Salmon
+Fire-Roasted Salmon
+Baked Salmon with Wild Herbs
+Grilled Salmon Fillet
+Poached Salmon
+Dried Salmon
+Candied Salmon
+Salmon Belly Strips
+Salmon Roe
+Salmon Cakes
+Salmon Chowder
+Seafood Chowder
+Pacific Prawn Skewers
+Grilled Pacific Prawns
+Butter-Roasted Prawns
+Boiled Spot Prawns
+Scallops with Wild Herbs
+Pan-Seared Scallops
+Butter-Seared Scallops
+Grilled Sea Scallops
+Baked Scallops
+Steamed Shellfish
+Mixed Coastal Shellfish Platter
+Bannock (Traditional Indigenous Flatbread)
+Baked Bannock (Oven-Baked Indigenous Bread)
+Fried Bannock (Pan-Fried Indigenous Bread)
+Campfire Bannock (Open-Fire Indigenous Bread)
+Métis Bannock (Métis-Style Indigenous Bread)
+Indian Fry Bread (Indigenous Fried Bread)
+Sweet Bannock (Sweetened Indigenous Bread)
+Blueberry Bannock (Indigenous Blueberry Bread)
+Raisin Bannock (Indigenous Raisin Bread)
+Berry Bannock (Mixed Berry Indigenous Bread)
+Maple Bannock (Maple-Sweetened Indigenous Bread)
+Ashcake (Ash-Baked Indigenous Corn Bread)
+Luskinikn (Mi’kmaq Ash-Cooked Bread)
+Bannock Cake (Traditional Bannock Cake)
+Blueberry Bannock Cake (Blueberry Bannock Cake)
+Saskatoon Berry Bannock Cake (Saskatoon Berry Bannock Cake)
+Cranberry Bannock Cake (Cranberry Bannock Cake)
+Raisin Bannock Cake (Raisin Bannock Cake)
+Maple Bannock Cake (Maple Bannock Cake)
+Maple Sugar Cake (Maple Sugar Cake)
+Wild Berry Cake (Indigenous Wild Berry Cake)
+Saskatoon Berry Cake (Saskatoon Berry Cake)
+Wild Rice Cake (Wild Rice Cake)
+Cornmeal Cake (Indigenous Cornmeal Cake)
+Maple Walnut Cake (Maple Walnut Cake)
+Sweetgrass-Infused Cake (Sweetgrass Infused Cake)
+Berry and Maple Celebration Cake (Berry and Maple Celebration Cake)
+Bannock Cookies (Traditional Bannock Cookies)
+Baked Bannock Cookies (Oven-Baked Bannock Cookies)
+Fry Bread Cookies (Sweet Fry Bread Cookies)
+Maple Bannock Cookies (Maple-Sweetened Bannock Cookies)
+Blueberry Bannock Cookies (Wild Blueberry Bannock Cookies)
+Saskatoon Berry Bannock Cookies (Saskatoon Berry Bannock Cookies)
+Cranberry Bannock Cookies (Dried Cranberry Bannock Cookies)
+Raisin Bannock Cookies (Raisin Bannock Cookies)
+Honey Bannock Cookies (Honey-Sweetened Bannock Cookies)
+Maple Oat Bannock Cookies (Maple Oat Bannock Cookies)
+Oat Bannock Cookies (Oatmeal Bannock Cookies)
+Cornmeal Bannock Cookies (Cornmeal Bannock Cookies)
+Fry Bread Dessert Cookies (Sweet Fried Bannock Cookies)
+Berry Fat Cookies (Traditional Berry Fat Cookies)
+Maple Fat Cookies (Maple-Sweetened Fat Cookies)
+Bannock Muffins
+Plain Bannock Muffins
+Whole Wheat Bannock Muffins
+Cornmeal Bannock Muffins
+Blueberry Bannock Muffins
+Wild Blueberry Muffins
+Saskatoon Berry Muffins
+Chokecherry Muffins
+Cranberry Bannock Muffins
+Maple Bannock Muffins
+Maple Walnut Bannock Muffins
+Honey Bannock Muffins
+Apple Bannock Muffins
+Raisin Bannock Muffins
+Rosehip Muffins
+Wild Berry Muffins
+Three Berry Bannock Muffins
+Corn Muffins (Indigenous-Style Corn Muffins)
+Maple Corn Muffins
+Pumpkin Bannock Muffins
+Bannock Cupcakes
+Maple Bannock Cupcakes
+Maple Buttercream Bannock Cupcakes
+Wild Blueberry Bannock Cupcakes
+Saskatoon Berry Bannock Cupcakes
+Cranberry Bannock Cupcakes
+Honey Bannock Cupcakes
+Chocolate Bannock Cupcakes
+Maple Walnut Bannock Cupcakes
+Sweetgrass-Infused Bannock Cupcakes
+Bannock (Traditional Indigenous Fried Bread)
+Fry Bread (Indigenous Fried Dough Bread)
+Baked Bannock (Oven-Baked Indigenous Bread)
+Sweet Bannock (Sweetened Indigenous Bannock Bread)
+Berry Bannock (Bannock with Wild Berries)
+Blueberry Bannock (Bannock with Blueberries)
+Saskatoon Berry Bannock (Bannock with Saskatoon Berries)
+Cranberry Bannock (Bannock with Cranberries)
+Maple Bannock (Bannock Sweetened with Maple Syrup)
+Honey Bannock (Bannock Sweetened with Honey)
+Bannock Bread Pudding (Bannock-Based Bread Pudding)
+Fried Bannock with Jam (Fried Bannock Served with Jam)
+Bannock with Maple Butter (Bannock Served with Maple Butter)
+Wild Berry Pudding (Traditional Indigenous Berry Pudding)
+Saskatoon Berry Pudding (Saskatoon Berry Dessert Pudding)
+Blueberry Pudding (Wild Blueberry Dessert Pudding)
+Cranberry Pudding (Cranberry Dessert Pudding)
+Berry Soup (Sweet Indigenous Berry Soup)
+Wild Berry Soup (Traditional Sweet Berry Soup)
+Maple Sugar Candy (Indigenous Maple Sugar Candy)
+Maple Toffee on Snow (Maple Syrup Candy on Snow)
+Maple Sugar Cakes (Pressed Maple Sugar Cakes)
+Maple Fudge (Maple Syrup Fudge)
+Maple Taffy (Pulled Maple Syrup Candy)
+Berry Leather (Dried Wild Berry Fruit Leather)
+Saskatoon Berry Leather (Dried Saskatoon Berry Leather)
+Blueberry Leather (Dried Blueberry Fruit Leather)
+Wild Berry Jam (Traditional Indigenous Berry Jam)
+Saskatoon Berry Jam (Saskatoon Berry Preserve)
+Cloudberry Jam (Northern Indigenous Cloudberry Preserve)
+Sweet Corn Pudding (Indigenous Sweet Corn Dessert)
+Maple Corn Pudding (Corn Pudding Sweetened with Maple Syrup)
+Acorn Flour Cookies (Traditional Acorn Flour Cookies)
+Wild Rice Pudding (Sweet Wild Rice Dessert)
+Maple Wild Rice Pudding (Wild Rice Pudding with Maple Syrup)
+Berry and Maple Parfait (Layered Berry and Maple Dessert)
+Maple Sugar Candy (Maple Sap Crystallized Candy)
+Maple Taffy on Snow (Maple Syrup Snow Candy)
+Maple Sugar Cakes (Pressed Maple Sugar Cakes)
+Maple Sugar Hard Candy (Boiled Maple Sugar Candy)
+Birch Syrup Candy (Birch Sap Hard Candy)
+Berry Leather (Dried Berry Fruit Leather)
+Saskatoon Berry Leather (Dried Saskatoon Berry Fruit Leather)
+Cranberry Leather (Dried Cranberry Fruit Leather)
+Blueberry Leather (Dried Blueberry Fruit Leather)
+Indian Candy (Candied Smoked Salmon)
+Candied Smoked Salmon Strips (Sweet Cured Salmon Candy)
+Fish Candy (Sweet Smoked Fish Candy)
+Pemmican with Berries (Sweetened Dried Meat and Berry Confection)
+Sweet Pemmican (Honeyed or Maple-Sweetened Pemmican)
+Maple-Coated Nuts (Maple Candied Nuts)
+Maple Candied Walnuts (Maple Sugar Walnuts)
+Maple Candied Pecans (Maple Sugar Pecans)
+Wild Berry Confit (Preserved Wild Berries in Syrup)
+Maple Berry Preserve (Wild Berries in Maple Syrup)
+Chocolate-Covered Smoked Salmon Candy (Chocolate-Dipped Salmon Candy)
+Maple Chocolate Bark (Chocolate Bark with Maple Sugar)
+Wild Berry Chocolate Bark (Chocolate Bark with Dried Wild Berries)
+Maple Sugar Icing
+Maple Glaze
+Maple Butter (Maple Cream Frosting)
+Whipped Maple Frosting
+Maple Cream Cheese Icing
+Birch Syrup Glaze
+Birch Syrup Icing
+Blueberry Glaze
+Saskatoon Berry Glaze
+Cranberry Glaze
+Mixed Wild Berry Glaze
+Sweetened Whipped Cream Icing
+Honey Glaze
+Bannock Berry Pie (Bannock Berry Pie)
+Bannock Apple Pie (Bannock Apple Pie)
+Bannock Blueberry Pie (Bannock Blueberry Pie)
+Bannock Saskatoon Berry Pie (Bannock Saskatoon Berry Pie)
+Wild Blueberry Bannock Pie (Wild Blueberry Bannock Pie)
+Saskatoon Berry Pie (Saskatoon Berry Pie)
+Wild Berry Pie (Wild Berry Pie)
+Cranberry Bannock Pie (Cranberry Bannock Pie)
+Raspberry Bannock Pie (Raspberry Bannock Pie)
+Strawberry Bannock Pie (Strawberry Bannock Pie)
+Birch Syrup Tart (Birch Syrup Tart)
+Birch Syrup Custard Tart (Birch Syrup Custard Tart)
+Maple-Birch Syrup Tart (Maple-Birch Syrup Tart)
+Wild Rice and Mushroom Pie (Wild Rice and Mushroom Pie)
+Wild Rice Vegetable Pie (Wild Rice Vegetable Pie)
+Venison Pie with Bannock Crust (Venison Pie with Bannock Crust)
+Bison Meat Pie (Bison Meat Pie)
+Moose Meat Pie (Moose Meat Pie)
+Salmon Pie with Bannock Crust (Salmon Pie with Bannock Crust)
+Whitefish Pie with Bannock Crust (Whitefish Pie with Bannock Crust)
+Smoked Fish Bannock Pie (Smoked Fish Bannock Pie)
+Three Sisters Savory Pie (Three Sisters Savory Pie)
+Pumpkin Bannock Pie (Pumpkin Bannock Pie)
+Squash Bannock Pie (Squash Bannock Pie)
+Wild Berry Hand Pie (Wild Berry Hand Pie)
+Bannock Hand Pie (Bannock Hand Pie)
+Potato Bannock (Potato Bannock Bread)
+Métis Potato Bannock (Métis Potato Bannock Bread)
+Fried Bannock and Potatoes (Fried Bannock with Potatoes)
+Boiled Potatoes (Boiled Potatoes)
+Mashed Potatoes (Mashed Potatoes)
+Roasted Potatoes (Roasted Potatoes)
+Pemmican and Potato Hash (Pemmican and Potato Hash)
+Smoked Meat and Potato Hash (Smoked Meat and Potato Hash)
+Potato and Wild Onion Hash (Potato and Wild Onion Hash)
+Potato Soup (Potato Soup)
+Roasted Camas Bulbs
+Pit-Roasted Camas
+Smoked Camas Bulbs
+Mashed Camas Root
+Camas Root Cakes
+Sautéed Wild Fiddleheads
+Butter-Braised Fiddleheads
+Smoked Fiddleheads
+Pickled Fiddleheads
+Fire-Roasted Fiddleheads
+Roasted Wild Onions
+Charred Wild Leeks
+Braised Wild Leeks
+Smoked Wild Onions
+Roasted Wapato Root
+Pit-Cooked Wapato
+Mashed Wapato Root
+Fire-Roasted Wapato Tubers
+Steamed Wapato
+Roasted Wild Carrots
+Glazed Wild Carrots
+Fire-Roasted Wild Parsnips
+Braised Wild Parsnips
+Roasted Sunchokes
+Smoked Sunchokes
+Charred Jerusalem Artichokes
+Mashed Jerusalem Artichokes
+Fire-Roasted Squash
+Roasted Wild Squash
+Smoked Squash Wedges
+Braised Squash with Herbs
+Steamed Wild Greens
+Sautéed Wild Greens
+Wilted Dandelion Greens
+Braised Nettle Greens
+Sautéed Stinging Nettles
+Nettle Greens with Wild Garlic
+Roasted Seaweed
+Toasted Kelp
+Dried Seaweed Salad
+Fire-Toasted Bull Kelp
+Roasted Cattail Roots
+Steamed Cattail Shoots
+Cattail Root Mash
+Fire-Roasted Cattail Rhizomes
+Cedar-Planked Salmon
+Alder-Grilled Salmon
+Open-Fire Roasted Salmon
+Smoked Salmon (Indigenous Style)
+Salmon Roasted on Green Alder Sticks
+Bison Rib Barbecue
+Grilled Bison Steak
+Fire-Roasted Bison Striploin
+Elk Steak Grilled Over Open Fire
+Venison Steaks on the Grill
+Moose Meat Fire Roast
+Fire-Grilled Caribou Meat
+Spit-Roasted Game Meat
+Barbecued Wild Goose
+Fire-Roasted Duck
+Grilled Lake Trout
+Whitefish Roasted Over Open Flame
+Charcoal-Grilled Arctic Char
+Bannock on a Stick (Fire-Roasted Bannock)
+Grilled Bannock
+Ash-Roasted Bannock
+Fire-Roasted Roots and Tubers
+Fire-Grilled Corn (Indigenous Style)
+Manoomin (Wild Rice)
+Parched Wild Rice
+Toasted Wild Rice
+Steamed Wild Rice
+Boiled Wild Rice
+Wild Rice with Berries
+Wild Rice with Cranberries
+Wild Rice with Blueberries
+Wild Rice with Saskatoon Berries
+Wild Rice with Maple Syrup
+Maple-Glazed Wild Rice
+Wild Rice with Mushrooms
+Wild Rice with Foraged Mushrooms
+Wild Rice with Onions
+Wild Rice with Herbs
+Wild Rice Pilaf
+Wild Rice Pilaf with Vegetables
+Wild Rice and Root Vegetables
+Wild Rice with Squash
+Wild Rice with Corn
+Wild Rice with Beans
+Wild Rice and Cedar Infusion
+Wild Rice with Smoked Fat
+Wild Rice with Game Drippings
+Wild Rice Stuffing
+Wild Rice Dressing
+Wild Rice Salad
+Cold Wild Rice Salad
+Warm Wild Rice Salad
+Wild Rice with Sunflower Seeds
+Wild Rice with Pumpkin Seeds
+Wild Rice with Hazelnuts
+Wild Rice with Walnuts
+Wild Rice with Maple and Nuts
+Wild Rice with Rendered Fat
+Wild Rice with Foraged Greens
+Bannock Gnocchi (Bannock Dumplings in Pasta Style)
+Bannock Gnocchi with Sage Butter (Bannock Dumplings with Sage Butter Sauce)
+Wild Rice Pasta (Manoomin-Based Pasta)
+Wild Rice Pasta with Mushrooms (Wild Rice Pasta with Forest Mushrooms)
+Three Sisters Pasta (Corn, Bean, and Squash Pasta)
+Three Sisters Penne (Penne Pasta with Corn, Beans, and Squash)
+Smoked Salmon Pasta (Pasta with Smoked Salmon)
+Smoked Salmon Cream Pasta (Creamy Smoked Salmon Pasta)
+Bison Ragù with Pappardelle (Bison Meat Sauce with Wide Ribbon Pasta)
+Bison Bolognese Pasta (Bison Meat Sauce Pasta)
+Three Sisters Soup (Corn Bean Squash Soup)
+Three Sisters Vegetable Soup (Corn Bean Squash Vegetable Soup)
+Wild Rice Soup (Anishinaabe Manoomin Soup)
+Cream of Wild Rice Soup (Wild Rice Cream Soup)
+Moose Meat Soup (Moose Bone Soup)
+Moose and Vegetable Soup (Moose Stew Soup)
+Venison Soup (Deer Meat Soup)
+Venison and Barley Soup (Deer Barley Soup)
+Caribou Soup (Caribou Bone Soup)
+Bison Soup (Buffalo Meat Soup)
+Bison Bone Broth Soup (Buffalo Bone Soup)
+Rabbit Soup (Wild Rabbit Soup)
+Fish Soup (Freshwater Fish Soup)
+Whitefish Soup (Lake Whitefish Soup)
+Salmon Soup (Pacific Salmon Soup)
+Salmon Head Soup (Salmon Bone Soup)
+Clam Soup (Coastal Clam Soup)
+Seal Soup (Inuit Seal Meat Soup)
+Seal Bone Broth Soup (Inuit Seal Bone Soup)
+Goose Soup (Wild Goose Soup)
+Duck Soup (Wild Duck Soup)
+Corn Soup (Indigenous Corn Soup)
+Hominy Soup (Nixtamalized Corn Soup)
+Pumpkin Soup (Squash Soup)
+Squash and Corn Soup (Corn Squash Soup)
+Berry Soup (Indigenous Berry Soup)
+Cranberry Soup (Wild Cranberry Soup)
+Bannock (Indigenous Flatbread)
+Fry Bread (Indigenous Fried Flatbread)
+Oven-Baked Bannock (Baked Indigenous Flatbread)
+Skillet Bannock (Pan-Cooked Indigenous Flatbread)
+Wild Rice Pilaf (Canadian Wild Rice Side Dish)
+Steamed Wild Rice (Plain Wild Rice Side)
+Three Sisters Succotash (Corn, Beans, and Squash Side Dish)
+Roasted Three Sisters Vegetables (Roasted Corn, Beans, and Squash)
+Maple-Glazed Root Vegetables (Maple Roasted Indigenous Vegetables)
+Roasted Sunchokes (Roasted Jerusalem Artichokes)
+Boiled Sunchokes (Boiled Jerusalem Artichokes)
+Mashed Turnips (Mashed Root Vegetable Side)
+Mashed Rutabaga (Mashed Swede Side Dish)
+Smoked Corn on the Cob (Smoked Indigenous Corn)
+Roasted Corn on the Cob (Fire-Roasted Corn)
+Dried Corn with Berries (Corn and Berry Side Dish)
+Cranberry and Wild Berry Relish (Indigenous Berry Relish)
+Saskatoon Berry Compote (Serviceberry Side Sauce)
+Blueberry and Maple Relish (Berry and Maple Side)
+Pemmican (Dried Meat and Berry Provision)
+Smoked Salmon Strips (Smoked Fish Side)
+Dried Salmon (Air-Dried Salmon Side)
+Smoked Whitefish (Smoked Freshwater Fish Side)
+Pickled Wild Onions (Pickled Indigenous Alliums)
+Pickled Fiddleheads (Pickled Ostrich Fern Shoots)
+Steamed Fiddleheads (Steamed Fern Shoots)
+Roasted Fiddleheads (Roasted Fern Shoots)
+Seaweed Salad (Coastal Indigenous Seaweed Side)
+Dried Seaweed (Sun-Dried Sea Vegetables)
+Clam Bake Vegetables (Steamed Root and Coastal Vegetables)
+Maple-Baked Beans (Indigenous Maple Sweetened Beans)
+Wild Mushroom Sauté (Foraged Mushroom Side Dish)
+Roasted Wild Mushrooms (Fire-Roasted Foraged Mushrooms)
+Boiled Squash (Simple Boiled Squash Side)
+Roasted Squash with Maple (Maple Roasted Squash)
+Sun-Dried Berries (Dried Indigenous Berries)
+Berry Soup Thickened with Starch (Traditional Berry Side Dish)
+Wild Berry Bannock (Wild Berry Frybread)
+Bannock Bites (Mini Frybread)
+Smoked Salmon (Cold-Smoked Salmon)
+Cured Arctic Char (Cured Arctic Char Appetizer)
+Gravlax-Style Arctic Char (Cured Arctic Char with Dill)
+Smoked Whitefish (Smoked Freshwater Whitefish)
+Smoked Lake Trout (Smoked Trout)
+Dried Meat (Jerky-Style Dried Game Meat)
+Pemmican (Dried Meat and Berry Fat Cake)
+Venison Jerky (Dried Venison Strips)
+Bison Jerky (Dried Bison Strips)
+Smoked Moose Meat (Smoked Moose Appetizer)
+Smoked Caribou Meat (Smoked Caribou Appetizer)
+Fish Jerky (Dried Fish Strips)
+Smoked Salmon Candy (Sweet-Smoked Salmon Bites)
+Salmon Rillettes (Whipped Smoked Salmon Spread)
+Arctic Char Rillettes (Whipped Smoked Char Spread)
+Smoked Fish Pâté (Smoked Fish Spread)
+Bannock with Smoked Salmon (Frybread with Smoked Salmon)
+Bannock with Wild Berry Jam (Frybread with Berry Preserve)
+Three Sisters Salad (Corn Bean Squash Salad)
+Roasted Corn and Bean Salad (Roasted Corn and Beans)
+Wild Rice Salad (Manoomin Salad)
+Wild Rice Cakes (Crisped Wild Rice Patties)
+Crispy Wild Rice Bites (Fried Wild Rice Cakes)
+Roasted Root Vegetables (Roasted Indigenous Root Vegetables)
+Pickled Wild Onions (Pickled Wild Onion Bulbs)
+Pickled Sea Asparagus (Pickled Beach Asparagus)
+Smoked Oolichan (Smoked Eulachon Fish)
+Oolichan Grease with Bannock (Eulachon Oil and Frybread)
+Smoked Clams (Smoked Shellfish Appetizer)
+Smoked Mussels (Smoked Mussel Appetizer)
+Candied Salmon Bites (Sweet-Cured Salmon Pieces)
+Charcoal-Grilled Bannock (Grilled Frybread)
+Stuffed Bannock (Filled Frybread)
+Wild Mushroom Bannock (Mushroom Frybread)
+Smoked Duck Breast (Smoked Duck Appetizer)
+Cured Goose Breast (Cured Wild Goose Appetizer)
+Wild Berry Chutney (Indigenous Berry Chutney)
+Dried Seaweed Snacks (Dried Coastal Seaweed)
+Smoked Seaweed (Smoked Kelp Appetizer)
+ Frybread (Deep-Fried Indigenous Bread)
+Oven-Baked Bannock (Baked Indigenous Bread)
+Campfire Bannock (Skillet-Cooked Indigenous Bread)
+Sweet Bannock (Sweetened Indigenous Bread)
+Berry Bannock (Berry-Filled Indigenous Bread)
+Pemmican (Dried Meat and Fat Energy Food)
+Saskatoon Berry Pemmican (Berry-Enriched Pemmican)
+Chokecherry Pemmican (Chokecherry Dried Meat Mix)
+Pemmican Bars (Pressed Pemmican Snack Bars)
+Dried Moose Meat (Indigenous Jerky)
+Dried Bison Meat (Indigenous Jerky)
+Dried Caribou Meat (Indigenous Jerky)
+Smoked Salmon Strips (Indigenous Smoked Fish Snack)
+Salmon Candy (Sweet-Cured Smoked Salmon)
+Smoked Whitefish (Indigenous Smoked Fish)
+Smoked Arctic Char (Indigenous Smoked Fish)
+Dried Eulachon (Dried Candlefish Snack)
+Oolichan Grease with Bannock (Candlefish Oil and Bread Snack)
+Dried Seaweed (Indigenous Coastal Seaweed Snack)
+Berry Cakes (Dried Indigenous Berry Patties)
+Saskatoon Berry Cakes (Dried Saskatoon Berry Patties)
+Chokecherry Patties (Dried Chokecherry Cakes)
+Fruit Leather (Dried Indigenous Berry Leather)
+Rosehip Fruit Leather (Dried Rosehip Snack)
+Dried Blueberries (Indigenous Dried Berry Snack)
+Roasted Camas Bulbs (Roasted Indigenous Root Snack)
+Saskatoon Berry Sauce (Saskatoon Berry Sauce)
+Wild Blueberry Sauce (Wild Blueberry Sauce)
+Cloudberry Sauce (Cloudberry Sauce)
+Highbush Cranberry Sauce (Highbush Cranberry Sauce)
+Rosehip Sauce (Rosehip Sauce)
+Salmonberry Sauce (Salmonberry Sauce)
+Huckleberry Sauce (Huckleberry Sauce)
+Wild Strawberry Sauce (Wild Strawberry Sauce)
+Maple Berry Sauce (Maple Berry Sauce)
+Maple Glaze (Maple Syrup Glaze)
+Maple Mustard Sauce (Maple Mustard Sauce)
+Cedar-Infused Maple Sauce (Cedar Maple Sauce)
+Juniper Berry Sauce (Juniper Berry Sauce)
+Wild Onion Relish (Wild Onion Relish)
+Chokecherry Sauce (Chokecherry Sauce)
+Smoked Salmon Dip (Smoked Salmon Dip)
+Smoked Whitefish Dip (Smoked Whitefish Dip)
+Smoked Trout Dip (Smoked Trout Dip)
+Smoked Arctic Char Dip (Smoked Arctic Char Dip)
+Salmon Roe Dip (Salmon Roe Dip)
+Whipped Fish Roe Dip (Whipped Fish Roe Dip)
+Bannock Dip with Maple Butter (Maple Butter Bannock Dip)
+Herbed Bannock Butter (Herbed Bannock Butter)
+Wild Herb Oil (Wild Herb Infused Oil)
+Spruce Tip Oil (Spruce Tip Oil)
+Spruce Tip Aioli (Spruce Tip Aioli)
+Labrador Tea Infused Cream Sauce (Labrador Tea Cream Sauce)
+Fireweed Honey Sauce (Fireweed Honey Sauce)
+Bearberry Sauce (Bearberry Sauce)
+Wild Mint Sauce (Wild Mint Sauce)
+Roasted Root Vegetable Mash Dip (Roasted Root Vegetable Dip)
+Wild Garlic Sauce (Wild Garlic Sauce)
+Maple Vinaigrette (Maple Syrup Vinaigrette)
+Wild Berry Vinaigrette (Foraged Berry Vinaigrette)
+Saskatoon Berry Vinaigrette (Serviceberry Vinaigrette)
+Blueberry Vinaigrette (Wild Blueberry Vinaigrette)
+Cranberry Vinaigrette (Wild Cranberry Vinaigrette)
+Sea Buckthorn Vinaigrette (Sea Buckthorn Berry Vinaigrette)
+Cloudberry Vinaigrette (Bakeapple Vinaigrette)
+Chokecherry Vinaigrette (Chokecherry Berry Vinaigrette)
+Rosehip Vinaigrette (Wild Rosehip Vinaigrette)
+Juniper Berry Vinaigrette (Juniper Berry Dressing)
+Cedar-Infused Oil (Cedar Tip Infused Oil)
+Spruce Tip Oil (Spruce Tip Infused Oil)
+Smoked Oil (Cold-Smoked Oil)
+Maple Mustard Dressing (Maple and Mustard Dressing)
+Wild Honey Dressing (Foraged Honey Dressing)
+Birch Syrup Vinaigrette (Birch Syrup Dressing)
+Berry Reduction Glaze (Wild Berry Glaze)
+Maple Glaze (Maple Syrup Glaze)
+Cedar Marinade (Cedar-Infused Marinade)
+Spruce Tip Marinade (Spruce Tip Marinade)
+Juniper Marinade (Juniper Berry Marinade)
+Berry Marinade (Wild Berry Marinade)
+Maple Brine (Maple Syrup Brine)
+Smoked Maple Marinade (Smoked Maple Marinade)
+Cedar Smoked Salt (Cedar-Smoked Sea Salt)
+Alder Smoked Salt (Alderwood-Smoked Sea Salt)
+Maple Sugar Dry Rub (Maple Sugar Barbecue Rub)
+Saskatoon Berry Dry Rub (Saskatoon Berry Meat Rub)
+Juniper Berry Game Rub (Juniper Berry Wild Game Rub)
+Wild Rice Seasoning Blend (Wild Rice Herb and Spice Blend)
+Three Sisters Spice Blend (Corn, Bean, and Squash Spice Blend)
+Smoked Sage Rub (Smoked Sage and Herb Rub)
+Sage and Juniper Dry Rub (Sage-Juniper Meat Rub)
+Bison Dry Rub (Indigenous-Style Bison Spice Rub)
+Venison Spice Rub (Indigenous-Style Venison Dry Rub)
+Salmon Dry Rub (Indigenous-Style Salmon Spice Rub)
+Maple Pepper Rub (Maple and Cracked Pepper Dry Rub)
+Berry Ash Salt (Berry Wood Ash Finishing Salt)
+Smoked Kelp Salt (Seaweed-Smoked Sea Salt)
+Sea Asparagus Salt (Salicornia Seasoned Salt)
+Labrador Tea Spice Blend (Labrador Tea Herb and Spice Blend)
+Smoked Onion and Sage Rub (Smoked Onion Sage Dry Rub)
+Maple Mustard Seed Rub (Maple and Mustard Seed Dry Rub)
+Northern Forest Herb Blend (Wild Northern Herb Seasoning Blend)
+Fried Bannock (Deep-Fried Bannock Bread)
+Bannock Frybread (Fried Bannock Bread)
+Indian Taco (Fried Bannock Taco)
+Bannock Taco (Fried Bannock Taco)
+Fried Bannock with Jam (Deep-Fried Bannock with Jam)
+Fried Bannock with Honey (Deep-Fried Bannock with Honey)
+Fried Bannock with Cinnamon Sugar (Sweet Fried Bannock)
+Savory Fried Bannock (Salted Fried Bannock Bread)
+Stuffed Fried Bannock (Filled Fried Bannock Bread)
+Fried Whitefish (Deep-Fried Freshwater Whitefish)
+Fried Pickerel (Deep-Fried Walleye)
+Fried Lake Trout (Deep-Fried Lake Trout)
+Fried Smelt (Deep-Fried Smelt Fish)
+Fried Arctic Char (Deep-Fried Arctic Char)
+Fried Salmon Nuggets (Deep-Fried Salmon Pieces)
+Fried Moose Meat (Deep-Fried Moose Meat Pieces)
+Fried Caribou Meat (Deep-Fried Caribou Meat Pieces)
+Fried Game Sausage (Deep-Fried Wild Game Sausage)
+Fried Wild Rice Cakes (Deep-Fried Manoomin Cakes)
+Fried Cornbread Bannock (Deep-Fried Corn Bannock)
+Fried Berry Bannock (Deep-Fried Berry Bannock Bread)
+Steamed Salmon in Cedar Bark
+Steamed Wild Pacific Salmon
+Steamed Sockeye Salmon
+Steamed Spring Salmon
+Steamed Salmon Heads
+Steamed Eulachon (Candlefish)
+Steamed Halibut
+Steamed Pacific Cod
+Steamed Steelhead Trout
+Steamed Whitefish
+Steamed Lake Trout
+Steamed Arctic Char
+Steamed Shellfish Medley
+Steamed Littleneck Clams
+Steamed Butter Clams
+Steamed Razor Clams
+Steamed Manila Clams
+Steamed Blue Mussels
+Steamed Pacific Mussels
+Steamed Dungeness Crab
+Steamed King Crab
+Steamed Snow Crab
+Steamed Spot Prawns
+Steamed Shrimp
+Steamed Sea Urchin Roe
+Steamed Sea Cucumber
+Steamed Kelp and Seaweed
+Steamed Wild Greens
+Steamed Root Vegetables
+Steamed Wild Onions
+Steamed Berries
+Steamed Saskatoon Berries
+Steamed Wild Blueberries
+Steamed Cranberries
+Braised Bison Short Ribs
+Braised Bison Chuck Roast
+Braised Moose Shanks
+Braised Moose Shoulder
+Braised Elk Roast
+Braised Elk Shanks
+Braised Caribou Shoulder
+Braised Caribou Stew
+Braised Venison Neck
+Braised Venison Shoulder
+Braised Beaver Meat
+Braised Wild Duck
+Braised Wild Goose
+Braised Prairie Grouse
+Braised Ptarmigan
+Braised Arctic Char
+Braised Salmon Heads
+Braised Salmon Belly
+Braised Whitefish
+Braised Seal Flipper
+Braised Seal Meat
+Braised Muskox
+Braised Rabbit
+Bison Bone Broth
+Smoked Bison Bone Broth
+Moose Bone Broth
+Caribou Bone Broth
+Elk Bone Broth
+Venison Bone Broth
+Wild Game Bone Broth
+Wild Bird Bone Broth
+Duck Bone Broth
+Goose Bone Broth
+Prairie Chicken Broth
+Salmon Head Broth
+Salmon Bone Broth
+Smoked Salmon Broth
+Steelhead Trout Broth
+Lake Trout Broth
+Whitefish Broth
+Smoked Whitefish Broth
+Char Broth
+Northern Pike Broth
+Walleye Broth
+Shellfish Broth
+Clam Broth
+Mussel Broth
+Crab Broth
+Seal Bone Broth
+Beaver Tail Broth
+Beaver Bone Broth
+Wild Mushroom Broth
+Spruce Tip Broth
+Seaweed Broth
+Wild Herb Broth
+Three Sisters Vegetable Broth
+Corn and Bean Broth
+Roasted Root Vegetable Broth
+Fire-Roasted Game Stock
+Bannock (Traditional Indigenous Flatbread)
+Fry Bread (Pan-Fried Indigenous Bread)
+Oven-Baked Bannock (Baked Indigenous Bread)
+Sweet Bannock (Sweet Indigenous Bread)
+Berry Bannock (Indigenous Berry Bread)
+Wild Berry Bannock (Foraged Berry Bread)
+Maple Bannock (Maple-Sweetened Indigenous Bread)
+Pemmican (Dried Meat and Fat Provision)
+Venison Pemmican (Dried Deer Meat and Fat Provision)
+Bison Pemmican (Dried Bison Meat and Fat Provision)
+Smoked Salmon (Traditional Smoked Salmon)
+Cedar-Planked Salmon (Cedar Roasted Salmon)
+Gravlax-Style Cured Salmon (Cured Salmon Preparation)
+Smoked Arctic Char (Smoked Northern Char)
+Roasted Moose Meat (Roasted Moose Dish)
+Braised Venison (Slow-Braised Deer Meat)
+Bison Roast (Roasted Bison)
+Elk Roast (Roasted Elk)
+Game Meat Stew (Traditional Wild Game Stew)
+Three Sisters Stew (Corn, Beans, and Squash Stew)
+Hominy Corn (Nixtamalized Corn Dish)
+Wild Rice Pilaf (Manoomin Pilaf)
+Manoomin (Wild Rice Dish)
+Wild Rice and Cranberries (Wild Rice with Berries)
+Roasted Root Vegetables (Roasted Indigenous Root Vegetables)
+Maple-Glazed Root Vegetables (Maple Roasted Roots)
+Squash Mash (Mashed Winter Squash)
+Roasted Acorn Squash (Roasted Squash Dish)
+Maple Beans (Maple-Sweetened Beans)
+Baked Beans with Maple Syrup (Maple Baked Beans)
+Berry Soup (Traditional Indigenous Berry Soup)
+Saskatoon Berry Soup (Serviceberry Soup)
+Cranberry Relish (Wild Cranberry Relish)
+Dried Berry Mix (Preserved Wild Berries)
+Blueberry Akutaq (Whipped Berry and Fat Dessert)
+Akutaq (Indigenous Whipped Berry Dessert)
+Maple Syrup (Indigenous Maple Syrup)
+Birch Syrup (Indigenous Birch Syrup)
+Yellow Birch Syrup (Yellow Birch Tree Syrup)
+Paper Birch Syrup (Paper Birch Tree Syrup)
+Spruce Tip Syrup (Young Spruce Tip Syrup)
+White Spruce Tip Syrup (White Spruce Tip Syrup)
+Black Spruce Tip Syrup (Black Spruce Tip Syrup)
+Pine Cone Syrup (Young Pine Cone Syrup)
+Cedar Syrup (Cedar Infused Syrup)
+Labrador Tea Syrup (Labrador Tea Herbal Syrup)
+Sweetgrass Syrup (Sweetgrass Infused Syrup)
+Chokecherry Syrup (Wild Chokecherry Syrup)
+Saskatoon Berry Syrup (Saskatoon Serviceberry Syrup)
+Wild Blueberry Syrup (Indigenous Wild Blueberry Syrup)
+Cranberry Syrup (Wild Cranberry Syrup)
+Rose Hip Syrup (Wild Rose Hip Syrup)
+Bannock (Indigenous Flatbread Biscuit)
+Fried Bannock (Frybread Biscuit)
+Baked Bannock (Oven-Baked Bannock Biscuit)
+Skillet Bannock (Pan-Fried Bannock Biscuit)
+Campfire Bannock (Open-Fire Bannock Biscuit)
+Indian Fry Bread (Indigenous Frybread Biscuit)
+Métis Bannock (Métis Flatbread Biscuit)
+Métis Fried Bannock (Métis Frybread Biscuit)
+Métis Oven-Baked Bannock (Métis Baked Bannock Biscuit)
+Cree Bannock (Cree Flatbread Biscuit)
+Dene Bannock (Dene Flatbread Biscuit)
+Coast Salish Frybread (Coast Salish Frybread Biscuit)
+Ojibwe Frybread (Ojibwe Frybread Biscuit)
+Woodland Bannock (Woodland-Style Bannock Biscuit)
+Yeast Bannock (Leavened Bannock Biscuit)
+Soda Bannock (Baking Soda Bannock Biscuit)
+Lard Bannock (Traditional Lard Bannock Biscuit)
+Blueberry Bannock (Wild Blueberry Bannock Biscuit)
+Saskatoon Berry Bannock (Saskatoon Berry Bannock Biscuit)
+Cranberry Bannock (Wild Cranberry Bannock Biscuit)
+Maple Bannock (Maple-Sweetened Bannock Biscuit)
+Bannock (Traditional Fry Bread)
+Campfire Bannock (Open-Fire Bannock Bread)
+Pan-Fried Bannock (Skillet Bannock Bread)
+Baked Bannock (Oven-Baked Bannock Bread)
+Sweet Bannock (Sweetened Bannock Bread)
+Berry Bannock (Berry Bannock Bread)
+Pemmican (Dried Meat and Fat Survival Food)
+Moose Pemmican (Moose Meat Pemmican)
+Caribou Pemmican (Caribou Meat Pemmican)
+Venison Pemmican (Deer Meat Pemmican)
+Smoked Salmon (Traditional Smoked Salmon)
+Dry Smoked Salmon (Air-Dried Smoked Salmon)
+Cedar-Planked Salmon (Salmon Cooked on Cedar Plank)
+Fire-Roasted Salmon (Open-Fire Roasted Salmon)
+Smoked Whitefish (Traditional Smoked Whitefish)
+Smoked Lake Trout (Traditional Smoked Trout)
+Dry Meat (Air-Dried Game Meat)
+Smoked Moose Meat (Smoked Moose Strips)
+Smoked Caribou Meat (Smoked Caribou Strips)
+Roasted Wild Game (Open-Fire Roasted Game Meat)
+Stone-Boiled Soup (Hot-Stone Boiled Soup)
+Three Sisters Stew (Corn, Beans, and Squash Stew)
+Wild Rice (Manoomin) (Harvested Wild Rice)
+Wild Rice Porridge (Wild Rice Breakfast Porridge)
+Wild Rice with Berries (Wild Rice and Berry Dish)
+Roasted Root Vegetables (Fire-Roasted Wild Roots)
+Roasted Camas (Camas Root Roast)
+Fire-Roasted Squash (Open-Fire Squash)
+Berry Soup (Wild Berry Soup)
+Saskatoon Berry Soup (Serviceberry Soup)
+Wild Berry Mash (Mashed Wild Berries)
+Maple-Cured Salmon (Maple Sweetened Cured Salmon)
+Maple Roasted Root Vegetables (Maple Glazed Roots)
+Smoked Goose (Traditional Smoked Goose)
+Roasted Grouse (Open-Fire Grouse)
+Campfire Fish Chowder (Outdoor Fish Chowder)
+Wild Rice Salad
+Wild Rice and Cranberry Salad
+Wild Rice and Blueberry Salad
+Three Sisters Salad (Corn, Beans, and Squash Salad)
+Roasted Three Sisters Salad
+Smoked Salmon Salad
+Cured Salmon and Berry Salad
+Salmon Berry Salad
+Mixed Wild Berry Salad
+Blueberry and Saskatoon Berry Salad
+Cranberry and Apple Salad
+Dandelion Greens Salad
+Wild Greens Salad
+Foraged Greens Salad
+Fiddlehead Fern Salad
+Pickled Fiddlehead Salad
+Seaweed Salad (Kelp Salad)
+Bladderwrack Seaweed Salad
+Roasted Root Vegetable Salad
+Jerusalem Artichoke Salad
+Roasted Squash Salad
+Corn and Bean Salad
+Maple Vinaigrette Root Vegetable Salad
+Berry and Wild Greens Salad
+Smoked Whitefish Salad
+Bannock Sandwich (Fry Bread Sandwich)
+Bannock Burger (Fry Bread Burger)
+Bison Bannock Burger (Bison Fry Bread Sandwich)
+Elk Bannock Burger (Elk Fry Bread Sandwich)
+Venison Bannock Sandwich (Venison Fry Bread Sandwich)
+Moose Bannock Sandwich (Moose Fry Bread Sandwich)
+Pulled Bison Bannock Sandwich (Pulled Bison Fry Bread Sandwich)
+Smoked Salmon Bannock Sandwich (Smoked Salmon Fry Bread Sandwich)
+Cedar-Smoked Salmon Bannock Sandwich (Cedar-Smoked Salmon Fry Bread Sandwich)
+Fried Whitefish Bannock Sandwich (Fried Whitefish Fry Bread Sandwich)
+Pickerel Bannock Sandwich (Walleye Fry Bread Sandwich)
+Fried Lake Trout Bannock Sandwich (Fried Trout Fry Bread Sandwich)
+Bannock Breakfast Sandwich (Fry Bread Breakfast Sandwich)
+Egg and Bannock Sandwich (Egg Fry Bread Sandwich)
+Bacon and Bannock Sandwich (Bacon Fry Bread Sandwich)
+Caribou Bannock Sandwich (Caribou Fry Bread Sandwich)
+Bannock Taco (Indian Taco on Fry Bread)
+Three Sisters Bannock Sandwich (Corn Bean Squash Fry Bread Sandwich)
+Roasted Vegetable Bannock Sandwich (Roasted Vegetable Fry Bread Sandwich)
+Wild Rice Bannock Sandwich (Wild Rice Fry Bread Sandwich)
+Cranberry Bannock Sandwich (Cranberry Fry Bread Sandwich)
+Bannock Grilled Cheese (Fry Bread Grilled Cheese Sandwich)
+Bannock Club Sandwich (Fry Bread Club Sandwich)
+Bone Marrow Gravy (Roasted Bone Marrow Gravy)
+Game Dripping Gravy (Wild Game Pan Gravy)
+Moose Meat Gravy (Moose Pan Gravy)
+Caribou Gravy (Caribou Meat Gravy)
+Elk Gravy (Elk Pan Gravy)
+Venison Gravy (Deer Meat Gravy)
+Bison Gravy (Bison Pan Gravy)
+Bear Fat Gravy (Bear Fat Pan Gravy)
+Duck Fat Gravy (Duck Dripping Gravy)
+Goose Gravy (Wild Goose Gravy)
+Fish Stock Gravy (Fish Bone Gravy)
+Salmon Gravy (Salmon Stock Gravy)
+Smoked Fish Gravy (Smoked Fish Pan Gravy)
+Seal Gravy (Seal Meat Gravy)
+Rabbit Gravy (Rabbit Pan Gravy)
+Beaver Gravy (Beaver Meat Gravy)
+Grouse Gravy (Wild Grouse Gravy)
+Partridge Gravy (Partridge Pan Gravy)
+Turkey Dripping Gravy (Wild Turkey Gravy)
+Wild Game Camp Gravy (Traditional Campfire Gravy)
+Flour and Fat Gravy (Traditional Bannock Gravy)
+Bannock Gravy (Gravy Served with Bannock)
+Bone Broth Gravy (Reduced Bone Broth Gravy)
+Wild Onion Gravy (Foraged Onion Gravy)
+Berry Thickened Gravy (Berry-Based Savory Gravy)
+Root Vegetable Gravy (Root Vegetable Thickened Gravy)
+Ash Thickened Gravy (Wood Ash Thickened Gravy)
+Saskatoon Berry Jam (Serviceberry Jam)
+Saskatoon Berry Jelly (Serviceberry Jelly)
+Wild Blueberry Jam (Native Blueberry Jam)
+Wild Blueberry Jelly (Native Blueberry Jelly)
+Highbush Cranberry Jelly (Viburnum Cranberry Jelly)
+Lowbush Cranberry Jam (Lingonberry-Style Cranberry Jam)
+Chokecherry Jelly (Wild Chokecherry Jelly)
+Chokecherry Jam (Wild Chokecherry Jam)
+Thimbleberry Jam (Wild Thimbleberry Jam)
+Salmonberry Jam (Wild Salmonberry Jam)
+Huckleberry Jam (Wild Huckleberry Jam)
+Huckleberry Jelly (Wild Huckleberry Jelly)
+Crowberry Jam (Wild Crowberry Jam)
+Bearberry Jam (Wild Bearberry Jam)
+Rose Hip Jam (Wild Rose Hip Jam)
+Rose Hip Jelly (Wild Rose Hip Jelly)
+Aqpik Jam (Cloudberry Jam)
+Bakeapple Jam (Cloudberry Jam)
+Soapberry Jelly (Wild Soapberry Jelly)
+Sxusem Jelly (Soapberry Jelly)
+Spruce Tip Jelly (Young Spruce Shoot Jelly)
+Pine Tip Jelly (Young Pine Shoot Jelly)
+Labrador Tea Jelly (Wild Labrador Tea Jelly)
+Pineapple Weed Jelly (Wild Chamomile Jelly)
+Juniper Berry Jelly (Wild Juniper Jelly)
+Maple Jelly (Maple Syrup Jelly)
+Canned Sockeye Salmon
+Canned Coho Salmon
+Canned Chinook Salmon
+Smoked Salmon
+Dry-Cured Salmon
+Salmon Jerky
+Canned Whitefish
+Smoked Whitefish
+Canned Lake Trout
+Smoked Lake Trout
+Canned Arctic Char
+Smoked Arctic Char
+Canned Herring
+Smoked Herring
+Pickled Herring
+Canned Eulachon
+Smoked Eulachon
+Pickled Eulachon
+Pickled Fiddleheads
+Canned Fiddleheads
+Pickled Beach Asparagus
+Canned Beach Asparagus
+Pickled Spruce Tips
+Spruce Tip Jelly
+Canned Lowbush Blueberries
+Canned Saskatoon Berries
+Saskatoon Berry Jam
+Canned Cranberries
+Cranberry Preserve
+Canned Wild Strawberries
+Wild Strawberry Jam
+Canned Soapberries
+Soapberry Preserve
+Canned Rose Hips
+Rose Hip Jam
+Canned Chokecherries
+Chokecherry Jelly
+Canned Cloudberries
+Cloudberry Preserve
+Bannock (Indigenous Flatbread Dough)
+Fry Bread (Indigenous Fried Bread Dough)
+Métis Bannock (Métis Flatbread Dough)
+Campfire Bannock (Open-Fire Flatbread Dough)
+Skillet Bannock (Pan-Cooked Flatbread Dough)
+Oven Bannock (Baked Flatbread Dough)
+Ash Cake (Ash-Baked Indigenous Bread Dough)
+Soda Bannock (Leavened Flatbread Dough)
+Yeast Bannock (Raised Indigenous Bread Dough)
+Baked Bannock Loaf (Indigenous Bread Loaf Dough)
+Rolled Bannock (Rolled Flatbread Dough)
+Drop Bannock (Spoon-Dropped Flatbread Dough)
+Sweet Bannock (Sweetened Indigenous Bread Dough)
+Savory Bannock (Savory Indigenous Bread Dough)
+Berry Bannock (Berry-Enriched Indigenous Bread Dough)
+Lard Bannock (Traditional Fat-Enriched Bread Dough)
+Whole Wheat Bannock (Whole Grain Indigenous Bread Dough)
+Cornmeal Bannock (Cornmeal Indigenous Bread Dough)
+Indian Fry Bread Dough (Native Fried Bread Dough)
+Indian Taco Fry Bread (Thick Fry Bread Dough)
+Sagamité (Indigenous Corn and Meat Stew)
+Three Sisters Stew (Corn Bean and Squash Stew)
+Moose Stew (Moose Meat Stew)
+Caribou Stew (Caribou Meat Stew)
+Venison Stew (Deer Meat Stew)
+Bison Stew (Buffalo Meat Stew)
+Elk Stew (Elk Meat Stew)
+Rabbit Stew (Wild Rabbit Stew)
+Beaver Stew (Beaver Meat Stew)
+Duck Stew (Wild Duck Stew)
+Goose Stew (Wild Goose Stew)
+Seal Stew (Seal Meat Stew)
+Whale Stew (Whale Meat Stew)
+Arctic Char Stew (Arctic Char Fish Stew)
+Salmon Stew (Salmon Fish Stew)
+Whitefish Stew (Freshwater Whitefish Stew)
+Lake Trout Stew (Lake Trout Fish Stew)
+Clam Stew (Coastal Clam Stew)
+Mussel Stew (Wild Mussel Stew)
+Wild Rice Stew (Manoomin Stew)
+Corn Soup (Haudenosaunee Corn Stew)
+Hominy Stew (Nixtamalized Corn Stew)
+Fish Head Stew (Traditional Fish Head Stew)
+Game Meat Stew (Mixed Wild Game Stew)
+Root Vegetable Stew (Wild Root Vegetable Stew)
+Berry and Meat Stew (Wild Berry Meat Stew)
+Bannock (Traditional Indigenous Bread Loaf)
+Oven-Baked Bannock (Baked Indigenous Bread Loaf)
+Campfire Bannock (Fire-Cooked Indigenous Bread Loaf)
+Frybread Bannock (Fried Indigenous Bread Loaf)
+Whole Wheat Bannock (Whole Grain Indigenous Bread Loaf)
+White Flour Bannock (Plain Indigenous Bread Loaf)
+Sweet Bannock (Sweetened Indigenous Bread Loaf)
+Savory Bannock (Savory Indigenous Bread Loaf)
+Berry Bannock (Indigenous Berry Bread Loaf)
+Blueberry Bannock (Blueberry Indigenous Bread Loaf)
+Saskatoon Berry Bannock (Saskatoon Berry Indigenous Bread Loaf)
+Cranberry Bannock (Cranberry Indigenous Bread Loaf)
+Raisin Bannock (Raisin Indigenous Bread Loaf)
+Apple Bannock (Apple Indigenous Bread Loaf)
+Pumpkin Bannock (Pumpkin Indigenous Bread Loaf)
+Cornmeal Bannock (Cornmeal Indigenous Bread Loaf)
+Wild Rice Bannock (Wild Rice Indigenous Bread Loaf)
+Maple Bannock (Maple-Sweetened Indigenous Bread Loaf)
+Honey Bannock (Honey-Sweetened Indigenous Bread Loaf)
+Lard Bannock (Traditional Fat-Enriched Indigenous Bread Loaf)
+Butter Bannock (Butter-Enriched Indigenous Bread Loaf)
+Herb Bannock (Herbed Indigenous Bread Loaf)
+Onion Bannock (Onion Indigenous Bread Loaf)
+Cheese Bannock (Cheese Indigenous Bread Loaf)
+Bacon Bannock (Bacon Indigenous Bread Loaf)
+Three Sisters Bannock (Corn Bean Squash Indigenous Bread Loaf)
+Ash-Cooked Bannock (Ash-Baked Indigenous Bread Loaf)
+Cast-Iron Bannock (Skillet-Baked Indigenous Bread Loaf)
+Maple Syrup Glaze
+Wild Blueberry Glaze
+Saskatoon Berry Glaze
+Cranberry Glaze
+Cloudberry Glaze
+Juniper Berry Glaze
+Birch Syrup Glaze
+Maple and Mustard Glaze
+Maple and Cedar Infused Glaze
+Maple and Smoked Chili Glaze
+Maple and Apple Cider Glaze
+Maple and Wild Berry Reduction Glaze
+Maple and Balsamic Glaze
+Maple and Garlic Glaze
+Maple and Soy Glaze
+Maple Pepper Glaze
+Maple Bourbon Glaze
+Maple Vinegar Glaze
+Honey and Wild Berry Glaze
+Honey and Juniper Glaze
+Apple Cider Reduction Glaze
+Roasted Berry Reduction Glaze
+Smoked Maple Glaze
+Charred Onion and Maple Glaze
+Bannock (Baked Bannock Bread)
+Frybread Bannock (Baked Bannock Variation)
+Baked Wild Rice Bannock (Wild Rice Bannock Bread)
+Blueberry Bannock (Baked Bannock with Blueberries)
+Maple Bannock (Maple-Sweetened Bannock Bread)
+Baked Salmon on Cedar Plank (Cedar-Planked Salmon)
+Baked Salmon in Birch Bark (Birch Bark–Wrapped Baked Salmon)
+Roasted Whole Salmon (Open-Fire Roasted Salmon)
+Roasted Arctic Char (Fire-Roasted Arctic Char)
+Roasted Lake Trout (Roasted Freshwater Trout)
+Roasted Bison (Roasted Plains Bison)
+Roasted Moose (Roasted Moose Meat)
+Roasted Caribou (Roasted Caribou Meat)
+Roasted Elk (Roasted Elk Meat)
+Roasted Venison (Roasted Deer Meat)
+Baked Whitefish (Oven-Baked Freshwater Whitefish)
+Baked Pickerel (Baked Walleye Fish)
+Roasted Goose (Roasted Wild Goose)
+Roasted Duck (Roasted Wild Duck)
+Baked Grouse (Baked Wild Grouse)
+Roasted Ptarmigan (Roasted Ptarmigan Bird)
+Roasted Prairie Chicken (Roasted Plains Game Bird)
+Baked Wild Rice (Baked Indigenous Wild Rice)
+Wild Rice Casserole (Baked Wild Rice Dish)
+Three Sisters Bake (Baked Corn, Beans, and Squash)
+Baked Squash with Maple (Maple-Baked Squash)
+Roasted Root Vegetables (Roasted Indigenous Root Vegetables)
+Roasted Sunchokes (Roasted Jerusalem Artichokes)
+Baked Cornbread with Wild Corn (Indigenous Cornbread)
+Baked Fish Cakes (Baked Indigenous Fish Cakes)
+Baked Meat Pie with Bannock Crust (Indigenous Baked Meat Pie)
+Saskatoon Berry Jam
+Saskatoon Berry Pie
+Saskatoon Berry Cobbler
+Saskatoon Berry Sauce
+Saskatoon Berry Syrup
+Saskatoon Berry Compote
+Dried Saskatoon Berries
+Wild Blueberry Jam
+Wild Blueberry Pie
+Wild Blueberry Bannock Topping
+Wild Blueberry Compote
+Wild Blueberry Syrup
+Dried Wild Blueberries
+Cranberry Sauce (Wild Cranberry Sauce)
+Highbush Cranberry Jelly
+Highbush Cranberry Sauce
+Dried Highbush Cranberries
+Chokecherry Jelly
+Chokecherry Syrup
+Chokecherry Pemmican Mix
+Dried Chokecherries
+Cloudberry Jam
+Cloudberry Preserve
+Cloudberry Compote
+Salmonberry Jam
+Salmonberry Jelly
+Salmonberry Sauce
+Thimbleberry Jam
+Thimbleberry Preserve
+Thimbleberry Sauce
+Bearberry Fruit Leather
+Bearberry Mash
+Soapberry Whipped Dessert (Indian Ice Cream)
+Soapberry Foam Dessert
+Rose Hip Jam
+Rose Hip Jelly
+Rose Hip Syrup
+Dried Rose Hips
+Hawthorn Berry Jelly
+Hawthorn Berry Jam
+Buffaloberry Jelly
+Buffaloberry Sauce
+Buffaloberry Whipped Dessert
+Wild Strawberry Jam
+Wild Strawberry Preserve
+Wild Strawberry Compote
+Dried Wild Strawberries
+Juniper Berry Infused Fruit Preserve
+Smoked Salmon
+Wind-Dried Salmon
+Dry-Cured Salmon
+Salmon Candy (Sweet Cured Smoked Salmon)
+Cold-Smoked Salmon
+Hot-Smoked Salmon
+Smoked Sockeye Salmon
+Smoked Chinook Salmon
+Smoked Coho Salmon
+Smoked Pink Salmon
+Smoked Chum Salmon
+Smoked Whitefish
+Smoked Lake Trout
+Smoked Arctic Char
+Smoked Steelhead Trout
+Smoked Eulachon
+Smoked Sucker Fish
+Smoked Herring
+Dried Salmon Strips
+Dried Whitefish
+Dried Lake Trout
+Dried Arctic Char
+Dried Smelt
+Smoked Moose Meat
+Dry-Cured Moose Meat
+Smoked Caribou Meat
+Dry-Cured Caribou Meat
+Smoked Venison
+Dry-Cured Venison
+Smoked Bison Meat
+Dry-Cured Bison Meat
+Pemmican (Cured Dried Meat and Fat)
+Dried Meat Pemmican
+Smoked Meat Pemmican
+Dried Clams
+Smoked Clams
+Smoked Mussels
+Smoked Oysters
+Bannock Wrap
+Frybread Wrap
+Indian Taco (Frybread Taco Wrap)
+Bannock Taco Wrap
+Smoked Salmon Bannock Wrap
+Grilled Salmon Bannock Wrap
+Cedar-Smoked Salmon Bannock Wrap
+Bison Bannock Wrap
+Buffalo Bannock Wrap
+Moose Meat Bannock Wrap
+Venison Bannock Wrap
+Elk Bannock Wrap
+Pulled Bison Bannock Wrap
+Pulled Moose Bannock Wrap
+Roasted Wild Game Bannock Wrap
+Three Sisters Bannock Wrap (Corn Beans Squash Wrap)
+Wild Rice Bannock Wrap
+Maple-Glazed Salmon Bannock Wrap
+Berry and Cream Bannock Dessert Wrap
+Fried Bannock Sandwich Wrap
+Planked Salmon (Cedar-Planked Salmon)
+Smoked Salmon (Traditional Smoked Salmon)
+Sockeye Salmon Roasted on Cedar (Cedar-Roasted Sockeye Salmon)
+Dried Salmon Strips (Air-Dried Salmon)
+Candied Salmon (Maple-Glazed Candied Salmon)
+Salmon Cooked in Pit Oven (Pit-Cooked Salmon)
+Salmon Baked in Birch Bark (Birch-Bark Baked Salmon)
+Salmon Head Soup (Salmon Head Broth)
+Boiled Salmon with Roots (Boiled Salmon and Root Vegetables)
+Poached Salmon with Berries (Berry-Glazed Poached Salmon)
+Charcoal-Grilled Salmon (Open-Fire Grilled Salmon)
+Eulachon Grease (Oolichan Oil)
+Eulachon Smoked Whole (Smoked Eulachon Fish)
+Whitefish Smoked Over Alder (Smoked Whitefish)
+Lake Trout Smoked Traditional Style (Smoked Lake Trout)
+Lake Trout Roasted Whole (Whole Roasted Lake Trout)
+Arctic Char Roasted on Open Fire (Fire-Roasted Arctic Char)
+Arctic Char Smoked Traditional Style (Smoked Arctic Char)
+Pickerel Baked in Coals (Walleye Baked in Coals)
+Pickerel Pan-Fried (Pan-Fried Walleye)
+Sturgeon Smoked Traditional Style (Smoked Sturgeon)
+Sturgeon Roasted Over Fire (Fire-Roasted Sturgeon)
+Northern Pike Smoked (Smoked Northern Pike)
+Northern Pike Pan-Fried (Pan-Fried Northern Pike)
+Salmon with Bannock (Salmon Served with Bannock Bread)
+Maple Butter (Whipped Maple Sugar Butter)
+Wild Berry Butter (Mixed Wild Berry Butter)
+Saskatoon Berry Butter (Saskatoon Berry Compound Butter)
+Blueberry Butter (Wild Blueberry Butter)
+Cranberry Butter (Wild Cranberry Butter)
+Smoked Birch Butter (Birch-Smoked Butter)
+Birch Syrup Butter (Birch Syrup Compound Butter)
+Sweetgrass Butter (Sweetgrass-Infused Butter)
+Cedar Butter (Cedar-Infused Butter)
+Juniper Butter (Juniper Berry Butter)
+Wild Sage Butter (Wild Sage Compound Butter)
+Seaweed Butter (Coastal Seaweed Butter)
+Smoked Sea Salt Butter (Smoked Indigenous Sea Salt Butter)
+Roasted Garlic Butter (Fire-Roasted Garlic Butter)
+Chive Butter (Wild Chive Butter)
+Bone Marrow Butter (Roasted Bone Marrow Butter)
+Wild Rice Flour
+Manoomin Flour (Wild Rice Flour)
+Acorn Flour
+White Oak Acorn Flour
+Hazelnut Flour
+Sunflower Seed Flour
+Pumpkin Seed Flour
+Split Pea Flour
+Yellow Pea Flour
+Corn Flour
+Blue Corn Flour
+Stone-Ground Wheat Flour
+Whole Wheat Flour
+Rye Flour
+Cattail Pollen Flour
+Cattail Root Flour
+Kelp Flour
+Seaweed Flour
+Blueberry Flour
+Saskatoon Berry Flour
+Ziinzibaakwad (Maple Sugar)
+Anishinaabe Maple Sugar Cakes (Maple Sugar Cakes)
+Anishinaabe Granulated Maple Sugar (Granulated Maple Sugar)
+Anishinaabe Maple Sugar Candy (Maple Sugar Candy)
+Sisîpaskwâtowin (Cree Maple Sugar)
+Cree Maple Sugar Blocks (Maple Sugar Blocks)
+Cree Soft Maple Sugar (Soft Maple Sugar)
+Ininiwak Maple Sugar Granules (Maple Sugar Granules)
+Maple Syrup (Reduced Maple Sap Syrup)
+Dark Maple Syrup (Late-Season Maple Syrup)
+Amber Maple Syrup (Medium Maple Syrup)
+Maple Taffy on Snow (Maple Sugar Taffy)
+Birch Syrup (Birch Sap Syrup)
+Dark Birch Syrup (Reduced Birch Sap Syrup)
+Birch Sugar (Crystallized Birch Sugar)
+Spruce Tip Syrup (Spruce Tip Sugar Syrup)
+Labrador Tea Syrup (Labrador Tea Sweet Syrup)
+Saskatoon Berry Syrup (Saskatoon Berry Sugar Syrup)
+Wild Blueberry Syrup (Wild Blueberry Sugar Syrup)
+Highbush Cranberry Syrup (Highbush Cranberry Sugar Syrup)
+Rosehip Syrup (Wild Rosehip Sugar Syrup)
+Bannock Cheese (Bannock-Inspired Fresh Cheese)
+Smoked Bannock Cheese (Smoked Bannock-Inspired Fresh Cheese)
+Fresh Indigenous-Style Cheese Curds (Fresh Cheese Curds)
+Smoked Indigenous-Style Cheese Curds (Smoked Cheese Curds)
+Cultured Fresh Cheese (Indigenous-Style Cultured Fresh Cheese)
+Herb-Cured Fresh Cheese (Indigenous Herb-Cured Fresh Cheese)
+Wild Onion Fresh Cheese (Wild Onion Fresh Cheese)
+Spruce Tip Fresh Cheese (Spruce Tip Fresh Cheese)
+Berry-Ash Coated Fresh Cheese (Berry Ash Coated Fresh Cheese)
+Hand-Pressed Farmstead Fresh Cheese (Indigenous Farmstead Fresh Cheese)
+Birch Sap Vinegar
+Birch Wine Vinegar
+Spruce Tip Vinegar
+Cedar Infused Vinegar
+Wild Blueberry Vinegar
+Saskatoon Berry Vinegar
+Cranberry Vinegar
+Chokecherry Vinegar
+Wild Rose Hip Vinegar
+Cloudberry Vinegar
+Wild Apple Vinegar
+Apple Cider Vinegar
+Honey Vinegar
+Maple Vinegar
+Maple Cider Vinegar
+Juniper Berry Vinegar
+Sweetgrass Infused Vinegar
+Smoked Apple Vinegar
+Wild Fermented Berry Vinegar
+Wildflower Honey
+Raw Unfiltered Honey
+Creamed Honey
+Whipped Honey
+Smoked Honey
+Fireweed Honey
+Wild Clover Honey
+Basswood Honey
+Blueberry Blossom Honey
+Cranberry Blossom Honey
+Saskatoon Berry Infused Honey
+Huckleberry Infused Honey
+Juniper Berry Infused Honey
+Sweetgrass Infused Honey
+Labrador Tea Infused Honey
+Cedar Tip Infused Honey
+Spruce Tip Infused Honey
+Wild Mint Infused Honey
+Rosehip Infused Honey
+Chokecherry Infused Honey
+Boreal Berry Infused Honey
+Maple Honey Blend
+Smoked Maple Honey
+Hot Pepper Infused Honey
+Garlic Infused Honey
+Sea Salt Honey
+Vanilla Bean Honey
+Ginger Infused Honey
+Lemon Infused Honey
+Herbal Boreal Honey
+Artisan Small-Batch Honey
+Labrador Tea (Northern Evergreen Herbal Tea)
+Hudson Bay Tea (Labrador Tea Herbal Infusion)
+Cedar Tea (Western Red Cedar Herbal Tea)
+Sweetgrass Tea (Sweetgrass Herbal Infusion)
+Wild Mint Tea (Indigenous Wild Mint Herbal Tea)
+Raspberry Leaf Tea (Wild Raspberry Leaf Herbal Tea)
+Rosehip Tea (Wild Rosehip Herbal Infusion)
+Chokecherry Bark Tea (Chokecherry Bark Herbal Tea)
+Juniper Berry Tea (Wild Juniper Berry Herbal Tea)
+Yarrow Tea (Wild Yarrow Herbal Infusion)
+Prairie Sage Tea (Wild Sage Herbal Tea)
+Willow Bark Tea (Willow Bark Herbal Infusion)
+Spruce Tip Tea (Fresh Spruce Tip Herbal Tea)
+Pine Needle Tea (Wild Pine Needle Herbal Infusion)
+Fireweed Tea (Fireweed Leaf Herbal Tea)
+Bearberry Tea (Bearberry Leaf Herbal Infusion)
+Balsam Fir Tea (Balsam Fir Needle Herbal Tea)
+Alder Bark Tea (Alder Bark Herbal Infusion)
+Cow’s Milk
+Goat’s Milk
+Evaporated Milk
+Condensed Milk
+Fresh Cream Milk
+Skim Milk
+Whole Milk
+Powdered Milk
+Reconstituted Milk
+Buttermilk
+Cultured Buttermilk
+Whipping Cream Milk
+Half-and-Half Milk
+Sunflower Seed Milk
+Pumpkin Seed Milk
+Hemp Seed Milk
+Birch Syrup Milk
+Maple Milk
+Maple-Infused Milk
+Wild Rice Milk
+Hazelnut Milk
+Acorn Milk
+Dried Saskatoon Berries
+Sun-Dried Saskatoon Berries
+Smoke-Dried Saskatoon Berries
+Dried Wild Blueberries
+Sun-Dried Wild Blueberries
+Dried Lowbush Blueberries
+Dried Cranberries
+Traditional Dried Cranberries
+Dried Chokecherries
+Sun-Dried Chokecherries
+Stone-Ground Dried Chokecherries
+Dried Rose Hips
+Wild Dried Rose Hips
+Dried Juniper Berries
+Wild Dried Juniper Berries
+Dried Crowberries
+Sun-Dried Crowberries
+Dried Bearberries
+Wild Dried Bearberries
+Dried Salmonberries
+Sun-Dried Salmonberries
+Dried Thimbleberries
+Wild Dried Thimbleberries
+Dried Soapberries
+Wild Dried Soapberries
+Dried Sea Buckthorn Berries
+Wild Dried Sea Buckthorn Berries
+Pemmican (Rendered Fat and Dried Meat Concentrate)
+Pimîhkân (Cree Pemmican)
+Dried Moose Meat
+Dried Caribou Meat
+Dried Bison Meat
+Dried Deer Meat
+Dried Elk Meat
+Smoked and Dried Salmon
+Dried Salmon Strips
+Salmon Jerky
+Dried Whitefish
+Dried Lake Trout
+Dried Arctic Char
+Dried Smelt
+Dried Eulachon
+Dried Clams
+Dried Mussels
+Dried Kelp
+Dried Seaweed Cakes
+Dried Saskatoon Berries
+Dried Blueberries
+Dried Cranberries
+Dried Chokecherries
+Dried Strawberries
+Dried Raspberries
+Dried Rose Hips
+Dried Highbush Cranberries
+Dried Wild Apples
+Dried Camas Bulbs
+Dried Wild Onions
+Dried Morel Mushrooms
+Dried Chanterelle Mushrooms
+Dried Spruce Tips
+Spruce Tip Powder
+Dried Juniper Berries
+Dried Labrador Tea Leaves
+Birch Syrup Yogurt
+Saskatoon Berry Yogurt
+Wild Blueberry Yogurt
+Crowberry Yogurt
+Soapberry Yogurt
+Chokecherry Yogurt
+Huckleberry Yogurt
+Cranberry Yogurt
+Cloudberry Yogurt
+Juniper Berry Yogurt
+Wild Honey Yogurt
+Maple Yogurt
+Fireweed Honey Yogurt
+Spruce Tip Yogurt
+Cedar Infused Yogurt
+Sweetgrass Infused Yogurt
+Berry and Wild Herb Yogurt
+Smoked Berry Yogurt
+Traditional Berry Yogurt
+Housemade Berry Yogurt
+Stone Fruit and Berry Yogurt
+Maple Sugar
+Smoked Maple Salt
+Cedar Smoked Salt
+Juniper Ash Salt
+Spruce Tip Salt
+Sweetgrass Infused Salt
+Labrador Tea Salt
+Wild Berry Ash
+Saskatoon Berry Powder
+Dried Blueberry Powder
+Dried Cranberry Powder
+Dried Chokecherry Powder
+Wild Rice Ash
+Toasted Wild Rice Powder
+Smoked Sea Salt
+Alder Smoked Salt
+Birch Smoked Salt
+Spruce Ash
+Cedar Ash
+Juniper Berry Rub
+Berry and Juniper Dry Rub
+Maple and Juniper Seasoning
+Maple Pepper Seasoning
+Smoked Berry Rub
+Forest Herb Seasoning
+Three Sisters Spice Blend
+Toasted Corn Ash
+Sun-Dried Herb Seasoning
+Wild Onion Salt
+Garlic and Wild Onion Seasoning
+Smoked Garlic Salt
+Maple Garlic Seasoning
+Berry Sugar
+Maple Berry Sugar
+Spruce Tip Sugar
+Labrador Tea Sugar
+Birch Sap Syrup (Birch Syrup)
+Maple Sap Syrup (Maple Syrup)
+Conifer Needle Infusion (Pine Needle Tea Extract)
+Spruce Tip Syrup (Spruce Tip Extract)
+Cedar Leaf Infusion (Cedar Tea Extract)
+Sweetgrass Infusion (Sweetgrass Extract)
+Labrador Tea Infusion (Labrador Tea Extract)
+Juniper Berry Infusion (Juniper Berry Extract)
+Wild Rose Hip Infusion (Rose Hip Extract)
+Highbush Cranberry Juice Concentrate (Highbush Cranberry Extract)
+Saskatoon Berry Juice Concentrate (Saskatoon Berry Extract)
+Wild Blueberry Juice Concentrate (Wild Blueberry Extract)
+Cloudberry Juice Concentrate (Cloudberry Extract)
+Soapberry Foam Base (Soapberry Extract)
+Chaga Mushroom Infusion (Chaga Mushroom Extract)
+Reishi Mushroom Infusion (Reishi Mushroom Extract)
+Turkey Tail Mushroom Infusion (Turkey Tail Mushroom Extract)
+Balsam Fir Resin Infusion (Balsam Fir Extract)
+Poplar Bud Infusion (Balsam Poplar Extract)
+Devil’s Club Root Infusion (Devil’s Club Extract)
+Sweet Gale Infusion (Sweet Gale Extract)
+Yarrow Flower Infusion (Yarrow Extract)
+Fireweed Blossom Infusion (Fireweed Extract)
+Oolichan Grease (Rendered Eulachon Fish Oil)
+Eulachon Oil (Smelt Fish Oil)
+Ooligan Grease (Traditional Candlefish Oil)
+Seal Oil (Rendered Seal Fat Oil)
+Seal Blubber Oil (Traditional Marine Mammal Oil)
+Whale Oil (Rendered Whale Fat Oil)
+Bear Grease (Rendered Bear Fat Oil)
+Moose Fat Oil (Rendered Moose Fat)
+Caribou Fat Oil (Rendered Caribou Fat)
+Deer Tallow Oil (Rendered Deer Fat)
+Beaver Tail Oil (Rendered Beaver Fat)
+Salmon Oil (Rendered Salmon Fat Oil)
+Sockeye Salmon Oil (Rendered Sockeye Salmon Oil)
+Herring Oil (Rendered Herring Fat Oil)
+Whitefish Oil (Rendered Whitefish Fat Oil)
+Trout Oil (Rendered Trout Fat Oil)
+Smoked Oolichan Grease (Smoked Candlefish Oil)
+Fermented Oolichan Grease (Aged Candlefish Oil)
+Cold-Rendered Oolichan Grease (Traditional Low-Heat Fish Oil)
+Maple Vinaigrette
+Maple Balsamic Vinaigrette
+Wild Blueberry Vinaigrette
+Saskatoon Berry Vinaigrette
+Huckleberry Vinaigrette
+Chokecherry Vinaigrette
+Cranberry Vinaigrette
+Cloudberry (Bakeapple) Vinaigrette
+Salal Berry Vinaigrette
+Sea Buckthorn Vinaigrette
+Birch Syrup Vinaigrette
+Juniper Berry Vinaigrette
+Sumac Vinaigrette
+Spruce Tip Vinaigrette
+Cedar Infused Vinaigrette
+Sweetgrass Infused Vinaigrette
+Labrador Tea Vinaigrette
+Fireweed Honey Vinaigrette
+Wild Rice Vinaigrette
+Bison Sausage
+Smoked Bison Sausage
+Venison Sausage
+Smoked Venison Sausage
+Elk Sausage
+Smoked Elk Sausage
+Moose Sausage
+Smoked Moose Sausage
+Wild Game Sausage
+Three Sisters Sausage
+Bannock Sausage
+Maple Bison Sausage
+Juniper Bison Sausage
+Saskatoon Berry Bison Sausage
+Wild Rice and Bison Sausage
+Venison and Blueberry Sausage
+Elk and Cranberry Sausage
+Moose and Juniper Berry Sausage
+Smoked Game Sausage
+Salmon Sausage
+Smoked Salmon Sausage
+Cedar-Smoked Salmon Sausage
+Whitefish Sausage
+Smoked Whitefish Sausage
+Char Sausage
+Smoked Char Sausage
+Oolichan Grease (Eulachon Fish Oil Spread)
+Rendered Oolichan Grease (Traditional Fish Oil Spread)
+Smoked Salmon Spread (First Nations Style)
+Whipped Smoked Salmon Spread (Pacific Northwest Indigenous Style)
+Cedar-Smoked Salmon Pâté (Indigenous Style Salmon Spread)
+Salmon and Oolichan Grease Spread (Traditional Coastal Spread)
+Whitefish Spread (Indigenous Great Lakes Style)
+Smoked Whitefish Spread (First Nations Style)
+Pickerel Spread (Freshwater Fish Spread)
+Smoked Trout Spread (Indigenous Style Fish Spread)
+Smoked Arctic Char Spread (Northern Indigenous Fish Spread)
+Caribou Fat Spread (Rendered Game Fat Spread)
+Moose Fat Spread (Rendered Game Fat Spread)
+Bear Fat Spread (Traditional Rendered Fat Spread)
+Whipped Bone Marrow Spread (Indigenous Game Marrow Spread)
+Berry and Rendered Fat Spread (Traditional Indigenous Sweet Fat Spread)
+Saskatoon Berry Spread (Indigenous Berry Preserve Spread)
+Wild Blueberry Spread (Indigenous Berry Preserve Spread)
+Cloudberry Spread (Northern Indigenous Berry Spread)
+Cranberry Spread (Wild Cranberry Preserve Spread)
+Rosehip Spread (Wild Rosehip Preserve Spread)
+Chokecherry Spread (Traditional Indigenous Fruit Spread)
+Highbush Cranberry Spread (Indigenous Berry Preserve Spread)
+Maple Whipped Fat Spread (Maple-Sweetened Rendered Fat Spread)
+Maple Berry Spread (Indigenous Maple-Sweetened Fruit Spread)
+Wild Rice Porridge (Manoomin Porridge)
+Toasted Wild Rice (Toasted Manoomin)
+Wild Rice with Berries (Manoomin with Saskatoon Berries)
+Wild Rice and Maple Syrup (Maple-Sweetened Manoomin)
+Wild Rice with Mushrooms (Manoomin with Forest Mushrooms)
+Wild Rice Pilaf (Manoomin Pilaf)
+Wild Rice and Corn Succotash (Indigenous Wild Rice Succotash)
+Wild Rice with Smoked Fish (Manoomin with Smoked Whitefish)
+Wild Rice with Game Fat (Traditional Wild Rice with Rendered Fat)
+Cracked Corn Porridge (Traditional Indigenous Corn Porridge)
+Parched Corn (Parched Indigenous Corn)
+Hominy Corn (Traditional Hominy Corn)
+Cornmeal Mush (Indigenous Cornmeal Porridge)
+Maple Cornmeal Porridge (Maple-Sweetened Corn Mush)
+Blue Corn Mush (Blue Corn Porridge)
+Roasted Corn Kernels (Fire-Roasted Indigenous Corn)
+Stone-Ground Cornmeal (Traditional Stone-Ground Corn)
+Sprouted Corn Porridge (Sprouted Indigenous Corn Porridge)
+Wild Oat Porridge (Traditional Wild Oat Porridge)
+Roasted Wild Oats (Toasted Wild Oats)
+Wild Barley Porridge (Indigenous Barley Porridge)
+Roasted Barley Groats (Fire-Roasted Barley Groats)
+Sprouted Barley Porridge (Sprouted Barley Porridge)
+Cattail Root Flour Porridge (Cattail Flour Porridge)
+Cattail Pollen Grain Mix (Cattail Pollen Grain Blend)
+Ground Acorn Meal (Indigenous Acorn Meal)
+Acorn Meal Porridge (Acorn Porridge)
+Maple-Sweetened Acorn Meal (Maple Acorn Porridge)
+Sunflower Seed Meal (Indigenous Sunflower Meal)
+Sunflower Seed Porridge (Sunflower Meal Porridge)
+Roasted Sunflower Seeds (Fire-Roasted Sunflower Seeds)
+Berry and Grain Mash (Traditional Berry Grain Mash)
+Maple Grain Porridge (Maple-Sweetened Indigenous Grain Porridge)
+Pemmican (Rendered Fat and Dried Meat Mixture)
+Pimîhkân (Pemmican)
+Drymeat (Air-Dried Game Meat)
+Dry Bison Meat (Bison Jerky)
+Dry Moose Meat (Moose Jerky)
+Dry Elk Meat (Elk Jerky)
+Dry Caribou Meat (Caribou Jerky)
+Dry Deer Meat (Venison Jerky)
+Dry Buffalo Meat (Buffalo Jerky)
+Smoked Moose Jerky (Smoked Moose Meat Strips)
+Smoked Bison Jerky (Smoked Bison Meat Strips)
+Smoked Caribou Jerky (Smoked Caribou Meat Strips)
+Sweet Drymeat (Lightly Sweetened Dried Game Meat)
+Berry Drymeat (Berry-Seasoned Dried Game Meat)
+Saskatoon Berry Jerky (Saskatoon Berry–Flavoured Jerky)
+Pipsi (Dried Meat or Fish Strips)
+Smoked Salmon Jerky (Dried Smoked Salmon Strips)
+Smoked Char Jerky (Dried Arctic Char Strips)
+Smoked Whitefish Jerky (Dried Smoked Whitefish)
+Dried Goose Meat (Goose Jerky)
+Dried Duck Meat (Duck Jerky)
+Bison Pepperoni (Bison Dry Sausage)
+Venison Pepperoni (Venison Dry Sausage)
+Elk Pepperoni (Elk Dry Sausage)
+Pemmican (Dried Meat and Fat Concentrate)
+Dry Meat (Air-Dried Game Meat)
+Nikku (Cree Dried Meat)
+Wasna (Plains Dried Meat and Fat)
+Smoked Salmon
+Smoked Sockeye Salmon
+Smoked Chinook Salmon
+Smoked Coho Salmon
+Candy Salmon (Sweet Smoked Salmon)
+Wind-Dried Salmon
+Smoked Whitefish
+Smoked Lake Trout
+Smoked Arctic Char
+Smoked Eulachon
+Smoked Herring
+Smoked Moose Meat
+Smoked Caribou Meat
+Smoked Elk Meat
+Smoked Bison Meat
+Moose Jerky
+Caribou Jerky
+Bison Jerky
+Venison Jerky
+Seal Jerky
+Smoked Seal Meat
+Igunaq (Fermented Seal or Walrus Meat)
+Smoked Goose
+Smoked Duck
+Smoked Beaver
+Smoked Rabbit
+Dried Salmon Strips
+Dried Whitefish
+Dried Caribou Meat
+Dried Moose Meat

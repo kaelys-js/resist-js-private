@@ -1,0 +1,11 @@
+services:
+  livekit:
+    container_name: "${PRODUCT}-livekit-${ENV}"
+    image: livekit/livekit-server
+    networks:
+      - gamenet
+    ports:
+      - "${LIVEKIT_RTP_PORT:-9002/udp}:9002/udp"
+      - "${LIVEKIT_WEBRTC_PORT:-9003}:9003"
+      - "${LIVEKIT_WS_PORT:-9004}:9004"
+    restart: unless-stopped

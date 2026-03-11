@@ -1,0 +1,2896 @@
+California Roll (Crab and Avocado Sushi Roll)
+Spicy Tuna Roll (Spicy Tuna Sushi Roll)
+Rainbow Roll (Assorted Fish Sushi Roll)
+Dragon Roll (Eel and Avocado Sushi Roll)
+Philadelphia Roll (Salmon and Cream Cheese Sushi Roll)
+Chicken Teriyaki (Grilled Teriyaki Chicken)
+Beef Teriyaki (Grilled Teriyaki Beef)
+Teriyaki Salmon (Grilled Teriyaki Salmon)
+Chicken Katsu (Breaded Fried Chicken Cutlet)
+Tonkatsu (Breaded Fried Pork Cutlet)
+Katsu Curry (Japanese Curry with Breaded Cutlet)
+Chicken Karaage (Japanese Fried Chicken)
+Gyoza (Japanese Pan-Fried Dumplings)
+Edamame (Steamed Soybeans)
+Miso Soup (Fermented Soybean Soup)
+Ramen (Japanese Noodle Soup)
+Tonkotsu Ramen (Pork Bone Broth Ramen)
+Shoyu Ramen (Soy Sauce Ramen)
+Miso Ramen (Miso-Based Ramen)
+Udon Noodle Soup (Thick Wheat Noodle Soup)
+Tempura Shrimp (Battered Fried Shrimp)
+Vegetable Tempura (Battered Fried Vegetables)
+Chicken Tempura (Battered Fried Chicken)
+Chirashi Sushi (Scattered Sushi Rice Bowl)
+Poke Bowl (Japanese-Style Marinated Fish Bowl)
+Salmon Avocado Bowl (Salmon and Avocado Rice Bowl)
+Chicken Teriyaki Bowl (Teriyaki Chicken Rice Bowl)
+Spam Musubi (Grilled Spam Rice Block)
+Hawaiian Chicken Katsu (Island-Style Chicken Cutlet)
+Japanese Curry Rice (Mild Curry with Rice)
+Hamburger Steak (Japanese-Style Hamburg Steak)
+Yakitori Chicken Skewers (Grilled Chicken Skewers)
+Beef Sukiyaki (Sweet Soy Beef Hot Pot)
+Gyudon (Beef Rice Bowl)
+Oyako Donburi (Chicken and Egg Rice Bowl)
+Tamago Nigiri (Sweet Egg Sushi)
+Inari Sushi (Sweet Tofu Pouch Sushi)
+Seaweed Salad (Seasoned Seaweed Salad)
+Sunomono (Japanese Vinegar Cucumber Salad)
+Japanese Potato Salad (Creamy Potato Salad)
+Fried Rice (Japanese-Style Fried Rice)
+Garlic Noodles (Japanese-Inspired Garlic Noodles)
+Chicken Yakisoba (Stir-Fried Noodles with Chicken)
+Beef Yakisoba (Stir-Fried Noodles with Beef)
+Shrimp Yakisoba (Stir-Fried Noodles with Shrimp)
+Chicken Yakitori Bowl (Grilled Chicken Skewer Rice Bowl)
+Salmon Teriyaki Bowl (Teriyaki Salmon Rice Bowl)
+Unagi Donburi (Grilled Eel Rice Bowl)
+Japanese Cheesecake (Soufflé-Style Cheesecake)
+Mochi Ice Cream (Rice Cake Ice Cream Dessert)
+Sake Highball (Japanese Sake Highball Cocktail)
+Shochu Highball (Japanese Shochu Highball Cocktail)
+Yuzu Sour (Japanese Yuzu Citrus Cocktail)
+Yuzu Margarita (Japanese Yuzu Margarita Cocktail)
+Yuzu Collins (Japanese Yuzu Collins Cocktail)
+Umeshu Soda (Plum Wine and Soda Cocktail)
+Umeshu Rock (Plum Wine on the Rocks Cocktail)
+Umeshu Sour (Plum Wine Sour Cocktail)
+Sakura Martini (Cherry Blossom Martini Cocktail)
+Matcha Martini (Matcha Green Tea Martini Cocktail)
+Matcha Gin Tonic (Matcha Green Tea Gin and Tonic)
+Japanese Whisky Highball (Japanese Whisky and Soda Cocktail)
+Japanese Old Fashioned (Japanese Whisky Old Fashioned Cocktail)
+Wasabi Bloody Mary (Wasabi-Spiced Bloody Mary Cocktail)
+Shiso Mojito (Shiso Herb Mojito Cocktail)
+Shiso Gin Fizz (Shiso Gin Fizz Cocktail)
+Yuzu Gin Fizz (Yuzu Gin Fizz Cocktail)
+Tokyo Mule (Japanese Whisky Moscow Mule Cocktail)
+Kyoto Sour (Japanese Whisky Sour with Yuzu Cocktail)
+Sake Martini (Sake Martini Cocktail)
+Sake Spritz (Sake Spritz Cocktail)
+Calpico Sour (Calpis Milk Soda Sour Cocktail)
+Calpico Fizz (Calpis Milk Soda Fizz Cocktail)
+Ramune Highball (Ramune Soda Highball Cocktail)
+Japanese Slipper (Midori Melon Liqueur Cocktail)
+Matcha Highball (Matcha Green Tea Highball Cocktail)
+Hojicha Old Fashioned (Roasted Green Tea Old Fashioned Cocktail)
+Genmaicha Highball (Brown Rice Green Tea Highball Cocktail)
+Yuzu Mocktail (Yuzu Citrus Non-Alcoholic Drink)
+Matcha Latte Mocktail (Non-Alcoholic Matcha Latte Drink)
+Calpico Mocktail (Calpis Milk Soda Non-Alcoholic Drink)
+Ramune Float (Japanese Soda Ice Cream Float Mocktail)
+Tamago Kake Gohan (Raw Egg Rice Breakfast)
+Tamago Yaki (Japanese Rolled Omelet)
+Atsuyaki Tamago (Sweet Thick Japanese Omelet)
+Dashimaki Tamago (Savory Dashi Omelet)
+Tamagodon (Egg Rice Bowl)
+Okayu (Japanese Rice Porridge)
+Tamago Zosui (Egg Rice Soup)
+Gohan with Furikake (Seasoned Rice Breakfast)
+Gohan with Natto (Fermented Soybean Rice)
+Natto Tamago Gohan (Fermented Soybean and Egg Rice)
+Natto Toast (Fermented Soybean Toast)
+Shiozake (Grilled Salted Salmon Breakfast)
+Teriyaki Salmon Breakfast
+Miso Soup with Tofu and Scallions (Breakfast Miso Soup)
+Miso Soup with Clams (Asari Miso Soup)
+Grilled Nori Sheets (Roasted Seaweed Breakfast)
+Japanese Breakfast Set (Traditional Ichiju Sansai Breakfast)
+Tamagoyaki Breakfast Plate (Japanese Omelet Breakfast Plate)
+Spam and Eggs (Japanese American Breakfast)
+Spam Musubi Breakfast Style (Spam Rice Breakfast)
+Portuguese Sausage and Eggs (Hawaiian Japanese American Breakfast)
+Spam Fried Rice Breakfast
+Japanese Style Fried Eggs with Rice
+Japanese Pancakes (Soufflé Pancakes)
+Anko Toast (Sweet Red Bean Toast)
+Butter Sugar Toast (Japanese Breakfast Toast)
+Japanese Milk Bread Toast (Shokupan Toast)
+Tamago Sandwich (Japanese Egg Salad Sandwich)
+Katsu Tamago Sandwich (Breaded Pork Cutlet and Egg Sandwich)
+Breakfast Onigiri (Rice Ball Breakfast)
+Yaki Onigiri (Grilled Rice Balls)
+Onigiri with Salmon (Salmon Rice Balls)
+Onigiri with Umeboshi (Pickled Plum Rice Balls)
+Tamagoyaki Onigiri (Omelet Rice Balls)
+Japanese American Diner Breakfast Plate
+Japanese Style Breakfast Curry (Morning Curry Rice)
+Chicken Teriyaki Plate Lunch
+Beef Teriyaki Plate Lunch
+Salmon Teriyaki Plate Lunch
+Spam Teriyaki Plate Lunch
+Chicken Katsu Plate Lunch
+Pork Katsu Plate Lunch
+Chicken Katsu Curry
+Hamburger Steak Plate Lunch
+Loco Moco
+Garlic Shrimp Plate Lunch
+Hawaiian-Style Fried Chicken (Mochiko Chicken)
+Spam Musubi
+Spam and Egg Musubi
+Chicken Katsu Musubi
+Furikake Chicken
+Shoyu Chicken
+Chicken Karaage Plate Lunch
+Tonkatsu Plate Lunch
+Chicken Teriyaki Bento
+Salmon Teriyaki Bento
+Mixed Plate Lunch
+Japanese Curry Rice
+Chicken Curry Rice
+Beef Curry Rice
+Katsu Curry Rice
+Omurice (Omelette Rice)
+Hamburger Curry Rice
+Yakitori Chicken Plate
+Beef Bulgogi Plate Lunch (Japanese-American Style)
+Saimin (Hawaiian Noodle Soup)
+Chicken Katsu Sando (Japanese Fried Chicken Sandwich)
+Tonkatsu Sando (Pork Cutlet Sandwich)
+Teriyaki Burger
+Spam Fried Rice
+Garlic Chicken Fried Rice
+Chicken Katsu Fried Rice
+Hawaiian Macaroni Salad
+Japanese Potato Salad
+Chicken Teriyaki Donburi (Teriyaki Chicken Rice Bowl)
+Gyudon (Beef Bowl)
+Chicken Karaage Donburi (Fried Chicken Rice Bowl)
+Unagi Donburi (Grilled Eel Rice Bowl)
+Poke Bowl (Japanese-American Style)
+Chicken Katsu Bowl
+Tonkatsu Bowl
+Tempura Shrimp Plate Lunch
+Tempura Vegetable Plate Lunch
+Chicken Teriyaki Udon
+Beef Teriyaki Udon
+Yakisoba (Japanese Stir-Fried Noodles)
+Chicken Yakisoba
+Beef Yakisoba
+Shrimp Yakisoba
+Spam Yakisoba
+Chicken Teriyaki Saimin
+Chicken Katsu Saimin
+Hamburger Steak Curry
+Chicken Katsu Plate with Macaroni Salad
+Tamagoyaki (Japanese Rolled Omelette)
+Dashimaki Tamago (Dashi-Flavored Rolled Omelette)
+Japanese Breakfast Set (Traditional Japanese Breakfast)
+Tamago Kake Gohan (Rice with Raw Egg)
+Onigiri with Furikake (Seasoned Rice Balls)
+Onigiri with Umeboshi (Pickled Plum Rice Balls)
+Onigiri with Salmon (Salmon Rice Balls)
+Onigiri with Spam (Spam Rice Balls)
+Spam and Eggs with Rice (Spam, Eggs, and Steamed Rice)
+Spam Musubi (Grilled Spam Rice Block)
+Breakfast Bento (Japanese Breakfast Box)
+Okonomiyaki (Japanese Savory Pancake)
+Hiroshima-Style Okonomiyaki (Layered Savory Pancake)
+Japanese Pancakes (Soufflé-Style Pancakes)
+Matcha Pancakes (Green Tea Pancakes)
+Japanese French Toast (Custard-Soaked Milk Bread)
+Tamago Sando (Japanese Egg Salad Sandwich)
+Katsu Sando (Breaded Pork Cutlet Sandwich)
+Menchi Katsu Sando (Ground Meat Cutlet Sandwich)
+Tonkatsu and Eggs (Breaded Pork Cutlet with Eggs)
+Japanese Curry Toast (Curry-Topped Toast)
+Anpan (Sweet Red Bean Bread)
+Shokupan Toast with Butter (Japanese Milk Bread Toast)
+Shokupan Toast with Jam (Japanese Milk Bread Toast with Jam)
+Toast with Tamago Salad (Egg Salad Toast)
+Breakfast Udon (Udon Noodles with Egg and Broth)
+Kitsune Udon (Udon with Sweet Fried Tofu)
+Breakfast Soba (Buckwheat Noodles with Egg)
+Zaru Soba with Tamago (Cold Buckwheat Noodles with Egg)
+Miso Soup with Rice (Miso Soup and Steamed Rice)
+Miso Soup with Tofu and Scallions (Tofu Miso Soup)
+Natto Gohan (Fermented Soybeans over Rice)
+Avocado Natto Toast (Avocado and Fermented Soybean Toast)
+Rice with Furikake and Egg (Seasoned Rice with Egg)
+Japanese-American Breakfast Plate (Eggs, Rice, and Protein)
+Teriyaki Spam Breakfast Plate (Teriyaki Spam with Eggs and Rice)
+Salmon Breakfast Plate (Grilled Salmon with Rice and Eggs)
+California-Style Japanese Breakfast (Japanese-American Breakfast Combo)
+Chicken Teriyaki (Grilled Chicken in Sweet Soy Sauce)
+Beef Teriyaki (Grilled Beef in Sweet Soy Sauce)
+Salmon Teriyaki (Grilled Salmon in Sweet Soy Sauce)
+Chicken Katsu (Japanese Breaded Fried Chicken Cutlet)
+Tonkatsu (Japanese Breaded Fried Pork Cutlet)
+Chicken Katsu Curry (Breaded Chicken Cutlet with Japanese Curry)
+Hambāgu Steak (Japanese-Style Hamburger Steak)
+Loco Moco (Hamburger Steak with Gravy, Rice, and Egg)
+Garlic Shrimp (Hawaiian-Style Garlic Butter Shrimp)
+Chicken Karaage (Japanese Fried Chicken)
+Spam Musubi (Grilled Spam Rice Wrap)
+Chicken Donburi (Chicken Rice Bowl)
+Beef Donburi (Beef Rice Bowl)
+Teriyaki Chicken Plate (Chicken Teriyaki with Rice and Macaroni Salad)
+Mixed Plate Lunch (Assorted Meats with Rice and Macaroni Salad)
+Chicken Yakisoba (Stir-Fried Noodles with Chicken)
+Beef Yakisoba (Stir-Fried Noodles with Beef)
+Chicken Yakitori (Grilled Chicken Skewers)
+Beef Sukiyaki (Japanese Beef Hot Pot)
+Chicken Sukiyaki (Japanese Chicken Hot Pot)
+Chicken Udon Stir-Fry (Pan-Fried Udon Noodles with Chicken)
+Beef Udon Stir-Fry (Pan-Fried Udon Noodles with Beef)
+Chicken Fried Rice (Japanese-Style Fried Rice with Chicken)
+Spam Fried Rice (Fried Rice with Spam)
+Chicken Katsu Plate (Breaded Chicken Cutlet with Rice and Macaroni Salad)
+Tonkatsu Plate (Breaded Pork Cutlet with Rice and Macaroni Salad)
+Teriyaki Beef Plate (Beef Teriyaki with Rice and Macaroni Salad)
+Salmon Teriyaki Plate (Salmon Teriyaki with Rice and Macaroni Salad)
+Chicken Saimin (Hawaiian-Style Noodle Soup with Chicken)
+Beef Saimin (Hawaiian-Style Noodle Soup with Beef)
+Chicken Bento (Japanese-Style Boxed Dinner with Chicken)
+Beef Bento (Japanese-Style Boxed Dinner with Beef)
+Matcha Green Tea Latte
+Iced Matcha Green Tea Latte
+Hojicha Roasted Green Tea
+Hojicha Latte
+Genmaicha Brown Rice Green Tea
+Sencha Green Tea
+Mugicha Barley Tea
+Iced Mugicha Barley Tea
+Calpico Milk Drink
+Calpico Soda
+Ramune Japanese Lemon Soda
+Yuzu Lemonade
+Yuzu Spritz
+Amazake Sweet Rice Drink
+Iced Amazake Sweet Rice Drink
+Japanese Iced Coffee
+Kyoto-Style Slow-Drip Iced Coffee
+Coffee Jelly Drink
+Milk Tea with Tapioca Pearls (Japanese Bubble Tea)
+Matcha Bubble Tea
+Hojicha Bubble Tea
+Iced Royal Milk Tea
+Japanese Strawberry Milk
+Melon Cream Soda
+Yuzu Green Tea
+Cold Brew Green Tea
+Iced Sencha Green Tea
+Japanese Whisky Highball
+Yuzu Highball
+Umeshu Plum Wine Soda
+Umeshu Plum Wine on the Rocks
+Sakura Latte
+Sakura Soda
+Matcha Affogato Drink
+Black Sesame Latte
+Kinako Roasted Soybean Latte
+Japanese-Style Hot Chocolate
+Iced Black Tea with Milk (Japanese Iced Milk Tea)
+Green Tea Lemonade
+Matcha Lemonade
+Japanese-Style Arnold Palmer (Green Tea Lemonade with Black Tea)
+Cold Brew Hojicha
+Japanese Craft Cola
+Yuzu Honey Tea
+Iced Yuzu Honey Tea
+Shokupan (Japanese Milk Bread)
+Hokkaido Milk Bread (Japanese Sweet Milk Bread)
+Pullman Loaf (Square Milk Bread)
+Anpan (Sweet Red Bean Bread)
+Kuri Anpan (Chestnut Red Bean Bread)
+Goma Anpan (Black Sesame Red Bean Bread)
+Melonpan (Sweet Cookie-Crust Bread)
+Chocolate Melonpan (Chocolate Cookie Bread)
+Matcha Melonpan (Green Tea Cookie Bread)
+Curry Pan (Japanese Curry-Filled Fried Bread)
+Yaki Curry Pan (Baked Curry Bread)
+Kare Pan (Spicy Curry Bread)
+Yakitori Pan (Grilled Chicken Sandwich Bread)
+Korokke Pan (Croquette Sandwich Bread)
+Menchi Katsu Pan (Ground Meat Cutlet Bread)
+Tonkatsu Pan (Pork Cutlet Sandwich Bread)
+Tamago Sando Shokupan (Egg Salad Milk Bread Sandwich Loaf)
+Fruit Sando Shokupan (Fruit Cream Sandwich Bread)
+Japanese Hot Dog Bun (Soft Milk Hot Dog Roll)
+Japanese Hamburger Bun (Milk Bread Burger Bun)
+Milk Bread Dinner Rolls (Japanese-Style Soft Rolls)
+Japanese Butter Rolls (Soft Butter Bread Rolls)
+Sweet Cream Pan (Custard Cream-Filled Bread)
+Matcha Cream Pan (Green Tea Custard Bread)
+Coffee Cream Pan (Coffee Custard Bread)
+Milk Bread Toast (Japanese Toast Bread)
+Japanese Raisin Bread (Sweet Milk Raisin Loaf)
+Japanese Walnut Bread (Milk Bread with Walnuts)
+Japanese Corn Bread Roll (Sweet Corn Milk Bread Roll)
+Japanese Cheese Bread (Cheese-Filled Milk Bread)
+Teriyaki Chicken (Japanese-Style Grilled Chicken with Teriyaki Sauce)
+Chicken Teriyaki Bowl (Teriyaki Chicken Rice Bowl)
+Seattle-Style Teriyaki Chicken (American Teriyaki Chicken)
+Chicken Katsu (Japanese Breaded Fried Chicken Cutlet)
+Chicken Katsu Curry (Breaded Chicken with Japanese Curry Sauce)
+Katsu Don (Chicken Cutlet Rice Bowl)
+Chicken Karaage (Japanese Fried Chicken)
+Spicy Chicken Karaage (Spicy Japanese Fried Chicken)
+Chicken Yakitori (Japanese Grilled Chicken Skewers)
+Yakitori Negima (Grilled Chicken and Scallion Skewers)
+Yakitori Tsukune (Chicken Meatball Skewers)
+Yakitori Momo (Grilled Chicken Thigh Skewers)
+Chicken Yakisoba (Stir-Fried Noodles with Chicken)
+Chicken Yaki Udon (Stir-Fried Udon Noodles with Chicken)
+Chicken Donburi (Japanese Chicken Rice Bowl)
+Oyakodon (Chicken and Egg Rice Bowl)
+Chicken Katsudon (Chicken Cutlet Rice Bowl)
+Chicken Bento Teriyaki (Teriyaki Chicken Bento Box)
+Chicken Bento Katsu (Chicken Cutlet Bento Box)
+Chicken Tempura (Battered and Fried Chicken Tempura)
+Chicken Nanban (Fried Chicken with Tartar Sauce)
+Chicken Udon Soup (Udon Noodle Soup with Chicken)
+Chicken Ramen (Ramen Noodle Soup with Chicken Broth)
+Chicken Shoyu Ramen (Soy Sauce Chicken Ramen)
+Chicken Miso Ramen (Miso Chicken Ramen)
+Chicken Tonkatsu-Style Cutlet (Japanese-Style Breaded Chicken)
+Chicken Furikake Rice (Chicken with Seasoned Rice)
+Chicken Spam Teriyaki (Teriyaki Chicken and Spam)
+Chicken Katsu Sandwich (Japanese Chicken Cutlet Sandwich)
+Teriyaki Chicken Sandwich (Japanese-Style Teriyaki Chicken Sandwich)
+Chicken Musubi (Chicken Rice Ball Wrap)
+Chicken Onigiri (Chicken-Stuffed Rice Ball)
+Gyudon (Beef Bowl)
+Sukiyaki (Japanese Beef Hot Pot)
+Shabu-Shabu Beef (Japanese Hot Pot Beef)
+Yakiniku Beef (Japanese Grilled Beef)
+Teriyaki Beef (Beef Teriyaki)
+Beef Tataki (Seared Beef)
+Beef Udon (Beef Noodle Soup)
+Beef Curry Rice (Japanese Beef Curry)
+Beef Donburi (Seasoned Beef Rice Bowl)
+Beef Negimaki (Scallion Beef Rolls)
+Beef Gyoza Filling (Beef Dumpling Filling)
+Beef Nikujaga (Beef and Potato Stew)
+Beef Soboro (Seasoned Ground Beef)
+Beef Yakisoba (Stir-Fried Noodles with Beef)
+Beef Teppanyaki (Griddle-Seared Beef)
+Beef Bento Steak (Japanese-Style Steak)
+Beef Katsu (Breaded Beef Cutlet)
+Beef Miso Stir-Fry (Beef with Miso Sauce)
+Hawaiian Beef Teriyaki (Island-Style Beef Teriyaki)
+Hawaiian Shoyu Beef (Soy Sauce Braised Beef)
+Hawaiian Beef Curry (Local-Style Beef Curry)
+Hawaiian Plate Lunch Beef Teriyaki (Plate Lunch Beef Teriyaki)
+Hawaiian Beef Loco Moco Patty (Beef Patty with Gravy)
+Hawaiian Beef Stir-Fry (Local-Style Beef Stir-Fry)
+Japanese American Short Rib Teriyaki (Teriyaki Short Ribs)
+Japanese American Kalbi-Style Beef (Sweet Soy-Marinated Short Ribs)
+Japanese American Beef Steak Garlic Sauce (Garlic Steak)
+Japanese American Beef Fried Rice (Beef Fried Rice)
+Japanese American Beef Saimin (Beef Noodle Soup)
+Tonkatsu (Breaded Deep-Fried Pork Cutlet)
+Hire Katsu (Fried Pork Cutlet)
+Chicken Katsu-Style Pork Cutlet (Pork Katsu Variation)
+Katsu Curry with Pork (Japanese Curry with Pork Cutlet)
+Katsudon (Pork Cutlet Rice Bowl)
+Tonkatsu Teishoku (Pork Cutlet Set Meal)
+Miso Katsu (Miso-Glazed Pork Cutlet)
+Shogayaki (Ginger Pork Sauté)
+Buta no Shogayaki (Ginger Pork Stir-Fry)
+Buta no Kakuni (Braised Pork Belly)
+Kakuni Don (Braised Pork Belly Rice Bowl)
+Chashu (Soy-Braised Pork Belly)
+Chashu Don (Braised Pork Belly Rice Bowl)
+Ramen Chashu Pork (Ramen Braised Pork)
+Buta Bara Don (Pork Belly Rice Bowl)
+Buta Kimchi (Pork and Kimchi Stir-Fry)
+Buta no Teriyaki (Teriyaki Pork)
+Teriyaki Pork Plate (Japanese-Style Teriyaki Pork)
+Buta Miso Itame (Pork and Miso Stir-Fry)
+Buta Niku Itame (Stir-Fried Pork)
+Buta no Niku Jaga (Pork and Potato Stew)
+Buta Udon (Udon Noodles with Pork)
+Buta Soba (Soba Noodles with Pork)
+Yakibuta (Grilled Marinated Pork)
+Yakibuta Don (Grilled Pork Rice Bowl)
+Buta Yakiniku (Japanese-Style Grilled Pork)
+Pork Yakiniku Plate (Japanese BBQ Pork)
+Hawaii-Style Shoyu Pork (Soy Sauce Braised Pork)
+Hawaiian-Style Kalua Pork with Japanese Influence (Slow-Roasted Pork)
+Spam and Pork Fried Rice (Japanese-American Pork Fried Rice)
+Okinawan-Style Rafute (Soy-Braised Pork Belly)
+Rafute Don (Braised Pork Belly Rice Bowl)
+Shrimp Tempura (Battered and Fried Shrimp)
+Ebi Fry (Japanese-Style Breaded Fried Shrimp)
+Shrimp Katsu (Breaded Shrimp Cutlet)
+Shrimp Teriyaki (Grilled Shrimp with Teriyaki Sauce)
+Scallop Teriyaki (Grilled Scallops with Teriyaki Sauce)
+Garlic Shrimp (Hawaiian-Style Japanese Garlic Shrimp)
+Butter Garlic Shrimp (Japanese-American Garlic Butter Shrimp)
+Shrimp Teppanyaki (Flat-Top Grilled Shrimp)
+Scallop Teppanyaki (Flat-Top Grilled Scallops)
+Shrimp Yakisoba (Stir-Fried Noodles with Shrimp)
+Shrimp Yaki Udon (Stir-Fried Udon with Shrimp)
+Shrimp Fried Rice (Japanese-Style Shrimp Fried Rice)
+Shrimp Curry Rice (Japanese Curry with Shrimp)
+Shrimp Kakiage (Mixed Vegetable and Shrimp Fritter)
+Scallop Kakiage (Mixed Vegetable and Scallop Fritter)
+Shrimp Donburi (Rice Bowl with Shrimp)
+Tempura Donburi (Rice Bowl with Shrimp Tempura)
+Shrimp Sushi (Shrimp Nigiri Sushi)
+Scallop Sushi (Scallop Nigiri Sushi)
+Shrimp California Roll (Crab and Shrimp Inside-Out Roll)
+Shrimp Tempura Roll (Shrimp Tempura Sushi Roll)
+Spicy Shrimp Roll (Spicy Shrimp Sushi Roll)
+Scallop Roll (Scallop Sushi Roll)
+Spicy Scallop Roll (Spicy Scallop Sushi Roll)
+Shrimp Poke (Japanese-Hawaiian Shrimp Poke)
+Shrimp Sunomono (Vinegared Shrimp Salad)
+Scallop Sunomono (Vinegared Scallop Salad)
+Shrimp Miso Soup (Miso Soup with Shrimp)
+Scallop Miso Soup (Miso Soup with Scallops)
+Mochi Donut (Japanese Rice Flour Donut)
+Black Sesame Mochi Donut (Black Sesame Rice Flour Donut)
+Matcha Mochi Donut (Green Tea Rice Flour Donut)
+Kinako Mochi Donut (Roasted Soybean Flour Rice Donut)
+Butter Mochi (Hawaiian-Style Japanese Rice Cake Pastry)
+Chocolate Butter Mochi (Chocolate Hawaiian Rice Cake Pastry)
+Coconut Butter Mochi (Coconut Hawaiian Rice Cake Pastry)
+Strawberry Butter Mochi (Strawberry Hawaiian Rice Cake Pastry)
+Daifuku (Sweet Rice Cake with Filling)
+Strawberry Daifuku (Strawberry-Filled Sweet Rice Cake)
+Matcha Daifuku (Green Tea Sweet Rice Cake)
+Kinako Daifuku (Soybean Flour Sweet Rice Cake)
+Anpan (Sweet Red Bean Bread Roll)
+Cream Anpan (Custard-Filled Sweet Bread Roll)
+Matcha Anpan (Green Tea Sweet Bread Roll)
+Melonpan (Sweet Japanese Cookie Bread)
+Matcha Melonpan (Green Tea Sweet Cookie Bread)
+Chocolate Melonpan (Chocolate Sweet Cookie Bread)
+Castella (Japanese Sponge Cake)
+Matcha Castella (Green Tea Sponge Cake)
+Honey Castella (Honey Sponge Cake)
+Dorayaki (Red Bean Pancake Sandwich)
+Matcha Dorayaki (Green Tea Pancake Sandwich)
+Custard Dorayaki (Custard-Filled Pancake Sandwich)
+Imagawayaki (Filled Griddle Cake)
+Custard Imagawayaki (Custard-Filled Griddle Cake)
+Red Bean Imagawayaki (Sweet Red Bean Griddle Cake)
+Taiyaki (Fish-Shaped Filled Cake)
+Custard Taiyaki (Custard-Filled Fish-Shaped Cake)
+Chocolate Taiyaki (Chocolate-Filled Fish-Shaped Cake)
+Manju (Steamed Sweet Bean Bun)
+Matcha Manju (Green Tea Steamed Sweet Bun)
+Yuzu Manju (Yuzu Citrus Steamed Sweet Bun)
+Kasutera Manju (Castella-Filled Sweet Bun)
+Japanese Cheesecake (Soufflé-Style Cheesecake)
+Matcha Japanese Cheesecake (Green Tea Soufflé Cheesecake)
+Hojicha Pound Cake (Roasted Tea Pound Cake)
+Matcha Pound Cake (Green Tea Pound Cake)
+Castella (Japanese Sponge Cake)
+Matcha Castella (Green Tea Sponge Cake)
+Chocolate Castella (Chocolate Sponge Cake)
+Honey Castella (Honey Sponge Cake)
+Japanese Strawberry Shortcake (Japanese-Style Strawberry Cream Cake)
+Matcha Strawberry Shortcake (Green Tea Strawberry Cream Cake)
+Chocolate Strawberry Shortcake (Chocolate Strawberry Cream Cake)
+Vanilla Japanese Shortcake (Japanese-Style Vanilla Cream Cake)
+Yuzu Shortcake (Yuzu Citrus Cream Cake)
+Black Sesame Shortcake (Black Sesame Cream Cake)
+Mille Crêpes (Layered Crêpe Cake)
+Matcha Mille Crêpes (Green Tea Crêpe Cake)
+Chocolate Mille Crêpes (Chocolate Crêpe Cake)
+Strawberry Mille Crêpes (Strawberry Crêpe Cake)
+Hojicha Mille Crêpes (Roasted Green Tea Crêpe Cake)
+Japanese Cheesecake (Japanese Cotton Cheesecake)
+Matcha Cheesecake (Green Tea Cheesecake)
+Yuzu Cheesecake (Yuzu Citrus Cheesecake)
+Black Sesame Cheesecake (Black Sesame Cheesecake)
+Ube Cheesecake (Purple Yam Cheesecake)
+Basque Cheesecake (Japanese-Style Burnt Cheesecake)
+Matcha Basque Cheesecake (Green Tea Burnt Cheesecake)
+Chocolate Basque Cheesecake (Chocolate Burnt Cheesecake)
+Chiffon Cake (Japanese-Style Chiffon Cake)
+Matcha Chiffon Cake (Green Tea Chiffon Cake)
+Chocolate Chiffon Cake (Chocolate Chiffon Cake)
+Yuzu Chiffon Cake (Yuzu Citrus Chiffon Cake)
+Earl Grey Chiffon Cake (Earl Grey Tea Chiffon Cake)
+Black Sesame Chiffon Cake (Black Sesame Chiffon Cake)
+Roll Cake (Japanese Swiss Roll Cake)
+Strawberry Roll Cake (Strawberry Cream Roll Cake)
+Matcha Roll Cake (Green Tea Roll Cake)
+Chocolate Roll Cake (Chocolate Cream Roll Cake)
+Yuzu Roll Cake (Yuzu Citrus Roll Cake)
+Mango Roll Cake (Mango Cream Roll Cake)
+Sakura Roll Cake (Cherry Blossom Roll Cake)
+Pound Cake (Japanese-Style Pound Cake)
+Matcha Pound Cake (Green Tea Pound Cake)
+Yuzu Pound Cake (Yuzu Citrus Pound Cake)
+Black Sesame Pound Cake (Black Sesame Pound Cake)
+Chocolate Marble Pound Cake (Chocolate Marble Pound Cake)
+Ube Pound Cake (Purple Yam Pound Cake)
+Financier (Japanese-Style Almond Butter Cake)
+Matcha Financier (Green Tea Almond Butter Cake)
+Chocolate Financier (Chocolate Almond Butter Cake)
+Yuzu Financier (Yuzu Citrus Almond Butter Cake)
+Black Sesame Financier (Black Sesame Almond Butter Cake)
+Sakura Cake (Cherry Blossom Cake)
+Matcha Opera Cake (Green Tea Opera Cake)
+Japanese Opera Cake (Japanese-Style Layered Coffee Cake)
+Strawberry Mousse Cake (Japanese-Style Strawberry Mousse Cake)
+Matcha Mousse Cake (Green Tea Mousse Cake)
+Chocolate Mousse Cake (Chocolate Mousse Cake)
+Yuzu Mousse Cake (Yuzu Citrus Mousse Cake)
+Mirror Glaze Cake (Japanese-Style Mirror Glaze Cake)
+Matcha Mirror Glaze Cake (Green Tea Mirror Glaze Cake)
+Strawberry Mirror Glaze Cake (Strawberry Mirror Glaze Cake)
+Japanese Wedding Cake (Japanese-Style Cream Wedding Cake)
+Japanese Birthday Cake (Japanese-Style Celebration Cake)
+Matcha Shortbread Cookies
+Black Sesame Shortbread Cookies
+Miso Butter Cookies
+Kinako Shortbread Cookies (Roasted Soybean Flour Cookies)
+Matcha Chocolate Chip Cookies
+White Chocolate Matcha Cookies
+Matcha Crinkle Cookies
+Yuzu Shortbread Cookies
+Yuzu Sugar Cookies
+Hojicha Shortbread Cookies (Roasted Green Tea Cookies)
+Genmaicha Shortbread Cookies (Green Tea and Roasted Rice Cookies)
+Black Sesame Chocolate Chip Cookies
+Miso Chocolate Chip Cookies
+Miso Peanut Butter Cookies
+Red Bean Shortbread Cookies
+Anko Thumbprint Cookies (Sweet Red Bean Thumbprint Cookies)
+Mochi Butter Cookies
+Mochi Chocolate Chip Cookies
+Mochi Matcha Cookies
+Mochi Peanut Butter Cookies
+Furikake Butter Cookies (Savory Seaweed and Sesame Cookies)
+Soy Sauce Butter Cookies
+Brown Sugar Shoyu Cookies (Brown Sugar Soy Sauce Cookies)
+Matcha Almond Cookies
+Matcha White Chocolate Macadamia Cookies
+Black Sesame Almond Cookies
+Kinako Chocolate Chip Cookies
+Yuzu Almond Cookies
+Miso Caramel Cookies
+Matcha Sugar Cookies
+Black Sesame Sugar Cookies
+Mochi Snickerdoodle Cookies
+Mochi Oatmeal Cookies
+Matcha Oatmeal Cookies
+Black Sesame Oatmeal Cookies
+Matcha Muffins
+Matcha White Chocolate Muffins
+Black Sesame Muffins
+Yuzu Muffins
+Hojicha Muffins
+Miso Caramel Muffins
+Mochi Muffins (Hawaiian-Style Mochi Muffins)
+Butter Mochi Muffins (Butter Mochi Cupcakes)
+Ube Mochi Muffins
+Coconut Mochi Muffins
+Anko Muffins (Sweet Red Bean Muffins)
+Azuki Bean Muffins
+Matcha Mochi Muffins
+Kinako Muffins (Roasted Soybean Flour Muffins)
+Japanese Milk Bread Muffins
+Matcha Cupcakes
+Matcha White Chocolate Cupcakes
+Black Sesame Cupcakes
+Yuzu Cupcakes
+Hojicha Cupcakes
+Miso Caramel Cupcakes
+Azuki Bean Cupcakes
+Anko Cupcakes (Sweet Red Bean Cupcakes)
+Strawberry Shortcake Cupcakes (Japanese Strawberry Shortcake Cupcakes)
+Matcha Strawberry Cupcakes
+Matcha Tiramisu Cupcakes
+Japanese Cheesecake Cupcakes
+Cotton Cheesecake Cupcakes (Japanese Cotton Cheesecake Cupcakes)
+Ube Cupcakes
+Coconut Mochi Cupcakes
+Kinako Cupcakes (Roasted Soybean Flour Cupcakes)
+Butter Mochi (Hawaiian Mochi Cake)
+Chocolate Butter Mochi (Chocolate Hawaiian Mochi Cake)
+Coconut Butter Mochi (Coconut Hawaiian Mochi Cake)
+Matcha Butter Mochi (Green Tea Hawaiian Mochi Cake)
+Ube Butter Mochi (Purple Yam Hawaiian Mochi Cake)
+Mochi Ice Cream (Ice Cream Wrapped in Sweet Rice Dough)
+Green Tea Mochi Ice Cream (Matcha Ice Cream Mochi)
+Red Bean Mochi Ice Cream (Azuki Bean Ice Cream Mochi)
+Black Sesame Mochi Ice Cream (Black Sesame Ice Cream Mochi)
+Mango Mochi Ice Cream (Mango Ice Cream Mochi)
+Daifuku (Sweet Rice Cake with Filling)
+Ichigo Daifuku (Strawberry Filled Sweet Rice Cake)
+Anko Daifuku (Red Bean Sweet Rice Cake)
+Chantilly Cake (Hawaiian Strawberry Chantilly Cake)
+Guava Chiffon Cake (Guava Sponge Cake with Cream Frosting)
+Guava Cheesecake (Guava Cream Cheese Cake)
+Haupia (Hawaiian Coconut Milk Pudding)
+Haupia Pie (Coconut Pudding Pie)
+Haupia Chocolate Pie (Chocolate Coconut Pudding Pie)
+Malasadas (Portuguese-Style Hawaiian Fried Doughnuts)
+Poi Mochi Donuts (Taro Root Mochi Doughnuts)
+Mochi Donuts (Japanese-Style Chewy Doughnuts)
+Black Sesame Mochi Donuts (Black Sesame Chewy Doughnuts)
+Green Tea Mochi Donuts (Matcha Chewy Doughnuts)
+Anpan (Sweet Red Bean Bread Roll)
+Cream Pan (Japanese Custard Cream Bread)
+Castella Cake (Japanese Sponge Cake)
+Matcha Castella Cake (Green Tea Sponge Cake)
+Dorayaki (Red Bean Pancake Sandwich)
+Taiyaki (Fish-Shaped Sweet Cake with Filling)
+Red Bean Taiyaki (Azuki Bean Filled Fish Cake)
+Custard Taiyaki (Custard Filled Fish Cake)
+Manju (Steamed Sweet Bun with Filling)
+Steamed Red Bean Manju (Azuki Filled Sweet Bun)
+Japanese Cheesecake (Soufflé-Style Cheesecake)
+Matcha Cheesecake (Green Tea Cheesecake)
+Ube Cheesecake (Purple Yam Cheesecake)
+Mochi (Rice Cake Confection)
+Daifuku (Filled Mochi Confection)
+Ichigo Daifuku (Strawberry-Filled Mochi Confection)
+Mame Daifuku (Red Bean and Soybean Mochi Confection)
+Kusa Daifuku (Mugwort-Flavored Mochi Confection)
+Anmitsu (Agar Jelly Dessert with Sweet Toppings)
+Mitsumame (Sweet Bean and Fruit Agar Dessert)
+Dorayaki (Red Bean Pancake Sandwich)
+Dorayaki with Chocolate Filling (Chocolate-Filled Pancake Sandwich)
+Taiyaki (Fish-Shaped Filled Cake)
+Taiyaki with Chocolate Filling (Chocolate-Filled Fish-Shaped Cake)
+Imagawayaki (Filled Griddle Cake)
+Manju (Steamed Sweet Bun)
+Chocolate Manju (Chocolate-Filled Sweet Bun)
+Yokan (Jellied Red Bean Confection)
+Chocolate Yokan (Chocolate Bean Jelly Confection)
+Nama Chocolate (Fresh Chocolate Truffles)
+Matcha Chocolate (Green Tea Chocolate)
+Kinako Mochi (Roasted Soybean Flour Mochi)
+Chocolate Kinako Mochi (Chocolate Soybean Flour Mochi)
+Dango (Sweet Rice Dumplings)
+Mitarashi Dango (Sweet Soy Glazed Rice Dumplings)
+Chocolate Dango (Chocolate-Coated Rice Dumplings)
+Castella (Japanese Sponge Cake)
+Chocolate Castella (Chocolate Sponge Cake)
+Azuki Chocolate Bark (Red Bean Chocolate Bark)
+Matcha Truffles (Green Tea Chocolate Truffles)
+Black Sesame Chocolate Truffles (Sesame Chocolate Truffles)
+Chocolate Mochi Ice Cream (Chocolate Ice Cream Rice Cake)
+Matcha Mochi Ice Cream (Green Tea Ice Cream Rice Cake)
+Strawberry Mochi Ice Cream (Strawberry Ice Cream Rice Cake)
+Pocky-Style Chocolate Biscuit Sticks (Chocolate-Coated Biscuit Sticks)
+Kinako Chocolate Bark (Soybean Flour Chocolate Bark)
+Hojicha Chocolate (Roasted Tea Chocolate)
+Chocolate Anko Truffles (Red Bean Chocolate Truffles)
+Chocolate Dorayaki Pancakes (Chocolate-Filled Pancake Sandwiches)
+Matcha Buttercream Frosting
+Matcha Swiss Meringue Buttercream
+Matcha Cream Cheese Frosting
+Black Sesame Buttercream Frosting
+Black Sesame Cream Cheese Frosting
+Anko Buttercream Frosting (Sweet Red Bean Buttercream)
+Azuki Bean Frosting (Red Bean Frosting)
+Hojicha Buttercream Frosting
+Kinako Buttercream Frosting (Roasted Soybean Flour Buttercream)
+Sakura Buttercream Frosting (Cherry Blossom Buttercream)
+Yuzu Sugar Glaze
+Yuzu Buttercream Frosting
+Yuzu Cream Cheese Frosting
+Japanese-Style Whipped Cream Frosting
+Japanese Strawberry Shortcake Whipped Cream
+Milk Bread Sweet Glaze (Shokupan Sugar Glaze)
+Condensed Milk Buttercream Frosting
+Japanese Milk Tea Buttercream Frosting
+Matcha Mochi Frosting (Glutinous Rice Buttercream)
+Black Sesame Mochi Frosting
+Ube Buttercream Frosting (Japanese American Bakery Style)
+Strawberry Milk Buttercream Frosting
+Vanilla Japanese Whipped Cream Icing
+Anko Pie (Sweet Red Bean Pie)
+Azuki Bean Pie (Red Bean Pie)
+Black Sesame Pie
+Matcha Green Tea Pie
+Haupia Pie (Coconut Milk Pie)
+Haupia Chocolate Pie (Chocolate Coconut Cream Pie)
+Sweet Potato Pie (Okinawan-Style Sweet Potato Pie)
+Purple Sweet Potato Pie (Okinawan Purple Yam Pie)
+Custard Pie (Japanese-Style Custard Pie)
+Milk Custard Pie (Japanese Milk Pie)
+Egg Custard Tart (Japanese Custard Tart)
+Matcha Custard Tart (Green Tea Custard Tart)
+Black Sesame Custard Tart
+Azuki Custard Tart (Red Bean Custard Tart)
+Apple Pie (Japanese Bakery-Style Apple Pie)
+Fuji Apple Pie (Japanese Apple Pie)
+Peach Pie (Japanese Peach Pie)
+Strawberry Custard Tart (Japanese Strawberry Tart)
+Fruit Tart (Japanese Bakery Fruit Tart)
+Mikan Tart (Japanese Mandarin Orange Tart)
+Yuzu Tart (Japanese Citrus Tart)
+Lemon Yuzu Tart (Yuzu Lemon Tart)
+Cheesecake Pie (Japanese Cheesecake Pie)
+Matcha Cheesecake Tart
+Black Sesame Cheesecake Tart
+Sweet Potato Cheesecake Pie
+Chocolate Cream Pie (Japanese Chocolate Pie)
+Mochi Pie (Sticky Rice Cake Pie)
+Daifuku Pie (Mochi-Stuffed Sweet Bean Pie)
+Kinako Tart (Roasted Soybean Flour Tart)
+Chestnut Tart (Japanese Chestnut Tart)
+Kabocha Pie (Japanese Pumpkin Pie)
+Pumpkin Custard Tart (Kabocha Custard Tart)
+Nikujaga (Japanese Meat and Potato Stew)
+Nikujaga with Beef (Beef and Potato Stew)
+Nikujaga with Pork (Pork and Potato Stew)
+Nikujaga with Shirataki (Potato Stew with Konjac Noodles)
+Nikujaga Korokke (Nikujaga Croquettes)
+Korokke (Japanese Potato Croquettes)
+Korokke with Beef (Beef Potato Croquettes)
+Korokke with Crab (Crab Potato Croquettes)
+Korokke with Curry (Curry Potato Croquettes)
+Korokke with Cheese (Cheese Potato Croquettes)
+Korokke Sandwich (Potato Croquette Sandwich)
+Agedashi Potato (Fried Potato in Dashi Sauce)
+Jaga Butter (Butter-Steamed Potatoes)
+Jaga Butter with Corn (Butter Potatoes with Corn)
+Jaga Butter with Miso Butter (Miso Butter Potatoes)
+Japanese Potato Salad
+Japanese Potato Salad with Ham
+Japanese Potato Salad with Cucumber
+Japanese Potato Salad with Apple
+Japanese Potato Salad with Kewpie Mayonnaise
+Miso Butter Potatoes
+Teriyaki Potatoes (Teriyaki-Glazed Potatoes)
+Soy Sauce Butter Potatoes
+Japanese Curry Potatoes (Potatoes in Japanese Curry Sauce)
+Curry Korokke (Curry Potato Croquettes)
+Potato Mochi (Potato Rice Cakes)
+Cheese Potato Mochi (Cheese-Stuffed Potato Cakes)
+Shoyu Potato Mochi (Soy Sauce Glazed Potato Cakes)
+Mashed Potatoes with Miso Gravy
+Mashed Potatoes with Wasabi
+Mashed Potatoes with Soy Sauce and Butter
+Roasted Potatoes with Shichimi Togarashi
+Fried Potatoes with Japanese Seven Spice
+Tempura Potatoes (Potato Tempura)
+Sweet Soy Glazed Potatoes
+Potato Stir-Fry with Soy Sauce
+Potato Stir-Fry with Garlic and Soy Sauce
+Potato Kinpira (Sweet and Savory Sautéed Potatoes)
+Japanese Hash Browns
+Japanese-Style French Fries
+French Fries with Furikake
+French Fries with Nori Salt
+French Fries with Curry Powder
+French Fries with Miso Salt
+Potato Gratin Japanese-Style
+Miso Cream Potato Gratin
+Soy Sauce Cream Potato Gratin
+Hamburger Steak with Mashed Potatoes (Japanese Hamburg Steak Potatoes)
+Teriyaki Chicken with Buttered Potatoes
+Japanese Beef Steak with Garlic Potatoes
+Nimono-Style Simmered Vegetables (Japanese-Style Simmered Vegetables)
+Kinpira Gobo (Braised Burdock Root)
+Kinpira Carrots (Braised Carrots)
+Nasu Dengaku (Miso-Glazed Eggplant)
+Yasai Itame (Stir-Fried Vegetables)
+Goma-ae Spinach (Spinach with Sesame Dressing)
+Goma-ae Green Beans (Green Beans with Sesame Dressing)
+Ohitashi Spinach (Blanched Spinach in Dashi)
+Ohitashi Komatsuna (Blanched Mustard Greens in Dashi)
+Sunomono Cucumber Salad (Sweet Vinegared Cucumber Salad)
+Sunomono Wakame Salad (Seaweed Vinegar Salad)
+Tsukemono Assorted Pickles (Japanese Pickled Vegetables)
+Takuan Pickled Daikon (Yellow Pickled Daikon Radish)
+Shibazuke Pickles (Kyoto-Style Pickled Vegetables)
+Fukujinzuke Pickles (Sweet Soy Pickled Vegetables)
+Hijiki no Nimono (Simmered Hijiki Seaweed with Vegetables)
+Kabocha no Nimono (Simmered Kabocha Squash)
+Daikon no Nimono (Simmered Daikon Radish)
+Yaki Nasu (Grilled Japanese Eggplant)
+Agedashi Tofu with Vegetables (Fried Tofu and Vegetables in Broth)
+Tempura Vegetables (Japanese Vegetable Tempura)
+Vegetable Kakiage (Mixed Vegetable Tempura Fritter)
+Broccoli Teriyaki (Teriyaki-Glazed Broccoli)
+Teriyaki Glazed Green Beans (Green Beans with Teriyaki Sauce)
+Garlic Soy Roasted Brussels Sprouts (Japanese-Style Roasted Brussels Sprouts)
+Sesame Roasted Asparagus (Japanese Sesame Asparagus)
+Miso Butter Corn (Corn with Miso Butter)
+Japanese-Style Coleslaw (Sesame Cabbage Slaw)
+Cabbage Sunomono (Vinegared Cabbage Salad)
+Tofu and Vegetable Stir-Fry (Japanese-Style Vegetable Stir-Fry with Tofu)
+Vegetable Sukiyaki-Style Simmer (Sukiyaki Vegetables)
+Vegetable Shabu-Shabu Platter (Blanched Vegetables for Hot Pot)
+Hiyayakko (Chilled Tofu with Toppings)
+Agedashi Tofu (Fried Tofu in Dashi Broth)
+Tofu Steak (Pan-Seared Tofu Steak)
+Teriyaki Tofu (Teriyaki-Glazed Tofu)
+Sesame-Crusted Tofu (Sesame Seed Tofu Cutlets)
+Tofu Katsu (Breaded Fried Tofu Cutlet)
+Mapo Tofu (Japanese-Style Spicy Braised Tofu)
+Miso-Glazed Tofu (Miso-Marinated Broiled Tofu)
+Grilled Tofu with Ponzu Sauce (Ponzu-Marinated Grilled Tofu)
+Tofu Donburi (Rice Bowl with Seasoned Tofu)
+Tofu Stir-Fry (Japanese-American Tofu Vegetable Stir-Fry)
+Inari Sushi (Seasoned Tofu Skin Sushi)
+Aburaage no Nimono (Simmered Fried Tofu Pouches)
+Tofu and Vegetable Tempura (Tempura-Battered Tofu)
+Tofu Poke (Japanese-American Tofu Poke Bowl)
+Tofu Teriyaki Bowl (Teriyaki Tofu Rice Bowl)
+Tofu Salad with Ginger Dressing (Japanese Ginger Tofu Salad)
+Tofu Miso Soup (Miso Soup with Tofu Cubes)
+Tofu Hamburger Steak (Japanese-Style Tofu Patty Steak)
+Tofu Scramble (Japanese-American Savory Tofu Scramble)
+Teriyaki Chicken (Japanese American Teriyaki Grilled Chicken)
+Teriyaki Beef (Japanese American Teriyaki Grilled Beef)
+Teriyaki Short Ribs (Japanese American Teriyaki Beef Short Ribs)
+Kalbi Style Short Ribs (Japanese American Grilled Flanken Short Ribs)
+Huli-Huli Chicken (Hawaiian Japanese American Soy Ginger Grilled Chicken)
+Yakitori Chicken Thighs (Japanese American Grilled Chicken Thigh Skewers)
+Yakitori Chicken Breast (Japanese American Grilled Chicken Breast Skewers)
+Yakitori Chicken Meatballs (Japanese American Grilled Chicken Meatball Skewers)
+Miso Glazed Salmon (Japanese American Miso Grilled Salmon)
+Miso Butter Corn (Japanese American Grilled Corn with Miso Butter)
+Shio Grilled Beef (Japanese American Salt Grilled Beef)
+Garlic Teriyaki Chicken (Japanese American Garlic Teriyaki Grilled Chicken)
+Teriyaki Spam (Japanese American Teriyaki Grilled Spam)
+Teriyaki Pork Chops (Japanese American Teriyaki Grilled Pork Chops)
+Sesame Soy Grilled Vegetables (Japanese American Grilled Vegetable BBQ)
+Teriyaki Chicken Plate BBQ (Japanese American Teriyaki Chicken Barbecue Plate)
+Gohan (Steamed White Rice)
+Japanese Short-Grain White Rice (Plain Steamed Rice)
+Japanese Brown Rice (Steamed Brown Rice)
+Takikomi Gohan (Seasoned Mixed Rice)
+Maze Gohan (Mixed Rice)
+Shio Gohan (Salted Rice)
+Okayu (Japanese Rice Porridge)
+Zosui (Japanese Rice Soup)
+Ochazuke (Tea Poured Over Rice)
+Tamago Kake Gohan (Raw Egg Over Rice)
+Furikake Gohan (Rice with Seasoning Sprinkles)
+Onigiri (Rice Balls)
+Yaki-Onigiri (Grilled Rice Balls)
+Musubi (Pressed Rice Balls)
+Spam Musubi (Spam Topped Rice)
+Chirashi Sushi (Scattered Sushi Rice)
+Edomae Sushi Rice (Vinegared Sushi Rice)
+Inari Sushi (Rice in Sweet Tofu Pouches)
+Sekihan (Red Bean Rice)
+Gomoku Gohan (Five-Ingredient Rice)
+Kani Gohan (Crab Rice)
+Unagi Don Rice (Eel Rice Bowl Base)
+Gyudon Rice (Beef Bowl Rice)
+Oyakodon Rice (Chicken and Egg Rice Bowl)
+Katsudon Rice (Pork Cutlet Rice Bowl)
+Donburi Rice (Japanese Rice Bowl Base)
+Fried Rice (Japanese-Style Fried Rice)
+Yakimeshi (Japanese Fried Rice)
+Garlic Fried Rice (Japanese-Style Garlic Rice)
+Butter Rice (Japanese Buttered Rice)
+Corn Butter Rice (Corn and Butter Rice)
+Mushroom Rice (Kinoko Gohan)
+Salmon Rice (Sake Gohan)
+Teriyaki Chicken Rice (Teriyaki Rice Bowl)
+Hawaiian-Style Steamed Rice (Plate Lunch Rice)
+Macaroni Salad Rice Plate (Plate Lunch Rice with Sides)
+Japanese Curry Rice (Kare Raisu)
+Hayashi Rice (Beef and Tomato Rice)
+Omurice Rice (Ketchup Seasoned Rice)
+Tuna Poke Rice (Japanese American Poke Rice)
+California Roll Sushi Rice (American Sushi Rice)
+Vegetable Sushi Rice (Vegetarian Sushi Rice)
+Mixed Grain Rice (Multigrain Japanese Rice)
+Wafu Pasta (Japanese-Style Pasta)
+Shoyu Butter Pasta (Soy Sauce Butter Pasta)
+Mentaiko Pasta (Spicy Cod Roe Pasta)
+Tarako Pasta (Salted Cod Roe Pasta)
+Kitsune Udon Pasta (Fried Tofu Udon-Style Pasta)
+Napolitan (Japanese Ketchup Spaghetti)
+Miso Butter Pasta (Miso Butter Spaghetti)
+Garlic Shoyu Pasta (Garlic Soy Sauce Pasta)
+Uni Pasta (Sea Urchin Cream Pasta)
+Ikura Pasta (Salmon Roe Pasta)
+Miso Cream Pasta (Miso Cream Spaghetti)
+Wasabi Cream Pasta (Wasabi Cream Spaghetti)
+Shimeji Mushroom Pasta (Japanese Mushroom Pasta)
+Kinoko Butter Pasta (Mixed Mushroom Butter Pasta)
+Spinach and Bacon Shoyu Pasta (Spinach Bacon Soy Sauce Pasta)
+Salmon Shio Koji Pasta (Salt-Fermented Salmon Pasta)
+Salmon Cream Pasta (Japanese-Style Salmon Cream Spaghetti)
+Teriyaki Chicken Pasta (Teriyaki Chicken Spaghetti)
+Hamburg Steak Pasta (Japanese Hamburg Steak Spaghetti)
+Tuna Mayo Pasta (Tuna Mayonnaise Pasta)
+Corn Butter Pasta (Sweet Corn Butter Pasta)
+Seafood Wafu Pasta (Japanese Seafood Pasta)
+Clam Shoyu Pasta (Soy Sauce Clam Pasta)
+Squid Ink Wafu Pasta (Japanese-Style Squid Ink Pasta)
+Curry Cream Pasta (Japanese Curry Cream Spaghetti)
+Natto Pasta (Fermented Soybean Pasta)
+Kimchi Butter Pasta (Kimchi Butter Spaghetti)
+Ume Shiso Pasta (Plum and Perilla Pasta)
+Pork Belly Shoyu Pasta (Soy Sauce Pork Belly Pasta)
+Shrimp Mentaiko Pasta (Spicy Cod Roe Shrimp Pasta)
+Miso Soup (Fermented Soybean Soup)
+White Miso Soup (White Fermented Soybean Soup)
+Red Miso Soup (Red Fermented Soybean Soup)
+Mixed Miso Soup (Blended Fermented Soybean Soup)
+Miso Soup with Tofu and Wakame (Fermented Soybean Soup with Tofu and Seaweed)
+Miso Soup with Clams (Clam Fermented Soybean Soup)
+Miso Soup with Root Vegetables (Vegetable Miso Soup)
+Tonjiru (Pork and Root Vegetable Miso Soup)
+Ozoni (New Year’s Mochi Soup)
+Clear Dashi Soup (Japanese Clear Broth Soup)
+Osuimono (Seasoned Clear Soup)
+Dobin Mushi (Teapot Steamed Soup)
+Chawanmushi Soup (Savory Egg Custard Soup)
+Chicken Udon Soup (Udon Noodle Soup with Chicken)
+Tempura Udon Soup (Udon Noodle Soup with Tempura)
+Kitsune Udon Soup (Udon Noodle Soup with Fried Tofu)
+Beef Udon Soup (Udon Noodle Soup with Beef)
+Nabeyaki Udon Soup (Hot Pot Udon Soup)
+Chicken Soba Soup (Buckwheat Noodle Soup with Chicken)
+Tempura Soba Soup (Buckwheat Noodle Soup with Tempura)
+Kake Soba Soup (Plain Buckwheat Noodle Soup)
+Ramen Soup (Japanese Wheat Noodle Soup)
+Shoyu Ramen Soup (Soy Sauce Ramen Soup)
+Miso Ramen Soup (Miso-Based Ramen Soup)
+Shio Ramen Soup (Salt-Based Ramen Soup)
+Tonkotsu Ramen Soup (Pork Bone Ramen Soup)
+Chicken Ramen Soup (Chicken-Based Ramen Soup)
+Wonton Ramen Soup (Ramen Soup with Wontons)
+Japanese Chicken Noodle Soup (Japanese-Style Chicken Soup)
+Japanese Vegetable Soup (Japanese-Style Vegetable Soup)
+Seafood Clear Soup (Japanese Seafood Broth Soup)
+Japanese Beef Soup (Japanese-Style Beef Broth Soup)
+Hawaii-Style Saimin Soup (Japanese American Noodle Soup)
+Chicken Saimin Soup (Chicken Broth Saimin Soup)
+Seafood Saimin Soup (Seafood Broth Saimin Soup)
+Teriyaki Chicken Plate
+Beef Teriyaki Plate
+Chicken Katsu Plate
+Pork Katsu Plate
+Spam Musubi (Grilled Spam Rice Block)
+Chicken Karaage (Japanese Fried Chicken)
+Okonomiyaki (Japanese Savory Cabbage Pancake)
+Osaka-Style Okonomiyaki (Japanese Savory Pancake)
+Hiroshima-Style Okonomiyaki (Layered Japanese Savory Pancake)
+Takoyaki (Octopus Fritters)
+Yakisoba (Japanese Fried Noodles)
+Yaki Udon (Stir-Fried Thick Wheat Noodles)
+Yakitori Chicken Skewers (Grilled Chicken Skewers)
+Negima Yakitori (Chicken and Scallion Skewers)
+Tsukune (Chicken Meatball Skewers)
+Gyoza (Japanese Pan-Fried Dumplings)
+Korokke (Japanese Potato Croquettes)
+Menchi Katsu (Ground Meat Cutlet)
+Katsu Sando (Breaded Pork Cutlet Sandwich)
+Chicken Katsu Sandwich (Breaded Chicken Cutlet Sandwich)
+Ramen Burger (Noodle Bun Hamburger)
+Sushi Burrito (Rolled Sushi Wrap)
+Poke Bowl (Seasoned Raw Fish Rice Bowl)
+Onigiri (Japanese Rice Balls)
+Furikake Onigiri (Seasoned Rice Balls)
+Taiyaki (Fish-Shaped Sweet Cake)
+Imagawayaki (Sweet Filled Pancake)
+Mitarashi Dango (Grilled Rice Dumplings with Sweet Soy Glaze)
+Harumaki (Japanese Fried Spring Rolls)
+Fried Shrimp Tempura (Battered and Fried Shrimp)
+Chicken Tempura (Battered and Fried Chicken)
+Gohan (Steamed White Rice)
+Furikake Gohan (Seasoned Rice with Seaweed and Sesame)
+Takikomi Gohan (Seasoned Mixed Rice)
+Onigiri (Rice Balls)
+Sunomono (Japanese Vinegared Salad)
+Cucumber Sunomono (Vinegared Cucumber Salad)
+Wakame Sunomono (Seaweed Vinegared Salad)
+Hijiki no Nimono (Simmered Hijiki Seaweed)
+Kinpira Gobo (Braised Burdock Root and Carrot)
+Kinpira Lotus Root (Braised Lotus Root)
+Nasu no Ohitashi (Marinated Eggplant)
+Spinach Ohitashi (Marinated Spinach with Soy and Dashi)
+Edamame (Boiled Soybeans)
+Shishito Peppers (Blistered Japanese Peppers)
+Japanese Potato Salad
+Tamagoyaki (Japanese Rolled Omelet)
+Dashimaki Tamago (Dashi Rolled Omelet)
+Tsukemono (Japanese Pickled Vegetables)
+Takuan (Pickled Daikon Radish)
+Gari (Pickled Sushi Ginger)
+Shibazuke (Kyoto-Style Pickled Vegetables)
+Napa Cabbage Asazuke (Lightly Pickled Napa Cabbage)
+Miso Glazed Eggplant
+Teriyaki Glazed Vegetables
+Fried Tofu (Agedashi Tofu)
+Cold Tofu (Hiyayakko)
+Simmered Kabocha Squash
+Japanese Cabbage Salad
+Sesame Green Beans (Goma-ae Green Beans)
+Spinach Goma-ae (Spinach with Sesame Dressing)
+Lotus Root Salad
+Miso Soup with Tofu and Scallions
+Clear Soup with Mushrooms
+Rice with Umeboshi (Rice with Pickled Plum)
+Corn Butter Rice
+Japanese Macaroni Salad
+Spam Musubi (Grilled Spam Rice Snack)
+Edamame with Sea Salt
+Spicy Garlic Edamame
+Chicken Gyoza (Pan-Fried Japanese Dumplings)
+Vegetable Gyoza (Japanese Dumplings)
+Shrimp Gyoza (Japanese Dumplings)
+Agedashi Tofu (Fried Tofu in Dashi Broth)
+Chicken Karaage (Japanese Fried Chicken)
+Shrimp Tempura
+Vegetable Tempura
+Tempura Green Beans
+Shishito Peppers with Sea Salt
+Blistered Shishito Peppers with Yuzu
+Yakitori Chicken Skewers
+Chicken Teriyaki Skewers
+Beef Teriyaki Skewers
+Chicken Katsu Bites
+Chicken Katsu Sliders
+Spam Musubi (Grilled Spam Rice Snack)
+California Roll Bites
+Spicy Tuna Crispy Rice
+Ahi Tuna Poke Nachos
+Ahi Tuna Tartare with Soy and Sesame
+Hamachi Crudo with Ponzu
+Beef Tataki (Seared Beef with Ponzu)
+Shrimp and Avocado Tempura Roll
+Soft Shell Crab Tempura
+Miso Glazed Eggplant (Nasu Dengaku)
+Miso Deviled Eggs
+Wasabi Shrimp
+Takoyaki (Octopus Fritters)
+Onigiri (Japanese Rice Ball Snack)
+Yaki-Onigiri (Grilled Rice Ball Snack)
+Spam Musubi (Spam Rice Snack)
+Furikake Rice Snack Mix
+Arare (Japanese Rice Cracker Snack)
+Senbei (Japanese Rice Cracker)
+Nori Rice Crackers (Seaweed Rice Crackers)
+Japanese Peanuts (Soy Sauce–Coated Peanut Snack)
+Mochi (Japanese Rice Cake Snack)
+Daifuku Mochi (Sweet Rice Cake Snack)
+Butter Mochi (Hawaiian-Style Mochi Snack)
+Chi Chi Dango (Sweet Rice Flour Snack)
+Dorayaki (Red Bean Pancake Sandwich Snack)
+Imagawayaki (Filled Griddle Cake Snack)
+Taiyaki (Fish-Shaped Filled Cake Snack)
+Anpan (Sweet Red Bean Bread Snack)
+Melonpan (Sweet Japanese Bread Snack)
+Korokke (Japanese Croquette Snack)
+Menchi Katsu (Ground Meat Cutlet Snack)
+Chicken Karaage (Japanese Fried Chicken Snack)
+Chicken Katsu Bites (Breaded Chicken Cutlet Snack)
+Shrimp Tempura (Tempura Fried Shrimp Snack)
+Vegetable Tempura (Tempura Fried Vegetable Snack)
+Takoyaki (Octopus Batter Ball Snack)
+Okonomiyaki Bites (Savory Cabbage Pancake Snack)
+Gyoza (Japanese Pan-Fried Dumpling Snack)
+Edamame (Salted Soybean Pod Snack)
+Shoyu Popcorn (Soy Sauce–Flavored Popcorn Snack)
+Wasabi Peas (Wasabi-Flavored Pea Snack)
+Teriyaki Beef Jerky (Japanese-Style Beef Jerky Snack)
+Nori Chips (Roasted Seaweed Snack)
+Spam Katsu (Breaded Fried Spam Snack)
+Spam Katsu Sliders (Spam Cutlet Slider Snack)
+Teriyaki Spam Bites (Teriyaki-Glazed Spam Snack)
+Japanese Curry Croquettes (Curry-Filled Croquette Snack)
+Panko-Crusted Shrimp Bites (Breaded Shrimp Snack)
+Matcha Cookies (Green Tea Cookie Snack)
+Matcha Pound Cake (Green Tea Cake Snack)
+Black Sesame Cookies (Sesame Seed Cookie Snack)
+Japanese Milk Bread Rolls (Soft Sweet Bread Snack)
+Hawaiian Butter Roll with Teriyaki Filling (Japanese American Bread Snack)
+Gyoza (Japanese pan-fried pork dumplings)
+Yaki Gyoza (Pan-fried gyoza dumplings)
+Sui Gyoza (Boiled gyoza dumplings)
+Age Gyoza (Deep-fried gyoza dumplings)
+Hanetsuki Gyoza (Crispy skirt gyoza dumplings)
+Gyoza in Broth (Soup gyoza dumplings)
+Pork Gyoza (Pork-filled Japanese dumplings)
+Chicken Gyoza (Chicken-filled Japanese dumplings)
+Shrimp Gyoza (Shrimp-filled Japanese dumplings)
+Vegetable Gyoza (Vegetable-filled Japanese dumplings)
+Miso Pork Gyoza (Miso-seasoned pork dumplings)
+Garlic Gyoza (Extra-garlic Japanese dumplings)
+Hamamatsu Gyoza (Cabbage-forward pan-fried dumplings)
+Utsunomiya Gyoza (Classic pork and cabbage dumplings)
+Potstickers (Japanese-style pan-fried dumplings)
+Pork Potstickers (Pork-filled pan-fried dumplings)
+Chicken Potstickers (Chicken-filled pan-fried dumplings)
+Vegetable Potstickers (Vegetable pan-fried dumplings)
+Japanese-Style Shumai (Steamed pork dumplings)
+Shrimp Shumai (Steamed shrimp dumplings)
+Chicken Shumai (Steamed chicken dumplings)
+Teriyaki Chicken Gyoza (Teriyaki-seasoned chicken dumplings)
+Cheeseburger Gyoza (Beef and cheese dumplings)
+Teriyaki Sauce
+Thick Teriyaki Glaze
+Sweet Teriyaki Sauce
+Garlic Teriyaki Sauce
+Hawaiian-Style Teriyaki Sauce
+Soy-Ginger Teriyaki Sauce
+Ponzu Sauce (Citrus Soy Sauce)
+Yuzu Ponzu Sauce (Yuzu Citrus Soy Sauce)
+Ponzu Dipping Sauce
+Shoyu Sauce (Japanese Soy Sauce)
+Sweet Shoyu Sauce
+Wasabi Soy Sauce
+Ginger Soy Dipping Sauce
+Miso Sauce (Fermented Soybean Sauce)
+White Miso Sauce
+Red Miso Sauce
+Sweet Miso Glaze
+Miso Butter Sauce
+Miso Tahini Sauce
+Spicy Miso Sauce
+Goma Dare (Sesame Dipping Sauce)
+Creamy Sesame Dressing
+Roasted Sesame Sauce
+Japanese Sesame Steak Sauce
+Katsu Sauce (Japanese Fried Cutlet Sauce)
+Tonka-tsu Sauce (Japanese Pork Cutlet Sauce)
+Spicy Katsu Sauce
+Japanese BBQ Sauce
+Yakiniku Sauce (Japanese Grilled Meat Sauce)
+Sweet Yakiniku Sauce
+Garlic Yakiniku Sauce
+Spicy Yakiniku Sauce
+Tare Sauce (Japanese Grilling Sauce)
+Unagi Tare (Eel Sauce)
+Sweet Soy Eel Sauce
+Okonomiyaki Sauce (Japanese Savory Pancake Sauce)
+Takoyaki Sauce (Octopus Ball Sauce)
+Japanese Mayonnaise Sauce
+Kewpie-Style Mayonnaise
+Wasabi Mayonnaise
+Spicy Mayo (Japanese Chili Mayonnaise)
+Sriracha Mayo
+Wasabi Cream Sauce
+Ginger Dressing (Japanese Carrot Ginger Dressing)
+Carrot Ginger Dressing
+Japanese Onion Dressing
+Japanese Steakhouse Ginger Sauce
+Japanese Salad Dressing
+Japanese Sesame Salad Dressing
+Hibachi Dipping Sauce
+Benihana-Style Ginger Sauce
+Benihana-Style Yum Yum Sauce
+Yum Yum Sauce (Japanese Steakhouse Shrimp Sauce)
+Spicy Yum Yum Sauce
+Japanese Mustard Sauce
+Karashi Mustard Sauce
+Japanese Vinegar Sauce
+Amazu Sauce (Sweet Vinegar Sauce)
+Sunomono Dressing (Sweet Vinegar Dressing)
+Japanese Chili Oil
+Rayu (Japanese Chili Oil)
+Garlic Chili Oil
+Furikake Oil
+Japanese Curry Sauce
+Japanese Curry Dipping Sauce
+Japanese Demi-Glace Sauce
+Hamburg Steak Sauce (Japanese Hambagu Sauce)
+Teriyaki Sauce (Sweet Soy Glaze)
+Teriyaki Marinade (Soy, Sugar, Ginger Marinade)
+Ponzu Sauce (Citrus Soy Dressing)
+Ponzu Vinaigrette (Citrus Soy Vinaigrette)
+Yakiniku Sauce (Japanese Barbecue Sauce)
+Shoyu Marinade (Soy Sauce Marinade)
+Shoyu Tare (Soy-Based Seasoning Sauce)
+Sukiyaki Sauce (Sweet Soy Hot Pot Sauce)
+Warishita (Sukiyaki Cooking Sauce)
+Goma Dare (Sesame Sauce Dressing)
+Japanese Sesame Dressing (Creamy Sesame Dressing)
+Wafu Dressing (Japanese-Style Soy Vinaigrette)
+Carrot Ginger Dressing (Japanese Steakhouse Dressing)
+Ginger Scallion Sauce (Ginger-Soy Relish Dressing)
+Miso Dressing (Miso-Based Salad Dressing)
+White Miso Dressing (Sweet White Miso Dressing)
+Miso Vinaigrette (Miso Oil and Vinegar Dressing)
+Miso Ginger Marinade (Miso and Ginger Marinade)
+Soy Ginger Marinade (Soy and Ginger Marinade)
+Soy Sesame Dressing (Soy and Sesame Oil Dressing)
+Wasabi Vinaigrette (Wasabi-Infused Dressing)
+Yuzu Kosho Vinaigrette (Citrus Chili Dressing)
+Tamari Marinade (Gluten-Free Soy Marinade)
+Sake Soy Marinade (Sake and Soy Marinade)
+Scallion Soy Dressing (Green Onion Soy Dressing)
+Japanese BBQ Marinade (Sweet Savory Soy Marinade)
+Hawaiian-Style Shoyu Chicken Marinade (Soy Garlic Marinade)
+Miso Maple Marinade (Miso and Maple Syrup Marinade)
+Teriyaki Glaze (Reduced Sweet Soy Glaze)
+Shichimi Togarashi (Seven-Spice Chili Pepper Blend)
+Ichimi Togarashi (Single-Chili Pepper Powder)
+Sansho Pepper Blend (Japanese Pepper Spice Mix)
+Furikake (Japanese Rice Seasoning Blend)
+Nori Komi Furikake (Seaweed Rice Seasoning Blend)
+Wasabi Furikake (Wasabi Rice Seasoning Blend)
+Goma Shio (Sesame Salt Blend)
+Yuzu Kosho Dry Rub (Yuzu Chili Salt Blend)
+Togarashi Barbecue Rub (Japanese Chili BBQ Spice Rub)
+Miso Spice Rub (Fermented Soybean Dry Rub)
+White Miso Spice Rub (Shiro Miso Dry Rub)
+Red Miso Spice Rub (Aka Miso Dry Rub)
+Teriyaki Dry Rub (Soy Sugar Ginger Spice Rub)
+Yakitori Seasoning Blend (Grilled Chicken Spice Mix)
+Karaage Seasoning Mix (Japanese Fried Chicken Spice Blend)
+Tonka-Togarashi Fusion Rub (Modern Japanese-American Chili Rub)
+Black Garlic Spice Rub (Black Garlic Dry Seasoning)
+Sesame Ginger Spice Rub
+Soy Sauce Powder Dry Rub
+Matcha Salt (Green Tea Salt Blend)
+Wasabi Salt (Wasabi Sea Salt Blend)
+Smoked Shoyu Spice Rub (Smoked Soy Sauce Powder Rub)
+Tonkatsu Seasoning Blend (Japanese Pork Cutlet Spice Mix)
+Yakiniku Seasoning Blend (Japanese BBQ Spice Mix)
+Ramen Tare Spice Blend (Dry Ramen Seasoning Base)
+Umami Mushroom Spice Blend (Japanese-Inspired Umami Rub)
+Hawaiian-Style Japanese Furikake (Island Furikake Blend)
+Spam Musubi Seasoning Blend (Sweet-Savory Soy Sugar Rub)
+Tempura Shrimp (Japanese-Style Battered Fried Shrimp)
+Vegetable Tempura (Assorted Japanese-Style Battered Fried Vegetables)
+Chicken Tempura (Japanese-Style Battered Fried Chicken)
+Seafood Tempura (Assorted Japanese-Style Battered Fried Seafood)
+Shrimp Tempura Roll (Sushi Roll with Fried Shrimp)
+Spider Roll (Soft-Shell Crab Tempura Sushi Roll)
+California Roll Tempura (Deep-Fried California Sushi Roll)
+Tempura Ice Cream (Deep-Fried Ice Cream in Tempura Batter)
+Tempura Banana (Deep-Fried Banana in Tempura Batter)
+Tempura Cheesecake (Deep-Fried Cheesecake in Tempura Batter)
+Karaage (Japanese-Style Fried Chicken)
+Chicken Karaage (Japanese Soy-Ginger Fried Chicken)
+Tonkatsu (Breaded Deep-Fried Pork Cutlet)
+Chicken Katsu (Breaded Deep-Fried Chicken Cutlet)
+Cheese Katsu (Breaded Deep-Fried Cheese Cutlet)
+Spam Katsu (Breaded Deep-Fried Spam Cutlet)
+Ebi Fry (Breaded Deep-Fried Shrimp)
+Korokke (Japanese Potato Croquettes)
+Menchi Katsu (Japanese Ground Meat Cutlet)
+Kaki Fry (Breaded Deep-Fried Oysters)
+Agedashi Tofu (Deep-Fried Tofu in Dashi Sauce)
+Deep-Fried Gyoza (Japanese Fried Dumplings)
+Panko-Crusted Fried Calamari (Japanese-Style Fried Squid)
+Panko-Crusted Fried Fish (Japanese-Style Breaded Fried Fish Fillet)
+Chawanmushi (Japanese Savory Egg Custard)
+Chicken Chawanmushi (Steamed Egg Custard with Chicken)
+Shrimp Chawanmushi (Steamed Egg Custard with Shrimp)
+Dashi-Steamed Egg Custard (Chawanmushi Style)
+Steamed Japanese Rice (Gohan)
+Takikomi Gohan (Seasoned Mixed Rice, Braised-Style)
+Chicken Takikomi Gohan (Seasoned Chicken Rice)
+Salmon Takikomi Gohan (Seasoned Salmon Rice)
+Nikujaga (Braised Beef and Potatoes)
+Nikujaga with Ground Beef (Home-Style Braised Beef and Potatoes)
+Braised Chicken and Potatoes (Chicken Nikujaga)
+Buta no Kakuni (Braised Pork Belly)
+Braised Pork Belly with Soy and Sugar (Kakuni Style)
+Buta no Kakuni Don (Braised Pork Belly Rice Bowl)
+Gyudon (Braised Beef Rice Bowl)
+Gyudon with Sweet Onion (Braised Beef and Onion Rice Bowl)
+Oyakodon (Braised Chicken and Egg Rice Bowl)
+Tamago-Toji Don (Braised Egg Rice Bowl)
+Sukiyaki (Braised Beef and Vegetables in Sweet Soy Broth)
+Sukiyaki Don (Braised Beef Sukiyaki Rice Bowl)
+Shabu-Shabu Style Braised Beef (Hot Pot Braised Beef)
+Braised Short Ribs with Soy and Mirin (Japanese-Style Short Ribs)
+Braised Chicken Thighs with Soy and Ginger (Japanese Simmered Chicken)
+Chicken Teriyaki (Braised-Then-Glazed Chicken)
+Salmon Teriyaki (Braised-Then-Glazed Salmon)
+Simmered Salmon with Soy and Sugar (Braised Salmon)
+Simmered Mackerel in Miso (Miso-Braised Mackerel)
+Simmered Cod with Soy and Ginger (Braised Cod)
+Saba no Misoni (Miso-Braised Mackerel)
+Kinpira Gobo (Braised Burdock Root)
+Braised Carrots and Burdock (Kinpira Style)
+Nimono (Japanese Braised Vegetables)
+Simmered Root Vegetables (Nimono Style)
+Braised Daikon Radish (Daikon Nimono)
+Braised Kabocha Squash (Kabocha Nimono)
+Braised Tofu and Vegetables (Tofu Nimono)
+Agedashi Tofu (Lightly Fried Tofu in Braised Dashi Broth)
+Steamed Tofu with Soy and Ginger (Cold Tofu Variation)
+Gyoza Mushi (Steamed Dumplings)
+Steamed Pork Dumplings (Japanese-Style Gyoza)
+Steamed Shrimp Dumplings (Japanese-Style)
+Mushi-zakana (Steamed Fish with Soy and Citrus)
+Steamed Sea Bass with Ginger and Scallion (Japanese-Style)
+Steamed Salmon with Ponzu (Japanese-Style)
+Braised Chicken Wings with Soy and Sugar (Japanese-Style Chicken Wings)
+Braised Beef Tongue with Soy (Japanese-Style Gyutan)
+Braised Curry Chicken (Japanese Curry Braise)
+Japanese Curry Beef Stew (Braised Curry Beef)
+Dashi (Japanese Kombu and Katsuobushi Stock)
+Awase Dashi (Combined Kombu and Bonito Stock)
+Kombu Dashi (Kelp Stock)
+Katsuobushi Dashi (Bonito Flake Stock)
+Niboshi Dashi (Dried Anchovy Stock)
+Shiitake Dashi (Dried Shiitake Mushroom Stock)
+Vegan Dashi (Plant-Based Japanese Stock)
+Clear Dashi (Usumono Soup Stock)
+Double Dashi (Niban Dashi / Second Extraction Stock)
+Chicken Dashi (Japanese Chicken Stock)
+Tori Dashi (Japanese Chicken Broth)
+Tori Paitan (Creamy Chicken Bone Broth)
+Ramen Broth (Japanese Noodle Soup Stock)
+Shoyu Ramen Broth (Soy Sauce–Based Ramen Stock)
+Miso Ramen Broth (Miso-Based Ramen Stock)
+Shio Ramen Broth (Salt-Based Ramen Stock)
+Tonkotsu Broth (Pork Bone Ramen Stock)
+Tokyo-Style Ramen Broth (Clear Chicken and Dashi Stock)
+Tsukemen Broth (Concentrated Dipping Noodle Stock)
+Udon Dashi (Udon Noodle Soup Stock)
+Soba Tsuyu (Soba Noodle Dipping Broth)
+Tempura Dipping Broth (Tentsuyu / Tempura Sauce Stock)
+Oden Broth (Japanese Winter Stew Stock)
+Nabe Dashi (Hot Pot Soup Base)
+Chanko Nabe Broth (Sumo Wrestler Hot Pot Stock)
+Miso Soup Stock (Japanese Soup Base)
+Clear Soup Stock (Japanese Suimono Broth)
+Dobin Mushi Broth (Teapot Mushroom Soup Stock)
+Japanese-American Chicken Stock
+Japanese-American Beef Stock with Dashi
+Japanese-American Pork Stock
+Japanese-American Vegetable Dashi Stock
+Japanese-American Ramen House Chicken Broth
+Japanese-American Home-Style Miso Soup Broth
+Japanese-American Vegan Ramen Broth
+Ozoni (Japanese New Year Mochi Soup)
+Kanto-Style Ozoni (Clear Broth Mochi Soup)
+Kansai-Style Ozoni (White Miso Mochi Soup)
+Osechi Ryori (Traditional Japanese New Year Feast)
+Kuromame (Sweet Simmered Black Beans for New Year)
+Kazunoko (Seasoned Herring Roe for New Year)
+Datemaki (Sweet Rolled Omelet for New Year)
+Tazukuri (Candied Dried Sardines for New Year)
+Kobumaki (Simmered Kelp Rolls for New Year)
+Kamaboko (Steamed Fish Cake for Celebrations)
+Chikuzenni (Simmered Chicken and Root Vegetables for New Year)
+Sekihan (Red Bean Celebration Rice)
+Mochitsuki Mochi (Pounded Rice Cakes for New Year)
+Kinako Mochi (Soybean Flour Rice Cakes)
+Isobe Mochi (Soy Sauce and Seaweed Rice Cakes)
+Zoni with Chicken (Chicken Mochi Soup)
+Zoni with Seafood (Seafood Mochi Soup)
+California-Style Ozoni (Chicken and Vegetables Mochi Soup)
+
+Roast Turkey with Teriyaki Glaze
+Soy Sauce and Honey Glazed Thanksgiving Turkey
+Stuffing with Mochi (Mochi Stuffing)
+Cornbread Stuffing with Shiitake Mushrooms
+Mashed Potatoes with Miso Butter
+Sweet Potato Casserole with Black Sesame
+Green Bean Casserole with Soy Sauce and Mushrooms
+Cranberry Sauce with Yuzu
+Pumpkin Pie with Miso Caramel
+Apple Pie with Ginger and Soy Caramel
+
+Christmas Sukiyaki (Japanese Beef Hot Pot for Christmas)
+Christmas Shabu-Shabu (Thin-Sliced Beef Hot Pot)
+Teriyaki Prime Rib Roast
+Soy-Marinated Standing Rib Roast
+Holiday Chirashi Sushi (Scattered Sushi for Celebrations)
+Salmon and Ikura Chirashi Sushi
+California Roll Platter (Crab and Avocado Sushi Rolls)
+Tempura Shrimp Platter
+Mixed Vegetable Tempura Platter
+
+New Year’s Eve Toshikoshi Soba (Year-Crossing Buckwheat Noodles)
+Chicken Toshikoshi Soba
+Shrimp Tempura Soba for New Year’s Eve
+Udon Toshikoshi Noodles
+
+Obon Sushi Platter (Festival Sushi Assortment)
+Inari Sushi (Sweet Tofu Pouch Sushi)
+Spam Musubi (Rice and Grilled Spam Snack)
+Teriyaki Chicken Musubi
+Hawaiian-Style Spam Musubi with Egg
+
+Manju (Sweet Bean Filled Cakes for Festivals)
+Mochi Ice Cream (Rice Cake Ice Cream Dessert)
+Anpan (Sweet Red Bean Bread)
+Japanese-Style Fruitcake (Holiday Sponge Cake with Fruit)
+Kuromitsu (Japanese Black Sugar Syrup)
+Okinawan Kokuto Syrup (Japanese Brown Sugar Syrup)
+Teriyaki Sauce (Sweet Soy Glaze Syrup)
+Unagi Sauce (Sweet Eel Sauce Syrup)
+Yakitori Tare (Sweet Soy Grilling Syrup)
+Okonomiyaki Sauce (Sweet Savory Pancake Syrup)
+Mitarashi Dango Sauce (Sweet Soy Dumpling Syrup)
+Anko Syrup (Sweet Red Bean Syrup)
+Kinako Syrup (Roasted Soybean Syrup)
+Matcha Syrup (Green Tea Syrup)
+Hojicha Syrup (Roasted Green Tea Syrup)
+Yuzu Syrup (Japanese Citrus Syrup)
+Calpico Syrup (Japanese Milk Citrus Syrup)
+Ramune Syrup (Japanese Soda Syrup)
+Japanese Ginger Syrup
+Japanese Honey Syrup
+Maple Miso Syrup
+Soy Milk Syrup
+Sweet Soy Pancake Syrup
+Japanese-Style Shave Ice Syrup
+Brown Sugar Milk Tea Syrup
+Black Sesame Syrup
+Sweet Rice Syrup (Japanese-Style Malt Syrup)
+Amazake Syrup (Sweet Fermented Rice Syrup)
+Ume Syrup (Japanese Plum Syrup)
+Strawberry Milk Syrup (Japanese Café Style)
+Melon Syrup (Japanese Café Style)
+Coffee Syrup (Japanese Kissaten Style)
+Vanilla Milk Syrup (Japanese Café Style)
+Hawaiian Shave Ice Syrup (Japanese-American Style)
+Li Hing Mui Syrup (Japanese-Hawaiian Plum Syrup)
+Milk Bread Rolls (Shokupan Rolls)
+Japanese Milk Bread Biscuits
+Miso Butter Biscuits
+Black Sesame Biscuits
+Matcha White Chocolate Biscuits
+Sweet Red Bean Biscuits
+Savory Scallion Biscuits
+Furikake Biscuits
+Honey Butter Milk Bread Biscuits
+Cast-Iron Japanese-Style Biscuits
+Shokupan Biscuits
+
+Plain Bagels
+Sesame Bagels
+Everything Bagels
+Salt Bagels
+Onion Bagels
+Scallion Bagels
+Poppy Seed Bagels
+Whole Wheat Bagels
+Japanese Milk Bread Bagels
+Miso Bagels
+Black Sesame Bagels
+Matcha Bagels
+Furikake Bagels
+Sweet Red Bean Bagels
+Anko-Filled Bagels
+Matcha White Chocolate Bagels
+Yuzu Bagels
+Scallion Cream Cheese Bagels
+Miso Scallion Bagels
+California Roll (Crab and Avocado Sushi Roll)
+Spicy Tuna Roll (Spicy Tuna Sushi Roll)
+Rainbow Roll (Assorted Fish Sushi Roll)
+Philadelphia Roll (Salmon and Cream Cheese Sushi Roll)
+Dragon Roll (Eel and Avocado Sushi Roll)
+Tempura Shrimp Roll (Shrimp Tempura Sushi Roll)
+Spam Musubi (Grilled Spam Rice Block)
+Teriyaki Chicken Bowl (Grilled Chicken with Teriyaki Sauce Rice Bowl)
+Teriyaki Beef Bowl (Grilled Beef with Teriyaki Sauce Rice Bowl)
+Chicken Katsu (Breaded Fried Chicken Cutlet)
+Chicken Katsu Curry (Breaded Fried Chicken with Curry Rice)
+Tonkatsu (Breaded Fried Pork Cutlet)
+Tonkatsu Curry (Breaded Fried Pork with Curry Rice)
+Hamburger Steak (Japanese-Style Salisbury Steak)
+Hamburger Steak with Teriyaki Sauce (Japanese-Style Salisbury Steak)
+Ramen Burger (Beef Patty with Ramen Noodle Buns)
+Miso-Glazed Black Cod (Miso-Marinated Broiled Cod)
+Garlic Noodles (Japanese-Style Butter Garlic Pasta)
+Chicken Karaage (Japanese Fried Chicken)
+Fried Rice with Spam (Spam Fried Rice)
+Loco Moco with Hamburger Steak (Rice with Hamburger Patty, Gravy, and Egg)
+Udon Noodle Soup (Thick Wheat Noodle Soup)
+Tempura Udon (Udon Noodle Soup with Tempura)
+Beef Sukiyaki Bowl (Sweet Soy Simmered Beef Rice Bowl)
+Salmon Teriyaki (Grilled Salmon with Teriyaki Sauce)
+Bento Box (Japanese Assorted Meal Box)
+Poke Bowl (Marinated Raw Fish Rice Bowl)
+Fried Chicken Bento (Japanese Fried Chicken Meal Box)
+Yakitori Chicken Skewers (Grilled Chicken Skewers)
+Okonomiyaki Pancake (Savory Cabbage Pancake)
+Mochi Ice Cream (Sweet Rice Cake Ice Cream)
+Green Tea Ice Cream (Matcha Ice Cream)
+Teriyaki Chicken Skewers (Japanese-Style Grilled Chicken Skewers)
+Yakitori Chicken Thigh Skewers (Japanese Charcoal-Grilled Chicken Skewers)
+Yakitori Chicken Breast Skewers (Japanese Charcoal-Grilled Chicken Skewers)
+Yakitori Chicken Skin Skewers (Japanese Charcoal-Grilled Chicken Skin Skewers)
+Yakitori Chicken Meatball Skewers (Tsukune Chicken Meatball Skewers)
+Teriyaki Beef Skewers (Japanese-Style Grilled Beef Skewers)
+Teriyaki Salmon Foil Packets (Japanese-Style Grilled Salmon in Foil)
+Miso-Glazed Salmon Foil Packets (Grilled Salmon with Miso Marinade)
+Miso-Glazed Eggplant (Japanese Grilled Eggplant with Miso)
+Grilled Onigiri Rice Balls (Japanese Grilled Rice Balls)
+Soy Sauce Grilled Onigiri Rice Balls (Japanese Soy-Grilled Rice Balls)
+Butter Soy Grilled Corn (Japanese Butter Soy Corn)
+Japanese Curry Camp Stew (Japanese Curry with Meat and Vegetables)
+Japanese Beef Curry Rice (Japanese-Style Beef Curry with Rice)
+Japanese Chicken Curry Rice (Japanese-Style Chicken Curry with Rice)
+Japanese Pork Curry Rice (Japanese-Style Pork Curry with Rice)
+Spam Musubi (Grilled Spam Rice Block with Seaweed)
+Teriyaki Spam Musubi (Teriyaki-Glazed Spam Rice Block)
+Campfire Ramen (Japanese-Style Instant Ramen)
+Miso Ramen (Japanese Soybean Paste Noodle Soup)
+Shoyu Ramen (Japanese Soy Sauce Noodle Soup)
+Grilled Sausages with Teriyaki Glaze (Japanese-Style Teriyaki Sausages)
+Hamburger Steak (Japanese Hambāgu Steak)
+Cheeseburger Steak (Japanese Hambāgu Steak with Cheese)
+Japanese Campfire Sukiyaki (Japanese Beef and Vegetable Hot Pot)
+Japanese Campfire Shabu-Shabu (Japanese Hot Pot with Thin-Sliced Meat)
+Foil-Baked Chicken Teriyaki (Japanese Teriyaki Chicken in Foil)
+Foil-Baked Tofu with Miso (Japanese Miso Tofu Foil Bake)
+Grilled Shiitake Mushrooms with Soy Sauce (Japanese Grilled Mushrooms)
+Grilled Scallops with Butter Soy Sauce (Japanese Butter Soy Scallops)
+Japanese Style Campfire Fried Rice (Japanese Yakimeshi Fried Rice)
+Yakimeshi Fried Rice with Spam (Japanese Fried Rice with Spam)
+Yakimeshi Fried Rice with Chicken (Japanese Fried Rice with Chicken)
+Japanese Hot Dogs with Teriyaki Sauce (Teriyaki Hot Dogs)
+Japanese Style Campfire Gyoza (Japanese Pan-Fried Dumplings)
+Grilled Gyoza Dumplings (Japanese Grilled Dumplings)
+Campfire Udon Noodle Soup (Japanese Thick Wheat Noodle Soup)
+Miso Soup with Tofu and Seaweed (Japanese Soybean Paste Soup)
+Japanese Campfire Oden (Japanese Simmered Fish Cake Stew)
+Grilled Mochi with Soy Sauce (Japanese Grilled Rice Cakes)
+Grilled Mochi with Sweet Soy Glaze (Japanese Sweet Soy Rice Cakes)
+Teriyaki Pineapple Skewers (Japanese-Style Grilled Pineapple)
+Sunomono (Japanese Vinegared Cucumber Salad)
+Wakame Salad (Japanese Seaweed Salad)
+Kani Salad (Imitation Crab Salad)
+California Kani Salad (American-Style Crab Salad)
+Japanese Potato Salad (Mashed Potato and Vegetable Salad)
+Tofu Salad (Chilled Tofu and Mixed Greens Salad)
+Hiyashi Wakame Salad (Chilled Seasoned Seaweed Salad)
+Soba Noodle Salad (Cold Buckwheat Noodle Salad)
+Sesame Spinach Salad (Goma-ae Spinach Salad)
+Hijiki Salad (Hijiki Seaweed and Vegetable Salad)
+Daikon Radish Salad (Julienned Daikon Salad)
+Japanese Coleslaw (Sesame Cabbage Slaw)
+Avocado Cucumber Salad (Japanese-Style Avocado Salad)
+Tomato Sunomono (Japanese Vinegared Tomato Salad)
+Shredded Cabbage Salad with Ginger Dressing (Japanese Steakhouse Salad)
+Mixed Green Salad with Wafu Dressing (Japanese-Style Vinaigrette Salad)
+Chilled Tofu and Tomato Salad (Hiyayakko Salad)
+Cold Ramen Salad (Japanese-American Ramen Noodle Salad)
+Seafood Sunomono (Japanese Vinegared Seafood Salad)
+Octopus Salad (Tako Sunomono – Vinegared Octopus Salad)
+Katsu Sando (Japanese Breaded Cutlet Sandwich)
+Tonkatsu Sando (Pork Cutlet Sandwich)
+Chicken Katsu Sando (Chicken Cutlet Sandwich)
+Menchi Katsu Sando (Ground Meat Cutlet Sandwich)
+Ebi Katsu Sando (Breaded Shrimp Cutlet Sandwich)
+Tamago Sando (Japanese Egg Salad Sandwich)
+Fruit Sando (Japanese Fruit and Cream Sandwich)
+Wagyu Katsu Sando (Wagyu Beef Cutlet Sandwich)
+Teriyaki Chicken Sandwich
+Teriyaki Beef Sandwich
+Spam Katsu Sandwich
+Spam and Egg Breakfast Sandwich
+Spam Musubi Sandwich (Spam Rice Sandwich)
+Furikake Egg Salad Sandwich
+Miso Eggplant Sandwich
+Japanese Curry Katsu Sandwich
+Tonkatsu Curry Sandwich
+Chicken Teriyaki Sandwich
+Salmon Teriyaki Sandwich
+Miso-Glazed Salmon Sandwich
+Unagi Sando (Grilled Eel Sandwich)
+Japanese Milk Bread Sandwich (Shokupan Sandwich)
+Japanese Ham and Cheese Sandwich
+Japanese Convenience Store Egg Sandwich
+Japanese Style BLT Sandwich
+Panko-Crusted Pork Sandwich
+Panko-Crusted Chicken Sandwich
+Okonomiyaki Sandwich (Japanese Savory Pancake Sandwich)
+Yakitori Chicken Sandwich
+Karaage Chicken Sandwich
+Japanese Fried Chicken Sandwich
+Wasabi Egg Salad Sandwich
+Tuna Mayo Sando (Tuna Mayonnaise Sandwich)
+Tuna Katsu Sandwich
+Beef Katsu Sandwich
+Japanese Style Breakfast Sandwich
+Shibuya-Style Fruit Sando
+Tokyo-Style Katsu Sandwich
+Katsu Curry Gravy
+Japanese Curry Gravy
+Hamburger Steak Brown Gravy
+Hamburger Steak Mushroom Gravy
+Loco Moco Brown Gravy
+Loco Moco Onion Gravy
+Shoyu Brown Gravy
+Shoyu Onion Gravy
+Teriyaki Gravy
+Miso Gravy
+Miso Mushroom Gravy
+Demi-Glace Shoyu Gravy
+Japanese-Style Beef Gravy
+Japanese-Style Chicken Gravy
+Japanese-Style Pork Gravy
+Curry Demi-Glace Gravy
+Japanese Hayashi-Style Brown Gravy
+Japanese Onion Gravy
+Japanese Mushroom Brown Gravy
+Yuzu Marmalade
+Yuzu Kosho Jelly (Yuzu Chili Jelly)
+Umeboshi Jam (Pickled Plum Jam)
+Ume Plum Jelly (Japanese Plum Jelly)
+Sudachi Marmalade
+Calamansi Marmalade
+Mikan Marmalade (Japanese Mandarin Orange Marmalade)
+Satsuma Orange Marmalade
+Asian Pear Jam (Nashi Pear Jam)
+Asian Pear Ginger Jam
+Fuji Apple Jam
+Apple Butter (American-Style Apple Spread)
+Strawberry Jam
+Strawberry Rhubarb Jam
+Blueberry Jam
+Mixed Berry Jam
+Blackberry Jam
+Raspberry Jam
+Grape Jelly
+Concord Grape Jelly
+Peach Jam
+White Peach Jam
+Apricot Jam
+Cherry Jam
+Plum Jam
+Plum Ginger Jam
+Persimmon Jam
+Hachiya Persimmon Jam
+Fig Jam
+Fig Ginger Jam
+Matcha Jelly (Green Tea Jelly Spread)
+Matcha Citrus Marmalade
+Hojicha Jelly (Roasted Green Tea Jelly)
+Sakura Jelly (Cherry Blossom Jelly)
+Azuki Bean Jam (Sweet Red Bean Paste Spread)
+White Bean Jam (Shiroan Sweet Bean Spread)
+Sweet Potato Jam (Japanese-Style Sweet Potato Spread)
+Kabocha Squash Jam
+Miso Caramel Jam
+Miso Honey Jam
+Yuzu Honey Jam
+Ginger Jam
+Ginger Lemon Jam
+Pineapple Jam
+Mango Jam
+Mango Chili Jam
+Lychee Jam
+Guava Jam
+Tangerine Jam
+Orange Marmalade
+Lemon Marmalade
+Lemon Ginger Marmalade
+Blood Orange Marmalade
+Sesame Honey Jam
+Black Sesame Jam
+Chestnut Jam (Kuri Jam)
+Shoyu Cucumber Pickles (Soy Sauce–Marinated Cucumbers)
+Sunomono (Sweet Rice Vinegar Cucumber Pickles)
+Japanese-Style Pickled Cucumbers
+Quick Japanese Pickled Cucumbers
+Asazuke (Lightly Pickled Vegetables)
+Asazuke Cucumbers (Lightly Pickled Cucumbers)
+Shiozuke (Salt-Pickled Vegetables)
+Shiozuke Cucumbers (Salt-Pickled Cucumbers)
+Kyuri no Tsukemono (Japanese Pickled Cucumbers)
+Takuan (Pickled Daikon Radish)
+Homemade Takuan-Style Pickled Daikon
+Daikon Tsukemono (Pickled Daikon Radish)
+Amazu-zuke (Sweet Vinegar Pickles)
+Amazu Daikon Pickles (Sweet Vinegar Pickled Daikon)
+Nukazuke (Rice Bran Pickles)
+Nukazuke Cucumbers (Rice Bran–Pickled Cucumbers)
+Nukazuke Daikon (Rice Bran–Pickled Daikon)
+Fukujinzuke (Sweet Soy Pickled Vegetable Relish)
+Japanese Curry Pickles (Fukujinzuke-Style Pickles)
+Beni Shoga (Pickled Red Ginger)
+Pickled Sushi Ginger (Beni Shoga Style)
+Gari (Sweet Pickled Sushi Ginger)
+Sweet Sushi Ginger Pickles
+Misozuke (Miso-Pickled Vegetables)
+Miso-Pickled Cucumbers
+Miso-Pickled Eggplant
+Kasuzuke (Sake Lees Pickles)
+Kasuzuke Daikon (Sake Lees–Pickled Daikon)
+Kasuzuke Cucumbers (Sake Lees–Pickled Cucumbers)
+Eggplant Tsukemono (Pickled Eggplant)
+Nasu no Shibazuke (Kyoto-Style Pickled Eggplant and Cucumber)
+Shibazuke-Style Pickled Vegetables
+Pickled Napa Cabbage (Japanese-Style Hakusai Tsukemono)
+Hakusai no Asazuke (Lightly Pickled Napa Cabbage)
+Japanese Pickled Carrots and Daikon (Kohaku Namasu Pickles)
+Kohaku Namasu (Red and White Pickled Daikon and Carrot)
+Japanese Pickled Turnips
+Kabu no Asazuke (Lightly Pickled Turnips)
+Pickled Japanese Radishes and Cucumbers
+Umeboshi (Pickled Japanese Plums)
+Umeboshi-Style Pickled Plums
+Umeboshi Paste (Pickled Plum Paste)
+Pickled Okra Japanese-Style
+Pickled Green Beans Japanese-Style
+Pickled Shishito Peppers (Japanese-Style Pickled Peppers)
+Soy Sauce Pickled Garlic (Japanese-Style Garlic Pickles)
+Pickled Lotus Root (Renkon no Amazu-zuke)
+Renkon no Amazu-zuke (Sweet Vinegar Pickled Lotus Root)
+Teriyaki Chicken Pizza
+Corn Mayo Pizza (Japanese Sweet Corn Mayonnaise Pizza)
+Tuna Mayo Pizza
+Seafood Pizza (Japanese-Style Seafood Pizza)
+Mentaiko Pizza (Cod Roe Pizza)
+Mochi Pizza (Rice Cake Pizza)
+Okonomiyaki Pizza (Savory Cabbage Pancake Pizza)
+Shirasu Pizza (Whitebait Pizza)
+Nasu Dengaku Pizza (Miso Eggplant Pizza)
+Yakiniku Pizza (Japanese Grilled Beef Pizza)
+Tonkatsu Pizza (Pork Cutlet Pizza)
+Katsu Curry Pizza (Japanese Curry Cutlet Pizza)
+Unagi Kabayaki Pizza (Grilled Eel Pizza)
+Wagyu Beef Pizza
+Yuzu Kosho Chicken Pizza
+Spam Teriyaki Pizza
+Tempura Shrimp Pizza
+Salmon Aburi Pizza (Seared Salmon Pizza)
+California Roll Pizza (Sushi-Inspired Pizza)
+Matcha Chocolate Pizza (Green Tea Chocolate Dessert Pizza)
+Hoshino Milk Bread Dough (Japanese-Style Milk Bread Dough)
+Japanese Milk Bread Dough (Shokupan-Style Bread Dough)
+Hokkaido Milk Bread Dough (Japanese Sweet Milk Bread Dough)
+Tangzhong Milk Bread Dough (Water-Roux Milk Bread Dough)
+Japanese-Style Dinner Roll Dough (Milk Bread Roll Dough)
+Japanese Sweet Bun Dough (Anpan-Style Sweet Bread Dough)
+Anpan Dough (Sweet Red Bean Bun Dough)
+Melonpan Dough (Sweet Cookie-Crust Bread Dough)
+Curry Pan Dough (Japanese Curry Bread Dough)
+Katsu Sando Milk Bread Dough (Japanese Cutlet Sandwich Bread Dough)
+Japanese Hot Dog Bun Dough (Milk Bread Hot Dog Bun Dough)
+Japanese Hamburger Bun Dough (Milk Bread Burger Bun Dough)
+Japanese Pizza Dough (Pan-Style Japanese Pizza Dough)
+Okonomiyaki Batter (Japanese Savory Pancake Dough)
+Takoyaki Batter (Octopus Ball Batter Dough)
+Gyoza Wrapper Dough (Japanese Dumpling Wrapper Dough)
+Shumai Wrapper Dough (Japanese Steamed Dumpling Wrapper Dough)
+Japanese Ramen Noodle Dough (Alkaline Wheat Noodle Dough)
+Japanese Udon Noodle Dough (Thick Wheat Noodle Dough)
+Japanese Soba Dough (Buckwheat Noodle Dough)
+Japanese Tempura Batter (Light Frying Batter Dough)
+Japanese Mochi Dough (Pounded Glutinous Rice Dough)
+Daifuku Mochi Dough (Sweet Rice Cake Dough)
+Dango Dough (Sweet Rice Dumpling Dough)
+Japanese Dorayaki Batter (Sweet Pancake Sandwich Batter)
+Japanese Taiyaki Batter (Fish-Shaped Cake Batter Dough)
+Japanese Castella Cake Batter (Sponge Cake Batter Dough)
+Japanese Cheesecake Batter (Soufflé Cheesecake Batter Dough)
+Japanese Gyoza Skin Dough (Thin Wheat Wrapper Dough)
+Japanese Spring Roll Wrapper Dough (Wheat Wrapper Dough)
+Nikujaga (Japanese Meat and Potato Stew)
+Wagyu Nikujaga (Wagyu Beef and Potato Stew)
+Chicken Nikujaga (Chicken and Potato Stew)
+Vegetarian Nikujaga (Soy-Braised Potato and Onion Stew)
+Japanese Curry Rice (Japanese-Style Curry Stew with Rice)
+Beef Curry Rice (Japanese Beef Curry Stew)
+Chicken Curry Rice (Japanese Chicken Curry Stew)
+Pork Curry Rice (Japanese Pork Curry Stew)
+Seafood Curry Rice (Japanese Seafood Curry Stew)
+Katsu Curry (Breaded Cutlet with Japanese Curry Stew)
+Hamburg Curry (Hamburger Steak with Japanese Curry Stew)
+Oden (Japanese Simmered Winter Stew)
+Kanto-Style Oden (Soy-Based Japanese Winter Stew)
+Miso Oden (Miso-Braised Japanese Winter Stew)
+Gyusuji Nikomi (Simmered Beef Tendon Stew)
+Motsu Nikomi (Simmered Offal Stew)
+Miso Nikomi (Miso-Simmered Meat and Vegetable Stew)
+Hayashi Rice (Japanese Beef and Onion Stew with Rice)
+Hayashi Beef Stew (Japanese Tomato-Braised Beef Stew)
+Cream Stew (Japanese White Cream Stew)
+Chicken Cream Stew (Japanese White Chicken Stew)
+Seafood Cream Stew (Japanese White Seafood Stew)
+Beef Cream Stew (Japanese White Beef Stew)
+Sukiyaki-Style Stew (Sweet Soy Beef and Vegetable Stew)
+Gyudon Stew (Simmered Beef and Onion Stew)
+Tofu and Vegetable Miso Stew (Japanese Tofu Miso Stew)
+Japanese Milk Bread Loaf (Shokupan Milk Bread)
+Japanese White Bread Loaf (Shokupan)
+Hokkaido Milk Bread Loaf
+Tangzhong Milk Bread Loaf
+Honey Milk Bread Loaf
+Butter Milk Bread Loaf
+Pullman Milk Bread Loaf
+Square Japanese Sandwich Bread Loaf
+Whole Wheat Japanese Milk Bread Loaf
+Black Sesame Milk Bread Loaf
+Matcha Milk Bread Loaf
+Red Bean Milk Bread Loaf (Anko Swirl Loaf)
+Cinnamon Milk Bread Loaf
+Chocolate Milk Bread Loaf
+Cheese Milk Bread Loaf
+Milk Bread Toast Loaf (Japanese Toast Bread)
+Japanese-Style Brioche Loaf
+Milk Bread Shokupan Toast Loaf
+
+Japanese-Style Meatloaf (Wafu Meatloaf)
+Teriyaki Glazed Meatloaf
+Miso-Glazed Meatloaf
+Soy-Ginger Meatloaf
+Panko-Crusted Meatloaf
+Hambagu-Style Meatloaf (Japanese Hamburg Steak Loaf)
+Spam Meatloaf (Japanese-American Spam Loaf)
+Katsu-Style Breaded Meatloaf
+Ponzu-Glazed Meatloaf
+Wasabi Soy Meatloaf
+Scallion-Ginger Meatloaf
+Tofu-Blend Meatloaf (Japanese-Style Tofu Meatloaf)
+Chicken Teriyaki Meatloaf
+Salmon Meatloaf with Miso Glaze
+
+Japanese-Style Fish Loaf (Kamaboko-Inspired Fish Loaf)
+Surimi Fish Loaf (Japanese Fish Cake Loaf)
+Crab Stick Fish Loaf
+Shrimp Fish Loaf with Soy Glaze
+
+Japanese-American Banana Bread Loaf
+Miso Banana Bread Loaf
+Black Sesame Banana Bread Loaf
+Matcha Banana Bread Loaf
+Milk Bread Banana Loaf
+Teriyaki Glaze
+Classic Teriyaki Glaze
+Honey Teriyaki Glaze
+Ginger Teriyaki Glaze
+Garlic Teriyaki Glaze
+Pineapple Teriyaki Glaze
+Spicy Teriyaki Glaze
+Bourbon Teriyaki Glaze
+Maple Teriyaki Glaze
+Orange Teriyaki Glaze
+Soy-Ginger Glaze
+Mirin Soy Glaze
+Tamari Glaze
+Tamari Honey Glaze
+Unagi Sauce Glaze (Eel Sauce Glaze)
+Yakitori Tare Glaze (Chicken Grilling Sauce Glaze)
+Tare Glaze (Sweet Soy Grilling Sauce Glaze)
+Nikiri Glaze (Sweetened Soy Sauce Glaze)
+Sukiyaki Sauce Glaze
+Sesame Soy Glaze
+Toasted Sesame Glaze
+Sesame Miso Glaze
+Goma Dare Glaze (Sesame Sauce Glaze)
+Miso Glaze
+White Miso Glaze
+Red Miso Glaze
+Honey Miso Glaze
+Maple Miso Glaze
+Miso Butter Glaze
+Miso Mustard Glaze
+Miso Yuzu Glaze
+Miso Caramel Glaze
+Yuzu Soy Glaze
+Yuzu Honey Glaze
+Yuzu Kosho Glaze (Yuzu Chili Paste Glaze)
+Ponzu Glaze
+Ponzu Butter Glaze
+Wasabi Soy Glaze
+Wasabi Honey Glaze
+Soy Maple Glaze
+Soy Brown Sugar Glaze
+Shio Koji Glaze (Salted Rice Malt Glaze)
+Koji Butter Glaze (Rice Malt Butter Glaze)
+Sake Teriyaki Glaze
+Sake Kasu Glaze (Sake Lees Glaze)
+Black Garlic Teriyaki Glaze
+Furikake Butter Glaze
+Teriyaki Baked Chicken
+Teriyaki Roasted Chicken Thighs
+Miso Roasted Chicken
+Miso Butter Roast Chicken
+Shio Koji Roasted Chicken
+Soy Sauce Roasted Chicken
+Ginger Soy Baked Chicken
+Japanese-Style Oven Roasted Chicken Wings
+Teriyaki Baked Chicken Wings
+Miso Glazed Baked Chicken Wings
+Yakitori-Style Oven Baked Chicken
+Japanese-Style Roast Turkey
+Teriyaki Roast Turkey
+Miso Butter Roast Turkey
+Soy Ginger Roast Turkey
+Japanese-Style Baked Salmon
+Miso Baked Salmon
+Teriyaki Baked Salmon
+Shioyaki-Style Oven Baked Salmon (Salt-Grilled Style Baked Salmon)
+Japanese-Style Roasted Cod
+Miso Baked Black Cod
+Saikyo Yaki Oven Baked Cod (Kyoto-Style Miso Baked Cod)
+Teriyaki Baked Cod
+Japanese-Style Baked Yellowtail
+Teriyaki Baked Yellowtail
+Miso Baked Yellowtail
+Japanese-Style Roasted Eggplant
+Miso Glazed Roasted Eggplant
+Soy Ginger Roasted Eggplant
+Japanese-Style Roasted Sweet Potatoes
+Yaki Imo Style Oven Roasted Sweet Potatoes (Japanese Roasted Sweet Potatoes)
+Japanese-Style Roasted Kabocha Squash
+Miso Roasted Kabocha Squash
+Soy Glazed Roasted Kabocha Squash
+Japanese-Style Roasted Mushrooms
+Miso Roasted Mushrooms
+Soy Butter Roasted Mushrooms
+Japanese-Style Roasted Brussels Sprouts
+Miso Roasted Brussels Sprouts
+Soy Sesame Roasted Brussels Sprouts
+Japanese-Style Baked Tofu
+Miso Baked Tofu
+Teriyaki Baked Tofu
+Japanese-Style Baked Onigiri
+Yaki Onigiri Oven Baked (Grilled Rice Ball Style Baked Onigiri)
+Miso Yaki Onigiri Oven Baked (Miso Glazed Baked Rice Balls)
+Japanese-Style Baked Spam
+Teriyaki Baked Spam
+Miso Glazed Baked Spam
+Japanese-Style Baked Chicken Karaage
+Oven Baked Karaage (Japanese Fried Chicken Style Baked Chicken)
+Japanese-Style Baked Tonkatsu
+Oven Baked Tonkatsu (Breaded Pork Cutlet)
+Japanese-Style Baked Korokke
+Oven Baked Korokke (Japanese Croquettes)
+Japanese-Style Baked Gyoza
+Oven Baked Gyoza (Japanese Dumplings)
+Mochi Fruit Daifuku (Sweet Rice Cake with Fresh Fruit Filling)
+Strawberry Daifuku Mochi (Sweet Rice Cake with Whole Strawberry)
+Mixed Fruit Daifuku Mochi (Sweet Rice Cake with Assorted Fresh Fruit)
+Anmitsu (Agar Jelly Dessert with Mixed Fruit and Sweet Beans)
+Cream Anmitsu (Agar Jelly Dessert with Fruit and Ice Cream)
+Mitsumame (Agar Jelly Dessert with Seasonal Fruit)
+Fruit Sando (Japanese Fruit and Cream Sandwich)
+Strawberry Cream Sando (Strawberry and Whipped Cream Sandwich)
+Mixed Fruit Cream Sando (Assorted Fruit and Cream Sandwich)
+Japanese Fruit Parfait (Layered Fruit, Cream, and Ice Cream Parfait)
+Matcha Fruit Parfait (Green Tea Parfait with Fresh Fruit)
+Seasonal Fruit Shortcake (Japanese-Style Strawberry Shortcake)
+Strawberry Shortcake (Japanese Sponge Cake with Strawberries and Cream)
+Fruit Tart (Japanese-Style Custard Fruit Tart)
+Mixed Fruit Tart (Custard Tart with Assorted Fresh Fruit)
+Peach Tart (Fresh Peach Custard Tart)
+Apple Tart (Japanese-Style Apple Custard Tart)
+Yuzu Fruit Jelly (Citrus Jelly Dessert with Yuzu)
+Mixed Fruit Jelly (Clear Fruit Gelatin Dessert)
+Japanese Fruit Compote (Lightly Poached Seasonal Fruit)
+Apple Kinpira (Sweet Soy-Glazed Apple Side Dish)
+Pear Kinpira (Sweet Soy-Glazed Pear Side Dish)
+Japanese-Style Baked Apple (Apple with Honey and Butter)
+Apple Daigaku Imo (Candied Sweet Potato and Apple)
+Strawberry Shiratama (Rice Dumplings with Strawberries and Syrup)
+Fruit Shiratama Dango (Rice Dumplings with Assorted Fresh Fruit)
+Banana Tempura (Battered and Fried Banana)
+Apple Tempura (Battered and Fried Apple Slices)
+Mixed Fruit Tempura (Battered and Fried Seasonal Fruit)
+Japanese-Style Fruit Salad (Light Syrup-Marinated Fresh Fruit)
+Hawaiian-Style Fruit Mochi (Sweet Rice Cake with Tropical Fruit)
+Japanese-Style Pineapple Upside-Down Cake
+Japanese-Style Fruit Chiffon Cake
+Apple Kasutera (Japanese Sponge Cake with Apple)
+Fruit Dorayaki (Red Bean Pancake Sandwich with Fresh Fruit)
+Shokupan (Japanese Milk Bread Loaf)
+Thick-Sliced Shokupan (Japanese Milk Bread Toast)
+Anpan (Sweet Red Bean Bread)
+Kuri Anpan (Chestnut Red Bean Bread)
+Curry Pan (Japanese Curry-Filled Fried Bread)
+Melonpan (Japanese Sweet Crust Bread)
+Chocolate Melonpan (Chocolate Sweet Crust Bread)
+Matcha Melonpan (Green Tea Sweet Crust Bread)
+Cream Pan (Japanese Custard Cream Bread)
+Black Sesame Cream Pan (Black Sesame Custard Bread)
+Japanese-Style Strawberry Shortcake (Sponge Cake with Strawberries and Whipped Cream)
+Matcha Strawberry Shortcake (Green Tea Sponge Cake with Strawberries)
+Japanese Cotton Cheesecake (Soufflé-Style Cheesecake)
+Matcha Cotton Cheesecake (Green Tea Soufflé Cheesecake)
+Castella Cake (Japanese Sponge Cake)
+Honey Castella Cake (Honey Sponge Cake)
+Baumkuchen (Japanese-Style Layered Spit Cake)
+Matcha Baumkuchen (Green Tea Layered Cake)
+Chiffon Cake (Japanese-Style Chiffon Cake)
+Matcha Chiffon Cake (Green Tea Chiffon Cake)
+Yuzu Chiffon Cake (Citrus Chiffon Cake)
+Taiyaki (Fish-Shaped Filled Cake)
+Custard Taiyaki (Custard-Filled Fish Cake)
+Chocolate Taiyaki (Chocolate-Filled Fish Cake)
+Dorayaki (Red Bean Pancake Sandwich)
+Matcha Dorayaki (Green Tea Pancake Sandwich)
+Mochi Donuts (Chewy Rice Flour Donuts)
+Pon de Ring (Japanese Mochi Donut Ring)
+Kinako Donuts (Roasted Soybean Flour Donuts)
+Butter Mochi (Hawaiian-Style Japanese Rice Cake)
+Chocolate Butter Mochi (Chocolate Rice Cake)
+Black Sesame Butter Mochi (Black Sesame Rice Cake)
+Mochi Muffins (Rice Flour Muffins)
+Matcha Mochi Muffins (Green Tea Rice Flour Muffins)
+Red Bean Mochi Muffins (Sweet Red Bean Rice Muffins)
+Malasadas (Hawaiian-Style Fried Doughnuts)
+Matcha Malasadas (Green Tea Fried Doughnuts)
+Custard-Filled Malasadas (Custard Doughnuts)
+Matcha Croissant (Green Tea Croissant)
+Black Sesame Croissant (Black Sesame Croissant)
+Red Bean Danish (Sweet Red Bean Pastry)
+Matcha Danish (Green Tea Pastry)
+California Roll (Crab and Avocado Sushi Roll)
+Spicy Tuna Roll (Spicy Raw Tuna Sushi Roll)
+Spicy Salmon Roll (Spicy Raw Salmon Sushi Roll)
+Philadelphia Roll (Smoked Salmon and Cream Cheese Sushi Roll)
+Dragon Roll (Eel and Avocado Sushi Roll)
+Rainbow Roll (Assorted Fish Sushi Roll)
+Caterpillar Roll (Eel and Avocado Sushi Roll)
+Alaska Roll (Salmon and Avocado Sushi Roll)
+Baked Salmon Roll (Oven-Baked Salmon Sushi Roll)
+Tempura Shrimp Roll (Fried Shrimp Sushi Roll)
+Soft Shell Crab Roll (Fried Soft Shell Crab Sushi Roll)
+Crunchy Roll (Tempura Flake Sushi Roll)
+Volcano Roll (Baked Seafood Sushi Roll)
+Spider Roll (Soft Shell Crab Sushi Roll)
+Futomaki (Thick Sushi Roll)
+Inari Sushi (Sweet Tofu Pocket Sushi)
+Spam Musubi (Grilled Spam Rice Block)
+Chicken Teriyaki (Grilled Chicken with Teriyaki Sauce)
+Beef Teriyaki (Grilled Beef with Teriyaki Sauce)
+Salmon Teriyaki (Grilled Salmon with Teriyaki Sauce)
+Teriyaki Burger (Hamburger with Teriyaki Sauce and Pineapple)
+Chicken Katsu (Breaded Fried Chicken Cutlet)
+Pork Katsu (Breaded Fried Pork Cutlet)
+Katsu Curry (Breaded Cutlet with Japanese Curry Rice)
+Chicken Karaage (Japanese-Style Fried Chicken)
+Agedashi Tofu (Fried Tofu in Dashi Broth)
+Gyoza (Japanese Pan-Fried Dumplings)
+Shrimp Tempura (Battered Fried Shrimp)
+Vegetable Tempura (Battered Fried Vegetables)
+Tempura Udon (Udon Noodles with Tempura)
+Tempura Soba (Buckwheat Noodles with Tempura)
+Udon Noodle Soup (Thick Wheat Noodle Soup)
+Soba Noodle Soup (Buckwheat Noodle Soup)
+Chicken Udon (Chicken Udon Noodle Soup)
+Beef Udon (Beef Udon Noodle Soup)
+Ramen (Japanese Wheat Noodle Soup)
+Tonkotsu Ramen (Pork Bone Broth Ramen)
+Shoyu Ramen (Soy Sauce Ramen)
+Miso Ramen (Miso-Based Ramen)
+Spicy Miso Ramen (Spicy Miso Ramen)
+Chicken Ramen (Chicken Broth Ramen)
+Yakitori Chicken Skewers (Grilled Chicken Skewers)
+Teriyaki Chicken Skewers (Grilled Chicken with Teriyaki Sauce)
+Hamburg Steak (Japanese-Style Hamburger Steak)
+Loco Moco (Hamburger Steak with Rice and Gravy)
+Chicken Donburi (Chicken Rice Bowl)
+Beef Donburi (Beef Rice Bowl)
+Teriyaki Chicken Bowl (Teriyaki Chicken Rice Bowl)
+Katsu Don (Breaded Cutlet Egg Rice Bowl)
+Gyudon (Beef and Onion Rice Bowl)
+Unagi Don (Grilled Eel Rice Bowl)
+Chirashi Sushi (Scattered Sushi Rice Bowl)
+Poke Bowl (Marinated Raw Fish Rice Bowl)
+Salmon Poke (Marinated Salmon Bowl)
+Ahi Tuna Poke (Marinated Tuna Bowl)
+California Poke (Avocado-Based Poke Bowl)
+Fried Rice (Japanese-Style Fried Rice)
+Garlic Fried Rice (Japanese Garlic Fried Rice)
+Japanese Curry Rice (Japanese Curry with Rice)
+Chicken Curry Rice (Japanese Chicken Curry)
+Beef Curry Rice (Japanese Beef Curry)
+Seafood Curry Rice (Japanese Seafood Curry)
+Shiozake (Salt-Cured Salmon)
+Misozuke (Miso-Cured Fish)
+Saikyo Yaki (Saikyo Miso–Cured Fish)
+Kasuzuke (Sake Lees–Cured Fish)
+Shime Saba (Vinegar-Cured Mackerel)
+Kombu-jime (Kelp-Cured Fish)
+Soy-Cured Salmon
+Soy and Sugar–Cured Salmon
+Miso-Cured Black Cod
+Miso-Cured Salmon
+Miso-Cured Eggplant
+Miso-Cured Pork
+Teriyaki-Style Soy-Cured Chicken
+Mirin-Cured Salmon
+Mirin-Cured Black Cod
+Salt and Sugar–Cured Tuna
+Ponzu-Cured Salmon
+Ponzu-Cured Tuna
+Yuzu-Cured Salmon
+Yuzu-Cured Yellowtail
+Sake-Cured Salmon
+Sake-Cured Trout
+Japanese-Style Gravlax (Soy and Sugar–Cured Salmon)
+Japanese-Style Pastrami Salmon (Soy-Spice Cured Salmon)
+Furikake-Cured Salmon
+Shio Koji–Cured Chicken
+Shio Koji–Cured Pork
+Shio Koji–Cured Fish
+Misozuke Beef (Miso-Cured Beef)
+Japanese-Style Corned Beef (Soy-Brined Beef)
+Nikkei-Style Citrus-Cured Fish (Yuzu-Lime Cured Fish)
+Nikkei-Style Tiradito Cure (Citrus and Soy–Cured Fish)
+Sushi Burrito
+California Sushi Burrito
+Spicy Tuna Sushi Burrito
+Salmon Avocado Sushi Burrito
+Teriyaki Chicken Sushi Burrito
+Tempura Shrimp Sushi Burrito
+Unagi Sushi Burrito
+Vegan Sushi Burrito
+Poke Sushi Burrito
+
+Temaki (Hand-Rolled Sushi Wrap)
+Spicy Tuna Hand Roll (Spicy Tuna Temaki)
+Salmon Hand Roll (Salmon Temaki)
+Yellowtail Scallion Hand Roll (Hamachi Negi Temaki)
+Eel and Cucumber Hand Roll (Unagi Kyuri Temaki)
+California Hand Roll (California Temaki)
+
+Onigirazu (Rice Sandwich Wrap)
+Spam and Egg Onigirazu (Spam Egg Rice Sandwich)
+Teriyaki Chicken Onigirazu
+Tonkatsu Onigirazu (Breaded Pork Cutlet Rice Sandwich)
+Chicken Katsu Onigirazu
+Tuna Salad Onigirazu
+Salmon Teriyaki Onigirazu
+
+Spam Musubi Wrap
+Classic Spam Musubi
+Teriyaki Spam Musubi
+Egg and Spam Musubi
+Furikake Spam Musubi
+
+Chicken Teriyaki Wrap
+Beef Teriyaki Wrap
+Salmon Teriyaki Wrap
+Tofu Teriyaki Wrap
+
+Chicken Katsu Wrap
+Pork Katsu Wrap (Tonkatsu Wrap)
+Shrimp Katsu Wrap
+
+Japanese BBQ Beef Wrap (Yakiniku Beef Wrap)
+Japanese BBQ Chicken Wrap (Yakiniku Chicken Wrap)
+
+Tempura Shrimp Wrap
+Vegetable Tempura Wrap
+
+Poke Nori Wrap
+Ahi Tuna Poke Wrap
+Salmon Poke Wrap
+
+Miso Glazed Eggplant Wrap
+Miso Glazed Salmon Wrap
+
+Yakitori Chicken Wrap
+Yakitori Chicken and Scallion Wrap
+
+Japanese Curry Chicken Wrap
+Japanese Curry Beef Wrap
+
+California-Style Nori Wrap
+Avocado Cucumber Nori Wrap
+Crab and Avocado Nori Wrap
+Teriyaki Salmon
+Grilled Teriyaki Salmon
+Teriyaki Yellowtail
+Miso-Glazed Black Cod (Sablefish)
+Miso-Glazed Salmon
+Saikyo Miso Black Cod (Sweet White Miso Black Cod)
+Ponzu-Glazed Grilled Salmon
+Salmon Sashimi (Raw Salmon Slices)
+Salmon Nigiri Sushi (Hand-Pressed Salmon Sushi)
+Spicy Salmon Roll (Spicy Chopped Salmon Sushi Roll)
+Alaska Roll (Salmon and Avocado Sushi Roll)
+Philadelphia Roll (Smoked Salmon Cream Cheese Sushi Roll)
+Salmon Avocado Roll (Salmon and Avocado Sushi Roll)
+Salmon Skin Roll (Grilled Salmon Skin Sushi Roll)
+Salmon Hand Roll (Salmon Temaki Sushi)
+California Roll with Smoked Salmon
+Seared Salmon Tataki (Lightly Seared Salmon with Ponzu)
+Hamachi Sashimi (Yellowtail Sashimi)
+Hamachi Nigiri Sushi (Yellowtail Nigiri Sushi)
+Hamachi Jalapeño (Yellowtail with Jalapeño)
+Ahi Poke (Marinated Raw Tuna Bowl)
+Spicy Ahi Poke (Spicy Marinated Raw Tuna Bowl)
+Ahi Tuna Tataki (Seared Tuna with Citrus Sauce)
+Sesame-Crusted Ahi Tuna
+Grilled Ahi Tuna Steak
+Blackened Ahi Tuna
+Tuna Teriyaki
+Miso-Glazed Ahi Tuna
+Broiled Miso Fish
+Butterfish Miso (Miso-Marinated Butterfish)
+Grilled Mackerel (Grilled Saba)
+Saba Shioyaki (Salt-Grilled Mackerel)
+Saba Teriyaki (Teriyaki Mackerel)
+Unagi Kabayaki (Grilled Freshwater Eel with Sweet Soy Sauce)
+Unagi Donburi (Grilled Eel Rice Bowl)
+Anago Nigiri Sushi (Saltwater Eel Nigiri Sushi)
+Furikake-Crusted Salmon
+Panko-Crusted Fried Fish with Tartar Sauce
+Tempura Fish Fillet
+Fish Katsu (Breaded Fried Fish Cutlet)
+Fish Katsu Curry (Breaded Fish Cutlet with Japanese Curry)
+Salmon Katsu (Breaded Fried Salmon Cutlet)
+Teriyaki Fish Rice Bowl
+Salmon Rice Bowl
+Tuna Rice Bowl
+Salmon Donburi (Salmon Rice Bowl)
+Chirashi Sushi with Salmon and Tuna (Scattered Sushi Bowl)
+Seafood Poke Bowl
+Japanese-Style Fish Tacos
+Miso Fish Tacos
+Wasabi-Crusted Fish
+Soy-Ginger Glazed Fish
+Grilled Fish with Yuzu Kosho
+Broiled Fish with Ginger Scallion Sauce
+Miso Butter
+Garlic Miso Butter
+Yuzu Butter
+Yuzu Kosho Butter
+Soy Sauce Butter
+Shoyu Butter
+Brown Butter with Soy Sauce
+Teriyaki Butter
+Wasabi Butter
+Sesame Butter
+Roasted Sesame Butter
+Furikake Butter
+Nori Butter
+Scallion Ginger Butter
+Scallion Soy Butter
+Honey Miso Butter
+Maple Soy Butter
+Togarashi Butter
+Sansho Pepper Butter
+Sake Butter
+Mirin Butter
+Butter Shoyu Sauce
+Butter Soy Glaze
+Butter Teriyaki Sauce
+Butter Miso Sauce
+Butter Shoyu Corn
+Butter Shoyu Potatoes
+Butter Shoyu Mushrooms
+Butter Shoyu Scallops
+Butter Shoyu Lobster
+Butter Shoyu Shrimp
+Butter Miso Cod
+Butter Miso Salmon
+Butter Soy Ramen
+Butter Corn Ramen
+Butter Miso Ramen
+Butter Shoyu Udon
+Butter Garlic Udon
+Butter Shoyu Fried Rice
+Butter Miso Fried Rice
+Japanese Curry Butter
+Curry Butter Rice
+Butter Shoyu Steak
+Butter Miso Steak
+Butter Soy Hamburg Steak
+Butter Shoyu Chicken
+Butter Miso Chicken
+Butter Teriyaki Chicken
+Butter Shoyu Tofu
+Butter Miso Tofu
+Tempura Batter (Japanese-Style Tempura Frying Batter)
+Panko Breadcrumb Coating (Japanese Breadcrumb Crust)
+Okonomiyaki Batter (Japanese Savory Pancake Batter)
+Takoyaki Batter (Octopus Ball Batter)
+Udon Noodle Dough (Japanese Wheat Noodle Dough)
+Ramen Noodle Dough (Alkaline Wheat Noodle Dough)
+Soba Noodle Dough with Wheat Flour (Buckwheat–Wheat Noodle Dough)
+Gyoza Wrappers (Japanese Dumpling Skins)
+Shumai Wrappers (Japanese Steamed Dumpling Skins)
+Japanese Milk Bread Dough (Shokupan-Style Bread Dough)
+Hokkaido Milk Bread Rolls (Japanese Milk Roll Dough)
+Japanese Curry Roux Blocks (Japanese Curry Flour Roux)
+Katsu Breading (Japanese Breaded Cutlet Coating)
+Chicken Katsu Breading (Breaded Chicken Cutlet Coating)
+Tonkatsu Breading (Breaded Pork Cutlet Coating)
+Karaage Light Flour Coating (Japanese Fried Chicken Flour Dusting)
+Japanese Pancake Batter (Hotcake-Style Batter)
+Dorayaki Batter (Sweet Pancake Sandwich Batter)
+Castella Cake Batter (Japanese Sponge Cake Batter)
+Taiyaki Batter (Fish-Shaped Cake Batter)
+Japanese Cheesecake Batter (Cotton-Soft Cheesecake Batter)
+Japanese Crepe Batter (Harajuku-Style Crepe Batter)
+American-Style Tempura Onion Rings Batter (Japanese-American Tempura Batter)
+Tempura Fish and Chips Batter (Japanese-American Fried Fish Batter)
+Ramen Burger Bun Dough (Japanese-American Wheat Bun Dough)
+Panko-Crusted Mac and Cheese Topping (Japanese Breadcrumb Crust)
+Japanese-Style Fried Chicken Sandwich Coating (Karaage-Inspired Flour Coating)
+Mochi Donut (Japanese Mochi–Based Fried Doughnut)
+Butter Mochi (Hawaiian-Style Mochi Cake)
+Chocolate Butter Mochi (Chocolate Hawaiian Mochi Cake)
+Ube Butter Mochi (Purple Yam Hawaiian Mochi Cake)
+Matcha Butter Mochi (Green Tea Hawaiian Mochi Cake)
+Coconut Butter Mochi (Coconut Mochi Cake)
+Strawberry Butter Mochi (Strawberry Mochi Cake)
+Black Sesame Butter Mochi (Black Sesame Mochi Cake)
+Haupia Mochi (Coconut Pudding Mochi Cake)
+Chi Chi Dango (Hawaiian-Style Coconut Mochi Candy)
+Rainbow Chi Chi Dango (Layered Coconut Mochi Candy)
+Mochi Ice Cream (Ice Cream Wrapped in Sweet Rice Dough)
+Green Tea Mochi Ice Cream (Matcha Mochi Ice Cream)
+Red Bean Mochi Ice Cream (Sweet Azuki Mochi Ice Cream)
+Strawberry Mochi Ice Cream (Strawberry Mochi Ice Cream)
+Mango Mochi Ice Cream (Mango Mochi Ice Cream)
+Malasada (Hawaiian Fried Doughnut with Sugar)
+Malasada with Sugar (Plain Sugar-Dusted Malasada)
+Malasada with Custard Filling (Custard-Filled Malasada)
+Malasada with Haupia Filling (Coconut Cream–Filled Malasada)
+Malasada with Chocolate Filling (Chocolate-Filled Malasada)
+Shave Ice (Hawaiian Shaved Ice Dessert)
+Shave Ice with Condensed Milk (Sweet Milk Hawaiian Shave Ice)
+Shave Ice with Azuki Beans (Red Bean Hawaiian Shave Ice)
+Shave Ice with Mochi Balls (Mochi-Topped Hawaiian Shave Ice)
+Shave Ice with Fruit Syrups (Fruit Syrup Hawaiian Shave Ice)
+Anpan (Sweet Red Bean Bread Roll)
+Cream Pan (Japanese Sweet Cream Bread)
+Melonpan (Japanese Sweet Bread with Sugar Crust)
+Matcha Roll Cake (Green Tea Swiss Roll Cake)
+Strawberry Shortcake Japanese Style (Japanese Sponge Cake with Strawberries and Cream)
+Castella Cake (Japanese Sponge Sugar Cake)
+Black Sesame Cookies (Black Sesame Sugar Cookies)
+Matcha Cookies (Green Tea Sugar Cookies)
+Mochi Brownies (Chewy Mochi Chocolate Brownies)
+Mochi Cupcakes (Chewy Rice Flour Cupcakes)
+Dorayaki Pancakes (Red Bean Filled Pancake Sandwiches)
+Taiyaki (Fish-Shaped Sweet Red Bean Pastry)
+Taiyaki with Custard (Custard-Filled Fish-Shaped Pastry)
+Taiyaki with Chocolate (Chocolate-Filled Fish-Shaped Pastry)
+California Roll with Cream Cheese
+Philadelphia Roll (Salmon and Cream Cheese Sushi Roll)
+Spicy Tuna Roll with Cream Cheese
+Tempura Shrimp Roll with Cream Cheese
+Unagi Cream Cheese Roll (Eel and Cream Cheese Sushi Roll)
+Crab Rangoon Sushi Roll (Crab and Cream Cheese Roll)
+Volcano Roll with Cream Cheese
+Rainbow Roll with Cream Cheese
+Cheeseburger Sushi Roll
+Cheesy Tonkotsu Ramen
+Miso Ramen with Melted Cheese
+Spicy Miso Ramen with Cheese
+Curry Ramen with Cheese
+Cheese Tsukemen (Dipping Ramen with Cheese)
+Japanese Curry Rice with Cheese
+Hamburg Steak Curry with Cheese
+Cheese Katsu Curry (Breaded Cutlet Curry with Cheese)
+Omurice with Cheese
+Cheesy Omurice with Demi-Glace
+Hamburg Steak with Melted Cheese
+Cheese Okonomiyaki (Savory Cabbage Pancake with Cheese)
+Cheese Mochi (Mochi Filled with Cheese)
+Isobeyaki Cheese Mochi (Grilled Mochi with Cheese and Seaweed)
+Cheesy Takoyaki (Octopus Balls with Cheese)
+Cheese Gyoza (Pan-Fried Dumplings with Cheese)
+Cheese Korokke (Potato Croquettes with Cheese)
+Japanese Cheesecake
+Basque-Style Japanese Cheesecake
+Matcha Cheesecake
+Yuzu Cheesecake
+Miso Cheesecake
+Cheese Dorayaki (Red Bean Pancake Sandwich with Cheese)
+Cheese Taiyaki (Fish-Shaped Cake with Cheese Filling)
+Cheese Onigiri (Rice Ball with Cheese)
+Cheese Spam Musubi
+Cheesy Yakisoba
+Cheese Udon
+Cheese Soba
+Japanese-Style Pizza with Mozzarella and Nori
+Teriyaki Chicken Pizza with Cheese
+Miso Eggplant Pizza with Cheese
+Cheesy Katsu Sandwich (Katsu Sando with Cheese)
+Cheese Tamago Sando (Egg Salad Sandwich with Cheese)
+Japanese-Style Grilled Cheese Sandwich
+Cheese Mochi Gratin
+Seafood Doria (Japanese Rice Gratin with Cheese)
+Chicken Doria (Baked Rice with Chicken and Cheese)
+Shrimp Doria (Baked Rice with Shrimp and Cheese)
+Cheesy Japanese Hamburger Rice Gratin
+Sushi Rice Vinegar (Sushi Vinegar Seasoning)
+Amazu (Sweet Rice Vinegar Sauce)
+Sanbaizu (Three-Vinegar Dressing)
+Gomazu (Sesame Vinegar Dressing)
+Tosazu (Bonito Vinegar Sauce)
+Ponzu Sauce (Citrus Soy Vinegar Sauce)
+Yuzu Ponzu (Yuzu Citrus Soy Vinegar Sauce)
+Sunomono (Japanese Vinegared Salad)
+Cucumber Sunomono (Vinegared Cucumber Salad)
+Wakame Sunomono (Vinegared Seaweed Salad)
+Octopus Sunomono (Vinegared Octopus Salad)
+Crab Tosazu (Crab with Bonito Vinegar Sauce)
+Chicken Nanban (Japanese Sweet-and-Sour Fried Chicken)
+Salmon Nanban (Sweet-and-Sour Fried Salmon)
+Tofu with Ponzu (Chilled Tofu with Citrus Vinegar Sauce)
+Agedashi Tofu with Ponzu (Fried Tofu with Citrus Vinegar Sauce)
+Gari (Sweet Pickled Sushi Ginger)
+Daikon Namasu (Sweet Vinegared Daikon Salad)
+Carrot and Daikon Namasu (Vinegared Carrot and Daikon Salad)
+Japanese Rice Vinegar Slaw (Cabbage Slaw with Rice Vinegar Dressing)
+Japanese Pickled Cucumbers (Rice Vinegar Pickles)
+Honey Teriyaki Chicken
+Honey Teriyaki Beef
+Honey Teriyaki Salmon
+Honey Teriyaki Tofu
+Honey Shoyu Chicken
+Honey Shoyu Pork
+Honey Garlic Shrimp
+Honey Garlic Chicken
+Honey Miso Salmon
+Honey Miso Black Cod
+Honey Miso Chicken
+Honey Ginger Chicken
+Honey Ginger Pork
+Honey Ginger Salmon
+Honey Glazed Chicken Katsu
+Honey Glazed Pork Katsu
+Honey Karaage (Honey Japanese Fried Chicken)
+Honey Sesame Salmon
+Honey Soy Glazed Salmon
+Honey Soy Glazed Chicken
+Honey Butter Mochi (Hawaiian Japanese Rice Cake)
+Honey Teriyaki Spam Musubi
+Honey Glazed Spam Musubi
+Honey Yakitori Chicken Skewers
+Honey Glazed Yakitori
+Honey Udon Stir-Fry
+Honey Soba Noodles
+Honey Glazed Tofu Steak
+Honey Glazed Eggplant (Honey Nasu Dengaku)
+Honey Miso Eggplant
+Honey Glazed Unagi (Honey Freshwater Eel)
+Honey Tamari Glazed Steak
+Honey Tonkatsu Sauce
+Honey Glazed Chicken Wings Japanese Style
+Green Tea (Japanese Green Tea)
+Sencha Green Tea (Steamed Japanese Green Tea)
+Matcha Green Tea (Stone-Ground Japanese Green Tea)
+Ceremonial Grade Matcha Green Tea
+Culinary Grade Matcha Green Tea
+Matcha Latte (Japanese Green Tea Latte)
+Iced Matcha Latte (Cold Japanese Green Tea Latte)
+Genmaicha (Japanese Green Tea with Roasted Brown Rice)
+Matcha-Iri Genmaicha (Green Tea with Matcha and Roasted Rice)
+Hojicha (Roasted Japanese Green Tea)
+Hojicha Latte (Roasted Green Tea Latte)
+Iced Hojicha (Cold Roasted Green Tea)
+Bancha Green Tea (Everyday Japanese Green Tea)
+Kukicha (Twig Green Tea)
+Gyokuro Green Tea (Shade-Grown Japanese Green Tea)
+Iced Green Tea (Japanese-Style Iced Green Tea)
+Cold Brew Green Tea (Japanese Mizudashi Green Tea)
+Cold Brew Hojicha (Japanese Cold Brew Roasted Green Tea)
+Matcha Lemonade (Japanese Green Tea Lemonade)
+Matcha Arnold Palmer (Green Tea and Lemonade)
+Matcha Milk Tea (Japanese Green Tea Milk Tea)
+Japanese Barley Tea (Mugicha – Roasted Barley Tea)
+Iced Barley Tea (Cold Japanese Mugicha)
+Brown Rice Tea Latte (Genmaicha Latte)
+Roasted Tea Latte (Hojicha Milk Tea)
+Milk
+Whole Milk
+Low-Fat Milk
+Nonfat Milk
+Sweetened Condensed Milk
+Evaporated Milk
+Hokkaido Milk (Japanese-Style Milk)
+Milk with Sugar (Sweetened Milk)
+
+Matcha Milk (Matcha Green Tea Milk)
+Iced Matcha Milk (Iced Matcha Green Tea Milk)
+Hot Matcha Milk (Hot Matcha Green Tea Milk)
+Matcha Latte (Green Tea Milk Latte)
+Iced Matcha Latte (Iced Green Tea Milk Latte)
+Ube Matcha Milk (Purple Yam Matcha Milk)
+
+Strawberry Milk (Ichigo Milk – Strawberry Milk)
+Fresh Strawberry Milk
+Japanese Convenience Store Strawberry Milk
+Iced Strawberry Milk
+Vanilla Strawberry Milk
+
+Banana Milk (Banana Milk Drink)
+Fresh Banana Milk
+Honey Banana Milk
+
+Melon Milk (Melon-Flavored Milk Drink)
+Japanese Melon Milk
+Cantaloupe Milk Drink
+
+Coffee Milk (Japanese Coffee Milk)
+Iced Coffee Milk
+Sweetened Coffee Milk
+Cafe au Lait (Milk Coffee)
+
+Royal Milk Tea (Japanese Milk Tea)
+Iced Royal Milk Tea
+Vanilla Royal Milk Tea
+Hojicha Milk Tea (Roasted Green Tea Milk Tea)
+Genmaicha Milk Tea (Roasted Rice Green Tea Milk Tea)
+
+Hojicha Milk (Roasted Green Tea Milk)
+Iced Hojicha Milk
+Hojicha Latte (Roasted Green Tea Milk Latte)
+
+Soy Milk (Japanese-Style Soy Milk)
+Plain Soy Milk
+Sweetened Soy Milk
+Kinako Soy Milk (Roasted Soybean Flour Soy Milk)
+Black Sesame Soy Milk
+
+Almond Milk (Japanese-Style Almond Milk)
+Sweet Almond Milk
+Matcha Almond Milk
+
+Milk Tea Boba (Bubble Milk Tea)
+Japanese Milk Tea with Tapioca Pearls
+Matcha Milk Tea with Tapioca
+Hojicha Milk Tea with Tapioca
+
+Milk Pudding (Japanese Milk Pudding)
+Purine Milk Pudding (Milk Custard Pudding)
+Hokkaido Milk Pudding
+Matcha Milk Pudding
+Black Sesame Milk Pudding
+
+Milk Jelly (Japanese Milk Jelly)
+Fruit Milk Jelly
+Strawberry Milk Jelly
+
+Milk Soft Serve (Japanese Milk Soft Cream)
+Hokkaido Milk Soft Serve
+Matcha Milk Soft Serve
+Black Sesame Milk Soft Serve
+
+Milk Ice Cream (Japanese Milk Ice Cream)
+Hokkaido Milk Ice Cream
+Matcha Milk Ice Cream
+Strawberry Milk Ice Cream
+Hoshigaki Dried Persimmon
+Hoshigaki (Hand-Massaged Dried Persimmon)
+Anko with Dried Persimmon Filling
+Japanese Dried Persimmon and Walnut Salad
+Dried Persimmon Butter Spread
+Dried Persimmon and Cream Cheese Appetizer
+Dried Persimmon Pound Cake
+Dried Persimmon and Green Tea Cake
+Dried Persimmon Mochi
+Dried Persimmon Daifuku
+Dried Persimmon Rice (Takikomi Gohan with Dried Fruit)
+Dried Persimmon and Daikon Salad
+Dried Persimmon Nimono (Simmered Dried Persimmon)
+Dried Persimmon Compote
+Dried Persimmon and Yuzu Marmalade
+Dried Persimmon Ice Cream
+Dried Persimmon and Mascarpone Dessert
+Dried Persimmon and Almond Tart
+Dried Persimmon Shortbread Cookies
+Dried Persimmon Bread
+
+Umeboshi Dried Plum
+Umeboshi (Salt-Pickled Dried Plum)
+Umeboshi Rice Balls (Onigiri with Dried Plum)
+Umeboshi Pasta
+Umeboshi Dressing
+Umeboshi Sauce for Grilled Fish
+Umeboshi Vinaigrette
+Umeboshi and Cucumber Salad
+
+Dried Yuzu Peel
+Candied Yuzu Peel
+Dried Yuzu Peel Tsukudani
+Dried Yuzu and Soy Glaze
+Dried Yuzu Pound Cake
+
+Dried Apricot Anko
+Dried Apricot Mochi
+Dried Apricot and Ginger Compote
+Dried Apricot Rice
+
+Dried Mango Mochi
+Dried Mango and Coconut Dessert
+Dried Mango Rice Bowl
+
+Dried Cherry Mochi
+Dried Cherry Green Tea Cake
+Dried Cherry Anko Filling
+
+Dried Fig Anko
+Dried Fig and Sesame Salad
+Dried Fig Pound Cake
+
+Dried Apple Mochi
+Dried Apple Kinpira
+Dried Apple Compote
+
+Dried Fruit Anko
+Mixed Dried Fruit Mochi
+Mixed Dried Fruit Dorayaki
+Mixed Dried Fruit Pound Cake
+Dried Nori Seaweed Sheets
+Toasted Nori Snack Sheets
+Furikake Seasoning (Dried Seaweed and Sesame Rice Seasoning)
+Shichimi Togarashi (Seven-Spice Chili Pepper Blend)
+Ichimi Togarashi (Single Chili Pepper Powder)
+Katsuobushi (Dried Smoked Bonito Flakes)
+Hanakatsuo (Thin-Cut Dried Bonito Flakes)
+Kezuribushi (Block-Shaved Dried Bonito)
+Niboshi (Dried Baby Sardines)
+Iriko (Dried Anchovies for Stock)
+Dried Kombu Seaweed
+Hidaka Kombu (Dried Kelp for Stock)
+Rishiri Kombu (Premium Dried Kelp)
+Dried Wakame Seaweed
+Dried Hijiki Seaweed
+Dried Shiitake Mushrooms
+Sun-Dried Shiitake Mushrooms
+Dried Enoki Mushrooms
+Dried Maitake Mushrooms
+Dried Daikon Strips (Kiriboshi Daikon – Dried Daikon Radish)
+Dried Japanese Sweet Potato Slices
+Dried Mochi Rice Crackers (Senbei – Dried Rice Crackers)
+Arare Rice Crackers (Small Dried Rice Crackers)
+Dried Mochi Cubes for Soup
+Instant Dashi Powder (Dehydrated Fish and Kelp Stock)
+Dashi Granules (Dehydrated Japanese Soup Stock)
+Dried Udon Noodles
+Dried Soba Buckwheat Noodles
+Dried Ramen Noodles
+Dried Somen Wheat Noodles
+Freeze-Dried Miso Soup Cubes
+Freeze-Dried Tofu Cubes
+Freeze-Dried Natto (Fermented Soybeans)
+Dried Edamame Snack Beans
+Dried Seaweed Salad Mix
+Dried Pickled Plum (Umeboshi – Dried Salted Plum)
+Dried Plum Paste Sheets
+Dried Shiso Leaves
+Dried Yuzu Peel
+Dried Citrus Peel Spice (Japanese Citrus Blend)
+Dried Wasabi Powder
+Wasabi Furikake (Dried Rice Seasoning with Wasabi)
+Dried Teriyaki Beef Jerky (Japanese-Style Beef Jerky)
+Dried Teriyaki Chicken Jerky
+Salmon Jerky (Japanese-Style Dried Salmon)
+Dried Squid Snack (Surume – Dried Squid)
+Shredded Dried Squid Snack
+Dried Octopus Snack
+Dried Shrimp for Tempura and Stock
+Dried Sakura Shrimp
+Freeze-Dried Rice with Furikake
+Freeze-Dried Japanese Curry Rice
+Freeze-Dried Udon Soup Blocks
+Freeze-Dried Ramen Soup Blocks
+Japanese-Style Plain Yogurt
+Japanese-Style Sweetened Yogurt
+Japanese-Style Homemade Yogurt
+Yogurt with Honey (Japanese-Style Honey Yogurt)
+Yogurt with Matcha (Matcha Yogurt)
+Yogurt with Kinako (Roasted Soybean Flour Yogurt)
+Yogurt with Kuromitsu (Brown Sugar Syrup Yogurt)
+Yogurt with Red Bean Paste (Anko Yogurt)
+Yogurt with Mochi (Rice Cake Yogurt)
+Yogurt with Yuzu (Yuzu Citrus Yogurt)
+Yogurt with Green Tea Jelly (Matcha Jelly Yogurt)
+Yogurt with Agar Jelly (Kanten Yogurt)
+Yogurt with Seasonal Fruit (Japanese Fruit Yogurt)
+Frozen Yogurt with Matcha (Matcha Frozen Yogurt)
+Frozen Yogurt with Black Sesame (Black Sesame Frozen Yogurt)
+Yogurt Parfait (Japanese-Style Yogurt Parfait)
+Yogurt with Granola (Japanese-Style Granola Yogurt)
+Yogurt with Natto (Fermented Soybean Yogurt)
+Yogurt Drink (Japanese Yogurt Drink)
+Calpis-Style Yogurt Drink (Cultured Milk Yogurt Drink)
+Teriyaki Sauce (Japanese-American Style Teriyaki Sauce)
+Teriyaki Glaze (Reduced Teriyaki Sauce Glaze)
+Hawaiian Teriyaki Sauce (Island-Style Sweet Teriyaki Sauce)
+Seattle-Style Teriyaki Sauce (Pacific Northwest Teriyaki Sauce)
+Chicken Teriyaki Sauce (Japanese-American Chicken Teriyaki Sauce)
+Beef Teriyaki Sauce (Japanese-American Beef Teriyaki Sauce)
+Salmon Teriyaki Sauce (Japanese-American Salmon Teriyaki Sauce)
+
+Ponzu Sauce (Citrus Soy Dipping Sauce)
+Ponzu Soy Sauce (Japanese-American Ponzu Sauce)
+Yuzu Ponzu Sauce (Yuzu Citrus Soy Sauce)
+
+Japanese Barbecue Sauce (Japanese-American BBQ Sauce)
+Sweet Soy Barbecue Sauce (Japanese-Style Sweet BBQ Sauce)
+Smoky Teriyaki Barbecue Sauce (Smoked Teriyaki BBQ Sauce)
+
+Miso Glaze (Sweet Miso Glaze)
+White Miso Glaze (Shiro Miso Glaze)
+Red Miso Glaze (Aka Miso Glaze)
+Miso Butter Sauce (Japanese-American Miso Butter)
+
+Sesame Ginger Sauce (Sesame Ginger Dressing)
+Creamy Sesame Dressing (Japanese Sesame Salad Dressing)
+Roasted Sesame Sauce (Goma Sauce – Sesame Dressing)
+
+Soy Ginger Marinade (Soy Sauce Ginger Marinade)
+Garlic Soy Marinade (Japanese-American Garlic Soy Marinade)
+Honey Soy Marinade (Sweet Soy Marinade)
+
+Furikake Seasoning (Rice Seasoning Blend)
+Salmon Furikake (Salmon Rice Seasoning)
+Nori Furikake (Seaweed Rice Seasoning)
+
+Shichimi Togarashi (Seven-Spice Chili Pepper Seasoning)
+Japanese Seven-Spice Blend (Shichimi Chili Seasoning)
+
+Tonkatsu Sauce (Japanese Sweet Savory Cutlet Sauce)
+Okonomiyaki Sauce (Japanese Savory Pancake Sauce)
+
+Wasabi Soy Sauce (Soy Sauce with Wasabi)
+Wasabi Mayonnaise (Japanese-American Wasabi Mayo)
+
+Kewpie-Style Sesame Mayo (Japanese Sesame Mayonnaise)
+Spicy Japanese Mayonnaise (Spicy Mayo Sauce)
+
+Ginger Scallion Sauce (Ginger Green Onion Sauce)
+Scallion Oil Sauce (Japanese-Style Scallion Oil)
+
+Sweet Soy Reduction (Reduced Sweet Soy Sauce)
+Mirin Soy Glaze (Mirin-Based Soy Glaze)
+
+Rice Bowl Sauce (Japanese-American Donburi Sauce)
+Teriyaki Rice Bowl Sauce (Japanese-American Teriyaki Don Sauce)
+Dashi Stock (Japanese Seaweed and Bonito Broth)
+Awase Dashi (Combined Seaweed and Bonito Broth)
+Kombu Dashi (Seaweed Broth)
+Katsuo Dashi (Bonito Flake Broth)
+Niboshi Dashi (Dried Sardine Broth)
+Shiitake Dashi (Dried Shiitake Mushroom Broth)
+Vegetarian Dashi (Plant-Based Japanese Broth)
+Clear Dashi Broth (Refined Japanese Soup Stock)
+Double Dashi (Intensified Japanese Broth)
+Teriyaki Sauce (Sweet Soy Glaze)
+Traditional Teriyaki Sauce (Japanese-American Style Soy Glaze)
+Ginger Teriyaki Sauce (Ginger Soy Glaze)
+Garlic Teriyaki Sauce (Garlic Soy Glaze)
+Pineapple Teriyaki Sauce (Hawaiian-Style Sweet Soy Glaze)
+Ponzu Sauce (Citrus Soy Sauce)
+Yuzu Ponzu (Yuzu Citrus Soy Sauce)
+Lemon Ponzu (Lemon Citrus Soy Sauce)
+Miso Sauce (Fermented Soybean Sauce)
+White Miso Sauce (Sweet Fermented Soybean Sauce)
+Red Miso Sauce (Robust Fermented Soybean Sauce)
+Miso Butter Sauce (Miso and Butter Emulsion)
+Miso Glaze (Sweet Miso Coating Sauce)
+Tonkotsu Broth (Pork Bone Ramen Broth)
+Shoyu Ramen Broth (Soy Sauce Ramen Soup Base)
+Miso Ramen Broth (Miso-Based Ramen Soup Base)
+Chicken Ramen Broth (Japanese-Style Chicken Soup Base)
+Vegetable Ramen Broth (Plant-Based Ramen Soup Base)
+Tare Sauce (Concentrated Ramen Seasoning Base)
+Shoyu Tare (Soy Sauce Ramen Seasoning)
+Miso Tare (Miso Ramen Seasoning)
+Salt Tare (Salt-Based Ramen Seasoning)
+Yakiniku Sauce (Japanese Barbecue Sauce)
+Sweet Yakiniku Sauce (Sugar-Forward Japanese Barbecue Sauce)
+Spicy Yakiniku Sauce (Chili-Infused Japanese Barbecue Sauce)
+Okonomiyaki Sauce (Savory Japanese Pancake Sauce)
+Takoyaki Sauce (Sweet Savory Octopus Ball Sauce)
+Unagi Sauce (Sweet Eel Glaze)
+Kabayaki Sauce (Grilled Eel Sauce)
+Sesame Dressing (Japanese Sesame Salad Dressing)
+Creamy Sesame Dressing (Japanese-American Sesame Dressing)
+Goma Dare (Sesame Dipping Sauce)
+Soy Ginger Sauce (Soy Sauce and Ginger Dressing)
+Wasabi Soy Sauce (Soy Sauce with Wasabi)
+Ponzu Vinaigrette (Citrus Soy Salad Dressing)
+Mentsuyu (Noodle Soup Base)
+Concentrated Mentsuyu (Condensed Noodle Soup Base)
+Sukiyaki Sauce (Sweet Soy Hot Pot Sauce)
+Shabu Shabu Dipping Sauce (Hot Pot Dipping Sauce)
+Hibachi Steak Sauce (Japanese-American Griddle Sauce)
+Hibachi Shrimp Sauce (Japanese-American White Sauce)
+Hibachi Chicken
+Hibachi Steak
+Hibachi Shrimp
+Hibachi Scallops
+Hibachi Salmon
+Hibachi Filet Mignon
+Hibachi Lobster
+Hibachi Seafood Combination
+Hibachi Chicken and Shrimp
+Hibachi Steak and Shrimp
+Hibachi Steak and Chicken
+Hibachi Triple Combination (Chicken, Steak, Shrimp)
+Hibachi Vegetable Medley
+Hibachi Tofu
+Hibachi Fried Rice
+Hibachi Chicken Fried Rice
+Hibachi Shrimp Fried Rice
+Hibachi Steak Fried Rice
+Hibachi Vegetable Fried Rice
+Hibachi Garlic Fried Rice
+Hibachi Noodles (Hibachi-Style Noodles)
+Hibachi Chicken Noodles
+Hibachi Shrimp Noodles
+Hibachi Steak Noodles
+Hibachi Vegetable Noodles
+Hibachi Yakisoba-Style Noodles
+Hibachi Udon Noodles
+Hibachi Clear Onion Soup
+Hibachi Ginger Dipping Sauce
+Hibachi Yum Yum Sauce
+Hibachi Teriyaki Chicken
+Hibachi Teriyaki Steak
+Hibachi Teriyaki Shrimp
+Hibachi Teriyaki Salmon
+Hibachi Steak and Lobster
+Hibachi Shrimp and Scallops
+Hibachi Chicken and Scallops
+Hibachi Steak and Scallops
+Hibachi Garlic Butter Steak
+Hibachi Lemon Pepper Shrimp
+Hibachi Spicy Shrimp
+Hibachi Spicy Chicken
+Hibachi Mixed Grill
+Hibachi Supreme Combination
+Sesame Oil Dressing
+Roasted Sesame Oil Dressing
+Miso Sesame Oil Dressing
+Ginger Sesame Oil
+Scallion Oil
+Japanese-Style Scallion Oil
+Garlic Oil
+Japanese Garlic Oil
+Chili Oil
+Japanese Chili Oil
+Ramen Chili Oil
+Furikake Chili Oil
+Yuzu Kosho Oil
+Yuzu Sesame Oil
+Teriyaki Oil
+Soy-Ginger Oil
+Ponzu Oil
+Wasabi Oil
+Tempura Frying Oil
+Karaage Frying Oil
+Toasted Rice Bran Oil
+Nori-Infused Oil
+Shichimi Togarashi Oil
+Sansho Pepper Oil
+Japanese Sesame Dressing (Goma Dressing)
+Japanese Ginger Dressing (Wafu Ginger Dressing)
+Japanese Soy Sauce Vinaigrette (Wafu Soy Dressing)
+Japanese Carrot Ginger Dressing (Carrot-Ginger Dressing)
+Japanese Miso Dressing (Miso Vinaigrette)
+White Miso Vinaigrette (Shiro Miso Dressing)
+Red Miso Vinaigrette (Aka Miso Dressing)
+Japanese Rice Vinegar Dressing (Rice Vinegar Vinaigrette)
+Japanese Onion Dressing (Onion-Soy Dressing)
+Japanese Wasabi Dressing (Wasabi Vinaigrette)
+Japanese Yuzu Dressing (Yuzu Vinaigrette)
+Japanese Shiso Dressing (Perilla Leaf Dressing)
+Japanese Citrus Soy Dressing (Ponzu Vinaigrette)
+Japanese Kewpie-Style Sesame Dressing (Creamy Sesame Dressing)
+Japanese Creamy Miso Dressing (Miso Cream Dressing)
+Japanese Roasted Sesame Vinaigrette (Roasted Sesame Dressing)
+Japanese Garlic Soy Dressing (Garlic Soy Vinaigrette)
+Japanese Scallion Ginger Dressing (Scallion-Ginger Dressing)
+Japanese Honey Soy Vinaigrette (Honey Soy Dressing)
+Japanese Mirin Vinaigrette (Mirin-Soy Dressing)
+Japanese Tofu Dressing (Creamy Tofu Dressing)
+Japanese Avocado Dressing (Avocado Sesame Dressing)
+Japanese Apple Ginger Dressing (Apple-Ginger Vinaigrette)
+Japanese Plum Dressing (Ume Plum Vinaigrette)
+Japanese Chili Oil Vinaigrette (Chili Oil Soy Dressing)
+Japanese Sesame Miso Dressing (Sesame Miso Vinaigrette)
+Japanese Soy Mustard Dressing (Soy Mustard Vinaigrette)
+Japanese Daikon Dressing (Daikon Radish Dressing)

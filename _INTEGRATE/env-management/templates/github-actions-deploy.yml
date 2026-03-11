@@ -1,0 +1,155 @@
+# GitHub Actions Deployment with Infisical
+#
+# Handles deployments to staging and production.
+# Production deploys are triggered by git tags (e.g., prod-2024-01-27).
+
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main        # Deploy to staging on push to main
+      - staging     # Deploy to staging on push to staging
+    tags:
+      - 'prod-*'    # Deploy to production on prod-* tags
+
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+  INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # Use GitHub Environments for additional protection
+    environment:
+      name: ${{ github.event.inputs.environment || (startsWith(github.ref, 'refs/tags/prod-') && 'production' || 'staging') }}
+      url: ${{ steps.deploy.outputs.url }}
+
+    env:
+      INFISICAL_ENV: ${{ github.event.inputs.environment || (startsWith(github.ref, 'refs/tags/prod-') && 'prod' || 'staging') }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get update && sudo apt-get install -y infisical
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: infisical run --env=${{ env.INFISICAL_ENV }} -- pnpm build
+
+      - name: Run tests
+        run: infisical run --env=${{ env.INFISICAL_ENV }} -- pnpm test
+
+      - name: Deploy
+        id: deploy
+        run: |
+          infisical run --env=${{ env.INFISICAL_ENV }} -- pnpm deploy:${{ env.INFISICAL_ENV }}
+
+          # Output the deployment URL
+          if [[ "${{ env.INFISICAL_ENV }}" == "prod" ]]; then
+            echo "url=https://your-product.app" >> $GITHUB_OUTPUT
+          else
+            echo "url=https://your-product-${{ env.INFISICAL_ENV }}.app" >> $GITHUB_OUTPUT
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Notify on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "❌ Deployment to ${{ env.INFISICAL_ENV }} failed",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deployment Failed*\n\nEnvironment: `${{ env.INFISICAL_ENV }}`\nBranch: `${{ github.ref_name }}`\nCommit: `${{ github.sha }}`"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": { "type": "plain_text", "text": "View Run" },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify on success
+        if: success()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "✅ Deployed to ${{ env.INFISICAL_ENV }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deployment Successful*\n\nEnvironment: `${{ env.INFISICAL_ENV }}`\nURL: ${{ steps.deploy.outputs.url }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Rollback job (manual trigger only)
+  rollback:
+    if: github.event_name == 'workflow_dispatch' && failure()
+    needs: deploy
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Rollback deployment
+        run: |
+          echo "Rolling back ${{ github.event.inputs.environment }} deployment..."
+          # wrangler rollback commands would go here
+          # Example: wrangler deployments rollback --name your-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

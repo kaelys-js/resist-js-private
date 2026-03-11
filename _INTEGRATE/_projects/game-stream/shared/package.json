@@ -1,0 +1,14 @@
+{
+    "name": "util",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+    },
+    "dependencies": {
+      "@yolk-oss/elysia-env": "^3.0.0",
+      "elysia": "^1.3.3",
+      "livekit-server-sdk": "^2.13.0",
+      "valibot": "^1.1.0"
+    }
+  }
+  

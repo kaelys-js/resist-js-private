@@ -1,0 +1,130 @@
+{
+	"name": "resist-linter",
+	"displayName": "Resist Linter",
+	"description": "Multi-language linter with real-time diagnostics for 90+ file types",
+	"version": "0.0.1",
+	"publisher": "resist",
+	"private": true,
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": ["Linters"],
+	"activationEvents": ["onStartupFinished"],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "resistLinter.lintFile",
+				"title": "Lint Current File",
+				"category": "Resist Linter"
+			},
+			{
+				"command": "resistLinter.lintAll",
+				"title": "Lint All Open Files",
+				"category": "Resist Linter"
+			},
+			{
+				"command": "resistLinter.lintCustomRules",
+				"title": "Lint with Custom Rules Only",
+				"category": "Resist Linter"
+			},
+			{
+				"command": "resistLinter.listCustomRules",
+				"title": "List Custom Rules",
+				"category": "Resist Linter"
+			},
+			{
+				"command": "resistLinter.clearDiagnostics",
+				"title": "Clear All Diagnostics",
+				"category": "Resist Linter"
+			},
+			{
+				"command": "resistLinter.checkTools",
+				"title": "Check & Install Tools",
+				"category": "Resist Linter"
+			},
+			{
+				"command": "resistLinter.resetToolPrompt",
+				"title": "Reset Tool Installation Prompt",
+				"category": "Resist Linter"
+			}
+		],
+		"configuration": {
+			"title": "Resist Linter",
+			"properties": {
+				"resistLinter.enable": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable/disable the linter"
+				},
+				"resistLinter.lintOnSave": {
+					"type": "boolean",
+					"default": true,
+					"description": "Lint files on save"
+				},
+				"resistLinter.lintOnType": {
+					"type": "boolean",
+					"default": true,
+					"description": "Lint files as you type (with debounce)"
+				},
+				"resistLinter.lintOnOpen": {
+					"type": "boolean",
+					"default": true,
+					"description": "Lint files when opened"
+				},
+				"resistLinter.debounceMs": {
+					"type": "number",
+					"default": 500,
+					"minimum": 100,
+					"maximum": 5000,
+					"description": "Debounce delay for lint on type (ms)"
+				},
+				"resistLinter.maxProblems": {
+					"type": "number",
+					"default": 100,
+					"minimum": 1,
+					"maximum": 1000,
+					"description": "Maximum number of problems to report per file"
+				},
+				"resistLinter.checkToolsOnActivation": {
+					"type": "boolean",
+					"default": true,
+					"description": "Automatically check for missing tools when the extension activates"
+				},
+				"resistLinter.customRules.enable": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable custom TypeScript rules (requires oxc-parser)"
+				},
+				"resistLinter.customRules.stage": {
+					"type": "string",
+					"default": "lint",
+					"enum": ["lint", "check", "pre-commit", "build", "ci", "test"],
+					"description": "Stage filter for custom rules"
+				},
+				"resistLinter.customRules.categories": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": [],
+					"description": "Category filter for custom rules (empty = all)"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"lint": "oxlint src/",
+		"package": "vsce package --no-dependencies",
+		"vscode:prepublish": "pnpm compile"
+	},
+	"devDependencies": {
+		"@types/node": "^20.0.0",
+		"@types/vscode": "^1.85.0",
+		"@vscode/vsce": "^2.22.0",
+		"typescript": "^5.3.0"
+	}
+}

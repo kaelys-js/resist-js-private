@@ -1,0 +1,121 @@
+-- =========================
+-- MEASUREMENT UNITS
+-- =========================
+CREATE TABLE unit (
+  id TEXT PRIMARY KEY,
+  canonical_key TEXT NOT NULL UNIQUE,
+  dimension TEXT NOT NULL
+);
+
+-- =========================
+-- INGREDIENTS (CANONICAL)
+-- =========================
+CREATE TABLE ingredient (
+  id TEXT PRIMARY KEY,
+  canonical_key TEXT NOT NULL UNIQUE,
+  category TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- =========================
+-- INGREDIENT LOCALIZATION
+-- =========================
+CREATE TABLE ingredient_i18n (
+  ingredient_id TEXT NOT NULL,
+  locale TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  PRIMARY KEY (ingredient_id, locale),
+  FOREIGN KEY (ingredient_id)
+    REFERENCES ingredient(id)
+    ON DELETE CASCADE
+);
+
+-- =========================
+-- INGREDIENT SUBSTITUTES
+-- =========================
+CREATE TABLE ingredient_alternate (
+  ingredient_id TEXT NOT NULL,
+  alternate_ingredient_id TEXT NOT NULL,
+  reason TEXT,
+  PRIMARY KEY (ingredient_id, alternate_ingredient_id),
+  FOREIGN KEY (ingredient_id)
+    REFERENCES ingredient(id)
+    ON DELETE CASCADE,
+  FOREIGN KEY (alternate_ingredient_id)
+    REFERENCES ingredient(id)
+    ON DELETE CASCADE
+);
+
+-- =========================
+-- USER PANTRY STATE
+-- =========================
+CREATE TABLE user_ingredient (
+  user_id TEXT NOT NULL,
+  ingredient_id TEXT NOT NULL,
+  state TEXT NOT NULL CHECK (
+    state IN ('have', 'dont_have', 'maybe', 'unknown')
+  ),
+  quantity REAL,
+  unit_id TEXT,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (user_id, ingredient_id),
+  FOREIGN KEY (ingredient_id)
+    REFERENCES ingredient(id)
+    ON DELETE CASCADE,
+  FOREIGN KEY (unit_id)
+    REFERENCES unit(id)
+);
+
+CREATE INDEX idx_user_ingredient_state
+  ON user_ingredient (state);
+
+-- =========================
+-- REGIONAL INGREDIENT PRICING
+-- =========================
+CREATE TABLE ingredient_price (
+  ingredient_id TEXT NOT NULL,
+  unit_id TEXT NOT NULL,
+  quantity REAL NOT NULL,
+  cost REAL NOT NULL,
+  currency TEXT NOT NULL,
+  locale TEXT NOT NULL,
+  region TEXT NOT NULL DEFAULT '',
+  source TEXT,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (
+    ingredient_id,
+    unit_id,
+    quantity,
+    currency,
+    locale,
+    region
+  ),
+  FOREIGN KEY (ingredient_id)
+    REFERENCES ingredient(id)
+    ON DELETE CASCADE,
+  FOREIGN KEY (unit_id)
+    REFERENCES unit(id)
+);
+
+CREATE INDEX idx_ingredient_price_lookup
+  ON ingredient_price (ingredient_id, locale, region);
+
+-- =========================
+-- RECIPE ↔ INGREDIENT USAGE
+-- =========================
+CREATE TABLE recipe_ingredient (
+  recipe_id TEXT NOT NULL,
+  ingredient_id TEXT NOT NULL,
+  unit_id TEXT NOT NULL,
+  quantity REAL NOT NULL,
+  note TEXT,
+  PRIMARY KEY (recipe_id, ingredient_id),
+  FOREIGN KEY (ingredient_id)
+    REFERENCES ingredient(id),
+  FOREIGN KEY (unit_id)
+    REFERENCES unit(id),
+  FOREIGN KEY (recipe_id)
+    REFERENCES recipe(id)
+    ON DELETE CASCADE
+);
