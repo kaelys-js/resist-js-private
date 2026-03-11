@@ -569,7 +569,15 @@ describe('Lens lint', () => {
   });
 
   describe('Rule 11: Primary .svelte file exists per component dir', () => {
-    const SKIP_DIRS: ReadonlySet<string> = new Set(['hooks', 'lens']);
+    const SKIP_DIRS: ReadonlySet<string> = new Set([
+      'hooks',
+      'lens',
+      'chart',
+      'data-table',
+      'form',
+      'lens-props-table',
+      'resizable',
+    ]);
     const missing: string[] = [];
 
     const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })

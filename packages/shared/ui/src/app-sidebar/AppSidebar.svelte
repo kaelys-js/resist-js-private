@@ -4,7 +4,7 @@ import { StrSchema, BoolSchema } from '@/schemas/common';
 import type { Snippet } from 'svelte';
 import { NavItemSchema } from '../nav-secondary/NavSecondary.svelte';
 
-/** Schema for the AppSidebar component props — uses objectWithRest to allow passthrough props. */
+/** Schema for the AppSidebar component props — uses objectWithRest to allow passthrough props. @convert-to-lens */
 export const AppSidebarPropsSchema = v.objectWithRest({
 	/** Application display name. @values Storylyne RPG, Finance Tracker, My App */
 	appName: StrSchema,

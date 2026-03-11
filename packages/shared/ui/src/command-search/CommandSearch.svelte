@@ -4,7 +4,7 @@ import { StrSchema, BoolSchema } from '@/schemas/common';
 import { SearchItemSchema, type SearchItem } from '../search-autocomplete/search-item.js';
 
 /**
- * Global command search dialog with keyboard shortcut.
+ * Global command search dialog with keyboard shortcut. @convert-to-lens
  *
  * Wraps `Dialog` and `Command` primitives to provide a searchable, grouped
  * command palette that opens via Cmd+K (Mac) / Ctrl+K (Win/Linux) or an

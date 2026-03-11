@@ -2,7 +2,7 @@
 import * as v from 'valibot';
 import { StrSchema, type Str } from '@/schemas/common';
 
-/** Schema for the ColorPicker component props. */
+/** Schema for the ColorPicker component props. @convert-to-lens */
 export const ColorPickerPropsSchema = v.strictObject({
 	/** Current hex color value (e.g. '#ff0000'). @values #000000, #ffffff, #ff0000, #00ff00, #0000ff */
 	value: v.optional(StrSchema),

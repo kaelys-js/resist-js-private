@@ -3,6 +3,7 @@ import * as v from 'valibot';
 import { StrSchema } from '@/schemas/common';
 import type { Snippet } from 'svelte';
 
+// @convert-to-lens — internal lens component, stripSvelteProps not needed
 export const LensSectionPropsSchema = v.strictObject({
 	/** Section heading. @values Basic Usage, With Form, Custom Styles */
 	title: StrSchema,
