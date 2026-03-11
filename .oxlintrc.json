@@ -71,6 +71,7 @@
     "ResizeObserver": "readonly",
     "PerformanceObserver": "readonly",
     "ClipboardItem": "readonly",
+    "CSSStyleRule": "readonly",
     "require": "readonly",
     "__APP_VERSION__": "readonly",
     "__GIT_COMMIT__": "readonly",
