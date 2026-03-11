@@ -10,7 +10,7 @@ Several Issues (build-editor OR fix-bug if needed):
 ----
 
 Several Issues:
-- LensComponentRenderer/DependencyChain: FullScreen Toolbar Option
+- Dependency Chain: Can support grab and drag to move around?
 
 Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
 
@@ -26,7 +26,6 @@ Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
   - LensComponentRenderer Section Header With Icon
   - LensHeader Icon
 
-- Dependency Chain: Can support grab and drag to move around?
 - The Sidebar/CommandSearch components don't render right contained to preview (use playwright mcp any you will see what i mean)
 - The "bundle size" route won't work outside dev like in cloudflare and what about the import globbing and that used for component listing/source reding/global search/etc?
 - Intelligent Automatic Examples Instead of examples/
