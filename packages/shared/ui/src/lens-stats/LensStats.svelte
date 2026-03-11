@@ -47,9 +47,11 @@ import type {
 	CapturedConsoleMessage,
 	FocusOrderIssue,
 	HeadingInfo,
+	LayoutShiftSource,
 	LensStatsData,
 	MetricBudget,
 	UnlabeledElement,
+	WebVitals,
 } from './types.js';
 
 const {
@@ -86,6 +88,26 @@ const RERENDER_YELLOW: Num = 3;
 /** Event listener count thresholds. */
 const LISTENERS_GREEN: Num = 10;
 const LISTENERS_YELLOW: Num = 30;
+
+/** CLS score thresholds (matches Google's page-level CLS thresholds). */
+const CLS_GREEN: Num = 0;
+const CLS_YELLOW: Num = 0.1;
+
+/** Long task count thresholds. */
+const LONG_TASK_COUNT_GREEN: Num = 0;
+const LONG_TASK_COUNT_YELLOW: Num = 2;
+
+/** Worst long task duration thresholds in ms. */
+const LONG_TASK_MS_GREEN: Num = 50;
+const LONG_TASK_MS_YELLOW: Num = 100;
+
+/** FID (First Input Delay) thresholds in ms (Google's Web Vitals). */
+const FID_GREEN: Num = 100;
+const FID_YELLOW: Num = 300;
+
+/** TTFB (Time to First Byte) thresholds in ms (Google's Web Vitals). */
+const TTFB_GREEN: Num = 800;
+const TTFB_YELLOW: Num = 1800;
 
 /**
  * Evaluate a numeric metric against green/yellow/red thresholds.
@@ -388,6 +410,214 @@ function buildBudget(
 	};
 }
 
+/**
+ * Check whether a PerformanceObserver entry type is supported.
+ *
+ * @param entryType - Entry type name to check
+ * @returns True if the browser supports this entry type
+ */
+function supportsEntryType(entryType: Str): Bool {
+	try {
+		return (
+			typeof PerformanceObserver !== 'undefined' &&
+			PerformanceObserver.supportedEntryTypes !== undefined &&
+			PerformanceObserver.supportedEntryTypes.includes(entryType)
+		);
+	} catch {
+		/* PerformanceObserver not available (e.g., SSR or older browser) */
+		return false;
+	}
+}
+
+/**
+ * Describe a DOM element for layout shift attribution.
+ *
+ * @param el - The shifted DOM element (may be null)
+ * @returns Human-readable tag + class string
+ */
+function describeElement(el: Node | null): Str {
+	if (!el || !(el instanceof Element)) return '(unknown)';
+	const tag: Str = el.tagName.toLowerCase();
+	const cls: Str = el.className ? String(el.className).slice(0, 40) : '';
+	return cls ? `<${tag} class="${cls}">` : `<${tag}>`;
+}
+
+/**
+ * Collect component-scoped Web Vitals using PerformanceObserver.
+ * Sets up observers for layout-shift, longtask, paint, and largest-contentful-paint.
+ * Returns the vitals data and a cleanup function to disconnect observers.
+ *
+ * @param wrapper - The component wrapper element
+ * @param mountStart - Timestamp when mount began (performance.now())
+ * @returns Object with vitals data and cleanup function
+ */
+function collectVitals(
+	wrapper: HTMLDivElement,
+	mountStart: Num,
+): { vitals: WebVitals; cleanup: () => void } {
+	const observers: PerformanceObserver[] = [];
+
+	const vitals: WebVitals = {
+		clsScore: 0,
+		clsShiftCount: 0,
+		clsSources: [],
+		longTaskCount: 0,
+		worstLongTaskMs: -1,
+		paintTimeMs: -1,
+		fcpTimeMs: -1,
+		isLcpComponent: false,
+		lcpTimeMs: -1,
+		lcpElement: '',
+		fidMs: -1,
+		ttfbMs: -1,
+		supported: false,
+	};
+
+	const hasLayoutShift: Bool = supportsEntryType('layout-shift');
+	const hasLongTask: Bool = supportsEntryType('longtask');
+	const hasPaint: Bool = supportsEntryType('paint');
+	const hasLcp: Bool = supportsEntryType('largest-contentful-paint');
+	const hasFid: Bool = supportsEntryType('first-input');
+	vitals.supported = hasLayoutShift || hasLongTask || hasPaint || hasLcp || hasFid;
+
+	/* ---- Layout Shift (CLS) ---- */
+	if (hasLayoutShift) {
+		const clsObserver: PerformanceObserver = new PerformanceObserver(
+			(list: PerformanceObserverEntryList): Void => {
+				for (const entry of list.getEntries()) {
+					/* Skip shifts triggered by user input (hadRecentInput) */
+					const shift: PerformanceEntry & {
+						hadRecentInput?: boolean;
+						value?: number;
+						sources?: Array<{ node?: Node }>;
+					} = entry;
+					if (shift.hadRecentInput) continue;
+
+					const shiftValue: Num = shift.value ?? 0;
+					const sources: Array<{ node?: Node }> = shift.sources ?? [];
+
+					/* Check if any source node is within our component */
+					let componentShift: Bool = false;
+					for (const src of sources) {
+						if (src.node && src.node instanceof Element && wrapper.contains(src.node)) {
+							componentShift = true;
+							if (vitals.clsSources.length < 3) {
+								vitals.clsSources.push({
+									tag: src.node.tagName.toLowerCase(),
+									selector: describeElement(src.node),
+									shiftValue: Math.round(shiftValue * 10_000) / 10_000,
+								});
+							}
+						}
+					}
+
+					if (componentShift) {
+						vitals.clsScore = Math.round((vitals.clsScore + shiftValue) * 10_000) / 10_000;
+						vitals.clsShiftCount++;
+					}
+				}
+			},
+		);
+		clsObserver.observe({ type: 'layout-shift', buffered: true });
+		observers.push(clsObserver);
+	}
+
+	/* ---- Long Tasks ---- */
+	if (hasLongTask) {
+		const ltObserver: PerformanceObserver = new PerformanceObserver(
+			(list: PerformanceObserverEntryList): Void => {
+				for (const entry of list.getEntries()) {
+					/* Only count tasks that overlap with mount window (mountStart to mountStart + 1000ms) */
+					const taskEnd: Num = entry.startTime + entry.duration;
+					if (taskEnd >= mountStart && entry.startTime <= mountStart + 1000) {
+						vitals.longTaskCount++;
+						if (entry.duration > vitals.worstLongTaskMs) {
+							vitals.worstLongTaskMs = Math.round(entry.duration * 100) / 100;
+						}
+					}
+				}
+			},
+		);
+		ltObserver.observe({ type: 'longtask', buffered: true });
+		observers.push(ltObserver);
+	}
+
+	/* ---- Paint Timing (FP / FCP) ---- */
+	if (hasPaint) {
+		const paintObserver: PerformanceObserver = new PerformanceObserver(
+			(list: PerformanceObserverEntryList): Void => {
+				for (const entry of list.getEntries()) {
+					const relativeTime: Num = Math.round((entry.startTime - mountStart) * 100) / 100;
+					if (entry.name === 'first-paint' && vitals.paintTimeMs < 0) {
+						vitals.paintTimeMs = relativeTime;
+					}
+					if (entry.name === 'first-contentful-paint' && vitals.fcpTimeMs < 0) {
+						vitals.fcpTimeMs = relativeTime;
+					}
+				}
+			},
+		);
+		paintObserver.observe({ type: 'paint', buffered: true });
+		observers.push(paintObserver);
+	}
+
+	/* ---- Largest Contentful Paint (LCP) ---- */
+	if (hasLcp) {
+		const lcpObserver: PerformanceObserver = new PerformanceObserver(
+			(list: PerformanceObserverEntryList): Void => {
+				for (const entry of list.getEntries()) {
+					const lcpEntry: PerformanceEntry & { element?: Element; startTime: number } = entry;
+					if (lcpEntry.element && wrapper.contains(lcpEntry.element)) {
+						vitals.isLcpComponent = true;
+						vitals.lcpTimeMs = Math.round(lcpEntry.startTime * 100) / 100;
+						vitals.lcpElement = describeElement(lcpEntry.element);
+					}
+				}
+			},
+		);
+		lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+		observers.push(lcpObserver);
+	}
+
+	/* ---- First Input Delay (FID) ---- */
+	if (hasFid) {
+		const fidObserver: PerformanceObserver = new PerformanceObserver(
+			(list: PerformanceObserverEntryList): Void => {
+				for (const entry of list.getEntries()) {
+					const fidEntry: PerformanceEntry & { target?: Element; processingStart?: number } = entry;
+					/* Only attribute FID to this component if the interaction target is within wrapper */
+					if (fidEntry.target && fidEntry.target instanceof Element && wrapper.contains(fidEntry.target)) {
+						const delay: Num = (fidEntry.processingStart ?? entry.startTime) - entry.startTime;
+						vitals.fidMs = Math.round(delay * 100) / 100;
+					}
+				}
+			},
+		);
+		fidObserver.observe({ type: 'first-input', buffered: true });
+		observers.push(fidObserver);
+	}
+
+	/* ---- TTFB (Time to First Byte) — page-level from navigation timing ---- */
+	try {
+		const navEntries: PerformanceEntryList = performance.getEntriesByType('navigation');
+		if (navEntries.length > 0) {
+			const nav: PerformanceEntry & { responseStart?: number; requestStart?: number } = navEntries[0];
+			if (typeof nav.responseStart === 'number' && typeof nav.requestStart === 'number' && nav.responseStart > 0) {
+				vitals.ttfbMs = Math.round((nav.responseStart - nav.requestStart) * 100) / 100;
+			}
+		}
+	} catch (_) {
+		/* Navigation timing unavailable (e.g., cross-origin iframe) — leave as -1 */
+	}
+
+	return {
+		vitals,
+		cleanup: (): Void => {
+			for (const obs of observers) obs.disconnect();
+		},
+	};
+}
+
 /* ------------------------------------------------------------------ */
 /*  Mount & collect stats                                             */
 /* ------------------------------------------------------------------ */
@@ -410,6 +640,9 @@ onMount((): (() => void) => {
 		captured.push({ level: 'error', message: String(args[0] ?? '') });
 		origError.apply(console, args);
 	};
+
+	/* Start vitals collection immediately (observers accumulate data asynchronously) */
+	const vitalsResult: { vitals: WebVitals; cleanup: () => void } = collectVitals(wrapperRef, mountStart);
 
 	/* Use requestAnimationFrame to measure after paint */
 	const rafId: Num = requestAnimationFrame((): Void => {
@@ -490,6 +723,56 @@ onMount((): (() => void) => {
 			),
 		];
 
+		/* Vitals budgets — only add when the browser supports the APIs */
+		const componentVitals: WebVitals = vitalsResult.vitals;
+		if (componentVitals.supported) {
+			if (supportsEntryType('layout-shift')) {
+				budgets.push(
+					buildBudget(
+						'CLS', `${componentVitals.clsScore}`, componentVitals.clsScore,
+						CLS_GREEN, CLS_YELLOW, '',
+						'Cumulative Layout Shift — visual stability of the component. Lower is better.',
+					),
+				);
+			}
+			if (supportsEntryType('longtask') && componentVitals.longTaskCount > 0) {
+				budgets.push(
+					buildBudget(
+						'Long Tasks', `${componentVitals.longTaskCount}`, componentVitals.longTaskCount,
+						LONG_TASK_COUNT_GREEN, LONG_TASK_COUNT_YELLOW, '',
+						'Tasks blocking the main thread for >50ms during component mount.',
+					),
+				);
+				if (componentVitals.worstLongTaskMs > 0) {
+					budgets.push(
+						buildBudget(
+							'Worst Task', `${componentVitals.worstLongTaskMs}ms`, componentVitals.worstLongTaskMs,
+							LONG_TASK_MS_GREEN, LONG_TASK_MS_YELLOW, 'ms',
+							'Duration of the longest main-thread-blocking task during mount.',
+						),
+					);
+				}
+			}
+			if (supportsEntryType('first-input') && componentVitals.fidMs >= 0) {
+				budgets.push(
+					buildBudget(
+						'FID', `${componentVitals.fidMs}ms`, componentVitals.fidMs,
+						FID_GREEN, FID_YELLOW, 'ms',
+						'First Input Delay — time between first user interaction and browser response.',
+					),
+				);
+			}
+			if (componentVitals.ttfbMs >= 0) {
+				budgets.push(
+					buildBudget(
+						'TTFB', `${componentVitals.ttfbMs}ms`, componentVitals.ttfbMs,
+						TTFB_GREEN, TTFB_YELLOW, 'ms',
+						'Time to First Byte — server response time for the page (page-level metric).',
+					),
+				);
+			}
+		}
+
 		if (a11y.headingSkipsLevel) {
 			budgets.push({
 				label: 'Heading Hierarchy',
@@ -531,6 +814,7 @@ onMount((): (() => void) => {
 			propsWithDefaults,
 			propsTotal,
 			eventListenerCount: a11y.eventListenerCount,
+			vitals: componentVitals,
 		};
 
 		/* Track re-renders via MutationObserver */
@@ -568,6 +852,7 @@ onMount((): (() => void) => {
 
 	return (): Void => {
 		cancelAnimationFrame(rafId);
+		vitalsResult.cleanup();
 		console.warn = origWarn;
 		console.error = origError;
 		if (wrapperRef) {

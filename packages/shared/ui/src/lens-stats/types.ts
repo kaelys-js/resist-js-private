@@ -126,6 +126,56 @@ export const MetricBudgetSchema = v.strictObject({
 export type MetricBudget = v.InferOutput<typeof MetricBudgetSchema>;
 
 /* ------------------------------------------------------------------ */
+/*  Layout shift source                                               */
+/* ------------------------------------------------------------------ */
+
+/** A DOM element that contributed to a layout shift. */
+export const LayoutShiftSourceSchema = v.strictObject({
+  /** HTML tag name of the shifted element. */
+  tag: StrSchema,
+  /** CSS selector or class list for identification. */
+  selector: StrSchema,
+  /** Shift contribution value for this element. */
+  shiftValue: NumSchema,
+});
+export type LayoutShiftSource = v.InferOutput<typeof LayoutShiftSourceSchema>;
+
+/* ------------------------------------------------------------------ */
+/*  Web Vitals                                                        */
+/* ------------------------------------------------------------------ */
+
+/** Component-scoped Web Vitals measured via PerformanceObserver. */
+export const WebVitalsSchema = v.strictObject({
+  /** Component-scoped CLS score (sum of layout shifts from component elements). */
+  clsScore: NumSchema,
+  /** Number of layout shift events attributed to this component. */
+  clsShiftCount: NumSchema,
+  /** Elements that contributed to layout shifts (top 3). */
+  clsSources: v.array(LayoutShiftSourceSchema),
+  /** Number of long tasks (>50ms) detected during component mount window. */
+  longTaskCount: NumSchema,
+  /** Duration of the worst long task in ms during mount (-1 if none). */
+  worstLongTaskMs: NumSchema,
+  /** First Paint time relative to component mount start in ms (-1 if unavailable or pre-mounted). */
+  paintTimeMs: NumSchema,
+  /** First Contentful Paint time relative to mount start in ms (-1 if unavailable or pre-mounted). */
+  fcpTimeMs: NumSchema,
+  /** Whether this component contains the page's LCP element. */
+  isLcpComponent: BoolSchema,
+  /** LCP timing in ms (-1 if this component is not the LCP contributor). */
+  lcpTimeMs: NumSchema,
+  /** Description of the LCP element if within this component (empty string if not). */
+  lcpElement: StrSchema,
+  /** First Input Delay in ms — time between first user interaction and browser response (-1 if no interaction yet or unsupported). */
+  fidMs: NumSchema,
+  /** Time to First Byte in ms — page-level server response time (-1 if unavailable). */
+  ttfbMs: NumSchema,
+  /** Whether the browser supports the required PerformanceObserver entry types. */
+  supported: BoolSchema,
+});
+export type WebVitals = v.InferOutput<typeof WebVitalsSchema>;
+
+/* ------------------------------------------------------------------ */
 /*  Complete stats data                                               */
 /* ------------------------------------------------------------------ */
 
@@ -159,5 +209,7 @@ export const LensStatsDataSchema = v.strictObject({
   propsTotal: NumSchema,
   /** Count of elements with inline event handlers. */
   eventListenerCount: NumSchema,
+  /** Component-scoped Web Vitals (CLS, long tasks, paint timing, LCP). */
+  vitals: WebVitalsSchema,
 });
 export type LensStatsData = v.InferOutput<typeof LensStatsDataSchema>;
