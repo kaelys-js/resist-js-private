@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 /**
  * Collapsible sidebar layout container with desktop and mobile variants.

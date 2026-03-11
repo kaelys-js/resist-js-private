@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 	import { Pagination as PaginationPrimitive } from "bits-ui";
 

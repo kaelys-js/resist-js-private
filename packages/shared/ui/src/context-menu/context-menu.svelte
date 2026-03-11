@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 	import { ContextMenu as ContextMenuPrimitive } from "bits-ui";
 

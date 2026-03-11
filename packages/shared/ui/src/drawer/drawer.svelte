@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 	import { Drawer as DrawerPrimitive } from "vaul-svelte";
 

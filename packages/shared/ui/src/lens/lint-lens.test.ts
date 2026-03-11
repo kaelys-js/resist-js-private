@@ -11,6 +11,14 @@
  * 7. Every extracted prop (via `extractProps`) has a JSDoc description
  * 8. Every extracted `Str`/`Num`/`string`/`number` prop has `@values`
  * 9. Every primary component has renderable Lens content (props, variants, or examples)
+ * 10. Directory names are kebab-case
+ * 11. Primary `.svelte` file exists per component directory
+ * 12. Converted components use `v.strictObject()` schema (skip `@convert-to-lens`)
+ * 13. No `v.object()` in component schemas (skip `@convert-to-lens`)
+ * 14. Converted schema components use `safeParse` + `stripSvelteProps` (skip `@convert-to-lens`)
+ * 15. No bare Valibot primitives in module scripts (skip `@convert-to-lens`)
+ * 16. Example names in `lens.ts` match filesystem
+ * 17. `tv-variant` tag in `lens.ts` when component uses `tv()`
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
@@ -537,6 +545,242 @@ describe('Lens lint', () => {
         empty,
         `Components with no renderable Lens content (add props, variants, or examples/):\n${empty.join('\n')}`,
       ).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 10: Directory names are kebab-case', () => {
+    const KEBAB_RE: RegExp = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+    const violations: string[] = [];
+
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .filter((d) => readdirSync(join(UI_SRC, d.name)).some((f: string) => f.endsWith('.svelte')))
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      if (!KEBAB_RE.test(dir)) {
+        violations.push(dir);
+      }
+    }
+
+    it('every component directory is kebab-case', () => {
+      expect(violations, `Non-kebab-case dirs:\n${violations.join('\n')}`).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 11: Primary .svelte file exists per component dir', () => {
+    const SKIP_DIRS: ReadonlySet<string> = new Set(['hooks', 'lens']);
+    const missing: string[] = [];
+
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
+      .filter((d) => readdirSync(join(UI_SRC, d.name)).some((f: string) => f.endsWith('.svelte')))
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      const files: string[] = readdirSync(join(UI_SRC, dir));
+      const hasPrimary: boolean = files.some(
+        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
+      );
+      if (!hasPrimary) {
+        missing.push(dir);
+      }
+    }
+
+    it('every component directory has a primary .svelte file', () => {
+      expect(missing, `Missing primary .svelte file:\n${missing.join('\n')}`).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 12: Converted components use v.strictObject() schema (skip @convert-to-lens)', () => {
+    const violations: string[] = [];
+    const SKIP_DIRS: ReadonlySet<string> = new Set(['hooks', 'lens']);
+
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      const dirPath: string = join(UI_SRC, dir);
+      const files: string[] = readdirSync(dirPath);
+      const primaryFile: string | undefined = files.find(
+        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
+      );
+      if (!primaryFile) continue;
+
+      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      if (source.includes('@convert-to-lens')) continue;
+
+      if (!source.includes('v.strictObject(')) {
+        violations.push(`${dir}/${primaryFile}`);
+      }
+    }
+
+    it('every converted component has v.strictObject() schema', () => {
+      expect(violations, `Missing v.strictObject():\n${violations.join('\n')}`).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 13: No v.object() in schemas (skip @convert-to-lens)', () => {
+    const violations: string[] = [];
+
+    for (const file of svelteFiles) {
+      const source: string = readFileSync(file, 'utf8');
+      if (source.includes('@convert-to-lens')) continue;
+
+      // Remove v.strictObject( to avoid false positives
+      const cleaned: string = source.replaceAll('v.strictObject(', '');
+      if (cleaned.includes('v.object(')) {
+        violations.push(rel(file));
+      }
+    }
+
+    it('no component uses bare v.object() instead of v.strictObject()', () => {
+      expect(
+        violations,
+        `Uses v.object() instead of v.strictObject():\n${violations.join('\n')}`,
+      ).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 14: safeParse + stripSvelteProps required (skip @convert-to-lens)', () => {
+    const violations: string[] = [];
+    const SKIP_DIRS: ReadonlySet<string> = new Set(['hooks', 'lens']);
+
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      const dirPath: string = join(UI_SRC, dir);
+      const files: string[] = readdirSync(dirPath);
+      const primaryFile: string | undefined = files.find(
+        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
+      );
+      if (!primaryFile) continue;
+
+      const source: string = readFileSync(join(dirPath, primaryFile), 'utf8');
+      if (source.includes('@convert-to-lens')) continue;
+      // Only check components that have a v.strictObject schema
+      if (!source.includes('v.strictObject(')) continue;
+
+      const missing: string[] = [];
+      if (!source.includes('safeParse(')) missing.push('safeParse');
+      if (!source.includes('stripSvelteProps(')) missing.push('stripSvelteProps');
+
+      if (missing.length > 0) {
+        violations.push(`${dir}/${primaryFile} — missing ${missing.join(', ')}`);
+      }
+    }
+
+    it('every converted schema component uses safeParse + stripSvelteProps', () => {
+      expect(
+        violations,
+        `Missing safeParse/stripSvelteProps:\n${violations.join('\n')}`,
+      ).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 15: No bare Valibot primitives in module scripts (skip @convert-to-lens)', () => {
+    const BARE_PRIMITIVE_RE: RegExp = /v\.(string|boolean|number)\s*\(\s*\)/;
+    const violations: string[] = [];
+
+    for (const file of svelteFiles) {
+      const source: string = readFileSync(file, 'utf8');
+      if (source.includes('@convert-to-lens')) continue;
+
+      // Extract module script block
+      const moduleMatch: RegExpMatchArray | null = source.match(
+        /<script[^>]*\bmodule\b[^>]*>[\s\S]*?<\/script>/,
+      );
+      if (!moduleMatch) continue;
+
+      const [moduleSource]: RegExpMatchArray = moduleMatch;
+      const match: RegExpMatchArray | null = moduleSource.match(BARE_PRIMITIVE_RE);
+      if (match) {
+        const primitive: string = match[1] ?? '';
+        let schema: string = 'NumSchema';
+        if (primitive === 'string') schema = 'StrSchema';
+        else if (primitive === 'boolean') schema = 'BoolSchema';
+        violations.push(`${rel(file)} — uses bare v.${primitive}() instead of ${schema}`);
+      }
+    }
+
+    it('no bare v.string()/v.boolean()/v.number() in module scripts', () => {
+      expect(violations, `Bare Valibot primitives:\n${violations.join('\n')}`).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 16: Example names in lens.ts match filesystem', () => {
+    const violations: string[] = [];
+
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      const lensPath: string = join(UI_SRC, dir, 'lens.ts');
+      if (!existsSync(lensPath)) continue;
+
+      const lensSource: string = readFileSync(lensPath, 'utf8');
+      const nameMatches: RegExpMatchArray[] = [...lensSource.matchAll(/name:\s*'([^']+)'/g)];
+      if (nameMatches.length === 0) continue;
+
+      const examplesDir: string = join(UI_SRC, dir, 'examples');
+      const exampleFiles: string[] = existsSync(examplesDir)
+        ? readdirSync(examplesDir).filter((f: string) => f.endsWith('.svelte'))
+        : [];
+
+      for (const m of nameMatches) {
+        const exampleName: string = m[1] ?? '';
+        const expectedFile: string = `${exampleName}.svelte`;
+        if (!exampleFiles.includes(expectedFile)) {
+          violations.push(
+            `${dir}/lens.ts — name:'${exampleName}' missing examples/${expectedFile}`,
+          );
+        }
+      }
+    }
+
+    it('every example name in lens.ts has a matching .svelte file', () => {
+      expect(violations, `Mismatched examples:\n${violations.join('\n')}`).toHaveLength(0);
+    });
+  });
+
+  describe('Rule 17: tv-variant tag when tv() is used', () => {
+    const violations: string[] = [];
+
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      const dirPath: string = join(UI_SRC, dir);
+      const files: string[] = readdirSync(dirPath);
+
+      // Check if any .svelte file in the dir uses tv(
+      const usesTv: boolean = files
+        .filter((f: string) => f.endsWith('.svelte'))
+        .some((f: string): boolean => {
+          const source: string = readFileSync(join(dirPath, f), 'utf8');
+          return /\btv\s*\(\s*\{/.test(source);
+        });
+      if (!usesTv) continue;
+
+      const lensPath: string = join(dirPath, 'lens.ts');
+      if (!existsSync(lensPath)) {
+        violations.push(`${dir} — uses tv() but has no lens.ts`);
+        continue;
+      }
+
+      const lensSource: string = readFileSync(lensPath, 'utf8');
+      if (!lensSource.includes('tv-variant')) {
+        violations.push(`${dir}/lens.ts — component uses tv() but missing 'tv-variant' tag`);
+      }
+    }
+
+    it('components using tv() have tv-variant tag in lens.ts', () => {
+      expect(violations, `Missing tv-variant tag:\n${violations.join('\n')}`).toHaveLength(0);
     });
   });
 });

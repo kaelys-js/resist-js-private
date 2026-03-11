@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 import { NavigationMenu as NavigationMenuPrimitive } from 'bits-ui';
 import { cn } from '../utils.js';

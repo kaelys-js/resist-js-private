@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 /**
  * Custom scrollbar container with styled vertical and/or horizontal scrollbar tracks.

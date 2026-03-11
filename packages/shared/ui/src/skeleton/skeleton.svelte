@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 /**
  * Loading placeholder with a pulsing animation, used to indicate content is being fetched.

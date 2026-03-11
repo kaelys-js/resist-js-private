@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 import { type DateValue, isEqualMonth } from '@internationalized/date';
 import { RangeCalendar as RangeCalendarPrimitive } from 'bits-ui';

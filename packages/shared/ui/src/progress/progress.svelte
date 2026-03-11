@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 	import { Progress as ProgressPrimitive } from "bits-ui";
 	import { cn, type WithoutChildrenOrChild } from "../utils.js";

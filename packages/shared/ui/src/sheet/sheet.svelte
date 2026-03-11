@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 /**
  * Sheet/drawer root that manages open/close state for a slide-in panel overlay.

@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 import CircleCheckIcon from '@lucide/svelte/icons/circle-check';
 import InfoIcon from '@lucide/svelte/icons/info';

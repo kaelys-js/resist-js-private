@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 /**
  * Popover root that manages open/close state and anchors content to a trigger element.
