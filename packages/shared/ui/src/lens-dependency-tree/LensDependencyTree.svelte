@@ -56,11 +56,11 @@ export const LensDependencyTreePropsSchema = v.strictObject({
 	/** Current component name — used to build links to sibling component pages. @values button, dialog, sidebar */
 	currentComponent: v.optional(StrSchema),
 	/** Per-component size data (source + compiled + gzip). Keyed by component directory name. @values {button: {source: 1024, compiled: 512, gzip: 256}} */
-	sizes: v.optional(v.record(v.string(), ComponentSizeSchema)),
+	sizes: v.optional(v.record(StrSchema, ComponentSizeSchema)),
 	/** Known component directory names from glob discovery — used to distinguish UI components from utility imports. @values button, dialog, tooltip, badge */
 	knownComponents: v.optional(v.array(StrSchema)),
 	/** Raw source strings keyed by glob path — used for recursive dependency chain resolution. @values {"/ui/button/index.js": "import..."} */
-	rawSources: v.optional(v.record(v.string(), StrSchema)),
+	rawSources: v.optional(v.record(StrSchema, StrSchema)),
 	/** Additional CSS classes for the root element. @values mt-4, space-y-2 */
 	class: v.optional(StrSchema),
 });
@@ -913,6 +913,7 @@ async function handleChainExport(formatId: Str): Promise<void> {
 					</div>
 				</div>
 				<!-- Graph canvas (drag to pan) -->
+				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 				<div
 					bind:this={chainCanvasRef}
 					class={cn('overflow-auto border-t bg-muted/20 p-4', chainFullscreen && 'flex-1', isDragging ? 'cursor-grabbing' : 'cursor-grab')}

@@ -4,7 +4,7 @@ import { StrSchema, BoolSchema } from '@/schemas/common';
 import { PropMetaSchema, VariantMetaSchema } from '../lens/types.js';
 import type { Component, Snippet } from 'svelte';
 
-/** Schema for the LensComponentRenderer component props. */
+/** Schema for the LensComponentRenderer component props. @convert-to-lens */
 export const LensComponentRendererPropsSchema = v.strictObject({
 	/** The Svelte component to render. */
 	component: v.custom<Component>((val: unknown): boolean => typeof val === 'function'),
@@ -2034,7 +2034,7 @@ function applySettingsToAll(sourceKey: Str): Void {
 		cardOrientations[key] = cardOrientations[sourceKey] ?? 'default';
 		cardModes[key] = cardModes[sourceKey] ?? 'auto';
 		cardThemes[key] = cardThemes[sourceKey] ?? '';
-		cardMediaPrefs[key] = { ...(cardMediaPrefs[sourceKey] ?? {}) };
+		cardMediaPrefs[key] = { ...cardMediaPrefs[sourceKey] };
 		cardNetworkSim[key] = cardNetworkSim[sourceKey] ?? 'none';
 		cardNetworkLoading[key] = false;
 		cardViewports[key] = cardViewports[sourceKey] ?? 'auto';
@@ -2419,7 +2419,7 @@ function isIconOption(option: Str): boolean {
 							<!-- Report — budget metrics with tooltip explanations -->
 							<div class="px-3 py-2">
 								<button type="button" class="flex w-full items-center gap-1" aria-expanded={statsReportOpen} aria-controls="stats-report" onclick={() => statsReportOpen = !statsReportOpen}>
-									<svelte:component this={statsReportOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+									{#if statsReportOpen}<ChevronDown class="size-3 text-muted-foreground" />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
 									<h4 class="text-xs font-semibold">Report</h4>
 								</button>
 								{#if statsReportOpen}<div id="stats-report">
@@ -2443,6 +2443,7 @@ function isIconOption(option: Str): boolean {
 												<Tooltip.Root delayDuration={200}>
 													<Tooltip.Trigger>
 														{#snippet child({ props: tipProps })}
+															<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 															<div
 																{...tipProps}
 																class={cn(
@@ -2456,7 +2457,7 @@ function isIconOption(option: Str): boolean {
 															>
 																<div class="flex items-center gap-2">
 																	{#if hasDetails}
-																		<svelte:component this={budgetExpanded[budget.label] ? ChevronDown : ChevronRight} class="size-2.5 text-muted-foreground/60" />
+																		{#if budgetExpanded[budget.label]}<ChevronDown class="size-2.5 text-muted-foreground/60" />{:else}<ChevronRight class="size-2.5 text-muted-foreground/60" />{/if}
 																	{/if}
 																	<span class={cn('text-base leading-none', budgetColor(budget.level))}>●</span>
 																	<span class="text-muted-foreground">{budget.label}</span>
@@ -2574,7 +2575,7 @@ function isIconOption(option: Str): boolean {
 							<!-- Web Vitals section -->
 							<div class="border-t px-3 py-2">
 								<button type="button" class="flex w-full items-center gap-1" aria-expanded={statsVitalsOpen} aria-controls="stats-vitals" onclick={() => statsVitalsOpen = !statsVitalsOpen}>
-									<svelte:component this={statsVitalsOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+									{#if statsVitalsOpen}<ChevronDown class="size-3 text-muted-foreground" />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
 									<h4 class="text-xs font-semibold">Web Vitals</h4>
 								</button>
 								{#if statsVitalsOpen}<div id="stats-vitals">
@@ -2877,7 +2878,7 @@ function isIconOption(option: Str): boolean {
 							<!-- DOM section -->
 							<div class="border-t px-3 py-2">
 								<button type="button" class="flex w-full items-center gap-1" aria-expanded={statsDomOpen} aria-controls="stats-dom" onclick={() => statsDomOpen = !statsDomOpen}>
-									<svelte:component this={statsDomOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+									{#if statsDomOpen}<ChevronDown class="size-3 text-muted-foreground" />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
 									<h4 class="text-xs font-semibold">DOM Structure</h4>
 								</button>
 								{#if statsDomOpen}<div id="stats-dom">
@@ -2940,7 +2941,7 @@ function isIconOption(option: Str): boolean {
 											<Tooltip.Trigger>
 												{#snippet child({ props: tipProps })}
 													<button {...tipProps} type="button" class="flex w-full cursor-help items-center gap-1" aria-expanded={statsMemoryOpen} onclick={() => statsMemoryOpen = !statsMemoryOpen}>
-														<svelte:component this={statsMemoryOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+														{#if statsMemoryOpen}<ChevronDown class="size-3 text-muted-foreground" />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
 														<h4 class="text-xs font-semibold">Memory</h4>
 														<span class="ml-auto font-mono text-xs font-medium">{(stats.memoryDeltaBytes / 1_048_576).toFixed(1)} MB</span>
 													</button>
@@ -2960,7 +2961,7 @@ function isIconOption(option: Str): boolean {
 							<!-- Accessibility section -->
 							<div class="border-t px-3 py-2">
 								<button type="button" class="flex w-full items-center gap-1" aria-expanded={statsA11yOpen} aria-controls="stats-a11y" onclick={() => statsA11yOpen = !statsA11yOpen}>
-									<svelte:component this={statsA11yOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+									{#if statsA11yOpen}<ChevronDown class="size-3 text-muted-foreground" />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
 									<h4 class="text-xs font-semibold">Accessibility</h4>
 								</button>
 								{#if statsA11yOpen}<div id="stats-a11y">
@@ -3314,7 +3315,7 @@ function isIconOption(option: Str): boolean {
 							{#if stats.consoleMessages.length > 0}
 								<div class="border-t px-3 py-2">
 									<button type="button" class="flex w-full items-center gap-1" aria-expanded={statsConsoleOpen} aria-controls="stats-console" onclick={() => statsConsoleOpen = !statsConsoleOpen}>
-										<svelte:component this={statsConsoleOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+										{#if statsConsoleOpen}<ChevronDown class="size-3 text-muted-foreground" />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
 										<h4 class="text-xs font-semibold">Console ({stats.consoleMessages.length})</h4>
 									</button>
 									{#if statsConsoleOpen}<div id="stats-console">
@@ -3380,7 +3381,7 @@ function isIconOption(option: Str): boolean {
 										<Tooltip.Trigger>
 											{#snippet child({ props: tipProps })}
 												<button {...tipProps} type="button" class="flex w-full cursor-help items-center gap-1" aria-expanded={statsPropCoverageOpen} aria-controls="stats-props" onclick={() => statsPropCoverageOpen = !statsPropCoverageOpen}>
-													<svelte:component this={statsPropCoverageOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+													{#if statsPropCoverageOpen}<ChevronDown class="size-3 text-muted-foreground" />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
 													<h4 class="text-xs font-semibold">Prop Coverage</h4>
 													<span class="ml-auto font-mono text-xs text-muted-foreground">{stats.propsWithDefaults}/{stats.propsTotal}</span>
 												</button>
@@ -4388,7 +4389,9 @@ function isIconOption(option: Str): boolean {
 			)}
 			style={[getBackgroundStyle(cardKey), cardContentHeights[cardKey] ? `min-height: ${cardContentHeights[cardKey] + 32}px` : '', activeMode === 'light' ? 'color-scheme: light' : '', activeMode === 'dark' ? 'color-scheme: dark' : '', activeMode === 'auto' && activeTheme && !pageIsDark ? 'color-scheme: light' : '', activeMode === 'auto' && activeTheme && pageIsDark ? 'color-scheme: dark' : '', getFontSizeVars(cardKey)].filter(Boolean).join('; ')}
 			data-theme={activeTheme || undefined}
-			dir={(cardTextDir[cardKey] ?? 'auto') !== 'auto' ? cardTextDir[cardKey] : undefined}
+			dir={(cardTextDir[cardKey] ?? 'auto') !== 'auto'
+				? /* Guard ensures 'ltr' | 'rtl' — Str too wide for dir attr */ (cardTextDir[cardKey] as 'ltr' | 'rtl')
+				: undefined}
 		>
 			{#if hasColorMatrixSim(cardKey)}
 				<svg class="absolute size-0 overflow-hidden" aria-hidden="true">
