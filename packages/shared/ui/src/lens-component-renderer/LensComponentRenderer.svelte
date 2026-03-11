@@ -1453,7 +1453,7 @@ function collectCardStyles(key: Str): Record<Str, Str> {
 	const dir: Str = cardTextDir[key] ?? 'auto';
 	if (dir !== 'auto') s.dir = dir;
 	const fontSize: Num = cardFontSize[key] ?? 0;
-	if (fontSize > 0) s.fontSize = `${fontSize}px`;
+	if (fontSize > 0) s.fontSize = `${fontSize}px (${(fontSize / 16).toFixed(2)}x)`;
 	return s;
 }
 
@@ -1595,6 +1595,36 @@ function getZoomLabel(key: Str): Str {
 }
 
 /**
+ * Tailwind v4 text-size CSS custom properties and their default rem values.
+ * Tailwind utility classes like `text-sm` resolve to `font-size: var(--text-sm)`,
+ * so overriding these variables on a container scales all child text proportionally.
+ */
+const TW_TEXT_VARS: ReadonlyArray<{ prop: Str; rem: Num }> = [
+	{ prop: '--text-xs', rem: 0.75 },
+	{ prop: '--text-sm', rem: 0.875 },
+	{ prop: '--text-base', rem: 1 },
+	{ prop: '--text-lg', rem: 1.125 },
+	{ prop: '--text-xl', rem: 1.25 },
+	{ prop: '--text-2xl', rem: 1.5 },
+	{ prop: '--text-3xl', rem: 1.875 },
+	{ prop: '--text-4xl', rem: 2.25 },
+	{ prop: '--text-5xl', rem: 3 },
+];
+
+/**
+ * Generate CSS variable overrides for Tailwind text sizes scaled to target font size.
+ *
+ * @param key - Card key
+ * @returns CSS string with `--text-*` variable overrides, or empty string if default
+ */
+function getFontSizeVars(key: Str): Str {
+	const targetPx: Num = cardFontSize[key] ?? 0;
+	if (targetPx <= 0) return '';
+	const scale: Num = targetPx / 16;
+	return TW_TEXT_VARS.map((v) => `${v.prop}: ${(v.rem * scale).toFixed(4)}rem`).join('; ');
+}
+
+/**
  * Check if a card has an active color matrix simulation.
  *
  * @param key - Card key
@@ -1695,7 +1725,7 @@ function getActiveSettings(key: Str): Array<{ label: Str; value: Str }> {
 	if (dir !== 'auto') settings.push({ label: 'Direction', value: dir.toUpperCase() });
 	// Font size
 	const fontSize: Num = cardFontSize[key] ?? 0;
-	if (fontSize > 0) settings.push({ label: 'Font Size', value: `${fontSize}px` });
+	if (fontSize > 0) settings.push({ label: 'Font Size', value: `${fontSize}px (${(fontSize / 16).toFixed(1)}x)` });
 	return settings;
 }
 
@@ -2241,33 +2271,32 @@ function isIconOption(option: Str): boolean {
 			<div class="flex items-center gap-2">
 				<code class="text-sm text-muted-foreground">{cardLabel}</code>
 				{#if activeSettings.length > 0}
-					<Tooltip.Provider>
-						<Tooltip.Root delayDuration={200}>
-							<Tooltip.Trigger>
-								{#snippet child({ props: tipProps })}
-									<button
-										type="button"
-										{...tipProps}
-										class="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-muted-foreground/60 transition-colors hover:text-muted-foreground"
-									>
-										<Settings2 class="size-3.5" aria-hidden="true" />
-										<span class="text-[10px] font-medium">{activeSettings.length}</span>
-										<span class="sr-only">{activeSettings.length} active settings</span>
-									</button>
-								{/snippet}
-							</Tooltip.Trigger>
-							<Tooltip.Content side="bottom" sideOffset={4} class="max-w-[20rem] p-0">
-								<div class="space-y-0">
-									{#each activeSettings as setting (setting.label)}
-										<div class="flex items-center justify-between gap-4 border-b border-primary-foreground/10 px-3 py-1 last:border-b-0">
-											<span class="text-[10px] text-primary-foreground/60">{setting.label}</span>
-											<span class="font-mono text-[10px] font-medium text-primary-foreground">{setting.value}</span>
-										</div>
-									{/each}
-								</div>
-							</Tooltip.Content>
-						</Tooltip.Root>
-					</Tooltip.Provider>
+					<Popover.Root>
+						<Popover.Trigger>
+							<button
+								type="button"
+								class="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+								aria-label="{activeSettings.length} active settings"
+							>
+								<Settings2 class="size-3.5" aria-hidden="true" />
+								<span class="text-[10px] font-medium">{activeSettings.length}</span>
+							</button>
+						</Popover.Trigger>
+						<Popover.Content side="bottom" align="start" class="w-64 p-0">
+							<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-2">
+								<h4 class="text-xs font-semibold">Active Settings</h4>
+								<span class="text-[10px] text-muted-foreground">{activeSettings.length} modified</span>
+							</div>
+							<div class="space-y-0">
+								{#each activeSettings as setting (setting.label)}
+									<div class="flex items-center justify-between gap-4 border-b px-3 py-1.5 last:border-b-0">
+										<span class="text-[11px] text-muted-foreground">{setting.label}</span>
+										<span class="font-mono text-[11px] font-medium">{setting.value}</span>
+									</div>
+								{/each}
+							</div>
+						</Popover.Content>
+					</Popover.Root>
 				{/if}
 			</div>
 			<div class="flex items-center gap-1">
@@ -4192,6 +4221,7 @@ function isIconOption(option: Str): boolean {
 									</div>
 								</div>
 								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Label class="text-xs">Direction</DropdownMenu.Label>
 									{#each filteredDirPresets as item (item.id)}
 										<DropdownMenu.Item onclick={() => { cardTextDir[cardKey] = item.id; }}>
 											<Check class={cn('size-4', activeDir !== item.id && 'opacity-0')} />
@@ -4234,6 +4264,7 @@ function isIconOption(option: Str): boolean {
 									</div>
 								</div>
 								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Label class="text-xs">Presets</DropdownMenu.Label>
 									{#each filteredFontSizePresets as item (item.px)}
 										<DropdownMenu.Item onclick={() => { cardFontSize[cardKey] = item.px; }}>
 											<Check class={cn('size-4', activeFontSize !== item.px && 'opacity-0')} />
@@ -4355,7 +4386,7 @@ function isIconOption(option: Str): boolean {
 				activeMode === 'auto' && activeTheme && !pageIsDark && 'lens-force-light',
 				activeTheme && 'bg-background text-foreground',
 			)}
-			style={[getBackgroundStyle(cardKey), cardContentHeights[cardKey] ? `min-height: ${cardContentHeights[cardKey] + 32}px` : '', activeMode === 'light' ? 'color-scheme: light' : '', activeMode === 'dark' ? 'color-scheme: dark' : '', activeMode === 'auto' && activeTheme && !pageIsDark ? 'color-scheme: light' : '', activeMode === 'auto' && activeTheme && pageIsDark ? 'color-scheme: dark' : '', (cardFontSize[cardKey] ?? 0) > 0 ? `font-size: ${cardFontSize[cardKey]}px` : ''].filter(Boolean).join('; ')}
+			style={[getBackgroundStyle(cardKey), cardContentHeights[cardKey] ? `min-height: ${cardContentHeights[cardKey] + 32}px` : '', activeMode === 'light' ? 'color-scheme: light' : '', activeMode === 'dark' ? 'color-scheme: dark' : '', activeMode === 'auto' && activeTheme && !pageIsDark ? 'color-scheme: light' : '', activeMode === 'auto' && activeTheme && pageIsDark ? 'color-scheme: dark' : '', getFontSizeVars(cardKey)].filter(Boolean).join('; ')}
 			data-theme={activeTheme || undefined}
 			dir={(cardTextDir[cardKey] ?? 'auto') !== 'auto' ? cardTextDir[cardKey] : undefined}
 		>
