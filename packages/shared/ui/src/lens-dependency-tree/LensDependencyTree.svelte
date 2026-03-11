@@ -103,6 +103,8 @@ import GitBranch from '@lucide/svelte/icons/git-branch';
 import ZoomIn from '@lucide/svelte/icons/zoom-in';
 import ZoomOut from '@lucide/svelte/icons/zoom-out';
 import Maximize from '@lucide/svelte/icons/maximize';
+import Maximize2 from '@lucide/svelte/icons/maximize-2';
+import Minimize2 from '@lucide/svelte/icons/minimize-2';
 import Download from '@lucide/svelte/icons/download';
 import FileImage from '@lucide/svelte/icons/file-image';
 import FileCode from '@lucide/svelte/icons/file-code';
@@ -174,6 +176,20 @@ const usedByCount: Num = $derived((validated.usedBy ?? []).length);
 
 /** Track which import path was recently copied (for check icon feedback). */
 let copiedPath: Str | null = $state(null);
+
+/** Whether the dependency chain graph is in fullscreen mode. */
+let chainFullscreen: Bool = $state(false);
+
+/**
+ * Toggle fullscreen mode for the dependency chain graph.
+ * Auto-expands the chain section when entering fullscreen.
+ */
+function toggleChainFullscreen(): Void {
+	chainFullscreen = !chainFullscreen;
+	if (chainFullscreen) {
+		expanded.chain = true;
+	}
+}
 
 /**
  * Copy an import path to the clipboard with visual feedback.
@@ -591,6 +607,8 @@ async function handleChainExport(formatId: Str): Promise<void> {
 }
 </script>
 
+<svelte:window onkeydown={(e) => { if (e.key === 'Escape' && chainFullscreen) chainFullscreen = false; }} />
+
 <!-- Summary bar -->
 <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
 	{#if uiComponentDeps.length > 0}
@@ -684,7 +702,10 @@ async function handleChainExport(formatId: Str): Promise<void> {
 
 	<!-- Dependency Chain (node graph) -->
 	{#if graphLayout}
-		<div class="overflow-hidden rounded-md border bg-card">
+		{#if chainFullscreen}
+			<div class="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm" role="presentation"></div>
+		{/if}
+		<div class={cn('overflow-hidden rounded-md border bg-card', chainFullscreen && 'fixed inset-4 z-50 flex flex-col')}>
 			<button
 				type="button"
 				class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm font-medium transition-colors hover:bg-muted/50"
@@ -696,7 +717,7 @@ async function handleChainExport(formatId: Str): Promise<void> {
 				<Badge variant="secondary" class="ml-auto text-xs">{dependencyChain.length}</Badge>
 			</button>
 			{#if expanded.chain}
-				<div transition:slide={{ duration: 200 }}>
+				<div class={cn(chainFullscreen && 'flex flex-1 flex-col')} transition:slide={{ duration: 200 }}>
 				<!-- Zoom toolbar -->
 				<div class="flex items-center gap-1 border-t px-3 py-1.5">
 					<button
@@ -726,6 +747,18 @@ async function handleChainExport(formatId: Str): Promise<void> {
 						aria-label="Fit (100%)"
 					>
 						<Maximize class="size-3.5" />
+					</button>
+					<button
+						type="button"
+						class="inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+						onclick={toggleChainFullscreen}
+						aria-label={chainFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+					>
+						{#if chainFullscreen}
+							<Minimize2 class="size-3.5" />
+						{:else}
+							<Maximize2 class="size-3.5" />
+						{/if}
 					</button>
 					<div class="ml-auto">
 						<DropdownMenu.Root>
@@ -785,7 +818,7 @@ async function handleChainExport(formatId: Str): Promise<void> {
 					</div>
 				</div>
 				<!-- Graph canvas -->
-				<div class="overflow-auto border-t bg-muted/20 p-4" style="max-height: 500px;">
+				<div class={cn('overflow-auto border-t bg-muted/20 p-4', chainFullscreen && 'flex-1')} style={chainFullscreen ? '' : 'max-height: 500px;'}>
 					<div
 						class="relative origin-top-left transition-transform"
 						style="width: {graphLayout.width}px; height: {graphLayout.height}px; min-width: 200px; zoom: {chainZoom};"
