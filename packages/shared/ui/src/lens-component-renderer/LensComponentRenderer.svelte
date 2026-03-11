@@ -97,8 +97,10 @@ import Download from '@lucide/svelte/icons/download';
 import Clipboard from '@lucide/svelte/icons/clipboard';
 import FileImage from '@lucide/svelte/icons/file-image';
 import FileType from '@lucide/svelte/icons/file-type';
+import FileCode from '@lucide/svelte/icons/file-code';
+import Link from '@lucide/svelte/icons/link';
 import * as DropdownMenu from '../dropdown-menu/index.js';
-import { exportPng, exportJpeg, exportSvg, exportWebp, copyImageToClipboard, copyHtml, downloadHtml } from '../lens/export-utils.js';
+import { exportPng, exportJpeg, exportSvg, exportWebp, copyImageToClipboard, copyHtml, copyDataUri, downloadHtml } from '../lens/export-utils.js';
 import * as Tooltip from '../tooltip/index.js';
 import { slide } from 'svelte/transition';
 import { cn } from '../utils.js';
@@ -799,6 +801,8 @@ const EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: Component; category: Str 
 	{ id: 'html', label: 'HTML', icon: FileType, category: 'Document' },
 	{ id: 'copy-image', label: 'Copy as Image', icon: Clipboard, category: 'Clipboard' },
 	{ id: 'copy-html', label: 'Copy as HTML', icon: FileType, category: 'Clipboard' },
+	{ id: 'copy-svelte', label: 'Copy as Svelte', icon: FileCode, category: 'Clipboard' },
+	{ id: 'copy-data-uri', label: 'Copy as Data URI', icon: Link, category: 'Clipboard' },
 ];
 
 /** Export items filtered by search query. */
@@ -1567,6 +1571,11 @@ async function handleExport(key: Str, formatId: Str): Promise<void> {
 	else if (formatId === 'html') downloadHtml(el, filename);
 	else if (formatId === 'copy-image') await copyImageToClipboard(el);
 	else if (formatId === 'copy-html') await copyHtml(el);
+	else if (formatId === 'copy-svelte') {
+		const snippet: Str = codeText ?? codeSnippet('', '');
+		if (snippet) await navigator.clipboard.writeText(snippet);
+	}
+	else if (formatId === 'copy-data-uri') await copyDataUri(el);
 }
 
 /**

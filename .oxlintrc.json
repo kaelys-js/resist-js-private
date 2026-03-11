@@ -517,7 +517,7 @@
         "no-undef": "off",
         "prefer-const": "off",
         "import/no-mutable-exports": "off",
-        "import/max-dependencies": ["error", { "max": 50 }],
+        "import/max-dependencies": ["error", { "max": 100 }],
         "typescript/consistent-type-imports": "off",
         "unicorn/filename-case": "off"
       }

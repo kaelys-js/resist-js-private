@@ -104,10 +104,17 @@ import ZoomIn from '@lucide/svelte/icons/zoom-in';
 import ZoomOut from '@lucide/svelte/icons/zoom-out';
 import Maximize from '@lucide/svelte/icons/maximize';
 import Download from '@lucide/svelte/icons/download';
+import FileImage from '@lucide/svelte/icons/file-image';
+import FileCode from '@lucide/svelte/icons/file-code';
+import FileText from '@lucide/svelte/icons/file-text';
+import Table from '@lucide/svelte/icons/table';
+import Clipboard from '@lucide/svelte/icons/clipboard';
+import Braces from '@lucide/svelte/icons/braces';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 import {
 	exportPng, exportJpeg, exportSvg, exportWebp,
 	copyImageToClipboard, copyChainJson, copyChainMermaid, copyChainDot,
+	copyChainCsv, copyChainPlantUml, copyChainMarkdown,
 	type ChainExportNode,
 } from '../lens/export-utils.js';
 
@@ -561,6 +568,18 @@ async function handleChainExport(formatId: Str): Promise<void> {
 		await copyChainDot(buildExportNodes(), name);
 		return;
 	}
+	if (formatId === 'copy-csv') {
+		await copyChainCsv(buildExportNodes());
+		return;
+	}
+	if (formatId === 'copy-plantuml') {
+		await copyChainPlantUml(buildExportNodes(), name);
+		return;
+	}
+	if (formatId === 'copy-markdown') {
+		await copyChainMarkdown(buildExportNodes(), name);
+		return;
+	}
 
 	const el: HTMLDivElement | undefined = chainGraphRef;
 	if (!el) return;
@@ -722,20 +741,45 @@ async function handleChainExport(formatId: Str): Promise<void> {
 									</button>
 								{/snippet}
 							</DropdownMenu.Trigger>
-							<DropdownMenu.Content align="end" class="w-44">
+							<DropdownMenu.Content align="end" class="w-48">
 								<DropdownMenu.Label class="text-xs">Image</DropdownMenu.Label>
-								<DropdownMenu.Item onclick={() => handleChainExport('png')}>PNG</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('jpeg')}>JPEG</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('svg')}>SVG</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('webp')}>WebP</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('png')} class="gap-2">
+									<FileImage class="size-3.5" /> PNG
+								</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('jpeg')} class="gap-2">
+									<FileImage class="size-3.5" /> JPEG
+								</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('svg')} class="gap-2">
+									<FileImage class="size-3.5" /> SVG
+								</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('webp')} class="gap-2">
+									<FileImage class="size-3.5" /> WebP
+								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Label class="text-xs">Clipboard</DropdownMenu.Label>
-								<DropdownMenu.Item onclick={() => handleChainExport('copy-image')}>Copy as Image</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('copy-image')} class="gap-2">
+									<Clipboard class="size-3.5" /> Copy as Image
+								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Label class="text-xs">Data</DropdownMenu.Label>
-								<DropdownMenu.Item onclick={() => handleChainExport('copy-json')}>Copy as JSON</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('copy-mermaid')}>Copy as Mermaid</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('copy-dot')}>Copy as DOT</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('copy-json')} class="gap-2">
+									<Braces class="size-3.5" /> Copy as JSON
+								</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('copy-mermaid')} class="gap-2">
+									<GitBranch class="size-3.5" /> Copy as Mermaid
+								</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('copy-dot')} class="gap-2">
+									<GitBranch class="size-3.5" /> Copy as DOT
+								</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('copy-csv')} class="gap-2">
+									<Table class="size-3.5" /> Copy as CSV
+								</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('copy-plantuml')} class="gap-2">
+									<FileCode class="size-3.5" /> Copy as PlantUML
+								</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('copy-markdown')} class="gap-2">
+									<FileText class="size-3.5" /> Copy as Markdown
+								</DropdownMenu.Item>
 							</DropdownMenu.Content>
 						</DropdownMenu.Root>
 					</div>

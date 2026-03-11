@@ -242,6 +242,22 @@ export async function copyImageToClipboard(
   }
 }
 
+/**
+ * Copy a DOM element as a PNG data URI string to the clipboard.
+ * Useful for pasting directly into Markdown `<img src="...">` or GitHub issues.
+ *
+ * @param element - Target DOM element
+ * @param options - Export options
+ * @returns Whether the copy succeeded
+ */
+export async function copyDataUri(element: HTMLElement, options?: ExportOptions): Promise<Bool> {
+  const dataUrl: Str = await domToPng(element, {
+    scale: options?.scale ?? 2,
+    backgroundColor: options?.backgroundColor,
+  });
+  return clipboardCopy(dataUrl);
+}
+
 /* ------------------------------------------------------------------ */
 /*  HTML export                                                        */
 /* ------------------------------------------------------------------ */
@@ -486,6 +502,102 @@ export function copyChainDot(nodes: ChainExportNode[], componentName: Str): Prom
   }
 
   lines.push('}');
+
+  return clipboardCopy(lines.join('\n'));
+}
+
+/**
+ * Export chain nodes as CSV and copy to clipboard.
+ * Columns: Name, Kind, Category, Parent.
+ *
+ * @param nodes - Chain node data
+ * @returns Whether the copy succeeded
+ */
+export function copyChainCsv(nodes: ChainExportNode[]): Promise<Bool> {
+  const lines: Str[] = ['Name,Kind,Category,Parent'];
+  for (const node of nodes) {
+    const parent: Str =
+      node.parentId === '' ? '' : (nodes.find((n) => n.id === node.parentId)?.label ?? '');
+    lines.push(`"${node.label}","${node.kind}","${node.category}","${parent}"`);
+  }
+  return clipboardCopy(lines.join('\n'));
+}
+
+/**
+ * Export chain nodes as PlantUML syntax and copy to clipboard.
+ *
+ * @param nodes - Chain node data
+ * @param componentName - Root component name
+ * @returns Whether the copy succeeded
+ */
+export function copyChainPlantUml(nodes: ChainExportNode[], componentName: Str): Promise<Bool> {
+  const lines: Str[] = ['@startuml', `title ${componentName} Dependencies`, ''];
+
+  const nodeIds: Map<Str, Str> = new Map();
+
+  for (const node of nodes) {
+    const safeId: Str = node.id.replaceAll(/[^\w]/g, '_');
+    nodeIds.set(node.id, safeId);
+    const stereotype: Str =
+      node.category === 'component' ? '<<component>>' : `<<${node.category}>>`;
+    lines.push(`rectangle "${node.label}" as ${safeId} ${stereotype}`);
+  }
+
+  lines.push('');
+
+  for (const node of nodes) {
+    if (node.parentId === '') continue;
+    const fromId: Str = nodeIds.get(node.parentId) ?? node.parentId;
+    const toId: Str = nodeIds.get(node.id) ?? node.id;
+    const label: Str = node.kind === 'default' ? '' : ` : ${node.kind}`;
+    lines.push(`${fromId} --> ${toId}${label}`);
+  }
+
+  lines.push('', '@enduml');
+  return clipboardCopy(lines.join('\n'));
+}
+
+/**
+ * Export chain nodes as an indented Markdown list and copy to clipboard.
+ *
+ * @param nodes - Chain node data
+ * @param componentName - Root component name
+ * @returns Whether the copy succeeded
+ */
+export function copyChainMarkdown(nodes: ChainExportNode[], componentName: Str): Promise<Bool> {
+  const lines: Str[] = [`# ${componentName} — Dependency Chain`, ''];
+
+  // Build parent→children map
+  const childrenOf: Map<Str, ChainExportNode[]> = new Map();
+  for (const node of nodes) {
+    const siblings: ChainExportNode[] = childrenOf.get(node.parentId) ?? [];
+    siblings.push(node);
+    childrenOf.set(node.parentId, siblings);
+  }
+
+  /**
+   * Recursively render a node and its children as indented Markdown.
+   *
+   * @param nodeId - ID of the current node
+   * @param depth - Indentation depth
+   */
+  function renderNode(nodeId: Str, depth: Num): void {
+    const children: ChainExportNode[] = childrenOf.get(nodeId) ?? [];
+    for (const child of children) {
+      const indent: Str = '  '.repeat(depth);
+      const kindSuffix: Str = child.kind === 'default' ? '' : ` *(${child.kind})*`;
+      const catBadge: Str = child.category === 'component' ? '' : ` \`${child.category}\``;
+      lines.push(`${indent}- **${child.label}**${kindSuffix}${catBadge}`);
+      renderNode(child.id, (depth + 1) as Num);
+    }
+  }
+
+  // Start from root (parentId === '')
+  const roots: ChainExportNode[] = nodes.filter((n) => n.parentId === '');
+  for (const root of roots) {
+    lines.push(`- **${root.label}** *(root)*`);
+    renderNode(root.id, 1 as Num);
+  }
 
   return clipboardCopy(lines.join('\n'));
 }
