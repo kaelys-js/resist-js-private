@@ -104,10 +104,14 @@ import FileImage from '@lucide/svelte/icons/file-image';
 import FileType from '@lucide/svelte/icons/file-type';
 import FileCode from '@lucide/svelte/icons/file-code';
 import Link from '@lucide/svelte/icons/link';
+import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 import Globe from '@lucide/svelte/icons/globe';
+import Languages from '@lucide/svelte/icons/languages';
+import ALargeSmall from '@lucide/svelte/icons/a-large-small';
 import ChevronRight from '@lucide/svelte/icons/chevron-right';
 import FileJson from '@lucide/svelte/icons/file-json';
 import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
+import CopyCheck from '@lucide/svelte/icons/copy-check';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 import * as Popover from '../popover/index.js';
 import { exportPng, exportJpeg, exportSvg, exportWebp, copyImageToClipboard, copyHtml, copyDataUri, downloadHtml, downloadStandaloneHtml } from '../lens/export-utils.js';
@@ -188,6 +192,12 @@ let cardCustomNetwork: Record<Str, { delay: Num; label: Str }> = $state({});
 
 /** Per-card measured visual height of the inner content (accounts for zoom + rotation transforms). */
 let cardContentHeights: Record<Str, Num> = $state({});
+
+/** Per-card text direction override keyed by card identifier ('auto' | 'ltr' | 'rtl'). */
+let cardTextDir: Record<Str, Str> = $state({});
+
+/** Per-card font size override keyed by card identifier (0 = default, else px value). */
+let cardFontSize: Record<Str, Num> = $state({});
 
 /** Per-card fullscreen state keyed by card identifier. */
 let cardFullscreen: Record<Str, Bool> = $state({});
@@ -619,6 +629,12 @@ let mediaPrefSearchQuery: Str = $state('');
 
 /** Search query for filtering export format items. */
 let exportSearchQuery: Str = $state('');
+
+/** Search query for filtering text direction items. */
+let dirSearchQuery: Str = $state('');
+
+/** Search query for filtering font size items. */
+let fontSizeSearchQuery: Str = $state('');
 
 /**
  * Svelte action that locks an element's height to its initial rendered value.
@@ -1083,6 +1099,46 @@ const filteredMediaPrefGroups: Array<{ pref: Str; label: Str; defaultValue: Str;
 );
 
 /* ------------------------------------------------------------------ */
+/*  Text direction items                                              */
+/* ------------------------------------------------------------------ */
+
+/** Text direction presets. */
+const DIR_PRESETS: Array<{ id: Str; label: Str }> = [
+	{ id: 'auto', label: 'Auto' },
+	{ id: 'ltr', label: 'LTR (Left to Right)' },
+	{ id: 'rtl', label: 'RTL (Right to Left)' },
+];
+
+/** Text direction presets filtered by search query. */
+const filteredDirPresets: Array<{ id: Str; label: Str }> = $derived(
+	dirSearchQuery.length === 0
+		? DIR_PRESETS
+		: DIR_PRESETS.filter((p) => p.label.toLowerCase().includes(dirSearchQuery.toLowerCase())),
+);
+
+/* ------------------------------------------------------------------ */
+/*  Font size items                                                   */
+/* ------------------------------------------------------------------ */
+
+/** Font size presets. */
+const FONT_SIZE_PRESETS: Array<{ px: Num; label: Str }> = [
+	{ px: 0, label: 'Default' },
+	{ px: 12, label: '12px' },
+	{ px: 14, label: '14px' },
+	{ px: 16, label: '16px' },
+	{ px: 18, label: '18px' },
+	{ px: 20, label: '20px' },
+	{ px: 24, label: '24px' },
+];
+
+/** Font size presets filtered by search query. */
+const filteredFontSizePresets: Array<{ px: Num; label: Str }> = $derived(
+	fontSizeSearchQuery.length === 0
+		? FONT_SIZE_PRESETS
+		: FONT_SIZE_PRESETS.filter((p) => p.label.toLowerCase().includes(fontSizeSearchQuery.toLowerCase())),
+);
+
+/* ------------------------------------------------------------------ */
 /*  Export format items                                                */
 /* ------------------------------------------------------------------ */
 
@@ -1394,6 +1450,10 @@ function collectCardStyles(key: Str): Record<Str, Str> {
 			if (preset) s.vp = `${preset.width}x${preset.height}`;
 		}
 	}
+	const dir: Str = cardTextDir[key] ?? 'auto';
+	if (dir !== 'auto') s.dir = dir;
+	const fontSize: Num = cardFontSize[key] ?? 0;
+	if (fontSize > 0) s.fontSize = `${fontSize}px`;
 	return s;
 }
 
@@ -1408,8 +1468,16 @@ function collectCardStyles(key: Str): Record<Str, Str> {
  * @param variantKey - Optional variant prop name
  * @param option - Optional variant option value
  */
-function openIsolation(key: Str, variantKey: Str, option: Str): Void {
-	if (!componentName) return;
+/**
+ * Build the isolation URL for a card.
+ *
+ * @param key - Card key
+ * @param variantKey - Variant prop name
+ * @param option - Variant option value
+ * @returns Absolute isolation URL string
+ */
+function buildIsolationUrl(key: Str, variantKey: Str, option: Str): Str {
+	if (!componentName) return '';
 	const params: URLSearchParams = new URLSearchParams();
 	if (variantKey) params.set('variant', variantKey);
 	if (option) params.set('option', option);
@@ -1418,8 +1486,50 @@ function openIsolation(key: Str, variantKey: Str, option: Str): Void {
 		params.set('s', btoa(JSON.stringify(styles)));
 	}
 	const qs: Str = params.toString();
-	const url: Str = `/isolate/${componentName}${qs ? `?${qs}` : ''}`;
-	window.open(url, '_blank');
+	return `/isolate/${componentName}${qs ? `?${qs}` : ''}`;
+}
+
+/**
+ * Open the isolation URL for a card in a new tab.
+ *
+ * @param key - Card key
+ * @param variantKey - Variant prop name
+ * @param option - Variant option value
+ */
+function openIsolation(key: Str, variantKey: Str, option: Str): Void {
+	const url: Str = buildIsolationUrl(key, variantKey, option);
+	if (url) window.open(url, '_blank');
+}
+
+/** Whether "link copied" feedback is currently showing. */
+let linkCopied: Bool = $state(false);
+
+/** Which export format was last triggered ('' = none, shows feedback on export item). */
+let exportFeedback: Str = $state('');
+
+/** Which export format is currently in progress ('' = none, shows spinner on export item). */
+let exportInProgress: Str = $state('');
+
+/** Per-card dropdown open state for programmatic close after showing action feedback. */
+let cardDropdownOpen: Record<Str, Bool> = $state({});
+
+/**
+ * Copy the isolation URL for a card to clipboard.
+ *
+ * @param key - Card key
+ * @param variantKey - Variant prop name
+ * @param option - Variant option value
+ */
+async function copyIsolationUrl(key: Str, variantKey: Str, option: Str): Promise<void> {
+	const path: Str = buildIsolationUrl(key, variantKey, option);
+	if (!path) return;
+	const url: Str = `${window.location.origin}${path}`;
+	await navigator.clipboard.writeText(url);
+	linkCopied = true;
+	setTimeout((): Void => {
+		linkCopied = false;
+		cardDropdownOpen[key] = false;
+	}, 1200);
 }
 
 /**
@@ -1580,6 +1690,12 @@ function getActiveSettings(key: Str): Array<{ label: Str; value: Str }> {
 		if (netIdx >= 0) settings[netIdx] = { label: 'Network', value: `Custom (${customNet.delay}ms)` };
 		else settings.push({ label: 'Network', value: `Custom (${customNet.delay}ms)` });
 	}
+	// Text direction
+	const dir: Str = cardTextDir[key] ?? 'auto';
+	if (dir !== 'auto') settings.push({ label: 'Direction', value: dir.toUpperCase() });
+	// Font size
+	const fontSize: Num = cardFontSize[key] ?? 0;
+	if (fontSize > 0) settings.push({ label: 'Font Size', value: `${fontSize}px` });
 	return settings;
 }
 
@@ -1847,6 +1963,60 @@ function resetCard(key: Str): Void {
 	cardNetworkLoading[key] = false;
 	cardViewports[key] = 'auto';
 	cardContentHeights[key] = 0;
+	cardTextDir[key] = 'auto';
+	cardFontSize[key] = 0;
+}
+
+/**
+ * Get all card keys for the current variant grid.
+ *
+ * @returns Array of card key strings
+ */
+function getAllCardKeys(): Str[] {
+	const variants = meta?.variants ?? [];
+	if (variants.length === 0) return ['default'];
+	const keys: Str[] = [];
+	for (const v of variants) {
+		if (!v.key) continue;
+		for (const opt of v.options) {
+			keys.push(`${v.key}:${opt}`);
+		}
+	}
+	return keys;
+}
+
+/**
+ * Copy all per-card settings from a source card to every other card.
+ *
+ * @param sourceKey - Card key to copy settings from
+ */
+function applySettingsToAll(sourceKey: Str): Void {
+	const keys: Str[] = getAllCardKeys();
+	for (const key of keys) {
+		if (key === sourceKey) continue;
+		cardSimulations[key] = cardSimulations[sourceKey] ?? 'none';
+		cardBackgrounds[key] = cardBackgrounds[sourceKey] ?? 'default';
+		cardZoom[key] = cardZoom[sourceKey] ?? 1;
+		cardOutlines[key] = cardOutlines[sourceKey] ?? 'none';
+		cardGrids[key] = cardGrids[sourceKey] ?? 'none';
+		cardGridSizes[key] = cardGridSizes[sourceKey] ?? GRID_DEFAULT_SIZE;
+		cardGridFills[key] = cardGridFills[sourceKey] ?? 'none';
+		cardOrientations[key] = cardOrientations[sourceKey] ?? 'default';
+		cardModes[key] = cardModes[sourceKey] ?? 'auto';
+		cardThemes[key] = cardThemes[sourceKey] ?? '';
+		cardMediaPrefs[key] = { ...(cardMediaPrefs[sourceKey] ?? {}) };
+		cardNetworkSim[key] = cardNetworkSim[sourceKey] ?? 'none';
+		cardNetworkLoading[key] = false;
+		cardViewports[key] = cardViewports[sourceKey] ?? 'auto';
+		if (cardCustomViewports[sourceKey]) {
+			cardCustomViewports[key] = { ...cardCustomViewports[sourceKey] };
+		}
+		if (cardCustomNetwork[sourceKey]) {
+			cardCustomNetwork[key] = { ...cardCustomNetwork[sourceKey] };
+		}
+		cardTextDir[key] = cardTextDir[sourceKey] ?? 'auto';
+		cardFontSize[key] = cardFontSize[sourceKey] ?? 0;
+	}
 }
 
 /**
@@ -1858,6 +2028,7 @@ function resetCard(key: Str): Void {
 async function handleExport(key: Str, formatId: Str): Promise<void> {
 	const el: HTMLDivElement | undefined = cardPreviewRefs[key];
 	if (!el) return;
+	exportInProgress = formatId;
 	const filename: Str = componentName ?? tagName ?? 'component';
 	if (formatId === 'png') await exportPng(el, filename);
 	else if (formatId === 'jpeg') await exportJpeg(el, filename);
@@ -1877,6 +2048,12 @@ async function handleExport(key: Str, formatId: Str): Promise<void> {
 		const activeTheme: Str = (cardThemes[key] ?? '') as Str;
 		await downloadStandaloneHtml(componentName, baseProps, label, isDark, activeTheme);
 	}
+	exportInProgress = '';
+	exportFeedback = formatId;
+	setTimeout((): Void => {
+		exportFeedback = '';
+		cardDropdownOpen[key] = false;
+	}, 1200);
 }
 
 /**
@@ -2094,7 +2271,13 @@ function isIconOption(option: Str): boolean {
 				{/if}
 			</div>
 			<div class="flex items-center gap-1">
+				{#if activeSettings.length > 0}
+					{@render toolbarButton(RotateCcw, 'Reset to defaults', () => resetCard(cardKey), false)}
+				{/if}
 				{@render toolbarButton(ZoomOut, 'Zoom out', () => zoomOut(cardKey), activeZoom <= ZOOM_MIN)}
+				{#if activeZoom !== 1}
+					<span class="px-0.5 font-mono text-[10px] font-medium text-muted-foreground">{Math.round(activeZoom * 100)}%</span>
+				{/if}
 				{@render toolbarButton(ZoomIn, 'Zoom in', () => zoomIn(cardKey), activeZoom >= ZOOM_MAX)}
 				{@render toolbarButton(Maximize, 'Fit (100%)', () => zoomFit(cardKey), activeZoom === 1)}
 				{@render toolbarButton(isFullscreen ? Minimize2 : Maximize2, isFullscreen ? 'Exit fullscreen' : 'Fullscreen', () => toggleFullscreen(cardKey), false)}
@@ -3245,7 +3428,17 @@ function isIconOption(option: Str): boolean {
 					</Tooltip.Provider>
 					<CopyButton text={codeText ?? snippet} label="Copy code" class="size-7 [&_svg]:size-3.5" />
 				{/if}
-				<DropdownMenu.Root>
+				<DropdownMenu.Root
+					open={cardDropdownOpen[cardKey] ?? false}
+					onOpenChange={(o) => {
+						cardDropdownOpen[cardKey] = o;
+						if (!o) {
+							linkCopied = false;
+							exportFeedback = '';
+							exportInProgress = '';
+						}
+					}}
+				>
 					<DropdownMenu.Trigger
 						class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 					>
@@ -3257,6 +3450,20 @@ function isIconOption(option: Str): boolean {
 							<DropdownMenu.Item onclick={() => openIsolation(cardKey, variantKey, variantOption)}>
 								<ExternalLink class="size-4" />
 								Open in new tab
+							</DropdownMenu.Item>
+							<DropdownMenu.Item
+								onSelect={(e) => {
+									e.preventDefault();
+									copyIsolationUrl(cardKey, variantKey, variantOption);
+								}}
+							>
+								{#if linkCopied}
+									<Check class="size-4 text-green-500" />
+									Copied!
+								{:else}
+									<Link class="size-4" />
+									Copy link
+								{/if}
 							</DropdownMenu.Item>
 							<DropdownMenu.Separator />
 						{/if}
@@ -3922,7 +4129,12 @@ function isIconOption(option: Str): boolean {
 									</div>
 								</div>
 								<div class="flex max-h-60 flex-col overflow-y-auto" use:lockHeight>
+									<DropdownMenu.Item onclick={() => toggleSimulation(cardKey, 'none')}>
+										<Check class={cn('size-4 shrink-0', activeSim !== 'none' && 'opacity-0')} />
+										None
+									</DropdownMenu.Item>
 									{#if filteredColorItems.length > 0}
+										<DropdownMenu.Separator />
 										<DropdownMenu.Label class="text-xs">Color Vision</DropdownMenu.Label>
 										{#each filteredColorItems as item (item.id)}
 											<DropdownMenu.Item onclick={() => toggleSimulation(cardKey, item.id)}>
@@ -3952,6 +4164,107 @@ function isIconOption(option: Str): boolean {
 											</div>
 										</div>
 									{/if}
+								</div>
+							</DropdownMenu.SubContent>
+						</DropdownMenu.Sub>
+						<!-- Text Direction submenu -->
+						{@const activeDir: Str = cardTextDir[cardKey] ?? 'auto'}
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) dirSearchQuery = '';
+							}}
+						>
+							<DropdownMenu.SubTrigger>
+								<Languages class="size-4" />
+								Text Direction
+							</DropdownMenu.SubTrigger>
+							<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={dirSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
+								</div>
+								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									{#each filteredDirPresets as item (item.id)}
+										<DropdownMenu.Item onclick={() => { cardTextDir[cardKey] = item.id; }}>
+											<Check class={cn('size-4', activeDir !== item.id && 'opacity-0')} />
+											{item.label}
+										</DropdownMenu.Item>
+									{:else}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No directions found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
+										</div>
+									{/each}
+								</div>
+							</DropdownMenu.SubContent>
+						</DropdownMenu.Sub>
+						<!-- Font Size submenu -->
+						{@const activeFontSize: Num = cardFontSize[cardKey] ?? 0}
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) fontSizeSearchQuery = '';
+							}}
+						>
+							<DropdownMenu.SubTrigger>
+								<ALargeSmall class="size-4" />
+								Font Size
+							</DropdownMenu.SubTrigger>
+							<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search sizes..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={fontSizeSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
+								</div>
+								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									{#each filteredFontSizePresets as item (item.px)}
+										<DropdownMenu.Item onclick={() => { cardFontSize[cardKey] = item.px; }}>
+											<Check class={cn('size-4', activeFontSize !== item.px && 'opacity-0')} />
+											{item.label}
+										</DropdownMenu.Item>
+									{:else}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No sizes found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
+										</div>
+									{/each}
+									<DropdownMenu.Separator />
+									<div class="px-2 py-1.5">
+										<div class="flex items-center justify-between gap-2">
+											<span class="text-[11px] text-muted-foreground">Custom</span>
+											<span class="font-mono text-[11px] font-medium text-muted-foreground">{activeFontSize || 16}px</span>
+										</div>
+										<input
+											type="range"
+											min="8"
+											max="48"
+											step="1"
+											value={activeFontSize || 16}
+											class="mt-1 w-full accent-primary"
+											oninput={(e) => { cardFontSize[cardKey] = Number((e.target as HTMLInputElement).value); }}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
 								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
@@ -3985,8 +4298,19 @@ function isIconOption(option: Str): boolean {
 										{/if}
 										<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
 										{#each filteredExportItems.filter((i) => i.category === category) as item (item.id)}
-											<DropdownMenu.Item onclick={() => handleExport(cardKey, item.id)}>
-												<item.icon class="size-4" />
+											<DropdownMenu.Item
+												onSelect={(e) => {
+													e.preventDefault();
+													handleExport(cardKey, item.id);
+												}}
+											>
+												{#if exportInProgress === item.id}
+													<LoaderCircle class="size-4 animate-spin text-muted-foreground" />
+												{:else if exportFeedback === item.id}
+													<Check class="size-4 text-green-500" />
+												{:else}
+													<item.icon class="size-4" />
+												{/if}
 												{item.label}
 											</DropdownMenu.Item>
 										{/each}
@@ -4004,6 +4328,12 @@ function isIconOption(option: Str): boolean {
 						</DropdownMenu.Sub>
 						{#if getActiveSettings(cardKey).length > 0}
 							<DropdownMenu.Separator />
+							{#if getAllCardKeys().length > 1}
+								<DropdownMenu.Item onclick={() => applySettingsToAll(cardKey)}>
+									<CopyCheck class="size-4" />
+									Apply to All Cards
+								</DropdownMenu.Item>
+							{/if}
 							<DropdownMenu.Item onclick={() => resetCard(cardKey)}>
 								<RotateCcw class="size-4" />
 								Reset to Defaults
@@ -4025,8 +4355,9 @@ function isIconOption(option: Str): boolean {
 				activeMode === 'auto' && activeTheme && !pageIsDark && 'lens-force-light',
 				activeTheme && 'bg-background text-foreground',
 			)}
-			style={[getBackgroundStyle(cardKey), cardContentHeights[cardKey] ? `min-height: ${cardContentHeights[cardKey] + 32}px` : '', activeMode === 'light' ? 'color-scheme: light' : '', activeMode === 'dark' ? 'color-scheme: dark' : '', activeMode === 'auto' && activeTheme && !pageIsDark ? 'color-scheme: light' : '', activeMode === 'auto' && activeTheme && pageIsDark ? 'color-scheme: dark' : ''].filter(Boolean).join('; ')}
+			style={[getBackgroundStyle(cardKey), cardContentHeights[cardKey] ? `min-height: ${cardContentHeights[cardKey] + 32}px` : '', activeMode === 'light' ? 'color-scheme: light' : '', activeMode === 'dark' ? 'color-scheme: dark' : '', activeMode === 'auto' && activeTheme && !pageIsDark ? 'color-scheme: light' : '', activeMode === 'auto' && activeTheme && pageIsDark ? 'color-scheme: dark' : '', (cardFontSize[cardKey] ?? 0) > 0 ? `font-size: ${cardFontSize[cardKey]}px` : ''].filter(Boolean).join('; ')}
 			data-theme={activeTheme || undefined}
+			dir={(cardTextDir[cardKey] ?? 'auto') !== 'auto' ? cardTextDir[cardKey] : undefined}
 		>
 			{#if hasColorMatrixSim(cardKey)}
 				<svg class="absolute size-0 overflow-hidden" aria-hidden="true">
@@ -4261,7 +4592,7 @@ function isIconOption(option: Str): boolean {
 	{#if Object.keys(cardStats).length > 1}
 		<div class="mb-2 flex justify-end gap-2">
 			<Tooltip.Provider>
-				<Tooltip.Root delayDuration={300}>
+				<Tooltip.Root delayDuration={300} open={statsExportCopied === 'all' ? true : undefined}>
 					<Tooltip.Trigger>
 						{#snippet child({ props: tipProps })}
 							<button
@@ -4276,17 +4607,25 @@ function isIconOption(option: Str): boolean {
 										variants: allStats,
 									}, null, 2);
 									await navigator.clipboard.writeText(report);
-									statsExportCopied = 'json';
+									statsExportCopied = 'all';
 									setTimeout((): Void => { statsExportCopied = ''; }, 2000);
 								}}
 							>
-								<FileJson class="size-3.5" aria-hidden="true" />
+								{#if statsExportCopied === 'all'}
+									<span in:fade={{ duration: 150 }}>
+										<Check class="size-3.5 text-green-500" aria-hidden="true" />
+									</span>
+								{:else}
+									<span in:fade={{ duration: 150 }}>
+										<FileJson class="size-3.5" aria-hidden="true" />
+									</span>
+								{/if}
 								Export All Performance Statistics ({Object.keys(cardStats).length} variants)
 							</button>
 						{/snippet}
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={4}>
-						Copy all variant stats as JSON to clipboard
+						{statsExportCopied === 'all' ? 'Copied!' : 'Copy all variant stats as JSON to clipboard'}
 					</Tooltip.Content>
 				</Tooltip.Root>
 			</Tooltip.Provider>
