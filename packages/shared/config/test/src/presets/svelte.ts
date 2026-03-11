@@ -17,14 +17,14 @@ import { baseTestConfig } from './base.ts';
  * Options for configuring a Svelte Vitest preset.
  */
 export type SvelteTestOptions = {
-	/** Package name for the self-referencing alias (e.g. '@/ui'). */
-	packageName?: string;
-	/** The calling file's `import.meta.dirname` — required when `packageName` is set. */
-	dirname?: string;
-	include?: string[];
-	coverageExclude?: string[];
-	/** Additional Vite plugins */
-	plugins?: ViteUserConfig['plugins'];
+  /** Package name for the self-referencing alias (e.g. '@/ui'). */
+  packageName?: string;
+  /** The calling file's `import.meta.dirname` — required when `packageName` is set. */
+  dirname?: string;
+  include?: string[];
+  coverageExclude?: string[];
+  /** Additional Vite plugins */
+  plugins?: ViteUserConfig['plugins'];
 };
 
 /**
@@ -34,29 +34,29 @@ export type SvelteTestOptions = {
  * @returns A complete Vitest `UserConfig` with jsdom environment and Svelte plugin
  */
 export function createSvelteTestConfig(options: SvelteTestOptions = {}): ViteUserConfig {
-	const { packageName, dirname, include = [], coverageExclude = [], plugins = [] } = options;
-	const alias = packageName && dirname ? { [packageName]: resolve(dirname, './src') } : {};
+  const { packageName, dirname, include = [], coverageExclude = [], plugins = [] } = options;
+  const alias = packageName && dirname ? { [packageName]: resolve(dirname, './src') } : {};
 
-	const base = baseTestConfig ?? {};
+  const base = baseTestConfig ?? {};
 
-	return defineConfig({
-		plugins: [svelte({ hot: false }), ...plugins],
-		test: {
-			...base,
-			environment: 'jsdom',
+  return defineConfig({
+    plugins: [svelte({ hot: false }), ...plugins],
+    test: {
+      ...base,
+      environment: 'jsdom',
 
-			// Testing Library relies on globals for automatic cleanup.
-			globals: true,
+      // Testing Library relies on globals for automatic cleanup.
+      globals: true,
 
-			include: [...(base.include ?? []), ...include],
-			coverage: {
-				...base.coverage,
-				provider: 'v8',
-				// Include Svelte component files in coverage.
-				include: ['src/**/*.ts', 'src/**/*.svelte'],
-				exclude: [...(base.coverage?.exclude ?? []), ...coverageExclude],
-			},
-		},
-		resolve: Object.keys(alias).length > 0 ? { alias } : undefined,
-	});
+      include: [...(base.include ?? []), ...include],
+      coverage: {
+        ...base.coverage,
+        provider: 'v8',
+        // Include Svelte component files in coverage.
+        include: ['src/**/*.ts', 'src/**/*.svelte'],
+        exclude: [...(base.coverage?.exclude ?? []), ...coverageExclude],
+      },
+    },
+    resolve: Object.keys(alias).length > 0 ? { alias } : undefined,
+  });
 }

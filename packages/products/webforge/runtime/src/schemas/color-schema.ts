@@ -46,12 +46,12 @@ import * as v from 'valibot';
  * ```
  */
 export const Vector3Schema = v.strictObject({
-	/** X component. Default: 0. */
-	x: v.optional(v.number(), 0),
-	/** Y component. Default: 0. */
-	y: v.optional(v.number(), 0),
-	/** Z component. Default: 0. */
-	z: v.optional(v.number(), 0),
+  /** X component. Default: 0. */
+  x: v.optional(v.number(), 0),
+  /** Y component. Default: 0. */
+  y: v.optional(v.number(), 0),
+  /** Z component. Default: 0. */
+  z: v.optional(v.number(), 0),
 });
 
 /** Inferred 3D vector type from {@link Vector3Schema}. */
@@ -77,14 +77,14 @@ export type Vector3 = v.InferOutput<typeof Vector3Schema>;
  * ```
  */
 export const ColorRgbaSchema = v.strictObject({
-	/** Red channel [0, 1]. */
-	r: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
-	/** Green channel [0, 1]. */
-	g: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
-	/** Blue channel [0, 1]. */
-	b: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
-	/** Alpha channel [0, 1]. Defaults to 1 (opaque). */
-	a: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 1),
+  /** Red channel [0, 1]. */
+  r: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+  /** Green channel [0, 1]. */
+  g: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+  /** Blue channel [0, 1]. */
+  b: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+  /** Alpha channel [0, 1]. Defaults to 1 (opaque). */
+  a: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 1),
 });
 
 /** Inferred RGBA color type from {@link ColorRgbaSchema}. */

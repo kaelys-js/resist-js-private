@@ -33,8 +33,8 @@
  * ```
  */
 export const ANSI_REGEX = new RegExp(
-	`[${String.fromCodePoint(0x1b)}${String.fromCodePoint(0x9b)}][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><~]`,
-	'g',
+  `[${String.fromCodePoint(0x1b)}${String.fromCodePoint(0x9b)}][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><~]`,
+  'g',
 );
 
 /**
@@ -54,5 +54,5 @@ export const ANSI_REGEX = new RegExp(
  * ```
  */
 export function stripAnsi(text: string): string {
-	return text.replace(ANSI_REGEX, '');
+  return text.replace(ANSI_REGEX, '');
 }

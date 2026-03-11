@@ -45,10 +45,10 @@ const DEFAULT_PROPERTIES_RESULT: Result<TileProperties> = safeParse(TileProperti
 
 /** Options for {@link getTileProperties}. */
 type GetTilePropertiesOptions = {
-	/** Loaded tilesets from a RenderedTilemap. */
-	readonly tilesets: readonly LoadedTileset[];
-	/** Global tile ID to look up. */
-	readonly globalTileId: Num;
+  /** Loaded tilesets from a RenderedTilemap. */
+  readonly tilesets: readonly LoadedTileset[];
+  /** Global tile ID to look up. */
+  readonly globalTileId: Num;
 };
 
 // =============================================================================
@@ -78,23 +78,23 @@ type GetTilePropertiesOptions = {
  * ```
  */
 export function getTileProperties(options: GetTilePropertiesOptions): Result<TileProperties> {
-	const { tilesets, globalTileId } = options;
+  const { tilesets, globalTileId } = options;
 
-	// Resolve global ID → tileset + local index
-	const resolved: BabylonResult<{ tileset: LoadedTileset; localIndex: Num } | null> =
-		resolveGlobalTileId({ globalId: globalTileId, tilesets });
-	if (!resolved.ok) return resolved;
+  // Resolve global ID → tileset + local index
+  const resolved: BabylonResult<{ tileset: LoadedTileset; localIndex: Num } | null> =
+    resolveGlobalTileId({ globalId: globalTileId, tilesets });
+  if (!resolved.ok) return resolved;
 
-	// Empty tile (ID 0) or out-of-range → defaults
-	if (resolved.data === null) return DEFAULT_PROPERTIES_RESULT;
+  // Empty tile (ID 0) or out-of-range → defaults
+  if (resolved.data === null) return DEFAULT_PROPERTIES_RESULT;
 
-	// Look up per-tile properties from tileset config
-	const localKey = String(resolved.data.localIndex);
-	const entry: DeepReadonly<TileProperties> | undefined =
-		resolved.data.tileset.config.tileProperties[localKey];
+  // Look up per-tile properties from tileset config
+  const localKey = String(resolved.data.localIndex);
+  const entry: DeepReadonly<TileProperties> | undefined =
+    resolved.data.tileset.config.tileProperties[localKey];
 
-	if (entry === undefined) return DEFAULT_PROPERTIES_RESULT;
+  if (entry === undefined) return DEFAULT_PROPERTIES_RESULT;
 
-	// Validate and return the entry (ensures defaults for missing optional fields)
-	return safeParse(TilePropertiesSchema, entry);
+  // Validate and return the entry (ensures defaults for missing optional fields)
+  return safeParse(TilePropertiesSchema, entry);
 }

@@ -18,36 +18,36 @@
  */
 
 import {
-	BoolSchema,
-	ColorLevelSchema,
-	DEFAULT_JSON_INDENT,
-	DEFAULT_PROGRESS_BAR_WIDTH,
-	DEFAULT_RUNTIME_KIND,
-	NonNegativeIntegerSchema,
-	PositiveIntegerSchema,
-	PrintOptionsSchema,
-	StrSchema,
-	StyleNameSchema,
-	SymbolNameSchema,
-	VoidSchema,
-	type Bool,
-	type ColorLevel,
-	type ConsoleLogFn,
-	type EnvRecordWithUndefined,
-	type JsonData,
-	type NonNegativeInteger,
-	type OutputFormat,
-	type PositiveInteger,
-	type PrintOptions,
-	type PrintStream,
-	type RuntimeKind,
-	type OptionalStr,
-	type Str,
-	type StyleName,
-	type SymbolName,
-	type NullableIntervalId,
-	type NullableRegExpExecArray,
-	type Void,
+  BoolSchema,
+  ColorLevelSchema,
+  DEFAULT_JSON_INDENT,
+  DEFAULT_PROGRESS_BAR_WIDTH,
+  DEFAULT_RUNTIME_KIND,
+  NonNegativeIntegerSchema,
+  PositiveIntegerSchema,
+  PrintOptionsSchema,
+  StrSchema,
+  StyleNameSchema,
+  SymbolNameSchema,
+  VoidSchema,
+  type Bool,
+  type ColorLevel,
+  type ConsoleLogFn,
+  type EnvRecordWithUndefined,
+  type JsonData,
+  type NonNegativeInteger,
+  type OutputFormat,
+  type PositiveInteger,
+  type PrintOptions,
+  type PrintStream,
+  type RuntimeKind,
+  type OptionalStr,
+  type Str,
+  type StyleName,
+  type SymbolName,
+  type NullableIntervalId,
+  type NullableRegExpExecArray,
+  type Void,
 } from '@/schemas/common';
 import { ok, type Result } from '@/schemas/result/result';
 import { detectColorLevel, detectRuntime } from '@/utils/core/environment';
@@ -55,12 +55,12 @@ import { log as baseLog, shouldLog } from '@/utils/core/logger';
 import { safeStringify } from '@/utils/core/object';
 import { getOutputFormat, isMachineReadable } from '@/utils/core/output-context';
 import {
-	clearLine,
-	cursorTo,
-	getColumns,
-	getEnvRecord,
-	isTTY,
-	writeStdout,
+  clearLine,
+  cursorTo,
+  getColumns,
+  getEnvRecord,
+  isTTY,
+  writeStdout,
 } from '@/utils/core/process';
 import { truncateLine as coreTruncateLine } from '@/utils/core/string';
 import { safeParse } from '@/utils/result/safe';
@@ -84,31 +84,31 @@ const runtime: RuntimeKind = runtimeResult.ok ? runtimeResult.data : DEFAULT_RUN
  * with hardcoded values for browser (1) and workers/edge (0).
  */
 let currentColorLevel: ColorLevel = (() => {
-	// Browser always supports colors (via CSS %c)
-	if (runtime === 'browser') return 1 as ColorLevel;
-	// Workers and edge runtimes never support ANSI colors
-	if (
-		runtime === 'worker' ||
-		runtime === 'web-worker' ||
-		runtime === 'shared-worker' ||
-		runtime === 'service-worker' ||
-		runtime === 'edge-light' ||
-		runtime === 'fastly' ||
-		runtime === 'netlify'
-	) {
-		return 0 as ColorLevel;
-	}
-	// Node/Deno/Bun — detect from env
-	const envResult: Result<EnvRecordWithUndefined> = getEnvRecord();
-	if (!envResult.ok) return 0 as ColorLevel;
-	const ttyResult: Result<Bool> = isTTY();
-	const tty: Bool = ttyResult.ok ? ttyResult.data : false;
-	const colorResult: Result<ColorLevel> = detectColorLevel(
-		envResult.data,
-		tty,
-		envResult.data.CI !== undefined,
-	);
-	return colorResult.ok ? colorResult.data : (0 as ColorLevel);
+  // Browser always supports colors (via CSS %c)
+  if (runtime === 'browser') return 1 as ColorLevel;
+  // Workers and edge runtimes never support ANSI colors
+  if (
+    runtime === 'worker' ||
+    runtime === 'web-worker' ||
+    runtime === 'shared-worker' ||
+    runtime === 'service-worker' ||
+    runtime === 'edge-light' ||
+    runtime === 'fastly' ||
+    runtime === 'netlify'
+  ) {
+    return 0 as ColorLevel;
+  }
+  // Node/Deno/Bun — detect from env
+  const envResult: Result<EnvRecordWithUndefined> = getEnvRecord();
+  if (!envResult.ok) return 0 as ColorLevel;
+  const ttyResult: Result<Bool> = isTTY();
+  const tty: Bool = ttyResult.ok ? ttyResult.data : false;
+  const colorResult: Result<ColorLevel> = detectColorLevel(
+    envResult.data,
+    tty,
+    envResult.data.CI !== undefined,
+  );
+  return colorResult.ok ? colorResult.data : (0 as ColorLevel);
 })();
 
 /** Whether to apply color styling. Derived from {@link currentColorLevel}. */
@@ -119,13 +119,13 @@ let useColors: Bool = currentColorLevel > 0;
  * Separate from color styling — Unicode works in non-styled contexts too.
  */
 const useUnicode: Bool =
-	runtime !== 'worker' &&
-	runtime !== 'web-worker' &&
-	runtime !== 'shared-worker' &&
-	runtime !== 'service-worker' &&
-	runtime !== 'edge-light' &&
-	runtime !== 'fastly' &&
-	runtime !== 'netlify';
+  runtime !== 'worker' &&
+  runtime !== 'web-worker' &&
+  runtime !== 'shared-worker' &&
+  runtime !== 'service-worker' &&
+  runtime !== 'edge-light' &&
+  runtime !== 'fastly' &&
+  runtime !== 'netlify';
 
 /**
  * Override color setting.
@@ -140,15 +140,15 @@ const useUnicode: Bool =
  * ```
  */
 export function setColors(enabled: Bool): Result<Void> {
-	const input: Result<Bool> = safeParse(BoolSchema, enabled);
-	if (!input.ok) return input;
-	useColors = input.data;
-	if (input.data) {
-		currentColorLevel = currentColorLevel > 0 ? currentColorLevel : (1 as ColorLevel);
-	} else {
-		currentColorLevel = 0 as ColorLevel;
-	}
-	return ok(VoidSchema, undefined);
+  const input: Result<Bool> = safeParse(BoolSchema, enabled);
+  if (!input.ok) return input;
+  useColors = input.data;
+  if (input.data) {
+    currentColorLevel = currentColorLevel > 0 ? currentColorLevel : (1 as ColorLevel);
+  } else {
+    currentColorLevel = 0 as ColorLevel;
+  }
+  return ok(VoidSchema, undefined);
 }
 
 /**
@@ -163,7 +163,7 @@ export function setColors(enabled: Bool): Result<Void> {
  * ```
  */
 export function getColorLevel(): Result<ColorLevel> {
-	return ok(ColorLevelSchema, currentColorLevel);
+  return ok(ColorLevelSchema, currentColorLevel);
 }
 
 /**
@@ -181,11 +181,11 @@ export function getColorLevel(): Result<ColorLevel> {
  * ```
  */
 export function setColorLevel(level: ColorLevel): Result<Void> {
-	const input: Result<ColorLevel> = safeParse(ColorLevelSchema, level);
-	if (!input.ok) return input;
-	currentColorLevel = input.data;
-	useColors = input.data > 0;
-	return ok(VoidSchema, undefined);
+  const input: Result<ColorLevel> = safeParse(ColorLevelSchema, level);
+  if (!input.ok) return input;
+  currentColorLevel = input.data;
+  useColors = input.data > 0;
+  return ok(VoidSchema, undefined);
 }
 
 // =============================================================================
@@ -206,9 +206,9 @@ export function setColorLevel(level: ColorLevel): Result<Void> {
  * ```
  */
 export function getTerminalWidth(): Result<PositiveInteger> {
-	const colsResult: Result<NonNegativeInteger> = getColumns();
-	if (!colsResult.ok) return colsResult;
-	return safeParse(PositiveIntegerSchema, colsResult.data);
+  const colsResult: Result<NonNegativeInteger> = getColumns();
+  if (!colsResult.ok) return colsResult;
+  return safeParse(PositiveIntegerSchema, colsResult.data);
 }
 
 /**
@@ -226,23 +226,23 @@ export function getTerminalWidth(): Result<PositiveInteger> {
  * ```
  */
 export function truncateLine(line: Str, maxWidth?: NonNegativeInteger): Result<Str> {
-	const input: Result<Str> = safeParse(StrSchema, line);
-	if (!input.ok) return input;
+  const input: Result<Str> = safeParse(StrSchema, line);
+  if (!input.ok) return input;
 
-	if (maxWidth !== undefined) {
-		const maxWidthResult: Result<NonNegativeInteger> = safeParse(
-			NonNegativeIntegerSchema,
-			maxWidth,
-		);
-		if (!maxWidthResult.ok) return maxWidthResult;
-		return coreTruncateLine(input.data, maxWidthResult.data as NonNegativeInteger);
-	}
+  if (maxWidth !== undefined) {
+    const maxWidthResult: Result<NonNegativeInteger> = safeParse(
+      NonNegativeIntegerSchema,
+      maxWidth,
+    );
+    if (!maxWidthResult.ok) return maxWidthResult;
+    return coreTruncateLine(input.data, maxWidthResult.data as NonNegativeInteger);
+  }
 
-	const widthResult: Result<PositiveInteger> = getTerminalWidth();
-	if (!widthResult.ok) return widthResult;
-	const width: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, widthResult.data);
-	if (!width.ok) return width;
-	return coreTruncateLine(input.data, width.data as NonNegativeInteger);
+  const widthResult: Result<PositiveInteger> = getTerminalWidth();
+  if (!widthResult.ok) return widthResult;
+  const width: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, widthResult.data);
+  if (!width.ok) return width;
+  return coreTruncateLine(input.data, width.data as NonNegativeInteger);
 }
 
 // =============================================================================
@@ -251,23 +251,23 @@ export function truncateLine(line: Str, maxWidth?: NonNegativeInteger): Result<S
 
 /** ANSI escape code map. Keys match {@link StyleNameSchema} values plus `reset`. */
 const codes = {
-	reset: '\u001B[0m',
-	// Text decoration
-	bold: '\u001B[1m',
-	dim: '\u001B[2m',
-	italic: '\u001B[3m',
-	underline: '\u001B[4m',
-	inverse: '\u001B[7m',
-	strikethrough: '\u001B[9m',
-	// Foreground colors
-	red: '\u001B[31m',
-	green: '\u001B[32m',
-	yellow: '\u001B[33m',
-	blue: '\u001B[34m',
-	magenta: '\u001B[35m',
-	cyan: '\u001B[36m',
-	white: '\u001B[37m',
-	gray: '\u001B[90m',
+  reset: '\u001B[0m',
+  // Text decoration
+  bold: '\u001B[1m',
+  dim: '\u001B[2m',
+  italic: '\u001B[3m',
+  underline: '\u001B[4m',
+  inverse: '\u001B[7m',
+  strikethrough: '\u001B[9m',
+  // Foreground colors
+  red: '\u001B[31m',
+  green: '\u001B[32m',
+  yellow: '\u001B[33m',
+  blue: '\u001B[34m',
+  magenta: '\u001B[35m',
+  cyan: '\u001B[36m',
+  white: '\u001B[37m',
+  gray: '\u001B[90m',
 } as const satisfies Record<StyleName | 'reset', Str>;
 
 // =============================================================================
@@ -276,21 +276,21 @@ const codes = {
 
 /** Maps ANSI SGR parameter numbers to CSS style strings for browser console. */
 const ansiToCss: Record<Str, Str> = {
-	'0': '',
-	'1': 'font-weight:bold',
-	'2': 'opacity:0.7',
-	'3': 'font-style:italic',
-	'4': 'text-decoration:underline',
-	'7': 'filter:invert(1)',
-	'9': 'text-decoration:line-through',
-	'31': 'color:#e74c3c',
-	'32': 'color:#2ecc71',
-	'33': 'color:#f39c12',
-	'34': 'color:#3498db',
-	'35': 'color:#9b59b6',
-	'36': 'color:#1abc9c',
-	'37': 'color:#ecf0f1',
-	'90': 'color:#95a5a6',
+  '0': '',
+  '1': 'font-weight:bold',
+  '2': 'opacity:0.7',
+  '3': 'font-style:italic',
+  '4': 'text-decoration:underline',
+  '7': 'filter:invert(1)',
+  '9': 'text-decoration:line-through',
+  '31': 'color:#e74c3c',
+  '32': 'color:#2ecc71',
+  '33': 'color:#f39c12',
+  '34': 'color:#3498db',
+  '35': 'color:#9b59b6',
+  '36': 'color:#1abc9c',
+  '37': 'color:#ecf0f1',
+  '90': 'color:#95a5a6',
 };
 
 /**
@@ -303,39 +303,39 @@ const ansiToCss: Record<Str, Str> = {
  * @returns Array where `[0]` is `%c`-annotated format string, `[1..n]` are CSS strings.
  */
 function ansiToBrowserArgs(text: Str): Str[] {
-	const parts: Str[] = [];
-	const cssArgs: Str[] = [];
-	const ansiRegex = new RegExp(`${String.fromCodePoint(0x1b)}${String.raw`\[([0-9;]*)m`}`, 'g');
-	let lastIndex = 0;
-	let currentCss: Str[] = [];
-	let match: NullableRegExpExecArray;
+  const parts: Str[] = [];
+  const cssArgs: Str[] = [];
+  const ansiRegex = new RegExp(`${String.fromCodePoint(0x1b)}${String.raw`\[([0-9;]*)m`}`, 'g');
+  let lastIndex = 0;
+  let currentCss: Str[] = [];
+  let match: NullableRegExpExecArray;
 
-	while ((match = ansiRegex.exec(text)) !== null) {
-		if (match.index > lastIndex) {
-			parts.push('%c');
-			parts.push(text.slice(lastIndex, match.index));
-			cssArgs.push(currentCss.join(';'));
-		}
-		const sgr: Str[] = (match[1] ?? '').split(';');
-		for (const code of sgr) {
-			if (code === '0' || code === '') {
-				currentCss = [];
-			} else {
-				const css: OptionalStr = ansiToCss[code];
-				if (css) currentCss.push(css);
-			}
-		}
-		lastIndex = match.index + match[0].length;
-	}
+  while ((match = ansiRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push('%c');
+      parts.push(text.slice(lastIndex, match.index));
+      cssArgs.push(currentCss.join(';'));
+    }
+    const sgr: Str[] = (match[1] ?? '').split(';');
+    for (const code of sgr) {
+      if (code === '0' || code === '') {
+        currentCss = [];
+      } else {
+        const css: OptionalStr = ansiToCss[code];
+        if (css) currentCss.push(css);
+      }
+    }
+    lastIndex = match.index + match[0].length;
+  }
 
-	if (lastIndex < text.length) {
-		parts.push('%c');
-		parts.push(text.slice(lastIndex));
-		cssArgs.push(currentCss.join(';'));
-	}
+  if (lastIndex < text.length) {
+    parts.push('%c');
+    parts.push(text.slice(lastIndex));
+    cssArgs.push(currentCss.join(';'));
+  }
 
-	if (parts.length === 0) return [text];
-	return [parts.join(''), ...cssArgs];
+  if (parts.length === 0) return [text];
+  return [parts.join(''), ...cssArgs];
 }
 
 /**
@@ -352,14 +352,14 @@ function ansiToBrowserArgs(text: Str): Str[] {
  * @param text - Text to output (may contain ANSI escape codes).
  */
 function platformLog(stream: PrintStream, text: Str): void {
-	// Fire-and-forget — lowest-level output primitive, cannot return Result
-	const fn: ConsoleLogFn = stream === 'stderr' ? console.error : console.log;
-	if (runtime === 'browser' && useColors) {
-		const args: Str[] = ansiToBrowserArgs(text);
-		fn(...args);
-	} else {
-		fn(text);
-	}
+  // Fire-and-forget — lowest-level output primitive, cannot return Result
+  const fn: ConsoleLogFn = stream === 'stderr' ? console.error : console.log;
+  if (runtime === 'browser' && useColors) {
+    const args: Str[] = ansiToBrowserArgs(text);
+    fn(...args);
+  } else {
+    fn(text);
+  }
 }
 
 // =============================================================================
@@ -374,15 +374,15 @@ function platformLog(stream: PrintStream, text: Str): void {
  * @returns `Result<Str>` — styled text, or a validation error.
  */
 function applyStyle(text: Str, name: StyleName): Result<Str> {
-	const textResult: Result<Str> = safeParse(StrSchema, text);
-	if (!textResult.ok) return textResult;
-	const nameResult: Result<StyleName> = safeParse(StyleNameSchema, name);
-	if (!nameResult.ok) return nameResult;
+  const textResult: Result<Str> = safeParse(StrSchema, text);
+  if (!textResult.ok) return textResult;
+  const nameResult: Result<StyleName> = safeParse(StyleNameSchema, name);
+  if (!nameResult.ok) return nameResult;
 
-	if (!useColors) return ok(StrSchema, textResult.data);
-	const code: OptionalStr = codes[nameResult.data];
-	if (!code) return ok(StrSchema, textResult.data);
-	return ok(StrSchema, `${code}${textResult.data}${codes.reset}`);
+  if (!useColors) return ok(StrSchema, textResult.data);
+  const code: OptionalStr = codes[nameResult.data];
+  if (!code) return ok(StrSchema, textResult.data);
+  return ok(StrSchema, `${code}${textResult.data}${codes.reset}`);
 }
 
 /**
@@ -404,111 +404,111 @@ function applyStyle(text: Str, name: StyleName): Result<Str> {
  * ```
  */
 export const style = {
-	/**
-	 * Apply bold style.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	bold: (text: Str): Result<Str> => applyStyle(text, 'bold'),
-	/**
-	 * Apply dim style.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	dim: (text: Str): Result<Str> => applyStyle(text, 'dim'),
-	/**
-	 * Apply italic style.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	italic: (text: Str): Result<Str> => applyStyle(text, 'italic'),
-	/**
-	 * Apply underline style.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	underline: (text: Str): Result<Str> => applyStyle(text, 'underline'),
-	/**
-	 * Apply inverse style.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	inverse: (text: Str): Result<Str> => applyStyle(text, 'inverse'),
-	/**
-	 * Apply strikethrough style.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	strikethrough: (text: Str): Result<Str> => applyStyle(text, 'strikethrough'),
-	/**
-	 * Apply red color.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	red: (text: Str): Result<Str> => applyStyle(text, 'red'),
-	/**
-	 * Apply green color.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	green: (text: Str): Result<Str> => applyStyle(text, 'green'),
-	/**
-	 * Apply yellow color.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	yellow: (text: Str): Result<Str> => applyStyle(text, 'yellow'),
-	/**
-	 * Apply blue color.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	blue: (text: Str): Result<Str> => applyStyle(text, 'blue'),
-	/**
-	 * Apply cyan color.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	cyan: (text: Str): Result<Str> => applyStyle(text, 'cyan'),
-	/**
-	 * Apply magenta color.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	magenta: (text: Str): Result<Str> => applyStyle(text, 'magenta'),
-	/**
-	 * Apply white color.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	white: (text: Str): Result<Str> => applyStyle(text, 'white'),
-	/**
-	 * Apply gray color.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	gray: (text: Str): Result<Str> => applyStyle(text, 'gray'),
-	/**
-	 * Alias for {@link gray}.
-	 *
-	 * @param text - Text to style
-	 * @returns Result containing the styled text
-	 */
-	grey: (text: Str): Result<Str> => applyStyle(text, 'gray'),
+  /**
+   * Apply bold style.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  bold: (text: Str): Result<Str> => applyStyle(text, 'bold'),
+  /**
+   * Apply dim style.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  dim: (text: Str): Result<Str> => applyStyle(text, 'dim'),
+  /**
+   * Apply italic style.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  italic: (text: Str): Result<Str> => applyStyle(text, 'italic'),
+  /**
+   * Apply underline style.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  underline: (text: Str): Result<Str> => applyStyle(text, 'underline'),
+  /**
+   * Apply inverse style.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  inverse: (text: Str): Result<Str> => applyStyle(text, 'inverse'),
+  /**
+   * Apply strikethrough style.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  strikethrough: (text: Str): Result<Str> => applyStyle(text, 'strikethrough'),
+  /**
+   * Apply red color.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  red: (text: Str): Result<Str> => applyStyle(text, 'red'),
+  /**
+   * Apply green color.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  green: (text: Str): Result<Str> => applyStyle(text, 'green'),
+  /**
+   * Apply yellow color.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  yellow: (text: Str): Result<Str> => applyStyle(text, 'yellow'),
+  /**
+   * Apply blue color.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  blue: (text: Str): Result<Str> => applyStyle(text, 'blue'),
+  /**
+   * Apply cyan color.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  cyan: (text: Str): Result<Str> => applyStyle(text, 'cyan'),
+  /**
+   * Apply magenta color.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  magenta: (text: Str): Result<Str> => applyStyle(text, 'magenta'),
+  /**
+   * Apply white color.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  white: (text: Str): Result<Str> => applyStyle(text, 'white'),
+  /**
+   * Apply gray color.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  gray: (text: Str): Result<Str> => applyStyle(text, 'gray'),
+  /**
+   * Alias for {@link gray}.
+   *
+   * @param text - Text to style
+   * @returns Result containing the styled text
+   */
+  grey: (text: Str): Result<Str> => applyStyle(text, 'gray'),
 } as const;
 
 // =============================================================================
@@ -524,25 +524,25 @@ export const style = {
  * @returns `Result<Str>` — plain text with tags removed and symbols resolved.
  */
 function stripMarkup(text: Str): Result<Str> {
-	const input: Result<Str> = safeParse(StrSchema, text);
-	if (!input.ok) return input;
+  const input: Result<Str> = safeParse(StrSchema, text);
+  if (!input.ok) return input;
 
-	// Replace {symbol:name} with actual characters
-	const withSymbols: Str = input.data.replaceAll(
-		/\{symbol:(\w+)\}/g,
-		(_match: string, name: string): string => {
-			const symNameResult: Result<SymbolName> = safeParse(SymbolNameSchema, name);
-			if (!symNameResult.ok) return _match;
-			return symbols[symNameResult.data];
-		},
-	);
+  // Replace {symbol:name} with actual characters
+  const withSymbols: Str = input.data.replaceAll(
+    /\{symbol:(\w+)\}/g,
+    (_match: string, name: string): string => {
+      const symNameResult: Result<SymbolName> = safeParse(SymbolNameSchema, name);
+      if (!symNameResult.ok) return _match;
+      return symbols[symNameResult.data];
+    },
+  );
 
-	// Strip {tag}...{/} — keep content, remove tags
-	const stripped: Str = withSymbols.replaceAll(
-		/\{(bold|dim|italic|underline|inverse|strikethrough|red|green|yellow|blue|cyan|magenta|white|gray)\}(.*?)\{\/\}/gs,
-		(_match: string, _tag: string, content: string): string => content,
-	);
-	return ok(StrSchema, stripped);
+  // Strip {tag}...{/} — keep content, remove tags
+  const stripped: Str = withSymbols.replaceAll(
+    /\{(bold|dim|italic|underline|inverse|strikethrough|red|green|yellow|blue|cyan|magenta|white|gray)\}(.*?)\{\/\}/gs,
+    (_match: string, _tag: string, content: string): string => content,
+  );
+  return ok(StrSchema, stripped);
 }
 
 /**
@@ -573,33 +573,33 @@ function stripMarkup(text: Str): Result<Str> {
  * ```
  */
 export function renderMarkup(text: Str): Result<Str> {
-	const input: Result<Str> = safeParse(StrSchema, text);
-	if (!input.ok) return input;
+  const input: Result<Str> = safeParse(StrSchema, text);
+  if (!input.ok) return input;
 
-	// Pass 1: Replace {symbol:name} with actual symbol characters
-	// .replace() callback receives native `string` params — Str is non-branded, direct assignment works
-	const withSymbols: Str = input.data.replaceAll(
-		/\{symbol:(\w+)\}/g,
-		(_match: string, name: string): string => {
-			const symNameResult: Result<SymbolName> = safeParse(SymbolNameSchema, name);
-			if (!symNameResult.ok) return _match;
-			return symbols[symNameResult.data];
-		},
-	);
+  // Pass 1: Replace {symbol:name} with actual symbol characters
+  // .replace() callback receives native `string` params — Str is non-branded, direct assignment works
+  const withSymbols: Str = input.data.replaceAll(
+    /\{symbol:(\w+)\}/g,
+    (_match: string, name: string): string => {
+      const symNameResult: Result<SymbolName> = safeParse(SymbolNameSchema, name);
+      if (!symNameResult.ok) return _match;
+      return symbols[symNameResult.data];
+    },
+  );
 
-	// Pass 2: Replace {tag}...{/} with ANSI codes
-	// .replace() callback receives native `string` params — Str is non-branded, direct assignment works
-	const rendered: Str = withSymbols.replaceAll(
-		/\{(bold|dim|italic|underline|inverse|strikethrough|red|green|yellow|blue|cyan|magenta|white|gray)\}(.*?)\{\/\}/gs,
-		(_match: string, tag: string, content: string): string => {
-			if (!useColors) return content;
-			const styleResult: Result<StyleName> = safeParse(StyleNameSchema, tag);
-			if (!styleResult.ok) return content;
-			const code: OptionalStr = codes[styleResult.data];
-			return code ? `${code}${content}${codes.reset}` : content;
-		},
-	);
-	return ok(StrSchema, rendered);
+  // Pass 2: Replace {tag}...{/} with ANSI codes
+  // .replace() callback receives native `string` params — Str is non-branded, direct assignment works
+  const rendered: Str = withSymbols.replaceAll(
+    /\{(bold|dim|italic|underline|inverse|strikethrough|red|green|yellow|blue|cyan|magenta|white|gray)\}(.*?)\{\/\}/gs,
+    (_match: string, tag: string, content: string): string => {
+      if (!useColors) return content;
+      const styleResult: Result<StyleName> = safeParse(StyleNameSchema, tag);
+      if (!styleResult.ok) return content;
+      const code: OptionalStr = codes[styleResult.data];
+      return code ? `${code}${content}${codes.reset}` : content;
+    },
+  );
+  return ok(StrSchema, rendered);
 }
 
 // =============================================================================
@@ -620,121 +620,121 @@ export function renderMarkup(text: Str): Result<Str> {
  * **Tree:** tree (├─), treeLast (└─).
  */
 export const symbols = {
-	// Status
-	get success() {
-		return useUnicode ? '✔' : '[OK]';
-	},
-	get error() {
-		return useUnicode ? '✖' : '[ERR]';
-	},
-	get warning() {
-		return useUnicode ? '⚠' : '[!]';
-	},
-	get info() {
-		return useUnicode ? 'ℹ' : '[i]';
-	},
-	// Navigation
-	get bullet() {
-		return useUnicode ? '●' : '*';
-	},
-	get dot() {
-		return useUnicode ? '·' : '.';
-	},
-	get arrow() {
-		return useUnicode ? '→' : '->';
-	},
-	get arrowDown() {
-		return useUnicode ? '↓' : 'v';
-	},
-	get arrowUp() {
-		return useUnicode ? '↑' : '^';
-	},
-	get arrowLeft() {
-		return useUnicode ? '←' : '<-';
-	},
-	get arrowRight() {
-		return useUnicode ? '→' : '->';
-	},
-	// Punctuation
-	get ellipsis() {
-		return useUnicode ? '…' : '...';
-	},
-	get dash() {
-		return useUnicode ? '─' : '-';
-	},
-	get star() {
-		return useUnicode ? '★' : '*';
-	},
-	get plus() {
-		return useUnicode ? '+' : '+';
-	},
-	get minus() {
-		return useUnicode ? '-' : '-';
-	},
-	get pipe() {
-		return useUnicode ? '│' : '|';
-	},
-	// Checkbox/Toggle
-	get check() {
-		return useUnicode ? '✔' : '[OK]';
-	},
-	get cross() {
-		return useUnicode ? '✖' : '[ERR]';
-	},
-	get checkDouble() {
-		return useUnicode ? '✔✔' : '[OK][OK]';
-	},
-	get radioOn() {
-		return useUnicode ? '◉' : '(*)';
-	},
-	get radioOff() {
-		return useUnicode ? '◯' : '( )';
-	},
-	get toggleOn() {
-		return useUnicode ? '●' : '[x]';
-	},
-	get toggleOff() {
-		return useUnicode ? '○' : '[ ]';
-	},
-	// Box drawing
-	get boxTopLeft() {
-		return useUnicode ? '┌' : '+';
-	},
-	get boxTopRight() {
-		return useUnicode ? '┐' : '+';
-	},
-	get boxBottomLeft() {
-		return useUnicode ? '└' : '+';
-	},
-	get boxBottomRight() {
-		return useUnicode ? '┘' : '+';
-	},
-	get boxVertical() {
-		return useUnicode ? '│' : '|';
-	},
-	get boxHorizontal() {
-		return useUnicode ? '─' : '-';
-	},
-	get boxVerticalRight() {
-		return useUnicode ? '├' : '+';
-	},
-	get boxVerticalLeft() {
-		return useUnicode ? '┤' : '+';
-	},
-	// Progress
-	get progressFilled() {
-		return useUnicode ? '█' : '#';
-	},
-	get progressEmpty() {
-		return useUnicode ? '░' : '-';
-	},
-	// Tree
-	get tree() {
-		return useUnicode ? '├─' : '+-';
-	},
-	get treeLast() {
-		return useUnicode ? '└─' : '+-';
-	},
+  // Status
+  get success() {
+    return useUnicode ? '✔' : '[OK]';
+  },
+  get error() {
+    return useUnicode ? '✖' : '[ERR]';
+  },
+  get warning() {
+    return useUnicode ? '⚠' : '[!]';
+  },
+  get info() {
+    return useUnicode ? 'ℹ' : '[i]';
+  },
+  // Navigation
+  get bullet() {
+    return useUnicode ? '●' : '*';
+  },
+  get dot() {
+    return useUnicode ? '·' : '.';
+  },
+  get arrow() {
+    return useUnicode ? '→' : '->';
+  },
+  get arrowDown() {
+    return useUnicode ? '↓' : 'v';
+  },
+  get arrowUp() {
+    return useUnicode ? '↑' : '^';
+  },
+  get arrowLeft() {
+    return useUnicode ? '←' : '<-';
+  },
+  get arrowRight() {
+    return useUnicode ? '→' : '->';
+  },
+  // Punctuation
+  get ellipsis() {
+    return useUnicode ? '…' : '...';
+  },
+  get dash() {
+    return useUnicode ? '─' : '-';
+  },
+  get star() {
+    return useUnicode ? '★' : '*';
+  },
+  get plus() {
+    return useUnicode ? '+' : '+';
+  },
+  get minus() {
+    return useUnicode ? '-' : '-';
+  },
+  get pipe() {
+    return useUnicode ? '│' : '|';
+  },
+  // Checkbox/Toggle
+  get check() {
+    return useUnicode ? '✔' : '[OK]';
+  },
+  get cross() {
+    return useUnicode ? '✖' : '[ERR]';
+  },
+  get checkDouble() {
+    return useUnicode ? '✔✔' : '[OK][OK]';
+  },
+  get radioOn() {
+    return useUnicode ? '◉' : '(*)';
+  },
+  get radioOff() {
+    return useUnicode ? '◯' : '( )';
+  },
+  get toggleOn() {
+    return useUnicode ? '●' : '[x]';
+  },
+  get toggleOff() {
+    return useUnicode ? '○' : '[ ]';
+  },
+  // Box drawing
+  get boxTopLeft() {
+    return useUnicode ? '┌' : '+';
+  },
+  get boxTopRight() {
+    return useUnicode ? '┐' : '+';
+  },
+  get boxBottomLeft() {
+    return useUnicode ? '└' : '+';
+  },
+  get boxBottomRight() {
+    return useUnicode ? '┘' : '+';
+  },
+  get boxVertical() {
+    return useUnicode ? '│' : '|';
+  },
+  get boxHorizontal() {
+    return useUnicode ? '─' : '-';
+  },
+  get boxVerticalRight() {
+    return useUnicode ? '├' : '+';
+  },
+  get boxVerticalLeft() {
+    return useUnicode ? '┤' : '+';
+  },
+  // Progress
+  get progressFilled() {
+    return useUnicode ? '█' : '#';
+  },
+  get progressEmpty() {
+    return useUnicode ? '░' : '-';
+  },
+  // Tree
+  get tree() {
+    return useUnicode ? '├─' : '+-';
+  },
+  get treeLast() {
+    return useUnicode ? '└─' : '+-';
+  },
 };
 
 // =============================================================================
@@ -760,35 +760,35 @@ let spinnerInterval: NullableIntervalId = null;
  * ```
  */
 export function startSpinner(message: Str): Result<Void> {
-	const input: Result<Str> = safeParse(StrSchema, message);
-	if (!input.ok) return input;
+  const input: Result<Str> = safeParse(StrSchema, message);
+  if (!input.ok) return input;
 
-	if (!useColors || runtime !== 'node-tty') {
-		// Deliberate platformLog — spinner bypasses log.raw() because
-		// renderMarkup() would mangle spinner frame characters.
-		platformLog('stdout', input.data);
-		return ok(VoidSchema, undefined);
-	}
+  if (!useColors || runtime !== 'node-tty') {
+    // Deliberate platformLog — spinner bypasses log.raw() because
+    // renderMarkup() would mangle spinner frame characters.
+    platformLog('stdout', input.data);
+    return ok(VoidSchema, undefined);
+  }
 
-	spinnerIndex = 0;
-	const frame: Result<Str> = style.cyan(spinnerFrames[spinnerIndex] ?? '');
-	if (!frame.ok) return frame;
-	writeStdout(`${frame.data} ${input.data}`);
+  spinnerIndex = 0;
+  const frame: Result<Str> = style.cyan(spinnerFrames[spinnerIndex] ?? '');
+  if (!frame.ok) return frame;
+  writeStdout(`${frame.data} ${input.data}`);
 
-	const zeroCol: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, 0);
-	if (!zeroCol.ok) return zeroCol;
+  const zeroCol: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, 0);
+  if (!zeroCol.ok) return zeroCol;
 
-	spinnerInterval = setInterval(() => {
-		spinnerIndex = (spinnerIndex + 1) % spinnerFrames.length;
-		clearLine();
-		cursorTo(zeroCol.data as NonNegativeInteger);
-		// Fire-and-forget callback — can't propagate Result, use fallback
-		const currentFrame: Str = (spinnerFrames[spinnerIndex] ?? '') as Str;
-		const f: Result<Str> = style.cyan(currentFrame);
-		writeStdout(`${f.ok ? f.data : currentFrame} ${input.data}`);
-	}, 80);
+  spinnerInterval = setInterval(() => {
+    spinnerIndex = (spinnerIndex + 1) % spinnerFrames.length;
+    clearLine();
+    cursorTo(zeroCol.data as NonNegativeInteger);
+    // Fire-and-forget callback — can't propagate Result, use fallback
+    const currentFrame: Str = (spinnerFrames[spinnerIndex] ?? '') as Str;
+    const f: Result<Str> = style.cyan(currentFrame);
+    writeStdout(`${f.ok ? f.data : currentFrame} ${input.data}`);
+  }, 80);
 
-	return ok(VoidSchema, undefined);
+  return ok(VoidSchema, undefined);
 }
 
 /**
@@ -803,28 +803,28 @@ export function startSpinner(message: Str): Result<Void> {
  * ```
  */
 export function stopSpinner(finalMessage?: Str): Result<Void> {
-	if (finalMessage !== undefined) {
-		const input: Result<Str> = safeParse(StrSchema, finalMessage);
-		if (!input.ok) return input;
-	}
+  if (finalMessage !== undefined) {
+    const input: Result<Str> = safeParse(StrSchema, finalMessage);
+    if (!input.ok) return input;
+  }
 
-	if (spinnerInterval) {
-		clearInterval(spinnerInterval);
-		spinnerInterval = null;
-	}
+  if (spinnerInterval) {
+    clearInterval(spinnerInterval);
+    spinnerInterval = null;
+  }
 
-	if (runtime === 'node-tty') {
-		clearLine();
-		const zeroCol: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, 0);
-		if (zeroCol.ok) cursorTo(zeroCol.data as NonNegativeInteger);
-	}
+  if (runtime === 'node-tty') {
+    clearLine();
+    const zeroCol: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, 0);
+    if (zeroCol.ok) cursorTo(zeroCol.data as NonNegativeInteger);
+  }
 
-	if (finalMessage) {
-		// Deliberate platformLog — see startSpinner comment.
-		platformLog('stdout', finalMessage);
-	}
+  if (finalMessage) {
+    // Deliberate platformLog — see startSpinner comment.
+    platformLog('stdout', finalMessage);
+  }
 
-	return ok(VoidSchema, undefined);
+  return ok(VoidSchema, undefined);
 }
 
 // =============================================================================
@@ -846,36 +846,36 @@ export function stopSpinner(finalMessage?: Str): Result<Void> {
  * ```
  */
 export function progressBar(
-	current: NonNegativeInteger,
-	total: NonNegativeInteger,
-	width: PositiveInteger = DEFAULT_PROGRESS_BAR_WIDTH,
+  current: NonNegativeInteger,
+  total: NonNegativeInteger,
+  width: PositiveInteger = DEFAULT_PROGRESS_BAR_WIDTH,
 ): Result<Str> {
-	const currentResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, current);
-	if (!currentResult.ok) return currentResult;
+  const currentResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, current);
+  if (!currentResult.ok) return currentResult;
 
-	const totalResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, total);
-	if (!totalResult.ok) return totalResult;
+  const totalResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, total);
+  if (!totalResult.ok) return totalResult;
 
-	const widthResult: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, width);
-	if (!widthResult.ok) return widthResult;
+  const widthResult: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, width);
+  if (!widthResult.ok) return widthResult;
 
-	// Internal arithmetic — values provably non-negative from validated inputs
-	const currentNum: number = currentResult.data as unknown as number;
-	const totalNum: number = totalResult.data as unknown as number;
-	const widthNum: number = widthResult.data as unknown as number;
-	const percentage: number = totalNum > 0 ? currentNum / totalNum : 0;
-	const filled: number = Math.round(percentage * widthNum);
-	const empty: number = widthNum - filled;
+  // Internal arithmetic — values provably non-negative from validated inputs
+  const currentNum: number = currentResult.data as unknown as number;
+  const totalNum: number = totalResult.data as unknown as number;
+  const widthNum: number = widthResult.data as unknown as number;
+  const percentage: number = totalNum > 0 ? currentNum / totalNum : 0;
+  const filled: number = Math.round(percentage * widthNum);
+  const empty: number = widthNum - filled;
 
-	const filledBar: Result<Str> = style.green(symbols.progressFilled.repeat(filled));
-	if (!filledBar.ok) return filledBar;
-	const emptyBar: Result<Str> = style.dim(symbols.progressEmpty.repeat(empty));
-	if (!emptyBar.ok) return emptyBar;
-	const percentStr: Str = `${Math.round(percentage * 100)}%`.padStart(4);
-	const dimPercent: Result<Str> = style.dim(percentStr);
-	if (!dimPercent.ok) return dimPercent;
+  const filledBar: Result<Str> = style.green(symbols.progressFilled.repeat(filled));
+  if (!filledBar.ok) return filledBar;
+  const emptyBar: Result<Str> = style.dim(symbols.progressEmpty.repeat(empty));
+  if (!emptyBar.ok) return emptyBar;
+  const percentStr: Str = `${Math.round(percentage * 100)}%`.padStart(4);
+  const dimPercent: Result<Str> = style.dim(percentStr);
+  if (!dimPercent.ok) return dimPercent;
 
-	return ok(StrSchema, `${filledBar.data}${emptyBar.data} ${dimPercent.data}`);
+  return ok(StrSchema, `${filledBar.data}${emptyBar.data} ${dimPercent.data}`);
 }
 
 // =============================================================================
@@ -928,22 +928,22 @@ export function progressBar(
  * @returns `Result<Void>`
  */
 function emitGitHubCommand(
-	command: Str,
-	message: Str,
-	properties?: { file?: Str; line?: number; col?: number; title?: Str },
+  command: Str,
+  message: Str,
+  properties?: { file?: Str; line?: number; col?: number; title?: Str },
 ): Result<Void> {
-	let cmd: Str = `::${command}`;
-	if (properties) {
-		const props: Str[] = [];
-		if (properties.file) props.push(`file=${properties.file}`);
-		if (properties.line !== undefined) props.push(`line=${properties.line}`);
-		if (properties.col !== undefined) props.push(`col=${properties.col}`);
-		if (properties.title) props.push(`title=${properties.title}`);
-		if (props.length > 0) cmd = `${cmd} ${props.join(',')}`;
-	}
-	cmd = `${cmd}::${message}`;
-	console.log(cmd);
-	return ok(VoidSchema, undefined);
+  let cmd: Str = `::${command}`;
+  if (properties) {
+    const props: Str[] = [];
+    if (properties.file) props.push(`file=${properties.file}`);
+    if (properties.line !== undefined) props.push(`line=${properties.line}`);
+    if (properties.col !== undefined) props.push(`col=${properties.col}`);
+    if (properties.title) props.push(`title=${properties.title}`);
+    if (props.length > 0) cmd = `${cmd} ${props.join(',')}`;
+  }
+  cmd = `${cmd}::${message}`;
+  console.log(cmd);
+  return ok(VoidSchema, undefined);
 }
 
 /**
@@ -962,10 +962,10 @@ function emitGitHubCommand(
  * ```
  */
 export function startGroup(title: Str): Result<Void> {
-	const input: Result<Str> = safeParse(StrSchema, title);
-	if (!input.ok) return input;
-	console.log(`::group::${input.data}`);
-	return ok(VoidSchema, undefined);
+  const input: Result<Str> = safeParse(StrSchema, title);
+  if (!input.ok) return input;
+  console.log(`::group::${input.data}`);
+  return ok(VoidSchema, undefined);
 }
 
 /**
@@ -974,8 +974,8 @@ export function startGroup(title: Str): Result<Void> {
  * @returns `Result<Void>`
  */
 export function endGroup(): Result<Void> {
-	console.log('::endgroup::');
-	return ok(VoidSchema, undefined);
+  console.log('::endgroup::');
+  return ok(VoidSchema, undefined);
 }
 
 // =============================================================================
@@ -988,8 +988,8 @@ export function endGroup(): Result<Void> {
  * @returns The output format, or `undefined`.
  */
 function getCurrentFormat(): OutputFormat | undefined {
-	const formatResult: Result<OutputFormat> = getOutputFormat();
-	return formatResult.ok ? formatResult.data : undefined;
+  const formatResult: Result<OutputFormat> = getOutputFormat();
+  return formatResult.ok ? formatResult.data : undefined;
 }
 
 /**
@@ -1001,351 +1001,351 @@ function getCurrentFormat(): OutputFormat | undefined {
  * @returns `Result<Void>`
  */
 function emitCompact(level: Str, message: Str, stream: PrintStream): Result<Void> {
-	let prefix: Str;
-	if (level === 'error') {
-		prefix = 'ERR';
-	} else if (level === 'warn') {
-		prefix = 'WRN';
-	} else if (level === 'debug') {
-		prefix = 'DBG';
-	} else if (level === 'trace') {
-		prefix = 'TRC';
-	} else {
-		prefix = 'INF';
-	}
-	platformLog(stream, `${prefix} ${message}`);
-	return ok(VoidSchema, undefined);
+  let prefix: Str;
+  if (level === 'error') {
+    prefix = 'ERR';
+  } else if (level === 'warn') {
+    prefix = 'WRN';
+  } else if (level === 'debug') {
+    prefix = 'DBG';
+  } else if (level === 'trace') {
+    prefix = 'TRC';
+  } else {
+    prefix = 'INF';
+  }
+  platformLog(stream, `${prefix} ${message}`);
+  return ok(VoidSchema, undefined);
 }
 
 export const log = {
-	/**
-	 * Universal output with markup support. Format-aware: silent for machine-readable formats.
-	 * Respects log level filtering via the `level` option.
-	 *
-	 * @param message - Message with optional `{tag}...{/}` and `{symbol:name}` markup.
-	 * @param options - Optional {@link PrintOptions}: level (default `'info'`), stream (default `'stdout'`).
-	 * @returns `Result<Void>` — success, or a validation error.
-	 *
-	 * @example
-	 * ```typescript
-	 * log.print('{bold}{yellow}My Header{/}{/}');
-	 * log.print('  {green}{symbol:success}{/} Done!');
-	 * log.print('Error detail', { level: 'error', stream: 'stderr' });
-	 * log.print('');  // blank line (suppressed for json/junit/github)
-	 * ```
-	 */
-	print: (message: Str, options?: PrintOptions): Result<Void> => {
-		const machineResult: Result<Bool> = isMachineReadable();
-		if (!machineResult.ok) return machineResult;
-		if (machineResult.data) return ok(VoidSchema, undefined);
-		const optionsResult: Result<PrintOptions> = safeParse(PrintOptionsSchema, options ?? {});
-		if (!optionsResult.ok) return optionsResult;
-		const msgResult: Result<Str> = safeParse(StrSchema, message);
-		if (!msgResult.ok) return msgResult;
-		const rendered: Result<Str> = renderMarkup(msgResult.data);
-		if (!rendered.ok) return rendered;
-		const { level } = optionsResult.data;
-		const { stream } = optionsResult.data;
-		const allowed: Result<Bool> = shouldLog(level);
-		if (!allowed.ok) return allowed;
-		if (allowed.data) {
-			platformLog(stream, rendered.data);
-		}
-		return ok(VoidSchema, undefined);
-	},
+  /**
+   * Universal output with markup support. Format-aware: silent for machine-readable formats.
+   * Respects log level filtering via the `level` option.
+   *
+   * @param message - Message with optional `{tag}...{/}` and `{symbol:name}` markup.
+   * @param options - Optional {@link PrintOptions}: level (default `'info'`), stream (default `'stdout'`).
+   * @returns `Result<Void>` — success, or a validation error.
+   *
+   * @example
+   * ```typescript
+   * log.print('{bold}{yellow}My Header{/}{/}');
+   * log.print('  {green}{symbol:success}{/} Done!');
+   * log.print('Error detail', { level: 'error', stream: 'stderr' });
+   * log.print('');  // blank line (suppressed for json/junit/github)
+   * ```
+   */
+  print: (message: Str, options?: PrintOptions): Result<Void> => {
+    const machineResult: Result<Bool> = isMachineReadable();
+    if (!machineResult.ok) return machineResult;
+    if (machineResult.data) return ok(VoidSchema, undefined);
+    const optionsResult: Result<PrintOptions> = safeParse(PrintOptionsSchema, options ?? {});
+    if (!optionsResult.ok) return optionsResult;
+    const msgResult: Result<Str> = safeParse(StrSchema, message);
+    if (!msgResult.ok) return msgResult;
+    const rendered: Result<Str> = renderMarkup(msgResult.data);
+    if (!rendered.ok) return rendered;
+    const { level } = optionsResult.data;
+    const { stream } = optionsResult.data;
+    const allowed: Result<Bool> = shouldLog(level);
+    if (!allowed.ok) return allowed;
+    if (allowed.data) {
+      platformLog(stream, rendered.data);
+    }
+    return ok(VoidSchema, undefined);
+  },
 
-	/**
-	 * Print an info message with markup support. Respects log level (info).
-	 * In JSON mode, delegates to base logger for structured output.
-	 *
-	 * @param message - Message with optional `{tag}...{/}` markup.
-	 * @returns `Result<Void>` — success, or a validation error.
-	 */
-	info: (message: Str): Result<Void> => {
-		const msgResult: Result<Str> = safeParse(StrSchema, message);
-		if (!msgResult.ok) return msgResult;
-		const allowed: Result<Bool> = shouldLog('info');
-		if (!allowed.ok) return allowed;
-		if (!allowed.data) return ok(VoidSchema, undefined);
+  /**
+   * Print an info message with markup support. Respects log level (info).
+   * In JSON mode, delegates to base logger for structured output.
+   *
+   * @param message - Message with optional `{tag}...{/}` markup.
+   * @returns `Result<Void>` — success, or a validation error.
+   */
+  info: (message: Str): Result<Void> => {
+    const msgResult: Result<Str> = safeParse(StrSchema, message);
+    if (!msgResult.ok) return msgResult;
+    const allowed: Result<Bool> = shouldLog('info');
+    if (!allowed.ok) return allowed;
+    if (!allowed.data) return ok(VoidSchema, undefined);
 
-		// In JSON mode, delegate to base logger (strips markup, emits structured entry)
-		const machineResult: Result<Bool> = isMachineReadable();
-		if (machineResult.ok && machineResult.data) {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return baseLog.info(cleanMessage);
-		}
+    // In JSON mode, delegate to base logger (strips markup, emits structured entry)
+    const machineResult: Result<Bool> = isMachineReadable();
+    if (machineResult.ok && machineResult.data) {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return baseLog.info(cleanMessage);
+    }
 
-		// GitHub Actions format: emit ::notice::
-		const format: OutputFormat | undefined = getCurrentFormat();
-		if (format === 'github') {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return emitGitHubCommand('notice', cleanMessage);
-		}
+    // GitHub Actions format: emit ::notice::
+    const format: OutputFormat | undefined = getCurrentFormat();
+    if (format === 'github') {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return emitGitHubCommand('notice', cleanMessage);
+    }
 
-		// Compact format: single-line INF prefix
-		if (format === 'compact') {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return emitCompact('info', cleanMessage, 'stdout');
-		}
+    // Compact format: single-line INF prefix
+    if (format === 'compact') {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return emitCompact('info', cleanMessage, 'stdout');
+    }
 
-		// Pretty mode: render markup with ANSI/CSS
-		const rendered: Result<Str> = renderMarkup(msgResult.data);
-		if (!rendered.ok) return rendered;
-		platformLog('stdout', rendered.data);
-		return ok(VoidSchema, undefined);
-	},
+    // Pretty mode: render markup with ANSI/CSS
+    const rendered: Result<Str> = renderMarkup(msgResult.data);
+    if (!rendered.ok) return rendered;
+    platformLog('stdout', rendered.data);
+    return ok(VoidSchema, undefined);
+  },
 
-	/**
-	 * Print a warning message with yellow warning symbol prefix.
-	 * Respects log level (warn). In JSON mode, delegates to base logger.
-	 *
-	 * @param message - Message with optional `{tag}...{/}` markup.
-	 * @returns `Result<Void>` — success, or a validation error.
-	 */
-	warn: (message: Str): Result<Void> => {
-		const msgResult: Result<Str> = safeParse(StrSchema, message);
-		if (!msgResult.ok) return msgResult;
-		const allowed: Result<Bool> = shouldLog('warn');
-		if (!allowed.ok) return allowed;
-		if (!allowed.data) return ok(VoidSchema, undefined);
+  /**
+   * Print a warning message with yellow warning symbol prefix.
+   * Respects log level (warn). In JSON mode, delegates to base logger.
+   *
+   * @param message - Message with optional `{tag}...{/}` markup.
+   * @returns `Result<Void>` — success, or a validation error.
+   */
+  warn: (message: Str): Result<Void> => {
+    const msgResult: Result<Str> = safeParse(StrSchema, message);
+    if (!msgResult.ok) return msgResult;
+    const allowed: Result<Bool> = shouldLog('warn');
+    if (!allowed.ok) return allowed;
+    if (!allowed.data) return ok(VoidSchema, undefined);
 
-		// In JSON mode, delegate to base logger
-		const machineResult: Result<Bool> = isMachineReadable();
-		if (machineResult.ok && machineResult.data) {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return baseLog.warn(cleanMessage);
-		}
+    // In JSON mode, delegate to base logger
+    const machineResult: Result<Bool> = isMachineReadable();
+    if (machineResult.ok && machineResult.data) {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return baseLog.warn(cleanMessage);
+    }
 
-		// GitHub Actions format: emit ::warning::
-		const format: OutputFormat | undefined = getCurrentFormat();
-		if (format === 'github') {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return emitGitHubCommand('warning', cleanMessage);
-		}
+    // GitHub Actions format: emit ::warning::
+    const format: OutputFormat | undefined = getCurrentFormat();
+    if (format === 'github') {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return emitGitHubCommand('warning', cleanMessage);
+    }
 
-		// Compact format
-		if (format === 'compact') {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return emitCompact('warn', cleanMessage, 'stdout');
-		}
+    // Compact format
+    if (format === 'compact') {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return emitCompact('warn', cleanMessage, 'stdout');
+    }
 
-		// Pretty mode: render markup with symbol prefix
-		const rendered: Result<Str> = renderMarkup(msgResult.data);
-		if (!rendered.ok) return rendered;
-		const sym: Result<Str> = style.yellow(symbols.warning);
-		if (!sym.ok) return sym;
-		platformLog('stdout', `  ${sym.data} ${rendered.data}`);
-		return ok(VoidSchema, undefined);
-	},
+    // Pretty mode: render markup with symbol prefix
+    const rendered: Result<Str> = renderMarkup(msgResult.data);
+    if (!rendered.ok) return rendered;
+    const sym: Result<Str> = style.yellow(symbols.warning);
+    if (!sym.ok) return sym;
+    platformLog('stdout', `  ${sym.data} ${rendered.data}`);
+    return ok(VoidSchema, undefined);
+  },
 
-	/**
-	 * Print an error message with red error symbol prefix to stderr.
-	 * Respects log level (error). In JSON mode, delegates to base logger.
-	 *
-	 * @param message - Message with optional `{tag}...{/}` markup.
-	 * @returns `Result<Void>` — success, or a validation error.
-	 */
-	error: (message: Str): Result<Void> => {
-		const msgResult: Result<Str> = safeParse(StrSchema, message);
-		if (!msgResult.ok) return msgResult;
-		const allowed: Result<Bool> = shouldLog('error');
-		if (!allowed.ok) return allowed;
-		if (!allowed.data) return ok(VoidSchema, undefined);
+  /**
+   * Print an error message with red error symbol prefix to stderr.
+   * Respects log level (error). In JSON mode, delegates to base logger.
+   *
+   * @param message - Message with optional `{tag}...{/}` markup.
+   * @returns `Result<Void>` — success, or a validation error.
+   */
+  error: (message: Str): Result<Void> => {
+    const msgResult: Result<Str> = safeParse(StrSchema, message);
+    if (!msgResult.ok) return msgResult;
+    const allowed: Result<Bool> = shouldLog('error');
+    if (!allowed.ok) return allowed;
+    if (!allowed.data) return ok(VoidSchema, undefined);
 
-		// In JSON mode, delegate to base logger
-		const machineResult: Result<Bool> = isMachineReadable();
-		if (machineResult.ok && machineResult.data) {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return baseLog.error(cleanMessage);
-		}
+    // In JSON mode, delegate to base logger
+    const machineResult: Result<Bool> = isMachineReadable();
+    if (machineResult.ok && machineResult.data) {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return baseLog.error(cleanMessage);
+    }
 
-		// GitHub Actions format: emit ::error::
-		const format: OutputFormat | undefined = getCurrentFormat();
-		if (format === 'github') {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return emitGitHubCommand('error', cleanMessage);
-		}
+    // GitHub Actions format: emit ::error::
+    const format: OutputFormat | undefined = getCurrentFormat();
+    if (format === 'github') {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return emitGitHubCommand('error', cleanMessage);
+    }
 
-		// Compact format
-		if (format === 'compact') {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return emitCompact('error', cleanMessage, 'stderr');
-		}
+    // Compact format
+    if (format === 'compact') {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return emitCompact('error', cleanMessage, 'stderr');
+    }
 
-		// Pretty mode: render markup with symbol prefix
-		const rendered: Result<Str> = renderMarkup(msgResult.data);
-		if (!rendered.ok) return rendered;
-		const sym: Result<Str> = style.red(symbols.error);
-		if (!sym.ok) return sym;
-		platformLog('stderr', `  ${sym.data} ${rendered.data}`);
-		return ok(VoidSchema, undefined);
-	},
+    // Pretty mode: render markup with symbol prefix
+    const rendered: Result<Str> = renderMarkup(msgResult.data);
+    if (!rendered.ok) return rendered;
+    const sym: Result<Str> = style.red(symbols.error);
+    if (!sym.ok) return sym;
+    platformLog('stderr', `  ${sym.data} ${rendered.data}`);
+    return ok(VoidSchema, undefined);
+  },
 
-	/**
-	 * Print a debug message with dimmed `[DEBUG]` prefix to stderr.
-	 * Respects log level (debug). Accepts optional structured data.
-	 * In JSON mode, delegates to base logger with data payload.
-	 *
-	 * @param message - Message with optional `{tag}...{/}` markup.
-	 * @param data - Optional serializable data to include after the message.
-	 * @returns `Result<Void>` — success, or a validation error.
-	 */
-	debug: (message: Str, data?: JsonData): Result<Void> => {
-		const msgResult: Result<Str> = safeParse(StrSchema, message);
-		if (!msgResult.ok) return msgResult;
-		const allowed: Result<Bool> = shouldLog('debug');
-		if (!allowed.ok) return allowed;
-		if (!allowed.data) return ok(VoidSchema, undefined);
+  /**
+   * Print a debug message with dimmed `[DEBUG]` prefix to stderr.
+   * Respects log level (debug). Accepts optional structured data.
+   * In JSON mode, delegates to base logger with data payload.
+   *
+   * @param message - Message with optional `{tag}...{/}` markup.
+   * @param data - Optional serializable data to include after the message.
+   * @returns `Result<Void>` — success, or a validation error.
+   */
+  debug: (message: Str, data?: JsonData): Result<Void> => {
+    const msgResult: Result<Str> = safeParse(StrSchema, message);
+    if (!msgResult.ok) return msgResult;
+    const allowed: Result<Bool> = shouldLog('debug');
+    if (!allowed.ok) return allowed;
+    if (!allowed.data) return ok(VoidSchema, undefined);
 
-		// In JSON mode, delegate to base logger
-		const machineResult: Result<Bool> = isMachineReadable();
-		if (machineResult.ok && machineResult.data) {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return baseLog.debug(cleanMessage, data);
-		}
+    // In JSON mode, delegate to base logger
+    const machineResult: Result<Bool> = isMachineReadable();
+    if (machineResult.ok && machineResult.data) {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return baseLog.debug(cleanMessage, data);
+    }
 
-		// GitHub Actions format: emit ::debug::
-		const format: OutputFormat | undefined = getCurrentFormat();
-		if (format === 'github') {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return emitGitHubCommand('debug', cleanMessage);
-		}
+    // GitHub Actions format: emit ::debug::
+    const format: OutputFormat | undefined = getCurrentFormat();
+    if (format === 'github') {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return emitGitHubCommand('debug', cleanMessage);
+    }
 
-		// Compact format
-		if (format === 'compact') {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return emitCompact('debug', cleanMessage, 'stderr');
-		}
+    // Compact format
+    if (format === 'compact') {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return emitCompact('debug', cleanMessage, 'stderr');
+    }
 
-		// Pretty mode: render markup with styled [DEBUG] prefix
-		const rendered: Result<Str> = renderMarkup(msgResult.data);
-		if (!rendered.ok) return rendered;
-		const styled: Result<Str> = style.dim(`[DEBUG] ${rendered.data}`);
-		if (!styled.ok) return styled;
-		if (data === undefined) {
-			platformLog('stderr', `${styled.data}`);
-		} else {
-			platformLog('stderr', `${styled.data}`);
-			console.error(data);
-		}
-		return ok(VoidSchema, undefined);
-	},
+    // Pretty mode: render markup with styled [DEBUG] prefix
+    const rendered: Result<Str> = renderMarkup(msgResult.data);
+    if (!rendered.ok) return rendered;
+    const styled: Result<Str> = style.dim(`[DEBUG] ${rendered.data}`);
+    if (!styled.ok) return styled;
+    if (data === undefined) {
+      platformLog('stderr', `${styled.data}`);
+    } else {
+      platformLog('stderr', `${styled.data}`);
+      console.error(data);
+    }
+    return ok(VoidSchema, undefined);
+  },
 
-	/**
-	 * Print data as formatted JSON to stdout. Always prints regardless of log level or format.
-	 *
-	 * @param data - Serializable data to stringify.
-	 * @param indent - Indentation level (defaults to 2).
-	 * @returns `Result<Void>` — success, or a validation error.
-	 */
-	json: (data: JsonData, indent?: NonNegativeInteger): Result<Void> => {
-		let validatedIndent: NonNegativeInteger = DEFAULT_JSON_INDENT;
-		if (indent !== undefined) {
-			const indentResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, indent);
-			if (!indentResult.ok) return indentResult;
-			validatedIndent = indentResult.data as NonNegativeInteger;
-		}
-		const jsonResult: Result<Str> = safeStringify(data, validatedIndent);
-		if (!jsonResult.ok) return jsonResult;
-		console.log(jsonResult.data);
-		return ok(VoidSchema, undefined);
-	},
+  /**
+   * Print data as formatted JSON to stdout. Always prints regardless of log level or format.
+   *
+   * @param data - Serializable data to stringify.
+   * @param indent - Indentation level (defaults to 2).
+   * @returns `Result<Void>` — success, or a validation error.
+   */
+  json: (data: JsonData, indent?: NonNegativeInteger): Result<Void> => {
+    let validatedIndent: NonNegativeInteger = DEFAULT_JSON_INDENT;
+    if (indent !== undefined) {
+      const indentResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, indent);
+      if (!indentResult.ok) return indentResult;
+      validatedIndent = indentResult.data as NonNegativeInteger;
+    }
+    const jsonResult: Result<Str> = safeStringify(data, validatedIndent);
+    if (!jsonResult.ok) return jsonResult;
+    console.log(jsonResult.data);
+    return ok(VoidSchema, undefined);
+  },
 
-	/**
-	 * Print raw output with markup support to stdout. Always prints regardless of log level.
-	 * NOT format-gated — prints even for machine-readable formats.
-	 * Use for help screens, version output, and structured output that must always appear.
-	 *
-	 * @param message - Raw text with optional `{tag}...{/}` and `{symbol:name}` markup.
-	 * @returns `Result<Void>` — success, or a validation error.
-	 */
-	raw: (message: Str): Result<Void> => {
-		const msgResult: Result<Str> = safeParse(StrSchema, message);
-		if (!msgResult.ok) return msgResult;
-		const rendered: Result<Str> = renderMarkup(msgResult.data);
-		if (!rendered.ok) return rendered;
-		platformLog('stdout', rendered.data);
-		return ok(VoidSchema, undefined);
-	},
+  /**
+   * Print raw output with markup support to stdout. Always prints regardless of log level.
+   * NOT format-gated — prints even for machine-readable formats.
+   * Use for help screens, version output, and structured output that must always appear.
+   *
+   * @param message - Raw text with optional `{tag}...{/}` and `{symbol:name}` markup.
+   * @returns `Result<Void>` — success, or a validation error.
+   */
+  raw: (message: Str): Result<Void> => {
+    const msgResult: Result<Str> = safeParse(StrSchema, message);
+    if (!msgResult.ok) return msgResult;
+    const rendered: Result<Str> = renderMarkup(msgResult.data);
+    if (!rendered.ok) return rendered;
+    platformLog('stdout', rendered.data);
+    return ok(VoidSchema, undefined);
+  },
 
-	/**
-	 * Print a trace message with dimmed `[TRACE]` prefix to stderr.
-	 * Most verbose level — below debug. Accepts optional structured data.
-	 * In JSON mode, delegates to base logger with data payload.
-	 *
-	 * @param message - Message with optional `{tag}...{/}` markup.
-	 * @param data - Optional serializable data to include after the message.
-	 * @returns `Result<Void>` — success, or a validation error.
-	 */
-	trace: (message: Str, data?: JsonData): Result<Void> => {
-		const msgResult: Result<Str> = safeParse(StrSchema, message);
-		if (!msgResult.ok) return msgResult;
-		const allowed: Result<Bool> = shouldLog('trace');
-		if (!allowed.ok) return allowed;
-		if (!allowed.data) return ok(VoidSchema, undefined);
+  /**
+   * Print a trace message with dimmed `[TRACE]` prefix to stderr.
+   * Most verbose level — below debug. Accepts optional structured data.
+   * In JSON mode, delegates to base logger with data payload.
+   *
+   * @param message - Message with optional `{tag}...{/}` markup.
+   * @param data - Optional serializable data to include after the message.
+   * @returns `Result<Void>` — success, or a validation error.
+   */
+  trace: (message: Str, data?: JsonData): Result<Void> => {
+    const msgResult: Result<Str> = safeParse(StrSchema, message);
+    if (!msgResult.ok) return msgResult;
+    const allowed: Result<Bool> = shouldLog('trace');
+    if (!allowed.ok) return allowed;
+    if (!allowed.data) return ok(VoidSchema, undefined);
 
-		// In JSON mode, delegate to base logger
-		const machineResult: Result<Bool> = isMachineReadable();
-		if (machineResult.ok && machineResult.data) {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return baseLog.trace(cleanMessage, data);
-		}
+    // In JSON mode, delegate to base logger
+    const machineResult: Result<Bool> = isMachineReadable();
+    if (machineResult.ok && machineResult.data) {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return baseLog.trace(cleanMessage, data);
+    }
 
-		// GitHub Actions format: emit ::debug:: (GitHub has no trace level)
-		const format: OutputFormat | undefined = getCurrentFormat();
-		if (format === 'github') {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return emitGitHubCommand('debug', cleanMessage);
-		}
+    // GitHub Actions format: emit ::debug:: (GitHub has no trace level)
+    const format: OutputFormat | undefined = getCurrentFormat();
+    if (format === 'github') {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return emitGitHubCommand('debug', cleanMessage);
+    }
 
-		// Compact format
-		if (format === 'compact') {
-			const stripped: Result<Str> = stripMarkup(msgResult.data);
-			const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
-			return emitCompact('trace', cleanMessage, 'stderr');
-		}
+    // Compact format
+    if (format === 'compact') {
+      const stripped: Result<Str> = stripMarkup(msgResult.data);
+      const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+      return emitCompact('trace', cleanMessage, 'stderr');
+    }
 
-		// Pretty mode: render markup with styled [TRACE] prefix
-		const rendered: Result<Str> = renderMarkup(msgResult.data);
-		if (!rendered.ok) return rendered;
-		const styled: Result<Str> = style.dim(`[TRACE] ${rendered.data}`);
-		if (!styled.ok) return styled;
-		if (data === undefined) {
-			platformLog('stderr', `${styled.data}`);
-		} else {
-			platformLog('stderr', `${styled.data}`);
-			console.error(data);
-		}
-		return ok(VoidSchema, undefined);
-	},
+    // Pretty mode: render markup with styled [TRACE] prefix
+    const rendered: Result<Str> = renderMarkup(msgResult.data);
+    if (!rendered.ok) return rendered;
+    const styled: Result<Str> = style.dim(`[TRACE] ${rendered.data}`);
+    if (!styled.ok) return styled;
+    if (data === undefined) {
+      platformLog('stderr', `${styled.data}`);
+    } else {
+      platformLog('stderr', `${styled.data}`);
+      console.error(data);
+    }
+    return ok(VoidSchema, undefined);
+  },
 
-	/**
-	 * Print raw output with markup support to stderr. Always prints regardless of log level.
-	 * Use for fatal error messages that must always appear.
-	 *
-	 * @param message - Raw text with optional `{tag}...{/}` and `{symbol:name}` markup.
-	 * @returns `Result<Void>` — success, or a validation error.
-	 */
-	rawError: (message: Str): Result<Void> => {
-		const msgResult: Result<Str> = safeParse(StrSchema, message);
-		if (!msgResult.ok) return msgResult;
-		const rendered: Result<Str> = renderMarkup(msgResult.data);
-		if (!rendered.ok) return rendered;
-		platformLog('stderr', rendered.data);
-		return ok(VoidSchema, undefined);
-	},
+  /**
+   * Print raw output with markup support to stderr. Always prints regardless of log level.
+   * Use for fatal error messages that must always appear.
+   *
+   * @param message - Raw text with optional `{tag}...{/}` and `{symbol:name}` markup.
+   * @returns `Result<Void>` — success, or a validation error.
+   */
+  rawError: (message: Str): Result<Void> => {
+    const msgResult: Result<Str> = safeParse(StrSchema, message);
+    if (!msgResult.ok) return msgResult;
+    const rendered: Result<Str> = renderMarkup(msgResult.data);
+    if (!rendered.ok) return rendered;
+    platformLog('stderr', rendered.data);
+    return ok(VoidSchema, undefined);
+  },
 } as const;

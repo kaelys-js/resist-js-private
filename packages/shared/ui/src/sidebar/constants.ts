@@ -39,6 +39,6 @@ const COOKIE_PROP: Str = 'cookie';
  * @param isOpen - Whether the sidebar is currently open
  */
 export function persistSidebarState(isOpen: Bool): void {
-	const entry: Str = `${SIDEBAR_COOKIE_NAME}=${String(isOpen)}; path=/; max-age=${String(SIDEBAR_COOKIE_MAX_AGE)}`;
-	Reflect.set(document, COOKIE_PROP, entry);
+  const entry: Str = `${SIDEBAR_COOKIE_NAME}=${String(isOpen)}; path=/; max-age=${String(SIDEBAR_COOKIE_MAX_AGE)}`;
+  Reflect.set(document, COOKIE_PROP, entry);
 }

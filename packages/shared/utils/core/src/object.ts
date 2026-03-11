@@ -11,13 +11,13 @@
  */
 
 import {
-	DEFAULT_JSON_INDENT,
-	NonNegativeIntegerSchema,
-	StrSchema,
-	type JsonData,
-	type NonNegativeInteger,
-	type Str,
-	type StrArray,
+  DEFAULT_JSON_INDENT,
+  NonNegativeIntegerSchema,
+  StrSchema,
+  type JsonData,
+  type NonNegativeInteger,
+  type Str,
+  type StrArray,
 } from '@/schemas/common';
 import { ERRORS, err, ok, type Result } from '@/schemas/result/result';
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
@@ -43,15 +43,15 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
  * ```
  */
 export type DeepReadonly<T> =
-	T extends Set<infer U>
-		? ReadonlySet<DeepReadonly<U>>
-		: T extends Map<infer K, infer V>
-			? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
-			: T extends Array<infer U>
-				? ReadonlyArray<DeepReadonly<U>>
-				: T extends object
-					? { readonly [K in keyof T]: DeepReadonly<T[K]> }
-					: T;
+  T extends Set<infer U>
+    ? ReadonlySet<DeepReadonly<U>>
+    : T extends Map<infer K, infer V>
+      ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
+      : T extends Array<infer U>
+        ? ReadonlyArray<DeepReadonly<U>>
+        : T extends object
+          ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+          : T;
 
 // =============================================================================
 // Internal Helpers
@@ -65,9 +65,9 @@ export type DeepReadonly<T> =
  * @returns `true` if the value is a plain object, `false` otherwise
  */
 function _isPlainObject(value: unknown): value is Record<string, unknown> {
-	return (
-		value !== undefined && value !== null && typeof value === 'object' && !Array.isArray(value)
-	);
+  return (
+    value !== undefined && value !== null && typeof value === 'object' && !Array.isArray(value)
+  );
 }
 
 // =============================================================================
@@ -91,16 +91,16 @@ function _isPlainObject(value: unknown): value is Record<string, unknown> {
  * ```
  */
 export function deepFreeze<T extends object>(obj: T): Readonly<T> {
-	const propNames: StrArray = Object.getOwnPropertyNames(obj);
+  const propNames: StrArray = Object.getOwnPropertyNames(obj);
 
-	for (const name of propNames) {
-		const value: unknown = Object.getOwnPropertyDescriptor(obj, name)?.value;
-		if (value && typeof value === 'object' && !Object.isFrozen(value)) {
-			deepFreeze(value);
-		}
-	}
+  for (const name of propNames) {
+    const value: unknown = Object.getOwnPropertyDescriptor(obj, name)?.value;
+    if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+      deepFreeze(value);
+    }
+  }
 
-	return Object.freeze(obj);
+  return Object.freeze(obj);
 }
 
 /**
@@ -122,21 +122,21 @@ export function deepFreeze<T extends object>(obj: T): Readonly<T> {
  * ```
  */
 export function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {
-	const result: Record<string, unknown> = { ...target };
+  const result: Record<string, unknown> = { ...target };
 
-	for (const key of Object.keys(source)) {
-		const sourceValue: unknown = source[key];
-		const targetValue: unknown = target[key];
+  for (const key of Object.keys(source)) {
+    const sourceValue: unknown = source[key];
+    const targetValue: unknown = target[key];
 
-		if (_isPlainObject(sourceValue) && _isPlainObject(targetValue)) {
-			result[key] = deepMerge(targetValue, sourceValue);
-		} else if (sourceValue !== undefined) {
-			result[key] = sourceValue;
-		}
-	}
+    if (_isPlainObject(sourceValue) && _isPlainObject(targetValue)) {
+      result[key] = deepMerge(targetValue, sourceValue);
+    } else if (sourceValue !== undefined) {
+      result[key] = sourceValue;
+    }
+  }
 
-	// Structural cast: result was spread from target (T) with matching keys overwritten
-	return result as T;
+  // Structural cast: result was spread from target (T) with matching keys overwritten
+  return result as T;
 }
 
 // =============================================================================
@@ -172,37 +172,37 @@ export function deepMerge<T extends Record<string, unknown>>(target: T, source: 
  * ```
  */
 export function safeStringify(
-	data: JsonData,
-	indent: NonNegativeInteger | Str = DEFAULT_JSON_INDENT,
+  data: JsonData,
+  indent: NonNegativeInteger | Str = DEFAULT_JSON_INDENT,
 ): Result<Str> {
-	let validatedIndent: NonNegativeInteger | Str;
-	if (typeof indent === 'string') {
-		const strResult: Result<Str> = safeParse(StrSchema, indent);
-		if (!strResult.ok) return strResult;
-		validatedIndent = strResult.data;
-	} else {
-		const numResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, indent);
-		if (!numResult.ok) return numResult;
-		validatedIndent = numResult.data as NonNegativeInteger;
-	}
+  let validatedIndent: NonNegativeInteger | Str;
+  if (typeof indent === 'string') {
+    const strResult: Result<Str> = safeParse(StrSchema, indent);
+    if (!strResult.ok) return strResult;
+    validatedIndent = strResult.data;
+  } else {
+    const numResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, indent);
+    if (!numResult.ok) return numResult;
+    validatedIndent = numResult.data as NonNegativeInteger;
+  }
 
-	const seen = new WeakSet<object>();
-	const replacer = (_key: string, value: JsonData): JsonData => {
-		if (typeof value === 'bigint') return `[BigInt: ${value}]`;
-		if (typeof value === 'object' && value !== null) {
-			if (seen.has(value)) return '[Circular]';
-			seen.add(value);
-		}
-		return value;
-	};
+  const seen = new WeakSet<object>();
+  const replacer = (_key: string, value: JsonData): JsonData => {
+    if (typeof value === 'bigint') return `[BigInt: ${value}]`;
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) return '[Circular]';
+      seen.add(value);
+    }
+    return value;
+  };
 
-	try {
-		const result: Str = JSON.stringify(data, replacer, validatedIndent);
-		return ok(StrSchema, result);
-	} catch (error: unknown) {
-		return err(ERRORS.VALIDATION.INVALID_FORMAT, {
-			meta: { operation: 'JSON.stringify' },
-			cause: fromUnknownError(error),
-		});
-	}
+  try {
+    const result: Str = JSON.stringify(data, replacer, validatedIndent);
+    return ok(StrSchema, result);
+  } catch (error: unknown) {
+    return err(ERRORS.VALIDATION.INVALID_FORMAT, {
+      meta: { operation: 'JSON.stringify' },
+      cause: fromUnknownError(error),
+    });
+  }
 }

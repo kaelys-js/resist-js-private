@@ -59,19 +59,19 @@ import { ColorRgbaSchema, Vector3Schema } from './color-schema';
  * - `'siren'` — sinusoidal at ~2Hz with hard threshold (emergency alarm)
  */
 export const FlickerTypeSchema = v.picklist([
-	'candle',
-	'torch',
-	'campfire',
-	'pulse',
-	'strobe',
-	'breathing',
-	'fluorescent',
-	'storm',
-	'heartbeat',
-	'random',
-	'neon',
-	'dying',
-	'siren',
+  'candle',
+  'torch',
+  'campfire',
+  'pulse',
+  'strobe',
+  'breathing',
+  'fluorescent',
+  'storm',
+  'heartbeat',
+  'random',
+  'neon',
+  'dying',
+  'siren',
 ]);
 
 /** Inferred flicker type from {@link FlickerTypeSchema}. */
@@ -95,26 +95,26 @@ export type FlickerType = v.InferOutput<typeof FlickerTypeSchema>;
  * ```
  */
 export const FlickerConfigSchema = v.strictObject({
-	/** Whether flicker is active. Default: true. */
-	enabled: v.optional(v.boolean(), true),
+  /** Whether flicker is active. Default: true. */
+  enabled: v.optional(v.boolean(), true),
 
-	/** Flicker pattern type. Default: 'candle'. */
-	type: v.optional(FlickerTypeSchema, 'candle'),
+  /** Flicker pattern type. Default: 'candle'. */
+  type: v.optional(FlickerTypeSchema, 'candle'),
 
-	/** Flicker amplitude — how much intensity varies [0, 1]. Default: 0.3. */
-	intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.3),
+  /** Flicker amplitude — how much intensity varies [0, 1]. Default: 0.3. */
+  intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.3),
 
-	/** Speed multiplier — higher = faster flicker [0.1, 10]. Default: 1.0. */
-	speed: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(10)), 1.0),
+  /** Speed multiplier — higher = faster flicker [0.1, 10]. Default: 1.0. */
+  speed: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(10)), 1.0),
 
-	/** When true, diffuse color temperature oscillates with intensity. Default: false. */
-	colorShift: v.optional(v.boolean(), false),
+  /** When true, diffuse color temperature oscillates with intensity. Default: false. */
+  colorShift: v.optional(v.boolean(), false),
 
-	/** Kelvin range of color temperature oscillation [0, 500]. Default: 200. */
-	colorShiftRange: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(500)), 200),
+  /** Kelvin range of color temperature oscillation [0, 500]. Default: 200. */
+  colorShiftRange: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(500)), 200),
 
-	/** Position jitter radius (Point/Spot only) [0, 1]. Default: 0. */
-	positionJitter: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
+  /** Position jitter radius (Point/Spot only) [0, 1]. Default: 0. */
+  positionJitter: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
 });
 
 /** Inferred flicker configuration type from {@link FlickerConfigSchema}. */
@@ -149,11 +149,11 @@ export type LightFalloffType = v.InferOutput<typeof LightFalloffTypeSchema>;
  * - `'luminance'` — nit (cd/m²)
  */
 export const LightIntensityModeSchema = v.picklist([
-	'automatic',
-	'luminous_power',
-	'luminous_intensity',
-	'illuminance',
-	'luminance',
+  'automatic',
+  'luminous_power',
+  'luminous_intensity',
+  'illuminance',
+  'luminance',
 ]);
 
 /** Inferred intensity mode type from {@link LightIntensityModeSchema}. */
@@ -189,14 +189,14 @@ export type ShadowType = v.InferOutput<typeof ShadowTypeSchema>;
  * - `'poisson'` — Poisson disk sampling
  */
 export const ShadowFilterTypeSchema = v.picklist([
-	'none',
-	'esm',
-	'blurredEsm',
-	'closeEsm',
-	'blurredCloseEsm',
-	'pcf',
-	'pcss',
-	'poisson',
+  'none',
+  'esm',
+  'blurredEsm',
+  'closeEsm',
+  'blurredCloseEsm',
+  'pcf',
+  'pcss',
+  'poisson',
 ]);
 
 /** Inferred shadow filter type from {@link ShadowFilterTypeSchema}. */
@@ -241,95 +241,95 @@ export type ShadowMapSize = v.InferOutput<typeof ShadowMapSizeSchema>;
  * ```
  */
 export const ShadowConfigSchema = v.strictObject({
-	/** Whether shadows are enabled for this light. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Whether shadows are enabled for this light. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Shadow generator type. Default: 'pcf'. */
-	type: v.optional(ShadowTypeSchema, 'pcf'),
+  /** Shadow generator type. Default: 'pcf'. */
+  type: v.optional(ShadowTypeSchema, 'pcf'),
 
-	/** Shadow map resolution (power of two). Default: 1024. */
-	mapSize: v.optional(ShadowMapSizeSchema, 1024),
+  /** Shadow map resolution (power of two). Default: 1024. */
+  mapSize: v.optional(ShadowMapSizeSchema, 1024),
 
-	/** PCF/PCSS filtering quality. Default: 'medium'. */
-	filteringQuality: v.optional(ShadowFilterQualitySchema, 'medium'),
+  /** PCF/PCSS filtering quality. Default: 'medium'. */
+  filteringQuality: v.optional(ShadowFilterQualitySchema, 'medium'),
 
-	/** Depth bias to prevent shadow acne [0, 1]. Default: 0.000_05. */
-	bias: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.000_05),
+  /** Depth bias to prevent shadow acne [0, 1]. Default: 0.000_05. */
+  bias: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.000_05),
 
-	/** Normal bias to prevent peter-panning [0, 1]. Default: 0.04. */
-	normalBias: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.04),
+  /** Normal bias to prevent peter-panning [0, 1]. Default: 0.04. */
+  normalBias: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.04),
 
-	/** Shadow darkness (0 = invisible, 1 = pitch black) [0, 1]. Default: 0.5. */
-	darkness: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
+  /** Shadow darkness (0 = invisible, 1 = pitch black) [0, 1]. Default: 0.5. */
+  darkness: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
 
-	/** Whether to render transparent objects in shadow map. Default: false. */
-	transparencyShadow: v.optional(v.boolean(), false),
+  /** Whether to render transparent objects in shadow map. Default: false. */
+  transparencyShadow: v.optional(v.boolean(), false),
 
-	/** Dithered soft shadows for foliage/cloth. Default: false. */
-	enableSoftTransparentShadow: v.optional(v.boolean(), false),
+  /** Dithered soft shadows for foliage/cloth. Default: false. */
+  enableSoftTransparentShadow: v.optional(v.boolean(), false),
 
-	/** Number of shadow cascades (cascade type only) [1, 4]. Default: 3. */
-	numCascades: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(4)), 3),
+  /** Number of shadow cascades (cascade type only) [1, 4]. Default: 3. */
+  numCascades: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(4)), 3),
 
-	/** Prevents cascade shimmer on camera rotation. Default: true. */
-	stabilizeCascades: v.optional(v.boolean(), true),
+  /** Prevents cascade shimmer on camera rotation. Default: true. */
+  stabilizeCascades: v.optional(v.boolean(), true),
 
-	/** Smooth transitions between cascade levels [0, 1]. Default: 0.05. */
-	cascadeBlendPercentage: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.05),
+  /** Smooth transitions between cascade levels [0, 1]. Default: 0.05. */
+  cascadeBlendPercentage: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.05),
 
-	/** Auto-optimize shadow frustum per frame. Default: true. */
-	autoCalcDepthBounds: v.optional(v.boolean(), true),
+  /** Auto-optimize shadow frustum per frame. Default: true. */
+  autoCalcDepthBounds: v.optional(v.boolean(), true),
 
-	// ---- Expansion: Filter Type ----
+  // ---- Expansion: Filter Type ----
 
-	/** Fine-grained shadow filter type. Overrides default filter from `type` when set. */
-	filterType: v.optional(ShadowFilterTypeSchema),
+  /** Fine-grained shadow filter type. Overrides default filter from `type` when set. */
+  filterType: v.optional(ShadowFilterTypeSchema),
 
-	// ---- Expansion: General Shadow Properties ----
+  // ---- Expansion: General Shadow Properties ----
 
-	/** Render only back faces into shadow map — reduces self-shadowing. Default: false. */
-	forceBackFacesOnly: v.optional(v.boolean(), false),
+  /** Render only back faces into shadow map — reduces self-shadowing. Default: false. */
+  forceBackFacesOnly: v.optional(v.boolean(), false),
 
-	/** Fade shadow at frustum edges [0, 1]. 0 = hard edge. Default: 0. */
-	frustumEdgeFalloff: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
+  /** Fade shadow at frustum edges [0, 1]. 0 = hard edge. Default: 0. */
+  frustumEdgeFalloff: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
 
-	/** PCSS light size UV ratio (soft penumbra radius) [0, 1]. Default: 0.1. */
-	contactHardeningLightSizeUVRatio: v.optional(
-		v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
-		0.1,
-	),
+  /** PCSS light size UV ratio (soft penumbra radius) [0, 1]. Default: 0.1. */
+  contactHardeningLightSizeUVRatio: v.optional(
+    v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+    0.1,
+  ),
 
-	/** Use kernel blur instead of box blur (ESM modes). Default: false. */
-	useKernelBlur: v.optional(v.boolean(), false),
+  /** Use kernel blur instead of box blur (ESM modes). Default: false. */
+  useKernelBlur: v.optional(v.boolean(), false),
 
-	/** Blur kernel size (ESM modes) [1, 64]. Default: 1. */
-	blurKernel: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(64)), 1),
+  /** Blur kernel size (ESM modes) [1, 64]. Default: 1. */
+  blurKernel: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(64)), 1),
 
-	/** Blur render scale (ESM modes) [0.5, 4]. Default: 2. */
-	blurScale: v.optional(v.pipe(v.number(), v.minValue(0.5), v.maxValue(4)), 2),
+  /** Blur render scale (ESM modes) [0.5, 4]. Default: 2. */
+  blurScale: v.optional(v.pipe(v.number(), v.minValue(0.5), v.maxValue(4)), 2),
 
-	/** ESM depth scale factor [0, 1000]. Default: 50. */
-	depthScale: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1000)), 50),
+  /** ESM depth scale factor [0, 1000]. Default: 50. */
+  depthScale: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1000)), 50),
 
-	/** Uses opacity texture for alpha-tested shadows. Default: false. */
-	useOpacityTextureForTransparentShadow: v.optional(v.boolean(), false),
+  /** Uses opacity texture for alpha-tested shadows. Default: false. */
+  useOpacityTextureForTransparentShadow: v.optional(v.boolean(), false),
 
-	// ---- Expansion: Cascade-Specific Properties ----
+  // ---- Expansion: Cascade-Specific Properties ----
 
-	/** Cascade split balance (0=uniform, 1=logarithmic) [0, 1]. Default: 0.5. */
-	lambda: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
+  /** Cascade split balance (0=uniform, 1=logarithmic) [0, 1]. Default: 0.5. */
+  lambda: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
 
-	/** Clamps depth to prevent clipping. Default: true. */
-	depthClamp: v.optional(v.boolean(), true),
+  /** Clamps depth to prevent clipping. Default: true. */
+  depthClamp: v.optional(v.boolean(), true),
 
-	/** Cascade penumbra darkness [0, 1]. Default: 1.0. */
-	penumbraDarkness: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 1.0),
+  /** Cascade penumbra darkness [0, 1]. Default: 1.0. */
+  penumbraDarkness: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 1.0),
 
-	/** Max shadow distance for CSM (0 = auto) [>= 0]. Default: 0. */
-	shadowMaxZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Max shadow distance for CSM (0 = auto) [>= 0]. Default: 0. */
+  shadowMaxZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
 
-	/** Cache shadow caster bounding info for performance. Default: false. */
-	freezeShadowCastersBoundingInfo: v.optional(v.boolean(), false),
+  /** Cache shadow caster bounding info for performance. Default: false. */
+  freezeShadowCastersBoundingInfo: v.optional(v.boolean(), false),
 });
 
 /** Inferred shadow configuration type from {@link ShadowConfigSchema}. */
@@ -357,14 +357,14 @@ export type ShadowConfig = v.InferOutput<typeof ShadowConfigSchema>;
  * ```
  */
 export const DistanceFadeConfigSchema = v.strictObject({
-	/** Whether distance fade is active. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Whether distance fade is active. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Distance at which fade begins [>= 0]. Default: 50. */
-	start: v.optional(v.pipe(v.number(), v.minValue(0)), 50),
+  /** Distance at which fade begins [>= 0]. Default: 50. */
+  start: v.optional(v.pipe(v.number(), v.minValue(0)), 50),
 
-	/** Distance at which light fully fades out [>= 0]. Default: 100. */
-	end: v.optional(v.pipe(v.number(), v.minValue(0)), 100),
+  /** Distance at which light fully fades out [>= 0]. Default: 100. */
+  end: v.optional(v.pipe(v.number(), v.minValue(0)), 100),
 });
 
 /** Inferred distance fade config type from {@link DistanceFadeConfigSchema}. */
@@ -408,29 +408,29 @@ export type LightmapMode = v.InferOutput<typeof LightmapModeSchema>;
  * ```
  */
 export const VolumetricLightConfigSchema = v.strictObject({
-	/** Whether god rays are enabled. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Whether god rays are enabled. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Ray sampling quality — higher = better, more GPU [10, 200]. Default: 100. */
-	samples: v.optional(v.pipe(v.number(), v.integer(), v.minValue(10), v.maxValue(200)), 100),
+  /** Ray sampling quality — higher = better, more GPU [10, 200]. Default: 100. */
+  samples: v.optional(v.pipe(v.number(), v.integer(), v.minValue(10), v.maxValue(200)), 100),
 
-	/** Light falloff along ray [0, 1]. Default: 0.97. */
-	decay: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.97),
+  /** Light falloff along ray [0, 1]. Default: 0.97. */
+  decay: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.97),
 
-	/** Ray brightness [0, 1]. Default: 0.5. */
-	weight: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
+  /** Ray brightness [0, 1]. Default: 0.5. */
+  weight: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
 
-	/** Ray density [0, 1]. Default: 0.5. */
-	density: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
+  /** Ray density [0, 1]. Default: 0.5. */
+  density: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
 
-	/** Internal render target resolution ratio (0, 1]. Default: 0.5. */
-	passRatio: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(1)), 0.5),
+  /** Internal render target resolution ratio (0, 1]. Default: 0.5. */
+  passRatio: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(1)), 0.5),
 
-	/** Exposure multiplier for god ray brightness [0, 2]. Default: 1.0. */
-	exposure: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 1.0),
+  /** Exposure multiplier for god ray brightness [0, 2]. Default: 1.0. */
+  exposure: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 1.0),
 
-	/** God ray tint color. Default: white. */
-	color: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+  /** God ray tint color. Default: white. */
+  color: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
 });
 
 /** Inferred volumetric light config type from {@link VolumetricLightConfigSchema}. */
@@ -454,14 +454,14 @@ export type VolumetricLightConfig = v.InferOutput<typeof VolumetricLightConfigSc
  * ```
  */
 export const LensFlareEntrySchema = v.strictObject({
-	/** Flare element size [0, 2]. */
-	size: v.pipe(v.number(), v.minValue(0), v.maxValue(2)),
+  /** Flare element size [0, 2]. */
+  size: v.pipe(v.number(), v.minValue(0), v.maxValue(2)),
 
-	/** Position along flare line [-1, 1] (0 = at emitter). */
-	position: v.pipe(v.number(), v.minValue(-1), v.maxValue(1)),
+  /** Position along flare line [-1, 1] (0 = at emitter). */
+  position: v.pipe(v.number(), v.minValue(-1), v.maxValue(1)),
 
-	/** Flare element color. */
-	color: ColorRgbaSchema,
+  /** Flare element color. */
+  color: ColorRgbaSchema,
 });
 
 /** Inferred lens flare entry type from {@link LensFlareEntrySchema}. */
@@ -498,23 +498,23 @@ export type LensFlarePreset = v.InferOutput<typeof LensFlarePresetSchema>;
  * ```
  */
 export const LensFlareConfigSchema = v.strictObject({
-	/** Whether lens flares are enabled. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Whether lens flares are enabled. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Custom flare elements. Omit to use preset or default 3-flare set. */
-	flares: v.optional(v.array(LensFlareEntrySchema)),
+  /** Custom flare elements. Omit to use preset or default 3-flare set. */
+  flares: v.optional(v.array(LensFlareEntrySchema)),
 
-	/** Curated flare preset. Used when `flares` is omitted. */
-	preset: v.optional(LensFlarePresetSchema),
+  /** Curated flare preset. Used when `flares` is omitted. */
+  preset: v.optional(LensFlarePresetSchema),
 
-	/** Center halo element size [0, 2]. Default: 0.4. */
-	haloWidth: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 0.4),
+  /** Center halo element size [0, 2]. Default: 0.4. */
+  haloWidth: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 0.4),
 
-	/** Spacing multiplier between ghost elements [0, 2]. Default: 0.3. */
-	ghostDispersal: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 0.3),
+  /** Spacing multiplier between ghost elements [0, 2]. Default: 0.3. */
+  ghostDispersal: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 0.3),
 
-	/** Min dot product for flare visibility [0, 1]. Default: 0.5. */
-	threshold: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
+  /** Min dot product for flare visibility [0, 1]. Default: 0.5. */
+  threshold: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
 });
 
 /** Inferred lens flare config type from {@link LensFlareConfigSchema}. */
@@ -544,56 +544,56 @@ export type LensFlareConfig = v.InferOutput<typeof LensFlareConfigSchema>;
  * ```
  */
 export const PointLightConfigSchema = v.strictObject({
-	/** Discriminator: 'point'. */
-	type: v.literal('point'),
+  /** Discriminator: 'point'. */
+  type: v.literal('point'),
 
-	// --- Common fields ---
-	/** Unique light identifier (required). */
-	id: v.pipe(v.string(), v.nonEmpty()),
-	/** Display name (optional). */
-	name: v.optional(v.pipe(v.string(), v.nonEmpty())),
-	/** Whether this light is active. Default: true. */
-	enabled: v.optional(v.boolean(), true),
-	/** Light intensity [0, 100]. Default: 1.0. */
-	intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 1.0),
-	/** Diffuse color. Default: white. */
-	diffuse: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
-	/** Specular color. Default: white. */
-	specular: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
-	/** Color temperature in Kelvin [1000, 15000]. Overrides diffuse when set. */
-	colorTemperature: v.optional(v.pipe(v.number(), v.minValue(1000), v.maxValue(15_000))),
-	/** Falloff type. Default: 'default'. */
-	falloffType: v.optional(LightFalloffTypeSchema, 'default'),
-	/** Intensity mode (physical units). Default: 'automatic'. */
-	intensityMode: v.optional(LightIntensityModeSchema, 'automatic'),
-	/** Shadow configuration. */
-	shadow: v.optional(ShadowConfigSchema),
-	/** Flicker animation configuration. */
-	flicker: v.optional(FlickerConfigSchema),
+  // --- Common fields ---
+  /** Unique light identifier (required). */
+  id: v.pipe(v.string(), v.nonEmpty()),
+  /** Display name (optional). */
+  name: v.optional(v.pipe(v.string(), v.nonEmpty())),
+  /** Whether this light is active. Default: true. */
+  enabled: v.optional(v.boolean(), true),
+  /** Light intensity [0, 100]. Default: 1.0. */
+  intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 1.0),
+  /** Diffuse color. Default: white. */
+  diffuse: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+  /** Specular color. Default: white. */
+  specular: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+  /** Color temperature in Kelvin [1000, 15000]. Overrides diffuse when set. */
+  colorTemperature: v.optional(v.pipe(v.number(), v.minValue(1000), v.maxValue(15_000))),
+  /** Falloff type. Default: 'default'. */
+  falloffType: v.optional(LightFalloffTypeSchema, 'default'),
+  /** Intensity mode (physical units). Default: 'automatic'. */
+  intensityMode: v.optional(LightIntensityModeSchema, 'automatic'),
+  /** Shadow configuration. */
+  shadow: v.optional(ShadowConfigSchema),
+  /** Flicker animation configuration. */
+  flicker: v.optional(FlickerConfigSchema),
 
-	// --- PointLight-specific fields ---
-	/** Light position in world space. Default: origin. */
-	position: v.optional(Vector3Schema, { x: 0, y: 0, z: 0 }),
-	/** Maximum light range (distance falloff). Default: 100. */
-	range: v.optional(v.pipe(v.number(), v.minValue(0)), 100),
-	/** Auto-assign includedOnlyMeshes within this radius. 0 or undefined = no culling. */
-	meshRadius: v.optional(v.pipe(v.number(), v.minValue(0))),
+  // --- PointLight-specific fields ---
+  /** Light position in world space. Default: origin. */
+  position: v.optional(Vector3Schema, { x: 0, y: 0, z: 0 }),
+  /** Maximum light range (distance falloff). Default: 100. */
+  range: v.optional(v.pipe(v.number(), v.minValue(0)), 100),
+  /** Auto-assign includedOnlyMeshes within this radius. 0 or undefined = no culling. */
+  meshRadius: v.optional(v.pipe(v.number(), v.minValue(0))),
 
-	// --- Expansion: New Light Properties ---
-	/** PBR light physical radius (area light simulation) [>= 0]. Default: 0. */
-	radius: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
-	/** Render ordering priority [0, 10]. Default: 0. */
-	renderPriority: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)), 0),
-	/** Shadow near plane (0 = auto) [>= 0]. Default: 0. */
-	shadowMinZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
-	/** Shadow far plane (0 = auto) [>= 0]. Default: 0. */
-	shadowMaxZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
-	/** Layer mask for mesh filtering. Default: 0x0FFFFFFF (Babylon.js default). */
-	layerMask: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 268_435_455),
-	/** Lightmap interaction mode. Default: 'default'. */
-	lightmapMode: v.optional(LightmapModeSchema, 'default'),
-	/** Distance-based fade configuration (Point/Spot only). */
-	distanceFade: v.optional(DistanceFadeConfigSchema),
+  // --- Expansion: New Light Properties ---
+  /** PBR light physical radius (area light simulation) [>= 0]. Default: 0. */
+  radius: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Render ordering priority [0, 10]. Default: 0. */
+  renderPriority: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)), 0),
+  /** Shadow near plane (0 = auto) [>= 0]. Default: 0. */
+  shadowMinZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Shadow far plane (0 = auto) [>= 0]. Default: 0. */
+  shadowMaxZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Layer mask for mesh filtering. Default: 0x0FFFFFFF (Babylon.js default). */
+  layerMask: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 268_435_455),
+  /** Lightmap interaction mode. Default: 'default'. */
+  lightmapMode: v.optional(LightmapModeSchema, 'default'),
+  /** Distance-based fade configuration (Point/Spot only). */
+  distanceFade: v.optional(DistanceFadeConfigSchema),
 });
 
 /** Inferred PointLight config type from {@link PointLightConfigSchema}. */
@@ -621,59 +621,59 @@ export type PointLightConfig = v.InferOutput<typeof PointLightConfigSchema>;
  * ```
  */
 export const SpotLightConfigSchema = v.strictObject({
-	/** Discriminator: 'spot'. */
-	type: v.literal('spot'),
+  /** Discriminator: 'spot'. */
+  type: v.literal('spot'),
 
-	// --- Common fields ---
-	id: v.pipe(v.string(), v.nonEmpty()),
-	name: v.optional(v.pipe(v.string(), v.nonEmpty())),
-	enabled: v.optional(v.boolean(), true),
-	intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 1.0),
-	diffuse: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
-	specular: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
-	colorTemperature: v.optional(v.pipe(v.number(), v.minValue(1000), v.maxValue(15_000))),
-	falloffType: v.optional(LightFalloffTypeSchema, 'default'),
-	intensityMode: v.optional(LightIntensityModeSchema, 'automatic'),
-	shadow: v.optional(ShadowConfigSchema),
-	flicker: v.optional(FlickerConfigSchema),
+  // --- Common fields ---
+  id: v.pipe(v.string(), v.nonEmpty()),
+  name: v.optional(v.pipe(v.string(), v.nonEmpty())),
+  enabled: v.optional(v.boolean(), true),
+  intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 1.0),
+  diffuse: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+  specular: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+  colorTemperature: v.optional(v.pipe(v.number(), v.minValue(1000), v.maxValue(15_000))),
+  falloffType: v.optional(LightFalloffTypeSchema, 'default'),
+  intensityMode: v.optional(LightIntensityModeSchema, 'automatic'),
+  shadow: v.optional(ShadowConfigSchema),
+  flicker: v.optional(FlickerConfigSchema),
 
-	// --- SpotLight-specific fields ---
-	/** Light position in world space. Default: origin. */
-	position: v.optional(Vector3Schema, { x: 0, y: 0, z: 0 }),
-	/** Light direction. Default: pointing down. */
-	direction: v.optional(Vector3Schema, { x: 0, y: -1, z: 0 }),
-	/** Cone width in radians [0, PI]. Default: PI/4. */
-	angle: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(Math.PI)), Math.PI / 4),
-	/** Falloff speed from center to cone edge. Default: 2. */
-	exponent: v.optional(v.pipe(v.number(), v.minValue(0)), 2),
-	/** Maximum light range. Default: 100. */
-	range: v.optional(v.pipe(v.number(), v.minValue(0)), 100),
-	/** Auto-assign includedOnlyMeshes within this radius. */
-	meshRadius: v.optional(v.pipe(v.number(), v.minValue(0))),
-	/** Path to projection texture image (stained glass, patterns). */
-	projectionTexturePath: v.optional(v.string()),
-	/** Projection texture near clip distance. Default: 0.1. */
-	projectionTextureNear: v.optional(v.pipe(v.number(), v.minValue(0)), 0.1),
-	/** Projection texture far clip distance. Default: 100. */
-	projectionTextureFar: v.optional(v.pipe(v.number(), v.minValue(0)), 100),
+  // --- SpotLight-specific fields ---
+  /** Light position in world space. Default: origin. */
+  position: v.optional(Vector3Schema, { x: 0, y: 0, z: 0 }),
+  /** Light direction. Default: pointing down. */
+  direction: v.optional(Vector3Schema, { x: 0, y: -1, z: 0 }),
+  /** Cone width in radians [0, PI]. Default: PI/4. */
+  angle: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(Math.PI)), Math.PI / 4),
+  /** Falloff speed from center to cone edge. Default: 2. */
+  exponent: v.optional(v.pipe(v.number(), v.minValue(0)), 2),
+  /** Maximum light range. Default: 100. */
+  range: v.optional(v.pipe(v.number(), v.minValue(0)), 100),
+  /** Auto-assign includedOnlyMeshes within this radius. */
+  meshRadius: v.optional(v.pipe(v.number(), v.minValue(0))),
+  /** Path to projection texture image (stained glass, patterns). */
+  projectionTexturePath: v.optional(v.string()),
+  /** Projection texture near clip distance. Default: 0.1. */
+  projectionTextureNear: v.optional(v.pipe(v.number(), v.minValue(0)), 0.1),
+  /** Projection texture far clip distance. Default: 100. */
+  projectionTextureFar: v.optional(v.pipe(v.number(), v.minValue(0)), 100),
 
-	// --- Expansion: New Light Properties ---
-	/** Inner cone angle for soft edge falloff [0, PI]. Default: 0. */
-	innerAngle: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(Math.PI)), 0),
-	/** PBR light physical radius [>= 0]. Default: 0. */
-	radius: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
-	/** Render ordering priority [0, 10]. Default: 0. */
-	renderPriority: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)), 0),
-	/** Shadow near plane (0 = auto) [>= 0]. Default: 0. */
-	shadowMinZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
-	/** Shadow far plane (0 = auto) [>= 0]. Default: 0. */
-	shadowMaxZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
-	/** Layer mask for mesh filtering. Default: 0x0FFFFFFF. */
-	layerMask: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 268_435_455),
-	/** Lightmap interaction mode. Default: 'default'. */
-	lightmapMode: v.optional(LightmapModeSchema, 'default'),
-	/** Distance-based fade configuration (Point/Spot only). */
-	distanceFade: v.optional(DistanceFadeConfigSchema),
+  // --- Expansion: New Light Properties ---
+  /** Inner cone angle for soft edge falloff [0, PI]. Default: 0. */
+  innerAngle: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(Math.PI)), 0),
+  /** PBR light physical radius [>= 0]. Default: 0. */
+  radius: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Render ordering priority [0, 10]. Default: 0. */
+  renderPriority: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)), 0),
+  /** Shadow near plane (0 = auto) [>= 0]. Default: 0. */
+  shadowMinZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Shadow far plane (0 = auto) [>= 0]. Default: 0. */
+  shadowMaxZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Layer mask for mesh filtering. Default: 0x0FFFFFFF. */
+  layerMask: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 268_435_455),
+  /** Lightmap interaction mode. Default: 'default'. */
+  lightmapMode: v.optional(LightmapModeSchema, 'default'),
+  /** Distance-based fade configuration (Point/Spot only). */
+  distanceFade: v.optional(DistanceFadeConfigSchema),
 });
 
 /** Inferred SpotLight config type from {@link SpotLightConfigSchema}. */
@@ -700,51 +700,51 @@ export type SpotLightConfig = v.InferOutput<typeof SpotLightConfigSchema>;
  * ```
  */
 export const DirectionalLightConfigSchema = v.strictObject({
-	/** Discriminator: 'directional'. */
-	type: v.literal('directional'),
+  /** Discriminator: 'directional'. */
+  type: v.literal('directional'),
 
-	// --- Common fields ---
-	id: v.pipe(v.string(), v.nonEmpty()),
-	name: v.optional(v.pipe(v.string(), v.nonEmpty())),
-	enabled: v.optional(v.boolean(), true),
-	intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 1.0),
-	diffuse: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
-	specular: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
-	colorTemperature: v.optional(v.pipe(v.number(), v.minValue(1000), v.maxValue(15_000))),
-	falloffType: v.optional(LightFalloffTypeSchema, 'default'),
-	intensityMode: v.optional(LightIntensityModeSchema, 'automatic'),
-	shadow: v.optional(ShadowConfigSchema),
-	flicker: v.optional(FlickerConfigSchema),
+  // --- Common fields ---
+  id: v.pipe(v.string(), v.nonEmpty()),
+  name: v.optional(v.pipe(v.string(), v.nonEmpty())),
+  enabled: v.optional(v.boolean(), true),
+  intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 1.0),
+  diffuse: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+  specular: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+  colorTemperature: v.optional(v.pipe(v.number(), v.minValue(1000), v.maxValue(15_000))),
+  falloffType: v.optional(LightFalloffTypeSchema, 'default'),
+  intensityMode: v.optional(LightIntensityModeSchema, 'automatic'),
+  shadow: v.optional(ShadowConfigSchema),
+  flicker: v.optional(FlickerConfigSchema),
 
-	// --- DirectionalLight-specific fields ---
-	/** Light direction. Default: slightly angled downward. */
-	direction: v.optional(Vector3Schema, { x: 0, y: -1, z: 0.5 }),
-	/** Light position (affects shadow origin). Default: high above origin. */
-	position: v.optional(Vector3Schema, { x: 0, y: 50, z: 0 }),
-	/** Auto-calculate shadow depth bounds from scene. Default: true. */
-	autoCalcShadowZBounds: v.optional(v.boolean(), true),
-	/** Volumetric light scattering (god rays) configuration. */
-	volumetricLight: v.optional(VolumetricLightConfigSchema),
-	/** Lens flare system configuration. */
-	lensFlare: v.optional(LensFlareConfigSchema),
+  // --- DirectionalLight-specific fields ---
+  /** Light direction. Default: slightly angled downward. */
+  direction: v.optional(Vector3Schema, { x: 0, y: -1, z: 0.5 }),
+  /** Light position (affects shadow origin). Default: high above origin. */
+  position: v.optional(Vector3Schema, { x: 0, y: 50, z: 0 }),
+  /** Auto-calculate shadow depth bounds from scene. Default: true. */
+  autoCalcShadowZBounds: v.optional(v.boolean(), true),
+  /** Volumetric light scattering (god rays) configuration. */
+  volumetricLight: v.optional(VolumetricLightConfigSchema),
+  /** Lens flare system configuration. */
+  lensFlare: v.optional(LensFlareConfigSchema),
 
-	// --- Expansion: New Light Properties ---
-	/** Fixed shadow frustum size (0 = auto) [>= 0]. Default: 0. */
-	shadowFrustumSize: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
-	/** Shadow ortho matrix scale factor [> 0]. Default: 0.1. */
-	shadowOrthoScale: v.optional(v.pipe(v.number(), v.minValue(0)), 0.1),
-	/** Auto-update shadow extends each frame. Default: true. */
-	autoUpdateExtends: v.optional(v.boolean(), true),
-	/** Shadow near plane (0 = auto) [>= 0]. Default: 0. */
-	shadowMinZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
-	/** Shadow far plane (0 = auto) [>= 0]. Default: 0. */
-	shadowMaxZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
-	/** Render ordering priority [0, 10]. Default: 0. */
-	renderPriority: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)), 0),
-	/** Layer mask for mesh filtering. Default: 0x0FFFFFFF. */
-	layerMask: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 268_435_455),
-	/** Lightmap interaction mode. Default: 'default'. */
-	lightmapMode: v.optional(LightmapModeSchema, 'default'),
+  // --- Expansion: New Light Properties ---
+  /** Fixed shadow frustum size (0 = auto) [>= 0]. Default: 0. */
+  shadowFrustumSize: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Shadow ortho matrix scale factor [> 0]. Default: 0.1. */
+  shadowOrthoScale: v.optional(v.pipe(v.number(), v.minValue(0)), 0.1),
+  /** Auto-update shadow extends each frame. Default: true. */
+  autoUpdateExtends: v.optional(v.boolean(), true),
+  /** Shadow near plane (0 = auto) [>= 0]. Default: 0. */
+  shadowMinZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Shadow far plane (0 = auto) [>= 0]. Default: 0. */
+  shadowMaxZ: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Render ordering priority [0, 10]. Default: 0. */
+  renderPriority: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)), 0),
+  /** Layer mask for mesh filtering. Default: 0x0FFFFFFF. */
+  layerMask: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 268_435_455),
+  /** Lightmap interaction mode. Default: 'default'. */
+  lightmapMode: v.optional(LightmapModeSchema, 'default'),
 });
 
 /** Inferred DirectionalLight config type from {@link DirectionalLightConfigSchema}. */
@@ -769,31 +769,31 @@ export type DirectionalLightConfig = v.InferOutput<typeof DirectionalLightConfig
  * ```
  */
 export const HemisphericLightConfigSchema = v.strictObject({
-	/** Discriminator: 'hemispheric'. */
-	type: v.literal('hemispheric'),
+  /** Discriminator: 'hemispheric'. */
+  type: v.literal('hemispheric'),
 
-	// --- Common fields (no shadow, no flicker) ---
-	id: v.pipe(v.string(), v.nonEmpty()),
-	name: v.optional(v.pipe(v.string(), v.nonEmpty())),
-	enabled: v.optional(v.boolean(), true),
-	intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 1.0),
-	diffuse: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
-	specular: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
-	colorTemperature: v.optional(v.pipe(v.number(), v.minValue(1000), v.maxValue(15_000))),
-	falloffType: v.optional(LightFalloffTypeSchema, 'default'),
-	intensityMode: v.optional(LightIntensityModeSchema, 'automatic'),
+  // --- Common fields (no shadow, no flicker) ---
+  id: v.pipe(v.string(), v.nonEmpty()),
+  name: v.optional(v.pipe(v.string(), v.nonEmpty())),
+  enabled: v.optional(v.boolean(), true),
+  intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 1.0),
+  diffuse: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+  specular: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+  colorTemperature: v.optional(v.pipe(v.number(), v.minValue(1000), v.maxValue(15_000))),
+  falloffType: v.optional(LightFalloffTypeSchema, 'default'),
+  intensityMode: v.optional(LightIntensityModeSchema, 'automatic'),
 
-	// --- HemisphericLight-specific fields ---
-	/** Sky direction. Default: upward (0, 1, 0). */
-	direction: v.optional(Vector3Schema, { x: 0, y: 1, z: 0 }),
-	/** Ground (bounce) color. Default: dim gray (0.2, 0.2, 0.2). */
-	groundColor: v.optional(ColorRgbaSchema, { r: 0.2, g: 0.2, b: 0.2, a: 1 }),
+  // --- HemisphericLight-specific fields ---
+  /** Sky direction. Default: upward (0, 1, 0). */
+  direction: v.optional(Vector3Schema, { x: 0, y: 1, z: 0 }),
+  /** Ground (bounce) color. Default: dim gray (0.2, 0.2, 0.2). */
+  groundColor: v.optional(ColorRgbaSchema, { r: 0.2, g: 0.2, b: 0.2, a: 1 }),
 
-	// --- Expansion: New Light Properties ---
-	/** Render ordering priority [0, 10]. Default: 0. */
-	renderPriority: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)), 0),
-	/** Layer mask for mesh filtering. Default: 0x0FFFFFFF. */
-	layerMask: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 268_435_455),
+  // --- Expansion: New Light Properties ---
+  /** Render ordering priority [0, 10]. Default: 0. */
+  renderPriority: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10)), 0),
+  /** Layer mask for mesh filtering. Default: 0x0FFFFFFF. */
+  layerMask: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 268_435_455),
 });
 
 /** Inferred HemisphericLight config type from {@link HemisphericLightConfigSchema}. */
@@ -806,10 +806,10 @@ export type HemisphericLightConfig = v.InferOutput<typeof HemisphericLightConfig
  * Valid types: `'point'`, `'spot'`, `'directional'`, `'hemispheric'`.
  */
 export const LightConfigSchema = v.variant('type', [
-	PointLightConfigSchema,
-	SpotLightConfigSchema,
-	DirectionalLightConfigSchema,
-	HemisphericLightConfigSchema,
+  PointLightConfigSchema,
+  SpotLightConfigSchema,
+  DirectionalLightConfigSchema,
+  HemisphericLightConfigSchema,
 ]);
 
 /** Inferred light config union type from {@link LightConfigSchema}. */
@@ -837,45 +837,45 @@ export type LightConfig = v.InferOutput<typeof LightConfigSchema>;
  * ```
  */
 export const TimeKeyframeSchema = v.strictObject({
-	/** Hour of day [0, 24]. Required. */
-	time: v.pipe(v.number(), v.minValue(0), v.maxValue(24)),
+  /** Hour of day [0, 24]. Required. */
+  time: v.pipe(v.number(), v.minValue(0), v.maxValue(24)),
 
-	/** Ambient light diffuse color at this time. */
-	ambientColor: v.optional(ColorRgbaSchema),
-	/** Ambient light ground color at this time. */
-	ambientGroundColor: v.optional(ColorRgbaSchema),
-	/** Sun light diffuse color at this time. */
-	sunColor: v.optional(ColorRgbaSchema),
-	/** Sun light intensity [0, 10]. */
-	sunIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(10))),
-	/** Moon light color at this time. */
-	moonColor: v.optional(ColorRgbaSchema),
-	/** Moon light intensity [0, 10]. */
-	moonIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(10))),
-	/** Scene background color at this time. */
-	clearColor: v.optional(ColorRgbaSchema),
-	/** Fog color at this time. */
-	fogColor: v.optional(ColorRgbaSchema),
-	/** Fog density [0, 1]. */
-	fogDensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
-	/** HDR environment intensity [0, 5]. */
-	environmentIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5))),
+  /** Ambient light diffuse color at this time. */
+  ambientColor: v.optional(ColorRgbaSchema),
+  /** Ambient light ground color at this time. */
+  ambientGroundColor: v.optional(ColorRgbaSchema),
+  /** Sun light diffuse color at this time. */
+  sunColor: v.optional(ColorRgbaSchema),
+  /** Sun light intensity [0, 10]. */
+  sunIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(10))),
+  /** Moon light color at this time. */
+  moonColor: v.optional(ColorRgbaSchema),
+  /** Moon light intensity [0, 10]. */
+  moonIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(10))),
+  /** Scene background color at this time. */
+  clearColor: v.optional(ColorRgbaSchema),
+  /** Fog color at this time. */
+  fogColor: v.optional(ColorRgbaSchema),
+  /** Fog density [0, 1]. */
+  fogDensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
+  /** HDR environment intensity [0, 5]. */
+  environmentIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5))),
 
-	/** Auto-exposure shift [0, 4]. */
-	exposure: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(4))),
-	/** Bloom weight shift [0, 2]. */
-	bloomWeight: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2))),
-	/** Contrast shift [0, 2]. */
-	contrast: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2))),
+  /** Auto-exposure shift [0, 4]. */
+  exposure: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(4))),
+  /** Bloom weight shift [0, 2]. */
+  bloomWeight: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2))),
+  /** Contrast shift [0, 2]. */
+  contrast: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2))),
 
-	/** Primary sky color at this time (used for color-mode sky and clearColor). */
-	skyColor: v.optional(ColorRgbaSchema),
-	/** Top gradient color at this time (for gradient sky mode). */
-	skyGradientTop: v.optional(ColorRgbaSchema),
-	/** Bottom gradient color at this time (for gradient sky mode). */
-	skyGradientBottom: v.optional(ColorRgbaSchema),
-	/** When true, fog color auto-follows sky horizon color. */
-	fogSyncSky: v.optional(v.boolean()),
+  /** Primary sky color at this time (used for color-mode sky and clearColor). */
+  skyColor: v.optional(ColorRgbaSchema),
+  /** Top gradient color at this time (for gradient sky mode). */
+  skyGradientTop: v.optional(ColorRgbaSchema),
+  /** Bottom gradient color at this time (for gradient sky mode). */
+  skyGradientBottom: v.optional(ColorRgbaSchema),
+  /** When true, fog color auto-follows sky horizon color. */
+  fogSyncSky: v.optional(v.boolean()),
 });
 
 /** Inferred time keyframe type from {@link TimeKeyframeSchema}. */
@@ -898,14 +898,14 @@ export type TimeKeyframe = v.InferOutput<typeof TimeKeyframeSchema>;
  * ```
  */
 export const SunPathConfigSchema = v.strictObject({
-	/** Hour of sunrise [0, 24]. Default: 6. */
-	sunrise: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(24)), 6),
-	/** Hour of sunset [0, 24]. Default: 18. */
-	sunset: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(24)), 18),
-	/** Peak sun elevation angle in degrees [0, 90]. Default: 75. */
-	maxElevation: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(90)), 75),
-	/** Starting azimuth in degrees [0, 360] (90 = east). Default: 90. */
-	azimuthStart: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(360)), 90),
+  /** Hour of sunrise [0, 24]. Default: 6. */
+  sunrise: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(24)), 6),
+  /** Hour of sunset [0, 24]. Default: 18. */
+  sunset: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(24)), 18),
+  /** Peak sun elevation angle in degrees [0, 90]. Default: 75. */
+  maxElevation: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(90)), 75),
+  /** Starting azimuth in degrees [0, 360] (90 = east). Default: 90. */
+  azimuthStart: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(360)), 90),
 });
 
 /** Inferred sun path config type from {@link SunPathConfigSchema}. */
@@ -922,14 +922,14 @@ export const MoonPhaseSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.
 
 /** Indoor/outdoor mode controlling cycle visual application. */
 export const IndoorModeSchema = v.picklist([
-	'outdoor',
-	'indoor',
-	'cave',
-	'firelit',
-	'dungeon',
-	'temple',
-	'underwater',
-	'custom',
+  'outdoor',
+  'indoor',
+  'cave',
+  'firelit',
+  'dungeon',
+  'temple',
+  'underwater',
+  'custom',
 ]);
 
 /** Inferred indoor mode type from {@link IndoorModeSchema}. */
@@ -942,10 +942,10 @@ export type IndoorMode = v.InferOutput<typeof IndoorModeSchema>;
  * for the `custom` indoor mode.
  */
 export const IndoorModeConfigSchema = v.strictObject({
-	/** When true, time progression stops while in this indoor mode. Default: false. */
-	haltTime: v.optional(v.boolean(), false),
-	/** Custom ambient tint used only when indoor mode is `custom`. */
-	customTint: v.optional(ColorRgbaSchema),
+  /** When true, time progression stops while in this indoor mode. Default: false. */
+  haltTime: v.optional(v.boolean(), false),
+  /** Custom ambient tint used only when indoor mode is `custom`. */
+  customTint: v.optional(ColorRgbaSchema),
 });
 
 /** Inferred indoor mode config type from {@link IndoorModeConfigSchema}. */
@@ -953,14 +953,14 @@ export type IndoorModeConfig = v.InferOutput<typeof IndoorModeConfigSchema>;
 
 /** Transition easing for keyframe interpolation. */
 export const TransitionEasingSchema = v.picklist([
-	'linear',
-	'smooth',
-	'easeIn',
-	'easeOut',
-	'easeInOut',
-	'sine',
-	'cubic',
-	'step',
+  'linear',
+  'smooth',
+  'easeIn',
+  'easeOut',
+  'easeInOut',
+  'sine',
+  'cubic',
+  'step',
 ]);
 
 /** Inferred transition easing type from {@link TransitionEasingSchema}. */
@@ -979,14 +979,14 @@ export type TimeSource = v.InferOutput<typeof TimeSourceSchema>;
  * month9 = Sep–Nov, month12 = Dec–Feb.
  */
 export const RealTimeSeasonMapSchema = v.strictObject({
-	/** Season starting in March. Default: spring. */
-	month3: v.optional(SeasonSchema, 'spring'),
-	/** Season starting in June. Default: summer. */
-	month6: v.optional(SeasonSchema, 'summer'),
-	/** Season starting in September. Default: autumn. */
-	month9: v.optional(SeasonSchema, 'autumn'),
-	/** Season starting in December. Default: winter. */
-	month12: v.optional(SeasonSchema, 'winter'),
+  /** Season starting in March. Default: spring. */
+  month3: v.optional(SeasonSchema, 'spring'),
+  /** Season starting in June. Default: summer. */
+  month6: v.optional(SeasonSchema, 'summer'),
+  /** Season starting in September. Default: autumn. */
+  month9: v.optional(SeasonSchema, 'autumn'),
+  /** Season starting in December. Default: winter. */
+  month12: v.optional(SeasonSchema, 'winter'),
 });
 
 /** Inferred real-time season map type from {@link RealTimeSeasonMapSchema}. */
@@ -994,14 +994,14 @@ export type RealTimeSeasonMap = v.InferOutput<typeof RealTimeSeasonMapSchema>;
 
 /** Time-of-day phase names (auto-computed from sun path). */
 export const TimePhaseSchema = v.picklist([
-	'dawn',
-	'morning',
-	'noon',
-	'afternoon',
-	'dusk',
-	'twilight',
-	'night',
-	'midnight',
+  'dawn',
+  'morning',
+  'noon',
+  'afternoon',
+  'dusk',
+  'twilight',
+  'night',
+  'midnight',
 ]);
 
 /** Inferred time phase type from {@link TimePhaseSchema}. */
@@ -1027,73 +1027,73 @@ export type TimePhase = v.InferOutput<typeof TimePhaseSchema>;
  * ```
  */
 export const DayNightCycleConfigSchema = v.strictObject({
-	/** Whether the cycle is active. Default: false. */
-	enabled: v.optional(v.boolean(), false),
-	/** Initial time of day [0, 24]. Default: 12 (noon). */
-	timeOfDay: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(24)), 12),
-	/** Game-hours per real second [0, 100]. 0 = paused. Default: 0. */
-	speed: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 0),
-	/** DirectionalLight id for sun. */
-	sunLightId: v.optional(v.string()),
-	/** HemisphericLight id for ambient. */
-	ambientLightId: v.optional(v.string()),
-	/** Light id for moon. */
-	moonLightId: v.optional(v.string()),
-	/** Sun path computation parameters. */
-	sunPath: v.optional(SunPathConfigSchema),
-	/** Keyframes for interpolation (min 2). Omit for default 9-keyframe cycle. */
-	keyframes: v.optional(v.pipe(v.array(TimeKeyframeSchema), v.minLength(2))),
-	/** Season preset. Default: summer. */
-	season: v.optional(SeasonSchema, 'summer'),
-	/** Moon phase [0–7]. Default: 4 (full moon). */
-	moonPhase: v.optional(MoonPhaseSchema, 4),
-	/** Indoor/outdoor mode. Default: outdoor. */
-	indoorMode: v.optional(IndoorModeSchema, 'outdoor'),
-	/** Keyframe interpolation easing. Default: linear. */
-	transitionEasing: v.optional(TransitionEasingSchema, 'linear'),
+  /** Whether the cycle is active. Default: false. */
+  enabled: v.optional(v.boolean(), false),
+  /** Initial time of day [0, 24]. Default: 12 (noon). */
+  timeOfDay: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(24)), 12),
+  /** Game-hours per real second [0, 100]. 0 = paused. Default: 0. */
+  speed: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 0),
+  /** DirectionalLight id for sun. */
+  sunLightId: v.optional(v.string()),
+  /** HemisphericLight id for ambient. */
+  ambientLightId: v.optional(v.string()),
+  /** Light id for moon. */
+  moonLightId: v.optional(v.string()),
+  /** Sun path computation parameters. */
+  sunPath: v.optional(SunPathConfigSchema),
+  /** Keyframes for interpolation (min 2). Omit for default 9-keyframe cycle. */
+  keyframes: v.optional(v.pipe(v.array(TimeKeyframeSchema), v.minLength(2))),
+  /** Season preset. Default: summer. */
+  season: v.optional(SeasonSchema, 'summer'),
+  /** Moon phase [0–7]. Default: 4 (full moon). */
+  moonPhase: v.optional(MoonPhaseSchema, 4),
+  /** Indoor/outdoor mode. Default: outdoor. */
+  indoorMode: v.optional(IndoorModeSchema, 'outdoor'),
+  /** Keyframe interpolation easing. Default: linear. */
+  transitionEasing: v.optional(TransitionEasingSchema, 'linear'),
 
-	// ---- Time Source & Progression ----
+  // ---- Time Source & Progression ----
 
-	/** How time progresses: accelerated (speed-based), realtime (system clock), manual (API only). Default: accelerated. */
-	timeSource: v.optional(TimeSourceSchema, 'accelerated'),
-	/** Real seconds for one full game day [1, 86400]. Default: 1440 (1 game-min per real-sec). */
-	dayDurationSeconds: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(86_400)), 1440),
-	/** Run time backward. Default: false. */
-	reverse: v.optional(v.boolean(), false),
-	/** Hour offset for realtime mode [-12, 14]. Default: 0. */
-	timezoneOffset: v.optional(v.pipe(v.number(), v.minValue(-12), v.maxValue(14)), 0),
+  /** How time progresses: accelerated (speed-based), realtime (system clock), manual (API only). Default: accelerated. */
+  timeSource: v.optional(TimeSourceSchema, 'accelerated'),
+  /** Real seconds for one full game day [1, 86400]. Default: 1440 (1 game-min per real-sec). */
+  dayDurationSeconds: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(86_400)), 1440),
+  /** Run time backward. Default: false. */
+  reverse: v.optional(v.boolean(), false),
+  /** Hour offset for realtime mode [-12, 14]. Default: 0. */
+  timezoneOffset: v.optional(v.pipe(v.number(), v.minValue(-12), v.maxValue(14)), 0),
 
-	// ---- Season Duration & Auto-Cycling ----
+  // ---- Season Duration & Auto-Cycling ----
 
-	/** Game-days per season [1, 365]. Default: 7. */
-	seasonDurationDays: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(365)), 7),
-	/** Season rotation order. Default: spring → summer → autumn → winter. */
-	seasonOrder: v.optional(v.array(SeasonSchema), ['spring', 'summer', 'autumn', 'winter']),
-	/** Fraction of season spent cross-fading to next season's sun path [0, 1]. Default: 0. */
-	seasonTransition: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
-	/** Elapsed game-days (fractional). Drives season auto-advance. Default: 0. */
-	currentDay: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
-	/** Auto-advance moon phase based on game-day count. Default: false. */
-	autoAdvanceMoonPhase: v.optional(v.boolean(), false),
-	/** Game-days per moon phase step [1, 365]. Default: 3.69 (≈ 29.5/8). */
-	moonCycleDays: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(365)), 3.69),
+  /** Game-days per season [1, 365]. Default: 7. */
+  seasonDurationDays: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(365)), 7),
+  /** Season rotation order. Default: spring → summer → autumn → winter. */
+  seasonOrder: v.optional(v.array(SeasonSchema), ['spring', 'summer', 'autumn', 'winter']),
+  /** Fraction of season spent cross-fading to next season's sun path [0, 1]. Default: 0. */
+  seasonTransition: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
+  /** Elapsed game-days (fractional). Drives season auto-advance. Default: 0. */
+  currentDay: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Auto-advance moon phase based on game-day count. Default: false. */
+  autoAdvanceMoonPhase: v.optional(v.boolean(), false),
+  /** Game-days per moon phase step [1, 365]. Default: 3.69 (≈ 29.5/8). */
+  moonCycleDays: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(365)), 3.69),
 
-	// ---- Real System Time Integration ----
+  // ---- Real System Time Integration ----
 
-	/** Maps real months to in-game seasons for realtime mode. */
-	realTimeSeasonMap: v.optional(RealTimeSeasonMapSchema),
-	/** Sync moon phase to real lunar cycle. Default: false. */
-	realtimeMoonSync: v.optional(v.boolean(), false),
+  /** Maps real months to in-game seasons for realtime mode. */
+  realTimeSeasonMap: v.optional(RealTimeSeasonMapSchema),
+  /** Sync moon phase to real lunar cycle. Default: false. */
+  realtimeMoonSync: v.optional(v.boolean(), false),
 
-	// ---- Indoor Mode Config ----
+  // ---- Indoor Mode Config ----
 
-	/** Per-mode indoor settings (haltTime, customTint). */
-	indoorModeConfig: v.optional(IndoorModeConfigSchema),
+  /** Per-mode indoor settings (haltTime, customTint). */
+  indoorModeConfig: v.optional(IndoorModeConfigSchema),
 
-	// ---- Post-FX Control ----
+  // ---- Post-FX Control ----
 
-	/** Whether day/night cycle controls post-processing (exposure, bloom, contrast). Default: true. */
-	dayNightControlsPostFx: v.optional(v.boolean(), true),
+  /** Whether day/night cycle controls post-processing (exposure, bloom, contrast). Default: true. */
+  dayNightControlsPostFx: v.optional(v.boolean(), true),
 });
 
 /** Inferred day/night cycle config type from {@link DayNightCycleConfigSchema}. */
@@ -1130,22 +1130,22 @@ export type GlowTextureFixedSize = v.InferOutput<typeof GlowTextureFixedSizeSche
  * ```
  */
 export const GlowLayerConfigSchema = v.strictObject({
-	/** Whether glow is enabled. Default: false. */
-	enabled: v.optional(v.boolean(), false),
-	/** Glow intensity [0, 5]. Default: 0.5. */
-	intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5)), 0.5),
-	/** Blur kernel size [1, 256]. Default: 32. */
-	blurKernelSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(256)), 32),
-	/** Glow render target resolution ratio (0, 1]. Default: 0.5. Constructor-only. */
-	mainTextureRatio: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(1)), 0.5),
-	/** Fixed render target size (overrides ratio when set). Constructor-only. */
-	mainTextureFixedSize: v.optional(GlowTextureFixedSizeSchema),
-	/** MSAA samples on glow render target [1, 4]. Default: 1. Constructor-only. */
-	mainTextureSamples: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(4)), 1),
-	/** Use LDR merge mode instead of HDR additive. Better for stylized/2D. Default: false. Constructor-only. */
-	ldrMerge: v.optional(v.boolean(), false),
-	/** Neutral "no glow" color as 8-char hex (#RRGGBBAA). Default: '#000000ff'. Constructor-only. */
-	neutralColor: v.optional(v.pipe(v.string(), v.regex(/^#[\da-fA-F]{8}$/)), '#000000ff'),
+  /** Whether glow is enabled. Default: false. */
+  enabled: v.optional(v.boolean(), false),
+  /** Glow intensity [0, 5]. Default: 0.5. */
+  intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5)), 0.5),
+  /** Blur kernel size [1, 256]. Default: 32. */
+  blurKernelSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(256)), 32),
+  /** Glow render target resolution ratio (0, 1]. Default: 0.5. Constructor-only. */
+  mainTextureRatio: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(1)), 0.5),
+  /** Fixed render target size (overrides ratio when set). Constructor-only. */
+  mainTextureFixedSize: v.optional(GlowTextureFixedSizeSchema),
+  /** MSAA samples on glow render target [1, 4]. Default: 1. Constructor-only. */
+  mainTextureSamples: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(4)), 1),
+  /** Use LDR merge mode instead of HDR additive. Better for stylized/2D. Default: false. Constructor-only. */
+  ldrMerge: v.optional(v.boolean(), false),
+  /** Neutral "no glow" color as 8-char hex (#RRGGBBAA). Default: '#000000ff'. Constructor-only. */
+  neutralColor: v.optional(v.pipe(v.string(), v.regex(/^#[\da-fA-F]{8}$/)), '#000000ff'),
 });
 
 /** Inferred glow layer config type from {@link GlowLayerConfigSchema}. */
@@ -1168,19 +1168,19 @@ export type GlowQualityPresetName = v.InferOutput<typeof GlowQualityPresetNameSc
  * | ultra  | 1.0   | 64   | 4       |
  */
 export const GLOW_QUALITY_PRESETS: Readonly<
-	Record<
-		GlowQualityPresetName,
-		{
-			readonly mainTextureRatio: number;
-			readonly blurKernelSize: number;
-			readonly mainTextureSamples: number;
-		}
-	>
+  Record<
+    GlowQualityPresetName,
+    {
+      readonly mainTextureRatio: number;
+      readonly blurKernelSize: number;
+      readonly mainTextureSamples: number;
+    }
+  >
 > = {
-	low: { mainTextureRatio: 0.25, blurKernelSize: 16, mainTextureSamples: 1 },
-	medium: { mainTextureRatio: 0.5, blurKernelSize: 32, mainTextureSamples: 1 },
-	high: { mainTextureRatio: 0.75, blurKernelSize: 48, mainTextureSamples: 2 },
-	ultra: { mainTextureRatio: 1.0, blurKernelSize: 64, mainTextureSamples: 4 },
+  low: { mainTextureRatio: 0.25, blurKernelSize: 16, mainTextureSamples: 1 },
+  medium: { mainTextureRatio: 0.5, blurKernelSize: 32, mainTextureSamples: 1 },
+  high: { mainTextureRatio: 0.75, blurKernelSize: 48, mainTextureSamples: 2 },
+  ultra: { mainTextureRatio: 1.0, blurKernelSize: 64, mainTextureSamples: 4 },
 };
 
 // =============================================================================
@@ -1209,15 +1209,15 @@ export const GLOW_QUALITY_PRESETS: Readonly<
  * ```
  */
 export const LightingConfigSchema = v.pipe(
-	v.strictObject({
-		/** Array of light configurations. Default: empty. */
-		lights: v.optional(v.array(LightConfigSchema), []),
-		/** Day/night cycle configuration. */
-		dayNight: v.optional(DayNightCycleConfigSchema),
-		/** Glow layer configuration. */
-		glow: v.optional(GlowLayerConfigSchema),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Array of light configurations. Default: empty. */
+    lights: v.optional(v.array(LightConfigSchema), []),
+    /** Day/night cycle configuration. */
+    dayNight: v.optional(DayNightCycleConfigSchema),
+    /** Glow layer configuration. */
+    glow: v.optional(GlowLayerConfigSchema),
+  }),
+  v.readonly(),
 );
 
 /** Inferred top-level lighting config type from {@link LightingConfigSchema}. */

@@ -56,45 +56,45 @@ const clampNormalize = (v: number): number => Math.min(1, Math.max(0, v / 255));
  * ```
  */
 export function colorTemperatureToRgb(kelvin: Num): Result<ColorRgba> {
-	if (kelvin < 1000 || kelvin > 15_000) {
-		return err(
-			ERRORS.VALIDATION.INVALID_FORMAT,
-			`Color temperature must be between 1000 and 15000 Kelvin, got ${String(kelvin)}`,
-		);
-	}
+  if (kelvin < 1000 || kelvin > 15_000) {
+    return err(
+      ERRORS.VALIDATION.INVALID_FORMAT,
+      `Color temperature must be between 1000 and 15000 Kelvin, got ${String(kelvin)}`,
+    );
+  }
 
-	const temp: number = kelvin / 100;
-	let r: number;
-	let g: number;
-	let b: number;
+  const temp: number = kelvin / 100;
+  let r: number;
+  let g: number;
+  let b: number;
 
-	// Red
-	if (temp <= 66) {
-		r = 255;
-	} else {
-		r = 329.698_727_446 * (temp - 60) ** -0.133_204_759_2;
-	}
+  // Red
+  if (temp <= 66) {
+    r = 255;
+  } else {
+    r = 329.698_727_446 * (temp - 60) ** -0.133_204_759_2;
+  }
 
-	// Green
-	if (temp <= 66) {
-		g = 99.470_802_586_1 * Math.log(temp) - 161.119_568_166_1;
-	} else {
-		g = 288.122_169_528_3 * (temp - 60) ** -0.075_514_849_2;
-	}
+  // Green
+  if (temp <= 66) {
+    g = 99.470_802_586_1 * Math.log(temp) - 161.119_568_166_1;
+  } else {
+    g = 288.122_169_528_3 * (temp - 60) ** -0.075_514_849_2;
+  }
 
-	// Blue
-	if (temp >= 66) {
-		b = 255;
-	} else if (temp <= 19) {
-		b = 0;
-	} else {
-		b = 138.517_731_223_1 * Math.log(temp - 10) - 305.044_792_730_7;
-	}
+  // Blue
+  if (temp >= 66) {
+    b = 255;
+  } else if (temp <= 19) {
+    b = 0;
+  } else {
+    b = 138.517_731_223_1 * Math.log(temp - 10) - 305.044_792_730_7;
+  }
 
-	return okUnchecked({
-		r: clampNormalize(r),
-		g: clampNormalize(g),
-		b: clampNormalize(b),
-		a: 1,
-	});
+  return okUnchecked({
+    r: clampNormalize(r),
+    g: clampNormalize(g),
+    b: clampNormalize(b),
+    a: 1,
+  });
 }

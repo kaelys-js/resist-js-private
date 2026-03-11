@@ -33,18 +33,18 @@ import type { Num, Str } from '@/schemas/common';
  * ```
  */
 export function extractSourceSizes(
-	allSources: Record<Str, Str>,
-	extractDirFn: (key: Str) => Str,
+  allSources: Record<Str, Str>,
+  extractDirFn: (key: Str) => Str,
 ): Record<Str, Num> {
-	const sizes: Record<Str, Num> = {};
+  const sizes: Record<Str, Num> = {};
 
-	for (const [key, source] of Object.entries(allSources)) {
-		const dir: Str = extractDirFn(key);
-		if (!dir) continue;
-		sizes[dir] = ((sizes[dir] ?? 0) + source.length) as Num;
-	}
+  for (const [key, source] of Object.entries(allSources)) {
+    const dir: Str = extractDirFn(key);
+    if (!dir) continue;
+    sizes[dir] = ((sizes[dir] ?? 0) + source.length) as Num;
+  }
 
-	return sizes;
+  return sizes;
 }
 
 /**
@@ -64,7 +64,7 @@ export function extractSourceSizes(
  * ```
  */
 export function formatBytes(bytes: Num): Str {
-	if (bytes < 1024) return `${String(bytes)} B` as Str;
-	if (bytes < 1_048_576) return `${(bytes / 1024).toFixed(1)} kB` as Str;
-	return `${(bytes / 1_048_576).toFixed(1)} MB` as Str;
+  if (bytes < 1024) return `${String(bytes)} B` as Str;
+  if (bytes < 1_048_576) return `${(bytes / 1024).toFixed(1)} kB` as Str;
+  return `${(bytes / 1_048_576).toFixed(1)} MB` as Str;
 }

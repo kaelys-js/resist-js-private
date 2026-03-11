@@ -13,35 +13,35 @@
  */
 
 import {
-	BoolSchema,
-	EnvRecordWithUndefinedSchema,
-	ExitCodeSchema,
-	FatalExitOptionsSchema,
-	NonNegativeIntegerSchema,
-	OptionalExitCodeSchema,
-	OptionalStrSchema,
-	PlatformSchema,
-	PositiveIntegerSchema,
-	StrArraySchema,
-	DEFAULT_EXIT_CODE,
-	DEFAULT_PLATFORM,
-	DEFAULT_TERMINAL_WIDTH,
-	FAILURE_EXIT_CODE,
-	StrSchema,
-	VoidSchema,
-	type Bool,
-	type EnvRecordWithUndefined,
-	type ExitCode,
-	type FatalExitOptions,
-	type NonNegativeInteger,
-	type OptionalExitCode,
-	type Platform,
-	type PositiveInteger,
-	type OptionalStr,
-	type Str,
-	type StrArray,
-	type OptionalNodeProcess,
-	type Void,
+  BoolSchema,
+  EnvRecordWithUndefinedSchema,
+  ExitCodeSchema,
+  FatalExitOptionsSchema,
+  NonNegativeIntegerSchema,
+  OptionalExitCodeSchema,
+  OptionalStrSchema,
+  PlatformSchema,
+  PositiveIntegerSchema,
+  StrArraySchema,
+  DEFAULT_EXIT_CODE,
+  DEFAULT_PLATFORM,
+  DEFAULT_TERMINAL_WIDTH,
+  FAILURE_EXIT_CODE,
+  StrSchema,
+  VoidSchema,
+  type Bool,
+  type EnvRecordWithUndefined,
+  type ExitCode,
+  type FatalExitOptions,
+  type NonNegativeInteger,
+  type OptionalExitCode,
+  type Platform,
+  type PositiveInteger,
+  type OptionalStr,
+  type Str,
+  type StrArray,
+  type OptionalNodeProcess,
+  type Void,
 } from '@/schemas/common';
 import { ERRORS, err, ok, type Result } from '@/schemas/result/result';
 import { getProcess } from '@/utils/core/environment';
@@ -63,10 +63,10 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
 const _fallbackConcurrency: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, 1);
 if (!_fallbackConcurrency.ok) throw new Error('Static literal 1 failed PositiveInteger validation');
 export const DEFAULT_CONCURRENCY: PositiveInteger = (() => {
-	const os: OptionalNodeOs = nodeOs;
-	if (!os) return _fallbackConcurrency.data as PositiveInteger;
-	const result: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, os.cpus().length);
-	return (result.ok ? result.data : _fallbackConcurrency.data) as PositiveInteger;
+  const os: OptionalNodeOs = nodeOs;
+  if (!os) return _fallbackConcurrency.data as PositiveInteger;
+  const result: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, os.cpus().length);
+  return (result.ok ? result.data : _fallbackConcurrency.data) as PositiveInteger;
 })();
 
 // =============================================================================
@@ -75,10 +75,10 @@ export const DEFAULT_CONCURRENCY: PositiveInteger = (() => {
 
 // Module-init: 'linux' is safe default for cross-platform guards
 const platform: Platform = (() => {
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc) return DEFAULT_PLATFORM;
-	const result: Result<Platform> = safeParse(PlatformSchema, proc.platform);
-	return result.ok ? result.data : DEFAULT_PLATFORM;
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc) return DEFAULT_PLATFORM;
+  const result: Result<Platform> = safeParse(PlatformSchema, proc.platform);
+  return result.ok ? result.data : DEFAULT_PLATFORM;
 })();
 
 /** True when running on Windows. */
@@ -109,9 +109,9 @@ export const isLinux: Bool = platform === 'linux';
  * ```
  */
 export function isTTY(): Result<Bool> {
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc) return ok(BoolSchema, false);
-	return ok(BoolSchema, proc.stdout?.isTTY === true);
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc) return ok(BoolSchema, false);
+  return ok(BoolSchema, proc.stdout?.isTTY === true);
 }
 
 /**
@@ -129,11 +129,11 @@ export function isTTY(): Result<Bool> {
  * ```
  */
 export function getColumns(): Result<NonNegativeInteger> {
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc) {
-		return ok(NonNegativeIntegerSchema, DEFAULT_TERMINAL_WIDTH);
-	}
-	return safeParse(NonNegativeIntegerSchema, proc.stdout?.columns ?? DEFAULT_TERMINAL_WIDTH);
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc) {
+    return ok(NonNegativeIntegerSchema, DEFAULT_TERMINAL_WIDTH);
+  }
+  return safeParse(NonNegativeIntegerSchema, proc.stdout?.columns ?? DEFAULT_TERMINAL_WIDTH);
 }
 
 // =============================================================================
@@ -155,11 +155,11 @@ export function getColumns(): Result<NonNegativeInteger> {
  * ```
  */
 export function getArgv(): Result<StrArray> {
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc) {
-		return ok(StrArraySchema, []);
-	}
-	return safeParse(StrArraySchema, proc.argv.slice(2));
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc) {
+    return ok(StrArraySchema, []);
+  }
+  return safeParse(StrArraySchema, proc.argv.slice(2));
 }
 
 /**
@@ -180,9 +180,9 @@ export function getArgv(): Result<StrArray> {
  * ```
  */
 export function getScriptPath(): Result<OptionalStr> {
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc) return safeParse(OptionalStrSchema, undefined);
-	return safeParse(OptionalStrSchema, proc.argv[1]);
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc) return safeParse(OptionalStrSchema, undefined);
+  return safeParse(OptionalStrSchema, proc.argv[1]);
 }
 
 /**
@@ -202,11 +202,11 @@ export function getScriptPath(): Result<OptionalStr> {
  * ```
  */
 export function getEnvVar(name: Str): Result<OptionalStr> {
-	const nameResult: Result<Str> = safeParse(StrSchema, name);
-	if (!nameResult.ok) return nameResult;
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc) return safeParse(OptionalStrSchema, undefined);
-	return safeParse(OptionalStrSchema, proc.env[nameResult.data]);
+  const nameResult: Result<Str> = safeParse(StrSchema, name);
+  if (!nameResult.ok) return nameResult;
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc) return safeParse(OptionalStrSchema, undefined);
+  return safeParse(OptionalStrSchema, proc.env[nameResult.data]);
 }
 
 /**
@@ -224,11 +224,11 @@ export function getEnvVar(name: Str): Result<OptionalStr> {
  * ```
  */
 export function getEnvRecord(): Result<EnvRecordWithUndefined> {
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc) {
-		return safeParse(EnvRecordWithUndefinedSchema, {});
-	}
-	return safeParse(EnvRecordWithUndefinedSchema, proc.env);
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc) {
+    return safeParse(EnvRecordWithUndefinedSchema, {});
+  }
+  return safeParse(EnvRecordWithUndefinedSchema, proc.env);
 }
 
 // =============================================================================
@@ -250,16 +250,16 @@ export function getEnvRecord(): Result<EnvRecordWithUndefined> {
  * ```
  */
 export function writeStdout(text: Str): Result<Void> {
-	const input: Result<Str> = safeParse(StrSchema, text);
-	if (!input.ok) return input;
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc || !proc.stdout) {
-		return err(ERRORS.IO.WRITE_FAILED, {
-			meta: { stream: 'stdout' },
-		});
-	}
-	proc.stdout.write(input.data);
-	return ok(VoidSchema, undefined);
+  const input: Result<Str> = safeParse(StrSchema, text);
+  if (!input.ok) return input;
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc || !proc.stdout) {
+    return err(ERRORS.IO.WRITE_FAILED, {
+      meta: { stream: 'stdout' },
+    });
+  }
+  proc.stdout.write(input.data);
+  return ok(VoidSchema, undefined);
 }
 
 /**
@@ -277,16 +277,16 @@ export function writeStdout(text: Str): Result<Void> {
  * ```
  */
 export function writeStderr(text: Str): Result<Void> {
-	const input: Result<Str> = safeParse(StrSchema, text);
-	if (!input.ok) return input;
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc || !proc.stderr) {
-		return err(ERRORS.IO.WRITE_FAILED, {
-			meta: { stream: 'stderr' },
-		});
-	}
-	proc.stderr.write(input.data);
-	return ok(VoidSchema, undefined);
+  const input: Result<Str> = safeParse(StrSchema, text);
+  if (!input.ok) return input;
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc || !proc.stderr) {
+    return err(ERRORS.IO.WRITE_FAILED, {
+      meta: { stream: 'stderr' },
+    });
+  }
+  proc.stderr.write(input.data);
+  return ok(VoidSchema, undefined);
 }
 
 /**
@@ -302,12 +302,12 @@ export function writeStderr(text: Str): Result<Void> {
  * ```
  */
 export function clearLine(): Result<Void> {
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc || !proc.stdout?.clearLine) {
-		return ok(VoidSchema, undefined);
-	}
-	proc.stdout.clearLine(0);
-	return ok(VoidSchema, undefined);
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc || !proc.stdout?.clearLine) {
+    return ok(VoidSchema, undefined);
+  }
+  proc.stdout.clearLine(0);
+  return ok(VoidSchema, undefined);
 }
 
 /**
@@ -324,14 +324,14 @@ export function clearLine(): Result<Void> {
  * ```
  */
 export function cursorTo(column: NonNegativeInteger): Result<Void> {
-	const col: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, column);
-	if (!col.ok) return col;
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc || !proc.stdout?.cursorTo) {
-		return ok(VoidSchema, undefined);
-	}
-	proc.stdout.cursorTo(col.data as unknown as number);
-	return ok(VoidSchema, undefined);
+  const col: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, column);
+  if (!col.ok) return col;
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc || !proc.stdout?.cursorTo) {
+    return ok(VoidSchema, undefined);
+  }
+  proc.stdout.cursorTo(col.data as unknown as number);
+  return ok(VoidSchema, undefined);
 }
 
 /**
@@ -348,12 +348,12 @@ export function cursorTo(column: NonNegativeInteger): Result<Void> {
  * ```
  */
 export function setExitCode(code: ExitCode): Result<Void> {
-	const codeResult: Result<ExitCode> = safeParse(ExitCodeSchema, code);
-	if (!codeResult.ok) return codeResult;
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc) return ok(VoidSchema, undefined);
-	proc.exitCode = codeResult.data as unknown as number;
-	return ok(VoidSchema, undefined);
+  const codeResult: Result<ExitCode> = safeParse(ExitCodeSchema, code);
+  if (!codeResult.ok) return codeResult;
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc) return ok(VoidSchema, undefined);
+  proc.exitCode = codeResult.data as unknown as number;
+  return ok(VoidSchema, undefined);
 }
 
 // =============================================================================
@@ -378,74 +378,74 @@ export function setExitCode(code: ExitCode): Result<Void> {
  * ```
  */
 export async function readStdin(timeoutMs: NonNegativeInteger): Promise<Result<Str>> {
-	const timeoutResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, timeoutMs);
-	if (!timeoutResult.ok) return timeoutResult;
+  const timeoutResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, timeoutMs);
+  if (!timeoutResult.ok) return timeoutResult;
 
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc || !proc.stdin) {
-		return err(ERRORS.IO.READ_FAILED, {
-			meta: { stream: 'stdin' },
-		});
-	}
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc || !proc.stdin) {
+    return err(ERRORS.IO.READ_FAILED, {
+      meta: { stream: 'stdin' },
+    });
+  }
 
-	const { stdin } = proc;
+  const { stdin } = proc;
 
-	try {
-		const content: Str = (await new Promise<string>((resolve: (value: string) => void): void => {
-			let data = '';
-			let hasData: Bool = false;
-			let resolved: Bool = false;
+  try {
+    const content: Str = (await new Promise<string>((resolve: (value: string) => void): void => {
+      let data = '';
+      let hasData: Bool = false;
+      let resolved: Bool = false;
 
-			const settleWith = (value: string): void => {
-				if (resolved) return;
-				resolved = true;
-				resolve(value);
-			};
+      const settleWith = (value: string): void => {
+        if (resolved) return;
+        resolved = true;
+        resolve(value);
+      };
 
-			if (stdin.isTTY) {
-				settleWith('');
-				return;
-			}
+      if (stdin.isTTY) {
+        settleWith('');
+        return;
+      }
 
-			const timeout: ReturnType<typeof setTimeout> = setTimeout(
-				(): void => {
-					if (!hasData) {
-						stdin.removeAllListeners('data');
-						stdin.removeAllListeners('end');
-						stdin.removeAllListeners('error');
-						settleWith('');
-					}
-				},
-				timeoutResult.data as unknown as number,
-			);
+      const timeout: ReturnType<typeof setTimeout> = setTimeout(
+        (): void => {
+          if (!hasData) {
+            stdin.removeAllListeners('data');
+            stdin.removeAllListeners('end');
+            stdin.removeAllListeners('error');
+            settleWith('');
+          }
+        },
+        timeoutResult.data as unknown as number,
+      );
 
-			stdin.setEncoding('utf8');
+      stdin.setEncoding('utf8');
 
-			stdin.on('data', (chunk: string): void => {
-				hasData = true;
-				clearTimeout(timeout);
-				data += chunk;
-			});
+      stdin.on('data', (chunk: string): void => {
+        hasData = true;
+        clearTimeout(timeout);
+        data += chunk;
+      });
 
-			stdin.on('end', (): void => {
-				clearTimeout(timeout);
-				settleWith(data);
-			});
+      stdin.on('end', (): void => {
+        clearTimeout(timeout);
+        settleWith(data);
+      });
 
-			stdin.on('error', (): void => {
-				clearTimeout(timeout);
-				settleWith('');
-			});
+      stdin.on('error', (): void => {
+        clearTimeout(timeout);
+        settleWith('');
+      });
 
-			stdin.resume();
-		})) as Str;
-		return ok(StrSchema, content);
-	} catch (error: unknown) {
-		return err(ERRORS.IO.READ_FAILED, {
-			meta: { stream: 'stdin' },
-			cause: fromUnknownError(error),
-		});
-	}
+      stdin.resume();
+    })) as Str;
+    return ok(StrSchema, content);
+  } catch (error: unknown) {
+    return err(ERRORS.IO.READ_FAILED, {
+      meta: { stream: 'stdin' },
+      cause: fromUnknownError(error),
+    });
+  }
 }
 
 // =============================================================================
@@ -468,18 +468,18 @@ export async function readStdin(timeoutMs: NonNegativeInteger): Promise<Result<S
  * ```
  */
 export function exit(code: OptionalExitCode = DEFAULT_EXIT_CODE): never {
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc) {
-		throw new Error('exit() requires Node.js');
-	}
-	const codeResult: Result<OptionalExitCode> = safeParse(OptionalExitCodeSchema, code);
-	// This is the wrapper itself — direct process.exit is intentional
-	const exitCode: number = codeResult.ok
-		? ((codeResult.data as unknown as number | undefined) ?? (DEFAULT_EXIT_CODE as number))
-		: (FAILURE_EXIT_CODE as number);
-	proc.exit(exitCode);
-	// Unreachable — process.exit terminates, but TypeScript needs this for `never`
-	throw new Error('process.exit() did not terminate');
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc) {
+    throw new Error('exit() requires Node.js');
+  }
+  const codeResult: Result<OptionalExitCode> = safeParse(OptionalExitCodeSchema, code);
+  // This is the wrapper itself — direct process.exit is intentional
+  const exitCode: number = codeResult.ok
+    ? ((codeResult.data as unknown as number | undefined) ?? (DEFAULT_EXIT_CODE as number))
+    : (FAILURE_EXIT_CODE as number);
+  proc.exit(exitCode);
+  // Unreachable — process.exit terminates, but TypeScript needs this for `never`
+  throw new Error('process.exit() did not terminate');
 }
 
 /**
@@ -501,38 +501,38 @@ export function exit(code: OptionalExitCode = DEFAULT_EXIT_CODE): never {
  * ```
  */
 export function fatalExit(options: FatalExitOptions): never {
-	if (!getProcess()) {
-		throw new Error('fatalExit() requires Node.js');
-	}
-	const optionsResult: Result<FatalExitOptions> = safeParse(FatalExitOptionsSchema, options);
-	if (!optionsResult.ok) exit(FAILURE_EXIT_CODE);
+  if (!getProcess()) {
+    throw new Error('fatalExit() requires Node.js');
+  }
+  const optionsResult: Result<FatalExitOptions> = safeParse(FatalExitOptionsSchema, options);
+  if (!optionsResult.ok) exit(FAILURE_EXIT_CODE);
 
-	const { message, exitCode, error, details } = optionsResult.data;
+  const { message, exitCode, error, details } = optionsResult.data;
 
-	writeStderr('\n');
+  writeStderr('\n');
 
-	/*
-	 * Inline ANSI codes instead of importing `style` from terminal.ts.
-	 * This breaks the circular dependency: process ↔ terminal.
-	 * fatalExit() is Node-only (guarded by getProcess()), so ANSI is safe.
-	 */
-	const BOLD = '\u001B[1m';
-	const RED = '\u001B[31m';
-	const DIM = '\u001B[2m';
-	const RESET = '\u001B[0m';
+  /*
+   * Inline ANSI codes instead of importing `style` from terminal.ts.
+   * This breaks the circular dependency: process ↔ terminal.
+   * fatalExit() is Node-only (guarded by getProcess()), so ANSI is safe.
+   */
+  const BOLD = '\u001B[1m';
+  const RED = '\u001B[31m';
+  const DIM = '\u001B[2m';
+  const RESET = '\u001B[0m';
 
-	writeStderr(`${RED}${BOLD}Error:${RESET} ${message}\n`);
+  writeStderr(`${RED}${BOLD}Error:${RESET} ${message}\n`);
 
-	if (details) {
-		writeStderr(`${DIM}  ${details}${RESET}\n`);
-	}
+  if (details) {
+    writeStderr(`${DIM}  ${details}${RESET}\n`);
+  }
 
-	if (error) {
-		writeStderr('\n');
-		writeStderr(`${DIM}Stack trace:${RESET}\n`);
-		writeStderr(`${error instanceof Error ? error.stack : String(error)}\n`);
-	}
+  if (error) {
+    writeStderr('\n');
+    writeStderr(`${DIM}Stack trace:${RESET}\n`);
+    writeStderr(`${error instanceof Error ? error.stack : String(error)}\n`);
+  }
 
-	writeStderr('\n');
-	exit(exitCode as ExitCode);
+  writeStderr('\n');
+  exit(exitCode as ExitCode);
 }

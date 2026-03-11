@@ -18,8 +18,8 @@ import type { EditorStore } from '$lib/stores/editor-state.svelte';
 
 /** Debug store interface expected by applyUrlOverrides. */
 type DebugStoreLike = {
-	setEnabled(enabled: Bool): Result<Void>;
-	setLogLevel(level: Str): Result<Void>;
+  setEnabled(enabled: Bool): Result<Void>;
+  setLogLevel(level: Str): Result<Void>;
 };
 
 /** Valid app preference keys, derived from schema. */
@@ -45,7 +45,7 @@ const FF_PREFIX = 'ff.';
  * ```
  */
 export function isValidAppKey(key: Str): Bool {
-	return APP_KEYS.has(key);
+  return APP_KEYS.has(key);
 }
 
 /**
@@ -62,7 +62,7 @@ export function isValidAppKey(key: Str): Bool {
  * ```
  */
 export function isValidFeatureFlag(key: Str): Bool {
-	return FEATURE_FLAG_KEYS.has(key);
+  return FEATURE_FLAG_KEYS.has(key);
 }
 
 /**
@@ -79,16 +79,16 @@ export function isValidFeatureFlag(key: Str): Bool {
  * ```
  */
 export function parseDebugParams(url: URL): Result<UrlOverrides> {
-	const overrides: UrlOverrides = {};
+  const overrides: UrlOverrides = {};
 
-	for (const [key, value] of url.searchParams) {
-		if (key.startsWith(URL_PARAM_PREFIX)) {
-			const unprefixed: Str = key.slice(URL_PARAM_PREFIX.length);
-			overrides[unprefixed] = value;
-		}
-	}
+  for (const [key, value] of url.searchParams) {
+    if (key.startsWith(URL_PARAM_PREFIX)) {
+      const unprefixed: Str = key.slice(URL_PARAM_PREFIX.length);
+      overrides[unprefixed] = value;
+    }
+  }
 
-	return okUnchecked(overrides);
+  return okUnchecked(overrides);
 }
 
 /**
@@ -96,15 +96,15 @@ export function parseDebugParams(url: URL): Result<UrlOverrides> {
  * Maps 'theme' → 'setTheme', 'mode' → 'setMode', etc.
  */
 const APP_SETTER_MAP: Record<string, keyof EditorStore> = {
-	appName: 'setAppName',
-	theme: 'setTheme',
-	mode: 'setMode',
-	locale: 'setLocale',
-	sidebarOpen: 'setSidebarOpen',
-	userName: 'setUserName',
-	userEmail: 'setUserEmail',
-	userAvatar: 'setUserAvatar',
-	mockDataDelay: 'setMockDataDelay',
+  appName: 'setAppName',
+  theme: 'setTheme',
+  mode: 'setMode',
+  locale: 'setLocale',
+  sidebarOpen: 'setSidebarOpen',
+  userName: 'setUserName',
+  userEmail: 'setUserEmail',
+  userAvatar: 'setUserAvatar',
+  mockDataDelay: 'setMockDataDelay',
 };
 
 /**
@@ -129,53 +129,53 @@ const APP_SETTER_MAP: Record<string, keyof EditorStore> = {
  * ```
  */
 export function applyUrlOverrides(
-	editorStore: EditorStore,
-	debugStore: DebugStoreLike,
-	overrides: UrlOverrides,
+  editorStore: EditorStore,
+  debugStore: DebugStoreLike,
+  overrides: UrlOverrides,
 ): Result<Void> {
-	for (const [key, value] of Object.entries(overrides)) {
-		// Debug params
-		if (key === 'debug') {
-			debugStore.setEnabled(value === 'true');
-			continue;
-		}
-		if (key === 'logLevel') {
-			debugStore.setLogLevel(value);
-			continue;
-		}
+  for (const [key, value] of Object.entries(overrides)) {
+    // Debug params
+    if (key === 'debug') {
+      debugStore.setEnabled(value === 'true');
+      continue;
+    }
+    if (key === 'logLevel') {
+      debugStore.setLogLevel(value);
+      continue;
+    }
 
-		// Feature flag params: ff.* → setFeature
-		if (key.startsWith(FF_PREFIX)) {
-			const flagKey: Str = key.slice(FF_PREFIX.length);
-			if (isValidFeatureFlag(flagKey)) {
-				editorStore.setFeature(flagKey, value === 'true');
-			}
-			continue;
-		}
+    // Feature flag params: ff.* → setFeature
+    if (key.startsWith(FF_PREFIX)) {
+      const flagKey: Str = key.slice(FF_PREFIX.length);
+      if (isValidFeatureFlag(flagKey)) {
+        editorStore.setFeature(flagKey, value === 'true');
+      }
+      continue;
+    }
 
-		// App preference params
-		if (isValidAppKey(key)) {
-			const setterName = APP_SETTER_MAP[key];
-			if (setterName) {
-				const setter = editorStore[setterName] as (val: unknown) => Result<Void>;
-				// sidebarOpen needs boolean conversion
-				if (key === 'sidebarOpen') {
-					setter(value === 'true');
-				} else if (key === 'mockDataDelay') {
-					setter(Number(value) || 0);
-				} else {
-					setter(value);
-				}
-			}
-			continue;
-		}
+    // App preference params
+    if (isValidAppKey(key)) {
+      const setterName = APP_SETTER_MAP[key];
+      if (setterName) {
+        const setter = editorStore[setterName] as (val: unknown) => Result<Void>;
+        // sidebarOpen needs boolean conversion
+        if (key === 'sidebarOpen') {
+          setter(value === 'true');
+        } else if (key === 'mockDataDelay') {
+          setter(Number(value) || 0);
+        } else {
+          setter(value);
+        }
+      }
+      continue;
+    }
 
-		// Unknown key — warn so typos are caught
-		// eslint-disable-next-line no-console -- Intentional debug warning for bad URL params
-		console.warn(
-			`[Editor] Unknown URL override: ${URL_PARAM_PREFIX}${key}=${value} — valid: debug, logLevel, ${Object.keys(APP_SETTER_MAP).join(', ')}, ff.<flag>`,
-		);
-	}
+    // Unknown key — warn so typos are caught
+    // eslint-disable-next-line no-console -- Intentional debug warning for bad URL params
+    console.warn(
+      `[Editor] Unknown URL override: ${URL_PARAM_PREFIX}${key}=${value} — valid: debug, logLevel, ${Object.keys(APP_SETTER_MAP).join(', ')}, ff.<flag>`,
+    );
+  }
 
-	return okUnchecked<Void>(undefined);
+  return okUnchecked<Void>(undefined);
 }

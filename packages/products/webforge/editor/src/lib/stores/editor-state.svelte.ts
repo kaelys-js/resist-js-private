@@ -14,13 +14,13 @@ import type { Str, Num, Bool, Void } from '@/schemas/common';
 import { ERRORS, err, type Result, okUnchecked } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import {
-	EditorStateSchema,
-	SUPPORTED_LOCALES,
-	SUPPORTED_MODES,
-	SUPPORTED_PLANS,
-	SUPPORTED_THEMES,
-	type AppPreferences,
-	type FeatureFlags,
+  EditorStateSchema,
+  SUPPORTED_LOCALES,
+  SUPPORTED_MODES,
+  SUPPORTED_PLANS,
+  SUPPORTED_THEMES,
+  type AppPreferences,
+  type FeatureFlags,
 } from '$lib/schemas/editor-state';
 import { APP_NAME, storageKey } from '$lib/config/app-meta';
 import { applyPlanPreset } from '$lib/config/subscription-plans';
@@ -38,47 +38,47 @@ export const STORAGE_KEY: Str = storageKey('editor-state');
 // =============================================================================
 
 const APP_DEFAULTS: AppPreferences = {
-	appName: APP_NAME,
-	theme: '',
-	mode: 'system',
-	locale: 'en',
-	sidebarOpen: true,
-	userName: 'User',
-	userEmail: '',
-	userAvatar: '',
-	subscriptionPlan: 'pro',
-	mockDataDelay: 0,
+  appName: APP_NAME,
+  theme: '',
+  mode: 'system',
+  locale: 'en',
+  sidebarOpen: true,
+  userName: 'User',
+  userEmail: '',
+  userAvatar: '',
+  subscriptionPlan: 'pro',
+  mockDataDelay: 0,
 };
 
 const FEATURE_DEFAULTS: FeatureFlags = {
-	settings: true,
-	themeSelection: true,
-	languageSelection: true,
-	modeToggle: true,
-	sidebar: true,
-	sidebarHome: true,
-	sceneList: true,
-	resizableSidebar: true,
-	breadcrumb: true,
-	sidebarToggle: true,
-	sidebarHelp: true,
-	projectDropdown: true,
-	projectDropdownSettings: true,
-	projectDropdownIcon: true,
-	appIconInSidebar: true,
-	appNameInSidebar: true,
-	headerUserDropdown: true,
-	headerUserAvatar: true,
-	headerUserAccount: true,
-	headerUserSubscription: true,
-	headerUserNotifications: true,
-	headerUserShortcuts: true,
-	headerUserSettings: true,
-	headerUserWhatsNew: true,
-	headerUserLogout: true,
-	authGatedUi: true,
-	emptyScenePlaceholder: true,
-	skeletonLoading: true,
+  settings: true,
+  themeSelection: true,
+  languageSelection: true,
+  modeToggle: true,
+  sidebar: true,
+  sidebarHome: true,
+  sceneList: true,
+  resizableSidebar: true,
+  breadcrumb: true,
+  sidebarToggle: true,
+  sidebarHelp: true,
+  projectDropdown: true,
+  projectDropdownSettings: true,
+  projectDropdownIcon: true,
+  appIconInSidebar: true,
+  appNameInSidebar: true,
+  headerUserDropdown: true,
+  headerUserAvatar: true,
+  headerUserAccount: true,
+  headerUserSubscription: true,
+  headerUserNotifications: true,
+  headerUserShortcuts: true,
+  headerUserSettings: true,
+  headerUserWhatsNew: true,
+  headerUserLogout: true,
+  authGatedUi: true,
+  emptyScenePlaceholder: true,
+  skeletonLoading: true,
 };
 
 /** All valid feature flag keys. */
@@ -102,36 +102,36 @@ let _features: FeatureFlags = $state({ ...FEATURE_DEFAULTS });
  * `Result<Void>`. Valibot validates data shapes, not function signatures.
  */
 export type EditorStore = {
-	/** Current app preferences (reactive via `$state`). */
-	readonly app: AppPreferences;
-	/** Current feature flags (reactive via `$state`). */
-	readonly features: FeatureFlags;
-	/** Set the application display name. Must be non-empty. */
-	setAppName(name: Str): Result<Void>;
-	/** Set the active theme. Must be a value in `SUPPORTED_THEMES`. */
-	setTheme(theme: Str): Result<Void>;
-	/** Set the color mode. Must be `'light'`, `'dark'`, or `'system'`. */
-	setMode(mode: Str): Result<Void>;
-	/** Set the active locale. Must be a value in `SUPPORTED_LOCALES`. */
-	setLocale(locale: Str): Result<Void>;
-	/** Set whether the sidebar is open. */
-	setSidebarOpen(open: Bool): Result<Void>;
-	/** Set the user display name. Must be non-empty. */
-	setUserName(name: Str): Result<Void>;
-	/** Set the user email address. */
-	setUserEmail(email: Str): Result<Void>;
-	/** Set the user avatar URL. */
-	setUserAvatar(url: Str): Result<Void>;
-	/** Set the user's subscription plan. Bulk-applies feature flag preset for the plan. */
-	setSubscriptionPlan(plan: Str): Result<Void>;
-	/** Set the mock data delay in milliseconds (0–10000). */
-	setMockDataDelay(ms: Num): Result<Void>;
-	/** Toggle an individual feature flag. Flag key must exist. */
-	setFeature(flag: Str, enabled: Bool): Result<Void>;
-	/** Persist current state to localStorage. */
-	save(): Result<Void>;
-	/** Load state from localStorage. Falls back to defaults on failure. */
-	load(): Result<Void>;
+  /** Current app preferences (reactive via `$state`). */
+  readonly app: AppPreferences;
+  /** Current feature flags (reactive via `$state`). */
+  readonly features: FeatureFlags;
+  /** Set the application display name. Must be non-empty. */
+  setAppName(name: Str): Result<Void>;
+  /** Set the active theme. Must be a value in `SUPPORTED_THEMES`. */
+  setTheme(theme: Str): Result<Void>;
+  /** Set the color mode. Must be `'light'`, `'dark'`, or `'system'`. */
+  setMode(mode: Str): Result<Void>;
+  /** Set the active locale. Must be a value in `SUPPORTED_LOCALES`. */
+  setLocale(locale: Str): Result<Void>;
+  /** Set whether the sidebar is open. */
+  setSidebarOpen(open: Bool): Result<Void>;
+  /** Set the user display name. Must be non-empty. */
+  setUserName(name: Str): Result<Void>;
+  /** Set the user email address. */
+  setUserEmail(email: Str): Result<Void>;
+  /** Set the user avatar URL. */
+  setUserAvatar(url: Str): Result<Void>;
+  /** Set the user's subscription plan. Bulk-applies feature flag preset for the plan. */
+  setSubscriptionPlan(plan: Str): Result<Void>;
+  /** Set the mock data delay in milliseconds (0–10000). */
+  setMockDataDelay(ms: Num): Result<Void>;
+  /** Toggle an individual feature flag. Flag key must exist. */
+  setFeature(flag: Str, enabled: Bool): Result<Void>;
+  /** Persist current state to localStorage. */
+  save(): Result<Void>;
+  /** Load state from localStorage. Falls back to defaults on failure. */
+  load(): Result<Void>;
 };
 
 // =============================================================================
@@ -144,14 +144,14 @@ export type EditorStore = {
  * @returns `Result<Void>` — ok on success, error if serialization or write fails
  */
 function save(): Result<Void> {
-	if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
-	try {
-		const data = { app: { ..._app }, features: { ..._features } };
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-		return okUnchecked<Void>(undefined);
-	} catch {
-		return err(ERRORS.IO.WRITE_FAILED, 'Failed to save editor state to localStorage');
-	}
+  if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
+  try {
+    const data = { app: { ..._app }, features: { ..._features } };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    return okUnchecked<Void>(undefined);
+  } catch {
+    return err(ERRORS.IO.WRITE_FAILED, 'Failed to save editor state to localStorage');
+  }
 }
 
 /**
@@ -161,21 +161,21 @@ function save(): Result<Void> {
  *   error if JSON parse or schema validation fails
  */
 function load(): Result<Void> {
-	if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
-	try {
-		const raw: Str | null = localStorage.getItem(STORAGE_KEY);
-		if (raw === null) return okUnchecked<Void>(undefined);
+  if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
+  try {
+    const raw: Str | null = localStorage.getItem(STORAGE_KEY);
+    if (raw === null) return okUnchecked<Void>(undefined);
 
-		const parsed: unknown = JSON.parse(raw);
-		const result = safeParse(EditorStateSchema, parsed);
-		if (!result.ok) return result;
+    const parsed: unknown = JSON.parse(raw);
+    const result = safeParse(EditorStateSchema, parsed);
+    if (!result.ok) return result;
 
-		_app = { ...result.data.app };
-		_features = { ...result.data.features };
-		return okUnchecked<Void>(undefined);
-	} catch {
-		return err(ERRORS.IO.READ_FAILED, 'Failed to load editor state from localStorage');
-	}
+    _app = { ...result.data.app };
+    _features = { ...result.data.features };
+    return okUnchecked<Void>(undefined);
+  } catch {
+    return err(ERRORS.IO.READ_FAILED, 'Failed to load editor state from localStorage');
+  }
 }
 
 // =============================================================================
@@ -189,12 +189,12 @@ function load(): Result<Void> {
  * @returns `Result<Void>` — error if name is empty
  */
 function setAppName(name: Str): Result<Void> {
-	const nameSchema = v.pipe(v.string(), v.minLength(1));
-	const result = safeParse(nameSchema, name);
-	if (!result.ok) return result;
+  const nameSchema = v.pipe(v.string(), v.minLength(1));
+  const result = safeParse(nameSchema, name);
+  if (!result.ok) return result;
 
-	_app = { ..._app, appName: result.data };
-	return save();
+  _app = { ..._app, appName: result.data };
+  return save();
 }
 
 /**
@@ -204,15 +204,15 @@ function setAppName(name: Str): Result<Void> {
  * @returns `Result<Void>` — error if theme is not in the supported list
  */
 function setTheme(theme: Str): Result<Void> {
-	const themeSchema = v.picklist([...SUPPORTED_THEMES]);
-	const result = safeParse(themeSchema, theme);
-	if (!result.ok) return result;
+  const themeSchema = v.picklist([...SUPPORTED_THEMES]);
+  const result = safeParse(themeSchema, theme);
+  if (!result.ok) return result;
 
-	_app = { ..._app, theme: result.data };
-	// Persist theme to cookie so hooks.server.ts can inject it via transformPageChunk
-	// to prevent theme flash during hydration.
-	if (typeof document !== 'undefined') setPreferenceCookie('theme', result.data);
-	return save();
+  _app = { ..._app, theme: result.data };
+  // Persist theme to cookie so hooks.server.ts can inject it via transformPageChunk
+  // to prevent theme flash during hydration.
+  if (typeof document !== 'undefined') setPreferenceCookie('theme', result.data);
+  return save();
 }
 
 /**
@@ -222,12 +222,12 @@ function setTheme(theme: Str): Result<Void> {
  * @returns `Result<Void>` — error if mode is not in the supported list
  */
 function setMode(mode: Str): Result<Void> {
-	const modeSchema = v.picklist([...SUPPORTED_MODES]);
-	const result = safeParse(modeSchema, mode);
-	if (!result.ok) return result;
+  const modeSchema = v.picklist([...SUPPORTED_MODES]);
+  const result = safeParse(modeSchema, mode);
+  if (!result.ok) return result;
 
-	_app = { ..._app, mode: result.data };
-	return save();
+  _app = { ..._app, mode: result.data };
+  return save();
 }
 
 /**
@@ -237,12 +237,12 @@ function setMode(mode: Str): Result<Void> {
  * @returns `Result<Void>` — error if locale is not in the supported list
  */
 function setLocale(locale: Str): Result<Void> {
-	const localeSchema = v.picklist([...SUPPORTED_LOCALES]);
-	const result = safeParse(localeSchema, locale);
-	if (!result.ok) return result;
+  const localeSchema = v.picklist([...SUPPORTED_LOCALES]);
+  const result = safeParse(localeSchema, locale);
+  if (!result.ok) return result;
 
-	_app = { ..._app, locale: result.data };
-	return save();
+  _app = { ..._app, locale: result.data };
+  return save();
 }
 
 /**
@@ -252,11 +252,11 @@ function setLocale(locale: Str): Result<Void> {
  * @returns `Result<Void>`
  */
 function setSidebarOpen(open: Bool): Result<Void> {
-	const result = safeParse(v.boolean(), open);
-	if (!result.ok) return result;
+  const result = safeParse(v.boolean(), open);
+  if (!result.ok) return result;
 
-	_app = { ..._app, sidebarOpen: result.data };
-	return save();
+  _app = { ..._app, sidebarOpen: result.data };
+  return save();
 }
 
 /**
@@ -266,12 +266,12 @@ function setSidebarOpen(open: Bool): Result<Void> {
  * @returns `Result<Void>` — error if name is empty
  */
 function setUserName(name: Str): Result<Void> {
-	const nameSchema = v.pipe(v.string(), v.minLength(1));
-	const result = safeParse(nameSchema, name);
-	if (!result.ok) return result;
+  const nameSchema = v.pipe(v.string(), v.minLength(1));
+  const result = safeParse(nameSchema, name);
+  if (!result.ok) return result;
 
-	_app = { ..._app, userName: result.data };
-	return save();
+  _app = { ..._app, userName: result.data };
+  return save();
 }
 
 /**
@@ -281,11 +281,11 @@ function setUserName(name: Str): Result<Void> {
  * @returns `Result<Void>`
  */
 function setUserEmail(email: Str): Result<Void> {
-	const result = safeParse(v.string(), email);
-	if (!result.ok) return result;
+  const result = safeParse(v.string(), email);
+  if (!result.ok) return result;
 
-	_app = { ..._app, userEmail: result.data };
-	return save();
+  _app = { ..._app, userEmail: result.data };
+  return save();
 }
 
 /**
@@ -295,11 +295,11 @@ function setUserEmail(email: Str): Result<Void> {
  * @returns `Result<Void>`
  */
 function setUserAvatar(url: Str): Result<Void> {
-	const result = safeParse(v.string(), url);
-	if (!result.ok) return result;
+  const result = safeParse(v.string(), url);
+  if (!result.ok) return result;
 
-	_app = { ..._app, userAvatar: result.data };
-	return save();
+  _app = { ..._app, userAvatar: result.data };
+  return save();
 }
 
 /**
@@ -309,12 +309,12 @@ function setUserAvatar(url: Str): Result<Void> {
  * @returns `Result<Void>` — error if value is out of range
  */
 function setMockDataDelay(ms: Num): Result<Void> {
-	const msSchema = v.pipe(v.number(), v.minValue(0), v.maxValue(10_000));
-	const result = safeParse(msSchema, ms);
-	if (!result.ok) return result;
+  const msSchema = v.pipe(v.number(), v.minValue(0), v.maxValue(10_000));
+  const result = safeParse(msSchema, ms);
+  if (!result.ok) return result;
 
-	_app = { ..._app, mockDataDelay: result.data };
-	return save();
+  _app = { ..._app, mockDataDelay: result.data };
+  return save();
 }
 
 /**
@@ -324,13 +324,13 @@ function setMockDataDelay(ms: Num): Result<Void> {
  * @returns `Result<Void>` — error if plan is not in the supported list
  */
 function setSubscriptionPlan(plan: Str): Result<Void> {
-	const planSchema = v.picklist([...SUPPORTED_PLANS]);
-	const result = safeParse(planSchema, plan);
-	if (!result.ok) return result;
+  const planSchema = v.picklist([...SUPPORTED_PLANS]);
+  const result = safeParse(planSchema, plan);
+  if (!result.ok) return result;
 
-	_app = { ..._app, subscriptionPlan: result.data };
-	_features = applyPlanPreset(result.data);
-	return save();
+  _app = { ..._app, subscriptionPlan: result.data };
+  _features = applyPlanPreset(result.data);
+  return save();
 }
 
 /**
@@ -341,15 +341,15 @@ function setSubscriptionPlan(plan: Str): Result<Void> {
  * @returns `Result<Void>` — error if the flag key does not exist
  */
 function setFeature(flag: Str, enabled: Bool): Result<Void> {
-	if (!FEATURE_KEYS.has(flag)) {
-		return err(ERRORS.VALIDATION.INVALID_FORMAT, `Unknown feature flag: ${flag}`);
-	}
+  if (!FEATURE_KEYS.has(flag)) {
+    return err(ERRORS.VALIDATION.INVALID_FORMAT, `Unknown feature flag: ${flag}`);
+  }
 
-	const boolResult = safeParse(v.boolean(), enabled);
-	if (!boolResult.ok) return boolResult;
+  const boolResult = safeParse(v.boolean(), enabled);
+  if (!boolResult.ok) return boolResult;
 
-	_features = { ..._features, [flag]: boolResult.data };
-	return save();
+  _features = { ..._features, [flag]: boolResult.data };
+  return save();
 }
 
 // =============================================================================
@@ -371,43 +371,43 @@ function setFeature(flag: Str, enabled: Bool): Result<Void> {
  * ```
  */
 export function createEditorStore(): Result<EditorStore> {
-	// Reset to defaults
-	_app = { ...APP_DEFAULTS };
-	_features = { ...FEATURE_DEFAULTS };
+  // Reset to defaults
+  _app = { ...APP_DEFAULTS };
+  _features = { ...FEATURE_DEFAULTS };
 
-	// Try loading from localStorage (failures are non-fatal — use defaults)
-	load();
+  // Try loading from localStorage (failures are non-fatal — use defaults)
+  load();
 
-	const store: EditorStore = {
-		get app(): AppPreferences {
-			return _app;
-		},
-		get features(): FeatureFlags {
-			return _features;
-		},
-		setAppName,
-		setTheme,
-		setMode,
-		setLocale,
-		setSidebarOpen,
-		setUserName,
-		setUserEmail,
-		setUserAvatar,
-		setSubscriptionPlan,
-		setMockDataDelay,
-		setFeature,
-		save,
-		load,
-	};
+  const store: EditorStore = {
+    get app(): AppPreferences {
+      return _app;
+    },
+    get features(): FeatureFlags {
+      return _features;
+    },
+    setAppName,
+    setTheme,
+    setMode,
+    setLocale,
+    setSidebarOpen,
+    setUserName,
+    setUserEmail,
+    setUserAvatar,
+    setSubscriptionPlan,
+    setMockDataDelay,
+    setFeature,
+    save,
+    load,
+  };
 
-	// Shallow-freeze only the Result wrapper — the store contains $state proxies
-	// that reject deep-freezing (Svelte's state_descriptors_fixed error).
-	// Cast required: Object.freeze literal doesn't narrow to Result<T> discriminant
-	return Object.freeze({
-		ok: true as const,
-		data: store,
-		error: null,
-	}) as Result<EditorStore>;
+  // Shallow-freeze only the Result wrapper — the store contains $state proxies
+  // that reject deep-freezing (Svelte's state_descriptors_fixed error).
+  // Cast required: Object.freeze literal doesn't narrow to Result<T> discriminant
+  return Object.freeze({
+    ok: true as const,
+    data: store,
+    error: null,
+  }) as Result<EditorStore>;
 }
 
 // =============================================================================
@@ -424,10 +424,10 @@ let _singleton: EditorStore | null = null;
  * @throws If `createEditorStore()` returns an error
  */
 export function initEditorStore(): EditorStore {
-	const result = createEditorStore();
-	if (!result.ok) throw new Error(`EditorStore creation failed: ${result.error.message}`);
-	_singleton = result.data;
-	return _singleton;
+  const result = createEditorStore();
+  if (!result.ok) throw new Error(`EditorStore creation failed: ${result.error.message}`);
+  _singleton = result.data;
+  return _singleton;
 }
 
 /**
@@ -437,8 +437,8 @@ export function initEditorStore(): EditorStore {
  * @throws If `initEditorStore()` has not been called yet
  */
 export function useEditorStore(): EditorStore {
-	if (_singleton === null) {
-		throw new Error('EditorStore not initialized — call initEditorStore() first');
-	}
-	return _singleton;
+  if (_singleton === null) {
+    throw new Error('EditorStore not initialized — call initEditorStore() first');
+  }
+  return _singleton;
 }

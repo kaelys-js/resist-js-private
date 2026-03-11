@@ -9,8 +9,8 @@ import type { VariantMeta } from './types.js';
 import { extractVariants } from './extract-variants.js';
 
 describe('extractVariants', () => {
-	it('extracts variant keys and options from a tv() call', () => {
-		const source: string = `<script lang="ts" module>
+  it('extracts variant keys and options from a tv() call', () => {
+    const source: string = `<script lang="ts" module>
 export const buttonVariants = tv({
 	base: "inline-flex items-center",
 	variants: {
@@ -31,21 +31,21 @@ export const buttonVariants = tv({
 	},
 });
 </script>`;
-		const meta: VariantMeta | null = extractVariants(source);
-		expect(meta).not.toBeNull();
-		expect(meta?.variants).toHaveLength(2);
+    const meta: VariantMeta | null = extractVariants(source);
+    expect(meta).not.toBeNull();
+    expect(meta?.variants).toHaveLength(2);
 
-		const variantKey = meta?.variants.find((v) => v.key === 'variant');
-		expect(variantKey?.options).toEqual(['default', 'secondary', 'destructive']);
-		expect(variantKey?.default).toBe('default');
+    const variantKey = meta?.variants.find((v) => v.key === 'variant');
+    expect(variantKey?.options).toEqual(['default', 'secondary', 'destructive']);
+    expect(variantKey?.default).toBe('default');
 
-		const sizeKey = meta?.variants.find((v) => v.key === 'size');
-		expect(sizeKey?.options).toEqual(['default', 'sm', 'lg']);
-		expect(sizeKey?.default).toBe('default');
-	});
+    const sizeKey = meta?.variants.find((v) => v.key === 'size');
+    expect(sizeKey?.options).toEqual(['default', 'sm', 'lg']);
+    expect(sizeKey?.default).toBe('default');
+  });
 
-	it('handles tv() call with no defaultVariants', () => {
-		const source: string = `<script lang="ts" module>
+  it('handles tv() call with no defaultVariants', () => {
+    const source: string = `<script lang="ts" module>
 export const badgeVariants = tv({
 	base: "inline-flex",
 	variants: {
@@ -56,29 +56,29 @@ export const badgeVariants = tv({
 	},
 });
 </script>`;
-		const meta: VariantMeta | null = extractVariants(source);
-		expect(meta).not.toBeNull();
-		expect(meta?.variants).toHaveLength(1);
-		expect(meta?.variants[0]?.key).toBe('variant');
-		expect(meta?.variants[0]?.options).toEqual(['default', 'outline']);
-		expect(meta?.variants[0]?.default).toBe('');
-	});
+    const meta: VariantMeta | null = extractVariants(source);
+    expect(meta).not.toBeNull();
+    expect(meta?.variants).toHaveLength(1);
+    expect(meta?.variants[0]?.key).toBe('variant');
+    expect(meta?.variants[0]?.options).toEqual(['default', 'outline']);
+    expect(meta?.variants[0]?.default).toBe('');
+  });
 
-	it('returns null for source without tv()', () => {
-		const source: string = `<script lang="ts">
+  it('returns null for source without tv()', () => {
+    const source: string = `<script lang="ts">
 let { disabled, ...restProps }: Props = $props();
 </script>`;
-		const meta: VariantMeta | null = extractVariants(source);
-		expect(meta).toBeNull();
-	});
+    const meta: VariantMeta | null = extractVariants(source);
+    expect(meta).toBeNull();
+  });
 
-	it('returns null for empty source', () => {
-		const meta: VariantMeta | null = extractVariants('');
-		expect(meta).toBeNull();
-	});
+  it('returns null for empty source', () => {
+    const meta: VariantMeta | null = extractVariants('');
+    expect(meta).toBeNull();
+  });
 
-	it('handles real button component source with icon sizes', () => {
-		const source: string = `<script lang="ts" module>
+  it('handles real button component source with icon sizes', () => {
+    const source: string = `<script lang="ts" module>
 import { type VariantProps, tv } from 'tailwind-variants';
 
 export const buttonVariants = tv({
@@ -107,25 +107,25 @@ export const buttonVariants = tv({
 	},
 });
 </script>`;
-		const meta: VariantMeta | null = extractVariants(source);
-		expect(meta).not.toBeNull();
+    const meta: VariantMeta | null = extractVariants(source);
+    expect(meta).not.toBeNull();
 
-		const variantKey = meta?.variants.find((v) => v.key === 'variant');
-		expect(variantKey?.options).toEqual([
-			'default',
-			'destructive',
-			'outline',
-			'secondary',
-			'ghost',
-			'link',
-		]);
+    const variantKey = meta?.variants.find((v) => v.key === 'variant');
+    expect(variantKey?.options).toEqual([
+      'default',
+      'destructive',
+      'outline',
+      'secondary',
+      'ghost',
+      'link',
+    ]);
 
-		const sizeKey = meta?.variants.find((v) => v.key === 'size');
-		expect(sizeKey?.options).toEqual(['default', 'sm', 'lg', 'icon', 'icon-sm', 'icon-lg']);
-	});
+    const sizeKey = meta?.variants.find((v) => v.key === 'size');
+    expect(sizeKey?.options).toEqual(['default', 'sm', 'lg', 'icon', 'icon-sm', 'icon-lg']);
+  });
 
-	it('extracts variants from instance script (not module)', () => {
-		const source: string = `<script lang="ts">
+  it('extracts variants from instance script (not module)', () => {
+    const source: string = `<script lang="ts">
 const variants = tv({
 	base: "flex",
 	variants: {
@@ -136,8 +136,8 @@ const variants = tv({
 	},
 });
 </script>`;
-		const meta: VariantMeta | null = extractVariants(source);
-		expect(meta).not.toBeNull();
-		expect(meta?.variants[0]?.options).toEqual(['true', 'false']);
-	});
+    const meta: VariantMeta | null = extractVariants(source);
+    expect(meta).not.toBeNull();
+    expect(meta?.variants[0]?.options).toEqual(['true', 'false']);
+  });
 });

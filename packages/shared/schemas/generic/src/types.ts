@@ -41,8 +41,8 @@ import * as v from 'valibot';
  * ```
  */
 export type GenericSchemaFactory<
-	TArgs extends v.GenericSchema[] = v.GenericSchema[],
-	TReturn extends v.GenericSchema = v.GenericSchema,
+  TArgs extends v.GenericSchema[] = v.GenericSchema[],
+  TReturn extends v.GenericSchema = v.GenericSchema,
 > = (...args: TArgs) => TReturn;
 
 // =============================================================================
@@ -55,8 +55,8 @@ export type GenericSchemaFactory<
  * marked as a generic schema factory.
  */
 export const GenericSchemaMetaSchema = v.strictObject({
-	/** Discriminant flag indicating this is a generic schema factory. */
-	__isGenericSchema: v.literal(true),
+  /** Discriminant flag indicating this is a generic schema factory. */
+  __isGenericSchema: v.literal(true),
 });
 
 /** Metadata attached to generic schema factories. @see {@link GenericSchemaMetaSchema} */

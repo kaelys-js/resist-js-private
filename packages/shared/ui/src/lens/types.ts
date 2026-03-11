@@ -14,37 +14,37 @@ import { StrSchema, BoolSchema } from '@/schemas/common';
  * row in a mini-table inside the type tooltip.
  */
 export const TypeFieldSchema: v.GenericSchema<TypeField> = v.strictObject({
-	/** The field name (e.g., `category`, `tags`). */
-	field: StrSchema,
-	/** Resolved type string for the field (e.g., `Str`, `Bool`, `'a' | 'b'`). */
-	type: StrSchema,
-	/** Whether the field is required (not wrapped in `v.optional()`). */
-	required: BoolSchema,
-	/** Human-readable description of accepted values (e.g., "text", "display, form, layout, ..."). */
-	accepts: StrSchema,
-	/** JSDoc description from the schema field comment. */
-	description: StrSchema,
-	/** Explicit mock values from `@values` JSDoc tag for variant generation. */
-	mockValues: v.optional(v.array(StrSchema)),
-	/** Nested type fields for recursive expansion (e.g., array-of-object sub-fields). */
-	typeFields: v.optional(v.lazy((): v.GenericSchema<TypeField[]> => v.array(TypeFieldSchema))),
+  /** The field name (e.g., `category`, `tags`). */
+  field: StrSchema,
+  /** Resolved type string for the field (e.g., `Str`, `Bool`, `'a' | 'b'`). */
+  type: StrSchema,
+  /** Whether the field is required (not wrapped in `v.optional()`). */
+  required: BoolSchema,
+  /** Human-readable description of accepted values (e.g., "text", "display, form, layout, ..."). */
+  accepts: StrSchema,
+  /** JSDoc description from the schema field comment. */
+  description: StrSchema,
+  /** Explicit mock values from `@values` JSDoc tag for variant generation. */
+  mockValues: v.optional(v.array(StrSchema)),
+  /** Nested type fields for recursive expansion (e.g., array-of-object sub-fields). */
+  typeFields: v.optional(v.lazy((): v.GenericSchema<TypeField[]> => v.array(TypeFieldSchema))),
 });
 /** A single field within a resolved type definition. */
 export type TypeField = {
-	/** The field name. */
-	field: string;
-	/** Resolved type string. */
-	type: string;
-	/** Whether required. */
-	required: boolean;
-	/** Human-readable accepted values. */
-	accepts: string;
-	/** JSDoc description. */
-	description: string;
-	/** Explicit mock values from `@values` JSDoc tag. */
-	mockValues?: string[];
-	/** Nested type fields for recursive expansion. */
-	typeFields?: TypeField[];
+  /** The field name. */
+  field: string;
+  /** Resolved type string. */
+  type: string;
+  /** Whether required. */
+  required: boolean;
+  /** Human-readable accepted values. */
+  accepts: string;
+  /** JSDoc description. */
+  description: string;
+  /** Explicit mock values from `@values` JSDoc tag. */
+  mockValues?: string[];
+  /** Nested type fields for recursive expansion. */
+  typeFields?: TypeField[];
 };
 
 /**
@@ -62,24 +62,24 @@ export type TypeField = {
  * ```
  */
 export const PropMetaSchema = v.strictObject({
-	/** The prop name as it appears in the destructuring (e.g., `variant`, `size`). */
-	name: StrSchema,
-	/** The TypeScript type annotation or inferred type (e.g., `Str`, `boolean`). */
-	type: StrSchema,
-	/** The default value as a source string, or empty if no default. */
-	default: StrSchema,
-	/** JSDoc description from the comment above the prop, or empty. */
-	description: StrSchema,
-	/** Whether the prop uses `$bindable()`. */
-	bindable: BoolSchema,
-	/** Full resolved type definition body, if available (e.g. the actual union values). */
-	typeDefinition: v.optional(StrSchema),
-	/** Structured type fields for tooltip display, if the type resolves to an object schema. */
-	typeFields: v.optional(v.array(TypeFieldSchema)),
-	/** Explicit mock values from `@values` JSDoc tag for variant generation. */
-	mockValues: v.optional(v.array(StrSchema)),
-	/** Whether the prop is optional (from `v.optional()` or `?:` in type). */
-	optional: v.optional(BoolSchema),
+  /** The prop name as it appears in the destructuring (e.g., `variant`, `size`). */
+  name: StrSchema,
+  /** The TypeScript type annotation or inferred type (e.g., `Str`, `boolean`). */
+  type: StrSchema,
+  /** The default value as a source string, or empty if no default. */
+  default: StrSchema,
+  /** JSDoc description from the comment above the prop, or empty. */
+  description: StrSchema,
+  /** Whether the prop uses `$bindable()`. */
+  bindable: BoolSchema,
+  /** Full resolved type definition body, if available (e.g. the actual union values). */
+  typeDefinition: v.optional(StrSchema),
+  /** Structured type fields for tooltip display, if the type resolves to an object schema. */
+  typeFields: v.optional(v.array(TypeFieldSchema)),
+  /** Explicit mock values from `@values` JSDoc tag for variant generation. */
+  mockValues: v.optional(v.array(StrSchema)),
+  /** Whether the prop is optional (from `v.optional()` or `?:` in type). */
+  optional: v.optional(BoolSchema),
 });
 export type PropMeta = v.InferOutput<typeof PropMetaSchema>;
 
@@ -96,14 +96,14 @@ export type PropMeta = v.InferOutput<typeof PropMetaSchema>;
  * ```
  */
 export const VariantKeyMetaSchema = v.strictObject({
-	/** The variant key name (e.g., `variant`, `size`). */
-	key: StrSchema,
-	/** All available option values for this variant key. */
-	options: v.array(StrSchema),
-	/** The default value from `defaultVariants`, or empty. */
-	default: StrSchema,
-	/** Coercion hint for the renderer — how to convert string options to the expected type. */
-	coerce: v.optional(v.picklist(['array', 'record-value'])),
+  /** The variant key name (e.g., `variant`, `size`). */
+  key: StrSchema,
+  /** All available option values for this variant key. */
+  options: v.array(StrSchema),
+  /** The default value from `defaultVariants`, or empty. */
+  default: StrSchema,
+  /** Coercion hint for the renderer — how to convert string options to the expected type. */
+  coerce: v.optional(v.picklist(['array', 'record-value'])),
 });
 export type VariantKeyMeta = v.InferOutput<typeof VariantKeyMetaSchema>;
 
@@ -111,8 +111,8 @@ export type VariantKeyMeta = v.InferOutput<typeof VariantKeyMetaSchema>;
  * Complete TV variant metadata extracted from a `tv()` call.
  */
 export const VariantMetaSchema = v.strictObject({
-	/** All variant keys and their options. */
-	variants: v.array(VariantKeyMetaSchema),
+  /** All variant keys and their options. */
+  variants: v.array(VariantKeyMetaSchema),
 });
 export type VariantMeta = v.InferOutput<typeof VariantMetaSchema>;
 
@@ -129,12 +129,12 @@ export type VariantMeta = v.InferOutput<typeof VariantMetaSchema>;
  * ```
  */
 export const LensExampleSchema = v.strictObject({
-	/** Filename stem matching `examples/<name>.svelte` (e.g., `basic`, `with-form`). */
-	name: StrSchema,
-	/** Human-readable title for the example section. */
-	title: StrSchema,
-	/** Optional description shown below the title. */
-	description: v.optional(StrSchema, ''),
+  /** Filename stem matching `examples/<name>.svelte` (e.g., `basic`, `with-form`). */
+  name: StrSchema,
+  /** Human-readable title for the example section. */
+  title: StrSchema,
+  /** Optional description shown below the title. */
+  description: v.optional(StrSchema, ''),
 });
 export type LensExample = v.InferOutput<typeof LensExampleSchema>;
 
@@ -142,13 +142,13 @@ export type LensExample = v.InferOutput<typeof LensExampleSchema>;
  * Component category for sidebar grouping and filtering.
  */
 export const LensCategorySchema = v.picklist([
-	'display',
-	'form',
-	'layout',
-	'lens',
-	'navigation',
-	'overlay',
-	'utility',
+  'display',
+  'form',
+  'layout',
+  'lens',
+  'navigation',
+  'overlay',
+  'utility',
 ]);
 export type LensCategory = v.InferOutput<typeof LensCategorySchema>;
 
@@ -168,12 +168,12 @@ export type LensCategory = v.InferOutput<typeof LensCategorySchema>;
  * ```
  */
 export const LensMetaSchema = v.strictObject({
-	/** Sidebar grouping category. */
-	category: LensCategorySchema,
-	/** Freeform tags for search and badge display (at least one required). */
-	tags: v.pipe(v.array(StrSchema), v.minLength(1)),
-	/** Short component description for search and page header. */
-	description: StrSchema,
+  /** Sidebar grouping category. */
+  category: LensCategorySchema,
+  /** Freeform tags for search and badge display (at least one required). */
+  tags: v.pipe(v.array(StrSchema), v.minLength(1)),
+  /** Short component description for search and page header. */
+  description: StrSchema,
 });
 export type LensMeta = v.InferOutput<typeof LensMetaSchema>;
 
@@ -192,11 +192,11 @@ export type LensMeta = v.InferOutput<typeof LensMetaSchema>;
  * ```
  */
 export const CategoryGroupSchema = v.strictObject({
-	/** Category key matching LensCategory values. */
-	name: StrSchema,
-	/** Title-cased display label. */
-	label: StrSchema,
-	/** Sorted list of component directory names in this category. */
-	components: v.array(StrSchema),
+  /** Category key matching LensCategory values. */
+  name: StrSchema,
+  /** Title-cased display label. */
+  label: StrSchema,
+  /** Sorted list of component directory names in this category. */
+  components: v.array(StrSchema),
 });
 export type CategoryGroup = v.InferOutput<typeof CategoryGroupSchema>;

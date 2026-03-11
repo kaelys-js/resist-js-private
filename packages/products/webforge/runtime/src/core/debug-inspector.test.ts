@@ -16,18 +16,18 @@ import { hideInspector } from './debug-inspector';
 let instance: BabylonEngineInstance;
 
 beforeEach(() => {
-	const result = createTestEngine();
-	if (!result.ok) throw new Error('Failed to create test engine');
-	instance = result.data;
+  const result = createTestEngine();
+  if (!result.ok) throw new Error('Failed to create test engine');
+  instance = result.data;
 });
 
 afterEach(() => {
-	disposeEngine(instance);
+  disposeEngine(instance);
 });
 
 describe('hideInspector', () => {
-	test('returns ok Result when debug layer is not visible', () => {
-		const result = hideInspector(instance.scene);
-		expect(result.ok).toBeTruthy();
-	});
+  test('returns ok Result when debug layer is not visible', () => {
+    const result = hideInspector(instance.scene);
+    expect(result.ok).toBeTruthy();
+  });
 });

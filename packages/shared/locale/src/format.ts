@@ -15,13 +15,13 @@
 import * as v from 'valibot';
 
 import {
-	NumSchema,
-	StrArraySchema,
-	StrSchema,
-	type NullableRegExpMatchArray,
-	type Num,
-	type Str,
-	type StrArray,
+  NumSchema,
+  StrArraySchema,
+  StrSchema,
+  type NullableRegExpMatchArray,
+  type Num,
+  type Str,
+  type StrArray,
 } from '@/schemas/common';
 import { ERRORS, type Result, err, ok, okUnchecked } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
@@ -54,25 +54,25 @@ type FormatKind = v.InferOutput<typeof FormatKindSchema>;
  * @returns Intl.DateTimeFormatOptions for the given style.
  */
 function styleToOptions(style: DateTimeStyle, kind: FormatKind): Intl.DateTimeFormatOptions {
-	if (kind === 'time') {
-		const map: Record<Str, Intl.DateTimeFormatOptions> = {
-			short: { hour: 'numeric', minute: 'numeric' },
-			medium: { hour: 'numeric', minute: 'numeric', second: 'numeric' },
-			long: { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' },
-			full: { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'long' },
-		};
-		// oxlint-disable-next-line typescript/no-non-null-assertion -- 'medium' is a literal key in map, always exists
-		return (map[style] ?? map['medium'])!;
-	}
-	// date
-	const map: Record<Str, Intl.DateTimeFormatOptions> = {
-		short: { year: 'numeric', month: 'numeric', day: 'numeric' },
-		medium: { year: 'numeric', month: 'short', day: 'numeric' },
-		long: { year: 'numeric', month: 'long', day: 'numeric' },
-		full: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
-	};
-	// oxlint-disable-next-line typescript/no-non-null-assertion -- 'medium' is a literal key in map, always exists
-	return (map[style] ?? map['medium'])!;
+  if (kind === 'time') {
+    const map: Record<Str, Intl.DateTimeFormatOptions> = {
+      short: { hour: 'numeric', minute: 'numeric' },
+      medium: { hour: 'numeric', minute: 'numeric', second: 'numeric' },
+      long: { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' },
+      full: { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'long' },
+    };
+    // oxlint-disable-next-line typescript/no-non-null-assertion -- 'medium' is a literal key in map, always exists
+    return (map[style] ?? map['medium'])!;
+  }
+  // date
+  const map: Record<Str, Intl.DateTimeFormatOptions> = {
+    short: { year: 'numeric', month: 'numeric', day: 'numeric' },
+    medium: { year: 'numeric', month: 'short', day: 'numeric' },
+    long: { year: 'numeric', month: 'long', day: 'numeric' },
+    full: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
+  };
+  // oxlint-disable-next-line typescript/no-non-null-assertion -- 'medium' is a literal key in map, always exists
+  return (map[style] ?? map['medium'])!;
 }
 
 /**
@@ -82,7 +82,7 @@ function styleToOptions(style: DateTimeStyle, kind: FormatKind): Intl.DateTimeFo
  * @returns A `Date` object.
  */
 function toDate(value: Date | Num): Date {
-	return value instanceof Date ? value : new Date(value);
+  return value instanceof Date ? value : new Date(value);
 }
 
 // =============================================================================
@@ -107,28 +107,28 @@ function toDate(value: Date | Num): Date {
  * ```
  */
 export function formatNumber(
-	value: Num,
-	locale: Str,
-	options: Intl.NumberFormatOptions | undefined,
+  value: Num,
+  locale: Str,
+  options: Intl.NumberFormatOptions | undefined,
 ): Result<Str> {
-	const valueResult: Result<Num> = safeParse(NumSchema, value);
-	if (!valueResult.ok) return valueResult;
-	const localeResult: Result<Str> = safeParse(StrSchema, locale);
-	if (!localeResult.ok) return localeResult;
+  const valueResult: Result<Num> = safeParse(NumSchema, value);
+  if (!valueResult.ok) return valueResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, locale);
+  if (!localeResult.ok) return localeResult;
 
-	try {
-		const formatter: Intl.NumberFormat = new Intl.NumberFormat(localeResult.data, options);
-		const formatted: Str = formatter.format(valueResult.data);
-		return ok(StrSchema, formatted);
-	} catch (error: unknown) {
-		return err(ERRORS.LOCALE.FORMAT_FAILED, {
-			meta: {
-				type: 'number',
-				locale: localeResult.data,
-				reason: error instanceof Error ? error.message : String(error),
-			},
-		});
-	}
+  try {
+    const formatter: Intl.NumberFormat = new Intl.NumberFormat(localeResult.data, options);
+    const formatted: Str = formatter.format(valueResult.data);
+    return ok(StrSchema, formatted);
+  } catch (error: unknown) {
+    return err(ERRORS.LOCALE.FORMAT_FAILED, {
+      meta: {
+        type: 'number',
+        locale: localeResult.data,
+        reason: error instanceof Error ? error.message : String(error),
+      },
+    });
+  }
 }
 
 /**
@@ -149,17 +149,17 @@ export function formatNumber(
  * ```
  */
 export function formatCurrency(value: Num, locale: Str, currency: Str): Result<Str> {
-	const valueResult: Result<Num> = safeParse(NumSchema, value);
-	if (!valueResult.ok) return valueResult;
-	const localeResult: Result<Str> = safeParse(StrSchema, locale);
-	if (!localeResult.ok) return localeResult;
-	const currencyResult: Result<Str> = safeParse(StrSchema, currency);
-	if (!currencyResult.ok) return currencyResult;
+  const valueResult: Result<Num> = safeParse(NumSchema, value);
+  if (!valueResult.ok) return valueResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, locale);
+  if (!localeResult.ok) return localeResult;
+  const currencyResult: Result<Str> = safeParse(StrSchema, currency);
+  if (!currencyResult.ok) return currencyResult;
 
-	return formatNumber(valueResult.data, localeResult.data, {
-		style: 'currency',
-		currency: currencyResult.data,
-	});
+  return formatNumber(valueResult.data, localeResult.data, {
+    style: 'currency',
+    currency: currencyResult.data,
+  });
 }
 
 // =============================================================================
@@ -185,33 +185,33 @@ export function formatCurrency(value: Num, locale: Str, currency: Str): Result<S
  * ```
  */
 export function formatDate(
-	value: Date | Num,
-	locale: Str,
-	style?: DateTimeStyle,
-	options?: Intl.DateTimeFormatOptions,
+  value: Date | Num,
+  locale: Str,
+  style?: DateTimeStyle,
+  options?: Intl.DateTimeFormatOptions,
 ): Result<Str> {
-	const localeResult: Result<Str> = safeParse(StrSchema, locale);
-	if (!localeResult.ok) return localeResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, locale);
+  if (!localeResult.ok) return localeResult;
 
-	try {
-		const dateObj: Date = toDate(value);
-		const formatOptions: Intl.DateTimeFormatOptions =
-			options ?? (style ? styleToOptions(style, 'date') : {});
-		const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
-			localeResult.data,
-			formatOptions,
-		);
-		const formatted: Str = formatter.format(dateObj);
-		return ok(StrSchema, formatted);
-	} catch (error: unknown) {
-		return err(ERRORS.LOCALE.FORMAT_FAILED, {
-			meta: {
-				type: 'date',
-				locale: localeResult.data,
-				reason: error instanceof Error ? error.message : String(error),
-			},
-		});
-	}
+  try {
+    const dateObj: Date = toDate(value);
+    const formatOptions: Intl.DateTimeFormatOptions =
+      options ?? (style ? styleToOptions(style, 'date') : {});
+    const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
+      localeResult.data,
+      formatOptions,
+    );
+    const formatted: Str = formatter.format(dateObj);
+    return ok(StrSchema, formatted);
+  } catch (error: unknown) {
+    return err(ERRORS.LOCALE.FORMAT_FAILED, {
+      meta: {
+        type: 'date',
+        locale: localeResult.data,
+        reason: error instanceof Error ? error.message : String(error),
+      },
+    });
+  }
 }
 
 /**
@@ -233,33 +233,33 @@ export function formatDate(
  * ```
  */
 export function formatTime(
-	value: Date | Num,
-	locale: Str,
-	style?: DateTimeStyle,
-	options?: Intl.DateTimeFormatOptions,
+  value: Date | Num,
+  locale: Str,
+  style?: DateTimeStyle,
+  options?: Intl.DateTimeFormatOptions,
 ): Result<Str> {
-	const localeResult: Result<Str> = safeParse(StrSchema, locale);
-	if (!localeResult.ok) return localeResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, locale);
+  if (!localeResult.ok) return localeResult;
 
-	try {
-		const dateObj: Date = toDate(value);
-		const formatOptions: Intl.DateTimeFormatOptions =
-			options ?? styleToOptions(style ?? 'medium', 'time');
-		const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
-			localeResult.data,
-			formatOptions,
-		);
-		const formatted: Str = formatter.format(dateObj);
-		return ok(StrSchema, formatted);
-	} catch (error: unknown) {
-		return err(ERRORS.LOCALE.FORMAT_FAILED, {
-			meta: {
-				type: 'time',
-				locale: localeResult.data,
-				reason: error instanceof Error ? error.message : String(error),
-			},
-		});
-	}
+  try {
+    const dateObj: Date = toDate(value);
+    const formatOptions: Intl.DateTimeFormatOptions =
+      options ?? styleToOptions(style ?? 'medium', 'time');
+    const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
+      localeResult.data,
+      formatOptions,
+    );
+    const formatted: Str = formatter.format(dateObj);
+    return ok(StrSchema, formatted);
+  } catch (error: unknown) {
+    return err(ERRORS.LOCALE.FORMAT_FAILED, {
+      meta: {
+        type: 'time',
+        locale: localeResult.data,
+        reason: error instanceof Error ? error.message : String(error),
+      },
+    });
+  }
 }
 
 // =============================================================================
@@ -268,14 +268,14 @@ export function formatTime(
 
 /** Valibot schema for relative time unit names. */
 export const RelativeTimeUnitSchema = v.picklist([
-	'second',
-	'minute',
-	'hour',
-	'day',
-	'week',
-	'month',
-	'quarter',
-	'year',
+  'second',
+  'minute',
+  'hour',
+  'day',
+  'week',
+  'month',
+  'quarter',
+  'year',
 ]);
 
 /** A relative time unit. */
@@ -320,46 +320,46 @@ export type RelativeTimeStyle = v.InferOutput<typeof RelativeTimeStyleSchema>;
  * ```
  */
 export function formatRelativeTime(
-	value: Num,
-	unit: RelativeTimeUnit,
-	locale: Str,
-	numeric?: RelativeTimeNumeric,
-	style?: RelativeTimeStyle,
+  value: Num,
+  unit: RelativeTimeUnit,
+  locale: Str,
+  numeric?: RelativeTimeNumeric,
+  style?: RelativeTimeStyle,
 ): Result<Str> {
-	const valueResult: Result<Num> = safeParse(NumSchema, value);
-	if (!valueResult.ok) return valueResult;
-	const unitResult: Result<RelativeTimeUnit> = safeParse(RelativeTimeUnitSchema, unit);
-	if (!unitResult.ok) return unitResult;
-	const localeResult: Result<Str> = safeParse(StrSchema, locale);
-	if (!localeResult.ok) return localeResult;
-	if (numeric !== undefined) {
-		const numericResult: Result<RelativeTimeNumeric> = safeParse(
-			RelativeTimeNumericSchema,
-			numeric,
-		);
-		if (!numericResult.ok) return numericResult;
-	}
-	if (style !== undefined) {
-		const styleResult: Result<RelativeTimeStyle> = safeParse(RelativeTimeStyleSchema, style);
-		if (!styleResult.ok) return styleResult;
-	}
+  const valueResult: Result<Num> = safeParse(NumSchema, value);
+  if (!valueResult.ok) return valueResult;
+  const unitResult: Result<RelativeTimeUnit> = safeParse(RelativeTimeUnitSchema, unit);
+  if (!unitResult.ok) return unitResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, locale);
+  if (!localeResult.ok) return localeResult;
+  if (numeric !== undefined) {
+    const numericResult: Result<RelativeTimeNumeric> = safeParse(
+      RelativeTimeNumericSchema,
+      numeric,
+    );
+    if (!numericResult.ok) return numericResult;
+  }
+  if (style !== undefined) {
+    const styleResult: Result<RelativeTimeStyle> = safeParse(RelativeTimeStyleSchema, style);
+    if (!styleResult.ok) return styleResult;
+  }
 
-	try {
-		const formatter: Intl.RelativeTimeFormat = new Intl.RelativeTimeFormat(localeResult.data, {
-			numeric: numeric ?? 'always',
-			style: style ?? 'long',
-		});
-		const formatted: Str = formatter.format(valueResult.data, unitResult.data);
-		return ok(StrSchema, formatted);
-	} catch (error: unknown) {
-		return err(ERRORS.LOCALE.FORMAT_FAILED, {
-			meta: {
-				type: 'relativeTime',
-				locale: localeResult.data,
-				reason: error instanceof Error ? error.message : String(error),
-			},
-		});
-	}
+  try {
+    const formatter: Intl.RelativeTimeFormat = new Intl.RelativeTimeFormat(localeResult.data, {
+      numeric: numeric ?? 'always',
+      style: style ?? 'long',
+    });
+    const formatted: Str = formatter.format(valueResult.data, unitResult.data);
+    return ok(StrSchema, formatted);
+  } catch (error: unknown) {
+    return err(ERRORS.LOCALE.FORMAT_FAILED, {
+      meta: {
+        type: 'relativeTime',
+        locale: localeResult.data,
+        reason: error instanceof Error ? error.message : String(error),
+      },
+    });
+  }
 }
 
 // =============================================================================
@@ -404,40 +404,40 @@ export type ListFormatStyle = v.InferOutput<typeof ListFormatStyleSchema>;
  * ```
  */
 export function formatList(
-	items: readonly Str[],
-	locale: Str,
-	type?: ListFormatType,
-	style?: ListFormatStyle,
+  items: readonly Str[],
+  locale: Str,
+  type?: ListFormatType,
+  style?: ListFormatStyle,
 ): Result<Str> {
-	const itemsResult: Result<StrArray> = safeParse(StrArraySchema, [...items]);
-	if (!itemsResult.ok) return itemsResult;
-	const localeResult: Result<Str> = safeParse(StrSchema, locale);
-	if (!localeResult.ok) return localeResult;
-	if (type !== undefined) {
-		const typeResult: Result<ListFormatType> = safeParse(ListFormatTypeSchema, type);
-		if (!typeResult.ok) return typeResult;
-	}
-	if (style !== undefined) {
-		const styleResult: Result<ListFormatStyle> = safeParse(ListFormatStyleSchema, style);
-		if (!styleResult.ok) return styleResult;
-	}
+  const itemsResult: Result<StrArray> = safeParse(StrArraySchema, [...items]);
+  if (!itemsResult.ok) return itemsResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, locale);
+  if (!localeResult.ok) return localeResult;
+  if (type !== undefined) {
+    const typeResult: Result<ListFormatType> = safeParse(ListFormatTypeSchema, type);
+    if (!typeResult.ok) return typeResult;
+  }
+  if (style !== undefined) {
+    const styleResult: Result<ListFormatStyle> = safeParse(ListFormatStyleSchema, style);
+    if (!styleResult.ok) return styleResult;
+  }
 
-	try {
-		const formatter: Intl.ListFormat = new Intl.ListFormat(localeResult.data, {
-			type: type ?? 'conjunction',
-			style: style ?? 'long',
-		});
-		const formatted: Str = formatter.format(itemsResult.data);
-		return ok(StrSchema, formatted);
-	} catch (error: unknown) {
-		return err(ERRORS.LOCALE.FORMAT_FAILED, {
-			meta: {
-				type: 'list',
-				locale: localeResult.data,
-				reason: error instanceof Error ? error.message : String(error),
-			},
-		});
-	}
+  try {
+    const formatter: Intl.ListFormat = new Intl.ListFormat(localeResult.data, {
+      type: type ?? 'conjunction',
+      style: style ?? 'long',
+    });
+    const formatted: Str = formatter.format(itemsResult.data);
+    return ok(StrSchema, formatted);
+  } catch (error: unknown) {
+    return err(ERRORS.LOCALE.FORMAT_FAILED, {
+      meta: {
+        type: 'list',
+        locale: localeResult.data,
+        reason: error instanceof Error ? error.message : String(error),
+      },
+    });
+  }
 }
 
 // =============================================================================
@@ -469,35 +469,35 @@ export function formatList(
  * ```
  */
 export function formatDateRange(
-	start: Date | Num,
-	end: Date | Num,
-	locale: Str,
-	style?: DateTimeStyle,
-	options?: Intl.DateTimeFormatOptions,
+  start: Date | Num,
+  end: Date | Num,
+  locale: Str,
+  style?: DateTimeStyle,
+  options?: Intl.DateTimeFormatOptions,
 ): Result<Str> {
-	const localeResult: Result<Str> = safeParse(StrSchema, locale);
-	if (!localeResult.ok) return localeResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, locale);
+  if (!localeResult.ok) return localeResult;
 
-	try {
-		const startDate: Date = toDate(start);
-		const endDate: Date = toDate(end);
-		const formatOptions: Intl.DateTimeFormatOptions =
-			options ?? (style ? styleToOptions(style, 'date') : {});
-		const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
-			localeResult.data,
-			formatOptions,
-		);
-		const formatted: Str = formatter.formatRange(startDate, endDate);
-		return ok(StrSchema, formatted);
-	} catch (error: unknown) {
-		return err(ERRORS.LOCALE.FORMAT_FAILED, {
-			meta: {
-				type: 'dateRange',
-				locale: localeResult.data,
-				reason: error instanceof Error ? error.message : String(error),
-			},
-		});
-	}
+  try {
+    const startDate: Date = toDate(start);
+    const endDate: Date = toDate(end);
+    const formatOptions: Intl.DateTimeFormatOptions =
+      options ?? (style ? styleToOptions(style, 'date') : {});
+    const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
+      localeResult.data,
+      formatOptions,
+    );
+    const formatted: Str = formatter.formatRange(startDate, endDate);
+    return ok(StrSchema, formatted);
+  } catch (error: unknown) {
+    return err(ERRORS.LOCALE.FORMAT_FAILED, {
+      meta: {
+        type: 'dateRange',
+        locale: localeResult.data,
+        reason: error instanceof Error ? error.message : String(error),
+      },
+    });
+  }
 }
 
 // =============================================================================
@@ -506,12 +506,12 @@ export function formatDateRange(
 
 /** Valibot schema for display name types. */
 export const DisplayNameTypeSchema = v.picklist([
-	'language',
-	'region',
-	'script',
-	'currency',
-	'calendar',
-	'dateTimeField',
+  'language',
+  'region',
+  'script',
+  'currency',
+  'calendar',
+  'dateTimeField',
 ]);
 
 /** Display name type for `Intl.DisplayNames`. */
@@ -553,47 +553,47 @@ export type DisplayNameStyle = v.InferOutput<typeof DisplayNameStyleSchema>;
  * ```
  */
 export function formatDisplayName(
-	code: Str,
-	locale: Str,
-	type: DisplayNameType,
-	style?: DisplayNameStyle,
+  code: Str,
+  locale: Str,
+  type: DisplayNameType,
+  style?: DisplayNameStyle,
 ): Result<Str> {
-	const codeResult: Result<Str> = safeParse(StrSchema, code);
-	if (!codeResult.ok) return codeResult;
-	const localeResult: Result<Str> = safeParse(StrSchema, locale);
-	if (!localeResult.ok) return localeResult;
-	const typeResult: Result<DisplayNameType> = safeParse(DisplayNameTypeSchema, type);
-	if (!typeResult.ok) return typeResult;
-	if (style !== undefined) {
-		const styleResult: Result<DisplayNameStyle> = safeParse(DisplayNameStyleSchema, style);
-		if (!styleResult.ok) return styleResult;
-	}
+  const codeResult: Result<Str> = safeParse(StrSchema, code);
+  if (!codeResult.ok) return codeResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, locale);
+  if (!localeResult.ok) return localeResult;
+  const typeResult: Result<DisplayNameType> = safeParse(DisplayNameTypeSchema, type);
+  if (!typeResult.ok) return typeResult;
+  if (style !== undefined) {
+    const styleResult: Result<DisplayNameStyle> = safeParse(DisplayNameStyleSchema, style);
+    if (!styleResult.ok) return styleResult;
+  }
 
-	try {
-		const formatter: Intl.DisplayNames = new Intl.DisplayNames(localeResult.data, {
-			type: typeResult.data,
-			style: style ?? 'long',
-		});
-		const displayName: Str | undefined = formatter.of(codeResult.data);
-		if (displayName === undefined) {
-			return err(ERRORS.LOCALE.FORMAT_FAILED, {
-				meta: {
-					type: 'displayName',
-					locale: localeResult.data,
-					reason: `Unknown ${typeResult.data} code: ${codeResult.data}`,
-				},
-			});
-		}
-		return ok(StrSchema, displayName);
-	} catch (error: unknown) {
-		return err(ERRORS.LOCALE.FORMAT_FAILED, {
-			meta: {
-				type: 'displayName',
-				locale: localeResult.data,
-				reason: error instanceof Error ? error.message : String(error),
-			},
-		});
-	}
+  try {
+    const formatter: Intl.DisplayNames = new Intl.DisplayNames(localeResult.data, {
+      type: typeResult.data,
+      style: style ?? 'long',
+    });
+    const displayName: Str | undefined = formatter.of(codeResult.data);
+    if (displayName === undefined) {
+      return err(ERRORS.LOCALE.FORMAT_FAILED, {
+        meta: {
+          type: 'displayName',
+          locale: localeResult.data,
+          reason: `Unknown ${typeResult.data} code: ${codeResult.data}`,
+        },
+      });
+    }
+    return ok(StrSchema, displayName);
+  } catch (error: unknown) {
+    return err(ERRORS.LOCALE.FORMAT_FAILED, {
+      meta: {
+        type: 'displayName',
+        locale: localeResult.data,
+        reason: error instanceof Error ? error.message : String(error),
+      },
+    });
+  }
 }
 
 // =============================================================================
@@ -621,19 +621,19 @@ export function formatDisplayName(
  * ```
  */
 export function formatPercent(
-	value: Num,
-	locale: Str,
-	options?: Intl.NumberFormatOptions,
+  value: Num,
+  locale: Str,
+  options?: Intl.NumberFormatOptions,
 ): Result<Str> {
-	const valueResult: Result<Num> = safeParse(NumSchema, value);
-	if (!valueResult.ok) return valueResult;
-	const localeResult: Result<Str> = safeParse(StrSchema, locale);
-	if (!localeResult.ok) return localeResult;
+  const valueResult: Result<Num> = safeParse(NumSchema, value);
+  if (!valueResult.ok) return valueResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, locale);
+  if (!localeResult.ok) return localeResult;
 
-	return formatNumber(valueResult.data, localeResult.data, {
-		style: 'percent',
-		...options,
-	});
+  return formatNumber(valueResult.data, localeResult.data, {
+    style: 'percent',
+    ...options,
+  });
 }
 
 // =============================================================================
@@ -677,29 +677,29 @@ export type UnitDisplay = v.InferOutput<typeof UnitDisplaySchema>;
  * ```
  */
 export function formatUnit(
-	value: Num,
-	unit: Str,
-	locale: Str,
-	unitDisplay?: UnitDisplay,
-	options?: Intl.NumberFormatOptions,
+  value: Num,
+  unit: Str,
+  locale: Str,
+  unitDisplay?: UnitDisplay,
+  options?: Intl.NumberFormatOptions,
 ): Result<Str> {
-	const valueResult: Result<Num> = safeParse(NumSchema, value);
-	if (!valueResult.ok) return valueResult;
-	const unitResult: Result<Str> = safeParse(StrSchema, unit);
-	if (!unitResult.ok) return unitResult;
-	const localeResult: Result<Str> = safeParse(StrSchema, locale);
-	if (!localeResult.ok) return localeResult;
-	if (unitDisplay !== undefined) {
-		const displayResult: Result<UnitDisplay> = safeParse(UnitDisplaySchema, unitDisplay);
-		if (!displayResult.ok) return displayResult;
-	}
+  const valueResult: Result<Num> = safeParse(NumSchema, value);
+  if (!valueResult.ok) return valueResult;
+  const unitResult: Result<Str> = safeParse(StrSchema, unit);
+  if (!unitResult.ok) return unitResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, locale);
+  if (!localeResult.ok) return localeResult;
+  if (unitDisplay !== undefined) {
+    const displayResult: Result<UnitDisplay> = safeParse(UnitDisplaySchema, unitDisplay);
+    if (!displayResult.ok) return displayResult;
+  }
 
-	return formatNumber(valueResult.data, localeResult.data, {
-		style: 'unit',
-		unit: unitResult.data,
-		unitDisplay: unitDisplay ?? 'short',
-		...options,
-	});
+  return formatNumber(valueResult.data, localeResult.data, {
+    style: 'unit',
+    unit: unitResult.data,
+    unitDisplay: unitDisplay ?? 'short',
+    ...options,
+  });
 }
 
 // =============================================================================
@@ -717,16 +717,16 @@ export type DurationStyle = v.InferOutput<typeof DurationStyleSchema>;
  * All fields are optional — only included units are formatted.
  */
 export const DurationInputSchema = v.strictObject({
-	years: v.optional(NumSchema),
-	months: v.optional(NumSchema),
-	weeks: v.optional(NumSchema),
-	days: v.optional(NumSchema),
-	hours: v.optional(NumSchema),
-	minutes: v.optional(NumSchema),
-	seconds: v.optional(NumSchema),
-	milliseconds: v.optional(NumSchema),
-	microseconds: v.optional(NumSchema),
-	nanoseconds: v.optional(NumSchema),
+  years: v.optional(NumSchema),
+  months: v.optional(NumSchema),
+  weeks: v.optional(NumSchema),
+  days: v.optional(NumSchema),
+  hours: v.optional(NumSchema),
+  minutes: v.optional(NumSchema),
+  seconds: v.optional(NumSchema),
+  milliseconds: v.optional(NumSchema),
+  microseconds: v.optional(NumSchema),
+  nanoseconds: v.optional(NumSchema),
 });
 
 /** Duration input object. */
@@ -760,50 +760,50 @@ export type DurationInput = v.InferOutput<typeof DurationInputSchema>;
  * ```
  */
 export function formatDuration(
-	duration: DurationInput,
-	locale: Str,
-	style?: DurationStyle,
+  duration: DurationInput,
+  locale: Str,
+  style?: DurationStyle,
 ): Result<Str> {
-	const durationResult: Result<DurationInput> = safeParse(DurationInputSchema, duration);
-	if (!durationResult.ok) return durationResult;
-	const localeResult: Result<Str> = safeParse(StrSchema, locale);
-	if (!localeResult.ok) return localeResult;
-	if (style !== undefined) {
-		const styleResult: Result<DurationStyle> = safeParse(DurationStyleSchema, style);
-		if (!styleResult.ok) return styleResult;
-	}
+  const durationResult: Result<DurationInput> = safeParse(DurationInputSchema, duration);
+  if (!durationResult.ok) return durationResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, locale);
+  if (!localeResult.ok) return localeResult;
+  if (style !== undefined) {
+    const styleResult: Result<DurationStyle> = safeParse(DurationStyleSchema, style);
+    if (!styleResult.ok) return styleResult;
+  }
 
-	// Check runtime support — Intl.DurationFormat is ES2025, not available in all runtimes
-	if (typeof Intl === 'undefined' || !('DurationFormat' in Intl)) {
-		return err(ERRORS.LOCALE.FORMAT_FAILED, {
-			meta: {
-				type: 'duration',
-				locale: localeResult.data,
-				reason:
-					'Intl.DurationFormat is not available in this runtime. Requires Node 22.6+, Chrome 129+, Firefox 131+, or Safari 16.4+.',
-			},
-		});
-	}
+  // Check runtime support — Intl.DurationFormat is ES2025, not available in all runtimes
+  if (typeof Intl === 'undefined' || !('DurationFormat' in Intl)) {
+    return err(ERRORS.LOCALE.FORMAT_FAILED, {
+      meta: {
+        type: 'duration',
+        locale: localeResult.data,
+        reason:
+          'Intl.DurationFormat is not available in this runtime. Requires Node 22.6+, Chrome 129+, Firefox 131+, or Safari 16.4+.',
+      },
+    });
+  }
 
-	try {
-		const DurationFormat = (Intl as Record<Str, unknown>).DurationFormat as new (
-			locale: Str,
-			options?: { style?: Str },
-		) => { format: (duration: DurationInput) => Str }; // Irreducible: Intl.DurationFormat not in TS lib es2024 — runtime-guarded by 'DurationFormat' in Intl check above
-		const formatter = new DurationFormat(localeResult.data, {
-			style: style ?? 'long',
-		});
-		const formatted: Str = formatter.format(durationResult.data);
-		return ok(StrSchema, formatted);
-	} catch (error: unknown) {
-		return err(ERRORS.LOCALE.FORMAT_FAILED, {
-			meta: {
-				type: 'duration',
-				locale: localeResult.data,
-				reason: error instanceof Error ? error.message : String(error),
-			},
-		});
-	}
+  try {
+    const DurationFormat = (Intl as Record<Str, unknown>).DurationFormat as new (
+      locale: Str,
+      options?: { style?: Str },
+    ) => { format: (duration: DurationInput) => Str }; // Irreducible: Intl.DurationFormat not in TS lib es2024 — runtime-guarded by 'DurationFormat' in Intl check above
+    const formatter = new DurationFormat(localeResult.data, {
+      style: style ?? 'long',
+    });
+    const formatted: Str = formatter.format(durationResult.data);
+    return ok(StrSchema, formatted);
+  } catch (error: unknown) {
+    return err(ERRORS.LOCALE.FORMAT_FAILED, {
+      meta: {
+        type: 'duration',
+        locale: localeResult.data,
+        reason: error instanceof Error ? error.message : String(error),
+      },
+    });
+  }
 }
 
 // =============================================================================
@@ -832,100 +832,100 @@ export function formatDuration(
  * @returns `Result<Intl.NumberFormatOptions>` — parsed options, or a validation error.
  */
 export function parseNumberSkeleton(skeleton: Str): Result<Intl.NumberFormatOptions> {
-	const skeletonResult: Result<Str> = safeParse(StrSchema, skeleton);
-	if (!skeletonResult.ok) return skeletonResult;
+  const skeletonResult: Result<Str> = safeParse(StrSchema, skeleton);
+  if (!skeletonResult.ok) return skeletonResult;
 
-	const tokens: Str[] = skeletonResult.data.trim().split(/\s+/);
-	const options: Intl.NumberFormatOptions = {};
+  const tokens: Str[] = skeletonResult.data.trim().split(/\s+/);
+  const options: Intl.NumberFormatOptions = {};
 
-	for (const token of tokens) {
-		if (token === '') continue;
+  for (const token of tokens) {
+    if (token === '') continue;
 
-		if (token.startsWith('currency/')) {
-			options.style = 'currency';
-			options.currency = token.slice('currency/'.length);
-			continue;
-		}
-		if (token.startsWith('unit/') || token.startsWith('measure-unit/')) {
-			options.style = 'unit';
-			options.unit = token.slice(token.indexOf('/') + 1);
-			continue;
-		}
-		if (token === 'compact-short') {
-			options.notation = 'compact';
-			options.compactDisplay = 'short';
-			continue;
-		}
-		if (token === 'compact-long') {
-			options.notation = 'compact';
-			options.compactDisplay = 'long';
-			continue;
-		}
-		if (token === 'scientific') {
-			options.notation = 'scientific';
-			continue;
-		}
-		if (token === 'engineering') {
-			options.notation = 'engineering';
-			continue;
-		}
-		if (token === 'sign-always') {
-			options.signDisplay = 'always';
-			continue;
-		}
-		if (token === 'sign-never') {
-			options.signDisplay = 'never';
-			continue;
-		}
-		if (token === 'sign-except-zero') {
-			options.signDisplay = 'exceptZero';
-			continue;
-		}
-		if (token === 'sign-auto') {
-			options.signDisplay = 'auto';
-			continue;
-		}
-		if (token === 'percent') {
-			options.style = 'percent';
-			continue;
-		}
-		if (token === 'group-off') {
-			options.useGrouping = false;
-			continue;
-		}
-		if (token === 'group-min2') {
-			options.useGrouping = 'min2' as unknown as Intl.NumberFormatOptions['useGrouping']; // Irreducible: 'min2' is valid per ECMA-402 but TS lib types useGrouping as boolean | undefined
-			continue;
-		}
-		if (token === 'integer') {
-			options.maximumFractionDigits = 0;
-			continue;
-		}
+    if (token.startsWith('currency/')) {
+      options.style = 'currency';
+      options.currency = token.slice('currency/'.length);
+      continue;
+    }
+    if (token.startsWith('unit/') || token.startsWith('measure-unit/')) {
+      options.style = 'unit';
+      options.unit = token.slice(token.indexOf('/') + 1);
+      continue;
+    }
+    if (token === 'compact-short') {
+      options.notation = 'compact';
+      options.compactDisplay = 'short';
+      continue;
+    }
+    if (token === 'compact-long') {
+      options.notation = 'compact';
+      options.compactDisplay = 'long';
+      continue;
+    }
+    if (token === 'scientific') {
+      options.notation = 'scientific';
+      continue;
+    }
+    if (token === 'engineering') {
+      options.notation = 'engineering';
+      continue;
+    }
+    if (token === 'sign-always') {
+      options.signDisplay = 'always';
+      continue;
+    }
+    if (token === 'sign-never') {
+      options.signDisplay = 'never';
+      continue;
+    }
+    if (token === 'sign-except-zero') {
+      options.signDisplay = 'exceptZero';
+      continue;
+    }
+    if (token === 'sign-auto') {
+      options.signDisplay = 'auto';
+      continue;
+    }
+    if (token === 'percent') {
+      options.style = 'percent';
+      continue;
+    }
+    if (token === 'group-off') {
+      options.useGrouping = false;
+      continue;
+    }
+    if (token === 'group-min2') {
+      options.useGrouping = 'min2' as unknown as Intl.NumberFormatOptions['useGrouping']; // Irreducible: 'min2' is valid per ECMA-402 but TS lib types useGrouping as boolean | undefined
+      continue;
+    }
+    if (token === 'integer') {
+      options.maximumFractionDigits = 0;
+      continue;
+    }
 
-		// Fraction digits: .00 (exact min & max)
-		const exactMatch: NullableRegExpMatchArray = token.match(/^\.([0]+)$/);
-		if (exactMatch?.[1]) {
-			options.minimumFractionDigits = exactMatch[1].length;
-			options.maximumFractionDigits = exactMatch[1].length;
-			continue;
-		}
-		// Fraction digits: .## (max only)
-		const maxMatch: NullableRegExpMatchArray = token.match(/^\.([#]+)$/);
-		if (maxMatch?.[1]) {
-			options.maximumFractionDigits = maxMatch[1].length;
-			continue;
-		}
-		// Mixed: .00## (min from 0-count, max from 0+# count)
-		const mixedMatch: NullableRegExpMatchArray = token.match(/^\.([0]+)([#]+)$/);
-		if (mixedMatch?.[1] && mixedMatch[2]) {
-			options.minimumFractionDigits = mixedMatch[1].length;
-			options.maximumFractionDigits = mixedMatch[1].length + mixedMatch[2].length;
-			continue;
-		}
-		// Unknown token — skip for forward compatibility
-	}
+    // Fraction digits: .00 (exact min & max)
+    const exactMatch: NullableRegExpMatchArray = token.match(/^\.([0]+)$/);
+    if (exactMatch?.[1]) {
+      options.minimumFractionDigits = exactMatch[1].length;
+      options.maximumFractionDigits = exactMatch[1].length;
+      continue;
+    }
+    // Fraction digits: .## (max only)
+    const maxMatch: NullableRegExpMatchArray = token.match(/^\.([#]+)$/);
+    if (maxMatch?.[1]) {
+      options.maximumFractionDigits = maxMatch[1].length;
+      continue;
+    }
+    // Mixed: .00## (min from 0-count, max from 0+# count)
+    const mixedMatch: NullableRegExpMatchArray = token.match(/^\.([0]+)([#]+)$/);
+    if (mixedMatch?.[1] && mixedMatch[2]) {
+      options.minimumFractionDigits = mixedMatch[1].length;
+      options.maximumFractionDigits = mixedMatch[1].length + mixedMatch[2].length;
+      continue;
+    }
+    // Unknown token — skip for forward compatibility
+  }
 
-	return okUnchecked<Intl.NumberFormatOptions>(options);
+  return okUnchecked<Intl.NumberFormatOptions>(options);
 }
 
 // =============================================================================
@@ -954,69 +954,69 @@ export function parseNumberSkeleton(skeleton: Str): Result<Intl.NumberFormatOpti
  * @returns `Result<Intl.DateTimeFormatOptions>` — parsed options, or a validation error.
  */
 export function parseDateTimeSkeleton(skeleton: Str): Result<Intl.DateTimeFormatOptions> {
-	const skeletonResult: Result<Str> = safeParse(StrSchema, skeleton);
-	if (!skeletonResult.ok) return skeletonResult;
+  const skeletonResult: Result<Str> = safeParse(StrSchema, skeleton);
+  if (!skeletonResult.ok) return skeletonResult;
 
-	const options: Intl.DateTimeFormatOptions = {};
-	const s: Str = skeletonResult.data.trim();
-	let i: Num = 0;
+  const options: Intl.DateTimeFormatOptions = {};
+  const s: Str = skeletonResult.data.trim();
+  let i: Num = 0;
 
-	while (i < s.length) {
-		// oxlint-disable-next-line typescript/no-non-null-assertion -- guarded by i < s.length in while condition
-		const ch: Str = s[i]!;
-		let count: Num = 0;
-		while (i < s.length && s[i] === ch) {
-			count++;
-			i++;
-		}
+  while (i < s.length) {
+    // oxlint-disable-next-line typescript/no-non-null-assertion -- guarded by i < s.length in while condition
+    const ch: Str = s[i]!;
+    let count: Num = 0;
+    while (i < s.length && s[i] === ch) {
+      count++;
+      i++;
+    }
 
-		switch (ch) {
-			case 'y': {
-				options.year = count === 2 ? '2-digit' : 'numeric';
-				break;
-			}
-			case 'M': {
-				if (count >= 4) options.month = 'long';
-				else if (count === 3) options.month = 'short';
-				else if (count === 2) options.month = '2-digit';
-				else options.month = 'numeric';
-				break;
-			}
-			case 'd': {
-				options.day = count >= 2 ? '2-digit' : 'numeric';
-				break;
-			}
-			case 'E': {
-				options.weekday = count >= 4 ? 'long' : 'short';
-				break;
-			}
-			case 'h': {
-				options.hour = count >= 2 ? '2-digit' : 'numeric';
-				options.hourCycle = 'h12';
-				break;
-			}
-			case 'H': {
-				options.hour = count >= 2 ? '2-digit' : 'numeric';
-				options.hourCycle = 'h23';
-				break;
-			}
-			case 'm': {
-				options.minute = count >= 2 ? '2-digit' : 'numeric';
-				break;
-			}
-			case 's': {
-				options.second = count >= 2 ? '2-digit' : 'numeric';
-				break;
-			}
-			case 'z': {
-				options.timeZoneName = count >= 4 ? 'long' : 'short';
-				break;
-			}
-			default: {
-				break;
-			} // Unknown symbol — skip
-		}
-	}
+    switch (ch) {
+      case 'y': {
+        options.year = count === 2 ? '2-digit' : 'numeric';
+        break;
+      }
+      case 'M': {
+        if (count >= 4) options.month = 'long';
+        else if (count === 3) options.month = 'short';
+        else if (count === 2) options.month = '2-digit';
+        else options.month = 'numeric';
+        break;
+      }
+      case 'd': {
+        options.day = count >= 2 ? '2-digit' : 'numeric';
+        break;
+      }
+      case 'E': {
+        options.weekday = count >= 4 ? 'long' : 'short';
+        break;
+      }
+      case 'h': {
+        options.hour = count >= 2 ? '2-digit' : 'numeric';
+        options.hourCycle = 'h12';
+        break;
+      }
+      case 'H': {
+        options.hour = count >= 2 ? '2-digit' : 'numeric';
+        options.hourCycle = 'h23';
+        break;
+      }
+      case 'm': {
+        options.minute = count >= 2 ? '2-digit' : 'numeric';
+        break;
+      }
+      case 's': {
+        options.second = count >= 2 ? '2-digit' : 'numeric';
+        break;
+      }
+      case 'z': {
+        options.timeZoneName = count >= 4 ? 'long' : 'short';
+        break;
+      }
+      default: {
+        break;
+      } // Unknown symbol — skip
+    }
+  }
 
-	return okUnchecked<Intl.DateTimeFormatOptions>(options);
+  return okUnchecked<Intl.DateTimeFormatOptions>(options);
 }

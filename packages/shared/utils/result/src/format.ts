@@ -44,11 +44,11 @@ import { type AppError, type Result, ok, okUnchecked } from '@/schemas/result/re
  * ```
  */
 export function formatErrorDisplay(error: AppError): Result<Str> {
-	let output = `${error.code}: ${error.message}`;
-	if (error.help) {
-		output = `${output}. Tip: ${error.help}`;
-	}
-	return ok(StrSchema, output);
+  let output = `${error.code}: ${error.message}`;
+  if (error.help) {
+    output = `${output}. Tip: ${error.help}`;
+  }
+  return ok(StrSchema, output);
 }
 
 // =============================================================================
@@ -76,78 +76,78 @@ export function formatErrorDisplay(error: AppError): Result<Str> {
  * ```
  */
 export function formatErrorDebug(error: AppError): Result<Str> {
-	const lines: string[] = [
-		`[${error.code}] ${error.message}`,
-		`  id: ${error.id}`,
-		`  timestamp: ${error.timestamp}`,
-	];
+  const lines: string[] = [
+    `[${error.code}] ${error.message}`,
+    `  id: ${error.id}`,
+    `  timestamp: ${error.timestamp}`,
+  ];
 
-	if (error.severity) lines.push(`  severity: ${error.severity}`);
-	if (error.httpStatus) lines.push(`  httpStatus: ${error.httpStatus}`);
-	if (error.help) lines.push(`  help: ${error.help}`);
-	if (error.retry) {
-		const retryParts: string[] = [`retryable=${String(error.retry.retryable)}`];
-		if (error.retry.retryAfterMs !== undefined)
-			retryParts.push(`after=${String(error.retry.retryAfterMs)}ms`);
-		if (error.retry.maxRetries !== undefined)
-			retryParts.push(`max=${String(error.retry.maxRetries)}`);
-		lines.push(`  retry: ${retryParts.join(', ')}`);
-	}
-	if (error.tags) {
-		const tagEntries: string = Object.entries(error.tags)
-			.map(([k, val]) => `${k}=${val}`)
-			.join(', ');
-		lines.push(`  tags: { ${tagEntries} }`);
-	}
-	if (error.links) {
-		for (const link of error.links) {
-			lines.push(`  link: ${link.description} → ${link.url}`);
-		}
-	}
-	if (error.meta) {
-		lines.push(`  meta: ${JSON.stringify(error.meta)}`);
-	}
-	if (error.source) {
-		const sourceParts: string[] = [];
-		if (error.source.pointer) sourceParts.push(`pointer=${error.source.pointer}`);
-		if (error.source.parameter) sourceParts.push(`parameter=${error.source.parameter}`);
-		if (error.source.header) sourceParts.push(`header=${error.source.header}`);
-		lines.push(`  source: { ${sourceParts.join(', ')} }`);
-	}
-	if (error.validation) {
-		lines.push(`  validation: ${String(error.validation.issues.length)} issue(s)`);
-		for (const issue of error.validation.issues) {
-			const path: string =
-				issue.path?.map((p: { key?: unknown }) => String(p.key)).join('.') || 'root';
-			lines.push(`    ${path}: ${issue.message}`);
-		}
-	}
-	if (error.related && error.related.length > 0) {
-		lines.push(`  related: ${String(error.related.length)} error(s)`);
-		for (const rel of error.related) {
-			lines.push(`    [${rel.code}] ${rel.message}`);
-		}
-	}
-	if (error.cause) {
-		lines.push(`  caused by:`);
-		let current: AppError | undefined = error.cause;
-		let depth = 1;
-		while (current && depth <= 10) {
-			lines.push(`    ${'  '.repeat(depth - 1)}[${current.code}] ${current.message}`);
-			current = current.cause;
-			depth++;
-		}
-	}
-	if (error.stack) {
-		lines.push(`  stack:`);
-		const stackLines: string[] = error.stack
-			.split('\n')
-			.slice(0, 10)
-			.map((l) => `    ${l.trim()}`);
-		lines.push(...stackLines);
-	}
+  if (error.severity) lines.push(`  severity: ${error.severity}`);
+  if (error.httpStatus) lines.push(`  httpStatus: ${error.httpStatus}`);
+  if (error.help) lines.push(`  help: ${error.help}`);
+  if (error.retry) {
+    const retryParts: string[] = [`retryable=${String(error.retry.retryable)}`];
+    if (error.retry.retryAfterMs !== undefined)
+      retryParts.push(`after=${String(error.retry.retryAfterMs)}ms`);
+    if (error.retry.maxRetries !== undefined)
+      retryParts.push(`max=${String(error.retry.maxRetries)}`);
+    lines.push(`  retry: ${retryParts.join(', ')}`);
+  }
+  if (error.tags) {
+    const tagEntries: string = Object.entries(error.tags)
+      .map(([k, val]) => `${k}=${val}`)
+      .join(', ');
+    lines.push(`  tags: { ${tagEntries} }`);
+  }
+  if (error.links) {
+    for (const link of error.links) {
+      lines.push(`  link: ${link.description} → ${link.url}`);
+    }
+  }
+  if (error.meta) {
+    lines.push(`  meta: ${JSON.stringify(error.meta)}`);
+  }
+  if (error.source) {
+    const sourceParts: string[] = [];
+    if (error.source.pointer) sourceParts.push(`pointer=${error.source.pointer}`);
+    if (error.source.parameter) sourceParts.push(`parameter=${error.source.parameter}`);
+    if (error.source.header) sourceParts.push(`header=${error.source.header}`);
+    lines.push(`  source: { ${sourceParts.join(', ')} }`);
+  }
+  if (error.validation) {
+    lines.push(`  validation: ${String(error.validation.issues.length)} issue(s)`);
+    for (const issue of error.validation.issues) {
+      const path: string =
+        issue.path?.map((p: { key?: unknown }) => String(p.key)).join('.') || 'root';
+      lines.push(`    ${path}: ${issue.message}`);
+    }
+  }
+  if (error.related && error.related.length > 0) {
+    lines.push(`  related: ${String(error.related.length)} error(s)`);
+    for (const rel of error.related) {
+      lines.push(`    [${rel.code}] ${rel.message}`);
+    }
+  }
+  if (error.cause) {
+    lines.push(`  caused by:`);
+    let current: AppError | undefined = error.cause;
+    let depth = 1;
+    while (current && depth <= 10) {
+      lines.push(`    ${'  '.repeat(depth - 1)}[${current.code}] ${current.message}`);
+      current = current.cause;
+      depth++;
+    }
+  }
+  if (error.stack) {
+    lines.push(`  stack:`);
+    const stackLines: string[] = error.stack
+      .split('\n')
+      .slice(0, 10)
+      .map((l) => `    ${l.trim()}`);
+    lines.push(...stackLines);
+  }
 
-	return ok(StrSchema, lines.join('\n'));
+  return ok(StrSchema, lines.join('\n'));
 }
 
 // =============================================================================
@@ -173,7 +173,7 @@ export function formatErrorDebug(error: AppError): Result<Str> {
  * ```
  */
 export function formatErrorJson(error: AppError): Result<Str> {
-	return ok(StrSchema, JSON.stringify(error));
+  return ok(StrSchema, JSON.stringify(error));
 }
 
 // =============================================================================
@@ -186,31 +186,31 @@ export function formatErrorJson(error: AppError): Result<Str> {
  * @see https://www.rfc-editor.org/rfc/rfc9457.html
  */
 export const ProblemDetailsSchema = v.strictObject({
-	/** URI reference identifying the problem type. Defaults to `'about:blank'`. */
-	type: v.string(),
-	/** Short human-readable summary (stable, not occurrence-specific). */
-	title: v.string(),
-	/** HTTP status code. */
-	status: v.number(),
-	/** Occurrence-specific human-readable explanation. */
-	detail: v.string(),
-	/** URI identifying this specific occurrence (the error ID). */
-	instance: v.string(),
-	/** Machine-readable error code (extension member). */
-	code: v.string(),
-	/** Correlation ID (extension member). */
-	correlationId: v.string(),
-	/** ISO 8601 timestamp (extension member). */
-	timestamp: v.string(),
-	/** Validation errors (extension member, optional). */
-	errors: v.optional(
-		v.array(
-			v.strictObject({
-				field: v.string(),
-				message: v.string(),
-			}),
-		),
-	),
+  /** URI reference identifying the problem type. Defaults to `'about:blank'`. */
+  type: v.string(),
+  /** Short human-readable summary (stable, not occurrence-specific). */
+  title: v.string(),
+  /** HTTP status code. */
+  status: v.number(),
+  /** Occurrence-specific human-readable explanation. */
+  detail: v.string(),
+  /** URI identifying this specific occurrence (the error ID). */
+  instance: v.string(),
+  /** Machine-readable error code (extension member). */
+  code: v.string(),
+  /** Correlation ID (extension member). */
+  correlationId: v.string(),
+  /** ISO 8601 timestamp (extension member). */
+  timestamp: v.string(),
+  /** Validation errors (extension member, optional). */
+  errors: v.optional(
+    v.array(
+      v.strictObject({
+        field: v.string(),
+        message: v.string(),
+      }),
+    ),
+  ),
 });
 
 /** Inferred output type of {@link ProblemDetailsSchema}. */
@@ -247,25 +247,25 @@ export type ProblemDetails = v.InferOutput<typeof ProblemDetailsSchema>;
  * ```
  */
 export function toRfc9457(error: AppError, baseUrl: Str): Result<ProblemDetails> {
-	const validationErrors: { field: string; message: string }[] | undefined =
-		error.validation?.issues.map((issue) => ({
-			field: issue.path?.map((p: { key?: unknown }) => String(p.key)).join('.') || 'root',
-			message: issue.message as string,
-		}));
+  const validationErrors: { field: string; message: string }[] | undefined =
+    error.validation?.issues.map((issue) => ({
+      field: issue.path?.map((p: { key?: unknown }) => String(p.key)).join('.') || 'root',
+      message: issue.message as string,
+    }));
 
-	const details: ProblemDetails = {
-		type: `${baseUrl}/${error.code}`,
-		title: error.code,
-		status: error.httpStatus ?? 500,
-		detail: error.message,
-		instance: `urn:uuid:${error.id}`,
-		code: error.code,
-		correlationId: error.id,
-		timestamp: error.timestamp,
-		...(validationErrors && validationErrors.length > 0 && { errors: validationErrors }),
-	};
+  const details: ProblemDetails = {
+    type: `${baseUrl}/${error.code}`,
+    title: error.code,
+    status: error.httpStatus ?? 500,
+    detail: error.message,
+    instance: `urn:uuid:${error.id}`,
+    code: error.code,
+    correlationId: error.id,
+    timestamp: error.timestamp,
+    ...(validationErrors && validationErrors.length > 0 && { errors: validationErrors }),
+  };
 
-	return ok(ProblemDetailsSchema, details);
+  return ok(ProblemDetailsSchema, details);
 }
 
 // =============================================================================
@@ -294,17 +294,17 @@ export function toRfc9457(error: AppError, baseUrl: Str): Result<ProblemDetails>
  * ```
  */
 export function toHttpResponse(error: AppError, baseUrl: Str): Result<Response> {
-	const problem: Result<ProblemDetails> = toRfc9457(error, baseUrl);
-	if (!problem.ok) return problem;
+  const problem: Result<ProblemDetails> = toRfc9457(error, baseUrl);
+  if (!problem.ok) return problem;
 
-	const response: Response = new Response(JSON.stringify(problem.data), {
-		status: error.httpStatus ?? 500,
-		headers: {
-			'Content-Type': 'application/problem+json',
-		},
-	});
+  const response: Response = new Response(JSON.stringify(problem.data), {
+    status: error.httpStatus ?? 500,
+    headers: {
+      'Content-Type': 'application/problem+json',
+    },
+  });
 
-	return okUnchecked<Response>(response);
+  return okUnchecked<Response>(response);
 }
 
 // =============================================================================
@@ -335,42 +335,42 @@ export function toHttpResponse(error: AppError, baseUrl: Str): Result<Response> 
  * ```
  */
 export function formatErrorSafe(error: AppError): Result<AppError> {
-	const safeCause: AppError | undefined = error.cause
-		? (() => {
-				// oxlint-disable-next-line typescript/no-non-null-assertion -- guarded by error.cause truthiness check in ternary condition
-				const result: Result<AppError> = formatErrorSafe(error.cause!);
-				return result.ok ? (result.data as AppError) : undefined;
-			})()
-		: undefined;
+  const safeCause: AppError | undefined = error.cause
+    ? (() => {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- guarded by error.cause truthiness check in ternary condition
+        const result: Result<AppError> = formatErrorSafe(error.cause!);
+        return result.ok ? (result.data as AppError) : undefined;
+      })()
+    : undefined;
 
-	const safeRelated: AppError[] | undefined = error.related
-		? error.related.map((r) => {
-				const result: Result<AppError> = formatErrorSafe(r);
-				return result.ok
-					? (result.data as AppError)
-					: ({
-							code: r.code,
-							message: r.code,
-							id: r.id,
-							timestamp: r.timestamp,
-							stack: '',
-						} as AppError);
-			})
-		: undefined;
+  const safeRelated: AppError[] | undefined = error.related
+    ? error.related.map((r) => {
+        const result: Result<AppError> = formatErrorSafe(r);
+        return result.ok
+          ? (result.data as AppError)
+          : ({
+              code: r.code,
+              message: r.code,
+              id: r.id,
+              timestamp: r.timestamp,
+              stack: '',
+            } as AppError);
+      })
+    : undefined;
 
-	const safeError: AppError = {
-		code: error.code,
-		message: error.code, // Replace occurrence-specific message with code
-		id: error.id,
-		timestamp: error.timestamp,
-		stack: '', // Strip stack traces (may contain file paths)
-		...(error.severity !== undefined && { severity: error.severity }),
-		...(error.httpStatus !== undefined && { httpStatus: error.httpStatus }),
-		...(error.tags !== undefined && { tags: error.tags }), // Tags are safe (string→string)
-		...(error.retry !== undefined && { retry: error.retry }),
-		...(safeCause !== undefined && { cause: safeCause }),
-		...(safeRelated !== undefined && safeRelated.length > 0 && { related: safeRelated }),
-	};
+  const safeError: AppError = {
+    code: error.code,
+    message: error.code, // Replace occurrence-specific message with code
+    id: error.id,
+    timestamp: error.timestamp,
+    stack: '', // Strip stack traces (may contain file paths)
+    ...(error.severity !== undefined && { severity: error.severity }),
+    ...(error.httpStatus !== undefined && { httpStatus: error.httpStatus }),
+    ...(error.tags !== undefined && { tags: error.tags }), // Tags are safe (string→string)
+    ...(error.retry !== undefined && { retry: error.retry }),
+    ...(safeCause !== undefined && { cause: safeCause }),
+    ...(safeRelated !== undefined && safeRelated.length > 0 && { related: safeRelated }),
+  };
 
-	return okUnchecked<AppError>(safeError);
+  return okUnchecked<AppError>(safeError);
 }

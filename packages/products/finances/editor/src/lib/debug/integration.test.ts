@@ -8,10 +8,10 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Bool, Num, Str } from '@/schemas/common';
 import {
-	parseDebugParams,
-	applyUrlOverrides,
-	isValidAppKey,
-	isValidFeatureFlag,
+  parseDebugParams,
+  applyUrlOverrides,
+  isValidAppKey,
+  isValidFeatureFlag,
 } from '$lib/utils/url-params';
 import { createDevtoolsAPI, DEVTOOLS_KEY, type EditorDevtools } from './devtools-api.svelte';
 import { activateDebugServices, syncDebugServices, type DebugServicesHandle } from './init.svelte';
@@ -21,13 +21,13 @@ import { APP_NAME, URL_PARAM_PREFIX } from '$lib/config/app-meta';
 
 // Mock state-logger to avoid $effect in tests
 vi.mock('./state-logger.svelte', async () => {
-	const mod = await import('./state-logger.svelte');
-	return {
-		LOG_LEVEL_PRIORITY: mod.LOG_LEVEL_PRIORITY,
-		shouldLog: mod.shouldLog,
-		createStateLogger: vi.fn(() => ({ destroy: vi.fn() })),
-		createWatcher: vi.fn(() => vi.fn()),
-	};
+  const mod = await import('./state-logger.svelte');
+  return {
+    LOG_LEVEL_PRIORITY: mod.LOG_LEVEL_PRIORITY,
+    shouldLog: mod.shouldLog,
+    createStateLogger: vi.fn(() => ({ destroy: vi.fn() })),
+    createWatcher: vi.fn(() => vi.fn()),
+  };
 });
 
 /**
@@ -36,86 +36,86 @@ vi.mock('./state-logger.svelte', async () => {
  * @returns The devtools instance or undefined if not registered
  */
 const devtoolsGlobal = (): EditorDevtools | undefined =>
-	(window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools | undefined;
+  (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] as EditorDevtools | undefined;
 
 const okVoid = () => ({ ok: true as const, data: undefined, error: null });
 
 const createMockEditorStore = () => ({
-	app: {
-		appName: APP_NAME,
-		theme: '' as
-			| ''
-			| 'midnight'
-			| 'warm'
-			| 'forest'
-			| 'ocean'
-			| 'rose'
-			| 'lavender'
-			| 'sunset'
-			| 'slate'
-			| 'copper'
-			| 'aurora'
-			| 'amethyst',
-		mode: 'system' as 'light' | 'dark' | 'system',
-		locale: 'en' as 'en' | 'ja' | 'zh' | 'ko' | 'fr' | 'de' | 'es',
-		sidebarOpen: true,
-		userName: 'User',
-		userEmail: '',
-		userAvatar: '',
-		subscriptionPlan: 'pro' as 'free' | 'starter' | 'pro' | 'enterprise',
-		mockDataDelay: 0,
-	},
-	features: {
-		showCharts: true,
-		showInflation: true,
-		showProjections: true,
-		showNetPosition: true,
-		settings: true,
-		themeSelection: true,
-		languageSelection: true,
-		modeToggle: true,
-		sidebar: true,
-		resizableSidebar: true,
-		breadcrumb: true,
-		sidebarToggle: true,
-		sidebarHelp: true,
-		appIconInSidebar: true,
-		appNameInSidebar: true,
-		headerUserDropdown: true,
-		headerUserAvatar: true,
-		headerUserAccount: true,
-		headerUserSubscription: true,
-		headerUserNotifications: true,
-		headerUserShortcuts: true,
-		headerUserSettings: true,
-		headerUserWhatsNew: true,
-		headerUserLogout: true,
-		authGatedUi: true,
-		skeletonLoading: true,
-	},
-	setAppName: vi.fn(okVoid),
-	setTheme: vi.fn(okVoid),
-	setMode: vi.fn(okVoid),
-	setLocale: vi.fn(okVoid),
-	setSidebarOpen: vi.fn(okVoid),
-	setUserName: vi.fn(okVoid),
-	setUserEmail: vi.fn(okVoid),
-	setUserAvatar: vi.fn(okVoid),
-	setSubscriptionPlan: vi.fn(okVoid),
-	setMockDataDelay: vi.fn(okVoid),
-	setFeature: vi.fn(okVoid),
-	save: vi.fn(okVoid),
-	load: vi.fn(okVoid),
+  app: {
+    appName: APP_NAME,
+    theme: '' as
+      | ''
+      | 'midnight'
+      | 'warm'
+      | 'forest'
+      | 'ocean'
+      | 'rose'
+      | 'lavender'
+      | 'sunset'
+      | 'slate'
+      | 'copper'
+      | 'aurora'
+      | 'amethyst',
+    mode: 'system' as 'light' | 'dark' | 'system',
+    locale: 'en' as 'en' | 'ja' | 'zh' | 'ko' | 'fr' | 'de' | 'es',
+    sidebarOpen: true,
+    userName: 'User',
+    userEmail: '',
+    userAvatar: '',
+    subscriptionPlan: 'pro' as 'free' | 'starter' | 'pro' | 'enterprise',
+    mockDataDelay: 0,
+  },
+  features: {
+    showCharts: true,
+    showInflation: true,
+    showProjections: true,
+    showNetPosition: true,
+    settings: true,
+    themeSelection: true,
+    languageSelection: true,
+    modeToggle: true,
+    sidebar: true,
+    resizableSidebar: true,
+    breadcrumb: true,
+    sidebarToggle: true,
+    sidebarHelp: true,
+    appIconInSidebar: true,
+    appNameInSidebar: true,
+    headerUserDropdown: true,
+    headerUserAvatar: true,
+    headerUserAccount: true,
+    headerUserSubscription: true,
+    headerUserNotifications: true,
+    headerUserShortcuts: true,
+    headerUserSettings: true,
+    headerUserWhatsNew: true,
+    headerUserLogout: true,
+    authGatedUi: true,
+    skeletonLoading: true,
+  },
+  setAppName: vi.fn(okVoid),
+  setTheme: vi.fn(okVoid),
+  setMode: vi.fn(okVoid),
+  setLocale: vi.fn(okVoid),
+  setSidebarOpen: vi.fn(okVoid),
+  setUserName: vi.fn(okVoid),
+  setUserEmail: vi.fn(okVoid),
+  setUserAvatar: vi.fn(okVoid),
+  setSubscriptionPlan: vi.fn(okVoid),
+  setMockDataDelay: vi.fn(okVoid),
+  setFeature: vi.fn(okVoid),
+  save: vi.fn(okVoid),
+  load: vi.fn(okVoid),
 });
 
 const createMockDebugStore = (enabled: Bool, logLevel = 'info') => ({
-	debug: {
-		enabled,
-		logLevel: logLevel as 'trace' | 'debug' | 'info' | 'warn' | 'error',
-	},
-	urlOverrides: {} as Record<Str, Str>,
-	setEnabled: vi.fn(okVoid),
-	setLogLevel: vi.fn(okVoid),
+  debug: {
+    enabled,
+    logLevel: logLevel as 'trace' | 'debug' | 'info' | 'warn' | 'error',
+  },
+  urlOverrides: {} as Record<Str, Str>,
+  setEnabled: vi.fn(okVoid),
+  setLogLevel: vi.fn(okVoid),
 });
 
 let editorStore: ReturnType<typeof createMockEditorStore>;
@@ -125,18 +125,18 @@ let groupSpy: ReturnType<typeof vi.spyOn>;
 let tableSpy: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
-	editorStore = createMockEditorStore();
-	consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-	warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-	tableSpy = vi.spyOn(console, 'table').mockImplementation(() => {});
-	groupSpy = vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
-	vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
-	(window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
+  editorStore = createMockEditorStore();
+  consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  tableSpy = vi.spyOn(console, 'table').mockImplementation(() => {});
+  groupSpy = vi.spyOn(console, 'groupCollapsed').mockImplementation(() => {});
+  vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+  (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
 });
 
 afterEach(() => {
-	vi.restoreAllMocks();
-	(window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
+  vi.restoreAllMocks();
+  (window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY] = undefined;
 });
 
 // =============================================================================
@@ -144,123 +144,123 @@ afterEach(() => {
 // =============================================================================
 
 describe('URL parsing → override application flow', () => {
-	it('parses and applies all override categories simultaneously', () => {
-		const url = new URL(
-			`http://localhost?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}logLevel=trace&${URL_PARAM_PREFIX}theme=midnight&${URL_PARAM_PREFIX}mode=dark&${URL_PARAM_PREFIX}locale=ja&${URL_PARAM_PREFIX}sidebarOpen=false&${URL_PARAM_PREFIX}appName=MyRPG&${URL_PARAM_PREFIX}ff.settings=false&${URL_PARAM_PREFIX}ff.sidebar=false`,
-		);
-		const debugStore = createMockDebugStore(false);
+  it('parses and applies all override categories simultaneously', () => {
+    const url = new URL(
+      `http://localhost?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}logLevel=trace&${URL_PARAM_PREFIX}theme=midnight&${URL_PARAM_PREFIX}mode=dark&${URL_PARAM_PREFIX}locale=ja&${URL_PARAM_PREFIX}sidebarOpen=false&${URL_PARAM_PREFIX}appName=MyRPG&${URL_PARAM_PREFIX}ff.settings=false&${URL_PARAM_PREFIX}ff.sidebar=false`,
+    );
+    const debugStore = createMockDebugStore(false);
 
-		const parseResult = parseDebugParams(url);
-		expect(parseResult.ok).toBe(true);
-		if (!parseResult.ok) return;
+    const parseResult = parseDebugParams(url);
+    expect(parseResult.ok).toBe(true);
+    if (!parseResult.ok) return;
 
-		applyUrlOverrides(editorStore, debugStore, parseResult.data);
+    applyUrlOverrides(editorStore, debugStore, parseResult.data);
 
-		// Debug params
-		expect(debugStore.setEnabled).toHaveBeenCalledWith(true);
-		expect(debugStore.setLogLevel).toHaveBeenCalledWith('trace');
+    // Debug params
+    expect(debugStore.setEnabled).toHaveBeenCalledWith(true);
+    expect(debugStore.setLogLevel).toHaveBeenCalledWith('trace');
 
-		// App preference params
-		expect(editorStore.setTheme).toHaveBeenCalledWith('midnight');
-		expect(editorStore.setMode).toHaveBeenCalledWith('dark');
-		expect(editorStore.setLocale).toHaveBeenCalledWith('ja');
-		expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(false);
-		expect(editorStore.setAppName).toHaveBeenCalledWith('MyRPG');
+    // App preference params
+    expect(editorStore.setTheme).toHaveBeenCalledWith('midnight');
+    expect(editorStore.setMode).toHaveBeenCalledWith('dark');
+    expect(editorStore.setLocale).toHaveBeenCalledWith('ja');
+    expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(false);
+    expect(editorStore.setAppName).toHaveBeenCalledWith('MyRPG');
 
-		// Feature flag params
-		expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
-		expect(editorStore.setFeature).toHaveBeenCalledWith('sidebar', false);
-	});
+    // Feature flag params
+    expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
+    expect(editorStore.setFeature).toHaveBeenCalledWith('sidebar', false);
+  });
 
-	it('warns about unknown params with list of valid options', () => {
-		const debugStore = createMockDebugStore(false);
-		applyUrlOverrides(editorStore, debugStore, { logLesel: 'debug' });
+  it('warns about unknown params with list of valid options', () => {
+    const debugStore = createMockDebugStore(false);
+    applyUrlOverrides(editorStore, debugStore, { logLesel: 'debug' });
 
-		expect(warnSpy).toHaveBeenCalledTimes(1);
-		const warnMsg = warnSpy.mock.calls[0]?.[0] as string;
-		expect(warnMsg).toContain(`Unknown URL override: ${URL_PARAM_PREFIX}logLesel=debug`);
-		expect(warnMsg).toContain('valid:');
-		expect(warnMsg).toContain('debug');
-		expect(warnMsg).toContain('logLevel');
-		expect(warnMsg).toContain('theme');
-	});
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    const warnMsg = warnSpy.mock.calls[0]?.[0] as string;
+    expect(warnMsg).toContain(`Unknown URL override: ${URL_PARAM_PREFIX}logLesel=debug`);
+    expect(warnMsg).toContain('valid:');
+    expect(warnMsg).toContain('debug');
+    expect(warnMsg).toContain('logLevel');
+    expect(warnMsg).toContain('theme');
+  });
 
-	it('warns for each unknown param individually', () => {
-		const debugStore = createMockDebugStore(false);
-		applyUrlOverrides(editorStore, debugStore, { foo: 'bar', baz: 'qux' });
+  it('warns for each unknown param individually', () => {
+    const debugStore = createMockDebugStore(false);
+    applyUrlOverrides(editorStore, debugStore, { foo: 'bar', baz: 'qux' });
 
-		expect(warnSpy).toHaveBeenCalledTimes(2);
-		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining(`${URL_PARAM_PREFIX}foo=bar`));
-		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining(`${URL_PARAM_PREFIX}baz=qux`));
-	});
+    expect(warnSpy).toHaveBeenCalledTimes(2);
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining(`${URL_PARAM_PREFIX}foo=bar`));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining(`${URL_PARAM_PREFIX}baz=qux`));
+  });
 
-	it('does not warn for any valid param', () => {
-		const debugStore = createMockDebugStore(false);
-		applyUrlOverrides(editorStore, debugStore, {
-			debug: 'true',
-			logLevel: 'debug',
-			theme: 'midnight',
-			mode: 'dark',
-			locale: 'ja',
-			sidebarOpen: 'false',
-			appName: 'Test',
-			'ff.settings': 'false',
-			'ff.sidebar': 'true',
-		});
-		expect(warnSpy).not.toHaveBeenCalled();
-	});
+  it('does not warn for any valid param', () => {
+    const debugStore = createMockDebugStore(false);
+    applyUrlOverrides(editorStore, debugStore, {
+      debug: 'true',
+      logLevel: 'debug',
+      theme: 'midnight',
+      mode: 'dark',
+      locale: 'ja',
+      sidebarOpen: 'false',
+      appName: 'Test',
+      'ff.settings': 'false',
+      'ff.sidebar': 'true',
+    });
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
 
-	it('converts sidebarOpen string to boolean', () => {
-		const debugStore = createMockDebugStore(false);
-		applyUrlOverrides(editorStore, debugStore, { sidebarOpen: 'true' });
-		expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(true);
+  it('converts sidebarOpen string to boolean', () => {
+    const debugStore = createMockDebugStore(false);
+    applyUrlOverrides(editorStore, debugStore, { sidebarOpen: 'true' });
+    expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(true);
 
-		applyUrlOverrides(editorStore, debugStore, { sidebarOpen: 'false' });
-		expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(false);
-	});
+    applyUrlOverrides(editorStore, debugStore, { sidebarOpen: 'false' });
+    expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(false);
+  });
 
-	it('converts feature flag strings to booleans', () => {
-		const debugStore = createMockDebugStore(false);
-		applyUrlOverrides(editorStore, debugStore, {
-			'ff.settings': 'true',
-			'ff.sidebar': 'false',
-		});
-		expect(editorStore.setFeature).toHaveBeenCalledWith('settings', true);
-		expect(editorStore.setFeature).toHaveBeenCalledWith('sidebar', false);
-	});
+  it('converts feature flag strings to booleans', () => {
+    const debugStore = createMockDebugStore(false);
+    applyUrlOverrides(editorStore, debugStore, {
+      'ff.settings': 'true',
+      'ff.sidebar': 'false',
+    });
+    expect(editorStore.setFeature).toHaveBeenCalledWith('settings', true);
+    expect(editorStore.setFeature).toHaveBeenCalledWith('sidebar', false);
+  });
 
-	it('ignores unknown feature flag keys without warning (ff.nonexistent)', () => {
-		const debugStore = createMockDebugStore(false);
-		const result = applyUrlOverrides(editorStore, debugStore, { 'ff.nonexistent': 'true' });
-		expect(result.ok).toBe(true);
-		expect(editorStore.setFeature).not.toHaveBeenCalled();
-		// ff.* keys don't trigger the unknown key warning — they're handled by the ff.* branch
-		expect(warnSpy).not.toHaveBeenCalled();
-	});
+  it('ignores unknown feature flag keys without warning (ff.nonexistent)', () => {
+    const debugStore = createMockDebugStore(false);
+    const result = applyUrlOverrides(editorStore, debugStore, { 'ff.nonexistent': 'true' });
+    expect(result.ok).toBe(true);
+    expect(editorStore.setFeature).not.toHaveBeenCalled();
+    // ff.* keys don't trigger the unknown key warning — they're handled by the ff.* branch
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
 
-	it('returns ok even when all params are unknown', () => {
-		const debugStore = createMockDebugStore(false);
-		const result = applyUrlOverrides(editorStore, debugStore, { x: '1', y: '2' });
-		expect(result.ok).toBe(true);
-	});
+  it('returns ok even when all params are unknown', () => {
+    const debugStore = createMockDebugStore(false);
+    const result = applyUrlOverrides(editorStore, debugStore, { x: '1', y: '2' });
+    expect(result.ok).toBe(true);
+  });
 
-	it('handles empty overrides', () => {
-		const debugStore = createMockDebugStore(false);
-		const result = applyUrlOverrides(editorStore, debugStore, {});
-		expect(result.ok).toBe(true);
-		expect(warnSpy).not.toHaveBeenCalled();
-	});
+  it('handles empty overrides', () => {
+    const debugStore = createMockDebugStore(false);
+    const result = applyUrlOverrides(editorStore, debugStore, {});
+    expect(result.ok).toBe(true);
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
 
-	it('ignores non-wf URL params during parsing', () => {
-		const url = new URL(
-			`http://localhost?foo=bar&page=1&${URL_PARAM_PREFIX}debug=true&utm_source=test`,
-		);
-		const result = parseDebugParams(url);
-		expect(result.ok).toBe(true);
-		if (result.ok) {
-			expect(Object.keys(result.data)).toEqual(['debug']);
-		}
-	});
+  it('ignores non-wf URL params during parsing', () => {
+    const url = new URL(
+      `http://localhost?foo=bar&page=1&${URL_PARAM_PREFIX}debug=true&utm_source=test`,
+    );
+    const result = parseDebugParams(url);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(Object.keys(result.data)).toEqual(['debug']);
+    }
+  });
 });
 
 // =============================================================================
@@ -268,65 +268,65 @@ describe('URL parsing → override application flow', () => {
 // =============================================================================
 
 describe('schema-driven validation helpers', () => {
-	it('isValidAppKey accepts all AppPreferences fields', () => {
-		for (const key of [
-			'appName',
-			'theme',
-			'mode',
-			'locale',
-			'sidebarOpen',
-			'userName',
-			'userEmail',
-			'userAvatar',
-		]) {
-			expect(isValidAppKey(key)).toBe(true);
-		}
-	});
+  it('isValidAppKey accepts all AppPreferences fields', () => {
+    for (const key of [
+      'appName',
+      'theme',
+      'mode',
+      'locale',
+      'sidebarOpen',
+      'userName',
+      'userEmail',
+      'userAvatar',
+    ]) {
+      expect(isValidAppKey(key)).toBe(true);
+    }
+  });
 
-	it('isValidAppKey rejects feature flag keys and unknowns', () => {
-		expect(isValidAppKey('settings')).toBe(false);
-		expect(isValidAppKey('logLevel')).toBe(false);
-		expect(isValidAppKey('nonexistent')).toBe(false);
-	});
+  it('isValidAppKey rejects feature flag keys and unknowns', () => {
+    expect(isValidAppKey('settings')).toBe(false);
+    expect(isValidAppKey('logLevel')).toBe(false);
+    expect(isValidAppKey('nonexistent')).toBe(false);
+  });
 
-	it('isValidFeatureFlag accepts all FeatureFlags fields', () => {
-		for (const key of [
-			'showCharts',
-			'showInflation',
-			'showProjections',
-			'showNetPosition',
-			'settings',
-			'themeSelection',
-			'languageSelection',
-			'modeToggle',
-			'sidebar',
-			'resizableSidebar',
-			'breadcrumb',
-			'sidebarToggle',
-			'sidebarHelp',
-			'appIconInSidebar',
-			'appNameInSidebar',
-			'headerUserDropdown',
-			'headerUserAvatar',
-			'headerUserAccount',
-			'headerUserSubscription',
-			'headerUserNotifications',
-			'headerUserShortcuts',
-			'headerUserSettings',
-			'headerUserWhatsNew',
-			'headerUserLogout',
-			'authGatedUi',
-			'skeletonLoading',
-		]) {
-			expect(isValidFeatureFlag(key)).toBe(true);
-		}
-	});
+  it('isValidFeatureFlag accepts all FeatureFlags fields', () => {
+    for (const key of [
+      'showCharts',
+      'showInflation',
+      'showProjections',
+      'showNetPosition',
+      'settings',
+      'themeSelection',
+      'languageSelection',
+      'modeToggle',
+      'sidebar',
+      'resizableSidebar',
+      'breadcrumb',
+      'sidebarToggle',
+      'sidebarHelp',
+      'appIconInSidebar',
+      'appNameInSidebar',
+      'headerUserDropdown',
+      'headerUserAvatar',
+      'headerUserAccount',
+      'headerUserSubscription',
+      'headerUserNotifications',
+      'headerUserShortcuts',
+      'headerUserSettings',
+      'headerUserWhatsNew',
+      'headerUserLogout',
+      'authGatedUi',
+      'skeletonLoading',
+    ]) {
+      expect(isValidFeatureFlag(key)).toBe(true);
+    }
+  });
 
-	it('isValidFeatureFlag rejects app keys and unknowns', () => {
-		expect(isValidFeatureFlag('theme')).toBe(false);
-		expect(isValidFeatureFlag('logLevel')).toBe(false);
-		expect(isValidFeatureFlag('nonexistent')).toBe(false);
-	});
+  it('isValidFeatureFlag rejects app keys and unknowns', () => {
+    expect(isValidFeatureFlag('theme')).toBe(false);
+    expect(isValidFeatureFlag('logLevel')).toBe(false);
+    expect(isValidFeatureFlag('nonexistent')).toBe(false);
+  });
 });
 
 // =============================================================================
@@ -334,95 +334,95 @@ describe('schema-driven validation helpers', () => {
 // =============================================================================
 
 describe('state logger pipeline', () => {
-	describe('shouldLog', () => {
-		it('allows debug messages at debug and trace levels', () => {
-			expect(shouldLog('debug', 'debug')).toBe(true);
-			expect(shouldLog('debug', 'trace')).toBe(true);
-		});
+  describe('shouldLog', () => {
+    it('allows debug messages at debug and trace levels', () => {
+      expect(shouldLog('debug', 'debug')).toBe(true);
+      expect(shouldLog('debug', 'trace')).toBe(true);
+    });
 
-		it('blocks debug messages at info, warn, error levels', () => {
-			expect(shouldLog('debug', 'info')).toBe(false);
-			expect(shouldLog('debug', 'warn')).toBe(false);
-			expect(shouldLog('debug', 'error')).toBe(false);
-		});
+    it('blocks debug messages at info, warn, error levels', () => {
+      expect(shouldLog('debug', 'info')).toBe(false);
+      expect(shouldLog('debug', 'warn')).toBe(false);
+      expect(shouldLog('debug', 'error')).toBe(false);
+    });
 
-		it('error messages pass at every level', () => {
-			for (const level of ['trace', 'debug', 'info', 'warn', 'error'] as const) {
-				expect(shouldLog('error', level)).toBe(true);
-			}
-		});
+    it('error messages pass at every level', () => {
+      for (const level of ['trace', 'debug', 'info', 'warn', 'error'] as const) {
+        expect(shouldLog('error', level)).toBe(true);
+      }
+    });
 
-		it('each level allows itself', () => {
-			for (const level of ['trace', 'debug', 'info', 'warn', 'error'] as const) {
-				expect(shouldLog(level, level)).toBe(true);
-			}
-		});
-	});
+    it('each level allows itself', () => {
+      for (const level of ['trace', 'debug', 'info', 'warn', 'error'] as const) {
+        expect(shouldLog(level, level)).toBe(true);
+      }
+    });
+  });
 
-	describe('diffSnapshot', () => {
-		it('detects string value changes', () => {
-			const diffs = diffSnapshot({ theme: 'warm' }, { theme: 'midnight' });
-			expect(diffs).toHaveLength(1);
-			expect(diffs[0]).toEqual({ key: 'theme', old: 'warm', new: 'midnight' });
-		});
+  describe('diffSnapshot', () => {
+    it('detects string value changes', () => {
+      const diffs = diffSnapshot({ theme: 'warm' }, { theme: 'midnight' });
+      expect(diffs).toHaveLength(1);
+      expect(diffs[0]).toEqual({ key: 'theme', old: 'warm', new: 'midnight' });
+    });
 
-		it('detects boolean value changes', () => {
-			const diffs = diffSnapshot({ sidebarOpen: true }, { sidebarOpen: false });
-			expect(diffs).toHaveLength(1);
-			expect(diffs[0]).toEqual({ key: 'sidebarOpen', old: true, new: false });
-		});
+    it('detects boolean value changes', () => {
+      const diffs = diffSnapshot({ sidebarOpen: true }, { sidebarOpen: false });
+      expect(diffs).toHaveLength(1);
+      expect(diffs[0]).toEqual({ key: 'sidebarOpen', old: true, new: false });
+    });
 
-		it('detects multiple simultaneous changes', () => {
-			const diffs = diffSnapshot(
-				{ theme: '', mode: 'system', locale: 'en' },
-				{ theme: 'midnight', mode: 'dark', locale: 'ja' },
-			);
-			expect(diffs).toHaveLength(3);
-		});
+    it('detects multiple simultaneous changes', () => {
+      const diffs = diffSnapshot(
+        { theme: '', mode: 'system', locale: 'en' },
+        { theme: 'midnight', mode: 'dark', locale: 'ja' },
+      );
+      expect(diffs).toHaveLength(3);
+    });
 
-		it('ignores unchanged keys', () => {
-			const diffs = diffSnapshot(
-				{ theme: 'midnight', mode: 'system' },
-				{ theme: 'midnight', mode: 'dark' },
-			);
-			expect(diffs).toHaveLength(1);
-			expect(diffs[0]?.key).toBe('mode');
-		});
+    it('ignores unchanged keys', () => {
+      const diffs = diffSnapshot(
+        { theme: 'midnight', mode: 'system' },
+        { theme: 'midnight', mode: 'dark' },
+      );
+      expect(diffs).toHaveLength(1);
+      expect(diffs[0]?.key).toBe('mode');
+    });
 
-		it('returns empty when snapshots are identical', () => {
-			const state = { theme: 'midnight', mode: 'dark', sidebarOpen: true };
-			expect(diffSnapshot(state, { ...state })).toHaveLength(0);
-		});
+    it('returns empty when snapshots are identical', () => {
+      const state = { theme: 'midnight', mode: 'dark', sidebarOpen: true };
+      expect(diffSnapshot(state, { ...state })).toHaveLength(0);
+    });
 
-		it('detects added keys', () => {
-			const diffs = diffSnapshot({}, { newKey: 'value' });
-			expect(diffs).toHaveLength(1);
-			expect(diffs[0]).toEqual({ key: 'newKey', old: undefined, new: 'value' });
-		});
+    it('detects added keys', () => {
+      const diffs = diffSnapshot({}, { newKey: 'value' });
+      expect(diffs).toHaveLength(1);
+      expect(diffs[0]).toEqual({ key: 'newKey', old: undefined, new: 'value' });
+    });
 
-		it('detects removed keys', () => {
-			const diffs = diffSnapshot({ oldKey: 'value' }, {});
-			expect(diffs).toHaveLength(1);
-			expect(diffs[0]).toEqual({ key: 'oldKey', old: 'value', new: undefined });
-		});
+    it('detects removed keys', () => {
+      const diffs = diffSnapshot({ oldKey: 'value' }, {});
+      expect(diffs).toHaveLength(1);
+      expect(diffs[0]).toEqual({ key: 'oldKey', old: 'value', new: undefined });
+    });
 
-		it('uses JSON comparison for nested objects', () => {
-			const diffs = diffSnapshot({ nested: { a: 1, b: 2 } }, { nested: { a: 1, b: 2 } });
-			expect(diffs).toHaveLength(0);
-		});
+    it('uses JSON comparison for nested objects', () => {
+      const diffs = diffSnapshot({ nested: { a: 1, b: 2 } }, { nested: { a: 1, b: 2 } });
+      expect(diffs).toHaveLength(0);
+    });
 
-		it('detects changes in nested objects', () => {
-			const diffs = diffSnapshot({ nested: { a: 1 } }, { nested: { a: 2 } });
-			expect(diffs).toHaveLength(1);
-		});
-	});
+    it('detects changes in nested objects', () => {
+      const diffs = diffSnapshot({ nested: { a: 1 } }, { nested: { a: 2 } });
+      expect(diffs).toHaveLength(1);
+    });
+  });
 
-	describe('formatTimestamp', () => {
-		it('returns HH:MM:SS.mmm format', () => {
-			const ts = formatTimestamp();
-			expect(ts).toMatch(/^\d{2}:\d{2}:\d{2}\.\d{3}$/);
-		});
-	});
+  describe('formatTimestamp', () => {
+    it('returns HH:MM:SS.mmm format', () => {
+      const ts = formatTimestamp();
+      expect(ts).toMatch(/^\d{2}:\d{2}:\d{2}\.\d{3}$/);
+    });
+  });
 });
 
 // =============================================================================
@@ -430,290 +430,290 @@ describe('state logger pipeline', () => {
 // =============================================================================
 
 describe('devtools API state inspection', () => {
-	it('state reflects current store values', () => {
-		const debugStore = createMockDebugStore(true, 'trace');
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('state reflects current store values', () => {
+    const debugStore = createMockDebugStore(true, 'trace');
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		expect(devtools.state.app.theme).toBe('');
-		expect(devtools.state.app.locale).toBe('en');
-		expect(devtools.state.app.mode).toBe('system');
-		expect(devtools.state.app.sidebarOpen).toBe(true);
-		expect(devtools.state.app.appName).toBe(APP_NAME);
-		expect(devtools.state.features.settings).toBe(true);
-		expect(devtools.state.features.resizableSidebar).toBe(true);
-		expect(devtools.state.debug.enabled).toBe(true);
-		expect(devtools.state.debug.logLevel).toBe('trace');
+    expect(devtools.state.app.theme).toBe('');
+    expect(devtools.state.app.locale).toBe('en');
+    expect(devtools.state.app.mode).toBe('system');
+    expect(devtools.state.app.sidebarOpen).toBe(true);
+    expect(devtools.state.app.appName).toBe(APP_NAME);
+    expect(devtools.state.features.settings).toBe(true);
+    expect(devtools.state.features.resizableSidebar).toBe(true);
+    expect(devtools.state.debug.enabled).toBe(true);
+    expect(devtools.state.debug.logLevel).toBe('trace');
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('state returns fresh snapshots (not stale references)', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('state returns fresh snapshots (not stale references)', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		const snap1 = devtools.state;
-		const snap2 = devtools.state;
-		expect(snap1).not.toBe(snap2); // Fresh object each time
+    const snap1 = devtools.state;
+    const snap2 = devtools.state;
+    expect(snap1).not.toBe(snap2); // Fresh object each time
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('appName and buildInfo are accessible', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('appName and buildInfo are accessible', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		expect(devtools.appName).toBe(APP_NAME);
-		// buildInfo may be null in test environment where Vite define constants are missing
-		const info = devtools.buildInfo;
-		expect(info === null || typeof info === 'object').toBe(true);
+    expect(devtools.appName).toBe(APP_NAME);
+    // buildInfo may be null in test environment where Vite define constants are missing
+    const info = devtools.buildInfo;
+    expect(info === null || typeof info === 'object').toBe(true);
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 });
 
 describe('devtools API mutations', () => {
-	it('setTheme calls editor store', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('setTheme calls editor store', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.setTheme('midnight');
-		expect(editorStore.setTheme).toHaveBeenCalledWith('midnight');
+    devtools.setTheme('midnight');
+    expect(editorStore.setTheme).toHaveBeenCalledWith('midnight');
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('setMode calls editor store', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('setMode calls editor store', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.setMode('dark');
-		expect(editorStore.setMode).toHaveBeenCalledWith('dark');
+    devtools.setMode('dark');
+    expect(editorStore.setMode).toHaveBeenCalledWith('dark');
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('setLocale calls editor store', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('setLocale calls editor store', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.setLocale('ja');
-		expect(editorStore.setLocale).toHaveBeenCalledWith('ja');
+    devtools.setLocale('ja');
+    expect(editorStore.setLocale).toHaveBeenCalledWith('ja');
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('setSidebarOpen calls editor store', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('setSidebarOpen calls editor store', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.setSidebarOpen(false);
-		expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(false);
+    devtools.setSidebarOpen(false);
+    expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(false);
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('setFeature calls editor store', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('setFeature calls editor store', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.setFeature('settings', false);
-		expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
+    devtools.setFeature('settings', false);
+    expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('setLogLevel calls debug store', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('setLogLevel calls debug store', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.setLogLevel('trace');
-		expect(debugStore.setLogLevel).toHaveBeenCalledWith('trace');
+    devtools.setLogLevel('trace');
+    expect(debugStore.setLogLevel).toHaveBeenCalledWith('trace');
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('enable/disable calls debug store', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('enable/disable calls debug store', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.disable();
-		expect(debugStore.setEnabled).toHaveBeenCalledWith(false);
+    devtools.disable();
+    expect(debugStore.setEnabled).toHaveBeenCalledWith(false);
 
-		devtools.enable();
-		expect(debugStore.setEnabled).toHaveBeenCalledWith(true);
+    devtools.enable();
+    expect(debugStore.setEnabled).toHaveBeenCalledWith(true);
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('generic set works for all app paths', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('generic set works for all app paths', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.set('app.theme', 'ocean');
-		expect(editorStore.setTheme).toHaveBeenCalledWith('ocean');
+    devtools.set('app.theme', 'ocean');
+    expect(editorStore.setTheme).toHaveBeenCalledWith('ocean');
 
-		devtools.set('app.mode', 'dark');
-		expect(editorStore.setMode).toHaveBeenCalledWith('dark');
+    devtools.set('app.mode', 'dark');
+    expect(editorStore.setMode).toHaveBeenCalledWith('dark');
 
-		devtools.set('app.locale', 'ko');
-		expect(editorStore.setLocale).toHaveBeenCalledWith('ko');
+    devtools.set('app.locale', 'ko');
+    expect(editorStore.setLocale).toHaveBeenCalledWith('ko');
 
-		devtools.set('app.sidebarOpen', false);
-		expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(false);
+    devtools.set('app.sidebarOpen', false);
+    expect(editorStore.setSidebarOpen).toHaveBeenCalledWith(false);
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('generic set works for feature paths', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('generic set works for feature paths', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.set('features.sidebar', false);
-		expect(editorStore.setFeature).toHaveBeenCalledWith('sidebar', false);
+    devtools.set('features.sidebar', false);
+    expect(editorStore.setFeature).toHaveBeenCalledWith('sidebar', false);
 
-		devtools.set('features.settings', false);
-		expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
+    devtools.set('features.settings', false);
+    expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('generic set works for debug paths', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('generic set works for debug paths', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.set('debug.logLevel', 'error');
-		expect(debugStore.setLogLevel).toHaveBeenCalledWith('error');
+    devtools.set('debug.logLevel', 'error');
+    expect(debugStore.setLogLevel).toHaveBeenCalledWith('error');
 
-		devtools.set('debug.enabled', false);
-		expect(debugStore.setEnabled).toHaveBeenCalledWith(false);
+    devtools.set('debug.enabled', false);
+    expect(debugStore.setEnabled).toHaveBeenCalledWith(false);
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('generic set ignores invalid paths silently', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('generic set ignores invalid paths silently', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		// No section
-		devtools.set('', 'value');
-		// Unknown section
-		devtools.set('unknown.key', 'value');
-		// No key
-		devtools.set('app', 'value');
+    // No section
+    devtools.set('', 'value');
+    // Unknown section
+    devtools.set('unknown.key', 'value');
+    // No key
+    devtools.set('app', 'value');
 
-		// None should have been called
-		expect(editorStore.setTheme).not.toHaveBeenCalled();
-		expect(debugStore.setEnabled).not.toHaveBeenCalled();
+    // None should have been called
+    expect(editorStore.setTheme).not.toHaveBeenCalled();
+    expect(debugStore.setEnabled).not.toHaveBeenCalled();
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('generic set ignores unknown feature flag keys', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('generic set ignores unknown feature flag keys', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.set('features.nonexistent', true);
-		expect(editorStore.setFeature).not.toHaveBeenCalled();
+    devtools.set('features.nonexistent', true);
+    expect(editorStore.setFeature).not.toHaveBeenCalled();
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 });
 
 describe('devtools API extension registry', () => {
-	it('register makes namespace accessible', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()! as EditorDevtools & Record<Str, unknown>;
+  it('register makes namespace accessible', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()! as EditorDevtools & Record<Str, unknown>;
 
-		devtools.register('test', { ping: () => 'pong' });
+    devtools.register('test', { ping: () => 'pong' });
 
-		const ext = devtools.test as Record<Str, () => Str>;
-		expect(ext.ping()).toBe('pong');
+    const ext = devtools.test as Record<Str, () => Str>;
+    expect(ext.ping()).toBe('pong');
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('unregister removes namespace', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()! as EditorDevtools & Record<Str, unknown>;
+  it('unregister removes namespace', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()! as EditorDevtools & Record<Str, unknown>;
 
-		devtools.register('test', { ping: () => 'pong' });
-		devtools.unregister('test');
+    devtools.register('test', { ping: () => 'pong' });
+    devtools.unregister('test');
 
-		expect(devtools.test).toBeUndefined();
+    expect(devtools.test).toBeUndefined();
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('multiple extensions can coexist', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()! as EditorDevtools & Record<Str, unknown>;
+  it('multiple extensions can coexist', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()! as EditorDevtools & Record<Str, unknown>;
 
-		devtools.register('audio', { volume: 0.8 });
-		devtools.register('scene', { name: 'town' });
+    devtools.register('audio', { volume: 0.8 });
+    devtools.register('scene', { name: 'town' });
 
-		expect((devtools.audio as Record<Str, Num>).volume).toBe(0.8);
-		expect((devtools.scene as Record<Str, Str>).name).toBe('town');
+    expect((devtools.audio as Record<Str, Num>).volume).toBe(0.8);
+    expect((devtools.scene as Record<Str, Str>).name).toBe('town');
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 });
 
 describe('devtools API console output', () => {
-	it('logState prints all state sections', () => {
-		const debugStore = createMockDebugStore(true, 'debug');
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('logState prints all state sections', () => {
+    const debugStore = createMockDebugStore(true, 'debug');
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.logState();
+    devtools.logState();
 
-		// Should log editor store header, app.*, features.*, debug.*
-		const { calls } = consoleSpy.mock;
-		const hasAppTheme = calls.some(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('app.theme'),
-		);
-		const hasFeaturesSettings = calls.some(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('features.settings'),
-		);
-		const hasDebugEnabled = calls.some(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('debug.enabled'),
-		);
-		expect(hasAppTheme).toBe(true);
-		expect(hasFeaturesSettings).toBe(true);
-		expect(hasDebugEnabled).toBe(true);
+    // Should log editor store header, app.*, features.*, debug.*
+    const { calls } = consoleSpy.mock;
+    const hasAppTheme = calls.some(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('app.theme'),
+    );
+    const hasFeaturesSettings = calls.some(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('features.settings'),
+    );
+    const hasDebugEnabled = calls.some(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('debug.enabled'),
+    );
+    expect(hasAppTheme).toBe(true);
+    expect(hasFeaturesSettings).toBe(true);
+    expect(hasDebugEnabled).toBe(true);
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 
-	it('logFeatures calls console.table with features object', () => {
-		const debugStore = createMockDebugStore(true);
-		const api = createDevtoolsAPI(editorStore, debugStore);
-		const devtools = devtoolsGlobal()!;
+  it('logFeatures calls console.table with features object', () => {
+    const debugStore = createMockDebugStore(true);
+    const api = createDevtoolsAPI(editorStore, debugStore);
+    const devtools = devtoolsGlobal()!;
 
-		devtools.logFeatures();
-		expect(tableSpy).toHaveBeenCalledWith(
-			expect.objectContaining({ settings: true, sidebar: true }),
-		);
+    devtools.logFeatures();
+    expect(tableSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ settings: true, sidebar: true }),
+    );
 
-		api.destroy();
-	});
+    api.destroy();
+  });
 });
 
 // =============================================================================
@@ -721,79 +721,79 @@ describe('devtools API console output', () => {
 // =============================================================================
 
 describe('orchestrator lifecycle', () => {
-	it('activate registers devtools global, destroy removes it', () => {
-		const debugStore = createMockDebugStore(true);
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('activate registers devtools global, destroy removes it', () => {
+    const debugStore = createMockDebugStore(true);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		expect(devtoolsGlobal()).toBeDefined();
+    expect(devtoolsGlobal()).toBeDefined();
 
-		handle.destroy();
+    handle.destroy();
 
-		expect(devtoolsGlobal()).toBeUndefined();
-	});
+    expect(devtoolsGlobal()).toBeUndefined();
+  });
 
-	it('activate logs deactivation message on destroy', () => {
-		const debugStore = createMockDebugStore(true);
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('activate logs deactivation message on destroy', () => {
+    const debugStore = createMockDebugStore(true);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		handle.destroy();
+    handle.destroy();
 
-		const deactivateCall = consoleSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Debug mode disabled'),
-		);
-		expect(deactivateCall).toBeDefined();
-	});
+    const deactivateCall = consoleSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Debug mode disabled'),
+    );
+    expect(deactivateCall).toBeDefined();
+  });
 
-	it('syncDebugServices full lifecycle: disabled → enabled → disabled → re-enabled', () => {
-		const enabledStore = createMockDebugStore(true);
-		const disabledStore = createMockDebugStore(false);
+  it('syncDebugServices full lifecycle: disabled → enabled → disabled → re-enabled', () => {
+    const enabledStore = createMockDebugStore(true);
+    const disabledStore = createMockDebugStore(false);
 
-		// Start disabled
-		let handle: DebugServicesHandle | null = syncDebugServices(editorStore, disabledStore, null);
-		expect(handle).toBeNull();
-		expect(devtoolsGlobal()).toBeUndefined();
+    // Start disabled
+    let handle: DebugServicesHandle | null = syncDebugServices(editorStore, disabledStore, null);
+    expect(handle).toBeNull();
+    expect(devtoolsGlobal()).toBeUndefined();
 
-		// Enable
-		handle = syncDebugServices(editorStore, enabledStore, handle);
-		expect(handle).not.toBeNull();
-		expect(devtoolsGlobal()).toBeDefined();
+    // Enable
+    handle = syncDebugServices(editorStore, enabledStore, handle);
+    expect(handle).not.toBeNull();
+    expect(devtoolsGlobal()).toBeDefined();
 
-		// Stay enabled (idempotent)
-		const sameHandle = syncDebugServices(editorStore, enabledStore, handle);
-		expect(sameHandle).toBe(handle);
+    // Stay enabled (idempotent)
+    const sameHandle = syncDebugServices(editorStore, enabledStore, handle);
+    expect(sameHandle).toBe(handle);
 
-		// Disable
-		handle = syncDebugServices(editorStore, disabledStore, handle);
-		expect(handle).toBeNull();
-		expect(devtoolsGlobal()).toBeUndefined();
+    // Disable
+    handle = syncDebugServices(editorStore, disabledStore, handle);
+    expect(handle).toBeNull();
+    expect(devtoolsGlobal()).toBeUndefined();
 
-		// Stay disabled (idempotent)
-		handle = syncDebugServices(editorStore, disabledStore, handle);
-		expect(handle).toBeNull();
+    // Stay disabled (idempotent)
+    handle = syncDebugServices(editorStore, disabledStore, handle);
+    expect(handle).toBeNull();
 
-		// Re-enable
-		handle = syncDebugServices(editorStore, enabledStore, handle);
-		expect(handle).not.toBeNull();
-		expect(devtoolsGlobal()).toBeDefined();
+    // Re-enable
+    handle = syncDebugServices(editorStore, enabledStore, handle);
+    expect(handle).not.toBeNull();
+    expect(devtoolsGlobal()).toBeDefined();
 
-		handle?.destroy();
-	});
+    handle?.destroy();
+  });
 
-	it('syncDebugServices is idempotent when already enabled', () => {
-		const debugStore = createMockDebugStore(true);
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('syncDebugServices is idempotent when already enabled', () => {
+    const debugStore = createMockDebugStore(true);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		const result = syncDebugServices(editorStore, debugStore, handle);
-		expect(result).toBe(handle); // Same handle returned, not re-created
+    const result = syncDebugServices(editorStore, debugStore, handle);
+    expect(result).toBe(handle); // Same handle returned, not re-created
 
-		handle.destroy();
-	});
+    handle.destroy();
+  });
 
-	it('syncDebugServices is idempotent when already disabled', () => {
-		const debugStore = createMockDebugStore(false);
-		const result = syncDebugServices(editorStore, debugStore, null);
-		expect(result).toBeNull();
-	});
+  it('syncDebugServices is idempotent when already disabled', () => {
+    const debugStore = createMockDebugStore(false);
+    const result = syncDebugServices(editorStore, debugStore, null);
+    expect(result).toBeNull();
+  });
 });
 
 // =============================================================================
@@ -801,183 +801,183 @@ describe('orchestrator lifecycle', () => {
 // =============================================================================
 
 describe('welcome banner', () => {
-	it('shows app name in header', () => {
-		const debugStore = createMockDebugStore(true);
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('shows app name in header', () => {
+    const debugStore = createMockDebugStore(true);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		// App name is passed as a %s substitution arg, not embedded in the format string
-		const headerCall = consoleSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes(`[${APP_NAME}]`),
-		);
-		expect(headerCall).toBeDefined();
-		handle.destroy();
-	});
+    // App name is passed as a %s substitution arg, not embedded in the format string
+    const headerCall = consoleSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes(`[${APP_NAME}]`),
+    );
+    expect(headerCall).toBeDefined();
+    handle.destroy();
+  });
 
-	it('shows Current State collapsible group', () => {
-		const debugStore = createMockDebugStore(true);
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('shows Current State collapsible group', () => {
+    const debugStore = createMockDebugStore(true);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		const stateGroup = groupSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Current State'),
-		);
-		expect(stateGroup).toBeDefined();
-		handle.destroy();
-	});
+    const stateGroup = groupSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Current State'),
+    );
+    expect(stateGroup).toBeDefined();
+    handle.destroy();
+  });
 
-	it('shows Feature Flags collapsible group', () => {
-		const debugStore = createMockDebugStore(true);
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('shows Feature Flags collapsible group', () => {
+    const debugStore = createMockDebugStore(true);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		const flagsGroup = groupSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Feature Flags'),
-		);
-		expect(flagsGroup).toBeDefined();
-		handle.destroy();
-	});
+    const flagsGroup = groupSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Feature Flags'),
+    );
+    expect(flagsGroup).toBeDefined();
+    handle.destroy();
+  });
 
-	it('shows Devtools API group with logKV entries', () => {
-		const debugStore = createMockDebugStore(true);
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('shows Devtools API group with logKV entries', () => {
+    const debugStore = createMockDebugStore(true);
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		const apiGroup = groupSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Devtools API'),
-		);
-		expect(apiGroup).toBeDefined();
+    const apiGroup = groupSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Devtools API'),
+    );
+    expect(apiGroup).toBeDefined();
 
-		// API help is rendered as key-value rows via console.log
-		const stateRow = consoleSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('.state'),
-		);
-		expect(stateRow).toBeDefined();
+    // API help is rendered as key-value rows via console.log
+    const stateRow = consoleSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('.state'),
+    );
+    expect(stateRow).toBeDefined();
 
-		handle.destroy();
-	});
+    handle.destroy();
+  });
 
-	it('shows state logger tip when logLevel is info (default)', () => {
-		const debugStore = createMockDebugStore(true, 'info');
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('shows state logger tip when logLevel is info (default)', () => {
+    const debugStore = createMockDebugStore(true, 'info');
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		const tipCall = consoleSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Tip'),
-		);
-		expect(tipCall).toBeDefined();
-		// Should mention the current level and how to change it
-		const tipMsg = tipCall?.join(' ') ?? '';
-		expect(tipMsg).toContain('info');
-		expect(tipMsg).toContain('setLogLevel');
+    const tipCall = consoleSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Tip'),
+    );
+    expect(tipCall).toBeDefined();
+    // Should mention the current level and how to change it
+    const tipMsg = tipCall?.join(' ') ?? '';
+    expect(tipMsg).toContain('info');
+    expect(tipMsg).toContain('setLogLevel');
 
-		handle.destroy();
-	});
+    handle.destroy();
+  });
 
-	it('shows state logger active when logLevel is debug', () => {
-		const debugStore = createMockDebugStore(true, 'debug');
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('shows state logger active when logLevel is debug', () => {
+    const debugStore = createMockDebugStore(true, 'debug');
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		const loggerCall = consoleSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Logger'),
-		);
-		expect(loggerCall).toBeDefined();
+    const loggerCall = consoleSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Logger'),
+    );
+    expect(loggerCall).toBeDefined();
 
-		handle.destroy();
-	});
+    handle.destroy();
+  });
 
-	it('shows state logger active when logLevel is trace', () => {
-		const debugStore = createMockDebugStore(true, 'trace');
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('shows state logger active when logLevel is trace', () => {
+    const debugStore = createMockDebugStore(true, 'trace');
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		const loggerCall = consoleSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Logger'),
-		);
-		expect(loggerCall).toBeDefined();
+    const loggerCall = consoleSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Logger'),
+    );
+    expect(loggerCall).toBeDefined();
 
-		handle.destroy();
-	});
+    handle.destroy();
+  });
 
-	it('does NOT show URL Overrides section when no overrides', () => {
-		const debugStore = createMockDebugStore(true);
-		debugStore.urlOverrides = {};
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('does NOT show URL Overrides section when no overrides', () => {
+    const debugStore = createMockDebugStore(true);
+    debugStore.urlOverrides = {};
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		const overrideGroup = groupSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
-		);
-		expect(overrideGroup).toBeUndefined();
+    const overrideGroup = groupSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
+    );
+    expect(overrideGroup).toBeUndefined();
 
-		handle.destroy();
-	});
+    handle.destroy();
+  });
 
-	it('shows URL Overrides section with valid override count', () => {
-		const debugStore = createMockDebugStore(true);
-		debugStore.urlOverrides = { debug: 'true', theme: 'midnight' };
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('shows URL Overrides section with valid override count', () => {
+    const debugStore = createMockDebugStore(true);
+    debugStore.urlOverrides = { debug: 'true', theme: 'midnight' };
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		const overrideGroup = groupSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
-		);
-		expect(overrideGroup).toBeDefined();
-		// Suffix is in the second %c segment (arg index 2)
-		const groupText = String(overrideGroup?.[0]) + String(overrideGroup?.[2] ?? '');
-		expect(groupText).toContain('2 applied');
+    const overrideGroup = groupSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
+    );
+    expect(overrideGroup).toBeDefined();
+    // Suffix is in the second %c segment (arg index 2)
+    const groupText = String(overrideGroup?.[0]) + String(overrideGroup?.[2] ?? '');
+    expect(groupText).toContain('2 applied');
 
-		handle.destroy();
-	});
+    handle.destroy();
+  });
 
-	it('flags unknown overrides separately from valid ones', () => {
-		const debugStore = createMockDebugStore(true);
-		debugStore.urlOverrides = { debug: 'true', logLesel: 'debug', theme: 'midnight' };
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('flags unknown overrides separately from valid ones', () => {
+    const debugStore = createMockDebugStore(true);
+    debugStore.urlOverrides = { debug: 'true', logLesel: 'debug', theme: 'midnight' };
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		// Valid overrides logged as a single block via console.log
-		const validBlock = consoleSpy.mock.calls.find(
-			(args: unknown[]) =>
-				typeof args[0] === 'string' &&
-				args[0].includes(`${URL_PARAM_PREFIX}debug`) &&
-				args[0].includes(`${URL_PARAM_PREFIX}theme`),
-		);
-		expect(validBlock).toBeDefined();
+    // Valid overrides logged as a single block via console.log
+    const validBlock = consoleSpy.mock.calls.find(
+      (args: unknown[]) =>
+        typeof args[0] === 'string' &&
+        args[0].includes(`${URL_PARAM_PREFIX}debug`) &&
+        args[0].includes(`${URL_PARAM_PREFIX}theme`),
+    );
+    expect(validBlock).toBeDefined();
 
-		// Unknown override warned with console.warn
-		const unknownWarns = warnSpy.mock.calls.filter(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes(`✗ ${URL_PARAM_PREFIX}`),
-		);
-		expect(unknownWarns.length).toBe(1); // logLesel
-		expect(unknownWarns[0]?.[0]).toContain('logLesel');
-		expect(unknownWarns[0]?.[0]).toContain('unknown');
+    // Unknown override warned with console.warn
+    const unknownWarns = warnSpy.mock.calls.filter(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes(`✗ ${URL_PARAM_PREFIX}`),
+    );
+    expect(unknownWarns.length).toBe(1); // logLesel
+    expect(unknownWarns[0]?.[0]).toContain('logLesel');
+    expect(unknownWarns[0]?.[0]).toContain('unknown');
 
-		handle.destroy();
-	});
+    handle.destroy();
+  });
 
-	it('URL Overrides summary includes unknown count', () => {
-		const debugStore = createMockDebugStore(true);
-		debugStore.urlOverrides = { debug: 'true', typo: 'x' };
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('URL Overrides summary includes unknown count', () => {
+    const debugStore = createMockDebugStore(true);
+    debugStore.urlOverrides = { debug: 'true', typo: 'x' };
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		const overrideGroup = groupSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
-		);
-		expect(overrideGroup).toBeDefined();
-		const groupText = String(overrideGroup?.[0]) + String(overrideGroup?.[2] ?? '');
-		expect(groupText).toContain('1 applied');
-		expect(groupText).toContain('1 unknown');
+    const overrideGroup = groupSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
+    );
+    expect(overrideGroup).toBeDefined();
+    const groupText = String(overrideGroup?.[0]) + String(overrideGroup?.[2] ?? '');
+    expect(groupText).toContain('1 applied');
+    expect(groupText).toContain('1 unknown');
 
-		handle.destroy();
-	});
+    handle.destroy();
+  });
 
-	it('recognizes ff.* overrides as valid in banner', () => {
-		const debugStore = createMockDebugStore(true);
-		debugStore.urlOverrides = { 'ff.settings': 'false' };
-		const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
+  it('recognizes ff.* overrides as valid in banner', () => {
+    const debugStore = createMockDebugStore(true);
+    debugStore.urlOverrides = { 'ff.settings': 'false' };
+    const handle: DebugServicesHandle = activateDebugServices(editorStore, debugStore);
 
-		// Valid ff.* override logged as a block via console.log
-		const validBlock = consoleSpy.mock.calls.find(
-			(args: unknown[]) =>
-				typeof args[0] === 'string' && args[0].includes(`${URL_PARAM_PREFIX}ff.settings`),
-		);
-		expect(validBlock).toBeDefined();
-		expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('ff.settings'));
+    // Valid ff.* override logged as a block via console.log
+    const validBlock = consoleSpy.mock.calls.find(
+      (args: unknown[]) =>
+        typeof args[0] === 'string' && args[0].includes(`${URL_PARAM_PREFIX}ff.settings`),
+    );
+    expect(validBlock).toBeDefined();
+    expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('ff.settings'));
 
-		handle.destroy();
-	});
+    handle.destroy();
+  });
 });
 
 // =============================================================================
@@ -985,79 +985,79 @@ describe('welcome banner', () => {
 // =============================================================================
 
 describe('full debug activation flow', () => {
-	it('simulates complete URL → parse → apply → activate → devtools cycle', () => {
-		// 1. Parse URL with debug params
-		const url = new URL(
-			`http://localhost?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}logLevel=debug&${URL_PARAM_PREFIX}theme=midnight`,
-		);
-		const parseResult = parseDebugParams(url);
-		expect(parseResult.ok).toBe(true);
-		if (!parseResult.ok) return;
+  it('simulates complete URL → parse → apply → activate → devtools cycle', () => {
+    // 1. Parse URL with debug params
+    const url = new URL(
+      `http://localhost?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}logLevel=debug&${URL_PARAM_PREFIX}theme=midnight`,
+    );
+    const parseResult = parseDebugParams(url);
+    expect(parseResult.ok).toBe(true);
+    if (!parseResult.ok) return;
 
-		// 2. Create stores
-		const debugStore = createMockDebugStore(false);
-		debugStore.urlOverrides = parseResult.data;
+    // 2. Create stores
+    const debugStore = createMockDebugStore(false);
+    debugStore.urlOverrides = parseResult.data;
 
-		// 3. Apply URL overrides
-		applyUrlOverrides(editorStore, debugStore, parseResult.data);
-		expect(debugStore.setEnabled).toHaveBeenCalledWith(true);
-		expect(debugStore.setLogLevel).toHaveBeenCalledWith('debug');
-		expect(editorStore.setTheme).toHaveBeenCalledWith('midnight');
+    // 3. Apply URL overrides
+    applyUrlOverrides(editorStore, debugStore, parseResult.data);
+    expect(debugStore.setEnabled).toHaveBeenCalledWith(true);
+    expect(debugStore.setLogLevel).toHaveBeenCalledWith('debug');
+    expect(editorStore.setTheme).toHaveBeenCalledWith('midnight');
 
-		// 4. Simulate debug.enabled becoming true → sync activates services
-		const enabledDebugStore = createMockDebugStore(true, 'debug');
-		enabledDebugStore.urlOverrides = parseResult.data;
+    // 4. Simulate debug.enabled becoming true → sync activates services
+    const enabledDebugStore = createMockDebugStore(true, 'debug');
+    enabledDebugStore.urlOverrides = parseResult.data;
 
-		let handle: DebugServicesHandle | null = syncDebugServices(
-			editorStore,
-			enabledDebugStore,
-			null,
-		);
-		expect(handle).not.toBeNull();
+    let handle: DebugServicesHandle | null = syncDebugServices(
+      editorStore,
+      enabledDebugStore,
+      null,
+    );
+    expect(handle).not.toBeNull();
 
-		// 5. Devtools API is available
-		const devtools = devtoolsGlobal()!;
-		expect(devtools).toBeDefined();
-		expect(devtools.state.debug.logLevel).toBe('debug');
-		// buildInfo may be null in test environment
-		const info = devtools.buildInfo;
-		expect(info === null || typeof info === 'object').toBe(true);
+    // 5. Devtools API is available
+    const devtools = devtoolsGlobal()!;
+    expect(devtools).toBeDefined();
+    expect(devtools.state.debug.logLevel).toBe('debug');
+    // buildInfo may be null in test environment
+    const info = devtools.buildInfo;
+    expect(info === null || typeof info === 'object').toBe(true);
 
-		// 6. Devtools mutations work
-		devtools.setTheme('ocean');
-		expect(editorStore.setTheme).toHaveBeenCalledWith('ocean');
+    // 6. Devtools mutations work
+    devtools.setTheme('ocean');
+    expect(editorStore.setTheme).toHaveBeenCalledWith('ocean');
 
-		devtools.set('features.settings', false);
-		expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
+    devtools.set('features.settings', false);
+    expect(editorStore.setFeature).toHaveBeenCalledWith('settings', false);
 
-		// 7. Welcome banner was logged (header + state + flags + API + logger hint)
-		expect(consoleSpy).toHaveBeenCalled();
-		expect(groupSpy).toHaveBeenCalled();
+    // 7. Welcome banner was logged (header + state + flags + API + logger hint)
+    expect(consoleSpy).toHaveBeenCalled();
+    expect(groupSpy).toHaveBeenCalled();
 
-		// 8. URL Overrides section shows in banner
-		const overrideGroup = groupSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
-		);
-		expect(overrideGroup).toBeDefined();
+    // 8. URL Overrides section shows in banner
+    const overrideGroup = groupSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('URL Overrides'),
+    );
+    expect(overrideGroup).toBeDefined();
 
-		// 9. Logger active message (logLevel is debug)
-		const loggerActive = consoleSpy.mock.calls.find(
-			(args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Logger'),
-		);
-		expect(loggerActive).toBeDefined();
+    // 9. Logger active message (logLevel is debug)
+    const loggerActive = consoleSpy.mock.calls.find(
+      (args: unknown[]) => typeof args[0] === 'string' && args[0].includes('Logger'),
+    );
+    expect(loggerActive).toBeDefined();
 
-		// 10. Destroy cleans up
-		handle = syncDebugServices(editorStore, createMockDebugStore(false), handle);
-		expect(handle).toBeNull();
-		expect(devtoolsGlobal()).toBeUndefined();
-	});
+    // 10. Destroy cleans up
+    handle = syncDebugServices(editorStore, createMockDebugStore(false), handle);
+    expect(handle).toBeNull();
+    expect(devtoolsGlobal()).toBeUndefined();
+  });
 
-	it('devtools window global key derives from APP_NAME', () => {
-		expect(DEVTOOLS_KEY).toBe(`__${APP_NAME.toUpperCase()}_DEVTOOLS__`);
+  it('devtools window global key derives from APP_NAME', () => {
+    expect(DEVTOOLS_KEY).toBe(`__${APP_NAME.toUpperCase()}_DEVTOOLS__`);
 
-		const debugStore = createMockDebugStore(true);
-		activateDebugServices(editorStore, debugStore);
+    const debugStore = createMockDebugStore(true);
+    activateDebugServices(editorStore, debugStore);
 
-		expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBe(devtoolsGlobal());
-	});
+    expect((window as unknown as Record<Str, unknown>)[DEVTOOLS_KEY]).toBe(devtoolsGlobal());
+  });
 });

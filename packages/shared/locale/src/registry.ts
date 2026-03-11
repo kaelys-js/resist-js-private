@@ -15,16 +15,16 @@
 import * as v from 'valibot';
 
 import {
-	BoolSchema,
-	RawLocaleStringsSchema,
-	StrArraySchema,
-	StrSchema,
-	type Bool,
-	type RawLocaleStrings,
-	type Str,
-	type StrArray,
-	type Void,
-	VoidSchema,
+  BoolSchema,
+  RawLocaleStringsSchema,
+  StrArraySchema,
+  StrSchema,
+  type Bool,
+  type RawLocaleStrings,
+  type Str,
+  type StrArray,
+  type Void,
+  VoidSchema,
 } from '@/schemas/common';
 import { ERRORS, type Result, err, ok, okUnchecked } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
@@ -40,24 +40,24 @@ import { type BuiltLocale, type FormatterMap, buildLocale } from './template';
  * be represented in a Valibot schema, so it is layered on via TS intersection.
  */
 const LocaleRegistryOptionsBaseSchema = v.strictObject({
-	/** Default locale code (must exist in `locales`). */
-	defaultLocale: StrSchema,
-	/** Map of locale code → raw locale strings. */
-	locales: v.record(StrSchema, RawLocaleStringsSchema),
-	/** Optional context values substituted into plain strings at build time. */
-	context: v.optional(RawLocaleStringsSchema),
-	/**
-	 * Locale fallback chain. When a key is missing in the active locale,
-	 * the registry walks this chain until it finds the key.
-	 * Defaults to `[defaultLocale]` if omitted.
-	 */
-	fallbackLocales: v.optional(v.array(StrSchema)),
-	/**
-	 * When `false`, allows partial locale files. Missing keys are filled
-	 * from the fallback chain. The default locale must always be complete.
-	 * Default: `true` (all locales must pass full schema validation).
-	 */
-	strict: v.optional(BoolSchema),
+  /** Default locale code (must exist in `locales`). */
+  defaultLocale: StrSchema,
+  /** Map of locale code → raw locale strings. */
+  locales: v.record(StrSchema, RawLocaleStringsSchema),
+  /** Optional context values substituted into plain strings at build time. */
+  context: v.optional(RawLocaleStringsSchema),
+  /**
+   * Locale fallback chain. When a key is missing in the active locale,
+   * the registry walks this chain until it finds the key.
+   * Defaults to `[defaultLocale]` if omitted.
+   */
+  fallbackLocales: v.optional(v.array(StrSchema)),
+  /**
+   * When `false`, allows partial locale files. Missing keys are filled
+   * from the fallback chain. The default locale must always be complete.
+   * Default: `true` (all locales must pass full schema validation).
+   */
+  strict: v.optional(BoolSchema),
 });
 
 /**
@@ -81,12 +81,12 @@ const LocaleRegistryOptionsBaseSchema = v.strictObject({
  * ```
  */
 type LocaleRegistryOptions<TSchema extends v.GenericSchema> = v.InferOutput<
-	typeof LocaleRegistryOptionsBaseSchema
+  typeof LocaleRegistryOptionsBaseSchema
 > & {
-	/** Valibot schema defining the locale string structure. */
-	readonly schema: TSchema;
-	/** Optional custom formatters for pipe syntax and message ref modifiers. */
-	readonly formatters?: FormatterMap;
+  /** Valibot schema defining the locale string structure. */
+  readonly schema: TSchema;
+  /** Optional custom formatters for pipe syntax and message ref modifiers. */
+  readonly formatters?: FormatterMap;
 };
 
 /**
@@ -102,22 +102,22 @@ type LocaleRegistryOptions<TSchema extends v.GenericSchema> = v.InferOutput<
  * @template TSchema - The Valibot schema defining the locale string structure.
  */
 export type LocaleRegistry<TSchema extends v.GenericSchema> = {
-	/** Returns the active locale code. */
-	readonly active: () => Result<Str>;
-	/** Sets the active locale code. Returns error if locale not found. */
-	readonly setActive: (code: Str) => Result<Void>;
-	/** Returns all available locale codes. */
-	readonly list: () => Result<StrArray>;
-	/** Returns the built locale strings for a specific locale code. */
-	readonly get: (code: Str) => Result<BuiltLocale<TSchema>>;
-	/** Checks whether a locale code exists in the registry. */
-	readonly has: (code: Str) => Result<Bool>;
-	/** Adds or replaces a locale in the registry. Validates and builds the raw strings. */
-	readonly set: (code: Str, raw: RawLocaleStrings) => Result<Void>;
-	/** Returns the built locale strings for the active locale. Shorthand for `get(active())`. */
-	readonly t: () => Result<BuiltLocale<TSchema>>;
-	/** Removes a locale from the registry. Cannot remove the active or default locale. */
-	readonly remove: (code: Str) => Result<Void>;
+  /** Returns the active locale code. */
+  readonly active: () => Result<Str>;
+  /** Sets the active locale code. Returns error if locale not found. */
+  readonly setActive: (code: Str) => Result<Void>;
+  /** Returns all available locale codes. */
+  readonly list: () => Result<StrArray>;
+  /** Returns the built locale strings for a specific locale code. */
+  readonly get: (code: Str) => Result<BuiltLocale<TSchema>>;
+  /** Checks whether a locale code exists in the registry. */
+  readonly has: (code: Str) => Result<Bool>;
+  /** Adds or replaces a locale in the registry. Validates and builds the raw strings. */
+  readonly set: (code: Str, raw: RawLocaleStrings) => Result<Void>;
+  /** Returns the built locale strings for the active locale. Shorthand for `get(active())`. */
+  readonly t: () => Result<BuiltLocale<TSchema>>;
+  /** Removes a locale from the registry. Cannot remove the active or default locale. */
+  readonly remove: (code: Str) => Result<Void>;
 };
 
 // =============================================================================
@@ -133,30 +133,30 @@ export type LocaleRegistry<TSchema extends v.GenericSchema> = {
  * @returns The merged locale object with all keys filled from fallback.
  */
 function mergeLocaleKeys(
-	primary: Record<Str, unknown>,
-	fallback: Record<Str, unknown>,
+  primary: Record<Str, unknown>,
+  fallback: Record<Str, unknown>,
 ): Record<Str, unknown> {
-	const merged: Record<Str, unknown> = { ...primary };
+  const merged: Record<Str, unknown> = { ...primary };
 
-	for (const [key, fallbackValue] of Object.entries(fallback)) {
-		if (merged[key] === undefined) {
-			merged[key] = fallbackValue;
-		} else if (
-			typeof merged[key] === 'object' &&
-			merged[key] !== null &&
-			typeof fallbackValue === 'object' &&
-			fallbackValue !== null &&
-			!Array.isArray(merged[key]) &&
-			!Array.isArray(fallbackValue)
-		) {
-			// Recurse into nested objects — runtime-guarded by typeof/null/Array checks above
-			const primaryChild: Record<Str, unknown> = merged[key] as Record<Str, unknown>; // Irreducible: non-null, non-array object confirmed above — no Valibot schema for generic object
-			const fallbackChild: Record<Str, unknown> = fallbackValue as Record<Str, unknown>; // Irreducible: same guard
-			merged[key] = mergeLocaleKeys(primaryChild, fallbackChild);
-		}
-	}
+  for (const [key, fallbackValue] of Object.entries(fallback)) {
+    if (merged[key] === undefined) {
+      merged[key] = fallbackValue;
+    } else if (
+      typeof merged[key] === 'object' &&
+      merged[key] !== null &&
+      typeof fallbackValue === 'object' &&
+      fallbackValue !== null &&
+      !Array.isArray(merged[key]) &&
+      !Array.isArray(fallbackValue)
+    ) {
+      // Recurse into nested objects — runtime-guarded by typeof/null/Array checks above
+      const primaryChild: Record<Str, unknown> = merged[key] as Record<Str, unknown>; // Irreducible: non-null, non-array object confirmed above — no Valibot schema for generic object
+      const fallbackChild: Record<Str, unknown> = fallbackValue as Record<Str, unknown>; // Irreducible: same guard
+      merged[key] = mergeLocaleKeys(primaryChild, fallbackChild);
+    }
+  }
 
-	return merged;
+  return merged;
 }
 
 // =============================================================================
@@ -188,223 +188,223 @@ function mergeLocaleKeys(
  * ```
  */
 export function createLocaleRegistry<TSchema extends v.GenericSchema>(
-	options: LocaleRegistryOptions<TSchema>,
+  options: LocaleRegistryOptions<TSchema>,
 ): Result<LocaleRegistry<TSchema>> {
-	// Validate defaultLocale
-	const defaultLocaleResult: Result<Str> = safeParse(StrSchema, options.defaultLocale);
-	if (!defaultLocaleResult.ok) return defaultLocaleResult;
+  // Validate defaultLocale
+  const defaultLocaleResult: Result<Str> = safeParse(StrSchema, options.defaultLocale);
+  if (!defaultLocaleResult.ok) return defaultLocaleResult;
 
-	// Validate that defaultLocale exists in provided locales
-	if (!(defaultLocaleResult.data in options.locales)) {
-		return err(ERRORS.LOCALE.INVALID_LOCALE, {
-			meta: {
-				locale: defaultLocaleResult.data,
-				available: Object.keys(options.locales),
-			},
-		});
-	}
+  // Validate that defaultLocale exists in provided locales
+  if (!(defaultLocaleResult.data in options.locales)) {
+    return err(ERRORS.LOCALE.INVALID_LOCALE, {
+      meta: {
+        locale: defaultLocaleResult.data,
+        available: Object.keys(options.locales),
+      },
+    });
+  }
 
-	const isStrict: Bool = options.strict !== false;
-	const fallbackChain: readonly Str[] = options.fallbackLocales ?? [defaultLocaleResult.data];
+  const isStrict: Bool = options.strict !== false;
+  const fallbackChain: readonly Str[] = options.fallbackLocales ?? [defaultLocaleResult.data];
 
-	// Validate fallback chain — all locales must exist in provided locales
-	for (const fallbackCode of fallbackChain) {
-		if (!(fallbackCode in options.locales)) {
-			return err(ERRORS.LOCALE.INVALID_FALLBACK, {
-				meta: {
-					locale: fallbackCode,
-					available: Object.keys(options.locales),
-				},
-			});
-		}
-	}
+  // Validate fallback chain — all locales must exist in provided locales
+  for (const fallbackCode of fallbackChain) {
+    if (!(fallbackCode in options.locales)) {
+      return err(ERRORS.LOCALE.INVALID_FALLBACK, {
+        meta: {
+          locale: fallbackCode,
+          available: Object.keys(options.locales),
+        },
+      });
+    }
+  }
 
-	// Build all provided locales eagerly
-	const built = new Map<Str, BuiltLocale<TSchema>>();
+  // Build all provided locales eagerly
+  const built = new Map<Str, BuiltLocale<TSchema>>();
 
-	for (const [code, raw] of Object.entries(options.locales)) {
-		const codeResult: Result<Str> = safeParse(StrSchema, code);
-		if (!codeResult.ok) return codeResult;
+  for (const [code, raw] of Object.entries(options.locales)) {
+    const codeResult: Result<Str> = safeParse(StrSchema, code);
+    if (!codeResult.ok) return codeResult;
 
-		const isDefault: Bool = codeResult.data === defaultLocaleResult.data;
+    const isDefault: Bool = codeResult.data === defaultLocaleResult.data;
 
-		// Schema validation: strict mode validates all; non-strict only validates default
-		if (isStrict || isDefault) {
-			const parseResult: Result<unknown> = safeParse(options.schema, raw);
-			if (!parseResult.ok) {
-				return err(ERRORS.LOCALE.VALIDATION_FAILED, {
-					meta: { locale: codeResult.data },
-					cause: parseResult.error,
-				});
-			}
-		}
+    // Schema validation: strict mode validates all; non-strict only validates default
+    if (isStrict || isDefault) {
+      const parseResult: Result<unknown> = safeParse(options.schema, raw);
+      if (!parseResult.ok) {
+        return err(ERRORS.LOCALE.VALIDATION_FAILED, {
+          meta: { locale: codeResult.data },
+          cause: parseResult.error,
+        });
+      }
+    }
 
-		// Build callable locale object — pass locale code for Intl APIs
-		const buildResult: Result<BuiltLocale<TSchema>> = buildLocale(
-			options.schema,
-			raw,
-			options.context,
-			codeResult.data,
-			options.formatters,
-		);
-		if (!buildResult.ok) {
-			return err(ERRORS.LOCALE.BUILD_FAILED, {
-				meta: { locale: codeResult.data },
-				cause: buildResult.error,
-			});
-		}
+    // Build callable locale object — pass locale code for Intl APIs
+    const buildResult: Result<BuiltLocale<TSchema>> = buildLocale(
+      options.schema,
+      raw,
+      options.context,
+      codeResult.data,
+      options.formatters,
+    );
+    if (!buildResult.ok) {
+      return err(ERRORS.LOCALE.BUILD_FAILED, {
+        meta: { locale: codeResult.data },
+        cause: buildResult.error,
+      });
+    }
 
-		built.set(codeResult.data, buildResult.data as BuiltLocale<TSchema>); // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties; runtime value is correct
-	}
+    built.set(codeResult.data, buildResult.data as BuiltLocale<TSchema>); // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties; runtime value is correct
+  }
 
-	// Non-strict mode: fill missing keys from fallback chain
-	if (!isStrict) {
-		for (const [code, builtLocale] of built) {
-			if (code === defaultLocaleResult.data) continue; // Default is always complete
+  // Non-strict mode: fill missing keys from fallback chain
+  if (!isStrict) {
+    for (const [code, builtLocale] of built) {
+      if (code === defaultLocaleResult.data) continue; // Default is always complete
 
-			let merged: Record<Str, unknown> = builtLocale as unknown as Record<Str, unknown>; // Irreducible: builtLocale is an object built by buildLocale — no generic Valibot schema
-			for (const fallbackCode of fallbackChain) {
-				const fallbackLocale: BuiltLocale<TSchema> | undefined = built.get(fallbackCode);
-				if (fallbackLocale) {
-					merged = mergeLocaleKeys(merged, fallbackLocale as unknown as Record<Str, unknown>); // Irreducible: same guard
-				}
-			}
-			built.set(code, merged as BuiltLocale<TSchema>); // Irreducible: merged has same shape, keys filled from fallback
-		}
-	}
+      let merged: Record<Str, unknown> = builtLocale as unknown as Record<Str, unknown>; // Irreducible: builtLocale is an object built by buildLocale — no generic Valibot schema
+      for (const fallbackCode of fallbackChain) {
+        const fallbackLocale: BuiltLocale<TSchema> | undefined = built.get(fallbackCode);
+        if (fallbackLocale) {
+          merged = mergeLocaleKeys(merged, fallbackLocale as unknown as Record<Str, unknown>); // Irreducible: same guard
+        }
+      }
+      built.set(code, merged as BuiltLocale<TSchema>); // Irreducible: merged has same shape, keys filled from fallback
+    }
+  }
 
-	// Mutable active locale — closed over by the registry methods
-	let activeCode: Str = defaultLocaleResult.data;
+  // Mutable active locale — closed over by the registry methods
+  let activeCode: Str = defaultLocaleResult.data;
 
-	const registry: LocaleRegistry<TSchema> = {
-		active: (): Result<Str> => {
-			return ok(StrSchema, activeCode);
-		},
+  const registry: LocaleRegistry<TSchema> = {
+    active: (): Result<Str> => {
+      return ok(StrSchema, activeCode);
+    },
 
-		setActive: (code: Str): Result<Void> => {
-			const codeResult: Result<Str> = safeParse(StrSchema, code);
-			if (!codeResult.ok) return codeResult;
+    setActive: (code: Str): Result<Void> => {
+      const codeResult: Result<Str> = safeParse(StrSchema, code);
+      if (!codeResult.ok) return codeResult;
 
-			if (!built.has(codeResult.data)) {
-				return err(ERRORS.LOCALE.INVALID_LOCALE, {
-					meta: {
-						locale: codeResult.data,
-						available: [...built.keys()],
-					},
-				});
-			}
+      if (!built.has(codeResult.data)) {
+        return err(ERRORS.LOCALE.INVALID_LOCALE, {
+          meta: {
+            locale: codeResult.data,
+            available: [...built.keys()],
+          },
+        });
+      }
 
-			activeCode = codeResult.data;
-			return ok(VoidSchema, undefined);
-		},
+      activeCode = codeResult.data;
+      return ok(VoidSchema, undefined);
+    },
 
-		list: (): Result<StrArray> => {
-			return ok(StrArraySchema, [...built.keys()]);
-		},
+    list: (): Result<StrArray> => {
+      return ok(StrArraySchema, [...built.keys()]);
+    },
 
-		get: (code: Str): Result<BuiltLocale<TSchema>> => {
-			const codeResult: Result<Str> = safeParse(StrSchema, code);
-			if (!codeResult.ok) return codeResult;
+    get: (code: Str): Result<BuiltLocale<TSchema>> => {
+      const codeResult: Result<Str> = safeParse(StrSchema, code);
+      if (!codeResult.ok) return codeResult;
 
-			const locale: BuiltLocale<TSchema> | undefined = built.get(codeResult.data);
-			if (!locale) {
-				return err(ERRORS.LOCALE.INVALID_LOCALE, {
-					meta: {
-						locale: codeResult.data,
-						available: [...built.keys()],
-					},
-				});
-			}
+      const locale: BuiltLocale<TSchema> | undefined = built.get(codeResult.data);
+      if (!locale) {
+        return err(ERRORS.LOCALE.INVALID_LOCALE, {
+          meta: {
+            locale: codeResult.data,
+            available: [...built.keys()],
+          },
+        });
+      }
 
-			return okUnchecked<BuiltLocale<TSchema>>(locale);
-		},
+      return okUnchecked<BuiltLocale<TSchema>>(locale);
+    },
 
-		has: (code: Str): Result<Bool> => {
-			const codeResult: Result<Str> = safeParse(StrSchema, code);
-			if (!codeResult.ok) return codeResult;
-			return ok(BoolSchema, built.has(codeResult.data));
-		},
+    has: (code: Str): Result<Bool> => {
+      const codeResult: Result<Str> = safeParse(StrSchema, code);
+      if (!codeResult.ok) return codeResult;
+      return ok(BoolSchema, built.has(codeResult.data));
+    },
 
-		set: (code: Str, raw: RawLocaleStrings): Result<Void> => {
-			const codeResult: Result<Str> = safeParse(StrSchema, code);
-			if (!codeResult.ok) return codeResult;
+    set: (code: Str, raw: RawLocaleStrings): Result<Void> => {
+      const codeResult: Result<Str> = safeParse(StrSchema, code);
+      if (!codeResult.ok) return codeResult;
 
-			// Validate raw strings against schema
-			const parseResult: Result<unknown> = safeParse(options.schema, raw);
-			if (!parseResult.ok) {
-				return err(ERRORS.LOCALE.VALIDATION_FAILED, {
-					meta: { locale: codeResult.data },
-					cause: parseResult.error,
-				});
-			}
+      // Validate raw strings against schema
+      const parseResult: Result<unknown> = safeParse(options.schema, raw);
+      if (!parseResult.ok) {
+        return err(ERRORS.LOCALE.VALIDATION_FAILED, {
+          meta: { locale: codeResult.data },
+          cause: parseResult.error,
+        });
+      }
 
-			// Build callable locale object — pass locale code
-			const buildResult: Result<BuiltLocale<TSchema>> = buildLocale(
-				options.schema,
-				raw,
-				options.context,
-				codeResult.data,
-				options.formatters,
-			);
-			if (!buildResult.ok) {
-				return err(ERRORS.LOCALE.BUILD_FAILED, {
-					meta: { locale: codeResult.data },
-					cause: buildResult.error,
-				});
-			}
+      // Build callable locale object — pass locale code
+      const buildResult: Result<BuiltLocale<TSchema>> = buildLocale(
+        options.schema,
+        raw,
+        options.context,
+        codeResult.data,
+        options.formatters,
+      );
+      if (!buildResult.ok) {
+        return err(ERRORS.LOCALE.BUILD_FAILED, {
+          meta: { locale: codeResult.data },
+          cause: buildResult.error,
+        });
+      }
 
-			built.set(codeResult.data, buildResult.data as BuiltLocale<TSchema>); // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties; runtime value is correct
-			return ok(VoidSchema, undefined);
-		},
+      built.set(codeResult.data, buildResult.data as BuiltLocale<TSchema>); // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties; runtime value is correct
+      return ok(VoidSchema, undefined);
+    },
 
-		t: (): Result<BuiltLocale<TSchema>> => {
-			const locale: BuiltLocale<TSchema> | undefined = built.get(activeCode);
-			if (!locale) {
-				return err(ERRORS.LOCALE.INVALID_LOCALE, {
-					meta: {
-						locale: activeCode,
-						available: [...built.keys()],
-					},
-				});
-			}
+    t: (): Result<BuiltLocale<TSchema>> => {
+      const locale: BuiltLocale<TSchema> | undefined = built.get(activeCode);
+      if (!locale) {
+        return err(ERRORS.LOCALE.INVALID_LOCALE, {
+          meta: {
+            locale: activeCode,
+            available: [...built.keys()],
+          },
+        });
+      }
 
-			return okUnchecked<BuiltLocale<TSchema>>(locale);
-		},
+      return okUnchecked<BuiltLocale<TSchema>>(locale);
+    },
 
-		remove: (code: Str): Result<Void> => {
-			const codeResult: Result<Str> = safeParse(StrSchema, code);
-			if (!codeResult.ok) return codeResult;
+    remove: (code: Str): Result<Void> => {
+      const codeResult: Result<Str> = safeParse(StrSchema, code);
+      if (!codeResult.ok) return codeResult;
 
-			// Cannot remove active locale
-			if (codeResult.data === activeCode) {
-				return err(ERRORS.LOCALE.REMOVE_DENIED, {
-					meta: { locale: codeResult.data, reason: 'locale is currently active' },
-				});
-			}
+      // Cannot remove active locale
+      if (codeResult.data === activeCode) {
+        return err(ERRORS.LOCALE.REMOVE_DENIED, {
+          meta: { locale: codeResult.data, reason: 'locale is currently active' },
+        });
+      }
 
-			// Cannot remove default locale
-			if (codeResult.data === defaultLocaleResult.data) {
-				return err(ERRORS.LOCALE.REMOVE_DENIED, {
-					meta: { locale: codeResult.data, reason: 'locale is the default' },
-				});
-			}
+      // Cannot remove default locale
+      if (codeResult.data === defaultLocaleResult.data) {
+        return err(ERRORS.LOCALE.REMOVE_DENIED, {
+          meta: { locale: codeResult.data, reason: 'locale is the default' },
+        });
+      }
 
-			// Must exist
-			if (!built.has(codeResult.data)) {
-				return err(ERRORS.LOCALE.INVALID_LOCALE, {
-					meta: {
-						locale: codeResult.data,
-						available: [...built.keys()],
-					},
-				});
-			}
+      // Must exist
+      if (!built.has(codeResult.data)) {
+        return err(ERRORS.LOCALE.INVALID_LOCALE, {
+          meta: {
+            locale: codeResult.data,
+            available: [...built.keys()],
+          },
+        });
+      }
 
-			built.delete(codeResult.data);
-			return ok(VoidSchema, undefined);
-		},
-	};
+      built.delete(codeResult.data);
+      return ok(VoidSchema, undefined);
+    },
+  };
 
-	return okUnchecked<LocaleRegistry<TSchema>>(registry);
+  return okUnchecked<LocaleRegistry<TSchema>>(registry);
 }
 
 // =============================================================================
@@ -420,10 +420,10 @@ export function createLocaleRegistry<TSchema extends v.GenericSchema>(
  * @template TSchema - The Valibot schema defining the namespace's locale string structure.
  */
 type NamespaceDefinition<TSchema extends v.GenericSchema> = {
-	/** Valibot schema for this namespace's locale strings. */
-	readonly schema: TSchema;
-	/** Map of locale code → raw locale strings for this namespace. */
-	readonly locales: Record<Str, RawLocaleStrings>;
+  /** Valibot schema for this namespace's locale strings. */
+  readonly schema: TSchema;
+  /** Map of locale code → raw locale strings for this namespace. */
+  readonly locales: Record<Str, RawLocaleStrings>;
 };
 
 /**
@@ -433,18 +433,18 @@ type NamespaceDefinition<TSchema extends v.GenericSchema> = {
  * optional `FormatterMap` (function-typed) — cannot be represented in Valibot.
  */
 type NamespacedRegistryOptions = {
-	/** Default locale code (must exist in every namespace's locales). */
-	readonly defaultLocale: Str;
-	/** Map of namespace name → namespace definition. */
-	readonly namespaces: Record<Str, NamespaceDefinition<v.GenericSchema>>;
-	/** Optional context values substituted into plain strings at build time. */
-	readonly context?: RawLocaleStrings;
-	/** Locale fallback chain. Defaults to `[defaultLocale]`. */
-	readonly fallbackLocales?: readonly Str[];
-	/** When `false`, allows partial locale files. Default: `true`. */
-	readonly strict?: Bool;
-	/** Optional custom formatters for pipe syntax and message ref modifiers. */
-	readonly formatters?: FormatterMap;
+  /** Default locale code (must exist in every namespace's locales). */
+  readonly defaultLocale: Str;
+  /** Map of namespace name → namespace definition. */
+  readonly namespaces: Record<Str, NamespaceDefinition<v.GenericSchema>>;
+  /** Optional context values substituted into plain strings at build time. */
+  readonly context?: RawLocaleStrings;
+  /** Locale fallback chain. Defaults to `[defaultLocale]`. */
+  readonly fallbackLocales?: readonly Str[];
+  /** When `false`, allows partial locale files. Default: `true`. */
+  readonly strict?: Bool;
+  /** Optional custom formatters for pipe syntax and message ref modifiers. */
+  readonly formatters?: FormatterMap;
 };
 
 /**
@@ -454,27 +454,27 @@ type NamespacedRegistryOptions = {
  * data shapes, not function signatures. Also generic over namespace schemas.
  */
 export type NamespacedRegistry = {
-	/** Returns the active locale code. */
-	readonly active: () => Result<Str>;
-	/** Sets the active locale across all namespaces that support it. */
-	readonly setActive: (code: Str) => Result<Void>;
-	/** Returns locale codes supported by ALL namespaces (intersection). */
-	readonly list: () => Result<StrArray>;
-	/** Returns the built locale strings for a namespace (active locale). */
-	readonly ns: (namespace: Str) => Result<BuiltLocale<v.GenericSchema>>;
-	/** Adds a namespace dynamically (uses current active locale as default). */
-	readonly addNamespace: (
-		name: Str,
-		definition: NamespaceDefinition<v.GenericSchema>,
-	) => Result<Void>;
-	/** Removes a namespace from the registry. */
-	readonly removeNamespace: (name: Str) => Result<Void>;
-	/** Checks whether a namespace exists in the registry. */
-	readonly hasNamespace: (name: Str) => Result<Bool>;
-	/** Returns all namespace names. */
-	readonly listNamespaces: () => Result<StrArray>;
-	/** Adds or replaces a locale in a specific namespace (for lazy loading). */
-	readonly setLocale: (namespace: Str, code: Str, raw: RawLocaleStrings) => Result<Void>;
+  /** Returns the active locale code. */
+  readonly active: () => Result<Str>;
+  /** Sets the active locale across all namespaces that support it. */
+  readonly setActive: (code: Str) => Result<Void>;
+  /** Returns locale codes supported by ALL namespaces (intersection). */
+  readonly list: () => Result<StrArray>;
+  /** Returns the built locale strings for a namespace (active locale). */
+  readonly ns: (namespace: Str) => Result<BuiltLocale<v.GenericSchema>>;
+  /** Adds a namespace dynamically (uses current active locale as default). */
+  readonly addNamespace: (
+    name: Str,
+    definition: NamespaceDefinition<v.GenericSchema>,
+  ) => Result<Void>;
+  /** Removes a namespace from the registry. */
+  readonly removeNamespace: (name: Str) => Result<Void>;
+  /** Checks whether a namespace exists in the registry. */
+  readonly hasNamespace: (name: Str) => Result<Bool>;
+  /** Returns all namespace names. */
+  readonly listNamespaces: () => Result<StrArray>;
+  /** Adds or replaces a locale in a specific namespace (for lazy loading). */
+  readonly setLocale: (namespace: Str, code: Str, raw: RawLocaleStrings) => Result<Void>;
 };
 
 // =============================================================================
@@ -507,156 +507,156 @@ export type NamespacedRegistry = {
  * ```
  */
 export function createNamespacedRegistry(
-	options: NamespacedRegistryOptions,
+  options: NamespacedRegistryOptions,
 ): Result<NamespacedRegistry> {
-	const defaultLocaleResult: Result<Str> = safeParse(StrSchema, options.defaultLocale);
-	if (!defaultLocaleResult.ok) return defaultLocaleResult;
+  const defaultLocaleResult: Result<Str> = safeParse(StrSchema, options.defaultLocale);
+  if (!defaultLocaleResult.ok) return defaultLocaleResult;
 
-	const registries = new Map<Str, LocaleRegistry<v.GenericSchema>>();
+  const registries = new Map<Str, LocaleRegistry<v.GenericSchema>>();
 
-	// Create a sub-registry for each namespace
-	for (const [name, definition] of Object.entries(options.namespaces)) {
-		const nameResult: Result<Str> = safeParse(StrSchema, name);
-		if (!nameResult.ok) return nameResult;
+  // Create a sub-registry for each namespace
+  for (const [name, definition] of Object.entries(options.namespaces)) {
+    const nameResult: Result<Str> = safeParse(StrSchema, name);
+    if (!nameResult.ok) return nameResult;
 
-		const subResult: Result<LocaleRegistry<v.GenericSchema>> = createLocaleRegistry({
-			schema: definition.schema,
-			defaultLocale: defaultLocaleResult.data,
-			locales: definition.locales,
-			context: options.context,
-			fallbackLocales: options.fallbackLocales ? [...options.fallbackLocales] : undefined,
-			strict: options.strict,
-			formatters: options.formatters,
-		});
-		if (!subResult.ok) return subResult;
+    const subResult: Result<LocaleRegistry<v.GenericSchema>> = createLocaleRegistry({
+      schema: definition.schema,
+      defaultLocale: defaultLocaleResult.data,
+      locales: definition.locales,
+      context: options.context,
+      fallbackLocales: options.fallbackLocales ? [...options.fallbackLocales] : undefined,
+      strict: options.strict,
+      formatters: options.formatters,
+    });
+    if (!subResult.ok) return subResult;
 
-		registries.set(nameResult.data, subResult.data as LocaleRegistry<v.GenericSchema>); // Irreducible: DeepReadonly mangles function-typed properties; runtime value is already a LocaleRegistry
-	}
+    registries.set(nameResult.data, subResult.data as LocaleRegistry<v.GenericSchema>); // Irreducible: DeepReadonly mangles function-typed properties; runtime value is already a LocaleRegistry
+  }
 
-	// Mutable active locale — closed over by the registry methods
-	let activeCode: Str = defaultLocaleResult.data;
+  // Mutable active locale — closed over by the registry methods
+  let activeCode: Str = defaultLocaleResult.data;
 
-	const registry: NamespacedRegistry = {
-		active: (): Result<Str> => {
-			return ok(StrSchema, activeCode);
-		},
+  const registry: NamespacedRegistry = {
+    active: (): Result<Str> => {
+      return ok(StrSchema, activeCode);
+    },
 
-		setActive: (code: Str): Result<Void> => {
-			const codeResult: Result<Str> = safeParse(StrSchema, code);
-			if (!codeResult.ok) return codeResult;
+    setActive: (code: Str): Result<Void> => {
+      const codeResult: Result<Str> = safeParse(StrSchema, code);
+      if (!codeResult.ok) return codeResult;
 
-			// Propagate to all namespaces that have this locale
-			for (const [_name, subRegistry] of registries) {
-				const hasResult: Result<Bool> = subRegistry.has(codeResult.data);
-				if (!hasResult.ok) return hasResult;
-				if (hasResult.data) {
-					const setResult: Result<Void> = subRegistry.setActive(codeResult.data);
-					if (!setResult.ok) return setResult;
-				}
-			}
+      // Propagate to all namespaces that have this locale
+      for (const [_name, subRegistry] of registries) {
+        const hasResult: Result<Bool> = subRegistry.has(codeResult.data);
+        if (!hasResult.ok) return hasResult;
+        if (hasResult.data) {
+          const setResult: Result<Void> = subRegistry.setActive(codeResult.data);
+          if (!setResult.ok) return setResult;
+        }
+      }
 
-			activeCode = codeResult.data;
-			return ok(VoidSchema, undefined);
-		},
+      activeCode = codeResult.data;
+      return ok(VoidSchema, undefined);
+    },
 
-		list: (): Result<StrArray> => {
-			if (registries.size === 0) return ok(StrArraySchema, []);
+    list: (): Result<StrArray> => {
+      if (registries.size === 0) return ok(StrArraySchema, []);
 
-			// Intersection of all namespace locale lists
-			let intersection: Set<Str> | undefined = undefined;
-			for (const [_name, subRegistry] of registries) {
-				const listResult: Result<StrArray> = subRegistry.list();
-				if (!listResult.ok) return listResult;
-				const codes = new Set<Str>(listResult.data);
-				if (intersection === undefined) {
-					intersection = codes;
-				} else {
-					for (const code of intersection) {
-						if (!codes.has(code)) intersection.delete(code);
-					}
-				}
-			}
+      // Intersection of all namespace locale lists
+      let intersection: Set<Str> | undefined = undefined;
+      for (const [_name, subRegistry] of registries) {
+        const listResult: Result<StrArray> = subRegistry.list();
+        if (!listResult.ok) return listResult;
+        const codes = new Set<Str>(listResult.data);
+        if (intersection === undefined) {
+          intersection = codes;
+        } else {
+          for (const code of intersection) {
+            if (!codes.has(code)) intersection.delete(code);
+          }
+        }
+      }
 
-			return ok(StrArraySchema, [...(intersection ?? [])]);
-		},
+      return ok(StrArraySchema, [...(intersection ?? [])]);
+    },
 
-		ns: (namespace: Str): Result<BuiltLocale<v.GenericSchema>> => {
-			const nsResult: Result<Str> = safeParse(StrSchema, namespace);
-			if (!nsResult.ok) return nsResult;
+    ns: (namespace: Str): Result<BuiltLocale<v.GenericSchema>> => {
+      const nsResult: Result<Str> = safeParse(StrSchema, namespace);
+      if (!nsResult.ok) return nsResult;
 
-			const subRegistry: LocaleRegistry<v.GenericSchema> | undefined = registries.get(
-				nsResult.data,
-			);
-			if (!subRegistry) {
-				return err(ERRORS.LOCALE.INVALID_LOCALE, {
-					meta: { locale: nsResult.data, available: [...registries.keys()] },
-				});
-			}
+      const subRegistry: LocaleRegistry<v.GenericSchema> | undefined = registries.get(
+        nsResult.data,
+      );
+      if (!subRegistry) {
+        return err(ERRORS.LOCALE.INVALID_LOCALE, {
+          meta: { locale: nsResult.data, available: [...registries.keys()] },
+        });
+      }
 
-			return subRegistry.t();
-		},
+      return subRegistry.t();
+    },
 
-		addNamespace: (name: Str, definition: NamespaceDefinition<v.GenericSchema>): Result<Void> => {
-			const nameResult: Result<Str> = safeParse(StrSchema, name);
-			if (!nameResult.ok) return nameResult;
+    addNamespace: (name: Str, definition: NamespaceDefinition<v.GenericSchema>): Result<Void> => {
+      const nameResult: Result<Str> = safeParse(StrSchema, name);
+      if (!nameResult.ok) return nameResult;
 
-			const subResult: Result<LocaleRegistry<v.GenericSchema>> = createLocaleRegistry({
-				schema: definition.schema,
-				defaultLocale: activeCode,
-				locales: definition.locales,
-				context: options.context,
-				fallbackLocales: options.fallbackLocales ? [...options.fallbackLocales] : undefined,
-				strict: options.strict,
-				formatters: options.formatters,
-			});
-			if (!subResult.ok) return subResult;
+      const subResult: Result<LocaleRegistry<v.GenericSchema>> = createLocaleRegistry({
+        schema: definition.schema,
+        defaultLocale: activeCode,
+        locales: definition.locales,
+        context: options.context,
+        fallbackLocales: options.fallbackLocales ? [...options.fallbackLocales] : undefined,
+        strict: options.strict,
+        formatters: options.formatters,
+      });
+      if (!subResult.ok) return subResult;
 
-			registries.set(nameResult.data, subResult.data as LocaleRegistry<v.GenericSchema>); // Irreducible: DeepReadonly mangles function-typed properties; runtime value is already a LocaleRegistry
-			return ok(VoidSchema, undefined);
-		},
+      registries.set(nameResult.data, subResult.data as LocaleRegistry<v.GenericSchema>); // Irreducible: DeepReadonly mangles function-typed properties; runtime value is already a LocaleRegistry
+      return ok(VoidSchema, undefined);
+    },
 
-		removeNamespace: (name: Str): Result<Void> => {
-			const nameResult: Result<Str> = safeParse(StrSchema, name);
-			if (!nameResult.ok) return nameResult;
+    removeNamespace: (name: Str): Result<Void> => {
+      const nameResult: Result<Str> = safeParse(StrSchema, name);
+      if (!nameResult.ok) return nameResult;
 
-			if (!registries.has(nameResult.data)) {
-				return err(ERRORS.LOCALE.INVALID_LOCALE, {
-					meta: { locale: nameResult.data, available: [...registries.keys()] },
-				});
-			}
+      if (!registries.has(nameResult.data)) {
+        return err(ERRORS.LOCALE.INVALID_LOCALE, {
+          meta: { locale: nameResult.data, available: [...registries.keys()] },
+        });
+      }
 
-			registries.delete(nameResult.data);
-			return ok(VoidSchema, undefined);
-		},
+      registries.delete(nameResult.data);
+      return ok(VoidSchema, undefined);
+    },
 
-		hasNamespace: (name: Str): Result<Bool> => {
-			const nameResult: Result<Str> = safeParse(StrSchema, name);
-			if (!nameResult.ok) return nameResult;
-			return ok(BoolSchema, registries.has(nameResult.data));
-		},
+    hasNamespace: (name: Str): Result<Bool> => {
+      const nameResult: Result<Str> = safeParse(StrSchema, name);
+      if (!nameResult.ok) return nameResult;
+      return ok(BoolSchema, registries.has(nameResult.data));
+    },
 
-		listNamespaces: (): Result<StrArray> => {
-			return ok(StrArraySchema, [...registries.keys()]);
-		},
+    listNamespaces: (): Result<StrArray> => {
+      return ok(StrArraySchema, [...registries.keys()]);
+    },
 
-		setLocale: (namespace: Str, code: Str, raw: RawLocaleStrings): Result<Void> => {
-			const nsResult: Result<Str> = safeParse(StrSchema, namespace);
-			if (!nsResult.ok) return nsResult;
-			const codeResult: Result<Str> = safeParse(StrSchema, code);
-			if (!codeResult.ok) return codeResult;
+    setLocale: (namespace: Str, code: Str, raw: RawLocaleStrings): Result<Void> => {
+      const nsResult: Result<Str> = safeParse(StrSchema, namespace);
+      if (!nsResult.ok) return nsResult;
+      const codeResult: Result<Str> = safeParse(StrSchema, code);
+      if (!codeResult.ok) return codeResult;
 
-			const subRegistry: LocaleRegistry<v.GenericSchema> | undefined = registries.get(
-				nsResult.data,
-			);
-			if (!subRegistry) {
-				return err(ERRORS.LOCALE.INVALID_LOCALE, {
-					meta: { locale: nsResult.data, available: [...registries.keys()] },
-				});
-			}
+      const subRegistry: LocaleRegistry<v.GenericSchema> | undefined = registries.get(
+        nsResult.data,
+      );
+      if (!subRegistry) {
+        return err(ERRORS.LOCALE.INVALID_LOCALE, {
+          meta: { locale: nsResult.data, available: [...registries.keys()] },
+        });
+      }
 
-			return subRegistry.set(codeResult.data, raw);
-		},
-	};
+      return subRegistry.set(codeResult.data, raw);
+    },
+  };
 
-	return okUnchecked<NamespacedRegistry>(registry);
+  return okUnchecked<NamespacedRegistry>(registry);
 }

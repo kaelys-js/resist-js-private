@@ -19,19 +19,19 @@ import type { PageServerLoad } from './$types';
  * @returns Page data (never reached — always throws)
  */
 export const load: PageServerLoad = () => {
-	const TestSchema = v.strictObject({
-		name: v.pipe(v.string(), v.minLength(1)),
-		age: v.pipe(v.number(), v.minValue(0), v.maxValue(150)),
-		email: v.pipe(v.string(), v.email()),
-	});
+  const TestSchema = v.strictObject({
+    name: v.pipe(v.string(), v.minLength(1)),
+    age: v.pipe(v.number(), v.minValue(0), v.maxValue(150)),
+    email: v.pipe(v.string(), v.email()),
+  });
 
-	const result = safeParse(TestSchema, { name: '', age: -5, email: 'not-an-email' });
-	if (!result.ok) {
-		// Throw the actual AppError — not a plain Error wrapper.
-		// handleError will detect the AppError shape and preserve its code,
-		// validation details, and cause chain instead of wrapping it in INTERNAL.UNEXPECTED.
-		throw result.error;
-	}
+  const result = safeParse(TestSchema, { name: '', age: -5, email: 'not-an-email' });
+  if (!result.ok) {
+    // Throw the actual AppError — not a plain Error wrapper.
+    // handleError will detect the AppError shape and preserve its code,
+    // validation details, and cause chain instead of wrapping it in INTERNAL.UNEXPECTED.
+    throw result.error;
+  }
 
-	return {};
+  return {};
 };

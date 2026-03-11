@@ -58,10 +58,10 @@ export const WRAPPER_SYMBOL: unique symbol = Symbol('functionSchemaWrapper');
  * @returns The value typed as `FnType<TArgs, TReturn>`.
  */
 export function _toFnType<TArgs extends unknown[] = unknown[], TReturn = unknown>(
-	value: unknown,
+  value: unknown,
 ): FnType<TArgs, TReturn> {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-return -- centralized cast
-	return value as FnType<TArgs, TReturn>;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- centralized cast
+  return value as FnType<TArgs, TReturn>;
 }
 
 /**
@@ -76,10 +76,10 @@ export function _toFnType<TArgs extends unknown[] = unknown[], TReturn = unknown
  * @returns The schema typed as `v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>`.
  */
 export function _toBaseSchema(
-	schema: v.GenericSchema,
+  schema: v.GenericSchema,
 ): v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-return -- centralized cast
-	return schema as v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- centralized cast
+  return schema as v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
 }
 
 // =============================================================================
@@ -93,12 +93,12 @@ export function _toBaseSchema(
  * @returns Wrapper metadata if the function is a validated wrapper, or `undefined`.
  */
 export function getWrapperMeta<TArgs extends unknown[], TReturn>(
-	fn: FnType<TArgs, TReturn>,
+  fn: FnType<TArgs, TReturn>,
 ): WrapperMeta | undefined {
-	if (WRAPPER_SYMBOL in fn) {
-		return fn[WRAPPER_SYMBOL] as WrapperMeta;
-	}
-	return undefined;
+  if (WRAPPER_SYMBOL in fn) {
+    return fn[WRAPPER_SYMBOL] as WrapperMeta;
+  }
+  return undefined;
 }
 
 // =============================================================================
@@ -115,14 +115,14 @@ export function getWrapperMeta<TArgs extends unknown[], TReturn>(
  * @returns `true` if the value matches the Result shape.
  */
 function isResult(value: unknown): value is { ok: boolean; data: unknown; error: unknown } {
-	return (
-		typeof value === 'object' &&
-		value !== null &&
-		'ok' in value &&
-		typeof value.ok === 'boolean' &&
-		'data' in value &&
-		'error' in value
-	);
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'ok' in value &&
+    typeof value.ok === 'boolean' &&
+    'data' in value &&
+    'error' in value
+  );
 }
 
 // =============================================================================
@@ -141,25 +141,25 @@ function isResult(value: unknown): value is { ok: boolean; data: unknown; error:
  *   intentional — callers opt into throwing behavior via the `onError` option.
  */
 function validateArgs(
-	argsSchema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
-	argsArray: unknown[],
-	fnName: Str,
-	onError: ErrorMode,
+  argsSchema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
+  argsArray: unknown[],
+  fnName: Str,
+  onError: ErrorMode,
 ): unknown | null {
-	const result: v.SafeParseResult<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>> =
-		v.safeParse(argsSchema, argsArray);
-	if (result.success) return null;
+  const result: v.SafeParseResult<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>> =
+    v.safeParse(argsSchema, argsArray);
+  if (result.success) return null;
 
-	const message: Str = `${fnName}: parameter validation failed — ${v.flatten(result.issues).nested ? JSON.stringify(v.flatten(result.issues).nested) : result.issues.map((i: v.BaseIssue<unknown>) => i.message).join('; ')}`;
+  const message: Str = `${fnName}: parameter validation failed — ${v.flatten(result.issues).nested ? JSON.stringify(v.flatten(result.issues).nested) : result.issues.map((i: v.BaseIssue<unknown>) => i.message).join('; ')}`;
 
-	if (onError === 'result') {
-		return err(ERRORS.FUNCTION.PARAM_VALIDATION_FAILED, message, {
-			meta: { functionName: fnName, issues: result.issues },
-		});
-	}
+  if (onError === 'result') {
+    return err(ERRORS.FUNCTION.PARAM_VALIDATION_FAILED, message, {
+      meta: { functionName: fnName, issues: result.issues },
+    });
+  }
 
-	// Intentional: implements the 'throw' error mode for callers that opt in
-	throw new Error(message);
+  // Intentional: implements the 'throw' error mode for callers that opt in
+  throw new Error(message);
 }
 
 /**
@@ -178,46 +178,46 @@ function validateArgs(
  *   intentional — callers opt into throwing behavior via the `onError` option.
  */
 function validateReturn(
-	returnsSchema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
-	value: unknown,
-	fnName: Str,
-	onError: ErrorMode,
+  returnsSchema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
+  value: unknown,
+  fnName: Str,
+  onError: ErrorMode,
 ): unknown {
-	// Result-aware: validate .data inside ok Results
-	if (isResult(value)) {
-		if (!value.ok) return value; // pass through error Results
+  // Result-aware: validate .data inside ok Results
+  if (isResult(value)) {
+    if (!value.ok) return value; // pass through error Results
 
-		const result: v.SafeParseResult<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>> =
-			v.safeParse(returnsSchema, value.data);
-		if (result.success) return value;
+    const result: v.SafeParseResult<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>> =
+      v.safeParse(returnsSchema, value.data);
+    if (result.success) return value;
 
-		const message: Str = `${fnName}: return value (.data) validation failed — ${result.issues.map((i: v.BaseIssue<unknown>) => i.message).join('; ')}`;
+    const message: Str = `${fnName}: return value (.data) validation failed — ${result.issues.map((i: v.BaseIssue<unknown>) => i.message).join('; ')}`;
 
-		if (onError === 'result') {
-			return err(ERRORS.FUNCTION.RETURN_VALIDATION_FAILED, message, {
-				meta: { functionName: fnName, issues: result.issues },
-			});
-		}
+    if (onError === 'result') {
+      return err(ERRORS.FUNCTION.RETURN_VALIDATION_FAILED, message, {
+        meta: { functionName: fnName, issues: result.issues },
+      });
+    }
 
-		// Intentional: implements the 'throw' error mode for callers that opt in
-		throw new Error(message);
-	}
+    // Intentional: implements the 'throw' error mode for callers that opt in
+    throw new Error(message);
+  }
 
-	// Non-Result: validate the raw return value
-	const result: v.SafeParseResult<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>> =
-		v.safeParse(returnsSchema, value);
-	if (result.success) return value;
+  // Non-Result: validate the raw return value
+  const result: v.SafeParseResult<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>> =
+    v.safeParse(returnsSchema, value);
+  if (result.success) return value;
 
-	const message: Str = `${fnName}: return value validation failed — ${result.issues.map((i: v.BaseIssue<unknown>) => i.message).join('; ')}`;
+  const message: Str = `${fnName}: return value validation failed — ${result.issues.map((i: v.BaseIssue<unknown>) => i.message).join('; ')}`;
 
-	if (onError === 'result') {
-		return err(ERRORS.FUNCTION.RETURN_VALIDATION_FAILED, message, {
-			meta: { functionName: fnName, issues: result.issues },
-		});
-	}
+  if (onError === 'result') {
+    return err(ERRORS.FUNCTION.RETURN_VALIDATION_FAILED, message, {
+      meta: { functionName: fnName, issues: result.issues },
+    });
+  }
 
-	// Intentional: implements the 'throw' error mode for callers that opt in
-	throw new Error(message);
+  // Intentional: implements the 'throw' error mode for callers that opt in
+  throw new Error(message);
 }
 
 // =============================================================================
@@ -242,51 +242,51 @@ function validateReturn(
  * @returns The validated wrapper function with metadata attached.
  */
 export function createWrapper<TArgs extends unknown[], TReturn>(
-	original: FnType<TArgs, TReturn>,
-	argsSchema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> | undefined,
-	returnsSchema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> | undefined,
-	onError: ErrorMode,
+  original: FnType<TArgs, TReturn>,
+  argsSchema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> | undefined,
+  returnsSchema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> | undefined,
+  onError: ErrorMode,
 ): FnType<TArgs, TReturn> {
-	const fnName: Str = original.name || '<anonymous>';
+  const fnName: Str = original.name || '<anonymous>';
 
-	const wrapper: FnType<TArgs, TReturn> = _toFnType<TArgs, TReturn>(function wrappedFn(
-		this: unknown,
-		...fnArgs: TArgs
-	): TReturn {
-		// 1. Validate arguments
-		if (argsSchema) {
-			const argError: unknown | null = validateArgs(argsSchema, fnArgs, fnName, onError);
-			if (argError !== null) return argError as TReturn;
-		}
+  const wrapper: FnType<TArgs, TReturn> = _toFnType<TArgs, TReturn>(function wrappedFn(
+    this: unknown,
+    ...fnArgs: TArgs
+  ): TReturn {
+    // 1. Validate arguments
+    if (argsSchema) {
+      const argError: unknown | null = validateArgs(argsSchema, fnArgs, fnName, onError);
+      if (argError !== null) return argError as TReturn;
+    }
 
-		// 2. Call original
-		const result: TReturn = original.call(this, ...fnArgs);
+    // 2. Call original
+    const result: TReturn = original.call(this, ...fnArgs);
 
-		// 3. Validate return
-		if (!returnsSchema) return result;
+    // 3. Validate return
+    if (!returnsSchema) return result;
 
-		// 4. Handle async (Promise) returns
-		if (result instanceof Promise) {
-			return (async () => {
-				const resolved: unknown = await result;
-				return validateReturn(returnsSchema, resolved, fnName, onError);
-			})() as TReturn;
-		}
+    // 4. Handle async (Promise) returns
+    if (result instanceof Promise) {
+      return (async () => {
+        const resolved: unknown = await result;
+        return validateReturn(returnsSchema, resolved, fnName, onError);
+      })() as TReturn;
+    }
 
-		return validateReturn(returnsSchema, result, fnName, onError) as TReturn;
-	});
+    return validateReturn(returnsSchema, result, fnName, onError) as TReturn;
+  });
 
-	// Preserve function name for debugging
-	Object.defineProperty(wrapper, 'name', { value: `validated(${fnName})`, configurable: true });
+  // Preserve function name for debugging
+  Object.defineProperty(wrapper, 'name', { value: `validated(${fnName})`, configurable: true });
 
-	// Attach metadata for coordination between args() and returns()
-	const meta: WrapperMeta = {
-		__original: _toFnType(original),
-		__argsSchema: argsSchema,
-		__returnsSchema: returnsSchema,
-		__onError: onError,
-	};
-	Object.defineProperty(wrapper, WRAPPER_SYMBOL, { value: meta, configurable: true });
+  // Attach metadata for coordination between args() and returns()
+  const meta: WrapperMeta = {
+    __original: _toFnType(original),
+    __argsSchema: argsSchema,
+    __returnsSchema: returnsSchema,
+    __onError: onError,
+  };
+  Object.defineProperty(wrapper, WRAPPER_SYMBOL, { value: meta, configurable: true });
 
-	return wrapper;
+  return wrapper;
 }

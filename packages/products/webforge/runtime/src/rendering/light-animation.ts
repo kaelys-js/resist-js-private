@@ -46,7 +46,7 @@ type PositionedLight = BABYLON.Light & { position: BABYLON.Vector3 };
  * @returns True if the light has a position property.
  */
 function isPositionedLight(light: BABYLON.Light): light is PositionedLight {
-	return 'position' in light;
+  return 'position' in light;
 }
 
 /**
@@ -57,13 +57,13 @@ function isPositionedLight(light: BABYLON.Light): light is PositionedLight {
  * the latest values each tick.
  */
 export type FlickerInstance = {
-	readonly observer: BABYLON.Observer<BABYLON.Scene>;
-	readonly light: BABYLON.Light;
-	readonly baseIntensity: Num;
-	readonly basePosition: Vector3 | null;
-	readonly baseDiffuse: ColorRgba;
-	/** Mutable — external code may change values between frames. */
-	config: Partial<FlickerConfig>;
+  readonly observer: BABYLON.Observer<BABYLON.Scene>;
+  readonly light: BABYLON.Light;
+  readonly baseIntensity: Num;
+  readonly basePosition: Vector3 | null;
+  readonly baseDiffuse: ColorRgba;
+  /** Mutable — external code may change values between frames. */
+  config: Partial<FlickerConfig>;
 };
 
 // =============================================================================
@@ -84,8 +84,8 @@ export type FlickerInstance = {
  * ```
  */
 export function pseudoNoise(seed: Num): Num {
-	const val: number = Math.sin(seed * 12.9898 + 78.233) * 43_758.5453;
-	return val - Math.floor(val);
+  const val: number = Math.sin(seed * 12.9898 + 78.233) * 43_758.5453;
+  return val - Math.floor(val);
 }
 
 // =============================================================================
@@ -110,88 +110,88 @@ export function pseudoNoise(seed: Num): Num {
  * ```
  */
 export function computeFlicker(type: string, time: Num, speed: Num, amplitude: Num): Num {
-	if (amplitude === 0) return 1;
+  if (amplitude === 0) return 1;
 
-	const t: number = time;
-	const s: number = speed;
-	const a: number = amplitude;
-	const PI2: number = Math.PI * 2;
+  const t: number = time;
+  const s: number = speed;
+  const a: number = amplitude;
+  const PI2: number = Math.PI * 2;
 
-	switch (type) {
-		case 'candle': {
-			const raw: number =
-				0.5 * Math.sin(t * s * 12) + 0.3 * Math.sin(t * s * 23) + 0.2 * pseudoNoise(t * s * 50);
-			return 1 - a * Math.max(0, Math.min(1, raw));
-		}
+  switch (type) {
+    case 'candle': {
+      const raw: number =
+        0.5 * Math.sin(t * s * 12) + 0.3 * Math.sin(t * s * 23) + 0.2 * pseudoNoise(t * s * 50);
+      return 1 - a * Math.max(0, Math.min(1, raw));
+    }
 
-		case 'torch': {
-			const raw: number =
-				0.4 * Math.sin(t * s * 8) + 0.3 * Math.sin(t * s * 17) + 0.3 * pseudoNoise(t * s * 35);
-			return 1 - a * Math.max(0, Math.min(1, raw));
-		}
+    case 'torch': {
+      const raw: number =
+        0.4 * Math.sin(t * s * 8) + 0.3 * Math.sin(t * s * 17) + 0.3 * pseudoNoise(t * s * 35);
+      return 1 - a * Math.max(0, Math.min(1, raw));
+    }
 
-		case 'campfire': {
-			const raw: number =
-				0.5 * Math.sin(t * s * 3) +
-				0.25 * Math.sin(t * s * 7) +
-				0.15 * Math.sin(t * s * 19) +
-				0.1 * pseudoNoise(t * s * 30);
-			return 1 - a * Math.max(0, Math.min(1, raw));
-		}
+    case 'campfire': {
+      const raw: number =
+        0.5 * Math.sin(t * s * 3) +
+        0.25 * Math.sin(t * s * 7) +
+        0.15 * Math.sin(t * s * 19) +
+        0.1 * pseudoNoise(t * s * 30);
+      return 1 - a * Math.max(0, Math.min(1, raw));
+    }
 
-		case 'pulse': {
-			return 1 - a * (0.5 + 0.5 * Math.sin(t * s * PI2));
-		}
+    case 'pulse': {
+      return 1 - a * (0.5 + 0.5 * Math.sin(t * s * PI2));
+    }
 
-		case 'strobe': {
-			return Math.sin(t * s * 10) > 0 ? 1 : 1 - a;
-		}
+    case 'strobe': {
+      return Math.sin(t * s * 10) > 0 ? 1 : 1 - a;
+    }
 
-		case 'breathing': {
-			return 1 - a * (0.5 + 0.5 * Math.sin(t * s * 0.5 * Math.PI));
-		}
+    case 'breathing': {
+      return 1 - a * (0.5 + 0.5 * Math.sin(t * s * 0.5 * Math.PI));
+    }
 
-		case 'fluorescent': {
-			return pseudoNoise(t * s * 20) < 0.05 ? 1 - a * 0.8 : 1;
-		}
+    case 'fluorescent': {
+      return pseudoNoise(t * s * 20) < 0.05 ? 1 - a * 0.8 : 1;
+    }
 
-		case 'storm': {
-			const flash: number = pseudoNoise(t * s * 2) > 0.95 ? 1 : 0;
-			const rumble: number = 0.1 * Math.sin(t * s * 3);
-			const raw: number = 1 - a * (1 - flash) * (1 - rumble);
-			return Math.max(1 - a, Math.min(1, raw));
-		}
+    case 'storm': {
+      const flash: number = pseudoNoise(t * s * 2) > 0.95 ? 1 : 0;
+      const rumble: number = 0.1 * Math.sin(t * s * 3);
+      const raw: number = 1 - a * (1 - flash) * (1 - rumble);
+      return Math.max(1 - a, Math.min(1, raw));
+    }
 
-		case 'heartbeat': {
-			const phase: number = (t * s * 1.2) % 1;
-			const beat1: number = Math.max(0, 1 - Math.abs(phase - 0.15) * 15);
-			const beat2: number = Math.max(0, 1 - Math.abs(phase - 0.35) * 15);
-			return 1 - a * (1 - Math.max(beat1, beat2));
-		}
+    case 'heartbeat': {
+      const phase: number = (t * s * 1.2) % 1;
+      const beat1: number = Math.max(0, 1 - Math.abs(phase - 0.15) * 15);
+      const beat2: number = Math.max(0, 1 - Math.abs(phase - 0.35) * 15);
+      return 1 - a * (1 - Math.max(beat1, beat2));
+    }
 
-		case 'random': {
-			return 1 - a * pseudoNoise(t * s * 30);
-		}
+    case 'random': {
+      return 1 - a * pseudoNoise(t * s * 30);
+    }
 
-		case 'neon': {
-			return pseudoNoise(t * s * 15) < 0.03 ? 1 - a * 0.9 : 1;
-		}
+    case 'neon': {
+      return pseudoNoise(t * s * 15) < 0.03 ? 1 - a * 0.9 : 1;
+    }
 
-		case 'dying': {
-			const cycle: number = (t * s * 0.3) % 1;
-			const onChance: number = Math.max(0.05, 1 - cycle * 0.8);
-			return pseudoNoise(t * s * 8) < onChance ? 1 : 1 - a;
-		}
+    case 'dying': {
+      const cycle: number = (t * s * 0.3) % 1;
+      const onChance: number = Math.max(0.05, 1 - cycle * 0.8);
+      return pseudoNoise(t * s * 8) < onChance ? 1 : 1 - a;
+    }
 
-		case 'siren': {
-			const wave: number = Math.sin(t * s * Math.PI * 4);
-			return wave > 0 ? 1 : 1 - a;
-		}
+    case 'siren': {
+      const wave: number = Math.sin(t * s * Math.PI * 4);
+      return wave > 0 ? 1 : 1 - a;
+    }
 
-		default: {
-			return 1;
-		}
-	}
+    default: {
+      return 1;
+    }
+  }
 }
 
 // =============================================================================
@@ -215,13 +215,13 @@ export function computeFlicker(type: string, time: Num, speed: Num, amplitude: N
  * ```
  */
 export function computeColorShift(
-	baseTemperature: Num,
-	flickerMultiplier: Num,
-	shiftRange: Num,
+  baseTemperature: Num,
+  flickerMultiplier: Num,
+  shiftRange: Num,
 ): Result<ColorRgba> {
-	const shiftedKelvin: number = baseTemperature - shiftRange * (1 - flickerMultiplier);
-	const clampedKelvin: number = Math.max(1000, Math.min(15_000, shiftedKelvin));
-	return colorTemperatureToRgb(clampedKelvin);
+  const shiftedKelvin: number = baseTemperature - shiftRange * (1 - flickerMultiplier);
+  const clampedKelvin: number = Math.max(1000, Math.min(15_000, shiftedKelvin));
+  return colorTemperatureToRgb(clampedKelvin);
 }
 
 // =============================================================================
@@ -244,24 +244,24 @@ export function computeColorShift(
  * ```
  */
 export function computePositionJitter(
-	basePosition: Vector3,
-	jitterRadius: Num,
-	time: Num,
+  basePosition: Vector3,
+  jitterRadius: Num,
+  time: Num,
 ): Vector3 {
-	if (jitterRadius === 0) {
-		return { x: basePosition.x, y: basePosition.y, z: basePosition.z };
-	}
+  if (jitterRadius === 0) {
+    return { x: basePosition.x, y: basePosition.y, z: basePosition.z };
+  }
 
-	// Map noise [0, 1) to [-1, 1)
-	const nx: number = pseudoNoise(time * 7.3) * 2 - 1;
-	const ny: number = pseudoNoise(time * 11.1) * 2 - 1;
-	const nz: number = pseudoNoise(time * 13.7) * 2 - 1;
+  // Map noise [0, 1) to [-1, 1)
+  const nx: number = pseudoNoise(time * 7.3) * 2 - 1;
+  const ny: number = pseudoNoise(time * 11.1) * 2 - 1;
+  const nz: number = pseudoNoise(time * 13.7) * 2 - 1;
 
-	return {
-		x: basePosition.x + nx * jitterRadius,
-		y: basePosition.y + ny * jitterRadius,
-		z: basePosition.z + nz * jitterRadius,
-	};
+  return {
+    x: basePosition.x + nx * jitterRadius,
+    y: basePosition.y + ny * jitterRadius,
+    z: basePosition.z + nz * jitterRadius,
+  };
 }
 
 // =============================================================================
@@ -270,10 +270,10 @@ export function computePositionJitter(
 
 /** Options for creating a flicker animation. */
 type CreateFlickerOptions = {
-	readonly scene: BABYLON.Scene;
-	readonly light: BABYLON.Light;
-	readonly config: Partial<FlickerConfig>;
-	readonly colorTemperature?: Num;
+  readonly scene: BABYLON.Scene;
+  readonly light: BABYLON.Light;
+  readonly config: Partial<FlickerConfig>;
+  readonly colorTemperature?: Num;
 };
 
 /**
@@ -290,85 +290,85 @@ type CreateFlickerOptions = {
  * ```
  */
 export function createFlicker(options: CreateFlickerOptions): BabylonResult<FlickerInstance> {
-	try {
-		const { scene, light, config, colorTemperature } = options;
-		const baseIntensity: number = light.intensity;
-		const baseDiffuse: ColorRgba = {
-			r: light.diffuse.r,
-			g: light.diffuse.g,
-			b: light.diffuse.b,
-			a: 1,
-		};
+  try {
+    const { scene, light, config, colorTemperature } = options;
+    const baseIntensity: number = light.intensity;
+    const baseDiffuse: ColorRgba = {
+      r: light.diffuse.r,
+      g: light.diffuse.g,
+      b: light.diffuse.b,
+      a: 1,
+    };
 
-		// Store base position if light has one
-		let basePosition: Vector3 | null = null;
-		if ('position' in light && light.position instanceof BABYLON.Vector3) {
-			basePosition = {
-				x: light.position.x,
-				y: light.position.y,
-				z: light.position.z,
-			};
-		}
+    // Store base position if light has one
+    let basePosition: Vector3 | null = null;
+    if ('position' in light && light.position instanceof BABYLON.Vector3) {
+      basePosition = {
+        x: light.position.x,
+        y: light.position.y,
+        z: light.position.z,
+      };
+    }
 
-		let elapsedTime = 0;
+    let elapsedTime = 0;
 
-		// Read config values each frame so external changes (dev harness sliders) take effect
-		const observer: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
-			const dt: number = scene.getEngine().getDeltaTime() / 1000;
-			elapsedTime += dt;
+    // Read config values each frame so external changes (dev harness sliders) take effect
+    const observer: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
+      const dt: number = scene.getEngine().getDeltaTime() / 1000;
+      elapsedTime += dt;
 
-			const flickerType: string = config.type ?? 'candle';
-			const flickerIntensity: number = config.intensity ?? 0.3;
-			const flickerSpeed: number = config.speed ?? 1;
-			const colorShiftEnabled: boolean = config.colorShift ?? false;
-			const colorShiftRange: number = config.colorShiftRange ?? 200;
-			const posJitter: number = config.positionJitter ?? 0;
+      const flickerType: string = config.type ?? 'candle';
+      const flickerIntensity: number = config.intensity ?? 0.3;
+      const flickerSpeed: number = config.speed ?? 1;
+      const colorShiftEnabled: boolean = config.colorShift ?? false;
+      const colorShiftRange: number = config.colorShiftRange ?? 200;
+      const posJitter: number = config.positionJitter ?? 0;
 
-			// Compute flicker multiplier
-			const multiplier: number = computeFlicker(
-				flickerType,
-				elapsedTime,
-				flickerSpeed,
-				flickerIntensity,
-			);
-			light.intensity = baseIntensity * multiplier;
+      // Compute flicker multiplier
+      const multiplier: number = computeFlicker(
+        flickerType,
+        elapsedTime,
+        flickerSpeed,
+        flickerIntensity,
+      );
+      light.intensity = baseIntensity * multiplier;
 
-			// Color temperature shift
-			if (colorShiftEnabled && colorTemperature !== undefined) {
-				const shiftResult: Result<ColorRgba> = computeColorShift(
-					colorTemperature,
-					multiplier,
-					colorShiftRange,
-				);
-				if (shiftResult.ok) {
-					light.diffuse = new BABYLON.Color3(
-						shiftResult.data.r,
-						shiftResult.data.g,
-						shiftResult.data.b,
-					);
-				}
-			}
+      // Color temperature shift
+      if (colorShiftEnabled && colorTemperature !== undefined) {
+        const shiftResult: Result<ColorRgba> = computeColorShift(
+          colorTemperature,
+          multiplier,
+          colorShiftRange,
+        );
+        if (shiftResult.ok) {
+          light.diffuse = new BABYLON.Color3(
+            shiftResult.data.r,
+            shiftResult.data.g,
+            shiftResult.data.b,
+          );
+        }
+      }
 
-			// Position jitter
-			if (posJitter > 0 && basePosition !== null && isPositionedLight(light)) {
-				const jittered: Vector3 = computePositionJitter(basePosition, posJitter, elapsedTime);
-				light.position = new BABYLON.Vector3(jittered.x, jittered.y, jittered.z);
-			}
-		});
+      // Position jitter
+      if (posJitter > 0 && basePosition !== null && isPositionedLight(light)) {
+        const jittered: Vector3 = computePositionJitter(basePosition, posJitter, elapsedTime);
+        light.position = new BABYLON.Vector3(jittered.x, jittered.y, jittered.z);
+      }
+    });
 
-		const flickerInstance: FlickerInstance = {
-			observer,
-			light,
-			baseIntensity,
-			basePosition,
-			baseDiffuse,
-			config,
-		};
+    const flickerInstance: FlickerInstance = {
+      observer,
+      light,
+      baseIntensity,
+      basePosition,
+      baseDiffuse,
+      config,
+    };
 
-		return okShallow(flickerInstance);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(flickerInstance);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -377,8 +377,8 @@ export function createFlicker(options: CreateFlickerOptions): BabylonResult<Flic
 
 /** Options for disposing a flicker animation. */
 type DisposeFlickerOptions = {
-	readonly flicker: FlickerInstance;
-	readonly scene: BABYLON.Scene;
+  readonly flicker: FlickerInstance;
+  readonly scene: BABYLON.Scene;
 };
 
 /**
@@ -388,31 +388,31 @@ type DisposeFlickerOptions = {
  * @returns BabylonResult indicating success.
  */
 export function disposeFlicker(options: DisposeFlickerOptions): BabylonResult<Bool> {
-	try {
-		const { flicker, scene } = options;
+  try {
+    const { flicker, scene } = options;
 
-		// Remove observer
-		scene.onBeforeRenderObservable.remove(flicker.observer);
+    // Remove observer
+    scene.onBeforeRenderObservable.remove(flicker.observer);
 
-		// Restore base values
-		flicker.light.intensity = flicker.baseIntensity;
-		flicker.light.diffuse = new BABYLON.Color3(
-			flicker.baseDiffuse.r,
-			flicker.baseDiffuse.g,
-			flicker.baseDiffuse.b,
-		);
+    // Restore base values
+    flicker.light.intensity = flicker.baseIntensity;
+    flicker.light.diffuse = new BABYLON.Color3(
+      flicker.baseDiffuse.r,
+      flicker.baseDiffuse.g,
+      flicker.baseDiffuse.b,
+    );
 
-		// Restore position if applicable
-		if (flicker.basePosition !== null && isPositionedLight(flicker.light)) {
-			flicker.light.position = new BABYLON.Vector3(
-				flicker.basePosition.x,
-				flicker.basePosition.y,
-				flicker.basePosition.z,
-			);
-		}
+    // Restore position if applicable
+    if (flicker.basePosition !== null && isPositionedLight(flicker.light)) {
+      flicker.light.position = new BABYLON.Vector3(
+        flicker.basePosition.x,
+        flicker.basePosition.y,
+        flicker.basePosition.z,
+      );
+    }
 
-		return okUnchecked(true);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okUnchecked(true);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }

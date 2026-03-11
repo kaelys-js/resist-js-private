@@ -33,46 +33,46 @@ const MAX_BODY_SIZE: Num = 65_536 as Num;
  * @returns 204 on success, 400 on invalid payload, 413 on oversized body
  */
 export const POST: RequestHandler = async ({ request }) => {
-	// Read body as text — sendBeacon sends text/plain
-	let body: Str;
-	try {
-		body = (await request.text()) as Str;
-	} catch {
-		/* Body read failed — client likely disconnected */
-		return new Response(null, { status: 400 });
-	}
+  // Read body as text — sendBeacon sends text/plain
+  let body: Str;
+  try {
+    body = (await request.text()) as Str;
+  } catch {
+    /* Body read failed — client likely disconnected */
+    return new Response(null, { status: 400 });
+  }
 
-	// Size check — reject oversized payloads
-	if (body.length > MAX_BODY_SIZE) {
-		return new Response(null, { status: 413 });
-	}
+  // Size check — reject oversized payloads
+  if (body.length > MAX_BODY_SIZE) {
+    return new Response(null, { status: 413 });
+  }
 
-	// Empty body guard
-	if (body.length === 0) {
-		return new Response(null, { status: 400 });
-	}
+  // Empty body guard
+  if (body.length === 0) {
+    return new Response(null, { status: 400 });
+  }
 
-	// Parse JSON
-	let parsed: unknown;
-	try {
-		parsed = JSON.parse(body);
-	} catch {
-		/* Malformed JSON */
-		return new Response(null, { status: 400 });
-	}
+  // Parse JSON
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    /* Malformed JSON */
+    return new Response(null, { status: 400 });
+  }
 
-	// Validate against BeaconPayloadSchema (strict — rejects PII fields)
-	const result: Result<BeaconPayload> = safeParse(BeaconPayloadSchema, parsed);
-	if (!result.ok) {
-		return new Response(null, { status: 400 });
-	}
+  // Validate against BeaconPayloadSchema (strict — rejects PII fields)
+  const result: Result<BeaconPayload> = safeParse(BeaconPayloadSchema, parsed);
+  if (!result.ok) {
+    return new Response(null, { status: 400 });
+  }
 
-	const payload: BeaconPayload = result.data as BeaconPayload;
+  const payload: BeaconPayload = result.data as BeaconPayload;
 
-	// Log as structured JSON — Workers Logs captures console output automatically
-	log.error(
-		`[client-beacon] ${payload.error.code} (${payload.id}) fatal=${String(payload.fatal)} env=${payload.environment}`,
-	);
+  // Log as structured JSON — Workers Logs captures console output automatically
+  log.error(
+    `[client-beacon] ${payload.error.code} (${payload.id}) fatal=${String(payload.fatal)} env=${payload.environment}`,
+  );
 
-	return new Response(null, { status: 204 });
+  return new Response(null, { status: 204 });
 };

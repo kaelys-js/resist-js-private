@@ -62,24 +62,24 @@ import { createWrapper, getWrapperMeta } from '@/schemas/function/wrapper-utils'
  * are applied to the implementation via the shared wrapper mechanism.
  */
 export function implement<TArgs extends unknown[], TReturn>(
-	fn: FnType<TArgs, TReturn>,
+  fn: FnType<TArgs, TReturn>,
 ): v.TransformAction<FnType<TArgs, TReturn>, FnType<TArgs, TReturn>> {
-	return v.transform<FnType<TArgs, TReturn>, FnType<TArgs, TReturn>>(
-		(pipeInput: FnType<TArgs, TReturn>): FnType<TArgs, TReturn> => {
-			// If a wrapper was created by preceding args()/returns() actions,
-			// re-create it with the new implementation
-			const existingMeta: WrapperMeta | undefined = getWrapperMeta(pipeInput);
-			if (existingMeta) {
-				return createWrapper<TArgs, TReturn>(
-					fn,
-					existingMeta.__argsSchema,
-					existingMeta.__returnsSchema,
-					existingMeta.__onError,
-				);
-			}
+  return v.transform<FnType<TArgs, TReturn>, FnType<TArgs, TReturn>>(
+    (pipeInput: FnType<TArgs, TReturn>): FnType<TArgs, TReturn> => {
+      // If a wrapper was created by preceding args()/returns() actions,
+      // re-create it with the new implementation
+      const existingMeta: WrapperMeta | undefined = getWrapperMeta(pipeInput);
+      if (existingMeta) {
+        return createWrapper<TArgs, TReturn>(
+          fn,
+          existingMeta.__argsSchema,
+          existingMeta.__returnsSchema,
+          existingMeta.__onError,
+        );
+      }
 
-			// No prior wrapper — return the implementation as-is
-			return fn;
-		},
-	);
+      // No prior wrapper — return the implementation as-is
+      return fn;
+    },
+  );
 }

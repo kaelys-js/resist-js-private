@@ -22,34 +22,34 @@ const PREVIEW_PORT = 4173;
 const PREVIEW_URL = `http://${PREVIEW_HOST}:${PREVIEW_PORT}`;
 
 export default defineConfig({
-	testDir: './e2e',
-	fullyParallel: true,
-	forbidOnly: isCI,
-	retries: isCI ? 2 : 0,
-	workers: isCI ? 1 : undefined,
-	timeout: 30_000,
-	expect: { timeout: 5000 },
-	reporter: isCI ? [['html', { open: 'never' }], ['github']] : [['list']],
-	use: {
-		baseURL: PREVIEW_URL,
-		trace: 'on-first-retry',
-		screenshot: 'only-on-failure',
-		video: 'retain-on-failure',
-		actionTimeout: 10_000,
-		navigationTimeout: 15_000,
-	},
-	projects: [
-		{
-			name: 'chromium',
-			use: { ...devices['Desktop Chrome'] },
-		},
-	],
-	webServer: {
-		command: `pnpm build && pnpm preview --port ${PREVIEW_PORT} --host ${PREVIEW_HOST}`,
-		url: PREVIEW_URL,
-		reuseExistingServer: !isCI,
-		timeout: 120_000,
-		stdout: 'ignore',
-		stderr: 'pipe',
-	},
+  testDir: './e2e',
+  fullyParallel: true,
+  forbidOnly: isCI,
+  retries: isCI ? 2 : 0,
+  workers: isCI ? 1 : undefined,
+  timeout: 30_000,
+  expect: { timeout: 5000 },
+  reporter: isCI ? [['html', { open: 'never' }], ['github']] : [['list']],
+  use: {
+    baseURL: PREVIEW_URL,
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    actionTimeout: 10_000,
+    navigationTimeout: 15_000,
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
+  webServer: {
+    command: `pnpm build && pnpm preview --port ${PREVIEW_PORT} --host ${PREVIEW_HOST}`,
+    url: PREVIEW_URL,
+    reuseExistingServer: !isCI,
+    timeout: 120_000,
+    stdout: 'ignore',
+    stderr: 'pipe',
+  },
 });

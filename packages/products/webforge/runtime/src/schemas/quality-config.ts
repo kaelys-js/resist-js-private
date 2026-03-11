@@ -62,19 +62,19 @@ export type QualityPreset = v.InferOutput<typeof QualityPresetSchema>;
  * ```
  */
 export const QualityConfigSchema = v.strictObject({
-	/** Named quality preset. Default: 'high'. */
-	preset: v.optional(QualityPresetSchema, 'high'),
+  /** Named quality preset. Default: 'high'. */
+  preset: v.optional(QualityPresetSchema, 'high'),
 
-	/**
-	 * Hardware scaling level override.
-	 *
-	 * Lower = higher resolution (0.5 = 2x supersampling).
-	 * Higher = lower resolution (2.0 = half resolution).
-	 * Range: [0.25, 4].
-	 *
-	 * When undefined, uses the preset's default value.
-	 */
-	hardwareScalingLevel: v.optional(v.pipe(v.number(), v.minValue(0.25), v.maxValue(4))),
+  /**
+   * Hardware scaling level override.
+   *
+   * Lower = higher resolution (0.5 = 2x supersampling).
+   * Higher = lower resolution (2.0 = half resolution).
+   * Range: [0.25, 4].
+   *
+   * When undefined, uses the preset's default value.
+   */
+  hardwareScalingLevel: v.optional(v.pipe(v.number(), v.minValue(0.25), v.maxValue(4))),
 });
 
 /** Inferred quality configuration type from {@link QualityConfigSchema}. */
@@ -86,14 +86,14 @@ export type QualityConfig = v.InferOutput<typeof QualityConfigSchema>;
 
 /** Engine overrides for a quality preset. */
 export type QualityPresetSettings = {
-	/** Hardware scaling level (lower = higher resolution). */
-	readonly hardwareScalingLevel: number;
-	/** Whether to adapt to device pixel ratio. */
-	readonly adaptToDeviceRatio: boolean;
-	/** Whether to enable MSAA antialiasing. */
-	readonly antialias: boolean;
-	/** Whether to enable the stencil buffer. */
-	readonly stencil: boolean;
+  /** Hardware scaling level (lower = higher resolution). */
+  readonly hardwareScalingLevel: number;
+  /** Whether to adapt to device pixel ratio. */
+  readonly adaptToDeviceRatio: boolean;
+  /** Whether to enable MSAA antialiasing. */
+  readonly antialias: boolean;
+  /** Whether to enable the stencil buffer. */
+  readonly stencil: boolean;
 };
 
 /**
@@ -110,28 +110,28 @@ export type QualityPresetSettings = {
  * | ultra  | 0.5     | on    | on | on      |
  */
 export const QUALITY_PRESETS: Readonly<Record<QualityPreset, QualityPresetSettings>> = {
-	low: {
-		hardwareScalingLevel: 2.0,
-		adaptToDeviceRatio: false,
-		antialias: false,
-		stencil: false,
-	},
-	medium: {
-		hardwareScalingLevel: 1.5,
-		adaptToDeviceRatio: false,
-		antialias: true,
-		stencil: true,
-	},
-	high: {
-		hardwareScalingLevel: 1.0,
-		adaptToDeviceRatio: true,
-		antialias: true,
-		stencil: true,
-	},
-	ultra: {
-		hardwareScalingLevel: 0.5,
-		adaptToDeviceRatio: true,
-		antialias: true,
-		stencil: true,
-	},
+  low: {
+    hardwareScalingLevel: 2.0,
+    adaptToDeviceRatio: false,
+    antialias: false,
+    stencil: false,
+  },
+  medium: {
+    hardwareScalingLevel: 1.5,
+    adaptToDeviceRatio: false,
+    antialias: true,
+    stencil: true,
+  },
+  high: {
+    hardwareScalingLevel: 1.0,
+    adaptToDeviceRatio: true,
+    antialias: true,
+    stencil: true,
+  },
+  ultra: {
+    hardwareScalingLevel: 0.5,
+    adaptToDeviceRatio: true,
+    antialias: true,
+    stencil: true,
+  },
 };

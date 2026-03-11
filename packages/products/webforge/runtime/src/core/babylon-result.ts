@@ -34,8 +34,8 @@ import type { AppError } from '@/schemas/result/result';
  * ensures the type system matches that runtime behavior.
  */
 export type BabylonResult<T> =
-	| { readonly ok: true; readonly data: T; readonly error: null }
-	| { readonly ok: false; readonly data: null; readonly error: AppError };
+  | { readonly ok: true; readonly data: T; readonly error: null }
+  | { readonly ok: false; readonly data: null; readonly error: AppError };
 
 /**
  * Creates a shallow-frozen success result for Babylon.js objects.
@@ -47,9 +47,9 @@ export type BabylonResult<T> =
  * @returns BabylonResult with mutable data access.
  */
 export function okShallow<T>(data: T): BabylonResult<T> {
-	return Object.freeze({
-		ok: true as const,
-		data,
-		error: null,
-	}) as BabylonResult<T>;
+  return Object.freeze({
+    ok: true as const,
+    data,
+    error: null,
+  }) as BabylonResult<T>;
 }

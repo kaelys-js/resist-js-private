@@ -40,18 +40,18 @@ export type TextDirection = v.InferOutput<typeof TextDirectionSchema>;
  * Sources: Unicode CLDR, ICU, W3C Internationalization.
  */
 const RTL_LANGUAGES: ReadonlySet<Str> = new Set([
-	'ar', // Arabic
-	'arc', // Aramaic
-	'dv', // Divehi/Maldivian
-	'fa', // Persian (Farsi)
-	'he', // Hebrew
-	'khw', // Khowar
-	'ks', // Kashmiri
-	'ku', // Kurdish (Sorani)
-	'ps', // Pashto
-	'sd', // Sindhi
-	'ur', // Urdu
-	'yi', // Yiddish
+  'ar', // Arabic
+  'arc', // Aramaic
+  'dv', // Divehi/Maldivian
+  'fa', // Persian (Farsi)
+  'he', // Hebrew
+  'khw', // Khowar
+  'ks', // Kashmiri
+  'ku', // Kurdish (Sorani)
+  'ps', // Pashto
+  'sd', // Sindhi
+  'ur', // Urdu
+  'yi', // Yiddish
 ]);
 
 /**
@@ -59,16 +59,16 @@ const RTL_LANGUAGES: ReadonlySet<Str> = new Set([
  * Used when a locale has an explicit script subtag (e.g., `az-Arab`).
  */
 const RTL_SCRIPTS: ReadonlySet<Str> = new Set([
-	'adlm', // Adlam
-	'arab', // Arabic
-	'aran', // Arabic (Nastaliq)
-	'hebr', // Hebrew
-	'mand', // Mandaic
-	'mend', // Mende Kikakui
-	'nkoo', // N'Ko
-	'samr', // Samaritan
-	'syrc', // Syriac
-	'thaa', // Thaana
+  'adlm', // Adlam
+  'arab', // Arabic
+  'aran', // Arabic (Nastaliq)
+  'hebr', // Hebrew
+  'mand', // Mandaic
+  'mend', // Mende Kikakui
+  'nkoo', // N'Ko
+  'samr', // Samaritan
+  'syrc', // Syriac
+  'thaa', // Thaana
 ]);
 
 // =============================================================================
@@ -96,49 +96,49 @@ const RTL_SCRIPTS: ReadonlySet<Str> = new Set([
  * ```
  */
 export function getTextDirection(locale: Str): Result<TextDirection> {
-	const localeResult: Result<Str> = safeParse(StrSchema, locale);
-	if (!localeResult.ok) return localeResult;
+  const localeResult: Result<Str> = safeParse(StrSchema, locale);
+  if (!localeResult.ok) return localeResult;
 
-	// Strategy 1: Use Intl.Locale.getTextInfo() if available
-	try {
-		const intlLocale: Intl.Locale = new Intl.Locale(localeResult.data);
-		// getTextInfo() — Node 21+, Chrome 99+
-		if (
-			'getTextInfo' in intlLocale &&
-			typeof (intlLocale as Record<Str, unknown>).getTextInfo === 'function'
-		) {
-			const textInfo = (
-				intlLocale as Record<Str, unknown> & { getTextInfo: () => { direction: Str } }
-			).getTextInfo(); // Irreducible: getTextInfo not in all TS lib targets
-			if (textInfo.direction === 'rtl') return ok(TextDirectionSchema, 'rtl');
-			return ok(TextDirectionSchema, 'ltr');
-		}
-		// textInfo property (Safari)
-		if ('textInfo' in intlLocale) {
-			const { textInfo } = intlLocale as Record<Str, unknown> & { textInfo: { direction: Str } }; // Irreducible: same reason
-			if (textInfo?.direction === 'rtl') return ok(TextDirectionSchema, 'rtl');
-			return ok(TextDirectionSchema, 'ltr');
-		}
-	} catch {
-		// Intl.Locale constructor failed — fall through to static lookup
-	}
+  // Strategy 1: Use Intl.Locale.getTextInfo() if available
+  try {
+    const intlLocale: Intl.Locale = new Intl.Locale(localeResult.data);
+    // getTextInfo() — Node 21+, Chrome 99+
+    if (
+      'getTextInfo' in intlLocale &&
+      typeof (intlLocale as Record<Str, unknown>).getTextInfo === 'function'
+    ) {
+      const textInfo = (
+        intlLocale as Record<Str, unknown> & { getTextInfo: () => { direction: Str } }
+      ).getTextInfo(); // Irreducible: getTextInfo not in all TS lib targets
+      if (textInfo.direction === 'rtl') return ok(TextDirectionSchema, 'rtl');
+      return ok(TextDirectionSchema, 'ltr');
+    }
+    // textInfo property (Safari)
+    if ('textInfo' in intlLocale) {
+      const { textInfo } = intlLocale as Record<Str, unknown> & { textInfo: { direction: Str } }; // Irreducible: same reason
+      if (textInfo?.direction === 'rtl') return ok(TextDirectionSchema, 'rtl');
+      return ok(TextDirectionSchema, 'ltr');
+    }
+  } catch {
+    // Intl.Locale constructor failed — fall through to static lookup
+  }
 
-	// Strategy 2: Static lookup
-	const normalized: Str = localeResult.data.toLowerCase();
-	const parts: Str[] = normalized.split('-');
-	const lang: Str = parts[0] ?? '';
-	const script: Str | undefined =
-		parts.length >= 2 && (parts[1] ?? '').length === 4 ? parts[1] : undefined;
+  // Strategy 2: Static lookup
+  const normalized: Str = localeResult.data.toLowerCase();
+  const parts: Str[] = normalized.split('-');
+  const lang: Str = parts[0] ?? '';
+  const script: Str | undefined =
+    parts.length >= 2 && (parts[1] ?? '').length === 4 ? parts[1] : undefined;
 
-	// Check script subtag first (most specific)
-	if (script && RTL_SCRIPTS.has(script)) {
-		return ok(TextDirectionSchema, 'rtl');
-	}
+  // Check script subtag first (most specific)
+  if (script && RTL_SCRIPTS.has(script)) {
+    return ok(TextDirectionSchema, 'rtl');
+  }
 
-	// Check language subtag
-	if (RTL_LANGUAGES.has(lang)) {
-		return ok(TextDirectionSchema, 'rtl');
-	}
+  // Check language subtag
+  if (RTL_LANGUAGES.has(lang)) {
+    return ok(TextDirectionSchema, 'rtl');
+  }
 
-	return ok(TextDirectionSchema, 'ltr');
+  return ok(TextDirectionSchema, 'ltr');
 }

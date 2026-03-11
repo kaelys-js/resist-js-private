@@ -34,11 +34,11 @@ export type WatcherCleanup = () => Void;
  * State change logs are emitted at `debug` level.
  */
 export const LOG_LEVEL_PRIORITY: Record<LogLevel, Num> = {
-	trace: 0,
-	debug: 1,
-	info: 2,
-	warn: 3,
-	error: 4,
+  trace: 0,
+  debug: 1,
+  info: 2,
+  warn: 3,
+  error: 4,
 };
 
 /**
@@ -56,7 +56,7 @@ export const LOG_LEVEL_PRIORITY: Record<LogLevel, Num> = {
  * ```
  */
 export function shouldLog(messageLevel: LogLevel, currentLevel: LogLevel): Bool {
-	return LOG_LEVEL_PRIORITY[messageLevel] >= LOG_LEVEL_PRIORITY[currentLevel];
+  return LOG_LEVEL_PRIORITY[messageLevel] >= LOG_LEVEL_PRIORITY[currentLevel];
 }
 
 // =============================================================================
@@ -79,20 +79,20 @@ export function shouldLog(messageLevel: LogLevel, currentLevel: LogLevel): Bool 
  * @param newVal - New value
  */
 function logChange(section: Str, key: Str, oldVal: unknown, newVal: unknown): Void {
-	const ts: Str = formatTimestamp();
-	const oldStr: Str = JSON.stringify(oldVal);
-	const newStr: Str = JSON.stringify(newVal);
+  const ts: Str = formatTimestamp();
+  const oldStr: Str = JSON.stringify(oldVal);
+  const newStr: Str = JSON.stringify(newVal);
 
-	console.groupCollapsed(
-		`%c EditorStore %c ${section}.${key} %c ${oldStr} → ${newStr} %c ${ts}`,
-		styles.storeBadge,
-		styles.propPath,
-		styles.reset,
-		styles.timestamp,
-	);
-	console.log('%cold:%c %o', styles.oldValue, styles.reset, oldVal);
-	console.log('%cnew:%c %o', styles.newValue, styles.reset, newVal);
-	console.groupEnd();
+  console.groupCollapsed(
+    `%c EditorStore %c ${section}.${key} %c ${oldStr} → ${newStr} %c ${ts}`,
+    styles.storeBadge,
+    styles.propPath,
+    styles.reset,
+    styles.timestamp,
+  );
+  console.log('%cold:%c %o', styles.oldValue, styles.reset, oldVal);
+  console.log('%cnew:%c %o', styles.newValue, styles.reset, newVal);
+  console.groupEnd();
 }
 
 // =============================================================================
@@ -127,29 +127,29 @@ function logChange(section: Str, key: Str, oldVal: unknown, newVal: unknown): Vo
  * ```
  */
 export function createWatcher(
-	name: Str,
-	getter: () => Record<Str, unknown>,
-	debugStore: DebugStore,
+  name: Str,
+  getter: () => Record<Str, unknown>,
+  debugStore: DebugStore,
 ): WatcherCleanup {
-	let prev: Record<Str, unknown> = { ...getter() };
+  let prev: Record<Str, unknown> = { ...getter() };
 
-	// Svelte framework return — $effect.root() returns () => void, wrap to match () => Void
-	const dispose: () => void = $effect.root(() => {
-		$effect(() => {
-			const current: Record<Str, unknown> = { ...getter() };
+  // Svelte framework return — $effect.root() returns () => void, wrap to match () => Void
+  const dispose: () => void = $effect.root(() => {
+    $effect(() => {
+      const current: Record<Str, unknown> = { ...getter() };
 
-			if (!shouldLog('debug', debugStore.debug.logLevel)) return;
+      if (!shouldLog('debug', debugStore.debug.logLevel)) return;
 
-			const diffs = diffSnapshot(prev, current);
-			for (const diff of diffs) {
-				logChange(name, diff.key, diff.old, diff.new);
-			}
-			prev = current;
-		});
-	});
-	return (): Void => {
-		dispose();
-	};
+      const diffs = diffSnapshot(prev, current);
+      for (const diff of diffs) {
+        logChange(name, diff.key, diff.old, diff.new);
+      }
+      prev = current;
+    });
+  });
+  return (): Void => {
+    dispose();
+  };
 }
 
 // =============================================================================
@@ -177,20 +177,20 @@ export function createWatcher(
  * ```
  */
 export function createStateLogger(
-	editorStore: EditorStore,
-	debugStore: DebugStore,
+  editorStore: EditorStore,
+  debugStore: DebugStore,
 ): { destroy(): Void } {
-	const cleanups: WatcherCleanup[] = [
-		createWatcher('app', () => ({ ...editorStore.app }), debugStore),
-		createWatcher('features', () => ({ ...editorStore.features }), debugStore),
-		createWatcher('debug', () => ({ ...debugStore.debug }), debugStore),
-	];
+  const cleanups: WatcherCleanup[] = [
+    createWatcher('app', () => ({ ...editorStore.app }), debugStore),
+    createWatcher('features', () => ({ ...editorStore.features }), debugStore),
+    createWatcher('debug', () => ({ ...debugStore.debug }), debugStore),
+  ];
 
-	return {
-		destroy(): Void {
-			for (const cleanup of cleanups) {
-				cleanup();
-			}
-		},
-	};
+  return {
+    destroy(): Void {
+      for (const cleanup of cleanups) {
+        cleanup();
+      }
+    },
+  };
 }

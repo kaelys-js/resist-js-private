@@ -28,18 +28,18 @@ import type { Num } from '@/schemas/common';
 
 /** Axis-aligned bounding box (2D: X/Z plane). */
 export type AABB = {
-	readonly minX: Num;
-	readonly minZ: Num;
-	readonly maxX: Num;
-	readonly maxZ: Num;
+  readonly minX: Num;
+  readonly minZ: Num;
+  readonly maxX: Num;
+  readonly maxZ: Num;
 };
 
 /** An item stored in the quadtree. */
 export type QuadtreeItem = {
-	/** Unique identifier. */
-	readonly id: string;
-	/** Item's spatial bounds. */
-	readonly bounds: AABB;
+  /** Unique identifier. */
+  readonly id: string;
+  /** Item's spatial bounds. */
+  readonly bounds: AABB;
 };
 
 /**
@@ -49,38 +49,38 @@ export type QuadtreeItem = {
  * For orthographic cameras, use 4 planes (left, right, near, far).
  */
 export type FrustumPlane = {
-	/** Normal X component. */
-	readonly normalX: Num;
-	/** Normal Z component. */
-	readonly normalZ: Num;
-	/** Signed distance from origin. */
-	readonly distance: Num;
+  /** Normal X component. */
+  readonly normalX: Num;
+  /** Normal Z component. */
+  readonly normalZ: Num;
+  /** Signed distance from origin. */
+  readonly distance: Num;
 };
 
 /** A quadtree node. */
 export type Quadtree = {
-	/** Node's spatial bounds. */
-	bounds: AABB;
-	/** Items stored directly in this node. */
-	items: QuadtreeItem[];
-	/** Four child nodes (NW, NE, SW, SE), or null if leaf. */
-	children: [Quadtree, Quadtree, Quadtree, Quadtree] | null;
-	/** Current depth in the tree. */
-	depth: Num;
-	/** Maximum tree depth. */
-	maxDepth: Num;
-	/** Maximum items per node before subdivision. */
-	maxItemsPerNode: Num;
+  /** Node's spatial bounds. */
+  bounds: AABB;
+  /** Items stored directly in this node. */
+  items: QuadtreeItem[];
+  /** Four child nodes (NW, NE, SW, SE), or null if leaf. */
+  children: [Quadtree, Quadtree, Quadtree, Quadtree] | null;
+  /** Current depth in the tree. */
+  depth: Num;
+  /** Maximum tree depth. */
+  maxDepth: Num;
+  /** Maximum items per node before subdivision. */
+  maxItemsPerNode: Num;
 };
 
 /** Options for {@link createQuadtree}. */
 type CreateQuadtreeOptions = {
-	/** World bounds of the quadtree. */
-	readonly bounds: AABB;
-	/** Maximum tree depth (default 8). */
-	readonly maxDepth?: Num;
-	/** Maximum items per node before subdivision (default 32). */
-	readonly maxItemsPerNode?: Num;
+  /** World bounds of the quadtree. */
+  readonly bounds: AABB;
+  /** Maximum tree depth (default 8). */
+  readonly maxDepth?: Num;
+  /** Maximum items per node before subdivision (default 32). */
+  readonly maxItemsPerNode?: Num;
 };
 
 // =============================================================================
@@ -95,7 +95,7 @@ type CreateQuadtreeOptions = {
  * @returns True if the AABBs overlap
  */
 function aabbOverlap(a: AABB, b: AABB): boolean {
-	return a.minX < b.maxX && a.maxX > b.minX && a.minZ < b.maxZ && a.maxZ > b.minZ;
+  return a.minX < b.maxX && a.maxX > b.minX && a.minZ < b.maxZ && a.maxZ > b.minZ;
 }
 
 /**
@@ -104,48 +104,48 @@ function aabbOverlap(a: AABB, b: AABB): boolean {
  * @param node - The node to subdivide
  */
 function subdivide(node: Quadtree): void {
-	const { minX, minZ, maxX, maxZ } = node.bounds;
-	const midX: Num = (minX + maxX) / 2;
-	const midZ: Num = (minZ + maxZ) / 2;
-	const childDepth: Num = node.depth + 1;
+  const { minX, minZ, maxX, maxZ } = node.bounds;
+  const midX: Num = (minX + maxX) / 2;
+  const midZ: Num = (minZ + maxZ) / 2;
+  const childDepth: Num = node.depth + 1;
 
-	node.children = [
-		// NW
-		createNode(
-			{ minX, minZ, maxX: midX, maxZ: midZ },
-			childDepth,
-			node.maxDepth,
-			node.maxItemsPerNode,
-		),
-		// NE
-		createNode(
-			{ minX: midX, minZ, maxX, maxZ: midZ },
-			childDepth,
-			node.maxDepth,
-			node.maxItemsPerNode,
-		),
-		// SW
-		createNode(
-			{ minX, minZ: midZ, maxX: midX, maxZ },
-			childDepth,
-			node.maxDepth,
-			node.maxItemsPerNode,
-		),
-		// SE
-		createNode(
-			{ minX: midX, minZ: midZ, maxX, maxZ },
-			childDepth,
-			node.maxDepth,
-			node.maxItemsPerNode,
-		),
-	];
+  node.children = [
+    // NW
+    createNode(
+      { minX, minZ, maxX: midX, maxZ: midZ },
+      childDepth,
+      node.maxDepth,
+      node.maxItemsPerNode,
+    ),
+    // NE
+    createNode(
+      { minX: midX, minZ, maxX, maxZ: midZ },
+      childDepth,
+      node.maxDepth,
+      node.maxItemsPerNode,
+    ),
+    // SW
+    createNode(
+      { minX, minZ: midZ, maxX: midX, maxZ },
+      childDepth,
+      node.maxDepth,
+      node.maxItemsPerNode,
+    ),
+    // SE
+    createNode(
+      { minX: midX, minZ: midZ, maxX, maxZ },
+      childDepth,
+      node.maxDepth,
+      node.maxItemsPerNode,
+    ),
+  ];
 
-	// Re-insert items into children
-	const existingItems: QuadtreeItem[] = node.items;
-	node.items = [];
-	for (const item of existingItems) {
-		insertIntoChildren(node, item);
-	}
+  // Re-insert items into children
+  const existingItems: QuadtreeItem[] = node.items;
+  node.items = [];
+  for (const item of existingItems) {
+    insertIntoChildren(node, item);
+  }
 }
 
 /**
@@ -158,14 +158,14 @@ function subdivide(node: Quadtree): void {
  * @returns A new quadtree node
  */
 function createNode(bounds: AABB, depth: Num, maxDepth: Num, maxItemsPerNode: Num): Quadtree {
-	return {
-		bounds,
-		items: [],
-		children: null,
-		depth,
-		maxDepth,
-		maxItemsPerNode,
-	};
+  return {
+    bounds,
+    items: [],
+    children: null,
+    depth,
+    maxDepth,
+    maxItemsPerNode,
+  };
 }
 
 /**
@@ -177,12 +177,12 @@ function createNode(bounds: AABB, depth: Num, maxDepth: Num, maxItemsPerNode: Nu
  * @param item - The item to insert
  */
 function insertIntoChildren(node: Quadtree, item: QuadtreeItem): void {
-	if (!node.children) return;
-	for (const child of node.children) {
-		if (aabbOverlap(child.bounds, item.bounds)) {
-			insertItem(child, item);
-		}
-	}
+  if (!node.children) return;
+  for (const child of node.children) {
+    if (aabbOverlap(child.bounds, item.bounds)) {
+      insertItem(child, item);
+    }
+  }
 }
 
 // =============================================================================
@@ -205,7 +205,7 @@ function insertIntoChildren(node: Quadtree, item: QuadtreeItem): void {
  * ```
  */
 export function createQuadtree(options: CreateQuadtreeOptions): Quadtree {
-	return createNode(options.bounds, 0, options.maxDepth ?? 8, options.maxItemsPerNode ?? 32);
+  return createNode(options.bounds, 0, options.maxDepth ?? 8, options.maxItemsPerNode ?? 32);
 }
 
 /**
@@ -223,19 +223,19 @@ export function createQuadtree(options: CreateQuadtreeOptions): Quadtree {
  * ```
  */
 export function insertItem(tree: Quadtree, item: QuadtreeItem): void {
-	// If subdivided, insert into children
-	if (tree.children) {
-		insertIntoChildren(tree, item);
-		return;
-	}
+  // If subdivided, insert into children
+  if (tree.children) {
+    insertIntoChildren(tree, item);
+    return;
+  }
 
-	// Add to this node
-	tree.items.push(item);
+  // Add to this node
+  tree.items.push(item);
 
-	// Subdivide if needed
-	if (tree.items.length > tree.maxItemsPerNode && tree.depth < tree.maxDepth) {
-		subdivide(tree);
-	}
+  // Subdivide if needed
+  if (tree.items.length > tree.maxItemsPerNode && tree.depth < tree.maxDepth) {
+    subdivide(tree);
+  }
 }
 
 /**
@@ -253,21 +253,21 @@ export function insertItem(tree: Quadtree, item: QuadtreeItem): void {
  * ```
  */
 export function removeItem(tree: Quadtree, id: string): boolean {
-	// Check this node's items
-	const idx: Num = tree.items.findIndex((item) => item.id === id);
-	if (idx >= 0) {
-		tree.items.splice(idx, 1);
-		return true;
-	}
+  // Check this node's items
+  const idx: Num = tree.items.findIndex((item) => item.id === id);
+  if (idx >= 0) {
+    tree.items.splice(idx, 1);
+    return true;
+  }
 
-	// Check children
-	if (tree.children) {
-		for (const child of tree.children) {
-			if (removeItem(child, id)) return true;
-		}
-	}
+  // Check children
+  if (tree.children) {
+    for (const child of tree.children) {
+      if (removeItem(child, id)) return true;
+    }
+  }
 
-	return false;
+  return false;
 }
 
 /**
@@ -283,9 +283,9 @@ export function removeItem(tree: Quadtree, id: string): boolean {
  * ```
  */
 export function queryRect(tree: Quadtree, rect: AABB): QuadtreeItem[] {
-	const results: QuadtreeItem[] = [];
-	queryRectInternal(tree, rect, results, new Set());
-	return results;
+  const results: QuadtreeItem[] = [];
+  queryRectInternal(tree, rect, results, new Set());
+  return results;
 }
 
 /**
@@ -313,9 +313,9 @@ export function queryRect(tree: Quadtree, rect: AABB): QuadtreeItem[] {
  * ```
  */
 export function queryFrustum(tree: Quadtree, planes: readonly FrustumPlane[]): QuadtreeItem[] {
-	const results: QuadtreeItem[] = [];
-	queryFrustumInternal(tree, planes, results, new Set());
-	return results;
+  const results: QuadtreeItem[] = [];
+  queryFrustumInternal(tree, planes, results, new Set());
+  return results;
 }
 
 /**
@@ -328,27 +328,27 @@ export function queryFrustum(tree: Quadtree, planes: readonly FrustumPlane[]): Q
  * @param seen - Set of already-collected item IDs
  */
 function queryRectInternal(
-	node: Quadtree,
-	rect: AABB,
-	results: QuadtreeItem[],
-	seen: Set<string>,
+  node: Quadtree,
+  rect: AABB,
+  results: QuadtreeItem[],
+  seen: Set<string>,
 ): void {
-	if (!aabbOverlap(node.bounds, rect)) return;
+  if (!aabbOverlap(node.bounds, rect)) return;
 
-	// Check this node's items
-	for (const item of node.items) {
-		if (!seen.has(item.id) && aabbOverlap(item.bounds, rect)) {
-			seen.add(item.id);
-			results.push(item);
-		}
-	}
+  // Check this node's items
+  for (const item of node.items) {
+    if (!seen.has(item.id) && aabbOverlap(item.bounds, rect)) {
+      seen.add(item.id);
+      results.push(item);
+    }
+  }
 
-	// Recurse into children
-	if (node.children) {
-		for (const child of node.children) {
-			queryRectInternal(child, rect, results, seen);
-		}
-	}
+  // Recurse into children
+  if (node.children) {
+    for (const child of node.children) {
+      queryRectInternal(child, rect, results, seen);
+    }
+  }
 }
 
 /**
@@ -363,12 +363,12 @@ function queryRectInternal(
  * @returns True if the AABB is entirely outside the plane (culled)
  */
 function aabbOutsidePlane(aabb: AABB, plane: FrustumPlane): boolean {
-	// Find the AABB corner most in the direction of the plane normal
-	const testX: Num = plane.normalX >= 0 ? aabb.maxX : aabb.minX;
-	const testZ: Num = plane.normalZ >= 0 ? aabb.maxZ : aabb.minZ;
+  // Find the AABB corner most in the direction of the plane normal
+  const testX: Num = plane.normalX >= 0 ? aabb.maxX : aabb.minX;
+  const testZ: Num = plane.normalZ >= 0 ? aabb.maxZ : aabb.minZ;
 
-	// If the farthest corner is still behind the plane, the entire AABB is outside
-	return plane.normalX * testX + plane.normalZ * testZ < plane.distance;
+  // If the farthest corner is still behind the plane, the entire AABB is outside
+  return plane.normalX * testX + plane.normalZ * testZ < plane.distance;
 }
 
 /**
@@ -380,37 +380,37 @@ function aabbOutsidePlane(aabb: AABB, plane: FrustumPlane): boolean {
  * @param seen - Set of already-collected item IDs
  */
 function queryFrustumInternal(
-	node: Quadtree,
-	planes: readonly FrustumPlane[],
-	results: QuadtreeItem[],
-	seen: Set<string>,
+  node: Quadtree,
+  planes: readonly FrustumPlane[],
+  results: QuadtreeItem[],
+  seen: Set<string>,
 ): void {
-	// Test node bounds against all frustum planes
-	for (const plane of planes) {
-		if (aabbOutsidePlane(node.bounds, plane)) return;
-	}
+  // Test node bounds against all frustum planes
+  for (const plane of planes) {
+    if (aabbOutsidePlane(node.bounds, plane)) return;
+  }
 
-	// Check this node's items
-	for (const item of node.items) {
-		if (seen.has(item.id)) continue;
+  // Check this node's items
+  for (const item of node.items) {
+    if (seen.has(item.id)) continue;
 
-		let inside = true;
-		for (const plane of planes) {
-			if (aabbOutsidePlane(item.bounds, plane)) {
-				inside = false;
-				break;
-			}
-		}
-		if (inside) {
-			seen.add(item.id);
-			results.push(item);
-		}
-	}
+    let inside = true;
+    for (const plane of planes) {
+      if (aabbOutsidePlane(item.bounds, plane)) {
+        inside = false;
+        break;
+      }
+    }
+    if (inside) {
+      seen.add(item.id);
+      results.push(item);
+    }
+  }
 
-	// Recurse into children
-	if (node.children) {
-		for (const child of node.children) {
-			queryFrustumInternal(child, planes, results, seen);
-		}
-	}
+  // Recurse into children
+  if (node.children) {
+    for (const child of node.children) {
+      queryFrustumInternal(child, planes, results, seen);
+    }
+  }
 }

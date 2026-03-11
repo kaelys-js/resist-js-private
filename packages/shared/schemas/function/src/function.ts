@@ -69,19 +69,19 @@ const AsyncFunction: FnType = _toFnType((async () => {}).constructor);
  * and arrow functions pass validation.
  */
 export function functionSchema<
-	TArgs extends unknown[] = unknown[],
-	TReturn = unknown,
+  TArgs extends unknown[] = unknown[],
+  TReturn = unknown,
 >(): v.GenericSchema<FnType<TArgs, TReturn>> {
-	return v.custom<FnType<TArgs, TReturn>>((val: unknown): boolean => {
-		if (typeof val !== 'function') return false;
+  return v.custom<FnType<TArgs, TReturn>>((val: unknown): boolean => {
+    if (typeof val !== 'function') return false;
 
-		// Reject class constructors — they look like functions but
-		// have different semantics (must be called with `new`)
-		const str: Str = val.toString();
-		if (str.startsWith('class ') || str.startsWith('class{')) return false;
+    // Reject class constructors — they look like functions but
+    // have different semantics (must be called with `new`)
+    const str: Str = val.toString();
+    if (str.startsWith('class ') || str.startsWith('class{')) return false;
 
-		return true;
-	}, 'Expected a callable function (not a class constructor)');
+    return true;
+  }, 'Expected a callable function (not a class constructor)');
 }
 
 /**
@@ -91,5 +91,5 @@ export function functionSchema<
  * @returns `true` if the function is an async function.
  */
 export function isAsyncFunction(fn: FnType): Bool {
-	return fn.constructor === AsyncFunction;
+  return fn.constructor === AsyncFunction;
 }

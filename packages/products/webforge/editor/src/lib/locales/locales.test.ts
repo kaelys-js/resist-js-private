@@ -21,16 +21,16 @@ const LOCALE_CODES: readonly Str[] = Object.keys(ALL_LOCALES);
  * @returns Sorted array of dot-path keys
  */
 function leafKeys(obj: Record<Str, unknown>, prefix = ''): Str[] {
-	const keys: Str[] = [];
-	for (const [k, v] of Object.entries(obj)) {
-		const path: Str = prefix ? `${prefix}.${k}` : k;
-		if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
-			keys.push(...leafKeys(v as Record<Str, unknown>, path));
-		} else {
-			keys.push(path);
-		}
-	}
-	return keys.toSorted();
+  const keys: Str[] = [];
+  for (const [k, v] of Object.entries(obj)) {
+    const path: Str = prefix ? `${prefix}.${k}` : k;
+    if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
+      keys.push(...leafKeys(v as Record<Str, unknown>, path));
+    } else {
+      keys.push(path);
+    }
+  }
+  return keys.toSorted();
 }
 
 const enKeys: readonly Str[] = leafKeys(en);
@@ -40,12 +40,12 @@ const enKeys: readonly Str[] = leafKeys(en);
 // =============================================================================
 
 describe('locale structural parity', () => {
-	for (const code of LOCALE_CODES) {
-		it(`${code} has the same key set as en`, () => {
-			const keys: readonly Str[] = leafKeys(ALL_LOCALES[code]!);
-			expect(keys).toEqual(enKeys);
-		});
-	}
+  for (const code of LOCALE_CODES) {
+    it(`${code} has the same key set as en`, () => {
+      const keys: readonly Str[] = leafKeys(ALL_LOCALES[code]!);
+      expect(keys).toEqual(enKeys);
+    });
+  }
 });
 
 // =============================================================================
@@ -60,28 +60,28 @@ describe('locale structural parity', () => {
  * @returns Array of [path, value] tuples
  */
 function leafEntries(obj: Record<Str, unknown>, prefix = ''): Array<[Str, unknown]> {
-	const entries: Array<[Str, unknown]> = [];
-	for (const [k, v] of Object.entries(obj)) {
-		const path: Str = prefix ? `${prefix}.${k}` : k;
-		if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
-			entries.push(...leafEntries(v as Record<Str, unknown>, path));
-		} else {
-			entries.push([path, v]);
-		}
-	}
-	return entries;
+  const entries: Array<[Str, unknown]> = [];
+  for (const [k, v] of Object.entries(obj)) {
+    const path: Str = prefix ? `${prefix}.${k}` : k;
+    if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
+      entries.push(...leafEntries(v as Record<Str, unknown>, path));
+    } else {
+      entries.push([path, v]);
+    }
+  }
+  return entries;
 }
 
 describe('no empty strings in any locale', () => {
-	for (const code of LOCALE_CODES) {
-		it(`${code} has no empty string values`, () => {
-			const entries = leafEntries(ALL_LOCALES[code]!);
-			for (const [path, value] of entries) {
-				expect(typeof value, `${code}.${path} should be a string`).toBe('string');
-				expect((value as string).length, `${code}.${path} should not be empty`).toBeGreaterThan(0);
-			}
-		});
-	}
+  for (const code of LOCALE_CODES) {
+    it(`${code} has no empty string values`, () => {
+      const entries = leafEntries(ALL_LOCALES[code]!);
+      for (const [path, value] of entries) {
+        expect(typeof value, `${code}.${path} should be a string`).toBe('string');
+        expect((value as string).length, `${code}.${path} should not be empty`).toBeGreaterThan(0);
+      }
+    });
+  }
 });
 
 // =============================================================================
@@ -89,11 +89,11 @@ describe('no empty strings in any locale', () => {
 // =============================================================================
 
 describe('description template', () => {
-	for (const code of LOCALE_CODES) {
-		it(`${code}.meta.description contains {appName} placeholder`, () => {
-			expect(ALL_LOCALES[code]!.meta.description).toContain('{appName}');
-		});
-	}
+  for (const code of LOCALE_CODES) {
+    it(`${code}.meta.description contains {appName} placeholder`, () => {
+      expect(ALL_LOCALES[code]!.meta.description).toContain('{appName}');
+    });
+  }
 });
 
 // =============================================================================
@@ -101,28 +101,28 @@ describe('description template', () => {
 // =============================================================================
 
 const EXPECTED_NAMESPACES: readonly Str[] = [
-	'meta',
-	'common',
-	'sidebar',
-	'header',
-	'settings',
-	'project',
-	'user',
-	'data',
-	'scenes',
-	'debug',
-	'devToolbar',
-	'home',
-	'errors',
+  'meta',
+  'common',
+  'sidebar',
+  'header',
+  'settings',
+  'project',
+  'user',
+  'data',
+  'scenes',
+  'debug',
+  'devToolbar',
+  'home',
+  'errors',
 ];
 
 describe('namespace coverage', () => {
-	for (const code of LOCALE_CODES) {
-		it(`${code} has all ${EXPECTED_NAMESPACES.length} namespaces`, () => {
-			const namespaces: readonly Str[] = Object.keys(ALL_LOCALES[code]!).toSorted();
-			expect(namespaces).toEqual([...EXPECTED_NAMESPACES].toSorted());
-		});
-	}
+  for (const code of LOCALE_CODES) {
+    it(`${code} has all ${EXPECTED_NAMESPACES.length} namespaces`, () => {
+      const namespaces: readonly Str[] = Object.keys(ALL_LOCALES[code]!).toSorted();
+      expect(namespaces).toEqual([...EXPECTED_NAMESPACES].toSorted());
+    });
+  }
 });
 
 // =============================================================================
@@ -130,12 +130,12 @@ describe('namespace coverage', () => {
 // =============================================================================
 
 describe('localized meta.description', () => {
-	for (const code of LOCALE_CODES) {
-		if (code === 'en') continue;
-		it(`${code}.meta.description differs from en`, () => {
-			expect(ALL_LOCALES[code]!.meta.description).not.toBe(en.meta.description);
-		});
-	}
+  for (const code of LOCALE_CODES) {
+    if (code === 'en') continue;
+    it(`${code}.meta.description differs from en`, () => {
+      expect(ALL_LOCALES[code]!.meta.description).not.toBe(en.meta.description);
+    });
+  }
 });
 
 // =============================================================================
@@ -143,12 +143,12 @@ describe('localized meta.description', () => {
 // =============================================================================
 
 describe('schema validation', () => {
-	for (const code of LOCALE_CODES) {
-		it(`${code} parses against EditorLocaleSchema`, () => {
-			const result = safeParse(EditorLocaleSchema, ALL_LOCALES[code]!);
-			expect(result.ok, `${code} should pass schema validation`).toBe(true);
-		});
-	}
+  for (const code of LOCALE_CODES) {
+    it(`${code} parses against EditorLocaleSchema`, () => {
+      const result = safeParse(EditorLocaleSchema, ALL_LOCALES[code]!);
+      expect(result.ok, `${code} should pass schema validation`).toBe(true);
+    });
+  }
 });
 
 // =============================================================================
@@ -156,25 +156,25 @@ describe('schema validation', () => {
 // =============================================================================
 
 const NAMESPACE_KEY_COUNTS: Record<Str, Num> = {
-	meta: 2,
-	common: 13,
-	sidebar: 3,
-	header: 4,
-	settings: 23,
-	project: 2,
-	user: 9,
-	data: 6,
-	scenes: 3,
-	errors: 17,
+  meta: 2,
+  common: 13,
+  sidebar: 3,
+  header: 4,
+  settings: 23,
+  project: 2,
+  user: 9,
+  data: 6,
+  scenes: 3,
+  errors: 17,
 };
 
 describe('namespace key counts', () => {
-	for (const [ns, expectedCount] of Object.entries(NAMESPACE_KEY_COUNTS)) {
-		it(`en.${ns} has ${expectedCount} keys`, () => {
-			const actual: Num = Object.keys(
-				en[ns as keyof EditorLocaleRaw] as Record<Str, unknown>,
-			).length;
-			expect(actual).toBe(expectedCount);
-		});
-	}
+  for (const [ns, expectedCount] of Object.entries(NAMESPACE_KEY_COUNTS)) {
+    it(`en.${ns} has ${expectedCount} keys`, () => {
+      const actual: Num = Object.keys(
+        en[ns as keyof EditorLocaleRaw] as Record<Str, unknown>,
+      ).length;
+      expect(actual).toBe(expectedCount);
+    });
+  }
 });

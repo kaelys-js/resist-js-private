@@ -35,21 +35,21 @@ type Plan = (typeof SUPPORTED_PLANS)[number];
  * All unmentioned flags default to `true` (enabled).
  */
 const PLAN_PRESETS: Record<Plan, Partial<FeatureFlags>> = {
-	free: {
-		settings: false,
-		themeSelection: false,
-		languageSelection: false,
-		resizableSidebar: false,
-		headerUserNotifications: false,
-		headerUserShortcuts: false,
-		headerUserSettings: false,
-	},
-	starter: {
-		headerUserShortcuts: false,
-		headerUserSettings: false,
-	},
-	pro: {},
-	enterprise: {},
+  free: {
+    settings: false,
+    themeSelection: false,
+    languageSelection: false,
+    resizableSidebar: false,
+    headerUserNotifications: false,
+    headerUserShortcuts: false,
+    headerUserSettings: false,
+  },
+  starter: {
+    headerUserShortcuts: false,
+    headerUserSettings: false,
+  },
+  pro: {},
+  enterprise: {},
 };
 
 // =============================================================================
@@ -61,11 +61,11 @@ const PLAN_PRESETS: Record<Plan, Partial<FeatureFlags>> = {
  * Used as the starting point before applying plan restrictions.
  */
 const ALL_ENABLED: FeatureFlags = Object.fromEntries(
-	// Schema introspection — FeatureFlagsSchema.entries keys are the flag names
-	Object.keys(FeatureFlagsSchema.entries as unknown as Record<Str, unknown>).map((key: Str) => [
-		key,
-		true,
-	]),
+  // Schema introspection — FeatureFlagsSchema.entries keys are the flag names
+  Object.keys(FeatureFlagsSchema.entries as unknown as Record<Str, unknown>).map((key: Str) => [
+    key,
+    true,
+  ]),
 ) as FeatureFlags;
 
 // =============================================================================
@@ -91,9 +91,9 @@ const ALL_ENABLED: FeatureFlags = Object.fromEntries(
  * ```
  */
 export function getPresetForPlan(plan: Str): Partial<FeatureFlags> {
-	// Validate against known plans — unknown plans get no restrictions
-	if (!SUPPORTED_PLANS.includes(plan as Plan)) return {};
-	return { ...PLAN_PRESETS[plan as Plan] };
+  // Validate against known plans — unknown plans get no restrictions
+  if (!SUPPORTED_PLANS.includes(plan as Plan)) return {};
+  return { ...PLAN_PRESETS[plan as Plan] };
 }
 
 /**
@@ -116,6 +116,6 @@ export function getPresetForPlan(plan: Str): Partial<FeatureFlags> {
  * ```
  */
 export function applyPlanPreset(plan: Str): FeatureFlags {
-	const preset: Partial<FeatureFlags> = getPresetForPlan(plan);
-	return { ...ALL_ENABLED, ...preset };
+  const preset: Partial<FeatureFlags> = getPresetForPlan(plan);
+  return { ...ALL_ENABLED, ...preset };
 }

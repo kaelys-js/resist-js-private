@@ -215,7 +215,7 @@ const harness = createTestHarness();
 
 ## Formatting & Linting
 
-- **Biome** — tabs, single quotes, semicolons always, 100 char width
+- **Biome** — spaces (2-wide), single quotes, semicolons always, 100 char width
 - **oxlint** — full ruleset, config at `.oxlintrc.json` in workspace root
 - Run `pnpm qa:format` to format, `pnpm qa:lint` to lint
 - **NEVER use lint disable comments** (`eslint-disable`, `oxlint-ignore`, `/* global */`, etc.) — fix the code instead. Add missing browser globals to `.oxlintrc.json` globals section. Only `max-lines` and `max-lines-per-function` are OK to disable.

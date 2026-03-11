@@ -37,14 +37,14 @@ import { okShallow, type BabylonResult } from '../core/babylon-result';
  * `u0,v0` is bottom-left, `u1,v1` is top-right (Babylon.js convention).
  */
 export const TileUVSchema = v.strictObject({
-	/** Left edge U coordinate. */
-	u0: v.number(),
-	/** Bottom edge V coordinate. */
-	v0: v.number(),
-	/** Right edge U coordinate. */
-	u1: v.number(),
-	/** Top edge V coordinate. */
-	v1: v.number(),
+  /** Left edge U coordinate. */
+  u0: v.number(),
+  /** Bottom edge V coordinate. */
+  v0: v.number(),
+  /** Right edge U coordinate. */
+  u1: v.number(),
+  /** Top edge V coordinate. */
+  v1: v.number(),
 });
 
 /** UV rectangle for one tile in a tileset atlas. */
@@ -52,12 +52,12 @@ export type TileUV = v.InferOutput<typeof TileUVSchema>;
 
 /** Schema for Float32Array fields (v.instance generic workaround for TS 5.7+). */
 const Float32ArraySchema = v.custom<Float32Array<ArrayBufferLike>>(
-	(val): val is Float32Array<ArrayBufferLike> => val instanceof Float32Array,
+  (val): val is Float32Array<ArrayBufferLike> => val instanceof Float32Array,
 );
 
 /** Schema for Uint32Array fields (v.instance generic workaround for TS 5.7+). */
 const Uint32ArraySchema = v.custom<Uint32Array<ArrayBufferLike>>(
-	(val): val is Uint32Array<ArrayBufferLike> => val instanceof Uint32Array,
+  (val): val is Uint32Array<ArrayBufferLike> => val instanceof Uint32Array,
 );
 
 /**
@@ -67,19 +67,19 @@ const Uint32ArraySchema = v.custom<Uint32Array<ArrayBufferLike>>(
  * All arrays are pre-allocated to exact size.
  */
 export const TileVertexDataSchema = v.pipe(
-	v.strictObject({
-		/** Flat XYZ positions (length = vertexCount × 3). */
-		positions: Float32ArraySchema,
-		/** Flat XYZ normals (length = vertexCount × 3). */
-		normals: Float32ArraySchema,
-		/** Flat UV coordinates (length = vertexCount × 2). */
-		uvs: Float32ArraySchema,
-		/** Triangle indices (length = triangleCount × 3). */
-		indices: Uint32ArraySchema,
-		/** Number of vertices in this data. */
-		vertexCount: v.number(),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Flat XYZ positions (length = vertexCount × 3). */
+    positions: Float32ArraySchema,
+    /** Flat XYZ normals (length = vertexCount × 3). */
+    normals: Float32ArraySchema,
+    /** Flat UV coordinates (length = vertexCount × 2). */
+    uvs: Float32ArraySchema,
+    /** Triangle indices (length = triangleCount × 3). */
+    indices: Uint32ArraySchema,
+    /** Number of vertices in this data. */
+    vertexCount: v.number(),
+  }),
+  v.readonly(),
 );
 
 /** Raw vertex data for one or more tiles. */
@@ -100,21 +100,21 @@ export type WallDirection = v.InferOutput<typeof WallDirectionSchema>;
 
 /** Options schema for {@link createFlatTileGeometry}. */
 export const FlatTileOptionsSchema = v.pipe(
-	v.strictObject({
-		/** Tile grid X coordinate. */
-		gridX: v.number(),
-		/** Tile grid Z coordinate. */
-		gridZ: v.number(),
-		/** World Y height for the tile surface. */
-		heightY: v.number(),
-		/** Size of one tile in world units. */
-		tileWorldSize: v.number(),
-		/** UV rectangle from the tileset atlas. */
-		uv: TileUVSchema,
-		/** Starting vertex index (for merging multiple tiles). */
-		indexOffset: v.number(),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Tile grid X coordinate. */
+    gridX: v.number(),
+    /** Tile grid Z coordinate. */
+    gridZ: v.number(),
+    /** World Y height for the tile surface. */
+    heightY: v.number(),
+    /** Size of one tile in world units. */
+    tileWorldSize: v.number(),
+    /** UV rectangle from the tileset atlas. */
+    uv: TileUVSchema,
+    /** Starting vertex index (for merging multiple tiles). */
+    indexOffset: v.number(),
+  }),
+  v.readonly(),
 );
 
 /** Options for {@link createFlatTileGeometry}. */
@@ -122,25 +122,25 @@ export type FlatTileOptions = v.InferOutput<typeof FlatTileOptionsSchema>;
 
 /** Options schema for {@link createWallFaceGeometry}. */
 export const WallFaceOptionsSchema = v.pipe(
-	v.strictObject({
-		/** Tile grid X coordinate. */
-		gridX: v.number(),
-		/** Tile grid Z coordinate. */
-		gridZ: v.number(),
-		/** World Y height at the top of the wall. */
-		topY: v.number(),
-		/** World Y height at the bottom of the wall. */
-		bottomY: v.number(),
-		/** Which side of the tile the wall faces. */
-		direction: WallDirectionSchema,
-		/** Size of one tile in world units. */
-		tileWorldSize: v.number(),
-		/** UV rectangle for the wall texture. */
-		uv: TileUVSchema,
-		/** Starting vertex index (for merging). */
-		indexOffset: v.number(),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Tile grid X coordinate. */
+    gridX: v.number(),
+    /** Tile grid Z coordinate. */
+    gridZ: v.number(),
+    /** World Y height at the top of the wall. */
+    topY: v.number(),
+    /** World Y height at the bottom of the wall. */
+    bottomY: v.number(),
+    /** Which side of the tile the wall faces. */
+    direction: WallDirectionSchema,
+    /** Size of one tile in world units. */
+    tileWorldSize: v.number(),
+    /** UV rectangle for the wall texture. */
+    uv: TileUVSchema,
+    /** Starting vertex index (for merging). */
+    indexOffset: v.number(),
+  }),
+  v.readonly(),
 );
 
 /** Options for {@link createWallFaceGeometry}. */
@@ -157,11 +157,11 @@ export type WallFaceOptions = v.InferOutput<typeof WallFaceOptionsSchema>;
  * have predefined offsets; custom layer types will fall back to 0 via `?? 0`.
  */
 export const LAYER_Y_OFFSETS: Readonly<Record<Str, Num>> = {
-	ground: 0.0,
-	ground_deco: 0.001,
-	upper1: 0.002,
-	upper2: 0.003,
-	shadow: -0.001,
+  ground: 0.0,
+  ground_deco: 0.001,
+  upper1: 0.002,
+  upper2: 0.003,
+  shadow: -0.001,
 };
 
 // =============================================================================
@@ -189,62 +189,62 @@ export const LAYER_Y_OFFSETS: Readonly<Record<Str, Num>> = {
  * ```
  */
 export function createFlatTileGeometry(options: FlatTileOptions): BabylonResult<TileVertexData> {
-	const { gridX, gridZ, heightY, tileWorldSize, uv, indexOffset } = options;
+  const { gridX, gridZ, heightY, tileWorldSize, uv, indexOffset } = options;
 
-	const x: Num = gridX * tileWorldSize;
-	const z: Num = gridZ * tileWorldSize;
-	const x1: Num = x + tileWorldSize;
-	const z1: Num = z + tileWorldSize;
+  const x: Num = gridX * tileWorldSize;
+  const z: Num = gridZ * tileWorldSize;
+  const x1: Num = x + tileWorldSize;
+  const z1: Num = z + tileWorldSize;
 
-	// 4 vertices: bottom-left, bottom-right, top-right, top-left
-	const positions: Float32Array = new Float32Array([
-		x,
-		heightY,
-		z,
-		x1,
-		heightY,
-		z,
-		x1,
-		heightY,
-		z1,
-		x,
-		heightY,
-		z1,
-	]);
+  // 4 vertices: bottom-left, bottom-right, top-right, top-left
+  const positions: Float32Array = new Float32Array([
+    x,
+    heightY,
+    z,
+    x1,
+    heightY,
+    z,
+    x1,
+    heightY,
+    z1,
+    x,
+    heightY,
+    z1,
+  ]);
 
-	// All normals point up
-	const normals: Float32Array = new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]);
+  // All normals point up
+  const normals: Float32Array = new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]);
 
-	// UV mapping: bottom-left → bottom-right → top-right → top-left
-	const uvs: Float32Array = new Float32Array([
-		uv.u0,
-		uv.v0,
-		uv.u1,
-		uv.v0,
-		uv.u1,
-		uv.v1,
-		uv.u0,
-		uv.v1,
-	]);
+  // UV mapping: bottom-left → bottom-right → top-right → top-left
+  const uvs: Float32Array = new Float32Array([
+    uv.u0,
+    uv.v0,
+    uv.u1,
+    uv.v0,
+    uv.u1,
+    uv.v1,
+    uv.u0,
+    uv.v1,
+  ]);
 
-	// Two CCW triangles
-	const base: Num = indexOffset;
-	const indices: Uint32Array = new Uint32Array([
-		base,
-		base + 1,
-		base + 2,
-		base,
-		base + 2,
-		base + 3,
-	]);
+  // Two CCW triangles
+  const base: Num = indexOffset;
+  const indices: Uint32Array = new Uint32Array([
+    base,
+    base + 1,
+    base + 2,
+    base,
+    base + 2,
+    base + 3,
+  ]);
 
-	return okShallow({
-		positions,
-		normals,
-		uvs,
-		indices,
-		vertexCount: 4,
-	});
+  return okShallow({
+    positions,
+    normals,
+    uvs,
+    indices,
+    vertexCount: 4,
+  });
 }
 
 // =============================================================================
@@ -274,76 +274,76 @@ export function createFlatTileGeometry(options: FlatTileOptions): BabylonResult<
  * ```
  */
 export function createWallFaceGeometry(options: WallFaceOptions): BabylonResult<TileVertexData> {
-	const { gridX, gridZ, topY, bottomY, direction, tileWorldSize, uv, indexOffset } = options;
+  const { gridX, gridZ, topY, bottomY, direction, tileWorldSize, uv, indexOffset } = options;
 
-	if (topY <= bottomY) {
-		return err(ERRORS.VALIDATION.INVALID_FORMAT, 'topY must be greater than bottomY');
-	}
+  if (topY <= bottomY) {
+    return err(ERRORS.VALIDATION.INVALID_FORMAT, 'topY must be greater than bottomY');
+  }
 
-	const x: Num = gridX * tileWorldSize;
-	const z: Num = gridZ * tileWorldSize;
-	const x1: Num = x + tileWorldSize;
-	const z1: Num = z + tileWorldSize;
+  const x: Num = gridX * tileWorldSize;
+  const z: Num = gridZ * tileWorldSize;
+  const x1: Num = x + tileWorldSize;
+  const z1: Num = z + tileWorldSize;
 
-	const heightDiff: Num = topY - bottomY;
-	const vTop: Num = uv.v1;
-	const vBottom: Num = uv.v0 - (uv.v1 - uv.v0) * (heightDiff - 1);
+  const heightDiff: Num = topY - bottomY;
+  const vTop: Num = uv.v1;
+  const vBottom: Num = uv.v0 - (uv.v1 - uv.v0) * (heightDiff - 1);
 
-	let positions: Float32Array;
-	let normals: Float32Array;
+  let positions: Float32Array;
+  let normals: Float32Array;
 
-	switch (direction) {
-		case 'south': {
-			positions = new Float32Array([x, bottomY, z1, x1, bottomY, z1, x1, topY, z1, x, topY, z1]);
-			normals = new Float32Array([0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1]);
-			break;
-		}
-		case 'north': {
-			positions = new Float32Array([x1, bottomY, z, x, bottomY, z, x, topY, z, x1, topY, z]);
-			normals = new Float32Array([0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1]);
-			break;
-		}
-		case 'east': {
-			positions = new Float32Array([x1, bottomY, z1, x1, bottomY, z, x1, topY, z, x1, topY, z1]);
-			normals = new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0]);
-			break;
-		}
-		case 'west': {
-			positions = new Float32Array([x, bottomY, z, x, bottomY, z1, x, topY, z1, x, topY, z]);
-			normals = new Float32Array([-1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0]);
-			break;
-		}
-	}
+  switch (direction) {
+    case 'south': {
+      positions = new Float32Array([x, bottomY, z1, x1, bottomY, z1, x1, topY, z1, x, topY, z1]);
+      normals = new Float32Array([0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1]);
+      break;
+    }
+    case 'north': {
+      positions = new Float32Array([x1, bottomY, z, x, bottomY, z, x, topY, z, x1, topY, z]);
+      normals = new Float32Array([0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1]);
+      break;
+    }
+    case 'east': {
+      positions = new Float32Array([x1, bottomY, z1, x1, bottomY, z, x1, topY, z, x1, topY, z1]);
+      normals = new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0]);
+      break;
+    }
+    case 'west': {
+      positions = new Float32Array([x, bottomY, z, x, bottomY, z1, x, topY, z1, x, topY, z]);
+      normals = new Float32Array([-1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0]);
+      break;
+    }
+  }
 
-	// UV tiled vertically for multi-level cliffs
-	const uvs: Float32Array = new Float32Array([
-		uv.u0,
-		vBottom,
-		uv.u1,
-		vBottom,
-		uv.u1,
-		vTop,
-		uv.u0,
-		vTop,
-	]);
+  // UV tiled vertically for multi-level cliffs
+  const uvs: Float32Array = new Float32Array([
+    uv.u0,
+    vBottom,
+    uv.u1,
+    vBottom,
+    uv.u1,
+    vTop,
+    uv.u0,
+    vTop,
+  ]);
 
-	const base: Num = indexOffset;
-	const indices: Uint32Array = new Uint32Array([
-		base,
-		base + 1,
-		base + 2,
-		base,
-		base + 2,
-		base + 3,
-	]);
+  const base: Num = indexOffset;
+  const indices: Uint32Array = new Uint32Array([
+    base,
+    base + 1,
+    base + 2,
+    base,
+    base + 2,
+    base + 3,
+  ]);
 
-	return okShallow({
-		positions,
-		normals,
-		uvs,
-		indices,
-		vertexCount: 4,
-	});
+  return okShallow({
+    positions,
+    normals,
+    uvs,
+    indices,
+    vertexCount: 4,
+  });
 }
 
 // =============================================================================
@@ -368,59 +368,59 @@ export function createWallFaceGeometry(options: WallFaceOptions): BabylonResult<
  * ```
  */
 export function mergeTileVertexData(
-	tiles: readonly TileVertexData[],
+  tiles: readonly TileVertexData[],
 ): BabylonResult<TileVertexData> {
-	if (tiles.length === 0) {
-		return okShallow({
-			positions: new Float32Array(0),
-			normals: new Float32Array(0),
-			uvs: new Float32Array(0),
-			indices: new Uint32Array(0),
-			vertexCount: 0,
-		});
-	}
+  if (tiles.length === 0) {
+    return okShallow({
+      positions: new Float32Array(0),
+      normals: new Float32Array(0),
+      uvs: new Float32Array(0),
+      indices: new Uint32Array(0),
+      vertexCount: 0,
+    });
+  }
 
-	let totalVertices: Num = 0;
-	let totalIndices: Num = 0;
+  let totalVertices: Num = 0;
+  let totalIndices: Num = 0;
 
-	for (const tile of tiles) {
-		totalVertices += tile.vertexCount;
-		totalIndices += tile.indices.length;
-	}
+  for (const tile of tiles) {
+    totalVertices += tile.vertexCount;
+    totalIndices += tile.indices.length;
+  }
 
-	const positions: Float32Array = new Float32Array(totalVertices * 3);
-	const normals: Float32Array = new Float32Array(totalVertices * 3);
-	const uvs: Float32Array = new Float32Array(totalVertices * 2);
-	const indices: Uint32Array = new Uint32Array(totalIndices);
+  const positions: Float32Array = new Float32Array(totalVertices * 3);
+  const normals: Float32Array = new Float32Array(totalVertices * 3);
+  const uvs: Float32Array = new Float32Array(totalVertices * 2);
+  const indices: Uint32Array = new Uint32Array(totalIndices);
 
-	let posOffset: Num = 0;
-	let uvOffset: Num = 0;
-	let idxOffset: Num = 0;
-	let vertexOffset: Num = 0;
+  let posOffset: Num = 0;
+  let uvOffset: Num = 0;
+  let idxOffset: Num = 0;
+  let vertexOffset: Num = 0;
 
-	for (const tile of tiles) {
-		positions.set(tile.positions, posOffset);
-		normals.set(tile.normals, posOffset);
-		uvs.set(tile.uvs, uvOffset);
+  for (const tile of tiles) {
+    positions.set(tile.positions, posOffset);
+    normals.set(tile.normals, posOffset);
+    uvs.set(tile.uvs, uvOffset);
 
-		// Rebase indices relative to merged buffer
-		const baseIndex: Num = tile.indices[0] ?? 0;
-		for (let i: Num = 0; i < tile.indices.length; i++) {
-			const srcIndex: Num = tile.indices[i] ?? 0;
-			indices[idxOffset + i] = srcIndex - baseIndex + vertexOffset;
-		}
+    // Rebase indices relative to merged buffer
+    const baseIndex: Num = tile.indices[0] ?? 0;
+    for (let i: Num = 0; i < tile.indices.length; i++) {
+      const srcIndex: Num = tile.indices[i] ?? 0;
+      indices[idxOffset + i] = srcIndex - baseIndex + vertexOffset;
+    }
 
-		posOffset += tile.vertexCount * 3;
-		uvOffset += tile.vertexCount * 2;
-		idxOffset += tile.indices.length;
-		vertexOffset += tile.vertexCount;
-	}
+    posOffset += tile.vertexCount * 3;
+    uvOffset += tile.vertexCount * 2;
+    idxOffset += tile.indices.length;
+    vertexOffset += tile.vertexCount;
+  }
 
-	return okShallow({
-		positions,
-		normals,
-		uvs,
-		indices,
-		vertexCount: totalVertices,
-	});
+  return okShallow({
+    positions,
+    normals,
+    uvs,
+    indices,
+    vertexCount: totalVertices,
+  });
 }

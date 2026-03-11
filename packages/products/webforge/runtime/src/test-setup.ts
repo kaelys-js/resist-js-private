@@ -19,38 +19,38 @@ const g: Record<string, unknown> = globalThis as Record<string, unknown>;
 const noop = (): unknown => ({});
 
 if (!g.XMLHttpRequest) {
-	g.XMLHttpRequest = Xhr2;
+  g.XMLHttpRequest = Xhr2;
 }
 
 // Polyfill navigator — required by Babylon.js platform detection
 if (!g.navigator) {
-	g.navigator = { platform: 'test', userAgent: 'vitest' };
+  g.navigator = { platform: 'test', userAgent: 'vitest' };
 }
 
 // Polyfill document — required by Babylon.js loading screen and engine lifecycle
 if (!g.document) {
-	g.document = {
-		createElement: noop,
-		createElementNS: noop,
-		head: { appendChild: noop },
-		body: { appendChild: noop },
-		addEventListener: noop,
-		removeEventListener: noop,
-		getElementById: () => null,
-		querySelectorAll: () => [],
-		documentElement: { style: {} },
-	};
+  g.document = {
+    createElement: noop,
+    createElementNS: noop,
+    head: { appendChild: noop },
+    body: { appendChild: noop },
+    addEventListener: noop,
+    removeEventListener: noop,
+    getElementById: () => null,
+    querySelectorAll: () => [],
+    documentElement: { style: {} },
+  };
 }
 
 // Polyfill window — required by Babylon.js event handlers
 if (!g.window) {
-	g.window = {
-		addEventListener: noop,
-		removeEventListener: noop,
-		setTimeout: globalThis.setTimeout,
-		clearTimeout: globalThis.clearTimeout,
-		devicePixelRatio: 1,
-		innerWidth: 1024,
-		innerHeight: 768,
-	};
+  g.window = {
+    addEventListener: noop,
+    removeEventListener: noop,
+    setTimeout: globalThis.setTimeout,
+    clearTimeout: globalThis.clearTimeout,
+    devicePixelRatio: 1,
+    innerWidth: 1024,
+    innerHeight: 768,
+  };
 }

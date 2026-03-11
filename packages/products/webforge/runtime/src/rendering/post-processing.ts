@@ -30,9 +30,9 @@ import type { PostProcessingConfig } from '../schemas/post-processing-config';
 import { okShallow, type BabylonResult } from '../core/babylon-result';
 import { buildColorCurves } from './post-processing-presets';
 import {
-	loadHdrEnvironment,
-	disposeHdrEnvironment,
-	type HdrEnvironmentInstance,
+  loadHdrEnvironment,
+  disposeHdrEnvironment,
+  type HdrEnvironmentInstance,
 } from './hdr-environment';
 
 // =============================================================================
@@ -41,29 +41,29 @@ import {
 
 /** Post-processing pipeline instance returned by {@link createPostProcessingPipeline}. */
 export type PostProcessingPipeline = {
-	readonly pipeline: BABYLON.DefaultRenderingPipeline;
-	readonly ssaoPipeline: BABYLON.SSAO2RenderingPipeline | null;
-	readonly hdrEnvironment: HdrEnvironmentInstance | null;
-	readonly scene: BABYLON.Scene;
-	readonly config: PostProcessingConfig;
+  readonly pipeline: BABYLON.DefaultRenderingPipeline;
+  readonly ssaoPipeline: BABYLON.SSAO2RenderingPipeline | null;
+  readonly hdrEnvironment: HdrEnvironmentInstance | null;
+  readonly scene: BABYLON.Scene;
+  readonly config: PostProcessingConfig;
 };
 
 /** Options for {@link createPostProcessingPipeline}. */
 type CreatePipelineOptions = {
-	readonly scene: BABYLON.Scene;
-	readonly cameras: BABYLON.Camera[];
-	readonly config: PostProcessingConfig;
+  readonly scene: BABYLON.Scene;
+  readonly cameras: BABYLON.Camera[];
+  readonly config: PostProcessingConfig;
 };
 
 /** Options for {@link updatePostProcessingConfig}. */
 type UpdatePipelineOptions = {
-	readonly pipeline: PostProcessingPipeline;
-	readonly config: PostProcessingConfig;
+  readonly pipeline: PostProcessingPipeline;
+  readonly config: PostProcessingConfig;
 };
 
 /** Options for {@link disposePostProcessingPipeline}. */
 type DisposePipelineOptions = {
-	readonly pipeline: PostProcessingPipeline;
+  readonly pipeline: PostProcessingPipeline;
 };
 
 // =============================================================================
@@ -77,17 +77,17 @@ type DisposePipelineOptions = {
  * @returns Babylon.js tone mapping constant.
  */
 function mapToneMappingType(type: string): number {
-	switch (type) {
-		case 'aces': {
-			return BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
-		}
-		case 'khr_pbr_neutral': {
-			return BABYLON.ImageProcessingConfiguration.TONEMAPPING_KHR_PBR_NEUTRAL;
-		}
-		default: {
-			return BABYLON.ImageProcessingConfiguration.TONEMAPPING_STANDARD;
-		}
-	}
+  switch (type) {
+    case 'aces': {
+      return BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
+    }
+    case 'khr_pbr_neutral': {
+      return BABYLON.ImageProcessingConfiguration.TONEMAPPING_KHR_PBR_NEUTRAL;
+    }
+    default: {
+      return BABYLON.ImageProcessingConfiguration.TONEMAPPING_STANDARD;
+    }
+  }
 }
 
 // =============================================================================
@@ -101,17 +101,17 @@ function mapToneMappingType(type: string): number {
  * @returns Babylon.js DepthOfFieldEffectBlurLevel value.
  */
 function mapDofBlurLevel(level: string): number {
-	switch (level) {
-		case 'low': {
-			return BABYLON.DepthOfFieldEffectBlurLevel.Low;
-		}
-		case 'high': {
-			return BABYLON.DepthOfFieldEffectBlurLevel.High;
-		}
-		default: {
-			return BABYLON.DepthOfFieldEffectBlurLevel.Medium;
-		}
-	}
+  switch (level) {
+    case 'low': {
+      return BABYLON.DepthOfFieldEffectBlurLevel.Low;
+    }
+    case 'high': {
+      return BABYLON.DepthOfFieldEffectBlurLevel.High;
+    }
+    default: {
+      return BABYLON.DepthOfFieldEffectBlurLevel.Medium;
+    }
+  }
 }
 
 // =============================================================================
@@ -125,10 +125,10 @@ function mapDofBlurLevel(level: string): number {
  * @returns Babylon.js vignette blend mode constant.
  */
 function mapVignetteBlendMode(mode: string): number {
-	if (mode === 'opaque') {
-		return BABYLON.ImageProcessingConfiguration.VIGNETTEMODE_OPAQUE;
-	}
-	return BABYLON.ImageProcessingConfiguration.VIGNETTEMODE_MULTIPLY;
+  if (mode === 'opaque') {
+    return BABYLON.ImageProcessingConfiguration.VIGNETTEMODE_OPAQUE;
+  }
+  return BABYLON.ImageProcessingConfiguration.VIGNETTEMODE_MULTIPLY;
 }
 
 // =============================================================================
@@ -149,107 +149,107 @@ function mapVignetteBlendMode(mode: string): number {
  * @param scene - The Babylon.js scene (used for auto-focus distance).
  */
 function applyConfigToPipeline(
-	pipeline: BABYLON.DefaultRenderingPipeline,
-	config: PostProcessingConfig,
-	scene: BABYLON.Scene,
+  pipeline: BABYLON.DefaultRenderingPipeline,
+  config: PostProcessingConfig,
+  scene: BABYLON.Scene,
 ): void {
-	const masterEnabled: boolean = config.enabled;
+  const masterEnabled: boolean = config.enabled;
 
-	// ---- Bloom ----
-	pipeline.bloomEnabled = masterEnabled && (config.bloom?.enabled ?? false);
-	if (config.bloom) {
-		pipeline.bloomWeight = config.bloom.weight;
-		pipeline.bloomThreshold = config.bloom.threshold;
-		pipeline.bloomKernel = config.bloom.kernel;
-		pipeline.bloomScale = config.bloom.scale;
-	}
+  // ---- Bloom ----
+  pipeline.bloomEnabled = masterEnabled && (config.bloom?.enabled ?? false);
+  if (config.bloom) {
+    pipeline.bloomWeight = config.bloom.weight;
+    pipeline.bloomThreshold = config.bloom.threshold;
+    pipeline.bloomKernel = config.bloom.kernel;
+    pipeline.bloomScale = config.bloom.scale;
+  }
 
-	// ---- Depth of Field ----
-	pipeline.depthOfFieldEnabled = masterEnabled && (config.depthOfField?.enabled ?? false);
-	if (config.depthOfField) {
-		pipeline.depthOfFieldBlurLevel = mapDofBlurLevel(config.depthOfField.blurLevel);
-		pipeline.depthOfField.focalLength = config.depthOfField.focalLength;
-		pipeline.depthOfField.fStop = config.depthOfField.fStop;
+  // ---- Depth of Field ----
+  pipeline.depthOfFieldEnabled = masterEnabled && (config.depthOfField?.enabled ?? false);
+  if (config.depthOfField) {
+    pipeline.depthOfFieldBlurLevel = mapDofBlurLevel(config.depthOfField.blurLevel);
+    pipeline.depthOfField.focalLength = config.depthOfField.focalLength;
+    pipeline.depthOfField.fStop = config.depthOfField.fStop;
 
-		// Auto-calibrate focus distance from camera radius when set to 0.
-		// Babylon.js DOF focusDistance is in millimeters (1 scene unit = 1 meter),
-		// so multiply scene-unit distance by 1000.
-		let focusDist: number = config.depthOfField.focusDistance;
-		if (focusDist === 0 && scene.activeCamera) {
-			const cam: BABYLON.Camera = scene.activeCamera;
-			if ('radius' in cam && typeof cam.radius === 'number') {
-				focusDist = cam.radius * 1000;
-			}
-		}
-		pipeline.depthOfField.focusDistance = focusDist;
-	}
+    // Auto-calibrate focus distance from camera radius when set to 0.
+    // Babylon.js DOF focusDistance is in millimeters (1 scene unit = 1 meter),
+    // so multiply scene-unit distance by 1000.
+    let focusDist: number = config.depthOfField.focusDistance;
+    if (focusDist === 0 && scene.activeCamera) {
+      const cam: BABYLON.Camera = scene.activeCamera;
+      if ('radius' in cam && typeof cam.radius === 'number') {
+        focusDist = cam.radius * 1000;
+      }
+    }
+    pipeline.depthOfField.focusDistance = focusDist;
+  }
 
-	// ---- FXAA ----
-	pipeline.fxaaEnabled = masterEnabled && (config.fxaa?.enabled ?? false);
+  // ---- FXAA ----
+  pipeline.fxaaEnabled = masterEnabled && (config.fxaa?.enabled ?? false);
 
-	// ---- Chromatic Aberration ----
-	pipeline.chromaticAberrationEnabled =
-		masterEnabled && (config.chromaticAberration?.enabled ?? false);
-	if (config.chromaticAberration) {
-		pipeline.chromaticAberration.aberrationAmount = config.chromaticAberration.amount;
-		pipeline.chromaticAberration.radialIntensity = config.chromaticAberration.radialIntensity;
-	}
+  // ---- Chromatic Aberration ----
+  pipeline.chromaticAberrationEnabled =
+    masterEnabled && (config.chromaticAberration?.enabled ?? false);
+  if (config.chromaticAberration) {
+    pipeline.chromaticAberration.aberrationAmount = config.chromaticAberration.amount;
+    pipeline.chromaticAberration.radialIntensity = config.chromaticAberration.radialIntensity;
+  }
 
-	// ---- Grain ----
-	pipeline.grainEnabled = masterEnabled && (config.grain?.enabled ?? false);
-	if (config.grain) {
-		pipeline.grain.intensity = config.grain.intensity;
-		pipeline.grain.animated = config.grain.animated;
-	}
+  // ---- Grain ----
+  pipeline.grainEnabled = masterEnabled && (config.grain?.enabled ?? false);
+  if (config.grain) {
+    pipeline.grain.intensity = config.grain.intensity;
+    pipeline.grain.animated = config.grain.animated;
+  }
 
-	// ---- Sharpen ----
-	pipeline.sharpenEnabled = masterEnabled && (config.sharpen?.enabled ?? false);
-	if (config.sharpen) {
-		pipeline.sharpen.edgeAmount = config.sharpen.edgeAmount;
-		pipeline.sharpen.colorAmount = config.sharpen.colorAmount;
-	}
+  // ---- Sharpen ----
+  pipeline.sharpenEnabled = masterEnabled && (config.sharpen?.enabled ?? false);
+  if (config.sharpen) {
+    pipeline.sharpen.edgeAmount = config.sharpen.edgeAmount;
+    pipeline.sharpen.colorAmount = config.sharpen.colorAmount;
+  }
 
-	// ---- Image Processing (tone mapping, vignette, color grading, dithering, exposure, contrast) ----
-	pipeline.imageProcessingEnabled = true;
-	const imgProc: BABYLON.ImageProcessingPostProcess = pipeline.imageProcessing;
+  // ---- Image Processing (tone mapping, vignette, color grading, dithering, exposure, contrast) ----
+  pipeline.imageProcessingEnabled = true;
+  const imgProc: BABYLON.ImageProcessingPostProcess = pipeline.imageProcessing;
 
-	imgProc.exposure = config.exposure;
-	imgProc.contrast = config.contrast;
+  imgProc.exposure = config.exposure;
+  imgProc.contrast = config.contrast;
 
-	// Tone mapping
-	imgProc.toneMappingEnabled = masterEnabled && (config.toneMapping?.enabled ?? false);
-	if (config.toneMapping) {
-		imgProc.toneMappingType = mapToneMappingType(config.toneMapping.type);
-	}
+  // Tone mapping
+  imgProc.toneMappingEnabled = masterEnabled && (config.toneMapping?.enabled ?? false);
+  if (config.toneMapping) {
+    imgProc.toneMappingType = mapToneMappingType(config.toneMapping.type);
+  }
 
-	// Vignette
-	imgProc.vignetteEnabled = masterEnabled && (config.vignette?.enabled ?? false);
-	if (config.vignette) {
-		imgProc.vignetteWeight = config.vignette.weight;
-		imgProc.vignetteStretch = config.vignette.stretch;
-		imgProc.vignetteBlendMode = mapVignetteBlendMode(config.vignette.blendMode);
-		imgProc.vignetteColor = new BABYLON.Color4(
-			config.vignette.color.r,
-			config.vignette.color.g,
-			config.vignette.color.b,
-			config.vignette.color.a,
-		);
-	}
+  // Vignette
+  imgProc.vignetteEnabled = masterEnabled && (config.vignette?.enabled ?? false);
+  if (config.vignette) {
+    imgProc.vignetteWeight = config.vignette.weight;
+    imgProc.vignetteStretch = config.vignette.stretch;
+    imgProc.vignetteBlendMode = mapVignetteBlendMode(config.vignette.blendMode);
+    imgProc.vignetteColor = new BABYLON.Color4(
+      config.vignette.color.r,
+      config.vignette.color.g,
+      config.vignette.color.b,
+      config.vignette.color.a,
+    );
+  }
 
-	// Color grading (color curves)
-	imgProc.colorCurvesEnabled = masterEnabled && (config.colorGrading?.enabled ?? false);
-	if (config.colorGrading?.enabled && config.colorGrading.preset) {
-		const curvesResult = buildColorCurves(config.colorGrading.preset);
-		if (curvesResult.ok) {
-			imgProc.colorCurves = curvesResult.data;
-		}
-	}
+  // Color grading (color curves)
+  imgProc.colorCurvesEnabled = masterEnabled && (config.colorGrading?.enabled ?? false);
+  if (config.colorGrading?.enabled && config.colorGrading.preset) {
+    const curvesResult = buildColorCurves(config.colorGrading.preset);
+    if (curvesResult.ok) {
+      imgProc.colorCurves = curvesResult.data;
+    }
+  }
 
-	// Dithering
-	imgProc.ditheringEnabled = masterEnabled && (config.dithering?.enabled ?? false);
-	if (config.dithering) {
-		imgProc.ditheringIntensity = config.dithering.intensity;
-	}
+  // Dithering
+  imgProc.ditheringEnabled = masterEnabled && (config.dithering?.enabled ?? false);
+  if (config.dithering) {
+    imgProc.ditheringIntensity = config.dithering.intensity;
+  }
 }
 
 // =============================================================================
@@ -279,60 +279,60 @@ function applyConfigToPipeline(
  * ```
  */
 export function createPostProcessingPipeline(
-	options: CreatePipelineOptions,
+  options: CreatePipelineOptions,
 ): BabylonResult<PostProcessingPipeline> {
-	const { scene, cameras, config } = options;
+  const { scene, cameras, config } = options;
 
-	try {
-		// Create DefaultRenderingPipeline
-		const pipeline: BABYLON.DefaultRenderingPipeline = new BABYLON.DefaultRenderingPipeline(
-			'webforge-post-processing',
-			true,
-			scene,
-			cameras,
-		);
+  try {
+    // Create DefaultRenderingPipeline
+    const pipeline: BABYLON.DefaultRenderingPipeline = new BABYLON.DefaultRenderingPipeline(
+      'webforge-post-processing',
+      true,
+      scene,
+      cameras,
+    );
 
-		// Apply all config properties
-		applyConfigToPipeline(pipeline, config, scene);
+    // Apply all config properties
+    applyConfigToPipeline(pipeline, config, scene);
 
-		// Create SSAO2 pipeline if enabled
-		let ssaoPipeline: BABYLON.SSAO2RenderingPipeline | null = null;
-		if (config.enabled && config.ssao?.enabled) {
-			ssaoPipeline = new BABYLON.SSAO2RenderingPipeline('webforge-ssao', scene, 1.0, cameras);
-			ssaoPipeline.totalStrength = config.ssao.totalStrength;
-			ssaoPipeline.radius = config.ssao.radius;
-			ssaoPipeline.samples = config.ssao.samples;
-			ssaoPipeline.base = config.ssao.base;
-			ssaoPipeline.expensiveBlur = config.ssao.expensiveBlur;
-		}
+    // Create SSAO2 pipeline if enabled
+    let ssaoPipeline: BABYLON.SSAO2RenderingPipeline | null = null;
+    if (config.enabled && config.ssao?.enabled) {
+      ssaoPipeline = new BABYLON.SSAO2RenderingPipeline('webforge-ssao', scene, 1.0, cameras);
+      ssaoPipeline.totalStrength = config.ssao.totalStrength;
+      ssaoPipeline.radius = config.ssao.radius;
+      ssaoPipeline.samples = config.ssao.samples;
+      ssaoPipeline.base = config.ssao.base;
+      ssaoPipeline.expensiveBlur = config.ssao.expensiveBlur;
+    }
 
-		// Load HDR environment if enabled
-		let hdrEnvironment: HdrEnvironmentInstance | null = null;
-		if (config.enabled && config.hdrEnvironment?.enabled) {
-			const hdrResult = loadHdrEnvironment({
-				scene,
-				config: config.hdrEnvironment,
-			});
-			if (hdrResult.ok) {
-				hdrEnvironment = hdrResult.data;
-			}
-			// Non-fatal: HDR load failure doesn't block pipeline creation
-		}
+    // Load HDR environment if enabled
+    let hdrEnvironment: HdrEnvironmentInstance | null = null;
+    if (config.enabled && config.hdrEnvironment?.enabled) {
+      const hdrResult = loadHdrEnvironment({
+        scene,
+        config: config.hdrEnvironment,
+      });
+      if (hdrResult.ok) {
+        hdrEnvironment = hdrResult.data;
+      }
+      // Non-fatal: HDR load failure doesn't block pipeline creation
+    }
 
-		const instance: PostProcessingPipeline = {
-			pipeline,
-			ssaoPipeline,
-			hdrEnvironment,
-			scene,
-			config,
-		};
+    const instance: PostProcessingPipeline = {
+      pipeline,
+      ssaoPipeline,
+      hdrEnvironment,
+      scene,
+      config,
+    };
 
-		return okShallow(instance);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, {
-			cause: fromUnknownError(error),
-		});
-	}
+    return okShallow(instance);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, {
+      cause: fromUnknownError(error),
+    });
+  }
 }
 
 // =============================================================================
@@ -358,25 +358,25 @@ export function createPostProcessingPipeline(
  * ```
  */
 export function updatePostProcessingConfig(options: UpdatePipelineOptions): BabylonResult<Bool> {
-	try {
-		const { pipeline, config } = options;
-		applyConfigToPipeline(pipeline.pipeline, config, pipeline.scene);
+  try {
+    const { pipeline, config } = options;
+    applyConfigToPipeline(pipeline.pipeline, config, pipeline.scene);
 
-		// Update SSAO properties if pipeline exists
-		if (pipeline.ssaoPipeline && config.ssao) {
-			pipeline.ssaoPipeline.totalStrength = config.ssao.totalStrength;
-			pipeline.ssaoPipeline.radius = config.ssao.radius;
-			pipeline.ssaoPipeline.samples = config.ssao.samples;
-			pipeline.ssaoPipeline.base = config.ssao.base;
-			pipeline.ssaoPipeline.expensiveBlur = config.ssao.expensiveBlur;
-		}
+    // Update SSAO properties if pipeline exists
+    if (pipeline.ssaoPipeline && config.ssao) {
+      pipeline.ssaoPipeline.totalStrength = config.ssao.totalStrength;
+      pipeline.ssaoPipeline.radius = config.ssao.radius;
+      pipeline.ssaoPipeline.samples = config.ssao.samples;
+      pipeline.ssaoPipeline.base = config.ssao.base;
+      pipeline.ssaoPipeline.expensiveBlur = config.ssao.expensiveBlur;
+    }
 
-		return okUnchecked(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, {
-			cause: fromUnknownError(error),
-		});
-	}
+    return okUnchecked(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, {
+      cause: fromUnknownError(error),
+    });
+  }
 }
 
 // =============================================================================
@@ -398,28 +398,28 @@ export function updatePostProcessingConfig(options: UpdatePipelineOptions): Baby
  * ```
  */
 export function disposePostProcessingPipeline(
-	options: DisposePipelineOptions,
+  options: DisposePipelineOptions,
 ): BabylonResult<Bool> {
-	try {
-		const { pipeline } = options;
+  try {
+    const { pipeline } = options;
 
-		// Dispose HDR environment
-		if (pipeline.hdrEnvironment) {
-			disposeHdrEnvironment({ instance: pipeline.hdrEnvironment });
-		}
+    // Dispose HDR environment
+    if (pipeline.hdrEnvironment) {
+      disposeHdrEnvironment({ instance: pipeline.hdrEnvironment });
+    }
 
-		// Dispose SSAO pipeline
-		if (pipeline.ssaoPipeline) {
-			pipeline.ssaoPipeline.dispose();
-		}
+    // Dispose SSAO pipeline
+    if (pipeline.ssaoPipeline) {
+      pipeline.ssaoPipeline.dispose();
+    }
 
-		// Dispose main pipeline
-		pipeline.pipeline.dispose();
+    // Dispose main pipeline
+    pipeline.pipeline.dispose();
 
-		return okUnchecked(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, {
-			cause: fromUnknownError(error),
-		});
-	}
+    return okUnchecked(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, {
+      cause: fromUnknownError(error),
+    });
+  }
 }

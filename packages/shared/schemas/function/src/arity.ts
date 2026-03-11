@@ -20,10 +20,10 @@
 import * as v from 'valibot';
 
 import {
-	type Message,
-	MessageSchema,
-	type NonNegativeInteger,
-	NonNegativeIntegerSchema,
+  type Message,
+  MessageSchema,
+  type NonNegativeInteger,
+  NonNegativeIntegerSchema,
 } from '@/schemas/common';
 import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
 
@@ -79,93 +79,93 @@ import type { ArityConstraint, FnType } from '@/schemas/function/types';
  * an exact arity.
  */
 export function arity(constraint: ArityConstraint): Result<v.CheckAction<FnType, Message>> {
-	const isExact: boolean = typeof constraint === 'number';
+  const isExact: boolean = typeof constraint === 'number';
 
-	// Validate min/max as NonNegativeInteger (branded type)
-	let min: NonNegativeInteger | undefined;
-	let max: NonNegativeInteger | undefined;
+  // Validate min/max as NonNegativeInteger (branded type)
+  let min: NonNegativeInteger | undefined;
+  let max: NonNegativeInteger | undefined;
 
-	if (isExact) {
-		const parsed: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(
-			NonNegativeIntegerSchema,
-			constraint,
-		);
-		if (!parsed.success) {
-			return err(
-				ERRORS.FUNCTION.INVALID_ARITY,
-				`Invalid arity constraint: expected a non-negative integer, got ${String(constraint)}`,
-				{
-					meta: { constraint, issues: parsed.issues },
-				},
-			);
-		}
-		min = parsed.output;
-		max = parsed.output;
-	} else if (typeof constraint === 'object') {
-		if (constraint.min !== undefined) {
-			const parsedMin: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(
-				NonNegativeIntegerSchema,
-				constraint.min,
-			);
-			if (!parsedMin.success) {
-				return err(
-					ERRORS.FUNCTION.INVALID_ARITY,
-					`Invalid arity constraint min: expected a non-negative integer, got ${String(constraint.min)}`,
-					{
-						meta: { constraint, issues: parsedMin.issues },
-					},
-				);
-			}
-			min = parsedMin.output;
-		}
-		if (constraint.max !== undefined) {
-			const parsedMax: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(
-				NonNegativeIntegerSchema,
-				constraint.max,
-			);
-			if (!parsedMax.success) {
-				return err(
-					ERRORS.FUNCTION.INVALID_ARITY,
-					`Invalid arity constraint max: expected a non-negative integer, got ${String(constraint.max)}`,
-					{
-						meta: { constraint, issues: parsedMax.issues },
-					},
-				);
-			}
-			max = parsedMax.output;
-		}
-	}
+  if (isExact) {
+    const parsed: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(
+      NonNegativeIntegerSchema,
+      constraint,
+    );
+    if (!parsed.success) {
+      return err(
+        ERRORS.FUNCTION.INVALID_ARITY,
+        `Invalid arity constraint: expected a non-negative integer, got ${String(constraint)}`,
+        {
+          meta: { constraint, issues: parsed.issues },
+        },
+      );
+    }
+    min = parsed.output;
+    max = parsed.output;
+  } else if (typeof constraint === 'object') {
+    if (constraint.min !== undefined) {
+      const parsedMin: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(
+        NonNegativeIntegerSchema,
+        constraint.min,
+      );
+      if (!parsedMin.success) {
+        return err(
+          ERRORS.FUNCTION.INVALID_ARITY,
+          `Invalid arity constraint min: expected a non-negative integer, got ${String(constraint.min)}`,
+          {
+            meta: { constraint, issues: parsedMin.issues },
+          },
+        );
+      }
+      min = parsedMin.output;
+    }
+    if (constraint.max !== undefined) {
+      const parsedMax: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(
+        NonNegativeIntegerSchema,
+        constraint.max,
+      );
+      if (!parsedMax.success) {
+        return err(
+          ERRORS.FUNCTION.INVALID_ARITY,
+          `Invalid arity constraint max: expected a non-negative integer, got ${String(constraint.max)}`,
+          {
+            meta: { constraint, issues: parsedMax.issues },
+          },
+        );
+      }
+      max = parsedMax.output;
+    }
+  }
 
-	// Build description message and validate as Message (branded type)
-	const descriptionRaw: string = isExact
-		? `Function must have exactly ${String(constraint)} parameter(s) (fn.length)`
-		: // oxlint-disable-next-line no-negated-condition
-			`Function must have ${min !== undefined ? `>= ${String(min)}` : ''}${min !== undefined && max !== undefined ? ' and ' : ''}${max !== undefined ? `<= ${String(max)}` : ''} parameter(s) (fn.length)`;
+  // Build description message and validate as Message (branded type)
+  const descriptionRaw: string = isExact
+    ? `Function must have exactly ${String(constraint)} parameter(s) (fn.length)`
+    : // oxlint-disable-next-line no-negated-condition
+      `Function must have ${min !== undefined ? `>= ${String(min)}` : ''}${min !== undefined && max !== undefined ? ' and ' : ''}${max !== undefined ? `<= ${String(max)}` : ''} parameter(s) (fn.length)`;
 
-	const descriptionParsed: v.SafeParseResult<typeof MessageSchema> = v.safeParse(
-		MessageSchema,
-		descriptionRaw,
-	);
-	if (!descriptionParsed.success) {
-		return err(ERRORS.FUNCTION.INVALID_ARITY, 'Failed to construct arity description message', {
-			meta: { constraint, issues: descriptionParsed.issues },
-		});
-	}
-	const description: Message = descriptionParsed.output;
+  const descriptionParsed: v.SafeParseResult<typeof MessageSchema> = v.safeParse(
+    MessageSchema,
+    descriptionRaw,
+  );
+  if (!descriptionParsed.success) {
+    return err(ERRORS.FUNCTION.INVALID_ARITY, 'Failed to construct arity description message', {
+      meta: { constraint, issues: descriptionParsed.issues },
+    });
+  }
+  const description: Message = descriptionParsed.output;
 
-	const action: v.CheckAction<FnType, Message> = v.check<FnType, Message>((fn: FnType): boolean => {
-		// fn.length is always a non-negative integer (JS guarantee),
-		// but we validate defensively via v.safeParse
-		const lenParsed: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(
-			NonNegativeIntegerSchema,
-			fn.length,
-		);
-		if (!lenParsed.success) return false;
-		const len: NonNegativeInteger = lenParsed.output;
-		if (min !== undefined && len < min) return false;
-		if (max !== undefined && len > max) return false;
-		return true;
-	}, description);
+  const action: v.CheckAction<FnType, Message> = v.check<FnType, Message>((fn: FnType): boolean => {
+    // fn.length is always a non-negative integer (JS guarantee),
+    // but we validate defensively via v.safeParse
+    const lenParsed: v.SafeParseResult<typeof NonNegativeIntegerSchema> = v.safeParse(
+      NonNegativeIntegerSchema,
+      fn.length,
+    );
+    if (!lenParsed.success) return false;
+    const len: NonNegativeInteger = lenParsed.output;
+    if (min !== undefined && len < min) return false;
+    if (max !== undefined && len > max) return false;
+    return true;
+  }, description);
 
-	return okUnchecked<v.CheckAction<FnType, Message>>(action);
+  return okUnchecked<v.CheckAction<FnType, Message>>(action);
 }

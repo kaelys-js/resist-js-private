@@ -1,8 +1,8 @@
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
-	category: 'lens',
-	tags: ['documentation', 'renderer', 'variants'],
-	description:
-		'Dynamic component renderer for Lens documentation — renders default preview or variant option grid.',
+  category: 'lens',
+  tags: ['documentation', 'renderer', 'variants'],
+  description:
+    'Dynamic component renderer for Lens documentation — renders default preview or variant option grid.',
 };

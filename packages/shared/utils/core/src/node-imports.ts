@@ -69,12 +69,12 @@ export type OptionalNodeChildProcess = NodeChildProcess | undefined;
  * @returns The loaded module, or `undefined` if the import fails.
  */
 async function tryImport<T>(specifier: string): Promise<T | undefined> {
-	try {
-		return (await import(/* @vite-ignore */ specifier)) as T;
-	} catch {
-		/* non-Node */
-		return undefined;
-	}
+  try {
+    return (await import(/* @vite-ignore */ specifier)) as T;
+  } catch {
+    /* non-Node */
+    return undefined;
+  }
 }
 
 let _nodeOs: OptionalNodeOs;
@@ -86,12 +86,12 @@ let _nodeChildProcess: OptionalNodeChildProcess;
 
 const hasNode: Result<Bool> = hasNodeProcess();
 if (hasNode.ok && hasNode.data) {
-	_nodeOs = await tryImport<NodeOs>('node:os');
-	_nodeFs = await tryImport<NodeFs>('node:fs');
-	_nodePath = await tryImport<NodePath>('node:path');
-	_nodeUrl = await tryImport<NodeUrl>('node:url');
-	_nodeNet = await tryImport<NodeNet>('node:net');
-	_nodeChildProcess = await tryImport<NodeChildProcess>('node:child_process');
+  _nodeOs = await tryImport<NodeOs>('node:os');
+  _nodeFs = await tryImport<NodeFs>('node:fs');
+  _nodePath = await tryImport<NodePath>('node:path');
+  _nodeUrl = await tryImport<NodeUrl>('node:url');
+  _nodeNet = await tryImport<NodeNet>('node:net');
+  _nodeChildProcess = await tryImport<NodeChildProcess>('node:child_process');
 }
 
 /** `node:os` module, or `undefined` in non-Node runtimes. */

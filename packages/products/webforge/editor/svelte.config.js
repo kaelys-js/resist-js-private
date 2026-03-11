@@ -37,24 +37,24 @@ const isDev = process.env.NODE_ENV !== 'production';
  * @type {import('@sveltejs/kit').Config['kit']['csp'] | undefined}
  */
 const csp = isDev
-	? undefined
-	: {
-			mode: /** @type {const} */ ('auto'),
-			directives: {
-				'default-src': [/** @type {const} */ ('self')],
-				'script-src': [/** @type {const} */ ('self'), 'wasm-unsafe-eval'],
-				'style-src': [/** @type {const} */ ('self'), 'unsafe-inline'],
-				'img-src': [/** @type {const} */ ('self'), 'data:', 'blob:'],
-				'font-src': [/** @type {const} */ ('self')],
-				'connect-src': [/** @type {const} */ ('self'), 'ws:', 'wss:'],
-				'worker-src': [/** @type {const} */ ('self'), 'blob:'],
-				'child-src': [/** @type {const} */ ('self'), 'blob:'],
-				'frame-ancestors': [/** @type {const} */ ('none')],
-				'base-uri': [/** @type {const} */ ('self')],
-				'form-action': [/** @type {const} */ ('self')],
-				'object-src': [/** @type {const} */ ('none')],
-			},
-		};
+  ? undefined
+  : {
+      mode: /** @type {const} */ ('auto'),
+      directives: {
+        'default-src': [/** @type {const} */ ('self')],
+        'script-src': [/** @type {const} */ ('self'), 'wasm-unsafe-eval'],
+        'style-src': [/** @type {const} */ ('self'), 'unsafe-inline'],
+        'img-src': [/** @type {const} */ ('self'), 'data:', 'blob:'],
+        'font-src': [/** @type {const} */ ('self')],
+        'connect-src': [/** @type {const} */ ('self'), 'ws:', 'wss:'],
+        'worker-src': [/** @type {const} */ ('self'), 'blob:'],
+        'child-src': [/** @type {const} */ ('self'), 'blob:'],
+        'frame-ancestors': [/** @type {const} */ ('none')],
+        'base-uri': [/** @type {const} */ ('self')],
+        'form-action': [/** @type {const} */ ('self')],
+        'object-src': [/** @type {const} */ ('none')],
+      },
+    };
 
 /**
  * Short git commit hash for SvelteKit version tracking.
@@ -63,45 +63,45 @@ const csp = isDev
  * @type {string}
  */
 const gitCommit = (() => {
-	try {
-		return execSync('git rev-parse --short HEAD').toString().trim();
-	} catch {
-		return 'unknown';
-	}
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim();
+  } catch {
+    return 'unknown';
+  }
 })();
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	preprocess: vitePreprocess(),
-	kit: {
-		version: {
-			name: gitCommit,
-		},
-		adapter: adapter({
-			platformProxy: {
-				persist: true,
-			},
-		}),
-		csp,
-		alias: {
-			'@/schemas/common': path.join(root, 'packages/shared/schemas/common/src/index.ts'),
-			'@/schemas/result': path.join(root, 'packages/shared/schemas/result/src/result.ts'),
-			'@/schemas/result/*': path.join(root, 'packages/shared/schemas/result/src/*'),
-			'@/schemas/function': path.join(root, 'packages/shared/schemas/function/src/function.ts'),
-			'@/schemas/function/*': path.join(root, 'packages/shared/schemas/function/src/*'),
-			'@/schemas/generic/*': path.join(root, 'packages/shared/schemas/generic/src/*'),
-			'@/utils/result/*': path.join(root, 'packages/shared/utils/result/src/*'),
-			'@/utils/core': path.join(root, 'packages/shared/utils/core/src/index.ts'),
-			'@/utils/core/*': path.join(root, 'packages/shared/utils/core/src/*'),
-			'@/locale/svelte': path.join(root, 'packages/shared/locale/src/svelte.svelte.ts'),
-			'@/locale/*': path.join(root, 'packages/shared/locale/src/*'),
-			'@/config/test/*': path.join(root, 'packages/shared/config/test/src/*'),
-			'@/config/test/harness': path.join(root, 'packages/shared/config/test/src/harness/index.ts'),
-			'@/config/test/harness/*': path.join(root, 'packages/shared/config/test/src/harness/*'),
-			'@/ui': path.join(root, 'packages/shared/ui/src/index.ts'),
-			'@/ui/*': path.join(root, 'packages/shared/ui/src/*'),
-		},
-	},
+  preprocess: vitePreprocess(),
+  kit: {
+    version: {
+      name: gitCommit,
+    },
+    adapter: adapter({
+      platformProxy: {
+        persist: true,
+      },
+    }),
+    csp,
+    alias: {
+      '@/schemas/common': path.join(root, 'packages/shared/schemas/common/src/index.ts'),
+      '@/schemas/result': path.join(root, 'packages/shared/schemas/result/src/result.ts'),
+      '@/schemas/result/*': path.join(root, 'packages/shared/schemas/result/src/*'),
+      '@/schemas/function': path.join(root, 'packages/shared/schemas/function/src/function.ts'),
+      '@/schemas/function/*': path.join(root, 'packages/shared/schemas/function/src/*'),
+      '@/schemas/generic/*': path.join(root, 'packages/shared/schemas/generic/src/*'),
+      '@/utils/result/*': path.join(root, 'packages/shared/utils/result/src/*'),
+      '@/utils/core': path.join(root, 'packages/shared/utils/core/src/index.ts'),
+      '@/utils/core/*': path.join(root, 'packages/shared/utils/core/src/*'),
+      '@/locale/svelte': path.join(root, 'packages/shared/locale/src/svelte.svelte.ts'),
+      '@/locale/*': path.join(root, 'packages/shared/locale/src/*'),
+      '@/config/test/*': path.join(root, 'packages/shared/config/test/src/*'),
+      '@/config/test/harness': path.join(root, 'packages/shared/config/test/src/harness/index.ts'),
+      '@/config/test/harness/*': path.join(root, 'packages/shared/config/test/src/harness/*'),
+      '@/ui': path.join(root, 'packages/shared/ui/src/index.ts'),
+      '@/ui/*': path.join(root, 'packages/shared/ui/src/*'),
+    },
+  },
 };
 
 export default config;

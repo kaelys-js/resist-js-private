@@ -12,29 +12,29 @@ import type { ServerUser } from '$lib/server/data/types';
 import { MOCK_USER } from '$lib/server/mock/data';
 import { createDataService } from '$lib/server/data/index';
 import {
-	sanitizeSidebarOpen,
-	sanitizeSidebarWidth,
-	sanitizeTheme,
+  sanitizeSidebarOpen,
+  sanitizeSidebarWidth,
+  sanitizeTheme,
 } from '$lib/utils/preference-cookie';
 import { APP_NAME, STORAGE_PREFIX, storageKey, URL_PARAM_PREFIX } from '$lib/config/app-meta';
 
 /** Security headers applied to every response (safe in both dev and prod). */
 const BASE_HEADERS: ReadonlyArray<readonly [string, string]> = [
-	['X-Frame-Options', 'DENY'],
-	['X-Content-Type-Options', 'nosniff'],
-	['Referrer-Policy', 'strict-origin-when-cross-origin'],
-	['Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()'],
-	['Cross-Origin-Opener-Policy', 'same-origin-allow-popups'],
-	['Cross-Origin-Resource-Policy', 'same-origin'],
-	['Cross-Origin-Embedder-Policy', 'unsafe-none'],
-	['X-DNS-Prefetch-Control', 'off'],
-	['X-Permitted-Cross-Domain-Policies', 'none'],
-	['X-XSS-Protection', '0'],
+  ['X-Frame-Options', 'DENY'],
+  ['X-Content-Type-Options', 'nosniff'],
+  ['Referrer-Policy', 'strict-origin-when-cross-origin'],
+  ['Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()'],
+  ['Cross-Origin-Opener-Policy', 'same-origin-allow-popups'],
+  ['Cross-Origin-Resource-Policy', 'same-origin'],
+  ['Cross-Origin-Embedder-Policy', 'unsafe-none'],
+  ['X-DNS-Prefetch-Control', 'off'],
+  ['X-Permitted-Cross-Domain-Policies', 'none'],
+  ['X-XSS-Protection', '0'],
 ];
 
 /** Headers only applied in production (would break or are irrelevant in dev). */
 const PROD_HEADERS: ReadonlyArray<readonly [string, string]> = [
-	['Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload'],
+  ['Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload'],
 ];
 
 /**
@@ -46,17 +46,17 @@ const PROD_HEADERS: ReadonlyArray<readonly [string, string]> = [
  * @returns Combined base + prod headers (or base-only in dev)
  */
 function getSecurityHeaders(): ReadonlyArray<readonly [string, string]> {
-	return dev ? BASE_HEADERS : [...BASE_HEADERS, ...PROD_HEADERS];
+  return dev ? BASE_HEADERS : [...BASE_HEADERS, ...PROD_HEADERS];
 }
 
 setupLogging({ service: 'editor-server', initFromEnv: true, format: 'json' });
 setupGlobalErrorHandling({
-	release: __APP_VERSION__,
-	serverName: __GIT_COMMIT__,
-	tags: { branch: __GIT_BRANCH__, side: 'server' },
-	onError: (captured) => {
-		logCapturedError(captured);
-	},
+  release: __APP_VERSION__,
+  serverName: __GIT_COMMIT__,
+  tags: { branch: __GIT_BRANCH__, side: 'server' },
+  onError: (captured) => {
+    logCapturedError(captured);
+  },
 });
 
 /**
@@ -69,23 +69,23 @@ setupGlobalErrorHandling({
  * @returns A short `file:line:col` string, or `'unknown'` if no app frame is found
  */
 function extractSource(stack: Str): Str {
-	const lines: Str[] = stack.split('\n');
-	for (const line of lines) {
-		const trimmed: Str = line.trim();
-		if (!trimmed.startsWith('at ')) continue;
-		// Skip internal frames — we want the application call site, not library internals
-		if (trimmed.includes('node_modules') || trimmed.includes('node:internal')) continue;
-		if (trimmed.includes('packages/shared/')) continue;
-		const match: RegExpMatchArray | null = trimmed.match(/\(?(\/[^)]+):(\d+):(\d+)\)?$/);
-		if (match) {
-			const [, fullPath, lineNo, colNo] = match;
-			// Strip everything up to and including 'packages/' for a project-relative path
-			const pkgIdx: Num = fullPath.indexOf('packages/');
-			const relativePath: Str = pkgIdx >= 0 ? fullPath.slice(pkgIdx) : fullPath;
-			return `${relativePath}:${lineNo}:${colNo}`;
-		}
-	}
-	return 'unknown';
+  const lines: Str[] = stack.split('\n');
+  for (const line of lines) {
+    const trimmed: Str = line.trim();
+    if (!trimmed.startsWith('at ')) continue;
+    // Skip internal frames — we want the application call site, not library internals
+    if (trimmed.includes('node_modules') || trimmed.includes('node:internal')) continue;
+    if (trimmed.includes('packages/shared/')) continue;
+    const match: RegExpMatchArray | null = trimmed.match(/\(?(\/[^)]+):(\d+):(\d+)\)?$/);
+    if (match) {
+      const [, fullPath, lineNo, colNo] = match;
+      // Strip everything up to and including 'packages/' for a project-relative path
+      const pkgIdx: Num = fullPath.indexOf('packages/');
+      const relativePath: Str = pkgIdx >= 0 ? fullPath.slice(pkgIdx) : fullPath;
+      return `${relativePath}:${lineNo}:${colNo}`;
+    }
+  }
+  return 'unknown';
 }
 
 /**
@@ -95,13 +95,13 @@ function extractSource(stack: Str): Str {
  * @returns Array of `{ code, message }` objects from root through all nested causes
  */
 function collectCauseChain(root: AppError): Array<{ code: Str; message: Str }> {
-	const chain: Array<{ code: Str; message: Str }> = [];
-	let current: AppError | undefined = root.cause;
-	while (current) {
-		chain.push({ code: current.code, message: current.message });
-		current = current.cause;
-	}
-	return chain;
+  const chain: Array<{ code: Str; message: Str }> = [];
+  let current: AppError | undefined = root.cause;
+  while (current) {
+    chain.push({ code: current.code, message: current.message });
+    current = current.cause;
+  }
+  return chain;
 }
 
 /**
@@ -113,41 +113,41 @@ function collectCauseChain(root: AppError): Array<{ code: Str; message: Str }> {
  * @param captured - The CapturedError envelope containing the AppError + context
  */
 function logCapturedError(captured: CapturedError): Void {
-	const appError: AppError = captured.error;
-	const source: Str = extractSource(appError.stack);
-	const causeChain: Array<{ code: Str; message: Str }> = collectCauseChain(appError);
+  const appError: AppError = captured.error;
+  const source: Str = extractSource(appError.stack);
+  const causeChain: Array<{ code: Str; message: Str }> = collectCauseChain(appError);
 
-	const isSignal: Bool = captured.type === 'signal';
-	const logFn: typeof log.error = isSignal ? log.info : log.error;
-	logFn(`[${captured.type}] ${appError.code}: ${appError.message}`, {
-		captureId: captured.id,
-		errorId: appError.id,
-		errorCode: appError.code,
-		source,
-		environment: captured.environment,
-		fatal: captured.fatal,
-		stack: appError.stack,
-		...(appError.severity !== undefined && { severity: appError.severity }),
-		...(appError.httpStatus !== undefined && { httpStatus: appError.httpStatus }),
-		...(appError.meta && { errorMeta: appError.meta }),
-		...(appError.validation && { validation: appError.validation }),
-		...(appError.help && { help: appError.help }),
-		...(appError.source && { errorSource: appError.source }),
-		...(appError.related &&
-			appError.related.length > 0 && {
-				related: appError.related.map((e) => ({ code: e.code, message: e.message })),
-			}),
-		...(causeChain.length > 0 && { causeChain }),
-		...(captured.meta && { meta: captured.meta }),
-		...(captured.breadcrumbs &&
-			captured.breadcrumbs.length > 0 && { breadcrumbs: captured.breadcrumbs }),
-		...(captured.fingerprint && { fingerprint: captured.fingerprint }),
-		...(captured.tags && { tags: captured.tags }),
-		...(captured.user && { user: captured.user }),
-		...(captured.contexts && { contexts: captured.contexts }),
-		...(captured.release !== undefined && { release: captured.release }),
-		...(captured.serverName !== undefined && { serverName: captured.serverName }),
-	});
+  const isSignal: Bool = captured.type === 'signal';
+  const logFn: typeof log.error = isSignal ? log.info : log.error;
+  logFn(`[${captured.type}] ${appError.code}: ${appError.message}`, {
+    captureId: captured.id,
+    errorId: appError.id,
+    errorCode: appError.code,
+    source,
+    environment: captured.environment,
+    fatal: captured.fatal,
+    stack: appError.stack,
+    ...(appError.severity !== undefined && { severity: appError.severity }),
+    ...(appError.httpStatus !== undefined && { httpStatus: appError.httpStatus }),
+    ...(appError.meta && { errorMeta: appError.meta }),
+    ...(appError.validation && { validation: appError.validation }),
+    ...(appError.help && { help: appError.help }),
+    ...(appError.source && { errorSource: appError.source }),
+    ...(appError.related &&
+      appError.related.length > 0 && {
+        related: appError.related.map((e) => ({ code: e.code, message: e.message })),
+      }),
+    ...(causeChain.length > 0 && { causeChain }),
+    ...(captured.meta && { meta: captured.meta }),
+    ...(captured.breadcrumbs &&
+      captured.breadcrumbs.length > 0 && { breadcrumbs: captured.breadcrumbs }),
+    ...(captured.fingerprint && { fingerprint: captured.fingerprint }),
+    ...(captured.tags && { tags: captured.tags }),
+    ...(captured.user && { user: captured.user }),
+    ...(captured.contexts && { contexts: captured.contexts }),
+    ...(captured.release !== undefined && { release: captured.release }),
+    ...(captured.serverName !== undefined && { serverName: captured.serverName }),
+  });
 }
 
 /**
@@ -160,9 +160,9 @@ function logCapturedError(captured: CapturedError): Void {
  * @returns The resolved ServerUser, or null if auth is overridden to false
  */
 function resolveAuth(url: URL): ServerUser | null {
-	const authParam: Str | null = url.searchParams.get(`${URL_PARAM_PREFIX}auth`);
-	if (authParam === 'false') return null;
-	return MOCK_USER;
+  const authParam: Str | null = url.searchParams.get(`${URL_PARAM_PREFIX}auth`);
+  if (authParam === 'false') return null;
+  return MOCK_USER;
 }
 
 /**
@@ -182,103 +182,103 @@ let _waitUntil: ((promise: Promise<unknown>) => void) | null = null;
  * @returns The `waitUntil` function from Cloudflare's ExecutionContext, or `null`.
  */
 export function getWaitUntil(): ((promise: Promise<unknown>) => void) | null {
-	return _waitUntil;
+  return _waitUntil;
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
-	// Capture Cloudflare ExecutionContext.waitUntil for downstream use.
-	// Not available during prerendering or in dev mode without wrangler.
-	_waitUntil = event.platform?.ctx?.waitUntil?.bind(event.platform.ctx) ?? null;
+  // Capture Cloudflare ExecutionContext.waitUntil for downstream use.
+  // Not available during prerendering or in dev mode without wrangler.
+  _waitUntil = event.platform?.ctx?.waitUntil?.bind(event.platform.ctx) ?? null;
 
-	// Testing-only: simulate catastrophic handle failure for error.html fallback testing.
-	if (event.url.pathname === '/test-error/catastrophic') {
-		throw new Error('Simulated catastrophic failure — tests error.html fallback');
-	}
+  // Testing-only: simulate catastrophic handle failure for error.html fallback testing.
+  if (event.url.pathname === '/test-error/catastrophic') {
+    throw new Error('Simulated catastrophic failure — tests error.html fallback');
+  }
 
-	const cookie: Str = event.cookies.get(storageKey('locale')) ?? '';
-	const header: Str | null = event.request.headers.get('accept-language');
-	const locale: Str = resolveLocale(cookie, header);
+  const cookie: Str = event.cookies.get(storageKey('locale')) ?? '';
+  const header: Str | null = event.request.headers.get('accept-language');
+  const locale: Str = resolveLocale(cookie, header);
 
-	event.locals.locale = locale;
-	// During prerendering, url.searchParams is not accessible — use default mock user.
-	event.locals.user = building ? MOCK_USER : resolveAuth(event.url);
-	// Read mock data delay from URL param (e.g., ?${URL_PARAM_PREFIX}mockDelay=1500) or cookie.
-	const mockDelayParam: Str | null = building
-		? null
-		: event.url.searchParams.get(`${URL_PARAM_PREFIX}mockDelay`);
-	const mockDelayCookie: Str = event.cookies.get(storageKey('mockDataDelay')) ?? '0';
-	const mockDelayMs: Num = Math.max(
-		0,
-		Math.min(10_000, Number(mockDelayParam ?? mockDelayCookie) || 0),
-	);
-	event.locals.db = createDataService(event.platform, mockDelayMs);
-	event.locals.saveData = event.request.headers.get('save-data') === 'on';
+  event.locals.locale = locale;
+  // During prerendering, url.searchParams is not accessible — use default mock user.
+  event.locals.user = building ? MOCK_USER : resolveAuth(event.url);
+  // Read mock data delay from URL param (e.g., ?${URL_PARAM_PREFIX}mockDelay=1500) or cookie.
+  const mockDelayParam: Str | null = building
+    ? null
+    : event.url.searchParams.get(`${URL_PARAM_PREFIX}mockDelay`);
+  const mockDelayCookie: Str = event.cookies.get(storageKey('mockDataDelay')) ?? '0';
+  const mockDelayMs: Num = Math.max(
+    0,
+    Math.min(10_000, Number(mockDelayParam ?? mockDelayCookie) || 0),
+  );
+  event.locals.db = createDataService(event.platform, mockDelayMs);
+  event.locals.saveData = event.request.headers.get('save-data') === 'on';
 
-	// Read client preference cookies for SSR hydration flash prevention.
-	// Values are sanitized to prevent XSS via HTML attribute interpolation.
-	const sidebarPxRaw: Str | undefined = event.cookies.get(storageKey('sidebar-px'));
-	const sidebarPx: Num | null = sanitizeSidebarWidth(sidebarPxRaw ?? null);
-	event.locals.sidebarPx = sidebarPx;
-	const themeRaw: Str | undefined = event.cookies.get(storageKey('theme'));
-	const theme: Str = sanitizeTheme(themeRaw ?? null);
-	const sidebarOpenRaw: Str | undefined = event.cookies.get(storageKey('sidebar-open'));
-	const sidebarOpen: boolean | null = sanitizeSidebarOpen(sidebarOpenRaw ?? null);
-	event.locals.sidebarOpen = sidebarOpen;
+  // Read client preference cookies for SSR hydration flash prevention.
+  // Values are sanitized to prevent XSS via HTML attribute interpolation.
+  const sidebarPxRaw: Str | undefined = event.cookies.get(storageKey('sidebar-px'));
+  const sidebarPx: Num | null = sanitizeSidebarWidth(sidebarPxRaw ?? null);
+  event.locals.sidebarPx = sidebarPx;
+  const themeRaw: Str | undefined = event.cookies.get(storageKey('theme'));
+  const theme: Str = sanitizeTheme(themeRaw ?? null);
+  const sidebarOpenRaw: Str | undefined = event.cookies.get(storageKey('sidebar-open'));
+  const sidebarOpen: boolean | null = sanitizeSidebarOpen(sidebarOpenRaw ?? null);
+  event.locals.sidebarOpen = sidebarOpen;
 
-	const dirResult = getTextDirection(locale);
-	// UI boundary — log direction lookup failure, fall back to LTR
-	if (!dirResult.ok) {
-		log.warn(
-			`Failed to resolve text direction for locale "${locale}" (${dirResult.error.code}), defaulting to ltr`,
-		);
-	}
-	const dir: Str = dirResult.ok ? dirResult.data : 'ltr';
+  const dirResult = getTextDirection(locale);
+  // UI boundary — log direction lookup failure, fall back to LTR
+  if (!dirResult.ok) {
+    log.warn(
+      `Failed to resolve text direction for locale "${locale}" (${dirResult.error.code}), defaulting to ltr`,
+    );
+  }
+  const dir: Str = dirResult.ok ? dirResult.data : 'ltr';
 
-	const sidebarAttr: Str =
-		sidebarPx === null ? 'data-sidebar-width=""' : `data-sidebar-width="${String(sidebarPx)}"`;
+  const sidebarAttr: Str =
+    sidebarPx === null ? 'data-sidebar-width=""' : `data-sidebar-width="${String(sidebarPx)}"`;
 
-	const themeAttr: Str = theme ? `data-theme="${theme}"` : 'data-theme=""';
+  const themeAttr: Str = theme ? `data-theme="${theme}"` : 'data-theme=""';
 
-	const response: Response = await resolve(event, {
-		transformPageChunk: ({ html }) =>
-			html
-				.replace('%lang%', locale)
-				.replace('%dir%', dir)
-				.replace('data-sidebar-width=""', sidebarAttr)
-				.replace('data-theme=""', themeAttr)
-				.replaceAll('{{APP_NAME}}', APP_NAME)
-				.replaceAll('{{STORAGE_PREFIX}}', STORAGE_PREFIX),
-	});
+  const response: Response = await resolve(event, {
+    transformPageChunk: ({ html }) =>
+      html
+        .replace('%lang%', locale)
+        .replace('%dir%', dir)
+        .replace('data-sidebar-width=""', sidebarAttr)
+        .replace('data-theme=""', themeAttr)
+        .replaceAll('{{APP_NAME}}', APP_NAME)
+        .replaceAll('{{STORAGE_PREFIX}}', STORAGE_PREFIX),
+  });
 
-	// Safety net: strip CSP headers in dev mode. SvelteKit's SSR renderer
-	// (render.js) injects a content-security-policy header when internal.js
-	// has truthy CSP directives. If a concurrent `pnpm build` or similar
-	// regenerates .svelte-kit/generated/server/internal.js with production
-	// CSP while the dev server is running, the dev server picks up the new
-	// file and starts enforcing CSP — blocking Vite's HMR inline scripts.
-	// This guard ensures CSP never leaks into dev regardless of internal.js state.
-	if (dev) {
-		response.headers.delete('content-security-policy');
-		response.headers.delete('content-security-policy-report-only');
-	}
+  // Safety net: strip CSP headers in dev mode. SvelteKit's SSR renderer
+  // (render.js) injects a content-security-policy header when internal.js
+  // has truthy CSP directives. If a concurrent `pnpm build` or similar
+  // regenerates .svelte-kit/generated/server/internal.js with production
+  // CSP while the dev server is running, the dev server picks up the new
+  // file and starts enforcing CSP — blocking Vite's HMR inline scripts.
+  // This guard ensures CSP never leaks into dev regardless of internal.js state.
+  if (dev) {
+    response.headers.delete('content-security-policy');
+    response.headers.delete('content-security-policy-report-only');
+  }
 
-	for (const [name, value] of getSecurityHeaders()) {
-		response.headers.set(name, value);
-	}
+  for (const [name, value] of getSecurityHeaders()) {
+    response.headers.set(name, value);
+  }
 
-	// Build info headers — useful for debugging deployed versions.
-	response.headers.set('X-App-Version', __APP_VERSION__);
-	response.headers.set('X-Git-Commit', __GIT_COMMIT__);
+  // Build info headers — useful for debugging deployed versions.
+  response.headers.set('X-App-Version', __APP_VERSION__);
+  response.headers.set('X-Git-Commit', __GIT_COMMIT__);
 
-	// Prevent caching of HTML responses (skip SvelteKit immutable assets).
-	const contentType: Str = response.headers.get('content-type') ?? '';
-	const isHtml: Bool = contentType.includes('text/html');
-	const isImmutable: Bool = event.url.pathname.startsWith('/_app/immutable/');
-	if (isHtml && !isImmutable) {
-		response.headers.set('Cache-Control', 'private, no-cache');
-	}
+  // Prevent caching of HTML responses (skip SvelteKit immutable assets).
+  const contentType: Str = response.headers.get('content-type') ?? '';
+  const isHtml: Bool = contentType.includes('text/html');
+  const isImmutable: Bool = event.url.pathname.startsWith('/_app/immutable/');
+  if (isHtml && !isImmutable) {
+    response.headers.set('Cache-Control', 'private, no-cache');
+  }
 
-	return response;
+  return response;
 };
 
 /**
@@ -302,57 +302,57 @@ export const handle: Handle = async ({ event, resolve }) => {
  * // The returned object becomes `page.error` in +error.svelte
  */
 export const handleError: HandleServerError = ({ error, event, status, message }) => {
-	// Extract or wrap the thrown error into an AppError.
-	// fromUnknownError returns the AppError as-is if it already is one,
-	// otherwise wraps it in INTERNAL.UNEXPECTED.
-	const extracted: AppError = fromUnknownError(error);
+  // Extract or wrap the thrown error into an AppError.
+  // fromUnknownError returns the AppError as-is if it already is one,
+  // otherwise wraps it in INTERNAL.UNEXPECTED.
+  const extracted: AppError = fromUnknownError(error);
 
-	// If the extracted error is a generic INTERNAL.UNEXPECTED, wrap it with request context.
-	// Otherwise it's already a domain-specific AppError — use it directly.
-	let appError: AppError;
-	if (extracted.code === ERRORS.INTERNAL.UNEXPECTED) {
-		const result = err(
-			ERRORS.INTERNAL.UNEXPECTED,
-			`Unhandled ${event.request.method} ${event.url.pathname} failed (${status}): ${message}`,
-			{
-				cause: extracted,
-				meta: {
-					status,
-					message,
-					url: event.url.pathname,
-					method: event.request.method,
-					route: event.route?.id ?? null,
-					locale: event.locals.locale,
-					userAgent: event.request.headers.get('user-agent'),
-					referer: event.request.headers.get('referer'),
-					searchParams: building ? {} : Object.fromEntries(event.url.searchParams),
-					isDataRequest: event.isDataRequest,
-				},
-			},
-		);
-		// err() always returns ok:false — narrow for type safety.
-		if (result.ok) return { message, errorId: '' };
-		appError = result.error;
-	} else {
-		appError = extracted;
-	}
+  // If the extracted error is a generic INTERNAL.UNEXPECTED, wrap it with request context.
+  // Otherwise it's already a domain-specific AppError — use it directly.
+  let appError: AppError;
+  if (extracted.code === ERRORS.INTERNAL.UNEXPECTED) {
+    const result = err(
+      ERRORS.INTERNAL.UNEXPECTED,
+      `Unhandled ${event.request.method} ${event.url.pathname} failed (${status}): ${message}`,
+      {
+        cause: extracted,
+        meta: {
+          status,
+          message,
+          url: event.url.pathname,
+          method: event.request.method,
+          route: event.route?.id ?? null,
+          locale: event.locals.locale,
+          userAgent: event.request.headers.get('user-agent'),
+          referer: event.request.headers.get('referer'),
+          searchParams: building ? {} : Object.fromEntries(event.url.searchParams),
+          isDataRequest: event.isDataRequest,
+        },
+      },
+    );
+    // err() always returns ok:false — narrow for type safety.
+    if (result.ok) return { message, errorId: '' };
+    appError = result.error;
+  } else {
+    appError = extracted;
+  }
 
-	// Route through CapturedError pipeline — reportError() wraps the AppError
-	// with breadcrumbs, fingerprint, environment, etc. and fires onError which
-	// calls logCapturedError with the full CapturedError.
-	// literal false — reportError expects Bool alias, not bare boolean
-	reportError(appError, false as Bool);
+  // Route through CapturedError pipeline — reportError() wraps the AppError
+  // with breadcrumbs, fingerprint, environment, etc. and fires onError which
+  // calls logCapturedError with the full CapturedError.
+  // literal false — reportError expects Bool alias, not bare boolean
+  reportError(appError, false as Bool);
 
-	try {
-		event.setHeaders({ 'x-error-id': appError.id });
-	} catch {
-		// setHeaders throws if the header was already set or if the response
-		// is in a state that doesn't allow header modification (e.g., fatal errors
-		// where the handle hook itself threw). Safe to ignore — errorId is also
-		// embedded in the response body message.
-	}
-	// Embed errorId in message so error.html fallback can display it
-	// (error.html only has %sveltekit.error.message% — no custom placeholders).
-	// +error.svelte ignores this message (ErrorPage uses locale-based text + separate errorId prop).
-	return { message: `${message} (Reference: ${appError.id})`, errorId: appError.id };
+  try {
+    event.setHeaders({ 'x-error-id': appError.id });
+  } catch {
+    // setHeaders throws if the header was already set or if the response
+    // is in a state that doesn't allow header modification (e.g., fatal errors
+    // where the handle hook itself threw). Safe to ignore — errorId is also
+    // embedded in the response body message.
+  }
+  // Embed errorId in message so error.html fallback can display it
+  // (error.html only has %sveltekit.error.message% — no custom placeholders).
+  // +error.svelte ignores this message (ErrorPage uses locale-based text + separate errorId prop).
+  return { message: `${message} (Reference: ${appError.id})`, errorId: appError.id };
 };

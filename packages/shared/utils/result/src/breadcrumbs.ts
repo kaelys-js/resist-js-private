@@ -46,23 +46,23 @@ let _breadcrumbs: Breadcrumb[] = [];
  * ```
  */
 export function addBreadcrumb(
-	breadcrumb: Omit<Breadcrumb, 'timestamp'> & { timestamp?: string },
+  breadcrumb: Omit<Breadcrumb, 'timestamp'> & { timestamp?: string },
 ): Result<void> {
-	const complete: unknown = {
-		...breadcrumb,
-		timestamp: breadcrumb.timestamp ?? new Date().toISOString(),
-	};
+  const complete: unknown = {
+    ...breadcrumb,
+    timestamp: breadcrumb.timestamp ?? new Date().toISOString(),
+  };
 
-	const validated: Result<Breadcrumb> = safeParse(BreadcrumbSchema, complete);
-	if (!validated.ok) return validated;
+  const validated: Result<Breadcrumb> = safeParse(BreadcrumbSchema, complete);
+  if (!validated.ok) return validated;
 
-	_breadcrumbs.push(validated.data as Breadcrumb);
+  _breadcrumbs.push(validated.data as Breadcrumb);
 
-	if (_breadcrumbs.length > MAX_BREADCRUMBS) {
-		_breadcrumbs = _breadcrumbs.slice(-MAX_BREADCRUMBS);
-	}
+  if (_breadcrumbs.length > MAX_BREADCRUMBS) {
+    _breadcrumbs = _breadcrumbs.slice(-MAX_BREADCRUMBS);
+  }
 
-	return ok(VoidSchema, undefined);
+  return ok(VoidSchema, undefined);
 }
 
 /**
@@ -84,9 +84,9 @@ export function addBreadcrumb(
  * ```
  */
 export function drainBreadcrumbs(): Result<readonly Breadcrumb[]> {
-	const result: readonly Breadcrumb[] = [..._breadcrumbs];
-	_breadcrumbs = [];
-	return okUnchecked<readonly Breadcrumb[]>(result);
+  const result: readonly Breadcrumb[] = [..._breadcrumbs];
+  _breadcrumbs = [];
+  return okUnchecked<readonly Breadcrumb[]>(result);
 }
 
 /**
@@ -107,7 +107,7 @@ export function drainBreadcrumbs(): Result<readonly Breadcrumb[]> {
  * ```
  */
 export function getBreadcrumbs(): Result<readonly Breadcrumb[]> {
-	return okUnchecked<readonly Breadcrumb[]>([..._breadcrumbs]);
+  return okUnchecked<readonly Breadcrumb[]>([..._breadcrumbs]);
 }
 
 /**
@@ -125,6 +125,6 @@ export function getBreadcrumbs(): Result<readonly Breadcrumb[]> {
  * ```
  */
 export function clearBreadcrumbs(): Result<void> {
-	_breadcrumbs = [];
-	return ok(VoidSchema, undefined);
+  _breadcrumbs = [];
+  return ok(VoidSchema, undefined);
 }

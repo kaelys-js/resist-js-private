@@ -13,5 +13,5 @@ import type { PageServerLoad } from './$types';
  * @returns Never — always throws a SvelteKit error
  */
 export const load: PageServerLoad = () => {
-	error(500, { message: 'Internal server error' });
+  error(500, { message: 'Internal server error' });
 };

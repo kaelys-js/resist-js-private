@@ -12,16 +12,16 @@ import { StrSchema } from '@/schemas/common';
  * Each item can optionally navigate via `href` or be grouped under a heading.
  */
 export const SearchItemSchema = v.strictObject({
-	/** Unique identifier for the item, also used as the filter key. */
-	value: StrSchema,
-	/** Display label shown in the dropdown. */
-	label: StrSchema,
-	/** Optional navigation URL — selects the item and follows the link. */
-	href: v.optional(StrSchema),
-	/** Optional group heading for categorization. */
-	group: v.optional(StrSchema),
-	/** Optional search keywords for filtering (not displayed). */
-	keywords: v.optional(v.array(StrSchema)),
+  /** Unique identifier for the item, also used as the filter key. */
+  value: StrSchema,
+  /** Display label shown in the dropdown. */
+  label: StrSchema,
+  /** Optional navigation URL — selects the item and follows the link. */
+  href: v.optional(StrSchema),
+  /** Optional group heading for categorization. */
+  group: v.optional(StrSchema),
+  /** Optional search keywords for filtering (not displayed). */
+  keywords: v.optional(v.array(StrSchema)),
 });
 
 /** A single autocomplete search item. */

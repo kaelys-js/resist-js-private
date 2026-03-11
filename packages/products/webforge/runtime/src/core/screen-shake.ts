@@ -39,11 +39,11 @@ import { safeParse, fromUnknownError } from '@/utils/result/safe';
 import { okShallow, type BabylonResult } from './babylon-result';
 import { perlin2d } from './perlin';
 import {
-	ScreenShakeConfigSchema,
-	type DecayMode,
-	type ScreenShakeConfig,
-	type ShakeChannel,
-	type ShakeEnvelope,
+  ScreenShakeConfigSchema,
+  type DecayMode,
+  type ScreenShakeConfig,
+  type ShakeChannel,
+  type ShakeEnvelope,
 } from '../schemas/screen-shake-config';
 
 // =============================================================================
@@ -52,20 +52,20 @@ import {
 
 /** Handle for a running screen shake effect. */
 export type ShakeHandle = {
-	/** Cancels the shake effect early and restores camera state. */
-	readonly dispose: () => void;
+  /** Cancels the shake effect early and restores camera state. */
+  readonly dispose: () => void;
 };
 
 /** Options for starting a screen shake. */
 export type ScreenShakeOptions = {
-	/** The Babylon.js scene. */
-	readonly scene: BABYLON.Scene;
-	/** The camera to shake. */
-	readonly camera: BABYLON.Camera;
+  /** The Babylon.js scene. */
+  readonly scene: BABYLON.Scene;
+  /** The camera to shake. */
+  readonly camera: BABYLON.Camera;
 } & Partial<ScreenShakeConfig> & {
-		/** Shake intensity (trauma input). Required. */
-		readonly intensity: Num;
-	};
+    /** Shake intensity (trauma input). Required. */
+    readonly intensity: Num;
+  };
 
 // =============================================================================
 // Module State
@@ -99,7 +99,7 @@ let _activeHandles: Array<{ dispose: () => void }> = [];
  * ```
  */
 export function addTrauma(amount: Num): void {
-	_trauma = Math.min(1, _trauma + amount) as Num;
+  _trauma = Math.min(1, _trauma + amount) as Num;
 }
 
 /**
@@ -113,7 +113,7 @@ export function addTrauma(amount: Num): void {
  * ```
  */
 export function getTrauma(): Num {
-	return _trauma;
+  return _trauma;
 }
 
 /**
@@ -125,7 +125,7 @@ export function getTrauma(): Num {
  * ```
  */
 export function resetTrauma(): void {
-	_trauma = 0 as Num;
+  _trauma = 0 as Num;
 }
 
 /**
@@ -137,11 +137,11 @@ export function resetTrauma(): void {
  * ```
  */
 export function stopAllShakes(): void {
-	for (const handle of _activeHandles) {
-		handle.dispose();
-	}
-	_activeHandles = [];
-	_trauma = 0 as Num;
+  for (const handle of _activeHandles) {
+    handle.dispose();
+  }
+  _activeHandles = [];
+  _trauma = 0 as Num;
 }
 
 // =============================================================================
@@ -159,7 +159,7 @@ export function stopAllShakes(): void {
  * ```
  */
 export function setGlobalScale(scale: Num): void {
-	_globalScale = scale as Num;
+  _globalScale = scale as Num;
 }
 
 /**
@@ -173,7 +173,7 @@ export function setGlobalScale(scale: Num): void {
  * ```
  */
 export function getGlobalScale(): Num {
-	return _globalScale;
+  return _globalScale;
 }
 
 /**
@@ -187,7 +187,7 @@ export function getGlobalScale(): Num {
  * ```
  */
 export function setMasterEnabled(enabled: Bool): void {
-	_masterEnabled = enabled as Bool;
+  _masterEnabled = enabled as Bool;
 }
 
 /**
@@ -201,7 +201,7 @@ export function setMasterEnabled(enabled: Bool): void {
  * ```
  */
 export function getMasterEnabled(): Bool {
-	return _masterEnabled;
+  return _masterEnabled;
 }
 
 // =============================================================================
@@ -227,14 +227,14 @@ export function getMasterEnabled(): Bool {
  * ```
  */
 export function applyDecay(t: number, mode: DecayMode): number {
-	if (mode === 'exponential') {
-		return Math.exp(-5 * t);
-	}
-	if (mode === 'easeOut') {
-		return 1 - t * t;
-	}
-	// linear
-	return 1 - t;
+  if (mode === 'exponential') {
+    return Math.exp(-5 * t);
+  }
+  if (mode === 'easeOut') {
+    return 1 - t * t;
+  }
+  // linear
+  return 1 - t;
 }
 
 // =============================================================================
@@ -266,33 +266,33 @@ export function applyDecay(t: number, mode: DecayMode): number {
  * ```
  */
 export function computeEnvelopeMultiplier(
-	elapsedMs: number,
-	envelope: ShakeEnvelope,
-	decayMode: DecayMode,
+  elapsedMs: number,
+  envelope: ShakeEnvelope,
+  decayMode: DecayMode,
 ): number {
-	const { attackMs, sustainMs, decayMs } = envelope;
-	const totalDuration: number = attackMs + sustainMs + decayMs;
+  const { attackMs, sustainMs, decayMs } = envelope;
+  const totalDuration: number = attackMs + sustainMs + decayMs;
 
-	// Past the end
-	if (elapsedMs >= totalDuration) {
-		return 0;
-	}
+  // Past the end
+  if (elapsedMs >= totalDuration) {
+    return 0;
+  }
 
-	// Attack phase
-	if (elapsedMs < attackMs) {
-		return attackMs > 0 ? elapsedMs / attackMs : 1;
-	}
+  // Attack phase
+  if (elapsedMs < attackMs) {
+    return attackMs > 0 ? elapsedMs / attackMs : 1;
+  }
 
-	// Sustain phase
-	const afterAttack: number = elapsedMs - attackMs;
-	if (afterAttack < sustainMs) {
-		return 1;
-	}
+  // Sustain phase
+  const afterAttack: number = elapsedMs - attackMs;
+  if (afterAttack < sustainMs) {
+    return 1;
+  }
 
-	// Decay phase
-	const decayElapsed: number = afterAttack - sustainMs;
-	const decayProgress: number = decayMs > 0 ? decayElapsed / decayMs : 1;
-	return applyDecay(decayProgress, decayMode);
+  // Decay phase
+  const decayElapsed: number = afterAttack - sustainMs;
+  const decayProgress: number = decayMs > 0 ? decayElapsed / decayMs : 1;
+  return applyDecay(decayProgress, decayMode);
 }
 
 // =============================================================================
@@ -310,21 +310,21 @@ export function computeEnvelopeMultiplier(
  * @returns Noise value (not normalised, varies with octaves).
  */
 function sampleNoise(
-	seedOffset: number,
-	time: number,
-	frequency: number,
-	seed: number,
-	octaves: number,
+  seedOffset: number,
+  time: number,
+  frequency: number,
+  seed: number,
+  octaves: number,
 ): number {
-	let value = 0;
-	let amp = 1;
-	let freq: number = frequency;
-	for (let i = 0; i < octaves; i++) {
-		value += perlin2d(seed + seedOffset + i * 31.7, time * freq) * amp;
-		amp *= 0.5;
-		freq *= 2;
-	}
-	return value;
+  let value = 0;
+  let amp = 1;
+  let freq: number = frequency;
+  for (let i = 0; i < octaves; i++) {
+    value += perlin2d(seed + seedOffset + i * 31.7, time * freq) * amp;
+    amp *= 0.5;
+    freq *= 2;
+  }
+  return value;
 }
 
 // =============================================================================
@@ -343,16 +343,16 @@ function sampleNoise(
  * @returns Channel offset value, or 0 if channel is disabled.
  */
 function computeChannelOffset(
-	channel: ShakeChannel,
-	seedOffset: number,
-	timeSec: number,
-	seed: number,
-	octaves: number,
-	shakeAmount: number,
+  channel: ShakeChannel,
+  seedOffset: number,
+  timeSec: number,
+  seed: number,
+  octaves: number,
+  shakeAmount: number,
 ): number {
-	if (!channel.enabled) return 0;
-	const noise: number = sampleNoise(seedOffset, timeSec, channel.frequency, seed, octaves);
-	return noise * channel.amplitude * shakeAmount;
+  if (!channel.enabled) return 0;
+  const noise: number = sampleNoise(seedOffset, timeSec, channel.frequency, seed, octaves);
+  return noise * channel.amplitude * shakeAmount;
 }
 
 // =============================================================================
@@ -391,199 +391,199 @@ function computeChannelOffset(
  * ```
  */
 export function screenShake(options: ScreenShakeOptions): BabylonResult<ShakeHandle> {
-	const { scene, camera, ...configInput } = options;
+  const { scene, camera, ...configInput } = options;
 
-	// Validate config via schema
-	const parsed = safeParse(ScreenShakeConfigSchema, configInput);
-	if (!parsed.ok) return parsed;
-	const config: ScreenShakeConfig = parsed.data;
+  // Validate config via schema
+  const parsed = safeParse(ScreenShakeConfigSchema, configInput);
+  if (!parsed.ok) return parsed;
+  const config: ScreenShakeConfig = parsed.data;
 
-	try {
-		// Set trauma from intensity (clamped at 1.0)
-		_trauma = Math.min(1, config.intensity) as Num;
+  try {
+    // Set trauma from intensity (clamped at 1.0)
+    _trauma = Math.min(1, config.intensity) as Num;
 
-		const isArcRotate: boolean = camera instanceof BABYLON.ArcRotateCamera;
+    const isArcRotate: boolean = camera instanceof BABYLON.ArcRotateCamera;
 
-		// Save original camera state for restoration
-		const originalTarget: BABYLON.Vector3 = isArcRotate
-			? (camera as BABYLON.ArcRotateCamera).target.clone()
-			: camera.position.clone();
-		const originalUpVector: BABYLON.Vector3 = camera.upVector.clone();
-		const originalFov: number = camera.fov;
-		const originalAlpha: number = isArcRotate ? (camera as BABYLON.ArcRotateCamera).alpha : 0;
+    // Save original camera state for restoration
+    const originalTarget: BABYLON.Vector3 = isArcRotate
+      ? (camera as BABYLON.ArcRotateCamera).target.clone()
+      : camera.position.clone();
+    const originalUpVector: BABYLON.Vector3 = camera.upVector.clone();
+    const originalFov: number = camera.fov;
+    const originalAlpha: number = isArcRotate ? (camera as BABYLON.ArcRotateCamera).alpha : 0;
 
-		let disposed = false;
-		let observer: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>> = null;
-		let freezeTimeout: ReturnType<typeof setTimeout> | null = null;
+    let disposed = false;
+    let observer: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>> = null;
+    let freezeTimeout: ReturnType<typeof setTimeout> | null = null;
 
-		const restoreCamera = (): void => {
-			if (isArcRotate) {
-				const arc = camera as BABYLON.ArcRotateCamera;
-				arc.target.copyFrom(originalTarget);
-				arc.alpha = originalAlpha;
-			} else {
-				camera.position.copyFrom(originalTarget);
-				camera.upVector.copyFrom(originalUpVector);
-			}
-			camera.fov = originalFov;
-		};
+    const restoreCamera = (): void => {
+      if (isArcRotate) {
+        const arc = camera as BABYLON.ArcRotateCamera;
+        arc.target.copyFrom(originalTarget);
+        arc.alpha = originalAlpha;
+      } else {
+        camera.position.copyFrom(originalTarget);
+        camera.upVector.copyFrom(originalUpVector);
+      }
+      camera.fov = originalFov;
+    };
 
-		const cleanup = (): void => {
-			if (disposed) return;
-			disposed = true;
-			if (freezeTimeout !== null) {
-				clearTimeout(freezeTimeout);
-				freezeTimeout = null;
-			}
-			restoreCamera();
-			if (observer) {
-				scene.onBeforeRenderObservable.remove(observer);
-				observer = null;
-			}
-			// Remove from active handles
-			_activeHandles = _activeHandles.filter((h) => h !== handle);
-		};
+    const cleanup = (): void => {
+      if (disposed) return;
+      disposed = true;
+      if (freezeTimeout !== null) {
+        clearTimeout(freezeTimeout);
+        freezeTimeout = null;
+      }
+      restoreCamera();
+      if (observer) {
+        scene.onBeforeRenderObservable.remove(observer);
+        observer = null;
+      }
+      // Remove from active handles
+      _activeHandles = _activeHandles.filter((h) => h !== handle);
+    };
 
-		const handle: ShakeHandle = { dispose: cleanup };
-		_activeHandles.push(handle);
+    const handle: ShakeHandle = { dispose: cleanup };
+    _activeHandles.push(handle);
 
-		const startShake = (): void => {
-			if (disposed) return;
+    const startShake = (): void => {
+      if (disposed) return;
 
-			const startTime: number = Date.now();
-			let lastTime: number = startTime;
-			const { envelope } = config;
-			const totalDuration: number = envelope.attackMs + envelope.sustainMs + envelope.decayMs;
-			const { seed } = config.noise;
-			const { octaves } = config.noise;
-			const { traumaPower, direction, decayRate } = config;
+      const startTime: number = Date.now();
+      let lastTime: number = startTime;
+      const { envelope } = config;
+      const totalDuration: number = envelope.attackMs + envelope.sustainMs + envelope.decayMs;
+      const { seed } = config.noise;
+      const { octaves } = config.noise;
+      const { traumaPower, direction, decayRate } = config;
 
-			observer = scene.onBeforeRenderObservable.add(() => {
-				if (disposed) return;
+      observer = scene.onBeforeRenderObservable.add(() => {
+        if (disposed) return;
 
-				const now: number = Date.now();
-				const elapsed: number = now - startTime;
-				const deltaTime: number = (now - lastTime) / 1000;
-				lastTime = now;
+        const now: number = Date.now();
+        const elapsed: number = now - startTime;
+        const deltaTime: number = (now - lastTime) / 1000;
+        lastTime = now;
 
-				// Shake complete
-				if (elapsed >= totalDuration) {
-					cleanup();
-					return;
-				}
+        // Shake complete
+        if (elapsed >= totalDuration) {
+          cleanup();
+          return;
+        }
 
-				// Auto-decay trauma each frame
-				if (_trauma > 0 && deltaTime > 0) {
-					_trauma = Math.max(0, _trauma - decayRate * deltaTime) as Num;
-				}
+        // Auto-decay trauma each frame
+        if (_trauma > 0 && deltaTime > 0) {
+          _trauma = Math.max(0, _trauma - decayRate * deltaTime) as Num;
+        }
 
-				// If master is disabled, skip computation but keep running
-				if (!_masterEnabled) return;
+        // If master is disabled, skip computation but keep running
+        if (!_masterEnabled) return;
 
-				const envelopeMult: number = computeEnvelopeMultiplier(elapsed, envelope, config.decayMode);
-				const shakeAmount: number = _trauma ** traumaPower * envelopeMult * _globalScale;
+        const envelopeMult: number = computeEnvelopeMultiplier(elapsed, envelope, config.decayMode);
+        const shakeAmount: number = _trauma ** traumaPower * envelopeMult * _globalScale;
 
-				const timeSec: number = elapsed / 1000;
+        const timeSec: number = elapsed / 1000;
 
-				// Channel offsets
-				let transX: number = computeChannelOffset(
-					config.translation,
-					0,
-					timeSec,
-					seed,
-					octaves,
-					shakeAmount,
-				);
-				let transZ: number = computeChannelOffset(
-					config.translation,
-					100,
-					timeSec,
-					seed,
-					octaves,
-					shakeAmount,
-				);
-				const roll: number = computeChannelOffset(
-					config.rotation,
-					200,
-					timeSec,
-					seed,
-					octaves,
-					shakeAmount,
-				);
-				const fovOffset: number = computeChannelOffset(
-					config.fov,
-					300,
-					timeSec,
-					seed,
-					octaves,
-					shakeAmount,
-				);
+        // Channel offsets
+        let transX: number = computeChannelOffset(
+          config.translation,
+          0,
+          timeSec,
+          seed,
+          octaves,
+          shakeAmount,
+        );
+        let transZ: number = computeChannelOffset(
+          config.translation,
+          100,
+          timeSec,
+          seed,
+          octaves,
+          shakeAmount,
+        );
+        const roll: number = computeChannelOffset(
+          config.rotation,
+          200,
+          timeSec,
+          seed,
+          octaves,
+          shakeAmount,
+        );
+        const fovOffset: number = computeChannelOffset(
+          config.fov,
+          300,
+          timeSec,
+          seed,
+          octaves,
+          shakeAmount,
+        );
 
-				// Directional bias: 70% along direction, 30% perpendicular
-				if (direction !== null) {
-					const len: number = Math.hypot(direction.x, direction.z);
-					if (len > 0) {
-						const dirX: number = direction.x / len;
-						const dirZ: number = direction.z / len;
+        // Directional bias: 70% along direction, 30% perpendicular
+        if (direction !== null) {
+          const len: number = Math.hypot(direction.x, direction.z);
+          if (len > 0) {
+            const dirX: number = direction.x / len;
+            const dirZ: number = direction.z / len;
 
-						// Project onto direction and perpendicular
-						const alongDir: number = transX * dirX + transZ * dirZ;
-						const perpDir: number = -transX * dirZ + transZ * dirX;
+            // Project onto direction and perpendicular
+            const alongDir: number = transX * dirX + transZ * dirZ;
+            const perpDir: number = -transX * dirZ + transZ * dirX;
 
-						// Reconstruct with bias
-						transX = alongDir * 0.7 * dirX + perpDir * 0.3 * -dirZ;
-						transZ = alongDir * 0.7 * dirZ + perpDir * 0.3 * dirX;
-					}
-				}
+            // Reconstruct with bias
+            transX = alongDir * 0.7 * dirX + perpDir * 0.3 * -dirZ;
+            transZ = alongDir * 0.7 * dirZ + perpDir * 0.3 * dirX;
+          }
+        }
 
-				// Apply translation
-				if (isArcRotate) {
-					const arc = camera as BABYLON.ArcRotateCamera;
-					arc.target.x = originalTarget.x + transX;
-					arc.target.z = originalTarget.z + transZ;
-				} else {
-					camera.position.x = originalTarget.x + transX;
-					camera.position.z = originalTarget.z + transZ;
-				}
+        // Apply translation
+        if (isArcRotate) {
+          const arc = camera as BABYLON.ArcRotateCamera;
+          arc.target.x = originalTarget.x + transX;
+          arc.target.z = originalTarget.z + transZ;
+        } else {
+          camera.position.x = originalTarget.x + transX;
+          camera.position.z = originalTarget.z + transZ;
+        }
 
-				// Apply rotation (roll)
-				if (isArcRotate) {
-					// ArcRotateCamera: modifying upVector crashes _getViewMatrix
-					// (degenerate matrix). Instead, apply roll as an alpha offset
-					// which creates a visual wobble around the target.
-					(camera as BABYLON.ArcRotateCamera).alpha = originalAlpha + roll;
-				} else if (roll === 0) {
-					camera.upVector.copyFrom(originalUpVector);
-				} else {
-					// Non-ArcRotate cameras: rotate upVector around forward axis
-					const forward: BABYLON.Vector3 = camera.getDirection(BABYLON.Axis.Z);
-					const forwardLen: number = forward.length();
+        // Apply rotation (roll)
+        if (isArcRotate) {
+          // ArcRotateCamera: modifying upVector crashes _getViewMatrix
+          // (degenerate matrix). Instead, apply roll as an alpha offset
+          // which creates a visual wobble around the target.
+          (camera as BABYLON.ArcRotateCamera).alpha = originalAlpha + roll;
+        } else if (roll === 0) {
+          camera.upVector.copyFrom(originalUpVector);
+        } else {
+          // Non-ArcRotate cameras: rotate upVector around forward axis
+          const forward: BABYLON.Vector3 = camera.getDirection(BABYLON.Axis.Z);
+          const forwardLen: number = forward.length();
 
-					if (forwardLen > 1e-6) {
-						forward.scaleInPlace(1 / forwardLen);
-						const rotationQuat: BABYLON.Quaternion = BABYLON.Quaternion.RotationAxis(forward, roll);
-						const rotatedUp: BABYLON.Vector3 = originalUpVector.clone();
-						rotatedUp.rotateByQuaternionToRef(rotationQuat, rotatedUp);
-						camera.upVector.copyFrom(rotatedUp);
-					}
-				}
+          if (forwardLen > 1e-6) {
+            forward.scaleInPlace(1 / forwardLen);
+            const rotationQuat: BABYLON.Quaternion = BABYLON.Quaternion.RotationAxis(forward, roll);
+            const rotatedUp: BABYLON.Vector3 = originalUpVector.clone();
+            rotatedUp.rotateByQuaternionToRef(rotationQuat, rotatedUp);
+            camera.upVector.copyFrom(rotatedUp);
+          }
+        }
 
-				// Apply FOV offset
-				camera.fov = originalFov + fovOffset;
-			});
-		};
+        // Apply FOV offset
+        camera.fov = originalFov + fovOffset;
+      });
+    };
 
-		// Hit-freeze: delay start
-		if (config.freezeMs > 0) {
-			freezeTimeout = setTimeout(startShake, config.freezeMs);
-		} else {
-			startShake();
-		}
+    // Hit-freeze: delay start
+    if (config.freezeMs > 0) {
+      freezeTimeout = setTimeout(startShake, config.freezeMs);
+    } else {
+      startShake();
+    }
 
-		return okShallow(handle);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(handle);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 /* eslint-enable max-lines-per-function */

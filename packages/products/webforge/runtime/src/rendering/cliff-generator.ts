@@ -31,12 +31,12 @@ import { okUnchecked, type Result } from '@/schemas/result/result';
 import type { Num } from '@/schemas/common';
 
 import {
-	createWallFaceGeometry,
-	mergeTileVertexData,
-	TileUVSchema,
-	WallDirectionSchema,
-	type TileVertexData,
-	type WallDirection,
+  createWallFaceGeometry,
+  mergeTileVertexData,
+  TileUVSchema,
+  WallDirectionSchema,
+  type TileVertexData,
+  type WallDirection,
 } from './tile-geometry';
 import { okShallow, type BabylonResult } from '../core/babylon-result';
 
@@ -46,19 +46,19 @@ import { okShallow, type BabylonResult } from '../core/babylon-result';
 
 /** Schema for a single cliff edge detected between height levels. */
 export const CliffEdgeSchema = v.pipe(
-	v.strictObject({
-		/** Tile X position in the map grid. */
-		x: v.number(),
-		/** Tile Z position in the map grid. */
-		z: v.number(),
-		/** Which side of the tile the cliff face is on. */
-		direction: WallDirectionSchema,
-		/** Height level at the top of the cliff. */
-		topHeight: v.number(),
-		/** Height level at the bottom of the cliff. */
-		bottomHeight: v.number(),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Tile X position in the map grid. */
+    x: v.number(),
+    /** Tile Z position in the map grid. */
+    z: v.number(),
+    /** Which side of the tile the cliff face is on. */
+    direction: WallDirectionSchema,
+    /** Height level at the top of the cliff. */
+    topHeight: v.number(),
+    /** Height level at the bottom of the cliff. */
+    bottomHeight: v.number(),
+  }),
+  v.readonly(),
 );
 
 /** A single cliff edge detected between height levels. */
@@ -66,23 +66,23 @@ export type CliffEdge = v.InferOutput<typeof CliffEdgeSchema>;
 
 /** Options schema for {@link detectCliffEdges}. */
 export const DetectCliffEdgesOptionsSchema = v.pipe(
-	v.strictObject({
-		/** Flat row-major height map (values 0–15). */
-		heightMap: v.pipe(v.array(v.number()), v.readonly()),
-		/** Map width in tiles. */
-		mapWidth: v.number(),
-		/** Map height in tiles. */
-		mapHeight: v.number(),
-		/** Region start X (inclusive). */
-		startX: v.number(),
-		/** Region start Z (inclusive). */
-		startZ: v.number(),
-		/** Region end X (exclusive). */
-		endX: v.number(),
-		/** Region end Z (exclusive). */
-		endZ: v.number(),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Flat row-major height map (values 0–15). */
+    heightMap: v.pipe(v.array(v.number()), v.readonly()),
+    /** Map width in tiles. */
+    mapWidth: v.number(),
+    /** Map height in tiles. */
+    mapHeight: v.number(),
+    /** Region start X (inclusive). */
+    startX: v.number(),
+    /** Region start Z (inclusive). */
+    startZ: v.number(),
+    /** Region end X (exclusive). */
+    endX: v.number(),
+    /** Region end Z (exclusive). */
+    endZ: v.number(),
+  }),
+  v.readonly(),
 );
 
 /** Options for {@link detectCliffEdges}. */
@@ -90,19 +90,19 @@ export type DetectCliffEdgesOptions = v.InferOutput<typeof DetectCliffEdgesOptio
 
 /** Options schema for {@link generateCliffGeometry}. */
 export const GenerateCliffGeometryOptionsSchema = v.pipe(
-	v.strictObject({
-		/** Cliff edges to generate geometry for. */
-		edges: v.pipe(v.array(CliffEdgeSchema), v.readonly()),
-		/** Size of one tile in world units. */
-		tileWorldSize: v.number(),
-		/** Height of one tile level in world units. */
-		tileWorldHeight: v.number(),
-		/** UV rectangle for the wall texture. */
-		wallUV: TileUVSchema,
-		/** Starting vertex index (for merging). */
-		indexOffset: v.number(),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Cliff edges to generate geometry for. */
+    edges: v.pipe(v.array(CliffEdgeSchema), v.readonly()),
+    /** Size of one tile in world units. */
+    tileWorldSize: v.number(),
+    /** Height of one tile level in world units. */
+    tileWorldHeight: v.number(),
+    /** UV rectangle for the wall texture. */
+    wallUV: TileUVSchema,
+    /** Starting vertex index (for merging). */
+    indexOffset: v.number(),
+  }),
+  v.readonly(),
 );
 
 /** Options for {@link generateCliffGeometry}. */
@@ -114,10 +114,10 @@ export type GenerateCliffGeometryOptions = v.InferOutput<typeof GenerateCliffGeo
 
 /** Cardinal neighbor offsets: [dx, dz, direction]. */
 const CARDINAL_OFFSETS: ReadonlyArray<readonly [Num, Num, WallDirection]> = [
-	[0, -1, 'north'],
-	[1, 0, 'east'],
-	[0, 1, 'south'],
-	[-1, 0, 'west'],
+  [0, -1, 'north'],
+  [1, 0, 'east'],
+  [0, 1, 'south'],
+  [-1, 0, 'west'],
 ];
 
 // =============================================================================
@@ -145,38 +145,38 @@ const CARDINAL_OFFSETS: ReadonlyArray<readonly [Num, Num, WallDirection]> = [
  * ```
  */
 export function detectCliffEdges(options: DetectCliffEdgesOptions): Result<readonly CliffEdge[]> {
-	const { heightMap, mapWidth, mapHeight, startX, startZ, endX, endZ } = options;
+  const { heightMap, mapWidth, mapHeight, startX, startZ, endX, endZ } = options;
 
-	const edges: CliffEdge[] = [];
+  const edges: CliffEdge[] = [];
 
-	for (let z: Num = startZ; z < endZ; z++) {
-		for (let x: Num = startX; x < endX; x++) {
-			const tileHeight: Num = heightMap[z * mapWidth + x] ?? 0;
-			if (tileHeight === 0) continue;
+  for (let z: Num = startZ; z < endZ; z++) {
+    for (let x: Num = startX; x < endX; x++) {
+      const tileHeight: Num = heightMap[z * mapWidth + x] ?? 0;
+      if (tileHeight === 0) continue;
 
-			for (const [dx, dz, direction] of CARDINAL_OFFSETS) {
-				const nx: Num = x + dx;
-				const nz: Num = z + dz;
+      for (const [dx, dz, direction] of CARDINAL_OFFSETS) {
+        const nx: Num = x + dx;
+        const nz: Num = z + dz;
 
-				let neighborHeight: Num = 0;
-				if (nx >= 0 && nx < mapWidth && nz >= 0 && nz < mapHeight) {
-					neighborHeight = heightMap[nz * mapWidth + nx] ?? 0;
-				}
+        let neighborHeight: Num = 0;
+        if (nx >= 0 && nx < mapWidth && nz >= 0 && nz < mapHeight) {
+          neighborHeight = heightMap[nz * mapWidth + nx] ?? 0;
+        }
 
-				if (tileHeight > neighborHeight) {
-					edges.push({
-						x,
-						z,
-						direction,
-						topHeight: tileHeight,
-						bottomHeight: neighborHeight,
-					});
-				}
-			}
-		}
-	}
+        if (tileHeight > neighborHeight) {
+          edges.push({
+            x,
+            z,
+            direction,
+            topHeight: tileHeight,
+            bottomHeight: neighborHeight,
+          });
+        }
+      }
+    }
+  }
 
-	return okUnchecked(edges);
+  return okUnchecked(edges);
 }
 
 // =============================================================================
@@ -203,52 +203,52 @@ export function detectCliffEdges(options: DetectCliffEdgesOptions): Result<reado
  * ```
  */
 export function generateCliffGeometry(
-	options: GenerateCliffGeometryOptions,
+  options: GenerateCliffGeometryOptions,
 ): BabylonResult<TileVertexData> {
-	const { edges, tileWorldSize, tileWorldHeight, wallUV, indexOffset } = options;
+  const { edges, tileWorldSize, tileWorldHeight, wallUV, indexOffset } = options;
 
-	if (edges.length === 0) {
-		return okShallow({
-			positions: new Float32Array(0),
-			normals: new Float32Array(0),
-			uvs: new Float32Array(0),
-			indices: new Uint32Array(0),
-			vertexCount: 0,
-		});
-	}
+  if (edges.length === 0) {
+    return okShallow({
+      positions: new Float32Array(0),
+      normals: new Float32Array(0),
+      uvs: new Float32Array(0),
+      indices: new Uint32Array(0),
+      vertexCount: 0,
+    });
+  }
 
-	const wallParts: TileVertexData[] = [];
-	let currentOffset: Num = 0;
+  const wallParts: TileVertexData[] = [];
+  let currentOffset: Num = 0;
 
-	for (const edge of edges) {
-		const topY: Num = edge.topHeight * tileWorldHeight;
-		const bottomY: Num = edge.bottomHeight * tileWorldHeight;
+  for (const edge of edges) {
+    const topY: Num = edge.topHeight * tileWorldHeight;
+    const bottomY: Num = edge.bottomHeight * tileWorldHeight;
 
-		const wallResult: BabylonResult<TileVertexData> = createWallFaceGeometry({
-			gridX: edge.x,
-			gridZ: edge.z,
-			topY,
-			bottomY,
-			direction: edge.direction,
-			tileWorldSize,
-			uv: wallUV,
-			indexOffset: currentOffset,
-		});
+    const wallResult: BabylonResult<TileVertexData> = createWallFaceGeometry({
+      gridX: edge.x,
+      gridZ: edge.z,
+      topY,
+      bottomY,
+      direction: edge.direction,
+      tileWorldSize,
+      uv: wallUV,
+      indexOffset: currentOffset,
+    });
 
-		if (!wallResult.ok) return wallResult;
-		wallParts.push(wallResult.data);
-		currentOffset += wallResult.data.vertexCount;
-	}
+    if (!wallResult.ok) return wallResult;
+    wallParts.push(wallResult.data);
+    currentOffset += wallResult.data.vertexCount;
+  }
 
-	const merged: BabylonResult<TileVertexData> = mergeTileVertexData(wallParts);
-	if (!merged.ok) return merged;
+  const merged: BabylonResult<TileVertexData> = mergeTileVertexData(wallParts);
+  if (!merged.ok) return merged;
 
-	if (indexOffset > 0) {
-		const { indices } = merged.data;
-		for (let i: Num = 0; i < indices.length; i++) {
-			indices[i] = (indices[i] ?? 0) + indexOffset;
-		}
-	}
+  if (indexOffset > 0) {
+    const { indices } = merged.data;
+    for (let i: Num = 0; i < indices.length; i++) {
+      indices[i] = (indices[i] ?? 0) + indexOffset;
+    }
+  }
 
-	return merged;
+  return merged;
 }

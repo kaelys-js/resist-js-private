@@ -41,10 +41,10 @@ const SIDEBAR_MAX_PX: Num = 1000;
  * // Sets: ${STORAGE_PREFIX}:sidebar-px=350; max-age=31536000; path=/; SameSite=Lax
  */
 export function setPreferenceCookie(name: Str, value: Str): Result<Void> {
-	const cookieName: Str = `${STORAGE_PREFIX}:${name}`;
-	// oxlint-disable-next-line unicorn/no-document-cookie -- Cookie Store API is async and lacks SSR/Safari support; synchronous set needed
-	document.cookie = `${cookieName}=${value}; max-age=${String(MAX_AGE)}; path=/; SameSite=Lax`;
-	return okUnchecked<Void>(undefined);
+  const cookieName: Str = `${STORAGE_PREFIX}:${name}`;
+  // oxlint-disable-next-line unicorn/no-document-cookie -- Cookie Store API is async and lacks SSR/Safari support; synchronous set needed
+  document.cookie = `${cookieName}=${value}; max-age=${String(MAX_AGE)}; path=/; SameSite=Lax`;
+  return okUnchecked<Void>(undefined);
 }
 
 /**
@@ -57,19 +57,19 @@ export function setPreferenceCookie(name: Str, value: Str): Result<Void> {
  * const width = getPreferenceCookie('sidebar-px'); // '350' | null
  */
 export function getPreferenceCookie(name: Str): Str | null {
-	const cookieName: Str = `${STORAGE_PREFIX}:${name}=`;
-	// oxlint-disable-next-line unicorn/no-document-cookie -- Cookie Store API is async and lacks SSR/Safari support; synchronous read needed
-	const cookies: Str = document.cookie;
-	if (!cookies) return null;
+  const cookieName: Str = `${STORAGE_PREFIX}:${name}=`;
+  // oxlint-disable-next-line unicorn/no-document-cookie -- Cookie Store API is async and lacks SSR/Safari support; synchronous read needed
+  const cookies: Str = document.cookie;
+  if (!cookies) return null;
 
-	const parts: Str[] = cookies.split(';');
-	for (const part of parts) {
-		const trimmed: Str = part.trim();
-		if (trimmed.startsWith(cookieName)) {
-			return trimmed.slice(cookieName.length).trim();
-		}
-	}
-	return null;
+  const parts: Str[] = cookies.split(';');
+  for (const part of parts) {
+    const trimmed: Str = part.trim();
+    if (trimmed.startsWith(cookieName)) {
+      return trimmed.slice(cookieName.length).trim();
+    }
+  }
+  return null;
 }
 
 /**
@@ -88,12 +88,12 @@ export function getPreferenceCookie(name: Str): Str | null {
  * sanitizeSidebarWidth('"><script>') // null (non-numeric)
  */
 export function sanitizeSidebarWidth(raw: Str | null): Num | null {
-	if (raw === null || raw === '') return null;
-	const parsed: Num = Number(raw);
-	if (!Number.isFinite(parsed)) return null;
-	const rounded: Num = Math.round(parsed);
-	if (rounded < SIDEBAR_MIN_PX || rounded > SIDEBAR_MAX_PX) return null;
-	return rounded;
+  if (raw === null || raw === '') return null;
+  const parsed: Num = Number(raw);
+  if (!Number.isFinite(parsed)) return null;
+  const rounded: Num = Math.round(parsed);
+  if (rounded < SIDEBAR_MIN_PX || rounded > SIDEBAR_MAX_PX) return null;
+  return rounded;
 }
 
 /**
@@ -111,9 +111,9 @@ export function sanitizeSidebarWidth(raw: Str | null): Num | null {
  * sanitizeSidebarOpen('"><script>')   // null (XSS attempt)
  */
 export function sanitizeSidebarOpen(raw: Str | null): boolean | null {
-	if (raw === 'true') return true;
-	if (raw === 'false') return false;
-	return null;
+  if (raw === 'true') return true;
+  if (raw === 'false') return false;
+  return null;
 }
 
 /**
@@ -131,8 +131,8 @@ export function sanitizeSidebarOpen(raw: Str | null): boolean | null {
  * sanitizeTheme('"><script>')     // '' (XSS attempt)
  */
 export function sanitizeTheme(raw: Str | null): Str {
-	if (raw === null) return '';
-	// SUPPORTED_THEMES includes '' (default), so this check covers all valid values
-	if ((SUPPORTED_THEMES as readonly Str[]).includes(raw)) return raw;
-	return '';
+  if (raw === null) return '';
+  // SUPPORTED_THEMES includes '' (default), so this check covers all valid values
+  if ((SUPPORTED_THEMES as readonly Str[]).includes(raw)) return raw;
+  return '';
 }

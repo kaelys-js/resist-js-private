@@ -200,10 +200,10 @@ export type OptionalNum = v.InferOutput<typeof OptionalNumSchema>;
  * ```
  */
 export const NonNegativeIntegerSchema = v.pipe(
-	v.number(),
-	v.integer(),
-	v.minValue(0),
-	v.brand('NonNegativeInteger'),
+  v.number(),
+  v.integer(),
+  v.minValue(0),
+  v.brand('NonNegativeInteger'),
 );
 
 /** Inferred output type of {@link NonNegativeIntegerSchema}. An integer >= 0. */
@@ -221,9 +221,9 @@ export type NonNegativeInteger = v.InferOutput<typeof NonNegativeIntegerSchema>;
  * ```
  */
 export const DEFAULT_TERMINAL_WIDTH: NonNegativeInteger = (() => {
-	const r = v.safeParse(NonNegativeIntegerSchema, 80);
-	if (!r.success) throw new Error('BUG: DEFAULT_TERMINAL_WIDTH schema validation failed');
-	return r.output;
+  const r = v.safeParse(NonNegativeIntegerSchema, 80);
+  if (!r.success) throw new Error('BUG: DEFAULT_TERMINAL_WIDTH schema validation failed');
+  return r.output;
 })();
 
 /**
@@ -237,9 +237,9 @@ export const DEFAULT_TERMINAL_WIDTH: NonNegativeInteger = (() => {
  * ```
  */
 export const DEFAULT_JSON_INDENT: NonNegativeInteger = (() => {
-	const r = v.safeParse(NonNegativeIntegerSchema, 2);
-	if (!r.success) throw new Error('BUG: DEFAULT_JSON_INDENT schema validation failed');
-	return r.output;
+  const r = v.safeParse(NonNegativeIntegerSchema, 2);
+  if (!r.success) throw new Error('BUG: DEFAULT_JSON_INDENT schema validation failed');
+  return r.output;
 })();
 
 /**
@@ -253,9 +253,9 @@ export const DEFAULT_JSON_INDENT: NonNegativeInteger = (() => {
  * ```
  */
 export const NonNegativeNumberSchema = v.pipe(
-	v.number(),
-	v.minValue(0),
-	v.brand('NonNegativeNumber'),
+  v.number(),
+  v.minValue(0),
+  v.brand('NonNegativeNumber'),
 );
 
 /** Inferred output type of {@link NonNegativeNumberSchema}. A number >= 0 (may be fractional). */
@@ -272,10 +272,10 @@ export type NonNegativeNumber = v.InferOutput<typeof NonNegativeNumberSchema>;
  * ```
  */
 export const PositiveIntegerSchema = v.pipe(
-	v.number(),
-	v.integer(),
-	v.minValue(1),
-	v.brand('PositiveInteger'),
+  v.number(),
+  v.integer(),
+  v.minValue(1),
+  v.brand('PositiveInteger'),
 );
 
 /** Inferred output type of {@link PositiveIntegerSchema}. An integer >= 1. */
@@ -292,9 +292,9 @@ export type PositiveInteger = v.InferOutput<typeof PositiveIntegerSchema>;
  * ```
  */
 export const DEFAULT_PROGRESS_BAR_WIDTH: PositiveInteger = (() => {
-	const r = v.safeParse(PositiveIntegerSchema, 20);
-	if (!r.success) throw new Error('BUG: DEFAULT_PROGRESS_BAR_WIDTH schema validation failed');
-	return r.output;
+  const r = v.safeParse(PositiveIntegerSchema, 20);
+  if (!r.success) throw new Error('BUG: DEFAULT_PROGRESS_BAR_WIDTH schema validation failed');
+  return r.output;
 })();
 
 /**
@@ -354,10 +354,10 @@ export type UrlString = v.InferOutput<typeof UrlStringSchema>;
  * ```
  */
 export const FilenameSchema = v.pipe(
-	v.string(),
-	v.minLength(1),
-	v.regex(/^[^/\\]+$/, 'Filename must not contain path separators'),
-	v.brand('Filename'),
+  v.string(),
+  v.minLength(1),
+  v.regex(/^[^/\\]+$/, 'Filename must not contain path separators'),
+  v.brand('Filename'),
 );
 
 /** Inferred output type of {@link FilenameSchema}. A non-empty filename string without path separators. */
@@ -406,11 +406,11 @@ export type Never = v.InferOutput<typeof NeverSchema>;
  * ```
  */
 export const PortSchema = v.pipe(
-	v.number(),
-	v.integer(),
-	v.minValue(1, 'Port must be at least 1'),
-	v.maxValue(65_535, 'Port must be at most 65535'),
-	v.brand('Port'),
+  v.number(),
+  v.integer(),
+  v.minValue(1, 'Port must be at least 1'),
+  v.maxValue(65_535, 'Port must be at most 65535'),
+  v.brand('Port'),
 );
 
 /** Inferred output type of {@link PortSchema}. A valid TCP/UDP port (1–65535). */
@@ -448,10 +448,10 @@ export type Ipv4AddressArray = v.InferOutput<typeof Ipv4AddressArraySchema>;
  * ```
  */
 export const HostnameSchema = v.pipe(
-	v.string(),
-	v.minLength(1),
-	v.maxLength(253, 'Hostname must not exceed 253 characters (RFC 1035)'),
-	v.brand('Hostname'),
+  v.string(),
+  v.minLength(1),
+  v.maxLength(253, 'Hostname must not exceed 253 characters (RFC 1035)'),
+  v.brand('Hostname'),
 );
 
 /** Inferred output type of {@link HostnameSchema}. A non-empty hostname string (max 253 chars). */
@@ -481,7 +481,7 @@ export type Environment = v.InferOutput<typeof EnvironmentSchema>;
  * Matches: MAJOR.MINOR.PATCH with optional pre-release and build metadata.
  */
 const SEMVER_REGEX =
-	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
 /**
  * Schema for semantic version strings (e.g., "1.0.0", "2.1.3-beta.1").
@@ -494,9 +494,9 @@ const SEMVER_REGEX =
  * ```
  */
 export const SemverSchema = v.pipe(
-	v.string(),
-	v.regex(SEMVER_REGEX, 'Must be a valid semantic version (e.g., "1.0.0", "2.1.3-beta.1")'),
-	v.brand('Semver'),
+  v.string(),
+  v.regex(SEMVER_REGEX, 'Must be a valid semantic version (e.g., "1.0.0", "2.1.3-beta.1")'),
+  v.brand('Semver'),
 );
 
 /** Inferred output type of {@link SemverSchema}. A semantic version string (e.g., `"1.0.0"`). */
@@ -523,9 +523,9 @@ const KEBAB_CASE_REGEX = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
  * ```
  */
 export const KebabCaseIdSchema = v.pipe(
-	v.string(),
-	v.regex(KEBAB_CASE_REGEX, 'Must be kebab-case (e.g., "my-tool", "format-cli")'),
-	v.brand('KebabCaseId'),
+  v.string(),
+  v.regex(KEBAB_CASE_REGEX, 'Must be kebab-case (e.g., "my-tool", "format-cli")'),
+  v.brand('KebabCaseId'),
 );
 
 /** Inferred output type of {@link KebabCaseIdSchema}. A kebab-case identifier string. */
@@ -546,12 +546,12 @@ export type KebabCaseId = v.InferOutput<typeof KebabCaseIdSchema>;
  * ```
  */
 export const ProductNameSchema = v.pipe(
-	v.string(),
-	v.regex(
-		KEBAB_CASE_REGEX,
-		'Product name must be lowercase alphanumeric with hyphens (e.g., "my-product")',
-	),
-	v.brand('ProductName'),
+  v.string(),
+  v.regex(
+    KEBAB_CASE_REGEX,
+    'Product name must be lowercase alphanumeric with hyphens (e.g., "my-product")',
+  ),
+  v.brand('ProductName'),
 );
 
 /** Inferred output type of {@link ProductNameSchema}. A kebab-case product name. */
@@ -587,9 +587,9 @@ export type ProductNameArray = v.InferOutput<typeof ProductNameArraySchema>;
  * ```
  */
 export const CamelCaseStringSchema = v.pipe(
-	v.string(),
-	v.regex(/^[a-z][a-zA-Z0-9]*$/, 'Must be camelCase (e.g., "dryRun", "logLevel")'),
-	v.brand('CamelCaseString'),
+  v.string(),
+  v.regex(/^[a-z][a-zA-Z0-9]*$/, 'Must be camelCase (e.g., "dryRun", "logLevel")'),
+  v.brand('CamelCaseString'),
 );
 
 /** Inferred output type of {@link CamelCaseStringSchema}. A camelCase identifier string. */
@@ -610,11 +610,11 @@ export type CamelCaseString = v.InferOutput<typeof CamelCaseStringSchema>;
  * ```
  */
 export const ExitCodeSchema = v.pipe(
-	v.number(),
-	v.integer(),
-	v.minValue(0),
-	v.maxValue(255),
-	v.brand('ExitCode'),
+  v.number(),
+  v.integer(),
+  v.minValue(0),
+  v.maxValue(255),
+  v.brand('ExitCode'),
 );
 
 /** Inferred output type of {@link ExitCodeSchema}. An integer 0–255. */
@@ -629,9 +629,9 @@ export type ExitCode = v.InferOutput<typeof ExitCodeSchema>;
  * ```
  */
 export const DEFAULT_EXIT_CODE: ExitCode = (() => {
-	const r = v.safeParse(ExitCodeSchema, 0);
-	if (!r.success) throw new Error('BUG: DEFAULT_EXIT_CODE schema validation failed');
-	return r.output;
+  const r = v.safeParse(ExitCodeSchema, 0);
+  if (!r.success) throw new Error('BUG: DEFAULT_EXIT_CODE schema validation failed');
+  return r.output;
 })();
 
 /**
@@ -643,9 +643,9 @@ export const DEFAULT_EXIT_CODE: ExitCode = (() => {
  * ```
  */
 export const FAILURE_EXIT_CODE: ExitCode = (() => {
-	const r = v.safeParse(ExitCodeSchema, 1);
-	if (!r.success) throw new Error('BUG: FAILURE_EXIT_CODE schema validation failed');
-	return r.output;
+  const r = v.safeParse(ExitCodeSchema, 1);
+  if (!r.success) throw new Error('BUG: FAILURE_EXIT_CODE schema validation failed');
+  return r.output;
 })();
 
 /**
@@ -690,14 +690,14 @@ export type Message = v.InferOutput<typeof MessageSchema>;
  * ```
  */
 export const FatalExitOptionsSchema = v.strictObject({
-	/** Error message to display (non-empty). */
-	message: MessageSchema,
-	/** Exit code (0–255). Defaults to `1`. */
-	exitCode: v.optional(ExitCodeSchema, FAILURE_EXIT_CODE),
-	/** Original error (for stack trace in debug mode). */
-	error: v.optional(v.unknown()),
-	/** Additional details to display. */
-	details: v.optional(v.string()),
+  /** Error message to display (non-empty). */
+  message: MessageSchema,
+  /** Exit code (0–255). Defaults to `1`. */
+  exitCode: v.optional(ExitCodeSchema, FAILURE_EXIT_CODE),
+  /** Original error (for stack trace in debug mode). */
+  error: v.optional(v.unknown()),
+  /** Additional details to display. */
+  details: v.optional(v.string()),
 });
 
 /**
@@ -721,13 +721,13 @@ export type FatalExitOptions = v.InferOutput<typeof FatalExitOptionsSchema>;
  * ```
  */
 export const PlatformSchema = v.picklist([
-	'aix',
-	'darwin',
-	'freebsd',
-	'linux',
-	'openbsd',
-	'sunos',
-	'win32',
+  'aix',
+  'darwin',
+  'freebsd',
+  'linux',
+  'openbsd',
+  'sunos',
+  'win32',
 ]);
 
 /** Inferred output type of {@link PlatformSchema}. A Node.js platform string. */
@@ -761,12 +761,12 @@ export const DEFAULT_PLATFORM: Platform = 'linux';
  * ```
  */
 export const LogLevelSchema = v.picklist([
-	'silent', // No internal logs
-	'error', // Errors only
-	'warn', // Warnings and errors
-	'info', // Info, warnings, and errors
-	'debug', // Debug output
-	'trace', // Fine-grained diagnostic output (most verbose)
+  'silent', // No internal logs
+  'error', // Errors only
+  'warn', // Warnings and errors
+  'info', // Info, warnings, and errors
+  'debug', // Debug output
+  'trace', // Fine-grained diagnostic output (most verbose)
 ]);
 
 /** Inferred output type of {@link LogLevelSchema}. One of `'silent'` | `'error'` | `'warn'` | `'info'` | `'debug'` | `'trace'`. */
@@ -828,22 +828,22 @@ export const DEFAULT_OUTPUT_FORMAT: OutputFormat = 'pretty';
  * ```
  */
 export const StyleNameSchema = v.picklist([
-	// Text decoration
-	'bold',
-	'dim',
-	'italic',
-	'underline',
-	'inverse',
-	'strikethrough',
-	// Foreground colors
-	'red',
-	'green',
-	'yellow',
-	'blue',
-	'cyan',
-	'magenta',
-	'white',
-	'gray',
+  // Text decoration
+  'bold',
+  'dim',
+  'italic',
+  'underline',
+  'inverse',
+  'strikethrough',
+  // Foreground colors
+  'red',
+  'green',
+  'yellow',
+  'blue',
+  'cyan',
+  'magenta',
+  'white',
+  'gray',
 ]);
 
 /** Inferred output type of {@link StyleNameSchema}. */
@@ -875,49 +875,49 @@ export type StyleName = v.InferOutput<typeof StyleNameSchema>;
  * ```
  */
 export const SymbolNameSchema = v.picklist([
-	// Status
-	'success',
-	'error',
-	'warning',
-	'info',
-	// Navigation
-	'bullet',
-	'dot',
-	'arrow',
-	'arrowDown',
-	'arrowUp',
-	'arrowLeft',
-	'arrowRight',
-	// Punctuation
-	'ellipsis',
-	'dash',
-	'star',
-	'plus',
-	'minus',
-	'pipe',
-	// Checkbox/Toggle
-	'check',
-	'cross',
-	'checkDouble',
-	'radioOn',
-	'radioOff',
-	'toggleOn',
-	'toggleOff',
-	// Box drawing
-	'boxTopLeft',
-	'boxTopRight',
-	'boxBottomLeft',
-	'boxBottomRight',
-	'boxVertical',
-	'boxHorizontal',
-	'boxVerticalRight',
-	'boxVerticalLeft',
-	// Progress
-	'progressFilled',
-	'progressEmpty',
-	// Tree
-	'tree',
-	'treeLast',
+  // Status
+  'success',
+  'error',
+  'warning',
+  'info',
+  // Navigation
+  'bullet',
+  'dot',
+  'arrow',
+  'arrowDown',
+  'arrowUp',
+  'arrowLeft',
+  'arrowRight',
+  // Punctuation
+  'ellipsis',
+  'dash',
+  'star',
+  'plus',
+  'minus',
+  'pipe',
+  // Checkbox/Toggle
+  'check',
+  'cross',
+  'checkDouble',
+  'radioOn',
+  'radioOff',
+  'toggleOn',
+  'toggleOff',
+  // Box drawing
+  'boxTopLeft',
+  'boxTopRight',
+  'boxBottomLeft',
+  'boxBottomRight',
+  'boxVertical',
+  'boxHorizontal',
+  'boxVerticalRight',
+  'boxVerticalLeft',
+  // Progress
+  'progressFilled',
+  'progressEmpty',
+  // Tree
+  'tree',
+  'treeLast',
 ]);
 
 /** Inferred output type of {@link SymbolNameSchema}. */
@@ -970,10 +970,10 @@ export const DEFAULT_PRINT_STREAM: PrintStream = 'stdout';
  * ```
  */
 export const PrintOptionsSchema = v.strictObject({
-	/** Log level filter (default: `'info'`). */
-	level: v.optional(LogLevelSchema, DEFAULT_LOG_LEVEL),
-	/** Output stream target (default: `'stdout'`). */
-	stream: v.optional(PrintStreamSchema, DEFAULT_PRINT_STREAM),
+  /** Log level filter (default: `'info'`). */
+  level: v.optional(LogLevelSchema, DEFAULT_LOG_LEVEL),
+  /** Output stream target (default: `'stdout'`). */
+  stream: v.optional(PrintStreamSchema, DEFAULT_PRINT_STREAM),
 });
 
 /** Inferred output type of {@link PrintOptionsSchema}. */
@@ -1039,18 +1039,18 @@ export const DEFAULT_STDIO_OPTION: StdioOption = 'inherit';
  * ```
  */
 export const SpawnProcessOptionsSchema = v.object({
-	/** Working directory for the spawned process. */
-	cwd: v.optional(v.union([PathSchema, v.pipe(v.string(), v.url())])),
-	/** Environment variables. */
-	env: v.optional(v.record(v.string(), v.optional(v.string()))),
-	/** Whether to run in a shell. */
-	shell: v.optional(v.union([BoolSchema, StrSchema])),
-	/** Stdio configuration. */
-	stdio: v.optional(StdioOptionSchema),
-	/** Timeout in milliseconds. */
-	timeout: v.optional(NonNegativeIntegerSchema),
-	/** Whether to inherit stdio from parent process (convenience flag, default: `true`). */
-	inherit: v.optional(BoolSchema, true),
+  /** Working directory for the spawned process. */
+  cwd: v.optional(v.union([PathSchema, v.pipe(v.string(), v.url())])),
+  /** Environment variables. */
+  env: v.optional(v.record(v.string(), v.optional(v.string()))),
+  /** Whether to run in a shell. */
+  shell: v.optional(v.union([BoolSchema, StrSchema])),
+  /** Stdio configuration. */
+  stdio: v.optional(StdioOptionSchema),
+  /** Timeout in milliseconds. */
+  timeout: v.optional(NonNegativeIntegerSchema),
+  /** Whether to inherit stdio from parent process (convenience flag, default: `true`). */
+  inherit: v.optional(BoolSchema, true),
 });
 
 /** Inferred output type of {@link SpawnProcessOptionsSchema}. */
@@ -1070,18 +1070,18 @@ export type SpawnProcessOptions = v.InferOutput<typeof SpawnProcessOptionsSchema
  * ```
  */
 export const EnsureCommandResultSchema = v.variant('status', [
-	v.strictObject({
-		/** Command is available on the system PATH. */
-		status: v.literal('available'),
-	}),
-	v.strictObject({
-		/** Command was not found on the system PATH. */
-		status: v.literal('not_found'),
-		/** The command that was not found. */
-		command: CommandSchema,
-		/** Suggested command to install the missing tool. */
-		installHint: v.pipe(v.string(), v.minLength(1)),
-	}),
+  v.strictObject({
+    /** Command is available on the system PATH. */
+    status: v.literal('available'),
+  }),
+  v.strictObject({
+    /** Command was not found on the system PATH. */
+    status: v.literal('not_found'),
+    /** The command that was not found. */
+    command: CommandSchema,
+    /** Suggested command to install the missing tool. */
+    installHint: v.pipe(v.string(), v.minLength(1)),
+  }),
 ]);
 
 /**
@@ -1103,26 +1103,26 @@ export type EnsureCommandResult = v.InferOutput<typeof EnsureCommandResultSchema
  * ```
  */
 export const EnsureMiseResultSchema = v.variant('status', [
-	v.strictObject({
-		/** Workspace-local mise already exists at correct version. */
-		status: v.literal('already_installed'),
-	}),
-	v.strictObject({
-		/** Workspace-local mise was freshly installed to correct version. */
-		status: v.literal('installed'),
-	}),
-	v.strictObject({
-		/** mise installation failed. */
-		status: v.literal('install_failed'),
-	}),
-	v.strictObject({
-		/** Installation skipped due to dry-run mode. */
-		status: v.literal('skipped_dry_run'),
-	}),
-	v.strictObject({
-		/** Workspace-local mise exists but at wrong version — updated. */
-		status: v.literal('updated'),
-	}),
+  v.strictObject({
+    /** Workspace-local mise already exists at correct version. */
+    status: v.literal('already_installed'),
+  }),
+  v.strictObject({
+    /** Workspace-local mise was freshly installed to correct version. */
+    status: v.literal('installed'),
+  }),
+  v.strictObject({
+    /** mise installation failed. */
+    status: v.literal('install_failed'),
+  }),
+  v.strictObject({
+    /** Installation skipped due to dry-run mode. */
+    status: v.literal('skipped_dry_run'),
+  }),
+  v.strictObject({
+    /** Workspace-local mise exists but at wrong version — updated. */
+    status: v.literal('updated'),
+  }),
 ]);
 
 /**
@@ -1153,24 +1153,24 @@ export type EnsureMiseResult = v.InferOutput<typeof EnsureMiseResultSchema>;
  * ```
  */
 export const EnsureWorkspaceRootResultSchema = v.variant('status', [
-	v.strictObject({
-		/** CWD is the workspace root. */
-		status: v.literal('ok'),
-		/** Absolute path to the workspace root. */
-		root: PathSchema,
-	}),
-	v.strictObject({
-		/** No workspace root was found in parent directories. */
-		status: v.literal('not_found'),
-	}),
-	v.strictObject({
-		/** Workspace root found but CWD is not at root. */
-		status: v.literal('not_at_root'),
-		/** Absolute path to the workspace root. */
-		root: PathSchema,
-		/** Current working directory. */
-		cwd: PathSchema,
-	}),
+  v.strictObject({
+    /** CWD is the workspace root. */
+    status: v.literal('ok'),
+    /** Absolute path to the workspace root. */
+    root: PathSchema,
+  }),
+  v.strictObject({
+    /** No workspace root was found in parent directories. */
+    status: v.literal('not_found'),
+  }),
+  v.strictObject({
+    /** Workspace root found but CWD is not at root. */
+    status: v.literal('not_at_root'),
+    /** Absolute path to the workspace root. */
+    root: PathSchema,
+    /** Current working directory. */
+    cwd: PathSchema,
+  }),
 ]);
 
 /**
@@ -1241,79 +1241,79 @@ export const NodeMajorVersionSchema = v.pipe(v.number(), v.integer(), v.minValue
  * ```
  */
 export const ProviderKindSchema = v.picklist([
-	// CI Providers
-	'agola',
-	'alpic',
-	'appcircle',
-	'appveyor',
-	'aws_codebuild',
-	'azure_pipelines',
-	'bamboo',
-	'bitbucket',
-	'bitrise',
-	'buddy',
-	'buildkite',
-	'circleci',
-	'cirrus',
-	'cloudflare_pages',
-	'cloudflare_workers',
-	'codemagic',
-	'codefresh',
-	'codeship',
-	'drone',
-	'dsari',
-	'earthly',
-	'eas',
-	'gerrit',
-	'gitea_actions',
-	'github_actions',
-	'gitlab',
-	'gocd',
-	'google_cloud_build',
-	'harness',
-	'heroku',
-	'hudson',
-	'jenkins',
-	'layerci',
-	'magnum',
-	'netlify',
-	'nevercode',
-	'prow',
-	'releasehub',
-	'render',
-	'sail',
-	'screwdriver',
-	'semaphore',
-	'shippable',
-	'solano',
-	'sourcehut',
-	'strider',
-	'taskcluster',
-	'teamcity',
-	'travis',
-	'vela',
-	'vercel',
-	'appcenter',
-	'woodpecker',
-	'xcode_cloud',
-	'xcode_server',
-	// Cloud/Hosting
-	'aws_amplify',
-	'aws_lambda',
-	'azure_static',
-	'deno_deploy',
-	'firebase_app_hosting',
-	'fly_io',
-	'google_cloudrun',
-	'google_cloudrun_job',
-	'railway',
-	'codesandbox',
-	'stackblitz',
-	'gitpod',
-	'zeabur',
-	'codesphere',
-	'cleavr',
-	'stormkit',
+  // CI Providers
+  'agola',
+  'alpic',
+  'appcircle',
+  'appveyor',
+  'aws_codebuild',
+  'azure_pipelines',
+  'bamboo',
+  'bitbucket',
+  'bitrise',
+  'buddy',
+  'buildkite',
+  'circleci',
+  'cirrus',
+  'cloudflare_pages',
+  'cloudflare_workers',
+  'codemagic',
+  'codefresh',
+  'codeship',
+  'drone',
+  'dsari',
+  'earthly',
+  'eas',
+  'gerrit',
+  'gitea_actions',
+  'github_actions',
+  'gitlab',
+  'gocd',
+  'google_cloud_build',
+  'harness',
+  'heroku',
+  'hudson',
+  'jenkins',
+  'layerci',
+  'magnum',
+  'netlify',
+  'nevercode',
+  'prow',
+  'releasehub',
+  'render',
+  'sail',
+  'screwdriver',
+  'semaphore',
+  'shippable',
+  'solano',
+  'sourcehut',
+  'strider',
+  'taskcluster',
+  'teamcity',
+  'travis',
+  'vela',
+  'vercel',
+  'appcenter',
+  'woodpecker',
+  'xcode_cloud',
+  'xcode_server',
+  // Cloud/Hosting
+  'aws_amplify',
+  'aws_lambda',
+  'azure_static',
+  'deno_deploy',
+  'firebase_app_hosting',
+  'fly_io',
+  'google_cloudrun',
+  'google_cloudrun_job',
+  'railway',
+  'codesandbox',
+  'stackblitz',
+  'gitpod',
+  'zeabur',
+  'codesphere',
+  'cleavr',
+  'stormkit',
 ]);
 
 /** Inferred output type of {@link ProviderKindSchema}. CI/hosting provider identifier. */
@@ -1330,12 +1330,12 @@ export type ProviderKind = v.InferOutput<typeof ProviderKindSchema>;
  * ```
  */
 export const ProviderEnvCheckSchema = v.strictObject({
-	/** Environment variable key. */
-	key: StrSchema,
-	/** If set, env[key] must equal this value (not just exist). */
-	value: v.optional(StrSchema),
-	/** If set, env[key] must contain this substring (for PATH/EDITOR checks). */
-	includes: v.optional(StrSchema),
+  /** Environment variable key. */
+  key: StrSchema,
+  /** If set, env[key] must equal this value (not just exist). */
+  value: v.optional(StrSchema),
+  /** If set, env[key] must contain this substring (for PATH/EDITOR checks). */
+  includes: v.optional(StrSchema),
 });
 
 /** Inferred output type of {@link ProviderEnvCheckSchema}. */
@@ -1353,12 +1353,12 @@ export type ProviderEnvCheck = v.InferOutput<typeof ProviderEnvCheckSchema>;
  * ```
  */
 export const ProviderPRCheckSchema = v.strictObject({
-	/** Environment variable key to check for PR. */
-	key: StrSchema,
-	/** If set, env[key] must be one of these values to indicate a PR. */
-	matchValues: v.optional(v.array(StrSchema)),
-	/** If set, env[key] must NOT be one of these values (e.g., `'false'` for Travis). */
-	excludeValues: v.optional(v.array(StrSchema)),
+  /** Environment variable key to check for PR. */
+  key: StrSchema,
+  /** If set, env[key] must be one of these values to indicate a PR. */
+  matchValues: v.optional(v.array(StrSchema)),
+  /** If set, env[key] must NOT be one of these values (e.g., `'false'` for Travis). */
+  excludeValues: v.optional(v.array(StrSchema)),
 });
 
 /** Inferred output type of {@link ProviderPRCheckSchema}. */
@@ -1380,14 +1380,14 @@ export type ProviderPRCheck = v.InferOutput<typeof ProviderPRCheckSchema>;
  * ```
  */
 export const ProviderInfoSchema = v.strictObject({
-	/** Human-readable provider name (e.g., `'GitHub Actions'`). */
-	name: StrSchema,
-	/** Machine-readable provider ID. */
-	id: ProviderKindSchema,
-	/** Whether this provider is a CI environment. */
-	isCI: BoolSchema,
-	/** Whether running in a PR/MR build. `null` if detection unavailable for this provider. */
-	isPR: v.nullable(BoolSchema),
+  /** Human-readable provider name (e.g., `'GitHub Actions'`). */
+  name: StrSchema,
+  /** Machine-readable provider ID. */
+  id: ProviderKindSchema,
+  /** Whether this provider is a CI environment. */
+  isCI: BoolSchema,
+  /** Whether running in a PR/MR build. `null` if detection unavailable for this provider. */
+  isPR: v.nullable(BoolSchema),
 });
 
 /** Inferred output type of {@link ProviderInfoSchema}. Detected provider information. */
@@ -1408,16 +1408,16 @@ export type ProviderInfo = v.InferOutput<typeof ProviderInfoSchema>;
  * ```
  */
 export const ProviderDefinitionSchema = v.strictObject({
-	/** Human-readable provider name. */
-	name: StrSchema,
-	/** Machine-readable provider ID. */
-	id: ProviderKindSchema,
-	/** Whether this provider is a CI environment. */
-	isCI: BoolSchema,
-	/** ALL checks must pass for this provider to match. */
-	checks: v.array(ProviderEnvCheckSchema),
-	/** Optional PR/MR detection. */
-	pr: v.optional(ProviderPRCheckSchema),
+  /** Human-readable provider name. */
+  name: StrSchema,
+  /** Machine-readable provider ID. */
+  id: ProviderKindSchema,
+  /** Whether this provider is a CI environment. */
+  isCI: BoolSchema,
+  /** ALL checks must pass for this provider to match. */
+  checks: v.array(ProviderEnvCheckSchema),
+  /** Optional PR/MR detection. */
+  pr: v.optional(ProviderPRCheckSchema),
 });
 
 /** Inferred output type of {@link ProviderDefinitionSchema}. */
@@ -1438,17 +1438,17 @@ export type ProviderDefinition = v.InferOutput<typeof ProviderDefinitionSchema>;
  * ```
  */
 export const AgentKindSchema = v.picklist([
-	'claude',
-	'cursor',
-	'codex',
-	'devin',
-	'gemini',
-	'goose',
-	'replit',
-	'opencode',
-	'pi',
-	'auggie',
-	'kiro',
+  'claude',
+  'cursor',
+  'codex',
+  'devin',
+  'gemini',
+  'goose',
+  'replit',
+  'opencode',
+  'pi',
+  'auggie',
+  'kiro',
 ]);
 
 /** Inferred output type of {@link AgentKindSchema}. AI coding agent identifier. */
@@ -1465,10 +1465,10 @@ export type AgentKind = v.InferOutput<typeof AgentKindSchema>;
  * ```
  */
 export const AgentInfoSchema = v.strictObject({
-	/** Human-readable agent name (e.g., `'Claude Code'`). */
-	name: StrSchema,
-	/** Machine-readable agent ID. */
-	id: AgentKindSchema,
+  /** Human-readable agent name (e.g., `'Claude Code'`). */
+  name: StrSchema,
+  /** Machine-readable agent ID. */
+  id: AgentKindSchema,
 });
 
 /** Inferred output type of {@link AgentInfoSchema}. Detected AI agent information. */
@@ -1487,12 +1487,12 @@ export type AgentInfo = v.InferOutput<typeof AgentInfoSchema>;
  * ```
  */
 export const AgentDefinitionSchema = v.strictObject({
-	/** Human-readable agent name. */
-	name: StrSchema,
-	/** Machine-readable agent ID. */
-	id: AgentKindSchema,
-	/** ANY check passing means this agent is detected. */
-	checks: v.array(ProviderEnvCheckSchema),
+  /** Human-readable agent name. */
+  name: StrSchema,
+  /** Machine-readable agent ID. */
+  id: AgentKindSchema,
+  /** ANY check passing means this agent is detected. */
+  checks: v.array(ProviderEnvCheckSchema),
 });
 
 /** Inferred output type of {@link AgentDefinitionSchema}. */
@@ -1513,10 +1513,10 @@ export type AgentDefinition = v.InferOutput<typeof AgentDefinitionSchema>;
  * ```
  */
 export const RuntimeInfoSchema = v.strictObject({
-	/** Detected runtime kind. */
-	name: v.lazy(() => RuntimeKindSchema),
-	/** Runtime version string (e.g., `'20.11.0'` for Node), or `undefined` if unavailable. */
-	version: v.optional(StrSchema),
+  /** Detected runtime kind. */
+  name: v.lazy(() => RuntimeKindSchema),
+  /** Runtime version string (e.g., `'20.11.0'` for Node), or `undefined` if unavailable. */
+  version: v.optional(StrSchema),
 });
 
 /** Inferred output type of {@link RuntimeInfoSchema}. Runtime kind with version. */
@@ -1544,143 +1544,143 @@ export type RuntimeInfo = v.InferOutput<typeof RuntimeInfoSchema>;
  * ```
  */
 export const EnvironmentConfigSchema = v.strictObject({
-	// ─── Color & TTY ───
-	/** Whether `NO_COLOR` env var is set. */
-	noColor: BoolSchema,
-	/** Whether `FORCE_COLOR` env var is set. */
-	forceColor: BoolSchema,
-	/** Whether stdout is a TTY. */
-	isTTY: BoolSchema,
+  // ─── Color & TTY ───
+  /** Whether `NO_COLOR` env var is set. */
+  noColor: BoolSchema,
+  /** Whether `FORCE_COLOR` env var is set. */
+  forceColor: BoolSchema,
+  /** Whether stdout is a TTY. */
+  isTTY: BoolSchema,
 
-	// ─── CI Providers ───
-	/** Whether running in CI (`CI` env var). */
-	isCI: BoolSchema,
-	/** Whether running in GitHub Actions (`GITHUB_ACTIONS` env var). */
-	isGitHubActions: BoolSchema,
-	/** Whether running in GitLab CI (`GITLAB_CI` env var). */
-	isGitLabCI: BoolSchema,
-	/** Whether running in Travis CI (`TRAVIS` env var). */
-	isTravisCI: BoolSchema,
-	/** Whether running in Jenkins (`JENKINS_URL` env var). */
-	isJenkins: BoolSchema,
-	/** Whether running in Azure Pipelines (`TF_BUILD` env var). */
-	isAzurePipelines: BoolSchema,
-	/** Whether running in Bitbucket Pipelines (`BITBUCKET_PIPELINE_UUID` env var). */
-	isBitbucketPipelines: BoolSchema,
-	/** Whether running in CircleCI (`CIRCLECI` env var). */
-	isCircleCI: BoolSchema,
+  // ─── CI Providers ───
+  /** Whether running in CI (`CI` env var). */
+  isCI: BoolSchema,
+  /** Whether running in GitHub Actions (`GITHUB_ACTIONS` env var). */
+  isGitHubActions: BoolSchema,
+  /** Whether running in GitLab CI (`GITLAB_CI` env var). */
+  isGitLabCI: BoolSchema,
+  /** Whether running in Travis CI (`TRAVIS` env var). */
+  isTravisCI: BoolSchema,
+  /** Whether running in Jenkins (`JENKINS_URL` env var). */
+  isJenkins: BoolSchema,
+  /** Whether running in Azure Pipelines (`TF_BUILD` env var). */
+  isAzurePipelines: BoolSchema,
+  /** Whether running in Bitbucket Pipelines (`BITBUCKET_PIPELINE_UUID` env var). */
+  isBitbucketPipelines: BoolSchema,
+  /** Whether running in CircleCI (`CIRCLECI` env var). */
+  isCircleCI: BoolSchema,
 
-	// ─── Container & Cloud Environments ───
-	/** Whether running in Docker (`DOCKER` or `container` env var). */
-	isDocker: BoolSchema,
-	/** Whether running in WSL (`WSL_DISTRO_NAME` env var). */
-	isWSL: BoolSchema,
-	/** Whether running in GitHub Codespaces (`CODESPACES` env var). */
-	isCodespaces: BoolSchema,
+  // ─── Container & Cloud Environments ───
+  /** Whether running in Docker (`DOCKER` or `container` env var). */
+  isDocker: BoolSchema,
+  /** Whether running in WSL (`WSL_DISTRO_NAME` env var). */
+  isWSL: BoolSchema,
+  /** Whether running in GitHub Codespaces (`CODESPACES` env var). */
+  isCodespaces: BoolSchema,
 
-	// ─── Testing Environments ───
-	/** Whether running in Vitest (`VITEST` env var). */
-	isVitest: BoolSchema,
-	/** Whether running in Jest (`JEST_WORKER_ID` env var). */
-	isJest: BoolSchema,
+  // ─── Testing Environments ───
+  /** Whether running in Vitest (`VITEST` env var). */
+  isVitest: BoolSchema,
+  /** Whether running in Jest (`JEST_WORKER_ID` env var). */
+  isJest: BoolSchema,
 
-	// ─── Runtime Environments ───
-	/** Whether running in a Cloudflare Worker or edge runtime. */
-	isCloudflareWorker: BoolSchema,
-	/** Whether running in a browser environment. */
-	isBrowser: BoolSchema,
-	/** Whether running in the Deno runtime. */
-	isDeno: BoolSchema,
-	/** Whether running in the Bun runtime. */
-	isBun: BoolSchema,
-	/** Whether running in a Node.js environment (includes TTY and pipe). */
-	isNode: BoolSchema,
-	/** Whether running in a Web Worker. */
-	isWebWorker: BoolSchema,
-	/** Whether running in a SharedWorker. */
-	isSharedWorker: BoolSchema,
-	/** Whether running in a Service Worker. */
-	isServiceWorker: BoolSchema,
+  // ─── Runtime Environments ───
+  /** Whether running in a Cloudflare Worker or edge runtime. */
+  isCloudflareWorker: BoolSchema,
+  /** Whether running in a browser environment. */
+  isBrowser: BoolSchema,
+  /** Whether running in the Deno runtime. */
+  isDeno: BoolSchema,
+  /** Whether running in the Bun runtime. */
+  isBun: BoolSchema,
+  /** Whether running in a Node.js environment (includes TTY and pipe). */
+  isNode: BoolSchema,
+  /** Whether running in a Web Worker. */
+  isWebWorker: BoolSchema,
+  /** Whether running in a SharedWorker. */
+  isSharedWorker: BoolSchema,
+  /** Whether running in a Service Worker. */
+  isServiceWorker: BoolSchema,
 
-	// ─── Platform Environments ───
-	/** Whether running inside a Capacitor WebView (iOS, Android, Mac, Desktop). */
-	isCapacitor: BoolSchema,
-	/** Whether running inside an Electron renderer process (browser + Node access). */
-	isElectronRenderer: BoolSchema,
-	/** Whether running inside an Electron main process (pure Node). */
-	isElectronMain: BoolSchema,
-	/** Whether running inside a Tauri WebView. */
-	isTauri: BoolSchema,
-	/** Whether running inside React Native (Hermes/JSC). */
-	isReactNative: BoolSchema,
+  // ─── Platform Environments ───
+  /** Whether running inside a Capacitor WebView (iOS, Android, Mac, Desktop). */
+  isCapacitor: BoolSchema,
+  /** Whether running inside an Electron renderer process (browser + Node access). */
+  isElectronRenderer: BoolSchema,
+  /** Whether running inside an Electron main process (pure Node). */
+  isElectronMain: BoolSchema,
+  /** Whether running inside a Tauri WebView. */
+  isTauri: BoolSchema,
+  /** Whether running inside React Native (Hermes/JSC). */
+  isReactNative: BoolSchema,
 
-	// ─── Capacitor Native Platform ───
-	/** Whether running on iOS via Capacitor. */
-	isIOS: BoolSchema,
-	/** Whether running on Android via Capacitor. */
-	isAndroid: BoolSchema,
-	/** Whether running on macOS (native Capacitor or Electron). */
-	isMacOS: BoolSchema,
+  // ─── Capacitor Native Platform ───
+  /** Whether running on iOS via Capacitor. */
+  isIOS: BoolSchema,
+  /** Whether running on Android via Capacitor. */
+  isAndroid: BoolSchema,
+  /** Whether running on macOS (native Capacitor or Electron). */
+  isMacOS: BoolSchema,
 
-	// ─── Capacitor Platform String ───
-	/** Capacitor platform string (`'ios'` | `'android'` | `'web'` | `undefined`). */
-	capacitorPlatform: v.optional(v.picklist(['ios', 'android', 'web'])),
+  // ─── Capacitor Platform String ───
+  /** Capacitor platform string (`'ios'` | `'android'` | `'web'` | `undefined`). */
+  capacitorPlatform: v.optional(v.picklist(['ios', 'android', 'web'])),
 
-	// ─── Environment Modes ───
-	/** Whether `DEBUG` env var is set. */
-	isDebug: BoolSchema,
-	/** Whether in test mode (`NODE_ENV === 'test'` or `TEST` env var). */
-	isTest: BoolSchema,
-	/** Whether `NODE_ENV === 'production'`. */
-	isProduction: BoolSchema,
-	/** Whether `NODE_ENV` is `'development'` or `'dev'`. */
-	isDevelopment: BoolSchema,
-	/** CI, test, or non-interactive environment — minimal output preferred. */
-	isMinimal: BoolSchema,
+  // ─── Environment Modes ───
+  /** Whether `DEBUG` env var is set. */
+  isDebug: BoolSchema,
+  /** Whether in test mode (`NODE_ENV === 'test'` or `TEST` env var). */
+  isTest: BoolSchema,
+  /** Whether `NODE_ENV === 'production'`. */
+  isProduction: BoolSchema,
+  /** Whether `NODE_ENV` is `'development'` or `'dev'`. */
+  isDevelopment: BoolSchema,
+  /** CI, test, or non-interactive environment — minimal output preferred. */
+  isMinimal: BoolSchema,
 
-	// ─── Platform (OS) ───
-	/** Whether running on Windows (`process.platform === 'win32'`). */
-	isWindows: BoolSchema,
-	/** Whether running on Linux (`process.platform === 'linux'`). */
-	isLinux: BoolSchema,
+  // ─── Platform (OS) ───
+  /** Whether running on Windows (`process.platform === 'win32'`). */
+  isWindows: BoolSchema,
+  /** Whether running on Linux (`process.platform === 'linux'`). */
+  isLinux: BoolSchema,
 
-	// ─── SSH ───
-	/** Whether running in an SSH session (`SSH_CONNECTION` or `SSH_TTY`). */
-	isSSH: BoolSchema,
+  // ─── SSH ───
+  /** Whether running in an SSH session (`SSH_CONNECTION` or `SSH_TTY`). */
+  isSSH: BoolSchema,
 
-	// ─── Color Support ───
-	/** Whether the environment supports color output. */
-	isColorSupported: BoolSchema,
-	/** Color support level: 0 (none), 1 (basic 16), 2 (256), 3 (truecolor 16m). */
-	colorLevel: ColorLevelSchema,
+  // ─── Color Support ───
+  /** Whether the environment supports color output. */
+  isColorSupported: BoolSchema,
+  /** Color support level: 0 (none), 1 (basic 16), 2 (256), 3 (truecolor 16m). */
+  colorLevel: ColorLevelSchema,
 
-	// ─── Runtime Environments (edge variants) ───
-	/** Whether running in Vercel Edge Runtime (`EdgeRuntime` global). */
-	isEdgeLight: BoolSchema,
-	/** Whether running in Fastly Compute (`fastly` global). */
-	isFastly: BoolSchema,
-	/** Whether running in Netlify Edge Functions (`Netlify` global). */
-	isNetlify: BoolSchema,
-	/** Whether running in Cloudflare Pages (vs Workers). Checks `CF_PAGES` env var. */
-	isCloudflarePages: BoolSchema,
-	/** Whether running in Deno Deploy (vs local Deno). Checks `DENO_DEPLOYMENT_ID`. */
-	isDenoDeployStaging: BoolSchema,
+  // ─── Runtime Environments (edge variants) ───
+  /** Whether running in Vercel Edge Runtime (`EdgeRuntime` global). */
+  isEdgeLight: BoolSchema,
+  /** Whether running in Fastly Compute (`fastly` global). */
+  isFastly: BoolSchema,
+  /** Whether running in Netlify Edge Functions (`Netlify` global). */
+  isNetlify: BoolSchema,
+  /** Whether running in Cloudflare Pages (vs Workers). Checks `CF_PAGES` env var. */
+  isCloudflarePages: BoolSchema,
+  /** Whether running in Deno Deploy (vs local Deno). Checks `DENO_DEPLOYMENT_ID`. */
+  isDenoDeployStaging: BoolSchema,
 
-	// ─── PR Detection ───
-	/** Whether running in a PR/MR build. `null` if unknown or not in CI. */
-	isPR: v.nullable(BoolSchema),
+  // ─── PR Detection ───
+  /** Whether running in a PR/MR build. `null` if unknown or not in CI. */
+  isPR: v.nullable(BoolSchema),
 
-	// ─── Runtime Version Info ───
-	/** Node.js version string (e.g., `'20.11.0'`), or `undefined` if not Node. */
-	nodeVersion: v.optional(StrSchema),
-	/** Node.js major version number (e.g., `20`), or `undefined` if not Node. */
-	nodeMajorVersion: v.optional(NodeMajorVersionSchema),
+  // ─── Runtime Version Info ───
+  /** Node.js version string (e.g., `'20.11.0'`), or `undefined` if not Node. */
+  nodeVersion: v.optional(StrSchema),
+  /** Node.js major version number (e.g., `20`), or `undefined` if not Node. */
+  nodeMajorVersion: v.optional(NodeMajorVersionSchema),
 
-	// ─── Provider & Agent ───
-	/** Detected CI/hosting provider, or `undefined` if none detected. */
-	provider: v.optional(ProviderInfoSchema),
-	/** Detected AI coding agent, or `undefined` if none detected. */
-	agent: v.optional(AgentInfoSchema),
+  // ─── Provider & Agent ───
+  /** Detected CI/hosting provider, or `undefined` if none detected. */
+  provider: v.optional(ProviderInfoSchema),
+  /** Detected AI coding agent, or `undefined` if none detected. */
+  agent: v.optional(AgentInfoSchema),
 });
 
 /** Inferred output type of {@link EnvironmentConfigSchema}. Detected environment configuration. */
@@ -1714,18 +1714,18 @@ export type EnvironmentConfig = v.InferOutput<typeof EnvironmentConfigSchema>;
  * ```
  */
 export const RuntimeKindSchema = v.picklist([
-	'node-tty',
-	'node-pipe',
-	'worker',
-	'browser',
-	'web-worker',
-	'shared-worker',
-	'service-worker',
-	'deno',
-	'bun',
-	'edge-light',
-	'fastly',
-	'netlify',
+  'node-tty',
+  'node-pipe',
+  'worker',
+  'browser',
+  'web-worker',
+  'shared-worker',
+  'service-worker',
+  'deno',
+  'bun',
+  'edge-light',
+  'fastly',
+  'netlify',
 ]);
 
 /** Inferred output type of {@link RuntimeKindSchema}. */
@@ -1746,14 +1746,14 @@ export type RuntimeKind = v.InferOutput<typeof RuntimeKindSchema>;
  * ```
  */
 export const RequiredRuntimeSchema = v.picklist([
-	'node',
-	'browser',
-	'worker',
-	'deno',
-	'bun',
-	'edge-light',
-	'fastly',
-	'netlify',
+  'node',
+  'browser',
+  'worker',
+  'deno',
+  'bun',
+  'edge-light',
+  'fastly',
+  'netlify',
 ]);
 
 /** Inferred output type of {@link RequiredRuntimeSchema}. A required runtime family. */
@@ -1837,32 +1837,32 @@ export type SupportedRuntimes = v.InferOutput<typeof SupportedRuntimesSchema>;
  * ```
  */
 export const LogContextSchema = v.strictObject({
-	/** Runtime environment kind. Auto-detected via `detectRuntime()`. */
-	runtime: v.optional(RuntimeKindSchema),
-	/** Whether running in CI. Auto-detected. */
-	ci: v.optional(v.boolean()),
-	/** Correlation ID for tracing across operations. UUID v4. */
-	correlationId: v.optional(v.pipe(v.string(), v.uuid())),
-	/** Operation name (CLI tool, API endpoint, worker handler, component). */
-	operation: v.optional(v.string()),
-	/** Action within the operation (CLI subcommand, HTTP method, user action). */
-	action: v.optional(v.string()),
-	/** HTTP request ID for API correlation. */
-	requestId: v.optional(v.string()),
-	/** Browser/mobile session ID. */
-	sessionId: v.optional(v.string()),
-	/** Product ID when operating in product context. */
-	productId: v.optional(v.string()),
-	/** User ID when authenticated. */
-	userId: v.optional(v.string()),
-	/** Extensible key-value pairs for domain-specific context. */
-	extra: v.optional(v.record(v.string(), v.unknown())),
-	/** Service name for this logger context. Propagated to `LogEntry.service`. Maps to ECS `service.name`. */
-	service: v.optional(v.string()),
-	/** W3C Trace Context trace ID. Propagated to `LogEntry.traceId`. */
-	traceId: v.optional(v.string()),
-	/** W3C Trace Context span ID. Propagated to `LogEntry.spanId`. */
-	spanId: v.optional(v.string()),
+  /** Runtime environment kind. Auto-detected via `detectRuntime()`. */
+  runtime: v.optional(RuntimeKindSchema),
+  /** Whether running in CI. Auto-detected. */
+  ci: v.optional(v.boolean()),
+  /** Correlation ID for tracing across operations. UUID v4. */
+  correlationId: v.optional(v.pipe(v.string(), v.uuid())),
+  /** Operation name (CLI tool, API endpoint, worker handler, component). */
+  operation: v.optional(v.string()),
+  /** Action within the operation (CLI subcommand, HTTP method, user action). */
+  action: v.optional(v.string()),
+  /** HTTP request ID for API correlation. */
+  requestId: v.optional(v.string()),
+  /** Browser/mobile session ID. */
+  sessionId: v.optional(v.string()),
+  /** Product ID when operating in product context. */
+  productId: v.optional(v.string()),
+  /** User ID when authenticated. */
+  userId: v.optional(v.string()),
+  /** Extensible key-value pairs for domain-specific context. */
+  extra: v.optional(v.record(v.string(), v.unknown())),
+  /** Service name for this logger context. Propagated to `LogEntry.service`. Maps to ECS `service.name`. */
+  service: v.optional(v.string()),
+  /** W3C Trace Context trace ID. Propagated to `LogEntry.traceId`. */
+  traceId: v.optional(v.string()),
+  /** W3C Trace Context span ID. Propagated to `LogEntry.spanId`. */
+  spanId: v.optional(v.string()),
 });
 
 /** Operational context for log entries and captured errors. @see {@link LogContextSchema} */
@@ -1888,38 +1888,38 @@ export type LogContext = v.InferOutput<typeof LogContextSchema>;
  * ```
  */
 export const LogEntrySchema = v.strictObject({
-	/** Log level of this entry. */
-	level: LogLevelSchema,
-	/** Human-readable log message. */
-	message: v.string(),
-	/** ISO 8601 timestamp when this entry was created. */
-	timestamp: v.pipe(v.string(), v.isoTimestamp()),
-	/** Operational context (runtime, operation, correlationId, etc.). */
-	context: v.optional(LogContextSchema),
-	/** Optional structured data payload (debug data, JSON output). */
-	data: v.optional(v.unknown()),
-	/** Service name that emitted this log entry. Maps to ECS `service.name` and OTel `service.name`. */
-	service: v.optional(v.string()),
-	/** Logger instance name (e.g., child logger name). Maps to ECS `log.logger`. */
-	logger: v.optional(v.string()),
-	/** W3C Trace Context trace ID for distributed tracing correlation. */
-	traceId: v.optional(v.string()),
-	/** W3C Trace Context span ID for distributed tracing correlation. */
-	spanId: v.optional(v.string()),
-	/** Duration in milliseconds for timed operations. Maps to ECS `event.duration`. */
-	durationMs: v.optional(v.pipe(v.number(), v.minValue(0))),
-	/** Indexed string key-value labels for filtering (ECS `labels`). */
-	labels: v.optional(v.record(v.string(), v.string())),
-	/** Error code when this log entry relates to an error. */
-	errorCode: v.optional(v.string()),
-	/** Error message when this log entry relates to an error. */
-	errorMessage: v.optional(v.string()),
-	/** Error stack trace when this log entry relates to an error. */
-	errorStack: v.optional(v.string()),
-	/** Process ID (for server-side log correlation). */
-	pid: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
-	/** Hostname where the log was emitted. */
-	hostname: v.optional(v.string()),
+  /** Log level of this entry. */
+  level: LogLevelSchema,
+  /** Human-readable log message. */
+  message: v.string(),
+  /** ISO 8601 timestamp when this entry was created. */
+  timestamp: v.pipe(v.string(), v.isoTimestamp()),
+  /** Operational context (runtime, operation, correlationId, etc.). */
+  context: v.optional(LogContextSchema),
+  /** Optional structured data payload (debug data, JSON output). */
+  data: v.optional(v.unknown()),
+  /** Service name that emitted this log entry. Maps to ECS `service.name` and OTel `service.name`. */
+  service: v.optional(v.string()),
+  /** Logger instance name (e.g., child logger name). Maps to ECS `log.logger`. */
+  logger: v.optional(v.string()),
+  /** W3C Trace Context trace ID for distributed tracing correlation. */
+  traceId: v.optional(v.string()),
+  /** W3C Trace Context span ID for distributed tracing correlation. */
+  spanId: v.optional(v.string()),
+  /** Duration in milliseconds for timed operations. Maps to ECS `event.duration`. */
+  durationMs: v.optional(v.pipe(v.number(), v.minValue(0))),
+  /** Indexed string key-value labels for filtering (ECS `labels`). */
+  labels: v.optional(v.record(v.string(), v.string())),
+  /** Error code when this log entry relates to an error. */
+  errorCode: v.optional(v.string()),
+  /** Error message when this log entry relates to an error. */
+  errorMessage: v.optional(v.string()),
+  /** Error stack trace when this log entry relates to an error. */
+  errorStack: v.optional(v.string()),
+  /** Process ID (for server-side log correlation). */
+  pid: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+  /** Hostname where the log was emitted. */
+  hostname: v.optional(v.string()),
 });
 
 /** Structured log entry for machine-readable output. @see {@link LogEntrySchema} */
@@ -1965,7 +1965,7 @@ export type AbortSignalType = v.InferOutput<typeof AbortSignalSchema>;
  * ```
  */
 export const InterruptHandlerSchema = v.custom<(signal: Str) => void>(
-	(val) => typeof val === 'function',
+  (val) => typeof val === 'function',
 );
 
 /** Inferred output type of {@link InterruptHandlerSchema}. */
@@ -1990,7 +1990,7 @@ export type InterruptHandler = v.InferOutput<typeof InterruptHandlerSchema>;
  * ```
  */
 export const CleanupCallbackSchema = v.custom<() => void>(
-	(input: unknown): input is () => void => typeof input === 'function',
+  (input: unknown): input is () => void => typeof input === 'function',
 );
 
 /** Inferred output type of {@link CleanupCallbackSchema}. */
@@ -2154,8 +2154,8 @@ export type DynamicModule = v.InferOutput<typeof DynamicModuleSchema>;
  * dependency (`schemas/common` ← `schemas/function` ← `schemas/common`).
  */
 export const ConsoleLogFnSchema = v.custom<(...args: unknown[]) => void>(
-	(val: unknown): boolean => typeof val === 'function',
-	'Expected a callable function',
+  (val: unknown): boolean => typeof val === 'function',
+  'Expected a callable function',
 );
 
 /** `console.log` / `console.error` function signature. @see {@link ConsoleLogFnSchema} */
@@ -2207,8 +2207,8 @@ export type UntypedParseResult = unknown;
  * ```
  */
 export const TeardownFnSchema = v.custom<() => void>(
-	(val: unknown): val is () => void => typeof val === 'function',
-	'Expected a teardown function',
+  (val: unknown): val is () => void => typeof val === 'function',
+  'Expected a teardown function',
 );
 
 /** Inferred output type of {@link TeardownFnSchema}. */
@@ -2230,15 +2230,15 @@ export type TeardownFn = v.InferOutput<typeof TeardownFnSchema>;
  * ```
  */
 export const HttpMethodSchema = v.picklist([
-	'GET',
-	'HEAD',
-	'POST',
-	'PUT',
-	'DELETE',
-	'CONNECT',
-	'OPTIONS',
-	'TRACE',
-	'PATCH',
+  'GET',
+  'HEAD',
+  'POST',
+  'PUT',
+  'DELETE',
+  'CONNECT',
+  'OPTIONS',
+  'TRACE',
+  'PATCH',
 ]);
 
 /** @see {@link HttpMethodSchema} */

@@ -28,25 +28,25 @@ const SEED_DIR: Str = join(import.meta.dirname, 'seed');
  * @returns Validated array of items, or error
  */
 export async function readCollection<T>(
-	filename: Str,
-	schema: v.GenericSchema<unknown, T>,
+  filename: Str,
+  schema: v.GenericSchema<unknown, T>,
 ): Promise<Result<readonly T[]>> {
-	try {
-		const raw: Str = await readFile(join(SEED_DIR, filename), 'utf8');
-		const parsed: unknown = JSON.parse(raw);
-		if (!Array.isArray(parsed)) {
-			return err(ERRORS.VALIDATION.INVALID_FORMAT, `Expected array in ${filename}`);
-		}
-		const items: T[] = [];
-		for (const item of parsed) {
-			const result = safeParse(schema, item);
-			if (!result.ok) return result;
-			items.push(result.data as T);
-		}
-		return okUnchecked(items as readonly T[]);
-	} catch {
-		return err(ERRORS.IO.READ_FAILED, `Failed to read ${filename}`);
-	}
+  try {
+    const raw: Str = await readFile(join(SEED_DIR, filename), 'utf8');
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return err(ERRORS.VALIDATION.INVALID_FORMAT, `Expected array in ${filename}`);
+    }
+    const items: T[] = [];
+    for (const item of parsed) {
+      const result = safeParse(schema, item);
+      if (!result.ok) return result;
+      items.push(result.data as T);
+    }
+    return okUnchecked(items as readonly T[]);
+  } catch {
+    return err(ERRORS.IO.READ_FAILED, `Failed to read ${filename}`);
+  }
 }
 
 /**
@@ -58,20 +58,20 @@ export async function readCollection<T>(
  * @returns Ok on success, or error
  */
 export async function writeCollection<T>(
-	filename: Str,
-	schema: v.GenericSchema<unknown, T>,
-	data: readonly T[],
+  filename: Str,
+  schema: v.GenericSchema<unknown, T>,
+  data: readonly T[],
 ): Promise<Result<Void>> {
-	try {
-		for (const item of data) {
-			const result = safeParse(schema, item);
-			if (!result.ok) return result;
-		}
-		await writeFile(join(SEED_DIR, filename), `${JSON.stringify(data, null, '\t')}\n`, 'utf8');
-		return okUnchecked<Void>(undefined);
-	} catch {
-		return err(ERRORS.IO.WRITE_FAILED, `Failed to write ${filename}`);
-	}
+  try {
+    for (const item of data) {
+      const result = safeParse(schema, item);
+      if (!result.ok) return result;
+    }
+    await writeFile(join(SEED_DIR, filename), `${JSON.stringify(data, null, '\t')}\n`, 'utf8');
+    return okUnchecked<Void>(undefined);
+  } catch {
+    return err(ERRORS.IO.WRITE_FAILED, `Failed to write ${filename}`);
+  }
 }
 
 /**
@@ -82,16 +82,16 @@ export async function writeCollection<T>(
  * @returns Validated object, or error
  */
 export async function readSingleton<T>(
-	filename: Str,
-	schema: v.GenericSchema<unknown, T>,
+  filename: Str,
+  schema: v.GenericSchema<unknown, T>,
 ): Promise<Result<T>> {
-	try {
-		const raw: Str = await readFile(join(SEED_DIR, filename), 'utf8');
-		const parsed: unknown = JSON.parse(raw);
-		return safeParse(schema, parsed);
-	} catch {
-		return err(ERRORS.IO.READ_FAILED, `Failed to read ${filename}`);
-	}
+  try {
+    const raw: Str = await readFile(join(SEED_DIR, filename), 'utf8');
+    const parsed: unknown = JSON.parse(raw);
+    return safeParse(schema, parsed);
+  } catch {
+    return err(ERRORS.IO.READ_FAILED, `Failed to read ${filename}`);
+  }
 }
 
 /**
@@ -103,16 +103,16 @@ export async function readSingleton<T>(
  * @returns Ok on success, or error
  */
 export async function writeSingleton<T>(
-	filename: Str,
-	schema: v.GenericSchema<unknown, T>,
-	data: T,
+  filename: Str,
+  schema: v.GenericSchema<unknown, T>,
+  data: T,
 ): Promise<Result<Void>> {
-	try {
-		const result = safeParse(schema, data);
-		if (!result.ok) return result;
-		await writeFile(join(SEED_DIR, filename), `${JSON.stringify(data, null, '\t')}\n`, 'utf8');
-		return okUnchecked<Void>(undefined);
-	} catch {
-		return err(ERRORS.IO.WRITE_FAILED, `Failed to write ${filename}`);
-	}
+  try {
+    const result = safeParse(schema, data);
+    if (!result.ok) return result;
+    await writeFile(join(SEED_DIR, filename), `${JSON.stringify(data, null, '\t')}\n`, 'utf8');
+    return okUnchecked<Void>(undefined);
+  } catch {
+    return err(ERRORS.IO.WRITE_FAILED, `Failed to write ${filename}`);
+  }
 }

@@ -15,14 +15,14 @@ import { baseTestConfig } from './base.ts';
  * Options for configuring a Node.js Vitest preset.
  */
 export type NodeTestOptions = {
-	/** Package name for the self-referencing alias (e.g. '@/cli'). */
-	packageName?: string;
-	/** The calling file's `import.meta.dirname` — required when `packageName` is set. */
-	dirname?: string;
-	/** Additional test file patterns beyond the default include globs. */
-	include?: string[];
-	/** Additional patterns to exclude from coverage */
-	coverageExclude?: string[];
+  /** Package name for the self-referencing alias (e.g. '@/cli'). */
+  packageName?: string;
+  /** The calling file's `import.meta.dirname` — required when `packageName` is set. */
+  dirname?: string;
+  /** Additional test file patterns beyond the default include globs. */
+  include?: string[];
+  /** Additional patterns to exclude from coverage */
+  coverageExclude?: string[];
 };
 
 /**
@@ -32,21 +32,21 @@ export type NodeTestOptions = {
  * @returns A complete Vitest `UserConfig` with the Node environment
  */
 export function createNodeTestConfig(options: NodeTestOptions = {}): ViteUserConfig {
-	const { packageName, dirname, include = [], coverageExclude = [] } = options;
-	const alias = packageName && dirname ? { [packageName]: resolve(dirname, './src') } : {};
+  const { packageName, dirname, include = [], coverageExclude = [] } = options;
+  const alias = packageName && dirname ? { [packageName]: resolve(dirname, './src') } : {};
 
-	const base = baseTestConfig ?? {};
+  const base = baseTestConfig ?? {};
 
-	return defineConfig({
-		test: {
-			...base,
-			environment: 'node',
-			include: [...(base.include ?? []), ...include],
-			coverage: {
-				...base.coverage,
-				exclude: [...(base.coverage?.exclude ?? []), ...coverageExclude],
-			},
-		},
-		resolve: Object.keys(alias).length > 0 ? { alias } : undefined,
-	});
+  return defineConfig({
+    test: {
+      ...base,
+      environment: 'node',
+      include: [...(base.include ?? []), ...include],
+      coverage: {
+        ...base.coverage,
+        exclude: [...(base.coverage?.exclude ?? []), ...coverageExclude],
+      },
+    },
+    resolve: Object.keys(alias).length > 0 ? { alias } : undefined,
+  });
 }

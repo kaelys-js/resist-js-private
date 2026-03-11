@@ -11,49 +11,49 @@ import type { PropMeta } from './types.js';
 import { extractProps, buildBaseProps } from './extract-props.js';
 
 describe('extractProps', () => {
-	it('extracts simple props with string defaults', () => {
-		const source: string = `<script lang="ts">
+  it('extracts simple props with string defaults', () => {
+    const source: string = `<script lang="ts">
 let {
 	variant = "default",
 	size = "default",
 	...restProps
 }: ButtonProps = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		expect(props).toHaveLength(2);
-		expect(props[0]).toEqual({
-			name: 'variant',
-			type: 'string',
-			default: '"default"',
-			description: '',
-			bindable: false,
-		});
-		expect(props[1]).toEqual({
-			name: 'size',
-			type: 'string',
-			default: '"default"',
-			description: '',
-			bindable: false,
-		});
-	});
+    const props: PropMeta[] = extractProps(source);
+    expect(props).toHaveLength(2);
+    expect(props[0]).toEqual({
+      name: 'variant',
+      type: 'string',
+      default: '"default"',
+      description: '',
+      bindable: false,
+    });
+    expect(props[1]).toEqual({
+      name: 'size',
+      type: 'string',
+      default: '"default"',
+      description: '',
+      bindable: false,
+    });
+  });
 
-	it('extracts props without defaults', () => {
-		const source: string = `<script lang="ts">
+  it('extracts props without defaults', () => {
+    const source: string = `<script lang="ts">
 let {
 	disabled,
 	href,
 	...restProps
 }: Props = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		expect(props).toHaveLength(2);
-		expect(props[0]?.name).toBe('disabled');
-		expect(props[0]?.default).toBe('');
-		expect(props[1]?.name).toBe('href');
-	});
+    const props: PropMeta[] = extractProps(source);
+    expect(props).toHaveLength(2);
+    expect(props[0]?.name).toBe('disabled');
+    expect(props[0]?.default).toBe('');
+    expect(props[1]?.name).toBe('href');
+  });
 
-	it('extracts bindable props', () => {
-		const source: string = `<script lang="ts">
+  it('extracts bindable props', () => {
+    const source: string = `<script lang="ts">
 let {
 	ref = $bindable(null),
 	value = $bindable(),
@@ -61,27 +61,27 @@ let {
 	...restProps
 }: Props = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		// ref is internal — should be skipped
-		expect(props).toHaveLength(2);
-		expect(props[0]).toEqual({
-			name: 'value',
-			type: "Props['value']",
-			default: '',
-			description: '',
-			bindable: true,
-		});
-		expect(props[1]).toEqual({
-			name: 'checked',
-			type: 'boolean',
-			default: 'false',
-			description: '',
-			bindable: true,
-		});
-	});
+    const props: PropMeta[] = extractProps(source);
+    // ref is internal — should be skipped
+    expect(props).toHaveLength(2);
+    expect(props[0]).toEqual({
+      name: 'value',
+      type: "Props['value']",
+      default: '',
+      description: '',
+      bindable: true,
+    });
+    expect(props[1]).toEqual({
+      name: 'checked',
+      type: 'boolean',
+      default: 'false',
+      description: '',
+      bindable: true,
+    });
+  });
 
-	it('skips internal props (ref, class, children, child, ...spread)', () => {
-		const source: string = `<script lang="ts">
+  it('skips internal props (ref, class, children, child, ...spread)', () => {
+    const source: string = `<script lang="ts">
 let {
 	ref = $bindable(null),
 	class: className,
@@ -91,26 +91,26 @@ let {
 	...restProps
 }: Props = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		expect(props).toHaveLength(1);
-		expect(props[0]?.name).toBe('showCloseButton');
-	});
+    const props: PropMeta[] = extractProps(source);
+    expect(props).toHaveLength(1);
+    expect(props[0]?.name).toBe('showCloseButton');
+  });
 
-	it('skips string-keyed props like data-slot', () => {
-		const source: string = `<script lang="ts">
+  it('skips string-keyed props like data-slot', () => {
+    const source: string = `<script lang="ts">
 let {
 	'data-slot': dataSlot = 'input',
 	type,
 	...restProps
 }: Props = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		expect(props).toHaveLength(1);
-		expect(props[0]?.name).toBe('type');
-	});
+    const props: PropMeta[] = extractProps(source);
+    expect(props).toHaveLength(1);
+    expect(props[0]?.name).toBe('type');
+  });
 
-	it('extracts JSDoc descriptions (single-line)', () => {
-		const source: string = `<script lang="ts">
+  it('extracts JSDoc descriptions (single-line)', () => {
+    const source: string = `<script lang="ts">
 let {
 	/** The visual style variant. */
 	variant = "default",
@@ -119,14 +119,14 @@ let {
 	...restProps
 }: Props = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		expect(props).toHaveLength(2);
-		expect(props[0]?.description).toBe('The visual style variant.');
-		expect(props[1]?.description).toBe('The size preset to use.');
-	});
+    const props: PropMeta[] = extractProps(source);
+    expect(props).toHaveLength(2);
+    expect(props[0]?.description).toBe('The visual style variant.');
+    expect(props[1]?.description).toBe('The size preset to use.');
+  });
 
-	it('extracts JSDoc descriptions (multi-line)', () => {
-		const source: string = `<script lang="ts">
+  it('extracts JSDoc descriptions (multi-line)', () => {
+    const source: string = `<script lang="ts">
 let {
 	/**
 	 * The visual style variant.
@@ -136,40 +136,40 @@ let {
 	...restProps
 }: Props = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		expect(props).toHaveLength(1);
-		expect(props[0]?.description).toBe('The visual style variant. Controls the button appearance.');
-	});
+    const props: PropMeta[] = extractProps(source);
+    expect(props).toHaveLength(1);
+    expect(props[0]?.description).toBe('The visual style variant. Controls the button appearance.');
+  });
 
-	it('infers boolean type from default value', () => {
-		const source: string = `<script lang="ts">
+  it('infers boolean type from default value', () => {
+    const source: string = `<script lang="ts">
 let {
 	showCloseButton = true,
 	disabled = false,
 	...restProps
 }: Props = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		expect(props[0]?.type).toBe('boolean');
-		expect(props[0]?.default).toBe('true');
-		expect(props[1]?.type).toBe('boolean');
-		expect(props[1]?.default).toBe('false');
-	});
+    const props: PropMeta[] = extractProps(source);
+    expect(props[0]?.type).toBe('boolean');
+    expect(props[0]?.default).toBe('true');
+    expect(props[1]?.type).toBe('boolean');
+    expect(props[1]?.default).toBe('false');
+  });
 
-	it('infers number type from default value', () => {
-		const source: string = `<script lang="ts">
+  it('infers number type from default value', () => {
+    const source: string = `<script lang="ts">
 let {
 	delay = 200,
 	...restProps
 }: Props = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		expect(props[0]?.type).toBe('number');
-		expect(props[0]?.default).toBe('200');
-	});
+    const props: PropMeta[] = extractProps(source);
+    expect(props[0]?.type).toBe('number');
+    expect(props[0]?.default).toBe('200');
+  });
 
-	it('extracts types from inline intersection', () => {
-		const source: string = `<script lang="ts">
+  it('extracts types from inline intersection', () => {
+    const source: string = `<script lang="ts">
 let {
 	ref = $bindable(null),
 	class: className,
@@ -183,29 +183,29 @@ let {
 	showCloseButton?: boolean;
 } = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		expect(props).toHaveLength(2);
-		expect(props[0]?.name).toBe('portalProps');
-		expect(props[0]?.type).toBe('SomeType');
-		expect(props[1]?.name).toBe('showCloseButton');
-		expect(props[1]?.type).toBe('boolean');
-	});
+    const props: PropMeta[] = extractProps(source);
+    expect(props).toHaveLength(2);
+    expect(props[0]?.name).toBe('portalProps');
+    expect(props[0]?.type).toBe('SomeType');
+    expect(props[1]?.name).toBe('showCloseButton');
+    expect(props[1]?.type).toBe('boolean');
+  });
 
-	it('returns empty array for source without $props()', () => {
-		const source: string = `<script lang="ts">
+  it('returns empty array for source without $props()', () => {
+    const source: string = `<script lang="ts">
 const count = 42;
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		expect(props).toHaveLength(0);
-	});
+    const props: PropMeta[] = extractProps(source);
+    expect(props).toHaveLength(0);
+  });
 
-	it('returns empty array for empty source', () => {
-		const props: PropMeta[] = extractProps('');
-		expect(props).toHaveLength(0);
-	});
+  it('returns empty array for empty source', () => {
+    const props: PropMeta[] = extractProps('');
+    expect(props).toHaveLength(0);
+  });
 
-	it('resolves named type definitions for types and descriptions', () => {
-		const source: string = `<script lang="ts">
+  it('resolves named type definitions for types and descriptions', () => {
+    const source: string = `<script lang="ts">
 type MyProps = {
 	/** The status code. */
 	status: Num;
@@ -221,34 +221,34 @@ let {
 	errorId,
 }: MyProps = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		expect(props).toHaveLength(3);
-		expect(props[0]).toEqual({
-			name: 'status',
-			type: 'Num',
-			default: '',
-			description: 'The status code.',
-			bindable: false,
-		});
-		expect(props[1]).toEqual({
-			name: 'message',
-			type: 'Str',
-			default: '',
-			description: 'The error message.',
-			bindable: false,
-		});
-		expect(props[2]).toEqual({
-			name: 'errorId',
-			type: 'Str',
-			default: '',
-			description: 'Optional error ID.',
-			bindable: false,
-			optional: true,
-		});
-	});
+    const props: PropMeta[] = extractProps(source);
+    expect(props).toHaveLength(3);
+    expect(props[0]).toEqual({
+      name: 'status',
+      type: 'Num',
+      default: '',
+      description: 'The status code.',
+      bindable: false,
+    });
+    expect(props[1]).toEqual({
+      name: 'message',
+      type: 'Str',
+      default: '',
+      description: 'The error message.',
+      bindable: false,
+    });
+    expect(props[2]).toEqual({
+      name: 'errorId',
+      type: 'Str',
+      default: '',
+      description: 'Optional error ID.',
+      bindable: false,
+      optional: true,
+    });
+  });
 
-	it('prefers destructuring JSDoc over type definition JSDoc', () => {
-		const source: string = `<script lang="ts">
+  it('prefers destructuring JSDoc over type definition JSDoc', () => {
+    const source: string = `<script lang="ts">
 type MyProps = {
 	/** Type definition description. */
 	variant: Str;
@@ -259,15 +259,15 @@ let {
 	variant = "default",
 }: MyProps = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		expect(props).toHaveLength(1);
-		expect(props[0]?.description).toBe('Destructuring description wins.');
-		// Named type `Str` takes priority over inferred `string` from default
-		expect(props[0]?.type).toBe('Str');
-	});
+    const props: PropMeta[] = extractProps(source);
+    expect(props).toHaveLength(1);
+    expect(props[0]?.description).toBe('Destructuring description wins.');
+    // Named type `Str` takes priority over inferred `string` from default
+    expect(props[0]?.type).toBe('Str');
+  });
 
-	it('resolves intersection named types with inline block', () => {
-		const source: string = `<script lang="ts">
+  it('resolves intersection named types with inline block', () => {
+    const source: string = `<script lang="ts">
 type ButtonProps = WithElementRef<HTMLButtonAttributes> & {
 	variant?: ButtonVariant;
 	size?: ButtonSize;
@@ -281,20 +281,20 @@ let {
 	...restProps
 }: ButtonProps = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		const names: string[] = props.map((p: PropMeta): string => p.name);
-		expect(names).toContain('variant');
-		expect(names).toContain('size');
+    const props: PropMeta[] = extractProps(source);
+    const names: string[] = props.map((p: PropMeta): string => p.name);
+    expect(names).toContain('variant');
+    expect(names).toContain('size');
 
-		const variantProp: PropMeta | undefined = props.find(
-			(p: PropMeta): boolean => p.name === 'variant',
-		);
-		// Type comes from named type definition
-		expect(variantProp?.type).toBe('ButtonVariant');
-	});
+    const variantProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'variant',
+    );
+    // Type comes from named type definition
+    expect(variantProp?.type).toBe('ButtonVariant');
+  });
 
-	it('handles real button component source', () => {
-		const source: string = `<script lang="ts" module>
+  it('handles real button component source', () => {
+    const source: string = `<script lang="ts" module>
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
 import { type VariantProps, tv } from 'tailwind-variants';
@@ -331,28 +331,28 @@ export const buttonVariants = tv({
 		...restProps
 	}: ButtonProps = $props();
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		// Should include: variant, size, href, type, disabled
-		// Should exclude: class, ref, children, ...restProps
-		const names: string[] = props.map((p: PropMeta): string => p.name);
-		expect(names).toContain('variant');
-		expect(names).toContain('size');
-		expect(names).toContain('href');
-		expect(names).toContain('type');
-		expect(names).toContain('disabled');
-		expect(names).not.toContain('class');
-		expect(names).not.toContain('ref');
-		expect(names).not.toContain('children');
+    const props: PropMeta[] = extractProps(source);
+    // Should include: variant, size, href, type, disabled
+    // Should exclude: class, ref, children, ...restProps
+    const names: string[] = props.map((p: PropMeta): string => p.name);
+    expect(names).toContain('variant');
+    expect(names).toContain('size');
+    expect(names).toContain('href');
+    expect(names).toContain('type');
+    expect(names).toContain('disabled');
+    expect(names).not.toContain('class');
+    expect(names).not.toContain('ref');
+    expect(names).not.toContain('children');
 
-		const variantProp: PropMeta | undefined = props.find(
-			(p: PropMeta): boolean => p.name === 'variant',
-		);
-		expect(variantProp?.default).toBe('"default"');
-		expect(variantProp?.type).toBe('string');
-	});
+    const variantProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'variant',
+    );
+    expect(variantProp?.default).toBe('"default"');
+    expect(variantProp?.type).toBe('string');
+  });
 
-	it('resolves named schema const refs into expandable typeFields (schema-based path)', () => {
-		const source: string = `<script module lang="ts">
+  it('resolves named schema const refs into expandable typeFields (schema-based path)', () => {
+    const source: string = `<script module lang="ts">
 import * as v from 'valibot';
 import { StrSchema, NumSchema } from '@/schemas/common';
 
@@ -405,29 +405,29 @@ const validated = $derived.by(() => {
 	return result.data as MyProps;
 });
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		const names: string[] = props.map((p: PropMeta): string => p.name);
-		expect(names).toContain('deps');
-		expect(names).toContain('sizes');
+    const props: PropMeta[] = extractProps(source);
+    const names: string[] = props.map((p: PropMeta): string => p.name);
+    expect(names).toContain('deps');
+    expect(names).toContain('sizes');
 
-		// deps should have type 'DepTree' and be expandable
-		const depsProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'deps');
-		expect(depsProp?.type).toBe('DepTree');
-		expect(depsProp?.typeDefinition).toBeDefined();
-		expect(depsProp?.typeFields).toBeDefined();
-		expect(depsProp?.typeFields?.length).toBeGreaterThan(0);
+    // deps should have type 'DepTree' and be expandable
+    const depsProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'deps');
+    expect(depsProp?.type).toBe('DepTree');
+    expect(depsProp?.typeDefinition).toBeDefined();
+    expect(depsProp?.typeFields).toBeDefined();
+    expect(depsProp?.typeFields?.length).toBeGreaterThan(0);
 
-		// sizes should have type 'Record<string, Size>' and be expandable
-		const sizesProp: PropMeta | undefined = props.find(
-			(p: PropMeta): boolean => p.name === 'sizes',
-		);
-		expect(sizesProp?.type).toBe('Record<string, Size>');
-		expect(sizesProp?.typeFields).toBeDefined();
-		expect(sizesProp?.typeFields?.length).toBeGreaterThan(0);
-	});
+    // sizes should have type 'Record<string, Size>' and be expandable
+    const sizesProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'sizes',
+    );
+    expect(sizesProp?.type).toBe('Record<string, Size>');
+    expect(sizesProp?.typeFields).toBeDefined();
+    expect(sizesProp?.typeFields?.length).toBeGreaterThan(0);
+  });
 
-	it('expands DepTree into its sub-fields (internal, workspace, external)', () => {
-		const source: string = `<script module lang="ts">
+  it('expands DepTree into its sub-fields (internal, workspace, external)', () => {
+    const source: string = `<script module lang="ts">
 import * as v from 'valibot';
 import { StrSchema, NumSchema } from '@/schemas/common';
 
@@ -469,20 +469,20 @@ const validated = $derived.by(() => {
 	return result.data as MyProps;
 });
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		const depsProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'deps');
-		expect(depsProp).toBeDefined();
-		expect(depsProp?.typeFields).toBeDefined();
-		expect(depsProp?.typeFields?.length).toBeGreaterThan(0);
-		// Verify actual sub-field names
-		const fieldNames: string[] = (depsProp?.typeFields ?? []).map((f) => f.field);
-		expect(fieldNames).toContain('internal');
-		expect(fieldNames).toContain('workspace');
-		expect(fieldNames).toContain('external');
-	});
+    const props: PropMeta[] = extractProps(source);
+    const depsProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'deps');
+    expect(depsProp).toBeDefined();
+    expect(depsProp?.typeFields).toBeDefined();
+    expect(depsProp?.typeFields?.length).toBeGreaterThan(0);
+    // Verify actual sub-field names
+    const fieldNames: string[] = (depsProp?.typeFields ?? []).map((f) => f.field);
+    expect(fieldNames).toContain('internal');
+    expect(fieldNames).toContain('workspace');
+    expect(fieldNames).toContain('external');
+  });
 
-	it('expands Record<string, Size> to show value schema sub-fields', () => {
-		const source: string = `<script module lang="ts">
+  it('expands Record<string, Size> to show value schema sub-fields', () => {
+    const source: string = `<script module lang="ts">
 import * as v from 'valibot';
 import { StrSchema, NumSchema } from '@/schemas/common';
 
@@ -509,23 +509,23 @@ const validated = $derived.by(() => {
 	return result.data as MyProps;
 });
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		const sizesProp: PropMeta | undefined = props.find(
-			(p: PropMeta): boolean => p.name === 'sizes',
-		);
-		expect(sizesProp).toBeDefined();
-		expect(sizesProp?.type).toBe('Record<string, Size>');
-		expect(sizesProp?.typeFields).toBeDefined();
-		expect(sizesProp?.typeFields?.length).toBeGreaterThan(0);
-		// Should have [key] + expanded value schema fields (source, gzip)
-		const fieldNames: string[] = (sizesProp?.typeFields ?? []).map((f) => f.field);
-		expect(fieldNames).toContain('[key]');
-		expect(fieldNames).toContain('source');
-		expect(fieldNames).toContain('gzip');
-	});
+    const props: PropMeta[] = extractProps(source);
+    const sizesProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'sizes',
+    );
+    expect(sizesProp).toBeDefined();
+    expect(sizesProp?.type).toBe('Record<string, Size>');
+    expect(sizesProp?.typeFields).toBeDefined();
+    expect(sizesProp?.typeFields?.length).toBeGreaterThan(0);
+    // Should have [key] + expanded value schema fields (source, gzip)
+    const fieldNames: string[] = (sizesProp?.typeFields ?? []).map((f) => f.field);
+    expect(fieldNames).toContain('[key]');
+    expect(fieldNames).toContain('source');
+    expect(fieldNames).toContain('gzip');
+  });
 
-	it('includes @values as mockValues for schema-based fields', () => {
-		const source: string = `<script module lang="ts">
+  it('includes @values as mockValues for schema-based fields', () => {
+    const source: string = `<script module lang="ts">
 import * as v from 'valibot';
 import { StrSchema, NumSchema } from '@/schemas/common';
 
@@ -547,16 +547,16 @@ const validated = $derived.by(() => {
 	return result.data as TestProps;
 });
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		const nameProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'name');
-		expect(nameProp?.mockValues).toEqual(['button', 'dialog', 'sidebar']);
+    const props: PropMeta[] = extractProps(source);
+    const nameProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'name');
+    expect(nameProp?.mockValues).toEqual(['button', 'dialog', 'sidebar']);
 
-		const sizeProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'size');
-		expect(sizeProp?.mockValues).toEqual(['1024', '2048']);
-	});
+    const sizeProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'size');
+    expect(sizeProp?.mockValues).toEqual(['1024', '2048']);
+  });
 
-	it('every LensDependencyTree prop has @values (mockValues)', () => {
-		const source: string = `<script module lang="ts">
+  it('every LensDependencyTree prop has @values (mockValues)', () => {
+    const source: string = `<script module lang="ts">
 import * as v from 'valibot';
 import { StrSchema, NumSchema } from '@/schemas/common';
 
@@ -628,53 +628,53 @@ const validated = $derived.by(() => {
 	return result.data as LensDependencyTreeProps;
 });
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		// Every prop should have @values — if any are missing, this test fails
-		for (const prop of props) {
-			expect(prop.mockValues, `Prop "${prop.name}" is missing @values annotation`).toBeDefined();
-			expect(prop.mockValues?.length, `Prop "${prop.name}" has empty @values`).toBeGreaterThan(0);
-		}
-	});
+    const props: PropMeta[] = extractProps(source);
+    // Every prop should have @values — if any are missing, this test fails
+    for (const prop of props) {
+      expect(prop.mockValues, `Prop "${prop.name}" is missing @values annotation`).toBeDefined();
+      expect(prop.mockValues?.length, `Prop "${prop.name}" has empty @values`).toBeGreaterThan(0);
+    }
+  });
 
-	it('every schema-based component has @values on all props', () => {
-		// Reads ALL real schema-based component .svelte files from disk and verifies
-		// every extracted prop has @values. If you add a new schema-based component or
-		// add a field to a schema, you MUST add @values or this test will fail.
-		const uiDir: string = resolve(__dirname, '..');
-		const dirs: string[] = readdirSync(uiDir).filter((d: string): boolean => {
-			const full: string = join(uiDir, d);
-			return statSync(full).isDirectory();
-		});
+  it('every schema-based component has @values on all props', () => {
+    // Reads ALL real schema-based component .svelte files from disk and verifies
+    // every extracted prop has @values. If you add a new schema-based component or
+    // add a field to a schema, you MUST add @values or this test will fail.
+    const uiDir: string = resolve(__dirname, '..');
+    const dirs: string[] = readdirSync(uiDir).filter((d: string): boolean => {
+      const full: string = join(uiDir, d);
+      return statSync(full).isDirectory();
+    });
 
-		const failures: string[] = [];
+    const failures: string[] = [];
 
-		for (const dir of dirs) {
-			const dirPath: string = join(uiDir, dir);
-			const svelteFiles: string[] = readdirSync(dirPath).filter((f: string): boolean =>
-				f.endsWith('.svelte'),
-			);
+    for (const dir of dirs) {
+      const dirPath: string = join(uiDir, dir);
+      const svelteFiles: string[] = readdirSync(dirPath).filter((f: string): boolean =>
+        f.endsWith('.svelte'),
+      );
 
-			for (const file of svelteFiles) {
-				const filePath: string = join(dirPath, file);
-				const source: string = readFileSync(filePath, 'utf8');
+      for (const file of svelteFiles) {
+        const filePath: string = join(dirPath, file);
+        const source: string = readFileSync(filePath, 'utf8');
 
-				// Only check schema-based components (safeParse pattern)
-				if (!source.includes('safeParse(') || !source.includes('$props()')) continue;
+        // Only check schema-based components (safeParse pattern)
+        if (!source.includes('safeParse(') || !source.includes('$props()')) continue;
 
-				const props: PropMeta[] = extractProps(source);
-				for (const prop of props) {
-					if (!prop.mockValues || prop.mockValues.length === 0) {
-						failures.push(`${dir}/${file} → prop "${prop.name}" missing @values`);
-					}
-				}
-			}
-		}
+        const props: PropMeta[] = extractProps(source);
+        for (const prop of props) {
+          if (!prop.mockValues || prop.mockValues.length === 0) {
+            failures.push(`${dir}/${file} → prop "${prop.name}" missing @values`);
+          }
+        }
+      }
+    }
 
-		expect(failures, `Schema props missing @values:\n${failures.join('\n')}`).toHaveLength(0);
-	});
+    expect(failures, `Schema props missing @values:\n${failures.join('\n')}`).toHaveLength(0);
+  });
 
-	it('strips @values from expanded type field descriptions', () => {
-		const source: string = `<script module lang="ts">
+  it('strips @values from expanded type field descriptions', () => {
+    const source: string = `<script module lang="ts">
 import * as v from 'valibot';
 import { StrSchema, NumSchema } from '@/schemas/common';
 
@@ -701,20 +701,20 @@ const validated = $derived.by(() => {
 	return result.data as MyProps;
 });
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		const itemProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'item');
-		expect(itemProp?.typeFields).toBeDefined();
-		// Descriptions must NOT contain @values tag text
-		const labelField = itemProp?.typeFields?.find((f) => f.field === 'label');
-		expect(labelField?.description).toBe('The label text.');
-		expect(labelField?.description).not.toContain('@values');
-		const countField = itemProp?.typeFields?.find((f) => f.field === 'count');
-		expect(countField?.description).toBe('Count of items.');
-		expect(countField?.description).not.toContain('@values');
-	});
+    const props: PropMeta[] = extractProps(source);
+    const itemProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'item');
+    expect(itemProp?.typeFields).toBeDefined();
+    // Descriptions must NOT contain @values tag text
+    const labelField = itemProp?.typeFields?.find((f) => f.field === 'label');
+    expect(labelField?.description).toBe('The label text.');
+    expect(labelField?.description).not.toContain('@values');
+    const countField = itemProp?.typeFields?.find((f) => f.field === 'count');
+    expect(countField?.description).toBe('Count of items.');
+    expect(countField?.description).not.toContain('@values');
+  });
 
-	it('renders v.strictObject type as "object" not raw schema text', () => {
-		const source: string = `<script module lang="ts">
+  it('renders v.strictObject type as "object" not raw schema text', () => {
+    const source: string = `<script module lang="ts">
 import * as v from 'valibot';
 import { StrSchema, NumSchema } from '@/schemas/common';
 
@@ -739,22 +739,22 @@ const validated = $derived.by(() => {
 	return result.data as MyProps;
 });
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		const innerProp: PropMeta | undefined = props.find(
-			(p: PropMeta): boolean => p.name === 'inner',
-		);
-		expect(innerProp).toBeDefined();
-		// Type fields in the inner schema — the "accepts" for object-typed fields
-		// should show "object" not raw v.strictObject(...) text
-		expect(innerProp?.typeFields).toBeDefined();
-		const nameField = innerProp?.typeFields?.find((f) => f.field === 'name');
-		expect(nameField).toBeDefined();
-		// Verify the parent type itself is resolved (should be 'Inner' from schema const name)
-		expect(innerProp?.type).toBe('Inner');
-	});
+    const props: PropMeta[] = extractProps(source);
+    const innerProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'inner',
+    );
+    expect(innerProp).toBeDefined();
+    // Type fields in the inner schema — the "accepts" for object-typed fields
+    // should show "object" not raw v.strictObject(...) text
+    expect(innerProp?.typeFields).toBeDefined();
+    const nameField = innerProp?.typeFields?.find((f) => f.field === 'name');
+    expect(nameField).toBeDefined();
+    // Verify the parent type itself is resolved (should be 'Inner' from schema const name)
+    expect(innerProp?.type).toBe('Inner');
+  });
 
-	it('unwraps v.array() around v.strictObject for expanded type fields', () => {
-		const source: string = `<script module lang="ts">
+  it('unwraps v.array() around v.strictObject for expanded type fields', () => {
+    const source: string = `<script module lang="ts">
 import * as v from 'valibot';
 import { StrSchema, NumSchema } from '@/schemas/common';
 
@@ -781,21 +781,21 @@ const validated = $derived.by(() => {
 	return result.data as MyProps;
 });
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		const itemsProp: PropMeta | undefined = props.find(
-			(p: PropMeta): boolean => p.name === 'items',
-		);
-		expect(itemsProp).toBeDefined();
-		// v.array(EntrySchema) should unwrap to show Entry sub-fields
-		expect(itemsProp?.typeFields).toBeDefined();
-		expect(itemsProp?.typeFields?.length).toBeGreaterThan(0);
-		const fieldNames: string[] = (itemsProp?.typeFields ?? []).map((f) => f.field);
-		expect(fieldNames).toContain('name');
-		expect(fieldNames).toContain('count');
-	});
+    const props: PropMeta[] = extractProps(source);
+    const itemsProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'items',
+    );
+    expect(itemsProp).toBeDefined();
+    // v.array(EntrySchema) should unwrap to show Entry sub-fields
+    expect(itemsProp?.typeFields).toBeDefined();
+    expect(itemsProp?.typeFields?.length).toBeGreaterThan(0);
+    const fieldNames: string[] = (itemsProp?.typeFields ?? []).map((f) => f.field);
+    expect(fieldNames).toContain('name');
+    expect(fieldNames).toContain('count');
+  });
 
-	it('handles nested v.optional(v.array(v.strictObject())) unwrapping', () => {
-		const source: string = `<script module lang="ts">
+  it('handles nested v.optional(v.array(v.strictObject())) unwrapping', () => {
+    const source: string = `<script module lang="ts">
 import * as v from 'valibot';
 import { StrSchema } from '@/schemas/common';
 
@@ -822,21 +822,21 @@ const validated = $derived.by(() => {
 	return result.data as MyProps;
 });
 </script>`;
-		const props: PropMeta[] = extractProps(source);
-		const tagsProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'tags');
-		expect(tagsProp).toBeDefined();
-		// v.optional(v.array(TagSchema)) — should unwrap both layers to show Tag sub-fields
-		expect(tagsProp?.typeFields).toBeDefined();
-		expect(tagsProp?.typeFields?.length).toBeGreaterThan(0);
-		const fieldNames: string[] = (tagsProp?.typeFields ?? []).map((f) => f.field);
-		expect(fieldNames).toContain('label');
-		expect(fieldNames).toContain('color');
-	});
+    const props: PropMeta[] = extractProps(source);
+    const tagsProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'tags');
+    expect(tagsProp).toBeDefined();
+    // v.optional(v.array(TagSchema)) — should unwrap both layers to show Tag sub-fields
+    expect(tagsProp?.typeFields).toBeDefined();
+    expect(tagsProp?.typeFields?.length).toBeGreaterThan(0);
+    const fieldNames: string[] = (tagsProp?.typeFields ?? []).map((f) => f.field);
+    expect(fieldNames).toContain('label');
+    expect(fieldNames).toContain('color');
+  });
 
-	it('prefers schema-const over TS type definition when both exist', () => {
-		// Simulates DepTree being defined as both `const DepTreeSchema = v.strictObject(...)` (in svelte)
-		// AND `type DepTree = { ... }` (in supplementary TS sources). Schema-const should win.
-		const svelteSource: string = `<script module lang="ts">
+  it('prefers schema-const over TS type definition when both exist', () => {
+    // Simulates DepTree being defined as both `const DepTreeSchema = v.strictObject(...)` (in svelte)
+    // AND `type DepTree = { ... }` (in supplementary TS sources). Schema-const should win.
+    const svelteSource: string = `<script module lang="ts">
 import * as v from 'valibot';
 import { StrSchema } from '@/schemas/common';
 
@@ -863,88 +863,88 @@ const validated = $derived.by(() => {
 	return result.data as MyProps;
 });
 </script>`;
-		// Supplementary TS source has a plain type definition (with JSDoc that parsePlainObjectFields
-		// previously couldn't handle — this verifies schema-const takes priority)
-		const tsSource: string = `
+    // Supplementary TS source has a plain type definition (with JSDoc that parsePlainObjectFields
+    // previously couldn't handle — this verifies schema-const takes priority)
+    const tsSource: string = `
 export type DepTree = {
 	/** Internal imports. */
 	internal: string[];
 	/** External imports. */
 	external: string[];
 };`;
-		const props: PropMeta[] = extractProps(svelteSource, [tsSource]);
-		const depsProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'deps');
-		expect(depsProp).toBeDefined();
-		expect(depsProp?.typeFields).toBeDefined();
-		expect(depsProp?.typeFields?.length).toBeGreaterThan(0);
-		// Schema-const produces Valibot-parsed fields; TS type would have different structure
-		const fieldNames: string[] = (depsProp?.typeFields ?? []).map((f) => f.field);
-		expect(fieldNames).toContain('internal');
-		expect(fieldNames).toContain('external');
-	});
+    const props: PropMeta[] = extractProps(svelteSource, [tsSource]);
+    const depsProp: PropMeta | undefined = props.find((p: PropMeta): boolean => p.name === 'deps');
+    expect(depsProp).toBeDefined();
+    expect(depsProp?.typeFields).toBeDefined();
+    expect(depsProp?.typeFields?.length).toBeGreaterThan(0);
+    // Schema-const produces Valibot-parsed fields; TS type would have different structure
+    const fieldNames: string[] = (depsProp?.typeFields ?? []).map((f) => f.field);
+    expect(fieldNames).toContain('internal');
+    expect(fieldNames).toContain('external');
+  });
 
-	it('builds correct baseProps for header-user with nested object @values', () => {
-		const source: string = readFileSync(
-			resolve(__dirname, '../header-user/HeaderUser.svelte'),
-			'utf8',
-		);
-		const props: PropMeta[] = extractProps(source);
+  it('builds correct baseProps for header-user with nested object @values', () => {
+    const source: string = readFileSync(
+      resolve(__dirname, '../header-user/HeaderUser.svelte'),
+      'utf8',
+    );
+    const props: PropMeta[] = extractProps(source);
 
-		// Verify labels prop extraction
-		const labelsProp: PropMeta | undefined = props.find(
-			(p: PropMeta): boolean => p.name === 'labels',
-		);
-		expect(labelsProp).toBeDefined();
-		expect(labelsProp?.type).toBe('HeaderUserLabels');
-		expect(labelsProp?.mockValues).toBeDefined();
-		expect(labelsProp?.mockValues?.length).toBeGreaterThan(0);
-		// mockValues[0] should be the full object literal
-		expect(labelsProp?.mockValues?.[0]).toContain('userMenu');
-		// typeDefinition should NOT contain ') =>' (angle bracket bug would include onLogOut's JSDoc)
-		expect(labelsProp?.typeDefinition).toBeDefined();
-		expect(labelsProp?.typeDefinition).not.toContain(') =>');
-		// typeDefinition should be reasonable length (schema body only, not entire file)
-		expect((labelsProp?.typeDefinition ?? '').length).toBeLessThan(2000);
+    // Verify labels prop extraction
+    const labelsProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'labels',
+    );
+    expect(labelsProp).toBeDefined();
+    expect(labelsProp?.type).toBe('HeaderUserLabels');
+    expect(labelsProp?.mockValues).toBeDefined();
+    expect(labelsProp?.mockValues?.length).toBeGreaterThan(0);
+    // mockValues[0] should be the full object literal
+    expect(labelsProp?.mockValues?.[0]).toContain('userMenu');
+    // typeDefinition should NOT contain ') =>' (angle bracket bug would include onLogOut's JSDoc)
+    expect(labelsProp?.typeDefinition).toBeDefined();
+    expect(labelsProp?.typeDefinition).not.toContain(') =>');
+    // typeDefinition should be reasonable length (schema body only, not entire file)
+    expect((labelsProp?.typeDefinition ?? '').length).toBeLessThan(2000);
 
-		// Verify features prop extraction
-		const featuresProp: PropMeta | undefined = props.find(
-			(p: PropMeta): boolean => p.name === 'features',
-		);
-		expect(featuresProp).toBeDefined();
-		expect(featuresProp?.mockValues).toBeDefined();
-		expect(featuresProp?.mockValues?.length).toBeGreaterThan(0);
+    // Verify features prop extraction
+    const featuresProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'features',
+    );
+    expect(featuresProp).toBeDefined();
+    expect(featuresProp?.mockValues).toBeDefined();
+    expect(featuresProp?.mockValues?.length).toBeGreaterThan(0);
 
-		// Verify onLogOut
-		const onLogOutProp: PropMeta | undefined = props.find(
-			(p: PropMeta): boolean => p.name === 'onLogOut',
-		);
-		expect(onLogOutProp?.type).toContain(') =>');
+    // Verify onLogOut
+    const onLogOutProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'onLogOut',
+    );
+    expect(onLogOutProp?.type).toContain(') =>');
 
-		// Build base props and check labels is an object (not a function)
-		const base: Record<string, unknown> = buildBaseProps(props);
-		expect(typeof base['onLogOut']).toBe('function');
-		expect(typeof base['userName']).toBe('string');
-		expect(typeof base['features']).toBe('object');
-		expect(typeof base['labels']).toBe('object');
-	});
+    // Build base props and check labels is an object (not a function)
+    const base: Record<string, unknown> = buildBaseProps(props);
+    expect(typeof base['onLogOut']).toBe('function');
+    expect(typeof base['userName']).toBe('string');
+    expect(typeof base['features']).toBe('object');
+    expect(typeof base['labels']).toBe('object');
+  });
 
-	it('preserves commas within @values entries (splits on ", " not bare ",")', (): void => {
-		const source: string = readFileSync(
-			resolve(__dirname, '../finance-card/FinanceCard.svelte'),
-			'utf8',
-		);
-		const props: PropMeta[] = extractProps(source);
+  it('preserves commas within @values entries (splits on ", " not bare ",")', (): void => {
+    const source: string = readFileSync(
+      resolve(__dirname, '../finance-card/FinanceCard.svelte'),
+      'utf8',
+    );
+    const props: PropMeta[] = extractProps(source);
 
-		// value prop has @values $1,234.56, $5,678.90, -$900.00 — commas in dollar amounts must be preserved
-		const valueProp: PropMeta | undefined = props.find(
-			(p: PropMeta): boolean => p.name === 'value',
-		);
-		expect(valueProp?.mockValues).toEqual(['$1,234.56', '$5,678.90', '-$900.00']);
+    // value prop has @values $1,234.56, $5,678.90, -$900.00 — commas in dollar amounts must be preserved
+    const valueProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'value',
+    );
+    expect(valueProp?.mockValues).toEqual(['$1,234.56', '$5,678.90', '-$900.00']);
 
-		// trend prop has @values up, down, neutral — simple comma-space splitting still works
-		const trendProp: PropMeta | undefined = props.find(
-			(p: PropMeta): boolean => p.name === 'trend',
-		);
-		expect(trendProp?.mockValues).toEqual(['up', 'down', 'neutral']);
-	});
+    // trend prop has @values up, down, neutral — simple comma-space splitting still works
+    const trendProp: PropMeta | undefined = props.find(
+      (p: PropMeta): boolean => p.name === 'trend',
+    );
+    expect(trendProp?.mockValues).toEqual(['up', 'down', 'neutral']);
+  });
 });

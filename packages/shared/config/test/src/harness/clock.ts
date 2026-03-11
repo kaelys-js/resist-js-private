@@ -39,12 +39,12 @@
  * Accepts the real `vi` object or a compatible mock.
  */
 export type ViFakeTimerProvider = {
-	useFakeTimers: (options?: { now?: number | Date }) => void;
-	useRealTimers: () => void;
-	advanceTimersByTime: (ms: number) => void;
-	advanceTimersByTimeAsync: (ms: number) => Promise<void>;
-	runAllTimers: () => void;
-	runAllTimersAsync: () => Promise<void>;
+  useFakeTimers: (options?: { now?: number | Date }) => void;
+  useRealTimers: () => void;
+  advanceTimersByTime: (ms: number) => void;
+  advanceTimersByTimeAsync: (ms: number) => Promise<void>;
+  runAllTimers: () => void;
+  runAllTimersAsync: () => Promise<void>;
 };
 
 /**
@@ -54,39 +54,39 @@ export type ViFakeTimerProvider = {
  * and timer callbacks are properly flushed.
  */
 export type FakeClock = {
-	/**
-	 * Advance time by the given number of milliseconds and trigger any
-	 * pending timers that fall within that window.
-	 *
-	 * @param ms - Milliseconds to advance
-	 *
-	 * @example
-	 * ```typescript
-	 * // Advance 500ms to trigger a 300ms setTimeout:
-	 * await getClock().advance(500);
-	 * ```
-	 */
-	advance(ms: number): Promise<void>;
+  /**
+   * Advance time by the given number of milliseconds and trigger any
+   * pending timers that fall within that window.
+   *
+   * @param ms - Milliseconds to advance
+   *
+   * @example
+   * ```typescript
+   * // Advance 500ms to trigger a 300ms setTimeout:
+   * await getClock().advance(500);
+   * ```
+   */
+  advance(ms: number): Promise<void>;
 
-	/**
-	 * Run all pending timers (setTimeout, setInterval) until there are none left.
-	 * Use with caution — can infinite loop if timers reschedule themselves.
-	 *
-	 * @example
-	 * ```typescript
-	 * setTimeout(callback, 1000);
-	 * setTimeout(callback, 5000);
-	 * await getClock().runAll();
-	 * // Both timers have fired
-	 * ```
-	 */
-	runAll(): Promise<void>;
+  /**
+   * Run all pending timers (setTimeout, setInterval) until there are none left.
+   * Use with caution — can infinite loop if timers reschedule themselves.
+   *
+   * @example
+   * ```typescript
+   * setTimeout(callback, 1000);
+   * setTimeout(callback, 5000);
+   * await getClock().runAll();
+   * // Both timers have fired
+   * ```
+   */
+  runAll(): Promise<void>;
 
-	/**
-	 * Restore real timers. Called automatically by `useFakeClock` in the
-	 * afterEach hook. Safe to call multiple times.
-	 */
-	restore(): void;
+  /**
+   * Restore real timers. Called automatically by `useFakeClock` in the
+   * afterEach hook. Safe to call multiple times.
+   */
+  restore(): void;
 };
 
 /**
@@ -117,23 +117,23 @@ export type FakeClock = {
  * ```
  */
 export function createFakeClock(vi: ViFakeTimerProvider, now?: Date | number): FakeClock {
-	const timerOptions =
-		now === undefined ? undefined : { now: now instanceof Date ? now.getTime() : now };
-	vi.useFakeTimers(timerOptions);
+  const timerOptions =
+    now === undefined ? undefined : { now: now instanceof Date ? now.getTime() : now };
+  vi.useFakeTimers(timerOptions);
 
-	return {
-		async advance(ms: number): Promise<void> {
-			await vi.advanceTimersByTimeAsync(ms);
-		},
+  return {
+    async advance(ms: number): Promise<void> {
+      await vi.advanceTimersByTimeAsync(ms);
+    },
 
-		async runAll(): Promise<void> {
-			await vi.runAllTimersAsync();
-		},
+    async runAll(): Promise<void> {
+      await vi.runAllTimersAsync();
+    },
 
-		restore(): void {
-			vi.useRealTimers();
-		},
-	};
+    restore(): void {
+      vi.useRealTimers();
+    },
+  };
 }
 
 /**
@@ -184,31 +184,31 @@ export function createFakeClock(vi: ViFakeTimerProvider, now?: Date | number): F
  * ```
  */
 export function useFakeClock(
-	hooks: {
-		vi: ViFakeTimerProvider;
-		beforeEach: (fn: () => void) => void;
-		afterEach: (fn: () => void) => void;
-	},
-	now?: Date | number,
+  hooks: {
+    vi: ViFakeTimerProvider;
+    beforeEach: (fn: () => void) => void;
+    afterEach: (fn: () => void) => void;
+  },
+  now?: Date | number,
 ): () => FakeClock {
-	let current: FakeClock | undefined;
+  let current: FakeClock | undefined;
 
-	hooks.beforeEach(() => {
-		current = createFakeClock(hooks.vi, now);
-	});
+  hooks.beforeEach(() => {
+    current = createFakeClock(hooks.vi, now);
+  });
 
-	hooks.afterEach(() => {
-		current?.restore();
-		current = undefined;
-	});
+  hooks.afterEach(() => {
+    current?.restore();
+    current = undefined;
+  });
 
-	return (): FakeClock => {
-		if (!current) {
-			throw new Error(
-				'useFakeClock: no clock available. Ensure this is called inside a test ' +
-					'(after beforeEach has run). Did you call useFakeClock() at the describe level?',
-			);
-		}
-		return current;
-	};
+  return (): FakeClock => {
+    if (!current) {
+      throw new Error(
+        'useFakeClock: no clock available. Ensure this is called inside a test ' +
+          '(after beforeEach has run). Did you call useFakeClock() at the describe level?',
+      );
+    }
+    return current;
+  };
 }

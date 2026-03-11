@@ -41,10 +41,10 @@ export type LogLevel = v.InferOutput<typeof LogLevelSchema>;
  * ```
  */
 export const DebugStateSchema = v.strictObject({
-	/** Whether debug mode is active. Defaults to `false`. */
-	enabled: v.optional(v.boolean(), false),
-	/** Current log verbosity level. Defaults to `'info'`. */
-	logLevel: v.optional(LogLevelSchema, 'info'),
+  /** Whether debug mode is active. Defaults to `false`. */
+  enabled: v.optional(v.boolean(), false),
+  /** Current log verbosity level. Defaults to `'info'`. */
+  logLevel: v.optional(LogLevelSchema, 'info'),
 });
 
 /** Inferred type for debug state. */

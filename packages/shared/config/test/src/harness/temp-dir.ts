@@ -40,90 +40,90 @@ import { join, dirname } from 'node:path';
  * Parent directories are created automatically when writing files.
  */
 export type TempDir = {
-	/** Absolute path to the temp directory. */
-	readonly path: string;
+  /** Absolute path to the temp directory. */
+  readonly path: string;
 
-	/**
-	 * Write a file relative to the temp directory.
-	 * Creates parent directories automatically if they don't exist.
-	 *
-	 * @param relativePath - Path relative to the temp dir (e.g., 'src/index.ts')
-	 * @param content - File content as a string
-	 * @returns Absolute path to the written file
-	 *
-	 * @example
-	 * ```typescript
-	 * const filePath = dir.write('src/index.ts', 'export const x = 1;');
-	 * // filePath: '/tmp/test-abc123/src/index.ts'
-	 * ```
-	 */
-	write(relativePath: string, content: string): string;
+  /**
+   * Write a file relative to the temp directory.
+   * Creates parent directories automatically if they don't exist.
+   *
+   * @param relativePath - Path relative to the temp dir (e.g., 'src/index.ts')
+   * @param content - File content as a string
+   * @returns Absolute path to the written file
+   *
+   * @example
+   * ```typescript
+   * const filePath = dir.write('src/index.ts', 'export const x = 1;');
+   * // filePath: '/tmp/test-abc123/src/index.ts'
+   * ```
+   */
+  write(relativePath: string, content: string): string;
 
-	/**
-	 * Create a directory relative to the temp directory.
-	 * Creates parent directories automatically (like `mkdir -p`).
-	 *
-	 * @param relativePath - Directory path relative to the temp dir
-	 * @returns Absolute path to the created directory
-	 *
-	 * @example
-	 * ```typescript
-	 * const dirPath = dir.mkdir('src/utils');
-	 * // dirPath: '/tmp/test-abc123/src/utils'
-	 * ```
-	 */
-	mkdir(relativePath: string): string;
+  /**
+   * Create a directory relative to the temp directory.
+   * Creates parent directories automatically (like `mkdir -p`).
+   *
+   * @param relativePath - Directory path relative to the temp dir
+   * @returns Absolute path to the created directory
+   *
+   * @example
+   * ```typescript
+   * const dirPath = dir.mkdir('src/utils');
+   * // dirPath: '/tmp/test-abc123/src/utils'
+   * ```
+   */
+  mkdir(relativePath: string): string;
 
-	/**
-	 * Resolve a path relative to the temp directory without creating anything.
-	 *
-	 * @param segments - Path segments to join (e.g., 'src', 'index.ts')
-	 * @returns Absolute path
-	 *
-	 * @example
-	 * ```typescript
-	 * const configPath = dir.resolve('config', 'app.json');
-	 * // configPath: '/tmp/test-abc123/config/app.json'
-	 * ```
-	 */
-	resolve(...segments: string[]): string;
+  /**
+   * Resolve a path relative to the temp directory without creating anything.
+   *
+   * @param segments - Path segments to join (e.g., 'src', 'index.ts')
+   * @returns Absolute path
+   *
+   * @example
+   * ```typescript
+   * const configPath = dir.resolve('config', 'app.json');
+   * // configPath: '/tmp/test-abc123/config/app.json'
+   * ```
+   */
+  resolve(...segments: string[]): string;
 
-	/**
-	 * Read a file relative to the temp directory as a UTF-8 string.
-	 *
-	 * @param relativePath - Path relative to the temp dir
-	 * @returns File contents as a string
-	 * @throws If the file does not exist
-	 *
-	 * @example
-	 * ```typescript
-	 * dir.write('data.txt', 'hello');
-	 * expect(dir.read('data.txt')).toBe('hello');
-	 * ```
-	 */
-	read(relativePath: string): string;
+  /**
+   * Read a file relative to the temp directory as a UTF-8 string.
+   *
+   * @param relativePath - Path relative to the temp dir
+   * @returns File contents as a string
+   * @throws If the file does not exist
+   *
+   * @example
+   * ```typescript
+   * dir.write('data.txt', 'hello');
+   * expect(dir.read('data.txt')).toBe('hello');
+   * ```
+   */
+  read(relativePath: string): string;
 
-	/**
-	 * Check if a path exists relative to the temp directory.
-	 *
-	 * @param relativePath - Path relative to the temp dir
-	 * @returns `true` if the path exists (file or directory)
-	 *
-	 * @example
-	 * ```typescript
-	 * dir.write('file.txt', 'content');
-	 * expect(dir.exists('file.txt')).toBe(true);
-	 * expect(dir.exists('missing.txt')).toBe(false);
-	 * ```
-	 */
-	exists(relativePath: string): boolean;
+  /**
+   * Check if a path exists relative to the temp directory.
+   *
+   * @param relativePath - Path relative to the temp dir
+   * @returns `true` if the path exists (file or directory)
+   *
+   * @example
+   * ```typescript
+   * dir.write('file.txt', 'content');
+   * expect(dir.exists('file.txt')).toBe(true);
+   * expect(dir.exists('missing.txt')).toBe(false);
+   * ```
+   */
+  exists(relativePath: string): boolean;
 
-	/**
-	 * Remove the temp directory and all its contents.
-	 * Called automatically by `useTempDir` in the afterEach hook.
-	 * Safe to call multiple times.
-	 */
-	cleanup(): void;
+  /**
+   * Remove the temp directory and all its contents.
+   * Called automatically by `useTempDir` in the afterEach hook.
+   * Safe to call multiple times.
+   */
+  cleanup(): void;
 };
 
 /**
@@ -149,43 +149,43 @@ export type TempDir = {
  * ```
  */
 export function createTempDir(prefix = 'test-'): TempDir {
-	const path = mkdtempSync(join(tmpdir(), prefix));
+  const path = mkdtempSync(join(tmpdir(), prefix));
 
-	return {
-		path,
+  return {
+    path,
 
-		write(relativePath: string, content: string): string {
-			const fullPath = join(path, relativePath);
-			const dir = dirname(fullPath);
-			if (!existsSync(dir)) {
-				mkdirSync(dir, { recursive: true });
-			}
-			writeFileSync(fullPath, content, 'utf8');
-			return fullPath;
-		},
+    write(relativePath: string, content: string): string {
+      const fullPath = join(path, relativePath);
+      const dir = dirname(fullPath);
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true });
+      }
+      writeFileSync(fullPath, content, 'utf8');
+      return fullPath;
+    },
 
-		mkdir(relativePath: string): string {
-			const fullPath = join(path, relativePath);
-			mkdirSync(fullPath, { recursive: true });
-			return fullPath;
-		},
+    mkdir(relativePath: string): string {
+      const fullPath = join(path, relativePath);
+      mkdirSync(fullPath, { recursive: true });
+      return fullPath;
+    },
 
-		resolve(...segments: string[]): string {
-			return join(path, ...segments);
-		},
+    resolve(...segments: string[]): string {
+      return join(path, ...segments);
+    },
 
-		read(relativePath: string): string {
-			return readFileSync(join(path, relativePath), 'utf8');
-		},
+    read(relativePath: string): string {
+      return readFileSync(join(path, relativePath), 'utf8');
+    },
 
-		exists(relativePath: string): boolean {
-			return existsSync(join(path, relativePath));
-		},
+    exists(relativePath: string): boolean {
+      return existsSync(join(path, relativePath));
+    },
 
-		cleanup(): void {
-			rmSync(path, { recursive: true, force: true });
-		},
-	};
+    cleanup(): void {
+      rmSync(path, { recursive: true, force: true });
+    },
+  };
 }
 
 /**
@@ -225,30 +225,30 @@ export function createTempDir(prefix = 'test-'): TempDir {
  * ```
  */
 export function useTempDir(
-	hooks: {
-		beforeEach: (fn: () => void) => void;
-		afterEach: (fn: () => void) => void;
-	},
-	prefix = 'test-',
+  hooks: {
+    beforeEach: (fn: () => void) => void;
+    afterEach: (fn: () => void) => void;
+  },
+  prefix = 'test-',
 ): () => TempDir {
-	let current: TempDir | undefined;
+  let current: TempDir | undefined;
 
-	hooks.beforeEach(() => {
-		current = createTempDir(prefix);
-	});
+  hooks.beforeEach(() => {
+    current = createTempDir(prefix);
+  });
 
-	hooks.afterEach(() => {
-		current?.cleanup();
-		current = undefined;
-	});
+  hooks.afterEach(() => {
+    current?.cleanup();
+    current = undefined;
+  });
 
-	return (): TempDir => {
-		if (!current) {
-			throw new Error(
-				'useTempDir: no temp dir available. Ensure this is called inside a test ' +
-					'(after beforeEach has run). Did you call useTempDir() at the describe level?',
-			);
-		}
-		return current;
-	};
+  return (): TempDir => {
+    if (!current) {
+      throw new Error(
+        'useTempDir: no temp dir available. Ensure this is called inside a test ' +
+          '(after beforeEach has run). Did you call useTempDir() at the describe level?',
+      );
+    }
+    return current;
+  };
 }

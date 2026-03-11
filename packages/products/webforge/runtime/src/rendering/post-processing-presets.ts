@@ -25,22 +25,22 @@ import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 
 import {
-	PostProcessingConfigSchema,
-	type BloomConfig,
-	type ChromaticAberrationConfig,
-	type ColorGradingConfig,
-	type ColorGradingPreset,
-	type DepthOfFieldConfig,
-	type DitheringConfig,
-	type FxaaConfig,
-	type GrainConfig,
-	type HdrEnvironmentConfig,
-	type PostProcessingConfig,
-	type PostProcessingPresetName,
-	type SharpenConfig,
-	type SsaoConfig,
-	type ToneMappingConfig,
-	type VignetteConfig,
+  PostProcessingConfigSchema,
+  type BloomConfig,
+  type ChromaticAberrationConfig,
+  type ColorGradingConfig,
+  type ColorGradingPreset,
+  type DepthOfFieldConfig,
+  type DitheringConfig,
+  type FxaaConfig,
+  type GrainConfig,
+  type HdrEnvironmentConfig,
+  type PostProcessingConfig,
+  type PostProcessingPresetName,
+  type SharpenConfig,
+  type SsaoConfig,
+  type ToneMappingConfig,
+  type VignetteConfig,
 } from '../schemas/post-processing-config';
 import type { QualityPreset } from '../schemas/quality-config';
 import { okShallow, type BabylonResult } from '../core/babylon-result';
@@ -57,22 +57,22 @@ import { okShallow, type BabylonResult } from '../core/babylon-result';
  * so callers can specify only the fields they want to override.
  */
 export type PostProcessingConfigInput = {
-	readonly enabled?: boolean;
-	readonly preset?: PostProcessingPresetName;
-	readonly bloom?: Partial<BloomConfig>;
-	readonly depthOfField?: Partial<DepthOfFieldConfig>;
-	readonly toneMapping?: Partial<ToneMappingConfig>;
-	readonly colorGrading?: Partial<ColorGradingConfig>;
-	readonly vignette?: Partial<VignetteConfig>;
-	readonly grain?: Partial<GrainConfig>;
-	readonly ssao?: Partial<SsaoConfig>;
-	readonly chromaticAberration?: Partial<ChromaticAberrationConfig>;
-	readonly sharpen?: Partial<SharpenConfig>;
-	readonly fxaa?: Partial<FxaaConfig>;
-	readonly dithering?: Partial<DitheringConfig>;
-	readonly hdrEnvironment?: Partial<HdrEnvironmentConfig>;
-	readonly exposure?: number;
-	readonly contrast?: number;
+  readonly enabled?: boolean;
+  readonly preset?: PostProcessingPresetName;
+  readonly bloom?: Partial<BloomConfig>;
+  readonly depthOfField?: Partial<DepthOfFieldConfig>;
+  readonly toneMapping?: Partial<ToneMappingConfig>;
+  readonly colorGrading?: Partial<ColorGradingConfig>;
+  readonly vignette?: Partial<VignetteConfig>;
+  readonly grain?: Partial<GrainConfig>;
+  readonly ssao?: Partial<SsaoConfig>;
+  readonly chromaticAberration?: Partial<ChromaticAberrationConfig>;
+  readonly sharpen?: Partial<SharpenConfig>;
+  readonly fxaa?: Partial<FxaaConfig>;
+  readonly dithering?: Partial<DitheringConfig>;
+  readonly hdrEnvironment?: Partial<HdrEnvironmentConfig>;
+  readonly exposure?: number;
+  readonly contrast?: number;
 };
 
 // =============================================================================
@@ -81,197 +81,197 @@ export type PostProcessingConfigInput = {
 
 /** Neutral preset — all effects disabled, clean pass-through. */
 const NEUTRAL_PRESET: PostProcessingConfig = {
-	enabled: true,
-	preset: 'neutral',
-	bloom: { enabled: false, weight: 0.15, threshold: 0.9, kernel: 64, scale: 0.5 },
-	depthOfField: {
-		enabled: false,
-		focalLength: 50,
-		fStop: 2.8,
-		focusDistance: 2000,
-		blurLevel: 'medium',
-	},
-	toneMapping: { enabled: false, type: 'aces' },
-	colorGrading: { enabled: false, preset: 'neutral' },
-	vignette: {
-		enabled: false,
-		weight: 1.5,
-		stretch: 0,
-		color: { r: 0, g: 0, b: 0, a: 1 },
-		blendMode: 'multiply',
-	},
-	grain: { enabled: false, intensity: 5, animated: true },
-	ssao: {
-		enabled: false,
-		totalStrength: 1.0,
-		radius: 2.0,
-		samples: 16,
-		base: 0.1,
-		expensiveBlur: true,
-	},
-	chromaticAberration: { enabled: false, amount: 30, radialIntensity: 0.3 },
-	sharpen: { enabled: false, edgeAmount: 0.3, colorAmount: 1.0 },
-	fxaa: { enabled: false },
-	dithering: { enabled: false, intensity: 0.004 },
-	hdrEnvironment: { enabled: false, texturePath: '', intensity: 1.0, rotationY: 0 },
-	exposure: 1.0,
-	contrast: 1.0,
+  enabled: true,
+  preset: 'neutral',
+  bloom: { enabled: false, weight: 0.15, threshold: 0.9, kernel: 64, scale: 0.5 },
+  depthOfField: {
+    enabled: false,
+    focalLength: 50,
+    fStop: 2.8,
+    focusDistance: 2000,
+    blurLevel: 'medium',
+  },
+  toneMapping: { enabled: false, type: 'aces' },
+  colorGrading: { enabled: false, preset: 'neutral' },
+  vignette: {
+    enabled: false,
+    weight: 1.5,
+    stretch: 0,
+    color: { r: 0, g: 0, b: 0, a: 1 },
+    blendMode: 'multiply',
+  },
+  grain: { enabled: false, intensity: 5, animated: true },
+  ssao: {
+    enabled: false,
+    totalStrength: 1.0,
+    radius: 2.0,
+    samples: 16,
+    base: 0.1,
+    expensiveBlur: true,
+  },
+  chromaticAberration: { enabled: false, amount: 30, radialIntensity: 0.3 },
+  sharpen: { enabled: false, edgeAmount: 0.3, colorAmount: 1.0 },
+  fxaa: { enabled: false },
+  dithering: { enabled: false, intensity: 0.004 },
+  hdrEnvironment: { enabled: false, texturePath: '', intensity: 1.0, rotationY: 0 },
+  exposure: 1.0,
+  contrast: 1.0,
 };
 
 /** HD-2D preset — diorama tilt-shift look with warm bloom and atmosphere. */
 const HD2D_PRESET: PostProcessingConfig = {
-	enabled: true,
-	preset: 'hd2d',
-	bloom: { enabled: true, weight: 0.15, threshold: 0.85, kernel: 64, scale: 0.5 },
-	depthOfField: {
-		enabled: true,
-		focalLength: 50,
-		fStop: 2.8,
-		focusDistance: 0,
-		blurLevel: 'medium',
-	},
-	toneMapping: { enabled: true, type: 'aces' },
-	colorGrading: { enabled: true, preset: 'warm' },
-	vignette: {
-		enabled: true,
-		weight: 1.5,
-		stretch: 5,
-		color: { r: 0, g: 0, b: 0, a: 1 },
-		blendMode: 'multiply',
-	},
-	grain: { enabled: true, intensity: 3, animated: true },
-	ssao: {
-		enabled: true,
-		totalStrength: 1.0,
-		radius: 2.0,
-		samples: 16,
-		base: 0.1,
-		expensiveBlur: true,
-	},
-	chromaticAberration: { enabled: false, amount: 30, radialIntensity: 0.3 },
-	sharpen: { enabled: false, edgeAmount: 0.3, colorAmount: 1.0 },
-	fxaa: { enabled: true },
-	dithering: { enabled: false, intensity: 0.004 },
-	hdrEnvironment: { enabled: false, texturePath: '', intensity: 1.0, rotationY: 0 },
-	exposure: 1.0,
-	contrast: 1.0,
+  enabled: true,
+  preset: 'hd2d',
+  bloom: { enabled: true, weight: 0.15, threshold: 0.85, kernel: 64, scale: 0.5 },
+  depthOfField: {
+    enabled: true,
+    focalLength: 50,
+    fStop: 2.8,
+    focusDistance: 0,
+    blurLevel: 'medium',
+  },
+  toneMapping: { enabled: true, type: 'aces' },
+  colorGrading: { enabled: true, preset: 'warm' },
+  vignette: {
+    enabled: true,
+    weight: 1.5,
+    stretch: 5,
+    color: { r: 0, g: 0, b: 0, a: 1 },
+    blendMode: 'multiply',
+  },
+  grain: { enabled: true, intensity: 3, animated: true },
+  ssao: {
+    enabled: true,
+    totalStrength: 1.0,
+    radius: 2.0,
+    samples: 16,
+    base: 0.1,
+    expensiveBlur: true,
+  },
+  chromaticAberration: { enabled: false, amount: 30, radialIntensity: 0.3 },
+  sharpen: { enabled: false, edgeAmount: 0.3, colorAmount: 1.0 },
+  fxaa: { enabled: true },
+  dithering: { enabled: false, intensity: 0.004 },
+  hdrEnvironment: { enabled: false, texturePath: '', intensity: 1.0, rotationY: 0 },
+  exposure: 1.0,
+  contrast: 1.0,
 };
 
 /** Cinematic preset — heavy bloom, shallow DoF, color grading, vignette. */
 const CINEMATIC_PRESET: PostProcessingConfig = {
-	enabled: true,
-	preset: 'cinematic',
-	bloom: { enabled: true, weight: 0.3, threshold: 0.7, kernel: 96, scale: 0.5 },
-	depthOfField: {
-		enabled: true,
-		focalLength: 85,
-		fStop: 1.4,
-		focusDistance: 0,
-		blurLevel: 'high',
-	},
-	toneMapping: { enabled: true, type: 'aces' },
-	colorGrading: { enabled: true, preset: 'cinematic' },
-	vignette: {
-		enabled: true,
-		weight: 3.0,
-		stretch: 0,
-		color: { r: 0, g: 0, b: 0, a: 1 },
-		blendMode: 'multiply',
-	},
-	grain: { enabled: true, intensity: 15, animated: true },
-	ssao: {
-		enabled: true,
-		totalStrength: 1.5,
-		radius: 2.0,
-		samples: 24,
-		base: 0.1,
-		expensiveBlur: true,
-	},
-	chromaticAberration: { enabled: true, amount: 15, radialIntensity: 0.5 },
-	sharpen: { enabled: false, edgeAmount: 0.3, colorAmount: 1.0 },
-	fxaa: { enabled: true },
-	dithering: { enabled: false, intensity: 0.004 },
-	hdrEnvironment: { enabled: false, texturePath: '', intensity: 1.0, rotationY: 0 },
-	exposure: 0.9,
-	contrast: 1.2,
+  enabled: true,
+  preset: 'cinematic',
+  bloom: { enabled: true, weight: 0.3, threshold: 0.7, kernel: 96, scale: 0.5 },
+  depthOfField: {
+    enabled: true,
+    focalLength: 85,
+    fStop: 1.4,
+    focusDistance: 0,
+    blurLevel: 'high',
+  },
+  toneMapping: { enabled: true, type: 'aces' },
+  colorGrading: { enabled: true, preset: 'cinematic' },
+  vignette: {
+    enabled: true,
+    weight: 3.0,
+    stretch: 0,
+    color: { r: 0, g: 0, b: 0, a: 1 },
+    blendMode: 'multiply',
+  },
+  grain: { enabled: true, intensity: 15, animated: true },
+  ssao: {
+    enabled: true,
+    totalStrength: 1.5,
+    radius: 2.0,
+    samples: 24,
+    base: 0.1,
+    expensiveBlur: true,
+  },
+  chromaticAberration: { enabled: true, amount: 15, radialIntensity: 0.5 },
+  sharpen: { enabled: false, edgeAmount: 0.3, colorAmount: 1.0 },
+  fxaa: { enabled: true },
+  dithering: { enabled: false, intensity: 0.004 },
+  hdrEnvironment: { enabled: false, texturePath: '', intensity: 1.0, rotationY: 0 },
+  exposure: 0.9,
+  contrast: 1.2,
 };
 
 /** Retro preset — pixel-art look with dithering, grain, and desaturation. */
 const RETRO_PRESET: PostProcessingConfig = {
-	enabled: true,
-	preset: 'retro',
-	bloom: { enabled: false, weight: 0.15, threshold: 0.9, kernel: 64, scale: 0.5 },
-	depthOfField: {
-		enabled: false,
-		focalLength: 50,
-		fStop: 2.8,
-		focusDistance: 2000,
-		blurLevel: 'medium',
-	},
-	toneMapping: { enabled: true, type: 'standard' },
-	colorGrading: { enabled: true, preset: 'retro' },
-	vignette: {
-		enabled: false,
-		weight: 1.5,
-		stretch: 0,
-		color: { r: 0, g: 0, b: 0, a: 1 },
-		blendMode: 'multiply',
-	},
-	grain: { enabled: true, intensity: 25, animated: true },
-	ssao: {
-		enabled: false,
-		totalStrength: 1.0,
-		radius: 2.0,
-		samples: 16,
-		base: 0.1,
-		expensiveBlur: true,
-	},
-	chromaticAberration: { enabled: false, amount: 30, radialIntensity: 0.3 },
-	sharpen: { enabled: true, edgeAmount: 0.5, colorAmount: 1.0 },
-	fxaa: { enabled: true },
-	dithering: { enabled: true, intensity: 0.01 },
-	hdrEnvironment: { enabled: false, texturePath: '', intensity: 1.0, rotationY: 0 },
-	exposure: 0.85,
-	contrast: 1.0,
+  enabled: true,
+  preset: 'retro',
+  bloom: { enabled: false, weight: 0.15, threshold: 0.9, kernel: 64, scale: 0.5 },
+  depthOfField: {
+    enabled: false,
+    focalLength: 50,
+    fStop: 2.8,
+    focusDistance: 2000,
+    blurLevel: 'medium',
+  },
+  toneMapping: { enabled: true, type: 'standard' },
+  colorGrading: { enabled: true, preset: 'retro' },
+  vignette: {
+    enabled: false,
+    weight: 1.5,
+    stretch: 0,
+    color: { r: 0, g: 0, b: 0, a: 1 },
+    blendMode: 'multiply',
+  },
+  grain: { enabled: true, intensity: 25, animated: true },
+  ssao: {
+    enabled: false,
+    totalStrength: 1.0,
+    radius: 2.0,
+    samples: 16,
+    base: 0.1,
+    expensiveBlur: true,
+  },
+  chromaticAberration: { enabled: false, amount: 30, radialIntensity: 0.3 },
+  sharpen: { enabled: true, edgeAmount: 0.5, colorAmount: 1.0 },
+  fxaa: { enabled: true },
+  dithering: { enabled: true, intensity: 0.01 },
+  hdrEnvironment: { enabled: false, texturePath: '', intensity: 1.0, rotationY: 0 },
+  exposure: 0.85,
+  contrast: 1.0,
 };
 
 /** Fantasy preset — bright and magical with warm tones and soft bloom. */
 const FANTASY_PRESET: PostProcessingConfig = {
-	enabled: true,
-	preset: 'fantasy',
-	bloom: { enabled: true, weight: 0.25, threshold: 0.6, kernel: 80, scale: 0.5 },
-	depthOfField: {
-		enabled: true,
-		focalLength: 35,
-		fStop: 4.0,
-		focusDistance: 0,
-		blurLevel: 'low',
-	},
-	toneMapping: { enabled: true, type: 'aces' },
-	colorGrading: { enabled: true, preset: 'warm' },
-	vignette: {
-		enabled: true,
-		weight: 0.8,
-		stretch: 0,
-		color: { r: 0, g: 0, b: 0, a: 1 },
-		blendMode: 'multiply',
-	},
-	grain: { enabled: false, intensity: 5, animated: true },
-	ssao: {
-		enabled: true,
-		totalStrength: 0.7,
-		radius: 2.0,
-		samples: 16,
-		base: 0.1,
-		expensiveBlur: true,
-	},
-	chromaticAberration: { enabled: false, amount: 30, radialIntensity: 0.3 },
-	sharpen: { enabled: false, edgeAmount: 0.3, colorAmount: 1.0 },
-	fxaa: { enabled: true },
-	dithering: { enabled: false, intensity: 0.004 },
-	hdrEnvironment: { enabled: false, texturePath: '', intensity: 1.0, rotationY: 0 },
-	exposure: 1.1,
-	contrast: 1.0,
+  enabled: true,
+  preset: 'fantasy',
+  bloom: { enabled: true, weight: 0.25, threshold: 0.6, kernel: 80, scale: 0.5 },
+  depthOfField: {
+    enabled: true,
+    focalLength: 35,
+    fStop: 4.0,
+    focusDistance: 0,
+    blurLevel: 'low',
+  },
+  toneMapping: { enabled: true, type: 'aces' },
+  colorGrading: { enabled: true, preset: 'warm' },
+  vignette: {
+    enabled: true,
+    weight: 0.8,
+    stretch: 0,
+    color: { r: 0, g: 0, b: 0, a: 1 },
+    blendMode: 'multiply',
+  },
+  grain: { enabled: false, intensity: 5, animated: true },
+  ssao: {
+    enabled: true,
+    totalStrength: 0.7,
+    radius: 2.0,
+    samples: 16,
+    base: 0.1,
+    expensiveBlur: true,
+  },
+  chromaticAberration: { enabled: false, amount: 30, radialIntensity: 0.3 },
+  sharpen: { enabled: false, edgeAmount: 0.3, colorAmount: 1.0 },
+  fxaa: { enabled: true },
+  dithering: { enabled: false, intensity: 0.004 },
+  hdrEnvironment: { enabled: false, texturePath: '', intensity: 1.0, rotationY: 0 },
+  exposure: 1.1,
+  contrast: 1.0,
 };
 
 /**
@@ -285,13 +285,13 @@ const FANTASY_PRESET: PostProcessingConfig = {
  * ```
  */
 export const POST_PROCESSING_PRESETS: Readonly<
-	Record<PostProcessingPresetName, PostProcessingConfig>
+  Record<PostProcessingPresetName, PostProcessingConfig>
 > = Object.freeze({
-	neutral: NEUTRAL_PRESET,
-	hd2d: HD2D_PRESET,
-	cinematic: CINEMATIC_PRESET,
-	retro: RETRO_PRESET,
-	fantasy: FANTASY_PRESET,
+  neutral: NEUTRAL_PRESET,
+  hd2d: HD2D_PRESET,
+  cinematic: CINEMATIC_PRESET,
+  retro: RETRO_PRESET,
+  fantasy: FANTASY_PRESET,
 });
 
 // =============================================================================
@@ -312,13 +312,13 @@ export const POST_PROCESSING_PRESETS: Readonly<
  * ```
  */
 export function getPostProcessingPreset(
-	name: PostProcessingPresetName,
+  name: PostProcessingPresetName,
 ): Result<PostProcessingConfig> {
-	const preset: PostProcessingConfig | undefined = POST_PROCESSING_PRESETS[name];
-	if (!preset) {
-		return err(ERRORS.SCENE.LOAD_FAILED, `Unknown post-processing preset: ${String(name)}`);
-	}
-	return okUnchecked(preset);
+  const preset: PostProcessingConfig | undefined = POST_PROCESSING_PRESETS[name];
+  if (!preset) {
+    return err(ERRORS.SCENE.LOAD_FAILED, `Unknown post-processing preset: ${String(name)}`);
+  }
+  return okUnchecked(preset);
 }
 
 // =============================================================================
@@ -347,45 +347,45 @@ export function getPostProcessingPreset(
  * ```
  */
 export function resolvePostProcessingConfig(
-	config: PostProcessingConfigInput,
+  config: PostProcessingConfigInput,
 ): Result<PostProcessingConfig> {
-	const presetName: PostProcessingPresetName = (config.preset ??
-		'hd2d') as PostProcessingPresetName;
-	const presetResult: Result<PostProcessingConfig> = getPostProcessingPreset(presetName);
-	if (!presetResult.ok) return presetResult;
+  const presetName: PostProcessingPresetName = (config.preset ??
+    'hd2d') as PostProcessingPresetName;
+  const presetResult: Result<PostProcessingConfig> = getPostProcessingPreset(presetName);
+  if (!presetResult.ok) return presetResult;
 
-	const base: PostProcessingConfig = presetResult.data;
+  const base: PostProcessingConfig = presetResult.data;
 
-	const merged = {
-		enabled: config.enabled ?? base.enabled,
-		preset: presetName,
-		bloom: config.bloom ? { ...base.bloom, ...config.bloom } : base.bloom,
-		depthOfField: config.depthOfField
-			? { ...base.depthOfField, ...config.depthOfField }
-			: base.depthOfField,
-		toneMapping: config.toneMapping
-			? { ...base.toneMapping, ...config.toneMapping }
-			: base.toneMapping,
-		colorGrading: config.colorGrading
-			? { ...base.colorGrading, ...config.colorGrading }
-			: base.colorGrading,
-		vignette: config.vignette ? { ...base.vignette, ...config.vignette } : base.vignette,
-		grain: config.grain ? { ...base.grain, ...config.grain } : base.grain,
-		ssao: config.ssao ? { ...base.ssao, ...config.ssao } : base.ssao,
-		chromaticAberration: config.chromaticAberration
-			? { ...base.chromaticAberration, ...config.chromaticAberration }
-			: base.chromaticAberration,
-		sharpen: config.sharpen ? { ...base.sharpen, ...config.sharpen } : base.sharpen,
-		fxaa: config.fxaa ? { ...base.fxaa, ...config.fxaa } : base.fxaa,
-		dithering: config.dithering ? { ...base.dithering, ...config.dithering } : base.dithering,
-		hdrEnvironment: config.hdrEnvironment
-			? { ...base.hdrEnvironment, ...config.hdrEnvironment }
-			: base.hdrEnvironment,
-		exposure: config.exposure ?? base.exposure,
-		contrast: config.contrast ?? base.contrast,
-	};
+  const merged = {
+    enabled: config.enabled ?? base.enabled,
+    preset: presetName,
+    bloom: config.bloom ? { ...base.bloom, ...config.bloom } : base.bloom,
+    depthOfField: config.depthOfField
+      ? { ...base.depthOfField, ...config.depthOfField }
+      : base.depthOfField,
+    toneMapping: config.toneMapping
+      ? { ...base.toneMapping, ...config.toneMapping }
+      : base.toneMapping,
+    colorGrading: config.colorGrading
+      ? { ...base.colorGrading, ...config.colorGrading }
+      : base.colorGrading,
+    vignette: config.vignette ? { ...base.vignette, ...config.vignette } : base.vignette,
+    grain: config.grain ? { ...base.grain, ...config.grain } : base.grain,
+    ssao: config.ssao ? { ...base.ssao, ...config.ssao } : base.ssao,
+    chromaticAberration: config.chromaticAberration
+      ? { ...base.chromaticAberration, ...config.chromaticAberration }
+      : base.chromaticAberration,
+    sharpen: config.sharpen ? { ...base.sharpen, ...config.sharpen } : base.sharpen,
+    fxaa: config.fxaa ? { ...base.fxaa, ...config.fxaa } : base.fxaa,
+    dithering: config.dithering ? { ...base.dithering, ...config.dithering } : base.dithering,
+    hdrEnvironment: config.hdrEnvironment
+      ? { ...base.hdrEnvironment, ...config.hdrEnvironment }
+      : base.hdrEnvironment,
+    exposure: config.exposure ?? base.exposure,
+    contrast: config.contrast ?? base.contrast,
+  };
 
-	return safeParse(PostProcessingConfigSchema, merged);
+  return safeParse(PostProcessingConfigSchema, merged);
 }
 
 // =============================================================================
@@ -415,40 +415,40 @@ export function resolvePostProcessingConfig(
  * ```
  */
 export function applyQualityScaling(
-	config: PostProcessingConfig,
-	quality: QualityPreset,
+  config: PostProcessingConfig,
+  quality: QualityPreset,
 ): Result<PostProcessingConfig> {
-	if (quality === 'high') {
-		return okUnchecked(config);
-	}
+  if (quality === 'high') {
+    return okUnchecked(config);
+  }
 
-	const scaled: PostProcessingConfig = {
-		...config,
-		bloom: config.bloom ? { ...config.bloom } : undefined,
-		depthOfField: config.depthOfField ? { ...config.depthOfField } : undefined,
-		grain: config.grain ? { ...config.grain } : undefined,
-		ssao: config.ssao ? { ...config.ssao } : undefined,
-		chromaticAberration: config.chromaticAberration ? { ...config.chromaticAberration } : undefined,
-	};
+  const scaled: PostProcessingConfig = {
+    ...config,
+    bloom: config.bloom ? { ...config.bloom } : undefined,
+    depthOfField: config.depthOfField ? { ...config.depthOfField } : undefined,
+    grain: config.grain ? { ...config.grain } : undefined,
+    ssao: config.ssao ? { ...config.ssao } : undefined,
+    chromaticAberration: config.chromaticAberration ? { ...config.chromaticAberration } : undefined,
+  };
 
-	if (quality === 'low') {
-		if (scaled.ssao) scaled.ssao.enabled = false;
-		if (scaled.depthOfField) scaled.depthOfField.enabled = false;
-		if (scaled.grain) scaled.grain.enabled = false;
-		if (scaled.chromaticAberration) scaled.chromaticAberration.enabled = false;
-		if (scaled.bloom) scaled.bloom.kernel = 32;
-	} else if (quality === 'medium') {
-		if (scaled.ssao) scaled.ssao.samples = 8;
-		if (scaled.depthOfField) scaled.depthOfField.blurLevel = 'low';
-		if (scaled.bloom) scaled.bloom.kernel = 48;
-		if (scaled.chromaticAberration) scaled.chromaticAberration.enabled = false;
-	} else if (quality === 'ultra') {
-		if (scaled.ssao) scaled.ssao.samples = 32;
-		if (scaled.bloom) scaled.bloom.kernel = 128;
-		if (scaled.depthOfField) scaled.depthOfField.blurLevel = 'high';
-	}
+  if (quality === 'low') {
+    if (scaled.ssao) scaled.ssao.enabled = false;
+    if (scaled.depthOfField) scaled.depthOfField.enabled = false;
+    if (scaled.grain) scaled.grain.enabled = false;
+    if (scaled.chromaticAberration) scaled.chromaticAberration.enabled = false;
+    if (scaled.bloom) scaled.bloom.kernel = 32;
+  } else if (quality === 'medium') {
+    if (scaled.ssao) scaled.ssao.samples = 8;
+    if (scaled.depthOfField) scaled.depthOfField.blurLevel = 'low';
+    if (scaled.bloom) scaled.bloom.kernel = 48;
+    if (scaled.chromaticAberration) scaled.chromaticAberration.enabled = false;
+  } else if (quality === 'ultra') {
+    if (scaled.ssao) scaled.ssao.samples = 32;
+    if (scaled.bloom) scaled.bloom.kernel = 128;
+    if (scaled.depthOfField) scaled.depthOfField.blurLevel = 'high';
+  }
 
-	return okUnchecked(scaled);
+  return okUnchecked(scaled);
 }
 
 // =============================================================================
@@ -477,59 +477,59 @@ export function applyQualityScaling(
  * ```
  */
 export function buildColorCurves(preset: ColorGradingPreset): BabylonResult<BABYLON.ColorCurves> {
-	const curves: BABYLON.ColorCurves = new BABYLON.ColorCurves();
+  const curves: BABYLON.ColorCurves = new BABYLON.ColorCurves();
 
-	switch (preset) {
-		case 'neutral': {
-			break;
-		}
+  switch (preset) {
+    case 'neutral': {
+      break;
+    }
 
-		case 'warm': {
-			curves.globalHue = 30;
-			curves.globalSaturation = 20;
-			curves.highlightsHue = 40;
-			curves.highlightsExposure = 0.1;
-			curves.midtonesSaturation = 10;
-			curves.shadowsHue = 20;
-			curves.shadowsDensity = 40;
-			break;
-		}
+    case 'warm': {
+      curves.globalHue = 30;
+      curves.globalSaturation = 20;
+      curves.highlightsHue = 40;
+      curves.highlightsExposure = 0.1;
+      curves.midtonesSaturation = 10;
+      curves.shadowsHue = 20;
+      curves.shadowsDensity = 40;
+      break;
+    }
 
-		case 'cool': {
-			curves.globalHue = 210;
-			curves.globalSaturation = 10;
-			curves.highlightsHue = 220;
-			curves.highlightsExposure = -0.05;
-			curves.midtonesSaturation = 5;
-			curves.shadowsHue = 240;
-			curves.shadowsDensity = 30;
-			break;
-		}
+    case 'cool': {
+      curves.globalHue = 210;
+      curves.globalSaturation = 10;
+      curves.highlightsHue = 220;
+      curves.highlightsExposure = -0.05;
+      curves.midtonesSaturation = 5;
+      curves.shadowsHue = 240;
+      curves.shadowsDensity = 30;
+      break;
+    }
 
-		case 'cinematic': {
-			curves.highlightsHue = 200;
-			curves.highlightsSaturation = -10;
-			curves.highlightsExposure = -0.1;
-			curves.midtonesSaturation = 5;
-			curves.shadowsHue = 30;
-			curves.shadowsDensity = 60;
-			curves.shadowsSaturation = 15;
-			break;
-		}
+    case 'cinematic': {
+      curves.highlightsHue = 200;
+      curves.highlightsSaturation = -10;
+      curves.highlightsExposure = -0.1;
+      curves.midtonesSaturation = 5;
+      curves.shadowsHue = 30;
+      curves.shadowsDensity = 60;
+      curves.shadowsSaturation = 15;
+      break;
+    }
 
-		case 'retro': {
-			curves.globalSaturation = -30;
-			curves.highlightsExposure = -0.2;
-			curves.midtonesSaturation = -20;
-			curves.shadowsDensity = 80;
-			curves.shadowsSaturation = -10;
-			break;
-		}
+    case 'retro': {
+      curves.globalSaturation = -30;
+      curves.highlightsExposure = -0.2;
+      curves.midtonesSaturation = -20;
+      curves.shadowsDensity = 80;
+      curves.shadowsSaturation = -10;
+      break;
+    }
 
-		default: {
-			return err(ERRORS.SCENE.LOAD_FAILED, `Unknown color grading preset: ${String(preset)}`);
-		}
-	}
+    default: {
+      return err(ERRORS.SCENE.LOAD_FAILED, `Unknown color grading preset: ${String(preset)}`);
+    }
+  }
 
-	return okShallow(curves);
+  return okShallow(curves);
 }

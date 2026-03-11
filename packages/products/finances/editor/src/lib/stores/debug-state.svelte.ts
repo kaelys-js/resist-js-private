@@ -14,10 +14,10 @@ import type { Bool, Str, Void } from '@/schemas/common';
 import { ERRORS, err, okUnchecked, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import {
-	DebugStateSchema,
-	LogLevelSchema,
-	type DebugState,
-	type UrlOverrides,
+  DebugStateSchema,
+  LogLevelSchema,
+  type DebugState,
+  type UrlOverrides,
 } from '$lib/schemas/debug-state';
 import { parseDebugParams } from '$lib/utils/url-params';
 import { storageKey } from '$lib/config/app-meta';
@@ -34,8 +34,8 @@ export const STORAGE_KEY: Str = storageKey('debug-state');
 // =============================================================================
 
 const DEBUG_DEFAULTS: DebugState = {
-	enabled: false,
-	logLevel: 'info',
+  enabled: false,
+  logLevel: 'info',
 };
 
 // =============================================================================
@@ -56,14 +56,14 @@ let _urlOverrides: UrlOverrides = $state({});
  * All mutations validate via Valibot and return `Result<Void>`.
  */
 export type DebugStore = {
-	/** Current debug state (reactive via `$state`). */
-	readonly debug: DebugState;
-	/** URL overrides parsed from query params (session-only, not persisted). */
-	readonly urlOverrides: UrlOverrides;
-	/** Enable or disable debug mode. */
-	setEnabled(enabled: Bool): Result<Void>;
-	/** Set the active log level. Must be a valid LogLevel. */
-	setLogLevel(level: Str): Result<Void>;
+  /** Current debug state (reactive via `$state`). */
+  readonly debug: DebugState;
+  /** URL overrides parsed from query params (session-only, not persisted). */
+  readonly urlOverrides: UrlOverrides;
+  /** Enable or disable debug mode. */
+  setEnabled(enabled: Bool): Result<Void>;
+  /** Set the active log level. Must be a valid LogLevel. */
+  setLogLevel(level: Str): Result<Void>;
 };
 
 // =============================================================================
@@ -76,18 +76,18 @@ export type DebugStore = {
  * @returns `Result<Void>` — ok on success, error if write fails
  */
 function save(): Result<Void> {
-	if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
-	try {
-		// Only persist logLevel — `enabled` is session-only (set via URL param or keyboard shortcut)
-		const data = { logLevel: _debug.logLevel };
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-		return okUnchecked<Void>(undefined);
-	} catch {
-		return err(
-			ERRORS.IO.WRITE_FAILED,
-			`Failed to save debug state to localStorage key "${STORAGE_KEY}" (logLevel: ${_debug.logLevel})`,
-		);
-	}
+  if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
+  try {
+    // Only persist logLevel — `enabled` is session-only (set via URL param or keyboard shortcut)
+    const data = { logLevel: _debug.logLevel };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    return okUnchecked<Void>(undefined);
+  } catch {
+    return err(
+      ERRORS.IO.WRITE_FAILED,
+      `Failed to save debug state to localStorage key "${STORAGE_KEY}" (logLevel: ${_debug.logLevel})`,
+    );
+  }
 }
 
 /**
@@ -96,23 +96,23 @@ function save(): Result<Void> {
  * @returns `Result<Void>` — ok on success, error if validation fails
  */
 function load(): Result<Void> {
-	if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
-	try {
-		const raw: Str | null = localStorage.getItem(STORAGE_KEY);
-		if (raw === null) return okUnchecked<Void>(undefined);
+  if (typeof window === 'undefined') return okUnchecked<Void>(undefined);
+  try {
+    const raw: Str | null = localStorage.getItem(STORAGE_KEY);
+    if (raw === null) return okUnchecked<Void>(undefined);
 
-		const parsed: unknown = JSON.parse(raw);
-		const result = safeParse(DebugStateSchema, parsed);
-		if (!result.ok) return result;
+    const parsed: unknown = JSON.parse(raw);
+    const result = safeParse(DebugStateSchema, parsed);
+    if (!result.ok) return result;
 
-		_debug = { ...result.data };
-		return okUnchecked<Void>(undefined);
-	} catch {
-		return err(
-			ERRORS.IO.READ_FAILED,
-			`Failed to load debug state from localStorage key "${STORAGE_KEY}" — data may be corrupted`,
-		);
-	}
+    _debug = { ...result.data };
+    return okUnchecked<Void>(undefined);
+  } catch {
+    return err(
+      ERRORS.IO.READ_FAILED,
+      `Failed to load debug state from localStorage key "${STORAGE_KEY}" — data may be corrupted`,
+    );
+  }
 }
 
 // =============================================================================
@@ -126,11 +126,11 @@ function load(): Result<Void> {
  * @returns `Result<Void>` — error if value is not boolean
  */
 function setEnabled(enabled: Bool): Result<Void> {
-	const result = safeParse(v.boolean(), enabled);
-	if (!result.ok) return result;
+  const result = safeParse(v.boolean(), enabled);
+  if (!result.ok) return result;
 
-	_debug = { ..._debug, enabled: result.data };
-	return save();
+  _debug = { ..._debug, enabled: result.data };
+  return save();
 }
 
 /**
@@ -140,11 +140,11 @@ function setEnabled(enabled: Bool): Result<Void> {
  * @returns `Result<Void>` — error if level is invalid
  */
 function setLogLevel(level: Str): Result<Void> {
-	const result = safeParse(LogLevelSchema, level);
-	if (!result.ok) return result;
+  const result = safeParse(LogLevelSchema, level);
+  if (!result.ok) return result;
 
-	_debug = { ..._debug, logLevel: result.data };
-	return save();
+  _debug = { ..._debug, logLevel: result.data };
+  return save();
 }
 
 // =============================================================================
@@ -166,38 +166,38 @@ function setLogLevel(level: Str): Result<Void> {
  * ```
  */
 export function createDebugStore(url?: URL): Result<DebugStore> {
-	// Reset to defaults
-	_debug = { ...DEBUG_DEFAULTS };
-	_urlOverrides = {};
+  // Reset to defaults
+  _debug = { ...DEBUG_DEFAULTS };
+  _urlOverrides = {};
 
-	// Try loading from localStorage (failures are non-fatal)
-	load();
+  // Try loading from localStorage (failures are non-fatal)
+  load();
 
-	// Parse URL params if provided
-	if (url) {
-		const parseResult = parseDebugParams(url);
-		if (parseResult.ok) {
-			_urlOverrides = { ...parseResult.data };
-		}
-	}
+  // Parse URL params if provided
+  if (url) {
+    const parseResult = parseDebugParams(url);
+    if (parseResult.ok) {
+      _urlOverrides = { ...parseResult.data };
+    }
+  }
 
-	const store: DebugStore = {
-		get debug(): DebugState {
-			return _debug;
-		},
-		get urlOverrides(): UrlOverrides {
-			return _urlOverrides;
-		},
-		setEnabled,
-		setLogLevel,
-	};
+  const store: DebugStore = {
+    get debug(): DebugState {
+      return _debug;
+    },
+    get urlOverrides(): UrlOverrides {
+      return _urlOverrides;
+    },
+    setEnabled,
+    setLogLevel,
+  };
 
-	return Object.freeze({
-		ok: true as const,
-		data: store,
-		error: null,
-		// Cast required: Object.freeze literal doesn't narrow to Result<T> discriminant
-	}) as Result<DebugStore>;
+  return Object.freeze({
+    ok: true as const,
+    data: store,
+    error: null,
+    // Cast required: Object.freeze literal doesn't narrow to Result<T> discriminant
+  }) as Result<DebugStore>;
 }
 
 // =============================================================================
@@ -214,10 +214,10 @@ let _singleton: DebugStore | null = null;
  * @throws If `createDebugStore()` returns an error
  */
 export function initDebugStore(url?: URL): DebugStore {
-	const result = createDebugStore(url);
-	if (!result.ok) throw new Error(`DebugStore creation failed: ${result.error.message}`);
-	_singleton = result.data;
-	return _singleton;
+  const result = createDebugStore(url);
+  if (!result.ok) throw new Error(`DebugStore creation failed: ${result.error.message}`);
+  _singleton = result.data;
+  return _singleton;
 }
 
 /**
@@ -227,8 +227,8 @@ export function initDebugStore(url?: URL): DebugStore {
  * @throws If `initDebugStore()` has not been called yet
  */
 export function useDebugStore(): DebugStore {
-	if (_singleton === null) {
-		throw new Error('DebugStore not initialized — call initDebugStore() first');
-	}
-	return _singleton;
+  if (_singleton === null) {
+    throw new Error('DebugStore not initialized — call initDebugStore() first');
+  }
+  return _singleton;
 }

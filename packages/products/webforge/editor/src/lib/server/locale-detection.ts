@@ -31,13 +31,13 @@ export const SUPPORTED_LOCALE_CODES: ReadonlySet<Str> = new Set(SUPPORTED_LOCALE
  * ```
  */
 export function detectFromHeader(acceptLanguage: Str | null): Str {
-	if (!acceptLanguage) return '';
-	const tags: readonly Str[] = acceptLanguage.split(',').map((s) => s.split(';')[0]?.trim() ?? '');
-	for (const tag of tags) {
-		const code: Str = (tag.split('-')[0] ?? '').toLowerCase();
-		if (SUPPORTED_LOCALE_CODES.has(code)) return code;
-	}
-	return '';
+  if (!acceptLanguage) return '';
+  const tags: readonly Str[] = acceptLanguage.split(',').map((s) => s.split(';')[0]?.trim() ?? '');
+  for (const tag of tags) {
+    const code: Str = (tag.split('-')[0] ?? '').toLowerCase();
+    if (SUPPORTED_LOCALE_CODES.has(code)) return code;
+  }
+  return '';
 }
 
 /**
@@ -58,8 +58,8 @@ export function detectFromHeader(acceptLanguage: Str | null): Str {
  * ```
  */
 export function resolveLocale(cookie: Str, acceptLanguage: Str | null): Str {
-	if (SUPPORTED_LOCALE_CODES.has(cookie)) return cookie;
-	const fromHeader: Str = detectFromHeader(acceptLanguage);
-	if (SUPPORTED_LOCALE_CODES.has(fromHeader)) return fromHeader;
-	return 'en';
+  if (SUPPORTED_LOCALE_CODES.has(cookie)) return cookie;
+  const fromHeader: Str = detectFromHeader(acceptLanguage);
+  if (SUPPORTED_LOCALE_CODES.has(fromHeader)) return fromHeader;
+  return 'en';
 }

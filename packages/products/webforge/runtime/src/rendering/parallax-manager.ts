@@ -61,18 +61,18 @@ export const PARALLAX_FG_RENDER_GROUP: Num = 3 as Num;
  * reads the latest values each tick.
  */
 export type ParallaxInstance = {
-	/** Background layers (one per parallax config, ordered back-to-front). */
-	readonly bgLayers: BABYLON.Layer[];
-	/** Mutable — external code may change scroll speeds between frames. */
-	layers: ParallaxLayer[];
-	/** Accumulated auto-scroll UV offsets per layer (u, v pairs). */
-	readonly autoScrollAccum: Array<{ u: Num; v: Num }>;
-	/** Per-frame observer for UV offset updates (null if no layers). */
-	readonly observer: BABYLON.Observer<BABYLON.Scene> | null;
-	/** Observer that renders background layers between sky and tilemap groups. */
-	readonly renderGroupObserver: BABYLON.Observer<BABYLON.RenderingGroupInfo> | null;
-	/** The scene this parallax belongs to. */
-	readonly scene: BABYLON.Scene;
+  /** Background layers (one per parallax config, ordered back-to-front). */
+  readonly bgLayers: BABYLON.Layer[];
+  /** Mutable — external code may change scroll speeds between frames. */
+  layers: ParallaxLayer[];
+  /** Accumulated auto-scroll UV offsets per layer (u, v pairs). */
+  readonly autoScrollAccum: Array<{ u: Num; v: Num }>;
+  /** Per-frame observer for UV offset updates (null if no layers). */
+  readonly observer: BABYLON.Observer<BABYLON.Scene> | null;
+  /** Observer that renders background layers between sky and tilemap groups. */
+  readonly renderGroupObserver: BABYLON.Observer<BABYLON.RenderingGroupInfo> | null;
+  /** The scene this parallax belongs to. */
+  readonly scene: BABYLON.Scene;
 };
 
 // =============================================================================
@@ -107,35 +107,35 @@ export type ParallaxInstance = {
  * ```
  */
 export function mapBlendMode(mode: string): Num {
-	switch (mode) {
-		case 'alpha': {
-			return 2 as Num;
-		}
-		case 'additive': {
-			return 1 as Num;
-		}
-		case 'multiply': {
-			return 4 as Num;
-		}
-		case 'subtract': {
-			return 3 as Num;
-		}
-		case 'screen': {
-			return 10 as Num;
-		}
-		case 'maximized': {
-			return 5 as Num;
-		}
-		case 'oneone': {
-			return 6 as Num;
-		}
-		case 'premultiplied': {
-			return 7 as Num;
-		}
-		default: {
-			return 2 as Num;
-		}
-	}
+  switch (mode) {
+    case 'alpha': {
+      return 2 as Num;
+    }
+    case 'additive': {
+      return 1 as Num;
+    }
+    case 'multiply': {
+      return 4 as Num;
+    }
+    case 'subtract': {
+      return 3 as Num;
+    }
+    case 'screen': {
+      return 10 as Num;
+    }
+    case 'maximized': {
+      return 5 as Num;
+    }
+    case 'oneone': {
+      return 6 as Num;
+    }
+    case 'premultiplied': {
+      return 7 as Num;
+    }
+    default: {
+      return 2 as Num;
+    }
+  }
 }
 
 // =============================================================================
@@ -157,15 +157,15 @@ export function mapBlendMode(mode: string): Num {
  * ```
  */
 export function computeParallaxOffset(options: {
-	readonly cameraX: Num;
-	readonly cameraZ: Num;
-	readonly scrollSpeedX: Num;
-	readonly scrollSpeedY: Num;
+  readonly cameraX: Num;
+  readonly cameraZ: Num;
+  readonly scrollSpeedX: Num;
+  readonly scrollSpeedY: Num;
 }): { readonly x: Num; readonly y: Num } {
-	return {
-		x: (options.cameraX * options.scrollSpeedX) as Num,
-		y: (options.cameraZ * options.scrollSpeedY) as Num,
-	};
+  return {
+    x: (options.cameraX * options.scrollSpeedX) as Num,
+    y: (options.cameraZ * options.scrollSpeedY) as Num,
+  };
 }
 
 // =============================================================================
@@ -193,143 +193,143 @@ export function computeParallaxOffset(options: {
  * ```
  */
 export function createParallax(options: {
-	readonly scene: BABYLON.Scene;
-	readonly layers: readonly ParallaxLayer[];
-	readonly assetBasePath: string;
+  readonly scene: BABYLON.Scene;
+  readonly layers: readonly ParallaxLayer[];
+  readonly assetBasePath: string;
 }): BabylonResult<ParallaxInstance> {
-	const { scene, assetBasePath } = options;
+  const { scene, assetBasePath } = options;
 
-	try {
-		// Sort layers by depth (lower depth = further back, rendered first)
-		const sortedLayers: ParallaxLayer[] = [...options.layers].toSorted((a, b) => a.depth - b.depth);
+  try {
+    // Sort layers by depth (lower depth = further back, rendered first)
+    const sortedLayers: ParallaxLayer[] = [...options.layers].toSorted((a, b) => a.depth - b.depth);
 
-		const bgLayers: BABYLON.Layer[] = [];
+    const bgLayers: BABYLON.Layer[] = [];
 
-		for (let i = 0; i < sortedLayers.length; i++) {
-			const layer = sortedLayers[i];
-			if (!layer) continue;
+    for (let i = 0; i < sortedLayers.length; i++) {
+      const layer = sortedLayers[i];
+      if (!layer) continue;
 
-			const texturePath = `${assetBasePath}${layer.imagePath}`;
+      const texturePath = `${assetBasePath}${layer.imagePath}`;
 
-			// Layer(name, imgUrl, scene, isBackground)
-			// isBackground=true renders behind 3D, isBackground=false renders in front
-			const isBackground = layer.layerType !== 'foreground';
-			const bgLayer = new BABYLON.Layer(`parallax-${i}`, texturePath, scene, isBackground);
+      // Layer(name, imgUrl, scene, isBackground)
+      // isBackground=true renders behind 3D, isBackground=false renders in front
+      const isBackground = layer.layerType !== 'foreground';
+      const bgLayer = new BABYLON.Layer(`parallax-${i}`, texturePath, scene, isBackground);
 
-			// Suppress automatic background rendering — we manually render
-			// background layers between the sky and tilemap groups instead.
-			if (isBackground) {
-				bgLayer.renderOnlyInRenderTargetTextures = true;
-			}
+      // Suppress automatic background rendering — we manually render
+      // background layers between the sky and tilemap groups instead.
+      if (isBackground) {
+        bgLayer.renderOnlyInRenderTargetTextures = true;
+      }
 
-			// Apply blend mode from layer config
-			bgLayer.alphaBlendingMode = mapBlendMode(layer.blendMode);
+      // Apply blend mode from layer config
+      bgLayer.alphaBlendingMode = mapBlendMode(layer.blendMode);
 
-			// Apply tint color with opacity in the alpha channel
-			bgLayer.color = new BABYLON.Color4(layer.tint.r, layer.tint.g, layer.tint.b, layer.opacity);
+      // Apply tint color with opacity in the alpha channel
+      bgLayer.color = new BABYLON.Color4(layer.tint.r, layer.tint.g, layer.tint.b, layer.opacity);
 
-			// Configure texture tiling — Layer.texture is BaseTexture but the
-			// constructor creates a Texture, so we narrow for UV property access.
-			const tex = bgLayer.texture;
-			if (tex && tex instanceof BABYLON.Texture) {
-				if (layer.tileX) {
-					tex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
-				} else {
-					tex.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
-				}
-				if (layer.tileY) {
-					tex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
-				} else {
-					tex.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
-				}
+      // Configure texture tiling — Layer.texture is BaseTexture but the
+      // constructor creates a Texture, so we narrow for UV property access.
+      const tex = bgLayer.texture;
+      if (tex && tex instanceof BABYLON.Texture) {
+        if (layer.tileX) {
+          tex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
+        } else {
+          tex.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+        }
+        if (layer.tileY) {
+          tex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
+        } else {
+          tex.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
+        }
 
-				// Apply scale via texture scaling
-				tex.uScale = 1 / layer.scale;
-				tex.vScale = 1 / layer.scale;
-			}
+        // Apply scale via texture scaling
+        tex.uScale = 1 / layer.scale;
+        tex.vScale = 1 / layer.scale;
+      }
 
-			// Apply layer scale to offset positioning
-			bgLayer.scale = new BABYLON.Vector2(layer.scale, layer.scale);
-			bgLayer.offset = new BABYLON.Vector2(0, layer.offsetY * 0.01);
+      // Apply layer scale to offset positioning
+      bgLayer.scale = new BABYLON.Vector2(layer.scale, layer.scale);
+      bgLayer.offset = new BABYLON.Vector2(0, layer.offsetY * 0.01);
 
-			bgLayers.push(bgLayer);
-		}
+      bgLayers.push(bgLayer);
+    }
 
-		// Accumulated auto-scroll offsets (one per sorted layer)
-		const autoScrollAccum: Array<{ u: Num; v: Num }> = sortedLayers.map(() => ({
-			u: 0 as Num,
-			v: 0 as Num,
-		}));
+    // Accumulated auto-scroll offsets (one per sorted layer)
+    const autoScrollAccum: Array<{ u: Num; v: Num }> = sortedLayers.map(() => ({
+      u: 0 as Num,
+      v: 0 as Num,
+    }));
 
-		// Register per-frame observer for UV offset and auto-scroll updates
-		let observer: BABYLON.Observer<BABYLON.Scene> | null = null;
-		if (sortedLayers.length > 0) {
-			observer = scene.onBeforeRenderObservable.add(() => {
-				const dt = (scene.getEngine().getDeltaTime() / 1000) as Num;
-				const camera = scene.activeCamera;
+    // Register per-frame observer for UV offset and auto-scroll updates
+    let observer: BABYLON.Observer<BABYLON.Scene> | null = null;
+    if (sortedLayers.length > 0) {
+      observer = scene.onBeforeRenderObservable.add(() => {
+        const dt = (scene.getEngine().getDeltaTime() / 1000) as Num;
+        const camera = scene.activeCamera;
 
-				for (let i = 0; i < sortedLayers.length; i++) {
-					const layer = sortedLayers[i];
-					if (!layer) continue;
-					const bgLayer = bgLayers[i];
-					if (!bgLayer?.texture || !(bgLayer.texture instanceof BABYLON.Texture)) continue;
+        for (let i = 0; i < sortedLayers.length; i++) {
+          const layer = sortedLayers[i];
+          if (!layer) continue;
+          const bgLayer = bgLayers[i];
+          if (!bgLayer?.texture || !(bgLayer.texture instanceof BABYLON.Texture)) continue;
 
-					// Camera-based parallax offset (absolute, position-based)
-					let cameraU = 0 as Num;
-					let cameraV = 0 as Num;
-					if (camera) {
-						const cameraPos = camera.position;
-						const offset = computeParallaxOffset({
-							cameraX: cameraPos.x as Num,
-							cameraZ: cameraPos.z as Num,
-							scrollSpeedX: layer.scrollSpeedX as Num,
-							scrollSpeedY: layer.scrollSpeedY as Num,
-						});
-						cameraU = (offset.x * 0.01) as Num;
-						cameraV = (offset.y * 0.01) as Num;
-					}
+          // Camera-based parallax offset (absolute, position-based)
+          let cameraU = 0 as Num;
+          let cameraV = 0 as Num;
+          if (camera) {
+            const cameraPos = camera.position;
+            const offset = computeParallaxOffset({
+              cameraX: cameraPos.x as Num,
+              cameraZ: cameraPos.z as Num,
+              scrollSpeedX: layer.scrollSpeedX as Num,
+              scrollSpeedY: layer.scrollSpeedY as Num,
+            });
+            cameraU = (offset.x * 0.01) as Num;
+            cameraV = (offset.y * 0.01) as Num;
+          }
 
-					// Accumulate auto-scroll drift (camera-independent, time-based)
-					const accum = autoScrollAccum[i];
-					if (accum) {
-						accum.u = (accum.u + layer.autoScrollX * dt) as Num;
-						accum.v = (accum.v + layer.autoScrollY * dt) as Num;
-					}
+          // Accumulate auto-scroll drift (camera-independent, time-based)
+          const accum = autoScrollAccum[i];
+          if (accum) {
+            accum.u = (accum.u + layer.autoScrollX * dt) as Num;
+            accum.v = (accum.v + layer.autoScrollY * dt) as Num;
+          }
 
-					// Combine absolute camera offset with accumulated auto-scroll
-					bgLayer.texture.uOffset = cameraU + (accum ? accum.u : 0);
-					bgLayer.texture.vOffset = cameraV + (accum ? accum.v : 0);
-				}
-			});
-		}
+          // Combine absolute camera offset with accumulated auto-scroll
+          bgLayer.texture.uOffset = cameraU + (accum ? accum.u : 0);
+          bgLayer.texture.vOffset = cameraV + (accum ? accum.v : 0);
+        }
+      });
+    }
 
-		// Render background parallax layers after sky group (0), before tilemap
-		// group (2). This places parallax visually between sky and tilemap.
-		let renderGroupObserver: BABYLON.Observer<BABYLON.RenderingGroupInfo> | null = null;
-		const backgroundLayers: BABYLON.Layer[] = bgLayers.filter(
-			(_, idx) => sortedLayers[idx]?.layerType !== 'foreground',
-		);
-		if (backgroundLayers.length > 0) {
-			renderGroupObserver = scene.onAfterRenderingGroupObservable.add((info) => {
-				if (info.renderingGroupId === 0) {
-					for (const layer of backgroundLayers) {
-						layer.render();
-					}
-				}
-			});
-		}
+    // Render background parallax layers after sky group (0), before tilemap
+    // group (2). This places parallax visually between sky and tilemap.
+    let renderGroupObserver: BABYLON.Observer<BABYLON.RenderingGroupInfo> | null = null;
+    const backgroundLayers: BABYLON.Layer[] = bgLayers.filter(
+      (_, idx) => sortedLayers[idx]?.layerType !== 'foreground',
+    );
+    if (backgroundLayers.length > 0) {
+      renderGroupObserver = scene.onAfterRenderingGroupObservable.add((info) => {
+        if (info.renderingGroupId === 0) {
+          for (const layer of backgroundLayers) {
+            layer.render();
+          }
+        }
+      });
+    }
 
-		return okShallow({
-			bgLayers,
-			layers: sortedLayers,
-			autoScrollAccum,
-			observer,
-			renderGroupObserver,
-			scene,
-		});
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow({
+      bgLayers,
+      layers: sortedLayers,
+      autoScrollAccum,
+      observer,
+      renderGroupObserver,
+      scene,
+    });
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -348,30 +348,30 @@ export function createParallax(options: {
  * ```
  */
 export function disposeParallax(options: {
-	readonly parallax: ParallaxInstance;
+  readonly parallax: ParallaxInstance;
 }): BabylonResult<Bool> {
-	const { parallax } = options;
+  const { parallax } = options;
 
-	try {
-		// Remove per-frame observer
-		if (parallax.observer) {
-			parallax.scene.onBeforeRenderObservable.remove(parallax.observer);
-		}
+  try {
+    // Remove per-frame observer
+    if (parallax.observer) {
+      parallax.scene.onBeforeRenderObservable.remove(parallax.observer);
+    }
 
-		// Remove rendering group observer
-		if (parallax.renderGroupObserver) {
-			parallax.scene.onAfterRenderingGroupObservable.remove(parallax.renderGroupObserver);
-		}
+    // Remove rendering group observer
+    if (parallax.renderGroupObserver) {
+      parallax.scene.onAfterRenderingGroupObservable.remove(parallax.renderGroupObserver);
+    }
 
-		// Dispose background layers (also disposes internal textures)
-		for (const bgLayer of parallax.bgLayers) {
-			bgLayer.dispose();
-		}
+    // Dispose background layers (also disposes internal textures)
+    for (const bgLayer of parallax.bgLayers) {
+      bgLayer.dispose();
+    }
 
-		return okShallow(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -391,9 +391,9 @@ export function disposeParallax(options: {
  * ```
  */
 export function getParallaxLayerCount(options: {
-	readonly parallax: ParallaxInstance;
+  readonly parallax: ParallaxInstance;
 }): BabylonResult<Num> {
-	return okShallow(options.parallax.bgLayers.length as Num);
+  return okShallow(options.parallax.bgLayers.length as Num);
 }
 
 // =============================================================================
@@ -420,63 +420,63 @@ export function getParallaxLayerCount(options: {
  * ```
  */
 export function addParallaxLayer(options: {
-	readonly parallax: ParallaxInstance;
-	readonly layer: ParallaxLayer;
-	readonly assetBasePath: string;
+  readonly parallax: ParallaxInstance;
+  readonly layer: ParallaxLayer;
+  readonly assetBasePath: string;
 }): BabylonResult<Bool> {
-	const { parallax, layer, assetBasePath } = options;
+  const { parallax, layer, assetBasePath } = options;
 
-	try {
-		const texturePath = `${assetBasePath}${layer.imagePath}`;
-		const index: Num = parallax.bgLayers.length as Num;
-		const isBackground: boolean = layer.layerType !== 'foreground';
-		const bgLayer = new BABYLON.Layer(
-			`parallax-${index}`,
-			texturePath,
-			parallax.scene,
-			isBackground,
-		);
+  try {
+    const texturePath = `${assetBasePath}${layer.imagePath}`;
+    const index: Num = parallax.bgLayers.length as Num;
+    const isBackground: boolean = layer.layerType !== 'foreground';
+    const bgLayer = new BABYLON.Layer(
+      `parallax-${index}`,
+      texturePath,
+      parallax.scene,
+      isBackground,
+    );
 
-		// Suppress automatic background rendering — the rendering group
-		// observer handles manual rendering between sky and tilemap.
-		if (isBackground) {
-			bgLayer.renderOnlyInRenderTargetTextures = true;
-		}
+    // Suppress automatic background rendering — the rendering group
+    // observer handles manual rendering between sky and tilemap.
+    if (isBackground) {
+      bgLayer.renderOnlyInRenderTargetTextures = true;
+    }
 
-		// Apply blend mode
-		bgLayer.alphaBlendingMode = mapBlendMode(layer.blendMode);
+    // Apply blend mode
+    bgLayer.alphaBlendingMode = mapBlendMode(layer.blendMode);
 
-		// Apply tint with opacity
-		bgLayer.color = new BABYLON.Color4(layer.tint.r, layer.tint.g, layer.tint.b, layer.opacity);
+    // Apply tint with opacity
+    bgLayer.color = new BABYLON.Color4(layer.tint.r, layer.tint.g, layer.tint.b, layer.opacity);
 
-		// Configure texture tiling and scale
-		const tex = bgLayer.texture;
-		if (tex && tex instanceof BABYLON.Texture) {
-			if (layer.tileX) {
-				tex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
-			} else {
-				tex.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
-			}
-			if (layer.tileY) {
-				tex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
-			} else {
-				tex.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
-			}
-			tex.uScale = 1 / layer.scale;
-			tex.vScale = 1 / layer.scale;
-		}
+    // Configure texture tiling and scale
+    const tex = bgLayer.texture;
+    if (tex && tex instanceof BABYLON.Texture) {
+      if (layer.tileX) {
+        tex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
+      } else {
+        tex.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+      }
+      if (layer.tileY) {
+        tex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
+      } else {
+        tex.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
+      }
+      tex.uScale = 1 / layer.scale;
+      tex.vScale = 1 / layer.scale;
+    }
 
-		bgLayer.scale = new BABYLON.Vector2(layer.scale, layer.scale);
-		bgLayer.offset = new BABYLON.Vector2(0, layer.offsetY * 0.01);
+    bgLayer.scale = new BABYLON.Vector2(layer.scale, layer.scale);
+    bgLayer.offset = new BABYLON.Vector2(0, layer.offsetY * 0.01);
 
-		parallax.bgLayers.push(bgLayer);
-		parallax.layers.push(layer);
-		parallax.autoScrollAccum.push({ u: 0 as Num, v: 0 as Num });
+    parallax.bgLayers.push(bgLayer);
+    parallax.layers.push(layer);
+    parallax.autoScrollAccum.push({ u: 0 as Num, v: 0 as Num });
 
-		return okShallow(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -499,32 +499,32 @@ export function addParallaxLayer(options: {
  * ```
  */
 export function removeParallaxLayer(options: {
-	readonly parallax: ParallaxInstance;
-	readonly index: Num;
+  readonly parallax: ParallaxInstance;
+  readonly index: Num;
 }): BabylonResult<Bool> {
-	const { parallax, index } = options;
+  const { parallax, index } = options;
 
-	if (index < 0 || index >= parallax.bgLayers.length) {
-		return err(
-			ERRORS.VALIDATION.INVALID_FORMAT,
-			`Layer index ${index} out of bounds (0..${parallax.bgLayers.length - 1})`,
-		);
-	}
+  if (index < 0 || index >= parallax.bgLayers.length) {
+    return err(
+      ERRORS.VALIDATION.INVALID_FORMAT,
+      `Layer index ${index} out of bounds (0..${parallax.bgLayers.length - 1})`,
+    );
+  }
 
-	try {
-		const bgLayer = parallax.bgLayers[index];
-		if (bgLayer) {
-			bgLayer.dispose();
-		}
+  try {
+    const bgLayer = parallax.bgLayers[index];
+    if (bgLayer) {
+      bgLayer.dispose();
+    }
 
-		parallax.bgLayers.splice(index, 1);
-		parallax.layers.splice(index, 1);
-		parallax.autoScrollAccum.splice(index, 1);
+    parallax.bgLayers.splice(index, 1);
+    parallax.layers.splice(index, 1);
+    parallax.autoScrollAccum.splice(index, 1);
 
-		return okShallow(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -549,31 +549,31 @@ export function removeParallaxLayer(options: {
  * ```
  */
 export function setParallaxLayerTint(options: {
-	readonly parallax: ParallaxInstance;
-	readonly index: Num;
-	readonly tint: ColorRgba;
+  readonly parallax: ParallaxInstance;
+  readonly index: Num;
+  readonly tint: ColorRgba;
 }): BabylonResult<Bool> {
-	const { parallax, index, tint } = options;
+  const { parallax, index, tint } = options;
 
-	if (index < 0 || index >= parallax.bgLayers.length) {
-		return err(
-			ERRORS.VALIDATION.INVALID_FORMAT,
-			`Layer index ${index} out of bounds (0..${parallax.bgLayers.length - 1})`,
-		);
-	}
+  if (index < 0 || index >= parallax.bgLayers.length) {
+    return err(
+      ERRORS.VALIDATION.INVALID_FORMAT,
+      `Layer index ${index} out of bounds (0..${parallax.bgLayers.length - 1})`,
+    );
+  }
 
-	try {
-		const bgLayer = parallax.bgLayers[index];
-		const layer = parallax.layers[index];
-		if (bgLayer && layer) {
-			bgLayer.color = new BABYLON.Color4(tint.r, tint.g, tint.b, bgLayer.color.a);
-			layer.tint = tint;
-		}
+  try {
+    const bgLayer = parallax.bgLayers[index];
+    const layer = parallax.layers[index];
+    if (bgLayer && layer) {
+      bgLayer.color = new BABYLON.Color4(tint.r, tint.g, tint.b, bgLayer.color.a);
+      layer.tint = tint;
+    }
 
-		return okShallow(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -603,54 +603,54 @@ export function setParallaxLayerTint(options: {
  * ```
  */
 export function fadeLayerOpacity(options: {
-	readonly parallax: ParallaxInstance;
-	readonly index: Num;
-	readonly target: Num;
-	readonly durationMs: Num;
+  readonly parallax: ParallaxInstance;
+  readonly index: Num;
+  readonly target: Num;
+  readonly durationMs: Num;
 }): BabylonResult<{ readonly dispose: () => void }> {
-	const { parallax, index, target, durationMs } = options;
+  const { parallax, index, target, durationMs } = options;
 
-	if (index < 0 || index >= parallax.bgLayers.length) {
-		return err(
-			ERRORS.VALIDATION.INVALID_FORMAT,
-			`Layer index ${index} out of bounds (0..${parallax.bgLayers.length - 1})`,
-		);
-	}
+  if (index < 0 || index >= parallax.bgLayers.length) {
+    return err(
+      ERRORS.VALIDATION.INVALID_FORMAT,
+      `Layer index ${index} out of bounds (0..${parallax.bgLayers.length - 1})`,
+    );
+  }
 
-	try {
-		const bgLayer = parallax.bgLayers[index];
-		const layer = parallax.layers[index];
-		if (!bgLayer || !layer) {
-			return err(ERRORS.VALIDATION.INVALID_FORMAT, `Layer at index ${index} not found`);
-		}
+  try {
+    const bgLayer = parallax.bgLayers[index];
+    const layer = parallax.layers[index];
+    if (!bgLayer || !layer) {
+      return err(ERRORS.VALIDATION.INVALID_FORMAT, `Layer at index ${index} not found`);
+    }
 
-		const startOpacity: Num = bgLayer.color.a as Num;
-		let elapsed = 0 as Num;
+    const startOpacity: Num = bgLayer.color.a as Num;
+    let elapsed = 0 as Num;
 
-		const observer = parallax.scene.onBeforeRenderObservable.add(() => {
-			const dtMs: Num = parallax.scene.getEngine().getDeltaTime() as Num;
-			elapsed = (elapsed + dtMs) as Num;
-			const t: Num = Math.min(elapsed / durationMs, 1) as Num;
+    const observer = parallax.scene.onBeforeRenderObservable.add(() => {
+      const dtMs: Num = parallax.scene.getEngine().getDeltaTime() as Num;
+      elapsed = (elapsed + dtMs) as Num;
+      const t: Num = Math.min(elapsed / durationMs, 1) as Num;
 
-			const currentOpacity: Num = (startOpacity + (target - startOpacity) * t) as Num;
+      const currentOpacity: Num = (startOpacity + (target - startOpacity) * t) as Num;
 
-			// Update bgLayer color with current tint and interpolated opacity
-			bgLayer.color = new BABYLON.Color4(layer.tint.r, layer.tint.g, layer.tint.b, currentOpacity);
-			layer.opacity = currentOpacity;
+      // Update bgLayer color with current tint and interpolated opacity
+      bgLayer.color = new BABYLON.Color4(layer.tint.r, layer.tint.g, layer.tint.b, currentOpacity);
+      layer.opacity = currentOpacity;
 
-			if (t >= 1 && observer) {
-				parallax.scene.onBeforeRenderObservable.remove(observer);
-			}
-		});
+      if (t >= 1 && observer) {
+        parallax.scene.onBeforeRenderObservable.remove(observer);
+      }
+    });
 
-		const dispose = (): void => {
-			if (observer) {
-				parallax.scene.onBeforeRenderObservable.remove(observer);
-			}
-		};
+    const dispose = (): void => {
+      if (observer) {
+        parallax.scene.onBeforeRenderObservable.remove(observer);
+      }
+    };
 
-		return okShallow({ dispose });
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow({ dispose });
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+  }
 }

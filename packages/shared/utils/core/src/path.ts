@@ -12,29 +12,29 @@
  */
 
 import {
-	BoolSchema,
-	PathArraySchema,
-	PathSchema,
-	StrSchema,
-	UrlStringSchema,
-	type Bool,
-	type Path,
-	type PathArray,
-	type Str,
-	type OptionalNodeProcess,
-	type UrlString,
+  BoolSchema,
+  PathArraySchema,
+  PathSchema,
+  StrSchema,
+  UrlStringSchema,
+  type Bool,
+  type Path,
+  type PathArray,
+  type Str,
+  type OptionalNodeProcess,
+  type UrlString,
 } from '@/schemas/common';
 import { ERRORS, err, ok, type Result } from '@/schemas/result/result';
 import { getProcess, requireRuntime } from '@/utils/core/environment';
 import {
-	type OptionalNodeFs,
-	type OptionalNodeOs,
-	type OptionalNodePath,
-	type OptionalNodeUrl,
-	nodeFs,
-	nodeOs,
-	nodePath,
-	nodeUrl,
+  type OptionalNodeFs,
+  type OptionalNodeOs,
+  type OptionalNodePath,
+  type OptionalNodeUrl,
+  nodeFs,
+  nodeOs,
+  nodePath,
+  nodeUrl,
 } from '@/utils/core/node-imports';
 import { fromUnknownError, safeParse } from '@/utils/result/safe';
 
@@ -59,18 +59,18 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
  * ```
  */
 export function cwd(): Result<Path> {
-	try {
-		const proc: OptionalNodeProcess = getProcess();
-		if (!proc || typeof proc.cwd !== 'function') {
-			return requireRuntime('cwd', 'node');
-		}
-		return ok(PathSchema, proc.cwd());
-	} catch (error: unknown) {
-		return err(ERRORS.IO.READ_FAILED, {
-			meta: { path: 'cwd' },
-			cause: fromUnknownError(error),
-		});
-	}
+  try {
+    const proc: OptionalNodeProcess = getProcess();
+    if (!proc || typeof proc.cwd !== 'function') {
+      return requireRuntime('cwd', 'node');
+    }
+    return ok(PathSchema, proc.cwd());
+  } catch (error: unknown) {
+    return err(ERRORS.IO.READ_FAILED, {
+      meta: { path: 'cwd' },
+      cause: fromUnknownError(error),
+    });
+  }
 }
 
 /**
@@ -91,12 +91,12 @@ export function cwd(): Result<Path> {
  * ```
  */
 export function joinPath(segments: PathArray): Result<Path> {
-	const path: OptionalNodePath = nodePath;
-	if (!path) return requireRuntime('joinPath', 'node');
-	const segmentsResult: Result<PathArray> = safeParse(PathArraySchema, segments);
-	if (!segmentsResult.ok) return segmentsResult;
+  const path: OptionalNodePath = nodePath;
+  if (!path) return requireRuntime('joinPath', 'node');
+  const segmentsResult: Result<PathArray> = safeParse(PathArraySchema, segments);
+  if (!segmentsResult.ok) return segmentsResult;
 
-	return ok(PathSchema, path.join(...segmentsResult.data));
+  return ok(PathSchema, path.join(...segmentsResult.data));
 }
 
 // =============================================================================
@@ -122,12 +122,12 @@ export function joinPath(segments: PathArray): Result<Path> {
  * ```
  */
 export function pathExists(path: Path): Result<Bool> {
-	const fs: OptionalNodeFs = nodeFs;
-	if (!fs) return requireRuntime('pathExists', 'node');
-	const pathResult: Result<Path> = safeParse(PathSchema, path);
-	if (!pathResult.ok) return pathResult;
+  const fs: OptionalNodeFs = nodeFs;
+  if (!fs) return requireRuntime('pathExists', 'node');
+  const pathResult: Result<Path> = safeParse(PathSchema, path);
+  if (!pathResult.ok) return pathResult;
 
-	return ok(BoolSchema, fs.existsSync(pathResult.data as unknown as string));
+  return ok(BoolSchema, fs.existsSync(pathResult.data as unknown as string));
 }
 
 // =============================================================================
@@ -153,20 +153,20 @@ export function pathExists(path: Path): Result<Bool> {
  * ```
  */
 export function getDirFromImportMeta(importMetaUrl: UrlString): Result<Path> {
-	const pathMod: OptionalNodePath = nodePath;
-	const url: OptionalNodeUrl = nodeUrl;
-	if (!pathMod || !url) return requireRuntime('getDirFromImportMeta', 'node');
-	const urlResult: Result<UrlString> = safeParse(UrlStringSchema, importMetaUrl);
-	if (!urlResult.ok) return urlResult;
+  const pathMod: OptionalNodePath = nodePath;
+  const url: OptionalNodeUrl = nodeUrl;
+  if (!pathMod || !url) return requireRuntime('getDirFromImportMeta', 'node');
+  const urlResult: Result<UrlString> = safeParse(UrlStringSchema, importMetaUrl);
+  if (!urlResult.ok) return urlResult;
 
-	try {
-		return ok(PathSchema, pathMod.dirname(url.fileURLToPath(urlResult.data as unknown as string)));
-	} catch (error: unknown) {
-		return err(ERRORS.IO.READ_FAILED, {
-			meta: { path: importMetaUrl },
-			cause: fromUnknownError(error),
-		});
-	}
+  try {
+    return ok(PathSchema, pathMod.dirname(url.fileURLToPath(urlResult.data as unknown as string)));
+  } catch (error: unknown) {
+    return err(ERRORS.IO.READ_FAILED, {
+      meta: { path: importMetaUrl },
+      cause: fromUnknownError(error),
+    });
+  }
 }
 
 /**
@@ -184,10 +184,10 @@ export function getDirFromImportMeta(importMetaUrl: UrlString): Result<Path> {
  * ```
  */
 export function getFileUrl(path: Path): Result<UrlString> {
-	const pathResult: Result<Path> = safeParse(PathSchema, path);
-	if (!pathResult.ok) return pathResult;
+  const pathResult: Result<Path> = safeParse(PathSchema, path);
+  if (!pathResult.ok) return pathResult;
 
-	return ok(UrlStringSchema, `file://${pathResult.data}`);
+  return ok(UrlStringSchema, `file://${pathResult.data}`);
 }
 
 // =============================================================================
@@ -214,31 +214,31 @@ export function getFileUrl(path: Path): Result<UrlString> {
  * ```
  */
 export function toRelativePath(absolutePath: Path): Result<Path> {
-	const pathMod: OptionalNodePath = nodePath;
-	if (!pathMod) return requireRuntime('toRelativePath', 'node');
-	const pathResult: Result<Path> = safeParse(PathSchema, absolutePath);
-	if (!pathResult.ok) return pathResult;
+  const pathMod: OptionalNodePath = nodePath;
+  if (!pathMod) return requireRuntime('toRelativePath', 'node');
+  const pathResult: Result<Path> = safeParse(PathSchema, absolutePath);
+  if (!pathResult.ok) return pathResult;
 
-	const cwdResult: Result<Path> = cwd();
-	if (!cwdResult.ok) return cwdResult;
+  const cwdResult: Result<Path> = cwd();
+  if (!cwdResult.ok) return cwdResult;
 
-	const relativeStr: Str = pathMod.relative(
-		cwdResult.data as unknown as string,
-		pathResult.data as unknown as string,
-	);
+  const relativeStr: Str = pathMod.relative(
+    cwdResult.data as unknown as string,
+    pathResult.data as unknown as string,
+  );
 
-	if (relativeStr.startsWith('..')) {
-		return ok(PathSchema, pathResult.data as unknown as string);
-	}
+  if (relativeStr.startsWith('..')) {
+    return ok(PathSchema, pathResult.data as unknown as string);
+  }
 
-	if (!relativeStr) {
-		return ok(PathSchema, pathResult.data as unknown as string);
-	}
+  if (!relativeStr) {
+    return ok(PathSchema, pathResult.data as unknown as string);
+  }
 
-	const relativeResult: Result<Path> = safeParse(PathSchema, relativeStr as unknown as string);
-	if (!relativeResult.ok) return relativeResult;
+  const relativeResult: Result<Path> = safeParse(PathSchema, relativeStr as unknown as string);
+  if (!relativeResult.ok) return relativeResult;
 
-	return ok(PathSchema, relativeResult.data as unknown as string);
+  return ok(PathSchema, relativeResult.data as unknown as string);
 }
 
 // =============================================================================
@@ -263,12 +263,12 @@ export function toRelativePath(absolutePath: Path): Result<Path> {
  * ```
  */
 export function resolvePath(segments: PathArray): Result<Path> {
-	const pathMod: OptionalNodePath = nodePath;
-	if (!pathMod) return requireRuntime('resolvePath', 'node');
-	const segmentsResult: Result<PathArray> = safeParse(PathArraySchema, segments);
-	if (!segmentsResult.ok) return segmentsResult;
+  const pathMod: OptionalNodePath = nodePath;
+  if (!pathMod) return requireRuntime('resolvePath', 'node');
+  const segmentsResult: Result<PathArray> = safeParse(PathArraySchema, segments);
+  if (!segmentsResult.ok) return segmentsResult;
 
-	return ok(PathSchema, pathMod.resolve(...segmentsResult.data));
+  return ok(PathSchema, pathMod.resolve(...segmentsResult.data));
 }
 
 // =============================================================================
@@ -291,12 +291,12 @@ export function resolvePath(segments: PathArray): Result<Path> {
  * ```
  */
 export function getFileExtension(path: Path): Result<Str> {
-	const pathMod: OptionalNodePath = nodePath;
-	if (!pathMod) return requireRuntime('getFileExtension', 'node');
-	const pathResult: Result<Path> = safeParse(PathSchema, path);
-	if (!pathResult.ok) return pathResult;
+  const pathMod: OptionalNodePath = nodePath;
+  if (!pathMod) return requireRuntime('getFileExtension', 'node');
+  const pathResult: Result<Path> = safeParse(PathSchema, path);
+  if (!pathResult.ok) return pathResult;
 
-	return ok(StrSchema, pathMod.extname(pathResult.data as unknown as string));
+  return ok(StrSchema, pathMod.extname(pathResult.data as unknown as string));
 }
 
 /**
@@ -320,21 +320,21 @@ export function getFileExtension(path: Path): Result<Str> {
  * ```
  */
 export function getBasename(path: Path, ext?: Str): Result<Str> {
-	const pathMod: OptionalNodePath = nodePath;
-	if (!pathMod) return requireRuntime('getBasename', 'node');
-	const pathResult: Result<Path> = safeParse(PathSchema, path);
-	if (!pathResult.ok) return pathResult;
+  const pathMod: OptionalNodePath = nodePath;
+  if (!pathMod) return requireRuntime('getBasename', 'node');
+  const pathResult: Result<Path> = safeParse(PathSchema, path);
+  if (!pathResult.ok) return pathResult;
 
-	if (ext !== undefined) {
-		const extResult: Result<Str> = safeParse(StrSchema, ext);
-		if (!extResult.ok) return extResult;
-		return ok(
-			StrSchema,
-			pathMod.basename(pathResult.data as unknown as string, extResult.data as unknown as string),
-		);
-	}
+  if (ext !== undefined) {
+    const extResult: Result<Str> = safeParse(StrSchema, ext);
+    if (!extResult.ok) return extResult;
+    return ok(
+      StrSchema,
+      pathMod.basename(pathResult.data as unknown as string, extResult.data as unknown as string),
+    );
+  }
 
-	return ok(StrSchema, pathMod.basename(pathResult.data as unknown as string));
+  return ok(StrSchema, pathMod.basename(pathResult.data as unknown as string));
 }
 
 /**
@@ -352,12 +352,12 @@ export function getBasename(path: Path, ext?: Str): Result<Str> {
  * ```
  */
 export function getDirname(path: Path): Result<Path> {
-	const pathMod: OptionalNodePath = nodePath;
-	if (!pathMod) return requireRuntime('getDirname', 'node');
-	const pathResult: Result<Path> = safeParse(PathSchema, path);
-	if (!pathResult.ok) return pathResult;
+  const pathMod: OptionalNodePath = nodePath;
+  if (!pathMod) return requireRuntime('getDirname', 'node');
+  const pathResult: Result<Path> = safeParse(PathSchema, path);
+  if (!pathResult.ok) return pathResult;
 
-	return ok(PathSchema, pathMod.dirname(pathResult.data as unknown as string));
+  return ok(PathSchema, pathMod.dirname(pathResult.data as unknown as string));
 }
 
 // =============================================================================
@@ -381,16 +381,16 @@ export function getDirname(path: Path): Result<Path> {
  * ```
  */
 export function getTempDir(): Result<Path> {
-	const os: OptionalNodeOs = nodeOs;
-	if (!os) return requireRuntime('getTempDir', 'node');
-	try {
-		return ok(PathSchema, os.tmpdir());
-	} catch (error: unknown) {
-		return err(ERRORS.IO.READ_FAILED, {
-			meta: { path: 'tmpdir' },
-			cause: fromUnknownError(error),
-		});
-	}
+  const os: OptionalNodeOs = nodeOs;
+  if (!os) return requireRuntime('getTempDir', 'node');
+  try {
+    return ok(PathSchema, os.tmpdir());
+  } catch (error: unknown) {
+    return err(ERRORS.IO.READ_FAILED, {
+      meta: { path: 'tmpdir' },
+      cause: fromUnknownError(error),
+    });
+  }
 }
 
 /**
@@ -410,14 +410,14 @@ export function getTempDir(): Result<Path> {
  * ```
  */
 export function getHomedir(): Result<Path> {
-	const os: OptionalNodeOs = nodeOs;
-	if (!os) return requireRuntime('getHomedir', 'node');
-	try {
-		return ok(PathSchema, os.homedir());
-	} catch (error: unknown) {
-		return err(ERRORS.IO.READ_FAILED, {
-			meta: { path: 'homedir' },
-			cause: fromUnknownError(error),
-		});
-	}
+  const os: OptionalNodeOs = nodeOs;
+  if (!os) return requireRuntime('getHomedir', 'node');
+  try {
+    return ok(PathSchema, os.homedir());
+  } catch (error: unknown) {
+    return err(ERRORS.IO.READ_FAILED, {
+      meta: { path: 'homedir' },
+      cause: fromUnknownError(error),
+    });
+  }
 }

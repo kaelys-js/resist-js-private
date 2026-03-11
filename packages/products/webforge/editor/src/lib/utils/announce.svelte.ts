@@ -24,10 +24,10 @@ let message: Str = $state('');
  * @param text - The message to announce
  */
 export function announce(text: Str): Void {
-	message = '';
-	requestAnimationFrame(() => {
-		message = text;
-	});
+  message = '';
+  requestAnimationFrame(() => {
+    message = text;
+  });
 }
 
 /**
@@ -36,5 +36,5 @@ export function announce(text: Str): Void {
  * @returns The current announcement text (empty string when idle)
  */
 export function getAnnouncement(): Str {
-	return message;
+  return message;
 }

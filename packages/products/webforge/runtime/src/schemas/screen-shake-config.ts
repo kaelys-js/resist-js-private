@@ -73,14 +73,14 @@ export type DecayMode = v.InferOutput<typeof DecayModeSchema>;
  * ```
  */
 export const ShakeChannelSchema = v.strictObject({
-	/** Whether this channel contributes to the shake. Default: true. */
-	enabled: v.optional(v.boolean(), true),
+  /** Whether this channel contributes to the shake. Default: true. */
+  enabled: v.optional(v.boolean(), true),
 
-	/** Amplitude multiplier for this channel. Must be >= 0. Default: 0.5. */
-	amplitude: v.optional(v.pipe(v.number(), v.minValue(0)), 0.5),
+  /** Amplitude multiplier for this channel. Must be >= 0. Default: 0.5. */
+  amplitude: v.optional(v.pipe(v.number(), v.minValue(0)), 0.5),
 
-	/** Noise sampling frequency in Hz. Range 1-100. Default: 25. */
-	frequency: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100)), 25),
+  /** Noise sampling frequency in Hz. Range 1-100. Default: 25. */
+  frequency: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100)), 25),
 });
 
 /** Inferred shake channel type from {@link ShakeChannelSchema}. */
@@ -114,14 +114,14 @@ export type ShakeChannel = v.InferOutput<typeof ShakeChannelSchema>;
  * ```
  */
 export const ShakeEnvelopeSchema = v.strictObject({
-	/** Ramp-up time in milliseconds. Range 0-500. Default: 0. */
-	attackMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(500)), 0),
+  /** Ramp-up time in milliseconds. Range 0-500. Default: 0. */
+  attackMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(500)), 0),
 
-	/** Hold time at peak in milliseconds. Range 0-2000. Default: 0. */
-	sustainMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2000)), 0),
+  /** Hold time at peak in milliseconds. Range 0-2000. Default: 0. */
+  sustainMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2000)), 0),
 
-	/** Fade-out time in milliseconds. Range 0-3000. Default: 300. */
-	decayMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(3000)), 300),
+  /** Fade-out time in milliseconds. Range 0-3000. Default: 300. */
+  decayMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(3000)), 300),
 });
 
 /** Inferred shake envelope type from {@link ShakeEnvelopeSchema}. */
@@ -146,11 +146,11 @@ export type ShakeEnvelope = v.InferOutput<typeof ShakeEnvelopeSchema>;
  * ```
  */
 export const ShakeNoiseSchema = v.strictObject({
-	/** Noise seed for reproducibility. Range 0-9999. Default: 0. */
-	seed: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(9999)), 0),
+  /** Noise seed for reproducibility. Range 0-9999. Default: 0. */
+  seed: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(9999)), 0),
 
-	/** Number of noise octaves (layers of detail). Range 1-4. Default: 2. */
-	octaves: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(4)), 2),
+  /** Number of noise octaves (layers of detail). Range 1-4. Default: 2. */
+  octaves: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(4)), 2),
 });
 
 /** Inferred shake noise type from {@link ShakeNoiseSchema}. */
@@ -176,11 +176,11 @@ export type ShakeNoise = v.InferOutput<typeof ShakeNoiseSchema>;
  * ```
  */
 export const ShakeDirectionSchema = v.strictObject({
-	/** X-axis bias component. */
-	x: v.number(),
+  /** X-axis bias component. */
+  x: v.number(),
 
-	/** Z-axis bias component. */
-	z: v.number(),
+  /** Z-axis bias component. */
+  z: v.number(),
 });
 
 /** Inferred shake direction type from {@link ShakeDirectionSchema}. */
@@ -225,54 +225,54 @@ export type ShakeDirection = v.InferOutput<typeof ShakeDirectionSchema>;
  * ```
  */
 export const ScreenShakeConfigSchema = v.strictObject({
-	/** Shake intensity (trauma input). REQUIRED. Range 0-3. */
-	intensity: v.pipe(v.number(), v.minValue(0), v.maxValue(3)),
+  /** Shake intensity (trauma input). REQUIRED. Range 0-3. */
+  intensity: v.pipe(v.number(), v.minValue(0), v.maxValue(3)),
 
-	/** Trauma exponent — higher values make weak shakes weaker. Range 1-4. Default: 2. */
-	traumaPower: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(4)), 2),
+  /** Trauma exponent — higher values make weak shakes weaker. Range 1-4. Default: 2. */
+  traumaPower: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(4)), 2),
 
-	/** Trauma decay speed per second. Range 0.1-5.0. Default: 0.8. */
-	decayRate: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(5.0)), 0.8),
+  /** Trauma decay speed per second. Range 0.1-5.0. Default: 0.8. */
+  decayRate: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(5.0)), 0.8),
 
-	/** Decay curve shape. Default: 'exponential'. */
-	decayMode: v.optional(DecayModeSchema, 'exponential'),
+  /** Decay curve shape. Default: 'exponential'. */
+  decayMode: v.optional(DecayModeSchema, 'exponential'),
 
-	/** Translation channel (camera offset). Default: enabled, amp 0.5, freq 25. */
-	translation: v.optional(ShakeChannelSchema, {
-		enabled: true,
-		amplitude: 0.5,
-		frequency: 25,
-	}),
+  /** Translation channel (camera offset). Default: enabled, amp 0.5, freq 25. */
+  translation: v.optional(ShakeChannelSchema, {
+    enabled: true,
+    amplitude: 0.5,
+    frequency: 25,
+  }),
 
-	/** Rotation channel (camera tilt). Default: enabled, amp 0.05, freq 20. */
-	rotation: v.optional(ShakeChannelSchema, {
-		enabled: true,
-		amplitude: 0.05,
-		frequency: 20,
-	}),
+  /** Rotation channel (camera tilt). Default: enabled, amp 0.05, freq 20. */
+  rotation: v.optional(ShakeChannelSchema, {
+    enabled: true,
+    amplitude: 0.05,
+    frequency: 20,
+  }),
 
-	/** FOV channel (zoom punch). Default: enabled, amp 0.03, freq 15. */
-	fov: v.optional(ShakeChannelSchema, {
-		enabled: true,
-		amplitude: 0.03,
-		frequency: 15,
-	}),
+  /** FOV channel (zoom punch). Default: enabled, amp 0.03, freq 15. */
+  fov: v.optional(ShakeChannelSchema, {
+    enabled: true,
+    amplitude: 0.03,
+    frequency: 15,
+  }),
 
-	/** ASR envelope timing. Default: attack 0, sustain 0, decay 300ms. */
-	envelope: v.optional(ShakeEnvelopeSchema, {
-		attackMs: 0,
-		sustainMs: 0,
-		decayMs: 300,
-	}),
+  /** ASR envelope timing. Default: attack 0, sustain 0, decay 300ms. */
+  envelope: v.optional(ShakeEnvelopeSchema, {
+    attackMs: 0,
+    sustainMs: 0,
+    decayMs: 300,
+  }),
 
-	/** Perlin noise parameters. Default: seed 0, octaves 2. */
-	noise: v.optional(ShakeNoiseSchema, { seed: 0, octaves: 2 }),
+  /** Perlin noise parameters. Default: seed 0, octaves 2. */
+  noise: v.optional(ShakeNoiseSchema, { seed: 0, octaves: 2 }),
 
-	/** Directional bias on XZ plane. Default: null (omnidirectional). */
-	direction: v.optional(v.nullable(ShakeDirectionSchema), null),
+  /** Directional bias on XZ plane. Default: null (omnidirectional). */
+  direction: v.optional(v.nullable(ShakeDirectionSchema), null),
 
-	/** Hit-freeze duration in milliseconds. Range 0-300. Default: 0. */
-	freezeMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(300)), 0),
+  /** Hit-freeze duration in milliseconds. Range 0-300. Default: 0. */
+  freezeMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(300)), 0),
 });
 
 /** Inferred screen shake config type from {@link ScreenShakeConfigSchema}. */
@@ -317,14 +317,14 @@ export type ShakePresetCategory = v.InferOutput<typeof ShakePresetCategorySchema
  * ```
  */
 export const ShakePresetSchema = v.strictObject({
-	/** Display name for the preset. */
-	name: v.string(),
+  /** Display name for the preset. */
+  name: v.string(),
 
-	/** Category for UI grouping. */
-	category: ShakePresetCategorySchema,
+  /** Category for UI grouping. */
+  category: ShakePresetCategorySchema,
 
-	/** Shake configuration for this preset. */
-	config: ScreenShakeConfigSchema,
+  /** Shake configuration for this preset. */
+  config: ScreenShakeConfigSchema,
 });
 
 /** Inferred shake preset type from {@link ShakePresetSchema}. */
@@ -357,325 +357,325 @@ export type ShakePreset = v.InferOutput<typeof ShakePresetSchema>;
  * ```
  */
 export const SHAKE_PRESETS: readonly ShakePreset[] = [
-	// =========================================================================
-	// Combat (6)
-	// =========================================================================
-	{
-		name: 'Light Hit',
-		category: 'combat',
-		config: {
-			intensity: 0.3,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'exponential',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.02, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.01, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 150 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 0,
-		},
-	},
-	{
-		name: 'Heavy Hit',
-		category: 'combat',
-		config: {
-			intensity: 0.6,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'exponential',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.04, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.02, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 300 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 50,
-		},
-	},
-	{
-		name: 'Critical Hit',
-		category: 'combat',
-		config: {
-			intensity: 0.9,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'exponential',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.06, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.03, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 400 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 100,
-		},
-	},
-	{
-		name: 'Explosion',
-		category: 'combat',
-		config: {
-			intensity: 1.0,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'linear',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.05, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.04, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 600 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 80,
-		},
-	},
-	{
-		name: 'Parry/Block',
-		category: 'combat',
-		config: {
-			intensity: 0.4,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'exponential',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.01, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.02, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 120 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 30,
-		},
-	},
-	{
-		name: 'Spell Cast',
-		category: 'combat',
-		config: {
-			intensity: 0.25,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'easeOut',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.03, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.015, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 350 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 0,
-		},
-	},
+  // =========================================================================
+  // Combat (6)
+  // =========================================================================
+  {
+    name: 'Light Hit',
+    category: 'combat',
+    config: {
+      intensity: 0.3,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'exponential',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.02, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.01, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 150 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 0,
+    },
+  },
+  {
+    name: 'Heavy Hit',
+    category: 'combat',
+    config: {
+      intensity: 0.6,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'exponential',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.04, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.02, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 300 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 50,
+    },
+  },
+  {
+    name: 'Critical Hit',
+    category: 'combat',
+    config: {
+      intensity: 0.9,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'exponential',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.06, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.03, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 400 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 100,
+    },
+  },
+  {
+    name: 'Explosion',
+    category: 'combat',
+    config: {
+      intensity: 1.0,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'linear',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.05, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.04, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 600 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 80,
+    },
+  },
+  {
+    name: 'Parry/Block',
+    category: 'combat',
+    config: {
+      intensity: 0.4,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'exponential',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.01, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.02, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 120 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 30,
+    },
+  },
+  {
+    name: 'Spell Cast',
+    category: 'combat',
+    config: {
+      intensity: 0.25,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'easeOut',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.03, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.015, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 350 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 0,
+    },
+  },
 
-	// =========================================================================
-	// Environment (5)
-	// =========================================================================
-	{
-		name: 'Earthquake',
-		category: 'environment',
-		config: {
-			intensity: 0.7,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'linear',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.03, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.01, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 2000 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 0,
-		},
-	},
-	{
-		name: 'Tremor',
-		category: 'environment',
-		config: {
-			intensity: 0.3,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'easeOut',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.01, frequency: 20 },
-			fov: { enabled: false, amplitude: 0, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 1000 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 0,
-		},
-	},
-	{
-		name: 'Rumble',
-		category: 'environment',
-		config: {
-			intensity: 0.15,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'easeOut',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.005, frequency: 20 },
-			fov: { enabled: false, amplitude: 0, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 3000 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 0,
-		},
-	},
-	{
-		name: 'Thunder',
-		category: 'environment',
-		config: {
-			intensity: 0.5,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'exponential',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.02, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.01, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 500 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 60,
-		},
-	},
-	{
-		name: 'Footstep (Giant)',
-		category: 'environment',
-		config: {
-			intensity: 0.35,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'exponential',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.015, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.01, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 250 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 20,
-		},
-	},
+  // =========================================================================
+  // Environment (5)
+  // =========================================================================
+  {
+    name: 'Earthquake',
+    category: 'environment',
+    config: {
+      intensity: 0.7,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'linear',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.03, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.01, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 2000 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 0,
+    },
+  },
+  {
+    name: 'Tremor',
+    category: 'environment',
+    config: {
+      intensity: 0.3,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'easeOut',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.01, frequency: 20 },
+      fov: { enabled: false, amplitude: 0, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 1000 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 0,
+    },
+  },
+  {
+    name: 'Rumble',
+    category: 'environment',
+    config: {
+      intensity: 0.15,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'easeOut',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.005, frequency: 20 },
+      fov: { enabled: false, amplitude: 0, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 3000 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 0,
+    },
+  },
+  {
+    name: 'Thunder',
+    category: 'environment',
+    config: {
+      intensity: 0.5,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'exponential',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.02, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.01, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 500 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 60,
+    },
+  },
+  {
+    name: 'Footstep (Giant)',
+    category: 'environment',
+    config: {
+      intensity: 0.35,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'exponential',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.015, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.01, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 250 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 20,
+    },
+  },
 
-	// =========================================================================
-	// UI / Feedback (3)
-	// =========================================================================
-	{
-		name: 'Deny',
-		category: 'ui',
-		config: {
-			intensity: 0.2,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'linear',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: false, amplitude: 0, frequency: 20 },
-			fov: { enabled: false, amplitude: 0, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 200 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 0,
-		},
-	},
-	{
-		name: 'Alert',
-		category: 'ui',
-		config: {
-			intensity: 0.15,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'easeOut',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.01, frequency: 20 },
-			fov: { enabled: false, amplitude: 0, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 300 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 0,
-		},
-	},
-	{
-		name: 'Landing',
-		category: 'ui',
-		config: {
-			intensity: 0.4,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'exponential',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.02, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.02, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 200 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 30,
-		},
-	},
+  // =========================================================================
+  // UI / Feedback (3)
+  // =========================================================================
+  {
+    name: 'Deny',
+    category: 'ui',
+    config: {
+      intensity: 0.2,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'linear',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: false, amplitude: 0, frequency: 20 },
+      fov: { enabled: false, amplitude: 0, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 200 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 0,
+    },
+  },
+  {
+    name: 'Alert',
+    category: 'ui',
+    config: {
+      intensity: 0.15,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'easeOut',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.01, frequency: 20 },
+      fov: { enabled: false, amplitude: 0, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 300 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 0,
+    },
+  },
+  {
+    name: 'Landing',
+    category: 'ui',
+    config: {
+      intensity: 0.4,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'exponential',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.02, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.02, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 200 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 30,
+    },
+  },
 
-	// =========================================================================
-	// Cinematic (4)
-	// =========================================================================
-	{
-		name: 'Boss Intro',
-		category: 'cinematic',
-		config: {
-			intensity: 0.8,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'linear',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.04, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.03, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 1200 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 150,
-		},
-	},
-	{
-		name: 'Teleport',
-		category: 'cinematic',
-		config: {
-			intensity: 0.5,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'exponential',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.05, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.04, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 400 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 0,
-		},
-	},
-	{
-		name: 'Death Blow',
-		category: 'cinematic',
-		config: {
-			intensity: 1.0,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'easeOut',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.07, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.05, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 800 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 200,
-		},
-	},
-	{
-		name: 'World Shift',
-		category: 'cinematic',
-		config: {
-			intensity: 0.6,
-			traumaPower: 2,
-			decayRate: 0.8,
-			decayMode: 'linear',
-			translation: { enabled: true, amplitude: 0.5, frequency: 25 },
-			rotation: { enabled: true, amplitude: 0.02, frequency: 20 },
-			fov: { enabled: true, amplitude: 0.02, frequency: 15 },
-			envelope: { attackMs: 0, sustainMs: 0, decayMs: 1500 },
-			noise: { seed: 0, octaves: 2 },
-			direction: null,
-			freezeMs: 0,
-		},
-	},
+  // =========================================================================
+  // Cinematic (4)
+  // =========================================================================
+  {
+    name: 'Boss Intro',
+    category: 'cinematic',
+    config: {
+      intensity: 0.8,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'linear',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.04, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.03, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 1200 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 150,
+    },
+  },
+  {
+    name: 'Teleport',
+    category: 'cinematic',
+    config: {
+      intensity: 0.5,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'exponential',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.05, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.04, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 400 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 0,
+    },
+  },
+  {
+    name: 'Death Blow',
+    category: 'cinematic',
+    config: {
+      intensity: 1.0,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'easeOut',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.07, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.05, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 800 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 200,
+    },
+  },
+  {
+    name: 'World Shift',
+    category: 'cinematic',
+    config: {
+      intensity: 0.6,
+      traumaPower: 2,
+      decayRate: 0.8,
+      decayMode: 'linear',
+      translation: { enabled: true, amplitude: 0.5, frequency: 25 },
+      rotation: { enabled: true, amplitude: 0.02, frequency: 20 },
+      fov: { enabled: true, amplitude: 0.02, frequency: 15 },
+      envelope: { attackMs: 0, sustainMs: 0, decayMs: 1500 },
+      noise: { seed: 0, octaves: 2 },
+      direction: null,
+      freezeMs: 0,
+    },
+  },
 ];

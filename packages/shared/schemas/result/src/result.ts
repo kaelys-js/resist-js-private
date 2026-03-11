@@ -85,17 +85,17 @@ import * as v from 'valibot';
  * primitive can express recursive conditional type mappings.
  */
 export type DeepReadonly<T> =
-	T extends Set<infer U>
-		? ReadonlySet<DeepReadonly<U>>
-		: T extends Map<infer K, infer V>
-			? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
-			: T extends Array<infer U>
-				? ReadonlyArray<DeepReadonly<U>>
-				: T extends (...args: never[]) => unknown
-					? T
-					: T extends object
-						? { readonly [K in keyof T]: DeepReadonly<T[K]> }
-						: T;
+  T extends Set<infer U>
+    ? ReadonlySet<DeepReadonly<U>>
+    : T extends Map<infer K, infer V>
+      ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
+      : T extends Array<infer U>
+        ? ReadonlyArray<DeepReadonly<U>>
+        : T extends (...args: never[]) => unknown
+          ? T
+          : T extends object
+            ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+            : T;
 
 /**
  * Deeply freezes an object to prevent mutation at runtime.
@@ -109,14 +109,14 @@ export type DeepReadonly<T> =
  * @returns The same object reference, deeply frozen.
  */
 function _deepFreeze<T extends object>(obj: T): T {
-	const propNames = Object.getOwnPropertyNames(obj) as Array<keyof T>;
-	for (const name of propNames) {
-		const value: T[keyof T] = obj[name];
-		if (value && typeof value === 'object' && !Object.isFrozen(value)) {
-			_deepFreeze(value as object);
-		}
-	}
-	return Object.freeze(obj) as T;
+  const propNames = Object.getOwnPropertyNames(obj) as Array<keyof T>;
+  for (const name of propNames) {
+    const value: T[keyof T] = obj[name];
+    if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+      _deepFreeze(value as object);
+    }
+  }
+  return Object.freeze(obj) as T;
 }
 
 /**
@@ -130,9 +130,9 @@ function _deepFreeze<T extends object>(obj: T): T {
  * @returns `Result<T>` — frozen success result.
  */
 function _okResult<T>(data: T): Result<T> {
-	const frozen: T =
-		typeof data === 'object' && data !== null ? (_deepFreeze(data as object) as T) : data;
-	return Object.freeze({ ok: true as const, data: frozen, error: null }) as Result<T>;
+  const frozen: T =
+    typeof data === 'object' && data !== null ? (_deepFreeze(data as object) as T) : data;
+  return Object.freeze({ ok: true as const, data: frozen, error: null }) as Result<T>;
 }
 
 // =============================================================================
@@ -201,10 +201,10 @@ export type ErrorSeverity = v.InferOutput<typeof ErrorSeveritySchema>;
  * ```
  */
 export const HttpStatusCodeSchema = v.pipe(
-	v.number(),
-	v.integer(),
-	v.minValue(100),
-	v.maxValue(599),
+  v.number(),
+  v.integer(),
+  v.minValue(100),
+  v.maxValue(599),
 );
 
 /** Inferred output type of {@link HttpStatusCodeSchema}. */
@@ -257,12 +257,12 @@ export type ErrorTags = v.InferOutput<typeof ErrorTagsSchema>;
  * ```
  */
 export const RetryInfoSchema = v.strictObject({
-	/** Whether the failed operation can be retried. */
-	retryable: v.boolean(),
-	/** Suggested delay in milliseconds before retrying. */
-	retryAfterMs: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
-	/** Maximum number of retry attempts recommended. */
-	maxRetries: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+  /** Whether the failed operation can be retried. */
+  retryable: v.boolean(),
+  /** Suggested delay in milliseconds before retrying. */
+  retryAfterMs: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+  /** Maximum number of retry attempts recommended. */
+  maxRetries: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
 });
 
 /** Inferred output type of {@link RetryInfoSchema}. */
@@ -287,10 +287,10 @@ export type RetryInfo = v.InferOutput<typeof RetryInfoSchema>;
  * ```
  */
 export const ErrorHelpLinkSchema = v.strictObject({
-	/** Human-readable description of what the link points to. */
-	description: v.pipe(v.string(), v.minLength(1)),
-	/** URL to the help resource. */
-	url: v.pipe(v.string(), v.url()),
+  /** Human-readable description of what the link points to. */
+  description: v.pipe(v.string(), v.minLength(1)),
+  /** URL to the help resource. */
+  url: v.pipe(v.string(), v.url()),
 });
 
 /** Inferred output type of {@link ErrorHelpLinkSchema}. */
@@ -327,12 +327,12 @@ export type ErrorHelpLink = v.InferOutput<typeof ErrorHelpLinkSchema>;
  * ```
  */
 export const ErrorCodeSchema = v.pipe(
-	v.string(),
-	v.regex(
-		/^[A-Z][A-Z0-9]*(?:\.[A-Z][A-Z0-9_]*)+$/,
-		'Error code must be DOT.SEPARATED.SCREAMING_SNAKE (e.g., "AUTH.INVALID_TOKEN")',
-	),
-	v.brand('ErrorCode'),
+  v.string(),
+  v.regex(
+    /^[A-Z][A-Z0-9]*(?:\.[A-Z][A-Z0-9_]*)+$/,
+    'Error code must be DOT.SEPARATED.SCREAMING_SNAKE (e.g., "AUTH.INVALID_TOKEN")',
+  ),
+  v.brand('ErrorCode'),
 );
 
 /**
@@ -369,18 +369,18 @@ export type ErrorCode = v.InferOutput<typeof ErrorCodeSchema>;
  * ```
  */
 export const ErrorSourceSchema = v.pipe(
-	v.strictObject({
-		/** JSON Pointer (RFC 6901) to the field in the request body. Example: `"/body/email"` */
-		pointer: v.optional(v.string()),
-		/** Query parameter name. Example: `"page"` */
-		parameter: v.optional(v.string()),
-		/** Request header name. Example: `"Authorization"` */
-		header: v.optional(v.string()),
-	}),
-	v.check(
-		(obj): boolean => Boolean(obj.pointer || obj.parameter || obj.header),
-		'At least one source field (pointer, parameter, or header) must be present',
-	),
+  v.strictObject({
+    /** JSON Pointer (RFC 6901) to the field in the request body. Example: `"/body/email"` */
+    pointer: v.optional(v.string()),
+    /** Query parameter name. Example: `"page"` */
+    parameter: v.optional(v.string()),
+    /** Request header name. Example: `"Authorization"` */
+    header: v.optional(v.string()),
+  }),
+  v.check(
+    (obj): boolean => Boolean(obj.pointer || obj.parameter || obj.header),
+    'At least one source field (pointer, parameter, or header) must be present',
+  ),
 );
 
 /**
@@ -421,10 +421,10 @@ export type ErrorSource = v.InferOutput<typeof ErrorSourceSchema>;
  * ```
  */
 export const ValidationDetailSchema = v.strictObject({
-	/** Raw Valibot issues array. Each issue has `type`, `message`, and optional `path`. */
-	issues: v.array(v.any()),
-	/** Output of `v.flatten(issues)` — nested object with field paths as keys. */
-	flattened: v.any(),
+  /** Raw Valibot issues array. Each issue has `type`, `message`, and optional `path`. */
+  issues: v.array(v.any()),
+  /** Output of `v.flatten(issues)` — nested object with field paths as keys. */
+  flattened: v.any(),
 });
 
 /**
@@ -434,10 +434,10 @@ export const ValidationDetailSchema = v.strictObject({
  * for serialization compatibility, but the TypeScript type provides proper typing.
  */
 export type ValidationDetail = {
-	/** Raw Valibot issues. Typed as `v.BaseIssue<unknown>[]` for full access to paths and messages. */
-	issues: Array<v.BaseIssue<unknown>>;
-	/** Output of `v.flatten(issues)`. Provides field-level error messages as nested object. */
-	flattened: v.FlatErrors<undefined>;
+  /** Raw Valibot issues. Typed as `v.BaseIssue<unknown>[]` for full access to paths and messages. */
+  issues: Array<v.BaseIssue<unknown>>;
+  /** Output of `v.flatten(issues)`. Provides field-level error messages as nested object. */
+  flattened: v.FlatErrors<undefined>;
 };
 
 // =============================================================================
@@ -468,187 +468,187 @@ export type ValidationDetail = {
  * ```
  */
 export const ERRORS = _deepFreeze({
-	/** Schema validation errors. */
-	VALIDATION: {
-		/** Valibot schema validation failed. The `validation` field will contain issue details. */
-		SCHEMA_FAILED: 'VALIDATION.SCHEMA_FAILED',
-		/** A required field is missing from the input. */
-		MISSING_FIELD: 'VALIDATION.MISSING_FIELD',
-		/** A field value does not match the expected format. */
-		INVALID_FORMAT: 'VALIDATION.INVALID_FORMAT',
-	},
-	/** Configuration loading and parsing errors. */
-	CONFIG: {
-		/** Configuration could not be loaded (file read, parse, or validation failure). */
-		LOAD_FAILED: 'CONFIG.LOAD_FAILED',
-		/** Configuration file was not found at the expected path. */
-		NOT_FOUND: 'CONFIG.NOT_FOUND',
-		/** Configuration file exists but contains invalid values. */
-		INVALID: 'CONFIG.INVALID',
-	},
-	/** Authentication and authorization errors. */
-	AUTH: {
-		/** Token is malformed, revoked, or otherwise invalid. */
-		INVALID_TOKEN: 'AUTH.INVALID_TOKEN',
-		/** Token has expired (e.g., access token past its TTL). */
-		EXPIRED: 'AUTH.EXPIRED',
-		/** Credentials are missing or invalid — the request is not authenticated. */
-		UNAUTHORIZED: 'AUTH.UNAUTHORIZED',
-		/** Authenticated but lacking permission for the requested action. */
-		FORBIDDEN: 'AUTH.FORBIDDEN',
-		/** Resource already exists (e.g., duplicate email registration). */
-		DUPLICATE: 'AUTH.DUPLICATE',
-	},
-	/** Database operation errors. */
-	DB: {
-		/** Queried record was not found. */
-		NOT_FOUND: 'DB.NOT_FOUND',
-		/** Constraint violation (unique, foreign key, check). */
-		CONSTRAINT: 'DB.CONSTRAINT',
-		/** Database connection failed. */
-		CONNECTION: 'DB.CONNECTION',
-	},
-	/** File system and I/O errors. */
-	IO: {
-		/** File read failed (missing, permission denied, encoding error). */
-		READ_FAILED: 'IO.READ_FAILED',
-		/** File write failed (permission denied, disk full). */
-		WRITE_FAILED: 'IO.WRITE_FAILED',
-		/** Path stat failed (does not exist, permission denied, not accessible). */
-		STAT_FAILED: 'IO.STAT_FAILED',
-		/** Remote resource fetch failed (download, HTTP request to external source). */
-		FETCH_FAILED: 'IO.FETCH_FAILED',
-		/** Operation timed out before completing. */
-		TIMEOUT: 'IO.TIMEOUT',
-	},
-	/** Network and HTTP errors. */
-	HTTP: {
-		/** Request timed out before a response was received. */
-		TIMEOUT: 'HTTP.TIMEOUT',
-		/** Remote resource not found (404). */
-		NOT_FOUND: 'HTTP.NOT_FOUND',
-		/** Remote server returned an error (5xx). */
-		SERVER_ERROR: 'HTTP.SERVER_ERROR',
-	},
-	/** Runtime capability errors. */
-	RUNTIME: {
-		/** Function requires a runtime capability that is not available (e.g. Node.js API called from browser). */
-		UNSUPPORTED: 'RUNTIME.UNSUPPORTED',
-	},
-	/** Function schema validation errors. */
-	FUNCTION: {
-		/** Value is not a callable function. */
-		NOT_CALLABLE: 'FUNCTION.NOT_CALLABLE',
-		/** Function arity (`fn.length`) is outside the expected range. */
-		INVALID_ARITY: 'FUNCTION.INVALID_ARITY',
-		/** Function is not async when async was required. */
-		NOT_ASYNC: 'FUNCTION.NOT_ASYNC',
-		/** Call-time parameter validation failed against the args schema. */
-		PARAM_VALIDATION_FAILED: 'FUNCTION.PARAM_VALIDATION_FAILED',
-		/** Call-time return value validation failed against the returns schema. */
-		RETURN_VALIDATION_FAILED: 'FUNCTION.RETURN_VALIDATION_FAILED',
-	},
-	/** Locale loading and validation errors. */
-	LOCALE: {
-		/** Failed to load a locale file from disk. */
-		LOAD_FAILED: 'LOCALE.LOAD_FAILED',
-		/** Locale file failed Valibot schema validation. */
-		VALIDATION_FAILED: 'LOCALE.VALIDATION_FAILED',
-		/** Locale file loaded but failed to build callable functions. */
-		BUILD_FAILED: 'LOCALE.BUILD_FAILED',
-		/** Locale registry has missing/orphaned entries vs config.locales. */
-		REGISTRY_MISMATCH: 'LOCALE.REGISTRY_MISMATCH',
-		/** A flag description is missing from a locale file. */
-		MISSING_FLAG_DESCRIPTION: 'LOCALE.MISSING_FLAG_DESCRIPTION',
-		/** Requested locale is not in config.locales. */
-		INVALID_LOCALE: 'LOCALE.INVALID_LOCALE',
-		/** Fallback chain references a locale not in the registry. */
-		INVALID_FALLBACK: 'LOCALE.INVALID_FALLBACK',
-		/** Cannot remove the active or default locale. */
-		REMOVE_DENIED: 'LOCALE.REMOVE_DENIED',
-		/** Intl formatter received invalid input or locale. */
-		FORMAT_FAILED: 'LOCALE.FORMAT_FAILED',
-	},
-	/** Template rendering errors. */
-	TEMPLATE: {
-		/** Template references variables not present in the context. */
-		UNDEFINED_VARIABLES: 'TEMPLATE.UNDEFINED_VARIABLES',
-		/** Template parameter failed schema validation. */
-		PARAM_VALIDATION_FAILED: 'TEMPLATE.PARAM_VALIDATION_FAILED',
-	},
-	/** Resource state errors (Google AIP-193 PreconditionFailure). */
-	RESOURCE: {
-		/** Resource already exists (conflict). */
-		ALREADY_EXISTS: 'RESOURCE.ALREADY_EXISTS',
-		/** Resource is in a state that prevents the requested operation. */
-		PRECONDITION_FAILED: 'RESOURCE.PRECONDITION_FAILED',
-		/** Resource has been deleted or is no longer available. */
-		GONE: 'RESOURCE.GONE',
-		/** Requested resource version conflicts with current version. */
-		CONFLICT: 'RESOURCE.CONFLICT',
-		/** Resource quota exceeded (Google AIP-193 QuotaFailure). */
-		QUOTA_EXCEEDED: 'RESOURCE.QUOTA_EXCEEDED',
-	},
-	/** Serialization and encoding errors. */
-	ENCODING: {
-		/** JSON parse/stringify failed. */
-		JSON_FAILED: 'ENCODING.JSON_FAILED',
-		/** Base64 encode/decode failed. */
-		BASE64_FAILED: 'ENCODING.BASE64_FAILED',
-		/** URL encode/decode failed. */
-		URL_FAILED: 'ENCODING.URL_FAILED',
-	},
-	/** 3D scene loading and rendering errors. */
-	SCENE: {
-		/** Scene file could not be loaded (missing, corrupt, unsupported format). */
-		LOAD_FAILED: 'SCENE.LOAD_FAILED',
-		/** Scene rendering failed (GPU error, shader compilation, draw call failure). */
-		RENDER_FAILED: 'SCENE.RENDER_FAILED',
-		/** A required scene asset (texture, model, material) is missing. */
-		ASSET_MISSING: 'SCENE.ASSET_MISSING',
-	},
-	/** Plugin lifecycle and sandbox errors. */
-	PLUGIN: {
-		/** Plugin module could not be loaded (missing, invalid entry point). */
-		LOAD_FAILED: 'PLUGIN.LOAD_FAILED',
-		/** Plugin initialization failed (setup hook threw or timed out). */
-		INIT_FAILED: 'PLUGIN.INIT_FAILED',
-		/** Plugin requires an incompatible API version. */
-		API_MISMATCH: 'PLUGIN.API_MISMATCH',
-		/** Plugin attempted an operation outside its sandbox permissions. */
-		SANDBOX_VIOLATION: 'PLUGIN.SANDBOX_VIOLATION',
-	},
-	/** Project file management errors. */
-	PROJECT: {
-		/** Project file could not be loaded (missing, parse failure). */
-		LOAD_FAILED: 'PROJECT.LOAD_FAILED',
-		/** Project file could not be saved (permission denied, disk full). */
-		SAVE_FAILED: 'PROJECT.SAVE_FAILED',
-		/** Project file is corrupt or has invalid structure. */
-		CORRUPT: 'PROJECT.CORRUPT',
-		/** Project file was created with an incompatible version. */
-		VERSION_MISMATCH: 'PROJECT.VERSION_MISMATCH',
-	},
-	/** Asset import and processing errors. */
-	ASSET: {
-		/** Asset import failed (file read, conversion, processing error). */
-		IMPORT_FAILED: 'ASSET.IMPORT_FAILED',
-		/** Asset format is not supported by the current pipeline. */
-		FORMAT_UNSUPPORTED: 'ASSET.FORMAT_UNSUPPORTED',
-		/** Asset exceeds maximum allowed size. */
-		TOO_LARGE: 'ASSET.TOO_LARGE',
-	},
-	/** Internal / unexpected errors (catch-all). */
-	INTERNAL: {
-		/** An unexpected error occurred that does not fit any other category. */
-		UNEXPECTED: 'INTERNAL.UNEXPECTED',
-		/** Output validation failed — a function returned data that does not match its schema. */
-		OUTPUT_VALIDATION_FAILED: 'INTERNAL.OUTPUT_VALIDATION_FAILED',
-		/** Valibot `v.safeParse` threw instead of returning a result. */
-		SAFE_PARSE_THREW: 'INTERNAL.SAFE_PARSE_THREW',
-		/** A framework invariant was violated — programming error, should never occur in production. */
-		INVARIANT_VIOLATED: 'INTERNAL.INVARIANT_VIOLATED',
-	},
+  /** Schema validation errors. */
+  VALIDATION: {
+    /** Valibot schema validation failed. The `validation` field will contain issue details. */
+    SCHEMA_FAILED: 'VALIDATION.SCHEMA_FAILED',
+    /** A required field is missing from the input. */
+    MISSING_FIELD: 'VALIDATION.MISSING_FIELD',
+    /** A field value does not match the expected format. */
+    INVALID_FORMAT: 'VALIDATION.INVALID_FORMAT',
+  },
+  /** Configuration loading and parsing errors. */
+  CONFIG: {
+    /** Configuration could not be loaded (file read, parse, or validation failure). */
+    LOAD_FAILED: 'CONFIG.LOAD_FAILED',
+    /** Configuration file was not found at the expected path. */
+    NOT_FOUND: 'CONFIG.NOT_FOUND',
+    /** Configuration file exists but contains invalid values. */
+    INVALID: 'CONFIG.INVALID',
+  },
+  /** Authentication and authorization errors. */
+  AUTH: {
+    /** Token is malformed, revoked, or otherwise invalid. */
+    INVALID_TOKEN: 'AUTH.INVALID_TOKEN',
+    /** Token has expired (e.g., access token past its TTL). */
+    EXPIRED: 'AUTH.EXPIRED',
+    /** Credentials are missing or invalid — the request is not authenticated. */
+    UNAUTHORIZED: 'AUTH.UNAUTHORIZED',
+    /** Authenticated but lacking permission for the requested action. */
+    FORBIDDEN: 'AUTH.FORBIDDEN',
+    /** Resource already exists (e.g., duplicate email registration). */
+    DUPLICATE: 'AUTH.DUPLICATE',
+  },
+  /** Database operation errors. */
+  DB: {
+    /** Queried record was not found. */
+    NOT_FOUND: 'DB.NOT_FOUND',
+    /** Constraint violation (unique, foreign key, check). */
+    CONSTRAINT: 'DB.CONSTRAINT',
+    /** Database connection failed. */
+    CONNECTION: 'DB.CONNECTION',
+  },
+  /** File system and I/O errors. */
+  IO: {
+    /** File read failed (missing, permission denied, encoding error). */
+    READ_FAILED: 'IO.READ_FAILED',
+    /** File write failed (permission denied, disk full). */
+    WRITE_FAILED: 'IO.WRITE_FAILED',
+    /** Path stat failed (does not exist, permission denied, not accessible). */
+    STAT_FAILED: 'IO.STAT_FAILED',
+    /** Remote resource fetch failed (download, HTTP request to external source). */
+    FETCH_FAILED: 'IO.FETCH_FAILED',
+    /** Operation timed out before completing. */
+    TIMEOUT: 'IO.TIMEOUT',
+  },
+  /** Network and HTTP errors. */
+  HTTP: {
+    /** Request timed out before a response was received. */
+    TIMEOUT: 'HTTP.TIMEOUT',
+    /** Remote resource not found (404). */
+    NOT_FOUND: 'HTTP.NOT_FOUND',
+    /** Remote server returned an error (5xx). */
+    SERVER_ERROR: 'HTTP.SERVER_ERROR',
+  },
+  /** Runtime capability errors. */
+  RUNTIME: {
+    /** Function requires a runtime capability that is not available (e.g. Node.js API called from browser). */
+    UNSUPPORTED: 'RUNTIME.UNSUPPORTED',
+  },
+  /** Function schema validation errors. */
+  FUNCTION: {
+    /** Value is not a callable function. */
+    NOT_CALLABLE: 'FUNCTION.NOT_CALLABLE',
+    /** Function arity (`fn.length`) is outside the expected range. */
+    INVALID_ARITY: 'FUNCTION.INVALID_ARITY',
+    /** Function is not async when async was required. */
+    NOT_ASYNC: 'FUNCTION.NOT_ASYNC',
+    /** Call-time parameter validation failed against the args schema. */
+    PARAM_VALIDATION_FAILED: 'FUNCTION.PARAM_VALIDATION_FAILED',
+    /** Call-time return value validation failed against the returns schema. */
+    RETURN_VALIDATION_FAILED: 'FUNCTION.RETURN_VALIDATION_FAILED',
+  },
+  /** Locale loading and validation errors. */
+  LOCALE: {
+    /** Failed to load a locale file from disk. */
+    LOAD_FAILED: 'LOCALE.LOAD_FAILED',
+    /** Locale file failed Valibot schema validation. */
+    VALIDATION_FAILED: 'LOCALE.VALIDATION_FAILED',
+    /** Locale file loaded but failed to build callable functions. */
+    BUILD_FAILED: 'LOCALE.BUILD_FAILED',
+    /** Locale registry has missing/orphaned entries vs config.locales. */
+    REGISTRY_MISMATCH: 'LOCALE.REGISTRY_MISMATCH',
+    /** A flag description is missing from a locale file. */
+    MISSING_FLAG_DESCRIPTION: 'LOCALE.MISSING_FLAG_DESCRIPTION',
+    /** Requested locale is not in config.locales. */
+    INVALID_LOCALE: 'LOCALE.INVALID_LOCALE',
+    /** Fallback chain references a locale not in the registry. */
+    INVALID_FALLBACK: 'LOCALE.INVALID_FALLBACK',
+    /** Cannot remove the active or default locale. */
+    REMOVE_DENIED: 'LOCALE.REMOVE_DENIED',
+    /** Intl formatter received invalid input or locale. */
+    FORMAT_FAILED: 'LOCALE.FORMAT_FAILED',
+  },
+  /** Template rendering errors. */
+  TEMPLATE: {
+    /** Template references variables not present in the context. */
+    UNDEFINED_VARIABLES: 'TEMPLATE.UNDEFINED_VARIABLES',
+    /** Template parameter failed schema validation. */
+    PARAM_VALIDATION_FAILED: 'TEMPLATE.PARAM_VALIDATION_FAILED',
+  },
+  /** Resource state errors (Google AIP-193 PreconditionFailure). */
+  RESOURCE: {
+    /** Resource already exists (conflict). */
+    ALREADY_EXISTS: 'RESOURCE.ALREADY_EXISTS',
+    /** Resource is in a state that prevents the requested operation. */
+    PRECONDITION_FAILED: 'RESOURCE.PRECONDITION_FAILED',
+    /** Resource has been deleted or is no longer available. */
+    GONE: 'RESOURCE.GONE',
+    /** Requested resource version conflicts with current version. */
+    CONFLICT: 'RESOURCE.CONFLICT',
+    /** Resource quota exceeded (Google AIP-193 QuotaFailure). */
+    QUOTA_EXCEEDED: 'RESOURCE.QUOTA_EXCEEDED',
+  },
+  /** Serialization and encoding errors. */
+  ENCODING: {
+    /** JSON parse/stringify failed. */
+    JSON_FAILED: 'ENCODING.JSON_FAILED',
+    /** Base64 encode/decode failed. */
+    BASE64_FAILED: 'ENCODING.BASE64_FAILED',
+    /** URL encode/decode failed. */
+    URL_FAILED: 'ENCODING.URL_FAILED',
+  },
+  /** 3D scene loading and rendering errors. */
+  SCENE: {
+    /** Scene file could not be loaded (missing, corrupt, unsupported format). */
+    LOAD_FAILED: 'SCENE.LOAD_FAILED',
+    /** Scene rendering failed (GPU error, shader compilation, draw call failure). */
+    RENDER_FAILED: 'SCENE.RENDER_FAILED',
+    /** A required scene asset (texture, model, material) is missing. */
+    ASSET_MISSING: 'SCENE.ASSET_MISSING',
+  },
+  /** Plugin lifecycle and sandbox errors. */
+  PLUGIN: {
+    /** Plugin module could not be loaded (missing, invalid entry point). */
+    LOAD_FAILED: 'PLUGIN.LOAD_FAILED',
+    /** Plugin initialization failed (setup hook threw or timed out). */
+    INIT_FAILED: 'PLUGIN.INIT_FAILED',
+    /** Plugin requires an incompatible API version. */
+    API_MISMATCH: 'PLUGIN.API_MISMATCH',
+    /** Plugin attempted an operation outside its sandbox permissions. */
+    SANDBOX_VIOLATION: 'PLUGIN.SANDBOX_VIOLATION',
+  },
+  /** Project file management errors. */
+  PROJECT: {
+    /** Project file could not be loaded (missing, parse failure). */
+    LOAD_FAILED: 'PROJECT.LOAD_FAILED',
+    /** Project file could not be saved (permission denied, disk full). */
+    SAVE_FAILED: 'PROJECT.SAVE_FAILED',
+    /** Project file is corrupt or has invalid structure. */
+    CORRUPT: 'PROJECT.CORRUPT',
+    /** Project file was created with an incompatible version. */
+    VERSION_MISMATCH: 'PROJECT.VERSION_MISMATCH',
+  },
+  /** Asset import and processing errors. */
+  ASSET: {
+    /** Asset import failed (file read, conversion, processing error). */
+    IMPORT_FAILED: 'ASSET.IMPORT_FAILED',
+    /** Asset format is not supported by the current pipeline. */
+    FORMAT_UNSUPPORTED: 'ASSET.FORMAT_UNSUPPORTED',
+    /** Asset exceeds maximum allowed size. */
+    TOO_LARGE: 'ASSET.TOO_LARGE',
+  },
+  /** Internal / unexpected errors (catch-all). */
+  INTERNAL: {
+    /** An unexpected error occurred that does not fit any other category. */
+    UNEXPECTED: 'INTERNAL.UNEXPECTED',
+    /** Output validation failed — a function returned data that does not match its schema. */
+    OUTPUT_VALIDATION_FAILED: 'INTERNAL.OUTPUT_VALIDATION_FAILED',
+    /** Valibot `v.safeParse` threw instead of returning a result. */
+    SAFE_PARSE_THREW: 'INTERNAL.SAFE_PARSE_THREW',
+    /** A framework invariant was violated — programming error, should never occur in production. */
+    INVARIANT_VIOLATED: 'INTERNAL.INVARIANT_VIOLATED',
+  },
 } as const);
 
 // =============================================================================
@@ -704,126 +704,126 @@ export type KnownErrorCode = FlattenErrors<typeof ERRORS>;
  * ```
  */
 const ERROR_MESSAGES: Partial<Record<KnownErrorCode, (meta?: ErrorMeta) => string>> = {
-	[ERRORS.VALIDATION.SCHEMA_FAILED]: (meta) =>
-		meta?.errors && Array.isArray(meta.errors)
-			? meta.errors.map(String).join('; ')
-			: `Schema validation failed${meta?.flag ? ` for flag '${meta.flag}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
-	[ERRORS.VALIDATION.MISSING_FIELD]: (meta) =>
-		`Required field missing${meta?.field ? `: ${meta.field}` : ''}${meta?.locale ? ` in locale '${meta.locale}'` : ''}${meta?.location ? `. Add to ${meta.location}` : ''}`,
-	[ERRORS.VALIDATION.INVALID_FORMAT]: (meta) =>
-		`Format mismatch${meta?.field ? ` on ${meta.field}` : ''}${meta?.reason ? `: ${meta.reason}` : ''}${meta?.template ? ` in template "${meta.template}"` : ''}${meta?.missingVariables && Array.isArray(meta.missingVariables) ? `: undefined variables: ${meta.missingVariables.map(String).join(', ')}` : ''}`,
-	[ERRORS.CONFIG.LOAD_FAILED]: (meta) =>
-		`Failed to load config${meta?.configPath ? `: ${meta.configPath}` : ''}`,
-	[ERRORS.CONFIG.NOT_FOUND]: (meta) =>
-		`Configuration not found${meta?.path ? `: ${meta.path}` : ''}`,
-	[ERRORS.CONFIG.INVALID]: (meta) =>
-		`Invalid configuration${meta?.path ? ` in ${meta.path}` : ''}${meta?.error ? `: ${meta.error}` : ''}`,
-	[ERRORS.AUTH.INVALID_TOKEN]: () => 'Token is malformed, revoked, or invalid',
-	[ERRORS.AUTH.EXPIRED]: () => 'Token has expired',
-	[ERRORS.AUTH.UNAUTHORIZED]: (meta) =>
-		`Credentials are missing or invalid${meta?.tool ? ` for ${meta.tool}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
-	[ERRORS.AUTH.FORBIDDEN]: (meta) =>
-		`Insufficient permissions for this action${meta?.tool ? ` (${meta.tool})` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
-	[ERRORS.AUTH.DUPLICATE]: (meta) =>
-		`Resource already exists${meta?.field ? `: ${meta.field}` : ''}`,
-	[ERRORS.DB.NOT_FOUND]: (meta) => `Record not found${meta?.id ? `: ${meta.id}` : ''}`,
-	[ERRORS.DB.CONSTRAINT]: (meta) =>
-		`Constraint violation${meta?.constraint ? `: ${meta.constraint}` : ''}`,
-	[ERRORS.DB.CONNECTION]: () => 'Database connection failed',
-	[ERRORS.IO.READ_FAILED]: (meta) =>
-		`Cannot read file${meta?.path ? `: ${meta.path}` : ''}${meta?.operation ? ` (${meta.operation})` : ''}`,
-	[ERRORS.IO.WRITE_FAILED]: (meta) => `Cannot write file${meta?.path ? `: ${meta.path}` : ''}`,
-	[ERRORS.IO.TIMEOUT]: (meta) =>
-		`Operation timed out${meta?.timeoutMs ? ` after ${meta.timeoutMs}ms` : ''}`,
-	[ERRORS.IO.STAT_FAILED]: (meta) =>
-		`Path does not exist or is not accessible${meta?.path ? `: ${meta.path}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
-	[ERRORS.IO.FETCH_FAILED]: (meta) =>
-		`Failed to fetch remote resource${meta?.url ? `: ${meta.url}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
-	[ERRORS.HTTP.TIMEOUT]: () => 'Request timed out',
-	[ERRORS.HTTP.NOT_FOUND]: (meta) => `Resource not found${meta?.url ? `: ${meta.url}` : ''}`,
-	[ERRORS.HTTP.SERVER_ERROR]: () => 'Server returned an error',
-	[ERRORS.RUNTIME.UNSUPPORTED]: (meta) =>
-		`${meta?.function ?? 'Operation'} requires ${meta?.requires ?? 'a different runtime'} but the current environment does not support it`,
-	[ERRORS.FUNCTION.NOT_CALLABLE]: () => 'Value is not a callable function',
-	[ERRORS.FUNCTION.INVALID_ARITY]: (meta) =>
-		`Function arity mismatch${meta?.expected ? `: expected ${meta.expected}, got ${meta.actual}` : ''}`,
-	[ERRORS.FUNCTION.NOT_ASYNC]: (meta) =>
-		`Function is not async${meta?.functionName ? `: ${meta.functionName}` : ''}`,
-	[ERRORS.FUNCTION.PARAM_VALIDATION_FAILED]: (meta) =>
-		`Parameter validation failed${meta?.functionName ? ` in ${meta.functionName}` : ''}`,
-	[ERRORS.FUNCTION.RETURN_VALIDATION_FAILED]: (meta) =>
-		`Return value validation failed${meta?.functionName ? ` in ${meta.functionName}` : ''}`,
-	[ERRORS.LOCALE.LOAD_FAILED]: (meta) =>
-		`Failed to load locale${meta?.locale ? ` '${meta.locale}'` : ''}${meta?.toolId ? ` for tool '${meta.toolId}'` : ''}${meta?.component ? ` (${meta.component})` : ''}`,
-	[ERRORS.LOCALE.VALIDATION_FAILED]: (meta) =>
-		`Locale${meta?.locale ? ` '${meta.locale}'` : ''} failed schema validation${meta?.toolId ? ` for tool '${meta.toolId}'` : ''}${meta?.component ? ` (${meta.component})` : ''}`,
-	[ERRORS.LOCALE.BUILD_FAILED]: (meta) =>
-		`Failed to build locale${meta?.locale ? ` '${meta.locale}'` : ''}${meta?.component ? ` (${meta.component})` : ''}`,
-	[ERRORS.LOCALE.REGISTRY_MISMATCH]: (meta) =>
-		`Locale registry mismatch${meta?.module ? ` in ${meta.module}` : ''}${meta?.errors && Array.isArray(meta.errors) ? `: ${meta.errors.map(String).join('; ')}` : ''}`,
-	[ERRORS.LOCALE.MISSING_FLAG_DESCRIPTION]: (meta) =>
-		`Missing flag description${meta?.field ? ` for '${meta.field}'` : ''} in locale${meta?.locale ? ` '${meta.locale}'` : ''}${meta?.location ? `. Add to ${meta.location}` : ''}`,
-	[ERRORS.LOCALE.INVALID_LOCALE]: (meta) =>
-		`Invalid locale${meta?.locale ? ` '${meta.locale}'` : ''}${meta?.available && Array.isArray(meta.available) ? `. Available: ${meta.available.map(String).join(', ')}` : ''}`,
-	[ERRORS.LOCALE.INVALID_FALLBACK]: (meta) =>
-		`Fallback locale${meta?.locale ? ` '${meta.locale}'` : ''} not found in registry${meta?.available && Array.isArray(meta.available) ? `. Available: ${meta.available.map(String).join(', ')}` : ''}`,
-	[ERRORS.LOCALE.REMOVE_DENIED]: (meta) =>
-		`Cannot remove locale${meta?.locale ? ` '${meta.locale}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
-	[ERRORS.LOCALE.FORMAT_FAILED]: (meta) =>
-		`Failed to format${meta?.type ? ` ${meta.type}` : ''}${meta?.locale ? ` for locale '${meta.locale}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
-	[ERRORS.TEMPLATE.UNDEFINED_VARIABLES]: (meta) =>
-		`Template${meta?.template ? ` "${meta.template}"` : ''} has undefined variables${meta?.missingVariables && Array.isArray(meta.missingVariables) ? `: ${meta.missingVariables.map(String).join(', ')}` : ''}`,
-	[ERRORS.TEMPLATE.PARAM_VALIDATION_FAILED]: (meta) =>
-		`Template param${meta?.param ? ` '${meta.param}'` : ''} failed validation`,
-	[ERRORS.SCENE.LOAD_FAILED]: (meta) =>
-		`Failed to load scene${meta?.scene ? ` '${meta.scene}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
-	[ERRORS.SCENE.RENDER_FAILED]: (meta) =>
-		`Scene rendering failed${meta?.scene ? ` for '${meta.scene}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
-	[ERRORS.SCENE.ASSET_MISSING]: (meta) =>
-		`Scene asset missing${meta?.asset ? `: ${meta.asset}` : ''}${meta?.scene ? ` in scene '${meta.scene}'` : ''}`,
-	[ERRORS.PLUGIN.LOAD_FAILED]: (meta) =>
-		`Failed to load plugin${meta?.plugin ? ` '${meta.plugin}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
-	[ERRORS.PLUGIN.INIT_FAILED]: (meta) =>
-		`Plugin initialization failed${meta?.plugin ? ` for '${meta.plugin}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
-	[ERRORS.PLUGIN.API_MISMATCH]: (meta) =>
-		`Plugin API version mismatch${meta?.plugin ? ` for '${meta.plugin}'` : ''}${meta?.expected ? ` (expected: ${meta.expected}, got: ${meta.actual})` : ''}`,
-	[ERRORS.PLUGIN.SANDBOX_VIOLATION]: (meta) =>
-		`Plugin sandbox violation${meta?.plugin ? ` by '${meta.plugin}'` : ''}${meta?.operation ? `: attempted ${meta.operation}` : ''}`,
-	[ERRORS.PROJECT.LOAD_FAILED]: (meta) =>
-		`Failed to load project${meta?.path ? `: ${meta.path}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
-	[ERRORS.PROJECT.SAVE_FAILED]: (meta) =>
-		`Failed to save project${meta?.path ? `: ${meta.path}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
-	[ERRORS.PROJECT.CORRUPT]: (meta) =>
-		`Project file is corrupt${meta?.path ? `: ${meta.path}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
-	[ERRORS.PROJECT.VERSION_MISMATCH]: (meta) =>
-		`Project version mismatch${meta?.path ? ` for ${meta.path}` : ''}${meta?.expected ? ` (expected: ${meta.expected}, got: ${meta.actual})` : ''}`,
-	[ERRORS.ASSET.IMPORT_FAILED]: (meta) =>
-		`Failed to import asset${meta?.asset ? `: ${meta.asset}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
-	[ERRORS.ASSET.FORMAT_UNSUPPORTED]: (meta) =>
-		`Unsupported asset format${meta?.format ? `: ${meta.format}` : ''}${meta?.asset ? ` for '${meta.asset}'` : ''}`,
-	[ERRORS.ASSET.TOO_LARGE]: (meta) =>
-		`Asset exceeds size limit${meta?.asset ? `: ${meta.asset}` : ''}${meta?.size ? ` (${meta.size})` : ''}${meta?.limit ? `, max: ${meta.limit}` : ''}`,
-	[ERRORS.INTERNAL.UNEXPECTED]: () => 'An unexpected error occurred',
-	[ERRORS.INTERNAL.OUTPUT_VALIDATION_FAILED]: () => 'Output validation failed',
-	[ERRORS.INTERNAL.SAFE_PARSE_THREW]: () => 'Valibot safeParse threw unexpectedly',
-	[ERRORS.INTERNAL.INVARIANT_VIOLATED]: (meta) =>
-		`Internal invariant violated${meta?.reason ? `: ${meta.reason}` : ''}${meta?.function ? ` in ${meta.function}` : ''}`,
-	[ERRORS.RESOURCE.ALREADY_EXISTS]: (meta) =>
-		`Resource already exists${meta?.resource ? `: ${meta.resource}` : ''}${meta?.id ? ` (${meta.id})` : ''}`,
-	[ERRORS.RESOURCE.PRECONDITION_FAILED]: (meta) =>
-		`Precondition failed${meta?.condition ? `: ${meta.condition}` : ''}`,
-	[ERRORS.RESOURCE.GONE]: (meta) =>
-		`Resource is no longer available${meta?.resource ? `: ${meta.resource}` : ''}`,
-	[ERRORS.RESOURCE.CONFLICT]: (meta) =>
-		`Version conflict${meta?.resource ? ` on ${meta.resource}` : ''}${meta?.expected ? ` (expected: ${meta.expected}, got: ${meta.actual})` : ''}`,
-	[ERRORS.RESOURCE.QUOTA_EXCEEDED]: (meta) =>
-		`Quota exceeded${meta?.quota ? ` for ${meta.quota}` : ''}${meta?.limit ? ` (limit: ${meta.limit})` : ''}`,
-	[ERRORS.ENCODING.JSON_FAILED]: (meta) =>
-		`JSON ${meta?.operation ?? 'operation'} failed${meta?.reason ? `: ${meta.reason}` : ''}`,
-	[ERRORS.ENCODING.BASE64_FAILED]: (meta) =>
-		`Base64 ${meta?.operation ?? 'operation'} failed${meta?.reason ? `: ${meta.reason}` : ''}`,
-	[ERRORS.ENCODING.URL_FAILED]: (meta) =>
-		`URL ${meta?.operation ?? 'operation'} failed${meta?.reason ? `: ${meta.reason}` : ''}`,
+  [ERRORS.VALIDATION.SCHEMA_FAILED]: (meta) =>
+    meta?.errors && Array.isArray(meta.errors)
+      ? meta.errors.map(String).join('; ')
+      : `Schema validation failed${meta?.flag ? ` for flag '${meta.flag}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
+  [ERRORS.VALIDATION.MISSING_FIELD]: (meta) =>
+    `Required field missing${meta?.field ? `: ${meta.field}` : ''}${meta?.locale ? ` in locale '${meta.locale}'` : ''}${meta?.location ? `. Add to ${meta.location}` : ''}`,
+  [ERRORS.VALIDATION.INVALID_FORMAT]: (meta) =>
+    `Format mismatch${meta?.field ? ` on ${meta.field}` : ''}${meta?.reason ? `: ${meta.reason}` : ''}${meta?.template ? ` in template "${meta.template}"` : ''}${meta?.missingVariables && Array.isArray(meta.missingVariables) ? `: undefined variables: ${meta.missingVariables.map(String).join(', ')}` : ''}`,
+  [ERRORS.CONFIG.LOAD_FAILED]: (meta) =>
+    `Failed to load config${meta?.configPath ? `: ${meta.configPath}` : ''}`,
+  [ERRORS.CONFIG.NOT_FOUND]: (meta) =>
+    `Configuration not found${meta?.path ? `: ${meta.path}` : ''}`,
+  [ERRORS.CONFIG.INVALID]: (meta) =>
+    `Invalid configuration${meta?.path ? ` in ${meta.path}` : ''}${meta?.error ? `: ${meta.error}` : ''}`,
+  [ERRORS.AUTH.INVALID_TOKEN]: () => 'Token is malformed, revoked, or invalid',
+  [ERRORS.AUTH.EXPIRED]: () => 'Token has expired',
+  [ERRORS.AUTH.UNAUTHORIZED]: (meta) =>
+    `Credentials are missing or invalid${meta?.tool ? ` for ${meta.tool}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
+  [ERRORS.AUTH.FORBIDDEN]: (meta) =>
+    `Insufficient permissions for this action${meta?.tool ? ` (${meta.tool})` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
+  [ERRORS.AUTH.DUPLICATE]: (meta) =>
+    `Resource already exists${meta?.field ? `: ${meta.field}` : ''}`,
+  [ERRORS.DB.NOT_FOUND]: (meta) => `Record not found${meta?.id ? `: ${meta.id}` : ''}`,
+  [ERRORS.DB.CONSTRAINT]: (meta) =>
+    `Constraint violation${meta?.constraint ? `: ${meta.constraint}` : ''}`,
+  [ERRORS.DB.CONNECTION]: () => 'Database connection failed',
+  [ERRORS.IO.READ_FAILED]: (meta) =>
+    `Cannot read file${meta?.path ? `: ${meta.path}` : ''}${meta?.operation ? ` (${meta.operation})` : ''}`,
+  [ERRORS.IO.WRITE_FAILED]: (meta) => `Cannot write file${meta?.path ? `: ${meta.path}` : ''}`,
+  [ERRORS.IO.TIMEOUT]: (meta) =>
+    `Operation timed out${meta?.timeoutMs ? ` after ${meta.timeoutMs}ms` : ''}`,
+  [ERRORS.IO.STAT_FAILED]: (meta) =>
+    `Path does not exist or is not accessible${meta?.path ? `: ${meta.path}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
+  [ERRORS.IO.FETCH_FAILED]: (meta) =>
+    `Failed to fetch remote resource${meta?.url ? `: ${meta.url}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
+  [ERRORS.HTTP.TIMEOUT]: () => 'Request timed out',
+  [ERRORS.HTTP.NOT_FOUND]: (meta) => `Resource not found${meta?.url ? `: ${meta.url}` : ''}`,
+  [ERRORS.HTTP.SERVER_ERROR]: () => 'Server returned an error',
+  [ERRORS.RUNTIME.UNSUPPORTED]: (meta) =>
+    `${meta?.function ?? 'Operation'} requires ${meta?.requires ?? 'a different runtime'} but the current environment does not support it`,
+  [ERRORS.FUNCTION.NOT_CALLABLE]: () => 'Value is not a callable function',
+  [ERRORS.FUNCTION.INVALID_ARITY]: (meta) =>
+    `Function arity mismatch${meta?.expected ? `: expected ${meta.expected}, got ${meta.actual}` : ''}`,
+  [ERRORS.FUNCTION.NOT_ASYNC]: (meta) =>
+    `Function is not async${meta?.functionName ? `: ${meta.functionName}` : ''}`,
+  [ERRORS.FUNCTION.PARAM_VALIDATION_FAILED]: (meta) =>
+    `Parameter validation failed${meta?.functionName ? ` in ${meta.functionName}` : ''}`,
+  [ERRORS.FUNCTION.RETURN_VALIDATION_FAILED]: (meta) =>
+    `Return value validation failed${meta?.functionName ? ` in ${meta.functionName}` : ''}`,
+  [ERRORS.LOCALE.LOAD_FAILED]: (meta) =>
+    `Failed to load locale${meta?.locale ? ` '${meta.locale}'` : ''}${meta?.toolId ? ` for tool '${meta.toolId}'` : ''}${meta?.component ? ` (${meta.component})` : ''}`,
+  [ERRORS.LOCALE.VALIDATION_FAILED]: (meta) =>
+    `Locale${meta?.locale ? ` '${meta.locale}'` : ''} failed schema validation${meta?.toolId ? ` for tool '${meta.toolId}'` : ''}${meta?.component ? ` (${meta.component})` : ''}`,
+  [ERRORS.LOCALE.BUILD_FAILED]: (meta) =>
+    `Failed to build locale${meta?.locale ? ` '${meta.locale}'` : ''}${meta?.component ? ` (${meta.component})` : ''}`,
+  [ERRORS.LOCALE.REGISTRY_MISMATCH]: (meta) =>
+    `Locale registry mismatch${meta?.module ? ` in ${meta.module}` : ''}${meta?.errors && Array.isArray(meta.errors) ? `: ${meta.errors.map(String).join('; ')}` : ''}`,
+  [ERRORS.LOCALE.MISSING_FLAG_DESCRIPTION]: (meta) =>
+    `Missing flag description${meta?.field ? ` for '${meta.field}'` : ''} in locale${meta?.locale ? ` '${meta.locale}'` : ''}${meta?.location ? `. Add to ${meta.location}` : ''}`,
+  [ERRORS.LOCALE.INVALID_LOCALE]: (meta) =>
+    `Invalid locale${meta?.locale ? ` '${meta.locale}'` : ''}${meta?.available && Array.isArray(meta.available) ? `. Available: ${meta.available.map(String).join(', ')}` : ''}`,
+  [ERRORS.LOCALE.INVALID_FALLBACK]: (meta) =>
+    `Fallback locale${meta?.locale ? ` '${meta.locale}'` : ''} not found in registry${meta?.available && Array.isArray(meta.available) ? `. Available: ${meta.available.map(String).join(', ')}` : ''}`,
+  [ERRORS.LOCALE.REMOVE_DENIED]: (meta) =>
+    `Cannot remove locale${meta?.locale ? ` '${meta.locale}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
+  [ERRORS.LOCALE.FORMAT_FAILED]: (meta) =>
+    `Failed to format${meta?.type ? ` ${meta.type}` : ''}${meta?.locale ? ` for locale '${meta.locale}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
+  [ERRORS.TEMPLATE.UNDEFINED_VARIABLES]: (meta) =>
+    `Template${meta?.template ? ` "${meta.template}"` : ''} has undefined variables${meta?.missingVariables && Array.isArray(meta.missingVariables) ? `: ${meta.missingVariables.map(String).join(', ')}` : ''}`,
+  [ERRORS.TEMPLATE.PARAM_VALIDATION_FAILED]: (meta) =>
+    `Template param${meta?.param ? ` '${meta.param}'` : ''} failed validation`,
+  [ERRORS.SCENE.LOAD_FAILED]: (meta) =>
+    `Failed to load scene${meta?.scene ? ` '${meta.scene}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
+  [ERRORS.SCENE.RENDER_FAILED]: (meta) =>
+    `Scene rendering failed${meta?.scene ? ` for '${meta.scene}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
+  [ERRORS.SCENE.ASSET_MISSING]: (meta) =>
+    `Scene asset missing${meta?.asset ? `: ${meta.asset}` : ''}${meta?.scene ? ` in scene '${meta.scene}'` : ''}`,
+  [ERRORS.PLUGIN.LOAD_FAILED]: (meta) =>
+    `Failed to load plugin${meta?.plugin ? ` '${meta.plugin}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
+  [ERRORS.PLUGIN.INIT_FAILED]: (meta) =>
+    `Plugin initialization failed${meta?.plugin ? ` for '${meta.plugin}'` : ''}${meta?.reason ? `: ${meta.reason}` : ''}`,
+  [ERRORS.PLUGIN.API_MISMATCH]: (meta) =>
+    `Plugin API version mismatch${meta?.plugin ? ` for '${meta.plugin}'` : ''}${meta?.expected ? ` (expected: ${meta.expected}, got: ${meta.actual})` : ''}`,
+  [ERRORS.PLUGIN.SANDBOX_VIOLATION]: (meta) =>
+    `Plugin sandbox violation${meta?.plugin ? ` by '${meta.plugin}'` : ''}${meta?.operation ? `: attempted ${meta.operation}` : ''}`,
+  [ERRORS.PROJECT.LOAD_FAILED]: (meta) =>
+    `Failed to load project${meta?.path ? `: ${meta.path}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
+  [ERRORS.PROJECT.SAVE_FAILED]: (meta) =>
+    `Failed to save project${meta?.path ? `: ${meta.path}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
+  [ERRORS.PROJECT.CORRUPT]: (meta) =>
+    `Project file is corrupt${meta?.path ? `: ${meta.path}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
+  [ERRORS.PROJECT.VERSION_MISMATCH]: (meta) =>
+    `Project version mismatch${meta?.path ? ` for ${meta.path}` : ''}${meta?.expected ? ` (expected: ${meta.expected}, got: ${meta.actual})` : ''}`,
+  [ERRORS.ASSET.IMPORT_FAILED]: (meta) =>
+    `Failed to import asset${meta?.asset ? `: ${meta.asset}` : ''}${meta?.reason ? ` — ${meta.reason}` : ''}`,
+  [ERRORS.ASSET.FORMAT_UNSUPPORTED]: (meta) =>
+    `Unsupported asset format${meta?.format ? `: ${meta.format}` : ''}${meta?.asset ? ` for '${meta.asset}'` : ''}`,
+  [ERRORS.ASSET.TOO_LARGE]: (meta) =>
+    `Asset exceeds size limit${meta?.asset ? `: ${meta.asset}` : ''}${meta?.size ? ` (${meta.size})` : ''}${meta?.limit ? `, max: ${meta.limit}` : ''}`,
+  [ERRORS.INTERNAL.UNEXPECTED]: () => 'An unexpected error occurred',
+  [ERRORS.INTERNAL.OUTPUT_VALIDATION_FAILED]: () => 'Output validation failed',
+  [ERRORS.INTERNAL.SAFE_PARSE_THREW]: () => 'Valibot safeParse threw unexpectedly',
+  [ERRORS.INTERNAL.INVARIANT_VIOLATED]: (meta) =>
+    `Internal invariant violated${meta?.reason ? `: ${meta.reason}` : ''}${meta?.function ? ` in ${meta.function}` : ''}`,
+  [ERRORS.RESOURCE.ALREADY_EXISTS]: (meta) =>
+    `Resource already exists${meta?.resource ? `: ${meta.resource}` : ''}${meta?.id ? ` (${meta.id})` : ''}`,
+  [ERRORS.RESOURCE.PRECONDITION_FAILED]: (meta) =>
+    `Precondition failed${meta?.condition ? `: ${meta.condition}` : ''}`,
+  [ERRORS.RESOURCE.GONE]: (meta) =>
+    `Resource is no longer available${meta?.resource ? `: ${meta.resource}` : ''}`,
+  [ERRORS.RESOURCE.CONFLICT]: (meta) =>
+    `Version conflict${meta?.resource ? ` on ${meta.resource}` : ''}${meta?.expected ? ` (expected: ${meta.expected}, got: ${meta.actual})` : ''}`,
+  [ERRORS.RESOURCE.QUOTA_EXCEEDED]: (meta) =>
+    `Quota exceeded${meta?.quota ? ` for ${meta.quota}` : ''}${meta?.limit ? ` (limit: ${meta.limit})` : ''}`,
+  [ERRORS.ENCODING.JSON_FAILED]: (meta) =>
+    `JSON ${meta?.operation ?? 'operation'} failed${meta?.reason ? `: ${meta.reason}` : ''}`,
+  [ERRORS.ENCODING.BASE64_FAILED]: (meta) =>
+    `Base64 ${meta?.operation ?? 'operation'} failed${meta?.reason ? `: ${meta.reason}` : ''}`,
+  [ERRORS.ENCODING.URL_FAILED]: (meta) =>
+    `URL ${meta?.operation ?? 'operation'} failed${meta?.reason ? `: ${meta.reason}` : ''}`,
 };
 
 // =============================================================================
@@ -847,23 +847,23 @@ const ERROR_MESSAGES: Partial<Record<KnownErrorCode, (meta?: ErrorMeta) => strin
  * ```
  */
 export const ErrorDomainSchema = v.picklist([
-	'VALIDATION',
-	'CONFIG',
-	'AUTH',
-	'DB',
-	'IO',
-	'HTTP',
-	'RUNTIME',
-	'RESOURCE',
-	'ENCODING',
-	'FUNCTION',
-	'LOCALE',
-	'TEMPLATE',
-	'SCENE',
-	'PLUGIN',
-	'PROJECT',
-	'ASSET',
-	'INTERNAL',
+  'VALIDATION',
+  'CONFIG',
+  'AUTH',
+  'DB',
+  'IO',
+  'HTTP',
+  'RUNTIME',
+  'RESOURCE',
+  'ENCODING',
+  'FUNCTION',
+  'LOCALE',
+  'TEMPLATE',
+  'SCENE',
+  'PLUGIN',
+  'PROJECT',
+  'ASSET',
+  'INTERNAL',
 ]);
 
 /** Inferred output type of {@link ErrorDomainSchema}. */
@@ -888,96 +888,96 @@ export type ErrorDomain = v.InferOutput<typeof ErrorDomainSchema>;
  * ```
  */
 const ERROR_DEFAULTS: Partial<
-	Record<
-		KnownErrorCode,
-		{
-			severity?: ErrorSeverity;
-			httpStatus?: HttpStatusCode;
-		}
-	>
+  Record<
+    KnownErrorCode,
+    {
+      severity?: ErrorSeverity;
+      httpStatus?: HttpStatusCode;
+    }
+  >
 > = {
-	// VALIDATION
-	[ERRORS.VALIDATION.SCHEMA_FAILED]: { severity: 'error', httpStatus: 400 },
-	[ERRORS.VALIDATION.MISSING_FIELD]: { severity: 'error', httpStatus: 400 },
-	[ERRORS.VALIDATION.INVALID_FORMAT]: { severity: 'error', httpStatus: 400 },
-	// CONFIG
-	[ERRORS.CONFIG.LOAD_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.CONFIG.NOT_FOUND]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.CONFIG.INVALID]: { severity: 'error', httpStatus: 500 },
-	// AUTH
-	[ERRORS.AUTH.INVALID_TOKEN]: { severity: 'error', httpStatus: 401 },
-	[ERRORS.AUTH.EXPIRED]: { severity: 'warning', httpStatus: 401 },
-	[ERRORS.AUTH.UNAUTHORIZED]: { severity: 'error', httpStatus: 401 },
-	[ERRORS.AUTH.FORBIDDEN]: { severity: 'error', httpStatus: 403 },
-	[ERRORS.AUTH.DUPLICATE]: { severity: 'error', httpStatus: 409 },
-	// DB
-	[ERRORS.DB.NOT_FOUND]: { severity: 'error', httpStatus: 404 },
-	[ERRORS.DB.CONSTRAINT]: { severity: 'error', httpStatus: 409 },
-	[ERRORS.DB.CONNECTION]: { severity: 'fatal', httpStatus: 503 },
-	// IO
-	[ERRORS.IO.READ_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.IO.WRITE_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.IO.STAT_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.IO.FETCH_FAILED]: { severity: 'error', httpStatus: 502 },
-	[ERRORS.IO.TIMEOUT]: { severity: 'error', httpStatus: 504 },
-	// HTTP
-	[ERRORS.HTTP.TIMEOUT]: { severity: 'error', httpStatus: 504 },
-	[ERRORS.HTTP.NOT_FOUND]: { severity: 'error', httpStatus: 404 },
-	[ERRORS.HTTP.SERVER_ERROR]: { severity: 'error', httpStatus: 502 },
-	// RUNTIME
-	[ERRORS.RUNTIME.UNSUPPORTED]: { severity: 'error', httpStatus: 500 },
-	// FUNCTION
-	[ERRORS.FUNCTION.NOT_CALLABLE]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.FUNCTION.INVALID_ARITY]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.FUNCTION.NOT_ASYNC]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.FUNCTION.PARAM_VALIDATION_FAILED]: { severity: 'error', httpStatus: 400 },
-	[ERRORS.FUNCTION.RETURN_VALIDATION_FAILED]: { severity: 'error', httpStatus: 500 },
-	// LOCALE
-	[ERRORS.LOCALE.LOAD_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.LOCALE.VALIDATION_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.LOCALE.BUILD_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.LOCALE.REGISTRY_MISMATCH]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.LOCALE.MISSING_FLAG_DESCRIPTION]: { severity: 'warning', httpStatus: 500 },
-	[ERRORS.LOCALE.INVALID_LOCALE]: { severity: 'error', httpStatus: 400 },
-	[ERRORS.LOCALE.INVALID_FALLBACK]: { severity: 'error', httpStatus: 400 },
-	[ERRORS.LOCALE.REMOVE_DENIED]: { severity: 'error', httpStatus: 400 },
-	[ERRORS.LOCALE.FORMAT_FAILED]: { severity: 'error', httpStatus: 500 },
-	// TEMPLATE
-	[ERRORS.TEMPLATE.UNDEFINED_VARIABLES]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.TEMPLATE.PARAM_VALIDATION_FAILED]: { severity: 'error', httpStatus: 400 },
-	// RESOURCE
-	[ERRORS.RESOURCE.ALREADY_EXISTS]: { severity: 'error', httpStatus: 409 },
-	[ERRORS.RESOURCE.PRECONDITION_FAILED]: { severity: 'error', httpStatus: 412 },
-	[ERRORS.RESOURCE.GONE]: { severity: 'error', httpStatus: 410 },
-	[ERRORS.RESOURCE.CONFLICT]: { severity: 'error', httpStatus: 409 },
-	[ERRORS.RESOURCE.QUOTA_EXCEEDED]: { severity: 'error', httpStatus: 429 },
-	// ENCODING
-	[ERRORS.ENCODING.JSON_FAILED]: { severity: 'error', httpStatus: 400 },
-	[ERRORS.ENCODING.BASE64_FAILED]: { severity: 'error', httpStatus: 400 },
-	[ERRORS.ENCODING.URL_FAILED]: { severity: 'error', httpStatus: 400 },
-	// SCENE
-	[ERRORS.SCENE.LOAD_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.SCENE.RENDER_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.SCENE.ASSET_MISSING]: { severity: 'error', httpStatus: 404 },
-	// PLUGIN
-	[ERRORS.PLUGIN.LOAD_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.PLUGIN.INIT_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.PLUGIN.API_MISMATCH]: { severity: 'error', httpStatus: 409 },
-	[ERRORS.PLUGIN.SANDBOX_VIOLATION]: { severity: 'error', httpStatus: 403 },
-	// PROJECT
-	[ERRORS.PROJECT.LOAD_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.PROJECT.SAVE_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.PROJECT.CORRUPT]: { severity: 'error', httpStatus: 422 },
-	[ERRORS.PROJECT.VERSION_MISMATCH]: { severity: 'error', httpStatus: 409 },
-	// ASSET
-	[ERRORS.ASSET.IMPORT_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.ASSET.FORMAT_UNSUPPORTED]: { severity: 'error', httpStatus: 415 },
-	[ERRORS.ASSET.TOO_LARGE]: { severity: 'error', httpStatus: 413 },
-	// INTERNAL
-	[ERRORS.INTERNAL.UNEXPECTED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.INTERNAL.OUTPUT_VALIDATION_FAILED]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.INTERNAL.SAFE_PARSE_THREW]: { severity: 'error', httpStatus: 500 },
-	[ERRORS.INTERNAL.INVARIANT_VIOLATED]: { severity: 'fatal', httpStatus: 500 },
+  // VALIDATION
+  [ERRORS.VALIDATION.SCHEMA_FAILED]: { severity: 'error', httpStatus: 400 },
+  [ERRORS.VALIDATION.MISSING_FIELD]: { severity: 'error', httpStatus: 400 },
+  [ERRORS.VALIDATION.INVALID_FORMAT]: { severity: 'error', httpStatus: 400 },
+  // CONFIG
+  [ERRORS.CONFIG.LOAD_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.CONFIG.NOT_FOUND]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.CONFIG.INVALID]: { severity: 'error', httpStatus: 500 },
+  // AUTH
+  [ERRORS.AUTH.INVALID_TOKEN]: { severity: 'error', httpStatus: 401 },
+  [ERRORS.AUTH.EXPIRED]: { severity: 'warning', httpStatus: 401 },
+  [ERRORS.AUTH.UNAUTHORIZED]: { severity: 'error', httpStatus: 401 },
+  [ERRORS.AUTH.FORBIDDEN]: { severity: 'error', httpStatus: 403 },
+  [ERRORS.AUTH.DUPLICATE]: { severity: 'error', httpStatus: 409 },
+  // DB
+  [ERRORS.DB.NOT_FOUND]: { severity: 'error', httpStatus: 404 },
+  [ERRORS.DB.CONSTRAINT]: { severity: 'error', httpStatus: 409 },
+  [ERRORS.DB.CONNECTION]: { severity: 'fatal', httpStatus: 503 },
+  // IO
+  [ERRORS.IO.READ_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.IO.WRITE_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.IO.STAT_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.IO.FETCH_FAILED]: { severity: 'error', httpStatus: 502 },
+  [ERRORS.IO.TIMEOUT]: { severity: 'error', httpStatus: 504 },
+  // HTTP
+  [ERRORS.HTTP.TIMEOUT]: { severity: 'error', httpStatus: 504 },
+  [ERRORS.HTTP.NOT_FOUND]: { severity: 'error', httpStatus: 404 },
+  [ERRORS.HTTP.SERVER_ERROR]: { severity: 'error', httpStatus: 502 },
+  // RUNTIME
+  [ERRORS.RUNTIME.UNSUPPORTED]: { severity: 'error', httpStatus: 500 },
+  // FUNCTION
+  [ERRORS.FUNCTION.NOT_CALLABLE]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.FUNCTION.INVALID_ARITY]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.FUNCTION.NOT_ASYNC]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.FUNCTION.PARAM_VALIDATION_FAILED]: { severity: 'error', httpStatus: 400 },
+  [ERRORS.FUNCTION.RETURN_VALIDATION_FAILED]: { severity: 'error', httpStatus: 500 },
+  // LOCALE
+  [ERRORS.LOCALE.LOAD_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.LOCALE.VALIDATION_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.LOCALE.BUILD_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.LOCALE.REGISTRY_MISMATCH]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.LOCALE.MISSING_FLAG_DESCRIPTION]: { severity: 'warning', httpStatus: 500 },
+  [ERRORS.LOCALE.INVALID_LOCALE]: { severity: 'error', httpStatus: 400 },
+  [ERRORS.LOCALE.INVALID_FALLBACK]: { severity: 'error', httpStatus: 400 },
+  [ERRORS.LOCALE.REMOVE_DENIED]: { severity: 'error', httpStatus: 400 },
+  [ERRORS.LOCALE.FORMAT_FAILED]: { severity: 'error', httpStatus: 500 },
+  // TEMPLATE
+  [ERRORS.TEMPLATE.UNDEFINED_VARIABLES]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.TEMPLATE.PARAM_VALIDATION_FAILED]: { severity: 'error', httpStatus: 400 },
+  // RESOURCE
+  [ERRORS.RESOURCE.ALREADY_EXISTS]: { severity: 'error', httpStatus: 409 },
+  [ERRORS.RESOURCE.PRECONDITION_FAILED]: { severity: 'error', httpStatus: 412 },
+  [ERRORS.RESOURCE.GONE]: { severity: 'error', httpStatus: 410 },
+  [ERRORS.RESOURCE.CONFLICT]: { severity: 'error', httpStatus: 409 },
+  [ERRORS.RESOURCE.QUOTA_EXCEEDED]: { severity: 'error', httpStatus: 429 },
+  // ENCODING
+  [ERRORS.ENCODING.JSON_FAILED]: { severity: 'error', httpStatus: 400 },
+  [ERRORS.ENCODING.BASE64_FAILED]: { severity: 'error', httpStatus: 400 },
+  [ERRORS.ENCODING.URL_FAILED]: { severity: 'error', httpStatus: 400 },
+  // SCENE
+  [ERRORS.SCENE.LOAD_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.SCENE.RENDER_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.SCENE.ASSET_MISSING]: { severity: 'error', httpStatus: 404 },
+  // PLUGIN
+  [ERRORS.PLUGIN.LOAD_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.PLUGIN.INIT_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.PLUGIN.API_MISMATCH]: { severity: 'error', httpStatus: 409 },
+  [ERRORS.PLUGIN.SANDBOX_VIOLATION]: { severity: 'error', httpStatus: 403 },
+  // PROJECT
+  [ERRORS.PROJECT.LOAD_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.PROJECT.SAVE_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.PROJECT.CORRUPT]: { severity: 'error', httpStatus: 422 },
+  [ERRORS.PROJECT.VERSION_MISMATCH]: { severity: 'error', httpStatus: 409 },
+  // ASSET
+  [ERRORS.ASSET.IMPORT_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.ASSET.FORMAT_UNSUPPORTED]: { severity: 'error', httpStatus: 415 },
+  [ERRORS.ASSET.TOO_LARGE]: { severity: 'error', httpStatus: 413 },
+  // INTERNAL
+  [ERRORS.INTERNAL.UNEXPECTED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.INTERNAL.OUTPUT_VALIDATION_FAILED]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.INTERNAL.SAFE_PARSE_THREW]: { severity: 'error', httpStatus: 500 },
+  [ERRORS.INTERNAL.INVARIANT_VIOLATED]: { severity: 'fatal', httpStatus: 500 },
 };
 
 // =============================================================================
@@ -1011,38 +1011,38 @@ const ERROR_DEFAULTS: Partial<
  * ```
  */
 export type AppError = {
-	/** Machine-readable hierarchical error code. Example: `"AUTH.INVALID_TOKEN"` */
-	code: KnownErrorCode;
-	/** Human-readable, occurrence-specific description. */
-	message: string;
-	/** UUID v4 unique to this error occurrence. Auto-generated by `err()`. */
-	id: string;
-	/** ISO 8601 timestamp when the error occurred. Auto-generated by `err()`. */
-	timestamp: string;
-	/** Stack trace where the error originated. Auto-captured by `err()`. */
-	stack: string;
-	/** Typed Valibot validation details. Only present on validation errors. */
-	validation?: ValidationDetail;
-	/** Points to the input that caused the error (JSON Pointer, parameter, or header). */
-	source?: ErrorSource;
-	/** The `AppError` that caused this one. Typed — walk `cause.cause.cause` safely. */
-	cause?: AppError;
-	/** Extensible key-value pairs for domain-specific context. */
-	meta?: ErrorMeta;
-	/** Error severity level. Defaults to `'error'` when not specified. */
-	severity?: ErrorSeverity;
-	/** Advisory HTTP status code for this error. Used by API response formatting. */
-	httpStatus?: HttpStatusCode;
-	/** Suggested fix or remediation. Displayed as actionable guidance (miette `help()`, Swift `recoverySuggestion`). */
-	help?: string;
-	/** Links to documentation, issue trackers, or help resources. */
-	links?: ErrorHelpLink[];
-	/** Indexed string key-value tags for error filtering and searching. */
-	tags?: ErrorTags;
-	/** Retry information for retryable errors. */
-	retry?: RetryInfo;
-	/** Non-causal related errors. Unlike `cause` (linear chain), `related` holds sibling errors from the same context. */
-	related?: AppError[];
+  /** Machine-readable hierarchical error code. Example: `"AUTH.INVALID_TOKEN"` */
+  code: KnownErrorCode;
+  /** Human-readable, occurrence-specific description. */
+  message: string;
+  /** UUID v4 unique to this error occurrence. Auto-generated by `err()`. */
+  id: string;
+  /** ISO 8601 timestamp when the error occurred. Auto-generated by `err()`. */
+  timestamp: string;
+  /** Stack trace where the error originated. Auto-captured by `err()`. */
+  stack: string;
+  /** Typed Valibot validation details. Only present on validation errors. */
+  validation?: ValidationDetail;
+  /** Points to the input that caused the error (JSON Pointer, parameter, or header). */
+  source?: ErrorSource;
+  /** The `AppError` that caused this one. Typed — walk `cause.cause.cause` safely. */
+  cause?: AppError;
+  /** Extensible key-value pairs for domain-specific context. */
+  meta?: ErrorMeta;
+  /** Error severity level. Defaults to `'error'` when not specified. */
+  severity?: ErrorSeverity;
+  /** Advisory HTTP status code for this error. Used by API response formatting. */
+  httpStatus?: HttpStatusCode;
+  /** Suggested fix or remediation. Displayed as actionable guidance (miette `help()`, Swift `recoverySuggestion`). */
+  help?: string;
+  /** Links to documentation, issue trackers, or help resources. */
+  links?: ErrorHelpLink[];
+  /** Indexed string key-value tags for error filtering and searching. */
+  tags?: ErrorTags;
+  /** Retry information for retryable errors. */
+  retry?: RetryInfo;
+  /** Non-causal related errors. Unlike `cause` (linear chain), `related` holds sibling errors from the same context. */
+  related?: AppError[];
 };
 
 /**
@@ -1093,45 +1093,45 @@ export type AppError = {
 // output, but runtime validation guarantees KnownErrorCode conformance.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const AppErrorSchema: v.GenericSchema<any> = v.strictObject({
-	// Core — always present
-	code: ErrorCodeSchema,
-	message: v.pipe(v.string(), v.minLength(1)),
-	id: v.pipe(v.string(), v.uuid()),
-	timestamp: v.pipe(v.string(), v.isoTimestamp()),
-	stack: v.string(),
+  // Core — always present
+  code: ErrorCodeSchema,
+  message: v.pipe(v.string(), v.minLength(1)),
+  id: v.pipe(v.string(), v.uuid()),
+  timestamp: v.pipe(v.string(), v.isoTimestamp()),
+  stack: v.string(),
 
-	// Validation — only on validation errors
-	validation: v.optional(ValidationDetailSchema),
+  // Validation — only on validation errors
+  validation: v.optional(ValidationDetailSchema),
 
-	// Source pointer — what input caused this
-	source: v.optional(ErrorSourceSchema),
+  // Source pointer — what input caused this
+  source: v.optional(ErrorSourceSchema),
 
-	// Error chain — typed as AppError for walkable cause chain
-	cause: v.optional(v.lazy(() => AppErrorSchema)),
+  // Error chain — typed as AppError for walkable cause chain
+  cause: v.optional(v.lazy(() => AppErrorSchema)),
 
-	// Extensibility — domain-specific context
-	meta: v.optional(v.record(v.string(), v.unknown())),
+  // Extensibility — domain-specific context
+  meta: v.optional(v.record(v.string(), v.unknown())),
 
-	// Severity classification
-	severity: v.optional(ErrorSeveritySchema),
+  // Severity classification
+  severity: v.optional(ErrorSeveritySchema),
 
-	// HTTP status code mapping
-	httpStatus: v.optional(HttpStatusCodeSchema),
+  // HTTP status code mapping
+  httpStatus: v.optional(HttpStatusCodeSchema),
 
-	// Remediation suggestion
-	help: v.optional(v.string()),
+  // Remediation suggestion
+  help: v.optional(v.string()),
 
-	// Documentation/help links
-	links: v.optional(v.array(ErrorHelpLinkSchema)),
+  // Documentation/help links
+  links: v.optional(v.array(ErrorHelpLinkSchema)),
 
-	// Indexed tags for filtering
-	tags: v.optional(ErrorTagsSchema),
+  // Indexed tags for filtering
+  tags: v.optional(ErrorTagsSchema),
 
-	// Retry information
-	retry: v.optional(RetryInfoSchema),
+  // Retry information
+  retry: v.optional(RetryInfoSchema),
 
-	// Related errors (non-causal siblings)
-	related: v.optional(v.array(v.lazy(() => AppErrorSchema))),
+  // Related errors (non-causal siblings)
+  related: v.optional(v.array(v.lazy(() => AppErrorSchema))),
 });
 
 // =============================================================================
@@ -1174,8 +1174,8 @@ export const AppErrorSchema: v.GenericSchema<any> = v.strictObject({
  * validation for deserialization. For construction, use `ok()` and `err()`.
  */
 export type Result<T> =
-	| { readonly ok: true; readonly data: DeepReadonly<T>; readonly error: null }
-	| { readonly ok: false; readonly data: null; readonly error: AppError };
+  | { readonly ok: true; readonly data: DeepReadonly<T>; readonly error: null }
+  | { readonly ok: false; readonly data: null; readonly error: AppError };
 
 /**
  * Schema for the success variant of a Result.
@@ -1197,13 +1197,13 @@ export type Result<T> =
  * ```
  */
 export function OkSchema<T extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(
-	DataSchema: T,
+  DataSchema: T,
 ) {
-	return v.strictObject({
-		ok: v.literal(true),
-		data: DataSchema,
-		error: v.null(),
-	});
+  return v.strictObject({
+    ok: v.literal(true),
+    data: DataSchema,
+    error: v.null(),
+  });
 }
 
 /**
@@ -1224,9 +1224,9 @@ export function OkSchema<T extends v.BaseSchema<unknown, unknown, v.BaseIssue<un
  * ```
  */
 export const ErrSchema = v.strictObject({
-	ok: v.literal(false),
-	data: v.null(),
-	error: AppErrorSchema,
+  ok: v.literal(false),
+  data: v.null(),
+  error: AppErrorSchema,
 });
 
 /**
@@ -1260,30 +1260,30 @@ export type ErrResult = v.InferOutput<typeof ErrSchema>;
  * ```
  */
 export const ErrOptionsSchema = v.strictObject({
-	/** Typed Valibot validation details. Provide when the error is from schema validation. */
-	validation: v.optional(ValidationDetailSchema),
-	/** Points to the input that caused the error. */
-	source: v.optional(ErrorSourceSchema),
-	/** The AppError that caused this one. Creates a typed cause chain. */
-	cause: v.optional(v.lazy(() => AppErrorSchema as unknown as v.GenericSchema<AppError>)),
-	/** Domain-specific key-value context. Put anything you need here. */
-	meta: v.optional(ErrorMetaSchema),
-	/** Error severity level. Defaults to `'error'`. */
-	severity: v.optional(ErrorSeveritySchema),
-	/** Advisory HTTP status code. */
-	httpStatus: v.optional(HttpStatusCodeSchema),
-	/** Suggested fix or remediation for the user. */
-	help: v.optional(v.string()),
-	/** Links to documentation, issue trackers, or help resources. */
-	links: v.optional(v.array(ErrorHelpLinkSchema)),
-	/** Indexed string tags for filtering/searching. */
-	tags: v.optional(ErrorTagsSchema),
-	/** Retry information for retryable errors. */
-	retry: v.optional(RetryInfoSchema),
-	/** Non-causal related errors. */
-	related: v.optional(
-		v.array(v.lazy(() => AppErrorSchema as unknown as v.GenericSchema<AppError>)),
-	),
+  /** Typed Valibot validation details. Provide when the error is from schema validation. */
+  validation: v.optional(ValidationDetailSchema),
+  /** Points to the input that caused the error. */
+  source: v.optional(ErrorSourceSchema),
+  /** The AppError that caused this one. Creates a typed cause chain. */
+  cause: v.optional(v.lazy(() => AppErrorSchema as unknown as v.GenericSchema<AppError>)),
+  /** Domain-specific key-value context. Put anything you need here. */
+  meta: v.optional(ErrorMetaSchema),
+  /** Error severity level. Defaults to `'error'`. */
+  severity: v.optional(ErrorSeveritySchema),
+  /** Advisory HTTP status code. */
+  httpStatus: v.optional(HttpStatusCodeSchema),
+  /** Suggested fix or remediation for the user. */
+  help: v.optional(v.string()),
+  /** Links to documentation, issue trackers, or help resources. */
+  links: v.optional(v.array(ErrorHelpLinkSchema)),
+  /** Indexed string tags for filtering/searching. */
+  tags: v.optional(ErrorTagsSchema),
+  /** Retry information for retryable errors. */
+  retry: v.optional(RetryInfoSchema),
+  /** Non-causal related errors. */
+  related: v.optional(
+    v.array(v.lazy(() => AppErrorSchema as unknown as v.GenericSchema<AppError>)),
+  ),
 });
 
 /** Options for the `err()` constructor. @see {@link ErrOptionsSchema} */
@@ -1302,12 +1302,12 @@ export type ErrOptions = v.InferOutput<typeof ErrOptionsSchema>;
  * @internal
  */
 function _captureCallerStack(message: string): string {
-	const target: { stack?: string } = { stack: '' };
-	if (typeof Error.captureStackTrace === 'function') {
-		Error.captureStackTrace(target, err);
-		return target.stack ? `Error: ${message}\n${target.stack.split('\n').slice(1).join('\n')}` : '';
-	}
-	return new Error(message).stack ?? '';
+  const target: { stack?: string } = { stack: '' };
+  if (typeof Error.captureStackTrace === 'function') {
+    Error.captureStackTrace(target, err);
+    return target.stack ? `Error: ${message}\n${target.stack.split('\n').slice(1).join('\n')}` : '';
+  }
+  return new Error(message).stack ?? '';
 }
 
 /**
@@ -1366,51 +1366,51 @@ function _captureCallerStack(message: string): string {
  * ```
  */
 export function err(
-	code: KnownErrorCode,
-	message?: string | ErrOptions,
-	options?: ErrOptions,
+  code: KnownErrorCode,
+  message?: string | ErrOptions,
+  options?: ErrOptions,
 ): Result<never> {
-	// Support `err(code, options)` shorthand (message omitted, options as second arg)
-	let resolvedMessage: string;
-	let resolvedOptions: ErrOptions | undefined;
+  // Support `err(code, options)` shorthand (message omitted, options as second arg)
+  let resolvedMessage: string;
+  let resolvedOptions: ErrOptions | undefined;
 
-	if (typeof message === 'string') {
-		resolvedMessage = message;
-		resolvedOptions = options;
-	} else {
-		resolvedOptions = message ?? options;
-		resolvedMessage = ERROR_MESSAGES[code]?.(resolvedOptions?.meta) ?? code;
-	}
+  if (typeof message === 'string') {
+    resolvedMessage = message;
+    resolvedOptions = options;
+  } else {
+    resolvedOptions = message ?? options;
+    resolvedMessage = ERROR_MESSAGES[code]?.(resolvedOptions?.meta) ?? code;
+  }
 
-	const defaults = ERROR_DEFAULTS[code];
+  const defaults = ERROR_DEFAULTS[code];
 
-	const error: AppError = {
-		code,
-		message: resolvedMessage,
-		id: crypto.randomUUID(),
-		timestamp: new Date().toISOString(),
-		stack: _captureCallerStack(resolvedMessage),
-		// Apply defaults first (options override below)
-		...(defaults?.severity !== undefined && { severity: defaults.severity }),
-		...(defaults?.httpStatus !== undefined && { httpStatus: defaults.httpStatus }),
-		// Existing optional fields
-		...(resolvedOptions?.validation !== undefined && {
-			validation: resolvedOptions.validation,
-		}),
-		...(resolvedOptions?.source !== undefined && { source: resolvedOptions.source }),
-		...(resolvedOptions?.cause !== undefined && { cause: resolvedOptions.cause }),
-		...(resolvedOptions?.meta !== undefined && { meta: resolvedOptions.meta }),
-		// New fields — options override defaults
-		...(resolvedOptions?.severity !== undefined && { severity: resolvedOptions.severity }),
-		...(resolvedOptions?.httpStatus !== undefined && { httpStatus: resolvedOptions.httpStatus }),
-		...(resolvedOptions?.help !== undefined && { help: resolvedOptions.help }),
-		...(resolvedOptions?.links !== undefined && { links: resolvedOptions.links }),
-		...(resolvedOptions?.tags !== undefined && { tags: resolvedOptions.tags }),
-		...(resolvedOptions?.retry !== undefined && { retry: resolvedOptions.retry }),
-		...(resolvedOptions?.related !== undefined && { related: resolvedOptions.related }),
-	};
+  const error: AppError = {
+    code,
+    message: resolvedMessage,
+    id: crypto.randomUUID(),
+    timestamp: new Date().toISOString(),
+    stack: _captureCallerStack(resolvedMessage),
+    // Apply defaults first (options override below)
+    ...(defaults?.severity !== undefined && { severity: defaults.severity }),
+    ...(defaults?.httpStatus !== undefined && { httpStatus: defaults.httpStatus }),
+    // Existing optional fields
+    ...(resolvedOptions?.validation !== undefined && {
+      validation: resolvedOptions.validation,
+    }),
+    ...(resolvedOptions?.source !== undefined && { source: resolvedOptions.source }),
+    ...(resolvedOptions?.cause !== undefined && { cause: resolvedOptions.cause }),
+    ...(resolvedOptions?.meta !== undefined && { meta: resolvedOptions.meta }),
+    // New fields — options override defaults
+    ...(resolvedOptions?.severity !== undefined && { severity: resolvedOptions.severity }),
+    ...(resolvedOptions?.httpStatus !== undefined && { httpStatus: resolvedOptions.httpStatus }),
+    ...(resolvedOptions?.help !== undefined && { help: resolvedOptions.help }),
+    ...(resolvedOptions?.links !== undefined && { links: resolvedOptions.links }),
+    ...(resolvedOptions?.tags !== undefined && { tags: resolvedOptions.tags }),
+    ...(resolvedOptions?.retry !== undefined && { retry: resolvedOptions.retry }),
+    ...(resolvedOptions?.related !== undefined && { related: resolvedOptions.related }),
+  };
 
-	return Object.freeze({ ok: false as const, data: null, error: Object.freeze(error) });
+  return Object.freeze({ ok: false as const, data: null, error: Object.freeze(error) });
 }
 
 /**
@@ -1448,23 +1448,23 @@ export function err(
  * ```
  */
 export function ok<TSchema extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(
-	schema: TSchema,
-	data: v.InferInput<TSchema>,
+  schema: TSchema,
+  data: v.InferInput<TSchema>,
 ): Result<v.InferOutput<TSchema>> {
-	const result: v.SafeParseResult<TSchema> = v.safeParse(schema, data);
+  const result: v.SafeParseResult<TSchema> = v.safeParse(schema, data);
 
-	if (!result.success) {
-		const validation: ValidationDetail = {
-			issues: result.issues,
-			flattened: v.flatten(result.issues),
-		};
+  if (!result.success) {
+    const validation: ValidationDetail = {
+      issues: result.issues,
+      flattened: v.flatten(result.issues),
+    };
 
-		return err(ERRORS.INTERNAL.OUTPUT_VALIDATION_FAILED, {
-			validation,
-		});
-	}
+    return err(ERRORS.INTERNAL.OUTPUT_VALIDATION_FAILED, {
+      validation,
+    });
+  }
 
-	return _okResult<v.InferOutput<TSchema>>(result.output);
+  return _okResult<v.InferOutput<TSchema>>(result.output);
 }
 
 /**
@@ -1486,5 +1486,5 @@ export function ok<TSchema extends v.BaseSchema<unknown, unknown, v.BaseIssue<un
  * ```
  */
 export function okUnchecked<T>(data: T): Result<T> {
-	return _okResult<T>(data);
+  return _okResult<T>(data);
 }

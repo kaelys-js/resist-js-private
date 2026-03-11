@@ -115,7 +115,7 @@ const SO_ROWS: Num = 8;
  * @returns Computed tile ID
  */
 function p(row: Num, col: Num): Num {
-	return row * P_COLS + col + P_GID;
+  return row * P_COLS + col + P_GID;
 }
 
 /**
@@ -126,7 +126,7 @@ function p(row: Num, col: Num): Num {
  * @returns Computed tile ID
  */
 function tr(row: Num, col: Num): Num {
-	return row * TR_COLS + col + TR_GID;
+  return row * TR_COLS + col + TR_GID;
 }
 
 /**
@@ -137,7 +137,7 @@ function tr(row: Num, col: Num): Num {
  * @returns Computed tile ID
  */
 function cl(row: Num, col: Num): Num {
-	return row * CL_COLS + col + CL_GID;
+  return row * CL_COLS + col + CL_GID;
 }
 
 /**
@@ -148,7 +148,7 @@ function cl(row: Num, col: Num): Num {
  * @returns Computed tile ID
  */
 function fl(row: Num, col: Num): Num {
-	return row * FL_COLS + col + FL_GID;
+  return row * FL_COLS + col + FL_GID;
 }
 
 /**
@@ -159,7 +159,7 @@ function fl(row: Num, col: Num): Num {
  * @returns Computed tile ID
  */
 function mu(row: Num, col: Num): Num {
-	return row * MU_COLS + col + MU_GID;
+  return row * MU_COLS + col + MU_GID;
 }
 
 /**
@@ -170,7 +170,7 @@ function mu(row: Num, col: Num): Num {
  * @returns Computed tile ID
  */
 function rk(row: Num, col: Num): Num {
-	return row * RK_COLS + col + RK_GID;
+  return row * RK_COLS + col + RK_GID;
 }
 
 /**
@@ -181,7 +181,7 @@ function rk(row: Num, col: Num): Num {
  * @returns Computed tile ID
  */
 function cr(row: Num, col: Num): Num {
-	return row * CR_COLS + col + CR_GID;
+  return row * CR_COLS + col + CR_GID;
 }
 
 /**
@@ -192,7 +192,7 @@ function cr(row: Num, col: Num): Num {
  * @returns Computed tile ID
  */
 function so(row: Num, col: Num): Num {
-	return row * SO_COLS + col + SO_GID;
+  return row * SO_COLS + col + SO_GID;
 }
 
 // =============================================================================
@@ -326,7 +326,7 @@ const CROSS_Y2: Num = 16;
  * @returns Flat array index
  */
 function idx(x: Num, z: Num): Num {
-	return z * W + x;
+  return z * W + x;
 }
 
 /**
@@ -338,7 +338,7 @@ function idx(x: Num, z: Num): Num {
  * @returns Deterministic value 0-99
  */
 function hash(x: Num, z: Num, seed: Num): Num {
-	return ((x * 31 + z * 17 + seed * 13) & 0x7f_ff_ff_ff) % 100;
+  return ((x * 31 + z * 17 + seed * 13) & 0x7f_ff_ff_ff) % 100;
 }
 
 /**
@@ -350,12 +350,12 @@ function hash(x: Num, z: Num, seed: Num): Num {
  * @returns Value roughly in [-1, 1]
  */
 function noise2d(x: Num, y: Num, s: Num): Num {
-	return (
-		Math.sin(x * 0.3 + s) * 0.4 +
-		Math.sin(y * 0.4 + s * 1.7) * 0.3 +
-		Math.sin((x + y) * 0.2 + s * 2.3) * 0.2 +
-		Math.sin((x - y) * 0.35 + s * 0.9) * 0.1
-	);
+  return (
+    Math.sin(x * 0.3 + s) * 0.4 +
+    Math.sin(y * 0.4 + s * 1.7) * 0.3 +
+    Math.sin((x + y) * 0.2 + s * 2.3) * 0.2 +
+    Math.sin((x - y) * 0.35 + s * 0.9) * 0.1
+  );
 }
 
 /**
@@ -366,10 +366,10 @@ function noise2d(x: Num, y: Num, s: Num): Num {
  * @returns True if position is within the pond ellipse
  */
 function isPond(x: Num, z: Num): boolean {
-	const dx: Num = (x - POND_CX) / POND_RX;
-	const dy: Num = (z - POND_CY) / POND_RY;
-	const d: Num = dx * dx + dy * dy + noise2d(x, z, 5) * 0.12;
-	return d < 1.0;
+  const dx: Num = (x - POND_CX) / POND_RX;
+  const dy: Num = (z - POND_CY) / POND_RY;
+  const d: Num = dx * dx + dy * dy + noise2d(x, z, 5) * 0.12;
+  return d < 1.0;
 }
 
 /**
@@ -380,7 +380,7 @@ function isPond(x: Num, z: Num): boolean {
  * @returns True if on the east-west road
  */
 function isRoadEW(x: Num, z: Num): boolean {
-	return z >= ROAD_EW_Y1 && z <= ROAD_EW_Y2;
+  return z >= ROAD_EW_Y1 && z <= ROAD_EW_Y2;
 }
 
 /**
@@ -391,7 +391,7 @@ function isRoadEW(x: Num, z: Num): boolean {
  * @returns True if on the north-south road
  */
 function isRoadNS(x: Num, _z: Num): boolean {
-	return x >= ROAD_NS_X1 && x <= ROAD_NS_X2;
+  return x >= ROAD_NS_X1 && x <= ROAD_NS_X2;
 }
 
 /**
@@ -402,7 +402,7 @@ function isRoadNS(x: Num, _z: Num): boolean {
  * @returns True if on a road
  */
 function isRoad(x: Num, z: Num): boolean {
-	return isRoadEW(x, z) || isRoadNS(x, z);
+  return isRoadEW(x, z) || isRoadNS(x, z);
 }
 
 /**
@@ -413,7 +413,7 @@ function isRoad(x: Num, z: Num): boolean {
  * @returns True if in the crossroads center
  */
 function isCrossroads(x: Num, z: Num): boolean {
-	return x >= CROSS_X1 && x <= CROSS_X2 && z >= CROSS_Y1 && z <= CROSS_Y2;
+  return x >= CROSS_X1 && x <= CROSS_X2 && z >= CROSS_Y1 && z <= CROSS_Y2;
 }
 
 /**
@@ -424,12 +424,12 @@ function isCrossroads(x: Num, z: Num): boolean {
  * @returns True if within 2 tiles of pond water
  */
 function isNearPond(x: Num, z: Num): boolean {
-	for (let dz: Num = -2; dz <= 2; dz++) {
-		for (let dx: Num = -2; dx <= 2; dx++) {
-			if (isPond(x + dx, z + dz)) return true;
-		}
-	}
-	return false;
+  for (let dz: Num = -2; dz <= 2; dz++) {
+    for (let dx: Num = -2; dx <= 2; dx++) {
+      if (isPond(x + dx, z + dz)) return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -440,12 +440,12 @@ function isNearPond(x: Num, z: Num): boolean {
  * @returns True if within 2 tiles of a road
  */
 function isNearRoad(x: Num, z: Num): boolean {
-	for (let dz: Num = -2; dz <= 2; dz++) {
-		for (let dx: Num = -2; dx <= 2; dx++) {
-			if (isRoad(x + dx, z + dz) || isCrossroads(x + dx, z + dz)) return true;
-		}
-	}
-	return false;
+  for (let dz: Num = -2; dz <= 2; dz++) {
+    for (let dx: Num = -2; dx <= 2; dx++) {
+      if (isRoad(x + dx, z + dz) || isCrossroads(x + dx, z + dz)) return true;
+    }
+  }
+  return false;
 }
 
 // =============================================================================
@@ -460,102 +460,102 @@ function isNearRoad(x: Num, z: Num): boolean {
  * @returns Flat array of autotile GIDs
  */
 function generateGround(): Num[] {
-	const data: Num[] = Array.from({ length: TOTAL }, () => GRASS);
+  const data: Num[] = Array.from({ length: TOTAL }, () => GRASS);
 
-	// ── 1. Pond ────────────────────────────────────────────────────────
-	for (let z: Num = 0; z < H; z++) {
-		for (let x: Num = 0; x < W; x++) {
-			const dx: Num = (x - POND_CX) / POND_RX;
-			const dy: Num = (z - POND_CY) / POND_RY;
-			const d: Num = dx * dx + dy * dy + noise2d(x, z, 5) * 0.12;
-			if (d < 1.0) {
-				data[idx(x, z)] = WATER;
-			} else if (d < 1.35 + (hash(x, z, 42) % 10) / 100) {
-				data[idx(x, z)] = DIRT;
-			}
-		}
-	}
+  // ── 1. Pond ────────────────────────────────────────────────────────
+  for (let z: Num = 0; z < H; z++) {
+    for (let x: Num = 0; x < W; x++) {
+      const dx: Num = (x - POND_CX) / POND_RX;
+      const dy: Num = (z - POND_CY) / POND_RY;
+      const d: Num = dx * dx + dy * dy + noise2d(x, z, 5) * 0.12;
+      if (d < 1.0) {
+        data[idx(x, z)] = WATER;
+      } else if (d < 1.35 + (hash(x, z, 42) % 10) / 100) {
+        data[idx(x, z)] = DIRT;
+      }
+    }
+  }
 
-	// ── 2. E-W road (rows 13-15) ───────────────────────────────────────
-	for (let x: Num = 0; x < W; x++) {
-		for (let z: Num = ROAD_EW_Y1; z <= ROAD_EW_Y2; z++) {
-			if (!isPond(x, z)) data[idx(x, z)] = DIRT;
-		}
-	}
+  // ── 2. E-W road (rows 13-15) ───────────────────────────────────────
+  for (let x: Num = 0; x < W; x++) {
+    for (let z: Num = ROAD_EW_Y1; z <= ROAD_EW_Y2; z++) {
+      if (!isPond(x, z)) data[idx(x, z)] = DIRT;
+    }
+  }
 
-	// ── 3. N-S road (cols 19-21) ───────────────────────────────────────
-	for (let z: Num = 0; z < H; z++) {
-		for (let x: Num = ROAD_NS_X1; x <= ROAD_NS_X2; x++) {
-			if (!isPond(x, z)) data[idx(x, z)] = DIRT;
-		}
-	}
+  // ── 3. N-S road (cols 19-21) ───────────────────────────────────────
+  for (let z: Num = 0; z < H; z++) {
+    for (let x: Num = ROAD_NS_X1; x <= ROAD_NS_X2; x++) {
+      if (!isPond(x, z)) data[idx(x, z)] = DIRT;
+    }
+  }
 
-	// ── 4. Cobblestone crossroads center ───────────────────────────────
-	for (let z: Num = CROSS_Y1; z <= CROSS_Y2; z++) {
-		for (let x: Num = CROSS_X1; x <= CROSS_X2; x++) {
-			data[idx(x, z)] = STONE;
-		}
-	}
+  // ── 4. Cobblestone crossroads center ───────────────────────────────
+  for (let z: Num = CROSS_Y1; z <= CROSS_Y2; z++) {
+    for (let x: Num = CROSS_X1; x <= CROSS_X2; x++) {
+      data[idx(x, z)] = STONE;
+    }
+  }
 
-	// ── 5. Side path from E-W road down to pond shore ─────────────────
-	for (let z: Num = 10; z <= ROAD_EW_Y1; z++) {
-		const px: Num = POND_CX + Math.round(noise2d(POND_CX, z, 3) * 0.5);
-		if (!isPond(px, z)) data[idx(px, z)] = DIRT;
-		if (px + 1 < W && !isPond(px + 1, z)) data[idx(px + 1, z)] = DIRT;
-	}
+  // ── 5. Side path from E-W road down to pond shore ─────────────────
+  for (let z: Num = 10; z <= ROAD_EW_Y1; z++) {
+    const px: Num = POND_CX + Math.round(noise2d(POND_CX, z, 3) * 0.5);
+    if (!isPond(px, z)) data[idx(px, z)] = DIRT;
+    if (px + 1 < W && !isPond(px + 1, z)) data[idx(px + 1, z)] = DIRT;
+  }
 
-	// ── 6. Sand patches near pond shore ────────────────────────────────
-	for (let z: Num = 0; z < H; z++) {
-		for (let x: Num = 0; x < W; x++) {
-			if (data[idx(x, z)] !== WATER) continue;
-			for (let dz: Num = -1; dz <= 1; dz++) {
-				for (let dx: Num = -1; dx <= 1; dx++) {
-					const nx: Num = x + dx;
-					const ny: Num = z + dz;
-					if (
-						nx >= 0 &&
-						nx < W &&
-						ny >= 0 &&
-						ny < H &&
-						data[idx(nx, ny)] === GRASS &&
-						hash(nx, ny, 44) < 30
-					) {
-						data[idx(nx, ny)] = SAND;
-					}
-				}
-			}
-		}
-	}
+  // ── 6. Sand patches near pond shore ────────────────────────────────
+  for (let z: Num = 0; z < H; z++) {
+    for (let x: Num = 0; x < W; x++) {
+      if (data[idx(x, z)] !== WATER) continue;
+      for (let dz: Num = -1; dz <= 1; dz++) {
+        for (let dx: Num = -1; dx <= 1; dx++) {
+          const nx: Num = x + dx;
+          const ny: Num = z + dz;
+          if (
+            nx >= 0 &&
+            nx < W &&
+            ny >= 0 &&
+            ny < H &&
+            data[idx(nx, ny)] === GRASS &&
+            hash(nx, ny, 44) < 30
+          ) {
+            data[idx(nx, ny)] = SAND;
+          }
+        }
+      }
+    }
+  }
 
-	// ── 7. Dark grass forest patches in corners ────────────────────────
-	for (let z: Num = 0; z < H; z++) {
-		for (let x: Num = 0; x < W; x++) {
-			if (data[idx(x, z)] !== GRASS) continue;
+  // ── 7. Dark grass forest patches in corners ────────────────────────
+  for (let z: Num = 0; z < H; z++) {
+    for (let x: Num = 0; x < W; x++) {
+      if (data[idx(x, z)] !== GRASS) continue;
 
-			// NW corner
-			if (x < 6 && z < 6) {
-				data[idx(x, z)] = DARK_GRASS_GID;
-				continue;
-			}
-			// NE corner
-			if (x >= W - 8 && z < 4 + noise2d(x, z, 9) * 1.5) {
-				data[idx(x, z)] = DARK_GRASS_GID;
-				continue;
-			}
-			// SE corner
-			if (Math.hypot(x - (W - 3), z - (H - 3)) < 4 + noise2d(x, z, 11) * 1.2) {
-				data[idx(x, z)] = DARK_GRASS_GID;
-				continue;
-			}
-			// SW corner
-			if (Math.hypot(x - 1, z - (H - 2)) < 4 + noise2d(x, z, 13)) {
-				data[idx(x, z)] = DARK_GRASS_GID;
-			}
-		}
-	}
+      // NW corner
+      if (x < 6 && z < 6) {
+        data[idx(x, z)] = DARK_GRASS_GID;
+        continue;
+      }
+      // NE corner
+      if (x >= W - 8 && z < 4 + noise2d(x, z, 9) * 1.5) {
+        data[idx(x, z)] = DARK_GRASS_GID;
+        continue;
+      }
+      // SE corner
+      if (Math.hypot(x - (W - 3), z - (H - 3)) < 4 + noise2d(x, z, 11) * 1.2) {
+        data[idx(x, z)] = DARK_GRASS_GID;
+        continue;
+      }
+      // SW corner
+      if (Math.hypot(x - 1, z - (H - 2)) < 4 + noise2d(x, z, 13)) {
+        data[idx(x, z)] = DARK_GRASS_GID;
+      }
+    }
+  }
 
-	generateGroundCache = data;
-	return data;
+  generateGroundCache = data;
+  return data;
 }
 
 // =============================================================================
@@ -569,101 +569,101 @@ function generateGround(): Num[] {
  * @returns Flat array of decoration tile GIDs (0 = empty)
  */
 function generateDecorations(): Num[] {
-	const data: Num[] = Array.from({ length: TOTAL }, () => 0);
+  const data: Num[] = Array.from({ length: TOTAL }, () => 0);
 
-	const flowers: readonly Num[] = [
-		FLOWER_RED,
-		FLOWER_BLUE,
-		FLOWER_YELLOW,
-		FLOWER_PINK,
-		FLOWER_WHITE,
-		FLOWER_PURPLE,
-		FLOWER_ORANGE,
-	];
-	const forestFloor: readonly Num[] = [
-		MUSH_BROWN,
-		MUSH_TAN,
-		MUSH_GREEN,
-		MUSH_RED,
-		MUSH_SMALL_1,
-		MUSH_SMALL_2,
-		TALL_GRASS,
-		GRASS_TUFT,
-	];
-	const grassDecor: readonly Num[] = [FLOWER_BUSH, SMALL_BUSH, TALL_GRASS, GRASS_TUFT];
+  const flowers: readonly Num[] = [
+    FLOWER_RED,
+    FLOWER_BLUE,
+    FLOWER_YELLOW,
+    FLOWER_PINK,
+    FLOWER_WHITE,
+    FLOWER_PURPLE,
+    FLOWER_ORANGE,
+  ];
+  const forestFloor: readonly Num[] = [
+    MUSH_BROWN,
+    MUSH_TAN,
+    MUSH_GREEN,
+    MUSH_RED,
+    MUSH_SMALL_1,
+    MUSH_SMALL_2,
+    TALL_GRASS,
+    GRASS_TUFT,
+  ];
+  const grassDecor: readonly Num[] = [FLOWER_BUSH, SMALL_BUSH, TALL_GRASS, GRASS_TUFT];
 
-	for (let z: Num = 0; z < H; z++) {
-		for (let x: Num = 0; x < W; x++) {
-			const i: Num = idx(x, z);
-			const h: Num = hash(x, z, 47);
+  for (let z: Num = 0; z < H; z++) {
+    for (let x: Num = 0; x < W; x++) {
+      const i: Num = idx(x, z);
+      const h: Num = hash(x, z, 47);
 
-			// ── Water: lily pads ───────────────────────────────────────
-			if (isPond(x, z)) {
-				if (h < 10) data[i] = LILY_PAD;
-				continue;
-			}
+      // ── Water: lily pads ───────────────────────────────────────
+      if (isPond(x, z)) {
+        if (h < 10) data[i] = LILY_PAD;
+        continue;
+      }
 
-			// ── Roads + crossroads: keep clean, sparse edge grass ──────
-			if (isRoad(x, z) || isCrossroads(x, z)) {
-				if (h < 3 && !isCrossroads(x, z)) {
-					let nearGrass = false;
-					for (let dz: Num = -1; dz <= 1; dz++) {
-						for (let dx: Num = -1; dx <= 1; dx++) {
-							const nx: Num = x + dx;
-							const ny: Num = z + dz;
-							if (nx >= 0 && nx < W && ny >= 0 && ny < H) {
-								const gnd: Num = generateGroundCache[idx(nx, ny)] ?? GRASS;
-								if (gnd === GRASS || gnd === DARK_GRASS_GID) nearGrass = true;
-							}
-						}
-					}
-					if (nearGrass) data[i] = GRASS_TUFT;
-				}
-				continue;
-			}
+      // ── Roads + crossroads: keep clean, sparse edge grass ──────
+      if (isRoad(x, z) || isCrossroads(x, z)) {
+        if (h < 3 && !isCrossroads(x, z)) {
+          let nearGrass = false;
+          for (let dz: Num = -1; dz <= 1; dz++) {
+            for (let dx: Num = -1; dx <= 1; dx++) {
+              const nx: Num = x + dx;
+              const ny: Num = z + dz;
+              if (nx >= 0 && nx < W && ny >= 0 && ny < H) {
+                const gnd: Num = generateGroundCache[idx(nx, ny)] ?? GRASS;
+                if (gnd === GRASS || gnd === DARK_GRASS_GID) nearGrass = true;
+              }
+            }
+          }
+          if (nearGrass) data[i] = GRASS_TUFT;
+        }
+        continue;
+      }
 
-			// ── Sand: sparse rocks ─────────────────────────────────────
-			if (generateGroundCache[i] === SAND) {
-				if (h < 8) data[i] = ROCK_PEBBLE;
-				continue;
-			}
+      // ── Sand: sparse rocks ─────────────────────────────────────
+      if (generateGroundCache[i] === SAND) {
+        if (h < 8) data[i] = ROCK_PEBBLE;
+        continue;
+      }
 
-			// ── Dark grass (forest): mushrooms + undergrowth ───────────
-			if (generateGroundCache[i] === DARK_GRASS_GID) {
-				if (h < 18) {
-					// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-					data[i] = forestFloor[hash(x, z, 49) % forestFloor.length]!;
-				}
-				continue;
-			}
+      // ── Dark grass (forest): mushrooms + undergrowth ───────────
+      if (generateGroundCache[i] === DARK_GRASS_GID) {
+        if (h < 18) {
+          // oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
+          data[i] = forestFloor[hash(x, z, 49) % forestFloor.length]!;
+        }
+        continue;
+      }
 
-			// ── Near roads: flower beds (high density) ─────────────────
-			if (isNearRoad(x, z) && h < 35) {
-				// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-				data[i] = flowers[hash(x, z, 51) % flowers.length]!;
-				continue;
-			}
+      // ── Near roads: flower beds (high density) ─────────────────
+      if (isNearRoad(x, z) && h < 35) {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
+        data[i] = flowers[hash(x, z, 51) % flowers.length]!;
+        continue;
+      }
 
-			// ── Near pond: bushes + rocks ──────────────────────────────
-			if (isNearPond(x, z) && h < 20) {
-				data[i] = hash(x, z, 53) < 50 ? SMALL_BUSH : ROCK_SMALL_1;
-				continue;
-			}
+      // ── Near pond: bushes + rocks ──────────────────────────────
+      if (isNearPond(x, z) && h < 20) {
+        data[i] = hash(x, z, 53) < 50 ? SMALL_BUSH : ROCK_SMALL_1;
+        continue;
+      }
 
-			// ── Open meadow: scattered flowers + grass ─────────────────
-			if (h < 12) {
-				if (hash(x, z, 55) < 40) {
-					// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-					data[i] = flowers[hash(x, z, 57) % flowers.length]!;
-				} else {
-					// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-					data[i] = grassDecor[hash(x, z, 59) % grassDecor.length]!;
-				}
-			}
-		}
-	}
+      // ── Open meadow: scattered flowers + grass ─────────────────
+      if (h < 12) {
+        if (hash(x, z, 55) < 40) {
+          // oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
+          data[i] = flowers[hash(x, z, 57) % flowers.length]!;
+        } else {
+          // oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
+          data[i] = grassDecor[hash(x, z, 59) % grassDecor.length]!;
+        }
+      }
+    }
+  }
 
-	return data;
+  return data;
 }
 
 /** Cached ground layer for decoration/upper generators to reference. */
@@ -674,64 +674,64 @@ let generateGroundCache: Num[] = [];
 // =============================================================================
 
 function generateUpper(): Num[] {
-	const data: Num[] = Array.from({ length: TOTAL }, () => 0);
+  const data: Num[] = Array.from({ length: TOTAL }, () => 0);
 
-	const deciduousTrees: readonly Num[] = [
-		TREE_LARGE_1,
-		TREE_LARGE_2,
-		TREE_LARGE_3,
-		TREE_MED_1,
-		TREE_MED_2,
-		TREE_MED_3,
-	];
-	const pineTrees: readonly Num[] = [PINE_LARGE_1, PINE_LARGE_2, PINE_MED_1, PINE_MED_2];
+  const deciduousTrees: readonly Num[] = [
+    TREE_LARGE_1,
+    TREE_LARGE_2,
+    TREE_LARGE_3,
+    TREE_MED_1,
+    TREE_MED_2,
+    TREE_MED_3,
+  ];
+  const pineTrees: readonly Num[] = [PINE_LARGE_1, PINE_LARGE_2, PINE_MED_1, PINE_MED_2];
 
-	for (let z: Num = 0; z < H; z++) {
-		for (let x: Num = 0; x < W; x++) {
-			const i: Num = idx(x, z);
-			const gnd: Num = generateGroundCache[i] ?? GRASS;
+  for (let z: Num = 0; z < H; z++) {
+    for (let x: Num = 0; x < W; x++) {
+      const i: Num = idx(x, z);
+      const gnd: Num = generateGroundCache[i] ?? GRASS;
 
-			// ── Skip water, roads, crossroads ────────────────────────────
-			if (isPond(x, z)) continue;
-			if (isRoad(x, z) || isCrossroads(x, z)) continue;
+      // ── Skip water, roads, crossroads ────────────────────────────
+      if (isPond(x, z)) continue;
+      if (isRoad(x, z) || isCrossroads(x, z)) continue;
 
-			// ── Dark grass (forest corners): dense tree canopy ───────────
-			if (gnd === DARK_GRASS_GID) {
-				if (x === 0 || z === 0) continue;
-				if (hash(x, z, 81) < 25) {
-					if (hash(x, z, 83) < 60) {
-						// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-						data[i] = deciduousTrees[hash(x, z, 85) % deciduousTrees.length]!;
-					} else {
-						// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-						data[i] = pineTrees[hash(x, z, 87) % pineTrees.length]!;
-					}
-				}
-				continue;
-			}
+      // ── Dark grass (forest corners): dense tree canopy ───────────
+      if (gnd === DARK_GRASS_GID) {
+        if (x === 0 || z === 0) continue;
+        if (hash(x, z, 81) < 25) {
+          if (hash(x, z, 83) < 60) {
+            // oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
+            data[i] = deciduousTrees[hash(x, z, 85) % deciduousTrees.length]!;
+          } else {
+            // oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
+            data[i] = pineTrees[hash(x, z, 87) % pineTrees.length]!;
+          }
+        }
+        continue;
+      }
 
-			// ── Near pond shore: scattered medium rocks ──────────────────
-			if (isNearPond(x, z) && !isPond(x, z) && hash(x, z, 93) < 5) {
-				data[i] = ROCK_MED;
-				continue;
-			}
+      // ── Near pond shore: scattered medium rocks ──────────────────
+      if (isNearPond(x, z) && !isPond(x, z) && hash(x, z, 93) < 5) {
+        data[i] = ROCK_MED;
+        continue;
+      }
 
-			// ── Roadside trees: sparse deciduous along roads ─────────────
-			if (isNearRoad(x, z) && !isNearPond(x, z) && hash(x, z, 95) < 4) {
-				// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-				data[i] = deciduousTrees[hash(x, z, 97) % deciduousTrees.length]!;
-				continue;
-			}
+      // ── Roadside trees: sparse deciduous along roads ─────────────
+      if (isNearRoad(x, z) && !isNearPond(x, z) && hash(x, z, 95) < 4) {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
+        data[i] = deciduousTrees[hash(x, z, 97) % deciduousTrees.length]!;
+        continue;
+      }
 
-			// ── Open meadow: very sparse trees ──────────────────────────
-			if (gnd === GRASS && hash(x, z, 99) < 2) {
-				// oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
-				data[i] = deciduousTrees[hash(x, z, 101) % deciduousTrees.length]!;
-			}
-		}
-	}
+      // ── Open meadow: very sparse trees ──────────────────────────
+      if (gnd === GRASS && hash(x, z, 99) < 2) {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- modulo guarantees valid index
+        data[i] = deciduousTrees[hash(x, z, 101) % deciduousTrees.length]!;
+      }
+    }
+  }
 
-	return data;
+  return data;
 }
 
 // =============================================================================
@@ -739,22 +739,22 @@ function generateUpper(): Num[] {
 // =============================================================================
 
 function generateShadow(): Num[] {
-	const data: Num[] = Array.from({ length: TOTAL }, () => 0);
-	const upper: Num[] = generateUpper();
+  const data: Num[] = Array.from({ length: TOTAL }, () => 0);
+  const upper: Num[] = generateUpper();
 
-	for (let z: Num = 0; z < H; z++) {
-		for (let x: Num = 0; x < W; x++) {
-			const i: Num = idx(x, z);
-			// Place shadow wherever a tree was placed in the upper layer
-			if (upper[i] !== 0) {
-				const gnd: Num = generateGroundCache[i] ?? GRASS;
-				// Dense forest = darker shadows, open meadow = lighter
-				data[i] = gnd === DARK_GRASS_GID ? TREE_SHADOW_DARK : TREE_SHADOW_LIGHT;
-			}
-		}
-	}
+  for (let z: Num = 0; z < H; z++) {
+    for (let x: Num = 0; x < W; x++) {
+      const i: Num = idx(x, z);
+      // Place shadow wherever a tree was placed in the upper layer
+      if (upper[i] !== 0) {
+        const gnd: Num = generateGroundCache[i] ?? GRASS;
+        // Dense forest = darker shadows, open meadow = lighter
+        data[i] = gnd === DARK_GRASS_GID ? TREE_SHADOW_DARK : TREE_SHADOW_LIGHT;
+      }
+    }
+  }
 
-	return data;
+  return data;
 }
 
 // =============================================================================
@@ -762,18 +762,18 @@ function generateShadow(): Num[] {
 // =============================================================================
 
 function generateHeightMap(): Num[] {
-	const data: Num[] = Array.from({ length: TOTAL }, () => 1); // default ground level
+  const data: Num[] = Array.from({ length: TOTAL }, () => 1); // default ground level
 
-	for (let z: Num = 0; z < H; z++) {
-		for (let x: Num = 0; x < W; x++) {
-			// Pond — level 0 (sunken water)
-			if (isPond(x, z)) {
-				data[idx(x, z)] = 0;
-			}
-		}
-	}
+  for (let z: Num = 0; z < H; z++) {
+    for (let x: Num = 0; x < W; x++) {
+      // Pond — level 0 (sunken water)
+      if (isPond(x, z)) {
+        data[idx(x, z)] = 0;
+      }
+    }
+  }
 
-	return data;
+  return data;
 }
 
 // =============================================================================
@@ -788,50 +788,50 @@ function generateHeightMap(): Num[] {
  * splitter + expander scripts produce the same file names per season.
  */
 export const SEASON_PATHS: Record<string, Record<string, string>> = {
-	summer: {
-		grass: 'tilesets/lpc-terrain/autotile-expanded/terrain-02.png',
-		darkGrass: 'tilesets/lpc-terrain/autotile-expanded/terrain-00.png',
-		dirt: 'tilesets/lpc-terrain/autotile-expanded/terrain-03.png',
-		cobble: 'tilesets/lpc-terrain/autotile-expanded/terrain-11.png',
-		water: 'tilesets/lpc-terrain/autotile-expanded/terrain-24.png',
-		sand: 'tilesets/lpc-terrain/autotile-expanded/terrain-18.png',
-		plants: 'tilesets/lpc-terrain/plants_summer.png',
-		trees: 'tilesets/lpc-terrain/trees_summer.png',
-		cliffs: 'tilesets/lpc-terrain/cliff_summer.png',
-	},
-	spring: {
-		grass: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-02.png',
-		darkGrass: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-00.png',
-		dirt: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-03.png',
-		cobble: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-11.png',
-		water: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-24.png',
-		sand: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-18.png',
-		plants: 'tilesets/lpc-terrain/plants_spring.png',
-		trees: 'tilesets/lpc-terrain/trees_spring.png',
-		cliffs: 'tilesets/lpc-terrain/cliff_spring.png',
-	},
-	autumn: {
-		grass: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-02.png',
-		darkGrass: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-00.png',
-		dirt: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-03.png',
-		cobble: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-11.png',
-		water: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-24.png',
-		sand: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-18.png',
-		plants: 'tilesets/lpc-terrain/plants_autumn.png',
-		trees: 'tilesets/lpc-terrain/trees_autumn.png',
-		cliffs: 'tilesets/lpc-terrain/cliff_autumn.png',
-	},
-	winter: {
-		grass: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-02.png',
-		darkGrass: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-00.png',
-		dirt: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-03.png',
-		cobble: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-11.png',
-		water: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-24.png',
-		sand: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-18.png',
-		plants: 'tilesets/lpc-terrain/plants_winter.png',
-		trees: 'tilesets/lpc-terrain/trees_winter.png',
-		cliffs: 'tilesets/lpc-terrain/cliff_winter.png',
-	},
+  summer: {
+    grass: 'tilesets/lpc-terrain/autotile-expanded/terrain-02.png',
+    darkGrass: 'tilesets/lpc-terrain/autotile-expanded/terrain-00.png',
+    dirt: 'tilesets/lpc-terrain/autotile-expanded/terrain-03.png',
+    cobble: 'tilesets/lpc-terrain/autotile-expanded/terrain-11.png',
+    water: 'tilesets/lpc-terrain/autotile-expanded/terrain-24.png',
+    sand: 'tilesets/lpc-terrain/autotile-expanded/terrain-18.png',
+    plants: 'tilesets/lpc-terrain/plants_summer.png',
+    trees: 'tilesets/lpc-terrain/trees_summer.png',
+    cliffs: 'tilesets/lpc-terrain/cliff_summer.png',
+  },
+  spring: {
+    grass: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-02.png',
+    darkGrass: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-00.png',
+    dirt: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-03.png',
+    cobble: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-11.png',
+    water: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-24.png',
+    sand: 'tilesets/lpc-terrain/autotile-spring-expanded/terrain-18.png',
+    plants: 'tilesets/lpc-terrain/plants_spring.png',
+    trees: 'tilesets/lpc-terrain/trees_spring.png',
+    cliffs: 'tilesets/lpc-terrain/cliff_spring.png',
+  },
+  autumn: {
+    grass: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-02.png',
+    darkGrass: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-00.png',
+    dirt: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-03.png',
+    cobble: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-11.png',
+    water: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-24.png',
+    sand: 'tilesets/lpc-terrain/autotile-autumn-expanded/terrain-18.png',
+    plants: 'tilesets/lpc-terrain/plants_autumn.png',
+    trees: 'tilesets/lpc-terrain/trees_autumn.png',
+    cliffs: 'tilesets/lpc-terrain/cliff_autumn.png',
+  },
+  winter: {
+    grass: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-02.png',
+    darkGrass: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-00.png',
+    dirt: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-03.png',
+    cobble: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-11.png',
+    water: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-24.png',
+    sand: 'tilesets/lpc-terrain/autotile-winter-expanded/terrain-18.png',
+    plants: 'tilesets/lpc-terrain/plants_winter.png',
+    trees: 'tilesets/lpc-terrain/trees_winter.png',
+    cliffs: 'tilesets/lpc-terrain/cliff_winter.png',
+  },
 };
 
 // =============================================================================
@@ -840,35 +840,35 @@ export const SEASON_PATHS: Record<string, Record<string, string>> = {
 
 /** Pre-configured scene states for one-click feature testing. */
 export const ATMOSPHERE_PRESETS: Record<
-	string,
-	{ readonly time: Num; readonly fog: string; readonly torches: boolean; readonly label: string }
+  string,
+  { readonly time: Num; readonly fog: string; readonly torches: boolean; readonly label: string }
 > = {
-	sunnyVillage: {
-		time: 10,
-		fog: 'clear',
-		torches: false,
-		label: 'Sunny Village',
-	},
-	dusk: { time: 18.5, fog: 'lightMist', torches: true, label: 'Dusk' },
-	nightMarket: {
-		time: 22,
-		fog: 'clear',
-		torches: true,
-		label: 'Night Market',
-	},
-	foggyForest: {
-		time: 6,
-		fog: 'denseFog',
-		torches: false,
-		label: 'Foggy Forest',
-	},
-	cliffPanorama: {
-		time: 12,
-		fog: 'clear',
-		torches: false,
-		label: 'Cliff Panorama',
-	},
-	stormy: { time: 15, fog: 'morningFog', torches: true, label: 'Stormy' },
+  sunnyVillage: {
+    time: 10,
+    fog: 'clear',
+    torches: false,
+    label: 'Sunny Village',
+  },
+  dusk: { time: 18.5, fog: 'lightMist', torches: true, label: 'Dusk' },
+  nightMarket: {
+    time: 22,
+    fog: 'clear',
+    torches: true,
+    label: 'Night Market',
+  },
+  foggyForest: {
+    time: 6,
+    fog: 'denseFog',
+    torches: false,
+    label: 'Foggy Forest',
+  },
+  cliffPanorama: {
+    time: 12,
+    fog: 'clear',
+    torches: false,
+    label: 'Cliff Panorama',
+  },
+  stormy: { time: 15, fog: 'morningFog', torches: true, label: 'Stormy' },
 };
 
 // =============================================================================
@@ -877,52 +877,52 @@ export const ATMOSPHERE_PRESETS: Record<
 
 /** Tile positions for 3D prop placement (used by dev.ts). */
 export const PROP_POSITIONS = {
-	cottages: [
-		{ x: 24, z: 13, rotation: 0 },
-		{ x: 28, z: 14, rotation: Math.PI / 6 },
-		{ x: 32, z: 13, rotation: -Math.PI / 8 },
-	],
-	well: { x: 20, z: 14 },
-	bridge: { x: 8, z: 11, width: 2 },
-	torches: [
-		{ x: 17, z: 14 },
-		{ x: 23, z: 14 },
-		{ x: 20, z: 11 },
-		{ x: 20, z: 17 },
-		{ x: 26, z: 14 },
-		{ x: 30, z: 14 },
-	],
-	boulders: [
-		{ x: 3, z: 10, scale: 1.2 },
-		{ x: 14, z: 7, scale: 0.8 },
-		{ x: 35, z: 4, scale: 1.1 },
-		{ x: 37, z: 25, scale: 0.9 },
-		{ x: 5, z: 22, scale: 1.0 },
-		{ x: 33, z: 20, scale: 1.3 },
-	],
-	barrels: [
-		{ x: 23, z: 13 },
-		{ x: 25, z: 15 },
-		{ x: 29, z: 13 },
-		{ x: 31, z: 15 },
-	],
-	crates: [
-		{ x: 24, z: 15 },
-		{ x: 28, z: 13 },
-		{ x: 32, z: 15 },
-	],
-	fencePosts: (() => {
-		const posts: Array<{ x: Num; z: Num; axis: 'x' | 'z' }> = [];
-		// Fence along N side of E-W road (Z=12, X=24-36)
-		for (let x: Num = 24; x <= 36; x += 2) {
-			posts.push({ x, z: 12, axis: 'x' });
-		}
-		// Fence along S side of E-W road (Z=16, X=24-36)
-		for (let x: Num = 24; x <= 36; x += 2) {
-			posts.push({ x, z: 16, axis: 'x' });
-		}
-		return posts;
-	})(),
+  cottages: [
+    { x: 24, z: 13, rotation: 0 },
+    { x: 28, z: 14, rotation: Math.PI / 6 },
+    { x: 32, z: 13, rotation: -Math.PI / 8 },
+  ],
+  well: { x: 20, z: 14 },
+  bridge: { x: 8, z: 11, width: 2 },
+  torches: [
+    { x: 17, z: 14 },
+    { x: 23, z: 14 },
+    { x: 20, z: 11 },
+    { x: 20, z: 17 },
+    { x: 26, z: 14 },
+    { x: 30, z: 14 },
+  ],
+  boulders: [
+    { x: 3, z: 10, scale: 1.2 },
+    { x: 14, z: 7, scale: 0.8 },
+    { x: 35, z: 4, scale: 1.1 },
+    { x: 37, z: 25, scale: 0.9 },
+    { x: 5, z: 22, scale: 1.0 },
+    { x: 33, z: 20, scale: 1.3 },
+  ],
+  barrels: [
+    { x: 23, z: 13 },
+    { x: 25, z: 15 },
+    { x: 29, z: 13 },
+    { x: 31, z: 15 },
+  ],
+  crates: [
+    { x: 24, z: 15 },
+    { x: 28, z: 13 },
+    { x: 32, z: 15 },
+  ],
+  fencePosts: (() => {
+    const posts: Array<{ x: Num; z: Num; axis: 'x' | 'z' }> = [];
+    // Fence along N side of E-W road (Z=12, X=24-36)
+    for (let x: Num = 24; x <= 36; x += 2) {
+      posts.push({ x, z: 12, axis: 'x' });
+    }
+    // Fence along S side of E-W road (Z=16, X=24-36)
+    for (let x: Num = 24; x <= 36; x += 2) {
+      posts.push({ x, z: 16, axis: 'x' });
+    }
+    return posts;
+  })(),
 } as const;
 
 // =============================================================================
@@ -939,142 +939,142 @@ export const PROP_POSITIONS = {
  * @returns Tileset config record
  */
 function autotileTileset(
-	name: string,
-	terrainIndex: string,
-	firstGid: Num,
-	terrainType: string,
+  name: string,
+  terrainIndex: string,
+  firstGid: Num,
+  terrainType: string,
 ): Record<string, unknown> {
-	return {
-		name,
-		imagePath: `tilesets/lpc-terrain/autotile-expanded/terrain-${terrainIndex}.png`,
-		tileWidth: TILE_SIZE,
-		tileHeight: TILE_SIZE,
-		columns: 2,
-		rows: 3,
-		firstGid,
-		autotileType: 'terrain_48',
-		animationFrames: 1,
-		animationSpeed: 4,
-		tileProperties: {
-			0: { terrainType },
-		},
-	};
+  return {
+    name,
+    imagePath: `tilesets/lpc-terrain/autotile-expanded/terrain-${terrainIndex}.png`,
+    tileWidth: TILE_SIZE,
+    tileHeight: TILE_SIZE,
+    columns: 2,
+    rows: 3,
+    firstGid,
+    autotileType: 'terrain_48',
+    animationFrames: 1,
+    animationSpeed: 4,
+    tileProperties: {
+      0: { terrainType },
+    },
+  };
 }
 
 const TILESET_CONFIGS: ReadonlyArray<Record<string, unknown>> = [
-	// --- Autotile terrain tilesets (2×3 compact, expanded to 8×6 by loader) ---
-	autotileTileset('grass', '02', GRASS_GID, 'grass'),
-	autotileTileset('darkGrass', '00', DARK_GRASS_GID, 'grass'),
-	autotileTileset('dirt', '03', DIRT_GID, 'stone'),
-	autotileTileset('cobble', '11', COBBLE_GID, 'stone'),
-	autotileTileset('water', '24', WATER_GID, 'water'),
-	autotileTileset('sand', '18', SAND_GID, 'sand'),
+  // --- Autotile terrain tilesets (2×3 compact, expanded to 8×6 by loader) ---
+  autotileTileset('grass', '02', GRASS_GID, 'grass'),
+  autotileTileset('darkGrass', '00', DARK_GRASS_GID, 'grass'),
+  autotileTileset('dirt', '03', DIRT_GID, 'stone'),
+  autotileTileset('cobble', '11', COBBLE_GID, 'stone'),
+  autotileTileset('water', '24', WATER_GID, 'water'),
+  autotileTileset('sand', '18', SAND_GID, 'sand'),
 
-	// --- Decoration tilesets (non-autotile) ---
-	{
-		name: 'plants',
-		imagePath: 'tilesets/lpc-terrain/plants_summer.png',
-		tileWidth: TILE_SIZE,
-		tileHeight: TILE_SIZE,
-		columns: P_COLS,
-		rows: P_ROWS,
-		firstGid: P_GID,
-		autotileType: 'none',
-		animationFrames: 1,
-		animationSpeed: 4,
-		tileProperties: {},
-	},
-	{
-		name: 'trees',
-		imagePath: 'tilesets/lpc-terrain/trees_summer.png',
-		tileWidth: TILE_SIZE,
-		tileHeight: TILE_SIZE,
-		columns: TR_COLS,
-		rows: TR_ROWS,
-		firstGid: TR_GID,
-		autotileType: 'none',
-		animationFrames: 1,
-		animationSpeed: 4,
-		tileProperties: {},
-	},
-	{
-		name: 'cliffs',
-		imagePath: 'tilesets/lpc-terrain/cliff_summer.png',
-		tileWidth: TILE_SIZE,
-		tileHeight: TILE_SIZE,
-		columns: CL_COLS,
-		rows: CL_ROWS,
-		firstGid: CL_GID,
-		autotileType: 'none',
-		animationFrames: 1,
-		animationSpeed: 4,
-		tileProperties: {},
-	},
-	{
-		name: 'flowers',
-		imagePath: 'tilesets/lpc-terrain/flowers.png',
-		tileWidth: TILE_SIZE,
-		tileHeight: TILE_SIZE,
-		columns: FL_COLS,
-		rows: FL_ROWS,
-		firstGid: FL_GID,
-		autotileType: 'none',
-		animationFrames: 1,
-		animationSpeed: 4,
-		tileProperties: {},
-	},
-	{
-		name: 'mushrooms',
-		imagePath: 'tilesets/lpc-terrain/mushrooms.png',
-		tileWidth: TILE_SIZE,
-		tileHeight: TILE_SIZE,
-		columns: MU_COLS,
-		rows: MU_ROWS,
-		firstGid: MU_GID,
-		autotileType: 'none',
-		animationFrames: 1,
-		animationSpeed: 4,
-		tileProperties: {},
-	},
-	{
-		name: 'rocks',
-		imagePath: 'tilesets/lpc-terrain/Rocks, Grasslands.png',
-		tileWidth: TILE_SIZE,
-		tileHeight: TILE_SIZE,
-		columns: RK_COLS,
-		rows: RK_ROWS,
-		firstGid: RK_GID,
-		autotileType: 'none',
-		animationFrames: 1,
-		animationSpeed: 4,
-		tileProperties: {},
-	},
-	{
-		name: 'cliffRocks',
-		imagePath: 'tilesets/lpc-terrain/Rocks, Cliffs.png',
-		tileWidth: TILE_SIZE,
-		tileHeight: TILE_SIZE,
-		columns: CR_COLS,
-		rows: CR_ROWS,
-		firstGid: CR_GID,
-		autotileType: 'none',
-		animationFrames: 1,
-		animationSpeed: 4,
-		tileProperties: {},
-	},
-	{
-		name: 'soil',
-		imagePath: 'tilesets/lpc-terrain/tilled_soil.png',
-		tileWidth: TILE_SIZE,
-		tileHeight: TILE_SIZE,
-		columns: SO_COLS,
-		rows: SO_ROWS,
-		firstGid: SO_GID,
-		autotileType: 'none',
-		animationFrames: 1,
-		animationSpeed: 4,
-		tileProperties: {},
-	},
+  // --- Decoration tilesets (non-autotile) ---
+  {
+    name: 'plants',
+    imagePath: 'tilesets/lpc-terrain/plants_summer.png',
+    tileWidth: TILE_SIZE,
+    tileHeight: TILE_SIZE,
+    columns: P_COLS,
+    rows: P_ROWS,
+    firstGid: P_GID,
+    autotileType: 'none',
+    animationFrames: 1,
+    animationSpeed: 4,
+    tileProperties: {},
+  },
+  {
+    name: 'trees',
+    imagePath: 'tilesets/lpc-terrain/trees_summer.png',
+    tileWidth: TILE_SIZE,
+    tileHeight: TILE_SIZE,
+    columns: TR_COLS,
+    rows: TR_ROWS,
+    firstGid: TR_GID,
+    autotileType: 'none',
+    animationFrames: 1,
+    animationSpeed: 4,
+    tileProperties: {},
+  },
+  {
+    name: 'cliffs',
+    imagePath: 'tilesets/lpc-terrain/cliff_summer.png',
+    tileWidth: TILE_SIZE,
+    tileHeight: TILE_SIZE,
+    columns: CL_COLS,
+    rows: CL_ROWS,
+    firstGid: CL_GID,
+    autotileType: 'none',
+    animationFrames: 1,
+    animationSpeed: 4,
+    tileProperties: {},
+  },
+  {
+    name: 'flowers',
+    imagePath: 'tilesets/lpc-terrain/flowers.png',
+    tileWidth: TILE_SIZE,
+    tileHeight: TILE_SIZE,
+    columns: FL_COLS,
+    rows: FL_ROWS,
+    firstGid: FL_GID,
+    autotileType: 'none',
+    animationFrames: 1,
+    animationSpeed: 4,
+    tileProperties: {},
+  },
+  {
+    name: 'mushrooms',
+    imagePath: 'tilesets/lpc-terrain/mushrooms.png',
+    tileWidth: TILE_SIZE,
+    tileHeight: TILE_SIZE,
+    columns: MU_COLS,
+    rows: MU_ROWS,
+    firstGid: MU_GID,
+    autotileType: 'none',
+    animationFrames: 1,
+    animationSpeed: 4,
+    tileProperties: {},
+  },
+  {
+    name: 'rocks',
+    imagePath: 'tilesets/lpc-terrain/Rocks, Grasslands.png',
+    tileWidth: TILE_SIZE,
+    tileHeight: TILE_SIZE,
+    columns: RK_COLS,
+    rows: RK_ROWS,
+    firstGid: RK_GID,
+    autotileType: 'none',
+    animationFrames: 1,
+    animationSpeed: 4,
+    tileProperties: {},
+  },
+  {
+    name: 'cliffRocks',
+    imagePath: 'tilesets/lpc-terrain/Rocks, Cliffs.png',
+    tileWidth: TILE_SIZE,
+    tileHeight: TILE_SIZE,
+    columns: CR_COLS,
+    rows: CR_ROWS,
+    firstGid: CR_GID,
+    autotileType: 'none',
+    animationFrames: 1,
+    animationSpeed: 4,
+    tileProperties: {},
+  },
+  {
+    name: 'soil',
+    imagePath: 'tilesets/lpc-terrain/tilled_soil.png',
+    tileWidth: TILE_SIZE,
+    tileHeight: TILE_SIZE,
+    columns: SO_COLS,
+    rows: SO_ROWS,
+    firstGid: SO_GID,
+    autotileType: 'none',
+    animationFrames: 1,
+    animationSpeed: 4,
+    tileProperties: {},
+  },
 ];
 
 // =============================================================================
@@ -1090,245 +1090,245 @@ const TILESET_CONFIGS: ReadonlyArray<Record<string, unknown>> = [
  * The autotile system generates edge/corner transitions between terrain types.
  */
 export const TEST_MAP_DATA: Record<string, unknown> = {
-	width: W,
-	height: H,
-	tileWidth: TILE_SIZE,
-	tileHeight: TILE_SIZE,
-	tilesets: TILESET_CONFIGS,
-	layers: [
-		{
-			name: 'ground',
-			type: 'ground',
-			data: generateGround(),
-			visible: true,
-			opacity: 1,
-		},
-		{
-			name: 'ground_deco',
-			type: 'ground_deco',
-			data: generateDecorations(),
-			visible: true,
-			opacity: 1,
-		},
-		{
-			name: 'upper1',
-			type: 'upper1',
-			data: generateUpper(),
-			visible: true,
-			opacity: 1,
-		},
-		{
-			name: 'shadow',
-			type: 'shadow',
-			data: generateShadow(),
-			visible: true,
-			opacity: 0.4,
-		},
-	],
-	heightMap: generateHeightMap(),
-	postProcessing: { preset: 'hd2d' },
-	lighting: {
-		lights: [
-			{
-				id: 'ambient',
-				type: 'hemispheric',
-				intensity: 0.6,
-				direction: { x: 0, y: 1, z: 0 },
-				diffuse: { r: 0.5, g: 0.5, b: 0.45, a: 1 },
-				groundColor: { r: 0.15, g: 0.15, b: 0.12, a: 1 },
-			},
-			{
-				id: 'sun',
-				type: 'directional',
-				intensity: 0.8,
-				direction: { x: -0.5, y: -1, z: 0.3 },
-				diffuse: { r: 1, g: 0.95, b: 0.85, a: 1 },
-				shadow: {
-					enabled: true,
-					type: 'cascade',
-					mapSize: 2048,
-					filteringQuality: 'medium',
-					darkness: 0.4,
-					cascadeBlendPercentage: 0.05,
-					numCascades: 3,
-				},
-				volumetricLight: {
-					enabled: true,
-					samples: 50,
-					density: 0.5,
-					weight: 0.15,
-					decay: 0.98,
-					passRatio: 0.5,
-				},
-				lensFlare: {
-					enabled: true,
-					flares: [
-						{
-							size: 0.2,
-							position: 0,
-							color: { r: 1, g: 1, b: 1, a: 1 },
-						},
-						{
-							size: 0.5,
-							position: 0.2,
-							color: { r: 0.5, g: 0.5, b: 1, a: 1 },
-						},
-						{
-							size: 0.2,
-							position: 1.0,
-							color: { r: 1, g: 1, b: 1, a: 1 },
-						},
-					],
-				},
-			},
-			// Village torches — warm point lights at crossroads
-			{
-				id: 'torch-1',
-				type: 'point',
-				intensity: 1.5,
-				position: { x: 17, y: 1.5, z: 14 },
-				colorTemperature: 2200,
-				range: 12,
-				meshRadius: 8,
-				flicker: {
-					type: 'torch',
-					intensity: 0.25,
-					speed: 1.2,
-					colorShift: true,
-					colorShiftRange: 150,
-					positionJitter: 0.02,
-				},
-			},
-			{
-				id: 'torch-2',
-				type: 'point',
-				intensity: 1.3,
-				position: { x: 23, y: 1.5, z: 14 },
-				colorTemperature: 2100,
-				range: 10,
-				meshRadius: 7,
-				flicker: {
-					type: 'candle',
-					intensity: 0.35,
-					speed: 0.8,
-					colorShift: true,
-					colorShiftRange: 200,
-				},
-			},
-			{
-				id: 'torch-3',
-				type: 'point',
-				intensity: 1.4,
-				position: { x: 20, y: 1.5, z: 11 },
-				colorTemperature: 2200,
-				range: 11,
-				meshRadius: 7,
-				flicker: {
-					type: 'torch',
-					intensity: 0.3,
-					speed: 1.0,
-					colorShift: true,
-					colorShiftRange: 180,
-					positionJitter: 0.015,
-				},
-			},
-			{
-				id: 'torch-4',
-				type: 'point',
-				intensity: 1.2,
-				position: { x: 20, y: 1.5, z: 17 },
-				colorTemperature: 1900,
-				range: 10,
-				meshRadius: 6,
-				flicker: {
-					type: 'candle',
-					intensity: 0.4,
-					speed: 0.7,
-					colorShift: true,
-					colorShiftRange: 250,
-				},
-			},
-			{
-				id: 'torch-5',
-				type: 'point',
-				intensity: 1.3,
-				position: { x: 26, y: 1.5, z: 14 },
-				colorTemperature: 2100,
-				range: 10,
-				meshRadius: 7,
-				flicker: {
-					type: 'torch',
-					intensity: 0.25,
-					speed: 1.1,
-					colorShift: true,
-					colorShiftRange: 160,
-					positionJitter: 0.02,
-				},
-			},
-			{
-				id: 'torch-6',
-				type: 'point',
-				intensity: 1.4,
-				position: { x: 30, y: 1.5, z: 14 },
-				colorTemperature: 2200,
-				range: 11,
-				meshRadius: 7,
-				flicker: {
-					type: 'torch',
-					intensity: 0.3,
-					speed: 1.0,
-					colorShift: true,
-					colorShiftRange: 170,
-					positionJitter: 0.018,
-				},
-			},
-			// Pond-side campfire — atmospheric warm light
-			{
-				id: 'pond-fire',
-				type: 'point',
-				intensity: 2.0,
-				position: { x: 14, y: 1.5, z: 8 },
-				colorTemperature: 1800,
-				range: 15,
-				meshRadius: 10,
-				flicker: {
-					type: 'campfire',
-					intensity: 0.5,
-					speed: 0.6,
-					colorShift: true,
-					colorShiftRange: 300,
-					positionJitter: 0.03,
-				},
-			},
-		],
-		dayNight: {
-			enabled: true,
-			timeOfDay: 10,
-			speed: 0,
-			sunLightId: 'sun',
-			ambientLightId: 'ambient',
-			sunPath: { sunrise: 6, sunset: 18, maxElevation: 75 },
-		},
-		glow: { enabled: true, intensity: 0.3, blurKernelSize: 32 },
-	},
-	sky: {
-		type: 'gradient',
-		color: { r: 0.35, g: 0.5, b: 0.8, a: 1 },
-		gradient: [
-			{ position: 0, color: { r: 0.2, g: 0.3, b: 0.6, a: 1 } },
-			{ position: 0.4, color: { r: 0.4, g: 0.55, b: 0.85, a: 1 } },
-			{ position: 1, color: { r: 0.7, g: 0.8, b: 0.95, a: 1 } },
-		],
-		skyboxSize: 1000,
-		parallaxLayers: [],
-		stars: {
-			enabled: true,
-			texture: 'sky/stars.png',
-			opacity: 0.8,
-			twinkleSpeed: 1,
-			fadeInTime: 18,
-			fadeOutTime: 6,
-			scale: 2,
-		},
-	},
+  width: W,
+  height: H,
+  tileWidth: TILE_SIZE,
+  tileHeight: TILE_SIZE,
+  tilesets: TILESET_CONFIGS,
+  layers: [
+    {
+      name: 'ground',
+      type: 'ground',
+      data: generateGround(),
+      visible: true,
+      opacity: 1,
+    },
+    {
+      name: 'ground_deco',
+      type: 'ground_deco',
+      data: generateDecorations(),
+      visible: true,
+      opacity: 1,
+    },
+    {
+      name: 'upper1',
+      type: 'upper1',
+      data: generateUpper(),
+      visible: true,
+      opacity: 1,
+    },
+    {
+      name: 'shadow',
+      type: 'shadow',
+      data: generateShadow(),
+      visible: true,
+      opacity: 0.4,
+    },
+  ],
+  heightMap: generateHeightMap(),
+  postProcessing: { preset: 'hd2d' },
+  lighting: {
+    lights: [
+      {
+        id: 'ambient',
+        type: 'hemispheric',
+        intensity: 0.6,
+        direction: { x: 0, y: 1, z: 0 },
+        diffuse: { r: 0.5, g: 0.5, b: 0.45, a: 1 },
+        groundColor: { r: 0.15, g: 0.15, b: 0.12, a: 1 },
+      },
+      {
+        id: 'sun',
+        type: 'directional',
+        intensity: 0.8,
+        direction: { x: -0.5, y: -1, z: 0.3 },
+        diffuse: { r: 1, g: 0.95, b: 0.85, a: 1 },
+        shadow: {
+          enabled: true,
+          type: 'cascade',
+          mapSize: 2048,
+          filteringQuality: 'medium',
+          darkness: 0.4,
+          cascadeBlendPercentage: 0.05,
+          numCascades: 3,
+        },
+        volumetricLight: {
+          enabled: true,
+          samples: 50,
+          density: 0.5,
+          weight: 0.15,
+          decay: 0.98,
+          passRatio: 0.5,
+        },
+        lensFlare: {
+          enabled: true,
+          flares: [
+            {
+              size: 0.2,
+              position: 0,
+              color: { r: 1, g: 1, b: 1, a: 1 },
+            },
+            {
+              size: 0.5,
+              position: 0.2,
+              color: { r: 0.5, g: 0.5, b: 1, a: 1 },
+            },
+            {
+              size: 0.2,
+              position: 1.0,
+              color: { r: 1, g: 1, b: 1, a: 1 },
+            },
+          ],
+        },
+      },
+      // Village torches — warm point lights at crossroads
+      {
+        id: 'torch-1',
+        type: 'point',
+        intensity: 1.5,
+        position: { x: 17, y: 1.5, z: 14 },
+        colorTemperature: 2200,
+        range: 12,
+        meshRadius: 8,
+        flicker: {
+          type: 'torch',
+          intensity: 0.25,
+          speed: 1.2,
+          colorShift: true,
+          colorShiftRange: 150,
+          positionJitter: 0.02,
+        },
+      },
+      {
+        id: 'torch-2',
+        type: 'point',
+        intensity: 1.3,
+        position: { x: 23, y: 1.5, z: 14 },
+        colorTemperature: 2100,
+        range: 10,
+        meshRadius: 7,
+        flicker: {
+          type: 'candle',
+          intensity: 0.35,
+          speed: 0.8,
+          colorShift: true,
+          colorShiftRange: 200,
+        },
+      },
+      {
+        id: 'torch-3',
+        type: 'point',
+        intensity: 1.4,
+        position: { x: 20, y: 1.5, z: 11 },
+        colorTemperature: 2200,
+        range: 11,
+        meshRadius: 7,
+        flicker: {
+          type: 'torch',
+          intensity: 0.3,
+          speed: 1.0,
+          colorShift: true,
+          colorShiftRange: 180,
+          positionJitter: 0.015,
+        },
+      },
+      {
+        id: 'torch-4',
+        type: 'point',
+        intensity: 1.2,
+        position: { x: 20, y: 1.5, z: 17 },
+        colorTemperature: 1900,
+        range: 10,
+        meshRadius: 6,
+        flicker: {
+          type: 'candle',
+          intensity: 0.4,
+          speed: 0.7,
+          colorShift: true,
+          colorShiftRange: 250,
+        },
+      },
+      {
+        id: 'torch-5',
+        type: 'point',
+        intensity: 1.3,
+        position: { x: 26, y: 1.5, z: 14 },
+        colorTemperature: 2100,
+        range: 10,
+        meshRadius: 7,
+        flicker: {
+          type: 'torch',
+          intensity: 0.25,
+          speed: 1.1,
+          colorShift: true,
+          colorShiftRange: 160,
+          positionJitter: 0.02,
+        },
+      },
+      {
+        id: 'torch-6',
+        type: 'point',
+        intensity: 1.4,
+        position: { x: 30, y: 1.5, z: 14 },
+        colorTemperature: 2200,
+        range: 11,
+        meshRadius: 7,
+        flicker: {
+          type: 'torch',
+          intensity: 0.3,
+          speed: 1.0,
+          colorShift: true,
+          colorShiftRange: 170,
+          positionJitter: 0.018,
+        },
+      },
+      // Pond-side campfire — atmospheric warm light
+      {
+        id: 'pond-fire',
+        type: 'point',
+        intensity: 2.0,
+        position: { x: 14, y: 1.5, z: 8 },
+        colorTemperature: 1800,
+        range: 15,
+        meshRadius: 10,
+        flicker: {
+          type: 'campfire',
+          intensity: 0.5,
+          speed: 0.6,
+          colorShift: true,
+          colorShiftRange: 300,
+          positionJitter: 0.03,
+        },
+      },
+    ],
+    dayNight: {
+      enabled: true,
+      timeOfDay: 10,
+      speed: 0,
+      sunLightId: 'sun',
+      ambientLightId: 'ambient',
+      sunPath: { sunrise: 6, sunset: 18, maxElevation: 75 },
+    },
+    glow: { enabled: true, intensity: 0.3, blurKernelSize: 32 },
+  },
+  sky: {
+    type: 'gradient',
+    color: { r: 0.35, g: 0.5, b: 0.8, a: 1 },
+    gradient: [
+      { position: 0, color: { r: 0.2, g: 0.3, b: 0.6, a: 1 } },
+      { position: 0.4, color: { r: 0.4, g: 0.55, b: 0.85, a: 1 } },
+      { position: 1, color: { r: 0.7, g: 0.8, b: 0.95, a: 1 } },
+    ],
+    skyboxSize: 1000,
+    parallaxLayers: [],
+    stars: {
+      enabled: true,
+      texture: 'sky/stars.png',
+      opacity: 0.8,
+      twinkleSpeed: 1,
+      fadeInTime: 18,
+      fadeOutTime: 6,
+      scale: 2,
+    },
+  },
 };

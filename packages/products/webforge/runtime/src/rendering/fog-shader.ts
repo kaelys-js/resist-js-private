@@ -50,75 +50,75 @@ export const OVERLAY_FOG_SHADER_NAME = 'webforgeFogOverlay';
 
 /** Uniform names for the advanced fog post-process. */
 export const ADVANCED_FOG_UNIFORMS: readonly string[] = [
-	// Camera / scene
-	'cameraPosition',
-	'cameraFar',
-	'cameraNear',
-	'invProjection',
-	'invView',
+  // Camera / scene
+  'cameraPosition',
+  'cameraFar',
+  'cameraNear',
+  'invProjection',
+  'invView',
 
-	// Core fog
-	'fogColor',
-	'fogDensity',
-	'fogMode',
-	'fogStart',
-	'fogEnd',
-	'maxOpacity',
-	'startDistance',
-	'cutoffDistance',
-	'excludeSkybox',
-	'skyAffect',
+  // Core fog
+  'fogColor',
+  'fogDensity',
+  'fogMode',
+  'fogStart',
+  'fogEnd',
+  'maxOpacity',
+  'startDistance',
+  'cutoffDistance',
+  'excludeSkybox',
+  'skyAffect',
 
-	// Height fog
-	'heightFogEnabled',
-	'heightFogBaseHeight',
-	'heightFogFalloff',
-	'heightFogDensity',
-	'heightFogOffset',
+  // Height fog
+  'heightFogEnabled',
+  'heightFogBaseHeight',
+  'heightFogFalloff',
+  'heightFogDensity',
+  'heightFogOffset',
 
-	// Second layer
-	'secondLayerEnabled',
-	'secondLayerDensity',
-	'secondLayerHeightFalloff',
-	'secondLayerHeightOffset',
-	'secondLayerColor',
+  // Second layer
+  'secondLayerEnabled',
+  'secondLayerDensity',
+  'secondLayerHeightFalloff',
+  'secondLayerHeightOffset',
+  'secondLayerColor',
 
-	// Inscattering
-	'inscatteringEnabled',
-	'inscatteringColor',
-	'inscatteringExponent',
-	'inscatteringStartDistance',
-	'inscatteringIntensity',
-	'sunDirection',
+  // Inscattering
+  'inscatteringEnabled',
+  'inscatteringColor',
+  'inscatteringExponent',
+  'inscatteringStartDistance',
+  'inscatteringIntensity',
+  'sunDirection',
 
-	// Atmospheric
-	'atmosphericEnabled',
-	'extinction',
-	'inscatteringCoeffs',
+  // Atmospheric
+  'atmosphericEnabled',
+  'extinction',
+  'inscatteringCoeffs',
 
-	// Noise
-	'noiseEnabled',
-	'noiseScale',
-	'noiseAmplitude',
-	'noiseSpeed',
-	'noiseOctaves',
-	'noiseLacunarity',
-	'noisePersistence',
+  // Noise
+  'noiseEnabled',
+  'noiseScale',
+  'noiseAmplitude',
+  'noiseSpeed',
+  'noiseOctaves',
+  'noiseLacunarity',
+  'noisePersistence',
 
-	// Wind
-	'windEnabled',
-	'windDirection',
-	'windSpeed',
-	'windTurbulence',
+  // Wind
+  'windEnabled',
+  'windDirection',
+  'windSpeed',
+  'windTurbulence',
 
-	// Animation
-	'animationEnabled',
-	'animationSpeed',
-	'animationAmplitude',
-	'animationWaveform',
+  // Animation
+  'animationEnabled',
+  'animationSpeed',
+  'animationAmplitude',
+  'animationWaveform',
 
-	// Time
-	'time',
+  // Time
+  'time',
 ];
 
 /** Sampler names for the advanced fog post-process. */
@@ -130,29 +130,29 @@ export const ADVANCED_FOG_SAMPLERS: readonly string[] = ['depthSampler'];
 
 /** Uniform names for the overlay fog post-process. */
 export const OVERLAY_FOG_UNIFORMS: readonly string[] = [
-	'time',
-	'layerCount',
+  'time',
+  'layerCount',
 
-	// Per-layer (4 layers max) — arrays indexed [0..3]
-	'layerEnabled',
-	'layerOpacity',
-	'layerBlendMode',
-	'layerScrollX',
-	'layerScrollY',
-	'layerScale',
-	'layerTint',
-	'layerHue',
-	'layerHueSpeed',
-	'layerVignette',
-	'layerVignetteIntensity',
+  // Per-layer (4 layers max) — arrays indexed [0..3]
+  'layerEnabled',
+  'layerOpacity',
+  'layerBlendMode',
+  'layerScrollX',
+  'layerScrollY',
+  'layerScale',
+  'layerTint',
+  'layerHue',
+  'layerHueSpeed',
+  'layerVignette',
+  'layerVignetteIntensity',
 ];
 
 /** Sampler names for the overlay fog post-process. */
 export const OVERLAY_FOG_SAMPLERS: readonly string[] = [
-	'overlayTex0',
-	'overlayTex1',
-	'overlayTex2',
-	'overlayTex3',
+  'overlayTex0',
+  'overlayTex1',
+  'overlayTex2',
+  'overlayTex3',
 ];
 
 // =============================================================================
@@ -726,10 +726,10 @@ let overlayFogRegistered = false;
  * Idempotent — safe to call multiple times.
  */
 export function registerAdvancedFogShader(): void {
-	if (advancedFogRegistered) return;
-	BABYLON.Effect.ShadersStore[`${ADVANCED_FOG_SHADER_NAME}FragmentShader`] =
-		ADVANCED_FOG_FRAGMENT_SHADER;
-	advancedFogRegistered = true;
+  if (advancedFogRegistered) return;
+  BABYLON.Effect.ShadersStore[`${ADVANCED_FOG_SHADER_NAME}FragmentShader`] =
+    ADVANCED_FOG_FRAGMENT_SHADER;
+  advancedFogRegistered = true;
 }
 
 /**
@@ -738,10 +738,10 @@ export function registerAdvancedFogShader(): void {
  * Idempotent — safe to call multiple times.
  */
 export function registerOverlayFogShader(): void {
-	if (overlayFogRegistered) return;
-	BABYLON.Effect.ShadersStore[`${OVERLAY_FOG_SHADER_NAME}FragmentShader`] =
-		OVERLAY_FOG_FRAGMENT_SHADER;
-	overlayFogRegistered = true;
+  if (overlayFogRegistered) return;
+  BABYLON.Effect.ShadersStore[`${OVERLAY_FOG_SHADER_NAME}FragmentShader`] =
+    OVERLAY_FOG_FRAGMENT_SHADER;
+  overlayFogRegistered = true;
 }
 
 // =============================================================================
@@ -757,8 +757,8 @@ export function registerOverlayFogShader(): void {
  * ```
  */
 export type CreateAdvancedFogPostProcessOptions = {
-	readonly camera: BABYLON.Camera;
-	readonly engine: BABYLON.AbstractEngine;
+  readonly camera: BABYLON.Camera;
+  readonly engine: BABYLON.AbstractEngine;
 };
 
 /**
@@ -770,8 +770,8 @@ export type CreateAdvancedFogPostProcessOptions = {
  * ```
  */
 export type CreateOverlayFogPostProcessOptions = {
-	readonly camera: BABYLON.Camera;
-	readonly engine: BABYLON.AbstractEngine;
+  readonly camera: BABYLON.Camera;
+  readonly engine: BABYLON.AbstractEngine;
 };
 
 // =============================================================================
@@ -802,30 +802,30 @@ export type CreateOverlayFogPostProcessOptions = {
  * ```
  */
 export function createAdvancedFogPostProcess(
-	options: CreateAdvancedFogPostProcessOptions,
+  options: CreateAdvancedFogPostProcessOptions,
 ): BabylonResult<BABYLON.PostProcess> {
-	try {
-		registerAdvancedFogShader();
+  try {
+    registerAdvancedFogShader();
 
-		const postProcess: BABYLON.PostProcess = new BABYLON.PostProcess(
-			'WebForgeAdvancedFog',
-			ADVANCED_FOG_SHADER_NAME,
-			[...ADVANCED_FOG_UNIFORMS],
-			[...ADVANCED_FOG_SAMPLERS],
-			1.0,
-			options.camera,
-			BABYLON.Texture.BILINEAR_SAMPLINGMODE,
-			options.engine,
-			false,
-		);
+    const postProcess: BABYLON.PostProcess = new BABYLON.PostProcess(
+      'WebForgeAdvancedFog',
+      ADVANCED_FOG_SHADER_NAME,
+      [...ADVANCED_FOG_UNIFORMS],
+      [...ADVANCED_FOG_SAMPLERS],
+      1.0,
+      options.camera,
+      BABYLON.Texture.BILINEAR_SAMPLINGMODE,
+      options.engine,
+      false,
+    );
 
-		return okShallow(postProcess);
-	} catch (error: unknown) {
-		return err(
-			ERRORS.SCENE.RENDER_FAILED,
-			`Failed to create advanced fog post-process: ${fromUnknownError(error).message}`,
-		);
-	}
+    return okShallow(postProcess);
+  } catch (error: unknown) {
+    return err(
+      ERRORS.SCENE.RENDER_FAILED,
+      `Failed to create advanced fog post-process: ${fromUnknownError(error).message}`,
+    );
+  }
 }
 
 // =============================================================================
@@ -857,28 +857,28 @@ export function createAdvancedFogPostProcess(
  * ```
  */
 export function createOverlayFogPostProcess(
-	options: CreateOverlayFogPostProcessOptions,
+  options: CreateOverlayFogPostProcessOptions,
 ): BabylonResult<BABYLON.PostProcess> {
-	try {
-		registerOverlayFogShader();
+  try {
+    registerOverlayFogShader();
 
-		const postProcess: BABYLON.PostProcess = new BABYLON.PostProcess(
-			'WebForgeFogOverlay',
-			OVERLAY_FOG_SHADER_NAME,
-			[...OVERLAY_FOG_UNIFORMS],
-			[...OVERLAY_FOG_SAMPLERS],
-			1.0,
-			options.camera,
-			BABYLON.Texture.BILINEAR_SAMPLINGMODE,
-			options.engine,
-			false,
-		);
+    const postProcess: BABYLON.PostProcess = new BABYLON.PostProcess(
+      'WebForgeFogOverlay',
+      OVERLAY_FOG_SHADER_NAME,
+      [...OVERLAY_FOG_UNIFORMS],
+      [...OVERLAY_FOG_SAMPLERS],
+      1.0,
+      options.camera,
+      BABYLON.Texture.BILINEAR_SAMPLINGMODE,
+      options.engine,
+      false,
+    );
 
-		return okShallow(postProcess);
-	} catch (error: unknown) {
-		return err(
-			ERRORS.SCENE.RENDER_FAILED,
-			`Failed to create overlay fog post-process: ${fromUnknownError(error).message}`,
-		);
-	}
+    return okShallow(postProcess);
+  } catch (error: unknown) {
+    return err(
+      ERRORS.SCENE.RENDER_FAILED,
+      `Failed to create overlay fog post-process: ${fromUnknownError(error).message}`,
+    );
+  }
 }

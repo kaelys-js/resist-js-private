@@ -10,12 +10,12 @@
  */
 
 import {
-	CamelCaseStringSchema,
-	NonNegativeIntegerSchema,
-	StrSchema,
-	type CamelCaseString,
-	type NonNegativeInteger,
-	type Str,
+  CamelCaseStringSchema,
+  NonNegativeIntegerSchema,
+  StrSchema,
+  type CamelCaseString,
+  type NonNegativeInteger,
+  type Str,
 } from '@/schemas/common';
 import { ok, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
@@ -31,8 +31,8 @@ import { safeParse } from '@/utils/result/safe';
  * @returns String with all ANSI escape codes removed.
  */
 function stripAnsi(str: Str): Str {
-	const ansiEscape = new RegExp(`${String.fromCodePoint(0x1b)}${String.raw`\[[0-9;]*m`}`, 'g');
-	return str.replace(ansiEscape, '');
+  const ansiEscape = new RegExp(`${String.fromCodePoint(0x1b)}${String.raw`\[[0-9;]*m`}`, 'g');
+  return str.replace(ansiEscape, '');
 }
 
 // =============================================================================
@@ -53,18 +53,18 @@ function stripAnsi(str: Str): Str {
  * ```
  */
 export function padRight(str: Str, length: NonNegativeInteger): Result<Str> {
-	const strResult: Result<Str> = safeParse(StrSchema, str);
-	if (!strResult.ok) return strResult;
+  const strResult: Result<Str> = safeParse(StrSchema, str);
+  if (!strResult.ok) return strResult;
 
-	const lengthResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, length);
-	if (!lengthResult.ok) return lengthResult;
+  const lengthResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, length);
+  if (!lengthResult.ok) return lengthResult;
 
-	// Internal arithmetic — values provably non-negative from validated inputs
-	const padding: number = Math.max(
-		0,
-		(lengthResult.data as unknown as number) - strResult.data.length,
-	);
-	return ok(StrSchema, strResult.data + ' '.repeat(padding));
+  // Internal arithmetic — values provably non-negative from validated inputs
+  const padding: number = Math.max(
+    0,
+    (lengthResult.data as unknown as number) - strResult.data.length,
+  );
+  return ok(StrSchema, strResult.data + ' '.repeat(padding));
 }
 
 // =============================================================================
@@ -88,47 +88,47 @@ export function padRight(str: Str, length: NonNegativeInteger): Result<Str> {
  * ```
  */
 export function truncateLine(line: Str, maxWidth: NonNegativeInteger): Result<Str> {
-	const lineResult: Result<Str> = safeParse(StrSchema, line);
-	if (!lineResult.ok) return lineResult;
+  const lineResult: Result<Str> = safeParse(StrSchema, line);
+  if (!lineResult.ok) return lineResult;
 
-	const widthResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, maxWidth);
-	if (!widthResult.ok) return widthResult;
+  const widthResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, maxWidth);
+  if (!widthResult.ok) return widthResult;
 
-	// Internal arithmetic — values provably non-negative from validated inputs
-	const visibleLength: number = stripAnsi(lineResult.data).length;
+  // Internal arithmetic — values provably non-negative from validated inputs
+  const visibleLength: number = stripAnsi(lineResult.data).length;
 
-	if (visibleLength <= (widthResult.data as unknown as number)) {
-		return ok(StrSchema, lineResult.data);
-	}
+  if (visibleLength <= (widthResult.data as unknown as number)) {
+    return ok(StrSchema, lineResult.data);
+  }
 
-	// Walk through the string tracking visible characters
-	let visibleCount = 0;
-	let i = 0;
-	const targetLength: number = Math.max(0, (widthResult.data as unknown as number) - 1);
+  // Walk through the string tracking visible characters
+  let visibleCount = 0;
+  let i = 0;
+  const targetLength: number = Math.max(0, (widthResult.data as unknown as number) - 1);
 
-	while (i < lineResult.data.length && visibleCount < targetLength) {
-		if (lineResult.data[i] === '\u001B' && lineResult.data[i + 1] === '[') {
-			const end: number = lineResult.data.indexOf('m', i);
-			if (end !== -1) {
-				i = end + 1;
-				continue;
-			}
-		}
-		visibleCount += 1;
-		i += 1;
-	}
+  while (i < lineResult.data.length && visibleCount < targetLength) {
+    if (lineResult.data[i] === '\u001B' && lineResult.data[i + 1] === '[') {
+      const end: number = lineResult.data.indexOf('m', i);
+      if (end !== -1) {
+        i = end + 1;
+        continue;
+      }
+    }
+    visibleCount += 1;
+    i += 1;
+  }
 
-	// Include any trailing ANSI codes (like reset)
-	while (i < lineResult.data.length && lineResult.data[i] === '\u001B') {
-		const end: number = lineResult.data.indexOf('m', i);
-		if (end === -1) {
-			break;
-		} else {
-			i = end + 1;
-		}
-	}
+  // Include any trailing ANSI codes (like reset)
+  while (i < lineResult.data.length && lineResult.data[i] === '\u001B') {
+    const end: number = lineResult.data.indexOf('m', i);
+    if (end === -1) {
+      break;
+    } else {
+      i = end + 1;
+    }
+  }
 
-	return ok(StrSchema, `${lineResult.data.slice(0, i)}…`);
+  return ok(StrSchema, `${lineResult.data.slice(0, i)}…`);
 }
 
 // =============================================================================
@@ -149,10 +149,10 @@ export function truncateLine(line: Str, maxWidth: NonNegativeInteger): Result<St
  * ```
  */
 export function toCamelCase(name: Str): Result<CamelCaseString> {
-	const input: Result<Str> = safeParse(StrSchema, name);
-	if (!input.ok) return input;
-	return ok(
-		CamelCaseStringSchema,
-		input.data.replaceAll(/-([a-z])/g, (_, c: Str) => c.toUpperCase()),
-	);
+  const input: Result<Str> = safeParse(StrSchema, name);
+  if (!input.ok) return input;
+  return ok(
+    CamelCaseStringSchema,
+    input.data.replaceAll(/-([a-z])/g, (_, c: Str) => c.toUpperCase()),
+  );
 }

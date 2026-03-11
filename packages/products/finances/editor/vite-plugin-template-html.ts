@@ -32,10 +32,10 @@ import { en } from './src/lib/locales/en.js';
  * // @font-face { font-family: 'Inter'; ... }
  */
 export function generateFontFaceCss(): Str {
-	return FONT_FACES.map(
-		(f) =>
-			`@font-face {\n\tfont-family: '${f.family}';\n\tfont-style: ${f.style};\n\tfont-weight: ${f.weight};\n\tfont-display: swap;\n\tsrc: url('${f.src}') format('woff2');\n}`,
-	).join('\n');
+  return FONT_FACES.map(
+    (f) =>
+      `@font-face {\n\tfont-family: '${f.family}';\n\tfont-style: ${f.style};\n\tfont-weight: ${f.weight};\n\tfont-display: swap;\n\tsrc: url('${f.src}') format('woff2');\n}`,
+  ).join('\n');
 }
 
 /**
@@ -49,8 +49,8 @@ export function generateFontFaceCss(): Str {
  * deriveErrorIdPrefix('Reference: {id}') // "Reference: "
  */
 export function deriveErrorIdPrefix(template: Str): Str {
-	const idx = template.indexOf('{id}');
-	return idx >= 0 ? template.slice(0, idx) : template;
+  const idx = template.indexOf('{id}');
+  return idx >= 0 ? template.slice(0, idx) : template;
 }
 
 /**
@@ -60,24 +60,24 @@ export function deriveErrorIdPrefix(template: Str): Str {
  * @returns Resolved HTML with all placeholders replaced
  */
 export function resolveErrorHtml(template: Str): Str {
-	const replacements: Record<Str, Str> = {
-		'{{APP_NAME}}': APP_NAME,
-		'{{FONT_FAMILIES}}': FONT_FAMILIES,
-		'{{FONT_FACE_CSS}}': generateFontFaceCss(),
-		'{{errors.serverError}}': en.errors.serverError,
-		'{{errors.serverErrorDescription}}': en.errors.serverErrorDescription,
-		'{{errors.goHome}}': en.errors.goHome,
-		'{{errors.copied}}': en.errors.copied,
-		'{{errors.copyFailed}}': en.errors.copyFailed,
-		'{{errors.copyErrorId}}': en.errors.copyErrorId,
-		'{{errors.errorIdPrefix}}': deriveErrorIdPrefix(en.errors.errorId),
-	};
+  const replacements: Record<Str, Str> = {
+    '{{APP_NAME}}': APP_NAME,
+    '{{FONT_FAMILIES}}': FONT_FAMILIES,
+    '{{FONT_FACE_CSS}}': generateFontFaceCss(),
+    '{{errors.serverError}}': en.errors.serverError,
+    '{{errors.serverErrorDescription}}': en.errors.serverErrorDescription,
+    '{{errors.goHome}}': en.errors.goHome,
+    '{{errors.copied}}': en.errors.copied,
+    '{{errors.copyFailed}}': en.errors.copyFailed,
+    '{{errors.copyErrorId}}': en.errors.copyErrorId,
+    '{{errors.errorIdPrefix}}': deriveErrorIdPrefix(en.errors.errorId),
+  };
 
-	let result = template;
-	for (const [placeholder, value] of Object.entries(replacements)) {
-		result = result.replaceAll(placeholder, value);
-	}
-	return result;
+  let result = template;
+  for (const [placeholder, value] of Object.entries(replacements)) {
+    result = result.replaceAll(placeholder, value);
+  }
+  return result;
 }
 
 /**
@@ -87,7 +87,7 @@ export function resolveErrorHtml(template: Str): Str {
  * @returns Resolved HTML with placeholder replaced
  */
 export function resolveAppHtml(template: Str): Str {
-	return template.replaceAll('{{APP_NAME}}', APP_NAME);
+  return template.replaceAll('{{APP_NAME}}', APP_NAME);
 }
 
 // ── Plugins ──────────────────────────────────────────────────────────────────
@@ -107,37 +107,37 @@ export function resolveAppHtml(template: Str): Str {
  * @returns Vite plugin instance
  */
 export function templateErrorHtml(): Plugin {
-	let originalContent: string | null = null;
-	let errorHtmlPath = '';
+  let originalContent: string | null = null;
+  let errorHtmlPath = '';
 
-	function restore(): void {
-		if (originalContent !== null && errorHtmlPath) {
-			writeFileSync(errorHtmlPath, originalContent, 'utf8');
-			originalContent = null;
-		}
-	}
+  function restore(): void {
+    if (originalContent !== null && errorHtmlPath) {
+      writeFileSync(errorHtmlPath, originalContent, 'utf8');
+      originalContent = null;
+    }
+  }
 
-	return {
-		name: 'template-error-html',
-		apply: 'build',
-		enforce: 'pre',
+  return {
+    name: 'template-error-html',
+    apply: 'build',
+    enforce: 'pre',
 
-		config(_config, env) {
-			if (env.command !== 'build') return;
-			errorHtmlPath = resolve(import.meta.dirname ?? '.', 'src/error.html');
-			originalContent = readFileSync(errorHtmlPath, 'utf8');
-			const resolved = resolveErrorHtml(originalContent);
-			writeFileSync(errorHtmlPath, resolved, 'utf8');
+    config(_config, env) {
+      if (env.command !== 'build') return;
+      errorHtmlPath = resolve(import.meta.dirname ?? '.', 'src/error.html');
+      originalContent = readFileSync(errorHtmlPath, 'utf8');
+      const resolved = resolveErrorHtml(originalContent);
+      writeFileSync(errorHtmlPath, resolved, 'utf8');
 
-			// Safety net: restore on abrupt process exit (e.g. Ctrl+C, SIGTERM)
-			process.on('exit', restore);
-		},
+      // Safety net: restore on abrupt process exit (e.g. Ctrl+C, SIGTERM)
+      process.on('exit', restore);
+    },
 
-		closeBundle() {
-			restore();
-			process.removeListener('exit', restore);
-		},
-	};
+    closeBundle() {
+      restore();
+      process.removeListener('exit', restore);
+    },
+  };
 }
 
 /**
@@ -152,34 +152,34 @@ export function templateErrorHtml(): Plugin {
  * @returns Vite plugin instance
  */
 export function templateAppHtml(): Plugin {
-	let originalContent: string | null = null;
-	let appHtmlPath = '';
+  let originalContent: string | null = null;
+  let appHtmlPath = '';
 
-	function restore(): void {
-		if (originalContent !== null && appHtmlPath) {
-			writeFileSync(appHtmlPath, originalContent, 'utf8');
-			originalContent = null;
-		}
-	}
+  function restore(): void {
+    if (originalContent !== null && appHtmlPath) {
+      writeFileSync(appHtmlPath, originalContent, 'utf8');
+      originalContent = null;
+    }
+  }
 
-	return {
-		name: 'template-app-html',
-		apply: 'build',
-		enforce: 'pre',
+  return {
+    name: 'template-app-html',
+    apply: 'build',
+    enforce: 'pre',
 
-		config(_config, env) {
-			if (env.command !== 'build') return;
-			appHtmlPath = resolve(import.meta.dirname ?? '.', 'src/app.html');
-			originalContent = readFileSync(appHtmlPath, 'utf8');
-			const resolved = resolveAppHtml(originalContent);
-			writeFileSync(appHtmlPath, resolved, 'utf8');
+    config(_config, env) {
+      if (env.command !== 'build') return;
+      appHtmlPath = resolve(import.meta.dirname ?? '.', 'src/app.html');
+      originalContent = readFileSync(appHtmlPath, 'utf8');
+      const resolved = resolveAppHtml(originalContent);
+      writeFileSync(appHtmlPath, resolved, 'utf8');
 
-			process.on('exit', restore);
-		},
+      process.on('exit', restore);
+    },
 
-		closeBundle() {
-			restore();
-			process.removeListener('exit', restore);
-		},
-	};
+    closeBundle() {
+      restore();
+      process.removeListener('exit', restore);
+    },
+  };
 }
