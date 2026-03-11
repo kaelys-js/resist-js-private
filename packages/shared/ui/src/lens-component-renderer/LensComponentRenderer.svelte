@@ -1700,6 +1700,23 @@ function buildDebugOutlineCSS(cardKey: Str): Str {
 	].join('\n');
 }
 
+/**
+ * Legend entries mapping debug outline colors to element categories.
+ * Colors match those used in `buildDebugOutlineCSS`.
+ */
+const DEBUG_OUTLINE_LEGEND: ReadonlyArray<{ color: Str; label: Str; elements: Str }> = [
+	{ color: 'rgba(59,130,246,0.6)', label: 'Semantic', elements: 'article, nav, aside, section, header, footer, main' },
+	{ color: 'rgba(99,102,241,0.6)', label: 'Headings', elements: 'h1–h6' },
+	{ color: 'rgba(147,197,253,0.4)', label: 'Containers', elements: 'div' },
+	{ color: 'rgba(96,165,250,0.5)', label: 'Text blocks', elements: 'p, hr, pre, blockquote' },
+	{ color: 'rgba(239,68,68,0.5)', label: 'Lists', elements: 'ol, ul, li, dl, dt, dd' },
+	{ color: 'rgba(168,85,247,0.6)', label: 'Media', elements: 'figure, img, iframe, video, audio, canvas, svg' },
+	{ color: 'rgba(20,184,166,0.5)', label: 'Tables', elements: 'table, thead, tbody, tr, th, td' },
+	{ color: 'rgba(249,115,22,0.6)', label: 'Forms', elements: 'button, input, select, textarea, form, fieldset, label' },
+	{ color: 'rgba(236,72,153,0.5)', label: 'Links', elements: 'a' },
+	{ color: 'rgba(244,63,94,0.4)', label: 'Inline', elements: 'em, strong, code, kbd, span, mark, abbr, …' },
+];
+
 /* ------------------------------------------------------------------ */
 /*  Measure / Inspect helpers                                          */
 /* ------------------------------------------------------------------ */
@@ -1708,11 +1725,19 @@ function buildDebugOutlineCSS(cardKey: Str): Str {
  * CSS property groups to display in the Inspect panel.
  */
 const INSPECT_GROUPS: ReadonlyArray<{ label: Str; props: readonly Str[] }> = [
-	{ label: 'Layout', props: ['display', 'position', 'width', 'height', 'box-sizing', 'overflow', 'flex-direction', 'align-items', 'justify-content', 'gap', 'grid-template-columns', 'grid-template-rows'] },
+	{ label: 'Dimensions', props: ['width', 'height', 'min-width', 'min-height', 'max-width', 'max-height', 'box-sizing'] },
+	{ label: 'Layout', props: ['display', 'position', 'top', 'right', 'bottom', 'left', 'z-index', 'float', 'clear', 'overflow', 'overflow-x', 'overflow-y', 'visibility'] },
+	{ label: 'Flexbox', props: ['flex-direction', 'flex-wrap', 'flex-grow', 'flex-shrink', 'flex-basis', 'align-items', 'align-self', 'align-content', 'justify-content', 'justify-items', 'justify-self', 'gap', 'row-gap', 'column-gap', 'order'] },
+	{ label: 'Grid', props: ['grid-template-columns', 'grid-template-rows', 'grid-column', 'grid-row', 'grid-auto-flow', 'grid-auto-columns', 'grid-auto-rows', 'place-items', 'place-content', 'place-self'] },
 	{ label: 'Spacing', props: ['margin-top', 'margin-right', 'margin-bottom', 'margin-left', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left'] },
-	{ label: 'Typography', props: ['font-family', 'font-size', 'font-weight', 'line-height', 'letter-spacing', 'text-align', 'color'] },
-	{ label: 'Border', props: ['border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width', 'border-radius', 'border-color', 'border-style'] },
-	{ label: 'Background', props: ['background-color', 'background-image', 'opacity'] },
+	{ label: 'Typography', props: ['font-family', 'font-size', 'font-weight', 'font-style', 'font-variant', 'line-height', 'letter-spacing', 'word-spacing', 'text-align', 'text-decoration', 'text-transform', 'text-indent', 'text-overflow', 'text-wrap', 'white-space', 'word-break', 'overflow-wrap', 'color', 'text-shadow'] },
+	{ label: 'Border', props: ['border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width', 'border-top-style', 'border-right-style', 'border-bottom-style', 'border-left-style', 'border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color', 'border-top-left-radius', 'border-top-right-radius', 'border-bottom-right-radius', 'border-bottom-left-radius', 'outline-width', 'outline-style', 'outline-color', 'outline-offset'] },
+	{ label: 'Background', props: ['background-color', 'background-image', 'background-size', 'background-position', 'background-repeat', 'background-attachment', 'background-clip', 'background-origin'] },
+	{ label: 'Effects', props: ['opacity', 'box-shadow', 'filter', 'backdrop-filter', 'mix-blend-mode', 'isolation', 'clip-path', 'mask-image'] },
+	{ label: 'Transform', props: ['transform', 'transform-origin', 'perspective', 'perspective-origin'] },
+	{ label: 'Transition & Animation', props: ['transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay', 'animation-name', 'animation-duration', 'animation-timing-function', 'animation-delay', 'animation-iteration-count', 'animation-direction'] },
+	{ label: 'Interaction', props: ['cursor', 'pointer-events', 'user-select', 'touch-action', 'scroll-behavior', 'scroll-snap-type', 'scroll-snap-align', 'resize'] },
+	{ label: 'Container', props: ['container-type', 'container-name', 'contain', 'content-visibility'] },
 ];
 
 /**
@@ -1768,9 +1793,11 @@ function collectInspectData(el: Element): typeof cardInspectedEl[Str] {
 
 	for (const group of INSPECT_GROUPS) {
 		const groupStyles: Record<Str, Str> = {};
+		/** Default/empty values to skip — reduces noise in the panel. */
+		const SKIP_VALS: ReadonlySet<Str> = new Set(['', 'none', 'normal', '0px', '0', 'auto', 'rgba(0, 0, 0, 0)', 'start', 'stretch', 'baseline', 'visible', 'static', 'content-box', 'ltr', 'separate', 'inline', 'repeat', 'padding-box', 'border-box', 'scroll']);
 		for (const prop of group.props) {
 			const val: Str = cs.getPropertyValue(prop);
-			if (val && val !== 'none' && val !== 'normal' && val !== '0px' && val !== 'auto' && val !== 'rgba(0, 0, 0, 0)') {
+			if (val && !SKIP_VALS.has(val)) {
 				groupStyles[prop] = val;
 			}
 		}
@@ -1781,7 +1808,7 @@ function collectInspectData(el: Element): typeof cardInspectedEl[Str] {
 
 	return {
 		tag: el.tagName.toLowerCase(),
-		classes: el.className && typeof el.className === 'string' ? el.className.split(/\s+/).slice(0, 8).join(' ') : '',
+		classes: el.className && typeof el.className === 'string' ? el.className.split(/\s+/).slice(0, 20).join(' ') : '',
 		id: el.id || '',
 		rect: { width: Math.round(rect.width), height: Math.round(rect.height), top: Math.round(rect.top), left: Math.round(rect.left) },
 		styles,
@@ -2556,7 +2583,39 @@ function isIconOption(option: Str): boolean {
 				{@render toolbarButton(ZoomIn, 'Zoom in', () => zoomIn(cardKey), activeZoom >= ZOOM_MAX)}
 				{@render toolbarButton(Maximize, 'Fit (100%)', () => zoomFit(cardKey), activeZoom === 1)}
 				<span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
-				{@render toolbarToggle(ScanLine, 'Debug outlines', cardDebugOutline[cardKey] ?? false, () => { cardDebugOutline[cardKey] = !cardDebugOutline[cardKey]; })}
+				<Popover.Root>
+					<Popover.Trigger>
+						<button
+							type="button"
+							class={cn(
+								'inline-flex size-7 items-center justify-center rounded-md transition-colors',
+								(cardDebugOutline[cardKey] ?? false) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+							)}
+							onclick={() => { cardDebugOutline[cardKey] = !cardDebugOutline[cardKey]; }}
+							aria-pressed={cardDebugOutline[cardKey] ?? false}
+							aria-label="Debug outlines"
+						>
+							<ScanLine class="size-3.5" aria-hidden="true" />
+						</button>
+					</Popover.Trigger>
+					<Popover.Content side="bottom" align="start" class="w-72 p-0">
+						<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-2">
+							<h4 class="text-xs font-semibold">Debug Outline Legend</h4>
+							<span class="text-[10px] text-muted-foreground">{(cardDebugOutline[cardKey] ?? false) ? 'Active' : 'Inactive'}</span>
+						</div>
+						<div class="space-y-0">
+							{#each DEBUG_OUTLINE_LEGEND as entry (entry.label)}
+								<div class="flex items-center gap-2.5 border-b px-3 py-1.5 last:border-b-0">
+									<span class="inline-block size-2.5 shrink-0 rounded-sm" style="background:{entry.color};outline:1px solid {entry.color}"></span>
+									<div class="min-w-0">
+										<span class="text-[11px] font-medium">{entry.label}</span>
+										<span class="ml-1 text-[10px] text-muted-foreground">{entry.elements}</span>
+									</div>
+								</div>
+							{/each}
+						</div>
+					</Popover.Content>
+				</Popover.Root>
 				{@render toolbarToggle(Ruler, 'Measure', cardMeasureActive[cardKey] ?? false, () => { cardMeasureActive[cardKey] = !cardMeasureActive[cardKey]; if (!cardMeasureActive[cardKey]) cardMeasureData[cardKey] = null; })}
 				{@render toolbarToggle(MousePointerClick, 'Inspect', cardInspectActive[cardKey] ?? false, () => { cardInspectActive[cardKey] = !cardInspectActive[cardKey]; if (!cardInspectActive[cardKey]) cardInspectedEl[cardKey] = null; })}
 				<span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
