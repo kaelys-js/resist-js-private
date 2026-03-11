@@ -32,7 +32,8 @@
     "svelte": "^5.53.5",
     "tailwind-merge": "^3.5.0",
     "tailwind-variants": "^3.2.2",
-    "valibot": "^1.2.0"
+    "valibot": "^1.2.0",
+    "ws": "^8.19.0"
   },
   "devDependencies": {
     "@/config/test": "workspace:*",
@@ -46,6 +47,7 @@
     "@tanstack/table-core": "^8.21.3",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/svelte": "^5.3.1",
+    "@types/ws": "^8.18.1",
     "embla-carousel-svelte": "^8.6.0",
     "esbuild": "^0.27.3",
     "formsnap": "^2.0.1",

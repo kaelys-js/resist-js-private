@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 956" width="440" height="956">
+  <rect x="0" y="0" width="440" height="956" rx="54" fill="#1a1a1a"/>
+  <rect x="18" y="18" width="404" height="920" rx="42" fill="#000"/>
+  <!-- Dynamic Island -->
+  <rect x="170" y="26" width="100" height="28" rx="14" fill="#1a1a1a"/>
+  <!-- Side buttons -->
+  <rect x="-2" y="220" width="4" height="30" rx="2" fill="#2a2a2a"/>
+  <rect x="-2" y="280" width="4" height="60" rx="2" fill="#2a2a2a"/>
+  <rect x="-2" y="350" width="4" height="60" rx="2" fill="#2a2a2a"/>
+  <rect x="438" y="300" width="4" height="80" rx="2" fill="#2a2a2a"/>
+</svg>

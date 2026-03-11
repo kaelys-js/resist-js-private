@@ -80,7 +80,12 @@
     "__GIT_DIRTY__": "readonly",
     "__BUILD_TIMESTAMP__": "readonly",
     "__dirname": "readonly",
-    "__filename": "readonly"
+    "__filename": "readonly",
+    "EventTarget": "readonly",
+    "Event": "readonly",
+    "CustomEvent": "readonly",
+    "ReadableStream": "readonly",
+    "ReadableStreamDefaultController": "readonly"
   },
   "rules": {
     "no-inline-comments": "off",

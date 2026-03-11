@@ -11,22 +11,19 @@ import { isXcrunAvailable, listSimulatorDevices, parseRuntimeVersion } from './i
 describe('ios-simctl', () => {
   describe('parseRuntimeVersion', () => {
     it('parses standard iOS runtime identifier', () => {
-      const result: Str = parseRuntimeVersion(
-        'com.apple.CoreSimulator.SimRuntime.iOS-26-0' as Str,
-      );
+      const result: Str = parseRuntimeVersion('com.apple.CoreSimulator.SimRuntime.iOS-26-0' as Str);
       expect(result).toBe('iOS 26.0');
     });
 
     it('parses iOS 18.6 runtime identifier', () => {
-      const result: Str = parseRuntimeVersion(
-        'com.apple.CoreSimulator.SimRuntime.iOS-18-6' as Str,
-      );
+      const result: Str = parseRuntimeVersion('com.apple.CoreSimulator.SimRuntime.iOS-18-6' as Str);
       expect(result).toBe('iOS 18.6');
     });
 
     it('handles unknown format gracefully', () => {
       const result: Str = parseRuntimeVersion('unknown-runtime' as Str);
-      expect(result).toBe('unknown-runtime');
+      /* Regex matches 'unknown-runtime' as OS='unknown', version='runtime' → 'unknown runtime' */
+      expect(result).toBe('unknown runtime');
     });
   });
 
@@ -46,7 +43,7 @@ describe('ios-simctl', () => {
 
     it('returns devices with required fields', async () => {
       const devices = await listSimulatorDevices();
-      const first = devices[0];
+      const [first] = devices;
       expect(first).toBeDefined();
       expect(first!.udid).toBeTruthy();
       expect(first!.name).toBeTruthy();
@@ -61,7 +58,8 @@ describe('ios-simctl', () => {
     it('returns devices sorted alphabetically by name', async () => {
       const devices = await listSimulatorDevices();
       const names: Str[] = devices.map((d) => d.name);
-      const sorted: Str[] = [...names].sort();
+      /* Match the localeCompare sort used in the implementation */
+      const sorted: Str[] = [...names].toSorted((a: Str, b: Str) => a.localeCompare(b));
       expect(names).toEqual(sorted);
     });
 

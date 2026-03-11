@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 416 796" width="416" height="796">
+  <rect x="0" y="0" width="416" height="796" rx="40" fill="#1a1a1a"/>
+  <rect x="28" y="100" width="360" height="640" rx="0" fill="#000"/>
+  <!-- Home button -->
+  <circle cx="208" cy="756" r="28" fill="#2a2a2a" stroke="#3a3a3a" stroke-width="2"/>
+  <!-- Speaker grille -->
+  <rect x="168" y="46" width="80" height="8" rx="4" fill="#2a2a2a"/>
+  <!-- Camera -->
+  <circle cx="208" cy="34" r="6" fill="#2a2a2a"/>
+  <!-- Side buttons -->
+  <rect x="-2" y="160" width="4" height="30" rx="2" fill="#2a2a2a"/>
+  <rect x="-2" y="220" width="4" height="50" rx="2" fill="#2a2a2a"/>
+  <rect x="-2" y="280" width="4" height="50" rx="2" fill="#2a2a2a"/>
+  <rect x="414" y="240" width="4" height="70" rx="2" fill="#2a2a2a"/>
+</svg>

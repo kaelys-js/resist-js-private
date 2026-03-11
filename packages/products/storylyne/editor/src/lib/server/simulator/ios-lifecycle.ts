@@ -69,20 +69,25 @@ export async function bootSimulator(udid: Str): Promise<Bool> {
  * @returns `true` when device is booted
  * @throws If timeout expires before device boots
  */
-export async function waitForBoot(
-  udid: Str,
-  timeoutMs: Num = BOOT_TIMEOUT_MS,
-): Promise<Bool> {
+export function waitForBoot(udid: Str, timeoutMs: Num = BOOT_TIMEOUT_MS): Promise<Bool> {
   const deadline: Num = (Date.now() + timeoutMs) as Num;
 
-  while (Date.now() < deadline) {
+  /**
+   * Recursive poll step — checks device state, waits, and recurses.
+   *
+   * @returns `true` when device reaches 'Booted' state
+   */
+  const poll = async (): Promise<Bool> => {
+    if (Date.now() >= deadline) {
+      throw new Error(`Simulator ${udid} did not boot within ${timeoutMs}ms`);
+    }
     const state: Str = await getDeviceState(udid);
     if (state === 'Booted') return true as Bool;
-
     await sleep(BOOT_POLL_INTERVAL_MS);
-  }
+    return poll();
+  };
 
-  throw new Error(`Simulator ${udid} did not boot within ${timeoutMs}ms`);
+  return poll();
 }
 
 /**
@@ -134,6 +139,7 @@ export async function getDeviceState(udid: Str): Promise<Str> {
  * Sleep for the specified duration.
  *
  * @param ms - Milliseconds to sleep
+ * @returns Promise that resolves after the specified delay
  */
 function sleep(ms: Num): Promise<void> {
   return new Promise<void>((resolve) => {
