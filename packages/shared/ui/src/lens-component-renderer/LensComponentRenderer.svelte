@@ -2923,10 +2923,46 @@ async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promis
 	let endpoint: Str;
 	if (source === 'ios-simulator') {
 		endpoint = '/api/lens/screenshot/ios' as Str;
-		/* iOS uses a fixed device from the simulator pool — no browser/device params */
+		if (device) params.set('device', device);
+
+		/* iOS accessibility settings */
+		const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+		if (prefs) {
+			if (prefs['reduced-motion'] === 'reduce') params.set('reduceMotion', 'true');
+			if (prefs['prefers-contrast'] === 'more') params.set('increaseContrast', 'true');
+			if (prefs['prefers-reduced-transparency'] === 'reduce') params.set('reduceTransparency', 'true');
+		}
+
+		/* Map font size to iOS Dynamic Type content size */
+		const fontSize: Num = cardFontSize[key] ?? 0;
+		if (fontSize > 0) {
+			/* Approximate mapping: <14px → XS, 14–15 → S, 16 → M, 17–19 → L, 20–23 → XL, 24–27 → XXL, 28+ → XXXL */
+			let contentSize: Str = 'UICTContentSizeCategoryL' as Str;
+			if (fontSize < 14) contentSize = 'UICTContentSizeCategoryXS' as Str;
+			else if (fontSize < 16) contentSize = 'UICTContentSizeCategoryS' as Str;
+			else if (fontSize < 17) contentSize = 'UICTContentSizeCategoryM' as Str;
+			else if (fontSize < 20) contentSize = 'UICTContentSizeCategoryL' as Str;
+			else if (fontSize < 24) contentSize = 'UICTContentSizeCategoryXL' as Str;
+			else if (fontSize < 28) contentSize = 'UICTContentSizeCategoryXXL' as Str;
+			else contentSize = 'UICTContentSizeCategoryAccessibilityXXXL' as Str;
+			params.set('contentSize', contentSize);
+		}
 	} else if (source === 'android-emulator') {
 		endpoint = '/api/lens/screenshot/android' as Str;
-		/* Android uses the emulator pool — no browser/device params */
+		if (device) params.set('avd', device);
+
+		/* Android accessibility settings */
+		const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+		if (prefs && prefs['reduced-motion'] === 'reduce') {
+			params.set('animationScale', '0');
+		}
+
+		/* Map font size to Android font scale */
+		const fontSize: Num = cardFontSize[key] ?? 0;
+		if (fontSize > 0) {
+			const fontScale: Num = (fontSize / 16) as Num;
+			params.set('fontScale', String(fontScale));
+		}
 	} else {
 		endpoint = '/api/lens/screenshot' as Str;
 		/* Playwright-specific params */
@@ -3064,6 +3100,39 @@ async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promis
 			displayDeviceOS = (matchedDevice?.os ?? '') as Str;
 		}
 
+		/* Extract safe area insets (iOS only) */
+		const rawInsets: Record<Str, unknown> | undefined = (
+			typeof body.safeAreaInsets === 'object' && body.safeAreaInsets !== null
+				? body.safeAreaInsets
+				: undefined
+		) as Record<Str, unknown> | undefined;
+		const safeAreaInsets: ScreenshotCapture['safeAreaInsets'] = rawInsets
+			? {
+					top: (rawInsets.top ?? 0) as Num,
+					right: (rawInsets.right ?? 0) as Num,
+					bottom: (rawInsets.bottom ?? 0) as Num,
+					left: (rawInsets.left ?? 0) as Num,
+				}
+			: undefined;
+
+		/* Extract device frame data (iOS/Android) */
+		const rawFrame: Record<Str, unknown> | undefined = (
+			typeof body.deviceFrame === 'object' && body.deviceFrame !== null
+				? body.deviceFrame
+				: undefined
+		) as Record<Str, unknown> | undefined;
+		const deviceFrame: ScreenshotCapture['deviceFrame'] = rawFrame
+			? {
+					frameId: (rawFrame.frameId ?? '') as Str,
+					screenRegion: (rawFrame.screenRegion ?? { x: 0, y: 0, width: 0, height: 0 }) as {
+						x: Num;
+						y: Num;
+						width: Num;
+						height: Num;
+					},
+				}
+			: undefined;
+
 		const capture: ScreenshotCapture = {
 			source,
 			browser: displayBrowser,
@@ -3075,6 +3144,8 @@ async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promis
 			timestamp: Date.now() as Num,
 			consoleLogs,
 			performance: perfData,
+			...(safeAreaInsets ? { safeAreaInsets } : {}),
+			...(deviceFrame ? { deviceFrame } : {}),
 		};
 
 		const existing: ScreenshotCapture[] = cardScreenshots[key] ?? [];

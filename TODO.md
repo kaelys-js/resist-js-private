@@ -21,6 +21,7 @@ Several Issues:
 
 Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
 
+- pnpm qa:test, pnpm qa:type-check don't seem to have turbo?
 - BrowserRender: Real Devices (are iOS/Android Simulators and Playwright Enough?)
 - LensComponentRenderer Performance Statistics: Are they missing INP?
 - The Sidebar/CommandSearch components don't render right contained to preview (use playwright mcp any you will see what i mean)

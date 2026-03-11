@@ -46,6 +46,8 @@ import { acquireSimulator, releaseSimulator } from '$lib/server/simulator/ios-po
 import { captureSimulatorScreenshot } from '$lib/server/simulator/ios-screenshot';
 import { isXcrunAvailable, listSimulatorDevices } from '$lib/server/simulator/ios-simctl';
 import { openUrlInSimulator } from '$lib/server/simulator/ios-navigate';
+import { getStaticSafeAreaInsets, type SafeAreaInsets } from '$lib/server/simulator/ios-safe-area';
+import { findDeviceFrameByName, type DeviceFrame } from '$lib/server/simulator/device-frames';
 
 /* ------------------------------------------------------------------ */
 /*  GET handler                                                        */
@@ -179,6 +181,12 @@ export const GET: RequestHandler = async ({ url }) => {
       const pngBuffer: Buffer = await captureSimulatorScreenshot(sim.udid);
       const imageBase64: Str = pngBuffer.toString('base64') as Str;
 
+      /* Look up safe area insets for this device model */
+      const safeAreaInsets: SafeAreaInsets | null = getStaticSafeAreaInsets(targetDevice.name);
+
+      /* Look up a matching device frame bezel */
+      const deviceFrame: DeviceFrame | null = findDeviceFrameByName(targetDevice.name);
+
       /* Build response JSON — same shape as Playwright screenshot API */
       const responseBody: Record<Str, unknown> = {
         image: imageBase64,
@@ -191,6 +199,15 @@ export const GET: RequestHandler = async ({ url }) => {
         consoleLogs: formatConsoleMessages(consoleLogs),
         performance: {},
         debugProxyAvailable,
+        ...(safeAreaInsets ? { safeAreaInsets } : {}),
+        ...(deviceFrame
+          ? {
+              deviceFrame: {
+                frameId: deviceFrame.framePath,
+                screenRegion: deviceFrame.screenRegion,
+              },
+            }
+          : {}),
       };
 
       return new Response(JSON.stringify(responseBody), {
