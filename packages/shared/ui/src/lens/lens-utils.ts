@@ -144,3 +144,30 @@ export function findPrimaryKey(dir: Str, rawSources: Record<Str, unknown>): Str 
 export function parseLensMeta(raw: unknown): Result<LensMeta> {
 	return safeParse(LensMetaSchema, raw);
 }
+
+/** Regex to capture the first JSDoc block inside `<script lang="ts">`. */
+const INSTANCE_JSDOC_RE: RegExp = /<script\s+lang="ts">\s*\/\*\*\s*([\s\S]*?)\*\//;
+
+/**
+ * Extract the component-level JSDoc description from a raw `.svelte` source.
+ *
+ * Looks for the first `/** ... *​/` block immediately after `<script lang="ts">`
+ * and returns the first sentence (the summary line).
+ *
+ * @param src - Raw `.svelte` file content
+ * @returns The JSDoc summary, or undefined if none found
+ *
+ * @example
+ * ```typescript
+ * extractComponentDescription(raw); // 'Dependency tree visualization for Lens documentation pages.'
+ * ```
+ */
+export function extractComponentDescription(src: Str): Str | undefined {
+	const match: RegExpExecArray | null = INSTANCE_JSDOC_RE.exec(src);
+	if (!match?.[1]) return undefined;
+	const firstLine: Str | undefined = match[1]
+		.split('\n')
+		.map((l: Str): Str => l.replace(/^\s*\*\s?/, '').trim())
+		.find((l: Str): boolean => l.length > 0);
+	return firstLine;
+}
