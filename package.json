@@ -17,10 +17,10 @@
     "qa:test:coverage": "vitest run --coverage",
     "qa:benchmark": "vitest bench",
     "TODO:qa-scope": "TODO: Expand qa:type-check and qa:lint scope as packages stabilize",
-    "qa:type-check": "turbo qa:type-check --filter='./packages/products/webforge/*' --filter='@/ui' --filter='@/locale' --filter='@/schemas/common'",
+    "qa:type-check": "turbo qa:type-check --filter='./packages/products/storylyne/*' --filter='@/ui' --filter='@/locale' --filter='@/schemas/common'",
     "qa:format": "biome format --write . && prettier --write '**/*.svelte'",
     "qa:format:check": "biome format . && prettier --check '**/*.svelte'",
-    "qa:lint": "oxlint packages/products/webforge packages/shared/ui packages/shared/locale packages/shared/schemas/common"
+    "qa:lint": "oxlint packages/products/storylyne packages/shared/ui packages/shared/locale packages/shared/schemas/common --ignore-pattern 'packages/products/storylyne/runtime/dev/**'"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
