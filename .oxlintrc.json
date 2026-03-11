@@ -563,7 +563,8 @@
         "**/debug/state-logger.svelte.ts",
         "**/debug/devtools-api.svelte.ts",
         "**/perf/vitals-logger.ts",
-        "**/lens-stats/LensStats.svelte"
+        "**/lens-stats/LensStats.svelte",
+        "**/lens-component-renderer/LensComponentRenderer.svelte"
       ],
       "rules": {
         "no-console": "off"

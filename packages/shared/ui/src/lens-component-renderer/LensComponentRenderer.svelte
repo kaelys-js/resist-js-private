@@ -115,6 +115,8 @@ import CopyCheck from '@lucide/svelte/icons/copy-check';
 import Ruler from '@lucide/svelte/icons/ruler';
 import ScanLine from '@lucide/svelte/icons/scan-line';
 import MousePointerClick from '@lucide/svelte/icons/mouse-pointer-click';
+import Terminal from '@lucide/svelte/icons/terminal';
+import Trash2 from '@lucide/svelte/icons/trash-2';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 import * as Popover from '../popover/index.js';
 import { exportPng, exportJpeg, exportSvg, exportWebp, copyImageToClipboard, copyHtml, copyDataUri, downloadHtml, downloadStandaloneHtml } from '../lens/export-utils.js';
@@ -240,6 +242,18 @@ let cardMeasureData: Record<Str, {
 	/** Overall element height. */
 	height: Num;
 } | null> = $state({});
+
+/** Per-card console panel visibility keyed by card identifier. */
+let cardConsoleOpen: Record<Str, Bool> = $state({});
+
+/** Per-card console log entries keyed by card identifier. */
+let cardConsoleLogs: Record<Str, ConsoleLogEntry[]> = $state({});
+
+/** Per-card console observer cleanup functions keyed by card identifier. */
+let cardConsoleCleanup: Record<Str, (() => void) | null> = $state({});
+
+/** Per-card console mount timestamp keyed by card identifier. */
+let cardConsoleMountTime: Record<Str, Num> = $state({});
 
 /** Per-card fullscreen state keyed by card identifier. */
 let cardFullscreen: Record<Str, Bool> = $state({});
@@ -1499,6 +1513,7 @@ function collectCardStyles(key: Str): Record<Str, Str> {
 	if (cardDebugOutline[key]) s.debugOutline = '1';
 	if (cardMeasureActive[key]) s.measure = '1';
 	if (cardInspectActive[key]) s.inspect = '1';
+	if (cardConsoleOpen[key]) s.console = '1';
 	return s;
 }
 
@@ -1716,6 +1731,318 @@ const DEBUG_OUTLINE_LEGEND: ReadonlyArray<{ color: Str; label: Str; elements: St
 	{ color: 'rgba(236,72,153,0.5)', label: 'Links', elements: 'a' },
 	{ color: 'rgba(244,63,94,0.4)', label: 'Inline', elements: 'em, strong, code, kbd, span, mark, abbr, …' },
 ];
+
+/* ------------------------------------------------------------------ */
+/*  Debug Console — types + capture helpers                            */
+/* ------------------------------------------------------------------ */
+
+/** A single debug console log entry. */
+type ConsoleLogEntry = {
+	/** Entry type category. */
+	type: 'console' | 'event' | 'mutation' | 'lifecycle' | 'render';
+	/** Console level or event sub-type. */
+	level: 'log' | 'info' | 'warn' | 'error' | 'debug' | 'event' | 'mutation' | 'lifecycle' | 'render';
+	/** Primary message text. */
+	message: Str;
+	/** Optional detail (expanded args, mutation diff, event info). */
+	detail: Str;
+	/** Milliseconds since component mount. */
+	ts: Num;
+	/** Source file:line from __svelte_meta when available. */
+	source: Str;
+};
+
+/** Maximum console entries per card before oldest are dropped. */
+const CONSOLE_MAX_ENTRIES: Num = 500;
+
+/** DOM events to capture from the preview container. */
+const CAPTURED_EVENTS: readonly Str[] = ['click', 'input', 'change', 'focus', 'blur', 'keydown', 'submit', 'pointerdown', 'pointerup'];
+
+/**
+ * Serialize a value for console log display.
+ *
+ * @param val - Value to serialize
+ * @returns Formatted string representation
+ */
+function serializeArg(val: unknown): Str {
+	if (val === null) return 'null';
+	if (val === undefined) return 'undefined';
+	if (typeof val === 'string') return val;
+	if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+	try {
+		return JSON.stringify(val, null, 2);
+	} catch {
+		/* Circular or unserializable — fall back to toString */
+		return String(val);
+	}
+}
+
+/**
+ * Get the __svelte_meta source location from a DOM element if available.
+ *
+ * @param el - DOM element to inspect
+ * @returns Source location string like "Button.svelte:15" or empty string
+ */
+function getSvelteMeta(el: Element | null): Str {
+	if (!el) return '';
+	/* __svelte_meta is attached by Svelte 5 compiler in dev mode */
+	const svelteMeta = (el as unknown as Record<Str, unknown>).__svelte_meta as { loc?: { file?: Str; line?: Num } } | undefined;
+	if (!svelteMeta?.loc?.file) return '';
+	const file: Str = svelteMeta.loc.file.split('/').pop() ?? svelteMeta.loc.file;
+	return `${file}:${svelteMeta.loc.line ?? '?'}`;
+}
+
+/**
+ * Push a log entry to a card's console log, enforcing max capacity.
+ *
+ * @param key - Card identifier
+ * @param entry - Log entry to add
+ */
+function pushConsoleLog(key: Str, entry: ConsoleLogEntry): Void {
+	const logs: ConsoleLogEntry[] = cardConsoleLogs[key] ?? [];
+	logs.push(entry);
+	if (logs.length > CONSOLE_MAX_ENTRIES) logs.splice(0, logs.length - CONSOLE_MAX_ENTRIES);
+	cardConsoleLogs[key] = logs;
+}
+
+/**
+ * Start capturing console output, DOM events, and mutations for a card.
+ * Returns a cleanup function that restores originals and disconnects observers.
+ *
+ * @param key - Card identifier
+ * @param container - Preview container div element
+ * @returns Cleanup function that restores console and disconnects observers
+ */
+// oxlint-ignore-next-line max-lines-per-function -- orchestrates 4 capture systems (console, events, mutations, lifecycle)
+function startConsoleCapture(key: Str, container: HTMLDivElement): () => void {
+	const mountTime: Num = performance.now();
+	cardConsoleMountTime[key] = mountTime;
+
+	/* --- Lifecycle: mount --- */
+	pushConsoleLog(key, { type: 'lifecycle', level: 'lifecycle', message: 'Component mounted', detail: '', ts: 0, source: '' });
+
+	/* --- Console interception --- */
+	const origLog: typeof console.log = console.log;
+	const origInfo: typeof console.info = console.info;
+	const origWarn: typeof console.warn = console.warn;
+	const origError: typeof console.error = console.error;
+	const origDebug: typeof console.debug = console.debug;
+
+	/**
+	 * Create a console method interceptor that captures output.
+	 *
+	 * @param level - Console level to capture
+	 * @param orig - Original console method
+	 * @returns Wrapped console method
+	 */
+	function makeInterceptor(level: 'log' | 'info' | 'warn' | 'error' | 'debug', orig: (...args: unknown[]) => void): (...args: unknown[]) => void {
+		return (...args: unknown[]): void => {
+			const ts: Num = Math.round((performance.now() - mountTime) * 100) / 100;
+			pushConsoleLog(key, {
+				type: 'console',
+				level,
+				message: serializeArg(args[0]),
+				detail: args.length > 1 ? args.slice(1).map(serializeArg).join(' ') : '',
+				ts,
+				source: '',
+			});
+			orig.apply(console, args);
+		};
+	}
+
+	console.log = makeInterceptor('log', origLog);
+	console.info = makeInterceptor('info', origInfo);
+	console.warn = makeInterceptor('warn', origWarn);
+	console.error = makeInterceptor('error', origError);
+	console.debug = makeInterceptor('debug', origDebug);
+
+	/* --- DOM event capture --- */
+	/**
+	 * Handle a captured DOM event from the preview container.
+	 *
+	 * @param e - The captured DOM event
+	 */
+	function handleEvent(e: Event): void {
+		const ts: Num = Math.round((performance.now() - mountTime) * 100) / 100;
+		const target: Element | null = e.target instanceof Element ? e.target : null;
+		const tag: Str = target?.tagName.toLowerCase() ?? '?';
+		const cls: Str = target?.className && typeof target.className === 'string' ? `.${target.className.split(/\s+/).slice(0, 3).join('.')}` : '';
+		let detail: Str = '';
+		if (e instanceof KeyboardEvent) detail = `key: ${e.key}`;
+		else if (e instanceof InputEvent || (e.target instanceof HTMLInputElement)) {
+			const inp = e.target as HTMLInputElement | null;
+			if (inp) detail = `value: ${inp.value?.slice(0, 80) ?? ''}`;
+		}
+		pushConsoleLog(key, {
+			type: 'event',
+			level: 'event',
+			message: `${e.type} <${tag}${cls}>`,
+			detail,
+			ts,
+			source: getSvelteMeta(target),
+		});
+	}
+
+	for (const evt of CAPTURED_EVENTS) {
+		container.addEventListener(evt, handleEvent, true);
+	}
+
+	/* --- MutationObserver --- */
+	let lastMutationTime: Num = mountTime;
+
+	const observer: MutationObserver = new MutationObserver((mutations: MutationRecord[]): void => {
+		const now: Num = performance.now();
+		const delta: Num = Math.round((now - lastMutationTime) * 100) / 100;
+		lastMutationTime = now;
+		const ts: Num = Math.round((now - mountTime) * 100) / 100;
+
+		/* Log render cycle */
+		pushConsoleLog(key, {
+			type: 'render',
+			level: 'render',
+			message: `Re-render (${mutations.length} mutation${mutations.length === 1 ? '' : 's'}, +${delta}ms)`,
+			detail: '',
+			ts,
+			source: '',
+		});
+
+		/* Log individual mutations (cap at 10 per batch to avoid flooding) */
+		const mutCap: Num = Math.min(mutations.length, 10);
+		for (let i: Num = 0; i < mutCap; i++) {
+			const m: MutationRecord | undefined = mutations[i];
+			if (!m) continue;
+			const target: Element | null = m.target instanceof Element ? m.target : m.target.parentElement;
+			const tag: Str = target?.tagName.toLowerCase() ?? '?';
+			const source: Str = getSvelteMeta(target);
+
+			if (m.type === 'attributes' && m.attributeName) {
+				const newVal: Str = (target?.getAttribute(m.attributeName) ?? '').slice(0, 60);
+				const oldVal: Str = (m.oldValue ?? '').slice(0, 60);
+				pushConsoleLog(key, {
+					type: 'mutation',
+					level: 'mutation',
+					message: `attr <${tag}> ${m.attributeName}`,
+					detail: `"${oldVal}" → "${newVal}"`,
+					ts,
+					source,
+				});
+			} else if (m.type === 'characterData') {
+				const oldVal: Str = (m.oldValue ?? '').slice(0, 60);
+				const newVal: Str = (m.target.textContent ?? '').slice(0, 60);
+				pushConsoleLog(key, {
+					type: 'mutation',
+					level: 'mutation',
+					message: `text <${tag}>`,
+					detail: `"${oldVal}" → "${newVal}"`,
+					ts,
+					source,
+				});
+			} else if (m.type === 'childList') {
+				const added: Num = m.addedNodes.length;
+				const removed: Num = m.removedNodes.length;
+				const parts: Str[] = [];
+				if (added > 0) parts.push(`+${added} added`);
+				if (removed > 0) parts.push(`-${removed} removed`);
+				pushConsoleLog(key, {
+					type: 'mutation',
+					level: 'mutation',
+					message: `children <${tag}>`,
+					detail: parts.join(', '),
+					ts,
+					source,
+				});
+			}
+		}
+		if (mutations.length > 10) {
+			pushConsoleLog(key, {
+				type: 'mutation',
+				level: 'mutation',
+				message: `… and ${mutations.length - 10} more mutations`,
+				detail: '',
+				ts,
+				source: '',
+			});
+		}
+	});
+
+	observer.observe(container, {
+		childList: true,
+		subtree: true,
+		attributes: true,
+		attributeOldValue: true,
+		characterData: true,
+		characterDataOldValue: true,
+	});
+
+	/* --- Cleanup function --- */
+	return (): void => {
+		console.log = origLog;
+		console.info = origInfo;
+		console.warn = origWarn;
+		console.error = origError;
+		console.debug = origDebug;
+		for (const evt of CAPTURED_EVENTS) {
+			container.removeEventListener(evt, handleEvent, true);
+		}
+		observer.disconnect();
+		const ts: Num = Math.round((performance.now() - mountTime) * 100) / 100;
+		pushConsoleLog(key, { type: 'lifecycle', level: 'lifecycle', message: 'Component unmounted', detail: '', ts, source: '' });
+	};
+}
+
+/**
+ * Get the Tailwind text color class for a console log level.
+ *
+ * @param level - Log level
+ * @returns CSS class string
+ */
+function getConsoleColor(level: ConsoleLogEntry['level']): Str {
+	if (level === 'error') return 'text-red-500';
+	if (level === 'warn') return 'text-amber-500';
+	if (level === 'info') return 'text-blue-400';
+	if (level === 'debug') return 'text-muted-foreground/60';
+	if (level === 'event') return 'text-violet-400';
+	if (level === 'mutation') return 'text-teal-400';
+	if (level === 'lifecycle') return 'text-emerald-400';
+	if (level === 'render') return 'text-indigo-400';
+	return 'text-muted-foreground';
+}
+
+/**
+ * Get a short label for a console log level.
+ *
+ * @param level - Log level
+ * @returns Short label string
+ */
+function getConsoleLabel(level: ConsoleLogEntry['level']): Str {
+	if (level === 'error') return 'ERR';
+	if (level === 'warn') return 'WRN';
+	if (level === 'info') return 'INF';
+	if (level === 'debug') return 'DBG';
+	if (level === 'event') return 'EVT';
+	if (level === 'mutation') return 'MUT';
+	if (level === 'lifecycle') return 'LCY';
+	if (level === 'render') return 'RND';
+	return 'LOG';
+}
+
+/**
+ * Svelte use: action to start console capture on mount and clean up on destroy.
+ *
+ * @param node - The preview container div
+ * @param key - Card identifier
+ * @returns Action lifecycle object with destroy callback
+ */
+function consoleCapture(node: HTMLDivElement, key: Str): { destroy: () => void } {
+	const cleanup: () => void = startConsoleCapture(key, node);
+	cardConsoleCleanup[key] = cleanup;
+	return {
+		destroy(): void {
+			cleanup();
+			cardConsoleCleanup[key] = null;
+		},
+	};
+}
 
 /* ------------------------------------------------------------------ */
 /*  Measure / Inspect helpers                                          */
@@ -1965,6 +2292,10 @@ function getActiveSettings(key: Str): Array<{ label: Str; value: Str }> {
 	if (cardDebugOutline[key]) settings.push({ label: 'Debug Outline', value: 'On' });
 	if (cardMeasureActive[key]) settings.push({ label: 'Measure', value: 'On' });
 	if (cardInspectActive[key]) settings.push({ label: 'Inspect', value: 'On' });
+	if (cardConsoleOpen[key]) {
+		const logCount: Num = (cardConsoleLogs[key] ?? []).length;
+		settings.push({ label: 'Console', value: logCount > 0 ? `${logCount} entries` : 'Open' });
+	}
 	return settings;
 }
 
@@ -2239,6 +2570,8 @@ function resetCard(key: Str): Void {
 	cardInspectActive[key] = false;
 	cardInspectedEl[key] = null;
 	cardMeasureData[key] = null;
+	cardConsoleOpen[key] = false;
+	cardConsoleLogs[key] = [];
 }
 
 /**
@@ -2293,6 +2626,7 @@ function applySettingsToAll(sourceKey: Str): Void {
 		cardDebugOutline[key] = cardDebugOutline[sourceKey] ?? false;
 		cardMeasureActive[key] = cardMeasureActive[sourceKey] ?? false;
 		cardInspectActive[key] = cardInspectActive[sourceKey] ?? false;
+		cardConsoleOpen[key] = cardConsoleOpen[sourceKey] ?? false;
 	}
 }
 
@@ -3768,6 +4102,41 @@ function isIconOption(option: Str): boolean {
 					</Tooltip.Provider>
 					<CopyButton text={codeText ?? snippet} label="Copy code" class="size-7 [&_svg]:size-3.5" />
 				{/if}
+				<Tooltip.Provider>
+					<Tooltip.Root delayDuration={300}>
+						<Tooltip.Trigger>
+							{#snippet child({ props: tipProps })}
+								<button
+									type="button"
+									{...tipProps}
+									class={cn(
+										'inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors',
+										(cardConsoleOpen[cardKey] ?? false) ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+									)}
+									onclick={() => { cardConsoleOpen[cardKey] = !cardConsoleOpen[cardKey]; }}
+									aria-expanded={Boolean(cardConsoleOpen[cardKey])}
+								>
+									<Terminal class="size-3.5" aria-hidden="true" />
+									{#if (cardConsoleLogs[cardKey] ?? []).length > 0}
+										<span class={cn(
+											'min-w-[1.25rem] rounded-full px-1 text-center font-mono text-[9px] font-bold leading-tight',
+											(cardConsoleLogs[cardKey] ?? []).some((l) => l.level === 'error') ? 'bg-red-500/20 text-red-500' : 'bg-muted-foreground/20 text-muted-foreground',
+										)}>
+											{(cardConsoleLogs[cardKey] ?? []).length > 99 ? '99+' : (cardConsoleLogs[cardKey] ?? []).length}
+										</span>
+									{/if}
+									<ChevronDown
+										class={cn('size-3 transition-transform', cardConsoleOpen[cardKey] && 'rotate-180')}
+										aria-hidden="true"
+									/>
+								</button>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content side="top" sideOffset={4}>
+							{cardConsoleOpen[cardKey] ? 'Collapse console' : 'Expand console'}
+						</Tooltip.Content>
+					</Tooltip.Root>
+				</Tooltip.Provider>
 				<DropdownMenu.Root
 					open={cardDropdownOpen[cardKey] ?? false}
 					onOpenChange={(o) => {
@@ -4688,6 +5057,7 @@ function isIconOption(option: Str): boolean {
 		<!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
 		<div
 			bind:this={cardPreviewRefs[cardKey]}
+			use:consoleCapture={cardKey}
 			class={cn(
 				'relative flex w-full items-center overflow-auto p-4',
 				isFullscreen && 'flex-1',
@@ -4984,6 +5354,55 @@ function isIconOption(option: Str): boolean {
 			<div class="overflow-hidden border-t bg-muted/20" transition:slide={{ duration: 200 }}>
 				<div class="min-w-0 overflow-x-auto p-3 text-sm">
 					<CodeBlock code={codeText ?? snippet} lang="svelte" />
+				</div>
+			</div>
+		{/if}
+		{#if cardConsoleOpen[cardKey]}
+			{@const logs = cardConsoleLogs[cardKey] ?? []}
+			<div class="overflow-hidden border-t bg-muted/20" transition:slide={{ duration: 200 }}>
+				<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
+					<div class="flex items-center gap-2">
+						<Terminal class="size-3 text-muted-foreground" aria-hidden="true" />
+						<span class="text-[10px] font-semibold text-muted-foreground">Console</span>
+						<span class="text-[10px] text-muted-foreground/60">{logs.length} entries</span>
+					</div>
+					{#if logs.length > 0}
+						<button
+							type="button"
+							class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+							onclick={() => { cardConsoleLogs[cardKey] = []; }}
+						>
+							<Trash2 class="size-3" aria-hidden="true" />
+							Clear
+						</button>
+					{/if}
+				</div>
+				<div class="max-h-64 overflow-y-auto font-mono text-[11px]">
+					{#if logs.length === 0}
+						<div class="px-3 py-4 text-center text-[11px] text-muted-foreground/50">
+							No console output yet. Interact with the component to see events, mutations, and logs.
+						</div>
+					{:else}
+						{#each logs as entry, i (i)}
+							<div class={cn(
+								'flex items-start gap-2 border-b border-border/30 px-3 py-1 last:border-b-0',
+								entry.level === 'error' && 'bg-red-500/5',
+								entry.level === 'warn' && 'bg-amber-500/5',
+							)}>
+								<span class="shrink-0 pt-px text-[9px] tabular-nums text-muted-foreground/50">+{entry.ts}ms</span>
+								<span class={cn('shrink-0 pt-px text-[9px] font-bold', getConsoleColor(entry.level))}>{getConsoleLabel(entry.level)}</span>
+								<div class="min-w-0 flex-1">
+									<span class="break-all">{entry.message}</span>
+									{#if entry.detail}
+										<span class="ml-1 break-all text-muted-foreground/60">{entry.detail}</span>
+									{/if}
+								</div>
+								{#if entry.source}
+									<span class="shrink-0 text-[9px] text-muted-foreground/40">{entry.source}</span>
+								{/if}
+							</div>
+						{/each}
+					{/if}
 				</div>
 			</div>
 		{/if}
