@@ -59,7 +59,7 @@ import type { PropMeta, VariantMeta } from '../lens/types.js';
 import { buildBaseProps } from '../lens/extract-props.js';
 import LensError from '../lens-error/LensError.svelte';
 import LensStats from '../lens-stats/LensStats.svelte';
-import type { LensStatsData, BudgetLevel, MetricBudget, WebVitals } from '../lens-stats/types.js';
+import type { LensStatsData, BudgetLevel, MetricBudget, WebVitals, AriaIssue, ContrastIssue, TabOrderEntry } from '../lens-stats/types.js';
 import CopyButton from '../copy-button/CopyButton.svelte';
 import CodeBlock from '../code-block/CodeBlock.svelte';
 import ColorPicker from '../color-picker/ColorPicker.svelte';
@@ -192,6 +192,9 @@ let cardContentHeights: Record<Str, Num> = $state({});
 /** Per-card fullscreen state keyed by card identifier. */
 let cardFullscreen: Record<Str, Bool> = $state({});
 
+/** The element that triggered fullscreen, for focus restoration on exit. */
+let fullscreenTrigger: HTMLElement | null = $state(null);
+
 /** Per-card performance statistics collected by LensStats wrapper. */
 let cardStats: Record<Str, LensStatsData> = $state({});
 
@@ -245,23 +248,23 @@ let statsExportCopied: Str = $state('');
  * Format stats data as a JSON string for export.
  *
  * @param stats - The LensStatsData to format
- * @param componentName - Display name of the component
+ * @param name - Display name of the component
  * @returns Pretty-printed JSON string
  */
-function formatStatsJson(stats: LensStatsData, componentName: Str): Str {
-	return JSON.stringify({ component: componentName, ...stats }, null, 2);
+function formatStatsJson(stats: LensStatsData, name: Str): Str {
+	return JSON.stringify({ component: name, ...stats }, null, 2);
 }
 
 /**
  * Format stats data as a human-readable Markdown report.
  *
  * @param stats - The LensStatsData to format
- * @param componentName - Display name of the component
+ * @param name - Display name of the component
  * @returns Markdown string
  */
-function formatStatsMarkdown(stats: LensStatsData, componentName: Str): Str {
+function formatStatsMarkdown(stats: LensStatsData, name: Str): Str {
 	const lines: Str[] = [
-		`# Performance Report: ${componentName}`,
+		`# Performance Report: ${name}`,
 		'',
 		`**Overall Health:** ${stats.overallHealth}`,
 		'',
@@ -338,12 +341,41 @@ function formatStatsMarkdown(stats: LensStatsData, componentName: Str): Str {
 			lines.push(`  - \`<${el.tag}${el.classes ? ` class="${el.classes}"` : ''}>\`${el.parentContext ? ` in ${el.parentContext}` : ''}`);
 		}
 	}
+	if (stats.a11y.contrastIssues.length > 0) {
+		lines.push(`- **Contrast Issues:** ${stats.a11y.contrastIssues.length}`);
+		for (const ci of stats.a11y.contrastIssues) {
+			lines.push(`  - \`<${ci.tag}>\` "${ci.text}" — ${ci.ratio}:1 (need ${ci.required}:1)`);
+		}
+	}
+	if (stats.a11y.imagesWithoutAlt > 0) {
+		lines.push(`- **Images Without Alt:** ${stats.a11y.imagesWithoutAlt}`);
+	}
+	if (stats.a11y.ariaIssues.length > 0) {
+		lines.push(`- **ARIA Issues:** ${stats.a11y.ariaIssues.length}`);
+		for (const ai of stats.a11y.ariaIssues) {
+			lines.push(`  - \`<${ai.tag}>\` ${ai.issue}`);
+		}
+	}
+	if (stats.a11y.svgsWithoutLabel > 0) {
+		lines.push(`- **SVGs Without Label:** ${stats.a11y.svgsWithoutLabel}`);
+	}
+	lines.push(`- **Animated Elements:** ${stats.a11y.animatedElementCount}`);
+	lines.push(`- **Reduced Motion Override:** ${stats.a11y.hasReducedMotionOverride ? 'Yes' : 'No'}`);
+	if (stats.a11y.tabOrder.length > 0) {
+		lines.push(`- **Tab Order:** ${stats.a11y.tabOrder.length} elements`);
+		for (const entry of stats.a11y.tabOrder.slice(0, 10)) {
+			lines.push(`  - \`<${entry.tag}>\` ${entry.text}${entry.tabindex > 0 ? ` (tabindex=${entry.tabindex})` : ''}`);
+		}
+	}
 	lines.push(
 		'',
 		'## Prop Coverage',
 		'',
 		`- **With Defaults:** ${stats.propsWithDefaults}/${stats.propsTotal} (${stats.propsTotal > 0 ? Math.round((stats.propsWithDefaults / stats.propsTotal) * 100) : 0}%)`,
 	);
+	if (stats.reRenderTimings.length > 0) {
+		lines.push(`- **Re-render Timings:** ${stats.reRenderTimings.map((t: Num): Str => `${t}ms`).join(', ')}`);
+	}
 	if (stats.memoryDeltaBytes >= 0) {
 		lines.push('', '## Memory', '', `- **JS Heap (page total):** ${(stats.memoryDeltaBytes / 1_048_576).toFixed(1)} MB`);
 	}
@@ -360,13 +392,13 @@ function formatStatsMarkdown(stats: LensStatsData, componentName: Str): Str {
  * Copy stats to clipboard in the given format.
  *
  * @param stats - The LensStatsData to copy
- * @param componentName - Display name of the component
+ * @param name - Display name of the component
  * @param format - 'json' or 'markdown'
  */
-async function copyStatsToClipboard(stats: LensStatsData, componentName: Str, format: 'json' | 'markdown'): Promise<void> {
+async function copyStatsToClipboard(stats: LensStatsData, name: Str, format: 'json' | 'markdown'): Promise<void> {
 	const text: Str = format === 'json'
-		? formatStatsJson(stats, componentName)
-		: formatStatsMarkdown(stats, componentName);
+		? formatStatsJson(stats, name)
+		: formatStatsMarkdown(stats, name);
 	await navigator.clipboard.writeText(text);
 	statsExportCopied = format;
 	setTimeout((): Void => { statsExportCopied = ''; }, 2000);
@@ -376,36 +408,53 @@ async function copyStatsToClipboard(stats: LensStatsData, componentName: Str, fo
  * Download stats as a JSON file.
  *
  * @param stats - The LensStatsData to download
- * @param componentName - Display name of the component
+ * @param name - Display name of the component
  */
-function downloadStatsJson(stats: LensStatsData, componentName: Str): Void {
-	const json: Str = formatStatsJson(stats, componentName);
+function downloadStatsJson(stats: LensStatsData, name: Str): Void {
+	const json: Str = formatStatsJson(stats, name);
 	const blob: Blob = new Blob([json], { type: 'application/json' });
 	const url: Str = URL.createObjectURL(blob);
 	const a: HTMLAnchorElement = document.createElement('a');
 	a.href = url;
-	a.download = `${componentName.toLowerCase().replace(/\s+/g, '-')}-stats.json`;
+	a.download = `${name.toLowerCase().replaceAll(/\s+/g, '-')}-stats.json`;
 	a.click();
 	URL.revokeObjectURL(url);
 }
 
 /**
  * Toggle fullscreen mode for a specific card.
+ * Captures the triggering element for focus restoration on exit.
  *
  * @param key - Card identifier
  */
 function toggleFullscreen(key: Str): Void {
+	if (!cardFullscreen[key]) {
+		/* Entering fullscreen — remember trigger for focus restoration */
+		fullscreenTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+	}
 	cardFullscreen[key] = !cardFullscreen[key];
+	if (!cardFullscreen[key] && fullscreenTrigger) {
+		/* Exiting fullscreen — restore focus to the trigger element */
+		const trigger: HTMLElement | null = fullscreenTrigger;
+		fullscreenTrigger = null;
+		requestAnimationFrame((): Void => { trigger?.focus(); });
+	}
 }
 
 /**
  * Exit fullscreen for any card that's currently fullscreen (ESC handler).
+ * Restores focus to the element that triggered fullscreen.
  */
 function exitFullscreen(): Void {
+	const trigger: HTMLElement | null = fullscreenTrigger;
+	fullscreenTrigger = null;
 	for (const key of Object.keys(cardFullscreen)) {
 		if (cardFullscreen[key]) {
 			cardFullscreen[key] = false;
 		}
+	}
+	if (trigger) {
+		requestAnimationFrame((): Void => { trigger.focus(); });
 	}
 }
 
@@ -1980,7 +2029,8 @@ function isIconOption(option: Str): boolean {
 							disabled ? 'cursor-not-allowed opacity-30' : 'hover:bg-muted hover:text-foreground',
 						)}
 						onclick={disabled ? undefined : onclick}
-						aria-disabled={disabled}
+						disabled={disabled}
+						tabindex={disabled ? -1 : undefined}
 					>
 						<Icon class="size-3.5" aria-hidden="true" />
 					</button>
@@ -2005,7 +2055,7 @@ function isIconOption(option: Str): boolean {
 	{@const activeSettings = getActiveSettings(cardKey)}
 	{@const isFullscreen: Bool = Boolean(cardFullscreen[cardKey])}
 	{#if isFullscreen}
-		<div class="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm" role="presentation"></div>
+		<div class="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm" role="presentation" onclick={exitFullscreen}></div>
 	{/if}
 	<div class={cn('overflow-hidden rounded-md border bg-background', isFullscreen && 'fixed inset-4 z-50 flex flex-col')}>
 		<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-2">
@@ -2146,6 +2196,10 @@ function isIconOption(option: Str): boolean {
 										</Tooltip.Root>
 									</Tooltip.Provider>
 								</div>
+								<!-- Aria-live region for export copy feedback -->
+								<span class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+									{#if statsExportCopied === 'json'}Copied as JSON!{:else if statsExportCopied === 'markdown'}Copied as Markdown!{/if}
+								</span>
 							</div>
 
 							<!-- Budget metrics with tooltip explanations -->
@@ -2180,11 +2234,11 @@ function isIconOption(option: Str): boolean {
 
 							<!-- Web Vitals section -->
 							<div class="border-t px-3 py-2">
-								<button type="button" class="flex w-full items-center gap-1" onclick={() => statsVitalsOpen = !statsVitalsOpen}>
+								<button type="button" class="flex w-full items-center gap-1" aria-expanded={statsVitalsOpen} aria-controls="stats-vitals" onclick={() => statsVitalsOpen = !statsVitalsOpen}>
 									<svelte:component this={statsVitalsOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
 									<h4 class="text-xs font-semibold">Web Vitals</h4>
 								</button>
-								{#if statsVitalsOpen}
+								{#if statsVitalsOpen}<div id="stats-vitals">
 								<p class="mb-1.5 mt-0.5 text-[10px] text-muted-foreground">
 									{#if stats.vitals.supported}
 										Component-scoped performance vitals via PerformanceObserver.
@@ -2478,16 +2532,16 @@ function isIconOption(option: Str): boolean {
 										</Tooltip.Root>
 									</Tooltip.Provider>
 								</div>
-								{/if}
+								</div>{/if}
 							</div>
 
 							<!-- DOM section -->
 							<div class="border-t px-3 py-2">
-								<button type="button" class="flex w-full items-center gap-1" onclick={() => statsDomOpen = !statsDomOpen}>
+								<button type="button" class="flex w-full items-center gap-1" aria-expanded={statsDomOpen} aria-controls="stats-dom" onclick={() => statsDomOpen = !statsDomOpen}>
 									<svelte:component this={statsDomOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
 									<h4 class="text-xs font-semibold">DOM Structure</h4>
 								</button>
-								{#if statsDomOpen}
+								{#if statsDomOpen}<div id="stats-dom">
 								<p class="mb-1.5 mt-0.5 text-[10px] text-muted-foreground">Element count and nesting depth of the rendered component.</p>
 								<div class="grid grid-cols-3 gap-2 text-xs">
 									<Tooltip.Provider>
@@ -2536,7 +2590,7 @@ function isIconOption(option: Str): boolean {
 										</Tooltip.Root>
 									</Tooltip.Provider>
 								</div>
-								{/if}
+								</div>{/if}
 							</div>
 
 							<!-- Memory (Chrome only) -->
@@ -2546,7 +2600,7 @@ function isIconOption(option: Str): boolean {
 										<Tooltip.Root delayDuration={200}>
 											<Tooltip.Trigger>
 												{#snippet child({ props: tipProps })}
-													<button {...tipProps} type="button" class="flex w-full cursor-help items-center gap-1" onclick={() => statsMemoryOpen = !statsMemoryOpen}>
+													<button {...tipProps} type="button" class="flex w-full cursor-help items-center gap-1" aria-expanded={statsMemoryOpen} onclick={() => statsMemoryOpen = !statsMemoryOpen}>
 														<svelte:component this={statsMemoryOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
 														<h4 class="text-xs font-semibold">Memory</h4>
 														<span class="ml-auto font-mono text-xs font-medium">{(stats.memoryDeltaBytes / 1_048_576).toFixed(1)} MB</span>
@@ -2566,11 +2620,11 @@ function isIconOption(option: Str): boolean {
 
 							<!-- Accessibility section -->
 							<div class="border-t px-3 py-2">
-								<button type="button" class="flex w-full items-center gap-1" onclick={() => statsA11yOpen = !statsA11yOpen}>
+								<button type="button" class="flex w-full items-center gap-1" aria-expanded={statsA11yOpen} aria-controls="stats-a11y" onclick={() => statsA11yOpen = !statsA11yOpen}>
 									<svelte:component this={statsA11yOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
 									<h4 class="text-xs font-semibold">Accessibility</h4>
 								</button>
-								{#if statsA11yOpen}
+								{#if statsA11yOpen}<div id="stats-a11y">
 								<p class="mb-1.5 mt-0.5 text-[10px] text-muted-foreground">Interactive elements, labels, landmarks, and focus order.</p>
 								<div class="space-y-1 text-xs">
 									<Tooltip.Provider>
@@ -2775,17 +2829,102 @@ function isIconOption(option: Str): boolean {
 										{/each}
 									</div>
 								{/if}
+
+								<!-- Contrast issues -->
+								{#if stats.a11y.contrastIssues.length > 0}
+									<div class="mt-1.5 rounded bg-amber-500/10 px-2 py-1">
+										<span class="text-[10px] font-medium text-amber-600 dark:text-amber-400">
+											{stats.a11y.contrastIssues.length} contrast issue{stats.a11y.contrastIssues.length === 1 ? '' : 's'} (WCAG AA)
+										</span>
+										{#each stats.a11y.contrastIssues.slice(0, 3) as ci (ci.tag + ci.text)}
+											<div class="truncate font-mono text-[10px] text-amber-500">
+												&lt;{ci.tag}&gt; {ci.text} — {ci.ratio}:1 (need {ci.required}:1)
+											</div>
+										{/each}
+									</div>
 								{/if}
+
+								<!-- Images without alt -->
+								{#if stats.a11y.imagesWithoutAlt > 0}
+									<div class="mt-1.5 rounded bg-red-500/10 px-2 py-1">
+										<span class="text-[10px] font-medium text-red-500">
+											{stats.a11y.imagesWithoutAlt} image{stats.a11y.imagesWithoutAlt === 1 ? '' : 's'} missing alt text
+										</span>
+									</div>
+								{/if}
+
+								<!-- ARIA issues -->
+								{#if stats.a11y.ariaIssues.length > 0}
+									<div class="mt-1.5 rounded bg-amber-500/10 px-2 py-1">
+										<span class="text-[10px] font-medium text-amber-600 dark:text-amber-400">
+											{stats.a11y.ariaIssues.length} ARIA issue{stats.a11y.ariaIssues.length === 1 ? '' : 's'}
+										</span>
+										{#each stats.a11y.ariaIssues.slice(0, 3) as ai (ai.tag + ai.issue)}
+											<div class="truncate text-[10px] text-amber-500">
+												<span class="font-mono">&lt;{ai.tag}&gt;</span> {ai.issue}
+											</div>
+										{/each}
+									</div>
+								{/if}
+
+								<!-- SVGs without labels -->
+								{#if stats.a11y.svgsWithoutLabel > 0}
+									<div class="mt-1.5 rounded bg-amber-500/10 px-2 py-1">
+										<span class="text-[10px] font-medium text-amber-600 dark:text-amber-400">
+											{stats.a11y.svgsWithoutLabel} SVG{stats.a11y.svgsWithoutLabel === 1 ? '' : 's'} without accessible label
+										</span>
+									</div>
+								{/if}
+
+								<!-- Animations / Motion -->
+								{#if stats.a11y.animatedElementCount > 0}
+									<div class="mt-1.5">
+										<div class="flex items-center justify-between text-[10px]">
+											<div class="flex items-center gap-2">
+												<span class={cn('text-base leading-none', stats.a11y.hasReducedMotionOverride ? 'text-emerald-500' : 'text-amber-500')}>●</span>
+												<span class="font-medium text-muted-foreground">Animations</span>
+											</div>
+											<span class={cn('font-mono font-medium', stats.a11y.hasReducedMotionOverride ? 'text-emerald-500' : 'text-amber-500')}>
+												{stats.a11y.animatedElementCount} element{stats.a11y.animatedElementCount === 1 ? '' : 's'}
+											</span>
+										</div>
+										<div class="ml-6 text-[10px] text-muted-foreground">
+											{stats.a11y.hasReducedMotionOverride ? '✓ prefers-reduced-motion override detected' : '⚠ No prefers-reduced-motion override found'}
+										</div>
+									</div>
+								{/if}
+
+								<!-- Tab Order (first 10 elements) -->
+								{#if stats.a11y.tabOrder.length > 0}
+									<div class="mt-1.5">
+										<span class="text-[10px] font-medium text-muted-foreground">Tab Order ({stats.a11y.tabOrder.length} elements):</span>
+										<div class="ml-2 mt-0.5 space-y-0">
+											{#each stats.a11y.tabOrder.slice(0, 10) as entry, i (entry.tag + entry.text + i)}
+												<div class="flex items-center gap-1.5 text-[10px]">
+													<span class="font-mono text-muted-foreground/50">{i + 1}.</span>
+													<span class={cn('font-mono', entry.tabindex > 0 ? 'text-red-400' : 'text-muted-foreground')}>&lt;{entry.tag}&gt;</span>
+													{#if entry.text}
+														<span class="truncate text-muted-foreground/60">{entry.text}</span>
+													{/if}
+												</div>
+											{/each}
+											{#if stats.a11y.tabOrder.length > 10}
+												<span class="text-[10px] text-muted-foreground/50">…and {stats.a11y.tabOrder.length - 10} more</span>
+											{/if}
+										</div>
+									</div>
+								{/if}
+								</div>{/if}
 							</div>
 
 							<!-- Console messages -->
 							{#if stats.consoleMessages.length > 0}
 								<div class="border-t px-3 py-2">
-									<button type="button" class="flex w-full items-center gap-1" onclick={() => statsConsoleOpen = !statsConsoleOpen}>
+									<button type="button" class="flex w-full items-center gap-1" aria-expanded={statsConsoleOpen} aria-controls="stats-console" onclick={() => statsConsoleOpen = !statsConsoleOpen}>
 										<svelte:component this={statsConsoleOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
 										<h4 class="text-xs font-semibold">Console ({stats.consoleMessages.length})</h4>
 									</button>
-									{#if statsConsoleOpen}
+									{#if statsConsoleOpen}<div id="stats-console">
 									<p class="mb-1 mt-0.5 text-[10px] text-muted-foreground">Warnings and errors logged during component mount.</p>
 									<div class="max-h-20 space-y-0.5 overflow-auto">
 										{#each stats.consoleMessages.slice(0, 5) as msg (msg.message)}
@@ -2800,7 +2939,7 @@ function isIconOption(option: Str): boolean {
 											<span class="text-[10px] text-muted-foreground/60">…and {stats.consoleMessages.length - 5} more</span>
 										{/if}
 									</div>
-								{/if}
+								</div>{/if}
 								</div>
 							{/if}
 
@@ -2824,13 +2963,30 @@ function isIconOption(option: Str): boolean {
 								</div>
 							{/if}
 
+							<!-- Re-render timings -->
+							{#if stats.reRenderTimings.length > 0}
+								<div class="border-t px-3 py-1.5">
+									<span class="text-[10px] font-medium text-muted-foreground">Re-render timings:</span>
+									<div class="mt-0.5 flex flex-wrap gap-1">
+										{#each stats.reRenderTimings.slice(0, 8) as timing, i (i)}
+											<span class={cn('rounded px-1 py-0.5 font-mono text-[10px]', timing > 50 ? 'bg-red-500/10 text-red-500' : timing > 16 ? 'bg-amber-500/10 text-amber-500' : 'bg-muted text-muted-foreground')}>
+												{timing}ms
+											</span>
+										{/each}
+										{#if stats.reRenderTimings.length > 8}
+											<span class="text-[10px] text-muted-foreground/50">+{stats.reRenderTimings.length - 8}</span>
+										{/if}
+									</div>
+								</div>
+							{/if}
+
 							<!-- Prop coverage -->
 							<div class="border-t px-3 py-2">
 								<Tooltip.Provider>
 									<Tooltip.Root delayDuration={200}>
 										<Tooltip.Trigger>
 											{#snippet child({ props: tipProps })}
-												<button {...tipProps} type="button" class="flex w-full cursor-help items-center gap-1" onclick={() => statsPropCoverageOpen = !statsPropCoverageOpen}>
+												<button {...tipProps} type="button" class="flex w-full cursor-help items-center gap-1" aria-expanded={statsPropCoverageOpen} aria-controls="stats-props" onclick={() => statsPropCoverageOpen = !statsPropCoverageOpen}>
 													<svelte:component this={statsPropCoverageOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
 													<h4 class="text-xs font-semibold">Prop Coverage</h4>
 													<span class="ml-auto font-mono text-xs text-muted-foreground">{stats.propsWithDefaults}/{stats.propsTotal}</span>
@@ -2842,7 +2998,7 @@ function isIconOption(option: Str): boolean {
 										</Tooltip.Content>
 									</Tooltip.Root>
 								</Tooltip.Provider>
-								{#if statsPropCoverageOpen}
+								{#if statsPropCoverageOpen}<div id="stats-props">
 								<div class="mt-1 flex items-center gap-2 text-xs">
 									<div class="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
 										<div
@@ -2876,7 +3032,7 @@ function isIconOption(option: Str): boolean {
 										{/if}
 									</div>
 								{/if}
-								{/if}
+								</div>{/if}
 							</div>
 						</Popover.Content>
 					</Popover.Root>
@@ -3920,7 +4076,41 @@ function isIconOption(option: Str): boolean {
 {/snippet}
 
 {#if hasVariants}
-	<!-- Variant mode: render per-option cards -->
+	<!-- Variant mode: export all stats button + per-option cards -->
+	{#if Object.keys(cardStats).length > 1}
+		<div class="mb-2 flex justify-end gap-2">
+			<Tooltip.Provider>
+				<Tooltip.Root delayDuration={300}>
+					<Tooltip.Trigger>
+						{#snippet child({ props: tipProps })}
+							<button
+								{...tipProps}
+								type="button"
+								class="inline-flex items-center gap-1.5 rounded-md border bg-muted/30 px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+								onclick={async () => {
+									const allStats: Record<Str, LensStatsData> = cardStats;
+									const report: Str = JSON.stringify({
+										component: tagName ?? componentName ?? 'Component',
+										variantCount: Object.keys(allStats).length,
+										variants: allStats,
+									}, null, 2);
+									await navigator.clipboard.writeText(report);
+									statsExportCopied = 'json';
+									setTimeout((): Void => { statsExportCopied = ''; }, 2000);
+								}}
+							>
+								<FileJson class="size-3.5" aria-hidden="true" />
+								Export All Stats ({Object.keys(cardStats).length} variants)
+							</button>
+						{/snippet}
+					</Tooltip.Trigger>
+					<Tooltip.Content side="top" sideOffset={4}>
+						Copy all variant stats as JSON to clipboard
+					</Tooltip.Content>
+				</Tooltip.Root>
+			</Tooltip.Provider>
+		</div>
+	{/if}
 	<div class={cn('space-y-4', className)}>
 		{#each (meta?.variants ?? []).filter((v) => v.key) as variantKey, vi (variantKey.key ?? `fallback-${vi}`)}
 			{@const variantName: Str = variantKey.key}

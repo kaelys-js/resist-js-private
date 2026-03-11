@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'form',
-  tags: ['input-group', 'addon', 'prefix', 'suffix', 'input'],
+  tags: ['input-group', 'addon', 'prefix', 'suffix', 'input', 'tv-variant'],
   description: 'Groups inputs with addons, buttons, or text for compound form controls.',
 };
 

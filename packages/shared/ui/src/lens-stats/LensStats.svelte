@@ -43,13 +43,16 @@ import type { Bool, Num, Str, Void } from '@/schemas/common';
 import { onMount } from 'svelte';
 import type {
 	A11yAudit,
+	AriaIssue,
 	BudgetLevel,
 	CapturedConsoleMessage,
+	ContrastIssue,
 	FocusOrderIssue,
 	HeadingInfo,
 	LayoutShiftSource,
 	LensStatsData,
 	MetricBudget,
+	TabOrderEntry,
 	UnlabeledElement,
 	WebVitals,
 } from './types.js';
@@ -205,10 +208,13 @@ function getParentContext(el: Element): Str {
  */
 function countEventListeners(root: HTMLDivElement): Num {
 	const handlerAttrs: Str[] = [
-		'onclick', 'onmousedown', 'onmouseup', 'onmousemove', 'onmouseover', 'onmouseout',
-		'onkeydown', 'onkeyup', 'onkeypress', 'onfocus', 'onblur', 'onchange', 'oninput',
-		'onsubmit', 'onscroll', 'onwheel', 'ontouchstart', 'ontouchend', 'onpointerdown',
-		'onpointerup', 'onpointermove',
+		'onclick', 'ondblclick', 'onmousedown', 'onmouseup', 'onmousemove', 'onmouseover', 'onmouseout', 'onmouseenter', 'onmouseleave',
+		'onkeydown', 'onkeyup', 'onkeypress', 'onfocus', 'onblur', 'onfocusin', 'onfocusout', 'onchange', 'oninput',
+		'onsubmit', 'onreset', 'onscroll', 'onwheel', 'onresize',
+		'ontouchstart', 'ontouchend', 'ontouchmove', 'ontouchcancel',
+		'onpointerdown', 'onpointerup', 'onpointermove', 'onpointerover', 'onpointerout', 'onpointerenter', 'onpointerleave', 'onpointercancel',
+		'ondragstart', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondrop',
+		'oncontextmenu', 'onselect', 'oninvalid',
 	];
 	let count: Num = 0;
 	for (const el of root.querySelectorAll('*')) {
@@ -300,6 +306,296 @@ function detectFocusOrderIssues(root: HTMLDivElement): FocusOrderIssue[] {
 }
 
 /**
+ * Build a tab order listing of focusable elements in their navigation order.
+ * Elements with tabindex > 0 come first (sorted by tabindex), then tabindex=0 / no tabindex in DOM order.
+ *
+ * @param root - Root element to scan
+ * @returns Array of tab order entries (max 20)
+ */
+function buildTabOrder(root: HTMLDivElement): TabOrderEntry[] {
+	const focusableSelector: Str =
+		'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+	const elements: Element[] = [...root.querySelectorAll(focusableSelector)];
+	const entries: TabOrderEntry[] = [];
+
+	/* Separate positive tabindex from natural order */
+	const positive: Array<{ el: Element; idx: Num }> = [];
+	const natural: Element[] = [];
+
+	for (const el of elements) {
+		const tabVal: Num = Number.parseInt(el.getAttribute('tabindex') ?? '0', 10);
+		if (tabVal > 0) {
+			positive.push({ el, idx: tabVal });
+		} else {
+			natural.push(el);
+		}
+	}
+
+	/* Positive tabindex comes first, sorted ascending */
+	positive.sort((a, b): Num => a.idx - b.idx);
+
+	const ordered: Element[] = [...positive.map((p) => p.el), ...natural];
+
+	for (const el of ordered.slice(0, 20)) {
+		const tabVal: Num = Number.parseInt(el.getAttribute('tabindex') ?? '0', 10);
+		entries.push({
+			tag: el.tagName.toLowerCase(),
+			text: (el.textContent ?? '').trim().slice(0, 40),
+			tabindex: tabVal,
+		});
+	}
+
+	return entries;
+}
+
+/**
+ * Parse a CSS color string to RGB components.
+ * Supports rgb(), rgba(), and hex formats via a temporary canvas context.
+ *
+ * @param color - CSS color string
+ * @returns RGB tuple [r, g, b] with values 0-255, or null if parsing fails
+ */
+function parseColorToRgb(color: Str): [Num, Num, Num] | null {
+	if (!color || color === 'transparent' || color === 'rgba(0, 0, 0, 0)') return null;
+	const rgbMatch: RegExpMatchArray | null = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+	if (rgbMatch) {
+		return [Number(rgbMatch[1]), Number(rgbMatch[2]), Number(rgbMatch[3])];
+	}
+	return null;
+}
+
+/**
+ * Calculate relative luminance from an sRGB color channel value.
+ *
+ * @param channel - sRGB channel value (0-255)
+ * @returns Linear luminance contribution
+ */
+function srgbToLinear(channel: Num): Num {
+	const c: Num = channel / 255;
+	return c <= 0.040_45 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+}
+
+/**
+ * Calculate WCAG 2.1 relative luminance from RGB values.
+ *
+ * @param r - Red channel (0-255)
+ * @param g - Green channel (0-255)
+ * @param b - Blue channel (0-255)
+ * @returns Relative luminance (0 to 1)
+ */
+function relativeLuminance(r: Num, g: Num, b: Num): Num {
+	return 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b);
+}
+
+/**
+ * Calculate WCAG contrast ratio between two colors.
+ *
+ * @param rgb1 - First color as [r, g, b]
+ * @param rgb2 - Second color as [r, g, b]
+ * @returns Contrast ratio (1 to 21)
+ */
+function contrastRatio(rgb1: [Num, Num, Num], rgb2: [Num, Num, Num]): Num {
+	const l1: Num = relativeLuminance(...rgb1);
+	const l2: Num = relativeLuminance(...rgb2);
+	const lighter: Num = Math.max(l1, l2);
+	const darker: Num = Math.min(l1, l2);
+	return (lighter + 0.05) / (darker + 0.05);
+}
+
+/**
+ * Get the effective background color of an element by traversing up the DOM tree.
+ * Stops when a non-transparent background is found.
+ *
+ * @param el - Starting element
+ * @returns RGB tuple or null if all backgrounds are transparent
+ */
+function getEffectiveBackground(el: Element): [Num, Num, Num] | null {
+	let current: Element | null = el;
+	while (current) {
+		const style: CSSStyleDeclaration = getComputedStyle(current);
+		const bg: Str = style.backgroundColor;
+		const rgb: [Num, Num, Num] | null = parseColorToRgb(bg);
+		if (rgb) return rgb;
+		current = current.parentElement;
+	}
+	/* Default to white if no background found */
+	return [255, 255, 255];
+}
+
+/**
+ * Audit text elements for WCAG AA color contrast compliance.
+ * Samples up to 20 text-containing elements to keep analysis fast.
+ *
+ * @param root - Root element to scan
+ * @returns Array of contrast issues found
+ */
+function auditContrast(root: HTMLDivElement): ContrastIssue[] {
+	const issues: ContrastIssue[] = [];
+	const textElements: Element[] = [...root.querySelectorAll('*')].filter((el: Element): boolean => {
+		const text: Str = (el.textContent ?? '').trim();
+		if (text.length === 0) return false;
+		/* Only check leaf-ish elements with direct text content */
+		if (el.children.length > 3) return false;
+		return true;
+	}).slice(0, 20);
+
+	for (const el of textElements) {
+		const style: CSSStyleDeclaration = getComputedStyle(el);
+		const textRgb: [Num, Num, Num] | null = parseColorToRgb(style.color);
+		const bgRgb: [Num, Num, Num] | null = getEffectiveBackground(el);
+		if (!textRgb || !bgRgb) continue;
+
+		const ratio: Num = Math.round(contrastRatio(textRgb, bgRgb) * 100) / 100;
+		const fontSize: Num = Number.parseFloat(style.fontSize);
+		const fontWeight: Num = Number(style.fontWeight) || 400;
+		/* WCAG: large text is ≥18pt (24px) or ≥14pt (18.66px) bold */
+		const isLargeText: Bool = fontSize >= 24 || (fontSize >= 18.66 && fontWeight >= 700);
+		const required: Num = isLargeText ? 3 : 4.5;
+
+		if (ratio < required) {
+			issues.push({
+				tag: el.tagName.toLowerCase(),
+				text: (el.textContent ?? '').trim().slice(0, 40),
+				ratio,
+				required,
+				textColor: style.color,
+				bgColor: style.backgroundColor,
+			});
+		}
+	}
+
+	return issues;
+}
+
+/**
+ * Count images missing alt attributes.
+ *
+ * @param root - Root element to scan
+ * @returns Count of images without alt text
+ */
+function countImagesWithoutAlt(root: HTMLDivElement): Num {
+	let count: Num = 0;
+	for (const img of root.querySelectorAll('img')) {
+		if (!img.hasAttribute('alt')) count++;
+	}
+	return count;
+}
+
+/**
+ * Audit ARIA attribute usage for common misuse patterns.
+ *
+ * @param root - Root element to scan
+ * @returns Array of ARIA issues found (max 10)
+ */
+function auditAria(root: HTMLDivElement): AriaIssue[] {
+	const issues: AriaIssue[] = [];
+	const nonInteractiveTags: Set<Str> = new Set(['div', 'span', 'p', 'section', 'article', 'header', 'footer', 'main', 'aside', 'nav']);
+
+	for (const el of root.querySelectorAll('*')) {
+		if (issues.length >= 10) break;
+		const tag: Str = el.tagName.toLowerCase();
+		const text: Str = (el.textContent ?? '').trim().slice(0, 40);
+		const role: Str | null = el.getAttribute('role');
+		const ariaLabel: Str | null = el.getAttribute('aria-label');
+		const ariaLabelledby: Str | null = el.getAttribute('aria-labelledby');
+
+		/* aria-label on non-interactive element without role */
+		if (ariaLabel && !role && nonInteractiveTags.has(tag) && tag !== 'nav' && tag !== 'main' && tag !== 'aside') {
+			issues.push({ tag, text, issue: 'aria-label on non-interactive element without a role' });
+		}
+
+		/* aria-labelledby pointing to non-existent ID */
+		if (ariaLabelledby) {
+			const [targetId]: Str[] = ariaLabelledby.split(' ');
+			if (targetId && targetId.length > 0 && !document.querySelector(`#${CSS.escape(targetId)}`)) {
+				issues.push({ tag, text, issue: `aria-labelledby references non-existent id="${targetId}"` });
+			}
+		}
+
+		/* role="presentation" or role="none" on focusable element */
+		if ((role === 'presentation' || role === 'none') && (tag === 'button' || tag === 'a' || tag === 'input')) {
+			issues.push({ tag, text, issue: `role="${role}" on focusable element removes semantics` });
+		}
+
+		/* aria-hidden="true" on focusable element */
+		if (el.getAttribute('aria-hidden') === 'true') {
+			const isFocusable: Bool = tag === 'a' || tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea' || el.hasAttribute('tabindex');
+			if (isFocusable) {
+				issues.push({ tag, text, issue: 'aria-hidden="true" on focusable element — hidden from screen readers but still tabbable' });
+			}
+		}
+	}
+
+	return issues;
+}
+
+/**
+ * Count SVG elements without accessible labels.
+ * Checks for aria-label, aria-labelledby, <title> child, or role="presentation"/"img".
+ *
+ * @param root - Root element to scan
+ * @returns Count of SVGs without accessible labels
+ */
+function countSvgsWithoutLabel(root: HTMLDivElement): Num {
+	let count: Num = 0;
+	for (const svg of root.querySelectorAll('svg')) {
+		const hasAriaLabel: Bool = Boolean(svg.getAttribute('aria-label'));
+		const hasAriaLabelledby: Bool = Boolean(svg.getAttribute('aria-labelledby'));
+		const hasTitle: Bool = Boolean(svg.querySelector('title'));
+		const role: Str | null = svg.getAttribute('role');
+		const isDecorative: Bool = role === 'presentation' || role === 'none' || svg.getAttribute('aria-hidden') === 'true';
+
+		if (!hasAriaLabel && !hasAriaLabelledby && !hasTitle && !isDecorative) {
+			count++;
+		}
+	}
+	return count;
+}
+
+/**
+ * Check if any CSS animations/transitions in the component have prefers-reduced-motion overrides.
+ * Also counts elements with active animations or transitions.
+ *
+ * @param root - Root element to scan
+ * @returns Object with reducedMotion override detection and animated element count
+ */
+function auditAnimations(root: HTMLDivElement): { hasReducedMotionOverride: Bool; animatedElementCount: Num } {
+	let animatedCount: Num = 0;
+	let hasReducedMotionOverride: Bool = false;
+
+	for (const el of root.querySelectorAll('*')) {
+		const style: CSSStyleDeclaration = getComputedStyle(el);
+		const hasAnimation: Bool = style.animationName !== 'none' && style.animationName !== '';
+		const hasTransition: Bool = style.transitionProperty !== 'none' && style.transitionProperty !== '' && style.transitionProperty !== 'all' && style.transitionDuration !== '0s';
+
+		if (hasAnimation || hasTransition) {
+			animatedCount++;
+		}
+	}
+
+	/* Check stylesheets for prefers-reduced-motion media queries */
+	try {
+		for (const sheet of document.styleSheets) {
+			try {
+				for (const rule of sheet.cssRules) {
+					if (rule instanceof CSSMediaRule && rule.conditionText?.includes('prefers-reduced-motion')) {
+						hasReducedMotionOverride = true;
+						break;
+					}
+				}
+			} catch {
+				/* Cross-origin stylesheet — cannot read rules, skip */
+			}
+			if (hasReducedMotionOverride) break;
+		}
+	} catch {
+		/* StyleSheets API unavailable — leave as false */
+	}
+
+	return { hasReducedMotionOverride, animatedElementCount: animatedCount };
+}
+
+/**
  * Run accessibility audit on a DOM subtree.
  *
  * @param root - Root element to audit
@@ -345,6 +641,12 @@ function auditAccessibility(root: HTMLDivElement): A11yAudit {
 	const landmarks: Str[] = detectLandmarks(root);
 	const focusOrderIssues: FocusOrderIssue[] = detectFocusOrderIssues(root);
 	const eventListenerCount: Num = countEventListeners(root);
+	const tabOrder: TabOrderEntry[] = buildTabOrder(root);
+	const contrastIssues: ContrastIssue[] = auditContrast(root);
+	const imagesWithoutAlt: Num = countImagesWithoutAlt(root);
+	const ariaIssues: AriaIssue[] = auditAria(root);
+	const svgsWithoutLabel: Num = countSvgsWithoutLabel(root);
+	const animationResult: { hasReducedMotionOverride: Bool; animatedElementCount: Num } = auditAnimations(root);
 
 	return {
 		focusableCount: focusable.length,
@@ -359,6 +661,13 @@ function auditAccessibility(root: HTMLDivElement): A11yAudit {
 		landmarks,
 		focusOrderIssues,
 		eventListenerCount,
+		tabOrder,
+		contrastIssues,
+		imagesWithoutAlt,
+		ariaIssues,
+		svgsWithoutLabel,
+		hasReducedMotionOverride: animationResult.hasReducedMotionOverride,
+		animatedElementCount: animationResult.animatedElementCount,
 	};
 }
 
@@ -600,8 +909,10 @@ function collectVitals(
 	/* ---- TTFB (Time to First Byte) — page-level from navigation timing ---- */
 	try {
 		const navEntries: PerformanceEntryList = performance.getEntriesByType('navigation');
-		if (navEntries.length > 0) {
-			const nav: PerformanceEntry & { responseStart?: number; requestStart?: number } = navEntries[0];
+		const [firstNav]: PerformanceEntry[] = navEntries;
+		if (firstNav) {
+			// Navigation timing entry exists — cast to access responseStart/requestStart
+			const nav: PerformanceEntry & { responseStart?: number; requestStart?: number } = firstNav;
 			if (typeof nav.responseStart === 'number' && typeof nav.requestStart === 'number' && nav.responseStart > 0) {
 				vitals.ttfbMs = Math.round((nav.responseStart - nav.requestStart) * 100) / 100;
 			}
@@ -797,6 +1108,66 @@ onMount((): (() => void) => {
 			});
 		}
 
+		if (a11y.contrastIssues.length > 0) {
+			budgets.push({
+				label: 'Contrast',
+				value: `${a11y.contrastIssues.length} issue${a11y.contrastIssues.length === 1 ? '' : 's'}`,
+				level: a11y.contrastIssues.length > 3 ? 'red' : 'yellow',
+				description: 'Text elements with color contrast below WCAG AA requirements (4.5:1 normal, 3:1 large text).',
+				thresholds: '🟢 0 · 🟡 ≤3 · 🔴 >3',
+				greenMax: 0,
+				yellowMax: 3,
+			});
+		}
+
+		if (a11y.imagesWithoutAlt > 0) {
+			budgets.push({
+				label: 'Images Alt',
+				value: `${a11y.imagesWithoutAlt} missing`,
+				level: 'red',
+				description: 'Images without alt attributes. Every <img> needs alt text or alt="" for decorative images (WCAG 1.1.1).',
+				thresholds: '🟢 0 · 🔴 >0',
+				greenMax: 0,
+				yellowMax: 0,
+			});
+		}
+
+		if (a11y.ariaIssues.length > 0) {
+			budgets.push({
+				label: 'ARIA Usage',
+				value: `${a11y.ariaIssues.length} issue${a11y.ariaIssues.length === 1 ? '' : 's'}`,
+				level: a11y.ariaIssues.length > 2 ? 'red' : 'yellow',
+				description: 'ARIA attributes used incorrectly (wrong role, missing references, hidden focusable elements).',
+				thresholds: '🟢 0 · 🟡 ≤2 · 🔴 >2',
+				greenMax: 0,
+				yellowMax: 2,
+			});
+		}
+
+		if (a11y.svgsWithoutLabel > 0) {
+			budgets.push({
+				label: 'SVG Labels',
+				value: `${a11y.svgsWithoutLabel} missing`,
+				level: 'yellow',
+				description: 'SVGs without aria-label, <title>, or role="presentation". Unlabeled SVGs are invisible to screen readers.',
+				thresholds: '🟢 0 · 🟡 >0',
+				greenMax: 0,
+				yellowMax: 999,
+			});
+		}
+
+		if (a11y.animatedElementCount > 0 && !a11y.hasReducedMotionOverride) {
+			budgets.push({
+				label: 'Motion Safety',
+				value: 'No override',
+				level: 'yellow',
+				description: 'Component has CSS animations/transitions but no prefers-reduced-motion media query detected. Users with vestibular disorders need motion reduction.',
+				thresholds: '🟢 Has override · 🟡 No override',
+				greenMax: 0,
+				yellowMax: 1,
+			});
+		}
+
 		const overallHealth: BudgetLevel = worstLevel(budgets);
 
 		const statsData: LensStatsData = {
@@ -815,14 +1186,21 @@ onMount((): (() => void) => {
 			propsTotal,
 			eventListenerCount: a11y.eventListenerCount,
 			vitals: componentVitals,
+			reRenderTimings: [],
 		};
 
-		/* Track re-renders via MutationObserver */
+		/* Track re-renders via MutationObserver with timing measurement */
 		let reRenderCount: Num = 0;
+		let lastMutationTime: Num = performance.now();
 		const observer: MutationObserver = new MutationObserver((): Void => {
+			const now: Num = performance.now();
+			const delta: Num = Math.round((now - lastMutationTime) * 100) / 100;
+			lastMutationTime = now;
+
 			reRenderCount++;
 			statsData.reRenderCount = reRenderCount;
 			statsData.hasAsyncContent = true;
+			statsData.reRenderTimings.push(delta);
 
 			/* Update re-render budget */
 			const rrBudget: MetricBudget | undefined = statsData.budgets.find(
