@@ -1084,18 +1084,6 @@ onMount((): (() => void) => {
 			}
 		}
 
-		if (a11y.headingSkipsLevel) {
-			budgets.push({
-				label: 'Heading Hierarchy',
-				value: 'Skipped',
-				level: 'yellow',
-				description: 'Headings should not skip levels (e.g., h1 → h3 without h2). Skipping levels confuses screen readers.',
-				thresholds: '🟢 Sequential · 🟡 Skipped levels',
-				greenMax: 0,
-				yellowMax: 1,
-			});
-		}
-
 		if (a11y.focusOrderIssues.length > 0) {
 			budgets.push({
 				label: 'Focus Order',
@@ -1165,6 +1153,61 @@ onMount((): (() => void) => {
 				thresholds: '🟢 Has override · 🟡 No override',
 				greenMax: 0,
 				yellowMax: 1,
+			});
+		}
+
+		/* Always-present a11y summary metrics */
+		const labelRatio: Num = a11y.focusableCount > 0 ? a11y.labeledCount / a11y.focusableCount : 1;
+		let labelLevel: BudgetLevel = 'red';
+		if (labelRatio >= 1) { labelLevel = 'green'; }
+		else if (labelRatio >= 0.8) { labelLevel = 'yellow'; }
+		budgets.push({
+			label: 'A11y Labels',
+			value: `${a11y.labeledCount}/${a11y.focusableCount}`,
+			level: labelLevel,
+			description: 'Interactive elements with accessible labels vs total interactive elements. Every button, link, and input needs an accessible name.',
+			thresholds: '🟢 100% · 🟡 ≥80% · 🔴 <80%',
+			greenMax: 1,
+			yellowMax: 0.8,
+		});
+
+		budgets.push({
+			label: 'Headings',
+			value: `${a11y.headings.length}`,
+			level: a11y.headingSkipsLevel ? 'yellow' : 'green',
+			description: 'Heading elements found in document order. Headings should follow a sequential hierarchy (h1 → h2 → h3) without skipping levels.',
+			thresholds: '🟢 Sequential · 🟡 Skipped levels',
+			greenMax: 0,
+			yellowMax: 1,
+		});
+
+		let animationLevel: BudgetLevel = 'green';
+		if (a11y.animatedElementCount > 0 && !a11y.hasReducedMotionOverride) {
+			animationLevel = 'yellow';
+		}
+		budgets.push({
+			label: 'Animations',
+			value: `${a11y.animatedElementCount}`,
+			level: animationLevel,
+			description: 'Elements with active CSS animations or transitions. Components with motion should respect prefers-reduced-motion for users with vestibular disorders.',
+			thresholds: '🟢 0 or has override · 🟡 No override',
+			greenMax: 0,
+			yellowMax: 999,
+		});
+
+		if (propsTotal > 0) {
+			const propCoverage: Num = propsWithDefaults / propsTotal;
+			let propLevel: BudgetLevel = 'red';
+			if (propCoverage >= 1) { propLevel = 'green'; }
+			else if (propCoverage >= 0.5) { propLevel = 'yellow'; }
+			budgets.push({
+				label: 'Prop Coverage',
+				value: `${propsWithDefaults}/${propsTotal}`,
+				level: propLevel,
+				description: 'Props with default values vs total props. Higher coverage means the component works out-of-the-box with fewer required props.',
+				thresholds: '🟢 100% · 🟡 ≥50% · 🔴 <50%',
+				greenMax: 1,
+				yellowMax: 0.5,
 			});
 		}
 
