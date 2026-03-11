@@ -270,16 +270,50 @@ let cardStats: Record<Str, LensStatsData> = $state({});
 
 /* ---- Real Browser Screenshot State ---- */
 
+/** Console log entry captured during Playwright page load. */
+type ScreenshotConsoleEntry = {
+	/** Console message severity. @values log, warn, error, info, debug */
+	level: Str;
+	/** Console message text. @values Hello world, TypeError: x is not a function */
+	text: Str;
+};
+
+/** Performance timing data captured from the Playwright page. */
+type ScreenshotPerfData = {
+	/** Time to DOMContentLoaded in ms. @values 42, 120, 350 */
+	domContentLoaded: Num;
+	/** Time to load event in ms. @values 80, 200, 500 */
+	load: Num;
+	/** Time to DOM interactive in ms. @values 30, 100, 250 */
+	domInteractive: Num;
+	/** Time to response end in ms. @values 10, 50, 150 */
+	responseEnd: Num;
+	/** Time to first paint in ms. @values 25, 80, 200 */
+	firstPaint: Num;
+	/** Time to first contentful paint in ms. @values 30, 100, 250 */
+	firstContentfulPaint: Num;
+};
+
 /** Individual screenshot capture result. */
 type ScreenshotCapture = {
 	/** Browser engine used. @values chromium, firefox, webkit */
 	browser: Str;
+	/** Human-readable browser engine name. @values Chromium, Firefox, WebKit */
+	browserDisplayName: Str;
+	/** Browser engine version string. @values 131.0.6778.33, 132.0, 18.2 */
+	browserVersion: Str;
 	/** Playwright device name (empty = custom viewport). @values iPhone 15 Pro Max, Pixel 9, custom */
 	device: Str;
+	/** OS/platform string for the device. @values iOS 17.5, Android 14, macOS */
+	deviceOS: Str;
 	/** Object URL for the captured PNG image. @values blob:http://localhost:5173/... */
 	imageUrl: Str;
 	/** Capture timestamp (ms since epoch). @values 1710000000000 */
 	timestamp: Num;
+	/** Console messages captured during page load. */
+	consoleLogs: ScreenshotConsoleEntry[];
+	/** Performance timing data from the rendered page. */
+	performance: Partial<ScreenshotPerfData>;
 };
 
 /** Per-card selected browser engine for real browser screenshots. */
@@ -313,6 +347,8 @@ type PlaywrightDevice = {
 	touch: Bool;
 	/** Recommended browser engine. @values chromium, firefox, webkit */
 	defaultBrowser: Str;
+	/** OS/platform string from user agent. @values iOS 17.5, Android 14, macOS */
+	os: Str;
 };
 
 /** Cached Playwright device list. */
@@ -2735,6 +2771,47 @@ async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promis
 		params.set('colorScheme', mode);
 	}
 
+	/* Pass viewport dimensions to Playwright context */
+	const vp: Str = cardViewports[key] ?? 'auto';
+	if (vp !== 'auto' && !device) {
+		if (vp === 'custom') {
+			const dims = cardCustomViewports[key];
+			if (dims) {
+				params.set('width', String(dims.w));
+				params.set('height', String(dims.h));
+			}
+		} else {
+			const preset = VIEWPORT_PRESETS.find((p) => p.id === vp);
+			if (preset) {
+				params.set('width', String(preset.width));
+				params.set('height', String(preset.height));
+			}
+		}
+	}
+
+	/* Pass media preferences to Playwright context */
+	const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+	if (prefs) {
+		if (prefs['reduced-motion'] === 'reduce') {
+			params.set('reducedMotion', 'reduce');
+		}
+		if (prefs['forced-colors'] === 'active') {
+			params.set('forcedColors', 'active');
+		}
+	}
+
+	/* Pass network throttling delay (ms) to Playwright route interceptor */
+	const netSim: Str = cardNetworkSim[key] ?? 'none';
+	if (netSim !== 'none') {
+		if (netSim === 'custom') {
+			const custom = cardCustomNetwork[key];
+			if (custom) params.set('networkThrottle', String(custom.delay));
+		} else {
+			const preset = NETWORK_PRESETS.find((p) => p.id === netSim);
+			if (preset) params.set('networkThrottle', String(preset.delay));
+		}
+	}
+
 	try {
 		const res: Response = await fetch(`/api/lens/screenshot?${params.toString()}`);
 		if (!res.ok) {
@@ -2748,14 +2825,66 @@ async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promis
 			return;
 		}
 
-		const blob: Blob = await res.blob();
+		/* Parse JSON response (image + console + perf) */
+		const body: Record<Str, unknown> = (await res.json()) as Record<Str, unknown>;
+		const base64Image: Str = (body.image ?? '') as Str;
+		if (!base64Image) {
+			log.warn('Screenshot API returned no image data');
+			return;
+		}
+
+		/* Decode base64 → ArrayBuffer → blob → object URL */
+		const binaryStr: Str = atob(base64Image) as Str;
+		const buf: ArrayBuffer = new ArrayBuffer(binaryStr.length);
+		const view: Uint8Array = new Uint8Array(buf);
+		for (let i: Num = 0 as Num; i < binaryStr.length; i++) {
+			view[i] = binaryStr.codePointAt(i) ?? 0;
+		}
+		const blob: Blob = new Blob([buf], { type: 'image/png' });
 		const imageUrl: Str = URL.createObjectURL(blob) as Str;
+
+		/* Extract console logs */
+		const rawLogs: unknown[] = Array.isArray(body.consoleLogs) ? body.consoleLogs : [];
+		const consoleLogs: ScreenshotConsoleEntry[] = rawLogs.map(
+			(entry: unknown): ScreenshotConsoleEntry => {
+				const e: Record<Str, unknown> = entry as Record<Str, unknown>;
+				return { level: (e.level ?? 'log') as Str, text: (e.text ?? '') as Str };
+			},
+		);
+
+		/* Extract performance timing */
+		const rawPerf: Record<Str, unknown> = (
+			typeof body.performance === 'object' && body.performance !== null ? body.performance : {}
+		) as Record<Str, unknown>;
+		const perfData: Partial<ScreenshotPerfData> = {};
+		for (const k of [
+			'domContentLoaded',
+			'load',
+			'domInteractive',
+			'responseEnd',
+			'firstPaint',
+			'firstContentfulPaint',
+		]) {
+			if (typeof rawPerf[k] === 'number') {
+				(perfData as Record<Str, Num>)[k] = rawPerf[k] as Num;
+			}
+		}
+
+		/* Look up device OS from cached device list */
+		const matchedDevice: PlaywrightDevice | undefined = playwrightDevices.find(
+			(d: PlaywrightDevice): boolean => d.name === device,
+		);
 
 		const capture: ScreenshotCapture = {
 			browser,
+			browserDisplayName: ((body.browserDisplayName as Str) ?? browser) as Str,
+			browserVersion: ((body.browserVersion as Str) ?? '') as Str,
 			device: device || ('custom' as Str),
+			deviceOS: (matchedDevice?.os ?? '') as Str,
 			imageUrl,
 			timestamp: Date.now() as Num,
+			consoleLogs,
+			performance: perfData,
 		};
 
 		const existing: ScreenshotCapture[] = cardScreenshots[key] ?? [];
@@ -5728,48 +5857,111 @@ function isIconOption(option: Str): boolean {
 			<div class="overflow-hidden border-t bg-muted/20" transition:slide={{ duration: 200 }}>
 				<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
 					<div class="flex items-center gap-2">
-						<Camera class="size-3 text-muted-foreground" aria-hidden="true" />
-						<span class="text-[10px] font-semibold text-muted-foreground">Screenshots</span>
-						<span class="text-[10px] text-muted-foreground/60">{(cardScreenshots[cardKey] ?? []).length} captures</span>
+						<Camera class="size-3.5 text-muted-foreground" aria-hidden="true" />
+						<span class="text-xs font-semibold text-muted-foreground">Screenshots</span>
+						<span class="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{(cardScreenshots[cardKey] ?? []).length}</span>
 					</div>
 					<button
 						type="button"
-						class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+						title="Clear all screenshots"
+						class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
 						onclick={() => {
 							const captures: ScreenshotCapture[] = cardScreenshots[cardKey] ?? [];
 							for (const c of captures) URL.revokeObjectURL(c.imageUrl);
 							cardScreenshots[cardKey] = [];
 						}}
 					>
-						<Trash2 class="size-3" aria-hidden="true" />
-						Clear
+						<Trash2 class="size-3.5" aria-hidden="true" />
+						Clear All
 					</button>
 				</div>
 				<div class="flex flex-wrap gap-3 p-3">
 					{#each (cardScreenshots[cardKey] ?? []) as capture, idx (capture.timestamp)}
-						<div class="group relative overflow-hidden rounded-md border bg-background shadow-sm">
-							<div class="flex items-center gap-1.5 border-b bg-muted/30 px-2 py-1">
-								<Chrome class="size-3 text-muted-foreground" aria-hidden="true" />
-								<span class="text-[10px] font-medium text-muted-foreground">{capture.browser}</span>
+						<div class="w-80 overflow-hidden rounded-md border bg-background shadow-sm">
+							<!-- Header: browser name + version + device + delete -->
+							<div class="flex items-center gap-1.5 border-b bg-muted/30 px-2 py-1.5">
+								<Chrome class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+								<span class="text-[11px] font-semibold text-foreground">{capture.browserDisplayName}</span>
+								{#if capture.browserVersion}
+									<span class="text-[10px] text-muted-foreground/60">v{capture.browserVersion}</span>
+								{/if}
 								{#if capture.device !== 'custom'}
 									<span class="text-[10px] text-muted-foreground/60">· {capture.device}</span>
 								{/if}
+								{#if capture.deviceOS}
+									<span class="rounded bg-muted px-1 text-[9px] text-muted-foreground/70">{capture.deviceOS}</span>
+								{/if}
 								<button
 									type="button"
-									class="ml-auto rounded p-0.5 text-muted-foreground/50 opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+									title="Remove this screenshot"
+									class="ml-auto rounded p-1 text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
 									onclick={() => removeScreenshot(cardKey, idx as Num)}
 									aria-label="Remove screenshot"
 								>
-									<X class="size-3" />
+									<Trash2 class="size-3.5" />
 								</button>
 							</div>
-							<a href={capture.imageUrl} target="_blank" rel="noopener" class="block">
+							<!-- Screenshot image -->
+							<a href={capture.imageUrl} target="_blank" rel="noopener" class="block border-b">
 								<img
 									src={capture.imageUrl}
-									alt="{cardKey} screenshot — {capture.browser} {capture.device}"
-									class="max-h-64 max-w-xs object-contain"
+									alt="{cardKey} screenshot — {capture.browserDisplayName} {capture.device}"
+									class="max-h-64 w-full object-contain"
 								/>
 							</a>
+							<!-- Performance timing -->
+							{#if Object.keys(capture.performance).length > 0}
+								<div class="border-b px-2 py-1.5">
+									<div class="mb-1 flex items-center gap-1.5">
+										<Activity class="size-3 text-muted-foreground" aria-hidden="true" />
+										<span class="text-[10px] font-semibold text-muted-foreground">Performance</span>
+									</div>
+									<div class="grid grid-cols-2 gap-x-3 gap-y-0.5">
+										{#if capture.performance.firstContentfulPaint != null}
+											<span class="text-[10px] text-muted-foreground">FCP</span>
+											<span class="text-[10px] font-mono">{capture.performance.firstContentfulPaint}ms</span>
+										{/if}
+										{#if capture.performance.firstPaint != null}
+											<span class="text-[10px] text-muted-foreground">First Paint</span>
+											<span class="text-[10px] font-mono">{capture.performance.firstPaint}ms</span>
+										{/if}
+										{#if capture.performance.domContentLoaded != null}
+											<span class="text-[10px] text-muted-foreground">DCL</span>
+											<span class="text-[10px] font-mono">{capture.performance.domContentLoaded}ms</span>
+										{/if}
+										{#if capture.performance.load != null}
+											<span class="text-[10px] text-muted-foreground">Load</span>
+											<span class="text-[10px] font-mono">{capture.performance.load}ms</span>
+										{/if}
+										{#if capture.performance.domInteractive != null}
+											<span class="text-[10px] text-muted-foreground">Interactive</span>
+											<span class="text-[10px] font-mono">{capture.performance.domInteractive}ms</span>
+										{/if}
+										{#if capture.performance.responseEnd != null}
+											<span class="text-[10px] text-muted-foreground">TTFB</span>
+											<span class="text-[10px] font-mono">{capture.performance.responseEnd}ms</span>
+										{/if}
+									</div>
+								</div>
+							{/if}
+							<!-- Console logs -->
+							{#if capture.consoleLogs.length > 0}
+								<div class="px-2 py-1.5">
+									<div class="mb-1 flex items-center gap-1.5">
+										<Terminal class="size-3 text-muted-foreground" aria-hidden="true" />
+										<span class="text-[10px] font-semibold text-muted-foreground">Console</span>
+										<span class="text-[10px] text-muted-foreground/60">{capture.consoleLogs.length}</span>
+									</div>
+									<div class="max-h-24 overflow-y-auto">
+										{#each capture.consoleLogs as entry (entry.text + entry.level)}
+											<div class="flex gap-1.5 border-t border-dashed border-muted py-0.5 first:border-0">
+												<span class="shrink-0 text-[9px] font-mono {entry.level === 'error' ? 'text-red-500' : entry.level === 'warn' ? 'text-yellow-500' : 'text-muted-foreground/60'}">{entry.level}</span>
+												<span class="truncate text-[10px] font-mono text-muted-foreground">{entry.text}</span>
+											</div>
+										{/each}
+									</div>
+								</div>
+							{/if}
 						</div>
 					{/each}
 				</div>
