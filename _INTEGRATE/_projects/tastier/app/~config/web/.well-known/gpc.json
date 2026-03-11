@@ -1,0 +1,17 @@
+{
+  "$schema": "{{SCHEMA_URL_GPC_JSON}}",
+  "gpc": true,
+  "lastUpdated": "{{GPC_LAST_UPDATED}}",
+  "honors": [
+    "sale",
+    "sharing",
+    "targeted_advertising"
+  ],
+  "appliesTo": [
+    "web",
+    "mobile_web",
+    "api"
+  ],
+  "scope": "global",
+  "policy": "https://{{MARKETING_DOMAIN}}/{{MARKETING_ROUTE_PRIVACY_POLICY}}"
+}

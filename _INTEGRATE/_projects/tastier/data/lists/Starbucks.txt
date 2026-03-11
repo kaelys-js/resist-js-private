@@ -1,0 +1,186 @@
+Brewed Coffee
+Caffè Americano
+Caffè Misto
+Cold Brew Coffee
+Nitro Cold Brew
+Nitro Cold Brew with Sweet Cream
+Iced Coffee
+
+Caffè Latte
+Iced Caffè Latte
+Cappuccino
+Flat White
+Caffè Mocha
+White Chocolate Mocha
+Iced Caffè Mocha
+Iced White Chocolate Mocha
+
+Caramel Macchiato
+Iced Caramel Macchiato
+Vanilla Latte
+Iced Vanilla Latte
+Hazelnut Latte
+Cinnamon Dolce Latte
+Iced Cinnamon Dolce Latte
+
+Espresso
+Espresso Con Panna
+Doppio Espresso
+Ristretto Espresso
+
+Frappuccino Blended Beverage (Coffee)
+Coffee Frappuccino
+Espresso Frappuccino
+Caffè Vanilla Frappuccino
+Caramel Frappuccino
+Mocha Frappuccino
+Java Chip Frappuccino
+White Chocolate Mocha Frappuccino
+
+Frappuccino Blended Beverage (Crème)
+Vanilla Bean Crème Frappuccino
+Strawberries and Crème Frappuccino
+Double Chocolatey Chip Crème Frappuccino
+Matcha Crème Frappuccino
+
+Chai Tea Latte
+Iced Chai Tea Latte
+Matcha Tea Latte
+Iced Matcha Tea Latte
+London Fog Tea Latte (Earl Grey Tea Latte)
+Royal English Breakfast Tea Latte
+
+Hot Chocolate
+White Hot Chocolate
+Peppermint Hot Chocolate
+
+Pink Drink Strawberry Açaí Refresher
+Strawberry Açaí Refresher
+Mango Dragonfruit Refresher
+Dragon Drink Mango Dragonfruit Refresher
+Pineapple Passionfruit Refresher
+
+Iced Peach Green Tea
+Iced Black Tea
+Iced Green Tea
+
+Butter Croissant
+Chocolate Croissant
+Almond Croissant
+
+Banana Nut Bread
+Pumpkin Bread
+Lemon Loaf
+
+Blueberry Muffin
+Chocolate Chip Muffin
+
+Classic Coffee Cake
+Cinnamon Coffee Cake
+
+Double-Smoked Bacon, Cheddar & Egg Sandwich
+Bacon, Gouda & Egg Sandwich
+Sausage, Cheddar & Egg Sandwich
+Ham & Swiss Croissant
+
+Egg White & Roasted Red Pepper Egg Bites
+Bacon & Gruyère Egg Bites
+
+Turkey Pesto Panini
+Chicken Caprese Panini
+Ham & Swiss Panini
+
+Plain Bagel
+Everything Bagel
+Cheese Danish
+
+Chocolate Chip Cookie
+Double Chocolate Brownie
+
+Pumpkin Spice Latte
+Pumpkin Spice Latte with Whipped Cream
+Pumpkin Spice Latte with Oatmilk
+Pumpkin Spice Latte with Almondmilk
+Pumpkin Spice Latte with Soymilk
+Iced Pumpkin Spice Latte
+Pumpkin Cream Cold Brew
+Pumpkin Cream Cold Brew with Vanilla Syrup
+Pumpkin Cream Cold Brew with Pumpkin Cream Cold Foam
+Pumpkin Spice Frappuccino Blended Beverage
+Pumpkin Spice Crème Frappuccino Blended Beverage
+
+Peppermint Mocha
+Peppermint Mocha with Whipped Cream
+Peppermint Mocha with Dark Chocolate Curls
+Peppermint Mocha with Oatmilk
+Iced Peppermint Mocha
+Peppermint Mocha Frappuccino Blended Beverage
+Peppermint Hot Chocolate
+
+Caramel Brulée Latte
+Caramel Brulée Latte with Whipped Cream
+Caramel Brulée Latte with Caramel Brulée Topping
+Iced Caramel Brulée Latte
+Caramel Brulée Frappuccino Blended Beverage
+
+Chestnut Praline Latte
+Chestnut Praline Latte with Whipped Cream
+Chestnut Praline Latte with Spiced Praline Topping
+Iced Chestnut Praline Latte
+Chestnut Praline Frappuccino Blended Beverage
+
+Eggnog Latte
+Eggnog Latte with Steamed Eggnog
+Eggnog Latte with Nutmeg
+Iced Eggnog Latte
+
+Gingerbread Latte
+Gingerbread Latte with Whipped Cream
+Gingerbread Latte with Molasses Drizzle
+Iced Gingerbread Latte
+
+Irish Cream Cold Brew
+Irish Cream Cold Brew with Vanilla Sweet Cream Cold Foam
+
+Toasted White Chocolate Mocha
+Toasted White Chocolate Mocha with Whipped Cream
+Iced Toasted White Chocolate Mocha
+Toasted White Chocolate Mocha Frappuccino Blended Beverage
+
+Holiday Spice Flat White
+Holiday Spice Flat White with Whole Milk
+
+Salted Caramel Mocha
+Salted Caramel Mocha with Whipped Cream
+Iced Salted Caramel Mocha
+Salted Caramel Mocha Frappuccino Blended Beverage
+
+Maple Pecan Latte
+Maple Pecan Latte with Pecan Topping
+Iced Maple Pecan Latte
+
+Cherry Mocha
+Cherry Mocha with Chocolate Whipped Cream
+
+S’mores Frappuccino Blended Beverage
+S’mores Crème Frappuccino Blended Beverage
+
+Juniper Latte
+Juniper Latte with Citrus Notes
+
+Honey Almondmilk Flat White
+Honey Almondmilk Flat White with Blonde Espresso
+
+Spring Cherry Blossom Latte
+Spring Cherry Blossom Frappuccino Blended Beverage
+
+Strawberry Funnel Cake Frappuccino Blended Beverage
+Strawberry Funnel Cake Crème Frappuccino Blended Beverage
+
+Apple Crisp Macchiato
+Apple Crisp Macchiato with Oatmilk
+Iced Apple Crisp Macchiato
+Apple Crisp Frappuccino Blended Beverage
+
+Holiday Blend Brewed Coffee
+Thanksgiving Blend Brewed Coffee

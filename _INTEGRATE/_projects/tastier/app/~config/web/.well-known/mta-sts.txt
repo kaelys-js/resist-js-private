@@ -1,0 +1,4 @@
+version: STSv1
+mode: enforce
+mx: mail.{{MARKETING_DOMAIN}}
+max_age: {{MTA_STS_MAX_AGE}}

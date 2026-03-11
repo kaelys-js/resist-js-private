@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Game Stream Client</title>
+  <style>
+    body {
+      background: #000;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    video {
+      width: 100%;
+      max-width: 960px;
+      aspect-ratio: 16 / 9;
+      background: black;
+    }
+  </style>
+</head>
+<body>
+  <video id="game" autoplay playsinline></video>
+  <script type="module" src="/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+Shish Kebab (Grilled Skewered Meat)
+Lamb Shish Kebab (Grilled Skewered Lamb)
+Chicken Shish Kebab (Grilled Skewered Chicken)
+Beef Shish Kebab (Grilled Skewered Beef)
+Mixed Grill Shish Kebab (Assorted Grilled Meat Skewers)
+Adana Kebab (Spiced Minced Lamb Skewer)
+Urfa Kebab (Mild Minced Lamb Skewer)
+Seekh Kebab (Spiced Minced Meat Skewer)
+Chapli Kebab Skewer (Spiced Minced Meat Patty Skewer)
+Koobideh Kebab (Persian Minced Meat Skewer)
+Barg Kebab (Persian Filet Skewer)
+Joojeh Kebab (Persian Saffron Chicken Skewer)
+Chelow Kabab Skewer (Iranian Grilled Meat Skewer)
+Yakitori (Japanese Grilled Chicken Skewers)
+Yakitori Negima (Chicken and Scallion Skewer)
+Yakitori Tsukune (Chicken Meatball Skewer)
+Yakitori Momo (Chicken Thigh Skewer)
+Yakitori Tebasaki (Chicken Wing Skewer)
+Kushiyaki (Japanese Grilled Skewers)
+Satay (Southeast Asian Grilled Skewers)
+Chicken Satay (Peanut Sauce Chicken Skewers)
+Beef Satay (Peanut Sauce Beef Skewers)
+Pork Satay (Peanut Sauce Pork Skewers)
+Lamb Satay (Spiced Lamb Skewers)
+Sate Lilit (Balinese Minced Seafood Skewer)
+Sate Ayam (Indonesian Chicken Skewer)
+Sate Kambing (Indonesian Goat Skewer)
+Sate Padang (Spiced Beef Offal Skewer)
+Chuanr (Chinese Spiced Lamb Skewers)
+Yang Rou Chuan (Northern Chinese Lamb Skewers)
+Shaokao Lamb Skewers (Chinese Street-Style Skewers)
+Skewer-Roasted Chicken Hearts (Yakitori Hatsu)
+Skewer-Roasted Chicken Liver (Yakitori Reba)
+Kebab Skewer with Vegetables (Grilled Meat and Vegetable Skewers)
+Vegetable Skewers (Grilled Vegetable Skewers)
+Halloumi Skewers (Grilled Halloumi Cheese Skewers)
+Paneer Tikka Skewers (Indian Grilled Paneer Skewers)
+Tandoori Chicken Skewers (Indian Spiced Chicken Skewers)
+Malai Tikka Skewers (Creamy Chicken Skewers)
+Boti Kebab (Spiced Cubed Meat Skewers)
+Reshmi Kebab Skewers (Silken Chicken Skewers)
+Kofta Kebab Skewers (Middle Eastern Minced Meat Skewers)
+Lula Kebab (Caucasian Minced Meat Skewer)
+Shashlik (Eastern European Grilled Meat Skewers)
+Caucasian Pork Shashlik (Grilled Pork Skewers)
+Georgian Mtsvadi (Grilled Pork Skewers)
+Anticuchos (Peruvian Beef Heart Skewers)
+Anticuchos de Pollo (Peruvian Chicken Skewers)
+Espetada (Portuguese Beef Skewers)
+Espetinho (Brazilian Grilled Meat Skewers)
+Chicken Espetinho (Brazilian Chicken Skewers)
+Beef Espetinho (Brazilian Beef Skewers)
+Churrasco Skewers (Brazilian Skewered Grilled Meats)
+Brochettes (French Grilled Meat Skewers)
+Brochettes de Boeuf (Beef Skewers)
+Brochettes de Poulet (Chicken Skewers)
+Brochettes de Crevettes (Shrimp Skewers)
+Pinchos Morunos (Spanish Spiced Pork Skewers)
+Pinchitos (Spanish Mini Meat Skewers)
+Moorish Chicken Skewers (Pinchos de Pollo)
+Souvlaki (Greek Grilled Meat Skewers)
+Chicken Souvlaki (Greek Chicken Skewers)
+Pork Souvlaki (Greek Pork Skewers)
+Lamb Souvlaki (Greek Lamb Skewers)
+Shami Kebab Skewers (Spiced Minced Meat Skewers)
+Bun Kebab Skewer (Skewered Spiced Meat Patty)
+Hawaiian Teriyaki Chicken Skewers
+Beef Teriyaki Skewers
+Honey Garlic Chicken Skewers
+Barbecue Chicken Skewers
+Beef Barbecue Skewers
+Shrimp Skewers (Grilled Shrimp Skewers)
+Garlic Butter Shrimp Skewers
+Seafood Skewers (Mixed Grilled Seafood Skewers)
+Salmon Skewers (Grilled Salmon Skewers)
+Scallop Skewers (Grilled Scallop Skewers)
+Korean Bulgogi Skewers (Marinated Beef Skewers)
+Dakkochi (Korean Grilled Chicken Skewers)
+Tsukiji Seafood Skewers (Japanese Market-Style Skewers)
+Doner Kebab Skewers (Stacked Grilled Meat Skewers)
+Shawarma Skewers (Middle Eastern Spiced Meat Skewers)
+Al Pastor Skewers (Mexican Spit-Marinated Pork Skewers)
+Carne Asada Skewers (Mexican Grilled Beef Skewers)
+Pollo Asado Skewers (Mexican Grilled Chicken Skewers)
+Cajun Shrimp Skewers
+Jerk Chicken Skewers
+Jerk Pork Skewers
+Moroccan Lamb Skewers
+Ras el Hanout Chicken Skewers
+Harissa Shrimp Skewers
+Mediterranean Vegetable Skewers
+Pork Souvlaki Skewers
+Chicken Souvlaki Skewers
+Lamb Souvlaki Skewers
+Beef Souvlaki Skewers
+Mixed Meat Souvlaki Skewers
+Pork Souvlaki Pita Wrap
+Chicken Souvlaki Pita Wrap
+Lamb Souvlaki Pita Wrap
+Beef Souvlaki Pita Wrap
+Pork Souvlaki Plate
+Chicken Souvlaki Plate
+Lamb Souvlaki Plate
+Beef Souvlaki Plate
+Kalamaki (Traditional Greek Souvlaki Skewers)
+Lemon Oregano Pork Souvlaki
+Garlic Marinated Pork Souvlaki
+Chicken Souvlaki with Yogurt Marinade
+Charcoal-Grilled Pork Souvlaki
+Charcoal-Grilled Chicken Souvlaki
+Charcoal-Grilled Lamb Souvlaki
+Shrimp Souvlaki Skewers
+Salmon Souvlaki Skewers
+Halloumi Souvlaki Skewers
+Vegetable Souvlaki Skewers
+Mushroom Souvlaki Skewers
+Wagyu Beef Souvlaki
+Iberico Pork Souvlaki
+Open-Faced Souvlaki Pita
+Souvlaki on the Stick
+Street-Style Pork Souvlaki
+Home-Style Pork Souvlaki
+Rotisserie-Style Souvlaki Skewers

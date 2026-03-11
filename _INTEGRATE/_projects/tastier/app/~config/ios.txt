@@ -1,0 +1,221 @@
+1. Apple Developer Program (Account-level)
+
+Required before anything else:
+	•	Apple Developer Program enrollment (Individual or Organization)
+	•	Legal entity name
+	•	D-U-N-S number (Organization accounts)
+	•	Account Holder Apple ID
+	•	Team ID
+	•	Tax and banking information (for paid apps / IAP)
+	•	App Store Connect access roles configured
+
+⸻
+
+2. App Identity & Bundle Metadata (Xcode / Build)
+
+Hard requirements:
+	•	App name (≤ 30 characters)
+	•	Bundle Identifier (reverse-DNS, immutable once published)
+	•	Version (CFBundleShortVersionString)
+	•	Build number (CFBundleVersion)
+	•	Minimum iOS version
+	•	Supported device families (iPhone / iPad / universal)
+	•	Supported orientations
+	•	Localization list
+	•	App category (primary + optional secondary)
+
+Files involved:
+	•	Info.plist
+	•	App.entitlements
+	•	PrivacyInfo.xcprivacy
+	•	LaunchScreen.storyboard
+
+⸻
+
+3. Certificates, Identifiers & Profiles
+
+Required for signing and distribution:
+	•	App ID (explicit, not wildcard)
+	•	Distribution certificate
+	•	Development certificate
+	•	Provisioning profiles (Development + App Store)
+	•	Push notification entitlement (if applicable)
+	•	Associated domains entitlement (if applicable)
+	•	Keychain access groups (if applicable)
+
+⸻
+
+4. App Store Connect – App Information
+
+Mandatory fields:
+	•	App name
+	•	Subtitle (≤ 30 characters)
+	•	App description (full)
+	•	Keywords (≤ 100 characters)
+	•	Support URL
+	•	Marketing URL (optional but recommended)
+	•	Privacy Policy URL (mandatory)
+	•	App category
+	•	Content rights declaration
+
+Optional but common:
+	•	Promotional text
+	•	App Clips metadata (if used)
+
+⸻
+
+5. Pricing & Availability
+
+Required decisions:
+	•	Free or Paid
+	•	Price tier
+	•	Availability regions
+	•	App Store distribution method:
+	•	Public
+	•	Unlisted
+	•	Custom (Apple Business Manager / School Manager)
+
+⸻
+
+6. App Privacy (App Store Privacy Nutrition Label)
+
+Mandatory, enforced by Apple:
+
+You must declare, per data type:
+	•	Data collected
+	•	Data linked to the user
+	•	Data used for tracking
+	•	Data shared with third parties
+	•	Purpose of collection (analytics, functionality, personalization, etc.)
+	•	Whether data is optional or required
+
+This must match:
+	•	Actual runtime behavior
+	•	SDK behavior
+	•	Backend behavior
+
+Mismatch = rejection.
+
+⸻
+
+7. Privacy Manifest (iOS 17+)
+
+Required file:
+	•	PrivacyInfo.xcprivacy
+
+Must declare:
+	•	APIs accessed (e.g., UserDefaults, File Timestamp APIs)
+	•	Reasons for access (Apple-defined enums)
+	•	Tracking domains (if applicable)
+	•	SDK usage compliance
+
+This is mandatory as of iOS 17 for new submissions.
+
+⸻
+
+8. App Tracking Transparency (If Applicable)
+
+If tracking exists:
+	•	NSUserTrackingUsageDescription
+	•	ATT prompt copy
+	•	Tracking declaration in App Store privacy section
+
+If not used:
+	•	Must explicitly declare no tracking
+
+⸻
+
+9. Permissions & Usage Strings
+
+Each permission requires a purpose string:
+
+Examples:
+	•	Camera
+	•	Photos
+	•	Microphone
+	•	Location (When In Use / Always)
+	•	Contacts
+	•	Notifications
+	•	Bluetooth
+	•	Calendar
+	•	Health
+	•	Motion
+	•	Face ID
+
+Missing or vague strings = rejection.
+
+⸻
+
+10. In-App Purchases (If Used)
+
+Required setup:
+	•	IAP products configured
+	•	Product IDs
+	•	Pricing
+	•	Subscription groups (if applicable)
+	•	Intro offers / trials
+	•	App Store Server Notifications endpoint
+	•	Restore purchases flow implemented
+
+Legal:
+	•	Apple EULA acceptance
+	•	Subscription terms displayed in app
+
+⸻
+
+11. App Review Information (Critical)
+
+Mandatory for review:
+	•	Demo account credentials (if login required)
+	•	Instructions for reviewer
+	•	Review notes (feature flags, test data, flows)
+	•	Contact information for reviewer questions
+
+⸻
+
+12. Screenshots & Previews (Per Device Class)
+
+Required assets per size class:
+	•	iPhone screenshots (6.7”, 6.5”, 5.5” or modern equivalents)
+	•	iPad screenshots (if iPad supported)
+	•	App Preview videos (optional but supported)
+
+Rules:
+	•	Must reflect actual UI
+	•	No marketing exaggeration
+	•	No placeholder text
+
+⸻
+
+13. Legal & Compliance
+
+Mandatory declarations:
+	•	Export compliance (encryption usage)
+	•	Content rating questionnaire
+	•	COPPA compliance (if applicable)
+	•	Gambling / regulated content disclosure (if applicable)
+	•	Third-party content rights
+
+⸻
+
+14. Build Submission
+
+Required:
+	•	Archive uploaded via Xcode or CI
+	•	App Store distribution selected
+	•	Bitcode (if applicable)
+	•	Symbols uploaded (dSYMs)
+	•	Build processing completed
+
+⸻
+
+15. Ongoing Operational Requirements
+
+After approval:
+	•	Crash reporting (strongly expected)
+	•	Privacy policy kept up to date
+	•	App Store listing kept accurate
+	•	SDK updates tracked for compliance
+	•	Annual Developer Program renewal
+	•	Certificate rotation
+	•	Privacy label updates when behavior changes

@@ -1,0 +1,44 @@
+Basically a cron job that runs every x for "asset path" and validates response matches schema
+
+Cross validate:
+
+- mta-sts.txt against DNS record
+- change-password route
+- gpc.json: schema, policy url
+- related-website-set.json: schema, primary url
+- security.txt
+    - email is valid
+    - security route is valid
+    - security policy route is valid
+    - acknowledgements route is valid
+    - hiring route is valid
+- ads.txt: email contact is valid
+- browserconfig.xml pngs are correct
+- manifest.webmanfiest: pngs/svgs are correct
+- health/status.json: schema
+
+Paths:
+
+/.well-known
+    apple-app-site-assocation.json
+    apple-developer-domain-association.json
+    apple-developer-merchantid-domain-assocation.json
+    change-password
+    gpc.json
+    mta-sts.txt
+    pgp-key.txt
+    security.txt
+
+ads.txt
+app-ads.txt
+assetlinks.json
+browserconfig.xml
+health.json
+manifest.webmanifest
+robots.txt
+status.json
+
+[icons]
+    - test each file that format, dimensions are correct
+[404/500]
+[marketing urls]

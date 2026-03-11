@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# 🌐 Deploy Preview Worker
+# ------------------------------------------------------------------------------
+# preview:deploy — Deploys a Cloudflare Worker preview for a specific feature branch.
+#
+# ✅ Deployment Flow:
+#    - Injects Sentry secrets into the preview environment
+#    - Runs `wrangler deploy --preview`, scoped to the feature branch
+#    - Extracts the live preview URL from the CLI output
+#    - Writes PREVIEW_URL to `.env.preview` for downstream jobs
+#    - Triggers a health check to verify the deployed Worker is live and responsive
+#
+# ✅ Environment Tracking:
+#    - Registers a dynamic GitLab environment named `preview/<branch-name>`
+#    - Expires automatically after 7 days (or can be manually stopped via teardown job)
+#
+# ✅ Artifact Usage:
+#    - `.env.preview` is updated and reused by:
+#      - comment-preview-url
+#      - validate:preview-url
+#      - any integration tests against the preview deployment
+#
+# ⚠️ This job depends on preview:bootstrap-db to ensure DB context exists before deploy.
+preview:deploy:
+  stage: deploy
+  needs: [preview:bootstrap-db]
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^feature\/.+$/'
+  script:
+    - deploy_preview_worker_with_secrets | tee .deploy-preview-summary.md
+  environment:
+    name: preview/$CI_COMMIT_REF_NAME
+    url: $PREVIEW_URL
+    on_stop: preview:teardown
+    expire_in: 7 days
+  artifacts:
+    paths:
+      - .deploy-preview-summary.md
+    expire_in: 7 days

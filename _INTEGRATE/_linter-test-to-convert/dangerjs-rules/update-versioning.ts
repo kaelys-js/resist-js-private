@@ -1,0 +1,8 @@
+/*
+    Update these files from quality settings
+
+    .nvmrc
+    .npmrc
+    .editorconfig FROM biome.json
+    all package.json THEN pnpm i
+*/

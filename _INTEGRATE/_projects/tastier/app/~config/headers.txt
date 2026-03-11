@@ -1,0 +1,147 @@
+# ============================================================
+# COMMON HEADERS — APPLY TO ALMOST ALL RESPONSES
+# (Except where explicitly overridden below)
+# ============================================================
+
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+Cache-Control: no-transform
+Vary: Accept-Encoding
+
+# (Optional, recommended if you do not need framing anywhere)
+# Content-Security-Policy: frame-ancestors 'none';
+
+# ============================================================
+# HTML — WEB APP (APP SHELL, AUTH, DASHBOARD, SPA ROUTES)
+# ============================================================
+
+Content-Type: text/html; charset=utf-8
+Cache-Control: no-store
+
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data:;
+  font-src 'self';
+  connect-src 'self' https:;
+  frame-ancestors 'none';
+  base-uri 'none';
+
+# Optional
+Content-Language: en
+
+# ============================================================
+# HTML — MARKETING SITE (STATIC PAGES)
+# ============================================================
+
+Content-Type: text/html; charset=utf-8
+Cache-Control: public, max-age=31536000, immutable
+
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' https:;
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: https:;
+  font-src 'self';
+  frame-ancestors 'none';
+  base-uri 'none';
+
+Content-Language: en
+
+# ============================================================
+# JSON — API RESPONSES
+# ============================================================
+
+Content-Type: application/json; charset=utf-8
+Cache-Control: no-store
+
+# If public / cross-origin API
+Access-Control-Allow-Origin: https://tastier.app
+Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
+Access-Control-Allow-Headers: Content-Type, Authorization
+Vary: Origin
+
+# Optional
+ETag: "stable-or-versioned-only"
+
+# ============================================================
+# JSON — HEALTH / STATUS
+# ============================================================
+
+# /health.json
+Content-Type: application/json
+Cache-Control: no-store
+# HTTP 200 if healthy, HTTP 503 if unhealthy
+
+# /status.json
+Content-Type: application/json
+Cache-Control: public, max-age=60
+
+# ============================================================
+# JSON — PWA / METADATA
+# ============================================================
+
+# /site.webmanifest
+Content-Type: application/manifest+json
+Cache-Control: public, max-age=31536000, immutable
+
+# ============================================================
+# TEXT — POLICY / GOVERNANCE FILES
+# (.txt, .well-known/*)
+# ============================================================
+
+Content-Type: text/plain; charset=utf-8
+Cache-Control: public, max-age=86400
+
+# Examples:
+# /security.txt
+# /ai.txt
+# /licenses.txt
+# /changelog.txt
+# /.well-known/change-password
+# /.well-known/apple-developer-domain-association
+
+# ============================================================
+# STATIC ASSETS — JS / CSS
+# ============================================================
+
+# JavaScript
+Content-Type: application/javascript; charset=utf-8
+Cache-Control: public, max-age=31536000, immutable
+
+# CSS
+Content-Type: text/css; charset=utf-8
+Cache-Control: public, max-age=31536000, immutable
+
+# ============================================================
+# STATIC ASSETS — FONTS
+# ============================================================
+
+Content-Type: font/woff2
+Cache-Control: public, max-age=31536000, immutable
+Access-Control-Allow-Origin: *
+
+# ============================================================
+# IMAGES
+# ============================================================
+
+Content-Type: image/png | image/jpeg | image/webp | image/svg+xml
+Cache-Control: public, max-age=31536000, immutable
+
+# ============================================================
+# OPTIONAL — ADVANCED (ONLY IF YOU KNOW YOU NEED THEM)
+# ============================================================
+
+# Cross-origin isolation (breaks third-party embeds)
+# Cross-Origin-Opener-Policy: same-origin
+# Cross-Origin-Embedder-Policy: require-corp
+
+# Client Hints (must be real HTTP headers, not meta)
+# Accept-CH: DPR, Width, Viewport-Width
+# Permissions-Policy: ch-dpr=(), ch-width=(), ch-viewport-width=()
+
+# Compression (must match body exactly)
+# Content-Encoding: br | gzip

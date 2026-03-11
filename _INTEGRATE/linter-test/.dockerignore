@@ -1,0 +1,48 @@
+# Docker ignore for linter-test
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+.svelte-kit/
+.next/
+.nuxt/
+
+# Git
+.git/
+.gitignore
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Cache
+.cache/
+.ruff_cache/
+.mypy_cache/
+__pycache__/
+coverage/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Documentation
+*.md
+!README.md
+
+# Test files
+test-files/
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+
+# OS files
+.DS_Store
+Thumbs.db

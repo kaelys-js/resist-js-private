@@ -1,0 +1,146 @@
+Hamburger
+Cheeseburger
+Double Cheeseburger
+Bacon Cheeseburger
+Classic Beef Burger
+Smash Burger
+Double Smash Burger
+Steakhouse Burger
+American Diner Burger
+All-American Burger
+Butter Burger
+Patty Melt
+Slider Burger
+Mini Burger Sliders
+Gourmet Beef Burger
+Dry-Aged Beef Burger
+Wagyu Beef Burger
+American Wagyu Burger
+Prime Rib Burger
+Short Rib Burger
+Brisket Burger
+Chuck Steak Burger
+Grass-Fed Beef Burger
+Organic Beef Burger
+
+Classic Chicken Burger
+Fried Chicken Burger
+Crispy Chicken Burger
+Grilled Chicken Burger
+Spicy Chicken Burger
+Nashville Hot Chicken Burger
+Buttermilk Fried Chicken Burger
+
+Turkey Burger
+Ground Turkey Burger
+Lean Turkey Burger
+
+Veggie Burger
+Vegetable Burger
+Garden Burger
+Black Bean Burger
+Bean Burger
+Lentil Burger
+Chickpea Burger
+Falafel Burger (Chickpea Fritter Burger)
+Mushroom Burger
+Portobello Mushroom Burger
+Grilled Portobello Burger
+Wild Mushroom Burger
+
+Plant-Based Burger
+Beyond Burger
+Impossible Burger
+Vegan Burger
+
+Cheese-Stuffed Burger
+Juicy Lucy Burger (Cheese-Stuffed Beef Burger)
+Stuffed Burger
+
+BBQ Burger
+Barbecue Bacon Burger
+Western Burger
+Cowboy Burger
+
+Swiss Mushroom Burger
+Mushroom Swiss Burger
+
+Avocado Burger
+California Burger
+
+Blue Cheese Burger
+Gorgonzola Burger
+
+Truffle Burger
+Truffle Beef Burger
+
+Breakfast Burger
+Egg Burger
+Bacon and Egg Burger
+
+Chili Burger
+Chili Cheeseburger
+
+Hawaiian Burger
+Pineapple Burger
+
+Teriyaki Burger
+
+Greek Burger
+Lamb Burger
+Greek Lamb Burger
+
+Lamb and Feta Burger
+
+Middle Eastern Spiced Lamb Burger
+
+Fish Burger
+Fish Fillet Burger
+Fried Fish Burger
+
+Salmon Burger
+Grilled Salmon Burger
+
+Tuna Burger
+Seared Tuna Burger
+
+Crab Cake Burger
+Crab Burger
+
+Shrimp Burger
+Prawn Burger
+
+Pork Burger
+Ground Pork Burger
+
+Pulled Pork Burger
+
+Banh Mi Burger (Vietnamese-Style Burger)
+
+Katsu Burger (Japanese Breaded Cutlet Burger)
+
+Menchi Katsu Burger (Japanese Minced Meat Cutlet Burger)
+
+Teriyaki Chicken Burger
+
+Kimchi Burger
+
+Bibimbap Burger (Korean Mixed Rice Burger)
+
+Arepa Burger (Latin American Corn Cake Burger)
+
+Chorizo Burger
+
+Mexican Burger
+
+Tex-Mex Burger
+
+Green Chile Burger
+
+Pimento Cheese Burger
+
+Southern Fried Burger
+
+Open-Faced Burger
+
+Knife-and-Fork Burger

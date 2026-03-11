@@ -1,0 +1,196 @@
+:root {
+  /* Core palette — Japanese-inspired */
+  --color-navy: #1d3a5e;
+  --color-charcoal: #3d4852;
+  --color-slate: #6b7b8c;
+  --color-cream: #f4f0e8;
+  --color-warm-white: #faf8f5;
+  --color-vermillion: #c63d3a;
+  --color-gold: #b8860b;
+  --color-info-bg: #eff6ff;
+  --color-divider: #d4cfc3;
+
+  /* Semantic */
+  --color-free: #16a34a;
+  --color-booked: #2563eb;
+  --color-pending: #d97706;
+  --color-checked: #16a34a;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Borders */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* Framework7 overrides */
+  --f7-theme-color: #1d3a5e;
+  --f7-theme-color-rgb: 29, 58, 94;
+  --f7-theme-color-shade: #152d4a;
+  --f7-theme-color-tint: #254772;
+  --f7-font-family: -apple-system, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  --f7-page-bg-color: var(--color-warm-white);
+  --f7-bars-bg-color: var(--color-warm-white);
+  --f7-navbar-bg-color: var(--color-warm-white);
+  --f7-card-border-radius: var(--radius-md);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-navy: #93b4d4;
+    --color-charcoal: #d4d4d8;
+    --color-slate: #a1a1aa;
+    --color-cream: #1c1c1e;
+    --color-warm-white: #000000;
+    --color-vermillion: #ef6961;
+    --color-gold: #d4a017;
+    --color-info-bg: #1a2332;
+    --color-divider: #2c2c2e;
+
+    --f7-page-bg-color: #000000;
+    --f7-bars-bg-color: #1c1c1e;
+    --f7-navbar-bg-color: #1c1c1e;
+  }
+}
+
+/* Global styles */
+body {
+  font-family: -apple-system, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  background: var(--color-warm-white);
+  color: var(--color-charcoal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Safe area support */
+.ios {
+  --f7-safe-area-top: env(safe-area-inset-top);
+  --f7-safe-area-bottom: env(safe-area-inset-bottom);
+  --f7-safe-area-left: env(safe-area-inset-left);
+  --f7-safe-area-right: env(safe-area-inset-right);
+}
+
+/* Custom card styles */
+.card-custom {
+  background: var(--color-cream);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  margin: var(--space-md);
+  padding: var(--space-lg);
+}
+
+/* Badge styles */
+.badge-cost {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+}
+
+.badge-cost--paid {
+  background: var(--color-navy);
+  color: white;
+}
+
+.badge-cost--free {
+  background: var(--color-free);
+  color: white;
+}
+
+/* Status badges */
+.badge-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.badge-status--booked {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-status--need-to-book {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-status--na {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge-status--booked {
+    background: #14532d;
+    color: #86efac;
+  }
+  .badge-status--need-to-book {
+    background: #78350f;
+    color: #fde68a;
+  }
+  .badge-status--na {
+    background: #374151;
+    color: #9ca3af;
+  }
+}
+
+/* Warning banner */
+.warning-banner {
+  background: var(--color-vermillion);
+  color: white;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  margin: var(--space-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Meal slot */
+.meal-slot {
+  background: #f0fdf4;
+  border-left: 3px solid var(--color-free);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin: var(--space-sm) 0;
+  font-size: 0.875rem;
+  color: #166534;
+}
+
+@media (prefers-color-scheme: dark) {
+  .meal-slot {
+    background: #14532d20;
+    color: #86efac;
+  }
+}
+
+/* Checklist completed */
+.checklist-item--checked {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+/* Section subtitle */
+.section-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-slate);
+  font-weight: 300;
+}
+
+/* Day card dimming for past days */
+.day-card--past {
+  opacity: 0.5;
+}
+
+.day-card--today {
+  border-left: 3px solid var(--color-gold);
+}

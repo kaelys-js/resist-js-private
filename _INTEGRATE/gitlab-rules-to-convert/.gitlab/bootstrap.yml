@@ -1,0 +1,70 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# 🧱 Create & Bootstrap D1 Database (Staging/Production)
+# ------------------------------------------------------------------------------
+# bootstrap:db — Provisions the Cloudflare D1 database and applies the initial schema.
+#
+# ✅ This job runs only for deployable environments (staging, main/master)
+# ✅ Ensures that the named D1 database exists via `wrangler d1 create`
+# ✅ Applies schema/migrations via `./src/scripts/bootstrap-d1.sh`
+# ✅ Outputs a .env.${WRANGLER_ENV} file containing DB context (used in downstream jobs)
+#
+# ⚠️ This job is not run for preview branches — those use `preview:bootstrap-db`
+# ⚠️ Scoped to avoid reusing production or staging DBs in feature branches
+
+# 🧱 bootstrap:db — Ensure the D1 database exists and apply base schema
+# Runs for staging and production branches only (not preview)
+# Generates a .env.${WRANGLER_ENV} file with DB context as a CI artifact
+bootstrap:db:
+  stage: deploy
+  needs:
+    - setup:check-env
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  script:
+    - ./src/scripts/bootstrap-d1.sh | tee .bootstrap-db-summary.md
+  artifacts:
+    paths:
+      - .bootstrap-db-summary.md
+    expire_in: 7 days
+  environment:
+    name: $WRANGLER_ENV
+
+# ------------------------------------------------------------------------------
+# ☁️ Create & Bootstrap Storage (KV, R2, DO, Tail Worker)
+# ------------------------------------------------------------------------------
+# bootstrap:storage — Provisions all storage resources required for the current WRANGLER_ENV.
+#
+# ✅ This includes:
+#    - KV namespaces (via wrangler.json bindings)
+#    - R2 buckets
+#    - Durable Object namespaces
+#    - Tail Worker (conditionally deployed based on presence in config)
+#
+# ✅ Tail Worker Deployment:
+#    - Only triggered if .env[ENVIRONMENT].tail_consumers[].service exists in wrangler.json
+#    - Uses ./src/scripts/deploy-tail-worker.sh to deploy the tail processor Worker
+#
+# ✅ Scopes:
+#    - Runs only on deployable branches (staging, main, master)
+#    - Preview environments use `preview:bootstrap-storage` instead
+#
+# 🧠 This job ensures all storage infrastructure is provisioned before deploy or runtime access
+bootstrap:storage:
+  stage: deploy
+  needs:
+    - setup:check-env
+    - bootstrap:db
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"'
+  script:
+    - bootstrap_storage_with_optional_tail | tee .bootstrap-storage-summary.md
+  environment:
+    name: $WRANGLER_ENV
+  artifacts:
+    paths:
+      - .bootstrap-storage-summary.md
+    expire_in: 7 days

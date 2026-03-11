@@ -1,0 +1,6 @@
+{
+  "$schema": "{{SCHEMA_RELATED_WEBSITE_SET_JSON}}",
+  "primary": "{{MARKETING_DOMAIN}}",
+  "associatedSites": [],
+  "serviceSites": []
+}

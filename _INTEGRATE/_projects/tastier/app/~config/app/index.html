@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- =========================
+       Core document metadata
+       ========================= -->
+  <meta charset="utf-8">
+  <title>Tastier</title>
+  <meta name="application-name" content="Tastier">
+  <meta name="author" content="Tastier">
+  <meta name="generator" content="Tastier Web App">
+
+  <!-- =========================
+       Viewport & layout
+       ========================= -->
+  <meta name="viewport" content="width=device-width,
+                 initial-scale=1,
+                 maximum-scale=1,
+                 viewport-fit=cover">
+
+  <!-- =========================
+       Security policies
+       ========================= -->
+  <meta http-equiv="Content-Security-Policy" content="
+          default-src 'self' data: blob:;
+          script-src 'self';
+          style-src 'self' 'unsafe-inline';
+          img-src 'self' data:;
+          font-src 'self';
+          connect-src 'self' https:;
+          frame-ancestors 'none';
+          base-uri 'none';
+        ">
+
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
+  <meta http-equiv="Permissions-Policy" content="
+          camera=(),
+          microphone=(),
+          geolocation=(),
+          payment=(),
+          usb=()
+        ">
+
+  <!-- =========================
+       Theme / system UI
+       ========================= -->
+  <meta name="theme-color" content="#212121">
+  <meta name="color-scheme" content="dark light">
+  <meta name="msapplication-TileColor" content="#212121">
+
+  <!-- =========================
+       Mobile behavior
+       ========================= -->
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+
+  <!-- =========================
+       iOS PWA
+       ========================= -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tastier">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="apple-touch-startup-image" href="/icons/apple-splash.png">
+
+  <!-- =========================
+       Android / PWA
+       ========================= -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- =========================
+       Icons
+       ========================= -->
+  <link rel="icon" href="/icons/favicon.png">
+  <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#212121">
+
+  <!-- =========================
+       SEO & indexing
+       ========================= -->
+  <meta name="description" content="Tastier helps you discover, organize, and manage recipes effortlessly.">
+  <meta name="robots" content="index, follow">
+  <meta name="googlebot" content="index, follow">
+  <meta name="bingbot" content="index, follow">
+  <link rel="canonical" href="https://tastier.app/">
+
+  <!-- =========================
+       Open Graph
+       ========================= -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Tastier">
+  <meta property="og:description" content="Discover, organize, and manage recipes effortlessly with Tastier.">
+  <meta property="og:url" content="https://tastier.app/">
+  <meta property="og:image" content="https://tastier.app/og-image.png">
+
+  <!-- =========================
+       Twitter Cards
+       ========================= -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Tastier">
+  <meta name="twitter:description" content="Discover, organize, and manage recipes effortlessly with Tastier.">
+  <meta name="twitter:image" content="https://tastier.app/twitter-image.png">
+  <meta name="twitter:site" content="@tastier">
+  <meta name="twitter:creator" content="@tastier">
+
+  <link rel="alternate" hreflang="en" href="https://tastier.app/">
+  <link rel="alternate" hreflang="en-CA" href="https://tastier.app/ca">
+  <link rel="alternate" hreflang="fr-CA" href="https://tastier.app/fr">
+  <link rel="alternate" hreflang="x-default" href="https://tastier.app/">
+
+  <link rel="preconnect" href="https://api.tastier.app" crossorigin>
+  <link rel="dns-prefetch" href="https://api.tastier.app">
+
+  <link rel="preconnect" href="https://cdn.tastier.app" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.tastier.app">
+
+  <link rel="preload" href="/js/app.js" as="script">
+
+  <meta name="apple-itunes-app" content="app-id=123456789">
+  <meta name="google-play-app" content="app-id=com.tastier.app">
+
+  <meta name="google-site-verification" content="...">
+  <meta name="msvalidate.01" content="...">
+  <meta name="yandex-verification" content="...">
+
+  <meta name="analytics-provider" content="plausible">
+  <meta name="monitoring-provider" content="sentry">
+
+  <link rel="preconnect" href="https://analytics.tastier.app">
+
+  <meta name="apple-touch-fullscreen" content="yes">
+
+  <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px)"
+    href="/icons/splash-390x844.png">
+
+  <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+
+  <meta http-equiv="Accept-CH" content="DPR, Width, Viewport-Width">
+
+  <meta name="build-id" content="2026.01.06.1">
+  <meta name="commit-sha" content="a9f3c1e">
+  <meta name="release-channel" content="stable">
+  <meta name="feature-flags" content="recipes-v2,pantry-beta">
+
+  <meta name="ai-content-policy" content="no-training">
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "@id": "https://tastier.app/#webapp",
+    
+      "name": "Tastier",
+      "description": "Tastier helps you discover, organize, and manage recipes effortlessly across web and mobile.",
+      "url": "https://tastier.app",
+    
+      "applicationCategory": "FoodAndDrinkApplication",
+      "operatingSystem": "All",
+      "softwareVersion": "1.0.0",
+    
+      "inLanguage": "en",
+    
+      "image": "https://tastier.app/og-image.png",
+    
+      "publisher": {
+        "@type": "Organization",
+        "name": "Tastier",
+        "url": "https://tastier.app",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://tastier.app/icons/logo-512.png"
+        }
+      },
+    
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+    
+      "isAccessibleForFree": true,
+    
+      "sameAs": [
+        "https://twitter.com/tastier",
+        "https://www.instagram.com/tastier",
+        "https://www.linkedin.com/company/tastier"
+      ]
+    }
+    </script>
+</head>
+
+
+<body>
+  <div id="app"></div>
+
+  <!-- =========================
+       Application entry
+       ========================= -->
+  <script type="module" src="/js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,65 @@
+/.well-known/
+    apple-app-site-association
+    apple-developer-domain-association
+    apple-developer-merchantid-domain-association
+    change-password
+    gpc.json
+    mta-sts.txt
+    pgp-key.txt
+    related-website-set.json
+    security.txt
+/ads.txt
+/app-ads.txt
+/assetlinks.json
+/browserconfig.xml
+/health.json
+/manifest.webmanifest
+/robots.txt
+/status.json
+
+/privacy
+/terms
+/accessibility
+/cookies
+/consent
+/status
+/support
+
+/trust
+/compliance
+/legal/dpa
+/privacy/subprocessors
+/privacy/retention
+/records-of-processing
+/data-rights
+/data-request
+/disclosures
+/imprint
+/jurisdiction
+/incident-response
+/status/incidents
+/support/sla
+/audit-log
+/content-policy
+/moderation
+/report-abuse
+/data-usage
+/versioning
+/changelog
+/ai
+/ai/model-training
+/ai-disclosure
+/ai-opt-out
+/model-transparency
+/human-review
+/licenses
+/faq
+/onboarding
+/language
+/accessibility/request
+/api-terms
+/api-privacy
+/rate-limits
+/sustainability
+/ethics
+/risk-disclosure

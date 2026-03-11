@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/evilmartians/lefthook/master/schema.json
+
+commit-msg:
+  commands:
+    validate:
+      run: pnpm commitlint --edit {1}
+
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      run: node scripts/lint.mjs {staged_files}
+      fail_text: "Linting failed. Fix the errors above."
+    format:
+      glob: "*.{ts,tsx,js,jsx,json,jsonc,css,html,md,svelte,yml,yaml,toml,sh}"
+      run: pnpm format:file {staged_files} && git add {staged_files}
+    type-check:
+      glob: "*.{ts,tsx}"
+      run: pnpm tsc --noEmit
+
+pre-push:
+  commands:
+    lint-all:
+      run: pnpm lint
+    test:
+      run: pnpm test

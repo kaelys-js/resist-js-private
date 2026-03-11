@@ -1,0 +1,371 @@
+Bannock (Indigenous Fried Bread)
+Frybread Bannock (Deep-Fried Indigenous Bread)
+Oven-Baked Bannock (Baked Indigenous Bread)
+Potato Bannock (Indigenous Potato Flatbread)
+Cheese Bannock (Indigenous Cheese Bread)
+Saskatoon Berry Bannock (Saskatoon Berry Indigenous Bread)
+Saskatoon Berry Pie (Saskatoon Berry Dessert Pie)
+Fresh Saskatoon Berry Pie (Classic Saskatoon Berry Pie)
+Saskatoon Berry Crisp (Baked Saskatoon Berry Crumble)
+Perogy (Potato and Cheese Dumplings)
+Potato and Cheddar Perogies (Potato and Cheddar Dumplings)
+Sauerkraut Perogies (Sauerkraut-Filled Dumplings)
+Farmer Sausage (Prairie Pork Sausage)
+Grilled Farmer Sausage (Grilled Prairie Sausage)
+Farmer Sausage and Perogies (Prairie Sausage with Dumplings)
+Ukrainian Cabbage Rolls (Holubtsi Stuffed Cabbage Rolls)
+Prairie Roast Beef (Traditional Prairie Roast Beef)
+Beef and Barley Soup (Prairie Beef Barley Soup)
+Split Pea Soup (Prairie-Style Split Pea Soup)
+Lentil Soup (Prairie Lentil Soup)
+Tourtière (Canadian Meat Pie)
+Prairie Meat Pie (Saskatchewan-Style Meat Pie)
+Smoked Pickerel (Smoked Freshwater Whitefish)
+Pickerel Cheeks (Fried Pickerel Cheeks)
+Venison Stew (Prairie Venison Stew)
+Bison Stew (Prairie Bison Stew)
+Bison Burger (Prairie Bison Hamburger)
+Grilled Bison Steak (Grilled Prairie Bison Steak)
+Wild Rice Pilaf (Canadian Wild Rice Pilaf)
+Creamed Corn (Prairie Creamed Corn)
+Mashed Potatoes with Gravy (Prairie Mashed Potatoes and Gravy)
+Rhubarb Pie (Prairie Rhubarb Pie)
+Rhubarb Crisp (Baked Rhubarb Crumble)
+Alberta Beef Steak
+Grilled Alberta Ribeye Steak
+Prime Rib of Alberta Beef
+Alberta Beef Brisket
+Slow-Roasted Alberta Beef Roast
+Alberta Beef Burgers
+Bison Burger
+Grilled Bison Steak
+Bison Meatloaf
+Bison Short Ribs
+Ukrainian Perogies
+Cheese Perogies
+Potato and Onion Perogies
+Sour Cream and Bacon Perogies
+Cabbage Rolls
+Ukrainian Sausage
+Kielbasa Sausage
+Tourtière Meat Pie
+Alberta Beef Tourtière
+Beef and Barley Soup
+Ukrainian Borscht
+Alberta Beef Chili
+Smoked Beef Brisket
+Smoked Sausage
+Prairie Fried Chicken
+Chicken Schnitzel
+Beef Schnitzel
+Prairie Pot Roast
+Mashed Potatoes and Gravy
+Roasted Prairie Potatoes
+Hash Browns
+Beef Dip Sandwich
+French Dip Sandwich
+Alberta Beef Meatballs
+Beef Stroganoff
+Bison Stroganoff
+Steak and Mushroom Pie
+Shepherd’s Pie
+Cottage Pie
+Prairie Sausage Rolls
+Alberta Beef Jerky
+Smoked Bison Jerky
+Prairie Poutine
+Classic Poutine
+Beef Gravy Poutine
+Butter Tarts
+Prairie Saskatoon Berry Pie
+Saskatoon Berry Crumble
+Saskatoon Berry Jam
+Wild Pacific Salmon with Maple Glaze
+Grilled Sockeye Salmon
+Cedar-Plank Salmon
+Candied Salmon
+Smoked Pacific Salmon
+Salmon Candy (Sweet Smoked Salmon)
+Fish and Chips
+Beer-Battered Fish and Chips
+Halibut Fish and Chips
+Pacific Cod Fish and Chips
+Spot Prawn Tempura
+Grilled Spot Prawns
+Spot Prawn Linguine
+West Coast Seafood Chowder
+Pacific Clam Chowder
+Crab Cakes
+Dungeness Crab Cakes
+Dungeness Crab Boiled Dinner
+BC Roll (British Columbia Sushi Roll)
+California Roll
+Salmon Sashimi
+Salmon Nigiri
+Tuna Nigiri
+Dynamite Roll (Tempura Prawn Sushi Roll)
+Poutine
+West Coast Poutine
+Pulled Pork Poutine
+Salmon Poutine
+Japadog (Japanese-Style Hot Dog)
+Teriyaki Chicken Japadog
+Okonomiyaki-Style Japadog
+Nanaimo Bars
+Classic Nanaimo Bars
+Chocolate Nanaimo Bars
+Vegan Nanaimo Bars
+Butter Tarts
+Pacific Berry Pie
+Blueberry Pie
+Salmon Burgers
+Wild Salmon Burgers
+Halibut Burgers
+West Coast Fish Tacos
+Salmon Fish Tacos
+Pacific Cod Fish Tacos
+Roasted Brussels Sprouts with Bacon
+Garlic Roasted Potatoes
+Sourdough Bread
+Artisan Sourdough Bread
+BC Spot Prawn Bisque
+Seafood Paella
+West Coast Paella
+Clam and Garlic Butter Stew
+Mussels in White Wine Sauce
+Steamed Pacific Mussels
+BC Berry Crisp
+Apple Crisp
+Smoked Meat Sandwich
+Montreal-Style Smoked Meat Sandwich
+West Coast Caesar Salad
+Caesar Salad
+Poutine (French Fries with Cheese Curds and Gravy)
+Butter Tart
+Butter Tart with Raisins
+Butter Tart with Pecans
+Peameal Bacon Sandwich
+Montreal-Style Smoked Meat Sandwich
+Tourtière (French-Canadian Meat Pie)
+Beef Tourtière
+Pork Tourtière
+Chicken Pot Pie
+Fish and Chips
+Battered Fish and Chips
+Haddock Fish and Chips
+Chicken Shawarma Plate
+Beef Shawarma Plate
+Falafel Plate
+Greek Salad
+Horiatiki (Greek Village Salad)
+Chicken Souvlaki
+Pork Souvlaki
+Chicken Parmesan
+Veal Parmesan
+Spaghetti and Meatballs
+Lasagna
+Meat Lasagna
+Vegetable Lasagna
+Chicken Wings
+Buffalo Chicken Wings
+Honey Garlic Chicken Wings
+Maple-Glazed Salmon
+Roast Beef Dinner
+Prime Rib Roast
+Shepherd’s Pie
+Cottage Pie
+Caesar Salad
+Classic Caesar Salad
+Macaroni and Cheese
+Baked Macaroni and Cheese
+Grilled Cheese Sandwich
+Tomato Soup with Grilled Cheese
+Hamburger
+Cheeseburger
+Bacon Cheeseburger
+Pizza
+Pepperoni Pizza
+Canadian Pizza
+Hawaiian Pizza
+Fried Chicken
+Southern Fried Chicken
+Roast Chicken Dinner
+Thanksgiving Turkey Dinner
+Turkey with Stuffing and Gravy
+Pancakes
+Buttermilk Pancakes
+Maple Syrup Pancakes
+French Toast
+Eggs Benedict
+Classic Eggs Benedict
+Smoked Salmon Eggs Benedict
+Club Sandwich
+BLT Sandwich
+Reuben Sandwich
+Poutine (French Fries with Cheese Curds and Gravy)
+Poutine Classique (Classic Poutine)
+Poutine au Poulet (Chicken Poutine)
+Poutine au Canard Confit (Duck Confit Poutine)
+Poutine au Foie Gras (Foie Gras Poutine)
+Poutine à la Viande Fumée (Smoked Meat Poutine)
+Poutine Italienne (Italian-Style Poutine with Meat Sauce)
+Poutine Galvaude (Chicken and Peas Poutine)
+Poutine aux Champignons (Mushroom Poutine)
+Poutine Sauce BBQ (Barbecue Sauce Poutine)
+Poutine Maison (House-Style Poutine)
+
+Tourtière (Quebec Meat Pie)
+Tourtière du Lac-Saint-Jean (Lac-Saint-Jean Meat Pie)
+Tourtière Traditionnelle (Traditional Meat Pie)
+
+Pâté Chinois (Quebec Shepherd’s Pie)
+Pâté Chinois Classique (Classic Quebec Shepherd’s Pie)
+
+Smoked Meat Sandwich (Montreal Smoked Meat Sandwich)
+Smoked Meat on Rye (Montreal Smoked Meat on Rye Bread)
+
+Bagel de Montréal (Montreal-Style Bagel)
+Sesame Montreal Bagel (Sesame Montreal-Style Bagel)
+Poppy Seed Montreal Bagel (Poppy Seed Montreal-Style Bagel)
+
+Fèves au Lard (Baked Beans with Pork)
+Fèves au Lard à l’Érable (Maple Baked Beans)
+
+Cretons (Quebec Pork Spread)
+Cretons Maison (Homestyle Pork Spread)
+
+Soupe aux Pois (Yellow Pea Soup)
+Soupe aux Pois au Jambon (Yellow Pea Soup with Ham)
+
+Tarte au Sucre (Maple Sugar Pie)
+Tarte au Sucre à la Crème (Creamy Maple Sugar Pie)
+
+Pouding Chômeur (Poor Man’s Pudding)
+Pouding Chômeur à l’Érable (Maple Syrup Pudding Chômeur)
+
+Oreilles de Crisse (Crispy Pork Rinds)
+
+Pain Doré (French Toast)
+Pain Doré au Sirop d’Érable (French Toast with Maple Syrup)
+
+Grand-Père dans le Sirop (Maple Syrup Dumplings)
+
+Ragoût de Boulettes (Meatball Stew)
+Ragoût de Pattes de Cochon (Pork Hock Stew)
+
+Sandwich au Jambon Fumé (Smoked Ham Sandwich)
+
+Fromage en Grains (Fresh Cheese Curds)
+
+Beignes Québécois (Quebec-Style Doughnuts)
+Beignes à l’Érable (Maple Doughnuts)
+Fish and Brewis (Salt Cod with Hard Bread and Pork Scraps)
+Toutons (Pan-Fried Newfoundland Bread Dough)
+Jiggs Dinner (Salt Beef Boiled Dinner with Root Vegetables)
+Rappie Pie (Acadian Chicken and Potato Pudding)
+Cod au Gratin (Baked Cod with Cream Sauce and Breadcrumbs)
+Lobster Roll (Atlantic Lobster Sandwich)
+Lobster Dinner (Boiled Lobster with Butter)
+Seafood Chowder (Atlantic Mixed Seafood Cream Chowder)
+Fish Cakes (Salt Cod and Potato Fish Cakes)
+Cod Tongues and Scrunchions (Fried Cod Tongues with Pork Scraps)
+Pea Soup with Doughboys (Yellow Split Pea Soup with Dumplings)
+Blueberry Grunt (Steamed Blueberry Pudding with Dumplings)
+Apple Grunt (Steamed Apple Pudding with Dumplings)
+Bakeapple Tart (Cloudberry Tart)
+Blueberry Buckle (Atlantic Blueberry Coffee Cake)
+Hodge Podge (Creamed Early Summer Vegetables)
+Digby Scallops Pan-Seared (Pan-Seared Bay of Fundy Scallops)
+Fiddleheads with Butter (Steamed Fiddlehead Ferns)
+Smoked Salmon Pâté (Atlantic Smoked Salmon Spread)
+Oatcakes (Maritime Oat Biscuits)
+Lunenburg Sausage (Nova Scotia Pork Sausage)
+Mustard Pickles (Maritime Sweet Mustard Pickles)
+Clam Fry (Fried Atlantic Clams)
+Scallop Chowder (Creamy Bay Scallop Chowder)
+Salmon Pie (Baked Salmon and Potato Casserole)
+Molasses Baked Beans (Maritime Baked Beans with Molasses)
+Blueberry Pie (Wild Atlantic Blueberry Pie)
+Pacific Northwest Salmon (Grilled Pacific Salmon)
+Cedar Plank Salmon (Cedar-Planked Salmon)
+Sockeye Salmon Fillet (Sockeye Salmon Fillet)
+Candied Salmon (Maple-Cured Smoked Salmon)
+Smoked Salmon Chowder (Pacific Salmon Chowder)
+Pacific Halibut Fish and Chips (Halibut Fish and Chips)
+Wild Pacific Halibut (Pan-Seared Pacific Halibut)
+Spot Prawn Cocktail (Pacific Spot Prawn Cocktail)
+BC Spot Prawn Sauté (Sautéed Spot Prawns)
+Dungeness Crab Cakes (Pacific Dungeness Crab Cakes)
+West Coast Seafood Chowder (Pacific Seafood Chowder)
+Pacific Oysters on the Half Shell (Raw Pacific Oysters)
+Oysters Rockefeller (Baked Oysters with Spinach and Butter)
+Salmon Candy (Sweet Smoked Salmon Strips)
+Gravlax (Cured Salmon)
+Pacific Tuna Poke (West Coast Tuna Poke Bowl)
+Pacific Cod Fish Tacos (Pacific Cod Tacos)
+Pacific Rockfish Tacos (Rockfish Tacos)
+West Coast Clam Chowder (Pacific Clam Chowder)
+Steamed Pacific Mussels (White Wine Mussels)
+Pacific Razor Clams (Fried Razor Clams)
+Wild BC Salmon Burger (Pacific Salmon Burger)
+Pacific Crab Roll (West Coast Crab Roll)
+Pacific Kelp Salad (Seaweed Salad)
+BC Blueberry Pie (British Columbia Blueberry Pie)
+Nanaimo Bars (Chocolate Coconut Custard Bars)
+Salmon Spread (Pacific Smoked Salmon Spread)
+Pacific Smoked Black Cod (Smoked Sablefish)
+Miso Black Cod (Miso-Marinated Sablefish)
+Pacific Lingcod Fillet (Lingcod Fillet)
+West Coast Caesar Salad (Pacific Caesar Salad)
+Bannock (Prairie Indigenous Fry Bread)
+Fry Bread (Indigenous Fried Flatbread)
+Indian Tacos (Fry Bread Tacos)
+Beef and Barley Soup
+Split Pea Soup with Ham
+Perogies (Ukrainian Dumplings)
+Potato and Cheddar Perogies
+Potato and Onion Perogies
+Sauerkraut Perogies
+Farmer Sausage with Sauerkraut
+Kielbasa and Sauerkraut
+Cabbage Rolls (Stuffed Cabbage Rolls)
+Lazy Cabbage Rolls (Unstuffed Cabbage Roll Casserole)
+Tourtière (French Canadian Meat Pie)
+Prairie Beef Stew
+Chicken Noodle Soup
+Cream of Wild Mushroom Soup
+Bison Chili
+Beef Chili
+Saskatchewan Lentil Soup
+Shepherd’s Pie
+Cottage Pie
+Roast Beef with Gravy
+Mashed Potatoes and Gravy
+Scalloped Potatoes
+Cheesy Potatoes
+Hash Brown Casserole
+Perogy Casserole
+Pierogi Casserole
+Baked Ham with Honey Mustard Glaze
+Prairie Roast Chicken
+Chicken and Dumplings
+Ukrainian Sausage and Potatoes
+Beef Stroganoff
+Potato Salad
+Coleslaw
+Macaroni and Cheese
+Grilled Farmer Sausage
+Meatloaf
+Prairie Baked Beans
+Pancakes with Maple Syrup
+Waffles with Maple Syrup
+Apple Pie
+Saskatoon Berry Pie
+Saskatoon Berry Crisp
+Rhubarb Pie
+Rhubarb Crisp
+Butter Tarts
+Nanaimo Bars
+Date Squares
+Oatmeal Raisin Cookies
+Chocolate Chip Cookies

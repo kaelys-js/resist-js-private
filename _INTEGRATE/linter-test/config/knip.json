@@ -1,0 +1,85 @@
+{
+	"$schema": "https://unpkg.com/knip@latest/schema.json",
+	"entry": [
+		"src/index.{js,ts,jsx,tsx}",
+		"src/main.{js,ts,jsx,tsx}",
+		"src/app.{js,ts,jsx,tsx}",
+		"src/routes/**/*.{js,ts,svelte}",
+		"src/lib/**/*.{js,ts,svelte}",
+		"scripts/**/*.{js,ts,mjs}",
+		"bin/**/*.{js,ts}"
+	],
+	"project": [
+		"src/**/*.{js,ts,jsx,tsx,svelte,vue,astro}",
+		"lib/**/*.{js,ts,jsx,tsx}",
+		"scripts/**/*.{js,ts,mjs}",
+		"tests/**/*.{js,ts,jsx,tsx}",
+		"test/**/*.{js,ts,jsx,tsx}"
+	],
+	"ignore": [
+		"**/*.d.ts",
+		"**/*.test.{js,ts,jsx,tsx}",
+		"**/*.spec.{js,ts,jsx,tsx}",
+		"**/__tests__/**",
+		"**/__mocks__/**",
+		"**/fixtures/**",
+		"**/testdata/**"
+	],
+	"ignoreDependencies": [
+		"@types/*",
+		"typescript",
+		"prettier",
+		"eslint",
+		"vitest",
+		"jest",
+		"playwright"
+	],
+	"ignoreBinaries": [
+		"docker",
+		"git",
+		"node",
+		"npm",
+		"pnpm",
+		"yarn",
+		"bun"
+	],
+	"ignoreExportsUsedInFile": true,
+	"includeEntryExports": true,
+	"rules": {
+		"files": "error",
+		"dependencies": "error",
+		"devDependencies": "warn",
+		"optionalPeerDependencies": "off",
+		"unlisted": "error",
+		"binaries": "error",
+		"unresolved": "error",
+		"exports": "warn",
+		"types": "warn",
+		"nsExports": "warn",
+		"nsTypes": "warn",
+		"duplicates": "warn",
+		"enumMembers": "warn",
+		"classMembers": "warn"
+	},
+	"workspaces": {
+		"shared/*": {
+			"entry": ["src/index.ts", "src/**/*.ts"],
+			"project": ["src/**/*.ts"]
+		},
+		"products/*": {
+			"entry": ["src/**/*.{ts,svelte}"],
+			"project": ["src/**/*.{ts,svelte}"]
+		}
+	},
+	"compilers": {
+		".svelte": {
+			"alias": "svelte"
+		},
+		".vue": {
+			"alias": "vue"
+		},
+		".astro": {
+			"alias": "astro"
+		}
+	}
+}

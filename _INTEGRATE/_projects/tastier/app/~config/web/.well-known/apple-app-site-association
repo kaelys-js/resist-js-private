@@ -1,0 +1,33 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "{{APP_IOS_BUNDLE_ID}}",
+        "components": []
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "{{APP_IOS_BUNDLE_ID}}"
+    ]
+  },
+  "appclips": {
+    "apps": [
+      "{{APP_IOS_BUNDLE_ID}}.Clip"
+    ]
+  },
+  "activitycontinuation": {
+    "apps": [
+      "{{APP_IOS_BUNDLE_ID}}"
+    ]
+  },
+  "services": {
+    "com.apple.webcredentials": {
+      "apps": [
+        "{{APP_IOS_BUNDLE_ID}}"
+      ]
+    }
+  }
+}

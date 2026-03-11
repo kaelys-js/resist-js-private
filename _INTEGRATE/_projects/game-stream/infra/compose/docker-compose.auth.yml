@@ -1,0 +1,9 @@
+services:
+  auth-api:
+    build: ./auth-api
+    container_name: "${PRODUCT}-auth-api-${ENV}"
+    networks:
+      - gamenet
+    ports:
+      - "${AUTH_API_PORT:-9000}:9000"
+    restart: unless-stopped

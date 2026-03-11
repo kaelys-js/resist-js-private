@@ -1,0 +1,1 @@
+// ok, error, data (like rusts result) 

@@ -1,0 +1,70 @@
+{
+  "$schema": "{{SCHEMA_STATUS_JSON}}",
+  "status": "operational",
+  "components": {
+    "self": "{{HEALTH_STATUS_SELF}}",
+    "app": "{{HEALTH_STATUS_APP}}",
+    "marketing": "{{HEALTH_STATUS_MARKETING}}",
+    "images": "{{HEALTH_STATUS_IMAGES}}",
+    "analytics": "{{HEALTH_STATUS_ANALYTICS}}",
+    "api": "{{HEALTH_STATUS_API}}"
+  },
+  "incidents": [
+    {
+      "id": "inc-2026-01-04-001",
+      "status": "monitoring",
+      "impact": "partial",
+      "component": "billing",
+      "startedAt": "2026-01-04T18:12:00Z",
+      "updatedAt": "2026-01-04T20:30:00Z",
+      "resolvedAt": "2026-01-04T20:30:00Z",
+      "description": {
+        "en-US": "Intermittent billing delays due to upstream provider latency."
+      },
+      "updates": [
+        {
+          "timestamp": "2026-01-04T19:00:00Z",
+          "status": "monitoring",
+          "message": {
+            "en-US": "Mitigation deployed; monitoring recovery."
+          }
+        }
+      ]
+    }
+  ],
+  "maintenance": [
+    {
+      "id": "mnt-2026-01-10-001",
+      "status": "scheduled",
+      "impact": "none",
+      "components": [
+        "api",
+        "database"
+      ],
+      "scheduledStart": "2026-01-10T02:00:00Z",
+      "scheduledEnd": "2026-01-10T03:00:00Z",
+      "startedAt": null,
+      "completedAt": null,
+      "description": {
+        "en-US": "Routine database maintenance. No service disruption expected."
+      },
+      "updates": [
+        {
+          "timestamp": "2026-01-08T18:00:00Z",
+          "status": "scheduled",
+          "message": {
+            "en-US": "Maintenance window scheduled."
+          }
+        }
+      ]
+    }
+  ],
+  "uptime": {
+    "last24h": 99.98,
+    "last7d": 99.95,
+    "last30d": 99.92
+  },
+  "statusPage": "https://{{STATUS_DOMAIN}}",
+  "support": "https://{{MARKETING_DOMAIN}}/{{MARKETING_ROUTE_SUPPORT}}",
+  "lastUpdated": "{{HEALTH_STATUS_LAST_UPDATED}}"
+}

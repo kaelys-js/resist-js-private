@@ -1,0 +1,23 @@
+{
+  "name": "overseer",
+  "version": "1.0.0",
+  "description": "Cloudflare-based cron collector system",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --env local",
+    "exec": "tsx src/exec-server.ts",
+    "studio": "localflare",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 execute overseer --local --file=schema.sql",
+    "db:migrate:prod": "wrangler d1 execute overseer --file=schema.sql",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260127.0",
+    "@types/node": "^25.0.10",
+    "localflare": "^0.4.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.60.0"
+  }
+}

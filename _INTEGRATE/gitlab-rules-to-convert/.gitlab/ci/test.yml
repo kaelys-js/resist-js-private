@@ -1,0 +1,31 @@
+# 🧪 test — Run monorepo-wide unit tests with Vitest or equivalent
+# ------------------------------------------------------------------
+# This job executes the full test suite across all workspaces.
+#
+# ✅ Key behaviors:
+#   - Uses `pnpm test` as the primary entry point
+#   - In a monorepo, typically resolves to `pnpm -r run test`
+#     → Executes each workspace's `test` script in parallel
+#   - Relies on local workspace configs (Vitest, tsx, or test runner of choice)
+#
+# ✅ Why this matters:
+#   - Ensures all packages/apps pass tests before building or deploying
+#   - Detects runtime regressions, broken mocks, or API mismatches early
+#   - Provides coverage for integration and core logic under test
+#
+# 🧠 Recommendations:
+#   - Define `test` scripts per workspace for more granular control
+#   - Include `vitest.config.ts` or `tsx` runner where applicable
+#   - Consider outputting a `.test-results.md` if needed for audit or MR summaries
+test:
+  stage: test
+  needs:
+    - setup:check-env
+    - build
+  script:
+    - pnpm test | tee .test-summary.md
+  artifacts:
+    paths:
+      - .test-summary.md
+    when: always
+    expire_in: 7 days

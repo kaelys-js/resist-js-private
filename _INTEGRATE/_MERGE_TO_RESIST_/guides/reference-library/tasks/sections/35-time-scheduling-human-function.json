@@ -1,0 +1,77 @@
+{
+  "section_id": "35",
+  "section_name": "TIME, SCHEDULING & HUMAN FUNCTION",
+  "folder": "35-time-scheduling-human-function",
+  "guides": [
+    {
+      "id": "35-001",
+      "title": "How to Estimate Time Without Clocks",
+      "slug": "how-to-estimate-time-without-clocks",
+      "status": "not_started",
+      "tier": 1,
+      "output_path": "guides/35-time-scheduling-human-function/how-to-estimate-time-without-clocks.md",
+      "created_at": null,
+      "verified_at": null,
+      "flagged": false,
+      "flag_reason": null,
+      "verification_notes": null,
+      "cross_references": []
+    },
+    {
+      "id": "35-002",
+      "title": "How to Structure Days Without External Cues",
+      "slug": "how-to-structure-days-without-external-cues",
+      "status": "not_started",
+      "tier": 1,
+      "output_path": "guides/35-time-scheduling-human-function/how-to-structure-days-without-external-cues.md",
+      "created_at": null,
+      "verified_at": null,
+      "flagged": false,
+      "flag_reason": null,
+      "verification_notes": null,
+      "cross_references": []
+    },
+    {
+      "id": "35-003",
+      "title": "How to Balance Work, Rest, and Recovery",
+      "slug": "how-to-balance-work-rest-and-recovery",
+      "status": "not_started",
+      "tier": 1,
+      "output_path": "guides/35-time-scheduling-human-function/how-to-balance-work-rest-and-recovery.md",
+      "created_at": null,
+      "verified_at": null,
+      "flagged": false,
+      "flag_reason": null,
+      "verification_notes": null,
+      "cross_references": []
+    },
+    {
+      "id": "35-004",
+      "title": "How to Maintain Circadian Rhythm Without Normal Light Cycles",
+      "slug": "how-to-maintain-circadian-rhythm-without-normal-light-cycles",
+      "status": "not_started",
+      "tier": 1,
+      "output_path": "guides/35-time-scheduling-human-function/how-to-maintain-circadian-rhythm-without-normal-light-cycles.md",
+      "created_at": null,
+      "verified_at": null,
+      "flagged": false,
+      "flag_reason": null,
+      "verification_notes": null,
+      "cross_references": []
+    },
+    {
+      "id": "35-005",
+      "title": "How to Maintain Physical Fitness With No Equipment",
+      "slug": "how-to-maintain-physical-fitness-with-no-equipment",
+      "status": "not_started",
+      "tier": 1,
+      "output_path": "guides/35-time-scheduling-human-function/how-to-maintain-physical-fitness-with-no-equipment.md",
+      "created_at": null,
+      "verified_at": null,
+      "flagged": false,
+      "flag_reason": null,
+      "verification_notes": null,
+      "cross_references": []
+    }
+  ]
+}

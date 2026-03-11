@@ -1,0 +1,3293 @@
+Fan Tuan (Taiwanese Rice Roll)
+Soy Milk (Warm Taiwanese Soy Milk)
+Savory Soy Milk Soup (Xian Dou Jiang)
+Sweet Soy Milk (Sweet Dou Jiang)
+Youtiao (Chinese Fried Dough Stick)
+Fan Tuan with Youtiao (Rice Roll with Fried Dough)
+Scallion Pancake (Cong You Bing)
+Egg Scallion Pancake (Dan Cong You Bing)
+Scallion Pancake Roll (Scallion Pancake Wrap)
+Turnip Cake (Taiwanese Radish Cake)
+Fried Turnip Cake (Pan-Fried Radish Cake)
+Rice Porridge (Plain Congee)
+Sweet Potato Congee (Sweet Potato Rice Porridge)
+Century Egg Congee (Century Egg Rice Porridge)
+Pork Floss Congee (Rice Porridge with Pork Floss)
+Braised Pork Rice (Lu Rou Fan – Breakfast Portion)
+Minced Pork Rice (Rou Zao Fan)
+Steamed White Rice (Breakfast Rice)
+Tea Egg (Taiwanese Soy-Braised Egg)
+Braised Egg (Soy-Braised Egg)
+Fried Egg (Taiwanese Breakfast Egg)
+Omelette with Basil (Taiwanese Basil Egg Omelette)
+Fried Spam and Egg (Spam and Egg Breakfast Plate)
+Taiwanese Breakfast Set (Rice, Egg, Pickles, Soup)
+Pickled Cabbage (Taiwanese Pickled Vegetables)
+Pickled Radish (Taiwanese Pickled Daikon)
+Rice Ball with Pork Floss (Fan Tuan with Pork Floss)
+Rice Ball with Pickled Vegetables (Vegetable Fan Tuan)
+Taiwanese Milk Tea (Breakfast Milk Tea)
+Black Tea with Milk (Taiwanese Breakfast Milk Tea)
+Sweet Potato Balls (Breakfast Sweet Potato Balls)
+Steamed Bun (Mantou – Plain Steamed Bread)
+Fried Mantou with Condensed Milk (Fried Steamed Bread)
+Mantou with Peanut Butter (Steamed Bread with Peanut Butter)
+Steamed Bun with Pork Filling (Breakfast Bao Bun)
+Sesame Flatbread (Taiwanese Sesame Bread)
+Cold Noodles with Sesame Sauce (Breakfast Sesame Noodles)
+Braised Tofu (Soy-Braised Tofu Breakfast)
+
+Beef Noodle Soup
+Braised Pork Rice (Lu Rou Fan – Braised Minced Pork over Rice)
+Oyster Omelette (O-Ah-Jian – Oyster Egg Omelette)
+Taiwanese Fried Chicken
+Bubble Tea (Pearl Milk Tea)
+Scallion Pancake (Cong You Bing – Taiwanese Green Onion Pancake)
+Gua Bao (Taiwanese Pork Belly Bun)
+Stinky Tofu (Fermented Tofu)
+Three-Cup Chicken (San Bei Ji – Soy Sesame Basil Chicken)
+Minced Pork Dry Noodles (Dan Zai Noodles – Tainan-Style Noodles)
+Taiwanese Braised Beef Shank
+Salt and Pepper Squid
+Taiwanese Sausage
+Taiwanese Sausage with Garlic
+Braised Tofu
+Braised Eggs
+Braised Cabbage
+Milkfish Soup
+Milkfish Belly Soup
+Oyster Vermicelli (Oyster Mee Sua)
+Taiwanese Rice Dumplings (Zongzi – Bamboo-Wrapped Sticky Rice)
+Turnip Cake (Taiwanese Radish Cake)
+Sticky Rice Sausage
+Taiwanese Popcorn Chicken with Basil
+Sweet Potato Balls
+Taro Balls Dessert
+Shaved Ice with Toppings (Baobing – Taiwanese Shaved Ice)
+Pineapple Cake (Taiwanese Pineapple Pastry)
+Sun Cake (Taiyang Bing – Malt Sugar Pastry)
+Wheel Pie (Taiwanese Stuffed Pancake)
+Soy Milk Breakfast Soup
+Salty Soy Milk Soup
+Fried Dough Sticks (Youtiao – Chinese Crullers)
+Rice Ball with Pork Floss
+Taiwanese Tea Eggs
+Cold Sesame Noodles (Taiwanese Sesame Noodles)
+
+Bubble Milk Tea (Boba Milk Tea)
+Black Milk Tea (Taiwanese Black Milk Tea)
+Green Milk Tea (Taiwanese Green Milk Tea)
+Oolong Milk Tea (Oolong Milk Tea)
+High Mountain Oolong Tea (High Mountain Oolong Tea)
+Tieguanyin Tea (Iron Goddess Oolong Tea)
+Winter Melon Tea (Winter Melon Herbal Tea)
+Winter Melon Lemon Tea (Winter Melon Lemon Tea)
+Winter Melon Milk Tea (Winter Melon Milk Tea)
+Brown Sugar Milk Tea (Brown Sugar Boba Milk Tea)
+Brown Sugar Milk (Brown Sugar Fresh Milk)
+Pearl Milk Tea (Tapioca Pearl Milk Tea)
+Grass Jelly Tea (Grass Jelly Herbal Drink)
+Grass Jelly Milk Tea (Grass Jelly Milk Tea)
+Aiyu Jelly Drink (Fig Jelly Drink)
+Aiyu Lemon Drink (Lemon Fig Jelly Drink)
+Taro Milk Tea (Taro Milk Tea)
+Taro Milk (Fresh Taro Milk)
+Sweet Potato Milk (Sweet Potato Milk Drink)
+Papaya Milk (Papaya Milk Drink)
+Avocado Milk (Avocado Milk Drink)
+Watermelon Juice (Fresh Watermelon Juice)
+Sugarcane Juice (Fresh Sugarcane Juice)
+Sour Plum Juice (Smoked Plum Juice)
+Honey Lemon Juice (Honey Lemon Drink)
+Kumquat Lemon Tea (Kumquat Lemon Tea)
+Passion Fruit Green Tea (Passion Fruit Green Tea)
+Yakult Green Tea (Probiotic Green Tea)
+Cheese Tea (Cream Cheese Tea)
+Sea Salt Cream Black Tea (Salted Cream Tea)
+Foam Green Tea (Milk Foam Green Tea)
+Cold Brew Tea (Taiwanese Cold Brew Tea)
+Herbal Tea (Taiwanese Cooling Herbal Tea)
+Ginger Tea (Sweet Ginger Tea)
+Longan Red Date Tea (Longan Jujube Tea)
+
+Mantou (Steamed Wheat Bread)
+Whole Wheat Mantou (Whole Wheat Steamed Bread)
+Scallion Mantou (Scallion Steamed Bread)
+Silver Thread Rolls (Layered Steamed Bread Rolls)
+Milk Mantou (Milk Steamed Bread)
+Sweet Mantou (Sweet Steamed Bread)
+Taiwanese Milk Bread (Soft Milk Loaf)
+Hokkaido-Style Milk Bread (Ultra-Soft Milk Bread)
+Toast Bread (Taiwanese White Toast)
+Thick-Sliced Toast (Taiwanese Café Toast)
+Butter Toast (Butter-Grilled Toast)
+Honey Toast (Taiwanese Honey Toast)
+Condensed Milk Toast (Sweet Milk Toast)
+Pineapple Bun (Bolo Bun / Taiwanese Sweet Crust Bun)
+Butter Pineapple Bun (Butter Bolo Bun)
+Custard Pineapple Bun (Custard Bolo Bun)
+Red Bean Bun (Sweet Red Bean Bread)
+Custard Bun (Egg Custard Bread)
+Taro Bun (Taro Paste Bread)
+Pork Floss Bun (Savory Pork Floss Bread)
+Seaweed Pork Floss Bun (Seaweed Pork Floss Bread)
+Scallion Bun (Scallion Bread Roll)
+Scallion Pancake Bread (Baked Scallion Bread)
+Taiwanese Shaobing (Sesame Flatbread)
+Sweet Shaobing (Sweet Sesame Flatbread)
+Savory Shaobing (Savory Sesame Flatbread)
+Guā Bāo Bread (Steamed Folded Bun)
+Hamburger Mantou (Steamed Bread Burger Bun)
+Hot Dog Mantou (Steamed Bread Hot Dog Bun)
+Taiwanese Dinner Rolls (Soft Bakery Rolls)
+Sesame Bread Roll (Sesame Bakery Bread)
+
+Three-Cup Chicken (San Bei Ji)
+Taiwanese Fried Chicken (Popcorn Chicken)
+Crispy Basil Chicken (Salt and Pepper Chicken)
+Soy-Braised Chicken (Lu Ji)
+Braised Chicken Rice (Ji Rou Fan)
+Taiwanese Chicken Cutlet
+Taiwanese Soy Sauce Chicken
+Sesame Oil Chicken Soup (Ma You Ji)
+Ginger Sesame Oil Chicken
+Steamed Chicken with Scallion Oil
+White Cut Chicken (Taiwanese Poached Chicken)
+Salt-Baked Chicken
+Taiwanese Chicken Gizzard Stir-Fry
+Chicken and Basil Stir-Fry
+Chicken with Pickled Mustard Greens
+Chicken and Ginger Soup
+Taiwanese Chicken Noodle Soup
+Chicken with Black Sesame Oil
+Chicken with Fermented Black Beans
+Chicken Stir-Fry with Garlic Chives
+Chicken and Pineapple Stir-Fry
+Chicken with Sweet Soy Sauce
+Chicken with Rice Wine
+Chicken and Mushroom Clay Pot
+Chicken with Bamboo Shoots
+Taiwanese Chicken Congee
+Cold Shredded Chicken with Sesame Sauce
+Chicken with Five-Spice Sauce
+
+Taiwanese Beef Noodle Soup
+Red Braised Beef Noodle Soup
+Clear Broth Beef Noodle Soup
+Soy-Braised Beef Shank
+Taiwanese Braised Beef Shank Rice
+Braised Beef with Pickled Mustard Greens
+Taiwanese Five-Spice Braised Beef
+Beef and Scallion Stir-Fry
+Black Pepper Beef Stir-Fry
+Taiwanese Beef Fried Rice
+Beef with Basil Stir-Fry
+Beef and Garlic Sprout Stir-Fry
+Beef with Green Onion Pancake
+Beef Stuffed Scallion Pancake
+Taiwanese Beef Dumplings
+Beef Potstickers
+Steamed Beef Dumplings
+Taiwanese Beef Rolls
+Beef Roll with Cucumber and Scallions
+Beef Shank Cold Appetizer
+Soy Sauce Marinated Beef Shank
+Spicy Beef Tendon
+Braised Beef Tendon
+Beef and Tendon Platter
+Beef Offal Soup
+Braised Beef Tripe
+Beef and Tomato Stir-Fry
+Taiwanese Beef Hot Pot
+Beef Satay Stir-Fry
+Taiwanese Braised Beef Rice Bowl
+Beef and Pickled Cabbage Stir-Fry
+Taiwanese Beef Chow Mein
+Beef with Bamboo Shoots Stir-Fry
+
+Lu Rou Fan (Braised Pork Rice)
+Braised Pork Belly
+Soy-Braised Pork Belly
+Red-Braised Pork Belly
+Taiwanese Braised Pork Knuckle
+Braised Pork Trotters
+Three-Cup Pork
+Taiwanese Pork Mince Sauce
+Pork Belly Bao
+Gua Bao (Taiwanese Pork Belly Bun)
+Taiwanese Pork Belly Bun
+Pork Belly Steamed Bun
+Taiwanese Pork Chop
+Fried Pork Chop
+Braised Pork Chop
+Soy Sauce Pork Chop
+Taiwanese Popcorn Pork
+Salt and Pepper Pork
+Crispy Fried Pork Strips
+Taiwanese Sausage
+Sweet Taiwanese Pork Sausage
+Garlic Taiwanese Sausage
+Grilled Taiwanese Sausage
+Taiwanese Sausage with Garlic
+Pork Belly with Pickled Mustard Greens
+Stewed Pork with Pickled Mustard Greens
+Pork Belly with Bamboo Shoots
+Braised Pork with Bamboo Shoots
+Pork Rib Soup
+Herbal Pork Rib Soup
+Pork Rib Noodle Soup
+Pork Rib Rice Soup
+Black Pepper Pork
+Taiwanese Black Pepper Pork
+Stir-Fried Pork with Basil
+Stir-Fried Pork with Garlic Chives
+Stir-Fried Pork with Ginger
+Stir-Fried Pork with Scallions
+Sweet and Sour Pork Taiwanese Style
+Taiwanese Pork Stir-Fry
+Pork Belly Stir-Fry
+Soy Sauce Pork Stir-Fry
+Pork Offal Stew
+Braised Pork Intestines
+Pork Liver Stir-Fry
+Pork Blood Cake
+Steamed Pork Blood Cake
+Grilled Pork Blood Cake
+Taiwanese Minced Pork Omelette
+Pork and Egg Stir-Fry
+Taiwanese Pork Congee
+Pork and Rice Porridge
+Taiwanese Pork Belly Noodles
+Braised Pork Noodles
+
+Three Cup Shrimp (San Bei Xia)
+Salt and Pepper Shrimp (Yan Su Xia)
+Garlic Chili Shrimp
+Soy Sauce Shrimp
+Drunken Shrimp (Zui Xia)
+Steamed Shrimp with Garlic
+Shrimp with Sweet Chili Sauce
+Shrimp Fried Rice
+Shrimp Omelette (Shrimp Oyster Omelette Style)
+Deep-Fried Shrimp Balls
+
+Scallion Ginger Lobster (Taiwanese-Style Lobster)
+Steamed Lobster with Garlic
+Salt and Pepper Lobster
+Three Cup Lobster
+
+Salt and Pepper Squid
+Deep-Fried Squid
+Grilled Squid with Sweet Soy Sauce
+Squid Stir-Fry with Basil
+
+Steamed Fish with Soy Sauce
+Pan-Fried Whole Fish
+Braised Fish in Soy Sauce
+Sweet and Sour Fish
+Fish Head Soup (Taiwanese Fish Head Soup)
+
+Milkfish Belly Soup
+Braised Milkfish
+Milkfish Congee
+
+Oyster Omelette (Taiwanese Oyster Omelette)
+Crispy Fried Oysters
+Steamed Oysters with Garlic
+Oysters with Black Bean Sauce
+
+Steamed Scallops with Garlic Vermicelli
+Pan-Seared Scallops
+Salt and Pepper Scallops
+Scallops Stir-Fried with Vegetables
+
+Clams in Garlic Sauce
+Clams with Basil
+Clams in Black Bean Sauce
+Taiwanese Clam Soup
+
+Seafood Congee
+Seafood Hot Pot
+Seafood Stir-Fry
+
+Braised Sea Cucumber
+Sea Cucumber with Scallions
+
+Steamed Crab with Ginger
+Salt and Pepper Crab
+Soy Sauce Crab (Taiwanese Style)
+
+Pineapple Cake (Fengli Su / Pineapple Shortbread Cake)
+Sun Cake (Taiyang Bing / Malt Sugar Pastry)
+Wife Cake (Laopo Bing / Winter Melon Pastry)
+Taro Pastry (Taro Flaky Pastry)
+Mung Bean Pastry (Mung Bean Cake)
+Red Bean Pastry (Red Bean Flaky Pastry)
+Green Bean Pastry (Green Bean Cake)
+Sesame Pastry (Black Sesame Pastry)
+Peanut Pastry (Peanut Sugar Pastry)
+Almond Pastry (Almond Flaky Pastry)
+Salted Egg Yolk Pastry (Salted Egg Yolk Moon Pastry)
+Custard Pastry (Custard-Filled Pastry)
+Cream Puff (Taiwanese Cream Puff)
+Butterfly Pastry (Palmier-Style Taiwanese Pastry)
+Honey Cake (Taiwanese Honey Sponge Cake)
+Castella Cake (Taiwanese Castella Sponge Cake)
+Taro Cake (Taro Sponge Cake)
+Sweet Potato Pastry (Sweet Potato Flaky Pastry)
+Milk Bread Roll (Taiwanese Milk Roll Pastry)
+Scallion Pastry (Scallion Flaky Pastry)
+Sesame Roll Cake (Black Sesame Swiss Roll)
+Red Bean Roll Cake (Red Bean Swiss Roll)
+Custard Roll Cake (Custard Swiss Roll)
+Puff Pastry Egg Tart (Taiwanese Egg Tart)
+Butter Cake (Taiwanese Butter Cake)
+Chocolate Roll Cake (Chocolate Swiss Roll)
+Matcha Roll Cake (Matcha Swiss Roll)
+Nougat Cracker Pastry (Nougat Sandwich Cracker)
+Peanut Roll Pastry (Peanut Candy Roll Pastry)
+
+Pineapple Cake (Fengli Su – Taiwanese Pineapple Pastry)
+Winter Melon Cake (Donggua Gao – Candied Winter Melon Cake)
+Sun Cake (Taiyang Bing – Malt Sugar Pastry Cake)
+Taro Cake (Taiwanese Taro Pastry Cake)
+Mung Bean Cake (Lü Dou Gao – Mung Bean Pastry Cake)
+Peanut Cake (Hua Sheng Gao – Peanut Pastry Cake)
+Green Bean Cake (Qing Dou Gao – Green Bean Pastry Cake)
+Almond Cake (Taiwanese Almond Pastry Cake)
+Sesame Cake (Black Sesame Pastry Cake)
+Red Bean Cake (Hong Dou Gao – Red Bean Pastry Cake)
+Butter Pineapple Cake (Butter Pineapple Pastry)
+Cheese Pineapple Cake (Cheese-Filled Pineapple Pastry)
+Chocolate Pineapple Cake (Chocolate Pineapple Pastry)
+Egg Yolk Pineapple Cake (Salted Egg Yolk Pineapple Pastry)
+Nougat Cake (Taiwanese Milk Nougat Cake)
+Milk Nougat (Taiwanese Milk Candy Cake)
+Snowflake Crisp (Milk Nougat Cracker Cake)
+Honey Cake (Taiwanese Castella-Style Honey Cake)
+Castella Cake (Taiwanese Castella Sponge Cake)
+Cheese Castella Cake (Taiwanese Cheese Castella Cake)
+Chocolate Castella Cake (Taiwanese Chocolate Castella Cake)
+Matcha Castella Cake (Taiwanese Matcha Castella Cake)
+Egg Sponge Cake (Taiwanese Traditional Sponge Cake)
+Steamed Sponge Cake (Taiwanese Steamed Cake)
+Brown Sugar Cake (Taiwanese Brown Sugar Sponge Cake)
+Sweet Potato Cake (Taiwanese Sweet Potato Cake)
+Pumpkin Cake (Taiwanese Pumpkin Cake)
+Rice Flour Cake (Taiwanese Rice Cake)
+Glutinous Rice Cake (Mochi-Style Rice Cake)
+Peanut Mochi Cake (Taiwanese Peanut Rice Cake)
+Sesame Mochi Cake (Taiwanese Sesame Rice Cake)
+Red Bean Mochi Cake (Taiwanese Red Bean Rice Cake)
+Taiwanese Shortbread Cookies
+Butter Cookies (Taiwanese Butter Cookies)
+Almond Cookies (Taiwanese Almond Cookies)
+Peanut Cookies (Taiwanese Peanut Cookies)
+Sesame Cookies (Taiwanese Sesame Cookies)
+Pineapple Jam Cookies (Pineapple-Filled Cookies)
+Green Tea Cookies (Matcha Cookies)
+Black Tea Cookies (Taiwanese Tea Cookies)
+Oolong Tea Cookies (Oolong Tea Butter Cookies)
+Milk Tea Cookies (Bubble Milk Tea Cookies)
+Egg Roll Cookies (Dan Juan – Taiwanese Egg Roll Cookies)
+Butter Egg Rolls (Taiwanese Butter Egg Rolls)
+Sesame Egg Rolls (Black Sesame Egg Rolls)
+Chocolate Egg Rolls (Chocolate Wafer Rolls)
+
+Bubble Milk Tea (Boba Milk Tea)
+Classic Black Milk Tea with Tapioca Pearls
+Brown Sugar Bubble Milk Tea
+Taro Milk Tea
+Matcha Milk Tea
+Winter Melon Milk Tea
+Grass Jelly Milk Tea
+Cheese Foam Milk Tea
+Bubble Tea Jelly Drink
+Shaved Ice (Taiwanese Bao Bing)
+Mango Shaved Ice
+Strawberry Shaved Ice
+Peanut Shaved Ice
+Condensed Milk Shaved Ice
+Grass Jelly Shaved Ice
+Black Sesame Shaved Ice
+Snow Ice (Flavored Milk Shaved Ice)
+Mango Snow Ice
+Matcha Snow Ice
+Taro Snow Ice
+Grass Jelly Dessert
+Grass Jelly with Syrup
+Grass Jelly with Milk
+Aiyu Jelly (Fig Seed Jelly Dessert)
+Aiyu Jelly with Lemon Syrup
+Taro Ball Dessert
+Sweet Potato Ball Dessert
+Taro and Sweet Potato Balls in Syrup
+Taro Paste Dessert
+Sweet Taro Soup
+Red Bean Soup
+Red Bean Dessert Bowl
+Green Bean Soup
+Peanut Soup
+Sesame Soup
+Sweet Rice Soup
+Tangyuan (Sweet Glutinous Rice Balls Dessert)
+Black Sesame Tangyuan
+Peanut Tangyuan
+Sweet Rice Dumplings in Ginger Syrup
+Pineapple Cake (Taiwanese Pineapple Pastry)
+Butter Pineapple Cake
+Egg Tart (Taiwanese Style Egg Custard Tart)
+Castella Cake (Taiwanese Sponge Cake)
+Honey Castella Cake
+Cheese Castella Cake
+Sweet Glutinous Rice Cake (Mochi-Style Dessert)
+Peanut Mochi Dessert
+Sesame Mochi Dessert
+Sweet Sticky Rice Cake
+Sun Cake (Maltose Pastry)
+Wheel Cake (Taiwanese Filled Pancake)
+Red Bean Wheel Cake
+Custard Wheel Cake
+Taro Wheel Cake
+Sweet Potato Cake
+Sweet Rice Flour Cake
+Steamed Sponge Cake (Taiwanese Fa Gao)
+Eight Treasure Sweet Rice Pudding
+Sweet Lotus Seed Dessert
+Candied Sweet Potato Dessert
+Sweet Fried Sweet Potato Balls
+
+Pineapple Cake (Fengli Su Pineapple Pastry)
+Golden Pineapple Cake (Golden Pineapple Pastry)
+Nougat Candy (Taiwanese Milk Nougat)
+Peanut Nougat Candy (Peanut Milk Nougat)
+Cranberry Nougat Candy
+Almond Nougat Candy
+Mung Bean Cake (Green Bean Pastry Candy)
+Taro Cake Candy (Taro Pastry Candy)
+Sun Cake (Malt Sugar Pastry Candy)
+Peanut Brittle (Taiwanese Peanut Candy)
+Sesame Brittle (Black Sesame Candy)
+Black Sesame Candy Cubes
+Brown Sugar Peanut Candy
+Peanut Candy Rolls
+Maltose Peanut Candy
+Winter Melon Candy
+Winter Melon Sugar Candy
+Dried Plum Candy
+Preserved Plum Candy
+Salted Plum Candy
+Candied Kumquat
+Candied Ginger
+Brown Sugar Ginger Candy
+Rock Sugar Candy
+Traditional Rock Sugar Crystals
+Milk Candy (Taiwanese Milk Candy)
+Strawberry Milk Candy
+Matcha Milk Candy
+Chocolate Pineapple Cake
+Chocolate Nougat Candy
+Chocolate Peanut Candy
+Chocolate Sun Cake
+Chocolate-Covered Pineapple Cake
+Chocolate Rice Crackers
+Chocolate Sesame Candy
+Chocolate Almond Nougat
+Chocolate Peanut Brittle
+
+Milk Buttercream Frosting
+Condensed Milk Frosting
+Sweetened Cream Frosting
+Whipped Fresh Cream Frosting
+Stabilized Whipped Cream Frosting
+Custard Cream Frosting
+Pastry Cream Frosting
+Egg Custard Frosting
+Taro Cream Frosting
+Taro Custard Frosting
+Matcha Cream Frosting
+Matcha Buttercream Frosting
+Black Sesame Cream Frosting
+Black Sesame Buttercream Frosting
+Red Bean Paste Frosting
+Sweet Red Bean Cream Frosting
+Peanut Cream Frosting
+Peanut Buttercream Frosting
+Soy Milk Cream Frosting
+Soy Milk Buttercream Frosting
+Honey Buttercream Frosting
+Brown Sugar Buttercream Frosting
+Brown Sugar Syrup Icing
+Maltose Syrup Icing
+Honey Glaze Icing
+Sweet Rice Syrup Icing
+Osmanthus Sugar Icing
+Winter Melon Sugar Glaze
+Milk Glaze Icing
+Custard Glaze Icing
+
+A-Choy Stir-Fry (Stir-Fried A-Choy Lettuce)
+Water Spinach Stir-Fry (Stir-Fried Ong Choy)
+Garlic Broccoli (Stir-Fried Broccoli with Garlic)
+Taiwanese Cabbage Stir-Fry (Stir-Fried Flat Cabbage)
+Taiwanese Spinach Stir-Fry (Stir-Fried Spinach with Garlic)
+Stir-Fried Snow Pea Shoots (Dou Miao Stir-Fry)
+Stir-Fried Pea Shoots with Garlic (Garlic Dou Miao)
+Stir-Fried Chives (Garlic Chinese Chives)
+Stir-Fried Leek Flowers (Stir-Fried Leek Buds)
+Stir-Fried Lotus Root (Lotus Root with Black Vinegar)
+Braised Bamboo Shoots (Soy-Braised Bamboo Shoots)
+Cold Bamboo Shoots (Chilled Bamboo Shoots with Mayo)
+Stir-Fried Bamboo Shoots (Garlic Bamboo Shoots)
+Braised Daikon Radish (Soy-Braised White Radish)
+Daikon Radish with Dried Shrimp (Braised Radish with Shrimp)
+Pickled Daikon Radish (Taiwanese Pickled Radish)
+Stir-Fried Bitter Melon (Bitter Melon with Black Bean Sauce)
+Bitter Melon with Salted Egg (Salted Egg Bitter Melon)
+Stir-Fried Eggplant (Taiwanese Basil Eggplant)
+Braised Eggplant (Soy-Braised Eggplant)
+Cold Eggplant Salad (Chilled Eggplant with Garlic Sauce)
+Stir-Fried Green Beans (Green Beans with Garlic and Preserved Olive)
+Dry-Fried Green Beans (Sichuan-Style Green Beans)
+Stir-Fried Okra (Garlic Okra Stir-Fry)
+Cold Okra Salad (Chilled Okra with Soy Sauce)
+Stir-Fried Tomato and Egg (Tomato Egg Stir-Fry)
+Tomato with Sugar (Sweet Tomato Slices)
+Stir-Fried Cucumber (Garlic Cucumber Stir-Fry)
+Pickled Cucumber (Taiwanese Pickled Cucumber)
+Cold Cucumber Salad (Cucumber with Garlic and Vinegar)
+Stir-Fried Mushrooms (Mixed Mushroom Stir-Fry)
+King Oyster Mushroom Stir-Fry (Garlic King Oyster Mushrooms)
+Braised Shiitake Mushrooms (Soy-Braised Shiitake Mushrooms)
+Three-Cup Mushrooms (Three-Cup King Oyster Mushrooms)
+Stir-Fried Enoki Mushrooms (Enoki with Soy Sauce)
+Stir-Fried Potatoes (Shredded Potato Stir-Fry)
+Shredded Potatoes with Vinegar (Sour Shredded Potatoes)
+Braised Potatoes (Soy-Braised Potatoes)
+Potato and Green Pepper Stir-Fry (Potato Pepper Stir-Fry)
+Sweet Potato Fries Taiwanese Style (Fried Sweet Potato Batons)
+Roasted Sweet Potatoes (Street-Style Roasted Sweet Potatoes)
+Steamed Sweet Potatoes (Steamed Taiwanese Sweet Potatoes)
+Sweet Potato Leaves Stir-Fry (Stir-Fried Sweet Potato Greens)
+Sweet Potato Leaves with Garlic (Garlic Sweet Potato Greens)
+Stir-Fried Taro (Garlic Taro Stir-Fry)
+Braised Taro (Soy-Braised Taro)
+Stir-Fried Pumpkin (Pumpkin with Rice Wine)
+Braised Pumpkin (Soy-Braised Pumpkin)
+Stir-Fried Napa Cabbage (Napa Cabbage with Garlic)
+Braised Napa Cabbage (Taiwanese Braised Napa Cabbage)
+Cold Marinated Vegetables (Taiwanese Pickled Vegetables)
+
+Stinky Tofu (Fermented Tofu)
+Deep-Fried Stinky Tofu
+Steamed Stinky Tofu
+Braised Stinky Tofu
+Grilled Stinky Tofu
+Cold Stinky Tofu
+Mapo Tofu Taiwanese Style
+Braised Tofu in Soy Sauce
+Three-Cup Tofu
+Salt and Pepper Tofu
+Crispy Fried Tofu
+Pan-Fried Tofu
+Deep-Fried Tofu Cubes
+Five-Spice Tofu
+Black Pepper Tofu
+Scallion Tofu
+Garlic Soy Tofu
+Tofu with Basil
+Tofu with Minced Pork
+Tofu with Mushrooms
+Tofu with Preserved Vegetables
+Tofu Skin Rolls
+Braised Tofu Skin
+Cold Silken Tofu with Soy Sauce
+Cold Silken Tofu with Century Egg
+Cold Silken Tofu with Scallions
+Cold Tofu Salad
+Tofu in Ginger Sauce
+Steamed Tofu with Soy Sauce
+Steamed Tofu with Garlic
+Steamed Tofu with Seafood
+Tofu Soup
+Tofu and Vegetable Soup
+Seaweed Tofu Soup
+Clam and Tofu Soup
+Spicy Tofu Soup
+Tofu Hot Pot
+Braised Tofu Hot Pot
+Tofu Vermicelli Stew
+Tofu with Oyster Sauce
+Tofu with Black Bean Sauce
+Tofu with Chili Sauce
+Tofu with Pickled Mustard Greens
+Tofu with Fermented Black Beans
+Tofu with Sesame Sauce
+Tofu with Peanut Sauce
+Tofu Pudding (Douhua)
+Sweet Tofu Pudding
+Savory Tofu Pudding
+Ginger Syrup Tofu Pudding
+Brown Sugar Tofu Pudding
+Soy Milk Tofu Pudding
+Tofu Skin Dessert Rolls
+Tofu Skin Sweet Soup
+
+Shilin Night Market Grilled Chicken Steak
+Taiwanese Street-Style Grilled Chicken Wings
+Grilled Sweet Soy Chicken Skewers
+Taiwanese Five-Spice Grilled Pork Belly
+Grilled Taiwanese Sausage
+Grilled Taiwanese Sausage with Garlic
+Grilled Pork Skewers with Sweet Soy Glaze
+Grilled Pork Neck Taiwanese Style
+Grilled Pork Belly with Garlic and Basil
+Grilled Beef Skewers Taiwanese Night Market Style
+Grilled Beef Short Ribs Taiwanese Style
+Grilled Lamb Skewers Taiwanese Style
+Grilled Squid Taiwanese Night Market Style
+Grilled Cuttlefish Taiwanese Style
+Grilled Whole Squid with Sweet Chili Sauce
+Grilled Shrimp Taiwanese Style
+Grilled Fish Taiwanese Night Market Style
+Grilled Milkfish Taiwanese Style
+Grilled Mackerel Taiwanese Style
+Grilled Oysters Taiwanese Street Style
+Grilled King Oyster Mushrooms Taiwanese Style
+Grilled Enoki Mushrooms with Soy Butter
+Grilled Shiitake Mushrooms Taiwanese Style
+Grilled Corn Taiwanese Night Market Style
+Grilled Sweet Potatoes Taiwanese Style
+Grilled Tofu Taiwanese Style
+Grilled Blood Cake (Pig Blood Rice Cake BBQ)
+Grilled Taiwanese Black Rice Sausage
+Grilled Chicken Heart Taiwanese Style
+Grilled Chicken Gizzard Taiwanese Style
+Grilled Chicken Skin Taiwanese Style
+Grilled Pork Intestines Taiwanese Style
+Grilled Taiwanese Tempura Skewers
+Grilled Taiwanese Rice Cakes
+Grilled Taiwanese Fish Cake Skewers
+Grilled Taiwanese Sausage and Rice Sausage Combo
+
+Steamed White Rice
+Short-Grain Steamed Rice
+Rice Bowl
+Braised Pork Rice (Lu Rou Fan)
+Braised Minced Pork Rice
+Braised Pork Belly Rice
+Soy-Braised Pork Rice
+Turkey Rice (Chiayi Turkey Rice)
+Chicken Rice (Taiwanese Chicken Rice)
+Braised Beef Rice
+Braised Chicken Rice
+Braised Tofu Rice
+Braised Egg Rice
+Fried Rice
+Taiwanese Sausage Fried Rice
+Shrimp Fried Rice
+Egg Fried Rice
+Vegetable Fried Rice
+Soy Sauce Fried Rice
+Garlic Fried Rice
+Scallion Fried Rice
+Sticky Rice
+Savory Sticky Rice
+Taiwanese Oil Rice (You Fan)
+Sticky Rice with Pork
+Sticky Rice with Mushrooms
+Sticky Rice with Peanuts
+Bamboo Tube Sticky Rice
+Rice Porridge
+Plain Rice Porridge
+Sweet Potato Rice Porridge
+Pork Rice Porridge
+Fish Rice Porridge
+Rice Soup
+Milkfish Rice Soup
+Oyster Rice Soup
+Rice with Pickled Vegetables
+Rice with Preserved Radish
+Rice with Soy Sauce and Lard
+Rice with Fried Egg
+Rice with Century Egg
+Rice with Braised Egg
+Rice with Braised Bamboo Shoots
+Rice with Taiwanese Sausage
+Rice with Braised Offal
+Rice with Simmered Cabbage
+Rice with Peanut Powder
+Rice with Minced Pork Sauce
+Rice with Garlic Oil
+Rice with Scallion Oil
+
+aiwanese Beef Noodle Soup (Niu Rou Mian – Braised Beef Noodles)
+Red-Braised Beef Noodle Soup (Hong Shao Beef Noodles)
+Clear Broth Beef Noodle Soup (Qing Dun Beef Noodles)
+Tomato Beef Noodle Soup (Tomato Braised Beef Noodles)
+Knife-Cut Beef Noodle Soup (Hand-Cut Beef Noodles)
+Spicy Beef Noodle Soup (Spicy Braised Beef Noodles)
+Taiwanese Dry Beef Noodles (Dry Tossed Beef Noodles)
+Minced Pork Noodles (Zha Jiang Dry Noodles – Taiwanese Style)
+Braised Pork Sauce Noodles (Lu Rou Dry Noodles)
+Sesame Paste Noodles (Taiwanese Sesame Noodles)
+Scallion Oil Noodles (Scallion Tossed Wheat Noodles)
+Soy Sauce Tossed Noodles (Soy Sauce Dry Noodles)
+Garlic Oil Noodles (Garlic Tossed Wheat Noodles)
+Chili Oil Noodles (Chili Oil Dry Noodles)
+Black Vinegar Noodles (Black Vinegar Tossed Noodles)
+Sesame Oil Chicken Noodles (Sesame Oil Chicken Wheat Noodles)
+Oyster Sauce Noodles (Oyster Sauce Tossed Noodles)
+Braised Pork Rib Noodle Soup (Pork Rib Clear Broth Noodles)
+Seafood Noodle Soup (Taiwanese Mixed Seafood Noodles)
+Shrimp Noodle Soup (Shrimp Broth Wheat Noodles)
+Milkfish Noodle Soup (Milkfish Clear Broth Noodles)
+Intestine and Oyster Noodles (Oyster and Pork Intestine Noodles)
+Pig Trotter Noodle Soup (Braised Pork Knuckle Noodles)
+Pork Bone Noodle Soup (Pork Bone Broth Noodles)
+Taiwanese Dan Zai Noodles (Street-Style Minced Pork Noodles)
+Cold Sesame Noodles (Chilled Sesame Wheat Noodles)
+Taiwanese Flat Rice Noodles Stir-Fry (Stir-Fried Flat Rice Noodles)
+Taiwanese Fried Noodles (Taiwanese-Style Chow Mein)
+Glass Noodle Soup (Sweet Potato Glass Noodle Soup)
+Braised Cabbage Noodles (Braised Cabbage Wheat Noodles)
+Vegetarian Mushroom Noodle Soup (Vegetarian Taiwanese Noodles)
+
+Niu Rou Mian (Taiwanese Braised Beef Noodle Soup)
+Hong Shao Niu Rou Mian (Red-Braised Beef Noodle Soup)
+Qing Dun Niu Rou Mian (Clear Broth Beef Noodle Soup)
+Fan Qie Niu Rou Mian (Tomato Beef Noodle Soup)
+Dao Xiao Mian Niu Rou Tang (Knife-Cut Beef Noodle Soup)
+Ban Jin Ban Rou Niu Rou Tang (Half Tendon Half Beef Noodle Soup)
+Qing Tang Niu Za Tang (Clear Beef Offal Soup)
+Hong Shao Niu Za Tang (Red-Braised Beef Offal Soup)
+Dang Gui Niu Rou Tang (Angelica Herb Beef Soup)
+Lu Rou Tang (Braised Pork Soup)
+Rou Geng Tang (Thick Pork Soup)
+Rou Geng Mian Tang (Pork Thick Soup with Noodles)
+Yu Geng Tang (Thick Fish Soup)
+Hua Zhi Geng Tang (Thick Squid Soup)
+Xian Yu Tang (Milkfish Soup)
+Shi Mu Yu Tang (Milkfish Belly Soup)
+Qing Jiang Yu Tang (Ginger Milkfish Soup)
+Yu Pi Tang (Fish Skin Soup)
+Hai Xian Tang (Taiwanese Seafood Soup)
+Ge Li Tang (Clam Soup)
+Hai Dai Ya Tang (Kelp and Duck Soup)
+Ya Rou Tang (Taiwanese Duck Soup)
+Yan Shui Ya Tang (Salted Duck Soup)
+Ma You Ji Tang (Sesame Oil Chicken Soup)
+Jiu Xiang Ji Tang (Rice Wine Chicken Soup)
+Dang Gui Ji Tang (Angelica Herb Chicken Soup)
+Si Shen Tang (Four Herbs Pork Soup)
+Pai Gu Tang (Pork Rib Soup)
+Bai Luo Bo Pai Gu Tang (White Radish Pork Rib Soup)
+Ku Gua Pai Gu Tang (Bitter Melon Pork Rib Soup)
+Dong Gua Pai Gu Tang (Winter Melon Pork Rib Soup)
+Hai Zao Pai Gu Tang (Seaweed Pork Rib Soup)
+Sheng Jiang Pai Gu Tang (Ginger Pork Rib Soup)
+Da Chang Tang (Pork Intestine Soup)
+Da Chang Mian Xian (Pork Intestine Vermicelli Soup)
+Mian Xian Hu (Taiwanese Vermicelli Soup)
+Oyster Vermicelli Soup (Oyster Mian Xian Soup)
+Da Chang Oyster Vermicelli Soup (Pork Intestine and Oyster Vermicelli Soup)
+A Zong Mian Xian (Taiwanese Thick Vermicelli Soup)
+Gua Bao Tang (Braised Pork Belly Soup)
+Lu Wei Tang (Master-Braised Soup)
+Ya Xue Tang (Duck Blood Soup)
+Zhu Xue Tang (Pork Blood Soup)
+Qing Tang Gong Wan Tang (Clear Pork Meatball Soup)
+Gong Wan Tang (Taiwanese Pork Meatball Soup)
+Xiang Gu Ji Tang (Mushroom Chicken Soup)
+Jin Zhen Hua Tang (Golden Needle Mushroom Soup)
+Hai Dai Tang (Kelp Soup)
+Zi Cai Tang (Seaweed Egg Drop Soup)
+Dan Hua Tang (Egg Drop Soup Taiwanese Style)
+Suan Cai Ya Tang (Pickled Mustard Green Duck Soup)
+Suan Cai Bai Rou Tang (Pickled Mustard Green Pork Soup)
+
+Oyster Omelet (Taiwanese Oyster Omelette)
+Crispy Oyster Omelet (Crispy Taiwanese Oyster Omelette)
+Stinky Tofu (Fermented Fried Tofu)
+Deep-Fried Stinky Tofu (Crispy Fermented Tofu)
+Braised Stinky Tofu (Braised Fermented Tofu)
+Gua Bao (Taiwanese Pork Belly Bun)
+Pepper Bun (Black Pepper Pork Bun)
+Beef Noodle Soup (Taiwanese Braised Beef Noodle Soup)
+Clear Broth Beef Noodle Soup (Light Taiwanese Beef Noodles)
+Braised Pork Rice (Lu Rou Fan – Minced Pork Rice Bowl)
+Turkey Rice (Ji Rou Fan – Shredded Turkey Rice)
+Taiwanese Sausage (Sweet Pork Sausage)
+Taiwanese Sausage with Sticky Rice (Sausage Rice Roll)
+Fried Chicken Cutlet (Taiwanese Chicken Steak)
+Popcorn Chicken (Taiwanese Basil Fried Chicken)
+Sweet Potato Fries (Taiwanese Fried Sweet Potato)
+Oyster Vermicelli (Taiwanese Oyster Misua Noodles)
+Pig’s Blood Cake (Sticky Rice Blood Cake)
+A-Gei (Stuffed Tofu with Glass Noodles)
+Scallion Pancake (Taiwanese Green Onion Pancake)
+Taiwanese Tempura (Tian Bu La – Fish Paste Fritters)
+Iron Eggs (Soy-Braised Eggs)
+Wheel Cakes (Taiwanese Stuffed Pancakes)
+Pineapple Cake (Taiwanese Pineapple Pastry)
+Grilled Corn (Taiwanese Night Market Corn)
+Fried Rice Noodles (Taiwanese Stir-Fried Rice Vermicelli)
+Tofu Pudding (Douhua – Silken Tofu Dessert)
+Shaved Ice Dessert (Taiwanese Baobing)
+Bubble Tea (Taiwanese Milk Tea with Tapioca Pearls)
+
+Braised Soy Sauce Eggs (Lu Dan)
+Tea Eggs (Taiwanese Tea-Braised Eggs)
+Braised Tofu (Lu Doufu)
+Braised Tofu Skin (Lu Fu Pi)
+Braised Peanuts (Lu Hua Sheng)
+Braised Seaweed Knots (Lu Hai Dai Jie)
+Braised Bamboo Shoots (Lu Zhu Sun)
+Braised Pork Blood Cake (Lu Zhu Xue Gao)
+Cold Marinated Cucumbers (Taiwanese Smacked Cucumbers)
+Pickled Cucumber Salad (Sweet and Sour Cucumber Pickles)
+Pickled Daikon Radish (Taiwanese Pickled Radish)
+Pickled Mustard Greens (Suan Cai Pickles)
+Blanched Water Spinach with Garlic (Garlic Ong Choy)
+Stir-Fried Water Spinach (Taiwanese Stir-Fried Ong Choy)
+Garlic Stir-Fried Cabbage (Taiwanese Fried Cabbage)
+Stir-Fried Bean Sprouts (Taiwanese Fried Bean Sprouts)
+Cold Sesame Spinach (Sesame Spinach Salad)
+Stir-Fried Chinese Chives (Garlic Chinese Chives)
+Stir-Fried Tofu with Scallions (Scallion Tofu)
+Deep-Fried Tofu Cubes (Crispy Taiwanese Tofu)
+Cold Silken Tofu with Soy Sauce (Chilled Tofu Side Dish)
+Braised Gluten Puffs (Braised Wheat Gluten Puffs)
+Braised Konjac (Braised Konjac Jelly)
+Stir-Fried Lotus Root Slices (Taiwanese Lotus Root Stir-Fry)
+Sweet Braised Sweet Potato (Taiwanese Braised Sweet Potato)
+Steamed Sweet Potato (Taiwanese Steamed Sweet Potato)
+Cold Jellyfish Salad (Taiwanese Jellyfish Side Dish)
+Cold Wood Ear Mushroom Salad (Wood Ear Mushroom with Vinegar)
+Stir-Fried Wood Ear Mushrooms (Taiwanese Black Fungus Stir-Fry)
+Pickled Green Mango (Taiwanese Pickled Mango)
+Cold Tofu Skin Salad (Tofu Skin Salad with Sesame)
+
+Lu Rou Fan Bites (Braised Pork Rice Appetizer Bites)
+Gua Bao (Taiwanese Pork Belly Steamed Buns)
+Mini Gua Bao (Small Pork Belly Buns)
+Taiwanese Fried Chicken Bites
+Popcorn Chicken (Taiwanese Basil Fried Chicken)
+Salt and Pepper Chicken Wings (Taiwanese Style Chicken Wings)
+Three Cup Chicken Skewers (San Bei Ji Appetizer Skewers)
+Braised Tofu (Taiwanese Soy-Braised Tofu)
+Stinky Tofu (Fermented Fried Tofu)
+Steamed Stinky Tofu (Fermented Tofu Appetizer)
+Taiwanese Sausage Slices (Sweet Pork Sausage Appetizer)
+Grilled Taiwanese Sausage
+Taiwanese Sausage with Garlic
+Oyster Omelette Bites (Mini Oyster Omelette Appetizers)
+Scallion Pancake (Taiwanese Green Onion Pancake)
+Scallion Pancake Rolls
+Scallion Pancake with Egg
+Fried Spring Rolls (Taiwanese Spring Rolls)
+Fresh Spring Rolls (Taiwanese Popiah Rolls)
+Shrimp Rolls (Taiwanese Shrimp Spring Rolls)
+Braised Eggs (Taiwanese Soy-Braised Eggs)
+Tea Eggs (Taiwanese Marbled Tea Eggs)
+Cold Sesame Noodles (Taiwanese Sesame Noodle Appetizer)
+Pickled Cucumber (Taiwanese Pickled Cucumbers)
+Pickled Daikon (Taiwanese Pickled Radish)
+Pickled Mustard Greens (Taiwanese Preserved Mustard Greens)
+Salt and Pepper Squid (Taiwanese Fried Squid)
+Fried Fish Cakes (Taiwanese Fish Cake Appetizers)
+Sweet Potato Fries (Taiwanese Fried Sweet Potatoes)
+Taiwanese Meatballs (Ba Wan Savory Rice Dumplings)
+Steamed Pork Dumplings (Taiwanese Style Dumplings)
+Pan-Fried Dumplings (Taiwanese Potstickers)
+Braised Pork Belly Slices (Taiwanese Red-Braised Pork Belly)
+Cold Tofu with Century Egg (Century Egg Tofu Appetizer)
+Century Egg Slices (Preserved Duck Egg Appetizer)
+Fried Oyster Rolls (Taiwanese Oyster Spring Rolls)
+Taiwanese Crispy Chicken Skin
+Fried Enoki Mushrooms (Crispy Mushroom Appetizers)
+
+Lu Rou Fan (Braised Pork Rice)
+Chicken Lu Rou Fan (Braised Chicken Rice)
+Braised Pork Rice with Fried Egg (Lu Rou Fan with Egg)
+Turkey Rice (Taiwanese Turkey Rice)
+Minced Pork Rice (Taiwanese Minced Pork Rice)
+Braised Beef Noodle Soup (Taiwanese Beef Noodles)
+Clear Broth Beef Noodle Soup (Light Taiwanese Beef Noodles)
+Tomato Beef Noodle Soup (Tomato-Based Taiwanese Beef Noodles)
+Dry Beef Noodles (Taiwanese Dry Beef Noodles)
+Minced Pork Dry Noodles (Taiwanese Minced Pork Noodles)
+Sesame Paste Noodles (Taiwanese Sesame Noodles)
+Scallion Oil Noodles (Taiwanese Scallion Noodles)
+Soy Sauce Dry Noodles (Taiwanese Soy Sauce Noodles)
+Oyster Vermicelli (Taiwanese Oyster Mee Sua)
+Intestine Vermicelli (Taiwanese Intestine Mee Sua)
+Milkfish Congee (Taiwanese Milkfish Porridge)
+Sweet Potato Congee (Taiwanese Sweet Potato Porridge)
+Rice Porridge with Side Dishes (Taiwanese Breakfast Congee Set)
+Braised Pork Rice with Pickles (Lu Rou Fan with Pickled Vegetables)
+Soy Milk (Taiwanese Soy Milk)
+Savory Soy Milk Soup (Salty Soy Milk Soup)
+Rice Ball with Fillings (Taiwanese Fan Tuan)
+Savory Sticky Rice Roll (Taiwanese Sticky Rice Roll)
+Turnip Cake (Taiwanese Radish Cake)
+Pan-Fried Radish Cake (Crispy Taiwanese Turnip Cake)
+Scallion Pancake (Taiwanese Green Onion Pancake)
+Egg Scallion Pancake (Scallion Pancake with Egg)
+Cheese Scallion Pancake (Cheese Green Onion Pancake)
+Fried Egg Sandwich (Taiwanese Breakfast Egg Sandwich)
+Ham and Egg Toast (Taiwanese Breakfast Toast)
+Peanut Butter Toast (Taiwanese Sweet Toast)
+Condensed Milk Toast (Taiwanese Milk Toast)
+French Toast (Taiwanese-Style French Toast)
+Fried Mantou (Taiwanese Fried Steamed Buns)
+Mantou with Condensed Milk (Sweet Steamed Buns with Milk)
+Braised Egg (Taiwanese Soy-Braised Egg)
+Tea Egg (Taiwanese Tea-Boiled Egg)
+Braised Tofu (Taiwanese Braised Tofu)
+Salt and Pepper Chicken (Taiwanese Crispy Chicken)
+Popcorn Chicken with Basil (Taiwanese Fried Chicken Brunch Plate)
+
+Gua Bao (Taiwanese Braised Pork Belly Bun)
+Taiwanese Popcorn Chicken (Fried Basil Chicken Bites)
+Stinky Tofu (Fermented Tofu Snack)
+Deep-Fried Stinky Tofu (Crispy Fermented Tofu)
+Scallion Pancake (Taiwanese Green Onion Pancake)
+Oyster Omelette (Taiwanese Oyster Egg Snack)
+Sweet Potato Balls (Fried Sweet Potato Dumplings)
+Taro Balls (Chewy Taro Dessert Balls)
+Wheel Pie (Filled Taiwanese Street Pastry)
+Pork Pepper Bun (Black Pepper Pork Bun)
+Fried Chicken Cutlet (Taiwanese Giant Fried Chicken)
+Braised Pig’s Blood Cake (Sticky Rice Blood Cake)
+Glutinous Rice Sausage (Taiwanese Rice Sausage)
+Taiwanese Sausage (Sweet Pork Sausage)
+Taiwanese Hot Dog (Grilled Sweet Sausage on Stick)
+Spring Onion Bread (Taiwanese Scallion Bread)
+Pineapple Cake (Taiwanese Pineapple Pastry)
+Sun Cake (Taiwanese Malt Sugar Pastry)
+Peanut Mochi (Taiwanese Glutinous Rice Cake)
+Grass Jelly (Herbal Jelly Snack)
+Aiyu Jelly (Fig Seed Jelly Dessert)
+Shaved Ice with Condensed Milk (Taiwanese Ice Dessert)
+Brown Sugar Pearl Ice (Brown Sugar Boba Ice Snack)
+Fried Mochi (Crispy Glutinous Rice Cakes)
+Sesame Balls (Fried Glutinous Rice Balls)
+Taiwanese Tea Eggs (Soy-Braised Eggs)
+Salt and Pepper Squid (Crispy Fried Squid Snack)
+Fried Tempura Fish Cakes (Taiwanese Tian Bu La)
+
+Soy Sauce (Taiwanese Light Soy Sauce)
+Dark Soy Sauce (Taiwanese Dark Soy Sauce)
+Sweet Soy Paste (Sweet Soybean Sauce)
+Soy Sauce with Garlic (Garlic Soy Dipping Sauce)
+Soy Sauce with Chili (Chili Soy Dipping Sauce)
+Soy Sauce with Sugar (Sweet Soy Dipping Sauce)
+Black Vinegar Sauce (Taiwanese Black Vinegar Sauce)
+Ginger Soy Sauce (Ginger Soy Dipping Sauce)
+Scallion Oil (Scallion Infused Oil Sauce)
+Scallion Ginger Sauce (Scallion Ginger Dipping Sauce)
+Sesame Oil Sauce (Sesame Oil and Salt Dip)
+Sesame Paste Sauce (Sesame Noodle Sauce)
+Peanut Sauce (Taiwanese Peanut Sauce)
+Sweet Chili Sauce (Taiwanese Sweet Chili Sauce)
+Garlic Chili Sauce (Garlic Chili Paste)
+Fermented Chili Sauce (Fermented Chili Bean Sauce)
+Doubanjiang (Fermented Broad Bean Chili Sauce)
+Sweet Bean Sauce (Sweet Fermented Soybean Sauce)
+Oyster Sauce (Taiwanese Oyster Sauce)
+Braised Soy Sauce Base (Master Stock Soy Sauce)
+Three Cup Sauce (Three Cup Basil Sauce)
+Basil Garlic Sauce (Taiwanese Basil Sauce)
+Satay Sauce (Taiwanese Satay Sauce)
+Fermented Bean Curd Sauce (Fermented Tofu Sauce)
+Pickled Chili Sauce (Pickled Chili Dipping Sauce)
+Garlic Vinegar Sauce (Garlic Vinegar Dip)
+Sweet Garlic Sauce (Sweet Garlic Soy Sauce)
+
+Soy Sauce Marinade (Taiwanese Soy Marinade)
+Light Soy Sauce Marinade (Taiwanese Light Soy Marinade)
+Dark Soy Sauce Marinade (Taiwanese Dark Soy Marinade)
+Soy Sauce and Sugar Marinade (Sweet Soy Marinade)
+Soy Sauce and Rice Wine Marinade (Soy Wine Marinade)
+Soy Sauce Garlic Marinade (Garlic Soy Marinade)
+Soy Sauce Ginger Marinade (Ginger Soy Marinade)
+Soy Sauce Sesame Marinade (Sesame Soy Marinade)
+Soy Sauce Five-Spice Marinade (Five-Spice Soy Marinade)
+Soy Sauce Chili Marinade (Spicy Soy Marinade)
+Soy Sauce Vinegar Dressing (Soy Vinegar Dressing)
+Black Vinegar Dressing (Taiwanese Black Vinegar Dressing)
+Black Vinegar Soy Dressing (Black Vinegar Soy Dressing)
+Sweet Black Vinegar Sauce (Sweet Taiwanese Black Vinegar Sauce)
+Rice Vinegar Dressing (Taiwanese Rice Vinegar Dressing)
+Rice Vinegar Soy Dressing (Rice Vinegar Soy Dressing)
+Sweet and Sour Dressing (Taiwanese Sweet Sour Sauce)
+Scallion Oil Dressing (Taiwanese Scallion Oil)
+Scallion Ginger Oil Dressing (Scallion Ginger Oil Sauce)
+Ginger Oil Dressing (Taiwanese Ginger Oil Sauce)
+Garlic Oil Dressing (Taiwanese Garlic Oil Sauce)
+Sesame Oil Dressing (Taiwanese Sesame Oil Dressing)
+Sesame Soy Dressing (Taiwanese Sesame Soy Sauce)
+Sesame Paste Dressing (Taiwanese Sesame Paste Sauce)
+Peanut Dressing (Taiwanese Peanut Sauce)
+Sweet Peanut Dressing (Sweet Taiwanese Peanut Sauce)
+Chili Oil (Taiwanese Chili Oil)
+Garlic Chili Oil (Garlic Taiwanese Chili Oil)
+Scallion Chili Oil (Scallion Chili Oil Sauce)
+Fermented Chili Sauce (Taiwanese Chili Bean Sauce)
+Soy Chili Sauce (Soy Chili Dressing)
+Sweet Chili Sauce (Taiwanese Sweet Chili Sauce)
+Garlic Soy Dipping Sauce (Garlic Soy Sauce)
+Ginger Soy Dipping Sauce (Ginger Soy Sauce)
+Five-Spice Marinade (Taiwanese Five-Spice Marinade)
+Braised Soy Marinade (Taiwanese Braising Soy Sauce)
+Sweet Braising Sauce (Sweet Soy Braising Sauce)
+Tea Marinade (Taiwanese Tea Marinade)
+
+Five-Spice Powder (Taiwanese Five-Spice Blend)
+White Pepper Salt (Taiwanese White Pepper Salt)
+Salt and Pepper Seasoning (Taiwanese Night Market Pepper Salt)
+Garlic Pepper Salt (Taiwanese Garlic Pepper Seasoning)
+Basil Pepper Salt (Taiwanese Fried Chicken Basil Salt)
+Chili Pepper Salt (Taiwanese Chili Salt Seasoning)
+Seaweed Pepper Salt (Taiwanese Seaweed Pepper Salt)
+Mushroom Powder Seasoning (Taiwanese Umami Mushroom Powder)
+Shacha Seasoning Powder (Taiwanese Barbecue Shacha Spice Blend)
+Barbecue Spice Powder (Taiwanese Street-Style BBQ Spice Blend)
+Braised Meat Spice Pack (Taiwanese Lu Wei Spice Blend)
+Soy-Braised Spice Mix (Taiwanese Red-Braise Spice Blend)
+Tea-Smoked Spice Blend (Taiwanese Tea Smoking Spice Mix)
+Star Anise and Cinnamon Blend (Taiwanese Braising Spice Base)
+Ginger Garlic Powder Blend (Taiwanese Ginger Garlic Seasoning)
+Chili Garlic Powder (Taiwanese Chili Garlic Dry Rub)
+Cumin Pepper Salt (Taiwanese Cumin Pepper Rub)
+Fried Chicken Spice Blend (Taiwanese Crispy Chicken Seasoning)
+Popcorn Chicken Spice Mix (Taiwanese Popcorn Chicken Seasoning)
+Grilled Squid Spice Blend (Taiwanese Night Market Squid Seasoning)
+
+Yan Su Ji (Taiwanese Fried Chicken)
+Popcorn Chicken (Taiwanese Basil Fried Chicken)
+Deep-Fried Sweet Potato Balls (Fried Sweet Potato Dough Balls)
+Deep-Fried Taro Balls (Fried Taro Dough Balls)
+Deep-Fried Oyster Omelette (Crispy Oyster Omelette)
+Deep-Fried Squid (Crispy Fried Squid)
+Deep-Fried Milk (Crispy Milk Custard)
+Deep-Fried Chicken Cutlet (Taiwanese Fried Chicken Cutlet)
+Deep-Fried Pork Chop (Taiwanese Fried Pork Chop)
+Deep-Fried Fish Cake (Crispy Taiwanese Fish Cake)
+Deep-Fried Tempura Vegetables (Taiwanese-Style Vegetable Tempura)
+Deep-Fried Shrimp Rolls (Crispy Shrimp Rolls)
+
+Xiao Long Bao (Soup Dumplings)
+Steamed Pork Buns (Taiwanese Steamed Bao)
+Steamed Vegetable Buns (Vegetable Steamed Bao)
+Steamed Glutinous Rice Rolls (Sticky Rice Rolls)
+Steamed Rice with Braised Pork (Steamed Rice with Pork Sauce)
+Steamed Fish with Soy Sauce (Soy-Steamed Whole Fish)
+Steamed Egg Custard (Savory Steamed Egg)
+Steamed Taro Cake (Savory Steamed Taro Cake)
+Steamed Turnip Cake (Steamed Radish Cake)
+Steamed Pork Patty with Salted Fish (Steamed Pork with Salted Fish)
+Steamed Chicken with Ginger (Ginger Steamed Chicken)
+
+Lu Rou Fan (Braised Pork Rice)
+Hong Shao Rou (Red-Braised Pork Belly)
+Braised Beef Noodle Soup (Taiwanese Braised Beef Noodles)
+Braised Pork Knuckle (Soy-Braised Pork Knuckle)
+Braised Chicken in Soy Sauce (Three-Cup Style Braised Chicken)
+Braised Tofu (Soy-Braised Tofu)
+Braised Bamboo Shoots (Soy-Braised Bamboo Shoots)
+Braised Daikon Radish (Soy-Braised Daikon)
+Braised Eggs (Soy-Braised Eggs)
+Braised Pig Intestines (Soy-Braised Pork Intestines)
+Braised Pig’s Feet (Soy-Braised Pork Trotters)
+Braised Cabbage (Taiwanese Braised Cabbage)
+
+Qing Tang (Clear Taiwanese Chicken Stock)
+Ji Tang (Taiwanese Chicken Broth)
+Lao Mu Ji Tang (Old Hen Stock)
+Zhu Gu Tang (Taiwanese Pork Bone Stock)
+Pai Gu Tang (Spare Rib Broth)
+Da Gu Tang (Large Pork Bone Stock)
+Niu Gu Tang (Beef Bone Stock)
+Hong Shao Niu Rou Tang (Red-Braised Beef Broth)
+Qing Dun Niu Rou Tang (Clear Beef Broth)
+Fan Qie Niu Rou Tang (Tomato Beef Broth)
+Lu Wei Gao Tang (Master Braising Stock)
+Lao Lu (Aged Master Stock)
+卤水 (Taiwanese Soy Braising Stock) (Soy-Based Master Stock)
+San Bei Ji Di Tang (Three-Cup Chicken Base Broth)
+Ma You Ji Tang (Sesame Oil Chicken Broth)
+Xiang Gu Ji Tang (Shiitake Mushroom Chicken Broth)
+Xiang Gu Gao Tang (Shiitake Mushroom Stock)
+Hai Dai Tang (Kelp Seaweed Broth)
+Kun Bu Gao Tang (Kombu Stock)
+Gan Bei Gao Tang (Dried Scallop Stock)
+Xia Mi Gao Tang (Dried Shrimp Stock)
+Yu Gu Tang (Fish Bone Broth)
+Sha Yu Tang (Milkfish Broth)
+虱目鱼高汤 (Milkfish Stock)
+Huang Dou Tang (Soybean Broth)
+Luo Bo Tang (Daikon Radish Broth)
+Cai Tou Tang (White Radish Soup Base)
+Bai Cai Tang (Napa Cabbage Broth)
+Qing Cai Gao Tang (Vegetable Stock)
+Su Gao Tang (Vegetarian Stock)
+Fo Tiao Qiang Gao Tang (Premium Multi-Protein Broth Base)
+Gua Zai Ji Tang (Melon Chicken Broth)
+Ku Gua Tang (Bitter Melon Broth)
+Shan Yao Tang (Chinese Yam Broth)
+Dang Gui Ji Tang (Angelica Chicken Herbal Broth)
+Si Wu Tang Broth (Four-Herb Broth Base)
+Shi Quan Da Bu Tang Broth (Ten-Tonic Herbal Broth Base)
+
+Taiwanese New Year Hot Pot (Reunion Hot Pot)
+Shabu-Shabu Hot Pot (Taiwanese-Style Hot Pot)
+Braised Pork Belly (Lu Rou)
+Braised Pork Rice (Lu Rou Fan)
+Whole Steamed Fish (New Year Prosperity Fish)
+Soy-Steamed Grouper (Steamed Whole Fish with Soy Sauce)
+Three-Cup Chicken (San Bei Ji – Three-Cup Chicken)
+Red-Braised Beef Shank (Braised Beef Shank for New Year)
+Five-Spice Braised Beef (Taiwanese Braised Beef)
+Braised Abalone (New Year Abalone Dish)
+Braised Sea Cucumber (New Year Sea Cucumber Dish)
+Longevity Noodles (Chang Shou Mian – Long Life Noodles)
+Taiwanese Rice Cake (Nian Gao – New Year Glutinous Rice Cake)
+Savory Turnip Cake (Luo Bo Gao – Radish Cake)
+Fried Turnip Cake (Pan-Fried Radish Cake)
+Taro Rice Cake (Taro Nian Gao)
+Sweet Red Bean Rice Cake (Sweet Nian Gao with Red Bean)
+Eight-Treasure Rice (Ba Bao Fan – Sweet Glutinous Rice Dessert)
+Sticky Rice with Mushrooms (Taiwanese Savory Sticky Rice)
+Glutinous Rice Dumplings (Tang Yuan – Sweet Rice Balls)
+Peanut Rice Dumplings (Peanut Tang Yuan)
+Sesame Rice Dumplings (Black Sesame Tang Yuan)
+Whole Roast Chicken (Taiwanese Holiday Roast Chicken)
+Soy Sauce Chicken (Taiwanese Soy-Braised Chicken)
+Five-Spice Roast Pork (Taiwanese Roast Pork)
+Crispy Roast Pork Belly (Taiwanese Roast Pork Belly)
+Steamed Chicken with Ginger and Scallions (Holiday Steamed Chicken)
+Braised Bamboo Shoots (New Year Braised Bamboo Shoots)
+Braised Mushrooms with Oyster Sauce (New Year Mushroom Dish)
+Stir-Fried Lotus Root (Lotus Root New Year Dish)
+Stir-Fried Snow Peas with Garlic (New Year Vegetable Dish)
+Whole Steamed Crab (Holiday Steamed Crab)
+Garlic Steamed Shrimp (Holiday Garlic Shrimp)
+Braised Prawns (Soy-Braised New Year Prawns)
+Taiwanese Sausage (Sweet Pork Sausage)
+Taiwanese Sausage with Garlic (Holiday Sausage and Garlic)
+Pineapple Cake (Taiwanese Pineapple Pastry)
+Red Bean Pastry (Taiwanese Red Bean Cake)
+Taro Pastry (Taiwanese Taro Cake)
+Fruit Platter (New Year Fruit Tray)
+Candied Winter Melon (New Year Candied Melon)
+Christmas Roast Turkey (Taiwanese-Style Christmas Turkey)
+Christmas Roast Chicken (Taiwanese Christmas Roast Chicken)
+Baked Ham (Holiday Baked Ham Taiwanese Style)
+Creamy Mushroom Soup (Christmas Mushroom Soup)
+Seafood Cream Soup (Holiday Seafood Soup)
+Christmas Fruit Cake (Taiwanese Christmas Cake)
+Strawberry Sponge Cake (Taiwanese Christmas Strawberry Cake)
+
+Niurou Mian (Taiwanese Braised Beef Noodle Soup)
+Hong Shao Niurou Mian (Red-Braised Beef Noodle Soup)
+Qing Dun Niurou Mian (Clear Broth Beef Noodle Soup)
+Fan Qie Niurou Mian (Tomato Beef Noodle Soup)
+Dao Xiao Niurou Mian (Knife-Cut Beef Noodle Soup)
+Lu Rou Fan (Braised Pork Rice Bowl)
+Rou Zao Fan (Minced Pork Rice Bowl)
+Ji Rou Fan (Shredded Chicken Rice)
+Pai Gu Fan (Braised Pork Chop Rice)
+San Bei Ji (Three Cup Chicken)
+Taiwanese Fried Chicken Cutlet Rice
+Gua Bao (Taiwanese Braised Pork Belly Bun)
+Cong You Bing (Scallion Pancake)
+Scallion Pancake with Egg
+Oyster Omelette (Taiwanese Oyster Egg Pancake)
+蚵仔煎 (Oyster Omelette – Taiwanese Style)
+Dan Zai Mian (Taiwanese Minced Pork Noodles)
+Ma Jiang Mian (Sesame Sauce Noodles)
+Zha Jiang Mian (Soybean Paste Noodles)
+You Po Mian (Hot Oil Tossed Noodles)
+Dry Noodles with Scallion Oil (Taiwanese Scallion Oil Noodles)
+Bian Shi (Taiwanese Wontons in Soup)
+Dry Wontons (Taiwanese Style Wontons)
+Shui Jiao (Boiled Pork Dumplings)
+Xiao Long Bao (Soup Dumplings)
+Sheng Jian Bao (Pan-Fried Soup Buns)
+Baozi (Steamed Pork Buns)
+Vegetable Steamed Buns
+Taiwanese Braised Pork Chop
+Lu Wei (Taiwanese Braised Snack Platter)
+Braised Tofu (Taiwanese Soy-Braised Tofu)
+Braised Eggs (Soy-Braised Eggs)
+Braised Daikon (Soy-Braised White Radish)
+Bitter Melon with Salted Egg
+Three-Cup Mushrooms
+Taiwanese Cabbage Stir-Fry
+Stir-Fried Water Spinach
+Bamboo Shoot Soup
+Radish Soup with Pork Ribs
+Milkfish Soup
+Milkfish Belly Soup
+Taiwanese Fried Rice
+Yangzhou Fried Rice (Taiwanese Restaurant Style)
+Shrimp Fried Rice
+Egg Fried Rice
+Taiwanese Rice Vermicelli Stir-Fry
+Glass Noodle Stir-Fry (Taiwanese Style)
+Taiwanese Hot Pot Lunch Set
+Braised Beef with Rice
+Salt and Pepper Chicken
+Salt and Pepper Pork
+Taiwanese Popcorn Chicken
+Sweet and Sour Pork (Taiwanese Style)
+Sweet and Sour Fish (Taiwanese Style)
+Three-Cup Squid
+Fried Oysters (Taiwanese Style)
+Taiwanese Lunch Bento Box
+
+Beef Noodle Soup (Taiwanese Braised Beef Noodle Soup)
+Red-Braised Beef Noodles (Hong Shao Beef Noodle Soup)
+Clear Broth Beef Noodles (Qing Dun Beef Noodle Soup)
+Tomato Beef Noodles (Tomato Braised Beef Noodle Soup)
+Knife-Cut Beef Noodles (Hand-Cut Beef Noodle Soup)
+Braised Pork Rice (Lu Rou Fan Braised Pork Rice)
+Minced Pork Rice (Taiwanese Minced Pork Rice Bowl)
+Three Cup Chicken (San Bei Ji Three Cup Chicken)
+Salt and Pepper Chicken (Taiwanese Popcorn Chicken)
+Soy-Braised Pork Belly (Dong Po Style Pork Belly)
+Braised Pork Knuckle (Soy-Braised Pork Trotter)
+Oyster Omelette (Taiwanese Oyster Egg Omelette)
+Scallion Pancake (Taiwanese Green Onion Pancake)
+Radish Cake (Taiwanese Turnip Cake)
+Stinky Tofu (Fermented Tofu with Chili Sauce)
+Deep-Fried Stinky Tofu (Crispy Fermented Tofu)
+Braised Tofu (Soy-Braised Tofu)
+Mapo Tofu Taiwanese Style (Taiwanese Spicy Tofu)
+Sesame Oil Chicken (Sesame Oil Chicken Stew)
+Sesame Oil Pork Liver (Sesame Oil Pork Liver Stir-Fry)
+Soy Sauce Chicken (Taiwanese Soy-Braised Chicken)
+Salt-Baked Chicken (Taiwanese Salt-Baked Chicken)
+Braised Chicken Rice (Chicken Braised Rice Bowl)
+Soy-Braised Duck (Taiwanese Braised Duck)
+Duck Rice (Shredded Duck Rice Bowl)
+Milkfish Belly Soup (Milkfish Soup with Ginger)
+Milkfish Congee (Milkfish Rice Porridge)
+Steamed Whole Fish (Taiwanese Style Steamed Fish)
+Sweet and Sour Fish (Taiwanese Sweet and Sour Fish)
+Braised Cabbage (Taiwanese Braised Napa Cabbage)
+Stir-Fried Water Spinach (Garlic Water Spinach)
+Stir-Fried Taiwanese Spinach (Garlic Spinach Stir-Fry)
+Bitter Melon with Salted Egg (Stir-Fried Bitter Melon)
+Braised Bamboo Shoots (Soy-Braised Bamboo Shoots)
+Taiwanese Fried Rice (Taiwanese Style Egg Fried Rice)
+Shrimp Fried Rice (Taiwanese Shrimp Fried Rice)
+Taiwanese Stir-Fried Noodles (Taiwanese Chow Mein)
+Sesame Noodles (Cold Sesame Sauce Noodles)
+Black Vinegar Noodles (Taiwanese Sour Noodles)
+Oyster Vermicelli (Taiwanese Oyster Thin Noodle Soup)
+Pig Intestine Vermicelli (Braised Pork Intestine Noodles)
+Braised Beef Shank (Soy-Braised Beef Shank)
+Cold Sliced Beef (Chilled Soy-Braised Beef)
+Taiwanese Sausage (Sweet Pork Sausage)
+Sausage with Garlic (Taiwanese Sausage and Garlic)
+Braised Eggplant (Soy-Braised Eggplant)
+Stir-Fried Clams with Basil (Taiwanese Basil Clams)
+Salted Egg Yolk Shrimp (Salted Egg Shrimp)
+Fried Shrimp Rolls (Taiwanese Shrimp Rolls)
+Braised Taro (Soy-Braised Taro)
+Taiwanese Hot Pot (Taiwanese Style Hot Pot)
+
+Lu Rou Fan (Braised Pork Rice)
+Minced Pork Rice (Everyday Braised Pork Rice)
+Kong Rou Fan (Braised Pork Belly Rice)
+Braised Pork Belly Rice with Pickled Mustard Greens
+Braised Pork Rice Bento
+Beef Noodle Soup (Taiwanese Red-Braised Beef Noodle Soup)
+Clear Broth Beef Noodle Soup (Taiwanese Qing Dun Beef Noodle Soup)
+Spicy Beef Noodle Soup (Mala Beef Noodle Soup)
+Braised Beef Shank Noodle Soup
+Braised Beef Tendon Noodle Soup
+Beef Noodle Soup with Beef Tripe
+Oyster Omelette (Taiwanese Oyster Pancake)
+Shrimp Omelette (Taiwanese Shrimp Pancake)
+Clam Omelette (Taiwanese Clam Pancake)
+Scallion Omelette (Taiwanese Green Onion Pancake)
+Three-Cup Chicken (San Bei Ji / Three Cup Chicken)
+Three-Cup Squid (Three Cup Squid Stir-Fry)
+Three-Cup Mushrooms (Three Cup Mushroom Stir-Fry)
+Three-Cup Eggplant (Three Cup Eggplant)
+Gua Bao (Taiwanese Pork Belly Bun)
+Braised Pork Belly Bao
+Braised Beef Bao
+Fried Chicken Bao
+Taiwanese Fried Chicken (Popcorn Chicken)
+Salt and Pepper Chicken (Taiwanese Fried Chicken with Basil)
+Sweet Potato Fries (Taiwanese Sweet Potato Fries)
+Fried Sweet Potato Balls
+Taiwanese Sausage (Sweet Pork Sausage)
+Taiwanese Sausage with Garlic
+Sticky Rice Sausage (Glutinous Rice Sausage)
+Oyster Vermicelli (Taiwanese Oyster Mee Sua)
+Intestine and Oyster Vermicelli Soup
+Mee Sua with Pork Intestines
+Mee Sua with Sesame Oil Chicken
+Ba-Wan (Taiwanese Meatball Dumpling)
+Crystal Dumpling (Ba-Wan with Pork Filling)
+Vegetarian Ba-Wan
+Taiwanese Meatball Soup
+Scallion Pancake (Taiwanese Green Onion Pancake)
+Stuffed Scallion Pancake
+Egg Scallion Pancake
+Radish Cake (Taiwanese Turnip Cake)
+Pan-Fried Radish Cake
+Steamed Radish Cake
+Braised Pork Knuckle (Taiwanese Braised Pork Knuckle)
+Braised Pork Knuckle with Bamboo Shoots
+Braised Pork Knuckle Rice
+Bamboo Shoots Soup (Taiwanese Bamboo Shoot Soup)
+Braised Bamboo Shoots
+Milkfish Porridge (Taiwanese Milkfish Congee)
+Milkfish Belly Soup
+Fried Milkfish
+Milkfish Rice
+Taiwanese Congee (Rice Porridge)
+Sweet Potato Congee
+Pork Congee
+Seafood Congee
+Century Egg and Pork Congee
+Pig’s Blood Cake (Taiwanese Rice Blood Cake)
+Pig’s Blood Soup
+Pig’s Blood with Peanut Powder
+Taiwanese Sticky Rice (You Fan / Oil Rice)
+Sticky Rice with Mushrooms and Pork
+Sticky Rice with Dried Shrimp
+Braised Tofu (Taiwanese Soy-Braised Tofu)
+Stinky Tofu (Fermented Tofu)
+Deep-Fried Stinky Tofu
+Steamed Stinky Tofu
+Stinky Tofu Hot Pot
+Taiwanese Hot Pot (Shabu-Shabu Taiwanese Style)
+Spicy Taiwanese Hot Pot
+Herbal Taiwanese Hot Pot
+Mala Hot Pot (Taiwanese Spicy Hot Pot)
+Taiwanese Pickled Mustard Greens (Suan Cai)
+Pickled Cabbage Soup
+Pickled Mustard Greens with Pork Belly
+Salted Duck Egg (Taiwanese Salted Egg)
+Salted Egg Yolk Stir-Fry
+Tea Egg (Taiwanese Braised Tea Egg)
+Soy-Braised Egg
+Iron Egg (Taiwanese Hard-Braised Egg)
+Taiwanese Fried Rice
+Shrimp Fried Rice
+Pork Fried Rice
+Egg Fried Rice
+Taiwanese Chow Mein (Taiwanese Stir-Fried Noodles)
+Soy Sauce Fried Noodles
+Seafood Fried Noodles
+Braised Noodles with Pork Sauce
+Sesame Oil Chicken Soup (Taiwanese Sesame Chicken Soup)
+Sesame Oil Chicken Rice
+Sesame Oil Chicken Vermicelli
+Taiwanese Herbal Chicken Soup
+Braised Duck (Taiwanese Soy-Braised Duck)
+Smoked Duck (Taiwanese Tea-Smoked Duck)
+Duck Rice
+Duck Vermicelli Soup
+Taiwanese Meatball Soup (Pork Ball Soup)
+Fish Ball Soup (Taiwanese Fish Ball Soup)
+Pork Rib Soup with Winter Melon
+Winter Melon Soup with Pork Bones
+Taiwanese Cabbage Stir-Fry
+Garlic Stir-Fried Water Spinach
+Stir-Fried Sweet Potato Leaves
+Stir-Fried Taiwanese Spinach
+Braised Tofu with Minced Pork
+Braised Eggplant Taiwanese Style
+Sweet and Sour Pork Taiwanese Style
+Sweet Potato Balls (Taiwanese Fried Sweet Potato Balls)
+Taro Balls (Taiwanese Taro Dessert Balls)
+Sweet Potato Taro Balls
+Grass Jelly (Taiwanese Grass Jelly Dessert)
+Grass Jelly with Taro Balls
+Aiyu Jelly (Fig Seed Jelly)
+Shaved Ice with Taro and Red Bean
+Mango Shaved Ice (Taiwanese Mango Ice)
+Black Sugar Shaved Ice
+Red Bean Soup (Taiwanese Red Bean Dessert Soup)
+Peanut Soup (Taiwanese Peanut Dessert Soup)
+Tang Yuan (Taiwanese Glutinous Rice Balls)
+Sesame Tang Yuan
+Peanut Tang Yuan
+Bubble Milk Tea (Taiwanese Pearl Milk Tea)
+Brown Sugar Bubble Tea
+Winter Melon Tea
+Oolong Milk Tea
+Soy Milk Breakfast Soup
+Salty Soy Milk Soup
+Taiwanese Breakfast Rice Roll (Fan Tuan)
+Fried Dough Stick (Youtiao)
+Rice Milk (Taiwanese Rice Milk Drink)
+
+Lu Rou Fan (Braised Pork Rice)
+Rou Zao Fan (Minced Pork Rice)
+Kong Rou Fan (Braised Pork Belly Rice)
+Beef Noodle Soup (Taiwanese Braised Beef Noodle Soup)
+Clear Broth Beef Noodle Soup (Qing Dun Beef Noodle Soup)
+Tomato Beef Noodle Soup (Tomato Braised Beef Noodle Soup)
+Red-Braised Beef Noodle Soup (Hong Shao Beef Noodle Soup)
+Gua Bao (Taiwanese Pork Belly Bun)
+Baozi (Steamed Pork Bun)
+Xiao Long Bao (Soup Dumplings)
+Shui Jiao (Boiled Dumplings)
+Guo Tie (Pan-Fried Dumplings)
+Scallion Pancake (Taiwanese Green Onion Pancake)
+Egg Scallion Pancake (Egg-Stuffed Scallion Pancake)
+Oyster Omelette (Taiwanese Oyster Omelet)
+Shrimp Omelette (Taiwanese Shrimp Omelet)
+蚵仔煎 (Oyster Omelette)
+Dan Bing (Taiwanese Breakfast Crepe)
+Fan Tuan (Taiwanese Sticky Rice Roll)
+Shaobing (Baked Sesame Flatbread)
+Youtiao (Chinese Fried Dough Stick)
+Soy Milk (Fresh Taiwanese Soy Milk)
+Salty Soy Milk Soup (Savory Soy Milk Soup)
+Braised Pork Belly (Taiwanese Red-Braised Pork Belly)
+Three-Cup Chicken (San Bei Ji / Three Cup Chicken)
+Salt and Pepper Chicken (Taiwanese Popcorn Chicken)
+Fried Chicken Cutlet (Taiwanese Chicken Steak)
+Lu Wei (Taiwanese Braised Street Snacks)
+Braised Tofu (Taiwanese Braised Tofu)
+Braised Eggs (Soy-Braised Eggs)
+Braised Daikon (Soy-Braised Radish)
+Pig Blood Cake (Taiwanese Pig’s Blood Rice Cake)
+Stinky Tofu (Taiwanese Fermented Tofu)
+Deep-Fried Stinky Tofu (Fried Fermented Tofu)
+Steamed Stinky Tofu (Steamed Fermented Tofu)
+Hot Pot Stinky Tofu (Fermented Tofu Hot Pot)
+Taiwanese Hot Pot (Shabu-Style Hot Pot)
+Ginger Duck Hot Pot (Ginger Duck Stew)
+Lamb Hot Pot (Taiwanese Lamb Hot Pot)
+Sesame Oil Chicken Soup (Sesame Oil Chicken Stew)
+Herbal Pork Rib Soup (Taiwanese Herbal Pork Soup)
+Bitter Melon Soup (Bitter Gourd Soup with Pork)
+Winter Melon Soup (Winter Melon Pork Soup)
+Milkfish Soup (Taiwanese Milkfish Soup)
+Milkfish Congee (Milkfish Rice Porridge)
+Congee with Pork Floss (Taiwanese Rice Porridge with Pork Floss)
+Sweet Potato Congee (Sweet Potato Rice Porridge)
+Minced Pork Noodles (Taiwanese Dry Noodles with Minced Pork)
+Sesame Oil Noodles (Taiwanese Sesame Noodles)
+Dan Zai Noodles (Tainan Shrimp Noodles)
+A-Mei Yi Mian (Taiwanese Oil Noodles)
+Cold Noodles (Taiwanese Cold Sesame Noodles)
+Braised Pork Rice Bento (Taiwanese Braised Pork Lunch Box)
+Railway Bento (Taiwanese Train Station Lunch Box)
+Fried Rice with Pork Chop (Taiwanese Pork Chop Fried Rice)
+Fried Pork Chop (Taiwanese Pork Chop)
+Soy Sauce Chicken (Taiwanese Soy-Braised Chicken)
+Salt-Baked Chicken (Taiwanese Hakka Salt Chicken)
+Hakka Stir-Fried Pork (Hakka Pork Stir-Fry)
+Lei Cha Rice (Hakka Ground Tea Rice)
+Hakka Stuffed Tofu (Hakka Stuffed Bean Curd)
+Bawan (Taiwanese Meatball Dumpling)
+Rice Sausage (Taiwanese Sticky Rice Sausage)
+Taiwanese Sausage (Sweet Pork Sausage)
+Sausage with Garlic (Taiwanese Sausage and Garlic)
+Fried Sweet Potato Balls (Taiwanese Sweet Potato Balls)
+Taro Balls (Taiwanese Taro Dessert Balls)
+Sweet Potato Balls Soup (Sweet Potato Dessert Soup)
+Grass Jelly (Taiwanese Grass Jelly Dessert)
+Grass Jelly with Milk (Grass Jelly Milk Dessert)
+Aiyu Jelly (Fig Jelly Dessert)
+Shaved Ice with Toppings (Taiwanese Baobing)
+Mango Shaved Ice (Mango Snow Ice)
+Peanut Ice Cream Roll (Taiwanese Peanut Ice Cream Wrap)
+Pineapple Cake (Taiwanese Pineapple Pastry)
+Sun Cake (Taiwanese Flaky Malt Pastry)
+Nougat Candy (Taiwanese Milk Nougat)
+Wheel Cakes (Taiwanese Filled Pancake Cakes)
+Castella Cake (Taiwanese Castella Sponge Cake)
+Bubble Tea (Taiwanese Milk Tea with Tapioca)
+Brown Sugar Bubble Tea (Brown Sugar Pearl Milk Tea)
+Winter Melon Tea (Winter Melon Sweet Tea)
+Herbal Tea (Traditional Taiwanese Herbal Tea)
+
+Whole Steamed Fish (New Year Prosperity Fish)
+Red-Braised Pork Belly (Braised Pork Belly)
+Buddha Jumps Over the Wall (Luxury Seafood and Meat Stew)
+Sticky Rice with Preserved Meats (Taiwanese Savory Sticky Rice)
+Steamed Whole Chicken (Celebration White-Cut Chicken)
+Braised Abalone with Mushrooms (Festive Abalone Braise)
+Braised Sea Cucumber with Scallions (Sea Cucumber Braise)
+Braised Pig Trotters with Peanuts (Longevity Pork Trotters)
+Longevity Noodles (Birthday and New Year Long-Life Noodles)
+Braised Bamboo Shoots (Festive Bamboo Shoots)
+Dried Scallop and Hairy Gourd Soup (Festive Seafood Soup)
+Eight-Treasure Rice (Sweet Eight Treasure Glutinous Rice)
+Turnip Cake (Taiwanese Radish Cake)
+Steamed Rice Cake (New Year Prosperity Rice Cake)
+Fried Rice Cake Slices (Pan-Fried Rice Cake)
+Red Turtle Cake (Glutinous Rice Turtle Cake)
+Pineapple Cake (Taiwanese Pineapple Pastry)
+Peanut Candy Brittle (Traditional Peanut Brittle)
+Sesame Peanut Tangyuan (Glutinous Rice Dumplings with Peanut Filling)
+Sweet Rice Dumplings (Festival Sweet Zongzi)
+Savory Rice Dumplings (Taiwanese Pork Zongzi)
+Braised Duck (Festive Soy-Braised Duck)
+Steamed Grouper with Ginger and Scallions (Celebration Steamed Fish)
+Taiwanese Sausage (Sweet Pork Sausage)
+Garlic Pork Ribs Soup (Herbal Pork Rib Soup)
+Pickled Mustard Greens Duck Soup (Sour Greens Duck Soup)
+Fried Spring Rolls (Taiwanese Spring Rolls)
+Braised Shiitake Mushrooms (Festive Braised Mushrooms)
+Cold Chicken with Scallion Oil (Scallion Oil Chicken)
+Steamed Taro Cake (Taro Rice Cake)
+Sweet Red Bean Rice Cake (Red Bean New Year Cake)
+Candied Sweet Potato (Festival Candied Sweet Potato)
+
+Hei Tang Jiang (Taiwanese Brown Sugar Syrup)
+Hei Tang Jiang (Black Sugar Syrup)
+Jiang Zhi Hei Tang (Ginger Brown Sugar Syrup)
+Dong Gua Cha Jiang (Winter Melon Tea Syrup)
+Dong Gua Cha Zhuan Jiang (Winter Melon Brick Syrup)
+Zhe Tang Jiang (Sugarcane Syrup)
+Mai Ya Tang (Maltose Syrup)
+Bing Tang Jiang (Rock Sugar Syrup)
+Gui Hua Jiang (Osmanthus Syrup)
+Long Yan Jiang (Dried Longan Syrup)
+Jiang Jiang (Fresh Ginger Syrup)
+Mei Zi Jiang (Plum Syrup)
+Jin Ju Jiang (Kumquat Syrup)
+Jia Li Meng Jiang (Calamansi Syrup)
+Luo Shen Hua Jiang (Roselle Syrup)
+Feng Li Jiang (Pineapple Syrup)
+Sang Shen Jiang (Mulberry Syrup)
+Hua Sheng Jiang (Peanut Syrup)
+Zhi Ma Jiang (Black Sesame Syrup)
+Hong Dou Jiang (Red Bean Syrup)
+Lu Dou Jiang (Mung Bean Syrup)
+Yu Tou Jiang (Taro Syrup)
+Di Gua Jiang (Sweet Potato Syrup)
+Ai Yu Jiang (Aiyu Jelly Lemon Syrup)
+Xian Cao Jiang (Grass Jelly Syrup)
+Hei Tang Zhen Zhu Jiang (Brown Sugar Boba Syrup)
+
+Shaobing (Taiwanese Sesame Flatbread)
+Tianjin Shaobing (Crispy Layered Sesame Flatbread)
+You Shaobing (Fried Sesame Flatbread)
+Scallion Shaobing (Sesame Flatbread with Scallions)
+Sweet Shaobing (Sweet Sesame Flatbread)
+Butter Shaobing (Butter-Filled Sesame Flatbread)
+Niangao Shaobing (Sesame Flatbread with Glutinous Rice Cake)
+Beef Shaobing Sandwich (Sesame Flatbread Beef Sandwich)
+
+Hu Jiao Bing (Black Pepper Pork Bun)
+Scallion Hu Jiao Bing (Black Pepper Pork and Scallion Bun)
+Cheese Hu Jiao Bing (Black Pepper Pork and Cheese Bun)
+
+Mantou (Steamed Plain Bread Bun)
+Milk Mantou (Milk Steamed Bread Bun)
+Brown Sugar Mantou (Brown Sugar Steamed Bread Bun)
+Whole Wheat Mantou (Whole Wheat Steamed Bread Bun)
+Fried Mantou (Golden Fried Steamed Bread)
+Condensed Milk Mantou (Fried Mantou with Sweetened Condensed Milk)
+
+Baozi (Steamed Filled Bun)
+Pork Baozi (Steamed Pork Bun)
+Vegetable Baozi (Steamed Vegetable Bun)
+Red Bean Baozi (Sweet Red Bean Steamed Bun)
+Custard Baozi (Custard-Filled Steamed Bun)
+
+Taiwanese Pineapple Bun (Bo Luo Bread)
+Butter Pineapple Bun (Butter Bo Luo Bread)
+Custard Pineapple Bun (Custard Bo Luo Bread)
+
+Taiwanese Milk Bread Roll (Soft Milk Bread Roll)
+Scallion Bread Roll (Scallion Soft Bread Roll)
+Cheese Bread Roll (Cheese Soft Bread Roll)
+
+Taiwanese Bagel-Style Bread (Dense Chewy Taiwanese Bagel)
+Scallion Bagel-Style Bread (Scallion Taiwanese Bagel)
+Sesame Bagel-Style Bread (Sesame Taiwanese Bagel)
+
+Lu Rou Fan (Taiwanese Braised Pork Rice)
+Minced Pork Rice (Classic Braised Pork Rice)
+Braised Pork Rice with Pickled Mustard Greens
+Braised Pork Rice Bento
+Taiwanese Tea Eggs (Soy Tea Braised Eggs)
+Iron Egg (Deep-Braised Soy Egg)
+Grilled Taiwanese Sausage (Sweet Pork Sausage)
+Garlic Taiwanese Sausage
+Sausage with Sticky Rice (Sausage Rice Log)
+Sticky Rice Sausage (Rice Stuffed Sausage)
+Taiwanese Sticky Rice Dumpling (Zongzi)
+Southern-Style Taiwanese Zongzi (Peanut and Pork Sticky Rice Dumpling)
+Northern-Style Taiwanese Zongzi (Stir-Fried Sticky Rice Dumpling)
+Scallion Pancake (Taiwanese Green Onion Pancake)
+Grilled Scallion Pancake
+Pan-Fried Scallion Pancake Wrap
+Three Cup Chicken (San Bei Ji – Soy Sesame Basil Chicken)
+Three Cup Mushrooms (Vegetarian Three Cup Style)
+Salt and Pepper Chicken (Taiwanese Popcorn Chicken)
+Grilled Popcorn Chicken Skewers
+Salt and Pepper Squid (Crispy Squid with Basil)
+Grilled Squid (Charcoal Grilled Squid)
+Taiwanese Barbecue Pork Skewers
+Sweet Soy Grilled Chicken Skewers
+Grilled Oyster with Garlic Sauce
+Taiwanese Oyster Omelet
+Oyster Vermicelli Soup
+Braised Beef Shank (Soy-Braised Beef)
+Taiwanese Beef Noodle Soup
+Dry Beef Noodles (Soy-Braised Beef with Noodles)
+Braised Tofu (Five-Spice Soy-Braised Tofu)
+Grilled Five-Spice Tofu
+Stinky Tofu (Fermented Tofu)
+Grilled Stinky Tofu
+Fried Stinky Tofu
+Taiwanese Fried Chicken Cutlet
+Grilled Chicken Cutlet
+Braised Chicken Rice (Soy-Braised Chicken Rice)
+Chicken Rice Bento
+Taiwanese Fried Rice
+Soy Sauce Fried Rice with Egg
+Braised Bamboo Shoots
+Grilled Bamboo Shoots
+Cold Sesame Noodles (Taiwanese Sesame Noodles)
+Oil Noodles (Simple Soy and Scallion Noodles)
+Braised Cabbage (Taiwanese Stewed Cabbage)
+Pickled Mustard Greens (Suan Cai)
+Braised Daikon Radish
+Grilled Sweet Potato (Taiwanese Roasted Sweet Potato)
+Steamed Sweet Potato
+Sweet Potato Balls (Taiwanese Sweet Potato Fritters)
+Peanut Brittle (Taiwanese Peanut Candy)
+Pineapple Cake (Taiwanese Pineapple Pastry)
+Green Bean Cake (Mung Bean Pastry)
+Mochi Rice Cake (Taiwanese Glutinous Rice Cake)
+Grass Jelly (Herbal Jelly Dessert)
+Aiyu Jelly (Fig Seed Jelly Dessert)
+
+Liangban Huanggua (Taiwanese Smacked Cucumber Salad)
+Taiwanese Sweet and Sour Cucumber Salad (Taiwan-Style Pickled Cucumber Salad)
+Liangban Hai Dai (Cold Seaweed Salad)
+Liangban Hai Zhe (Jellyfish Salad)
+Liangban Mu Er (Wood Ear Mushroom Salad)
+Liangban Doufu (Cold Tofu Salad)
+Century Egg Tofu Salad (Pidàn Tofu Salad)
+Cold Bamboo Shoot Salad (Liangban Zhúsǔn)
+Cold Eggplant Salad (Liangban Qiézi)
+Shredded Chicken Salad (Liangban Jī Sī)
+Sesame Shredded Chicken Salad (Ma Jiang Ji Si Salad)
+Cold Okra Salad (Liangban Qiūkuī)
+Sweet Potato Leaf Salad (Taiwanese Stir-Blanched Sweet Potato Greens)
+Cold Spinach Salad with Sesame (Taiwanese Sesame Spinach Salad)
+Tomato with Sugar (Taiwanese Sugar-Tomato Salad)
+Cold Bean Sprout Salad (Liangban Douya)
+Cold Lotus Root Salad (Liangban Lian Ou)
+Cold Abalone Salad (Taiwanese Banquet-Style Abalone Salad)
+
+Gua Bao (Taiwanese Braised Pork Belly Bun)
+Hu Yao Zhu (Tiger Bite Pig Pork Belly Bun)
+Stewed Pork Belly Gua Bao (Braised Pork Belly Bun)
+Pork Belly and Pickled Mustard Gua Bao (Taiwanese Pork Belly Bun with Preserved Greens)
+Fried Chicken Gua Bao (Taiwanese Fried Chicken Bun)
+Braised Beef Gua Bao (Taiwanese Braised Beef Bun)
+Scallion Pancake with Egg (Taiwanese Scallion Pancake Egg Sandwich)
+Scallion Pancake with Egg and Cheese (Taiwanese Scallion Pancake Cheese Egg Sandwich)
+Scallion Pancake Beef Wrap (Taiwanese Beef Scallion Pancake Sandwich)
+Scallion Pancake Pork Wrap (Taiwanese Pork Scallion Pancake Sandwich)
+Scallion Pancake Fried Chicken Wrap (Taiwanese Fried Chicken Scallion Pancake Sandwich)
+Taiwanese Fried Chicken Sandwich (Crispy Chicken Cutlet Sandwich)
+Taiwanese Pork Chop Sandwich (Black Pepper Pork Chop Sandwich)
+Taiwanese Braised Pork Chop Sandwich
+Taiwanese Fish Fillet Sandwich
+Taiwanese Milkfish Sandwich
+Taiwanese Beef Sandwich (Braised Beef Sandwich)
+Taiwanese Breakfast Ham and Egg Toast Sandwich
+Taiwanese Breakfast Tuna Egg Toast Sandwich
+Taiwanese Peanut Butter Toast Sandwich
+Taiwanese Cheese and Egg Toast Sandwich
+
+Lu Rou Fan Braising Gravy (Minced Pork Rice Gravy)
+Braised Pork Belly Sauce (Taiwanese Red-Braised Gravy)
+Hong Shao Gravy (Red-Braised Soy Gravy)
+Taiwanese Oyster Sauce Gravy (Starch-Thickened Oyster Gravy)
+Black Pepper Steak Sauce (Taiwanese Iron Plate Black Pepper Gravy)
+Mushroom Steak Sauce (Taiwanese Iron Plate Mushroom Gravy)
+Sweet Soy Braising Gravy (Taiwanese Dark Soy Gravy)
+Garlic Soy Gravy (Taiwanese Garlic Soy Sauce Gravy)
+Sweet and Sour Gravy (Taiwanese Sweet Vinegar Gravy)
+Shacha Braising Sauce (Taiwanese Barbecue Seafood Gravy)
+Scallion Oil Gravy (Taiwanese Green Onion Oil Sauce)
+Five-Spice Braising Gravy (Taiwanese Five-Spice Soy Gravy)
+Braised Beef Noodle Soup Gravy (Taiwanese Beef Noodle Braising Sauce)
+Squid Thick Soup Gravy (Taiwanese Squid Geng Gravy)
+Pork Thick Soup Gravy (Taiwanese Pork Geng Gravy)
+Seafood Thick Soup Gravy (Taiwanese Seafood Geng Gravy)
+Vegetarian Mushroom Braising Gravy (Taiwanese Vegetarian Lu Gravy)
+Turkey Rice Gravy (Chiayi Turkey Rice Gravy)
+Soy Paste Gravy (Taiwanese Yellow Soy Paste Gravy)
+Black Bean Soy Gravy (Taiwanese Black Bean Sauce Gravy)
+
+Pineapple Jam (Fènglí Jam)
+Golden Pineapple Jam (Jīn Zuān Fènglí Jam)
+Winter Melon Jam (Dōng Guā Jiàng)
+Brown Sugar Winter Melon Jam (Hēi Táng Dōng Guā Jiàng)
+Kumquat Jam (Jīn Jú Jiàng)
+Roselle Jam (Luò Shén Huā Jiàng)
+Mulberry Jam (Sāng Shèn Jiàng)
+Strawberry Jam (Cǎo Méi Jiàng)
+Mango Jam (Máng Guǒ Jiàng)
+Guava Jam (Bā Lè Jiàng)
+Passion Fruit Jam (Bǎi Xiāng Guǒ Jiàng)
+Loquat Jam (Pí Pá Jiàng)
+Plum Jam (Méi Zi Jiàng)
+Green Plum Jam (Qīng Méi Jiàng)
+Salted Plum Jam (Xián Méi Jiàng)
+Red Date Jam (Hóng Zǎo Jiàng)
+Longan Jam (Lóng Yǎn Jiàng)
+Lychee Jam (Lì Zhī Jiàng)
+Tangerine Peel Jam (Chén Pí Jiàng)
+Osmanthus Jam (Guì Huā Jiàng)
+Honey Osmanthus Jam (Fēng Mì Guì Huā Jiàng)
+Pomelo Jam (Yòu Zi Jiàng)
+Lemon Kumquat Jam (Níng Méng Jīn Jú Jiàng)
+Oolong Tea Jelly (Wū Lóng Chá Guǒ Dòng)
+Black Tea Jelly (Hóng Chá Guǒ Dòng)
+Grass Jelly Syrup (Xiān Cǎo Dòng Táng Jiàng)
+Aiyu Jelly Syrup (Ài Yù Dòng Táng Jiàng)
+
+Taiwanese Pickled Mustard Greens (Suan Cai)
+Taiwanese Pickled Napa Cabbage (Taiwanese Kimchi Style Pickle)
+Taiwanese Pickled Daikon Radish (Pickled White Radish)
+Taiwanese Pickled Carrot and Daikon (Mixed Pickled Root Vegetables)
+Taiwanese Pickled Cucumbers (Sweet and Sour Pickled Cucumbers)
+Taiwanese Pickled Green Mango (Pickled Unripe Mango)
+Taiwanese Pickled Pineapple (Sweet Pickled Pineapple)
+Taiwanese Pickled Bamboo Shoots (Sour Pickled Bamboo Shoots)
+Taiwanese Pickled Ginger (Sweet Pickled Ginger Slices)
+Taiwanese Pickled Garlic (Sweet Vinegar Pickled Garlic)
+Taiwanese Pickled Chili Peppers (Pickled Fresh Chilies)
+Taiwanese Soy Sauce Pickled Radish (Soy-Braised Pickled Daikon)
+Taiwanese Soy Sauce Pickled Cucumbers (Soy Sauce Marinated Cucumbers)
+Taiwanese Pickled Wax Gourd (Sweet Pickled Winter Melon)
+Taiwanese Pickled Turnip (Pickled Chinese Turnip)
+Taiwanese Pickled Lotus Root (Sweet and Sour Pickled Lotus Root)
+Taiwanese Pickled Shiso Leaves (Pickled Perilla Leaves)
+Taiwanese Pickled Eggplant (Garlic Pickled Eggplant)
+
+Taiwanese Scallion Chicken Pizza
+Taiwanese Three-Cup Chicken Pizza
+Taiwanese Oyster Omelette Pizza
+Taiwanese Pineapple Shrimp Pizza
+Taiwanese Taiwanese Sausage and Basil Pizza
+Taiwanese Stinky Tofu Pizza
+Taiwanese Braised Pork Belly Pizza
+Taiwanese Black Pepper Beef Pizza
+Taiwanese Salt and Pepper Chicken Pizza
+Taiwanese Fried Chicken Cutlet Pizza
+Taiwanese Seafood Supreme Pizza
+Taiwanese Squid Ink Seafood Pizza
+Taiwanese Mullet Roe (Karasumi) Pizza
+Taiwanese Clam and Garlic Pizza
+Taiwanese Shrimp and Scallion Pizza
+Taiwanese Taro Cheese Pizza
+Taiwanese Sweet Corn and Tuna Pizza
+Taiwanese Durian Cheese Pizza
+Taiwanese Mochi Cheese Pizza
+Taiwanese Bubble Milk Tea Dessert Pizza
+Taiwanese Scallion Pancake–Style Pizza
+Taiwanese Mushroom and Soy Sauce Pizza
+Taiwanese Vegetarian Buddha’s Delight Pizza
+Taiwanese Peppercorn Pork Pizza
+Taiwanese Basil Chicken Pizza
+
+Scallion Pancake Dough (Cong You Bing Dough)
+Flaky Scallion Pancake Dough (Thousand-Layer Scallion Pancake Dough)
+Crispy Scallion Pancake Dough (Pan-Fried Scallion Pancake Dough)
+Street-Style Scallion Pancake Dough (Night Market Scallion Pancake Dough)
+Pan-Fried Bun Dough (Sheng Jian Bao Dough)
+Soup Dumpling Dough (Xiao Long Bao Dough)
+Steamed Dumpling Dough (Jiaozi Dough)
+Steamed Bun Dough (Mantou Dough)
+Milk Steamed Bun Dough (Milk Mantou Dough)
+Brown Sugar Steamed Bun Dough (Brown Sugar Mantou Dough)
+Flower Roll Dough (Hua Juan Dough)
+Pork Bun Dough (Baozi Dough)
+Vegetable Bun Dough (Vegetable Baozi Dough)
+Taiwanese Hamburger Bun Dough (Gua Bao Dough)
+Whole-Wheat Steamed Bun Dough (Whole Wheat Mantou Dough)
+Hand-Pulled Noodle Dough (La Mian Dough)
+Knife-Cut Noodle Dough (Dao Xiao Mian Dough)
+Oil Noodle Dough (You Mian Dough)
+Taiwanese Yellow Noodle Dough (Huang Mian Dough)
+Wonton Wrapper Dough (Wonton Dough)
+Thin Dumpling Wrapper Dough (Gyoza-Style Taiwanese Dumpling Dough)
+Rice Dumpling Dough (Tang Yuan Dough)
+Glutinous Rice Ball Dough (Sweet Tang Yuan Dough)
+Savory Glutinous Rice Ball Dough (Savory Tang Yuan Dough)
+Red Turtle Cake Dough (Ang Ku Kueh Dough)
+Savory Glutinous Rice Cake Dough (Savory Mochi-Style Rice Cake Dough)
+Oyster Omelet Batter Dough (Oyster Omelet Starch Batter)
+Taiwanese Crepe Batter Dough (Dan Bing Batter)
+Egg Crepe Dough (Egg Pancake Dough)
+Wheel Cake Batter Dough (Wheel Cake Batter)
+Pineapple Cake Pastry Dough (Taiwanese Pineapple Cake Dough)
+Sun Cake Pastry Dough (Taiyang Bing Dough)
+Wife Cake Pastry Dough (Wife Cake Dough)
+Sesame Pastry Dough (Sesame Short Pastry Dough)
+Mooncake Pastry Dough (Taiwanese Mooncake Dough)
+Mung Bean Pastry Dough (Mung Bean Pastry Dough)
+Peanut Mochi Dough (Peanut-Filled Glutinous Rice Dough)
+Taro Mochi Dough (Taro Glutinous Rice Dough)
+Sweet Rice Cake Dough (Nian Gao Dough)
+
+Sanbei Ji (Three-Cup Chicken Stew)
+Sanbei Xing Bao Gu (Three-Cup King Oyster Mushroom Stew)
+Sanbei Tofu (Three-Cup Tofu Stew)
+Lu Rou (Taiwanese Braised Pork Belly Stew)
+Lu Rou Fan Braise (Braised Pork Sauce Stew Base)
+Hong Shao Rou (Red-Braised Pork Belly Stew)
+Hong Shao Niu Rou (Red-Braised Beef Stew)
+Hong Shao Niu Jian (Red-Braised Beef Shank Stew)
+Hong Shao Zhu Jiao (Red-Braised Pork Knuckle Stew)
+Hong Shao Pai Gu (Red-Braised Pork Rib Stew)
+Hong Shao Yu Tou (Red-Braised Taro Stew)
+Dong Po Rou (Dongpo Braised Pork Stew)
+Lu Wei (Taiwanese Master Stock Braised Stew)
+Lu Wei Zhu Da Chang (Braised Pork Intestine Stew)
+Lu Wei Niu Jin (Braised Beef Tendon Stew)
+Lu Wei Dou Fu (Braised Tofu Stew)
+Lu Wei Hai Dai (Braised Kelp Stew)
+Fu Cai Shao Rou (Braised Napa Cabbage and Pork Stew)
+Ku Gua Pai Gu (Bitter Melon Pork Rib Stew)
+Fan Qie Niu Rou Dun (Taiwanese Tomato Beef Stew)
+Jiang Mu Ya (Ginger Duck Stew)
+Yang Rou Lu (Taiwanese Herbal Lamb Stew)
+Ma You Ji (Sesame Oil Chicken Stew)
+Si Wu Ji (Four-Herb Chicken Stew)
+Ba Zhen Ji (Eight-Treasure Chicken Stew)
+Fo Tiao Qiang (Buddha Jumps Over the Wall Stew)
+Hai Shen Dun Ji (Braised Sea Cucumber Chicken Stew)
+Bao Yu Dun Ji (Braised Abalone Chicken Stew)
+Xiang Gu Ji Tang (Shiitake Mushroom Chicken Stew)
+Dou Ban Ji Rou (Soybean Paste Chicken Stew)
+Dou Fu Xiang Gu Dun (Tofu and Shiitake Mushroom Stew)
+Pai Gu Luo Bo Dun (Pork Rib and Daikon Stew)
+Niu Rou Luo Bo Dun (Beef and Daikon Stew)
+Zhu Du Dun Pai Gu (Pig Stomach Pork Rib Stew)
+You Fan Shu Dun Rou (Soy-Braised Sweet Potato Pork Stew)
+
+Taiwanese Milk Bread (Tangzhong Milk Bread)
+Hokkaido-Style Milk Bread Loaf (Japanese-Influenced Taiwanese Milk Bread)
+Classic White Toast Loaf (Taiwanese Breakfast Toast)
+Thick-Sliced Toast Loaf (Taiwanese Toast Bread)
+Sweet Milk Toast (Taiwanese Sweet Toast Bread)
+Butter Toast Loaf (Taiwanese Butter Bread)
+Honey Toast Loaf (Taiwanese Honey Bread)
+Pineapple Bread Loaf (Bolo Bread Loaf)
+Butter Pineapple Bread Loaf (Butter Bolo Bread Loaf)
+Custard Pineapple Bread Loaf (Custard Bolo Bread Loaf)
+Red Bean Pineapple Bread Loaf (Red Bean Bolo Bread Loaf)
+Taro Milk Bread Loaf (Taro-Flavored Milk Bread)
+Red Bean Milk Bread Loaf (Red Bean Milk Bread)
+Black Sesame Milk Bread Loaf (Black Sesame Bread)
+Matcha Milk Bread Loaf (Matcha Green Tea Bread)
+Cheese Milk Bread Loaf (Cheese Toast Bread)
+Corn Milk Bread Loaf (Sweet Corn Bread)
+Scallion Bread Loaf (Taiwanese Green Onion Bread)
+Scallion Milk Bread Loaf (Green Onion Milk Bread)
+Pork Floss Bread Loaf (Pork Floss Toast Bread)
+Pork Floss and Seaweed Bread Loaf (Pork Floss Seaweed Bread)
+Ham and Cheese Toast Loaf (Taiwanese Bakery Ham Cheese Bread)
+Sausage Toast Bread Loaf (Taiwanese Sausage Bread)
+Whole Wheat Toast Loaf (Taiwanese Whole Wheat Bread)
+Multigrain Toast Loaf (Taiwanese Multigrain Bread)
+Soft Wheat Germ Bread Loaf (Wheat Germ Toast Bread)
+Sweet Potato Bread Loaf (Taiwanese Sweet Potato Bread)
+Purple Sweet Potato Bread Loaf (Purple Sweet Potato Bread)
+Taro and Sweet Potato Bread Loaf (Mixed Root Vegetable Bread)
+Milk Brioche-Style Bread Loaf (Taiwanese Bakery Brioche Bread)
+Cream-Filled Milk Bread Loaf (Cream Milk Bread)
+Custard Cream Bread Loaf (Custard Bread)
+Chocolate Milk Bread Loaf (Chocolate Toast Bread)
+Marble Chocolate Bread Loaf (Chocolate Swirl Bread)
+Raisin Milk Bread Loaf (Raisin Toast Bread)
+Cranberry Milk Bread Loaf (Cranberry Bread)
+Yam Bread Loaf (Taiwanese Yam Bread)
+
+Taiwanese Sweet Soy Glaze
+Taiwanese Light Soy Glaze
+Taiwanese Dark Soy Glaze
+Taiwanese Soy and Rock Sugar Glaze
+Taiwanese Soy and Rice Wine Glaze
+Taiwanese Soy and Ginger Glaze
+Taiwanese Soy and Garlic Glaze
+Taiwanese Soy and Scallion Glaze
+Taiwanese Soy and Sesame Oil Glaze
+Taiwanese Soy and Five-Spice Glaze
+Lu Rou Fan Braising Glaze (Taiwanese Minced Pork Rice Glaze)
+Hong Shao Soy Glaze (Taiwanese Red-Braised Soy Glaze)
+Three Cup Sauce Glaze (San Bei Ji Glaze)
+Taiwanese Oyster Sauce Glaze
+Taiwanese Sweet Oyster Soy Glaze
+Taiwanese Black Vinegar Soy Glaze
+Taiwanese Sugar and Black Vinegar Glaze
+Taiwanese Honey Soy Glaze
+Taiwanese Maltose Soy Glaze
+Taiwanese Garlic Soy BBQ Glaze
+Taiwanese Night Market BBQ Glaze
+Taiwanese Char Siu–Style Soy Glaze
+Taiwanese Shacha Sauce Glaze
+Taiwanese Basil Soy Glaze
+Taiwanese Ginger Scallion Oil Glaze
+Taiwanese Soy Caramel Glaze
+
+Kao Di Gua (Taiwanese Roasted Sweet Potato)
+Shao Rou (Taiwanese-Style Roast Pork Belly)
+Roast Goose (Taiwanese Roast Goose)
+Roast Duck (Taiwanese-Style Roast Duck)
+Salt-Baked Chicken (Yan Ju Ji / Taiwanese Salt-Baked Chicken)
+Soy-Marinated Roast Chicken (Taiwanese Soy Sauce Roast Chicken)
+Roast Suckling Pig (Taiwanese Banquet-Style Roast Pig)
+Baked Pork Chop Rice (Taiwanese Café-Style Baked Pork Chop Rice)
+Baked Chicken Cutlet Rice (Taiwanese Baked Chicken Rice)
+Baked Seafood Rice (Taiwanese Mixed Seafood Baked Rice)
+Baked Milkfish Belly (Taiwanese Baked Milkfish Belly)
+Baked Clams with Garlic (Taiwanese Garlic-Baked Clams)
+Baked Oysters with Cheese (Taiwanese Cheese-Baked Oysters)
+Baked Pumpkin with Salted Egg Yolk (Taiwanese Salted Egg Pumpkin)
+Baked Taro with Cheese (Taiwanese Cheese-Baked Taro)
+Feng Li Su (Taiwanese Pineapple Cake)
+Taiyang Bing (Taiwanese Sun Cake)
+Che Lun Bing (Taiwanese Wheel Pie)
+Cong You Mian Bao (Taiwanese Scallion Bread)
+Taiwanese Castella Cake (Taiwan-Style Castella Sponge Cake)
+
+Mango Shaved Ice
+Strawberry Shaved Ice
+Watermelon Shaved Ice
+Mixed Fruit Shaved Ice
+Papaya Milk
+Mango Milk
+Avocado Milk
+Guava Juice
+Fresh Sugarcane Juice
+Winter Melon Tea with Lemon
+Passion Fruit Green Tea
+Pineapple Ice
+Aiyu Jelly with Lemon Syrup
+Aiyu Jelly with Honey Lemon
+Grass Jelly with Fruit
+Taro Balls with Fruit
+Sweet Tofu Pudding with Ginger Syrup and Fruit
+Eight Treasure Ice (Ba Bao Bing / Eight-Treasure Shaved Ice)
+Fruit Tofu Pudding
+Fruit Tapioca Dessert
+Pineapple Cake (Pineapple Pastry)
+Candied Tomatoes with Licorice Powder
+Guava with Plum Powder
+Green Mango with Plum Powder
+Fruit Vinegar Drink
+Plum Juice
+Kumquat Tea
+Kumquat Lemon Drink
+Longan and Red Date Sweet Soup
+Dried Longan Tea
+Roselle Tea
+Papaya and Snow Fungus Sweet Soup
+Snow Fungus Dessert with Rock Sugar and Fruit
+Fruit Mochi
+Strawberry Daifuku (Strawberry Mochi)
+Pineapple Jam
+Mango Jam
+Passion Fruit Jam
+
+Pineapple Cake
+Pineapple and Winter Melon Cake
+Golden Pineapple Cake
+Sun Cake (Maltose Pastry)
+Wheel Cake (Taiwanese Filled Pancake Cake)
+Castella Cake (Taiwanese Castella)
+Original Castella Cake
+Cheese Castella Cake
+Chocolate Castella Cake
+Honey Castella Cake
+Scallion Bread (Taiwanese Green Onion Bread)
+Scallion Roll (Green Onion Spiral Bread)
+Pork Floss Bun
+Seaweed Pork Floss Bun
+Pork Floss Roll
+Taro Bun
+Taro Paste Bun
+Taro Pastry
+Red Bean Bun
+Red Bean Pastry
+Custard Bun
+Milk Custard Bun
+Sesame Bun (Black Sesame Bun)
+Peanut Bun
+Butterfly Bun (Taiwanese Sweet Bread Roll)
+Milk Bread (Taiwanese Milk Toast)
+Hokkaido-Style Milk Toast (Taiwan Bakery Style)
+Sweet Potato Bread
+Purple Sweet Potato Bun
+Black Sugar Cake (Brown Sugar Sponge Cake)
+Brown Sugar Mantou (Steamed Brown Sugar Bread)
+Mantou (Steamed Plain Bread)
+Sweet Mantou
+Cheese Mantou
+Taiwanese Egg Tart
+Portuguese-Style Egg Tart (Taiwan Bakery Style)
+Mochi Bread (Taiwanese QQ Bread)
+Cheese Mochi Bread
+Chocolate Mochi Bread
+Coconut Bun
+Coconut Cream Bun
+Almond Cookie (Taiwan Bakery Almond Biscuit)
+Nougat Cracker (Taiwanese Milk Nougat Sandwich)
+Peanut Nougat Cracker
+Sesame Nougat Cracker
+Phoenix Roll (Egg Roll Cookie)
+Butter Egg Roll
+Sesame Egg Roll
+Taiwanese Shortbread Cookie
+Pineapple Shortbread
+Taiwanese Sponge Cake
+Honey Sponge Cake
+Cream Puff (Taiwan Bakery Cream Puff)
+Custard Cream Puff
+Taiwanese Swiss Roll
+Strawberry Swiss Roll
+Matcha Swiss Roll
+
+Beef Noodle Soup (Taiwanese Braised Beef Noodle Soup)
+Clear Beef Noodle Soup (Taiwanese Clear Broth Beef Noodle Soup)
+Tomato Beef Noodle Soup (Taiwanese Tomato Braised Beef Noodles)
+Spicy Beef Noodle Soup (Taiwanese Mala Beef Noodles)
+Braised Pork Rice (Lu Rou Fan / Taiwanese Minced Pork Rice)
+Braised Pork Belly Rice (Kong Rou Fan / Taiwanese Braised Pork Belly Rice)
+Turkey Rice (Ji Rou Fan / Chiayi Turkey Rice)
+Oyster Omelet (Taiwanese Oyster Omelette)
+Shrimp Omelet (Taiwanese Shrimp Omelette)
+Scallion Omelet (Taiwanese Scallion Egg Pancake)
+Three Cup Chicken (San Bei Ji / Taiwanese Three-Cup Chicken)
+Three Cup Squid (Taiwanese Three-Cup Squid)
+Three Cup Mushrooms (Taiwanese Three-Cup Mushrooms)
+Salt and Pepper Chicken (Taiwanese Popcorn Chicken)
+Salt and Pepper Squid (Taiwanese Fried Squid)
+Fried Chicken Cutlet (Taiwanese Chicken Steak)
+Braised Chicken Rice (Taiwanese Soy-Braised Chicken Rice)
+Soy-Braised Chicken Drumsticks (Taiwanese Braised Chicken Legs)
+Braised Tofu (Taiwanese Soy-Braised Tofu)
+Braised Eggs (Taiwanese Tea Eggs)
+Iron Egg (Taiwanese Iron-Boiled Egg)
+Tea Egg (Taiwanese Tea-Marinated Egg)
+Braised Pork Knuckle (Taiwanese Soy-Braised Pork Knuckle)
+Braised Pork Hock with Peanuts (Taiwanese Pork Hock Stew)
+Steamed Pork Belly with Pickled Mustard Greens (Taiwanese Kua Bao Filling)
+Gua Bao (Taiwanese Braised Pork Belly Bao)
+Taiwanese Hamburger (Gua Bao with Braised Pork)
+Scallion Pancake (Taiwanese Green Onion Pancake)
+Egg Scallion Pancake (Taiwanese Egg-Filled Scallion Pancake)
+Scallion Pancake Roll with Beef (Taiwanese Beef Roll)
+Beef Scallion Pancake Wrap (Taiwanese Beef Pancake Roll)
+Pan-Fried Dumplings (Taiwanese Potstickers)
+Boiled Dumplings (Taiwanese Boiled Dumplings)
+Wonton Soup (Taiwanese Wonton Soup)
+Dry Wontons (Taiwanese Tossed Wontons)
+Sesame Noodles (Taiwanese Sesame Noodles)
+Dry Noodles with Minced Pork (Taiwanese Dan Zai Noodles)
+Dan Zai Noodles (Taiwanese Minced Pork Noodles)
+Cold Sesame Chicken Noodles (Taiwanese Cold Noodles)
+Soy Sauce Noodles (Taiwanese Simple Soy Noodles)
+Rice Vermicelli Soup (Taiwanese Rice Noodle Soup)
+Fried Rice Vermicelli (Taiwanese Stir-Fried Rice Noodles)
+Fried Rice (Taiwanese Egg Fried Rice)
+Fried Rice with Pork Chop (Taiwanese Pork Chop Fried Rice)
+Braised Pork Chop Rice (Taiwanese Braised Pork Chop Rice)
+Fried Pork Chop Rice (Taiwanese Fried Pork Chop Rice)
+Chicken Leg Rice Box (Taiwanese Braised Chicken Leg Bento)
+Braised Beef Shank (Taiwanese Soy-Braised Beef Shank)
+Cold Sliced Beef Shank (Taiwanese Beef Shank Platter)
+Steamed Milk Custard (Taiwanese Milk Pudding)
+Tofu Pudding (Douhua / Taiwanese Silken Tofu Dessert)
+Sweet Peanut Tofu Pudding (Taiwanese Peanut Douhua)
+Taro Balls Dessert (Taiwanese Taro Ball Soup)
+Sweet Potato Balls Dessert (Taiwanese Sweet Potato Balls)
+Shaved Ice with Toppings (Taiwanese Baobing)
+Mango Shaved Ice (Taiwanese Mango Snow Ice)
+Black Sesame Shaved Ice (Taiwanese Sesame Snow Ice)
+Pineapple Cake (Taiwanese Pineapple Pastry)
+Sun Cake (Taiwanese Sun Pastry)
+Wheel Cake (Taiwanese Filled Wheel Cake)
+Castella Cake (Taiwanese Castella Sponge Cake)
+Braised Cabbage (Taiwanese Soy-Braised Cabbage)
+Stir-Fried Water Spinach (Taiwanese Stir-Fried Morning Glory)
+Stir-Fried A-Choy (Taiwanese Lettuce Stir-Fry)
+Stir-Fried Bamboo Shoots (Taiwanese Bamboo Shoot Stir-Fry)
+Braised Bitter Melon with Pork (Taiwanese Bitter Melon Stew)
+Steamed Fish with Soy Sauce (Taiwanese Steamed Whole Fish)
+Milkfish Belly Soup (Taiwanese Milkfish Soup)
+Milkfish Rice Porridge (Taiwanese Milkfish Congee)
+Sweet and Sour Pork (Taiwanese-Style Sweet and Sour Pork)
+Braised Duck (Taiwanese Soy-Braised Duck)
+Ginger Duck Hot Pot (Taiwanese Ginger Duck Stew)
+Lamb Hot Pot (Taiwanese Herbal Lamb Stew)
+
+Lu Rou Fan (Braised Pork Rice)
+Rou Zao Fan (Minced Pork Rice)
+Gua Bao (Taiwanese Pork Belly Bun)
+Beef Noodle Soup (Red-Braised Beef Noodle Soup)
+Clear Broth Beef Noodle Soup
+Braised Beef Shank Noodle Soup
+Ban Tiao Noodle Soup (Flat Rice Noodle Soup)
+Dan Zai Noodles (Slack Season Noodles)
+Oyster Mee Sua (Oyster Vermicelli)
+Intestine Mee Sua (Braised Pork Intestine Vermicelli)
+Ay-Chung Flour-Rice Noodles (Thick Vermicelli Soup)
+Three-Cup Chicken (San Bei Ji / Three-Cup Chicken)
+Taiwanese Popcorn Chicken (Fried Basil Chicken)
+Salt and Pepper Chicken (Yan Su Ji / Taiwanese Pepper Chicken)
+Braised Pork Belly (Hong Shao Rou / Red-Braised Pork Belly)
+Soy-Braised Pork Trotters (Lu Zhu Ti Pang)
+Soy-Braised Pig Knuckle Rice
+Braised Pig Intestines (Lu Zhu / Braised Pork Offal)
+Braised Mixed Offal Platter (Lu Wei Assortment)
+Taiwanese Sausage (Sweet Pork Sausage)
+Taiwanese Sausage with Garlic
+Oyster Omelette (Oyster Egg Omelet)
+Shrimp Omelette (Shrimp Egg Omelet)
+Radish Cake (Turnip Cake / Taiwanese Style)
+Pan-Fried Radish Cake
+Sticky Rice Dumpling (Zongzi / Taiwanese Style)
+Taiwanese Savory Sticky Rice (You Fan)
+Scallion Pancake (Taiwanese Green Onion Pancake)
+Egg Scallion Pancake Roll
+Fried Sweet Potato Fries (Taiwanese Sweet Potato Fries)
+Salt and Pepper Squid (Fried Squid with Basil)
+Crispy Fried Chicken Cutlet (Taiwanese Fried Chicken Steak)
+Taiwanese Braised Chicken Rice
+Braised Duck Rice
+Smoked Tea Duck (Tea-Smoked Duck)
+Taiwanese Cold Sesame Noodles
+Taiwanese Soy Sauce Noodles
+Taiwanese Dry Noodles with Minced Pork
+Fish Ball Soup (Taiwanese Style)
+Milkfish Belly Soup
+Milkfish Congee
+Milkfish Rice
+Milkfish Soup with Ginger
+Pork Rib Soup with White Radish
+Bitter Melon with Salted Egg
+Stir-Fried Water Spinach (Garlic Water Spinach)
+Stir-Fried Taiwanese Cabbage
+Stir-Fried Basil Pork
+Stir-Fried Basil Clams
+Taiwanese Braised Tofu
+Stinky Tofu (Fermented Tofu)
+Deep-Fried Stinky Tofu
+Stewed Stinky Tofu Hot Pot
+Taiwanese Hot Pot (Shabu-Style Hot Pot)
+Stone Pot Bibimbap (Taiwanese Night Market Style)
+Taiwanese Oyster Pancake
+Taiwanese Braised Egg
+Soy-Marinated Tea Eggs (Tea Eggs)
+Taiwanese Braised Bamboo Shoots
+Braised Seaweed with Soy Sauce
+Taiwanese Minced Pork over Rice with Pickles
+Taiwanese Chicken Rice (Hainanese-Style Taiwan Version)
+Taiwanese Braised Chicken Wings
+Taiwanese Braised Pork Ribs
+Taiwanese Pork Chop Rice
+Taiwanese Fried Pork Chop
+Taiwanese Chicken Cutlet Rice
+Taiwanese Braised Duck Noodles
+Taiwanese Seafood Congee
+Sweet Potato Congee
+Pork Rib Congee
+Peanut Rice Milk
+Warm Soy Milk with Fried Dough Sticks
+Taiwanese Breakfast Omelet Roll (Dan Bing)
+
+Salted Duck Egg (Yán Dàn)
+Salted Chicken (Yán Jī)
+Salted Pork Belly (Yán Ròu)
+Salted Pork (Xián Ròu)
+Taiwanese Waxed Pork Belly (Là Ròu)
+Taiwanese Waxed Sausage (Là Cháng)
+Taiwanese Sweet Rice Sausage (Nuòmǐ Cháng)
+Air-Dried Pork Sausage (Fēng Gān Cháng)
+Air-Dried Pork Belly (Fēng Gān Ròu)
+Tea Egg (Chá Yè Dàn)
+Soy-Marinated Egg (Lǔ Dàn)
+Drunken Chicken (Zuì Jī)
+Drunken Shrimp (Zuì Xiā)
+Drunken Clams (Zuì Gé)
+Soy-Braised Pork Belly (Lǔ Ròu)
+Soy-Braised Beef Shank (Lǔ Niúròu)
+Soy-Braised Tofu (Lǔ Dòufu)
+Soy-Braised Duck (Lǔ Yā)
+Soy-Braised Offal Platter (Lǔ Wèi)
+Salted Mustard Greens (Suān Cài)
+Pickled Mustard Greens (Zhà Cài)
+Fermented Mustard Greens (Fā Cài)
+Pickled Cabbage (Pào Cài)
+Pickled Napa Cabbage (Suān Bái Cài)
+Pickled Daikon Radish (Yān Luóbo)
+Dried Radish (Cài Pǔ)
+Fermented Radish (Suān Luóbo)
+Salted Bamboo Shoots (Yān Zhú Sǔn)
+Pickled Bamboo Shoots (Suān Zhú Sǔn)
+Salted Green Mango (Yān Qīng Mángguǒ)
+Pickled Green Papaya (Suān Mùguā)
+Pickled Cucumbers (Yān Huángguā)
+Pickled Eggplant (Yān Qiézi)
+Salted Turnip Greens (Yān Jiè Cài)
+Preserved Mustard Tuber (Zhà Cài Tóu)
+Salted Fish (Xián Yú)
+Dried Mullet Roe (Wūyú Zǐ)
+Salted Mullet Roe (Yān Wūyú Zǐ)
+Preserved Shrimp (Xiā Mǐ)
+Shrimp Paste (Xiā Jiàng)
+Fermented Tofu (Chòu Dòufu)
+Red Fermented Tofu (Hóng Fǔrǔ)
+White Fermented Tofu (Bái Fǔrǔ)
+Preserved Black Beans (Dòu Chǐ)
+Soy Sauce–Cured Pork (Jiàng Yān Ròu)
+Salted Duck (Yān Yā)
+Air-Dried Duck (Fēng Gān Yā)
+Preserved Chicken Thighs (Yān Jī Tuǐ)
+Salted Crab (Yān Xiè)
+Fermented Crab (Zuì Xiè)
+
+Gua Bao (Taiwanese Braised Pork Belly Bun)
+Traditional Gua Bao (Classic Taiwanese Pork Belly Steamed Bun)
+Peanut Powder Gua Bao (Sweet Peanut Pork Belly Bun)
+Vegetarian Gua Bao (Braised Mushroom Steamed Bun)
+Run Bing (Taiwanese Spring Roll)
+Traditional Run Bing (Taiwanese Fresh Spring Roll)
+Pork Run Bing (Taiwanese Pork Spring Roll)
+Vegetarian Run Bing (Taiwanese Vegetable Spring Roll)
+Lun Pia̍h (Taiwanese Popiah Fresh Roll)
+Popiah with Pork (Taiwanese Pork Popiah Roll)
+Popiah with Shrimp (Taiwanese Shrimp Popiah Roll)
+Dan Bing (Taiwanese Egg Crepe Roll)
+Classic Dan Bing (Plain Taiwanese Egg Roll)
+Cheese Dan Bing (Taiwanese Egg and Cheese Roll)
+Bacon Dan Bing (Taiwanese Bacon Egg Roll)
+Tuna Dan Bing (Taiwanese Tuna Egg Roll)
+Cong You Bing Wrap (Scallion Pancake Wrap)
+Beef Scallion Pancake Roll (Taiwanese Beef Wrap)
+Pork Scallion Pancake Roll (Taiwanese Pork Wrap)
+Peking Duck–Style Scallion Pancake Wrap (Taiwanese Duck Wrap)
+Chicken Scallion Pancake Wrap (Taiwanese Chicken Wrap)
+Taiwanese Crispy Chicken Wrap
+Taiwanese Fried Chicken Scallion Pancake Wrap
+Taiwanese Lettuce Wraps (San Chai Bao Taiwanese Style)
+Minced Pork Lettuce Wraps (Taiwanese Pork Lettuce Wraps)
+Three-Cup Chicken Lettuce Wraps (Taiwanese San Bei Ji Lettuce Wraps)
+
+Three Cup Fish (San Bei Yu / Taiwanese Three-Cup Fish)
+Steamed Whole Fish with Soy Sauce and Scallions (Qing Zheng Yu / Taiwanese-Style Steamed Fish)
+Steamed Grouper with Soy Sauce (Steamed Garoupa Taiwanese Style)
+Crispy Fried Whole Fish (Taiwanese Crispy Fried Fish)
+Sweet and Sour Fish (Taiwanese-Style Sweet and Sour Fish)
+Tea-Smoked Fish (Taiwanese Tea-Smoked Fish)
+Salt-Baked Fish (Taiwanese Salt-Baked Fish)
+Braised Fish with Fermented Black Beans (Taiwanese Black Bean Braised Fish)
+Pan-Fried Fish with Ginger (Taiwanese Ginger Pan-Fried Fish)
+Tomato-Braised Mackerel (Taiwanese Tomato-Braised Mackerel)
+Grilled Mackerel Taiwanese Style (Taiwanese Grilled Mackerel)
+Braised Fish Head with Black Beans (Taiwanese Braised Fish Head)
+
+Milkfish Belly Soup (Milkfish Belly Clear Soup)
+Braised Milkfish Belly (Taiwanese Braised Milkfish Belly)
+Pan-Fried Milkfish Belly (Taiwanese Pan-Fried Milkfish Belly)
+Crispy Fried Milkfish (Taiwanese Crispy Milkfish)
+Steamed Milkfish with Soy Sauce (Taiwanese Steamed Milkfish)
+Milkfish Congee (Taiwanese Milkfish Porridge)
+Milkfish Ball Soup (Taiwanese Milkfish Ball Soup)
+
+Smoked Flying Fish (Smoked Flying Fish Taiwanese Style)
+Flying Fish Soup (Taiwanese Flying Fish Soup)
+Flying Fish Roe Sausage (Taiwanese Flying Fish Roe Sausage)
+
+Threadfin Fish Soup (Ma You Yu Soup / Taiwanese Threadfin Soup)
+Pan-Fried Threadfin Fish (Taiwanese Pan-Fried Threadfin)
+
+Fènglí Sū (Taiwanese Pineapple Cake)
+Nǎiyóu Bōluó Bāo (Butter Pineapple Bun)
+Nǎiyóu Tǔsī (Taiwanese Thick Toast with Butter)
+Fēngmì Nǎiyóu Tǔsī (Honey Butter Toast)
+Nǎiyóu Xiǎo Miànbāo (Taiwanese Butter Dinner Rolls)
+Nǎiyóu Qūqí (Taiwanese Butter Cookies)
+Táiwān Kǎsītèlā Dàn Gāo (Taiwanese Castella Cake)
+Tàiyáng Bǐng (Sun Cake with Butter Filling)
+Nǎiyóu Yùmǐ (Taiwan Night Market Butter Corn)
+Nǎiyóu Chǎofàn (Taiwanese Butter Fried Rice)
+Nǎiyóu Jiāng Xiā (Taiwanese Butter Shrimp)
+Nǎiyóu Jiāng Shàn Bèi (Taiwanese Butter Scallops)
+Nǎiyóu Jiāng Gé Lì (Taiwanese Butter Clams)
+Nǎiyóu Jiāng Yóuyú (Taiwanese Butter Squid)
+Hēi Hújiāo Nǎiyóu Niúròu (Taiwan Night Market Black Pepper Butter Steak)
+
+Cong You Bing (Taiwanese Scallion Pancake)
+Dan Bing (Taiwanese Egg Crepe)
+Luobo Gao (Taiwanese Radish Cake)
+You Tiao (Taiwanese Fried Dough Stick)
+Shaobing (Taiwanese Sesame Flatbread)
+Hu Jiao Bing (Taiwanese Pepper Pork Bun)
+Gua Bao Mantou (Steamed Bao Bun)
+Gua Bao (Taiwanese Pork Belly Bun)
+Zheng Rou Bao (Steamed Pork Bun)
+Xiao Long Bao (Soup Dumplings)
+Shui Jiao (Boiled Dumplings)
+Guo Tie (Potstickers)
+Mian Xian (Taiwanese Wheat Vermicelli Noodles)
+Ban Mian (Taiwanese Thick Noodle Soup)
+You Mian (Taiwanese Oil Noodles)
+Danzai Noodles (Ta-a Noodles)
+Beef Noodle Soup (Taiwanese Beef Noodles)
+Knife-Cut Noodles (Hand-Cut Wheat Noodles)
+Hand-Pulled Noodles (Taiwanese La Mian)
+Scallion Oil Noodles (Cong You Ban Mian)
+Sesame Noodles (Ma Jiang Mian)
+Taiwanese Oyster Vermicelli (Oyster Mian Xian)
+Ba-Wan (Taiwanese Savory Meat Dumpling)
+Taiwanese Spring Roll Wrapper (Popiah Skin)
+Popiah (Taiwanese Fresh Spring Roll)
+Taiwanese Crispy Spring Roll (Fried Chun Juan)
+Wheel Cake (Taiwanese Castella-Style Filled Pancake)
+Taiwanese Castella Cake
+Taiwanese Pineapple Cake (Fengli Su)
+Taiwanese Sun Cake (Taiyang Bing)
+Taiwanese Wife Cake (Lao Po Bing)
+Taiwanese Mochi (Glutinous Rice Cake)
+Peanut Mochi (Taiwanese Glutinous Rice Cake with Peanut)
+Taiwanese Savory Rice Cake (Chai Tou Gui Batter Cake)
+Taiwanese Sweet Rice Cake (Nian Gao)
+Taiwanese Red Bean Cake (Dou Sha Bing)
+Taiwanese Taro Pastry (Wu Tau Su)
+Taiwanese Mooncake (Taiwan-Style Yue Bing)
+
+Pineapple Cake (Fènglí Sū / Taiwanese Pineapple Pastry)
+Pineapple and Winter Melon Cake (Fènglǐ Dōngguā Bǐng / Traditional Pineapple Pastry with Winter Melon)
+Sun Cake (Tàiyáng Bǐng / Maltose Puff Pastry)
+Nougat (Niúgáo Táng / Taiwanese Milk Nougat)
+Peanut Brittle (Huāshēng Táng / Taiwanese Peanut Candy)
+Sesame Brittle (Zhīma Táng / Taiwanese Sesame Candy)
+Mung Bean Cake (Lǜdòu Gāo / Taiwanese Mung Bean Pastry)
+Taro Pastry (Yùtóu Sū / Taro Puff Pastry)
+Wife Cake (Lǎopó Bǐng / Sweet Winter Melon Pastry)
+Castella Cake (Tái Shì Kǎsītí Dàn Gāo / Taiwanese Castella Cake)
+Honey Cake (Fēngmì Dàn Gāo / Taiwanese Honey Sponge Cake)
+Taiwanese Mochi (Máshǔ / Glutinous Rice Cake)
+Peanut Mochi (Huāshēng Máshǔ / Peanut-Filled Glutinous Rice Cake)
+Sesame Mochi (Zhīma Máshǔ / Black Sesame Glutinous Rice Cake)
+Taro Ball Dessert (Yùyuán / Sweet Taro Balls)
+Sweet Potato Ball Dessert (Dìguā Yuán / Sweet Potato Balls)
+Grass Jelly Dessert (Xiāncǎo Dòng / Sweet Grass Jelly)
+Aiyu Jelly (Àiyù / Fig Seed Jelly Dessert)
+Tofu Pudding (Dòuhuā / Sweet Silken Tofu Dessert)
+Peanut Tofu Pudding (Huāshēng Dòuhuā / Tofu Pudding with Peanut Syrup)
+Soy Milk Tofu Pudding (Dòujiāng Dòuhuā / Tofu Pudding with Soy Milk)
+Snowflake Shaved Ice (Xuěhuā Bīng / Snowflake Ice Dessert)
+Mango Snowflake Ice (Mángguǒ Xuěhuā Bīng / Mango Snowflake Ice)
+Strawberry Snowflake Ice (Cǎoméi Xuěhuā Bīng / Strawberry Snowflake Ice)
+Traditional Shaved Ice (Cuò Bīng / Taiwanese Shaved Ice)
+Mango Shaved Ice (Mángguǒ Cuò Bīng / Mango Ice Dessert)
+Eight-Treasure Ice (Bābǎo Bīng / Eight-Topping Shaved Ice)
+Wheel Cake (Lún Bǐng / Taiwanese Filled Pancake)
+Red Bean Wheel Cake (Hóngdòu Lún Bǐng / Red Bean Wheel Cake)
+Custard Wheel Cake (Nǎihuáng Lún Bǐng / Custard Wheel Cake)
+Bubble Milk Tea (Zhēnzhū Nǎichá / Pearl Milk Tea)
+Brown Sugar Bubble Milk Tea (Hēitáng Zhēnzhū Nǎichá / Brown Sugar Pearl Milk Tea)
+Bubble Black Tea (Zhēnzhū Hēichá / Pearl Black Tea)
+Taro Milk Tea (Yùtóu Nǎichá / Taro Milk Tea)
+Herbal Jelly Drink (Xiāncǎo Chá / Sweet Grass Jelly Drink)
+Winter Melon Tea (Dōngguā Chá / Winter Melon Sweet Tea)
+Osmanthus Jelly (Guìhuā Dòng / Osmanthus Flower Jelly)
+Sweet Rice Cake Soup (Tāngyuán / Glutinous Rice Balls in Sweet Soup)
+Black Sesame Tangyuan (Zhīma Tāngyuán / Sesame-Filled Rice Balls)
+Peanut Tangyuan (Huāshēng Tāngyuán / Peanut-Filled Rice Balls)
+
+Cheese Wheel Pie (Taiwanese Cheese Wheel Pastry)
+Cheese Wheel Cake (Taiwanese Cheese Wheel Cake)
+Cheese Scallion Pancake (Taiwanese Cheese Cong You Bing)
+Cheese Egg Pancake (Taiwanese Cheese Dan Bing)
+Cheese Pork Chop Rice (Taiwanese Cheese Pork Chop Bento)
+Cheese Baked Rice (Taiwanese-Style Cheese Baked Rice)
+Cheese Baked Seafood Rice (Taiwanese Cheese Baked Seafood Rice)
+Cheese Fried Chicken Cutlet (Taiwanese Cheese Chicken Steak)
+Cheese Sweet Potato Balls (Taiwanese Cheese Sweet Potato Balls)
+Cheese Wheel Bread (Taiwanese Cheese Wheel Bread)
+Cheese Milk Toast (Taiwanese Cheese Milk Toast)
+Cheese Corn Cup (Taiwanese Street-Style Cheese Corn)
+Cheese Hot Pot (Taiwanese Cheese Hot Pot)
+Cheese Bubble Tea (Taiwanese Cheese Milk Tea)
+Cheese Foam Tea (Taiwanese Cheese Tea)
+Cheese Cocoa Tea (Taiwanese Cheese Cocoa Drink)
+Cheese Matcha Tea (Taiwanese Cheese Matcha Tea)
+Cheese Black Tea (Taiwanese Cheese Black Tea)
+Cheese Wheel Pineapple Cake (Taiwanese Cheese Pineapple Cake)
+Cheese Mochi Bread (Taiwanese Cheese Mochi Bread)
+Cheese Taro Pastry (Taiwanese Cheese Taro Pastry)
+
+Taiwanese Black Vinegar (Taiwanese Black Rice Vinegar)
+Taiwanese Sweet Black Vinegar (Sweetened Taiwanese Black Vinegar)
+Taiwanese Aged Black Vinegar (Aged Taiwanese Black Vinegar)
+Taiwanese Sugar Vinegar (Taiwanese Sweet Vinegar)
+Taiwanese Ginger Vinegar (Taiwanese Ginger Sweet Vinegar)
+Taiwanese Pig Trotters in Ginger Vinegar (Pig’s Trotters Ginger Vinegar Stew)
+Taiwanese Pig Knuckles in Ginger Vinegar (Braised Pork Knuckles with Sweet Vinegar)
+Taiwanese Ginger Vinegar with Eggs (Ginger Vinegar Eggs)
+Taiwanese Ginger Vinegar Chicken (Chicken Braised in Sweet Ginger Vinegar)
+Taiwanese Sweet Vinegar Fish (Sweet Vinegar Braised Fish)
+Taiwanese Black Vinegar Fish Soup (Sour Black Vinegar Fish Soup)
+Taiwanese Black Vinegar Pork Rib Soup (Sour Pork Rib Soup with Black Vinegar)
+Taiwanese Vinegar Pork Knuckle Soup (Pork Knuckle Soup with Black Vinegar)
+Taiwanese Vinegar Chicken Soup (Chicken Soup with Black Vinegar)
+Taiwanese Vinegar Noodle Soup (Sour Noodle Soup with Black Vinegar)
+Taiwanese Black Vinegar Noodles (Noodles with Black Vinegar Sauce)
+Taiwanese Dry Noodles with Black Vinegar (Dry Tossed Noodles with Black Vinegar)
+Taiwanese Vinegar Chili Sauce (Taiwanese Black Vinegar Chili Sauce)
+Taiwanese Vinegar Garlic Sauce (Garlic Black Vinegar Sauce)
+Taiwanese Vinegar Soy Sauce Blend (Black Vinegar Soy Sauce Condiment)
+Taiwanese Pickled Ginger in Sweet Vinegar (Sweet Vinegar Pickled Ginger)
+Taiwanese Pickled Daikon in Vinegar (Sweet Vinegar Pickled Daikon Radish)
+Taiwanese Pickled Cabbage in Vinegar (Taiwanese Vinegar Pickled Cabbage)
+Taiwanese Pickled Mustard Greens in Vinegar (Sour Pickled Mustard Greens)
+Taiwanese Vinegar Cold Cucumbers (Cold Cucumbers with Sweet Vinegar)
+Taiwanese Vinegar Cold Jellyfish (Cold Jellyfish with Vinegar Sauce)
+Taiwanese Vinegar Cold Squid (Cold Squid with Black Vinegar Sauce)
+Taiwanese Vinegar Dipping Sauce (Taiwanese Dumpling Vinegar Sauce)
+Taiwanese Vinegar Dumplings (Dumplings with Black Vinegar)
+Taiwanese Vinegar Braised Tofu (Tofu Braised in Black Vinegar)
+Taiwanese Vinegar Braised Eggs (Eggs Braised in Sweet Black Vinegar)
+Taiwanese Vinegar Chicken Feet (Chicken Feet Braised in Black Vinegar)
+Taiwanese Vinegar Pork Belly (Pork Belly Braised with Black Vinegar)
+
+Beef Noodle Soup (Taiwanese Braised Beef Noodle Soup)
+Clear Broth Beef Noodle Soup (Qing Dun Beef Noodle Soup)
+Red-Braised Beef Noodle Soup (Hong Shao Beef Noodle Soup)
+Sichuan-Style Spicy Beef Noodle Soup (Ma La Beef Noodle Soup)
+Braised Pork Rice (Lu Rou Fan)
+Minced Pork Rice (Rou Zao Fan)
+Turkey Rice (Chiayi Turkey Rice)
+Three-Cup Chicken (San Bei Ji / Three-Cup Chicken)
+Oyster Omelet (Taiwanese Oyster Omelet)
+Scallion Pancake (Taiwanese Scallion Pancake)
+Beef Scallion Pancake Roll (Beef Roll with Scallion Pancake)
+Gua Bao (Taiwanese Pork Belly Bun)
+Taiwanese Fried Chicken Cutlet (Popcorn Chicken Steak)
+Popcorn Chicken (Taiwanese Popcorn Chicken)
+Sweet Potato Fries (Taiwanese Sweet Potato Fries)
+Stinky Tofu (Fermented Tofu)
+Deep-Fried Stinky Tofu (Fried Fermented Tofu)
+Steamed Stinky Tofu (Steamed Fermented Tofu)
+Braised Stinky Tofu (Braised Fermented Tofu)
+Pig Intestine with Ginger (Taiwanese Ginger Intestines)
+Oyster Vermicelli (Oyster Mee Sua)
+Pig’s Blood Cake (Taiwanese Rice Blood Cake)
+Braised Pork Knuckle (Taiwanese Braised Pork Knuckle)
+Salt and Pepper Squid (Taiwanese Salted Squid)
+Taiwanese Sausage (Sweet Pork Sausage)
+Sausage with Garlic (Taiwanese Sausage and Garlic)
+Ba-Wan (Taiwanese Meatball Dumpling)
+Rice Noodle Soup (Taiwanese Rice Noodle Soup)
+Dan Zai Noodles (Tainan Danzai Noodles)
+Sesame Oil Chicken Soup (Sesame Oil Chicken)
+Taiwanese Hot Pot (Taiwan-Style Hot Pot)
+Milkfish Congee (Milkfish Rice Porridge)
+Milkfish Belly Soup (Milkfish Soup)
+Stewed Cabbage (Taiwanese Braised Cabbage)
+Braised Tofu (Taiwanese Braised Tofu)
+Tea Eggs (Taiwanese Tea-Leaf Eggs)
+Braised Eggs (Soy-Braised Eggs)
+Taiwanese Pickled Mustard Greens (Suan Cai)
+Suan Cai Beef Soup (Pickled Mustard Green Beef Soup)
+Fried Rice Vermicelli (Taiwanese Fried Rice Noodles)
+Taiwanese Braised Assorted Meats (Lu Wei)
+Shacha Beef (Beef with Shacha Sauce)
+Shacha Pork (Pork with Shacha Sauce)
+Salt-Baked Chicken (Taiwanese Salt-Baked Chicken)
+Five-Spice Soy Sauce Chicken (Taiwanese Soy Sauce Chicken)
+Taiwanese Cold Noodles (Cold Sesame Noodles)
+Aiyu Jelly (Fig Seed Jelly)
+Taro Ball Dessert (Taiwanese Taro Balls)
+Grass Jelly Dessert (Herbal Grass Jelly)
+Shaved Ice with Condensed Milk (Taiwanese Shaved Ice)
+Pineapple Cake (Taiwanese Pineapple Pastry)
+Sun Cake (Taiwanese Malt Pastry)
+Wheel Cake (Taiwanese Filled Pancake)
+Castella Cake (Taiwanese Castella Sponge Cake)
+Bubble Milk Tea (Pearl Milk Tea)
+Winter Melon Tea (Winter Melon Drink)
+Herbal Tea (Taiwanese Cooling Herbal Tea)
+Soy Milk with Fried Dough (Soy Milk and Youtiao)
+
+Taiwan High Mountain Oolong Tea
+Dong Ding Oolong Tea (Frozen Summit Oolong Tea)
+Alishan Oolong Tea (Alishan High Mountain Oolong Tea)
+Baozhong Tea (Pouchong Tea)
+Oriental Beauty Tea (Eastern Beauty Oolong Tea)
+Tieguanyin Tea (Iron Goddess Oolong Tea)
+Sun Moon Lake Black Tea (Ruby Black Tea No. 18)
+Taiwan Black Tea with Milk (Taiwanese Milk Tea)
+Classic Bubble Milk Tea (Pearl Milk Tea)
+Black Sugar Bubble Milk Tea (Brown Sugar Pearl Milk Tea)
+Fresh Milk Black Sugar Boba (Brown Sugar Boba Milk)
+Taro Milk Tea
+Matcha Milk Tea
+Oolong Milk Tea
+Jasmine Green Milk Tea
+Roasted Oolong Milk Tea
+Winter Melon Tea
+Winter Melon Milk Tea
+Honey Green Tea
+Honey Black Tea
+Lemon Green Tea
+Lemon Black Tea
+Aiyu Jelly Tea (Fig Jelly Tea)
+Grass Jelly Tea (Herbal Jelly Tea)
+Grass Jelly Milk Tea
+Herbal Tea (Traditional Taiwanese Herbal Tea)
+Bitter Tea (Taiwanese Herbal Cooling Tea)
+Cheese Tea (Cream Cheese Tea)
+Cheese Oolong Tea
+Cheese Green Tea
+Cheese Black Tea
+Fruit Tea (Taiwanese Mixed Fruit Tea)
+Passion Fruit Green Tea
+Mango Green Tea
+Pineapple Green Tea
+Lychee Green Tea
+Yakult Green Tea (Probiotic Green Tea)
+Yakult Lemon Green Tea
+Osmanthus Oolong Tea
+Longan Red Date Tea (Longan and Jujube Tea)
+Ginger Brown Sugar Tea
+Ginger Milk Tea
+Roasted Barley Tea (Taiwanese Barley Tea)
+
+Papaya Milk (Taiwanese Papaya Milk)
+Peanut Milk (Taiwanese Peanut Milk)
+Sesame Milk (Black Sesame Milk)
+Taro Milk (Taro Fresh Milk)
+Sweet Potato Milk (Sweet Potato Milk)
+Brown Sugar Milk (Brown Sugar Fresh Milk)
+Strawberry Milk (Fresh Strawberry Milk)
+Banana Milk (Banana Milk)
+Watermelon Milk (Watermelon Milk)
+Avocado Milk (Avocado Milk)
+Almond Milk (Sweet Almond Milk)
+Red Bean Milk (Red Bean Milk)
+Green Bean Milk (Mung Bean Milk)
+Fresh Milk (Plain Fresh Milk)
+Hot Fresh Milk (Heated Fresh Milk)
+Cold Fresh Milk (Chilled Fresh Milk)
+Milk Pudding (Taiwanese Milk Pudding)
+Steamed Milk Custard (Steamed Milk Custard Dessert)
+Double-Skin Milk (Double-Skin Milk Custard)
+Caramel Milk Pudding (Caramel Milk Pudding)
+Grass Jelly Milk (Grass Jelly Milk)
+
+Hua Mei Plum (Dried Salted Plum Snack)
+Gan Mei Plum (Sweet Dried Plum)
+Li Hing Mui–Style Dried Plum (Taiwanese Sweet-Salty Plum)
+Dried Mango Slices (Taiwanese Style Sweet Dried Mango)
+Dried Guava (Sweet Preserved Guava)
+Dried Pineapple Rings (Sweet Preserved Pineapple)
+Dried Papaya Strips (Sweet Preserved Papaya)
+Dried Starfruit (Sweet Preserved Starfruit)
+Dried Roselle (Preserved Roselle Calyces)
+Dried Kumquat (Preserved Kumquat)
+Candied Orange Peel (Sweet Preserved Citrus Peel)
+Candied Pomelo Peel (Sweet Preserved Pomelo Rind)
+Dried Longan (Sun-Dried Longan Fruit)
+Longan and Red Date Sweet Soup (Dried Longan and Jujube Dessert Soup)
+Red Date Tea (Dried Jujube Herbal Tea)
+Eight-Treasure Sweet Soup (Mixed Dried Fruit and Grain Dessert Soup)
+Dried Fruit Pineapple Cake (Preserved Fruit Filled Pineapple Pastry)
+Dried Longan Pineapple Cake (Longan-Flavored Pineapple Pastry)
+Dried Fruit Nougat (Taiwanese Milk Candy with Dried Fruit)
+Dried Cranberry Nougat (Milk Candy with Dried Cranberries)
+Dried Fruit Snowflake Crisp (Taiwanese Marshmallow Biscuit Candy)
+Dried Mango Snowflake Crisp (Mango Marshmallow Biscuit Candy)
+Dried Fruit Sun Cake (Preserved Fruit Filled Taiwanese Pastry)
+Dried Longan Rice Cake (Sticky Rice Cake with Dried Longan)
+Dried Fruit Mochi (Sticky Rice Cake with Preserved Fruit)
+
+Sun-Dried Daikon Radish (Dehydrated Daikon Strips)
+Chai Po (Preserved Sweet-Salty Dried Radish)
+Sun-Dried Mustard Greens (Dehydrated Pickled Mustard Greens)
+Mei Gan Cai (Sun-Dried Preserved Mustard Greens)
+Sun-Dried Bok Choy (Dehydrated Bok Choy Greens)
+Sun-Dried Sweet Potato Slices (Dehydrated Sweet Potato Chips)
+Sun-Dried Taro Slices (Dehydrated Taro Root)
+Sun-Dried Pumpkin Slices (Dehydrated Pumpkin)
+Sun-Dried Bamboo Shoots (Dehydrated Bamboo Shoots)
+Sun-Dried Napa Cabbage (Dehydrated Chinese Cabbage)
+Sun-Dried Water Spinach (Dehydrated Ong Choy)
+Sun-Dried Chives (Dehydrated Chinese Chives)
+Sun-Dried Shallots (Dehydrated Taiwanese Shallots)
+Fried Shallot Flakes (Crispy Dehydrated Shallots)
+Sun-Dried Garlic Slices (Dehydrated Garlic Chips)
+Sun-Dried Ginger Slices (Dehydrated Ginger)
+Sun-Dried Chili Peppers (Dehydrated Taiwanese Chilies)
+Sun-Dried Basil Leaves (Dehydrated Taiwanese Basil)
+Sun-Dried Perilla Leaves (Dehydrated Shiso Leaves)
+Sun-Dried Lemongrass (Dehydrated Lemongrass Stalks)
+Sun-Dried Shiitake Mushrooms (Dehydrated Shiitake Mushrooms)
+Sun-Dried King Oyster Mushrooms (Dehydrated King Oyster Mushrooms)
+Sun-Dried Wood Ear Mushrooms (Dehydrated Black Fungus)
+Sun-Dried Straw Mushrooms (Dehydrated Straw Mushrooms)
+Sun-Dried Enoki Mushrooms (Dehydrated Enoki Mushrooms)
+Dried Oyster Mushrooms (Dehydrated Oyster Mushrooms)
+Dried Squid (Dehydrated Squid)
+Shredded Dried Squid (Dehydrated Seasoned Squid Strips)
+Dried Anchovies (Dehydrated Small Anchovies)
+Dried Whitebait (Dehydrated Baby Fish)
+Dried Flying Fish (Dehydrated Flying Fish)
+Dried Bonito Flakes (Dehydrated Bonito Shavings)
+Dried Shrimp (Dehydrated Shrimp)
+Dried Baby Shrimp (Dehydrated Tiny Shrimp)
+Shrimp Floss (Dehydrated Shrimp Floss)
+Pork Floss (Dehydrated Pork Floss)
+Chicken Floss (Dehydrated Chicken Floss)
+Fish Floss (Dehydrated Fish Floss)
+Dried Pork Jerky (Dehydrated Taiwanese Pork Jerky)
+Sweet Pork Jerky (Dehydrated Sweet Pork Jerky)
+Spicy Pork Jerky (Dehydrated Spicy Pork Jerky)
+Honey Pork Jerky (Dehydrated Honey-Glazed Pork Jerky)
+Dried Beef Jerky (Dehydrated Taiwanese Beef Jerky)
+Sweet Beef Jerky (Dehydrated Sweet Beef Jerky)
+Spicy Beef Jerky (Dehydrated Spicy Beef Jerky)
+Dried Duck Jerky (Dehydrated Duck Jerky)
+Dried Chicken Jerky (Dehydrated Chicken Jerky)
+Dried Sausage (Dehydrated Taiwanese Sausage)
+Sweet Taiwanese Sausage (Dehydrated Sweet Pork Sausage)
+Garlic Taiwanese Sausage (Dehydrated Garlic Pork Sausage)
+Dried Liver Sausage (Dehydrated Taiwanese Liver Sausage)
+Sun-Dried Pork Belly (Dehydrated Pork Belly)
+Sun-Dried Salted Fish (Dehydrated Salted Fish)
+Dried Milkfish Belly (Dehydrated Milkfish Belly)
+Sun-Dried Milkfish (Dehydrated Milkfish Fillets)
+Sun-Dried Yellow Croaker (Dehydrated Yellow Croaker)
+Sun-Dried Mullet Roe (Dehydrated Mullet Roe)
+Dried Bonito (Dehydrated Whole Bonito)
+Dried Clams (Dehydrated Clams)
+Dried Scallops (Dehydrated Dried Scallops)
+Sun-Dried Tofu Sheets (Dehydrated Tofu Skin)
+Dried Firm Tofu Cubes (Dehydrated Tofu Cubes)
+Sun-Dried Soybean Curd Sticks (Dehydrated Yuba Sticks)
+Sun-Dried Sweet Potato Vermicelli (Dehydrated Sweet Potato Glass Noodles)
+Sun-Dried Rice Vermicelli (Dehydrated Rice Noodles)
+Sun-Dried Wheat Noodles (Dehydrated Taiwanese Noodles)
+Dried Oyster Omelette Mix (Dehydrated Oyster Omelette Components)
+Dried Herbal Tea Mix (Dehydrated Taiwanese Herbal Tea Ingredients)
+Sun-Dried Roselle Calyxes (Dehydrated Roselle Hibiscus)
+Sun-Dried Longan (Dehydrated Longan Fruit)
+Dried Red Dates (Dehydrated Jujubes)
+Dried Goji Berries (Dehydrated Goji Berries)
+Sun-Dried Pineapple Slices (Dehydrated Pineapple)
+Sun-Dried Mango Slices (Dehydrated Mango)
+Sun-Dried Guava Slices (Dehydrated Guava)
+Sun-Dried Papaya Slices (Dehydrated Papaya)
+Sun-Dried Banana Slices (Dehydrated Banana Chips)
+Sun-Dried Sugar Apple Slices (Dehydrated Custard Apple)
+Sun-Dried Citrus Peel (Dehydrated Mandarin Peel)
+Dried Pomelo Peel (Dehydrated Pomelo Rind)
+Dried Sweet Potato Leaves (Dehydrated Sweet Potato Greens)
+
+Plain Yogurt (Taiwanese-Style Fresh Yogurt)
+Honey Yogurt (Honey-Sweetened Yogurt)
+Fruit Yogurt (Fresh Fruit Yogurt)
+Strawberry Yogurt (Strawberry Yogurt)
+Mango Yogurt (Mango Yogurt)
+Blueberry Yogurt (Blueberry Yogurt)
+Passion Fruit Yogurt (Passion Fruit Yogurt)
+Banana Yogurt (Banana Yogurt)
+Papaya Yogurt (Papaya Yogurt)
+Pineapple Yogurt (Pineapple Yogurt)
+Mixed Fruit Yogurt (Assorted Fruit Yogurt)
+Yogurt Parfait (Fruit and Granola Yogurt Parfait)
+Greek-Style Yogurt (Thick-Style Yogurt)
+Drinking Yogurt (Yogurt Drink)
+Probiotic Yogurt Drink (Cultured Yogurt Beverage)
+Honey Lemon Yogurt Drink (Honey Lemon Yogurt Beverage)
+Yakult-Style Yogurt Drink (Cultured Milk Yogurt Drink)
+Frozen Yogurt (Frozen Yogurt Dessert)
+Fruit Frozen Yogurt (Fruit Frozen Yogurt)
+Yogurt Shaved Ice (Yogurt Snow Ice)
+Fruit Yogurt Shaved Ice (Fruit Yogurt Snow Ice)
+Yogurt Soft Serve (Yogurt Soft Ice Cream)
+Yogurt Smoothie (Yogurt Smoothie Drink)
+Avocado Yogurt Smoothie (Avocado Yogurt Smoothie)
+Mango Yogurt Smoothie (Mango Yogurt Smoothie)
+Yogurt Bowl (Yogurt Breakfast Bowl)
+Nuts and Honey Yogurt (Nut and Honey Yogurt)
+Yogurt with Boba (Yogurt with Tapioca Pearls)
+Yogurt Jelly Cup (Yogurt Jelly Dessert Cup)
+
+Soy Sauce (Taiwanese-Style Light Soy Sauce)
+Dark Soy Sauce (Taiwanese Dark Soy Sauce)
+Thick Soy Sauce (Taiwanese Soy Sauce Paste)
+Sweet Soy Sauce (Taiwanese Sweet Soy Sauce)
+Soy Sauce with Garlic (Garlic Soy Sauce)
+Soy Sauce with Chili (Chili Soy Sauce)
+Soy Paste (Taiwanese Yellow Soybean Paste)
+Sweet Soybean Paste (Sweet Soy Paste)
+Fermented Black Bean Sauce (Taiwanese Black Bean Sauce)
+Sha Cha Sauce (Taiwanese Barbecue Seafood Sauce)
+Oyster Sauce (Taiwanese Oyster Sauce)
+Garlic Chili Sauce (Taiwanese Garlic Chili Sauce)
+Chili Paste (Taiwanese Chili Paste)
+Chili Oil (Taiwanese Chili Oil)
+Fried Chili Sauce (Taiwanese Crispy Chili Sauce)
+Pickled Chili Sauce (Taiwanese Pickled Chili Sauce)
+Sweet Chili Sauce (Taiwanese Sweet Chili Sauce)
+Scallion Oil (Taiwanese Scallion Oil)
+Fried Shallot Oil (Taiwanese Shallot Oil)
+Crispy Fried Shallots (Fried Shallot Topping)
+Pork Lard Oil (Taiwanese Rendered Pork Fat Seasoning)
+Sesame Oil (Taiwanese Black Sesame Oil)
+Ginger Sesame Oil Sauce (Ginger Sesame Dressing)
+Rice Wine Seasoning (Taiwanese Rice Wine)
+Shaoxing-Style Cooking Wine (Taiwanese Cooking Wine)
+Five-Spice Powder (Taiwanese Five-Spice Blend)
+White Pepper Salt (Taiwanese Pepper Salt)
+Garlic Pepper Salt (Taiwanese Garlic Pepper Salt)
+Basil Pepper Salt (Taiwanese Basil Pepper Salt)
+Plum Powder (Taiwanese Sour Plum Powder)
+Pickled Mustard Greens Paste (Preserved Mustard Greens Seasoning)
+Fermented Chili Bean Paste (Taiwanese Chili Bean Paste)
+
+Shacha Sauce (Taiwanese Barbecue Seafood Sauce)
+Garlic Shacha Sauce (Garlic-Forward Taiwanese Shacha Sauce)
+Spicy Shacha Sauce (Chili Shacha Sauce)
+Sweet Shacha Sauce (Sweetened Taiwanese Shacha Sauce)
+Taiwanese Chili Oil (Fragrant Chili Oil)
+Taiwanese Chili Crisp (Crispy Chili Condiment)
+Garlic Chili Sauce (Taiwanese Garlic Chili Paste)
+Sweet Chili Sauce (Taiwanese Sweet Chili Sauce)
+Soy Garlic Sauce (Garlic Soy Sauce Paste)
+Scallion Oil (Taiwanese Green Onion Oil)
+Scallion-Ginger Paste (Green Onion Ginger Sauce)
+Sesame Paste (Chinese Sesame Seed Paste)
+Sweet Sesame Paste (Sweetened Sesame Seed Paste)
+Peanut Paste (Traditional Taiwanese Peanut Paste)
+Sweet Peanut Paste (Sweetened Peanut Spread)
+Black Sesame Paste (Black Sesame Seed Paste)
+Sweet Black Sesame Paste (Sweetened Black Sesame Paste)
+Soybean Paste (Huang Dou Jiang / Yellow Soybean Paste)
+Sweet Soybean Paste (Tian Mian Jiang / Sweet Bean Paste)
+Broad Bean Chili Paste (Doubanjiang, Taiwanese Style)
+Black Bean Sauce (Fermented Black Soybean Sauce)
+Oyster Sauce (Taiwanese Oyster Sauce)
+Garlic Oyster Sauce (Garlic Oyster Sauce Spread)
+Pork Floss Spread (Rou Song Spread)
+Spicy Pork Floss Spread (Chili Pork Floss Spread)
+Taro Paste (Wu A Mi / Taro Root Paste)
+Sweet Potato Paste (Taiwanese Sweet Potato Paste)
+Red Bean Paste (Adzuki Bean Paste)
+White Bean Paste (White Bean Paste Filling)
+Mung Bean Paste (Split Mung Bean Paste)
+Pineapple Jam (Fengli Jam / Pineapple Filling)
+Winter Melon Paste (Candied Winter Melon Paste)
+Sesame Sugar Paste (Sesame Molasses Spread)
+
+Taiwanese Fried Pork Chop (Taiwanese-Style Breaded Pork Cutlet)
+Taiwanese Fried Chicken Cutlet (Taiwanese-Style Breaded Chicken Cutlet)
+Taiwanese Popcorn Chicken (Breaded Fried Chicken Bites)
+Taiwanese Breaded Fish Fillet (Taiwanese-Style Fried Fish)
+Taiwanese Breaded Shrimp (Taiwanese-Style Fried Shrimp)
+Taiwanese Fried Oyster (Breaded Fried Oysters)
+Taiwanese Breaded Squid Rings (Taiwanese-Style Fried Squid)
+Taiwanese Breaded Sweet Potato Fries (Crispy Sweet Potato with Breadcrumbs)
+Taiwanese Fried Tofu with Breadcrumbs (Crispy Breaded Tofu)
+Taiwanese Breaded Eggplant (Crispy Fried Eggplant)
+Taiwanese Fried King Oyster Mushroom (Breaded Fried Mushroom)
+Taiwanese Breaded Chicken Nuggets (Taiwanese-Style Chicken Nuggets)
+Taiwanese Milkfish Cutlet (Breaded Milkfish Fillet)
+Taiwanese Breaded Pork Tenderloin (Crispy Pork Tenderloin Cutlet)
+Taiwanese Breaded Crab Claw (Fried Crab Claw)
+Taiwanese Breaded Shrimp Toast (Shrimp Paste Toast with Breadcrumbs)
+Taiwanese Breaded Fish Cake (Fried Fish Cake with Breadcrumbs)
+Taiwanese Fried Mozzarella Sticks (Breaded Cheese Sticks, Taiwanese Snack-Style)
+Taiwanese Fried Croquette (Breaded Mashed Potato Croquette)
+
+Cong You (Scallion Oil)
+Jiang Cong You (Ginger Scallion Oil)
+Hong Cong You (Fried Shallot Oil)
+Suan You (Garlic Oil)
+Suan La You (Garlic Chili Oil)
+La Jiao You (Chili Oil)
+La Jiao Su You (Chili Crisp Oil)
+Xia You (Shrimp Oil)
+Ji You (Rendered Chicken Fat Oil)
+Ya You (Rendered Duck Fat Oil)
+Zhu You (Rendered Pork Lard)
+Ma You (Sesame Oil)
+Jiang Ma You (Ginger Sesame Oil)
+Hei Ma You (Black Sesame Oil)
+Ku Cha You (Camellia Tea Seed Oil)
+Suan Ku Cha You (Garlic Camellia Oil)
+Cong Ji You (Scallion Chicken Oil)
+
+Taiwanese Black Vinegar Vinaigrette
+San Bei Vinegar Dressing (Three Cup Vinegar Vinaigrette)
+Taiwanese Sesame Oil Soy Vinaigrette
+Taiwanese Sweet Soy Vinaigrette
+Taiwanese Garlic Soy Vinaigrette
+Taiwanese Sugar and Black Vinegar Dressing (Sweet Black Vinegar Vinaigrette)
+Taiwanese Ginger Black Vinegar Dressing
+Taiwanese Rice Vinegar Vinaigrette
+Taiwanese Pickled Ginger Vinegar Dressing
+Taiwanese Scallion Soy Vinaigrette
+Taiwanese Shallot Oil Vinegar Dressing
+Taiwanese Sesame Paste Vinegar Dressing
+Taiwanese Chili Oil Vinegar Dressing
+Taiwanese Chili Garlic Vinegar Dressing
+Taiwanese Plum Vinegar Dressing
+Taiwanese Kumquat Vinegar Dressing
+Taiwanese Sugar Cane Vinegar Dressing
+Taiwanese Soy Sauce Vinegar Dressing
+Taiwanese Cold Noodle Sesame Vinegar Dressing
+Taiwanese Cold Vegetable Vinegar Dressing
+
+Taiwanese Sausage (Sweet Pork Sausage)
+Taiwanese Garlic Sausage
+Kaoliang Sausage (Sorghum Liquor Sausage)
+Makauy Sausage (Taiwan Indigenous Mountain Peppercorn Sausage)
+Wild Boar Sausage (Taiwanese Mountain Boar Sausage)
+Rice Sausage (Sticky Rice Sausage)
+Sausage in a Sausage (Large Sausage Wrapped Small Sausage)
+Black Sesame Sausage (Taiwanese Sesame Pork Sausage)
+Flying Fish Sausage (Orchid Island Style Fish Sausage)
+Iberico-Style Taiwanese Sausage
+Lu Rou Fan (Braised Pork Rice)
+Minced Pork Rice (Minced Pork Sauce Rice)
+Kong Rou Fan (Braised Pork Belly Rice)
+Braised Pork Belly Rice Bowl
+Taiwanese Soy-Braised Pork Rice
+Beef Noodle Soup (Taiwanese Beef Noodle Soup)
+Clear Broth Beef Noodle Soup
+Red-Braised Beef Noodle Soup
+Tomato Beef Noodle Soup
+Braised Beef Shank Noodle Soup
+Oyster Omelette (Taiwanese Oyster Omelet)
+Shrimp Omelette (Taiwanese Shrimp Omelet)
+Scallop Omelette (Seafood Omelet)
+Three-Cup Chicken (Sanbeiji, Three-Cup Chicken)
+Three-Cup Squid (Three-Cup Squid Stir-Fry)
+Three-Cup Mushrooms (Three-Cup Mushroom Stir-Fry)
+Popcorn Chicken (Taiwanese Popcorn Chicken)
+Salt and Pepper Chicken (Taiwanese Fried Chicken Bites)
+Fried Chicken Cutlet (Taiwanese Crispy Chicken Cutlet)
+Braised Pork Knuckle (Taiwanese Braised Pork Knuckle)
+Braised Pork Trotter with Peanuts
+Braised Pig’s Feet Rice
+Gua Bao (Taiwanese Pork Belly Bun)
+Steamed Pork Belly Bao
+Taiwanese Hamburger (Pork Belly Steamed Bun)
+Scallion Pancake (Taiwanese Scallion Pancake)
+Stuffed Scallion Pancake (Scallion Pancake with Beef)
+Egg Scallion Pancake Roll
+Radish Cake (Taiwanese Turnip Cake)
+Fried Radish Cake
+Steamed Radish Cake
+Sticky Rice Dumpling (Taiwanese Zongzi)
+Southern-Style Taiwanese Zongzi
+Northern-Style Taiwanese Zongzi
+Taiwanese Rice Dumpling with Pork and Peanuts
+Braised Cabbage (Taiwanese Braised Napa Cabbage)
+Braised Bamboo Shoots
+Braised Tofu (Taiwanese Braised Tofu)
+Braised Tofu Puffs
+Soy-Braised Eggs (Tea Eggs)
+Tea Eggs (Taiwanese Tea Eggs)
+Soy-Marinated Eggs
+Cold Noodles (Taiwanese Cold Sesame Noodles)
+Sesame Peanut Noodles
+Dry Noodles with Pork Sauce (Taiwanese Dry Noodles)
+Dan Zai Noodles (Slack Season Noodles)
+Shrimp Dan Zai Noodles
+Braised Pork Dan Zai Noodles
+Milkfish Congee (Taiwanese Milkfish Porridge)
+Sweet Potato Congee
+Savory Rice Porridge (Taiwanese Congee)
+Oyster Vermicelli (Taiwanese Oyster Mee Sua)
+Intestine and Oyster Vermicelli Soup
+Mee Sua with Pork Knuckles
+Taiwanese Fried Rice
+Yangzhou-Style Fried Rice (Taiwanese Version)
+Shrimp Fried Rice (Taiwanese Style)
+Salted Fish Fried Rice
+Braised Duck Rice
+Smoked Duck Rice
+Ginger Duck Soup (Taiwanese Ginger Duck Hot Pot)
+Sesame Oil Chicken Soup
+Sesame Oil Chicken Hot Pot
+Herbal Pork Rib Soup (Taiwanese Herbal Soup)
+Winter Melon Pork Rib Soup
+Bitter Melon with Salted Egg
+Bitter Melon with Black Bean Sauce
+Taiwanese Sausage (Sweet Pork Sausage)
+Grilled Taiwanese Sausage
+Sausage with Garlic (Taiwanese Sausage and Garlic)
+Sticky Rice Sausage
+Taiwanese Stinky Tofu (Fermented Tofu)
+Deep-Fried Stinky Tofu
+Steamed Stinky Tofu Hot Pot
+Braised Stinky Tofu
+Sweet Potato Balls (Taiwanese Sweet Potato Balls)
+Taro Balls (Taiwanese Taro Balls)
+Grass Jelly Dessert (Taiwanese Grass Jelly)
+Shaved Ice with Taro and Red Bean
+Mango Shaved Ice (Taiwanese Mango Ice)
+Peanut Ice Cream Roll (Taiwanese Peanut Ice Cream Wrap)
+Pineapple Cake (Taiwanese Pineapple Cake)
+Sun Cake (Taiwanese Sun Cake)
+Wheel Pie (Taiwanese Stuffed Pancake)
+Brown Sugar Bubble Tea (Taiwanese Bubble Milk Tea)
+Classic Milk Tea with Tapioca Pearls
+Winter Melon Tea
+Herbal Tea (Taiwanese Herbal Tea)
+Mu Gua Niu Nai (Papaya Milk Smoothie)
+Mang Guo Sha (Mango Smoothie)
+Niu You Niu Nai (Avocado Milk Smoothie)
+Yu Tou Sha (Taro Smoothie)
+Yu Tou Niu Nai (Taro Milk Smoothie)
+Hei Zhi Ma Sha (Black Sesame Smoothie)
+Hua Sheng Sha (Peanut Smoothie)
+Hong Dou Sha (Red Bean Smoothie)
+Lu Dou Sha (Mung Bean Smoothie)
+Di Gua Sha (Sweet Potato Smoothie)
+Shan Yao Sha (Chinese Yam Smoothie)
+Dou Jiang Sha (Soy Milk Smoothie)
+Xing Ren Sha (Almond Milk Smoothie)
+Cao Mei Sha (Strawberry Smoothie)
+Huo Long Guo Sha (Dragon Fruit Smoothie)
+Ba Le Sha (Guava Smoothie)
+Xi Gua Sha (Watermelon Smoothie)
+Feng Li Sha (Pineapple Smoothie)
+Shi Jia Sha (Soursop Smoothie)
+Xian Cao Sha (Grass Jelly Smoothie)
+Lu Hui Sha (Aloe Vera Smoothie)
+Xiang Jiao Niu Nai (Banana Milk Smoothie)
+Hei Tang Zhen Zhu Sha (Brown Sugar Boba Smoothie)
+Yu Tou Zhen Zhu Sha (Taro Boba Smoothie)
+Kaoliang Liquor (Sorghum Distilled Spirit)
+Kinmen Kaoliang Liquor (Kinmen Sorghum Spirit)
+Aged Kinmen Kaoliang Liquor (Aged Sorghum Spirit)
+Taiwanese Rice Wine (Glutinous Rice Wine)
+Red Yeast Rice Wine (Red Fermented Rice Wine)
+Taiwan Beer (Taiwan Lager Beer)
+Taiwan Beer Gold Medal (Premium Taiwanese Lager)
+Taiwan Beer Mango (Mango-Flavored Taiwanese Beer)
+Taiwan Beer Pineapple (Pineapple-Flavored Taiwanese Beer)
+Taiwan Beer Honey Lager (Honey-Infused Taiwanese Beer)
+High Mountain Oolong Tea Cocktail (Oolong Tea–Based Cocktail)
+Jasmine Green Tea Cocktail (Jasmine Tea–Infused Cocktail)
+Osmanthus Wine (Osmanthus Flower Wine)
+Plum Wine (Taiwanese Plum Liqueur)
+Kumquat Liqueur (Kumquat Fruit Liqueur)
+Lychee Wine (Lychee Fruit Wine)
+Sugarcane Liquor (Sugarcane Distilled Spirit)
+Millet Wine (Indigenous Millet Rice Wine)
+Michiu Rice Wine (Taiwanese Rice Wine)
+Red Yeast Rice Wine (Hong Qu Rice Wine)
+Sweet Rice Wine (Glutinous Rice Wine)
+Aged Rice Wine (Aged Glutinous Rice Wine)
+Shaoxing-Style Rice Wine (Taiwan-Style Rice Wine)
+Millet Wine (Indigenous Millet Wine)
+Sticky Rice Wine (Sweet Fermented Rice Wine)
+Black Rice Wine (Black Glutinous Rice Wine)
+Rice Wine Lees Wine (Rice Lees Fermented Wine)
+Kaoliang Liquor (Sorghum Wine)
+Kinmen Kaoliang Liquor (Kinmen Sorghum Wine)
+Aged Kaoliang Liquor (Aged Sorghum Wine)
+Plum Wine (Taiwanese Plum Wine)
+Green Plum Wine (Qingmei Plum Wine)
+Longan Wine (Longan Fruit Wine)
+Lychee Wine (Lychee Fruit Wine)
+Roselle Wine (Roselle Flower Wine)
+Mulberry Wine (Mulberry Fruit Wine)
+Pineapple Wine (Pineapple Fruit Wine)
+Sugar Apple Wine (Custard Apple Wine)
+Pomelo Wine (Pomelo Fruit Wine)
+Taiwan Beer Gold Medal Lager
+Taiwan Beer Classic Lager
+18 Days Draft Beer (18天台灣生啤酒, 18-Day Fresh Draft Beer)
+Taiwan Beer Pineapple Lager
+Taiwan Beer Mango Lager
+Taiwan Beer Lychee Lager
+Taiwan Beer Longan Honey Lager
+Taiwan Beer Buckwheat Lager
+Taiwan Beer Red Rice Lager
+Taiwan Beer Sweet Potato Lager
+Taiwan Beer Millet Lager (Aboriginal Millet Beer)
+Taiwan Beer Kumquat Lager
+Taiwan Beer Green Tea Lager
+Taiwan Beer Oolong Tea Lager
+Taiwan Beer Black Tea Lager
+Taiwan Beer Wheat Beer
+Taiwan Beer Dark Lager
+Taiwan Beer Amber Lager
+Wu Xiang Fen (Taiwanese Five-Spice Powder)
+Taiwanese White Pepper Salt
+Taiwanese Salt and Pepper Seasoning
+Taiwanese Popcorn Chicken Seasoning
+Shacha Sauce (Taiwanese Barbecue Sauce)
+Taiwanese Black Pepper Sauce
+Taiwanese Garlic Soy Sauce Paste
+Taiwanese Chili Sauce
+Taiwanese Chili Paste
+Taiwanese Chili Oil
+Taiwanese Fried Shallot Powder
+Taiwanese Fried Shallot Oil Seasoning
+Taiwanese Scallion Oil Seasoning
+Sour Plum Powder (Taiwanese Plum Seasoning)
+Taiwanese Basil Salt
+Sand Ginger Salt (Taiwanese Aromatic Ginger Salt)
+Di Gua Pian (Taiwanese Sweet Potato Chips)
+Mei Zi Di Gua Pian (Plum Sweet Potato Chips)
+Hai Tai Di Gua Pian (Seaweed Sweet Potato Chips)
+Taro Chips
+Yu Pian (Taiwanese Taro Chips)
+Mei Zi Yu Pian (Plum Taro Chips)
+Zi Ran Yu Pian (Cumin Taro Chips)
+Sweet Potato Fries Chips
+Purple Sweet Potato Chips
+Purple Yam Chips
+Taiwanese Basil Sweet Potato Chips
+Jiu Ceng Ta Di Gua Pian (Nine-Layer Basil Sweet Potato Chips)
+Garlic Sweet Potato Chips
+Taiwanese Fried Taro Slices
+Taiwanese Crispy Taro Chips
+Taiwanese Pumpkin Chips
+Pumpkin Sweet Potato Chips
+Taiwanese Lotus Root Chips
+Lotus Root Crisps
+Taiwanese Okra Chips
+Fried Okra Chips
+Taiwanese Shiitake Mushroom Chips
+Crispy Shiitake Chips
+Taiwanese King Oyster Mushroom Chips
+Crispy King Oyster Mushroom Chips
+Taiwanese Fried Enoki Mushroom Chips
+Enoki Mushroom Crisps
+Taiwanese Squid Chips
+Crispy Squid Chips
+Taiwanese Chicken Skin Chips
+Crispy Chicken Skin Chips
+Taiwanese Pork Rind Chips
+Crispy Pork Skin Chips
+Taiwanese Seaweed Chips
+Fried Seaweed Crisps
+Taiwanese Shrimp Chips
+Shrimp Crackers (Taiwanese Style)
+Taiwanese Fish Skin Chips
+Crispy Fish Skin Chips
+Taiwanese Fried Banana Chips
+Banana Chips (Taiwanese Style)
+Lu Dan (Braised Tea Eggs)
+Cha Ye Dan (Tea Eggs)
+San Bei Dan (Three Cup Eggs)
+Cong Hua Chao Dan (Scallion Scrambled Eggs)
+Jiu Xiang Chao Dan (Garlic Chive Scrambled Eggs)
+Cai Pu Chao Dan (Preserved Radish Scrambled Eggs)
+Xian Cai Chao Dan (Salted Mustard Greens Scrambled Eggs)
+Fan Qie Chao Dan (Tomato Scrambled Eggs)
+Ku Gua Chao Dan (Bitter Melon Scrambled Eggs)
+Jiu Cai He Zi (Garlic Chive and Egg Fritters)
+Dan Bing (Taiwanese Egg Crepe)
+Dan Bing with Scallions (Scallion Egg Crepe)
+Dan Bing with Cheese (Cheese Egg Crepe)
+Lu Rou Fan with Braised Egg (Braised Pork Rice with Egg)
+Rou Zao Fan with Braised Egg (Minced Pork Rice with Egg)
+Dan Bao (Egg Bun)
+Ji Dan Dou Fu (Steamed Egg Tofu Custard)
+Zheng Dan (Steamed Savory Egg Custard)
+Hai Xian Zheng Dan (Steamed Seafood Egg Custard)
+Cha Ye Lu Dan (Tea-Braised Soy Sauce Eggs)
+Lu Wei Dan (Soy-Braised Snack Eggs)
+Beef Noodle Soup (Taiwanese Braised Beef Noodle Soup)
+Hong Shao Niu Rou Mian (Red-Braised Beef Noodle Soup)
+Qing Dun Niu Rou Mian (Clear Broth Beef Noodle Soup)
+Ban Niu Rou Mian (Half Tendon Half Beef Noodle Soup)
+Dun Niu Rou Mian (Stewed Beef Noodle Soup)
+Niu Rou Gan Mian (Dry Beef Noodles)
+Zha Jiang Mian (Taiwanese Soybean Paste Noodles)
+Ma Jiang Mian (Sesame Sauce Noodles)
+Ma Jiang Ban Mian (Cold Sesame Noodles)
+Gan Ban Mian (Dry Mixed Noodles)
+You Cong Ban Mian (Scallion Oil Noodles)
+Cong You Mian (Scallion Oil Noodle Soup)
+Dan Zai Mian (Tainan担仔面 Shrimp Noodles)
+Tainan Dan Zai Mian (Tainan-Style Shrimp Noodles)
+Oyster Vermicelli (Oyster Mee Sua)
+Ee Ah Mee Sua (Taiwanese Vermicelli Soup)
+Mee Sua with Pork Intestine (Pork Intestine Vermicelli Soup)
+Mee Sua with Chicken (Chicken Vermicelli Soup)
+Lu Rou Fan Noodles (Braised Pork Sauce Noodles)
+Rou Zao Mian (Minced Pork Sauce Noodles)
+Taiwanese Minced Pork Noodles (Rou Zao Gan Mian)
+Pig Trotter Noodles (Braised Pork Knuckle Noodles)
+Pork Rib Noodle Soup (Taiwanese Pork Rib Noodles)
+Spare Rib Noodles (Pai Gu Mian)
+Tomato Beef Noodle Soup (Tomato Beef Noodles)
+Sour Cabbage Beef Noodle Soup (Pickled Mustard Beef Noodles)
+Spicy Beef Noodle Soup (Mala Beef Noodles)
+Cold Sesame Noodles (Taiwanese Liang Mian)
+Liang Mian with Sesame Sauce (Taiwanese Cold Noodles)
+Fish Ball Noodle Soup (Taiwanese Fish Ball Noodles)
+Milkfish Noodles (Taiwanese Milkfish Noodle Soup)
+Squid Noodle Soup (Taiwanese Squid Noodles)
+Seafood Noodle Soup (Taiwanese Mixed Seafood Noodles)
+Taiwanese Black Vinegar Noodles (Sour Vinegar Noodles)
+Garlic Noodles (Taiwanese Garlic Tossed Noodles)
+Hand-Pulled Noodles Taiwanese Style (Taiwanese Knife-Cut Noodles)
+Knife-Cut Beef Noodles (Taiwanese Dao Xiao Beef Noodles)
+Soy Sauce Paste
+Thick Soy Sauce (Soy Sauce Paste)
+Sweet Soy Sauce (Sweetened Soy Sauce)
+Black Bean Soy Sauce (Fermented Black Bean Soy Sauce)
+Taiwanese Rice Soy Sauce (Rice-Based Soy Sauce)
+Soy Sauce with Garlic
+Soy Sauce with Chili
+Soy Sauce with Sugar
+Soy Sauce with Scallions
+Soy Sauce with Sesame Oil
+
+Sha Cha Sauce (Barbecue Sauce)
+Beef Sha Cha Sauce
+Seafood Sha Cha Sauce
+Sha Cha Sauce with Garlic
+Sha Cha Sauce with Chili
+
+Chili Oil
+Chili Oil with Garlic
+Chili Oil with Dried Shrimp
+Chili Oil with Fermented Black Beans
+Chili Oil with Shallots
+
+Chili Sauce
+Taiwanese Red Chili Sauce
+Sweet Chili Sauce
+Garlic Chili Sauce
+Soybean Chili Sauce
+
+Doubanjiang (Fermented Broad Bean Chili Paste)
+Sweet Doubanjiang (Sweet Bean Paste)
+
+Tianmianjiang (Sweet Flour Sauce)
+
+Black Vinegar
+Sweet Black Vinegar
+Garlic Black Vinegar Sauce
+
+Pickled Mustard Greens (Pickled Mustard Greens Condiment)
+Preserved Mustard Greens (Salted Mustard Greens)
+
+Fermented Tofu (Fermented Bean Curd)
+Spicy Fermented Tofu
+Red Fermented Tofu
+White Fermented Tofu
+
+Peanut Powder with Sugar (Sweet Peanut Powder)
+
+Scallion Oil
+Shallot Oil
+Fried Shallot Oil
+
+Fried Garlic Oil
+
+Five-Spice Powder
+
+White Pepper Salt
+Five-Spice Salt
+
+Taiwanese Meat Sauce (Braised Pork Sauce)
+
+Sweet Rice Wine Sauce
+
+Sugar Syrup
+
+Plum Sauce
+Salted Plum Sauce
+
+Ginger Sauce
+Ginger Soy Sauce
+
+Garlic Sauce
+Garlic Soy Sauce
+
+Sesame Oil Sauce
+
+Pickled Chili Peppers
+
+Pickled Radish (Pickled White Radish Condiment)
+
+Sweet Chili Soy Dip
+
+Taiwanese Hot Pot Dipping Sauce
+Douhua (Soft Tofu Pudding)
+Hot Douhua with Peanut Topping (Hot Tofu Pudding with Peanuts)
+Cold Douhua with Syrup (Chilled Tofu Pudding)
+Xian Doujiang (Savory Soy Milk Soup)
+Tian Doujiang (Sweet Soy Milk)
+Soy Milk with Youtiao (Soy Milk with Fried Dough Sticks)
+Black Sesame Soup (Zhi Ma Hu)
+Black Sesame Sweet Soup (Tang Zhi Ma Hu)
+Xing Ren Doufu (Almond Tofu Dessert)
+Almond Milk (Taiwanese Almond Beverage)
+Peanut Soup (Hua Sheng Tang)
+Sweet Peanut Soup (Tang Hua Sheng Tang)
+Braised Peanuts (Lu Hua Sheng)
+Five-Spice Peanuts (Wu Xiang Hua Sheng)
+Soy-Braised Peanuts (Jiang You Hua Sheng)
+Taiwanese Edamame (Soy-Braised Green Soybeans)
+Muaji (Taiwanese Peanut Mochi)
+Peanut Tangyuan (Glutinous Rice Balls with Peanut Filling)
+Black Sesame Tangyuan (Glutinous Rice Balls with Sesame Filling)
+Hua Sheng Tang Candy (Taiwanese Peanut Brittle)
+Black Sesame Brittle (Sesame Crunch Candy)
+Peanut Ice Cream Roll (Run Bing Ice Cream Burrito)
+Sesame Oil Chicken with Black Sesame (Sesame Chicken with Sesame Seeds)
+Baobing (Taiwanese Shaved Ice)
+Xuehua Bing (Snow Ice)
+Aiyu Bing (Aiyu Jelly Ice)
+Douhua Bing (Tofu Pudding Ice)
+Taro Shaved Ice
+Black Sesame Shaved Ice
+Mango Shaved Ice
+Strawberry Shaved Ice
+Peanut Shaved Ice
+Red Bean Shaved Ice
+Grass Jelly Ice
+Brown Sugar Shaved Ice
+Peanut Ice Cream Roll
+Cilantro Peanut Ice Cream Roll
+Taro Ice Cream
+Black Sesame Ice Cream
+Mango Ice Cream
+Milk Tea Ice Cream
+Oolong Tea Ice Cream
+Jasmine Tea Ice Cream
+Brown Sugar Milk Ice Cream
+Sweet Potato Ice Cream
+Pineapple Ice Cream
+Lychee Ice Cream
+Passion Fruit Ice Cream
+Soy Milk Ice Cream
+Black Sugar Soft Serve Ice Cream
+Matcha Soft Serve Ice Cream
+Taro Soft Serve Ice Cream

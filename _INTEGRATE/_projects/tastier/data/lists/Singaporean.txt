@@ -1,0 +1,4158 @@
+Kaya Toast (Coconut Jam Toast)
+Butter Kaya Toast (Butter Coconut Jam Toast)
+Kaya Toast Set (Toast with Soft-Boiled Eggs and Coffee)
+Soft-Boiled Eggs (Singapore-Style Soft Eggs)
+Soy Sauce and White Pepper Eggs (Singapore Soft-Boiled Eggs)
+Half-Boiled Eggs (Singapore Kopitiam Eggs)
+Kopi (Singapore Coffee)
+Kopi O (Black Singapore Coffee)
+Kopi C (Coffee with Evaporated Milk)
+Teh (Singapore Milk Tea)
+Teh O (Black Singapore Tea)
+Teh C (Tea with Evaporated Milk)
+Yuan Yang (Coffee and Tea Mix)
+Roti Prata (Indian-Style Flatbread)
+Plain Roti Prata (Classic Roti Prata)
+Egg Roti Prata (Egg-Stuffed Flatbread)
+Cheese Roti Prata (Cheese Flatbread)
+Onion Roti Prata (Onion Flatbread)
+Roti Prata with Curry (Flatbread with Curry Dip)
+Roti John (Minced Meat Omelette Sandwich)
+Fried Bee Hoon (Fried Rice Vermicelli)
+Bee Hoon with Fried Egg (Rice Vermicelli with Egg)
+Bee Hoon with Luncheon Meat (Rice Vermicelli with Spam)
+Bee Hoon with Sausage (Rice Vermicelli with Sausage)
+Nasi Lemak (Coconut Rice Breakfast Set)
+Nasi Lemak with Fried Chicken (Coconut Rice with Chicken)
+Nasi Lemak with Ikan Bilis (Coconut Rice with Anchovies)
+Nasi Lemak with Otah (Coconut Rice with Fish Cake)
+Chicken Rice Porridge (Rice Congee)
+Fish Porridge (Fish Rice Congee)
+Century Egg Porridge (Preserved Egg Congee)
+Chee Cheong Fun (Rice Noodle Rolls)
+Chee Cheong Fun with Sweet Sauce (Rice Noodle Rolls with Sweet Sauce)
+Chee Cheong Fun with Peanut Sauce (Rice Noodle Rolls with Peanut Sauce)
+Chee Cheong Fun with Curry Sauce (Rice Noodle Rolls with Curry)
+Youtiao (Fried Dough Sticks)
+Youtiao with Porridge (Fried Dough with Rice Congee)
+Char Kway Teow (Stir-Fried Rice Noodles)
+Breakfast Char Kway Teow (Light Stir-Fried Rice Noodles)
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Short-Noodle Coconut Laksa)
+Economy Rice Breakfast (Mixed Rice Breakfast Plate)
+Fishball Noodle Soup (Fishball Noodles)
+Wanton Noodle Soup (Wonton Noodles)
+Lor Mee (Thick Gravy Noodles)
+Mee Siam (Spicy Tamarind Noodles)
+Mee Rebus (Malay Gravy Noodles)
+Otak-Otak (Grilled Spiced Fish Cake)
+Otak-Otak Sandwich (Fish Cake Sandwich)
+Dim Sum Breakfast Platter (Cantonese Dim Sum Breakfast)
+Steamed Buns (Bao Breakfast Buns)
+Char Siu Bao (Barbecue Pork Bun)
+Lotus Leaf Rice (Sticky Rice Parcel)
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Hainanese Chicken Rice – Roasted Chicken Variant (Roasted Chicken with Fragrant Rice)
+Hainanese Chicken Rice – Soy Sauce Chicken Variant (Dark Soy Chicken with Fragrant Rice)
+Laksa Lemak (Coconut Curry Noodle Soup)
+Katong Laksa (Cut-Noodle Coconut Curry Laksa)
+Assam Laksa (Sour Fish Noodle Soup)
+Bak Chor Mee (Minced Pork Noodles)
+Bak Chor Mee – Soup Version (Minced Pork Noodle Soup)
+Bak Chor Mee – Dry Version (Tossed Minced Pork Noodles)
+Char Kway Teow (Stir-Fried Flat Rice Noodles)
+Char Kway Teow – White Version (Dark-Soy-Free Fried Flat Rice Noodles)
+Char Kway Teow – Black Version (Dark Soy Fried Flat Rice Noodles)
+Chilli Crab (Singapore Chili Crab)
+Black Pepper Crab (Pepper Crab)
+Salted Egg Yolk Crab (Salted Egg Crab)
+Kaya Toast with Soft-Boiled Eggs (Coconut Jam Toast Set)
+Roti Prata (Indian Flatbread)
+Roti Prata – Plain (Plain Griddled Flatbread)
+Roti Prata – Egg (Egg-Stuffed Flatbread)
+Fish Head Curry (Spiced Fish Head Curry)
+Nasi Lemak (Coconut Rice with Sambal)
+Nasi Lemak – Fried Chicken (Coconut Rice with Fried Chicken)
+Nasi Lemak – Ikan Bilis (Coconut Rice with Anchovies)
+Nasi Lemak – Otah (Coconut Rice with Grilled Fish Paste)
+Satay (Grilled Meat Skewers with Peanut Sauce)
+Satay – Chicken (Grilled Chicken Skewers)
+Satay – Beef (Grilled Beef Skewers)
+Satay – Mutton (Grilled Mutton Skewers)
+Mee Goreng (Spiced Fried Yellow Noodles)
+Mee Goreng Mamak (Indian-Style Spicy Fried Noodles)
+Hokkien Mee (Prawn and Pork Noodle Stir-Fry)
+Prawn Mee (Prawn Noodle Soup)
+Dry Prawn Mee (Tossed Prawn Noodles)
+Wanton Mee (Wonton Noodles)
+Dry Wanton Mee (Tossed Wonton Noodles)
+Sliced Fish Soup (Clear Fish Soup with Ginger)
+Fried Fish Soup (Milk-Based Fried Fish Soup)
+Claypot Rice (Charcoal-Cooked Claypot Rice)
+Lor Mee (Thick Gravy Noodles)
+Oyster Omelette (Fried Oyster Egg Omelette)
+Carrot Cake – White (Steamed Radish Cake Stir-Fry)
+Carrot Cake – Black (Dark Soy Radish Cake Stir-Fry)
+Ayam Penyet (Smashed Fried Chicken with Sambal)
+Beef Rendang (Slow-Braised Spiced Beef)
+Mutton Rendang (Slow-Braised Spiced Mutton)
+Otah-Otah (Grilled Spiced Fish Paste)
+Popiah (Fresh Spring Roll)
+Rojak (Singapore Mixed Fruit and Vegetable Salad)
+Ice Kachang (Shaved Ice Dessert)
+Chendol (Pandan Jelly Coconut Dessert)
+Tau Huay (Silken Soybean Pudding)
+Singapore Sling
+Original Raffles Hotel Singapore Sling
+Gin Sling
+Straits Sling
+Malayan Sling
+Pandan Sling
+Calamansi Sling
+Bandung Sling (Rose Syrup Milk Cocktail)
+Bandung Soda Cocktail
+Bandung Float Cocktail
+Tiger Beer Shandy
+Calamansi Sour
+Calamansi Gin Fizz
+Pandan Gin and Tonic
+Pandan Negroni
+Kaya Toast Martini
+Kopi Martini (Singapore Coffee Martini)
+Teh Tarik Cocktail
+Teh O Limau Highball
+Arrack Punch (Straits-Style Arrack Punch)
+
+Singapore Lime Juice
+Calamansi Juice
+Calamansi Soda
+Sugarcane Juice
+Fresh Sugarcane Lime Juice
+Bandung (Rose Syrup Milk Drink)
+Bandung Soda
+Bandung Float
+Teh Tarik (Pulled Milk Tea)
+Teh O (Black Tea Without Milk)
+Teh O Limau (Black Tea with Lime)
+Kopi (Singapore Coffee)
+Kopi O (Black Coffee with Sugar)
+Kopi C (Coffee with Evaporated Milk)
+Kopi O Kosong (Black Coffee Without Sugar)
+Barley Water
+Soursop Juice
+Water Chestnut Drink (Singapore-Style Cooling Drink)
+Kaya Toast (Coconut Jam Toast)
+Butter Sugar Toast (Butter and Sugar Toast)
+Peanut Butter Toast (Peanut Butter Toast)
+Kaya Butter Toast (Coconut Jam and Butter Toast)
+Soft-Boiled Eggs (Half-Boiled Eggs)
+Soy Sauce Pepper Eggs (Soy Sauce and White Pepper Eggs)
+Steamed White Bread with Kaya (Steamed Bread with Coconut Jam)
+
+Traditional Kopi (Singapore-Style Coffee)
+Kopi O (Black Singapore-Style Coffee)
+Kopi C (Coffee with Evaporated Milk)
+Kopi Gao (Strong Singapore-Style Coffee)
+Traditional Teh (Singapore-Style Tea)
+Teh C (Tea with Evaporated Milk)
+Teh Tarik (Pulled Milk Tea)
+
+Nasi Lemak (Coconut Rice with Sambal)
+Nasi Lemak with Fried Chicken (Coconut Rice with Fried Chicken)
+Nasi Lemak with Ikan Bilis and Egg (Coconut Rice with Anchovies and Egg)
+Nasi Lemak with Otah (Coconut Rice with Grilled Fish Cake)
+Nasi Lemak with Beef Rendang (Coconut Rice with Beef Rendang)
+
+Fried Bee Hoon (Fried Rice Vermicelli)
+White Bee Hoon (Plain Rice Vermicelli)
+Bee Hoon with Fried Egg (Rice Vermicelli with Fried Egg)
+Bee Hoon with Luncheon Meat (Rice Vermicelli with Luncheon Meat)
+
+Mee Siam (Spicy Rice Vermicelli in Tamarind Gravy)
+Mee Siam Goreng (Fried Spicy Rice Vermicelli)
+
+Chwee Kueh (Steamed Rice Cakes with Preserved Radish)
+Chee Cheong Fun (Steamed Rice Rolls)
+Chee Cheong Fun with Sweet Sauce (Rice Rolls with Sweet Sauce)
+Chee Cheong Fun with Curry (Rice Rolls with Curry Sauce)
+
+Chai Tow Kway (Fried Radish Cake)
+White Chai Tow Kway (White Fried Radish Cake)
+Black Chai Tow Kway (Dark Soy Fried Radish Cake)
+
+Teochew Porridge (Plain Rice Porridge)
+Fish Porridge (Rice Porridge with Fish)
+Minced Pork Porridge (Rice Porridge with Minced Pork)
+
+Bak Chor Mee (Minced Pork Noodles)
+Dry Bak Chor Mee (Dry Minced Pork Noodles)
+Soup Bak Chor Mee (Minced Pork Noodle Soup)
+
+Fishball Noodles (Fishball Noodle Soup)
+Dry Fishball Noodles (Dry Fishball Noodles)
+
+Wanton Mee (Wonton Noodles)
+Dry Wanton Mee (Dry Wonton Noodles)
+Soup Wanton Mee (Wonton Noodle Soup)
+
+Lor Mee (Braised Noodle Gravy Dish)
+
+Roti Prata (Indian Flatbread)
+Plain Prata (Plain Indian Flatbread)
+Egg Prata (Egg-Stuffed Flatbread)
+Cheese Prata (Cheese Flatbread)
+
+Thosai (South Indian Crepe)
+Plain Thosai (Plain Rice Crepe)
+Masala Thosai (Spiced Potato Crepe)
+
+Idli (Steamed Rice Cakes)
+Sambar Idli (Rice Cakes with Lentil Stew)
+
+Lontong (Rice Cakes in Coconut Vegetable Stew)
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Hainanese Chicken Rice – Roasted Chicken (Roasted Chicken with Fragrant Rice)
+Hainanese Chicken Rice – Soy Sauce Chicken (Soy-Braised Chicken with Fragrant Rice)
+Hainanese Chicken Rice – Boneless Chicken (Boneless Poached Chicken with Fragrant Rice)
+Chicken Rice Set (Chicken Rice with Soup and Condiments)
+Char Kway Teow (Stir-Fried Flat Rice Noodles)
+Char Kway Teow with Cockles (Stir-Fried Flat Rice Noodles with Blood Cockles)
+Char Kway Teow without Cockles (Stir-Fried Flat Rice Noodles)
+White Char Kway Teow (Light Soy Stir-Fried Flat Rice Noodles)
+Black Char Kway Teow (Dark Soy Stir-Fried Flat Rice Noodles)
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Short-Cut Coconut Laksa)
+Curry Laksa (Coconut Curry Noodle Soup)
+Assam Laksa (Tamarind Fish Noodle Soup)
+Fish Head Curry (Curry Fish Head)
+Fish Head Curry with Okra (Curry Fish Head with Vegetables)
+Bak Chor Mee (Minced Pork Noodles)
+Bak Chor Mee – Dry (Minced Pork Noodles, Dry Style)
+Bak Chor Mee – Soup (Minced Pork Noodle Soup)
+Bak Chor Mee with Vinegar (Minced Pork Noodles with Black Vinegar)
+Bak Chor Mee with Liver (Minced Pork Noodles with Pork Liver)
+Wanton Mee (Egg Noodles with Dumplings)
+Wanton Mee – Dry (Egg Noodles with Dumplings, Dry Style)
+Wanton Mee – Soup (Egg Noodle Soup with Dumplings)
+Char Siew Wanton Mee (Roast Pork Dumpling Noodles)
+Roast Duck Rice (Roasted Duck with Rice)
+Roast Duck Noodles (Roasted Duck Noodles)
+Soy Sauce Duck Rice (Soy-Braised Duck with Rice)
+Char Siew Rice (Cantonese Barbecued Pork with Rice)
+Sio Bak Rice (Crispy Roast Pork Belly with Rice)
+Roast Meat Rice (Mixed Cantonese Roast Meats with Rice)
+Nasi Lemak (Coconut Rice with Condiments)
+Nasi Lemak with Fried Chicken (Coconut Rice with Fried Chicken)
+Nasi Lemak with Rendang (Coconut Rice with Beef Rendang)
+Nasi Lemak with Ikan Bilis and Egg (Coconut Rice with Anchovies and Egg)
+Mee Siam (Spicy and Sour Rice Vermicelli)
+Mee Siam Goreng (Fried Mee Siam)
+Mee Rebus (Noodles in Spiced Sweet Gravy)
+Mee Soto (Malay Chicken Noodle Soup)
+Soto Ayam (Chicken Soto Soup)
+Ayam Penyet (Smashed Fried Chicken with Rice)
+Ayam Goreng Berempah (Spiced Fried Chicken)
+Beef Rendang (Slow-Cooked Spiced Beef)
+Mutton Rendang (Slow-Cooked Spiced Mutton)
+Roti Prata (Indian Flatbread)
+Plain Prata (Plain Indian Flatbread)
+Egg Prata (Egg-Stuffed Indian Flatbread)
+Cheese Prata (Cheese-Stuffed Indian Flatbread)
+Prata with Curry (Indian Flatbread with Curry)
+Murtabak (Stuffed Indian Pancake)
+Murtabak Ayam (Chicken Stuffed Indian Pancake)
+Murtabak Daging (Beef Stuffed Indian Pancake)
+Thosai (South Indian Fermented Crepe)
+Masala Thosai (Spiced Potato Dosa)
+Plain Thosai (Plain Fermented Crepe)
+Fishball Noodle Soup (Fish Ball Noodles)
+Fishball Noodles – Dry (Fish Ball Noodles, Dry Style)
+Fishball Noodles – Soup (Fish Ball Noodle Soup)
+Fish Soup (Clear Fish Soup with Rice or Noodles)
+Sliced Fish Soup (Sliced Fish Clear Soup)
+Fried Fish Soup (Milk-Based Fried Fish Soup)
+Claypot Rice (Claypot Rice with Chinese Sausage and Chicken)
+Claypot Chicken Rice (Chicken Claypot Rice)
+Claypot Frog Rice (Frog Leg Claypot Rice)
+Chwee Kueh (Steamed Rice Cakes with Preserved Radish)
+Chee Cheong Fun (Steamed Rice Rolls)
+Chee Cheong Fun with Sweet Sauce (Steamed Rice Rolls with Sweet Sauce)
+Chee Cheong Fun with Curry (Steamed Rice Rolls with Curry)
+Oyster Omelette (Fried Oyster Omelette)
+Carrot Cake – White (Steamed Radish Cake, Fried)
+Carrot Cake – Black (Radish Cake Fried with Dark Soy)
+Hokkien Mee (Prawn and Pork Noodle Stir-Fry)
+Hokkien Prawn Mee (Prawn and Pork Noodles)
+Prawn Mee – Soup (Prawn Noodle Soup)
+Prawn Mee – Dry (Dry Prawn Noodles)
+Lor Mee (Thick Gravy Noodles)
+Kway Chap (Braised Pork Offal with Flat Rice Noodles)
+Kway Chap – Teochew Style (Teochew Braised Pork Noodles)
+Yong Tau Foo (Stuffed Tofu and Vegetables)
+Yong Tau Foo Soup (Stuffed Tofu Soup)
+Yong Tau Foo Dry (Stuffed Tofu with Sauce)
+Economy Rice (Mixed Rice with Assorted Dishes)
+Chicken Chop with Rice (Western-Style Fried Chicken Cutlet with Rice)
+Fish and Chips (Battered Fried Fish with Chips)
+Singapore Chilli Crab (Chilli Crab)
+Singapore Black Pepper Crab (Black Pepper Crab)
+Crab Bee Hoon (Crab with Rice Vermicelli)
+Salted Egg Chicken Rice (Salted Egg Yolk Chicken with Rice)
+Salted Egg Fish Rice (Salted Egg Yolk Fish with Rice)
+Curry Chicken Rice (Chicken Curry with Rice)
+Braised Pork Rice (Braised Pork with Rice)
+Tau Yew Bak (Soy-Braised Pork Belly)
+Hakka Yong Tau Foo (Hakka-Style Stuffed Tofu)
+Hakka Abacus Seeds (Taro Dumplings Stir-Fry)
+Kaya Toast with Butter (Coconut Jam Toast with Butter)
+Kaya Toast Set (Coconut Jam Toast with Soft-Boiled Eggs and Coffee)
+Traditional Kaya Toast (Charcoal-Grilled Coconut Jam Toast)
+Butter Sugar Toast (Butter and Sugar Toast)
+French Toast with Kaya (Kaya French Toast)
+Soft-Boiled Eggs (Traditional Singaporean Soft-Boiled Eggs)
+Half-Boiled Eggs with Soy Sauce and Pepper (Singapore-Style Soft-Boiled Eggs)
+Nasi Lemak (Coconut Rice with Sambal and Accompaniments)
+Nasi Lemak with Fried Chicken (Coconut Rice with Fried Chicken)
+Nasi Lemak with Ikan Bilis and Egg (Coconut Rice with Anchovies and Egg)
+Nasi Lemak with Otah (Coconut Rice with Grilled Fish Cake)
+Nasi Lemak Lemak (Rich Coconut Rice Nasi Lemak)
+Roti Prata (Indian-Style Flatbread)
+Plain Roti Prata (Plain Indian Flatbread)
+Egg Roti Prata (Egg-Filled Flatbread)
+Cheese Roti Prata (Cheese-Filled Flatbread)
+Banana Roti Prata (Banana-Filled Flatbread)
+Roti Prata with Curry (Flatbread with Curry)
+Mee Siam (Spicy Rice Vermicelli)
+Mee Siam Goreng (Fried Spicy Rice Vermicelli)
+Mee Siam Kuah (Rice Vermicelli in Tamarind Gravy)
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Peranakan Coconut Laksa)
+Fishball Noodle Soup (Fishball Noodles)
+Bak Chor Mee (Minced Pork Noodles)
+Bak Chor Mee Soup (Minced Pork Noodle Soup)
+Bak Chor Mee Dry (Dry Minced Pork Noodles)
+Char Kway Teow (Stir-Fried Flat Rice Noodles)
+White Char Kway Teow (White Soy Sauce Fried Rice Noodles)
+Black Char Kway Teow (Dark Soy Sauce Fried Rice Noodles)
+Chee Cheong Fun (Rice Noodle Rolls)
+Chee Cheong Fun with Sweet Sauce (Rice Noodle Rolls with Sweet Sauce)
+Chee Cheong Fun with Curry (Rice Noodle Rolls with Curry)
+Chee Cheong Fun with Youtiao (Rice Noodle Rolls with Fried Dough)
+Lor Mee (Thick Gravy Egg Noodles)
+Hokkien Mee (Prawn and Pork Fried Noodles)
+Carrot Cake (Fried Radish Cake)
+White Carrot Cake (White Fried Radish Cake)
+Black Carrot Cake (Dark Sauce Fried Radish Cake)
+Chwee Kueh (Steamed Rice Cakes with Preserved Radish)
+Tau Huay (Soy Bean Curd Dessert)
+Soy Milk with Youtiao (Soy Milk with Fried Dough Sticks)
+Youtiao (Chinese Fried Dough Sticks)
+Porridge (Singapore-Style Rice Porridge)
+Fish Porridge (Fish Congee)
+Century Egg Porridge (Century Egg Congee)
+Chicken Porridge (Chicken Congee)
+Wanton Mee (Wonton Noodles)
+Wanton Mee Soup (Wonton Noodle Soup)
+Wanton Mee Dry (Dry Wonton Noodles)
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Roasted Chicken Rice (Roast Chicken with Fragrant Rice)
+Soy Sauce Chicken Rice (Soy-Braised Chicken with Rice)
+Char Kway Teow (Stir-Fried Flat Rice Noodles with Seafood and Pork)
+White Char Kway Teow (Pale Stir-Fried Flat Rice Noodles)
+Chilli Crab (Crab in Sweet Spicy Tomato Chilli Sauce)
+Black Pepper Crab (Crab Stir-Fried in Black Pepper Sauce)
+Salted Egg Yolk Crab (Crab with Salted Egg Yolk Sauce)
+Sri Lankan Crab Curry (Spiced Crab Curry)
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Short-Noodle Coconut Laksa)
+Curry Laksa (Coconut Curry Noodle Soup)
+Dry Laksa (Laksa Noodles Without Soup)
+Bak Kut Teh (Peppery Pork Rib Soup)
+Teochew Bak Kut Teh (Clear Pepper Pork Rib Soup)
+Hokkien Bak Kut Teh (Herbal Pork Rib Soup)
+Hokkien Mee (Prawn and Pork Noodle Stir-Fry)
+Fried Hokkien Mee (Wok-Fried Prawn Noodles)
+Mee Goreng Mamak (Indian-Style Fried Yellow Noodles)
+Mee Rebus (Yellow Noodles in Sweet Potato Gravy)
+Nasi Lemak (Coconut Rice with Sambal and Condiments)
+Nasi Lemak Ayam Goreng (Coconut Rice with Fried Chicken)
+Nasi Lemak Rendang (Coconut Rice with Beef Rendang)
+Nasi Goreng (Indonesian-Style Fried Rice)
+Nasi Goreng Kampung (Village-Style Fried Rice)
+Nasi Goreng Pattaya (Omelette-Wrapped Fried Rice)
+Satay Ayam (Grilled Chicken Skewers with Peanut Sauce)
+Satay Kambing (Grilled Mutton Skewers with Peanut Sauce)
+Satay Daging (Grilled Beef Skewers with Peanut Sauce)
+Beef Rendang (Slow-Braised Spiced Beef)
+Chicken Rendang (Slow-Braised Spiced Chicken)
+Ayam Penyet (Smashed Fried Chicken with Sambal)
+Ayam Taliwang (Spicy Grilled Chicken)
+Ayam Buah Keluak (Chicken Braised with Black Nuts)
+Peranakan Chap Chye (Mixed Vegetable Stew)
+Babi Pongteh (Peranakan Soy-Braised Pork Belly)
+Peranakan Assam Fish (Tamarind Fish Stew)
+Curry Fish Head (Fish Head in Spicy Curry)
+Sambal Stingray (Grilled Stingray with Sambal)
+Sambal Sotong (Squid in Spicy Sambal Sauce)
+Cereal Prawns (Deep-Fried Prawns with Butter Cereal)
+Salted Egg Yolk Prawns (Prawns with Salted Egg Yolk Sauce)
+Har Cheong Gai (Prawn Paste Fried Chicken)
+Ngoh Hiang (Five-Spice Pork Roll)
+Lor Bak (Fried Five-Spice Pork Roll)
+Kway Chap (Braised Pork Offal with Flat Rice Sheets)
+Duck Rice (Braised Duck with Rice)
+Braised Duck Rice (Soy-Braised Duck with Rice)
+Roasted Duck Rice (Roast Duck with Rice)
+Fishball Noodle Soup (Fish Ball Noodles in Clear Broth)
+Fishball Minced Meat Noodles (Fish Ball Noodles with Minced Pork)
+Dry Minced Meat Noodles (Tossed Egg Noodles with Pork)
+Mee Pok (Flat Egg Noodles)
+Mee Kia (Thin Egg Noodles)
+Ban Mian (Hand-Torn Wheat Noodle Soup)
+You Mian (Flat Wheat Noodles)
+Claypot Rice (Rice Cooked in Claypot with Chinese Sausage)
+Chinese Sausage Claypot Rice (Claypot Rice with Lap Cheong)
+Pork Rib Claypot Rice (Claypot Rice with Pork Ribs)
+Teochew Steamed Fish (Steamed Fish with Light Soy Sauce)
+Oyster Omelette (Egg Omelette with Oysters)
+Fried Oyster Omelette (Crispy Oyster Omelette)
+Carrot Cake (Fried Radish Cake)
+White Carrot Cake (Plain Fried Radish Cake)
+Black Carrot Cake (Sweet Soy Fried Radish Cake)
+Chai Tow Kway (Fried Radish Cake)
+Kopi (Traditional Coffee with Condensed Milk)
+Kopi O (Black Coffee with Sugar)
+Kopi C (Coffee with Evaporated Milk)
+Kopi O Kosong (Black Coffee without Sugar)
+Kopi Kosong (Coffee without Sugar or Milk)
+Kopi Gao (Strong Coffee with Condensed Milk)
+Kopi Di Lo (Less-Sweet Coffee with Condensed Milk)
+Kopi Peng (Iced Coffee with Condensed Milk)
+Kopi O Peng (Iced Black Coffee with Sugar)
+Kopi C Peng (Iced Coffee with Evaporated Milk)
+Kopi Gu You (Butter Coffee)
+
+Teh (Tea with Condensed Milk)
+Teh O (Black Tea with Sugar)
+Teh C (Tea with Evaporated Milk)
+Teh O Kosong (Black Tea without Sugar)
+Teh Kosong (Tea without Sugar or Milk)
+Teh Tarik (Pulled Milk Tea)
+Teh Tarik Peng (Iced Pulled Milk Tea)
+Teh Halia (Ginger Tea)
+Teh Peng (Iced Tea with Condensed Milk)
+Teh O Peng (Iced Black Tea with Sugar)
+
+Milo (Chocolate Malt Drink)
+Milo Peng (Iced Milo)
+Milo Dinosaur (Milo with Extra Milo Powder)
+Milo Godzilla (Milo Dinosaur with Ice Cream)
+
+Bandung (Rose Syrup Milk Drink)
+Bandung Peng (Iced Rose Syrup Milk)
+Bandung Soda (Rose Syrup Milk with Soda Water)
+
+Barley Water (Pearl Barley Drink)
+Barley Lime (Barley Water with Lime Juice)
+
+Chrysanthemum Tea (Chrysanthemum Flower Herbal Tea)
+Winter Melon Tea (Winter Melon Herbal Drink)
+Longan Red Date Tea (Dried Longan and Red Date Herbal Tea)
+
+Soy Milk (Fresh Soybean Milk)
+Iced Soy Milk (Chilled Soybean Milk)
+
+Grass Jelly Drink (Grass Jelly Herbal Drink)
+Honey Lemon Drink (Honey and Lemon Juice Drink)
+Calamansi Juice (Calamansi Lime Juice)
+Calamansi Peng (Iced Calamansi Juice)
+Sugarcane Juice (Fresh Pressed Sugarcane Juice)
+Lime Juice (Fresh Lime Juice)
+Iced Lemon Tea (Chilled Lemon Black Tea)
+
+Avocado Shake (Avocado Milk Shake)
+Soursop Juice (Soursop Fruit Juice)
+
+Singapore Sling (Gin-Based Cocktail with Cherry Brandy and Pineapple Juice)
+Tiger Beer (Singapore Lager Beer)
+Anchor Beer (Singapore Pale Ale)
+Kaya Toast (Toasted Bread with Coconut Jam)
+Kopi Tiam Toast (Coffee Shop Toast Bread)
+Hainanese Toast (Hainanese-Style White Bread Toast)
+Traditional White Bread Loaf (Singapore Bakery White Bread)
+Wholemeal Bread Loaf (Singapore Bakery Whole Wheat Bread)
+Milk Bread Loaf (Asian-Style Soft Milk Bread)
+Pandan Bread Loaf (Pandan-Flavoured Bread)
+Pandan Chiffon Bread (Pandan Chiffon-Style Bread)
+Butter Sugar Toast (Butter and Sugar Toast Bread)
+Half-Boiled Egg Toast Soldiers (Toast Bread Sticks)
+Kaya Butter Bun (Sweet Bun with Coconut Jam and Butter)
+Red Bean Bun (Sweet Red Bean Bread Bun)
+Lotus Seed Bun (Lotus Paste Bread Bun)
+Char Siew Bao (Barbecued Pork Steamed Bun)
+Kaya Bao (Coconut Jam Steamed Bun)
+Plain Mantou (Chinese Steamed Bread Bun)
+Fried Mantou (Deep-Fried Steamed Bread)
+You Tiao (Chinese Fried Dough Stick)
+Roti Prata (Indian-Style Flaky Flatbread)
+Plain Prata (Unfilled Roti Prata Flatbread)
+Egg Prata (Roti Prata with Egg)
+Cheese Prata (Roti Prata with Cheese)
+Onion Prata (Roti Prata with Onion)
+Murtabak (Stuffed Prata Flatbread)
+Roti John (Minced Meat Omelette Sandwich Bread)
+Thosai (South Indian Fermented Crepe Bread)
+Paper Thosai (Crispy Thin Dosa Bread)
+Appam (Fermented Rice Pancake Bread)
+French Loaf (Bakery French Bread Loaf)
+Brioche Bun (Rich Butter Bread Bun)
+Hot Dog Bun (Soft Bread Roll)
+Hamburger Bun (Soft Bread Roll)
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Roast Chicken Rice (Cantonese-Style Roast Chicken with Rice)
+Soy Sauce Chicken Rice (Soy-Braised Chicken with Rice)
+White Cut Chicken (Cantonese-Style Poached Chicken)
+Soy Sauce Chicken (Hong Kong–Style Soy-Braised Chicken)
+Black Pepper Chicken (Singapore-Style Black Pepper Chicken)
+Butter Chicken (Singapore-Style Butter Chicken, Zi Char)
+Ginger Scallion Chicken (Chicken with Ginger and Spring Onion Sauce)
+Steamed Chicken with Garlic and Soy Sauce (Chinese-Style Steamed Chicken)
+Sesame Oil Chicken (Sesame Oil–Infused Chicken)
+Claypot Chicken Rice (Chicken and Rice Cooked in Claypot)
+Chicken Curry (Singapore-Style Chicken Curry)
+Nyonya Chicken Curry (Peranakan Chicken Curry)
+Ayam Buah Keluak (Peranakan Chicken with Black Nuts)
+Ayam Pongteh (Peranakan Chicken Stew with Fermented Soybean Paste)
+Ayam Masak Merah (Chicken Cooked in Spiced Tomato-Chili Sauce)
+Ayam Goreng (Malay-Style Fried Chicken)
+Ayam Goreng Berempah (Spiced Malay Fried Chicken)
+Ayam Penyet (Smashed Fried Chicken with Sambal)
+Ayam Lemak (Chicken Cooked in Coconut Milk)
+Ayam Masak Lemak Cili Padi (Chicken in Coconut Milk with Bird’s Eye Chili)
+Chicken Rendang (Dry Spiced Coconut Chicken)
+Chicken Satay (Grilled Chicken Skewers with Peanut Sauce)
+Satay Ayam (Chicken Satay)
+Chicken Wing Satay (Grilled Chicken Wings Satay-Style)
+BBQ Chicken Wings (Singapore Hawker-Style Barbecued Wings)
+Shrimp Paste Chicken (Fermented Shrimp Paste Fried Chicken)
+Cereal Chicken (Fried Chicken with Butter Cereal Sauce)
+Salted Egg Yolk Chicken (Chicken with Salted Egg Sauce)
+Sweet and Sour Chicken (Chinese-Style Sweet and Sour Chicken)
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)
+Cashew Chicken (Stir-Fried Chicken with Cashew Nuts)
+Lemongrass Chicken (Chicken Marinated with Lemongrass)
+Five-Spice Chicken (Chinese Five-Spice Roast Chicken)
+Char Siew Chicken (Barbecued Honey-Glazed Chicken)
+Chicken Hor Fun (Flat Rice Noodles with Chicken Gravy)
+Chicken Bee Hoon Soup (Rice Vermicelli Soup with Chicken)
+Chicken Porridge (Rice Congee with Chicken)
+Teochew Braised Chicken (Teochew-Style Soy-Braised Chicken)
+Chicken Bak Kut Teh (Peppery Chicken Herbal Soup)
+Chicken Laksa (Spicy Coconut Noodle Soup with Chicken)
+Chicken Mee Soto (Spiced Chicken Noodle Soup)
+Chicken Briyani (Spiced Chicken Rice Dish)
+Chicken Murtabak (Stuffed Flatbread with Spiced Chicken)
+Chicken Tikka (Spiced Grilled Chicken)
+Chicken Tandoori (Roasted Spiced Chicken)
+Beef Rendang (Slow-Cooked Spiced Coconut Beef)
+Dry Beef Rendang (Dry-Style Spiced Coconut Beef)
+Wet Beef Rendang (Gravy-Style Spiced Coconut Beef)
+Padang Beef Rendang (Minangkabau-Style Beef Rendang)
+Beef Satay (Turmeric-Marinated Grilled Beef Skewers)
+Beef Satay with Peanut Sauce (Grilled Beef Skewers with Peanut Sauce)
+Beef Murtabak (Stuffed Flatbread with Spiced Beef)
+Beef Briyani (Spiced Basmati Rice with Beef)
+Hainanese Beef Curry (Hainanese-Style Spiced Beef Curry)
+Singapore Oxtail Soup (Clear Beef Oxtail Soup)
+Singapore Oxtail Stew (Braised Beef Oxtail Stew)
+Beef Sup Tulang (Beef Bone and Marrow Soup)
+Beef Soup Tulang Merah (Tomato-Chili Beef Bone Marrow Soup)
+Beef Noodle Soup (Singapore-Style Beef Brisket Noodle Soup)
+Beef Brisket Noodles (Braised Beef Brisket with Egg Noodles)
+Beef Hor Fun (Stir-Fried Flat Rice Noodles with Beef)
+Beef Char Kway Teow (Stir-Fried Rice Noodles with Beef)
+Claypot Beef Rice (Claypot Rice with Marinated Beef)
+Black Pepper Beef (Singapore-Style Black Pepper Beef Stir-Fry)
+Beef Bee Hoon (Rice Vermicelli Soup with Beef)
+Beef Laksa (Coconut Curry Noodle Soup with Beef)
+Beef Nasi Goreng (Fried Rice with Beef)
+Braised Teochew Beef (Teochew-Style Soy-Braised Beef)
+Bak Kut Teh (Peppery Pork Rib Soup)
+White Pepper Bak Kut Teh (Teochew Peppery Pork Rib Soup)
+Herbal Bak Kut Teh (Herbal Pork Rib Soup)
+Claypot Bak Kut Teh (Claypot Pork Rib Soup)
+Char Siew (Cantonese Barbecued Pork)
+Sio Bak (Crispy Roast Pork Belly)
+Hainanese Pork Chop (Hainanese-Style Breaded Pork Cutlet)
+Hainanese Curry Pork Chop (Hainanese Pork Cutlet in Curry Sauce)
+Bak Chor Mee (Minced Pork Noodles)
+Teochew Bak Chor Mee (Teochew-Style Minced Pork Noodles)
+Lor Mee (Braised Pork Noodles)
+Pig’s Organ Soup (Pork Offal Soup)
+Pork Satay (Grilled Pork Skewers)
+Babi Pongteh (Peranakan Fermented Soybean Braised Pork)
+Babi Assam (Peranakan Tamarind Braised Pork)
+Ngoh Hiang (Five-Spice Pork Roll)
+Lor Bak (Teochew Five-Spice Pork Roll)
+Braised Pork Trotters (Soy-Braised Pork Knuckles)
+Braised Pork Belly with Preserved Vegetables (Mui Choy Braised Pork Belly)
+Pork Rib King (Sweet and Sour Pork Ribs)
+Hokkien Pork Rib Soup (Hokkien-Style Pork Rib Soup)
+Claypot Pork Belly with Salted Fish (Salted Fish Pork Belly Claypot)
+Chilli Crab (Spicy Tomato-Chilli Crab)
+Black Pepper Crab (Black Pepper Stir-Fried Crab)
+Salted Egg Yolk Crab (Salted Egg Sauce Crab)
+Cereal Prawn (Butter Cereal Shrimp)
+Salted Egg Yolk Prawn (Salted Egg Sauce Shrimp)
+Sambal Prawn (Shrimp in Sambal Chilli)
+Har Cheong Gai Prawn Variant (Fermented Shrimp Paste Prawns)
+Butter Prawn (Creamy Butter Shrimp)
+Oatmeal Prawn (Crispy Oat Shrimp)
+Claypot Prawn Vermicelli (Claypot Shrimp Glass Noodles)
+Prawn Paste Chicken–Style Prawns (Fermented Shrimp Paste Fried Prawns)
+Kam Heong Prawn (Aromatic Curry Leaf Shrimp)
+Prawn Mee (Singapore Hokkien Prawn Noodle Soup)
+Dry Prawn Mee (Dry Tossed Hokkien Prawn Noodles)
+Hokkien Mee (Singapore Fried Prawn and Pork Noodles)
+White Bee Hoon with Prawns (White Rice Vermicelli with Shrimp)
+Sambal Stingray with Prawns (Sambal-Grilled Stingray and Shrimp)
+Laksa with Prawns (Spicy Coconut Noodle Soup with Shrimp)
+Katong Laksa with Prawns (Peranakan Coconut Laksa with Shrimp)
+Prawn Satay (Grilled Shrimp Skewers)
+Seafood Satay with Prawns (Mixed Seafood Satay)
+Curry Prawn (Singapore-Style Curry Shrimp)
+Nonya Curry Prawn (Peranakan Curry Shrimp)
+Prawn Otah (Grilled Spiced Fish and Shrimp Paste)
+Otah-Otah with Prawns (Banana Leaf Grilled Spiced Shrimp Paste)
+Sambal Squid and Prawn (Sambal Seafood with Shrimp)
+Seafood Hor Fun with Prawns (Flat Rice Noodles with Seafood and Shrimp)
+Seafood Fried Rice with Prawns (Singapore-Style Seafood Fried Rice)
+Prawn Fried Rice (Shrimp Fried Rice)
+Golden Cereal Scallops (Cereal-Crusted Scallops)
+Salted Egg Yolk Scallops (Salted Egg Sauce Scallops)
+Butter Scallops (Butter Sauce Scallops)
+Chilli Scallops (Chilli Sauce Scallops)
+Sambal Scallops (Scallops in Sambal Chilli)
+Claypot Seafood with Scallops (Claypot Mixed Seafood with Scallops)
+Seafood Bee Hoon with Scallops (Rice Vermicelli with Seafood and Scallops)
+XO Sauce Scallops (Scallops Stir-Fried with XO Sauce)
+Ginger and Spring Onion Scallops (Ginger-Scallion Scallops)
+Steamed Scallops with Garlic (Garlic-Steamed Scallops)
+Steamed Scallops with Soy Sauce (Soy-Steamed Scallops)
+Seafood Tze Char with Prawns (Chinese-Style Stir-Fried Seafood with Shrimp)
+Hotplate Prawns (Sizzling Plate Shrimp)
+Hotplate Scallops (Sizzling Plate Scallops)
+Prawn Omelette (Shrimp Egg Omelette)
+Oyster Omelette with Prawns (Oyster and Shrimp Omelette)
+Seafood Bak Kut Teh with Prawns (Peppery Pork Broth with Seafood and Shrimp)
+Pineapple Tart
+Open-Faced Pineapple Tart
+Rolled Pineapple Tart
+Butter Pineapple Tart
+Cheese Pineapple Tart
+Nyonya Pineapple Tart
+Ghee Pineapple Tart
+
+Kueh Lapis (Layered Spice Cake)
+Rainbow Kueh Lapis (Colored Layered Cake)
+Prune Kueh Lapis (Layered Spice Cake with Prunes)
+
+Kueh Bangkit (Tapioca Coconut Cookies)
+Kueh Bangkit Pandan (Pandan Tapioca Coconut Cookies)
+
+Kueh Semperit (Butter Cookies)
+Sago Semperit (Sago Butter Cookies)
+
+Kueh Bahulu (Traditional Sponge Cake)
+Bahulu Cermai (Button Sponge Cake)
+Bahulu Gulung (Rolled Sponge Cake)
+
+Kaya Puff (Coconut Jam Puff Pastry)
+Curry Puff (Curried Potato Pastry)
+Sardine Puff (Sardine-Filled Pastry)
+Chicken Curry Puff (Chicken Curried Pastry)
+
+Egg Tart (Portuguese-Style Egg Custard Tart)
+Shortcrust Egg Tart (Hong Kong–Style Custard Tart)
+
+Tau Sar Piah (Mung Bean Pastry)
+Salted Tau Sar Piah (Salted Mung Bean Pastry)
+
+Heong Peah (Fragrant Sesame Pastry)
+
+Kueh Lapis Legit (Rich Butter Layer Cake)
+
+Kueh Dadar (Rolled Pandan Pancake with Coconut Filling)
+
+Onde Onde (Glutinous Rice Ball with Palm Sugar Filling)
+
+Kueh Bingka (Baked Coconut Cake)
+
+Kueh Ambon (Fermented Coconut Cake)
+
+Kueh Salat (Pandan Custard Layer Cake)
+
+Apam Balik (Turnover Peanut Pancake)
+
+Apam Berkuah (Steamed Rice Cake with Palm Sugar Sauce)
+
+Pandan Chiffon Cake
+
+Butter Cake (Traditional Singapore Bakery Style)
+
+Swiss Roll (Bakery-Style Rolled Sponge Cake)
+
+Cream Puff (Choux Pastry with Custard Cream)
+
+Éclair (Choux Pastry with Chocolate Glaze)
+Pandan Chiffon Cake
+Pandan Gula Melaka Cake (Pandan Palm Sugar Cake)
+Onde Onde Cake (Gula Melaka Coconut Cake)
+Kaya Cake (Coconut Egg Jam Cake)
+Pandan Coconut Cake
+Durian Cake (Durian Cream Cake)
+Durian Swiss Roll (Durian Cream Roll Cake)
+Pandan Swiss Roll (Pandan Roll Cake)
+Kueh Lapis (Layered Steamed Cake)
+Kueh Lapis Legit (Thousand-Layer Spice Butter Cake)
+Kueh Salat (Glutinous Rice Pandan Custard Cake)
+Kueh Bengka Pandan (Baked Pandan Custard Cake)
+Kueh Bingka Ubi (Cassava Coconut Cake)
+Kueh Bingka Labu (Pumpkin Coconut Cake)
+Kueh Kosui (Palm Sugar Steamed Cake)
+Kueh Talam (Two-Layer Coconut Pandan Cake)
+Kueh Bahulu (Traditional Sponge Cake)
+Kueh Ambon (Fermented Coconut Honeycomb Cake)
+Sarang Semut Cake (Caramel Honeycomb Cake)
+Sugee Cake (Semolina Almond Butter Cake)
+Banana Cake (Singapore-Style Banana Cake)
+Chocolate Milo Cake (Milo Chocolate Cake)
+Gula Melaka Cheesecake (Palm Sugar Cheesecake)
+Black Glutinous Rice Cake (Pulut Hitam Cake)
+Pineapple Tarts (Buttery Pineapple Jam Cookies)
+Open-Faced Pineapple Tarts (Open Pineapple Cookies)
+Rolled Pineapple Tarts (Enclosed Pineapple Cookies)
+Crumbly Pineapple Tarts (Shortbread-Style Pineapple Cookies)
+Nastar (Pineapple-Filled Cookies)
+Kuih Bangkit (Sago Coconut Milk Cookies)
+Kuih Bangkit Pandan (Pandan Sago Cookies)
+Almond Cookies (Chinese New Year Almond Cookies)
+Almond Sugee Cookies (Semolina Almond Cookies)
+Cashew Nut Cookies (Cashew Butter Cookies)
+Walnut Cookies (Chinese Walnut Cookies)
+Butter Cookies (Traditional Butter Cookies)
+Danish Butter Cookies (Blue Tin Butter Cookies)
+Semperit (Pressed Butter Cookies)
+Semperit Susu (Milk Butter Cookies)
+Semperit Dahlia (Flower-Shaped Butter Cookies)
+Suji Cookies (Semolina Butter Cookies)
+Cornflakes Cookies (Cornflake Butter Cookies)
+Cornflakes Honey Cookies (Honey Cornflake Cookies)
+Coconut Cookies (Toasted Coconut Cookies)
+Gula Melaka Cookies (Palm Sugar Cookies)
+Ginger Cookies (Spiced Ginger Cookies)
+Gingerbread Cookies (Festive Ginger Cookies)
+Peanut Cookies (Ground Peanut Cookies)
+Peanut Butter Cookies (Classic Peanut Butter Cookies)
+Chocolate Chip Cookies (Classic Chocolate Chip Cookies)
+Double Chocolate Cookies (Chocolate Cocoa Cookies)
+White Chocolate Macadamia Cookies (Macadamia Nut Cookies)
+Oatmeal Raisin Cookies (Oat Raisin Cookies)
+Matcha Cookies (Green Tea Cookies)
+Pandan Cookies (Pandan-Flavored Cookies)
+Pandan Coconut Cookies (Pandan Coconut Butter Cookies)
+Red Velvet Cookies (Red Cocoa Cookies)
+Cheese Cookies (Savory Cheese Cookies)
+Cheddar Cheese Cookies (Cheddar Butter Cookies)
+Black Sesame Cookies (Black Sesame Seed Cookies)
+Sesame Seed Cookies (White Sesame Cookies)
+Kopi Cookies (Coffee-Flavored Cookies)
+Teh Tarik Cookies (Pulled Milk Tea Cookies)
+Durian Cookies (Durian Butter Cookies)
+Milo Cookies (Chocolate Malt Cookies)
+Onde Onde Cookies (Palm Sugar Coconut Cookies)
+Kaya Cookies (Coconut Egg Jam Cookies)
+Singaporean
+Vanilla Cupcake
+Chocolate Cupcake
+Butter Cupcake
+Pandan Cupcake
+Pandan Gula Melaka Cupcake
+Kaya Cupcake
+Kaya Toast Cupcake
+Onde Onde Cupcake (Palm Sugar Coconut Cupcake)
+Gula Melaka Cupcake
+Pandan Coconut Cupcake
+Black Sesame Cupcake
+Pulut Hitam Cupcake (Black Glutinous Rice Cupcake)
+Durian Cupcake
+Milo Cupcake
+Kopi Cupcake (Local Coffee Cupcake)
+Teh Tarik Cupcake (Pulled Milk Tea Cupcake)
+Pineapple Tart Cupcake
+Kueh Salat Cupcake (Pandan Coconut Custard Cupcake)
+Kueh Lapis Cupcake (Layered Spice Cupcake)
+Banana Cupcake
+Banana Chocolate Chip Cupcake
+Banana Walnut Cupcake
+Pandan Muffin
+Pandan Coconut Muffin
+Gula Melaka Muffin
+Kaya Coconut Muffin
+Banana Muffin
+Banana Walnut Muffin
+Milo Muffin
+Black Sesame Muffin
+Pulut Hitam Muffin (Black Glutinous Rice Muffin)
+Durian Muffin
+Kaya Toast with Soft-Boiled Eggs (Coconut Egg Jam Toast Set)
+Traditional Kaya (Coconut Egg Jam)
+Pandan Kaya (Pandan Coconut Egg Jam)
+Butter Sugar Kaya Toast (Butter Sugar Coconut Jam Toast)
+French Toast Kaya Style (Kaya French Toast)
+Ondeh-Ondeh (Palm Sugar Coconut Glutinous Rice Balls)
+Ondeh-Ondeh Cake (Palm Sugar Coconut Cake)
+Ondeh-Ondeh Tart (Palm Sugar Coconut Tart)
+Kueh Dadar (Pandan Coconut Pancake Rolls)
+Kueh Salat (Steamed Pandan Custard with Glutinous Rice)
+Baked Kueh Salat (Baked Pandan Custard Glutinous Rice Cake)
+Pulut Hitam (Black Glutinous Rice Dessert Porridge)
+Pulut Hitam with Coconut Cream (Black Glutinous Rice with Coconut Sauce)
+Chendol (Iced Coconut Dessert with Pandan Jelly and Palm Sugar)
+Durian Chendol (Chendol with Fresh Durian)
+Ice Kachang (Shaved Ice Dessert with Syrups and Beans)
+Ice Kachang with Durian (Durian Shaved Ice Dessert)
+Ice Kachang with Attap Seeds (Shaved Ice with Palm Fruit)
+Bubur Cha Cha (Sweet Yam and Tapioca Coconut Stew)
+Tau Suan (Split Mung Bean Sweet Soup)
+Tau Suan with You Tiao (Split Mung Bean Soup with Fried Dough)
+Cheng Tng (Clear Herbal Sweet Soup)
+Cheng Tng with Longan (Herbal Sweet Soup with Longan)
+Red Bean Soup (Sweet Adzuki Bean Soup)
+Green Bean Soup (Sweet Mung Bean Soup)
+Sweet Corn Soup (Chinese-Style Sweet Corn Dessert Soup)
+Durian Pengat (Durian Coconut Dessert)
+Banana Pengat (Banana Coconut Dessert)
+Bubur Pulut Hitam Pengat Durian (Black Glutinous Rice with Durian)
+Kueh Lapis (Layered Steamed Rice Cake)
+Rainbow Kueh Lapis (Multi-Colored Layered Rice Cake)
+Kueh Bingka (Baked Coconut Tapioca Cake)
+Bingka Ubi (Baked Cassava Coconut Cake)
+Kueh Seri Muka (Two-Layer Pandan Custard and Glutinous Rice Cake)
+Kueh Talam (Steamed Coconut Custard Cake)
+Kueh Talam Pandan (Pandan Coconut Custard Cake)
+Kueh Talam Ubi (Taro Coconut Custard Cake)
+Ang Ku Kueh (Red Tortoise Glutinous Rice Cake with Mung Bean Filling)
+Ang Ku Kueh Peanut (Red Tortoise Cake with Peanut Filling)
+Kueh Kosui (Palm Sugar Coconut Steamed Cake)
+Kueh Apam Beras (Fermented Rice Cake)
+Kueh Apam Balik (Peanut Turnover Pancake)
+Kueh Apam Balik Durian (Durian Peanut Turnover Pancake)
+Kueh Bahulu (Traditional Sponge Cake)
+Kueh Bangkit (Tapioca Coconut Cookies)
+Pineapple Tarts Nyonya Style (Nyonya Pineapple Jam Pastry)
+Durian Puff (Durian Cream Puff Pastry)
+Coconut Ice Cream with Gula Melaka (Palm Sugar Coconut Ice Cream)
+Durian Ice Cream (Durian Frozen Dessert)
+Tau Huey (Silken Tofu Pudding)
+Tau Huey with Ginger Syrup (Soy Pudding with Ginger Syrup)
+Tau Huey with Gula Melaka (Soy Pudding with Palm Sugar Syrup)
+Kaya (Coconut Jam)
+Chocolate Kaya Toast (Chocolate Coconut Jam Toast)
+Chocolate Kueh Lapis (Layered Rice Cake with Chocolate)
+Chocolate Kueh Salat (Glutinous Rice and Custard Cake with Chocolate)
+Chocolate Kueh Bingka (Baked Tapioca Cake with Chocolate)
+Chocolate Ang Ku Kueh (Red Tortoise Cake with Chocolate Filling)
+Chocolate Onde Onde (Glutinous Rice Balls with Palm Sugar and Chocolate)
+Ondeh-Ondeh Chocolate Lava (Palm Sugar Dumplings with Molten Chocolate)
+Chocolate Mooncake (Baked Mooncake with Chocolate Filling)
+Gula Melaka Chocolate Bar (Palm Sugar Chocolate Bar)
+Gula Melaka Chocolate Truffles (Palm Sugar Chocolate Truffles)
+Durian Chocolate Pralines (Chocolate Pralines with Durian)
+Pandan Chocolate Bonbons (Pandan-Infused Chocolate Bonbons)
+Salted Egg Yolk Chocolate (Salted Egg Chocolate Confection)
+Kopi Chocolate Truffles (Coffee Chocolate Truffles)
+Teh Tarik Chocolate Truffles (Pulled Tea Chocolate Truffles)
+Milo Chocolate Bar (Malted Chocolate Bar)
+Milo Chocolate Fudge (Malted Chocolate Fudge)
+Milo Chocolate Truffles (Malted Chocolate Truffles)
+Pandan Chocolate Bar (Pandan-Flavored Chocolate Bar)
+Buttercream Frosting
+Vanilla Buttercream Frosting
+Chocolate Buttercream Frosting
+Pandan Buttercream Frosting
+Gula Melaka Buttercream Frosting
+Kaya Buttercream Frosting
+Coconut Buttercream Frosting
+Cream Cheese Frosting
+Pandan Cream Cheese Frosting
+Gula Melaka Cream Cheese Frosting
+Coconut Cream Cheese Frosting
+Whipped Cream Frosting
+Coconut Whipped Cream Frosting
+Chocolate Whipped Cream Frosting
+Swiss Meringue Buttercream
+Italian Meringue Buttercream
+French Buttercream
+Royal Icing
+Simple Sugar Icing
+Vanilla Glaze Icing
+Chocolate Glaze Icing
+Pandan Glaze Icing
+Gula Melaka Glaze Icing
+Coconut Sugar Glaze Icing
+Fondant Icing
+Rolled Fondant Icing
+Marshmallow Fondant Icing
+Pandan Fondant Icing
+Chocolate Ganache Frosting
+Dark Chocolate Ganache
+Milk Chocolate Ganache
+White Chocolate Ganache
+Pandan White Chocolate Ganache
+Gula Melaka Ganache
+Caramel Frosting
+Gula Melaka Caramel Frosting
+Cooked Flour Frosting (Ermine Frosting)
+Condensed Milk Frosting
+Chocolate Condensed Milk Frosting
+Kaya Glaze Icing
+Coconut Milk Icing
+Palm Sugar Icing
+Eggless Buttercream Frosting
+Vegan Coconut Buttercream Frosting
+Pineapple Tart
+Open-Faced Pineapple Tart
+Rolled Pineapple Tart
+Butter Pineapple Tart
+Crumbly Shortbread Pineapple Tart
+Spiced Pineapple Tart
+Nyonya Pineapple Tart
+Peranakan Pineapple Tart
+Golden Syrup Pineapple Tart
+Cheese Pineapple Tart
+Chocolate Pineapple Tart
+Mini Pineapple Tart
+
+Egg Tart
+Hong Kong–Style Egg Tart
+Portuguese Egg Tart (Macau-Style Custard Tart)
+Butter Pastry Egg Tart
+Shortcrust Egg Tart
+Mini Egg Tart
+
+Kaya Tart
+Kaya Coconut Jam Tart
+Pandan Kaya Tart
+
+Banana Tart
+Caramelized Banana Tart
+Banoffee Tart (Banana Toffee Cream Tart)
+
+Durian Tart
+D24 Durian Tart
+Musang King Durian Tart
+Durian Custard Tart
+
+Mango Tart
+Fresh Mango Tart
+Mango Custard Tart
+
+Lychee Tart
+Lychee Rose Tart
+
+Coconut Tart
+Toasted Coconut Tart
+Gula Melaka Coconut Tart
+
+Chocolate Tart
+Dark Chocolate Ganache Tart
+Chocolate Hazelnut Tart
+
+Lime Tart
+Key Lime–Style Lime Tart
+
+Passionfruit Tart
+Passionfruit Curd Tart
+
+Apple Tart
+French Apple Tart (Tarte aux Pommes)
+
+Pear Tart
+Almond Pear Tart (Frangipane Pear Tart)
+
+Mixed Fruit Tart
+Seasonal Fruit Tart
+
+Almond Tart
+Frangipane Tart
+
+Custard Tart
+Vanilla Custard Tart
+
+Savory Chicken Pie
+Chicken Mushroom Pie
+Chicken Curry Pie
+
+Beef Pie
+Black Pepper Beef Pie
+
+Shepherd’s Pie
+
+Curry Puff Pie (Curry Pastry Pie)
+
+Seafood Pie
+Creamy Seafood Pie
+Potato Curry (Singapore-Style Curry Potatoes)
+Vegetable Curry with Potatoes (Indian-Style Singapore Vegetable Curry)
+Chicken Curry with Potatoes (Singapore Chicken Curry)
+Mutton Curry with Potatoes (Singapore Mutton Curry)
+Fish Head Curry with Potatoes (Singapore Fish Head Curry)
+Beef Rendang with Potatoes (Singapore Beef Rendang Variant)
+Ayam Masak Merah with Potatoes (Singapore Red Chicken with Potatoes)
+Sambal Goreng Kentang (Spicy Sambal Fried Potatoes)
+Balado Potatoes (Indonesian-Style Chili Potatoes in Singapore Cuisine)
+Begedil Kentang (Malay Potato Patties)
+Bergedel Kentang (Indonesian-Style Potato Fritters, Singapore Variant)
+Potato Sambal (Sambal Potatoes)
+Mashed Potatoes with Black Pepper Sauce (Western-Style Singapore Hawker Mashed Potatoes)
+Deep-Fried Potato Wedges with Sambal Chili (Singapore Potato Wedges)
+Curry Puff Potato Filling (Curried Potato Filling for Curry Puffs)
+Otak-Otak with Potato (Fish Paste with Potato Variant)
+Hainanese Chicken Rice Potato Soup (Clear Potato Soup Side)
+Bak Kut Teh with Potatoes (Peppery Pork Rib Soup with Potatoes)
+Fish Soup with Potatoes (Singapore Clear Fish Soup with Potatoes)
+Stir-Fried Potatoes with Dried Shrimp (Hae Bi Fried Potatoes)
+Braised Potatoes in Dark Soy Sauce (Tau Eu Bak Style Potatoes)
+Vegetarian Mock Meat Curry with Potatoes (Buddhist Vegetarian Curry Potatoes)
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Hainanese Chicken Rice – Steamed Chicken (Steamed Chicken with Fragrant Rice)
+Hainanese Chicken Rice – Roasted Chicken (Roasted Chicken with Fragrant Rice)
+White Chicken Rice (Plain Poached Chicken Rice)
+Soy Sauce Chicken Rice (Soy-Braised Chicken with Rice)
+Chicken Rice Balls (Chicken Rice Shaped into Balls)
+Chicken Rice with Offal (Chicken Rice with Giblets)
+Chicken Rice with Pork Char Siew (Chicken Rice with Barbecued Pork)
+
+Laksa (Spicy Coconut Curry Noodle Soup)
+Katong Laksa (Short-Noodle Coconut Curry Laksa)
+Singapore Curry Laksa (Coconut Curry Laksa with Seafood and Chicken)
+Laksa Lemak (Rich Coconut Curry Laksa)
+Dry Laksa (Dry-Tossed Spicy Laksa Noodles)
+
+Char Kway Teow (Stir-Fried Flat Rice Noodles)
+Char Kway Teow with Cockles (Stir-Fried Flat Rice Noodles with Blood Cockles)
+Char Kway Teow with Duck Egg (Stir-Fried Flat Rice Noodles with Duck Egg)
+White Char Kway Teow (Light Soy Stir-Fried Flat Rice Noodles)
+
+Hokkien Mee (Singapore Fried Hokkien Prawn Noodles)
+Singapore Hokkien Prawn Mee (Seafood Fried Noodles in Broth)
+Dry Hokkien Mee (Dry-Fried Hokkien Noodles)
+
+Bak Chor Mee (Minced Pork Noodles)
+Bak Chor Mee Dry (Dry-Tossed Minced Pork Noodles)
+Bak Chor Mee Soup (Minced Pork Noodle Soup)
+Bak Chor Mee with Vinegar (Black Vinegar Minced Pork Noodles)
+
+Chilli Crab (Stir-Fried Crab in Sweet Spicy Tomato-Chilli Sauce)
+Black Pepper Crab (Stir-Fried Crab in Black Pepper Sauce)
+Salted Egg Yolk Crab (Crab Stir-Fried with Salted Egg Yolk Sauce)
+Butter Crab (Crab Stir-Fried in Butter Sauce)
+Cereal Crab (Crab Stir-Fried with Butter Cereal)
+
+Kaya Toast (Toasted Bread with Coconut Jam)
+Kaya Toast with Butter (Coconut Jam Toast with Butter)
+Kaya Toast Set (Kaya Toast with Soft-Boiled Eggs and Coffee)
+
+Soft-Boiled Eggs (Singapore-Style Half-Boiled Eggs)
+Steamed Eggs with Soy Sauce (Steamed Eggs with Light Soy)
+
+Roti Prata (Indian Flatbread)
+Plain Prata (Plain Indian Flatbread)
+Egg Prata (Indian Flatbread with Egg)
+Cheese Prata (Indian Flatbread with Cheese)
+Onion Prata (Indian Flatbread with Onion)
+Prata Bom (Sweet Butter Sugar Prata)
+
+Nasi Lemak (Coconut Rice with Sambal)
+Nasi Lemak with Fried Chicken (Coconut Rice with Fried Chicken)
+Nasi Lemak with Ikan Bilis (Coconut Rice with Anchovies)
+Nasi Lemak with Otah (Coconut Rice with Spiced Fish Cake)
+
+Satay (Grilled Skewered Meat with Peanut Sauce)
+Chicken Satay (Grilled Chicken Skewers with Peanut Sauce)
+Beef Satay (Grilled Beef Skewers with Peanut Sauce)
+Mutton Satay (Grilled Lamb Skewers with Peanut Sauce)
+
+Mee Siam (Spicy Tamarind Rice Vermicelli)
+Mee Siam Goreng (Dry-Fried Mee Siam)
+Mee Siam Soup (Mee Siam in Tamarind Broth)
+
+Mee Rebus (Noodles in Thick Sweet Potato Gravy)
+
+Lor Mee (Thick Gravy Noodles)
+Lor Mee with Fried Fish (Thick Gravy Noodles with Fried Fish)
+
+Fishball Noodles (Fish Ball Egg Noodles)
+Fishball Noodles Dry (Dry-Tossed Fish Ball Noodles)
+Fishball Noodles Soup (Fish Ball Noodle Soup)
+
+Prawn Mee (Prawn Noodle Soup)
+Hae Mee (Prawn Noodle Soup)
+Dry Prawn Mee (Dry-Tossed Prawn Noodles)
+
+Wanton Mee (Dumpling Noodles)
+Wanton Mee Dry (Dry-Tossed Dumpling Noodles)
+Wanton Mee Soup (Dumpling Noodle Soup)
+
+Char Siew Rice (Barbecued Pork Rice)
+Roast Pork Rice (Roasted Pork Rice)
+Soy Sauce Chicken Rice (Soy-Braised Chicken Rice)
+Duck Rice (Braised Duck with Rice)
+
+Bak Kut Teh (Pork Rib Soup)
+Pepper Bak Kut Teh (Peppery Pork Rib Soup)
+Herbal Bak Kut Teh (Herbal Pork Rib Soup)
+
+Claypot Rice (Claypot Cooked Rice with Meat)
+Claypot Rice with Chicken (Chicken Claypot Rice)
+Claypot Rice with Chinese Sausage (Chinese Sausage Claypot Rice)
+
+Chwee Kueh (Steamed Rice Cakes with Preserved Radish)
+
+Popiah (Fresh Spring Roll)
+
+Oyster Omelette (Fried Oyster Egg Omelette)
+Singapore Oyster Omelette (Starchy Oyster Omelette)
+
+Carrot Cake (Fried Radish Cake)
+White Carrot Cake (White Radish Cake with Egg)
+Black Carrot Cake (Radish Cake with Sweet Dark Soy Sauce)
+
+Fried Bee Hoon (Stir-Fried Rice Vermicelli)
+Singapore Fried Rice Vermicelli (Curry Fried Rice Vermicelli)
+
+Teochew Porridge (Teochew-Style Rice Porridge)
+
+Yong Tau Foo (Stuffed Tofu and Vegetables)
+Yong Tau Foo Soup (Stuffed Tofu Soup)
+Yong Tau Foo Dry (Dry-Tossed Yong Tau Foo)
+
+Otah (Grilled Spiced Fish Cake)
+Otah-Otah (Grilled Spiced Fish in Banana Leaf)
+
+Ice Kachang (Shaved Ice Dessert with Syrup and Beans)
+Chendol (Coconut Milk Dessert with Pandan Jelly)
+
+Tau Huay (Silken Beancurd Dessert)
+Tau Huay with Syrup (Silken Beancurd with Sugar Syrup)
+
+Kway Chap (Braised Pork Offal with Flat Rice Noodles)
+Sambal Kangkung (Stir-Fried Water Spinach with Sambal)
+Belacan Kangkung (Water Spinach Stir-Fried with Shrimp Paste)
+Oyster Sauce Kai Lan (Chinese Broccoli with Oyster Sauce)
+Gai Lan with Garlic (Stir-Fried Chinese Broccoli)
+Chai Sim with Garlic (Stir-Fried Flowering Mustard Greens)
+Stir-Fried Nai Bai with Garlic (Baby Bok Choy with Garlic)
+Braised Chinese Cabbage (Braised Napa Cabbage)
+Chap Chye (Mixed Vegetable Stew)
+Nonya Chap Chye (Peranakan Mixed Vegetable Stew)
+Sayur Lodeh (Vegetables in Coconut Curry)
+Sayur Lemak (Vegetables in Coconut Milk)
+Sayur Asem (Tamarind Vegetable Soup)
+Achar Awak (Peranakan Pickled Mixed Vegetables)
+Nonya Achar (Peranakan Spiced Pickled Vegetables)
+Achar Timun (Pickled Cucumber Salad)
+Urap Sayur (Spiced Steamed Vegetable Salad with Coconut)
+Kerabu Kacang Panjang (Long Bean Herb Salad)
+Kerabu Timun (Cucumber Herb Salad)
+Kerabu Taugeh (Bean Sprout Herb Salad)
+Stir-Fried Bean Sprouts (Taugeh Goreng)
+Stir-Fried Bean Sprouts with Salted Fish (Taugeh Goreng Ikan Masin)
+Braised Beancurd with Vegetables (Tau Kwa with Vegetables)
+Claypot Beancurd with Vegetables (Claypot Tofu Vegetables)
+Mapo Tofu (Sichuan-Style Spicy Tofu)
+Steamed Tofu with Soy Sauce (Steamed Beancurd with Soy Sauce)
+Steamed Eggplant with Soy Sauce (Steamed Brinjal with Soy Sauce)
+Sambal Eggplant (Eggplant with Sambal Chili)
+Eggplant in Claypot (Claypot Brinjal)
+Stir-Fried Bitter Gourd with Egg (Bitter Melon with Egg)
+Stir-Fried Bitter Gourd with Black Bean Sauce (Bitter Melon Black Bean)
+Stuffed Bitter Gourd Soup (Bitter Melon Soup)
+Stir-Fried Cabbage with Dried Shrimp (Cabbage with Hae Bee)
+Garlic Stir-Fried Cabbage (Garlic Fried Cabbage)
+Stewed Daikon Radish (Braised White Radish)
+Braised Daikon with Mushroom (White Radish with Mushrooms)
+Lotus Root Soup (Lotus Root Vegetable Soup)
+Stir-Fried Lotus Root (Lotus Root Stir-Fry)
+Braised Taro (Braised Yam)
+Taro Coconut Stew (Yam in Coconut Milk)
+Pumpkin with Garlic (Stir-Fried Pumpkin)
+Pumpkin in Coconut Milk (Pumpkin Lemak)
+Braised Mushrooms with Vegetables (Braised Mixed Mushrooms)
+Stir-Fried Mixed Mushrooms (Mixed Mushroom Stir-Fry)
+Steamed Choy Sum with Soy Sauce (Steamed Flowering Mustard Greens)
+Blanched Vegetables with Oyster Sauce (Yau Mak with Oyster Sauce)
+Tau Hu Goreng (Deep-Fried Tofu with Sweet Chili Sauce)
+Tau Hu Goreng Istimewa (Special Deep-Fried Tofu with Peanut and Chili Sauce)
+Tau Hu Goreng Telur (Deep-Fried Tofu with Egg)
+Tau Hu Goreng Seafood (Deep-Fried Tofu with Seafood)
+Tau Hu Goreng Sambal (Deep-Fried Tofu with Sambal Chili)
+Tau Hu Goreng Kacang (Deep-Fried Tofu with Peanut Sauce)
+Otak-Otak Tau Hu (Grilled Spiced Fish Paste Stuffed Tofu)
+Otak-Otak Tau Hu Bakar (Charcoal-Grilled Stuffed Tofu)
+Claypot Tofu (Braised Tofu in Claypot Sauce)
+Claypot Seafood Tofu (Braised Tofu with Seafood in Claypot)
+Claypot Egg Tofu (Braised Egg Tofu in Claypot)
+Claypot Tofu with Mushrooms (Braised Tofu with Mushrooms in Claypot)
+Hotplate Tofu (Sizzling Tofu on Hot Plate)
+Hotplate Egg Tofu (Sizzling Egg Tofu)
+Hotplate Seafood Tofu (Sizzling Tofu with Seafood)
+Sambal Tau Hu (Tofu in Sambal Chili Sauce)
+Sambal Tau Hu Goreng (Fried Tofu in Sambal Chili Sauce)
+Sambal Egg Tofu (Egg Tofu in Sambal Sauce)
+Tau Hu Sambal Petai (Tofu with Sambal and Stink Beans)
+Tau Hu Sambal Udang (Tofu with Sambal Shrimp)
+Tau Hu Sambal Sotong (Tofu with Sambal Squid)
+Salted Egg Yolk Tofu (Tofu with Salted Egg Sauce)
+Salted Egg Yolk Egg Tofu (Egg Tofu with Salted Egg Sauce)
+Cereal Butter Tofu (Cereal-Crusted Butter Tofu)
+Cereal Egg Tofu (Cereal-Crusted Egg Tofu)
+Black Pepper Tofu (Tofu in Black Pepper Sauce)
+Black Pepper Egg Tofu (Egg Tofu in Black Pepper Sauce)
+Sweet and Sour Tofu (Sweet and Sour Fried Tofu)
+Sweet and Sour Egg Tofu (Sweet and Sour Egg Tofu)
+Kung Pao Tofu (Spicy Stir-Fried Tofu with Peanuts)
+Mapo-Style Tofu (Spicy Minced Meat Tofu, Singapore Chinese Style)
+Home-Style Steamed Tofu (Steamed Tofu with Soy Sauce and Aromatics)
+Steamed Egg Tofu with Minced Meat (Steamed Egg Tofu with Pork or Chicken)
+Steamed Tofu with Soy Sauce (Classic Steamed Silken Tofu)
+Steamed Tofu with Garlic and Soy (Steamed Tofu with Garlic Sauce)
+Tofu with Minced Pork Sauce (Braised Tofu with Minced Pork)
+Braised Tofu with Mushrooms (Soy-Braised Tofu with Mushrooms)
+Braised Tofu with Vegetables (Soy-Braised Tofu with Mixed Vegetables)
+Fish Slice Tofu Soup (Clear Soup with Fish and Tofu)
+Seafood Tofu Soup (Clear Soup with Seafood and Tofu)
+Spinach Tofu Soup (Clear Soup with Spinach and Tofu)
+Tofu and Vegetable Soup (Clear Home-Style Tofu Soup)
+Tofu Omelette (Tofu and Egg Omelette)
+Fried Tofu Cubes (Plain Deep-Fried Tofu Cubes)
+Fried Egg Tofu Slices (Deep-Fried Egg Tofu Slices)
+Crispy Tofu with Mayonnaise (Crispy Fried Tofu with Mayo Sauce)
+Japanese-Style Tofu (Chilled Tofu with Soy and Bonito-Style Garnish)
+Hakka Yong Tau Foo (Stuffed Tofu and Vegetables)
+Yong Tau Foo Tofu (Stuffed Tofu in Clear Broth)
+Dry Yong Tau Foo Tofu (Stuffed Tofu with Sauce, Dry Style)
+Satay Ayam (Chicken Satay)
+Satay Kambing (Mutton Satay)
+Satay Daging (Beef Satay)
+Satay Perut (Beef Tripe Satay)
+Satay Lilit (Minced Spiced Satay)
+BBQ Chicken Wings (Hawker-Style Grilled Chicken Wings)
+BBQ Sambal Chicken Wings (Sambal-Grilled Chicken Wings)
+BBQ Honey Chicken Wings (Honey-Glazed Grilled Chicken Wings)
+Ikan Bakar (Grilled Fish with Sambal)
+Sambal Stingray (Grilled Stingray with Sambal)
+BBQ Stingray with Banana Leaf (Banana Leaf–Grilled Stingray)
+Sotong Bakar (Grilled Squid)
+Sambal Sotong Bakar (Sambal-Grilled Squid)
+Udang Bakar (Grilled Prawns)
+Sambal Udang Bakar (Sambal-Grilled Prawns)
+Otah-Otah (Grilled Spiced Fish Paste in Banana Leaf)
+Otak-Otak (Grilled Spiced Fish Custard)
+BBQ Pork Satay (Grilled Pork Satay)
+BBQ Char Siew (Cantonese-Style Barbecued Pork)
+BBQ Char Siew Ribs (Barbecued Char Siew Pork Ribs)
+BBQ Sambal Clams (Sambal-Grilled Clams)
+BBQ Cockles with Sambal (Sambal-Grilled Blood Cockles)
+BBQ Fish Head with Sambal (Sambal-Grilled Fish Head)
+BBQ Sambal Crayfish (Sambal-Grilled Crayfish)
+BBQ Sambal Crab (Sambal-Grilled Crab)
+BBQ Lemongrass Chicken (Lemongrass-Grilled Chicken)
+BBQ Turmeric Chicken (Turmeric-Grilled Chicken)
+BBQ Beef Skewers with Cumin (Cumin-Spiced Grilled Beef Skewers)
+Hainanese Chicken Rice
+Roasted Chicken Rice
+Soy Sauce Chicken Rice
+Char Siew Rice (Barbecued Pork Rice)
+Sio Bak Rice (Crispy Roast Pork Rice)
+Three Treasure Rice (Mixed Roast Meat Rice)
+Economic Rice (Cai Fan / Mixed Rice)
+Nasi Lemak (Coconut Rice with Condiments)
+Nasi Lemak with Fried Chicken
+Nasi Lemak with Rendang
+Nasi Lemak with Ikan Bilis and Sambal
+Nasi Briyani (Singapore-Style Briyani Rice)
+Dum Briyani (Sealed Pot Briyani Rice)
+Briyani with Mutton
+Briyani with Chicken
+Briyani with Fish
+Teochew Porridge (Plain Rice Porridge)
+Fish Porridge (Sliced Fish Rice Porridge)
+Century Egg and Pork Porridge
+Chicken Porridge (Rice Congee)
+Claypot Rice (Waxed Meat Claypot Rice)
+Salted Fish and Chicken Claypot Rice
+Lup Cheong Claypot Rice (Chinese Sausage Rice)
+Fried Rice (Zi Char Fried Rice)
+Yangzhou Fried Rice (Cantonese-Style Fried Rice)
+Seafood Fried Rice
+Salted Fish Fried Rice
+Egg Fried Rice
+Pineapple Fried Rice
+Hor Fun Rice Base (Flat Rice Noodles with Rice Base)
+Nasi Goreng (Malay-Style Fried Rice)
+Nasi Goreng Kampung (Village-Style Fried Rice)
+Nasi Goreng Pattaya (Fried Rice Omelette)
+Nasi Goreng Seafood
+Nasi Goreng Ayam (Chicken Fried Rice)
+Laksa Rice Base (Rice Vermicelli Laksa)
+Curry Rice (Hainanese Curry Rice)
+Hainanese Pork Chop Rice
+Hainanese Chicken Cutlet Rice
+Curry Chicken Rice
+Beef Rendang Rice
+Ayam Penyet Rice (Smashed Fried Chicken Rice)
+Ayam Taliwang Rice
+Mee Siam Rice Vermicelli
+Nasi Ulam (Herbed Rice)
+Nasi Kerabu (Blue Herb Rice)
+Nasi Padang Rice (Indonesian-Style Rice Platter)
+Nasi Ambeng (Communal Feast Rice)
+Nasi Minyak (Ghee Rice)
+Pulut Hitam (Black Glutinous Rice Dessert)
+Pulut Inti (Glutinous Rice with Coconut Filling)
+Chwee Kueh (Steamed Rice Cakes)
+Lor Mai Gai (Sticky Rice with Chicken)
+Zongzi (Glutinous Rice Dumpling)
+Chilli Crab Pasta (Singapore Chilli Crab Sauce with Pasta)
+Black Pepper Crab Pasta (Singapore Black Pepper Crab with Pasta)
+Salted Egg Yolk Pasta (Salted Egg Sauce Pasta)
+Salted Egg Crab Pasta (Salted Egg Yolk Crab Pasta)
+Laksa Pasta (Laksa Coconut Curry Pasta)
+Seafood Laksa Pasta (Laksa Seafood Pasta)
+Sambal Seafood Pasta (Sambal Chilli Seafood Pasta)
+Sambal Prawn Pasta (Sambal Chilli Prawn Pasta)
+Aglio Olio with Sambal (Garlic and Olive Oil Pasta with Sambal Chilli)
+Aglio Olio with Chilli Crab (Garlic and Olive Oil Pasta with Chilli Crab)
+Hae Mee Pasta (Prawn Noodle Broth Pasta)
+Prawn Bisque Pasta, Singapore Style (Singapore Prawn Stock Pasta)
+Chilli Prawn Pasta (Singapore Chilli Prawn Pasta)
+Salted Egg Chicken Pasta (Salted Egg Yolk Chicken Pasta)
+Salted Egg Soft-Shell Crab Pasta (Salted Egg Yolk Soft-Shell Crab Pasta)
+Laksa Leaf Pesto Pasta (Laksa Leaf Basil-Style Pesto Pasta)
+Otah Pasta (Spiced Fish Otah Pasta)
+Sambal Crab Aglio Olio (Sambal Chilli Crab Garlic Pasta)
+White Pepper Crab Pasta (Singapore White Pepper Crab Pasta)
+Claypot Seafood Pasta (Claypot-Style Seafood Pasta)
+Bak Kut Teh (Pork Rib Herbal Soup)
+White Pepper Bak Kut Teh (Teochew Pork Rib Soup)
+Dark Herbal Bak Kut Teh (Hokkien Pork Rib Soup)
+Fish Head Soup (Milk-Style Fish Head Soup)
+Clear Fish Head Soup (Teochew Fish Head Soup)
+Sliced Fish Soup (Clear Fish Soup)
+Batang Fish Soup (Spanish Mackerel Soup)
+Fish Bee Hoon Soup (Fish and Rice Vermicelli Soup)
+Yong Tau Foo Soup (Stuffed Tofu Vegetable Soup)
+Chicken Herbal Soup (Chinese Herbal Chicken Soup)
+Ginseng Chicken Soup (Ginseng Herbal Chicken Soup)
+Double-Boiled Herbal Chicken Soup (Cantonese-Style Herbal Chicken Soup)
+Lotus Root Pork Rib Soup (Lotus Root and Pork Soup)
+Old Cucumber Pork Rib Soup (Chinese Cucumber Soup)
+ABC Soup (Pork Rib Vegetable Soup)
+Winter Melon Soup (Winter Melon Pork Soup)
+Salted Mustard Green Soup (Kiam Chye Soup)
+Watercress Pork Rib Soup (Watercress Soup)
+Bak Chor Mee Soup (Minced Pork Noodle Soup)
+Mee Sua Soup (Wheat Vermicelli Soup)
+Laksa Soup (Spicy Coconut Noodle Soup)
+Katong Laksa Soup (Peranakan Spicy Coconut Soup)
+Curry Fish Head Soup (Singapore Curry Fish Head Soup)
+Pig’s Organ Soup (Pork Offal Soup)
+Pig’s Stomach Pepper Soup (Peppery Pork Stomach Soup)
+Seafood Tom Yum Soup (Singapore-Style Tom Yum Soup)
+Clam Soup with Ginger Wine (Ginger Wine Clam Soup)
+Duck Soup with Yam (Braised Duck Yam Soup)
+Bakwan Kepiting Soup (Crab Meatball Soup)
+Crab Bee Hoon Soup (Crab Rice Vermicelli Soup)
+Fish Maw Soup (Fish Maw Thick Soup)
+Shark’s Fin Soup (Mock Shark’s Fin Soup)
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Roasted Chicken Rice (Roast Chicken with Fragrant Rice)
+Soy Sauce Chicken Rice (Soy-Braised Chicken with Rice)
+Char Siew Rice (Cantonese Barbecue Pork with Rice)
+Siu Yuk Rice (Crispy Roast Pork Belly with Rice)
+Bak Chor Mee (Minced Pork Noodles)
+Bak Chor Mee Pok (Minced Pork Flat Egg Noodles)
+Bak Chor Mee Mee Kia (Minced Pork Thin Egg Noodles)
+Teochew Bak Chor Mee (Teochew-Style Minced Pork Noodles)
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Peranakan Coconut Laksa)
+Curry Laksa (Coconut Curry Noodle Soup)
+Dry Laksa (Laksa Noodles with Dry Sauce)
+Char Kway Teow (Stir-Fried Flat Rice Noodles)
+White Char Kway Teow (Non-Soy Sauce Fried Rice Noodles)
+Dark Char Kway Teow (Soy Sauce Fried Rice Noodles)
+Hokkien Mee (Singapore Fried Prawn Noodles)
+Fried Hokkien Prawn Mee (Dry Hokkien Noodles)
+Prawn Mee (Prawn Noodle Soup)
+Prawn Mee Dry (Dry Prawn Noodles)
+Mee Siam (Spicy Tamarind Rice Vermicelli)
+Mee Siam Goreng (Fried Mee Siam)
+Mee Rebus (Noodles in Spiced Sweet Potato Gravy)
+Mee Soto (Malay Spiced Chicken Noodle Soup)
+Satay (Grilled Skewered Meat with Peanut Sauce)
+Chicken Satay (Grilled Chicken Skewers)
+Mutton Satay (Grilled Lamb Skewers)
+Beef Satay (Grilled Beef Skewers)
+Satay Bee Hoon (Rice Vermicelli with Satay Sauce)
+Roti Prata (Indian Flatbread)
+Plain Prata (Plain Indian Flatbread)
+Egg Prata (Egg-Stuffed Flatbread)
+Cheese Prata (Cheese-Stuffed Flatbread)
+Onion Prata (Onion Flatbread)
+Prata with Fish Curry (Flatbread with Fish Curry)
+Nasi Lemak (Coconut Rice with Sambal and Condiments)
+Chicken Wing Nasi Lemak (Coconut Rice with Fried Chicken Wing)
+Ikan Bilis Nasi Lemak (Coconut Rice with Anchovies)
+Nasi Goreng (Malay Fried Rice)
+Nasi Goreng Kampung (Village-Style Fried Rice)
+Nasi Goreng Pattaya (Fried Rice Wrapped in Omelette)
+Nasi Goreng Seafood (Seafood Fried Rice)
+Chilli Crab (Stir-Fried Crab in Chilli Sauce)
+Black Pepper Crab (Crab in Black Pepper Sauce)
+Salted Egg Yolk Crab (Crab with Salted Egg Sauce)
+Cereal Prawns (Prawns with Butter Cereal)
+Sambal Stingray (Grilled Stingray with Sambal)
+Oyster Omelette (Fried Oyster Egg Omelette)
+Carrot Cake (Fried Radish Cake)
+White Carrot Cake (White Radish Cake)
+Black Carrot Cake (Dark Soy Radish Cake)
+Popiah (Fresh Spring Roll)
+Fried Popiah (Fried Spring Roll)
+Kaya Toast (Coconut Jam Toast)
+Kaya Butter Toast (Toast with Kaya and Butter)
+Soft-Boiled Eggs with Toast (Traditional Kopitiam Eggs)
+Lor Mee (Thick Gravy Noodles)
+Fish Head Curry (Spiced Curry Fish Head)
+Bak Kut Teh (Pork Rib Soup)
+Peppery Bak Kut Teh (Teochew Pepper Pork Rib Soup)
+Herbal Bak Kut Teh (Herbal Pork Rib Soup)
+Wanton Mee (Wonton Noodles)
+Dry Wanton Mee (Dry Wonton Noodles)
+Soup Wanton Mee (Wonton Noodle Soup)
+Char Siew Wanton Mee (Barbecue Pork Wonton Noodles)
+Tau Huay (Soy Bean Curd Dessert)
+Chendol (Pandan Jelly with Coconut Milk and Palm Sugar)
+Chicken Rice (Hainanese Chicken Rice)
+Steamed Chicken Rice (Hainanese Steamed Chicken Rice)
+Roasted Chicken Rice (Hainanese Roasted Chicken Rice)
+Chicken Rice Chili Sauce (Hainanese Chili Sauce)
+Chicken Rice Ginger Sauce (Hainanese Ginger Sauce)
+Chicken Rice Dark Soy Sauce (Hainanese Soy Sauce)
+
+Sambal Kangkung (Water Spinach with Chili Sambal)
+Belacan Kangkung (Water Spinach with Shrimp Paste)
+Stir-Fried Kangkung (Stir-Fried Water Spinach)
+
+Sambal Goreng (Spicy Mixed Vegetable Stir-Fry)
+Sambal Goreng Pengantin (Spicy Wedding-Style Mixed Vegetables)
+Sambal Goreng Kentang (Spicy Potato Sambal)
+
+Sayur Lodeh (Vegetable Curry in Coconut Milk)
+Sayur Lemak (Coconut Milk Vegetable Stew)
+
+Achar (Pickled Mixed Vegetables)
+Achar Awak (Peranakan Pickled Vegetables)
+Achar Rampai (Spiced Mixed Vegetable Pickle)
+
+Ikan Bilis (Fried Dried Anchovies)
+Ikan Bilis Sambal (Anchovies in Chili Sambal)
+Ikan Bilis Kacang (Anchovies with Peanuts)
+
+Sambal Telur (Eggs in Chili Sambal)
+Hard-Boiled Eggs with Sambal (Sambal Eggs)
+
+Otah (Grilled Spiced Fish Cake in Banana Leaf)
+Otah-Otah (Grilled Spiced Fish Paste)
+
+Ngoh Hiang (Five-Spice Pork Roll)
+Lobak Goreng (Fried Five-Spice Pork Roll)
+
+Popiah (Fresh Spring Roll)
+Popiah Goreng (Fried Spring Roll)
+
+Rojak (Local Fruit and Vegetable Salad)
+Indian Rojak (Indian-Style Fried Fritters with Sauce)
+Chinese Rojak (Chinese-Style Fruit and Vegetable Salad)
+
+Satay (Grilled Skewered Meat)
+Satay Peanut Sauce (Satay Sauce)
+
+Ketupat (Compressed Rice Cake)
+Lontong (Rice Cakes in Coconut Gravy)
+
+Nasi Ulam (Herbed Rice)
+Nasi Kerabu (Blue Herb Rice)
+
+Fried Tofu with Sambal (Sambal Tofu)
+Tauhu Goreng (Fried Tofu)
+
+Fried Tempeh (Tempeh Goreng)
+Tempeh Sambal (Tempeh in Chili Sambal)
+
+Begedil (Potato Croquette)
+Perkedel Kentang (Potato Fritter)
+
+Cucur Udang (Prawn Fritter)
+Cucur Ikan Bilis (Anchovy Fritter)
+
+Keropok (Traditional Crackers)
+Keropok Ikan (Fish Crackers)
+
+Gado-Gado (Vegetable Salad with Peanut Sauce)
+Tahu Telur (Tofu and Egg with Peanut Sauce)
+
+Chwee Kueh (Steamed Rice Cakes with Preserved Radish)
+Chai Poh (Preserved Radish Topping)
+
+Braised Peanuts (Stewed Peanuts)
+Peanuts with Ikan Bilis (Peanuts with Anchovies)
+
+Sambal Belacan (Shrimp Paste Chili Sambal)
+Calamansi with Sambal Belacan (Calamansi Chili Dip)
+
+Bakwan Jagung (Corn Fritters)
+Satay (Grilled Skewered Meat with Peanut Sauce)
+Chicken Satay (Grilled Chicken Skewers with Peanut Sauce)
+Beef Satay (Grilled Beef Skewers with Peanut Sauce)
+Mutton Satay (Grilled Mutton Skewers with Peanut Sauce)
+Pork Satay (Grilled Pork Skewers with Peanut Sauce)
+Otah-Otah (Grilled Spiced Fish Paste in Banana Leaf)
+Otak-Otak (Grilled Spiced Fish Custard)
+Fried Spring Rolls (Popiah Goreng)
+Popiah (Fresh Spring Roll)
+Popiah Goreng (Deep-Fried Spring Roll)
+Chwee Kueh (Steamed Rice Cakes with Preserved Radish)
+Carrot Cake (Chai Tow Kway – Fried Radish Cake)
+White Carrot Cake (Chai Tow Kway – White Version)
+Black Carrot Cake (Chai Tow Kway – Dark Soy Version)
+Rojak (Singapore Fruit and Vegetable Salad)
+Indian Rojak (Indian-Style Fritters with Sweet Spicy Sauce)
+Hainanese Chicken Rice Balls (Chicken Rice Appetizer Balls)
+Ngoh Hiang (Five-Spice Pork Rolls)
+Lor Bak (Five-Spice Pork Rolls)
+Prawn Crackers (Keropok Udang)
+Keropok Lekor (Fish Sausage Crackers)
+Fried Tofu with Sambal (Sambal Tau Hu)
+Fried Bean Curd Skin Rolls (Tau Kee Rolls)
+Tau Hu Goreng (Fried Tofu with Sweet Sauce)
+Curry Puff (Epok-Epok – Curried Pastry)
+Sardine Curry Puff (Sardine Curried Pastry)
+Chicken Curry Puff (Chicken Curried Pastry)
+Potato Curry Puff (Potato Curried Pastry)
+Mee Siam Cups (Spicy Rice Vermicelli Appetizer)
+Prawn Paste Chicken (Har Cheong Gai)
+Salted Egg Yolk Prawns (Salted Egg Sauce Prawns)
+Salted Egg Yolk Chicken Wings (Salted Egg Chicken Wings)
+Sambal Kang Kong (Water Spinach with Chili Paste)
+Sambal Sotong (Squid in Chili Paste)
+Fried Chicken Wings (Singapore Hawker-Style Wings)
+Shrimp Paste Wings (Har Cheong Chicken Wings)
+Bak Kwa (Barbecued Sweet Pork Jerky)
+Crispy Fish Skin with Salted Egg (Salted Egg Fish Skin)
+Laksa Prawns (Poached Prawns with Laksa Spices)
+Assam Fish Bites (Tamarind-Spiced Fish Appetizer)
+Kaya Toast (Coconut Jam Toast)
+Kaya Butter Toast (Coconut Jam and Butter Toast)
+Soft-Boiled Eggs with Soy Sauce and White Pepper (Singapore-Style Soft Eggs)
+Roti Prata (Indian Flatbread)
+Plain Prata (Plain Flatbread Prata)
+Egg Prata (Egg-Stuffed Prata)
+Cheese Prata (Cheese-Stuffed Prata)
+Murtabak (Stuffed Spiced Flatbread)
+Roti John (Minced Meat Omelette Sandwich)
+Curry Puff (Spiced Potato Pastry)
+Old Chang Kee Curry Puff (Chicken Curry Puff)
+Sardine Curry Puff (Sardine-Filled Curry Puff)
+Otak-Otak (Grilled Spiced Fish Cake)
+Nyonya Otak-Otak (Peranakan Grilled Fish Custard)
+Popiah (Fresh Spring Roll)
+Popiah Basah (Fresh Non-Fried Spring Roll)
+Popiah Goreng (Fried Spring Roll)
+Satay (Grilled Skewered Meat)
+Chicken Satay (Grilled Chicken Skewers)
+Beef Satay (Grilled Beef Skewers)
+Mutton Satay (Grilled Mutton Skewers)
+Satay Bee Hoon (Rice Vermicelli with Satay Sauce)
+Chicken Wings (Singapore-Style Grilled Wings)
+Har Cheong Gai (Shrimp Paste Chicken)
+Cereal Prawns (Cereal-Coated Fried Prawns)
+Salted Egg Yolk Chicken Wings (Salted Egg Wings)
+Salted Egg Yolk Fish Skin (Crispy Salted Egg Fish Skin)
+Fried Fish Skin (Crispy Fried Fish Skin)
+Chilli Crab Bun (Chilli Crab-Stuffed Bun)
+Mantou with Chilli Crab Sauce (Fried Buns with Chilli Crab Sauce)
+Bak Kwa (Sweet Grilled Pork Jerky)
+Pork Bak Kwa (Sweet Pork Jerky)
+Chicken Bak Kwa (Sweet Chicken Jerky)
+Ngoh Hiang (Five-Spice Pork Roll)
+Hae Bee Hiam Toast (Spicy Shrimp Sambal Toast)
+Rojak (Singapore Fruit and Vegetable Salad)
+Chinese Rojak (Fruit Rojak with Shrimp Paste Sauce)
+Indian Rojak (Indian-Style Fried Fritters with Sauce)
+Fried Carrot Cake (Radish Cake Stir-Fry)
+White Carrot Cake (White Radish Cake)
+Black Carrot Cake (Dark Soy Radish Cake)
+Chwee Kueh (Steamed Rice Cakes with Chai Poh)
+Chai Tow Kway (Fried Radish Cake)
+Lor Mee Crisps (Lor Mee Topping Crackers)
+You Tiao (Chinese Fried Dough Sticks)
+You Tiao with Kaya (Fried Dough with Coconut Jam)
+Tau Sar Piah (Sweet Bean Pastry)
+Salted Tau Sar Piah (Salted Mung Bean Pastry)
+Pineapple Tart (Pineapple Jam Tart)
+Kueh Lapis (Layered Spice Cake)
+Kueh Salat (Pandan Custard Glutinous Rice Cake)
+Ondeh-Ondeh (Palm Sugar Coconut Rice Balls)
+Ang Ku Kueh (Red Tortoise Cake)
+Pulut Hitam Kueh (Black Glutinous Rice Cake)
+Apam Balik (Peanut Turnover Pancake)
+Min Jiang Kueh (Peanut Pancake)
+Putu Piring (Steamed Rice Cake with Palm Sugar)
+Ice Kachang (Shaved Ice Dessert Snack)
+Chendol (Pandan Jelly Coconut Dessert)
+Wanton Dumpling (Pork and Shrimp Wonton)
+Wanton Soup Dumpling (Clear Broth Pork and Shrimp Wonton)
+Dry Wanton Dumpling (Seasoned Pork and Shrimp Wonton)
+Sui Kow (Large Cantonese Soup Dumpling)
+Char Siew Wanton Dumpling (Barbecued Pork Wonton)
+Prawn Wanton Dumpling (Shrimp Wonton)
+Chicken Wanton Dumpling (Chicken Wonton)
+Fish Paste Wanton Dumpling (Fish Wonton)
+Xiao Long Bao (Soup-Filled Pork Dumpling)
+Black Truffle Xiao Long Bao (Truffle Soup Pork Dumpling)
+Crab Roe Xiao Long Bao (Crab Roe Soup Pork Dumpling)
+Har Gow (Steamed Shrimp Dumpling)
+Crystal Har Gow (Crystal Shrimp Dumpling)
+Chive Har Gow (Chive and Shrimp Dumpling)
+Siew Mai (Steamed Pork Dumpling)
+Prawn Siew Mai (Pork and Shrimp Dumpling)
+Truffle Siew Mai (Truffle Pork Dumpling)
+Mushroom Siew Mai (Pork and Mushroom Dumpling)
+Chwee Kueh Dumpling (Steamed Rice Dumpling with Preserved Radish)
+Ngoh Hiang Roll (Five-Spice Pork Dumpling Roll)
+Crispy Ngoh Hiang Roll (Fried Five-Spice Pork Dumpling Roll)
+Lor Mai Gai (Glutinous Rice Chicken Dumpling)
+Teochew Crystal Dumpling (Teochew Steamed Dumpling)
+Teochew Chive Dumpling (Chive-Filled Steamed Dumpling)
+Teochew Yam Dumpling (Yam-Filled Steamed Dumpling)
+Teochew Png Kueh Dumpling (Peach-Shaped Glutinous Rice Dumpling)
+Hainanese Chicken Dumpling (Hainanese-Style Chicken Dumpling)
+Fish Dumpling Soup (Fish Paste Dumpling Soup)
+Salted Egg Yolk Dumpling (Salted Egg Filled Dumpling)
+Pork and Bamboo Shoot Dumpling (Traditional Cantonese Dumpling)
+Chilli Crab Sauce
+Black Pepper Crab Sauce
+Hainanese Chicken Rice Chilli Sauce
+Hainanese Chicken Rice Ginger Sauce
+Hainanese Chicken Rice Dark Soy Sauce
+Satay Peanut Sauce
+Sambal Belacan (Shrimp Paste Chilli Sauce)
+Sambal Tumis (Cooked Chilli Paste)
+Sambal Ikan Bilis (Anchovy Chilli Sauce)
+Sambal Sotong (Squid Chilli Sauce)
+Sambal Udang (Prawn Chilli Sauce)
+Sambal Goreng (Spiced Fried Chilli Sauce)
+Rojak Sauce (Sweet Shrimp Paste Fruit Salad Sauce)
+Hae Ko (Sweet Shrimp Paste Sauce)
+Laksa Rempah (Laksa Spice Paste)
+Curry Rempah (Singapore-Style Curry Paste)
+Otah Paste (Spiced Fish Paste)
+Kaya (Coconut Egg Jam)
+Yusheng Plum Sauce
+Calamansi Chilli Sauce
+Cut Chilli with Dark Soy Sauce
+Cut Chilli with Light Soy Sauce
+Sweet Black Sauce (Thick Soy Sauce)
+Ginger Scallion Sauce (Spring Onion Ginger Oil Sauce)
+Sambal Belacan (Chili–Shrimp Paste Dressing)
+Sambal Oelek (Fresh Red Chili Paste)
+Sambal Tumis (Cooked Chili Paste)
+Sambal Ikan Bilis (Anchovy Chili Dressing)
+Sambal Matah-Style Singapore Chili (Raw Chili Shallot Dressing)
+Hainanese Chicken Rice Chili Sauce (Garlic Ginger Chili Sauce)
+Hainanese Chicken Rice Ginger Sauce (Ginger–Scallion Dressing)
+Hainanese Chicken Rice Dark Soy Sauce (Sweet Soy Dressing)
+Satay Peanut Sauce (Spiced Peanut Dressing)
+Satay Marinade (Turmeric Lemongrass Meat Marinade)
+Rojak Sauce (Sweet Shrimp Paste Fruit Dressing)
+Indian Rojak Sauce (Spiced Peanut Shrimp Paste Dressing)
+Popiah Sweet Sauce (Thick Sweet Soy Dressing)
+Calamansi Chili Sauce (Citrus Chili Dressing)
+Chili Crab Sauce (Sweet Spicy Tomato Chili Sauce)
+Black Pepper Crab Sauce (Black Pepper Butter Sauce)
+Bak Kut Teh Chili Garlic Sauce (Chili Garlic Dipping Sauce)
+Ngoh Hiang Marinade (Five-Spice Pork Marinade)
+Char Siew Marinade, Singapore-Style (Sweet Soy Barbecue Marinade)
+Otah Spice Paste (Spiced Fish Marinade)
+Laksa Rempah (Spiced Coconut Curry Paste)
+Assam Sauce (Tamarind Chili Dressing)
+Cincalok Sauce (Fermented Shrimp Sauce Dressing)
+Belacan Chili Sauce (Roasted Shrimp Paste Chili Dressing)
+Dark Soy Garlic Sauce (Garlic Sweet Soy Dressing)
+Ginger Scallion Oil (Ginger–Scallion Dressing)
+Sweet Black Sauce (Thick Sweet Soy Dressing)
+Fish Head Curry Gravy (Spiced Curry Sauce)
+Sambal Kicap (Sweet Soy Chili Dressing)
+Five-Spice Powder (Chinese Five-Spice Blend)
+Singapore Five-Spice Powder (Local Five-Spice Blend)
+White Pepper and Salt Seasoning (Hawker Pepper Salt)
+Garlic Pepper Salt (Singapore-Style Garlic Pepper Seasoning)
+Curry Powder (Singapore Curry Powder)
+Fish Head Curry Spice Mix (Fish Head Curry Masala)
+Nonya Curry Powder (Peranakan Curry Spice Blend)
+Laksa Paste (Laksa Spice Paste)
+Laksa Rempah (Laksa Dry Spice Blend)
+Katong Laksa Spice Mix (Katong-Style Laksa Blend)
+Rendang Rempah (Rendang Spice Paste)
+Dry Rendang Spice Blend (Rendang Powder Mix)
+Satay Spice Mix (Satay Marinade Spice Blend)
+Satay Peanut Marinade Spice Mix (Satay Marinade with Peanut Base)
+BBQ Satay Dry Rub (Satay Dry Spice Rub)
+Bak Kut Teh Pepper Mix (Bak Kut Teh Spice Blend)
+Teochew Bak Kut Teh Spice Mix (White Pepper Bak Kut Teh Blend)
+Hokkien Bak Kut Teh Herbal Spice Pack (Dark Bak Kut Teh Herbal Blend)
+Char Siu Spice Mix (Chinese Barbecue Pork Seasoning)
+Char Siu Dry Rub (Chinese BBQ Dry Spice Rub)
+Roasted Char Siu Spice Powder (Roasted Barbecue Pork Spice Blend)
+Hainanese Chicken Rice Seasoning (Hainanese Chicken Spice Mix)
+Chicken Rice Garlic-Ginger Paste (Chicken Rice Aromatic Paste)
+Chicken Rice Chili Powder Base (Chicken Rice Chili Spice Blend)
+Black Pepper Crab Spice Mix (Singapore Black Pepper Crab Seasoning)
+Chili Crab Spice Paste (Singapore Chili Crab Sauce Base)
+Dry Chili Crab Spice Blend (Chili Crab Dry Spice Mix)
+Salted Egg Yolk Seasoning (Salted Egg Spice Powder)
+Salted Egg Butter Spice Mix (Salted Egg Sauce Seasoning)
+Cereal Prawn Spice Mix (Cereal Prawn Seasoning Blend)
+Cereal Chicken Spice Mix (Cereal Chicken Seasoning)
+Sambal Belacan Paste (Chili Shrimp Paste Sambal)
+Dry Sambal Powder (Sambal Chili Powder Blend)
+Sambal Ikan Bilis Seasoning (Anchovy Sambal Spice Mix)
+Nasi Lemak Spice Mix (Coconut Rice Spice Blend)
+Nasi Lemak Sambal Base (Nasi Lemak Chili Paste)
+Ayam Penyet Spice Rub (Indonesian-Style Fried Chicken Spice Rub as Served in Singapore)
+Ayam Masak Merah Spice Mix (Tomato Chili Chicken Spice Blend)
+Mee Goreng Spice Mix (Fried Noodle Spice Blend)
+Indian Muslim Curry Powder (Mamak Curry Powder)
+Rojak Sauce Spice Base (Rojak Dressing Spice Mix)
+Rojak Chili Shrimp Paste Mix (Rojak Sambal Base)
+Popiah Spice Seasoning (Fresh Spring Roll Spice Mix)
+Lor Bak Five-Spice Mix (Five-Spice Pork Roll Seasoning)
+Ngoh Hiang Five-Spice Blend (Five-Spice Meat Roll Seasoning)
+Chai Tow Kway White Pepper Mix (Fried Radish Cake Seasoning)
+Chai Tow Kway Dark Sauce Spice Mix (Dark Sauce Radish Cake Seasoning)
+Oyster Omelette Pepper Seasoning (Hawker Oyster Omelette Spice Mix)
+Har Cheong Gai (Prawn Paste Chicken Wings)
+Salted Egg Yolk Chicken Wings (Salted Egg Fried Chicken Wings)
+Cereal Chicken (Crispy Butter Cereal Chicken)
+Cereal Prawns (Crispy Butter Cereal Prawns)
+Ngoh Hiang (Five-Spice Pork Rolls)
+Hei Zhor (Deep-Fried Prawn Rolls)
+Popiah Goreng (Fried Spring Rolls)
+Fried Wontons (Deep-Fried Wanton Dumplings)
+Tau Hu Goreng (Deep-Fried Tofu with Bean Sprouts)
+Otah Goreng (Fried Spiced Fish Paste)
+Ikan Goreng (Malay-Style Deep-Fried Fish)
+Sotong Goreng (Deep-Fried Squid)
+Goreng Pisang (Banana Fritters)
+Goreng Ubi (Sweet Potato Fritters)
+Goreng Keledek (Deep-Fried Sweet Potato Fritters)
+Goreng Cempedak (Cempedak Fritters)
+Goreng Jackfruit (Jackfruit Fritters)
+You Tiao (Chinese Fried Dough Sticks)
+Fried Mantou (Deep-Fried Chinese Buns)
+Hainanese Pork Chop (Deep-Fried Pork Cutlet)
+Chicken Cutlet (Hawker-Style Deep-Fried Chicken Cutlet)
+Fried Oyster Fritters (Deep-Fried Oyster Patties)
+Deep-Fried Fish Cake (Crispy Fried Fish Cake)
+Steamed White Rice (Plain Steamed Rice)
+Hainanese Steamed Chicken (Hainanese Chicken Rice – Steamed Chicken)
+Steamed Minced Pork with Salted Fish
+Steamed Pork Patty with Salted Fish
+Steamed Pork Patty with Preserved Radish
+Steamed Pork Ribs with Black Bean Sauce
+Steamed Spare Ribs with Black Bean Sauce
+Steamed Fish with Soy Sauce
+Steamed Fish with Ginger and Scallions
+Steamed Pomfret with Soy Sauce
+Steamed Sea Bass with Ginger and Scallions
+Steamed Grouper with Superior Soy Sauce
+Steamed Cod with Ginger and Soy Sauce
+Steamed Egg Custard (Chinese Steamed Egg)
+Steamed Egg with Minced Pork
+Steamed Egg with Prawns
+Steamed Egg with Century Egg
+Steamed Egg with Salted Egg
+Steamed Tofu with Minced Pork
+Steamed Tofu with Soy Sauce
+Steamed Tofu with Dried Shrimps
+Steamed Tofu with Mushroom and Minced Pork
+Steamed Tofu with Century Egg
+Steamed Prawns with Garlic
+Steamed Prawns with Glass Noodles
+Steamed Prawns with Soy Sauce
+Steamed Scallops with Garlic and Vermicelli
+Steamed Crab with Egg White
+Steamed Crab with Garlic
+Steamed Abalone with Superior Sauce
+Steamed Clams with Garlic
+Steamed Mussels with Black Bean Sauce
+Steamed Chicken with Ginger and Wine
+Steamed Chicken with Dang Gui (Herbal Steamed Chicken)
+Steamed Chicken with Wolfberries
+Steamed Duck with Yam
+Steamed Duck with Preserved Vegetables
+Steamed Beef with Ginger and Scallions
+Steamed Beef with Black Pepper
+Steamed Beef with Bitter Gourd
+Steamed Beef Balls
+Steamed Pork Belly with Preserved Mustard Greens
+Steamed Pork Belly with Yam
+Steamed Pork Belly with Taro
+Steamed Pork with Fermented Bean Paste
+Steamed Pork with Preserved Olive Vegetables
+Steamed Fish Head with Black Bean Sauce
+Steamed Fish Head with Chopped Chili
+Steamed Fish Head with Ginger
+Steamed Lion’s Head Meatballs
+Steamed Choy Sum with Oyster Sauce
+Steamed Kai Lan with Soy Sauce
+Steamed Bok Choy with Garlic
+Steamed Chinese Broccoli with Ginger Oil
+Steamed Broccoli with Oyster Sauce
+Steamed Pumpkin with Garlic
+Steamed Bitter Gourd with Black Bean Sauce
+Steamed Yam Cake (Steamed Yam Cake)
+Steamed Radish Cake (Steamed Carrot Cake)
+Steamed Glutinous Rice with Chicken (Lo Mai Gai – Steamed Sticky Rice)
+Steamed Lotus Leaf Rice (Steamed Lotus Leaf Rice)
+Steamed Custard Bun (Lau Sa Bao – Salted Egg Custard Bun)
+Steamed BBQ Pork Bun (Char Siu Bao – Steamed Barbecue Pork Bun)
+Steamed Vegetable Bun
+Steamed Red Bean Bun
+Steamed Lotus Seed Bun
+Steamed Sponge Cake (Ma Lai Gao – Steamed Malay Sponge Cake)
+Steamed Rice Flour Cake (Chwee Kueh – Steamed Rice Cakes)
+Steamed Rice Dumplings (Zongzi – Steamed Rice Dumplings)
+Bak Kut Teh (Braised Pork Rib Soup)
+Teochew Bak Kut Teh (Teochew-Style Braised Pork Rib Soup)
+Hokkien Bak Kut Teh (Dark Soy Braised Pork Rib Soup)
+Braised Duck (Lor Ark) (Soy-Braised Duck)
+Braised Duck Rice (Lor Ark Fan) (Soy-Braised Duck with Rice)
+Braised Pig’s Trotters with Ginger (Teochew-Style Braised Pig’s Trotters)
+Braised Pork Belly (Tau Yew Bak) (Soy-Braised Pork Belly)
+Braised Pork Belly with Preserved Vegetables (Mui Choy Kau Yuk)
+Braised Pork Belly with Taro (Orh Nee Kau Yuk)
+Braised Chicken in Dark Soy Sauce (Tau Yew Gai)
+Braised Chicken Feet (Braised Chicken Claws)
+Braised Chicken Wings in Soy Sauce (Soy-Braised Chicken Wings)
+Braised Beef Brisket (Ngau Lam) (Chinese-Style Braised Beef Brisket)
+Braised Beef Brisket with Daikon (Radish Braised Beef Brisket)
+Braised Beef Tendon (Chinese-Style Braised Beef Tendon)
+Braised Pork Intestines (Braised Pork Offal)
+Braised Pork Knuckles (Braised Pork Hock)
+Braised Pork Knuckles with Vinegar (Pig’s Trotters in Vinegar)
+Braised Pork Ribs with Black Bean Sauce (Black Bean Braised Pork Ribs)
+Braised Fish with Preserved Vegetables (Chai Puey Braised Fish)
+Braised Threadfin Fish Head (Braised Fish Head in Soy Sauce)
+Braised Egg Tofu in Soy Sauce (Soy-Braised Egg Tofu)
+Braised Tofu with Minced Pork (Soy-Braised Tofu with Pork)
+Braised Tofu Skin Rolls (Braised Beancurd Skin Rolls)
+Braised Mushrooms in Oyster Sauce (Oyster Sauce Braised Mushrooms)
+Braised Abalone with Vegetables (Chinese-Style Braised Abalone)
+Braised Sea Cucumber (Chinese-Style Braised Sea Cucumber)
+Braised Pig’s Stomach with Pepper (Peppery Braised Pork Tripe)
+Braised Mixed Offal (Lor Chap) (Soy-Braised Mixed Pork Offal)
+Bak Kut Teh (Pork Rib Herbal Broth)
+Teochew Bak Kut Teh (Peppery Pork Rib Soup)
+Hokkien Bak Kut Teh (Dark Herbal Pork Rib Soup)
+Dry Bak Kut Teh Soup Base (Reduced Herbal Pork Stock)
+Superior Bak Kut Teh Stock (Double-Boiled Pork Rib Broth)
+Chicken Rice Stock (Hainanese Chicken Rice Broth)
+Premium Chicken Rice Soup Base (Clarified Chicken Rice Broth)
+Old Hen Soup (Slow-Simmered Mature Hen Broth)
+Double-Boiled Old Hen Soup (Superior Cantonese-Style Chicken Broth)
+Pork Bone Stock (White Pork Bone Broth)
+Superior Pork Bone Broth (Clear Pork Stock)
+Fish Bone Broth (Clear Fish Stock)
+Superior Fish Stock (Restaurant-Grade Clear Fish Broth)
+Fish Head Steamboat Broth (Fish Head Hot Pot Soup Base)
+Red Grouper Fish Head Soup (Fish Head Clear Broth)
+Garoupa Fish Soup Stock (Clear Garoupa Fish Broth)
+Teochew Fish Soup (Clear Fish Broth Soup Base)
+Milk Fish Soup (Fish Bone Milk Broth)
+Prawn Stock (Shellfish-Based Prawn Broth)
+Hokkien Prawn Stock (Roasted Prawn Shell Broth)
+Laksa Broth (Spiced Coconut Seafood Broth)
+Katong Laksa Broth (Coconut Curry Laksa Soup Base)
+Nonya Laksa Stock (Peranakan Spiced Coconut Broth)
+Curry Chicken Broth (Singapore-Style Curry Soup Base)
+Nonya Chicken Curry Stock (Peranakan Curry Broth)
+Mutton Soup Base (Spiced Mutton Broth)
+Sup Tulang Broth (Mutton Bone Soup Base)
+Sup Kambing Broth (Malay Spiced Goat Broth)
+Beef Bone Broth (Clear Beef Stock)
+Sup Lembu Broth (Malay Beef Soup Base)
+Herbal Chicken Soup (Chinese Herbal Chicken Broth)
+Ginseng Chicken Soup (Ginseng-Infused Chicken Broth)
+Dang Gui Chicken Soup (Angelica Root Chicken Broth)
+Winter Melon Soup (Clear Winter Melon Broth)
+Bitter Gourd Soup (Clear Bitter Gourd Broth)
+Lotus Root Soup (Pork Bone Lotus Root Broth)
+ABC Soup (Old-Fashioned Vegetable Pork Broth)
+Watercress Soup (Clear Watercress Pork Broth)
+Black Chicken Soup (Silkie Chicken Herbal Broth)
+Double-Boiled Herbal Soup (Superior Chinese Herbal Broth)
+Roast Turkey with Asian Spiced Stuffing
+Roast Turkey with Chestnut and Sausage Stuffing
+Turkey Rendang (Spiced Coconut Beef Rendang–Style Turkey)
+Turkey with Lemongrass and Pandan Aromatics
+Honey Soy Roast Turkey
+Five-Spice Roast Turkey
+Roast Chicken with Ginger and Scallion Sauce
+Soy Sauce Roast Chicken (Cantonese-Style Roast Chicken)
+Hainanese-Style Poached Chicken (Hainanese Chicken Rice Chicken)
+Roast Duck with Five-Spice Glaze
+Crispy Roast Pork Belly (Siu Yuk–Style Roast Pork)
+Char Siew (Cantonese Barbecued Pork)
+Prime Rib with Asian Herb Crust
+Black Pepper Beef Tenderloin (Singapore Black Pepper Beef)
+Wagyu Beef Rendang
+Lamb Rendang (Spiced Coconut Lamb Stew)
+Oxtail Rendang
+Seafood Otah (Grilled Spiced Fish Custard in Banana Leaf)
+Chili Crab (Singapore Chili Crab)
+Black Pepper Crab (Singapore Black Pepper Crab)
+Butter Prawns (Singapore Creamy Butter Prawns)
+Cereal Prawns (Singapore Cereal Butter Prawns)
+Salted Egg Yolk Prawns
+Steamed Fish with Soy Sauce and Ginger
+Baked Seabass with Sambal
+Peranakan Ayam Buah Keluak (Chicken in Black Nut Stew)
+Peranakan Babi Pongteh (Braised Pork in Fermented Soy Bean Sauce)
+Peranakan Chap Chye (Mixed Vegetable Stew)
+Peranakan Ngoh Hiang (Five-Spice Pork and Prawn Rolls)
+Peranakan Sambal Udang (Spicy Prawn Sambal)
+Braised Abalone with Mushrooms and Oyster Sauce
+Abalone Yee Sang (Prosperity Raw Fish Salad with Abalone)
+Salmon Yee Sang (Prosperity Raw Fish Salad with Salmon)
+Vegetarian Yee Sang (Prosperity Raw Vegetable Salad)
+Longevity Noodles (Birthday and Celebration Egg Noodles)
+Hokkien Mee (Singapore Fried Prawn Noodles)
+Fried Bee Hoon (Singapore Fried Rice Vermicelli)
+Nasi Lemak (Coconut Rice with Sambal and Condiments)
+Nasi Ulam (Herb Rice Salad)
+Coconut Curry Vegetables (Sayur Lodeh)
+Achar Awak (Peranakan Mixed Pickled Vegetables)
+Pineapple Tarts (Peranakan Pineapple Jam Pastries)
+Kueh Lapis (Layered Spiced Cake)
+Kueh Bangkit (Tapioca Coconut Cookies)
+Kueh Makmur (Ghee and Peanut Festive Cookies)
+Sugee Cake (Eurasian Semolina Almond Cake)
+Pandan Chiffon Cake
+Ondeh Ondeh (Palm Sugar Coconut Rice Balls)
+Pulut Hitam with Coconut Cream (Black Glutinous Rice Dessert)
+Bubur Cha Cha (Sweet Coconut Milk Dessert with Taro and Sweet Potato)
+Christmas Fruit Cake (Singapore-Style Rich Fruit Cake)
+Rum and Raisin Butter Cake
+Gula Melaka Cheesecake (Palm Sugar Cheesecake)
+Yu Sheng (Chinese New Year Raw Fish Salad)
+Salmon Yu Sheng (Raw Salmon Prosperity Toss)
+Abalone Yu Sheng (Raw Abalone Prosperity Toss)
+Vegetarian Yu Sheng (Vegetarian Prosperity Toss Salad)
+Classic Yu Sheng with Smoked Salmon (Traditional Prosperity Toss)
+Pen Cai (Chinese New Year Treasure Pot)
+Traditional Pen Cai (Classic New Year Treasure Pot)
+Luxury Abalone Pen Cai (Premium Treasure Pot)
+Sea Cucumber Pen Cai (Braised Sea Cucumber Treasure Pot)
+Home-Style Pen Cai (Everyday Treasure Pot)
+Bak Kwa (Sweet Barbecued Pork Jerky)
+Traditional Pork Bak Kwa (Classic Barbecued Pork Jerky)
+Spicy Pork Bak Kwa (Chili Barbecued Pork Jerky)
+Chicken Bak Kwa (Sweet Barbecued Chicken Jerky)
+Pineapple Tarts (Chinese New Year Pineapple Pastries)
+Open-Faced Pineapple Tarts (Melt-in-the-Mouth Pineapple Tarts)
+Rolled Pineapple Tarts (Enclosed Pineapple Pastries)
+Butter Pineapple Tarts (Traditional Butter Pineapple Cookies)
+Kueh Bangkit (Coconut Tapioca Cookies)
+Traditional Kueh Bangkit (Coconut Milk Tapioca Cookies)
+Pandan Kueh Bangkit (Pandan Coconut Tapioca Cookies)
+Love Letters (Crispy Coconut Egg Rolls)
+Traditional Love Letters (Classic Coconut Egg Rolls)
+Chocolate Love Letters (Chocolate Coconut Egg Rolls)
+Nian Gao (Chinese New Year Glutinous Rice Cake)
+Steamed Nian Gao (Traditional Glutinous Rice Cake)
+Pan-Fried Nian Gao with Egg (Fried Glutinous Rice Cake Slices)
+Yam Nian Gao (Yam Glutinous Rice Cake)
+Eight Treasure Rice (Sweet Glutinous Rice with Fruits and Nuts)
+Classic Eight Treasure Rice (Traditional Sweet Glutinous Rice)
+Lotus Seed Eight Treasure Rice (Glutinous Rice with Lotus Seeds)
+Braised Abalone with Oyster Sauce (Chinese New Year Abalone Dish)
+Braised Abalone with Mushrooms (Abalone and Shiitake Mushroom Stew)
+Whole Steamed Fish with Soy Sauce (Chinese New Year Whole Fish)
+Steamed Grouper with Ginger and Soy (Chinese New Year Steamed Fish)
+Steamed Sea Bass with Spring Onion Oil (Cantonese-Style New Year Fish)
+Roast Duck (Chinese-Style Roast Duck)
+Cantonese Roast Duck (Traditional Chinese Roast Duck)
+Roast Duck with Plum Sauce (Roast Duck with Sweet Plum Sauce)
+Soy Sauce Chicken (Cantonese-Style Poached Chicken)
+Traditional Soy Sauce Chicken (Braised Chicken in Soy Sauce)
+Herbal Soy Sauce Chicken (Herbal Braised Chicken)
+Hainanese Steamed Chicken (White-Cut Chicken)
+Poached Chicken with Ginger Sauce (Classic White-Cut Chicken)
+Braised Sea Cucumber with Mushrooms (Chinese New Year Sea Cucumber Dish)
+Braised Sea Cucumber with Abalone Sauce (Luxury Sea Cucumber Dish)
+Longevity Noodles (Chinese New Year Long Life Noodles)
+Stir-Fried Longevity Noodles (Wok-Fried Long Life Noodles)
+Longevity Ee Fu Noodles (Braised Ee Fu Noodles)
+Ee Fu Noodles with Mushrooms (Braised Mushroom Ee Fu Noodles)
+Char Siu (Cantonese Barbecued Pork)
+Honey Char Siu (Sweet Barbecued Pork)
+Roasted Crispy Pork Belly (Chinese Roast Pork Belly)
+Five-Spice Roast Pork Belly (Crispy Pork Belly with Five-Spice)
+Braised Pork Trotters with Vinegar (Chinese New Year Vinegar Pork)
+Traditional Vinegar Pork Trotters (Braised Pork with Ginger and Vinegar)
+Red-Braised Pork Belly (Hong Shao Rou – Red Braised Pork Belly)
+Braised Pork Belly with Chestnuts (New Year Pork Belly Dish)
+Singapore Steamboat (Classic Singapore Hot Pot)
+Teochew Fish Steamboat (Teochew-Style Fish Hot Pot)
+Fish Head Steamboat (Singapore Fish Head Hot Pot)
+Sliced Fish Steamboat (Singapore Sliced Fish Hot Pot)
+Seafood Steamboat (Singapore Mixed Seafood Hot Pot)
+Chicken Soup Steamboat (Singapore Chicken-Based Hot Pot)
+Herbal Chicken Steamboat (Chinese Herbal Chicken Hot Pot)
+Ginseng Chicken Steamboat (Ginseng Chicken Hot Pot)
+Collagen Chicken Steamboat (Collagen-Rich Chicken Hot Pot)
+Beauty Collagen Broth Steamboat (Premium Collagen Chicken Hot Pot)
+Prawn Broth Steamboat (Prawn-Based Singapore Hot Pot)
+Crab Steamboat (Singapore Crab Hot Pot)
+Bak Kut Teh Steamboat (Peppery Pork Rib Hot Pot)
+White Pepper Pork Rib Steamboat (Singapore Peppery Pork Hot Pot)
+Laksa Steamboat (Laksa Coconut Curry Hot Pot)
+Tom Yum Steamboat (Spicy Thai-Style Hot Pot, Singapore Menu Standard)
+Satay Steamboat (Peanut Satay Broth Hot Pot)
+Vegetarian Steamboat (Singapore Vegetable Hot Pot)
+Mushroom Steamboat (Mixed Mushroom Hot Pot)
+Signature Seafood Collagen Steamboat (Restaurant-Style Premium Hot Pot)
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Roast Chicken Rice (Cantonese-Style Roast Chicken with Rice)
+Soy Sauce Chicken Rice (Braised Soy Sauce Chicken with Rice)
+Char Siew Rice (Barbecued Pork with Rice)
+Roast Pork Rice (Crispy Roast Pork Belly with Rice)
+Claypot Chicken Rice (Chicken and Rice Cooked in Claypot)
+Bak Kut Teh (Pork Rib Herbal Soup)
+Teochew Bak Kut Teh (Peppery Pork Rib Soup)
+White Pepper Bak Kut Teh (Garlic Pepper Pork Rib Soup)
+Bakkut Teh with Youtiao (Pork Rib Soup with Fried Dough Sticks)
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Short-Noodle Coconut Laksa)
+Curry Laksa (Coconut Curry Noodle Soup)
+Assam Laksa (Tamarind Fish Noodle Soup)
+Fish Head Curry (Spicy Curry Fish Head)
+Chilli Crab (Stir-Fried Crab in Sweet Spicy Sauce)
+Black Pepper Crab (Crab in Black Pepper Sauce)
+Salted Egg Crab (Crab in Salted Egg Yolk Sauce)
+Sambal Crab (Crab in Spicy Chilli Paste)
+Char Kway Teow (Stir-Fried Flat Rice Noodles)
+Black Char Kway Teow (Dark Soy Fried Rice Noodles)
+White Char Kway Teow (Light Soy Fried Rice Noodles)
+Hokkien Mee (Prawn and Pork Noodle Stir-Fry)
+Singapore Hokkien Prawn Mee (Seafood Fried Noodles)
+Prawn Mee (Prawn Noodle Soup)
+Dry Prawn Mee (Dry Tossed Prawn Noodles)
+Wanton Mee (Egg Noodles with Dumplings)
+Dry Wanton Mee (Tossed Egg Noodles with Dumplings)
+Soup Wanton Mee (Egg Noodles in Broth with Dumplings)
+Bak Chor Mee (Minced Pork Noodles)
+Bak Chor Mee Vinegar Style (Minced Pork Noodles with Black Vinegar)
+Mee Pok Bak Chor (Flat Egg Noodles with Minced Pork)
+Mee Kia Bak Chor (Thin Egg Noodles with Minced Pork)
+Lor Mee (Thick Gravy Noodles)
+Mee Rebus (Malay Spiced Gravy Noodles)
+Mee Siam (Spicy Tamarind Rice Vermicelli)
+Mee Goreng (Fried Yellow Noodles)
+Fried Carrot Cake (Radish Cake Stir-Fry)
+White Carrot Cake (White Radish Cake Stir-Fry)
+Black Carrot Cake (Dark Soy Radish Cake Stir-Fry)
+Oyster Omelette (Fried Oyster Egg Omelette)
+Chai Tow Kway (Radish Cake Stir-Fry)
+Satay (Grilled Skewered Meat with Peanut Sauce)
+Chicken Satay (Grilled Chicken Skewers)
+Beef Satay (Grilled Beef Skewers)
+Mutton Satay (Grilled Mutton Skewers)
+Ketupat (Compressed Rice Cakes)
+Rojak (Singapore-Style Fruit and Vegetable Salad)
+Indian Rojak (Indian-Style Fried Fritters Salad)
+Popiah (Fresh Spring Rolls)
+Fried Popiah (Fried Spring Rolls)
+Kway Chap (Braised Pork Offal with Rice Rolls)
+Braised Duck Rice (Braised Duck with Rice)
+Teochew Braised Duck (Soy-Braised Duck)
+Duck Noodle Soup (Braised Duck Noodles)
+Nasi Lemak (Coconut Rice with Condiments)
+Nasi Lemak with Fried Chicken (Coconut Rice with Fried Chicken)
+Nasi Lemak with Ikan Bilis (Coconut Rice with Anchovies)
+Nasi Lemak with Sambal Prawn (Coconut Rice with Sambal Prawns)
+Nasi Padang (Mixed Rice with Indonesian Dishes)
+Beef Rendang (Slow-Cooked Spiced Beef)
+Chicken Rendang (Slow-Cooked Spiced Chicken)
+Ayam Penyet (Smashed Fried Chicken with Sambal)
+Sambal Kang Kong (Stir-Fried Water Spinach with Sambal)
+Gado-Gado (Vegetable Salad with Peanut Sauce)
+Otah (Grilled Spiced Fish Paste)
+Otak-Otak (Spiced Fish Custard in Banana Leaf)
+Ikan Bakar (Grilled Spiced Fish)
+Chwee Kueh (Steamed Rice Cakes with Preserved Radish)
+Chee Cheong Fun (Steamed Rice Rolls)
+Yong Tau Foo (Stuffed Tofu and Vegetables)
+Soup Yong Tau Foo (Stuffed Tofu Soup)
+Dry Yong Tau Foo (Dry Tossed Stuffed Tofu)
+Congee (Rice Porridge)
+Teochew Porridge (Plain Rice Porridge with Side Dishes)
+Fish Porridge (Rice Porridge with Fish)
+Century Egg Porridge (Rice Porridge with Century Egg)
+Kaya Toast (Coconut Jam Toast)
+Soft-Boiled Eggs with Soy Sauce (Traditional Kopitiam Eggs)
+Kopi (Singapore-Style Coffee)
+Teh Tarik (Pulled Milk Tea)
+Ice Kachang (Shaved Ice Dessert with Syrups)
+Chendol (Coconut Milk Dessert with Pandan Jelly)
+Tau Suan (Split Mung Bean Dessert Soup)
+Bubur Cha Cha (Sweet Coconut Yam Dessert)
+Pulut Hitam (Black Glutinous Rice Dessert)
+Ondeh Ondeh (Palm Sugar Glutinous Rice Balls)
+Kuih Lapis (Layered Steamed Rice Cake)
+Kuih Seri Muka (Glutinous Rice with Pandan Custard)
+Pineapple Tarts (Buttery Pineapple Jam Pastries)
+Kueh Bangkit (Tapioca Coconut Cookies)
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Roasted Chicken Rice (Roast Chicken with Fragrant Rice)
+Soy Sauce Chicken Rice (Soy-Braised Chicken with Fragrant Rice)
+Chicken Rice Balls (Compressed Chicken Rice Balls)
+Chicken Rice Chilli Sauce (Chicken Rice Ginger-Chilli Sauce)
+Chicken Rice Dark Soy Sauce (Sweet Dark Soy Sauce for Chicken Rice)
+
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Peranakan Coconut Laksa)
+Laksa Lemak (Rich Coconut Laksa)
+Dry Laksa (Dry Spicy Laksa Noodles)
+Seafood Laksa (Laksa with Prawns and Seafood)
+
+Bak Kut Teh (Pork Rib Soup)
+Peppery Bak Kut Teh (White Pepper Pork Rib Soup)
+Herbal Bak Kut Teh (Chinese Herbal Pork Rib Soup)
+Dry Bak Kut Teh (Dry Braised Pork Rib Bak Kut Teh)
+
+Chilli Crab (Crab in Sweet Spicy Tomato-Chilli Sauce)
+Black Pepper Crab (Crab in Black Pepper Sauce)
+Salted Egg Yolk Crab (Crab with Salted Egg Yolk Sauce)
+Cereal Prawn (Prawns with Butter Cereal)
+Cereal Crab (Crab with Butter Cereal)
+
+Char Kway Teow (Stir-Fried Flat Rice Noodles)
+White Char Kway Teow (Pale Soy Stir-Fried Rice Noodles)
+Black Char Kway Teow (Dark Soy Stir-Fried Rice Noodles)
+
+Hokkien Mee (Prawn and Pork Noodle Stir-Fry)
+Wet Hokkien Mee (Gravy-Fried Prawn Noodles)
+Dry Hokkien Mee (Dry-Fried Prawn Noodles)
+
+Wanton Mee (Egg Noodles with Dumplings)
+Dry Wanton Mee (Dry Egg Noodles with Dumplings)
+Soup Wanton Mee (Egg Noodles in Clear Broth)
+Char Siew Wanton Mee (Roast Pork Egg Noodles)
+
+Bak Chor Mee (Minced Pork Noodles)
+Bak Chor Mee Soup (Minced Pork Noodle Soup)
+Bak Chor Mee Dry (Dry Minced Pork Noodles)
+
+Mee Pok (Flat Egg Noodles)
+Mee Kia (Thin Egg Noodles)
+Mee Tai Mak (Short Rice Noodles)
+
+Fishball Noodle Soup (Fish Ball Noodles)
+Fishball Mee Pok (Fish Ball Flat Egg Noodles)
+
+Kaya Toast (Coconut Jam Toast)
+Butter Kaya Toast (Kaya Toast with Butter)
+Half-Boiled Eggs (Soft-Cooked Eggs)
+Soft-Boiled Eggs with Soy Sauce (Soft Eggs with Dark Soy and Pepper)
+
+Roti Prata (Indian Flatbread)
+Plain Prata (Plain Indian Flatbread)
+Egg Prata (Egg-Stuffed Flatbread)
+Cheese Prata (Cheese-Stuffed Flatbread)
+Prata Bomb (Sweet Condensed Milk Prata)
+
+Nasi Lemak (Coconut Rice Set)
+Nasi Lemak with Fried Chicken (Coconut Rice with Fried Chicken)
+Nasi Lemak with Ikan Bilis (Coconut Rice with Anchovies)
+Nasi Lemak with Otah (Coconut Rice with Grilled Fish Cake)
+
+Nasi Briyani (Spiced Rice with Meat)
+Chicken Briyani (Spiced Rice with Chicken)
+Mutton Briyani (Spiced Rice with Mutton)
+Dum Briyani (Sealed Pot Briyani)
+
+Mee Rebus (Sweet Spiced Gravy Noodles)
+Mee Siam (Sweet and Sour Rice Vermicelli)
+Mee Siam Goreng (Fried Mee Siam)
+
+Satay (Grilled Skewered Meat with Peanut Sauce)
+Chicken Satay (Grilled Chicken Skewers)
+Mutton Satay (Grilled Mutton Skewers)
+Beef Satay (Grilled Beef Skewers)
+
+Ketupat (Compressed Rice Cakes)
+Lontong (Rice Cakes in Vegetable Curry)
+Lontong Sayur (Vegetable Curry with Rice Cakes)
+
+Rendang (Slow-Cooked Spiced Meat)
+Beef Rendang (Spiced Beef Rendang)
+Chicken Rendang (Spiced Chicken Rendang)
+
+Ayam Penyet (Smashed Fried Chicken with Sambal)
+Ikan Penyet (Smashed Fried Fish with Sambal)
+
+Sambal Stingray (Grilled Stingray with Sambal)
+Barbecued Stingray (Charcoal-Grilled Stingray)
+
+Oyster Omelette (Fried Oyster Egg Omelette)
+Crispy Oyster Omelette (Crispy Fried Oyster Omelette)
+
+Carrot Cake (Fried Radish Cake)
+White Carrot Cake (Radish Cake with Egg)
+Black Carrot Cake (Radish Cake with Sweet Dark Soy)
+
+Popiah (Fresh Spring Roll)
+Fried Popiah (Fried Spring Roll)
+
+Otah (Grilled Spiced Fish Cake)
+Otah Otah (Banana Leaf Grilled Fish Paste)
+
+Kway Chap (Braised Pork with Flat Rice Sheets)
+Braised Kway Chap (Soy-Braised Pork with Rice Sheets)
+
+Lor Mee (Thick Gravy Noodles)
+Shredded Chicken Lor Mee (Lor Mee with Chicken)
+
+Tau Huay (Soybean Pudding)
+Tau Huay with Ginkgo Nuts (Soy Pudding with Ginkgo)
+
+Ice Kacang (Shaved Ice Dessert with Syrup and Beans)
+Chendol (Coconut Milk Dessert with Pandan Jelly)
+Pulut Hitam (Black Glutinous Rice Dessert)
+
+Kaya (Coconut Egg Jam)
+Pandan Chiffon Cake (Pandan Sponge Cake)
+
+Chicken Curry (Singapore-Style Chicken Curry)
+Fish Head Curry (Spicy Fish Head Curry)
+
+Economic Rice (Mixed Rice with Assorted Dishes)
+Chap Fan (Mixed Rice with Assorted Dishes)
+Yu Sheng (Prosperity Toss Salad)
+Classic Yu Sheng (Prosperity Toss Salad)
+Salmon Yu Sheng (Prosperity Toss Salad)
+Abalone Yu Sheng (Prosperity Toss Salad)
+Vegetarian Yu Sheng (Prosperity Toss Salad)
+Pen Cai (Prosperity Treasure Pot)
+Classic Pen Cai (Prosperity Treasure Pot)
+Abalone Pen Cai (Prosperity Treasure Pot)
+Sea Cucumber Pen Cai (Prosperity Treasure Pot)
+Premium Seafood Pen Cai (Prosperity Treasure Pot)
+Bak Kwa (Sweet Barbecued Pork Jerky)
+Traditional Bak Kwa (Sweet Barbecued Pork Jerky)
+Premium Iberico Bak Kwa (Sweet Barbecued Pork Jerky)
+Pineapple Tarts (Pineapple Jam Cookies)
+Open-Faced Pineapple Tarts (Pineapple Jam Cookies)
+Enclosed Pineapple Tarts (Pineapple Jam Cookies)
+Nyonya Pineapple Tarts (Peranakan Pineapple Jam Cookies)
+Love Letters (Crispy Egg Roll Wafers)
+Kueh Bangkit (Tapioca Coconut Cookies)
+Kueh Kapit (Crispy Coconut Egg Rolls)
+Kueh Lapis (Layered Spice Cake)
+Nian Gao (Glutinous Rice New Year Cake)
+Steamed Nian Gao (Glutinous Rice New Year Cake)
+Pan-Fried Nian Gao with Egg (Glutinous Rice New Year Cake)
+Yam Cake (Savory Yam Rice Cake)
+Steamed Yam Cake (Savory Yam Rice Cake)
+Carrot Cake (Fried Radish Rice Cake)
+White Carrot Cake (Fried Radish Rice Cake)
+Black Carrot Cake (Fried Radish Rice Cake)
+Braised Abalone with Mushrooms (Chinese New Year Abalone Dish)
+Braised Sea Cucumber with Mushrooms (Chinese New Year Sea Cucumber Dish)
+White Pepper Bak Kut Teh (Peppery Pork Rib Soup)
+Teochew Steamed Fish (Lightly Steamed Whole Fish)
+Steamed Pomfret (Chinese New Year Steamed Fish)
+Steamed Grouper (Chinese New Year Steamed Fish)
+Roast Duck (Cantonese Roast Duck)
+Soy Sauce Chicken (Cantonese Soy-Braised Chicken)
+Hainanese Steamed Chicken (Hainanese Chicken Rice Chicken)
+Longevity Noodles (Yi Mein)
+Fried Yi Mein with Mushrooms (Longevity Noodles)
+Braised Yi Mein with Abalone (Longevity Noodles)
+Eight Treasure Rice (Glutinous Rice with Dried Fruits and Nuts)
+Red Bean Soup with Tang Yuan (Sweet Rice Dumpling Soup)
+Tang Yuan (Glutinous Rice Dumplings)
+Peanut Tang Yuan (Glutinous Rice Dumplings)
+Black Sesame Tang Yuan (Glutinous Rice Dumplings)
+Kuih Bahulu (Traditional Sponge Cakes)
+Kuih Makmur (Ghee Peanut Cookies)
+Kuih Semperit (Butter Shortbread Cookies)
+Kuih Sugee (Almond Semolina Cake)
+Gula Melaka Syrup (Palm Sugar Syrup)
+Pandan Syrup (Pandan Leaf Syrup)
+Rose Syrup (Bandung Rose Syrup)
+Calamansi Syrup (Calamansi Lime Syrup)
+Asam Jawa Syrup (Tamarind Syrup)
+Lemongrass Syrup (Lemongrass Sugar Syrup)
+Ginger Syrup (Fresh Ginger Syrup)
+Rock Sugar Syrup (Chinese Rock Sugar Syrup)
+Brown Sugar Syrup (Dark Cane Sugar Syrup)
+Coconut Sugar Syrup (Coconut Palm Sugar Syrup)
+Winter Melon Syrup (Winter Melon Sugar Syrup)
+Longan Syrup (Dried Longan Sweet Syrup)
+Grass Jelly Syrup (Grass Jelly Sugar Syrup)
+Barley Syrup Concentrate (Barley Water Syrup)
+Honey Lime Syrup (Honey Calamansi Syrup)
+Pandan Gula Melaka Syrup (Pandan Palm Sugar Syrup)
+Gula Melaka Reduction (Reduced Palm Sugar Syrup)
+Chendol Gula Melaka Syrup (Chendol Palm Sugar Syrup)
+Teh Tarik Gula Melaka Syrup (Pulled Milk Tea Palm Sugar Syrup)
+Kopi Gula Melaka Syrup (Coffee Palm Sugar Syrup)
+Pineapple Tart (Singapore-Style Pineapple Butter Biscuit)
+Open-Faced Pineapple Tart (Open Pineapple Butter Biscuit)
+Rolled Pineapple Tart (Rolled Pineapple Butter Biscuit)
+Gula Melaka Pineapple Tart (Palm Sugar Pineapple Biscuit)
+Butter Pineapple Tart (Butter Pineapple Biscuit)
+Kueh Bangkit (Tapioca Coconut Biscuit)
+Pandan Kueh Bangkit (Pandan Tapioca Coconut Biscuit)
+Gula Melaka Kueh Bangkit (Palm Sugar Tapioca Coconut Biscuit)
+Sugee Biscuit (Semolina Almond Butter Biscuit)
+Cashew Sugee Biscuit (Cashew Semolina Butter Biscuit)
+Almond Sugee Biscuit (Almond Semolina Butter Biscuit)
+Kueh Kapit (Coconut Egg Wafer Biscuit / Love Letters)
+Pandan Kueh Kapit (Pandan Coconut Egg Wafer Biscuit)
+Chocolate Kueh Kapit (Chocolate Coconut Egg Wafer Biscuit)
+Butter Cookies (Traditional Butter Biscuits)
+Almond Cookies (Almond Butter Biscuits)
+Peanut Cookies (Peanut Butter Biscuits)
+Pandan Butter Cookies (Pandan Butter Biscuits)
+Ginger Cookies (Ginger Spice Biscuits)
+Cornflake Cookies (Cornflake Butter Biscuits)
+Oatmeal Raisin Cookies (Oatmeal Raisin Biscuits)
+Chocolate Chip Cookies (Chocolate Chip Biscuits)
+Satay (Grilled Skewered Meat with Peanut Sauce)
+Chicken Satay (Grilled Chicken Skewers with Peanut Sauce)
+Beef Satay (Grilled Beef Skewers with Peanut Sauce)
+Mutton Satay (Grilled Mutton Skewers with Peanut Sauce)
+Pork Satay (Grilled Pork Skewers with Peanut Sauce)
+Satay Bee Hoon (Rice Vermicelli with Satay Sauce)
+Otah-Otah (Grilled Spiced Fish Paste in Banana Leaf)
+Ikan Otah (Grilled Spiced Fish Paste)
+Seafood Otah (Grilled Spiced Seafood Paste)
+Sambal Stingray (Grilled Stingray with Sambal Chili)
+Barbecued Sambal Prawns (Grilled Prawns with Sambal Chili)
+Barbecued Squid with Sambal (Grilled Squid with Chili Paste)
+Chicken Wings with Sambal (Grilled Chicken Wings with Chili Sauce)
+Barbecued Chicken Wings (Singapore-Style BBQ Chicken Wings)
+Chilli Crab (Spicy Tomato-Chili Crab)
+Black Pepper Crab (Peppery Stir-Fried Crab)
+Salted Egg Crab (Crab with Salted Egg Yolk Sauce)
+Grilled Crab with Sambal (Barbecued Crab with Chili Paste)
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Roasted Chicken Rice (Roast Chicken with Fragrant Rice)
+Chicken Rice Ball (Compressed Rice Balls with Chicken)
+Nasi Lemak (Coconut Rice with Sambal and Sides)
+Nasi Lemak with Fried Chicken (Coconut Rice with Crispy Chicken)
+Nasi Lemak with Grilled Fish (Coconut Rice with Grilled Fish)
+Nasi Lemak with Otah (Coconut Rice with Spiced Fish Cake)
+Fried Bee Hoon (Stir-Fried Rice Vermicelli)
+Singapore Fried Noodles (Curried Stir-Fried Vermicelli)
+Char Kway Teow (Stir-Fried Flat Rice Noodles)
+Seafood Char Kway Teow (Flat Rice Noodles with Seafood)
+BBQ Pork Char Kway Teow (Flat Rice Noodles with Barbecued Pork)
+Mee Goreng (Spicy Fried Yellow Noodles)
+Indian Mee Goreng (Spicy Indian-Style Fried Noodles)
+Hokkien Mee (Prawn and Pork Noodle Stir-Fry)
+Seafood Hokkien Mee (Prawn-Based Fried Noodles)
+Bak Chor Mee (Minced Pork Noodles)
+Dry Bak Chor Mee (Minced Pork Noodles, Dry Style)
+Soup Bak Chor Mee (Minced Pork Noodles in Soup)
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Cut Noodles in Coconut Curry Broth)
+Grilled Laksa Prawns (Barbecued Prawns with Laksa Marinade)
+Chicken Curry (Singapore-Style Chicken Curry)
+Mutton Curry (Singapore-Style Mutton Curry)
+Fish Head Curry (Spicy Curry with Fish Head)
+Curry Chicken Wings (Chicken Wings in Curry Sauce)
+Satay Chicken Wings (Grilled Chicken Wings with Satay Marinade)
+Kaya Toast Sandwiches (Coconut Jam Toast Sandwiches)
+Grilled Kaya Toast (Toasted Bread with Coconut Jam and Butter)
+Roti Prata (Indian Flatbread)
+Roti Prata with Curry (Flatbread with Curry Dip)
+Roti Prata with Sugar (Flatbread with Sugar)
+Roti Prata with Egg (Egg-Stuffed Flatbread)
+BBQ Pork Belly (Singapore-Style Grilled Pork Belly)
+Barbecued Char Siu (Cantonese-Style BBQ Pork)
+Char Siu Skewers (Grilled Sweet Barbecued Pork Skewers)
+Grilled Sambal Fish (Barbecued Fish with Chili Paste)
+Grilled Banana Leaf Fish (Fish Grilled in Banana Leaf)
+Sambal Tofu (Grilled Tofu with Chili Sauce)
+Grilled Satay Tofu (Grilled Tofu with Peanut Marinade)
+Grilled Mushrooms with Sambal (Barbecued Mushrooms with Chili Paste)
+BBQ Sambal Eggplant (Grilled Eggplant with Chili Paste)
+Keropok Udang (Prawn Crackers)
+Keropok Ikan (Fish Crackers)
+Keropok Lekor (East Coast Fish Crackers)
+Keropok Kulit Ikan (Fish Skin Crackers)
+Salted Egg Yolk Fish Skin Crackers
+Chilli Crab Prawn Crackers
+Black Pepper Crab Prawn Crackers
+Cereal Prawn Crackers
+Tapioca Crackers
+Seaweed Prawn Crackers
+Shrimp Paste Crackers
+Squid Crackers
+Cuttlefish Crackers
+Anchovy Crackers
+Murukku (South Indian Spiced Rice Flour Crackers)
+Butter Murukku (Buttery South Indian Crackers)
+Ribbon Murukku (Ribbon-Shaped Spiced Crackers)
+Pepper Murukku (Black Pepper Spiced Crackers)
+Kueh Kapit (Love Letter Coconut Crackers)
+Pandan Kueh Kapit (Pandan Coconut Crackers)
+Gula Melaka Kueh Kapit (Palm Sugar Coconut Crackers)
+Sesame Seed Crackers
+Peanut Crackers
+Rice Crackers
+Shrimp Floss Crackers
+Curry Leaf Prawn Crackers
+Chinese Rojak (Singapore Fruit Salad)
+Indian Rojak (Indian Mixed Fritter Salad)
+You Tiao Rojak (Fried Dough Stick Salad)
+Jellyfish Rojak (Jellyfish Salad)
+Yu Sheng (Prosperity Raw Fish Salad)
+Salmon Yu Sheng (Salmon Prosperity Salad)
+Abalone Yu Sheng (Abalone Prosperity Salad)
+Vegetarian Yu Sheng (Vegetarian Prosperity Salad)
+Kerabu Mangga (Green Mango Salad)
+Kerabu Timun (Cucumber Salad)
+Kerabu Kacang Botol (Winged Bean Salad)
+Kerabu Pucuk Paku (Fiddlehead Fern Salad)
+Kerabu Sotong (Squid Salad)
+Achar Awak (Nyonya Pickled Vegetable Salad)
+Achar Nanas (Pineapple Pickle Salad)
+Achar Rampai (Mixed Vegetable Pickle Salad)
+Tauhu Goreng (Fried Tofu Salad with Peanut Sauce)
+Gado-Gado (Singapore-Style Mixed Vegetable Salad)
+Nasi Ulam (Herbed Rice Salad)
+Ulam Raja Salad (Herb Leaf Salad)
+Popiah Salad (Fresh Spring Roll Salad)
+Kaya Toast (Coconut Jam and Butter Toast Sandwich)
+Kaya Butter Toast (Coconut Jam and Butter Toast Sandwich)
+Soft-Boiled Egg Kaya Toast Sandwich (Kaya Toast with Soft-Boiled Eggs)
+French Toast Kaya Sandwich (Kaya-Filled French Toast Sandwich)
+Peanut Butter Toast Sandwich (Peanut Butter Toast Sandwich)
+Kaya Peanut Butter Toast Sandwich (Kaya and Peanut Butter Toast Sandwich)
+Ham and Cheese Toast Sandwich (Singapore-Style Toasted Ham and Cheese Sandwich)
+Chicken Ham and Cheese Toast Sandwich (Toasted Chicken Ham and Cheese Sandwich)
+Egg Mayo Sandwich (Singapore-Style Egg Mayonnaise Sandwich)
+Tuna Mayo Sandwich (Singapore-Style Tuna Mayonnaise Sandwich)
+Chicken Cutlet Sandwich (Fried Chicken Cutlet Sandwich)
+Curry Chicken Sandwich (Singapore Curry Chicken Sandwich)
+Hainanese Chicken Sandwich (Hainanese Chicken Sandwich)
+Luncheon Meat and Egg Sandwich (Spam and Egg Sandwich)
+Otah Sandwich (Grilled Spiced Fish Paste Sandwich)
+Otah Bun Sandwich (Otah-Filled Bread Roll Sandwich)
+Fish Fillet Sandwich (Singapore-Style Fish Fillet Sandwich)
+Chilli Crab Sandwich (Chilli Crab Sandwich)
+Black Pepper Crab Sandwich (Black Pepper Crab Sandwich)
+Satay Chicken Sandwich (Chicken Satay Sandwich)
+Satay Beef Sandwich (Beef Satay Sandwich)
+Roti John (Minced Meat Omelette Sandwich)
+Ice Cream Sandwich (Singapore Rainbow Bread Ice Cream Sandwich)
+Butter Sugar Bread Sandwich (Butter and Sugar Sandwich)
+Kaya Butter Bun (Kaya and Butter Bun Sandwich)
+Steak Sanger (Grilled Steak Sandwich)
+Hainanese Chicken Rice Ginger–Scallion Sauce
+Hainanese Chicken Rice Chili Sauce
+Hainanese Chicken Rice Dark Soy Sauce
+Laksa Gravy
+Katong Laksa Gravy
+Curry Laksa Gravy
+Asam Laksa Gravy (Tamarind Fish Gravy)
+Bak Kut Teh Peppery Broth (Pepper Pork Rib Gravy)
+Teochew Bak Kut Teh Clear Pepper Broth
+Hokkien Bak Kut Teh Herbal Broth (Herbal Pork Rib Gravy)
+Rendang Gravy (Dry Spiced Coconut Beef Gravy)
+Beef Rendang Gravy
+Chicken Rendang Gravy
+Mutton Rendang Gravy
+Satay Peanut Sauce
+Malay Satay Peanut Gravy
+Chinese Satay Sauce (Local Hawker Style Peanut Gravy)
+Rojak Sauce (Sweet Shrimp Paste Gravy)
+Indian Rojak Sauce (Spiced Tamarind Peanut Gravy)
+Char Kway Teow Dark Soy Gravy
+Hokkien Mee Prawn Stock Gravy
+Hokkien Mee Sambal Gravy
+Lor Mee Gravy (Thick Braised Egg Noodle Gravy)
+Ngoh Hiang Sweet Sauce (Five-Spice Roll Sweet Gravy)
+Chilli Crab Sauce
+Black Pepper Crab Sauce
+Salted Egg Yolk Crab Sauce
+Salted Egg Yolk Sauce (Salted Egg Butter Gravy)
+Cereal Prawn Butter Sauce
+Butter Prawn Sauce
+Sambal Chili Sauce
+Sambal Belacan (Shrimp Paste Chili Gravy)
+Nasi Lemak Coconut Sambal
+Ayam Masak Merah Tomato Chili Gravy
+Ayam Masak Kicap Sweet Soy Chicken Gravy
+Kari Ayam Curry Gravy (Malay Chicken Curry Gravy)
+Fish Head Curry Gravy
+Mutton Curry Gravy
+Sup Tulang Marrow Gravy (Peppery Bone Soup Gravy)
+Mee Siam Tamarind Chili Gravy
+Mee Rebus Sweet Potato Gravy
+Mee Rebus Peanut Sweet Potato Gravy
+Tau Yu Bak Braising Sauce (Soy-Braised Pork Gravy)
+Kong Bak Dark Soy Braising Gravy
+Claypot Rice Dark Soy Gravy
+Oyster Sauce Gravy (Chinese Oyster Sauce Reduction)
+Sweet and Sour Sauce (Chinese Sweet Sour Gravy)
+Black Pepper Sauce (Chinese Black Pepper Gravy)
+Ginger Scallion Oil Sauce (Chinese Ginger–Scallion Gravy)
+Kaya (Coconut Jam)
+Pandan Kaya (Pandan Coconut Jam)
+Gula Melaka Kaya (Palm Sugar Coconut Jam)
+Traditional Hainanese Kaya (Hainanese Coconut Jam)
+Silky Kaya Spread (Fine-Strained Coconut Jam)
+Pineapple Jam (Spiced Pineapple Jam for Tarts)
+Nyonya Pineapple Jam (Peranakan Spiced Pineapple Jam)
+Dry-Style Pineapple Jam (Reduced Pineapple Paste)
+Calamansi Marmalade (Calamansi Citrus Marmalade)
+Calamansi Jelly (Calamansi Citrus Jelly)
+Ginger Jam (Fresh Ginger Preserve)
+Young Ginger Jam (Tender Ginger Preserve)
+Roselle Jam (Hibiscus Jam)
+Mango Jam (Tropical Mango Preserve)
+Durian Jam (Durian Fruit Preserve)
+Lychee Jam (Lychee Fruit Preserve)
+Chilli Jam (Sweet Spicy Chilli Jam)
+Achar (Mixed Vegetable Pickle)
+Achar Awak (Spiced Mixed Vegetable Pickle)
+Achar Rampai (Peranakan Mixed Vegetable Pickle)
+Achar Nanas (Pineapple Pickle)
+Achar Timun (Cucumber Pickle)
+Achar Lobak (Carrot and Daikon Pickle)
+Achar Chili (Pickled Chilies)
+Nonya Achar (Peranakan Spiced Vegetable Pickle)
+Nonya Achar Timun (Peranakan Cucumber Pickle)
+Nonya Achar Nanas (Peranakan Pineapple Pickle)
+Sambal Achar (Pickled Vegetables in Chili Paste)
+Pickled Green Chillies (Singapore-Style Pickled Green Chilies)
+Pickled Red Chillies (Singapore-Style Pickled Red Chilies)
+Pickled Bird’s Eye Chillies (Pickled Chili Padi)
+Pickled Garlic (Chinese-Style Sweet Garlic Pickle)
+Pickled Shallots (Sweet Vinegar Shallot Pickle)
+Pickled Ginger (Chinese-Style Pickled Young Ginger)
+Pickled Mustard Greens (Preserved Mustard Greens)
+Salted Mustard Greens (Salted Preserved Mustard Greens)
+Preserved Mustard Stem (Salted Preserved Mustard Stem)
+Cincalok (Fermented Shrimp Paste)
+Cincalok Chili (Fermented Shrimp Chili Pickle)
+Cincalok Limau Kasturi (Fermented Shrimp with Calamansi Pickle)
+Taucheo (Fermented Soybean Paste)
+Sweet Taucheo (Sweet Fermented Soybean Paste)
+Salted Lemons (Preserved Salted Lemons)
+Preserved Lime (Salted Lime Preserve)
+Preserved Kumquat (Sweet Pickled Kumquat)
+Pickled Papaya (Green Papaya Pickle)
+Pickled Mango (Green Mango Pickle)
+Pickled Pineapple Skin (Fermented Pineapple Skin Pickle)
+Pickled Turnip (Salted Preserved Turnip)
+Preserved Radish (Salted White Radish Preserve)
+Pickled Bean Sprouts (Lightly Pickled Bean Sprouts)
+Pickled Long Beans (Vinegar-Pickled Long Beans)
+Pickled Kang Kong (Water Spinach Pickle)
+Salted Vegetables (Chinese-Style Salted Mixed Vegetables)
+Singapore-Style Chili Crab Pizza
+Chili Crab Pizza (Singapore Chili Crab Style)
+Black Pepper Crab Pizza (Singapore Black Pepper Crab Style)
+Salted Egg Yolk Seafood Pizza
+Salted Egg Yolk Prawn Pizza
+Salted Egg Yolk Crab Pizza
+Laksa Pizza (Singapore Laksa-Inspired Pizza)
+Laksa Prawn Pizza
+Laksa Chicken Pizza
+Hainanese Chicken Rice Pizza
+Hainanese Chicken Pizza (Ginger-Scallion Style)
+Char Siu Pizza (Singapore-Style Barbecue Pork Pizza)
+Char Siu and Pineapple Pizza (Singapore Style)
+Bak Kwa Pizza (Singapore Barbecued Pork Jerky Pizza)
+Bak Kwa and Mozzarella Pizza
+Nasi Lemak Pizza (Coconut Rice Pizza with Sambal and Anchovies)
+Nasi Lemak Chicken Pizza
+Nasi Lemak Sambal Seafood Pizza
+Satay Chicken Pizza (Singapore Satay Style)
+Satay Beef Pizza (Singapore Satay Style)
+Satay Sauce Pizza (Peanut Sauce Pizza, Singapore Style)
+Sambal Seafood Pizza
+Sambal Prawn Pizza
+Sambal Squid Pizza
+Sambal Chicken Pizza
+Kaya and Cheese Dessert Pizza
+Kaya Butter Pizza (Coconut Jam and Butter Pizza)
+Otah Pizza (Spiced Fish Paste Pizza)
+Otah and Mozzarella Pizza
+Ikan Bilis Sambal Pizza (Anchovy Sambal Pizza)
+Prawn Paste Chicken Pizza (Har Cheong Gai Pizza)
+Har Cheong Gai Pizza (Shrimp Paste Chicken Pizza)
+Mala Xiang Guo Pizza (Singapore Mala-Style Spicy Pizza)
+Mala Chicken Pizza (Singapore Style)
+Mala Seafood Pizza (Singapore Style)
+Curry Chicken Pizza (Singapore Curry Style)
+Fish Head Curry Pizza
+Rendang Chicken Pizza (Singapore Style)
+Beef Rendang Pizza (Singapore Style)
+Peranakan Laksa Pizza
+Peranakan Sambal Pizza
+XO Sauce Seafood Pizza (Singapore XO Style)
+Truffle Mushroom Pizza (Singapore Fine-Dining Style)
+Peking Duck Pizza (Singapore Restaurant Style)
+Soft-Shell Crab Pizza (Singapore Restaurant Style)
+Hawker-Style Mixed Meat Pizza (Singapore Hawker-Inspired Pizza)
+Roti Prata (Flaky Indian Flatbread Dough)
+Roti Prata Kosong (Plain Flaky Flatbread Dough)
+Egg Roti Prata (Egg-Enriched Flatbread Dough)
+Cheese Roti Prata (Cheese-Stuffed Flatbread Dough)
+Roti Prata Tissue (Crispy Paper-Thin Prata Dough)
+Roti Canai (Malaysian-Style Flaky Flatbread Dough)
+Murtabak (Stuffed Pan-Fried Flatbread Dough)
+Murtabak Kosong (Unfilled Murtabak Flatbread Dough)
+Roti John Bun (Griddled Savory Bread Roll Dough)
+Hainanese Curry Puff Pastry (Epok-Epok Flaky Pastry Dough)
+Spiral Curry Puff Pastry (Crispy Laminated Curry Puff Dough)
+Traditional Curry Puff Dough (Shortcrust Curry Puff Dough)
+Char Siew Bao Dough (Steamed Barbecue Pork Bun Dough)
+Plain Steamed Bao Dough (Chinese Steamed Bun Dough)
+Mantou Dough (Plain Chinese Steamed Bread Dough)
+Kaya Toast Bread Dough (Hainanese Milk Bread Dough)
+Popiah Skin (Fresh Spring Roll Wrapper Dough)
+Spring Roll Pastry (Crispy Fried Spring Roll Dough)
+Wanton Skin Dough (Wonton Wrapper Dough)
+Dumpling Wrapper Dough (Chinese Dumpling Skin Dough)
+Mee Hoon Kueh Dough (Hand-Torn Wheat Noodle Dough)
+You Mian Noodle Dough (Egg Wheat Noodle Dough)
+Kway Teow Rice Sheet Batter (Flat Rice Noodle Dough)
+Chee Cheong Fun Batter (Steamed Rice Roll Dough)
+Kueh Pie Tee Shell Dough (Crispy Thin Pastry Cup Dough)
+Kueh Tutu Dough (Steamed Rice Flour Cake Dough)
+Onde Onde Dough (Glutinous Rice Ball Dough)
+Kueh Dadar Crepe Batter (Pandan Coconut Crepe Dough)
+Kueh Lapis Batter (Layered Steamed Cake Batter Dough)
+Apam Balik Batter (Peanut Pancake Dough)
+Apam Berkuah Dough (Steamed Rice Cake Dough)
+Bak Kut Teh (Pork Rib Herbal Stew)
+Peppery Bak Kut Teh (White Pepper Pork Rib Soup)
+Herbal Bak Kut Teh (Chinese Herb Pork Rib Soup)
+Teochew Bak Kut Teh (Light Herbal Pork Rib Soup)
+Dry Bak Kut Teh (Dry Pork Rib Stew)
+Bak Kut Teh with Youtiao (Pork Rib Stew with Fried Dough)
+Hokkien Bak Kut Teh (Dark Soy Herbal Pork Rib Soup)
+
+Babi Pongteh (Peranakan Fermented Soybean Pork Stew)
+Babi Pongteh with Potatoes (Peranakan Pork and Potato Stew)
+Ayam Pongteh (Peranakan Chicken Fermented Soybean Stew)
+
+Beef Rendang (Spiced Coconut Beef Stew)
+Dry Beef Rendang (Reduced Coconut Beef Stew)
+Wet Beef Rendang (Gravy-Style Coconut Beef Stew)
+Chicken Rendang (Spiced Coconut Chicken Stew)
+Mutton Rendang (Spiced Coconut Mutton Stew)
+
+Gulai Kambing (Spiced Mutton Curry Stew)
+Gulai Ayam (Spiced Chicken Curry Stew)
+Gulai Ikan (Spiced Fish Curry Stew)
+
+Sup Tulang (Beef Bone Marrow Stew)
+Sup Kambing (Mutton Soup Stew)
+Sup Ekor (Oxtail Stew)
+Sup Daging (Beef Soup Stew)
+
+Fish Head Curry (South Indian–Style Fish Head Stew)
+Red Snapper Fish Head Curry (Spicy Fish Head Stew)
+
+Nyonya Chap Chye (Peranakan Mixed Vegetable Stew)
+Chap Chye with Glass Noodles (Mixed Vegetable and Vermicelli Stew)
+
+Ayam Buah Keluak (Chicken Stewed with Black Nuts)
+Buah Keluak Pork Rib Stew (Pork Rib Stew with Black Nuts)
+
+Kari Ayam (Singapore Chicken Curry Stew)
+Kari Mutton (Singapore Mutton Curry Stew)
+Kari Kepala Ikan (Fish Head Curry Stew)
+
+Tau Yu Bak (Soy Sauce Braised Pork Stew)
+Tau Yu Bak with Eggs (Soy Braised Pork Belly and Egg Stew)
+
+Lor Bak Soup (Braised Pork Belly Stew)
+Braised Duck with Yam (Teochew Braised Duck Stew)
+
+Claypot Chicken Rice Stew (Chicken and Rice Claypot Stew)
+Claypot Pork Belly Stew (Braised Pork Belly Claypot Stew)
+Kaya Bread Loaf
+Traditional Kaya Loaf
+Pandan Kaya Loaf
+Butter Kaya Loaf
+Coconut Kaya Bread Loaf
+Charcoal Kaya Loaf
+
+Pandan Chiffon Loaf Cake
+Classic Pandan Loaf Cake
+Gula Melaka Pandan Loaf
+Pandan Coconut Milk Loaf
+
+Gula Melaka Loaf Cake
+Palm Sugar Butter Loaf
+Gula Melaka Coconut Loaf
+
+Butter Sugar Loaf Cake
+Singapore Bakery Butter Cake Loaf
+Traditional Butter Pound Loaf
+
+Marble Butter Loaf Cake
+Chocolate Marble Loaf
+
+Orange Butter Loaf Cake
+Calamansi Butter Loaf
+
+Banana Loaf Cake (Singapore-Style Banana Cake)
+Walnut Banana Loaf
+Chocolate Chip Banana Loaf
+
+Honey Loaf Cake
+Honey Butter Loaf
+
+Coffee Loaf Cake (Kopi Loaf)
+Kopi Butter Cake Loaf
+
+Chocolate Loaf Cake
+Chocolate Fudge Loaf
+
+Cheese Loaf Bread
+Cream Cheese Loaf Cake
+
+Milk Bread Loaf (Asian Soft Milk Bread)
+Hokkaido-Style Milk Loaf (Singapore Bakery Style)
+
+Charcoal Milk Bread Loaf
+
+Sweet Potato Loaf Bread
+Purple Yam Loaf (Ube Loaf Cake)
+
+Red Bean Loaf Bread
+Green Bean Loaf Bread
+
+Sponge Cake Loaf (Traditional Bakery Sponge Loaf)
+Kaya Glaze (Coconut Egg Jam Glaze)
+Gula Melaka Glaze (Palm Sugar Glaze)
+Char Siew Glaze (Cantonese-Style Barbecue Pork Glaze)
+Honey Char Siew Glaze (Honey Barbecue Pork Glaze)
+Maltose Char Siew Glaze (Traditional Barbecue Pork Glaze)
+Black Soy Char Siew Glaze (Dark Soy Barbecue Glaze)
+Hoisin-Based Barbecue Glaze (Cantonese Barbecue Glaze)
+Hainanese Roast Chicken Glaze (Sesame Soy Chicken Glaze)
+Soya Sauce Chicken Glaze (Soy-Braised Chicken Glaze)
+Dark Soy Chicken Glaze (Cantonese Dark Soy Glaze)
+Roast Duck Glaze (Cantonese Roast Duck Glaze)
+Five-Spice Duck Glaze (Five-Spice Roast Glaze)
+Maltose Roast Duck Glaze (Crisp Skin Duck Glaze)
+Laksa Glaze (Coconut Chili Seafood Glaze)
+Sambal Glaze (Chili Paste Glaze)
+Sambal Belacan Glaze (Shrimp Paste Chili Glaze)
+Sweet Sambal Glaze (Sweet Chili Sambal Glaze)
+Tamarind Sambal Glaze (Tamarind Chili Glaze)
+Chili Crab Glaze (Sweet Spicy Chili Crab Glaze)
+Black Pepper Crab Glaze (Singapore Black Pepper Glaze)
+Salted Egg Yolk Glaze (Salted Egg Sauce Glaze)
+Salted Egg Butter Glaze (Creamy Salted Egg Glaze)
+Salted Egg Curry Leaf Glaze (Aromatic Salted Egg Glaze)
+Teriyaki-Style Soy Glaze (Japanese-Influenced Soy Glaze)
+Sweet Dark Soy Glaze (Kecap Manis–Style Glaze)
+Kecap Manis Glaze (Sweet Indonesian Soy Glaze)
+Tamarind Glaze (Assam Glaze)
+Palm Sugar Tamarind Glaze (Sweet Sour Tamarind Glaze)
+Pandan Sugar Glaze (Pandan Palm Sugar Glaze)
+Coconut Caramel Glaze (Coconut Sugar Caramel Glaze)
+Hawker-Style Sweet Chili Glaze (Sweet Chili Sauce Glaze)
+Sweet Garlic Chili Glaze (Garlic Chili Glaze)
+Honey Soy Glaze (Sweet Soy Honey Glaze)
+Ginger Soy Glaze (Ginger Infused Soy Glaze)
+Lime Chili Glaze (Calamansi Chili Glaze)
+Calamansi Glaze (Calamansi Citrus Glaze)
+Curry Glaze (Singapore Curry Sauce Glaze)
+Curry Leaf Glaze (Curry Leaf Infused Glaze)
+Belacan Butter Glaze (Shrimp Paste Butter Glaze)
+Sweet Oyster Sauce Glaze (Oyster Sauce Glaze)
+Black Bean Sauce Glaze (Fermented Black Bean Glaze)
+Miso-Style Soy Glaze (Fermented Soy Glaze)
+Peanut Sauce Glaze (Satay Peanut Glaze)
+Satay Glaze (Grilled Peanut Spice Glaze)
+Roast Duck (Singapore-Style Roast Duck)
+Cantonese Roast Duck (Crispy Roast Duck)
+Roast Pork Belly (Siu Yuk – Crispy Roast Pork)
+Roast Char Siu (Barbecued Roast Pork)
+Roast Soy Sauce Chicken (Singapore Soy Sauce Chicken)
+Roast Five-Spice Chicken (Five-Spice Roasted Chicken)
+Roast Honey Chicken (Honey-Roasted Chicken)
+Roast Chicken Rice Chicken (Roasted Chicken for Hainanese Chicken Rice)
+Roast Garlic Chicken (Garlic-Roasted Chicken)
+Roast Black Pepper Chicken (Black Pepper Roasted Chicken)
+Roast Lemongrass Chicken (Lemongrass Roasted Chicken)
+Roast Sambal Chicken (Sambal-Roasted Chicken)
+Roast Duck Rice (Roasted Duck with Rice)
+Roast Pork Rice (Roasted Pork with Rice)
+Roast Chicken Rice (Roasted Chicken Rice)
+Roast Duck Noodles (Roasted Duck Egg Noodles)
+Roast Pork Noodles (Roasted Pork Noodles)
+Roast Chicken Noodles (Roasted Chicken Noodles)
+Roast Char Siu Rice (Char Siu Roasted Pork Rice)
+Roast Char Siu Bao (Baked Char Siu Bun)
+Baked Char Siu Puff (Char Siu Pastry Puff)
+Baked Curry Puff (Singapore Curry Puff)
+Baked Chicken Curry Puff (Chicken Curry Puff – Baked)
+Baked Sardine Puff (Sardine Curry Puff – Baked)
+Baked Otah (Otak-Otak – Baked Fish Custard)
+Baked Sambal Fish (Sambal Baked Fish)
+Baked Sambal Stingray (Baked Sambal Stingray)
+Baked Butter Prawns (Butter Baked Prawns)
+Baked Salted Egg Chicken (Salted Egg Yolk Baked Chicken)
+Baked Salted Egg Prawns (Salted Egg Yolk Baked Prawns)
+Baked Black Pepper Crab (Black Pepper Baked Crab)
+Baked Chili Crab (Baked Chili Crab)
+Baked Claypot Rice (Claypot Rice – Oven Baked)
+Baked Bak Kwa Chicken (Bak Kwa-Style Baked Chicken)
+Baked Ngoh Hiang (Five-Spice Pork Roll – Baked)
+Baked Meatballs (Singapore-Style Baked Meatballs)
+Baked Sambal Tofu (Sambal Baked Tofu)
+Baked Tau Pok (Baked Fried Tofu Puffs)
+Baked Garlic Butter Fish (Garlic Butter Baked Fish)
+Baked Banana Cake (Singapore Banana Cake – Baked)
+Baked Pandan Cake (Pandan Chiffon Cake – Baked)
+Baked Pineapple Tart (Pineapple Tart – Baked)
+Baked Sugee Cake (Sugee Almond Cake – Baked)
+Rojak Buah (Singapore Fruit Rojak)
+Rojak Mangga (Green Mango Rojak)
+Rojak Nanas (Pineapple Rojak)
+Rojak Jambu (Guava Rojak)
+Rojak Kedondong (Ambarella Rojak)
+Rojak Buah Pedas (Spicy Fruit Rojak)
+Rojak Buah Cincang (Chopped Fruit Rojak)
+Rojak Buah Premium (Premium Fruit Rojak)
+Rojak Buah Hawker-Style (Hawker Fruit Rojak)
+Rojak Buah Restaurant-Style (Restaurant Fruit Rojak)
+
+Achar Buah (Pickled Fruit Achar)
+Achar Mangga (Pickled Mango Achar)
+Achar Nanas (Pickled Pineapple Achar)
+Achar Jambu (Pickled Guava Achar)
+
+Asam Pedas Buah (Sour-Spicy Fruit Salad)
+Asam Mangga (Sour Mango Salad)
+Asam Belimbing (Sour Starfruit Salad)
+
+Cheng Tng (Clear Sweet Fruit Soup)
+Cheng Tng Longan (Longan Sweet Soup)
+Cheng Tng Pear (Asian Pear Sweet Soup)
+Cheng Tng Peach Gum (Peach Gum Fruit Dessert Soup)
+Cheng Tng Snow Fungus (Snow Fungus Fruit Soup)
+
+Ice Kachang (Shaved Ice with Fruits)
+Ice Kachang with Attap Seed (Shaved Ice with Palm Fruit)
+Ice Kachang with Longan (Shaved Ice with Longan)
+Ice Kachang with Grass Jelly and Fruit (Shaved Ice with Fruit Toppings)
+
+Tau Suan with Gingko (Mung Bean Dessert with Gingko Nuts)
+Sweet Gingko Nuts Soup (Gingko Dessert Soup)
+
+Bubur Cha Cha with Fruits (Sweet Coconut Dessert with Fruit Additions)
+
+Coconut Milk Papaya Dessert (Papaya Coconut Milk Dessert)
+Steamed Papaya with Rock Sugar (Steamed Sweet Papaya)
+
+Honeydew Sago (Honeydew Melon Sago Dessert)
+Mango Sago (Mango Sago Dessert)
+Pomelo Sago (Pomelo Sago Dessert)
+Avocado Sago (Avocado Sago Dessert)
+
+Fresh Cut Tropical Fruit Platter (Singapore Tropical Fruit Platter)
+Chilled Mango Slices (Chilled Fresh Mango)
+Chilled Papaya Slices (Chilled Fresh Papaya)
+Chilled Pineapple Slices (Chilled Fresh Pineapple)
+
+Candied Winter Melon (Candied Melon Dessert)
+Candied Papaya (Candied Papaya Dessert)
+Pandan Chiffon Cake
+Pandan Gula Melaka Chiffon Cake
+Orange Chiffon Cake
+Vanilla Chiffon Cake
+Butter Cake
+Marble Butter Cake
+Banana Cake
+Chocolate Fudge Cake
+Kaya Swiss Roll (Coconut Jam Sponge Roll)
+Pandan Swiss Roll (Pandan Sponge Roll)
+Kaya Roll (Coconut Jam Cake Roll)
+Sugee Cake (Semolina Almond Cake)
+Kek Lapis Legit (Indonesian-Style Layered Spice Cake)
+Kek Lapis Prune (Layered Prune Spice Cake)
+Pineapple Tart (Pineapple Jam Pastry)
+Open-Faced Pineapple Tart (Pineapple Jam Flower Tart)
+Rolled Pineapple Tart (Pineapple Jam Roll)
+Kueh Bangkit (Tapioca Coconut Cookies)
+Kueh Kapit (Love Letters Coconut Wafers)
+Almond Sugee Cookies (Semolina Almond Cookies)
+Butter Almond Cookies
+Pandan Shortbread Cookies
+Milk Bread Loaf
+Soft White Sandwich Bread
+Kaya Toast Bread Loaf
+Whole Wheat Bread Loaf
+Coconut Bun
+Butter Sugar Bun
+Red Bean Bun
+Kaya Bun
+Cheese Bun
+Chicken Curry Puff (Baked Curried Chicken Pastry)
+Sardine Puff (Baked Sardine Pastry)
+Butter Croissant
+Pandan Croissant
+Salted Egg Yolk Croissant
+Pain au Chocolat
+Pandan Brioche
+Kaya Brioche
+Coconut Jam Tart
+Egg Tart (Portuguese-Style Custard Tart)
+Pandan Custard Tart
+Cheese Tart
+Salted Egg Yolk Cheese Tart
+Chocolate Lava Cake
+Pandan Lava Cake
+Fruitcake (Singapore-Style Mixed Fruit Cake)
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Roasted Chicken Rice (Roast Chicken with Fragrant Rice)
+Soy Sauce Chicken Rice (Soy-Braised Chicken with Fragrant Rice)
+White Chicken Rice (Plain Poached Chicken with Rice)
+Chilli Crab (Singapore-Style Chilli Sauce Crab)
+Black Pepper Crab (Cracked Black Pepper Crab)
+Salted Egg Yolk Crab (Salted Egg Sauce Crab)
+Cereal Prawn (Butter Cereal Prawns)
+Cereal Crab (Butter Cereal Crab)
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Short-Noodle Coconut Laksa)
+Assam Laksa (Sour Fish Noodle Soup)
+Bak Kut Teh (Pork Rib Pepper Soup)
+Teochew Bak Kut Teh (Clear Pepper Pork Rib Soup)
+Hokkien Bak Kut Teh (Dark Herbal Pork Rib Soup)
+Char Kway Teow (Stir-Fried Flat Rice Noodles)
+White Char Kway Teow (Egg-Fried Flat Rice Noodles)
+Black Char Kway Teow (Dark Soy Stir-Fried Flat Rice Noodles)
+Hokkien Mee (Prawn and Pork Noodle Stir-Fry)
+Singapore Hokkien Mee (Wet Prawn Noodles)
+Fried Hokkien Mee (Dry Prawn Noodles)
+Mee Goreng (Spiced Fried Yellow Noodles)
+Mamak Mee Goreng (Indian-Muslim Fried Noodles)
+Nasi Lemak (Coconut Rice with Condiments)
+Nasi Lemak with Fried Chicken (Coconut Rice with Fried Chicken)
+Nasi Lemak with Ikan Bilis Sambal (Coconut Rice with Anchovy Sambal)
+Satay (Grilled Skewered Meat with Peanut Sauce)
+Chicken Satay (Grilled Chicken Skewers)
+Beef Satay (Grilled Beef Skewers)
+Mutton Satay (Grilled Mutton Skewers)
+Rojak (Singapore Fruit and Vegetable Salad)
+Indian Rojak (Fried Fritter Salad with Sauce)
+Chinese Rojak (Fruit Salad with Shrimp Paste Dressing)
+Popiah (Fresh Spring Roll)
+Fried Popiah (Crispy Spring Roll)
+Bak Chor Mee (Minced Pork Noodles)
+Bak Chor Mee Soup (Minced Pork Noodle Soup)
+Bak Chor Mee Dry (Dry Minced Pork Noodles)
+Lor Mee (Braised Gravy Noodles)
+Fish Head Curry (Singapore-Style Fish Head Curry)
+Sambal Stingray (Chilli Sambal Grilled Stingray)
+Oyster Omelette (Fried Oyster Egg Omelette)
+Carrot Cake (Fried Radish Cake)
+White Carrot Cake (White Radish Cake Stir-Fry)
+Black Carrot Cake (Dark Soy Radish Cake Stir-Fry)
+Kaya Toast (Coconut Jam Toast)
+Soft-Boiled Eggs with Soy Sauce (Traditional Kopitiam Eggs)
+Teh Tarik (Pulled Milk Tea)
+Kopi O (Black Coffee)
+Kopi C (Coffee with Evaporated Milk)
+Kopi Peng (Iced Coffee)
+Beef Rendang (Dry Spiced Beef Stew)
+Chicken Rendang (Dry Spiced Chicken Stew)
+Ayam Buah Keluak (Chicken with Black Nuts)
+Babi Pongteh (Braised Pork with Fermented Soybean Paste)
+Tau Yu Bak (Soy-Braised Pork Belly)
+Ngoh Hiang (Five-Spice Pork Rolls)
+Curry Puff (Spiced Potato and Meat Pastry)
+Otah-Otah (Grilled Spiced Fish Paste)
+Bak Kwa (Barbecued Pork Jerky)
+Spicy Bak Kwa (Spicy Barbecued Pork Jerky)
+Honey Bak Kwa (Honey Barbecued Pork Jerky)
+Chicken Bak Kwa (Barbecued Chicken Jerky)
+Beef Bak Kwa (Barbecued Beef Jerky)
+Bak Hu (Pork Floss / Dried Pork Shreds)
+Chicken Floss (Dried Chicken Shreds)
+Lap Cheong (Chinese Cured Pork Sausage)
+Duck Lap Cheong (Chinese Cured Duck Sausage)
+Lap Yuk (Chinese Cured Pork Belly)
+Salted Duck Egg (Salt-Cured Duck Egg)
+Salted Egg Yolk (Cured Duck Egg Yolk)
+Ikan Kurau Masin (Salted Threadfin Fish)
+Ikan Tenggiri Masin (Salted Spanish Mackerel)
+Ikan Selar Masin (Salted Scad Fish)
+Salted Dried Fish (Salt-Cured Dried Fish)
+Dried Ikan Bilis (Salt-Cured Dried Anchovies)
+Kiam Chye (Salted Mustard Greens)
+Preserved Mustard Greens (Salted Chinese Mustard Greens)
+Chai Poh (Preserved Salted Radish)
+Sweet Chai Poh (Sweet Preserved Radish)
+Salty Chai Poh (Salted Preserved Radish)
+Belacan (Fermented Shrimp Paste)
+Hae Bee Hiam (Spicy Dried Shrimp Sambal)
+Salted Plums (Salt-Cured Preserved Plums)
+Popiah (Fresh Spring Roll)
+Traditional Popiah (Braised Turnip and Pork Fresh Spring Roll)
+Vegetarian Popiah (Vegetable Fresh Spring Roll)
+Popiah Basah (Fresh Soft Spring Roll)
+Popiah Goreng (Fried Spring Roll)
+Peranakan Popiah (Nyonya-Style Fresh Spring Roll)
+Seafood Popiah (Prawn and Crab Fresh Spring Roll)
+Chicken Popiah (Chicken Fresh Spring Roll)
+Duck Popiah (Braised Duck Fresh Spring Roll)
+Nasi Lemak Wrap (Coconut Rice Wrap with Sambal and Condiments)
+Chicken Nasi Lemak Wrap (Coconut Rice and Fried Chicken Wrap)
+Ikan Bilis Nasi Lemak Wrap (Coconut Rice and Anchovy Wrap)
+Otak-Otak (Grilled Spiced Fish Paste in Banana Leaf Wrap)
+Peranakan Otak-Otak (Nyonya Spiced Fish Banana Leaf Wrap)
+Grilled Otak-Otak Wrap (Charcoal-Grilled Fish Paste Leaf Wrap)
+Ngoh Hiang (Five-Spice Pork and Prawn Bean Curd Skin Roll)
+Chicken Ngoh Hiang (Five-Spice Chicken Bean Curd Skin Roll)
+Prawn Ngoh Hiang (Five-Spice Prawn Bean Curd Skin Roll)
+Roti Prata Wrap (Indian Flatbread Wrap)
+Chicken Curry Roti Prata Wrap (Flatbread Wrap with Chicken Curry Filling)
+Mutton Curry Roti Prata Wrap (Flatbread Wrap with Mutton Curry Filling)
+Egg Roti Prata Wrap (Egg-Stuffed Flatbread Wrap)
+Satay Chicken Wrap (Grilled Peanut-Marinated Chicken Wrap)
+Satay Beef Wrap (Grilled Peanut-Marinated Beef Wrap)
+Satay Mutton Wrap (Grilled Peanut-Marinated Mutton Wrap)
+Ayam Penyet Wrap (Smashed Fried Chicken Chili Wrap)
+Beef Rendang Wrap (Spiced Coconut Beef Wrap)
+Chicken Rendang Wrap (Spiced Coconut Chicken Wrap)
+Fish Head Curry
+Fish Head Curry with Tamarind Gravy
+Fish Head Curry with Coconut Milk
+Fish Head Curry (South Indian Style)
+Fish Head Curry (Chinese Singaporean Style)
+Fish Head Curry (Peranakan Style)
+
+Steamed Fish with Soy Sauce
+Steamed Fish with Superior Soy Sauce
+Steamed Fish with Ginger and Spring Onion
+Steamed Fish with Preserved Radish
+Steamed Fish (Hong Kong–Style Soy Sauce Fish)
+
+Sambal Stingray
+Grilled Sambal Stingray
+Barbecued Sambal Stingray
+Sambal Stingray with Banana Leaf
+
+Curry Fish Head Bee Hoon
+Fish Bee Hoon Soup
+Fish Bee Hoon Soup with Milk
+Fish Bee Hoon Soup with Evaporated Milk
+Fish Bee Hoon Soup with Tofu and Vegetables
+
+Sweet and Sour Fish
+Sweet and Sour Whole Fish
+Sweet and Sour Fish Fillet
+
+Cereal Prawns–Style Fish (Cereal-Crusted Fish)
+Butter Cereal Fish
+
+Asam Pedas Fish (Sour and Spicy Tamarind Fish)
+Asam Pedas Ikan Pari (Sour and Spicy Stingray)
+
+Otak-Otak (Grilled Spiced Fish Custard)
+Otak-Otak Mackerel (Grilled Spiced Mackerel Custard)
+
+Ikan Bakar (Grilled Spiced Fish)
+Ikan Bakar with Sambal
+Ikan Bakar Stingray
+
+Fish Soup
+Clear Fish Soup
+Sliced Fish Soup
+Fish Soup with Bitter Gourd
+Fish Soup with Yam
+
+Fish Porridge
+Sliced Fish Porridge
+Teochew-Style Fish Porridge
+
+Teochew Steamed Fish
+Teochew-Style Steamed Pomfret
+
+Black Pepper Fish Head
+Black Pepper Fish Fillet
+
+Claypot Fish Head
+Claypot Fish Head with Tofu
+
+Fried Fish with Sambal
+Deep-Fried Fish with Sambal Belacan
+
+Ngoh Hiang Fish Roll (Five-Spice Fish Roll)
+Fish Ngoh Hiang
+
+Salted Egg Yolk Fish
+Salted Egg Yolk Fish Fillet
+
+Curry Fish
+Nonya Curry Fish
+Peranakan Curry Fish
+
+Fish Cutlet (Singapore-Style Fish Cutlet)
+Fried Fish Cutlet with Tartar Sauce
+Kaya Toast with Cold Butter
+Butter Sugar Toast
+Butter Jam Toast
+Kopi Butter (Coffee with Butter)
+Roti Prata with Butter
+Plain Prata with Butter
+Egg Prata with Butter
+Cheese Prata with Butter
+Garlic Butter Crab
+Black Pepper Crab
+Cereal Butter Prawns
+Butter Prawns
+Salted Egg Butter Prawns
+Butter Squid
+Butter Chicken (Singapore-Style Indian Butter Chicken)
+Butter Chicken Briyani
+Butter Garlic Chicken Chop
+Hainanese Chicken Chop with Butter Sauce
+Western Butter Chicken Cutlet
+Butter Cream Sauce Fish
+Butter Sauce Grilled Seabass
+Butter Garlic Stingray
+Sambal Stingray with Butter
+Butter Fried Rice
+Garlic Butter Fried Rice
+Butter Corn Chicken
+Butter Oat Prawns
+Butter Milk Chicken
+Butter Milk Fish
+Butter Milk Crab
+Butter Sugar Pancake
+Butter Kaya Pancake
+Pandan Butter Cake
+Butter Pound Cake
+Butter Marble Cake
+Butter Sponge Cake
+Buttercream Birthday Cake
+Buttercream Swiss Roll
+Buttercream Pandan Roll
+Buttercream Chiffon Cake
+Roti Prata (Indian Flatbread)
+Plain Prata (Plain Indian Flatbread)
+Egg Prata (Egg-Stuffed Indian Flatbread)
+Cheese Prata (Cheese-Stuffed Indian Flatbread)
+Onion Prata (Onion Indian Flatbread)
+Mushroom Prata (Mushroom Indian Flatbread)
+Banana Prata (Sweet Banana Indian Flatbread)
+Chocolate Prata (Chocolate Indian Flatbread)
+Prata Bom (Thick Buttered Indian Flatbread)
+Prata Coin (Mini Indian Flatbreads)
+
+Roti John (Singaporean Minced Meat Omelette Sandwich)
+Classic Roti John (Minced Beef Omelette Sandwich)
+Chicken Roti John (Chicken Omelette Sandwich)
+Mutton Roti John (Mutton Omelette Sandwich)
+Cheese Roti John (Cheese Omelette Sandwich)
+
+Roti Tissue (Paper-Thin Crispy Indian Flatbread)
+Roti Tissue with Sugar (Sweet Crispy Flatbread)
+
+Mee Siam (Rice Vermicelli in Sweet-Sour Gravy)
+Mee Siam Goreng (Stir-Fried Rice Vermicelli)
+
+Mee Rebus (Yellow Noodles in Thick Potato Gravy)
+
+Hokkien Mee (Prawn and Pork Noodle Stir-Fry)
+Singapore Fried Hokkien Mee (Wet-Style Prawn Noodles)
+
+Lor Mee (Thick Gravy Egg Noodles)
+
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Peranakan Coconut Noodle Soup)
+
+Bak Chor Mee (Minced Pork Noodles)
+Bak Chor Mee Soup (Minced Pork Noodle Soup)
+
+Wanton Mee (Dumpling Egg Noodles)
+Dry Wanton Mee (Tossed Dumpling Noodles)
+
+Char Kway Teow (Stir-Fried Flat Rice Noodles)
+
+Chee Cheong Fun (Rice Noodle Rolls)
+Steamed Chee Cheong Fun (Plain Rice Noodle Rolls)
+Chee Cheong Fun with Sweet Sauce (Rice Noodle Rolls with Sauce)
+
+Mee Pok (Flat Egg Noodles)
+Mee Kia (Thin Egg Noodles)
+
+Hainanese Chicken Rice (Poached Chicken with Rice)
+Chicken Rice Balls (Compressed Chicken Rice)
+
+Fried Carrot Cake (Radish Cake Stir-Fry)
+White Carrot Cake (White Radish Cake Stir-Fry)
+Black Carrot Cake (Sweet Sauce Radish Cake Stir-Fry)
+
+Oyster Omelette (Fried Oyster Egg Pancake)
+
+Satay Bee Hoon (Rice Vermicelli with Peanut Sauce)
+
+Kaya Toast (Coconut Jam Toast)
+Traditional Kaya Toast (Charcoal-Grilled Coconut Jam Toast)
+
+Butter Sugar Toast (Butter Sugar Bread Toast)
+
+Apam Balik (Peanut Turnover Pancake)
+Thick Apam Balik (Thick Peanut Pancake)
+Crispy Apam Balik (Crispy Peanut Pancake)
+
+Putu Piring (Steamed Rice Flour Palm Sugar Cakes)
+
+Kueh Tutu (Steamed Rice Flour Peanut Cakes)
+
+Kueh Lapis (Layered Rice Flour Cake)
+
+Ondeh Ondeh (Palm Sugar Glutinous Rice Balls)
+
+Ang Ku Kueh (Red Tortoise Glutinous Rice Cake)
+
+Chwee Kueh (Steamed Rice Cakes with Preserved Radish)
+
+Huat Kueh (Steamed Rice Flour Prosperity Cake)
+
+Mee Soto (Spiced Chicken Noodle Soup)
+Kaya (Coconut Egg Jam)
+Pandan Kaya (Pandan Coconut Egg Jam)
+Hainanese Kaya (Hainanese-Style Coconut Egg Jam)
+Kaya Toast (Coconut Jam Toast)
+Butter Sugar Toast (Butter and Sugar Toast)
+Half-Boiled Eggs with White Pepper and Soy Sauce (Soft-Cooked Eggs with Seasoning)
+
+Ondeh-Ondeh (Palm Sugar–Filled Glutinous Rice Balls)
+Ondeh-Ondeh Pandan (Pandan Palm Sugar Rice Balls)
+Ondeh-Ondeh with Gula Melaka (Palm Sugar Rice Balls)
+
+Kueh Dadar (Pandan Crepe with Coconut Filling)
+Kueh Salat (Glutinous Rice and Pandan Custard Cake)
+Pulut Hitam (Black Glutinous Rice Sweet Porridge)
+Pulut Hitam with Coconut Cream (Black Glutinous Rice Dessert)
+
+Bubur Cha Cha (Sweet Coconut Milk Dessert Soup)
+Bubur Pulut Hitam (Black Glutinous Rice Sweet Porridge)
+Bubur Sumsum (Rice Flour Coconut Pudding)
+
+Chendol (Iced Coconut Milk Dessert with Palm Sugar)
+Chendol with Red Beans (Chendol with Adzuki Beans)
+Chendol Durian (Durian Chendol Dessert)
+
+Ice Kachang (Shaved Ice Dessert)
+Ice Kachang with Sweet Corn (Shaved Ice with Corn and Syrup)
+Ice Kachang with Attap Chee (Shaved Ice with Palm Fruit)
+
+Tau Suan (Split Mung Bean Sweet Soup)
+Tau Suan with You Tiao (Mung Bean Dessert with Fried Dough)
+
+Cheng Tng (Clear Herbal Sweet Soup)
+Cheng Tng with Longan (Clear Sweet Soup with Longan)
+
+Ang Ku Kueh (Red Tortoise Cake)
+Ang Ku Kueh Peanut (Peanut-Filled Red Tortoise Cake)
+Ang Ku Kueh Mung Bean (Mung Bean Red Tortoise Cake)
+
+Kuih Lapis (Steamed Layer Cake)
+Kuih Lapis Rainbow (Rainbow Layer Cake)
+
+Kuih Bingka Pandan (Pandan Tapioca Cake)
+Kuih Bingka Ubi (Cassava Cake)
+
+Kuih Seri Muka (Glutinous Rice with Pandan Custard)
+Kuih Talam (Two-Layer Coconut Rice Cake)
+
+Pineapple Tarts (Pineapple Jam Pastry)
+Open-Faced Pineapple Tarts (Rolled Pineapple Tarts)
+
+Mooncakes (Chinese Baked Mooncakes)
+Snow Skin Mooncakes (No-Bake Mooncakes)
+
+Tang Yuan (Glutinous Rice Balls in Sweet Soup)
+Tang Yuan with Ginger Syrup (Rice Balls in Ginger Sweet Soup)
+
+Durian Pengat (Durian Coconut Milk Dessert)
+Pengat Pisang (Banana Coconut Milk Dessert)
+
+Apam Balik (Sweet Peanut Pancake)
+Apam Balik Crispy (Crispy Peanut Pancake)
+Kaya Cheese Toast (Coconut Jam and Cheese Toast)
+Singapore-Style Grilled Cheese Sandwich
+Cheese Prata (Indian Flatbread with Melted Cheese)
+Cheese Egg Prata (Indian Flatbread with Cheese and Egg)
+Mozzarella Prata (Indian Flatbread with Mozzarella Cheese)
+Cheese Prata Boom (Stuffed Cheese Prata)
+Cheese Naan (Leavened Flatbread with Cheese)
+Cheese Bak Chor Mee (Minced Pork Noodles with Cheese)
+Cheese Mee Goreng (Stir-Fried Yellow Noodles with Cheese)
+Cheese Maggi Goreng (Stir-Fried Instant Noodles with Cheese)
+Cheese Otah (Grilled Spiced Fish Paste with Cheese)
+Orh Luak with Cheese (Oyster Omelette with Cheese)
+Baked Cheese Chicken Rice (Oven-Baked Chicken Rice with Cheese)
+Baked Cheese Fish Rice (Oven-Baked Fish Rice with Cheese)
+Baked Cheese Seafood Rice (Oven-Baked Seafood Rice with Cheese)
+Chili Crab with Cheese Sauce (Singapore Chili Crab with Melted Cheese)
+Salted Egg Yolk Crab with Cheese (Salted Egg Crab with Cheese)
+Laksa Mac and Cheese (Coconut Curry Laksa Macaroni and Cheese)
+Chili Crab Mac and Cheese (Chili Crab Pasta with Cheese)
+Truffle Cheese Fries (French Fries with Truffle Oil and Cheese)
+Cheese Tofu (Fried Tofu with Cheese)
+Western Stall Chicken Chop with Cheese (Grilled Chicken Chop with Cheese)
+Western Stall Fish and Chips with Cheese Sauce (Fried Fish with Cheese Sauce)
+Durian Cheesecake (Durian-Flavored Cheesecake)
+Singapore-Style Burnt Cheesecake (Basque-Style Burnt Cheesecake)
+Kaya Cheese Croissant (Croissant with Coconut Jam and Cheese)
+Cheese Baked Mussels (Baked Mussels with Cheese)
+Cheese Sambal Seafood (Spicy Sambal Seafood with Cheese)
+Chili Vinegar Sauce
+Garlic Chili Vinegar
+Calamansi Vinegar
+Calamansi Chili Vinegar
+Hainanese Chicken Rice Chili Vinegar
+Seafood Chili Vinegar
+Hainanese-Style White Vinegar with Chili
+Black Vinegar with Old Ginger
+Ginger Black Vinegar Dip
+Bak Kut Teh Black Vinegar
+Nyona Achar Pickling Vinegar
+Achar Awak Vinegar Base
+Nonya Pickling Vinegar
+Palm Vinegar (Nipa Palm Vinegar)
+Coconut Vinegar (Peranakan-Style)
+Cane Vinegar (Local Hawker-Style)
+Sugarcane Vinegar with Chili
+Sweet Chili Vinegar
+Fish Sauce Vinegar Dip
+Soy and Vinegar Dipping Sauce
+Crab Chili Vinegar Sauce
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Roasted Chicken Rice (Roast Chicken with Fragrant Rice)
+Soy Sauce Chicken Rice (Soy-Braised Chicken with Fragrant Rice)
+Ipoh-Style Chicken Rice (White-Cut Chicken with Bean Sprout Rice)
+Chili Crab (Stir-Fried Crab with Chili-Tomato Sauce)
+Black Pepper Crab (Crab Stir-Fried with Black Pepper Sauce)
+Salted Egg Yolk Crab (Crab with Salted Egg Yolk Sauce)
+Butter Crab (Crab Cooked in Butter Sauce)
+Sri Lankan Mud Crab Curry (Spiced Crab Curry)
+Bak Kut Teh (Pork Rib Herbal Soup)
+Pepper Bak Kut Teh (Peppery Pork Rib Soup)
+Herbal Bak Kut Teh (Chinese Herb Pork Rib Soup)
+Teochew Bak Kut Teh (Clear Pepper Pork Rib Soup)
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Peranakan Coconut Laksa with Short Rice Noodles)
+Asam Laksa (Sour Fish Laksa)
+Curry Laksa (Coconut Curry Noodle Soup)
+Char Kway Teow (Stir-Fried Flat Rice Noodles)
+Black Char Kway Teow (Dark Soy Sauce Fried Rice Noodles)
+White Char Kway Teow (Light Soy Fried Rice Noodles)
+Hokkien Mee (Prawn and Pork Noodle Stir-Fry)
+Singapore Fried Hokkien Prawn Mee (Seafood Fried Noodles)
+Mee Goreng (Spicy Fried Yellow Noodles)
+Mee Goreng Mamak (Indian-Muslim Style Fried Noodles)
+Fried Carrot Cake – White (Stir-Fried Radish Cake)
+Fried Carrot Cake – Black (Dark Soy Fried Radish Cake)
+Oyster Omelette (Fried Oyster Egg Omelette)
+Chwee Kueh (Steamed Rice Cakes with Preserved Radish)
+Roti Prata (Indian Flatbread)
+Plain Roti Prata (Plain Fried Flatbread)
+Egg Prata (Egg-Stuffed Flatbread)
+Cheese Prata (Cheese-Stuffed Flatbread)
+Murtabak (Stuffed Flatbread with Spiced Meat)
+Nasi Lemak (Coconut Rice with Sambal)
+Nasi Lemak with Fried Chicken (Coconut Rice with Fried Chicken)
+Nasi Lemak with Rendang (Coconut Rice with Beef Rendang)
+Nasi Padang (Indonesian Rice with Mixed Dishes)
+Beef Rendang (Slow-Cooked Spiced Beef)
+Chicken Rendang (Slow-Cooked Spiced Chicken)
+Ayam Penyet (Smashed Fried Chicken with Sambal)
+Ayam Masak Merah (Chicken Cooked in Spiced Tomato Sauce)
+Satay (Grilled Skewered Meat with Peanut Sauce)
+Chicken Satay (Grilled Chicken Skewers)
+Beef Satay (Grilled Beef Skewers)
+Mutton Satay (Grilled Mutton Skewers)
+Ketupat (Compressed Rice Cake)
+Lontong (Rice Cakes in Coconut Vegetable Stew)
+Nasi Briyani (Spiced Basmati Rice with Meat)
+Chicken Briyani (Chicken Spiced Rice)
+Mutton Briyani (Mutton Spiced Rice)
+Fish Briyani (Fish Spiced Rice)
+Teochew Porridge (Rice Porridge with Side Dishes)
+Plain Rice Porridge (White Congee)
+Century Egg Porridge (Congee with Preserved Egg)
+Fish Porridge (Sliced Fish Congee)
+Char Siew Rice (Barbecued Pork with Rice)
+Roast Pork Rice (Crispy Roast Pork with Rice)
+Sio Bak (Crispy Roast Pork Belly)
+Char Siew (Cantonese Barbecued Pork)
+Duck Rice (Braised Duck with Rice)
+Braised Duck Rice (Soy-Braised Duck with Rice)
+Teochew Braised Duck (Herbal Soy-Braised Duck)
+Wanton Mee (Egg Noodles with Dumplings)
+Soup Wanton Mee (Dumpling Noodle Soup)
+Dry Wanton Mee (Noodles with Sauce and Dumplings)
+Fishball Noodle Soup (Noodles with Fish Balls)
+Fishball Kway Teow Soup (Rice Noodles with Fish Balls)
+Lor Mee (Thick Gravy Noodle Dish)
+Prawn Mee (Prawn Noodle Soup)
+Hae Mee (Prawn and Pork Noodle Soup)
+Dry Prawn Mee (Prawn Noodles with Sauce)
+Mee Siam (Sweet and Sour Rice Vermicelli)
+Mee Siam Goreng (Fried Mee Siam)
+Mee Rebus (Yellow Noodles in Spiced Gravy)
+Nasi Goreng (Fried Rice)
+Nasi Goreng Kampung (Village-Style Fried Rice)
+Nasi Goreng Pattaya (Omelette-Wrapped Fried Rice)
+Claypot Rice (Rice Cooked in Claypot with Meats)
+Salted Fish Fried Rice (Fried Rice with Salted Fish)
+Ngoh Hiang (Five-Spice Pork Roll)
+Prawn Paste Chicken (Shrimp Paste Fried Chicken)
+Hainanese Pork Chop (Hainanese-Style Fried Pork Chop)
+Hainanese Beef Stew (Braised Beef with Potatoes)
+Curry Fish Head (Fish Head Cooked in Curry)
+Sambal Stingray (Grilled Stingray with Sambal)
+Ikan Bakar (Grilled Fish with Sambal)
+Sambal Kang Kong (Water Spinach Stir-Fried with Sambal)
+Dry Beef Bak Chor Mee (Minced Pork Noodles with Vinegar)
+Soup Bak Chor Mee (Minced Pork Noodle Soup)
+Tau Huay (Soft Soybean Curd Dessert)
+Chendol (Coconut Milk Dessert with Palm Sugar)
+Ice Kachang (Shaved Ice Dessert with Syrups and Beans)
+Ondeh Ondeh (Palm Sugar Glutinous Rice Balls)
+Kaya Toast (Coconut Jam Toast)
+Soft-Boiled Eggs with Soy Sauce (Half-Boiled Eggs)
+Teh (Singapore-Style Milk Tea)
+Teh Tarik (Pulled Milk Tea)
+Teh O (Black Tea Without Milk)
+Teh O Kosong (Black Tea Without Milk or Sugar)
+Teh C (Black Tea With Evaporated Milk)
+Teh C Kosong (Black Tea With Evaporated Milk, No Sugar)
+Teh Halia (Ginger Milk Tea)
+Teh Halia Tarik (Pulled Ginger Milk Tea)
+Teh Peng (Iced Milk Tea)
+Teh O Peng (Iced Black Tea)
+Teh C Peng (Iced Black Tea With Evaporated Milk)
+Teh Limau (Black Tea With Lime)
+Teh Limau Peng (Iced Black Tea With Lime)
+Teh Siew Dai (Milk Tea With Less Sugar)
+Teh Gao (Extra-Strong Milk Tea)
+Teh Po (Weak Milk Tea)
+Masala Teh (Spiced Milk Tea)
+Teh Susu (Milk Tea, Malay-Style)
+Teh Bunga (Floral-Scented Black Tea)
+Teh Pandan (Pandan-Infused Tea)
+Teh Serai (Lemongrass Tea)
+Teh Cincau (Milk Tea With Grass Jelly)
+Teh O Cincau (Black Tea With Grass Jelly)
+Teh Tarik Cincau (Pulled Milk Tea With Grass Jelly)
+Teh Tarik Madu (Pulled Milk Tea With Honey)
+Teh Tarik Kurang Manis (Pulled Milk Tea With Reduced Sugar)
+Iced Teh Tarik (Chilled Pulled Milk Tea)
+Teh Tarik (Pulled Milk Tea)
+Teh C Kosong (Evaporated Milk Tea Without Sugar)
+Teh C (Evaporated Milk Tea)
+Teh C Peng (Iced Evaporated Milk Tea)
+Teh Halia (Ginger Milk Tea)
+Teh Tarik Halia (Pulled Ginger Milk Tea)
+Teh Susu (Milk Tea)
+Teh Peng Susu (Iced Milk Tea)
+Kopi C (Coffee with Evaporated Milk)
+Kopi C Kosong (Coffee with Evaporated Milk Without Sugar)
+Kopi C Peng (Iced Coffee with Evaporated Milk)
+Kopi Susu (Coffee with Condensed Milk)
+Kopi Peng Susu (Iced Coffee with Condensed Milk)
+Milo Dinosaur (Iced Milo with Extra Milo Powder and Milk)
+Milo Peng (Iced Milo with Milk)
+Milo Kosong (Milo Without Milk)
+Horlicks Peng (Iced Horlicks with Milk)
+Ovaltine Peng (Iced Ovaltine with Milk)
+Bandung (Rose Syrup Milk Drink)
+Bandung Peng (Iced Rose Milk Drink)
+Bandung Soda (Rose Milk with Soda Water)
+Soya Milk (Soy Milk)
+Fresh Soya Milk (Freshly Made Soy Milk)
+Soya Milk Peng (Iced Soy Milk)
+Gula Melaka Soya Milk (Palm Sugar Soy Milk)
+Almond Milk (Chinese-Style Almond Milk)
+Hot Almond Milk Dessert (Chinese Almond Milk)
+Barley Milk Drink (Barley with Milk)
+Barley Peng Milk (Iced Barley Milk Drink)
+Ginger Milk Curd (Milk Pudding with Ginger Juice)
+Double Skin Milk Pudding (Steamed Milk Custard Dessert)
+Sweetened Condensed Milk Drink (Hot Condensed Milk Beverage)
+Evaporated Milk Drink (Hot Evaporated Milk Beverage)
+Asam Boi (Dried Sour Plum)
+Hua Mei (Salted Dried Plum)
+Li Hing Mui–Style Dried Plum (Sweet-Salty Dried Plum)
+Preserved Mandarin Orange Peel (Dried Tangerine Peel Candy)
+Candied Winter Melon (Dried Winter Melon Candy)
+Ang Ku Kueh with Candied Winter Melon (Red Tortoise Cake with Candied Winter Melon Filling)
+Tau Sar Piah with Candied Winter Melon (Mung Bean Pastry with Candied Winter Melon)
+Mooncake with Candied Winter Melon (Traditional Mooncake with Candied Winter Melon)
+Pineapple Tart with Candied Winter Melon (Pineapple Pastry with Candied Winter Melon)
+Herbal Chicken Soup with Dried Longan (Chinese Herbal Chicken Soup with Dried Longan Fruit)
+Double-Boiled Herbal Soup with Dried Longan (Slow-Simmered Herbal Soup with Dried Longan)
+Sweet Red Bean Soup with Dried Tangerine Peel (Red Bean Dessert Soup with Dried Orange Peel)
+Cheng Tng with Dried Longan (Clear Sweet Soup with Dried Longan)
+Eight Treasures Dessert Soup with Dried Fruits (Traditional Sweet Soup with Mixed Dried Fruits)
+Candied Papaya Slices (Dried Sweet Papaya)
+Preserved Mango Slices (Dried Sweet Mango)
+Preserved Guava Slices (Dried Sweet Guava)
+Bak Kwa (Sweet Barbecued Dried Pork Jerky)
+Bak Kwa (Sweet Barbecued Dried Chicken Jerky)
+Bak Kwa (Sweet Barbecued Dried Beef Jerky)
+Bak Kwa (Spicy Sweet Barbecued Dried Pork Jerky)
+Bak Kwa (Charcoal-Grilled Sweet Dried Pork Jerky)
+Ikan Bilis (Dried Anchovies)
+Fried Ikan Bilis (Crispy Fried Dried Anchovies)
+Ikan Bilis Sambal (Dried Anchovies with Chili Sambal)
+Hae Bee (Dried Shrimp)
+Dried Shrimp Sambal (Chili Sambal with Dried Shrimp)
+Dried Shrimp Powder (Ground Dried Shrimp Seasoning)
+Hei Zho (Dried Cuttlefish)
+Grilled Dried Cuttlefish (Charcoal-Grilled Dried Squid)
+Dried Cuttlefish Sambal (Chili Sambal with Dried Cuttlefish)
+Dried Oyster (Sun-Dried Oysters)
+Dried Scallops (Conpoy Dried Scallops)
+Dried Abalone (Sun-Dried Abalone)
+Dried Mushrooms (Chinese Dried Mushrooms)
+Dried Shiitake Mushrooms (Sun-Dried Shiitake Mushrooms)
+Dried Black Fungus (Wood Ear Mushrooms)
+Dried Seaweed (Sun-Dried Seaweed Sheets)
+Dried Shrimp Chili Paste (Hae Bee Sambal Paste)
+Dried Fish (Salted and Sun-Dried Fish)
+Salted Dried Mackerel (Sun-Dried Salted Mackerel)
+Salted Dried Stingray (Sun-Dried Salted Stingray)
+Dried Squid Snack (Seasoned Sun-Dried Squid)
+Dried Fish Crackers (Sun-Dried Fish Crackers)
+Prawn Crackers (Sun-Dried Shrimp Crackers)
+Fish Crackers (Sun-Dried Fish Crackers)
+Dried Fruit Salad (Sun-Dried Tropical Fruit Mix)
+Dried Mango (Sun-Dried Mango Slices)
+Dried Pineapple (Sun-Dried Pineapple Slices)
+Dried Papaya (Sun-Dried Papaya Strips)
+Dried Sour Plum (Preserved and Dehydrated Sour Plum)
+Dehydrated Laksa Paste (Dried Spiced Coconut Laksa Base)
+Dehydrated Curry Paste (Dried Singapore-Style Curry Paste)
+Dehydrated Chili Paste (Dried Chili Sambal Base)
+Fresh Milk Yogurt (Plain Yogurt)
+
+Homemade Set Yogurt (Traditional Plain Yogurt)
+
+Strained Yogurt (Greek-Style Yogurt)
+
+Sweetened Yogurt (Sweet Yogurt)
+
+Honey Yogurt (Honey-Sweetened Yogurt)
+
+Fruit Yogurt (Mixed Fruit Yogurt)
+
+Mango Yogurt (Mango Yogurt)
+
+Strawberry Yogurt (Strawberry Yogurt)
+
+Blueberry Yogurt (Blueberry Yogurt)
+
+Bandung Yogurt (Rose Milk Yogurt)
+
+Yogurt Drink (Cultured Yogurt Beverage)
+
+Yogurt Smoothie (Blended Yogurt Drink)
+
+Mango Yogurt Smoothie (Mango Yogurt Smoothie)
+
+Avocado Yogurt Smoothie (Avocado Yogurt Smoothie)
+
+Mixed Berry Yogurt Smoothie (Mixed Berry Yogurt Smoothie)
+
+Frozen Yogurt (Frozen Yogurt Dessert)
+
+Natural Frozen Yogurt (Plain Frozen Yogurt)
+
+Fruit Frozen Yogurt (Fruit-Flavoured Frozen Yogurt)
+
+Yogurt Parfait (Layered Yogurt Dessert)
+
+Granola Yogurt Parfait (Granola Yogurt Parfait)
+
+Chia Yogurt Pudding (Chia Seed Yogurt Pudding)
+
+Overnight Oats with Yogurt (Yogurt Overnight Oats)
+
+Yogurt Bowl (Yogurt Breakfast Bowl)
+
+Tropical Fruit Yogurt Bowl (Tropical Fruit Yogurt Bowl)
+
+Honeycomb Yogurt Bowl (Honeycomb Yogurt Bowl)
+
+Probiotic Yogurt Shot (Probiotic Yogurt Drink)
+
+Drinking Yogurt with Aloe Vera (Aloe Vera Yogurt Drink)
+
+Drinking Yogurt with Nata de Coco (Nata de Coco Yogurt Drink)
+
+Yogurt Ice Pop (Yogurt Popsicle)
+
+Yogurt Soft Serve (Yogurt Soft-Serve Ice Cream)
+
+Yogurt Cheesecake (Yogurt Cheesecake)
+
+Yogurt Mousse (Yogurt Mousse Dessert)
+
+Yogurt Fruit Salad (Yogurt Fruit Salad)
+Sambal Belacan (Chilli Shrimp Paste Sambal)
+Sambal Belacan Limau (Chilli Shrimp Paste with Calamansi Sambal)
+Sambal Ikan Bilis (Anchovy Chilli Sambal)
+Sambal Ikan Bilis Kacang (Anchovy and Peanut Sambal)
+Sambal Tumis (Cooked Spiced Chilli Sambal)
+Sambal Tumis Udang (Cooked Prawn Chilli Sambal)
+Sambal Tumis Sotong (Cooked Squid Chilli Sambal)
+Sambal Kangkong (Water Spinach Chilli Sambal)
+Sambal Goreng (Dry-Fried Spiced Chilli Sambal)
+Sambal Goreng Ikan Bilis (Dry-Fried Anchovy Sambal)
+Sambal Hijau (Green Chilli Sambal)
+Sambal Bawang (Chilli and Onion Sambal)
+Sambal Terasi (Fermented Shrimp Paste Sambal)
+
+Chilli Crab Sauce (Singapore Chilli Crab Gravy)
+Black Pepper Crab Sauce (Singapore Black Pepper Sauce)
+Salted Egg Yolk Sauce (Salted Egg Butter Sauce)
+Salted Egg Chilli Sauce (Spicy Salted Egg Sauce)
+
+Hainanese Chicken Rice Chilli Sauce
+Hainanese Chicken Rice Ginger Sauce
+Hainanese Chicken Rice Dark Soy Sauce
+
+Laksa Paste (Spiced Coconut Laksa Paste)
+Katong Laksa Paste (Katong-Style Laksa Paste)
+Curry Laksa Rempah (Laksa Curry Spice Paste)
+
+Mee Siam Sambal (Mee Siam Chilli Sauce)
+Mee Rebus Gravy (Spiced Sweet Potato Gravy)
+
+Satay Sauce (Peanut Satay Sauce)
+Satay Chilli Sauce (Spicy Satay Chilli)
+
+Rojak Sauce (Sweet Shrimp Paste Fruit Salad Sauce)
+Indian Rojak Sauce (Spiced Tamarind Peanut Sauce)
+
+Taucheo Sauce (Fermented Soybean Sauce)
+Taucheo Chilli Sauce (Fermented Soybean Chilli Sauce)
+
+Bak Kut Teh Pepper Broth Base (White Pepper Garlic Seasoning Base)
+Bak Kut Teh Dark Herb Paste (Herbal Soy-Based Seasoning Paste)
+
+Char Kway Teow Dark Sauce (Sweet Dark Soy Stir-Fry Sauce)
+Char Kway Teow Chilli Paste (Stir-Fry Chilli Paste)
+
+Oyster Omelette Chilli Sauce (Oyster Omelette Sambal)
+
+Nasi Lemak Sambal (Coconut Rice Chilli Sambal)
+Nasi Lemak Sambal Ikan Bilis (Anchovy Coconut Rice Sambal)
+
+Peranakan Rempah (Straits Chinese Spice Paste)
+Peranakan Ayam Buah Keluak Rempah (Black Nut Chicken Spice Paste)
+Peranakan Curry Rempah (Nonya Curry Spice Paste)
+
+Curry Powder Singapore Style (Singapore Curry Spice Blend)
+Fish Head Curry Paste (Spiced Fish Curry Paste)
+
+Kaya (Coconut Egg Jam)
+Pandan Kaya (Pandan Coconut Egg Jam)
+Hainanese Chicken Rice (Poached Chicken with Fragrant Rice)
+Roasted Chicken Rice (Roast Chicken with Fragrant Rice)
+Soy Sauce Chicken Rice (Soy-Braised Chicken with Fragrant Rice)
+Char Kway Teow (Stir-Fried Flat Rice Noodles with Seafood and Chinese Sausage)
+White Char Kway Teow (Light Soy Stir-Fried Flat Rice Noodles)
+Black Char Kway Teow (Dark Soy Stir-Fried Flat Rice Noodles)
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Short-Cut Noodles in Spicy Coconut Soup)
+Asam Laksa (Tamarind Fish Noodle Soup)
+Bak Chor Mee (Minced Pork Noodles)
+Bak Chor Mee Soup (Minced Pork Noodle Soup)
+Bak Chor Mee Dry (Dry Minced Pork Noodles with Vinegar and Chili)
+Fishball Noodle Soup (Fish Ball Noodles)
+Fishball Noodles Dry (Dry Fish Ball Noodles)
+Prawn Mee (Prawn Noodle Soup)
+Hokkien Prawn Mee (Stir-Fried Prawn and Pork Noodles)
+Hae Mee (Prawn Noodle Soup with Pork Ribs)
+Wanton Mee (Dumpling Noodles)
+Wanton Mee Soup (Dumpling Noodle Soup)
+Wanton Mee Dry (Dry Dumpling Noodles)
+Lor Mee (Thick Gravy Noodles)
+Mee Rebus (Malay Spiced Gravy Noodles)
+Mee Siam (Sweet-Sour Rice Vermicelli)
+Mee Siam Dry (Dry Sweet-Sour Rice Vermicelli)
+Mee Siam Soup (Sweet-Sour Rice Vermicelli Soup)
+Mee Soto (Spiced Chicken Noodle Soup)
+Mee Pok (Flat Egg Noodles)
+Mee Kia (Thin Egg Noodles)
+Ban Mian (Hand-Torn Wheat Noodle Soup)
+You Mian (Curly Wheat Noodles)
+Kway Chap (Braised Pork Offal with Flat Rice Sheets)
+Pig’s Organ Soup (Pork Offal Pepper Soup)
+Bak Kut Teh (Peppery Pork Rib Soup)
+Teochew Bak Kut Teh (Peppery Pork Rib Soup)
+Hokkien Bak Kut Teh (Herbal Pork Rib Soup)
+Sup Tulang (Spicy Bone Marrow Soup)
+Fish Head Curry (Spiced Curry Fish Head)
+Sambal Stingray (Grilled Stingray with Chili Paste)
+Chilli Crab (Crab in Sweet Spicy Tomato-Chili Sauce)
+Black Pepper Crab (Crab in Black Pepper Sauce)
+Salted Egg Yolk Crab (Crab with Salted Egg Sauce)
+Butter Crab (Crab in Butter Sauce)
+Cereal Prawns (Butter Cereal-Coated Prawns)
+Salted Egg Yolk Prawns (Prawns with Salted Egg Sauce)
+Sweet and Sour Pork (Pork in Sweet Vinegar Sauce)
+Ngoh Hiang (Five-Spice Pork Roll)
+Hae Zong (Prawn Rolls in Beancurd Skin)
+Oyster Omelette (Fried Oyster Egg Omelette)
+Carrot Cake, White (Steamed Radish Cake Stir-Fried without Dark Soy)
+Carrot Cake, Black (Radish Cake Stir-Fried with Dark Soy)
+Roti Prata (Indian Flatbread)
+Plain Prata (Plain Indian Flatbread)
+Egg Prata (Egg-Stuffed Flatbread)
+Cheese Prata (Cheese-Stuffed Flatbread)
+Prata with Curry Fish Head (Flatbread with Fish Head Curry)
+Nasi Lemak (Coconut Rice with Sambal and Condiments)
+Nasi Lemak with Fried Chicken (Coconut Rice with Fried Chicken)
+Nasi Lemak with Ikan Bilis (Coconut Rice with Anchovies)
+Nasi Padang (Indonesian Rice with Assorted Dishes)
+Nasi Briyani (Spiced Basmati Rice with Meat)
+Chicken Briyani (Spiced Basmati Rice with Chicken)
+Mutton Briyani (Spiced Basmati Rice with Mutton)
+Mee Goreng (Fried Yellow Noodles)
+Mamak Mee Goreng (Indian-Muslim Fried Noodles)
+Satay (Grilled Skewered Meat with Peanut Sauce)
+Chicken Satay (Grilled Chicken Skewers)
+Mutton Satay (Grilled Mutton Skewers)
+Beef Satay (Grilled Beef Skewers)
+Ketupat (Compressed Rice Cakes)
+Otah (Grilled Spiced Fish Paste)
+Otah Otah (Grilled Spiced Fish Paste in Banana Leaf)
+Achar (Pickled Mixed Vegetables)
+Ayam Penyet (Smashed Fried Chicken with Sambal)
+Ayam Bakar (Grilled Spiced Chicken)
+Beef Rendang (Slow-Cooked Spiced Beef)
+Chicken Rendang (Slow-Cooked Spiced Chicken)
+Gado-Gado (Vegetable Salad with Peanut Sauce)
+Rojak (Local Fruit and Vegetable Salad with Shrimp Paste)
+Indian Rojak (Indian-Muslim Fritters with Sauce)
+Popiah (Fresh Spring Roll)
+Popiah Basah (Fresh Spring Roll with Turnip Filling)
+Popiah Goreng (Fried Spring Roll)
+Chwee Kueh (Steamed Rice Cakes with Preserved Radish)
+Tau Huay (Silken Tofu Dessert)
+Soy Bean Curd (Silken Tofu Dessert)
+Ice Kachang (Shaved Ice with Syrups and Beans)
+Chendol (Pandan Jelly with Coconut Milk and Palm Sugar)
+Pulut Hitam (Black Glutinous Rice Dessert)
+Ondeh Ondeh (Palm Sugar-Filled Glutinous Rice Balls)
+Kaya Toast (Toasted Bread with Coconut Jam)
+Soft-Boiled Eggs (Traditional Kopitiam Eggs)
+Teh Tarik (Pulled Milk Tea)
+Kopi O (Black Coffee)
+Kopi C (Coffee with Evaporated Milk)
+Hainanese Chicken Rice Ginger–Scallion Oil (Jiang Cong You, Ginger and Scallion Oil)
+Hainanese Chicken Rice Garlic–Ginger Oil (Garlic Ginger Oil)
+Chicken Rice Scallion Oil (Scallion Oil)
+Chicken Rice Chili Oil (Chicken Rice Chili Oil)
+Sambal Belacan Oil (Shrimp Paste Chili Oil)
+Sambal Oelek Oil (Fresh Chili Paste Oil)
+Sambal Tumis Oil (Fried Chili Paste Oil)
+Laksa Chili Oil (Laksa Chili Oil)
+Laksa Rempah Oil (Laksa Spice Oil)
+Curry Leaf Oil (Curry Leaf Infused Oil)
+Pandan Leaf Oil (Pandan Infused Oil)
+Fried Shallot Oil (Shallot Oil)
+Fried Garlic Oil (Garlic Oil)
+Dried Shrimp Chili Oil (Hae Bee Hiam Oil, Dried Shrimp Chili Oil)
+Dried Shrimp Oil (Hae Bee Oil, Dried Shrimp Oil)
+Prawn Head Oil (Prawn Oil)
+Crab Roe Oil (Crab Fat Oil)
+Chili Crab Oil (Chili Crab Sauce Oil)
+Black Pepper Crab Oil (Black Pepper Crab Oil)
+Bak Chor Mee Lard Oil (Pork Lard Oil)
+Char Kway Teow Lard Oil (Stir-Fry Pork Lard Oil)
+Hokkien Mee Lard Oil (Pork Lard Oil)
+Mee Pok Chili Oil (Noodle Chili Oil)
+Satay Chili Oil (Satay Chili Oil)
+Nasi Lemak Coconut Oil (Coconut Oil)
+Nasi Lemak Sambal Oil (Sambal Chili Oil)
+Calamansi Vinaigrette
+Calamansi Soy Vinaigrette
+Calamansi Sesame Vinaigrette
+Calamansi Honey Vinaigrette
+Calamansi Chili Vinaigrette
+Calamansi Ginger Vinaigrette
+Calamansi Olive Oil Vinaigrette
+Calamansi Neutral Oil Vinaigrette
+Calamansi Fish Sauce Vinaigrette
+Calamansi Garlic Vinaigrette
+Calamansi Shallot Vinaigrette
+Calamansi Black Pepper Vinaigrette
+Calamansi Palm Sugar Vinaigrette
+
+Lime Soy Vinaigrette
+Lime Sesame Vinaigrette
+Lime Fish Sauce Vinaigrette
+Lime Chili Vinaigrette
+Lime Ginger Vinaigrette
+Lime Palm Sugar Vinaigrette
+
+Sambal Lime Vinaigrette
+Sambal Calamansi Vinaigrette
+Sambal Vinegar Vinaigrette
+
+Belacan Lime Vinaigrette (Shrimp Paste Lime Vinaigrette)
+Belacan Calamansi Vinaigrette (Shrimp Paste Calamansi Vinaigrette)
+
+Ginger Scallion Vinaigrette
+Soy Ginger Vinaigrette
+Sesame Ginger Vinaigrette
+
+Soy Shallot Vinaigrette
+Crispy Shallot Vinaigrette
+
+Black Vinegar Soy Vinaigrette
+Black Vinegar Sesame Vinaigrette
+
+Rice Vinegar Soy Vinaigrette
+Rice Vinegar Ginger Vinaigrette
+
+Tamarind Vinaigrette
+Tamarind Lime Vinaigrette
+Tamarind Calamansi Vinaigrette
+
+Pandan Vinegar Vinaigrette
+
+Chili Crab Lime Vinaigrette
+Chili Crab Calamansi Vinaigrette
+Kacang Pool (Fava Bean Stew)
+Kacang Phool with Toast (Fava Bean Stew with Toast)
+Kacang Goreng (Fried Peanuts)
+Kacang Goreng Manis (Sweet Fried Peanuts)
+Kacang Goreng Pedas (Spicy Fried Peanuts)
+Kacang Puteh (Mixed Spiced Nuts)
+Kacang Puteh Kuning (Spiced Yellow Peas)
+Ikan Bilis Kacang (Anchovies with Peanuts)
+Sambal Kacang (Peanut Sauce)
+Satay Peanut Sauce (Satay Sauce)
+Tau Suan (Split Mung Bean Soup)
+Tau Huay (Soy Bean Curd Dessert)
+Fresh Soy Milk (Tau Huey Drink)
+Braised Peanuts (Chinese-Style Braised Peanuts)
+Five-Spice Peanuts (Chinese Five-Spice Peanuts)
+Tempeh Goreng (Fried Tempeh)
+Tau Pok with Braised Peanuts (Fried Tofu Puffs with Peanuts)
+Peanut Soup (Chinese Peanut Soup)
+Kaya Ice Cream (Coconut Egg Jam Ice Cream)
+Pandan Ice Cream (Screwpine Leaf Ice Cream)
+Pandan Coconut Gelato (Screwpine Coconut Gelato)
+Gula Melaka Ice Cream (Palm Sugar Ice Cream)
+Gula Melaka Gelato (Palm Sugar Gelato)
+Coconut Milk Ice Cream (Singapore-Style Coconut Ice Cream)
+Durian Ice Cream (Fresh Durian Ice Cream)
+Durian Gelato (Durian Fruit Gelato)
+Milo Dinosaur Ice Cream (Chocolate Malt Ice Cream)
+Teh Tarik Ice Cream (Pulled Milk Tea Ice Cream)
+Teh Tarik Gelato (Pulled Milk Tea Gelato)
+Kopi Ice Cream (Singapore Coffee Ice Cream)
+Kopi Gelato (Singapore Coffee Gelato)
+Pulut Hitam Ice Cream (Black Glutinous Rice Ice Cream)
+Pulut Hitam Gelato (Black Glutinous Rice Gelato)
+Chendol Ice Cream (Pandan Jelly Coconut Ice Cream)
+Ondeh Ondeh Ice Cream (Palm Sugar Coconut Ice Cream)
+Bandung Ice Cream (Rose Milk Ice Cream)
+Bandung Gelato (Rose Milk Gelato)
+Tau Huay Ice Cream (Soybean Milk Ice Cream)
+Black Sesame Ice Cream (Asian Black Sesame Ice Cream)
+Salted Egg Yolk Ice Cream (Salted Duck Egg Ice Cream)
+Laksa Ice Cream (Spiced Coconut Curry Ice Cream)
+Chili Crab Ice Cream (Sweet Savory Chili Crab Ice Cream)
+Hainanese Chicken Rice Ice Cream (Ginger Chicken Rice Ice Cream)
+Nasi Lemak Ice Cream (Coconut Rice Pandan Ice Cream)
+Mango Pomelo Sago Ice Cream (Mango Citrus Sago Ice Cream)
+Avocado Shake
+Bandung (Rose Milk Smoothie)
+Teh Tarik Smoothie
+Kopi Smoothie
+Milo Dinosaur Smoothie
+Chendol Smoothie
+Durian Smoothie
+Mango Sago Smoothie
+Soursop Smoothie
+Calamansi Lime Smoothie
+Gula Melaka Coconut Smoothie
+Grass Jelly Smoothie
+Barley Water Smoothie
+Jackfruit Smoothie
+Lychee Smoothie
+Dragon Fruit Smoothie
+Watermelon Lychee Smoothie
+Singapore Sling
+Gin Pahit (Straits-Style Bitter Gin Cocktail)
+Pandan Gin and Tonic
+Calamansi Gin and Tonic
+Gula Melaka Old Fashioned
+Chendol Cocktail (Coconut Palm Sugar Cocktail)
+Chendol Martini (Coconut Pandan Martini)
+Bandung Cocktail (Rose Milk Cocktail)
+Teh Tarik Cocktail (Pulled Milk Tea Cocktail)
+Kopi O Cocktail (Black Coffee Cocktail)
+Milo Dinosaur Cocktail (Chocolate Malt Cocktail)
+Tiger Beer Shandy
+Lychee Martini
+Pineapple Rum Punch (Tropical Singapore-Style Punch)
+Tuak (Rice Wine)
+Tapai Wine (Fermented Rice Wine)
+Rice Wine with Pandan
+Rice Wine with Ginger
+Rice Wine with Longan
+Rice Wine with Lychee
+Rice Wine with Red Dates
+Rice Wine with Goji Berries
+Rice Wine with Rock Sugar
+Rice Wine with Lemongrass
+Rice Wine with Pandan and Coconut
+Rice Wine with Palm Sugar
+Rice Wine with Fermented Glutinous Rice
+Rice Wine Dessert Wine
+Sweet Rice Wine Soup Base
+Chinese Rice Wine (Shaoxing-Style Rice Wine)
+Herbal Rice Wine
+Black Glutinous Rice Wine
+Fermented Rice Wine Syrup
+Tiger Beer Lager
+Tiger Crystal Lager
+Tiger Beer Shandy
+Tiger Beer with Lime
+Anchor Beer Lager
+Anchor Smooth Lager
+ABC Extra Stout
+ABC Stout Shandy
+Guinness Foreign Extra Stout
+Guinness Stout Shandy
+Lime Shandy
+Radler Beer
+Ice Cold Lager Beer
+Brewlander Island Lager
+Brewlander XPA
+Lion Brewery Island Lager
+Singapore Craft Lager
+Singapore Craft Pale Ale
+Rempah Spice Paste (Malay Aromatic Spice Paste)
+Rempah Kuning (Turmeric Spice Paste)
+Rempah Merah (Red Chili Spice Paste)
+Nyonya Rempah Paste (Peranakan Spice Paste)
+Laksa Rempah Paste (Laksa Spice Paste)
+Curry Powder (Singapore-Style Curry Powder)
+Meat Curry Powder (Singapore Meat Curry Spice Blend)
+Fish Curry Powder (Singapore Fish Curry Spice Blend)
+Chicken Curry Powder (Singapore Chicken Curry Spice Blend)
+Satay Spice Mix (Singapore Satay Spice Blend)
+Satay Marinade Paste (Singapore Satay Marinade)
+Hainanese Chicken Rice Chili Sauce (Chili-Ginger Garlic Sauce)
+Hainanese Chicken Rice Ginger Sauce (Ginger Scallion Sauce)
+Chili Crab Sauce Paste (Singapore Chili Crab Spice Sauce)
+Black Pepper Crab Sauce (Singapore Black Pepper Sauce)
+Sambal Belacan (Shrimp Paste Chili Sambal)
+Sambal Oelek (Fresh Chili Paste)
+Sambal Tumis (Fried Chili Sambal Paste)
+Sambal Hijau (Green Chili Sambal)
+Sambal Ikan Bilis (Anchovy Chili Sambal)
+Nasi Lemak Sambal (Coconut Rice Chili Sambal)
+Laksa Chili Paste (Laksa Chili Sambal)
+Curry Laksa Paste (Coconut Curry Laksa Spice Paste)
+Asam Laksa Paste (Tamarind Fish Laksa Spice Paste)
+Bak Kut Teh Spice Mix (Peppery Pork Rib Soup Spice Blend)
+White Bak Kut Teh Spice Mix (Teochew Pepper Garlic Spice Blend)
+Herbal Bak Kut Teh Spice Mix (Herbal Pork Rib Soup Spice Blend)
+Char Kway Teow Chili Paste (Wok-Fried Noodle Chili Paste)
+Char Siu Marinade (Singapore-Style Barbecue Pork Marinade)
+Roast Pork Five-Spice Rub (Singapore Roast Pork Spice Rub)
+Ngoh Hiang Spice Mix (Five-Spice Meat Roll Seasoning)
+Lor Bak Spice Mix (Five-Spice Pork Roll Seasoning)
+Rojak Sauce Spice Base (Sweet Shrimp Paste Spice Sauce)
+Indian Rojak Chili Sauce (Spicy Tamarind Chili Sauce)
+Mee Siam Chili Paste (Spicy Tamarind Chili Paste)
+Mee Rebus Spice Paste (Potato Gravy Spice Paste)
+Otak-Otak Spice Paste (Grilled Fish Custard Spice Paste)
+Ikan Bakar Sambal (Grilled Fish Chili Sambal)
+Ayam Percik Spice Paste (Spiced Coconut Chicken Paste)
+Keropok (Prawn Crackers)
+Keropok Lekor (Fish Sausage Crackers)
+Salted Egg Yolk Potato Chips
+Salted Egg Yolk Fish Skin Chips
+Salted Egg Yolk Cassava Chips
+Curry Leaf Potato Chips
+Fish Skin Chips
+Ikan Bilis Chips (Crispy Anchovy Chips)
+Cassava Chips
+Tapioca Chips
+Banana Chips
+Sweet Potato Chips
+Popiah Skin Chips
+Wanton Skin Chips
+Beancurd Skin Chips
+Five-Spice Beancurd Skin Chips
+Chilli Crab–Flavoured Potato Chips
+Laksa–Flavoured Potato Chips
+Sambal Potato Chips
+Sambal Cassava Chips
+Kaya Toast with Soft-Boiled Eggs
+Soft-Boiled Eggs with Dark Soy Sauce and White Pepper
+Half-Boiled Eggs (Singapore-Style Soft-Boiled Eggs)
+Steamed Egg Custard (Chawanmushi-Style Singapore Egg Custard)
+Chai Tow Kway with Egg (Fried Radish Cake with Egg)
+Carrot Cake with Egg (Singapore Fried Radish Cake with Egg)
+Oyster Omelette (Singapore Hawker-Style Oyster Omelette)
+Fried Oyster Omelette with Egg
+Prawn Omelette (Singapore-Style Prawn Omelette)
+Minced Pork Omelette (Singapore Hawker Omelette)
+Onion Omelette (Singapore-Style Onion Omelette)
+Egg Foo Yong (Singapore Chinese-Style Egg Foo Young)
+Egg Foo Yong with Prawns (Singapore Prawn Egg Foo Young)
+Egg Foo Yong with Char Siu (Singapore Barbecued Pork Egg Foo Young)
+Fried Egg with Dark Soy Sauce (Singapore Kopitiam Fried Egg)
+Fried Egg with Sambal (Singapore Sambal Fried Egg)
+Scrambled Eggs with Prawns (Singapore-Style Scrambled Eggs)
+Scrambled Eggs with Milk (Singapore Soft Scrambled Eggs)
+Tea Eggs (Singapore Chinese Tea-Braised Eggs)
+Soy Sauce Eggs (Singapore Soy-Braised Eggs)
+Braised Eggs in Dark Soy Sauce (Singapore Black Soy Eggs)
+Egg Drop Soup (Singapore Chinese Egg Flower Soup)
+Fish Soup with Egg Threads (Singapore Fish Soup with Egg)
+Tomato Egg Stir-Fry (Singapore Chinese Tomato and Egg Stir-Fry)
+Egg Curry (Singapore-Style Egg Curry)
+Hard-Boiled Eggs in Curry Sauce (Singapore Curry Eggs)
+Laksa Egg Topping (Boiled Egg for Laksa)
+Mee Siam with Fried Egg
+Nasi Lemak with Fried Egg
+Fried Rice with Egg (Singapore Egg Fried Rice)
+Hokkien Mee (Singapore Fried Hokkien Noodles)
+Singapore Hokkien Prawn Mee (Wet-Style Fried Noodles)
+Dry Hokkien Mee (Dry Fried Hokkien Noodles)
+Char Kway Teow (Stir-Fried Flat Rice Noodles)
+White Char Kway Teow (White Fried Flat Rice Noodles)
+Black Char Kway Teow (Dark Soy Fried Flat Rice Noodles)
+Penang-Style Char Kway Teow (Penang Fried Flat Rice Noodles)
+Fried Hokkien Noodles (Singapore-Style Fried Egg Noodles)
+Prawn Mee (Prawn Noodle Soup)
+Dry Prawn Mee (Dry Tossed Prawn Noodles)
+Bak Chor Mee (Minced Pork Noodles)
+Bak Chor Mee Soup (Minced Pork Noodle Soup)
+Dry Bak Chor Mee (Dry Minced Pork Noodles)
+Fishball Noodles (Fishball Noodle Soup)
+Dry Fishball Noodles (Dry Fishball Noodles)
+Fish Dumpling Noodles (Fish Dumpling Noodle Soup)
+Lor Mee (Braised Gravy Noodles)
+Black Lor Mee (Dark Soy Braised Noodles)
+Laksa (Spicy Coconut Noodle Soup)
+Katong Laksa (Katong-Style Coconut Laksa Noodles)
+Curry Laksa (Curry Coconut Noodles)
+Mee Siam (Spicy Tamarind Rice Vermicelli)
+Mee Siam Dry (Dry Spicy Tamarind Vermicelli)
+Mee Rebus (Sweet Potato Gravy Noodles)
+Mee Soto (Spiced Chicken Noodle Soup)
+Wanton Mee (Wonton Egg Noodles)
+Dry Wanton Mee (Dry Wonton Noodles)
+Soup Wanton Mee (Wonton Noodle Soup)
+Yong Tau Foo Noodles (Stuffed Tofu Noodles)
+Kway Chap (Flat Rice Sheets in Herbal Broth)
+Mee Tai Mak (Short Rice Noodle Stir-Fry)
+Mee Tai Mak Soup (Short Rice Noodle Soup)
+Satay Bee Hoon (Peanut Sauce Rice Vermicelli)
+Fried Bee Hoon (Singapore Fried Rice Vermicelli)
+Bee Hoon Soup (Rice Vermicelli Soup)
+Chilli Crab Noodles (Chilli Crab Egg Noodles)
+Sambal Belacan (Shrimp Paste Chili Sambal)
+Singapore Chili Sambal (Fresh Red Chili Sauce)
+Chicken Rice Chili Sauce (Hainanese Chicken Rice Chili)
+Chicken Rice Ginger Sauce (Hainanese Chicken Rice Ginger Sauce)
+Dark Soy Sauce with Caramel (Singapore Style Dark Soy Sauce)
+Kaya (Pandan Coconut Jam)
+Laksa Paste (Spiced Coconut Laksa Paste)
+Laksa Chili Sambal (Laksa Chili Condiment)
+Black Pepper Crab Sauce (Singapore Black Pepper Sauce)
+Chili Crab Sauce (Singapore Chili Crab Sauce)
+Satay Peanut Sauce (Singapore Satay Sauce)
+Achar (Spiced Pickled Vegetables)
+Curry Puff Chili Sauce (Singapore Curry Puff Chili Sauce)
+Rojak Sauce (Sweet Shrimp Paste Fruit Salad Sauce)
+Hae Ko Sauce (Sweet Fermented Shrimp Sauce)
+Sambal Kangkong Chili (Water Spinach Chili Sambal)
+Nasi Lemak Sambal (Coconut Rice Chili Sambal)
+Barbecue Sambal Sauce (Singapore BBQ Sambal)
+Sweet Chili Sauce (Singapore Sweet Chili Sauce)
+Calamansi Chili Sauce (Calamansi Lime Chili Sauce)
+Tau Huay (Soybean Pudding)
+Silken Tau Huay (Soft Soybean Pudding)
+Traditional Tau Huay with Sugar Syrup (Soybean Pudding)
+Tau Huay with Ginkgo Nuts (Soybean Pudding with Ginkgo Nuts)
+Tau Kwa (Firm Beancurd)
+Tau Pok (Fried Beancurd Puff)
+Ngoh Hiang (Five-Spice Beancurd Skin Roll)
+Tau Kee Roll (Beancurd Skin Roll)
+Kacang Puteh (Spiced Roasted Nuts)
+Assorted Kacang Puteh (Mixed Spiced Nuts)
+Hainanese Peanut Soup (Peanut Dessert Soup)
+Peanut Soup with Tang Yuan (Peanut Soup with Glutinous Rice Balls)
+Tau Suan (Mung Bean Dessert Soup)
+Green Bean Soup (Mung Bean Soup)
+Black Bean Soup (Black Bean Dessert Soup)
+Ice Kachang with Red Beans (Shaved Ice Dessert with Sweet Red Beans)
+Chendol with Red Beans (Pandan Jelly Dessert with Red Beans)
+Satay Peanut Sauce (Peanut Sauce)
+Rojak Peanut Sauce (Sweet-Spicy Peanut Sauce)
+Popiah Peanut Powder (Ground Peanut Filling)
+Peanut Pancake (Ground Peanut Pancake)
+Ginkgo Nut Dessert (Bai Guo Dessert)

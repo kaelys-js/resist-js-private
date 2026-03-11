@@ -1,0 +1,258 @@
+Chicken Stock
+Chicken Bone Broth
+Beef Stock
+Veal Stock
+Fish Stock
+Shellfish Stock
+Vegetable Stock
+Dashi (Japanese Kombu and Bonito Stock)
+White Stock
+Brown Stock
+Glace de Viande (Meat Glaze)
+Court Bouillon
+Bouquet Garni
+Herb Sachet
+
+Béchamel Sauce
+Velouté Sauce
+Espagnole Sauce
+Hollandaise Sauce
+Tomato Sauce (Classic French Mother Sauce)
+Mayonnaise
+Aioli (Garlic Mayonnaise)
+Vinaigrette
+Pan Sauce
+Demi-Glace
+Gravy
+
+Pizza Dough
+Bread Dough
+Sourdough Starter
+Pasta Dough
+Fresh Egg Pasta Dough
+Gnocchi Dough
+Ravioli Filling Base
+Dumpling Dough
+Pie Dough
+Shortcrust Pastry
+Puff Pastry
+Choux Pastry
+Filo Dough
+
+White Rice
+Brown Rice
+Sushi Rice
+Risotto Base
+Rice Pilaf
+Quinoa Base
+Couscous Base
+Polenta
+Mashed Potatoes
+Roasted Potatoes
+Boiled Potatoes
+
+Tomato Concassé
+Tomato Purée
+Tomato Paste
+Roasted Tomatoes
+Caramelized Onions
+Sautéed Onions
+Garlic Confit
+Roasted Garlic
+Mirepoix
+Soffritto
+Holy Trinity (Cajun Vegetable Base)
+
+Hard-Boiled Eggs
+Soft-Boiled Eggs
+Scrambled Eggs
+Poached Eggs
+Omelette Base
+
+Dry Brine
+Wet Brine
+Simple Syrup
+Sugar Syrup
+Caramel
+Brown Butter
+Clarified Butter
+Ghee
+
+Breadcrumbs
+Panko Breadcrumbs
+Croutons
+
+Marinade Base
+Dry Rub
+Spice Blend
+Herb Butter
+Compound Butter
+
+White Roux
+Blond Roux
+Brown Roux
+
+Custard Base
+Pastry Cream
+Crème Anglaise
+Whipped Cream
+Meringue
+
+Salad Greens Mix
+Coleslaw Base
+Pickling Brine
+Quick Pickles
+
+Bone Marrow Preparation
+Rendered Beef Fat (Tallow)
+Rendered Pork Fat (Lard)
+Rendered Duck Fat
+
+Salt
+Black Pepper
+White Pepper
+Crushed Red Pepper Flakes
+Extra Virgin Olive Oil
+Refined Olive Oil
+Vegetable Oil
+Canola Oil
+Sunflower Oil
+Grapeseed Oil
+Sesame Oil
+Toasted Sesame Oil
+Butter
+Clarified Butter (Ghee)
+Cultured Butter
+Garlic Butter
+Herb Butter (Compound Butter)
+Mayonnaise
+Japanese Mayonnaise
+Aioli (Garlic Mayonnaise)
+Lemon Aioli
+Truffle Aioli
+Ketchup (Tomato Ketchup)
+Banana Ketchup
+Curry Ketchup
+Mustard
+Yellow Mustard
+Dijon Mustard
+Whole Grain Mustard
+English Mustard
+Honey Mustard
+Hot Mustard
+Prepared Horseradish
+Horseradish Cream Sauce
+Wasabi Paste
+Soy Sauce
+Light Soy Sauce
+Dark Soy Sauce
+Tamari (Gluten-Free Soy Sauce)
+Sweet Soy Sauce (Kecap Manis)
+Fish Sauce
+Oyster Sauce
+Hoisin Sauce
+Teriyaki Sauce
+Ponzu Sauce (Citrus Soy Sauce)
+Mirin (Sweet Rice Cooking Wine)
+Rice Vinegar
+Black Vinegar (Chinese Black Vinegar)
+Balsamic Vinegar
+White Balsamic Vinegar
+Red Wine Vinegar
+White Wine Vinegar
+Apple Cider Vinegar
+Sherry Vinegar
+Malt Vinegar
+Chili Oil
+Chili Crisp (Chili Crunch)
+Sambal Oelek (Fresh Chili Paste)
+Sriracha (Chili Garlic Sauce)
+Harissa (North African Chili Paste)
+Gochujang (Korean Chili Paste)
+Doubanjiang (Fermented Broad Bean Chili Paste)
+Miso Paste (Fermented Soybean Paste)
+White Miso Paste
+Red Miso Paste
+Tahini (Sesame Seed Paste)
+Hummus
+Baba Ghanoush (Eggplant Dip)
+Pesto Genovese (Basil Pesto)
+Red Pesto (Sun-Dried Tomato Pesto)
+Chimichurri Sauce
+Salsa Roja (Red Salsa)
+Salsa Verde (Green Salsa)
+Pico de Gallo (Fresh Tomato Salsa)
+Guacamole
+Mole Negro (Black Mole Sauce)
+Mole Rojo (Red Mole Sauce)
+Romesco Sauce
+Raita (Yogurt Sauce)
+Tzatziki (Yogurt Cucumber Sauce)
+Skordalia (Garlic Potato Sauce)
+Hollandaise Sauce
+Béarnaise Sauce
+Sauce Béarnaise with Tarragon
+Sauce Choron (Tomato Béarnaise)
+Mayonnaise-Based Tartar Sauce
+Cocktail Sauce (Seafood Sauce)
+Thousand Island Dressing
+Russian Dressing
+Caesar Dressing
+Green Goddess Dressing
+Vinaigrette
+French Vinaigrette
+Balsamic Vinaigrette
+Honey Vinaigrette
+Sesame Dressing
+Miso Dressing
+Ranch Dressing
+Blue Cheese Dressing
+Italian Dressing
+Barbecue Sauce
+Kansas City-Style Barbecue Sauce
+Memphis-Style Barbecue Sauce
+Carolina Mustard Barbecue Sauce
+Alabama White Barbecue Sauce
+Steak Sauce
+Worcestershire Sauce
+HP Sauce (Brown Sauce)
+Chutney
+Mango Chutney
+Tamarind Chutney
+Mint Chutney
+Relish
+Sweet Pickle Relish
+Dill Pickle Relish
+Piccalilli (British Mustard Pickle)
+Kimchi (Fermented Spiced Cabbage)
+Gremolata (Parsley Garlic Lemon Condiment)
+Tapenade (Olive Paste)
+Anchovy Paste
+Caper Sauce
+Gravy
+Pan Gravy
+Red Wine Reduction Sauce
+Demi-Glace
+Espagnole Sauce
+Velouté Sauce
+Bechamel Sauce
+Tomato Sauce
+Marinara Sauce
+Arrabbiata Sauce
+Amatriciana Sauce
+Puttanesca Sauce
+Peanut Sauce
+Satay Sauce
+Nuoc Cham (Vietnamese Dipping Sauce)
+Nam Prik (Thai Chili Dip)
+Sweet Chili Sauce
+Plum Sauce
+Duck Sauce
+Cranberry Sauce
+Apple Sauce
+Mint Sauce
+Bread Sauce
+Onion Jam
+Caramelized Onion Chutney
+Garlic Chili Sauce
+Peri-Peri Sauce (Portuguese Chili Sauce)

@@ -1,0 +1,20 @@
+{
+	"path": "pnpm-lock.yaml",
+	"type": "npm",
+	"validate-https": true,
+	"validate-integrity": true,
+	"validate-package-names": true,
+	"allowed-hosts": [
+		"npm",
+		"registry.npmjs.org",
+		"registry.yarnpkg.com"
+	],
+	"allowed-schemes": [
+		"https:",
+		"git+https:",
+		"git+ssh:",
+		"ssh:"
+	],
+	"allowed-urls": [],
+	"empty-hostname": false
+}

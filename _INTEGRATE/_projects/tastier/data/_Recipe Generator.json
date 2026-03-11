@@ -1,0 +1,920 @@
+{
+	"schema": {
+		"$schema": "http://json-schema.org/draft-07/schema#",
+		"title": "Canonical Recipe JSON Schema – Michelin Guided",
+		"type": "object",
+		"additionalProperties": false,
+		"required": [
+			"schema_version",
+			"dish",
+			"metadata",
+			"chef_intent",
+			"execution_profile",
+			"ingredients",
+			"equipment",
+			"workflow",
+			"plating",
+			"storage",
+			"nutrition_per_serving",
+			"refinements"
+		],
+		"properties": {
+			"schema_version": {
+				"type": "string",
+				"enum": [
+					"CRJS-2.1"
+				]
+			},
+			"dish": {
+				"type": "string",
+				"minLength": 1
+			},
+			"metadata": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": [
+					"categories",
+					"dietary_classification",
+					"dietary_restrictions",
+					"dietary_compatibility",
+					"health_rating",
+					"primary_proteins",
+					"allergens",
+					"allergen_substitutions",
+					"scaling_behavior",
+					"beginner_success_confidence"
+				],
+				"properties": {
+					"categories": {
+						"type": "array",
+						"items": {
+							"enum": [
+								"Appetizer",
+								"Main",
+								"Side",
+								"Dessert",
+								"Snack",
+								"Breakfast"
+							]
+						}
+					},
+					"dietary_classification": {
+						"enum": [
+							"Omnivore",
+							"Vegetarian",
+							"Vegan",
+							"Pescatarian"
+						]
+					},
+					"dietary_restrictions": {
+						"type": "array",
+						"items": {
+							"enum": [
+								"Gluten-Free",
+								"Dairy-Free",
+								"Nut-Free",
+								"Soy-Free",
+								"None"
+							]
+						}
+					},
+					"dietary_compatibility": {
+						"type": "array",
+						"items": {
+							"enum": [
+								"Keto-Compatible",
+								"Low-Carb",
+								"High-Protein",
+								"Low-Sodium"
+							]
+						}
+					},
+					"health_rating": {
+						"enum": [
+							"Low",
+							"Moderate",
+							"High"
+						]
+					},
+					"primary_proteins": {
+						"type": "array",
+						"items": {
+							"enum": [
+								"None",
+								"Egg",
+								"Dairy",
+								"Poultry",
+								"Beef",
+								"Pork",
+								"Fish",
+								"Shellfish",
+								"Legume"
+							]
+						}
+					},
+					"allergens": {
+						"type": "array",
+						"items": {
+							"enum": [
+								"Egg",
+								"Dairy",
+								"Gluten",
+								"Nut",
+								"Soy",
+								"Fish",
+								"Shellfish"
+							]
+						}
+					},
+					"allergen_substitutions": {
+						"type": "object",
+						"additionalProperties": {
+							"type": "string"
+						}
+					},
+					"scaling_behavior": {
+						"enum": [
+							"Linear",
+							"Non-Linear",
+							"Do-Not-Scale"
+						]
+					},
+					"beginner_success_confidence": {
+						"type": "number",
+						"minimum": 0,
+						"maximum": 100
+					}
+				}
+			},
+			"chef_intent": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": [
+					"cuisine",
+					"cuisine_region",
+					"authenticity",
+					"flavor_target",
+					"flavor_profile",
+					"texture_target",
+					"texture_goals",
+					"experience_goal",
+					"seasoning_timing"
+				],
+				"properties": {
+					"cuisine": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						},
+						"minItems": 1
+					},
+					"cuisine_region": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"authenticity": {
+						"enum": [
+							"Traditional",
+							"Modern-Canonical",
+							"Interpretive"
+						]
+					},
+					"flavor_target": {
+						"type": "object",
+						"required": [
+							"primary",
+							"secondary"
+						],
+						"properties": {
+							"primary": {
+								"enum": [
+									"salty",
+									"sweet",
+									"acidic",
+									"umami",
+									"bitter"
+								]
+							},
+							"secondary": {
+								"type": "array",
+								"items": {
+									"enum": [
+										"salty",
+										"sweet",
+										"acidic",
+										"umami",
+										"bitter"
+									]
+								}
+							}
+						}
+					},
+					"flavor_profile": {
+						"type": "array",
+						"items": {
+							"enum": [
+								"salty",
+								"sweet",
+								"acidic",
+								"umami",
+								"bitter"
+							]
+						}
+					},
+					"texture_target": {
+						"enum": [
+							"crisp",
+							"tender",
+							"creamy",
+							"chewy",
+							"silky"
+						]
+					},
+					"texture_goals": {
+						"type": "array",
+						"items": {
+							"enum": [
+								"crisp",
+								"tender",
+								"creamy",
+								"chewy",
+								"silky"
+							]
+						}
+					},
+					"seasoning_timing": {
+						"type": "object",
+						"required": [
+							"salt",
+							"acid"
+						],
+						"properties": {
+							"salt": {
+								"enum": [
+									"Early",
+									"Mid",
+									"Late"
+								]
+							},
+							"acid": {
+								"enum": [
+									"Structural",
+									"Balancing",
+									"Finishing"
+								]
+							}
+						}
+					},
+					"experience_goal": {
+						"type": "string",
+						"minLength": 10
+					}
+				}
+			},
+			"execution_profile": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": [
+					"difficulty",
+					"beginner_success_strategy",
+					"time",
+					"yield",
+					"service",
+					"error_tolerance"
+				],
+				"properties": {
+					"difficulty": {
+						"enum": [
+							"Beginner-Safe",
+							"Beginner-Guided"
+						]
+					},
+					"beginner_success_strategy": {
+						"enum": [
+							"Guardrailed",
+							"Self-Correcting",
+							"Fail-Soft"
+						]
+					},
+					"time": {
+						"type": "object",
+						"required": [
+							"prep_minutes",
+							"cook_minutes",
+							"total_minutes"
+						],
+						"properties": {
+							"prep_minutes": {
+								"type": "number",
+								"minimum": 0
+							},
+							"cook_minutes": {
+								"type": "number",
+								"minimum": 0
+							},
+							"total_minutes": {
+								"type": "number",
+								"minimum": 0
+							}
+						}
+					},
+					"yield": {
+						"$ref": "#/definitions/dual_quantity"
+					},
+					"service": {
+						"type": "object",
+						"required": [
+							"serves",
+							"temperature"
+						],
+						"properties": {
+							"serves": {
+								"type": "number",
+								"minimum": 1
+							},
+							"temperature": {
+								"enum": [
+									"Hot",
+									"Warm",
+									"Cold"
+								]
+							}
+						}
+					},
+					"error_tolerance": {
+						"enum": [
+							"Low",
+							"Medium",
+							"High"
+						]
+					}
+				}
+			},
+			"ingredients": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"additionalProperties": false,
+					"required": [
+						"component",
+						"items"
+					],
+					"properties": {
+						"component": {
+							"type": "string"
+						},
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"additionalProperties": false,
+								"required": [
+									"name",
+									"quantity",
+									"role",
+									"cost_band",
+									"critical",
+									"substitutable",
+									"substitutions",
+									"ingredient_quality",
+									"local_cost"
+								],
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"quantity": {
+										"$ref": "#/definitions/dual_quantity"
+									},
+									"role": {
+										"enum": [
+											"Structure",
+											"Fat",
+											"Acid",
+											"Seasoning",
+											"Aroma"
+										]
+									},
+									"cost_band": {
+										"enum": [
+											"Low",
+											"Medium",
+											"High"
+										]
+									},
+									"critical": {
+										"type": "boolean"
+									},
+									"substitutable": {
+										"type": "boolean"
+									},
+									"substitutions": {
+										"type": "array",
+										"minItems": 1,
+										"items": {
+											"type": "object",
+											"additionalProperties": false,
+											"required": [
+												"name",
+												"reason"
+											],
+											"properties": {
+												"name": {
+													"type": "string",
+													"minLength": 1
+												},
+												"reason": {
+													"enum": [
+														"Allergen",
+														"Availability",
+														"Cost",
+														"Dietary",
+														"Flavor-Equivalent",
+														"Texture-Equivalent"
+													]
+												},
+												"impact": {
+													"enum": [
+														"None",
+														"Minor",
+														"Moderate"
+													]
+												}
+											}
+										}
+									},
+									"ingredient_quality": {
+										"type": "object",
+										"required": [
+											"grade"
+										],
+										"properties": {
+											"grade": {
+												"enum": [
+													"Standard",
+													"Premium",
+													"Chef-Preferred"
+												]
+											},
+											"notes": {
+												"type": "string"
+											}
+										}
+									},
+									"local_cost": {
+										"type": "object",
+										"required": [
+											"currency",
+											"value"
+										],
+										"properties": {
+											"currency": {
+												"type": "string"
+											},
+											"value": {
+												"type": "number",
+												"minimum": 0
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"workflow": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"additionalProperties": false,
+					"required": [
+						"step",
+						"action",
+						"sensory_check",
+						"visual_check",
+						"temperature_guard",
+						"irreversible",
+						"rest_required",
+						"correction"
+					],
+					"properties": {
+						"step": {
+							"type": "number",
+							"minimum": 1
+						},
+						"action": {
+							"type": "string"
+						},
+						"sensory_check": {
+							"type": "string"
+						},
+						"visual_check": {
+							"type": "string"
+						},
+						"temperature_guard": {
+							"type": "object",
+							"required": [
+								"min_c",
+								"max_c"
+							],
+							"properties": {
+								"min_c": {
+									"type": "number"
+								},
+								"max_c": {
+									"type": "number"
+								}
+							}
+						},
+						"irreversible": {
+							"type": "boolean"
+						},
+						"rest_required": {
+							"type": "object",
+							"required": [
+								"required",
+								"duration_minutes"
+							],
+							"properties": {
+								"required": {
+									"type": "boolean"
+								},
+								"duration_minutes": {
+									"type": "number",
+									"minimum": 0
+								}
+							}
+						},
+						"correction": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"equipment": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"additionalProperties": false,
+					"required": [
+						"name",
+						"required",
+						"precision_level",
+						"local_cost",
+						"user_has",
+						"equipment_fallback"
+					],
+					"properties": {
+						"name": {
+							"type": "string"
+						},
+						"required": {
+							"type": "boolean"
+						},
+						"precision_level": {
+							"enum": [
+								"None",
+								"Standard",
+								"High"
+							]
+						},
+						"local_cost": {
+							"type": "object",
+							"required": [
+								"currency",
+								"value"
+							],
+							"properties": {
+								"currency": {
+									"type": "string"
+								},
+								"value": {
+									"type": "number",
+									"minimum": 0
+								}
+							}
+						},
+						"user_has": {
+							"type": "boolean"
+						},
+						"equipment_fallback": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"plating": {
+				"type": "array",
+				"items": {
+					"type": "string"
+				}
+			},
+			"storage": {
+				"type": "object",
+				"required": [
+					"refrigeration",
+					"freezing",
+					"reheating_methods",
+					"reheat_freeze_impact"
+				],
+				"properties": {
+					"refrigeration": {
+						"type": "string"
+					},
+					"freezing": {
+						"type": "string"
+					},
+					"reheating_methods": {
+						"type": "array",
+						"items": {
+							"enum": [
+								"Oven",
+								"Stovetop",
+								"Microwave",
+								"Steam",
+								"None"
+							]
+						}
+					},
+					"reheat_freeze_impact": {
+						"enum": [
+							"None",
+							"Minor",
+							"Moderate",
+							"Severe"
+						]
+					}
+				}
+			},
+			"nutrition_per_serving": {
+				"type": "object",
+				"required": [
+					"calories_kcal",
+					"protein_g",
+					"fat_g",
+					"saturated_fat_g",
+					"carbohydrates_g",
+					"fiber_g",
+					"added_sugars_g",
+					"net_carbohydrates_g",
+					"sodium_mg",
+					"cholesterol_mg"
+				],
+				"properties": {
+					"calories_kcal": {
+						"type": "number"
+					},
+					"protein_g": {
+						"type": "number"
+					},
+					"fat_g": {
+						"type": "number"
+					},
+					"saturated_fat_g": {
+						"type": "number"
+					},
+					"carbohydrates_g": {
+						"type": "number"
+					},
+					"fiber_g": {
+						"type": "number"
+					},
+					"added_sugars_g": {
+						"type": "number"
+					},
+					"net_carbohydrates_g": {
+						"type": "number"
+					},
+					"sodium_mg": {
+						"type": "number"
+					},
+					"cholesterol_mg": {
+						"type": "number"
+					}
+				}
+			},
+			"refinements": {
+				"type": "array",
+				"items": {
+					"type": "string"
+				}
+			}
+		},
+		"definitions": {
+			"dual_quantity": {
+				"type": "object",
+				"required": [
+					"metric",
+					"us"
+				],
+				"properties": {
+					"metric": {
+						"type": "object",
+						"required": [
+							"value",
+							"unit"
+						],
+						"properties": {
+							"value": {
+								"type": "number"
+							},
+							"unit": {
+								"type": "string"
+							}
+						}
+					},
+					"us": {
+						"type": "object",
+						"required": [
+							"value",
+							"unit"
+						],
+						"properties": {
+							"value": {
+								"type": "number"
+							},
+							"unit": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"execution_contract": {
+		"evaluation_semantics": {
+			"rule_order": "top_to_bottom_numeric",
+			"gate_failure_behavior": "halt_immediately",
+			"constraint_failure_behavior": "halt_immediately",
+			"render_phase_condition": "only_after_all_gates_and_constraints_pass"
+		},
+		"execution_model": {
+			"mode": "deterministic_validation_and_generation",
+			"partial_output_permitted": false,
+			"approximation_permitted": false,
+			"inference_permitted": false,
+			"gap_filling_permitted": false,
+			"uncertainty_behavior": "fail",
+			"output_behavior": {
+				"on_failure": {
+					"emit": "single_sentence",
+					"format": "verbatim_failure_notice_only"
+				},
+				"on_success": {
+					"emit": "single_json_object",
+					"schema_required": true
+				}
+			}
+		},
+		"failure_supremacy": {
+			"absolute_certainty_required": true,
+			"speculative_compliance_prohibited": true,
+			"best_effort_prohibited": true,
+			"multiple_failures_behavior": "emit_earliest_only"
+		}
+	},
+	"rule_interpretation_contract": {
+		"immutability": {
+			"rewording_permitted": false,
+			"summarization_permitted": false,
+			"merging_permitted": false,
+			"inference_permitted": false,
+			"reordering_permitted": false,
+			"relaxation_permitted": false
+		},
+		"authority_precedence": {
+			"rules_override_schema_for": [
+				"process",
+				"evaluation_order"
+			]
+		},
+		"conflict_resolution": {
+			"strategy": "lowest_numeric_index_wins"
+		},
+		"ambiguity_handling": {
+			"ambiguous_rule_behavior": "fail_validation",
+			"underspecified_rule_behavior": "fail_validation"
+		},
+		"scope": {
+			"default": "global",
+			"explicit_scoping_required": true
+		}
+	},
+	"binding_contract": {
+		"rules_are_normative": true,
+		"schema_is_structural": true,
+		"rules_define_validity": true,
+		"schema_does_not_imply_completeness": true
+	},
+	"output_mode": {
+		"format": "json_only",
+		"prose_rendering_phase": false,
+		"prose_rule_scope": "json_string_values_only",
+		"terminology_mapping": {
+			"prose": "json_string_content",
+			"sections": "json_object_or_array_fields",
+			"instructional_voice": "json_string_content"
+		}
+	},
+	"output_contract": {
+		"on_validation_failure": {
+			"emit_type": "single_sentence",
+			"content_requirement": "verbatim_failure_notice",
+			"json_permitted": false,
+			"headings_permitted": false,
+			"commentary_permitted": false,
+			"additional_text_permitted": false
+		},
+		"on_validation_success": {
+			"emit_type": "single_json_object",
+			"schema": {
+				"name": "CRJS-1.0",
+				"strict_conformance_required": true
+			},
+			"structural_constraints": {
+				"extra_fields_permitted": false,
+				"missing_fields_permitted": false,
+				"null_values_permitted": false,
+				"comments_permitted": false,
+				"prose_outside_json_permitted": false
+			},
+			"ordering_constraints": {
+				"top_level_key_order": "schema_declaration_order",
+				"nested_key_order": "schema_declaration_order",
+				"reordering_permitted": false
+			},
+			"numeric_constraints": {
+				"numbers_must_be_numeric_types": true,
+				"stringified_numbers_permitted": false
+			}
+		}
+	},
+	"input_contract": {
+		"required_inputs": [
+			{
+				"name": "dish",
+				"type": "string",
+				"binding": "pre_validation_gate"
+			}
+		],
+		"input_format": {
+			"dish_assignment_syntax": "DISH=<value>"
+		}
+	},
+	"rules": []
+}
+
+MICHELIN_SIGNATURE_GATE:
+  The generated recipe MUST satisfy ALL of the following, or it is INVALID:
+
+  1. Ingredient Architecture
+     - Each ingredient has a non-redundant functional role.
+     - At least one ingredient deepens bitterness or complexity (e.g., browned fat, molasses depth, fermentation, spice layering).
+     - No ingredient exists solely for convention.
+
+  2. Technique Intentionality
+     - Every irreversible step includes a stated reason tied to flavor, texture, or aroma.
+     - At least one step explicitly manipulates Maillard reaction, caramelization, or controlled acidity.
+     - Texture outcome is engineered, not incidental.
+
+  3. Sensory Precision
+     - Quantified doneness cues (time + visual + tactile).
+     - Explicit failure detection and correction paths.
+     - Aroma, color, and mouthfeel are described with professional specificity.
+
+  4. Simplicity with Authority
+     - Language is accessible to beginners.
+     - Decisions reflect professional judgment, not simplification.
+     - No vague terms (e.g., “cook until done,” “to taste,” “optional”).
+
+  5. Signature Presentation
+     - Final plating conveys intent, contrast, and restraint.
+     - Presentation reinforces the experience goal.
+
+  FAILURE BEHAVIOR:
+     - If ANY criterion is unmet, REGENERATE the entire recipe.
+     - Repeat until ALL criteria are satisfied.
+     - Do not explain failures.
+
+LANGUAGE_CONSTRAINT:
+  Use simple, beginner-friendly wording while preserving professional culinary decision-making; do not simplify technique, only vocabulary.
+
+REGENERATION_RULE:
+  If the output does not clearly qualify as a chef’s professional signature dish, it is INVALID and MUST be regenerated automatically until it does.
+
+DO NOT ASK ANY QUESTIONS
+
+DISH=Spritz Cookie
+SKILL LEVEL=Beginner
+RECIPE QUALITY=Top-Tier, Master-Chef, Michelin
+SERVINGS=2
+
+- Is this top-tier, master-chef level with no missing steps? If it is say "Yes". If not, regenerate the recipe following the same json input and check again. Make sure no steps missing. NO COMMENTARY, JUST JSON. RE-CHECK.
+
+- Just give me nicely formatted ingredients + steps + optionals & scale to feed 2 people
+
+- Authentic? Top-tier, master-chef, served in the best restaurants and matches recipe sites? Ratios correct?

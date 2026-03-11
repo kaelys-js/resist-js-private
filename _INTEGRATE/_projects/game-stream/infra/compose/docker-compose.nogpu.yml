@@ -1,0 +1,6 @@
+services:
+  game-session-nogpu:
+    <<: *game-common
+    container_name: "${PRODUCT}-game-session-nogpu-${ENV}"
+    profiles:
+      - nogpu

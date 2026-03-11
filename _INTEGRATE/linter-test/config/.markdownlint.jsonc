@@ -1,0 +1,120 @@
+{
+	// Markdownlint configuration
+	// https://github.com/DavidAnson/markdownlint
+
+	// Default state for all rules
+	"default": true,
+
+	// MD001 - Heading levels should only increment by one level at a time
+	"MD001": true,
+
+	// MD003 - Heading style (consistent ATX style)
+	"MD003": { "style": "atx" },
+
+	// MD004 - Unordered list style (consistent dashes)
+	"MD004": { "style": "dash" },
+
+	// MD007 - Unordered list indentation
+	"MD007": { "indent": 2 },
+
+	// MD009 - Trailing spaces (allow 2 for line breaks)
+	"MD009": { "br_spaces": 2 },
+
+	// MD010 - Hard tabs
+	"MD010": { "code_blocks": false },
+
+	// MD012 - Multiple consecutive blank lines
+	"MD012": { "maximum": 1 },
+
+	// MD013 - Line length (disabled - handled by formatter)
+	"MD013": false,
+
+	// MD022 - Headings should be surrounded by blank lines
+	"MD022": { "lines_above": 1, "lines_below": 1 },
+
+	// MD024 - Multiple headings with same content (allow in different sections)
+	"MD024": { "siblings_only": true },
+
+	// MD025 - Single top-level heading
+	"MD025": { "level": 1 },
+
+	// MD026 - Trailing punctuation in heading
+	"MD026": { "punctuation": ".,;:!" },
+
+	// MD029 - Ordered list item prefix (ordered)
+	"MD029": { "style": "ordered" },
+
+	// MD030 - Spaces after list markers
+	"MD030": { "ul_single": 1, "ol_single": 1, "ul_multi": 1, "ol_multi": 1 },
+
+	// MD031 - Fenced code blocks should be surrounded by blank lines
+	"MD031": true,
+
+	// MD032 - Lists should be surrounded by blank lines
+	"MD032": true,
+
+	// MD033 - Inline HTML (allow certain elements)
+	"MD033": {
+		"allowed_elements": ["br", "details", "summary", "kbd", "sup", "sub", "img", "picture", "source", "video", "audio"]
+	},
+
+	// MD034 - Bare URLs
+	"MD034": true,
+
+	// MD035 - Horizontal rule style
+	"MD035": { "style": "---" },
+
+	// MD036 - Emphasis used instead of a heading
+	"MD036": { "punctuation": ".,;:!?" },
+
+	// MD037 - Spaces inside emphasis markers
+	"MD037": true,
+
+	// MD038 - Spaces inside code span elements
+	"MD038": true,
+
+	// MD039 - Spaces inside link text
+	"MD039": true,
+
+	// MD040 - Fenced code blocks should have a language specified
+	"MD040": true,
+
+	// MD041 - First line should be a top-level heading
+	"MD041": true,
+
+	// MD042 - No empty links
+	"MD042": true,
+
+	// MD043 - Required heading structure (disabled)
+	"MD043": false,
+
+	// MD044 - Proper names should have correct capitalization (disabled)
+	"MD044": false,
+
+	// MD045 - Images should have alt text
+	"MD045": true,
+
+	// MD046 - Code block style (fenced)
+	"MD046": { "style": "fenced" },
+
+	// MD047 - Files should end with a single newline character
+	"MD047": true,
+
+	// MD048 - Code fence style (backticks)
+	"MD048": { "style": "backtick" },
+
+	// MD049 - Emphasis style (asterisks)
+	"MD049": { "style": "asterisk" },
+
+	// MD050 - Strong style (asterisks)
+	"MD050": { "style": "asterisk" },
+
+	// MD051 - Link fragments should be valid
+	"MD051": true,
+
+	// MD052 - Reference links should be defined
+	"MD052": true,
+
+	// MD053 - Link and image reference definitions should be needed
+	"MD053": true
+}

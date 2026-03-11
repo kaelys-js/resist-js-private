@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# 🔁 Rollback Worker if staging integration fails
+# ------------------------------------------------------------------------------
+# rollback:staging — Automatically reverts the staging Worker to its previous version
+# if the integration:test job fails. Uses Cloudflare’s rollback API.
+#
+# ✅ What it does:
+#    - Triggers a rollback via Cloudflare API using service name and account ID
+#    - Waits briefly (10s) to allow rollback to complete
+#    - Runs a post-deploy health check on STAGING_URL to confirm recovery
+#    - Optionally sends a Sentry test event to confirm observability
+#
+# ✅ Trigger:
+#    - `when: on_failure` of integration:test on the staging branch
+#
+# ⚠️ Relies on Cloudflare API token and correct service/account bindings
+# ⚠️ Should not be used for preview or production environments
+rollback:staging:
+  stage: deploy
+  needs: [integration:test]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+      when: on_failure
+  script:
+    - perform_staging_rollback_with_verification | tee .rollback-staging-summary.md
+  artifacts:
+    paths:
+      - .rollback-staging-summary.md
+    expire_in: 3 days
+    when: always
+  environment:
+    name: staging
+    action: rollback

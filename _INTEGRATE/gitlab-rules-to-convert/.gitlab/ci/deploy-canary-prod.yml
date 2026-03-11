@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# 🚀 Gradual Canary Deployment to Production
+# ------------------------------------------------------------------------------
+# deploy — Performs a staged production rollout using Cloudflare’s canary environment.
+#
+# This job deploys to the `canary` environment and gradually shifts traffic to it,
+# validating stability at each step using real-time metrics (e.g., Sentry + health checks).
+#
+# ✅ Canary Rollout Flow:
+#    - Deploys `wrangler` build to `canary` environment
+#    - Begins with 5% traffic routed to canary
+#    - Monitors for failures (via ./monitor-canary-health.sh)
+#    - If healthy, increases to 25% and re-validates
+#    - If stable, promotes to 100% and finalizes deploy
+#
+# ❌ If thresholds are exceeded:
+#    - Automatically demotes canary to 0%
+#    - Fails the job with `.canary-summary.md` explaining the rollback reason
+#
+# ✅ Outputs:
+#    - .canary-summary.md → included as CI artifact for audit/logging
+#    - Safe, progressive promotion ensures low-risk production deploys
+deploy:
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  needs:
+    - job: integration:test
+      ref: staging
+      artifacts: true
+  script:
+    - run_gradual_canary_rollout | tee .canary-summary.md
+  artifacts:
+    paths:
+      - .canary-summary.md
+    expire_in: 7 days
+  environment:
+    name: production
+    deployment_tier: production

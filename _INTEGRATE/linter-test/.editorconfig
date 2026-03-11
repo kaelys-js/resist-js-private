@@ -1,0 +1,45 @@
+# EditorConfig for linter-test
+# https://editorconfig.org
+
+root = true
+
+[*]
+indent_style = tab
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# YAML files use spaces (YAML spec)
+[*.{yaml,yml}]
+indent_style = space
+indent_size = 2
+
+# Markdown - allow trailing spaces for line breaks
+[*.{md,mdx}]
+trim_trailing_whitespace = false
+indent_style = space
+indent_size = 2
+
+# Makefile requires tabs
+[Makefile]
+indent_style = tab
+
+[*.mk]
+indent_style = tab
+
+# Python (PEP 8 recommends spaces)
+[*.py]
+indent_style = tab
+indent_size = 4
+
+# Shell scripts
+[*.{sh,bash,zsh}]
+indent_style = tab
+indent_size = 2
+
+# JSON files (tabs per project convention)
+[*.{json,jsonc}]
+indent_style = tab
+indent_size = 2

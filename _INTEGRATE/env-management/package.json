@@ -1,0 +1,37 @@
+{
+	"name": "@resist/infisical",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Turn-key secret management for resist.js monorepo",
+	"exports": {
+		".": "./sdk/index.ts",
+		"./client": "./sdk/client.ts",
+		"./schemas": "./config/schemas.ts",
+		"./cloudflare": "./sdk/cloudflare.ts",
+		"./environments": "./config/environments.ts"
+	},
+	"bin": {
+		"resist-secrets": "./cli/index.ts"
+	},
+	"scripts": {
+		"setup": "tsx cli/setup.ts",
+		"doctor": "tsx cli/doctor.ts",
+		"migrate": "tsx cli/migrate.ts",
+		"sync": "tsx cli/sync.ts",
+		"rotate": "tsx cli/rotate.ts",
+		"bootstrap": "bash scripts/bootstrap.sh"
+	},
+	"dependencies": {
+		"@infisical/sdk": "^2.3.0",
+		"valibot": "^1.0.0-beta.0"
+	},
+	"devDependencies": {
+		"@types/node": "^20.11.0",
+		"tsx": "^4.7.0",
+		"typescript": "^5.3.0"
+	},
+	"engines": {
+		"node": ">=20.0.0"
+	}
+}

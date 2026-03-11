@@ -1,0 +1,18 @@
+{
+	"workspaceId": "{{projectId}}",
+	"defaultEnvironment": "{{defaultEnvironment}}",
+	"gitBranchToEnvironmentMapping": {
+		"main": "prod",
+		"master": "prod",
+		"staging": "staging",
+		"develop": "staging",
+		"release/*": "staging",
+		"feature/*": "feature",
+		"fix/*": "feature",
+		"chore/*": "feature",
+		"refactor/*": "feature",
+		"docs/*": "feature",
+		"test/*": "feature",
+		"*": "local"
+	}
+}

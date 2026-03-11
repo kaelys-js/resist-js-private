@@ -1,0 +1,11 @@
+services:
+  input-api:
+    build: ./input-api
+    container_name: "${PRODUCT}-input-api-${ENV}"
+    networks:
+      - gamenet
+    ports:
+      - "${INPUT_API_PORT:-9001}:9001"
+    restart: unless-stopped
+    volumes:
+      - game-session-socket:/tmp

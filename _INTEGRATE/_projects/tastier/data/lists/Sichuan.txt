@@ -1,0 +1,5237 @@
+Sichuan
+
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)  
+Mapo Tofu (Spicy Tofu with Minced Meat)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Dan Dan Noodles (Spicy Sichuan Noodles)  
+Sichuan Hot Pot (Spicy Sichuan Broth with Various Ingredients)  
+Chongqing Spicy Chicken (La Zi Ji)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Eggplant (Yu Xiang Qie Zi)  
+Sichuan Spicy Wontons (Hong You Chao Shou)  
+Sichuan Pepper Chicken (Ma La Ji)  
+Tea-Smoked Duck (Zhangcha Duck)  
+Sichuan Bang Bang Chicken (Bang Bang Ji)  
+Sichuan Pickled Vegetables (Pao Cai)  
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Beef in Chili Sauce (Shui Zhu Niu Rou)  
+Sichuan Spicy Cabbage (Suan La Bai Cai)  
+Sichuan Mala Tofu (Spicy and Numbing Tofu)  
+Sichuan Spicy Shrimp (Ma La Xia)  
+Sichuan Sweet Water Noodles (Tian Shui Mian)  
+Sichuan Spicy Lamb Skewers (Yang Rou Chuan)  
+Sichuan Red Oil Dumplings (Hong You Jiao Zi)  
+Sichuan Spicy and Sour Soup (Suan La Tang)  
+Sichuan Spicy Pork Belly (Ma La Rou)  
+Sichuan Crispy Beef (Gan Bian Niu Rou)  
+Sichuan Spicy Chicken with Peanuts (Gong Bao Ji Ding)  
+Sichuan Spicy Tofu with Vegetables (Ma Po Dou Fu)  
+Sichuan Spicy Fish Fillet (Shui Zhu Yu Pian)  
+Sichuan Spicy Cucumber Salad (Liang Ban Huang Gua)  
+Sichuan Spicy Beef Noodles (Ma La Niu Rou Mian)  
+Sichuan Spicy Chicken Wings (Ma La Ji Chi)  
+Sichuan Spicy Tofu Soup (Ma La Dou Fu Tang)  
+Sichuan Spicy Pork Ribs (Ma La Pai Gu)  
+Sichuan Spicy Eggplant with Garlic Sauce (Yu Xiang Qie Zi)  
+Sichuan Spicy Chicken Feet (Ma La Ji Jiao)  
+Sichuan Spicy Beef Stir-Fry (Gan Bian Niu Rou Si)  
+Sichuan Spicy Tofu with Black Bean Sauce (Dou Chi Dou Fu)  
+Sichuan Spicy Pork with Garlic Sauce (Suan Ni Bai Rou)  
+Sichuan Spicy Chicken Salad (Liang Ban Ji)  
+Sichuan Spicy Pork with Green Peppers (Qing Jiao Rou Si)  
+Sichuan Spicy Fried Rice (Ma La Chao Fan)  
+Sichuan Spicy Noodles with Minced Pork (Zha Jiang Mian)  
+Sichuan Spicy Chicken with Chili Oil (Hong You Ji)  
+Sichuan Spicy Pork with Bamboo Shoots (Zhu Sun Rou Si)  
+Sichuan Spicy Beef with Celery (Qin Cai Niu Rou)  
+Sichuan Spicy Chicken with Cashews (Yao Guo Ji Ding)  
+Sichuan Spicy Pork with Eggplant (Qie Zi Rou Si)  
+Sichuan Spicy Chicken with Green Beans (Si Ji Dou Ji)  
+Sichuan Spicy Pork with Tofu (Dou Fu Rou Si)  
+Sichuan Spicy Chicken with Mushrooms (Xiang Gu Ji)  
+Sichuan Spicy Pork with Garlic Shoots (Suan Miao Rou Si)  
+Sichuan Spicy Chicken with Bamboo Shoots (Zhu Sun Ji)  
+Sichuan Spicy Pork with Peanuts (Hua Sheng Rou Si)  
+Sichuan Spicy Chicken with Black Bean Sauce (Dou Chi Ji)  
+Sichuan Spicy Pork with Mushrooms (Xiang Gu Rou Si)  
+Sichuan Spicy Chicken with Celery (Qin Cai Ji)  
+Sichuan Spicy Pork with Green Onions (Cong Bao Rou Si)  
+Sichuan Spicy Chicken with Bamboo (Zhu Sun Ji Rou)  
+Sichuan Spicy Pork with Garlic (Suan Xiang Rou Si)  
+Sichuan Spicy Chicken with Peppers (La Jiao Ji)  
+Sichuan Spicy Pork with Eggplant (Qie Zi Rou Si)  
+Sichuan Spicy Chicken with Garlic (Suan Xiang Ji)  
+Sichuan Spicy Pork with Celery (Qin Cai Rou Si)  
+Sichuan Spicy Chicken with Green Onions (Cong Bao Ji)  
+Sichuan Spicy Pork with Peppers (La Jiao Rou Si)  
+Sichuan Spicy Chicken with Eggplant (Qie Zi Ji)  
+Sichuan Spicy Pork with Garlic Shoots (Suan Miao Rou Si)  
+Sichuan Spicy Chicken with Bamboo Shoots (Zhu Sun Ji)  
+Sichuan Spicy Pork with Peanuts (Hua Sheng Rou Si)  
+Sichuan Spicy Chicken with Black Bean Sauce (Dou Chi Ji)  
+Sichuan Spicy Pork with Mushrooms (Xiang Gu Rou Si)  
+Sichuan Spicy Chicken with Celery (Qin Cai Ji)  
+Sichuan Spicy Pork with Green Onions (Cong Bao Rou Si)  
+Sichuan Spicy Chicken with Bamboo (Zhu Sun Ji Rou)  
+Sichuan Spicy Pork with Garlic (Suan Xiang Rou Si)  
+Sichuan Spicy Chicken with Peppers (La Jiao Ji)  
+Sichuan Spicy Pork with Eggplant (Qie Zi Rou Si)  
+Sichuan Spicy Chicken with Garlic (Suan Xiang Ji)  
+Sichuan Spicy Pork with Celery (Qin Cai Rou Si)  
+Sichuan Spicy Chicken with Green Onions (Cong Bao Ji)  
+Sichuan Spicy Pork with Peppers (La Jiao Rou Si)  
+Sichuan Spicy Chicken with Eggplant (Qie Zi Ji)  
+Sichuan Spicy Pork with Garlic Shoots (Suan Miao Rou Si)  
+Sichuan Spicy Chicken with Bamboo Shoots (Zhu Sun Ji)  
+Sichuan Spicy Pork with Peanuts (Hua Sheng Rou Si)  
+Sichuan Spicy Chicken with Black Bean Sauce (Dou Chi Ji)  
+Sichuan Spicy Pork with Mushrooms (Xiang Gu Rou Si)  
+Sichuan Spicy Chicken with Celery (Qin Cai Ji)  
+Sichuan Spicy Pork with Green Onions (Cong Bao Rou Si)  
+Sichuan Spicy Chicken with Bamboo (Zhu Sun Ji Rou)  
+Sichuan Spicy Pork with Garlic (Suan Xiang Rou Si)  
+Sichuan Spicy Chicken with Peppers (La Jiao Ji)  
+Sichuan Spicy Pork with Eggplant (Qie Zi Rou Si)  
+Sichuan Spicy Chicken with Garlic (Suan Xiang Ji)  
+Sichuan Spicy Pork with Celery (Qin Cai Rou Si)  
+Sichuan Spicy Chicken with Green Onions (Cong Bao Ji)  
+Sichuan Spicy Pork with Peppers (La Jiao Rou Si)  
+Sichuan Spicy Chicken with Eggplant (Qie Zi Ji)  
+Sichuan Spicy Pork with Garlic Shoots (Suan Miao Rou Si)  
+Sichuan Spicy Chicken with Bamboo Shoots (Zhu Sun Ji)  
+Sichuan Spicy Pork with Peanuts (Hua Sheng Rou Si)  
+Sichuan Spicy Chicken with Black Bean Sauce (Dou Chi Ji)  
+Sichuan Spicy Pork with Mushrooms (Xiang Gu Rou Si)  
+Sichuan Spicy Chicken with Celery (Qin Cai Ji)  
+Sichuan Spicy Pork with Green Onions (Cong Bao Rou Si)  
+Sichuan Spicy Chicken with Bamboo (Zhu Sun Ji Rou)  
+Sichuan Spicy Pork with Garlic (Suan Xiang Rou Si)  
+Sichuan Spicy Chicken with Peppers (La Jiao Ji)  
+Sichuan Spicy Pork with Eggplant (Qie Zi Rou Si)  
+Sichuan Spicy Chicken with Garlic (Suan Xiang Ji)  
+Sichuan Spicy Pork with Celery (Qin Cai Rou Si)  
+Sichuan Spicy Chicken with Green Onions (Cong Bao Ji)  
+Sichuan Spicy Pork with Peppers (La Jiao Rou Si)  
+Sichuan Spicy Chicken with Eggplant (Qie Zi Ji)  
+Sichuan Spicy Pork with Garlic Shoots (Suan Miao Rou Si)  
+Sichuan Spicy Chicken with Bamboo Shoots (Zhu Sun Ji)  
+Sichuan Spicy Pork with Peanuts (Hua Sheng Rou Si)  
+Sichuan Spicy Chicken with Black Bean Sauce (Dou Chi Ji)  
+Sichuan Spicy Pork with Mushrooms (Xiang Gu Rou Si)  
+Sichuan Spicy Chicken with Celery (Qin Cai Ji)  
+Sichuan Spicy Pork with Green Onions (Cong Bao Rou Si)  
+Sichuan Spicy Chicken with Bamboo (Zhu Sun Ji Rou)  
+Sichuan Spicy Pork with Garlic (Suan Xiang Rou Si)
+Sichuan
+
+Sichuan Peppercorn Martini  
+Baijiu Sour  
+Chengdu Mule  
+Sichuan Bloody Mary  
+Spicy Sichuan Margarita  
+Sichuan Old Fashioned  
+Sichuan Negroni  
+Sichuan Mule  
+Sichuan Gin and Tonic  
+Sichuan Lemonade  
+Sichuan Spritz  
+Sichuan Mojito  
+Sichuan Iced Tea  
+Sichuan Cooler  
+Sichuan Fizz  
+Sichuan Sling  
+Sichuan Collins  
+Sichuan Sour  
+Sichuan Punch  
+Sichuan Daiquiri  
+Sichuan Sangria  
+Sichuan Bellini  
+Sichuan Mimosa  
+Sichuan Pimm's Cup  
+Sichuan Paloma  
+Sichuan Caipirinha  
+Sichuan Cosmopolitan  
+Sichuan Martini  
+Sichuan Manhattan  
+Sichuan Sidecar  
+Sichuan Gimlet  
+Sichuan Highball  
+Sichuan Rickey  
+Sichuan Smash  
+Sichuan Flip  
+Sichuan Cobbler  
+Sichuan Julep  
+Sichuan Toddy  
+Sichuan Eggnog  
+Sichuan Alexander  
+Sichuan Grasshopper  
+Sichuan Bramble  
+Sichuan Zombie  
+Sichuan Hurricane  
+Sichuan Mai Tai  
+Sichuan Pina Colada  
+Sichuan Blue Lagoon  
+Sichuan Sea Breeze  
+Sichuan Bay Breeze  
+Sichuan Tequila Sunrise  
+Sichuan Black Russian  
+Sichuan White Russian  
+Sichuan Espresso Martini  
+Sichuan Irish Coffee  
+Sichuan Hot Buttered Rum  
+Sichuan Rum Punch  
+Sichuan Planter's Punch  
+Sichuan Scorpion  
+Sichuan Fog Cutter  
+Sichuan Painkiller  
+Sichuan Navy Grog  
+Sichuan Sazerac  
+Sichuan Vesper  
+Sichuan Aviation  
+Sichuan French 75  
+Sichuan Kir Royale  
+Sichuan Bellini  
+Sichuan Mimosa  
+Sichuan Aperol Spritz  
+Sichuan Negroni Sbagliato  
+Sichuan Americano  
+Sichuan Boulevardier  
+Sichuan Old Cuban  
+Sichuan Hemingway Daiquiri  
+Sichuan Caipiroska  
+Sichuan Batida  
+Sichuan Cachaça Sour  
+Sichuan Pisco Sour  
+Sichuan Chilcano  
+Sichuan Michelada  
+Sichuan Shandy  
+Sichuan Radler  
+Sichuan Snakebite  
+Sichuan Black Velvet  
+Sichuan Spritzer  
+Sichuan Cooler  
+Sichuan Punch  
+Sichuan Lemonade  
+Sichuan Iced Tea  
+Sichuan Arnold Palmer  
+Sichuan Shirley Temple  
+Sichuan Roy Rogers  
+Sichuan Virgin Mary  
+Sichuan Nojito  
+Sichuan Faux-jito  
+Sichuan Mocktail Mule  
+Sichuan Virgin Colada  
+Sichuan Safe Sex on the Beach  
+Sichuan Virgin Sunrise  
+Sichuan Virgin Daiquiri  
+Sichuan Virgin Margarita  
+Sichuan Virgin Sangria  
+Sichuan Virgin Mojito  
+Sichuan Virgin Bellini  
+Sichuan Virgin Mimosa  
+Sichuan Virgin Spritz  
+Sichuan Virgin Negroni  
+Sichuan Virgin Collins  
+Sichuan Virgin Fizz  
+Sichuan Virgin Sling  
+Sichuan Virgin Sour  
+Sichuan Virgin Punch  
+Sichuan Virgin Cooler  
+Sichuan Virgin Lemonade  
+Sichuan Virgin Iced Tea  
+Sichuan Virgin Arnold Palmer  
+Sichuan Virgin Shirley Temple  
+Sichuan Virgin Roy Rogers  
+Sichuan Virgin Mary  
+Sichuan Virgin Nojito  
+Sichuan Virgin Faux-jito  
+Sichuan Virgin Mule  
+Sichuan Virgin Colada  
+Sichuan Virgin Safe Sex on the Beach  
+Sichuan Virgin Sunrise  
+Sichuan Virgin Daiquiri  
+Sichuan Virgin Margarita  
+Sichuan Virgin Sangria  
+Sichuan Virgin Mojito  
+Sichuan Virgin Bellini  
+Sichuan Virgin Mimosa  
+Sichuan Virgin Spritz  
+Sichuan Virgin Negroni  
+Sichuan Virgin Collins  
+Sichuan Virgin Fizz  
+Sichuan Virgin Sling  
+Sichuan Virgin Sour  
+Sichuan Virgin Punch  
+Sichuan Virgin Cooler  
+Sichuan Virgin Lemonade  
+Sichuan Virgin Iced Tea  
+Sichuan Virgin Arnold Palmer  
+Sichuan Virgin Shirley Temple  
+Sichuan Virgin Roy Rogers  
+Sichuan Virgin Mary  
+Sichuan Virgin Nojito  
+Sichuan Virgin Faux-jito  
+Sichuan Virgin Mule  
+Sichuan Virgin Colada  
+Sichuan Virgin Safe Sex on the Beach  
+Sichuan Virgin Sunrise  
+Sichuan Virgin Daiquiri  
+Sichuan Virgin Margarita  
+Sichuan Virgin Sangria  
+Sichuan Virgin Mojito  
+Sichuan Virgin Bellini  
+Sichuan Virgin Mimosa  
+Sichuan Virgin Spritz  
+Sichuan Virgin Negroni  
+Sichuan Virgin Collins  
+Sichuan Virgin Fizz  
+Sichuan Virgin Sling  
+Sichuan Virgin Sour  
+Sichuan Virgin Punch  
+Sichuan Virgin Cooler  
+Sichuan Virgin Lemonade  
+Sichuan Virgin Iced Tea  
+Sichuan Virgin Arnold Palmer  
+Sichuan Virgin Shirley Temple  
+Sichuan Virgin Roy Rogers  
+Sichuan Virgin Mary  
+Sichuan Virgin Nojito  
+Sichuan Virgin Faux-jito  
+Sichuan Virgin Mule  
+Sichuan Virgin Colada  
+Sichuan Virgin Safe Sex on the Beach  
+Sichuan Virgin Sunrise  
+Sichuan Virgin Daiquiri  
+Sichuan Virgin Margarita  
+Sichuan Virgin Sangria  
+Sichuan Virgin Mojito  
+Sichuan Virgin Bellini  
+Sichuan Virgin Mimosa  
+Sichuan Virgin Spritz  
+Sichuan Virgin Negroni  
+Sichuan Virgin Collins  
+Sichuan Virgin Fizz  
+Sichuan Virgin Sling  
+Sichuan Virgin Sour  
+Sichuan Virgin Punch  
+Sichuan Virgin Cooler  
+Sichuan Virgin Lemonade  
+Sichuan Virgin Iced Tea  
+Sichuan Virgin Arnold Palmer  
+Sichuan Virgin Shirley Temple  
+Sichuan Virgin Roy Rogers  
+Sichuan Virgin Mary  
+Sichuan Virgin Nojito  
+Sichuan Virgin Faux-jito  
+Sichuan Virgin Mule  
+Sichuan Virgin Colada  
+Sichuan Virgin Safe Sex on the Beach  
+Sichuan Virgin Sunrise  
+Sichuan Virgin Daiquiri  
+Sichuan Virgin Margarita  
+Sichuan Virgin Sangria  
+Sichuan Virgin Mojito  
+Sichuan Virgin Bellini  
+Sichuan Virgin Mimosa  
+Sichuan Virgin Spritz  
+Sichuan Virgin Negroni  
+Sichuan Virgin Collins  
+Sichuan Virgin Fizz  
+Sichuan Virgin Sling  
+Sichuan Virgin Sour  
+Sichuan Virgin Punch  
+Sichuan Virgin Cooler  
+Sichuan Virgin Lemonade  
+Sichuan Virgin Iced Tea  
+Sichuan Virgin Arnold Palmer  
+Sichuan Virgin Shirley Temple  
+Sichuan Virgin Roy Rogers  
+Sichuan Virgin Mary  
+Sichuan Virgin Nojito  
+Sichuan Virgin Faux-jito  
+Sichuan Virgin Mule  
+Sichuan Virgin Colada  
+Sichuan Virgin Safe Sex on the Beach  
+Sichuan Virgin Sunrise  
+Sichuan Virgin Daiquiri  
+Sichuan Virgin Margarita  
+Sichuan Virgin Sangria  
+Sichuan Virgin Mojito  
+Sichuan Virgin Bellini  
+Sichuan Virgin Mimosa  
+Sichuan Virgin Spritz  
+Sichuan Virgin Negroni  
+Sichuan Virgin Collins  
+Sichuan Virgin Fizz  
+Sichuan Virgin Sling  
+Sichuan Virgin Sour  
+Sichuan Virgin Punch  
+Sichuan Virgin Cooler  
+Sichuan Virgin Lemonade  
+Sichuan Virgin Iced Tea  
+Sichuan Virgin Arnold Palmer  
+Sichuan Virgin Shirley Temple  
+Sichuan Virgin Roy Rogers  
+Sichuan Virgin Mary  
+Sichuan Virgin Nojito  
+Sichuan Virgin Faux-jito  
+Sichuan Virgin Mule  
+Sichuan Virgin Colada  
+Sichuan Virgin Safe Sex on the Beach  
+Sichuan Virgin Sunrise  
+Sichuan Virgin Daiquiri  
+Sichuan Virgin Margarita  
+Sichuan Virgin Sangria  
+Sichuan Virgin Mojito  
+Sichuan Virgin Bellini  
+Sichuan Virgin Mimosa  
+Sichuan Virgin Spritz  
+Sichuan Virgin Negroni  
+Sichuan Virgin Collins  
+Sichuan Virgin Fizz  
+Sichuan Virgin Sling  
+Sichuan Virgin Sour  
+Sichuan Virgin Punch  
+Sichuan Virgin Cooler  
+Sichuan Virgin Lemonade  
+Sichuan Virgin Iced Tea  
+Sichuan Virgin Arnold Palmer  
+Sichuan Virgin Shirley Temple  
+Sichuan Virgin Roy Rogers  
+Sichuan Virgin Mary  
+Sichuan Virgin Nojito  
+Sichuan Virgin Faux-jito  
+Sichuan Virgin Mule  
+Sichuan Virgin Colada  
+Sichuan Virgin Safe Sex on the Beach  
+Sichuan Virgin Sunrise  
+Sichuan Virgin Daiquiri  
+Sichuan Virgin Margarita  
+Sichuan Virgin Sangria  
+Sichuan Virgin Mojito  
+Sichuan Virgin Bellini  
+Sichuan Virgin Mimosa  
+Sichuan Virgin Spritz  
+Sichuan Virgin Negroni  
+Sichuan Virgin Collins  
+Sichuan Virgin Fizz  
+Sichuan Virgin Sling  
+Sichuan Virgin Sour  
+Sichuan Virgin Punch  
+Sichuan Virgin Cooler  
+Sichuan Virgin Lemonade  
+Sichuan Virgin Iced Tea
+Sichuan
+
+Chao Fan (Sichuan Fried Rice)  
+Dan Dan Mian (Sichuan Spicy Noodles)  
+Dou Hua (Sichuan Tofu Pudding)  
+Huo Guo (Sichuan Hot Pot)  
+Jian Bing (Sichuan Savory Crepe)  
+Laozao (Fermented Rice Soup)  
+Suan Cai Yu (Sichuan Pickled Fish Soup)  
+Sichuan Peppercorn Pancakes  
+Sichuan Tea Eggs  
+Sichuan-Style Congee  
+Tang You Guo Zi (Sichuan Sweet Rice Balls)  
+Zhong Shui Jiao (Sichuan Dumplings in Chili Oil)
+Sichuan
+
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Kung Pao Chicken (Spicy Stir-fried Chicken with Peanuts)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Sichuan Hot Pot (Spicy Hot Pot)  
+Dan Dan Noodles (Spicy Sichuan Noodles)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Spicy Wontons (Chao Shou)  
+Sichuan Dry-Fried Green Beans  
+Sichuan Pepper Chicken (La Zi Ji)  
+Sichuan Eggplant (Yu Xiang Qie Zi)  
+Chongqing Spicy Chicken  
+Sichuan Beef with Cumin  
+Sichuan Cold Noodles  
+Sichuan Pickled Vegetables  
+Sichuan Spicy Tofu Salad  
+Sichuan Mala Chicken (Mala Ji)  
+Sichuan Crispy Beef  
+Sichuan Spicy Shrimp  
+Sichuan Braised Pork Belly  
+Sichuan Spicy Lamb Skewers  
+Sichuan Sweet and Sour Pork  
+Sichuan Tea-Smoked Duck  
+Sichuan Spicy Pork Ribs  
+Sichuan Peppercorn Fish  
+Sichuan Spicy Cabbage  
+Sichuan Garlic Pork Slices  
+Sichuan Spicy Eggplant with Minced Pork  
+Sichuan Spicy Tofu Soup  
+Sichuan Spicy Chicken Wings  
+Sichuan Spicy Mushroom Stir-Fry  
+Sichuan Spicy Beef Noodles  
+Sichuan Spicy Tofu with Vegetables  
+Sichuan Spicy Bean Curd Rolls  
+Sichuan Spicy Chicken Salad  
+Sichuan Spicy Pork Belly with Garlic Sauce  
+Sichuan Spicy Beef with Vegetables  
+Sichuan Spicy Fish Fillets with Pickled Mustard Greens  
+Sichuan Spicy Chicken with Peanuts  
+Sichuan Spicy Pork with Garlic Sauce  
+Sichuan Spicy Tofu with Black Bean Sauce  
+Sichuan Spicy Chicken with Chilies  
+Sichuan Spicy Pork with Green Peppers  
+Sichuan Spicy Eggplant with Garlic Sauce  
+Sichuan Spicy Beef with Black Bean Sauce  
+Sichuan Spicy Chicken with Vegetables  
+Sichuan Spicy Pork with Chilies  
+Sichuan Spicy Tofu with Peanuts  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Chilies  
+Sichuan Spicy Beef with Garlic Sauce  
+Sichuan Spicy Chicken with Green Peppers  
+Sichuan Spicy Pork with Black Bean Sauce  
+Sichuan Spicy Tofu with Chilies  
+Sichuan Spicy Chicken with Garlic Sauce  
+Sichuan Spicy Pork with Peanuts  
+Sichuan Spicy Eggplant with Black Bean Sauce  
+Sichuan Spicy Beef with Chilies  
+Sichuan Spicy Chicken with Chilies  
+Sichuan Spicy Pork with Garlic Sauce  
+Sichuan Spicy Tofu with Green Peppers  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Garlic Sauce  
+Sichuan Spicy Beef with Black Bean Sauce  
+Sichuan Spicy Chicken with Vegetables  
+Sichuan Spicy Pork with Chilies  
+Sichuan Spicy Tofu with Peanuts  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Chilies  
+Sichuan Spicy Beef with Garlic Sauce  
+Sichuan Spicy Chicken with Green Peppers  
+Sichuan Spicy Pork with Black Bean Sauce  
+Sichuan Spicy Tofu with Chilies  
+Sichuan Spicy Chicken with Garlic Sauce  
+Sichuan Spicy Pork with Peanuts  
+Sichuan Spicy Eggplant with Black Bean Sauce  
+Sichuan Spicy Beef with Chilies  
+Sichuan Spicy Chicken with Chilies  
+Sichuan Spicy Pork with Garlic Sauce  
+Sichuan Spicy Tofu with Green Peppers  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Garlic Sauce  
+Sichuan Spicy Beef with Black Bean Sauce  
+Sichuan Spicy Chicken with Vegetables  
+Sichuan Spicy Pork with Chilies  
+Sichuan Spicy Tofu with Peanuts  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Chilies  
+Sichuan Spicy Beef with Garlic Sauce  
+Sichuan Spicy Chicken with Green Peppers  
+Sichuan Spicy Pork with Black Bean Sauce  
+Sichuan Spicy Tofu with Chilies  
+Sichuan Spicy Chicken with Garlic Sauce  
+Sichuan Spicy Pork with Peanuts  
+Sichuan Spicy Eggplant with Black Bean Sauce  
+Sichuan Spicy Beef with Chilies  
+Sichuan Spicy Chicken with Chilies  
+Sichuan Spicy Pork with Garlic Sauce  
+Sichuan Spicy Tofu with Green Peppers  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Garlic Sauce  
+Sichuan Spicy Beef with Black Bean Sauce  
+Sichuan Spicy Chicken with Vegetables  
+Sichuan Spicy Pork with Chilies  
+Sichuan Spicy Tofu with Peanuts  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Chilies  
+Sichuan Spicy Beef with Garlic Sauce  
+Sichuan Spicy Chicken with Green Peppers  
+Sichuan Spicy Pork with Black Bean Sauce  
+Sichuan Spicy Tofu with Chilies  
+Sichuan Spicy Chicken with Garlic Sauce  
+Sichuan Spicy Pork with Peanuts  
+Sichuan Spicy Eggplant with Black Bean Sauce  
+Sichuan Spicy Beef with Chilies  
+Sichuan Spicy Chicken with Chilies  
+Sichuan Spicy Pork with Garlic Sauce  
+Sichuan Spicy Tofu with Green Peppers  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Garlic Sauce  
+Sichuan Spicy Beef with Black Bean Sauce  
+Sichuan Spicy Chicken with Vegetables  
+Sichuan Spicy Pork with Chilies  
+Sichuan Spicy Tofu with Peanuts  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Chilies  
+Sichuan Spicy Beef with Garlic Sauce  
+Sichuan Spicy Chicken with Green Peppers  
+Sichuan Spicy Pork with Black Bean Sauce  
+Sichuan Spicy Tofu with Chilies  
+Sichuan Spicy Chicken with Garlic Sauce  
+Sichuan Spicy Pork with Peanuts  
+Sichuan Spicy Eggplant with Black Bean Sauce  
+Sichuan Spicy Beef with Chilies  
+Sichuan Spicy Chicken with Chilies  
+Sichuan Spicy Pork with Garlic Sauce  
+Sichuan Spicy Tofu with Green Peppers  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Garlic Sauce  
+Sichuan Spicy Beef with Black Bean Sauce  
+Sichuan Spicy Chicken with Vegetables  
+Sichuan Spicy Pork with Chilies  
+Sichuan Spicy Tofu with Peanuts  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Chilies  
+Sichuan Spicy Beef with Garlic Sauce  
+Sichuan Spicy Chicken with Green Peppers  
+Sichuan Spicy Pork with Black Bean Sauce  
+Sichuan Spicy Tofu with Chilies  
+Sichuan Spicy Chicken with Garlic Sauce  
+Sichuan Spicy Pork with Peanuts  
+Sichuan Spicy Eggplant with Black Bean Sauce  
+Sichuan Spicy Beef with Chilies  
+Sichuan Spicy Chicken with Chilies  
+Sichuan Spicy Pork with Garlic Sauce  
+Sichuan Spicy Tofu with Green Peppers  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Garlic Sauce  
+Sichuan Spicy Beef with Black Bean Sauce  
+Sichuan Spicy Chicken with Vegetables  
+Sichuan Spicy Pork with Chilies  
+Sichuan Spicy Tofu with Peanuts  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Eggplant with Chilies  
+Sichuan Spicy Beef with Garlic Sauce  
+Sichuan Spicy Chicken with Green Peppers  
+Sichuan Spicy Pork with Black Bean Sauce  
+Sichuan Spicy Tofu with Chilies  
+Sichuan Spicy Chicken with Garlic Sauce  
+Sichuan Spicy Pork with Peanuts  
+Sichuan Spicy Eggplant with Black Bean Sauce  
+Sichuan Spicy Beef with Chilies  
+Sichuan Spicy Chicken with Chilies  
+Sichuan Spicy Pork with Garlic Sauce  
+Sichuan Spicy Tofu with Green Peppers  
+Sichuan Spicy Chicken with Black Bean Sauce  
+Sichuan Spicy Pork with Vegetables  
+Sichuan Spicy Egg
+Sichuan
+
+Dan Dan Noodles (Spicy Sichuan Noodles)  
+Mapo Tofu (Sichuan Spicy Tofu)  
+Sichuan Hot and Sour Soup  
+Sichuan Peppercorn Chicken (La Zi Ji)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Sichuan Spicy Wontons (Hong You Chao Shou)  
+Sichuan Cucumber Salad  
+Sichuan Eggplant (Yu Xiang Qie Zi)  
+Kung Pao Chicken (Gong Bao Ji Ding)  
+Sichuan Beef Noodle Soup  
+Sichuan Dry-Fried Green Beans  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Spicy Cold Noodles  
+Sichuan Tea-Smoked Duck  
+Sichuan Mala Hot Pot  
+Sichuan Spicy Tofu Pudding (Dou Hua)  
+Sichuan Red Oil Dumplings  
+Sichuan Crispy Beef  
+Sichuan Spicy Shrimp  
+Sichuan Pickled Vegetables
+Sichuan
+
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Kung Pao Chicken (Spicy Stir-fried Chicken with Peanuts)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Sichuan Hot Pot (Spicy Broth Hot Pot)  
+Dan Dan Noodles (Spicy Sichuan Noodles)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Chongqing Spicy Chicken (La Zi Ji)  
+Sichuan Eggplant (Yu Xiang Eggplant)  
+Sichuan Pepper Chicken (Hua Jiao Ji)  
+Sichuan Beef with Chili (Shui Zhu Niu Rou)  
+Sichuan Spicy Wontons (Hong You Chao Shou)  
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)  
+Sichuan Spicy Tofu (Ma La Dou Fu)  
+Sichuan Cucumber Salad (Liang Ban Huang Gua)  
+Sichuan Spicy Rabbit (Ma La Tu Zi)  
+Sichuan Poached Beef (Suan Cai Niu Rou)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Spicy Shrimp (Ma La Xia)  
+Sichuan Crispy Duck (Su Ya)  
+Sichuan Spicy Lamb (Ma La Yang Rou)  
+Sichuan Pickled Vegetables (Pao Cai)  
+Sichuan Spicy Pork Belly (Ma La Wu Hua Rou)  
+Sichuan Peppercorn Chicken (Hua Jiao Ji)  
+Sichuan Spicy Tofu Soup (Ma La Dou Fu Tang)  
+Sichuan Spicy Cabbage (Ma La Bai Cai)  
+Sichuan Spicy Beef Noodles (Ma La Niu Rou Mian)  
+Sichuan Spicy Chicken Wings (Ma La Ji Chi Bang)  
+Sichuan Spicy Pork Ribs (Ma La Pai Gu)  
+Sichuan Spicy Eggplant (Ma La Qie Zi)  
+Sichuan Spicy Fish Fillet (Ma La Yu Pian)  
+Sichuan Spicy Pork Intestines (Ma La Fei Chang)  
+Sichuan Spicy Beef Tripe (Ma La Niu Du)  
+Sichuan Spicy Duck Blood (Ma La Ya Xue)  
+Sichuan Spicy Frog (Ma La Tian Ji)  
+Sichuan Spicy Chicken Feet (Ma La Ji Jiao)  
+Sichuan Spicy Beef Offal (Ma La Niu Za)  
+Sichuan Spicy Pork Liver (Ma La Zhu Gan)  
+Sichuan Spicy Squid (Ma La You Yu)  
+Sichuan Spicy Tofu Skewers (Ma La Dou Fu Chuan)  
+Sichuan Spicy Fish Head (Ma La Yu Tou)  
+Sichuan Spicy Pork Knuckle (Ma La Zhu Shou)  
+Sichuan Spicy Duck Neck (Ma La Ya Bo)  
+Sichuan Spicy Beef Tendon (Ma La Niu Jin)  
+Sichuan Spicy Pork Ear (Ma La Zhu Er)  
+Sichuan Spicy Chicken Gizzard (Ma La Ji Zhen)  
+Sichuan Spicy Pork Tongue (Ma La Zhu She)  
+Sichuan Spicy Snail (Ma La Luo Si)  
+Sichuan Spicy Lotus Root (Ma La Ou Pian)  
+Sichuan Spicy Bamboo Shoots (Ma La Zhu Sun)  
+Sichuan Spicy Seaweed (Ma La Hai Dai)  
+Sichuan Spicy Tofu Skin (Ma La Dou Fu Pi)  
+Sichuan Spicy Potato (Ma La Tu Dou)  
+Sichuan Spicy Mushroom (Ma La Mo Gu)  
+Sichuan Spicy Bean Sprouts (Ma La Dou Ya)  
+Sichuan Spicy Tofu Pudding (Ma La Dou Fu Hua)  
+Sichuan Spicy Rice Cake (Ma La Nian Gao)  
+Sichuan Spicy Chicken Soup (Ma La Ji Tang)  
+Sichuan Spicy Pork Soup (Ma La Zhu Rou Tang)  
+Sichuan Spicy Beef Soup (Ma La Niu Rou Tang)  
+Sichuan Spicy Lamb Soup (Ma La Yang Rou Tang)  
+Sichuan Spicy Fish Soup (Ma La Yu Tang)  
+Sichuan Spicy Vegetable Soup (Ma La Shu Cai Tang)  
+Sichuan Spicy Tofu Stew (Ma La Dou Fu Guo)  
+Sichuan Spicy Pork Stew (Ma La Zhu Rou Guo)  
+Sichuan Spicy Beef Stew (Ma La Niu Rou Guo)  
+Sichuan Spicy Chicken Stew (Ma La Ji Guo)  
+Sichuan Spicy Lamb Stew (Ma La Yang Rou Guo)  
+Sichuan Spicy Fish Stew (Ma La Yu Guo)  
+Sichuan Spicy Vegetable Stew (Ma La Shu Cai Guo)  
+Sichuan Spicy Tofu Hot Pot (Ma La Dou Fu Huo Guo)  
+Sichuan Spicy Pork Hot Pot (Ma La Zhu Rou Huo Guo)  
+Sichuan Spicy Beef Hot Pot (Ma La Niu Rou Huo Guo)  
+Sichuan Spicy Chicken Hot Pot (Ma La Ji Huo Guo)  
+Sichuan Spicy Lamb Hot Pot (Ma La Yang Rou Huo Guo)  
+Sichuan Spicy Fish Hot Pot (Ma La Yu Huo Guo)  
+Sichuan Spicy Vegetable Hot Pot (Ma La Shu Cai Huo Guo)
+Sichuan
+
+Suanmeitang (Sour Plum Drink)  
+Douzhi (Fermented Mung Bean Milk)  
+Sichuan Peppercorn Infused Tea  
+Baijiu Cocktail (Sichuan Spirit Cocktail)  
+Chuanbei Pipa Gao (Loquat Syrup Drink)  
+Sichuan Spiced Hot Chocolate  
+Huangjiu (Yellow Wine)  
+Sichuan Style Bubble Tea  
+Chrysanthemum and Goji Berry Tea  
+Sichuan Lemonade with Chili  
+Sichuan Iced Green Tea  
+Sichuan Peppercorn Lemonade  
+Sichuan Cold Brew Coffee  
+Sichuan Herbal Tea  
+Sichuan Spiced Milk Tea
+Sichuan
+
+Huajiao Bing (Sichuan Peppercorn Bread)  
+Laobing (Sichuan Flatbread)  
+Mala Mantou (Spicy Sichuan Steamed Buns)  
+Suan Cai Bao (Pickled Vegetable Buns)  
+Douhua Bao (Tofu Pudding Buns)  
+Hongtang Bing (Brown Sugar Bread)  
+Youtiao (Chinese Fried Breadstick)  
+Cong You Bing (Scallion Pancake)  
+Jian Bing (Sichuan Savory Crepe)  
+Zhua Bing (Flaky Layered Pancake)  
+Guokui (Crispy Stuffed Flatbread)  
+Tang You Guozi (Sweet Glutinous Rice Balls)  
+Mala Baozi (Spicy Sichuan Stuffed Buns)  
+Douban Bing (Broad Bean Paste Bread)  
+Zheng Jiao Bing (Steamed Pepper Bread)  
+Huangqiao Shaobing (Sesame Flatbread)  
+Xian Bing (Stuffed Meat Pancake)  
+Bing Tanghulu (Candied Hawthorn Bread)  
+Sichuan Jianbing (Sichuan Style Crepe)  
+Chao Mian Bing (Fried Noodle Bread)
+Sichuan
+
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)  
+Laziji (Chongqing Spicy Chicken)  
+Sichuan Hot Pot Chicken  
+Sichuan Boiled Chicken (Shui Zhu Ji)  
+Sichuan Chicken with Peppers (La Zi Ji)  
+Sichuan Chicken Salad (Bang Bang Ji)  
+Sichuan Chicken with Noodles  
+Sichuan Chicken with Pickled Vegetables  
+Sichuan Chicken with Black Bean Sauce  
+Sichuan Chicken with Garlic Sauce  
+Sichuan Chicken with Chili Oil  
+Sichuan Chicken with Green Peppers  
+Sichuan Chicken with Cashews  
+Sichuan Chicken with Celery  
+Sichuan Chicken with Bamboo Shoots  
+Sichuan Chicken with Mushrooms  
+Sichuan Chicken with Leeks  
+Sichuan Chicken with Tofu  
+Sichuan Chicken with Eggplant  
+Sichuan Chicken with Broccoli  
+Sichuan Chicken with Snow Peas  
+Sichuan Chicken with Cabbage  
+Sichuan Chicken with Carrots  
+Sichuan Chicken with Onions  
+Sichuan Chicken with Scallions  
+Sichuan Chicken with Ginger  
+Sichuan Chicken with Sesame Seeds  
+Sichuan Chicken with Hoisin Sauce  
+Sichuan Chicken with Oyster Sauce  
+Sichuan Chicken with Soy Sauce  
+Sichuan Chicken with Vinegar  
+Sichuan Chicken with Szechuan Peppercorns  
+Sichuan Chicken with Star Anise  
+Sichuan Chicken with Cloves  
+Sichuan Chicken with Cinnamon  
+Sichuan Chicken with Fennel  
+Sichuan Chicken with Bay Leaves  
+Sichuan Chicken with Coriander  
+Sichuan Chicken with Cumin  
+Sichuan Chicken with Turmeric  
+Sichuan Chicken with Cardamom  
+Sichuan Chicken with Nutmeg  
+Sichuan Chicken with Paprika  
+Sichuan Chicken with Cayenne Pepper  
+Sichuan Chicken with White Pepper  
+Sichuan Chicken with Black Pepper  
+Sichuan Chicken with Red Pepper Flakes  
+Sichuan Chicken with Green Peppercorns  
+Sichuan Chicken with Yellow Peppers  
+Sichuan Chicken with Red Peppers  
+Sichuan Chicken with Orange Peppers  
+Sichuan Chicken with Purple Peppers  
+Sichuan Chicken with Bell Peppers  
+Sichuan Chicken with Jalapeños  
+Sichuan Chicken with Habaneros  
+Sichuan Chicken with Serranos  
+Sichuan Chicken with Poblano Peppers  
+Sichuan Chicken with Anaheim Peppers  
+Sichuan Chicken with Banana Peppers  
+Sichuan Chicken with Cherry Peppers  
+Sichuan Chicken with Cubanelle Peppers  
+Sichuan Chicken with Ghost Peppers  
+Sichuan Chicken with Carolina Reaper Peppers  
+Sichuan Chicken with Scotch Bonnet Peppers  
+Sichuan Chicken with Thai Chili Peppers  
+Sichuan Chicken with Bird's Eye Chili Peppers  
+Sichuan Chicken with Peppadew Peppers  
+Sichuan Chicken with Shishito Peppers  
+Sichuan Chicken with Piquillo Peppers  
+Sichuan Chicken with Aleppo Peppers  
+Sichuan Chicken with Guajillo Peppers  
+Sichuan Chicken with Ancho Peppers  
+Sichuan Chicken with Pasilla Peppers  
+Sichuan Chicken with Mulato Peppers  
+Sichuan Chicken with Chipotle Peppers  
+Sichuan Chicken with Morita Peppers  
+Sichuan Chicken with Mirasol Peppers  
+Sichuan Chicken with Cascabel Peppers  
+Sichuan Chicken with Chilaca Peppers  
+Sichuan Chicken with Chilhuacle Peppers  
+Sichuan Chicken with Chiltepin Peppers  
+Sichuan Chicken with Chiltoma Peppers  
+Sichuan Chicken with Chiltepe Peppers  
+Sichuan Chicken with Chilhuacle Negro Peppers  
+Sichuan Chicken with Chilhuacle Rojo Peppers  
+Sichuan Chicken with Chilhuacle Amarillo Peppers  
+Sichuan Chicken with Chilhuacle Verde Peppers  
+Sichuan Chicken with Chilhuacle Blanco Peppers  
+Sichuan Chicken with Chilhuacle Azul Peppers  
+Sichuan Chicken with Chilhuacle Morado Peppers  
+Sichuan Chicken with Chilhuacle Rosa Peppers  
+Sichuan Chicken with Chilhuacle Naranja Peppers  
+Sichuan Chicken with Chilhuacle Violeta Peppers  
+Sichuan Chicken with Chilhuacle Marron Peppers  
+Sichuan Chicken with Chilhuacle Gris Peppers  
+Sichuan Chicken with Chilhuacle Dorado Peppers  
+Sichuan Chicken with Chilhuacle Plateado Peppers  
+Sichuan Chicken with Chilhuacle Bronce Peppers  
+Sichuan Chicken with Chilhuacle Cobre Peppers  
+Sichuan Chicken with Chilhuacle Platino Peppers  
+Sichuan Chicken with Chilhuacle Diamante Peppers  
+Sichuan Chicken with Chilhuacle Esmeralda Peppers  
+Sichuan Chicken with Chilhuacle Rubí Peppers  
+Sichuan Chicken with Chilhuacle Zafiro Peppers  
+Sichuan Chicken with Chilhuacle Topacio Peppers  
+Sichuan Chicken with Chilhuacle Amatista Peppers  
+Sichuan Chicken with Chilhuacle Perla Peppers  
+Sichuan Chicken with Chilhuacle Ópalo Peppers  
+Sichuan Chicken with Chilhuacle Jade Peppers  
+Sichuan Chicken with Chilhuacle Turquesa Peppers  
+Sichuan Chicken with Chilhuacle Coral Peppers  
+Sichuan Chicken with Chilhuacle Ámbar Peppers  
+Sichuan Chicken with Chilhuacle Cristal Peppers  
+Sichuan Chicken with Chilhuacle Marfil Peppers  
+Sichuan Chicken with Chilhuacle Marfil Peppers
+Sichuan
+
+Shuizhu Niurou (Sichuan Boiled Beef)  
+Mala Beef (Spicy and Numbing Beef)  
+Ganbian Niurou (Dry-Fried Beef)  
+Sichuan Peppercorn Beef  
+Kung Pao Beef  
+Sichuan Beef Stir-Fry  
+Sichuan Beef Hotpot  
+Twice-Cooked Beef  
+Sichuan Beef Noodles  
+Sichuan Beef with Green Beans  
+Sichuan Beef and Broccoli  
+Sichuan Beef Skewers  
+Sichuan Beef with Garlic Sauce  
+Sichuan Beef with Black Bean Sauce  
+Sichuan Beef with Chili Oil
+Sichuan
+
+Twice-Cooked Pork (Hui Guo Rou)
+
+Sichuan Spicy Pork (Sichuan La Rou)
+
+Mapo Tofu with Pork
+
+Sichuan Pork Belly with Garlic Sauce
+
+Sichuan Braised Pork (Hong Shao Rou)
+
+Sichuan Pepper Pork Ribs
+
+Sichuan Pork Dumplings (Zhong Shui Jiao)
+
+Sichuan Pork Noodles (Dan Dan Mian)
+
+Sichuan Pork Stir-Fry with Green Beans
+
+Sichuan Pork and Cabbage Soup
+
+Sichuan Pork with Pickled Vegetables
+
+Sichuan Crispy Pork Belly
+
+Sichuan Pork and Tofu Hot Pot
+
+Sichuan Pork and Bamboo Shoots
+
+Sichuan Pork with Black Bean Sauce
+Sichuan
+
+Sichuan Spicy Shrimp  
+Kung Pao Shrimp  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Chongqing Mala Shrimp  
+Sichuan Peppercorn Scallops  
+Sichuan Hot Pot with Seafood  
+Twice-Cooked Fish  
+Sichuan Dry-Fried Shrimp  
+Sichuan Garlic Prawns  
+Sichuan Chili Oil Shrimp  
+Sichuan Steamed Fish with Pickled Vegetables  
+Sichuan Salt and Pepper Shrimp  
+Sichuan Braised Fish with Tofu  
+Sichuan Spicy Scallops  
+Sichuan Fish Fragrant Shrimp
+Sichuan
+
+Dan Hong Su (Sichuan Sweet Pastry)  
+Dou Sha Su (Red Bean Paste Pastry)  
+Ma La Su (Spicy Sichuan Pastry)  
+Hua Sheng Su (Peanut Pastry)  
+Jiao Yan Su (Pepper Salt Pastry)  
+Zhi Ma Su (Sesame Pastry)  
+Yu Xiang Su (Fish Fragrant Pastry)  
+Lao Su Bing (Old Style Pastry)  
+Hong Tang Su (Brown Sugar Pastry)  
+Rou Su Bing (Meat Floss Pastry)  
+Dou Fu Su (Tofu Pastry)  
+Chuan Wei Su (Sichuan Flavor Pastry)  
+Xiang La Su (Fragrant Spicy Pastry)  
+Bai Tang Su (White Sugar Pastry)  
+Jiang You Su (Soy Sauce Pastry)  
+Hua Jiao Su (Sichuan Pepper Pastry)  
+Xian Rou Su (Savory Meat Pastry)  
+Dou Fu Nao Su (Tofu Brain Pastry)  
+Gan Guo Su (Dry Pot Pastry)  
+Su Rou Bing (Crispy Meat Pastry)
+Sichuan
+
+Ma La Gao (Sichuan Steamed Sponge Cake)  
+Sichuan Peppercorn Chocolate Cake  
+Chili Oil Marble Cake  
+Sichuan Honey Cake  
+Five Spice Pumpkin Cake  
+Sichuan Tea Infused Cake  
+Spicy Ginger Molasses Cake  
+Sichuan Red Bean Cake  
+Chili Chocolate Lava Cake  
+Sichuan Black Sesame Cake  
+Sichuan Spiced Carrot Cake  
+Sichuan Citrus Cake  
+Sichuan Date Cake  
+Sichuan Almond Cake  
+Sichuan Sweet Potato Cake
+Sichuan
+
+Sichuan Peppercorn Cookies  
+Five-Spice Almond Cookies  
+Chili Oil Shortbread Cookies  
+Black Sesame Cookies  
+Ginger and Sichuan Pepper Cookies  
+Sweet Red Bean Paste Cookies  
+Sichuan Spiced Chocolate Chip Cookies  
+Honey and Sichuan Pepper Cookies  
+Sichuan Peanut Butter Cookies  
+Jasmine Tea Cookies with Sichuan Pepper  
+Sichuan Orange Blossom Cookies  
+Spicy Sichuan Walnut Cookies  
+Sichuan Green Tea Cookies  
+Sichuan Almond Cookies with Star Anise  
+Sichuan Pepper and Lemon Cookies
+Sichuan
+
+Sichuan Peppercorn Muffins  
+Chili Oil Cupcakes  
+Five-Spice Chocolate Muffins  
+Ginger-Sesame Cupcakes  
+Black Sesame Muffins  
+Sichuan Chili Chocolate Cupcakes  
+Sweet Red Bean Muffins  
+Green Tea Matcha Cupcakes  
+Lotus Seed Paste Muffins  
+Spicy Peanut Butter Cupcakes  
+Jasmine Tea Infused Muffins  
+Sichuan Spiced Carrot Cupcakes  
+Honey Soy Muffins  
+Lychee Rose Cupcakes  
+Mandarin Orange Muffins  
+White Rabbit Candy Cupcakes
+Sichuan
+
+Tang Yuan (Sweet Glutinous Rice Balls)  
+Hong Tang Nian Gao (Red Sugar Rice Cake)  
+Dou Hua (Tofu Pudding)  
+Bing Fen (Ice Jelly)  
+Sichuan Mango Pudding  
+Gui Hua Gao (Osmanthus Cake)  
+Ma La Chocolate Tart (Spicy Chocolate Tart)  
+Sichuan Peppercorn Ice Cream  
+Chuan Bei Liang Gao (Sichuan Cold Cake)  
+Ba Bao Fan (Eight Treasure Rice Pudding)  
+Sichuan Sesame Balls  
+Sweet Fermented Rice Soup  
+Sichuan Honeycomb Cake  
+Jian Dui (Fried Sesame Balls)  
+Sichuan Almond Cookies  
+Sichuan Spiced Poached Pears  
+Sweet Potato Noodles with Brown Sugar Sauce  
+Sichuan Style Red Bean Pancakes  
+Sichuan Style Mochi  
+Sichuan Style Sweet Dumplings
+Sichuan
+
+Sichuan Spiced Chocolate Truffles  
+Chili Chocolate Bark  
+Sichuan Peppercorn Caramel  
+Spicy Chocolate Ganache Tart  
+Sichuan Chocolate Fondue  
+Chili-Infused Chocolate Mousse  
+Sichuan Pepper Chocolate Cake  
+Spicy Hot Chocolate with Sichuan Pepper  
+Sichuan Chocolate Bonbons  
+Chili Chocolate Fudge  
+Sichuan Peppercorn Chocolate Cookies  
+Spicy Chocolate Dipped Fruit  
+Sichuan Spiced Chocolate Brownies  
+Chili Chocolate Ice Cream  
+Sichuan Pepper Chocolate Pudding
+Sichuan
+
+Buttercream Frosting  
+Cream Cheese Frosting  
+Royal Icing  
+Ganache Icing  
+Fondant Icing  
+Glaze Icing  
+Whipped Cream Frosting  
+Swiss Meringue Buttercream  
+Italian Meringue Buttercream  
+French Buttercream  
+Seven-Minute Frosting  
+Boiled Icing  
+Chocolate Frosting  
+Vanilla Frosting  
+Lemon Icing  
+Caramel Frosting  
+Brown Sugar Frosting  
+Peanut Butter Frosting  
+Coconut Frosting  
+Almond Icing  
+Orange Icing  
+Raspberry Frosting  
+Maple Frosting  
+Mocha Frosting  
+Mint Frosting  
+Espresso Frosting  
+Honey Frosting  
+Matcha Frosting  
+Lavender Frosting  
+Chai Frosting  
+Rosewater Icing  
+Sichuan Peppercorn Frosting  
+Ginger Frosting  
+Sesame Frosting  
+Black Sesame Frosting  
+Soy Milk Frosting  
+Tofu Frosting  
+Red Bean Paste Frosting  
+Lychee Frosting  
+Jasmine Tea Frosting  
+Oolong Tea Frosting  
+Green Tea Frosting  
+White Chocolate Frosting  
+Dark Chocolate Frosting  
+Milk Chocolate Frosting  
+Salted Caramel Frosting  
+Hazelnut Frosting  
+Pistachio Frosting  
+Walnut Frosting  
+Pine Nut Frosting  
+Cashew Frosting  
+Macadamia Nut Frosting  
+Pumpkin Spice Frosting  
+Cinnamon Frosting  
+Nutmeg Frosting  
+Cardamom Frosting  
+Clove Frosting  
+Star Anise Frosting  
+Anise Frosting  
+Basil Frosting  
+Thyme Frosting  
+Rosemary Frosting  
+Saffron Frosting  
+Turmeric Frosting  
+Curry Frosting  
+Wasabi Frosting  
+Yuzu Frosting  
+Passion Fruit Frosting  
+Mango Frosting  
+Papaya Frosting  
+Pineapple Frosting  
+Coconut Milk Frosting  
+Almond Milk Frosting  
+Rice Milk Frosting  
+Oat Milk Frosting  
+Soybean Frosting  
+Miso Frosting  
+Sweet Bean Paste Frosting  
+Lotus Seed Paste Frosting  
+Taro Frosting  
+Durian Frosting  
+Dragon Fruit Frosting  
+Kumquat Frosting  
+Persimmon Frosting  
+Fig Frosting  
+Date Frosting  
+Prune Frosting  
+Apricot Frosting  
+Peach Frosting  
+Nectarine Frosting  
+Plum Frosting  
+Cherry Frosting  
+Strawberry Frosting  
+Blueberry Frosting  
+Blackberry Frosting  
+Cranberry Frosting  
+Pomegranate Frosting  
+Kiwi Frosting  
+Guava Frosting  
+Cantaloupe Frosting  
+Honeydew Frosting  
+Watermelon Frosting  
+Rhubarb Frosting  
+Goji Berry Frosting  
+Mulberry Frosting  
+Elderberry Frosting  
+Acai Berry Frosting  
+Hibiscus Frosting  
+Chamomile Frosting  
+Lemongrass Frosting  
+Bergamot Frosting  
+Earl Grey Frosting  
+Darjeeling Frosting  
+Assam Frosting  
+Ceylon Frosting  
+Lapsang Souchong Frosting  
+Pu-erh Frosting  
+Chrysanthemum Frosting  
+Osmanthus Frosting  
+Honeysuckle Frosting  
+Peony Frosting  
+Magnolia Frosting  
+Lotus Frosting  
+Orchid Frosting  
+Peach Blossom Frosting  
+Cherry Blossom Frosting  
+Plum Blossom Frosting  
+Bamboo Frosting  
+Pandan Frosting  
+Coconut Sugar Frosting  
+Palm Sugar Frosting  
+Rock Sugar Frosting  
+Brown Butter Frosting  
+Burnt Sugar Frosting  
+Toasted Marshmallow Frosting  
+Marshmallow Frosting  
+Molasses Frosting  
+Treacle Frosting  
+Golden Syrup Frosting  
+Agave Frosting  
+Maple Syrup Frosting  
+Corn Syrup Frosting  
+Sorghum Syrup Frosting  
+Date Syrup Frosting  
+Pomegranate Molasses Frosting  
+Balsamic Frosting  
+Vinegar Frosting  
+Apple Cider Frosting  
+Cider Frosting  
+Brandy Frosting  
+Rum Frosting  
+Whiskey Frosting  
+Bourbon Frosting  
+Cognac Frosting  
+Port Frosting  
+Sherry Frosting  
+Madeira Frosting  
+Marsala Frosting  
+Vermouth Frosting  
+Absinthe Frosting  
+Amaretto Frosting  
+Baileys Frosting  
+Kahlua Frosting  
+Tia Maria Frosting  
+Frangelico Frosting  
+Grand Marnier Frosting  
+Cointreau Frosting  
+Triple Sec Frosting  
+Curacao Frosting  
+Limoncello Frosting  
+Sambuca Frosting  
+Anisette Frosting  
+Ouzo Frosting  
+Raki Frosting  
+Arak Frosting  
+Pastis Frosting  
+Pernod Frosting  
+Ricard Frosting  
+Galliano Frosting  
+Strega Frosting  
+Benedictine Frosting  
+Chartreuse Frosting  
+Drambuie Frosting  
+Glayva Frosting  
+Southern Comfort Frosting  
+Fireball Frosting  
+Goldschlager Frosting  
+Jagermeister Frosting  
+Fernet Frosting  
+Campari Frosting  
+Aperol Frosting  
+Pimm's Frosting  
+Angostura Frosting  
+Bitters Frosting  
+Grenadine Frosting  
+Orgeat Frosting  
+Falernum Frosting  
+Tonic Frosting  
+Soda Frosting  
+Cola Frosting  
+Root Beer Frosting  
+Ginger Ale Frosting  
+Ginger Beer Frosting  
+Sarsaparilla Frosting  
+Cream Soda Frosting  
+Lemonade Frosting  
+Limeade Frosting  
+Orangeade Frosting  
+Fruit Punch Frosting  
+Horchata Frosting  
+Tamarind Frosting  
+Soursop Frosting  
+Jackfruit Frosting  
+Breadfruit Frosting  
+Starfruit Frosting  
+Rambutan Frosting  
+Mangosteen Frosting  
+Longan Frosting  
+Lychee Frosting  
+Jujube Frosting  
+Loquat Frosting  
+Medlar Frosting  
+Quince Frosting  
+Crabapple Frosting  
+Rowanberry Frosting  
+Sea Buckthorn Frosting  
+Cloudberry Frosting  
+Lingonberry Frosting  
+Boysenberry Frosting  
+Loganberry Frosting  
+Marionberry Frosting  
+Tayberry Frosting  
+Youngberry Frosting  
+Gooseberry Frosting  
+Currant Frosting  
+Red Currant Frosting  
+Black Currant Frosting  
+White Currant Frosting  
+Cape Gooseberry Frosting  
+Physalis Frosting  
+Tomatillo Frosting  
+Ground Cherry Frosting  
+Huckleberry Frosting  
+Salal Berry Frosting  
+Thimbleberry Frosting  
+Salmonberry Frosting  
+Serviceberry Frosting  
+Juneberry Frosting  
+Saskatoon Berry Frosting  
+Buffaloberry Frosting  
+Silverberry Frosting  
+Autumn Olive Frosting  
+Elaeagnus Frosting  
+Goumi Berry Frosting  
+Nannyberry Frosting  
+Viburnum Frosting  
+Highbush Cranberry Frosting  
+American Cranberry Frosting  
+European Cranberry Frosting  
+Lingonberry Frosting  
+Partridgeberry Frosting  
+Bearberry Frosting  
+Crowberry Frosting  
+Bilberry Frosting  
+Whortleberry Frosting  
+Huckleberry Frosting  
+Dewberry Frosting  
+Boysenberry Frosting  
+Loganberry Frosting  
+Marionberry Frosting  
+Tayberry Frosting  
+Youngberry Frosting  
+Gooseberry Frosting  
+Currant Frosting  
+Red Currant Frosting  
+Black Currant Frosting  
+White Currant Frosting  
+Cape Gooseberry Frosting  
+Physalis Frosting  
+Tomatillo Frosting  
+Ground Cherry Frosting  
+Huckleberry Frosting  
+Salal Berry Frosting  
+Thimbleberry Frosting  
+Salmonberry Frosting  
+Serviceberry Frosting  
+Juneberry Frosting  
+Saskatoon Berry Frosting  
+Buffaloberry Frosting  
+Silverberry Frosting  
+Autumn Olive Frosting  
+Elaeagnus Frosting  
+Goumi Berry Frosting  
+Nannyberry Frosting  
+Viburnum Frosting  
+Highbush Cranberry Frosting  
+American Cranberry Frosting  
+European Cranberry Frosting  
+Lingonberry Frosting  
+Partridgeberry Frosting  
+Bearberry Frosting  
+Crowberry Frosting  
+Bilberry Frosting  
+Whortleberry Frosting  
+Huckleberry Frosting  
+Dewberry Frosting  
+Boysenberry Frosting  
+Loganberry Frosting  
+Marionberry Frosting  
+Tayberry Frosting  
+Youngberry Frosting  
+Gooseberry Frosting  
+Currant Frosting  
+Red Currant Frosting  
+Black Currant Frosting  
+White Currant Frosting  
+Cape Gooseberry Frosting  
+Physalis Frosting  
+Tomatillo Frosting  
+Ground Cherry Frosting  
+Huckleberry Frosting  
+Salal Berry Frosting  
+Thimbleberry Frosting  
+Salmonberry Frosting  
+Serviceberry Frosting  
+Juneberry Frosting  
+Saskatoon Berry Frosting  
+Buffaloberry Frosting  
+Silverberry Frosting  
+Autumn Olive Frosting  
+Elaeagnus Frosting  
+Goumi Berry Frosting  
+Nannyberry Frosting  
+Viburnum Frosting  
+Highbush Cranberry Frosting  
+American Cranberry Frosting  
+European Cranberry Frosting  
+Lingonberry Frosting  
+Partridgeberry Frosting  
+Bearberry Frosting  
+Crowberry Frosting  
+Bilberry Frosting  
+Whortleberry Frosting  
+Huckleberry Frosting  
+Dewberry Frosting  
+Boysenberry Frosting  
+Loganberry Frosting  
+Marionberry Frosting  
+Tayberry Frosting  
+Youngberry Frosting  
+Gooseberry Frosting  
+Currant Frosting  
+Red Currant Frost
+Sichuan
+
+Sichuan Peppercorn Tart
+
+Spicy Pork Pie with Sichuan Pepper
+
+Chili Oil Chicken Tart
+
+Sichuan Beef Pie
+
+Dan Dan Noodle Tart
+
+Sichuan Hot Pot Pie
+
+Mapo Tofu Tart
+
+Sichuan Sweet Potato Pie
+
+Kung Pao Chicken Tart
+
+Sichuan Lamb Pie
+
+Chongqing Chicken Tart
+
+Sichuan Spicy Bean Tart
+
+Sichuan Eggplant Pie
+
+Twice-Cooked Pork Tart
+
+Sichuan Chili Crisp Tart
+
+Sichuan Cabbage Pie
+
+Sichuan Garlic Tart
+
+Sichuan Pepper Chicken Pie
+
+Sichuan Spicy Fish Tart
+
+Sichuan Mushroom Pie
+Sichuan
+
+Suanla Tudou Si (Hot and Sour Shredded Potatoes)  
+Gan Bian Tudou Si (Dry-Fried Shredded Potatoes)  
+Mapo Tofu with Potatoes  
+Sichuan Braised Potatoes  
+Spicy Sichuan Potato Salad  
+Chongqing Spicy Potatoes  
+Sichuan Potato Hotpot  
+Twice-Cooked Pork with Potatoes  
+Sichuan Potato Noodles  
+Sichuan Potato Stir-Fry
+Sichuan
+
+Mapo Doufu (Sichuan Spicy Tofu)
+Yu Xiang Qie Zi (Fish-Fragrant Eggplant)
+Gan Bian Si Ji Dou (Dry-Fried Green Beans)
+Suan Cai Yu (Sour Pickled Cabbage Fish)
+Hui Guo Rou (Twice-Cooked Pork with Vegetables)
+Sichuan Liang Ban Huang Gua (Sichuan Cold Cucumber Salad)
+Jia Chang Cai (Home-Style Tofu with Vegetables)
+Suan Ni Bai Rou (Garlic Pork with Vegetables)
+Sichuan Hot Pot with Vegetables
+Chao Tu Dou Si (Stir-Fried Shredded Potatoes)
+Dou Ban Yu (Fish with Spicy Bean Sauce and Vegetables)
+Sichuan Eggplant with Garlic Sauce
+Sichuan-Style Stir-Fried Cabbage
+Kung Pao Vegetables
+Sichuan Peppercorn Tofu
+Chongqing Mala Vegetables
+Sichuan Spicy Noodles with Vegetables
+Sichuan Pickled Vegetables
+Sichuan-Style Vegetable Dumplings
+Sichuan
+
+Mapo Doufu (Mapo Tofu)  
+Doubanjiang Tofu (Fermented Broad Bean Paste Tofu)  
+Sichuan Mala Tofu (Sichuan Numbing and Spicy Tofu)  
+Suan Cai Yu Doufu (Pickled Mustard Greens and Fish Tofu)  
+Jia Chang Doufu (Home-style Tofu)  
+Gan Bian Doufu (Dry-fried Tofu)  
+Sichuan Doufu Hua (Sichuan Tofu Pudding)  
+Hui Guo Doufu (Twice-cooked Tofu)  
+La Zi Doufu (Chili Pepper Tofu)  
+Sichuan Yu Xiang Doufu (Sichuan Fish-fragrant Tofu)  
+Hong Shao Doufu (Red-braised Tofu)  
+Sichuan Dan Dan Doufu (Sichuan Dan Dan Tofu)  
+Doufu Gan Si (Shredded Tofu with Vegetables)  
+Sichuan Kong Pao Doufu (Sichuan Kung Pao Tofu)  
+Sichuan Suan La Doufu (Sichuan Sour and Spicy Tofu)
+Sichuan
+
+Chuan Chuan Xiang (Sichuan Skewers)  
+Huo Guo (Sichuan Hot Pot)  
+Laziji (Sichuan Spicy Chicken)  
+Mapo Doufu (Mapo Tofu)  
+Shui Zhu Yu (Sichuan Boiled Fish)  
+Suan Cai Yu (Sichuan Pickled Fish)  
+Gong Bao Ji Ding (Kung Pao Chicken)  
+Dan Dan Mian (Dan Dan Noodles)  
+Twice-Cooked Pork  
+Sichuan Dry-Fried Green Beans  
+Sichuan Peppercorn Ribs  
+Sichuan Spicy Crayfish  
+Sichuan Mala Beef  
+Sichuan Spicy Tofu  
+Sichuan Grilled Lamb Chops  
+Sichuan Barbecue Pork Belly  
+Sichuan Spicy Eggplant  
+Sichuan Grilled Fish  
+Sichuan Spicy Duck  
+Sichuan Barbecue Chicken Wings
+Sichuan
+
+Suan La Chao Fan (Sour and Spicy Fried Rice)  
+Dan Dan Chao Fan (Dan Dan Fried Rice)  
+Sichuan Xiang La Chao Fan (Fragrant and Spicy Sichuan Fried Rice)  
+Sichuan Peppercorn Fried Rice  
+Mapo Tofu Fried Rice  
+Kung Pao Chicken Fried Rice  
+Twice-Cooked Pork Fried Rice  
+Sichuan Eggplant Fried Rice  
+Sichuan Spicy Shrimp Fried Rice  
+Sichuan Hot Pot Rice  
+Sichuan Chili Oil Fried Rice  
+Sichuan Pickled Vegetable Fried Rice  
+Sichuan Braised Beef Fried Rice  
+Sichuan Mala Fried Rice (Numbing and Spicy Fried Rice)  
+Sichuan Garlic Fried Rice  
+Sichuan Black Bean Sauce Fried Rice  
+Sichuan Spicy Sausage Fried Rice  
+Sichuan Stir-Fried Rice with Vegetables  
+Sichuan Spicy Chicken Fried Rice  
+Sichuan Spicy Pork Fried Rice
+Sichuan
+
+Dan Dan Mian (Sichuan Spicy Noodles)  
+Zajiangmian (Sichuan Minced Pork Noodles)  
+Chongqing Xiaomian (Chongqing Spicy Noodles)  
+Suan La Fen (Hot and Sour Sweet Potato Noodles)  
+Yibin Ran Mian (Yibin Burning Noodles)  
+Sichuan Cold Noodles (Liang Mian)  
+Dou Ban Mian (Spicy Bean Paste Noodles)  
+Sichuan Sesame Noodles (Ma Jiang Mian)  
+Sichuan Beef Noodles (Niu Rou Mian)  
+Sichuan Pickled Vegetable Noodles (Pao Cai Mian)
+Sichuan
+
+Suan Cai Yu (Sour Fish Soup)  
+Huo Guo (Sichuan Hot Pot)  
+Suan La Tang (Hot and Sour Soup)  
+Dou Hua Tang (Tofu Pudding Soup)  
+La Zi Ji Tang (Spicy Chicken Soup)  
+Dan Dan Mian Tang (Dan Dan Noodle Soup)  
+Ma Po Dou Fu Tang (Mapo Tofu Soup)  
+Ji Si Tang (Chicken Silk Soup)  
+Yu Xiang Tang (Fish Fragrant Soup)  
+Huang Men Ji Tang (Braised Chicken Soup)  
+Zha Cai Rou Si Tang (Pickled Mustard Green and Shredded Pork Soup)  
+Xiao Long Tang Bao (Soup Dumplings)  
+Gong Bao Ji Ding Tang (Kung Pao Chicken Soup)  
+Hong Shao Niu Rou Tang (Red Braised Beef Soup)  
+Dou Ban Yu Tang (Spicy Bean Paste Fish Soup)  
+Chuan Wei Ji Tang (Sichuan Flavor Chicken Soup)  
+Suan Cai Bai Rou Tang (Sour Cabbage and Pork Soup)  
+Hua Jiao Ji Tang (Sichuan Pepper Chicken Soup)  
+Dou Fu Nao Tang (Tofu Brain Soup)  
+Suan Cai Fei Tang (Sour Vegetable Lung Soup)
+Sichuan
+
+Kung Pao Chicken (Spicy Stir-fried Chicken with Peanuts)  
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Dan Dan Noodles (Spicy Sichuan Noodles)  
+Sichuan Hot Pot (Spicy Sichuan Broth with Various Ingredients)  
+Twice-Cooked Pork (Sichuan Double-Cooked Pork Belly)  
+Chongqing Spicy Chicken (Sichuan Spicy Fried Chicken)  
+Sichuan Boiled Fish (Spicy Poached Fish in Chili Oil)  
+Sichuan Dumplings in Chili Oil (Spicy Dumplings)  
+Sichuan Peppercorn Beef (Spicy Beef with Sichuan Peppercorns)  
+Sichuan Eggplant (Spicy Braised Eggplant)  
+Sichuan Cold Noodles (Spicy Cold Noodles)  
+Sichuan Spicy Wontons (Wontons in Chili Oil)  
+Sichuan Cucumber Salad (Spicy Cucumber Salad)  
+Sichuan Spicy Tofu Pudding (Douhua with Chili Sauce)  
+Sichuan Mala Chicken (Numbing and Spicy Chicken)  
+Sichuan Spicy Rabbit (Spicy Rabbit with Sichuan Peppercorns)  
+Sichuan Spicy Lamb Skewers (Lamb Skewers with Chili and Cumin)  
+Sichuan Spicy Beef Tendon (Spicy Beef Tendon Salad)  
+Sichuan Spicy Bean Jelly (Liangfen with Chili Sauce)  
+Sichuan Spicy Pork Slices (Sliced Pork in Hot Garlic Sauce)  
+Sichuan Spicy Shrimp (Spicy Stir-fried Shrimp)  
+Sichuan Spicy Lotus Root (Spicy Stir-fried Lotus Root)  
+Sichuan Spicy Green Beans (Dry-fried Green Beans with Chili)  
+Sichuan Spicy Chicken Feet (Chicken Feet in Chili Sauce)  
+Sichuan Spicy Pork Intestines (Spicy Stir-fried Pork Intestines)  
+Sichuan Spicy Duck Blood (Spicy Duck Blood with Tofu)  
+Sichuan Spicy Beef Tripe (Spicy Beef Tripe in Chili Oil)  
+Sichuan Spicy Fish Head (Spicy Fish Head with Chili and Bean Paste)  
+Sichuan Spicy Bamboo Shoots (Spicy Bamboo Shoots with Chili)  
+Sichuan Spicy Pork Ribs (Spicy Braised Pork Ribs)  
+Sichuan Spicy Chicken Gizzards (Spicy Stir-fried Chicken Gizzards)  
+Sichuan Spicy Pork Belly (Spicy Braised Pork Belly)  
+Sichuan Spicy Tofu Skin (Spicy Stir-fried Tofu Skin)  
+Sichuan Spicy Beef Noodles (Spicy Beef Noodle Soup)  
+Sichuan Spicy Potato Strips (Spicy Shredded Potatoes)  
+Sichuan Spicy Fried Rice (Fried Rice with Sichuan Spices)  
+Sichuan Spicy Eggplant with Minced Pork (Spicy Eggplant and Pork)  
+Sichuan Spicy Chicken Wings (Spicy Chicken Wings with Chili)  
+Sichuan Spicy Pork with Garlic Sauce (Pork in Garlic Chili Sauce)  
+Sichuan Spicy Fish Fillets (Spicy Fish Fillets in Chili Oil)  
+Sichuan Spicy Tofu with Vegetables (Spicy Tofu Stir-fry)  
+Sichuan Spicy Beef with Cumin (Spicy Beef Stir-fry with Cumin)  
+Sichuan Spicy Pork with Green Peppers (Spicy Pork and Peppers)  
+Sichuan Spicy Chicken with Cashews (Spicy Chicken and Cashews)  
+Sichuan Spicy Pork with Black Bean Sauce (Pork in Black Bean Sauce)  
+Sichuan Spicy Eggplant with Garlic Sauce (Eggplant in Garlic Chili Sauce)  
+Sichuan Spicy Chicken with Peanuts (Spicy Chicken and Peanuts)  
+Sichuan Spicy Tofu with Black Bean Sauce (Tofu in Black Bean Sauce)  
+Sichuan Spicy Beef with Green Onions (Spicy Beef and Green Onions)  
+Sichuan Spicy Pork with Bamboo Shoots (Spicy Pork and Bamboo Shoots)  
+Sichuan Spicy Chicken with Bell Peppers (Spicy Chicken and Bell Peppers)  
+Sichuan Spicy Shrimp with Garlic Sauce (Shrimp in Garlic Chili Sauce)  
+Sichuan Spicy Pork with Mushrooms (Spicy Pork and Mushrooms)  
+Sichuan Spicy Chicken with Black Bean Sauce (Chicken in Black Bean Sauce)  
+Sichuan Spicy Eggplant with Minced Beef (Spicy Eggplant and Beef)  
+Sichuan Spicy Pork with Tofu (Spicy Pork and Tofu)  
+Sichuan Spicy Chicken with Celery (Spicy Chicken and Celery)  
+Sichuan Spicy Beef with Peppers (Spicy Beef and Peppers)  
+Sichuan Spicy Pork with Eggplant (Spicy Pork and Eggplant)  
+Sichuan Spicy Chicken with Mushrooms (Spicy Chicken and Mushrooms)  
+Sichuan Spicy Tofu with Peanuts (Spicy Tofu and Peanuts)  
+Sichuan Spicy Pork with Green Beans (Spicy Pork and Green Beans)  
+Sichuan Spicy Chicken with Bamboo Shoots (Spicy Chicken and Bamboo Shoots)  
+Sichuan Spicy Beef with Garlic Sauce (Beef in Garlic Chili Sauce)  
+Sichuan Spicy Pork with Celery (Spicy Pork and Celery)  
+Sichuan Spicy Chicken with Green Onions (Spicy Chicken and Green Onions)  
+Sichuan Spicy Shrimp with Peanuts (Spicy Shrimp and Peanuts)  
+Sichuan Spicy Pork with Bell Peppers (Spicy Pork and Bell Peppers)  
+Sichuan Spicy Chicken with Eggplant (Spicy Chicken and Eggplant)  
+Sichuan Spicy Beef with Bamboo Shoots (Spicy Beef and Bamboo Shoots)  
+Sichuan Spicy Pork with Garlic Sauce (Pork in Garlic Chili Sauce)  
+Sichuan Spicy Chicken with Green Beans (Spicy Chicken and Green Beans)  
+Sichuan Spicy Shrimp with Black Bean Sauce (Shrimp in Black Bean Sauce)  
+Sichuan Spicy Pork with Mushrooms (Spicy Pork and Mushrooms)  
+Sichuan Spicy Chicken with Black Bean Sauce (Chicken in Black Bean Sauce)  
+Sichuan Spicy Eggplant with Minced Beef (Spicy Eggplant and Beef)  
+Sichuan Spicy Pork with Tofu (Spicy Pork and Tofu)  
+Sichuan Spicy Chicken with Celery (Spicy Chicken and Celery)  
+Sichuan Spicy Beef with Peppers (Spicy Beef and Peppers)  
+Sichuan Spicy Pork with Eggplant (Spicy Pork and Eggplant)  
+Sichuan Spicy Chicken with Mushrooms (Spicy Chicken and Mushrooms)  
+Sichuan Spicy Tofu with Peanuts (Spicy Tofu and Peanuts)  
+Sichuan Spicy Pork with Green Beans (Spicy Pork and Green Beans)  
+Sichuan Spicy Chicken with Bamboo Shoots (Spicy Chicken and Bamboo Shoots)  
+Sichuan Spicy Beef with Garlic Sauce (Beef in Garlic Chili Sauce)  
+Sichuan Spicy Pork with Celery (Spicy Pork and Celery)  
+Sichuan Spicy Chicken with Green Onions (Spicy Chicken and Green Onions)  
+Sichuan Spicy Shrimp with Peanuts (Spicy Shrimp and Peanuts)  
+Sichuan Spicy Pork with Bell Peppers (Spicy Pork and Bell Peppers)  
+Sichuan Spicy Chicken with Eggplant (Spicy Chicken and Eggplant)  
+Sichuan Spicy Beef with Bamboo Shoots (Spicy Beef and Bamboo Shoots)  
+Sichuan Spicy Pork with Garlic Sauce (Pork in Garlic Chili Sauce)  
+Sichuan Spicy Chicken with Green Beans (Spicy Chicken and Green Beans)  
+Sichuan Spicy Shrimp with Black Bean Sauce (Shrimp in Black Bean Sauce)  
+Sichuan Spicy Pork with Mushrooms (Spicy Pork and Mushrooms)  
+Sichuan Spicy Chicken with Black Bean Sauce (Chicken in Black Bean Sauce)  
+Sichuan Spicy Eggplant with Minced Beef (Spicy Eggplant and Beef)  
+Sichuan Spicy Pork with Tofu (Spicy Pork and Tofu)  
+Sichuan Spicy Chicken with Celery (Spicy Chicken and Celery)  
+Sichuan Spicy Beef with Peppers (Spicy Beef and Peppers)  
+Sichuan Spicy Pork with Eggplant (Spicy Pork and Eggplant)  
+Sichuan Spicy Chicken with Mushrooms (Spicy Chicken and Mushrooms)  
+Sichuan Spicy Tofu with Peanuts (Spicy Tofu and Peanuts)  
+Sichuan Spicy Pork with Green Beans (Spicy Pork and Green Beans)  
+Sichuan Spicy Chicken with Bamboo Shoots (Spicy Chicken and Bamboo Shoots)  
+Sichuan Spicy Beef with Garlic Sauce (Beef in Garlic Chili Sauce)  
+Sichuan Spicy Pork with Celery (Spicy Pork and Celery)  
+Sichuan Spicy Chicken with Green Onions (Spicy Chicken and Green Onions)  
+Sichuan Spicy Shrimp with Peanuts (Spicy Shrimp and Peanuts)  
+Sichuan Spicy Pork with Bell Peppers (
+Sichuan
+
+Suan Cai Yu (Sichuan Pickled Fish)
+Mapo Doufu (Mapo Tofu)
+Kung Pao Ji Ding (Kung Pao Chicken)
+Hui Guo Rou (Twice-Cooked Pork)
+Dan Dan Mian (Dan Dan Noodles)
+Laziji (Chongqing Spicy Chicken)
+Sichuan Hot Pot
+Shui Zhu Yu (Sichuan Boiled Fish)
+Gan Bian Si Ji Dou (Dry-Fried Green Beans)
+Kou Shui Ji (Mouth-Watering Chicken)
+Fuqi Feipian (Sliced Beef and Ox Tongue in Chili Sauce)
+Zhong Shui Jiao (Zhong Dumplings)
+Yuxiang Qiezi (Fish-Fragrant Eggplant)
+Hong You Chao Shou (Red Oil Wontons)
+Suan Ni Bai Rou (Garlic Pork Belly)
+Ma Yi Shang Shu (Ants Climbing a Tree)
+Sichuan Liang Mian (Sichuan Cold Noodles)
+Chuan Chuan Xiang (Sichuan Skewers)
+Suan La Fen (Hot and Sour Noodles)
+Sichuan Stir-Fried Cabbage
+Sichuan
+
+Suan La Fen (Hot and Sour Noodles)
+
+Bang Bang Ji (Bang Bang Chicken)
+
+Huo Tui Chao La Pi (Spicy Stir-Fried Potato Strips)
+
+Lazi Ji (Chongqing Spicy Chicken)
+
+Kou Shui Ji (Mouthwatering Chicken)
+
+Fu Qi Fei Pian (Sliced Beef and Ox Tongue in Chili Sauce)
+
+Sichuan Liang Mian (Sichuan Cold Noodles)
+
+Zhong Shui Jiao (Zhong Dumplings)
+
+Dan Dan Mian (Dan Dan Noodles)
+
+Ma Yi Shang Shu (Ants Climbing a Tree)
+
+Hui Guo Rou (Twice-Cooked Pork)
+
+Gan Bian Si Ji Dou (Dry-Fried Green Beans)
+
+Suan Ni Bai Rou (Garlic Pork Belly)
+
+Chuan Chuan Xiang (Sichuan Skewers)
+
+Sichuan Liang Ban Ji (Sichuan Cold Chicken)
+
+Jiao Ma Ji (Peppery Chicken)
+
+Sichuan Pickled Vegetables
+
+Sichuan Hot Pot Appetizers
+
+Sichuan Spicy Cucumber Salad
+
+Sichuan Peppercorn Tofu
+
+Sichuan Eggplant with Garlic Sauce
+
+Sichuan Spicy Wontons
+
+Sichuan Crispy Pork Belly
+
+Sichuan Mala Chicken Wings
+
+Sichuan Spicy Beef Tendon
+
+Sichuan Spicy Lotus Root
+
+Sichuan Spicy Duck Tongue
+
+Sichuan Spicy Rabbit
+
+Sichuan Spicy Tripe
+
+Sichuan Spicy Frog Legs
+
+Sichuan Spicy Pork Ears
+
+Sichuan Spicy Chicken Feet
+
+Sichuan Spicy Fish Slices
+
+Sichuan Spicy Shrimp
+
+Sichuan Spicy Squid
+
+Sichuan Spicy Tofu Pudding
+
+Sichuan Spicy Bean Curd Rolls
+
+Sichuan Spicy Bamboo Shoots
+
+Sichuan Spicy Wood Ear Mushrooms
+
+Sichuan Spicy Seaweed Salad
+
+Sichuan Spicy Potato Salad
+
+Sichuan Spicy Eggplant Rolls
+
+Sichuan Spicy Jellyfish
+
+Sichuan Spicy Beef Skewers
+
+Sichuan Spicy Lamb Skewers
+
+Sichuan Spicy Pork Skewers
+
+Sichuan Spicy Chicken Skewers
+
+Sichuan Spicy Vegetable Skewers
+
+Sichuan Spicy Mushroom Skewers
+
+Sichuan Spicy Tofu Skewers
+
+Sichuan Spicy Fish Skewers
+
+Sichuan Spicy Shrimp Skewers
+
+Sichuan Spicy Squid Skewers
+
+Sichuan Spicy Duck Skewers
+
+Sichuan Spicy Rabbit Skewers
+
+Sichuan Spicy Tripe Skewers
+
+Sichuan Spicy Frog Leg Skewers
+
+Sichuan Spicy Pork Ear Skewers
+
+Sichuan Spicy Chicken Feet Skewers
+Sichuan
+
+Laziji (Spicy Chicken Cubes)  
+Dandan Noodles (Spicy Sichuan Noodles)  
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Sichuan Hot and Sour Noodles  
+Sichuan Cold Noodles  
+Sichuan Spicy Wontons  
+Sichuan Peppercorn Peanuts  
+Sichuan Spicy Cucumber Salad  
+Sichuan Boiled Dumplings  
+Sichuan Mala Chicken Wings  
+Sichuan Spicy Beef Jerky  
+Sichuan Spicy Eggplant  
+Sichuan Spicy Tofu Skewers  
+Sichuan Garlic Pork Belly  
+Sichuan Spicy Lamb Skewers  
+Sichuan Spicy Shrimp Skewers  
+Sichuan Spicy Lotus Root  
+Sichuan Spicy Potato Chips  
+Sichuan Spicy Popcorn  
+Sichuan Spicy Edamame  
+Sichuan Spicy Chicken Feet  
+Sichuan Spicy Duck Tongue  
+Sichuan Spicy Pig Ears  
+Sichuan Spicy Bean Curd Rolls  
+Sichuan Spicy Rice Cakes  
+Sichuan Spicy Fish Skewers  
+Sichuan Spicy Sausage Rolls  
+Sichuan Spicy Tofu Puffs  
+Sichuan Spicy Mushroom Skewers  
+Sichuan Spicy Corn on the Cob  
+Sichuan Spicy Seaweed Salad  
+Sichuan Spicy Chicken Gizzards  
+Sichuan Spicy Beef Tendons  
+Sichuan Spicy Pork Ribs  
+Sichuan Spicy Chicken Hearts  
+Sichuan Spicy Duck Blood Curd  
+Sichuan Spicy Bamboo Shoots  
+Sichuan Spicy Quail Eggs  
+Sichuan Spicy Chicken Cartilage  
+Sichuan Spicy Frog Legs  
+Sichuan Spicy Snails  
+Sichuan Spicy Tripe  
+Sichuan Spicy Fish Balls  
+Sichuan Spicy Crab Claws  
+Sichuan Spicy Octopus Skewers  
+Sichuan Spicy Tofu Skin Rolls  
+Sichuan Spicy Pork Intestines  
+Sichuan Spicy Chicken Necks  
+Sichuan Spicy Duck Necks  
+Sichuan Spicy Beef Stomach  
+Sichuan Spicy Pork Ears  
+Sichuan Spicy Chicken Skin  
+Sichuan Spicy Duck Webs  
+Sichuan Spicy Pork Knuckles  
+Sichuan Spicy Chicken Liver  
+Sichuan Spicy Duck Liver  
+Sichuan Spicy Pork Liver  
+Sichuan Spicy Fish Maw  
+Sichuan Spicy Pork Belly Skewers  
+Sichuan Spicy Chicken Thighs  
+Sichuan Spicy Duck Wings  
+Sichuan Spicy Pork Belly Rolls  
+Sichuan Spicy Chicken Drumsticks  
+Sichuan Spicy Duck Feet  
+Sichuan Spicy Pork Hock  
+Sichuan Spicy Chicken Breast  
+Sichuan Spicy Duck Breast  
+Sichuan Spicy Pork Shoulder  
+Sichuan Spicy Chicken Wings  
+Sichuan Spicy Duck Wings  
+Sichuan Spicy Pork Belly  
+Sichuan Spicy Chicken Legs  
+Sichuan Spicy Duck Legs  
+Sichuan Spicy Pork Ribs  
+Sichuan Spicy Chicken Thighs  
+Sichuan Spicy Duck Thighs  
+Sichuan Spicy Pork Belly Skewers  
+Sichuan Spicy Chicken Skewers  
+Sichuan Spicy Duck Skewers  
+Sichuan Spicy Pork Skewers  
+Sichuan Spicy Beef Skewers  
+Sichuan Spicy Lamb Skewers  
+Sichuan Spicy Fish Skewers  
+Sichuan Spicy Shrimp Skewers  
+Sichuan Spicy Squid Skewers  
+Sichuan Spicy Vegetable Skewers  
+Sichuan Spicy Tofu Skewers  
+Sichuan Spicy Mushroom Skewers  
+Sichuan Spicy Eggplant Skewers  
+Sichuan Spicy Corn Skewers  
+Sichuan Spicy Potato Skewers  
+Sichuan Spicy Lotus Root Skewers  
+Sichuan Spicy Bamboo Skewers  
+Sichuan Spicy Seaweed Skewers  
+Sichuan Spicy Bean Curd Skewers  
+Sichuan Spicy Rice Cake Skewers  
+Sichuan Spicy Noodle Skewers  
+Sichuan Spicy Dumpling Skewers  
+Sichuan Spicy Wonton Skewers  
+Sichuan Spicy Spring Roll Skewers  
+Sichuan Spicy Pancake Skewers  
+Sichuan Spicy Bread Skewers  
+Sichuan Spicy Biscuit Skewers  
+Sichuan Spicy Cookie Skewers  
+Sichuan Spicy Cake Skewers  
+Sichuan Spicy Pastry Skewers  
+Sichuan Spicy Tart Skewers  
+Sichuan Spicy Pie Skewers  
+Sichuan Spicy Pudding Skewers  
+Sichuan Spicy Jelly Skewers  
+Sichuan Spicy Custard Skewers  
+Sichuan Spicy Ice Cream Skewers  
+Sichuan Spicy Sorbet Skewers  
+Sichuan Spicy Gelato Skewers  
+Sichuan Spicy Yogurt Skewers  
+Sichuan Spicy Cheese Skewers  
+Sichuan Spicy Milk Skewers  
+Sichuan Spicy Cream Skewers  
+Sichuan Spicy Butter Skewers  
+Sichuan Spicy Margarine Skewers  
+Sichuan Spicy Lard Skewers  
+Sichuan Spicy Oil Skewers  
+Sichuan Spicy Vinegar Skewers  
+Sichuan Spicy Soy Sauce Skewers  
+Sichuan Spicy Fish Sauce Skewers  
+Sichuan Spicy Oyster Sauce Skewers  
+Sichuan Spicy Hoisin Sauce Skewers  
+Sichuan Spicy Chili Sauce Skewers  
+Sichuan Spicy Garlic Sauce Skewers  
+Sichuan Spicy Ginger Sauce Skewers  
+Sichuan Spicy Onion Sauce Skewers  
+Sichuan Spicy Pepper Sauce Skewers  
+Sichuan Spicy Salt Skewers  
+Sichuan Spicy Sugar Skewers  
+Sichuan Spicy Honey Skewers  
+Sichuan Spicy Syrup Skewers  
+Sichuan Spicy Molasses Skewers  
+Sichuan Spicy Maple Syrup Skewers  
+Sichuan Spicy Agave Syrup Skewers  
+Sichuan Spicy Corn Syrup Skewers  
+Sichuan Spicy Rice Syrup Skewers  
+Sichuan Spicy Barley Syrup Skewers  
+Sichuan Spicy Wheat Syrup Skewers  
+Sichuan Spicy Oat Syrup Skewers  
+Sichuan Spicy Rye Syrup Skewers  
+Sichuan Spicy Quinoa Syrup Skewers  
+Sichuan Spicy Amaranth Syrup Skewers  
+Sichuan Spicy Buckwheat Syrup Skewers  
+Sichuan Spicy Millet Syrup Skewers  
+Sichuan Spicy Sorghum Syrup Skewers  
+Sichuan Spicy Teff Syrup Skewers  
+Sichuan Spicy Chia Syrup Skewers  
+Sichuan Spicy Flax Syrup Skewers  
+Sichuan Spicy Hemp Syrup Skewers  
+Sichuan Spicy Sunflower Syrup Skewers  
+Sichuan Spicy Pumpkin Syrup Skewers  
+Sichuan Spicy Sesame Syrup Skewers  
+Sichuan Spicy Poppy Syrup Skewers  
+Sichuan Spicy Mustard Syrup Skewers  
+Sichuan Spicy Caraway Syrup Skewers  
+Sichuan Spicy Fennel Syrup Skewers  
+Sichuan Spicy Anise Syrup Skewers  
+Sichuan Spicy Cumin Syrup Skewers  
+Sichuan Spicy Coriander Syrup Skewers  
+Sichuan Spicy Cardamom Syrup Skewers  
+Sichuan Spicy Clove Syrup Skewers  
+Sichuan Spicy Cinnamon Syrup Skewers  
+Sichuan Spicy Nutmeg Syrup Skewers  
+Sichuan Spicy Mace Syrup Skewers  
+Sichuan Spicy Allspice Syrup Skewers  
+Sichuan Spicy Bay Leaf Syrup Skewers  
+Sichuan Spicy Basil Syrup Skewers  
+Sichuan Spicy Oregano Syrup Skewers  
+Sichuan Spicy Thyme Syrup Skewers  
+Sichuan Spicy Rosemary Syrup Skewers  
+Sichuan Spicy Sage Syrup Skewers  
+Sichuan Spicy Tarragon Syrup Skewers  
+Sichuan Spicy Marjoram Syrup Skewers  
+Sichuan Spicy Dill Syrup Skewers  
+Sichuan Spicy Parsley Syrup Skewers  
+Sichuan Spicy Cilantro Syrup Skewers  
+Sichuan Spicy Mint Syrup Skewers  
+Sichuan Spicy Lemon Balm Syrup Skewers  
+Sichuan Spicy Lemongrass Syrup Skewers  
+Sichuan Spicy Kaffir Lime Syrup Skewers  
+Sichuan Spicy Galangal Syrup Skewers  
+Sichuan Spicy Turmeric Syrup Skewers  
+Sichuan Spicy Saffron Syrup Skewers  
+Sichuan Spicy
+Sichuan
+
+Zhong Shui Jiao (Zhong Dumplings)  
+Suan La Shui Jiao (Hot and Sour Dumplings)  
+Hong You Chao Shou (Red Oil Wontons)  
+Sichuan Spicy Dumplings  
+Dan Dan Dumplings  
+Chao Shou (Sichuan Wontons)  
+Sichuan Pork Dumplings  
+Spicy Sichuan Dumplings  
+Sichuan Chicken Dumplings  
+Sichuan Beef Dumplings  
+Sichuan Lamb Dumplings  
+Sichuan Shrimp Dumplings  
+Sichuan Vegetable Dumplings  
+Sichuan Tofu Dumplings  
+Sichuan Mushroom Dumplings
+Sichuan
+
+Sichuan Peppercorn Oil (Sichuan Pepper Oil)  
+Doubanjiang (Fermented Broad Bean Paste)  
+Laziji Sauce (Spicy Chicken Sauce)  
+Mala Sauce (Numbing and Spicy Sauce)  
+Yu Xiang Sauce (Fish Fragrant Sauce)  
+Hoisin Sauce (Sweet Bean Sauce)  
+Chili Oil (Sichuan Chili Oil)  
+Zajiang Sauce (Fried Sauce)  
+Suanla Jiang (Garlic and Vinegar Sauce)  
+Mapo Tofu Sauce (Spicy Tofu Sauce)  
+Dan Dan Noodle Sauce (Spicy Sesame Sauce)  
+Gong Bao Sauce (Kung Pao Sauce)  
+Sichuan Hot Pot Broth (Spicy Hot Pot Broth)  
+Sichuan Black Bean Sauce (Fermented Black Bean Sauce)  
+Red Oil Wontons Sauce (Spicy Wonton Sauce)  
+Sichuan Vinegar Dip (Spicy Vinegar Dip)  
+Sichuan Garlic Sauce (Garlic and Chili Sauce)  
+Sweet and Sour Sauce (Tang Cu Jiang)  
+Sichuan Soy Sauce Dip (Spicy Soy Sauce Dip)  
+Sichuan Mustard Sauce (Spicy Mustard Sauce)
+Sichuan
+
+Suan Ni Bai Rou (Garlic White Pork Dressing)
+Laziji Marinade (Spicy Chicken Marinade)
+Sichuan Peppercorn Vinaigrette
+Yu Xiang Sauce (Fish Fragrant Sauce)
+Mala Dressing (Numbing and Spicy Dressing)
+Doubanjiang Marinade (Fermented Broad Bean Paste Marinade)
+Chuan Wei Sauce (Sichuan Flavor Sauce)
+Hua Jiao Oil Dressing (Sichuan Pepper Oil Dressing)
+Sichuan Chili Oil Marinade
+Ziran Marinade (Cumin Marinade)
+Suan La Tang Dressing (Hot and Sour Soup Dressing)
+Gan Bian Sauce (Dry-Fried Sauce)
+Hui Guo Rou Marinade (Twice-Cooked Pork Marinade)
+Sichuan Sesame Dressing
+Chongqing Mala Sauce (Chongqing Numbing and Spicy Sauce)
+Sichuan Black Bean Marinade
+Yuxiang Marinade (Fish Fragrant Marinade)
+Sichuan Hot Pot Base Marinade
+Sichuan Sweet and Sour Dressing
+Sichuan Garlic Sauce Marinade
+Sichuan
+
+Sichuan Peppercorn Rub  
+Mala Spice Blend (Numbing and Spicy Spice Blend)  
+Five-Spice Powder (Sichuan Five-Spice Powder)  
+Chongqing Mala Rub  
+Sichuan Chili Oil Spice Mix  
+Pixian Doubanjiang Spice Blend (Pixian Fermented Broad Bean Paste Spice Blend)  
+Sichuan Dry Pot Spice Mix  
+Laziji Spice Blend (Spicy Chicken Spice Blend)  
+Sichuan Hot Pot Spice Base  
+Dan Dan Noodle Spice Mix  
+Sichuan BBQ Spice Rub  
+Sichuan Cumin Lamb Spice Blend  
+Sichuan Garlic Chili Rub  
+Sichuan Sweet and Spicy Rub  
+Sichuan Black Bean Sauce Spice Mix
+Sichuan
+
+Laziji (Chongqing Spicy Chicken)  
+Gan Bian Si Ji Dou (Dry-Fried Green Beans)  
+Zha Cai Rou Si (Shredded Pork with Pickled Mustard Greens)  
+Yu Xiang Qie Zi (Fish-Fragrant Eggplant)  
+Suan La Fen (Hot and Sour Sweet Potato Noodles)  
+Zha Tang Yuan (Deep-Fried Glutinous Rice Balls)  
+Zha Rou (Deep-Fried Pork)  
+Zha Niu Rou (Deep-Fried Beef)  
+Zha Yu Pian (Deep-Fried Fish Slices)  
+Zha Dou Fu (Deep-Fried Tofu)  
+Zha Xia (Deep-Fried Shrimp)  
+Zha Ji Si (Deep-Fried Chicken Strips)  
+Zha Liang Fen (Deep-Fried Bean Jelly)  
+Zha Tu Dou Pian (Deep-Fried Potato Slices)  
+Zha Nian Gao (Deep-Fried Rice Cake)  
+Zha Bao Zi (Deep-Fried Dumplings)  
+Zha Rou Wan (Deep-Fried Meatballs)  
+Zha La Jiao (Deep-Fried Chili Peppers)  
+Zha Xiang Gu (Deep-Fried Mushrooms)  
+Zha Yu Wan (Deep-Fried Fish Balls)  
+Zha Ji Chi (Deep-Fried Chicken Wings)  
+Zha Suan Miao (Deep-Fried Garlic Sprouts)  
+Zha Dou Fu Gan (Deep-Fried Tofu Skin)  
+Zha Xi Hong Shi (Deep-Fried Tomatoes)  
+Zha Yu Tou (Deep-Fried Fish Head)  
+Zha Niu Rou Gan (Deep-Fried Beef Jerky)  
+Zha Ya (Deep-Fried Duck)  
+Zha Ji Dan (Deep-Fried Eggs)
+Sichuan
+
+Suan Cai Yu (Steamed Fish with Pickled Mustard Greens)  
+Dou Hua (Steamed Tofu Pudding)  
+Zheng Rou Wan (Steamed Pork Balls)  
+Zheng Ji (Steamed Chicken)  
+Zheng Pai Gu (Steamed Pork Ribs)  
+Zheng Niu Rou (Steamed Beef)  
+Zheng Dan Gao (Steamed Egg Cake)  
+Zheng Bao Zi (Steamed Buns)  
+Zheng Yu (Steamed Fish)  
+Zheng Xie (Steamed Crab)  
+Zheng Xia (Steamed Shrimp)  
+Zheng Dou Fu (Steamed Tofu)  
+Zheng Ji Rou (Steamed Chicken with Chili Sauce)  
+Zheng La Rou (Steamed Spicy Pork)  
+Zheng Cai (Steamed Vegetables)  
+Zheng Nian Gao (Steamed Rice Cake)  
+Zheng Hong Shao Rou (Steamed Red Braised Pork)  
+Zheng Yu Tou (Steamed Fish Head)  
+Zheng Ya (Steamed Duck)  
+Zheng Rou Si (Steamed Shredded Pork)  
+Zheng Liang Fen (Steamed Cold Noodles)  
+Zheng Dou Fu Nao (Steamed Tofu Brain)  
+Zheng Bai Cai (Steamed Cabbage)  
+Zheng Dou Jiao (Steamed Green Beans)  
+Zheng Yu Pian (Steamed Fish Slices)  
+Zheng Ji Dan (Steamed Eggs)  
+Zheng Rou Mo (Steamed Minced Pork)  
+Zheng Yu Wan (Steamed Fish Balls)  
+Zheng Niu Pai (Steamed Beef Ribs)  
+Zheng Ji Chi (Steamed Chicken Wings)  
+Zheng Dou Fu Gan (Steamed Tofu Sheets)  
+Zheng La Wei Ji (Steamed Spicy Chicken)  
+Zheng Xiang Gu (Steamed Mushrooms)  
+Zheng Yu Gen (Steamed Fish Root)  
+Zheng Bai Yu (Steamed White Fish)  
+Zheng Ya Tou (Steamed Duck Head)  
+Zheng Niu Gan (Steamed Beef Liver)  
+Zheng La Rou Pian (Steamed Spicy Pork Slices)  
+Zheng Dou Fu Hua (Steamed Tofu Flower)  
+Zheng Yu Rou (Steamed Fish Meat)  
+Zheng Ji Rou Wan (Steamed Chicken Balls)  
+Zheng Niu Rou Pian (Steamed Beef Slices)  
+Zheng Dou Fu Rou (Steamed Tofu with Meat)  
+Zheng Yu Chi (Steamed Fish Wings)  
+Zheng La Ji (Steamed Spicy Chicken)  
+Zheng Cai Xin (Steamed Choy Sum)  
+Zheng Yu Gu (Steamed Fish Bone)  
+Zheng Ji Rou Pian (Steamed Chicken Slices)  
+Zheng Niu Rou Mo (Steamed Minced Beef)  
+Zheng Dou Fu Pi (Steamed Tofu Skin)  
+Zheng Yu Rou Wan (Steamed Fish Meatballs)  
+Zheng Niu Rou Gan (Steamed Beef Jerky)  
+Zheng La Rou Mo (Steamed Spicy Minced Pork)  
+Zheng Dou Fu Rou Pian (Steamed Tofu with Pork Slices)  
+Zheng Yu Pian Rou (Steamed Fish and Meat Slices)  
+Zheng Ji Rou Gen (Steamed Chicken Root)  
+Zheng Niu Rou Hua (Steamed Beef Flower)  
+Zheng Dou Fu Rou Mo (Steamed Tofu with Minced Meat)  
+Zheng Yu Rou Pian (Steamed Fish Meat Slices)  
+Zheng La Ji Rou (Steamed Spicy Chicken Meat)  
+Zheng Cai Hua (Steamed Cauliflower)  
+Zheng Yu Rou Gen (Steamed Fish Meat Root)  
+Zheng Ji Rou Hua (Steamed Chicken Flower)  
+Zheng Niu Rou Pian Rou (Steamed Beef and Meat Slices)  
+Zheng Dou Fu Rou Gen (Steamed Tofu with Meat Root)  
+Zheng Yu Rou Hua (Steamed Fish Meat Flower)  
+Zheng La Ji Rou Pian (Steamed Spicy Chicken Slices)  
+Zheng Cai Rou (Steamed Vegetable Meat)  
+Zheng Yu Rou Pian Rou (Steamed Fish and Meat Slices)  
+Zheng Ji Rou Rou (Steamed Chicken Meat)  
+Zheng Niu Rou Rou Pian (Steamed Beef Meat Slices)  
+Zheng Dou Fu Rou Hua (Steamed Tofu with Meat Flower)  
+Zheng Yu Rou Rou (Steamed Fish Meat)  
+Zheng La Ji Rou Gen (Steamed Spicy Chicken Root)  
+Zheng Cai Rou Pian (Steamed Vegetable Meat Slices)  
+Zheng Yu Rou Rou Pian (Steamed Fish Meat Slices)  
+Zheng Ji Rou Rou Gen (Steamed Chicken Meat Root)  
+Zheng Niu Rou Rou Hua (Steamed Beef Meat Flower)  
+Zheng Dou Fu Rou Rou (Steamed Tofu with Meat)  
+Zheng Yu Rou Rou Gen (Steamed Fish Meat Root)  
+Zheng La Ji Rou Hua (Steamed Spicy Chicken Flower)  
+Zheng Cai Rou Hua (Steamed Vegetable Meat Flower)  
+Zheng Yu Rou Rou Hua (Steamed Fish Meat Flower)  
+Zheng Ji Rou Rou Hua (Steamed Chicken Meat Flower)  
+Zheng Niu Rou Rou Rou (Steamed Beef Meat)  
+Zheng Dou Fu Rou Rou Pian (Steamed Tofu with Meat Slices)  
+Zheng Yu Rou Rou Rou (Steamed Fish Meat)  
+Zheng La Ji Rou Rou (Steamed Spicy Chicken Meat)  
+Zheng Cai Rou Rou (Steamed Vegetable Meat)  
+Zheng Yu Rou Rou Rou Pian (Steamed Fish Meat Slices)  
+Zheng Ji Rou Rou Rou Pian (Steamed Chicken Meat Slices)  
+Zheng Niu Rou Rou Rou Gen (Steamed Beef Meat Root)  
+Zheng Dou Fu Rou Rou Hua (Steamed Tofu with Meat Flower)  
+Zheng Yu Rou Rou Rou Gen (Steamed Fish Meat Root)  
+Zheng La Ji Rou Rou Pian (Steamed Spicy Chicken Meat Slices)  
+Zheng Cai Rou Rou Pian (Steamed Vegetable Meat Slices)  
+Zheng Yu Rou Rou Rou Hua (Steamed Fish Meat Flower)  
+Zheng Ji Rou Rou Rou Hua (Steamed Chicken Meat Flower)  
+Zheng Niu Rou Rou Rou Hua (Steamed Beef Meat Flower)  
+Zheng Dou Fu Rou Rou Rou (Steamed Tofu with Meat)  
+Zheng Yu Rou Rou Rou Rou (Steamed Fish Meat)  
+Zheng La Ji Rou Rou Gen (Steamed Spicy Chicken Meat Root)  
+Zheng Cai Rou Rou Hua (Steamed Vegetable Meat Flower)  
+Zheng Yu Rou Rou Rou Rou Pian (Steamed Fish Meat Slices)  
+Zheng Ji Rou Rou Rou Rou Pian (Steamed Chicken Meat Slices)  
+Zheng Niu Rou Rou Rou Rou (Steamed Beef Meat)  
+Zheng Dou Fu Rou Rou Rou Pian (Steamed Tofu with Meat Slices)  
+Zheng Yu Rou Rou Rou Rou Gen (Steamed Fish Meat Root)  
+Zheng La Ji Rou Rou Hua (Steamed Spicy Chicken Meat Flower)  
+Zheng Cai Rou Rou Rou (Steamed Vegetable Meat)  
+Zheng Yu Rou Rou Rou Rou Hua (Steamed Fish Meat Flower)  
+Zheng Ji Rou Rou Rou Rou Hua (Steamed Chicken Meat Flower)  
+Zheng Niu Rou Rou Rou Rou Pian (Steamed Beef Meat Slices)  
+Zheng Dou Fu Rou Rou Rou Hua (Steamed Tofu with Meat Flower)  
+Zheng Yu Rou Rou Rou Rou Rou (Steamed Fish Meat)  
+Zheng La Ji Rou Rou Rou (Steamed Spicy Chicken Meat)  
+Zheng Cai Rou Rou Rou Pian (Steamed Vegetable Meat Slices)  
+Zheng Yu Rou Rou Rou Rou Rou Pian (Steamed Fish Meat Slices)  
+Zheng Ji Rou Rou Rou Rou Rou (Steamed Chicken Meat)  
+Zheng Niu Rou Rou Rou Rou Rou (Steamed Beef Meat)  
+Zheng Dou Fu Rou Rou Rou Rou (Steamed Tofu with Meat)  
+Zheng Yu Rou Rou Rou Rou Rou Gen (Steamed Fish Meat Root)  
+Zheng La Ji Rou Rou Rou Pian (Steamed Spicy Chicken Meat Slices)  
+Zheng Cai Rou Rou Rou Hua (Steamed Vegetable Meat Flower)  
+Zheng Yu Rou Rou Rou Rou Rou Hua (Steamed Fish Meat Flower)  
+Zheng Ji Rou Rou Rou Rou Rou Hua (Steamed Chicken Meat Flower)  
+Zheng Niu Rou Rou Rou Rou Rou Pian (Steamed Beef Meat Slices)  
+Zheng Dou Fu Rou Rou Rou Rou Pian (Steamed Tofu with Meat Slices)  
+Zheng Yu Rou Rou Rou Rou Rou Rou (Steamed Fish Meat)  
+Zheng La Ji Rou Rou Rou Hua (Steamed Spicy Chicken Meat Flower)  
+Zheng Cai Rou Rou Rou Rou (Steamed Vegetable Meat)  
+Zheng Yu Rou Rou Rou Rou Rou Rou Pian (Steamed Fish Meat Slices)  
+Zheng Ji Rou Rou Rou Rou Rou Rou (Steamed Chicken Meat)  
+Zheng Niu Rou Rou Rou Rou Rou Rou (Steamed Beef Meat)  
+Zheng Dou Fu Rou Rou Rou Rou Hua (Steamed Tofu with Meat Flower)  
+Zheng Yu Rou Rou Rou Rou Rou Rou Gen (Steamed Fish Meat Root)  
+Zheng La Ji Rou Rou Rou Rou (Steamed Spicy Chicken Meat)  
+Zheng Cai Rou Rou Rou Rou Pian (Steamed Vegetable Meat Slices)  
+Zheng Yu Rou Rou Rou Rou Rou Rou Hua (Steamed Fish Meat Flower)  
+Zheng Ji Rou Rou Rou Rou Rou Rou Hua (Steamed Chicken Meat Flower)  
+Z
+Sichuan
+
+Hong Shao Rou (Red Braised Pork Belly)  
+Sichuan Braised Beef with Daikon  
+Braised Fish with Sichuan Peppercorns  
+Sichuan Braised Eggplant  
+Braised Chicken with Chestnuts  
+Sichuan Braised Tofu  
+Braised Duck with Beer  
+Braised Pork Ribs with Lotus Root  
+Braised Spicy Chicken Wings  
+Braised Beef with Bamboo Shoots  
+Braised Pork with Pickled Mustard Greens  
+Braised Lamb with Cumin  
+Braised Pork Intestines with Chili  
+Braised Beef Tendon with Peanuts  
+Braised Pork Knuckles with Soy Sauce  
+Braised Fish Head with Tofu  
+Braised Chicken Feet with Black Bean Sauce  
+Braised Pork with Garlic Shoots  
+Braised Eel with Ginger and Scallions  
+Braised Bean Curd with Mushrooms
+Sichuan
+
+Suan Cai Yu Tang (Sour Cabbage Fish Soup)  
+La Zi Ji Tang (Spicy Chicken Broth)  
+Mala Tang (Spicy Numbing Hot Pot Broth)  
+Dou Hua Tang (Tofu Pudding Soup)  
+Sichuan Hot and Sour Soup  
+Huang Men Ji Tang (Braised Chicken Soup)  
+Sichuan Beef Broth  
+Sichuan Pork Bone Broth  
+Sichuan Vegetable Broth  
+Sichuan Mushroom Broth  
+Sichuan Chicken Stock  
+Sichuan Duck Broth  
+Sichuan Lamb Broth  
+Sichuan Fish Broth  
+Sichuan Shrimp Broth  
+Sichuan Crab Broth  
+Sichuan Tomato Egg Drop Soup  
+Sichuan Pickled Vegetable Broth  
+Sichuan Herbal Broth  
+Sichuan Clear Broth  
+Sichuan Spicy Broth  
+Sichuan Sweet and Sour Broth  
+Sichuan Garlic Broth  
+Sichuan Ginger Broth  
+Sichuan Scallion Broth  
+Sichuan Pepper Broth  
+Sichuan Star Anise Broth  
+Sichuan Clove Broth  
+Sichuan Cinnamon Broth  
+Sichuan Bay Leaf Broth  
+Sichuan Cardamom Broth  
+Sichuan Fennel Broth  
+Sichuan Cumin Broth  
+Sichuan Coriander Broth  
+Sichuan Turmeric Broth  
+Sichuan Lemongrass Broth  
+Sichuan Lime Broth  
+Sichuan Mint Broth  
+Sichuan Basil Broth  
+Sichuan Cilantro Broth  
+Sichuan Parsley Broth  
+Sichuan Chive Broth  
+Sichuan Dill Broth  
+Sichuan Thyme Broth  
+Sichuan Rosemary Broth  
+Sichuan Sage Broth  
+Sichuan Oregano Broth  
+Sichuan Tarragon Broth  
+Sichuan Marjoram Broth  
+Sichuan Bay Broth  
+Sichuan Mustard Broth  
+Sichuan Horseradish Broth  
+Sichuan Wasabi Broth  
+Sichuan Miso Broth  
+Sichuan Soy Broth  
+Sichuan Vinegar Broth  
+Sichuan Sesame Broth  
+Sichuan Peanut Broth  
+Sichuan Almond Broth  
+Sichuan Cashew Broth  
+Sichuan Walnut Broth  
+Sichuan Hazelnut Broth  
+Sichuan Pecan Broth  
+Sichuan Pistachio Broth  
+Sichuan Macadamia Broth  
+Sichuan Chestnut Broth  
+Sichuan Pine Nut Broth  
+Sichuan Coconut Broth  
+Sichuan Olive Broth  
+Sichuan Avocado Broth  
+Sichuan Sunflower Broth  
+Sichuan Pumpkin Broth  
+Sichuan Squash Broth  
+Sichuan Zucchini Broth  
+Sichuan Cucumber Broth  
+Sichuan Carrot Broth  
+Sichuan Beet Broth  
+Sichuan Radish Broth  
+Sichuan Turnip Broth  
+Sichuan Parsnip Broth  
+Sichuan Celery Broth  
+Sichuan Leek Broth  
+Sichuan Onion Broth  
+Sichuan Shallot Broth  
+Sichuan Garlic Chive Broth  
+Sichuan Bamboo Shoot Broth  
+Sichuan Lotus Root Broth  
+Sichuan Water Chestnut Broth  
+Sichuan Taro Broth  
+Sichuan Yam Broth  
+Sichuan Sweet Potato Broth  
+Sichuan Potato Broth  
+Sichuan Corn Broth  
+Sichuan Pea Broth  
+Sichuan Bean Broth  
+Sichuan Lentil Broth  
+Sichuan Chickpea Broth  
+Sichuan Black Bean Broth  
+Sichuan Red Bean Broth  
+Sichuan Green Bean Broth  
+Sichuan Soybean Broth  
+Sichuan Edamame Broth  
+Sichuan Tofu Broth  
+Sichuan Tempeh Broth  
+Sichuan Seitan Broth  
+Sichuan Wheat Broth  
+Sichuan Barley Broth  
+Sichuan Oat Broth  
+Sichuan Rice Broth  
+Sichuan Quinoa Broth  
+Sichuan Millet Broth  
+Sichuan Sorghum Broth  
+Sichuan Rye Broth  
+Sichuan Spelt Broth  
+Sichuan Buckwheat Broth  
+Sichuan Amaranth Broth  
+Sichuan Chia Broth  
+Sichuan Flaxseed Broth  
+Sichuan Hemp Broth  
+Sichuan Sesame Seed Broth  
+Sichuan Poppy Seed Broth  
+Sichuan Sunflower Seed Broth  
+Sichuan Pumpkin Seed Broth  
+Sichuan Watermelon Seed Broth  
+Sichuan Cantaloupe Seed Broth  
+Sichuan Honeydew Seed Broth  
+Sichuan Papaya Seed Broth  
+Sichuan Passion Fruit Seed Broth  
+Sichuan Dragon Fruit Seed Broth  
+Sichuan Kiwi Seed Broth  
+Sichuan Strawberry Seed Broth  
+Sichuan Raspberry Seed Broth  
+Sichuan Blueberry Seed Broth  
+Sichuan Blackberry Seed Broth  
+Sichuan Cranberry Seed Broth  
+Sichuan Gooseberry Seed Broth  
+Sichuan Currant Seed Broth  
+Sichuan Elderberry Seed Broth  
+Sichuan Mulberry Seed Broth  
+Sichuan Boysenberry Seed Broth  
+Sichuan Huckleberry Seed Broth  
+Sichuan Lingonberry Seed Broth  
+Sichuan Acai Berry Seed Broth  
+Sichuan Goji Berry Seed Broth  
+Sichuan Sea Buckthorn Seed Broth  
+Sichuan Aronia Berry Seed Broth  
+Sichuan Maqui Berry Seed Broth  
+Sichuan Camu Camu Seed Broth  
+Sichuan Acerola Cherry Seed Broth  
+Sichuan Jabuticaba Seed Broth  
+Sichuan Miracle Berry Seed Broth  
+Sichuan Yumberry Seed Broth  
+Sichuan Cloudberry Seed Broth  
+Sichuan Salal Berry Seed Broth  
+Sichuan Saskatoon Berry Seed Broth  
+Sichuan Serviceberry Seed Broth  
+Sichuan Thimbleberry Seed Broth  
+Sichuan Wineberry Seed Broth  
+Sichuan Dewberry Seed Broth  
+Sichuan Marionberry Seed Broth  
+Sichuan Olallieberry Seed Broth  
+Sichuan Loganberry Seed Broth  
+Sichuan Tayberry Seed Broth  
+Sichuan Youngberry Seed Broth  
+Sichuan Sunberry Seed Broth  
+Sichuan Wonderberry Seed Broth  
+Sichuan Buffalo Berry Seed Broth  
+Sichuan Silverberry Seed Broth  
+Sichuan Autumn Olive Seed Broth  
+Sichuan Goumi Berry Seed Broth  
+Sichuan Nannyberry Seed Broth  
+Sichuan Viburnum Berry Seed Broth  
+Sichuan Highbush Cranberry Seed Broth  
+Sichuan Lowbush Cranberry Seed Broth  
+Sichuan Bog Cranberry Seed Broth  
+Sichuan Lingonberry Seed Broth  
+Sichuan Partridgeberry Seed Broth  
+Sichuan Crowberry Seed Broth  
+Sichuan Bearberry Seed Broth  
+Sichuan Kinnikinnick Seed Broth  
+Sichuan Manzanita Berry Seed Broth  
+Sichuan Madrone Berry Seed Broth  
+Sichuan Toyon Berry Seed Broth  
+Sichuan Chokeberry Seed Broth  
+Sichuan Chokecherry Seed Broth  
+Sichuan Pin Cherry Seed Broth  
+Sichuan Sand Cherry Seed Broth  
+Sichuan Black Cherry Seed Broth  
+Sichuan Wild Cherry Seed Broth  
+Sichuan Bird Cherry Seed Broth  
+Sichuan Bitter Cherry Seed Broth  
+Sichuan Sweet Cherry Seed Broth  
+Sichuan Sour Cherry Seed Broth  
+Sichuan Morello Cherry Seed Broth  
+Sichuan Amarelle Cherry Seed Broth  
+Sichuan Duke Cherry Seed Broth  
+Sichuan Ground Cherry Seed Broth  
+Sichuan Cape Gooseberry Seed Broth  
+Sichuan Goldenberry Seed Broth  
+Sichuan Inca Berry Seed Broth  
+Sichuan Poha Berry Seed Broth  
+Sichuan Husk Cherry Seed Broth  
+Sichuan Tomatillo Seed Broth  
+Sichuan Mexican Husk Tomato Seed Broth  
+Sichuan Purple Tomatillo Seed Broth  
+Sichuan Green Tomatillo Seed Broth  
+Sichuan Yellow Tomatillo Seed Broth  
+Sichuan Red Tomatillo Seed Broth  
+Sichuan Orange Tomatillo Seed Broth  
+Sichuan Pink Tomatillo Seed Broth  
+Sichuan White Tomatillo Seed Broth  
+Sichuan Black Tomatillo Seed Broth  
+Sichuan Blue Tomatillo Seed Broth  
+Sichuan Brown Tomatillo Seed Broth  
+Sichuan Gray Tomatillo Seed Broth  
+Sichuan Silver Tomatillo Seed Broth  
+Sichuan Gold Tomatillo Seed Broth  
+Sichuan Bronze Tomatillo Seed Broth  
+Sichuan Copper Tomatillo Seed Broth  
+Sichuan Brass Tomatillo Seed Broth  
+Sichuan Steel Tomatillo Seed Broth  
+Sichuan Iron Tomatillo Seed Broth  
+Sichuan Nickel Tomatillo Seed Broth  
+Sichuan Zinc Tomatillo Seed Broth  
+Sichuan Tin Tomatillo
+Sichuan
+
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)  
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Sichuan Hot Pot (Spicy Broth Hot Pot)  
+Dan Dan Noodles (Spicy Sichuan Noodles)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Chongqing Spicy Chicken (La Zi Ji)  
+Sichuan Spicy Wontons (Hong You Chao Shou)  
+Sichuan Peppercorn Beef (Mala Beef)  
+Sichuan Eggplant (Yu Xiang Qie Zi)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Spicy Cabbage (Suan La Bai Cai)  
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)  
+Sichuan Spicy Shrimp (Mala Xia)  
+Sichuan Tea-Smoked Duck (Zhangcha Duck)  
+Sichuan Pickled Vegetables (Pao Cai)  
+Sichuan Spicy Tofu Pudding (Douhua)  
+Sichuan Braised Beef (Hong Shao Niu Rou)  
+Sichuan Fish-Fragrant Pork (Yu Xiang Rou Si)  
+Sichuan Mala Chicken Wings (Mala Ji Chi Bang)  
+Sichuan Spicy Lamb Skewers (Yang Rou Chuan)  
+Sichuan Spicy Bean Curd (Mala Dou Fu)  
+Sichuan Spicy Pork Ribs (Mala Pai Gu)  
+Sichuan Spicy Cucumber Salad (Liang Ban Huang Gua)  
+Sichuan Spicy Potato (Mala Tu Dou Si)  
+Sichuan Spicy Tofu Skin (Mala Dou Fu Pi)  
+Sichuan Spicy Beef Noodles (Mala Niu Rou Mian)  
+Sichuan Spicy Chicken Feet (Mala Ji Jiao)  
+Sichuan Spicy Lotus Root (Mala Ou Pian)  
+Sichuan Spicy Duck Blood (Mala Ya Xue)
+Sichuan
+
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Kung Pao Chicken (Spicy Stir-fried Chicken with Peanuts)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Sichuan Hot Pot (Spicy Hot Pot)  
+Dan Dan Noodles (Spicy Sichuan Noodles)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Spicy Wontons (Chao Shou)  
+Sichuan Eggplant (Yu Xiang Qie Zi)  
+Sichuan Pepper Chicken (La Zi Ji)  
+Sichuan Beef with Cumin (Zi Ran Niu Rou)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Spicy Tofu Pudding (Douhua)  
+Sichuan Pickled Vegetables (Pao Cai)  
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)  
+Sichuan Bang Bang Chicken (Bang Bang Ji)  
+Sichuan Spicy Rabbit (Mala Tuzi)  
+Sichuan Water-Boiled Beef (Shui Zhu Niu Rou)  
+Sichuan Spicy and Sour Soup (Suan La Tang)  
+Sichuan Red Oil Dumplings (Hong You Chao Shou)  
+Sichuan Peppercorn Chicken (Hua Jiao Ji)  
+Sichuan Crispy Duck (Xiang Su Ya)  
+Sichuan Mala Chicken (Mala Ji)  
+Sichuan Spicy Tofu (Mala Doufu)  
+Sichuan Tea-Smoked Duck (Zhangcha Ya)  
+Sichuan Spicy Cabbage (Mala Bai Cai)  
+Sichuan Spicy Shrimp (Mala Xia)  
+Sichuan Spicy Pork Slices (Mala Rou Pian)  
+Sichuan Spicy Beef Noodles (Mala Niu Rou Mian)  
+Sichuan Spicy Chicken Feet (Mala Ji Jiao)  
+Sichuan Spicy Lamb Skewers (Mala Yang Rou Chuan)  
+Sichuan Spicy Fish Head (Mala Yu Tou)  
+Sichuan Spicy Tofu Skin (Mala Dou Fu Pi)  
+Sichuan Spicy Pork Belly (Mala Wu Hua Rou)  
+Sichuan Spicy Lotus Root (Mala Ou Pian)  
+Sichuan Spicy Potato (Mala Tu Dou)  
+Sichuan Spicy Eggplant (Mala Qie Zi)  
+Sichuan Spicy Chicken Wings (Mala Ji Chi)  
+Sichuan Spicy Beef Tripe (Mala Niu Bai Ye)  
+Sichuan Spicy Pork Intestines (Mala Da Chang)  
+Sichuan Spicy Frog (Mala Tian Ji)  
+Sichuan Spicy Crab (Mala Xie)  
+Sichuan Spicy Tofu Noodles (Mala Dou Fu Mian)  
+Sichuan Spicy Pork Ribs (Mala Pai Gu)  
+Sichuan Spicy Bean Curd (Mala Dou Fu Gan)  
+Sichuan Spicy Pork Knuckles (Mala Zhu Jiao)  
+Sichuan Spicy Chicken Gizzards (Mala Ji Zhen)  
+Sichuan Spicy Tofu Soup (Mala Dou Fu Tang)  
+Sichuan Spicy Pork Liver (Mala Zhu Gan)  
+Sichuan Spicy Beef Tendon (Mala Niu Jin)  
+Sichuan Spicy Pork Blood (Mala Zhu Xue)  
+Sichuan Spicy Duck Blood (Mala Ya Xue)  
+Sichuan Spicy Fish Fillet (Mala Yu Pian)  
+Sichuan Spicy Pork Stomach (Mala Zhu Du)  
+Sichuan Spicy Chicken Soup (Mala Ji Tang)  
+Sichuan Spicy Pork Soup (Mala Rou Tang)  
+Sichuan Spicy Beef Soup (Mala Niu Rou Tang)  
+Sichuan Spicy Lamb Soup (Mala Yang Rou Tang)  
+Sichuan Spicy Duck Soup (Mala Ya Tang)  
+Sichuan Spicy Fish Soup (Mala Yu Tang)  
+Sichuan Spicy Shrimp Soup (Mala Xia Tang)  
+Sichuan Spicy Crab Soup (Mala Xie Tang)  
+Sichuan Spicy Vegetable Soup (Mala Shu Cai Tang)  
+Sichuan Spicy Mushroom Soup (Mala Mo Gu Tang)  
+Sichuan Spicy Tofu and Vegetable Soup (Mala Dou Fu Shu Cai Tang)  
+Sichuan Spicy Chicken and Vegetable Soup (Mala Ji Shu Cai Tang)  
+Sichuan Spicy Pork and Vegetable Soup (Mala Rou Shu Cai Tang)  
+Sichuan Spicy Beef and Vegetable Soup (Mala Niu Rou Shu Cai Tang)  
+Sichuan Spicy Lamb and Vegetable Soup (Mala Yang Rou Shu Cai Tang)  
+Sichuan Spicy Duck and Vegetable Soup (Mala Ya Shu Cai Tang)  
+Sichuan Spicy Fish and Vegetable Soup (Mala Yu Shu Cai Tang)  
+Sichuan Spicy Shrimp and Vegetable Soup (Mala Xia Shu Cai Tang)  
+Sichuan Spicy Crab and Vegetable Soup (Mala Xie Shu Cai Tang)  
+Sichuan Spicy Tofu and Mushroom Soup (Mala Dou Fu Mo Gu Tang)  
+Sichuan Spicy Chicken and Mushroom Soup (Mala Ji Mo Gu Tang)  
+Sichuan Spicy Pork and Mushroom Soup (Mala Rou Mo Gu Tang)  
+Sichuan Spicy Beef and Mushroom Soup (Mala Niu Rou Mo Gu Tang)  
+Sichuan Spicy Lamb and Mushroom Soup (Mala Yang Rou Mo Gu Tang)  
+Sichuan Spicy Duck and Mushroom Soup (Mala Ya Mo Gu Tang)  
+Sichuan Spicy Fish and Mushroom Soup (Mala Yu Mo Gu Tang)  
+Sichuan Spicy Shrimp and Mushroom Soup (Mala Xia Mo Gu Tang)  
+Sichuan Spicy Crab and Mushroom Soup (Mala Xie Mo Gu Tang)
+Sichuan
+
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Sichuan Hot Pot (Spicy Hot Pot)  
+Dan Dan Noodles (Spicy Sichuan Noodles)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Eggplant (Yu Xiang Qie Zi)  
+Sichuan Spicy Wontons (Hong You Chao Shou)  
+Sichuan Pepper Chicken (La Zi Ji)  
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)  
+Chongqing Spicy Chicken (Chongqing La Zi Ji)  
+Sichuan Cucumber Salad (Liang Ban Huang Gua)  
+Sichuan Spicy Tofu (Ma Po Dou Fu)  
+Sichuan Beef with Spicy Sauce (Shui Zhu Niu Rou)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Spicy Pork (Ma La Rou)  
+Sichuan Pickled Vegetables (Pao Cai)  
+Sichuan Spicy Shrimp (Ma La Xia)  
+Sichuan Peppercorn Fish (Hua Jiao Yu)  
+Sichuan Spicy Lamb (Ma La Yang Rou)
+Sichuan
+
+Sichuan Hot Pot Fondue (Sichuan Spicy Broth Fondue)  
+Mala Fondue (Numbing and Spicy Fondue)  
+Sichuan Peppercorn Cheese Fondue  
+Chongqing Style Fondue (Chongqing Spicy Fondue)  
+Sichuan Mushroom Fondue  
+Sichuan Beef Fondue  
+Sichuan Tofu Fondue  
+Sichuan Seafood Fondue  
+Sichuan Chicken Fondue  
+Sichuan Vegetable Fondue
+Sichuan
+
+Sichuan Mala Hot Pot (Sichuan Spicy Hot Pot)  
+Sichuan Yuanyang Hot Pot (Sichuan Double Flavor Hot Pot)  
+Sichuan Tomato Hot Pot  
+Sichuan Mushroom Hot Pot  
+Sichuan Herbal Hot Pot  
+Sichuan Seafood Hot Pot  
+Sichuan Beef Hot Pot  
+Sichuan Lamb Hot Pot  
+Sichuan Pork Bone Hot Pot  
+Sichuan Chicken Hot Pot  
+Sichuan Duck Blood Hot Pot  
+Sichuan Fish Fillet Hot Pot  
+Sichuan Tofu Hot Pot  
+Sichuan Vegetable Hot Pot  
+Sichuan Clear Broth Hot Pot  
+Sichuan Pickled Vegetable Hot Pot  
+Sichuan Sour and Spicy Hot Pot  
+Sichuan Hot and Numbing Hot Pot  
+Sichuan Green Pepper Hot Pot  
+Sichuan Black Bone Chicken Hot Pot  
+Sichuan Chrysanthemum Hot Pot  
+Sichuan Bamboo Shoot Hot Pot  
+Sichuan Lotus Root Hot Pot  
+Sichuan Cabbage Hot Pot  
+Sichuan Winter Melon Hot Pot  
+Sichuan Corn Hot Pot  
+Sichuan Sweet Potato Hot Pot  
+Sichuan Bean Curd Hot Pot  
+Sichuan Tripe Hot Pot  
+Sichuan Intestine Hot Pot  
+Sichuan Frog Hot Pot  
+Sichuan Eel Hot Pot  
+Sichuan Snail Hot Pot  
+Sichuan Rabbit Hot Pot  
+Sichuan Quail Egg Hot Pot  
+Sichuan Pork Belly Hot Pot  
+Sichuan Pork Rib Hot Pot  
+Sichuan Ox Tail Hot Pot  
+Sichuan Duck Neck Hot Pot  
+Sichuan Goose Hot Pot  
+Sichuan Shrimp Hot Pot  
+Sichuan Crab Hot Pot  
+Sichuan Clam Hot Pot  
+Sichuan Abalone Hot Pot  
+Sichuan Squid Hot Pot  
+Sichuan Octopus Hot Pot  
+Sichuan Fish Head Hot Pot  
+Sichuan Fish Maw Hot Pot  
+Sichuan Fish Ball Hot Pot  
+Sichuan Meatball Hot Pot  
+Sichuan Sausage Hot Pot  
+Sichuan Bacon Hot Pot  
+Sichuan Ham Hot Pot  
+Sichuan Egg Hot Pot  
+Sichuan Noodle Hot Pot  
+Sichuan Rice Cake Hot Pot  
+Sichuan Dumpling Hot Pot  
+Sichuan Wonton Hot Pot  
+Sichuan Vermicelli Hot Pot  
+Sichuan Glass Noodle Hot Pot  
+Sichuan Rice Vermicelli Hot Pot  
+Sichuan Bean Sprout Hot Pot  
+Sichuan Spinach Hot Pot  
+Sichuan Watercress Hot Pot  
+Sichuan Chrysanthemum Greens Hot Pot  
+Sichuan Mustard Greens Hot Pot  
+Sichuan Napa Cabbage Hot Pot  
+Sichuan Chinese Cabbage Hot Pot  
+Sichuan Bok Choy Hot Pot  
+Sichuan Choy Sum Hot Pot  
+Sichuan Water Spinach Hot Pot  
+Sichuan Bitter Melon Hot Pot  
+Sichuan Eggplant Hot Pot  
+Sichuan Bell Pepper Hot Pot  
+Sichuan Carrot Hot Pot  
+Sichuan Potato Hot Pot  
+Sichuan Pumpkin Hot Pot  
+Sichuan Taro Hot Pot  
+Sichuan Yam Hot Pot  
+Sichuan Garlic Hot Pot  
+Sichuan Ginger Hot Pot  
+Sichuan Scallion Hot Pot  
+Sichuan Leek Hot Pot  
+Sichuan Onion Hot Pot  
+Sichuan Celery Hot Pot  
+Sichuan Parsley Hot Pot  
+Sichuan Cilantro Hot Pot  
+Sichuan Basil Hot Pot  
+Sichuan Mint Hot Pot  
+Sichuan Coriander Hot Pot  
+Sichuan Dill Hot Pot  
+Sichuan Fennel Hot Pot  
+Sichuan Star Anise Hot Pot  
+Sichuan Cinnamon Hot Pot  
+Sichuan Clove Hot Pot  
+Sichuan Cardamom Hot Pot  
+Sichuan Cumin Hot Pot  
+Sichuan Turmeric Hot Pot  
+Sichuan Saffron Hot Pot  
+Sichuan Bay Leaf Hot Pot  
+Sichuan Lemongrass Hot Pot  
+Sichuan Galangal Hot Pot  
+Sichuan Kaffir Lime Leaf Hot Pot  
+Sichuan Tamarind Hot Pot  
+Sichuan Coconut Milk Hot Pot  
+Sichuan Peanut Hot Pot  
+Sichuan Sesame Hot Pot  
+Sichuan Cashew Hot Pot  
+Sichuan Almond Hot Pot  
+Sichuan Walnut Hot Pot  
+Sichuan Chestnut Hot Pot  
+Sichuan Pine Nut Hot Pot  
+Sichuan Pecan Hot Pot  
+Sichuan Hazelnut Hot Pot  
+Sichuan Macadamia Nut Hot Pot  
+Sichuan Brazil Nut Hot Pot  
+Sichuan Pistachio Hot Pot  
+Sichuan Sunflower Seed Hot Pot  
+Sichuan Pumpkin Seed Hot Pot  
+Sichuan Flaxseed Hot Pot  
+Sichuan Chia Seed Hot Pot  
+Sichuan Hemp Seed Hot Pot  
+Sichuan Poppy Seed Hot Pot  
+Sichuan Mustard Seed Hot Pot  
+Sichuan Caraway Seed Hot Pot  
+Sichuan Fennel Seed Hot Pot  
+Sichuan Coriander Seed Hot Pot  
+Sichuan Cumin Seed Hot Pot  
+Sichuan Anise Seed Hot Pot  
+Sichuan Dill Seed Hot Pot  
+Sichuan Fenugreek Seed Hot Pot  
+Sichuan Nigella Seed Hot Pot  
+Sichuan Celery Seed Hot Pot  
+Sichuan Sesame Seed Hot Pot  
+Sichuan Pomegranate Seed Hot Pot  
+Sichuan Watermelon Seed Hot Pot  
+Sichuan Cantaloupe Seed Hot Pot  
+Sichuan Honeydew Seed Hot Pot  
+Sichuan Papaya Seed Hot Pot  
+Sichuan Mango Seed Hot Pot  
+Sichuan Avocado Seed Hot Pot  
+Sichuan Guava Seed Hot Pot  
+Sichuan Passion Fruit Seed Hot Pot  
+Sichuan Dragon Fruit Seed Hot Pot  
+Sichuan Kiwi Seed Hot Pot  
+Sichuan Fig Seed Hot Pot  
+Sichuan Date Seed Hot Pot  
+Sichuan Olive Seed Hot Pot  
+Sichuan Grape Seed Hot Pot  
+Sichuan Apple Seed Hot Pot  
+Sichuan Pear Seed Hot Pot  
+Sichuan Peach Seed Hot Pot  
+Sichuan Plum Seed Hot Pot  
+Sichuan Cherry Seed Hot Pot  
+Sichuan Apricot Seed Hot Pot  
+Sichuan Nectarine Seed Hot Pot  
+Sichuan Persimmon Seed Hot Pot  
+Sichuan Quince Seed Hot Pot  
+Sichuan Loquat Seed Hot Pot  
+Sichuan Lychee Seed Hot Pot  
+Sichuan Longan Seed Hot Pot  
+Sichuan Rambutan Seed Hot Pot  
+Sichuan Mangosteen Seed Hot Pot  
+Sichuan Durian Seed Hot Pot  
+Sichuan Jackfruit Seed Hot Pot  
+Sichuan Breadfruit Seed Hot Pot  
+Sichuan Soursop Seed Hot Pot  
+Sichuan Custard Apple Seed Hot Pot  
+Sichuan Cherimoya Seed Hot Pot  
+Sichuan Atemoya Seed Hot Pot  
+Sichuan Sugar Apple Seed Hot Pot  
+Sichuan Sapodilla Seed Hot Pot  
+Sichuan Starfruit Seed Hot Pot  
+Sichuan Carambola Seed Hot Pot  
+Sichuan Bilimbi Seed Hot Pot  
+Sichuan Tamarillo Seed Hot Pot  
+Sichuan Naranjilla Seed Hot Pot  
+Sichuan Lulo Seed Hot Pot  
+Sichuan Camu Camu Seed Hot Pot  
+Sichuan Acerola Seed Hot Pot  
+Sichuan Jabuticaba Seed Hot Pot  
+Sichuan Pitanga Seed Hot Pot  
+Sichuan Surinam Cherry Seed Hot Pot  
+Sichuan Barbados Cherry Seed Hot Pot  
+Sichuan West Indian Cherry Seed Hot Pot  
+Sichuan Acerola Cherry Seed Hot Pot  
+Sichuan Brazilian Cherry Seed Hot Pot  
+Sichuan Cayenne Cherry Seed Hot Pot  
+Sichuan Cherry of the Rio Grande Seed Hot Pot  
+Sichuan Grumichama Seed Hot Pot  
+Sichuan Eugenia Seed Hot Pot  
+Sichuan Myrtaceae Seed Hot Pot  
+Sichuan Guavaberry Seed Hot Pot  
+Sichuan Rumberry Seed Hot Pot  
+Sichuan Bayberry Seed Hot Pot  
+Sichuan Waxberry Seed Hot Pot  
+Sichuan Yangmei Seed Hot Pot  
+Sichuan Chinese Bayberry Seed Hot Pot  
+Sichuan Japanese Bayberry Seed Hot Pot  
+Sichuan Red Bayberry Seed Hot Pot  
+Sichuan White Bayberry Seed Hot Pot  
+Sichuan Black Bayberry Seed Hot Pot  
+Sichuan Purple Bayberry Seed Hot Pot  
+Sichuan Green Bayberry Seed Hot Pot  
+Sichuan Yellow Bayberry Seed Hot Pot  
+Sichuan Orange Bayberry Seed Hot Pot  
+Sichuan Pink Bayberry Seed Hot Pot  
+Sichuan Blue Bayberry Seed Hot Pot  
+Sichuan Violet Bayberry Seed Hot Pot  
+Sichuan Indigo Bayberry Seed Hot Pot  
+Sichuan Turquoise Bayberry Seed Hot Pot  
+Sichuan Teal Bayberry Seed Hot Pot  
+Sichuan Cyan Bayberry Seed Hot Pot  
+Sichuan Aquamarine Bayberry Seed Hot Pot  
+Sichuan Azure Bayberry Seed Hot Pot  
+Sichuan Cerulean Bayberry Seed Hot Pot  
+Sichuan Sapphire Bayberry Seed Hot Pot  
+Sichuan Cobalt Bayberry Seed Hot Pot  
+Sichuan Ultramarine Bayberry Seed Hot Pot  
+Sichuan Navy Bayberry Seed Hot Pot  
+Sichuan Midnight Bayberry Seed Hot Pot  
+Sichuan Royal Bayberry Seed Hot Pot  
+Sichuan Prussian Bayberry Seed Hot Pot  
+Sichuan Egyptian Bayberry Seed Hot Pot  
+Sichuan Persian Bayberry Seed Hot Pot  
+Sich
+Sichuan
+
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Sichuan Hot Pot (Spicy Hot Pot)  
+Dan Dan Noodles (Spicy Noodles with Minced Pork)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)  
+Sichuan Spicy Wontons (Hong You Chao Shou)  
+Chongqing Chicken (La Zi Ji)  
+Sichuan Pepper Chicken (Hua Jiao Ji)  
+Sichuan Eggplant (Yu Xiang Qie Zi)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Spicy Cabbage (Suan Cai)  
+Sichuan Braised Beef (Hong Shao Niu Rou)  
+Sichuan Spicy Tofu (Ma La Dou Fu)  
+Sichuan Pickled Vegetables (Pao Cai)  
+Sichuan Spicy Shrimp (Ma La Xia)  
+Sichuan Tea-Smoked Duck (Zhang Cha Ya)  
+Sichuan Spicy Lamb Skewers (Yang Rou Chuan)  
+Sichuan Spicy Pork Belly (Ma La Rou Pian)  
+Sichuan Peppercorn Chicken (Jiao Ma Ji)  
+Sichuan Spicy Bean Curd (Ma La Dou Fu Gan)  
+Sichuan Sweet and Sour Pork (Tang Cu Li Ji)  
+Sichuan Spicy Beef Noodles (Ma La Niu Rou Mian)  
+Sichuan Spicy Chicken Salad (Bang Bang Ji)  
+Sichuan Spicy Tofu Soup (Ma La Dou Fu Tang)  
+Sichuan Spicy Pork Ribs (Ma La Pai Gu)  
+Sichuan Spicy Fish Soup (Ma La Yu Tang)  
+Sichuan Spicy Eggplant (Ma La Qie Zi)  
+Sichuan Spicy Beef (Ma La Niu Rou)  
+Sichuan Spicy Chicken Wings (Ma La Ji Chi)  
+Sichuan Spicy Pork (Ma La Zhu Rou)  
+Sichuan Spicy Duck (Ma La Ya)  
+Sichuan Spicy Noodles (Ma La Mian)  
+Sichuan Spicy Tofu with Vegetables (Ma La Dou Fu Cai)  
+Sichuan Spicy Chicken Feet (Ma La Ji Jiao)  
+Sichuan Spicy Pork Intestines (Ma La Zhu Chang)  
+Sichuan Spicy Squid (Ma La You Yu)  
+Sichuan Spicy Clams (Ma La Ge Li)  
+Sichuan Spicy Crab (Ma La Xie)  
+Sichuan Spicy Snails (Ma La Tian Luo)  
+Sichuan Spicy Frog (Ma La Tian Ji)  
+Sichuan Spicy Beef Tripe (Ma La Niu Bai Ye)  
+Sichuan Spicy Pork Liver (Ma La Zhu Gan)  
+Sichuan Spicy Chicken Gizzards (Ma La Ji Xin)  
+Sichuan Spicy Pork Kidney (Ma La Zhu Shen)  
+Sichuan Spicy Tofu Skin (Ma La Dou Fu Pi)  
+Sichuan Spicy Bamboo Shoots (Ma La Zhu Sun)  
+Sichuan Spicy Lotus Root (Ma La Ou Pian)  
+Sichuan Spicy Potato (Ma La Tu Dou)  
+Sichuan Spicy Tofu with Mushrooms (Ma La Dou Fu Mo Gu)  
+Sichuan Spicy Pork with Garlic Sauce (Suan Ni Bai Rou)  
+Sichuan Spicy Chicken with Chili Oil (Hong You Ji)  
+Sichuan Spicy Beef with Cumin (Zi Ran Niu Rou)  
+Sichuan Spicy Pork with Green Peppers (Qing Jiao Zhu Rou)  
+Sichuan Spicy Chicken with Peanuts (Hua Sheng Ji)  
+Sichuan Spicy Pork with Black Bean Sauce (Dou Chi Zhu Rou)  
+Sichuan Spicy Eggplant with Garlic Sauce (Suan Ni Qie Zi)  
+Sichuan Spicy Fish with Pickled Vegetables (Suan Cai Yu)  
+Sichuan Spicy Chicken with Black Bean Sauce (Dou Chi Ji)  
+Sichuan Spicy Pork with Garlic Sauce (Suan Ni Zhu Rou)  
+Sichuan Spicy Chicken with Green Peppers (Qing Jiao Ji)  
+Sichuan Spicy Pork with Mushrooms (Mo Gu Zhu Rou)  
+Sichuan Spicy Chicken with Mushrooms (Mo Gu Ji)  
+Sichuan Spicy Beef with Green Peppers (Qing Jiao Niu Rou)  
+Sichuan Spicy Pork with Peanuts (Hua Sheng Zhu Rou)  
+Sichuan Spicy Chicken with Black Bean Sauce (Dou Chi Ji)  
+Sichuan Spicy Fish with Black Bean Sauce (Dou Chi Yu)  
+Sichuan Spicy Pork with Pickled Vegetables (Suan Cai Zhu Rou)  
+Sichuan Spicy Chicken with Pickled Vegetables (Suan Cai Ji)  
+Sichuan Spicy Beef with Pickled Vegetables (Suan Cai Niu Rou)  
+Sichuan Spicy Pork with Black Bean Sauce (Dou Chi Zhu Rou)  
+Sichuan Spicy Chicken with Garlic Sauce (Suan Ni Ji)  
+Sichuan Spicy Fish with Garlic Sauce (Suan Ni Yu)  
+Sichuan Spicy Pork with Mushrooms (Mo Gu Zhu Rou)  
+Sichuan Spicy Chicken with Mushrooms (Mo Gu Ji)  
+Sichuan Spicy Beef with Mushrooms (Mo Gu Niu Rou)  
+Sichuan Spicy Pork with Green Peppers (Qing Jiao Zhu Rou)  
+Sichuan Spicy Chicken with Green Peppers (Qing Jiao Ji)  
+Sichuan Spicy Fish with Green Peppers (Qing Jiao Yu)  
+Sichuan Spicy Pork with Peanuts (Hua Sheng Zhu Rou)  
+Sichuan Spicy Chicken with Peanuts (Hua Sheng Ji)  
+Sichuan Spicy Beef with Peanuts (Hua Sheng Niu Rou)  
+Sichuan Spicy Pork with Black Bean Sauce (Dou Chi Zhu Rou)  
+Sichuan Spicy Chicken with Black Bean Sauce (Dou Chi Ji)  
+Sichuan Spicy Fish with Black Bean Sauce (Dou Chi Yu)  
+Sichuan Spicy Pork with Pickled Vegetables (Suan Cai Zhu Rou)  
+Sichuan Spicy Chicken with Pickled Vegetables (Suan Cai Ji)  
+Sichuan Spicy Beef with Pickled Vegetables (Suan Cai Niu Rou)  
+Sichuan Spicy Pork with Garlic Sauce (Suan Ni Zhu Rou)  
+Sichuan Spicy Chicken with Garlic Sauce (Suan Ni Ji)  
+Sichuan Spicy Fish with Garlic Sauce (Suan Ni Yu)  
+Sichuan Spicy Pork with Mushrooms (Mo Gu Zhu Rou)  
+Sichuan Spicy Chicken with Mushrooms (Mo Gu Ji)  
+Sichuan Spicy Beef with Mushrooms (Mo Gu Niu Rou)  
+Sichuan Spicy Pork with Green Peppers (Qing Jiao Zhu Rou)  
+Sichuan Spicy Chicken with Green Peppers (Qing Jiao Ji)  
+Sichuan Spicy Fish with Green Peppers (Qing Jiao Yu)  
+Sichuan Spicy Pork with Peanuts (Hua Sheng Zhu Rou)  
+Sichuan Spicy Chicken with Peanuts (Hua Sheng Ji)  
+Sichuan Spicy Beef with Peanuts (Hua Sheng Niu Rou)  
+Sichuan Spicy Pork with Black Bean Sauce (Dou Chi Zhu Rou)  
+Sichuan Spicy Chicken with Black Bean Sauce (Dou Chi Ji)  
+Sichuan Spicy Fish with Black Bean Sauce (Dou Chi Yu)  
+Sichuan Spicy Pork with Pickled Vegetables (Suan Cai Zhu Rou)  
+Sichuan Spicy Chicken with Pickled Vegetables (Suan Cai Ji)  
+Sichuan Spicy Beef with Pickled Vegetables (Suan Cai Niu Rou)  
+Sichuan Spicy Pork with Garlic Sauce (Suan Ni Zhu Rou)  
+Sichuan Spicy Chicken with Garlic Sauce (Suan Ni Ji)  
+Sichuan Spicy Fish with Garlic Sauce (Suan Ni Yu)  
+Sichuan Spicy Pork with Mushrooms (Mo Gu Zhu Rou)  
+Sichuan Spicy Chicken with Mushrooms (Mo Gu Ji)  
+Sichuan Spicy Beef with Mushrooms (Mo Gu Niu Rou)  
+Sichuan Spicy Pork with Green Peppers (Qing Jiao Zhu Rou)  
+Sichuan Spicy Chicken with Green Peppers (Qing Jiao Ji)  
+Sichuan Spicy Fish with Green Peppers (Qing Jiao Yu)  
+Sichuan Spicy Pork with Peanuts (Hua Sheng Zhu Rou)  
+Sichuan Spicy Chicken with Peanuts (Hua Sheng Ji)  
+Sichuan Spicy Beef with Peanuts (Hua Sheng Niu Rou)  
+Sichuan Spicy Pork with Black Bean Sauce (Dou Chi Zhu Rou)  
+Sichuan Spicy Chicken with Black Bean Sauce (Dou Chi Ji)  
+Sichuan Spicy Fish with Black Bean Sauce (Dou Chi Yu)  
+Sichuan Spicy Pork with Pickled Vegetables (Suan Cai Zhu Rou)  
+Sichuan Spicy Chicken with Pickled Vegetables (Suan Cai Ji)  
+Sichuan Spicy Beef
+Sichuan
+
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Dan Dan Noodles (Spicy Sichuan Noodles with Minced Pork)  
+Sichuan Hot Pot (Spicy Hot Pot)  
+Fish-Fragrant Eggplant (Yu Xiang Eggplant)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Spicy Wontons (Chao Shou)  
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)  
+Sichuan Pepper Chicken (La Zi Ji)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Spicy Tofu (Ma Po Dou Fu)  
+Sichuan Beef with Cumin (Zi Ran Niu Rou)  
+Sichuan Spicy Cabbage (Suan La Bai Cai)  
+Sichuan Pickled Vegetables (Pao Cai)  
+Sichuan Spicy Shrimp (Ma La Xia)  
+Sichuan Braised Pork Belly (Hong Shao Rou)  
+Sichuan Spicy Lamb Skewers (Yang Rou Chuan)  
+Sichuan Spicy Chicken Salad (Bang Bang Ji)  
+Sichuan Spicy Potato (Ma La Tu Dou Si)  
+Sichuan Spicy Eggplant (Ma La Qie Zi)  
+Sichuan Spicy Beef Noodles (Ma La Niu Rou Mian)  
+Sichuan Spicy Tofu Soup (Ma La Dou Fu Tang)  
+Sichuan Spicy Cucumber Salad (Ma La Huang Gua)  
+Sichuan Spicy Pork Ribs (Ma La Pai Gu)  
+Sichuan Spicy Fish Soup (Ma La Yu Tang)  
+Sichuan Spicy Chicken Wings (Ma La Ji Chi)  
+Sichuan Spicy Beef Stir-Fry (Ma La Niu Rou Chao)  
+Sichuan Spicy Lamb Hot Pot (Ma La Yang Rou Guo)  
+Sichuan Spicy Pork Belly (Ma La Wu Hua Rou)  
+Sichuan Spicy Eggplant Stir-Fry (Ma La Qie Zi Chao)  
+Sichuan Spicy Tofu Stir-Fry (Ma La Dou Fu Chao)  
+Sichuan Spicy Chicken Stir-Fry (Ma La Ji Chao)  
+Sichuan Spicy Pork Stir-Fry (Ma La Zhu Rou Chao)  
+Sichuan Spicy Shrimp Stir-Fry (Ma La Xia Chao)  
+Sichuan Spicy Fish Stir-Fry (Ma La Yu Chao)  
+Sichuan Spicy Vegetable Stir-Fry (Ma La Shu Cai Chao)  
+Sichuan Spicy Noodle Soup (Ma La Mian Tang)  
+Sichuan Spicy Beef Soup (Ma La Niu Rou Tang)  
+Sichuan Spicy Chicken Soup (Ma La Ji Tang)  
+Sichuan Spicy Pork Soup (Ma La Zhu Rou Tang)  
+Sichuan Spicy Shrimp Soup (Ma La Xia Tang)  
+Sichuan Spicy Vegetable Soup (Ma La Shu Cai Tang)  
+Sichuan Spicy Tofu Hot Pot (Ma La Dou Fu Guo)  
+Sichuan Spicy Chicken Hot Pot (Ma La Ji Guo)  
+Sichuan Spicy Pork Hot Pot (Ma La Zhu Rou Guo)  
+Sichuan Spicy Shrimp Hot Pot (Ma La Xia Guo)  
+Sichuan Spicy Vegetable Hot Pot (Ma La Shu Cai Guo)  
+Sichuan Spicy Fish Hot Pot (Ma La Yu Guo)  
+Sichuan Spicy Lamb Soup (Ma La Yang Rou Tang)  
+Sichuan Spicy Lamb Stir-Fry (Ma La Yang Rou Chao)  
+Sichuan Spicy Lamb Soup (Ma La Yang Rou Tang)  
+Sichuan Spicy Lamb Stir-Fry (Ma La Yang Rou Chao)  
+Sichuan Spicy Lamb Hot Pot (Ma La Yang Rou Guo)  
+Sichuan Spicy Lamb Noodles (Ma La Yang Rou Mian)  
+Sichuan Spicy Lamb Skewers (Ma La Yang Rou Chuan)  
+Sichuan Spicy Lamb Soup (Ma La Yang Rou Tang)  
+Sichuan Spicy Lamb Stir-Fry (Ma La Yang Rou Chao)  
+Sichuan Spicy Lamb Hot Pot (Ma La Yang Rou Guo)  
+Sichuan Spicy Lamb Noodles (Ma La Yang Rou Mian)  
+Sichuan Spicy Lamb Skewers (Ma La Yang Rou Chuan)
+Sichuan
+
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Kung Pao Chicken (Spicy Stir-fried Chicken with Peanuts)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Sichuan Hot Pot (Spicy Broth with Various Ingredients)  
+Dan Dan Noodles (Spicy Noodles with Minced Pork)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Spicy Wontons (Hong You Chao Shou)  
+Sichuan Pepper Chicken (La Zi Ji)  
+Fish-Fragrant Eggplant (Yu Xiang Qie Zi)  
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)  
+Sichuan Spicy Tofu (Ma Po Dou Fu)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Spicy Beef (Huo Guo Niu Rou)  
+Sichuan Cucumber Salad (Liang Ban Huang Gua)  
+Sichuan Spicy Pork (La Rou)  
+Sichuan Braised Beef (Hong Shao Niu Rou)  
+Sichuan Mala Chicken (Mala Ji)  
+Sichuan Spicy Shrimp (La Wei Xia)  
+Sichuan Tea-Smoked Duck (Zhang Cha Ya)  
+Sichuan Spicy Lamb (La Wei Yang Rou)  
+Sichuan Eggplant with Garlic Sauce (Yu Xiang Qie Zi)  
+Sichuan Spicy Tofu Soup (Ma La Dou Fu Tang)  
+Sichuan Spicy Chicken Salad (Bang Bang Ji)  
+Sichuan Spicy Pork Ribs (La Wei Pai Gu)  
+Sichuan Spicy Cabbage (La Bai Cai)  
+Sichuan Spicy Fish Soup (Ma La Yu Tang)  
+Sichuan Spicy Beef Noodles (Ma La Niu Rou Mian)  
+Sichuan Spicy Chicken Wings (La Wei Ji Chi)  
+Sichuan Spicy Pork Belly (La Wei Wu Hua Rou)  
+Sichuan Spicy Eggplant (La Wei Qie Zi)  
+Sichuan Spicy Tofu Stir-Fry (La Wei Dou Fu Chao)  
+Sichuan Spicy Chicken Feet (La Wei Ji Jiao)  
+Sichuan Spicy Duck (La Wei Ya)  
+Sichuan Spicy Pork Intestines (La Wei Fei Chang)  
+Sichuan Spicy Tofu Hot Pot (Ma La Dou Fu Huo Guo)  
+Sichuan Spicy Beef Stir-Fry (La Wei Niu Rou Chao)  
+Sichuan Spicy Pork Stir-Fry (La Wei Zhu Rou Chao)  
+Sichuan Spicy Chicken Stir-Fry (La Wei Ji Rou Chao)  
+Sichuan Spicy Lamb Stir-Fry (La Wei Yang Rou Chao)  
+Sichuan Spicy Shrimp Stir-Fry (La Wei Xia Chao)  
+Sichuan Spicy Fish Stir-Fry (La Wei Yu Chao)  
+Sichuan Spicy Eggplant Stir-Fry (La Wei Qie Zi Chao)  
+Sichuan Spicy Tofu and Vegetables (La Wei Dou Fu He Shu Cai)  
+Sichuan Spicy Pork and Vegetables (La Wei Zhu Rou He Shu Cai)  
+Sichuan Spicy Chicken and Vegetables (La Wei Ji Rou He Shu Cai)  
+Sichuan Spicy Beef and Vegetables (La Wei Niu Rou He Shu Cai)  
+Sichuan Spicy Lamb and Vegetables (La Wei Yang Rou He Shu Cai)  
+Sichuan Spicy Shrimp and Vegetables (La Wei Xia He Shu Cai)  
+Sichuan Spicy Fish and Vegetables (La Wei Yu He Shu Cai)  
+Sichuan Spicy Eggplant and Vegetables (La Wei Qie Zi He Shu Cai)  
+Sichuan Spicy Tofu and Noodles (La Wei Dou Fu He Mian)  
+Sichuan Spicy Pork and Noodles (La Wei Zhu Rou He Mian)  
+Sichuan Spicy Chicken and Noodles (La Wei Ji Rou He Mian)  
+Sichuan Spicy Beef and Noodles (La Wei Niu Rou He Mian)  
+Sichuan Spicy Lamb and Noodles (La Wei Yang Rou He Mian)  
+Sichuan Spicy Shrimp and Noodles (La Wei Xia He Mian)  
+Sichuan Spicy Fish and Noodles (La Wei Yu He Mian)  
+Sichuan Spicy Eggplant and Noodles (La Wei Qie Zi He Mian)  
+Sichuan Spicy Tofu and Rice (La Wei Dou Fu He Fan)  
+Sichuan Spicy Pork and Rice (La Wei Zhu Rou He Fan)  
+Sichuan Spicy Chicken and Rice (La Wei Ji Rou He Fan)  
+Sichuan Spicy Beef and Rice (La Wei Niu Rou He Fan)  
+Sichuan Spicy Lamb and Rice (La Wei Yang Rou He Fan)  
+Sichuan Spicy Shrimp and Rice (La Wei Xia He Fan)  
+Sichuan Spicy Fish and Rice (La Wei Yu He Fan)  
+Sichuan Spicy Eggplant and Rice (La Wei Qie Zi He Fan)  
+Sichuan Spicy Tofu and Dumplings (La Wei Dou Fu He Jiao Zi)  
+Sichuan Spicy Pork and Dumplings (La Wei Zhu Rou He Jiao Zi)  
+Sichuan Spicy Chicken and Dumplings (La Wei Ji Rou He Jiao Zi)  
+Sichuan Spicy Beef and Dumplings (La Wei Niu Rou He Jiao Zi)  
+Sichuan Spicy Lamb and Dumplings (La Wei Yang Rou He Jiao Zi)  
+Sichuan Spicy Shrimp and Dumplings (La Wei Xia He Jiao Zi)  
+Sichuan Spicy Fish and Dumplings (La Wei Yu He Jiao Zi)  
+Sichuan Spicy Eggplant and Dumplings (La Wei Qie Zi He Jiao Zi)  
+Sichuan Spicy Tofu and Pancakes (La Wei Dou Fu He Bing)  
+Sichuan Spicy Pork and Pancakes (La Wei Zhu Rou He Bing)  
+Sichuan Spicy Chicken and Pancakes (La Wei Ji Rou He Bing)  
+Sichuan Spicy Beef and Pancakes (La Wei Niu Rou He Bing)  
+Sichuan Spicy Lamb and Pancakes (La Wei Yang Rou He Bing)  
+Sichuan Spicy Shrimp and Pancakes (La Wei Xia He Bing)  
+Sichuan Spicy Fish and Pancakes (La Wei Yu He Bing)  
+Sichuan Spicy Eggplant and Pancakes (La Wei Qie Zi He Bing)  
+Sichuan Spicy Tofu and Bread (La Wei Dou Fu He Mian Bao)  
+Sichuan Spicy Pork and Bread (La Wei Zhu Rou He Mian Bao)  
+Sichuan Spicy Chicken and Bread (La Wei Ji Rou He Mian Bao)  
+Sichuan Spicy Beef and Bread (La Wei Niu Rou He Mian Bao)  
+Sichuan Spicy Lamb and Bread (La Wei Yang Rou He Mian Bao)  
+Sichuan Spicy Shrimp and Bread (La Wei Xia He Mian Bao)  
+Sichuan Spicy Fish and Bread (La Wei Yu He Mian Bao)  
+Sichuan Spicy Eggplant and Bread (La Wei Qie Zi He Mian Bao)
+Sichuan
+
+Sichuan Peppercorn Syrup  
+Chili Syrup  
+Ginger Syrup  
+Hawthorn Berry Syrup  
+Osmanthus Syrup  
+Plum Syrup  
+Brown Sugar Syrup  
+Lotus Root Syrup  
+Red Date Syrup  
+Wolfberry Syrup  
+Five Spice Syrup  
+Fermented Rice Syrup  
+Lychee Syrup  
+Tangerine Peel Syrup  
+Honey Syrup
+Sichuan
+
+Sichuan Pepper Biscuits  
+Spicy Sichuan Biscuits  
+Chili Oil Biscuits  
+Five-Spice Biscuits  
+Sichuan Savory Biscuits  
+Black Sesame Sichuan Biscuits  
+Sichuan Scallion Biscuits  
+Garlic and Chili Sichuan Biscuits  
+Sichuan Sweet and Spicy Biscuits  
+Sichuan Style Butter Biscuits
+Sichuan
+
+Sichuan Pepper Bagel  
+Chili Oil Bagel  
+Dan Dan Bagel (Sichuan Spicy Sesame Bagel)  
+Mapo Tofu Bagel  
+Sichuan Mala Bagel (Numbing Spicy Bagel)  
+Five Spice Bagel  
+Sichuan Garlic Bagel  
+Hot Pot Bagel (Sichuan Hot Pot Flavored Bagel)  
+Sichuan Scallion Bagel  
+Chongqing Chicken Bagel (Spicy Chicken Bagel)  
+Sichuan Beef Bagel  
+Sichuan Pickle Bagel  
+Doubanjiang Bagel (Fermented Broad Bean Paste Bagel)  
+Sichuan Sweet and Sour Bagel
+Sichuan
+
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Kung Pao Chicken (Spicy Stir-fried Chicken with Peanuts)  
+Sichuan Hot Pot (Spicy Broth Hot Pot)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Dan Dan Noodles (Spicy Sichuan Noodles)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Spicy Wontons (Chao Shou)  
+Sichuan Pepper Chicken (La Zi Ji)  
+Sichuan Eggplant (Yu Xiang Qie Zi)  
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Spicy Cucumber Salad (Pai Huang Gua)  
+Sichuan Beef with Cumin (Zi Ran Niu Rou)  
+Sichuan Spicy Tofu Pudding (Dou Hua)  
+Sichuan Mala Chicken (Mala Ji)  
+Sichuan Spicy Pork Belly (Mala Rou)  
+Sichuan Pickled Vegetables (Pao Cai)  
+Sichuan Spicy Shrimp (Mala Xia)  
+Sichuan Braised Beef (Hong Shao Niu Rou)  
+Sichuan Chili Oil Dumplings (Hong You Chao Shou)  
+Sichuan Spicy Lamb Skewers (Yang Rou Chuan)  
+Sichuan Sweet and Sour Pork (Tang Cu Li Ji)  
+Sichuan Spicy Rabbit (Mala Tu Zi)  
+Sichuan Peppercorn Chicken Wings (Hua Jiao Ji Chi)  
+Sichuan Spicy Tofu Skin Salad (Liang Ban Dou Fu Pi)  
+Sichuan Spicy Beef Noodles (Mala Niu Rou Mian)  
+Sichuan Spicy Fish Head (Mala Yu Tou)  
+Sichuan Spicy Pork Ribs (Mala Pai Gu)  
+Sichuan Spicy Chicken Feet (Mala Ji Jiao)  
+Sichuan Spicy Bean Curd (Mala Dou Fu)  
+Sichuan Spicy Pork Intestines (Mala Chang)  
+Sichuan Spicy Lotus Root (Mala Ou Pian)  
+Sichuan Spicy Beef Tripe (Mala Niu Bai Ye)  
+Sichuan Spicy Duck Blood (Mala Ya Xue)  
+Sichuan Spicy Frog (Mala Tian Ji)  
+Sichuan Spicy Snails (Mala Luo Si)  
+Sichuan Spicy Bamboo Shoots (Mala Zhu Sun)  
+Sichuan Spicy Chicken Gizzards (Mala Ji Zhen)  
+Sichuan Spicy Pork Ears (Mala Zhu Er)  
+Sichuan Spicy Tofu with Century Egg (Mala Pi Dan Dou Fu)  
+Sichuan Spicy Pork Liver (Mala Gan)  
+Sichuan Spicy Beef Tendon (Mala Niu Jin)  
+Sichuan Spicy Duck Tongue (Mala Ya She)  
+Sichuan Spicy Pork Blood (Mala Zhu Xue)  
+Sichuan Spicy Duck Web (Mala Ya Zhang)  
+Sichuan Spicy Pork Stomach (Mala Zhu Du)  
+Sichuan Spicy Chicken Hearts (Mala Ji Xin)  
+Sichuan Spicy Pork Kidney (Mala Zhu Shen)  
+Sichuan Spicy Beef Offal (Mala Niu Za)  
+Sichuan Spicy Pork Brain (Mala Zhu Nao)  
+Sichuan Spicy Duck Neck (Mala Ya Bo)  
+Sichuan Spicy Pork Tail (Mala Zhu Wei)  
+Sichuan Spicy Chicken Neck (Mala Ji Bo)  
+Sichuan Spicy Pork Feet (Mala Zhu Jiao)  
+Sichuan Spicy Duck Feet (Mala Ya Jiao)  
+Sichuan Spicy Chicken Skin (Mala Ji Pi)  
+Sichuan Spicy Pork Skin (Mala Zhu Pi)  
+Sichuan Spicy Duck Skin (Mala Ya Pi)  
+Sichuan Spicy Chicken Cartilage (Mala Ji Gu)  
+Sichuan Spicy Pork Cartilage (Mala Zhu Gu)  
+Sichuan Spicy Duck Cartilage (Mala Ya Gu)  
+Sichuan Spicy Chicken Bone (Mala Ji Gu Tou)  
+Sichuan Spicy Pork Bone (Mala Zhu Gu Tou)  
+Sichuan Spicy Duck Bone (Mala Ya Gu Tou)  
+Sichuan Spicy Chicken Marrow (Mala Ji Sui)  
+Sichuan Spicy Pork Marrow (Mala Zhu Sui)  
+Sichuan Spicy Duck Marrow (Mala Ya Sui)  
+Sichuan Spicy Chicken Blood (Mala Ji Xue)  
+Sichuan Spicy Pork Blood Cake (Mala Zhu Xue Gao)  
+Sichuan Spicy Duck Blood Cake (Mala Ya Xue Gao)  
+Sichuan Spicy Chicken Blood Cake (Mala Ji Xue Gao)  
+Sichuan Spicy Pork Blood Pudding (Mala Zhu Xue Dou Fu)  
+Sichuan Spicy Duck Blood Pudding (Mala Ya Xue Dou Fu)  
+Sichuan Spicy Chicken Blood Pudding (Mala Ji Xue Dou Fu)  
+Sichuan Spicy Pork Blood Jelly (Mala Zhu Xue Dong)  
+Sichuan Spicy Duck Blood Jelly (Mala Ya Xue Dong)  
+Sichuan Spicy Chicken Blood Jelly (Mala Ji Xue Dong)  
+Sichuan Spicy Pork Blood Soup (Mala Zhu Xue Tang)  
+Sichuan Spicy Duck Blood Soup (Mala Ya Xue Tang)  
+Sichuan Spicy Chicken Blood Soup (Mala Ji Xue Tang)  
+Sichuan Spicy Pork Blood Stew (Mala Zhu Xue Geng)  
+Sichuan Spicy Duck Blood Stew (Mala Ya Xue Geng)  
+Sichuan Spicy Chicken Blood Stew (Mala Ji Xue Geng)
+Sichuan
+
+Sichuan Peppercorn Crackers  
+Chili Oil Crackers  
+Five-Spice Crackers  
+Sesame and Scallion Crackers  
+Spicy Garlic Crackers  
+Mala Crackers (Numbing and Spicy Crackers)  
+Fermented Bean Paste Crackers  
+Black Sesame Crackers  
+Sweet and Spicy Sichuan Crackers  
+Cumin and Sichuan Pepper Crackers  
+Sichuan Hot Pot Crackers
+Sichuan
+
+Bang Bang Ji (Bang Bang Chicken Salad)  
+Suan La Fen (Hot and Sour Glass Noodle Salad)  
+Liang Ban Huang Gua (Sichuan Cucumber Salad)  
+Fu Qi Fei Pian (Sliced Beef and Ox Tongue Salad)  
+Sichuan Cold Noodles  
+Suan Ni Bai Rou (Garlic Pork Belly Salad)  
+Kou Shui Ji (Mouthwatering Chicken Salad)  
+Liang Ban Mu Er (Wood Ear Mushroom Salad)  
+Sichuan Potato Salad  
+Sichuan Spicy Tofu Salad
+Sichuan
+
+Sichuan Pepper Chicken Sandwich  
+Spicy Tofu Banh Mi (Sichuan Style)  
+Dan Dan Noodle Sandwich  
+Sichuan Beef Wrap  
+Chongqing Chicken Sandwich  
+Sichuan Pulled Pork Sandwich  
+Mapo Tofu Burger  
+Sichuan Eggplant Sandwich  
+Sichuan Spicy Lamb Sandwich  
+Sichuan Cold Noodle Sandwich
+Sichuan
+
+Sichuan Peppercorn Gravy  
+Doubanjiang Gravy (Fermented Broad Bean Paste Gravy)  
+Spicy Sichuan Gravy  
+Sichuan Hot Pot Gravy  
+Mapo Tofu Gravy  
+Chili Oil Gravy  
+Sichuan Black Bean Gravy  
+Garlic and Ginger Gravy  
+Sichuan Soy Sauce Gravy  
+Sichuan Vinegar Gravy  
+Sichuan Mushroom Gravy  
+Sichuan Sesame Gravy  
+Sichuan Sweet and Sour Gravy  
+Sichuan Beef Gravy  
+Sichuan Chicken Gravy  
+Sichuan Pork Gravy  
+Sichuan Fish Gravy  
+Sichuan Lamb Gravy  
+Sichuan Duck Gravy  
+Sichuan Eggplant Gravy
+Sichuan
+
+Sichuan Pepper Jelly  
+Chili Jam with Sichuan Pepper  
+Sichuan Spiced Plum Jam  
+Sichuan Chili Oil Jelly  
+Sichuan Garlic Jelly  
+Sichuan Peppercorn and Ginger Jam  
+Sichuan Orange Marmalade  
+Sichuan Pepper and Berry Jam  
+Sichuan Chili and Garlic Jam  
+Sichuan Black Bean Jelly  
+Sichuan Five Spice Jelly  
+Sichuan Pepper and Citrus Jelly  
+Sichuan Chili and Tomato Jam  
+Sichuan Pepper and Apple Jelly  
+Sichuan Chili and Pineapple Jam  
+Sichuan Pepper and Pear Jelly  
+Sichuan Chili and Mango Jam  
+Sichuan Pepper and Lemon Jelly  
+Sichuan Chili and Apricot Jam  
+Sichuan Pepper and Peach Jelly
+Sichuan
+
+Suan Cai (Pickled Mustard Greens)
+
+Paocai (Sichuan Pickled Vegetables)
+
+Zha Cai (Sichuan Preserved Mustard Stem)
+
+La Baicai (Spicy Pickled Cabbage)
+
+Doubanjiang (Fermented Broad Bean Paste)
+
+Tianjin Preserved Vegetable (Tianjin Dongcai)
+
+Sichuan Pickled Peppers
+
+Sichuan Pickled Garlic
+
+Sichuan Pickled Radish
+
+Sichuan Pickled Long Beans
+
+Sichuan Pickled Lotus Root
+
+Sichuan Pickled Bamboo Shoots
+
+Sichuan Pickled Cucumbers
+
+Sichuan Pickled Carrots
+
+Sichuan Pickled Eggplant
+
+Sichuan Pickled Turnip
+
+Sichuan Pickled Cauliflower
+
+Sichuan Pickled Chili Paste
+
+Sichuan Pickled Black Beans
+
+Sichuan Pickled Ginger
+
+Sichuan Pickled Green Beans
+
+Sichuan Pickled Kohlrabi
+
+Sichuan Pickled Mushrooms
+
+Sichuan Pickled Onions
+
+Sichuan Pickled Scallions
+
+Sichuan Pickled Tofu
+
+Sichuan Pickled Water Spinach
+
+Sichuan Pickled Seaweed
+
+Sichuan Pickled Bamboo Shoots with Chili
+
+Sichuan Pickled Cabbage with Chili
+
+Sichuan Pickled Garlic with Chili
+
+Sichuan Pickled Radish with Chili
+
+Sichuan Pickled Long Beans with Chili
+
+Sichuan Pickled Lotus Root with Chili
+
+Sichuan Pickled Bamboo Shoots with Garlic
+
+Sichuan Pickled Cucumbers with Garlic
+
+Sichuan Pickled Carrots with Garlic
+
+Sichuan Pickled Eggplant with Garlic
+
+Sichuan Pickled Turnip with Garlic
+
+Sichuan Pickled Cauliflower with Garlic
+
+Sichuan Pickled Chili Paste with Garlic
+
+Sichuan Pickled Black Beans with Garlic
+
+Sichuan Pickled Ginger with Garlic
+
+Sichuan Pickled Green Beans with Garlic
+
+Sichuan Pickled Kohlrabi with Garlic
+
+Sichuan Pickled Mushrooms with Garlic
+
+Sichuan Pickled Onions with Garlic
+
+Sichuan Pickled Scallions with Garlic
+
+Sichuan Pickled Tofu with Garlic
+
+Sichuan Pickled Water Spinach with Garlic
+
+Sichuan Pickled Seaweed with Garlic
+Sichuan
+
+Sichuan Mala Pizza (Sichuan Spicy Pizza)  
+Chongqing Chicken Pizza (Chongqing Spicy Chicken Pizza)  
+Dan Dan Noodle Pizza (Dan Dan Inspired Pizza)  
+Sichuan Peppercorn Pizza (Sichuan Pepper Pizza)  
+Mapo Tofu Pizza (Mapo Tofu Inspired Pizza)  
+Kung Pao Chicken Pizza (Kung Pao Inspired Pizza)  
+Sichuan Hot Pot Pizza (Sichuan Hot Pot Inspired Pizza)  
+Twice-Cooked Pork Pizza (Twice-Cooked Pork Inspired Pizza)  
+Sichuan Beef Pizza (Sichuan Spicy Beef Pizza)  
+Sichuan Eggplant Pizza (Sichuan Spicy Eggplant Pizza)  
+Sichuan Sausage Pizza (Sichuan Style Sausage Pizza)  
+Sichuan Garlic Shrimp Pizza (Sichuan Spicy Garlic Shrimp Pizza)  
+Sichuan Vegetable Pizza (Sichuan Spicy Vegetable Pizza)  
+Sichuan Chili Oil Pizza (Sichuan Chili Oil Infused Pizza)  
+Sichuan Fish Pizza (Sichuan Spicy Fish Pizza)
+Sichuan
+
+Sichuan Peppercorn Scallion Pancakes  
+Sichuan Dumpling Dough  
+Dan Dan Mian Dough (Dan Dan Noodles Dough)  
+Sichuan Hot Pot Dough Balls  
+Sichuan Style Baozi Dough (Sichuan Style Steamed Bun Dough)  
+Chongqing Noodles Dough  
+Sichuan Wontons Dough  
+Sichuan Sesame Noodles Dough  
+Sichuan Spicy Pancakes Dough  
+Sichuan Egg Roll Wrappers Dough  
+Sichuan Sweet Potato Noodles Dough  
+Sichuan Cold Noodles Dough  
+Sichuan Rice Cake Dough  
+Sichuan Tangyuan Dough (Sichuan Glutinous Rice Balls Dough)  
+Sichuan Style Mantou Dough (Sichuan Style Steamed Bread Dough)  
+Sichuan Fried Dough Twists  
+Sichuan Style Bing Dough (Sichuan Style Flatbread Dough)  
+Sichuan Spicy Dumplings Dough
+Sichuan
+
+Suan Cai Yu (Sichuan Pickled Fish Stew)  
+Ma La Huo Guo (Sichuan Spicy Hot Pot)  
+Dou Hua Yu (Sichuan Tofu Fish Stew)  
+Sichuan Niurou Guo (Sichuan Beef Stew)  
+Sichuan Hongshao Rou (Sichuan Red-Braised Pork Stew)  
+Sichuan Suan Cai Rou Si (Sichuan Pickled Mustard Green and Pork Stew)  
+Sichuan Yu Xiang Qie Zi (Sichuan Fish-Fragrant Eggplant Stew)  
+Sichuan Gan Guo Ji (Sichuan Dry Pot Chicken Stew)  
+Sichuan Douban Yu (Sichuan Spicy Bean Paste Fish Stew)  
+Sichuan La Zi Ji (Sichuan Spicy Chicken Stew)  
+Sichuan Shui Zhu Niu Rou (Sichuan Water-Boiled Beef Stew)  
+Sichuan Shui Zhu Yu (Sichuan Water-Boiled Fish Stew)  
+Sichuan Suan La Fen (Sichuan Hot and Sour Noodle Stew)  
+Sichuan Ma Po Dou Fu (Sichuan Spicy Tofu Stew)  
+Sichuan Yu Xiang Rou Si (Sichuan Fish-Fragrant Shredded Pork Stew)
+Sichuan
+
+Sichuan-Style Meatloaf  
+Spicy Sichuan Pork Loaf  
+Sichuan Peppercorn Beef Loaf  
+Chili Bean Paste Chicken Loaf  
+Sichuan Tofu Loaf  
+Five-Spice Duck Loaf  
+Sichuan Eggplant Loaf  
+Spicy Black Bean Loaf  
+Sichuan Hot and Sour Loaf  
+Garlic and Ginger Pork Loaf
+Sichuan
+
+Sichuan Peppercorn Glaze  
+Chili Bean Sauce Glaze  
+Sweet and Spicy Sichuan Glaze  
+Garlic and Ginger Sichuan Glaze  
+Black Vinegar and Soy Glaze  
+Sichuan Spicy Honey Glaze  
+Five Spice Sichuan Glaze  
+Sichuan Mala Glaze (Numbing and Spicy Glaze)  
+Sichuan Fermented Bean Paste Glaze  
+Sichuan Sweet Soy Glaze  
+Sichuan Sesame Glaze  
+Sichuan Citrus Glaze  
+Sichuan Hot and Sour Glaze  
+Sichuan Plum Sauce Glaze  
+Sichuan Hoisin Glaze
+Sichuan
+
+Laziji (Sichuan Spicy Chicken)
+Kao Yu (Sichuan Grilled Fish)
+Sichuan Roasted Duck
+Sichuan Baked Pork Ribs
+Doubanjiang Roasted Eggplant (Roasted Eggplant with Broad Bean Paste)
+Sichuan Baked Tofu
+Sichuan Roasted Lamb Chops
+Sichuan Baked Sweet Potatoes
+Sichuan Roasted Cauliflower
+Sichuan Baked Chicken Wings
+Sichuan
+
+Tang Cu Li Zi (Sweet and Sour Pears)  
+Hong Tang Xiang Jiao (Red Sugar Bananas)  
+Sichuan Spicy Fruit Salad  
+Gui Hua Lian Ou (Osmanthus Lotus Root with Fruit)  
+Chuan Wei Shui Guo (Sichuan-Style Fruit Platter)  
+Sichuan Peppercorn Pineapple  
+Laozao Niangao (Fermented Rice with Fruit)  
+Sichuan Mango Pudding  
+Chili Mango Sorbet  
+Sichuan Citrus Salad  
+Spicy Lychee Martini  
+Sichuan Pepper Apple Tart  
+Chili-Infused Watermelon  
+Sichuan-Style Poached Pears  
+Sichuan Pepper and Plum Compote  
+Spicy Orange Slices  
+Sichuan-Style Fruit Skewers  
+Chili-Spiced Grapes  
+Sichuan Pepper and Berry Parfait  
+Spicy Pineapple Fried Rice
+Sichuan
+
+Sichuan Peppercorn Cookies  
+Red Bean Paste Buns  
+Sesame Twist Pastries  
+Sichuan Spicy Mooncakes  
+Sweet Osmanthus Rice Cakes  
+Chili Oil Puff Pastry  
+Five-Spice Almond Cookies  
+Sichuan Peppercorn Shortbread  
+Lotus Seed Paste Buns  
+Sichuan Honeycomb Cake  
+Spicy Bean Paste Bread  
+Sichuan Black Sesame Rolls  
+Sweet Rice Wine Cake  
+Sichuan Peppercorn Macarons  
+Spicy Red Bean Bread  
+Sichuan Peppercorn Brownies  
+Sweet Potato Buns  
+Sichuan Peppercorn Scones  
+Chili Chocolate Cake  
+Sichuan Peppercorn Madeleine  
+Ginger and Sichuan Pepper Cookies  
+Spicy Walnut Tart  
+Sichuan Peppercorn Biscotti  
+Sweet Corn Cakes  
+Sichuan Peppercorn Cheesecake
+Sichuan
+
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Kung Pao Chicken (Spicy Stir-fried Chicken with Peanuts)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Sichuan Hot Pot (Spicy Hot Pot)  
+Dan Dan Noodles (Spicy Sichuan Noodles)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Spicy Wontons (Chao Shou)  
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)  
+Sichuan Pepper Chicken (La Zi Ji)  
+Sichuan Eggplant (Yu Xiang Qie Zi)  
+Sichuan Beef with Cumin (Zi Ran Niu Rou)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Spicy Tofu Pudding (Dou Hua)  
+Sichuan Pickled Vegetables (Pao Cai)  
+Sichuan Mala Chicken (Mala Ji)  
+Sichuan Spicy Rabbit (Mala Tu Zi)  
+Sichuan Peppercorn Fish (Ma La Yu)  
+Sichuan Spicy Cabbage (Suan La Bai Cai)  
+Sichuan Spicy Pork Belly (Mala Wu Hua Rou)  
+Sichuan Spicy Shrimp (Mala Xia)  
+Sichuan Spicy Lamb (Mala Yang Rou)  
+Sichuan Spicy Duck (Mala Ya)  
+Sichuan Spicy Tofu Skin (Mala Dou Fu Pi)  
+Sichuan Spicy Beef Tendon (Mala Niu Jin)  
+Sichuan Spicy Chicken Feet (Mala Ji Jiao)  
+Sichuan Spicy Pork Intestines (Mala Fei Chang)  
+Sichuan Spicy Frog (Mala Tian Ji)  
+Sichuan Spicy Squid (Mala You Yu)  
+Sichuan Spicy Clams (Mala Ge Li)  
+Sichuan Spicy Snails (Mala Luo Si)  
+Sichuan Spicy Eel (Mala Shan Yu)  
+Sichuan Spicy Pork Ribs (Mala Pai Gu)  
+Sichuan Spicy Beef Tripe (Mala Niu Bai Ye)  
+Sichuan Spicy Fish Head (Mala Yu Tou)  
+Sichuan Spicy Chicken Gizzards (Mala Ji Xin)  
+Sichuan Spicy Pork Blood (Mala Xue Wang)  
+Sichuan Spicy Beef Offal (Mala Niu Za)  
+Sichuan Spicy Duck Blood (Mala Ya Xue)  
+Sichuan Spicy Pork Liver (Mala Zhu Gan)  
+Sichuan Spicy Chicken Heart (Mala Ji Xin)  
+Sichuan Spicy Pork Kidney (Mala Zhu Shen)  
+Sichuan Spicy Beef Tongue (Mala Niu She)  
+Sichuan Spicy Pork Ear (Mala Zhu Er)  
+Sichuan Spicy Duck Neck (Mala Ya Bo)  
+Sichuan Spicy Pork Feet (Mala Zhu Jiao)  
+Sichuan Spicy Chicken Wings (Mala Ji Chi)  
+Sichuan Spicy Beef Jerky (Mala Niu Gan)  
+Sichuan Spicy Pork Jerky (Mala Zhu Gan)  
+Sichuan Spicy Chicken Jerky (Mala Ji Gan)  
+Sichuan Spicy Duck Jerky (Mala Ya Gan)  
+Sichuan Spicy Fish Jerky (Mala Yu Gan)  
+Sichuan Spicy Tofu Jerky (Mala Dou Fu Gan)  
+Sichuan Spicy Bamboo Shoots (Mala Zhu Sun)  
+Sichuan Spicy Lotus Root (Mala Ou Pian)  
+Sichuan Spicy Potato (Mala Tu Dou)  
+Sichuan Spicy Tofu Noodles (Mala Dou Fu Mian)  
+Sichuan Spicy Rice Noodles (Mala Mi Xian)  
+Sichuan Spicy Glass Noodles (Mala Fen Si)  
+Sichuan Spicy Wheat Noodles (Mala Mian)  
+Sichuan Spicy Bean Curd (Mala Dou Fu)  
+Sichuan Spicy Tofu Cubes (Mala Dou Fu Ding)  
+Sichuan Spicy Tofu Slices (Mala Dou Fu Pian)  
+Sichuan Spicy Tofu Strips (Mala Dou Fu Si)  
+Sichuan Spicy Tofu Blocks (Mala Dou Fu Kuai)  
+Sichuan Spicy Tofu Balls (Mala Dou Fu Qiu)  
+Sichuan Spicy Tofu Puffs (Mala Dou Fu Pao)  
+Sichuan Spicy Tofu Nuggets (Mala Dou Fu Kuai)  
+Sichuan Spicy Tofu Chips (Mala Dou Fu Pian)  
+Sichuan Spicy Tofu Fries (Mala Dou Fu Tiao)  
+Sichuan Spicy Tofu Sticks (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Sheets (Mala Dou Fu Zhang)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)  
+Sichuan Spicy Tofu Rolls (Mala Dou Fu Gun)  
+Sichuan Spicy Tofu Wraps (Mala Dou Fu Juan)
+Sichuan
+
+Kung Pao Chicken (Spicy Stir-fried Chicken with Peanuts)  
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Sichuan Hot Pot (Spicy Hot Pot)  
+Dan Dan Noodles (Spicy Sichuan Noodles)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Spicy Wontons (Chao Shou)  
+Sichuan Pepper Chicken (La Zi Ji)  
+Sichuan Eggplant (Yu Xiang Qie Zi)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Spicy Cucumber Salad (Liang Ban Huang Gua)  
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)  
+Sichuan Spicy Beef (Shui Zhu Niu Rou)  
+Sichuan Pickled Vegetables (Pao Cai)  
+Sichuan Spicy Tofu Pudding (Dou Hua)  
+Sichuan Spicy Rabbit (Mala Tu)  
+Sichuan Spicy Pork Dumplings (Zhong Shui Jiao)  
+Sichuan Spicy Chicken (Kou Shui Ji)  
+Sichuan Spicy Shrimp (Mala Xia)  
+Sichuan Spicy Lamb Skewers (Yang Rou Chuan)  
+Sichuan Spicy Beef Tendon (Mala Niu Jin)  
+Sichuan Spicy Pork Ribs (Mala Pai Gu)  
+Sichuan Spicy Fish Fillet (Mala Yu Pian)  
+Sichuan Spicy Tofu Skin (Mala Dou Fu Pi)  
+Sichuan Spicy Duck (Mala Ya)  
+Sichuan Spicy Frog (Mala Tian Ji)  
+Sichuan Spicy Pork Belly (Mala Wu Hua Rou)  
+Sichuan Spicy Tripe (Mala Bai Ye)  
+Sichuan Spicy Chicken Feet (Mala Ji Jiao)  
+Sichuan Spicy Beef Offal (Mala Niu Za)  
+Sichuan Spicy Pork Blood (Mala Xue Wang)  
+Sichuan Spicy Snail (Mala Luo Si)  
+Sichuan Spicy Lotus Root (Mala Ou Pian)  
+Sichuan Spicy Potato (Mala Tu Dou)  
+Sichuan Spicy Bamboo Shoots (Mala Zhu Sun)  
+Sichuan Spicy Tofu Noodles (Mala Dou Fu Si)  
+Sichuan Spicy Pork Intestines (Mala Da Chang)  
+Sichuan Spicy Chicken Gizzards (Mala Ji Zhen)  
+Sichuan Spicy Pork Ears (Mala Zhu Er Duo)  
+Sichuan Spicy Beef Tongue (Mala Niu She)  
+Sichuan Spicy Duck Neck (Mala Ya Bo)  
+Sichuan Spicy Pork Knuckles (Mala Zhu Shou)  
+Sichuan Spicy Pork Liver (Mala Zhu Gan)  
+Sichuan Spicy Pork Heart (Mala Zhu Xin)  
+Sichuan Spicy Pork Kidney (Mala Zhu Shen)  
+Sichuan Spicy Pork Stomach (Mala Zhu Du)  
+Sichuan Spicy Pork Skin (Mala Zhu Pi)  
+Sichuan Spicy Pork Tail (Mala Zhu Wei)  
+Sichuan Spicy Pork Feet (Mala Zhu Jiao)  
+Sichuan Spicy Pork Head (Mala Zhu Tou)  
+Sichuan Spicy Pork Brain (Mala Zhu Nao)  
+Sichuan Spicy Pork Tongue (Mala Zhu She)  
+Sichuan Spicy Pork Cheek (Mala Zhu Lian)  
+Sichuan Spicy Pork Jaw (Mala Zhu Zui)  
+Sichuan Spicy Pork Snout (Mala Zhu Bi)  
+Sichuan Spicy Pork Trotters (Mala Zhu Ti)  
+Sichuan Spicy Pork Hock (Mala Zhu Ti Gu)  
+Sichuan Spicy Pork Shoulder (Mala Zhu Jian)  
+Sichuan Spicy Pork Neck (Mala Zhu Bo)  
+Sichuan Spicy Pork Rind (Mala Zhu Pi)  
+Sichuan Spicy Pork Back (Mala Zhu Bei)  
+Sichuan Spicy Pork Loin (Mala Zhu Long)  
+Sichuan Spicy Pork Chop (Mala Zhu Pai)  
+Sichuan Spicy Pork Ribs (Mala Zhu Gu)  
+Sichuan Spicy Pork Belly (Mala Zhu Rou)  
+Sichuan Spicy Pork Sausage (Mala La Chang)  
+Sichuan Spicy Pork Meatballs (Mala Zhu Rou Wan)  
+Sichuan Spicy Pork Patties (Mala Zhu Rou Bing)  
+Sichuan Spicy Pork Skewers (Mala Zhu Chuan)  
+Sichuan Spicy Pork Strips (Mala Zhu Rou Tiao)  
+Sichuan Spicy Pork Slices (Mala Zhu Rou Pian)  
+Sichuan Spicy Pork Cubes (Mala Zhu Rou Ding)  
+Sichuan Spicy Pork Shreds (Mala Zhu Rou Si)  
+Sichuan Spicy Pork Mince (Mala Zhu Rou Mo)  
+Sichuan Spicy Pork Chunks (Mala Zhu Rou Kuai)  
+Sichuan Spicy Pork Bits (Mala Zhu Rou Su)  
+Sichuan Spicy Pork Pieces (Mala Zhu Rou Kuai)  
+Sichuan Spicy Pork Nuggets (Mala Zhu Rou Kuai)  
+Sichuan Spicy Pork Crumbles (Mala Zhu Rou Su)  
+Sichuan Spicy Pork Crust (Mala Zhu Pi)  
+Sichuan Spicy Pork Crackling (Mala Zhu Pi)  
+Sichuan Spicy Pork Rinds (Mala Zhu Pi)  
+Sichuan Spicy Pork Chips (Mala Zhu Pian)  
+Sichuan Spicy Pork Crisps (Mala Zhu Pian)  
+Sichuan Spicy Pork Floss (Mala Zhu Rou Song)  
+Sichuan Spicy Pork Jerky (Mala Zhu Rou Gan)  
+Sichuan Spicy Pork Strips (Mala Zhu Rou Tiao)  
+Sichuan Spicy Pork Slices (Mala Zhu Rou Pian)  
+Sichuan Spicy Pork Cubes (Mala Zhu Rou Ding)  
+Sichuan Spicy Pork Shreds (Mala Zhu Rou Si)  
+Sichuan Spicy Pork Mince (Mala Zhu Rou Mo)  
+Sichuan Spicy Pork Chunks (Mala Zhu Rou Kuai)  
+Sichuan Spicy Pork Bits (Mala Zhu Rou Su)  
+Sichuan Spicy Pork Pieces (Mala Zhu Rou Kuai)  
+Sichuan Spicy Pork Nuggets (Mala Zhu Rou Kuai)  
+Sichuan Spicy Pork Crumbles (Mala Zhu Rou Su)  
+Sichuan Spicy Pork Crust (Mala Zhu Pi)  
+Sichuan Spicy Pork Crackling (Mala Zhu Pi)  
+Sichuan Spicy Pork Rinds (Mala Zhu Pi)  
+Sichuan Spicy Pork Chips (Mala Zhu Pian)  
+Sichuan Spicy Pork Crisps (Mala Zhu Pian)  
+Sichuan Spicy Pork Floss (Mala Zhu Rou Song)  
+Sichuan Spicy Pork Jerky (Mala Zhu Rou Gan)
+Sichuan
+
+La Rou (Sichuan Cured Pork Belly)  
+Sichuan Xiang Chang (Sichuan Cured Sausage)  
+Huo Tui (Sichuan Cured Ham)  
+Suan Cai Yu (Sichuan Pickled Fish)  
+Dou Ban Yu (Sichuan Fermented Bean Fish)  
+Sichuan Preserved Vegetables  
+Sichuan Cured Duck  
+Sichuan Spicy Cured Beef  
+Sichuan Cured Chicken
+Sichuan
+
+Sichuan Chicken Wrap  
+Sichuan Spicy Beef Wrap  
+Sichuan Pork Belly Wrap  
+Sichuan Tofu Wrap  
+Sichuan Lamb Wrap  
+Sichuan Duck Wrap  
+Sichuan Vegetable Wrap  
+Sichuan Peppercorn Shrimp Wrap  
+Sichuan Hot and Sour Wrap  
+Sichuan Numbing Spice Wrap
+Sichuan
+
+Shuizhu Yu (Sichuan Boiled Fish)  
+Yu Xiang Yu (Fish with Fragrant Sauce)  
+Gan Guo Yu (Dry Pot Fish)  
+Suan Cai Yu (Sichuan Pickled Vegetable Fish)  
+Douban Yu (Fish with Broad Bean Chili Paste)  
+Huo Guo Yu Pian (Hot Pot Fish Slices)  
+Laziji Yu (Spicy Chicken Fish)  
+Qing Zheng Yu (Steamed Fish with Ginger and Scallions)  
+Kou Shui Yu (Mouthwatering Fish)  
+Ma La Yu (Numbing and Spicy Fish)  
+Jiang Bao Yu (Ginger Explosion Fish)  
+Hong You Yu (Red Oil Fish)  
+Chongqing Kao Yu (Chongqing Grilled Fish)  
+Sichuan Yu Pian (Sichuan Fish Slices)  
+Dou Hua Yu (Fish with Tofu Pudding)  
+Xiang La Yu (Fragrant Spicy Fish)  
+Tie Ban Yu (Iron Plate Fish)  
+Suan La Yu (Sour and Spicy Fish)  
+Zhong Shui Yu (Zhong Style Boiled Fish)  
+Jia Chang Yu (Home-style Fish)
+Sichuan
+
+Mapo Doufu (Mapo Tofu)  
+Laziji (Chongqing Spicy Chicken)  
+Dandanmian (Dandan Noodles)  
+Suan Cai Yu (Sichuan Pickled Mustard Fish)  
+Kung Pao Jiding (Kung Pao Chicken)  
+Twice-Cooked Pork  
+Sichuan Hot Pot  
+Fuqi Feipian (Sliced Beef and Ox Tongue in Chili Sauce)  
+Sichuan Boiled Fish  
+Sichuan Spicy Wontons  
+Yuxiang Rousi (Fish-Fragrant Shredded Pork)  
+Sichuan Eggplant  
+Sichuan Spicy Tofu  
+Sichuan Peppercorn Chicken  
+Sichuan Beef Stir-Fry  
+Sichuan Spicy Noodles  
+Sichuan Cucumber Salad  
+Sichuan Mala Chicken  
+Sichuan Dry-Fried Green Beans  
+Sichuan Spicy Lamb Skewers
+Sichuan
+
+Sichuan Peppercorn Pancakes (Huajiao Bing)  
+Sichuan Scallion Pancakes (Cong You Bing)  
+Sichuan Sweet Rice Flour Dumplings (Tang Yuan)  
+Sichuan Spicy Dumplings (Hong You Chao Shou)  
+Sichuan Steamed Buns (Baozi)  
+Sichuan Fermented Rice Flour Cake (Jiu Niang Gao)  
+Sichuan Crispy Rice Flour Pancakes (Guo Kui)  
+Sichuan Rice Flour Noodles (Mi Xian)  
+Sichuan Wheat Flour Noodles (Mian Tiao)  
+Sichuan Glutinous Rice Balls (Nuomici)  
+Sichuan Fried Dough Twists (Mahua)  
+Sichuan Sesame Flatbread (Shaobing)  
+Sichuan Hot Pot Rice Flour Rolls (Chongqing Huoguo Liangfen)  
+Sichuan Sweet Fermented Rice Balls (Jiu Niang Tang Yuan)  
+Sichuan Spicy Cold Noodles (Liang Mian)  
+Sichuan Red Oil Dumplings (Hong You Jiaozi)  
+Sichuan Dan Dan Noodles (Dan Dan Mian)  
+Sichuan Spicy Pancakes (La Bing)  
+Sichuan Sweet Rice Cakes (Ba Bao Fan)  
+Sichuan Stuffed Rice Flour Balls (Tangyuan)  
+Sichuan Fermented Glutinous Rice Cake (Jiu Niang Gao)  
+Sichuan Hot and Sour Rice Noodles (Suan La Fen)  
+Sichuan Crispy Scallion Pancakes (Cui Cong Bing)  
+Sichuan Fried Rice Flour Cake (Chao Nian Gao)  
+Sichuan Rice Flour Dumplings (Shui Jiao)  
+Sichuan Sweet Rice Dumplings (Tang Yuan)  
+Sichuan Spicy Wontons (Chao Shou)  
+Sichuan Steamed Rice Flour Cake (Zheng Gao)  
+Sichuan Crispy Fried Dough (You Tiao)  
+Sichuan Savory Rice Flour Pancakes (Xian Bing)  
+Sichuan Sweet Glutinous Rice Balls (Tang Yuan)  
+Sichuan Spicy Rice Flour Pancakes (La Bing)  
+Sichuan Fermented Rice Dumplings (Jiu Niang Tang Yuan)  
+Sichuan Hot and Sour Noodles (Suan La Mian)  
+Sichuan Sesame Pancakes (Zhi Ma Bing)  
+Sichuan Sweet Rice Flour Balls (Tang Yuan)
+Sichuan
+
+Tang Cu Pai Gu (Sweet and Sour Spare Ribs)  
+Tang Yuan (Sweet Glutinous Rice Balls)  
+Hong Tang Niu Nai (Red Sugar Milk)  
+Tang You Guo Zi (Sugar Oil Pastry)  
+Ba Bao Fan (Eight Treasure Rice Pudding)  
+Tang You Bing (Sugar Oil Cake)  
+Gui Hua Gao (Osmanthus Cake)  
+Tang You Nian Gao (Sugar Oil Rice Cake)  
+Tang You Yu Tou (Sugar Oil Taro)  
+Tang You San Zi (Sugar Oil Twists)
+Sichuan
+
+Mapo Doufu (Mapo Tofu with Cheese)  
+Sichuan Cheese Hotpot  
+Spicy Cheese and Chicken Stir-fry  
+Cheese and Chili Oil Dumplings  
+Sichuan Peppercorn Cheese Bites  
+Chongqing Cheese Noodles  
+Cheese and Sichuan Pepper Stir-fried Vegetables  
+Cheese-stuffed Sichuan Peppers  
+Sichuan Cheese and Beef Skewers  
+Cheese and Garlic Eggplant Sichuan Style  
+Sichuan Cheese and Pork Belly  
+Cheese and Spicy Sichuan Sausage Pizza  
+Sichuan Cheese and Mushroom Stir-fry  
+Cheese and Sichuan Peppercorn Chicken Wings  
+Sichuan Cheese and Tofu Soup
+Sichuan
+
+Suan Ni Bai Rou (Garlic Pork with Vinegar)
+Yu Xiang Qie Zi (Fish-Fragrant Eggplant with Vinegar)
+Sichuan Liang Ban Ji (Sichuan Cold Chicken with Vinegar)
+Suan La Bai Cai (Sour and Spicy Cabbage with Vinegar)
+Hui Guo Rou (Twice-Cooked Pork with Vinegar)
+Suan La Fen (Hot and Sour Noodles with Vinegar)
+Sichuan Pickled Vegetables with Vinegar
+Kou Shui Ji (Mouthwatering Chicken with Vinegar)
+Suan La Tang (Hot and Sour Soup with Vinegar)
+Sichuan Spicy Cucumber with Vinegar
+Gan Bian Si Ji Dou (Dry-Fried Green Beans with Vinegar)
+Sichuan Vinegar Fish
+Mapo Tofu with Vinegar
+Sichuan Hot Pot with Vinegar Dipping Sauce
+Sichuan Vinegar Chicken Wings
+Sichuan Vinegar and Chili Dumplings
+Sichuan Vinegar Beef Stir-Fry
+Sichuan Vinegar Pork Ribs
+Sichuan Vinegar Eggplant Stir-Fry
+Sichuan
+
+Sichuan Honey Glazed Chicken Wings  
+Sichuan Honey Pork Ribs  
+Sichuan Honey Shrimp Stir-Fry  
+Sichuan Honey Tofu with Peppers  
+Sichuan Honey Glazed Duck  
+Sichuan Honey Garlic Noodles  
+Sichuan Honey Braised Beef  
+Sichuan Honey Chili Chicken  
+Sichuan Honey Eggplant Stir-Fry  
+Sichuan Honey Pepper Chicken  
+Sichuan Honey Sesame Chicken  
+Sichuan Honey Glazed Pork Belly  
+Sichuan Honey Spicy Lamb Skewers  
+Sichuan Honey Glazed Salmon  
+Sichuan Honey Cashew Chicken  
+Sichuan Honey Crispy Beef  
+Sichuan Honey Garlic Pork  
+Sichuan Honey Glazed Vegetables  
+Sichuan Honey Black Pepper Shrimp  
+Sichuan Honey Chicken with Broccoli
+Sichuan
+
+Sichuan Peppercorn Tea  
+Lemon Jasmine Tea  
+Chrysanthemum Pu-erh Tea  
+Ginger Black Tea  
+Osmanthus Green Tea  
+Goji Berry Herbal Tea  
+Sichuan Milk Tea  
+Spicy Mint Tea  
+Lotus Leaf Tea  
+Hibiscus Rose Tea
+Sichuan
+
+Dou Nai (Sichuan Milk)
+Sichuan Peppercorn Milk
+Spiced Milk Tea (Sichuan Style)
+Sweetened Condensed Milk (Sichuan Variant)
+Sichuan Almond Milk
+Chili-Infused Milk (Sichuan Style)
+Sichuan Black Sesame Milk
+Ginger Milk (Sichuan Style)
+Sichuan Milk Pudding
+Sichuan Milk Tea
+Sichuan
+
+Gan Bian Si Ji Dou (Dry-Fried Green Beans with Dried Shrimp)  
+La Zi Ji (Sichuan Spicy Chicken with Dried Chilies)  
+Suan Cai Yu (Fish with Pickled Mustard Greens and Dried Chilies)  
+Huo Guo (Sichuan Hot Pot with Dried Mushrooms)  
+Dou Ban Yu (Fish with Dried Broad Bean Paste)  
+Ma Po Tofu (Mapo Tofu with Dried Fermented Black Beans)  
+Gong Bao Ji Ding (Kung Pao Chicken with Dried Red Chilies)  
+Yu Xiang Qie Zi (Fish-Fragrant Eggplant with Dried Chilies)  
+Suan La Fen (Hot and Sour Noodles with Dried Mushrooms)  
+Hui Guo Rou (Twice-Cooked Pork with Dried Tofu)  
+Dan Dan Mian (Dan Dan Noodles with Dried Sichuan Pepper)  
+Zha Cai Rou Si (Shredded Pork with Pickled Mustard Tuber and Dried Chilies)  
+Dou Hua (Tofu Pudding with Dried Fruit Syrup)  
+Chao Shou (Sichuan Wontons with Dried Chili Oil)  
+Hong Shao Rou (Red-Braised Pork with Dried Plums)
+Sichuan
+
+Mapo Doufu (Sichuan Spicy Tofu)
+Kung Pao Chicken (Spicy Stir-fried Chicken with Peanuts)
+Twice-Cooked Pork (Hui Guo Rou)
+Sichuan Hot Pot (Spicy Broth Hot Pot)
+Dan Dan Noodles (Spicy Sichuan Noodles)
+Sichuan Boiled Fish (Shui Zhu Yu)
+Sichuan Spicy Wontons (Chao Shou)
+Sichuan Eggplant (Yu Xiang Qie Zi)
+Sichuan Pepper Chicken (La Zi Ji)
+Sichuan Spicy Cabbage (Suan La Bai Cai)
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)
+Sichuan Spicy Beef (Mala Niu Rou)
+Sichuan Cold Noodles (Liang Mian)
+Sichuan Spicy Tofu Salad (Ma La Dou Fu)
+Sichuan Spicy Rabbit (Mala Tu Zi)
+Sichuan Spicy Pork Ribs (Mala Pai Gu)
+Sichuan Spicy Shrimp (Mala Xia)
+Sichuan Spicy Duck (Mala Ya)
+Sichuan Spicy Lamb (Mala Yang Rou)
+Sichuan Spicy Chicken Feet (Mala Ji Jiao)
+Sichuan Spicy Potato (Mala Tu Dou)
+Sichuan Spicy Lotus Root (Mala Ou Pian)
+Sichuan Spicy Tofu Pudding (Mala Dou Fu Hua)
+Sichuan Spicy Beef Tendon (Mala Niu Jin)
+Sichuan Spicy Pork Intestine (Mala Fei Chang)
+Sichuan Spicy Chicken Gizzard (Mala Ji Zhen)
+Sichuan Spicy Bean Curd Skin (Mala Dou Pi)
+Sichuan Spicy Fish Head (Mala Yu Tou)
+Sichuan Spicy Frog (Mala Tian Ji)
+Sichuan Spicy Snail (Mala Luo Si)
+Sichuan Spicy Pork Belly (Mala Wu Hua Rou)
+Sichuan Spicy Bamboo Shoots (Mala Zhu Sun)
+Sichuan Spicy Tofu Skin (Mala Dou Fu Pi)
+Sichuan Spicy Beef Tripe (Mala Niu Bai Ye)
+Sichuan Spicy Chicken Wings (Mala Ji Chi)
+Sichuan Spicy Pork Knuckle (Mala Zhu Shou)
+Sichuan Spicy Eggplant with Minced Pork (Ma La Yu Xiang Qie Zi)
+Sichuan Spicy Cucumber Salad (Ma La Huang Gua)
+Sichuan Spicy Cold Chicken (Ma La Liang Ban Ji)
+Sichuan Spicy Beef Noodles (Ma La Niu Rou Mian)
+Sichuan Spicy Pork Noodles (Ma La Zhu Rou Mian)
+Sichuan Spicy Tofu Noodles (Ma La Dou Fu Mian)
+Sichuan Spicy Lamb Skewers (Ma La Yang Rou Chuan)
+Sichuan Spicy Pork Skewers (Ma La Zhu Rou Chuan)
+Sichuan Spicy Chicken Skewers (Ma La Ji Rou Chuan)
+Sichuan Spicy Fish Skewers (Ma La Yu Chuan)
+Sichuan Spicy Vegetable Skewers (Ma La Shu Cai Chuan)
+Sichuan Spicy Tofu Skewers (Ma La Dou Fu Chuan)
+Sichuan Spicy Mushroom Skewers (Ma La Mo Gu Chuan)
+Sichuan Spicy Eggplant Skewers (Ma La Qie Zi Chuan)
+Sichuan Spicy Potato Skewers (Ma La Tu Dou Chuan)
+Sichuan Spicy Lotus Root Skewers (Ma La Ou Pian Chuan)
+Sichuan Spicy Chicken Feet Skewers (Ma La Ji Jiao Chuan)
+Sichuan Spicy Duck Neck (Ma La Ya Bo)
+Sichuan Spicy Duck Tongue (Ma La Ya She)
+Sichuan Spicy Duck Blood (Ma La Ya Xue)
+Sichuan Spicy Duck Gizzard (Ma La Ya Zhen)
+Sichuan Spicy Duck Liver (Ma La Ya Gan)
+Sichuan Spicy Duck Heart (Ma La Ya Xin)
+Sichuan Spicy Duck Intestine (Ma La Ya Chang)
+Sichuan Spicy Duck Web (Ma La Ya Zhang)
+Sichuan Spicy Duck Head (Ma La Ya Tou)
+Sichuan Spicy Duck Wing (Ma La Ya Chi)
+Sichuan Spicy Duck Leg (Ma La Ya Tui)
+Sichuan Spicy Duck Breast (Ma La Ya Xiong)
+Sichuan Spicy Duck Back (Ma La Ya Bei)
+Sichuan Spicy Duck Tail (Ma La Ya Wei)
+Sichuan Spicy Duck Skin (Ma La Ya Pi)
+Sichuan Spicy Duck Meat (Ma La Ya Rou)
+Sichuan Spicy Duck Soup (Ma La Ya Tang)
+Sichuan Spicy Duck Congee (Ma La Ya Zhou)
+Sichuan Spicy Duck Rice (Ma La Ya Fan)
+Sichuan Spicy Duck Noodles (Ma La Ya Mian)
+Sichuan Spicy Duck Dumplings (Ma La Ya Jiao Zi)
+Sichuan Spicy Duck Buns (Ma La Ya Bao Zi)
+Sichuan Spicy Duck Pancakes (Ma La Ya Bing)
+Sichuan Spicy Duck Rolls (Ma La Ya Juan)
+Sichuan Spicy Duck Wraps (Ma La Ya Bao)
+Sichuan Spicy Duck Salad (Ma La Ya Liang Ban)
+Sichuan Spicy Duck Stir-Fry (Ma La Ya Chao)
+Sichuan Spicy Duck Stew (Ma La Ya Dun)
+Sichuan Spicy Duck Braise (Ma La Ya Shao)
+Sichuan Spicy Duck Roast (Ma La Ya Kao)
+Sichuan Spicy Duck Grill (Ma La Ya Shao Kao)
+Sichuan Spicy Duck Fry (Ma La Ya Zha)
+Sichuan Spicy Duck Bake (Ma La Ya Hong)
+Sichuan Spicy Duck Steam (Ma La Ya Zheng)
+Sichuan Spicy Duck Boil (Ma La Ya Zhu)
+Sichuan Spicy Duck Simmer (Ma La Ya Wen)
+Sichuan Spicy Duck Poach (Ma La Ya Tang)
+Sichuan Spicy Duck Smoke (Ma La Ya Xun)
+Sichuan Spicy Duck Cure (Ma La Ya Yan)
+Sichuan Spicy Duck Pickle (Ma La Ya Pao)
+Sichuan Spicy Duck Ferment (Ma La Ya Fa)
+Sichuan Spicy Duck Preserve (Ma La Ya Bao)
+Sichuan Spicy Duck Dry (Ma La Ya Gan)
+Sichuan Spicy Duck Dehydrate (Ma La Ya Hong)
+Sichuan Spicy Duck Freeze (Ma La Ya Dong)
+Sichuan Spicy Duck Chill (Ma La Ya Liang)
+Sichuan Spicy Duck Cool (Ma La Ya Leng)
+Sichuan Spicy Duck Warm (Ma La Ya Nuan)
+Sichuan Spicy Duck Heat (Ma La Ya Re)
+Sichuan Spicy Duck Thaw (Ma La Ya Jie)
+Sichuan Spicy Duck Melt (Ma La Ya Rong)
+Sichuan Spicy Duck Solidify (Ma La Ya Ning)
+Sichuan Spicy Duck Liquidify (Ma La Ya Hua)
+Sichuan Spicy Duck Emulsify (Ma La Ya Rong)
+Sichuan Spicy Duck Blend (Ma La Ya Hun)
+Sichuan Spicy Duck Mix (Ma La Ya Jiao)
+Sichuan Spicy Duck Combine (Ma La Ya He)
+Sichuan Spicy Duck Integrate (Ma La Ya Rong)
+Sichuan Spicy Duck Incorporate (Ma La Ya Rong)
+Sichuan Spicy Duck Infuse (Ma La Ya Ru)
+Sichuan Spicy Duck Marinate (Ma La Ya Yan)
+Sichuan Spicy Duck Season (Ma La Ya Tiao)
+Sichuan Spicy Duck Flavor (Ma La Ya Wei)
+Sichuan Spicy Duck Spice (Ma La Ya La)
+Sichuan Spicy Duck Herb (Ma La Ya Xiang)
+Sichuan Spicy Duck Aromatize (Ma La Ya Xiang)
+Sichuan Spicy Duck Scent (Ma La Ya Xiang)
+Sichuan Spicy Duck Fragrance (Ma La Ya Xiang)
+Sichuan Spicy Duck Bouquet (Ma La Ya Xiang)
+Sichuan Spicy Duck Essence (Ma La Ya Jing)
+Sichuan Spicy Duck Extract (Ma La Ya Chou)
+Sichuan Spicy Duck Concentrate (Ma La Ya Nong)
+Sichuan Spicy Duck Reduce (Ma La Ya Jian)
+Sichuan Spicy Duck Thicken (Ma La Ya Hou)
+Sichuan Spicy Duck Thin (Ma La Ya Xi)
+Sichuan Spicy Duck Lighten (Ma La Ya Qing)
+Sichuan Spicy Duck Darken (Ma La Ya Shen)
+Sichuan Spicy Duck Brighten (Ma La Ya Liang)
+Sichuan Spicy Duck Dull (Ma La Ya An)
+Sichuan Spicy Duck Sharpen (Ma La Ya Jian)
+Sichuan Spicy Duck Soften (Ma La Ya Ruan)
+Sichuan Spicy Duck Harden (Ma La Ya Ying)
+Sichuan Spicy Duck Tenderize (Ma La Ya Ruan)
+Sichuan Spicy Duck Toughen (Ma La Ya Ying)
+Sichuan Spicy Duck Crisp (Ma La Ya Cui)
+Sichuan Spicy Duck Crunch (Ma La Ya Cui)
+Sichuan Spicy Duck Chew (Ma La Ya Jiao)
+Sichuan Spicy Duck Bite (Ma La Ya Yao)
+S
+Sichuan
+
+Suan Nai (Sichuan Yogurt)  
+Lao Suan Nai (Old-fashioned Sichuan Yogurt)  
+Sichuan Pepper Yogurt  
+Spicy Sichuan Yogurt  
+Sichuan Honey Yogurt  
+Chili Oil Yogurt  
+Sichuan Herbal Yogurt  
+Sichuan Fruit Yogurt  
+Sichuan-style Yogurt Parfait  
+Traditional Sichuan Yogurt with Nuts  
+Sichuan Yogurt with Red Bean  
+Sichuan Yogurt with Black Sesame  
+Sichuan Yogurt with Rice Wine  
+Sichuan Yogurt with Jujube  
+Sichuan Yogurt with Goji Berries  
+Sichuan Yogurt with Lotus Seeds  
+Sichuan Yogurt with Osmanthus  
+Sichuan Yogurt with Ginger  
+Sichuan Yogurt with Green Tea  
+Sichuan Yogurt with Sweet Potato  
+Sichuan Yogurt with Tofu  
+Sichuan Yogurt with Fermented Glutinous Rice  
+Sichuan Yogurt with Brown Sugar  
+Sichuan Yogurt with Almonds  
+Sichuan Yogurt with Peanuts  
+Sichuan Yogurt with Mango  
+Sichuan Yogurt with Lychee  
+Sichuan Yogurt with Dragon Fruit  
+Sichuan Yogurt with Pineapple  
+Sichuan Yogurt with Coconut  
+Sichuan Yogurt with Durian  
+Sichuan Yogurt with Papaya  
+Sichuan Yogurt with Passion Fruit  
+Sichuan Yogurt with Kiwi  
+Sichuan Yogurt with Strawberry  
+Sichuan Yogurt with Blueberry  
+Sichuan Yogurt with Raspberry  
+Sichuan Yogurt with Blackberry  
+Sichuan Yogurt with Mulberry  
+Sichuan Yogurt with Fig  
+Sichuan Yogurt with Date  
+Sichuan Yogurt with Plum  
+Sichuan Yogurt with Apricot  
+Sichuan Yogurt with Peach  
+Sichuan Yogurt with Cherry  
+Sichuan Yogurt with Grape  
+Sichuan Yogurt with Pomegranate  
+Sichuan Yogurt with Persimmon  
+Sichuan Yogurt with Watermelon  
+Sichuan Yogurt with Cantaloupe  
+Sichuan Yogurt with Honeydew  
+Sichuan Yogurt with Avocado  
+Sichuan Yogurt with Lemon  
+Sichuan Yogurt with Lime  
+Sichuan Yogurt with Orange  
+Sichuan Yogurt with Grapefruit  
+Sichuan Yogurt with Tangerine  
+Sichuan Yogurt with Clementine  
+Sichuan Yogurt with Kumquat  
+Sichuan Yogurt with Starfruit  
+Sichuan Yogurt with Guava  
+Sichuan Yogurt with Jackfruit  
+Sichuan Yogurt with Rambutan  
+Sichuan Yogurt with Mangosteen  
+Sichuan Yogurt with Longan  
+Sichuan Yogurt with Lychee  
+Sichuan Yogurt with Pomelo  
+Sichuan Yogurt with Soursop  
+Sichuan Yogurt with Tamarind  
+Sichuan Yogurt with Carambola  
+Sichuan Yogurt with Sapodilla  
+Sichuan Yogurt with Custard Apple  
+Sichuan Yogurt with Breadfruit  
+Sichuan Yogurt with Ackee  
+Sichuan Yogurt with Sorrel  
+Sichuan Yogurt with Elderberry  
+Sichuan Yogurt with Gooseberry  
+Sichuan Yogurt with Currant  
+Sichuan Yogurt with Cranberry  
+Sichuan Yogurt with Cloudberry  
+Sichuan Yogurt with Lingonberry  
+Sichuan Yogurt with Sea Buckthorn  
+Sichuan Yogurt with Rosehip  
+Sichuan Yogurt with Aronia  
+Sichuan Yogurt with Boysenberry  
+Sichuan Yogurt with Tayberry  
+Sichuan Yogurt with Loganberry  
+Sichuan Yogurt with Marionberry  
+Sichuan Yogurt with Olallieberry  
+Sichuan Yogurt with Huckleberry  
+Sichuan Yogurt with Saskatoon Berry  
+Sichuan Yogurt with Serviceberry  
+Sichuan Yogurt with Thimbleberry  
+Sichuan Yogurt with Salmonberry  
+Sichuan Yogurt with Dewberry  
+Sichuan Yogurt with Wineberry  
+Sichuan Yogurt with Buffaloberry  
+Sichuan Yogurt with Chokeberry  
+Sichuan Yogurt with Chokecherry  
+Sichuan Yogurt with Hackberry  
+Sichuan Yogurt with Mulberry  
+Sichuan Yogurt with Nannyberry  
+Sichuan Yogurt with Pawpaw  
+Sichuan Yogurt with Maypop  
+Sichuan Yogurt with Passionflower  
+Sichuan Yogurt with Ground Cherry  
+Sichuan Yogurt with Cape Gooseberry  
+Sichuan Yogurt with Physalis  
+Sichuan Yogurt with Tomatillo  
+Sichuan Yogurt with Husk Tomato  
+Sichuan Yogurt with Strawberry Tomato  
+Sichuan Yogurt with Winter Cherry  
+Sichuan Yogurt with Goldenberry  
+Sichuan Yogurt with Inca Berry  
+Sichuan Yogurt with Pineapple Ground Cherry  
+Sichuan Yogurt with Purple Ground Cherry  
+Sichuan Yogurt with Red Ground Cherry  
+Sichuan Yogurt with Yellow Ground Cherry  
+Sichuan Yogurt with Green Ground Cherry  
+Sichuan Yogurt with Blue Ground Cherry  
+Sichuan Yogurt with Black Ground Cherry  
+Sichuan Yogurt with White Ground Cherry  
+Sichuan Yogurt with Pink Ground Cherry  
+Sichuan Yogurt with Orange Ground Cherry  
+Sichuan Yogurt with Brown Ground Cherry  
+Sichuan Yogurt with Silver Ground Cherry  
+Sichuan Yogurt with Gold Ground Cherry  
+Sichuan Yogurt with Bronze Ground Cherry  
+Sichuan Yogurt with Copper Ground Cherry  
+Sichuan Yogurt with Brass Ground Cherry  
+Sichuan Yogurt with Nickel Ground Cherry  
+Sichuan Yogurt with Zinc Ground Cherry  
+Sichuan Yogurt with Tin Ground Cherry  
+Sichuan Yogurt with Lead Ground Cherry  
+Sichuan Yogurt with Iron Ground Cherry  
+Sichuan Yogurt with Steel Ground Cherry  
+Sichuan Yogurt with Aluminum Ground Cherry  
+Sichuan Yogurt with Magnesium Ground Cherry  
+Sichuan Yogurt with Calcium Ground Cherry  
+Sichuan Yogurt with Potassium Ground Cherry  
+Sichuan Yogurt with Sodium Ground Cherry  
+Sichuan Yogurt with Lithium Ground Cherry  
+Sichuan Yogurt with Beryllium Ground Cherry  
+Sichuan Yogurt with Boron Ground Cherry  
+Sichuan Yogurt with Carbon Ground Cherry  
+Sichuan Yogurt with Nitrogen Ground Cherry  
+Sichuan Yogurt with Oxygen Ground Cherry  
+Sichuan Yogurt with Fluorine Ground Cherry  
+Sichuan Yogurt with Neon Ground Cherry  
+Sichuan Yogurt with Helium Ground Cherry  
+Sichuan Yogurt with Argon Ground Cherry  
+Sichuan Yogurt with Krypton Ground Cherry  
+Sichuan Yogurt with Xenon Ground Cherry  
+Sichuan Yogurt with Radon Ground Cherry  
+Sichuan Yogurt with Oganesson Ground Cherry  
+Sichuan Yogurt with Ununoctium Ground Cherry  
+Sichuan Yogurt with Ununseptium Ground Cherry  
+Sichuan Yogurt with Ununhexium Ground Cherry  
+Sichuan Yogurt with Ununpentium Ground Cherry  
+Sichuan Yogurt with Ununquadium Ground Cherry  
+Sichuan Yogurt with Ununtrium Ground Cherry  
+Sichuan Yogurt with Ununbium Ground Cherry  
+Sichuan Yogurt with Unununium Ground Cherry  
+Sichuan Yogurt with Ununnilium Ground Cherry  
+Sichuan Yogurt with Ununennium Ground Cherry  
+Sichuan Yogurt with Unbinilium Ground Cherry  
+Sichuan Yogurt with Unbiunium Ground Cherry  
+Sichuan Yogurt with Unbibium Ground Cherry  
+Sichuan Yogurt with Unbitrium Ground Cherry  
+Sichuan Yogurt with Unbiquadium Ground Cherry  
+Sichuan Yogurt with Unbipentium Ground Cherry  
+Sichuan Yogurt with Unbihexium Ground Cherry  
+Sichuan Yogurt with Unbiseptium Ground Cherry  
+Sichuan Yogurt with Unbioctium Ground Cherry  
+Sichuan Yogurt with Unbiennium Ground Cherry  
+Sichuan Yogurt with Untrinilium Ground Cherry  
+Sichuan Yogurt with Untrinunium Ground Cherry  
+Sichuan Yogurt with Untrinbium Ground Cherry  
+Sichuan Yogurt with Untrinium Ground Cherry  
+Sichuan Yogurt with Untriquadium Ground Cherry  
+Sichuan Yogurt with Untripentium Ground Cherry  
+Sichuan Yogurt with Untrihexium Ground Cherry  
+Sichuan Yogurt with Untriseptium Ground Cherry  
+Sichuan Yogurt with Untrioctium Ground Cherry  
+Sichuan Yogurt with Untriennium Ground Cherry  
+Sichuan Yogurt with Unquadium Ground Cherry  
+Sichuan Yogurt with Unquadunium Ground Cherry  
+Sichuan Yogurt with Unquadbium Ground Cherry  
+Sichuan Yogurt with Unquadtrium Ground Cherry  
+Sichuan Yogurt with Unquadquadium Ground Cherry  
+Sichuan Yogurt with Unquadpentium Ground Cherry  
+Sichuan Yogurt with Unquadhexium Ground Cherry  
+Sichuan Yogurt with Unquadseptium Ground Cherry  
+Sichuan Yogurt with Unquadoctium Ground Cherry  
+Sichuan Yogurt with Unquadennium Ground Cherry  
+Sichuan Yogurt with Unpentium Ground Cherry  
+Sichuan Yogurt with Un
+Sichuan
+
+Sichuan Peppercorn Oil  
+Laziji Spice Mix (Spicy Chicken Seasoning)  
+Doubanjiang (Broad Bean Chili Paste)  
+Mala Sauce (Numbing and Spicy Sauce)  
+Yuxiang Sauce (Fish-Fragrant Sauce)  
+Hua Jiao Yan (Sichuan Pepper-Salt)  
+Chili Oil  
+Pixian Douban (Pixian Broad Bean Paste)  
+Zajiang Sauce (Mixed Sauce)  
+Suan Cai (Pickled Mustard Greens)  
+Chongqing Hot Pot Base  
+Tian Mian Jiang (Sweet Bean Sauce)  
+Sichuan Garlic Sauce  
+Sichuan Vinegar Dressing  
+Hunan Chili Paste (often used interchangeably in Sichuan cuisine)  
+Sichuan Mala Hot Pot Seasoning  
+Sichuan Soy Sauce Blend  
+Sichuan Black Bean Sauce  
+Sichuan Spicy Noodle Sauce  
+Sichuan Fermented Black Bean Paste
+Sichuan
+
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)  
+Sichuan Hot Pot (Spicy Sichuan-Style Hot Pot)  
+Twice-Cooked Pork (Sichuan Double-Cooked Pork Belly)  
+Dan Dan Noodles (Spicy Sichuan Noodles with Pork)  
+Sichuan Boiled Fish (Spicy Poached Fish in Chili Oil)  
+Sichuan Eggplant (Spicy Garlic Eggplant)  
+Sichuan Pepper Chicken (Spicy Chicken with Sichuan Peppercorns)  
+Chongqing Spicy Chicken (Chongqing Mala Chicken)  
+Sichuan Dry-Fried Green Beans (Spicy Green Beans with Pork)  
+Sichuan Spicy Wontons (Wontons in Chili Oil)  
+Sichuan Cucumber Salad (Spicy Cucumber Salad)  
+Sichuan Beef with Chili Sauce (Spicy Beef in Chili Sauce)  
+Sichuan Spicy Tofu (Spicy Braised Tofu)  
+Sichuan Mala Pot (Spicy Numbing Hot Pot)  
+Sichuan Cold Noodles (Spicy Cold Noodles)  
+Sichuan Spicy Shrimp (Spicy Sichuan-Style Shrimp)  
+Sichuan Pickled Vegetables (Spicy Pickled Vegetables)  
+Sichuan Spicy Lamb (Spicy Lamb with Cumin and Chili)  
+Sichuan Hot and Sour Soup (Spicy and Sour Soup)
+Sichuan
+
+Suan Cai Yu (Sichuan Pickled Fish with Tofu)  
+Mapo Doufu (Sichuan Spicy Tofu)  
+Kung Pao Chicken (Sichuan Spicy Stir-Fried Chicken)  
+Dan Dan Noodles (Sichuan Spicy Noodles)  
+Twice-Cooked Pork (Sichuan Double-Cooked Pork)  
+Sichuan Hot Pot (Sichuan Spicy Hot Pot)  
+Chongqing Chicken (Sichuan Spicy Fried Chicken)  
+Sichuan Boiled Fish (Sichuan Spicy Poached Fish)  
+Sichuan Eggplant (Sichuan Spicy Eggplant)  
+Sichuan Peppercorn Chicken (Sichuan Numbing Spicy Chicken)  
+Sichuan Spicy Wontons (Sichuan Spicy Dumplings)  
+Sichuan Dry-Fried Green Beans (Sichuan Spicy Green Beans)  
+Sichuan Spicy Cabbage (Sichuan Pickled Spicy Cabbage)  
+Sichuan Mala Chicken (Sichuan Numbing Spicy Chicken)  
+Sichuan Spicy Beef (Sichuan Spicy Stir-Fried Beef)  
+Sichuan Cold Noodles (Sichuan Spicy Cold Noodles)  
+Sichuan Spicy Shrimp (Sichuan Spicy Stir-Fried Shrimp)  
+Sichuan Spicy Lamb (Sichuan Spicy Stir-Fried Lamb)  
+Sichuan Spicy Duck (Sichuan Spicy Braised Duck)  
+Sichuan Spicy Pork Belly (Sichuan Spicy Braised Pork Belly)  
+Sichuan Spicy Tofu Salad (Sichuan Spicy Cold Tofu Salad)  
+Sichuan Spicy Chicken Salad (Sichuan Spicy Cold Chicken Salad)  
+Sichuan Spicy Potato (Sichuan Spicy Stir-Fried Potato)  
+Sichuan Spicy Lotus Root (Sichuan Spicy Stir-Fried Lotus Root)  
+Sichuan Spicy Fish Fillet (Sichuan Spicy Braised Fish Fillet)  
+Sichuan Spicy Pork Ribs (Sichuan Spicy Braised Pork Ribs)  
+Sichuan Spicy Squid (Sichuan Spicy Stir-Fried Squid)  
+Sichuan Spicy Eggplant with Minced Pork (Sichuan Spicy Braised Eggplant with Pork)  
+Sichuan Spicy Chicken Wings (Sichuan Spicy Fried Chicken Wings)  
+Sichuan Spicy Tofu with Minced Pork (Sichuan Spicy Tofu with Pork)  
+Sichuan Spicy Beef Noodles (Sichuan Spicy Braised Beef Noodles)  
+Sichuan Spicy Pork Noodles (Sichuan Spicy Braised Pork Noodles)  
+Sichuan Spicy Chicken Noodles (Sichuan Spicy Braised Chicken Noodles)  
+Sichuan Spicy Fish Head (Sichuan Spicy Braised Fish Head)  
+Sichuan Spicy Crab (Sichuan Spicy Stir-Fried Crab)  
+Sichuan Spicy Clams (Sichuan Spicy Stir-Fried Clams)  
+Sichuan Spicy Bean Curd (Sichuan Spicy Braised Bean Curd)  
+Sichuan Spicy Pork Intestines (Sichuan Spicy Braised Pork Intestines)  
+Sichuan Spicy Frog (Sichuan Spicy Braised Frog)  
+Sichuan Spicy Rabbit (Sichuan Spicy Braised Rabbit)  
+Sichuan Spicy Bamboo Shoots (Sichuan Spicy Stir-Fried Bamboo Shoots)  
+Sichuan Spicy Mushrooms (Sichuan Spicy Stir-Fried Mushrooms)  
+Sichuan Spicy Peanuts (Sichuan Spicy Fried Peanuts)  
+Sichuan Spicy Tofu Skin (Sichuan Spicy Braised Tofu Skin)  
+Sichuan Spicy Vermicelli (Sichuan Spicy Braised Vermicelli)  
+Sichuan Spicy Pork Feet (Sichuan Spicy Braised Pork Feet)  
+Sichuan Spicy Chicken Feet (Sichuan Spicy Braised Chicken Feet)  
+Sichuan Spicy Duck Neck (Sichuan Spicy Braised Duck Neck)  
+Sichuan Spicy Duck Tongue (Sichuan Spicy Braised Duck Tongue)  
+Sichuan Spicy Pork Ears (Sichuan Spicy Braised Pork Ears)  
+Sichuan Spicy Fish Balls (Sichuan Spicy Braised Fish Balls)  
+Sichuan Spicy Beef Tripe (Sichuan Spicy Braised Beef Tripe)  
+Sichuan Spicy Pork Liver (Sichuan Spicy Braised Pork Liver)  
+Sichuan Spicy Chicken Gizzards (Sichuan Spicy Braised Chicken Gizzards)  
+Sichuan Spicy Pork Blood (Sichuan Spicy Braised Pork Blood)  
+Sichuan Spicy Duck Blood (Sichuan Spicy Braised Duck Blood)  
+Sichuan Spicy Beef Tendon (Sichuan Spicy Braised Beef Tendon)  
+Sichuan Spicy Pork Tongue (Sichuan Spicy Braised Pork Tongue)  
+Sichuan Spicy Beef Heart (Sichuan Spicy Braised Beef Heart)  
+Sichuan Spicy Pork Heart (Sichuan Spicy Braised Pork Heart)  
+Sichuan Spicy Chicken Heart (Sichuan Spicy Braised Chicken Heart)  
+Sichuan Spicy Duck Heart (Sichuan Spicy Braised Duck Heart)  
+Sichuan Spicy Pork Stomach (Sichuan Spicy Braised Pork Stomach)  
+Sichuan Spicy Beef Stomach (Sichuan Spicy Braised Beef Stomach)  
+Sichuan Spicy Chicken Stomach (Sichuan Spicy Braised Chicken Stomach)  
+Sichuan Spicy Duck Stomach (Sichuan Spicy Braised Duck Stomach)  
+Sichuan Spicy Pork Kidney (Sichuan Spicy Braised Pork Kidney)  
+Sichuan Spicy Beef Kidney (Sichuan Spicy Braised Beef Kidney)  
+Sichuan Spicy Chicken Kidney (Sichuan Spicy Braised Chicken Kidney)  
+Sichuan Spicy Duck Kidney (Sichuan Spicy Braised Duck Kidney)  
+Sichuan Spicy Pork Brain (Sichuan Spicy Braised Pork Brain)  
+Sichuan Spicy Beef Brain (Sichuan Spicy Braised Beef Brain)  
+Sichuan Spicy Chicken Brain (Sichuan Spicy Braised Chicken Brain)  
+Sichuan Spicy Duck Brain (Sichuan Spicy Braised Duck Brain)  
+Sichuan Spicy Pork Tail (Sichuan Spicy Braised Pork Tail)  
+Sichuan Spicy Beef Tail (Sichuan Spicy Braised Beef Tail)  
+Sichuan Spicy Chicken Tail (Sichuan Spicy Braised Chicken Tail)  
+Sichuan Spicy Duck Tail (Sichuan Spicy Braised Duck Tail)
+Sichuan
+
+Chili Oil (Sichuan Chili Oil)  
+Lao Gan Ma (Spicy Chili Crisp Oil)  
+Sichuan Peppercorn Oil (Huajiao Oil)  
+Garlic Infused Oil (Suan You)  
+Scallion Oil (Cong You)  
+Sesame Oil (Zhi Ma You)  
+Five Spice Oil (Wu Xiang You)  
+Ginger Oil (Jiang You)  
+Black Bean Oil (Douchi Oil)  
+Fermented Bean Paste Oil (Doubanjiang Oil)
+Sichuan
+
+Sichuan Peppercorn Vinaigrette  
+Chili Oil Vinaigrette  
+Black Vinegar and Garlic Vinaigrette  
+Spicy Sesame Vinaigrette  
+Ginger and Soy Vinaigrette  
+Sweet and Sour Sichuan Vinaigrette  
+Fermented Bean Paste Vinaigrette  
+Five Spice Vinaigrette  
+Mala Vinaigrette (Numbing and Spicy Vinaigrette)  
+Sichuan Citrus Vinaigrette
+Sichuan
+
+La Chang (Sichuan Spicy Sausage)  
+Sichuan Pepper Sausage  
+Sichuan Garlic Sausage  
+Sichuan Smoked Sausage  
+Sichuan Hot Pot Sausage  
+Sichuan Style Sausage with Chili  
+Sichuan Double-Cooked Sausage  
+Sichuan Sausage Stir-Fry  
+Sichuan Sausage and Tofu Stew  
+Sichuan Sausage Fried Rice
+Sichuan
+
+Doubanjiang (Fermented Broad Bean Paste)  
+Suanmei Jiang (Sour Plum Sauce)  
+Lajiao Jiang (Chili Paste)  
+Huajiao Jiang (Sichuan Peppercorn Paste)  
+Yuxiang Jiang (Fish Fragrant Sauce)  
+Zhacai Jiang (Pickled Mustard Stem Spread)  
+Mala Jiang (Numbing and Spicy Sauce)  
+Huangdou Jiang (Yellow Bean Paste)  
+Tianmian Jiang (Sweet Bean Sauce)  
+Doubanjiang with Garlic (Garlic Broad Bean Paste)  
+Chili Oil Spread  
+Black Bean Sauce Spread  
+Sweet and Sour Plum Sauce  
+Garlic and Chili Paste  
+Sichuan Peppercorn Oil Spread  
+Spicy Sesame Paste  
+Fermented Black Bean and Garlic Spread  
+Hot and Sour Sauce Spread  
+Sichuan Chili Crisp Spread  
+Ginger and Scallion Oil Spread
+Sichuan
+
+Suan Cai Fan (Pickled Vegetable Rice)
+
+Dan Dan Mian (Dan Dan Noodles)
+
+Sichuan Fried Rice
+
+Sichuan Peppercorn Congee
+
+Chao Fan (Sichuan Style Stir-Fried Rice)
+
+Hong You Chao Shou (Red Oil Wontons with Rice)
+
+Ma La Xiang Guo (Spicy Numbing Stir-Fry Pot with Rice)
+
+Sichuan Barley Porridge
+
+Sichuan Millet Congee
+
+Sichuan Spicy Granola
+
+Sichuan Sweet Rice Balls
+
+Sichuan Style Oatmeal
+
+Sichuan Cornmeal Porridge
+
+Sichuan Spicy Rice Cake
+
+Sichuan Black Rice Pudding
+
+Sichuan Red Bean Rice
+
+Sichuan Sesame Rice
+
+Sichuan Glutinous Rice Dumplings
+
+Sichuan Spicy Quinoa
+
+Sichuan Five-Spice Rice
+
+Sichuan Lotus Leaf Rice
+
+Sichuan Bamboo Rice
+
+Sichuan Tea Rice
+Sichuan
+
+Sichuan Spicy Beef Jerky  
+Chuan Wei Niu Rou Gan (Sichuan-Style Beef Jerky)  
+Sichuan Peppercorn Jerky  
+Mala Beef Jerky (Spicy and Numbing Beef Jerky)  
+Sichuan-Style Pork Jerky  
+Sichuan Chili Pepperoni  
+Sichuan Spiced Pepperoni  
+Mala Pepperoni (Spicy and Numbing Pepperoni)  
+Sichuan-Infused Beef Jerky  
+Sichuan Garlic Jerky  
+Sichuan Honey Glazed Jerky  
+Sichuan Five-Spice Jerky  
+Sichuan Sweet and Spicy Jerky  
+Sichuan Black Pepper Jerky  
+Sichuan Soy Sauce Jerky  
+Sichuan Vinegar Jerky  
+Sichuan Ginger Jerky
+Sichuan
+
+La Rou (Sichuan Cured Pork Belly)  
+Huo Tui (Sichuan Smoked Ham)  
+Sichuan Peppercorn Salami  
+Sichuan Spiced Duck Breast  
+Sichuan Style Charcuterie Board  
+Sichuan Mala Sausage  
+Sichuan Cured Beef  
+Sichuan Style Bacon  
+Sichuan Spicy Cold Cuts  
+Sichuan Peppercorn Pastrami  
+Sichuan Style Roast Pork  
+Sichuan Five-Spice Ham  
+Sichuan Spiced Turkey Breast  
+Sichuan Style Jinhua Ham  
+Sichuan Chili Sausage  
+Sichuan Style Prosciutto  
+Sichuan Garlic Sausage  
+Sichuan Spiced Salami  
+Sichuan Style Mortadella  
+Sichuan Peppercorn Coppa  
+Sichuan Style Pancetta  
+Sichuan Style Bresaola  
+Sichuan Spiced Roast Beef  
+Sichuan Style Soppressata  
+Sichuan Style Lonzino  
+Sichuan Style Guanciale  
+Sichuan Style Capicola  
+Sichuan Style Lardo  
+Sichuan Style Speck  
+Sichuan Style Biltong  
+Sichuan Style Chorizo  
+Sichuan Style Andouille  
+Sichuan Style Kielbasa  
+Sichuan Style Saucisson  
+Sichuan Style Salchichón  
+Sichuan Style Boudin  
+Sichuan Style Tasso  
+Sichuan Style Lomo  
+Sichuan Style Lonzino  
+Sichuan Style Culatello  
+Sichuan Style Finocchiona  
+Sichuan Style Nduja  
+Sichuan Style Sobrassada  
+Sichuan Style Salame Felino  
+Sichuan Style Salame Toscano  
+Sichuan Style Salame Milano  
+Sichuan Style Salame Napoli  
+Sichuan Style Salame Calabrese  
+Sichuan Style Salame Abruzzese  
+Sichuan Style Salame Piacentino  
+Sichuan Style Salame Cremona  
+Sichuan Style Salame Brianza  
+Sichuan Style Salame Cacciatore  
+Sichuan Style Salame Varzi  
+Sichuan Style Salame Ungherese  
+Sichuan Style Salame Spianata  
+Sichuan Style Salame Ventricina  
+Sichuan Style Salame Fabriano  
+Sichuan Style Salame Sant'Olcese  
+Sichuan Style Salame Felino IGP  
+Sichuan Style Salame di Varzi DOP  
+Sichuan Style Salame di Milano IGP  
+Sichuan Style Salame di Cremona IGP  
+Sichuan Style Salame di Sant'Olcese IGP  
+Sichuan Style Salame di Felino IGP  
+Sichuan Style Salame di Varzi DOP  
+Sichuan Style Salame di Milano IGP  
+Sichuan Style Salame di Cremona IGP  
+Sichuan Style Salame di Sant'Olcese IGP
+Sichuan
+
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Kung Pao Chicken (Spicy Stir-fried Chicken with Peanuts)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Sichuan Hot Pot (Spicy Hot Pot)  
+Dan Dan Noodles (Spicy Sichuan Noodles)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Spicy Wontons (Chao Shou)  
+Sichuan Eggplant (Yu Xiang Qie Zi)  
+Sichuan Pepper Chicken (La Zi Ji)  
+Sichuan Spicy Tofu (Ma Po Dou Fu)  
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Spicy Beef (Shui Zhu Niu Rou)  
+Sichuan Cucumber Salad (Liang Ban Huang Gua)  
+Sichuan Spicy Shrimp (La Zi Xia)  
+Sichuan Pickled Vegetables (Pao Cai)  
+Sichuan Spicy Lamb (Ma La Yang Rou)  
+Sichuan Spicy Duck (Ma La Ya)  
+Sichuan Spicy Pork (Ma La Rou)  
+Sichuan Spicy Chicken (Ma La Ji)  
+Sichuan Spicy Tofu Soup (Ma La Dou Fu Tang)  
+Sichuan Spicy Fish Soup (Ma La Yu Tang)  
+Sichuan Spicy Beef Noodles (Ma La Niu Rou Mian)  
+Sichuan Spicy Pork Noodles (Ma La Rou Mian)  
+Sichuan Spicy Chicken Noodles (Ma La Ji Mian)  
+Sichuan Spicy Tofu Noodles (Ma La Dou Fu Mian)  
+Sichuan Spicy Vegetable Noodles (Ma La Shu Cai Mian)  
+Sichuan Spicy Seafood Noodles (Ma La Hai Xian Mian)  
+Sichuan Spicy Lamb Noodles (Ma La Yang Rou Mian)  
+Sichuan Spicy Duck Noodles (Ma La Ya Mian)  
+Sichuan Spicy Beef Soup (Ma La Niu Rou Tang)  
+Sichuan Spicy Pork Soup (Ma La Rou Tang)  
+Sichuan Spicy Chicken Soup (Ma La Ji Tang)  
+Sichuan Spicy Vegetable Soup (Ma La Shu Cai Tang)  
+Sichuan Spicy Seafood Soup (Ma La Hai Xian Tang)  
+Sichuan Spicy Lamb Soup (Ma La Yang Rou Tang)  
+Sichuan Spicy Duck Soup (Ma La Ya Tang)  
+Sichuan Spicy Tofu Stir-fry (Ma La Dou Fu Chao)  
+Sichuan Spicy Beef Stir-fry (Ma La Niu Rou Chao)  
+Sichuan Spicy Pork Stir-fry (Ma La Rou Chao)  
+Sichuan Spicy Chicken Stir-fry (Ma La Ji Chao)  
+Sichuan Spicy Vegetable Stir-fry (Ma La Shu Cai Chao)  
+Sichuan Spicy Seafood Stir-fry (Ma La Hai Xian Chao)  
+Sichuan Spicy Lamb Stir-fry (Ma La Yang Rou Chao)  
+Sichuan Spicy Duck Stir-fry (Ma La Ya Chao)
+Sichuan
+
+Sichuan Peppercorn Smoothie  
+Chili Mango Smoothie  
+Spicy Ginger and Lychee Smoothie  
+Black Sesame and Banana Smoothie  
+Five Spice Pineapple Smoothie  
+Sichuan Chili Chocolate Smoothie  
+Jasmine Green Tea Smoothie  
+Sweet and Spicy Plum Smoothie  
+Toasted Almond and Red Date Smoothie  
+Sichuan Cucumber Mint Smoothie  
+Spicy Sichuan Strawberry Smoothie  
+Sichuan Honey Citrus Smoothie  
+Ginger Pear Smoothie  
+Sichuan Spiced Apple Smoothie  
+Sichuan Pepper and Berry Smoothie  
+Chili Lime Avocado Smoothie
+Sichuan
+
+Baijiu Cocktail (Sichuan Spirit Cocktail)  
+Sichuan Pepper Martini  
+Mala Mule (Sichuan Spicy Mule)  
+Sichuan Bloody Mary  
+Chuan Jiu (Sichuan Wine)  
+Sichuan Peppercorn Infused Vodka  
+Sichuan Negroni  
+Spicy Sichuan Margarita  
+Sichuan Old Fashioned  
+Sichuan Sour  
+Sichuan Spiced Gin and Tonic  
+Sichuan Peppercorn Mojito  
+Sichuan Chili Beer  
+Sichuan Hot Toddy  
+Sichuan Mule  
+Sichuan Spiced Rum Punch  
+Sichuan Peppercorn Whiskey Sour  
+Sichuan Spiced Sangria  
+Sichuan Chili Martini  
+Sichuan Peppercorn Gin Fizz
+Sichuan
+
+Twice-Cooked Pork (Hui Guo Rou)
+
+Mapo Tofu (Spicy Tofu with Minced Meat)
+
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)
+
+Sichuan Hot Pot (Spicy Broth Hot Pot)
+
+Dan Dan Noodles (Spicy Sichuan Noodles)
+
+Sichuan Boiled Fish (Shui Zhu Yu)
+
+Sichuan Spicy Wontons (Chao Shou)
+
+Sichuan Dry-Fried Green Beans (Gan Bian Si Ji Dou)
+
+Sichuan Pepper Chicken (La Zi Ji)
+
+Sichuan Eggplant (Yu Xiang Qie Zi)
+
+Sichuan Cold Noodles (Liang Mian)
+
+Sichuan Spicy Cucumber Salad (Pai Huang Gua)
+
+Sichuan Braised Beef (Hong Shao Niu Rou)
+
+Sichuan Spicy Tofu Soup (Suan La Tang)
+
+Sichuan Mala Chicken (Mala Ji)
+
+Sichuan Spicy Pork Belly (Mala Rou)
+
+Sichuan Crispy Duck (Cui Pi Ya)
+
+Sichuan Spicy Lamb Skewers (Yang Rou Chuan)
+
+Sichuan Spicy Shrimp (Mala Xia)
+
+Sichuan Spicy Beef Noodles (Mala Niu Rou Mian)
+Sichuan
+
+Sichuan Peppercorn Beer  
+Chili-infused Craft Beer  
+Mala Spiced Lager  
+Sichuan Red Ale  
+Chongqing Hot Pot Beer  
+Sichuan Citrus Pale Ale  
+Spicy Ginger Beer  
+Sichuan Black Bean Stout  
+Sichuan Peppercorn IPA  
+Sichuan Chili Porter  
+Sichuan Herbal Wheat Beer  
+Sichuan Five Spice Ale  
+Sichuan Peppercorn and Honey Beer  
+Chili and Sichuan Pepper Lager  
+Sichuan Peppercorn Saison  
+Mala Hot Pot Lager  
+Sichuan Citrus and Spice Beer  
+Sichuan Peppercorn Pilsner  
+Sichuan Chili and Lime Beer  
+Sichuan Peppercorn and Ginger Ale
+Sichuan
+
+Baijiu Shooter (Sichuan Spirit Shooter)  
+Mala Shooter (Spicy Numbing Shooter)  
+Sichuan Peppercorn Shooter (Numbing Pepper Shooter)  
+Chili Oil Shooter (Spicy Oil Shooter)  
+Doubanjiang Shooter (Fermented Broad Bean Paste Shooter)  
+Sichuan Vinegar Shooter (Black Vinegar Shooter)  
+Ginger and Garlic Shooter (Aromatic Shooter)  
+Sichuan Tea Shooter (Spiced Tea Shooter)  
+Five Spice Shooter (Five Flavor Shooter)  
+Sichuan Hot Pot Broth Shooter (Spicy Broth Shooter)
+Sichuan
+
+Mapo Doufu (Mapo Tofu)  
+Kung Pao Jiding (Kung Pao Chicken)  
+Sichuan Huiguorou (Twice-Cooked Pork)  
+Dandan Mian (Dandan Noodles)  
+Sichuan Hot Pot  
+La Zi Ji (Chongqing Spicy Chicken)  
+Suan Cai Yu (Sour Fish Soup)  
+Fuqi Feipian (Sliced Beef and Ox Tongue in Chili Sauce)  
+Ganbian Sijidou (Dry-Fried Green Beans)  
+Sichuan Liangfen (Sichuan Cold Jelly Noodles)  
+Yuxiang Qiezi (Fish-Fragrant Eggplant)  
+Sichuan Mala Xiang Guo (Spicy Numbing Stir-Fry Pot)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Spicy Wontons (Chao Shou)  
+Sichuan Bang Bang Ji (Bang Bang Chicken)  
+Sichuan Hot and Sour Soup  
+Sichuan Spicy Cabbage  
+Sichuan Pepper Chicken  
+Sichuan Spicy Tofu Pudding (Douhua)  
+Sichuan Eggplant with Garlic Sauce
+Sichuan
+
+Sichuan Spicy Potato Chips  
+La Tiao (Spicy Potato Strips)  
+Mala Chips (Numbing and Spicy Chips)  
+Sichuan Peppercorn Chips  
+Chili Oil Potato Chips  
+Garlic and Sichuan Pepper Chips  
+Sichuan Salt and Pepper Chips  
+Chongqing Hot and Sour Chips  
+Sichuan Vinegar Chips  
+Five-Spice Potato Chips  
+Sichuan Chili Crisp Chips  
+Sichuan-Style BBQ Chips
+Sichuan
+
+Huiguorou Chao Jidan (Twice-Cooked Pork with Eggs)  
+Jidan Chao Fan (Egg Fried Rice)  
+Mapo Tofu with Egg  
+Sichuan Eggplant with Egg  
+Jidan Doubanjiang (Eggs with Spicy Bean Paste)  
+Suan Cai Chao Jidan (Pickled Mustard Greens with Eggs)  
+Sichuan Egg Drop Soup  
+Laoganma Fried Eggs  
+Jidan Liangfen (Eggs with Sichuan Jelly Noodles)  
+Sichuan Tea Eggs  
+Jidan Hongshao Rou (Eggs with Red-Braised Pork)  
+Sichuan Peppercorn Scrambled Eggs  
+Chili Oil Eggs  
+Jidan Yuxiang Qiezi (Eggs with Fish-Fragrant Eggplant)  
+Sichuan Hot and Sour Egg Soup  
+Jidan Mala Xiang Guo (Eggs in Spicy Numbing Stir-Fry)  
+Eggs with Sichuan Preserved Vegetables  
+Jidan Gong Bao Ji Ding (Eggs with Kung Pao Chicken)  
+Eggs with Sichuan Chili Sauce  
+Jidan Shui Zhu Yu (Eggs with Sichuan Boiled Fish)
+Sichuan
+
+Dan Dan Mian (Sichuan Spicy Noodles)  
+Zha Jiang Mian (Sichuan Fried Sauce Noodles)  
+Suan La Fen (Hot and Sour Sweet Potato Noodles)  
+Chongqing Xiao Mian (Chongqing Street Noodles)  
+Sichuan Cold Noodles (Liang Mian)  
+Yibin Ran Mian (Yibin Burning Noodles)  
+Sichuan Sesame Noodles  
+Ma Yi Shang Shu (Ants Climbing a Tree)  
+Sichuan Beef Noodle Soup  
+Sichuan Spicy Peanut Noodles  
+Sichuan Hot Pot Noodles  
+Sichuan Garlic Noodles  
+Sichuan Pork Noodles  
+Sichuan Eggplant Noodles
+Sichuan
+
+Kung Pao Chicken (Spicy Stir-Fried Chicken with Peanuts)  
+Mapo Tofu (Spicy Tofu with Minced Pork)  
+Twice-Cooked Pork (Hui Guo Rou)  
+Sichuan Hot Pot (Spicy Broth with Various Ingredients)  
+Dan Dan Noodles (Spicy Noodles with Minced Pork)  
+Sichuan Boiled Fish (Shui Zhu Yu)  
+Sichuan Spicy Wontons (Chao Shou)  
+Sichuan Pepper Chicken (La Zi Ji)  
+Sichuan Eggplant (Yu Xiang Qie Zi)  
+Sichuan Beef (Water-Boiled Beef)  
+Sichuan Cold Noodles (Liang Mian)  
+Sichuan Spicy Cucumber Salad (Pai Huang Gua)  
+Sichuan Spicy Tofu (Ma Po Dou Fu)  
+Sichuan Dumplings in Chili Oil (Hong You Chao Shou)  
+Sichuan Spicy Chicken (Kou Shui Ji)  
+Sichuan Stir-Fried Green Beans (Gan Bian Si Ji Dou)  
+Sichuan Spicy Pork (Suan Cai Rou Si)  
+Sichuan Spicy Shrimp (La Jiao Xia)  
+Sichuan Spicy Lamb (Mala Yang Rou)  
+Sichuan Spicy Beef Noodles (Niu Rou Mian)  
+Sichuan Spicy Fish Soup (Suan Cai Yu)  
+Sichuan Spicy Tofu Soup (Suan La Tang)  
+Sichuan Spicy Eggplant (Yu Xiang Qie Zi)  
+Sichuan Spicy Chicken Wings (La Zi Ji Chi Bang)  
+Sichuan Spicy Pork Belly (Mala Rou)  
+Sichuan Spicy Duck (Mala Ya)  
+Sichuan Spicy Crab (Mala Xie)  
+Sichuan Spicy Frog (Mala Tian Ji)  
+Sichuan Spicy Rabbit (Mala Tu Zi)  
+Sichuan Spicy Snails (Mala Luo Si)  
+Sichuan Spicy Clams (Mala Ge Li)  
+Sichuan Spicy Octopus (Mala Zhang Yu)  
+Sichuan Spicy Squid (Mala You Yu)  
+Sichuan Spicy Tofu Skin (Mala Dou Fu Pi)  
+Sichuan Spicy Lotus Root (Mala Ou Pian)  
+Sichuan Spicy Bamboo Shoots (Mala Zhu Sun)  
+Sichuan Spicy Mushrooms (Mala Mo Gu)  
+Sichuan Spicy Peanuts (Mala Hua Sheng)  
+Sichuan Spicy Potatoes (Mala Tu Dou)  
+Sichuan Spicy Corn (Mala Yu Mi)  
+Sichuan Spicy Cauliflower (Mala Hua Cai)  
+Sichuan Spicy Broccoli (Mala Xi Lan Hua)  
+Sichuan Spicy Tofu Pudding (Mala Dou Fu Hua)  
+Sichuan Spicy Bean Curd (Mala Dou Fu Gan)  
+Sichuan Spicy Rice Cakes (Mala Nian Gao)  
+Sichuan Spicy Rice Noodles (Mala Mi Xian)  
+Sichuan Spicy Glass Noodles (Mala Fen Si)  
+Sichuan Spicy Vermicelli (Mala Fen Tiao)  
+Sichuan Spicy Wheat Noodles (Mala Mian)  
+Sichuan Spicy Sweet Potato Noodles (Mala Hong Shu Fen)  
+Sichuan Spicy Egg Noodles (Mala Dan Mian)  
+Sichuan Spicy Flat Noodles (Mala Pian Mian)  
+Sichuan Spicy Wide Noodles (Mala Kuan Mian)  
+Sichuan Spicy Thin Noodles (Mala Xi Mian)  
+Sichuan Spicy Thick Noodles (Mala Cu Mian)  
+Sichuan Spicy Ramen (Mala La Mian)  
+Sichuan Spicy Udon (Mala Wu Dong Mian)  
+Sichuan Spicy Soba (Mala Qiao Mai Mian)  
+Sichuan Spicy Rice (Mala Fan)  
+Sichuan Spicy Fried Rice (Mala Chao Fan)  
+Sichuan Spicy Sticky Rice (Mala Nuo Mi)  
+Sichuan Spicy Congee (Mala Zhou)  
+Sichuan Spicy Porridge (Mala Xi Fan)  
+Sichuan Spicy Pancakes (Mala Jian Bing)  
+Sichuan Spicy Crepes (Mala Bao Bing)  
+Sichuan Spicy Omelette (Mala Jian Dan)  
+Sichuan Spicy Scrambled Eggs (Mala Chao Dan)  
+Sichuan Spicy Fried Eggs (Mala Zha Dan)  
+Sichuan Spicy Boiled Eggs (Mala Shui Dan)  
+Sichuan Spicy Tea Eggs (Mala Cha Ye Dan)  
+Sichuan Spicy Century Eggs (Mala Pi Dan)  
+Sichuan Spicy Salted Eggs (Mala Xian Dan)  
+Sichuan Spicy Duck Eggs (Mala Ya Dan)  
+Sichuan Spicy Quail Eggs (Mala An Chun Dan)  
+Sichuan Spicy Goose Eggs (Mala E Dan)  
+Sichuan Spicy Fish Eggs (Mala Yu Dan)  
+Sichuan Spicy Shrimp Eggs (Mala Xia Dan)  
+Sichuan Spicy Crab Eggs (Mala Xie Dan)  
+Sichuan Spicy Lobster Eggs (Mala Long Xia Dan)  
+Sichuan Spicy Caviar (Mala Yu Zi)  
+Sichuan Spicy Roe (Mala Yu Zi)  
+Sichuan Spicy Fish Roe (Mala Yu Zi)  
+Sichuan Spicy Shrimp Roe (Mala Xia Zi)  
+Sichuan Spicy Crab Roe (Mala Xie Zi)  
+Sichuan Spicy Lobster Roe (Mala Long Xia Zi)  
+Sichuan Spicy Chicken Feet (Mala Ji Jiao)  
+Sichuan Spicy Duck Feet (Mala Ya Jiao)  
+Sichuan Spicy Goose Feet (Mala E Jiao)  
+Sichuan Spicy Pig Feet (Mala Zhu Jiao)  
+Sichuan Spicy Cow Feet (Mala Niu Jiao)  
+Sichuan Spicy Sheep Feet (Mala Yang Jiao)  
+Sichuan Spicy Fish Head (Mala Yu Tou)  
+Sichuan Spicy Duck Head (Mala Ya Tou)  
+Sichuan Spicy Goose Head (Mala E Tou)  
+Sichuan Spicy Pig Head (Mala Zhu Tou)  
+Sichuan Spicy Cow Head (Mala Niu Tou)  
+Sichuan Spicy Sheep Head (Mala Yang Tou)  
+Sichuan Spicy Chicken Head (Mala Ji Tou)  
+Sichuan Spicy Fish Tail (Mala Yu Wei)  
+Sichuan Spicy Duck Tail (Mala Ya Wei)  
+Sichuan Spicy Goose Tail (Mala E Wei)  
+Sichuan Spicy Pig Tail (Mala Zhu Wei)  
+Sichuan Spicy Cow Tail (Mala Niu Wei)  
+Sichuan Spicy Sheep Tail (Mala Yang Wei)  
+Sichuan Spicy Chicken Tail (Mala Ji Wei)  
+Sichuan Spicy Fish Skin (Mala Yu Pi)  
+Sichuan Spicy Duck Skin (Mala Ya Pi)  
+Sichuan Spicy Goose Skin (Mala E Pi)  
+Sichuan Spicy Pig Skin (Mala Zhu Pi)  
+Sichuan Spicy Cow Skin (Mala Niu Pi)  
+Sichuan Spicy Sheep Skin (Mala Yang Pi)  
+Sichuan Spicy Chicken Skin (Mala Ji Pi)  
+Sichuan Spicy Fish Bones (Mala Yu Gu)  
+Sichuan Spicy Duck Bones (Mala Ya Gu)  
+Sichuan Spicy Goose Bones (Mala E Gu)  
+Sichuan Spicy Pig Bones (Mala Zhu Gu)  
+Sichuan Spicy Cow Bones (Mala Niu Gu)  
+Sichuan Spicy Sheep Bones (Mala Yang Gu)  
+Sichuan Spicy Chicken Bones (Mala Ji Gu)  
+Sichuan Spicy Fish Intestines (Mala Yu Chang)  
+Sichuan Spicy Duck Intestines (Mala Ya Chang)  
+Sichuan Spicy Goose Intestines (Mala E Chang)  
+Sichuan Spicy Pig Intestines (Mala Zhu Chang)  
+Sichuan Spicy Cow Intestines (Mala Niu Chang)  
+Sichuan Spicy Sheep Intestines (Mala Yang Chang)  
+Sichuan Spicy Chicken Intestines (Mala Ji Chang)  
+Sichuan Spicy Fish Liver (Mala Yu Gan)  
+Sichuan Spicy Duck Liver (Mala Ya Gan)  
+Sichuan Spicy Goose Liver (Mala E Gan)  
+Sichuan Spicy Pig Liver (Mala Zhu Gan)  
+Sichuan Spicy Cow Liver (Mala Niu Gan)  
+Sichuan Spicy Sheep Liver (Mala Yang Gan)  
+Sichuan Spicy Chicken Liver (Mala Ji Gan)  
+Sichuan Spicy Fish Heart (Mala Yu Xin)  
+Sichuan Spicy Duck Heart (Mala Ya Xin)  
+Sichuan Spicy Goose Heart (Mala E Xin)  
+Sichuan Spicy Pig Heart (Mala Zhu Xin
+Sichuan
+
+Lazi Ji Sauce (Spicy Chicken Sauce)  
+Doubanjiang (Broad Bean Chili Paste)  
+Sichuan Peppercorn Oil  
+Chili Oil  
+Yuxiang Sauce (Fish Fragrant Sauce)  
+Mala Sauce (Numbing and Spicy Sauce)  
+Zajiang Sauce (Fried Sauce)  
+Suan Cai (Pickled Mustard Greens)  
+Hoisin Sauce  
+Tianmianjiang (Sweet Bean Sauce)  
+Sichuan Garlic Sauce  
+Sichuan Soy Sauce  
+Sichuan Vinegar  
+Pixian Douban (Pixian Broad Bean Paste)  
+Yibin Yacai (Preserved Mustard Greens)  
+Sichuan Sesame Paste  
+Sichuan Hot Pot Base  
+Chongqing Mala Sauce (Chongqing Numbing and Spicy Sauce)  
+Sichuan Fermented Black Bean Sauce  
+Sichuan Sweet and Sour Sauce  
+Sichuan Chili Bean Sauce  
+Sichuan Pickled Chili Sauce  
+Sichuan Spicy Garlic Sauce  
+Sichuan Black Vinegar Sauce  
+Sichuan Ginger Sauce  
+Sichuan Plum Sauce  
+Sichuan Mustard Sauce  
+Sichuan Oyster Sauce  
+Sichuan Peanut Sauce  
+Sichuan Sweet Chili Sauce  
+Sichuan Spicy Soy Sauce  
+Sichuan Red Oil Sauce  
+Sichuan Fermented Tofu Sauce  
+Sichuan Spicy Sesame Sauce  
+Sichuan Five Spice Sauce  
+Sichuan Hot and Sour Sauce  
+Sichuan Sweet Soy Sauce  
+Sichuan Spicy Vinegar Sauce  
+Sichuan Chili Garlic Sauce  
+Sichuan Sweet Bean Sauce  
+Sichuan Black Bean Sauce  
+Sichuan Spicy Plum Sauce  
+Sichuan Spicy Mustard Sauce  
+Sichuan Garlic Chili Sauce  
+Sichuan Spicy Oyster Sauce  
+Sichuan Spicy Peanut Sauce  
+Sichuan Sweet and Spicy Sauce  
+Sichuan Spicy Black Vinegar Sauce  
+Sichuan Spicy Ginger Sauce  
+Sichuan Spicy Plum Sauce  
+Sichuan Spicy Mustard Sauce  
+Sichuan Garlic Chili Sauce  
+Sichuan Spicy Oyster Sauce  
+Sichuan Spicy Peanut Sauce  
+Sichuan Sweet and Spicy Sauce  
+Sichuan Spicy Black Vinegar Sauce  
+Sichuan Spicy Ginger Sauce
+Sichuan
+
+Kung Pao Chicken with Peanuts  
+Mapo Tofu (Sichuan Spicy Tofu with Minced Meat)  
+Twice-Cooked Pork with Black Beans  
+Sichuan Spicy Green Beans  
+Sichuan Hot and Sour Soup with Tofu and Mushrooms  
+Dan Dan Noodles with Ground Pork and Peanuts  
+Sichuan Spicy Peanut Noodles  
+Sichuan Braised Eggplant with Black Beans  
+Sichuan Peppercorn Chicken with Cashews  
+Sichuan-Style Spicy Peanuts  
+Sichuan Mala Beef with Peanuts  
+Sichuan Spicy Tofu and Peanuts Stir-Fry  
+Sichuan-Style Braised Pork Belly with Black Beans  
+Sichuan Spicy Lentil Soup  
+Sichuan Spicy Chickpeas with Tofu  
+Sichuan Spicy Cashew Chicken  
+Sichuan Spicy Edamame  
+Sichuan Spicy Peanut and Cucumber Salad  
+Sichuan Spicy Black Bean Chicken  
+Sichuan Spicy Walnut Shrimp
+Sichuan
+
+Sichuan Peppercorn Ice Cream  
+Chili Oil Gelato  
+Five Spice Ice Cream  
+Black Sesame Ice Cream  
+Jasmine Tea Gelato  
+Honey Ginger Ice Cream  
+Lychee Sorbet  
+Green Tea Gelato  
+Red Bean Ice Cream  
+Sweet Osmanthus Gelato  
+Tofu Ice Cream  
+Mango Szechuan Pepper Gelato  
+White Rabbit Candy Ice Cream  
+Lotus Seed Ice Cream  
+Pineapple and Sichuan Pepper Sorbet

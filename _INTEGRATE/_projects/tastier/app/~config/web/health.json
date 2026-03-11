@@ -1,0 +1,16 @@
+{
+  "$schema": "{{SCHEMA_HEALTH_JSON}}",
+  "status": "{{HEALTH_STATUS}}",
+  "timestamp": "{{HEALTH_TIMESTAMP}}",
+  "checks": {
+    "self": "{{HEALTH_STATUS_SELF}}",
+    "app": "{{HEALTH_STATUS_APP}}",
+    "marketing": "{{HEALTH_STATUS_MARKETING}}",
+    "images": "{{HEALTH_STATUS_IMAGES}}",
+    "analytics": "{{HEALTH_STATUS_ANALYTICS}}",
+    "api": "{{HEALTH_STATUS_API}}"
+  },
+  "version": "{{VERSION}}",
+  "commit": "{{VERSION_COMMIT_SHORT}}",
+  "uptime_seconds": "{{UPTIME_SECONDS}}"
+}

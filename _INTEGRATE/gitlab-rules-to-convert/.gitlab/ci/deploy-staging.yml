@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# 🚀 Staging Deployment
+# ------------------------------------------------------------------------------
+# staging:deploy — Deploys the Worker to the `staging` environment.
+#
+# This job runs only on the `staging` branch and deploys a fully bootstrapped
+# application (after DB, storage, and build are complete) to the Cloudflare
+# Worker environment labeled `staging`.
+#
+# ✅ Pre-Conditions:
+#   - `setup:check-env` validates all required env vars and secrets
+#   - `bootstrap:db` ensures D1 is created and initialized
+#   - `bootstrap:storage` provisions KV, R2, DO bindings, and Tail Worker (if any)
+#   - `build` compiles the Worker code (monorepo-compatible)
+#
+# ✅ Actions:
+#   - Runs `deploy_to_staging_worker` to invoke Wrangler deploy
+#   - Optionally performs a post-deploy healthcheck (inside the script)
+#   - Emits `.deploy-staging-summary.md` with commit, env, and deploy metadata
+#
+# 🧠 GitLab Environment:
+#   - Registered as `staging` with `deployment_tier: staging`
+#   - Enables rollback UI, audit visibility, and Environments dashboard
+#
+# 📦 Artifacts:
+#   - `.deploy-staging-summary.md` — human-readable log of the deployment
+staging:deploy:
+  stage: deploy
+  needs:
+    - setup:check-env
+    - bootstrap:db
+    - bootstrap:storage
+    - build
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+  script:
+    - deploy_to_staging_worker | tee .deploy-staging-summary.md
+  artifacts:
+    paths:
+      - .deploy-staging-summary.md
+    expire_in: 1 day
+  environment:
+    name: staging
+    deployment_tier: staging

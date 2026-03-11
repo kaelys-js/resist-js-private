@@ -1,0 +1,215 @@
+Basic Bread Dough
+Lean Bread Dough
+Enriched Bread Dough
+Straight Dough Method Bread Dough
+Sponge and Dough Bread Dough
+Poolish Bread Dough
+Biga Bread Dough
+Sourdough Starter (Natural Levain)
+Sourdough Bread Dough
+Whole Wheat Bread Dough
+Multigrain Bread Dough
+Rye Bread Dough
+Pumpernickel Bread Dough
+Brioche Dough
+Milk Bread Dough (Hokkaido Milk Bread Dough)
+Challah Dough
+Babka Dough
+Panettone Dough
+Pandoro Dough
+Croissant Dough (Laminated Yeast Dough)
+Pain au Chocolat Dough
+Danish Pastry Dough
+Kouign-Amann Dough
+Puff Pastry Dough (Pâte Feuilletée)
+Rough Puff Pastry Dough
+Shortcrust Pastry Dough (Pâte Brisée)
+Sweet Shortcrust Pastry Dough (Pâte Sucrée)
+Sablé Dough (Sablée Pastry Dough)
+Hot Water Crust Pastry Dough
+Flaky Pie Dough
+All-Butter Pie Dough
+Lard Pie Dough
+Empanada Dough
+Hand-Raised Pie Dough
+Pizza Dough (Neapolitan Pizza Dough)
+Roman Pizza Dough (Pizza al Taglio Dough)
+New York–Style Pizza Dough
+Chicago Deep-Dish Pizza Dough
+Detroit-Style Pizza Dough
+Focaccia Dough
+Flatbread Dough
+Pita Bread Dough
+Lavash Dough
+Naan Dough
+Roti Dough (Indian Flatbread Dough)
+Chapati Dough
+Paratha Dough
+Kulcha Dough
+Bhatura Dough
+Poori Dough
+Tortilla Dough (Corn Tortilla Dough)
+Tortilla Dough (Flour Tortilla Dough)
+Arepa Dough (Corn Arepa Dough)
+Gordita Dough
+Tamale Masa Dough (Masa Harina Dough)
+Pupusa Dough
+Bao Dough (Steamed Bun Dough)
+Mantou Dough (Chinese Steamed Bread Dough)
+Dumpling Dough (Chinese Dumpling Wrapper Dough)
+Wonton Wrapper Dough
+Gyoza Wrapper Dough
+Ravioli Dough (Fresh Pasta Dough)
+Tagliatelle Dough
+Lasagna Sheet Dough
+Gnocchi Dough (Potato Gnocchi Dough)
+Spaetzle Dough
+Pierogi Dough
+Pelmeni Dough
+Momo Dough
+Samosa Dough
+Phyllo Dough (Filo Pastry Dough)
+Strudel Dough
+Pretzel Dough
+Soft Pretzel Dough
+Bagel Dough
+Bialy Dough
+English Muffin Dough
+Crumpet Batter Dough
+Biscuit Dough (American Biscuit Dough)
+Scone Dough
+Drop Scone Dough
+Shortcake Dough
+Cookie Dough (Sugar Cookie Dough)
+Cookie Dough (Chocolate Chip Cookie Dough)
+Brownie Batter Dough
+Cake Batter Dough
+Pancake Batter Dough
+Waffle Batter Dough
+Choux Pastry Dough (Pâte à Choux)
+Gougères Dough
+Beignet Dough
+Donut Dough (Yeast-Raised Doughnut Dough)
+Donut Dough (Cake Doughnut Dough)
+Fritter Batter Dough
+Tempura Batter Dough
+Crêpe Batter Dough
+Galette Batter Dough
+Yorkshire Pudding Batter
+Popovers Batter Dough
+Cornbread Batter Dough
+Hushpuppy Batter Dough
+
+Shortcrust Pastry
+Sweet Shortcrust Pastry (Pâte Sucrée)
+French Sweet Shortcrust (Pâte Sablée)
+French Savory Shortcrust (Pâte Brisée)
+All-Butter Pie Crust
+Flaky Pie Crust
+Tender Pie Crust
+Vodka Pie Crust
+Lard Pie Crust
+Butter and Lard Pie Crust
+American Pie Crust
+Double-Crust Pie Dough
+Single-Crust Pie Dough
+Blind-Baked Pie Crust
+Press-In Pie Crust
+Graham Cracker Crust
+Chocolate Graham Cracker Crust
+Digestive Biscuit Crust
+Vanilla Wafer Crust
+Oreo Cookie Crust
+Chocolate Cookie Crust
+Speculoos Cookie Crust
+Biscoff Cookie Crust
+Gingersnap Cookie Crust
+Shortbread Cookie Crust
+Pretzel Crust
+Cracker Crust
+Ritz Cracker Crust
+Saltine Cracker Crust
+Cornflake Crust
+Rice Krispies Crust
+Nut Crust
+Almond Flour Crust
+Almond Meal Crust
+Hazelnut Crust
+Pecan Crust
+Walnut Crust
+Coconut Crust
+Coconut Flour Crust
+Gluten-Free Pie Crust
+Rice Flour Crust
+Oat Flour Crust
+Buckwheat Crust
+Spelt Crust
+Whole Wheat Pie Crust
+Whole Wheat Pastry Crust
+Puff Pastry
+Rough Puff Pastry
+Classic Puff Pastry (Pâte Feuilletée)
+Inverted Puff Pastry (Pâte Feuilletée Inversée)
+Quick Puff Pastry
+Filo Pastry (Phyllo Dough)
+Strudel Dough
+Croissant Dough
+Danish Pastry Dough
+Brioche Dough
+Choux Pastry Base (Pâte à Choux)
+Tart Shell
+Sweet Tart Shell
+Savory Tart Shell
+French Tart Dough (Pâte Brisée Sucrée)
+Quiche Crust
+Quiche Pastry Shell
+Pizza Dough
+Neapolitan Pizza Dough
+Roman Pizza Dough
+Sicilian Pizza Dough
+Detroit-Style Pizza Dough
+Chicago Deep-Dish Crust
+Chicago Thin Crust
+New York-Style Pizza Dough
+Grandma Pizza Dough
+Focaccia Crust
+Flatbread Crust
+Pita Bread Crust
+Lavash Flatbread Crust
+Naan Bread Base
+Paratha Dough
+Samosa Pastry Dough
+Empanada Dough
+Empanada Pastry Crust
+Pastel Dough (Brazilian Empanada Dough)
+Cornmeal Crust
+Polenta Crust
+Arepa Dough
+Tortilla Crust
+Flour Tortilla Crust
+Corn Tortilla Crust
+Tamale Masa Crust
+Masa Harina Crust
+Savory Galette Crust
+Sweet Galette Crust
+Buckwheat Galette Crust
+Cauliflower Crust
+Zucchini Crust
+Vegetable-Based Crust
+Fathead Dough (Low-Carb Cheese Crust)
+Cheese-Based Crust
+Mozzarella Crust
+Parmesan Crust
+Keto Pie Crust
+Low-Carb Pie Crust
+Vegan Pie Crust
+Oil-Based Vegan Pie Crust
+Margarine Pie Crust
+Olive Oil Crust
+Olive Oil Pastry Dough
+Fried Pie Dough
+Hand Pie Dough
+Turnover Pastry Dough
+Cornbread Crust
+Biscuit Crust
+Southern Biscuit Pie Crust

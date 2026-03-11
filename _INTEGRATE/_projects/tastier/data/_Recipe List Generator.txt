@@ -1,0 +1,146 @@
+Recipes
+
+Task: Generate a region-segmented list of real recipe names for [CATEGORY NAME].
+
+Scope Requirements:
+	•	Include both high-end (Michelin-level) and everyday comfort-food recipes.
+	•	Use canonical recipe names exactly as they appear on real menus, cookbooks, or professional kitchens.
+	•	The category may include sub-types, base forms, and variants; treat each as a first-class recipe when commonly named.
+
+Regions (mandatory, in this order):
+Canadian, American, Japanese, Filipino, Korean, Chinese, Indonesian, Greek, Mexican, Thai, Vietnamese, French, Spanish, Portuguese, German, Polish, Singaporean, Malaysian, Taiwanese, Italian
+
+Completeness Rules (category-agnostic):
+	•	Explicitly list:
+	•	Foundational / baseline forms
+	•	Commonly named variants
+	•	Everyday household versions
+	•	Restaurant-standard menu items
+	•	Do not rely on implication (if two things are commonly named separately, list both).
+	•	If a preparation, ingredient, or format is routinely expected by a professional or user, include it.
+	•	Always include English recipe names
+	•	Do not omit, truncate or reduce, no bullet points
+	•	If [INPUT LIST] is provided, reformat it following this prompt
+
+English Naming Rule (Mandatory):
+	•	Native or loanword recipe names alone are not sufficient.
+	•	Every recipe must include an explicit English descriptor, either:
+	•	As a full English name, or
+	•	As a paired name in the format:
+Native Name (English Name)
+	•	If a dish is commonly known by a native name in English contexts, it must still include an English explanation.
+	•	This does not count as description and does not violate “names only.”
+
+Validation Pass (mandatory before final output):
+	•	Perform a professional “obvious omission” audit as if building a production recipe database.
+	•	If something would feel missing to a chef, restaurateur, or user, add it.
+
+Output Rules:
+	•	Names only
+	•	Grouped strictly by region
+	•	No descriptions
+	•	No commentary
+	•	No summarization
+
+
+Begin.
+
+[INPUT LIST]
+
+==
+
+Most Popular
+Cocktails & Mocktails
+Breakfast
+Lunch
+Brunch
+Dinner
+Drinks
+Breads
+Chicken
+Beef
+Pork
+Seafood, Shrimp & Scallops
+Pastries
+Cakes
+Cookies
+Muffins & Cupcakes
+Desserts
+Candy & Chocolate
+Frosting & Icing
+Pie & Tart
+Potatoes
+Vegetables
+Tofu
+BBQ
+Rice
+Pasta
+Soup
+Street Food
+Side Dishes
+Appetizers
+Snacks
+Dumplings
+Sauces & Dips
+Dressings & Marinade
+Rubs & Spice Blends
+Deep Fried
+Steamed
+Braised
+Stocks & Broths
+Christmas
+New Years
+Thanksgiving
+Fondue
+Hot Pot
+
+== Round 2
+
+Everything Found In A Grocery Store
+Everything Found In A Market (Fresh, Boxed, Pre-Made)
+Holidays
+Syrups
+Biscuits
+Bagels
+Camping & Outdoors
+Crackers
+Salads
+Sandwiches
+Gravies
+Jams & Jellies
+Pickles & Canning
+Pizza
+Doughs
+Stews
+Loafs
+Glazes
+Roasted & Baked
+Fruits
+Bakery
+Restaurant
+Diner
+Curing
+Wraps
+Fish
+Butters
+Flours
+Sugars
+Cheeses
+Vinegars
+Honeys
+Tea
+Milks
+Dried Fruits
+Dehydrated
+Yogurts
+Seasonings
+Extracts
+Breadcrumbs
+Oils
+Vinaigrettes
+Sausages
+Spreads
+Cereals, Granolas & Grains
+Jerkies & Pepperoni
+Cured Meats & Sandwich Meats & Deli Meats
+Chips

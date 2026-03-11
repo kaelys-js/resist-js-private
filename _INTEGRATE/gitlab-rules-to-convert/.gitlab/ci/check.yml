@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# 📋 Run Codebase Checks
+# ------------------------------------------------------------------------------
+# check — Executes type checks, wrangler diagnostics, and any workspace-level QA routines.
+#
+# ✅ Based on the `check` script in @enzuzo/analytics package.json:
+#    - Typically includes:
+#        - TypeScript static type validation (`tsc --noEmit`)
+#        - Wrangler diagnostics (`wrangler diagnostics`)
+#        - Optional QA scripts (e.g., schema checks, config assertions)
+#
+# ✅ Purpose:
+#    - Detects broken types, missing bindings, or runtime misconfigurations
+#    - Provides early feedback before build or deploy
+#
+# 🧠 Notes:
+#    - Can be expanded to include `check:env` or `check:secrets`
+#    - Can fail CI if any underlying check fails
+#    - Should be treated as a hard gate in monorepo pipelines
+check:
+  stage: test
+  script:
+    - pnpm check | tee .check-summary.md
+  artifacts:
+    paths:
+      - .check-summary.md
+    expire_in: 7 days
+  needs:
+    - setup:check-env

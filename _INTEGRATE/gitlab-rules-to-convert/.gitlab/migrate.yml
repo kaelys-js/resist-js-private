@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+# ------------------------------------------------------------------------------
+# 📋 Check & Apply Migrations
+# ------------------------------------------------------------------------------
+# This stage validates and applies D1 database schema changes in a safe, auditable manner.
+#
+# ✅ migrate:check:
+#    - Verifies all migration scripts are valid and syntactically correct
+#    - Runs with STRICT=true to catch dangerous or invalid migrations early
+#    - Acts as a pre-flight gate to prevent unsafe DB changes from merging
+#
+# ✅ migrate:apply:
+#    - Applies validated migrations to the correct DB, based on WRANGLER_ENV and DB_NAME
+#    - Runs only for staging and production branches
+#    - Isolated from preview branches to prevent state leaks
+#    - Uses `./src/scripts/migrate.sh apply` with full environment scoping
+
+# 📋 migrate:check — Verify migration scripts are valid and ready to apply
+# Uses `STRICT=true` to enforce validation before staging/prod deployments
+# Ensures no unsafe or incomplete migrations are merged
+migrate:check:
+  stage: migrate
+  script:
+    - pnpm migrate:check:strict | tee .migrate-check-summary.md
+  artifacts:
+    paths:
+      - .migrate-check-summary.md
+    expire_in: 1 day
+    when: always
+  needs:
+    - setup:check-env
+    - bootstrap:db
+
+# ⚙️ migrate:apply — Apply all outstanding migrations to the current DB (if safe)
+# Only runs for staging and production branches (not previews)
+# Uses ENV-injected DB_NAME, runs via ./src/scripts/migrate.sh apply
+migrate:apply:
+  stage: migrate
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  needs:
+    - setup:check-env
+    - bootstrap:db
+  script:
+    - pnpm migrate:apply | tee .migrate-apply-summary.md
+  artifacts:
+    paths:
+      - .migrate-apply-summary.md
+    when: always
+    expire_in: 7 days
+  environment:
+    name: $WRANGLER_ENV
+    deployment_tier: $([ "$WRANGLER_ENV" = "production" ] && echo production || echo staging)

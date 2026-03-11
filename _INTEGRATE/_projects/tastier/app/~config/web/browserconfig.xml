@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  browserconfig.xml
+  Purpose: Defines Microsoft tile configuration and metadata for Windows Start screen tiles (primarily IE/Edge pinned sites).
+  Reference: https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/samples/dn455106(v=vs.85)
+  Notes:
+    - This file must be hosted at the web root (/browserconfig.xml)
+    - IE11/Edge Legacy only. Modern Edge (Chromium) ignores this.
+-->
+<browserconfig>
+  <msapplication>
+
+    <!-- Pinned Tile Configuration -->
+    <tile>
+
+      <!-- Small tile (70x70) -->
+      <square70x70logo src="https://{{MARKETING_DOMAIN}}/icons/ms-tile-70x70.png" />
+
+      <!-- Medium tile (150x150) - primary display size -->
+      <square150x150logo src="https://{{MARKETING_DOMAIN}}/icons/ms-tile-150x150.png" />
+
+      <!-- Wide tile (310x150) -->
+      <wide310x150logo src="https://{{MARKETING_DOMAIN}}/icons/ms-tile-310x150.png" />
+
+      <!-- Large tile (310x310) -->
+      <square310x310logo src="https://{{MARKETING_DOMAIN}}/icons/ms-tile-310x310.png" />
+
+      <!-- Background color for tiles (should match brand) -->
+      <tileColor>{{THEME_COLOR}}</tileColor>
+    </tile>
+
+    <!-- Badge notifications (requires WNS push and badge.xml feed) -->
+    <badge>
+      <!-- Polling frequency must be one of: 30, 60, 360, 720, or 1440 (minutes) -->
+      <polling uri="https://{{MARKETING_DOMAIN}}/badge.xml" frequency="{{BROWSER_CONFIG_BADGE_POLL_FREQUENCY}}" />
+    </badge>
+
+    <!-- Live tile notification updates (requires WNS push and XML feed) -->
+    <notification>
+      <!-- Polls the notifications feed for new tile content.
+      Frequency must be one of: 30, 60, 360, 720, or 1440 (minutes).
+      Lower values increase freshness but also increase network usage. -->
+      <polling uri="https://{{MARKETING_DOMAIN}}/notifications.xml" frequency="{{BROWSER_CONFIG_LIVE_TILE_POLL_FREQUENCY}}" />
+
+      <!-- Cycles through tile content already downloaded from the feed. Controls how often the tile rotates between items.
+      Frequency must be one of: 30, 60, 360, 720, or 1440 (minutes).
+      Does not trigger network requests; display-only behavior. -->
+      <cycle uri="https://{{MARKETING_DOMAIN}}/cycle.xml" frequency="{{BROWSER_CONFIG_LIVE_TILE_CYCLE_FREQUENCY}}" />
+    </notification>
+
+  </msapplication>
+</browserconfig>

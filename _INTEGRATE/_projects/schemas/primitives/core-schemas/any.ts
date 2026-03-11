@@ -1,0 +1,65 @@
+1. Core Any
+	1.	ANY-STRICT SCHEMA
+	2.	ANY-PASSTHROUGH SCHEMA
+	3.	ANY-SAFE SCHEMA (rejects unsafe values like functions/symbols)
+	4.	ANY-UNKNOWN SCHEMA (typed as unknown, validated as-any)
+
+2. Nullable / Optional / Default
+	5.	ANY-NULLABLE SCHEMA
+	6.	ANY-OPTIONAL SCHEMA
+	7.	ANY-NULLABLE-OPTIONAL SCHEMA
+	8.	ANY-DEFAULT SCHEMA
+	9.	ANY-NULL-DEFAULT SCHEMA
+	10.	ANY-UNDEFINED-DEFAULT SCHEMA
+	11.	ANY-COALESCE SCHEMA (fallback if nullish)
+
+3. Restricted Any (Whitelist / Blacklist)
+	12.	ANY-ALLOWLIST SCHEMA
+	13.	ANY-BLOCKLIST SCHEMA
+	14.	ANY-INSTANCEOF SCHEMA
+	15.	ANY-EXCLUDE-TYPE SCHEMA (exclude functions, symbols, bigint, etc.)
+	16.	ANY-ONLY-PRIMITIVE SCHEMA
+	17.	ANY-ONLY-NON-PRIMITIVE SCHEMA
+
+4. Structure-Constrained Any
+	18.	ANY-OBJECT SCHEMA
+	19.	ANY-ARRAY SCHEMA
+	20.	ANY-MAP SCHEMA
+	21.	ANY-SET SCHEMA
+	22.	ANY-TUPLE SCHEMA
+	23.	ANY-RECORD SCHEMA
+	24.	ANY-ITERABLE SCHEMA
+
+5. Type Narrowing Any
+	25.	ANY-STRINGABLE SCHEMA (anything with toString)
+	26.	ANY-NUMBERLIKE SCHEMA (casts cleanly to number)
+	27.	ANY-BOOLEANLIKE SCHEMA
+	28.	ANY-DATEABLE SCHEMA (Date | string | number)
+	29.	ANY-JSON SCHEMA
+	30.	ANY-SERIALIZABLE SCHEMA
+	31.	ANY-CLONEABLE SCHEMA
+
+6. Validation Behaviour Modifiers
+	32.	ANY-NO-EXTRA SCHEMA (reject symbols, functions, class instances)
+	33.	ANY-PRESERVE-TYPE SCHEMA (never coerce)
+	34.	ANY-COERCE STRING SCHEMA
+	35.	ANY-COERCE NUMBER SCHEMA
+	36.	ANY-COERCE BOOLEAN SCHEMA
+	37.	ANY-COERCE DATE SCHEMA
+	38.	ANY-NORMALIZE SCHEMA (canonicalizes primitive values)
+
+7. Security-Oriented Any
+	39.	ANY-SAFE-JSON SCHEMA (no functions, symbols, circular refs)
+	40.	ANY-NO-FUNCTION SCHEMA
+	41.	ANY-NO-SYMBOL SCHEMA
+	42.	ANY-NO-BIGINT SCHEMA
+	43.	ANY-NO-PROTO SCHEMA (blocks “proto” pollution)
+
+8. Utility / Specialized Forms
+	44.	ANY-DEEP SCHEMA (recursively validates structure)
+	45.	ANY-DEEP-NULLABLE SCHEMA
+	46.	ANY-DEEP-PARTIAL SCHEMA
+	47.	ANY-VALUEOF SCHEMA (valueOf() allowed)
+	48.	ANY-WITH-METADATA SCHEMA (wraps values with meta information)
+	49.	ANY-IMMUTABLE SCHEMA
+	50.	ANY-FROZEN SCHEMA

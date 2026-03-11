@@ -1,0 +1,7 @@
+{
+	"dependencies": {
+		"ink": "^4.0.0",
+		"react": "^18.2.0",
+		"react-reconciler": "^0.29.0"
+	}
+}

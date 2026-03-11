@@ -1,0 +1,8 @@
+{
+    "name": "workspace-root",
+    "private": true,
+    "dependencies": {
+        "valibot": "^1.2.0",
+        "zod": "^4.3.6"
+    }
+}

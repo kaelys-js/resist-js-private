@@ -1,0 +1,37 @@
+name = "overseer"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Production vars - set via wrangler secret put or in [env.production.vars]
+[vars]
+# RUNTIME is set via .dev.vars for local dev, or as a secret for production
+# EXEC_SERVER_URL = "https://your-tunnel.example.com"
+# EXEC_SECRET is set via `wrangler secret put EXEC_SECRET`
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "overseer"
+database_id = "local"
+
+[[env.local.d1_databases]]
+binding = "DB"
+database_name = "overseer"
+database_id = "local"
+
+# Cron triggers - one per collector
+# Must match collector schedule expressions
+[triggers]
+crons = [
+  "*/5 * * * *",   # example (every 5 min)
+  "*/15 * * * *",  # batteries (every 15 min)
+  "*/30 * * * *",  # apple-calendar, apple-reminders (every 30 min)
+  "0 * * * *",     # weather (hourly)
+  "0 */2 * * *",   # plex (every 2 hours)
+  "0 */4 * * *",   # cloudflare-blog (every 4 hours)
+  "0 */6 * * *",   # changelogs, radarr, sonarr (every 6 hours)
+  "0 6 * * *",     # skating, swimming (daily 6 AM)
+  "0 8 * * *",     # concerts (daily 8 AM)
+  "0 */12 * * *",  # trailers (every 12 hours)
+]

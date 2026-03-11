@@ -1,0 +1,13 @@
+{
+    "type": "module",
+    "scripts": {
+      "build": "esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2022 --minify --tree-shaking=true --legal-comments=none --outfile=dist/index.js && node scripts/check-snippet-size.mjs",
+      "dev": "esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2022 --tree-shaking=true --outfile=dist/index.js --watch & wrangler dev",
+      "check": "tsc --noEmit",
+      "test": "node --test"
+    },
+    "devDependencies": {
+      "esbuild": "^0.20.0",
+      "typescript": "^5.4.0"
+    }
+  }
