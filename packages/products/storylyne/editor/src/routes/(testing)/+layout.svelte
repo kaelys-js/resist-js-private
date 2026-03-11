@@ -27,8 +27,10 @@ import ModeToggle from '@/ui/mode-toggle/ModeToggle.svelte';
 import Kbd from '@/ui/kbd/Kbd.svelte';
 import AppLogo from '@/ui/app-logo/AppLogo.svelte';
 import Badge from '@/ui/badge/badge.svelte';
+import { extractTokens, type ThemeTokenSet } from '@/ui/lens/extract-tokens.js';
 import ComponentIcon from '@lucide/svelte/icons/component';
 import SearchIcon from '@lucide/svelte/icons/search';
+import Palette from '@lucide/svelte/icons/palette';
 import * as Tooltip from '@/ui/tooltip/index.js';
 import ChevronRight from '@lucide/svelte/icons/chevron-right';
 
@@ -62,6 +64,22 @@ const rawSources: Record<Str, Str> = import.meta.glob(
  */
 const rawTsSources: Record<Str, Str> = import.meta.glob(
 	'@/ui/*/*.ts',
+	{ query: '?raw', import: 'default', eager: true },
+) as Record<Str, Str>;
+
+/**
+ * Raw docs.md files for custom component documentation.
+ */
+const docsModules: Record<Str, Str> = import.meta.glob(
+	'@/ui/*/docs.md',
+	{ query: '?raw', import: 'default', eager: true },
+) as Record<Str, Str>;
+
+/**
+ * Raw app.css for design token extraction.
+ */
+const cssRawModules: Record<Str, Str> = import.meta.glob(
+	'/src/app.css',
 	{ query: '?raw', import: 'default', eager: true },
 ) as Record<Str, Str>;
 
@@ -301,10 +319,65 @@ for (const n of componentNames) {
 			{ value: `${n}/deps/empty`, label: 'No dependencies', group: `${title} › Dependencies`, keywords: [n] },
 		);
 	}
+
+	// — Documentation group (from docs.md) —
+	const docsKey: Str | undefined = Object.keys(docsModules).find(
+		(k: Str): boolean => extractDir(k) === n,
+	);
+	if (docsKey) {
+		globalSearchItems.push({
+			value: `${n}/docs`,
+			label: 'Documentation',
+			href: `${baseHref}#docs`,
+			group: `${title} › Documentation`,
+			keywords: [n, 'docs', 'documentation', 'guide'],
+		});
+	}
+
+	// — Changelog group —
+	globalSearchItems.push({
+		value: `${n}/changelog`,
+		label: 'Changelog',
+		href: `${baseHref}#changelog`,
+		group: `${title} › Changelog`,
+		keywords: [n, 'changelog', 'history', 'git', 'commits'],
+	});
+}
+
+// — Design Tokens search items —
+const cssRawSource: Str = Object.values(cssRawModules)[0] ?? '';
+if (cssRawSource) {
+	const tokenSets: ThemeTokenSet[] = extractTokens(cssRawSource);
+	const rootSet: ThemeTokenSet | undefined = tokenSets.find(
+		(s: ThemeTokenSet): boolean => s.selector === ':root',
+	);
+	if (rootSet) {
+		globalSearchItems.push({
+			value: 'tokens/overview',
+			label: 'Go to Design Tokens',
+			href: '/tokens',
+			group: 'Design Tokens',
+			keywords: ['tokens', 'css', 'variables', 'theme', 'colors', 'design system'],
+		});
+		for (const token of rootSet.tokens) {
+			globalSearchItems.push({
+				value: `tokens/${token.name}`,
+				label: token.variable,
+				href: `/tokens#${token.category}`,
+				group: 'Design Tokens',
+				keywords: ['token', token.name, token.value, token.tailwindClass].filter(
+					(k: Str): boolean => k.length > 0,
+				),
+			});
+		}
+	}
 }
 
 /** Current component name from the URL params. */
 const currentName: Str = $derived(page.params.name ?? '');
+
+/** Whether the current page is the tokens viewer. */
+const isTokensPage: boolean = $derived(page.url.pathname === '/tokens');
 
 /** Current mode from mode-watcher for the toggle. */
 const currentMode: 'light' | 'dark' | 'system' = $derived(derivedMode.current ?? 'system');
@@ -410,6 +483,21 @@ let searchOpen: boolean = $state(false);
 					</Collapsible.Content>
 				</Sidebar.Group>
 			</Collapsible.Root>
+			<!-- Design Tokens link -->
+			<Sidebar.Group>
+				<Sidebar.Menu>
+					<Sidebar.MenuItem>
+						<Sidebar.MenuButton isActive={page.url.pathname === '/tokens'}>
+							{#snippet child({ props })}
+								<a href="/tokens" {...props}>
+									<Palette class="size-4" />
+									<span>Design Tokens</span>
+								</a>
+							{/snippet}
+						</Sidebar.MenuButton>
+					</Sidebar.MenuItem>
+				</Sidebar.Menu>
+			</Sidebar.Group>
 		</Sidebar.Content>
 	</Sidebar.Root>
 
@@ -422,7 +510,7 @@ let searchOpen: boolean = $state(false);
 				<Breadcrumb.Root>
 					<Breadcrumb.List>
 						<Breadcrumb.Item>
-							{#if currentName}
+							{#if currentName || isTokensPage}
 								<Breadcrumb.Link href="/components">Lens</Breadcrumb.Link>
 							{:else}
 								<Breadcrumb.Page>Lens</Breadcrumb.Page>
@@ -432,6 +520,11 @@ let searchOpen: boolean = $state(false);
 							<Breadcrumb.Separator />
 							<Breadcrumb.Item>
 								<Breadcrumb.Page>{toTitle(currentName)}</Breadcrumb.Page>
+							</Breadcrumb.Item>
+						{:else if isTokensPage}
+							<Breadcrumb.Separator />
+							<Breadcrumb.Item>
+								<Breadcrumb.Page>Design Tokens</Breadcrumb.Page>
 							</Breadcrumb.Item>
 						{/if}
 					</Breadcrumb.List>
