@@ -43,52 +43,52 @@ const CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
  * Directory name segments used for generating realistic file paths.
  */
 const DIR_SEGMENTS = [
-	'src',
-	'lib',
-	'utils',
-	'components',
-	'hooks',
-	'services',
-	'api',
-	'types',
-	'schemas',
-	'routes',
-	'handlers',
-	'adapters',
-	'domain',
-	'config',
-	'tests',
-	'helpers',
-	'models',
-	'views',
-	'controllers',
-	'middleware',
+  'src',
+  'lib',
+  'utils',
+  'components',
+  'hooks',
+  'services',
+  'api',
+  'types',
+  'schemas',
+  'routes',
+  'handlers',
+  'adapters',
+  'domain',
+  'config',
+  'tests',
+  'helpers',
+  'models',
+  'views',
+  'controllers',
+  'middleware',
 ];
 
 /**
  * File name stems used for generating realistic file paths.
  */
 const FILE_NAMES = [
-	'index',
-	'main',
-	'app',
-	'config',
-	'utils',
-	'helpers',
-	'types',
-	'schema',
-	'handler',
-	'service',
-	'client',
-	'server',
-	'router',
-	'store',
-	'context',
-	'provider',
-	'factory',
-	'builder',
-	'parser',
-	'formatter',
+  'index',
+  'main',
+  'app',
+  'config',
+  'utils',
+  'helpers',
+  'types',
+  'schema',
+  'handler',
+  'service',
+  'client',
+  'server',
+  'router',
+  'store',
+  'context',
+  'provider',
+  'factory',
+  'builder',
+  'parser',
+  'formatter',
 ];
 
 /**
@@ -100,13 +100,13 @@ const FILE_NAMES = [
  * @returns A deterministic string of the specified length
  */
 function deterministicString(index: number, length: number): string {
-	const chars: string[] = [];
-	let seed = index;
-	for (let i = 0; i < length; i++) {
-		chars.push(CHARS[seed % CHARS.length] ?? '');
-		seed = (seed * 31 + 7) % 2_147_483_647;
-	}
-	return chars.join('');
+  const chars: string[] = [];
+  let seed = index;
+  for (let i = 0; i < length; i++) {
+    chars.push(CHARS[seed % CHARS.length] ?? '');
+    seed = (seed * 31 + 7) % 2_147_483_647;
+  }
+  return chars.join('');
 }
 
 /**
@@ -136,34 +136,34 @@ function deterministicString(index: number, length: number): string {
  * ```
  */
 export function generateStrings(count: number, length = 80): string[] {
-	const result: string[] = [];
-	for (let i = 0; i < count; i++) {
-		result.push(deterministicString(i, length));
-	}
-	return result;
+  const result: string[] = [];
+  for (let i = 0; i < count; i++) {
+    result.push(deterministicString(i, length));
+  }
+  return result;
 }
 
 /**
  * Options for generating file paths.
  */
 export type GenerateFilePathsOptions = {
-	/**
-	 * File extensions to cycle through.
-	 * @default ['.ts', '.js', '.json', '.svelte']
-	 */
-	extensions?: string[];
+  /**
+   * File extensions to cycle through.
+   * @default ['.ts', '.js', '.json', '.svelte']
+   */
+  extensions?: string[];
 
-	/**
-	 * Maximum directory nesting depth.
-	 * @default 4
-	 */
-	maxDepth?: number;
+  /**
+   * Maximum directory nesting depth.
+   * @default 4
+   */
+  maxDepth?: number;
 
-	/**
-	 * Base directory prefix for all paths.
-	 * @default 'src'
-	 */
-	base?: string;
+  /**
+   * Base directory prefix for all paths.
+   * @default 'src'
+   */
+  base?: string;
 };
 
 /**
@@ -198,27 +198,27 @@ export type GenerateFilePathsOptions = {
  * ```
  */
 export function generateFilePaths(count: number, options: GenerateFilePathsOptions = {}): string[] {
-	const { extensions = ['.ts', '.js', '.json', '.svelte'], maxDepth = 4, base = 'src' } = options;
+  const { extensions = ['.ts', '.js', '.json', '.svelte'], maxDepth = 4, base = 'src' } = options;
 
-	const result: string[] = [];
-	for (let i = 0; i < count; i++) {
-		// Deterministic depth: 1 to maxDepth
-		const depth = (i % maxDepth) + 1;
+  const result: string[] = [];
+  for (let i = 0; i < count; i++) {
+    // Deterministic depth: 1 to maxDepth
+    const depth = (i % maxDepth) + 1;
 
-		const segments: string[] = [base];
-		let seed = i;
-		for (let d = 0; d < depth - 1; d++) {
-			segments.push(DIR_SEGMENTS[seed % DIR_SEGMENTS.length] ?? '');
-			seed = (seed * 31 + 7) % 2_147_483_647;
-		}
+    const segments: string[] = [base];
+    let seed = i;
+    for (let d = 0; d < depth - 1; d++) {
+      segments.push(DIR_SEGMENTS[seed % DIR_SEGMENTS.length] ?? '');
+      seed = (seed * 31 + 7) % 2_147_483_647;
+    }
 
-		const fileName = FILE_NAMES[seed % FILE_NAMES.length];
-		const ext = extensions[i % extensions.length];
-		segments.push(`${fileName}${ext}`);
+    const fileName = FILE_NAMES[seed % FILE_NAMES.length];
+    const ext = extensions[i % extensions.length];
+    segments.push(`${fileName}${ext}`);
 
-		result.push(segments.join('/'));
-	}
-	return result;
+    result.push(segments.join('/'));
+  }
+  return result;
 }
 
 /**
@@ -257,7 +257,7 @@ export function generateFilePaths(count: number, options: GenerateFilePathsOptio
  * ```
  */
 export function generateObjects<T>(count: number, factory: (index: number) => T): T[] {
-	return Array.from({ length: count }, (_, i) => factory(i));
+  return Array.from({ length: count }, (_, i) => factory(i));
 }
 
 /**
@@ -290,16 +290,16 @@ export function generateObjects<T>(count: number, factory: (index: number) => T)
  * ```
  */
 export function generatePayload(bytes: number, pattern = 'x'): string {
-	if (pattern.length === 0) {
-		throw new Error('generatePayload: pattern must not be empty');
-	}
+  if (pattern.length === 0) {
+    throw new Error('generatePayload: pattern must not be empty');
+  }
 
-	if (pattern.length === 1) {
-		return pattern.repeat(bytes);
-	}
+  if (pattern.length === 1) {
+    return pattern.repeat(bytes);
+  }
 
-	const repetitions = Math.ceil(bytes / pattern.length);
-	return pattern.repeat(repetitions).slice(0, bytes);
+  const repetitions = Math.ceil(bytes / pattern.length);
+  return pattern.repeat(repetitions).slice(0, bytes);
 }
 
 /**
@@ -335,13 +335,13 @@ export function generatePayload(bytes: number, pattern = 'x'): string {
  * ```
  */
 export function generateNestedObjects(depth: number, breadth = 3): Record<string, unknown> {
-	if (depth <= 0) {
-		return { value: 'leaf' };
-	}
+  if (depth <= 0) {
+    return { value: 'leaf' };
+  }
 
-	const node: Record<string, unknown> = {};
-	for (let i = 0; i < breadth; i++) {
-		node[`child_${i}`] = generateNestedObjects(depth - 1, breadth);
-	}
-	return node;
+  const node: Record<string, unknown> = {};
+  for (let i = 0; i < breadth; i++) {
+    node[`child_${i}`] = generateNestedObjects(depth - 1, breadth);
+  }
+  return node;
 }

@@ -20,9 +20,9 @@ import type { Result } from '@/schemas/result/result';
 import { log } from '@/utils/core/logger';
 import { safeParse } from '@/utils/result/safe';
 import {
-	VitalsBeaconPayloadSchema,
-	type VitalsBeaconPayload,
-	type VitalsMetric,
+  VitalsBeaconPayloadSchema,
+  type VitalsBeaconPayload,
+  type VitalsMetric,
 } from '$lib/perf/vitals-payload';
 
 /** Maximum request body size in bytes (64KB). */
@@ -35,10 +35,10 @@ const MAX_BODY_SIZE: Num = 65_536 as Num;
  * @returns Formatted string like "LCP=2450ms"
  */
 function formatMetric(metric: VitalsMetric): Str {
-	const TIMING_METRICS: Set<Str> = new Set(['TTFB', 'FCP', 'LCP', 'FID', 'INP', 'TBT', 'NTBT']);
-	const isTiming: boolean = TIMING_METRICS.has(metric.name);
-	const unit: Str = isTiming ? 'ms' : '';
-	return `${metric.name}=${String(Math.round(metric.value))}${unit}` as Str;
+  const TIMING_METRICS: Set<Str> = new Set(['TTFB', 'FCP', 'LCP', 'FID', 'INP', 'TBT', 'NTBT']);
+  const isTiming: boolean = TIMING_METRICS.has(metric.name);
+  const unit: Str = isTiming ? 'ms' : '';
+  return `${metric.name}=${String(Math.round(metric.value))}${unit}` as Str;
 }
 
 /**
@@ -49,49 +49,49 @@ function formatMetric(metric: VitalsMetric): Str {
  * @returns 204 on success, 400 on invalid payload
  */
 export const POST: RequestHandler = async ({ request }) => {
-	// Read body as text — sendBeacon sends text/plain
-	let body: Str;
-	try {
-		body = (await request.text()) as Str;
-	} catch {
-		/* Body read failed — client likely disconnected */
-		return new Response(null, { status: 400 });
-	}
+  // Read body as text — sendBeacon sends text/plain
+  let body: Str;
+  try {
+    body = (await request.text()) as Str;
+  } catch {
+    /* Body read failed — client likely disconnected */
+    return new Response(null, { status: 400 });
+  }
 
-	// Empty body guard
-	if (body.length === 0) {
-		return new Response(null, { status: 400 });
-	}
+  // Empty body guard
+  if (body.length === 0) {
+    return new Response(null, { status: 400 });
+  }
 
-	// Size check — reject oversized payloads
-	if (body.length > MAX_BODY_SIZE) {
-		return new Response(null, { status: 400 });
-	}
+  // Size check — reject oversized payloads
+  if (body.length > MAX_BODY_SIZE) {
+    return new Response(null, { status: 400 });
+  }
 
-	// Parse JSON
-	let parsed: unknown;
-	try {
-		parsed = JSON.parse(body);
-	} catch {
-		/* Malformed JSON */
-		return new Response(null, { status: 400 });
-	}
+  // Parse JSON
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    /* Malformed JSON */
+    return new Response(null, { status: 400 });
+  }
 
-	// Validate against VitalsBeaconPayloadSchema (strict — rejects PII fields)
-	const result: Result<VitalsBeaconPayload> = safeParse(VitalsBeaconPayloadSchema, parsed);
-	if (!result.ok) {
-		return new Response(null, { status: 400 });
-	}
+  // Validate against VitalsBeaconPayloadSchema (strict — rejects PII fields)
+  const result: Result<VitalsBeaconPayload> = safeParse(VitalsBeaconPayloadSchema, parsed);
+  if (!result.ok) {
+    return new Response(null, { status: 400 });
+  }
 
-	const payload: VitalsBeaconPayload = result.data as VitalsBeaconPayload;
+  const payload: VitalsBeaconPayload = result.data as VitalsBeaconPayload;
 
-	// Log as structured JSON — Workers Logs captures console output automatically
-	const metricsSummary: Str = payload.metrics.map(formatMetric).join(' ') as Str;
-	const deviceLabel: Str = (payload.device.isLowEndDevice ? 'lowEnd' : 'normal') as Str;
+  // Log as structured JSON — Workers Logs captures console output automatically
+  const metricsSummary: Str = payload.metrics.map(formatMetric).join(' ') as Str;
+  const deviceLabel: Str = (payload.device.isLowEndDevice ? 'lowEnd' : 'normal') as Str;
 
-	log.info(
-		`[vitals] ${metricsSummary} url=${payload.url} device=${deviceLabel} session=${payload.sessionId}`,
-	);
+  log.info(
+    `[vitals] ${metricsSummary} url=${payload.url} device=${deviceLabel} session=${payload.sessionId}`,
+  );
 
-	return new Response(null, { status: 204 });
+  return new Response(null, { status: 204 });
 };

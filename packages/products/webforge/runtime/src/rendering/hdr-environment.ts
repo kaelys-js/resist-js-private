@@ -33,27 +33,27 @@ import { okShallow, type BabylonResult } from '../core/babylon-result';
 
 /** HDR environment instance returned by {@link loadHdrEnvironment}. */
 export type HdrEnvironmentInstance = {
-	readonly texture: BABYLON.BaseTexture & { rotationY: number };
-	readonly scene: BABYLON.Scene;
+  readonly texture: BABYLON.BaseTexture & { rotationY: number };
+  readonly scene: BABYLON.Scene;
 };
 
 /** Options for {@link loadHdrEnvironment}. */
 type LoadHdrOptions = {
-	readonly scene: BABYLON.Scene;
-	readonly config: HdrEnvironmentConfig;
+  readonly scene: BABYLON.Scene;
+  readonly config: HdrEnvironmentConfig;
 };
 
 /** Options for {@link applyHdrEnvironmentToScene}. */
 type ApplyHdrOptions = {
-	readonly scene: BABYLON.Scene;
-	readonly texture: BABYLON.BaseTexture & { rotationY: number };
-	readonly intensity: Num;
-	readonly rotationY: Num;
+  readonly scene: BABYLON.Scene;
+  readonly texture: BABYLON.BaseTexture & { rotationY: number };
+  readonly intensity: Num;
+  readonly rotationY: Num;
 };
 
 /** Options for {@link disposeHdrEnvironment}. */
 type DisposeHdrOptions = {
-	readonly instance: HdrEnvironmentInstance;
+  readonly instance: HdrEnvironmentInstance;
 };
 
 // =============================================================================
@@ -81,22 +81,22 @@ type DisposeHdrOptions = {
  * ```
  */
 export function applyHdrEnvironmentToScene(
-	options: ApplyHdrOptions,
+  options: ApplyHdrOptions,
 ): BabylonResult<HdrEnvironmentInstance> {
-	try {
-		const { scene, texture, intensity, rotationY } = options;
+  try {
+    const { scene, texture, intensity, rotationY } = options;
 
-		texture.rotationY = rotationY;
-		scene.environmentTexture = texture;
-		scene.environmentIntensity = intensity;
+    texture.rotationY = rotationY;
+    scene.environmentTexture = texture;
+    scene.environmentIntensity = intensity;
 
-		const instance: HdrEnvironmentInstance = { texture, scene };
-		return okShallow(instance);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, {
-			cause: fromUnknownError(error),
-		});
-	}
+    const instance: HdrEnvironmentInstance = { texture, scene };
+    return okShallow(instance);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, {
+      cause: fromUnknownError(error),
+    });
+  }
 }
 
 // =============================================================================
@@ -124,30 +124,30 @@ export function applyHdrEnvironmentToScene(
  * ```
  */
 export function loadHdrEnvironment(options: LoadHdrOptions): BabylonResult<HdrEnvironmentInstance> {
-	const { scene, config } = options;
+  const { scene, config } = options;
 
-	if (!config.texturePath || config.texturePath.length === 0) {
-		return err(ERRORS.ASSET.IMPORT_FAILED, 'HDR environment texture path is empty');
-	}
+  if (!config.texturePath || config.texturePath.length === 0) {
+    return err(ERRORS.ASSET.IMPORT_FAILED, 'HDR environment texture path is empty');
+  }
 
-	try {
-		const texture: BABYLON.HDRCubeTexture = new BABYLON.HDRCubeTexture(
-			config.texturePath,
-			scene,
-			256,
-		);
+  try {
+    const texture: BABYLON.HDRCubeTexture = new BABYLON.HDRCubeTexture(
+      config.texturePath,
+      scene,
+      256,
+    );
 
-		return applyHdrEnvironmentToScene({
-			scene,
-			texture,
-			intensity: config.intensity,
-			rotationY: config.rotationY,
-		});
-	} catch (error: unknown) {
-		return err(ERRORS.ASSET.IMPORT_FAILED, {
-			cause: fromUnknownError(error),
-		});
-	}
+    return applyHdrEnvironmentToScene({
+      scene,
+      texture,
+      intensity: config.intensity,
+      rotationY: config.rotationY,
+    });
+  } catch (error: unknown) {
+    return err(ERRORS.ASSET.IMPORT_FAILED, {
+      cause: fromUnknownError(error),
+    });
+  }
 }
 
 // =============================================================================
@@ -166,14 +166,14 @@ export function loadHdrEnvironment(options: LoadHdrOptions): BabylonResult<HdrEn
  * ```
  */
 export function disposeHdrEnvironment(options: DisposeHdrOptions): BabylonResult<Bool> {
-	try {
-		const { instance } = options;
-		instance.texture.dispose();
-		instance.scene.environmentTexture = null;
-		return okUnchecked(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, {
-			cause: fromUnknownError(error),
-		});
-	}
+  try {
+    const { instance } = options;
+    instance.texture.dispose();
+    instance.scene.environmentTexture = null;
+    return okUnchecked(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, {
+      cause: fromUnknownError(error),
+    });
+  }
 }

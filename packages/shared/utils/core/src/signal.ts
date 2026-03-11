@@ -29,37 +29,37 @@
 import * as v from 'valibot';
 
 import {
-	AbortSignalSchema,
-	BoolSchema,
-	CleanupCallbackSchema,
-	VoidSchema,
-	type Bool,
-	type CleanupCallback,
-	type EnvironmentConfig,
-	type InterruptHandler,
-	type LogContext,
-	type NullableAbortController,
-	type OptionalNodeProcess,
-	type RuntimeKind,
-	type Num,
-	type Str,
-	type TeardownFn,
-	type Void,
+  AbortSignalSchema,
+  BoolSchema,
+  CleanupCallbackSchema,
+  VoidSchema,
+  type Bool,
+  type CleanupCallback,
+  type EnvironmentConfig,
+  type InterruptHandler,
+  type LogContext,
+  type NullableAbortController,
+  type OptionalNodeProcess,
+  type RuntimeKind,
+  type Num,
+  type Str,
+  type TeardownFn,
+  type Void,
 } from '@/schemas/common';
 import { functionSchema } from '@/schemas/function/function';
 import {
-	type Breadcrumb,
-	type CapturedError,
-	type CapturedErrorType,
-	ErrorContextsSchema,
-	ErrorUserContextSchema,
+  type Breadcrumb,
+  type CapturedError,
+  type CapturedErrorType,
+  ErrorContextsSchema,
+  ErrorUserContextSchema,
 } from '@/schemas/result/captured-error';
 import {
-	ErrorTagsSchema,
-	type AppError,
-	ok,
-	okUnchecked,
-	type Result,
+  ErrorTagsSchema,
+  type AppError,
+  ok,
+  okUnchecked,
+  type Result,
 } from '@/schemas/result/result';
 import { drainBreadcrumbs } from '@/utils/result/breadcrumbs';
 import { detectEnvironment, detectRuntime, getProcess } from '@/utils/core/environment';
@@ -87,26 +87,26 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
  * ```
  */
 export const GlobalErrorHandlerOptionsSchema = v.strictObject({
-	/** Callback invoked for each captured error. Fire-and-forget context. */
-	onError: functionSchema<[CapturedError], void>(),
-	/** Callback invoked when handler determines a fatal exit. Fire-and-forget. */
-	onFatalExit: v.optional(functionSchema<[CapturedError], void>()),
-	/** Timeout in ms before force-exiting on fatal error (Node/Deno/Bun). Default: 5000. 0 disables. */
-	exitTimeoutMs: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
-	/** Whether to capture CSP violations (browser only). Default: true. */
-	captureCSP: v.optional(BoolSchema),
-	/** Whether to capture resource load errors (browser only). Default: true. */
-	captureResourceErrors: v.optional(BoolSchema),
-	/** Software release version. Attached to every CapturedError as ambient context. */
-	release: v.optional(v.string()),
-	/** Server/worker name. Attached to every CapturedError as ambient context. */
-	serverName: v.optional(v.string()),
-	/** Default tags attached to every CapturedError. */
-	tags: v.optional(ErrorTagsSchema),
-	/** Default user context attached to every CapturedError. */
-	user: v.optional(ErrorUserContextSchema),
-	/** Default structured contexts (OS, browser, device, app, custom). */
-	contexts: v.optional(ErrorContextsSchema),
+  /** Callback invoked for each captured error. Fire-and-forget context. */
+  onError: functionSchema<[CapturedError], void>(),
+  /** Callback invoked when handler determines a fatal exit. Fire-and-forget. */
+  onFatalExit: v.optional(functionSchema<[CapturedError], void>()),
+  /** Timeout in ms before force-exiting on fatal error (Node/Deno/Bun). Default: 5000. 0 disables. */
+  exitTimeoutMs: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+  /** Whether to capture CSP violations (browser only). Default: true. */
+  captureCSP: v.optional(BoolSchema),
+  /** Whether to capture resource load errors (browser only). Default: true. */
+  captureResourceErrors: v.optional(BoolSchema),
+  /** Software release version. Attached to every CapturedError as ambient context. */
+  release: v.optional(v.string()),
+  /** Server/worker name. Attached to every CapturedError as ambient context. */
+  serverName: v.optional(v.string()),
+  /** Default tags attached to every CapturedError. */
+  tags: v.optional(ErrorTagsSchema),
+  /** Default user context attached to every CapturedError. */
+  user: v.optional(ErrorUserContextSchema),
+  /** Default structured contexts (OS, browser, device, app, custom). */
+  contexts: v.optional(ErrorContextsSchema),
 });
 
 /** Inferred output type of {@link GlobalErrorHandlerOptionsSchema}. */
@@ -140,12 +140,12 @@ let _ambientOptions: GlobalErrorHandlerOptions | undefined;
  * @internal
  */
 let registeredListeners: Array<{
-	readonly target: EventTarget | NodeJS.Process;
-	readonly event: Str;
-	readonly listener: (...args: unknown[]) => void;
-	readonly capture?: Bool;
-	/** Whether this is a Deno signal listener (needs Deno.removeSignalListener for teardown). */
-	readonly denoSignal?: Bool;
+  readonly target: EventTarget | NodeJS.Process;
+  readonly event: Str;
+  readonly listener: (...args: unknown[]) => void;
+  readonly capture?: Bool;
+  /** Whether this is a Deno signal listener (needs Deno.removeSignalListener for teardown). */
+  readonly denoSignal?: Bool;
 }> = [];
 
 // =============================================================================
@@ -162,21 +162,21 @@ let registeredListeners: Array<{
  * @returns Void — fire-and-forget internal helper.
  */
 function addListener(
-	target: EventTarget | NodeJS.Process,
-	event: Str,
-	listener: (...args: unknown[]) => void,
-	capture?: Bool,
+  target: EventTarget | NodeJS.Process,
+  event: Str,
+  listener: (...args: unknown[]) => void,
+  capture?: Bool,
 ): Void {
-	if ('addEventListener' in target) {
-		(target as EventTarget).addEventListener(
-			event,
-			listener as EventListener,
-			capture === undefined ? undefined : { capture },
-		);
-	} else if ('on' in target) {
-		(target as NodeJS.Process).on(event, listener);
-	}
-	registeredListeners.push({ target, event, listener, capture });
+  if ('addEventListener' in target) {
+    (target as EventTarget).addEventListener(
+      event,
+      listener as EventListener,
+      capture === undefined ? undefined : { capture },
+    );
+  } else if ('on' in target) {
+    (target as NodeJS.Process).on(event, listener);
+  }
+  registeredListeners.push({ target, event, listener, capture });
 }
 
 /**
@@ -197,48 +197,48 @@ function addListener(
  * @returns CapturedError — frozen envelope.
  */
 function createCapturedError(
-	type: CapturedErrorType,
-	original: unknown,
-	fatal: Bool,
-	environment: RuntimeKind,
-	meta?: Record<Str, unknown>,
+  type: CapturedErrorType,
+  original: unknown,
+  fatal: Bool,
+  environment: RuntimeKind,
+  meta?: Record<Str, unknown>,
 ): CapturedError {
-	const appError: AppError = fromUnknownError(original);
+  const appError: AppError = fromUnknownError(original);
 
-	// Merge global log context into meta for automatic correlation
-	const ctxResult: Result<LogContext> = getContext();
-	const contextFields: Record<Str, unknown> =
-		ctxResult.ok && Object.keys(ctxResult.data).length > 0 ? { ...ctxResult.data } : {};
-	const mergedMeta: Record<Str, unknown> | undefined =
-		Object.keys(contextFields).length > 0 || meta !== undefined
-			? { ...contextFields, ...meta }
-			: undefined;
+  // Merge global log context into meta for automatic correlation
+  const ctxResult: Result<LogContext> = getContext();
+  const contextFields: Record<Str, unknown> =
+    ctxResult.ok && Object.keys(ctxResult.data).length > 0 ? { ...ctxResult.data } : {};
+  const mergedMeta: Record<Str, unknown> | undefined =
+    Object.keys(contextFields).length > 0 || meta !== undefined
+      ? { ...contextFields, ...meta }
+      : undefined;
 
-	// Auto-drain breadcrumbs
-	const crumbs: Result<readonly Breadcrumb[]> = drainBreadcrumbs();
-	const breadcrumbs: ReadonlyArray<Breadcrumb> | undefined =
-		crumbs.ok && crumbs.data.length > 0 ? crumbs.data : undefined;
+  // Auto-drain breadcrumbs
+  const crumbs: Result<readonly Breadcrumb[]> = drainBreadcrumbs();
+  const breadcrumbs: ReadonlyArray<Breadcrumb> | undefined =
+    crumbs.ok && crumbs.data.length > 0 ? crumbs.data : undefined;
 
-	// Auto-generate fingerprint from error code
-	const fingerprint: readonly Str[] = [appError.code];
+  // Auto-generate fingerprint from error code
+  const fingerprint: readonly Str[] = [appError.code];
 
-	return Object.freeze({
-		type,
-		id: crypto.randomUUID(),
-		error: appError,
-		original,
-		environment,
-		timestamp: new Date().toISOString(),
-		fatal,
-		...(mergedMeta !== undefined && { meta: mergedMeta }),
-		...(breadcrumbs !== undefined && { breadcrumbs }),
-		fingerprint,
-		...(_ambientOptions?.release !== undefined && { release: _ambientOptions.release }),
-		...(_ambientOptions?.serverName !== undefined && { serverName: _ambientOptions.serverName }),
-		...(_ambientOptions?.tags !== undefined && { tags: _ambientOptions.tags }),
-		...(_ambientOptions?.user !== undefined && { user: _ambientOptions.user }),
-		...(_ambientOptions?.contexts !== undefined && { contexts: _ambientOptions.contexts }),
-	}) as CapturedError;
+  return Object.freeze({
+    type,
+    id: crypto.randomUUID(),
+    error: appError,
+    original,
+    environment,
+    timestamp: new Date().toISOString(),
+    fatal,
+    ...(mergedMeta !== undefined && { meta: mergedMeta }),
+    ...(breadcrumbs !== undefined && { breadcrumbs }),
+    fingerprint,
+    ...(_ambientOptions?.release !== undefined && { release: _ambientOptions.release }),
+    ...(_ambientOptions?.serverName !== undefined && { serverName: _ambientOptions.serverName }),
+    ...(_ambientOptions?.tags !== undefined && { tags: _ambientOptions.tags }),
+    ...(_ambientOptions?.user !== undefined && { user: _ambientOptions.user }),
+    ...(_ambientOptions?.contexts !== undefined && { contexts: _ambientOptions.contexts }),
+  }) as CapturedError;
 }
 
 /**
@@ -253,15 +253,15 @@ function createCapturedError(
  * @returns Void — fire-and-forget context.
  */
 function safeInvoke(fn: (captured: CapturedError) => void, captured: CapturedError): Void {
-	if (isHandling) return;
-	isHandling = true;
-	try {
-		fn(captured);
-	} catch {
-		// Intentionally swallowed — handler must not crash the process
-	} finally {
-		isHandling = false;
-	}
+  if (isHandling) return;
+  isHandling = true;
+  try {
+    fn(captured);
+  } catch {
+    // Intentionally swallowed — handler must not crash the process
+  } finally {
+    isHandling = false;
+  }
 }
 
 /**
@@ -276,33 +276,33 @@ function safeInvoke(fn: (captured: CapturedError) => void, captured: CapturedErr
  * @returns Void — fire-and-forget (called from teardown and reset).
  */
 function removeAllListeners(): Void {
-	for (let i: number = registeredListeners.length - 1; i >= 0; i--) {
-		const entry = registeredListeners[i];
-		if (!entry) continue;
-		const { target, event, listener, capture, denoSignal } = entry;
-		if (denoSignal) {
-			// Deno signal listeners must use Deno.removeSignalListener
-			const denoGlobal: Record<Str, unknown> = globalThis as Record<Str, unknown>;
-			const Deno: Record<Str, unknown> | undefined = denoGlobal.Deno as
-				| Record<Str, unknown>
-				| undefined;
-			if (Deno && typeof Deno.removeSignalListener === 'function') {
-				(Deno.removeSignalListener as (signal: Str, handler: () => void) => void)(
-					event,
-					listener as () => void,
-				);
-			}
-		} else if ('removeEventListener' in target) {
-			(target as EventTarget).removeEventListener(
-				event,
-				listener as EventListener,
-				capture === undefined ? undefined : { capture },
-			);
-		} else if ('off' in target) {
-			(target as NodeJS.Process).off(event, listener);
-		}
-	}
-	registeredListeners = [];
+  for (let i: number = registeredListeners.length - 1; i >= 0; i--) {
+    const entry = registeredListeners[i];
+    if (!entry) continue;
+    const { target, event, listener, capture, denoSignal } = entry;
+    if (denoSignal) {
+      // Deno signal listeners must use Deno.removeSignalListener
+      const denoGlobal: Record<Str, unknown> = globalThis as Record<Str, unknown>;
+      const Deno: Record<Str, unknown> | undefined = denoGlobal.Deno as
+        | Record<Str, unknown>
+        | undefined;
+      if (Deno && typeof Deno.removeSignalListener === 'function') {
+        (Deno.removeSignalListener as (signal: Str, handler: () => void) => void)(
+          event,
+          listener as () => void,
+        );
+      }
+    } else if ('removeEventListener' in target) {
+      (target as EventTarget).removeEventListener(
+        event,
+        listener as EventListener,
+        capture === undefined ? undefined : { capture },
+      );
+    } else if ('off' in target) {
+      (target as NodeJS.Process).off(event, listener);
+    }
+  }
+  registeredListeners = [];
 }
 
 /**
@@ -313,14 +313,14 @@ function removeAllListeners(): Void {
  * @returns Void — fire-and-forget.
  */
 function teardown(): Void {
-	removeAllListeners();
-	globalErrorHandlingSetup = false;
-	isHandling = false;
-	_ambientOptions = undefined;
-	if (exitTimeoutHandle !== null) {
-		clearTimeout(exitTimeoutHandle);
-		exitTimeoutHandle = null;
-	}
+  removeAllListeners();
+  globalErrorHandlingSetup = false;
+  isHandling = false;
+  _ambientOptions = undefined;
+  if (exitTimeoutHandle !== null) {
+    clearTimeout(exitTimeoutHandle);
+    exitTimeoutHandle = null;
+  }
 }
 
 // =============================================================================
@@ -335,94 +335,94 @@ function teardown(): Void {
  * @returns Void — fire-and-forget.
  */
 function registerNodeHandlers(options: GlobalErrorHandlerOptions, runtime: RuntimeKind): Void {
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc || typeof proc.on !== 'function') return;
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc || typeof proc.on !== 'function') return;
 
-	if (!globalAbortController) {
-		globalAbortController = new AbortController();
-	}
+  if (!globalAbortController) {
+    globalAbortController = new AbortController();
+  }
 
-	// uncaughtException — fatal
-	addListener(proc, 'uncaughtException', (thrown: unknown): Void => {
-		const captured: CapturedError = createCapturedError('uncaughtException', thrown, true, runtime);
-		safeInvoke(options.onError, captured);
+  // uncaughtException — fatal
+  addListener(proc, 'uncaughtException', (thrown: unknown): Void => {
+    const captured: CapturedError = createCapturedError('uncaughtException', thrown, true, runtime);
+    safeInvoke(options.onError, captured);
 
-		if (globalAbortController) {
-			globalAbortController.abort();
-		}
+    if (globalAbortController) {
+      globalAbortController.abort();
+    }
 
-		if (options.onFatalExit) {
-			safeInvoke(options.onFatalExit, captured);
-		}
+    if (options.onFatalExit) {
+      safeInvoke(options.onFatalExit, captured);
+    }
 
-		// Schedule force exit
-		const timeoutMs: number = options.exitTimeoutMs ?? 5000;
-		if (timeoutMs > 0 && proc.exit) {
-			exitTimeoutHandle = setTimeout(() => {
-				proc.exit(1);
-			}, timeoutMs);
-			// Unref so timer doesn't keep process alive
-			if (
-				typeof exitTimeoutHandle === 'object' &&
-				exitTimeoutHandle !== null &&
-				'unref' in exitTimeoutHandle
-			) {
-				(exitTimeoutHandle as NodeJS.Timeout).unref();
-			}
-		}
-	});
+    // Schedule force exit
+    const timeoutMs: number = options.exitTimeoutMs ?? 5000;
+    if (timeoutMs > 0 && proc.exit) {
+      exitTimeoutHandle = setTimeout(() => {
+        proc.exit(1);
+      }, timeoutMs);
+      // Unref so timer doesn't keep process alive
+      if (
+        typeof exitTimeoutHandle === 'object' &&
+        exitTimeoutHandle !== null &&
+        'unref' in exitTimeoutHandle
+      ) {
+        (exitTimeoutHandle as NodeJS.Timeout).unref();
+      }
+    }
+  });
 
-	// unhandledRejection — non-fatal
-	addListener(proc, 'unhandledRejection', (reason: unknown): Void => {
-		const captured: CapturedError = createCapturedError(
-			'unhandledRejection',
-			reason,
-			false,
-			runtime,
-		);
-		safeInvoke(options.onError, captured);
-	});
+  // unhandledRejection — non-fatal
+  addListener(proc, 'unhandledRejection', (reason: unknown): Void => {
+    const captured: CapturedError = createCapturedError(
+      'unhandledRejection',
+      reason,
+      false,
+      runtime,
+    );
+    safeInvoke(options.onError, captured);
+  });
 
-	// SIGINT — fatal signal
-	addListener(proc, 'SIGINT', (): Void => {
-		if (globalAbortController) {
-			globalAbortController.abort();
-		}
-		const captured: CapturedError = createCapturedError(
-			'signal',
-			new Error('SIGINT'),
-			true,
-			runtime,
-			{ signal: 'SIGINT' },
-		);
-		safeInvoke(options.onError, captured);
-		if (options.onFatalExit) {
-			safeInvoke(options.onFatalExit, captured);
-		}
-	});
+  // SIGINT — fatal signal
+  addListener(proc, 'SIGINT', (): Void => {
+    if (globalAbortController) {
+      globalAbortController.abort();
+    }
+    const captured: CapturedError = createCapturedError(
+      'signal',
+      new Error('SIGINT'),
+      true,
+      runtime,
+      { signal: 'SIGINT' },
+    );
+    safeInvoke(options.onError, captured);
+    if (options.onFatalExit) {
+      safeInvoke(options.onFatalExit, captured);
+    }
+  });
 
-	// SIGTERM — fatal signal
-	addListener(proc, 'SIGTERM', (): Void => {
-		if (globalAbortController) {
-			globalAbortController.abort();
-		}
-		const captured: CapturedError = createCapturedError(
-			'signal',
-			new Error('SIGTERM'),
-			true,
-			runtime,
-			{ signal: 'SIGTERM' },
-		);
-		safeInvoke(options.onError, captured);
-		if (options.onFatalExit) {
-			safeInvoke(options.onFatalExit, captured);
-		}
-	});
+  // SIGTERM — fatal signal
+  addListener(proc, 'SIGTERM', (): Void => {
+    if (globalAbortController) {
+      globalAbortController.abort();
+    }
+    const captured: CapturedError = createCapturedError(
+      'signal',
+      new Error('SIGTERM'),
+      true,
+      runtime,
+      { signal: 'SIGTERM' },
+    );
+    safeInvoke(options.onError, captured);
+    if (options.onFatalExit) {
+      safeInvoke(options.onFatalExit, captured);
+    }
+  });
 
-	// SIGPIPE — silent ignore (existing behavior)
-	addListener(proc, 'SIGPIPE', (): Void => {
-		// Ignore SIGPIPE to prevent crash when piped to head
-	});
+  // SIGPIPE — silent ignore (existing behavior)
+  addListener(proc, 'SIGPIPE', (): Void => {
+    // Ignore SIGPIPE to prevent crash when piped to head
+  });
 }
 
 /**
@@ -433,127 +433,127 @@ function registerNodeHandlers(options: GlobalErrorHandlerOptions, runtime: Runti
  * @returns Void — fire-and-forget.
  */
 function registerBrowserHandlers(options: GlobalErrorHandlerOptions, runtime: RuntimeKind): Void {
-	if (globalThis.window === undefined) return;
+  if (globalThis.window === undefined) return;
 
-	const win: Window = globalThis.window;
+  const win: Window = globalThis.window;
 
-	// window.error — JS errors (ErrorEvent) — non-fatal in browser
-	addListener(win, 'error', (event: unknown): Void => {
-		// Distinguish JS errors from resource errors
-		if (!(event instanceof ErrorEvent)) return;
+  // window.error — JS errors (ErrorEvent) — non-fatal in browser
+  addListener(win, 'error', (event: unknown): Void => {
+    // Distinguish JS errors from resource errors
+    if (!(event instanceof ErrorEvent)) return;
 
-		const errorMeta: Record<Str, unknown> = {};
-		if (event.filename) errorMeta.filename = event.filename;
-		if (event.lineno) errorMeta.lineno = event.lineno;
-		if (event.colno) errorMeta.colno = event.colno;
-		// Detect CORS "Script error." cross-origin blocking
-		if (event.message === 'Script error.' && !event.filename) {
-			errorMeta.crossOriginBlocked = true;
-		}
+    const errorMeta: Record<Str, unknown> = {};
+    if (event.filename) errorMeta.filename = event.filename;
+    if (event.lineno) errorMeta.lineno = event.lineno;
+    if (event.colno) errorMeta.colno = event.colno;
+    // Detect CORS "Script error." cross-origin blocking
+    if (event.message === 'Script error.' && !event.filename) {
+      errorMeta.crossOriginBlocked = true;
+    }
 
-		const captured: CapturedError = createCapturedError(
-			'uncaughtException',
-			event.error ?? event.message,
-			false,
-			runtime,
-			errorMeta,
-		);
-		safeInvoke(options.onError, captured);
-	});
+    const captured: CapturedError = createCapturedError(
+      'uncaughtException',
+      event.error ?? event.message,
+      false,
+      runtime,
+      errorMeta,
+    );
+    safeInvoke(options.onError, captured);
+  });
 
-	// window.unhandledrejection — non-fatal
-	addListener(win, 'unhandledrejection', (event: unknown): Void => {
-		const reason: unknown = (event as PromiseRejectionEvent)?.reason;
-		const captured: CapturedError = createCapturedError(
-			'unhandledRejection',
-			reason,
-			false,
-			runtime,
-		);
-		safeInvoke(options.onError, captured);
-	});
+  // window.unhandledrejection — non-fatal
+  addListener(win, 'unhandledrejection', (event: unknown): Void => {
+    const reason: unknown = (event as PromiseRejectionEvent)?.reason;
+    const captured: CapturedError = createCapturedError(
+      'unhandledRejection',
+      reason,
+      false,
+      runtime,
+    );
+    safeInvoke(options.onError, captured);
+  });
 
-	// CSP violations — rate-limited to prevent console floods.
-	// Identical violations (same directive + blockedURI) are coalesced:
-	// the first CSP_RATE_LIMIT_MAX fires per key within CSP_RATE_LIMIT_WINDOW_MS
-	// are reported normally; subsequent ones are suppressed and counted.
-	// After the window expires the counter resets.
-	if (options.captureCSP !== false && globalThis.document !== undefined) {
-		/** Max CSP violations per unique key before suppressing. */
-		const CSP_RATE_LIMIT_MAX: Num = 5;
-		/** Window (ms) after which the rate-limit counter resets. */
-		const CSP_RATE_LIMIT_WINDOW_MS: Num = 10_000;
+  // CSP violations — rate-limited to prevent console floods.
+  // Identical violations (same directive + blockedURI) are coalesced:
+  // the first CSP_RATE_LIMIT_MAX fires per key within CSP_RATE_LIMIT_WINDOW_MS
+  // are reported normally; subsequent ones are suppressed and counted.
+  // After the window expires the counter resets.
+  if (options.captureCSP !== false && globalThis.document !== undefined) {
+    /** Max CSP violations per unique key before suppressing. */
+    const CSP_RATE_LIMIT_MAX: Num = 5;
+    /** Window (ms) after which the rate-limit counter resets. */
+    const CSP_RATE_LIMIT_WINDOW_MS: Num = 10_000;
 
-		const cspCounts: Map<Str, { count: Num; firstSeen: Num }> = new Map();
+    const cspCounts: Map<Str, { count: Num; firstSeen: Num }> = new Map();
 
-		addListener(globalThis.document, 'securitypolicyviolation', (event: unknown): Void => {
-			// SecurityPolicyViolationEvent — cast required because the
-			// generic event listener signature doesn't know the event subtype.
-			const cspEvent: SecurityPolicyViolationEvent = event as SecurityPolicyViolationEvent;
-			const rateKey: Str = `${cspEvent.violatedDirective}|${cspEvent.blockedURI}`;
-			const now: Num = Date.now();
-			let entry = cspCounts.get(rateKey);
+    addListener(globalThis.document, 'securitypolicyviolation', (event: unknown): Void => {
+      // SecurityPolicyViolationEvent — cast required because the
+      // generic event listener signature doesn't know the event subtype.
+      const cspEvent: SecurityPolicyViolationEvent = event as SecurityPolicyViolationEvent;
+      const rateKey: Str = `${cspEvent.violatedDirective}|${cspEvent.blockedURI}`;
+      const now: Num = Date.now();
+      let entry = cspCounts.get(rateKey);
 
-			if (!entry || now - entry.firstSeen > CSP_RATE_LIMIT_WINDOW_MS) {
-				// First occurrence or window expired — reset counter.
-				entry = { count: 0, firstSeen: now };
-				cspCounts.set(rateKey, entry);
-			}
+      if (!entry || now - entry.firstSeen > CSP_RATE_LIMIT_WINDOW_MS) {
+        // First occurrence or window expired — reset counter.
+        entry = { count: 0, firstSeen: now };
+        cspCounts.set(rateKey, entry);
+      }
 
-			entry.count++;
+      entry.count++;
 
-			if (entry.count > CSP_RATE_LIMIT_MAX) {
-				// Suppress — already logged enough for this window.
-				return;
-			}
+      if (entry.count > CSP_RATE_LIMIT_MAX) {
+        // Suppress — already logged enough for this window.
+        return;
+      }
 
-			const captured: CapturedError = createCapturedError(
-				'cspViolation',
-				new Error(`CSP violation: ${cspEvent.violatedDirective}`),
-				false,
-				runtime,
-				{
-					violatedDirective: cspEvent.violatedDirective,
-					blockedURI: cspEvent.blockedURI,
-					originalPolicy: cspEvent.originalPolicy,
-					disposition: cspEvent.disposition,
-				},
-			);
-			safeInvoke(options.onError, captured);
-		});
-	}
+      const captured: CapturedError = createCapturedError(
+        'cspViolation',
+        new Error(`CSP violation: ${cspEvent.violatedDirective}`),
+        false,
+        runtime,
+        {
+          violatedDirective: cspEvent.violatedDirective,
+          blockedURI: cspEvent.blockedURI,
+          originalPolicy: cspEvent.originalPolicy,
+          disposition: cspEvent.disposition,
+        },
+      );
+      safeInvoke(options.onError, captured);
+    });
+  }
 
-	// Resource load errors (capture phase to catch <img>, <script>, etc.)
-	if (options.captureResourceErrors !== false) {
-		addListener(
-			win,
-			'error',
-			(event: unknown): Void => {
-				// Only fires for HTMLElement targets (not ErrorEvent JS errors)
-				if (event instanceof ErrorEvent) return;
-				const target: unknown = (event as Event)?.target;
-				if (!target || !(target instanceof HTMLElement)) return;
-				// Use getAttribute to get the raw attribute value, not the resolved URL.
-				// .src/.href properties resolve relative/empty values to the page URL,
-				// producing misleading "Resource load error: <IMG> http://current-page" messages.
-				const rawSrc: Str =
-					(target as HTMLElement).getAttribute('src') ??
-					(target as HTMLElement).getAttribute('href') ??
-					'';
-				if (!rawSrc) return; // Skip elements with no actual src/href attribute
-				const { tagName } = target;
-				const captured: CapturedError = createCapturedError(
-					'resourceError',
-					new Error(`Resource load error: <${tagName}> ${rawSrc}`),
-					false,
-					runtime,
-					{ tagName, src: rawSrc },
-				);
-				safeInvoke(options.onError, captured);
-			},
-			true,
-		); // capture phase
-	}
+  // Resource load errors (capture phase to catch <img>, <script>, etc.)
+  if (options.captureResourceErrors !== false) {
+    addListener(
+      win,
+      'error',
+      (event: unknown): Void => {
+        // Only fires for HTMLElement targets (not ErrorEvent JS errors)
+        if (event instanceof ErrorEvent) return;
+        const target: unknown = (event as Event)?.target;
+        if (!target || !(target instanceof HTMLElement)) return;
+        // Use getAttribute to get the raw attribute value, not the resolved URL.
+        // .src/.href properties resolve relative/empty values to the page URL,
+        // producing misleading "Resource load error: <IMG> http://current-page" messages.
+        const rawSrc: Str =
+          (target as HTMLElement).getAttribute('src') ??
+          (target as HTMLElement).getAttribute('href') ??
+          '';
+        if (!rawSrc) return; // Skip elements with no actual src/href attribute
+        const { tagName } = target;
+        const captured: CapturedError = createCapturedError(
+          'resourceError',
+          new Error(`Resource load error: <${tagName}> ${rawSrc}`),
+          false,
+          runtime,
+          { tagName, src: rawSrc },
+        );
+        safeInvoke(options.onError, captured);
+      },
+      true,
+    ); // capture phase
+  }
 }
 
 /**
@@ -570,31 +570,31 @@ function registerBrowserHandlers(options: GlobalErrorHandlerOptions, runtime: Ru
  * @returns Void — fire-and-forget.
  */
 function registerWorkerHandlers(options: GlobalErrorHandlerOptions, runtime: RuntimeKind): Void {
-	if (globalThis.self === undefined) return;
+  if (globalThis.self === undefined) return;
 
-	const selfRef: typeof globalThis.self = globalThis.self;
+  const selfRef: typeof globalThis.self = globalThis.self;
 
-	addListener(selfRef, 'error', (event: unknown): Void => {
-		const errorEvent: ErrorEvent = event as ErrorEvent;
-		const captured: CapturedError = createCapturedError(
-			'uncaughtException',
-			errorEvent.error ?? errorEvent.message,
-			false,
-			runtime,
-		);
-		safeInvoke(options.onError, captured);
-	});
+  addListener(selfRef, 'error', (event: unknown): Void => {
+    const errorEvent: ErrorEvent = event as ErrorEvent;
+    const captured: CapturedError = createCapturedError(
+      'uncaughtException',
+      errorEvent.error ?? errorEvent.message,
+      false,
+      runtime,
+    );
+    safeInvoke(options.onError, captured);
+  });
 
-	addListener(selfRef, 'unhandledrejection', (event: unknown): Void => {
-		const reason: unknown = (event as PromiseRejectionEvent)?.reason;
-		const captured: CapturedError = createCapturedError(
-			'unhandledRejection',
-			reason,
-			false,
-			runtime,
-		);
-		safeInvoke(options.onError, captured);
-	});
+  addListener(selfRef, 'unhandledrejection', (event: unknown): Void => {
+    const reason: unknown = (event as PromiseRejectionEvent)?.reason;
+    const captured: CapturedError = createCapturedError(
+      'unhandledRejection',
+      reason,
+      false,
+      runtime,
+    );
+    safeInvoke(options.onError, captured);
+  });
 }
 
 /**
@@ -605,88 +605,88 @@ function registerWorkerHandlers(options: GlobalErrorHandlerOptions, runtime: Run
  * @returns Void — fire-and-forget.
  */
 function registerDenoHandlers(options: GlobalErrorHandlerOptions, runtime: RuntimeKind): Void {
-	const denoGlobal: Record<Str, unknown> = globalThis as Record<Str, unknown>;
-	const Deno: Record<Str, unknown> | undefined = denoGlobal.Deno as
-		| Record<Str, unknown>
-		| undefined;
-	if (!Deno) return;
+  const denoGlobal: Record<Str, unknown> = globalThis as Record<Str, unknown>;
+  const Deno: Record<Str, unknown> | undefined = denoGlobal.Deno as
+    | Record<Str, unknown>
+    | undefined;
+  if (!Deno) return;
 
-	// Deno error events go through globalThis
-	addListener(globalThis as unknown as EventTarget, 'error', (event: unknown): Void => {
-		const errorEvent: ErrorEvent = event as ErrorEvent;
-		const captured: CapturedError = createCapturedError(
-			'uncaughtException',
-			errorEvent.error ?? errorEvent.message,
-			false,
-			runtime,
-		);
-		safeInvoke(options.onError, captured);
-	});
+  // Deno error events go through globalThis
+  addListener(globalThis as unknown as EventTarget, 'error', (event: unknown): Void => {
+    const errorEvent: ErrorEvent = event as ErrorEvent;
+    const captured: CapturedError = createCapturedError(
+      'uncaughtException',
+      errorEvent.error ?? errorEvent.message,
+      false,
+      runtime,
+    );
+    safeInvoke(options.onError, captured);
+  });
 
-	addListener(
-		globalThis as unknown as EventTarget,
-		'unhandledrejection',
-		(event: unknown): Void => {
-			const reason: unknown = (event as PromiseRejectionEvent)?.reason;
-			const captured: CapturedError = createCapturedError(
-				'unhandledRejection',
-				reason,
-				false,
-				runtime,
-			);
-			safeInvoke(options.onError, captured);
-		},
-	);
+  addListener(
+    globalThis as unknown as EventTarget,
+    'unhandledrejection',
+    (event: unknown): Void => {
+      const reason: unknown = (event as PromiseRejectionEvent)?.reason;
+      const captured: CapturedError = createCapturedError(
+        'unhandledRejection',
+        reason,
+        false,
+        runtime,
+      );
+      safeInvoke(options.onError, captured);
+    },
+  );
 
-	// Deno signal listeners
-	const { addSignalListener } = Deno;
-	if (typeof addSignalListener === 'function') {
-		const sigintHandler = (): Void => {
-			const captured: CapturedError = createCapturedError(
-				'signal',
-				new Error('SIGINT'),
-				true,
-				runtime,
-				{ signal: 'SIGINT' },
-			);
-			safeInvoke(options.onError, captured);
-			if (options.onFatalExit) {
-				safeInvoke(options.onFatalExit, captured);
-			}
-		};
-		const sigtermHandler = (): Void => {
-			const captured: CapturedError = createCapturedError(
-				'signal',
-				new Error('SIGTERM'),
-				true,
-				runtime,
-				{ signal: 'SIGTERM' },
-			);
-			safeInvoke(options.onError, captured);
-			if (options.onFatalExit) {
-				safeInvoke(options.onFatalExit, captured);
-			}
-		};
+  // Deno signal listeners
+  const { addSignalListener } = Deno;
+  if (typeof addSignalListener === 'function') {
+    const sigintHandler = (): Void => {
+      const captured: CapturedError = createCapturedError(
+        'signal',
+        new Error('SIGINT'),
+        true,
+        runtime,
+        { signal: 'SIGINT' },
+      );
+      safeInvoke(options.onError, captured);
+      if (options.onFatalExit) {
+        safeInvoke(options.onFatalExit, captured);
+      }
+    };
+    const sigtermHandler = (): Void => {
+      const captured: CapturedError = createCapturedError(
+        'signal',
+        new Error('SIGTERM'),
+        true,
+        runtime,
+        { signal: 'SIGTERM' },
+      );
+      safeInvoke(options.onError, captured);
+      if (options.onFatalExit) {
+        safeInvoke(options.onFatalExit, captured);
+      }
+    };
 
-		(addSignalListener as (signal: Str, handler: () => void) => void)('SIGINT', sigintHandler);
-		(addSignalListener as (signal: Str, handler: () => void) => void)('SIGTERM', sigtermHandler);
+    (addSignalListener as (signal: Str, handler: () => void) => void)('SIGINT', sigintHandler);
+    (addSignalListener as (signal: Str, handler: () => void) => void)('SIGTERM', sigtermHandler);
 
-		// Store for teardown (Deno uses removeSignalListener, not removeEventListener)
-		registeredListeners.push(
-			{
-				target: globalThis as unknown as EventTarget,
-				event: 'SIGINT',
-				listener: sigintHandler,
-				denoSignal: true,
-			},
-			{
-				target: globalThis as unknown as EventTarget,
-				event: 'SIGTERM',
-				listener: sigtermHandler,
-				denoSignal: true,
-			},
-		);
-	}
+    // Store for teardown (Deno uses removeSignalListener, not removeEventListener)
+    registeredListeners.push(
+      {
+        target: globalThis as unknown as EventTarget,
+        event: 'SIGINT',
+        listener: sigintHandler,
+        denoSignal: true,
+      },
+      {
+        target: globalThis as unknown as EventTarget,
+        event: 'SIGTERM',
+        listener: sigtermHandler,
+        denoSignal: true,
+      },
+    );
+  }
 }
 
 /**
@@ -700,8 +700,8 @@ function registerDenoHandlers(options: GlobalErrorHandlerOptions, runtime: Runti
  * @returns Void — fire-and-forget.
  */
 function registerBunHandlers(options: GlobalErrorHandlerOptions, runtime: RuntimeKind): Void {
-	// Bun implements Node-compatible process.on
-	registerNodeHandlers(options, runtime);
+  // Bun implements Node-compatible process.on
+  registerNodeHandlers(options, runtime);
 }
 
 // =============================================================================
@@ -722,10 +722,10 @@ function registerBunHandlers(options: GlobalErrorHandlerOptions, runtime: Runtim
  * ```
  */
 export function getAbortSignal(): Result<AbortSignal> {
-	if (!globalAbortController) {
-		globalAbortController = new AbortController();
-	}
-	return ok(AbortSignalSchema, globalAbortController.signal);
+  if (!globalAbortController) {
+    globalAbortController = new AbortController();
+  }
+  return ok(AbortSignalSchema, globalAbortController.signal);
 }
 
 // =============================================================================
@@ -768,74 +768,74 @@ export function getAbortSignal(): Result<AbortSignal> {
  * ```
  */
 export function setupGlobalErrorHandling(options: GlobalErrorHandlerOptions): Result<TeardownFn> {
-	if (globalErrorHandlingSetup) {
-		return okUnchecked<TeardownFn>(teardown);
-	}
+  if (globalErrorHandlingSetup) {
+    return okUnchecked<TeardownFn>(teardown);
+  }
 
-	const optionsResult: Result<GlobalErrorHandlerOptions> = safeParse(
-		GlobalErrorHandlerOptionsSchema,
-		options,
-	);
-	if (!optionsResult.ok) return optionsResult;
+  const optionsResult: Result<GlobalErrorHandlerOptions> = safeParse(
+    GlobalErrorHandlerOptionsSchema,
+    options,
+  );
+  if (!optionsResult.ok) return optionsResult;
 
-	// Store ambient options for createCapturedError and reportError
-	const validatedOptions: GlobalErrorHandlerOptions =
-		optionsResult.data as GlobalErrorHandlerOptions;
-	_ambientOptions = validatedOptions;
+  // Store ambient options for createCapturedError and reportError
+  const validatedOptions: GlobalErrorHandlerOptions =
+    optionsResult.data as GlobalErrorHandlerOptions;
+  _ambientOptions = validatedOptions;
 
-	const runtimeResult: Result<RuntimeKind> = detectRuntime();
-	if (!runtimeResult.ok) return runtimeResult;
-	const runtime: RuntimeKind = runtimeResult.data;
+  const runtimeResult: Result<RuntimeKind> = detectRuntime();
+  if (!runtimeResult.ok) return runtimeResult;
+  const runtime: RuntimeKind = runtimeResult.data;
 
-	const envResult: Result<EnvironmentConfig> = detectEnvironment();
-	if (!envResult.ok) return envResult;
-	const env: EnvironmentConfig = envResult.data;
+  const envResult: Result<EnvironmentConfig> = detectEnvironment();
+  if (!envResult.ok) return envResult;
+  const env: EnvironmentConfig = envResult.data;
 
-	if (!globalAbortController) {
-		globalAbortController = new AbortController();
-	}
+  if (!globalAbortController) {
+    globalAbortController = new AbortController();
+  }
 
-	// Dispatch per-environment
-	switch (runtime) {
-		case 'node-tty':
-		case 'node-pipe': {
-			registerNodeHandlers(validatedOptions, runtime);
-			break;
-		}
-		case 'bun': {
-			registerBunHandlers(validatedOptions, runtime);
-			break;
-		}
-		case 'deno': {
-			registerDenoHandlers(validatedOptions, runtime);
-			break;
-		}
-		case 'browser': {
-			registerBrowserHandlers(validatedOptions, runtime);
-			// Electron renderer: also register Node handlers
-			if (env.isElectronRenderer) {
-				registerNodeHandlers(validatedOptions, runtime);
-			}
-			break;
-		}
-		case 'web-worker':
-		case 'shared-worker':
-		case 'service-worker': {
-			registerWorkerHandlers(validatedOptions, runtime);
-			break;
-		}
-		case 'worker':
-		case 'edge-light':
-		case 'fastly':
-		case 'netlify': {
-			// Cloudflare Worker / edge runtimes
-			registerWorkerHandlers(validatedOptions, runtime);
-			break;
-		}
-	}
+  // Dispatch per-environment
+  switch (runtime) {
+    case 'node-tty':
+    case 'node-pipe': {
+      registerNodeHandlers(validatedOptions, runtime);
+      break;
+    }
+    case 'bun': {
+      registerBunHandlers(validatedOptions, runtime);
+      break;
+    }
+    case 'deno': {
+      registerDenoHandlers(validatedOptions, runtime);
+      break;
+    }
+    case 'browser': {
+      registerBrowserHandlers(validatedOptions, runtime);
+      // Electron renderer: also register Node handlers
+      if (env.isElectronRenderer) {
+        registerNodeHandlers(validatedOptions, runtime);
+      }
+      break;
+    }
+    case 'web-worker':
+    case 'shared-worker':
+    case 'service-worker': {
+      registerWorkerHandlers(validatedOptions, runtime);
+      break;
+    }
+    case 'worker':
+    case 'edge-light':
+    case 'fastly':
+    case 'netlify': {
+      // Cloudflare Worker / edge runtimes
+      registerWorkerHandlers(validatedOptions, runtime);
+      break;
+    }
+  }
 
-	globalErrorHandlingSetup = true;
-	return okUnchecked<TeardownFn>(teardown);
+  globalErrorHandlingSetup = true;
+  return okUnchecked<TeardownFn>(teardown);
 }
 
 // =============================================================================
@@ -875,51 +875,51 @@ export function setupGlobalErrorHandling(options: GlobalErrorHandlerOptions): Re
  * ```
  */
 export function reportError(appError: AppError, fatal: Bool = true as Bool): Result<CapturedError> {
-	// Detect runtime
-	const runtimeResult: Result<RuntimeKind> = detectRuntime();
-	const environment: RuntimeKind = runtimeResult.ok
-		? runtimeResult.data
-		: ('node-tty' as RuntimeKind);
+  // Detect runtime
+  const runtimeResult: Result<RuntimeKind> = detectRuntime();
+  const environment: RuntimeKind = runtimeResult.ok
+    ? runtimeResult.data
+    : ('node-tty' as RuntimeKind);
 
-	// Merge global log context into meta
-	const ctxResult: Result<LogContext> = getContext();
-	const contextFields: Record<Str, unknown> =
-		ctxResult.ok && Object.keys(ctxResult.data).length > 0 ? { ...ctxResult.data } : {};
-	const mergedMeta: Record<Str, unknown> | undefined =
-		Object.keys(contextFields).length > 0 ? { ...contextFields } : undefined;
+  // Merge global log context into meta
+  const ctxResult: Result<LogContext> = getContext();
+  const contextFields: Record<Str, unknown> =
+    ctxResult.ok && Object.keys(ctxResult.data).length > 0 ? { ...ctxResult.data } : {};
+  const mergedMeta: Record<Str, unknown> | undefined =
+    Object.keys(contextFields).length > 0 ? { ...contextFields } : undefined;
 
-	// Auto-drain breadcrumbs
-	const crumbs: Result<readonly Breadcrumb[]> = drainBreadcrumbs();
-	const breadcrumbs: ReadonlyArray<Breadcrumb> | undefined =
-		crumbs.ok && crumbs.data.length > 0 ? crumbs.data : undefined;
+  // Auto-drain breadcrumbs
+  const crumbs: Result<readonly Breadcrumb[]> = drainBreadcrumbs();
+  const breadcrumbs: ReadonlyArray<Breadcrumb> | undefined =
+    crumbs.ok && crumbs.data.length > 0 ? crumbs.data : undefined;
 
-	// Auto-generate fingerprint from error code
-	const fingerprint: readonly Str[] = [appError.code];
+  // Auto-generate fingerprint from error code
+  const fingerprint: readonly Str[] = [appError.code];
 
-	const captured: CapturedError = Object.freeze({
-		type: 'resultError' as CapturedErrorType,
-		id: crypto.randomUUID(),
-		error: appError, // Use the AppError directly — no fromUnknownError() loss
-		original: appError, // The AppError IS the original
-		environment,
-		timestamp: new Date().toISOString(),
-		fatal,
-		...(mergedMeta !== undefined && { meta: mergedMeta }),
-		...(breadcrumbs !== undefined && { breadcrumbs }),
-		fingerprint,
-		...(_ambientOptions?.release !== undefined && { release: _ambientOptions.release }),
-		...(_ambientOptions?.serverName !== undefined && { serverName: _ambientOptions.serverName }),
-		...(_ambientOptions?.tags !== undefined && { tags: _ambientOptions.tags }),
-		...(_ambientOptions?.user !== undefined && { user: _ambientOptions.user }),
-		...(_ambientOptions?.contexts !== undefined && { contexts: _ambientOptions.contexts }),
-	}) as CapturedError;
+  const captured: CapturedError = Object.freeze({
+    type: 'resultError' as CapturedErrorType,
+    id: crypto.randomUUID(),
+    error: appError, // Use the AppError directly — no fromUnknownError() loss
+    original: appError, // The AppError IS the original
+    environment,
+    timestamp: new Date().toISOString(),
+    fatal,
+    ...(mergedMeta !== undefined && { meta: mergedMeta }),
+    ...(breadcrumbs !== undefined && { breadcrumbs }),
+    fingerprint,
+    ...(_ambientOptions?.release !== undefined && { release: _ambientOptions.release }),
+    ...(_ambientOptions?.serverName !== undefined && { serverName: _ambientOptions.serverName }),
+    ...(_ambientOptions?.tags !== undefined && { tags: _ambientOptions.tags }),
+    ...(_ambientOptions?.user !== undefined && { user: _ambientOptions.user }),
+    ...(_ambientOptions?.contexts !== undefined && { contexts: _ambientOptions.contexts }),
+  }) as CapturedError;
 
-	// Invoke the registered onError handler (if any)
-	if (_ambientOptions) {
-		safeInvoke(_ambientOptions.onError, captured);
-	}
+  // Invoke the registered onError handler (if any)
+  if (_ambientOptions) {
+    safeInvoke(_ambientOptions.onError, captured);
+  }
 
-	return okUnchecked<CapturedError>(captured);
+  return okUnchecked<CapturedError>(captured);
 }
 
 // =============================================================================
@@ -946,29 +946,29 @@ export function reportError(appError: AppError, fatal: Bool = true as Bool): Res
  * ```
  */
 export function setupSignalHandlers(onInterrupt: InterruptHandler): Result<Void> {
-	if (signalHandlersSetup) return ok(VoidSchema, undefined);
-	signalHandlersSetup = true;
+  if (signalHandlersSetup) return ok(VoidSchema, undefined);
+  signalHandlersSetup = true;
 
-	const globalResult: Result<TeardownFn> = setupGlobalErrorHandling({
-		onError: (captured: CapturedError): Void => {
-			// Translate CapturedError into the legacy string-based callback
-			let label: Str;
-			if (captured.type === 'signal') {
-				label = (captured.meta?.signal as Str) ?? 'UNKNOWN';
-			} else if (captured.type === 'uncaughtException') {
-				label = `uncaughtException: ${captured.error.message}`;
-			} else if (captured.type === 'unhandledRejection') {
-				label = `unhandledRejection: ${captured.error.message}`;
-			} else {
-				label = captured.error.message;
-			}
-			onInterrupt(label);
-		},
-		exitTimeoutMs: 0, // Disable auto-exit — legacy callers handle exit themselves
-	});
+  const globalResult: Result<TeardownFn> = setupGlobalErrorHandling({
+    onError: (captured: CapturedError): Void => {
+      // Translate CapturedError into the legacy string-based callback
+      let label: Str;
+      if (captured.type === 'signal') {
+        label = (captured.meta?.signal as Str) ?? 'UNKNOWN';
+      } else if (captured.type === 'uncaughtException') {
+        label = `uncaughtException: ${captured.error.message}`;
+      } else if (captured.type === 'unhandledRejection') {
+        label = `unhandledRejection: ${captured.error.message}`;
+      } else {
+        label = captured.error.message;
+      }
+      onInterrupt(label);
+    },
+    exitTimeoutMs: 0, // Disable auto-exit — legacy callers handle exit themselves
+  });
 
-	if (!globalResult.ok) return globalResult;
-	return ok(VoidSchema, undefined);
+  if (!globalResult.ok) return globalResult;
+  return ok(VoidSchema, undefined);
 }
 
 // =============================================================================
@@ -997,15 +997,15 @@ export function setupSignalHandlers(onInterrupt: InterruptHandler): Result<Void>
  * ```
  */
 export function registerCleanupHandler(callback: CleanupCallback): Result<Void> {
-	const callbackResult: Result<CleanupCallback> = safeParse(CleanupCallbackSchema, callback);
-	if (!callbackResult.ok) return callbackResult;
-	const proc: OptionalNodeProcess = getProcess();
-	if (!proc || typeof proc.on !== 'function') {
-		return ok(VoidSchema, undefined);
-	}
-	proc.on('SIGINT', callbackResult.data as NodeJS.SignalsListener);
-	proc.on('SIGTERM', callbackResult.data as NodeJS.SignalsListener);
-	return ok(VoidSchema, undefined);
+  const callbackResult: Result<CleanupCallback> = safeParse(CleanupCallbackSchema, callback);
+  if (!callbackResult.ok) return callbackResult;
+  const proc: OptionalNodeProcess = getProcess();
+  if (!proc || typeof proc.on !== 'function') {
+    return ok(VoidSchema, undefined);
+  }
+  proc.on('SIGINT', callbackResult.data as NodeJS.SignalsListener);
+  proc.on('SIGTERM', callbackResult.data as NodeJS.SignalsListener);
+  return ok(VoidSchema, undefined);
 }
 
 // =============================================================================
@@ -1027,19 +1027,19 @@ export function registerCleanupHandler(callback: CleanupCallback): Result<Void> 
  * ```
  */
 export function resetSignalHandlers(): Result<Void> {
-	// Run teardown to remove all listeners
-	teardown();
-	signalHandlersSetup = false;
-	globalErrorHandlingSetup = false;
-	globalAbortController = null;
-	isHandling = false;
-	_ambientOptions = undefined;
-	registeredListeners = [];
-	if (exitTimeoutHandle !== null) {
-		clearTimeout(exitTimeoutHandle);
-		exitTimeoutHandle = null;
-	}
-	return ok(VoidSchema, undefined);
+  // Run teardown to remove all listeners
+  teardown();
+  signalHandlersSetup = false;
+  globalErrorHandlingSetup = false;
+  globalAbortController = null;
+  isHandling = false;
+  _ambientOptions = undefined;
+  registeredListeners = [];
+  if (exitTimeoutHandle !== null) {
+    clearTimeout(exitTimeoutHandle);
+    exitTimeoutHandle = null;
+  }
+  return ok(VoidSchema, undefined);
 }
 
 // =============================================================================
@@ -1064,28 +1064,28 @@ export function resetSignalHandlers(): Result<Void> {
  * ```
  */
 export function wrapAsync<TArgs extends Array<unknown>, TReturn>(
-	fn: (...args: TArgs) => Promise<TReturn>,
-	onError: (captured: CapturedError) => void,
+  fn: (...args: TArgs) => Promise<TReturn>,
+  onError: (captured: CapturedError) => void,
 ): Result<(...args: TArgs) => Promise<TReturn>> {
-	const runtimeResult: Result<RuntimeKind> = detectRuntime();
-	if (!runtimeResult.ok) return runtimeResult;
+  const runtimeResult: Result<RuntimeKind> = detectRuntime();
+  if (!runtimeResult.ok) return runtimeResult;
 
-	const wrapped = async (...args: TArgs): Promise<TReturn> => {
-		try {
-			return await fn(...args);
-		} catch (error: unknown) {
-			const captured: CapturedError = createCapturedError(
-				'uncaughtException',
-				error,
-				false,
-				runtimeResult.data,
-			);
-			safeInvoke(onError, captured);
-			throw error;
-		}
-	};
+  const wrapped = async (...args: TArgs): Promise<TReturn> => {
+    try {
+      return await fn(...args);
+    } catch (error: unknown) {
+      const captured: CapturedError = createCapturedError(
+        'uncaughtException',
+        error,
+        false,
+        runtimeResult.data,
+      );
+      safeInvoke(onError, captured);
+      throw error;
+    }
+  };
 
-	return okUnchecked(wrapped);
+  return okUnchecked(wrapped);
 }
 
 /**
@@ -1107,29 +1107,29 @@ export function wrapAsync<TArgs extends Array<unknown>, TReturn>(
  * ```
  */
 export function wrapFetchHandler(
-	handler: (request: Request, env: unknown, ctx: unknown) => Promise<Response>,
-	onError: (captured: CapturedError) => void,
+  handler: (request: Request, env: unknown, ctx: unknown) => Promise<Response>,
+  onError: (captured: CapturedError) => void,
 ): Result<(request: Request, env: unknown, ctx: unknown) => Promise<Response>> {
-	const runtimeResult: Result<RuntimeKind> = detectRuntime();
-	if (!runtimeResult.ok) return runtimeResult;
+  const runtimeResult: Result<RuntimeKind> = detectRuntime();
+  if (!runtimeResult.ok) return runtimeResult;
 
-	const wrapped = async (request: Request, env: unknown, ctx: unknown): Promise<Response> => {
-		try {
-			return await handler(request, env, ctx);
-		} catch (error: unknown) {
-			const captured: CapturedError = createCapturedError(
-				'uncaughtException',
-				error,
-				false,
-				runtimeResult.data,
-				{ request: { url: request.url, method: request.method } },
-			);
-			safeInvoke(onError, captured);
-			return new Response('Internal Server Error', { status: 500 });
-		}
-	};
+  const wrapped = async (request: Request, env: unknown, ctx: unknown): Promise<Response> => {
+    try {
+      return await handler(request, env, ctx);
+    } catch (error: unknown) {
+      const captured: CapturedError = createCapturedError(
+        'uncaughtException',
+        error,
+        false,
+        runtimeResult.data,
+        { request: { url: request.url, method: request.method } },
+      );
+      safeInvoke(onError, captured);
+      return new Response('Internal Server Error', { status: 500 });
+    }
+  };
 
-	return okUnchecked(wrapped);
+  return okUnchecked(wrapped);
 }
 
 /**
@@ -1150,28 +1150,28 @@ export function wrapFetchHandler(
  * ```
  */
 export function captureWebSocketErrors(
-	ws: WebSocket,
-	onError: (captured: CapturedError) => void,
+  ws: WebSocket,
+  onError: (captured: CapturedError) => void,
 ): Result<TeardownFn> {
-	const runtimeResult: Result<RuntimeKind> = detectRuntime();
-	if (!runtimeResult.ok) return runtimeResult;
+  const runtimeResult: Result<RuntimeKind> = detectRuntime();
+  if (!runtimeResult.ok) return runtimeResult;
 
-	const onWsError = (_event: Event): Void => {
-		const captured: CapturedError = createCapturedError(
-			'webSocketError',
-			new Error('WebSocket error'),
-			false,
-			runtimeResult.data,
-			{ url: (ws as unknown as { url?: Str }).url, readyState: ws.readyState },
-		);
-		safeInvoke(onError, captured);
-	};
+  const onWsError = (_event: Event): Void => {
+    const captured: CapturedError = createCapturedError(
+      'webSocketError',
+      new Error('WebSocket error'),
+      false,
+      runtimeResult.data,
+      { url: (ws as unknown as { url?: Str }).url, readyState: ws.readyState },
+    );
+    safeInvoke(onError, captured);
+  };
 
-	ws.addEventListener('error', onWsError);
+  ws.addEventListener('error', onWsError);
 
-	const wsTeardown: TeardownFn = (): void => {
-		ws.removeEventListener('error', onWsError);
-	};
+  const wsTeardown: TeardownFn = (): void => {
+    ws.removeEventListener('error', onWsError);
+  };
 
-	return okUnchecked<TeardownFn>(wsTeardown);
+  return okUnchecked<TeardownFn>(wsTeardown);
 }

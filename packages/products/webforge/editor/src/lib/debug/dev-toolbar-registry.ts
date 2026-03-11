@@ -11,9 +11,9 @@
 import * as v from 'valibot';
 import type { Str, Bool } from '@/schemas/common';
 import {
-	AppPreferencesSchema,
-	FeatureFlagsSchema,
-	type FeatureFlags,
+  AppPreferencesSchema,
+  FeatureFlagsSchema,
+  type FeatureFlags,
 } from '$lib/schemas/editor-state';
 import { DebugStateSchema, URL_PARAM_PREFIX } from '$lib/schemas/debug-state';
 import type { EditorStore } from '$lib/stores/editor-state.svelte';
@@ -33,10 +33,10 @@ import type { DebugStore } from '$lib/stores/debug-state.svelte';
  * ```
  */
 export const FlagDescriptorSchema = v.strictObject({
-	/** Schema key name (e.g., 'settings', 'sceneList'). */
-	key: v.string(),
-	/** Default boolean value from the schema. */
-	default: v.boolean(),
+  /** Schema key name (e.g., 'settings', 'sceneList'). */
+  key: v.string(),
+  /** Default boolean value from the schema. */
+  default: v.boolean(),
 });
 
 /** A discovered feature flag descriptor. */
@@ -55,14 +55,14 @@ const FieldControlTypeSchema = v.picklist(['boolean', 'picklist', 'string', 'num
  * ```
  */
 export const FieldDescriptorSchema = v.strictObject({
-	/** Schema key name (e.g., 'theme', 'sidebarOpen'). */
-	key: v.string(),
-	/** Control type to render: Switch for boolean, Select for picklist, Input for string/number. */
-	type: FieldControlTypeSchema,
-	/** Available options for picklist fields. Undefined for non-picklist types. */
-	options: v.optional(v.array(v.string())),
-	/** Default value from the schema. */
-	default: v.unknown(),
+  /** Schema key name (e.g., 'theme', 'sidebarOpen'). */
+  key: v.string(),
+  /** Control type to render: Switch for boolean, Select for picklist, Input for string/number. */
+  type: FieldControlTypeSchema,
+  /** Available options for picklist fields. Undefined for non-picklist types. */
+  options: v.optional(v.array(v.string())),
+  /** Default value from the schema. */
+  default: v.unknown(),
 });
 
 /** A discovered schema field with control type information. */
@@ -80,46 +80,46 @@ export type FieldDescriptor = v.InferOutput<typeof FieldDescriptorSchema>;
  * @returns Object with detected type, options array, and default value
  */
 function introspectEntry(entry: Record<Str, unknown>): {
-	type: 'boolean' | 'picklist' | 'string' | 'number';
-	options?: Str[];
-	default: unknown;
+  type: 'boolean' | 'picklist' | 'string' | 'number';
+  options?: Str[];
+  default: unknown;
 } {
-	// Unwrap v.optional() — entry.type === 'optional', entry.wrapped is inner schema
-	const defaultValue: unknown = entry.default;
-	// Schema introspection — cast required for Valibot internal structure walking
-	let inner: Record<Str, unknown> = entry;
+  // Unwrap v.optional() — entry.type === 'optional', entry.wrapped is inner schema
+  const defaultValue: unknown = entry.default;
+  // Schema introspection — cast required for Valibot internal structure walking
+  let inner: Record<Str, unknown> = entry;
 
-	if (entry.type === 'optional' && entry.wrapped) {
-		// Schema introspection — unwrapping v.optional() wrapper
-		inner = entry.wrapped as Record<Str, unknown>;
-	}
+  if (entry.type === 'optional' && entry.wrapped) {
+    // Schema introspection — unwrapping v.optional() wrapper
+    inner = entry.wrapped as Record<Str, unknown>;
+  }
 
-	// Unwrap v.pipe() — inner.type === 'pipe', inner.pipe is array of schemas
-	if (inner.type === 'pipe' && Array.isArray(inner.pipe)) {
-		// Schema introspection — unwrapping v.pipe() to get base schema
-		inner = inner.pipe[0] as Record<Str, unknown>;
-	}
+  // Unwrap v.pipe() — inner.type === 'pipe', inner.pipe is array of schemas
+  if (inner.type === 'pipe' && Array.isArray(inner.pipe)) {
+    // Schema introspection — unwrapping v.pipe() to get base schema
+    inner = inner.pipe[0] as Record<Str, unknown>;
+  }
 
-	// Detect type
-	if (inner.type === 'boolean') {
-		return { type: 'boolean', default: defaultValue };
-	}
+  // Detect type
+  if (inner.type === 'boolean') {
+    return { type: 'boolean', default: defaultValue };
+  }
 
-	if (inner.type === 'number') {
-		return { type: 'number', default: defaultValue };
-	}
+  if (inner.type === 'number') {
+    return { type: 'number', default: defaultValue };
+  }
 
-	if (inner.type === 'picklist' && Array.isArray(inner.options)) {
-		return {
-			type: 'picklist',
-			// Schema introspection — Valibot's picklist options are readonly string arrays
-			options: inner.options as Str[],
-			default: defaultValue,
-		};
-	}
+  if (inner.type === 'picklist' && Array.isArray(inner.options)) {
+    return {
+      type: 'picklist',
+      // Schema introspection — Valibot's picklist options are readonly string arrays
+      options: inner.options as Str[],
+      default: defaultValue,
+    };
+  }
 
-	// Default to string for v.string() and any other types
-	return { type: 'string', default: defaultValue };
+  // Default to string for v.string() and any other types
+  return { type: 'string', default: defaultValue };
 }
 
 // =============================================================================
@@ -140,16 +140,16 @@ function introspectEntry(entry: Record<Str, unknown>): {
  * ```
  */
 export function discoverFeatureFlags(): FlagDescriptor[] {
-	// Schema introspection — cast required for Valibot schema entry walking
-	const entries = FeatureFlagsSchema.entries as unknown as Record<Str, Record<Str, unknown>>;
-	return Object.keys(entries).map((key: Str): FlagDescriptor => {
-		const entry: Record<Str, unknown> = entries[key];
-		const defaultValue: unknown = entry.default;
-		return {
-			key,
-			default: typeof defaultValue === 'boolean' ? defaultValue : true,
-		};
-	});
+  // Schema introspection — cast required for Valibot schema entry walking
+  const entries = FeatureFlagsSchema.entries as unknown as Record<Str, Record<Str, unknown>>;
+  return Object.keys(entries).map((key: Str): FlagDescriptor => {
+    const entry: Record<Str, unknown> = entries[key];
+    const defaultValue: unknown = entry.default;
+    return {
+      key,
+      default: typeof defaultValue === 'boolean' ? defaultValue : true,
+    };
+  });
 }
 
 /**
@@ -168,16 +168,16 @@ export function discoverFeatureFlags(): FlagDescriptor[] {
  * ```
  */
 export function discoverAppPreferences(): FieldDescriptor[] {
-	// Schema introspection — cast required for Valibot schema entry walking
-	const entries = AppPreferencesSchema.entries as unknown as Record<Str, Record<Str, unknown>>;
-	return Object.keys(entries).map((key: Str): FieldDescriptor => {
-		const info: {
-			type: 'boolean' | 'picklist' | 'string' | 'number';
-			options?: Str[];
-			default: unknown;
-		} = introspectEntry(entries[key]);
-		return { key, ...info };
-	});
+  // Schema introspection — cast required for Valibot schema entry walking
+  const entries = AppPreferencesSchema.entries as unknown as Record<Str, Record<Str, unknown>>;
+  return Object.keys(entries).map((key: Str): FieldDescriptor => {
+    const info: {
+      type: 'boolean' | 'picklist' | 'string' | 'number';
+      options?: Str[];
+      default: unknown;
+    } = introspectEntry(entries[key]);
+    return { key, ...info };
+  });
 }
 
 /**
@@ -194,16 +194,16 @@ export function discoverAppPreferences(): FieldDescriptor[] {
  * ```
  */
 export function discoverDebugFields(): FieldDescriptor[] {
-	// Schema introspection — cast required for Valibot schema entry walking
-	const entries = DebugStateSchema.entries as unknown as Record<Str, Record<Str, unknown>>;
-	return Object.keys(entries).map((key: Str): FieldDescriptor => {
-		const info: {
-			type: 'boolean' | 'picklist' | 'string' | 'number';
-			options?: Str[];
-			default: unknown;
-		} = introspectEntry(entries[key]);
-		return { key, ...info };
-	});
+  // Schema introspection — cast required for Valibot schema entry walking
+  const entries = DebugStateSchema.entries as unknown as Record<Str, Record<Str, unknown>>;
+  return Object.keys(entries).map((key: Str): FieldDescriptor => {
+    const info: {
+      type: 'boolean' | 'picklist' | 'string' | 'number';
+      options?: Str[];
+      default: unknown;
+    } = introspectEntry(entries[key]);
+    return { key, ...info };
+  });
 }
 
 // =============================================================================
@@ -226,36 +226,36 @@ export function discoverDebugFields(): FieldDescriptor[] {
  * ```
  */
 export function generateDebugUrl(
-	editorStore: EditorStore,
-	debugStore: DebugStore,
-	baseUrl?: Str,
+  editorStore: EditorStore,
+  debugStore: DebugStore,
+  baseUrl?: Str,
 ): Str {
-	const base: Str =
-		baseUrl ?? (typeof window === 'undefined' ? '/' : window.location.href.split('?')[0]);
-	const params: URLSearchParams = new URLSearchParams();
+  const base: Str =
+    baseUrl ?? (typeof window === 'undefined' ? '/' : window.location.href.split('?')[0]);
+  const params: URLSearchParams = new URLSearchParams();
 
-	// Debug state
-	params.set(`${URL_PARAM_PREFIX}debug`, String(debugStore.debug.enabled));
-	params.set(`${URL_PARAM_PREFIX}logLevel`, debugStore.debug.logLevel);
+  // Debug state
+  params.set(`${URL_PARAM_PREFIX}debug`, String(debugStore.debug.enabled));
+  params.set(`${URL_PARAM_PREFIX}logLevel`, debugStore.debug.logLevel);
 
-	// App preferences
-	const { app } = editorStore;
-	for (const key of Object.keys(AppPreferencesSchema.entries)) {
-		const value: unknown = app[key as keyof typeof app];
-		params.set(`${URL_PARAM_PREFIX}${key}`, String(value));
-	}
+  // App preferences
+  const { app } = editorStore;
+  for (const key of Object.keys(AppPreferencesSchema.entries)) {
+    const value: unknown = app[key as keyof typeof app];
+    params.set(`${URL_PARAM_PREFIX}${key}`, String(value));
+  }
 
-	// Feature flags — only include non-default (disabled) flags to keep URL concise
-	const { features } = editorStore;
-	const flags: FlagDescriptor[] = discoverFeatureFlags();
-	for (const flag of flags) {
-		const current: Bool = features[flag.key as keyof FeatureFlags];
-		if (current !== flag.default) {
-			params.set(`${URL_PARAM_PREFIX}ff.${flag.key}`, String(current));
-		}
-	}
+  // Feature flags — only include non-default (disabled) flags to keep URL concise
+  const { features } = editorStore;
+  const flags: FlagDescriptor[] = discoverFeatureFlags();
+  for (const flag of flags) {
+    const current: Bool = features[flag.key as keyof FeatureFlags];
+    if (current !== flag.default) {
+      params.set(`${URL_PARAM_PREFIX}ff.${flag.key}`, String(current));
+    }
+  }
 
-	return `${base}?${params.toString()}`;
+  return `${base}?${params.toString()}`;
 }
 
 // =============================================================================
@@ -275,29 +275,29 @@ export function generateDebugUrl(
  * ```
  */
 export function humanizeKey(key: Str): Str {
-	// Insert space before uppercase letters, then capitalize first letter
-	const spaced: Str = key.replaceAll(/([A-Z])/g, ' $1');
-	return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+  // Insert space before uppercase letters, then capitalize first letter
+  const spaced: Str = key.replaceAll(/([A-Z])/g, ' $1');
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
 /** Known display labels for picklist option values, keyed by field key. */
 const OPTION_LABELS: Record<Str, Record<Str, Str>> = {
-	theme: { '': 'Default' },
-	locale: {
-		en: 'English',
-		ja: 'Japanese',
-		zh: 'Chinese',
-		ko: 'Korean',
-		fr: 'French',
-		de: 'German',
-		es: 'Spanish',
-	},
-	subscriptionPlan: {
-		free: 'Free',
-		starter: 'Starter',
-		pro: 'Pro',
-		enterprise: 'Enterprise',
-	},
+  theme: { '': 'Default' },
+  locale: {
+    en: 'English',
+    ja: 'Japanese',
+    zh: 'Chinese',
+    ko: 'Korean',
+    fr: 'French',
+    de: 'German',
+    es: 'Spanish',
+  },
+  subscriptionPlan: {
+    free: 'Free',
+    starter: 'Starter',
+    pro: 'Pro',
+    enterprise: 'Enterprise',
+  },
 };
 
 /**
@@ -317,8 +317,8 @@ const OPTION_LABELS: Record<Str, Record<Str, Str>> = {
  * ```
  */
 export function humanizeOption(key: Str, value: Str): Str {
-	const fieldLabels: Record<Str, Str> | undefined = OPTION_LABELS[key];
-	if (fieldLabels && value in fieldLabels) return fieldLabels[value];
-	if (!value) return 'Default';
-	return value.charAt(0).toUpperCase() + value.slice(1);
+  const fieldLabels: Record<Str, Str> | undefined = OPTION_LABELS[key];
+  if (fieldLabels && value in fieldLabels) return fieldLabels[value];
+  if (!value) return 'Default';
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }

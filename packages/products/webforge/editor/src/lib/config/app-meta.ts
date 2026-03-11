@@ -46,9 +46,9 @@ export const AppCategoriesSchema = v.array(v.string());
 
 /** PWA manifest categories. Validated against {@link AppCategoriesSchema}. */
 export const APP_CATEGORIES: v.InferOutput<typeof AppCategoriesSchema> = [
-	'games',
-	'developer tools',
-	'design',
+  'games',
+  'developer tools',
+  'design',
 ];
 
 // ── Storage ──────────────────────────────────────────────────────────────────
@@ -67,7 +67,7 @@ export const STORAGE_PREFIX: Str = APP_NAME.toLowerCase();
  * storageKey('mode')         // `${STORAGE_PREFIX}:mode`
  */
 export function storageKey(suffix: Str): Str {
-	return `${STORAGE_PREFIX}:${suffix}`;
+  return `${STORAGE_PREFIX}:${suffix}`;
 }
 
 /**
@@ -83,10 +83,10 @@ export const URL_PARAM_PREFIX: Str = `${APP_NAME.slice(0, 3).toLowerCase()}.`;
 
 /** Schema for a single theme color entry (light + dark hex values). */
 export const ThemeColorEntrySchema = v.strictObject({
-	/** Light mode hex background color. */
-	light: v.pipe(v.string(), v.regex(/^#[0-9a-fA-F]{6}$/)),
-	/** Dark mode hex background color. */
-	dark: v.pipe(v.string(), v.regex(/^#[0-9a-fA-F]{6}$/)),
+  /** Light mode hex background color. */
+  light: v.pipe(v.string(), v.regex(/^#[0-9a-fA-F]{6}$/)),
+  /** Dark mode hex background color. */
+  dark: v.pipe(v.string(), v.regex(/^#[0-9a-fA-F]{6}$/)),
 });
 
 /** A light/dark pair of hex background colors for a specific theme. */
@@ -99,18 +99,18 @@ export type ThemeColorEntry = v.InferOutput<typeof ThemeColorEntrySchema>;
  * oklch → hex conversions computed offline (see design doc for values).
  */
 export const THEME_COLORS: Record<(typeof SUPPORTED_THEMES)[number], ThemeColorEntry> = {
-	'': { light: '#ffffff', dark: '#242424' },
-	midnight: { light: '#ffffff', dark: '#1a1f2e' },
-	warm: { light: '#ffffff', dark: '#2a2420' },
-	forest: { light: '#ffffff', dark: '#1c2722' },
-	ocean: { light: '#ffffff', dark: '#1b2528' },
-	rose: { light: '#ffffff', dark: '#281c24' },
-	lavender: { light: '#ffffff', dark: '#211c2d' },
-	sunset: { light: '#ffffff', dark: '#2b231e' },
-	slate: { light: '#ffffff', dark: '#232527' },
-	copper: { light: '#ffffff', dark: '#2a2520' },
-	aurora: { light: '#ffffff', dark: '#1b2725' },
-	amethyst: { light: '#ffffff', dark: '#261b2c' },
+  '': { light: '#ffffff', dark: '#242424' },
+  midnight: { light: '#ffffff', dark: '#1a1f2e' },
+  warm: { light: '#ffffff', dark: '#2a2420' },
+  forest: { light: '#ffffff', dark: '#1c2722' },
+  ocean: { light: '#ffffff', dark: '#1b2528' },
+  rose: { light: '#ffffff', dark: '#281c24' },
+  lavender: { light: '#ffffff', dark: '#211c2d' },
+  sunset: { light: '#ffffff', dark: '#2b231e' },
+  slate: { light: '#ffffff', dark: '#232527' },
+  copper: { light: '#ffffff', dark: '#2a2520' },
+  aurora: { light: '#ffffff', dark: '#1b2725' },
+  amethyst: { light: '#ffffff', dark: '#261b2c' },
 };
 
 // ── Display override ─────────────────────────────────────────────────────────
@@ -119,7 +119,7 @@ export const THEME_COLORS: Record<(typeof SUPPORTED_THEMES)[number], ThemeColorE
 
 /** Schema for valid display override modes. */
 export const DisplayOverrideSchema = v.array(
-	v.picklist(['window-controls-overlay', 'standalone', 'fullscreen', 'minimal-ui', 'browser']),
+  v.picklist(['window-controls-overlay', 'standalone', 'fullscreen', 'minimal-ui', 'browser']),
 );
 
 /**
@@ -128,8 +128,8 @@ export const DisplayOverrideSchema = v.array(
  * `window-controls-overlay` enables the title bar area for app content.
  */
 export const DISPLAY_OVERRIDE: v.InferOutput<typeof DisplayOverrideSchema> = [
-	'window-controls-overlay',
-	'standalone',
+  'window-controls-overlay',
+  'standalone',
 ];
 
 // ── Icons ────────────────────────────────────────────────────────────────────
@@ -137,24 +137,24 @@ export const DISPLAY_OVERRIDE: v.InferOutput<typeof DisplayOverrideSchema> = [
 
 /** Schema for a single PWA icon entry. */
 export const IconEntrySchema = v.strictObject({
-	/** Path to icon file (relative to static/). */
-	src: v.string(),
-	/** Icon dimensions (e.g. `'192x192'`). */
-	sizes: v.pipe(v.string(), v.regex(/^\d+x\d+$/)),
-	/** MIME type of the icon (e.g. `'image/png'`). */
-	type: v.picklist(['image/png', 'image/svg+xml']),
-	/** Icon purpose (e.g. `'maskable'`). */
-	purpose: v.optional(v.string()),
+  /** Path to icon file (relative to static/). */
+  src: v.string(),
+  /** Icon dimensions (e.g. `'192x192'`). */
+  sizes: v.pipe(v.string(), v.regex(/^\d+x\d+$/)),
+  /** MIME type of the icon (e.g. `'image/png'`). */
+  type: v.picklist(['image/png', 'image/svg+xml']),
+  /** Icon purpose (e.g. `'maskable'`). */
+  purpose: v.optional(v.string()),
 });
 
 /** A PWA manifest icon definition. */
 export type IconEntry = v.InferOutput<typeof IconEntrySchema>;
 
 export const ICONS: readonly IconEntry[] = [
-	{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-	{ src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
-	{ src: '/icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
-	{ src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+  { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+  { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+  { src: '/icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+  { src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
 ];
 
 // ── Screenshots ─────────────────────────────────────────────────────────────
@@ -164,16 +164,16 @@ export const ICONS: readonly IconEntry[] = [
 
 /** Schema for a single PWA screenshot entry. */
 export const ScreenshotEntrySchema = v.strictObject({
-	/** Path to screenshot file (relative to static/). */
-	src: v.string(),
-	/** Screenshot dimensions (e.g. `'1280x720'`). */
-	sizes: v.pipe(v.string(), v.regex(/^\d+x\d+$/)),
-	/** MIME type of the screenshot (e.g. `'image/png'`). */
-	type: v.picklist(['image/png', 'image/jpeg', 'image/webp']),
-	/** Form factor: `'wide'` for desktop, `'narrow'` for mobile. */
-	form_factor: v.picklist(['wide', 'narrow']),
-	/** Descriptive label for accessibility. */
-	label: v.string(),
+  /** Path to screenshot file (relative to static/). */
+  src: v.string(),
+  /** Screenshot dimensions (e.g. `'1280x720'`). */
+  sizes: v.pipe(v.string(), v.regex(/^\d+x\d+$/)),
+  /** MIME type of the screenshot (e.g. `'image/png'`). */
+  type: v.picklist(['image/png', 'image/jpeg', 'image/webp']),
+  /** Form factor: `'wide'` for desktop, `'narrow'` for mobile. */
+  form_factor: v.picklist(['wide', 'narrow']),
+  /** Descriptive label for accessibility. */
+  label: v.string(),
 });
 
 /** A PWA manifest screenshot definition. */
@@ -181,20 +181,20 @@ export type ScreenshotEntry = v.InferOutput<typeof ScreenshotEntrySchema>;
 
 /** PWA manifest screenshots for richer install UI. */
 export const SCREENSHOTS: readonly ScreenshotEntry[] = [
-	{
-		src: '/screenshots/desktop.png',
-		sizes: '1280x720',
-		type: 'image/png',
-		form_factor: 'wide',
-		label: 'Storylyne editor — desktop view',
-	},
-	{
-		src: '/screenshots/mobile.png',
-		sizes: '540x720',
-		type: 'image/png',
-		form_factor: 'narrow',
-		label: 'Storylyne editor — mobile view',
-	},
+  {
+    src: '/screenshots/desktop.png',
+    sizes: '1280x720',
+    type: 'image/png',
+    form_factor: 'wide',
+    label: 'Storylyne editor — desktop view',
+  },
+  {
+    src: '/screenshots/mobile.png',
+    sizes: '540x720',
+    type: 'image/png',
+    form_factor: 'narrow',
+    label: 'Storylyne editor — mobile view',
+  },
 ];
 
 // ── Fonts ────────────────────────────────────────────────────────────────────
@@ -203,21 +203,21 @@ export const SCREENSHOTS: readonly ScreenshotEntry[] = [
 
 /** CSS font-family stack for body text (Inter + system fallbacks). */
 export const FONT_FAMILIES: Str =
-	"'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'";
+  "'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'";
 
 /** CSS font-family stack for display/accent text (Rajdhani). */
 export const FONT_DISPLAY_FAMILIES: Str = "'Rajdhani', ui-sans-serif, system-ui, sans-serif";
 
 /** Schema for a self-hosted @font-face definition. */
 export const FontFaceEntrySchema = v.strictObject({
-	/** CSS font-family name. */
-	family: v.string(),
-	/** Font style (e.g. `'normal'`, `'italic'`). */
-	style: v.picklist(['normal', 'italic']),
-	/** Font weight or weight range (e.g. `'600'`, `'100 900'`). */
-	weight: v.string(),
-	/** Path to font file (relative to static/). */
-	src: v.string(),
+  /** CSS font-family name. */
+  family: v.string(),
+  /** Font style (e.g. `'normal'`, `'italic'`). */
+  style: v.picklist(['normal', 'italic']),
+  /** Font weight or weight range (e.g. `'600'`, `'100 900'`). */
+  weight: v.string(),
+  /** Path to font file (relative to static/). */
+  src: v.string(),
 });
 
 /** A self-hosted @font-face definition. */
@@ -225,9 +225,9 @@ export type FontFaceEntry = v.InferOutput<typeof FontFaceEntrySchema>;
 
 /** Self-hosted @font-face definitions. Paths are relative to static/. */
 export const FONT_FACES: readonly FontFaceEntry[] = [
-	{ family: 'Inter', style: 'normal', weight: '100 900', src: '/fonts/inter-latin.woff2' },
-	{ family: 'Rajdhani', style: 'normal', weight: '600', src: '/fonts/rajdhani-latin-600.woff2' },
-	{ family: 'Rajdhani', style: 'normal', weight: '700', src: '/fonts/rajdhani-latin-700.woff2' },
+  { family: 'Inter', style: 'normal', weight: '100 900', src: '/fonts/inter-latin.woff2' },
+  { family: 'Rajdhani', style: 'normal', weight: '600', src: '/fonts/rajdhani-latin-600.woff2' },
+  { family: 'Rajdhani', style: 'normal', weight: '700', src: '/fonts/rajdhani-latin-700.woff2' },
 ];
 
 // ── Security / contact ───────────────────────────────────────────────────────

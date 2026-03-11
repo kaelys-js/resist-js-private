@@ -19,10 +19,10 @@ import type { ServerUser, ServerProject, ServerScene } from '../data/types';
  * ```
  */
 export const MOCK_USER: ServerUser = {
-	id: 'user-mock-001',
-	displayName: 'Test User',
-	email: 'test-user@example.com',
-	avatarUrl: '',
+  id: 'user-mock-001',
+  displayName: 'Test User',
+  email: 'test-user@example.com',
+  avatarUrl: '',
 };
 
 /**
@@ -34,10 +34,10 @@ export const MOCK_USER: ServerUser = {
  * ```
  */
 export const MOCK_PROJECT: ServerProject = {
-	id: 'proj-mock-001',
-	name: 'Sample Project',
-	subtitle: 'Sample Project Description',
-	ownerId: 'user-mock-001',
+  id: 'proj-mock-001',
+  name: 'Sample Project',
+  subtitle: 'Sample Project Description',
+  ownerId: 'user-mock-001',
 };
 
 /**
@@ -49,7 +49,7 @@ export const MOCK_PROJECT: ServerProject = {
  * ```
  */
 export const MOCK_SCENES: readonly ServerScene[] = [
-	{ id: 'scene-001', title: 'Overworld', url: '#overworld', isActive: true, order: 0 },
-	{ id: 'scene-002', title: 'Town Interior', url: '#town-interior', isActive: false, order: 1 },
-	{ id: 'scene-003', title: 'Dungeon B1', url: '#dungeon-b1', isActive: false, order: 2 },
+  { id: 'scene-001', title: 'Overworld', url: '#overworld', isActive: true, order: 0 },
+  { id: 'scene-002', title: 'Town Interior', url: '#town-interior', isActive: false, order: 1 },
+  { id: 'scene-003', title: 'Dungeon B1', url: '#dungeon-b1', isActive: false, order: 2 },
 ];

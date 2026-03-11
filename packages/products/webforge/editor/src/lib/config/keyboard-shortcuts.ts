@@ -34,7 +34,7 @@ import type { Str, Num, Bool } from '@/schemas/common';
 
 /** Whether the current platform is macOS / iOS. */
 export const IS_MAC: Bool =
-	typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent);
+  typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent);
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -65,24 +65,24 @@ export type ShortcutContext = v.InferOutput<typeof ShortcutContextSchema>;
 
 /** Schema for a single keyboard shortcut definition. */
 export const KeyboardShortcutSchema = v.strictObject({
-	/** Unique identifier (e.g., `'TOGGLE_SIDEBAR'`). Must be non-empty. */
-	id: v.pipe(v.string(), v.minLength(1)),
-	/** The key to press (e.g., `'b'`, `'1'`, `'Escape'`, `'D'`). Case-sensitive. Must be non-empty. */
-	key: v.pipe(v.string(), v.minLength(1)),
-	/** Required modifier keys (order-independent). Maximum 4 modifiers. */
-	modifiers: v.pipe(v.array(ModifierKeySchema), v.maxLength(4), v.readonly()),
-	/** Short human-readable label for the action. Must be non-empty. */
-	label: v.pipe(v.string(), v.minLength(1)),
-	/** Longer description for accessibility / help dialogs. Must be non-empty. */
-	description: v.pipe(v.string(), v.minLength(1)),
-	/** Context in which this shortcut is active. */
-	context: ShortcutContextSchema,
-	/** Whether the shortcut is currently enabled. */
-	enabled: v.boolean(),
-	/** Original default key (for reset). Must be non-empty. */
-	defaultKey: v.pipe(v.string(), v.minLength(1)),
-	/** Original default modifiers (for reset). Maximum 4 modifiers. */
-	defaultModifiers: v.pipe(v.array(ModifierKeySchema), v.maxLength(4), v.readonly()),
+  /** Unique identifier (e.g., `'TOGGLE_SIDEBAR'`). Must be non-empty. */
+  id: v.pipe(v.string(), v.minLength(1)),
+  /** The key to press (e.g., `'b'`, `'1'`, `'Escape'`, `'D'`). Case-sensitive. Must be non-empty. */
+  key: v.pipe(v.string(), v.minLength(1)),
+  /** Required modifier keys (order-independent). Maximum 4 modifiers. */
+  modifiers: v.pipe(v.array(ModifierKeySchema), v.maxLength(4), v.readonly()),
+  /** Short human-readable label for the action. Must be non-empty. */
+  label: v.pipe(v.string(), v.minLength(1)),
+  /** Longer description for accessibility / help dialogs. Must be non-empty. */
+  description: v.pipe(v.string(), v.minLength(1)),
+  /** Context in which this shortcut is active. */
+  context: ShortcutContextSchema,
+  /** Whether the shortcut is currently enabled. */
+  enabled: v.boolean(),
+  /** Original default key (for reset). Must be non-empty. */
+  defaultKey: v.pipe(v.string(), v.minLength(1)),
+  /** Original default modifiers (for reset). Maximum 4 modifiers. */
+  defaultModifiers: v.pipe(v.array(ModifierKeySchema), v.maxLength(4), v.readonly()),
 });
 
 /** Inferred keyboard shortcut type. */
@@ -92,16 +92,16 @@ export type KeyboardShortcut = v.InferOutput<typeof KeyboardShortcutSchema>;
 
 /** All valid shortcut identifiers. */
 export const SHORTCUT_IDS = [
-	'TOGGLE_DEV_TOOLBAR',
-	'CLOSE_PANEL',
-	'TOGGLE_SIDEBAR',
-	'DEV_FLAGS_PANEL',
-	'DEV_APP_PANEL',
-	'DEV_DEBUG_PANEL',
-	'DEV_PERF_PANEL',
-	'DEV_CYCLE_MODE',
-	'DEV_COPY_STATE',
-	'DEV_RESET_ALL',
+  'TOGGLE_DEV_TOOLBAR',
+  'CLOSE_PANEL',
+  'TOGGLE_SIDEBAR',
+  'DEV_FLAGS_PANEL',
+  'DEV_APP_PANEL',
+  'DEV_DEBUG_PANEL',
+  'DEV_PERF_PANEL',
+  'DEV_CYCLE_MODE',
+  'DEV_COPY_STATE',
+  'DEV_RESET_ALL',
 ] as const;
 
 /** Union type of all shortcut IDs. */
@@ -130,108 +130,108 @@ export type ShortcutRegistry = Record<ShortcutId, KeyboardShortcut>;
  * @returns A fully-formed KeyboardShortcut
  */
 function def(
-	id: Str,
-	key: Str,
-	modifiers: readonly ModifierKey[],
-	label: Str,
-	description: Str,
-	context: ShortcutContext,
+  id: Str,
+  key: Str,
+  modifiers: readonly ModifierKey[],
+  label: Str,
+  description: Str,
+  context: ShortcutContext,
 ): KeyboardShortcut {
-	return {
-		id,
-		key,
-		modifiers: [...modifiers],
-		label,
-		description,
-		context,
-		enabled: true,
-		defaultKey: key,
-		defaultModifiers: [...modifiers],
-	};
+  return {
+    id,
+    key,
+    modifiers: [...modifiers],
+    label,
+    description,
+    context,
+    enabled: true,
+    defaultKey: key,
+    defaultModifiers: [...modifiers],
+  };
 }
 
 /** Default shortcut definitions — the canonical registry. */
 export const DEFAULT_SHORTCUTS: ShortcutRegistry = {
-	TOGGLE_DEV_TOOLBAR: def(
-		'TOGGLE_DEV_TOOLBAR',
-		'D',
-		['ctrl', 'shift'],
-		'Toggle Developer Toolbar',
-		'Show or hide the developer toolbar and enable debug mode',
-		'global',
-	),
-	CLOSE_PANEL: def(
-		'CLOSE_PANEL',
-		'Escape',
-		[],
-		'Close Panel',
-		'Close the active panel or toolbar',
-		'global',
-	),
-	TOGGLE_SIDEBAR: def(
-		'TOGGLE_SIDEBAR',
-		'b',
-		['cmdOrCtrl'],
-		'Toggle Sidebar',
-		'Show or hide the project sidebar',
-		'global',
-	),
-	DEV_FLAGS_PANEL: def(
-		'DEV_FLAGS_PANEL',
-		'1',
-		['ctrl'],
-		'Feature Flags',
-		'Toggle the feature flags panel',
-		'devToolbar',
-	),
-	DEV_APP_PANEL: def(
-		'DEV_APP_PANEL',
-		'2',
-		['ctrl'],
-		'App Preferences',
-		'Toggle the app preferences panel',
-		'devToolbar',
-	),
-	DEV_DEBUG_PANEL: def(
-		'DEV_DEBUG_PANEL',
-		'3',
-		['ctrl'],
-		'Debug Settings',
-		'Toggle the debug settings panel',
-		'devToolbar',
-	),
-	DEV_PERF_PANEL: def(
-		'DEV_PERF_PANEL',
-		'4',
-		['ctrl'],
-		'Performance',
-		'Toggle the performance metrics panel',
-		'devToolbar',
-	),
-	DEV_CYCLE_MODE: def(
-		'DEV_CYCLE_MODE',
-		'5',
-		['ctrl'],
-		'Cycle Theme Mode',
-		'Cycle between light, dark, and system theme modes',
-		'devToolbar',
-	),
-	DEV_COPY_STATE: def(
-		'DEV_COPY_STATE',
-		'6',
-		['ctrl'],
-		'Copy State JSON',
-		'Copy the current editor state as JSON to clipboard',
-		'devToolbar',
-	),
-	DEV_RESET_ALL: def(
-		'DEV_RESET_ALL',
-		'7',
-		['ctrl'],
-		'Reset All Defaults',
-		'Reset all preferences, flags, and debug settings to defaults',
-		'devToolbar',
-	),
+  TOGGLE_DEV_TOOLBAR: def(
+    'TOGGLE_DEV_TOOLBAR',
+    'D',
+    ['ctrl', 'shift'],
+    'Toggle Developer Toolbar',
+    'Show or hide the developer toolbar and enable debug mode',
+    'global',
+  ),
+  CLOSE_PANEL: def(
+    'CLOSE_PANEL',
+    'Escape',
+    [],
+    'Close Panel',
+    'Close the active panel or toolbar',
+    'global',
+  ),
+  TOGGLE_SIDEBAR: def(
+    'TOGGLE_SIDEBAR',
+    'b',
+    ['cmdOrCtrl'],
+    'Toggle Sidebar',
+    'Show or hide the project sidebar',
+    'global',
+  ),
+  DEV_FLAGS_PANEL: def(
+    'DEV_FLAGS_PANEL',
+    '1',
+    ['ctrl'],
+    'Feature Flags',
+    'Toggle the feature flags panel',
+    'devToolbar',
+  ),
+  DEV_APP_PANEL: def(
+    'DEV_APP_PANEL',
+    '2',
+    ['ctrl'],
+    'App Preferences',
+    'Toggle the app preferences panel',
+    'devToolbar',
+  ),
+  DEV_DEBUG_PANEL: def(
+    'DEV_DEBUG_PANEL',
+    '3',
+    ['ctrl'],
+    'Debug Settings',
+    'Toggle the debug settings panel',
+    'devToolbar',
+  ),
+  DEV_PERF_PANEL: def(
+    'DEV_PERF_PANEL',
+    '4',
+    ['ctrl'],
+    'Performance',
+    'Toggle the performance metrics panel',
+    'devToolbar',
+  ),
+  DEV_CYCLE_MODE: def(
+    'DEV_CYCLE_MODE',
+    '5',
+    ['ctrl'],
+    'Cycle Theme Mode',
+    'Cycle between light, dark, and system theme modes',
+    'devToolbar',
+  ),
+  DEV_COPY_STATE: def(
+    'DEV_COPY_STATE',
+    '6',
+    ['ctrl'],
+    'Copy State JSON',
+    'Copy the current editor state as JSON to clipboard',
+    'devToolbar',
+  ),
+  DEV_RESET_ALL: def(
+    'DEV_RESET_ALL',
+    '7',
+    ['ctrl'],
+    'Reset All Defaults',
+    'Reset all preferences, flags, and debug settings to defaults',
+    'devToolbar',
+  ),
 };
 
 // ── Core functions ───────────────────────────────────────────────────────────
@@ -248,12 +248,12 @@ export const DEFAULT_SHORTCUTS: ShortcutRegistry = {
  * ```
  */
 export function isEditableTarget(e: KeyboardEvent): Bool {
-	const { target } = e;
-	if (!(target instanceof HTMLElement)) return false;
-	const tag: Str = target.tagName;
-	if (tag === 'INPUT' || tag === 'TEXTAREA') return true;
-	if (target.isContentEditable || target.contentEditable === 'true') return true;
-	return false;
+  const { target } = e;
+  if (!(target instanceof HTMLElement)) return false;
+  const tag: Str = target.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return true;
+  if (target.isContentEditable || target.contentEditable === 'true') return true;
+  return false;
 }
 
 /**
@@ -282,54 +282,54 @@ export function isEditableTarget(e: KeyboardEvent): Bool {
  * ```
  */
 export function matchesShortcut(e: KeyboardEvent, shortcut: KeyboardShortcut): Bool {
-	if (!shortcut.enabled) return false;
+  if (!shortcut.enabled) return false;
 
-	// Escape always works, even in inputs
-	if (shortcut.key !== 'Escape' && isEditableTarget(e)) return false;
+  // Escape always works, even in inputs
+  if (shortcut.key !== 'Escape' && isEditableTarget(e)) return false;
 
-	// Key match (case-sensitive for letters, case-insensitive for special keys)
-	if (e.key !== shortcut.key) return false;
+  // Key match (case-sensitive for letters, case-insensitive for special keys)
+  if (e.key !== shortcut.key) return false;
 
-	// Check required modifiers are ALL pressed
-	const mods: readonly ModifierKey[] = shortcut.modifiers;
-	const hasCmdOrCtrl: Bool = mods.includes('cmdOrCtrl');
-	const wantCtrl: Bool = mods.includes('ctrl');
-	const wantMeta: Bool = mods.includes('meta');
-	const wantShift: Bool = mods.includes('shift');
-	const wantAlt: Bool = mods.includes('alt');
+  // Check required modifiers are ALL pressed
+  const mods: readonly ModifierKey[] = shortcut.modifiers;
+  const hasCmdOrCtrl: Bool = mods.includes('cmdOrCtrl');
+  const wantCtrl: Bool = mods.includes('ctrl');
+  const wantMeta: Bool = mods.includes('meta');
+  const wantShift: Bool = mods.includes('shift');
+  const wantAlt: Bool = mods.includes('alt');
 
-	if (hasCmdOrCtrl) {
-		// cmdOrCtrl: exactly one of Ctrl/Meta must be pressed (not both, not neither)
-		if (e.ctrlKey === e.metaKey) return false;
-	} else {
-		if (wantCtrl !== e.ctrlKey) return false;
-		if (wantMeta !== e.metaKey) return false;
-	}
+  if (hasCmdOrCtrl) {
+    // cmdOrCtrl: exactly one of Ctrl/Meta must be pressed (not both, not neither)
+    if (e.ctrlKey === e.metaKey) return false;
+  } else {
+    if (wantCtrl !== e.ctrlKey) return false;
+    if (wantMeta !== e.metaKey) return false;
+  }
 
-	if (wantShift !== e.shiftKey) return false;
-	if (wantAlt !== e.altKey) return false;
+  if (wantShift !== e.shiftKey) return false;
+  if (wantAlt !== e.altKey) return false;
 
-	return true;
+  return true;
 }
 
 // ── Display formatting ───────────────────────────────────────────────────────
 
 /** Mac modifier symbols. Uses word 'Shift' instead of ⇧ — the symbol renders too small in most fonts. */
 const MAC_SYMBOLS: Readonly<Record<ModifierKey, Str>> = {
-	ctrl: '⌃',
-	meta: '⌘',
-	shift: 'Shift',
-	alt: '⌥',
-	cmdOrCtrl: '⌘',
+  ctrl: '⌃',
+  meta: '⌘',
+  shift: 'Shift',
+  alt: '⌥',
+  cmdOrCtrl: '⌘',
 };
 
 /** Non-Mac modifier labels. */
 const PC_LABELS: Readonly<Record<ModifierKey, Str>> = {
-	ctrl: 'Ctrl',
-	meta: 'Win',
-	shift: 'Shift',
-	alt: 'Alt',
-	cmdOrCtrl: 'Ctrl',
+  ctrl: 'Ctrl',
+  meta: 'Win',
+  shift: 'Shift',
+  alt: 'Alt',
+  cmdOrCtrl: 'Ctrl',
 };
 
 /** Display order for modifiers (consistent across platform). */
@@ -352,32 +352,32 @@ const MODIFIER_ORDER: readonly ModifierKey[] = ['ctrl', 'cmdOrCtrl', 'meta', 'sh
  * ```
  */
 export function formatShortcut(shortcut: KeyboardShortcut): Str {
-	const mods: ModifierKey[] = MODIFIER_ORDER.filter((m) => shortcut.modifiers.includes(m));
+  const mods: ModifierKey[] = MODIFIER_ORDER.filter((m) => shortcut.modifiers.includes(m));
 
-	// Special key display names
-	let keyDisplay: Str = shortcut.key;
-	if (shortcut.key === 'Escape') keyDisplay = 'Esc';
-	else if (shortcut.key === ' ') keyDisplay = 'Space';
+  // Special key display names
+  let keyDisplay: Str = shortcut.key;
+  if (shortcut.key === 'Escape') keyDisplay = 'Esc';
+  else if (shortcut.key === ' ') keyDisplay = 'Space';
 
-	const labels: Str[] = mods.map((m) => (IS_MAC ? MAC_SYMBOLS[m] : PC_LABELS[m]));
-	labels.push(keyDisplay);
-	return labels.join('+');
+  const labels: Str[] = mods.map((m) => (IS_MAC ? MAC_SYMBOLS[m] : PC_LABELS[m]));
+  labels.push(keyDisplay);
+  return labels.join('+');
 }
 
 // ── Conflict detection ───────────────────────────────────────────────────────
 
 /** A detected shortcut conflict between two entries. */
 export const ShortcutConflictSchema = v.strictObject({
-	/** ID of the first conflicting shortcut. */
-	a: v.pipe(v.string(), v.minLength(1)),
-	/** ID of the second conflicting shortcut. */
-	b: v.pipe(v.string(), v.minLength(1)),
-	/** The conflicting key binding. */
-	key: v.pipe(v.string(), v.minLength(1)),
-	/** The conflicting modifier combination. */
-	modifiers: v.pipe(v.array(ModifierKeySchema), v.maxLength(4), v.readonly()),
-	/** The context in which the conflict occurs. */
-	context: ShortcutContextSchema,
+  /** ID of the first conflicting shortcut. */
+  a: v.pipe(v.string(), v.minLength(1)),
+  /** ID of the second conflicting shortcut. */
+  b: v.pipe(v.string(), v.minLength(1)),
+  /** The conflicting key binding. */
+  key: v.pipe(v.string(), v.minLength(1)),
+  /** The conflicting modifier combination. */
+  modifiers: v.pipe(v.array(ModifierKeySchema), v.maxLength(4), v.readonly()),
+  /** The context in which the conflict occurs. */
+  context: ShortcutContextSchema,
 });
 
 /** Inferred conflict type. */
@@ -401,38 +401,38 @@ export type ShortcutConflict = v.InferOutput<typeof ShortcutConflictSchema>;
  * ```
  */
 export function detectConflicts(registry: ShortcutRegistry): ShortcutConflict[] {
-	const conflicts: ShortcutConflict[] = [];
-	const entries: KeyboardShortcut[] = Object.values(registry).filter((s) => s.enabled);
+  const conflicts: ShortcutConflict[] = [];
+  const entries: KeyboardShortcut[] = Object.values(registry).filter((s) => s.enabled);
 
-	for (let i: Num = 0; i < entries.length; i++) {
-		for (let j: Num = i + 1; j < entries.length; j++) {
-			const a: KeyboardShortcut = entries[i];
-			const b: KeyboardShortcut = entries[j];
+  for (let i: Num = 0; i < entries.length; i++) {
+    for (let j: Num = i + 1; j < entries.length; j++) {
+      const a: KeyboardShortcut = entries[i];
+      const b: KeyboardShortcut = entries[j];
 
-			// Same key?
-			if (a.key !== b.key) continue;
+      // Same key?
+      if (a.key !== b.key) continue;
 
-			// Same modifiers (order-independent)?
-			const aMods: Str = [...a.modifiers].toSorted().join(',');
-			const bMods: Str = [...b.modifiers].toSorted().join(',');
-			if (aMods !== bMods) continue;
+      // Same modifiers (order-independent)?
+      const aMods: Str = [...a.modifiers].toSorted().join(',');
+      const bMods: Str = [...b.modifiers].toSorted().join(',');
+      if (aMods !== bMods) continue;
 
-			// Context overlap? (global overlaps everything, same context overlaps)
-			const overlaps: Bool =
-				a.context === 'global' || b.context === 'global' || a.context === b.context;
-			if (!overlaps) continue;
+      // Context overlap? (global overlaps everything, same context overlaps)
+      const overlaps: Bool =
+        a.context === 'global' || b.context === 'global' || a.context === b.context;
+      if (!overlaps) continue;
 
-			conflicts.push({
-				a: a.id,
-				b: b.id,
-				key: a.key,
-				modifiers: [...a.modifiers],
-				context: a.context === 'global' ? b.context : a.context,
-			});
-		}
-	}
+      conflicts.push({
+        a: a.id,
+        b: b.id,
+        key: a.key,
+        modifiers: [...a.modifiers],
+        context: a.context === 'global' ? b.context : a.context,
+      });
+    }
+  }
 
-	return conflicts;
+  return conflicts;
 }
 
 /**
@@ -452,11 +452,11 @@ export function detectConflicts(registry: ShortcutRegistry): ShortcutConflict[] 
  * ```
  */
 export function getAllShortcuts(registry: ShortcutRegistry): KeyboardShortcut[] {
-	return Object.values(registry).toSorted((a, b) => {
-		const contextCmp: Num = a.context.localeCompare(b.context);
-		if (contextCmp !== 0) return contextCmp;
-		return a.label.localeCompare(b.label);
-	});
+  return Object.values(registry).toSorted((a, b) => {
+    const contextCmp: Num = a.context.localeCompare(b.context);
+    if (contextCmp !== 0) return contextCmp;
+    return a.label.localeCompare(b.label);
+  });
 }
 
 // ── Shortcut update validation ───────────────────────────────────────────────
@@ -482,38 +482,38 @@ export function getAllShortcuts(registry: ShortcutRegistry): KeyboardShortcut[] 
  * ```
  */
 export function updateShortcut(
-	registry: ShortcutRegistry,
-	id: Str,
-	key: Str,
-	modifiers: readonly ModifierKey[],
+  registry: ShortcutRegistry,
+  id: Str,
+  key: Str,
+  modifiers: readonly ModifierKey[],
 ): Result<ShortcutRegistry> {
-	const idResult: Result<ShortcutId> = safeParse(ShortcutIdSchema, id);
-	if (!idResult.ok) return err(ERRORS.VALIDATION.SCHEMA_FAILED, `Unknown shortcut ID: ${id}`);
+  const idResult: Result<ShortcutId> = safeParse(ShortcutIdSchema, id);
+  if (!idResult.ok) return err(ERRORS.VALIDATION.SCHEMA_FAILED, `Unknown shortcut ID: ${id}`);
 
-	const validId: ShortcutId = idResult.data;
-	const existing: KeyboardShortcut = registry[validId];
+  const validId: ShortcutId = idResult.data;
+  const existing: KeyboardShortcut = registry[validId];
 
-	// Build candidate registry with the update applied
-	const updated: ShortcutRegistry = {
-		...registry,
-		[validId]: {
-			...existing,
-			key,
-			modifiers: [...modifiers],
-		},
-	};
+  // Build candidate registry with the update applied
+  const updated: ShortcutRegistry = {
+    ...registry,
+    [validId]: {
+      ...existing,
+      key,
+      modifiers: [...modifiers],
+    },
+  };
 
-	// Check for conflicts
-	const conflicts: ShortcutConflict[] = detectConflicts(updated);
-	if (conflicts.length > 0) {
-		const [conflict]: ShortcutConflict[] = conflicts;
-		return err(
-			ERRORS.VALIDATION.INVALID_FORMAT,
-			`Shortcut conflict: "${conflict.a}" and "${conflict.b}" both use ${key} with [${modifiers.join(', ')}]`,
-		);
-	}
+  // Check for conflicts
+  const conflicts: ShortcutConflict[] = detectConflicts(updated);
+  if (conflicts.length > 0) {
+    const [conflict]: ShortcutConflict[] = conflicts;
+    return err(
+      ERRORS.VALIDATION.INVALID_FORMAT,
+      `Shortcut conflict: "${conflict.a}" and "${conflict.b}" both use ${key} with [${modifiers.join(', ')}]`,
+    );
+  }
 
-	return okUnchecked(updated);
+  return okUnchecked(updated);
 }
 
 /**
@@ -531,20 +531,20 @@ export function updateShortcut(
  * ```
  */
 export function resetShortcut(registry: ShortcutRegistry, id: Str): Result<ShortcutRegistry> {
-	const idResult: Result<ShortcutId> = safeParse(ShortcutIdSchema, id);
-	if (!idResult.ok) return err(ERRORS.VALIDATION.SCHEMA_FAILED, `Unknown shortcut ID: ${id}`);
+  const idResult: Result<ShortcutId> = safeParse(ShortcutIdSchema, id);
+  if (!idResult.ok) return err(ERRORS.VALIDATION.SCHEMA_FAILED, `Unknown shortcut ID: ${id}`);
 
-	const validId: ShortcutId = idResult.data;
-	const existing: KeyboardShortcut = registry[validId];
+  const validId: ShortcutId = idResult.data;
+  const existing: KeyboardShortcut = registry[validId];
 
-	return okUnchecked({
-		...registry,
-		[validId]: {
-			...existing,
-			key: existing.defaultKey,
-			modifiers: [...existing.defaultModifiers],
-		},
-	});
+  return okUnchecked({
+    ...registry,
+    [validId]: {
+      ...existing,
+      key: existing.defaultKey,
+      modifiers: [...existing.defaultModifiers],
+    },
+  });
 }
 
 /**
@@ -558,6 +558,6 @@ export function resetShortcut(registry: ShortcutRegistry, id: Str): Result<Short
  * ```
  */
 export function resetAllShortcuts(): ShortcutRegistry {
-	// structuredClone erases the Record<ShortcutId, ...> refinement
-	return structuredClone(DEFAULT_SHORTCUTS) as ShortcutRegistry;
+  // structuredClone erases the Record<ShortcutId, ...> refinement
+  return structuredClone(DEFAULT_SHORTCUTS) as ShortcutRegistry;
 }

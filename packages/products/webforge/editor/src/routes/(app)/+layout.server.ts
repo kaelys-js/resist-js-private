@@ -33,48 +33,48 @@ import { URL_PARAM_PREFIX } from '$lib/config/app-meta';
  * @returns Layout data containing locale, user (sync), project (streamed), and scenes (streamed)
  */
 export const load: LayoutServerLoad = ({ locals, url }) => {
-	const { user } = locals;
+  const { user } = locals;
 
-	if (!user) {
-		return {
-			locale: locals.locale,
-			sidebarPx: locals.sidebarPx,
-			sidebarOpen: locals.sidebarOpen,
-			user: null,
-			project: null,
-			scenes: [] as readonly ServerScene[],
-		};
-	}
+  if (!user) {
+    return {
+      locale: locals.locale,
+      sidebarPx: locals.sidebarPx,
+      sidebarOpen: locals.sidebarOpen,
+      user: null,
+      project: null,
+      scenes: [] as readonly ServerScene[],
+    };
+  }
 
-	// Capture URL params synchronously before entering async context.
-	// SvelteKit warns about URL access in promise handlers, but we only
-	// need a snapshot of the search params at load time.
-	const emptyScenes: Bool = url.searchParams.get(`${URL_PARAM_PREFIX}scenes`) === 'empty';
+  // Capture URL params synchronously before entering async context.
+  // SvelteKit warns about URL access in promise handlers, but we only
+  // need a snapshot of the search params at load time.
+  const emptyScenes: Bool = url.searchParams.get(`${URL_PARAM_PREFIX}scenes`) === 'empty';
 
-	// Stream project — page renders immediately with NavProjectSkeleton.
-	// Async IIFE avoids .then() chains (prefer-await-to-then lint rule).
-	const projectPromise: Promise<ServerProject | null> = (async () => {
-		const result = await locals.db.projects.getByOwner(user.id);
-		return result.ok ? (result.data ?? null) : null;
-	})();
+  // Stream project — page renders immediately with NavProjectSkeleton.
+  // Async IIFE avoids .then() chains (prefer-await-to-then lint rule).
+  const projectPromise: Promise<ServerProject | null> = (async () => {
+    const result = await locals.db.projects.getByOwner(user.id);
+    return result.ok ? (result.data ?? null) : null;
+  })();
 
-	// Stream scenes — chained from project since scenes need project ID.
-	// While project loads, NavScenesSkeleton shows. Once project resolves,
-	// scenes load; if project is null, scenes resolve to empty immediately.
-	const scenesPromise: Promise<readonly ServerScene[]> = (async () => {
-		const project = await projectPromise;
-		if (!project) return [] as readonly ServerScene[];
-		if (emptyScenes) return [] as readonly ServerScene[];
-		const result = await locals.db.scenes.getByProject(project.id);
-		return result.ok ? result.data : ([] as readonly ServerScene[]);
-	})();
+  // Stream scenes — chained from project since scenes need project ID.
+  // While project loads, NavScenesSkeleton shows. Once project resolves,
+  // scenes load; if project is null, scenes resolve to empty immediately.
+  const scenesPromise: Promise<readonly ServerScene[]> = (async () => {
+    const project = await projectPromise;
+    if (!project) return [] as readonly ServerScene[];
+    if (emptyScenes) return [] as readonly ServerScene[];
+    const result = await locals.db.scenes.getByProject(project.id);
+    return result.ok ? result.data : ([] as readonly ServerScene[]);
+  })();
 
-	return {
-		locale: locals.locale,
-		sidebarPx: locals.sidebarPx,
-		sidebarOpen: locals.sidebarOpen,
-		user,
-		project: projectPromise,
-		scenes: scenesPromise,
-	};
+  return {
+    locale: locals.locale,
+    sidebarPx: locals.sidebarPx,
+    sidebarOpen: locals.sidebarOpen,
+    user,
+    project: projectPromise,
+    scenes: scenesPromise,
+  };
 };

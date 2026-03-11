@@ -58,16 +58,16 @@ import { ColorRgbaSchema } from './color-schema';
  * ```
  */
 export const BloomConfigSchema = v.strictObject({
-	/** Whether bloom is active. */
-	enabled: v.optional(v.boolean(), true),
-	/** Bloom strength [0, 1]. */
-	weight: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.15),
-	/** Luminance threshold for bright areas [0, 1]. */
-	threshold: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.9),
-	/** Blur kernel size [1, 512]. */
-	kernel: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(512)), 64),
-	/** Performance tuning scale [0.1, 1]. */
-	scale: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(1)), 0.5),
+  /** Whether bloom is active. */
+  enabled: v.optional(v.boolean(), true),
+  /** Bloom strength [0, 1]. */
+  weight: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.15),
+  /** Luminance threshold for bright areas [0, 1]. */
+  threshold: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.9),
+  /** Blur kernel size [1, 512]. */
+  kernel: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(512)), 64),
+  /** Performance tuning scale [0.1, 1]. */
+  scale: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(1)), 0.5),
 });
 
 /** Bloom effect configuration type. */
@@ -93,16 +93,16 @@ export type BloomConfig = v.InferOutput<typeof BloomConfigSchema>;
  * ```
  */
 export const DepthOfFieldConfigSchema = v.strictObject({
-	/** Whether depth-of-field is active. */
-	enabled: v.optional(v.boolean(), true),
-	/** Camera focal length in mm. */
-	focalLength: v.optional(v.pipe(v.number(), v.minValue(0)), 50),
-	/** Aperture f-stop (>= 0.1). */
-	fStop: v.optional(v.pipe(v.number(), v.minValue(0.1)), 2.8),
-	/** Focus plane distance in mm (1 scene unit = 1 m). 0 = auto-calibrate from camera radius. */
-	focusDistance: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
-	/** Blur quality level. */
-	blurLevel: v.optional(v.picklist(['low', 'medium', 'high']), 'medium'),
+  /** Whether depth-of-field is active. */
+  enabled: v.optional(v.boolean(), true),
+  /** Camera focal length in mm. */
+  focalLength: v.optional(v.pipe(v.number(), v.minValue(0)), 50),
+  /** Aperture f-stop (>= 0.1). */
+  fStop: v.optional(v.pipe(v.number(), v.minValue(0.1)), 2.8),
+  /** Focus plane distance in mm (1 scene unit = 1 m). 0 = auto-calibrate from camera radius. */
+  focusDistance: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Blur quality level. */
+  blurLevel: v.optional(v.picklist(['low', 'medium', 'high']), 'medium'),
 });
 
 /** Depth-of-field configuration type. */
@@ -128,10 +128,10 @@ export type DepthOfFieldConfig = v.InferOutput<typeof DepthOfFieldConfigSchema>;
  * ```
  */
 export const ToneMappingConfigSchema = v.strictObject({
-	/** Whether tone mapping is active. */
-	enabled: v.optional(v.boolean(), true),
-	/** Tone mapping operator. */
-	type: v.optional(v.picklist(['standard', 'aces', 'khr_pbr_neutral']), 'aces'),
+  /** Whether tone mapping is active. */
+  enabled: v.optional(v.boolean(), true),
+  /** Tone mapping operator. */
+  type: v.optional(v.picklist(['standard', 'aces', 'khr_pbr_neutral']), 'aces'),
 });
 
 /** Tone mapping configuration type. */
@@ -148,11 +148,11 @@ export type ToneMappingConfig = v.InferOutput<typeof ToneMappingConfigSchema>;
  * applied via `ImageProcessingConfiguration.colorCurves`.
  */
 export const ColorGradingPresetSchema = v.picklist([
-	'neutral',
-	'warm',
-	'cool',
-	'cinematic',
-	'retro',
+  'neutral',
+  'warm',
+  'cool',
+  'cinematic',
+  'retro',
 ]);
 
 /** Color grading preset name type. */
@@ -173,10 +173,10 @@ export type ColorGradingPreset = v.InferOutput<typeof ColorGradingPresetSchema>;
  * ```
  */
 export const ColorGradingConfigSchema = v.strictObject({
-	/** Whether color grading is active. */
-	enabled: v.optional(v.boolean(), false),
-	/** Named color grading preset. */
-	preset: v.optional(ColorGradingPresetSchema, 'neutral'),
+  /** Whether color grading is active. */
+  enabled: v.optional(v.boolean(), false),
+  /** Named color grading preset. */
+  preset: v.optional(ColorGradingPresetSchema, 'neutral'),
 });
 
 /** Color grading configuration type. */
@@ -201,16 +201,16 @@ export type ColorGradingConfig = v.InferOutput<typeof ColorGradingConfigSchema>;
  * ```
  */
 export const VignetteConfigSchema = v.strictObject({
-	/** Whether vignette is active. */
-	enabled: v.optional(v.boolean(), true),
-	/** Vignette weight (darkness) [0, 10]. */
-	weight: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(10)), 1.5),
-	/** Vignette stretch [0, 25]. */
-	stretch: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(25)), 0),
-	/** Vignette color (RGBA). */
-	color: v.optional(ColorRgbaSchema, { r: 0, g: 0, b: 0, a: 1 }),
-	/** Vignette blend mode. */
-	blendMode: v.optional(v.picklist(['multiply', 'opaque']), 'multiply'),
+  /** Whether vignette is active. */
+  enabled: v.optional(v.boolean(), true),
+  /** Vignette weight (darkness) [0, 10]. */
+  weight: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(10)), 1.5),
+  /** Vignette stretch [0, 25]. */
+  stretch: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(25)), 0),
+  /** Vignette color (RGBA). */
+  color: v.optional(ColorRgbaSchema, { r: 0, g: 0, b: 0, a: 1 }),
+  /** Vignette blend mode. */
+  blendMode: v.optional(v.picklist(['multiply', 'opaque']), 'multiply'),
 });
 
 /** Vignette configuration type. */
@@ -235,12 +235,12 @@ export type VignetteConfig = v.InferOutput<typeof VignetteConfigSchema>;
  * ```
  */
 export const GrainConfigSchema = v.strictObject({
-	/** Whether film grain is active. */
-	enabled: v.optional(v.boolean(), true),
-	/** Grain intensity [0, 100]. */
-	intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 5),
-	/** Whether grain pattern animates per frame. */
-	animated: v.optional(v.boolean(), true),
+  /** Whether film grain is active. */
+  enabled: v.optional(v.boolean(), true),
+  /** Grain intensity [0, 100]. */
+  intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(100)), 5),
+  /** Whether grain pattern animates per frame. */
+  animated: v.optional(v.boolean(), true),
 });
 
 /** Film grain configuration type. */
@@ -265,18 +265,18 @@ export type GrainConfig = v.InferOutput<typeof GrainConfigSchema>;
  * ```
  */
 export const SsaoConfigSchema = v.strictObject({
-	/** Whether SSAO is active. */
-	enabled: v.optional(v.boolean(), true),
-	/** Overall AO strength [0, 3]. */
-	totalStrength: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(3)), 1.0),
-	/** Sampling radius [0.01, 16]. */
-	radius: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(16)), 2.0),
-	/** Number of AO samples (integer) [1, 64]. */
-	samples: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(64)), 16),
-	/** Base AO value [0, 1]. */
-	base: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.1),
-	/** Use expensive bilateral blur for smoother results. */
-	expensiveBlur: v.optional(v.boolean(), true),
+  /** Whether SSAO is active. */
+  enabled: v.optional(v.boolean(), true),
+  /** Overall AO strength [0, 3]. */
+  totalStrength: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(3)), 1.0),
+  /** Sampling radius [0.01, 16]. */
+  radius: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(16)), 2.0),
+  /** Number of AO samples (integer) [1, 64]. */
+  samples: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(64)), 16),
+  /** Base AO value [0, 1]. */
+  base: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.1),
+  /** Use expensive bilateral blur for smoother results. */
+  expensiveBlur: v.optional(v.boolean(), true),
 });
 
 /** SSAO configuration type. */
@@ -302,12 +302,12 @@ export type SsaoConfig = v.InferOutput<typeof SsaoConfigSchema>;
  * ```
  */
 export const ChromaticAberrationConfigSchema = v.strictObject({
-	/** Whether chromatic aberration is active. */
-	enabled: v.optional(v.boolean(), false),
-	/** Aberration amount [0, 200]. */
-	amount: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(200)), 30),
-	/** Radial intensity falloff [0, 5]. */
-	radialIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5)), 0.3),
+  /** Whether chromatic aberration is active. */
+  enabled: v.optional(v.boolean(), false),
+  /** Aberration amount [0, 200]. */
+  amount: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(200)), 30),
+  /** Radial intensity falloff [0, 5]. */
+  radialIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5)), 0.3),
 });
 
 /** Chromatic aberration configuration type. */
@@ -332,12 +332,12 @@ export type ChromaticAberrationConfig = v.InferOutput<typeof ChromaticAberration
  * ```
  */
 export const SharpenConfigSchema = v.strictObject({
-	/** Whether sharpening is active. */
-	enabled: v.optional(v.boolean(), false),
-	/** Edge sharpening amount [0, 2]. */
-	edgeAmount: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 0.3),
-	/** Color sharpening amount [0, 1]. */
-	colorAmount: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 1.0),
+  /** Whether sharpening is active. */
+  enabled: v.optional(v.boolean(), false),
+  /** Edge sharpening amount [0, 2]. */
+  edgeAmount: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 0.3),
+  /** Color sharpening amount [0, 1]. */
+  colorAmount: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 1.0),
 });
 
 /** Sharpen configuration type. */
@@ -362,8 +362,8 @@ export type SharpenConfig = v.InferOutput<typeof SharpenConfigSchema>;
  * ```
  */
 export const FxaaConfigSchema = v.strictObject({
-	/** Whether FXAA is active. */
-	enabled: v.optional(v.boolean(), true),
+  /** Whether FXAA is active. */
+  enabled: v.optional(v.boolean(), true),
 });
 
 /** FXAA configuration type. */
@@ -388,10 +388,10 @@ export type FxaaConfig = v.InferOutput<typeof FxaaConfigSchema>;
  * ```
  */
 export const DitheringConfigSchema = v.strictObject({
-	/** Whether dithering is active. */
-	enabled: v.optional(v.boolean(), false),
-	/** Dithering intensity [0, 1]. */
-	intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.004),
+  /** Whether dithering is active. */
+  enabled: v.optional(v.boolean(), false),
+  /** Dithering intensity [0, 1]. */
+  intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.004),
 });
 
 /** Dithering configuration type. */
@@ -419,14 +419,14 @@ export type DitheringConfig = v.InferOutput<typeof DitheringConfigSchema>;
  * ```
  */
 export const HdrEnvironmentConfigSchema = v.strictObject({
-	/** Whether HDR environment is active. */
-	enabled: v.optional(v.boolean(), false),
-	/** Path to HDR cubemap file. */
-	texturePath: v.optional(v.string(), ''),
-	/** Environment intensity [0, 5]. */
-	intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5)), 1.0),
-	/** Y-axis rotation in radians [0, 2*PI]. */
-	rotationY: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(6.2832)), 0),
+  /** Whether HDR environment is active. */
+  enabled: v.optional(v.boolean(), false),
+  /** Path to HDR cubemap file. */
+  texturePath: v.optional(v.string(), ''),
+  /** Environment intensity [0, 5]. */
+  intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5)), 1.0),
+  /** Y-axis rotation in radians [0, 2*PI]. */
+  rotationY: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(6.2832)), 0),
 });
 
 /** HDR environment configuration type. */
@@ -443,11 +443,11 @@ export type HdrEnvironmentConfig = v.InferOutput<typeof HdrEnvironmentConfigSche
  * Per-effect overrides are deep-merged on top of the preset base.
  */
 export const PostProcessingPresetSchema = v.picklist([
-	'neutral',
-	'hd2d',
-	'cinematic',
-	'retro',
-	'fantasy',
+  'neutral',
+  'hd2d',
+  'cinematic',
+  'retro',
+  'fantasy',
 ]);
 
 /** Post-processing preset name type. */
@@ -485,38 +485,38 @@ export type PostProcessingPresetName = v.InferOutput<typeof PostProcessingPreset
  * ```
  */
 export const PostProcessingConfigSchema = v.strictObject({
-	/** Master enable/disable for the entire pipeline. */
-	enabled: v.optional(v.boolean(), true),
-	/** Named preset (base values for all effects). */
-	preset: v.optional(PostProcessingPresetSchema, 'hd2d'),
-	/** Bloom (soft glow on bright areas). */
-	bloom: v.optional(BloomConfigSchema),
-	/** Depth-of-field (tilt-shift diorama effect). */
-	depthOfField: v.optional(DepthOfFieldConfigSchema),
-	/** Tone mapping (HDR → LDR). */
-	toneMapping: v.optional(ToneMappingConfigSchema),
-	/** Color grading (color curve presets). */
-	colorGrading: v.optional(ColorGradingConfigSchema),
-	/** Vignette (darkened screen edges). */
-	vignette: v.optional(VignetteConfigSchema),
-	/** Film grain (subtle noise). */
-	grain: v.optional(GrainConfigSchema),
-	/** Screen-space ambient occlusion. */
-	ssao: v.optional(SsaoConfigSchema),
-	/** Chromatic aberration (lens color fringing). */
-	chromaticAberration: v.optional(ChromaticAberrationConfigSchema),
-	/** Sharpen (edge-preserving sharpening). */
-	sharpen: v.optional(SharpenConfigSchema),
-	/** FXAA (fast approximate anti-aliasing). */
-	fxaa: v.optional(FxaaConfigSchema),
-	/** Dithering (reduce color banding). */
-	dithering: v.optional(DitheringConfigSchema),
-	/** HDR environment (image-based lighting). */
-	hdrEnvironment: v.optional(HdrEnvironmentConfigSchema),
-	/** Scene exposure. */
-	exposure: v.optional(v.number(), 1.0),
-	/** Scene contrast. */
-	contrast: v.optional(v.number(), 1.0),
+  /** Master enable/disable for the entire pipeline. */
+  enabled: v.optional(v.boolean(), true),
+  /** Named preset (base values for all effects). */
+  preset: v.optional(PostProcessingPresetSchema, 'hd2d'),
+  /** Bloom (soft glow on bright areas). */
+  bloom: v.optional(BloomConfigSchema),
+  /** Depth-of-field (tilt-shift diorama effect). */
+  depthOfField: v.optional(DepthOfFieldConfigSchema),
+  /** Tone mapping (HDR → LDR). */
+  toneMapping: v.optional(ToneMappingConfigSchema),
+  /** Color grading (color curve presets). */
+  colorGrading: v.optional(ColorGradingConfigSchema),
+  /** Vignette (darkened screen edges). */
+  vignette: v.optional(VignetteConfigSchema),
+  /** Film grain (subtle noise). */
+  grain: v.optional(GrainConfigSchema),
+  /** Screen-space ambient occlusion. */
+  ssao: v.optional(SsaoConfigSchema),
+  /** Chromatic aberration (lens color fringing). */
+  chromaticAberration: v.optional(ChromaticAberrationConfigSchema),
+  /** Sharpen (edge-preserving sharpening). */
+  sharpen: v.optional(SharpenConfigSchema),
+  /** FXAA (fast approximate anti-aliasing). */
+  fxaa: v.optional(FxaaConfigSchema),
+  /** Dithering (reduce color banding). */
+  dithering: v.optional(DitheringConfigSchema),
+  /** HDR environment (image-based lighting). */
+  hdrEnvironment: v.optional(HdrEnvironmentConfigSchema),
+  /** Scene exposure. */
+  exposure: v.optional(v.number(), 1.0),
+  /** Scene contrast. */
+  contrast: v.optional(v.number(), 1.0),
 });
 
 /** Complete post-processing configuration type. */

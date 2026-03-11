@@ -21,10 +21,10 @@ import type { LayoutServerLoad } from './$types';
  * @returns Layout data containing locale, sidebar state, and user
  */
 export const load: LayoutServerLoad = ({ locals }) => {
-	return {
-		locale: locals.locale,
-		sidebarPx: locals.sidebarPx,
-		sidebarOpen: locals.sidebarOpen,
-		user: locals.user ?? null,
-	};
+  return {
+    locale: locals.locale,
+    sidebarPx: locals.sidebarPx,
+    sidebarOpen: locals.sidebarOpen,
+    user: locals.user ?? null,
+  };
 };

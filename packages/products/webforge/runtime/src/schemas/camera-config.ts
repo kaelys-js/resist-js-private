@@ -55,22 +55,22 @@ import * as v from 'valibot';
  * The camera controller reads this value to create the appropriate camera.
  */
 export const CameraPresetSchema = v.picklist([
-	'hd2d',
-	'topdown',
-	'sideview',
-	'firstperson',
-	'cinematic',
-	'free',
-	'isometric',
-	'tactical',
-	'thirdperson',
-	'rts',
-	'dungeon',
-	'platformer',
-	'panoramic',
-	'orbit',
-	'editor',
-	'mapeditor',
+  'hd2d',
+  'topdown',
+  'sideview',
+  'firstperson',
+  'cinematic',
+  'free',
+  'isometric',
+  'tactical',
+  'thirdperson',
+  'rts',
+  'dungeon',
+  'platformer',
+  'panoramic',
+  'orbit',
+  'editor',
+  'mapeditor',
 ]);
 
 /** Inferred camera preset type from {@link CameraPresetSchema}. */
@@ -86,10 +86,10 @@ export type CameraPreset = v.InferOutput<typeof CameraPresetSchema>;
  * Used when smoothly transitioning between presets via `switchCameraPreset`.
  */
 export const TransitionEasingSchema = v.picklist([
-	'linear',
-	'easeInOutCubic',
-	'easeOutBack',
-	'easeInOutQuad',
+  'linear',
+  'easeInOutCubic',
+  'easeOutBack',
+  'easeInOutQuad',
 ]);
 
 /** Inferred transition easing type from {@link TransitionEasingSchema}. */
@@ -106,12 +106,12 @@ export type TransitionEasing = v.InferOutput<typeof TransitionEasingSchema>;
  * preventing vertical drift that would break the isometric perspective.
  */
 export const PanningAxisSchema = v.strictObject({
-	/** X-axis panning weight (1 = enabled, 0 = disabled). */
-	x: v.number(),
-	/** Y-axis panning weight (1 = enabled, 0 = disabled). */
-	y: v.number(),
-	/** Z-axis panning weight (1 = enabled, 0 = disabled). */
-	z: v.number(),
+  /** X-axis panning weight (1 = enabled, 0 = disabled). */
+  x: v.number(),
+  /** Y-axis panning weight (1 = enabled, 0 = disabled). */
+  y: v.number(),
+  /** Z-axis panning weight (1 = enabled, 0 = disabled). */
+  z: v.number(),
 });
 
 /** Inferred panning axis type from {@link PanningAxisSchema}. */
@@ -142,116 +142,116 @@ export type PanningAxis = v.InferOutput<typeof PanningAxisSchema>;
  * ```
  */
 export const CameraConfigSchema = v.strictObject({
-	/**
-	 * Camera preset. Determines camera type, default angles, and behavior.
-	 *
-	 * Default: `'hd2d'` — 45° isometric tilt, locked rotation.
-	 */
-	preset: v.optional(CameraPresetSchema, 'hd2d'),
+  /**
+   * Camera preset. Determines camera type, default angles, and behavior.
+   *
+   * Default: `'hd2d'` — 45° isometric tilt, locked rotation.
+   */
+  preset: v.optional(CameraPresetSchema, 'hd2d'),
 
-	/**
-	 * Legacy camera mode (backward compatibility).
-	 *
-	 * - `'editor'` → maps to `'free'` preset
-	 * - `'gameplay'` → maps to `'hd2d'` preset
-	 *
-	 * When both `mode` and `preset` are provided, `preset` takes priority.
-	 */
-	mode: v.optional(v.picklist(['editor', 'gameplay'])),
+  /**
+   * Legacy camera mode (backward compatibility).
+   *
+   * - `'editor'` → maps to `'free'` preset
+   * - `'gameplay'` → maps to `'hd2d'` preset
+   *
+   * When both `mode` and `preset` are provided, `preset` takes priority.
+   */
+  mode: v.optional(v.picklist(['editor', 'gameplay'])),
 
-	/**
-	 * Horizontal rotation angle in radians.
-	 * No schema default — preset default applied in camera controller.
-	 */
-	alpha: v.optional(v.number()),
+  /**
+   * Horizontal rotation angle in radians.
+   * No schema default — preset default applied in camera controller.
+   */
+  alpha: v.optional(v.number()),
 
-	/**
-	 * Vertical pitch angle in radians.
-	 * No schema default — preset default applied in camera controller.
-	 */
-	beta: v.optional(v.number()),
+  /**
+   * Vertical pitch angle in radians.
+   * No schema default — preset default applied in camera controller.
+   */
+  beta: v.optional(v.number()),
 
-	/**
-	 * Camera distance from target. Must be ≥ 1.
-	 * No schema default — preset default applied in camera controller.
-	 */
-	radius: v.optional(v.pipe(v.number(), v.minValue(1))),
+  /**
+   * Camera distance from target. Must be ≥ 1.
+   * No schema default — preset default applied in camera controller.
+   */
+  radius: v.optional(v.pipe(v.number(), v.minValue(1))),
 
-	/** Minimum pitch angle in radians. Default: π/6 (30°). */
-	lowerBetaLimit: v.optional(v.number(), Math.PI / 6),
+  /** Minimum pitch angle in radians. Default: π/6 (30°). */
+  lowerBetaLimit: v.optional(v.number(), Math.PI / 6),
 
-	/** Maximum pitch angle in radians. Default: π/2.5 (72°). */
-	upperBetaLimit: v.optional(v.number(), Math.PI / 2.5),
+  /** Maximum pitch angle in radians. Default: π/2.5 (72°). */
+  upperBetaLimit: v.optional(v.number(), Math.PI / 2.5),
 
-	/** Minimum zoom distance. Must be ≥ 1. Default: 30. */
-	lowerRadiusLimit: v.optional(v.pipe(v.number(), v.minValue(1)), 30),
+  /** Minimum zoom distance. Must be ≥ 1. Default: 30. */
+  lowerRadiusLimit: v.optional(v.pipe(v.number(), v.minValue(1)), 30),
 
-	/** Maximum zoom distance. Must be ≥ 1. Default: 300. */
-	upperRadiusLimit: v.optional(v.pipe(v.number(), v.minValue(1)), 300),
+  /** Maximum zoom distance. Must be ≥ 1. Default: 300. */
+  upperRadiusLimit: v.optional(v.pipe(v.number(), v.minValue(1)), 300),
 
-	/** Camera target X coordinate (world space). Default: 0. */
-	targetX: v.optional(v.number(), 0),
+  /** Camera target X coordinate (world space). Default: 0. */
+  targetX: v.optional(v.number(), 0),
 
-	/** Camera target Y coordinate (world space). Default: 0. */
-	targetY: v.optional(v.number(), 0),
+  /** Camera target Y coordinate (world space). Default: 0. */
+  targetY: v.optional(v.number(), 0),
 
-	/** Camera target Z coordinate (world space). Default: 0. */
-	targetZ: v.optional(v.number(), 0),
+  /** Camera target Z coordinate (world space). Default: 0. */
+  targetZ: v.optional(v.number(), 0),
 
-	/** Smooth follow interpolation speed (0 = no follow, 1 = instant). Default: 0.05. */
-	followSpeed: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.05),
+  /** Smooth follow interpolation speed (0 = no follow, 1 = instant). Default: 0.05. */
+  followSpeed: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.05),
 
-	/**
-	 * Panning sensitivity. No schema default — preset default applied in camera controller:
-	 * - free: 50 (enabled)
-	 * - All others: 0 (disabled)
-	 */
-	panningSensibility: v.optional(v.pipe(v.number(), v.minValue(0))),
+  /**
+   * Panning sensitivity. No schema default — preset default applied in camera controller:
+   * - free: 50 (enabled)
+   * - All others: 0 (disabled)
+   */
+  panningSensibility: v.optional(v.pipe(v.number(), v.minValue(0))),
 
-	/** Mouse wheel zoom precision. Higher = slower zoom. Must be ≥ 1. Default: 3. */
-	wheelPrecision: v.optional(v.pipe(v.number(), v.minValue(1)), 3),
+  /** Mouse wheel zoom precision. Higher = slower zoom. Must be ≥ 1. Default: 3. */
+  wheelPrecision: v.optional(v.pipe(v.number(), v.minValue(1)), 3),
 
-	/**
-	 * Camera movement inertia. No schema default — preset default applied in camera controller:
-	 * - hd2d: 0.7
-	 * - cinematic: 0.9
-	 * - free: 0
-	 * - Others: 0.5
-	 */
-	inertia: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
+  /**
+   * Camera movement inertia. No schema default — preset default applied in camera controller:
+   * - hd2d: 0.7
+   * - cinematic: 0.9
+   * - free: 0
+   * - Others: 0.5
+   */
+  inertia: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
 
-	/** Panning axis restriction. Default: {x:1, y:0, z:1} (XZ ground plane). */
-	panningAxis: v.optional(PanningAxisSchema, { x: 1, y: 0, z: 1 }),
+  /** Panning axis restriction. Default: {x:1, y:0, z:1} (XZ ground plane). */
+  panningAxis: v.optional(PanningAxisSchema, { x: 1, y: 0, z: 1 }),
 
-	/**
-	 * Orthographic half-size for mapeditor preset.
-	 *
-	 * Controls the visible area in orthographic mode. Higher values show more
-	 * of the map. Only used when preset is `'mapeditor'`. Must be ≥ 1. Default: 20.
-	 */
-	orthoSize: v.optional(v.pipe(v.number(), v.minValue(1)), 20),
+  /**
+   * Orthographic half-size for mapeditor preset.
+   *
+   * Controls the visible area in orthographic mode. Higher values show more
+   * of the map. Only used when preset is `'mapeditor'`. Must be ≥ 1. Default: 20.
+   */
+  orthoSize: v.optional(v.pipe(v.number(), v.minValue(1)), 20),
 
-	/**
-	 * FF Tactics-style 4-angle rotation.
-	 *
-	 * When enabled, the camera snaps to 0°/90°/180°/270° angles
-	 * via the `rotateTactics` function. Default: false.
-	 */
-	tacticsRotation: v.optional(v.boolean(), false),
+  /**
+   * FF Tactics-style 4-angle rotation.
+   *
+   * When enabled, the camera snaps to 0°/90°/180°/270° angles
+   * via the `rotateTactics` function. Default: false.
+   */
+  tacticsRotation: v.optional(v.boolean(), false),
 
-	/**
-	 * Duration of smooth transitions between camera presets in milliseconds.
-	 *
-	 * Used by `switchCameraPreset()`. Must be 0–5000. Default: 500.
-	 */
-	transitionDurationMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5000)), 500),
+  /**
+   * Duration of smooth transitions between camera presets in milliseconds.
+   *
+   * Used by `switchCameraPreset()`. Must be 0–5000. Default: 500.
+   */
+  transitionDurationMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5000)), 500),
 
-	/**
-	 * Easing function for camera preset transitions.
-	 *
-	 * Default: `'easeInOutCubic'`.
-	 */
-	transitionEasing: v.optional(TransitionEasingSchema, 'easeInOutCubic'),
+  /**
+   * Easing function for camera preset transitions.
+   *
+   * Default: `'easeInOutCubic'`.
+   */
+  transitionEasing: v.optional(TransitionEasingSchema, 'easeInOutCubic'),
 });
 
 /** Inferred camera configuration type from {@link CameraConfigSchema}. */
@@ -281,31 +281,31 @@ export type CameraConfig = v.InferOutput<typeof CameraConfigSchema>;
  * ```
  */
 export const RefocusConfigSchema = v.strictObject({
-	/** Smooth transition vs instant snap. */
-	animated: v.pipe(v.boolean(), v.description('Smooth transition vs instant snap')),
-	/** Animation duration in milliseconds (100–3000). */
-	durationMs: v.pipe(
-		v.number(),
-		v.minValue(100),
-		v.maxValue(3000),
-		v.description('Animation duration in ms'),
-	),
-	/** Easing curve for the transition. */
-	easing: v.pipe(
-		v.picklist(['linear', 'easeInOutCubic', 'easeOutBack', 'easeInOutQuad']),
-		v.description('Easing curve'),
-	),
-	/** Radius multiplier for breathing room around map edges (1.0–2.0). */
-	paddingScale: v.pipe(
-		v.number(),
-		v.minValue(1.0),
-		v.maxValue(2.0),
-		v.description('Radius multiplier for breathing room'),
-	),
-	/** Reset camera pitch to preset default. */
-	resetElevation: v.pipe(v.boolean(), v.description('Reset camera pitch to preset default')),
-	/** Reset camera orbit angle to preset default. */
-	resetOrbit: v.pipe(v.boolean(), v.description('Reset camera orbit angle to preset default')),
+  /** Smooth transition vs instant snap. */
+  animated: v.pipe(v.boolean(), v.description('Smooth transition vs instant snap')),
+  /** Animation duration in milliseconds (100–3000). */
+  durationMs: v.pipe(
+    v.number(),
+    v.minValue(100),
+    v.maxValue(3000),
+    v.description('Animation duration in ms'),
+  ),
+  /** Easing curve for the transition. */
+  easing: v.pipe(
+    v.picklist(['linear', 'easeInOutCubic', 'easeOutBack', 'easeInOutQuad']),
+    v.description('Easing curve'),
+  ),
+  /** Radius multiplier for breathing room around map edges (1.0–2.0). */
+  paddingScale: v.pipe(
+    v.number(),
+    v.minValue(1.0),
+    v.maxValue(2.0),
+    v.description('Radius multiplier for breathing room'),
+  ),
+  /** Reset camera pitch to preset default. */
+  resetElevation: v.pipe(v.boolean(), v.description('Reset camera pitch to preset default')),
+  /** Reset camera orbit angle to preset default. */
+  resetOrbit: v.pipe(v.boolean(), v.description('Reset camera orbit angle to preset default')),
 });
 
 /** Inferred refocus configuration type from {@link RefocusConfigSchema}. */
@@ -318,10 +318,10 @@ export type RefocusConfig = v.InferOutput<typeof RefocusConfigSchema>;
  * Resets elevation (pitch) but preserves orbit angle.
  */
 export const REFOCUS_DEFAULTS: RefocusConfig = {
-	animated: true,
-	durationMs: 800,
-	easing: 'easeInOutCubic',
-	paddingScale: 1.15,
-	resetElevation: true,
-	resetOrbit: false,
+  animated: true,
+  durationMs: 800,
+  easing: 'easeInOutCubic',
+  paddingScale: 1.15,
+  resetElevation: true,
+  resetOrbit: false,
 };

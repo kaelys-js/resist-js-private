@@ -48,13 +48,13 @@ import { type AppError, AppErrorSchema, ErrorTagsSchema } from '@/schemas/result
  * @internal
  */
 const _RuntimeKindSchema = v.picklist([
-	'node-tty',
-	'node-pipe',
-	'worker',
-	'browser',
-	'web-worker',
-	'shared-worker',
-	'service-worker',
+  'node-tty',
+  'node-pipe',
+  'worker',
+  'browser',
+  'web-worker',
+  'shared-worker',
+  'service-worker',
 ]);
 
 // =============================================================================
@@ -100,20 +100,20 @@ export type BreadcrumbLevel = v.InferOutput<typeof BreadcrumbLevelSchema>;
  * ```
  */
 export const BreadcrumbSchema = v.strictObject({
-	/** Breadcrumb type: `'default'`, `'http'`, `'navigation'`, `'error'`, `'debug'`, `'query'`, `'ui'`, `'user'`, `'info'`. */
-	type: v.optional(
-		v.picklist(['default', 'http', 'navigation', 'error', 'debug', 'query', 'ui', 'user', 'info']),
-	),
-	/** Dot-separated category string (e.g., `'fetch'`, `'console'`, `'ui.click'`). */
-	category: v.optional(v.string()),
-	/** Human-readable description of the breadcrumb event. */
-	message: v.optional(v.string()),
-	/** Severity level of this breadcrumb. */
-	level: v.optional(BreadcrumbLevelSchema),
-	/** ISO 8601 timestamp when this breadcrumb was recorded. */
-	timestamp: v.pipe(v.string(), v.isoTimestamp()),
-	/** Arbitrary data associated with this breadcrumb. */
-	data: v.optional(v.record(v.string(), v.unknown())),
+  /** Breadcrumb type: `'default'`, `'http'`, `'navigation'`, `'error'`, `'debug'`, `'query'`, `'ui'`, `'user'`, `'info'`. */
+  type: v.optional(
+    v.picklist(['default', 'http', 'navigation', 'error', 'debug', 'query', 'ui', 'user', 'info']),
+  ),
+  /** Dot-separated category string (e.g., `'fetch'`, `'console'`, `'ui.click'`). */
+  category: v.optional(v.string()),
+  /** Human-readable description of the breadcrumb event. */
+  message: v.optional(v.string()),
+  /** Severity level of this breadcrumb. */
+  level: v.optional(BreadcrumbLevelSchema),
+  /** ISO 8601 timestamp when this breadcrumb was recorded. */
+  timestamp: v.pipe(v.string(), v.isoTimestamp()),
+  /** Arbitrary data associated with this breadcrumb. */
+  data: v.optional(v.record(v.string(), v.unknown())),
 });
 
 /** Inferred output type of {@link BreadcrumbSchema}. */
@@ -141,14 +141,14 @@ export type Breadcrumb = v.InferOutput<typeof BreadcrumbSchema>;
  * ```
  */
 export const ErrorUserContextSchema = v.strictObject({
-	/** Unique user identifier. */
-	id: v.optional(v.string()),
-	/** User email address. */
-	email: v.optional(v.pipe(v.string(), v.email())),
-	/** Username or display name. */
-	username: v.optional(v.string()),
-	/** IP address of the user (for server-side errors). */
-	ipAddress: v.optional(v.string()),
+  /** Unique user identifier. */
+  id: v.optional(v.string()),
+  /** User email address. */
+  email: v.optional(v.pipe(v.string(), v.email())),
+  /** Username or display name. */
+  username: v.optional(v.string()),
+  /** IP address of the user (for server-side errors). */
+  ipAddress: v.optional(v.string()),
 });
 
 /** Inferred output type of {@link ErrorUserContextSchema}. */
@@ -232,13 +232,13 @@ export type ErrorFingerprint = v.InferOutput<typeof ErrorFingerprintSchema>;
  * ```
  */
 export const CapturedErrorTypeSchema = v.picklist([
-	'uncaughtException',
-	'unhandledRejection',
-	'resourceError',
-	'cspViolation',
-	'webSocketError',
-	'signal',
-	'resultError',
+  'uncaughtException',
+  'unhandledRejection',
+  'resourceError',
+  'cspViolation',
+  'webSocketError',
+  'signal',
+  'resultError',
 ]);
 
 /** Inferred output type of {@link CapturedErrorTypeSchema}. */
@@ -272,36 +272,36 @@ export type CapturedErrorType = v.InferOutput<typeof CapturedErrorTypeSchema>;
  * ```
  */
 export const CapturedErrorSchema = v.strictObject({
-	/** Discriminant: what kind of runtime error. */
-	type: CapturedErrorTypeSchema,
-	/** UUID v4 unique to this captured error event. For correlation with logs. */
-	id: v.pipe(v.string(), v.uuid()),
-	/** Structured error (converted from the original via fromUnknownError). */
-	error: v.lazy(() => AppErrorSchema as unknown as v.GenericSchema<AppError>),
-	/** The original thrown/rejected value, preserved for inspection. */
-	original: v.unknown(),
-	/** Runtime environment where the error was captured. */
-	environment: _RuntimeKindSchema,
-	/** ISO 8601 timestamp when the error was captured. */
-	timestamp: v.pipe(v.string(), v.isoTimestamp()),
-	/** Whether this error is fatal (will cause process termination). */
-	fatal: v.boolean(),
-	/** Extensible key-value pairs for context (signal name, resource URL, log context, etc.). */
-	meta: v.optional(v.record(v.string(), v.unknown())),
-	/** Trail of events leading up to this error. */
-	breadcrumbs: v.optional(v.array(BreadcrumbSchema)),
-	/** User affected by this error. */
-	user: v.optional(ErrorUserContextSchema),
-	/** Structured contexts (OS, browser, device, runtime, app, custom). */
-	contexts: v.optional(ErrorContextsSchema),
-	/** Fingerprint for error grouping/deduplication. */
-	fingerprint: v.optional(ErrorFingerprintSchema),
-	/** Indexed string tags for filtering (service, route, environment). */
-	tags: v.optional(ErrorTagsSchema),
-	/** Software release version where this error occurred. */
-	release: v.optional(v.string()),
-	/** Deployment environment name (e.g., `'production'`, `'staging'`). */
-	serverName: v.optional(v.string()),
+  /** Discriminant: what kind of runtime error. */
+  type: CapturedErrorTypeSchema,
+  /** UUID v4 unique to this captured error event. For correlation with logs. */
+  id: v.pipe(v.string(), v.uuid()),
+  /** Structured error (converted from the original via fromUnknownError). */
+  error: v.lazy(() => AppErrorSchema as unknown as v.GenericSchema<AppError>),
+  /** The original thrown/rejected value, preserved for inspection. */
+  original: v.unknown(),
+  /** Runtime environment where the error was captured. */
+  environment: _RuntimeKindSchema,
+  /** ISO 8601 timestamp when the error was captured. */
+  timestamp: v.pipe(v.string(), v.isoTimestamp()),
+  /** Whether this error is fatal (will cause process termination). */
+  fatal: v.boolean(),
+  /** Extensible key-value pairs for context (signal name, resource URL, log context, etc.). */
+  meta: v.optional(v.record(v.string(), v.unknown())),
+  /** Trail of events leading up to this error. */
+  breadcrumbs: v.optional(v.array(BreadcrumbSchema)),
+  /** User affected by this error. */
+  user: v.optional(ErrorUserContextSchema),
+  /** Structured contexts (OS, browser, device, runtime, app, custom). */
+  contexts: v.optional(ErrorContextsSchema),
+  /** Fingerprint for error grouping/deduplication. */
+  fingerprint: v.optional(ErrorFingerprintSchema),
+  /** Indexed string tags for filtering (service, route, environment). */
+  tags: v.optional(ErrorTagsSchema),
+  /** Software release version where this error occurred. */
+  release: v.optional(v.string()),
+  /** Deployment environment name (e.g., `'production'`, `'staging'`). */
+  serverName: v.optional(v.string()),
 });
 
 /** Inferred output type of {@link CapturedErrorSchema}. */

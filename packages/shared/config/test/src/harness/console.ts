@@ -39,7 +39,7 @@ import type { MockInstance } from 'vitest';
  * Accepts the real `vi` object or a compatible mock.
  */
 export type ViSpyProvider = {
-	spyOn: (obj: object, method: string) => MockInstance;
+  spyOn: (obj: object, method: string) => MockInstance;
 };
 
 /**
@@ -53,96 +53,96 @@ export type ViSpyProvider = {
  * `toContain()`, `toMatch()`, etc.
  */
 export type ConsoleSpy = {
-	/** All `console.log` calls, each call's args joined by space. */
-	readonly logs: string[];
+  /** All `console.log` calls, each call's args joined by space. */
+  readonly logs: string[];
 
-	/** All `console.error` calls, each call's args joined by space. */
-	readonly errors: string[];
+  /** All `console.error` calls, each call's args joined by space. */
+  readonly errors: string[];
 
-	/** All `console.warn` calls, each call's args joined by space. */
-	readonly warns: string[];
+  /** All `console.warn` calls, each call's args joined by space. */
+  readonly warns: string[];
 
-	/**
-	 * All captured output (log + error + warn) joined by newlines.
-	 * Computed on each access — always reflects current state.
-	 *
-	 * @example
-	 * ```typescript
-	 * console.log('hello');
-	 * console.error('oops');
-	 * expect(getConsole().output).toBe('hello\noops');
-	 * ```
-	 */
-	readonly output: string;
+  /**
+   * All captured output (log + error + warn) joined by newlines.
+   * Computed on each access — always reflects current state.
+   *
+   * @example
+   * ```typescript
+   * console.log('hello');
+   * console.error('oops');
+   * expect(getConsole().output).toBe('hello\noops');
+   * ```
+   */
+  readonly output: string;
 
-	/**
-	 * Only `console.log` output, joined by newlines.
-	 *
-	 * Replaces the common pattern:
-	 * ```typescript
-	 * // Before:
-	 * const output = consoleSpy.mock.calls.map((c) => c.join(' ')).join('\n');
-	 * // After:
-	 * getConsole().logOutput
-	 * ```
-	 */
-	readonly logOutput: string;
+  /**
+   * Only `console.log` output, joined by newlines.
+   *
+   * Replaces the common pattern:
+   * ```typescript
+   * // Before:
+   * const output = consoleSpy.mock.calls.map((c) => c.join(' ')).join('\n');
+   * // After:
+   * getConsole().logOutput
+   * ```
+   */
+  readonly logOutput: string;
 
-	/** Only `console.error` output, joined by newlines. */
-	readonly errorOutput: string;
+  /** Only `console.error` output, joined by newlines. */
+  readonly errorOutput: string;
 
-	/** The underlying `vi.spyOn` instance for `console.log`. */
-	readonly logSpy: MockInstance;
+  /** The underlying `vi.spyOn` instance for `console.log`. */
+  readonly logSpy: MockInstance;
 
-	/** The underlying `vi.spyOn` instance for `console.error`. */
-	readonly errorSpy: MockInstance;
+  /** The underlying `vi.spyOn` instance for `console.error`. */
+  readonly errorSpy: MockInstance;
 
-	/** The underlying `vi.spyOn` instance for `console.warn`. */
-	readonly warnSpy: MockInstance;
+  /** The underlying `vi.spyOn` instance for `console.warn`. */
+  readonly warnSpy: MockInstance;
 
-	/**
-	 * Clear all captured output arrays but keep spies active.
-	 * Useful for isolating output within a single test.
-	 *
-	 * @example
-	 * ```typescript
-	 * console.log('setup noise');
-	 * getConsole().clear();
-	 * doActualWork();
-	 * expect(getConsole().logOutput).not.toContain('setup noise');
-	 * ```
-	 */
-	clear(): void;
+  /**
+   * Clear all captured output arrays but keep spies active.
+   * Useful for isolating output within a single test.
+   *
+   * @example
+   * ```typescript
+   * console.log('setup noise');
+   * getConsole().clear();
+   * doActualWork();
+   * expect(getConsole().logOutput).not.toContain('setup noise');
+   * ```
+   */
+  clear(): void;
 
-	/**
-	 * Restore original console methods. Called automatically by `useConsoleSpy`.
-	 * Safe to call multiple times.
-	 */
-	restore(): void;
+  /**
+   * Restore original console methods. Called automatically by `useConsoleSpy`.
+   * Safe to call multiple times.
+   */
+  restore(): void;
 };
 
 /**
  * Configuration options for console spying.
  */
 export type ConsoleSpyOptions = {
-	/**
-	 * Which console methods to spy on.
-	 * @default ['log', 'error']
-	 *
-	 * @example
-	 * ```typescript
-	 * // Spy on all three methods:
-	 * const spy = createConsoleSpy(vi, { methods: ['log', 'error', 'warn'] });
-	 * ```
-	 */
-	methods?: Array<'log' | 'error' | 'warn'>;
+  /**
+   * Which console methods to spy on.
+   * @default ['log', 'error']
+   *
+   * @example
+   * ```typescript
+   * // Spy on all three methods:
+   * const spy = createConsoleSpy(vi, { methods: ['log', 'error', 'warn'] });
+   * ```
+   */
+  methods?: Array<'log' | 'error' | 'warn'>;
 
-	/**
-	 * If `true`, also call the original console method (output appears in terminal).
-	 * Useful for debugging tests while keeping capture active.
-	 * @default false
-	 */
-	passthrough?: boolean;
+  /**
+   * If `true`, also call the original console method (output appears in terminal).
+   * Useful for debugging tests while keeping capture active.
+   * @default false
+   */
+  passthrough?: boolean;
 };
 
 /** Supported console method names. */
@@ -176,84 +176,84 @@ type ConsoleMethod = 'log' | 'error' | 'warn';
  * ```
  */
 export function createConsoleSpy(vi: ViSpyProvider, options: ConsoleSpyOptions = {}): ConsoleSpy {
-	const { methods = ['log', 'error'], passthrough = false } = options;
+  const { methods = ['log', 'error'], passthrough = false } = options;
 
-	const logs: string[] = [];
-	const errors: string[] = [];
-	const warns: string[] = [];
+  const logs: string[] = [];
+  const errors: string[] = [];
+  const warns: string[] = [];
 
-	const buckets: Record<ConsoleMethod, string[]> = {
-		log: logs,
-		error: errors,
-		warn: warns,
-	};
+  const buckets: Record<ConsoleMethod, string[]> = {
+    log: logs,
+    error: errors,
+    warn: warns,
+  };
 
-	const spies: Partial<Record<ConsoleMethod, MockInstance>> = {};
+  const spies: Partial<Record<ConsoleMethod, MockInstance>> = {};
 
-	for (const method of methods) {
-		const original = console[method].bind(console);
-		// vi.spyOn returns MockInstance but the generic overload resolves too broadly
-		const spy: MockInstance = vi.spyOn(console, method) as MockInstance;
-		spy.mockImplementation((...args: unknown[]) => {
-			buckets[method].push(args.map(String).join(' '));
-			if (passthrough) {
-				original(...args);
-			}
-		});
-		spies[method] = spy;
-	}
+  for (const method of methods) {
+    const original = console[method].bind(console);
+    // vi.spyOn returns MockInstance but the generic overload resolves too broadly
+    const spy: MockInstance = vi.spyOn(console, method) as MockInstance;
+    spy.mockImplementation((...args: unknown[]) => {
+      buckets[method].push(args.map(String).join(' '));
+      if (passthrough) {
+        original(...args);
+      }
+    });
+    spies[method] = spy;
+  }
 
-	// Create a no-op spy placeholder for methods not being spied on
-	const noopSpy = {
-		mockRestore() {},
-		mock: { calls: [] },
-	} as unknown as MockInstance;
+  // Create a no-op spy placeholder for methods not being spied on
+  const noopSpy = {
+    mockRestore() {},
+    mock: { calls: [] },
+  } as unknown as MockInstance;
 
-	return {
-		logs,
-		errors,
-		warns,
+  return {
+    logs,
+    errors,
+    warns,
 
-		get output(): string {
-			const all: string[] = [];
-			for (const method of methods) {
-				all.push(...buckets[method]);
-			}
-			return all.join('\n');
-		},
+    get output(): string {
+      const all: string[] = [];
+      for (const method of methods) {
+        all.push(...buckets[method]);
+      }
+      return all.join('\n');
+    },
 
-		get logOutput(): string {
-			return logs.join('\n');
-		},
+    get logOutput(): string {
+      return logs.join('\n');
+    },
 
-		get errorOutput(): string {
-			return errors.join('\n');
-		},
+    get errorOutput(): string {
+      return errors.join('\n');
+    },
 
-		get logSpy(): MockInstance {
-			return spies.log ?? noopSpy;
-		},
+    get logSpy(): MockInstance {
+      return spies.log ?? noopSpy;
+    },
 
-		get errorSpy(): MockInstance {
-			return spies.error ?? noopSpy;
-		},
+    get errorSpy(): MockInstance {
+      return spies.error ?? noopSpy;
+    },
 
-		get warnSpy(): MockInstance {
-			return spies.warn ?? noopSpy;
-		},
+    get warnSpy(): MockInstance {
+      return spies.warn ?? noopSpy;
+    },
 
-		clear(): void {
-			logs.length = 0;
-			errors.length = 0;
-			warns.length = 0;
-		},
+    clear(): void {
+      logs.length = 0;
+      errors.length = 0;
+      warns.length = 0;
+    },
 
-		restore(): void {
-			for (const spy of Object.values(spies)) {
-				spy?.mockRestore();
-			}
-		},
-	};
+    restore(): void {
+      for (const spy of Object.values(spies)) {
+        spy?.mockRestore();
+      }
+    },
+  };
 }
 
 /**
@@ -300,31 +300,31 @@ export function createConsoleSpy(vi: ViSpyProvider, options: ConsoleSpyOptions =
  * ```
  */
 export function useConsoleSpy(
-	hooks: {
-		vi: ViSpyProvider;
-		beforeEach: (fn: () => void) => void;
-		afterEach: (fn: () => void) => void;
-	},
-	options?: ConsoleSpyOptions,
+  hooks: {
+    vi: ViSpyProvider;
+    beforeEach: (fn: () => void) => void;
+    afterEach: (fn: () => void) => void;
+  },
+  options?: ConsoleSpyOptions,
 ): () => ConsoleSpy {
-	let current: ConsoleSpy | undefined;
+  let current: ConsoleSpy | undefined;
 
-	hooks.beforeEach(() => {
-		current = createConsoleSpy(hooks.vi, options);
-	});
+  hooks.beforeEach(() => {
+    current = createConsoleSpy(hooks.vi, options);
+  });
 
-	hooks.afterEach(() => {
-		current?.restore();
-		current = undefined;
-	});
+  hooks.afterEach(() => {
+    current?.restore();
+    current = undefined;
+  });
 
-	return (): ConsoleSpy => {
-		if (!current) {
-			throw new Error(
-				'useConsoleSpy: no spy available. Ensure this is called inside a test ' +
-					'(after beforeEach has run). Did you call useConsoleSpy() at the describe level?',
-			);
-		}
-		return current;
-	};
+  return (): ConsoleSpy => {
+    if (!current) {
+      throw new Error(
+        'useConsoleSpy: no spy available. Ensure this is called inside a test ' +
+          '(after beforeEach has run). Did you call useConsoleSpy() at the describe level?',
+      );
+    }
+    return current;
+  };
 }

@@ -12,21 +12,21 @@ import { de } from './locales/de';
 import { es } from './locales/es';
 
 const registryResult = createLocaleRegistry({
-	schema: EditorLocaleSchema,
-	defaultLocale: 'en',
-	locales: { en, ja, zh, ko, fr, de, es },
-	strict: false,
-	fallbackLocales: ['en'],
+  schema: EditorLocaleSchema,
+  defaultLocale: 'en',
+  locales: { en, ja, zh, ko, fr, de, es },
+  strict: false,
+  fallbackLocales: ['en'],
 });
 
 if (!registryResult.ok)
-	throw new Error(
-		`Locale registry failed: ${registryResult.error.code} — ${registryResult.error.message}`,
-	);
+  throw new Error(
+    `Locale registry failed: ${registryResult.error.code} — ${registryResult.error.message}`,
+  );
 
 const storeResult = createLocaleStore<typeof EditorLocaleSchema>(registryResult.data);
 if (!storeResult.ok)
-	throw new Error(`Locale store failed: ${storeResult.error.code} — ${storeResult.error.message}`);
+  throw new Error(`Locale store failed: ${storeResult.error.code} — ${storeResult.error.message}`);
 
 export const localeStore = storeResult.data;
 
@@ -40,14 +40,14 @@ export const localeStore = storeResult.data;
  * @returns The translated string, or the fallback
  */
 export function t(
-	fn:
-		| (() => Result<Str>)
-		| ((_args: object) => Result<Str>)
-		| ((params: Record<string, never>) => Result<Str>),
-	fallback: Str,
+  fn:
+    | (() => Result<Str>)
+    | ((_args: object) => Result<Str>)
+    | ((params: Record<string, never>) => Result<Str>),
+  fallback: Str,
 ): Str {
-	// DeepReadonly mangles locale function signatures — cast to callable form
-	const result: Result<Str> = (fn as () => Result<Str>)();
-	// UI boundary — t() is the designated fallback point; locale errors are non-fatal
-	return result.ok ? result.data : fallback;
+  // DeepReadonly mangles locale function signatures — cast to callable form
+  const result: Result<Str> = (fn as () => Result<Str>)();
+  // UI boundary — t() is the designated fallback point; locale errors are non-fatal
+  return result.ok ? result.data : fallback;
 }

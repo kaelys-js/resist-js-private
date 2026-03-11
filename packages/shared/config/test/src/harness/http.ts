@@ -42,51 +42,51 @@
  * Options for constructing a test `Request`.
  */
 export type CreateRequestOptions = {
-	/**
-	 * Request body. Objects are automatically JSON-serialized with the
-	 * `Content-Type: application/json` header. Strings are sent as-is.
-	 * `null`/`undefined` means no body (appropriate for GET/HEAD).
-	 *
-	 * @example
-	 * ```typescript
-	 * // JSON body (auto-serialized):
-	 * createRequest('POST', '/api/data', { body: { key: 'value' } });
-	 *
-	 * // String body:
-	 * createRequest('POST', '/api/webhook', { body: 'raw payload' });
-	 *
-	 * // No body:
-	 * createRequest('GET', '/api/status');
-	 * ```
-	 */
-	body?: unknown;
+  /**
+   * Request body. Objects are automatically JSON-serialized with the
+   * `Content-Type: application/json` header. Strings are sent as-is.
+   * `null`/`undefined` means no body (appropriate for GET/HEAD).
+   *
+   * @example
+   * ```typescript
+   * // JSON body (auto-serialized):
+   * createRequest('POST', '/api/data', { body: { key: 'value' } });
+   *
+   * // String body:
+   * createRequest('POST', '/api/webhook', { body: 'raw payload' });
+   *
+   * // No body:
+   * createRequest('GET', '/api/status');
+   * ```
+   */
+  body?: unknown;
 
-	/**
-	 * Additional request headers. Merged with auto-generated headers
-	 * (e.g., `Content-Type` for JSON bodies). Explicit headers take precedence.
-	 *
-	 * @example
-	 * ```typescript
-	 * createRequest('GET', '/api/users', {
-	 *   headers: {
-	 *     'Authorization': 'Bearer token',
-	 *     'X-Request-ID': 'test-123',
-	 *   },
-	 * });
-	 * ```
-	 */
-	headers?: Record<string, string>;
+  /**
+   * Additional request headers. Merged with auto-generated headers
+   * (e.g., `Content-Type` for JSON bodies). Explicit headers take precedence.
+   *
+   * @example
+   * ```typescript
+   * createRequest('GET', '/api/users', {
+   *   headers: {
+   *     'Authorization': 'Bearer token',
+   *     'X-Request-ID': 'test-123',
+   *   },
+   * });
+   * ```
+   */
+  headers?: Record<string, string>;
 
-	/**
-	 * Base URL prepended to the path. Default: `'http://localhost'`.
-	 *
-	 * @example
-	 * ```typescript
-	 * createRequest('GET', '/api/users', { baseUrl: 'https://api.example.com' });
-	 * // URL: https://api.example.com/api/users
-	 * ```
-	 */
-	baseUrl?: string;
+  /**
+   * Base URL prepended to the path. Default: `'http://localhost'`.
+   *
+   * @example
+   * ```typescript
+   * createRequest('GET', '/api/users', { baseUrl: 'https://api.example.com' });
+   * // URL: https://api.example.com/api/users
+   * ```
+   */
+  baseUrl?: string;
 };
 
 /**
@@ -126,50 +126,50 @@ export type CreateRequestOptions = {
  * ```
  */
 export function createRequest(
-	method: string,
-	url: string,
-	options: CreateRequestOptions = {},
+  method: string,
+  url: string,
+  options: CreateRequestOptions = {},
 ): Request {
-	const { body, headers = {}, baseUrl = 'http://localhost' } = options;
+  const { body, headers = {}, baseUrl = 'http://localhost' } = options;
 
-	// Resolve URL: use as-is if it's already absolute, otherwise prepend baseUrl
-	const fullUrl =
-		url.startsWith('http://') || url.startsWith('https://') ? url : `${baseUrl}${url}`;
+  // Resolve URL: use as-is if it's already absolute, otherwise prepend baseUrl
+  const fullUrl =
+    url.startsWith('http://') || url.startsWith('https://') ? url : `${baseUrl}${url}`;
 
-	const init: RequestInit = {
-		method: method.toUpperCase(),
-		headers: { ...headers },
-	};
+  const init: RequestInit = {
+    method: method.toUpperCase(),
+    headers: { ...headers },
+  };
 
-	if (body !== undefined && body !== null) {
-		if (typeof body === 'string') {
-			init.body = body;
-		} else {
-			init.body = JSON.stringify(body);
-			// Set Content-Type if not explicitly provided
-			const headerRecord = init.headers as Record<string, string>;
-			if (!headerRecord['Content-Type'] && !headerRecord['content-type']) {
-				headerRecord['Content-Type'] = 'application/json';
-			}
-		}
-	}
+  if (body !== undefined && body !== null) {
+    if (typeof body === 'string') {
+      init.body = body;
+    } else {
+      init.body = JSON.stringify(body);
+      // Set Content-Type if not explicitly provided
+      const headerRecord = init.headers as Record<string, string>;
+      if (!headerRecord['Content-Type'] && !headerRecord['content-type']) {
+        headerRecord['Content-Type'] = 'application/json';
+      }
+    }
+  }
 
-	return new Request(fullUrl, init);
+  return new Request(fullUrl, init);
 }
 
 /**
  * Options for constructing a test `Response`.
  */
 export type CreateResponseOptions = {
-	/**
-	 * HTTP status code. Default: `200`.
-	 */
-	status?: number;
+  /**
+   * HTTP status code. Default: `200`.
+   */
+  status?: number;
 
-	/**
-	 * Response headers. Merged with auto-generated headers.
-	 */
-	headers?: Record<string, string>;
+  /**
+   * Response headers. Merged with auto-generated headers.
+   */
+  headers?: Record<string, string>;
 };
 
 /**
@@ -205,26 +205,26 @@ export type CreateResponseOptions = {
  * ```
  */
 export function createResponse(body?: unknown, options: CreateResponseOptions = {}): Response {
-	const { status = 200, headers = {} } = options;
+  const { status = 200, headers = {} } = options;
 
-	let responseBody: string | null = null;
-	const responseHeaders: Record<string, string> = { ...headers };
+  let responseBody: string | null = null;
+  const responseHeaders: Record<string, string> = { ...headers };
 
-	if (body !== undefined && body !== null) {
-		if (typeof body === 'string') {
-			responseBody = body;
-		} else {
-			responseBody = JSON.stringify(body);
-			if (!responseHeaders['Content-Type'] && !responseHeaders['content-type']) {
-				responseHeaders['Content-Type'] = 'application/json';
-			}
-		}
-	}
+  if (body !== undefined && body !== null) {
+    if (typeof body === 'string') {
+      responseBody = body;
+    } else {
+      responseBody = JSON.stringify(body);
+      if (!responseHeaders['Content-Type'] && !responseHeaders['content-type']) {
+        responseHeaders['Content-Type'] = 'application/json';
+      }
+    }
+  }
 
-	return new Response(responseBody, {
-		status,
-		headers: responseHeaders,
-	});
+  return new Response(responseBody, {
+    status,
+    headers: responseHeaders,
+  });
 }
 
 /**
@@ -250,5 +250,5 @@ export function createResponse(body?: unknown, options: CreateResponseOptions = 
  * ```
  */
 export async function parseJson<T = unknown>(response: Response): Promise<T> {
-	return (await response.json()) as T;
+  return (await response.json()) as T;
 }

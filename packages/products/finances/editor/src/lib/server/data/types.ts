@@ -23,14 +23,14 @@ import * as v from 'valibot';
  * });
  */
 export const ServerUserSchema = v.strictObject({
-	/** Unique user identifier. */
-	id: v.pipe(v.string(), v.minLength(1)),
-	/** User's display name. */
-	displayName: v.pipe(v.string(), v.minLength(1)),
-	/** User's email address. */
-	email: v.pipe(v.string(), v.email()),
-	/** URL to the user's avatar image. */
-	avatarUrl: v.optional(v.string(), ''),
+  /** Unique user identifier. */
+  id: v.pipe(v.string(), v.minLength(1)),
+  /** User's display name. */
+  displayName: v.pipe(v.string(), v.minLength(1)),
+  /** User's email address. */
+  email: v.pipe(v.string(), v.email()),
+  /** URL to the user's avatar image. */
+  avatarUrl: v.optional(v.string(), ''),
 });
 
 /** A user profile as loaded from the server. */

@@ -67,29 +67,29 @@ const DEFAULT_FLAGS_VALUE: Num = 0xf0;
  * ```
  */
 export const VisualFlagsSchema = v.pipe(
-	v.strictObject({
-		/** Flip tile horizontally. */
-		flipH: v.boolean(),
-		/** Flip tile vertically. */
-		flipV: v.boolean(),
-		/** Rotation (0=0°, 1=90°, 2=180°, 3=270°). */
-		rotation: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(3)),
-		/** Opacity level (0–15 → 0.0–1.0). */
-		opacity: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(15)),
-		/** Disable shadow receiving for this tile. */
-		shadowDisable: v.boolean(),
-		/** Enable glow for this tile. */
-		glow: v.boolean(),
-		/** Tint palette index (0–63). */
-		tintIndex: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(63)),
-		/** Animation start frame offset (0–255). */
-		animBase: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(255)),
-		/** Animation frame count (0–15). */
-		animCount: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(15)),
-		/** Bush transparency (lower half of sprite). */
-		bush: v.boolean(),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Flip tile horizontally. */
+    flipH: v.boolean(),
+    /** Flip tile vertically. */
+    flipV: v.boolean(),
+    /** Rotation (0=0°, 1=90°, 2=180°, 3=270°). */
+    rotation: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(3)),
+    /** Opacity level (0–15 → 0.0–1.0). */
+    opacity: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(15)),
+    /** Disable shadow receiving for this tile. */
+    shadowDisable: v.boolean(),
+    /** Enable glow for this tile. */
+    glow: v.boolean(),
+    /** Tint palette index (0–63). */
+    tintIndex: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(63)),
+    /** Animation start frame offset (0–255). */
+    animBase: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(255)),
+    /** Animation frame count (0–15). */
+    animCount: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(15)),
+    /** Bush transparency (lower half of sprite). */
+    bush: v.boolean(),
+  }),
+  v.readonly(),
 );
 
 /** Per-tile visual flags. */
@@ -97,16 +97,16 @@ export type VisualFlags = v.InferOutput<typeof VisualFlagsSchema>;
 
 /** Default visual flags (full opacity, everything else off). */
 export const DEFAULT_VISUAL_FLAGS: VisualFlags = Object.freeze({
-	flipH: false,
-	flipV: false,
-	rotation: 0,
-	opacity: 15,
-	shadowDisable: false,
-	glow: false,
-	tintIndex: 0,
-	animBase: 0,
-	animCount: 0,
-	bush: false,
+  flipH: false,
+  flipV: false,
+  rotation: 0,
+  opacity: 15,
+  shadowDisable: false,
+  glow: false,
+  tintIndex: 0,
+  animBase: 0,
+  animCount: 0,
+  bush: false,
 });
 
 // =============================================================================
@@ -115,19 +115,19 @@ export const DEFAULT_VISUAL_FLAGS: VisualFlags = Object.freeze({
 
 /** Options schema for {@link buildLayerData}. */
 export const BuildLayerDataOptionsSchema = v.pipe(
-	v.strictObject({
-		/** Flat array of tile IDs (length must equal width × height). */
-		tileIds: v.custom<readonly Num[]>((val): val is readonly Num[] => Array.isArray(val)),
-		/** Map width in tiles. */
-		width: v.pipe(v.number(), v.integer(), v.minValue(1)),
-		/** Map height in tiles. */
-		height: v.pipe(v.number(), v.integer(), v.minValue(1)),
-		/** Optional per-tile visual flags (same length as tileIds). */
-		visualFlags: v.optional(
-			v.custom<readonly Num[]>((val): val is readonly Num[] => Array.isArray(val)),
-		),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Flat array of tile IDs (length must equal width × height). */
+    tileIds: v.custom<readonly Num[]>((val): val is readonly Num[] => Array.isArray(val)),
+    /** Map width in tiles. */
+    width: v.pipe(v.number(), v.integer(), v.minValue(1)),
+    /** Map height in tiles. */
+    height: v.pipe(v.number(), v.integer(), v.minValue(1)),
+    /** Optional per-tile visual flags (same length as tileIds). */
+    visualFlags: v.optional(
+      v.custom<readonly Num[]>((val): val is readonly Num[] => Array.isArray(val)),
+    ),
+  }),
+  v.readonly(),
 );
 
 /** Options for {@link buildLayerData}. */
@@ -135,15 +135,15 @@ export type BuildLayerDataOptions = v.InferOutput<typeof BuildLayerDataOptionsSc
 
 /** Options schema for {@link buildHeightData}. */
 export const BuildHeightDataOptionsSchema = v.pipe(
-	v.strictObject({
-		/** Flat array of height values (length must equal width × height). */
-		heights: v.custom<readonly Num[]>((val): val is readonly Num[] => Array.isArray(val)),
-		/** Map width in tiles. */
-		width: v.pipe(v.number(), v.integer(), v.minValue(1)),
-		/** Map height in tiles. */
-		height: v.pipe(v.number(), v.integer(), v.minValue(1)),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Flat array of height values (length must equal width × height). */
+    heights: v.custom<readonly Num[]>((val): val is readonly Num[] => Array.isArray(val)),
+    /** Map width in tiles. */
+    width: v.pipe(v.number(), v.integer(), v.minValue(1)),
+    /** Map height in tiles. */
+    height: v.pipe(v.number(), v.integer(), v.minValue(1)),
+  }),
+  v.readonly(),
 );
 
 /** Options for {@link buildHeightData}. */
@@ -166,20 +166,20 @@ export type BuildHeightDataOptions = v.InferOutput<typeof BuildHeightDataOptions
  * ```
  */
 export function packVisualFlags(flags: VisualFlags): Num {
-	let packed: Num = 0;
+  let packed: Num = 0;
 
-	if (flags.flipH) packed |= 1;
-	if (flags.flipV) packed |= 1 << 1;
-	packed |= (flags.rotation & 0x3) << 2;
-	packed |= (flags.opacity & 0xf) << 4;
-	if (flags.shadowDisable) packed |= 1 << 8;
-	if (flags.glow) packed |= 1 << 9;
-	packed |= (flags.tintIndex & 0x3f) << 10;
-	packed |= (flags.animBase & 0xff) << 16;
-	packed |= (flags.animCount & 0xf) << 24;
-	if (flags.bush) packed |= 1 << 28;
+  if (flags.flipH) packed |= 1;
+  if (flags.flipV) packed |= 1 << 1;
+  packed |= (flags.rotation & 0x3) << 2;
+  packed |= (flags.opacity & 0xf) << 4;
+  if (flags.shadowDisable) packed |= 1 << 8;
+  if (flags.glow) packed |= 1 << 9;
+  packed |= (flags.tintIndex & 0x3f) << 10;
+  packed |= (flags.animBase & 0xff) << 16;
+  packed |= (flags.animCount & 0xf) << 24;
+  if (flags.bush) packed |= 1 << 28;
 
-	return packed;
+  return packed;
 }
 
 // =============================================================================
@@ -199,18 +199,18 @@ export function packVisualFlags(flags: VisualFlags): Num {
  * ```
  */
 export function unpackVisualFlags(packed: Num): VisualFlags {
-	return {
-		flipH: (packed & 0x1) !== 0,
-		flipV: ((packed >>> 1) & 0x1) !== 0,
-		rotation: (packed >>> 2) & 0x3,
-		opacity: (packed >>> 4) & 0xf,
-		shadowDisable: ((packed >>> 8) & 0x1) !== 0,
-		glow: ((packed >>> 9) & 0x1) !== 0,
-		tintIndex: (packed >>> 10) & 0x3f,
-		animBase: (packed >>> 16) & 0xff,
-		animCount: (packed >>> 24) & 0xf,
-		bush: ((packed >>> 28) & 0x1) !== 0,
-	};
+  return {
+    flipH: (packed & 0x1) !== 0,
+    flipV: ((packed >>> 1) & 0x1) !== 0,
+    rotation: (packed >>> 2) & 0x3,
+    opacity: (packed >>> 4) & 0xf,
+    shadowDisable: ((packed >>> 8) & 0x1) !== 0,
+    glow: ((packed >>> 9) & 0x1) !== 0,
+    tintIndex: (packed >>> 10) & 0x3f,
+    animBase: (packed >>> 16) & 0xff,
+    animCount: (packed >>> 24) & 0xf,
+    bush: ((packed >>> 28) & 0x1) !== 0,
+  };
 }
 
 // =============================================================================
@@ -236,44 +236,44 @@ export function unpackVisualFlags(packed: Num): VisualFlags {
  * ```
  */
 export function buildLayerData(
-	options: BuildLayerDataOptions,
+  options: BuildLayerDataOptions,
 ): BabylonResult<Float32Array<ArrayBufferLike>> {
-	const { tileIds, width, height, visualFlags } = options;
+  const { tileIds, width, height, visualFlags } = options;
 
-	const tileCount: Num = width * height;
+  const tileCount: Num = width * height;
 
-	if (tileIds.length !== tileCount) {
-		return err(
-			ERRORS.VALIDATION.SCHEMA_FAILED,
-			`Tile ID array length (${String(tileIds.length)}) does not match dimensions (${String(width)}×${String(height)} = ${String(tileCount)})`,
-		);
-	}
+  if (tileIds.length !== tileCount) {
+    return err(
+      ERRORS.VALIDATION.SCHEMA_FAILED,
+      `Tile ID array length (${String(tileIds.length)}) does not match dimensions (${String(width)}×${String(height)} = ${String(tileCount)})`,
+    );
+  }
 
-	if (visualFlags && visualFlags.length !== tileCount) {
-		return err(
-			ERRORS.VALIDATION.SCHEMA_FAILED,
-			`Visual flags array length (${String(visualFlags.length)}) does not match tile count (${String(tileCount)})`,
-		);
-	}
+  if (visualFlags && visualFlags.length !== tileCount) {
+    return err(
+      ERRORS.VALIDATION.SCHEMA_FAILED,
+      `Visual flags array length (${String(visualFlags.length)}) does not match tile count (${String(tileCount)})`,
+    );
+  }
 
-	const data: Float32Array<ArrayBufferLike> = new Float32Array(tileCount * 4);
+  const data: Float32Array<ArrayBufferLike> = new Float32Array(tileCount * 4);
 
-	for (let i: Num = 0; i < tileCount; i++) {
-		const tileId: Num = tileIds[i] ?? 0;
-		const offset: Num = i * 4;
+  for (let i: Num = 0; i < tileCount; i++) {
+    const tileId: Num = tileIds[i] ?? 0;
+    const offset: Num = i * 4;
 
-		data[offset] = tileId; // R = tile ID
+    data[offset] = tileId; // R = tile ID
 
-		if (tileId !== 0) {
-			// G = visual flags (custom or default)
-			data[offset + 1] = visualFlags
-				? (visualFlags[i] ?? DEFAULT_FLAGS_VALUE)
-				: DEFAULT_FLAGS_VALUE;
-		}
-		// else: R=0, G=0, B=0, A=0 (all zero for empty tiles)
-	}
+    if (tileId !== 0) {
+      // G = visual flags (custom or default)
+      data[offset + 1] = visualFlags
+        ? (visualFlags[i] ?? DEFAULT_FLAGS_VALUE)
+        : DEFAULT_FLAGS_VALUE;
+    }
+    // else: R=0, G=0, B=0, A=0 (all zero for empty tiles)
+  }
 
-	return okShallow(data);
+  return okShallow(data);
 }
 
 // =============================================================================
@@ -298,24 +298,24 @@ export function buildLayerData(
  * ```
  */
 export function buildUniformLayerData(
-	width: Num,
-	height: Num,
-	fillTileId: Num,
+  width: Num,
+  height: Num,
+  fillTileId: Num,
 ): Float32Array<ArrayBufferLike> {
-	const tileCount: Num = width * height;
-	const data: Float32Array<ArrayBufferLike> = new Float32Array(tileCount * 4);
+  const tileCount: Num = width * height;
+  const data: Float32Array<ArrayBufferLike> = new Float32Array(tileCount * 4);
 
-	if (fillTileId !== 0) {
-		const flags: Num = DEFAULT_FLAGS_VALUE;
-		for (let i: Num = 0; i < tileCount; i++) {
-			const offset: Num = i * 4;
-			data[offset] = fillTileId;
-			data[offset + 1] = flags;
-		}
-	}
-	// else: all zeros — Float32Array is zero-initialized
+  if (fillTileId !== 0) {
+    const flags: Num = DEFAULT_FLAGS_VALUE;
+    for (let i: Num = 0; i < tileCount; i++) {
+      const offset: Num = i * 4;
+      data[offset] = fillTileId;
+      data[offset + 1] = flags;
+    }
+  }
+  // else: all zeros — Float32Array is zero-initialized
 
-	return data;
+  return data;
 }
 
 // =============================================================================
@@ -339,26 +339,26 @@ export function buildUniformLayerData(
  * ```
  */
 export function buildHeightData(
-	options: BuildHeightDataOptions,
+  options: BuildHeightDataOptions,
 ): BabylonResult<Float32Array<ArrayBufferLike>> {
-	const { heights, width, height } = options;
+  const { heights, width, height } = options;
 
-	const tileCount: Num = width * height;
+  const tileCount: Num = width * height;
 
-	if (heights.length !== tileCount) {
-		return err(
-			ERRORS.VALIDATION.SCHEMA_FAILED,
-			`Height array length (${String(heights.length)}) does not match dimensions (${String(width)}×${String(height)} = ${String(tileCount)})`,
-		);
-	}
+  if (heights.length !== tileCount) {
+    return err(
+      ERRORS.VALIDATION.SCHEMA_FAILED,
+      `Height array length (${String(heights.length)}) does not match dimensions (${String(width)}×${String(height)} = ${String(tileCount)})`,
+    );
+  }
 
-	const data: Float32Array<ArrayBufferLike> = new Float32Array(tileCount);
+  const data: Float32Array<ArrayBufferLike> = new Float32Array(tileCount);
 
-	for (let i: Num = 0; i < tileCount; i++) {
-		data[i] = heights[i] ?? 0;
-	}
+  for (let i: Num = 0; i < tileCount; i++) {
+    data[i] = heights[i] ?? 0;
+  }
 
-	return okShallow(data);
+  return okShallow(data);
 }
 
 // =============================================================================
@@ -367,22 +367,22 @@ export function buildHeightData(
 
 /** Options schema for {@link buildHeightDataTexture}. */
 export const BuildHeightDataTextureOptionsSchema = v.pipe(
-	v.strictObject({
-		/** The Babylon.js scene. */
-		scene: v.custom<BABYLON.Scene>((val): val is BABYLON.Scene => val instanceof BABYLON.Scene),
-		/** Flat array of height values (length must equal width × height). */
-		heights: v.custom<readonly Num[]>((val): val is readonly Num[] => Array.isArray(val)),
-		/** Map width in tiles. */
-		width: v.pipe(v.number(), v.integer(), v.minValue(1)),
-		/** Map height in tiles. */
-		height: v.pipe(v.number(), v.integer(), v.minValue(1)),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** The Babylon.js scene. */
+    scene: v.custom<BABYLON.Scene>((val): val is BABYLON.Scene => val instanceof BABYLON.Scene),
+    /** Flat array of height values (length must equal width × height). */
+    heights: v.custom<readonly Num[]>((val): val is readonly Num[] => Array.isArray(val)),
+    /** Map width in tiles. */
+    width: v.pipe(v.number(), v.integer(), v.minValue(1)),
+    /** Map height in tiles. */
+    height: v.pipe(v.number(), v.integer(), v.minValue(1)),
+  }),
+  v.readonly(),
 );
 
 /** Options for {@link buildHeightDataTexture}. */
 export type BuildHeightDataTextureOptions = v.InferOutput<
-	typeof BuildHeightDataTextureOptionsSchema
+  typeof BuildHeightDataTextureOptionsSchema
 >;
 
 /**
@@ -402,32 +402,32 @@ export type BuildHeightDataTextureOptions = v.InferOutput<
  * ```
  */
 export function buildHeightDataTexture(
-	options: BuildHeightDataTextureOptions,
+  options: BuildHeightDataTextureOptions,
 ): BabylonResult<BABYLON.RawTexture> {
-	const { scene, heights, width, height } = options;
+  const { scene, heights, width, height } = options;
 
-	const dataResult = buildHeightData({ heights, width, height });
-	if (!dataResult.ok) return dataResult;
+  const dataResult = buildHeightData({ heights, width, height });
+  if (!dataResult.ok) return dataResult;
 
-	try {
-		const texture: BABYLON.RawTexture = new BABYLON.RawTexture(
-			dataResult.data,
-			width,
-			height,
-			BABYLON.Constants.TEXTUREFORMAT_R,
-			scene,
-			false, // generateMipMaps
-			false, // invertY
-			BABYLON.Constants.TEXTURE_NEAREST_SAMPLINGMODE,
-			BABYLON.Constants.TEXTURETYPE_FLOAT,
-		);
-		texture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
-		texture.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
+  try {
+    const texture: BABYLON.RawTexture = new BABYLON.RawTexture(
+      dataResult.data,
+      width,
+      height,
+      BABYLON.Constants.TEXTUREFORMAT_R,
+      scene,
+      false, // generateMipMaps
+      false, // invertY
+      BABYLON.Constants.TEXTURE_NEAREST_SAMPLINGMODE,
+      BABYLON.Constants.TEXTURETYPE_FLOAT,
+    );
+    texture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+    texture.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
 
-		return okShallow(texture);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(texture);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -436,19 +436,19 @@ export function buildHeightDataTexture(
 
 /** Options schema for {@link createGpuDataTexture}. */
 export const CreateGpuDataTextureOptionsSchema = v.pipe(
-	v.strictObject({
-		/** The Babylon.js scene. */
-		scene: v.custom<BABYLON.Scene>((val): val is BABYLON.Scene => val instanceof BABYLON.Scene),
-		/** Pre-built RGBA32F layer data (from {@link buildLayerData}). */
-		data: v.custom<Float32Array<ArrayBufferLike>>(
-			(val): val is Float32Array<ArrayBufferLike> => val instanceof Float32Array,
-		),
-		/** Map width in tiles. */
-		width: v.pipe(v.number(), v.integer(), v.minValue(1)),
-		/** Map height in tiles. */
-		height: v.pipe(v.number(), v.integer(), v.minValue(1)),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** The Babylon.js scene. */
+    scene: v.custom<BABYLON.Scene>((val): val is BABYLON.Scene => val instanceof BABYLON.Scene),
+    /** Pre-built RGBA32F layer data (from {@link buildLayerData}). */
+    data: v.custom<Float32Array<ArrayBufferLike>>(
+      (val): val is Float32Array<ArrayBufferLike> => val instanceof Float32Array,
+    ),
+    /** Map width in tiles. */
+    width: v.pipe(v.number(), v.integer(), v.minValue(1)),
+    /** Map height in tiles. */
+    height: v.pipe(v.number(), v.integer(), v.minValue(1)),
+  }),
+  v.readonly(),
 );
 
 /** Options for {@link createGpuDataTexture}. */
@@ -473,29 +473,29 @@ export type CreateGpuDataTextureOptions = v.InferOutput<typeof CreateGpuDataText
  * ```
  */
 export function createGpuDataTexture(
-	options: CreateGpuDataTextureOptions,
+  options: CreateGpuDataTextureOptions,
 ): BabylonResult<BABYLON.RawTexture> {
-	const { scene, data, width, height } = options;
+  const { scene, data, width, height } = options;
 
-	try {
-		const texture: BABYLON.RawTexture = new BABYLON.RawTexture(
-			data,
-			width,
-			height,
-			BABYLON.Constants.TEXTUREFORMAT_RGBA,
-			scene,
-			false, // generateMipMaps
-			false, // invertY
-			BABYLON.Constants.TEXTURE_NEAREST_SAMPLINGMODE,
-			BABYLON.Constants.TEXTURETYPE_FLOAT,
-		);
-		texture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
-		texture.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
+  try {
+    const texture: BABYLON.RawTexture = new BABYLON.RawTexture(
+      data,
+      width,
+      height,
+      BABYLON.Constants.TEXTUREFORMAT_RGBA,
+      scene,
+      false, // generateMipMaps
+      false, // invertY
+      BABYLON.Constants.TEXTURE_NEAREST_SAMPLINGMODE,
+      BABYLON.Constants.TEXTURETYPE_FLOAT,
+    );
+    texture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+    texture.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
 
-		return okShallow(texture);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(texture);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -504,25 +504,25 @@ export function createGpuDataTexture(
 
 /** Options schema for {@link updateDataTextureTile}. */
 export const UpdateDataTextureTileOptionsSchema = v.pipe(
-	v.strictObject({
-		/** CPU-side layer data (RGBA32F Float32Array). */
-		data: v.custom<Float32Array<ArrayBufferLike>>(
-			(val): val is Float32Array<ArrayBufferLike> => val instanceof Float32Array,
-		),
-		/** Map width in tiles. */
-		mapWidth: v.pipe(v.number(), v.integer(), v.minValue(1)),
-		/** Map height in tiles. */
-		mapHeight: v.pipe(v.number(), v.integer(), v.minValue(1)),
-		/** Tile X coordinate (column). */
-		x: v.number(),
-		/** Tile Y coordinate (row). */
-		y: v.number(),
-		/** New tile ID (0 = empty). */
-		tileId: v.pipe(v.number(), v.integer(), v.minValue(0)),
-		/** Optional visual flags (packed uint32). Defaults to 0xF0 for non-empty tiles. */
-		visualFlags: v.optional(v.number()),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** CPU-side layer data (RGBA32F Float32Array). */
+    data: v.custom<Float32Array<ArrayBufferLike>>(
+      (val): val is Float32Array<ArrayBufferLike> => val instanceof Float32Array,
+    ),
+    /** Map width in tiles. */
+    mapWidth: v.pipe(v.number(), v.integer(), v.minValue(1)),
+    /** Map height in tiles. */
+    mapHeight: v.pipe(v.number(), v.integer(), v.minValue(1)),
+    /** Tile X coordinate (column). */
+    x: v.number(),
+    /** Tile Y coordinate (row). */
+    y: v.number(),
+    /** New tile ID (0 = empty). */
+    tileId: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    /** Optional visual flags (packed uint32). Defaults to 0xF0 for non-empty tiles. */
+    visualFlags: v.optional(v.number()),
+  }),
+  v.readonly(),
 );
 
 /** Options for {@link updateDataTextureTile}. */
@@ -547,22 +547,22 @@ export type UpdateDataTextureTileOptions = v.InferOutput<typeof UpdateDataTextur
  * ```
  */
 export function updateDataTextureTile(options: UpdateDataTextureTileOptions): void {
-	const { data, mapWidth, mapHeight, x, y, tileId, visualFlags } = options;
+  const { data, mapWidth, mapHeight, x, y, tileId, visualFlags } = options;
 
-	// Bounds check
-	if (x < 0 || y < 0 || x >= mapWidth || y >= mapHeight) return;
+  // Bounds check
+  if (x < 0 || y < 0 || x >= mapWidth || y >= mapHeight) return;
 
-	const index: Num = y * mapWidth + x;
-	const offset: Num = index * 4;
+  const index: Num = y * mapWidth + x;
+  const offset: Num = index * 4;
 
-	data[offset] = tileId; // R = tile ID
+  data[offset] = tileId; // R = tile ID
 
-	if (tileId === 0) {
-		data[offset + 1] = 0; // G = 0 for empty
-	} else {
-		data[offset + 1] = visualFlags ?? DEFAULT_FLAGS_VALUE; // G = flags
-	}
+  if (tileId === 0) {
+    data[offset + 1] = 0; // G = 0 for empty
+  } else {
+    data[offset + 1] = visualFlags ?? DEFAULT_FLAGS_VALUE; // G = flags
+  }
 
-	data[offset + 2] = 0; // B = reserved
-	data[offset + 3] = 0; // A = reserved
+  data[offset + 2] = 0; // B = reserved
+  data[offset + 3] = 0; // A = reserved
 }

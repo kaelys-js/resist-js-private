@@ -46,15 +46,15 @@ import type { EngineConfig } from '../schemas/engine-config';
  * @param message - The message to log.
  */
 function fireLog(level: 'debug' | 'info' | 'warn', message: Str): void {
-	// eslint-disable-next-line typescript/no-floating-promises -- Fire-and-forget async logging
-	(async () => {
-		try {
-			const { log } = await import('@/utils/core/logger');
-			log[level](message);
-		} catch {
-			// Silently swallow logger import failures — non-critical diagnostics
-		}
-	})();
+  // eslint-disable-next-line typescript/no-floating-promises -- Fire-and-forget async logging
+  (async () => {
+    try {
+      const { log } = await import('@/utils/core/logger');
+      log[level](message);
+    } catch {
+      // Silently swallow logger import failures — non-critical diagnostics
+    }
+  })();
 }
 
 // =============================================================================
@@ -63,12 +63,12 @@ function fireLog(level: 'debug' | 'info' | 'warn', message: Str): void {
 
 /** Engine instance returned by create functions. */
 export type BabylonEngineInstance = {
-	/** The Babylon.js engine (Engine, WebGPUEngine, or NullEngine). */
-	readonly engine: BABYLON.AbstractEngine;
-	/** The active scene attached to the engine. */
-	readonly scene: BABYLON.Scene;
-	/** Whether the WebGPU backend was activated. */
-	readonly isWebGPU: boolean;
+  /** The Babylon.js engine (Engine, WebGPUEngine, or NullEngine). */
+  readonly engine: BABYLON.AbstractEngine;
+  /** The active scene attached to the engine. */
+  readonly scene: BABYLON.Scene;
+  /** Whether the WebGPU backend was activated. */
+  readonly isWebGPU: boolean;
 };
 
 // =============================================================================
@@ -92,28 +92,28 @@ export type BabylonEngineInstance = {
  * ```
  */
 export function createTestEngine(): BabylonResult<BabylonEngineInstance> {
-	try {
-		const engine: BABYLON.NullEngine = new BABYLON.NullEngine({
-			renderWidth: 512,
-			renderHeight: 256,
-			textureSize: 512,
-			deterministicLockstep: false,
-			lockstepMaxSteps: 4,
-		});
-		const scene: BABYLON.Scene = new BABYLON.Scene(engine);
+  try {
+    const engine: BABYLON.NullEngine = new BABYLON.NullEngine({
+      renderWidth: 512,
+      renderHeight: 256,
+      textureSize: 512,
+      deterministicLockstep: false,
+      lockstepMaxSteps: 4,
+    });
+    const scene: BABYLON.Scene = new BABYLON.Scene(engine);
 
-		const instance: BabylonEngineInstance = {
-			engine,
-			scene,
-			isWebGPU: false,
-		};
+    const instance: BabylonEngineInstance = {
+      engine,
+      scene,
+      isWebGPU: false,
+    };
 
-		fireLog('debug', 'Test engine created (NullEngine)' as Str);
+    fireLog('debug', 'Test engine created (NullEngine)' as Str);
 
-		return okShallow(instance);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(instance);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -144,85 +144,85 @@ export function createTestEngine(): BabylonResult<BabylonEngineInstance> {
  * ```
  */
 export async function createBabylonEngine(
-	config: EngineConfig,
-	canvas: HTMLCanvasElement,
+  config: EngineConfig,
+  canvas: HTMLCanvasElement,
 ): Promise<BabylonResult<BabylonEngineInstance>> {
-	const engineOptions: BABYLON.EngineOptions = {
-		antialias: config.antialias,
-		stencil: config.stencil,
-		preserveDrawingBuffer: config.preserveDrawingBuffer,
-		powerPreference: config.powerPreference,
-		doNotHandleContextLost: config.doNotHandleContextLost,
-	};
+  const engineOptions: BABYLON.EngineOptions = {
+    antialias: config.antialias,
+    stencil: config.stencil,
+    preserveDrawingBuffer: config.preserveDrawingBuffer,
+    powerPreference: config.powerPreference,
+    doNotHandleContextLost: config.doNotHandleContextLost,
+  };
 
-	try {
-		let engine: BABYLON.AbstractEngine;
-		let isWebGPU = false;
+  try {
+    let engine: BABYLON.AbstractEngine;
+    let isWebGPU = false;
 
-		if (config.renderer === 'auto') {
-			// eslint-disable-next-line new-cap -- Babylon.js static factory method
-			engine = await BABYLON.EngineFactory.CreateAsync(canvas, {
-				...engineOptions,
-				adaptToDeviceRatio: config.adaptToDeviceRatio,
-			});
-			isWebGPU = engine.name === 'WebGPU';
-		} else if (config.renderer === 'webgpu') {
-			const supported: boolean = await BABYLON.WebGPUEngine.IsSupportedAsync;
-			if (supported) {
-				const gpuPower: GPUPowerPreference | undefined =
-					config.powerPreference === 'default' ? undefined : config.powerPreference;
-				const webgpuEngine: BABYLON.WebGPUEngine = new BABYLON.WebGPUEngine(canvas, {
-					antialias: config.antialias,
-					stencil: config.stencil,
-					powerPreference: gpuPower,
-					doNotHandleContextLost: config.doNotHandleContextLost,
-				});
-				await webgpuEngine.initAsync();
-				engine = webgpuEngine;
-				isWebGPU = true;
-			} else {
-				fireLog('warn', 'WebGPU not supported, falling back to WebGL2' as Str);
-				engine = new BABYLON.Engine(
-					canvas,
-					config.antialias,
-					engineOptions,
-					config.adaptToDeviceRatio,
-				);
-			}
-		} else {
-			engine = new BABYLON.Engine(
-				canvas,
-				config.antialias,
-				engineOptions,
-				config.adaptToDeviceRatio,
-			);
-		}
+    if (config.renderer === 'auto') {
+      // eslint-disable-next-line new-cap -- Babylon.js static factory method
+      engine = await BABYLON.EngineFactory.CreateAsync(canvas, {
+        ...engineOptions,
+        adaptToDeviceRatio: config.adaptToDeviceRatio,
+      });
+      isWebGPU = engine.name === 'WebGPU';
+    } else if (config.renderer === 'webgpu') {
+      const supported: boolean = await BABYLON.WebGPUEngine.IsSupportedAsync;
+      if (supported) {
+        const gpuPower: GPUPowerPreference | undefined =
+          config.powerPreference === 'default' ? undefined : config.powerPreference;
+        const webgpuEngine: BABYLON.WebGPUEngine = new BABYLON.WebGPUEngine(canvas, {
+          antialias: config.antialias,
+          stencil: config.stencil,
+          powerPreference: gpuPower,
+          doNotHandleContextLost: config.doNotHandleContextLost,
+        });
+        await webgpuEngine.initAsync();
+        engine = webgpuEngine;
+        isWebGPU = true;
+      } else {
+        fireLog('warn', 'WebGPU not supported, falling back to WebGL2' as Str);
+        engine = new BABYLON.Engine(
+          canvas,
+          config.antialias,
+          engineOptions,
+          config.adaptToDeviceRatio,
+        );
+      }
+    } else {
+      engine = new BABYLON.Engine(
+        canvas,
+        config.antialias,
+        engineOptions,
+        config.adaptToDeviceRatio,
+      );
+    }
 
-		const scene: BABYLON.Scene = new BABYLON.Scene(engine);
+    const scene: BABYLON.Scene = new BABYLON.Scene(engine);
 
-		// Register context loss/restore handlers
-		if (!config.doNotHandleContextLost) {
-			engine.onContextLostObservable.add(() => {
-				fireLog('warn', 'WebGL context lost' as Str);
-			});
-			engine.onContextRestoredObservable.add(() => {
-				fireLog('info', 'WebGL context restored' as Str);
-			});
-		}
+    // Register context loss/restore handlers
+    if (!config.doNotHandleContextLost) {
+      engine.onContextLostObservable.add(() => {
+        fireLog('warn', 'WebGL context lost' as Str);
+      });
+      engine.onContextRestoredObservable.add(() => {
+        fireLog('info', 'WebGL context restored' as Str);
+      });
+    }
 
-		const backend: Str = (isWebGPU ? 'WebGPU' : 'WebGL2') as Str;
-		fireLog('info', `Engine created (${backend})` as Str);
+    const backend: Str = (isWebGPU ? 'WebGPU' : 'WebGL2') as Str;
+    fireLog('info', `Engine created (${backend})` as Str);
 
-		const instance: BabylonEngineInstance = {
-			engine,
-			scene,
-			isWebGPU,
-		};
+    const instance: BabylonEngineInstance = {
+      engine,
+      scene,
+      isWebGPU,
+    };
 
-		return okShallow(instance);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(instance);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -246,18 +246,18 @@ export async function createBabylonEngine(
  * ```
  */
 export function startRenderLoop(instance: BabylonEngineInstance): Result<Bool> {
-	if (instance.engine.activeRenderLoops.length > 0) {
-		return err(ERRORS.SCENE.RENDER_FAILED, 'Render loop already active');
-	}
+  if (instance.engine.activeRenderLoops.length > 0) {
+    return err(ERRORS.SCENE.RENDER_FAILED, 'Render loop already active');
+  }
 
-	try {
-		instance.engine.runRenderLoop(() => {
-			instance.scene.render();
-		});
-		return okUnchecked(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
-	}
+  try {
+    instance.engine.runRenderLoop(() => {
+      instance.scene.render();
+    });
+    return okUnchecked(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 /**
@@ -274,12 +274,12 @@ export function startRenderLoop(instance: BabylonEngineInstance): Result<Bool> {
  * ```
  */
 export function stopRenderLoop(instance: BabylonEngineInstance): Result<Bool> {
-	try {
-		instance.engine.stopRenderLoop();
-		return okUnchecked(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
-	}
+  try {
+    instance.engine.stopRenderLoop();
+    return okUnchecked(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.RENDER_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -301,41 +301,41 @@ export function stopRenderLoop(instance: BabylonEngineInstance): Result<Bool> {
  * ```
  */
 export function registerResizeHandler(
-	instance: BabylonEngineInstance,
-	canvas: HTMLCanvasElement,
+  instance: BabylonEngineInstance,
+  canvas: HTMLCanvasElement,
 ): Result<() => void> {
-	try {
-		const parent: HTMLElement | null = canvas.parentElement;
-		if (!parent) {
-			return err(ERRORS.SCENE.LOAD_FAILED, 'Canvas has no parent element for resize observer');
-		}
+  try {
+    const parent: HTMLElement | null = canvas.parentElement;
+    if (!parent) {
+      return err(ERRORS.SCENE.LOAD_FAILED, 'Canvas has no parent element for resize observer');
+    }
 
-		let needsResize: Bool = false;
-		const observer: ResizeObserver = new ResizeObserver(() => {
-			needsResize = true;
-		});
-		observer.observe(parent);
+    let needsResize: Bool = false;
+    const observer: ResizeObserver = new ResizeObserver(() => {
+      needsResize = true;
+    });
+    observer.observe(parent);
 
-		// Resize inside the render loop so buffer clear + redraw happen in
-		// the same frame, preventing the black flash caused by setting
-		// canvas.width/height between frames.
-		const resizeObs: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>> =
-			instance.scene.onBeforeRenderObservable.add(() => {
-				if (needsResize) {
-					needsResize = false;
-					instance.engine.resize();
-				}
-			});
+    // Resize inside the render loop so buffer clear + redraw happen in
+    // the same frame, preventing the black flash caused by setting
+    // canvas.width/height between frames.
+    const resizeObs: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>> =
+      instance.scene.onBeforeRenderObservable.add(() => {
+        if (needsResize) {
+          needsResize = false;
+          instance.engine.resize();
+        }
+      });
 
-		const cleanup = (): void => {
-			observer.disconnect();
-			if (resizeObs) instance.scene.onBeforeRenderObservable.remove(resizeObs);
-		};
+    const cleanup = (): void => {
+      observer.disconnect();
+      if (resizeObs) instance.scene.onBeforeRenderObservable.remove(resizeObs);
+    };
 
-		return okUnchecked(cleanup);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okUnchecked(cleanup);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -358,18 +358,18 @@ export function registerResizeHandler(
  * ```
  */
 export function disposeEngine(instance: BabylonEngineInstance): Result<Bool> {
-	try {
-		// Stop any active render loop first
-		instance.engine.stopRenderLoop();
+  try {
+    // Stop any active render loop first
+    instance.engine.stopRenderLoop();
 
-		// Dispose scene THEN engine (order matters)
-		instance.scene.dispose();
-		instance.engine.dispose();
+    // Dispose scene THEN engine (order matters)
+    instance.scene.dispose();
+    instance.engine.dispose();
 
-		fireLog('debug', 'Engine disposed' as Str);
+    fireLog('debug', 'Engine disposed' as Str);
 
-		return okUnchecked(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okUnchecked(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }

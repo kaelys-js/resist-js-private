@@ -30,10 +30,10 @@ import { fileURLToPath } from 'node:url';
 
 /** Compiled size entry for a single component directory. */
 type SizeEntry = {
-	/** Minified client JS byte count. */
-	compiled: Num;
-	/** Gzip-compressed minified JS byte count — closest to actual download size. */
-	gzip: Num;
+  /** Minified client JS byte count. */
+  compiled: Num;
+  /** Gzip-compressed minified JS byte count — closest to actual download size. */
+  gzip: Num;
 };
 
 /** Cached results — cleared only on server restart. */
@@ -48,20 +48,20 @@ let cache: Record<Str, SizeEntry> | null = null;
  * @returns Absolute path to the UI source directory
  */
 function resolveUiSrcDir(): Str {
-	const currentDir: Str = dirname(fileURLToPath(import.meta.url)) as Str;
-	// Walk up until we find the workspace root (pnpm-workspace.yaml)
-	let dir: Str = currentDir;
-	for (let i: Num = 0 as Num; i < 20; i++) {
-		try {
-			statSync(join(dir, 'pnpm-workspace.yaml'));
-			return join(dir, 'packages', 'shared', 'ui', 'src') as Str;
-		} catch {
-			/* Not the root yet — continue walking up */
-			dir = dirname(dir) as Str;
-		}
-	}
-	// Fallback: assume standard monorepo structure relative to editor
-	return resolve(currentDir, '..', '..', '..', '..', '..', '..', 'shared', 'ui', 'src') as Str;
+  const currentDir: Str = dirname(fileURLToPath(import.meta.url)) as Str;
+  // Walk up until we find the workspace root (pnpm-workspace.yaml)
+  let dir: Str = currentDir;
+  for (let i: Num = 0 as Num; i < 20; i++) {
+    try {
+      statSync(join(dir, 'pnpm-workspace.yaml'));
+      return join(dir, 'packages', 'shared', 'ui', 'src') as Str;
+    } catch {
+      /* Not the root yet — continue walking up */
+      dir = dirname(dir) as Str;
+    }
+  }
+  // Fallback: assume standard monorepo structure relative to editor
+  return resolve(currentDir, '..', '..', '..', '..', '..', '..', 'shared', 'ui', 'src') as Str;
 }
 
 /**
@@ -74,45 +74,45 @@ function resolveUiSrcDir(): Str {
  * @returns Array of `{ dir, filePath }` tuples
  */
 function findSvelteFiles(baseDir: Str): Array<{ dir: Str; filePath: Str }> {
-	const results: Array<{ dir: Str; filePath: Str }> = [];
+  const results: Array<{ dir: Str; filePath: Str }> = [];
 
-	let entries: string[];
-	try {
-		entries = readdirSync(baseDir);
-	} catch {
-		/* UI source directory not found — return empty */
-		return results;
-	}
+  let entries: string[];
+  try {
+    entries = readdirSync(baseDir);
+  } catch {
+    /* UI source directory not found — return empty */
+    return results;
+  }
 
-	for (const entry of entries) {
-		const entryPath: Str = join(baseDir, entry) as Str;
-		try {
-			const stat = statSync(entryPath);
-			if (!stat.isDirectory()) continue;
-		} catch {
-			/* Stat failed — skip */
-			continue;
-		}
+  for (const entry of entries) {
+    const entryPath: Str = join(baseDir, entry) as Str;
+    try {
+      const stat = statSync(entryPath);
+      if (!stat.isDirectory()) continue;
+    } catch {
+      /* Stat failed — skip */
+      continue;
+    }
 
-		// Read .svelte files in this component directory
-		let files: string[];
-		try {
-			files = readdirSync(entryPath);
-		} catch {
-			/* Cannot read directory — skip */
-			continue;
-		}
+    // Read .svelte files in this component directory
+    let files: string[];
+    try {
+      files = readdirSync(entryPath);
+    } catch {
+      /* Cannot read directory — skip */
+      continue;
+    }
 
-		for (const file of files) {
-			if (!file.endsWith('.svelte')) continue;
-			results.push({
-				dir: entry as Str,
-				filePath: join(entryPath, file) as Str,
-			});
-		}
-	}
+    for (const file of files) {
+      if (!file.endsWith('.svelte')) continue;
+      results.push({
+        dir: entry as Str,
+        filePath: join(entryPath, file) as Str,
+      });
+    }
+  }
 
-	return results;
+  return results;
 }
 
 /**
@@ -130,62 +130,62 @@ function findSvelteFiles(baseDir: Str): Array<{ dir: Str; filePath: Str }> {
  * @returns Map of component directory → minified + gzip byte sizes
  */
 function computeBundleSizes(): Record<Str, SizeEntry> {
-	const uiSrcDir: Str = resolveUiSrcDir();
-	const svelteFiles = findSvelteFiles(uiSrcDir);
-	const sizes: Record<Str, SizeEntry> = {};
+  const uiSrcDir: Str = resolveUiSrcDir();
+  const svelteFiles = findSvelteFiles(uiSrcDir);
+  const sizes: Record<Str, SizeEntry> = {};
 
-	for (const { dir, filePath } of svelteFiles) {
-		let source: Str;
-		try {
-			source = readFileSync(filePath, 'utf8') as Str;
-		} catch {
-			/* File read failed — skip */
-			continue;
-		}
+  for (const { dir, filePath } of svelteFiles) {
+    let source: Str;
+    try {
+      source = readFileSync(filePath, 'utf8') as Str;
+    } catch {
+      /* File read failed — skip */
+      continue;
+    }
 
-		// Step 1: Svelte compile → client JS
-		let compiledCode: Str;
-		try {
-			const result = compile(source, {
-				generate: 'client',
-				filename: basename(filePath),
-			});
-			compiledCode = result.js.code as Str;
-		} catch {
-			/* Compilation failed (e.g., invalid Svelte syntax) — skip */
-			continue;
-		}
+    // Step 1: Svelte compile → client JS
+    let compiledCode: Str;
+    try {
+      const result = compile(source, {
+        generate: 'client',
+        filename: basename(filePath),
+      });
+      compiledCode = result.js.code as Str;
+    } catch {
+      /* Compilation failed (e.g., invalid Svelte syntax) — skip */
+      continue;
+    }
 
-		// Step 2: esbuild minify → production-size JS (matches Vite's build pipeline)
-		let minifiedCode: Str;
-		try {
-			const minResult = transformSync(compiledCode, {
-				minify: true,
-				loader: 'js',
-			});
-			minifiedCode = minResult.code as Str;
-		} catch {
-			/* Minification failed — fall back to unminified size */
-			minifiedCode = compiledCode;
-		}
+    // Step 2: esbuild minify → production-size JS (matches Vite's build pipeline)
+    let minifiedCode: Str;
+    try {
+      const minResult = transformSync(compiledCode, {
+        minify: true,
+        loader: 'js',
+      });
+      minifiedCode = minResult.code as Str;
+    } catch {
+      /* Minification failed — fall back to unminified size */
+      minifiedCode = compiledCode;
+    }
 
-		// Step 3: Measure sizes
-		const compiledBytes: Num = minifiedCode.length as Num;
-		const gzipBytes: Num = gzipSync(minifiedCode).byteLength as Num;
+    // Step 3: Measure sizes
+    const compiledBytes: Num = minifiedCode.length as Num;
+    const gzipBytes: Num = gzipSync(minifiedCode).byteLength as Num;
 
-		// Accumulate sizes per directory
-		const existing: SizeEntry | undefined = sizes[dir];
-		if (existing) {
-			sizes[dir] = {
-				compiled: (existing.compiled + compiledBytes) as Num,
-				gzip: (existing.gzip + gzipBytes) as Num,
-			};
-		} else {
-			sizes[dir] = { compiled: compiledBytes, gzip: gzipBytes };
-		}
-	}
+    // Accumulate sizes per directory
+    const existing: SizeEntry | undefined = sizes[dir];
+    if (existing) {
+      sizes[dir] = {
+        compiled: (existing.compiled + compiledBytes) as Num,
+        gzip: (existing.gzip + gzipBytes) as Num,
+      };
+    } else {
+      sizes[dir] = { compiled: compiledBytes, gzip: gzipBytes };
+    }
+  }
 
-	return sizes;
+  return sizes;
 }
 
 /**
@@ -197,14 +197,14 @@ function computeBundleSizes(): Record<Str, SizeEntry> {
  * @returns JSON response with component sizes
  */
 export const GET: RequestHandler = () => {
-	if (!cache) {
-		cache = computeBundleSizes();
-	}
+  if (!cache) {
+    cache = computeBundleSizes();
+  }
 
-	return new Response(JSON.stringify(cache), {
-		headers: {
-			'Content-Type': 'application/json',
-			'Cache-Control': 'no-cache',
-		},
-	});
+  return new Response(JSON.stringify(cache), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+    },
+  });
 };

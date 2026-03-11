@@ -38,8 +38,8 @@ import type { GlowLayerConfig } from '../schemas/lighting-config';
 
 /** Options for creating a glow layer. */
 type CreateGlowLayerOptions = {
-	readonly scene: BABYLON.Scene;
-	readonly config: Partial<GlowLayerConfig>;
+  readonly scene: BABYLON.Scene;
+  readonly config: Partial<GlowLayerConfig>;
 };
 
 /**
@@ -59,38 +59,38 @@ type CreateGlowLayerOptions = {
  * ```
  */
 export function createGlowLayer(options: CreateGlowLayerOptions): BabylonResult<BABYLON.GlowLayer> {
-	try {
-		const { scene, config } = options;
-		const blurKernelSize: Num = (config.blurKernelSize ?? 32) as Num;
-		const mainTextureRatio: Num = (config.mainTextureRatio ?? 0.5) as Num;
-		const mainTextureSamples: Num = (config.mainTextureSamples ?? 1) as Num;
-		const ldrMerge: Bool = (config.ldrMerge ?? false) as Bool;
+  try {
+    const { scene, config } = options;
+    const blurKernelSize: Num = (config.blurKernelSize ?? 32) as Num;
+    const mainTextureRatio: Num = (config.mainTextureRatio ?? 0.5) as Num;
+    const mainTextureSamples: Num = (config.mainTextureSamples ?? 1) as Num;
+    const ldrMerge: Bool = (config.ldrMerge ?? false) as Bool;
 
-		const glowOptions: Partial<BABYLON.IGlowLayerOptions> = {
-			blurKernelSize,
-			mainTextureRatio,
-			mainTextureSamples,
-			ldrMerge,
-		};
+    const glowOptions: Partial<BABYLON.IGlowLayerOptions> = {
+      blurKernelSize,
+      mainTextureRatio,
+      mainTextureSamples,
+      ldrMerge,
+    };
 
-		// Fixed size overrides ratio
-		if (config.mainTextureFixedSize !== undefined) {
-			glowOptions.mainTextureFixedSize = config.mainTextureFixedSize;
-		}
+    // Fixed size overrides ratio
+    if (config.mainTextureFixedSize !== undefined) {
+      glowOptions.mainTextureFixedSize = config.mainTextureFixedSize;
+    }
 
-		const glowLayer: BABYLON.GlowLayer = new BABYLON.GlowLayer('webforge-glow', scene, glowOptions);
+    const glowLayer: BABYLON.GlowLayer = new BABYLON.GlowLayer('webforge-glow', scene, glowOptions);
 
-		glowLayer.intensity = config.intensity ?? 0.5;
+    glowLayer.intensity = config.intensity ?? 0.5;
 
-		// Apply neutral color if provided and not default
-		if (config.neutralColor && config.neutralColor !== '#000000ff') {
-			glowLayer.neutralColor = BABYLON.Color4.FromHexString(config.neutralColor);
-		}
+    // Apply neutral color if provided and not default
+    if (config.neutralColor && config.neutralColor !== '#000000ff') {
+      glowLayer.neutralColor = BABYLON.Color4.FromHexString(config.neutralColor);
+    }
 
-		return okShallow(glowLayer);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(glowLayer);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -99,23 +99,23 @@ export function createGlowLayer(options: CreateGlowLayerOptions): BabylonResult<
 
 /** Result of an update operation. */
 type GlowUpdateResult = {
-	readonly needsRecreate: Bool;
+  readonly needsRecreate: Bool;
 };
 
 /** Options for updating a glow layer. */
 type UpdateGlowLayerOptions = {
-	readonly glowLayer: BABYLON.GlowLayer;
-	readonly config: Partial<GlowLayerConfig>;
-	readonly previousConfig?: Partial<GlowLayerConfig>;
+  readonly glowLayer: BABYLON.GlowLayer;
+  readonly config: Partial<GlowLayerConfig>;
+  readonly previousConfig?: Partial<GlowLayerConfig>;
 };
 
 /** Constructor-only config keys that require dispose+recreate when changed. */
 const CONSTRUCTOR_ONLY_KEYS: ReadonlyArray<keyof GlowLayerConfig> = [
-	'mainTextureRatio',
-	'mainTextureFixedSize',
-	'mainTextureSamples',
-	'ldrMerge',
-	'neutralColor',
+  'mainTextureRatio',
+  'mainTextureFixedSize',
+  'mainTextureSamples',
+  'ldrMerge',
+  'neutralColor',
 ];
 
 /**
@@ -140,37 +140,37 @@ const CONSTRUCTOR_ONLY_KEYS: ReadonlyArray<keyof GlowLayerConfig> = [
  * ```
  */
 export function updateGlowLayer(options: UpdateGlowLayerOptions): BabylonResult<GlowUpdateResult> {
-	try {
-		const { glowLayer, config, previousConfig } = options;
+  try {
+    const { glowLayer, config, previousConfig } = options;
 
-		// Runtime-updatable properties
-		if (config.intensity !== undefined) {
-			glowLayer.intensity = config.intensity;
-		}
-		if (config.blurKernelSize !== undefined) {
-			glowLayer.blurKernelSize = config.blurKernelSize;
-		}
-		if (config.enabled !== undefined) {
-			glowLayer.isEnabled = config.enabled;
-		}
+    // Runtime-updatable properties
+    if (config.intensity !== undefined) {
+      glowLayer.intensity = config.intensity;
+    }
+    if (config.blurKernelSize !== undefined) {
+      glowLayer.blurKernelSize = config.blurKernelSize;
+    }
+    if (config.enabled !== undefined) {
+      glowLayer.isEnabled = config.enabled;
+    }
 
-		// Detect constructor-only changes
-		let needsRecreate: Bool = false as Bool;
-		if (previousConfig) {
-			for (const key of CONSTRUCTOR_ONLY_KEYS) {
-				const prev: unknown = previousConfig[key];
-				const next: unknown = config[key];
-				if (next !== undefined && prev !== undefined && next !== prev) {
-					needsRecreate = true as Bool;
-					break;
-				}
-			}
-		}
+    // Detect constructor-only changes
+    let needsRecreate: Bool = false as Bool;
+    if (previousConfig) {
+      for (const key of CONSTRUCTOR_ONLY_KEYS) {
+        const prev: unknown = previousConfig[key];
+        const next: unknown = config[key];
+        if (next !== undefined && prev !== undefined && next !== prev) {
+          needsRecreate = true as Bool;
+          break;
+        }
+      }
+    }
 
-		return okShallow({ needsRecreate });
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow({ needsRecreate });
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -179,7 +179,7 @@ export function updateGlowLayer(options: UpdateGlowLayerOptions): BabylonResult<
 
 /** Options for disposing a glow layer. */
 type DisposeGlowLayerOptions = {
-	readonly glowLayer: BABYLON.GlowLayer;
+  readonly glowLayer: BABYLON.GlowLayer;
 };
 
 /**
@@ -195,12 +195,12 @@ type DisposeGlowLayerOptions = {
  * ```
  */
 export function disposeGlowLayer(options: DisposeGlowLayerOptions): BabylonResult<Bool> {
-	try {
-		options.glowLayer.dispose();
-		return okUnchecked(true);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+  try {
+    options.glowLayer.dispose();
+    return okUnchecked(true);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -209,8 +209,8 @@ export function disposeGlowLayer(options: DisposeGlowLayerOptions): BabylonResul
 
 /** Options for mesh management operations. */
 type MeshGlowOptions = {
-	readonly glowLayer: BABYLON.GlowLayer;
-	readonly mesh: BABYLON.Mesh;
+  readonly glowLayer: BABYLON.GlowLayer;
+  readonly mesh: BABYLON.Mesh;
 };
 
 /**
@@ -227,12 +227,12 @@ type MeshGlowOptions = {
  * ```
  */
 export function excludeMeshFromGlow(options: MeshGlowOptions): BabylonResult<Bool> {
-	try {
-		options.glowLayer.addExcludedMesh(options.mesh);
-		return okUnchecked(true);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+  try {
+    options.glowLayer.addExcludedMesh(options.mesh);
+    return okUnchecked(true);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 /**
@@ -249,12 +249,12 @@ export function excludeMeshFromGlow(options: MeshGlowOptions): BabylonResult<Boo
  * ```
  */
 export function includeOnlyMeshInGlow(options: MeshGlowOptions): BabylonResult<Bool> {
-	try {
-		options.glowLayer.addIncludedOnlyMesh(options.mesh);
-		return okUnchecked(true);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+  try {
+    options.glowLayer.addIncludedOnlyMesh(options.mesh);
+    return okUnchecked(true);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 /**
@@ -271,19 +271,19 @@ export function includeOnlyMeshInGlow(options: MeshGlowOptions): BabylonResult<B
  * ```
  */
 export function removeMeshFromGlow(options: MeshGlowOptions): BabylonResult<Bool> {
-	try {
-		options.glowLayer.removeExcludedMesh(options.mesh);
-		options.glowLayer.removeIncludedOnlyMesh(options.mesh);
-		return okUnchecked(true);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+  try {
+    options.glowLayer.removeExcludedMesh(options.mesh);
+    options.glowLayer.removeIncludedOnlyMesh(options.mesh);
+    return okUnchecked(true);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 /** Options for excluding UI meshes. */
 type ExcludeUiMeshesOptions = {
-	readonly glowLayer: BABYLON.GlowLayer;
-	readonly scene: BABYLON.Scene;
+  readonly glowLayer: BABYLON.GlowLayer;
+  readonly scene: BABYLON.Scene;
 };
 
 /**
@@ -307,21 +307,21 @@ type ExcludeUiMeshesOptions = {
  * ```
  */
 export function excludeUiMeshes(options: ExcludeUiMeshesOptions): BabylonResult<Num> {
-	try {
-		const { glowLayer, scene } = options;
-		let count: Num = 0 as Num;
+  try {
+    const { glowLayer, scene } = options;
+    let count: Num = 0 as Num;
 
-		for (const mesh of scene.meshes) {
-			if (mesh.renderingGroupId === 3 && mesh instanceof BABYLON.Mesh) {
-				glowLayer.addExcludedMesh(mesh);
-				count = (count + 1) as Num;
-			}
-		}
+    for (const mesh of scene.meshes) {
+      if (mesh.renderingGroupId === 3 && mesh instanceof BABYLON.Mesh) {
+        glowLayer.addExcludedMesh(mesh);
+        count = (count + 1) as Num;
+      }
+    }
 
-		return okShallow(count);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(count);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -330,8 +330,8 @@ export function excludeUiMeshes(options: ExcludeUiMeshesOptions): BabylonResult<
 
 /** Options for setting custom emissive color. */
 type SetCustomEmissiveColorOptions = {
-	readonly glowLayer: BABYLON.GlowLayer;
-	readonly color: BABYLON.Color4;
+  readonly glowLayer: BABYLON.GlowLayer;
+  readonly color: BABYLON.Color4;
 };
 
 /**
@@ -353,27 +353,27 @@ type SetCustomEmissiveColorOptions = {
  * ```
  */
 export function setCustomEmissiveColor(
-	options: SetCustomEmissiveColorOptions,
+  options: SetCustomEmissiveColorOptions,
 ): BabylonResult<Bool> {
-	try {
-		const { glowLayer, color } = options;
-		glowLayer.customEmissiveColorSelector = (
-			_mesh: BABYLON.Mesh,
-			_subMesh: BABYLON.SubMesh,
-			_material: BABYLON.Material,
-			result: BABYLON.Color4,
-		): void => {
-			result.set(color.r, color.g, color.b, color.a);
-		};
-		return okUnchecked(true);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+  try {
+    const { glowLayer, color } = options;
+    glowLayer.customEmissiveColorSelector = (
+      _mesh: BABYLON.Mesh,
+      _subMesh: BABYLON.SubMesh,
+      _material: BABYLON.Material,
+      result: BABYLON.Color4,
+    ): void => {
+      result.set(color.r, color.g, color.b, color.a);
+    };
+    return okUnchecked(true);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 /** Options for clearing custom emissive color. */
 type ClearCustomEmissiveColorOptions = {
-	readonly glowLayer: BABYLON.GlowLayer;
+  readonly glowLayer: BABYLON.GlowLayer;
 };
 
 /**
@@ -388,15 +388,15 @@ type ClearCustomEmissiveColorOptions = {
  * ```
  */
 export function clearCustomEmissiveColor(
-	options: ClearCustomEmissiveColorOptions,
+  options: ClearCustomEmissiveColorOptions,
 ): BabylonResult<Bool> {
-	try {
-		// Babylon.js expects null to clear the selector — the typed getter
-		// returns the function signature, so we cast through unknown.
-		const layer: Record<string, unknown> = options.glowLayer as unknown as Record<string, unknown>;
-		layer['customEmissiveColorSelector'] = null;
-		return okUnchecked(true);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+  try {
+    // Babylon.js expects null to clear the selector — the typed getter
+    // returns the function signature, so we cast through unknown.
+    const layer: Record<string, unknown> = options.glowLayer as unknown as Record<string, unknown>;
+    layer['customEmissiveColorSelector'] = null;
+    return okUnchecked(true);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }

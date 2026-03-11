@@ -7,21 +7,21 @@ import type { Str } from '@/schemas/common';
  * internal types, we test the logic pattern directly.
  */
 describe('+layout.server load', () => {
-	it('returns locale from locals', () => {
-		const locals = { locale: 'ja' };
-		const result = { locale: locals.locale };
-		expect(result.locale).toBe('ja');
-	});
+  it('returns locale from locals', () => {
+    const locals = { locale: 'ja' };
+    const result = { locale: locals.locale };
+    expect(result.locale).toBe('ja');
+  });
 
-	it('returns undefined locale when locals.locale is missing', () => {
-		const locals: Record<Str, unknown> = {};
-		const result = { locale: locals.locale };
-		expect(result.locale).toBeUndefined();
-	});
+  it('returns undefined locale when locals.locale is missing', () => {
+    const locals: Record<Str, unknown> = {};
+    const result = { locale: locals.locale };
+    expect(result.locale).toBeUndefined();
+  });
 
-	it('returns en when locals.locale is en', () => {
-		const locals = { locale: 'en' };
-		const result = { locale: locals.locale };
-		expect(result.locale).toBe('en');
-	});
+  it('returns en when locals.locale is en', () => {
+    const locals = { locale: 'en' };
+    const result = { locale: locals.locale };
+    expect(result.locale).toBe('en');
+  });
 });

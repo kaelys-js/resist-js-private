@@ -12,13 +12,13 @@
  */
 
 import {
-	BoolSchema,
-	DEFAULT_OUTPUT_FORMAT,
-	OutputFormatSchema,
-	VoidSchema,
-	type Bool,
-	type OutputFormat,
-	type Void,
+  BoolSchema,
+  DEFAULT_OUTPUT_FORMAT,
+  OutputFormatSchema,
+  VoidSchema,
+  type Bool,
+  type OutputFormat,
+  type Void,
 } from '@/schemas/common';
 import { ok, type Result } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
@@ -42,10 +42,10 @@ let currentOutputFormat: OutputFormat = DEFAULT_OUTPUT_FORMAT;
  * ```
  */
 export function setOutputFormat(format: OutputFormat): Result<Void> {
-	const input: Result<OutputFormat> = safeParse(OutputFormatSchema, format);
-	if (!input.ok) return input;
-	currentOutputFormat = input.data;
-	return ok(VoidSchema, undefined);
+  const input: Result<OutputFormat> = safeParse(OutputFormatSchema, format);
+  if (!input.ok) return input;
+  currentOutputFormat = input.data;
+  return ok(VoidSchema, undefined);
 }
 
 /**
@@ -61,7 +61,7 @@ export function setOutputFormat(format: OutputFormat): Result<Void> {
  * ```
  */
 export function getOutputFormat(): Result<OutputFormat> {
-	return ok(OutputFormatSchema, currentOutputFormat);
+  return ok(OutputFormatSchema, currentOutputFormat);
 }
 
 /**
@@ -76,6 +76,6 @@ export function getOutputFormat(): Result<OutputFormat> {
  * ```
  */
 export function isMachineReadable(): Result<Bool> {
-	const machineFormats: OutputFormat[] = ['json', 'junit', 'github'];
-	return ok(BoolSchema, machineFormats.includes(currentOutputFormat));
+  const machineFormats: OutputFormat[] = ['json', 'junit', 'github'];
+  return ok(BoolSchema, machineFormats.includes(currentOutputFormat));
 }

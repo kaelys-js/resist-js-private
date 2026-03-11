@@ -13,10 +13,10 @@
  */
 
 export {
-	generateStrings,
-	generateFilePaths,
-	generateObjects,
-	generatePayload,
-	generateNestedObjects,
-	type GenerateFilePathsOptions,
+  generateStrings,
+  generateFilePaths,
+  generateObjects,
+  generatePayload,
+  generateNestedObjects,
+  type GenerateFilePathsOptions,
 } from './data.ts';

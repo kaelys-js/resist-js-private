@@ -17,15 +17,15 @@ import type { Component, ComponentProps } from 'svelte';
  * ```
  */
 export class RenderComponentConfig<TComponent extends Component> {
-	component: TComponent;
-	props: ComponentProps<TComponent> | Record<string, never>;
-	constructor(
-		component: TComponent,
-		props: ComponentProps<TComponent> | Record<string, never> = {},
-	) {
-		this.component = component;
-		this.props = props;
-	}
+  component: TComponent;
+  props: ComponentProps<TComponent> | Record<string, never>;
+  constructor(
+    component: TComponent,
+    props: ComponentProps<TComponent> | Record<string, never> = {},
+  ) {
+    this.component = component;
+    this.props = props;
+  }
 }
 
 /**
@@ -51,9 +51,9 @@ export class RenderComponentConfig<TComponent extends Component> {
  * @see {@link https://tanstack.com/table/latest/docs/guide/column-defs}
  */
 export function renderComponent<
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	T extends Component<any>,
-	Props extends ComponentProps<T>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  T extends Component<any>,
+  Props extends ComponentProps<T>,
 >(component: T, props: Props = {} as Props) {
-	return new RenderComponentConfig(component, props);
+  return new RenderComponentConfig(component, props);
 }

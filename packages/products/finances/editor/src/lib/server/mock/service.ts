@@ -16,8 +16,8 @@ import type { Num, Void } from '@/schemas/common';
  * @returns A promise that resolves after the specified delay
  */
 export function sleep(ms: Num): Promise<Void> {
-	if (ms <= 0) return Promise.resolve(undefined);
-	return new Promise((resolve) => {
-		setTimeout(resolve, ms);
-	});
+  if (ms <= 0) return Promise.resolve(undefined);
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }

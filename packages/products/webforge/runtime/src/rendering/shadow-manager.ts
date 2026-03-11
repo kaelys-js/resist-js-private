@@ -48,9 +48,9 @@ export type ShadowGeneratorInstance = BABYLON.ShadowGenerator | BABYLON.Cascaded
 
 /** Maps filter quality string to Babylon.js constant. */
 const SHADOW_QUALITY_MAP: Readonly<Record<string, number>> = {
-	low: BABYLON.ShadowGenerator.QUALITY_LOW,
-	medium: BABYLON.ShadowGenerator.QUALITY_MEDIUM,
-	high: BABYLON.ShadowGenerator.QUALITY_HIGH,
+  low: BABYLON.ShadowGenerator.QUALITY_LOW,
+  medium: BABYLON.ShadowGenerator.QUALITY_MEDIUM,
+  high: BABYLON.ShadowGenerator.QUALITY_HIGH,
 };
 
 // =============================================================================
@@ -59,9 +59,9 @@ const SHADOW_QUALITY_MAP: Readonly<Record<string, number>> = {
 
 /** Options for creating a shadow generator. */
 type CreateShadowGeneratorOptions = {
-	readonly light: BABYLON.IShadowLight;
-	readonly config: Partial<ShadowConfig>;
-	readonly scene: BABYLON.Scene;
+  readonly light: BABYLON.IShadowLight;
+  readonly config: Partial<ShadowConfig>;
+  readonly scene: BABYLON.Scene;
 };
 
 /**
@@ -80,40 +80,40 @@ type CreateShadowGeneratorOptions = {
  * ```
  */
 function applyFilterType(gen: BABYLON.ShadowGenerator, filterType: ShadowFilterType): void {
-	switch (filterType) {
-		case 'none': {
-			// No filter flags — Babylon default (no filtering)
-			break;
-		}
-		case 'esm': {
-			gen.useExponentialShadowMap = true;
-			break;
-		}
-		case 'blurredEsm': {
-			gen.useBlurExponentialShadowMap = true;
-			break;
-		}
-		case 'closeEsm': {
-			gen.useCloseExponentialShadowMap = true;
-			break;
-		}
-		case 'blurredCloseEsm': {
-			gen.useBlurCloseExponentialShadowMap = true;
-			break;
-		}
-		case 'pcf': {
-			gen.usePercentageCloserFiltering = true;
-			break;
-		}
-		case 'pcss': {
-			gen.useContactHardeningShadow = true;
-			break;
-		}
-		case 'poisson': {
-			gen.usePoissonSampling = true;
-			break;
-		}
-	}
+  switch (filterType) {
+    case 'none': {
+      // No filter flags — Babylon default (no filtering)
+      break;
+    }
+    case 'esm': {
+      gen.useExponentialShadowMap = true;
+      break;
+    }
+    case 'blurredEsm': {
+      gen.useBlurExponentialShadowMap = true;
+      break;
+    }
+    case 'closeEsm': {
+      gen.useCloseExponentialShadowMap = true;
+      break;
+    }
+    case 'blurredCloseEsm': {
+      gen.useBlurCloseExponentialShadowMap = true;
+      break;
+    }
+    case 'pcf': {
+      gen.usePercentageCloserFiltering = true;
+      break;
+    }
+    case 'pcss': {
+      gen.useContactHardeningShadow = true;
+      break;
+    }
+    case 'poisson': {
+      gen.usePoissonSampling = true;
+      break;
+    }
+  }
 }
 
 /**
@@ -131,33 +131,33 @@ function applyFilterType(gen: BABYLON.ShadowGenerator, filterType: ShadowFilterT
  * ```
  */
 function applyExpandedProperties(
-	gen: ShadowGeneratorInstance,
-	config: Partial<ShadowConfig>,
+  gen: ShadowGeneratorInstance,
+  config: Partial<ShadowConfig>,
 ): void {
-	if (config.forceBackFacesOnly !== undefined) {
-		gen.forceBackFacesOnly = config.forceBackFacesOnly;
-	}
-	if (config.frustumEdgeFalloff !== undefined) {
-		gen.frustumEdgeFalloff = config.frustumEdgeFalloff;
-	}
-	if (config.contactHardeningLightSizeUVRatio !== undefined) {
-		gen.contactHardeningLightSizeUVRatio = config.contactHardeningLightSizeUVRatio;
-	}
-	if (config.useKernelBlur !== undefined) {
-		gen.useKernelBlur = config.useKernelBlur;
-	}
-	if (config.blurKernel !== undefined) {
-		gen.blurKernel = config.blurKernel;
-	}
-	if (config.blurScale !== undefined) {
-		gen.blurScale = config.blurScale;
-	}
-	if (config.depthScale !== undefined) {
-		gen.depthScale = config.depthScale;
-	}
-	if (config.useOpacityTextureForTransparentShadow !== undefined) {
-		gen.useOpacityTextureForTransparentShadow = config.useOpacityTextureForTransparentShadow;
-	}
+  if (config.forceBackFacesOnly !== undefined) {
+    gen.forceBackFacesOnly = config.forceBackFacesOnly;
+  }
+  if (config.frustumEdgeFalloff !== undefined) {
+    gen.frustumEdgeFalloff = config.frustumEdgeFalloff;
+  }
+  if (config.contactHardeningLightSizeUVRatio !== undefined) {
+    gen.contactHardeningLightSizeUVRatio = config.contactHardeningLightSizeUVRatio;
+  }
+  if (config.useKernelBlur !== undefined) {
+    gen.useKernelBlur = config.useKernelBlur;
+  }
+  if (config.blurKernel !== undefined) {
+    gen.blurKernel = config.blurKernel;
+  }
+  if (config.blurScale !== undefined) {
+    gen.blurScale = config.blurScale;
+  }
+  if (config.depthScale !== undefined) {
+    gen.depthScale = config.depthScale;
+  }
+  if (config.useOpacityTextureForTransparentShadow !== undefined) {
+    gen.useOpacityTextureForTransparentShadow = config.useOpacityTextureForTransparentShadow;
+  }
 }
 
 /**
@@ -175,24 +175,24 @@ function applyExpandedProperties(
  * ```
  */
 function applyCascadeExpandedProperties(
-	csm: BABYLON.CascadedShadowGenerator,
-	config: Partial<ShadowConfig>,
+  csm: BABYLON.CascadedShadowGenerator,
+  config: Partial<ShadowConfig>,
 ): void {
-	if (config.lambda !== undefined) {
-		csm.lambda = config.lambda;
-	}
-	if (config.depthClamp !== undefined) {
-		csm.depthClamp = config.depthClamp;
-	}
-	if (config.penumbraDarkness !== undefined) {
-		csm.penumbraDarkness = config.penumbraDarkness;
-	}
-	if (config.shadowMaxZ !== undefined && config.shadowMaxZ > 0) {
-		csm.shadowMaxZ = config.shadowMaxZ;
-	}
-	if (config.freezeShadowCastersBoundingInfo !== undefined) {
-		csm.freezeShadowCastersBoundingInfo = config.freezeShadowCastersBoundingInfo;
-	}
+  if (config.lambda !== undefined) {
+    csm.lambda = config.lambda;
+  }
+  if (config.depthClamp !== undefined) {
+    csm.depthClamp = config.depthClamp;
+  }
+  if (config.penumbraDarkness !== undefined) {
+    csm.penumbraDarkness = config.penumbraDarkness;
+  }
+  if (config.shadowMaxZ !== undefined && config.shadowMaxZ > 0) {
+    csm.shadowMaxZ = config.shadowMaxZ;
+  }
+  if (config.freezeShadowCastersBoundingInfo !== undefined) {
+    csm.freezeShadowCastersBoundingInfo = config.freezeShadowCastersBoundingInfo;
+  }
 }
 
 /**
@@ -215,66 +215,66 @@ function applyCascadeExpandedProperties(
  * ```
  */
 export function createShadowGenerator(
-	options: CreateShadowGeneratorOptions,
+  options: CreateShadowGeneratorOptions,
 ): BabylonResult<ShadowGeneratorInstance> {
-	try {
-		const { light, config, scene: _scene } = options;
-		const mapSize: number = config.mapSize ?? 1024;
-		let generator: ShadowGeneratorInstance;
+  try {
+    const { light, config, scene: _scene } = options;
+    const mapSize: number = config.mapSize ?? 1024;
+    let generator: ShadowGeneratorInstance;
 
-		if (config.type === 'cascade' && light instanceof BABYLON.DirectionalLight) {
-			// CascadedShadowGenerator for DirectionalLight
-			const csm: BABYLON.CascadedShadowGenerator = new BABYLON.CascadedShadowGenerator(
-				mapSize,
-				light,
-			);
-			csm.numCascades = config.numCascades ?? 3;
-			csm.stabilizeCascades = config.stabilizeCascades ?? true;
-			csm.cascadeBlendPercentage = config.cascadeBlendPercentage ?? 0.05;
-			csm.autoCalcDepthBounds = config.autoCalcDepthBounds ?? true;
+    if (config.type === 'cascade' && light instanceof BABYLON.DirectionalLight) {
+      // CascadedShadowGenerator for DirectionalLight
+      const csm: BABYLON.CascadedShadowGenerator = new BABYLON.CascadedShadowGenerator(
+        mapSize,
+        light,
+      );
+      csm.numCascades = config.numCascades ?? 3;
+      csm.stabilizeCascades = config.stabilizeCascades ?? true;
+      csm.cascadeBlendPercentage = config.cascadeBlendPercentage ?? 0.05;
+      csm.autoCalcDepthBounds = config.autoCalcDepthBounds ?? true;
 
-			// Apply cascade-specific expanded properties
-			applyCascadeExpandedProperties(csm, config);
+      // Apply cascade-specific expanded properties
+      applyCascadeExpandedProperties(csm, config);
 
-			generator = csm;
-		} else {
-			// Standard ShadowGenerator
-			const gen: BABYLON.ShadowGenerator = new BABYLON.ShadowGenerator(mapSize, light);
+      generator = csm;
+    } else {
+      // Standard ShadowGenerator
+      const gen: BABYLON.ShadowGenerator = new BABYLON.ShadowGenerator(mapSize, light);
 
-			if (config.filterType !== undefined) {
-				// filterType overrides the default filter from type
-				applyFilterType(gen, config.filterType);
-			} else if (config.type === 'pcss') {
-				gen.useContactHardeningShadow = true;
-			} else {
-				// PCF (default, or cascade fallback for non-directional lights)
-				gen.usePercentageCloserFiltering = true;
-			}
+      if (config.filterType !== undefined) {
+        // filterType overrides the default filter from type
+        applyFilterType(gen, config.filterType);
+      } else if (config.type === 'pcss') {
+        gen.useContactHardeningShadow = true;
+      } else {
+        // PCF (default, or cascade fallback for non-directional lights)
+        gen.usePercentageCloserFiltering = true;
+      }
 
-			generator = gen;
-		}
+      generator = gen;
+    }
 
-		// Apply filtering quality
-		const qualityValue: number | undefined =
-			SHADOW_QUALITY_MAP[config.filteringQuality ?? 'medium'];
-		if (qualityValue !== undefined) {
-			generator.filteringQuality = qualityValue;
-		}
+    // Apply filtering quality
+    const qualityValue: number | undefined =
+      SHADOW_QUALITY_MAP[config.filteringQuality ?? 'medium'];
+    if (qualityValue !== undefined) {
+      generator.filteringQuality = qualityValue;
+    }
 
-		// Apply common properties
-		generator.bias = config.bias ?? 0.000_05;
-		generator.normalBias = config.normalBias ?? 0.04;
-		generator.darkness = config.darkness ?? 0.5;
-		generator.transparencyShadow = config.transparencyShadow ?? false;
-		generator.enableSoftTransparentShadow = config.enableSoftTransparentShadow ?? false;
+    // Apply common properties
+    generator.bias = config.bias ?? 0.000_05;
+    generator.normalBias = config.normalBias ?? 0.04;
+    generator.darkness = config.darkness ?? 0.5;
+    generator.transparencyShadow = config.transparencyShadow ?? false;
+    generator.enableSoftTransparentShadow = config.enableSoftTransparentShadow ?? false;
 
-		// Apply expanded general properties
-		applyExpandedProperties(generator, config);
+    // Apply expanded general properties
+    applyExpandedProperties(generator, config);
 
-		return okShallow(generator);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(generator);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -283,8 +283,8 @@ export function createShadowGenerator(
 
 /** Options for adding shadow casters. */
 type AddShadowCastersOptions = {
-	readonly generator: ShadowGeneratorInstance;
-	readonly meshes: readonly BABYLON.AbstractMesh[];
+  readonly generator: ShadowGeneratorInstance;
+  readonly meshes: readonly BABYLON.AbstractMesh[];
 };
 
 /**
@@ -299,15 +299,15 @@ type AddShadowCastersOptions = {
  * ```
  */
 export function addShadowCasters(options: AddShadowCastersOptions): BabylonResult<Bool> {
-	try {
-		for (const mesh of options.meshes) {
-			options.generator.addShadowCaster(mesh);
-			mesh.receiveShadows = true;
-		}
-		return okUnchecked(true);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+  try {
+    for (const mesh of options.meshes) {
+      options.generator.addShadowCaster(mesh);
+      mesh.receiveShadows = true;
+    }
+    return okUnchecked(true);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -316,18 +316,18 @@ export function addShadowCasters(options: AddShadowCastersOptions): BabylonResul
 
 /** Options for quality scaling. */
 type QualityScalingOptions = {
-	readonly config: Partial<ShadowConfig>;
-	readonly quality: QualityPreset;
+  readonly config: Partial<ShadowConfig>;
+  readonly quality: QualityPreset;
 };
 
 /** Scaled shadow config result. */
 type ScaledShadowConfig = {
-	readonly enabled: boolean;
-	readonly type: string;
-	readonly mapSize: number;
-	readonly filteringQuality: string;
-	readonly numCascades: number;
-	readonly enableSoftTransparentShadow: boolean;
+  readonly enabled: boolean;
+  readonly type: string;
+  readonly mapSize: number;
+  readonly filteringQuality: string;
+  readonly numCascades: number;
+  readonly enableSoftTransparentShadow: boolean;
 };
 
 /**
@@ -350,72 +350,72 @@ type ScaledShadowConfig = {
  * ```
  */
 export function applyShadowQualityScaling(
-	options: QualityScalingOptions,
+  options: QualityScalingOptions,
 ): Result<ScaledShadowConfig> {
-	const { config, quality } = options;
-	const mapSize: number = config.mapSize ?? 1024;
-	const filteringQuality: string = config.filteringQuality ?? 'medium';
-	const numCascades: number = config.numCascades ?? 3;
-	const enabled: boolean = config.enabled ?? false;
-	const softTransparent: boolean = config.enableSoftTransparentShadow ?? false;
+  const { config, quality } = options;
+  const mapSize: number = config.mapSize ?? 1024;
+  const filteringQuality: string = config.filteringQuality ?? 'medium';
+  const numCascades: number = config.numCascades ?? 3;
+  const enabled: boolean = config.enabled ?? false;
+  const softTransparent: boolean = config.enableSoftTransparentShadow ?? false;
 
-	// Disabled shadows stay disabled regardless of quality
-	if (!enabled) {
-		return okUnchecked({
-			enabled: false,
-			type: config.type ?? 'pcf',
-			mapSize,
-			filteringQuality,
-			numCascades,
-			enableSoftTransparentShadow: softTransparent,
-		});
-	}
+  // Disabled shadows stay disabled regardless of quality
+  if (!enabled) {
+    return okUnchecked({
+      enabled: false,
+      type: config.type ?? 'pcf',
+      mapSize,
+      filteringQuality,
+      numCascades,
+      enableSoftTransparentShadow: softTransparent,
+    });
+  }
 
-	switch (quality) {
-		case 'low': {
-			return okUnchecked({
-				enabled: false,
-				type: config.type ?? 'pcf',
-				mapSize,
-				filteringQuality,
-				numCascades,
-				enableSoftTransparentShadow: softTransparent,
-			});
-		}
+  switch (quality) {
+    case 'low': {
+      return okUnchecked({
+        enabled: false,
+        type: config.type ?? 'pcf',
+        mapSize,
+        filteringQuality,
+        numCascades,
+        enableSoftTransparentShadow: softTransparent,
+      });
+    }
 
-		case 'medium': {
-			return okUnchecked({
-				enabled: true,
-				type: config.type ?? 'pcf',
-				mapSize: Math.min(1024, mapSize),
-				filteringQuality: 'low',
-				numCascades: Math.min(numCascades, 2),
-				enableSoftTransparentShadow: false,
-			});
-		}
+    case 'medium': {
+      return okUnchecked({
+        enabled: true,
+        type: config.type ?? 'pcf',
+        mapSize: Math.min(1024, mapSize),
+        filteringQuality: 'low',
+        numCascades: Math.min(numCascades, 2),
+        enableSoftTransparentShadow: false,
+      });
+    }
 
-		case 'high': {
-			return okUnchecked({
-				enabled: true,
-				type: config.type ?? 'pcf',
-				mapSize,
-				filteringQuality,
-				numCascades,
-				enableSoftTransparentShadow: softTransparent,
-			});
-		}
+    case 'high': {
+      return okUnchecked({
+        enabled: true,
+        type: config.type ?? 'pcf',
+        mapSize,
+        filteringQuality,
+        numCascades,
+        enableSoftTransparentShadow: softTransparent,
+      });
+    }
 
-		case 'ultra': {
-			return okUnchecked({
-				enabled: true,
-				type: config.type ?? 'pcf',
-				mapSize: Math.max(2048, mapSize),
-				filteringQuality: 'high',
-				numCascades: Math.max(numCascades, 3),
-				enableSoftTransparentShadow: softTransparent,
-			});
-		}
-	}
+    case 'ultra': {
+      return okUnchecked({
+        enabled: true,
+        type: config.type ?? 'pcf',
+        mapSize: Math.max(2048, mapSize),
+        filteringQuality: 'high',
+        numCascades: Math.max(numCascades, 3),
+        enableSoftTransparentShadow: softTransparent,
+      });
+    }
+  }
 }
 
 // =============================================================================
@@ -424,7 +424,7 @@ export function applyShadowQualityScaling(
 
 /** Options for disposing a shadow generator. */
 type DisposeShadowGeneratorOptions = {
-	readonly generator: ShadowGeneratorInstance;
+  readonly generator: ShadowGeneratorInstance;
 };
 
 /**
@@ -434,12 +434,12 @@ type DisposeShadowGeneratorOptions = {
  * @returns BabylonResult indicating success.
  */
 export function disposeShadowGenerator(
-	options: DisposeShadowGeneratorOptions,
+  options: DisposeShadowGeneratorOptions,
 ): BabylonResult<Bool> {
-	try {
-		options.generator.dispose();
-		return okUnchecked(true);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+  try {
+    options.generator.dispose();
+    return okUnchecked(true);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }

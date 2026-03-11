@@ -12,10 +12,10 @@ import * as v from 'valibot';
 
 import type { CallTimeOptions, ErrorMode, FnType, WrapperMeta } from '@/schemas/function/types';
 import {
-	_toBaseSchema,
-	_toFnType,
-	createWrapper,
-	getWrapperMeta,
+  _toBaseSchema,
+  _toFnType,
+  createWrapper,
+  getWrapperMeta,
 } from '@/schemas/function/wrapper-utils';
 
 // =============================================================================
@@ -70,32 +70,32 @@ import {
  * shared — both validations happen in a single wrapper rather than nesting.
  */
 export function returns<TArgs extends unknown[], TReturn>(
-	schema: v.GenericSchema<TReturn>,
-	options?: CallTimeOptions,
+  schema: v.GenericSchema<TReturn>,
+  options?: CallTimeOptions,
 ): v.TransformAction<FnType<TArgs, unknown>, FnType<TArgs, TReturn>> {
-	const onError: ErrorMode = options?.onError ?? 'throw';
+  const onError: ErrorMode = options?.onError ?? 'throw';
 
-	return v.transform<FnType<TArgs, unknown>, FnType<TArgs, TReturn>>(
-		(fn: FnType<TArgs, unknown>): FnType<TArgs, TReturn> => {
-			// Check if already wrapped (by a prior args() in the pipe)
-			const existingMeta: WrapperMeta | undefined = getWrapperMeta(fn);
-			if (existingMeta) {
-				// Update the existing wrapper with returns schema
-				return createWrapper<TArgs, TReturn>(
-					_toFnType<TArgs, TReturn>(existingMeta.__original),
-					existingMeta.__argsSchema,
-					_toBaseSchema(schema),
-					onError,
-				);
-			}
+  return v.transform<FnType<TArgs, unknown>, FnType<TArgs, TReturn>>(
+    (fn: FnType<TArgs, unknown>): FnType<TArgs, TReturn> => {
+      // Check if already wrapped (by a prior args() in the pipe)
+      const existingMeta: WrapperMeta | undefined = getWrapperMeta(fn);
+      if (existingMeta) {
+        // Update the existing wrapper with returns schema
+        return createWrapper<TArgs, TReturn>(
+          _toFnType<TArgs, TReturn>(existingMeta.__original),
+          existingMeta.__argsSchema,
+          _toBaseSchema(schema),
+          onError,
+        );
+      }
 
-			// Create a new wrapper with returns validation only
-			return createWrapper<TArgs, TReturn>(
-				_toFnType<TArgs, TReturn>(fn),
-				undefined,
-				_toBaseSchema(schema),
-				onError,
-			);
-		},
-	);
+      // Create a new wrapper with returns validation only
+      return createWrapper<TArgs, TReturn>(
+        _toFnType<TArgs, TReturn>(fn),
+        undefined,
+        _toBaseSchema(schema),
+        onError,
+      );
+    },
+  );
 }

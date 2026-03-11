@@ -36,17 +36,17 @@
  * Options for `waitFor` polling behavior.
  */
 export type WaitForOptions = {
-	/**
-	 * Maximum time to wait before rejecting (milliseconds).
-	 * @default 1000
-	 */
-	timeout?: number;
+  /**
+   * Maximum time to wait before rejecting (milliseconds).
+   * @default 1000
+   */
+  timeout?: number;
 
-	/**
-	 * Interval between retries (milliseconds).
-	 * @default 50
-	 */
-	interval?: number;
+  /**
+   * Interval between retries (milliseconds).
+   * @default 50
+   */
+  interval?: number;
 };
 
 /**
@@ -78,48 +78,48 @@ export type WaitForOptions = {
  * ```
  */
 export async function waitFor(
-	callback: () => void | Promise<void>,
-	options: WaitForOptions = {},
+  callback: () => void | Promise<void>,
+  options: WaitForOptions = {},
 ): Promise<void> {
-	const { timeout = 1000, interval = 50 } = options;
-	const deadline = Date.now() + timeout;
-	let lastError: unknown;
+  const { timeout = 1000, interval = 50 } = options;
+  const deadline = Date.now() + timeout;
+  let lastError: unknown;
 
-	while (Date.now() < deadline) {
-		try {
-			await callback();
-			return;
-		} catch (error) {
-			lastError = error;
-			await new Promise((resolve) => {
-				setTimeout(resolve, interval);
-			});
-		}
-	}
+  while (Date.now() < deadline) {
+    try {
+      await callback();
+      return;
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => {
+        setTimeout(resolve, interval);
+      });
+    }
+  }
 
-	// One final attempt after timeout
-	try {
-		await callback();
-	} catch (error) {
-		throw lastError ?? error;
-	}
+  // One final attempt after timeout
+  try {
+    await callback();
+  } catch (error) {
+    throw lastError ?? error;
+  }
 }
 
 /**
  * Options for `retry` behavior.
  */
 export type RetryOptions = {
-	/**
-	 * Maximum number of attempts (including the first).
-	 * @default 3
-	 */
-	maxAttempts?: number;
+  /**
+   * Maximum number of attempts (including the first).
+   * @default 3
+   */
+  maxAttempts?: number;
 
-	/**
-	 * Delay between attempts (milliseconds). Applied after each failed attempt.
-	 * @default 0
-	 */
-	delay?: number;
+  /**
+   * Delay between attempts (milliseconds). Applied after each failed attempt.
+   * @default 0
+   */
+  delay?: number;
 };
 
 /**
@@ -148,23 +148,23 @@ export type RetryOptions = {
  * ```
  */
 export async function retry<T>(fn: () => T | Promise<T>, options: RetryOptions = {}): Promise<T> {
-	const { maxAttempts = 3, delay = 0 } = options;
-	let lastError: unknown;
+  const { maxAttempts = 3, delay = 0 } = options;
+  let lastError: unknown;
 
-	for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-		try {
-			return await fn();
-		} catch (error) {
-			lastError = error;
-			if (attempt < maxAttempts && delay > 0) {
-				await new Promise((resolve) => {
-					setTimeout(resolve, delay);
-				});
-			}
-		}
-	}
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxAttempts && delay > 0) {
+        await new Promise((resolve) => {
+          setTimeout(resolve, delay);
+        });
+      }
+    }
+  }
 
-	throw lastError instanceof Error ? lastError : new Error(String(lastError));
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
 }
 
 /**
@@ -202,25 +202,25 @@ export async function retry<T>(fn: () => T | Promise<T>, options: RetryOptions =
  * ```
  */
 export async function withTimeout<T>(
-	promise: Promise<T>,
-	ms: number,
-	message?: string,
+  promise: Promise<T>,
+  ms: number,
+  message?: string,
 ): Promise<T> {
-	let timer: ReturnType<typeof setTimeout> | undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
 
-	const timeout = new Promise<never>((_resolve, reject) => {
-		timer = setTimeout(() => {
-			reject(new Error(message ?? `Operation timed out after ${ms}ms`));
-		}, ms);
-	});
+  const timeout = new Promise<never>((_resolve, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(message ?? `Operation timed out after ${ms}ms`));
+    }, ms);
+  });
 
-	try {
-		return await Promise.race([promise, timeout]);
-	} finally {
-		if (timer !== undefined) {
-			clearTimeout(timer);
-		}
-	}
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timer !== undefined) {
+      clearTimeout(timer);
+    }
+  }
 }
 
 /**
@@ -262,19 +262,19 @@ export async function withTimeout<T>(
  * ```
  */
 export function withAbort<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
-	if (signal.aborted) {
-		return Promise.reject(signal.reason ?? new Error('Aborted'));
-	}
+  if (signal.aborted) {
+    return Promise.reject(signal.reason ?? new Error('Aborted'));
+  }
 
-	const abortPromise = new Promise<never>((_resolve, reject) => {
-		signal.addEventListener(
-			'abort',
-			() => {
-				reject(signal.reason ?? new Error('Aborted'));
-			},
-			{ once: true },
-		);
-	});
+  const abortPromise = new Promise<never>((_resolve, reject) => {
+    signal.addEventListener(
+      'abort',
+      () => {
+        reject(signal.reason ?? new Error('Aborted'));
+      },
+      { once: true },
+    );
+  });
 
-	return Promise.race([promise, abortPromise]);
+  return Promise.race([promise, abortPromise]);
 }

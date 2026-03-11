@@ -1,52 +1,52 @@
 {
-	"name": "webforge",
-	"version": "0.0.0",
-	"type": "module",
-	"private": true,
-	"packageManager": "pnpm@10.30.2",
-	"engines": {
-		"node": ">=25"
-	},
-	"scripts": {
-		"dev": "turbo dev",
-		"build": "turbo build",
-		"clean": "turbo clean",
-		"qa:test": "vitest run",
-		"qa:test:unit": "vitest run",
-		"qa:test:e2e": "turbo qa:test:e2e",
-		"qa:test:coverage": "vitest run --coverage",
-		"qa:benchmark": "vitest bench",
-		"qa:type-check": "turbo qa:type-check",
-		"qa:format": "biome format --write . && prettier --write '**/*.svelte'",
-		"qa:format:check": "biome format . && prettier --check '**/*.svelte'",
-		"qa:lint": "oxlint ."
-	},
-	"pnpm": {
-		"onlyBuiltDependencies": [
-			"@biomejs/biome",
-			"esbuild",
-			"workerd"
-		]
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.4.4",
-		"@sveltejs/vite-plugin-svelte": "^6.2.4",
-		"@testing-library/svelte": "^5.3.1",
-		"@types/node": "^25.3.0",
-		"@types/pngjs": "^6.0.5",
-		"@typescript/native-preview": "^7.0.0-dev.20260225.1",
-		"jsdom": "^28.1.0",
-		"oxlint": "^1.50.0",
-		"pngjs": "^7.0.0",
-		"prettier": "^3.8.1",
-		"prettier-plugin-svelte": "^3.5.0",
-		"svelte": "^5.53.5",
-		"turbo": "^2.8.11",
-		"typescript": "^5.9.3",
-		"vite-tsconfig-paths": "^6.1.1",
-		"vitest": "^4.0.18"
-	},
-	"volta": {
-		"node": "24.14.0"
-	}
+  "name": "webforge",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "packageManager": "pnpm@10.30.2",
+  "engines": {
+    "node": ">=25"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "clean": "turbo clean",
+    "qa:test": "vitest run",
+    "qa:test:unit": "vitest run",
+    "qa:test:e2e": "turbo qa:test:e2e",
+    "qa:test:coverage": "vitest run --coverage",
+    "qa:benchmark": "vitest bench",
+    "qa:type-check": "turbo qa:type-check",
+    "qa:format": "biome format --write . && prettier --write '**/*.svelte'",
+    "qa:format:check": "biome format . && prettier --check '**/*.svelte'",
+    "qa:lint": "oxlint ."
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@biomejs/biome",
+      "esbuild",
+      "workerd"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
+    "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "@testing-library/svelte": "^5.3.1",
+    "@types/node": "^25.3.0",
+    "@types/pngjs": "^6.0.5",
+    "@typescript/native-preview": "^7.0.0-dev.20260225.1",
+    "jsdom": "^28.1.0",
+    "oxlint": "^1.50.0",
+    "pngjs": "^7.0.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-svelte": "^3.5.0",
+    "svelte": "^5.53.5",
+    "turbo": "^2.8.11",
+    "typescript": "^5.9.3",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.0.18"
+  },
+  "volta": {
+    "node": "24.14.0"
+  }
 }

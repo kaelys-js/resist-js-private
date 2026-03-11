@@ -1,122 +1,122 @@
 [
-	{
-		"id": "trv-003",
-		"name": "Thailand",
-		"budget": 2500,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-004",
-		"name": "Vietnam",
-		"budget": 2000,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-005",
-		"name": "Australia",
-		"budget": 4000,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-006",
-		"name": "New Zealand",
-		"budget": 3500,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-007",
-		"name": "Italy",
-		"budget": 4000,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-008",
-		"name": "France",
-		"budget": 4000,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-009",
-		"name": "Spain",
-		"budget": 3500,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-010",
-		"name": "Greece",
-		"budget": 3000,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-011",
-		"name": "Iceland",
-		"budget": 4000,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-012",
-		"name": "Norway",
-		"budget": 4000,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-013",
-		"name": "Mexico",
-		"budget": 2500,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-014",
-		"name": "Colombia",
-		"budget": 2500,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-015",
-		"name": "Peru",
-		"budget": 3000,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-016",
-		"name": "Portugal",
-		"budget": 3000,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	},
-	{
-		"id": "trv-017",
-		"name": "Croatia",
-		"budget": 3000,
-		"isEstimate": true,
-		"planned": true,
-		"notes": ""
-	}
+  {
+    "id": "trv-003",
+    "name": "Thailand",
+    "budget": 2500,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-004",
+    "name": "Vietnam",
+    "budget": 2000,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-005",
+    "name": "Australia",
+    "budget": 4000,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-006",
+    "name": "New Zealand",
+    "budget": 3500,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-007",
+    "name": "Italy",
+    "budget": 4000,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-008",
+    "name": "France",
+    "budget": 4000,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-009",
+    "name": "Spain",
+    "budget": 3500,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-010",
+    "name": "Greece",
+    "budget": 3000,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-011",
+    "name": "Iceland",
+    "budget": 4000,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-012",
+    "name": "Norway",
+    "budget": 4000,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-013",
+    "name": "Mexico",
+    "budget": 2500,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-014",
+    "name": "Colombia",
+    "budget": 2500,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-015",
+    "name": "Peru",
+    "budget": 3000,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-016",
+    "name": "Portugal",
+    "budget": 3000,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  },
+  {
+    "id": "trv-017",
+    "name": "Croatia",
+    "budget": 3000,
+    "isEstimate": true,
+    "planned": true,
+    "notes": ""
+  }
 ]

@@ -13,5 +13,5 @@ import type { PageServerLoad } from './$types';
  * @returns Never — always throws a SvelteKit error
  */
 export const load: PageServerLoad = () => {
-	error(404, { message: 'Not found' });
+  error(404, { message: 'Not found' });
 };

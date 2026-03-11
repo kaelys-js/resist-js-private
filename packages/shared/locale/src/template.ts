@@ -38,27 +38,27 @@
 import * as v from 'valibot';
 
 import {
-	NumSchema,
-	StrSchema,
-	type Bool,
-	type HandlebarsValue,
-	type Num,
-	type NullableRegExpExecArray,
-	type NullableRegExpMatchArray,
-	type OptionalStr,
-	type RawLocaleStrings,
-	type Str,
+  NumSchema,
+  StrSchema,
+  type Bool,
+  type HandlebarsValue,
+  type Num,
+  type NullableRegExpExecArray,
+  type NullableRegExpMatchArray,
+  type OptionalStr,
+  type RawLocaleStrings,
+  type Str,
 } from '@/schemas/common';
 import { ERRORS, type Result, err, ok, okUnchecked } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 import {
-	formatNumber,
-	formatDate,
-	formatTime,
-	DateTimeStyleSchema,
-	type DateTimeStyle,
-	parseNumberSkeleton,
-	parseDateTimeSkeleton,
+  formatNumber,
+  formatDate,
+  formatTime,
+  DateTimeStyleSchema,
+  type DateTimeStyle,
+  parseNumberSkeleton,
+  parseDateTimeSkeleton,
 } from '@/locale/format';
 
 // =============================================================================
@@ -83,8 +83,8 @@ const ESCAPE_SENTINEL_SUFFIX: Str = '\u0000';
 
 /** Valibot schema for an escaped literal entry. */
 const EscapedLiteralSchema = v.strictObject({
-	sentinel: StrSchema,
-	literal: StrSchema,
+  sentinel: StrSchema,
+  literal: StrSchema,
 });
 
 /** An escaped literal entry mapping sentinel → original literal text. */
@@ -92,8 +92,8 @@ type EscapedLiteral = v.InferOutput<typeof EscapedLiteralSchema>;
 
 /** Valibot schema for the result of escaping ICU literals. */
 const EscapeResultSchema = v.strictObject({
-	text: StrSchema,
-	literals: v.array(EscapedLiteralSchema),
+  text: StrSchema,
+  literals: v.array(EscapedLiteralSchema),
 });
 
 /** Result of escaping ICU literals — template with sentinels + restore map. */
@@ -111,49 +111,49 @@ type EscapeResult = v.InferOutput<typeof EscapeResultSchema>;
  * @returns `Result<EscapeResult>` — the template with sentinels, plus sentinel → literal map for restoration.
  */
 function escapeICULiterals(template: Str): Result<EscapeResult> {
-	const templateResult: Result<Str> = safeParse(StrSchema, template);
-	if (!templateResult.ok) return templateResult;
+  const templateResult: Result<Str> = safeParse(StrSchema, template);
+  if (!templateResult.ok) return templateResult;
 
-	const literals: EscapedLiteral[] = [];
-	let result: Str = '';
-	let i: Num = 0;
-	const src: Str = templateResult.data;
+  const literals: EscapedLiteral[] = [];
+  let result: Str = '';
+  let i: Num = 0;
+  const src: Str = templateResult.data;
 
-	while (i < src.length) {
-		if (src[i] === "'") {
-			// '' → single quote literal
-			if (i + 1 < src.length && src[i + 1] === "'") {
-				const sentinel: Str = `${ESCAPE_SENTINEL_PREFIX}${literals.length}${ESCAPE_SENTINEL_SUFFIX}`;
-				literals.push({ sentinel, literal: "'" });
-				result += sentinel;
-				i += 2;
-				continue;
-			}
+  while (i < src.length) {
+    if (src[i] === "'") {
+      // '' → single quote literal
+      if (i + 1 < src.length && src[i + 1] === "'") {
+        const sentinel: Str = `${ESCAPE_SENTINEL_PREFIX}${literals.length}${ESCAPE_SENTINEL_SUFFIX}`;
+        literals.push({ sentinel, literal: "'" });
+        result += sentinel;
+        i += 2;
+        continue;
+      }
 
-			// '{...}' or other quoted region
-			const closeIndex: Num = src.indexOf("'", i + 1);
-			if (closeIndex !== -1) {
-				const sentinel: Str = `${ESCAPE_SENTINEL_PREFIX}${literals.length}${ESCAPE_SENTINEL_SUFFIX}`;
-				const literalText: Str = src.slice(i + 1, closeIndex);
-				literals.push({ sentinel, literal: literalText });
-				result += sentinel;
-				i = closeIndex + 1;
-				continue;
-			}
+      // '{...}' or other quoted region
+      const closeIndex: Num = src.indexOf("'", i + 1);
+      if (closeIndex !== -1) {
+        const sentinel: Str = `${ESCAPE_SENTINEL_PREFIX}${literals.length}${ESCAPE_SENTINEL_SUFFIX}`;
+        const literalText: Str = src.slice(i + 1, closeIndex);
+        literals.push({ sentinel, literal: literalText });
+        result += sentinel;
+        i = closeIndex + 1;
+        continue;
+      }
 
-			// Unpaired single quote at end → output as literal quote
-			const sentinel: Str = `${ESCAPE_SENTINEL_PREFIX}${literals.length}${ESCAPE_SENTINEL_SUFFIX}`;
-			literals.push({ sentinel, literal: "'" });
-			result += sentinel;
-			i++;
-			continue;
-		}
+      // Unpaired single quote at end → output as literal quote
+      const sentinel: Str = `${ESCAPE_SENTINEL_PREFIX}${literals.length}${ESCAPE_SENTINEL_SUFFIX}`;
+      literals.push({ sentinel, literal: "'" });
+      result += sentinel;
+      i++;
+      continue;
+    }
 
-		result += src[i];
-		i++;
-	}
+    result += src[i];
+    i++;
+  }
 
-	return okUnchecked<EscapeResult>({ text: result, literals });
+  return okUnchecked<EscapeResult>({ text: result, literals });
 }
 
 /**
@@ -164,17 +164,17 @@ function escapeICULiterals(template: Str): Result<EscapeResult> {
  * @returns `Result<Str>` — the template with all sentinels replaced by their literal values.
  */
 function restoreEscapedLiterals(template: Str, literals: readonly EscapedLiteral[]): Result<Str> {
-	const templateResult: Result<Str> = safeParse(StrSchema, template);
-	if (!templateResult.ok) return templateResult;
+  const templateResult: Result<Str> = safeParse(StrSchema, template);
+  if (!templateResult.ok) return templateResult;
 
-	let result: Str = templateResult.data;
-	for (const entry of literals) {
-		while (result.includes(entry.sentinel)) {
-			result = result.replace(entry.sentinel, entry.literal);
-		}
-	}
+  let result: Str = templateResult.data;
+  for (const entry of literals) {
+    while (result.includes(entry.sentinel)) {
+      result = result.replace(entry.sentinel, entry.literal);
+    }
+  }
 
-	return ok(StrSchema, result);
+  return ok(StrSchema, result);
 }
 
 // =============================================================================
@@ -225,67 +225,67 @@ export type FormatterMap = Readonly<Record<Str, FormatterFn>>;
  * @returns `FormatterMap` — built-in formatter map.
  */
 function builtInFormatters(locale: Str | undefined): FormatterMap {
-	return {
-		upper: (value: Str, loc: Str | undefined): Result<Str> => {
-			const valueResult: Result<Str> = safeParse(StrSchema, value);
-			if (!valueResult.ok) return valueResult;
-			if (loc !== undefined) {
-				const locResult: Result<Str> = safeParse(StrSchema, loc);
-				if (!locResult.ok) return locResult;
-			}
-			const effectiveLocale: Str | undefined = loc ?? locale;
-			const transformed: Str = effectiveLocale
-				? valueResult.data.toLocaleUpperCase(effectiveLocale)
-				: valueResult.data.toUpperCase();
-			return ok(StrSchema, transformed);
-		},
-		lower: (value: Str, loc: Str | undefined): Result<Str> => {
-			const valueResult: Result<Str> = safeParse(StrSchema, value);
-			if (!valueResult.ok) return valueResult;
-			if (loc !== undefined) {
-				const locResult: Result<Str> = safeParse(StrSchema, loc);
-				if (!locResult.ok) return locResult;
-			}
-			const effectiveLocale: Str | undefined = loc ?? locale;
-			const transformed: Str = effectiveLocale
-				? valueResult.data.toLocaleLowerCase(effectiveLocale)
-				: valueResult.data.toLowerCase();
-			return ok(StrSchema, transformed);
-		},
-		capitalize: (value: Str, loc: Str | undefined): Result<Str> => {
-			const valueResult: Result<Str> = safeParse(StrSchema, value);
-			if (!valueResult.ok) return valueResult;
-			if (loc !== undefined) {
-				const locResult: Result<Str> = safeParse(StrSchema, loc);
-				if (!locResult.ok) return locResult;
-			}
-			if (valueResult.data.length === 0) return ok(StrSchema, valueResult.data);
-			const effectiveLocale: Str | undefined = loc ?? locale;
-			const first: Str = effectiveLocale
-				? valueResult.data[0]!.toLocaleUpperCase(effectiveLocale) // oxlint-disable-line typescript/no-non-null-assertion -- guarded by length === 0 early return above
-				: valueResult.data[0]!.toUpperCase(); // oxlint-disable-line typescript/no-non-null-assertion -- guarded by length === 0 early return above
-			const rest: Str = valueResult.data.slice(1);
-			return ok(StrSchema, first + rest);
-		},
-		title: (value: Str, loc: Str | undefined): Result<Str> => {
-			const valueResult: Result<Str> = safeParse(StrSchema, value);
-			if (!valueResult.ok) return valueResult;
-			if (loc !== undefined) {
-				const locResult: Result<Str> = safeParse(StrSchema, loc);
-				if (!locResult.ok) return locResult;
-			}
-			const effectiveLocale: Str | undefined = loc ?? locale;
-			// String.replace callback returns Str (required by JS API) — pure string
-			// operations inside cannot fail, so no Result propagation needed here.
-			const transformed: Str = valueResult.data.replaceAll(/\S+/g, (word: Str): Str => {
-				return effectiveLocale
-					? word[0]!.toLocaleUpperCase(effectiveLocale) + // oxlint-disable-line typescript/no-non-null-assertion -- regex \S+ guarantees word is non-empty
-							word.slice(1).toLocaleLowerCase(effectiveLocale)
-					: word[0]!.toUpperCase() + word.slice(1).toLowerCase(); // oxlint-disable-line typescript/no-non-null-assertion -- regex \S+ guarantees word is non-empty
-			});
-			return ok(StrSchema, transformed);
-		},
-	};
+  return {
+    upper: (value: Str, loc: Str | undefined): Result<Str> => {
+      const valueResult: Result<Str> = safeParse(StrSchema, value);
+      if (!valueResult.ok) return valueResult;
+      if (loc !== undefined) {
+        const locResult: Result<Str> = safeParse(StrSchema, loc);
+        if (!locResult.ok) return locResult;
+      }
+      const effectiveLocale: Str | undefined = loc ?? locale;
+      const transformed: Str = effectiveLocale
+        ? valueResult.data.toLocaleUpperCase(effectiveLocale)
+        : valueResult.data.toUpperCase();
+      return ok(StrSchema, transformed);
+    },
+    lower: (value: Str, loc: Str | undefined): Result<Str> => {
+      const valueResult: Result<Str> = safeParse(StrSchema, value);
+      if (!valueResult.ok) return valueResult;
+      if (loc !== undefined) {
+        const locResult: Result<Str> = safeParse(StrSchema, loc);
+        if (!locResult.ok) return locResult;
+      }
+      const effectiveLocale: Str | undefined = loc ?? locale;
+      const transformed: Str = effectiveLocale
+        ? valueResult.data.toLocaleLowerCase(effectiveLocale)
+        : valueResult.data.toLowerCase();
+      return ok(StrSchema, transformed);
+    },
+    capitalize: (value: Str, loc: Str | undefined): Result<Str> => {
+      const valueResult: Result<Str> = safeParse(StrSchema, value);
+      if (!valueResult.ok) return valueResult;
+      if (loc !== undefined) {
+        const locResult: Result<Str> = safeParse(StrSchema, loc);
+        if (!locResult.ok) return locResult;
+      }
+      if (valueResult.data.length === 0) return ok(StrSchema, valueResult.data);
+      const effectiveLocale: Str | undefined = loc ?? locale;
+      const first: Str = effectiveLocale
+        ? valueResult.data[0]!.toLocaleUpperCase(effectiveLocale) // oxlint-disable-line typescript/no-non-null-assertion -- guarded by length === 0 early return above
+        : valueResult.data[0]!.toUpperCase(); // oxlint-disable-line typescript/no-non-null-assertion -- guarded by length === 0 early return above
+      const rest: Str = valueResult.data.slice(1);
+      return ok(StrSchema, first + rest);
+    },
+    title: (value: Str, loc: Str | undefined): Result<Str> => {
+      const valueResult: Result<Str> = safeParse(StrSchema, value);
+      if (!valueResult.ok) return valueResult;
+      if (loc !== undefined) {
+        const locResult: Result<Str> = safeParse(StrSchema, loc);
+        if (!locResult.ok) return locResult;
+      }
+      const effectiveLocale: Str | undefined = loc ?? locale;
+      // String.replace callback returns Str (required by JS API) — pure string
+      // operations inside cannot fail, so no Result propagation needed here.
+      const transformed: Str = valueResult.data.replaceAll(/\S+/g, (word: Str): Str => {
+        return effectiveLocale
+          ? word[0]!.toLocaleUpperCase(effectiveLocale) + // oxlint-disable-line typescript/no-non-null-assertion -- regex \S+ guarantees word is non-empty
+              word.slice(1).toLocaleLowerCase(effectiveLocale)
+          : word[0]!.toUpperCase() + word.slice(1).toLowerCase(); // oxlint-disable-line typescript/no-non-null-assertion -- regex \S+ guarantees word is non-empty
+      });
+      return ok(StrSchema, transformed);
+    },
+  };
 }
 
 /**
@@ -295,8 +295,8 @@ function builtInFormatters(locale: Str | undefined): FormatterMap {
  * which `BuiltLocale` reads to generate the correct function signature.
  */
 export type TemplateSchema<TParams extends ParamSchemas = ParamSchemas> = v.GenericSchema<
-	string,
-	string
+  string,
+  string
 > & { readonly _templateParams: TParams };
 
 // =============================================================================
@@ -328,41 +328,41 @@ export type TemplateSchema<TParams extends ParamSchemas = ParamSchemas> = v.Gene
  */
 export function messageTemplate(): TemplateSchema<Record<string, never>>;
 export function messageTemplate<TParams extends ParamSchemas>(
-	params: TParams,
+  params: TParams,
 ): TemplateSchema<TParams>;
 export function messageTemplate<TParams extends ParamSchemas>(
-	params?: TParams,
+  params?: TParams,
 ): TemplateSchema<TParams> {
-	const paramDefs: TParams = (params ?? {}) as TParams; // Irreducible: TParams is a generic — no runtime schema. Safe per overload constraints.
-	const expectedKeys = new Set<string>(Object.keys(paramDefs));
+  const paramDefs: TParams = (params ?? {}) as TParams; // Irreducible: TParams is a generic — no runtime schema. Safe per overload constraints.
+  const expectedKeys = new Set<string>(Object.keys(paramDefs));
 
-	const schema =
-		expectedKeys.size === 0
-			? v.string()
-			: v.pipe(
-					v.string(),
-					v.check(
-						(val: string): boolean => {
-							const foundResult: Result<Set<Str>> = extractPlaceholders(val);
-							if (!foundResult.ok) return false;
-							const found: ReadonlySet<Str> = foundResult.data;
-							for (const key of expectedKeys) {
-								if (!found.has(key)) return false;
-							}
-							for (const key of found) {
-								if (!expectedKeys.has(key)) return false;
-							}
-							return true;
-						},
-						`Template must contain exactly these placeholders: ${[...expectedKeys].join(', ')}`,
-					),
-				);
+  const schema =
+    expectedKeys.size === 0
+      ? v.string()
+      : v.pipe(
+          v.string(),
+          v.check(
+            (val: string): boolean => {
+              const foundResult: Result<Set<Str>> = extractPlaceholders(val);
+              if (!foundResult.ok) return false;
+              const found: ReadonlySet<Str> = foundResult.data;
+              for (const key of expectedKeys) {
+                if (!found.has(key)) return false;
+              }
+              for (const key of found) {
+                if (!expectedKeys.has(key)) return false;
+              }
+              return true;
+            },
+            `Template must contain exactly these placeholders: ${[...expectedKeys].join(', ')}`,
+          ),
+        );
 
-	// Attach param schemas as metadata for buildLocale() to retrieve at runtime.
-	const schemaRecord: Record<symbol, unknown> = schema as Record<symbol, unknown>; // Symbol indexing requires cast
-	schemaRecord[TEMPLATE_PARAMS] = paramDefs;
+  // Attach param schemas as metadata for buildLocale() to retrieve at runtime.
+  const schemaRecord: Record<symbol, unknown> = schema as Record<symbol, unknown>; // Symbol indexing requires cast
+  schemaRecord[TEMPLATE_PARAMS] = paramDefs;
 
-	return schema as unknown as TemplateSchema<TParams>; // Irreducible: TemplateSchema<TParams> is generic — no runtime schema. Metadata attached via symbol above.
+  return schema as unknown as TemplateSchema<TParams>; // Irreducible: TemplateSchema<TParams> is generic — no runtime schema. Metadata attached via symbol above.
 }
 
 /**
@@ -372,10 +372,10 @@ export function messageTemplate<TParams extends ParamSchemas>(
  * @returns The param schemas map, or `null` if none are attached.
  */
 function getTemplateParams(schema: v.GenericSchema): NullableParamSchemas {
-	const schemaRecord: Record<symbol, unknown> = schema as unknown as Record<symbol, unknown>; // Symbol indexing requires cast
-	const params: unknown = schemaRecord[TEMPLATE_PARAMS];
-	if (params && typeof params === 'object') return params as NullableParamSchemas; // Runtime-guarded
-	return null;
+  const schemaRecord: Record<symbol, unknown> = schema as unknown as Record<symbol, unknown>; // Symbol indexing requires cast
+  const params: unknown = schemaRecord[TEMPLATE_PARAMS];
+  if (params && typeof params === 'object') return params as NullableParamSchemas; // Runtime-guarded
+  return null;
 }
 
 // =============================================================================
@@ -408,59 +408,59 @@ function getTemplateParams(schema: v.GenericSchema): NullableParamSchemas {
  * ```
  */
 export type BuiltLocale<TSchema> =
-	TSchema extends v.StrictObjectSchema<infer TEntries, undefined>
-		? { readonly [K in keyof TEntries]: BuiltLocaleEntry<TEntries[K]> }
-		: TSchema extends v.ObjectSchema<infer TEntries, undefined>
-			? { readonly [K in keyof TEntries]: BuiltLocaleEntry<TEntries[K]> }
-			: TSchema extends v.LooseObjectSchema<infer TEntries, undefined>
-				? { readonly [K in keyof TEntries]: BuiltLocaleEntry<TEntries[K]> }
-				: TSchema extends v.IntersectSchema<infer TOptions, undefined>
-					? IntersectBuiltLocale<TOptions>
-					: unknown;
+  TSchema extends v.StrictObjectSchema<infer TEntries, undefined>
+    ? { readonly [K in keyof TEntries]: BuiltLocaleEntry<TEntries[K]> }
+    : TSchema extends v.ObjectSchema<infer TEntries, undefined>
+      ? { readonly [K in keyof TEntries]: BuiltLocaleEntry<TEntries[K]> }
+      : TSchema extends v.LooseObjectSchema<infer TEntries, undefined>
+        ? { readonly [K in keyof TEntries]: BuiltLocaleEntry<TEntries[K]> }
+        : TSchema extends v.IntersectSchema<infer TOptions, undefined>
+          ? IntersectBuiltLocale<TOptions>
+          : unknown;
 
 /** Maps a single schema entry to its callable form. */
 type BuiltLocaleEntry<TEntry> =
-	// Nested object → recurse
-	TEntry extends v.StrictObjectSchema<infer _E, undefined>
-		? BuiltLocale<TEntry>
-		: TEntry extends v.ObjectSchema<infer _E, undefined>
-			? BuiltLocale<TEntry>
-			: TEntry extends v.LooseObjectSchema<infer _E, undefined>
-				? BuiltLocale<TEntry>
-				: // Template with params → (params: { ... }) => Result<Str>
-					TEntry extends TemplateSchema<infer TParams>
-					? keyof TParams extends never
-						? () => Result<Str>
-						: (params: { [K in keyof TParams]: v.InferOutput<TParams[K]> }) => Result<Str>
-					: // Plain v.string() → () => Result<Str>
-						TEntry extends v.StringSchema<undefined>
-						? () => Result<Str>
-						: // Piped string (check before array/optional — pipes on strings should be callables)
-							TEntry extends v.SchemaWithPipe<infer _P>
-							? () => Result<Str>
-							: // Non-string types pass through unchanged (arrays, records, optionals, etc.)
-								TEntry extends v.ArraySchema<infer _I, undefined>
-								? v.InferOutput<TEntry>
-								: TEntry extends v.OptionalSchema<infer TWrapped, infer _TDefault>
-									? TWrapped extends v.StringSchema<undefined>
-										? (() => Result<Str>) | undefined
-										: v.InferOutput<TEntry>
-									: TEntry extends v.RecordSchema<infer _K, infer _V, undefined>
-										? v.InferOutput<TEntry>
-										: // Fallback — pass through the inferred output type
-											TEntry extends v.GenericSchema
-											? v.InferOutput<TEntry>
-											: unknown;
+  // Nested object → recurse
+  TEntry extends v.StrictObjectSchema<infer _E, undefined>
+    ? BuiltLocale<TEntry>
+    : TEntry extends v.ObjectSchema<infer _E, undefined>
+      ? BuiltLocale<TEntry>
+      : TEntry extends v.LooseObjectSchema<infer _E, undefined>
+        ? BuiltLocale<TEntry>
+        : // Template with params → (params: { ... }) => Result<Str>
+          TEntry extends TemplateSchema<infer TParams>
+          ? keyof TParams extends never
+            ? () => Result<Str>
+            : (params: { [K in keyof TParams]: v.InferOutput<TParams[K]> }) => Result<Str>
+          : // Plain v.string() → () => Result<Str>
+            TEntry extends v.StringSchema<undefined>
+            ? () => Result<Str>
+            : // Piped string (check before array/optional — pipes on strings should be callables)
+              TEntry extends v.SchemaWithPipe<infer _P>
+              ? () => Result<Str>
+              : // Non-string types pass through unchanged (arrays, records, optionals, etc.)
+                TEntry extends v.ArraySchema<infer _I, undefined>
+                ? v.InferOutput<TEntry>
+                : TEntry extends v.OptionalSchema<infer TWrapped, infer _TDefault>
+                  ? TWrapped extends v.StringSchema<undefined>
+                    ? (() => Result<Str>) | undefined
+                    : v.InferOutput<TEntry>
+                  : TEntry extends v.RecordSchema<infer _K, infer _V, undefined>
+                    ? v.InferOutput<TEntry>
+                    : // Fallback — pass through the inferred output type
+                      TEntry extends v.GenericSchema
+                      ? v.InferOutput<TEntry>
+                      : unknown;
 
 /** Merges built locales from an intersect schema's options tuple. */
 type IntersectBuiltLocale<TOptions extends readonly v.GenericSchema[]> = TOptions extends readonly [
-	infer TFirst,
-	...infer TRest,
+  infer TFirst,
+  ...infer TRest,
 ]
-	? TRest extends readonly v.GenericSchema[]
-		? BuiltLocale<TFirst> & IntersectBuiltLocale<TRest>
-		: BuiltLocale<TFirst>
-	: unknown;
+  ? TRest extends readonly v.GenericSchema[]
+    ? BuiltLocale<TFirst> & IntersectBuiltLocale<TRest>
+    : BuiltLocale<TFirst>
+  : unknown;
 
 // =============================================================================
 // Placeholder Extraction
@@ -476,46 +476,46 @@ type IntersectBuiltLocale<TOptions extends readonly v.GenericSchema[]> = TOption
  * @returns `Result<Set<Str>>` — set of placeholder names found, or a validation error.
  */
 function extractPlaceholders(template: Str): Result<Set<Str>> {
-	const templateResult: Result<Str> = safeParse(StrSchema, template);
-	if (!templateResult.ok) return templateResult;
+  const templateResult: Result<Str> = safeParse(StrSchema, template);
+  if (!templateResult.ok) return templateResult;
 
-	// Strip escaped literals before scanning for placeholders
-	const escapeResult: Result<EscapeResult> = escapeICULiterals(templateResult.data);
-	if (!escapeResult.ok) return escapeResult;
-	const cleanTemplate: Str = escapeResult.data.text;
+  // Strip escaped literals before scanning for placeholders
+  const escapeResult: Result<EscapeResult> = escapeICULiterals(templateResult.data);
+  if (!escapeResult.ok) return escapeResult;
+  const cleanTemplate: Str = escapeResult.data.text;
 
-	const found: Set<Str> = new Set<Str>();
-	const simpleRegex = /\{(\w+)(?:\|[\w|]*)?\}/g;
-	const pluralRegex = /\{(\w+)\s*,\s*plural\s*,/g;
-	const selectRegex = /\{(\w+)\s*,\s*select\s*,/g;
-	const selectOrdinalRegex = /\{(\w+)\s*,\s*selectordinal\s*,/g;
-	const numberRegex = /\{(\w+)\s*,\s*number/g;
-	const dateTimeRegex = /\{(\w+)\s*,\s*(?:date|time)/g;
+  const found: Set<Str> = new Set<Str>();
+  const simpleRegex = /\{(\w+)(?:\|[\w|]*)?\}/g;
+  const pluralRegex = /\{(\w+)\s*,\s*plural\s*,/g;
+  const selectRegex = /\{(\w+)\s*,\s*select\s*,/g;
+  const selectOrdinalRegex = /\{(\w+)\s*,\s*selectordinal\s*,/g;
+  const numberRegex = /\{(\w+)\s*,\s*number/g;
+  const dateTimeRegex = /\{(\w+)\s*,\s*(?:date|time)/g;
 
-	let match: NullableRegExpExecArray;
-	while ((match = simpleRegex.exec(cleanTemplate)) !== null) {
-		if (match[1]) found.add(match[1]);
-	}
-	while ((match = pluralRegex.exec(cleanTemplate)) !== null) {
-		if (match[1]) found.add(match[1]);
-	}
-	while ((match = selectRegex.exec(cleanTemplate)) !== null) {
-		if (match[1]) found.add(match[1]);
-	}
-	while ((match = selectOrdinalRegex.exec(cleanTemplate)) !== null) {
-		if (match[1]) found.add(match[1]);
-	}
-	while ((match = numberRegex.exec(cleanTemplate)) !== null) {
-		if (match[1]) found.add(match[1]);
-	}
-	while ((match = dateTimeRegex.exec(cleanTemplate)) !== null) {
-		if (match[1]) found.add(match[1]);
-	}
-	const rangeRegex = /\{(\w+)\s*,\s*range/g;
-	while ((match = rangeRegex.exec(cleanTemplate)) !== null) {
-		if (match[1]) found.add(match[1]);
-	}
-	return okUnchecked<Set<Str>>(found);
+  let match: NullableRegExpExecArray;
+  while ((match = simpleRegex.exec(cleanTemplate)) !== null) {
+    if (match[1]) found.add(match[1]);
+  }
+  while ((match = pluralRegex.exec(cleanTemplate)) !== null) {
+    if (match[1]) found.add(match[1]);
+  }
+  while ((match = selectRegex.exec(cleanTemplate)) !== null) {
+    if (match[1]) found.add(match[1]);
+  }
+  while ((match = selectOrdinalRegex.exec(cleanTemplate)) !== null) {
+    if (match[1]) found.add(match[1]);
+  }
+  while ((match = numberRegex.exec(cleanTemplate)) !== null) {
+    if (match[1]) found.add(match[1]);
+  }
+  while ((match = dateTimeRegex.exec(cleanTemplate)) !== null) {
+    if (match[1]) found.add(match[1]);
+  }
+  const rangeRegex = /\{(\w+)\s*,\s*range/g;
+  while ((match = rangeRegex.exec(cleanTemplate)) !== null) {
+    if (match[1]) found.add(match[1]);
+  }
+  return okUnchecked<Set<Str>>(found);
 }
 
 // =============================================================================
@@ -535,36 +535,36 @@ function extractPlaceholders(template: Str): Result<Set<Str>> {
  * @returns `Result<Str>` — the resolved string for the given count, or a validation error.
  */
 function resolvePlural(count: Num, body: Str, locale?: Str): Result<Str> {
-	const countResult: Result<Num> = safeParse(NumSchema, count);
-	if (!countResult.ok) return countResult;
-	const bodyResult: Result<Str> = safeParse(StrSchema, body);
-	if (!bodyResult.ok) return bodyResult;
-	if (locale !== undefined) {
-		const localeResult: Result<Str> = safeParse(StrSchema, locale);
-		if (!localeResult.ok) return localeResult;
-	}
+  const countResult: Result<Num> = safeParse(NumSchema, count);
+  if (!countResult.ok) return countResult;
+  const bodyResult: Result<Str> = safeParse(StrSchema, body);
+  if (!bodyResult.ok) return bodyResult;
+  if (locale !== undefined) {
+    const localeResult: Result<Str> = safeParse(StrSchema, locale);
+    if (!localeResult.ok) return localeResult;
+  }
 
-	const parsed: Result<PluralParseResult> = parsePluralBranches(bodyResult.data);
-	if (!parsed.ok) return parsed;
+  const parsed: Result<PluralParseResult> = parsePluralBranches(bodyResult.data);
+  if (!parsed.ok) return parsed;
 
-	const pluralOffset: Num = parsed.data.offset;
-	const adjustedCount: Num = countResult.data - pluralOffset;
+  const pluralOffset: Num = parsed.data.offset;
+  const adjustedCount: Num = countResult.data - pluralOffset;
 
-	// Exact match uses original count for matching, adjusted count for # replacement
-	const exact: OptionalStr = parsed.data.branches.get(`=${countResult.data}`);
-	if (exact !== undefined) return ok(StrSchema, exact.replaceAll('#', String(adjustedCount)));
+  // Exact match uses original count for matching, adjusted count for # replacement
+  const exact: OptionalStr = parsed.data.branches.get(`=${countResult.data}`);
+  if (exact !== undefined) return ok(StrSchema, exact.replaceAll('#', String(adjustedCount)));
 
-	// Keyword match uses adjusted count for both rule selection and # replacement
-	const rules: Intl.PluralRules = new Intl.PluralRules(locale ?? undefined, { type: 'cardinal' });
-	const keyword: Str = rules.select(adjustedCount);
-	const branch: Str = parsed.data.branches.get(keyword) ?? parsed.data.branches.get('other') ?? '';
-	return ok(StrSchema, branch.replaceAll('#', String(adjustedCount)));
+  // Keyword match uses adjusted count for both rule selection and # replacement
+  const rules: Intl.PluralRules = new Intl.PluralRules(locale ?? undefined, { type: 'cardinal' });
+  const keyword: Str = rules.select(adjustedCount);
+  const branch: Str = parsed.data.branches.get(keyword) ?? parsed.data.branches.get('other') ?? '';
+  return ok(StrSchema, branch.replaceAll('#', String(adjustedCount)));
 }
 
 /** Result of parsing plural branches — includes branch map and optional offset. */
 type PluralParseResult = {
-	readonly branches: Map<Str, Str>;
-	readonly offset: Num;
+  readonly branches: Map<Str, Str>;
+  readonly offset: Num;
 };
 
 /**
@@ -577,62 +577,62 @@ type PluralParseResult = {
  * @returns `Result<PluralParseResult>` — parsed branches and offset.
  */
 function parsePluralBranches(body: Str): Result<PluralParseResult> {
-	const bodyResult: Result<Str> = safeParse(StrSchema, body);
-	if (!bodyResult.ok) return bodyResult;
+  const bodyResult: Result<Str> = safeParse(StrSchema, body);
+  if (!bodyResult.ok) return bodyResult;
 
-	const branches: Map<Str, Str> = new Map<Str, Str>();
-	let trimmed: Str = bodyResult.data.trim();
-	let offset: Num = 0;
+  const branches: Map<Str, Str> = new Map<Str, Str>();
+  let trimmed: Str = bodyResult.data.trim();
+  let offset: Num = 0;
 
-	// Check for offset:N at the start
-	const offsetMatch: NullableRegExpMatchArray = trimmed.match(/^offset\s*:\s*(\d+)\s*/);
-	if (offsetMatch && offsetMatch[1] !== undefined) {
-		offset = Number(offsetMatch[1]);
-		trimmed = trimmed.slice(offsetMatch[0].length);
-	}
+  // Check for offset:N at the start
+  const offsetMatch: NullableRegExpMatchArray = trimmed.match(/^offset\s*:\s*(\d+)\s*/);
+  if (offsetMatch && offsetMatch[1] !== undefined) {
+    offset = Number(offsetMatch[1]);
+    trimmed = trimmed.slice(offsetMatch[0].length);
+  }
 
-	// Loop counter i and depth are local loop mechanics, not domain values
-	let i: Num = 0;
+  // Loop counter i and depth are local loop mechanics, not domain values
+  let i: Num = 0;
 
-	while (i < trimmed.length) {
-		// Skip whitespace
-		while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) i++;
-		if (i >= trimmed.length) break;
+  while (i < trimmed.length) {
+    // Skip whitespace
+    while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) i++;
+    if (i >= trimmed.length) break;
 
-		// Read keyword (e.g., "one", "other", "=0")
-		let keyword: Str = '';
-		while (i < trimmed.length && !/[\s{]/.test(trimmed[i] ?? '')) {
-			keyword += trimmed[i];
-			i++;
-		}
-		if (!keyword) break;
+    // Read keyword (e.g., "one", "other", "=0")
+    let keyword: Str = '';
+    while (i < trimmed.length && !/[\s{]/.test(trimmed[i] ?? '')) {
+      keyword += trimmed[i];
+      i++;
+    }
+    if (!keyword) break;
 
-		// Skip whitespace
-		while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) i++;
+    // Skip whitespace
+    while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) i++;
 
-		// Read brace-delimited body
-		if (i >= trimmed.length || trimmed[i] !== '{') break;
-		i++; // skip opening brace
+    // Read brace-delimited body
+    if (i >= trimmed.length || trimmed[i] !== '{') break;
+    i++; // skip opening brace
 
-		let depth: Num = 1;
-		let branchBody: Str = '';
-		while (i < trimmed.length && depth > 0) {
-			if (trimmed[i] === '{') depth++;
-			else if (trimmed[i] === '}') {
-				depth--;
-				if (depth === 0) {
-					i++;
-					break;
-				}
-			}
-			branchBody += trimmed[i];
-			i++;
-		}
+    let depth: Num = 1;
+    let branchBody: Str = '';
+    while (i < trimmed.length && depth > 0) {
+      if (trimmed[i] === '{') depth++;
+      else if (trimmed[i] === '}') {
+        depth--;
+        if (depth === 0) {
+          i++;
+          break;
+        }
+      }
+      branchBody += trimmed[i];
+      i++;
+    }
 
-		branches.set(keyword, branchBody);
-	}
+    branches.set(keyword, branchBody);
+  }
 
-	return okUnchecked<PluralParseResult>({ branches, offset });
+  return okUnchecked<PluralParseResult>({ branches, offset });
 }
 
 // =============================================================================
@@ -648,18 +648,18 @@ function parsePluralBranches(body: Str): Result<PluralParseResult> {
  * @returns `Result<Str>` — the resolved branch string, or a validation error.
  */
 function resolveSelect(value: Str, body: Str): Result<Str> {
-	const valueResult: Result<Str> = safeParse(StrSchema, value);
-	if (!valueResult.ok) return valueResult;
-	const bodyResult: Result<Str> = safeParse(StrSchema, body);
-	if (!bodyResult.ok) return bodyResult;
+  const valueResult: Result<Str> = safeParse(StrSchema, value);
+  if (!valueResult.ok) return valueResult;
+  const bodyResult: Result<Str> = safeParse(StrSchema, body);
+  if (!bodyResult.ok) return bodyResult;
 
-	const branches: Result<PluralParseResult> = parsePluralBranches(bodyResult.data);
-	if (!branches.ok) return branches;
+  const branches: Result<PluralParseResult> = parsePluralBranches(bodyResult.data);
+  if (!branches.ok) return branches;
 
-	// Exact match, then `other` fallback
-	const branch: Str =
-		branches.data.branches.get(valueResult.data) ?? branches.data.branches.get('other') ?? '';
-	return ok(StrSchema, branch);
+  // Exact match, then `other` fallback
+  const branch: Str =
+    branches.data.branches.get(valueResult.data) ?? branches.data.branches.get('other') ?? '';
+  return ok(StrSchema, branch);
 }
 
 // =============================================================================
@@ -678,30 +678,30 @@ function resolveSelect(value: Str, body: Str): Result<Str> {
  * @returns `Result<Str>` — the resolved ordinal string, or a validation error.
  */
 function resolveSelectOrdinal(count: Num, body: Str, locale?: Str): Result<Str> {
-	const countResult: Result<Num> = safeParse(NumSchema, count);
-	if (!countResult.ok) return countResult;
-	const bodyResult: Result<Str> = safeParse(StrSchema, body);
-	if (!bodyResult.ok) return bodyResult;
-	if (locale !== undefined) {
-		const localeResult: Result<Str> = safeParse(StrSchema, locale);
-		if (!localeResult.ok) return localeResult;
-	}
+  const countResult: Result<Num> = safeParse(NumSchema, count);
+  if (!countResult.ok) return countResult;
+  const bodyResult: Result<Str> = safeParse(StrSchema, body);
+  if (!bodyResult.ok) return bodyResult;
+  if (locale !== undefined) {
+    const localeResult: Result<Str> = safeParse(StrSchema, locale);
+    if (!localeResult.ok) return localeResult;
+  }
 
-	const parsed: Result<PluralParseResult> = parsePluralBranches(bodyResult.data);
-	if (!parsed.ok) return parsed;
+  const parsed: Result<PluralParseResult> = parsePluralBranches(bodyResult.data);
+  if (!parsed.ok) return parsed;
 
-	const pluralOffset: Num = parsed.data.offset;
-	const adjustedCount: Num = countResult.data - pluralOffset;
+  const pluralOffset: Num = parsed.data.offset;
+  const adjustedCount: Num = countResult.data - pluralOffset;
 
-	// Exact match uses original count for matching, adjusted count for # replacement
-	const exact: OptionalStr = parsed.data.branches.get(`=${countResult.data}`);
-	if (exact !== undefined) return ok(StrSchema, exact.replaceAll('#', String(adjustedCount)));
+  // Exact match uses original count for matching, adjusted count for # replacement
+  const exact: OptionalStr = parsed.data.branches.get(`=${countResult.data}`);
+  if (exact !== undefined) return ok(StrSchema, exact.replaceAll('#', String(adjustedCount)));
 
-	// Ordinal keyword match via Intl.PluralRules — uses adjusted count
-	const rules: Intl.PluralRules = new Intl.PluralRules(locale ?? undefined, { type: 'ordinal' });
-	const keyword: Str = rules.select(adjustedCount);
-	const branch: Str = parsed.data.branches.get(keyword) ?? parsed.data.branches.get('other') ?? '';
-	return ok(StrSchema, branch.replaceAll('#', String(adjustedCount)));
+  // Ordinal keyword match via Intl.PluralRules — uses adjusted count
+  const rules: Intl.PluralRules = new Intl.PluralRules(locale ?? undefined, { type: 'ordinal' });
+  const keyword: Str = rules.select(adjustedCount);
+  const branch: Str = parsed.data.branches.get(keyword) ?? parsed.data.branches.get('other') ?? '';
+  return ok(StrSchema, branch.replaceAll('#', String(adjustedCount)));
 }
 
 // =============================================================================
@@ -722,64 +722,64 @@ function resolveSelectOrdinal(count: Num, body: Str, locale?: Str): Result<Str> 
  * @returns `Result<Str>` — the template with select blocks resolved, or a validation error.
  */
 function replaceSelectBlocks(
-	template: Str,
-	params: Record<Str, unknown>,
-	locale: Str | undefined,
-	depth: Num,
-	escapedLiterals: readonly EscapedLiteral[],
-	formatters?: FormatterMap,
+  template: Str,
+  params: Record<Str, unknown>,
+  locale: Str | undefined,
+  depth: Num,
+  escapedLiterals: readonly EscapedLiteral[],
+  formatters?: FormatterMap,
 ): Result<Str> {
-	const templateResult: Result<Str> = safeParse(StrSchema, template);
-	if (!templateResult.ok) return templateResult;
+  const templateResult: Result<Str> = safeParse(StrSchema, template);
+  if (!templateResult.ok) return templateResult;
 
-	let result: Str = '';
-	let i: Num = 0;
+  let result: Str = '';
+  let i: Num = 0;
 
-	while (i < templateResult.data.length) {
-		if (templateResult.data[i] === '{') {
-			const remaining: Str = templateResult.data.slice(i + 1);
-			const selectMatch: NullableRegExpMatchArray = remaining.match(/^(\w+)\s*,\s*select\s*,\s*/);
+  while (i < templateResult.data.length) {
+    if (templateResult.data[i] === '{') {
+      const remaining: Str = templateResult.data.slice(i + 1);
+      const selectMatch: NullableRegExpMatchArray = remaining.match(/^(\w+)\s*,\s*select\s*,\s*/);
 
-			if (selectMatch && selectMatch[1]) {
-				// oxlint-disable-next-line prefer-destructuring
-				const key: Str = selectMatch[1];
-				const bodyStart: Num = i + 1 + selectMatch[0].length;
+      if (selectMatch && selectMatch[1]) {
+        // oxlint-disable-next-line prefer-destructuring
+        const key: Str = selectMatch[1];
+        const bodyStart: Num = i + 1 + selectMatch[0].length;
 
-				let braceDepth: Num = 1;
-				let j: Num = bodyStart;
-				while (j < templateResult.data.length && braceDepth > 0) {
-					if (templateResult.data[j] === '{') braceDepth++;
-					else if (templateResult.data[j] === '}') braceDepth--;
-					j++;
-				}
+        let braceDepth: Num = 1;
+        let j: Num = bodyStart;
+        while (j < templateResult.data.length && braceDepth > 0) {
+          if (templateResult.data[j] === '{') braceDepth++;
+          else if (templateResult.data[j] === '}') braceDepth--;
+          j++;
+        }
 
-				const body: Str = templateResult.data.slice(bodyStart, j - 1);
-				const value: Str = String(params[key] ?? '');
-				const resolvedResult: Result<Str> = resolveSelect(value, body);
-				if (!resolvedResult.ok) return resolvedResult;
+        const body: Str = templateResult.data.slice(bodyStart, j - 1);
+        const value: Str = String(params[key] ?? '');
+        const resolvedResult: Result<Str> = resolveSelect(value, body);
+        if (!resolvedResult.ok) return resolvedResult;
 
-				// Recursively process the resolved branch for inner ICU blocks
-				const recursiveResult: Result<Str> = renderMessageInternal(
-					resolvedResult.data,
-					params,
-					locale,
-					depth + 1,
-					escapedLiterals,
-					undefined,
-					formatters,
-				);
-				if (!recursiveResult.ok) return recursiveResult;
-				result += recursiveResult.data;
-				i = j;
-				continue;
-			}
-		}
+        // Recursively process the resolved branch for inner ICU blocks
+        const recursiveResult: Result<Str> = renderMessageInternal(
+          resolvedResult.data,
+          params,
+          locale,
+          depth + 1,
+          escapedLiterals,
+          undefined,
+          formatters,
+        );
+        if (!recursiveResult.ok) return recursiveResult;
+        result += recursiveResult.data;
+        i = j;
+        continue;
+      }
+    }
 
-		result += templateResult.data[i];
-		i++;
-	}
+    result += templateResult.data[i];
+    i++;
+  }
 
-	return ok(StrSchema, result);
+  return ok(StrSchema, result);
 }
 
 // =============================================================================
@@ -800,70 +800,70 @@ function replaceSelectBlocks(
  * @returns `Result<Str>` — the template with selectordinal blocks resolved, or a validation error.
  */
 function replaceSelectOrdinalBlocks(
-	template: Str,
-	params: Record<Str, unknown>,
-	locale: Str | undefined,
-	depth: Num,
-	escapedLiterals: readonly EscapedLiteral[],
-	formatters?: FormatterMap,
+  template: Str,
+  params: Record<Str, unknown>,
+  locale: Str | undefined,
+  depth: Num,
+  escapedLiterals: readonly EscapedLiteral[],
+  formatters?: FormatterMap,
 ): Result<Str> {
-	const templateResult: Result<Str> = safeParse(StrSchema, template);
-	if (!templateResult.ok) return templateResult;
-	if (locale !== undefined) {
-		const localeResult: Result<Str> = safeParse(StrSchema, locale);
-		if (!localeResult.ok) return localeResult;
-	}
+  const templateResult: Result<Str> = safeParse(StrSchema, template);
+  if (!templateResult.ok) return templateResult;
+  if (locale !== undefined) {
+    const localeResult: Result<Str> = safeParse(StrSchema, locale);
+    if (!localeResult.ok) return localeResult;
+  }
 
-	let result: Str = '';
-	let i: Num = 0;
+  let result: Str = '';
+  let i: Num = 0;
 
-	while (i < templateResult.data.length) {
-		if (templateResult.data[i] === '{') {
-			const remaining: Str = templateResult.data.slice(i + 1);
-			const ordinalMatch: NullableRegExpMatchArray = remaining.match(
-				/^(\w+)\s*,\s*selectordinal\s*,\s*/,
-			);
+  while (i < templateResult.data.length) {
+    if (templateResult.data[i] === '{') {
+      const remaining: Str = templateResult.data.slice(i + 1);
+      const ordinalMatch: NullableRegExpMatchArray = remaining.match(
+        /^(\w+)\s*,\s*selectordinal\s*,\s*/,
+      );
 
-			if (ordinalMatch && ordinalMatch[1]) {
-				// oxlint-disable-next-line prefer-destructuring
-				const key: Str = ordinalMatch[1];
-				const bodyStart: Num = i + 1 + ordinalMatch[0].length;
+      if (ordinalMatch && ordinalMatch[1]) {
+        // oxlint-disable-next-line prefer-destructuring
+        const key: Str = ordinalMatch[1];
+        const bodyStart: Num = i + 1 + ordinalMatch[0].length;
 
-				let braceDepth: Num = 1;
-				let j: Num = bodyStart;
-				while (j < templateResult.data.length && braceDepth > 0) {
-					if (templateResult.data[j] === '{') braceDepth++;
-					else if (templateResult.data[j] === '}') braceDepth--;
-					j++;
-				}
+        let braceDepth: Num = 1;
+        let j: Num = bodyStart;
+        while (j < templateResult.data.length && braceDepth > 0) {
+          if (templateResult.data[j] === '{') braceDepth++;
+          else if (templateResult.data[j] === '}') braceDepth--;
+          j++;
+        }
 
-				const body: Str = templateResult.data.slice(bodyStart, j - 1);
-				const count: Num = Number(params[key]);
-				const resolvedResult: Result<Str> = resolveSelectOrdinal(count, body, locale);
-				if (!resolvedResult.ok) return resolvedResult;
+        const body: Str = templateResult.data.slice(bodyStart, j - 1);
+        const count: Num = Number(params[key]);
+        const resolvedResult: Result<Str> = resolveSelectOrdinal(count, body, locale);
+        if (!resolvedResult.ok) return resolvedResult;
 
-				// Recursively process the resolved branch for inner ICU blocks
-				const recursiveResult: Result<Str> = renderMessageInternal(
-					resolvedResult.data,
-					params,
-					locale,
-					depth + 1,
-					escapedLiterals,
-					undefined,
-					formatters,
-				);
-				if (!recursiveResult.ok) return recursiveResult;
-				result += recursiveResult.data;
-				i = j;
-				continue;
-			}
-		}
+        // Recursively process the resolved branch for inner ICU blocks
+        const recursiveResult: Result<Str> = renderMessageInternal(
+          resolvedResult.data,
+          params,
+          locale,
+          depth + 1,
+          escapedLiterals,
+          undefined,
+          formatters,
+        );
+        if (!recursiveResult.ok) return recursiveResult;
+        result += recursiveResult.data;
+        i = j;
+        continue;
+      }
+    }
 
-		result += templateResult.data[i];
-		i++;
-	}
+    result += templateResult.data[i];
+    i++;
+  }
 
-	return ok(StrSchema, result);
+  return ok(StrSchema, result);
 }
 
 // =============================================================================
@@ -887,67 +887,67 @@ const MAX_ICU_DEPTH: Num = 10;
  * @returns `Result<Str>` — the template with message references resolved.
  */
 function replaceMessageRefs(
-	template: Str,
-	resolver: ((key: Str) => Result<Str>) | undefined,
-	depth: Num,
-	locale?: Str,
-	formatters?: FormatterMap,
+  template: Str,
+  resolver: ((key: Str) => Result<Str>) | undefined,
+  depth: Num,
+  locale?: Str,
+  formatters?: FormatterMap,
 ): Result<Str> {
-	if (!resolver) return ok(StrSchema, template);
-	if (depth > MAX_ICU_DEPTH) {
-		return err(ERRORS.LOCALE.FORMAT_FAILED, {
-			meta: {
-				type: 'messageRef',
-				reason: `Message reference depth exceeded maximum of ${MAX_ICU_DEPTH}`,
-			},
-		});
-	}
+  if (!resolver) return ok(StrSchema, template);
+  if (depth > MAX_ICU_DEPTH) {
+    return err(ERRORS.LOCALE.FORMAT_FAILED, {
+      meta: {
+        type: 'messageRef',
+        reason: `Message reference depth exceeded maximum of ${MAX_ICU_DEPTH}`,
+      },
+    });
+  }
 
-	const templateResult: Result<Str> = safeParse(StrSchema, template);
-	if (!templateResult.ok) return templateResult;
+  const templateResult: Result<Str> = safeParse(StrSchema, template);
+  if (!templateResult.ok) return templateResult;
 
-	// Match @:key or @.modifier:key or @.modifier:path.to.key
-	const refRegex = /@(?:\.([\w]+))?:([\w]+(?:\.[\w]+)*)/g;
-	let result: Str = templateResult.data;
+  // Match @:key or @.modifier:key or @.modifier:path.to.key
+  const refRegex = /@(?:\.([\w]+))?:([\w]+(?:\.[\w]+)*)/g;
+  let result: Str = templateResult.data;
 
-	// Collect all matches first to avoid infinite replacement loops
-	const replacements: Array<{
-		readonly full: Str;
-		readonly modifier: Str | undefined;
-		readonly key: Str;
-	}> = [];
-	let match: NullableRegExpExecArray = refRegex.exec(result);
-	while (match !== null) {
-		if (match[2] !== undefined) {
-			replacements.push({ full: match[0], modifier: match[1], key: match[2] });
-		}
-		match = refRegex.exec(result);
-	}
+  // Collect all matches first to avoid infinite replacement loops
+  const replacements: Array<{
+    readonly full: Str;
+    readonly modifier: Str | undefined;
+    readonly key: Str;
+  }> = [];
+  let match: NullableRegExpExecArray = refRegex.exec(result);
+  while (match !== null) {
+    if (match[2] !== undefined) {
+      replacements.push({ full: match[0], modifier: match[1], key: match[2] });
+    }
+    match = refRegex.exec(result);
+  }
 
-	const effectiveFormatters: FormatterMap = {
-		...builtInFormatters(locale),
-		...formatters,
-	};
+  const effectiveFormatters: FormatterMap = {
+    ...builtInFormatters(locale),
+    ...formatters,
+  };
 
-	for (const replacement of replacements) {
-		const resolvedResult: Result<Str> = resolver(replacement.key);
-		if (!resolvedResult.ok) return resolvedResult;
+  for (const replacement of replacements) {
+    const resolvedResult: Result<Str> = resolver(replacement.key);
+    if (!resolvedResult.ok) return resolvedResult;
 
-		let resolved: Str = resolvedResult.data;
+    let resolved: Str = resolvedResult.data;
 
-		if (replacement.modifier) {
-			const formatter: FormatterFn | undefined = effectiveFormatters[replacement.modifier];
-			if (formatter) {
-				const fmtResult: Result<Str> = formatter(resolved, locale);
-				if (!fmtResult.ok) return fmtResult;
-				resolved = fmtResult.data;
-			}
-		}
+    if (replacement.modifier) {
+      const formatter: FormatterFn | undefined = effectiveFormatters[replacement.modifier];
+      if (formatter) {
+        const fmtResult: Result<Str> = formatter(resolved, locale);
+        if (!fmtResult.ok) return fmtResult;
+        resolved = fmtResult.data;
+      }
+    }
 
-		result = result.replace(replacement.full, resolved);
-	}
+    result = result.replace(replacement.full, resolved);
+  }
 
-	return ok(StrSchema, result);
+  return ok(StrSchema, result);
 }
 
 /**
@@ -963,120 +963,120 @@ function replaceMessageRefs(
  * @returns `Result<Str>` — the rendered string.
  */
 function renderMessageInternal(
-	template: Str,
-	params: Record<Str, unknown>,
-	locale: Str | undefined,
-	depth: Num,
-	escapedLiterals: readonly EscapedLiteral[],
-	resolver?: (key: Str) => Result<Str>,
-	formatters?: FormatterMap,
+  template: Str,
+  params: Record<Str, unknown>,
+  locale: Str | undefined,
+  depth: Num,
+  escapedLiterals: readonly EscapedLiteral[],
+  resolver?: (key: Str) => Result<Str>,
+  formatters?: FormatterMap,
 ): Result<Str> {
-	if (depth > MAX_ICU_DEPTH) {
-		return err(ERRORS.LOCALE.FORMAT_FAILED, {
-			meta: { type: 'template', reason: `ICU nesting depth exceeded maximum of ${MAX_ICU_DEPTH}` },
-		});
-	}
+  if (depth > MAX_ICU_DEPTH) {
+    return err(ERRORS.LOCALE.FORMAT_FAILED, {
+      meta: { type: 'template', reason: `ICU nesting depth exceeded maximum of ${MAX_ICU_DEPTH}` },
+    });
+  }
 
-	// 0. Message references — resolve @:key and @.modifier:key before ICU processing
-	const refResult: Result<Str> = replaceMessageRefs(template, resolver, depth, locale, formatters);
-	if (!refResult.ok) return refResult;
+  // 0. Message references — resolve @:key and @.modifier:key before ICU processing
+  const refResult: Result<Str> = replaceMessageRefs(template, resolver, depth, locale, formatters);
+  if (!refResult.ok) return refResult;
 
-	// 1. Select blocks
-	const selectResult: Result<Str> = replaceSelectBlocks(
-		refResult.data,
-		params,
-		locale,
-		depth,
-		escapedLiterals,
-		formatters,
-	);
-	if (!selectResult.ok) return selectResult;
+  // 1. Select blocks
+  const selectResult: Result<Str> = replaceSelectBlocks(
+    refResult.data,
+    params,
+    locale,
+    depth,
+    escapedLiterals,
+    formatters,
+  );
+  if (!selectResult.ok) return selectResult;
 
-	// 2. Select ordinal blocks
-	const ordinalResult: Result<Str> = replaceSelectOrdinalBlocks(
-		selectResult.data,
-		params,
-		locale,
-		depth,
-		escapedLiterals,
-		formatters,
-	);
-	if (!ordinalResult.ok) return ordinalResult;
+  // 2. Select ordinal blocks
+  const ordinalResult: Result<Str> = replaceSelectOrdinalBlocks(
+    selectResult.data,
+    params,
+    locale,
+    depth,
+    escapedLiterals,
+    formatters,
+  );
+  if (!ordinalResult.ok) return ordinalResult;
 
-	// 3. Plural blocks
-	const pluralResult: Result<Str> = replacePluralBlocks(
-		ordinalResult.data,
-		params,
-		locale,
-		depth,
-		escapedLiterals,
-		formatters,
-	);
-	if (!pluralResult.ok) return pluralResult;
+  // 3. Plural blocks
+  const pluralResult: Result<Str> = replacePluralBlocks(
+    ordinalResult.data,
+    params,
+    locale,
+    depth,
+    escapedLiterals,
+    formatters,
+  );
+  if (!pluralResult.ok) return pluralResult;
 
-	// 3.5. Range blocks
-	const rangeResult: Result<Str> = replaceRangeBlocks(
-		pluralResult.data,
-		params,
-		locale,
-		depth,
-		escapedLiterals,
-		formatters,
-	);
-	if (!rangeResult.ok) return rangeResult;
+  // 3.5. Range blocks
+  const rangeResult: Result<Str> = replaceRangeBlocks(
+    pluralResult.data,
+    params,
+    locale,
+    depth,
+    escapedLiterals,
+    formatters,
+  );
+  if (!rangeResult.ok) return rangeResult;
 
-	// 4. Number blocks
-	const numberResult: Result<Str> = replaceNumberBlocks(rangeResult.data, params, locale);
-	if (!numberResult.ok) return numberResult;
+  // 4. Number blocks
+  const numberResult: Result<Str> = replaceNumberBlocks(rangeResult.data, params, locale);
+  if (!numberResult.ok) return numberResult;
 
-	// 5. Date/time blocks
-	const dateTimeResult: Result<Str> = replaceDateTimeBlocks(numberResult.data, params, locale);
-	if (!dateTimeResult.ok) return dateTimeResult;
+  // 5. Date/time blocks
+  const dateTimeResult: Result<Str> = replaceDateTimeBlocks(numberResult.data, params, locale);
+  if (!dateTimeResult.ok) return dateTimeResult;
 
-	// 6. Simple {name} and {name|formatter1|formatter2} placeholders
-	// Uses match-then-replace pattern for proper Result error propagation
-	// (String.replace callbacks return Str, cannot propagate Result<Str>)
-	let result: Str = dateTimeResult.data;
-	const effectiveFormatters: FormatterMap = {
-		...builtInFormatters(locale),
-		...formatters,
-	};
+  // 6. Simple {name} and {name|formatter1|formatter2} placeholders
+  // Uses match-then-replace pattern for proper Result error propagation
+  // (String.replace callbacks return Str, cannot propagate Result<Str>)
+  let result: Str = dateTimeResult.data;
+  const effectiveFormatters: FormatterMap = {
+    ...builtInFormatters(locale),
+    ...formatters,
+  };
 
-	const simplePlaceholderRegex = /\{(\w+)(?:\|([\w]+(?:\|[\w]+)*))?\}/g;
-	const simpleMatches: Array<{
-		readonly full: Str;
-		readonly key: Str;
-		readonly pipes: Str | undefined;
-	}> = [];
-	let simpleMatch: NullableRegExpExecArray = simplePlaceholderRegex.exec(result);
-	while (simpleMatch !== null) {
-		if (simpleMatch[1] !== undefined) {
-			simpleMatches.push({
-				full: simpleMatch[0],
-				key: simpleMatch[1],
-				pipes: simpleMatch[2],
-			});
-		}
-		simpleMatch = simplePlaceholderRegex.exec(result);
-	}
+  const simplePlaceholderRegex = /\{(\w+)(?:\|([\w]+(?:\|[\w]+)*))?\}/g;
+  const simpleMatches: Array<{
+    readonly full: Str;
+    readonly key: Str;
+    readonly pipes: Str | undefined;
+  }> = [];
+  let simpleMatch: NullableRegExpExecArray = simplePlaceholderRegex.exec(result);
+  while (simpleMatch !== null) {
+    if (simpleMatch[1] !== undefined) {
+      simpleMatches.push({
+        full: simpleMatch[0],
+        key: simpleMatch[1],
+        pipes: simpleMatch[2],
+      });
+    }
+    simpleMatch = simplePlaceholderRegex.exec(result);
+  }
 
-	for (const sm of simpleMatches) {
-		let value: Str = String(params[sm.key] ?? '');
-		if (sm.pipes) {
-			const pipeNames: Str[] = sm.pipes.split('|');
-			for (const pipeName of pipeNames) {
-				const formatter: FormatterFn | undefined = effectiveFormatters[pipeName];
-				if (formatter) {
-					const fmtResult: Result<Str> = formatter(value, locale);
-					if (!fmtResult.ok) return fmtResult;
-					value = fmtResult.data;
-				}
-			}
-		}
-		result = result.replace(sm.full, value);
-	}
+  for (const sm of simpleMatches) {
+    let value: Str = String(params[sm.key] ?? '');
+    if (sm.pipes) {
+      const pipeNames: Str[] = sm.pipes.split('|');
+      for (const pipeName of pipeNames) {
+        const formatter: FormatterFn | undefined = effectiveFormatters[pipeName];
+        if (formatter) {
+          const fmtResult: Result<Str> = formatter(value, locale);
+          if (!fmtResult.ok) return fmtResult;
+          value = fmtResult.data;
+        }
+      }
+    }
+    result = result.replace(sm.full, value);
+  }
 
-	return ok(StrSchema, result);
+  return ok(StrSchema, result);
 }
 
 /**
@@ -1103,37 +1103,37 @@ function renderMessageInternal(
  * @returns `Result<Str>` — the rendered string, or a validation error.
  */
 export function renderMessage(
-	template: Str,
-	params: Record<Str, unknown>,
-	locale?: Str,
-	resolver?: (key: Str) => Result<Str>,
-	formatters?: FormatterMap,
+  template: Str,
+  params: Record<Str, unknown>,
+  locale?: Str,
+  resolver?: (key: Str) => Result<Str>,
+  formatters?: FormatterMap,
 ): Result<Str> {
-	const templateResult: Result<Str> = safeParse(StrSchema, template);
-	if (!templateResult.ok) return templateResult;
-	if (locale !== undefined) {
-		const localeResult: Result<Str> = safeParse(StrSchema, locale);
-		if (!localeResult.ok) return localeResult;
-	}
+  const templateResult: Result<Str> = safeParse(StrSchema, template);
+  if (!templateResult.ok) return templateResult;
+  if (locale !== undefined) {
+    const localeResult: Result<Str> = safeParse(StrSchema, locale);
+    if (!localeResult.ok) return localeResult;
+  }
 
-	// 0. Escape ICU literals — replace '...' and '' with sentinels
-	const escapeResult: Result<EscapeResult> = escapeICULiterals(templateResult.data);
-	if (!escapeResult.ok) return escapeResult;
+  // 0. Escape ICU literals — replace '...' and '' with sentinels
+  const escapeResult: Result<EscapeResult> = escapeICULiterals(templateResult.data);
+  if (!escapeResult.ok) return escapeResult;
 
-	// Run internal pipeline
-	const renderResult: Result<Str> = renderMessageInternal(
-		escapeResult.data.text,
-		params,
-		locale,
-		0,
-		escapeResult.data.literals,
-		resolver,
-		formatters,
-	);
-	if (!renderResult.ok) return renderResult;
+  // Run internal pipeline
+  const renderResult: Result<Str> = renderMessageInternal(
+    escapeResult.data.text,
+    params,
+    locale,
+    0,
+    escapeResult.data.literals,
+    resolver,
+    formatters,
+  );
+  if (!renderResult.ok) return renderResult;
 
-	// Restore escaped literals
-	return restoreEscapedLiterals(renderResult.data, escapeResult.data.literals);
+  // Restore escaped literals
+  return restoreEscapedLiterals(renderResult.data, escapeResult.data.literals);
 }
 
 /**
@@ -1150,68 +1150,68 @@ export function renderMessage(
  * @returns `Result<Str>` — the template with plural blocks resolved, or a validation error.
  */
 function replacePluralBlocks(
-	template: Str,
-	params: Record<Str, unknown>,
-	locale: Str | undefined,
-	depth: Num,
-	escapedLiterals: readonly EscapedLiteral[],
-	formatters?: FormatterMap,
+  template: Str,
+  params: Record<Str, unknown>,
+  locale: Str | undefined,
+  depth: Num,
+  escapedLiterals: readonly EscapedLiteral[],
+  formatters?: FormatterMap,
 ): Result<Str> {
-	const templateResult: Result<Str> = safeParse(StrSchema, template);
-	if (!templateResult.ok) return templateResult;
-	if (locale !== undefined) {
-		const localeResult: Result<Str> = safeParse(StrSchema, locale);
-		if (!localeResult.ok) return localeResult;
-	}
+  const templateResult: Result<Str> = safeParse(StrSchema, template);
+  if (!templateResult.ok) return templateResult;
+  if (locale !== undefined) {
+    const localeResult: Result<Str> = safeParse(StrSchema, locale);
+    if (!localeResult.ok) return localeResult;
+  }
 
-	let result: Str = '';
-	let i: Num = 0;
+  let result: Str = '';
+  let i: Num = 0;
 
-	while (i < templateResult.data.length) {
-		if (templateResult.data[i] === '{') {
-			const remaining: Str = templateResult.data.slice(i + 1);
-			const pluralMatch: NullableRegExpMatchArray = remaining.match(/^(\w+)\s*,\s*plural\s*,\s*/);
+  while (i < templateResult.data.length) {
+    if (templateResult.data[i] === '{') {
+      const remaining: Str = templateResult.data.slice(i + 1);
+      const pluralMatch: NullableRegExpMatchArray = remaining.match(/^(\w+)\s*,\s*plural\s*,\s*/);
 
-			if (pluralMatch && pluralMatch[1]) {
-				// oxlint-disable-next-line prefer-destructuring
-				const key: Str = pluralMatch[1];
-				const bodyStart: Num = i + 1 + pluralMatch[0].length;
+      if (pluralMatch && pluralMatch[1]) {
+        // oxlint-disable-next-line prefer-destructuring
+        const key: Str = pluralMatch[1];
+        const bodyStart: Num = i + 1 + pluralMatch[0].length;
 
-				let braceDepth: Num = 1;
-				let j: Num = bodyStart;
-				while (j < templateResult.data.length && braceDepth > 0) {
-					if (templateResult.data[j] === '{') braceDepth++;
-					else if (templateResult.data[j] === '}') braceDepth--;
-					j++;
-				}
+        let braceDepth: Num = 1;
+        let j: Num = bodyStart;
+        while (j < templateResult.data.length && braceDepth > 0) {
+          if (templateResult.data[j] === '{') braceDepth++;
+          else if (templateResult.data[j] === '}') braceDepth--;
+          j++;
+        }
 
-				const body: Str = templateResult.data.slice(bodyStart, j - 1);
-				const count: Num = Number(params[key]);
-				const resolvedResult: Result<Str> = resolvePlural(count, body, locale);
-				if (!resolvedResult.ok) return resolvedResult;
+        const body: Str = templateResult.data.slice(bodyStart, j - 1);
+        const count: Num = Number(params[key]);
+        const resolvedResult: Result<Str> = resolvePlural(count, body, locale);
+        if (!resolvedResult.ok) return resolvedResult;
 
-				// Recursively process the resolved branch for inner ICU blocks
-				const recursiveResult: Result<Str> = renderMessageInternal(
-					resolvedResult.data,
-					params,
-					locale,
-					depth + 1,
-					escapedLiterals,
-					undefined,
-					formatters,
-				);
-				if (!recursiveResult.ok) return recursiveResult;
-				result += recursiveResult.data;
-				i = j;
-				continue;
-			}
-		}
+        // Recursively process the resolved branch for inner ICU blocks
+        const recursiveResult: Result<Str> = renderMessageInternal(
+          resolvedResult.data,
+          params,
+          locale,
+          depth + 1,
+          escapedLiterals,
+          undefined,
+          formatters,
+        );
+        if (!recursiveResult.ok) return recursiveResult;
+        result += recursiveResult.data;
+        i = j;
+        continue;
+      }
+    }
 
-		result += templateResult.data[i];
-		i++;
-	}
+    result += templateResult.data[i];
+    i++;
+  }
 
-	return ok(StrSchema, result);
+  return ok(StrSchema, result);
 }
 
 // =============================================================================
@@ -1220,12 +1220,12 @@ function replacePluralBlocks(
 
 /** Valibot schema for a single range branch — exact match or min–max range. */
 const RangeBranchSchema = v.strictObject({
-	/** Minimum value (inclusive). */
-	min: NumSchema,
-	/** Maximum value (inclusive). `Infinity` for open-ended ranges. */
-	max: NumSchema,
-	/** Branch body template. */
-	body: StrSchema,
+  /** Minimum value (inclusive). */
+  min: NumSchema,
+  /** Maximum value (inclusive). `Infinity` for open-ended ranges. */
+  max: NumSchema,
+  /** Branch body template. */
+  body: StrSchema,
 });
 
 /** A single range branch. @see {@link RangeBranchSchema} */
@@ -1240,71 +1240,71 @@ type RangeBranch = v.InferOutput<typeof RangeBranchSchema>;
  * @returns `Result<ReadonlyArray<RangeBranch>>` — parsed branches in order, or a validation error.
  */
 function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
-	const bodyResult: Result<Str> = safeParse(StrSchema, body);
-	if (!bodyResult.ok) return bodyResult;
+  const bodyResult: Result<Str> = safeParse(StrSchema, body);
+  if (!bodyResult.ok) return bodyResult;
 
-	const branches: RangeBranch[] = [];
-	const trimmed: Str = bodyResult.data.trim();
-	let i: Num = 0;
+  const branches: RangeBranch[] = [];
+  const trimmed: Str = bodyResult.data.trim();
+  let i: Num = 0;
 
-	while (i < trimmed.length) {
-		// Skip whitespace
-		while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) i++;
-		if (i >= trimmed.length) break;
+  while (i < trimmed.length) {
+    // Skip whitespace
+    while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) i++;
+    if (i >= trimmed.length) break;
 
-		// Expect '('
-		if (trimmed[i] !== '(') break;
-		i++;
+    // Expect '('
+    if (trimmed[i] !== '(') break;
+    i++;
 
-		// Read range spec until ')'
-		let rangeSpec: Str = '';
-		while (i < trimmed.length && trimmed[i] !== ')') {
-			rangeSpec += trimmed[i];
-			i++;
-		}
-		if (i >= trimmed.length) break;
-		i++; // skip ')'
+    // Read range spec until ')'
+    let rangeSpec: Str = '';
+    while (i < trimmed.length && trimmed[i] !== ')') {
+      rangeSpec += trimmed[i];
+      i++;
+    }
+    if (i >= trimmed.length) break;
+    i++; // skip ')'
 
-		// Skip whitespace
-		while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) i++;
+    // Skip whitespace
+    while (i < trimmed.length && /\s/.test(trimmed[i] ?? '')) i++;
 
-		// Expect '{'
-		if (i >= trimmed.length || trimmed[i] !== '{') break;
-		i++;
+    // Expect '{'
+    if (i >= trimmed.length || trimmed[i] !== '{') break;
+    i++;
 
-		// Read branch body with brace depth counting
-		let braceDepth: Num = 1;
-		let branchBody: Str = '';
-		while (i < trimmed.length && braceDepth > 0) {
-			if (trimmed[i] === '{') braceDepth++;
-			else if (trimmed[i] === '}') {
-				braceDepth--;
-				if (braceDepth === 0) {
-					i++;
-					break;
-				}
-			}
-			branchBody += trimmed[i];
-			i++;
-		}
+    // Read branch body with brace depth counting
+    let braceDepth: Num = 1;
+    let branchBody: Str = '';
+    while (i < trimmed.length && braceDepth > 0) {
+      if (trimmed[i] === '{') braceDepth++;
+      else if (trimmed[i] === '}') {
+        braceDepth--;
+        if (braceDepth === 0) {
+          i++;
+          break;
+        }
+      }
+      branchBody += trimmed[i];
+      i++;
+    }
 
-		// Parse range spec: "0" (exact), "2-5" (range), "6-inf" (open-ended)
-		const dashIndex: Num = rangeSpec.indexOf('-');
-		let min: Num;
-		let max: Num;
-		if (dashIndex === -1) {
-			min = Number(rangeSpec);
-			max = min;
-		} else {
-			min = Number(rangeSpec.slice(0, dashIndex));
-			const maxStr: Str = rangeSpec.slice(dashIndex + 1);
-			max = maxStr === 'inf' ? Infinity : Number(maxStr);
-		}
+    // Parse range spec: "0" (exact), "2-5" (range), "6-inf" (open-ended)
+    const dashIndex: Num = rangeSpec.indexOf('-');
+    let min: Num;
+    let max: Num;
+    if (dashIndex === -1) {
+      min = Number(rangeSpec);
+      max = min;
+    } else {
+      min = Number(rangeSpec.slice(0, dashIndex));
+      const maxStr: Str = rangeSpec.slice(dashIndex + 1);
+      max = maxStr === 'inf' ? Infinity : Number(maxStr);
+    }
 
-		branches.push({ min, max, body: branchBody });
-	}
+    branches.push({ min, max, body: branchBody });
+  }
 
-	return okUnchecked<readonly RangeBranch[]>(branches);
+  return okUnchecked<readonly RangeBranch[]>(branches);
 }
 
 /**
@@ -1316,21 +1316,21 @@ function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
  * @returns `Result<Str>` — the resolved branch body, or empty string if no match.
  */
 function resolveRange(count: Num, body: Str): Result<Str> {
-	const countResult: Result<Num> = safeParse(NumSchema, count);
-	if (!countResult.ok) return countResult;
-	const bodyResult: Result<Str> = safeParse(StrSchema, body);
-	if (!bodyResult.ok) return bodyResult;
+  const countResult: Result<Num> = safeParse(NumSchema, count);
+  if (!countResult.ok) return countResult;
+  const bodyResult: Result<Str> = safeParse(StrSchema, body);
+  if (!bodyResult.ok) return bodyResult;
 
-	const branchesResult: Result<readonly RangeBranch[]> = parseRangeBranches(bodyResult.data);
-	if (!branchesResult.ok) return branchesResult;
+  const branchesResult: Result<readonly RangeBranch[]> = parseRangeBranches(bodyResult.data);
+  if (!branchesResult.ok) return branchesResult;
 
-	for (const branch of branchesResult.data) {
-		if (countResult.data >= branch.min && countResult.data <= branch.max) {
-			return ok(StrSchema, branch.body.replaceAll('#', String(countResult.data)));
-		}
-	}
+  for (const branch of branchesResult.data) {
+    if (countResult.data >= branch.min && countResult.data <= branch.max) {
+      return ok(StrSchema, branch.body.replaceAll('#', String(countResult.data)));
+    }
+  }
 
-	return ok(StrSchema, '');
+  return ok(StrSchema, '');
 }
 
 /**
@@ -1347,68 +1347,68 @@ function resolveRange(count: Num, body: Str): Result<Str> {
  * @returns `Result<Str>` — template with range blocks resolved, or a validation error.
  */
 function replaceRangeBlocks(
-	template: Str,
-	params: Record<Str, unknown>,
-	locale: Str | undefined,
-	depth: Num,
-	escapedLiterals: readonly EscapedLiteral[],
-	formatters?: FormatterMap,
+  template: Str,
+  params: Record<Str, unknown>,
+  locale: Str | undefined,
+  depth: Num,
+  escapedLiterals: readonly EscapedLiteral[],
+  formatters?: FormatterMap,
 ): Result<Str> {
-	const templateResult: Result<Str> = safeParse(StrSchema, template);
-	if (!templateResult.ok) return templateResult;
-	if (locale !== undefined) {
-		const localeResult: Result<Str> = safeParse(StrSchema, locale);
-		if (!localeResult.ok) return localeResult;
-	}
+  const templateResult: Result<Str> = safeParse(StrSchema, template);
+  if (!templateResult.ok) return templateResult;
+  if (locale !== undefined) {
+    const localeResult: Result<Str> = safeParse(StrSchema, locale);
+    if (!localeResult.ok) return localeResult;
+  }
 
-	let result: Str = '';
-	let i: Num = 0;
+  let result: Str = '';
+  let i: Num = 0;
 
-	while (i < templateResult.data.length) {
-		if (templateResult.data[i] === '{') {
-			const remaining: Str = templateResult.data.slice(i + 1);
-			const rangeMatch: NullableRegExpMatchArray = remaining.match(/^(\w+)\s*,\s*range\s*,\s*/);
+  while (i < templateResult.data.length) {
+    if (templateResult.data[i] === '{') {
+      const remaining: Str = templateResult.data.slice(i + 1);
+      const rangeMatch: NullableRegExpMatchArray = remaining.match(/^(\w+)\s*,\s*range\s*,\s*/);
 
-			if (rangeMatch && rangeMatch[1]) {
-				// oxlint-disable-next-line prefer-destructuring
-				const key: Str = rangeMatch[1];
-				const bodyStart: Num = i + 1 + rangeMatch[0].length;
+      if (rangeMatch && rangeMatch[1]) {
+        // oxlint-disable-next-line prefer-destructuring
+        const key: Str = rangeMatch[1];
+        const bodyStart: Num = i + 1 + rangeMatch[0].length;
 
-				let braceDepth: Num = 1;
-				let j: Num = bodyStart;
-				while (j < templateResult.data.length && braceDepth > 0) {
-					if (templateResult.data[j] === '{') braceDepth++;
-					else if (templateResult.data[j] === '}') braceDepth--;
-					j++;
-				}
+        let braceDepth: Num = 1;
+        let j: Num = bodyStart;
+        while (j < templateResult.data.length && braceDepth > 0) {
+          if (templateResult.data[j] === '{') braceDepth++;
+          else if (templateResult.data[j] === '}') braceDepth--;
+          j++;
+        }
 
-				const body: Str = templateResult.data.slice(bodyStart, j - 1);
-				const count: Num = Number(params[key]);
-				const resolvedResult: Result<Str> = resolveRange(count, body);
-				if (!resolvedResult.ok) return resolvedResult;
+        const body: Str = templateResult.data.slice(bodyStart, j - 1);
+        const count: Num = Number(params[key]);
+        const resolvedResult: Result<Str> = resolveRange(count, body);
+        if (!resolvedResult.ok) return resolvedResult;
 
-				// Recursively process the resolved branch for inner ICU blocks
-				const recursiveResult: Result<Str> = renderMessageInternal(
-					resolvedResult.data,
-					params,
-					locale,
-					depth + 1,
-					escapedLiterals,
-					undefined,
-					formatters,
-				);
-				if (!recursiveResult.ok) return recursiveResult;
-				result += recursiveResult.data;
-				i = j;
-				continue;
-			}
-		}
+        // Recursively process the resolved branch for inner ICU blocks
+        const recursiveResult: Result<Str> = renderMessageInternal(
+          resolvedResult.data,
+          params,
+          locale,
+          depth + 1,
+          escapedLiterals,
+          undefined,
+          formatters,
+        );
+        if (!recursiveResult.ok) return recursiveResult;
+        result += recursiveResult.data;
+        i = j;
+        continue;
+      }
+    }
 
-		result += templateResult.data[i];
-		i++;
-	}
+    result += templateResult.data[i];
+    i++;
+  }
 
-	return ok(StrSchema, result);
+  return ok(StrSchema, result);
 }
 
 // =============================================================================
@@ -1422,13 +1422,13 @@ function replaceRangeBlocks(
  * @returns `Intl.NumberFormatOptions` for the given style, or `undefined` for unknown styles.
  */
 function numberStyleToOptions(style: Str): Intl.NumberFormatOptions | undefined {
-	const map: Record<Str, Intl.NumberFormatOptions> = {
-		percent: { style: 'percent' },
-		compact: { notation: 'compact' },
-		scientific: { notation: 'scientific' },
-		engineering: { notation: 'engineering' },
-	};
-	return map[style];
+  const map: Record<Str, Intl.NumberFormatOptions> = {
+    percent: { style: 'percent' },
+    compact: { notation: 'compact' },
+    scientific: { notation: 'scientific' },
+    engineering: { notation: 'engineering' },
+  };
+  return map[style];
 }
 
 /**
@@ -1442,58 +1442,58 @@ function numberStyleToOptions(style: Str): Intl.NumberFormatOptions | undefined 
  * @returns `Result<Str>` — the template with number blocks resolved, or a validation error.
  */
 function replaceNumberBlocks(
-	template: Str,
-	params: Record<Str, unknown>,
-	locale?: Str,
+  template: Str,
+  params: Record<Str, unknown>,
+  locale?: Str,
 ): Result<Str> {
-	const templateResult: Result<Str> = safeParse(StrSchema, template);
-	if (!templateResult.ok) return templateResult;
-	if (locale !== undefined) {
-		const localeResult: Result<Str> = safeParse(StrSchema, locale);
-		if (!localeResult.ok) return localeResult;
-	}
+  const templateResult: Result<Str> = safeParse(StrSchema, template);
+  if (!templateResult.ok) return templateResult;
+  if (locale !== undefined) {
+    const localeResult: Result<Str> = safeParse(StrSchema, locale);
+    if (!localeResult.ok) return localeResult;
+  }
 
-	let result: Str = '';
-	let i: Num = 0;
+  let result: Str = '';
+  let i: Num = 0;
 
-	while (i < templateResult.data.length) {
-		if (templateResult.data[i] === '{') {
-			const remaining: Str = templateResult.data.slice(i + 1);
-			// Match: {name, number} or {name, number, percent} or {name, number, ::skeleton}
-			const numberMatch: NullableRegExpMatchArray = remaining.match(
-				/^(\w+)\s*,\s*number(?:\s*,\s*(::(?:[^}]+)|[\w]+))?\s*\}/,
-			);
+  while (i < templateResult.data.length) {
+    if (templateResult.data[i] === '{') {
+      const remaining: Str = templateResult.data.slice(i + 1);
+      // Match: {name, number} or {name, number, percent} or {name, number, ::skeleton}
+      const numberMatch: NullableRegExpMatchArray = remaining.match(
+        /^(\w+)\s*,\s*number(?:\s*,\s*(::(?:[^}]+)|[\w]+))?\s*\}/,
+      );
 
-			if (numberMatch && numberMatch[1]) {
-				// oxlint-disable-next-line prefer-destructuring
-				const key: Str = numberMatch[1];
-				const value: Num = Number(params[key]);
-				// oxlint-disable-next-line prefer-destructuring
-				const styleArg: OptionalStr = numberMatch[2];
-				let options: Intl.NumberFormatOptions | undefined;
+      if (numberMatch && numberMatch[1]) {
+        // oxlint-disable-next-line prefer-destructuring
+        const key: Str = numberMatch[1];
+        const value: Num = Number(params[key]);
+        // oxlint-disable-next-line prefer-destructuring
+        const styleArg: OptionalStr = numberMatch[2];
+        let options: Intl.NumberFormatOptions | undefined;
 
-				if (styleArg && styleArg.startsWith('::')) {
-					const skeletonStr: Str = styleArg.slice(2).trim();
-					const skeletonResult: Result<Intl.NumberFormatOptions> = parseNumberSkeleton(skeletonStr);
-					if (!skeletonResult.ok) return skeletonResult;
-					options = skeletonResult.data;
-				} else if (styleArg) {
-					options = numberStyleToOptions(styleArg);
-				}
+        if (styleArg && styleArg.startsWith('::')) {
+          const skeletonStr: Str = styleArg.slice(2).trim();
+          const skeletonResult: Result<Intl.NumberFormatOptions> = parseNumberSkeleton(skeletonStr);
+          if (!skeletonResult.ok) return skeletonResult;
+          options = skeletonResult.data;
+        } else if (styleArg) {
+          options = numberStyleToOptions(styleArg);
+        }
 
-				const formatResult: Result<Str> = formatNumber(value, locale ?? 'en', options);
-				if (!formatResult.ok) return formatResult;
-				result += formatResult.data;
-				i += 1 + numberMatch[0].length;
-				continue;
-			}
-		}
+        const formatResult: Result<Str> = formatNumber(value, locale ?? 'en', options);
+        if (!formatResult.ok) return formatResult;
+        result += formatResult.data;
+        i += 1 + numberMatch[0].length;
+        continue;
+      }
+    }
 
-		result += templateResult.data[i];
-		i++;
-	}
+    result += templateResult.data[i];
+    i++;
+  }
 
-	return ok(StrSchema, result);
+  return ok(StrSchema, result);
 }
 
 // =============================================================================
@@ -1510,74 +1510,74 @@ function replaceNumberBlocks(
  * @returns `Result<Str>` — the template with date/time blocks resolved, or a validation error.
  */
 function replaceDateTimeBlocks(
-	template: Str,
-	params: Record<Str, unknown>,
-	locale?: Str,
+  template: Str,
+  params: Record<Str, unknown>,
+  locale?: Str,
 ): Result<Str> {
-	const templateResult: Result<Str> = safeParse(StrSchema, template);
-	if (!templateResult.ok) return templateResult;
-	if (locale !== undefined) {
-		const localeResult: Result<Str> = safeParse(StrSchema, locale);
-		if (!localeResult.ok) return localeResult;
-	}
+  const templateResult: Result<Str> = safeParse(StrSchema, template);
+  if (!templateResult.ok) return templateResult;
+  if (locale !== undefined) {
+    const localeResult: Result<Str> = safeParse(StrSchema, locale);
+    if (!localeResult.ok) return localeResult;
+  }
 
-	let result: Str = '';
-	let i: Num = 0;
+  let result: Str = '';
+  let i: Num = 0;
 
-	while (i < templateResult.data.length) {
-		if (templateResult.data[i] === '{') {
-			const remaining: Str = templateResult.data.slice(i + 1);
-			// Match: {name, date} or {name, date, short} or {name, time} or {name, time, ::skeleton}
-			const dtMatch: NullableRegExpMatchArray = remaining.match(
-				/^(\w+)\s*,\s*(date|time)(?:\s*,\s*(::(?:[^}]+)|short|medium|long|full))?\s*\}/,
-			);
+  while (i < templateResult.data.length) {
+    if (templateResult.data[i] === '{') {
+      const remaining: Str = templateResult.data.slice(i + 1);
+      // Match: {name, date} or {name, date, short} or {name, time} or {name, time, ::skeleton}
+      const dtMatch: NullableRegExpMatchArray = remaining.match(
+        /^(\w+)\s*,\s*(date|time)(?:\s*,\s*(::(?:[^}]+)|short|medium|long|full))?\s*\}/,
+      );
 
-			if (dtMatch && dtMatch[1] && dtMatch[2]) {
-				// oxlint-disable-next-line prefer-destructuring
-				const key: Str = dtMatch[1];
-				// oxlint-disable-next-line prefer-destructuring
-				const kind: Str = dtMatch[2];
-				// oxlint-disable-next-line prefer-destructuring
-				const rawStyleArg: Str | undefined = dtMatch[3];
-				const rawValue: unknown = params[key];
-				const dateValue: Date | Num = rawValue instanceof Date ? rawValue : Number(rawValue);
+      if (dtMatch && dtMatch[1] && dtMatch[2]) {
+        // oxlint-disable-next-line prefer-destructuring
+        const key: Str = dtMatch[1];
+        // oxlint-disable-next-line prefer-destructuring
+        const kind: Str = dtMatch[2];
+        // oxlint-disable-next-line prefer-destructuring
+        const rawStyleArg: Str | undefined = dtMatch[3];
+        const rawValue: unknown = params[key];
+        const dateValue: Date | Num = rawValue instanceof Date ? rawValue : Number(rawValue);
 
-				let formatResult: Result<Str>;
+        let formatResult: Result<Str>;
 
-				if (rawStyleArg && rawStyleArg.startsWith('::')) {
-					const skeletonStr: Str = rawStyleArg.slice(2).trim();
-					const skeletonResult: Result<Intl.DateTimeFormatOptions> =
-						parseDateTimeSkeleton(skeletonStr);
-					if (!skeletonResult.ok) return skeletonResult;
-					formatResult =
-						kind === 'time'
-							? formatTime(dateValue, locale ?? 'en', undefined, skeletonResult.data)
-							: formatDate(dateValue, locale ?? 'en', undefined, skeletonResult.data);
-				} else {
-					// Validate named style via Valibot schema
-					let style: DateTimeStyle | undefined = undefined;
-					if (rawStyleArg !== undefined) {
-						const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, rawStyleArg);
-						if (styleResult.ok) style = styleResult.data;
-					}
-					formatResult =
-						kind === 'time'
-							? formatTime(dateValue, locale ?? 'en', style)
-							: formatDate(dateValue, locale ?? 'en', style);
-				}
+        if (rawStyleArg && rawStyleArg.startsWith('::')) {
+          const skeletonStr: Str = rawStyleArg.slice(2).trim();
+          const skeletonResult: Result<Intl.DateTimeFormatOptions> =
+            parseDateTimeSkeleton(skeletonStr);
+          if (!skeletonResult.ok) return skeletonResult;
+          formatResult =
+            kind === 'time'
+              ? formatTime(dateValue, locale ?? 'en', undefined, skeletonResult.data)
+              : formatDate(dateValue, locale ?? 'en', undefined, skeletonResult.data);
+        } else {
+          // Validate named style via Valibot schema
+          let style: DateTimeStyle | undefined = undefined;
+          if (rawStyleArg !== undefined) {
+            const styleResult: Result<DateTimeStyle> = safeParse(DateTimeStyleSchema, rawStyleArg);
+            if (styleResult.ok) style = styleResult.data;
+          }
+          formatResult =
+            kind === 'time'
+              ? formatTime(dateValue, locale ?? 'en', style)
+              : formatDate(dateValue, locale ?? 'en', style);
+        }
 
-				if (!formatResult.ok) return formatResult;
-				result += formatResult.data;
-				i += 1 + dtMatch[0].length;
-				continue;
-			}
-		}
+        if (!formatResult.ok) return formatResult;
+        result += formatResult.data;
+        i += 1 + dtMatch[0].length;
+        continue;
+      }
+    }
 
-		result += templateResult.data[i];
-		i++;
-	}
+    result += templateResult.data[i];
+    i++;
+  }
 
-	return ok(StrSchema, result);
+  return ok(StrSchema, result);
 }
 
 // =============================================================================
@@ -1615,58 +1615,58 @@ function replaceDateTimeBlocks(
  * ```
  */
 export function buildLocale<TSchema extends v.GenericSchema>(
-	schema: TSchema,
-	rawStrs: RawLocaleStrings,
-	context?: RawLocaleStrings,
-	locale?: Str,
-	formatters?: FormatterMap,
+  schema: TSchema,
+  rawStrs: RawLocaleStrings,
+  context?: RawLocaleStrings,
+  locale?: Str,
+  formatters?: FormatterMap,
 ): Result<BuiltLocale<TSchema>> {
-	const entries: NullableSchemaEntries = getSchemaEntries(schema);
-	if (!entries) {
-		return err(ERRORS.INTERNAL.INVARIANT_VIOLATED, {
-			meta: { reason: 'buildLocale requires an object schema', function: 'buildLocale' },
-		});
-	}
+  const entries: NullableSchemaEntries = getSchemaEntries(schema);
+  if (!entries) {
+    return err(ERRORS.INTERNAL.INVARIANT_VIOLATED, {
+      meta: { reason: 'buildLocale requires an object schema', function: 'buildLocale' },
+    });
+  }
 
-	// Create a mutable container for the built result — the resolver closure
-	// captures this by reference. Safe because resolver is only called at runtime
-	// (when a user invokes a locale function), by which time `builtRef` is populated.
-	const builtRef: { data: RawLocaleStrings } = { data: {} };
+  // Create a mutable container for the built result — the resolver closure
+  // captures this by reference. Safe because resolver is only called at runtime
+  // (when a user invokes a locale function), by which time `builtRef` is populated.
+  const builtRef: { data: RawLocaleStrings } = { data: {} };
 
-	// Resolver for @:key message references — walks dot-separated key paths.
-	const resolver = (key: Str): Result<Str> => {
-		const parts: Str[] = key.split('.');
-		let current: unknown = builtRef.data;
-		for (const part of parts) {
-			if (typeof current !== 'object' || current === null) {
-				return err(ERRORS.LOCALE.FORMAT_FAILED, {
-					meta: { type: 'messageRef', reason: `Key not found: ${key}` },
-				});
-			}
-			current = (current as Record<Str, unknown>)[part]; // Runtime-guarded by typeof check above
-		}
-		if (typeof current === 'function') {
-			return (current as () => Result<Str>)(); // Irreducible: locale functions are `() => Result<Str>` — no generic Valibot schema for function types
-		}
-		return err(ERRORS.LOCALE.FORMAT_FAILED, {
-			meta: { type: 'messageRef', reason: `Key is not callable: ${key}` },
-		});
-	};
+  // Resolver for @:key message references — walks dot-separated key paths.
+  const resolver = (key: Str): Result<Str> => {
+    const parts: Str[] = key.split('.');
+    let current: unknown = builtRef.data;
+    for (const part of parts) {
+      if (typeof current !== 'object' || current === null) {
+        return err(ERRORS.LOCALE.FORMAT_FAILED, {
+          meta: { type: 'messageRef', reason: `Key not found: ${key}` },
+        });
+      }
+      current = (current as Record<Str, unknown>)[part]; // Runtime-guarded by typeof check above
+    }
+    if (typeof current === 'function') {
+      return (current as () => Result<Str>)(); // Irreducible: locale functions are `() => Result<Str>` — no generic Valibot schema for function types
+    }
+    return err(ERRORS.LOCALE.FORMAT_FAILED, {
+      meta: { type: 'messageRef', reason: `Key is not callable: ${key}` },
+    });
+  };
 
-	const builtResult: Result<RawLocaleStrings> = buildLocaleEntries(
-		entries,
-		rawStrs,
-		context,
-		locale,
-		resolver,
-		formatters,
-	);
-	if (!builtResult.ok) return builtResult;
+  const builtResult: Result<RawLocaleStrings> = buildLocaleEntries(
+    entries,
+    rawStrs,
+    context,
+    locale,
+    resolver,
+    formatters,
+  );
+  if (!builtResult.ok) return builtResult;
 
-	// Populate the mutable ref so the resolver closure can access the built entries
-	builtRef.data = builtResult.data;
+  // Populate the mutable ref so the resolver closure can access the built entries
+  builtRef.data = builtResult.data;
 
-	return okUnchecked<BuiltLocale<TSchema>>(builtResult.data as BuiltLocale<TSchema>); // Irreducible: BuiltLocale<TSchema> is a generic mapped type — no runtime schema. Structure guaranteed by buildLocaleEntries.
+  return okUnchecked<BuiltLocale<TSchema>>(builtResult.data as BuiltLocale<TSchema>); // Irreducible: BuiltLocale<TSchema> is a generic mapped type — no runtime schema. Structure guaranteed by buildLocaleEntries.
 }
 
 /**
@@ -1681,102 +1681,102 @@ export function buildLocale<TSchema extends v.GenericSchema>(
  * @returns `Result<RawLocaleStrings>` — the built entries object.
  */
 function buildLocaleEntries(
-	entries: Record<string, v.GenericSchema>,
-	rawStrs: RawLocaleStrings,
-	context?: RawLocaleStrings,
-	locale?: Str,
-	resolver?: (key: Str) => Result<Str>,
-	formatters?: FormatterMap,
+  entries: Record<string, v.GenericSchema>,
+  rawStrs: RawLocaleStrings,
+  context?: RawLocaleStrings,
+  locale?: Str,
+  resolver?: (key: Str) => Result<Str>,
+  formatters?: FormatterMap,
 ): Result<RawLocaleStrings> {
-	const result: RawLocaleStrings = {};
+  const result: RawLocaleStrings = {};
 
-	for (const [key, entrySchema] of Object.entries(entries)) {
-		const rawValue: HandlebarsValue = rawStrs[key];
+  for (const [key, entrySchema] of Object.entries(entries)) {
+    const rawValue: HandlebarsValue = rawStrs[key];
 
-		// Check if this is a nested object schema
-		const nestedEntries: NullableSchemaEntries = getSchemaEntries(entrySchema);
-		if (nestedEntries && typeof rawValue === 'object' && rawValue !== null) {
-			const nestedResult: Result<RawLocaleStrings> = buildLocaleEntries(
-				nestedEntries,
-				rawValue as RawLocaleStrings,
-				context,
-				locale,
-				resolver,
-				formatters,
-			); // Runtime-guarded by typeof check above
-			if (!nestedResult.ok) return nestedResult;
-			result[key] = nestedResult.data;
-			continue;
-		}
+    // Check if this is a nested object schema
+    const nestedEntries: NullableSchemaEntries = getSchemaEntries(entrySchema);
+    if (nestedEntries && typeof rawValue === 'object' && rawValue !== null) {
+      const nestedResult: Result<RawLocaleStrings> = buildLocaleEntries(
+        nestedEntries,
+        rawValue as RawLocaleStrings,
+        context,
+        locale,
+        resolver,
+        formatters,
+      ); // Runtime-guarded by typeof check above
+      if (!nestedResult.ok) return nestedResult;
+      result[key] = nestedResult.data;
+      continue;
+    }
 
-		// Leaf entry — either plain string or parameterized template
-		const paramDefs: NullableParamSchemas = getTemplateParams(entrySchema);
+    // Leaf entry — either plain string or parameterized template
+    const paramDefs: NullableParamSchemas = getTemplateParams(entrySchema);
 
-		if (paramDefs && Object.keys(paramDefs).length > 0) {
-			// Parameterized template — create a function that validates params and renders
-			const template: Str = typeof rawValue === 'string' ? rawValue : '';
-			const schemas: ParamSchemas = paramDefs;
-			/**
-			 * @param params - Template parameter values to validate and render
-			 * @returns Result containing the rendered locale string
-			 */
-			result[key] = (params: RawLocaleStrings): Result<Str> => {
-				for (const [paramKey, paramSchema] of Object.entries(schemas)) {
-					const paramResult: Result<unknown> = safeParse(paramSchema, params[paramKey]);
-					if (!paramResult.ok) {
-						return err(ERRORS.TEMPLATE.PARAM_VALIDATION_FAILED, {
-							meta: { param: paramKey },
-							cause: paramResult.error,
-						});
-					}
-				}
-				const renderedResult: Result<Str> = renderMessage(
-					template,
-					params,
-					locale,
-					resolver,
-					formatters,
-				);
-				if (!renderedResult.ok) return renderedResult;
-				return ok(StrSchema, renderedResult.data);
-			};
-		} else if (typeof rawValue === 'string') {
-			// Plain string — apply context substitution if provided, then wrap
-			const value: Str = context
-				? (() => {
-						const r: Result<Str> = renderMessage(rawValue, context);
-						if (!r.ok) return rawValue; // Fallback to raw — context substitution failure is non-fatal
-						return r.data;
-					})()
-				: rawValue;
-			result[key] = (): Result<Str> => {
-				return ok(StrSchema, value);
-			};
-		} else if (Array.isArray(rawValue) && context) {
-			// Array of objects — apply context to string fields in each element
-			result[key] = rawValue.map((item: unknown) => {
-				if (typeof item === 'object' && item !== null) {
-					const rendered: RawLocaleStrings = {};
-					for (const [fieldKey, fieldValue] of Object.entries(item as Record<string, unknown>)) {
-						// Runtime-guarded by typeof === 'object' check above
-						if (typeof fieldValue === 'string') {
-							const renderResult: Result<Str> = renderMessage(fieldValue, context);
-							rendered[fieldKey] = renderResult.ok ? renderResult.data : fieldValue;
-						} else {
-							rendered[fieldKey] = fieldValue;
-						}
-					}
-					return rendered;
-				}
-				return item;
-			});
-		} else {
-			// Non-string, non-array value (record, undefined, etc.) — pass through unmodified
-			result[key] = rawValue;
-		}
-	}
+    if (paramDefs && Object.keys(paramDefs).length > 0) {
+      // Parameterized template — create a function that validates params and renders
+      const template: Str = typeof rawValue === 'string' ? rawValue : '';
+      const schemas: ParamSchemas = paramDefs;
+      /**
+       * @param params - Template parameter values to validate and render
+       * @returns Result containing the rendered locale string
+       */
+      result[key] = (params: RawLocaleStrings): Result<Str> => {
+        for (const [paramKey, paramSchema] of Object.entries(schemas)) {
+          const paramResult: Result<unknown> = safeParse(paramSchema, params[paramKey]);
+          if (!paramResult.ok) {
+            return err(ERRORS.TEMPLATE.PARAM_VALIDATION_FAILED, {
+              meta: { param: paramKey },
+              cause: paramResult.error,
+            });
+          }
+        }
+        const renderedResult: Result<Str> = renderMessage(
+          template,
+          params,
+          locale,
+          resolver,
+          formatters,
+        );
+        if (!renderedResult.ok) return renderedResult;
+        return ok(StrSchema, renderedResult.data);
+      };
+    } else if (typeof rawValue === 'string') {
+      // Plain string — apply context substitution if provided, then wrap
+      const value: Str = context
+        ? (() => {
+            const r: Result<Str> = renderMessage(rawValue, context);
+            if (!r.ok) return rawValue; // Fallback to raw — context substitution failure is non-fatal
+            return r.data;
+          })()
+        : rawValue;
+      result[key] = (): Result<Str> => {
+        return ok(StrSchema, value);
+      };
+    } else if (Array.isArray(rawValue) && context) {
+      // Array of objects — apply context to string fields in each element
+      result[key] = rawValue.map((item: unknown) => {
+        if (typeof item === 'object' && item !== null) {
+          const rendered: RawLocaleStrings = {};
+          for (const [fieldKey, fieldValue] of Object.entries(item as Record<string, unknown>)) {
+            // Runtime-guarded by typeof === 'object' check above
+            if (typeof fieldValue === 'string') {
+              const renderResult: Result<Str> = renderMessage(fieldValue, context);
+              rendered[fieldKey] = renderResult.ok ? renderResult.data : fieldValue;
+            } else {
+              rendered[fieldKey] = fieldValue;
+            }
+          }
+          return rendered;
+        }
+        return item;
+      });
+    } else {
+      // Non-string, non-array value (record, undefined, etc.) — pass through unmodified
+      result[key] = rawValue;
+    }
+  }
 
-	return okUnchecked<RawLocaleStrings>(result);
+  return okUnchecked<RawLocaleStrings>(result);
 }
 
 // =============================================================================
@@ -1797,38 +1797,38 @@ function buildLocaleEntries(
  * @returns `NullableSchemaEntries` — the entries record, or `null` if not an object schema.
  */
 function getSchemaEntries(schema: v.GenericSchema): NullableSchemaEntries {
-	const s: Record<string, unknown> = schema as unknown as Record<string, unknown>; // Dynamic schema introspection requires cast
+  const s: Record<string, unknown> = schema as unknown as Record<string, unknown>; // Dynamic schema introspection requires cast
 
-	// Object schemas have an `entries` property
-	if (s.entries && typeof s.entries === 'object') {
-		return s.entries as Record<string, v.GenericSchema>; // Runtime-guarded by typeof check
-	}
+  // Object schemas have an `entries` property
+  if (s.entries && typeof s.entries === 'object') {
+    return s.entries as Record<string, v.GenericSchema>; // Runtime-guarded by typeof check
+  }
 
-	// Pipe schemas — unwrap to find the inner object schema
-	if (Array.isArray(s.pipe)) {
-		for (const item of s.pipe) {
-			if (typeof item === 'object' && item !== null) {
-				const entries = getSchemaEntries(item as v.GenericSchema); // Runtime-guarded by typeof check
-				if (entries) return entries;
-			}
-		}
-	}
+  // Pipe schemas — unwrap to find the inner object schema
+  if (Array.isArray(s.pipe)) {
+    for (const item of s.pipe) {
+      if (typeof item === 'object' && item !== null) {
+        const entries = getSchemaEntries(item as v.GenericSchema); // Runtime-guarded by typeof check
+        if (entries) return entries;
+      }
+    }
+  }
 
-	// Intersect schemas — merge entries from all options
-	if (Array.isArray(s.options)) {
-		const merged: Record<string, v.GenericSchema> = {};
-		let found: Bool = false;
-		for (const option of s.options) {
-			if (typeof option === 'object' && option !== null) {
-				const entries: NullableSchemaEntries = getSchemaEntries(option as v.GenericSchema); // Runtime-guarded by typeof check
-				if (entries) {
-					Object.assign(merged, entries);
-					found = true;
-				}
-			}
-		}
-		if (found) return merged;
-	}
+  // Intersect schemas — merge entries from all options
+  if (Array.isArray(s.options)) {
+    const merged: Record<string, v.GenericSchema> = {};
+    let found: Bool = false;
+    for (const option of s.options) {
+      if (typeof option === 'object' && option !== null) {
+        const entries: NullableSchemaEntries = getSchemaEntries(option as v.GenericSchema); // Runtime-guarded by typeof check
+        if (entries) {
+          Object.assign(merged, entries);
+          found = true;
+        }
+      }
+    }
+    if (found) return merged;
+  }
 
-	return null;
+  return null;
 }

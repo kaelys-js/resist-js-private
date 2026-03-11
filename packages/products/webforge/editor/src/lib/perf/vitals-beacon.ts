@@ -66,13 +66,13 @@ let lastFlushAt: Str | null = null;
  * ```
  */
 export function queueVital(metric: VitalsMetric): Result<Void> {
-	queue.push(metric);
+  queue.push(metric);
 
-	if (queue.length >= MAX_QUEUE_SIZE) {
-		flushVitals();
-	}
+  if (queue.length >= MAX_QUEUE_SIZE) {
+    flushVitals();
+  }
 
-	return okUnchecked<Void>(undefined);
+  return okUnchecked<Void>(undefined);
 }
 
 /**
@@ -93,57 +93,57 @@ export function queueVital(metric: VitalsMetric): Result<Void> {
  * ```
  */
 export function flushVitals(): Result<Void> {
-	if (queue.length === 0) {
-		return okUnchecked<Void>(undefined);
-	}
+  if (queue.length === 0) {
+    return okUnchecked<Void>(undefined);
+  }
 
-	const metrics: VitalsMetric[] = [...queue];
-	queue = [];
+  const metrics: VitalsMetric[] = [...queue];
+  queue = [];
 
-	if (dev) {
-		log.debug(`[perf] Skipped beacon in dev mode (${String(metrics.length)} metrics)`);
-		return okUnchecked<Void>(undefined);
-	}
+  if (dev) {
+    log.debug(`[perf] Skipped beacon in dev mode (${String(metrics.length)} metrics)`);
+    return okUnchecked<Void>(undefined);
+  }
 
-	const defaultDevice: VitalsDevice = {
-		isLowEndDevice: false,
-		isLowEndExperience: false,
-		deviceMemory: 0,
-		hardwareConcurrency: 0,
-		effectiveType: '',
-		saveData: false,
-	};
+  const defaultDevice: VitalsDevice = {
+    isLowEndDevice: false,
+    isLowEndExperience: false,
+    deviceMemory: 0,
+    hardwareConcurrency: 0,
+    effectiveType: '',
+    saveData: false,
+  };
 
-	const payload: VitalsBeaconPayload = {
-		sessionId,
-		url: typeof window === 'undefined' ? '/' : window.location.pathname,
-		timestamp: new Date().toISOString(),
-		metrics,
-		device: device ?? defaultDevice,
-	};
+  const payload: VitalsBeaconPayload = {
+    sessionId,
+    url: typeof window === 'undefined' ? '/' : window.location.pathname,
+    timestamp: new Date().toISOString(),
+    metrics,
+    device: device ?? defaultDevice,
+  };
 
-	try {
-		const json: Str = JSON.stringify(payload);
-		// text/plain avoids CORS preflight — sendBeacon only allows simple content types
-		const blob: Blob = new Blob([json], { type: 'text/plain' });
+  try {
+    const json: Str = JSON.stringify(payload);
+    // text/plain avoids CORS preflight — sendBeacon only allows simple content types
+    const blob: Blob = new Blob([json], { type: 'text/plain' });
 
-		if (typeof navigator.sendBeacon === 'function') {
-			navigator.sendBeacon(BEACON_URL, blob);
-		} else if (typeof fetch === 'function') {
-			/* fire-and-forget — response is intentionally not awaited */
-			fetch(BEACON_URL, {
-				method: 'POST',
-				body: blob,
-				keepalive: true,
-			});
-		}
-	} catch {
-		/* sendBeacon/fetch threw (e.g. payload too large) — non-critical, drop silently */
-	}
+    if (typeof navigator.sendBeacon === 'function') {
+      navigator.sendBeacon(BEACON_URL, blob);
+    } else if (typeof fetch === 'function') {
+      /* fire-and-forget — response is intentionally not awaited */
+      fetch(BEACON_URL, {
+        method: 'POST',
+        body: blob,
+        keepalive: true,
+      });
+    }
+  } catch {
+    /* sendBeacon/fetch threw (e.g. payload too large) — non-critical, drop silently */
+  }
 
-	lastFlushAt = new Date().toISOString();
+  lastFlushAt = new Date().toISOString();
 
-	return okUnchecked<Void>(undefined);
+  return okUnchecked<Void>(undefined);
 }
 
 /**
@@ -163,13 +163,13 @@ export function flushVitals(): Result<Void> {
  * ```
  */
 export function setupVitalsBeacon(): Result<Void> {
-	document.addEventListener('visibilitychange', () => {
-		if (document.visibilityState === 'hidden') {
-			flushVitals();
-		}
-	});
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      flushVitals();
+    }
+  });
 
-	return okUnchecked<Void>(undefined);
+  return okUnchecked<Void>(undefined);
 }
 
 /**
@@ -194,8 +194,8 @@ export function setupVitalsBeacon(): Result<Void> {
  * ```
  */
 export function setDeviceInfo(info: VitalsDevice): Result<Void> {
-	device = info;
-	return okUnchecked<Void>(undefined);
+  device = info;
+  return okUnchecked<Void>(undefined);
 }
 
 /**
@@ -213,19 +213,19 @@ export function setDeviceInfo(info: VitalsDevice): Result<Void> {
  * ```
  */
 export function getBeaconStatus(): {
-	queued: Num;
-	queuedItems: Array<{ name: Str; value: Num; rating: Str }>;
-	lastFlushAt: Str | null;
-	sessionId: Str;
-	maxQueueSize: Num;
+  queued: Num;
+  queuedItems: Array<{ name: Str; value: Num; rating: Str }>;
+  lastFlushAt: Str | null;
+  sessionId: Str;
+  maxQueueSize: Num;
 } {
-	return {
-		queued: queue.length,
-		queuedItems: queue.map((m) => ({ name: m.name, value: m.value, rating: m.rating })),
-		lastFlushAt,
-		sessionId,
-		maxQueueSize: MAX_QUEUE_SIZE,
-	};
+  return {
+    queued: queue.length,
+    queuedItems: queue.map((m) => ({ name: m.name, value: m.value, rating: m.rating })),
+    lastFlushAt,
+    sessionId,
+    maxQueueSize: MAX_QUEUE_SIZE,
+  };
 }
 
 /**
@@ -235,8 +235,8 @@ export function getBeaconStatus(): {
  * Generates a new session UUID via `crypto.randomUUID()`.
  */
 export function resetBeacon(): void {
-	queue = [];
-	device = null;
-	sessionId = crypto.randomUUID();
-	lastFlushAt = null;
+  queue = [];
+  device = null;
+  sessionId = crypto.randomUUID();
+  lastFlushAt = null;
 }

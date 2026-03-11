@@ -28,12 +28,12 @@ import * as v from 'valibot';
  * ```
  */
 export const SettingsSchema = v.strictObject({
-	/** User's date of birth (ISO 8601 date string). */
-	birthDate: v.pipe(v.string(), v.minLength(1)),
-	/** Target retirement age. */
-	retirementAge: v.pipe(v.number(), v.minValue(1), v.maxValue(120)),
-	/** Default annual inflation rate (e.g. 0.02 for 2%). */
-	defaultInflationRate: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+  /** User's date of birth (ISO 8601 date string). */
+  birthDate: v.pipe(v.string(), v.minLength(1)),
+  /** Target retirement age. */
+  retirementAge: v.pipe(v.number(), v.minValue(1), v.maxValue(120)),
+  /** Default annual inflation rate (e.g. 0.02 for 2%). */
+  defaultInflationRate: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
 });
 
 /** Global finance settings. */
@@ -56,16 +56,16 @@ export type Settings = v.InferOutput<typeof SettingsSchema>;
  * ```
  */
 export const DebtItemSchema = v.strictObject({
-	/** Unique debt identifier. */
-	id: v.pipe(v.string(), v.minLength(1)),
-	/** Display name for the debt. */
-	name: v.pipe(v.string(), v.minLength(1)),
-	/** Current outstanding balance in dollars. */
-	balance: v.pipe(v.number(), v.minValue(0)),
-	/** Whether the balance is an estimate (true) or exact (false). */
-	isEstimate: v.boolean(),
-	/** Free-text notes about this debt. */
-	notes: v.string(),
+  /** Unique debt identifier. */
+  id: v.pipe(v.string(), v.minLength(1)),
+  /** Display name for the debt. */
+  name: v.pipe(v.string(), v.minLength(1)),
+  /** Current outstanding balance in dollars. */
+  balance: v.pipe(v.number(), v.minValue(0)),
+  /** Whether the balance is an estimate (true) or exact (false). */
+  isEstimate: v.boolean(),
+  /** Free-text notes about this debt. */
+  notes: v.string(),
 });
 
 /** A single debt item. */
@@ -93,20 +93,20 @@ export const INCOME_FREQUENCIES = ['one-time', 'biweekly', 'monthly', 'annual'] 
  * ```
  */
 export const IncomeSourceSchema = v.strictObject({
-	/** Unique income source identifier. */
-	id: v.pipe(v.string(), v.minLength(1)),
-	/** Display name for the income source. */
-	name: v.pipe(v.string(), v.minLength(1)),
-	/** Amount per occurrence in dollars. */
-	amount: v.pipe(v.number(), v.minValue(0)),
-	/** Payment frequency. */
-	frequency: v.picklist(INCOME_FREQUENCIES),
-	/** Date the income starts (ISO 8601 date string). */
-	startDate: v.pipe(v.string(), v.minLength(1)),
-	/** Date the income ends (ISO 8601 date string). Absent for ongoing/one-time. */
-	endDate: v.optional(v.string()),
-	/** Free-text notes. */
-	notes: v.string(),
+  /** Unique income source identifier. */
+  id: v.pipe(v.string(), v.minLength(1)),
+  /** Display name for the income source. */
+  name: v.pipe(v.string(), v.minLength(1)),
+  /** Amount per occurrence in dollars. */
+  amount: v.pipe(v.number(), v.minValue(0)),
+  /** Payment frequency. */
+  frequency: v.picklist(INCOME_FREQUENCIES),
+  /** Date the income starts (ISO 8601 date string). */
+  startDate: v.pipe(v.string(), v.minLength(1)),
+  /** Date the income ends (ISO 8601 date string). Absent for ongoing/one-time. */
+  endDate: v.optional(v.string()),
+  /** Free-text notes. */
+  notes: v.string(),
 });
 
 /** An income source. */
@@ -133,18 +133,18 @@ export const PURCHASE_CATEGORIES = ['upcoming', 'planned'] as const;
  * ```
  */
 export const PurchaseSchema = v.strictObject({
-	/** Unique purchase identifier. */
-	id: v.pipe(v.string(), v.minLength(1)),
-	/** Display name for the purchase. */
-	name: v.pipe(v.string(), v.minLength(1)),
-	/** Purchase amount in dollars. */
-	amount: v.pipe(v.number(), v.minValue(0)),
-	/** Planned purchase date (ISO 8601). Empty if not scheduled. */
-	date: v.optional(v.string()),
-	/** Purchase category. */
-	category: v.picklist(PURCHASE_CATEGORIES),
-	/** Free-text notes. */
-	notes: v.string(),
+  /** Unique purchase identifier. */
+  id: v.pipe(v.string(), v.minLength(1)),
+  /** Display name for the purchase. */
+  name: v.pipe(v.string(), v.minLength(1)),
+  /** Purchase amount in dollars. */
+  amount: v.pipe(v.number(), v.minValue(0)),
+  /** Planned purchase date (ISO 8601). Empty if not scheduled. */
+  date: v.optional(v.string()),
+  /** Purchase category. */
+  category: v.picklist(PURCHASE_CATEGORIES),
+  /** Free-text notes. */
+  notes: v.string(),
 });
 
 /** A one-time purchase. */
@@ -169,20 +169,20 @@ export type Purchase = v.InferOutput<typeof PurchaseSchema>;
  * ```
  */
 export const LifetimeExpenseSchema = v.strictObject({
-	/** Unique lifetime expense identifier. */
-	id: v.pipe(v.string(), v.minLength(1)),
-	/** Display name. */
-	name: v.pipe(v.string(), v.minLength(1)),
-	/** Total cost per renewal cycle in dollars. */
-	totalBudget: v.pipe(v.number(), v.minValue(0)),
-	/** Number of years per renewal cycle. */
-	cycleYears: v.pipe(v.number(), v.minValue(0.1)),
-	/** Date of last renewal (ISO 8601). */
-	lastRenewal: v.optional(v.string()),
-	/** Date of next renewal (ISO 8601). */
-	nextDue: v.optional(v.string()),
-	/** Free-text notes. */
-	notes: v.string(),
+  /** Unique lifetime expense identifier. */
+  id: v.pipe(v.string(), v.minLength(1)),
+  /** Display name. */
+  name: v.pipe(v.string(), v.minLength(1)),
+  /** Total cost per renewal cycle in dollars. */
+  totalBudget: v.pipe(v.number(), v.minValue(0)),
+  /** Number of years per renewal cycle. */
+  cycleYears: v.pipe(v.number(), v.minValue(0.1)),
+  /** Date of last renewal (ISO 8601). */
+  lastRenewal: v.optional(v.string()),
+  /** Date of next renewal (ISO 8601). */
+  nextDue: v.optional(v.string()),
+  /** Free-text notes. */
+  notes: v.string(),
 });
 
 /** A recurring lifetime expense. */
@@ -205,16 +205,16 @@ export type LifetimeExpense = v.InferOutput<typeof LifetimeExpenseSchema>;
  * ```
  */
 export const LifetimeReplacementSchema = v.strictObject({
-	/** Unique replacement item identifier. */
-	id: v.pipe(v.string(), v.minLength(1)),
-	/** Display name. */
-	name: v.pipe(v.string(), v.minLength(1)),
-	/** Budget per replacement cycle in dollars. */
-	totalBudget: v.pipe(v.number(), v.minValue(0)),
-	/** Number of years between replacements. */
-	cycleYears: v.pipe(v.number(), v.minValue(0.1)),
-	/** Free-text notes. */
-	notes: v.string(),
+  /** Unique replacement item identifier. */
+  id: v.pipe(v.string(), v.minLength(1)),
+  /** Display name. */
+  name: v.pipe(v.string(), v.minLength(1)),
+  /** Budget per replacement cycle in dollars. */
+  totalBudget: v.pipe(v.number(), v.minValue(0)),
+  /** Number of years between replacements. */
+  cycleYears: v.pipe(v.number(), v.minValue(0.1)),
+  /** Free-text notes. */
+  notes: v.string(),
 });
 
 /** A lifetime replacement item. */
@@ -245,20 +245,20 @@ export const MONTHLY_CATEGORIES = ['fixed', 'estimated'] as const;
  * ```
  */
 export const MonthlyExpenseSchema = v.strictObject({
-	/** Unique monthly expense identifier. */
-	id: v.pipe(v.string(), v.minLength(1)),
-	/** Display name. */
-	name: v.pipe(v.string(), v.minLength(1)),
-	/** Amount per billing cycle in dollars. */
-	amount: v.pipe(v.number(), v.minValue(0)),
-	/** Whether the amount is an estimate. */
-	isEstimate: v.boolean(),
-	/** Billing frequency. */
-	billingCycle: v.picklist(BILLING_CYCLES),
-	/** Expense category. */
-	category: v.picklist(MONTHLY_CATEGORIES),
-	/** Free-text notes. */
-	notes: v.string(),
+  /** Unique monthly expense identifier. */
+  id: v.pipe(v.string(), v.minLength(1)),
+  /** Display name. */
+  name: v.pipe(v.string(), v.minLength(1)),
+  /** Amount per billing cycle in dollars. */
+  amount: v.pipe(v.number(), v.minValue(0)),
+  /** Whether the amount is an estimate. */
+  isEstimate: v.boolean(),
+  /** Billing frequency. */
+  billingCycle: v.picklist(BILLING_CYCLES),
+  /** Expense category. */
+  category: v.picklist(MONTHLY_CATEGORIES),
+  /** Free-text notes. */
+  notes: v.string(),
 });
 
 /** A monthly expense. */
@@ -282,18 +282,18 @@ export type MonthlyExpense = v.InferOutput<typeof MonthlyExpenseSchema>;
  * ```
  */
 export const TravelSchema = v.strictObject({
-	/** Unique travel item identifier. */
-	id: v.pipe(v.string(), v.minLength(1)),
-	/** Destination or trip name. */
-	name: v.pipe(v.string(), v.minLength(1)),
-	/** Total trip budget in dollars. */
-	budget: v.pipe(v.number(), v.minValue(0)),
-	/** Whether the budget is an estimate. */
-	isEstimate: v.boolean(),
-	/** Whether this trip is actively planned (vs aspirational). */
-	planned: v.boolean(),
-	/** Free-text notes. */
-	notes: v.string(),
+  /** Unique travel item identifier. */
+  id: v.pipe(v.string(), v.minLength(1)),
+  /** Destination or trip name. */
+  name: v.pipe(v.string(), v.minLength(1)),
+  /** Total trip budget in dollars. */
+  budget: v.pipe(v.number(), v.minValue(0)),
+  /** Whether the budget is an estimate. */
+  isEstimate: v.boolean(),
+  /** Whether this trip is actively planned (vs aspirational). */
+  planned: v.boolean(),
+  /** Free-text notes. */
+  notes: v.string(),
 });
 
 /** A travel trip/destination. */
@@ -313,10 +313,10 @@ export type Travel = v.InferOutput<typeof TravelSchema>;
  * ```
  */
 export const InflationConfigSchema = v.strictObject({
-	/** Category name matching an expense type. */
-	category: v.pipe(v.string(), v.minLength(1)),
-	/** Annual inflation rate for this category (e.g. 0.03 for 3%). */
-	rate: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+  /** Category name matching an expense type. */
+  category: v.pipe(v.string(), v.minLength(1)),
+  /** Annual inflation rate for this category (e.g. 0.03 for 3%). */
+  rate: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
 });
 
 /** A per-category inflation rate override. */

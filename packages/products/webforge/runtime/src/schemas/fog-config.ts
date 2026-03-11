@@ -57,20 +57,20 @@ export type FogMode = v.InferOutput<typeof FogModeSchema>;
  * ```
  */
 export const HeightFogSchema = v.strictObject({
-	/** Enable height-based density. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Enable height-based density. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Reference altitude — fog is densest below this. Default: 0. */
-	baseHeight: v.optional(v.number(), 0),
+  /** Reference altitude — fog is densest below this. Default: 0. */
+  baseHeight: v.optional(v.number(), 0),
 
-	/** Density decrease rate with altitude [0.01, 10]. Default: 0.5. */
-	falloff: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(10)), 0.5),
+  /** Density decrease rate with altitude [0.01, 10]. Default: 0.5. */
+  falloff: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(10)), 0.5),
 
-	/** Base density at reference height [0, 1]. Default: 0.1. */
-	density: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.1),
+  /** Base density at reference height [0, 1]. Default: 0.1. */
+  density: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.1),
 
-	/** Vertical offset. Default: 0. */
-	offset: v.optional(v.number(), 0),
+  /** Vertical offset. Default: 0. */
+  offset: v.optional(v.number(), 0),
 });
 
 /** Inferred height fog type. */
@@ -93,20 +93,20 @@ export type HeightFog = v.InferOutput<typeof HeightFogSchema>;
  * ```
  */
 export const SecondFogLayerSchema = v.strictObject({
-	/** Enable second layer. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Enable second layer. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Second layer density [0, 1]. Default: 0.05. */
-	density: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.05),
+  /** Second layer density [0, 1]. Default: 0.05. */
+  density: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.05),
 
-	/** Height falloff [0.01, 10]. Default: 0.2. */
-	heightFalloff: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(10)), 0.2),
+  /** Height falloff [0.01, 10]. Default: 0.2. */
+  heightFalloff: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(10)), 0.2),
 
-	/** Height offset from base. Default: 0. */
-	heightOffset: v.optional(v.number(), 0),
+  /** Height offset from base. Default: 0. */
+  heightOffset: v.optional(v.number(), 0),
 
-	/** Second layer color. Default: light blue-gray. */
-	color: v.optional(ColorRgbaSchema, { r: 0.7, g: 0.75, b: 0.8, a: 1 }),
+  /** Second layer color. Default: light blue-gray. */
+  color: v.optional(ColorRgbaSchema, { r: 0.7, g: 0.75, b: 0.8, a: 1 }),
 });
 
 /** Inferred second fog layer type. */
@@ -129,20 +129,20 @@ export type SecondFogLayer = v.InferOutput<typeof SecondFogLayerSchema>;
  * ```
  */
 export const InscatteringSchema = v.strictObject({
-	/** Enable inscattering. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Enable inscattering. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Glow color. Default: warm orange. */
-	color: v.optional(ColorRgbaSchema, { r: 1, g: 0.9, b: 0.7, a: 1 }),
+  /** Glow color. Default: warm orange. */
+  color: v.optional(ColorRgbaSchema, { r: 1, g: 0.9, b: 0.7, a: 1 }),
 
-	/** Cone tightness [1, 32]. Default: 4. */
-	exponent: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(32)), 4),
+  /** Cone tightness [1, 32]. Default: 4. */
+  exponent: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(32)), 4),
 
-	/** Effect start distance [0, ...]. Default: 50. */
-	startDistance: v.optional(v.pipe(v.number(), v.minValue(0)), 50),
+  /** Effect start distance [0, ...]. Default: 50. */
+  startDistance: v.optional(v.pipe(v.number(), v.minValue(0)), 50),
 
-	/** Brightness multiplier [0, 5]. Default: 1. */
-	intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5)), 1),
+  /** Brightness multiplier [0, 5]. Default: 1. */
+  intensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5)), 1),
 });
 
 /** Inferred inscattering type. */
@@ -165,26 +165,26 @@ export type Inscattering = v.InferOutput<typeof InscatteringSchema>;
  * ```
  */
 export const AtmosphericSchema = v.strictObject({
-	/** Enable atmospheric mode. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Enable atmospheric mode. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Red extinction [0, 0.5]. Default: 0.02. */
-	extinctionR: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.02),
+  /** Red extinction [0, 0.5]. Default: 0.02. */
+  extinctionR: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.02),
 
-	/** Green extinction [0, 0.5]. Default: 0.03. */
-	extinctionG: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.03),
+  /** Green extinction [0, 0.5]. Default: 0.03. */
+  extinctionG: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.03),
 
-	/** Blue extinction [0, 0.5]. Default: 0.05. */
-	extinctionB: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.05),
+  /** Blue extinction [0, 0.5]. Default: 0.05. */
+  extinctionB: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.05),
 
-	/** Red inscattering [0, 0.5]. Default: 0.04. */
-	inscatteringR: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.04),
+  /** Red inscattering [0, 0.5]. Default: 0.04. */
+  inscatteringR: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.04),
 
-	/** Green inscattering [0, 0.5]. Default: 0.04. */
-	inscatteringG: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.04),
+  /** Green inscattering [0, 0.5]. Default: 0.04. */
+  inscatteringG: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.04),
 
-	/** Blue inscattering [0, 0.5]. Default: 0.06. */
-	inscatteringB: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.06),
+  /** Blue inscattering [0, 0.5]. Default: 0.06. */
+  inscatteringB: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.06),
 });
 
 /** Inferred atmospheric type. */
@@ -208,26 +208,26 @@ export type Atmospheric = v.InferOutput<typeof AtmosphericSchema>;
  * ```
  */
 export const FogNoiseSchema = v.strictObject({
-	/** Enable noise modulation. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Enable noise modulation. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Spatial frequency [0.001, 10]. Default: 1.0. */
-	scale: v.optional(v.pipe(v.number(), v.minValue(0.001), v.maxValue(10)), 1.0),
+  /** Spatial frequency [0.001, 10]. Default: 1.0. */
+  scale: v.optional(v.pipe(v.number(), v.minValue(0.001), v.maxValue(10)), 1.0),
 
-	/** Density modulation strength [0, 1]. Default: 0.5. */
-	amplitude: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
+  /** Density modulation strength [0, 1]. Default: 0.5. */
+  amplitude: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
 
-	/** Temporal morphing speed [0, 2]. Default: 0.1. */
-	speed: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 0.1),
+  /** Temporal morphing speed [0, 2]. Default: 0.1. */
+  speed: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2)), 0.1),
 
-	/** FBM octave count [1, 6]. Default: 3. */
-	octaves: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(6)), 3),
+  /** FBM octave count [1, 6]. Default: 3. */
+  octaves: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(6)), 3),
 
-	/** Frequency multiplier per octave [1, 4]. Default: 2.0. */
-	lacunarity: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(4)), 2.0),
+  /** Frequency multiplier per octave [1, 4]. Default: 2.0. */
+  lacunarity: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(4)), 2.0),
 
-	/** Amplitude multiplier per octave [0.1, 0.9]. Default: 0.5. */
-	persistence: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(0.9)), 0.5),
+  /** Amplitude multiplier per octave [0.1, 0.9]. Default: 0.5. */
+  persistence: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(0.9)), 0.5),
 });
 
 /** Inferred fog noise type. */
@@ -250,17 +250,17 @@ export type FogNoise = v.InferOutput<typeof FogNoiseSchema>;
  * ```
  */
 export const FogWindSchema = v.strictObject({
-	/** Enable wind. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Enable wind. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Wind direction in degrees [0, 360]. Default: 0. */
-	directionAngle: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(360)), 0),
+  /** Wind direction in degrees [0, 360]. Default: 0. */
+  directionAngle: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(360)), 0),
 
-	/** Wind speed multiplier [0, 5]. Default: 0.5. */
-	speed: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5)), 0.5),
+  /** Wind speed multiplier [0, 5]. Default: 0.5. */
+  speed: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5)), 0.5),
 
-	/** Random perturbation intensity [0, 1]. Default: 0.2. */
-	turbulence: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.2),
+  /** Random perturbation intensity [0, 1]. Default: 0.2. */
+  turbulence: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.2),
 });
 
 /** Inferred fog wind type. */
@@ -284,15 +284,15 @@ export type FogOverlayBlendMode = v.InferOutput<typeof FogOverlayBlendModeSchema
 
 /** Overlay vignette mask type. */
 export const FogOverlayVignetteSchema = v.picklist([
-	'none',
-	'radial',
-	'border',
-	'horizontal',
-	'vertical',
-	'upper',
-	'lower',
-	'left',
-	'right',
+  'none',
+  'radial',
+  'border',
+  'horizontal',
+  'vertical',
+  'upper',
+  'lower',
+  'left',
+  'right',
 ]);
 
 /** Inferred vignette type. */
@@ -315,44 +315,44 @@ export type FogOverlayVignette = v.InferOutput<typeof FogOverlayVignetteSchema>;
  * ```
  */
 export const FogOverlaySchema = v.strictObject({
-	/** Enable this overlay layer. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Enable this overlay layer. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Texture name (built-in) or custom path. Default: 'perlin'. */
-	texture: v.optional(FogOverlayTextureSchema, 'perlin'),
+  /** Texture name (built-in) or custom path. Default: 'perlin'. */
+  texture: v.optional(FogOverlayTextureSchema, 'perlin'),
 
-	/** Layer opacity [0, 1]. Default: 0.3. */
-	opacity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.3),
+  /** Layer opacity [0, 1]. Default: 0.3. */
+  opacity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.3),
 
-	/** Compositing blend mode. Default: 'additive'. */
-	blendMode: v.optional(FogOverlayBlendModeSchema, 'additive'),
+  /** Compositing blend mode. Default: 'additive'. */
+  blendMode: v.optional(FogOverlayBlendModeSchema, 'additive'),
 
-	/** Horizontal scroll speed. Default: 0.5. */
-	scrollX: v.optional(v.number(), 0.5),
+  /** Horizontal scroll speed. Default: 0.5. */
+  scrollX: v.optional(v.number(), 0.5),
 
-	/** Vertical scroll speed. Default: 0. */
-	scrollY: v.optional(v.number(), 0),
+  /** Vertical scroll speed. Default: 0. */
+  scrollY: v.optional(v.number(), 0),
 
-	/** Texture tiling scale [0.1, 10]. Default: 1.0. */
-	scale: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(10)), 1.0),
+  /** Texture tiling scale [0.1, 10]. Default: 1.0. */
+  scale: v.optional(v.pipe(v.number(), v.minValue(0.1), v.maxValue(10)), 1.0),
 
-	/** Color tint. Default: white. */
-	tint: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
+  /** Color tint. Default: white. */
+  tint: v.optional(ColorRgbaSchema, { r: 1, g: 1, b: 1, a: 1 }),
 
-	/** Hue shift [0, 360] degrees. Default: 0. */
-	hue: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(360)), 0),
+  /** Hue shift [0, 360] degrees. Default: 0. */
+  hue: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(360)), 0),
 
-	/** Animated hue rotation per second. Default: 0. */
-	hueSpeed: v.optional(v.number(), 0),
+  /** Animated hue rotation per second. Default: 0. */
+  hueSpeed: v.optional(v.number(), 0),
 
-	/** Scroll with map instead of camera. Default: false. */
-	mapLocked: v.optional(v.boolean(), false),
+  /** Scroll with map instead of camera. Default: false. */
+  mapLocked: v.optional(v.boolean(), false),
 
-	/** Vignette mask type. Default: 'none'. */
-	vignette: v.optional(FogOverlayVignetteSchema, 'none'),
+  /** Vignette mask type. Default: 'none'. */
+  vignette: v.optional(FogOverlayVignetteSchema, 'none'),
 
-	/** Vignette mask strength [0, 1]. Default: 0.5. */
-	vignetteIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
+  /** Vignette mask strength [0, 1]. Default: 0.5. */
+  vignetteIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0.5),
 });
 
 /** Inferred fog overlay type. */
@@ -385,17 +385,17 @@ export type FogAnimationWaveform = v.InferOutput<typeof FogAnimationWaveformSche
  * ```
  */
 export const FogAnimationSchema = v.strictObject({
-	/** Enable density animation. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Enable density animation. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Oscillation speed [0.01, 5]. Default: 0.5. */
-	speed: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(5)), 0.5),
+  /** Oscillation speed [0.01, 5]. Default: 0.5. */
+  speed: v.optional(v.pipe(v.number(), v.minValue(0.01), v.maxValue(5)), 0.5),
 
-	/** Density variation range [0, 0.5]. Default: 0.3. */
-	amplitude: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.3),
+  /** Density variation range [0, 0.5]. Default: 0.3. */
+  amplitude: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)), 0.3),
 
-	/** Waveform shape. Default: 'sine'. */
-	waveform: v.optional(FogAnimationWaveformSchema, 'sine'),
+  /** Waveform shape. Default: 'sine'. */
+  waveform: v.optional(FogAnimationWaveformSchema, 'sine'),
 });
 
 /** Inferred fog animation type. */
@@ -411,20 +411,20 @@ export type FogAnimation = v.InferOutput<typeof FogAnimationSchema>;
  * 14 curated presets covering common RPG/game environments.
  */
 export const FogPresetSchema = v.picklist([
-	'clear',
-	'lightMist',
-	'morningFog',
-	'denseFog',
-	'dungeon',
-	'underwater',
-	'forest',
-	'mountain',
-	'sandstorm',
-	'snowstorm',
-	'dream',
-	'volcanic',
-	'swamp',
-	'nightMist',
+  'clear',
+  'lightMist',
+  'morningFog',
+  'denseFog',
+  'dungeon',
+  'underwater',
+  'forest',
+  'mountain',
+  'sandstorm',
+  'snowstorm',
+  'dream',
+  'volcanic',
+  'swamp',
+  'nightMist',
 ]);
 
 /** Inferred fog preset type. */
@@ -449,23 +449,23 @@ export type FogPreset = v.InferOutput<typeof FogPresetSchema>;
  * ```
  */
 export const FogDayNightSchema = v.strictObject({
-	/** Enable day/night fog integration. Default: false. */
-	enabled: v.optional(v.boolean(), false),
+  /** Enable day/night fog integration. Default: false. */
+  enabled: v.optional(v.boolean(), false),
 
-	/** Fog color during day. Default: light blue-gray. */
-	dayColor: v.optional(ColorRgbaSchema, { r: 0.8, g: 0.85, b: 0.9, a: 1 }),
+  /** Fog color during day. Default: light blue-gray. */
+  dayColor: v.optional(ColorRgbaSchema, { r: 0.8, g: 0.85, b: 0.9, a: 1 }),
 
-	/** Fog color at night. Default: dark blue. */
-	nightColor: v.optional(ColorRgbaSchema, { r: 0.1, g: 0.1, b: 0.2, a: 1 }),
+  /** Fog color at night. Default: dark blue. */
+  nightColor: v.optional(ColorRgbaSchema, { r: 0.1, g: 0.1, b: 0.2, a: 1 }),
 
-	/** Fog color at dawn/dusk. Default: warm orange. */
-	dawnColor: v.optional(ColorRgbaSchema, { r: 0.9, g: 0.7, b: 0.5, a: 1 }),
+  /** Fog color at dawn/dusk. Default: warm orange. */
+  dawnColor: v.optional(ColorRgbaSchema, { r: 0.9, g: 0.7, b: 0.5, a: 1 }),
 
-	/** Density during day [0, 0.1]. Default: 0.005. */
-	dayDensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.1)), 0.005),
+  /** Density during day [0, 0.1]. Default: 0.005. */
+  dayDensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.1)), 0.005),
 
-	/** Density at night [0, 0.1]. Default: 0.02. */
-	nightDensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.1)), 0.02),
+  /** Density at night [0, 0.1]. Default: 0.02. */
+  nightDensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.1)), 0.02),
 });
 
 /** Inferred fog day/night type. */
@@ -488,11 +488,11 @@ export type FogDayNight = v.InferOutput<typeof FogDayNightSchema>;
  * ```
  */
 export const FogPerMeshSchema = v.strictObject({
-	/** Exclude ground/tilemap meshes from fog. Default: false. */
-	excludeGround: v.optional(v.boolean(), false),
+  /** Exclude ground/tilemap meshes from fog. Default: false. */
+  excludeGround: v.optional(v.boolean(), false),
 
-	/** Exclude billboard sprites from fog. Default: false. */
-	excludeSprites: v.optional(v.boolean(), false),
+  /** Exclude billboard sprites from fog. Default: false. */
+  excludeSprites: v.optional(v.boolean(), false),
 });
 
 /** Inferred fog per-mesh type. */
@@ -533,87 +533,87 @@ export type FogPerMesh = v.InferOutput<typeof FogPerMeshSchema>;
  * ```
  */
 export const FogConfigSchema = v.strictObject({
-	// =========================================================================
-	// Original 5 fields (backward compatible)
-	// =========================================================================
+  // =========================================================================
+  // Original 5 fields (backward compatible)
+  // =========================================================================
 
-	/**
-	 * Fog mode.
-	 *
-	 * - `'none'` — no fog (FOGMODE_NONE = 0).
-	 * - `'linear'` — linear distance fog (FOGMODE_LINEAR = 3).
-	 * - `'exponential'` — exponential density fog (FOGMODE_EXP = 1).
-	 * - `'exponential2'` — squared exponential density fog (FOGMODE_EXP2 = 2).
-	 */
-	mode: v.optional(FogModeSchema, 'none'),
+  /**
+   * Fog mode.
+   *
+   * - `'none'` — no fog (FOGMODE_NONE = 0).
+   * - `'linear'` — linear distance fog (FOGMODE_LINEAR = 3).
+   * - `'exponential'` — exponential density fog (FOGMODE_EXP = 1).
+   * - `'exponential2'` — squared exponential density fog (FOGMODE_EXP2 = 2).
+   */
+  mode: v.optional(FogModeSchema, 'none'),
 
-	/** Fog color. Default: light gray-blue (0.8, 0.8, 0.85). */
-	color: v.optional(ColorRgbaSchema, { r: 0.8, g: 0.8, b: 0.85, a: 1 }),
+  /** Fog color. Default: light gray-blue (0.8, 0.8, 0.85). */
+  color: v.optional(ColorRgbaSchema, { r: 0.8, g: 0.8, b: 0.85, a: 1 }),
 
-	/** Exponential fog density [0, ...]. Default: 0.01. */
-	density: v.optional(v.pipe(v.number(), v.minValue(0)), 0.01),
+  /** Exponential fog density [0, ...]. Default: 0.01. */
+  density: v.optional(v.pipe(v.number(), v.minValue(0)), 0.01),
 
-	/** Linear fog start distance. Default: 50. */
-	start: v.optional(v.number(), 50),
+  /** Linear fog start distance. Default: 50. */
+  start: v.optional(v.number(), 50),
 
-	/** Linear fog end distance. Default: 300. */
-	end: v.optional(v.number(), 300),
+  /** Linear fog end distance. Default: 300. */
+  end: v.optional(v.number(), 300),
 
-	// =========================================================================
-	// Group 1: Enhanced Core Parameters
-	// =========================================================================
+  // =========================================================================
+  // Group 1: Enhanced Core Parameters
+  // =========================================================================
 
-	/** Maximum fog opacity [0, 1]. Clamps fog to prevent full obscuration. Default: 1. */
-	maxOpacity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 1),
+  /** Maximum fog opacity [0, 1]. Clamps fog to prevent full obscuration. Default: 1. */
+  maxOpacity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 1),
 
-	/** Distance from camera where fog begins [0, ...]. Default: 0. */
-	startDistance: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Distance from camera where fog begins [0, ...]. Default: 0. */
+  startDistance: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
 
-	/** Distance beyond which fog is not applied [0, ...] (0 = disabled). Default: 0. */
-	cutoffDistance: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+  /** Distance beyond which fog is not applied [0, ...] (0 = disabled). Default: 0. */
+  cutoffDistance: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
 
-	/** Prevent fog from affecting skybox. Default: true. */
-	excludeSkybox: v.optional(v.boolean(), true),
+  /** Prevent fog from affecting skybox. Default: true. */
+  excludeSkybox: v.optional(v.boolean(), true),
 
-	/** How much fog obscures the sky [0, 1] (0 = none, 1 = fully). Default: 0. */
-	skyAffect: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
+  /** How much fog obscures the sky [0, 1] (0 = none, 1 = fully). Default: 0. */
+  skyAffect: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1)), 0),
 
-	// =========================================================================
-	// Groups 2-12: Optional sub-objects
-	// =========================================================================
+  // =========================================================================
+  // Groups 2-12: Optional sub-objects
+  // =========================================================================
 
-	/** Height fog configuration. */
-	heightFog: v.optional(HeightFogSchema),
+  /** Height fog configuration. */
+  heightFog: v.optional(HeightFogSchema),
 
-	/** Second fog layer (Unreal-style dual fog). */
-	secondLayer: v.optional(SecondFogLayerSchema),
+  /** Second fog layer (Unreal-style dual fog). */
+  secondLayer: v.optional(SecondFogLayerSchema),
 
-	/** Directional inscattering (sun glow). */
-	inscattering: v.optional(InscatteringSchema),
+  /** Directional inscattering (sun glow). */
+  inscattering: v.optional(InscatteringSchema),
 
-	/** Atmospheric scattering (per-channel extinction). */
-	atmospheric: v.optional(AtmosphericSchema),
+  /** Atmospheric scattering (per-channel extinction). */
+  atmospheric: v.optional(AtmosphericSchema),
 
-	/** Noise-based density variation. */
-	noise: v.optional(FogNoiseSchema),
+  /** Noise-based density variation. */
+  noise: v.optional(FogNoiseSchema),
 
-	/** Wind / fog movement. */
-	wind: v.optional(FogWindSchema),
+  /** Wind / fog movement. */
+  wind: v.optional(FogWindSchema),
 
-	/** Scrolling fog overlay layers (up to 4). */
-	overlays: v.optional(v.array(FogOverlaySchema), []),
+  /** Scrolling fog overlay layers (up to 4). */
+  overlays: v.optional(v.array(FogOverlaySchema), []),
 
-	/** Animated density (breathing/pulsing). */
-	animation: v.optional(FogAnimationSchema),
+  /** Animated density (breathing/pulsing). */
+  animation: v.optional(FogAnimationSchema),
 
-	/** Named preset (populates other fields with curated defaults). */
-	preset: v.optional(FogPresetSchema),
+  /** Named preset (populates other fields with curated defaults). */
+  preset: v.optional(FogPresetSchema),
 
-	/** Day/night fog integration. */
-	dayNight: v.optional(FogDayNightSchema),
+  /** Day/night fog integration. */
+  dayNight: v.optional(FogDayNightSchema),
 
-	/** Per-mesh fog exclusion. */
-	perMesh: v.optional(FogPerMeshSchema),
+  /** Per-mesh fog exclusion. */
+  perMesh: v.optional(FogPerMeshSchema),
 });
 
 /** Inferred full fog configuration type. */

@@ -52,14 +52,14 @@ export type ErrorMode = v.InferOutput<typeof ErrorModeSchema>;
  * ```
  */
 export const FnTypeSchema = generic(
-	(<TArgs extends unknown[] = unknown[], TReturn = unknown>(
-		_argsSchema: v.GenericSchema<TArgs> = v.array(v.unknown()) as unknown as v.GenericSchema<TArgs>,
-		_returnSchema: v.GenericSchema<TReturn> = v.unknown() as unknown as v.GenericSchema<TReturn>,
-	): v.GenericSchema<FnType<TArgs, TReturn>> =>
-		v.custom<FnType<TArgs, TReturn>>(
-			(val: unknown): boolean => typeof val === 'function',
-			'Expected a callable function',
-		)) as GenericSchemaFactory,
+  (<TArgs extends unknown[] = unknown[], TReturn = unknown>(
+    _argsSchema: v.GenericSchema<TArgs> = v.array(v.unknown()) as unknown as v.GenericSchema<TArgs>,
+    _returnSchema: v.GenericSchema<TReturn> = v.unknown() as unknown as v.GenericSchema<TReturn>,
+  ): v.GenericSchema<FnType<TArgs, TReturn>> =>
+    v.custom<FnType<TArgs, TReturn>>(
+      (val: unknown): boolean => typeof val === 'function',
+      'Expected a callable function',
+    )) as GenericSchemaFactory,
 );
 
 /**
@@ -73,7 +73,7 @@ export const FnTypeSchema = generic(
  * @typeParam TReturn - Return type.
  */
 export type FnType<TArgs extends unknown[] = unknown[], TReturn = unknown> = (
-	...args: TArgs
+  ...args: TArgs
 ) => TReturn;
 
 // =============================================================================
@@ -99,8 +99,8 @@ export type FnType<TArgs extends unknown[] = unknown[], TReturn = unknown> = (
  * ```
  */
 export const ArityConstraintSchema = v.union([
-	v.number(),
-	v.strictObject({ min: v.optional(v.number()), max: v.optional(v.number()) }),
+  v.number(),
+  v.strictObject({ min: v.optional(v.number()), max: v.optional(v.number()) }),
 ]);
 
 /** Either an exact arity (number) or a range `{ min?, max? }`. */
@@ -121,13 +121,13 @@ export type ArityConstraint = v.InferOutput<typeof ArityConstraintSchema>;
  * ```
  */
 export const CallTimeOptionsSchema = v.strictObject({
-	/**
-	 * Error behavior when validation fails at call time.
-	 * - `'throw'` (default) — Throws a `ValiError`-compatible error.
-	 * - `'result'` — Returns `err(...)` as the function's return value.
-	 * @default 'throw'
-	 */
-	onError: v.optional(ErrorModeSchema),
+  /**
+   * Error behavior when validation fails at call time.
+   * - `'throw'` (default) — Throws a `ValiError`-compatible error.
+   * - `'result'` — Returns `err(...)` as the function's return value.
+   * @default 'throw'
+   */
+  onError: v.optional(ErrorModeSchema),
 });
 
 /** Options for call-time parameter and return validation. @see {@link CallTimeOptionsSchema} */
@@ -148,25 +148,25 @@ export type CallTimeOptions = v.InferOutput<typeof CallTimeOptionsSchema>;
  * a circular import (`types.ts` → `function.ts` → `wrapper-utils.ts` → `types.ts`).
  */
 export const WrapperMetaSchema = v.strictObject({
-	/** The original unwrapped function. */
-	__original: v.custom<FnType>(
-		(val: unknown): boolean => typeof val === 'function',
-		'Expected a callable function',
-	),
-	/** Schema used for argument validation (if any). */
-	__argsSchema: v.optional(
-		v.custom<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(
-			(val: unknown): boolean => typeof val === 'object' && val !== null && 'type' in val,
-		),
-	),
-	/** Schema used for return validation (if any). */
-	__returnsSchema: v.optional(
-		v.custom<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(
-			(val: unknown): boolean => typeof val === 'object' && val !== null && 'type' in val,
-		),
-	),
-	/** Error mode for this wrapper. */
-	__onError: ErrorModeSchema,
+  /** The original unwrapped function. */
+  __original: v.custom<FnType>(
+    (val: unknown): boolean => typeof val === 'function',
+    'Expected a callable function',
+  ),
+  /** Schema used for argument validation (if any). */
+  __argsSchema: v.optional(
+    v.custom<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(
+      (val: unknown): boolean => typeof val === 'object' && val !== null && 'type' in val,
+    ),
+  ),
+  /** Schema used for return validation (if any). */
+  __returnsSchema: v.optional(
+    v.custom<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(
+      (val: unknown): boolean => typeof val === 'object' && val !== null && 'type' in val,
+    ),
+  ),
+  /** Error mode for this wrapper. */
+  __onError: ErrorModeSchema,
 });
 
 /** Internal metadata attached to validated wrapper functions. @see {@link WrapperMetaSchema} */

@@ -59,32 +59,32 @@ import { _toFnType, createWrapper, getWrapperMeta } from '@/schemas/function/wra
  * shared — both validations happen in a single wrapper rather than nesting.
  */
 export function args<TArgs extends unknown[], TReturn = unknown>(
-	schema: v.GenericSchema<TArgs>,
-	options?: CallTimeOptions,
+  schema: v.GenericSchema<TArgs>,
+  options?: CallTimeOptions,
 ): v.TransformAction<FnType<unknown[], TReturn>, FnType<TArgs, TReturn>> {
-	const onError: ErrorMode = options?.onError ?? 'throw';
+  const onError: ErrorMode = options?.onError ?? 'throw';
 
-	return v.transform<FnType<unknown[], TReturn>, FnType<TArgs, TReturn>>(
-		(fn: FnType<unknown[], TReturn>): FnType<TArgs, TReturn> => {
-			// Check if already wrapped (by a prior returns() in the pipe)
-			const existingMeta: WrapperMeta | undefined = getWrapperMeta(fn);
-			if (existingMeta) {
-				// Update the existing wrapper with args schema
-				return createWrapper<TArgs, TReturn>(
-					_toFnType<TArgs, TReturn>(existingMeta.__original),
-					schema,
-					existingMeta.__returnsSchema,
-					onError,
-				);
-			}
+  return v.transform<FnType<unknown[], TReturn>, FnType<TArgs, TReturn>>(
+    (fn: FnType<unknown[], TReturn>): FnType<TArgs, TReturn> => {
+      // Check if already wrapped (by a prior returns() in the pipe)
+      const existingMeta: WrapperMeta | undefined = getWrapperMeta(fn);
+      if (existingMeta) {
+        // Update the existing wrapper with args schema
+        return createWrapper<TArgs, TReturn>(
+          _toFnType<TArgs, TReturn>(existingMeta.__original),
+          schema,
+          existingMeta.__returnsSchema,
+          onError,
+        );
+      }
 
-			// Create a new wrapper with args validation only
-			return createWrapper<TArgs, TReturn>(
-				_toFnType<TArgs, TReturn>(fn),
-				schema,
-				undefined,
-				onError,
-			);
-		},
-	);
+      // Create a new wrapper with args validation only
+      return createWrapper<TArgs, TReturn>(
+        _toFnType<TArgs, TReturn>(fn),
+        schema,
+        undefined,
+        onError,
+      );
+    },
+  );
 }

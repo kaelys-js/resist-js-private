@@ -31,20 +31,20 @@ import * as v from 'valibot';
  * and evicting them based on camera viewport proximity.
  */
 export const StreamingConfigSchema = v.pipe(
-	v.strictObject({
-		/** Region size in tiles (2048 or 4096). */
-		regionSize: v.optional(v.picklist([2048, 4096]), 2048),
-		/** Max loaded regions before LRU eviction. */
-		maxLoadedRegions: v.optional(
-			v.pipe(v.number(), v.integer(), v.minValue(4), v.maxValue(64)),
-			16,
-		),
-		/** Regions beyond viewport to preload. */
-		loadRadius: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(4)), 1),
-		/** Regions beyond this distance get evicted. */
-		unloadDistance: v.optional(v.pipe(v.number(), v.integer(), v.minValue(2), v.maxValue(8)), 3),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Region size in tiles (2048 or 4096). */
+    regionSize: v.optional(v.picklist([2048, 4096]), 2048),
+    /** Max loaded regions before LRU eviction. */
+    maxLoadedRegions: v.optional(
+      v.pipe(v.number(), v.integer(), v.minValue(4), v.maxValue(64)),
+      16,
+    ),
+    /** Regions beyond viewport to preload. */
+    loadRadius: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(4)), 1),
+    /** Regions beyond this distance get evicted. */
+    unloadDistance: v.optional(v.pipe(v.number(), v.integer(), v.minValue(2), v.maxValue(8)), 3),
+  }),
+  v.readonly(),
 );
 
 /** Streaming/virtualization configuration for large tile maps. */

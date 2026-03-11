@@ -39,7 +39,7 @@ import type { MockInstance } from 'vitest';
  * Accepts the real `vi` object or a compatible mock.
  */
 export type ViSpyProvider = {
-	spyOn: (obj: object, method: string) => MockInstance;
+  spyOn: (obj: object, method: string) => MockInstance;
 };
 
 // ---------------------------------------------------------------------------
@@ -52,50 +52,50 @@ export type ViSpyProvider = {
  * Properties are computed on access — always reflect the latest state of the spy.
  */
 export type ExitSpy = {
-	/** The underlying `vi.spyOn` instance for direct assertions if needed. */
-	readonly spy: MockInstance;
+  /** The underlying `vi.spyOn` instance for direct assertions if needed. */
+  readonly spy: MockInstance;
 
-	/**
-	 * Whether `process.exit` was called at least once.
-	 *
-	 * @example
-	 * ```typescript
-	 * expect(getExitSpy().called).toBe(true);
-	 * ```
-	 */
-	readonly called: boolean;
+  /**
+   * Whether `process.exit` was called at least once.
+   *
+   * @example
+   * ```typescript
+   * expect(getExitSpy().called).toBe(true);
+   * ```
+   */
+  readonly called: boolean;
 
-	/**
-	 * The exit code from the most recent `process.exit()` call,
-	 * or `undefined` if it was never called.
-	 *
-	 * @example
-	 * ```typescript
-	 * exit(1);
-	 * expect(getExitSpy().code).toBe(1);
-	 * ```
-	 */
-	readonly code: number | undefined;
+  /**
+   * The exit code from the most recent `process.exit()` call,
+   * or `undefined` if it was never called.
+   *
+   * @example
+   * ```typescript
+   * exit(1);
+   * expect(getExitSpy().code).toBe(1);
+   * ```
+   */
+  readonly code: number | undefined;
 
-	/**
-	 * All exit codes from all `process.exit()` calls, in order.
-	 * Empty array if never called.
-	 *
-	 * @example
-	 * ```typescript
-	 * exit(1);
-	 * exit(2);
-	 * expect(getExitSpy().codes).toEqual([1, 2]);
-	 * ```
-	 */
-	readonly codes: number[];
+  /**
+   * All exit codes from all `process.exit()` calls, in order.
+   * Empty array if never called.
+   *
+   * @example
+   * ```typescript
+   * exit(1);
+   * exit(2);
+   * expect(getExitSpy().codes).toEqual([1, 2]);
+   * ```
+   */
+  readonly codes: number[];
 
-	/**
-	 * Restore the original `process.exit`.
-	 * Called automatically by `useExitSpy` in the afterEach hook.
-	 * Safe to call multiple times.
-	 */
-	restore(): void;
+  /**
+   * Restore the original `process.exit`.
+   * Called automatically by `useExitSpy` in the afterEach hook.
+   * Safe to call multiple times.
+   */
+  restore(): void;
 };
 
 /**
@@ -124,34 +124,34 @@ export type ExitSpy = {
  * ```
  */
 export function createExitSpy(vi: ViSpyProvider): ExitSpy {
-	const codes: number[] = [];
-	// vi.spyOn returns MockInstance but the generic overload for process.exit resolves too broadly
-	const spy: MockInstance = vi.spyOn(process, 'exit') as MockInstance;
-	spy.mockImplementation(((code?: number) => {
-		codes.push(code ?? 0);
-	}) as () => never);
+  const codes: number[] = [];
+  // vi.spyOn returns MockInstance but the generic overload for process.exit resolves too broadly
+  const spy: MockInstance = vi.spyOn(process, 'exit') as MockInstance;
+  spy.mockImplementation(((code?: number) => {
+    codes.push(code ?? 0);
+  }) as () => never);
 
-	return {
-		get spy() {
-			return spy;
-		},
+  return {
+    get spy() {
+      return spy;
+    },
 
-		get called(): boolean {
-			return codes.length > 0;
-		},
+    get called(): boolean {
+      return codes.length > 0;
+    },
 
-		get code(): number | undefined {
-			return codes.length > 0 ? codes.at(-1) : undefined;
-		},
+    get code(): number | undefined {
+      return codes.length > 0 ? codes.at(-1) : undefined;
+    },
 
-		get codes(): number[] {
-			return codes;
-		},
+    get codes(): number[] {
+      return codes;
+    },
 
-		restore(): void {
-			spy.mockRestore();
-		},
-	};
+    restore(): void {
+      spy.mockRestore();
+    },
+  };
 }
 
 /**
@@ -186,30 +186,30 @@ export function createExitSpy(vi: ViSpyProvider): ExitSpy {
  * ```
  */
 export function useExitSpy(hooks: {
-	vi: ViSpyProvider;
-	beforeEach: (fn: () => void) => void;
-	afterEach: (fn: () => void) => void;
+  vi: ViSpyProvider;
+  beforeEach: (fn: () => void) => void;
+  afterEach: (fn: () => void) => void;
 }): () => ExitSpy {
-	let current: ExitSpy | undefined;
+  let current: ExitSpy | undefined;
 
-	hooks.beforeEach(() => {
-		current = createExitSpy(hooks.vi);
-	});
+  hooks.beforeEach(() => {
+    current = createExitSpy(hooks.vi);
+  });
 
-	hooks.afterEach(() => {
-		current?.restore();
-		current = undefined;
-	});
+  hooks.afterEach(() => {
+    current?.restore();
+    current = undefined;
+  });
 
-	return (): ExitSpy => {
-		if (!current) {
-			throw new Error(
-				'useExitSpy: no exit spy available. Ensure this is called inside a test ' +
-					'(after beforeEach has run). Did you call useExitSpy() at the describe level?',
-			);
-		}
-		return current;
-	};
+  return (): ExitSpy => {
+    if (!current) {
+      throw new Error(
+        'useExitSpy: no exit spy available. Ensure this is called inside a test ' +
+          '(after beforeEach has run). Did you call useExitSpy() at the describe level?',
+      );
+    }
+    return current;
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -220,36 +220,36 @@ export function useExitSpy(hooks: {
  * A snapshot of process state that can be restored later.
  */
 export type ProcessSnapshot = {
-	/**
-	 * Restore all captured process state (cwd, argv, env) to the values
-	 * at the time the snapshot was taken. Called automatically by
-	 * `useProcessSnapshot` in the afterEach hook.
-	 */
-	restore(): void;
+  /**
+   * Restore all captured process state (cwd, argv, env) to the values
+   * at the time the snapshot was taken. Called automatically by
+   * `useProcessSnapshot` in the afterEach hook.
+   */
+  restore(): void;
 };
 
 /**
  * Options controlling which parts of process state to snapshot and restore.
  */
 export type ProcessSnapshotOptions = {
-	/**
-	 * Capture and restore `process.cwd()` (via `process.chdir()`).
-	 * @default true
-	 */
-	cwd?: boolean;
+  /**
+   * Capture and restore `process.cwd()` (via `process.chdir()`).
+   * @default true
+   */
+  cwd?: boolean;
 
-	/**
-	 * Capture and restore `process.argv`.
-	 * @default false
-	 */
-	argv?: boolean;
+  /**
+   * Capture and restore `process.argv`.
+   * @default false
+   */
+  argv?: boolean;
 
-	/**
-	 * Capture and restore `process.env`.
-	 * Creates a shallow copy — individual env vars are restored.
-	 * @default false
-	 */
-	env?: boolean;
+  /**
+   * Capture and restore `process.env`.
+   * Creates a shallow copy — individual env vars are restored.
+   * @default false
+   */
+  env?: boolean;
 };
 
 /**
@@ -278,31 +278,31 @@ export type ProcessSnapshotOptions = {
  * ```
  */
 export function snapshotProcess(options: ProcessSnapshotOptions = {}): ProcessSnapshot {
-	const { cwd = true, argv = false, env = false } = options;
+  const { cwd = true, argv = false, env = false } = options;
 
-	const savedCwd = cwd ? process.cwd() : undefined;
-	const savedArgv = argv ? [...process.argv] : undefined;
-	const savedEnv = env ? { ...process.env } : undefined;
+  const savedCwd = cwd ? process.cwd() : undefined;
+  const savedArgv = argv ? [...process.argv] : undefined;
+  const savedEnv = env ? { ...process.env } : undefined;
 
-	return {
-		restore(): void {
-			if (savedCwd !== undefined) {
-				process.chdir(savedCwd);
-			}
-			if (savedArgv !== undefined) {
-				process.argv = savedArgv;
-			}
-			if (savedEnv !== undefined) {
-				// Restore by replacing the entire env object's contents
-				for (const key of Object.keys(process.env)) {
-					if (!(key in savedEnv)) {
-						delete process.env[key]; // oxlint-disable-line typescript/no-dynamic-delete -- Cleaning env requires dynamic delete
-					}
-				}
-				Object.assign(process.env, savedEnv);
-			}
-		},
-	};
+  return {
+    restore(): void {
+      if (savedCwd !== undefined) {
+        process.chdir(savedCwd);
+      }
+      if (savedArgv !== undefined) {
+        process.argv = savedArgv;
+      }
+      if (savedEnv !== undefined) {
+        // Restore by replacing the entire env object's contents
+        for (const key of Object.keys(process.env)) {
+          if (!(key in savedEnv)) {
+            delete process.env[key]; // oxlint-disable-line typescript/no-dynamic-delete -- Cleaning env requires dynamic delete
+          }
+        }
+        Object.assign(process.env, savedEnv);
+      }
+    },
+  };
 }
 
 /**
@@ -348,20 +348,20 @@ export function snapshotProcess(options: ProcessSnapshotOptions = {}): ProcessSn
  * ```
  */
 export function useProcessSnapshot(
-	hooks: {
-		beforeEach: (fn: () => void) => void;
-		afterEach: (fn: () => void) => void;
-	},
-	options?: ProcessSnapshotOptions,
+  hooks: {
+    beforeEach: (fn: () => void) => void;
+    afterEach: (fn: () => void) => void;
+  },
+  options?: ProcessSnapshotOptions,
 ): void {
-	let snapshot: ProcessSnapshot | undefined;
+  let snapshot: ProcessSnapshot | undefined;
 
-	hooks.beforeEach(() => {
-		snapshot = snapshotProcess(options);
-	});
+  hooks.beforeEach(() => {
+    snapshot = snapshotProcess(options);
+  });
 
-	hooks.afterEach(() => {
-		snapshot?.restore();
-		snapshot = undefined;
-	});
+  hooks.afterEach(() => {
+    snapshot?.restore();
+    snapshot = undefined;
+  });
 }

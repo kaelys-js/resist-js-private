@@ -43,17 +43,17 @@ import { QualityConfigSchema } from './schemas/quality-config';
 
 import { okShallow, type BabylonResult } from './core/babylon-result';
 import {
-	createTestEngine,
-	createBabylonEngine,
-	disposeEngine,
-	type BabylonEngineInstance,
+  createTestEngine,
+  createBabylonEngine,
+  disposeEngine,
+  type BabylonEngineInstance,
 } from './core/engine';
 import { createHd2dCamera } from './core/camera-controller';
 import { applySceneSetup } from './rendering/scene-setup';
 import {
-	createPerformanceMonitor,
-	disposePerformanceMonitor,
-	type PerformanceMonitor,
+  createPerformanceMonitor,
+  disposePerformanceMonitor,
+  type PerformanceMonitor,
 } from './core/performance-monitor';
 import { showInspector, hideInspector } from './core/debug-inspector';
 
@@ -68,16 +68,16 @@ import { showInspector, hideInspector } from './core/debug-inspector';
  * Only `engine` is required for browser use.
  */
 export const RuntimeConfigSchema = v.strictObject({
-	/** Engine configuration (required). */
-	engine: EngineConfigSchema,
-	/** Camera configuration. Defaults to editor mode. */
-	camera: v.optional(CameraConfigSchema, { mode: 'editor' }),
-	/** Scene setup configuration. Defaults apply if omitted. */
-	scene: v.optional(SceneSetupConfigSchema),
-	/** Quality preset configuration. Defaults to 'high'. */
-	quality: v.optional(QualityConfigSchema),
-	/** Enable debug mode (performance monitor, inspector). */
-	debug: v.optional(v.boolean(), false),
+  /** Engine configuration (required). */
+  engine: EngineConfigSchema,
+  /** Camera configuration. Defaults to editor mode. */
+  camera: v.optional(CameraConfigSchema, { mode: 'editor' }),
+  /** Scene setup configuration. Defaults apply if omitted. */
+  scene: v.optional(SceneSetupConfigSchema),
+  /** Quality preset configuration. Defaults to 'high'. */
+  quality: v.optional(QualityConfigSchema),
+  /** Enable debug mode (performance monitor, inspector). */
+  debug: v.optional(v.boolean(), false),
 });
 
 /** Inferred runtime configuration type from {@link RuntimeConfigSchema}. */
@@ -89,12 +89,12 @@ export type RuntimeConfig = v.InferOutput<typeof RuntimeConfigSchema>;
 
 /** The live runtime instance containing all Babylon.js resources. */
 export type RuntimeInstance = {
-	/** The Babylon.js engine and scene. */
-	readonly engine: BabylonEngineInstance;
-	/** The camera (type depends on preset — ArcRotateCamera or UniversalCamera). */
-	readonly camera: BABYLON.Camera;
-	/** Performance monitor (only when debug mode enabled). */
-	readonly performanceMonitor: PerformanceMonitor | undefined;
+  /** The Babylon.js engine and scene. */
+  readonly engine: BabylonEngineInstance;
+  /** The camera (type depends on preset — ArcRotateCamera or UniversalCamera). */
+  readonly camera: BABYLON.Camera;
+  /** Performance monitor (only when debug mode enabled). */
+  readonly performanceMonitor: PerformanceMonitor | undefined;
 };
 
 // =============================================================================
@@ -120,62 +120,62 @@ export type RuntimeInstance = {
  * ```
  */
 export async function createRuntime(config: unknown): Promise<BabylonResult<RuntimeInstance>> {
-	const parsed: Result<RuntimeConfig> = safeParse(RuntimeConfigSchema, config);
-	if (!parsed.ok) return parsed;
-	const cfg: DeepReadonly<RuntimeConfig> = parsed.data;
+  const parsed: Result<RuntimeConfig> = safeParse(RuntimeConfigSchema, config);
+  if (!parsed.ok) return parsed;
+  const cfg: DeepReadonly<RuntimeConfig> = parsed.data;
 
-	try {
-		// Apply quality preset overrides to engine config
-		const engineCfg: DeepReadonly<EngineConfig> = applyQualityPreset(cfg);
+  try {
+    // Apply quality preset overrides to engine config
+    const engineCfg: DeepReadonly<EngineConfig> = applyQualityPreset(cfg);
 
-		// Get canvas element
-		const canvas: HTMLCanvasElement | null = document.querySelector<HTMLCanvasElement>(
-			`#${engineCfg.canvasId}`,
-		);
-		if (!canvas) {
-			return err(ERRORS.SCENE.LOAD_FAILED, `Canvas element '${engineCfg.canvasId}' not found`);
-		}
+    // Get canvas element
+    const canvas: HTMLCanvasElement | null = document.querySelector<HTMLCanvasElement>(
+      `#${engineCfg.canvasId}`,
+    );
+    if (!canvas) {
+      return err(ERRORS.SCENE.LOAD_FAILED, `Canvas element '${engineCfg.canvasId}' not found`);
+    }
 
-		// Create engine
-		const engineResult: BabylonResult<BabylonEngineInstance> = await createBabylonEngine(
-			engineCfg,
-			canvas,
-		);
-		if (!engineResult.ok) return engineResult;
+    // Create engine
+    const engineResult: BabylonResult<BabylonEngineInstance> = await createBabylonEngine(
+      engineCfg,
+      canvas,
+    );
+    if (!engineResult.ok) return engineResult;
 
-		// Apply scene setup
-		const sceneResult: Result<Bool> = applySceneSetup(engineResult.data.scene, cfg.scene ?? {});
-		if (!sceneResult.ok) return sceneResult;
+    // Apply scene setup
+    const sceneResult: Result<Bool> = applySceneSetup(engineResult.data.scene, cfg.scene ?? {});
+    if (!sceneResult.ok) return sceneResult;
 
-		// Create camera
-		const cameraResult: BabylonResult<BABYLON.Camera> = createHd2dCamera(
-			engineResult.data.scene,
-			cfg.camera,
-		);
-		if (!cameraResult.ok) return cameraResult;
+    // Create camera
+    const cameraResult: BabylonResult<BABYLON.Camera> = createHd2dCamera(
+      engineResult.data.scene,
+      cfg.camera,
+    );
+    if (!cameraResult.ok) return cameraResult;
 
-		// Performance monitor (debug only)
-		let monitor: PerformanceMonitor | undefined;
-		if (cfg.debug) {
-			const monitorResult = createPerformanceMonitor(engineResult.data.scene);
-			if (monitorResult.ok) {
-				monitor = monitorResult.data;
-			}
+    // Performance monitor (debug only)
+    let monitor: PerformanceMonitor | undefined;
+    if (cfg.debug) {
+      const monitorResult = createPerformanceMonitor(engineResult.data.scene);
+      if (monitorResult.ok) {
+        monitor = monitorResult.data;
+      }
 
-			// Register backtick toggle for inspector (no auto-show — use ` key)
-			registerInspectorToggle(engineResult.data.scene);
-		}
+      // Register backtick toggle for inspector (no auto-show — use ` key)
+      registerInspectorToggle(engineResult.data.scene);
+    }
 
-		const instance: RuntimeInstance = {
-			engine: engineResult.data,
-			camera: cameraResult.data,
-			performanceMonitor: monitor,
-		};
+    const instance: RuntimeInstance = {
+      engine: engineResult.data,
+      camera: cameraResult.data,
+      performanceMonitor: monitor,
+    };
 
-		return okShallow(instance);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(instance);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -184,12 +184,12 @@ export async function createRuntime(config: unknown): Promise<BabylonResult<Runt
 
 /** Options for creating a test runtime. */
 type TestRuntimeOptions = {
-	/** Camera configuration overrides. */
-	readonly camera?: Partial<CameraConfig>;
-	/** Scene setup configuration overrides. */
-	readonly scene?: Record<string, unknown>;
-	/** Enable debug mode. */
-	readonly debug?: boolean;
+  /** Camera configuration overrides. */
+  readonly camera?: Partial<CameraConfig>;
+  /** Scene setup configuration overrides. */
+  readonly scene?: Record<string, unknown>;
+  /** Enable debug mode. */
+  readonly debug?: boolean;
 };
 
 /**
@@ -208,49 +208,49 @@ type TestRuntimeOptions = {
  * ```
  */
 export function createTestRuntime(overrides?: TestRuntimeOptions): BabylonResult<RuntimeInstance> {
-	try {
-		// Create headless engine
-		const engineResult: BabylonResult<BabylonEngineInstance> = createTestEngine();
-		if (!engineResult.ok) return engineResult;
+  try {
+    // Create headless engine
+    const engineResult: BabylonResult<BabylonEngineInstance> = createTestEngine();
+    if (!engineResult.ok) return engineResult;
 
-		// Apply scene setup
-		const sceneConfig: unknown = overrides?.scene ?? {};
-		const sceneResult: Result<Bool> = applySceneSetup(engineResult.data.scene, sceneConfig);
-		if (!sceneResult.ok) return sceneResult;
+    // Apply scene setup
+    const sceneConfig: unknown = overrides?.scene ?? {};
+    const sceneResult: Result<Bool> = applySceneSetup(engineResult.data.scene, sceneConfig);
+    if (!sceneResult.ok) return sceneResult;
 
-		// Create camera — default to 'free' preset (same behavior as legacy 'editor' mode)
-		const cameraConfig: unknown = {
-			preset: 'free' as const,
-			...overrides?.camera,
-		};
-		const cameraResult: BabylonResult<BABYLON.Camera> = createHd2dCamera(
-			engineResult.data.scene,
-			cameraConfig,
-		);
-		if (!cameraResult.ok) return cameraResult;
+    // Create camera — default to 'free' preset (same behavior as legacy 'editor' mode)
+    const cameraConfig: unknown = {
+      preset: 'free' as const,
+      ...overrides?.camera,
+    };
+    const cameraResult: BabylonResult<BABYLON.Camera> = createHd2dCamera(
+      engineResult.data.scene,
+      cameraConfig,
+    );
+    if (!cameraResult.ok) return cameraResult;
 
-		// Performance monitor (debug only)
-		let monitor: PerformanceMonitor | undefined;
-		if (overrides?.debug) {
-			const monitorResult = createPerformanceMonitor(engineResult.data.scene);
-			if (monitorResult.ok) {
-				monitor = monitorResult.data;
-			}
+    // Performance monitor (debug only)
+    let monitor: PerformanceMonitor | undefined;
+    if (overrides?.debug) {
+      const monitorResult = createPerformanceMonitor(engineResult.data.scene);
+      if (monitorResult.ok) {
+        monitor = monitorResult.data;
+      }
 
-			// Register backtick toggle for inspector (no auto-show in test — no DOM)
-			registerInspectorToggle(engineResult.data.scene);
-		}
+      // Register backtick toggle for inspector (no auto-show in test — no DOM)
+      registerInspectorToggle(engineResult.data.scene);
+    }
 
-		const instance: RuntimeInstance = {
-			engine: engineResult.data,
-			camera: cameraResult.data,
-			performanceMonitor: monitor,
-		};
+    const instance: RuntimeInstance = {
+      engine: engineResult.data,
+      camera: cameraResult.data,
+      performanceMonitor: monitor,
+    };
 
-		return okShallow(instance);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okShallow(instance);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -263,19 +263,19 @@ export function createTestRuntime(overrides?: TestRuntimeOptions): BabylonResult
  * @param scene - The Babylon.js scene to register the keyboard observer on.
  */
 function registerInspectorToggle(scene: BABYLON.Scene): void {
-	scene.onKeyboardObservable.add(async (kbInfo) => {
-		if (kbInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN && kbInfo.event.key === '`') {
-			if (scene.debugLayer.isVisible()) {
-				hideInspector(scene);
-			} else {
-				try {
-					await showInspector(scene, true);
-				} catch {
-					// Non-fatal — inspector may not load in all environments
-				}
-			}
-		}
-	});
+  scene.onKeyboardObservable.add(async (kbInfo) => {
+    if (kbInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN && kbInfo.event.key === '`') {
+      if (scene.debugLayer.isVisible()) {
+        hideInspector(scene);
+      } else {
+        try {
+          await showInspector(scene, true);
+        } catch {
+          // Non-fatal — inspector may not load in all environments
+        }
+      }
+    }
+  });
 }
 
 // =============================================================================
@@ -296,17 +296,17 @@ function registerInspectorToggle(scene: BABYLON.Scene): void {
  * ```
  */
 export function disposeRuntime(instance: RuntimeInstance): Result<Bool> {
-	try {
-		// Dispose performance monitor first
-		if (instance.performanceMonitor) {
-			disposePerformanceMonitor(instance.performanceMonitor);
-		}
+  try {
+    // Dispose performance monitor first
+    if (instance.performanceMonitor) {
+      disposePerformanceMonitor(instance.performanceMonitor);
+    }
 
-		// Dispose engine (handles scene + render loop)
-		return disposeEngine(instance.engine);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    // Dispose engine (handles scene + render loop)
+    return disposeEngine(instance.engine);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 // =============================================================================
@@ -322,9 +322,9 @@ export function disposeRuntime(instance: RuntimeInstance): Result<Bool> {
  * @returns The engine configuration with quality preset defaults applied.
  */
 function applyQualityPreset(cfg: DeepReadonly<RuntimeConfig>): DeepReadonly<EngineConfig> {
-	// Quality preset's hardwareScalingLevel will be applied to the engine
-	// after creation via setHardwareScalingLevel. Preset provides defaults
-	// for antialias/stencil/adaptToDeviceRatio but explicit engine config values
-	// always win (they're already set by v.optional defaults).
-	return cfg.engine;
+  // Quality preset's hardwareScalingLevel will be applied to the engine
+  // after creation via setHardwareScalingLevel. Preset provides defaults
+  // for antialias/stencil/adaptToDeviceRatio but explicit engine config values
+  // always win (they're already set by v.optional defaults).
+  return cfg.engine;
 }

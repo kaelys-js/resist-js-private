@@ -22,10 +22,10 @@ import { MOCK_PROJECT, MOCK_SCENES } from './data';
  * @returns A promise that resolves after the specified delay
  */
 function sleep(ms: Num): Promise<Void> {
-	if (ms <= 0) return Promise.resolve(undefined);
-	return new Promise((resolve) => {
-		setTimeout(resolve, ms);
-	});
+  if (ms <= 0) return Promise.resolve(undefined);
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 /**
@@ -43,24 +43,24 @@ function sleep(ms: Num): Promise<Void> {
  * const service = createMockService(1500);
  */
 export function createMockService(delayMs: Num = 0): DataService {
-	return {
-		projects: {
-			async getByOwner(ownerId: Str): Promise<Result<ServerProject | null>> {
-				await sleep(delayMs);
-				if (ownerId === MOCK_PROJECT.ownerId) {
-					return okUnchecked(MOCK_PROJECT);
-				}
-				return okUnchecked(null);
-			},
-		},
-		scenes: {
-			async getByProject(projectId: Str): Promise<Result<ServerScene[]>> {
-				await sleep(delayMs);
-				if (projectId === MOCK_PROJECT.id) {
-					return okUnchecked([...MOCK_SCENES]);
-				}
-				return okUnchecked([]);
-			},
-		},
-	};
+  return {
+    projects: {
+      async getByOwner(ownerId: Str): Promise<Result<ServerProject | null>> {
+        await sleep(delayMs);
+        if (ownerId === MOCK_PROJECT.ownerId) {
+          return okUnchecked(MOCK_PROJECT);
+        }
+        return okUnchecked(null);
+      },
+    },
+    scenes: {
+      async getByProject(projectId: Str): Promise<Result<ServerScene[]>> {
+        await sleep(delayMs);
+        if (projectId === MOCK_PROJECT.id) {
+          return okUnchecked([...MOCK_SCENES]);
+        }
+        return okUnchecked([]);
+      },
+    },
+  };
 }

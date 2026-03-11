@@ -58,23 +58,23 @@ import { FogConfigSchema } from './fog-config';
  * ```
  */
 export const SceneSetupConfigSchema = v.strictObject({
-	/** Scene clear (background) color. Default: dark blue-gray (0.15, 0.15, 0.2, 1). */
-	clearColor: v.optional(ColorRgbaSchema, { r: 0.15, g: 0.15, b: 0.2, a: 1 }),
+  /** Scene clear (background) color. Default: dark blue-gray (0.15, 0.15, 0.2, 1). */
+  clearColor: v.optional(ColorRgbaSchema, { r: 0.15, g: 0.15, b: 0.2, a: 1 }),
 
-	/** Scene ambient color. Default: dim gray (0.3, 0.3, 0.3). */
-	ambientColor: v.optional(ColorRgbaSchema, { r: 0.3, g: 0.3, b: 0.3, a: 1 }),
+  /** Scene ambient color. Default: dim gray (0.3, 0.3, 0.3). */
+  ambientColor: v.optional(ColorRgbaSchema, { r: 0.3, g: 0.3, b: 0.3, a: 1 }),
 
-	/** Optional fog configuration. Undefined means no fog. */
-	fog: v.optional(FogConfigSchema),
+  /** Optional fog configuration. Undefined means no fog. */
+  fog: v.optional(FogConfigSchema),
 
-	/** Whether to create a default hemispheric light. Default: true. */
-	defaultLight: v.optional(v.boolean(), true),
+  /** Whether to create a default hemispheric light. Default: true. */
+  defaultLight: v.optional(v.boolean(), true),
 
-	/** Default light intensity [0, 10]. Default: 0.7. */
-	defaultLightIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(10)), 0.7),
+  /** Default light intensity [0, 10]. Default: 0.7. */
+  defaultLightIntensity: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(10)), 0.7),
 
-	/** Default light ground (bounce) color. Default: dim gray (0.2, 0.2, 0.2). */
-	defaultLightGroundColor: v.optional(ColorRgbaSchema, { r: 0.2, g: 0.2, b: 0.2, a: 1 }),
+  /** Default light ground (bounce) color. Default: dim gray (0.2, 0.2, 0.2). */
+  defaultLightGroundColor: v.optional(ColorRgbaSchema, { r: 0.2, g: 0.2, b: 0.2, a: 1 }),
 });
 
 /** Inferred scene setup configuration type from {@link SceneSetupConfigSchema}. */

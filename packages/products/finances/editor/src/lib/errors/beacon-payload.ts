@@ -16,17 +16,17 @@ import * as v from 'valibot';
 
 import type { Str } from '@/schemas/common';
 import {
-	type CapturedError,
-	BreadcrumbSchema,
-	CapturedErrorTypeSchema,
-	ErrorFingerprintSchema,
+  type CapturedError,
+  BreadcrumbSchema,
+  CapturedErrorTypeSchema,
+  ErrorFingerprintSchema,
 } from '@/schemas/result/captured-error';
 import {
-	type AppError,
-	AppErrorSchema,
-	ErrorTagsSchema,
-	type Result,
-	okUnchecked,
+  type AppError,
+  AppErrorSchema,
+  ErrorTagsSchema,
+  type Result,
+  okUnchecked,
 } from '@/schemas/result/result';
 import { formatErrorSafe } from '@/utils/result/format';
 
@@ -41,13 +41,13 @@ import { formatErrorSafe } from '@/utils/result/format';
  * @internal
  */
 const _BeaconRuntimeKindSchema = v.picklist([
-	'node-tty',
-	'node-pipe',
-	'worker',
-	'browser',
-	'web-worker',
-	'shared-worker',
-	'service-worker',
+  'node-tty',
+  'node-pipe',
+  'worker',
+  'browser',
+  'web-worker',
+  'shared-worker',
+  'service-worker',
 ]);
 
 // =============================================================================
@@ -73,26 +73,26 @@ const _BeaconRuntimeKindSchema = v.picklist([
  * ```
  */
 export const BeaconPayloadSchema = v.strictObject({
-	/** UUID v4 unique to this error event. Correlation ID. */
-	id: v.pipe(v.string(), v.uuid()),
-	/** What kind of runtime error was captured. */
-	type: CapturedErrorTypeSchema,
-	/** PII-stripped AppError (message replaced with code, stack/meta/source removed). */
-	error: v.lazy(() => AppErrorSchema as unknown as v.GenericSchema<AppError>),
-	/** Runtime environment where the error was captured. */
-	environment: _BeaconRuntimeKindSchema,
-	/** ISO 8601 timestamp when the error was captured. */
-	timestamp: v.pipe(v.string(), v.isoTimestamp()),
-	/** Whether this error is fatal. */
-	fatal: v.boolean(),
-	/** Trail of events leading up to the error. */
-	breadcrumbs: v.optional(v.array(BreadcrumbSchema)),
-	/** Indexed string tags for filtering (service, route, side). */
-	tags: v.optional(ErrorTagsSchema),
-	/** Software release version. */
-	release: v.optional(v.string()),
-	/** Fingerprint for error grouping/deduplication. */
-	fingerprint: v.optional(ErrorFingerprintSchema),
+  /** UUID v4 unique to this error event. Correlation ID. */
+  id: v.pipe(v.string(), v.uuid()),
+  /** What kind of runtime error was captured. */
+  type: CapturedErrorTypeSchema,
+  /** PII-stripped AppError (message replaced with code, stack/meta/source removed). */
+  error: v.lazy(() => AppErrorSchema as unknown as v.GenericSchema<AppError>),
+  /** Runtime environment where the error was captured. */
+  environment: _BeaconRuntimeKindSchema,
+  /** ISO 8601 timestamp when the error was captured. */
+  timestamp: v.pipe(v.string(), v.isoTimestamp()),
+  /** Whether this error is fatal. */
+  fatal: v.boolean(),
+  /** Trail of events leading up to the error. */
+  breadcrumbs: v.optional(v.array(BreadcrumbSchema)),
+  /** Indexed string tags for filtering (service, route, side). */
+  tags: v.optional(ErrorTagsSchema),
+  /** Software release version. */
+  release: v.optional(v.string()),
+  /** Fingerprint for error grouping/deduplication. */
+  fingerprint: v.optional(ErrorFingerprintSchema),
 });
 
 /** Inferred output type of {@link BeaconPayloadSchema}. */
@@ -120,23 +120,23 @@ export type BeaconPayload = v.InferOutput<typeof BeaconPayloadSchema>;
  * ```
  */
 export function toBeaconPayload(captured: CapturedError): Result<BeaconPayload> {
-	const safeError: Result<AppError> = formatErrorSafe(captured.error as AppError);
-	if (!safeError.ok) return safeError;
+  const safeError: Result<AppError> = formatErrorSafe(captured.error as AppError);
+  if (!safeError.ok) return safeError;
 
-	const payload: BeaconPayload = {
-		id: captured.id as Str,
-		type: captured.type,
-		error: safeError.data as AppError,
-		environment: captured.environment,
-		timestamp: captured.timestamp as Str,
-		fatal: captured.fatal,
-		...(captured.breadcrumbs !== undefined && {
-			breadcrumbs: captured.breadcrumbs as typeof captured.breadcrumbs,
-		}),
-		...(captured.tags !== undefined && { tags: captured.tags }),
-		...(captured.release !== undefined && { release: captured.release }),
-		...(captured.fingerprint !== undefined && { fingerprint: captured.fingerprint }),
-	};
+  const payload: BeaconPayload = {
+    id: captured.id as Str,
+    type: captured.type,
+    error: safeError.data as AppError,
+    environment: captured.environment,
+    timestamp: captured.timestamp as Str,
+    fatal: captured.fatal,
+    ...(captured.breadcrumbs !== undefined && {
+      breadcrumbs: captured.breadcrumbs as typeof captured.breadcrumbs,
+    }),
+    ...(captured.tags !== undefined && { tags: captured.tags }),
+    ...(captured.release !== undefined && { release: captured.release }),
+    ...(captured.fingerprint !== undefined && { fingerprint: captured.fingerprint }),
+  };
 
-	return okUnchecked<BeaconPayload>(payload);
+  return okUnchecked<BeaconPayload>(payload);
 }

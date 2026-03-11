@@ -14,13 +14,13 @@
  */
 
 import {
-	type AppError,
-	type KnownErrorCode,
-	type ErrOptions,
-	type Result,
-	err,
-	okUnchecked,
-	ERRORS,
+  type AppError,
+  type KnownErrorCode,
+  type ErrOptions,
+  type Result,
+  err,
+  okUnchecked,
+  ERRORS,
 } from '@/schemas/result/result';
 import { fromUnknownError } from '@/utils/result/safe';
 
@@ -49,15 +49,15 @@ import { fromUnknownError } from '@/utils/result/safe';
  * ```
  */
 export function map<T, U>(result: Result<T>, fn: (data: T) => U): Result<U> {
-	if (!result.ok) return result;
-	try {
-		return okUnchecked<U>(fn(result.data as T));
-	} catch (error: unknown) {
-		return err(ERRORS.INTERNAL.UNEXPECTED, {
-			cause: fromUnknownError(error),
-			meta: { operation: 'map' },
-		});
-	}
+  if (!result.ok) return result;
+  try {
+    return okUnchecked<U>(fn(result.data as T));
+  } catch (error: unknown) {
+    return err(ERRORS.INTERNAL.UNEXPECTED, {
+      cause: fromUnknownError(error),
+      meta: { operation: 'map' },
+    });
+  }
 }
 
 /**
@@ -82,12 +82,12 @@ export function map<T, U>(result: Result<T>, fn: (data: T) => U): Result<U> {
  * ```
  */
 export function mapErr<T>(
-	result: Result<T>,
-	fn: (error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions },
+  result: Result<T>,
+  fn: (error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions },
 ): Result<T> {
-	if (result.ok) return result;
-	const mapped: { code: KnownErrorCode; message?: string; options?: ErrOptions } = fn(result.error);
-	return err(mapped.code, mapped.message, mapped.options) as Result<T>;
+  if (result.ok) return result;
+  const mapped: { code: KnownErrorCode; message?: string; options?: ErrOptions } = fn(result.error);
+  return err(mapped.code, mapped.message, mapped.options) as Result<T>;
 }
 
 /**
@@ -112,15 +112,15 @@ export function mapErr<T>(
  * ```
  */
 export function andThen<T, U>(result: Result<T>, fn: (data: T) => Result<U>): Result<U> {
-	if (!result.ok) return result;
-	try {
-		return fn(result.data as T);
-	} catch (error: unknown) {
-		return err(ERRORS.INTERNAL.UNEXPECTED, {
-			cause: fromUnknownError(error),
-			meta: { operation: 'andThen' },
-		});
-	}
+  if (!result.ok) return result;
+  try {
+    return fn(result.data as T);
+  } catch (error: unknown) {
+    return err(ERRORS.INTERNAL.UNEXPECTED, {
+      cause: fromUnknownError(error),
+      meta: { operation: 'andThen' },
+    });
+  }
 }
 
 /**
@@ -144,15 +144,15 @@ export function andThen<T, U>(result: Result<T>, fn: (data: T) => Result<U>): Re
  * ```
  */
 export function orElse<T>(result: Result<T>, fn: (error: AppError) => Result<T>): Result<T> {
-	if (result.ok) return result;
-	try {
-		return fn(result.error);
-	} catch (error: unknown) {
-		return err(ERRORS.INTERNAL.UNEXPECTED, {
-			cause: fromUnknownError(error),
-			meta: { operation: 'orElse' },
-		});
-	}
+  if (result.ok) return result;
+  try {
+    return fn(result.error);
+  } catch (error: unknown) {
+    return err(ERRORS.INTERNAL.UNEXPECTED, {
+      cause: fromUnknownError(error),
+      meta: { operation: 'orElse' },
+    });
+  }
 }
 
 /**
@@ -176,14 +176,14 @@ export function orElse<T>(result: Result<T>, fn: (error: AppError) => Result<T>)
  * ```
  */
 export function match<T, U>(
-	result: Result<T>,
-	handlers: {
-		ok: (data: T) => U;
-		err: (error: AppError) => U;
-	},
+  result: Result<T>,
+  handlers: {
+    ok: (data: T) => U;
+    err: (error: AppError) => U;
+  },
 ): U {
-	if (result.ok) return handlers.ok(result.data as T);
-	return handlers.err(result.error);
+  if (result.ok) return handlers.ok(result.data as T);
+  return handlers.err(result.error);
 }
 
 /**
@@ -204,8 +204,8 @@ export function match<T, U>(
  * ```
  */
 export function unwrapOr<T>(result: Result<T>, defaultValue: T): T {
-	if (result.ok) return result.data as T;
-	return defaultValue;
+  if (result.ok) return result.data as T;
+  return defaultValue;
 }
 
 // =============================================================================
@@ -235,14 +235,14 @@ export function unwrapOr<T>(result: Result<T>, defaultValue: T): T {
  * ```
  */
 export function tap<T>(result: Result<T>, fn: (data: T) => void): Result<T> {
-	if (result.ok) {
-		try {
-			fn(result.data as T);
-		} catch {
-			/* side effect — swallow */
-		}
-	}
-	return result;
+  if (result.ok) {
+    try {
+      fn(result.data as T);
+    } catch {
+      /* side effect — swallow */
+    }
+  }
+  return result;
 }
 
 /**
@@ -265,14 +265,14 @@ export function tap<T>(result: Result<T>, fn: (data: T) => void): Result<T> {
  * ```
  */
 export function tapErr<T>(result: Result<T>, fn: (error: AppError) => void): Result<T> {
-	if (!result.ok) {
-		try {
-			fn(result.error);
-		} catch {
-			/* side effect — swallow */
-		}
-	}
-	return result;
+  if (!result.ok) {
+    try {
+      fn(result.error);
+    } catch {
+      /* side effect — swallow */
+    }
+  }
+  return result;
 }
 
 // =============================================================================
@@ -300,12 +300,12 @@ export function tapErr<T>(result: Result<T>, fn: (error: AppError) => void): Res
  * ```
  */
 export function combine<T>(results: ReadonlyArray<Result<T>>): Result<readonly T[]> {
-	const values: T[] = [];
-	for (const result of results) {
-		if (!result.ok) return result;
-		values.push(result.data as T);
-	}
-	return okUnchecked<readonly T[]>(values);
+  const values: T[] = [];
+  for (const result of results) {
+    if (!result.ok) return result;
+    values.push(result.data as T);
+  }
+  return okUnchecked<readonly T[]>(values);
 }
 
 /**
@@ -337,32 +337,32 @@ export function combine<T>(results: ReadonlyArray<Result<T>>): Result<readonly T
  * ```
  */
 export function combineWithAllErrors<T>(results: ReadonlyArray<Result<T>>): Result<readonly T[]> {
-	const values: T[] = [];
-	const errors: AppError[] = [];
+  const values: T[] = [];
+  const errors: AppError[] = [];
 
-	for (const result of results) {
-		if (result.ok) {
-			values.push(result.data as T);
-		} else {
-			errors.push(result.error);
-		}
-	}
+  for (const result of results) {
+    if (result.ok) {
+      values.push(result.data as T);
+    } else {
+      errors.push(result.error);
+    }
+  }
 
-	if (errors.length === 0) {
-		return okUnchecked<readonly T[]>(values);
-	}
+  if (errors.length === 0) {
+    return okUnchecked<readonly T[]>(values);
+  }
 
-	// oxlint-disable-next-line typescript/no-non-null-assertion -- guarded by errors.length === 0 early return above
-	const firstError: AppError = errors[0]!;
-	const relatedErrors: AppError[] = errors.slice(1);
+  // oxlint-disable-next-line typescript/no-non-null-assertion -- guarded by errors.length === 0 early return above
+  const firstError: AppError = errors[0]!;
+  const relatedErrors: AppError[] = errors.slice(1);
 
-	return err(firstError.code, firstError.message, {
-		...(firstError.validation !== undefined && { validation: firstError.validation }),
-		...(firstError.source !== undefined && { source: firstError.source }),
-		...(firstError.cause !== undefined && { cause: firstError.cause }),
-		...(firstError.meta !== undefined && { meta: firstError.meta }),
-		...(relatedErrors.length > 0 && { related: relatedErrors }),
-	});
+  return err(firstError.code, firstError.message, {
+    ...(firstError.validation !== undefined && { validation: firstError.validation }),
+    ...(firstError.source !== undefined && { source: firstError.source }),
+    ...(firstError.cause !== undefined && { cause: firstError.cause }),
+    ...(firstError.meta !== undefined && { meta: firstError.meta }),
+    ...(relatedErrors.length > 0 && { related: relatedErrors }),
+  });
 }
 
 // =============================================================================
@@ -394,18 +394,18 @@ export function combineWithAllErrors<T>(results: ReadonlyArray<Result<T>>): Resu
  * ```
  */
 export function fromThrowable<TArgs extends unknown[], TReturn>(
-	fn: (...args: TArgs) => TReturn,
-	errorCode: KnownErrorCode,
+  fn: (...args: TArgs) => TReturn,
+  errorCode: KnownErrorCode,
 ): (...args: TArgs) => Result<TReturn> {
-	return (...args: TArgs): Result<TReturn> => {
-		try {
-			return okUnchecked<TReturn>(fn(...args));
-		} catch (error: unknown) {
-			return err(errorCode, {
-				cause: fromUnknownError(error),
-			});
-		}
-	};
+  return (...args: TArgs): Result<TReturn> => {
+    try {
+      return okUnchecked<TReturn>(fn(...args));
+    } catch (error: unknown) {
+      return err(errorCode, {
+        cause: fromUnknownError(error),
+      });
+    }
+  };
 }
 
 /**
@@ -433,17 +433,17 @@ export function fromThrowable<TArgs extends unknown[], TReturn>(
  * ```
  */
 export function fromAsyncThrowable<TArgs extends unknown[], TReturn>(
-	fn: (...args: TArgs) => Promise<TReturn>,
-	errorCode: KnownErrorCode,
+  fn: (...args: TArgs) => Promise<TReturn>,
+  errorCode: KnownErrorCode,
 ): (...args: TArgs) => Promise<Result<TReturn>> {
-	return async (...args: TArgs): Promise<Result<TReturn>> => {
-		try {
-			const value: TReturn = await fn(...args);
-			return okUnchecked<TReturn>(value);
-		} catch (error: unknown) {
-			return err(errorCode, {
-				cause: fromUnknownError(error),
-			});
-		}
-	};
+  return async (...args: TArgs): Promise<Result<TReturn>> => {
+    try {
+      const value: TReturn = await fn(...args);
+      return okUnchecked<TReturn>(value);
+    } catch (error: unknown) {
+      return err(errorCode, {
+        cause: fromUnknownError(error),
+      });
+    }
+  };
 }

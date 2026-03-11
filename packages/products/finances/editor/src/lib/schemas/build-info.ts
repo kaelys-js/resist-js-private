@@ -28,18 +28,18 @@ import * as v from 'valibot';
  * ```
  */
 export const BuildInfoSchema = v.strictObject({
-	/** Semantic version string (e.g., `'0.1.0'`). */
-	version: v.pipe(v.string(), v.minLength(1)),
-	/** Short git commit hash (e.g., `'abc1234'`). */
-	commit: v.pipe(v.string(), v.minLength(1)),
-	/** Full 40-character git commit hash. */
-	commitFull: v.pipe(v.string(), v.minLength(1)),
-	/** Git branch name at build time. */
-	branch: v.pipe(v.string(), v.minLength(1)),
-	/** Whether the working tree had uncommitted changes at build time. */
-	dirty: v.boolean(),
-	/** ISO 8601 timestamp of when the build was created. */
-	buildTimestamp: v.pipe(v.string(), v.isoTimestamp()),
+  /** Semantic version string (e.g., `'0.1.0'`). */
+  version: v.pipe(v.string(), v.minLength(1)),
+  /** Short git commit hash (e.g., `'abc1234'`). */
+  commit: v.pipe(v.string(), v.minLength(1)),
+  /** Full 40-character git commit hash. */
+  commitFull: v.pipe(v.string(), v.minLength(1)),
+  /** Git branch name at build time. */
+  branch: v.pipe(v.string(), v.minLength(1)),
+  /** Whether the working tree had uncommitted changes at build time. */
+  dirty: v.boolean(),
+  /** ISO 8601 timestamp of when the build was created. */
+  buildTimestamp: v.pipe(v.string(), v.isoTimestamp()),
 });
 
 /** Inferred type for build-time metadata. */

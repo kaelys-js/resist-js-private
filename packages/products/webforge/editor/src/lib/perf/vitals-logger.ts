@@ -39,27 +39,27 @@ import { formatThresholds, type VitalDiagnostics } from '$lib/perf/vitals-diagno
 
 /** Metrics whose values are in milliseconds and should be rounded + suffixed. */
 const TIMING_METRICS: ReadonlySet<Str> = new Set([
-	'TTFB',
-	'FCP',
-	'LCP',
-	'FID',
-	'INP',
-	'TBT',
-	'NTBT',
+  'TTFB',
+  'FCP',
+  'LCP',
+  'FID',
+  'INP',
+  'TBT',
+  'NTBT',
 ]);
 
 /** Rating → icon mapping for log output. */
 const RATING_ICONS: Readonly<Record<Str, Str>> = {
-	good: '✓',
-	needsImprovement: '⚠',
-	poor: '✗',
+  good: '✓',
+  needsImprovement: '⚠',
+  poor: '✗',
 };
 
 /** Rating → CSS style mapping for colorized console output. */
 const RATING_STYLES: Readonly<Record<Str, Str>> = {
-	good: styles.ratingGood,
-	needsImprovement: styles.ratingWarn,
-	poor: styles.ratingPoor,
+  good: styles.ratingGood,
+  needsImprovement: styles.ratingWarn,
+  poor: styles.ratingPoor,
 };
 
 // ── Public API ──────────────────────────────────────────────────────────────
@@ -106,42 +106,42 @@ const THRESHOLD_STYLE: Str = 'color:#666;font-style:italic;font-size:0.9em';
  * // Styled: cyan prefix, white name, green value, green rating
  */
 export function logVital(
-	metricName: Str,
-	value: Num,
-	rating: Str,
-	diagnostics?: VitalDiagnostics | null,
+  metricName: Str,
+  value: Num,
+  rating: Str,
+  diagnostics?: VitalDiagnostics | null,
 ): Result<Void> {
-	const isTiming: Bool = TIMING_METRICS.has(metricName);
-	const displayValue: Str = isTiming ? `${Math.round(value)}ms` : String(value);
-	const icon: Str = RATING_ICONS[rating] ?? '?';
-	const ratingStyle: Str = RATING_STYLES[rating] ?? styles.reset;
+  const isTiming: Bool = TIMING_METRICS.has(metricName);
+  const displayValue: Str = isTiming ? `${Math.round(value)}ms` : String(value);
+  const icon: Str = RATING_ICONS[rating] ?? '?';
+  const ratingStyle: Str = RATING_STYLES[rating] ?? styles.reset;
 
-	const fmt: Str = `%c[${APP_NAME}] %c${metricName} %c${displayValue} %c${icon} ${rating}`;
+  const fmt: Str = `%c[${APP_NAME}] %c${metricName} %c${displayValue} %c${icon} ${rating}`;
 
-	const hasDiagnostics: Bool =
-		diagnostics !== null && diagnostics !== undefined && diagnostics.findings.length > 0;
+  const hasDiagnostics: Bool =
+    diagnostics !== null && diagnostics !== undefined && diagnostics.findings.length > 0;
 
-	if (rating === 'poor') {
-		if (hasDiagnostics) {
-			// Use a collapsible group so diagnostics are visible but don't flood the console
-			console.groupCollapsed(fmt, styles.vitalPrefix, styles.metricName, ratingStyle, ratingStyle);
-			logDiagnosticDetails(diagnostics);
-			console.groupEnd();
-		} else {
-			console.warn(fmt, styles.vitalPrefix, styles.metricName, ratingStyle, ratingStyle);
-		}
-	} else if (dev) {
-		if (hasDiagnostics) {
-			console.groupCollapsed(fmt, styles.vitalPrefix, styles.metricName, ratingStyle, ratingStyle);
-			logDiagnosticDetails(diagnostics);
-			console.groupEnd();
-		} else {
-			console.log(fmt, styles.vitalPrefix, styles.metricName, ratingStyle, ratingStyle);
-		}
-	}
-	// In production, 'good' and 'needsImprovement' are silent — data is beaconed, not console logged
+  if (rating === 'poor') {
+    if (hasDiagnostics) {
+      // Use a collapsible group so diagnostics are visible but don't flood the console
+      console.groupCollapsed(fmt, styles.vitalPrefix, styles.metricName, ratingStyle, ratingStyle);
+      logDiagnosticDetails(diagnostics);
+      console.groupEnd();
+    } else {
+      console.warn(fmt, styles.vitalPrefix, styles.metricName, ratingStyle, ratingStyle);
+    }
+  } else if (dev) {
+    if (hasDiagnostics) {
+      console.groupCollapsed(fmt, styles.vitalPrefix, styles.metricName, ratingStyle, ratingStyle);
+      logDiagnosticDetails(diagnostics);
+      console.groupEnd();
+    } else {
+      console.log(fmt, styles.vitalPrefix, styles.metricName, ratingStyle, ratingStyle);
+    }
+  }
+  // In production, 'good' and 'needsImprovement' are silent — data is beaconed, not console logged
 
-	return okUnchecked<Void>(undefined);
+  return okUnchecked<Void>(undefined);
 }
 
 /**
@@ -152,21 +152,21 @@ export function logVital(
  * @param diagnostics - The diagnostics to log
  */
 function logDiagnosticDetails(diagnostics: VitalDiagnostics | null | undefined): Void {
-	if (!diagnostics) return;
+  if (!diagnostics) return;
 
-	// Threshold context line
-	console.log(`  %cThresholds: ${formatThresholds(diagnostics.thresholds)}`, THRESHOLD_STYLE);
+  // Threshold context line
+  console.log(`  %cThresholds: ${formatThresholds(diagnostics.thresholds)}`, THRESHOLD_STYLE);
 
-	// Each finding as a labeled row
-	for (const finding of diagnostics.findings) {
-		if (finding.label) {
-			console.log(
-				`  %c${finding.label.padEnd(16)}%c ${finding.value}`,
-				DIAG_LABEL_STYLE,
-				DIAG_VALUE_STYLE,
-			);
-		} else {
-			console.log(`  %c${finding.value}`, DIAG_VALUE_STYLE);
-		}
-	}
+  // Each finding as a labeled row
+  for (const finding of diagnostics.findings) {
+    if (finding.label) {
+      console.log(
+        `  %c${finding.label.padEnd(16)}%c ${finding.value}`,
+        DIAG_LABEL_STYLE,
+        DIAG_VALUE_STYLE,
+      );
+    } else {
+      console.log(`  %c${finding.value}`, DIAG_VALUE_STYLE);
+    }
+  }
 }

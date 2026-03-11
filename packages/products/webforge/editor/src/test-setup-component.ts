@@ -20,35 +20,35 @@ import type { Str, Void } from '@/schemas/common';
 const noop = (): Void => {};
 
 Object.defineProperty(window, 'matchMedia', {
-	writable: true,
-	value: (query: Str) => ({
-		matches: false,
-		media: query,
-		onchange: null,
-		addListener: noop,
-		removeListener: noop,
-		addEventListener: noop,
-		removeEventListener: noop,
-		dispatchEvent: () => false,
-	}),
+  writable: true,
+  value: (query: Str) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: noop,
+    removeListener: noop,
+    addEventListener: noop,
+    removeEventListener: noop,
+    dispatchEvent: () => false,
+  }),
 });
 
 // jsdom does not implement ResizeObserver — required by ScrollArea + Tooltip internals.
 globalThis.ResizeObserver ??= class {
-	observe(): Void {}
-	unobserve(): Void {}
-	disconnect(): Void {}
+  observe(): Void {}
+  unobserve(): Void {}
+  disconnect(): Void {}
 } as unknown as typeof ResizeObserver;
 
 // jsdom does not implement Element.prototype.animate — required by Svelte transitions.
 if (!Element.prototype.animate) {
-	Element.prototype.animate = function () {
-		return {
-			finished: new Promise<void>((resolve) => {
-				resolve();
-			}),
-			cancel(): Void {},
-			onfinish: null,
-		} as unknown as Animation;
-	};
+  Element.prototype.animate = function () {
+    return {
+      finished: new Promise<void>((resolve) => {
+        resolve();
+      }),
+      cancel(): Void {},
+      onfinish: null,
+    } as unknown as Animation;
+  };
 }

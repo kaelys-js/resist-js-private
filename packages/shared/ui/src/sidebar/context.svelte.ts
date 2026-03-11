@@ -15,26 +15,26 @@ import type { Bool, Str, Void } from '@/schemas/common';
 type Getter<T> = () => T;
 
 export type SidebarStateProps = {
-	/**
-	 * A getter function that returns the current open state of the sidebar.
-	 * We use a getter function here to support `bind:open` on the `Sidebar.Provider`
-	 * component.
-	 */
-	open: Getter<boolean>;
+  /**
+   * A getter function that returns the current open state of the sidebar.
+   * We use a getter function here to support `bind:open` on the `Sidebar.Provider`
+   * component.
+   */
+  open: Getter<boolean>;
 
-	/**
-	 * A function that sets the open state of the sidebar. To support `bind:open`, we need
-	 * a source of truth for changing the open state to ensure it will be synced throughout
-	 * the sub-components and any `bind:` references.
-	 */
-	setOpen: (open: boolean) => void;
+  /**
+   * A function that sets the open state of the sidebar. To support `bind:open`, we need
+   * a source of truth for changing the open state to ensure it will be synced throughout
+   * the sub-components and any `bind:` references.
+   */
+  setOpen: (open: boolean) => void;
 
-	/**
-	 * Optional callback that checks whether a keyboard event matches the sidebar
-	 * toggle shortcut. Each product provides its own shortcut-matching logic.
-	 * If omitted, the keyboard shortcut handler is a no-op.
-	 */
-	matchToggleShortcut?: (e: KeyboardEvent) => Bool;
+  /**
+   * Optional callback that checks whether a keyboard event matches the sidebar
+   * toggle shortcut. Each product provides its own shortcut-matching logic.
+   * If omitted, the keyboard shortcut handler is a no-op.
+   */
+  matchToggleShortcut?: (e: KeyboardEvent) => Bool;
 };
 
 /**
@@ -45,77 +45,77 @@ export type SidebarStateProps = {
  * Instantiate via {@link setSidebar} inside the Sidebar.Provider component.
  */
 class SidebarState {
-	/** Original props passed to the constructor. */
-	readonly props: SidebarStateProps;
+  /** Original props passed to the constructor. */
+  readonly props: SidebarStateProps;
 
-	/** Whether the sidebar is open on desktop (derived from props getter). */
-	open: Bool = $derived.by(() => this.props.open());
+  /** Whether the sidebar is open on desktop (derived from props getter). */
+  open: Bool = $derived.by(() => this.props.open());
 
-	/** Whether the sidebar is open on mobile. */
-	openMobile: Bool = $state(false);
+  /** Whether the sidebar is open on mobile. */
+  openMobile: Bool = $state(false);
 
-	/** Setter for the desktop open state. */
-	setOpen: SidebarStateProps['setOpen'];
+  /** Setter for the desktop open state. */
+  setOpen: SidebarStateProps['setOpen'];
 
-	#isMobile: IsMobile;
+  #isMobile: IsMobile;
 
-	/** Sidebar expansion state string: `'expanded'` or `'collapsed'`. */
-	state: Str = $derived.by(() => (this.open ? 'expanded' : 'collapsed'));
+  /** Sidebar expansion state string: `'expanded'` or `'collapsed'`. */
+  state: Str = $derived.by(() => (this.open ? 'expanded' : 'collapsed'));
 
-	/** Optional shortcut matcher injected by the consuming product. */
-	#matchToggleShortcut?: (e: KeyboardEvent) => Bool;
+  /** Optional shortcut matcher injected by the consuming product. */
+  #matchToggleShortcut?: (e: KeyboardEvent) => Bool;
 
-	/** @param props - Desktop open getter and setter for bind:open support */
-	constructor(props: SidebarStateProps) {
-		this.setOpen = props.setOpen;
-		this.#isMobile = new IsMobile();
-		this.#matchToggleShortcut = props.matchToggleShortcut;
-		this.props = props;
-	}
+  /** @param props - Desktop open getter and setter for bind:open support */
+  constructor(props: SidebarStateProps) {
+    this.setOpen = props.setOpen;
+    this.#isMobile = new IsMobile();
+    this.#matchToggleShortcut = props.matchToggleShortcut;
+    this.props = props;
+  }
 
-	/**
-	 * Whether the current viewport is mobile-sized.
-	 *
-	 * Convenience getter so consumers can write `sidebar.isMobile`
-	 * instead of `sidebar.isMobile.current`.
-	 *
-	 * @returns Whether the viewport is mobile-sized
-	 */
-	get isMobile(): Bool {
-		return this.#isMobile.current;
-	}
+  /**
+   * Whether the current viewport is mobile-sized.
+   *
+   * Convenience getter so consumers can write `sidebar.isMobile`
+   * instead of `sidebar.isMobile.current`.
+   *
+   * @returns Whether the viewport is mobile-sized
+   */
+  get isMobile(): Bool {
+    return this.#isMobile.current;
+  }
 
-	/**
-	 * Keyboard event handler for the sidebar toggle shortcut.
-	 *
-	 * Attach to `<svelte:window on:keydown>`.
-	 *
-	 * @param e - The keyboard event to check
-	 */
-	handleShortcutKeydown = (e: KeyboardEvent): Void => {
-		if (this.#matchToggleShortcut?.(e)) {
-			e.preventDefault();
-			this.toggle();
-		}
-	};
+  /**
+   * Keyboard event handler for the sidebar toggle shortcut.
+   *
+   * Attach to `<svelte:window on:keydown>`.
+   *
+   * @param e - The keyboard event to check
+   */
+  handleShortcutKeydown = (e: KeyboardEvent): Void => {
+    if (this.#matchToggleShortcut?.(e)) {
+      e.preventDefault();
+      this.toggle();
+    }
+  };
 
-	/**
-	 * Sets the mobile sidebar open state.
-	 *
-	 * @param value - Whether the mobile sidebar should be open
-	 */
-	setOpenMobile = (value: Bool): Void => {
-		this.openMobile = value;
-	};
+  /**
+   * Sets the mobile sidebar open state.
+   *
+   * @param value - Whether the mobile sidebar should be open
+   */
+  setOpenMobile = (value: Bool): Void => {
+    this.openMobile = value;
+  };
 
-	/** Toggles the sidebar open/closed, handling mobile vs desktop. */
-	toggle = (): Void => {
-		if (this.#isMobile.current) {
-			this.openMobile = !this.openMobile;
-		} else {
-			this.setOpen(!this.open);
-		}
-	};
+  /** Toggles the sidebar open/closed, handling mobile vs desktop. */
+  toggle = (): Void => {
+    if (this.#isMobile.current) {
+      this.openMobile = !this.openMobile;
+    } else {
+      this.setOpen(!this.open);
+    }
+  };
 }
 
 const SYMBOL_KEY: Str = 'scn-sidebar';
@@ -132,7 +132,7 @@ const SYMBOL_KEY: Str = 'scn-sidebar';
  * ```
  */
 export function setSidebar(props: SidebarStateProps): SidebarState {
-	return setContext(Symbol.for(SYMBOL_KEY), new SidebarState(props));
+  return setContext(Symbol.for(SYMBOL_KEY), new SidebarState(props));
 }
 
 /**
@@ -148,5 +148,5 @@ export function setSidebar(props: SidebarStateProps): SidebarState {
  * ```
  */
 export function useSidebar(): SidebarState {
-	return getContext(Symbol.for(SYMBOL_KEY));
+  return getContext(Symbol.for(SYMBOL_KEY));
 }

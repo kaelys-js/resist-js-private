@@ -24,11 +24,11 @@ export const OgLocalesSchema = v.record(v.string(), OgLocaleSchema);
  * Typed against {@link SUPPORTED_LOCALES} so missing entries cause compile errors.
  */
 export const OG_LOCALES: Readonly<Record<(typeof SUPPORTED_LOCALES)[number], string>> = {
-	en: 'en_US',
-	ja: 'ja_JP',
-	zh: 'zh_CN',
-	ko: 'ko_KR',
-	fr: 'fr_FR',
-	de: 'de_DE',
-	es: 'es_ES',
+  en: 'en_US',
+  ja: 'ja_JP',
+  zh: 'zh_CN',
+  ko: 'ko_KR',
+  fr: 'fr_FR',
+  de: 'de_DE',
+  es: 'es_ES',
 };

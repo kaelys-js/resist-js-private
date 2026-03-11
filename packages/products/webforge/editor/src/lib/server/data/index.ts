@@ -28,5 +28,5 @@ import { createMockService } from '../mock/service';
  * event.locals.db = createDataService(event.platform, 1500);
  */
 export function createDataService(_platform?: App.Platform, delayMs: Num = 0): DataService {
-	return createMockService(delayMs);
+  return createMockService(delayMs);
 }

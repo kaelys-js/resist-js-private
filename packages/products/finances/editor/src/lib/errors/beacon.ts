@@ -48,31 +48,31 @@ const BEACON_URL = '/api/errors' as const;
  * ```
  */
 export function beaconError(captured: CapturedError): Result<Void> {
-	// Skip in dev mode — no need to beacon during development
-	if (import.meta.env.DEV) {
-		return okUnchecked<Void>(undefined);
-	}
+  // Skip in dev mode — no need to beacon during development
+  if (import.meta.env.DEV) {
+    return okUnchecked<Void>(undefined);
+  }
 
-	// SSR guard — navigator may not exist
-	if (typeof navigator === 'undefined' || typeof navigator.sendBeacon !== 'function') {
-		log.debug('sendBeacon unavailable (SSR or unsupported browser)');
-		return okUnchecked<Void>(undefined);
-	}
+  // SSR guard — navigator may not exist
+  if (typeof navigator === 'undefined' || typeof navigator.sendBeacon !== 'function') {
+    log.debug('sendBeacon unavailable (SSR or unsupported browser)');
+    return okUnchecked<Void>(undefined);
+  }
 
-	const payloadResult: Result<BeaconPayload> = toBeaconPayload(captured);
-	if (!payloadResult.ok) {
-		log.warn(`Failed to build beacon payload (${payloadResult.error.code})`);
-		return okUnchecked<Void>(undefined);
-	}
+  const payloadResult: Result<BeaconPayload> = toBeaconPayload(captured);
+  if (!payloadResult.ok) {
+    log.warn(`Failed to build beacon payload (${payloadResult.error.code})`);
+    return okUnchecked<Void>(undefined);
+  }
 
-	try {
-		const json: string = JSON.stringify(payloadResult.data);
-		// text/plain avoids CORS preflight — sendBeacon only allows simple content types
-		const blob: Blob = new Blob([json], { type: 'text/plain' });
-		navigator.sendBeacon(BEACON_URL, blob);
-	} catch {
-		/* sendBeacon threw (e.g. payload too large) — non-critical, drop silently */
-	}
+  try {
+    const json: string = JSON.stringify(payloadResult.data);
+    // text/plain avoids CORS preflight — sendBeacon only allows simple content types
+    const blob: Blob = new Blob([json], { type: 'text/plain' });
+    navigator.sendBeacon(BEACON_URL, blob);
+  } catch {
+    /* sendBeacon threw (e.g. payload too large) — non-critical, drop silently */
+  }
 
-	return okUnchecked<Void>(undefined);
+  return okUnchecked<Void>(undefined);
 }

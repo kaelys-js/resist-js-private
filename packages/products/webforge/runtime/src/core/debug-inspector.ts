@@ -47,19 +47,19 @@ import { fromUnknownError } from '@/utils/result/safe';
  * ```
  */
 export async function showInspector(
-	scene: BABYLON.Scene,
-	embedMode: boolean,
+  scene: BABYLON.Scene,
+  embedMode: boolean,
 ): Promise<Result<Bool>> {
-	try {
-		// Dynamic import — tree-shaken in production
-		await import('@babylonjs/inspector');
+  try {
+    // Dynamic import — tree-shaken in production
+    await import('@babylonjs/inspector');
 
-		await scene.debugLayer.show({ embedMode });
+    await scene.debugLayer.show({ embedMode });
 
-		return okUnchecked(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okUnchecked(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 /**
@@ -76,10 +76,10 @@ export async function showInspector(
  * ```
  */
 export function hideInspector(scene: BABYLON.Scene): Result<Bool> {
-	try {
-		scene.debugLayer.hide();
-		return okUnchecked(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+  try {
+    scene.debugLayer.hide();
+    return okUnchecked(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }

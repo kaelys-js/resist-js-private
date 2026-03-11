@@ -26,12 +26,12 @@ import type { Result } from '@/schemas/result/result';
  * ```
  */
 export function getBuildInfo(): Result<BuildInfo> {
-	return safeParse(BuildInfoSchema, {
-		version: __APP_VERSION__,
-		commit: __GIT_COMMIT__,
-		commitFull: __GIT_COMMIT_FULL__,
-		branch: __GIT_BRANCH__,
-		dirty: __GIT_DIRTY__,
-		buildTimestamp: __BUILD_TIMESTAMP__,
-	});
+  return safeParse(BuildInfoSchema, {
+    version: __APP_VERSION__,
+    commit: __GIT_COMMIT__,
+    commitFull: __GIT_COMMIT_FULL__,
+    branch: __GIT_BRANCH__,
+    dirty: __GIT_DIRTY__,
+    buildTimestamp: __BUILD_TIMESTAMP__,
+  });
 }

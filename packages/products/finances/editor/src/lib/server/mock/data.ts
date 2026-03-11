@@ -17,8 +17,8 @@ import type { ServerUser } from '../data/types';
  * ```
  */
 export const MOCK_USER: ServerUser = {
-	id: 'user-mock-001',
-	displayName: 'Test User',
-	email: 'test-user@example.com',
-	avatarUrl: '',
+  id: 'user-mock-001',
+  displayName: 'Test User',
+  email: 'test-user@example.com',
+  avatarUrl: '',
 };

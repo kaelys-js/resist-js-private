@@ -13,13 +13,13 @@ import type { VitalsBeaconPayload, VitalsMetric, VitalsDevice } from '$lib/perf/
 
 // Mock logger before importing the handler
 vi.mock('@/utils/core/logger', () => ({
-	log: {
-		error: vi.fn(),
-		warn: vi.fn(),
-		info: vi.fn(),
-		debug: vi.fn(),
-	},
-	setupLogging: vi.fn(),
+  log: {
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+  },
+  setupLogging: vi.fn(),
 }));
 
 // Must import after mocks are set up
@@ -35,13 +35,13 @@ const { log } = await import('@/utils/core/logger');
  * @returns A complete VitalsMetric
  */
 function createMetric(overrides: Partial<VitalsMetric> = {}): VitalsMetric {
-	return {
-		name: 'LCP',
-		value: 2450,
-		rating: 'needsImprovement',
-		navigationType: 'navigate',
-		...overrides,
-	};
+  return {
+    name: 'LCP',
+    value: 2450,
+    rating: 'needsImprovement',
+    navigationType: 'navigate',
+    ...overrides,
+  };
 }
 
 /**
@@ -50,14 +50,14 @@ function createMetric(overrides: Partial<VitalsMetric> = {}): VitalsMetric {
  * @returns A complete VitalsDevice
  */
 function createDevice(): VitalsDevice {
-	return {
-		isLowEndDevice: false,
-		isLowEndExperience: false,
-		deviceMemory: 8,
-		hardwareConcurrency: 8,
-		effectiveType: '4g',
-		saveData: false,
-	};
+  return {
+    isLowEndDevice: false,
+    isLowEndExperience: false,
+    deviceMemory: 8,
+    hardwareConcurrency: 8,
+    effectiveType: '4g',
+    saveData: false,
+  };
 }
 
 /**
@@ -67,14 +67,14 @@ function createDevice(): VitalsDevice {
  * @returns A complete VitalsBeaconPayload
  */
 function createPayload(overrides: Partial<VitalsBeaconPayload> = {}): VitalsBeaconPayload {
-	return {
-		sessionId: '550e8400-e29b-41d4-a716-446655440000',
-		url: '/scenes/1',
-		timestamp: '2026-03-06T09:00:00.000Z',
-		metrics: [createMetric()],
-		device: createDevice(),
-		...overrides,
-	};
+  return {
+    sessionId: '550e8400-e29b-41d4-a716-446655440000',
+    url: '/scenes/1',
+    timestamp: '2026-03-06T09:00:00.000Z',
+    metrics: [createMetric()],
+    device: createDevice(),
+    ...overrides,
+  };
 }
 
 /**
@@ -84,112 +84,112 @@ function createPayload(overrides: Partial<VitalsBeaconPayload> = {}): VitalsBeac
  * @returns A Request suitable for passing to the POST handler
  */
 function makeRequest(body: unknown): Request {
-	return new Request('http://localhost/api/vitals', {
-		method: 'POST',
-		headers: { 'Content-Type': 'text/plain' },
-		body: typeof body === 'string' ? body : JSON.stringify(body),
-	});
+  return new Request('http://localhost/api/vitals', {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: typeof body === 'string' ? body : JSON.stringify(body),
+  });
 }
 
 beforeEach(() => {
-	vi.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 afterEach(() => {
-	vi.restoreAllMocks();
+  vi.restoreAllMocks();
 });
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
 describe('POST /api/vitals', () => {
-	it('returns 204 for valid beacon payload', async () => {
-		const payload: VitalsBeaconPayload = createPayload();
-		const response: Response = await POST({ request: makeRequest(payload) } as never);
+  it('returns 204 for valid beacon payload', async () => {
+    const payload: VitalsBeaconPayload = createPayload();
+    const response: Response = await POST({ request: makeRequest(payload) } as never);
 
-		expect(response.status).toBe(204);
-	});
+    expect(response.status).toBe(204);
+  });
 
-	it('logs metrics via log.info with vitals tag', async () => {
-		const payload: VitalsBeaconPayload = createPayload();
-		await POST({ request: makeRequest(payload) } as never);
+  it('logs metrics via log.info with vitals tag', async () => {
+    const payload: VitalsBeaconPayload = createPayload();
+    await POST({ request: makeRequest(payload) } as never);
 
-		expect(log.info).toHaveBeenCalledOnce();
-		const logMessage: Str = (log.info as ReturnType<typeof vi.fn>).mock.calls[0]![0] as Str;
-		expect(logMessage).toContain('[vitals]');
-		expect(logMessage).toContain('LCP');
-		expect(logMessage).toContain('2450');
-	});
+    expect(log.info).toHaveBeenCalledOnce();
+    const logMessage: Str = (log.info as ReturnType<typeof vi.fn>).mock.calls[0]![0] as Str;
+    expect(logMessage).toContain('[vitals]');
+    expect(logMessage).toContain('LCP');
+    expect(logMessage).toContain('2450');
+  });
 
-	it('returns 400 for invalid JSON', async () => {
-		const response: Response = await POST({
-			request: makeRequest('not json{{{'),
-		} as never);
+  it('returns 400 for invalid JSON', async () => {
+    const response: Response = await POST({
+      request: makeRequest('not json{{{'),
+    } as never);
 
-		expect(response.status).toBe(400);
-	});
+    expect(response.status).toBe(400);
+  });
 
-	it('returns 400 for oversized body', async () => {
-		const payload: VitalsBeaconPayload = createPayload();
-		const json: Str = JSON.stringify(payload) as Str;
-		const oversized: Str = `${json}${'x'.repeat(65_536)}` as Str;
+  it('returns 400 for oversized body', async () => {
+    const payload: VitalsBeaconPayload = createPayload();
+    const json: Str = JSON.stringify(payload) as Str;
+    const oversized: Str = `${json}${'x'.repeat(65_536)}` as Str;
 
-		const response: Response = await POST({
-			request: makeRequest(oversized),
-		} as never);
+    const response: Response = await POST({
+      request: makeRequest(oversized),
+    } as never);
 
-		expect(response.status).toBe(400);
-	});
+    expect(response.status).toBe(400);
+  });
 
-	it('returns 400 for schema validation failure', async () => {
-		const response: Response = await POST({
-			request: makeRequest({ sessionId: 'not-a-uuid', url: '/test' }),
-		} as never);
+  it('returns 400 for schema validation failure', async () => {
+    const response: Response = await POST({
+      request: makeRequest({ sessionId: 'not-a-uuid', url: '/test' }),
+    } as never);
 
-		expect(response.status).toBe(400);
-	});
+    expect(response.status).toBe(400);
+  });
 
-	it('returns 400 for extra unknown fields (strict schema)', async () => {
-		const payload: Record<Str, unknown> = {
-			...createPayload(),
-			user: { email: 'pii@example.com' },
-		};
-		const response: Response = await POST({
-			request: makeRequest(payload),
-		} as never);
+  it('returns 400 for extra unknown fields (strict schema)', async () => {
+    const payload: Record<Str, unknown> = {
+      ...createPayload(),
+      user: { email: 'pii@example.com' },
+    };
+    const response: Response = await POST({
+      request: makeRequest(payload),
+    } as never);
 
-		expect(response.status).toBe(400);
-	});
+    expect(response.status).toBe(400);
+  });
 
-	it('returns 204 for empty metrics array', async () => {
-		const payload: VitalsBeaconPayload = createPayload({ metrics: [] });
-		const response: Response = await POST({ request: makeRequest(payload) } as never);
+  it('returns 204 for empty metrics array', async () => {
+    const payload: VitalsBeaconPayload = createPayload({ metrics: [] });
+    const response: Response = await POST({ request: makeRequest(payload) } as never);
 
-		expect(response.status).toBe(204);
-	});
+    expect(response.status).toBe(204);
+  });
 
-	it('returns 400 for empty body', async () => {
-		const response: Response = await POST({
-			request: makeRequest(''),
-		} as never);
+  it('returns 400 for empty body', async () => {
+    const response: Response = await POST({
+      request: makeRequest(''),
+    } as never);
 
-		expect(response.status).toBe(400);
-	});
+    expect(response.status).toBe(400);
+  });
 
-	it('logs device type in message', async () => {
-		const payload: VitalsBeaconPayload = createPayload({
-			device: { ...createDevice(), isLowEndDevice: true },
-		});
-		await POST({ request: makeRequest(payload) } as never);
+  it('logs device type in message', async () => {
+    const payload: VitalsBeaconPayload = createPayload({
+      device: { ...createDevice(), isLowEndDevice: true },
+    });
+    await POST({ request: makeRequest(payload) } as never);
 
-		const logMessage: Str = (log.info as ReturnType<typeof vi.fn>).mock.calls[0]![0] as Str;
-		expect(logMessage).toContain('lowEnd');
-	});
+    const logMessage: Str = (log.info as ReturnType<typeof vi.fn>).mock.calls[0]![0] as Str;
+    expect(logMessage).toContain('lowEnd');
+  });
 
-	it('includes url in log message', async () => {
-		const payload: VitalsBeaconPayload = createPayload({ url: '/editor/scenes/42' });
-		await POST({ request: makeRequest(payload) } as never);
+  it('includes url in log message', async () => {
+    const payload: VitalsBeaconPayload = createPayload({ url: '/editor/scenes/42' });
+    await POST({ request: makeRequest(payload) } as never);
 
-		const logMessage: Str = (log.info as ReturnType<typeof vi.fn>).mock.calls[0]![0] as Str;
-		expect(logMessage).toContain('/editor/scenes/42');
-	});
+    const logMessage: Str = (log.info as ReturnType<typeof vi.fn>).mock.calls[0]![0] as Str;
+    expect(logMessage).toContain('/editor/scenes/42');
+  });
 });

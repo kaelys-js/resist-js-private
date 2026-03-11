@@ -32,10 +32,10 @@ import type { FogConfig } from '../schemas/fog-config';
 
 /** Maps fog mode string to Babylon.js FOGMODE constant. */
 const FOG_MODE_MAP: Readonly<Record<string, number>> = {
-	none: BABYLON.Scene.FOGMODE_NONE,
-	linear: BABYLON.Scene.FOGMODE_LINEAR,
-	exponential: BABYLON.Scene.FOGMODE_EXP,
-	exponential2: BABYLON.Scene.FOGMODE_EXP2,
+  none: BABYLON.Scene.FOGMODE_NONE,
+  linear: BABYLON.Scene.FOGMODE_LINEAR,
+  exponential: BABYLON.Scene.FOGMODE_EXP,
+  exponential2: BABYLON.Scene.FOGMODE_EXP2,
 };
 
 // =============================================================================
@@ -65,50 +65,50 @@ const FOG_MODE_MAP: Readonly<Record<string, number>> = {
  * ```
  */
 export function applySceneSetup(scene: BABYLON.Scene, config: unknown): Result<Bool> {
-	const parsed: Result<SceneSetupConfig> = safeParse(SceneSetupConfigSchema, config);
-	if (!parsed.ok) return parsed;
-	const cfg: DeepReadonly<SceneSetupConfig> = parsed.data;
+  const parsed: Result<SceneSetupConfig> = safeParse(SceneSetupConfigSchema, config);
+  if (!parsed.ok) return parsed;
+  const cfg: DeepReadonly<SceneSetupConfig> = parsed.data;
 
-	try {
-		// Clear color (Color4)
-		scene.clearColor = new BABYLON.Color4(
-			cfg.clearColor.r,
-			cfg.clearColor.g,
-			cfg.clearColor.b,
-			cfg.clearColor.a,
-		);
+  try {
+    // Clear color (Color4)
+    scene.clearColor = new BABYLON.Color4(
+      cfg.clearColor.r,
+      cfg.clearColor.g,
+      cfg.clearColor.b,
+      cfg.clearColor.a,
+    );
 
-		// Ambient color (Color3)
-		scene.ambientColor = new BABYLON.Color3(
-			cfg.ambientColor.r,
-			cfg.ambientColor.g,
-			cfg.ambientColor.b,
-		);
+    // Ambient color (Color3)
+    scene.ambientColor = new BABYLON.Color3(
+      cfg.ambientColor.r,
+      cfg.ambientColor.g,
+      cfg.ambientColor.b,
+    );
 
-		// Fog
-		if (cfg.fog) {
-			applyFog(scene, cfg.fog);
-		}
+    // Fog
+    if (cfg.fog) {
+      applyFog(scene, cfg.fog);
+    }
 
-		// Default hemispheric light
-		if (cfg.defaultLight) {
-			const light: BABYLON.HemisphericLight = new BABYLON.HemisphericLight(
-				'default-light',
-				new BABYLON.Vector3(0, 1, 0),
-				scene,
-			);
-			light.intensity = cfg.defaultLightIntensity;
-			light.groundColor = new BABYLON.Color3(
-				cfg.defaultLightGroundColor.r,
-				cfg.defaultLightGroundColor.g,
-				cfg.defaultLightGroundColor.b,
-			);
-		}
+    // Default hemispheric light
+    if (cfg.defaultLight) {
+      const light: BABYLON.HemisphericLight = new BABYLON.HemisphericLight(
+        'default-light',
+        new BABYLON.Vector3(0, 1, 0),
+        scene,
+      );
+      light.intensity = cfg.defaultLightIntensity;
+      light.groundColor = new BABYLON.Color3(
+        cfg.defaultLightGroundColor.r,
+        cfg.defaultLightGroundColor.g,
+        cfg.defaultLightGroundColor.b,
+      );
+    }
 
-		return okUnchecked(true as Bool);
-	} catch (error: unknown) {
-		return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
-	}
+    return okUnchecked(true as Bool);
+  } catch (error: unknown) {
+    return err(ERRORS.SCENE.LOAD_FAILED, { cause: fromUnknownError(error) });
+  }
 }
 
 /**
@@ -118,11 +118,11 @@ export function applySceneSetup(scene: BABYLON.Scene, config: unknown): Result<B
  * @param fog - The validated fog configuration.
  */
 function applyFog(scene: BABYLON.Scene, fog: DeepReadonly<FogConfig>): void {
-	const mode: number | undefined = FOG_MODE_MAP[fog.mode];
-	scene.fogMode = mode ?? BABYLON.Scene.FOGMODE_NONE;
+  const mode: number | undefined = FOG_MODE_MAP[fog.mode];
+  scene.fogMode = mode ?? BABYLON.Scene.FOGMODE_NONE;
 
-	scene.fogColor = new BABYLON.Color3(fog.color.r, fog.color.g, fog.color.b);
-	scene.fogDensity = fog.density;
-	scene.fogStart = fog.start;
-	scene.fogEnd = fog.end;
+  scene.fogColor = new BABYLON.Color3(fog.color.r, fog.color.g, fog.color.b);
+  scene.fogDensity = fog.density;
+  scene.fogStart = fog.start;
+  scene.fogEnd = fog.end;
 }

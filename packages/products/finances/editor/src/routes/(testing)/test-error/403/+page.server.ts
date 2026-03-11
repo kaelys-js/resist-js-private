@@ -13,5 +13,5 @@ import type { PageServerLoad } from './$types';
  * @returns Never — always throws a SvelteKit error
  */
 export const load: PageServerLoad = () => {
-	error(403, { message: 'Forbidden' });
+  error(403, { message: 'Forbidden' });
 };

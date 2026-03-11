@@ -39,10 +39,10 @@ import { safeParse } from '@/utils/result/safe';
 
 import { okShallow, type BabylonResult } from '../core/babylon-result';
 import {
-	TransitionConfigSchema,
-	type Color3,
-	type TransitionConfig,
-	type TransitionEasing,
+  TransitionConfigSchema,
+  type Color3,
+  type TransitionConfig,
+  type TransitionEasing,
 } from '../schemas/transition-config';
 import { TRANSITION_TYPE_MAP, createTransitionPostProcess } from './transition-shader';
 
@@ -66,7 +66,7 @@ import { TRANSITION_TYPE_MAP, createTransitionPostProcess } from './transition-s
  * ```
  */
 export type TransitionHandle = {
-	readonly dispose: () => void;
+  readonly dispose: () => void;
 };
 
 /**
@@ -83,10 +83,10 @@ export type TransitionHandle = {
  * ```
  */
 type PlayTransitionOptions = {
-	readonly scene: BABYLON.Scene;
-	readonly camera: BABYLON.Camera;
-	readonly engine: BABYLON.AbstractEngine;
-	readonly config: Record<string, unknown>;
+  readonly scene: BABYLON.Scene;
+  readonly camera: BABYLON.Camera;
+  readonly engine: BABYLON.AbstractEngine;
+  readonly config: Record<string, unknown>;
 };
 
 /**
@@ -103,10 +103,10 @@ type PlayTransitionOptions = {
  * ```
  */
 type CommonTransitionOptions = {
-	readonly scene: BABYLON.Scene;
-	readonly camera: BABYLON.Camera;
-	readonly engine: BABYLON.AbstractEngine;
-	readonly durationMs?: Num;
+  readonly scene: BABYLON.Scene;
+  readonly camera: BABYLON.Camera;
+  readonly engine: BABYLON.AbstractEngine;
+  readonly durationMs?: Num;
 };
 
 // =============================================================================
@@ -115,16 +115,16 @@ type CommonTransitionOptions = {
 
 /** Maps direction strings to integer values matching the GLSL shader uniform. */
 const DIRECTION_MAP: Readonly<Record<string, number>> = {
-	left: 0,
-	right: 1,
-	up: 2,
-	down: 3,
+  left: 0,
+  right: 1,
+  up: 2,
+  down: 3,
 };
 
 /** Maps axis strings to integer values matching the GLSL shader uniform. */
 const AXIS_MAP: Readonly<Record<string, number>> = {
-	horizontal: 0,
-	vertical: 1,
+  horizontal: 0,
+  vertical: 1,
 };
 
 // =============================================================================
@@ -157,26 +157,26 @@ const EASE_BACK_C3: number = EASE_BACK_C1 + 1;
  * ```
  */
 export function applyTransitionEasing(t: Num, easing: TransitionEasing): Num {
-	switch (easing) {
-		case 'linear': {
-			return t as Num;
-		}
-		case 'easeIn': {
-			return (t * t * t) as Num;
-		}
-		case 'easeOut': {
-			return (1 - (1 - t) ** 3) as Num;
-		}
-		case 'easeInOut': {
-			return (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2) as Num;
-		}
-		case 'easeOutBack': {
-			return (1 + EASE_BACK_C3 * (t - 1) ** 3 + EASE_BACK_C1 * (t - 1) ** 2) as Num;
-		}
-		case 'easeInOutCubic': {
-			return (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2) as Num;
-		}
-	}
+  switch (easing) {
+    case 'linear': {
+      return t as Num;
+    }
+    case 'easeIn': {
+      return (t * t * t) as Num;
+    }
+    case 'easeOut': {
+      return (1 - (1 - t) ** 3) as Num;
+    }
+    case 'easeInOut': {
+      return (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2) as Num;
+    }
+    case 'easeOutBack': {
+      return (1 + EASE_BACK_C3 * (t - 1) ** 3 + EASE_BACK_C1 * (t - 1) ** 2) as Num;
+    }
+    case 'easeInOutCubic': {
+      return (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2) as Num;
+    }
+  }
 }
 
 // =============================================================================
@@ -215,143 +215,143 @@ export function applyTransitionEasing(t: Num, easing: TransitionEasing): Num {
  * ```
  */
 export function playTransition(options: PlayTransitionOptions): BabylonResult<TransitionHandle> {
-	// -------------------------------------------------------------------------
-	// 1. Validate config
-	// -------------------------------------------------------------------------
-	const configResult = safeParse(TransitionConfigSchema, options.config);
-	if (!configResult.ok) {
-		return err(ERRORS.VALIDATION.SCHEMA_FAILED, configResult.error.message);
-	}
-	const config: TransitionConfig = configResult.data;
+  // -------------------------------------------------------------------------
+  // 1. Validate config
+  // -------------------------------------------------------------------------
+  const configResult = safeParse(TransitionConfigSchema, options.config);
+  if (!configResult.ok) {
+    return err(ERRORS.VALIDATION.SCHEMA_FAILED, configResult.error.message);
+  }
+  const config: TransitionConfig = configResult.data;
 
-	// -------------------------------------------------------------------------
-	// 2. Create PostProcess (auto-attaches to camera via constructor).
-	//    For "Out" transitions we detach immediately and defer reattachment
-	//    until the shader is compiled — see step 5. "In" transitions start
-	//    from bgColor so any black frame during compilation is invisible.
-	// -------------------------------------------------------------------------
-	const ppResult = createTransitionPostProcess({
-		engine: options.engine as BABYLON.Engine,
-		camera: options.camera,
-	});
-	if (!ppResult.ok) {
-		return ppResult;
-	}
-	const pp: BABYLON.PostProcess = ppResult.data;
+  // -------------------------------------------------------------------------
+  // 2. Create PostProcess (auto-attaches to camera via constructor).
+  //    For "Out" transitions we detach immediately and defer reattachment
+  //    until the shader is compiled — see step 5. "In" transitions start
+  //    from bgColor so any black frame during compilation is invisible.
+  // -------------------------------------------------------------------------
+  const ppResult = createTransitionPostProcess({
+    engine: options.engine as BABYLON.Engine,
+    camera: options.camera,
+  });
+  if (!ppResult.ok) {
+    return ppResult;
+  }
+  const pp: BABYLON.PostProcess = ppResult.data;
 
-	// Only detach for non-reverse (Out) transitions to prevent black flash.
-	// Reverse (In) transitions start from bgColor, so black is fine.
-	if (!config.reverse) {
-		options.camera.detachPostProcess(pp);
-	}
+  // Only detach for non-reverse (Out) transitions to prevent black flash.
+  // Reverse (In) transitions start from bgColor, so black is fine.
+  if (!config.reverse) {
+    options.camera.detachPostProcess(pp);
+  }
 
-	// -------------------------------------------------------------------------
-	// 3. Set up uniform application — reset startTime on first render to
-	//    guarantee progress=0 on the first frame.
-	// -------------------------------------------------------------------------
-	let firstFrame = true;
-	let startTime: number = performance.now();
-	const { durationMs } = config;
+  // -------------------------------------------------------------------------
+  // 3. Set up uniform application — reset startTime on first render to
+  //    guarantee progress=0 on the first frame.
+  // -------------------------------------------------------------------------
+  let firstFrame = true;
+  let startTime: number = performance.now();
+  const { durationMs } = config;
 
-	pp.onApply = (effect: BABYLON.Effect): void => {
-		if (firstFrame) {
-			firstFrame = false;
-			startTime = performance.now();
-		}
+  pp.onApply = (effect: BABYLON.Effect): void => {
+    if (firstFrame) {
+      firstFrame = false;
+      startTime = performance.now();
+    }
 
-		const elapsed: number = performance.now() - startTime;
-		const rawProgress: number = Math.min(elapsed / durationMs, 1);
-		const easedProgress: Num = applyTransitionEasing(rawProgress as Num, config.easing);
+    const elapsed: number = performance.now() - startTime;
+    const rawProgress: number = Math.min(elapsed / durationMs, 1);
+    const easedProgress: Num = applyTransitionEasing(rawProgress as Num, config.easing);
 
-		// Shared uniforms
-		effect.setFloat('progress', easedProgress);
-		effect.setInt('maskType', TRANSITION_TYPE_MAP[config.type]);
-		effect.setFloat('edgeSoftness', config.edgeSoftness);
-		effect.setColor3('bgColor', new BABYLON.Color3(config.color.r, config.color.g, config.color.b));
+    // Shared uniforms
+    effect.setFloat('progress', easedProgress);
+    effect.setInt('maskType', TRANSITION_TYPE_MAP[config.type]);
+    effect.setFloat('edgeSoftness', config.edgeSoftness);
+    effect.setColor3('bgColor', new BABYLON.Color3(config.color.r, config.color.g, config.color.b));
 
-		if (config.edgeColor) {
-			effect.setColor3(
-				'edgeColor',
-				new BABYLON.Color3(config.edgeColor.r, config.edgeColor.g, config.edgeColor.b),
-			);
-			effect.setFloat('hasEdgeColor', 1);
-		} else {
-			effect.setColor3('edgeColor', new BABYLON.Color3(0, 0, 0));
-			effect.setFloat('hasEdgeColor', 0);
-		}
+    if (config.edgeColor) {
+      effect.setColor3(
+        'edgeColor',
+        new BABYLON.Color3(config.edgeColor.r, config.edgeColor.g, config.edgeColor.b),
+      );
+      effect.setFloat('hasEdgeColor', 1);
+    } else {
+      effect.setColor3('edgeColor', new BABYLON.Color3(0, 0, 0));
+      effect.setFloat('hasEdgeColor', 0);
+    }
 
-		effect.setFloat('useCustomMask', 0);
-		effect.setFloat('reversed', config.reverse ? 1 : 0);
+    effect.setFloat('useCustomMask', 0);
+    effect.setFloat('reversed', config.reverse ? 1 : 0);
 
-		// Type-specific uniforms
-		effect.setFloat('direction', DIRECTION_MAP[config.direction] ?? 0);
-		effect.setFloat('axis', AXIS_MAP[config.axis] ?? 0);
-		effect.setFloat('openFromCenter', config.openFromCenter ? 1 : 0);
-		effect.setFloat2('center', config.centerX, config.centerY);
-		effect.setFloat('count', config.count);
-		effect.setFloat('gridSize', config.gridSize);
-		effect.setFloat('angle', (config.angle * Math.PI) / 180);
-		effect.setFloat('clockwise', config.clockwise ? 1 : 0);
-		effect.setFloat('bladeCount', config.bladeCount);
-		effect.setFloat('noiseScale', config.noiseScale);
-		effect.setFloat('noiseSeed', config.noiseSeed);
-		effect.setFloat('matrixSize', config.matrixSize);
-		effect.setFloat('lineWidth', config.lineWidth);
-		effect.setFloat('maxBlockSize', config.maxBlockSize);
-		effect.setFloat('hasScanlines', config.scanlines ? 1 : 0);
-		effect.setFloat('swirlStrength', config.swirlStrength);
-		effect.setFloat('swirlRadius', config.swirlRadius);
-		effect.setFloat('zoomLineWidth', config.zoomLineWidth);
-		effect.setFloat('cellCount', config.cellCount);
-		effect.setFloat('amplitude', config.amplitude);
-		effect.setFloat('frequency', config.frequency);
-		effect.setFloat('waveCount', config.waveCount);
-		effect.setFloat('glitchIntensity', config.glitchIntensity);
-		effect.setFloat('pointCount', config.pointCount);
-		effect.setFloat2('resolution', pp.width || 1, pp.height || 1);
-	};
+    // Type-specific uniforms
+    effect.setFloat('direction', DIRECTION_MAP[config.direction] ?? 0);
+    effect.setFloat('axis', AXIS_MAP[config.axis] ?? 0);
+    effect.setFloat('openFromCenter', config.openFromCenter ? 1 : 0);
+    effect.setFloat2('center', config.centerX, config.centerY);
+    effect.setFloat('count', config.count);
+    effect.setFloat('gridSize', config.gridSize);
+    effect.setFloat('angle', (config.angle * Math.PI) / 180);
+    effect.setFloat('clockwise', config.clockwise ? 1 : 0);
+    effect.setFloat('bladeCount', config.bladeCount);
+    effect.setFloat('noiseScale', config.noiseScale);
+    effect.setFloat('noiseSeed', config.noiseSeed);
+    effect.setFloat('matrixSize', config.matrixSize);
+    effect.setFloat('lineWidth', config.lineWidth);
+    effect.setFloat('maxBlockSize', config.maxBlockSize);
+    effect.setFloat('hasScanlines', config.scanlines ? 1 : 0);
+    effect.setFloat('swirlStrength', config.swirlStrength);
+    effect.setFloat('swirlRadius', config.swirlRadius);
+    effect.setFloat('zoomLineWidth', config.zoomLineWidth);
+    effect.setFloat('cellCount', config.cellCount);
+    effect.setFloat('amplitude', config.amplitude);
+    effect.setFloat('frequency', config.frequency);
+    effect.setFloat('waveCount', config.waveCount);
+    effect.setFloat('glitchIntensity', config.glitchIntensity);
+    effect.setFloat('pointCount', config.pointCount);
+    effect.setFloat2('resolution', pp.width || 1, pp.height || 1);
+  };
 
-	// -------------------------------------------------------------------------
-	// 4. Dispose handle (manual only — transition holds final state)
-	// -------------------------------------------------------------------------
-	let disposed = false;
+  // -------------------------------------------------------------------------
+  // 4. Dispose handle (manual only — transition holds final state)
+  // -------------------------------------------------------------------------
+  let disposed = false;
 
-	const dispose = (): void => {
-		if (disposed) {
-			return;
-		}
-		disposed = true;
+  const dispose = (): void => {
+    if (disposed) {
+      return;
+    }
+    disposed = true;
 
-		options.camera.detachPostProcess(pp);
-		pp.dispose();
-	};
+    options.camera.detachPostProcess(pp);
+    pp.dispose();
+  };
 
-	// -------------------------------------------------------------------------
-	// 5. Deferred attachment for "Out" transitions — poll until the shader
-	//    is compiled (isReady), then reattach. This prevents the black flash
-	//    on the very first transition play when the shader needs to compile.
-	//    "In" transitions are already attached (step 2) — no deferral needed.
-	// -------------------------------------------------------------------------
-	if (!config.reverse) {
-		const observer: BABYLON.Observer<BABYLON.Scene> = options.scene.onBeforeRenderObservable.add(
-			(): void => {
-				if (disposed) {
-					options.scene.onBeforeRenderObservable.remove(observer);
-					return;
-				}
-				if (pp.isReady()) {
-					options.scene.onBeforeRenderObservable.remove(observer);
-					options.camera.attachPostProcess(pp);
-				}
-			},
-		);
-	}
+  // -------------------------------------------------------------------------
+  // 5. Deferred attachment for "Out" transitions — poll until the shader
+  //    is compiled (isReady), then reattach. This prevents the black flash
+  //    on the very first transition play when the shader needs to compile.
+  //    "In" transitions are already attached (step 2) — no deferral needed.
+  // -------------------------------------------------------------------------
+  if (!config.reverse) {
+    const observer: BABYLON.Observer<BABYLON.Scene> = options.scene.onBeforeRenderObservable.add(
+      (): void => {
+        if (disposed) {
+          options.scene.onBeforeRenderObservable.remove(observer);
+          return;
+        }
+        if (pp.isReady()) {
+          options.scene.onBeforeRenderObservable.remove(observer);
+          options.camera.attachPostProcess(pp);
+        }
+      },
+    );
+  }
 
-	// -------------------------------------------------------------------------
-	// 6. Return handle
-	// -------------------------------------------------------------------------
-	const handle: TransitionHandle = { dispose };
-	return okShallow(handle);
+  // -------------------------------------------------------------------------
+  // 6. Return handle
+  // -------------------------------------------------------------------------
+  const handle: TransitionHandle = { dispose };
+  return okShallow(handle);
 }
 
 // =============================================================================
@@ -375,16 +375,16 @@ export function playTransition(options: PlayTransitionOptions): BabylonResult<Tr
  * ```
  */
 export function fadeToBlack(options: CommonTransitionOptions): BabylonResult<TransitionHandle> {
-	return playTransition({
-		scene: options.scene,
-		camera: options.camera,
-		engine: options.engine,
-		config: {
-			type: 'fade',
-			color: { r: 0, g: 0, b: 0 },
-			durationMs: options.durationMs ?? 1000,
-		},
-	});
+  return playTransition({
+    scene: options.scene,
+    camera: options.camera,
+    engine: options.engine,
+    config: {
+      type: 'fade',
+      color: { r: 0, g: 0, b: 0 },
+      durationMs: options.durationMs ?? 1000,
+    },
+  });
 }
 
 /**
@@ -404,21 +404,21 @@ export function fadeToBlack(options: CommonTransitionOptions): BabylonResult<Tra
  * ```
  */
 export function fadeToWhite(options: CommonTransitionOptions): BabylonResult<TransitionHandle> {
-	return playTransition({
-		scene: options.scene,
-		camera: options.camera,
-		engine: options.engine,
-		config: {
-			type: 'fade',
-			color: { r: 1, g: 1, b: 1 },
-			durationMs: options.durationMs ?? 1000,
-		},
-	});
+  return playTransition({
+    scene: options.scene,
+    camera: options.camera,
+    engine: options.engine,
+    config: {
+      type: 'fade',
+      color: { r: 1, g: 1, b: 1 },
+      durationMs: options.durationMs ?? 1000,
+    },
+  });
 }
 
 /** Options for {@link fadeToColor}. */
 type FadeToColorOptions = CommonTransitionOptions & {
-	readonly color: Color3;
+  readonly color: Color3;
 };
 
 /**
@@ -442,21 +442,21 @@ type FadeToColorOptions = CommonTransitionOptions & {
  * ```
  */
 export function fadeToColor(options: FadeToColorOptions): BabylonResult<TransitionHandle> {
-	return playTransition({
-		scene: options.scene,
-		camera: options.camera,
-		engine: options.engine,
-		config: {
-			type: 'fade',
-			color: options.color,
-			durationMs: options.durationMs ?? 1000,
-		},
-	});
+  return playTransition({
+    scene: options.scene,
+    camera: options.camera,
+    engine: options.engine,
+    config: {
+      type: 'fade',
+      color: options.color,
+      durationMs: options.durationMs ?? 1000,
+    },
+  });
 }
 
 /** Options for {@link screenFlash}. */
 type ScreenFlashOptions = CommonTransitionOptions & {
-	readonly color?: Color3;
+  readonly color?: Color3;
 };
 
 /**
@@ -477,23 +477,23 @@ type ScreenFlashOptions = CommonTransitionOptions & {
  * ```
  */
 export function screenFlash(options: ScreenFlashOptions): BabylonResult<TransitionHandle> {
-	return playTransition({
-		scene: options.scene,
-		camera: options.camera,
-		engine: options.engine,
-		config: {
-			type: 'fade',
-			color: options.color ?? { r: 1, g: 1, b: 1 },
-			durationMs: options.durationMs ?? 150,
-			easing: 'easeOut',
-			reverse: true,
-		},
-	});
+  return playTransition({
+    scene: options.scene,
+    camera: options.camera,
+    engine: options.engine,
+    config: {
+      type: 'fade',
+      color: options.color ?? { r: 1, g: 1, b: 1 },
+      durationMs: options.durationMs ?? 150,
+      easing: 'easeOut',
+      reverse: true,
+    },
+  });
 }
 
 /** Options for {@link screenTint}. */
 type ScreenTintOptions = CommonTransitionOptions & {
-	readonly color: Color3;
+  readonly color: Color3;
 };
 
 /**
@@ -517,14 +517,14 @@ type ScreenTintOptions = CommonTransitionOptions & {
  * ```
  */
 export function screenTint(options: ScreenTintOptions): BabylonResult<TransitionHandle> {
-	return playTransition({
-		scene: options.scene,
-		camera: options.camera,
-		engine: options.engine,
-		config: {
-			type: 'fade',
-			color: options.color,
-			durationMs: options.durationMs ?? 1000,
-		},
-	});
+  return playTransition({
+    scene: options.scene,
+    camera: options.camera,
+    engine: options.engine,
+    config: {
+      type: 'fade',
+      color: options.color,
+      durationMs: options.durationMs ?? 1000,
+    },
+  });
 }

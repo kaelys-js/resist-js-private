@@ -33,14 +33,14 @@ import { okUnchecked, type Result } from '@/schemas/result/result';
  * ```
  */
 export const VitalsMetricSchema = v.strictObject({
-	/** Web Vital metric name (e.g. 'LCP', 'FCP', 'CLS'). */
-	name: v.pipe(v.string(), v.minLength(1)),
-	/** Metric value in milliseconds (or unitless for CLS). */
-	value: v.number(),
-	/** Performance rating based on Web Vitals thresholds. */
-	rating: v.picklist(['good', 'needsImprovement', 'poor']),
-	/** How the user navigated to the page (e.g. 'navigate', 'reload', 'back_forward'). */
-	navigationType: v.string(),
+  /** Web Vital metric name (e.g. 'LCP', 'FCP', 'CLS'). */
+  name: v.pipe(v.string(), v.minLength(1)),
+  /** Metric value in milliseconds (or unitless for CLS). */
+  value: v.number(),
+  /** Performance rating based on Web Vitals thresholds. */
+  rating: v.picklist(['good', 'needsImprovement', 'poor']),
+  /** How the user navigated to the page (e.g. 'navigate', 'reload', 'back_forward'). */
+  navigationType: v.string(),
 });
 
 /** Inferred type for a single vitals metric. */
@@ -53,18 +53,18 @@ export type VitalsMetric = v.InferOutput<typeof VitalsMetricSchema>;
  * (e.g. deviceMemory is rounded to powers of 2).
  */
 export const VitalsDeviceSchema = v.strictObject({
-	/** Whether Perfume.js considers this a low-end device. */
-	isLowEndDevice: v.boolean(),
-	/** Whether Perfume.js considers this a low-end experience (device + network). */
-	isLowEndExperience: v.boolean(),
-	/** Device RAM in GB (0 if unavailable). */
-	deviceMemory: v.number(),
-	/** Logical CPU core count. */
-	hardwareConcurrency: v.number(),
-	/** Network effective type at page load (e.g. '4g', '3g', '2g'). */
-	effectiveType: v.string(),
-	/** Whether user has data-saver enabled. */
-	saveData: v.boolean(),
+  /** Whether Perfume.js considers this a low-end device. */
+  isLowEndDevice: v.boolean(),
+  /** Whether Perfume.js considers this a low-end experience (device + network). */
+  isLowEndExperience: v.boolean(),
+  /** Device RAM in GB (0 if unavailable). */
+  deviceMemory: v.number(),
+  /** Logical CPU core count. */
+  hardwareConcurrency: v.number(),
+  /** Network effective type at page load (e.g. '4g', '3g', '2g'). */
+  effectiveType: v.string(),
+  /** Whether user has data-saver enabled. */
+  saveData: v.boolean(),
 });
 
 /** Inferred type for device context. */
@@ -85,16 +85,16 @@ export type VitalsDevice = v.InferOutput<typeof VitalsDeviceSchema>;
  * ```
  */
 export const VitalsBeaconPayloadSchema = v.strictObject({
-	/** Random session identifier (no PII — generated per page load, not persisted). */
-	sessionId: v.pipe(v.string(), v.uuid()),
-	/** Page URL path (no query params or hash — PII risk). */
-	url: v.string(),
-	/** ISO 8601 timestamp of beacon flush. */
-	timestamp: v.pipe(v.string(), v.isoTimestamp()),
-	/** Array of collected metrics since last flush. */
-	metrics: v.array(VitalsMetricSchema),
-	/** Device and network context. */
-	device: VitalsDeviceSchema,
+  /** Random session identifier (no PII — generated per page load, not persisted). */
+  sessionId: v.pipe(v.string(), v.uuid()),
+  /** Page URL path (no query params or hash — PII risk). */
+  url: v.string(),
+  /** ISO 8601 timestamp of beacon flush. */
+  timestamp: v.pipe(v.string(), v.isoTimestamp()),
+  /** Array of collected metrics since last flush. */
+  metrics: v.array(VitalsMetricSchema),
+  /** Device and network context. */
+  device: VitalsDeviceSchema,
 });
 
 /** Inferred type for the full beacon payload. */
@@ -113,12 +113,12 @@ export type VitalsBeaconPayload = v.InferOutput<typeof VitalsBeaconPayloadSchema
  * // Returns: '/scenes/1'
  */
 function stripUrlParams(url: Str): Str {
-	const questionIdx: number = url.indexOf('?');
-	const hashIdx: number = url.indexOf('#');
-	let end: number = url.length;
-	if (questionIdx >= 0) end = Math.min(end, questionIdx);
-	if (hashIdx >= 0) end = Math.min(end, hashIdx);
-	return url.slice(0, end);
+  const questionIdx: number = url.indexOf('?');
+  const hashIdx: number = url.indexOf('#');
+  let end: number = url.length;
+  if (questionIdx >= 0) end = Math.min(end, questionIdx);
+  if (hashIdx >= 0) end = Math.min(end, hashIdx);
+  return url.slice(0, end);
 }
 
 /**
@@ -139,17 +139,17 @@ function stripUrlParams(url: Str): Str {
  * ```
  */
 export function toVitalsPayload(
-	metrics: VitalsMetric[],
-	device: VitalsDevice,
-	url: Str,
+  metrics: VitalsMetric[],
+  device: VitalsDevice,
+  url: Str,
 ): Result<VitalsBeaconPayload> {
-	const payload: VitalsBeaconPayload = {
-		sessionId: crypto.randomUUID(),
-		url: stripUrlParams(url),
-		timestamp: new Date().toISOString(),
-		metrics,
-		device,
-	};
+  const payload: VitalsBeaconPayload = {
+    sessionId: crypto.randomUUID(),
+    url: stripUrlParams(url),
+    timestamp: new Date().toISOString(),
+    metrics,
+    device,
+  };
 
-	return okUnchecked<VitalsBeaconPayload>(payload);
+  return okUnchecked<VitalsBeaconPayload>(payload);
 }

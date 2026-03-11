@@ -18,16 +18,16 @@ import { VitalDiagnosticsSchema, type VitalDiagnostics } from '$lib/perf/vitals-
 
 /** Schema for a single panel metric entry. */
 export const PanelMetricSchema = v.strictObject({
-	/** Web Vital metric name (e.g. 'LCP', 'FCP', 'CLS'). */
-	name: v.string(),
-	/** Metric value (ms for timing metrics, unitless for CLS). */
-	value: v.number(),
-	/** Performance rating ('good', 'needsImprovement', 'poor'). */
-	rating: v.string(),
-	/** Timestamp when the metric was reported (ms since epoch). */
-	timestamp: v.number(),
-	/** Actionable diagnostics — present only for non-good metrics. */
-	diagnostics: v.optional(v.nullable(VitalDiagnosticsSchema)),
+  /** Web Vital metric name (e.g. 'LCP', 'FCP', 'CLS'). */
+  name: v.string(),
+  /** Metric value (ms for timing metrics, unitless for CLS). */
+  value: v.number(),
+  /** Performance rating ('good', 'needsImprovement', 'poor'). */
+  rating: v.string(),
+  /** Timestamp when the metric was reported (ms since epoch). */
+  timestamp: v.number(),
+  /** Actionable diagnostics — present only for non-good metrics. */
+  diagnostics: v.optional(v.nullable(VitalDiagnosticsSchema)),
 });
 
 /** Inferred type for a panel metric entry. */
@@ -51,15 +51,15 @@ let metrics: PanelMetric[] = $state([]);
  * @param diagnostics - Optional actionable diagnostics for non-good metrics
  */
 export function reportVitalToPanel(
-	name: Str,
-	value: Num,
-	rating: Str,
-	diagnostics?: VitalDiagnostics | null,
+  name: Str,
+  value: Num,
+  rating: Str,
+  diagnostics?: VitalDiagnostics | null,
 ): Void {
-	metrics = [
-		...metrics,
-		{ name, value, rating, timestamp: Date.now(), diagnostics: diagnostics ?? null },
-	];
+  metrics = [
+    ...metrics,
+    { name, value, rating, timestamp: Date.now(), diagnostics: diagnostics ?? null },
+  ];
 }
 
 /**
@@ -68,12 +68,12 @@ export function reportVitalToPanel(
  * @returns Array of PanelMetric entries
  */
 export function getVitalsPanelMetrics(): PanelMetric[] {
-	return metrics;
+  return metrics;
 }
 
 /**
  * Resets all panel metrics for test isolation.
  */
 export function resetPanelMetrics(): Void {
-	metrics = [];
+  metrics = [];
 }

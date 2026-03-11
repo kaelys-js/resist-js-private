@@ -11,10 +11,10 @@
  */
 
 import {
-	MessageSchema,
-	NonNegativeIntegerSchema,
-	type Message,
-	type NonNegativeInteger,
+  MessageSchema,
+  NonNegativeIntegerSchema,
+  type Message,
+  type NonNegativeInteger,
 } from '@/schemas/common';
 import { ERRORS, err, type Result } from '@/schemas/result/result';
 import { deepFreeze } from '@/utils/core/object';
@@ -36,9 +36,9 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
  * @returns `Result<T>` — frozen success result.
  */
 function _okResult<T>(data: T): Result<T> {
-	const frozen: T =
-		typeof data === 'object' && data !== null ? (deepFreeze(data as object) as T) : data;
-	return Object.freeze({ ok: true as const, data: frozen, error: null }) as Result<T>;
+  const frozen: T =
+    typeof data === 'object' && data !== null ? (deepFreeze(data as object) as T) : data;
+  return Object.freeze({ ok: true as const, data: frozen, error: null }) as Result<T>;
 }
 
 // =============================================================================
@@ -61,51 +61,51 @@ function _okResult<T>(data: T): Result<T> {
  * ```
  */
 export async function withTimeout<T>(
-	promise: Promise<T>,
-	timeoutMs: NonNegativeInteger,
-	errorMessage: Message,
+  promise: Promise<T>,
+  timeoutMs: NonNegativeInteger,
+  errorMessage: Message,
 ): Promise<Result<T>> {
-	const timeoutMsResult: Result<NonNegativeInteger> = safeParse(
-		NonNegativeIntegerSchema,
-		timeoutMs,
-	);
-	if (!timeoutMsResult.ok) return timeoutMsResult;
+  const timeoutMsResult: Result<NonNegativeInteger> = safeParse(
+    NonNegativeIntegerSchema,
+    timeoutMs,
+  );
+  if (!timeoutMsResult.ok) return timeoutMsResult;
 
-	const errorMessageResult: Result<Message> = safeParse(MessageSchema, errorMessage);
-	if (!errorMessageResult.ok) return errorMessageResult;
+  const errorMessageResult: Result<Message> = safeParse(MessageSchema, errorMessage);
+  if (!errorMessageResult.ok) return errorMessageResult;
 
-	if ((timeoutMsResult.data as unknown as number) <= 0) {
-		try {
-			const result: T = await promise;
-			return _okResult<T>(result);
-		} catch (error: unknown) {
-			return err(ERRORS.IO.TIMEOUT, errorMessageResult.data as unknown as string, {
-				cause: fromUnknownError(error),
-			});
-		}
-	}
+  if ((timeoutMsResult.data as unknown as number) <= 0) {
+    try {
+      const result: T = await promise;
+      return _okResult<T>(result);
+    } catch (error: unknown) {
+      return err(ERRORS.IO.TIMEOUT, errorMessageResult.data as unknown as string, {
+        cause: fromUnknownError(error),
+      });
+    }
+  }
 
-	let timeoutId: ReturnType<typeof setTimeout> | undefined;
-	const timeoutPromise: Promise<never> = new Promise<never>(
-		(_resolve, reject: (reason: Error) => void) => {
-			timeoutId = setTimeout(
-				() => {
-					reject(new Error(errorMessageResult.data as unknown as string));
-				},
-				timeoutMsResult.data as unknown as number,
-			);
-		},
-	);
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise: Promise<never> = new Promise<never>(
+    (_resolve, reject: (reason: Error) => void) => {
+      timeoutId = setTimeout(
+        () => {
+          reject(new Error(errorMessageResult.data as unknown as string));
+        },
+        timeoutMsResult.data as unknown as number,
+      );
+    },
+  );
 
-	try {
-		const result: T = await Promise.race([promise, timeoutPromise]);
-		clearTimeout(timeoutId);
-		return _okResult<T>(result);
-	} catch (error: unknown) {
-		clearTimeout(timeoutId);
-		return err(ERRORS.IO.TIMEOUT, errorMessageResult.data as unknown as string, {
-			meta: { timeoutMs: timeoutMsResult.data },
-			cause: fromUnknownError(error),
-		});
-	}
+  try {
+    const result: T = await Promise.race([promise, timeoutPromise]);
+    clearTimeout(timeoutId);
+    return _okResult<T>(result);
+  } catch (error: unknown) {
+    clearTimeout(timeoutId);
+    return err(ERRORS.IO.TIMEOUT, errorMessageResult.data as unknown as string, {
+      meta: { timeoutMs: timeoutMsResult.data },
+      cause: fromUnknownError(error),
+    });
+  }
 }

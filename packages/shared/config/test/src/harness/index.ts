@@ -26,47 +26,47 @@ export { createTempDir, useTempDir, type TempDir } from './temp-dir.ts';
 
 // Console capture and assertions
 export {
-	createConsoleSpy,
-	useConsoleSpy,
-	type ConsoleSpy,
-	type ConsoleSpyOptions,
-	type ViSpyProvider,
+  createConsoleSpy,
+  useConsoleSpy,
+  type ConsoleSpy,
+  type ConsoleSpyOptions,
+  type ViSpyProvider,
 } from './console.ts';
 
 // Process state spying and restoration
 export {
-	createExitSpy,
-	useExitSpy,
-	snapshotProcess,
-	useProcessSnapshot,
-	type ExitSpy,
-	type ProcessSnapshot,
-	type ProcessSnapshotOptions,
+  createExitSpy,
+  useExitSpy,
+  snapshotProcess,
+  useProcessSnapshot,
+  type ExitSpy,
+  type ProcessSnapshot,
+  type ProcessSnapshotOptions,
 } from './process.ts';
 
 // Async testing utilities
 export {
-	waitFor,
-	retry,
-	withTimeout,
-	withAbort,
-	type WaitForOptions,
-	type RetryOptions,
+  waitFor,
+  retry,
+  withTimeout,
+  withAbort,
+  type WaitForOptions,
+  type RetryOptions,
 } from './async.ts';
 
 // HTTP Request/Response factories
 export {
-	createRequest,
-	createResponse,
-	parseJson,
-	type CreateRequestOptions,
-	type CreateResponseOptions,
+  createRequest,
+  createResponse,
+  parseJson,
+  type CreateRequestOptions,
+  type CreateResponseOptions,
 } from './http.ts';
 
 // Fake timer/clock utilities
 export {
-	createFakeClock,
-	useFakeClock,
-	type FakeClock,
-	type ViFakeTimerProvider,
+  createFakeClock,
+  useFakeClock,
+  type FakeClock,
+  type ViFakeTimerProvider,
 } from './clock.ts';

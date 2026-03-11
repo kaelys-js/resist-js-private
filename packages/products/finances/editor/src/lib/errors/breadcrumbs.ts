@@ -52,13 +52,13 @@ const SKIP_URLS: readonly string[] = ['/api/errors'];
  * ```
  */
 export function addNavigationBreadcrumb(from: Str | null, to: Str): Void {
-	const fromLabel: Str = (from ?? '(initial)') as Str;
-	addBreadcrumb({
-		type: 'navigation',
-		category: 'route',
-		message: `${fromLabel} → ${to}`,
-		level: 'info',
-	});
+  const fromLabel: Str = (from ?? '(initial)') as Str;
+  addBreadcrumb({
+    type: 'navigation',
+    category: 'route',
+    message: `${fromLabel} → ${to}`,
+    level: 'info',
+  });
 }
 
 // =============================================================================
@@ -83,44 +83,44 @@ export function addNavigationBreadcrumb(from: Str | null, to: Str): Void {
  * ```
  */
 export function initFetchBreadcrumbs(): Void {
-	// Already initialized — skip
-	if (_originalFetch !== null) return;
+  // Already initialized — skip
+  if (_originalFetch !== null) return;
 
-	_originalFetch = globalThis.fetch;
-	const original: typeof fetch = _originalFetch;
+  _originalFetch = globalThis.fetch;
+  const original: typeof fetch = _originalFetch;
 
-	globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-		const url: Str = extractUrl(input);
-		const method: Str = extractMethod(input, init);
+  globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    const url: Str = extractUrl(input);
+    const method: Str = extractMethod(input, init);
 
-		// Skip beacon endpoint to avoid infinite recursion
-		if (SKIP_URLS.some((skip) => url.includes(skip))) {
-			return original(input, init);
-		}
+    // Skip beacon endpoint to avoid infinite recursion
+    if (SKIP_URLS.some((skip) => url.includes(skip))) {
+      return original(input, init);
+    }
 
-		try {
-			const response: Response = await original(input, init);
-			const level: BreadcrumbLevel = response.ok ? 'info' : 'error';
-			addBreadcrumb({
-				type: 'http',
-				category: 'fetch',
-				message: `${method} ${url} → ${String(response.status)}`,
-				level,
-				data: { method, url, status_code: response.status },
-			});
-			return response;
-		} catch (error: unknown) {
-			const message: Str = (error instanceof Error ? error.message : 'Unknown error') as Str;
-			addBreadcrumb({
-				type: 'http',
-				category: 'fetch',
-				message: `${method} ${url} → ${message}`,
-				level: 'warning',
-				data: { method, url, error: message },
-			});
-			throw error;
-		}
-	};
+    try {
+      const response: Response = await original(input, init);
+      const level: BreadcrumbLevel = response.ok ? 'info' : 'error';
+      addBreadcrumb({
+        type: 'http',
+        category: 'fetch',
+        message: `${method} ${url} → ${String(response.status)}`,
+        level,
+        data: { method, url, status_code: response.status },
+      });
+      return response;
+    } catch (error: unknown) {
+      const message: Str = (error instanceof Error ? error.message : 'Unknown error') as Str;
+      addBreadcrumb({
+        type: 'http',
+        category: 'fetch',
+        message: `${method} ${url} → ${message}`,
+        level: 'warning',
+        data: { method, url, error: message },
+      });
+      throw error;
+    }
+  };
 }
 
 /**
@@ -129,10 +129,10 @@ export function initFetchBreadcrumbs(): Void {
  * Safe to call multiple times — no-op if not initialized.
  */
 export function teardownFetchBreadcrumbs(): Void {
-	if (_originalFetch !== null) {
-		globalThis.fetch = _originalFetch;
-		_originalFetch = null;
-	}
+  if (_originalFetch !== null) {
+    globalThis.fetch = _originalFetch;
+    _originalFetch = null;
+  }
 }
 
 // =============================================================================
@@ -146,10 +146,10 @@ export function teardownFetchBreadcrumbs(): Void {
  * @returns The URL as a string.
  */
 function extractUrl(input: RequestInfo | URL): Str {
-	if (typeof input === 'string') return input as Str;
-	if (input instanceof URL) return input.pathname as Str;
-	if (input instanceof Request) return input.url as Str;
-	return '(unknown)' as Str;
+  if (typeof input === 'string') return input as Str;
+  if (input instanceof URL) return input.pathname as Str;
+  if (input instanceof Request) return input.url as Str;
+  return '(unknown)' as Str;
 }
 
 /**
@@ -160,7 +160,7 @@ function extractUrl(input: RequestInfo | URL): Str {
  * @returns The HTTP method (defaults to 'GET').
  */
 function extractMethod(input: RequestInfo | URL, init?: RequestInit): Str {
-	if (init?.method) return init.method.toUpperCase() as Str;
-	if (input instanceof Request) return input.method.toUpperCase() as Str;
-	return 'GET' as Str;
+  if (init?.method) return init.method.toUpperCase() as Str;
+  if (input instanceof Request) return input.method.toUpperCase() as Str;
+  return 'GET' as Str;
 }

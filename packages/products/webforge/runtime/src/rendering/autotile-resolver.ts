@@ -37,23 +37,23 @@ import { AutotileTypeSchema } from '../schemas/map-data';
 
 /** Options schema for {@link resolveAutotile}. */
 export const ResolveAutotileOptionsSchema = v.pipe(
-	v.strictObject({
-		/** Tile X position in the map grid. */
-		x: v.number(),
-		/** Tile Y position in the map grid. */
-		y: v.number(),
-		/** Map width in tiles. */
-		mapWidth: v.number(),
-		/** Map height in tiles. */
-		mapHeight: v.number(),
-		/** Flat row-major array of tile IDs for this layer. */
-		layerData: v.pipe(v.array(v.number()), v.readonly()),
-		/** The tile ID to match neighbors against. */
-		tileId: v.number(),
-		/** Autotile behavior type. */
-		autotileType: AutotileTypeSchema,
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Tile X position in the map grid. */
+    x: v.number(),
+    /** Tile Y position in the map grid. */
+    y: v.number(),
+    /** Map width in tiles. */
+    mapWidth: v.number(),
+    /** Map height in tiles. */
+    mapHeight: v.number(),
+    /** Flat row-major array of tile IDs for this layer. */
+    layerData: v.pipe(v.array(v.number()), v.readonly()),
+    /** The tile ID to match neighbors against. */
+    tileId: v.number(),
+    /** Autotile behavior type. */
+    autotileType: AutotileTypeSchema,
+  }),
+  v.readonly(),
 );
 
 /** Options for {@link resolveAutotile}. */
@@ -61,21 +61,21 @@ export type ResolveAutotileOptions = v.InferOutput<typeof ResolveAutotileOptions
 
 /** Options schema for {@link buildAdjacencyBitmask}. */
 export const AdjacencyOptionsSchema = v.pipe(
-	v.strictObject({
-		/** Tile X position in the map grid. */
-		x: v.number(),
-		/** Tile Y position in the map grid. */
-		y: v.number(),
-		/** Map width in tiles. */
-		mapWidth: v.number(),
-		/** Map height in tiles. */
-		mapHeight: v.number(),
-		/** Flat row-major array of tile IDs for this layer. */
-		layerData: v.pipe(v.array(v.number()), v.readonly()),
-		/** The tile ID to match neighbors against. */
-		tileId: v.number(),
-	}),
-	v.readonly(),
+  v.strictObject({
+    /** Tile X position in the map grid. */
+    x: v.number(),
+    /** Tile Y position in the map grid. */
+    y: v.number(),
+    /** Map width in tiles. */
+    mapWidth: v.number(),
+    /** Map height in tiles. */
+    mapHeight: v.number(),
+    /** Flat row-major array of tile IDs for this layer. */
+    layerData: v.pipe(v.array(v.number()), v.readonly()),
+    /** The tile ID to match neighbors against. */
+    tileId: v.number(),
+  }),
+  v.readonly(),
 );
 
 /** Options for {@link buildAdjacencyBitmask}. */
@@ -127,17 +127,17 @@ const BIT_NW: Num = 7;
  */
 // prettier-ignore
 const BITMASK_TO_FRAME: readonly Num[] = [
-	46, 44, 46, 44, 43, 41, 43, 40, 46, 44, 46, 44, 43, 41, 43, 40, 42, 32, 42, 32, 35, 19, 35, 18,
-	42, 32, 42, 32, 34, 17, 34, 16, 46, 44, 46, 44, 43, 41, 43, 40, 46, 44, 46, 44, 43, 41, 43, 40,
-	42, 32, 42, 32, 35, 19, 35, 18, 42, 32, 42, 32, 34, 17, 34, 16, 45, 39, 45, 39, 33, 31, 33, 29,
-	45, 39, 45, 39, 33, 31, 33, 29, 37, 27, 37, 27, 23, 15, 23, 13, 37, 27, 37, 27, 22, 11, 22, 9, 45,
-	39, 45, 39, 33, 31, 33, 29, 45, 39, 45, 39, 33, 31, 33, 29, 36, 26, 36, 26, 21, 7, 21, 5, 36, 26,
-	36, 26, 20, 3, 20, 1, 46, 44, 46, 44, 43, 41, 43, 40, 46, 44, 46, 44, 43, 41, 43, 40, 42, 32, 42,
-	32, 35, 19, 35, 18, 42, 32, 42, 32, 34, 17, 34, 16, 46, 44, 46, 44, 43, 41, 43, 40, 46, 44, 46,
-	44, 43, 41, 43, 40, 42, 32, 42, 32, 35, 19, 35, 18, 42, 32, 42, 32, 34, 17, 34, 16, 45, 38, 45,
-	38, 33, 30, 33, 28, 45, 38, 45, 38, 33, 30, 33, 28, 37, 25, 37, 25, 23, 14, 23, 12, 37, 25, 37,
-	25, 22, 10, 22, 8, 45, 38, 45, 38, 33, 30, 33, 28, 45, 38, 45, 38, 33, 30, 33, 28, 36, 24, 36, 24,
-	21, 6, 21, 4, 36, 24, 36, 24, 20, 2, 20, 0,
+  46, 44, 46, 44, 43, 41, 43, 40, 46, 44, 46, 44, 43, 41, 43, 40, 42, 32, 42, 32, 35, 19, 35, 18,
+  42, 32, 42, 32, 34, 17, 34, 16, 46, 44, 46, 44, 43, 41, 43, 40, 46, 44, 46, 44, 43, 41, 43, 40,
+  42, 32, 42, 32, 35, 19, 35, 18, 42, 32, 42, 32, 34, 17, 34, 16, 45, 39, 45, 39, 33, 31, 33, 29,
+  45, 39, 45, 39, 33, 31, 33, 29, 37, 27, 37, 27, 23, 15, 23, 13, 37, 27, 37, 27, 22, 11, 22, 9, 45,
+  39, 45, 39, 33, 31, 33, 29, 45, 39, 45, 39, 33, 31, 33, 29, 36, 26, 36, 26, 21, 7, 21, 5, 36, 26,
+  36, 26, 20, 3, 20, 1, 46, 44, 46, 44, 43, 41, 43, 40, 46, 44, 46, 44, 43, 41, 43, 40, 42, 32, 42,
+  32, 35, 19, 35, 18, 42, 32, 42, 32, 34, 17, 34, 16, 46, 44, 46, 44, 43, 41, 43, 40, 46, 44, 46,
+  44, 43, 41, 43, 40, 42, 32, 42, 32, 35, 19, 35, 18, 42, 32, 42, 32, 34, 17, 34, 16, 45, 38, 45,
+  38, 33, 30, 33, 28, 45, 38, 45, 38, 33, 30, 33, 28, 37, 25, 37, 25, 23, 14, 23, 12, 37, 25, 37,
+  25, 22, 10, 22, 8, 45, 38, 45, 38, 33, 30, 33, 28, 45, 38, 45, 38, 33, 30, 33, 28, 36, 24, 36, 24,
+  21, 6, 21, 4, 36, 24, 36, 24, 20, 2, 20, 0,
 ];
 
 /**
@@ -148,7 +148,7 @@ const BITMASK_TO_FRAME: readonly Num[] = [
  */
 // prettier-ignore
 const WALL_BITMASK_TO_FRAME: readonly Num[] = [
-	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 ];
 
 // =============================================================================
@@ -176,38 +176,38 @@ const WALL_BITMASK_TO_FRAME: readonly Num[] = [
  * ```
  */
 export function buildAdjacencyBitmask(options: AdjacencyOptions): Result<Num> {
-	const { x, y, mapWidth, mapHeight, layerData, tileId } = options;
+  const { x, y, mapWidth, mapHeight, layerData, tileId } = options;
 
-	let bitmask: Num = 0;
+  let bitmask: Num = 0;
 
-	// Check each of 8 neighbors
-	const offsets: ReadonlyArray<[Num, Num, Num]> = [
-		[0, -1, BIT_N], // North
-		[1, -1, BIT_NE], // Northeast
-		[1, 0, BIT_E], // East
-		[1, 1, BIT_SE], // Southeast
-		[0, 1, BIT_S], // South
-		[-1, 1, BIT_SW], // Southwest
-		[-1, 0, BIT_W], // West
-		[-1, -1, BIT_NW], // Northwest
-	];
+  // Check each of 8 neighbors
+  const offsets: ReadonlyArray<[Num, Num, Num]> = [
+    [0, -1, BIT_N], // North
+    [1, -1, BIT_NE], // Northeast
+    [1, 0, BIT_E], // East
+    [1, 1, BIT_SE], // Southeast
+    [0, 1, BIT_S], // South
+    [-1, 1, BIT_SW], // Southwest
+    [-1, 0, BIT_W], // West
+    [-1, -1, BIT_NW], // Northwest
+  ];
 
-	for (const [dx, dy, bit] of offsets) {
-		const nx: Num = x + dx;
-		const ny: Num = y + dy;
+  for (const [dx, dy, bit] of offsets) {
+    const nx: Num = x + dx;
+    const ny: Num = y + dy;
 
-		if (nx < 0 || nx >= mapWidth || ny < 0 || ny >= mapHeight) {
-			// Out-of-bounds = matching (seamless map edges)
-			bitmask |= 1 << bit;
-		} else {
-			const neighborId: Num = layerData[ny * mapWidth + nx] ?? 0;
-			if (neighborId === tileId) {
-				bitmask |= 1 << bit;
-			}
-		}
-	}
+    if (nx < 0 || nx >= mapWidth || ny < 0 || ny >= mapHeight) {
+      // Out-of-bounds = matching (seamless map edges)
+      bitmask |= 1 << bit;
+    } else {
+      const neighborId: Num = layerData[ny * mapWidth + nx] ?? 0;
+      if (neighborId === tileId) {
+        bitmask |= 1 << bit;
+      }
+    }
+  }
 
-	return okUnchecked(bitmask);
+  return okUnchecked(bitmask);
 }
 
 // =============================================================================
@@ -229,20 +229,20 @@ export function buildAdjacencyBitmask(options: AdjacencyOptions): Result<Num> {
  * @returns Result containing the reduced bitmask
  */
 export function reduceBitmask(bitmask: Num): Result<Num> {
-	let reduced: Num = bitmask;
+  let reduced: Num = bitmask;
 
-	const hasN: boolean = (bitmask & (1 << BIT_N)) !== 0;
-	const hasE: boolean = (bitmask & (1 << BIT_E)) !== 0;
-	const hasS: boolean = (bitmask & (1 << BIT_S)) !== 0;
-	const hasW: boolean = (bitmask & (1 << BIT_W)) !== 0;
+  const hasN: boolean = (bitmask & (1 << BIT_N)) !== 0;
+  const hasE: boolean = (bitmask & (1 << BIT_E)) !== 0;
+  const hasS: boolean = (bitmask & (1 << BIT_S)) !== 0;
+  const hasW: boolean = (bitmask & (1 << BIT_W)) !== 0;
 
-	// Clear corner bits when adjacent edges aren't both set
-	if (!(hasN && hasE)) reduced &= ~(1 << BIT_NE);
-	if (!(hasS && hasE)) reduced &= ~(1 << BIT_SE);
-	if (!(hasS && hasW)) reduced &= ~(1 << BIT_SW);
-	if (!(hasN && hasW)) reduced &= ~(1 << BIT_NW);
+  // Clear corner bits when adjacent edges aren't both set
+  if (!(hasN && hasE)) reduced &= ~(1 << BIT_NE);
+  if (!(hasS && hasE)) reduced &= ~(1 << BIT_SE);
+  if (!(hasS && hasW)) reduced &= ~(1 << BIT_SW);
+  if (!(hasN && hasW)) reduced &= ~(1 << BIT_NW);
 
-	return okUnchecked(reduced);
+  return okUnchecked(reduced);
 }
 
 // =============================================================================
@@ -256,9 +256,9 @@ export function reduceBitmask(bitmask: Num): Result<Num> {
  * @returns Result containing the pattern index
  */
 export function bitmaskToFrameIndex(reducedBitmask: Num): Result<Num> {
-	const index: Num = reducedBitmask & 0xff;
-	const frame: Num = BITMASK_TO_FRAME[index] ?? 0;
-	return okUnchecked(frame);
+  const index: Num = reducedBitmask & 0xff;
+  const frame: Num = BITMASK_TO_FRAME[index] ?? 0;
+  return okUnchecked(frame);
 }
 
 /**
@@ -268,16 +268,16 @@ export function bitmaskToFrameIndex(reducedBitmask: Num): Result<Num> {
  * @returns Result containing the wall pattern index
  */
 export function bitmaskToWallIndex(bitmask: Num): Result<Num> {
-	// Extract only cardinal bits: N(0), E(2), S(4), W(6)
-	// Remap to 4-bit: N=bit0, E=bit1, S=bit2, W=bit3
-	let wallBits: Num = 0;
-	if (bitmask & (1 << BIT_N)) wallBits |= 1;
-	if (bitmask & (1 << BIT_E)) wallBits |= 2;
-	if (bitmask & (1 << BIT_S)) wallBits |= 4;
-	if (bitmask & (1 << BIT_W)) wallBits |= 8;
+  // Extract only cardinal bits: N(0), E(2), S(4), W(6)
+  // Remap to 4-bit: N=bit0, E=bit1, S=bit2, W=bit3
+  let wallBits: Num = 0;
+  if (bitmask & (1 << BIT_N)) wallBits |= 1;
+  if (bitmask & (1 << BIT_E)) wallBits |= 2;
+  if (bitmask & (1 << BIT_S)) wallBits |= 4;
+  if (bitmask & (1 << BIT_W)) wallBits |= 8;
 
-	const frame: Num = WALL_BITMASK_TO_FRAME[wallBits] ?? 0;
-	return okUnchecked(frame);
+  const frame: Num = WALL_BITMASK_TO_FRAME[wallBits] ?? 0;
+  return okUnchecked(frame);
 }
 
 // =============================================================================
@@ -304,22 +304,22 @@ export function bitmaskToWallIndex(bitmask: Num): Result<Num> {
  * ```
  */
 export function resolveAutotile(options: ResolveAutotileOptions): Result<Num> {
-	const { autotileType, ...adjacencyOptions } = options;
+  const { autotileType, ...adjacencyOptions } = options;
 
-	if (autotileType === 'none') {
-		return okUnchecked(0);
-	}
+  if (autotileType === 'none') {
+    return okUnchecked(0);
+  }
 
-	const bitmaskResult: Result<Num> = buildAdjacencyBitmask(adjacencyOptions);
-	if (!bitmaskResult.ok) return bitmaskResult;
+  const bitmaskResult: Result<Num> = buildAdjacencyBitmask(adjacencyOptions);
+  if (!bitmaskResult.ok) return bitmaskResult;
 
-	if (autotileType === 'wall_16') {
-		return bitmaskToWallIndex(bitmaskResult.data);
-	}
+  if (autotileType === 'wall_16') {
+    return bitmaskToWallIndex(bitmaskResult.data);
+  }
 
-	// terrain_48 or animated_terrain
-	const reducedResult: Result<Num> = reduceBitmask(bitmaskResult.data);
-	if (!reducedResult.ok) return reducedResult;
+  // terrain_48 or animated_terrain
+  const reducedResult: Result<Num> = reduceBitmask(bitmaskResult.data);
+  if (!reducedResult.ok) return reducedResult;
 
-	return bitmaskToFrameIndex(reducedResult.data);
+  return bitmaskToFrameIndex(reducedResult.data);
 }

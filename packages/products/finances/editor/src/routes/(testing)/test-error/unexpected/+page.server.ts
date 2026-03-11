@@ -12,5 +12,5 @@ import type { PageServerLoad } from './$types';
  * @returns Never — always throws an unhandled Error
  */
 export const load: PageServerLoad = () => {
-	throw new Error('Unexpected test error — this simulates a server crash');
+  throw new Error('Unexpected test error — this simulates a server crash');
 };

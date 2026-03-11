@@ -32,10 +32,10 @@ import type { GenericSchema, GenericSchemaFactory } from '@/schemas/generic/type
  * @returns The value typed as `GenericSchema<TFactory>`.
  */
 function _toGenericSchema<TFactory extends GenericSchemaFactory>(
-	value: TFactory,
+  value: TFactory,
 ): GenericSchema<TFactory> {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-return -- centralized cast
-	return value as GenericSchema<TFactory>;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- centralized cast
+  return value as GenericSchema<TFactory>;
 }
 
 // =============================================================================
@@ -119,15 +119,15 @@ function _toGenericSchema<TFactory extends GenericSchemaFactory>(
  * produces a new schema. If you need caching, wrap the factory yourself.
  */
 export function generic<TFactory extends GenericSchemaFactory>(
-	factory: TFactory,
+  factory: TFactory,
 ): GenericSchema<TFactory> {
-	Object.defineProperty(factory, '__isGenericSchema', {
-		value: true,
-		writable: false,
-		enumerable: false,
-		configurable: false,
-	});
-	return _toGenericSchema(factory);
+  Object.defineProperty(factory, '__isGenericSchema', {
+    value: true,
+    writable: false,
+    enumerable: false,
+    configurable: false,
+  });
+  return _toGenericSchema(factory);
 }
 
 // =============================================================================
@@ -152,7 +152,7 @@ export function generic<TFactory extends GenericSchemaFactory>(
  * ```
  */
 export function isGenericSchema(value: unknown): value is GenericSchema<GenericSchemaFactory> {
-	return (
-		typeof value === 'function' && '__isGenericSchema' in value && value.__isGenericSchema === true
-	);
+  return (
+    typeof value === 'function' && '__isGenericSchema' in value && value.__isGenericSchema === true
+  );
 }

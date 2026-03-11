@@ -70,61 +70,61 @@ export const TRANSITION_SHADER_NAME = 'webforgeTransition';
  * ```
  */
 export const TRANSITION_TYPE_MAP: Readonly<Record<TransitionType, number>> = {
-	// Mask-based (0-21)
-	fade: 0,
-	crossFade: 1,
-	circleIris: 2,
-	diamondIris: 3,
-	wipe: 4,
-	diagonalWipe: 5,
-	doubleDoor: 6,
-	noiseDissove: 7,
-	ditheredFade: 8,
-	venetianBlinds: 9,
-	bars: 10,
-	checkerboard: 11,
-	radialWipe: 12,
-	scanlineReveal: 13,
-	randomBlocks: 14,
-	crossSplit: 15,
-	heartIris: 16,
-	starIris: 17,
-	crossIris: 18,
-	clockWipe: 19,
-	diagonalBlinds: 20,
-	bowTie: 21,
-	// Procedural (22-52)
-	pixelate: 22,
-	crtPowerOff: 23,
-	swirl: 24,
-	zoomLines: 25,
-	shatter: 26,
-	wavyDistortion: 27,
-	hexagonalize: 28,
-	pinwheel: 29,
-	polkaDots: 30,
-	gridFlip: 31,
-	glitch: 32,
-	ripple: 33,
-	wind: 34,
-	chromaticBurst: 35,
-	zoom: 36,
-	spiralWipe: 37,
-	curtain: 38,
-	dreamDissolve: 39,
-	filmBurn: 40,
-	overexposure: 41,
-	doomMelt: 42,
-	tvStatic: 43,
-	matrixRain: 44,
-	mosaic: 45,
-	burn: 46,
-	waterDrop: 47,
-	squeeze: 48,
-	flyEye: 49,
-	crosshatch: 50,
-	luminanceMelt: 51,
-	pageFlip: 52,
+  // Mask-based (0-21)
+  fade: 0,
+  crossFade: 1,
+  circleIris: 2,
+  diamondIris: 3,
+  wipe: 4,
+  diagonalWipe: 5,
+  doubleDoor: 6,
+  noiseDissove: 7,
+  ditheredFade: 8,
+  venetianBlinds: 9,
+  bars: 10,
+  checkerboard: 11,
+  radialWipe: 12,
+  scanlineReveal: 13,
+  randomBlocks: 14,
+  crossSplit: 15,
+  heartIris: 16,
+  starIris: 17,
+  crossIris: 18,
+  clockWipe: 19,
+  diagonalBlinds: 20,
+  bowTie: 21,
+  // Procedural (22-52)
+  pixelate: 22,
+  crtPowerOff: 23,
+  swirl: 24,
+  zoomLines: 25,
+  shatter: 26,
+  wavyDistortion: 27,
+  hexagonalize: 28,
+  pinwheel: 29,
+  polkaDots: 30,
+  gridFlip: 31,
+  glitch: 32,
+  ripple: 33,
+  wind: 34,
+  chromaticBurst: 35,
+  zoom: 36,
+  spiralWipe: 37,
+  curtain: 38,
+  dreamDissolve: 39,
+  filmBurn: 40,
+  overexposure: 41,
+  doomMelt: 42,
+  tvStatic: 43,
+  matrixRain: 44,
+  mosaic: 45,
+  burn: 46,
+  waterDrop: 47,
+  squeeze: 48,
+  flyEye: 49,
+  crosshatch: 50,
+  luminanceMelt: 51,
+  pageFlip: 52,
 };
 
 // =============================================================================
@@ -133,39 +133,39 @@ export const TRANSITION_TYPE_MAP: Readonly<Record<TransitionType, number>> = {
 
 /** Uniform names passed to the PostProcess constructor. */
 const UNIFORM_NAMES: readonly string[] = [
-	'progress',
-	'maskType',
-	'edgeSoftness',
-	'bgColor',
-	'edgeColor',
-	'hasEdgeColor',
-	'useCustomMask',
-	'reversed',
-	'direction',
-	'axis',
-	'openFromCenter',
-	'center',
-	'count',
-	'gridSize',
-	'angle',
-	'clockwise',
-	'bladeCount',
-	'noiseScale',
-	'noiseSeed',
-	'matrixSize',
-	'lineWidth',
-	'maxBlockSize',
-	'hasScanlines',
-	'swirlStrength',
-	'swirlRadius',
-	'zoomLineWidth',
-	'cellCount',
-	'amplitude',
-	'frequency',
-	'waveCount',
-	'glitchIntensity',
-	'pointCount',
-	'resolution',
+  'progress',
+  'maskType',
+  'edgeSoftness',
+  'bgColor',
+  'edgeColor',
+  'hasEdgeColor',
+  'useCustomMask',
+  'reversed',
+  'direction',
+  'axis',
+  'openFromCenter',
+  'center',
+  'count',
+  'gridSize',
+  'angle',
+  'clockwise',
+  'bladeCount',
+  'noiseScale',
+  'noiseSeed',
+  'matrixSize',
+  'lineWidth',
+  'maxBlockSize',
+  'hasScanlines',
+  'swirlStrength',
+  'swirlRadius',
+  'zoomLineWidth',
+  'cellCount',
+  'amplitude',
+  'frequency',
+  'waveCount',
+  'glitchIntensity',
+  'pointCount',
+  'resolution',
 ];
 
 /** Sampler names passed to the PostProcess constructor. */
@@ -1159,12 +1159,12 @@ let shaderRegistered = false;
  * ```
  */
 export function registerTransitionShader(): void {
-	if (shaderRegistered) {
-		return;
-	}
-	BABYLON.Effect.ShadersStore[`${TRANSITION_SHADER_NAME}FragmentShader`] =
-		TRANSITION_FRAGMENT_SHADER;
-	shaderRegistered = true;
+  if (shaderRegistered) {
+    return;
+  }
+  BABYLON.Effect.ShadersStore[`${TRANSITION_SHADER_NAME}FragmentShader`] =
+    TRANSITION_FRAGMENT_SHADER;
+  shaderRegistered = true;
 }
 
 // =============================================================================
@@ -1173,8 +1173,8 @@ export function registerTransitionShader(): void {
 
 /** Options for {@link createTransitionPostProcess}. */
 type CreateTransitionPostProcessOptions = {
-	readonly camera: BABYLON.Camera;
-	readonly engine: BABYLON.Engine;
+  readonly camera: BABYLON.Camera;
+  readonly engine: BABYLON.Engine;
 };
 
 /**
@@ -1206,28 +1206,28 @@ type CreateTransitionPostProcessOptions = {
  * ```
  */
 export function createTransitionPostProcess(
-	options: CreateTransitionPostProcessOptions,
+  options: CreateTransitionPostProcessOptions,
 ): BabylonResult<BABYLON.PostProcess> {
-	try {
-		registerTransitionShader();
+  try {
+    registerTransitionShader();
 
-		const postProcess = new BABYLON.PostProcess(
-			'WebForgeTransition',
-			TRANSITION_SHADER_NAME,
-			[...UNIFORM_NAMES],
-			[...SAMPLER_NAMES],
-			1.0,
-			options.camera,
-			BABYLON.Texture.BILINEAR_SAMPLINGMODE,
-			options.engine,
-			false,
-		);
+    const postProcess = new BABYLON.PostProcess(
+      'WebForgeTransition',
+      TRANSITION_SHADER_NAME,
+      [...UNIFORM_NAMES],
+      [...SAMPLER_NAMES],
+      1.0,
+      options.camera,
+      BABYLON.Texture.BILINEAR_SAMPLINGMODE,
+      options.engine,
+      false,
+    );
 
-		return okShallow(postProcess);
-	} catch (error: unknown) {
-		return err(
-			ERRORS.SCENE.RENDER_FAILED,
-			`Failed to create transition post-process: ${fromUnknownError(error).message}`,
-		);
-	}
+    return okShallow(postProcess);
+  } catch (error: unknown) {
+    return err(
+      ERRORS.SCENE.RENDER_FAILED,
+      `Failed to create transition post-process: ${fromUnknownError(error).message}`,
+    );
+  }
 }

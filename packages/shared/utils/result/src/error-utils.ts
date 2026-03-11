@@ -17,18 +17,18 @@ import * as v from 'valibot';
 
 import { type Bool, BoolSchema } from '@/schemas/common';
 import {
-	type AppError,
-	type KnownErrorCode,
-	type ErrorDomain,
-	type ErrorSeverity,
-	type Result,
-	AppErrorSchema,
-	ErrorDomainSchema,
-	ErrorSeveritySchema,
-	ERRORS,
-	ok,
-	okUnchecked,
-	err,
+  type AppError,
+  type KnownErrorCode,
+  type ErrorDomain,
+  type ErrorSeverity,
+  type Result,
+  AppErrorSchema,
+  ErrorDomainSchema,
+  ErrorSeveritySchema,
+  ERRORS,
+  ok,
+  okUnchecked,
+  err,
 } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
 
@@ -57,8 +57,8 @@ import { safeParse } from '@/utils/result/safe';
  * ```
  */
 export function isAppError(value: unknown): value is AppError {
-	const result: v.SafeParseResult<typeof AppErrorSchema> = v.safeParse(AppErrorSchema, value);
-	return result.success;
+  const result: v.SafeParseResult<typeof AppErrorSchema> = v.safeParse(AppErrorSchema, value);
+  return result.success;
 }
 
 /**
@@ -83,11 +83,11 @@ export function isAppError(value: unknown): value is AppError {
  * ```
  */
 export function isResult(value: unknown): value is Result<unknown> {
-	if (typeof value !== 'object' || value === null) return false;
-	const obj: Record<string, unknown> = value as Record<string, unknown>;
-	if (typeof obj.ok !== 'boolean') return false;
-	if (obj.ok === true) return 'data' in obj;
-	return 'error' in obj && isAppError(obj.error);
+  if (typeof value !== 'object' || value === null) return false;
+  const obj: Record<string, unknown> = value as Record<string, unknown>;
+  if (typeof obj.ok !== 'boolean') return false;
+  if (obj.ok === true) return 'data' in obj;
+  return 'error' in obj && isAppError(obj.error);
 }
 
 // =============================================================================
@@ -114,7 +114,7 @@ export function isResult(value: unknown): value is Result<unknown> {
  * ```
  */
 export function hasCode(error: AppError, code: KnownErrorCode): Result<Bool> {
-	return ok(BoolSchema, error.code === code);
+  return ok(BoolSchema, error.code === code);
 }
 
 /**
@@ -141,7 +141,7 @@ export function hasCode(error: AppError, code: KnownErrorCode): Result<Bool> {
  * ```
  */
 export function hasAnyCode(error: AppError, codes: readonly KnownErrorCode[]): Result<Bool> {
-	return ok(BoolSchema, codes.includes(error.code));
+  return ok(BoolSchema, codes.includes(error.code));
 }
 
 /**
@@ -166,9 +166,9 @@ export function hasAnyCode(error: AppError, codes: readonly KnownErrorCode[]): R
  * ```
  */
 export function isInDomain(error: AppError, domain: ErrorDomain): Result<Bool> {
-	const parsed: Result<ErrorDomain> = safeParse(ErrorDomainSchema, domain);
-	if (!parsed.ok) return parsed;
-	return ok(BoolSchema, error.code.startsWith(`${parsed.data}.`));
+  const parsed: Result<ErrorDomain> = safeParse(ErrorDomainSchema, domain);
+  if (!parsed.ok) return parsed;
+  return ok(BoolSchema, error.code.startsWith(`${parsed.data}.`));
 }
 
 // =============================================================================
@@ -200,18 +200,18 @@ export function isInDomain(error: AppError, domain: ErrorDomain): Result<Bool> {
  * ```
  */
 export function getCauseChain(error: AppError): Result<readonly AppError[]> {
-	const chain: AppError[] = [];
-	let current: AppError | undefined = error;
-	const maxDepth = 100;
-	let depth = 0;
+  const chain: AppError[] = [];
+  let current: AppError | undefined = error;
+  const maxDepth = 100;
+  let depth = 0;
 
-	while (current && depth < maxDepth) {
-		chain.push(current);
-		current = current.cause;
-		depth++;
-	}
+  while (current && depth < maxDepth) {
+    chain.push(current);
+    current = current.cause;
+    depth++;
+  }
 
-	return okUnchecked<readonly AppError[]>(chain);
+  return okUnchecked<readonly AppError[]>(chain);
 }
 
 /**
@@ -239,19 +239,19 @@ export function getCauseChain(error: AppError): Result<readonly AppError[]> {
  * ```
  */
 export function findInCauseChain(error: AppError, code: KnownErrorCode): Result<AppError | null> {
-	let current: AppError | undefined = error;
-	const maxDepth = 100;
-	let depth = 0;
+  let current: AppError | undefined = error;
+  const maxDepth = 100;
+  let depth = 0;
 
-	while (current && depth < maxDepth) {
-		if (current.code === code) {
-			return okUnchecked<AppError | null>(current);
-		}
-		current = current.cause;
-		depth++;
-	}
+  while (current && depth < maxDepth) {
+    if (current.code === code) {
+      return okUnchecked<AppError | null>(current);
+    }
+    current = current.cause;
+    depth++;
+  }
 
-	return okUnchecked<AppError | null>(null);
+  return okUnchecked<AppError | null>(null);
 }
 
 /**
@@ -274,16 +274,16 @@ export function findInCauseChain(error: AppError, code: KnownErrorCode): Result<
  * ```
  */
 export function getRootCause(error: AppError): Result<AppError> {
-	let current: AppError = error;
-	const maxDepth = 100;
-	let depth = 0;
+  let current: AppError = error;
+  const maxDepth = 100;
+  let depth = 0;
 
-	while (current.cause && depth < maxDepth) {
-		current = current.cause;
-		depth++;
-	}
+  while (current.cause && depth < maxDepth) {
+    current = current.cause;
+    depth++;
+  }
 
-	return okUnchecked<AppError>(current);
+  return okUnchecked<AppError>(current);
 }
 
 // =============================================================================
@@ -310,14 +310,14 @@ export function getRootCause(error: AppError): Result<AppError> {
  * ```
  */
 export function getDomain(error: AppError): Result<ErrorDomain> {
-	const dotIndex: number = error.code.indexOf('.');
-	if (dotIndex === -1) {
-		return err(ERRORS.INTERNAL.INVARIANT_VIOLATED, {
-			meta: { reason: 'Error code has no domain separator', code: error.code },
-		});
-	}
-	const domain: string = error.code.slice(0, dotIndex);
-	return safeParse(ErrorDomainSchema, domain);
+  const dotIndex: number = error.code.indexOf('.');
+  if (dotIndex === -1) {
+    return err(ERRORS.INTERNAL.INVARIANT_VIOLATED, {
+      meta: { reason: 'Error code has no domain separator', code: error.code },
+    });
+  }
+  const domain: string = error.code.slice(0, dotIndex);
+  return safeParse(ErrorDomainSchema, domain);
 }
 
 // =============================================================================
@@ -344,7 +344,7 @@ export function getDomain(error: AppError): Result<ErrorDomain> {
  * ```
  */
 export function getSeverity(error: AppError): Result<ErrorSeverity> {
-	return ok(ErrorSeveritySchema, error.severity ?? 'error');
+  return ok(ErrorSeveritySchema, error.severity ?? 'error');
 }
 
 /**
@@ -366,5 +366,5 @@ export function getSeverity(error: AppError): Result<ErrorSeverity> {
  * ```
  */
 export function isRetryable(error: AppError): Result<Bool> {
-	return ok(BoolSchema, error.retry?.retryable === true);
+  return ok(BoolSchema, error.retry?.retryable === true);
 }

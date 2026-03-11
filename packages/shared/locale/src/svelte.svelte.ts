@@ -16,13 +16,13 @@
 import type * as v from 'valibot';
 
 import {
-	StrSchema,
-	type Bool,
-	type RawLocaleStrings,
-	type Str,
-	type StrArray,
-	type Void,
-	VoidSchema,
+  StrSchema,
+  type Bool,
+  type RawLocaleStrings,
+  type Str,
+  type StrArray,
+  type Void,
+  VoidSchema,
 } from '@/schemas/common';
 import { type Result, ok, okUnchecked } from '@/schemas/result/result';
 import { safeParse } from '@/utils/result/safe';
@@ -62,20 +62,20 @@ import type { LocaleRegistry } from '@/locale/registry';
  * ```
  */
 export type LocaleStore<TSchema extends v.GenericSchema> = {
-	/** The current active locale code (reactive). */
-	readonly locale: Str;
-	/** The built locale strings for the active locale (reactive). */
-	readonly t: BuiltLocale<TSchema>;
-	/** Sets the active locale and triggers reactivity. */
-	readonly setLocale: (code: Str) => Result<Void>;
-	/** Returns all available locale codes. */
-	readonly list: () => Result<StrArray>;
-	/** Checks whether a locale code exists. */
-	readonly has: (code: Str) => Result<Bool>;
-	/** Adds or replaces a locale and rebuilds. */
-	readonly set: (code: Str, raw: RawLocaleStrings) => Result<Void>;
-	/** Removes a locale. Cannot remove active or default. */
-	readonly remove: (code: Str) => Result<Void>;
+  /** The current active locale code (reactive). */
+  readonly locale: Str;
+  /** The built locale strings for the active locale (reactive). */
+  readonly t: BuiltLocale<TSchema>;
+  /** Sets the active locale and triggers reactivity. */
+  readonly setLocale: (code: Str) => Result<Void>;
+  /** Returns all available locale codes. */
+  readonly list: () => Result<StrArray>;
+  /** Checks whether a locale code exists. */
+  readonly has: (code: Str) => Result<Bool>;
+  /** Adds or replaces a locale and rebuilds. */
+  readonly set: (code: Str, raw: RawLocaleStrings) => Result<Void>;
+  /** Removes a locale. Cannot remove active or default. */
+  readonly remove: (code: Str) => Result<Void>;
 };
 
 // =============================================================================
@@ -115,73 +115,73 @@ export type LocaleStore<TSchema extends v.GenericSchema> = {
  * ```
  */
 export function createLocaleStore<TSchema extends v.GenericSchema>(
-	registry: LocaleRegistry<TSchema>,
+  registry: LocaleRegistry<TSchema>,
 ): Result<LocaleStore<TSchema>> {
-	// Get initial active locale
-	const activeResult: Result<Str> = registry.active();
-	if (!activeResult.ok) return activeResult;
+  // Get initial active locale
+  const activeResult: Result<Str> = registry.active();
+  if (!activeResult.ok) return activeResult;
 
-	// Get initial built strings
-	const initialStringsResult: Result<BuiltLocale<TSchema>> = registry.t();
-	if (!initialStringsResult.ok) return initialStringsResult;
+  // Get initial built strings
+  const initialStringsResult: Result<BuiltLocale<TSchema>> = registry.t();
+  if (!initialStringsResult.ok) return initialStringsResult;
 
-	// Reactive state — Svelte 5 runes
-	let currentLocale: Str = $state(activeResult.data);
-	let currentStrings: BuiltLocale<TSchema> = $state(
-		initialStringsResult.data as BuiltLocale<TSchema>,
-	); // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties; runtime value is correct
+  // Reactive state — Svelte 5 runes
+  let currentLocale: Str = $state(activeResult.data);
+  let currentStrings: BuiltLocale<TSchema> = $state(
+    initialStringsResult.data as BuiltLocale<TSchema>,
+  ); // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties; runtime value is correct
 
-	const store: LocaleStore<TSchema> = {
-		get locale(): Str {
-			return currentLocale;
-		},
+  const store: LocaleStore<TSchema> = {
+    get locale(): Str {
+      return currentLocale;
+    },
 
-		get t(): BuiltLocale<TSchema> {
-			return currentStrings;
-		},
+    get t(): BuiltLocale<TSchema> {
+      return currentStrings;
+    },
 
-		setLocale: (code: Str): Result<Void> => {
-			const codeResult: Result<Str> = safeParse(StrSchema, code);
-			if (!codeResult.ok) return codeResult;
+    setLocale: (code: Str): Result<Void> => {
+      const codeResult: Result<Str> = safeParse(StrSchema, code);
+      if (!codeResult.ok) return codeResult;
 
-			const setResult: Result<Void> = registry.setActive(codeResult.data);
-			if (!setResult.ok) return setResult;
+      const setResult: Result<Void> = registry.setActive(codeResult.data);
+      if (!setResult.ok) return setResult;
 
-			const stringsResult: Result<BuiltLocale<TSchema>> = registry.t();
-			if (!stringsResult.ok) return stringsResult;
+      const stringsResult: Result<BuiltLocale<TSchema>> = registry.t();
+      if (!stringsResult.ok) return stringsResult;
 
-			currentLocale = codeResult.data;
-			currentStrings = stringsResult.data as BuiltLocale<TSchema>; // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties
+      currentLocale = codeResult.data;
+      currentStrings = stringsResult.data as BuiltLocale<TSchema>; // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties
 
-			return ok(VoidSchema, undefined);
-		},
+      return ok(VoidSchema, undefined);
+    },
 
-		list: (): Result<StrArray> => {
-			return registry.list();
-		},
+    list: (): Result<StrArray> => {
+      return registry.list();
+    },
 
-		has: (code: Str): Result<Bool> => {
-			return registry.has(code);
-		},
+    has: (code: Str): Result<Bool> => {
+      return registry.has(code);
+    },
 
-		set: (code: Str, raw: RawLocaleStrings): Result<Void> => {
-			const setResult: Result<Void> = registry.set(code, raw);
-			if (!setResult.ok) return setResult;
+    set: (code: Str, raw: RawLocaleStrings): Result<Void> => {
+      const setResult: Result<Void> = registry.set(code, raw);
+      if (!setResult.ok) return setResult;
 
-			// If we just updated the active locale, refresh reactive state
-			if (code === currentLocale) {
-				const stringsResult: Result<BuiltLocale<TSchema>> = registry.t();
-				if (!stringsResult.ok) return stringsResult;
-				currentStrings = stringsResult.data as BuiltLocale<TSchema>; // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties
-			}
+      // If we just updated the active locale, refresh reactive state
+      if (code === currentLocale) {
+        const stringsResult: Result<BuiltLocale<TSchema>> = registry.t();
+        if (!stringsResult.ok) return stringsResult;
+        currentStrings = stringsResult.data as BuiltLocale<TSchema>; // Irreducible: DeepReadonly mangles function-typed BuiltLocale properties
+      }
 
-			return ok(VoidSchema, undefined);
-		},
+      return ok(VoidSchema, undefined);
+    },
 
-		remove: (code: Str): Result<Void> => {
-			return registry.remove(code);
-		},
-	};
+    remove: (code: Str): Result<Void> => {
+      return registry.remove(code);
+    },
+  };
 
-	return okUnchecked<LocaleStore<TSchema>>(store);
+  return okUnchecked<LocaleStore<TSchema>>(store);
 }

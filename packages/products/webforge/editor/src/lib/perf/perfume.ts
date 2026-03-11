@@ -12,11 +12,11 @@
  */
 
 import {
-	initPerfume,
-	type IAnalyticsTrackerOptions,
-	type INavigatorInfo,
-	type IVitalsScore,
-	type INavigationType,
+  initPerfume,
+  type IAnalyticsTrackerOptions,
+  type INavigatorInfo,
+  type IVitalsScore,
+  type INavigationType,
 } from 'perfume.js';
 import type { Void } from '@/schemas/common';
 import { okUnchecked, type Result } from '@/schemas/result/result';
@@ -56,10 +56,10 @@ export type AnalyticsTrackerFn = (options: IAnalyticsTrackerOptions) => void;
  * });
  */
 export function setupPerfume(tracker: AnalyticsTrackerFn): Result<Void> {
-	initPerfume({
-		analyticsTracker: tracker,
-		resourceTiming: false,
-		elementTiming: false,
-	});
-	return okUnchecked<Void>(undefined);
+  initPerfume({
+    analyticsTracker: tracker,
+    resourceTiming: false,
+    elementTiming: false,
+  });
+  return okUnchecked<Void>(undefined);
 }
