@@ -99,8 +99,9 @@ import FileImage from '@lucide/svelte/icons/file-image';
 import FileType from '@lucide/svelte/icons/file-type';
 import FileCode from '@lucide/svelte/icons/file-code';
 import Link from '@lucide/svelte/icons/link';
+import Globe from '@lucide/svelte/icons/globe';
 import * as DropdownMenu from '../dropdown-menu/index.js';
-import { exportPng, exportJpeg, exportSvg, exportWebp, copyImageToClipboard, copyHtml, copyDataUri, downloadHtml } from '../lens/export-utils.js';
+import { exportPng, exportJpeg, exportSvg, exportWebp, copyImageToClipboard, copyHtml, copyDataUri, downloadHtml, downloadStandaloneHtml } from '../lens/export-utils.js';
 import * as Tooltip from '../tooltip/index.js';
 import { slide } from 'svelte/transition';
 import { cn } from '../utils.js';
@@ -799,6 +800,7 @@ const EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: Component; category: Str 
 	{ id: 'svg', label: 'SVG', icon: FileImage, category: 'Image' },
 	{ id: 'webp', label: 'WebP', icon: FileImage, category: 'Image' },
 	{ id: 'html', label: 'HTML', icon: FileType, category: 'Document' },
+	{ id: 'standalone-html', label: 'Standalone HTML', icon: Globe, category: 'Document' },
 	{ id: 'copy-image', label: 'Copy as Image', icon: Clipboard, category: 'Clipboard' },
 	{ id: 'copy-html', label: 'Copy as HTML', icon: FileType, category: 'Clipboard' },
 	{ id: 'copy-svelte', label: 'Copy as Svelte', icon: FileCode, category: 'Clipboard' },
@@ -1576,6 +1578,12 @@ async function handleExport(key: Str, formatId: Str): Promise<void> {
 		if (snippet) await navigator.clipboard.writeText(snippet);
 	}
 	else if (formatId === 'copy-data-uri') await copyDataUri(el);
+	else if (formatId === 'standalone-html' && componentName) {
+		const mode: Str = (cardModes[key] ?? 'auto') as Str;
+		const isDark: Bool = mode === 'dark' || (mode === 'auto' && pageIsDark);
+		const activeTheme: Str = (cardThemes[key] ?? '') as Str;
+		await downloadStandaloneHtml(componentName, baseProps, label, isDark, activeTheme);
+	}
 }
 
 /**
