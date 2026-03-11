@@ -194,6 +194,7 @@ const mediaPrefClasses: Str = $derived(cardStyles.mp ?? '');
 	class="flex min-h-svh items-center justify-center p-8 {modeClass} {cardStyles.theme ? 'bg-background text-foreground' : 'bg-background'}"
 	style={containerStyle}
 	data-theme={cardStyles.theme || undefined}
+	data-lens-ready={!loading && !loadError && PrimaryComponent ? '' : undefined}
 >
 	{#if cardStyles.simMatrix}
 		<svg class="absolute size-0 overflow-hidden" aria-hidden="true">
