@@ -160,7 +160,7 @@ const containerStyle: Str = $derived(
 	[cardStyles.bg ?? '', colorSchemeStyle].filter(Boolean).join('; '),
 );
 
-/** Inline styles for the content wrapper (zoom, orientation, outline, sim filter). */
+/** Inline styles for the content wrapper (zoom, orientation, outline, sim filter, font size). */
 const contentStyle: Str = $derived.by((): Str => {
 	const parts: Str[] = [];
 	if (cardStyles.zoom) parts.push(cardStyles.zoom);
@@ -168,7 +168,19 @@ const contentStyle: Str = $derived.by((): Str => {
 	if (cardStyles.outlineColor) parts.push(`--lens-outline-color: ${cardStyles.outlineColor}`);
 	if (cardStyles.simMatrix) parts.push(`filter: url(#${filterId})`);
 	if (cardStyles.simCss) parts.push(`filter: ${cardStyles.simCss}`);
+	/* fontSize is stored as "14px (0.88x)" — extract the px value */
+	if (cardStyles.fontSize) {
+		const pxMatch: RegExpMatchArray | null = cardStyles.fontSize.match(/^(\d+(?:\.\d+)?)px/);
+		if (pxMatch) parts.push(`font-size: ${pxMatch[1]}px`);
+	}
 	return parts.join('; ');
+});
+
+/** Text direction from card state, constrained to valid HTML dir values. */
+const textDir: 'auto' | 'ltr' | 'rtl' | undefined = $derived.by((): 'auto' | 'ltr' | 'rtl' | undefined => {
+	const d: Str = cardStyles.dir ?? '';
+	if (d === 'rtl' || d === 'ltr' || d === 'auto') return d;
+	return undefined;
 });
 
 /** Viewport width × height from state. */
@@ -237,6 +249,7 @@ const mediaPrefClasses: Str = $derived(cardStyles.mp ?? '');
 					<div
 						class="relative {cardStyles.outlineColor ? 'lens-outline' : ''} {mediaPrefClasses}"
 						style={contentStyle}
+						dir={textDir}
 					>
 						<svelte:boundary>
 							<Tooltip.Provider>
@@ -260,6 +273,7 @@ const mediaPrefClasses: Str = $derived(cardStyles.mp ?? '');
 				<div
 					class="relative {cardStyles.outlineColor ? 'lens-outline' : ''} {mediaPrefClasses}"
 					style={contentStyle}
+					dir={textDir}
 				>
 					<svelte:boundary>
 						<Tooltip.Provider>
