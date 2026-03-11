@@ -21,6 +21,10 @@ export const LensHeaderPropsSchema = v.strictObject({
 	hasSource: v.optional(BoolSchema),
 	/** Whether the component has any import dependencies. @values true, false */
 	hasDeps: v.optional(BoolSchema),
+	/** Whether the component has custom docs.md documentation. @values true, false */
+	hasDocs: v.optional(BoolSchema),
+	/** Whether the component has changelog entries. @values true, false */
+	hasChangelog: v.optional(BoolSchema),
 	/** Previous component name for sequential navigation (kebab-case). @values button, dialog, sidebar */
 	prevComponent: v.optional(v.nullable(StrSchema)),
 	/** Next component name for sequential navigation (kebab-case). @values button, dialog, sidebar */
@@ -57,6 +61,8 @@ import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 import ChevronsDownUp from '@lucide/svelte/icons/chevrons-down-up';
 import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 import ChevronRight from '@lucide/svelte/icons/chevron-right';
+import History from '@lucide/svelte/icons/history';
+import FileText from '@lucide/svelte/icons/file-text';
 
 const allProps: LensHeaderProps = $props();
 const validated: LensHeaderProps = $derived.by(() => {
@@ -78,6 +84,12 @@ const hasSource: Bool = $derived(validated.hasSource ?? false);
 
 /** Whether the component has any import dependencies. */
 const hasDeps: Bool = $derived(validated.hasDeps ?? false);
+
+/** Whether the component has custom docs.md documentation. */
+const hasDocs: Bool = $derived(validated.hasDocs ?? false);
+
+/** Whether the component has changelog entries from git log. */
+const hasChangelog: Bool = $derived(validated.hasChangelog ?? false);
 
 /**
  * Open a collapsible section and smooth-scroll to it.
@@ -138,6 +150,12 @@ function collapseAll(): Void {
 					</Tooltip.Content>
 				</Tooltip.Root>
 				<DropdownMenu.Content align="start" sideOffset={4}>
+					{#if hasDocs}
+						<DropdownMenu.Item onclick={() => scrollTo('docs')}>
+							<FileText class="mr-2 size-4" />
+							Go to Documentation
+						</DropdownMenu.Item>
+					{/if}
 					<DropdownMenu.Item onclick={() => scrollTo('props')}>
 						<TableProperties class="mr-2 size-4" />
 						Go to Props
@@ -170,6 +188,12 @@ function collapseAll(): Void {
 						<DropdownMenu.Item onclick={() => scrollTo('dependencies')}>
 							<GitFork class="mr-2 size-4" />
 							Go to Dependencies
+						</DropdownMenu.Item>
+					{/if}
+					{#if hasChangelog}
+						<DropdownMenu.Item onclick={() => scrollTo('changelog')}>
+							<History class="mr-2 size-4" />
+							Go to Changelog
 						</DropdownMenu.Item>
 					{/if}
 					<DropdownMenu.Separator />

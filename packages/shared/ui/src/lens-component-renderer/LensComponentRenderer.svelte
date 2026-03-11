@@ -1742,13 +1742,13 @@ type ConsoleLogEntry = {
 	type: 'console' | 'event' | 'mutation' | 'lifecycle' | 'render';
 	/** Console level or event sub-type. */
 	level: 'log' | 'info' | 'warn' | 'error' | 'debug' | 'event' | 'mutation' | 'lifecycle' | 'render';
-	/** Primary message text. */
+	/** Primary message text. @values Hello world, click fired, attribute changed */
 	message: Str;
-	/** Optional detail (expanded args, mutation diff, event info). */
+	/** Optional detail (expanded args, mutation diff, event info). @values {x: 1}, class: old → new */
 	detail: Str;
-	/** Milliseconds since component mount. */
+	/** Milliseconds since component mount. @values 0, 42, 1500 */
 	ts: Num;
-	/** Source file:line from __svelte_meta when available. */
+	/** Source file:line from __svelte_meta when available. @values Button.svelte:12, , Dialog.svelte:45 */
 	source: Str;
 };
 

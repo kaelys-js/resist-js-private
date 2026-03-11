@@ -34,6 +34,8 @@ import FileCode from '@lucide/svelte/icons/file-code';
 import ChevronRight from '@lucide/svelte/icons/chevron-right';
 import SearchX from '@lucide/svelte/icons/search-x';
 import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+import History from '@lucide/svelte/icons/history';
+import FileText from '@lucide/svelte/icons/file-text';
 
 /* ------------------------------------------------------------------ */
 /*  Globs                                                             */
@@ -85,6 +87,15 @@ const exampleRawModules: Record<Str, Str> = import.meta.glob(
 	{ query: '?raw', import: 'default', eager: true },
 ) as Record<Str, Str>;
 
+/**
+ * Raw docs.md files for custom component documentation.
+ * Each component can optionally include a `docs.md` in its directory.
+ */
+const docsModules: Record<Str, Str> = import.meta.glob(
+	'@/ui/*/docs.md',
+	{ query: '?raw', import: 'default', eager: true },
+) as Record<Str, Str>;
+
 /* ------------------------------------------------------------------ */
 /*  Reactive state                                                    */
 /* ------------------------------------------------------------------ */
@@ -125,6 +136,12 @@ let lensMeta: LensMeta | null = $state(null);
 let lensContextWrapper: Component | null = $state(null);
 let loading: Bool = $state(true);
 let loadError: Str | null = $state(null);
+
+/** Changelog entry from git log API. */
+type ChangelogEntry = { hash: Str; message: Str; date: Str; author: Str };
+
+/** Changelog entries for the current component. */
+let changelog: ChangelogEntry[] = $state([]);
 
 $effect(() => {
 	const currentName: Str = name;
@@ -301,6 +318,21 @@ const usedBy: ReverseDep[] = $derived(name ? extractReverseDeps(name, rawSources
 /** Whether the component has any dependencies or reverse dependencies. */
 const hasDeps: Bool = $derived(deps.internal.length + deps.workspace.length + deps.external.length > 0 || usedBy.length > 0);
 
+/** Raw docs.md content for the current component (if exists). */
+const docsContent: Str | null = $derived.by((): Str | null => {
+	if (!name) return null;
+	const key: Str | undefined = Object.keys(docsModules).find(
+		(k: Str): boolean => extractDir(k) === name,
+	);
+	return key ? (docsModules[key] ?? null) : null;
+});
+
+/** Whether the component has custom documentation. */
+const hasDocs: Bool = $derived(docsContent !== null && docsContent.length > 0);
+
+/** Whether the component has changelog entries. */
+const hasChangelog: Bool = $derived(changelog.length > 0);
+
 /** Source sizes per component directory (computed from raw sources). */
 const sourceSizes: Record<Str, Num> = extractSourceSizes(rawSources, extractDir);
 
@@ -343,6 +375,31 @@ $effect(() => {
 	};
 });
 
+// Fetch changelog from server API (non-blocking, populates async)
+$effect(() => {
+	const currentName: Str = name;
+	if (!currentName) return;
+	let cancelled: Bool = false;
+	changelog = [];
+	(async (): Promise<void> => {
+		try {
+			const response: Response = await fetch(`/api/lens/changelog/${currentName}`);
+			if (cancelled) return;
+			if (response.ok) {
+				const data: unknown = await response.json();
+				if (cancelled) return;
+				// Server returns ChangelogEntry[] — safe to assign
+				changelog = data as ChangelogEntry[];
+			}
+		} catch {
+			/* Changelog fetch failed — entries remain empty */
+		}
+	})();
+	return (): void => {
+		cancelled = true;
+	};
+});
+
 /**
  * Build a PascalCase tag name from a kebab-case component directory name.
  *
@@ -359,6 +416,7 @@ function toTag(componentName: Str): Str {
 
 /** All page sections are expanded by default. */
 let sectionOpen: Record<Str, Bool> = $state({
+	docs: true,
 	props: true,
 	default: true,
 	'error-boundary': true,
@@ -366,6 +424,7 @@ let sectionOpen: Record<Str, Bool> = $state({
 	examples: true,
 	source: true,
 	dependencies: true,
+	changelog: true,
 });
 
 /**
@@ -417,7 +476,7 @@ $effect(() => {
 <div class="w-full">
 	{#if !loadError}
 		<div class="sticky top-(--header-height) z-10 border-b bg-background px-8 pb-4 pt-10">
-			<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} {hasDeps} {prevComponent} {nextComponent} />
+			<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} {hasDeps} {hasDocs} {hasChangelog} {prevComponent} {nextComponent} />
 		</div>
 	{/if}
 
@@ -441,6 +500,23 @@ $effect(() => {
 		</div>
 	{:else}
 		<div class="space-y-10">
+			<!-- ═══ Documentation ═══ -->
+			{#if hasDocs}
+				<section id="docs" class="scroll-mt-60">
+					<button type="button" onclick={() => toggleSection('docs')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
+						<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.docs ? 'rotate-90' : ''}" />
+						<FileText class="size-5" /> Documentation
+					</button>
+					{#if sectionOpen.docs}
+						<div transition:slide={{ duration: 200 }}>
+							<div class="prose prose-sm dark:prose-invert max-w-none rounded-lg border bg-card p-6">
+								{@html docsContent}
+							</div>
+						</div>
+					{/if}
+				</section>
+			{/if}
+
 			<!-- ═══ Props ═══ -->
 			<section id="props" class="scroll-mt-60">
 				<button type="button" onclick={() => toggleSection('props')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
@@ -584,6 +660,44 @@ $effect(() => {
 					{#if sectionOpen.dependencies}
 						<div transition:slide={{ duration: 200 }}>
 							<LensDependencyTree {deps} {usedBy} currentComponent={name} sizes={componentSizes} knownComponents={componentNames} {rawSources} />
+						</div>
+					{/if}
+				</section>
+			{/if}
+
+			<!-- ═══ Changelog ═══ -->
+			{#if hasChangelog}
+				<section id="changelog" class="scroll-mt-60">
+					<button type="button" onclick={() => toggleSection('changelog')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
+						<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.changelog ? 'rotate-90' : ''}" />
+						<History class="size-5" /> Changelog
+					</button>
+					{#if sectionOpen.changelog}
+						<div transition:slide={{ duration: 200 }}>
+							<div class="rounded-lg border bg-card">
+								<table class="w-full table-fixed text-sm">
+									<thead>
+										<tr class="border-b text-left text-xs text-muted-foreground">
+											<th class="w-20 px-4 py-2">Hash</th>
+											<th class="px-4 py-2">Message</th>
+											<th class="w-28 px-4 py-2">Date</th>
+											<th class="w-32 px-4 py-2">Author</th>
+										</tr>
+									</thead>
+									<tbody>
+										{#each changelog as entry (entry.hash)}
+											<tr class="border-b last:border-b-0 transition-colors hover:bg-muted/50">
+												<td class="px-4 py-2">
+													<code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{entry.hash}</code>
+												</td>
+												<td class="truncate px-4 py-2 text-sm">{entry.message}</td>
+												<td class="px-4 py-2 text-xs text-muted-foreground">{new Date(entry.date).toLocaleDateString()}</td>
+												<td class="truncate px-4 py-2 text-xs text-muted-foreground">{entry.author}</td>
+											</tr>
+										{/each}
+									</tbody>
+								</table>
+							</div>
 						</div>
 					{/if}
 				</section>
