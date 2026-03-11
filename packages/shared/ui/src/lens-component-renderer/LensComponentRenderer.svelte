@@ -115,6 +115,10 @@ import CopyCheck from '@lucide/svelte/icons/copy-check';
 import Ruler from '@lucide/svelte/icons/ruler';
 import ScanLine from '@lucide/svelte/icons/scan-line';
 import MousePointerClick from '@lucide/svelte/icons/mouse-pointer-click';
+import Camera from '@lucide/svelte/icons/camera';
+import Chrome from '@lucide/svelte/icons/chrome';
+import ImageIcon from '@lucide/svelte/icons/image';
+import X from '@lucide/svelte/icons/x';
 import Terminal from '@lucide/svelte/icons/terminal';
 import Trash2 from '@lucide/svelte/icons/trash-2';
 import * as DropdownMenu from '../dropdown-menu/index.js';
@@ -263,6 +267,59 @@ let fullscreenTrigger: HTMLElement | null = $state(null);
 
 /** Per-card performance statistics collected by LensStats wrapper. */
 let cardStats: Record<Str, LensStatsData> = $state({});
+
+/* ---- Real Browser Screenshot State ---- */
+
+/** Individual screenshot capture result. */
+type ScreenshotCapture = {
+	/** Browser engine used. @values chromium, firefox, webkit */
+	browser: Str;
+	/** Playwright device name (empty = custom viewport). @values iPhone 15 Pro Max, Pixel 9, custom */
+	device: Str;
+	/** Object URL for the captured PNG image. @values blob:http://localhost:5173/... */
+	imageUrl: Str;
+	/** Capture timestamp (ms since epoch). @values 1710000000000 */
+	timestamp: Num;
+};
+
+/** Per-card selected browser engine for real browser screenshots. */
+let cardScreenBrowser: Record<Str, Str> = $state({});
+
+/** Per-card selected Playwright device name. */
+let cardScreenDevice: Record<Str, Str> = $state({});
+
+/** Per-card captured screenshot results. */
+let cardScreenshots: Record<Str, ScreenshotCapture[]> = $state({});
+
+/** Per-card screenshot capture loading state. */
+let cardScreenCapturing: Record<Str, Bool> = $state({});
+
+/** Search query for the Real Browser device list. */
+let browserSearchQuery: Str = $state('');
+
+/** Playwright device info from /api/lens/screenshot/devices. */
+type PlaywrightDevice = {
+	/** Playwright device name (exact key). @values iPhone 15 Pro Max, Pixel 9, iPad Pro 13 */
+	name: Str;
+	/** Viewport width in CSS pixels. @values 375, 768, 1280 */
+	width: Num;
+	/** Viewport height in CSS pixels. @values 812, 1024, 800 */
+	height: Num;
+	/** Device pixel ratio. @values 1, 2, 3 */
+	scale: Num;
+	/** Whether the device emulates mobile. */
+	mobile: Bool;
+	/** Whether the device supports touch. */
+	touch: Bool;
+	/** Recommended browser engine. @values chromium, firefox, webkit */
+	defaultBrowser: Str;
+};
+
+/** Cached Playwright device list. */
+let playwrightDevices: PlaywrightDevice[] = $state([]);
+
+/** Whether the device list has been loaded. */
+let devicesLoaded: Bool = $state(false);
 
 /**
  * Callback for LensStats to report collected statistics.
@@ -2578,6 +2635,152 @@ function resetCard(key: Str): Void {
 	cardMeasureData[key] = null;
 	cardConsoleOpen[key] = false;
 	cardConsoleLogs[key] = [];
+	cardScreenBrowser[key] = '';
+	cardScreenDevice[key] = '';
+	cardScreenshots[key] = [];
+	cardScreenCapturing[key] = false;
+}
+
+/* ---- Real Browser Screenshot Functions ---- */
+
+/**
+ * Fetch the Playwright device list from the screenshot API.
+ * Cached after first call.
+ */
+async function fetchPlaywrightDevices(): Promise<void> {
+	if (devicesLoaded) return;
+	try {
+		const res: Response = await fetch('/api/lens/screenshot/devices');
+		if (res.ok) {
+			const data: unknown = await res.json();
+			if (Array.isArray(data)) {
+				// API returns DeviceInfo[] — cast from parsed JSON
+				playwrightDevices = data as PlaywrightDevice[];
+			}
+		}
+	} catch {
+		/* Device list fetch failed — UI will show empty list */
+	}
+	devicesLoaded = true;
+}
+
+/**
+ * Infer a device category from its Playwright name.
+ *
+ * @param name - Playwright device name
+ * @returns Category label for grouping
+ */
+function inferDeviceCategory(name: Str): Str {
+	if (name.includes('iPhone')) return 'Phones' as Str;
+	if (name.includes('iPad')) return 'Tablets' as Str;
+	if (name.includes('Pixel') || name.includes('Galaxy') || name.includes('Moto'))
+		return 'Phones' as Str;
+	if (name.includes('Galaxy Tab')) return 'Tablets' as Str;
+	if (name.includes('Kindle') || name.includes('Nook')) return 'E-Readers' as Str;
+	if (name.includes('Blackberry') || name.includes('Nokia') || name.includes('LG'))
+		return 'Phones' as Str;
+	if (name.includes('Desktop')) return 'Desktop' as Str;
+	return 'Other' as Str;
+}
+
+/** Filtered Playwright devices based on search query. */
+const filteredPlaywrightDevices: PlaywrightDevice[] = $derived.by((): PlaywrightDevice[] => {
+	if (!browserSearchQuery) return playwrightDevices;
+	const q: Str = browserSearchQuery.toLowerCase() as Str;
+	return playwrightDevices.filter(
+		(d: PlaywrightDevice): boolean => d.name.toLowerCase().includes(q),
+	);
+});
+
+/** Unique categories from filtered devices. */
+const filteredDeviceCategories: Str[] = $derived.by((): Str[] => {
+	const cats: Set<Str> = new Set();
+	for (const d of filteredPlaywrightDevices) {
+		cats.add(inferDeviceCategory(d.name));
+	}
+	return [...cats] as Str[];
+});
+
+/**
+ * Capture a real browser screenshot for a card.
+ *
+ * @param key - Card key
+ * @param variantKey - Variant prop name (for isolation URL)
+ * @param option - Variant option value
+ */
+async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promise<void> {
+	if (!componentName) return;
+	cardScreenCapturing[key] = true;
+
+	const browser: Str = cardScreenBrowser[key] || ('chromium' as Str);
+	const device: Str = cardScreenDevice[key] || ('' as Str);
+
+	/* Build the screenshot API URL */
+	const params: URLSearchParams = new URLSearchParams();
+	params.set('component', componentName);
+	params.set('browser', browser);
+	if (device) params.set('device', device);
+
+	/* Pass current card styles */
+	const styles: Record<Str, Str> = collectCardStyles(key);
+	if (Object.keys(styles).length > 0) {
+		params.set('s', btoa(JSON.stringify(styles)));
+	}
+	if (variantKey) params.set('variant', variantKey);
+	if (option) params.set('option', option);
+
+	/* Media emulation from card settings */
+	const mode: Str = cardModes[key] ?? 'auto';
+	if (mode === 'dark' || mode === 'light') {
+		params.set('colorScheme', mode);
+	}
+
+	try {
+		const res: Response = await fetch(`/api/lens/screenshot?${params.toString()}`);
+		if (!res.ok) {
+			const errBody: unknown = await res.json().catch(() => ({}));
+			const errMsg: Str = (
+				typeof errBody === 'object' && errBody !== null && 'error' in errBody
+					? String((errBody as Record<Str, unknown>).error)
+					: 'Screenshot failed'
+			) as Str;
+			log.warn(`Screenshot capture failed: ${errMsg}`);
+			return;
+		}
+
+		const blob: Blob = await res.blob();
+		const imageUrl: Str = URL.createObjectURL(blob) as Str;
+
+		const capture: ScreenshotCapture = {
+			browser,
+			device: device || ('custom' as Str),
+			imageUrl,
+			timestamp: Date.now() as Num,
+		};
+
+		const existing: ScreenshotCapture[] = cardScreenshots[key] ?? [];
+		cardScreenshots[key] = [...existing, capture];
+	} catch (error: unknown) {
+		const msg: Str = (
+			error instanceof Error ? error.message : 'Screenshot request failed'
+		) as Str;
+		log.warn(`Screenshot capture error: ${msg}`);
+	} finally {
+		cardScreenCapturing[key] = false;
+	}
+}
+
+/**
+ * Remove a screenshot capture and revoke its object URL.
+ *
+ * @param key - Card key
+ * @param index - Index in the captures array
+ */
+function removeScreenshot(key: Str, index: Num): Void {
+	const captures: ScreenshotCapture[] = cardScreenshots[key] ?? [];
+	const removed: ScreenshotCapture | undefined = captures[index];
+	if (removed) URL.revokeObjectURL(removed.imageUrl);
+	cardScreenshots[key] = captures.filter((_: ScreenshotCapture, i: Num): boolean => i !== index);
 }
 
 /**
@@ -4985,6 +5188,115 @@ function isIconOption(option: Str): boolean {
 								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
+						<!-- Real Browser submenu -->
+						{#if componentName}
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) {
+									browserSearchQuery = '';
+									fetchPlaywrightDevices();
+								}
+							}}
+						>
+							<DropdownMenu.SubTrigger>
+								<Camera class="size-4" />
+								Real Browser
+							</DropdownMenu.SubTrigger>
+							<DropdownMenu.SubContent class="flex max-h-96 w-64 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search devices..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={browserSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
+								</div>
+								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									<!-- Browser engine selector -->
+									<DropdownMenu.Label class="text-xs">Engine</DropdownMenu.Label>
+									{#each [
+										{ id: 'chromium' as Str, label: 'Chromium' as Str },
+										{ id: 'firefox' as Str, label: 'Firefox' as Str },
+										{ id: 'webkit' as Str, label: 'WebKit (Safari)' as Str },
+									] as eng (eng.id)}
+										<DropdownMenu.Item
+											onSelect={(e) => {
+												e.preventDefault();
+												cardScreenBrowser[cardKey] = eng.id;
+											}}
+										>
+											<Check class={cn('size-4', (cardScreenBrowser[cardKey] || 'chromium') !== eng.id && 'opacity-0')} />
+											{eng.label}
+										</DropdownMenu.Item>
+									{/each}
+									<DropdownMenu.Separator />
+									<!-- Device selector -->
+									<DropdownMenu.Label class="text-xs">Device</DropdownMenu.Label>
+									{#if !devicesLoaded}
+										<div class="flex items-center justify-center py-4">
+											<LoaderCircle class="size-4 animate-spin text-muted-foreground" />
+										</div>
+									{:else if filteredPlaywrightDevices.length === 0}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No devices found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
+										</div>
+									{:else}
+										<DropdownMenu.Item
+											onSelect={(e) => {
+												e.preventDefault();
+												cardScreenDevice[cardKey] = '';
+											}}
+										>
+											<Check class={cn('size-4', (cardScreenDevice[cardKey] || '') !== '' && 'opacity-0')} />
+											<span class="text-muted-foreground">Default viewport</span>
+										</DropdownMenu.Item>
+										{#each filteredDeviceCategories as category (category)}
+											<DropdownMenu.Separator />
+											<DropdownMenu.Label class="text-[10px]">{category}</DropdownMenu.Label>
+											{#each filteredPlaywrightDevices.filter((d) => inferDeviceCategory(d.name) === category) as device (device.name)}
+												<DropdownMenu.Item
+													onSelect={(e) => {
+														e.preventDefault();
+														cardScreenDevice[cardKey] = device.name;
+													}}
+												>
+													<Check class={cn('size-4', (cardScreenDevice[cardKey] || '') !== device.name && 'opacity-0')} />
+													<span class="flex-1 truncate">{device.name}</span>
+													<span class="ml-auto text-[10px] text-muted-foreground">{device.width}×{device.height}</span>
+												</DropdownMenu.Item>
+											{/each}
+										{/each}
+									{/if}
+									<DropdownMenu.Separator />
+									<!-- Capture button -->
+									<div class="sticky bottom-0 border-t bg-popover px-2 py-1.5">
+										<button
+											type="button"
+											class="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+											disabled={cardScreenCapturing[cardKey]}
+											onclick={() => captureScreenshot(cardKey, variantKey, variantOption)}
+										>
+											{#if cardScreenCapturing[cardKey]}
+												<LoaderCircle class="size-3.5 animate-spin" />
+												Capturing...
+											{:else}
+												<Camera class="size-3.5" />
+												Capture Screenshot
+											{/if}
+										</button>
+									</div>
+								</div>
+							</DropdownMenu.SubContent>
+						</DropdownMenu.Sub>
+						{/if}
 						<DropdownMenu.Separator />
 						<DropdownMenu.Sub
 							onOpenChange={(open) => {
@@ -5409,6 +5721,57 @@ function isIconOption(option: Str): boolean {
 							</div>
 						{/each}
 					{/if}
+				</div>
+			</div>
+		{/if}
+		{#if (cardScreenshots[cardKey] ?? []).length > 0}
+			<div class="overflow-hidden border-t bg-muted/20" transition:slide={{ duration: 200 }}>
+				<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
+					<div class="flex items-center gap-2">
+						<Camera class="size-3 text-muted-foreground" aria-hidden="true" />
+						<span class="text-[10px] font-semibold text-muted-foreground">Screenshots</span>
+						<span class="text-[10px] text-muted-foreground/60">{(cardScreenshots[cardKey] ?? []).length} captures</span>
+					</div>
+					<button
+						type="button"
+						class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+						onclick={() => {
+							const captures: ScreenshotCapture[] = cardScreenshots[cardKey] ?? [];
+							for (const c of captures) URL.revokeObjectURL(c.imageUrl);
+							cardScreenshots[cardKey] = [];
+						}}
+					>
+						<Trash2 class="size-3" aria-hidden="true" />
+						Clear
+					</button>
+				</div>
+				<div class="flex flex-wrap gap-3 p-3">
+					{#each (cardScreenshots[cardKey] ?? []) as capture, idx (capture.timestamp)}
+						<div class="group relative overflow-hidden rounded-md border bg-background shadow-sm">
+							<div class="flex items-center gap-1.5 border-b bg-muted/30 px-2 py-1">
+								<Chrome class="size-3 text-muted-foreground" aria-hidden="true" />
+								<span class="text-[10px] font-medium text-muted-foreground">{capture.browser}</span>
+								{#if capture.device !== 'custom'}
+									<span class="text-[10px] text-muted-foreground/60">· {capture.device}</span>
+								{/if}
+								<button
+									type="button"
+									class="ml-auto rounded p-0.5 text-muted-foreground/50 opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+									onclick={() => removeScreenshot(cardKey, idx as Num)}
+									aria-label="Remove screenshot"
+								>
+									<X class="size-3" />
+								</button>
+							</div>
+							<a href={capture.imageUrl} target="_blank" rel="noopener" class="block">
+								<img
+									src={capture.imageUrl}
+									alt="{cardKey} screenshot — {capture.browser} {capture.device}"
+									class="max-h-64 max-w-xs object-contain"
+								/>
+							</a>
+						</div>
+					{/each}
 				</div>
 			</div>
 		{/if}

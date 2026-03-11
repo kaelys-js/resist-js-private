@@ -187,6 +187,9 @@ importers:
       paneforge:
         specifier: ^1.0.2
         version: 1.0.2(svelte@5.53.5)
+      playwright:
+        specifier: ^1.58.2
+        version: 1.58.2
       svelte-check:
         specifier: ^4.4.3
         version: 4.4.3(picomatch@4.0.3)(svelte@5.53.5)(typescript@5.9.3)
