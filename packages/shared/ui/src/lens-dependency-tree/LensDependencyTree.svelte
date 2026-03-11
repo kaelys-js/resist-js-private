@@ -87,6 +87,7 @@ import { safeParse } from '@/utils/result/safe';
 import { stripSvelteProps, toTitle, extractDir, findPrimaryKey } from '../lens/lens-utils.js';
 import { formatBytes } from '../lens/extract-sizes.js';
 import { extractDeps, type DepEntry, type DepTree } from '../lens/extract-deps.js';
+import { slide } from 'svelte/transition';
 import { cn } from '../utils.js';
 import Badge from '../badge/badge.svelte';
 import * as Tooltip from '../tooltip/index.js';
@@ -102,6 +103,13 @@ import GitBranch from '@lucide/svelte/icons/git-branch';
 import ZoomIn from '@lucide/svelte/icons/zoom-in';
 import ZoomOut from '@lucide/svelte/icons/zoom-out';
 import Maximize from '@lucide/svelte/icons/maximize';
+import Download from '@lucide/svelte/icons/download';
+import * as DropdownMenu from '../dropdown-menu/index.js';
+import {
+	exportPng, exportJpeg, exportSvg, exportWebp,
+	copyImageToClipboard, copyChainJson, copyChainMermaid, copyChainDot,
+	type ChainExportNode,
+} from '../lens/export-utils.js';
 
 const allProps: LensDependencyTreeProps = $props();
 const validated: LensDependencyTreeProps = $derived.by(() => {
@@ -262,10 +270,12 @@ const totalInternalGzip: Num = $derived(
 
 /** A node in the recursive dependency chain tree. */
 type ChainNode = {
-	/** Component directory name. @values button, dialog, tooltip, badge, sidebar */
+	/** Component directory name or import path. @values button, dialog, ../utils.js, @/schemas/common, valibot */
 	component: Str;
 	/** Import kind. @values type, namespace, named, default */
 	kind: Str;
+	/** Node category for color-coding. @values component, utility, workspace, external */
+	category: Str;
 	/** Child dependencies (transitive). */
 	children: ChainNode[];
 };
@@ -293,6 +303,7 @@ function buildChain(component: Str, depth: Num, visited: Set<Str>): ChainNode[] 
 	const deps: DepTree = extractDeps(source);
 	const nodes: ChainNode[] = [];
 
+	// UI component deps — recursive
 	for (const dep of deps.internal) {
 		if (!dep.component || !knownSet.has(dep.component)) continue;
 		const isCircular: boolean = visited.has(dep.component);
@@ -300,8 +311,25 @@ function buildChain(component: Str, depth: Num, visited: Set<Str>): ChainNode[] 
 		nodes.push({
 			component: dep.component,
 			kind: dep.kind,
+			category: 'component',
 			children: isCircular ? [] : buildChain(dep.component, (depth + 1) as Num, childVisited),
 		});
+	}
+
+	// Internal utility deps — leaf nodes
+	for (const dep of deps.internal) {
+		if (dep.component !== '' && knownSet.has(dep.component)) continue;
+		nodes.push({ component: dep.path, kind: dep.kind, category: 'utility', children: [] });
+	}
+
+	// Workspace deps — leaf nodes
+	for (const dep of deps.workspace) {
+		nodes.push({ component: dep.path, kind: dep.kind, category: 'workspace', children: [] });
+	}
+
+	// External deps — leaf nodes
+	for (const dep of deps.external) {
+		nodes.push({ component: dep.path, kind: dep.kind, category: 'external', children: [] });
 	}
 
 	return nodes;
@@ -320,7 +348,7 @@ const dependencyChain: ChainNode[] = $derived.by((): ChainNode[] => {
 /* ------------------------------------------------------------------ */
 
 /** Node width and height for layout calculation. */
-const NODE_W: Num = 220 as Num;
+const NODE_W: Num = 300 as Num;
 const NODE_H: Num = 64 as Num;
 const GAP_X: Num = 32 as Num;
 const GAP_Y: Num = 48 as Num;
@@ -329,10 +357,12 @@ const GAP_Y: Num = 48 as Num;
 type LayoutNode = {
 	/** Unique node ID. @values root, badge-0, tooltip-1, button-2 */
 	id: Str;
-	/** Component directory name. @values button, dialog, tooltip, badge, sidebar */
+	/** Component directory name or import path. @values button, dialog, ../utils.js, valibot */
 	component: Str;
 	/** Import kind. @values type, namespace, named, default */
 	kind: Str;
+	/** Node category. @values component, utility, workspace, external */
+	category: Str;
 	/** X position (px). @values 0, 80, 160, 240 */
 	x: Num;
 	/** Y position (px). @values 0, 96, 192, 288 */
@@ -392,7 +422,7 @@ function layoutGraph(rootComponent: Str, children: ChainNode[]): { nodes: Layout
 	// Root node centered at top
 	const rootX: Num = (fullWidth / 2 - NODE_W / 2) as Num;
 	const rootId: Str = 'root';
-	nodes.push({ id: rootId, component: rootComponent, kind: '', x: rootX, y: 0 as Num, parentId: '' });
+	nodes.push({ id: rootId, component: rootComponent, kind: '', category: 'component', x: rootX, y: 0 as Num, parentId: '' });
 
 	/**
 	 * Recursively place children.
@@ -412,7 +442,7 @@ function layoutGraph(rootComponent: Str, children: ChainNode[]): { nodes: Layout
 			const y: Num = (depth * (NODE_H + GAP_Y)) as Num;
 			const nodeId: Str = `${item.component}-${String(idCounter)}` as Str;
 			idCounter = (idCounter + 1) as Num;
-			nodes.push({ id: nodeId, component: item.component, kind: item.kind, x, y, parentId });
+			nodes.push({ id: nodeId, component: item.component, kind: item.kind, category: item.category, x, y, parentId });
 
 			// Find parent position for connector
 			const parent: LayoutNode | undefined = nodes.find((n: LayoutNode): boolean => n.id === parentId);
@@ -490,6 +520,56 @@ function chainZoomOut(): void {
 function chainZoomFit(): void {
 	chainZoom = 1 as Num;
 }
+
+/** DOM reference to the chain graph container for image export. */
+let chainGraphRef: HTMLDivElement | undefined = $state(undefined);
+
+/**
+ * Convert the graph layout nodes into flat ChainExportNode[] for data export.
+ *
+ * @returns Array of chain export nodes
+ */
+function buildExportNodes(): ChainExportNode[] {
+	if (!graphLayout) return [];
+	return graphLayout.nodes.map((node: LayoutNode): ChainExportNode => ({
+		id: node.id,
+		label: node.category === 'component' ? toTitle(node.component) : node.component,
+		kind: node.kind || 'default',
+		category: node.category,
+		parentId: node.parentId,
+	}));
+}
+
+/**
+ * Handle export action for the dependency chain graph.
+ *
+ * @param formatId - Export format identifier
+ */
+async function handleChainExport(formatId: Str): Promise<void> {
+	const name: Str = validated.currentComponent ?? 'component';
+	const filename: Str = `${name}-dependency-chain` as Str;
+
+	if (formatId === 'copy-json') {
+		await copyChainJson(buildExportNodes(), name);
+		return;
+	}
+	if (formatId === 'copy-mermaid') {
+		await copyChainMermaid(buildExportNodes());
+		return;
+	}
+	if (formatId === 'copy-dot') {
+		await copyChainDot(buildExportNodes(), name);
+		return;
+	}
+
+	const el: HTMLDivElement | undefined = chainGraphRef;
+	if (!el) return;
+	if (formatId === 'png') await exportPng(el, filename);
+	else if (formatId === 'jpeg') await exportJpeg(el, filename);
+	else if (formatId === 'svg') await exportSvg(el, filename);
+	else if (formatId === 'webp') await exportWebp(el, filename);
+	else if (formatId === 'copy-image') await copyImageToClipboard(el);
+}
 </script>
 
 <!-- Summary bar -->
@@ -534,7 +614,7 @@ function chainZoomFit(): void {
 				<Badge variant="secondary" class="ml-auto text-xs">{usedByCount}</Badge>
 			</button>
 			{#if expanded.usedBy}
-				<div class="border-t px-3 py-2">
+				<div class="border-t px-3 py-2" transition:slide={{ duration: 200 }}>
 					<ul class="space-y-1">
 						{#each validated.usedBy ?? [] as rev, ri (ri)}
 							{@const revPath = `@/ui/${rev.component}/index.js`}
@@ -597,6 +677,7 @@ function chainZoomFit(): void {
 				<Badge variant="secondary" class="ml-auto text-xs">{dependencyChain.length}</Badge>
 			</button>
 			{#if expanded.chain}
+				<div transition:slide={{ duration: 200 }}>
 				<!-- Zoom toolbar -->
 				<div class="flex items-center gap-1 border-t px-3 py-1.5">
 					<button
@@ -627,12 +708,44 @@ function chainZoomFit(): void {
 					>
 						<Maximize class="size-3.5" />
 					</button>
+					<div class="ml-auto">
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger>
+								{#snippet child({ props })}
+									<button
+										{...props}
+										type="button"
+										class="inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+										aria-label="Export"
+									>
+										<Download class="size-3.5" />
+									</button>
+								{/snippet}
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content align="end" class="w-44">
+								<DropdownMenu.Label class="text-xs">Image</DropdownMenu.Label>
+								<DropdownMenu.Item onclick={() => handleChainExport('png')}>PNG</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('jpeg')}>JPEG</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('svg')}>SVG</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('webp')}>WebP</DropdownMenu.Item>
+								<DropdownMenu.Separator />
+								<DropdownMenu.Label class="text-xs">Clipboard</DropdownMenu.Label>
+								<DropdownMenu.Item onclick={() => handleChainExport('copy-image')}>Copy as Image</DropdownMenu.Item>
+								<DropdownMenu.Separator />
+								<DropdownMenu.Label class="text-xs">Data</DropdownMenu.Label>
+								<DropdownMenu.Item onclick={() => handleChainExport('copy-json')}>Copy as JSON</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('copy-mermaid')}>Copy as Mermaid</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => handleChainExport('copy-dot')}>Copy as DOT</DropdownMenu.Item>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
+					</div>
 				</div>
 				<!-- Graph canvas -->
 				<div class="overflow-auto border-t bg-muted/20 p-4" style="max-height: 500px;">
 					<div
 						class="relative origin-top-left transition-transform"
 						style="width: {graphLayout.width}px; height: {graphLayout.height}px; min-width: 200px; zoom: {chainZoom};"
+						bind:this={chainGraphRef}
 					>
 						<!-- SVG connector lines -->
 						<svg class="pointer-events-none absolute inset-0" width={graphLayout.width} height={graphLayout.height}>
@@ -651,14 +764,19 @@ function chainZoomFit(): void {
 						<!-- Node cards -->
 						{#each graphLayout.nodes as node, gi (gi)}
 							{@const isRoot = node.parentId === ''}
-							{@const sc = sourceChip(node.component)}
-							{@const bc = bundledChip(node.component)}
+							{@const isComponent = node.category === 'component'}
+							{@const sc = isComponent ? sourceChip(node.component) : ''}
+							{@const bc = isComponent ? bundledChip(node.component) : ''}
+							{@const catColor = node.category === 'utility' ? 'border-slate-500/40 bg-slate-500/5' : node.category === 'workspace' ? 'border-amber-500/40 bg-amber-500/5' : node.category === 'external' ? 'border-emerald-500/40 bg-emerald-500/5' : ''}
+							{@const dotColor = node.category === 'utility' ? 'bg-slate-500/40' : node.category === 'workspace' ? 'bg-amber-500/40' : node.category === 'external' ? 'bg-emerald-500/40' : 'bg-primary/40'}
 							<div
 								class={cn(
 									'absolute flex flex-col justify-center gap-1 rounded-md border px-3 py-1.5 text-xs shadow-sm transition-colors',
 									isRoot
 										? 'border-rose-500/40 bg-rose-500/5'
-										: 'border-border bg-card hover:border-primary/30 hover:bg-muted/30',
+										: !isComponent
+											? catColor
+											: 'border-border bg-card hover:border-primary/30 hover:bg-muted/30',
 								)}
 								style="left: {node.x}px; top: {node.y}px; width: {NODE_W}px; height: {NODE_H}px;"
 							>
@@ -667,14 +785,18 @@ function chainZoomFit(): void {
 									{#if isRoot}
 										<span class="size-2 shrink-0 rounded-full bg-rose-500"></span>
 									{:else}
-										<span class="size-1.5 shrink-0 rounded-full bg-primary/40"></span>
+										<span class="size-1.5 shrink-0 rounded-full {dotColor}"></span>
 									{/if}
-									<a
-										href="/components/{node.component}"
-										class={cn('truncate font-medium text-primary underline-offset-2 hover:underline', isRoot && 'font-semibold')}
-									>
-										{toTitle(node.component)}
-									</a>
+									{#if isComponent}
+										<a
+											href="/components/{node.component}"
+											class={cn('truncate font-medium text-primary underline-offset-2 hover:underline', isRoot && 'font-semibold')}
+										>
+											{toTitle(node.component)}
+										</a>
+									{:else}
+										<code class="truncate text-[10px] text-foreground" title={node.component}>{node.component}</code>
+									{/if}
 									{#if !isRoot && kindLabel(node.kind)}
 										<span class={cn('ml-auto shrink-0 rounded px-1 py-0.5 text-[9px] font-medium leading-none', kindClass(node.kind))}>
 											{kindLabel(node.kind)}
@@ -696,6 +818,7 @@ function chainZoomFit(): void {
 						{/each}
 					</div>
 				</div>
+			</div>
 			{/if}
 		</div>
 	{/if}
@@ -714,7 +837,7 @@ function chainZoomFit(): void {
 				<Badge variant="secondary" class="ml-auto text-xs">{uiComponentDeps.length}</Badge>
 			</button>
 			{#if expanded.internal}
-				<div class="border-t px-3 py-2">
+				<div class="border-t px-3 py-2" transition:slide={{ duration: 200 }}>
 					<ul class="space-y-1">
 						{#each uiComponentDeps as dep, di (di)}
 							<li class="group/dep flex items-center gap-2 text-sm">
@@ -786,7 +909,7 @@ function chainZoomFit(): void {
 				<Badge variant="secondary" class="ml-auto text-xs">{utilityDeps.length}</Badge>
 			</button>
 			{#if expanded.utilities}
-				<div class="border-t px-3 py-2">
+				<div class="border-t px-3 py-2" transition:slide={{ duration: 200 }}>
 					<ul class="space-y-1">
 						{#each utilityDeps as dep, ui (ui)}
 							<li class="group/dep flex items-center gap-2 text-sm">
@@ -843,7 +966,7 @@ function chainZoomFit(): void {
 				<Badge variant="secondary" class="ml-auto text-xs">{validated.deps.workspace.length}</Badge>
 			</button>
 			{#if expanded.workspace}
-				<div class="border-t px-3 py-2">
+				<div class="border-t px-3 py-2" transition:slide={{ duration: 200 }}>
 					<ul class="space-y-1">
 						{#each validated.deps.workspace as dep, wi (wi)}
 							{@const wsComp = workspaceComponent(dep.path)}
@@ -910,7 +1033,7 @@ function chainZoomFit(): void {
 				<Badge variant="secondary" class="ml-auto text-xs">{validated.deps.external.length}</Badge>
 			</button>
 			{#if expanded.external}
-				<div class="border-t px-3 py-2">
+				<div class="border-t px-3 py-2" transition:slide={{ duration: 200 }}>
 					<ul class="space-y-1">
 						{#each validated.deps.external as dep, ei (ei)}
 							<li class="group/dep flex items-center gap-2 text-sm">

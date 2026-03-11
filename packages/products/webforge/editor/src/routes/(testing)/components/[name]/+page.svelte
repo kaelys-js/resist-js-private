@@ -5,8 +5,9 @@
  * Extracts props, TV variants, and examples from raw component source
  * at runtime — no hand-written Demo.svelte files needed.
  */
-import type { Bool, Num, Str } from '@/schemas/common';
-import type { Component } from 'svelte';
+import type { Bool, Num, Str, Void } from '@/schemas/common';
+import { tick, type Component } from 'svelte';
+import { slide } from 'svelte/transition';
 import type { PropMeta, VariantMeta, VariantKeyMeta, LensExample, LensMeta } from '@/ui/lens/types.js';
 import { extractProps, extractDescription, extractPropsVariants } from '@/ui/lens/extract-props.js';
 import { extractVariants } from '@/ui/lens/extract-variants.js';
@@ -19,7 +20,6 @@ import LensEmpty from '@/ui/lens-empty/LensEmpty.svelte';
 import LensError from '@/ui/lens-error/LensError.svelte';
 import LensHeader from '@/ui/lens-header/LensHeader.svelte';
 import LensSection from '@/ui/lens-section/LensSection.svelte';
-import LensSource from '@/ui/lens-source/LensSource.svelte';
 import LensDependencyTree from '@/ui/lens-dependency-tree/LensDependencyTree.svelte';
 import PropsTable from '@/ui/lens-props-table/PropsTable.svelte';
 import LensComponentRenderer from '@/ui/lens-component-renderer/LensComponentRenderer.svelte';
@@ -30,6 +30,8 @@ import ShieldAlert from '@lucide/svelte/icons/shield-alert';
 import Layers from '@lucide/svelte/icons/layers';
 import BookOpen from '@lucide/svelte/icons/book-open';
 import GitFork from '@lucide/svelte/icons/git-fork';
+import FileCode from '@lucide/svelte/icons/file-code';
+import ChevronRight from '@lucide/svelte/icons/chevron-right';
 import SearchX from '@lucide/svelte/icons/search-x';
 import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 
@@ -351,6 +353,64 @@ function toTag(componentName: Str): Str {
 	return toTitle(componentName).replaceAll(' ', '');
 }
 
+/* ------------------------------------------------------------------ */
+/*  Section collapsibility                                            */
+/* ------------------------------------------------------------------ */
+
+/** All page sections are expanded by default. */
+let sectionOpen: Record<Str, Bool> = $state({
+	props: true,
+	default: true,
+	'error-boundary': true,
+	variants: true,
+	examples: true,
+	source: true,
+	dependencies: true,
+});
+
+/**
+ * Toggle a section open/closed.
+ *
+ * @param id - Section identifier key
+ */
+function toggleSection(id: Str): Void {
+	sectionOpen[id] = !sectionOpen[id];
+}
+
+/**
+ * Listen for `lens:scroll-to` events from LensHeader.
+ * Opens the target section if collapsed, waits a tick for DOM update,
+ * then smooth-scrolls to it.
+ */
+$effect(() => {
+	async function handleScrollTo(e: Event): Promise<void> {
+		const id: Str = (e as CustomEvent).detail;
+		// Open the section if collapsed
+		if (sectionOpen[id] === false) {
+			sectionOpen[id] = true;
+		}
+		await tick();
+		document.querySelector(`#${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}
+	function handleExpandAll(): Void {
+		for (const key of Object.keys(sectionOpen)) {
+			sectionOpen[key] = true;
+		}
+	}
+	function handleCollapseAll(): Void {
+		for (const key of Object.keys(sectionOpen)) {
+			sectionOpen[key] = false;
+		}
+	}
+	document.addEventListener('lens:scroll-to', handleScrollTo);
+	document.addEventListener('lens:expand-all', handleExpandAll);
+	document.addEventListener('lens:collapse-all', handleCollapseAll);
+	return (): void => {
+		document.removeEventListener('lens:scroll-to', handleScrollTo);
+		document.removeEventListener('lens:expand-all', handleExpandAll);
+		document.removeEventListener('lens:collapse-all', handleCollapseAll);
+	};
+});
 
 </script>
 
@@ -383,24 +443,43 @@ function toTag(componentName: Str): Str {
 		<div class="space-y-10">
 			<!-- ═══ Props ═══ -->
 			<section id="props" class="scroll-mt-60">
-				<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><TableProperties class="size-5" /> Props</h2>
-				<PropsTable {props} variantKeys={allVariants.map((v) => v.key)} />
+				<button type="button" onclick={() => toggleSection('props')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
+					<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.props ? 'rotate-90' : ''}" />
+					<TableProperties class="size-5" /> Props
+				</button>
+				{#if sectionOpen.props}
+					<div transition:slide={{ duration: 200 }}>
+						<PropsTable {props} variantKeys={allVariants.map((v) => v.key)} />
+					</div>
+				{/if}
 			</section>
 
 			<!-- ═══ Default ═══ -->
 			{#if PrimaryComponent}
 				<section id="default" class="scroll-mt-60">
-					<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><ComponentIcon class="size-5" /> Default</h2>
-					<LensSection title="Default" description="Component rendered with default props.">
-						<LensComponentRenderer component={PrimaryComponent} {props} tagName={toTag(name)} componentName={name} silent={isCompound} contextWrapper={lensContextWrapper ?? undefined} />
-					</LensSection>
+					<button type="button" onclick={() => toggleSection('default')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
+						<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.default ? 'rotate-90' : ''}" />
+						<ComponentIcon class="size-5" /> Default
+					</button>
+					{#if sectionOpen.default}
+						<div transition:slide={{ duration: 200 }}>
+							<LensSection title="Default" description="Component rendered with default props.">
+								<LensComponentRenderer component={PrimaryComponent} {props} tagName={toTag(name)} componentName={name} silent={isCompound} contextWrapper={lensContextWrapper ?? undefined} />
+							</LensSection>
+						</div>
+					{/if}
 				</section>
 			{/if}
 
 			<!-- ═══ Error Boundary ═══ -->
 			{#if PrimaryComponent}
 				<section id="error-boundary" class="scroll-mt-60">
-					<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><ShieldAlert class="size-5" /> Error Boundary</h2>
+					<button type="button" onclick={() => toggleSection('error-boundary')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
+						<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen['error-boundary'] ? 'rotate-90' : ''}" />
+						<ShieldAlert class="size-5" /> Error Boundary
+					</button>
+					{#if sectionOpen['error-boundary']}
+					<div transition:slide={{ duration: 200 }}>
 					<div class="space-y-4">
 						<LensSection title="Missing Required Props" description="Component rendered with no props — triggers safeParse validation and shows the error boundary fallback.">
 							<LensComponentRenderer component={PrimaryComponent} tagName={toTag(name)} componentName={name} label="" silent={true} contextWrapper={lensContextWrapper ?? undefined} codeText={`<!-- Missing required props — validation error -->\n<${toTag(name)} />`} />
@@ -412,64 +491,101 @@ function toTag(componentName: Str): Str {
 							<LensComponentRenderer component={PrimaryComponent} props={props.filter((p) => !p.optional && p.default === '')} tagName={toTag(name)} componentName={name} label="" silent={isCompound} contextWrapper={lensContextWrapper ?? undefined} codeText={`<!-- Only required props (minimum values) -->\n<${toTag(name)} ... />`} />
 						</LensSection>
 					</div>
+					</div>
+					{/if}
 				</section>
 			{/if}
 
 			<!-- ═══ Variants ═══ -->
 			<section id="variants" class="scroll-mt-60">
-				<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><Layers class="size-5" /> Variants</h2>
-				{#if hasVariants && PrimaryComponent}
-					<div class="space-y-4">
-						{#each allVariants as variantKey (variantKey.key)}
-							{@const singleMeta: VariantMeta = { variants: [variantKey] }}
-							<div id="variant-{variantKey.key}" class="scroll-mt-60">
-								<LensSection title={toTitle(variantKey.key)} description="Options for the {variantKey.key} prop." propName={variantKey.key}>
-									<LensComponentRenderer component={PrimaryComponent} meta={singleMeta} {props} tagName={toTag(name)} componentName={name} silent={isCompound} contextWrapper={lensContextWrapper ?? undefined} />
-								</LensSection>
+				<button type="button" onclick={() => toggleSection('variants')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
+					<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.variants ? 'rotate-90' : ''}" />
+					<Layers class="size-5" /> Variants
+				</button>
+				{#if sectionOpen.variants}
+					<div transition:slide={{ duration: 200 }}>
+						{#if hasVariants && PrimaryComponent}
+							<div class="space-y-4">
+								{#each allVariants as variantKey (variantKey.key)}
+									{@const singleMeta: VariantMeta = { variants: [variantKey] }}
+									<div id="variant-{variantKey.key}" class="scroll-mt-60">
+										<LensSection title={toTitle(variantKey.key)} description="Options for the {variantKey.key} prop." propName={variantKey.key}>
+											<LensComponentRenderer component={PrimaryComponent} meta={singleMeta} {props} tagName={toTag(name)} componentName={name} silent={isCompound} contextWrapper={lensContextWrapper ?? undefined} />
+										</LensSection>
+									</div>
+								{/each}
 							</div>
-						{/each}
+						{:else}
+							<LensEmpty title="No variants detected" description="Add a tv() call in the component's <script module> to auto-generate variant cards." />
+						{/if}
 					</div>
-				{:else}
-					<LensEmpty title="No variants detected" description="Add a tv() call in the component's <script module> to auto-generate variant cards." />
 				{/if}
 			</section>
 
 			<!-- ═══ Examples ═══ -->
 			<section id="examples" class="scroll-mt-60">
-				<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><BookOpen class="size-5" /> Examples</h2>
-				{#if hasExamples}
-					<div class="space-y-4">
-						{#each lensExamples as example (example.name)}
-							{@const ExComponent: Component | undefined = exampleComponents.get(example.name)}
-							{@const exSource: Str = exampleSources.get(example.name) ?? ''}
-							{#if ExComponent}
-								<div id="example-{example.name}" class="scroll-mt-60">
-									<LensSection title={example.title} description={example.description}>
-										<LensComponentRenderer component={ExComponent} componentName={name} codeText={exSource}>
-											{#snippet children()}
-												<ExComponent />
-											{/snippet}
-										</LensComponentRenderer>
-									</LensSection>
-								</div>
-							{/if}
-						{/each}
+				<button type="button" onclick={() => toggleSection('examples')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
+					<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.examples ? 'rotate-90' : ''}" />
+					<BookOpen class="size-5" /> Examples
+				</button>
+				{#if sectionOpen.examples}
+					<div transition:slide={{ duration: 200 }}>
+						{#if hasExamples}
+							<div class="space-y-4">
+								{#each lensExamples as example (example.name)}
+									{@const ExComponent: Component | undefined = exampleComponents.get(example.name)}
+									{@const exSource: Str = exampleSources.get(example.name) ?? ''}
+									{#if ExComponent}
+										<div id="example-{example.name}" class="scroll-mt-60">
+											<LensSection title={example.title} description={example.description}>
+												<LensComponentRenderer component={ExComponent} componentName={name} codeText={exSource}>
+													{#snippet children()}
+														<ExComponent />
+													{/snippet}
+												</LensComponentRenderer>
+											</LensSection>
+										</div>
+									{/if}
+								{/each}
+							</div>
+						{:else}
+							<LensEmpty title="No examples" description="Create a lens.ts and examples/ directory in this component's folder to add live examples." />
+						{/if}
 					</div>
-				{:else}
-					<LensEmpty title="No examples" description="Create a lens.ts and examples/ directory in this component's folder to add live examples." />
 				{/if}
 			</section>
 
 			<!-- ═══ Source ═══ -->
 			{#if rawSource}
-				<LensSource {name} source={rawSource} />
+				<section id="source" class="scroll-mt-60">
+					<button type="button" onclick={() => toggleSection('source')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
+						<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.source ? 'rotate-90' : ''}" />
+						<FileCode class="size-5" /> Source
+					</button>
+					{#if sectionOpen.source}
+						<div transition:slide={{ duration: 200 }}>
+							<LensSection title={toTitle(name)} description="Component source code." codeText={rawSource}>
+								{#snippet code()}
+									<CodeBlock code={rawSource} lang="svelte" />
+								{/snippet}
+							</LensSection>
+						</div>
+					{/if}
+				</section>
 			{/if}
 
 			<!-- ═══ Dependencies ═══ -->
 			{#if hasDeps}
 				<section id="dependencies" class="scroll-mt-60">
-					<h2 class="mb-3 flex items-center gap-2 text-lg font-semibold"><GitFork class="size-5" /> Dependencies</h2>
-					<LensDependencyTree {deps} {usedBy} currentComponent={name} sizes={componentSizes} knownComponents={componentNames} {rawSources} />
+					<button type="button" onclick={() => toggleSection('dependencies')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
+						<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.dependencies ? 'rotate-90' : ''}" />
+						<GitFork class="size-5" /> Dependencies
+					</button>
+					{#if sectionOpen.dependencies}
+						<div transition:slide={{ duration: 200 }}>
+							<LensDependencyTree {deps} {usedBy} currentComponent={name} sizes={componentSizes} knownComponents={componentNames} {rawSources} />
+						</div>
+					{/if}
 				</section>
 			{/if}
 		</div>
