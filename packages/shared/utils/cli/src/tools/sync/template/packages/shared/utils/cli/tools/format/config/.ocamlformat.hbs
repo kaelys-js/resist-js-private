@@ -1,0 +1,161 @@
+{{syncHeader "#" "https://ocaml.org/p/ocamlformat/latest/doc/index.html"}}
+
+# =============================================================================
+# OCamlformat Configuration
+# =============================================================================
+
+# =============================================================================
+# Version and Profile
+# =============================================================================
+
+# OCamlformat version (must match installed binary)
+version = 0.28.1
+
+# Base profile: default, janestreet, conventional, ocamlformat, or compact
+profile = default
+
+# =============================================================================
+# Line Length and Layout
+# =============================================================================
+
+# Maximum line width (OCaml default: 80)
+margin = {{ format.global.line_length }}
+
+# Line endings
+line-endings = lf
+
+# Module item spacing
+module-item-spacing = compact
+
+# =============================================================================
+# Indentation
+# =============================================================================
+
+# Indentation after 'in' keyword
+indent-after-in = 0
+
+# Let-binding indentation
+let-binding-indent = {{ format.alternate.indent_size }}
+
+# Module indentation
+module-indent = {{ format.alternate.indent_size }}
+let-module = compact
+
+# Extension point indentation
+extension-indent = {{ format.alternate.indent_size }}
+
+# Type declaration indentation
+type-decl-indent = {{ format.alternate.indent_size }}
+
+# Function indentation
+function-indent = {{ format.alternate.indent_size }}
+function-indent-nested = never
+
+# Match indentation
+match-indent = 0
+match-indent-nested = never
+
+# Struct item extension indentation
+stritem-extension-indent = 0
+
+# Deindent fun in let-bindings
+let-binding-deindent-fun = true
+
+# =============================================================================
+# Wrapping
+# =============================================================================
+
+# Wrap function arguments that exceed margin
+wrap-fun-args = true
+
+# Wrap comments to fit within margin
+wrap-comments = true
+
+# =============================================================================
+# Breaking
+# =============================================================================
+
+# Break policy for function declarations/signatures
+break-fun-decl = wrap
+break-fun-sig = wrap
+
+# Break before 'in' keyword
+break-before-in = fit-or-vertical
+
+# Break policy for sequences
+break-sequences = true
+
+# Break around infix operators
+break-infix = wrap
+break-infix-before-func = true
+
+# Break before match arms
+break-cases = fit
+
+# Break struct/sig (one item per line if exceeds margin)
+break-struct = force
+
+# Break before or after colon in declarations
+break-colon = after
+
+# =============================================================================
+# Spacing
+# =============================================================================
+
+# Space around collection types
+space-around-lists = true
+space-around-variants = true
+space-around-arrays = true
+space-around-records = true
+
+# =============================================================================
+# Formatting Constructs
+# =============================================================================
+
+# Match/case expression indentation
+cases-matching-exp-indent = normal
+cases-exp-indent = 4
+
+# Let-binding formatting
+let-binding-spacing = compact
+let-and = sparse
+
+# Type declarations
+type-decl = sparse
+
+# Single-case formatting
+single-case = compact
+
+# If-then-else formatting
+if-then-else = keyword-first
+
+# Nested match formatting
+nested-match = wrap
+
+# Multiline delimiter indicators
+indicate-multiline-delimiters = no
+
+# Nested or-pattern indicators
+indicate-nested-or-patterns = unsafe-no
+
+# Leading nested match parens
+leading-nested-match-parens = false
+
+# =============================================================================
+# Comments
+# =============================================================================
+
+# Docstring position
+doc-comments = before
+doc-comments-padding = 2
+doc-comments-tag-only = default
+
+# Parse and format docstrings
+parse-docstrings = true
+
+# =============================================================================
+# Compatibility
+# =============================================================================
+
+# Use ocp-indent configuration
+ocp-indent-compat = false

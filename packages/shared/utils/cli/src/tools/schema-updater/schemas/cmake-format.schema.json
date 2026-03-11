@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://resist.js/schemas/cmake-format.schema.json",
+  "title": "cmake-format Configuration",
+  "description": "Configuration file for cmake-format CMake formatter (.cmake-format.yaml)",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "object",
+      "description": "Formatting options",
+      "properties": {
+        "disable": {
+          "type": "boolean",
+          "description": "Disable formatting entirely",
+          "default": false
+        },
+        "line_width": {
+          "type": "integer",
+          "description": "Maximum line width",
+          "default": 80,
+          "minimum": 1
+        },
+        "tab_size": {
+          "type": "integer",
+          "description": "Number of spaces per indentation level",
+          "default": 2,
+          "minimum": 1
+        },
+        "use_tabchars": {
+          "type": "boolean",
+          "description": "Use tab characters instead of spaces",
+          "default": false
+        },
+        "fractional_tab_policy": {
+          "type": "string",
+          "description": "How to handle fractional indentation when using tabs",
+          "enum": ["use-space", "round-up"],
+          "default": "use-space"
+        },
+        "max_subgroups_hwrap": {
+          "type": "integer",
+          "description": "Max sub-groups before forcing vertical layout",
+          "default": 2,
+          "minimum": 1
+        },
+        "max_pargs_hwrap": {
+          "type": "integer",
+          "description": "Max positional arguments before forcing vertical layout",
+          "default": 6,
+          "minimum": 1
+        },
+        "max_rows_cmdline": {
+          "type": "integer",
+          "description": "Max lines for cmdline positional group without nesting",
+          "default": 2,
+          "minimum": 1
+        },
+        "separate_ctrl_name_with_space": {
+          "type": "boolean",
+          "description": "Space between control flow keywords and opening parenthesis",
+          "default": false
+        },
+        "separate_fn_name_with_space": {
+          "type": "boolean",
+          "description": "Space between function/macro names and opening parenthesis",
+          "default": false
+        },
+        "dangle_parens": {
+          "type": "boolean",
+          "description": "Place closing parenthesis on its own line for wrapped statements",
+          "default": false
+        },
+        "dangle_align": {
+          "type": "string",
+          "description": "Alignment reference for dangled closing parenthesis",
+          "enum": ["prefix", "prefix-indent", "child"],
+          "default": "prefix"
+        },
+        "min_prefix_chars": {
+          "type": "integer",
+          "description": "Min command name length to reject nested layouts",
+          "default": 4,
+          "minimum": 1
+        },
+        "max_prefix_chars": {
+          "type": "integer",
+          "description": "Max command name excess over tab_size to reject un-nested layouts",
+          "default": 10,
+          "minimum": 1
+        },
+        "max_lines_hwrap": {
+          "type": "integer",
+          "description": "Max lines for horizontal-wrap layout before rejection",
+          "default": 2,
+          "minimum": 1
+        },
+        "line_ending": {
+          "type": "string",
+          "description": "Line ending style",
+          "enum": ["unix", "windows", "auto"],
+          "default": "unix"
+        },
+        "command_case": {
+          "type": "string",
+          "description": "How to format command names",
+          "enum": ["lower", "upper", "canonical", "unchanged"],
+          "default": "canonical"
+        },
+        "keyword_case": {
+          "type": "string",
+          "description": "How to format keyword arguments",
+          "enum": ["lower", "upper", "unchanged"],
+          "default": "unchanged"
+        },
+        "always_wrap": {
+          "type": "array",
+          "description": "Commands that should always use vertical layout",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enable_sort": {
+          "type": "boolean",
+          "description": "Enable lexicographic sorting of sortable argument lists",
+          "default": true
+        },
+        "autosort": {
+          "type": "boolean",
+          "description": "Infer whether argument lists are sortable",
+          "default": false
+        },
+        "require_valid_layout": {
+          "type": "boolean",
+          "description": "Exit with error when content cannot fit within line_width",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "markup": {
+      "type": "object",
+      "description": "Comment markup parsing and reflow options",
+      "properties": {
+        "enable_markup": {
+          "type": "boolean",
+          "description": "Enable comment markup parsing and reflow",
+          "default": true
+        },
+        "bullet_char": {
+          "type": "string",
+          "description": "Character used for bullet list items in comments",
+          "default": "*",
+          "maxLength": 1
+        },
+        "enum_char": {
+          "type": "string",
+          "description": "Character used after enumeration numbers in comments",
+          "default": ".",
+          "maxLength": 1
+        },
+        "first_comment_is_literal": {
+          "type": "boolean",
+          "description": "Treat the first comment in a file as literal (not reflowed)",
+          "default": false
+        },
+        "literal_comment_pattern": {
+          "type": ["string", "null"],
+          "description": "Regex pattern to identify literal comments",
+          "default": null
+        },
+        "canonicalize_hashrulers": {
+          "type": "boolean",
+          "description": "Normalize hash-ruler lines to canonical length",
+          "default": true
+        },
+        "hashruler_min_length": {
+          "type": "integer",
+          "description": "Minimum length for hash-ruler recognition",
+          "default": 10,
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "encode": {
+      "type": "object",
+      "description": "Encoding options",
+      "properties": {
+        "emit_byteorder_mark": {
+          "type": "boolean",
+          "description": "Emit a UTF-8 byte-order mark at the start of output",
+          "default": false
+        },
+        "input_encoding": {
+          "type": "string",
+          "description": "Character encoding for reading input files",
+          "default": "utf-8"
+        },
+        "output_encoding": {
+          "type": "string",
+          "description": "Character encoding for writing output files",
+          "default": "utf-8"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}

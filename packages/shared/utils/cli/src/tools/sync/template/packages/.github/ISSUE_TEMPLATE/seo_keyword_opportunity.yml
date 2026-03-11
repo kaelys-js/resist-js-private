@@ -1,0 +1,180 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Keyword Opportunity
+# -------------------------------------------------------------------
+# Purpose: Submit high-value keyword suggestions backed by opportunity signals like search volume,
+# competitive gaps, or aligned user intent.
+# Tool-neutral and ready for integration into content or SEO planning.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-keyword-opportunity
+
+name: "🔎 SEO Keyword Opportunity"
+description: Propose new or underutilized keyword opportunities for content or optimization planning.
+title: "[SEO Keyword Opportunity]: "
+labels:
+  - seo
+  - keywords
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contact of the person submitting the keyword opportunity.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Keyword Context (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔑 Keyword Opportunity  
+        Share the keyword(s), searcher intent, and which content or feature it maps to.
+
+  - type: textarea
+    id: keyword_context
+    attributes:
+      label: Keyword Opportunity
+      description: Specify keyword(s), topic clusters, or missed intent and suggest where/how it could be used.
+      placeholder: |
+        - Keyword: "biome linter setup"  
+        - Intent: developers searching how to configure Biome after switching from ESLint  
+        - Opportunity: No content ranks in top 10; competitors are out of date  
+        - Suggested Action: Create how-to guide at /docs/biome/setup or update /guides/migration
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Opportunity Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Opportunity Impact  
+        Prioritize this keyword based on visibility potential, urgency, and relevance.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How significant is the SEO gap or missed ranking opportunity?
+      options:
+        - "Critical – we’re missing a high-volume, high-intent query"
+        - "High – opportunity to win a mid-funnel query or commercial term"
+        - "Medium – niche query or secondary funnel opportunity"
+        - "Low – long-tail or exploratory content"
+      default: "Medium – niche query or secondary funnel opportunity"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be acted on?
+      options:
+        - "Critical – align with campaign or launch"
+        - "High – prioritize this sprint"
+        - "Medium – slot in this quarter"
+        - "Low – keep in backlog"
+      default: "Next cycle – keep in backlog"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What area of the business or product does this keyword opportunity support?
+      options:
+        - "Org-wide – multi-surface or cross-functional benefit"
+        - "Team-wide – product, marketing, or content boost"
+        - "Single user/search – niche or low-volume journey"
+        - "Unclear – needs validation"
+      default: "Team-wide – product, marketing, or content boost"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Overall strategic priority for acting on this keyword.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Research (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Supporting Research  
+        Add any dashboards, competitor examples, search data, or prior discussions.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Add GSC data, Ahrefs/Semrush exports, internal dashboards, or docs.
+      placeholder: |
+        - Ahrefs: biome linter setup – 590/mo, KD 12  
+        - GSC: /docs/migration has clicks for "biome eslint" but not this variant  
+        - Competitor: swc.rs/docs/migration ranks #3  
+        - Related Slack: #seo-weekly, thread from May 20
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Add CSV exports, keyword tables, visuals, or SERP screenshots.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Upload annotated keyword research, topic maps, or visual support.
+      placeholder: |
+        ```csv
+        Keyword,Volume,KD,Current Rank,URL
+        biome linter setup,590,12,–,—
+        biome typescript guide,320,9,28,/docs/typescript
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this opportunity has been reviewed internally and is worth pursuing.
+      options:
+        - label: I confirm this keyword opportunity has been reviewed, is valid, and relevant to our SEO goals.
+    validations:
+      required: true

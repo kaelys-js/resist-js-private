@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://resist.js/schemas/analysis-options.schema.json",
+  "title": "Dart Analysis Options",
+  "description": "Configuration file for Dart analyzer (analysis_options.yaml)",
+  "type": "object",
+  "properties": {
+    "include": {
+      "type": "string",
+      "description": "Path to another analysis options file to include",
+      "examples": ["package:flutter_lints/flutter.yaml", "package:lints/recommended.yaml"]
+    },
+    "analyzer": {
+      "type": "object",
+      "description": "Analyzer configuration",
+      "properties": {
+        "exclude": {
+          "type": "array",
+          "description": "Glob patterns for files to exclude from analysis",
+          "items": {
+            "type": "string"
+          }
+        },
+        "language": {
+          "type": "object",
+          "description": "Language feature configuration",
+          "properties": {
+            "strict-casts": {
+              "type": "boolean",
+              "description": "Enable strict casts"
+            },
+            "strict-inference": {
+              "type": "boolean",
+              "description": "Enable strict inference"
+            },
+            "strict-raw-types": {
+              "type": "boolean",
+              "description": "Enable strict raw types"
+            }
+          },
+          "additionalProperties": false
+        },
+        "errors": {
+          "type": "object",
+          "description": "Error severity overrides",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["ignore", "info", "warning", "error"]
+          }
+        },
+        "enable-experiment": {
+          "type": "array",
+          "description": "Experimental features to enable",
+          "items": {
+            "type": "string"
+          }
+        },
+        "plugins": {
+          "type": "array",
+          "description": "Analyzer plugins to load",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "linter": {
+      "type": "object",
+      "description": "Linter configuration",
+      "properties": {
+        "rules": {
+          "oneOf": [
+            {
+              "type": "array",
+              "description": "List of lint rules to enable",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "object",
+              "description": "Lint rules with individual configurations",
+              "additionalProperties": {
+                "oneOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "formatter": {
+      "type": "object",
+      "description": "Formatter configuration (used by dart format)",
+      "properties": {
+        "page_width": {
+          "type": "integer",
+          "description": "Maximum line width in characters",
+          "default": 80,
+          "minimum": 1
+        },
+        "trailing_commas": {
+          "type": "string",
+          "description": "How dart format handles trailing commas (Dart 3.8+)",
+          "enum": ["preserve", "automate"],
+          "default": "preserve"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

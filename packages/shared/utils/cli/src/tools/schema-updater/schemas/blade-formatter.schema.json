@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://resist.js/schemas/blade-formatter.schema.json",
+  "title": "Blade Formatter Configuration",
+  "description": "Configuration file for PHP Blade template formatter (.bladeformatterrc.json)",
+  "type": "object",
+  "properties": {
+    "indentSize": {
+      "type": "integer",
+      "description": "Number of spaces for indentation",
+      "default": 4,
+      "minimum": 1
+    },
+    "wrapLineLength": {
+      "type": "integer",
+      "description": "Maximum line length before wrapping",
+      "default": 120,
+      "minimum": 1
+    },
+    "wrapAttributes": {
+      "type": "string",
+      "description": "How to wrap HTML attributes",
+      "enum": [
+        "auto",
+        "force",
+        "force-aligned",
+        "force-expand-multiline",
+        "aligned-multiple",
+        "preserve",
+        "preserve-aligned"
+      ],
+      "default": "auto"
+    },
+    "endWithNewLine": {
+      "type": "boolean",
+      "description": "End file with a newline",
+      "default": true
+    },
+    "useTabs": {
+      "type": "boolean",
+      "description": "Use tabs instead of spaces",
+      "default": false
+    },
+    "sortTailwindcssClasses": {
+      "type": "boolean",
+      "description": "Sort Tailwind CSS classes",
+      "default": false
+    },
+    "sortHtmlAttributes": {
+      "type": "string",
+      "description": "Strategy for sorting HTML attributes",
+      "enum": ["none", "alphabetical", "code-guide", "idiomatic", "vuejs", "custom"],
+      "default": "none"
+    },
+    "noMultipleEmptyLines": {
+      "type": "boolean",
+      "description": "Collapse multiple empty lines into one",
+      "default": false
+    },
+    "noPhpSyntaxCheck": {
+      "type": "boolean",
+      "description": "Disable PHP syntax checking",
+      "default": false
+    },
+    "noSingleQuote": {
+      "type": "boolean",
+      "description": "Use double quotes instead of single quotes",
+      "default": false
+    },
+    "indentInnerHtml": {
+      "type": "boolean",
+      "description": "Indent <head> and <body> sections in HTML",
+      "default": false
+    },
+    "extraLiners": {
+      "type": "array",
+      "description": "Tags that should have an extra line before them",
+      "items": {
+        "type": "string"
+      }
+    },
+    "endOfLine": {
+      "type": "string",
+      "description": "Line ending style",
+      "enum": ["LF", "CRLF"],
+      "default": "LF"
+    },
+    "wrapAttributesMinAttrs": {
+      "type": "integer",
+      "description": "Minimum number of HTML attributes before wrapping applies",
+      "default": 2,
+      "minimum": 1
+    },
+    "componentPrefix": {
+      "type": "array",
+      "description": "Prefixes used to identify Blade component tags",
+      "items": {
+        "type": "string"
+      },
+      "default": ["x-", "livewire:"]
+    },
+    "noTrailingCommaPhp": {
+      "type": "boolean",
+      "description": "Disable trailing commas in PHP expressions",
+      "default": false
+    },
+    "phpVersion": {
+      "type": "string",
+      "description": "PHP version for syntax",
+      "default": "8.4",
+      "pattern": "^\\d+\\.\\d+$",
+      "examples": ["8.0", "8.1", "8.2", "8.3", "8.4"]
+    },
+    "customHtmlAttributesOrder": {
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "Comma-separated custom attribute order (supports glob patterns)"
+        },
+        {
+          "type": "array",
+          "description": "Custom attribute order list (supports glob patterns like x-*, data-*)",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "tailwindcssConfigPath": {
+      "type": "string",
+      "description": "Path to custom Tailwind CSS config file for class sorting"
+    }
+  },
+  "additionalProperties": false
+}

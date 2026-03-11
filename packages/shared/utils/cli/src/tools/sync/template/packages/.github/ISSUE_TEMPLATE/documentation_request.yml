@@ -1,0 +1,182 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: documentation-update
+
+name: "📘 Documentation Update"
+description: Report missing, unclear, outdated, or inaccurate documentation and suggest improvements.
+labels:
+  - documentation
+  - docs
+  - improvement
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this documentation issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Documentation Feedback (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📝 Documentation Details  
+        Describe what needs to be fixed, added, or clarified.
+
+  - type: input
+    id: title
+    attributes:
+      label: Summary
+      description: Summarize the documentation issue or update request.
+      placeholder: "e.g., Missing Stripe webhook example in integration guide"
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Suggested Improvements
+      description: Describe what should be clarified, corrected, or added.
+      placeholder: |
+        - Add Valibot schema example to `docs/validation.md`  
+        - Clarify Bun + Argo deployment steps  
+        - Fix broken image in `architecture-overview.svg`  
+        - Rename "Mobile Auth Flow" to "Cross-platform Auth Flow"
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Affected Page or File
+      description: Indicate where the issue occurs (file path or URL).
+      placeholder: |
+        - `docs/integrations/stripe-webhooks.md`  
+        - `apps/mobile/README.md`  
+        - https://docs.example.com/api/authentication#tokens
+      render: markdown
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Why This Matters
+      description: Provide context or user impact—how this affects onboarding, delivery, quality, or understanding.
+      placeholder: |
+        - Blocked onboarding for iOS team  
+        - Inconsistent with production deployment  
+        - Raised in user feedback on Umami analytics
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Classify this request to help prioritize and route correctly.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance of resolving this documentation issue.
+      options:
+        - "Low – minor clarity or polish"
+        - "Medium – affects onboarding or internal use"
+        - "High – blocks understanding of key systems"
+        - "Critical – externally visible or compliance-related"
+      default: "Medium – affects onboarding or internal use"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How severe is the impact from a usability or engineering standpoint?
+      options:
+        - "Low – stylistic or format only"
+        - "Medium – content gap or outdated info"
+        - "High – breaks expected usage or understanding"
+        - "Critical – causes incorrect implementation or errors"
+      default: "Medium – content gap or outdated info"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly this should be addressed.
+      options:
+        - "Low – future improvement"
+        - "Medium – next sprint"
+        - "High – this sprint"
+        - "Critical – must resolve immediately"
+      default: "Medium – next sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Affected Scope
+      description: Who or what is affected by this documentation issue?
+      options:
+        - "Single contributor or team"
+        - "Multiple internal teams"
+        - "Partner integration or SDK users"
+        - "Production customer experience"
+      default: "Multiple internal teams"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting References & Files
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Attachments & References  
+        Add context or artifacts that help validate or reproduce the issue.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Discussions
+      description: Link related tickets, PRs, feedback threads, or RFCs.
+      placeholder: "e.g., GitHub issue #1204, RFC link, feedback doc"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Add screenshots, diff suggestions, marked-up files, etc.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this request is accurate and complete for documentation review.
+      options:
+        - label: I have searched the documentation to confirm this issue has not already been addressed
+        - label: I have provided enough information to help someone update the documentation
+    validations:
+      required: true

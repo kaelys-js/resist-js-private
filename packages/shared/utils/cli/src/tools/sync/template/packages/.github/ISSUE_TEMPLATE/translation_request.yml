@@ -1,0 +1,144 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: translation-request
+
+name: "🌐 Translation Request"
+description: Request support for a new language in the product to improve global accessibility and usability.
+labels:
+  - i18n
+  - enhancement
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person requesting the language support.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Language Request (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: language
+    attributes:
+      label: 🌍 Language to Support
+      description: Specify the requested language using both English and native spellings.
+      placeholder: "e.g., French / Français"
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: 📈 Business Impact & Urgency
+      description: Who needs this language and why? Include affected users, markets, accessibility goals, legal compliance, timelines, or blockers.
+      placeholder: |
+        Example:
+        This is needed by French-speaking users in Quebec and France.  
+        Required for regulatory compliance in Canadian mobile app deployments.  
+        Blocking App Store submission scheduled for next month.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help us assess urgency, reach, and planning needs for localization.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How strategically important is this language support?
+      options:
+        - Low – future consideration or nice-to-have
+        - Medium – supports growth or product parity
+        - High – part of roadmap or market entry
+        - Critical – legal, contractual, or launch-blocking
+      default: Medium – supports growth or product parity
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Impact Severity
+      description: How significant is the impact of not supporting this language?
+      options:
+        - Low – user preference
+        - Medium – accessibility or usability improvement
+        - High – major user group underserved
+        - Critical – compliance or regulatory requirement
+      default: Medium – accessibility or usability improvement
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When is this needed?
+      options:
+        - Low – no immediate deadline
+        - Medium – within 1–2 quarters
+        - High – next release cycle
+        - Critical – immediate or past-due
+      default: Medium – within 1–2 quarters
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Affected Scope
+      description: Who or what will benefit from this language support?
+      options:
+        - Internal use only
+        - Specific team or region
+        - Multiple customer segments
+        - Global users and markets
+      default: Multiple customer segments
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: 🔗 Related Markets or Docs
+      description: Add any relevant links to requirements, market data, or internal policies.
+      placeholder: "e.g., https://support.apple.com/en-ca/localization-guidelines, internal doc, GitHub issue #73"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: 📎 Upload Supporting Materials (Optional)
+      description: Attach regulatory guidelines, language files, legal docs, or screenshots.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that this request has been validated and is not speculative.
+      options:
+        - label: I confirm this language is needed and aligns with user, compliance, or product goals
+        - label: I understand that language support may involve resourcing, tooling, and internationalization updates
+    validations:
+      required: true

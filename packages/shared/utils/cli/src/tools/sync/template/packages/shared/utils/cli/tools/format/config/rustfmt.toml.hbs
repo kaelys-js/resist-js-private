@@ -1,0 +1,188 @@
+"$schema" = "{{schemaPath 'tooling/rustfmt'}}"
+
+{{syncHeader "#" "https://rust-lang.github.io/rustfmt"}}
+
+# =============================================================================
+# Rustfmt Configuration
+# =============================================================================
+
+# Edition - use latest stable
+edition = "2024"
+
+# Style edition - controls formatting style independently of language edition
+style_edition = "2024"
+
+# Enable unstable features (most options below require nightly rustfmt)
+unstable_features = true
+
+# Maximum line width
+max_width = {{ format.global.line_length }}
+
+# Indent with spaces (Rust convention)
+hard_tabs = false
+tab_spaces = {{ format.alternate.indent_size }}
+
+# Newline style
+newline_style = "Unix"
+
+# =============================================================================
+# Imports
+# =============================================================================
+# Group imports
+group_imports = "StdExternalCrate"
+
+# Imports granularity
+imports_granularity = "Module"
+
+# Reorder imports
+reorder_imports = true
+
+# Reorder modules
+reorder_modules = true
+
+# =============================================================================
+# Formatting Options
+# =============================================================================
+# Use field init shorthand
+use_field_init_shorthand = true
+
+# Use try shorthand
+use_try_shorthand = true
+
+# Format strings
+format_strings = false
+
+# Format code in doc comments
+format_code_in_doc_comments = true
+
+# Format macro matchers
+format_macro_matchers = true
+
+# Format macro bodies
+format_macro_bodies = true
+
+# Normalize comments
+normalize_comments = true
+
+# Normalize doc attributes
+normalize_doc_attributes = true
+
+# Wrap comments
+wrap_comments = true
+
+# Comment width
+comment_width = {{ format.global.line_length }}
+
+# =============================================================================
+# Struct/Enum Formatting
+# =============================================================================
+# Struct lit single line
+struct_lit_single_line = true
+
+# Struct variant width
+struct_variant_width = 35
+
+# Enum discrim align threshold
+enum_discrim_align_threshold = 20
+
+# =============================================================================
+# Function Formatting
+# =============================================================================
+# Fn params layout
+fn_params_layout = "Tall"
+
+# Fn single line
+fn_single_line = false
+
+# Fn call width
+fn_call_width = 60
+
+# =============================================================================
+# Control Flow
+# =============================================================================
+# Control brace style
+control_brace_style = "AlwaysSameLine"
+
+# Single line if else max width
+single_line_if_else_max_width = 50
+
+# Single line let else max width
+single_line_let_else_max_width = 50
+
+# =============================================================================
+# Chains
+# =============================================================================
+# Chain width
+chain_width = 60
+
+# Chain indent
+chain_indent = "Block"
+
+# =============================================================================
+# Where Clauses
+# =============================================================================
+# Where single line
+where_single_line = false
+
+# =============================================================================
+# Match Arms
+# =============================================================================
+# Match block trailing comma
+match_block_trailing_comma = true
+
+# Match arm blocks
+match_arm_blocks = true
+
+# Match arm leading pipes
+match_arm_leading_pipes = "Never"
+
+# =============================================================================
+# Blank Lines
+# =============================================================================
+# Blank lines lower bound
+blank_lines_lower_bound = 0
+
+# Blank lines upper bound
+blank_lines_upper_bound = 1
+
+# =============================================================================
+# Other Options
+# =============================================================================
+# Force multiline blocks
+force_multiline_blocks = false
+
+# Overflow delimited expr
+overflow_delimited_expr = false
+
+# Spaces around ranges
+spaces_around_ranges = false
+
+# Binop separator
+binop_separator = "Front"
+
+# Trailing comma
+trailing_comma = "Vertical"
+
+# Trailing semicolon
+trailing_semicolon = true
+
+# Space after colon
+space_after_colon = true
+
+# Space before colon
+space_before_colon = false
+
+# Type punctuation density
+type_punctuation_density = "Wide"
+
+# Remove nested parens
+remove_nested_parens = true
+
+# Combine control expr
+combine_control_expr = true
+
+# Short array element width max
+short_array_element_width_threshold = 10
+
+# Show parse errors
+show_parse_errors = true

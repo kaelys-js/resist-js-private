@@ -1,0 +1,170 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Feature Flag Request
+# -------------------------------------------------------------------
+# Purpose: Standardized request for new or modified feature flags, including rollout targets and environments.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: feature-flag-request
+
+name: "🧪 Feature Flag Request"
+description: Request a new or updated feature flag for rollout control.
+title: "[Feature Flag]: "
+labels:
+  - feature-flag
+  - request
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the requestor.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is the purpose of the feature flag?
+      placeholder: |
+        e.g., Gate new checkout flow for beta users  
+        e.g., Enable telemetry-only mode in staging  
+        e.g., Gradual rollout of new Stripe webhook handler
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Rollout Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Details
+      description: Systems affected, rollout mechanism, usage pattern, or tooling. Include segments (env, region, device).
+      placeholder: |
+        - Tooling: Bun, TypeScript, Valibot, Biome  
+        - Targeting Canada region, iOS users only  
+        - Gated by backend API token header + client-side fallback
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Add tracking issues, PRs, dashboards, or rollout plans.
+      placeholder: e.g., GitHub issue #101, https://flags.example.com
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (Optional)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments (Optional)
+      description: Include rollout diagrams, screenshots, or JSON config snippets.
+      render: markdown
+      placeholder: |
+        ```json
+        {
+          "name": "enableCheckoutV2",
+          "environments": ["staging", "prod"],
+          "segment": ["ca", "ios"]
+        }
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How sensitive is the flag to functionality or failure?
+      options:
+        - "Critical – needed to prevent regressions or breakage"
+        - "High – affects user-facing flows"
+        - "Medium – impacts edge cases or testing only"
+        - "Low – internal usage or experimentation"
+      default: "High – affects user-facing flows"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should the flag be created?
+      options:
+        - "Immediate – blocking release"
+        - "High – needed within 3 days"
+        - "Medium – within sprint"
+        - "Low – async"
+      default: "Medium – within sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by this flag?
+      options:
+        - "Org-wide – visible across teams"
+        - "Product-wide – affects users"
+        - "Team-level – specific to one surface"
+        - "Infra – used for tooling/testing"
+      default: "Product-wide – affects users"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Priority for triage and implementation.
+      options:
+        - "P0 – needs immediate flag setup"
+        - "P1 – flag needed for next milestone"
+        - "P2 – async review and planning"
+        - "P3 – backlog candidate"
+      default: "P1 – flag needed for next milestone"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Final checklist before review.
+      options:
+        - label: I have reviewed existing issues to avoid duplication.
+        - label: I have included enough detail to support triage and review.
+    validations:
+      required: true

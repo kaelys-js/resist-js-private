@@ -75,8 +75,8 @@ import { cn as classNames, cva as classVariants } from '../utils.js';
 </script>`;
     const deps: DepTree = extractDeps(source);
     expect(deps.internal).toHaveLength(1);
-    expect(deps.internal[0].names).toEqual(['classNames', 'classVariants']);
-    expect(deps.internal[0].kind).toBe('named');
+    expect(deps.internal[0]!.names).toEqual(['classNames', 'classVariants']);
+    expect(deps.internal[0]!.kind).toBe('named');
   });
 
   it('handles default + named mixed imports', () => {
@@ -105,8 +105,8 @@ import Badge from '../badge/badge.svelte';
     expect(deps.external).toHaveLength(1);
     expect(deps.workspace).toHaveLength(1);
     expect(deps.internal).toHaveLength(1);
-    expect(deps.internal[0].component).toBe('badge');
-    expect(deps.internal[0].kind).toBe('default');
+    expect(deps.internal[0]!.component).toBe('badge');
+    expect(deps.internal[0]!.kind).toBe('default');
   });
 
   it('returns empty arrays for source with no imports', () => {
@@ -125,8 +125,8 @@ import type { Component } from 'svelte';
 </script>`;
     const deps: DepTree = extractDeps(source);
     expect(deps.external).toHaveLength(1);
-    expect(deps.external[0].names).toEqual(['Component']);
-    expect(deps.external[0].kind).toBe('type');
+    expect(deps.external[0]!.names).toEqual(['Component']);
+    expect(deps.external[0]!.kind).toBe('type');
   });
 
   it('extracts component dir from various relative path formats', () => {
@@ -137,9 +137,9 @@ import Badge from '../badge/badge.svelte';
 </script>`;
     const deps: DepTree = extractDeps(source);
     expect(deps.internal).toHaveLength(3);
-    expect(deps.internal[0].component).toBe('copy-import');
-    expect(deps.internal[1].component).toBe('lens');
-    expect(deps.internal[2].component).toBe('badge');
+    expect(deps.internal[0]!.component).toBe('copy-import');
+    expect(deps.internal[1]!.component).toBe('lens');
+    expect(deps.internal[2]!.component).toBe('badge');
   });
 
   it('handles current-dir relative imports', () => {
@@ -149,9 +149,9 @@ import { helper } from './utils.js';
     const deps: DepTree = extractDeps(source);
     // ./utils.js doesn't match the COMPONENT_DIR_RE pattern, so component is ''
     expect(deps.internal).toHaveLength(1);
-    expect(deps.internal[0].path).toBe('./utils.js');
-    expect(deps.internal[0].component).toBe('');
-    expect(deps.internal[0].kind).toBe('named');
+    expect(deps.internal[0]!.path).toBe('./utils.js');
+    expect(deps.internal[0]!.component).toBe('');
+    expect(deps.internal[0]!.kind).toBe('named');
   });
 
   it('detects namespace import kind', () => {
@@ -159,8 +159,8 @@ import { helper } from './utils.js';
 import * as Command from '../command/index.js';
 </script>`;
     const deps: DepTree = extractDeps(source);
-    expect(deps.internal[0].kind).toBe('namespace');
-    expect(deps.internal[0].names).toEqual(['Command']);
+    expect(deps.internal[0]!.kind).toBe('namespace');
+    expect(deps.internal[0]!.names).toEqual(['Command']);
   });
 });
 
@@ -191,8 +191,8 @@ import { cn } from '../utils.js';
     };
     const result: ReverseDep[] = extractReverseDeps('badge', allSources, extractDir);
     expect(result).toHaveLength(2);
-    expect(result[0].component).toBe('button');
-    expect(result[1].component).toBe('dialog');
+    expect(result[0]!.component).toBe('button');
+    expect(result[1]!.component).toBe('dialog');
   });
 
   it('returns empty array when no one imports the target', () => {
@@ -227,7 +227,7 @@ import Badge from '../badge/badge.svelte';
     const result: ReverseDep[] = extractReverseDeps('badge', allSources, extractDir);
     // Should only have one entry for 'dialog', not two
     expect(result).toHaveLength(1);
-    expect(result[0].component).toBe('dialog');
+    expect(result[0]!.component).toBe('dialog');
   });
 
   it('includes import kind in reverse deps', () => {
@@ -238,7 +238,7 @@ import type { ButtonProps } from '../button/button.svelte';
     };
     const result: ReverseDep[] = extractReverseDeps('button', allSources, extractDir);
     expect(result).toHaveLength(1);
-    expect(result[0].kind).toBe('type');
+    expect(result[0]!.kind).toBe('type');
   });
 
   it('returns sorted results', () => {

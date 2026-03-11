@@ -1,0 +1,169 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Package Publication Issue
+# -------------------------------------------------------------------
+# Purpose: Report problems publishing packages to npm, DockerHub, internal registries, or CI/CD systems.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: package-publication-issue
+
+name: "📦 Package Publication Issue"
+description: Issues with publishing packages to registries or internal tools.
+title: "[Publishing Issue]: "
+labels:
+  - publishing
+  - release
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this form.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Brief overview of the issue and its symptoms.
+      placeholder: |
+        - `npm publish` fails with 403 error  
+        - Docker image fails to push to GCP Artifact Registry  
+        - Versioning step skipped in CI due to missing permissions
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Details
+      description: Provide tools, environment, constraints, or links that help with triage.
+      placeholder: |
+        - Using pnpm + changesets for versioning  
+        - Affects `@example/sdk` and `@example/ui` packages  
+        - Scoped npm registry with 2FA enabled  
+        - GCP registry permissions controlled via Workload Identity
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Link to related issues, CI runs, logs, documentation, etc.
+      placeholder: "e.g., GitHub issue #101, https://docs.example.com"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (Optional)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments or Logs (Optional)
+      description: Include logs, screenshots, or config snippets that show the failure.
+      placeholder: |
+        ```bash
+        Error: 403 Forbidden - auth/invalid-scope  
+        Registry: gcr.io/example/project  
+        ```
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severely this affects delivery or functionality.
+      options:
+        - "Critical – blocks release for all packages"
+        - "High – impacts key workflows"
+        - "Medium – workarounds exist but cause delays"
+        - "Low – cosmetic or internal-only issue"
+      default: "Medium – workarounds exist but cause delays"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly should this be resolved?
+      options:
+        - "Immediate – blocks production"
+        - "High – should resolve before next deploy"
+        - "Medium – include in next release cycle"
+        - "Low – backlog"
+      default: "High – should resolve before next deploy"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected?
+      options:
+        - "Multiple teams – shared tooling"
+        - "One project – isolated package"
+        - "Internal devs – affects CI or release flow"
+        - "External consumers – breaks published releases"
+        - "Unclear – needs triage"
+      default: "Internal devs – affects CI or release flow"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Overall priority for resolution or escalation.
+      options:
+        - "P0 – must fix before next release"
+        - "P1 – high but not blocking"
+        - "P2 – normal priority"
+        - "P3 – async/backlog"
+      default: "P1 – high but not blocking"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm submission is actionable.
+      options:
+        - label: I have reviewed existing issues to avoid duplication.
+        - label: I have included enough detail to support triage and review.
+    validations:
+      required: true

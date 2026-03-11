@@ -1,0 +1,155 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Enterprise Deal Blocker
+# -------------------------------------------------------------------
+# Purpose: Document and triage blockers preventing enterprise deal closure or expansion.
+# Designed for coordination across product, legal, infra, and security stakeholders.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: enterprise-deal-blocker
+
+name: "🧱 Enterprise Deal Blocker"
+description: Track technical, legal, or process blockers to closing or expanding enterprise deals.
+title: "[Enterprise Deal Blocker]: "
+labels:
+  - sales
+  - enterprise
+  - blocker
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the person submitting this issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Deal Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Deal or Customer Name
+      description: Who is this deal with? Include customer name, region, or team if applicable.
+      placeholder: |
+        - Customer: Acme Corp  
+        - Region: US  
+        - Buyer team: Security + Legal  
+        - Status: Procurement + DPA stage
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Blocker Description (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Blocker Description
+      description: Detail technical, legal, infrastructure, product, or security blockers preventing closure.
+      placeholder: |
+        - Blocker: No SOC 2 Type II report available  
+        - Impact: Procurement won’t approve without this for Q3 close  
+        - Teams involved: Legal + Security  
+        - Requested workaround: NDA + security attestation
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: CRM References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: CRM or Sales Link
+      description: Provide supporting links from Salesforce, Notion, or internal sources.
+      placeholder: |
+        - https://notion.so/sales/enterprise-deal-acme  
+        - https://sfdc.com/opportunity/abc123  
+        - Legal terms: https://legalshare.acme.com/dpa
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Blocker Severity
+      description: How critical is this blocker to the sales process?
+      options:
+        - "Critical – deal will not close without resolution"
+        - "High – serious delay or expansion risk"
+        - "Medium – possible workaround or staging"
+        - "Low – minor issue, but flagged by buyer"
+      default: "High – serious delay or expansion risk"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline sensitivity of this blocker.
+      options:
+        - "Immediate – must resolve this week"
+        - "High – affects Q this month"
+        - "Medium – track by end of quarter"
+        - "Low – FY roadmap discussion"
+      default: "High – affects Q this month"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What is the revenue or strategic value at risk?
+      options:
+        - "Org-wide – 7+ figure or strategic flagship"
+        - "Department-level – key logo or expansion"
+        - "Team-level – smaller deal or renewal friction"
+        - "Unclear – needs validation"
+      default: "Department-level – key logo or expansion"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Overall priority for triage and response.
+      options:
+        - "P0 – top priority to unblock deal"
+        - "P1 – high"
+        - "P2 – standard tracking"
+        - "P3 – backlog log"
+      default: "P1 – high"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that this issue has been vetted and shared appropriately.
+      options:
+        - label: I’ve confirmed this is an active blocker to closing or expansion.
+        - label: I have flagged this to the relevant product, security, or legal teams.
+    validations:
+      required: true

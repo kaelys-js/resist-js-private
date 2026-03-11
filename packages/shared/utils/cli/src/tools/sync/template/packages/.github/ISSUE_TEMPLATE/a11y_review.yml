@@ -1,0 +1,381 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Accessibility (A11y) Review or Issue Report
+# -------------------------------------------------------------------
+# Purpose: Request accessibility review or flag violations aligned with WCAG,
+# keyboard navigation issues, color contrast problems, screen reader support, etc.
+# Designed to be platform-agnostic and team-operational across infra.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: accessibility-review
+
+name: "🔍 Accessibility (A11y) Review"
+description: Request review or report issues related to accessibility (WCAG, keyboard nav, screen reader, color contrast, etc.)
+title:
+  "[A11y] "
+  placeholder: "e.g., Modal traps focus on iOS Safari"
+
+labels:
+  - a11y
+  - accessibility
+  - ux
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the contributor.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  - type: input
+    id: co_authors
+    attributes:
+      label: Co-authors or Reviewers (Optional)
+      description: Anyone who helped raise or review this issue.
+      placeholder: "@collaborator-name"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Issue Type & Summary
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: What kind of issue are you reporting?
+      options:
+        - Bug
+        - Feature Request
+        - Question
+        - Enhancement
+        - Task
+        - Other
+      default: Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: ✏️ Area of Concern
+      description: Describe the page, component, or experience where accessibility should be reviewed or fixed.
+      placeholder: |
+        - Modal dialog traps focus and can't be exited  
+        - Login form has low contrast ratio  
+        - Keyboard tabbing skips navigation links
+      render: markdown
+    validations:
+      required: true
+
+  - type: input
+    id: component
+    attributes:
+      label: Affected Component or Area (Optional)
+      description: Use consistent naming like "modal", "form", "mobile nav", "tooltip".
+      placeholder: "e.g., modal, form, nav, button"
+
+  - type: input
+    id: version
+    attributes:
+      label: Affected Version
+      placeholder: "e.g., v2.3.1"
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Platform or Device (Optional)
+      placeholder: "e.g., iPhone 15, Windows 11, NVDA + Firefox"
+
+  - type: input
+    id: env
+    attributes:
+      label: Environment Context (Optional)
+      placeholder: "e.g., macOS 14, Safari 17, JAWS 2024"
+
+  - type: input
+    id: references
+    attributes:
+      label: Affected Pages or Elements
+      description: Link to affected pages or describe specific UI elements.
+      placeholder: "/checkout, hamburger nav on mobile, account settings icon"
+
+  # --------------------------------------------------------------------
+  # SECTION: Context and Reproduction (especially for bug reports)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context_steps
+    attributes:
+      label: Details and Observations
+      description: Describe screen reader behavior, tab order issues, missing ARIA, or related details.
+      placeholder: |
+        - Tested with VoiceOver on macOS Safari  
+        - `aria-label` missing from search button  
+        - Focus is lost after closing tooltip  
+        - No visible focus indicator on buttons
+      render: markdown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Reproducibility (Optional)
+      description: If you tried again, would the issue happen the same way?
+      options:
+        - "Always"
+        - "Often"
+        - "Sometimes"
+        - "Rarely"
+        - "Can't reproduce anymore"
+        - "Not applicable"
+      default: "Not applicable"
+
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Has this behavior changed from before?
+      description: Has this worked before?
+      options:
+        - "Yes – it worked previously but is broken now"
+        - "No – it has never worked"
+        - "Not sure"
+      default: "Not sure"
+
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: Expected vs Actual Behavior
+      description: What did you expect, and what actually happened?
+      placeholder: |
+        Expected: Focus remains on modal close button  
+        Actual: Focus jumps to bottom of page
+      render: markdown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: workaround
+    attributes:
+      label: Is there any workaround you’re using?
+      description: Can you still do your task with a workaround or alternative?
+      options:
+        - "Yes – workaround available"
+        - "No – completely blocked"
+        - "Not sure"
+      default: "Not sure"
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution or Suggestion (Optional)
+      description: Suggest a fix or improvement if you have one.
+      placeholder: "e.g., Add focus trap with proper exit key handling"
+
+  - type: textarea
+    id: feature_use_case
+    attributes:
+      label: Use Case or Context (Optional)
+      description: Describe why this matters or how users are affected.
+      placeholder: |
+        e.g., As a user relying on screen readers, I want the form fields to be read correctly so I can complete the checkout process.
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Who or what is affected? (Optional)
+      description: Helps prioritize the issue.
+      placeholder: "e.g., Impacts all users relying on keyboard navigation"
+
+  - type: input
+    id: reproduction_link
+    attributes:
+      label: Reproduction Project (Optional)
+      placeholder: "e.g., GitHub repo or CodeSandbox link"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or Console Output (Optional)
+      description: Paste relevant logs (redact any sensitive data if needed).
+      render: plain
+      placeholder: |
+        e.g., Accessibility warning: Missing `aria-labelledby` on modal...
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments (Optional)
+      description: Include screenshots, markdown snippets, etc.
+      render: markdown
+      placeholder: |
+        Paste screenshots or formatted snippets here.
+
+  - type: input
+    id: media_links
+    attributes:
+      label: Media or Demo Link (Optional)
+      placeholder: "e.g., Loom video, Imgur screenshot"
+
+  - type: dropdown
+    id: preferred_outcome
+    attributes:
+      label: What are you hoping for?
+      options:
+        - A fix or patch (code-level solution)
+        - A workaround (temporary or non-ideal fix)
+        - An explanation or docs update
+        - Just reporting for awareness
+      default: Just reporting for awareness
+
+  - type: dropdown
+    id: user_urgency
+    attributes:
+      label: How urgent is this for you?
+      description: Helps us prioritize based on user needs.
+      options:
+        - Blocking – I can’t continue work
+        - High – I’m actively waiting on this
+        - Medium – It’s important but not urgent
+        - Low – Just wanted to share
+      default: Medium – It’s important but not urgent
+
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: Anything else you'd like to add? (Optional)
+      description: Include any other context, links, or notes not covered above.
+      placeholder: "e.g., This only happens on weekends when load is high"
+
+  - type: checkboxes
+    id: issue_stage
+    attributes:
+      label: Stage of this Issue (Optional)
+      description: Where in the lifecycle is this issue?
+      options:
+        - label: New or recently discovered
+        - label: Under discussion or being worked on
+        - label: Needs more info or reproduction
+
+  # --------------------------------------------------------------------
+  # SECTION: Tags, History, Misc
+  # --------------------------------------------------------------------
+  - type: input
+    id: suggested_labels
+    attributes:
+      label: Suggested Tags or Labels (Optional)
+      description: Suggest any helpful tags for triage (e.g., frontend, CI/CD).
+      placeholder: "e.g., WCAG-1.3.1, keyboard, screen-reader"
+
+  - type: checkboxes
+    id: prior_issues
+    attributes:
+      label: Prior Reports (Optional)
+      description: Has this been reported or discussed before?
+      options:
+        - label: I checked existing issues
+        - label: This continues a previous issue or thread
+
+  - type: input
+    id: contact
+    attributes:
+      label: Optional Contact (Optional)
+      placeholder: "Email or Discord (if you're okay with follow-up)"
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage (Maintainer Use)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: Choose based on how badly this affects users or systems.
+      options:
+        - "Critical – violates key WCAG rules or breaks assistive tech"
+        - "High – major impairment to keyboard or screen reader usability"
+        - "Medium – common flows work but partially inaccessible"
+        - "Low – minor UX or contrast concern"
+        - "Unclear"
+      default: "Medium – common flows work but partially inaccessible"
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this need attention?
+      options:
+        - "Critical – must be addressed immediately"
+        - "High – should be picked up soon"
+        - "Medium – next sprint or cycle"
+        - "Low – future backlog"
+        - "Unclear"
+      default: "Medium – next sprint or cycle"
+
+  - type: dropdown
+    id: impact_scope
+    attributes:
+      label: Scope of Impact (Optional)
+      description: Who is affected by this?
+      options:
+        - "User-facing – external developers or customers"
+        - "Internal – affects team workflows"
+        - "Infra-only – CI/CD, telemetry, etc."
+        - "Unclear"
+      default: "User-facing – external developers or customers"
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Maintainer-assigned priority for roadmap and triage.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+        - "Unclear"
+      default: "P2 – normal priority"
+
+  # --------------------------------------------------------------------
+  # SECTION: Final Confirmation
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        👉 Before submitting, please make sure to [review our contributing guide](../../blob/main/CONTRIBUTING.md) and [code of conduct](../../blob/main/CODE_OF_CONDUCT.md).
+
+  - type: dropdown
+    id: disclosure_preference
+    attributes:
+      label: Do you prefer to disclose this publicly?
+      options:
+        - Yes, it's okay to discuss openly
+        - No, I’d prefer private follow-up
+      default: Yes, it's okay to discuss openly
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Final Check – ready to submit?
+      description: Tick the box once you’ve filled everything you can.
+      options:
+        - label: I’ve provided all relevant information and reviewed for clarity
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        🙏 Thanks for taking the time to submit this A11y issue. We’ll review and respond as soon as possible.

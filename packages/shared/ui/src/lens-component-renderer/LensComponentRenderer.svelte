@@ -1077,8 +1077,8 @@ function collectCardStyles(key: Str): Record<Str, Str> {
 	const sim: Str = cardSimulations[key] ?? 'none';
 	if (sim !== 'none') {
 		s.simId = sim;
-		if (sim in COLOR_MATRICES) s.simMatrix = COLOR_MATRICES[sim];
-		if (sim in CSS_FILTERS) s.simCss = CSS_FILTERS[sim];
+		if (sim in COLOR_MATRICES) s.simMatrix = COLOR_MATRICES[sim] ?? '';
+		if (sim in CSS_FILTERS) s.simCss = CSS_FILTERS[sim] ?? '';
 	}
 	if (hasTunnelVision(key)) s.tunnel = '1';
 	const net: Str = cardNetworkSim[key] ?? 'none';
@@ -2610,7 +2610,7 @@ function isIconOption(option: Str): boolean {
 				<svg class="absolute size-0 overflow-hidden" aria-hidden="true">
 					<defs>
 						<filter id={filterId(cardKey)}>
-							<feColorMatrix type="matrix" values={COLOR_MATRICES[cardSimulations[cardKey]]} />
+							<feColorMatrix type="matrix" values={COLOR_MATRICES[cardSimulations[cardKey] ?? ''] ?? ''} />
 						</filter>
 					</defs>
 				</svg>

@@ -1,0 +1,174 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# YAML Metadata
+version: 1.0.0
+form_id: seo-cwv-degradation
+
+name: "🚨 SEO Core Web Vitals Degradation Alert"
+description: Report a decline in Core Web Vitals metrics impacting SEO and user experience.
+title: "[SEO CWV Degradation]: "
+labels:
+  - seo
+  - core-web-vitals
+  - performance
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contact of the individual submitting the report.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: CWV Regression Description
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📉 Core Web Vitals Regression  
+        Describe the performance degradation observed in Core Web Vitals metrics.
+
+  - type: textarea
+    id: cwv_alert
+    attributes:
+      label: Core Web Vitals Degradation
+      description: Describe which CWV metric degraded and provide page-level or system-level context.
+      placeholder: |
+        - LCP increased to 4.2s on blog homepage  
+        - CLS regressed on mobile layout due to dynamic content  
+        - INP spiked on checkout after input validation changes
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help us assess severity, urgency, and business or technical impact.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is resolving this issue?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P1 – high priority"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: From a technical standpoint, how severe is the performance regression?
+      options:
+        - "Critical – affects SEO and usability across site"
+        - "High – affects primary pages or core flows"
+        - "Medium – isolated to certain sections or routes"
+        - "Low – minor degradation, no blocking symptoms"
+      default: "High – affects primary pages or core flows"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly should this be addressed?
+      options:
+        - "Critical – immediate resolution required"
+        - "High – must be resolved this sprint"
+        - "Medium – resolve within next 2 sprints"
+        - "Low – fix in future cycle"
+      default: "Critical – immediate resolution required"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: Who or what is affected by this performance issue?
+      options:
+        - "Org-wide – all major user journeys impacted"
+        - "Team-wide – core team metrics or KPIs affected"
+        - "Single user or session – minor scope"
+        - "Unclear – needs further analysis"
+      default: "Team-wide – core team metrics or KPIs affected"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Supporting Links
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Evidence  
+        Share external sources or dashboards confirming the degradation.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Links to PageSpeed Insights, Lighthouse reports, RUM dashboards, or other monitoring tools.
+      placeholder: |
+        - https://pagespeed.web.dev/report?url=https://example.com  
+        - CrUX dataset export  
+        - Internal dashboard: Datadog, Umami, etc.
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Include screenshots, CWV traces, JSON exports, or HAR files for deeper triage.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste or upload performance artifacts related to the CWV degradation.
+      placeholder: |
+        ```json
+        {
+          "LCP": 4200,
+          "CLS": 0.18,
+          "INP": 310
+        }
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that this issue has been internally validated and contains actionable data.
+      options:
+        - label: I confirm this issue has been reviewed internally and contains accurate data.
+    validations:
+      required: true

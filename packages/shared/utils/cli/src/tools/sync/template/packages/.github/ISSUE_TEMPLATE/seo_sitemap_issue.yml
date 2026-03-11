@@ -1,0 +1,184 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Sitemap Issue
+# -------------------------------------------------------------------
+# Purpose: Report issues related to XML sitemap generation, formatting, or coverage
+# such as missing entries, incorrect URLs, misclassified page types, or syntax errors.
+# Generic, linted, and platform-agnostic.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-sitemap-issue
+
+name: "🗺️ SEO Sitemap Issue"
+description: Report issues related to sitemap generation, structure, or page coverage.
+title: "[SEO Sitemap Issue]: "
+labels:
+  - seo
+  - sitemap
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the person reporting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Sitemap Problem (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧭 Sitemap Problem  
+        Describe what's broken or missing in the sitemap output.
+
+  - type: textarea
+    id: sitemap_issue
+    attributes:
+      label: Sitemap Problem
+      description: Detail the issue, including missing URLs, syntax errors, incorrect page types, etc.
+      placeholder: |
+        - URL: /docs/intro not present in sitemap.xml  
+        - Problem: /blog/* URLs included but set to noindex  
+        - Issue: Generated sitemap includes query parameters (?ref=...)  
+        - Syntax: Sitemap index malformed — returns 500 on load  
+        - Expected: Sitemap includes /products, /guides, /docs, excludes /private/
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Provide details on severity, urgency, and who/what is affected.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How severe is this issue from a technical SEO perspective?
+      options:
+        - "Critical – sitemap fails to load or index properly"
+        - "High – key pages omitted or misrepresented"
+        - "Medium – incorrect URLs, metadata, or coverage patterns"
+        - "Low – cosmetic or low-priority URL inclusion"
+      default: "Medium – incorrect URLs, metadata, or coverage patterns"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly should this be investigated or resolved?
+      options:
+        - "Critical – must fix before next deploy"
+        - "High – fix this sprint"
+        - "Medium – address in next 2 sprints"
+        - "Low – backlog for monitoring"
+      default: "Next cycle – address in next 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What level of visibility or indexing is affected?
+      options:
+        - "Org-wide – indexation or discoverability failure at scale"
+        - "Team-wide – campaign, product, or doc visibility affected"
+        - "Single page – isolated or non-critical"
+        - "Unclear – needs validation"
+      default: "Team-wide – campaign, product, or doc visibility affected"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Assign a priority based on scope and SEO impact.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Validation (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Validation  
+        Add audit tools, validation reports, or logs that confirm the issue.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Add tools, PRs, crawler logs, sitemap validation URLs, or related tickets.
+      placeholder: |
+        - GSC: sitemap submitted but not processed  
+        - https://site.com/sitemap.xml returns 404  
+        - Screaming Frog: URLs present in crawl but not in sitemap  
+        - PR #881 modified `generate-sitemap.ts` logic
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Add exported sitemap XML, diff output, screenshots, or crawl data.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste or link XML markup, logs, or reports.
+      placeholder: |
+        ```xml
+        <url>
+          <loc>https://site.com/blog/post-1?ref=utm</loc>
+        </url>
+        <url>
+          <loc>https://site.com/private/internal-doc</loc>
+        </url>
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm internal validation of the sitemap issue.
+      options:
+        - label: I confirm this sitemap issue has been reviewed, validated, and is reproducible.
+    validations:
+      required: true

@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Contributor Identity Update
+# -------------------------------------------------------------------
+# Purpose: Request updates to names or credit attribution in docs or changelogs.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: contributor-identity-update
+
+name: "🪪 Contributor Identity Update"
+description: Request a name, affiliation, or credit update.
+title: "[Identity Update]: "
+labels:
+  - meta
+  - identity
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the requester.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Identity Update Details
+  # --------------------------------------------------------------------
+  - type: input
+    id: previous
+    attributes:
+      label: Previous Name or Attribution
+      description: Current or outdated name/handle.
+      placeholder: "e.g., John Doe, @oldhandle"
+    validations:
+      required: false
+
+  - type: input
+    id: updated
+    attributes:
+      label: Updated Name or Attribution
+      description: What should the updated name/handle/credit be?
+      placeholder: "e.g., Jane Smith, @newhandle"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Affected Files/Docs
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Files, Docs, or Changelogs Affected
+      description: Where should this change be reflected?
+      placeholder: |
+        e.g.,
+        - CONTRIBUTORS.md  
+        - CHANGELOG for v3.4.0  
+        - docs/team-bio.md
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm authenticity and intent of the request.
+      options:
+        - label: I confirm I am the individual named above or have legal right to request this update
+        - label: I understand this request may be reviewed before approval
+    validations:
+      required: true

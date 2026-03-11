@@ -1,0 +1,197 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: infrastructure-issue
+
+name: "🏗 Infrastructure Issue"
+description: Report problems related to CI/CD, environments, hosting, or infrastructure platforms.
+labels:
+  - infrastructure
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person reporting the infrastructure issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Issue Overview (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧱 Issue Summary  
+        Describe the infrastructure problem and its impact.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Provide a concise summary of the issue and relevant symptoms or failures.
+      placeholder: "e.g., Deploy to staging fails due to missing STRIPE_KEY ENV var"
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Explain how this issue affects workflows, systems, or users.
+      placeholder: "e.g., QA blocked from testing; staging is down; deploys halted"
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: tools
+    attributes:
+      label: Affected Tools or Services
+      description: List any relevant infrastructure, CI/CD tools, platforms, or services.
+      placeholder: "e.g., Argo CD v2.7.2, GCP GKE, Docker, Cloudflare, Sentry"
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Diagnostics (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔍 Diagnostics  
+        Share reproduction steps, context, and logs to help diagnose the issue.
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce (if applicable)
+      description: List any reproducible steps that lead to the issue. Optional if not consistently reproducible.
+      placeholder: |
+        1. Push to main  
+        2. CI runs deploy step  
+        3. See error: "Missing STRIPE_KEY"
+      render: markdown
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Add links to logs, dashboards, PRs, or monitoring tools that support diagnosis.
+      placeholder: |
+        - Sentry error: https://sentry.io/...  
+        - GKE logs: link  
+        - Related PR: #42  
+        - Cloudflare metrics: https://...
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help us prioritize and understand the technical severity of the issue.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance of resolving this issue in planning.
+      options:
+        - "Low – minor disruption"
+        - "Medium – affects normal workflows"
+        - "High – blocks deployments or releases"
+        - "Critical – breaks production or user access"
+      default: "Medium – affects normal workflows"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How disruptive is the issue from a systems or infrastructure standpoint?
+      options:
+        - "Low – warning or cosmetic"
+        - "Medium – partial service degradation"
+        - "High – system-wide impact"
+        - "Critical – full outage or major regression"
+      default: "Medium – partial service degradation"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When this needs to be resolved.
+      options:
+        - "Low – future fix"
+        - "Medium – within 1–2 sprints"
+        - "High – this sprint"
+        - "Critical – immediate action required"
+      default: "Medium – within 1–2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected?
+      options:
+        - "Single contributor"
+        - "Internal team or workflow"
+        - "Multiple teams or environments"
+        - "Production systems or external users"
+      default: "Internal team or workflow"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Attachments (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 References & Artifacts  
+        Link to logs or upload artifacts that support troubleshooting.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Add related issues, docs, dashboards, or incident reports.
+      placeholder: "e.g., incident postmortem, Grafana alert, GitHub issue #230"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Upload screenshots, CI logs, failure traces, or deployment configs.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm your report includes the necessary information for triage.
+      options:
+        - label: I have provided enough context, logs, or references to investigate this issue
+        - label: I understand this issue may be prioritized based on severity, urgency, and scope
+    validations:
+      required: true

@@ -1,0 +1,72 @@
+{{syncHeader ";;" "https://github.com/weavejester/cljfmt"}}
+
+;; =============================================================================
+;; cljfmt Configuration
+;; =============================================================================
+
+{
+ ;; =============================================================================
+ ;; Whitespace
+ ;; =============================================================================
+
+ ;; Remove trailing whitespace
+ :remove-trailing-whitespace? true
+
+ ;; Remove consecutive blank lines
+ :remove-consecutive-blank-lines? true
+
+ ;; Remove surrounding whitespace from code
+ :remove-surrounding-whitespace? true
+
+ ;; Insert missing whitespace
+ :insert-missing-whitespace? true
+
+ ;; Remove multiple non-indenting spaces between elements
+ :remove-multiple-non-indenting-spaces? true
+
+ ;; Ensure exactly one trailing newline at end of file
+ :normalize-newlines-at-file-end? true
+
+ ;; =============================================================================
+ ;; Indentation
+ ;; =============================================================================
+
+ ;; Use semantic indentation (based on function arguments)
+ :indentation? true
+
+ ;; Number of spaces for indentation
+ :indentation-width {{ format.alternate.indent_size }}
+
+ ;; Use parallel function calls indentation
+ :function-arguments-indentation :community
+
+ ;; Align ;; comments with surrounding code
+ :indent-line-comments? true
+
+ ;; =============================================================================
+ ;; Alignment (experimental)
+ ;; =============================================================================
+
+ ;; Align map keys and values into columns
+ :align-map-columns? false
+
+ ;; Align keys and values in binding forms (let, loop, etc.)
+ :align-form-columns? false
+
+ ;; Break hashmaps with multiple key-value pairs onto separate lines
+ :split-keypairs-over-multiple-lines? false
+
+ ;; =============================================================================
+ ;; Sort Namespace References
+ ;; =============================================================================
+
+ ;; Sort :require, :import, etc. in ns form
+ :sort-ns-references? true
+
+ ;; =============================================================================
+ ;; Performance
+ ;; =============================================================================
+
+ ;; Process files in parallel
+ :parallel? true
+}

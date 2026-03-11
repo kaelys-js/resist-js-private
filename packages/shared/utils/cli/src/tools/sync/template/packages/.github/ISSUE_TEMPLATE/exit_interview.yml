@@ -1,0 +1,189 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Exit Interview Notes
+# -------------------------------------------------------------------
+# Purpose: Capture offboarding insights from employees in a respectful,
+# privacy-conscious format. Suitable for anonymous or initials-based submission.
+# Enterprise-grade formatting and structure.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: exit-interview-notes
+
+name: "🛑 Exit Interview Notes"
+description: Document offboarding insights for departing employees to support organizational learning and improvement.
+title: "[Exit Interview]: "
+labels:
+  - offboarding
+  - hr
+  - employee
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Interview Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: interviewer
+    attributes:
+      label: Interviewer
+      description: GitHub username or full name of the person conducting the exit interview.
+      placeholder: "@your-handle or Full Name"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: Full name or GitHub username of the person submitting this form (if different from interviewer).
+      placeholder: "e.g., John Smith or @jsmith"
+    validations:
+      required: true
+
+  - type: input
+    id: references
+    attributes:
+      label: Employee Name or Initials (Optional)
+      description: Use initials or anonymized form if privacy is preferred.
+      placeholder: "e.g., A.B., John S."
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Exit Summary & Feedback (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📝 Exit Context  
+        Capture the employee’s reason for departure and any high-level themes.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Exit Reason
+      description: Voluntary departure, role mismatch, new opportunity, relocation, burnout, culture, etc.
+      placeholder: |
+        - Reason: Pursuing new opportunity in fintech  
+        - Tenure: 18 months  
+        - Final role: Senior Backend Engineer  
+        - Voluntary: Yes
+    validations:
+      required: true
+
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Key Feedback or Observations
+      description: Capture constructive or notable input about team dynamics, process, tech, leadership, etc.
+      placeholder: |
+        - Feedback: Strong onboarding, but unclear expectations in cross-functional initiatives  
+        - Engineering team culture was supportive  
+        - Felt underutilized on long-term roadmap
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Impact & Triage (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Organizational Severity
+      description: How significant are the themes or issues raised in this exit?
+      options:
+        - "Critical – retention or systemic breakdown"
+        - "High – recurring feedback or major trust impact"
+        - "Medium – isolated to team or manager"
+        - "Low – personal reasons with no actionable insight"
+      default: "Medium – isolated to team or manager"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this feedback be reviewed or acted on?
+      options:
+        - "Immediate – address in current cycle"
+        - "High – review this quarter"
+        - "Medium – review next quarter"
+        - "Low – track for trend analysis"
+      default: "Medium – review next quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What is the scale of potential action or change from this exit feedback?
+      options:
+        - "Org-wide – may affect hiring, retention, or trust"
+        - "Team-wide – pattern across roles or projects"
+        - "Individual – unique to this person"
+        - "Unclear – needs further input"
+      default: "Team-wide – pattern across roles or projects"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority for Action
+      description: How should this feedback be prioritized for HR or leadership follow-up?
+      options:
+        - "P0 – address immediately"
+        - "P1 – follow up this quarter"
+        - "P2 – log for tracking"
+        - "P3 – no immediate action"
+      default: "P2 – log for tracking"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Optional Attachments & Comments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Optional Context
+
+  - type: textarea
+    id: references
+    attributes:
+      label: Links / Context
+      description: Add links to documents, discussions, or handoff content.
+      placeholder: |
+        - Final 1:1 notes in Notion  
+        - Exit survey results (private link)  
+        - Performance feedback history or peer comments
+    validations:
+      required: false
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: Add screenshots, handoff documents, or additional notes.
+      placeholder: "Paste or link to relevant files (PDF, Markdown, etc)."
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Final Confirmation
+      description: Please confirm this submission is respectful and accurate.
+      options:
+        - label: This form is completed respectfully and intended for organizational learning only.
+    validations:
+      required: true

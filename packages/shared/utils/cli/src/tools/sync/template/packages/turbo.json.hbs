@@ -1,0 +1,172 @@
+{
+	"$schema": "{{schemaPath 'tooling/turbo'}}",
+	"globalDependencies": ["{{ paths.configFilename }}", "tsconfig.json"],
+	"globalPassThroughEnv": [
+		"NODE_ENV",
+		"CI",
+		"VITE_*",
+		"PUBLIC_*",
+		"CLOUDFLARE_*"
+	],
+	"ui": "tui",
+	"dangerouslyDisablePackageManagerCheck": false,
+	"boundaries": {
+		"product": {
+			"dependencies": {
+				"allow": ["shared"],
+				"deny": ["product"]
+			}
+		},
+		"shared": {
+			"dependents": {
+				"allow": ["product", "tools"]
+			}
+		},
+		"tools": {
+			"dependencies": {
+				"allow": ["shared", "product"]
+			}
+		}
+	},
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"!src/**/*.test.*",
+				"!src/**/*.spec.*",
+				"!src/**/*.bench.*"
+			],
+			"outputs": ["dist/**", "build/**", ".svelte-kit/**", ".wrangler/**"],
+			"outputLogs": "new-only"
+		},
+		"clean": {
+			"cache": false,
+			"outputs": []
+		},
+		"db:generate": {
+			"dependsOn": ["^build"],
+			"inputs": ["src/db/schema/**", "drizzle.config.*", "package.json"],
+			"outputs": ["src/db/migrations/**"],
+			"outputLogs": "new-only"
+		},
+		"db:migrate": {
+			"dependsOn": ["db:generate"],
+			"inputs": ["src/db/migrations/**"],
+			"outputs": [],
+			"cache": false
+		},
+		"db:seed": {
+			"dependsOn": ["db:migrate"],
+			"inputs": ["src/db/seed/**"],
+			"outputs": [],
+			"cache": false
+		},
+		"db:studio": {
+			"cache": false,
+			"persistent": true,
+			"interruptible": true
+		},
+		"deploy:preview": {
+			"dependsOn": ["build", "//#qa:format:check", "qa:checks", "qa:type-check", "qa:test", "qa:benchmark", "qa:test:coverage", "qa:test:e2e"],
+			"outputs": [],
+			"cache": false
+		},
+		"deploy:prod": {
+			"dependsOn": ["build", "//#qa:format:check", "qa:checks", "qa:type-check", "qa:test", "qa:benchmark", "qa:test:coverage", "qa:test:e2e"],
+			"outputs": [],
+			"cache": false
+		},
+		"deploy:staging": {
+			"dependsOn": ["build", "//#qa:format:check", "qa:checks", "qa:type-check", "qa:test", "qa:benchmark", "qa:test:coverage", "qa:test:e2e"],
+			"outputs": [],
+			"cache": false
+		},
+		"dev": {
+			"dependsOn": ["^build"],
+			"cache": false,
+			"persistent": true,
+			"interruptible": true
+		},
+		"dev:android": {
+			"dependsOn": ["^build"],
+			"cache": false,
+			"persistent": true,
+			"interruptible": true
+		},
+		"dev:desktop": {
+			"dependsOn": ["^build"],
+			"cache": false,
+			"persistent": true,
+			"interruptible": true
+		},
+		"dev:ios": {
+			"dependsOn": ["^build"],
+			"cache": false,
+			"persistent": true,
+			"interruptible": true
+		},
+		"preview": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"persistent": true,
+			"interruptible": true
+		},
+		"qa:benchmark": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$"],
+			"cache": false
+		},
+		"qa:checks": {
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"//#qa:format": {
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": [],
+			"cache": false
+		},
+		"//#qa:format:check": {
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"qa:test": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"qa:test:coverage": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": ["coverage/**"],
+			"outputLogs": "new-only"
+		},
+		"qa:test:e2e": {
+			"dependsOn": ["build"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"!src/**/*.test.*",
+				"!src/**/*.spec.*",
+				"!src/**/*.bench.*"
+			],
+			"outputs": ["playwright-report/**", "test-results/**"],
+			"outputLogs": "new-only",
+			"cache": false
+		},
+		"qa:test:unit": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"qa:type-check": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		}
+	}
+}

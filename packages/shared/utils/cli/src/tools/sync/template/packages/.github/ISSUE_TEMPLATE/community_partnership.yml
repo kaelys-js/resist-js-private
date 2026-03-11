@@ -1,0 +1,156 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Community Partnership Suggestion
+# -------------------------------------------------------------------
+# Purpose: Propose partnerships with developer communities, content platforms, or industry organizations.
+# Useful for co-marketing, awareness, integrations, or developer advocacy.
+# Tool-agnostic, audit-ready, and GitHub-compliant.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: community-partnership-suggestion
+
+name: "🤝 Community Partnership Suggestion"
+description: Propose a collaboration with an external developer community, creator, or ecosystem group.
+title: "[Community Partnership]: "
+labels:
+  - community
+  - partnership
+  - marketing
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or name of the person submitting this opportunity.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Partner Overview (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Partner Name or Group
+      description: Name of the proposed community, org, dev group, or event.
+      placeholder: |
+        - Partner: Biome Discord Server  
+        - Group: Cloud Native Tokyo  
+        - Org: Open Source Design Collective
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Opportunity Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Opportunity and Alignment
+      description: Describe the type of event, collaboration, or integration. Why does it matter?
+      placeholder: |
+        - Proposal: Co-host a Twitter Spaces or panel on open source build tools  
+        - Timeline: Next 4–6 weeks  
+        - Why: Strong overlap in tooling audience and Sentry users  
+        - Opportunity: Partner just crossed 10k Discord members
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference Links (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Contact or Website
+      description: Add a contact link or public facing context.
+      placeholder: |
+        - https://discord.gg/biome  
+        - @partner-handle on Twitter  
+        - community-lead@example.com  
+        - Internal pitch: Notion doc or proposal link
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Strategic Value
+      description: How valuable is this from a visibility or strategic perspective?
+      options:
+        - "Critical – high-impact launch, major brand exposure"
+        - "High – aligns with product goals or GTM plans"
+        - "Medium – good fit, moderate exposure"
+        - "Low – exploratory or low-effort boost"
+      default: "Medium – good fit, moderate exposure"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon does this need to be acted on?
+      options:
+        - "Immediate – must confirm within a few days"
+        - "Soon – finalize this sprint"
+        - "Next cycle – follow up next quarter"
+        - "Not urgent – track as optional growth"
+      default: "Next cycle – follow up next quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What teams or goals does this partnership support?
+      options:
+        - "Org-wide – marketing, DevRel, product, and hiring"
+        - "Team-wide – supports a product or campaign"
+        - "Single event or asset – localized visibility"
+        - "Unclear – validate or track"
+      default: "Team-wide – supports a product or campaign"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How should this be prioritized in planning and resourcing?
+      options:
+        - "P0 – top priority"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – low"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Please confirm this opportunity is worth consideration and has been reviewed.
+      options:
+        - label: I’ve confirmed this community is active and relevant.
+        - label: This is a legitimate growth, visibility, or engagement opportunity.
+    validations:
+      required: true

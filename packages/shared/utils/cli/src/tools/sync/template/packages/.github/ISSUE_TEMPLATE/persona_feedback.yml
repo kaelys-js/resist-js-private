@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Persona Feedback
+# -------------------------------------------------------------------
+# Purpose: Capture feedback from individuals based on their experience as a developer, reviewer, designer, or operator.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: persona-feedback
+
+name: "🎭 Persona Feedback"
+description: Share feedback based on your experience as a developer, reviewer, or other role.
+title: "[Persona Feedback]: "
+labels:
+  - feedback
+  - persona
+  - dx
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person submitting this feedback.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feedback Summary
+      description: Provide a concise summary of the feedback or suggestion.
+      placeholder: |
+        - Setup as a new dev was confusing (editor config missing)  
+        - Reviewer role unclear in CI failures  
+        - Role-based permissions make staging access inconsistent
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: Include relevant roles, systems, personas, or use cases involved.
+      placeholder: |
+        - Role: Infra SRE on-call  
+        - Use case: Reviewed a monorepo PR but lacked access to secrets  
+        - Context: Platform docs assumed default GitHub role setup
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Add links to documentation, issue threads, internal guides, or chat threads.
+      placeholder: |
+        - GitHub issue #112  
+        - https://docs.example.com/permissions-matrix  
+        - Discord thread from 2024-11-02
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How significant is the friction or gap for your role?
+      options:
+        - "Critical – major blocker to completing work"
+        - "High – causes repeated frustration"
+        - "Medium – impacts flow, but not blocking"
+        - "Low – minor annoyance or polish"
+      default: "Medium – impacts flow, but not blocking"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be addressed?
+      options:
+        - "Immediate – breaks flow today"
+        - "High – should be addressed this cycle"
+        - "Medium – resolve this quarter"
+        - "Low – backlog okay"
+      default: "Medium – resolve this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who else might experience this issue?
+      options:
+        - "Org-wide – multiple teams or personas"
+        - "Team-wide – others in my same function"
+        - "Individual – mostly isolated to my setup"
+        - "Unclear – needs clarification"
+      default: "Team-wide – others in my same function"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Overall priority considering impact and urgency.
+      options:
+        - "P0 – requires immediate action"
+        - "P1 – prioritize for next cycle"
+        - "P2 – good to fix this quarter"
+        - "P3 – backlog unless escalated"
+      default: "P2 – good to fix this quarter"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this is a valid and actionable insight.
+      options:
+        - label: I have reviewed existing issues to avoid duplication.
+        - label: I have provided enough detail for reviewers to understand the context.
+    validations:
+      required: true

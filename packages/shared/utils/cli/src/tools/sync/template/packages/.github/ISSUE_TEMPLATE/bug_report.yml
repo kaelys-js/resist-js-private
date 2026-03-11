@@ -1,0 +1,212 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: bug-report-form
+
+name: "🐞 Bug Report"
+description: Report a reproducible bug or defect with technical details and steps to reproduce.
+title: "[Bug] "
+labels:
+  - bug
+
+body:
+
+  # ------------------------------
+  # SECTION: System Metadata
+  # ------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person reporting this bug (auto-filled).
+      value: "@{{ github.actor }}"
+      placeholder: "@your-username"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Bug Summary & Reproduction
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧾 Bug Summary & Reproduction  
+        Provide a concise description and steps to reliably reproduce the issue.
+
+  - type: input
+    id: title
+    attributes:
+      label: Bug Title
+      description: A short summary of the issue.
+      placeholder: "e.g., App crashes on startup with Python 3.11"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Provide step-by-step instructions to trigger the bug.
+      placeholder: |
+        1. Launch the app  
+        2. Navigate to the login screen  
+        3. Enter valid credentials  
+        4. Observe crash
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen.
+      placeholder: "e.g., The user should be redirected to the dashboard."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened? Include any visible errors or stack traces.
+      placeholder: "e.g., App crashes with a TypeError: undefined is not a function"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Triage & Priority
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Priority & Severity  
+        Help us understand the urgency and impact of the bug.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance for planning and triage.
+      options:
+        - "Low – nice to fix eventually"
+        - "Medium – impacting multiple users"
+        - "High – blocking users or flows"
+        - "Critical – blocks releases or security"
+      default: "Medium – impacting multiple users"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: Technical impact of the bug.
+      options:
+        - "Minor – cosmetic or low impact"
+        - "Moderate – limits functionality"
+        - "Major – breaks a key feature"
+        - "Critical – causes crash or data loss"
+      default: "Moderate – limits functionality"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be fixed?
+      options:
+        - "Low – not time-sensitive"
+        - "Medium – this quarter"
+        - "High – next sprint"
+        - "Critical – must fix now"
+      default: "Medium – this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: Who or what is affected by this bug?
+      options:
+        - "Single user affected"
+        - "Multiple users affected"
+        - "Key feature or system impacted"
+        - "Production or financial impact"
+      default: "Multiple users affected"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: System Info & Logs
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧩 System Info & Logs  
+        Share environment details, logs, or stack traces for debugging.
+
+  - type: input
+    id: version
+    attributes:
+      label: App / Environment Version
+      description: App version, OS, browser, runtime, etc.
+      placeholder: "e.g., v2.3.1, macOS 14.4, Chrome 125"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or Stack Traces
+      description: Paste logs, error output, or stack traces. Use code blocks when possible.
+      placeholder: |
+        ```
+        TypeError: Cannot read properties of undefined (reading 'length')
+        at src/routes/login.ts:45:12
+        ```
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Screenshots or Logs (Optional)
+      description: PNG, JPG, TXT, MP4, etc. to support your report.
+      multiple: true
+
+  # ------------------------------
+  # SECTION: Additional Context
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧠 Additional Context  
+        Add any relevant flags, conditions, or observability signals.
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Context or Observability
+      description: Platform-specific flags, toggles, metrics, etc.
+      placeholder: |
+        - Only happens when FeatureFlagX is enabled  
+        - Affects only iOS, not Android  
+        - Observability dashboard shows a spike in errors
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Documentation
+      description: Add links to GitHub issues, documents, or IDs.
+      placeholder: "e.g., GitHub issue #142, internal doc link, spec reference"
+
+  # ------------------------------
+  # SECTION: Confirmation
+  # ------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this report is complete and actionable.
+      options:
+        - label: I confirm this report is complete and reproducible.
+    validations:
+      required: true

@@ -1,0 +1,180 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Canonical Conflict
+# -------------------------------------------------------------------
+# Purpose: Identify conflicting, incorrect, or missing canonical tags that may impact indexation,
+# duplicate handling, or canonical signaling to search engines.
+# Built to work across any stack or deployment environment.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-canonical-conflict
+
+name: "🔗 SEO Canonical Conflict"
+description: Identify conflicting canonical tags or misconfigured canonical logic.
+title: "[SEO Canonical Conflict]: "
+labels:
+  - seo
+  - canonical
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the person reporting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Canonical Conflict Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧾 Canonical Conflict  
+        Describe the canonical mismatch, duplication, or misimplementation.
+
+  - type: textarea
+    id: canonical_issue
+    attributes:
+      label: Canonical Conflict
+      description: List the affected URL(s), current canonical tag(s), and what they should be.
+      placeholder: |
+        - URL: /products/widget-red  
+        - Expected: `<link rel="canonical" href="https://site.com/products/widget-red">`  
+        - Found: `<link rel="canonical" href="https://site.com/products">`  
+        - Issue: Canonical incorrectly points to broader category, losing keyword value  
+        - Also seen: 2 conflicting canonical tags present in head
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help assess severity, urgency, and visibility risk.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How technically severe is this canonical misconfiguration?
+      options:
+        - "Critical – causes canonicalization of wrong page or duplication"
+        - "High – misguides indexing for key pages"
+        - "Medium – isolated to low-volume URLs or alternate routes"
+        - "Low – non-blocking or minor SEO hygiene issue"
+      default: "Medium – isolated to low-volume URLs or alternate routes"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How urgently does this need to be corrected?
+      options:
+        - "Critical – fix immediately before next deploy"
+        - "High – resolve in current sprint"
+        - "Medium – review within 2 sprints"
+        - "Low – backlog for monitoring"
+      default: "Next cycle – review within 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What’s affected if this canonical problem remains?
+      options:
+        - "Org-wide – indexation loss or canonical conflict across markets"
+        - "Team-wide – product or campaign visibility diluted"
+        - "Single page – isolated indexing risk"
+        - "Unclear – needs validation"
+      default: "Team-wide – product or campaign visibility diluted"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Set priority based on urgency, scope, and search impact.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Evidence (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Evidence  
+        Add links to audit tools, crawl diagnostics, dashboards, or change history.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Include crawl tools, HTML validation, GSC reports, or related discussions.
+      placeholder: |
+        - Screaming Frog canonical conflict for /products/widget-red  
+        - GSC → URL Inspection → canonical mismatch  
+        - Deployment diff → PR #302 altered head tag rendering  
+        - Ahrefs shows /widget-red dropped from index
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Include sample markup, crawl reports, or screenshots showing the issue.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste HTML snippets or export data highlighting canonical errors.
+      placeholder: |
+        ```html
+        <link rel="canonical" href="https://site.com/products">
+        <link rel="canonical" href="https://site.com/products/widget-red">
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that the issue is valid and has been reviewed internally.
+      options:
+        - label: I confirm this canonical issue is valid, reproducible, and internally reviewed.
+    validations:
+      required: true

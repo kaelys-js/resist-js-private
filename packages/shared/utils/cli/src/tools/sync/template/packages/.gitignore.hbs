@@ -1,0 +1,41 @@
+{{syncHeader "#" "https://git-scm.com/docs/gitignore"}}
+
+{{> ignore-common}}
+
+# Git: Negations (keep these tracked)
+!.env.example
+!.env.template
+!.env.schema
+!.dev.vars.example
+!.changeset/README.md
+!.changeset/config.json
+
+# Git: Yarn PnP exceptions
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Git: Private keys (too broad for shared partial)
+*.key
+
+# Git: VS Code (keep config files)
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# Git: Local developer state
+{{ paths.markerDir }}/
+.branding.*.yml
+.devenv.json
+
+# mise tool installations (workspace-scoped, auto-generated)
+.mise/
+# Keep the bootstrap script committed (./bin/mise is the entry point)
+!bin/mise
+
+# Lock files — DO NOT IGNORE
+# {{ pm.lockfile }} MUST be committed

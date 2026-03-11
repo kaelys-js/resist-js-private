@@ -1,0 +1,147 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Infra Drift Detection
+# -------------------------------------------------------------------
+# Purpose: Capture reproducible mismatches between Infrastructure-as-Code (IaC) and deployed infrastructure state.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: infra-drift-detection
+
+name: "🧱 Infra Drift Detection"
+description: Report differences between declared infrastructure and deployed state.
+title: "[Infra Drift]: "
+labels:
+  - infrastructure
+  - drift
+  - ops
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle of the person submitting this report.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Drift Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Drift Summary
+      description: What config or state has drifted and is out of sync with version-controlled infrastructure?
+      placeholder: |
+        - ArgoCD shows drift between `networkPolicy.yaml` and deployed state  
+        - Terraform plan shows undeclared resource in GCP  
+        - Helm values modified manually in live cluster
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Drift Context & Diff
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Drift Context
+      description: Reference Terraform/HCL, Helm charts, manifests, or diffs between expected vs. actual state.
+      placeholder: |
+        - Affected resource: `google_compute_instance.web-node`  
+        - Plan output: shows `tags` changed  
+        - Source: `infra/k8s/prod/helm-values.yaml`  
+        - Live: modified manually via `kubectl edit`  
+        - Drift detected: via Terraform plan and ArgoCD UI
+
+  # --------------------------------------------------------------------
+  # SECTION: Impact Assessment
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: Technical impact of the drift.
+      options:
+        - "Critical – live system misbehaving"
+        - "High – security or uptime risk"
+        - "Medium – breaks parity or automation"
+        - "Low – cosmetic or non-blocking"
+      default: "Medium – breaks parity or automation"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon must this be remediated?
+      options:
+        - "Immediate – must fix today"
+        - "High – this sprint"
+        - "Medium – next sprint"
+        - "Low – backlog"
+      default: "Medium – next sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: Who or what systems are affected?
+      options:
+        - "Org-wide – applies to shared infra"
+        - "Team-wide – scoped to a specific cluster or pipeline"
+        - "Single environment or service"
+        - "Unclear – needs triage"
+      default: "Team-wide – scoped to a specific cluster or pipeline"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Engineering priority level.
+      options:
+        - "P0 – immediate fix required"
+        - "P1 – fix this sprint"
+        - "P2 – scheduled fix"
+        - "P3 – doc only or warn"
+      default: "P2 – scheduled fix"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Artifacts
+      description: Provide logs or diff links for reproducibility.
+      placeholder: "e.g., Terraform plan, ArgoCD diff URL, kubectl output, Git commit"
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm scoping and reproducibility.
+      options:
+        - label: I’ve validated this with at least one run or config inspection
+        - label: I have not manually patched infra without IaC alignment
+    validations:
+      required: true

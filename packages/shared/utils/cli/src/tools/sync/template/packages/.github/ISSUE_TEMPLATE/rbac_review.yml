@@ -1,0 +1,189 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: RBAC Review Request
+# -------------------------------------------------------------------
+# Purpose: Request a review of Role-Based Access Control (RBAC) configuration for users, teams, or systems.
+# Scope includes over-permissioned access, missing roles, or violations of least privilege.
+# Tool-agnostic and suitable for any infrastructure or access management model.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: rbac-review-request
+
+name: "🔐 RBAC Review Request"
+description: Request a role or permissions review for a user, team, or system.
+title: "[RBAC Review]: "
+labels:
+  - rbac
+  - security
+  - permissions
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the person requesting the RBAC review.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: RBAC Context (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 👤 RBAC Context  
+        Describe the user, group, or service and what roles or permissions are under review.
+
+  - type: textarea
+    id: rbac_context
+    attributes:
+      label: RBAC Context
+      description: Describe the subject of the review and the expected vs current access state.
+      placeholder: |
+        - Subject: service-account:ci-runner@project  
+        - Current Role(s): roles/editor, roles/storage.admin  
+        - Expected: roles/viewer, roles/storage.objectViewer only  
+        - Context: Used only for artifact upload, current access exceeds need  
+        - Environment: GCP, ArgoCD, Sentry integrations
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Evaluate the security or operational impact of the permission misalignment.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Security Severity
+      description: How severe is the current access state from a security standpoint?
+      options:
+        - "Critical – violates principle of least privilege or poses high risk"
+        - "High – elevated access beyond operational need"
+        - "Medium – over-permissioned but with audit or isolation"
+        - "Low – cosmetic or legacy assignment with no risk"
+      default: "Medium – over-permissioned but with audit or isolation"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly should this request be reviewed?
+      options:
+        - "Critical – requires immediate revocation or change"
+        - "High – address this sprint"
+        - "Medium – address in next 2 sprints"
+        - "Low – add to access review backlog"
+      default: "Next cycle – address in next 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: What is affected if the current role configuration stays unchanged?
+      options:
+        - "Org-wide – introduces systemic security exposure"
+        - "Team-wide – violates audit/compliance for specific workflows"
+        - "Single user or account – limited blast radius"
+        - "Unclear – needs more investigation"
+      default: "Team-wide – violates audit/compliance for specific workflows"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Set an overall priority for addressing the RBAC issue.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Documentation (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Audit Context  
+        Link to IAM policies, diffs, logs, or configuration files relevant to the issue.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Links to policy files, PRs, audit logs, permission diagrams, or related tickets.
+      placeholder: |
+        - GCP IAM diff from terraform plan  
+        - ArgoCD AppProject RBAC config for @devops  
+        - Vault policy ID `team-admin-policy` vs `readonly-policy`  
+        - PR #812 adjusted access for all service accounts
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Add policy JSON/YAML, screenshots, or other audit evidence.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste or link to relevant files or logs.
+      placeholder: |
+        ```json
+        {
+          "bindings": [
+            {
+              "role": "roles/editor",
+              "members": [
+                "serviceAccount:ci-runner@project.iam.gserviceaccount.com"
+              ]
+            }
+          ]
+        }
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that this RBAC request has been reviewed and verified internally.
+      options:
+        - label: I confirm this RBAC issue is valid, internally reviewed, and actionable.
+    validations:
+      required: true

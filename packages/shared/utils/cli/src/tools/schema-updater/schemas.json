@@ -1,0 +1,235 @@
+{
+  "$schema": "./schemas.schema.json",
+  "schemas": {
+    "package": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/package.json",
+      "fileMatch": ["package.json"]
+    },
+    "tsconfig": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/tsconfig.json",
+      "fileMatch": ["tsconfig.json", "tsconfig.*.json"]
+    },
+    "turbo": {
+      "type": "remote",
+      "url": "https://raw.githubusercontent.com/vercel/turborepo/v{version}/packages/turbo-types/schemas/schema.json",
+      "versionSource": { "package": "turbo" },
+      "fileMatch": ["turbo.json", "turbo.jsonc"]
+    },
+    "biome": {
+      "type": "remote",
+      "url": "https://biomejs.dev/schemas/{version}/schema.json",
+      "versionSource": { "package": "@biomejs/biome" },
+      "fileMatch": ["biome.json", "biome.jsonc"]
+    },
+    "oxlint": {
+      "type": "remote",
+      "url": "https://raw.githubusercontent.com/oxc-project/oxc/oxlint_v{version}/npm/oxlint/configuration_schema.json",
+      "versionSource": { "package": "oxlint" },
+      "fileMatch": ["oxlint.json", ".oxlintrc.json"]
+    },
+    "prettierrc": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/prettierrc.json",
+      "versionCheck": { "tool": "prettier", "schemaWrittenForVersion": "3.8.1" },
+      "fileMatch": [".prettierrc", ".prettierrc.json"]
+    },
+    "eslintrc": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/eslintrc.json",
+      "fileMatch": [".eslintrc", ".eslintrc.json"]
+    },
+    "stylelintrc": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/stylelintrc.json",
+      "fileMatch": [".stylelintrc", ".stylelintrc.json"]
+    },
+    "ruff": {
+      "type": "remote",
+      "url": "https://raw.githubusercontent.com/astral-sh/ruff/v{version}/ruff.schema.json",
+      "versionSource": { "package": "ruff" },
+      "fileMatch": ["ruff.toml", ".ruff.toml", "pyproject.toml"]
+    },
+    "rustfmt": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/rustfmt.json",
+      "versionCheck": { "tool": "rustfmt", "schemaWrittenForVersion": "1.93.1" },
+      "fileMatch": ["rustfmt.toml", ".rustfmt.toml"]
+    },
+    "rubocop": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/rubocop.json",
+      "versionCheck": { "tool": "rubocop", "schemaWrittenForVersion": "1.84.2" },
+      "fileMatch": [".rubocop.yml"]
+    },
+    "lefthook": {
+      "type": "remote",
+      "url": "https://raw.githubusercontent.com/evilmartians/lefthook/v{version}/schema.json",
+      "versionSource": { "package": "lefthook" },
+      "fileMatch": ["lefthook.yml", "lefthook.yaml", ".lefthook.yml"]
+    },
+    "all-contributorsrc": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/all-contributorsrc.json",
+      "versionCheck": { "tool": "all-contributors-cli", "schemaWrittenForVersion": "6.26.1" },
+      "fileMatch": [".all-contributorsrc"]
+    },
+    "commitlint": {
+      "type": "local",
+      "path": "node_modules/@commitlint/config-validator/lib/commitlint.schema.json",
+      "fileMatch": [".commitlintrc", ".commitlintrc.json"]
+    },
+    "renovate": {
+      "type": "remote",
+      "url": "https://docs.renovatebot.com/renovate-schema.json",
+      "fileMatch": ["renovate.json", "renovate.json5", ".renovaterc", ".renovaterc.json"]
+    },
+    "dependabot": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/dependabot-2.0.json",
+      "fileMatch": [".github/dependabot.yml", ".github/dependabot.yaml"]
+    },
+    "wrangler": {
+      "type": "remote",
+      "url": "https://unpkg.com/wrangler@{version}/config-schema.json",
+      "versionSource": { "package": "wrangler" },
+      "fileMatch": ["wrangler.json", "wrangler.jsonc"]
+    },
+    "vscode-extensions": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/vs-extensions.json",
+      "fileMatch": [".vscode/extensions.json"]
+    },
+    "github-workflow": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/github-workflow.json",
+      "fileMatch": [".github/workflows/*.yml", ".github/workflows/*.yaml"]
+    },
+    "github-action": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/github-action.json",
+      "fileMatch": ["action.yml", "action.yaml"]
+    },
+    "github-issue-forms": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/github-issue-forms.json",
+      "fileMatch": [".github/ISSUE_TEMPLATE/*.yml", ".github/ISSUE_TEMPLATE/*.yaml"]
+    },
+    "github-issue-config": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/github-issue-config.json",
+      "fileMatch": [".github/ISSUE_TEMPLATE/config.yml", ".github/ISSUE_TEMPLATE/config.yaml"]
+    },
+    "knip": {
+      "type": "local",
+      "path": "node_modules/knip/schema.json",
+      "fileMatch": ["knip.json", "knip.jsonc", ".knip.json", ".knip.jsonc"]
+    },
+    "jscpd": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/jscpd.json",
+      "fileMatch": [".jscpd.json"]
+    },
+    "hadolint": {
+      "type": "remote",
+      "url": "https://raw.githubusercontent.com/hadolint/hadolint/v{version}/contrib/hadolint.json",
+      "versionSource": { "package": "hadolint" },
+      "fileMatch": [".hadolint.yaml", ".hadolint.yml"]
+    },
+    "typos": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/typos.json",
+      "fileMatch": ["typos.toml", ".typos.toml", "_typos.toml"]
+    },
+    "ls-lint": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/ls-lint.json",
+      "fileMatch": [".ls-lint.yml", ".ls-lint.yaml"]
+    },
+    "editorconfig": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/editorconfig.json",
+      "fileMatch": [".editorconfig"]
+    },
+    "taplo": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/taplo.toml.json",
+      "versionCheck": { "tool": "taplo", "schemaWrittenForVersion": "0.9.3" },
+      "fileMatch": ["taplo.toml", ".taplo.toml"]
+    },
+    "syncpack": {
+      "type": "local",
+      "path": "node_modules/syncpack/dist/schema.json",
+      "fileMatch": [".syncpackrc", ".syncpackrc.json"]
+    },
+    "actionlint": {
+      "type": "custom",
+      "path": "schemas/actionlint.schema.json",
+      "versionCheck": { "tool": "actionlint", "schemaWrittenForVersion": "1.7.11" },
+      "fileMatch": []
+    },
+    "yamllint": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/yamllint.json",
+      "fileMatch": [".yamllint", ".yamllint.yml", ".yamllint.yaml"]
+    },
+    "gitleaks": {
+      "type": "custom",
+      "path": "schemas/gitleaks.schema.json",
+      "fileMatch": [".gitleaks.toml", "gitleaks.toml"]
+    },
+    "lockfile-lint": {
+      "type": "custom",
+      "path": "schemas/lockfile-lint.schema.json",
+      "fileMatch": [".lockfile-lintrc"]
+    },
+    "stylua": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/stylua.json",
+      "versionCheck": { "tool": "stylua", "schemaWrittenForVersion": "2.3.1" },
+      "fileMatch": ["stylua.toml", ".stylua.toml"]
+    },
+    "blade-formatter": {
+      "type": "custom",
+      "path": "schemas/blade-formatter.schema.json",
+      "versionCheck": { "tool": "blade-formatter", "schemaWrittenForVersion": "1.44.2" },
+      "fileMatch": [".blade-formatter.json"]
+    },
+    "swift-format": {
+      "type": "custom",
+      "path": "schemas/swift-format.schema.json",
+      "versionCheck": { "tool": "swift-format", "schemaWrittenForVersion": "602.0.0" },
+      "fileMatch": [".swift-format"]
+    },
+    "analysis-options": {
+      "type": "custom",
+      "path": "schemas/analysis-options.schema.json",
+      "versionCheck": { "tool": "dart", "schemaWrittenForVersion": "3.11.0" },
+      "fileMatch": ["analysis_options.yaml"]
+    },
+    "pnpm-workspace": {
+      "type": "remote",
+      "url": "https://json.schemastore.org/pnpm-workspace.json",
+      "fileMatch": ["pnpm-workspace.yaml"]
+    },
+    "csharpier": {
+      "type": "custom",
+      "path": "schemas/csharpier.schema.json",
+      "versionCheck": { "tool": "csharpier", "schemaWrittenForVersion": "1.2.6" },
+      "fileMatch": [".csharpierrc", ".csharpierrc.json"]
+    },
+    "buildifier": {
+      "type": "custom",
+      "path": "schemas/buildifier.schema.json",
+      "versionCheck": { "tool": "buildifier", "schemaWrittenForVersion": "8.5.1" },
+      "fileMatch": [".buildifier.json"]
+    },
+    "cmake-format": {
+      "type": "custom",
+      "path": "schemas/cmake-format.schema.json",
+      "versionCheck": { "tool": "cmake-format", "schemaWrittenForVersion": "0.6.13" },
+      "fileMatch": [".cmake-format.json", ".cmake-format.yaml"]
+    }
+  }
+}

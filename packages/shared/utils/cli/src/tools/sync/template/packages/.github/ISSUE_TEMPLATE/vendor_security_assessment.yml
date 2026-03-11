@@ -1,0 +1,154 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Vendor Security Assessment
+# -------------------------------------------------------------------
+# Purpose: Request an internal review of a third-party vendor or service from a security, privacy, and compliance perspective.
+# Designed for enterprise environments with legal, infosec, and procurement stakeholders.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: vendor-security-assessment
+
+name: "🔐 Vendor Security Assessment"
+description: Request security review of a third-party vendor or tool before integration or procurement.
+title: "[Vendor Security Review]: "
+labels:
+  - security
+  - vendor
+  - review
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or name of the requester.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Vendor Information (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Vendor or Product Name
+      description: Name and purpose of the vendor/tool being assessed.
+      placeholder: |
+        - Name: Acme Analytics  
+        - Use: Event tracking and funnel visualization for growth team  
+        - Type: Web-based SaaS
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Integration Scope (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Integration Scope
+      description: What data will be accessed or processed, and what permissions or roles will be granted?
+      placeholder: |
+        - Data: PII (emails, IP addresses), usage logs  
+        - Scope: Read access to production PostgreSQL replica  
+        - Users: Marketing team only via SSO  
+        - Duration: Long-term integration for analytics
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Docs or Assessment Links
+      description: Share any vendor-provided security documents, policies, or public reports.
+      placeholder: |
+        - https://acme.com/security  
+        - SOC 2 Type II PDF  
+        - Privacy Policy: https://acme.com/privacy
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Sensitivity Level
+      description: What sensitivity of data is involved in this integration?
+      options:
+        - "Critical – production systems, customer data, or financial systems"
+        - "High – internal-only but sensitive access"
+        - "Medium – access to anonymized, sandboxed, or staged data"
+        - "Low – no access to sensitive data"
+      default: "High – internal-only but sensitive access"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When is this review needed?
+      options:
+        - "Immediate – blocking procurement or launch"
+        - "High – needed this sprint"
+        - "Medium – required next quarter"
+        - "Low – exploratory or future consideration"
+      default: "Medium – required next quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Organizational Impact
+      description: Who or what will be affected if the vendor is approved?
+      options:
+        - "Org-wide – core platform or shared systems"
+        - "Department-level – specific business unit (e.g., Growth, Finance)"
+        - "Team-level – single function or project"
+        - "Unclear – needs triage"
+      default: "Department-level – specific business unit (e.g., Growth, Finance)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Review Priority
+      description: Prioritize this request in the security review queue.
+      options:
+        - "P0 – critical"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – low"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that this vendor has access to sensitive information and may trigger compliance review.
+      options:
+        - label: This vendor will process or access sensitive or internal data.
+        - label: I understand this may require legal, infosec, and compliance review.
+    validations:
+      required: true

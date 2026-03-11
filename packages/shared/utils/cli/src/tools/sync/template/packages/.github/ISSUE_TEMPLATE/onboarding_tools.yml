@@ -1,0 +1,155 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: New Hire Tooling Setup Tracker
+# -------------------------------------------------------------------
+# Purpose: Track engineering new hire onboarding progress for standard tools and environments.
+# Structured for IT, DevOps, and team leads to verify completion of baseline provisioning.
+# Stack-agnostic and schema-compliant.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: new-hire-tooling-setup
+
+name: "🎓 New Hire Tooling Setup Tracker"
+description: Track onboarding completion for engineering tools and environments.
+title: "[New Hire Setup]: "
+labels:
+  - onboarding
+  - it
+  - employee
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Identity & Tracking (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person completing the checklist.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Employee Name or Handle
+      description: Enter the name, initials, or GitHub handle of the new hire.
+      placeholder: |
+        - Full name: Jane Doe  
+        - GitHub: @janedoe  
+        - Preferred: J.D.
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Setup Status (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧰 Tools Provisioned  
+        List what tools have been configured and confirmed functional.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Tools Provisioned
+      description: Confirmed setup such as GitHub, VPN, IDE, Slack, 2FA, shell profiles, SSO, Docker access, etc.
+      placeholder: |
+        - ✅ GitHub account added to org  
+        - ✅ Slack invite sent + joined #team-dev  
+        - ✅ VPN access verified  
+        - ✅ Docker CLI + registry login works  
+        - ⏳ ArgoCD dashboard access requested  
+        - ⏳ Sentry + Umami access pending
+
+  # --------------------------------------------------------------------
+  # SECTION: Support References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: IT Checklist or Tracker
+      description: Link to checklist, Notion doc, or internal access tracking page.
+      placeholder: "e.g., https://company.notion.site/Onboarding-Checklist or internal ticket ID"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Access Readiness
+      description: What level of setup completeness has been reached?
+      options:
+        - "Critical – blocker for day-one access"
+        - "High – multiple tools not configured"
+        - "Medium – most access granted but minor gaps remain"
+        - "Low – all core tooling provisioned"
+      default: "Medium – most access granted but minor gaps remain"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this access need to be finalized?
+      options:
+        - "Immediate – needed before start date"
+        - "High – resolve by end of week"
+        - "Medium – resolve within next 2 sprints"
+        - "Low – async or non-blocking"
+      default: "High – resolve by end of week"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Scope
+      description: What is the scope of work blocked by this onboarding?
+      options:
+        - "Org-wide – multiple teams relying on access"
+        - "Team-wide – core squad dependency"
+        - "Single user – individual onboarding only"
+        - "Unclear – needs follow-up"
+      default: "Single user – individual onboarding only"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Set overall priority for completing this setup.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Final Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that you've verified access and escalated if needed.
+      options:
+        - label: I’ve verified the tools provisioned are working.
+        - label: I’ve coordinated with IT or a manager where access is pending.
+    validations:
+      required: true

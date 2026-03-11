@@ -1,0 +1,148 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: tutorial-request
+
+name: "📘 Tutorial Request"
+description: Request a tutorial to understand or implement a specific feature, workflow, or integration.
+labels:
+  - documentation
+  - tutorial
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person requesting the tutorial.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Tutorial Request Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: topic
+    attributes:
+      label: 📌 Tutorial Topic
+      description: What should the tutorial help you understand or build?
+      placeholder: "e.g., Integrating Stripe with billing system"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 🎯 What Are You Trying to Learn or Accomplish?
+      description: |
+        Describe your learning goal or implementation challenge. Include tools, services, and context.
+        Mention blockers, relevant configuration, or architectural details that would make the tutorial more useful.
+
+        Example tools: `bun`, `TypeScript`, `valibot`, `GCP`, `Kubernetes`, `Stripe`, 
+        `Argo`, `Biome`, `Docker`, `Svelte`, `iOS`, `Android`, `App Stores`, 
+        `Umami`, `Observability stack`, `Sentry`, `Cloudflare`
+      placeholder: |
+        e.g., I'm trying to validate Stripe webhook events in a Bun-based API using valibot.  
+        We're deployed on GCP via Argo CD, and need end-to-end tracing with Sentry and metrics in Umami.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help us prioritize this request based on need and reach.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this tutorial to unblock or enable work?
+      options:
+        - Low – nice to have for future
+        - Medium – supports current planning
+        - High – needed this cycle
+        - Critical – immediately unblocks a feature or delivery
+      default: Medium – supports current planning
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Knowledge Gap Severity
+      description: How severe is the lack of this documentation or tutorial?
+      options:
+        - Low – curiosity or learning aid
+        - Medium – slows down productivity
+        - High – leads to confusion or misuse
+        - Critical – blocks secure, correct implementation
+      default: Medium – slows down productivity
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When is this needed to support your goals?
+      options:
+        - Low – any time in future
+        - Medium – this quarter
+        - High – within 2 sprints
+        - Critical – this sprint
+      default: Medium – this quarter
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Who Would This Help?
+      description: Scope of contributors or teams that would benefit from this tutorial.
+      options:
+        - Single contributor or learner
+        - Internal team or feature crew
+        - Cross-team or platform-level
+        - External users or customers
+      default: Internal team or feature crew
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: 🔗 Related Docs, Examples, or Issues
+      description: Link any existing docs, GitHub issues, discussion threads, or RFCs relevant to your request.
+      placeholder: "e.g., GitHub issue #234, docs/stripe-webhooks.md, RFC #41"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: 📎 Upload Supporting Files (Optional)
+      description: Add mockups, workflows, logs, or example code you'd like the tutorial to address.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Requester Confirmation
+      description: Confirm this is a valid and clearly defined request for learning or enablement content.
+      options:
+        - label: I have searched existing tutorials and documentation first
+        - label: I have provided enough context for a useful tutorial to be created
+    validations:
+      required: true

@@ -1,0 +1,166 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Experiment Setup Request
+# -------------------------------------------------------------------
+# Purpose: Request support for launching and tracking A/B or multivariate tests.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: experiment-setup-request
+
+name: "🧪 Experiment Setup Request"
+description: Request support for an A/B test or feature experiment.
+title: "[Experiment]: "
+labels:
+  - experimentation
+  - product
+  - feature-flag
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or team name submitting the request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Experiment Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: experiment_name
+    attributes:
+      label: Experiment Name
+      description: Unique name or label for the experiment.
+      placeholder: "e.g., onboarding-copy-ab-test"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Hypothesis (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis & Goal
+      description: Clearly state the goal of the experiment and the hypothesis being tested.
+      placeholder: |
+        We believe that clearer checkout copy will reduce Stripe payment failures by 5%.  
+        Success = conversion rate lift, lower form abandonment.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Variants and Targeting (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: setup
+    attributes:
+      label: Variants & Targeting
+      description: Describe variants and target audience (e.g., country, device, cohort).
+      placeholder: |
+        - A: Current behavior  
+        - B: Adds inline help text  
+        - Target: Mobile-only users in Canada
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Metrics (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Success Metrics
+      description: Define which KPIs, product metrics, or technical signals will indicate success.
+      placeholder: |
+        - Conversion rate  
+        - Stripe error rate  
+        - Form bounce rate
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What’s the impact if this experiment is delayed or skipped?
+      options:
+        - "Critical – tied to major launch or OKR"
+        - "High – affects roadmap confidence or go-to-market"
+        - "Medium – informs iteration or usability improvements"
+        - "Low – exploratory or speculative"
+      default: "Medium – informs iteration or usability improvements"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be launched?
+      options:
+        - "Immediate – blocking a go/no-go"
+        - "High – within the current sprint"
+        - "Medium – within the next planning cycle"
+        - "Low – schedule when bandwidth allows"
+      default: "Medium – within the next planning cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what systems are affected?
+      options:
+        - "Customer-facing – impacts live users or revenue"
+        - "Internal – for dev tooling, adoption, or UX clarity"
+        - "Infrastructure – impacts system behavior or telemetry"
+        - "Exploratory – doesn’t affect production behavior"
+      default: "Customer-facing – impacts live users or revenue"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Assign priority for resourcing, tracking, and implementation.
+      options:
+        - "P0 – top priority for go-to-market"
+        - "P1 – must-have by milestone deadline"
+        - "P2 – backlog until approved or resourced"
+        - "P3 – log for future research"
+      default: "P2 – backlog until approved or resourced"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Please confirm before submitting.
+      options:
+        - label: I understand this requires opt-in and cleanup tracking
+        - label: I will define a success metric and duration
+    validations:
+      required: true

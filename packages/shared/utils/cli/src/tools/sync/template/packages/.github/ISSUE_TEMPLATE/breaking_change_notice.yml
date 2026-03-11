@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Breaking Change Intent to Ship
+# -------------------------------------------------------------------
+# Purpose: Formalize notification of breaking changes and ensure affected teams are aware, migration paths exist, and impact is scoped.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: breaking-change-intent
+
+name: "📣 Breaking Change Intent to Ship"
+description: Notify users or teams about upcoming breaking changes.
+title: "[Breaking Change]: "
+labels:
+  - breaking-change
+  - release
+  - notice
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or team member submitting this notice.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary of Breaking Change (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: What Will Break?
+      description: Describe the change, what will break, and why it's necessary.
+      placeholder: |
+        - Removing deprecated `v1/token` API endpoint  
+        - Renaming `auth_mode` param to `strategy`  
+        - Required validation added for new field in schema
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Affected Systems/Users (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Impacted Users or Systems
+      description: Who is impacted and what actions are required?
+      placeholder: |
+        - Internal services using legacy auth  
+        - Self-hosted deployments before version 3.0  
+        - Frontend clients using `/v1/token`
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Resources (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Migration Docs
+      description: Links to changelogs, guides, PRs, or discussion threads.
+      placeholder: |
+        - https://github.com/org/repo/issues/123  
+        - https://notion.so/migration-guide-v3  
+        - https://github.com/org/repo/pull/456
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Impact Triage (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Breaking Severity
+      description: How disruptive is this change?
+      options:
+        - "Critical – core APIs or protocols breaking"
+        - "High – likely to require code changes"
+        - "Medium – affects config, build, or tooling"
+        - "Low – edge case or deprecated usage"
+      default: "High – likely to require code changes"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Rollout Urgency
+      description: How soon is the change going live?
+      options:
+        - "Immediate – within 24–48 hours"
+        - "High – this sprint"
+        - "Medium – next release"
+        - "Low – no timeline set"
+      default: "Medium – next release"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected?
+      options:
+        - "Org-wide – platform or core contract"
+        - "Team-level – SDKs, integrations, internal tooling"
+        - "Customer-facing – API/SDK/app users"
+        - "Unclear – triage needed"
+      default: "Customer-facing – API/SDK/app users"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Suggested visibility and follow-up level.
+      options:
+        - "P0 – announce and block merge until ready"
+        - "P1 – follow-up required post-release"
+        - "P2 – async visibility"
+        - "P3 – future-facing or minimal impact"
+      default: "P1 – follow-up required post-release"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm all precautions have been taken for responsible shipping.
+      options:
+        - label: I’ve provided a migration path or rollback option.
+        - label: I’ve coordinated this with affected teams or maintainers.
+    validations:
+      required: true

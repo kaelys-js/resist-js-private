@@ -1,0 +1,13 @@
+{{syncHeader "#" "https://infisical.com/docs/self-hosting/deployment-options/kubernetes-helm"}}
+
+infisical:
+  image:
+    repository: infisical/infisical
+    tag: "v{{ tooling.infisical.serverVersion }}"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+
+ingress:
+  enabled: true
+  hostName: "{{ tooling.infisical.siteUrl }}"
+  ingressClassName: traefik

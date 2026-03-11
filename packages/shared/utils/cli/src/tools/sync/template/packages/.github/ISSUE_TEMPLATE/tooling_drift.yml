@@ -1,0 +1,185 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Tooling Drift
+# -------------------------------------------------------------------
+# Purpose: Report drift between environments, configurations, or tooling versions that deviate
+# from expected or approved standards (e.g. biome, bun, Docker, CI, K8s config, etc).
+# Stack-agnostic, schema-compliant, and enterprise-grade.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: tooling-drift
+
+name: "🧰 Tooling Drift"
+description: Report deviation from approved toolchains, build systems, runtime versions, or configurations.
+title: "[Tooling Drift]: "
+labels:
+  - tooling
+  - drift
+  - infra
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the person submitting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Drift Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔧 Drift Description  
+        Describe the tooling mismatch or deviation from expected configuration or version.
+
+  - type: textarea
+    id: drift_details
+    attributes:
+      label: Drift Description
+      description: Describe the observed drift in tooling, environment, or config and where it was detected.
+      placeholder: |
+        - Tool: biome  
+        - Expected: biome@1.10.0 (via .tool-versions, lockfile)  
+        - Observed: biome@1.8.3 used in CI container  
+        - Affected File(s): /.tool-versions, /.github/workflows/lint.yaml  
+        - Issue: Lint results are inconsistent between local and CI
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Estimate the scope and urgency of addressing this drift.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How technically disruptive is the drift?
+      options:
+        - "Critical – breaks builds or test reproducibility"
+        - "High – causes conflicting behavior across environments"
+        - "Medium – non-breaking but inconsistent tooling outcomes"
+        - "Low – does not affect output, only advisory"
+      default: "Medium – non-breaking but inconsistent tooling outcomes"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this drift be resolved?
+      options:
+        - "Critical – fix immediately or before next deploy"
+        - "High – fix this sprint"
+        - "Medium – fix in next 2 sprints"
+        - "Low – monitor or backlog"
+      default: "Next cycle – fix in next 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What area of work or team is affected by the drift?
+      options:
+        - "Org-wide – drift in shared CI/CD or container image"
+        - "Team-wide – affects multiple developers or services"
+        - "Single user/machine – localized issue"
+        - "Unclear – needs further validation"
+      default: "Team-wide – affects multiple developers or services"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Set the priority based on severity, urgency, and blast radius.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Diagnostics (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Context  
+        Add diffs, build logs, configs, or links to related PRs or monitoring dashboards.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Add GitHub links, diffs, configs, issue threads, or internal tools.
+      placeholder: |
+        - PR #1902 updated biome config without lock update  
+        - .tool-versions differs from Dockerfile setup  
+        - Observed in sentry-bun image vs base GCP runner  
+        - GitHub Actions workflow cache for biome not updating
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Include config diffs, CLI logs, or screenshots of mismatches.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste output from CLI, diffs, or screenshots validating the tooling drift.
+      placeholder: |
+        ```diff
+        - biome@1.10.0
+        + biome@1.8.3
+        ```
+        ```bash
+        $ biome --version
+        1.8.3
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this tooling drift has been verified and internally reviewed.
+      options:
+        - label: I confirm this tooling drift has been validated and reflects an actual deviation.
+    validations:
+      required: true

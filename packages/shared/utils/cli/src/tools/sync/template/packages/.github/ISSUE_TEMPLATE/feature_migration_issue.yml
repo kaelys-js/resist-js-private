@@ -1,0 +1,186 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: feature-migration-issue
+
+name: "🚚 Feature Migration Issue"
+description: Report issues encountered while migrating to a new version, API, or feature. Include enough detail for diagnosis and resolution.
+labels:
+  - migration
+  - bug
+  - upgrade
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person reporting the migration issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Version Information (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔄 Migration Context  
+        Specify what version you're upgrading from and to, and describe what’s not working.
+
+  - type: input
+    id: version
+    attributes:
+      label: From → To Version
+      description: Version before and after the migration.
+      placeholder: "e.g., 1.2.3 → 2.0.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: Describe the Problem
+      description: What broke during or after migration? Include errors, missing APIs, or regressions.
+      placeholder: |
+        - SSR fails after upgrading to Bun 1.0.0  
+        - `validateInput()` was removed with no clear replacement  
+        - Stripe webhook logic incompatible with Valibot v0.27  
+        - Sentry logs missing in production SSR mode
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: What Have You Tried?
+      description: List migration steps, mitigation attempts, docs consulted, or rollbacks.
+      placeholder: |
+        - Followed guide in `docs/migrating-to-v2.md`  
+        - Replaced deprecated calls with new APIs  
+        - Adjusted Dockerfile to support new runtime  
+        - Reviewed logs with Sentry and Umami for regressions
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment (Optional)
+      description: Add details on the infrastructure, runtime, or stack used.
+      placeholder: |
+        - Bun v1.0.4, TypeScript 5.4, Valibot 0.27  
+        - GKE + Argo CD + Cloudflare  
+        - SvelteKit SSR deployed via Docker  
+        - Stripe, Sentry, Umami observability stack
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help assess the urgency, impact, and severity of this migration issue.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Business importance of resolving this migration issue.
+      options:
+        - "Low – workaround available"
+        - "Medium – slows development or QA"
+        - "High – blocks delivery timelines"
+        - "Critical – urgent production release blocker"
+      default: "Medium – slows development or QA"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How technically disruptive or broken the system is.
+      options:
+        - "Low – cosmetic or optional usage"
+        - "Medium – partial functionality broken"
+        - "High – major functionality not working"
+        - "Critical – complete failure or system crash"
+      default: "Medium – partial functionality broken"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon this needs to be addressed.
+      options:
+        - "Low – future improvement"
+        - "Medium – next sprint resolution"
+        - "High – this sprint resolution"
+        - "Critical – immediate triage required"
+      default: "Medium – next sprint resolution"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by this migration issue?
+      options:
+        - "Single contributor or test environment"
+        - "Internal team or staging systems"
+        - "Multiple services or teams"
+        - "Production or external users"
+      default: "Internal team or staging systems"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting Info (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 References & Attachments  
+        Share logs, diffs, or links that help reproduce or clarify the issue.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Docs
+      description: Link to migration guides, changelogs, RFCs, or related issues.
+      placeholder: "e.g., migration-guide.md, GitHub issue #401, changelog v2.0"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Upload logs, screenshots, diffs, or patches.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that you've reviewed migration materials and provided sufficient information.
+      options:
+        - label: I have reviewed the release notes and migration documentation for the version I'm upgrading to
+        - label: I have provided enough detail to help reproduce or investigate this issue
+    validations:
+      required: true

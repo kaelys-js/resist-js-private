@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Deprecation Completion Tracker
+# -------------------------------------------------------------------
+# Purpose: Track status, cleanup, and communication of deprecated
+# features, APIs, or infrastructure being sunset.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: deprecation-completion-tracker
+
+name: "🏁 Deprecation Completion Tracker"
+description: Track status and cleanup of deprecated features or APIs.
+title: "[Deprecation Cleanup]: "
+labels:
+  - deprecation
+  - tracking
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the submitter.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Deprecation Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Deprecated Feature or Component
+      description: What is being deprecated, and why?
+      placeholder: |
+        - `v1/legacy-api` is no longer in use and should be removed  
+        - Old webhook handler replaced by v2 event queue  
+        - Internal cron job superseded by external scheduler
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context & History (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Detail
+      description: Include systems affected, migration timeline, risks, and communication sent.
+      placeholder: |
+        - Clients migrated to new endpoint by April  
+        - Feature flag rollout completed  
+        - Final usage warning sent via dashboard 2025-06-01
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or References
+      description: Docs, issues, dashboards, or migration PRs.
+      placeholder: |
+        - GitHub issue #123  
+        - Cleanup checklist in Notion  
+        - PR #9011 for endpoint removal
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: Risk level if this deprecation is not completed.
+      options:
+        - "Critical – security or functionality risk"
+        - "High – causes confusion or duplicated effort"
+        - "Medium – legacy debt but non-blocking"
+        - "Low – cosmetic or doc-only"
+      default: "Medium – legacy debt but non-blocking"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this deprecation be finalized?
+      options:
+        - "Immediate – within this sprint"
+        - "High – within the next release cycle"
+        - "Medium – before next quarter"
+        - "Low – track and revisit"
+      default: "High – within the next release cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by this deprecation?
+      options:
+        - "Org-wide – external customers or APIs"
+        - "Team-wide – internal tooling or interfaces"
+        - "Service-level – microservice or job specific"
+        - "Unclear – investigation required"
+      default: "Team-wide – internal tooling or interfaces"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Overall priority for cleanup, migration, and comms.
+      options:
+        - "P0 – must complete immediately"
+        - "P1 – high priority cleanup"
+        - "P2 – track and complete when resourced"
+        - "P3 – minimal urgency"
+      default: "P2 – track and complete when resourced"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this deprecation tracker is ready for review.
+      options:
+        - label: I have verified this is not already tracked elsewhere.
+        - label: I have included enough context to take action or schedule work.
+    validations:
+      required: true

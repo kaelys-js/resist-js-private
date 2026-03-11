@@ -1,0 +1,148 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: tooling-integration-request
+
+name: "🧩 Tooling Integration Request"
+description: Propose a new tool, service, or platform integration to enhance workflows, visibility, or platform capabilities.
+labels:
+  - integration
+  - tooling
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this integration request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Tooling Proposal (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: tool
+    attributes:
+      label: 🧰 Tool or Platform Name
+      description: Name of the tool, service, or platform you'd like to integrate.
+      placeholder: "e.g., Datadog, LaunchDarkly, Cloudflare Workers"
+    validations:
+      required: true
+
+  - type: textarea
+    id: value
+    attributes:
+      label: 💡 What Value Would This Bring?
+      description: Explain what this integration enables or improves. Relate it to existing stack components if relevant.
+      placeholder: |
+        This would help us by:  
+        - Improving observability with better metrics and alerting  
+        - Reducing CI flakiness with more reliable feature flags (LaunchDarkly)  
+        - Enhancing edge performance via Cloudflare Workers  
+        Relevant stack: GCP, Bun, TypeScript, Valibot, Argo CD, Docker, Svelte, Umami, Cloudflare
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help assess the priority, scope, and complexity of the proposed integration.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Strategic value or timing for this integration.
+      options:
+        - Low – exploratory or wishlist
+        - Medium – supports roadmap or upcoming need
+        - High – enables key initiative or OKR
+        - Critical – blocks compliance, scaling, or delivery
+      default: Medium – supports roadmap or upcoming need
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Platform Impact
+      description: What level of functionality, visibility, or coverage would this integration affect?
+      options:
+        - Low – minor enhancement
+        - Medium – affects a service or workflow
+        - High – improves reliability or observability system-wide
+        - Critical – affects release processes or infrastructure health
+      default: Medium – affects a service or workflow
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be evaluated or implemented?
+      options:
+        - Low – track for future
+        - Medium – evaluate this quarter
+        - High – needed this sprint
+        - Critical – immediate requirement
+      default: Medium – evaluate this quarter
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Affected Scope
+      description: Who or what benefits from this tooling integration?
+      options:
+        - Single developer or team
+        - Multiple internal teams
+        - Entire engineering org
+        - End-user experience or external SLAs
+      default: Multiple internal teams
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Supporting Material (Optional)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: 🔗 Relevant Links or Examples
+      description: Add links to docs, prior evaluations, benchmarks, or vendor sites.
+      placeholder: "e.g., https://www.datadoghq.com, GitHub issue #42, internal tool analysis"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: 📎 Upload Supporting Files (Optional)
+      description: Attach vendor decks, benchmarks, diagrams, or proof-of-concept notes.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this is a well-formed request based on a real need.
+      options:
+        - label: I have clearly described the value and context for this integration
+        - label: I understand this request may require security, infra, or budget review
+    validations:
+      required: true

@@ -6,7 +6,7 @@ let value: Str = $state('');
 </script>
 
 <div class="max-w-xs">
-	<Select.Root bind:value>
+	<Select.Root type="single" bind:value>
 		<Select.Trigger>
 			{#if value}
 				{value}

@@ -1,0 +1,149 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Policy Clarification Request
+# -------------------------------------------------------------------
+# Purpose: Ask a structured question about project policies or governance rules.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: policy-clarification-request
+
+name: "🧾 Policy Clarification Request"
+description: Ask for clarification about contributor policies, project rules, or governance processes.
+title: "[Policy Clarification]: "
+labels:
+  - governance
+  - question
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this question.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Topic Area (Optional)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: policy
+    attributes:
+      label: Policy or Topic Area
+      description: Describe or name the rule, document, or section you're unclear on.
+      placeholder: |
+        e.g., CONTRIBUTING.md section on reviews  
+        Code of Conduct escalation  
+        Commit signing rules
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Clarification Request
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: question
+    attributes:
+      label: What Do You Need Clarified?
+      description: State your question clearly. Include context and links if available.
+      placeholder: |
+        - Who is allowed to approve a feature flag rollout?  
+        - When are contributors eligible for milestone recognition?  
+        - What’s the expected response time for triaged issues?
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References (Optional)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Relevant Docs or Threads
+      description: Link any relevant documents or past discussions.
+      placeholder: "e.g., CONTRIBUTING.md, GitHub issue #47, governance.md"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How much does the lack of clarity affect participation?
+      options:
+        - "Critical – blocks contribution or compliance"
+        - "High – causes confusion in active workflows"
+        - "Medium – limits clarity or slows adoption"
+        - "Low – nice to clarify, not urgent"
+      default: "Medium – limits clarity or slows adoption"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When do you need this clarification?
+      options:
+        - "Immediate – affects an ongoing decision"
+        - "High – needed within this cycle"
+        - "Medium – useful for upcoming planning"
+        - "Low – log and resolve later"
+      default: "Medium – useful for upcoming planning"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who would benefit from this clarification?
+      options:
+        - "Org-wide – applicable to all contributors or teams"
+        - "Team-wide – relevant to a specific working group"
+        - "Individual – affects only my use or context"
+        - "Unclear – unsure, needs triage"
+      default: "Team-wide – relevant to a specific working group"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Recommended prioritization for addressing this question.
+      options:
+        - "P0 – urgent governance clarification"
+        - "P1 – important for contributor experience"
+        - "P2 – standard clarification"
+        - "P3 – backlog or async triage"
+      default: "P2 – standard clarification"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm the request is constructive and reviewed.
+      options:
+        - label: I have searched the docs and existing discussions
+        - label: I understand this may result in a policy update or clarification note
+    validations:
+      required: true

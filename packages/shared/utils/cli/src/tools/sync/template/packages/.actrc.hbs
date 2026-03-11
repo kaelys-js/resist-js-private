@@ -1,0 +1,31 @@
+{{syncHeader "#" "https://nektosact.com/usage/index.html"}}
+
+# Runner image mappings — maps GitHub runner labels to Docker images.
+# Size: {{ tooling.ci.runnerSize }}
+{{#ifEquals tooling.ci.runnerSize "micro"}}
+-P ubuntu-latest=node:20-bookworm-slim
+-P ubuntu-24.04=node:20-bookworm-slim
+-P ubuntu-22.04=node:20-bookworm-slim
+{{/ifEquals}}
+{{#ifEquals tooling.ci.runnerSize "medium"}}
+-P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
+-P ubuntu-24.04=ghcr.io/catthehacker/ubuntu:act-24.04
+-P ubuntu-22.04=ghcr.io/catthehacker/ubuntu:act-22.04
+{{/ifEquals}}
+{{#ifEquals tooling.ci.runnerSize "large"}}
+-P ubuntu-latest=ghcr.io/catthehacker/ubuntu:full-latest
+-P ubuntu-24.04=ghcr.io/catthehacker/ubuntu:full-24.04
+-P ubuntu-22.04=ghcr.io/catthehacker/ubuntu:full-22.04
+{{/ifEquals}}
+
+# Secrets file (developer-managed, gitignored).
+# Create .secrets with KEY=VALUE pairs for secrets your workflows need locally.
+# Most build/test/lint jobs don't need secrets — only deploy steps do.
+--secret-file .secrets
+
+# Environment file (developer-managed, gitignored).
+# Create .env.act with non-secret environment variables.
+--env-file .env.act
+
+# Default pull policy — only pull image if not present locally.
+--pull=if-not-present

@@ -1,0 +1,181 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Design Token Change
+# -------------------------------------------------------------------
+# Purpose: Propose a change to one or more design tokens across any platform
+# or implementation layer (e.g. themes, primitives, utilities).
+# Compatible with token-based design systems and infra-agnostic.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: design-token-change
+
+name: "🎨 Design Token Change"
+description: Propose a change to design tokens (e.g., colors, spacing, typography, motion).
+title: "[Design Token Change]: "
+labels:
+  - design
+  - tokens
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the person submitting this request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Token Change Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## ✏️ Token Change Details  
+        Specify the token(s) involved, the nature of the change, and the rationale behind it.
+
+  - type: textarea
+    id: token_change
+    attributes:
+      label: Token Change Details
+      description: Describe the token being added, changed, or removed and why the change is needed.
+      placeholder: |
+        - Token: `color-border-brand`  
+        - Current: #0066FF  
+        - Proposed: #0052CC  
+        - Reason: Aligns with accessibility target (AA), improves contrast ratio  
+        - Scope: Global (theme tokens, dark/light variants supported)
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Evaluate the scale and criticality of this design token change.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Design Severity
+      description: How visually or semantically significant is this token change?
+      options:
+        - "Critical – brand inconsistency, accessibility regression"
+        - "High – primary UI surfaces or states impacted"
+        - "Medium – affects secondary components or layouts"
+        - "Low – subtle or non-blocking visual adjustment"
+      default: "Medium – affects secondary components or layouts"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this change ideally be implemented?
+      options:
+        - "Critical – block on release, required for accessibility or brand fix"
+        - "High – required this sprint"
+        - "Medium – within next 2 sprints"
+        - "Low – backlog or audit-driven"
+      default: "Next cycle – within next 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: System Impact
+      description: Who or what will this token change affect?
+      options:
+        - "Org-wide – affects shared design tokens across brands or themes"
+        - "Team-wide – affects product UIs, shared libraries, or design kits"
+        - "Single surface – isolated component or local style issue"
+        - "Unclear – requires investigation"
+      default: "Team-wide – affects product UIs, shared libraries, or design kits"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Overall priority for implementation based on UX and alignment needs.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Rationale (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Rationale  
+        Include links to design specs, Figma files, audits, or discussions.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Add links to Figma, accessibility audits, guidelines, or design system libraries.
+      placeholder: |
+        - Figma spec: https://www.figma.com/file/xyz/design-system  
+        - WCAG 2.1 contrast violation logged  
+        - Tokens.yaml design file audit  
+        - PR #988 modified base spacing scale
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Paste design diffs, token JSON, screenshots, or markup changes.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Include sample markup, token diffs, JSON files, or screenshots.
+      placeholder: |
+        ```json
+        {
+          "color-border-brand": "#0052CC"
+        }
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that this design token change has been validated by design or implementation teams.
+      options:
+        - label: I confirm this design token change is valid, aligned, and ready for triage.
+    validations:
+      required: true

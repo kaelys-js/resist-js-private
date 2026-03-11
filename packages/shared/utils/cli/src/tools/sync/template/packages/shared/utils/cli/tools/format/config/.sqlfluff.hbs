@@ -1,0 +1,195 @@
+{{syncHeader "#" "https://docs.sqlfluff.com/en/stable/configuration.html"}}
+
+# =============================================================================
+# SQLFluff Configuration
+# =============================================================================
+
+[sqlfluff]
+# Dialect - PostgreSQL by default (common for modern apps)
+dialect = postgres
+
+# Raw templater — plain SQL without template interpretation
+templater = raw
+
+# Max line length
+max_line_length = {{ format.global.line_length }}
+
+# Number of passes to attempt for fix
+runaway_limit = 10
+
+# Ignore templating errors
+ignore_templated_areas = true
+
+# Encoding
+encoding = utf-8
+
+# Large file skip (bytes)
+large_file_skip_byte_limit = 20000
+
+# =============================================================================
+# Indentation
+# =============================================================================
+[sqlfluff:indentation]
+# Indent unit (space recommended for SQL)
+indent_unit = space
+
+# Tab space size
+tab_space_size = {{ format.alternate.indent_size }}
+
+# Indented joins
+indented_joins = false
+
+# Indented CTEs
+indented_ctes = false
+
+# Indented USING/ON
+indented_using_on = true
+
+# Indented ON contents
+indented_on_contents = true
+
+# Allow implicit indents
+allow_implicit_indents = false
+
+# Template blocks indent
+template_blocks_indent = true
+
+# Skip indentation when combining
+skip_indentation_in = script_content
+
+# =============================================================================
+# Layout - Commas
+# =============================================================================
+[sqlfluff:layout:type:comma]
+# Trailing commas (comma at end of line)
+spacing_before = touch
+line_position = trailing
+
+# =============================================================================
+# Layout - Binary Operators
+# =============================================================================
+[sqlfluff:layout:type:binary_operator]
+# Leading operators (AND, OR at start of line)
+line_position = leading
+
+# =============================================================================
+# Layout - Statement Terminator
+# =============================================================================
+[sqlfluff:layout:type:statement_terminator]
+# Semicolon at end
+spacing_before = touch
+line_position = trailing
+
+# =============================================================================
+# Layout - End of File
+# =============================================================================
+[sqlfluff:layout:type:end_of_file]
+# No extra spacing at end of file
+spacing_before = touch
+
+# =============================================================================
+# Layout - Set Operators
+# =============================================================================
+[sqlfluff:layout:type:set_operator]
+# UNION, INTERSECT, EXCEPT on their own line
+line_position = alone:strict
+
+# =============================================================================
+# Layout - Comparison Operators
+# =============================================================================
+[sqlfluff:layout:type:comparison_operator]
+spacing_within = touch
+line_position = leading
+
+# =============================================================================
+# Layout - Assignment Operators
+# =============================================================================
+[sqlfluff:layout:type:assignment_operator]
+spacing_within = touch
+
+# =============================================================================
+# Layout - Object References
+# =============================================================================
+[sqlfluff:layout:type:object_reference]
+spacing_within = touch
+
+# =============================================================================
+# Layout - Alias Expressions
+# =============================================================================
+[sqlfluff:layout:type:alias_expression]
+spacing_before = align
+
+# =============================================================================
+# Layout - Comment
+# =============================================================================
+[sqlfluff:layout:type:comment]
+spacing_before = any
+spacing_after = any
+
+# =============================================================================
+# Capitalisation Rules
+# =============================================================================
+[sqlfluff:rules:capitalisation.keywords]
+# Uppercase keywords (SELECT, FROM, WHERE, etc.)
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.identifiers]
+# Lowercase identifiers (table names, column names)
+capitalisation_policy = lower
+unquoted_identifiers_policy = all
+
+[sqlfluff:rules:capitalisation.functions]
+# Uppercase function names (COUNT, SUM, etc.)
+extended_capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.literals]
+# Uppercase NULL, TRUE, FALSE
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.types]
+# Uppercase data types (INTEGER, VARCHAR, etc.)
+extended_capitalisation_policy = upper
+
+# =============================================================================
+# Convention Rules (formatting only)
+# =============================================================================
+[sqlfluff:rules:convention.quoted_literals]
+# Single quotes for strings
+preferred_quoted_literal_style = single_quotes
+force_enable = false
+
+[sqlfluff:rules:convention.terminator]
+# Require final semicolon
+require_final_semicolon = true
+multiline_newline = false
+
+[sqlfluff:rules:convention.select_trailing_comma]
+# No trailing comma in SELECT
+select_clause_trailing_comma = forbid
+
+# =============================================================================
+# Aliasing Rules (formatting only)
+# =============================================================================
+[sqlfluff:rules:aliasing.table]
+# Explicit AS keyword for table aliases
+aliasing = explicit
+
+[sqlfluff:rules:aliasing.column]
+# Explicit AS keyword for column aliases
+aliasing = explicit
+
+# =============================================================================
+# Layout Rules
+# =============================================================================
+[sqlfluff:rules:layout.long_lines]
+# Line length enforcement
+ignore_comment_lines = false
+ignore_comment_clauses = false
+
+[sqlfluff:rules:layout.spacing]
+# Space after comma
+force_enable = false
+
+[sqlfluff:rules:layout.select_targets]
+# Wildcard policy
+wildcard_policy = multiple

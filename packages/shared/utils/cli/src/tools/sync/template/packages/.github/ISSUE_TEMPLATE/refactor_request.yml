@@ -1,0 +1,178 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: refactor-request
+
+name: "🧼 Refactor Request"
+description: Suggest internal improvements to code structure, organization, or maintainability without changing functionality.
+labels:
+  - refactor
+  - maintenance
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting the refactor suggestion.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: title
+    attributes:
+      label: Refactor Title
+      description: Short, descriptive title summarizing the refactor goal.
+      placeholder: "e.g., Simplify state management logic"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Refactor Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧠 Refactor Overview  
+        Explain the current design, your proposed changes, and the value it provides.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Current Implementation
+      description: Briefly describe how this part of the code works now. Highlight key components, structure, or patterns.
+      placeholder: |
+        - State is managed using a custom store module  
+        - Logic is split between multiple files but lacks clear ownership  
+        - Type handling is duplicated across components
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Refactor
+      description: Describe the refactor idea and how you’d improve the codebase without changing external behavior.
+      placeholder: |
+        - Consolidate state logic into a single reusable module  
+        - Introduce shared type definitions using Valibot  
+        - Use utility functions to eliminate repeated code
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefit
+    attributes:
+      label: Expected Benefits
+      description: Explain the improvements gained (e.g., readability, testability, developer experience).
+      placeholder: |
+        - Reduces cognitive overhead  
+        - Easier to debug and extend  
+        - Promotes reuse and consistency
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help maintainers understand the importance and urgency of this request.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance of this refactor relative to current work.
+      options:
+        - "Low – backlog or nice-to-have"
+        - "Medium – improves maintainability"
+        - "High – improves scalability or team velocity"
+        - "Critical – required before new features"
+      default: "Medium – improves maintainability"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Complexity
+      description: Scope and complexity of the current technical issue.
+      options:
+        - "Low – stylistic or small cleanup"
+        - "Medium – moderately complex restructuring"
+        - "High – spans multiple systems or patterns"
+        - "Critical – technical debt that blocks progress"
+      default: "Medium – moderately complex restructuring"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline sensitivity of addressing this refactor.
+      options:
+        - "Low – future improvement"
+        - "Medium – address in next cycle"
+        - "High – fix in current sprint"
+        - "Critical – blocking current work"
+      default: "Medium – address in next cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what will benefit from this change?
+      options:
+        - "Single file or module"
+        - "Multiple components or features"
+        - "Cross-team systems or shared libraries"
+        - "Product-wide stability or scaling"
+      default: "Multiple components or features"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Code
+      description: Add related issue, file path, or previous PRs for context.
+      placeholder: "e.g., file: src/utils/store.ts, GitHub issue #314"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Diagrams, code snippets, or screenshots to support your proposal.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that this is a non-functional refactor focused on internal improvement.
+      options:
+        - label: I confirm this proposal does not change user-facing behavior
+        - label: I understand this request may require review and alignment with maintainers
+    validations:
+      required: true

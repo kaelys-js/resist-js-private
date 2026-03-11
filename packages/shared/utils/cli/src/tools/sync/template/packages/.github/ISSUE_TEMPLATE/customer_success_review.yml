@@ -1,0 +1,157 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Customer Success Review
+# -------------------------------------------------------------------
+# Purpose: Log and review customer account status across onboarding, adoption, renewals, and risk.
+# Designed for GTM, Success, and Product teams to stay aligned on customer journey.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: customer-success-review
+
+name: "📈 Customer Success Review"
+description: Review customer onboarding, adoption, risk, or milestone status.
+title: "[Customer Success]: "
+labels:
+  - success
+  - customer
+  - health
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the person submitting this review.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Account Name (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Customer or Org Name
+      description: Provide the name of the account being reviewed.
+      placeholder: |
+        - Org: Acme Corp  
+        - Customer Type: Enterprise  
+        - Owner: @success-lead  
+        - Segment: North America
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Customer Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Success Context
+      description: Describe onboarding stage, product usage, milestones, risks, and upcoming key dates.
+      placeholder: |
+        - Stage: Fully onboarded as of 2025-05-10  
+        - Milestones: Events pipeline + dashboards live in prod  
+        - Usage: 2M monthly events, 3 projects, 6 users  
+        - Risks: SSO config unstable; VPN setup delayed onboarding  
+        - Renewals: Q4 2025  
+        - Expansion: Evaluating mobile SDK for iOS/Android
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference Systems (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Account Dashboard or CRM Link
+      description: Add link to account insights, CRM, usage dashboards, or customer docs.
+      placeholder: |
+        - https://sfdc.com/account/1234  
+        - https://amplitude.com/project/acme  
+        - https://notion.so/success-plan-acme
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Health Severity
+      description: How healthy is this account from a delivery and retention standpoint?
+      options:
+        - "Critical – at risk of churn or major issue"
+        - "High – issues present but fixable"
+        - "Medium – generally healthy with minor concerns"
+        - "Low – strong, satisfied customer"
+      default: "Medium – generally healthy with minor concerns"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this review or risk require action?
+      options:
+        - "Immediate – SLA/renewal deadline approaching"
+        - "High – this sprint or CS sync"
+        - "Medium – before next QBR"
+        - "Low – async tracking"
+      default: "Medium – before next QBR"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Scope
+      description: What is the strategic value or risk exposure of this account?
+      options:
+        - "Org-wide – major logo or flagship reference"
+        - "Department-level – cross-product expansion"
+        - "Team-level – isolated user group"
+        - "Unclear – discovery in progress"
+      default: "Department-level – cross-product expansion"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Set the CS or product follow-up urgency.
+      options:
+        - "P0 – immediate executive review"
+        - "P1 – high follow-up"
+        - "P2 – standard sync"
+        - "P3 – backlog"
+      default: "P2 – standard sync"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this information is current and shared appropriately.
+      options:
+        - label: This reflects up-to-date customer information.
+        - label: I’ve shared this with the appropriate success or product owners.
+    validations:
+      required: true

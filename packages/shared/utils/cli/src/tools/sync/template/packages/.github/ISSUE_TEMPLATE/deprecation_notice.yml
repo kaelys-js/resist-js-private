@@ -1,0 +1,211 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: deprecation-notice
+
+name: "⚠️ Deprecation Notice"
+description: Submit notice of a feature, API, component, or system scheduled for deprecation to ensure cross-functional visibility and migration readiness.
+labels:
+  - deprecation
+  - notice
+  - planning
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the individual submitting the deprecation notice.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Deprecation Overview (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🗂️ Deprecation Overview  
+        Identify the feature and provide rationale and timelines for the deprecation.
+
+  - type: input
+    id: feature
+    attributes:
+      label: Feature Being Deprecated
+      description: Name or identifier of the API, feature, component, or service.
+      placeholder: "e.g., legacyCheckoutFlow, v1/payment-intents, ios-v2-endpoints"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Reason for Deprecation
+      description: Explain the reason for this deprecation—technical debt, compliance, performance, product redundancy, etc.
+      placeholder: |
+        - Superseded by `newCheckoutFlow` for UX and fraud resilience  
+        - Conflicts with Stripe’s webhook policy  
+        - Incompatible with Valibot schema validation upgrade
+      render: markdown
+    validations:
+      required: true
+
+  - type: input
+    id: deprecation-date
+    attributes:
+      label: Deprecation Announcement Date
+      description: When the deprecation was communicated (ISO 8601 format).
+      placeholder: "e.g., 2025-06-01"
+    validations:
+      required: true
+
+  - type: input
+    id: removal-date
+    attributes:
+      label: Planned Removal Date
+      description: Date this feature is expected to be removed or made non-functional (ISO 8601 format).
+      placeholder: "e.g., 2025-09-30"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Migration Support
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔁 Migration & Communication  
+        Help others prepare for the deprecation by offering alternatives and migration guidance.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Migration Path or Alternatives
+      description: Recommend replacement components, APIs, or documents to support migration.
+      placeholder: |
+        - Replace with `NewCheckoutForm.svelte`  
+        - Use `v2/payment-intents` with latest SDK  
+        - Docs: /docs/migrations/checkout-v1-to-v2.md
+      render: markdown
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Expected Impact
+      description: Outline affected teams, systems, users, clients, or environments.
+      placeholder: |
+        - Impacts iOS clients < v3.2  
+        - Used by 3 internal microservices  
+        - Affects external partners using legacy auth endpoints
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Planning Metadata  
+        Help prioritize mitigation work based on scope and urgency.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Planning priority for phasing out the deprecated feature.
+      options:
+        - "Low – long-term cleanup"
+        - "Medium – should be deprecated this quarter"
+        - "High – migration already in progress"
+        - "Critical – removal is urgent or externally mandated"
+      default: "Medium – should be deprecated this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: Impact of not removing or updating this deprecated component.
+      options:
+        - "Low – unused or internal legacy code"
+        - "Medium – affects development experience"
+        - "High – may break integrations or apps"
+        - "Critical – causes compliance/security risks"
+      default: "Medium – affects development experience"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline sensitivity of the deprecation or associated risks.
+      options:
+        - "Low – plan in future roadmap"
+        - "Medium – complete in 2 sprints"
+        - "High – resolve this sprint"
+        - "Critical – immediate action required"
+      default: "Medium – complete in 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact_scope
+    attributes:
+      label: Scope of Impact
+      description: Who or what will be affected by this deprecation?
+      options:
+        - "Single team or service"
+        - "Multiple internal teams"
+        - "External partners or SDK consumers"
+        - "Production systems or customers"
+      default: "Multiple internal teams"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting References & Attachments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 References & Attachments  
+        Add migration guides, changelogs, or code diffs that support this deprecation.
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Documents (Optional)
+      description: Upload migration plans, architecture diagrams, internal emails, etc.
+      multiple: true
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Reference related PRs, migration docs, RFCs, or tracking issues.
+      placeholder: "e.g., migration doc, internal deprecation tracker, GitHub issue #123"
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this deprecation was reviewed and communicated appropriately.
+      options:
+        - label: I have aligned this deprecation with product, engineering, and support teams
+        - label: I have verified documentation and upgrade paths are available
+        - label: I understand this deprecation may affect external and internal clients
+    validations:
+      required: true

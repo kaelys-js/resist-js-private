@@ -1,0 +1,291 @@
+{{syncHeader "#" "https://coder.com/docs/templates"}}
+
+terraform {
+  required_providers {
+    coder = {
+      source = "coder/coder"
+    }
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+    }
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Data Sources
+# -----------------------------------------------------------------------------
+
+data "coder_workspace" "me" {}
+
+data "coder_workspace_owner" "me" {}
+
+# -----------------------------------------------------------------------------
+# Parameters (developers can override when creating a workspace)
+# -----------------------------------------------------------------------------
+
+data "coder_parameter" "cpu" {
+  name         = "cpu"
+  display_name = "CPU Cores"
+  description  = "Number of CPU cores for the workspace"
+  default      = "{{ tooling.coder.resources.cpu }}"
+  type         = "number"
+  mutable      = true
+
+  validation {
+    min = 1
+    max = 32
+  }
+}
+
+data "coder_parameter" "memory" {
+  name         = "memory"
+  display_name = "Memory (GB)"
+  description  = "Amount of memory in GB for the workspace"
+  default      = "{{ tooling.coder.resources.memoryGb }}"
+  type         = "number"
+  mutable      = true
+
+  validation {
+    min = 1
+    max = 128
+  }
+}
+
+data "coder_parameter" "disk" {
+  name         = "disk"
+  display_name = "Disk (GB)"
+  description  = "Amount of persistent disk in GB for the workspace"
+  default      = "{{ tooling.coder.resources.diskGb }}"
+  type         = "number"
+  mutable      = true
+
+  validation {
+    min = 10
+    max = 1000
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Infisical Configuration (Machine Identity)
+# -----------------------------------------------------------------------------
+
+variable "infisical_client_id" {
+  description = "Infisical machine identity client ID (from Infisical web UI > Organization > Machine Identities)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "infisical_client_secret" {
+  description = "Infisical machine identity client secret (from Infisical web UI > Organization > Machine Identities)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "infisical_site_url" {
+  description = "Self-hosted Infisical server URL"
+  type        = string
+  default     = "{{ tooling.infisical.siteUrl }}"
+}
+
+# -----------------------------------------------------------------------------
+# Coder Agent
+# -----------------------------------------------------------------------------
+
+resource "coder_agent" "main" {
+  os   = "linux"
+  arch = "{{ tooling.coder.arch }}"
+  dir  = "/workspaces/{{ repo.name }}"
+
+  startup_script = <<-EOT
+    #!/bin/bash
+    set -euo pipefail
+
+    # Clone repo if not already present
+    if [ ! -d "/workspaces/{{ repo.name }}" ]; then
+      git clone {{ tooling.coder.repoUrl }} /workspaces/{{ repo.name }}
+    fi
+
+    cd /workspaces/{{ repo.name }}
+
+    # Install all system tools via mise (includes infisical CLI)
+    if [ -x "./bin/mise" ]; then
+      ./bin/mise install
+      ./bin/mise reshim
+    fi
+
+    # Authenticate with self-hosted Infisical (machine identity — no browser)
+    # CLIENT_ID and CLIENT_SECRET are created in Infisical web UI:
+    #   Organization > Access Control > Machine Identities > Universal Auth
+    if [ -n "${var.infisical_client_id}" ] && [ -n "${var.infisical_client_secret}" ]; then
+      export INFISICAL_API_URL="${var.infisical_site_url}"
+      ./.mise/shims/infisical login --method=universal-auth \
+        --client-id="${var.infisical_client_id}" \
+        --client-secret="${var.infisical_client_secret}" \
+        --silent
+    fi
+
+{{#if tooling.coder.dotfilesRepo}}
+    # Clone dotfiles
+    if [ ! -d "$HOME/.dotfiles" ]; then
+      git clone "{{ tooling.coder.dotfilesRepo }}" "$HOME/.dotfiles"
+      if [ -f "$HOME/.dotfiles/install.sh" ]; then
+        bash "$HOME/.dotfiles/install.sh"
+      fi
+    fi
+{{/if}}
+
+    # Run post-create setup if devcontainer script exists
+    if [ -f ".devcontainer/post-create.sh" ]; then
+      bash .devcontainer/post-create.sh
+    fi
+  EOT
+
+  metadata {
+    display_name = "CPU Usage"
+    key          = "cpu"
+    script       = "top -bn1 | grep 'Cpu(s)' | awk '{print $2}'"
+    interval     = 10
+    timeout      = 1
+  }
+
+  metadata {
+    display_name = "Memory Usage"
+    key          = "memory"
+    script       = "free -m | awk 'NR==2{printf \"%.1f%%\", $3*100/$2}'"
+    interval     = 10
+    timeout      = 1
+  }
+
+  metadata {
+    display_name = "Disk Usage"
+    key          = "disk"
+    script       = "df -h /workspaces | awk 'NR==2{print $5}'"
+    interval     = 60
+    timeout      = 1
+  }
+}
+
+# -----------------------------------------------------------------------------
+# VS Code Web App
+# -----------------------------------------------------------------------------
+
+resource "coder_app" "code-server" {
+  agent_id     = coder_agent.main.id
+  slug         = "code-server"
+  display_name = "VS Code"
+  icon         = "/icon/code.svg"
+  url          = "http://localhost:13338?folder=/workspaces/{{ repo.name }}"
+  subdomain    = true
+  share        = "owner"
+}
+
+# -----------------------------------------------------------------------------
+# Per-Service Apps (from devProxy config)
+# -----------------------------------------------------------------------------
+
+{{#each tooling.devProxy.serviceOffsets}}
+resource "coder_app" "{{ @key }}" {
+  agent_id     = coder_agent.main.id
+  slug         = "{{ @key }}"
+  display_name = "{{ capitalize @key }}"
+  url          = "http://localhost:{{ add ../tooling.devProxy.port this }}"
+  icon         = "/icon/{{ @key }}.svg"
+  subdomain    = true
+  share        = "owner"
+}
+{{/each}}
+
+# -----------------------------------------------------------------------------
+# Persistent Storage
+# -----------------------------------------------------------------------------
+
+resource "kubernetes_persistent_volume_claim" "workspaces" {
+  metadata {
+    name      = "coder-${data.coder_workspace_owner.me.name}-${data.coder_workspace.me.name}"
+    namespace = "default"
+  }
+
+  spec {
+    access_modes = ["ReadWriteOnce"]
+
+    resources {
+      requests = {
+        storage = "${data.coder_parameter.disk.value}Gi"
+      }
+    }
+  }
+
+  wait_until_bound = false
+}
+
+# -----------------------------------------------------------------------------
+# Workspace Pod
+# -----------------------------------------------------------------------------
+
+resource "kubernetes_pod" "workspace" {
+  count = data.coder_workspace.me.start_count
+
+  metadata {
+    name      = "coder-${data.coder_workspace_owner.me.name}-${data.coder_workspace.me.name}"
+    namespace = "default"
+    labels = {
+      "app.kubernetes.io/name"     = "coder-workspace"
+      "app.kubernetes.io/instance" = data.coder_workspace.me.name
+    }
+  }
+
+  spec {
+    container {
+      name  = "workspace"
+      image = "{{ tooling.coder.registry.url }}/{{ tooling.coder.registry.namespace }}/devenv-workspace:latest"
+
+      command = ["sh", "-c", coder_agent.main.init_script]
+
+      resources {
+        requests = {
+          cpu    = "${data.coder_parameter.cpu.value}"
+          memory = "${data.coder_parameter.memory.value}Gi"
+        }
+        limits = {
+          cpu    = "${data.coder_parameter.cpu.value}"
+          memory = "${data.coder_parameter.memory.value}Gi"
+        }
+      }
+
+      env {
+        name  = "CODER_AGENT_TOKEN"
+        value = coder_agent.main.token
+      }
+
+      env {
+        name  = "INFISICAL_CLIENT_ID"
+        value = var.infisical_client_id
+      }
+
+      env {
+        name  = "INFISICAL_CLIENT_SECRET"
+        value = var.infisical_client_secret
+      }
+
+      env {
+        name  = "INFISICAL_SITE_URL"
+        value = var.infisical_site_url
+      }
+
+      volume_mount {
+        name       = "workspaces"
+        mount_path = "/workspaces"
+      }
+    }
+
+    volume {
+      name = "workspaces"
+
+      persistent_volume_claim {
+        claim_name = kubernetes_persistent_volume_claim.workspaces.metadata[0].name
+      }
+    }
+  }
+}

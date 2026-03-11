@@ -1,0 +1,182 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: feature-request
+
+name: "💡 Feature Request"
+description: Suggest a new capability, enhancement, or integration to improve the product.
+labels:
+  - enhancement
+  - feature-request
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this feature request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Feature Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## ✨ Feature Proposal  
+        Help us understand the motivation and scope of the proposed feature.
+
+  - type: input
+    id: title
+    attributes:
+      label: Feature Title
+      description: Provide a concise, descriptive title for the feature.
+      placeholder: "e.g., Dark mode toggle in user settings"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Context
+      description: What problem does this feature solve? Who is affected and when?
+      placeholder: |
+        - Users struggle to use the UI in dark environments  
+        - Webhook failures from Stripe are hard to debug during deployment  
+        - Internal dashboard lacks visibility into Umami analytics
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe what the solution should do and how it should behave.
+      placeholder: |
+        - Add a toggle for dark mode that respects system preference  
+        - Log redacted Stripe webhook failures to S3 for postmortems  
+        - Display Umami analytics in the internal admin dashboard
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other approaches were tried? Why weren’t they enough?
+      placeholder: |
+        - Used browser dark mode extensions (inconsistent styling)  
+        - Manually reviewed Stripe logs (slow and error-prone)  
+        - Exported CSV from Umami (not suitable for live insights)
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Provide prioritization signals for roadmap planning.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Business value or strategic importance of this feature.
+      options:
+        - "Low – would be nice someday"
+        - "Medium – adds real value"
+        - "High – enables team or milestone"
+        - "Critical – needed for launch, compliance, or parity"
+      default: "Medium – adds real value"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Impact
+      description: What’s the technical or operational pain if this is missing?
+      options:
+        - "Low – mostly cosmetic"
+        - "Medium – usability or DX degradation"
+        - "High – limits usage or adoption"
+        - "Critical – blocks a key use case or deployment"
+      default: "Medium – usability or DX degradation"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline sensitivity of this feature.
+      options:
+        - "Low – no rush"
+        - "Medium – resolve in next cycle"
+        - "High – this sprint or quarter"
+        - "Critical – blocking active roadmap or release"
+      default: "Medium – resolve in next cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Affected Scope
+      description: Who or what will benefit from this feature?
+      options:
+        - "Single user or contributor"
+        - "Internal team or developer group"
+        - "Multiple teams or products"
+        - "Production-facing users or customers"
+      default: "Internal team or developer group"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Attachments (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Related Information  
+        Add links or assets to provide more context or rationale.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Add links to internal docs, GitHub issues, mockups, or specs.
+      placeholder: "e.g., GitHub issue #294, design doc, Figma link"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Upload screenshots, diagrams, or spec files.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this request is clear and researched.
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+        - label: I have provided a clear description of the problem and proposed solution
+    validations:
+      required: true

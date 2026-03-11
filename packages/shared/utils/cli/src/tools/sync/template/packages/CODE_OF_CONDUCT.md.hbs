@@ -1,0 +1,9 @@
+{{syncHeaderBlock "<!--" "-->" "https://www.contributor-covenant.org"}}
+
+# Code of Conduct
+
+{{#each locales}}[{{localeName this}}](docs/{{this}}/CODE_OF_CONDUCT.md){{#unless @last}} · {{/unless}}{{/each}}
+
+---
+
+Read the [full code of conduct](docs/{{defaultLocale}}/CODE_OF_CONDUCT.md). Report violations to [{{business.emails.security}}](mailto:{{business.emails.security}}).

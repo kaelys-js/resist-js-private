@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: needs-more-info
+
+name: "❗ Needs More Info"
+description: Request additional details from the issue author to proceed with triage or resolution.
+labels:
+  - needs info
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the team member requesting more information.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Information Request (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📋 What Information Is Missing?  
+        Clearly specify what additional details are needed to move this issue forward.
+
+  - type: textarea
+    id: missing
+    attributes:
+      label: Requested Details
+      description: Explain exactly what is unclear or missing so the issue author can update their report effectively.
+      placeholder: |
+        Please include examples of what’s needed:
+        - Reproduction steps  
+        - Logs or error messages  
+        - Expected vs. actual behavior  
+        - System environment (OS, device, runtime, browser)  
+        - Config files or code samples  
+        - Dependency versions (e.g., bun, Valibot, TypeScript)  
+        - Deployment or observability info (e.g., Sentry, Umami, GCP, Cloudflare)
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help track the importance of following up on this missing information.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is it to get this information?
+      options:
+        - "Low – nice to have"
+        - "Medium – required to validate"
+        - "High – blocks investigation"
+        - "Critical – completely untriageable without it"
+      default: "Medium – required to validate"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Missing Info Severity
+      description: What is the severity of the impact due to missing info?
+      options:
+        - "Low – minor clarification"
+        - "Medium – key technical detail missing"
+        - "High – functionally ambiguous"
+        - "Critical – insufficient to evaluate at all"
+      default: "Medium – key technical detail missing"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly do you need this info to move forward?
+      options:
+        - "Low – follow-up later"
+        - "Medium – required within 2 sprints"
+        - "High – required this sprint"
+        - "Critical – blocking active work"
+      default: "Medium – required within 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Blocked Scope
+      description: Who or what is blocked by the lack of information?
+      options:
+        - "Single team member"
+        - "Internal team or squad"
+        - "Multiple teams or systems"
+        - "Production, customer, or release impact"
+      default: "Internal team or squad"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Evidence (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Related Links or Attachments  
+        Add any references or uploads to clarify the context.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links
+      description: Link to the original issue, comment thread, dashboard, or documentation.
+      placeholder: "e.g., GitHub issue #341, related RFC, Sentry trace, docs link"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Reference Files (Optional)
+      description: Upload screenshots, logs, or marked-up issue forms that help clarify the request.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Reviewer Confirmation
+      description: Confirm this request is valid and complete.
+      options:
+        - label: I have reviewed the issue thoroughly and confirmed the requested information is missing or incomplete
+        - label: I have clearly described what is needed to unblock investigation or resolution
+    validations:
+      required: true

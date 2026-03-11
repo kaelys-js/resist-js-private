@@ -1,0 +1,182 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Heading Structure Issue
+# -------------------------------------------------------------------
+# Purpose: Report heading hierarchy violations that affect semantic structure,
+# SEO readability, accessibility, or user comprehension.
+# Designed to be tool-agnostic and platform-neutral.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-heading-structure-issue
+
+name: "🔤 SEO Heading Structure Issue"
+description: Report incorrect heading tag usage (missing H1, multiple H1s, improper nesting).
+title: "[SEO Heading Structure]: "
+labels:
+  - seo
+  - headings
+  - content
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the person submitting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Heading Structure Problem (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧾 Heading Structure Problem  
+        Describe where and how heading tags are used incorrectly or semantically out of order.
+
+  - type: textarea
+    id: heading_structure
+    attributes:
+      label: Heading Structure Problem
+      description: Explain the structural issue in terms of tag usage, order, or absence.
+      placeholder: |
+        - Page: /docs/setup  
+        - Issue: Missing H1, starts with H2  
+        - Issue: H3 follows H1 with no intermediate H2  
+        - Expected: One H1 for page title, logical nesting (H2 > H3 > H4)  
+        - Impact: Impairs semantic SEO, accessibility navigation, and screen reader parsing
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help us understand the severity and priority of this heading issue.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: What is the technical impact of this heading structure issue?
+      options:
+        - "Critical – affects templates or multiple components"
+        - "High – impairs important or high-traffic pages"
+        - "Medium – isolated to content-level hierarchy"
+        - "Low – minor structural misordering"
+      default: "Medium – isolated to content-level hierarchy"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be resolved?
+      options:
+        - "Critical – fix immediately"
+        - "High – resolve this sprint"
+        - "Medium – next 2 sprints"
+        - "Low – backlog candidate"
+      default: "Next cycle – backlog candidate"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: Who or what is affected by this heading issue?
+      options:
+        - "Org-wide – compliance or systemic issues"
+        - "Team-wide – pattern reuse or shared layout problems"
+        - "Single page or component – limited user exposure"
+        - "Unclear – needs more investigation"
+      default: "Team-wide – pattern reuse or shared layout problems"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Based on impact and urgency, how should this be prioritized?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Validation (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Validation  
+        Include audits, crawl results, or browser inspection output.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Share accessibility tests, crawler tools, or audit logs related to this issue.
+      placeholder: |
+        - Lighthouse audit: heading order violation  
+        - Screaming Frog: multiple H1 tags flagged  
+        - AXE-core: semantic landmark failure  
+        - Notion SEO checklist: layout template review
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Provide markup, screenshots, or logs showing the heading issues.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste raw HTML or screenshots of DOM/SEO/a11y tools.
+      placeholder: |
+        ```html
+        <h2>Getting Started</h2>
+        <h1>Install CLI</h1> <!-- should not follow H2 -->
+        <h4>Options</h4> <!-- missing H3 -->
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this heading structure issue has been reviewed and validated.
+      options:
+        - label: I confirm this heading structure issue is valid and has been internally reviewed.
+    validations:
+      required: true

@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Legal Review Request
+# -------------------------------------------------------------------
+# Purpose: Submit contracts, terms, decisions, or third-party docs for legal review.
+# Supports GTM, procurement, compliance, and security workflows.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: legal-review-request
+
+name: "📜 Legal Review Request"
+description: Submit an item for legal or contract review and input.
+title: "[Legal Review]: "
+labels:
+  - legal
+  - review
+  - contracts
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the requester.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Document Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Document or Item for Review
+      description: Provide a summary of the contract, policy, vendor agreement, or legal document needing review.
+      placeholder: |
+        - Document: DPA from Acme Corp  
+        - Context: Needed for SOC 2 procurement sign-off  
+        - Type: Third-party terms of service
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Key Risks or Legal Questions (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Key Risks or Questions
+      description: List clauses, regions, data access, indemnity, governing law, or any areas needing legal input.
+      placeholder: |
+        - Clause 9.2(b): Liability cap exception for IP claims  
+        - Data residency: GCP Tokyo region usage vs US hosting  
+        - Concern: Termination terms and auto-renewal window
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Contract Link or Clause Reference
+      description: Provide a link to the doc or location in the contract being flagged.
+      placeholder: |
+        - https://docs.google.com/document/d/abc123  
+        - Clause 12.4(a) of draft v2.1  
+        - Notion: /procurement/legal/vendor-acme
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Legal Sensitivity
+      description: How sensitive is the item from a legal or risk standpoint?
+      options:
+        - "Critical – data exposure, liability, or compliance blocker"
+        - "High – contractual language or regulatory alignment"
+        - "Medium – vendor terms or review of external policy"
+        - "Low – low-risk input or clarification"
+      default: "Medium – vendor terms or review of external policy"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this need legal review?
+      options:
+        - "Immediate – deal or launch blocked"
+        - "High – this sprint or close cycle"
+        - "Medium – next planning window"
+        - "Low – backlog or async input"
+      default: "High – this sprint or close cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What level of team or business outcome does this affect?
+      options:
+        - "Org-wide – platform-wide risk or policy"
+        - "Department-level – sales, finance, product compliance"
+        - "Team-level – vendor or one-off contract"
+        - "Unclear – needs scoping"
+      default: "Department-level – sales, finance, product compliance"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Overall priority for internal triage.
+      options:
+        - "P0 – top priority"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – backlog"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm you’ve done a first-pass review and surfaced key risks.
+      options:
+        - label: This review request is time-sensitive or part of a deal.
+        - label: I have reviewed the content and highlighted specific questions.
+    validations:
+      required: true

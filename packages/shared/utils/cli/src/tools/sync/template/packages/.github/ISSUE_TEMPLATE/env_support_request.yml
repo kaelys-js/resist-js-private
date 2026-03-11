@@ -1,0 +1,185 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: environment-support-request
+
+name: "🧪 Environment Support Request"
+description: Request compatibility or support for a new operating system, cloud platform, runtime, or deployment environment.
+labels:
+  - environment
+  - enhancement
+  - compatibility
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person requesting environment support.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Environment Classification (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🌐 Environment Details  
+        Define the type and version of the environment requiring support.
+
+  - type: dropdown
+    id: env_type
+    attributes:
+      label: Environment Type
+      description: Choose the category that best describes the environment.
+      options:
+        - Operating System / Platform
+        - Cloud Provider / Managed Service
+        - Container Runtime / Orchestration
+        - Mobile / App Store Target
+        - Other
+      default: "Operating System / Platform"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version / Configuration Details
+      description: Provide version, architecture, runtime, and configuration specifics.
+      placeholder: "e.g., macOS 14.5 (arm64), Kubernetes v1.30, Cloudflare Workers v2024.5"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Use Case and Business Justification (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📈 Use Case & Justification  
+        Explain what you need, why it's important, and what happens without support.
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use Case and Justification
+      description: Describe your team's use case, blockers, and deployment requirements.
+      placeholder: |
+        - CI/CD pipeline requires macOS ARM for signing binaries  
+        - Deployment to Cloud Run is blocked by runtime incompatibility  
+        - App Store mandates updated SDK for release  
+        - Stripe SDK fails in this container without a runtime patch
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Planning  
+        Provide prioritization context for this environment support request.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance of this request in the context of roadmap or delivery.
+      options:
+        - "Low – nice to have"
+        - "Medium – needed for Q3/Q4 delivery"
+        - "High – required this quarter"
+        - "Critical – blocker for production or release"
+      default: "Medium – needed for Q3/Q4 delivery"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How technically limiting is the lack of support?
+      options:
+        - "Low – workaround available"
+        - "Medium – limits development or testing"
+        - "High – breaks environment-specific features"
+        - "Critical – prevents core functionality or deployment"
+      default: "Medium – limits development or testing"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline sensitivity for addressing this support request.
+      options:
+        - "Low – future consideration"
+        - "Medium – resolve within 2 sprints"
+        - "High – this sprint"
+        - "Critical – immediate need"
+      default: "Medium – resolve within 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected if this is unsupported?
+      options:
+        - "Single developer or test setup"
+        - "Internal team development or CI"
+        - "Multiple product teams or staging"
+        - "Production users or external release"
+      default: "Internal team development or CI"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting Materials (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Supporting Details  
+        Add references or files that help demonstrate the need for this support.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Link to upstream blockers, official docs, build logs, or related issues.
+      placeholder: "e.g., GitHub issue #423, Cloudflare Workers docs, upstream bug tracker"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Add CI logs, failure traces, screenshots, or environment configs.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that the request is valid and all relevant details have been provided.
+      options:
+        - label: I have verified that this environment is not currently supported or officially documented
+        - label: I have included accurate version and configuration information
+        - label: I have described a clear use case or reason for requesting support
+    validations:
+      required: true

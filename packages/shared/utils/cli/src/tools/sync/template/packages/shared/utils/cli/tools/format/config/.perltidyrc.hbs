@@ -1,0 +1,134 @@
+{{syncHeader "#" "https://perltidy.sourceforge.net/perltidy.html"}}
+
+# =============================================================================
+# Perltidy Configuration
+# =============================================================================
+
+# =============================================================================
+# Basic Options
+# =============================================================================
+
+# Maximum line length
+--maximum-line-length={{ format.global.line_length }}
+
+# Indent using spaces
+--indent-columns={{ format.alternate.indent_size }}
+--tabs
+
+# Continuation indentation
+--continuation-indentation={{ format.alternate.indent_size }}
+
+# =============================================================================
+# Whitespace Control
+# =============================================================================
+
+# Space around operators
+--want-left-space="= += -= *= /= %= &= |= ^= <<= >>= &&= ||= //="
+--want-right-space="= += -= *= /= %= &= |= ^= <<= >>= &&= ||= //="
+
+# Paren space
+--nospace-after-keyword="my local our"
+--paren-tightness=1
+--square-bracket-tightness=1
+--brace-tightness=1
+--block-brace-tightness=0
+
+# Semicolon space
+--nospace-for-semicolon
+
+# =============================================================================
+# Brace/Bracket Style
+# =============================================================================
+
+# Opening brace on same line
+--opening-brace-on-new-line
+--opening-sub-brace-on-new-line
+
+# Cuddled else
+--cuddled-else
+--cuddled-block-list="elsif else catch finally"
+
+# Opening token position
+--noopening-anonymous-sub-brace-on-new-line
+--opening-hash-brace-right
+--opening-paren-right
+--opening-square-bracket-right
+
+# Stacking
+--stack-opening-tokens
+--stack-closing-tokens
+--delete-old-newlines
+--add-newlines
+
+# =============================================================================
+# Blank Lines
+# =============================================================================
+
+# Blank lines around subs/packages
+--blank-lines-before-subs=1
+--blank-lines-after-subs=1
+--blank-lines-before-packages=1
+--blank-lines-after-packages=1
+
+# Maximum consecutive blank lines
+--maximum-consecutive-blank-lines=2
+
+# Keep blank lines
+--keep-old-blank-lines=1
+
+# =============================================================================
+# Alignment
+# =============================================================================
+
+# Vertical alignment
+--valign
+
+# =============================================================================
+# Comments
+# =============================================================================
+
+# Comment indentation
+--indent-block-comments
+--static-block-comments
+--hanging-side-comments
+--minimum-space-to-comment=2
+
+# No outdenting
+--nooutdent-long-comments
+--nooutdent-long-quotes
+
+# =============================================================================
+# Long Lines
+# =============================================================================
+
+# Break long lines
+--break-before-all-operators
+
+# Weld containers
+--weld-nested-containers
+
+# =============================================================================
+# Other
+# =============================================================================
+
+# Closing token indentation
+--closing-token-indentation=0
+
+# Pass-through special patterns
+--nopass-version-line
+
+# Line endings
+--output-line-ending=unix
+
+# Character encoding
+--character-encoding=utf8
+
+# Preserve formatting of special cases
+--format-skipping
+
+# =============================================================================
+# Iterations
+# =============================================================================
+
+# Number of formatting iterations
+--iterations=2

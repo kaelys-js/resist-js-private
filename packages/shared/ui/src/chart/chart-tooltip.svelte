@@ -64,7 +64,8 @@ const formattedLabel = $derived.by(() => {
 	if (hideLabel || !tooltipCtx.payload?.length) return null;
 
 	const [item] = tooltipCtx.payload;
-	const key = labelKey ?? item?.label ?? item?.name ?? 'value';
+	if (!item) return null;
+	const key = labelKey ?? item.label ?? item.name ?? 'value';
 
 	const itemConfig = getPayloadConfigFromPayload(chart.config, item, key);
 

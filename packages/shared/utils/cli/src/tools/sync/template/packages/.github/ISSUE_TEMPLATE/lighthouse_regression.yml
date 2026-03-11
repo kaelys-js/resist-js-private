@@ -1,0 +1,185 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Lighthouse Regression
+# -------------------------------------------------------------------
+# Purpose: Capture performance or accessibility regressions identified via Lighthouse reports.
+# Scope includes SEO, best practices, accessibility, PWA, and core web vitals across deployments.
+# Tool-agnostic, stack-independent, and enterprise-ready.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: lighthouse-regression
+
+name: "🔦 Lighthouse Regression"
+description: Report a performance, accessibility, or best practices regression detected by Lighthouse.
+title: "[Lighthouse Regression]: "
+labels:
+  - performance
+  - lighthouse
+  - regression
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the person submitting the regression report.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Regression Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📉 Regression Details  
+        Describe what regressed in the Lighthouse audit, with before/after metrics.
+
+  - type: textarea
+    id: lighthouse_data
+    attributes:
+      label: Regression Details
+      description: Include affected categories and changes in Lighthouse score(s).
+      placeholder: |
+        - Page: /checkout  
+        - Metric: Performance dropped from 92 → 73  
+        - Metric: Accessibility dropped from 100 → 88  
+        - Suspected cause: background script blocking main thread  
+        - Audit tool: Chrome Lighthouse 11.0.0, desktop mode, throttled
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help assess how critical and time-sensitive this regression is.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How technically significant is the regression?
+      options:
+        - "Critical – major drop across templates or bundles"
+        - "High – score drop on key flows or tracked KPIs"
+        - "Medium – isolated or non-critical surface"
+        - "Low – minor score drop with no user impact"
+      default: "Medium – isolated or non-critical surface"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly should this regression be investigated?
+      options:
+        - "Critical – block current or next deploy"
+        - "High – resolve this sprint"
+        - "Medium – address in next 2 sprints"
+        - "Low – backlog for monitoring"
+      default: "Next cycle – backlog for monitoring"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What level of impact does this have on users or stakeholders?
+      options:
+        - "Org-wide – major flows or brand-level KPIs affected"
+        - "Team-wide – core product or tracked journey impacted"
+        - "Single user or page – localized or QA issue"
+        - "Unclear – needs triage"
+      default: "Team-wide – core product or tracked journey impacted"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Based on severity and urgency, how should this be prioritized?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Validation (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Validation  
+        Add links to Lighthouse runs, CI pipeline logs, dashboards, or deployment timelines.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: URLs to relevant Lighthouse audits, dashboards, or deployment changes.
+      placeholder: |
+        - https://example.com/lh-report/2025-06-01.html  
+        - Lighthouse CI GitHub Action result  
+        - PageSpeed Insights public test  
+        - Argo rollout log: 2025-05-29
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Upload screenshots, JSON exports, HAR files, or diff results.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste audit JSON, diff logs, or other artifacts showing the regression.
+      placeholder: |
+        ```json
+        {
+          "category": "performance",
+          "scoreBefore": 0.92,
+          "scoreAfter": 0.73,
+          "url": "/checkout"
+        }
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm internal review and reproducibility of the regression.
+      options:
+        - label: I confirm this Lighthouse regression has been validated internally and is reproducible.
+    validations:
+      required: true

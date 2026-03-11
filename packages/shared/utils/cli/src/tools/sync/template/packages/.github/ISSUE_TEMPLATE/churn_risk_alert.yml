@@ -1,0 +1,155 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Churn Risk Alert
+# -------------------------------------------------------------------
+# Purpose: Flag a customer with increased churn risk due to behavior, sentiment, support gaps, or other signals.
+# Supports CS, product, and marketing teams in proactive retention workflows.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: churn-risk-alert
+
+name: "🧠 Churn Risk Alert"
+description: Flag an at-risk customer based on usage or engagement signals.
+title: "[Churn Risk]: "
+labels:
+  - churn
+  - customer
+  - risk
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of person raising the alert.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Account Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: At-Risk Org or Account
+      description: Name of the customer and the perceived risk.
+      placeholder: |
+        - Org: Acme Corp  
+        - Segment: Mid-market, US  
+        - Alert: Daily active users dropped 75% over 30 days
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Risk Signals (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Risk Indicators
+      description: Include low usage, support inactivity, contract feedback, complaints, feature gaps, etc.
+      placeholder: |
+        - NPS dropped to 3 (was 8)  
+        - Churn-related comments in support: "hard to justify price"  
+        - Renewal in 45 days  
+        - Last login: 18 days ago  
+        - Missed last two QBRs
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference Link (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: CRM or Signal Link
+      description: Provide supporting evidence—Amplitude, Zendesk, dashboard, CRM, etc.
+      placeholder: |
+        - https://amplitude.com/account/123  
+        - https://notion.so/success-plan-acme  
+        - https://support.company.com/ticket/2345
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is the risk to retention?
+      options:
+        - "Critical – likely to churn imminently"
+        - "High – clear risk but time to intervene"
+        - "Medium – moderate concern or early signals"
+        - "Low – small red flag or exploratory"
+      default: "Medium – moderate concern or early signals"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When is action required?
+      options:
+        - "Immediate – <2 weeks to renew or respond"
+        - "High – this quarter"
+        - "Medium – planning cycle"
+        - "Low – monitor only"
+      default: "High – this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Strategic Impact
+      description: How important is this account to the business?
+      options:
+        - "Org-wide – strategic, high-ARR or public logo"
+        - "Department-level – supports revenue or reference"
+        - "Team-level – individual stakeholder churn"
+        - "Unclear – triage needed"
+      default: "Department-level – supports revenue or reference"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Set triage priority for follow-up.
+      options:
+        - "P0 – executive visibility"
+        - "P1 – CS/success leadership needed"
+        - "P2 – async CS review"
+        - "P3 – backlog for watchlist"
+      default: "P1 – CS/success leadership needed"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm the information is up to date and flagged properly.
+      options:
+        - label: I have verified the signal is current and meaningful.
+        - label: I’ve looped in the appropriate CSM or success lead.
+    validations:
+      required: true

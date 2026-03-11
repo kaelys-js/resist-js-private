@@ -1,0 +1,155 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Marketing Campaign Tracker
+# -------------------------------------------------------------------
+# Purpose: Coordinate and track the planning and execution of marketing, product, or feature campaigns across teams.
+# Useful for marketing, product marketing, growth, and comms teams.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: marketing-campaign-tracker
+
+name: "📢 Marketing Campaign Tracker"
+description: Coordinate work around a marketing or feature campaign.
+title: "[Campaign]: "
+labels:
+  - campaign
+  - marketing
+  - launch
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or name of the campaign lead.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Campaign Name (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Campaign Name
+      description: Provide a short, clear name for the campaign or feature launch.
+      placeholder: |
+        - "Spring '25 Launch: Feature Flags for Teams"  
+        - "Developer Tools Week – Q2 2025"  
+        - "New Pricing Rollout – US & EU"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Campaign Goals & Scope (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Campaign Scope and Goals
+      description: What are you trying to achieve? Include key dates, involved teams, regions, channels, or OKRs.
+      placeholder: |
+        - Objective: Announce new enterprise feature to drive conversions  
+        - Timeline: June 17–June 30, 2025  
+        - Channels: Email, social, changelog, app banner  
+        - Involved: Product, Design, Web, Legal, Comms  
+        - CTA: Schedule demo or start trial
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference Links (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Docs or Tracking Links
+      description: Add links to docs, dashboards, asset folders, or creative briefs.
+      placeholder: |
+        - https://notion.so/2025-campaign-plan  
+        - https://drive.google.com/creative-assets  
+        - https://umami.app/utm-dashboard/launch-q2
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Campaign Criticality
+      description: How critical is this campaign to business or product goals?
+      options:
+        - "Critical – major GTM event or launch"
+        - "High – planned product or pricing announcement"
+        - "Medium – routine release or evergreen content"
+        - "Low – optional or opportunistic campaign"
+      default: "Medium – routine release or evergreen content"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this need to be live?
+      options:
+        - "Immediate – today or tomorrow"
+        - "High – this week"
+        - "Medium – this month"
+        - "Low – TBD or planning"
+      default: "Medium – this month"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Team or Market Impact
+      description: Who or what is affected or enabled by this campaign?
+      options:
+        - "Org-wide – core launch or rebrand"
+        - "Department-level – product, growth, or marketing OKR"
+        - "Team-level – functional or regional initiative"
+        - "Unclear – still in early planning"
+      default: "Department-level – product, growth, or marketing OKR"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Coordination Priority
+      description: How should this campaign be triaged across team calendars and channels?
+      options:
+        - "P0 – top priority launch"
+        - "P1 – scheduled and resourced"
+        - "P2 – async or backlog"
+        - "P3 – idea-stage or hold"
+      default: "P1 – scheduled and resourced"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm readiness and coordination across teams.
+      options:
+        - label: I have shared this plan with the relevant stakeholders.
+        - label: I’ve included timeline and asset details for coordination.
+    validations:
+      required: true

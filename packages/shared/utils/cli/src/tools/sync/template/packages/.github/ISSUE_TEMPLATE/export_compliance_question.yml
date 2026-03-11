@@ -1,0 +1,164 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Export or Legal Compliance Question
+# -------------------------------------------------------------------
+# Purpose: Collect legal or compliance-related questions about licenses,
+# jurisdictions, or regulatory export limitations.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: export-legal-compliance-question
+
+name: "📑 Export or Legal Compliance Question"
+description: Ask about licensing, jurisdictional usage, or regulatory exports.
+title: "[Compliance Question]: "
+labels:
+  - compliance
+  - legal
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this form.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Brief overview or goal of this proposal, request, or issue.
+      placeholder: |
+        e.g., Can we distribute our Docker image to users in Iran under current license terms?  
+        e.g., Is GPL-compatible redistribution allowed through the App Store?
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context & Background (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Details
+      description: Provide relevant legal, geographic, or licensing concerns, including product usage or distribution channels.
+      placeholder: |
+        - Code includes third-party packages under MPL-2.0  
+        - Used in a commercial Stripe dashboard for Canadian users  
+        - Hosted on GCP in EU and Cloudflare in Singapore
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Link to policies, documents, GitHub issues, or external regulations.
+      placeholder: "e.g., GitHub issue #77, SPDX file, export regulations URL"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Docs or Files
+      description: Upload licenses, screenshots, SPDX files, or excerpts from docs or emails.
+      placeholder: |
+        Drag and drop or paste markdown with file references here.
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: Legal impact or potential regulatory risk.
+      options:
+        - "Critical – could trigger regulatory/legal violations"
+        - "High – likely affects commercial distribution"
+        - "Medium – policy clarification needed"
+        - "Low – informational, unlikely to block anything"
+      default: "Medium – policy clarification needed"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this need to be resolved?
+      options:
+        - "Immediate – blocking release or launch"
+        - "High – decision needed this sprint"
+        - "Medium – important but not urgent"
+        - "Low – backlog or async review"
+      default: "Medium – important but not urgent"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by this compliance question?
+      options:
+        - "Org-wide – affects all contributors, users, or regions"
+        - "Product-level – tied to specific project or deployment"
+        - "Partner-specific – vendor, API, or region compliance"
+        - "Unclear – needs clarification"
+      default: "Product-level – tied to specific project or deployment"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Assign an overall priority for triage and legal review.
+      options:
+        - "P0 – legally blocking / escalation required"
+        - "P1 – major compliance gate"
+        - "P2 – standard legal Q needing review"
+        - "P3 – async info or future clarification"
+      default: "P2 – standard legal Q needing review"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this is a valid legal or compliance issue.
+      options:
+        - label: I am submitting this based on a legitimate legal, IP, or regulatory concern
+        - label: I understand this may require legal or compliance team involvement
+    validations:
+      required: true

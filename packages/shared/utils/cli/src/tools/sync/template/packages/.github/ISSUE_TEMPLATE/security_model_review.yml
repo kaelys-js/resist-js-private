@@ -1,0 +1,151 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Security Model Review Request
+# -------------------------------------------------------------------
+# Purpose: Used to request formal review of authentication, authorization, or sensitive data protection designs.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: security-model-review-request
+
+name: "🔒 Security Model Review Request"
+description: Request review of an authentication or data security model.
+title: "[Security Model Review]: "
+labels:
+  - security
+  - architecture
+  - review
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of requester.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary of Security Model
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly describe the security model or component being reviewed.
+      placeholder: |
+        - OAuth 2.0 authorization in multi-tenant app  
+        - JWT and access scope management  
+        - Row-level permissions in user dashboard  
+        - Token exchange and session validation flow
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Design Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Details or Background
+      description: Provide key details like auth flows, resource scoping, encryption, token expiration, threat surfaces, or boundary assumptions.
+      placeholder: |
+        - External identity providers via OIDC  
+        - Users assigned roles (admin, viewer, editor) scoped to tenant  
+        - Tokens stored in memory, refreshed every 30 minutes  
+        - Sensitive fields include PII and financial data  
+        - Access logs written to Cloud Logging
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Diagrams or Specs
+      description: Provide links to specs, RFCs, threat models, sequence diagrams, or markdown docs.
+      placeholder: "e.g., architecture.md, threat_model.pdf, Notion doc"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Risk & Priority Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Security Risk Level
+      description: How critical is this to product security or compliance posture?
+      options:
+        - "Critical – affects PII, authentication, or regulatory compliance"
+        - "High – involves elevated roles or access control"
+        - "Medium – access boundaries or new data use"
+        - "Low – best practices or optional hardening"
+      default: "High – involves elevated roles or access control"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline for when this review is needed.
+      options:
+        - "Immediate – shipping this week"
+        - "High – in sprint / next 7 days"
+        - "Medium – this quarter"
+        - "Low – exploratory or backlog"
+      default: "Medium – this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/System Impact
+      description: Who or what would be affected by security model issues?
+      options:
+        - "Org-wide – infrastructure, global data"
+        - "Customer-facing – user access or exposure"
+        - "Internal tooling – limited scope"
+        - "Unclear – needs triage"
+      default: "Customer-facing – user access or exposure"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Suggested Review Priority
+      options:
+        - "P0 – block merge/release"
+        - "P1 – review this sprint"
+        - "P2 – roadmap feedback"
+        - "P3 – FYI or async input"
+      default: "P1 – review this sprint"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that the model is described clearly and suitable for review.
+      options:
+        - label: I have documented the core security flows or assets.
+        - label: I understand this review may involve threat modeling or risk scoring.
+    validations:
+      required: true

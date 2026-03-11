@@ -1,0 +1,373 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# 🛂 GitHub Issue Form: Account Access
+# -------------------------------------------------------------------
+# Used to report login issues, MFA problems, password resets,
+# or account recovery requests. Structured for security and support.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: access-issue-form
+
+name: "🔐 Account Access Issue"
+description: Report problems related to login, MFA, password resets, or account recovery.
+title:
+  "[Access Issue] "
+  placeholder: "e.g., Unable to log in with MFA enabled"
+
+labels:
+  - account
+  - support
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the contributor.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  - type: input
+    id: co_authors
+    attributes:
+      label: Co-authors or Reviewers (Optional)
+      description: Anyone who helped raise or review this issue.
+      placeholder: "@collaborator-name"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Issue Type & Summary
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: What kind of issue are you reporting?
+      options:
+        - Can't log in
+        - MFA issue
+        - Password reset not working
+        - Account locked
+        - Other
+      default: Can't log in
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: ✏️ Summary
+      description: What is this issue about?
+      placeholder: |
+        e.g., I can't log in even after resetting my password.
+        e.g., MFA app isn't generating valid codes anymore.
+      render: markdown
+    validations:
+      required: true
+
+  - type: input
+    id: component
+    attributes:
+      label: Affected Component or Area (Optional)
+      description: Use consistent naming like "auth", "login page", "MFA", or say "Not sure".
+      placeholder: "e.g., login page, MFA prompt, recovery email"
+
+  - type: input
+    id: version
+    attributes:
+      label: Affected Version
+      placeholder: "e.g., N/A"
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Platform or Device (Optional)
+      placeholder: "e.g., Android app, Safari on macOS"
+
+  - type: input
+    id: env
+    attributes:
+      label: Environment Context (Optional)
+      placeholder: "e.g., iOS 17, Firefox 125, VPN enabled"
+
+  - type: input
+    id: references
+    attributes:
+      label: Related PRs or Issues (Optional)
+      placeholder: "e.g., PR #123, Issue #456"
+
+  # --------------------------------------------------------------------
+  # SECTION: Context and Reproduction (especially for bug reports)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context_steps
+    attributes:
+      label: Context or Steps
+      description: What led to this issue or idea? How did you encounter it?
+      placeholder: |
+        1. Visited login page  
+        2. Entered credentials  
+        3. MFA prompt appeared, but no code was accepted
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Reproducibility (Optional)
+      description: If you tried again, would the issue happen the same way?
+      options:
+        - "Always"
+        - "Often"
+        - "Sometimes"
+        - "Rarely"
+        - "Can't reproduce anymore"
+        - "Not applicable"
+      default: "Not applicable"
+
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Has this behavior changed from before?
+      description: Has this worked before?
+      options:
+        - "Yes – it worked previously but is broken now"
+        - "No – it has never worked"
+        - "Not sure"
+      default: "Not sure"
+
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: Expected vs Actual Behavior
+      description: Describe what you expected to happen and what actually occurred.
+      placeholder: |
+        Expected: MFA code accepted and login successful  
+        Actual: Repeated invalid token errors and lockout
+    validations:
+      required: true
+
+  - type: dropdown
+    id: workaround
+    attributes:
+      label: Is there any workaround you’re using?
+      description: Can you still do your task with a workaround or alternative?
+      options:
+        - "Yes – workaround available"
+        - "No – completely blocked"
+        - "Not sure"
+      default: "Not sure"
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution or Suggestion (Optional)
+      description: Optional – suggest a fix or improvement, if you have one.
+      placeholder: "e.g., Allow fallback to email OTP if authenticator fails"
+
+  - type: textarea
+    id: feature_use_case
+    attributes:
+      label: Use Case or Context (Optional)
+      description: Describe why this matters or how users are affected.
+      placeholder: |
+        e.g., As a contributor, I need access restored to unblock a production deployment.
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Who or what is affected? (Optional)
+      description: Helps prioritize the issue.
+      placeholder: "e.g., Blocks all engineers using VPN + MFA"
+
+  - type: input
+    id: reproduction_link
+    attributes:
+      label: Reproduction Project (Optional)
+      placeholder: "e.g., Screenshot, terminal log, video walkthrough"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or Console Output (Optional)
+      description: Paste relevant logs (redact any sensitive data if needed).
+      render: plain
+      placeholder: |
+        e.g., Auth error: 401 Unauthorized – MFA token rejected
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments (Optional)
+      description: Include screenshots, markdown snippets, etc.
+      render: markdown
+      placeholder: |
+        Paste screenshots or formatted snippets here.
+
+  - type: input
+    id: media_links
+    attributes:
+      label: Media or Demo Link (Optional)
+      placeholder: "e.g., Loom video, Imgur screenshot"
+
+  - type: dropdown
+    id: preferred_outcome
+    attributes:
+      label: What are you hoping for?
+      options:
+        - A fix or patch (code-level solution)
+        - A workaround (temporary or non-ideal fix)
+        - An explanation or docs update
+        - Just reporting for awareness
+      default: Just reporting for awareness
+
+  - type: dropdown
+    id: user_urgency
+    attributes:
+      label: How urgent is this for you?
+      description: Helps us prioritize based on user needs.
+      options:
+        - Blocking – I can’t continue work
+        - High – I’m actively waiting on this
+        - Medium – It’s important but not urgent
+        - Low – Just wanted to share
+      default: Medium – It’s important but not urgent
+
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: Anything else you'd like to add? (Optional)
+      description: Include any other context, links, or notes not covered above.
+      placeholder: "e.g., Issue occurs only when behind corporate VPN"
+
+  - type: checkboxes
+    id: issue_stage
+    attributes:
+      label: Stage of this Issue (Optional)
+      description: Where in the lifecycle is this issue?
+      options:
+        - label: New or recently discovered
+        - label: Under discussion or being worked on
+        - label: Needs more info or reproduction
+
+  # --------------------------------------------------------------------
+  # SECTION: Tags, History, Misc
+  # --------------------------------------------------------------------
+  - type: input
+    id: suggested_labels
+    attributes:
+      label: Suggested Tags or Labels (Optional)
+      description: Suggest any helpful tags for triage (e.g., login, MFA, auth).
+      placeholder: "e.g., login, MFA, recovery, auth"
+
+  - type: checkboxes
+    id: prior_issues
+    attributes:
+      label: Prior Reports (Optional)
+      description: Has this been reported or discussed before?
+      options:
+        - label: I checked existing issues
+        - label: This continues a previous issue or thread
+
+  - type: input
+    id: contact
+    attributes:
+      label: Optional Contact (Optional)
+      placeholder: "Email or Discord (if you're okay with follow-up)"
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage (Maintainer Use)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity (Optional)
+      description: Choose based on how badly this affects users or systems.
+      options:
+        - "Critical – blocks usage or is urgent"
+        - "High – impacts many users or key systems"
+        - "Medium – affects a segment of usage"
+        - "Low – minor or cosmetic"
+        - "Unclear"
+      default: "Medium – affects a segment of usage"
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency (Optional)
+      description: When does this need attention?
+      options:
+        - "Immediate – blocks release or workflow"
+        - "High – should be picked up soon"
+        - "Medium – next sprint or cycle"
+        - "Low – future backlog"
+        - "Unclear"
+      default: "Medium – next sprint or cycle"
+
+  - type: dropdown
+    id: impact_scope
+    attributes:
+      label: Scope of Impact (Optional)
+      description: Who is affected by this?
+      options:
+        - "User-facing – external developers or customers"
+        - "Internal – affects team workflows"
+        - "Infra-only – CI/CD, telemetry, etc."
+        - "Unclear"
+      default: "User-facing – external developers or customers"
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority (Optional)
+      description: Maintainer-assigned priority for roadmap and triage.
+      options:
+        - "P0 – must be addressed immediately"
+        - "P1 – important, include soon"
+        - "P2 – normal priority"
+        - "P3 – nice-to-have or backlog"
+        - "Unclear"
+      default: "P2 – normal priority"
+
+  # --------------------------------------------------------------------
+  # SECTION: Final Confirmation
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        👉 Before submitting, please make sure to [review our contributing guide](../../blob/main/CONTRIBUTING.md) and [code of conduct](../../blob/main/CODE_OF_CONDUCT.md).
+
+  - type: dropdown
+    id: disclosure_preference
+    attributes:
+      label: Do you prefer to disclose this publicly?
+      options:
+        - Yes, it's okay to discuss openly
+        - No, I’d prefer private follow-up
+      default: Yes, it's okay to discuss openly
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Final Check – ready to submit?
+      description: Tick the box once you’ve filled everything you can.
+      options:
+        - label: I’ve provided all relevant information and reviewed for clarity
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        🙏 Thanks for taking the time to submit this issue! A maintainer will review it as soon as possible.

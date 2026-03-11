@@ -1,0 +1,166 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Test Coverage Gap
+# -------------------------------------------------------------------
+# Purpose: Identify parts of the codebase that are insufficiently tested.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: test-coverage-gap
+
+name: "🧪 Test Coverage Gap"
+description: Highlight areas lacking sufficient test coverage.
+title: "[Coverage Gap]: "
+labels:
+  - testing
+  - coverage
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this form.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Brief summary of the uncovered scenario or area.
+      placeholder: |
+        e.g., Webhook retry logic not tested under failed Stripe POST response  
+        e.g., No coverage on `AuthTokenProvider` fallback behavior
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Details
+      description: Add related stack/tools/environments or explain why this was flagged.
+      placeholder: |
+        - Currently tested only via integration, no unit coverage  
+        - Appears in error logs but isn't exercised in valibot schema validation  
+        - Found during mobile Sentry triage on iOS
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Link to related PRs, test dashboards, code, or CI jobs.
+      placeholder: e.g., GitHub issue #101, PR #999, https://docs.example.com
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Evidence or Logs (Optional)
+      description: Paste logs, screenshots, or output that suggest missed coverage.
+      placeholder: |
+        ```txt
+        WARN: unhandled stripe error not triggering retry
+        ```
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What is the potential impact of missing coverage?
+      options:
+        - "Critical – safety, security, or correctness risk"
+        - "High – missed regression or prod-side effect possible"
+        - "Medium – logic path likely safe but still unverified"
+        - "Low – low-risk or cosmetic logic path"
+      default: "Medium – logic path likely safe but still unverified"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be addressed?
+      options:
+        - "Immediate – critical gap identified"
+        - "High – prioritize in next sprint"
+        - "Medium – add to upcoming test planning"
+        - "Low – backlog for coverage improvement"
+      default: "Medium – add to upcoming test planning"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what does this missing coverage affect?
+      options:
+        - "User-facing logic – visible to customers"
+        - "Infra-level – APIs, queues, observability"
+        - "Internal tooling – dev scripts, CI logic"
+        - "Mobile platforms – iOS/Android only"
+        - "Unclear – needs triage"
+      default: "User-facing logic – visible to customers"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Priority level for engineering to investigate this test gap.
+      options:
+        - "P0 – must be resolved now"
+        - "P1 – should be addressed this cycle"
+        - "P2 – routine improvement"
+        - "P3 – nice to have"
+      default: "P2 – routine improvement"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Ensure this is actionable and clearly scoped.
+      options:
+        - label: I have reviewed existing issues to avoid duplication.
+        - label: I have included enough detail to support triage and review.
+    validations:
+      required: true

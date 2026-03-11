@@ -1,0 +1,172 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: example-request
+
+name: "📂 Example Request"
+description: Request a code example or usage snippet for a specific feature, integration, or workflow.
+labels:
+  - example
+  - documentation
+  - help wanted
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Example Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📘 Requested Example Details  
+        Describe the topic and behavior you'd like the example to demonstrate.
+
+  - type: input
+    id: topic
+    attributes:
+      label: Requested Example Topic
+      description: What feature, integration, or concept should this example cover?
+      placeholder: "e.g., Validating Stripe Webhooks with Valibot"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: What Should the Example Demonstrate?
+      description: Explain what the example should show, which tools it involves, and what specific outcome it should clarify.
+      placeholder: |
+        - Validate incoming request bodies using Valibot and TypeScript  
+        - Deploy Bun-based services to GKE via Argo CD  
+        - Configure Sentry with SvelteKit in SSR mode  
+        - Handle Stripe webhooks securely inside Cloudflare Workers
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Technical Context (Optional)
+      description: Provide any platform, runtime, or deployment information to make the example more relevant.
+      placeholder: |
+        - Runtime: Bun + TypeScript + Biome  
+        - Infra: Docker, Kubernetes (GKE), Cloudflare  
+        - Target: iOS + Android (App Store)  
+        - Tooling: Umami, Sentry, Argo CD
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help prioritize and route this example request.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this example to your current goals?
+      options:
+        - "Low – helpful but not urgent"
+        - "Medium – needed for planning or testing"
+        - "High – required for implementation"
+        - "Critical – blocker for team or release"
+      default: "Medium – needed for planning or testing"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Clarity Need
+      description: How difficult is it to proceed without this example?
+      options:
+        - "Low – general curiosity"
+        - "Medium – missing reference slows development"
+        - "High – frequently misunderstood workflow"
+        - "Critical – impossible to implement without guidance"
+      default: "Medium – missing reference slows development"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon would this example be needed to unblock progress?
+      options:
+        - "Low – future consideration"
+        - "Medium – within 2 sprints"
+        - "High – this sprint"
+        - "Critical – immediately needed"
+      default: "Medium – within 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who will benefit from this example?
+      options:
+        - "Single contributor"
+        - "Internal team or squad"
+        - "Multiple teams or projects"
+        - "Public users or external partners"
+      default: "Internal team or squad"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting Materials (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Supporting Materials  
+        Link any docs, discussions, or errors that show why this example is needed.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Docs
+      description: Link to relevant GitHub issues, RFCs, or existing documentation gaps.
+      placeholder: "e.g., GitHub issue #482, related discussion thread, upstream SDK doc"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Screenshots, logs, failed test output, or example snippets.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that this request has been researched and is clearly described.
+      options:
+        - label: I have searched existing documentation and examples before submitting
+        - label: I have provided enough detail to generate an accurate and helpful example
+    validations:
+      required: true

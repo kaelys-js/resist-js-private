@@ -1,0 +1,97 @@
+{{syncHeader "#" "https://editorconfig.org"}}
+
+root = true
+
+# ============================================
+# Global Defaults
+# ============================================
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = {{ format.global.indent_style }}
+indent_size = {{ format.global.indent_size }}
+tab_width = {{ format.global.tab_width }}
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = {{ format.global.line_length }}
+
+# ============================================
+# YAML (tabs are invalid per YAML spec)
+# ============================================
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# ============================================
+# Python (PEP 8: 4 spaces)
+# ============================================
+[*.py]
+indent_style = space
+indent_size = 4
+
+# ============================================
+# Go (community convention: tabs)
+# ============================================
+[*.go]
+indent_style = {{ format.alternate.indent_style }}
+indent_size = {{ format.alternate.indent_size }}
+
+[{go.mod,go.sum}]
+indent_style = {{ format.alternate.indent_style }}
+indent_size = {{ format.alternate.indent_size }}
+
+# ============================================
+# Rust (rustfmt default: 4 spaces)
+# ============================================
+[*.rs]
+indent_style = space
+indent_size = 4
+
+# ============================================
+# Makefile (tabs required by Make)
+# ============================================
+[Makefile]
+indent_style = tab
+indent_size = {{ format.alternate.indent_size }}
+
+# ============================================
+# Markdown (trailing whitespace = line breaks)
+# ============================================
+[*.{md,mdx}]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# ============================================
+# Plain Text
+# ============================================
+[*.{txt,text}]
+trim_trailing_whitespace = false
+
+# ============================================
+# Diff/Patch (preserve exactly)
+# ============================================
+[*.{diff,patch}]
+trim_trailing_whitespace = false
+insert_final_newline = false
+
+# ============================================
+# CSV/TSV (whitespace is data)
+# ============================================
+[*.{csv,tsv}]
+trim_trailing_whitespace = false
+insert_final_newline = true
+
+# ============================================
+# Windows Scripts (CRLF required)
+# ============================================
+[*.{bat,BAT,cmd,CMD,ps1,psm1,psd1}]
+end_of_line = crlf
+
+# ============================================
+# Lock Files (generated — don't reformat)
+# ============================================
+[{package-lock.json,yarn.lock,pnpm-lock.yaml,bun.lockb,*.lock}]
+indent_style = unset
+indent_size = unset
+trim_trailing_whitespace = false
+insert_final_newline = unset

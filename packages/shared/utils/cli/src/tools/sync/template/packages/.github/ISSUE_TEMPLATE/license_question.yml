@@ -1,0 +1,163 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: license-legal-question
+
+name: "⚖️ License & Legal Use Question"
+description: Submit questions related to licensing, compliance, or legal use of third-party software or materials.
+labels:
+  - license
+  - legal
+  - compliance
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this legal or licensing question.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Question Overview (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📄 Summary  
+        Describe the licensing or legal compliance concern at a high level.
+
+  - type: input
+    id: title
+    attributes:
+      label: Question Summary
+      description: A concise summary of your licensing or legal use question.
+      placeholder: "e.g., Can I use GPL-licensed code in a commercial app?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Context & Details
+      description: Include all relevant usage, tools, and licensing information to clarify your question.
+      placeholder: |
+        Please include:
+        - What you're using (e.g., GPL code, API, library, media asset)  
+        - How you plan to use it (e.g., SaaS, container image, mobile app)  
+        - Tech stack/tools (e.g., Bun, TypeScript, Stripe, Svelte, Docker, Kubernetes)  
+        - Deployment or distribution (e.g., App Store, Docker Hub, public repo)  
+        - Specific legal or compliance concern  
+        - Any relevant license links or documentation
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help us prioritize and route this legal or licensing question appropriately.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Business priority of resolving this legal question.
+      options:
+        - "Low – general inquiry"
+        - "Medium – affects internal work or planning"
+        - "High – required before launch or distribution"
+        - "Critical – blocks release or customer/legal risk"
+      default: "Medium – affects internal work or planning"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Legal or Compliance Risk
+      description: What is the potential legal or operational risk?
+      options:
+        - "Low – informational only"
+        - "Medium – potential exposure or uncertainty"
+        - "High – legal implications likely"
+        - "Critical – regulatory or contractual violation risk"
+      default: "Medium – potential exposure or uncertainty"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When this needs legal review or clarity.
+      options:
+        - "Low – track for future review"
+        - "Medium – resolve this quarter"
+        - "High – needs input this sprint"
+        - "Critical – blocker for current work or delivery"
+      default: "Medium – resolve this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by this question?
+      options:
+        - "Single contributor or team"
+        - "Multiple internal teams or workflows"
+        - "External users or public deployments"
+        - "Enterprise/commercial use or customer contract"
+      default: "Multiple internal teams or workflows"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Attachments (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 References & Attachments  
+        Add links or uploads that help clarify your legal question.
+
+  - type: input
+    id: references
+    attributes:
+      label: Relevant Links or License References
+      description: Link to license text, upstream issues, legal policies, or relevant documentation.
+      placeholder: "e.g., https://opensource.org/licenses/GPL-3.0, GitHub issue #101, vendor TOS"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Upload license files, terms PDFs, screenshots, or docs.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this is a valid legal or compliance inquiry with sufficient detail.
+      options:
+        - label: I have reviewed applicable documentation and policies before submitting
+        - label: I have included enough context to route this for legal or compliance review
+    validations:
+      required: true

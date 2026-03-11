@@ -1,0 +1,9 @@
+{{syncHeaderBlock "<!--" "-->" "https://docs.github.com/en/code-security/getting-started/adding-a-security-policy-to-your-repository"}}
+
+# Security Policy
+
+{{#each locales}}[{{localeName this}}](docs/{{this}}/SECURITY.md){{#unless @last}} · {{/unless}}{{/each}}
+
+---
+
+Read the [full security policy](docs/{{defaultLocale}}/SECURITY.md). To report a vulnerability, email [{{business.emails.security}}](mailto:{{business.emails.security}}).

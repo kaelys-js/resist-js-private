@@ -1,0 +1,185 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Retention Violation
+# -------------------------------------------------------------------
+# Purpose: Report violations of internal or external data retention policies,
+# including data not deleted as expected or stored beyond allowable thresholds.
+# Tool-agnostic, privacy-compliant, and suitable for regulated infra.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: retention-violation
+
+name: "🗄️ Retention Violation"
+description: Report a data retention or deletion policy violation.
+title: "[Retention Violation]: "
+labels:
+  - security
+  - compliance
+  - data
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the person reporting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Violation Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚨 Violation Details  
+        Describe the system or dataset involved, what should have happened, and what actually occurred.
+
+  - type: textarea
+    id: violation_details
+    attributes:
+      label: Violation Details
+      description: Include the location, data type, expected vs actual retention behavior, and any relevant policy affected.
+      placeholder: |
+        - System: GCP Cloud Storage  
+        - Data Type: customer event logs  
+        - Policy: Retain for 30 days, auto-delete enabled via lifecycle config  
+        - Issue: Logs older than 90 days still present in bucket `gs://user-activity-logs`  
+        - Expected: Automatic purge at 30 days  
+        - Observed: No deletions since 2025-04-01
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Compliance Impact (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help assess risk, urgency, and compliance exposure.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Security/Compliance Severity
+      description: How severe is the violation from a compliance or risk perspective?
+      options:
+        - "Critical – legal risk, regulatory breach, or customer data mishandling"
+        - "High – noncompliant with internal retention policy or control gap"
+        - "Medium – unexpected storage drift, no current exposure"
+        - "Low – misconfigured policy without sensitive data"
+      default: "Medium – unexpected storage drift, no current exposure"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How urgently does this need to be resolved or mitigated?
+      options:
+        - "Critical – immediate escalation"
+        - "High – resolve this sprint"
+        - "Medium – next 2 sprints"
+        - "Low – add to backlog"
+      default: "Next cycle – next 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What is affected by the retention violation?
+      options:
+        - "Org-wide – compliance, trust, or operational risk"
+        - "Team-wide – storage, privacy, or auditability issue"
+        - "Single system or dataset – localized incident"
+        - "Unclear – needs analysis"
+      default: "Team-wide – storage, privacy, or auditability issue"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Priority for resolving this violation based on scope and risk.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Validation (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Investigation Context  
+        Add dashboards, audit logs, policies, Terraform/Infra-as-Code, or related tickets.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Links to logs, policies, monitoring tools, related PRs, or lifecycle rules.
+      placeholder: |
+        - Terraform lifecycle config: `infra/storage.tf`  
+        - GCP Bucket Settings: `gs://user-activity-logs`  
+        - Data Retention Policy v2.3 → 30-day delete window  
+        - PR #921 updated storage class but removed retention config
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Upload lifecycle configs, screenshots, deletion logs, or object metadata headers.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste logs, metadata, or configuration diffs to confirm issue.
+      placeholder: |
+        ```json
+        {
+          "name": "activity-log-2024-12-01.json",
+          "created": "2024-12-01T12:00:00Z",
+          "bucket": "user-activity-logs"
+        }
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this report has been validated and requires action.
+      options:
+        - label: I confirm this data retention issue has been validated and internally reviewed.
+    validations:
+      required: true

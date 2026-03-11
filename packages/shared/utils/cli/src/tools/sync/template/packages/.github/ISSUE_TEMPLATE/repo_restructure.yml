@@ -1,0 +1,154 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Repo Restructure Proposal
+# -------------------------------------------------------------------
+# Purpose: Propose changes to the layout or structural boundaries of the repository.
+# Useful for monorepo simplification, directory ownership clarity, or CI config reorgs.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: repo-restructure-proposal
+
+name: "🗃 Repo Restructure Proposal"
+description: Propose changes to the project’s folder layout or boundaries.
+title: "[Repo Structure]: "
+labels:
+  - repo
+  - structure
+  - meta
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person proposing the change.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Proposal Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Clear overview of the structural issue or suggested change.
+      placeholder: |
+        - Propose consolidating all CLI tools into `/cli/`  
+        - Break up `/services` into `/internal` and `/public` APIs  
+        - Move frontend-related build tooling out of `/infra`
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: Describe the motivation, pain points, and affected systems.
+      placeholder: |
+        - Current layout mixes infra config with source code  
+        - Contributors often misplace shared utilities  
+        - Build cache is inefficient due to unnecessary file invalidations  
+        - Aligning structure with internal teams: core, data, mobile
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Add links to discussion threads, diagrams, or issues motivating this change.
+      placeholder: |
+        - GitHub issue #789  
+        - https://docs.example.com/structure-guidelines  
+        - Slack thread on 2025-05-30
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How much tech debt or inefficiency does this restructure resolve?
+      options:
+        - "Critical – significantly blocking team workflows or CI"
+        - "High – recurring friction or source of errors"
+        - "Medium – improvement to maintainability or onboarding"
+        - "Low – style or preference cleanup"
+      default: "Medium – improvement to maintainability or onboarding"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be addressed?
+      options:
+        - "Immediate – blocks current work"
+        - "High – within this quarter"
+        - "Medium – prioritize in backlog"
+        - "Low – when time allows"
+      default: "Medium – prioritize in backlog"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: What scope of systems or teams are affected?
+      options:
+        - "Org-wide – multiple repos, pipelines, or teams"
+        - "Team-wide – one product team or functional area"
+        - "Module-level – isolated to a single folder"
+        - "Unclear – needs clarification"
+      default: "Team-wide – one product team or functional area"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Overall importance of addressing this restructure.
+      options:
+        - "P0 – critical blocker"
+        - "P1 – should address soon"
+        - "P2 – good to fix if time permits"
+        - "P3 – long-term optimization"
+      default: "P2 – good to fix if time permits"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this proposal is thoughtful and actionable.
+      options:
+        - label: I have reviewed existing issues to avoid duplication.
+        - label: I have provided enough detail for reviewers to understand the motivation and scope.
+    validations:
+      required: true

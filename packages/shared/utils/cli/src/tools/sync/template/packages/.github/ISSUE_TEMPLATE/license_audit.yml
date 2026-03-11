@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: License Audit Finding
+# -------------------------------------------------------------------
+# Purpose: Log and triage findings from open-source software license audits for legal and engineering follow-up.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: license-audit-finding
+
+name: "🔍 License Audit Finding"
+description: Log results of an open-source or license compliance scan.
+title: "[License Audit]: "
+labels:
+  - license
+  - legal
+  - audit
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the reporter.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Package / Component Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Package or Component
+      description: Name and version of the affected package or open-source component.
+      placeholder: |
+        - Package: `left-pad@1.3.0`  
+        - Component: `third_party/license-checker`  
+        - Usage: Dependency in internal toolchain
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: License Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: License Concern
+      description: What license is detected? Why is it incompatible or in violation of policy?
+      placeholder: |
+        - License: GPL-3.0  
+        - Problem: Incompatible with commercial redistribution  
+        - Risk: Conflicts with existing proprietary bundling
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Scan Source (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Scan Tool or Source
+      description: Name of the license scanner or link to results.
+      placeholder: |
+        - Tool: FOSSA  
+        - SPDX ID: GPL-3.0-only  
+        - Scan URL: https://fossa.io/projects/123/results
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Risk Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Legal Severity
+      description: How serious is this license risk?
+      options:
+        - "Critical – requires immediate removal or legal action"
+        - "High – violates open-source use policies"
+        - "Medium – unclear compatibility, needs legal review"
+        - "Low – permissible but needs tracking"
+      default: "Medium – unclear compatibility, needs legal review"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Remediation Urgency
+      description: When should this issue be addressed?
+      options:
+        - "Immediate – blocks release or audit"
+        - "High – resolve this sprint"
+        - "Medium – review this quarter"
+        - "Low – backlog or monitoring"
+      default: "High – resolve this sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Scope
+      description: What part of the product or org does this affect?
+      options:
+        - "Org-wide – shared infra or bundled SDKs"
+        - "Product-level – user-facing feature"
+        - "Team-level – internal or isolated usage"
+        - "Unknown – needs triage"
+      default: "Product-level – user-facing feature"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Remediation Priority
+      description: Suggested follow-up action level.
+      options:
+        - "P0 – must fix or replace immediately"
+        - "P1 – fix this quarter"
+        - "P2 – document and monitor"
+        - "P3 – informational only"
+      default: "P1 – fix this quarter"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Validate license issue and awareness of escalation path.
+      options:
+        - label: I’ve confirmed this license is not compatible with our current policy.
+        - label: I understand this may require legal, security, or engineering review.
+    validations:
+      required: true

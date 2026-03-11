@@ -1,0 +1,137 @@
+{
+	"$schema": "{{schemaPath 'tooling/prettierrc'}}",
+
+	"printWidth": {{ format.global.line_length }},
+	"tabWidth": {{ format.global.tab_width }},
+	"useTabs": {{useTabs format.global.indent_style}},
+
+	"semi": {{ tooling.formatting.semi }},
+	"singleQuote": {{ tooling.formatting.singleQuote }},
+	"quoteProps": "as-needed",
+	"jsxSingleQuote": false,
+
+	"trailingComma": "all",
+	"bracketSpacing": true,
+	"bracketSameLine": false,
+	"arrowParens": "always",
+
+	"proseWrap": "preserve",
+	"htmlWhitespaceSensitivity": "css",
+	"vueIndentScriptAndStyle": false,
+
+	"endOfLine": "lf",
+	"embeddedLanguageFormatting": "auto",
+	"singleAttributePerLine": false,
+
+	"overrides": [
+		{
+			"files": ["*.yaml", "*.yml"],
+			"options": {
+				"tabWidth": 2,
+				"useTabs": false,
+				"singleQuote": true
+			}
+		},
+		{
+			"files": ["*.md", "*.mdx"],
+			"options": {
+				"proseWrap": "always",
+				"printWidth": 80,
+				"tabWidth": 2,
+				"useTabs": false
+			}
+		},
+		{
+			"files": ["*.svg"],
+			"options": {
+				"plugins": ["@prettier/plugin-xml"],
+				"parser": "xml",
+				"xmlWhitespaceSensitivity": "strict",
+				"xmlSelfClosingSpace": true
+			}
+		},
+		{
+			"files": ["*.html", "*.htm"],
+			"options": {
+				"printWidth": 120
+			}
+		},
+		{
+			"files": ["*.svelte"],
+			"options": {
+				"plugins": ["prettier-plugin-svelte"],
+				"svelteSortOrder": "options-scripts-markup-styles",
+				"svelteIndentScriptAndStyle": true,
+				"svelteAllowShorthand": true
+			}
+		},
+		{
+			"files": ["*.astro"],
+			"options": {
+				"plugins": ["prettier-plugin-astro"],
+				"astroAllowShorthand": true
+			}
+		},
+		{
+			"files": ["*.scss", "*.sass", "*.less"],
+			"options": {
+				"singleQuote": {{ tooling.formatting.singleQuote }}
+			}
+		},
+		{
+			"files": ["*.xml", "*.xsl", "*.xslt"],
+			"options": {
+				"plugins": ["@prettier/plugin-xml"],
+				"xmlWhitespaceSensitivity": "strict",
+				"xmlSelfClosingSpace": true,
+				"xmlSortAttributesByKey": false,
+				"xmlQuoteAttributes": "double",
+				"printWidth": 120
+			}
+		},
+		{
+			"files": ["*.pug", "*.jade"],
+			"options": {
+				"plugins": ["@prettier/plugin-pug"],
+				"pugPrintWidth": {{ format.global.line_length }},
+				"pugTabWidth": {{ format.global.tab_width }},
+				"pugUseTabs": {{useTabs format.global.indent_style}},
+				"pugSingleQuote": {{ tooling.formatting.singleQuote }},
+				"pugAttributeSeparator": "none",
+				"pugCommentPreserveSpaces": "keep-all",
+				"pugSortAttributes": "as-is",
+				"pugWrapAttributesThreshold": 1,
+				"pugClassLocation": "before-attributes",
+				"pugExplicitDiv": false
+			}
+		},
+		{
+			"files": ["*.hbs", "*.handlebars"],
+			"options": {
+				"parser": "glimmer",
+				"singleQuote": false,
+				"printWidth": {{ format.global.line_length }}
+			}
+		},
+		{
+			"files": ["*.ejs"],
+			"options": {
+				"parser": "html",
+				"printWidth": {{ format.global.line_length }}
+			}
+		},
+		{
+			"files": ["*.twig"],
+			"options": {
+				"plugins": ["@zackad/prettier-plugin-twig"]
+			}
+		},
+		{
+			"files": ["*.json5"],
+			"options": {
+				"trailingComma": "all",
+				"singleQuote": {{ tooling.formatting.singleQuote }}
+			}
+		}
+	]
+}

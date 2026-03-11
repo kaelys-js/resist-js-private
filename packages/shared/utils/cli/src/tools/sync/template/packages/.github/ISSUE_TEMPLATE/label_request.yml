@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Label or Taxonomy Proposal
+# -------------------------------------------------------------------
+# Purpose: Suggest new labels or categorization structures to improve issue classification.
+# Supports teams in evolving triage taxonomy, backlog clarity, or workflow automation.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: label-taxonomy-proposal
+
+name: "🏷 Label or Taxonomy Proposal"
+description: Propose a new issue label or tag structure.
+title: "[Label Proposal]: "
+labels:
+  - meta
+  - labels
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person proposing this taxonomy change.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Proposal Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Clearly describe the label you’re proposing or restructuring.
+      placeholder: |
+        - Add `triage/needs-design` for pre-UX review  
+        - Merge `api-change` and `breaking-change` under `breaking-change`  
+        - Add `persona:designer` for role-specific triage
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context / Background (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: Describe what problem this solves or how the label would be used in triage workflows.
+      placeholder: |
+        - Too many labels applied inconsistently across repos  
+        - DevX feedback tags don’t match internal roles or personas  
+        - Confusion around `type:` vs `area:` vs `team:`
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Add links to any relevant issues, docs, audits, or label usage examples.
+      placeholder: |
+        - GitHub issue #456  
+        - https://example.com/label-guidelines  
+        - Discussion thread in #triage-system
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How fragmented or unclear is the current taxonomy?
+      options:
+        - "Critical – blocks triage or label automation"
+        - "High – causing recurring confusion or missed issues"
+        - "Medium – some improvement to clarity or sorting"
+        - "Low – cosmetic, minor naming clarity"
+      default: "Medium – some improvement to clarity or sorting"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be implemented?
+      options:
+        - "Immediate – part of launch or active sprint"
+        - "High – before next milestone"
+        - "Medium – review in next planning cycle"
+        - "Low – no time sensitivity"
+      default: "Medium – review in next planning cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: What is the expected breadth of this change?
+      options:
+        - "Org-wide – affects many repos or teams"
+        - "Team-level – improves clarity within a function"
+        - "Workflow-specific – scoped to one board/tool"
+        - "Unclear – needs feedback"
+      default: "Team-level – improves clarity within a function"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this proposal to workflow clarity?
+      options:
+        - "P0 – must align before key workflows"
+        - "P1 – helpful for immediate roadmap visibility"
+        - "P2 – nice-to-have cleanup"
+        - "P3 – future improvement, not urgent"
+      default: "P2 – nice-to-have cleanup"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this submission is valid and actionable.
+      options:
+        - label: I have reviewed current label usage or taxonomy to avoid duplication.
+        - label: I’ve provided examples or context for the proposed change.
+    validations:
+      required: true

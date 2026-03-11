@@ -1,0 +1,9 @@
+{{syncHeaderBlock "<!--" "-->" "https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions"}}
+
+# Contributing to {{business.company}}
+
+{{#each locales}}[{{localeName this}}](docs/{{this}}/CONTRIBUTING.md){{#unless @last}} · {{/unless}}{{/each}}
+
+---
+
+Read the [full contributing guide](docs/{{defaultLocale}}/CONTRIBUTING.md). By contributing, you agree that your contributions will be licensed under the [{{business.license}}](LICENSE) license.

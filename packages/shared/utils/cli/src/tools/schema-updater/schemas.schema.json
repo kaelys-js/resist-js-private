@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://resist.js/schemas/schemas-config.json",
+  "title": "Schema Updater Configuration",
+  "description": "Configuration file for the schema-updater tool. Supports remote, local (node_modules), and custom schemas.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to the JSON schema for this configuration file"
+    },
+    "schemas": {
+      "type": "object",
+      "description": "Map of schema names to their configuration",
+      "minProperties": 1,
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Remote schema fetched from a URL",
+            "properties": {
+              "type": {
+                "const": "remote",
+                "description": "Schema type: downloaded from a remote URL"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https?://",
+                "description": "URL to download the schema from — use {version} as a placeholder for auto-detected package versions"
+              },
+              "fileMatch": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "description": "VS Code glob patterns for files this schema applies to (e.g., [\"package.json\", \"*.config.json\"])"
+              },
+              "versionSource": {
+                "type": "object",
+                "description": "Configuration for auto-detecting version from installed packages",
+                "properties": {
+                  "package": {
+                    "type": "string",
+                    "description": "npm package name to detect the installed version from (e.g., @biomejs/biome)"
+                  }
+                },
+                "required": ["package"],
+                "additionalProperties": false
+              },
+              "versionCheck": {
+                "type": "object",
+                "description": "Version drift detection — records which tool version this schema was written/fetched for",
+                "properties": {
+                  "tool": {
+                    "type": "string",
+                    "description": "Tool binary or package name to check version of"
+                  },
+                  "schemaWrittenForVersion": {
+                    "type": "string",
+                    "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                    "description": "The tool version this schema was written/fetched for"
+                  }
+                },
+                "required": ["tool", "schemaWrittenForVersion"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["type", "url", "fileMatch"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Local schema copied from node_modules",
+            "properties": {
+              "type": {
+                "const": "local",
+                "description": "Schema type: copied from node_modules"
+              },
+              "path": {
+                "type": "string",
+                "description": "Path to schema file relative to the workspace root (e.g., node_modules/syncpack/dist/schema.json)"
+              },
+              "fileMatch": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "description": "VS Code glob patterns for files this schema applies to"
+              },
+              "versionCheck": {
+                "type": "object",
+                "description": "Version drift detection — records which tool version this schema was written/fetched for",
+                "properties": {
+                  "tool": {
+                    "type": "string",
+                    "description": "Tool binary or package name to check version of"
+                  },
+                  "schemaWrittenForVersion": {
+                    "type": "string",
+                    "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                    "description": "The tool version this schema was written/fetched for"
+                  }
+                },
+                "required": ["tool", "schemaWrittenForVersion"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["type", "path", "fileMatch"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Custom schema from the schemas/ directory",
+            "properties": {
+              "type": {
+                "const": "custom",
+                "description": "Schema type: custom schema maintained in this repository"
+              },
+              "path": {
+                "type": "string",
+                "description": "Path to schema file relative to this config file (e.g., schemas/actionlint.schema.json)"
+              },
+              "fileMatch": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "description": "VS Code glob patterns for files this schema applies to"
+              },
+              "versionCheck": {
+                "type": "object",
+                "description": "Version drift detection — records which tool version this schema was written/fetched for",
+                "properties": {
+                  "tool": {
+                    "type": "string",
+                    "description": "Tool binary or package name to check version of"
+                  },
+                  "schemaWrittenForVersion": {
+                    "type": "string",
+                    "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                    "description": "The tool version this schema was written/fetched for"
+                  }
+                },
+                "required": ["tool", "schemaWrittenForVersion"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["type", "path", "fileMatch"],
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "required": ["schemas"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "$schema": "./schemas.schema.json",
+      "schemas": {
+        "turbo": {
+          "type": "remote",
+          "url": "https://raw.githubusercontent.com/vercel/turborepo/v{version}/packages/turbo-types/schemas/schema.json",
+          "versionSource": {
+            "package": "turbo"
+          },
+          "fileMatch": ["turbo.json", "turbo.jsonc"]
+        },
+        "biome": {
+          "type": "remote",
+          "url": "https://biomejs.dev/schemas/{version}/schema.json",
+          "versionSource": {
+            "package": "@biomejs/biome"
+          },
+          "fileMatch": ["biome.json", "biome.jsonc"]
+        },
+        "prettierrc": {
+          "type": "remote",
+          "url": "https://json.schemastore.org/prettierrc.json",
+          "versionCheck": {
+            "tool": "prettier",
+            "schemaWrittenForVersion": "3.8.1"
+          },
+          "fileMatch": [".prettierrc", ".prettierrc.json"]
+        },
+        "syncpack": {
+          "type": "local",
+          "path": "node_modules/syncpack/dist/schema.json",
+          "fileMatch": [".syncpackrc", ".syncpackrc.json"]
+        },
+        "actionlint": {
+          "type": "custom",
+          "path": "schemas/actionlint.schema.json",
+          "versionCheck": {
+            "tool": "actionlint",
+            "schemaWrittenForVersion": "1.7.11"
+          },
+          "fileMatch": []
+        }
+      }
+    }
+  ]
+}

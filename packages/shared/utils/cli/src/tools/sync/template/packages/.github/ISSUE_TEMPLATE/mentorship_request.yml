@@ -1,0 +1,178 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: mentorship-request
+
+name: "🧑‍🏫 Mentorship Request"
+description: Request guidance as a new contributor looking to onboard or collaborate.
+labels:
+  - good first issue
+  - mentorship
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person requesting mentorship.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Contributor Goals (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🎯 Contribution Goals  
+        Help us understand what you want to work on and how we can guide you.
+
+  - type: input
+    id: goal
+    attributes:
+      label: What would you like to work on?
+      description: Tell us the feature, bug, area of the codebase, or general idea you're interested in.
+      placeholder: "e.g., Improve analytics integration, fix mobile layout bug, understand our Stripe webhook flow"
+    validations:
+      required: true
+
+  - type: textarea
+    id: help
+    attributes:
+      label: What do you need help with?
+      description: Describe what you're unsure about — setup, tools, processes, or parts of the stack.
+      placeholder: |
+        - I'm not sure how to get started with the observability tooling  
+        - Confused about SvelteKit SSR in our Cloudflare Worker setup  
+        - Need help running Docker + Bun locally
+      render: markdown
+    validations:
+      required: true
+
+  - type: input
+    id: context
+    attributes:
+      label: Have you set up the project locally?
+      description: Let us know your setup status or blockers.
+      placeholder: "e.g., Yes using Bun + Docker — or not yet, getting errors on `bun install`"
+    validations:
+      required: true
+
+  - type: textarea
+    id: background
+    attributes:
+      label: Anything else you'd like to share?
+      description: Share your experience, tools you're familiar with, availability, or learning goals.
+      placeholder: |
+        - Familiar with TypeScript, GCP, and GitHub Actions  
+        - Learning Valibot and Kubernetes  
+        - Available most evenings UTC+1
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Support Planning  
+        Help us prioritize mentorship outreach and align contributor support.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is it for you to get connected with a mentor?
+      options:
+        - "Low – casual contributor interest"
+        - "Medium – planning to contribute this month"
+        - "High – ready to start this sprint"
+        - "Critical – onboarding for scoped project"
+      default: "Medium – planning to contribute this month"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Guidance Need Level
+      description: How much mentorship support will you likely need?
+      options:
+        - "Low – just point me to docs"
+        - "Medium – check-in guidance would help"
+        - "High – paired onboarding or async Q&A preferred"
+        - "Critical – full onboarding needed to unblock"
+      default: "Medium – check-in guidance would help"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon would you like to start contributing?
+      options:
+        - "Low – exploring options"
+        - "Medium – aiming for this month"
+        - "High – starting this week"
+        - "Critical – already assigned, blocked on support"
+      default: "Medium – aiming for this month"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Intended Contribution Scope
+      description: What is the expected impact of your contribution?
+      options:
+        - "Learning + small documentation updates"
+        - "Fixing good-first-issues"
+        - "Feature work or integrations"
+        - "Multi-sprint or platform-wide changes"
+      default: "Fixing good-first-issues"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Attachments (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 References or Links  
+        Add any relevant issues, discussions, drafts, or contributions in progress.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues, PRs, or Ideas
+      description: Link anything you're interested in or already started reviewing.
+      placeholder: "e.g., GitHub issue #244, draft PR #92, Figma flow, internal doc"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Files (Optional)
+      description: Diagrams, screenshots, or code snippets you want reviewed.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Contributor Confirmation
+      description: Confirm your intent to engage constructively and your understanding of the mentorship process.
+      options:
+        - label: I have reviewed the contributing guide and am ready to engage constructively
+        - label: I understand that mentorship is offered based on team availability and alignment with project goals
+    validations:
+      required: true

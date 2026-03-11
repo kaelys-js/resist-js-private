@@ -1,0 +1,454 @@
+pull_request_templates:
+  feature_request:
+    match:
+      title: "^feat:"
+      branch: "^feat/"
+    template: feature_request.md
+    labels: ["type: feature"]
+    reviewers: ["@product-team"]
+
+  bug_fix:
+    match:
+      title: "^fix:"
+      branch: "^bugfix/"
+    template: bug_fix.md
+    labels: ["type: bug"]
+    reviewers: ["@qa-team"]
+
+  documentation:
+    match:
+      title: "^docs:"
+      branch: "^docs/"
+    template: documentation.md
+    labels: ["type: documentation"]
+
+  infra_change:
+    match:
+      files:
+        - "terraform/**"
+        - ".github/workflows/**"
+        - "infra/**"
+    template: infra_change.md
+    labels: ["type: infrastructure"]
+    reviewers: ["@devops"]
+
+  rollback:
+    match:
+      title: "^revert:"
+    template: rollback.md
+    labels: ["type: rollback"]
+    reviewers: ["@maintainers"]
+
+  release_preparation:
+    match:
+      title: "^release:"
+      branch: "^release/"
+    template: release_preparation.md
+    labels: ["type: release"]
+    reviewers: ["@release-team"]
+
+  access_review:
+    match:
+      title: "^access-review:"
+    template: access_review.md
+    labels: ["type: security"]
+    reviewers: ["@security-team"]
+
+  access_controls:
+    match:
+      title: "^access:"
+    template: access_controls.md
+    labels: ["type: access"]
+    reviewers: ["@infra-security"]
+
+  third_party_update:
+    match:
+      title: "^chore\\(deps\\):"
+      files:
+        - "package.json"
+        - "requirements.txt"
+        - "pom.xml"
+    template: third_party_update.md
+    labels: ["type: dependency"]
+
+  experiment:
+    match:
+      title: "^experiment:"
+    template: experiment.md
+    labels: ["type: experimental"]
+
+  cleanup:
+    match:
+      title: "^chore\\(cleanup\\):"
+    template: cleanup.md
+    labels: ["type: cleanup"]
+
+  analytics_event:
+    match:
+      files:
+        - "**/analytics/**"
+        - "**/tracking/**"
+    template: analytics_event.md
+    labels: ["type: telemetry"]
+
+  handoff:
+    match:
+      title: "^handoff:"
+    template: handoff.md
+    labels: ["type: handoff"]
+
+  ci_cd_update:
+    match:
+      files:
+        - ".github/workflows/**"
+        - ".circleci/**"
+    template: ci_cd_update.md
+    labels: ["type: ci-cd"]
+    reviewers: ["@devops"]
+
+  config_change:
+    match:
+      files:
+        - "**/config.*"
+        - "**/*.env"
+    template: config_change.md
+    labels: ["type: config"]
+
+  data_migration:
+    match:
+      title: "^migration:"
+    template: data_migration.md
+    labels: ["type: migration"]
+    reviewers: ["@db-admins"]
+
+  design_review:
+    match:
+      title: "^design:"
+    template: design_review.md
+    labels: ["type: design"]
+    reviewers: ["@architects"]
+
+  onboarding:
+    match:
+      title: "^onboarding:"
+    template: onboarding.md
+    labels: ["type: onboarding"]
+
+  breaking_change:
+    match:
+      title: "^breaking:"
+    template: breaking_change.md
+    labels: ["type: breaking-change"]
+    reviewers: ["@lead-devs"]
+
+  security:
+    match:
+      title: "^security:"
+    template: security.md
+    labels: ["type: security"]
+    reviewers: ["@security-team"]
+
+  styleguide_update:
+    match:
+      title: "^style:"
+    template: styleguide_update.md
+    labels: ["type: style"]
+
+  ab_test:
+    match:
+      title: "^experiment\\(ab-test\\):"
+    template: ab_test.md
+    labels: ["type: experiment", "ab-test"]
+    reviewers: ["@product-analysts", "@growth"]
+
+  api_versioning:
+    match:
+      title: "^api:"
+    template: api_versioning.md
+    labels: ["type: api", "breaking-change"]
+    reviewers: ["@api-team"]
+
+  compliance:
+    match:
+      title: "^compliance:"
+    template: compliance.md
+    labels: ["type: compliance"]
+    reviewers: ["@legal-team", "@security-team"]
+
+  communications:
+    match:
+      title: "^comms:"
+    template: communications.md
+    labels: ["type: docs", "communications"]
+    reviewers: ["@marketing", "@support"]
+
+  dev_experience:
+    match:
+      title: "^dx:"
+    template: dev_experience.md
+    labels: ["type: dx"]
+    reviewers: ["@developer-experience"]
+
+  billing:
+    match:
+      title: "^billing:"
+    template: billing.md
+    labels: ["type: billing"]
+    reviewers: ["@finance-team", "@backend"]
+
+  integration:
+    match:
+      title: "^integration:"
+    template: integration.md
+    labels: ["type: integration"]
+    reviewers: ["@platform-team"]
+
+  monitoring_alerting:
+    match:
+      title: "^monitor:"
+    template: monitoring_alerting.md
+    labels: ["type: monitoring"]
+    reviewers: ["@devops", "@oncall"]
+
+  usage_reporting:
+    match:
+      title: "^reporting:"
+    template: usage_reporting.md
+    labels: ["type: reporting"]
+    reviewers: ["@analytics", "@compliance"]
+
+  auth_identity:
+    match:
+      title: "^auth:"
+    template: auth_identity.md
+    labels: ["type: authentication"]
+    reviewers: ["@security-team", "@platform-team"]
+
+  plan_migration:
+    match:
+      title: "^plan:"
+    template: plan_migration.md
+    labels: ["type: pricing", "migration"]
+    reviewers: ["@product-team", "@support"]
+
+  feature_flag:
+    match:
+      title: "^flag:"
+    template: feature_flag.md
+    labels: ["type: feature-flag"]
+    reviewers: ["@feature-team"]
+
+  incident_postmortem:
+    match:
+      title: "^incident:"
+    template: incident_postmortem.md
+    labels: ["type: incident", "postmortem"]
+    reviewers: ["@ops-team", "@incident-response"]
+
+  support_case_response:
+    match:
+      title: "^support:"
+    template: support_case_response.md
+    labels: ["type: support"]
+    reviewers: ["@support", "@product"]
+
+  sandbox_environment:
+    match:
+      title: "^sandbox:"
+    template: sandbox_environment.md
+    labels: ["type: environment"]
+    reviewers: ["@devops", "@qa"]
+
+
+  incident_response:
+    match:
+      title: "^hotfix:"
+    template: incident_response.md
+    labels: ["type: hotfix", "incident"]
+    reviewers: ["@ops-team", "@oncall"]
+
+  data_retention:
+    match:
+      title: "^retention:"
+    template: data_retention.md
+    labels: ["type: compliance", "data"]
+    reviewers: ["@legal", "@infra"]
+
+  ai_model_update:
+    match:
+      title: "^model:"
+    template: ai_model_update.md
+    labels: ["type: ml", "ai"]
+    reviewers: ["@ml-team", "@qa"]
+
+  mobile_release:
+    match:
+      title: "^mobile:"
+    template: mobile_release.md
+    labels: ["type: mobile", "release"]
+    reviewers: ["@mobile-team", "@product"]
+
+  beta_program:
+    match:
+      title: "^beta:"
+    template: beta_program.md
+    labels: ["type: beta"]
+    reviewers: ["@product", "@support"]
+
+  content_update:
+    match:
+      title: "^content:"
+    template: content_update.md
+    labels: ["type: content"]
+    reviewers: ["@marketing", "@product"]
+
+  api_docs:
+    match:
+      title: "^docs\\(api\\):"
+    template: api_docs.md
+    labels: ["type: docs", "api"]
+    reviewers: ["@devrel", "@api-team"]
+
+  performance_regression:
+    match:
+      title: "^perf:"
+    template: performance_regression.md
+    labels: ["type: performance", "regression"]
+    reviewers: ["@performance-team"]
+
+  deprecation_notice:
+    match:
+      title: "^deprecate:"
+    template: deprecation_notice.md
+    labels: ["type: deprecation"]
+    reviewers: ["@product", "@support"]
+
+  workspace_change:
+    match:
+      title: "^workspace:"
+    template: workspace_change.md
+    labels: ["type: shared-code"]
+    reviewers: ["@core-infra", "@team-leads"]
+
+  cross_team_change:
+    match:
+      title: "^cross:"
+    template: cross_team_change.md
+    labels: ["type: multi-team"]
+    reviewers: ["@team-a", "@team-b"]
+
+  technical_strategy:
+    match:
+      title: "^strategy:"
+    template: technical_strategy.md
+    labels: ["type: planning"]
+    reviewers: ["@tech-leads"]
+
+  project_kickoff:
+    match:
+      title: "^kickoff:"
+    template: project_kickoff.md
+    labels: ["type: planning"]
+    reviewers: ["@product", "@tech-leads"]
+
+  end_of_life:
+    match:
+      title: "^eol:"
+    template: end_of_life.md
+    labels: ["type: deprecation"]
+    reviewers: ["@product", "@support"]
+
+  sales_demo_env:
+    match:
+      title: "^demo:"
+    template: sales_demo_env.md
+    labels: ["type: demo", "env"]
+    reviewers: ["@sales", "@infra"]
+
+  marketing_landing_page:
+    match:
+      title: "^landing:"
+    template: marketing_landing_page.md
+    labels: ["type: marketing"]
+    reviewers: ["@marketing", "@design"]
+
+  pricing_page:
+    match:
+      title: "^pricing:"
+    template: pricing_page.md
+    labels: ["type: pricing"]
+    reviewers: ["@product", "@bizops"]
+
+  training_tool:
+    match:
+      title: "^training:"
+    template: training_tool.md
+    labels: ["type: enablement"]
+    reviewers: ["@eng-onboarding"]
+
+  feature_flag_cleanup:
+    match:
+      title: "^flag-cleanup:"
+    template: feature_flag_cleanup.md
+    labels: ["type: cleanup", "feature-flag"]
+    reviewers: ["@feature-team"]
+
+  changelog_entry:
+    match:
+      title: "^changelog:"
+    template: changelog_entry.md
+    labels: ["type: docs", "release"]
+    reviewers: ["@release-engineering"]
+
+  secrets_rotation:
+    match:
+      title: "^secrets:"
+    template: secrets_rotation.md
+    labels: ["type: security"]
+    reviewers: ["@security-team", "@infra"]
+
+  legal_copy:
+    match:
+      title: "^legal:"
+    template: legal_copy.md
+    labels: ["type: compliance", "legal"]
+    reviewers: ["@legal", "@product"]
+
+  automated_refactor:
+    match:
+      title: "^codemod:"
+    template: automated_refactor.md
+    labels: ["type: refactor", "automated"]
+    reviewers: ["@qa", "@tech-leads"]
+
+  tutorial_update:
+    match:
+      title: "^tutorial:"
+    template: tutorial_update.md
+    labels: ["type: docs", "onboarding"]
+    reviewers: ["@eng-onboarding"]
+
+  build_pipeline_change:
+    match:
+      title: "^build:"
+    template: build_pipeline_change.md
+    labels: ["type: ci-cd", "infra"]
+    reviewers: ["@infra", "@devops"]
+
+  template_suggestions:
+    match:
+      title: "^template-suggestion:"
+    template: template_suggestions.md
+    labels: ["type: meta"]
+    reviewers: ["@eng-leads"]
+
+  other:
+    match:
+      title: "^misc:"
+    template: other.md
+    labels: ["type: general"]
+
+  default:
+    template: default.md
+    log_unmatched: true
+

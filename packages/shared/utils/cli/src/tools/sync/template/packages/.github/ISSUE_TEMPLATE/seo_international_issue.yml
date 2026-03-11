@@ -1,0 +1,181 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO International Issue
+# -------------------------------------------------------------------
+# Purpose: Report issues related to hreflang tag configuration, language-region mismatches,
+# missing alternates, or misconfigured international targeting logic.
+# Designed to support multi-region SEO strategy and localized experience consistency.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-international-issue
+
+name: "🌐 SEO International Issue"
+description: Report issues with hreflang configuration or international targeting.
+title: "[SEO International Issue]: "
+labels:
+  - seo
+  - hreflang
+  - international
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the individual submitting the report.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: International Targeting Issue (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🌍 Hreflang or Region Problem  
+        Explain the issue with hreflang, canonical, or alternate language targeting.
+
+  - type: textarea
+    id: international_issue
+    attributes:
+      label: Hreflang or Region Problem
+      description: Describe the hreflang or regional issue, affected pages, and observed behavior.
+      placeholder: |
+        - Page: /en-us/products  
+        - Problem: hreflang for "en-gb" missing or pointing to wrong URL  
+        - Canonical points to /global instead of localized page  
+        - Alternate: Expected tag for "fr-fr" not present  
+        - Impact: Google shows wrong locale in search for French users
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Evaluate how urgent or business-critical this international issue is.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How technically severe is the hreflang or targeting misconfiguration?
+      options:
+        - "Critical – affects entire international targeting logic"
+        - "High – major markets affected (e.g. en-gb, fr-fr, etc.)"
+        - "Medium – isolated regional mismatch"
+        - "Low – minor fallback or alternate missing"
+      default: "Medium – isolated regional mismatch"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly does this issue require resolution?
+      options:
+        - "Critical – fix before next deploy"
+        - "High – this sprint"
+        - "Medium – within 2 sprints"
+        - "Low – backlog candidate"
+      default: "Next cycle – backlog candidate"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What user or content visibility is affected by this issue?
+      options:
+        - "Org-wide – affects global search appearance and localization"
+        - "Team-wide – product, docs, or campaign traffic at risk"
+        - "Single region or page – localized content issue"
+        - "Unclear – requires further analysis"
+      default: "Team-wide – product, docs, or campaign traffic at risk"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Based on severity, urgency, and business value, how should this be prioritized?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Evidence  
+        Link to hreflang audit tools, sitemap errors, dashboards, or relevant PRs.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Include links to GSC international targeting report, crawl diagnostics, or internal reviews.
+      placeholder: |
+        - hreflang audit: https://example.com/tools/audit-report  
+        - GSC → Enhancements → International targeting  
+        - Sitemap hreflang validation tool  
+        - PR #1873 changed canonical behavior on /fr-fr pages
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Upload sample HTML snippets, response headers, screenshots, or sitemap data.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste hreflang blocks, sitemap entries, or header outputs for triage.
+      placeholder: |
+        ```html
+        <link rel="alternate" hreflang="en-gb" href="https://site.com/uk/products" />
+        <link rel="alternate" hreflang="x-default" href="https://site.com/global/products" />
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that this hreflang/international issue is valid and reproducible.
+      options:
+        - label: I confirm this international issue has been validated and reviewed internally.
+    validations:
+      required: true

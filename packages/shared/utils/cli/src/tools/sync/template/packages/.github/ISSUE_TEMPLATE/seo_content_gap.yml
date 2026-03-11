@@ -1,0 +1,181 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Content Gap
+# -------------------------------------------------------------------
+# Purpose: Identify missing keyword clusters, topical gaps, or unmet user intents
+# that represent opportunities for SEO content development.
+# Tool-agnostic and structured for content, SEO, and product collaboration.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-content-gap
+
+name: "🧠 SEO Content Gap"
+description: Propose a missing topic or keyword cluster that should be addressed to improve content coverage and search visibility.
+title: "[SEO Content Gap]: "
+labels:
+  - seo
+  - gap
+  - opportunity
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contact of the person suggesting the content gap.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Gap Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📚 Content Gap Details  
+        Describe the missing content area and why it matters.
+
+  - type: textarea
+    id: content_gap_details
+    attributes:
+      label: Gap Details
+      description: What topic, query, or cluster is underrepresented or missing entirely?
+      placeholder: |
+        - Topic: "biome vs bun" comparison  
+        - Intent: developer evaluation during build system migration  
+        - Keywords: biome performance, bun vs biome, bun linter alternative  
+        - Opportunity: none of our competitors have a consolidated page
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Evaluate the importance, potential, and urgency of creating this content.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How should this content gap be prioritized?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What is the severity of missing this content for SEO coverage?
+      options:
+        - "Critical – major opportunity in strategic keyword space"
+        - "High – clear search intent unmet or competitive gap"
+        - "Medium – secondary term or edge case coverage"
+        - "Low – nice-to-have or brand support topic"
+      default: "Medium – secondary term or edge case coverage"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this gap be addressed?
+      options:
+        - "Critical – address immediately"
+        - "High – this sprint or next"
+        - "Medium – within 2 sprints"
+        - "Low – backlog candidate"
+      default: "Next cycle – backlog candidate"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: Who or what benefits from addressing this gap?
+      options:
+        - "Org-wide – strategic growth lever or flagship keyword"
+        - "Team-wide – campaign or product-level enhancement"
+        - "Single persona or journey – targeted use case"
+        - "Unclear – needs further research"
+      default: "Team-wide – campaign or product-level enhancement"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Supporting Data
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Signals  
+        Add any keyword data, analytics signals, or competitive examples.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Include keyword research, GSC data, dashboards, or relevant discussions.
+      placeholder: |
+        - Semrush keyword gap report  
+        - GSC impressions for related terms  
+        - Competitor pages ranking for "[our brand] alternatives"  
+        - Notion content backlog reference
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Include screenshots, audit exports, keyword CSVs, or wireframes.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste or upload relevant data or visuals related to the content gap.
+      placeholder: |
+        ```csv
+        Keyword,Volume,Difficulty
+        biome vs bun,540,32
+        biome toolchain review,150,18
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm the opportunity has been validated internally before submission.
+      options:
+        - label: I confirm this content gap has been reviewed and represents a valid SEO opportunity.
+    validations:
+      required: true

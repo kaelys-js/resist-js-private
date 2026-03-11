@@ -1,0 +1,166 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Structured Data Enhancement
+# -------------------------------------------------------------------
+# Purpose: Suggest improvements to structured metadata to support enhanced search visibility
+# via schema.org or rich result eligibility. Fully schema-compliant and generic.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: structured-data-enhancement
+
+name: "📜 Structured Data Enhancement"
+description: Suggest improvements to structured metadata (e.g. schema.org, JSON-LD) to improve SEO and eligibility for rich results.
+title: "[Structured Data Enhancement]: "
+labels:
+  - seo
+  - schema
+  - enhancement
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contact submitting the request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Structured Data Target (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🎯 Schema Element or Page Target  
+        What structured data should be improved or added?
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Schema Element or Target Page
+      description: Indicate the schema entity or target URL and describe the proposed enhancement.
+      placeholder: |
+        - Target Page: /docs/install  
+        - Entity: HowTo schema  
+        - Suggestion: Add step-by-step markup for installation flow  
+        - Current State: Only Article markup present
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Visibility & Use Case (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📈 SEO / Visibility Context  
+        What goal does this enhancement support?
+
+  - type: textarea
+    id: context
+    attributes:
+      label: SEO / Visibility Context
+      description: Describe the intent (e.g., eligibility for rich snippets, improved discovery, structured content parity).
+      placeholder: |
+        - Goal: Enable HowTo rich result in Google search  
+        - Comparison: Our competitors display how-to carousel  
+        - Benefit: Improve CTR from longtail instructional queries
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference Links (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Example Markup or Validator
+      description: Add a validator link, schema.org spec, or example markup.
+      placeholder: |
+        - https://schema.org/HowTo  
+        - https://search.google.com/test/rich-results  
+        - https://competitor.com/guide/setup-markup
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How critical is this from a structured data or SEO coverage perspective?
+      options:
+        - "Critical – violates existing schema rules or invalid markup"
+        - "High – required for snippet eligibility or parity"
+        - "Medium – improves existing markup quality"
+        - "Low – nice-to-have enhancement"
+      default: "Medium – improves existing markup quality"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this enhancement ideally be addressed?
+      options:
+        - "Immediate – part of launch or patch"
+        - "Soon – current sprint or iteration"
+        - "Next cycle – after roadmap milestone"
+        - "Not urgent – backlog candidate"
+      default: "Next cycle – after roadmap milestone"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What type of search or user-facing visibility does this affect?
+      options:
+        - "Org-wide – global markup, shared templates"
+        - "Team-wide – docs, product, or content surface"
+        - "Single page – isolated case"
+        - "Unclear – needs more validation"
+      default: "Team-wide – docs, product, or content surface"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Overall implementation priority based on visibility, risk, and effort.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Implementation Validity
+      description: Confirm the enhancement is based on supported schema markup.
+      options:
+        - label: This markup is supported by schema.org or Google.
+        - label: I’ve linked a validator or example implementation.
+    validations:
+      required: true

@@ -1,0 +1,79 @@
+{{syncHeader "#" "https://docs.npmjs.com/cli/v10/configuring-npm/npmrc"}}
+
+# ============================================
+# Package Initialization
+# ============================================
+init-author-name = "{{ business.company }}"
+init-author-email = "{{ business.emails.npm }}"
+init-author-url = "{{ business.domains.marketing }}"
+init-license = "{{ business.license }}"
+init-version = "0.0.0"
+
+# ============================================
+# Publishing
+# ============================================
+publish-branch = "{{ git.npm_publish_branch }}"
+access = public
+git-tag-version = true
+commit-hooks = true
+tag-version-prefix = "v"
+
+# ============================================
+# Version Resolution
+# ============================================
+save-prefix = ""
+save-exact = true
+
+# ============================================
+# Engine Enforcement
+# ============================================
+engine-strict = true
+
+# ============================================
+# Performance & Caching
+# ============================================
+prefer-offline = true
+fetch-retries = 3
+fetch-retry-mintimeout = 10000
+fetch-retry-maxtimeout = 60000
+
+# ============================================
+# Security
+# ============================================
+audit = true
+audit-level = moderate
+
+{{#ifPm "pnpm"}}
+# ============================================
+# pnpm: Workspace
+# ============================================
+link-workspace-packages = true
+save-workspace-protocol = rolling
+dedupe-direct-deps = true
+verify-deps-before-run = install
+
+# ============================================
+# pnpm: Node.js Version
+# ============================================
+use-node-version = {{ versions.node }}
+
+# ============================================
+# pnpm: Network
+# ============================================
+network-concurrency = 16
+
+# ============================================
+# pnpm: Hoisting
+# ============================================
+shamefully-hoist = false
+public-hoist-pattern[] = *types*
+public-hoist-pattern[] = *svelte*
+public-hoist-pattern[] = *vite*
+public-hoist-pattern[] = *vitest*
+public-hoist-pattern[] = *playwright*
+public-hoist-pattern[] = *oxlint*
+public-hoist-pattern[] = *biome*
+public-hoist-pattern[] = *prettier*
+public-hoist-pattern[] = *capacitor*
+public-hoist-pattern[] = *cloudflare*
+{{/ifPm}}

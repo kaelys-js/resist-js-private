@@ -1,0 +1,182 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO GSC Crawl Anomaly
+# -------------------------------------------------------------------
+# Purpose: Report crawl-related anomalies surfaced in Google Search Console (GSC).
+# The form is structured for clarity, actionability, and tool-agnostic adoption.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-gsc-crawl-anomaly
+
+name: "🐛 SEO GSC Crawl Anomaly"
+description: Report crawl issues flagged in Google Search Console (GSC).
+title: "[SEO GSC Crawl Anomaly]: "
+labels:
+  - seo
+  - gsc
+  - crawl
+  - anomaly
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contact of the individual submitting the report.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Anomaly Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🕷️ Crawl Anomaly Details  
+        Describe the crawl anomaly detected in Google Search Console.
+
+  - type: textarea
+    id: gsc_crawl_issue
+    attributes:
+      label: Crawl Anomaly Details
+      description: Describe the issue including affected URLs, crawl error types, and when it started.
+      placeholder: |
+        - GSC reports "Soft 404" for /blog/*
+        - 5xx server error spike detected on product pages
+        - Submitted URL not selected for indexing (site-wide)
+        - Blocked JavaScript resources seen in mobile index
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help us understand how urgent and widespread this anomaly is.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: What level of response does this issue require?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P1 – high priority"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: What is the technical severity of the crawl issue?
+      options:
+        - "Critical – crawl failures block indexing site-wide"
+        - "High – crawl errors on key pages or sections"
+        - "Medium – crawl warnings but partially indexed"
+        - "Low – cosmetic or intermittent anomalies"
+      default: "High – crawl errors on key pages or sections"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly should the issue be addressed?
+      options:
+        - "Critical – immediate resolution required"
+        - "High – must be resolved this sprint"
+        - "Medium – resolve within 2 sprints"
+        - "Low – address in future cycle"
+      default: "Critical – immediate resolution required"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: Who or what is being affected by this issue?
+      options:
+        - "Org-wide – crawl failure impacts multiple product areas"
+        - "Team-wide – specific product/service or SEO goals affected"
+        - "Single user/session – isolated issue"
+        - "Unclear – needs more investigation"
+      default: "Team-wide – specific product/service or SEO goals affected"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Context
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & External Sources  
+        Link to GSC reports, crawl stats, or internal dashboards.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Links to Google Search Console, CrUX data, crawl logs, or dashboards.
+      placeholder: |
+        - GSC coverage report for /articles/  
+        - Crawl Stats for March 2025  
+        - Internal monitoring or uptime logs
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments & Evidence
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Share any screenshots, HAR exports, or structured logs that support triage.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste relevant JSON, logs, error snippets, screenshots, or file contents.
+      placeholder: |
+        ```json
+        {
+          "url": "/store/product-123",
+          "status": "Soft 404",
+          "detected": "2025-05-20T10:43:00Z"
+        }
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that the anomaly has been reviewed and validated before reporting.
+      options:
+        - label: I confirm this crawl anomaly has been reviewed and is reproducible or documented in GSC.
+    validations:
+      required: true

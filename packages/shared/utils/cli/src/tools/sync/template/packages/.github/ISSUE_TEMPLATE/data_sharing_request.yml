@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Data Sharing Agreement Initiation
+# -------------------------------------------------------------------
+# Purpose: Initiate and track review of new data sharing agreements, including privacy, compliance, and legal implications.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: data-sharing-agreement-initiation
+
+name: "🧾 Data Sharing Agreement Initiation"
+description: Request review for a new data sharing agreement or process.
+title: "[Data Sharing Agreement]: "
+labels:
+  - legal
+  - data
+  - sharing
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or name of the individual initiating this request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary of Request (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe the data being shared and the third party involved.
+      placeholder: |
+        - Data type: User email + signup date  
+        - Recipient: External marketing vendor  
+        - Method: SFTP push weekly
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Contextual Details (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Purpose and Safeguards
+      description: Why is this data needed? Include controls like encryption, region restrictions, retention limits, or access policies.
+      placeholder: |
+        - Purpose: Enrichment for lifecycle marketing triggers  
+        - Retention: Max 90 days  
+        - Region: US-only  
+        - Safeguards: Redacted fields, encryption at rest
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Agreements or Legal Contacts
+      description: Link to draft agreements or name/contact of responsible legal or data owners.
+      placeholder: |
+        - https://notion.so/legal/data-agreement-v1  
+        - privacy@externalpartner.com  
+        - DPA Draft: /legal/docs/vendor2024-dpa.pdf
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Data Sensitivity
+      description: How sensitive is the data being shared?
+      options:
+        - "Critical – personal identifiers, financial, medical"
+        - "High – internal, usage, or customer meta"
+        - "Medium – system or operational metadata"
+        - "Low – public or aggregated, non-identifiable"
+      default: "High – internal, usage, or customer meta"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Timeline
+      description: When is this agreement or sharing needed?
+      options:
+        - "Immediate – blocking work in progress"
+        - "High – within 1 week"
+        - "Medium – this month"
+        - "Low – exploratory or backlog"
+      default: "Medium – this month"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: Who will benefit or be affected by this data sharing?
+      options:
+        - "Org-wide – affects multiple teams or systems"
+        - "Department-level – supports marketing, product, ops"
+        - "Team-level – small, scoped usage"
+        - "Unclear – needs review"
+      default: "Department-level – supports marketing, product, ops"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Review Priority
+      description: Set expected handling priority for legal/security review.
+      options:
+        - "P0 – legal must review today"
+        - "P1 – within 3 business days"
+        - "P2 – within 1–2 weeks"
+        - "P3 – review in future sprint"
+      default: "P2 – within 1–2 weeks"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm required context has been included.
+      options:
+        - label: I’ve included purpose, recipients, and any known risk mitigation.
+        - label: I understand this may require legal and security approval.
+    validations:
+      required: true

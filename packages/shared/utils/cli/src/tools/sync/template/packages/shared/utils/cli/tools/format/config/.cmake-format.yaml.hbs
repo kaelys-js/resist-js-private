@@ -1,0 +1,47 @@
+{{syncHeader "#" "https://cmake-format.readthedocs.io/en/latest/configuration.html"}}
+
+# =============================================================================
+# cmake-format Configuration
+# =============================================================================
+
+format:
+  # Maximum line width
+  line_width: {{ format.global.line_length }}
+
+  # Indentation
+  tab_size: {{ format.alternate.indent_size }}
+  use_tabchars: {{useTabs format.global.indent_style}}
+
+  # Line endings
+  line_ending: unix
+
+  # Command formatting
+  command_case: canonical
+  keyword_case: unchanged
+
+  # Wrapping
+  max_pargs_hwrap: 6
+  max_subgroups_hwrap: 2
+  max_lines_hwrap: 2
+  max_rows_cmdline: 2
+
+  # Dangling parentheses
+  dangle_parens: true
+  dangle_align: prefix
+
+  # Spacing
+  separate_ctrl_name_with_space: false
+  separate_fn_name_with_space: false
+
+  # Sorting
+  enable_sort: true
+  autosort: false
+
+markup:
+  # Comment reflow
+  enable_markup: true
+  canonicalize_hashrulers: true
+
+encode:
+  emit_byteorder_mark: false
+  output_encoding: utf-8

@@ -1,0 +1,148 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Infra Scalability Investigation
+# -------------------------------------------------------------------
+# Purpose: Document infrastructure scalability risks, symptoms, or planning concerns.
+# Supports investigation of horizontal/vertical scaling limits, capacity planning, or performance bottlenecks.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: infra-scalability-investigation
+
+name: "🧱 Infra Scalability Investigation"
+description: Investigate or document potential scaling concerns.
+title: "[Infra Scalability]: "
+labels:
+  - infrastructure
+  - scaling
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person raising the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary of Concern
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: High-level summary of the scaling concern or investigation trigger.
+      placeholder: |
+        - Redis CPU spikes with >10K concurrent users  
+        - Horizontal pod autoscaling not keeping up under load  
+        - Disk IOPS bottleneck under log ingestion spikes  
+        - Kafka consumer lag increasing as retention grows
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context or Technical Background
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Detail
+      description: Describe affected services, timelines, thresholds, workloads, or recent changes.
+      placeholder: |
+        - Env: staging + prod  
+        - Detected via: Grafana dashboard alert on June 3  
+        - Infra involved: GKE (us-central1), CloudSQL, Argo Rollouts  
+        - Observed: memory throttle on Argo CD sync jobs when >500 nodes deployed
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Optional References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or References
+      placeholder: "e.g., Grafana dashboard, GitHub issue #456, SLO doc, infra PR"
+
+  # --------------------------------------------------------------------
+  # SECTION: Risk & Triage Fields
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is the scalability concern?
+      options:
+        - "Critical – risk of outage or system instability"
+        - "High – performance impact at current scale"
+        - "Medium – will impact next scale target"
+        - "Low – theoretical or distant concern"
+      default: "Medium – will impact next scale target"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon does this need attention?
+      options:
+        - "Immediate – active incident or launch blocker"
+        - "High – next milestone or product phase"
+        - "Medium – plan for quarter"
+        - "Low – backlog or research"
+      default: "High – next milestone or product phase"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: What part of the system or team is affected?
+      options:
+        - "Org-wide – shared infra, global scale limit"
+        - "Cluster-wide – k8s or regional services"
+        - "Service-level – scoped to specific workload"
+        - "Unclear – needs validation"
+      default: "Service-level – scoped to specific workload"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Recommended triage level for follow-up.
+      options:
+        - "P0 – must address immediately"
+        - "P1 – high priority this cycle"
+        - "P2 – scheduled investigation"
+        - "P3 – backlog or FYI"
+      default: "P2 – scheduled investigation"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Final Acknowledgment
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this concern is valid and scoped.
+      options:
+        - label: I have verified this is not already addressed.
+        - label: I have provided enough context to take action.
+    validations:
+      required: true

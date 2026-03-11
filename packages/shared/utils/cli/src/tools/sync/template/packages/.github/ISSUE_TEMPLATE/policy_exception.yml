@@ -1,0 +1,145 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Governance Policy Exception
+# -------------------------------------------------------------------
+# Purpose: Request a scoped exception from an existing governance policy.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: governance-policy-exception
+
+name: "🧑‍⚖️ Governance Policy Exception"
+description: Request a temporary or permanent exception to a policy.
+title: "[Governance Policy Exception]: "
+labels:
+  - governance
+  - policy
+  - exception
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or email of the requester.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Policy Area Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Policy Name or Area
+      description: Name of the policy, rule, or control under exception request.
+      placeholder: |
+        e.g. "Security - External API Encryption",  
+        "Engineering - Commit Signing Policy",  
+        "Data Governance - Retention Schedule"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Why Is an Exception Needed?
+      description: Explain business or technical reasons, the intended duration, risks, and any mitigations.
+      placeholder: |
+        - Project XYZ requires legacy API access for 30 days  
+        - Migration tool lacks encryption-at-rest compliance  
+        - Temporary override approved by project lead
+
+  # --------------------------------------------------------------------
+  # SECTION: Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How impactful would a denial be?
+      options:
+        - "Critical – blocks key initiative or partner delivery"
+        - "High – significantly impairs delivery or compliance"
+        - "Medium – affects team efficiency"
+        - "Low – administrative or tooling friction"
+      default: "Medium – affects team efficiency"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon is an exception needed?
+      options:
+        - "Immediate – within 24h"
+        - "High – within 3 days"
+        - "Medium – within 1 sprint"
+        - "Low – async or next cycle"
+      default: "Medium – within 1 sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: What scale of impact does this exception influence?
+      options:
+        - "Org-wide"
+        - "Team-specific"
+        - "Single repo or function"
+        - "Unclear"
+      default: "Team-specific"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Help reviewers prioritize this exception.
+      options:
+        - "P0 – block-release exception"
+        - "P1 – needed this sprint"
+        - "P2 – plan-based exception"
+        - "P3 – minor or doc exception"
+      default: "P2 – plan-based exception"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference Links
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Links
+      description: Link to relevant docs, policy, or Slack discussions.
+      placeholder: "e.g., project URL, security policy doc, Jira ticket"
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this exception has been vetted or discussed.
+      options:
+        - label: I’ve discussed this exception with at least one reviewer or lead
+        - label: I understand this may require legal, security, or compliance approval
+    validations:
+      required: true

@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Docs Audit Issue
+# -------------------------------------------------------------------
+# Purpose: Report documentation that is outdated, misleading, incomplete,
+# or missing critical examples, links, or clarity.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: docs-audit-issue
+
+name: "📄 Docs Audit Issue"
+description: Report outdated, incomplete, or unclear documentation.
+title: "[Docs Audit]: "
+labels:
+  - docs
+  - audit
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the person filing this report.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Documentation Concern
+      description: What is missing, incorrect, or outdated?
+      placeholder: |
+        - Outdated install steps for Bun 1.0  
+        - No mention of ArgoCD sync fallback  
+        - Missing link to configuration reference
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Detail
+      description: What led to the discovery? Include affected tools, timelines, or user experience.
+      placeholder: |
+        - New hires failed to complete onboarding due to missing VPN setup docs  
+        - Link to Docker setup results in 404  
+        - Last updated in 2022; doesn't reflect current K8s YAML layout
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or References
+      description: Add source markdown, URL, or issue link.
+      placeholder: |
+        - /docs/setup/index.md  
+        - https://docs.example.com/platform/login-guide  
+        - GitHub issue #204 or PR #211
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severely does this impact readers or workflows?
+      options:
+        - "Critical – blocks usage or causes errors"
+        - "High – misleading or breaks onboarding"
+        - "Medium – important but not blocking"
+        - "Low – stylistic or minor cleanup"
+      default: "Medium – important but not blocking"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly should this be addressed?
+      options:
+        - "Immediate – sprint/blocking release"
+        - "High – should fix this cycle"
+        - "Medium – next audit or refresh"
+        - "Low – backlog for async review"
+      default: "High – should fix this cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who is affected by this documentation issue?
+      options:
+        - "Org-wide – onboarding or support escalation"
+        - "Team-wide – engineering or developer workflow"
+        - "Feature-level – a single CLI, page, or tool"
+        - "Unclear – requires further scoping"
+      default: "Feature-level – a single CLI, page, or tool"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Overall urgency to improve, clean up, or rewrite.
+      options:
+        - "P0 – urgent fix needed"
+        - "P1 – fix before next release or audit"
+        - "P2 – standard improvement cycle"
+        - "P3 – backlog"
+      default: "P2 – standard improvement cycle"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm readiness for triage.
+      options:
+        - label: I have verified this is not already addressed in another issue or PR.
+        - label: I have provided enough detail for someone to validate or fix it.
+    validations:
+      required: true

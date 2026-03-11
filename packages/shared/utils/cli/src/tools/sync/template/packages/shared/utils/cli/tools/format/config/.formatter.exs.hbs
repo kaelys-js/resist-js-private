@@ -1,0 +1,78 @@
+{{syncHeader "#" "https://hexdocs.pm/mix/Mix.Tasks.Format.html"}}
+
+[
+  # =============================================================================
+  # Basic Options
+  # =============================================================================
+
+  # Line length (Elixir default: 98)
+  line_length: {{ format.global.line_length }},
+
+  # Force do-end blocks for certain macros
+  force_do_end_blocks: false,
+
+  # =============================================================================
+  # Migration Options (Elixir 1.18+)
+  # =============================================================================
+
+  # Enable all code migrations (bitstring modifiers, charlists as sigils,
+  # unless → if, call parens on pipes). Future migrations are included
+  # automatically as Elixir adds them.
+  migrate: true,
+
+  # =============================================================================
+  # Locals Without Parens
+  # =============================================================================
+
+  # Macros that should be formatted without parentheses.
+  # NOTE: import_deps is not used here because the format CLI passes a bundled
+  # config via --dot-formatter, so deps are not resolvable from the config path.
+  # These entries are hardcoded to cover common Phoenix, Ecto, and ExUnit macros.
+  # Built-in macros (def, defmodule, import, etc.) are omitted — the formatter
+  # already handles them.
+  locals_without_parens: [
+    # Phoenix
+    plug: :*,
+    pipe_through: :*,
+    get: :*,
+    post: :*,
+    put: :*,
+    patch: :*,
+    delete: :*,
+    options: :*,
+    head: :*,
+    forward: :*,
+    resources: :*,
+    scope: :*,
+    socket: :*,
+    channel: :*,
+    live: :*,
+    live_session: :*,
+
+    # Ecto
+    field: :*,
+    belongs_to: :*,
+    has_one: :*,
+    has_many: :*,
+    many_to_many: :*,
+    embeds_one: :*,
+    embeds_many: :*,
+    timestamps: :*,
+    from: :*,
+    where: :*,
+    select: :*,
+    order_by: :*,
+    group_by: :*,
+    limit: :*,
+    offset: :*,
+    preload: :*,
+
+    # ExUnit
+    describe: :*,
+    test: :*,
+    setup: :*,
+    setup_all: :*,
+    assert: :*,
+    refute: :*
+  ]
+]

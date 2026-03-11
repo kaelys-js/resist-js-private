@@ -1,0 +1,144 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Contribution Pathway Feedback
+# -------------------------------------------------------------------
+# Purpose: Gather insights from contributors about the onboarding process and identify improvement areas.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: contribution-pathway-feedback
+
+name: "🧩 Contribution Pathway Feedback"
+description: Help improve the contributor onboarding or engagement experience.
+title: "[Contributor Feedback]: "
+labels:
+  - feedback
+  - onboarding
+  - community
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contributor handle.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Feedback Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Your Experience
+      description: What worked well, what didn’t, and where things could be clearer?
+      placeholder: |
+        - Finding good first issues was easy  
+        - Docs lacked clarity on how to set up the local dev environment  
+        - Unsure who to contact when stuck
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Suggestions
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Suggestions
+      description: Propose improvements to labels, issue templates, documentation, mentoring, or tooling.
+      placeholder: |
+        - Add a contributor FAQ  
+        - Clarify steps in onboarding.md  
+        - Add Discord role for new contributors
+
+  # --------------------------------------------------------------------
+  # SECTION: References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Examples
+      description: Point to any specific issue, doc, or thread that helps contextualize your feedback.
+      placeholder: "e.g., good-first-issue #121, CONTRIBUTING.md, Discord link"
+
+  # --------------------------------------------------------------------
+  # SECTION: Feedback Use Acknowledgment
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Feedback Use
+      description: Can we use this feedback to improve onboarding and documentation?
+      options:
+        - label: Yes, feel free to use my feedback to improve contributor experience.
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Optional Prioritization Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How much friction did this create for you?
+      options:
+        - "Critical – blocked me from contributing"
+        - "High – slowed me down significantly"
+        - "Medium – minor friction"
+        - "Low – suggestion only"
+      default: "Medium – minor friction"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this feedback be addressed?
+      options:
+        - "Immediate – urgent for onboarding"
+        - "High – fix within a sprint"
+        - "Medium – review soon"
+        - "Low – backlog or async"
+      default: "Medium – review soon"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: Who does this affect?
+      options:
+        - "All new contributors"
+        - "Occasional contributors"
+        - "Internal contributors only"
+        - "Unclear"
+      default: "All new contributors"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Suggest how we should prioritize this.
+      options:
+        - "P0 – should be addressed ASAP"
+        - "P1 – next iteration"
+        - "P2 – future batch update"
+        - "P3 – doc update or discussion"
+      default: "P2 – future batch update"
+    validations:
+      required: true

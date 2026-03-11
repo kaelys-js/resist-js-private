@@ -1,0 +1,169 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: sponsorship-collaboration-interest
+
+name: "🤝 Sponsorship & Collaboration Interest"
+description: Express interest in sponsoring, funding features, or collaborating with this project.
+labels:
+  - sponsorship
+  - business
+  - collaboration
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person initiating the sponsorship or partnership inquiry.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Sponsorship Interest Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## ✨ Let's Collaborate  
+        Tell us about your interest in supporting or collaborating on this project.
+
+  - type: input
+    id: organization_or_name
+    attributes:
+      label: Organization or Name
+      description: Your company, team, studio, or individual name.
+      placeholder: "e.g., Acme Corp, IndieDev Studio, or Jane Doe"
+    validations:
+      required: true
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Email or Website
+      description: Provide a valid email or public website where we can reach you.
+      placeholder: |
+        e.g., hello@acme.io  
+        or https://acme.io
+    validations:
+      required: true
+
+  - type: textarea
+    id: interest
+    attributes:
+      label: Sponsorship or Collaboration Details
+      description: Describe how you'd like to engage—feature funding, monthly sponsorship, cloud credits, joint event, etc.
+      placeholder: |
+        We'd like to sponsor this project monthly via Stripe and help fund a new Svelte-based admin dashboard.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context (Optional)
+      description: Share relevant context—audience, alignment, product goals, shared tooling.
+      placeholder: |
+        We're also using Bun, Kubernetes, and GCP.  
+        We'd love to co-host a developer AMA or publish a case study together.
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help us prioritize and route this request to the right stakeholders.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How strategic is this collaboration to your current goals?
+      options:
+        - Low – exploratory interest or idea
+        - Medium – supports current roadmap
+        - High – strategic alignment or funding offer
+        - Critical – time-sensitive or launch-aligned
+      default: Medium – supports current roadmap
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Collaboration Type
+      description: What level of engagement or integration does this proposal entail?
+      options:
+        - Low – passive sponsorship or brand alignment
+        - Medium – limited collaboration (e.g., blog, docs, events)
+        - High – co-development or funding partnership
+        - Critical – contractual or multi-party partnership
+      default: Medium – limited collaboration (e.g., blog, docs, events)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When do you expect to begin or confirm collaboration?
+      options:
+        - Low – flexible timeline
+        - Medium – this quarter
+        - High – this month
+        - Critical – urgent or deadline-driven
+      default: Medium – this quarter
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: What is the potential reach or influence of this collaboration?
+      options:
+        - Team-level or internal use only
+        - Department or business unit
+        - Company-wide or client-facing
+        - Community-wide or public audience
+      default: Company-wide or client-facing
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Links or Background (Optional)
+      description: Add references—company page, open source repo, initiative site, previous collabs, etc.
+      placeholder: "e.g., https://acme.io/open-source, GitHub @acmeco, https://case-study.dev"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Assets (Optional)
+      description: Include brochures, sponsorship decks, logos, or documents to support this inquiry.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm your intent to collaborate and share accurate information.
+      options:
+        - label: I confirm this request is genuine and I am authorized to explore this collaboration
+        - label: I understand this request may require follow-up, review, and legal or marketing coordination
+    validations:
+      required: true

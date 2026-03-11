@@ -1,0 +1,103 @@
+# TODO: need proper implementation of this file with templating support and using schema
+
+# .github/stale.yml
+# ------------------------------------------------------------------------------
+# GitHub Actions – Stale Bot Configuration File
+# Purpose: Automates issue and PR management by identifying and closing stale items.
+# Tool: https://github.com/actions/stale
+# ------------------------------------------------------------------------------
+# IMPORTANT: Ensure all referenced labels exist in the repository.
+# ------------------------------------------------------------------------------
+enableStatistics: true           # ✅ Enable run logs & metrics (useful for reporting/monitoring)
+debugOnly: false                 # ❌ Set to `true` for dry-run/testing mode (no state changes)
+
+# ------------------------------------------------------------------------------
+# ISSUE HANDLING CONFIGURATION
+# Applies to GitHub Issues only
+# ------------------------------------------------------------------------------
+issues:
+  daysUntilStale: 30            # ⏳ Mark issue as stale after 30 calendar days of inactivity
+  daysUntilClose: 7             # 🚫 Close issue 7 days after being marked as stale
+
+  onlyLabels:
+    - lifecycle/no-activity     # ✅ Apply only to issues explicitly marked for stale tracking
+
+  exemptLabels:
+    - lifecycle/keep-open       # 🛡️ Do not stale issues explicitly protected
+    - priority/critical         # 🔥 High-priority issues should remain open regardless of activity
+    - status/blocked            # 🚧 Blocked issues are not considered stale until unblocked
+
+  exemptAssignees:
+    - '*'                       # 👥 Assigned issues are considered actively worked on
+
+  exemptMilestones:
+    - '*'                       # 🗓️ Milestones imply planned work – exempt from stale logic
+
+  removeStaleWhenUpdated: true  # 🔄 Remove stale label if there’s any new activity (comment, assignment, etc.)
+
+  staleLabel: lifecycle/stale   # 🏷️ Label to apply when issue is marked as stale
+
+  staleComment: >
+    ⚠️ This issue has been automatically marked as stale due to 30 days of inactivity.
+    It will be closed in 7 days if no further activity occurs.
+    If this issue is still relevant, please comment or remove the `lifecycle/no-activity` label to prevent closure.
+
+  closeComment: >
+    ❌ This issue was automatically closed due to inactivity.
+    If it should not have been closed, please comment and a maintainer will review and reopen if appropriate.
+
+# ------------------------------------------------------------------------------
+# PULL REQUEST HANDLING CONFIGURATION
+# Applies to GitHub Pull Requests only
+# ------------------------------------------------------------------------------
+pulls:
+  daysUntilStale: 14            # ⏳ Mark PR as stale after 14 calendar days of no activity
+  daysUntilClose: 3             # 🚫 Close PR 3 days after being marked stale
+
+  onlyLabels:
+    - lifecycle/no-activity     # ✅ Apply stale logic only to explicitly labeled PRs
+
+  exemptLabels:
+    - lifecycle/keep-open       # 🛡️ Exempt from stale handling
+    - work-in-progress          # 🧪 Development ongoing – not stale
+    - needs-review              # 👀 Awaiting feedback – exempt
+
+  exemptAssignees:
+    - '*'                       # 👤 Assigned PRs are considered actively worked on
+
+  exemptMilestones:
+    - '*'                       # 🗓️ PRs tied to milestones are treated as active
+
+  removeStaleWhenUpdated: true  # 🔄 Re-activate PR on new commits/comments/etc.
+
+  staleLabel: lifecycle/stale-pr  # 🏷️ PR-specific stale marker
+
+  staleComment: >
+    ⚠️ This pull request has had no activity for 14 days and is now marked as stale.
+    It will be closed in 3 days unless further activity occurs.
+    To keep this open, comment or remove the `lifecycle/no-activity` label.
+
+  closeComment: >
+    ❌ This pull request has been closed due to inactivity.
+    If it should not have been closed, please comment and a maintainer will review and reopen if appropriate.
+
+# ------------------------------------------------------------------------------
+# LABELING GUIDELINES – Recommended Repository Labels
+# These labels must be pre-created to ensure stable operation
+# ------------------------------------------------------------------------------
+# lifecycle/no-activity   → Triggers stale logic for issues/PRs
+# lifecycle/keep-open     → Opt-out from stale logic
+# lifecycle/stale         → Auto-applied label for stale issues
+# lifecycle/stale-pr      → Auto-applied label for stale PRs
+# priority/critical       → Exempt high-priority backlog items
+# status/blocked          → Exempt until blocking condition resolved
+# work-in-progress        → PRs still under development
+# needs-review            → PRs awaiting review – exempt from stale
+
+# ------------------------------------------------------------------------------
+# OPERATIONAL BEST PRACTICES
+# ✅ Use `debugOnly: true` before rollout to test impact
+# 🛠  Monitor stale bot via GitHub Actions tab
+# 🔄 Regularly audit labels and issue/PR lifecycle rules
+# 📩 Contact DevOps team for changes, governance, or incident response
+# ------------------------------------------------------------------------------

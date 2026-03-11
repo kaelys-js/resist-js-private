@@ -1,0 +1,167 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Release Notes Entry
+# -------------------------------------------------------------------
+# Purpose: Collect contributor-authored summaries for public-facing changelogs or announcements.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: release-notes-entry
+
+name: "📌 Release Notes Entry"
+description: Suggest content for a changelog or release announcement.
+title: "[Release]: "
+labels:
+  - release
+  - changelog
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the contributor submitting this entry.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Release Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: 🔖 Summary for Release Notes
+      description: Public-facing summary for the changelog.
+      placeholder: |
+        e.g., Improved SvelteKit SSR performance by 30% in cold-start benchmarks.  
+        e.g., Fixed OAuth redirect error for mobile Safari users.  
+        e.g., Deprecated legacy `init()` hook in workspace config.
+      render: markdown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type of Change
+      description: Choose the most appropriate category.
+      options:
+        - Feature
+        - Fix
+        - Performance
+        - Security
+        - Breaking Change
+        - Deprecation
+        - Docs Only
+      default: Feature
+    validations:
+      required: true
+
+  - type: input
+    id: component
+    attributes:
+      label: Affected Component or Area
+      description: Code, infra, or docs surface involved.
+      placeholder: "e.g., Stripe billing module, API gateway, CI workflows"
+
+  - type: input
+    id: references
+    attributes:
+      label: Related PRs or Issues
+      placeholder: "e.g., PR #432, Issue #123"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (optional)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments (Optional)
+      description: Upload screenshots, logs, or visuals that support the changelog entry.
+      placeholder: |
+        You can drag and drop images here, or paste screenshots and logs as markdown code blocks.
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How impactful is this change to end users or systems?
+      options:
+        - "Critical – must highlight prominently"
+        - "High – relevant for most users"
+        - "Medium – affects a segment of usage"
+        - "Low – minimal or internal only"
+      default: "Medium – affects a segment of usage"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this entry be published?
+      options:
+        - "Immediate – blocks release or announcement"
+        - "High – should go out in next notes batch"
+        - "Medium – OK to include next cycle"
+        - "Low – backlog for async docs"
+      default: "High – should go out in next notes batch"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what does this change affect?
+      options:
+        - "User-facing – external developers or customers"
+        - "Internal – only visible to team members"
+        - "Infra-only – affects observability or CI/CD"
+        - "Unclear – needs triage"
+      default: "User-facing – external developers or customers"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Priority for inclusion or review.
+      options:
+        - "P0 – must be included in this release"
+        - "P1 – important but can wait"
+        - "P2 – routine changelog entry"
+        - "P3 – optional or nice-to-have"
+      default: "P2 – routine changelog entry"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Final confirmation before review.
+      options:
+        - label: I confirm this summary is accurate, understandable, and user-facing
+    validations:
+      required: true

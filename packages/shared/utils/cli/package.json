@@ -1,0 +1,28 @@
+{
+  "name": "@/cli",
+  "version": "0.0.1",
+  "description": "CLI task runner framework with Valibot schemas, concurrency pools, and i18n support",
+  "type": "module",
+  "scripts": {
+    "qa:test": "vitest run",
+    "qa:test:unit": "vitest run",
+    "qa:test:coverage": "vitest run --coverage",
+    "qa:benchmark": "vitest bench",
+    "tool": "node --import tsx src/utils/tool.ts",
+    "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
+  },
+  "dependencies": {
+    "@/config": "workspace:*",
+    "@/locale": "workspace:*",
+    "@/schemas/common": "workspace:*",
+    "@/utils/core": "workspace:*",
+    "diff": "^8.0.3",
+    "glob": "^13.0.0",
+    "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "@/config/test": "workspace:*",
+    "@types/diff": "^8.0.0",
+    "@types/node": "^25.2.0"
+  }
+}

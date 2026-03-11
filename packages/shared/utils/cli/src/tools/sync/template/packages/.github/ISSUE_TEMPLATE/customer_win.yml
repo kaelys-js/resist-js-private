@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Customer Win Story
+# -------------------------------------------------------------------
+# Purpose: Document impactful customer wins to support sales, marketing, product validation, or executive storytelling.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: customer-win-story
+
+name: "📣 Customer Win Story"
+description: Document a successful customer deployment or case study.
+title: "[Customer Win]: "
+labels:
+  - customer
+  - success
+  - story
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or name of the person submitting this win.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Customer Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Customer or Use Case
+      description: Describe the customer, their tech stack, and the outcome achieved.
+      placeholder: |
+        - Customer: Acme Corp  
+        - Stack: GCP, Bun, TypeScript, Cloudflare  
+        - Outcome: 3x deployment velocity using automated preview environments
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Success Story Details (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Story Details
+      description: Include the journey, tools used, features adopted, metrics improved, and any direct quotes.
+      placeholder: |
+        - Feature: SSO + observability + usage alerts  
+        - Impact: Downtime reduced by 70% over Q2  
+        - Quote: “This unlocked 10x developer confidence in production” – Engineering Lead  
+        - Internal: CSAT jumped from 3.5 → 4.8 post-migration
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Account Owner or Link
+      description: Add CS owner, CRM record, marketing doc, or internal contact.
+      placeholder: |
+        - @success-lead  
+        - https://notion.so/account-overview-acme  
+        - https://crm.company.com/accounts/123
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Strategic Value
+      description: How important is this story to our roadmap, GTM, or visibility?
+      options:
+        - "Critical – flagship customer, major logo, public launch-ready"
+        - "High – repeatable pattern, relevant to other prospects"
+        - "Medium – good story but niche or internal only"
+        - "Low – positive, but minor or edge case"
+      default: "High – repeatable pattern, relevant to other prospects"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be turned into content or a case study?
+      options:
+        - "Immediate – GTM window active"
+        - "High – needed this quarter"
+        - "Medium – fits future campaign"
+        - "Low – backlog or evergreen"
+      default: "Medium – fits future campaign"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Customer Impact
+      description: How broadly does this impact their team/org?
+      options:
+        - "Org-wide – cross-team adoption or transformation"
+        - "Department-level – specific team win"
+        - "Team-level – focused or functional use"
+        - "Unclear – still learning"
+      default: "Department-level – specific team win"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Storytelling Priority
+      description: Should this be prioritized for marketing or product roadmap?
+      options:
+        - "P0 – publish or share now"
+        - "P1 – high-value but time flexible"
+        - "P2 – backlog for GTM use"
+        - "P3 – monitor for more proof"
+      default: "P2 – backlog for GTM use"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      options:
+        - label: This customer is OK to reference publicly or internally.
+        - label: I’ve confirmed with customer success or marketing (if needed).
+    validations:
+      required: true

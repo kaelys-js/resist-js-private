@@ -1,0 +1,178 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: handoff-request
+
+name: "🔄 Handoff Request"
+description: Reassign ownership of a task, pull request, system, or module to ensure smooth continuity.
+labels:
+  - handoff
+  - internal
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person requesting the handoff.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Resource to Handoff (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📦 Handoff Scope  
+        Identify the asset, task, or resource that is being handed off.
+
+  - type: input
+    id: resource
+    attributes:
+      label: Item to Be Handed Off
+      description: Name of the module, PR, task, service, or system requiring handoff.
+      placeholder: "e.g., Billing module, PR #456, GCP deployment config"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Handoff Details
+      description: Provide sufficient context to ensure a smooth transition and continued ownership.
+      placeholder: |
+        ### Overview  
+        Brief summary of the task/module and its purpose.  
+
+        ### Current Status  
+        - Completed work  
+        - Remaining work  
+        - Blockers or risks  
+
+        ### Links & Assets  
+        - Relevant PRs, issues, and docs  
+        - Dashboards, metrics, or logs (e.g., Sentry, Umami)  
+
+        ### Access & Permissions  
+        - Required credentials or roles (e.g., GCP, K8s, Stripe, Cloudflare)  
+        - Any pending approvals or provisioning steps  
+
+        ### Key Decisions  
+        - Technical tradeoffs or design choices  
+        - Constraints or known issues  
+
+        ### Suggested Next Steps  
+        - Immediate actions for the new owner  
+        - Contacts for questions or context
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help assess how critical or time-sensitive this handoff is.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Relative importance of the handoff to ongoing initiatives or project delivery.
+      options:
+        - "Low – can wait until next cycle"
+        - "Medium – transition needed this sprint"
+        - "High – urgent to unblock another team"
+        - "Critical – blocking production or release"
+      default: "Medium – transition needed this sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical or Operational Severity
+      description: Degree of disruption if the handoff is delayed or incomplete.
+      options:
+        - "Low – no risk of disruption"
+        - "Medium – may affect team progress"
+        - "High – affects dependent systems or stakeholders"
+        - "Critical – breaks workflows or core functionality"
+      default: "Medium – may affect team progress"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline pressure to complete this handoff.
+      options:
+        - "Low – no immediate deadline"
+        - "Medium – needed in 1–2 sprints"
+        - "High – needed this sprint"
+        - "Critical – same-day action required"
+      default: "Medium – needed in 1–2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what will be affected by this handoff?
+      options:
+        - "Single developer or contributor"
+        - "Internal team or squad"
+        - "Multiple cross-functional teams"
+        - "Production or external users"
+      default: "Internal team or squad"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Related Artifacts (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 References & Attachments  
+        Add links or artifacts to assist the new owner.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Link to issues, PRs, project plans, dashboards, or docs.
+      placeholder: "e.g., GitHub issue #404, Confluence doc, Grafana dashboard link"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Diagrams, screenshots, configuration exports, or handoff templates.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that the handoff details are complete and accurate to the best of your knowledge.
+      options:
+        - label: I have provided sufficient context and artifacts for the new owner to take over effectively
+        - label: I understand this request will be reviewed and may require follow-up clarification
+    validations:
+      required: true

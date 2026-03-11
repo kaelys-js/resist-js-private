@@ -1,0 +1,155 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Revenue Impact Incident
+# -------------------------------------------------------------------
+# Purpose: Document and triage technical issues or regressions that directly affect revenue—ARR, billing, churn, or conversion.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: revenue-impact-incident
+
+name: "📉 Revenue Impact Incident"
+description: Document a technical issue that negatively affected revenue.
+title: "[Revenue Impact]: "
+labels:
+  - revenue
+  - incident
+  - impact
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the person reporting this.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the technical failure, outage, config error, or product gap.
+      placeholder: |
+        - Stripe webhook failed to fire → missed subscription updates  
+        - Signup form blocked on iOS → conversion drop  
+        - Billing usage report failed → late invoicing  
+        - EU DPA clause missing → customer contract delayed
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Revenue Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Revenue Impact
+      description: Describe direct loss or risk — ARR drop, churn, delay, missed expansion, refund, etc.
+      placeholder: |
+        - Estimated ARR loss: $35k (churned logo)  
+        - Contract delayed 3 weeks pending fix  
+        - Refund issued for 6 seats × 3 months  
+        - Deal downgraded to self-serve due to auth bug
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Link to Incident / Customer Info
+      description: Add links to postmortems, dashboards, CRM records, etc.
+      placeholder: |
+        - Postmortem: /incidents/billing-0625.md  
+        - Stripe: https://dashboard.stripe.com/customers/cus_123  
+        - Gong: https://call.com/deal-loss  
+        - Salesforce: https://sfdc.com/opportunity/456
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: Technical severity of the issue.
+      options:
+        - "Critical – repeatable failure or breach"
+        - "High – breaks core product behavior"
+        - "Medium – causes confusion, support tickets"
+        - "Low – edge case or cosmetic bug"
+      default: "High – breaks core product behavior"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this need resolution?
+      options:
+        - "Immediate – active incident or launch blocker"
+        - "High – next sprint must-fix"
+        - "Medium – this quarter"
+        - "Low – backlog/monitor"
+      default: "High – next sprint must-fix"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What is the potential or observed financial impact?
+      options:
+        - "Org-wide – material revenue or legal risk"
+        - "Department-level – sales, billing, or retention"
+        - "Team-level – localized churn or friction"
+        - "Unclear – still investigating"
+      default: "Department-level – sales, billing, or retention"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Use this to help align follow-up action.
+      options:
+        - "P0 – exec visibility required"
+        - "P1 – immediate triage"
+        - "P2 – standard fix"
+        - "P3 – backlog log"
+      default: "P1 – immediate triage"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Ensure this is a validated incident.
+      options:
+        - label: I’ve verified this had real revenue impact.
+        - label: I’ve alerted product or leadership if appropriate.
+    validations:
+      required: true

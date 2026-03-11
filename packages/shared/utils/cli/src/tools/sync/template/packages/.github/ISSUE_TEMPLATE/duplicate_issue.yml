@@ -1,0 +1,156 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: duplicate-issue
+
+name: "📎 Duplicate Issue"
+description: Link this issue to an existing one that already tracks the same bug, feature, or discussion.
+labels:
+  - duplicate
+  - triage
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this duplicate reference.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Duplicate Linkage (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 Link to Original Issue  
+        Provide the issue that fully or mostly overlaps with this one.
+
+  - type: input
+    id: original
+    attributes:
+      label: Original Issue URL
+      description: Full URL of the most complete or active related issue.
+      placeholder: "https://github.com/org/repo/issues/123"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Reason for Duplicate
+      description: Briefly describe how this overlaps with the linked issue to assist maintainers.
+      placeholder: |
+        - Same error stack trace  
+        - Reproduction steps match  
+        - Covered by the same PR or test case
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Provide information to help assess priority and scope.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance of resolving the original issue this duplicates.
+      options:
+        - "Low – minor or edge case"
+        - "Medium – affects standard usage"
+        - "High – blocks team workflows"
+        - "Critical – customer-facing or urgent"
+      default: "Medium – affects standard usage"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: Scope of breakage or issue severity.
+      options:
+        - "Low – cosmetic or warning"
+        - "Medium – partial feature impact"
+        - "High – major breakage"
+        - "Critical – complete failure or data loss"
+      default: "Medium – partial feature impact"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon this needs resolution.
+      options:
+        - "Low – when possible"
+        - "Medium – within 2 sprints"
+        - "High – this sprint"
+        - "Critical – must fix immediately"
+      default: "Medium – within 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by the duplicated issue?
+      options:
+        - "Single contributor or use case"
+        - "Internal teams"
+        - "Multiple teams or services"
+        - "Production or external users"
+      default: "Internal teams"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Attachments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Attachments & References (Optional)  
+        Add any evidence, screenshots, logs, or notes that support your reasoning.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Context
+      description: Link any related issues, discussions, or upstream references.
+      placeholder: "e.g., GitHub issue #42, relevant PR, related bug report"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Add screenshots, stack traces, diffs, or error logs.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this is a valid duplicate and you're aware it will close this issue.
+      options:
+        - label: I have verified that the linked issue already addresses this problem
+        - label: I agree that this issue can be closed in favor of the original
+    validations:
+      required: true

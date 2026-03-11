@@ -1,0 +1,156 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Reproducibility Issue
+# -------------------------------------------------------------------
+# Purpose: Capture bugs or inconsistencies in builds, CI, dev environments, or test suites that can't be reliably replicated.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: reproducibility-issue
+
+name: "🔁 Reproducibility Issue"
+description: Highlight environments or setups that can’t be reliably replicated.
+title: "[Reproducibility]: "
+labels:
+  - build
+  - reproducibility
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the individual submitting this report.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What process, test, or system isn’t reliably reproducible?
+      placeholder: |
+        - Integration tests pass locally but fail on CI  
+        - Build succeeds on macOS but fails in Docker  
+        - Svelte build output differs between `bun run` and CI cache
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Technical Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Reproduction Steps & Platform Info
+      description: Include full reproduction steps, CI logs, OS/tool versions, Docker context, platform inconsistencies, etc.
+      placeholder: |
+        Steps to reproduce:
+        1. Clone repo
+        2. Run `bun install`
+        3. Run `bun run build`
+        4. Observe build fails on CI but passes locally
+
+        Environment:
+        - OS: macOS 14.4.1 (Apple Silicon), GCP Cloud Build (Debian)
+        - bun: 1.0.25
+        - biome: 1.4.3
+        - Container: Alpine base with libc compatibility layer
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is the unreproducibility from a technical perspective?
+      options:
+        - "Critical – breaks CI/CD or release workflows"
+        - "High – blocks builds for some platforms"
+        - "Medium – affects test reliability"
+        - "Low – non-blocking or infrequent"
+      default: "Medium – affects test reliability"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How urgent is resolving this inconsistency?
+      options:
+        - "Immediate – needs hotfix or rollback"
+        - "High – within current sprint"
+        - "Medium – next sprint"
+        - "Low – future investigation"
+      default: "Medium – next sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: What is the scope of affected users or systems?
+      options:
+        - "Org-wide – all builds, dev environments, or CI"
+        - "Team-wide – specific tools or pipelines"
+        - "Single user – local dev only"
+        - "Unclear – needs investigation"
+      default: "Team-wide – specific tools or pipelines"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How should this be prioritized?
+      options:
+        - "P0 – needs immediate coordination"
+        - "P1 – track this sprint"
+        - "P2 – follow-up next cycle"
+        - "P3 – document-only"
+      default: "P2 – follow-up next cycle"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Docs or Logs
+      description: Provide links to builds, Dockerfiles, lockfiles, or logs.
+      placeholder: "e.g., Dockerfile, GitHub Actions run URL, package-lock.json"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm scoping and reproducibility attempts.
+      options:
+        - label: I’ve reproduced this issue multiple times.
+        - label: This occurs on clean, documented environments.
+    validations:
+      required: true

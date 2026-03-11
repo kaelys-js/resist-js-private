@@ -1,0 +1,157 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Customer Onboarding Tracker
+# -------------------------------------------------------------------
+# Purpose: Track onboarding status, blockers, and success signals for new or existing customer accounts.
+# Enterprise-grade, GTM-aligned, and stack-neutral.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: customer-onboarding-tracker
+
+name: "🎯 Customer Onboarding Tracker"
+description: Track a customer's onboarding status, goals, and blockers to support product, success, and implementation teams.
+title: "[Customer Onboarding]: "
+labels:
+  - customer
+  - onboarding
+  - success
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person submitting this update.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly describe the onboarding state or blocker.
+      placeholder: |
+        - Customer: example-corp  
+        - Stage: 2 of 4 complete (instrumentation + rollout done)  
+        - Blocker: No access to Umami dashboard for marketing lead  
+        - Risk: Timeline slipping 10+ days behind onboarding SLA
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Background Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Details or Background
+      description: Include relevant info about product usage, customer goals, blockers, team contact, or cross-functional dependencies.
+      placeholder: |
+        - Goals: Use for API rate limiting and Sentry alert enrichment  
+        - Stack: Stripe, GCP, bun, svelte  
+        - Teams: Growth team onboarded; DevOps pending  
+        - Account owner: @customer-success-lead  
+        - Feature flags: Argo + multi-project enabled  
+        - Systems: Email notifications delayed due to custom domain config
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: CRM & External References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or CRM
+      description: Add CRM, analytics, or relevant customer system references.
+      placeholder: |
+        - https://hubspot.com/company/acme-corp  
+        - https://umami.example.com/share/xyz123  
+        - https://docs.internal/account-summary/acme
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is the onboarding delay or blocker?
+      options:
+        - "Critical – onboarding blocked or stalled"
+        - "High – milestone at risk without intervention"
+        - "Medium – minor delay or pending access"
+        - "Low – early or non-blocking feedback"
+      default: "Medium – minor delay or pending access"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this onboarding update be reviewed?
+      options:
+        - "Immediate – action required within 24h"
+        - "High – end of week"
+        - "Medium – during next sync"
+        - "Low – async logging only"
+      default: "High – end of week"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What is the level of visibility or risk?
+      options:
+        - "Org-wide – strategic or enterprise customer"
+        - "Team-wide – product GTM or doc/testing partner"
+        - "Single user – individual testing or config"
+        - "Unclear – requires validation"
+      default: "Team-wide – product GTM or doc/testing partner"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How should this onboarding case be prioritized?
+      options:
+        - "P0 – critical follow-up required"
+        - "P1 – high attention"
+        - "P2 – normal tracking"
+        - "P3 – informational"
+      default: "P2 – normal tracking"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this update is valid and useful for cross-team planning.
+      options:
+        - label: I have verified this is current and actionable.
+        - label: I’ve provided context to help teams prioritize or respond.
+    validations:
+      required: true

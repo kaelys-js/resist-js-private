@@ -1,0 +1,156 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Usage Overages Alert
+# -------------------------------------------------------------------
+# Purpose: Alert internal teams when a customer exceeds usage limits, thresholds, or billing allocations.
+# Tool-agnostic, suitable for billing, sales, CS, finance, or product operations.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: usage-overages-alert
+
+name: "📊 Usage Overages Alert"
+description: Alert teams to customers exceeding their usage tier or plan limits.
+title: "[Usage Overage]: "
+labels:
+  - billing
+  - usage
+  - alert
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or name of the person reporting this overage.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Overage Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Customer / Plan
+      description: Which customer is over their usage limit and what plan are they on?
+      placeholder: |
+        - Customer: acme-corp@example.com  
+        - Plan: Pro  
+        - Month: June 2025  
+        - Overage detected via Metronome job #728
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Usage Details (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Usage Details
+      description: What metric was exceeded? Indicate if it's sustained or a short-term spike.
+      placeholder: |
+        - Metric: Monthly event volume  
+        - Plan limit: 1M  
+        - Observed: 1.48M  
+        - Pattern: Sustained, last 3 months trending upward  
+        - Alert triggered from Metronome → Umami sync
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference Links (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Monitoring or Billing Links
+      description: Link to Metronome, Stripe, dashboard, or usage report.
+      placeholder: |
+        - https://metronome.example.com/customers/acme  
+        - https://stripe.com/dashboard/invoices/inv_001  
+        - https://internal.example.com/usage/acme-corp
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Overage Severity
+      description: How significant is the overage in terms of plan vs usage?
+      options:
+        - "Critical – 2x+ plan limit or contractual threshold"
+        - "High – 1.25–2x plan limit, recurring overages"
+        - "Medium – slight overage or infrequent"
+        - "Low – minor or short-lived usage spike"
+      default: "Medium – slight overage or infrequent"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this need to be reviewed or escalated?
+      options:
+        - "Immediate – block billing or downgrade risk"
+        - "High – this week"
+        - "Medium – within sprint"
+        - "Low – monitor only"
+      default: "Medium – within sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What scope of customer or team is affected?
+      options:
+        - "Org-wide – top revenue customer, SLA risk"
+        - "Team-wide – potential upsell, churn signal, or abuse"
+        - "Single customer – isolated overage"
+        - "Unclear – needs further validation"
+      default: "Team-wide – potential upsell, churn signal, or abuse"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How should this be prioritized by billing, CS, or growth teams?
+      options:
+        - "P0 – top priority"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – low"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that the alert is valid and stakeholders are looped in.
+      options:
+        - label: I’ve validated this overage from a trusted usage source.
+        - label: I’ve looped in success, support, or sales (if needed).
+    validations:
+      required: true

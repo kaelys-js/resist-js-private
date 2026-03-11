@@ -1,0 +1,156 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Data Request
+# -------------------------------------------------------------------
+# Purpose: Standardize and streamline requests for data exports, queries,
+# dashboards, or access.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: data-request
+
+name: "🔍 Data Request"
+description: Request a data query, export, access, or dataset pull.
+title: "[Data Request]: "
+labels:
+  - data
+  - request
+  - analytics
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the requester.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Request Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Request Summary
+      description: Describe what data you need and what format you expect it in.
+      placeholder: |
+        - Daily active users over the past 30 days  
+        - Export of trial users by plan type for Q1  
+        - Access to Stripe usage metrics dashboard  
+        - Funnel conversion data broken down by source
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context & Purpose (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: What’s this for? Add relevant systems, deadlines, or team usage.
+      placeholder: |
+        - Requested by product marketing for launch prep  
+        - Needed for finance review of enterprise contract  
+        - Comparing user retention pre/post onboarding redesign  
+        - Dashboard needed by June 30 for Q2 goals check-in
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Add links to relevant dashboards, tools, tickets, or Slack threads.
+      placeholder: |
+        - GitHub issue #221  
+        - https://amplitude.com/project-xyz/dashboard/DAU  
+        - Notion: Growth Metrics Plan  
+        - Support request #88
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How critical is this request to unblock or deliver on?
+      options:
+        - "Critical – required for executive/board-level decision"
+        - "High – needed for launch, review, or OKR"
+        - "Medium – supports team metrics or experiments"
+        - "Low – curiosity, backlog, or optional insight"
+      default: "Medium – supports team metrics or experiments"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When do you need this by?
+      options:
+        - "Immediate – within 24 hours"
+        - "High – this week"
+        - "Medium – within 2 weeks"
+        - "Low – async, flexible timeline"
+      default: "Medium – within 2 weeks"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who will benefit or take action based on this request?
+      options:
+        - "Org-wide – strategic planning or exec use"
+        - "Team-wide – metrics, feature tracking, KPIs"
+        - "Individual – 1:1 task, analysis, or test"
+        - "Unclear – logging or scoping only"
+      default: "Team-wide – metrics, feature tracking, KPIs"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Prioritize this relative to other requests.
+      options:
+        - "P0 – block on this"
+        - "P1 – high-priority analysis"
+        - "P2 – normal request"
+        - "P3 – long-tail or future-facing"
+      default: "P2 – normal request"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that this request has been scoped and is valid.
+      options:
+        - label: I have reviewed existing data dashboards or reports first.
+        - label: I’ve included enough context for this request to be fulfilled.
+    validations:
+      required: true

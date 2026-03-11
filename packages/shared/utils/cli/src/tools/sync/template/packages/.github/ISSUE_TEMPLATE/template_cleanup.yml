@@ -1,0 +1,132 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: template-cleanup-request
+
+name: "📋 Template Cleanup Request"
+description: Request to remove, merge, or clean up old issue templates.
+title: "[Template Cleanup Request]: "
+labels:
+  - meta
+  - templates
+assignees: []
+
+body:
+
+  # -------------------------------
+  # Submitter Metadata
+  # -------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # -------------------------------
+  # Summary of the Request
+  # -------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: A clear and concise summary of what needs to be removed, merged, or cleaned up.
+      placeholder: |
+        e.g., "Remove legacy 'Bug Report.md' — it's outdated and replaced by 'Engineering Triage.md'."
+    validations:
+      required: true
+
+  # -------------------------------
+  # Supporting Context
+  # -------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Detail
+      description: Describe the history, pain point, or duplication leading to this request.
+      placeholder: |
+        e.g., "We now use a centralized 'Bug Triage' form across all repos. This older form causes confusion."
+
+  # -------------------------------
+  # References or Links
+  # -------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or References
+      placeholder: "e.g., GitHub issue #999, .github/ISSUE_TEMPLATE/old-template.yml"
+
+  # -------------------------------
+  # Impact Assessment
+  # -------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How much confusion or redundancy does this template cause?
+      options:
+        - Critical – actively causes mis-triage
+        - High – commonly used but outdated
+        - Medium – duplicate or redundant
+        - Low – unused, minimal impact
+      default: Medium – duplicate or redundant
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this cleanup ideally happen?
+      options:
+        - Immediate
+        - This cycle
+        - Next quarter
+        - No urgency
+      default: This cycle
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: Who is affected by the current state of this template?
+      options:
+        - Org-wide
+        - Engineering-only
+        - Marketing or Docs teams
+        - Unclear or unknown
+      default: Org-wide
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How should this be prioritized relative to other meta/form work?
+      options:
+        - P0 – immediate removal
+        - P1 – top priority cleanup
+        - P2 – fix when convenient
+        - P3 – backlog, low urgency
+      default: P2 – fix when convenient
+    validations:
+      required: true
+
+  # -------------------------------
+  # Acknowledgment
+  # -------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm you have reviewed the impact and proposed a viable cleanup path.
+      options:
+        - label: I have verified this template is unused, redundant, or misaligned.
+        - label: I have included a replacement or merger suggestion if applicable.
+    validations:
+      required: true

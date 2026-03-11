@@ -1,0 +1,140 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: cross-repo-sync-request
+
+name: "🔄 Cross-Repo Sync Request"
+description: Request coordinated changes across multiple repositories.
+title: "[Cross-Repo Sync Request]: "
+labels:
+  - cross-repo
+  - sync
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitted By
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary of Request
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe the sync change needed across repos.
+      placeholder: |
+        e.g., Update shared config values, rename job in all workflows, sync error handling strategy
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Technical or Process Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: Explain the reasoning, history, or technical drivers behind this request.
+      placeholder: |
+        - Affected repos: api-server, queue-worker, docs-site
+        - Dependency version mismatch across repos
+        - Consistency issue: naming, build steps, secret injection
+
+  # --------------------------------------------------------------------
+  # SECTION: Priority Scoping
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How significant is this inconsistency or sync issue?
+      options:
+        - Critical – breaks builds or causes errors
+        - High – risk of confusion or misalignment
+        - Medium – affects maintenance or onboarding
+        - Low – stylistic or cleanup
+      default: Medium – affects maintenance or onboarding
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be resolved?
+      options:
+        - Immediate – current work blocked
+        - Soon – this or next sprint
+        - Next cycle – can be triaged later
+        - Async – future opportunity
+      default: Next cycle – can be triaged later
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Scope
+      description: Who or what is affected?
+      options:
+        - Org-wide
+        - Multiple teams
+        - Single team
+        - Unclear
+      default: Multiple teams
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Suggest a triage priority level.
+      options:
+        - P0 – required immediately
+        - P1 – top priority
+        - P2 – normal planning
+        - P3 – backlog
+      default: P2 – normal planning
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Links & Implementation
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Links
+      placeholder: "e.g., repo/workflow.yaml, GitHub issue #42, dashboard, SOP"
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Additional Notes or Artifacts
+      description: Paste configs, scripts, diffs, screenshots, or markdown tables for tracking.
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm readiness and relevance.
+      options:
+        - label: I have checked for duplicates or similar open sync efforts
+        - label: This includes enough context to coordinate cross-repo work
+    validations:
+      required: true

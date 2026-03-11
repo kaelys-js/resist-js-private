@@ -1,0 +1,68 @@
+"$schema" = "{{schemaPath 'tooling/taplo'}}"
+
+{{syncHeader "#" "https://taplo.tamasfe.dev/configuration"}}
+
+# =============================================================================
+# Taplo Configuration (TOML Formatter)
+# =============================================================================
+
+[formatting]
+# Align entries vertically
+align_entries = false
+
+# Align comments
+align_comments = true
+
+# Align single comments
+align_single_comments = true
+
+# Array trailing comma
+array_trailing_comma = true
+
+# Array auto expand
+array_auto_expand = true
+
+# Array auto collapse
+array_auto_collapse = true
+
+# Inline table expand
+inline_table_expand = true
+
+# Compact arrays
+compact_arrays = true
+
+# Compact inline tables
+compact_inline_tables = false
+
+# Compact entries
+compact_entries = false
+
+# Column width
+column_width = {{ format.global.line_length }}
+
+# Indent tables
+indent_tables = false
+
+# Indent entries
+indent_entries = false
+
+# Indent string (use tabs or spaces based on config)
+indent_string = "{{#ifEquals format.global.indent_style "tab"}}\t{{else}}  {{/ifEquals}}"
+
+# Trailing newline
+trailing_newline = true
+
+# Reorder keys
+reorder_keys = true
+
+# Reorder arrays
+reorder_arrays = false
+
+# Reorder inline tables
+reorder_inline_tables = false
+
+# Allowed blank lines
+allowed_blank_lines = 1
+
+# Crlf
+crlf = false

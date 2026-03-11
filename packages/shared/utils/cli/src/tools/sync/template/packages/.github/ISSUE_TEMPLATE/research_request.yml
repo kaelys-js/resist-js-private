@@ -1,0 +1,158 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: research-benchmark-request
+
+name: "🔬 Research or Benchmark Request"
+description: Submit a request to investigate a technical hypothesis or run a comparative benchmark.
+labels:
+  - research
+  - analysis
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person requesting the research or benchmark.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Research Request Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: topic
+    attributes:
+      label: Topic or Problem to Investigate
+      description: Provide a concise statement of what should be explored or compared.
+      placeholder: "e.g., Performance benchmarking: Bun vs Node.js in SaaS workloads"
+    validations:
+      required: true
+
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: What Do You Want to Learn or Validate?
+      description: Define your hypothesis, questions, assumptions, or success criteria.
+      placeholder: |
+        e.g., We hypothesize that Bun has lower cold-start latency than Node.js in containerized API workloads.
+        Success = >15% cold start improvement under typical load (measured via Cloudflare Workers and GCP Cloud Run).
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Relevant Context or Technologies
+      description: Add background systems or components involved. Helps scope tooling or infra needed.
+      placeholder: |
+        e.g.,  
+        - Infra: GCP + Kubernetes + Argo CD  
+        - Runtime: Bun, TypeScript, Valibot  
+        - Integrations: Stripe, Umami, Cloudflare, Docker  
+        - Deployment Targets: iOS, Android, App Stores
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help prioritize the value, scope, and timing of this request.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Business value of resolving or answering this request.
+      options:
+        - "Low – exploratory or curiosity-driven"
+        - "Medium – supports roadmap planning"
+        - "High – unblocks decision or design"
+        - "Critical – required for launch, compliance, or vendor selection"
+      default: "Medium – supports roadmap planning"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Scope
+      description: Complexity or breadth of the hypothesis being tested.
+      options:
+        - "Low – isolated or self-contained experiment"
+        - "Medium – affects a system or service boundary"
+        - "High – involves multiple systems or dependencies"
+        - "Critical – architectural impact or cross-org risk"
+      default: "Medium – affects a system or service boundary"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When the outcome is needed.
+      options:
+        - "Low – track for future research"
+        - "Medium – within the quarter"
+        - "High – by end of sprint"
+        - "Critical – needed immediately for a go/no-go"
+      default: "Medium – within the quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Potential Impact
+      description: Who or what could be influenced by the result?
+      options:
+        - "Single contributor or team"
+        - "Multiple internal teams"
+        - "Cross-platform architecture"
+        - "External users or partners"
+      default: "Multiple internal teams"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting Materials (Optional)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Docs
+      description: Link to RFCs, issues, prior research, tools, dashboards, or external resources.
+      placeholder: "e.g., GitHub issue #81, RFC.md, upstream benchmark repo"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Include any relevant diagrams, graphs, config files, or raw data.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that the request is clear and actionable.
+      options:
+        - label: I have clearly defined what I want to validate or explore
+        - label: I understand this may require coordination or time from infrastructure or platform teams
+    validations:
+      required: true

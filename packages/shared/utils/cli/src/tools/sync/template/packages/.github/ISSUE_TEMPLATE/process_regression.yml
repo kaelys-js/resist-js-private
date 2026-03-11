@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Process Regression Alert
+# -------------------------------------------------------------------
+# Purpose: Report regressions in previously fixed workflows, configurations, or tooling processes.
+# Suitable for DevOps, platform, support, QA, and engineering teams.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: process-regression-alert
+
+name: "📉 Process Regression Alert"
+description: Flag a previously solved issue, bug, or workflow problem that has returned.
+title: "[Regression]: "
+labels:
+  - regression
+  - process
+  - internal-tools
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person reporting the regression.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary of Regression (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: What Broke Again?
+      description: Describe the regression. What used to work, and what has failed or returned?
+      placeholder: |
+        - Regression: ArgoCD auto-sync not triggering for app `docs-deploy`  
+        - Was working: As of 2025-04-30, auto-sync triggered via PR merges  
+        - Now: Sync only happens via manual button press
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Historical Fix Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Last Known Working State
+      description: Include any PRs, SOPs, configs, or discussions that originally solved this.
+      placeholder: |
+        - Resolved in PR #2094 with rollout of new `argo-controller` version  
+        - SOP updated in May: `docs/syncing-apps.md`  
+        - Noted in #internal-dev thread on April 28  
+        - `kustomize-controller` image pinned to digest since then
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Related Logs & Triggers (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Incidents or Changes
+      description: Link to a previous issue, deploy diff, or commit log that might relate.
+      placeholder: |
+        e.g., https://argo.example.com/applications/docs-deploy  
+        or commit: a1b2c3 from rollout of infra-core/main.tf
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Regression Severity
+      description: How broken is the behavior? What kind of failure is observed?
+      options:
+        - "Critical – total failure or full loss of functionality"
+        - "High – major degradation or blocked flow"
+        - "Medium – partially broken or unreliable"
+        - "Low – edge case or intermittent"
+      default: "Medium – partially broken or unreliable"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be addressed?
+      options:
+        - "Immediate – affects deploys, uptime, or dev loop"
+        - "High – resolve this sprint"
+        - "Medium – triage for next cycle"
+        - "Low – track for future audit"
+      default: "High – resolve this sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Scope
+      description: What part of the organization or stack is affected?
+      options:
+        - "Org-wide – cross-team or prod-impacting"
+        - "Team-wide – affects one product area"
+        - "Single user – local environment or edge flow"
+        - "Unclear – needs more investigation"
+      default: "Team-wide – affects one product area"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Overall triage priority based on severity, urgency, and blast radius.
+      options:
+        - "P0 – top priority"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – low"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that the issue has reappeared and you’ve provided relevant context.
+      options:
+        - label: I have verified this was previously addressed and is now broken again.
+        - label: I’ve included enough history and context for a fix to begin.
+    validations:
+      required: true

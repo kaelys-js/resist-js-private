@@ -1,0 +1,44 @@
+"$schema" = "{{schemaPath 'tooling/stylua'}}"
+
+{{syncHeader "#" "https://github.com/JohnnyMorganz/StyLua"}}
+
+# =============================================================================
+# StyLua Configuration
+# =============================================================================
+
+# Column width
+column_width = {{ format.global.line_length }}
+
+# Line endings
+line_endings = "Unix"
+
+# Indent type - use tabs
+indent_type = "{{#ifEquals format.global.indent_style "tab"}}Tabs{{else}}Spaces{{/ifEquals}}"
+
+# Indent width
+indent_width = {{ format.global.indent_size }}
+
+# Quote style - prefer single quotes
+quote_style = "{{#if tooling.formatting.singleQuote}}AutoPreferSingle{{else}}AutoPreferDouble{{/if}}"
+
+# Call parentheses - maintain existing style
+call_parentheses = "Always"
+
+# Collapse simple statement - never on single line
+collapse_simple_statement = "Never"
+
+# Space after function names
+space_after_function_names = "Never"
+
+# Block newline gaps - preserve intentional blank lines around blocks
+block_newline_gaps = "Preserve"
+
+# Syntax variant - auto-detect all Lua variants
+syntax = "All"
+
+# =============================================================================
+# Sort Requires
+# =============================================================================
+[sort_requires]
+# Enable require sorting
+enabled = true

@@ -18,9 +18,9 @@
 
 import type { RequestHandler } from './$types';
 import type { Num, Str, Bool } from '@/schemas/common';
-import { compile as svelteCompile } from 'svelte/compiler';
+import { compile as svelteCompile, compileModule as svelteCompileModule } from 'svelte/compiler';
 import { build as esbuildBuild } from 'esbuild';
-import { compile as tailwindCompile } from 'tailwindcss';
+import { compile as tailwindCompile } from '@tailwindcss/node';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname, basename, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -217,6 +217,9 @@ async function generateTailwindCss(candidates: Str[], editorSrcDir: Str): Promis
   try {
     const compiled = await tailwindCompile(cleanedCss, {
       base: editorSrcDir,
+      onDependency: () => {
+        /* standalone build — no need to track file dependencies */
+      },
     });
     const css: Str = compiled.build(candidates) as Str;
 
@@ -237,6 +240,92 @@ async function generateTailwindCss(candidates: Str[], editorSrcDir: Str): Promis
     }
     return fallback.join('\n') as Str;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Workspace alias resolution                                         */
+/* ------------------------------------------------------------------ */
+
+/** Exact `@/` alias → filesystem path mappings (from root tsconfig.json). */
+const EXACT_ALIASES: ReadonlyArray<[Str, Str]> = [
+  ['@/schemas/common' as Str, 'packages/shared/schemas/common/src/index.ts' as Str],
+  ['@/schemas/result' as Str, 'packages/shared/schemas/result/src/result.ts' as Str],
+  ['@/schemas/function' as Str, 'packages/shared/schemas/function/src/function.ts' as Str],
+  ['@/utils/core' as Str, 'packages/shared/utils/core/src/index.ts' as Str],
+  ['@/ui' as Str, 'packages/shared/ui/src/index.ts' as Str],
+  ['@/locale/svelte' as Str, 'packages/shared/locale/src/svelte.svelte.ts' as Str],
+  ['@/config/test/harness' as Str, 'packages/shared/config/test/src/harness/index.ts' as Str],
+];
+
+/** Wildcard `@/` alias prefix → filesystem prefix mappings. */
+const WILDCARD_ALIASES: ReadonlyArray<[Str, Str]> = [
+  ['@/schemas/result/' as Str, 'packages/shared/schemas/result/src/' as Str],
+  ['@/schemas/function/' as Str, 'packages/shared/schemas/function/src/' as Str],
+  ['@/schemas/generic/' as Str, 'packages/shared/schemas/generic/src/' as Str],
+  ['@/utils/result/' as Str, 'packages/shared/utils/result/src/' as Str],
+  ['@/utils/core/' as Str, 'packages/shared/utils/core/src/' as Str],
+  ['@/locale/' as Str, 'packages/shared/locale/src/' as Str],
+  ['@/config/test/harness/' as Str, 'packages/shared/config/test/src/harness/' as Str],
+  ['@/config/test/' as Str, 'packages/shared/config/test/src/' as Str],
+  ['@/ui/' as Str, 'packages/shared/ui/src/' as Str],
+];
+
+/**
+ * Resolve a `@/` prefixed import to an absolute filesystem path using
+ * the workspace's tsconfig path mappings.
+ *
+ * @param importPath - The import specifier (e.g. `@/schemas/common`)
+ * @param workspaceRoot - Absolute path to the monorepo root
+ * @returns Resolved absolute path, or `undefined` if not a known alias
+ */
+function resolveWorkspaceAlias(importPath: Str, workspaceRoot: Str): Str | undefined {
+  // Check exact matches first
+  for (const [alias, target] of EXACT_ALIASES) {
+    if (importPath === alias) {
+      return join(workspaceRoot, target) as Str;
+    }
+  }
+
+  // Check wildcard prefix matches
+  for (const [prefix, targetPrefix] of WILDCARD_ALIASES) {
+    if (importPath.startsWith(prefix)) {
+      const rest: Str = importPath.slice(prefix.length) as Str;
+      const basePath: Str = join(workspaceRoot, targetPrefix, rest) as Str;
+
+      // Try with .ts extension first (most tsconfig wildcards map to *.ts)
+      const withTs: Str = `${basePath}.ts` as Str;
+      try {
+        statSync(withTs);
+        return withTs;
+      } catch {
+        /* Not a .ts file — try other extensions */
+      }
+
+      // Try as-is (could be .svelte, .js, or exact path)
+      try {
+        statSync(basePath);
+        return basePath;
+      } catch {
+        /* Not found — try index */
+      }
+
+      // Try index.ts / index.js
+      for (const indexFile of ['index.ts', 'index.js']) {
+        const indexPath: Str = join(basePath, indexFile) as Str;
+        try {
+          statSync(indexPath);
+          return indexPath;
+        } catch {
+          /* Not found — try next */
+        }
+      }
+
+      // Return with .ts as best guess — let esbuild surface the error if wrong
+      return withTs;
+    }
+  }
+
+  return undefined;
 }
 
 /* ------------------------------------------------------------------ */
@@ -291,6 +380,22 @@ async function bundleWithEsbuild(
       {
         name: 'svelte-ui-resolver',
         setup(build) {
+          const workspaceRoot: Str = resolve(uiSrcDir, '..', '..', '..', '..') as Str;
+
+          // Resolve @/ workspace aliases (e.g., @/schemas/common → packages/shared/...)
+          build.onResolve({ filter: /^@\// }, (args) => {
+            const resolved: Str | undefined = resolveWorkspaceAlias(
+              args.path as Str,
+              workspaceRoot,
+            );
+            if (resolved) {
+              if (compiledFiles.has(resolved)) {
+                return { path: resolved, namespace: 'svelte-compiled' };
+              }
+              return { path: resolved };
+            }
+          });
+
           // Resolve compiled .svelte files
           build.onResolve({ filter: /\.svelte$/ }, (args) => {
             const resolved: Str = resolve(args.resolveDir, args.path) as Str;
@@ -328,7 +433,51 @@ async function bundleWithEsbuild(
           build.onLoad({ filter: /.*/, namespace: 'svelte-compiled' }, (args) => {
             const contents: Str | undefined = compiledFiles.get(args.path as Str);
             if (contents) {
-              return { contents, loader: 'js' };
+              // Use correct loader based on file extension
+              const loader: 'js' | 'ts' = args.path.endsWith('.ts') ? 'ts' : 'js';
+              return { contents, loader, resolveDir: dirname(args.path) };
+            }
+          });
+
+          // Compile .svelte.js/.svelte.ts rune modules from node_modules (bits-ui, etc.)
+          build.onLoad({ filter: /\.svelte\.[jt]s$/ }, (args) => {
+            try {
+              const source: Str = readFileSync(args.path, 'utf8') as Str;
+              const compiled = svelteCompileModule(source, {
+                filename: basename(args.path) as Str,
+              });
+              return {
+                contents: compiled.js.code,
+                loader: 'js' as const,
+                resolveDir: dirname(args.path),
+              };
+            } catch {
+              /* compileModule failed — pass through as JS */
+              return {
+                contents: readFileSync(args.path, 'utf8'),
+                loader: 'js' as const,
+                resolveDir: dirname(args.path),
+              };
+            }
+          });
+
+          // Compile .svelte component files from node_modules (bits-ui, etc.) on the fly
+          build.onLoad({ filter: /\.svelte$/ }, (args) => {
+            try {
+              const source: Str = readFileSync(args.path, 'utf8') as Str;
+              const compiled = svelteCompile(source, {
+                generate: 'client',
+                filename: basename(args.path) as Str,
+                css: 'injected',
+              });
+              return {
+                contents: compiled.js.code,
+                loader: 'js' as const,
+                resolveDir: dirname(args.path),
+              };
+            } catch {
+              /* Svelte compilation failed — return empty module as fallback */
+              return { contents: 'export default {};', loader: 'js' as const };
             }
           });
         },
@@ -511,11 +660,23 @@ export const POST: RequestHandler = async ({ request }) => {
     return new Response(`Component directory "${componentDir}" not found`, { status: 404 });
   }
 
-  // 2. Compile all .svelte files
+  // 2. Compile all .svelte and .svelte.ts/.svelte.js files
   const compiledFiles: Map<Str, Str> = new Map();
+  const svelteModuleRegex: RegExp = /\.svelte\.[jt]s$/;
 
   for (const [filePath, source] of sources) {
-    if (filePath.endsWith('.svelte')) {
+    if (svelteModuleRegex.test(filePath)) {
+      // Rune module files (.svelte.ts / .svelte.js) — use compileModule()
+      try {
+        const compiled = svelteCompileModule(source, {
+          filename: basename(filePath),
+        });
+        compiledFiles.set(filePath, compiled.js.code as Str);
+      } catch {
+        /* compileModule failed — pass through as-is for esbuild */
+        compiledFiles.set(filePath, source);
+      }
+    } else if (filePath.endsWith('.svelte')) {
       try {
         const compiled: Str = compileSvelteFile(source, basename(filePath) as Str);
         compiledFiles.set(filePath, compiled);
@@ -558,13 +719,41 @@ export const POST: RequestHandler = async ({ request }) => {
     });
   }
 
-  // 4. Build entry code that imports and mounts the component
+  // 4. Build a wrapper Svelte component that provides context (Tooltip.Provider, etc.)
+  //    then generate entry code that mounts the wrapper
   const propsJson: Str = JSON.stringify(props) as Str;
-  const relImport: Str = `./${basename(primaryPath)}` as Str;
+  const primaryBasename: Str = basename(primaryPath) as Str;
+  const wrapperPath: Str = join(dirname(primaryPath), '__standalone_wrapper__.svelte') as Str;
+
+  const wrapperSource: Str = `<script>
+  import { Tooltip } from 'bits-ui';
+  import Component from './${primaryBasename}';
+  let { ...restProps } = $props();
+</script>
+
+<Tooltip.Provider>
+  <Component {...restProps} />
+</Tooltip.Provider>` as Str;
+
+  // Compile the wrapper and add to virtual files
+  try {
+    const wrapperCompiled: Str = compileSvelteFile(
+      wrapperSource,
+      '__standalone_wrapper__.svelte' as Str,
+    );
+    compiledFiles.set(wrapperPath, wrapperCompiled);
+  } catch {
+    /* Wrapper compilation failed — fall back to direct mount without providers */
+  }
+
+  const hasWrapper: Bool = compiledFiles.has(wrapperPath);
+  const mountImport: Str = hasWrapper
+    ? `./__standalone_wrapper__.svelte`
+    : (`./${primaryBasename}` as Str);
 
   const entryCode: Str = `
 import { mount } from 'svelte';
-import Component from '${relImport}';
+import Component from '${mountImport}';
 
 const target = document.getElementById('lens-standalone-root');
 const props = ${propsJson};

@@ -1,0 +1,163 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Release Coordination
+# -------------------------------------------------------------------
+# Purpose: Coordinate cross-functional releases across product, infra, legal, etc.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: release-coordination
+
+name: "📆 Release Coordination"
+description: Plan and track cross-functional release logistics.
+title: "[Release Coordination]: "
+labels:
+  - release
+  - coordination
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this form.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Release Overview
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Brief description of the release goal and what teams are involved.
+      placeholder: |
+        - Targeting Mobile App v3.1 release  
+        - Needs coordination across iOS, marketing, backend auth
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Release Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Details
+      description: Add release dependencies, blockers, stakeholders, tooling, or rollout phases.
+      placeholder: |
+        - Feature flags gated for rollout  
+        - External partner approval needed  
+        - Requires Sentry dashboards + observability verification
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Link to related epics, tracking issues, Notion docs, PRs, etc.
+      placeholder: "e.g., GitHub issue #102, https://docs.example.com"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (Optional)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: Paste changelogs, rollout diagrams, schedules, or approval screenshots.
+      placeholder: |
+        Upload .ics calendar draft, timeline diagrams, or rollout wave charts.
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How impactful is this release?
+      options:
+        - "Critical – org-wide launch, legal or billing involved"
+        - "High – customer-facing, time-sensitive"
+        - "Medium – functional or team-visible change"
+        - "Low – internal or async release"
+      default: "Medium – functional or team-visible change"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When is this release targeted?
+      options:
+        - "Immediate – actively blocked or in-flight"
+        - "High – within 1 week"
+        - "Medium – this quarter"
+        - "Low – async or no strict timeline"
+      default: "High – within 1 week"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected?
+      options:
+        - "External – customers or public integrations"
+        - "Internal – cross-team or company-wide"
+        - "Team-only – scoped to single group"
+        - "Unclear – needs triage"
+      default: "Internal – cross-team or company-wide"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Release review and launch urgency.
+      options:
+        - "P0 – go/no-go dependent"
+        - "P1 – coordinate ahead of launch"
+        - "P2 – async coordination"
+        - "P3 – nice-to-track"
+      default: "P1 – coordinate ahead of launch"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Final confirmation to validate coordination readiness.
+      options:
+        - label: I have reviewed existing issues to avoid duplication.
+        - label: I have included enough detail to support triage and review.
+    validations:
+      required: true

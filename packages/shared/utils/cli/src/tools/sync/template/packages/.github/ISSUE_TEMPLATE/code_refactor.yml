@@ -1,0 +1,185 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: "1.0"
+form_id: code-refactor-request
+
+name: "🧼 Code Refactor"
+description: Propose internal code/tooling improvements that do not affect product behavior.
+title: "[Refactor] "
+labels:
+  - refactor
+
+body:
+
+  # ------------------------------
+  # 🔒 Metadata & Traceability
+  # ------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this request.
+      value: "@{{ github.actor }}"
+      placeholder: "@your-username"
+    validations:
+      required: true
+
+  # ------------------------------
+  # 🧾 Summary & Priority
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧾 Summary & Priority  
+        Describe the refactor and help prioritize the effort.
+
+  - type: input
+    id: title
+    attributes:
+      label: Short Title
+      description: A brief title summarizing the refactor.
+      placeholder: "e.g., Optimize Dockerfile layering, simplify validation logic"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance of this refactor relative to engineering goals.
+      options:
+        - "Low – nice to have"
+        - "Medium – improves maintainability"
+        - "High – causing bugs or confusion"
+        - "Critical – blocking deployment or testing"
+      default: "Medium – improves maintainability"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: Potential consequences of *not* addressing this.
+      options:
+        - "Minor – cosmetic or technical debt only"
+        - "Moderate – causing regressions or slowdowns"
+        - "Major – breaking a subsystem or build"
+        - "Critical – production-impacting risk"
+      default: "Moderate – causing regressions or slowdowns"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline for addressing this request.
+      options:
+        - "Low – backlog"
+        - "Medium – this quarter"
+        - "High – this sprint"
+        - "Critical – immediate engineering priority"
+      default: "Medium – this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Scope
+      description: How broadly this refactor affects the system or team.
+      options:
+        - "Single file or module"
+        - "Multiple modules or services"
+        - "Team-wide conventions or tooling"
+        - "Org-wide patterns or compliance"
+      default: "Multiple modules or services"
+    validations:
+      required: true
+
+  # ------------------------------
+  # 🧠 Rationale & Context
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧠 Rationale & References  
+        Explain why this change is valuable, and link relevant work.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Why is this needed?
+      description: Describe technical debt, inefficiencies, or constraints being addressed.
+      placeholder: |
+        e.g., Current validation logic is duplicated across modules and difficult to test.
+    validations:
+      required: true
+
+  - type: input
+    id: references
+    attributes:
+      label: Reference Links (optional)
+      description: Link related issues, PRs, or documentation.
+      placeholder: "e.g., GitHub issue #456, API design doc, workflow spec"
+
+  # ------------------------------
+  # 🛠️ Technical Stack & Proposal
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🛠️ Stack & Suggestions  
+        Share the technical context and what you recommend changing.
+
+  - type: textarea
+    id: stack_context
+    attributes:
+      label: Relevant Tools & Stack
+      description: What platforms, tools, or environments are involved?
+      placeholder: "e.g., Docker, TypeScript, linters, CI pipelines, valibot"
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Suggested Improvements
+      description: List recommended changes, structure proposals, or design ideas.
+      placeholder: |
+        - Use centralized schema validation  
+        - Move config to `.valibotrc`  
+        - Remove dead code in legacy CLI
+
+  # ------------------------------
+  # ⚠️ Risk, Impact & Confirmation
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ Risk, Impact & Reviewer Confirmation  
+        Provide known risks and confirm alignment before proceeding.
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Potential Risks or Trade-offs
+      description: Identify risks such as migration friction, test regression, or build breakage.
+      placeholder: |
+        e.g., Changes auth structure — legacy admin portal may break without updates.
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Reviewer Readiness Confirmation
+      description: Confirm the proposal has been reviewed for scope and value.
+      options:
+        - label: I have considered test coverage, migration risk, and team alignment.
+    validations:
+      required: true
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Files (Optional)
+      description: Attach diagrams, code samples, or context documents.
+      multiple: true

@@ -1,0 +1,161 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Schema Validation Error Report
+# -------------------------------------------------------------------
+# This form captures schema.org markup validation issues across pages.
+# It is intended to support generic structured data, independent of
+# tooling or platforms (e.g., Svelte, Android, GCP, etc.).
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-schema-validation
+
+name: "🔍 SEO Schema Validation Error"
+description: Report structured data (schema.org) markup issues that fail validation checks (e.g., Rich Results Test, GSC, etc.).
+title: "[SEO Schema Validation Error]: "
+labels:
+  - seo
+  - schema
+  - validation
+  - rich-snippets
+assignees: []
+
+body:
+
+  # -------------------------------------------------------------
+  # 🧑 Submitter Identity
+  # -------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: Who is submitting this report? Use name, email, or GitHub handle.
+      placeholder: "e.g., @your-handle or you@example.com"
+    validations:
+      required: true
+
+  # -------------------------------------------------------------
+  # 🧾 Schema Validation Problem (Main Description)
+  # -------------------------------------------------------------
+  - type: textarea
+    id: schema_validation_issue
+    attributes:
+      label: Schema Validation Problem
+      description: Describe the schema.org validation issue, including type(s), common errors, and symptoms.
+      placeholder: |
+        - Product schema missing required "name" property
+        - Event schema has invalid date format (startDate)
+        - BreadcrumbList has non-canonical URLs
+    validations:
+      required: true
+
+  # -------------------------------------------------------------
+  # 🚦 Impact, Urgency, Severity, and Priority
+  # -------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How technically severe is the issue?
+      options:
+        - "critical"
+        - "high"
+        - "medium"
+        - "low"
+      default: "medium"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be addressed?
+      options:
+        - "immediate"
+        - "soon"
+        - "next cycle"
+        - "not urgent"
+      default: "next cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What scope or area is affected by this issue?
+      options:
+        - "org-wide"
+        - "team-wide"
+        - "single user"
+        - "unclear"
+      default: "team-wide"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: What is the resolution priority for this issue?
+      options:
+        - "P0"
+        - "P1"
+        - "P2"
+        - "P3"
+      default: "P2"
+    validations:
+      required: true
+
+  # -------------------------------------------------------------
+  # 📎 References and Related Info
+  # -------------------------------------------------------------
+  - type: textarea
+    id: references
+    attributes:
+      label: Validation References / URLs
+      description: Paste links to validation results, schema tests, affected pages, or error documentation.
+      placeholder: |
+        - https://search.google.com/test/rich-results
+        - https://developers.google.com/search/docs/appearance/structured-data
+        - https://example.com/page-with-error
+      value: ""
+    validations:
+      required: false
+
+  # -------------------------------------------------------------
+  # 📎 Attachments (schema examples, screenshots, exports)
+  # -------------------------------------------------------------
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: Paste schema JSON-LD, screenshots of errors, or test exports.
+      placeholder: |
+        ```json
+        {
+          "@context": "https://schema.org",
+          "@type": "Product",
+          "image": "https://example.com/photo.jpg"
+          // Missing "name"
+        }
+        ```
+      value: ""
+    validations:
+      required: false
+
+  # -------------------------------------------------------------
+  # ✅ Submitter Acknowledgment
+  # -------------------------------------------------------------
+  - type: dropdown
+    id: acknowledgment
+    attributes:
+      label: Acknowledgment
+      description: Confirm internal review prior to submission.
+      options:
+        - "I acknowledge"
+      default: "I acknowledge"
+    validations:
+      required: true

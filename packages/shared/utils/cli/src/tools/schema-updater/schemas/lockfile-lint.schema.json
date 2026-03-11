@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://resist.js/schemas/lockfile-lint.schema.json",
+  "title": "lockfile-lint Configuration",
+  "description": "Configuration file for lockfile-lint (.lockfile-lintrc.json)",
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string",
+      "description": "Path to the lockfile to lint",
+      "minLength": 1,
+      "examples": ["package-lock.json", "yarn.lock"]
+    },
+    "type": {
+      "type": "string",
+      "description": "Type of lockfile (auto-detected if omitted)",
+      "enum": ["npm", "yarn"]
+    },
+    "validateHttps": {
+      "type": "boolean",
+      "description": "Validate that all resolved URLs use HTTPS (mutually exclusive with allowedSchemes)",
+      "default": false
+    },
+    "allowedHosts": {
+      "type": "array",
+      "description": "List of allowed hosts for package resolution (supports aliases: npm, yarn, verdaccio)",
+      "items": {
+        "type": "string"
+      },
+      "examples": [["npm", "yarn"]]
+    },
+    "allowedSchemes": {
+      "type": "array",
+      "description": "List of allowed URL schemes (mutually exclusive with validateHttps)",
+      "items": {
+        "type": "string"
+      },
+      "examples": [["https:", "git+https:"]]
+    },
+    "allowedUrls": {
+      "type": "array",
+      "description": "List of allowed URLs (exact match)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "emptyHostname": {
+      "type": "boolean",
+      "description": "Allow empty hostnames in URLs",
+      "default": true
+    },
+    "validatePackageNames": {
+      "type": "boolean",
+      "description": "Validate that resolved URLs match package names",
+      "default": false
+    },
+    "allowedPackageNameAliases": {
+      "type": "array",
+      "description": "Package name aliases in declared-name:actual-name format",
+      "items": {
+        "type": "string"
+      }
+    },
+    "format": {
+      "type": "string",
+      "description": "Report output format",
+      "enum": ["pretty", "plain"],
+      "default": "pretty"
+    }
+  },
+  "required": ["path"],
+  "additionalProperties": false
+}

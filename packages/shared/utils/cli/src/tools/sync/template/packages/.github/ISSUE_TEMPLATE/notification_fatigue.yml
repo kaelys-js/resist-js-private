@@ -1,0 +1,144 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: notification-fatigue-report
+
+name: "🔔 Notification Fatigue Report"
+description: Report noisy or low-signal alerts or notifications.
+title: "[Notification Fatigue]: "
+labels:
+  - notifications
+  - productivity
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Reporter Identity
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary of Concern
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What kind of notification is causing fatigue?
+      placeholder: |
+        e.g., Excessive Slack pings from CI, noisy GitHub review requests, irrelevant alerts
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Technical or Process Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: Include notification source, frequency, systems affected, and any workflows impacted.
+      placeholder: |
+        - Alert: GitHub Actions workflow run failures on optional jobs
+        - Channel: #infra-alerts
+        - Frequency: ~40/day, mostly non-actionable
+        - Effect: Alert fatigue, teams missing important failures
+
+  # --------------------------------------------------------------------
+  # SECTION: Operational Triage & Impact
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How much does this noise affect your work?
+      options:
+        - High – it causes alert blindness or critical misses
+        - Medium – reduces focus or wastes time
+        - Low – mildly annoying, not blocking
+      default: Medium – reduces focus or wastes time
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be addressed?
+      options:
+        - Immediate – blocking or dangerous
+        - Soon – in current or next sprint
+        - Later – track for cleanup
+        - Not urgent – just flagging
+      default: Soon – in current or next sprint
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: Who or what is affected by the alert fatigue?
+      options:
+        - Org-wide
+        - Multiple teams
+        - Single team
+        - Unclear
+      default: Multiple teams
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Suggest a prioritization level.
+      options:
+        - P0 – Must be fixed ASAP
+        - P1 – Should be triaged this sprint
+        - P2 – Backlog candidate
+        - P3 – Not urgent
+      default: P2 – Backlog candidate
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Links, Evidence, or Attachments
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Links
+      placeholder: "e.g., Slack channel, GitHub Action link, alert rule, PR comment"
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Screenshots or Sample Notifications
+      description: Paste example messages or export if relevant.
+      placeholder: |
+        Screenshot of repeated alerts in #channel or terminal output with timestamps
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Help us validate this issue.
+      options:
+        - label: I have checked for duplicates or known fixes.
+        - label: This includes enough context to reproduce or assess.
+    validations:
+      required: true

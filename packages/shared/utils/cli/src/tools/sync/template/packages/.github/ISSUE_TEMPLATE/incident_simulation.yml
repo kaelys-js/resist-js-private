@@ -1,0 +1,156 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Incident Simulation Exercise
+# -------------------------------------------------------------------
+# Purpose: Plan and document chaos engineering exercises or failover drills.
+# Helps reliability teams coordinate, record findings, and improve preparedness.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: incident-simulation-exercise
+
+name: "🧯 Incident Simulation Exercise"
+description: Plan, run, and record findings from a chaos or failover simulation.
+title: "[Simulation Exercise]: "
+labels:
+  - incident
+  - simulation
+  - reliability
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the simulation initiator.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Exercise Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Exercise Summary
+      description: What is being tested or simulated, and what’s the goal?
+      placeholder: |
+        - Failover from primary to secondary DB  
+        - Latency under forced Cloudflare outage  
+        - Chaos injection into pod health on staging  
+        - Kubernetes control plane API unavailability test
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context & Background (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: Systems involved, previous incidents, runbook links, expected behavior.
+      placeholder: |
+        - This test ensures readiness for zone loss in GCP  
+        - Targets Stripe webhooks under latency injection  
+        - Alert thresholds should trigger within 5 minutes  
+        - Based on simulation plan: https://docs.company.com/sim/2025-q2-zone-drill
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Add links to dashboards, past postmortems, playbooks, tickets, etc.
+      placeholder: |
+        - https://grafana.company.com/d/alerts  
+        - Incident #2241 or SRE runbook #542  
+        - Chaos config: chaos.yaml  
+        - PagerDuty escalation policy
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Simulation Scope
+      description: What level of risk or blast radius does this test introduce?
+      options:
+        - "Critical – high risk, infra-wide or public user-visible"
+        - "High – scoped to prod but safe rollback in place"
+        - "Medium – internal systems with limited exposure"
+        - "Low – sandbox or staging only"
+      default: "Medium – internal systems with limited exposure"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this simulation run?
+      options:
+        - "Immediate – critical reliability test"
+        - "High – next reliability sprint"
+        - "Medium – schedule by end of quarter"
+        - "Low – backlog planning"
+      default: "High – next reliability sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Learning
+      description: Who will benefit from this exercise?
+      options:
+        - "Org-wide – affects core reliability/resilience strategy"
+        - "Team-wide – affects a major internal system"
+        - "Service-level – targeted observability or alerts"
+        - "Unclear – early idea or exploratory"
+      default: "Team-wide – affects a major internal system"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Assign a triage priority for planning or follow-up.
+      options:
+        - "P0 – must complete in this sprint"
+        - "P1 – top priority in next cycle"
+        - "P2 – normal scheduled simulation"
+        - "P3 – future backlog"
+      default: "P2 – normal scheduled simulation"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this simulation is valid, safe, and ready for discussion.
+      options:
+        - label: I have reviewed existing simulations to avoid overlap or conflict.
+        - label: I have included relevant details to scope the simulation clearly.
+    validations:
+      required: true

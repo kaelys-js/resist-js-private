@@ -1,0 +1,182 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Technical Issue
+# -------------------------------------------------------------------
+# Purpose: Capture and triage technical SEO issues such as blocked resources,
+# JavaScript rendering problems, robots.txt conflicts, canonical errors, and more.
+# Designed for enterprise environments with stack-neutral assumptions.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-technical-issue
+
+name: "🛠️ SEO Technical Issue"
+description: Report technical SEO issues affecting crawlability, indexing, rendering, or visibility in search engines.
+title: "[SEO Technical Issue]: "
+labels:
+  - seo
+  - technical
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contact email of the person submitting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Technical SEO Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧠 Technical Details  
+        Describe the SEO rendering or indexing issue with relevant page or configuration references.
+
+  - type: textarea
+    id: technical_issue
+    attributes:
+      label: Technical Details
+      description: Explain the problem affecting crawlability, visibility, or search indexing.
+      placeholder: |
+        - Page: /pricing  
+        - Issue: Critical CSS served via JS, not crawlable  
+        - User-Agent: Googlebot cannot see price table  
+        - Root Cause: DOM only renders after hydration; no SSR fallback  
+        - Robots.txt: blocks /api/v1/products endpoint used by layout
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Estimate the scale, urgency, and technical depth of this SEO issue.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: What is the severity of the technical problem?
+      options:
+        - "Critical – breaks rendering or indexing at scale"
+        - "High – visible on high-traffic pages or templates"
+        - "Medium – localized or low-depth rendering issue"
+        - "Low – advisory or non-critical compliance signal"
+      default: "Medium – localized or low-depth rendering issue"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be addressed?
+      options:
+        - "Critical – block current/next release"
+        - "High – fix this sprint"
+        - "Medium – within 2 sprints"
+        - "Low – backlog for future pass"
+      default: "Next cycle – backlog for future pass"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What area or visibility surface is affected?
+      options:
+        - "Org-wide – major visibility, compliance, or indexing loss"
+        - "Team-wide – core product, docs, or app landing surfaces"
+        - "Single page or view – local issue"
+        - "Unclear – needs validation"
+      default: "Team-wide – core product, docs, or app landing surfaces"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Overall issue prioritization based on technical and business factors.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Tools (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Context  
+        Add links to relevant logs, audit tools, or system behavior for debugging.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Include console logs, dev tools, crawl diagnostics, or relevant PRs.
+      placeholder: |
+        - GSC Coverage warning for /pricing  
+        - Lighthouse → "robots.txt is blocking resources"  
+        - Screaming Frog crawl → page returns soft 404  
+        - PR #1472 added route middleware for SSR that overrides headers
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Provide screenshots, HTTP headers, crawl dumps, or other evidence.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Include structured data, screenshots, or HAR files supporting the report.
+      placeholder: |
+        ```http
+        GET /pricing
+        200 OK  
+        content-type: text/html  
+        x-robots-tag: noindex
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that this issue is valid, verified, and internally reviewed.
+      options:
+        - label: I confirm this technical SEO issue is reproducible and has been reviewed internally.
+    validations:
+      required: true

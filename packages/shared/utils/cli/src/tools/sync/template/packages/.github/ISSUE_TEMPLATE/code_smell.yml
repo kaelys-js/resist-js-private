@@ -1,0 +1,150 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: code-health-smell-report
+
+name: "🔍 Code Health Smell Report"
+description: Identify early signs of poor code structure or hygiene.
+title: "[Code Smell]: "
+labels:
+  - code-quality
+  - tech-debt
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Smell Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe the smell or concern briefly (e.g., duplication, high complexity, misuse of patterns).
+      placeholder: |
+        e.g., "Duplicated validation logic across 3 files",  
+        "Excessive nesting in `src/utils/format.ts` causing test brittleness"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Technical Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: What’s the scope and impact? List file paths, stack traces, complexity concerns, testability, or ownership confusion.
+      placeholder: |
+        - Observed in `packages/core/data-handler.ts`
+        - Affects 3 downstream modules
+        - Related to a previous tech debt spike that was deferred
+
+  # --------------------------------------------------------------------
+  # SECTION: Priority & Impact Assessment
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How technically harmful is the smell?
+      options:
+        - "Low – stylistic or naming only"
+        - "Medium – maintainability risk"
+        - "High – causing regressions or bugs"
+        - "Critical – blocks feature or leads to data issues"
+      default: "Medium – maintainability risk"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be addressed?
+      options:
+        - "Low – when time permits"
+        - "Medium – during next refactor window"
+        - "High – include in next sprint"
+        - "Critical – urgent fix needed"
+      default: "Medium – during next refactor window"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: Who or what does this affect?
+      options:
+        - "Org-wide pattern"
+        - "Team-wide surface"
+        - "Single file or utility"
+        - "Unclear"
+      default: "Team-wide surface"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Suggested triage level for planning.
+      options:
+        - "P0 – must address before shipping"
+        - "P1 – schedule in current/next sprint"
+        - "P2 – backlog for cleanup"
+        - "P3 – monitor but deprioritize"
+      default: "P2 – backlog for cleanup"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Related Material
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Links
+      placeholder: "e.g., sonarcloud URL, file diff, design doc, code owner rule"
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Snippets or Logs
+      description: Paste stack traces, code diffs, metrics, or screenshots.
+      placeholder: |
+        ```ts
+        function validate(input) {
+          if (!input.name) throw Error('Missing name')
+          if (!input.email) throw Error('Missing email')
+        }
+        ```
+      validations:
+        required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this is not simply a personal code style opinion.
+      options:
+        - label: I’ve observed real readability, maintainability, or logic risk
+        - label: I’ve included enough info to help validate this as technical debt
+    validations:
+      required: true

@@ -1,0 +1,149 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: LLM Model Safety Report
+# -------------------------------------------------------------------
+# Purpose: Structured reporting of AI/LLM model failures, hallucinations, unsafe outputs, or unexpected behaviors.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: llm-model-safety-report
+
+name: "🧪 LLM Model Safety Report"
+description: Report unsafe or unexpected AI/LLM responses.
+title: "[LLM Safety Report]: "
+labels:
+  - ai
+  - safety
+  - llm
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Reporter Identity
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or username of the person reporting this issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary of Problem
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What behavior did the model exhibit and why is it concerning?
+      placeholder: |
+        - Model gave factually incorrect medical advice  
+        - Response included harmful or biased language  
+        - Prompt injection bypassed system instructions
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Technical Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Details or Background
+      description: Include the input prompt, model output, instructions, context window, and reproduction steps if available.
+      placeholder: |
+        - Prompt: "How do I disable someone’s password remotely?"  
+        - Response: "You can use net user and run this script..."  
+        - Reproduced on both web UI and API
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Model or Environment Details
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Model or System Version
+      description: Specify the model name and environment where the issue occurred.
+      placeholder: "e.g., GPT-4-turbo, Claude 3, custom finetune, dev preview"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Risk Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How serious is the issue from a safety or trust perspective?
+      options:
+        - "Critical – harmful, exploitative, or policy-violating behavior"
+        - "High – biased, offensive, or misleading content"
+        - "Medium – minor safety or hallucination issue"
+        - "Low – odd but harmless behavior"
+      default: "High – biased, offensive, or misleading content"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly should this be addressed?
+      options:
+        - "Immediate – block release or public usage"
+        - "High – fix within sprint"
+        - "Medium – roadmap prioritization"
+        - "Low – backlog or monitor"
+      default: "Medium – roadmap prioritization"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Scope
+      description: Who or what is affected by this issue?
+      options:
+        - "Org-wide – model behavior affects all customers"
+        - "Specific product or API feature"
+        - "Team-level or internal use"
+        - "Unclear – needs triage"
+      default: "Specific product or API feature"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Suggested Priority
+      description: What action level do you recommend?
+      options:
+        - "P0 – fix or mitigate before rollout"
+        - "P1 – address this sprint"
+        - "P2 – track and monitor"
+        - "P3 – informational"
+      default: "P1 – address this sprint"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Ensure you've reviewed this behavior carefully.
+      options:
+        - label: I reproduced the issue more than once.
+        - label: I understand this report may be reviewed by ML safety or product teams.
+    validations:
+      required: true

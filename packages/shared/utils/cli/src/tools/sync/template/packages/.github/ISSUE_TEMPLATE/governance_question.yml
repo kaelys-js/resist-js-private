@@ -1,0 +1,149 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: governance-question
+
+name: "🏛️ Governance Question"
+description: Ask a question about the project’s decision-making, leadership structure, or governance policies.
+labels:
+  - governance
+  - question
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting the question.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Governance Topic (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧭 Governance Topic  
+        Ask about decision rights, workflows, policies, roles, responsibilities, or prioritization.
+
+  - type: textarea
+    id: topic
+    attributes:
+      label: What’s your question or concern about governance?
+      description: Describe your question or concern related to how decisions are made, who can propose changes, how priorities are set, or how stakeholders are represented.
+      placeholder: |
+        - What’s the process for changing workflow policies?  
+        - Who approves cross-platform architectural decisions?  
+        - How are priorities reviewed for roadmap inclusion?
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Planning  
+        Help us route and prioritize this governance question.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Strategic importance of this question for ongoing work or initiatives.
+      options:
+        - "Low – general inquiry"
+        - "Medium – impacts planning or cross-team work"
+        - "High – affects strategic decisions"
+        - "Critical – blocks governance alignment or compliance"
+      default: "Medium – impacts planning or cross-team work"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Impact Severity
+      description: How significantly does this affect workflows, contributors, or governance confidence?
+      options:
+        - "Low – informative or historical"
+        - "Medium – requires clarification"
+        - "High – source of ambiguity or conflict"
+        - "Critical – creates misalignment or legal risk"
+      default: "Medium – requires clarification"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon does this question need to be addressed?
+      options:
+        - "Low – can wait for future governance review"
+        - "Medium – within the next 2 sprints"
+        - "High – during the current sprint"
+        - "Critical – requires immediate steering input"
+      default: "Medium – within the next 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by this governance issue or lack of clarity?
+      options:
+        - "Single contributor or team"
+        - "Multiple working groups or maintainers"
+        - "Cross-org or ecosystem-wide decision"
+        - "External partners or open source community"
+      default: "Multiple working groups or maintainers"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting Context (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Supporting References  
+        Add links or files that help clarify your question or provide relevant background.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Policies or Discussions
+      description: Link to previous decisions, proposals, governance documents, or discussion threads.
+      placeholder: "e.g., governance.md, issue #420, RFC discussion"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Upload PDFs, decision logs, screenshots, or docs that provide background.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this is a sincere and constructive governance question.
+      options:
+        - label: I have reviewed existing issues or policies to ensure this topic hasn’t already been addressed
+        - label: I have clearly described the governance topic or decision-making concern
+    validations:
+      required: true

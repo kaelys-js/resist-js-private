@@ -1,0 +1,140 @@
+<?php
+
+{{syncHeaderBlock "/*" " */" "https://cs.symfony.com/doc/config.html"}}
+
+/*
+ * =============================================================================
+ * PHP-CS-Fixer Configuration
+ * =============================================================================
+ */
+
+declare(strict_types=1);
+
+use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
+
+// Finder is required by PHP-CS-Fixer but unused when the format CLI
+// passes individual files via --config. Kept minimal.
+$finder = Finder::create()
+    ->in(__DIR__)
+    ->name('*.php')
+    ->ignoreDotFiles(true)
+    ->ignoreVCS(true);
+
+return (new Config())
+    ->setRiskyAllowed(true)
+    ->setRules([
+        // Presets
+        '@PER-CS2.0' => true,
+        '@PHP8x4Migration' => true,
+        '@PhpCsFixer' => true,
+        '@PhpCsFixer:risky' => true,
+        '@Symfony' => true,
+        '@Symfony:risky' => true,
+
+        // Array Notation
+        'array_syntax' => ['syntax' => 'short'],
+        'no_multiline_whitespace_around_double_arrow' => true,
+        'no_trailing_comma_in_singleline' => true,
+        'no_whitespace_before_comma_in_array' => true,
+        'normalize_index_brace' => true,
+        'trim_array_spaces' => true,
+        'whitespace_after_comma_in_array' => ['ensure_single_space' => true],
+
+        // Basic
+        'braces_position' => [
+            'allow_single_line_anonymous_functions' => true,
+            'allow_single_line_empty_anonymous_classes' => true,
+            'anonymous_classes_opening_brace' => 'same_line',
+            'anonymous_functions_opening_brace' => 'same_line',
+            'classes_opening_brace' => 'next_line_unless_newline_at_signature_end',
+            'control_structures_opening_brace' => 'same_line',
+            'functions_opening_brace' => 'next_line_unless_newline_at_signature_end',
+        ],
+        'encoding' => true,
+        'no_multiple_statements_per_line' => true,
+        'octal_notation' => true,
+        'psr_autoloading' => true,
+        'single_line_empty_body' => true,
+
+        // Class Notation
+        'class_attributes_separation' => [
+            'elements' => [
+                'const' => 'one',
+                'method' => 'one',
+                'property' => 'one',
+                'trait_import' => 'none',
+            ],
+        ],
+        'no_blank_lines_after_class_opening' => true,
+        'ordered_class_elements' => [
+            'order' => [
+                'use_trait',
+                'case',
+                'constant_public',
+                'constant_protected',
+                'constant_private',
+                'property_public',
+                'property_protected',
+                'property_private',
+                'construct',
+                'destruct',
+                'magic',
+                'phpunit',
+                'method_public',
+                'method_protected',
+                'method_private',
+            ],
+            'sort_algorithm' => 'none',
+        ],
+        'visibility_required' => ['elements' => ['const', 'method', 'property']],
+
+        // Import
+        'fully_qualified_strict_types' => true,
+        'global_namespace_import' => ['import_classes' => true, 'import_constants' => true, 'import_functions' => true],
+        'no_unused_imports' => true,
+        'ordered_imports' => ['imports_order' => ['class', 'function', 'const'], 'sort_algorithm' => 'alpha'],
+        'single_import_per_statement' => ['group_to_single_imports' => true],
+        'single_line_after_imports' => true,
+
+        // Control Structure
+        'trailing_comma_in_multiline' => ['elements' => ['arguments', 'arrays', 'match', 'parameters']],
+        'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
+
+        // Strict
+        'declare_strict_types' => true,
+        'strict_comparison' => true,
+        'strict_param' => true,
+
+        // String Notation
+        'single_quote' => ['strings_containing_single_quote_chars' => false],
+
+        // Whitespace
+        'array_indentation' => true,
+        'indentation_type' => true,
+        'line_ending' => true,
+        'no_extra_blank_lines' => [
+            'tokens' => [
+                'attribute',
+                'break',
+                'case',
+                'continue',
+                'curly_brace_block',
+                'default',
+                'extra',
+                'parenthesis_brace_block',
+                'return',
+                'square_brace_block',
+                'switch',
+                'throw',
+                'use',
+            ],
+        ],
+        'no_trailing_whitespace' => true,
+        'no_whitespace_in_blank_line' => true,
+        'single_blank_line_at_eof' => true,
+    ])
+    ->setFinder($finder)
+    // PSR-12/PER-CS mandates 4-space indentation for PHP
+    ->setIndent('    ')
+    ->setLineEnding("\n");

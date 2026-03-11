@@ -1,0 +1,27 @@
+{{~! @generated — do not edit directly. Managed by @/cli/tools/sync. ~}}
+{{~! https://containers.dev/implementors/json_reference/ ~}}
+{
+	"name": "{{ business.company }} Dev Environment",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			"NODE_VERSION": "{{ versions.node }}",
+			"PM_NAME": "{{ pm.name }}",
+			"PM_VERSION": "{{ versions.packageManager }}"
+		}
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {},
+		"{{ git.cliFeature }}": {}
+	},
+	"postCreateCommand": "bash .devcontainer/post-create.sh",
+	"forwardPorts": {{ json tooling.devProxy.allPorts }},
+{{#if (hasKeys tooling.devContainer.envVars)}}
+	"containerEnv": {
+{{#each tooling.devContainer.envVars}}
+		"{{ @key }}": "{{ this }}"{{#unless @last}},{{/unless}}
+{{/each}}
+	},
+{{/if}}
+	"remoteUser": "vscode"
+}

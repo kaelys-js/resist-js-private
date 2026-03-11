@@ -1,0 +1,181 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Content Refresh Request
+# -------------------------------------------------------------------
+# Purpose: Request a refresh of stale, outdated, or underperforming content to improve SEO value.
+# This form supports content audit workflows, editorial optimization, and growth initiatives.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-content-refresh-request
+
+name: "🔄 SEO Content Refresh Request"
+description: Request a content update for stale, outdated, or underperforming pages to improve SEO and UX.
+title: "[SEO Refresh Request]: "
+labels:
+  - seo
+  - refresh
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the person submitting this request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Refresh Context (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔍 Refresh Details  
+        Provide the URL(s), keyword gaps, or reasons for the content update.
+
+  - type: textarea
+    id: refresh_context
+    attributes:
+      label: Refresh Details
+      description: Describe what content needs to be refreshed and why.
+      placeholder: |
+        - URL: /guides/install-cli  
+        - Reason: Outdated steps for latest version (v3.2+)  
+        - Keyword gap: Missing terms like "biome linter setup", "install with bun"  
+        - Content age: Last updated June 2022  
+        - Opportunity: High impressions, low CTR in GSC
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Estimate the priority and scale of this refresh opportunity.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How technically outdated or incorrect is the content?
+      options:
+        - "Critical – contains misleading or deprecated information"
+        - "High – missing major updates or important keywords"
+        - "Medium – mostly accurate but needs optimization"
+        - "Low – minor formatting, copy, or UX concerns"
+      default: "Medium – mostly accurate but needs optimization"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this content be reviewed and updated?
+      options:
+        - "Critical – immediate fix required"
+        - "High – resolve this sprint"
+        - "Medium – next 2 sprints"
+        - "Low – backlog candidate"
+      default: "Next cycle – backlog candidate"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What is affected by the outdated content?
+      options:
+        - "Org-wide – brand or trust risk"
+        - "Team-wide – product, docs, or campaign exposure"
+        - "Single page or query – localized performance drop"
+        - "Unclear – needs validation"
+      default: "Team-wide – product, docs, or campaign exposure"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Overall priority considering severity and business value.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Supporting Signals (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Signals  
+        Add any analytics, audit logs, GSC exports, or team documentation.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Include links to dashboards, audits, SEO tools, or keyword research.
+      placeholder: |
+        - GSC CTR: /guides/install-cli = 2.3% (avg position: 3.1)  
+        - Ahrefs keyword gap: biome install cli, biome bun setup  
+        - Related issue: #328 - /setup-docs parity  
+        - Content backlog ref: Notion > Docs > June Refresh Audit
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Add screenshots, exports, or diffs to help inform the content update.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste keyword lists, outdated screenshots, or tracked changes.
+      placeholder: |
+        ```csv
+        Keyword,Search Volume,Current Rank
+        install biome cli,320,>100  
+        biome setup guide,210,48  
+        biome bun integration,170,—
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm internal validation of the request before submitting.
+      options:
+        - label: I confirm this content refresh has been validated and reviewed internally.
+    validations:
+      required: true

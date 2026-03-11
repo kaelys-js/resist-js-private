@@ -1,0 +1,180 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Outdated Statistics
+# -------------------------------------------------------------------
+# Purpose: Report stale or broken statistics and references in published content
+# that may harm trust, authority, or ranking potential. Fully generic and platform-agnostic.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-outdated-statistics
+
+name: "📊 SEO Outdated Statistics"
+description: Flag content using outdated or broken statistics or references that require an update.
+title: "[SEO Outdated Stats]: "
+labels:
+  - seo
+  - content
+  - update
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contact of the individual submitting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Outdated Content Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧾 Outdated Content  
+        Identify what stat is outdated, broken, or misleading.
+
+  - type: textarea
+    id: outdated_stats
+    attributes:
+      label: Outdated Content
+      description: Provide the outdated data point, its context, and why it's now inaccurate or invalid.
+      placeholder: |
+        - Page: /blog/ecommerce-trends  
+        - Claim: "Mobile commerce will reach $3.56T in 2021"  
+        - Source: dead link to 2020 report  
+        - Impact: outdated forecasting misleads readers and hurts authority
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Assess how critical this content gap is for SEO or brand trust.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How should this issue be prioritized in the content backlog?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How problematic is this from an SEO or reputational standpoint?
+      options:
+        - "Critical – incorrect info with legal/compliance risk"
+        - "High – stat damages trust or undermines credibility"
+        - "Medium – noticeable but non-critical update"
+        - "Low – minor age or dead link"
+      default: "Medium – noticeable but non-critical update"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly does this need to be addressed?
+      options:
+        - "Critical – update immediately"
+        - "High – fix this sprint"
+        - "Medium – within next 2 sprints"
+        - "Low – backlog candidate"
+      default: "Next cycle – backlog candidate"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: Who or what does this affect if left unaddressed?
+      options:
+        - "Org-wide – trust/authority at scale"
+        - "Team-wide – key product or industry stat"
+        - "Single page or audience – limited impact"
+        - "Unclear – needs further validation"
+      default: "Team-wide – key product or industry stat"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Context
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Sources  
+        Add links to outdated citations, new sources, or context discussions.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Provide source URLs, audit data, updated reports, or related issues.
+      placeholder: |
+        - Dead link: example.com/report-2020  
+        - Suggested replacement: stats from Statista 2024  
+        - GSC traffic decline on /blog/ecommerce-trends  
+        - Notion thread about data update backlog
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Include screenshots, audit logs, or exports highlighting the issue.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste or link to reports, broken links, or screenshot evidence.
+      placeholder: |
+        ```markdown
+        > "In 2021, 70% of purchases were made via mobile"  
+        - Source: [Outdated] https://deadsource.com/2020-study  
+        - Screenshot of 404 from archive.org
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that the outdated stat has been validated and needs review.
+      options:
+        - label: I confirm this outdated content has been reviewed and is ready for editorial or SEO action.
+    validations:
+      required: true

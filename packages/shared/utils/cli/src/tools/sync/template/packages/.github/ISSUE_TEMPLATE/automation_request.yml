@@ -1,0 +1,208 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: automation-request-form
+
+name: "🤖 Automation Request"
+description: Suggest a new GitHub Actions workflow to automate a task or process.
+title: "[Automation] "
+labels:
+  - automation
+  - ci
+assignees: []
+
+body:
+
+  # ------------------------------
+  # SECTION: System Metadata
+  # ------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the requestor (auto-filled).
+      value: "@{{ github.actor }}"
+      placeholder: "@your-username"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Proposal Summary
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧾 Proposal Summary  
+        Describe the automation idea, why it matters, and how it helps.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What should the automation do?
+      description: >
+        Describe the task to be automated. Include relevant triggers, tools, platforms, or targets.
+      placeholder: >
+        e.g., Run tests and linting on every PR. Deploy only if tests pass and code is formatted.
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefit
+    attributes:
+      label: What problem does it solve?
+      description: >
+        Explain the value of this automation. Consider time savings, consistency, quality, or reliability.
+      placeholder: >
+        e.g., Prevents broken deploys, increases test coverage, improves workflow consistency.
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Configuration & Context
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚙️ Configuration & Context  
+        Describe when and where this automation should operate.
+
+  - type: checkboxes
+    id: triggers
+    attributes:
+      label: When should this automation run?
+      description: Select all applicable triggers.
+      options:
+        - label: On pull request
+        - label: On push to main branch
+        - label: On cron/schedule
+        - label: On release or tag
+        - label: On deployment
+        - label: On issue/comment event
+
+  - type: input
+    id: timezone
+    attributes:
+      label: Preferred Time Zone (if scheduled)
+      description: Only relevant for scheduled/cron-based workflows.
+      placeholder: "e.g., UTC, America/New_York"
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Related Environments, Tools, or Services
+      description: >
+        Mention CI/CD environments, APIs, infrastructure, or build tools involved.
+      placeholder: e.g., Deployed via Argo CD to GCP. Runs in Docker using bun.
+
+  # ------------------------------
+  # SECTION: Triage & Impact
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Provide triage information to help prioritize this request.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Strategic importance or business value of this automation.
+      options:
+        - "Low – nice to have"
+        - "Medium – needed soon"
+        - "High – blocks developer work"
+        - "Critical – required immediately"
+      default: "Medium – needed soon"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How disruptive is the absence of this automation?
+      options:
+        - "Minor – limited visibility"
+        - "Moderate – affects dev velocity"
+        - "Major – repeated CI/CD failures"
+        - "Critical – blocks production deployment"
+      default: "Moderate – affects dev velocity"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline for when this should be implemented.
+      options:
+        - "Low – future improvement"
+        - "Medium – this quarter"
+        - "High – within sprint"
+        - "Critical – this week"
+      default: "Medium – this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What scope or team will benefit from this automation?
+      options:
+        - "Single developer or repo"
+        - "Team-wide improvement"
+        - "Multiple projects or services"
+        - "Org-wide CI/CD enhancement"
+      default: "Team-wide improvement"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: References & Details
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 References & Notes  
+        Add any context, examples, or related configurations.
+
+  - type: input
+    id: references
+    attributes:
+      label: Reference Links or Related Work
+      description: Include any links to workflows, docs, or prior discussions.
+      placeholder: e.g., https://github.com/org/repo/actions/workflows/ci.yml
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Additional Notes or Suggestions
+      description: Optional ideas like reusable workflows, naming standards, or notification preferences.
+      placeholder: e.g., Reuse `biome-check`, extend `ci.yml`, notify via GitHub comment.
+
+  # ------------------------------
+  # SECTION: Confirmation & Attachments
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔒 Submitter Confirmation & Attachments
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this request is technically feasible and agreed upon by relevant team(s).
+      options:
+        - label: I confirm this automation is feasible and has team buy-in.
+    validations:
+      required: true
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Attach Files (Optional)
+      description: Upload YAML workflows, logs, screenshots, or mockups to support your request.
+      multiple: true
