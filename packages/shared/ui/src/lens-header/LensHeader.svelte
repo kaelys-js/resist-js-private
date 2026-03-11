@@ -53,6 +53,8 @@ import BookOpen from '@lucide/svelte/icons/book-open';
 import FileCode from '@lucide/svelte/icons/file-code';
 import ShieldAlert from '@lucide/svelte/icons/shield-alert';
 import GitFork from '@lucide/svelte/icons/git-fork';
+import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+import ChevronsDownUp from '@lucide/svelte/icons/chevrons-down-up';
 import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 import ChevronRight from '@lucide/svelte/icons/chevron-right';
 
@@ -78,12 +80,26 @@ const hasSource: Bool = $derived(validated.hasSource ?? false);
 const hasDeps: Bool = $derived(validated.hasDeps ?? false);
 
 /**
- * Smooth-scroll to a section by its element ID.
+ * Open a collapsible section and smooth-scroll to it.
+ *
+ * Dispatches a custom event that the Lens page listens for —
+ * the page opens the section (if collapsed), waits a tick for
+ * the DOM to update, then scrolls to the element.
  *
  * @param id - The DOM element ID to scroll to
  */
 function scrollTo(id: Str): Void {
-	document.querySelector(`#${id}`)?.scrollIntoView({ behavior: 'smooth' });
+	document.dispatchEvent(new CustomEvent('lens:scroll-to', { detail: id }));
+}
+
+/** Expand all collapsible page sections. */
+function expandAll(): Void {
+	document.dispatchEvent(new CustomEvent('lens:expand-all'));
+}
+
+/** Collapse all collapsible page sections. */
+function collapseAll(): Void {
+	document.dispatchEvent(new CustomEvent('lens:collapse-all'));
 }
 </script>
 
@@ -156,6 +172,15 @@ function scrollTo(id: Str): Void {
 							Go to Dependencies
 						</DropdownMenu.Item>
 					{/if}
+					<DropdownMenu.Separator />
+					<DropdownMenu.Item onclick={expandAll}>
+						<ChevronsUpDown class="mr-2 size-4" />
+						Expand All
+					</DropdownMenu.Item>
+					<DropdownMenu.Item onclick={collapseAll}>
+						<ChevronsDownUp class="mr-2 size-4" />
+						Collapse All
+					</DropdownMenu.Item>
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 				</div>

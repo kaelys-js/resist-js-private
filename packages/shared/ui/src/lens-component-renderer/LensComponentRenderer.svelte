@@ -93,7 +93,12 @@ import Wifi from '@lucide/svelte/icons/wifi';
 import WifiOff from '@lucide/svelte/icons/wifi-off';
 import ZoomIn from '@lucide/svelte/icons/zoom-in';
 import ZoomOut from '@lucide/svelte/icons/zoom-out';
+import Download from '@lucide/svelte/icons/download';
+import Clipboard from '@lucide/svelte/icons/clipboard';
+import FileImage from '@lucide/svelte/icons/file-image';
+import FileType from '@lucide/svelte/icons/file-type';
 import * as DropdownMenu from '../dropdown-menu/index.js';
+import { exportPng, exportJpeg, exportSvg, exportWebp, copyImageToClipboard, copyHtml, downloadHtml } from '../lens/export-utils.js';
 import * as Tooltip from '../tooltip/index.js';
 import { slide } from 'svelte/transition';
 import { cn } from '../utils.js';
@@ -171,6 +176,9 @@ let cardCustomNetwork: Record<Str, { delay: Num; label: Str }> = $state({});
 
 /** Per-card measured visual height of the inner content (accounts for zoom + rotation transforms). */
 let cardContentHeights: Record<Str, Num> = $state({});
+
+/** DOM references to card preview areas for export. */
+let cardPreviewRefs: Record<Str, HTMLDivElement | undefined> = $state({});
 
 /**
  * Extract a short human-readable cause from a caught error.
@@ -312,6 +320,9 @@ let orientationSearchQuery: Str = $state('');
 
 /** Search query for filtering media preference groups. */
 let mediaPrefSearchQuery: Str = $state('');
+
+/** Search query for filtering export format items. */
+let exportSearchQuery: Str = $state('');
 
 /**
  * Svelte action that locks an element's height to its initial rendered value.
@@ -773,6 +784,33 @@ const filteredMediaPrefGroups: Array<{ pref: Str; label: Str; defaultValue: Str;
 					g.label.toLowerCase().includes(mediaPrefSearchQuery.toLowerCase()) ||
 					g.options.some((o) => o.label.toLowerCase().includes(mediaPrefSearchQuery.toLowerCase())),
 			),
+);
+
+/* ------------------------------------------------------------------ */
+/*  Export format items                                                */
+/* ------------------------------------------------------------------ */
+
+/** Export format menu items with id, label, and icon reference. */
+const EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: Component; category: Str }> = [
+	{ id: 'png', label: 'PNG', icon: FileImage, category: 'Image' },
+	{ id: 'jpeg', label: 'JPEG', icon: FileImage, category: 'Image' },
+	{ id: 'svg', label: 'SVG', icon: FileImage, category: 'Image' },
+	{ id: 'webp', label: 'WebP', icon: FileImage, category: 'Image' },
+	{ id: 'html', label: 'HTML', icon: FileType, category: 'Document' },
+	{ id: 'copy-image', label: 'Copy as Image', icon: Clipboard, category: 'Clipboard' },
+	{ id: 'copy-html', label: 'Copy as HTML', icon: FileType, category: 'Clipboard' },
+];
+
+/** Export items filtered by search query. */
+const filteredExportItems: Array<{ id: Str; label: Str; icon: Component; category: Str }> = $derived(
+	exportSearchQuery.length === 0
+		? EXPORT_ITEMS
+		: EXPORT_ITEMS.filter((p) => p.label.toLowerCase().includes(exportSearchQuery.toLowerCase())),
+);
+
+/** Unique export categories present after filtering. */
+const filteredExportCategories: Str[] = $derived(
+	[...new Set(filteredExportItems.map((p) => p.category))],
 );
 
 /* ------------------------------------------------------------------ */
@@ -1510,6 +1548,25 @@ function resetCard(key: Str): Void {
 	cardNetworkLoading[key] = false;
 	cardViewports[key] = 'auto';
 	cardContentHeights[key] = 0;
+}
+
+/**
+ * Handle export action for a card preview element.
+ *
+ * @param key - Card identifier for DOM ref lookup
+ * @param formatId - Export format identifier (png, jpeg, svg, webp, copy-image, copy-html)
+ */
+async function handleExport(key: Str, formatId: Str): Promise<void> {
+	const el: HTMLDivElement | undefined = cardPreviewRefs[key];
+	if (!el) return;
+	const filename: Str = componentName ?? tagName ?? 'component';
+	if (formatId === 'png') await exportPng(el, filename);
+	else if (formatId === 'jpeg') await exportJpeg(el, filename);
+	else if (formatId === 'svg') await exportSvg(el, filename);
+	else if (formatId === 'webp') await exportWebp(el, filename);
+	else if (formatId === 'html') downloadHtml(el, filename);
+	else if (formatId === 'copy-image') await copyImageToClipboard(el);
+	else if (formatId === 'copy-html') await copyHtml(el);
 }
 
 /**
@@ -2460,6 +2517,53 @@ function isIconOption(option: Str): boolean {
 								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
+						<DropdownMenu.Separator />
+						<DropdownMenu.Sub
+							onOpenChange={(open) => {
+								if (open) exportSearchQuery = '';
+							}}
+						>
+							<DropdownMenu.SubTrigger>
+								<Download class="size-4" />
+								Export
+							</DropdownMenu.SubTrigger>
+							<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+								<div class="shrink-0 px-2 pb-1.5 pt-1">
+									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+										<input
+											type="text"
+											placeholder="Search formats..."
+											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+											bind:value={exportSearchQuery}
+											onkeydown={(e) => e.stopPropagation()}
+										/>
+									</div>
+								</div>
+								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+									{#each filteredExportCategories as category (category)}
+										{#if filteredExportCategories.indexOf(category) > 0}
+											<DropdownMenu.Separator />
+										{/if}
+										<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+										{#each filteredExportItems.filter((i) => i.category === category) as item (item.id)}
+											<DropdownMenu.Item onclick={() => handleExport(cardKey, item.id)}>
+												<item.icon class="size-4" />
+												{item.label}
+											</DropdownMenu.Item>
+										{/each}
+									{:else}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-0.5">
+												<p class="text-xs font-medium">No formats found</p>
+												<p class="text-[11px]">Try a different search term</p>
+											</div>
+										</div>
+									{/each}
+								</div>
+							</DropdownMenu.SubContent>
+						</DropdownMenu.Sub>
 						{#if getActiveSettings(cardKey).length > 0}
 							<DropdownMenu.Separator />
 							<DropdownMenu.Item onclick={() => resetCard(cardKey)}>
@@ -2472,6 +2576,7 @@ function isIconOption(option: Str): boolean {
 			</div>
 		</div>
 		<div
+			bind:this={cardPreviewRefs[cardKey]}
 			class={cn(
 				'relative flex w-full items-center overflow-auto p-4',
 			!hasViewport(cardKey) && 'justify-center',
