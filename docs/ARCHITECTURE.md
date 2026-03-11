@@ -21,7 +21,7 @@ webforge/
 │   │   ├── locale/                       i18n: template, format, registry, detect
 │   │   └── config/test/                  Vitest presets + test harness
 │   └── products/
-│       └── webforge/
+│       └── storylyne/
 │           ├── editor/                   SvelteKit + shadcn-svelte editor UI
 │           ├── runtime/                  Babylon.js HD-2D game engine
 │           │   ├── src/
@@ -625,9 +625,9 @@ A single root `vitest.config.ts` defines all test projects via the `projects` ar
 | utils-result | `packages/shared/utils/result` | node | |
 | utils-core | `packages/shared/utils/core` | node | |
 | locale | `packages/shared/locale` | node | |
-| runtime | `packages/products/webforge/runtime` | node | Babylon.js deps inlined |
-| plugin-api | `packages/products/webforge/plugin-api` | node | |
-| editor | `packages/products/webforge/editor` | jsdom | Svelte + shadcn-svelte |
+| runtime | `packages/products/storylyne/runtime` | node | Babylon.js deps inlined |
+| plugin-api | `packages/products/storylyne/plugin-api` | node | |
+| editor | `packages/products/storylyne/editor` | jsdom | Svelte + shadcn-svelte |
 
 Root config uses `pool: 'forks'` (Vitest 4.x default, better SvelteKit/Babylon.js compatibility). Each project inherits root settings via `extends: true`.
 

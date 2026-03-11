@@ -294,17 +294,22 @@ type ScreenshotPerfData = {
 	firstContentfulPaint: Num;
 };
 
+/** Screenshot engine source identifier. */
+type ScreenshotSource = 'playwright' | 'ios-simulator' | 'android-emulator';
+
 /** Individual screenshot capture result. */
 type ScreenshotCapture = {
-	/** Browser engine used. @values chromium, firefox, webkit */
+	/** Screenshot engine that produced this capture. @values playwright, ios-simulator, android-emulator */
+	source: ScreenshotSource;
+	/** Browser engine used. @values chromium, firefox, webkit, safari, chrome-mobile */
 	browser: Str;
-	/** Human-readable browser engine name. @values Chromium, Firefox, WebKit */
+	/** Human-readable browser engine name. @values Chromium, Firefox, WebKit, Safari, Chrome Mobile */
 	browserDisplayName: Str;
 	/** Browser engine version string. @values 131.0.6778.33, 132.0, 18.2 */
 	browserVersion: Str;
-	/** Playwright device name (empty = custom viewport). @values iPhone 15 Pro Max, Pixel 9, custom */
+	/** Device name from engine (Playwright device, simulator name, or emulator AVD). @values iPhone 15 Pro Max, Pixel 9, custom */
 	device: Str;
-	/** OS/platform string for the device. @values iOS 17.5, Android 14, macOS */
+	/** OS/platform string for the device. @values iOS 17.5, iOS 26.0, Android 14, macOS */
 	deviceOS: Str;
 	/** Object URL for the captured PNG image. @values blob:http://localhost:5173/... */
 	imageUrl: Str;
@@ -314,6 +319,10 @@ type ScreenshotCapture = {
 	consoleLogs: ScreenshotConsoleEntry[];
 	/** Performance timing data from the rendered page. */
 	performance: Partial<ScreenshotPerfData>;
+	/** Safe area insets in CSS pixels (iOS simulator only). */
+	safeAreaInsets?: { top: Num; right: Num; bottom: Num; left: Num };
+	/** Device frame metadata for bezel compositing. */
+	deviceFrame?: { frameId: Str; screenRegion: { x: Num; y: Num; width: Num; height: Num } };
 };
 
 /** Per-card selected browser engine for real browser screenshots. */
@@ -2876,6 +2885,7 @@ async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promis
 		);
 
 		const capture: ScreenshotCapture = {
+			source: 'playwright',
 			browser,
 			browserDisplayName: ((body.browserDisplayName as Str) ?? browser) as Str,
 			browserVersion: ((body.browserVersion as Str) ?? '') as Str,

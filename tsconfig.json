@@ -38,5 +38,5 @@
       "@/ui/*": ["./packages/shared/ui/src/*"]
     }
   },
-  "exclude": ["node_modules", "dist", ".svelte-kit"]
+  "exclude": ["node_modules", "dist", ".svelte-kit", "_INTEGRATE"]
 }

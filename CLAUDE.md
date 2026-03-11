@@ -20,13 +20,13 @@ packages/
 │   ├── locale/             (@/locale)            — i18n: template, format, registry, detect, direction, svelte
 │   └── config/test/        (@/config/test)       — Vitest presets (base, node, svelte) + test harness
 └── products/
-    └── webforge/
-        ├── editor/         (@webforge/editor)    — SvelteKit + shadcn-svelte editor UI
-        ├── runtime/        (@webforge/runtime)   — Babylon.js HD-2D game runtime
-        └── plugin-api/     (@webforge/plugin-api) — Plugin SDK for third-party extensions
+    └── storylyne/
+        ├── editor/         (@storylyne/editor)    — SvelteKit + shadcn-svelte editor UI
+        ├── runtime/        (@storylyne/runtime)   — Babylon.js HD-2D game runtime
+        └── plugin-api/     (@storylyne/plugin-api) — Plugin SDK for third-party extensions
 ```
 
-**Import scopes:** `@/` for shared packages, `@webforge/` for product packages.
+**Import scopes:** `@/` for shared packages, `@storylyne/` for product packages.
 
 ## Code Rules
 
@@ -125,7 +125,7 @@ import type { Str, Bool, Num, Path } from '@/schemas/common';
 import { log } from '@/utils/core/logger';
 
 // 3. Product packages
-import { SceneManager } from '@webforge/runtime';
+import { SceneManager } from '@storylyne/runtime';
 
 // 4. Relative imports
 import { validateAsset } from '../utils';
@@ -225,7 +225,7 @@ const harness = createTestHarness();
 
 - **NEVER use `preview_*` tools** (`mcp__Claude_Preview__preview_*`) — they are forbidden in this project
 - **ALWAYS use Playwright MCP** (`mcp__plugin_playwright_playwright__*`) for all browser interaction, visual verification, screenshots, and console checking
-- Start dev servers via `Bash` (e.g., `pnpm --filter @webforge/editor dev`), not via `preview_start`
+- Start dev servers via `Bash` (e.g., `pnpm --filter @storylyne/editor dev`), not via `preview_start`
 
 ## Gotchas
 
@@ -233,5 +233,5 @@ const harness = createTestHarness();
 - **`v.strictObject()` only** — `v.object()` silently ignores unknown keys, defeating schema safety.
 - **Locale files load at module scope** — can't return Result directly; use fallback pattern for Result-returning calls.
 - **Babylon.js is async** — scene/asset loading is inherently async; always wrap in `Result`-returning async functions.
-- **Plugin API is a public surface** — `@webforge/plugin-api` exports must be stable and fully documented; treat changes as breaking.
+- **Plugin API is a public surface** — `@storylyne/plugin-api` exports must be stable and fully documented; treat changes as breaking.
 - **No barrel files** — import from subpath entrypoints; re-exporting through an index creates circular dependency risk.

@@ -9,7 +9,7 @@ The dev harness (`runtime/dev/`) renders a sample tilemap and exposes collapsibl
 ## Running
 
 ```bash
-cd packages/products/webforge/runtime
+cd packages/products/storylyne/runtime
 pnpm dev    # Starts Vite dev server on http://localhost:3100
 ```
 
