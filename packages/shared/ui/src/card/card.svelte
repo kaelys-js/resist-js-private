@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 /**
  * Container for grouped content with a rounded border, background, and shadow.

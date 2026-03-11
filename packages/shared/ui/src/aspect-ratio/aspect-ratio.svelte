@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 	import { AspectRatio as AspectRatioPrimitive } from "bits-ui";
 

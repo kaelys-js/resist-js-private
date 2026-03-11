@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 import { cn, type WithElementRef } from '../utils.js';
 import {

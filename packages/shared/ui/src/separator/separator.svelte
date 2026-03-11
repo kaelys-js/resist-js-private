@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 /**
  * Visual separator line supporting horizontal and vertical orientations.

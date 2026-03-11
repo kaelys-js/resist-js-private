@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 /**
  * Root state container for a dropdown menu that manages its open/closed lifecycle.

@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 import { PinInput as InputOTPPrimitive } from 'bits-ui';
 import { cn } from '../utils.js';

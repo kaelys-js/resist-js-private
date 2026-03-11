@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 /**
  * Root container for a command palette with fuzzy search and keyboard navigation.

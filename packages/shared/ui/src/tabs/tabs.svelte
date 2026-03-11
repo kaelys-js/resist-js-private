@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 	import { Tabs as TabsPrimitive } from "bits-ui";
 	import { cn } from "../utils.js";

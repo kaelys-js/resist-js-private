@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 	import { Accordion as AccordionPrimitive } from "bits-ui";
 

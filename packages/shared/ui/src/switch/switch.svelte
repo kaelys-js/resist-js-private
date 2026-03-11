@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 /**
  * Toggle switch control for binary on/off settings with animated thumb transition.

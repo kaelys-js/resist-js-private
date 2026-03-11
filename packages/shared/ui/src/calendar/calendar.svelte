@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 import { type DateValue, isEqualMonth } from '@internationalized/date';
 import { Calendar as CalendarPrimitive } from 'bits-ui';

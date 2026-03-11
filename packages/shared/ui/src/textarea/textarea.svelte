@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 	import { cn, type WithElementRef, type WithoutChildren } from "../utils.js";
 	import type { HTMLTextareaAttributes } from "svelte/elements";

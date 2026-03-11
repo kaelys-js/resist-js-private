@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts" module>
 import { cn, type WithElementRef } from '../utils.js';
 import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';

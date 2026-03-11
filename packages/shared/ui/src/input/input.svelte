@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts">
 /**
  * Styled text input field supporting all standard HTML input types including file uploads.

@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <script lang="ts" module>
 	import { tv, type VariantProps } from "tailwind-variants";
 

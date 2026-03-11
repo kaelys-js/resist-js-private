@@ -1,3 +1,4 @@
+<!-- @convert-to-lens -->
 <!--
 @component PageFadeIn
 
