@@ -88,7 +88,7 @@ importers:
         specifier: ^4.0.0
         version: 4.4.3(picomatch@4.0.3)(svelte@5.53.5)(typescript@5.9.3)
 
-  packages/products/webforge/editor:
+  packages/products/storylyne/editor:
     dependencies:
       '@/schemas/common':
         specifier: workspace:*
@@ -221,7 +221,7 @@ importers:
         specifier: ^4.71.0
         version: 4.71.0(@cloudflare/workers-types@4.20260305.1)
 
-  packages/products/webforge/plugin-api:
+  packages/products/storylyne/plugin-api:
     dependencies:
       '@/schemas/common':
         specifier: workspace:*
@@ -246,7 +246,7 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@25.3.0)(jiti@2.6.1)(jsdom@28.1.0)(lightningcss@1.31.1)
 
-  packages/products/webforge/runtime:
+  packages/products/storylyne/runtime:
     dependencies:
       '@/schemas/common':
         specifier: workspace:*

@@ -6,7 +6,7 @@ import { NavItemSchema } from '../nav-secondary/NavSecondary.svelte';
 
 /** Schema for the AppSidebar component props — uses objectWithRest to allow passthrough props. */
 export const AppSidebarPropsSchema = v.objectWithRest({
-	/** Application display name. @values WebForge RPG, Finance Tracker, My App */
+	/** Application display name. @values Storylyne RPG, Finance Tracker, My App */
 	appName: StrSchema,
 	/** Pre-resolved tagline. @values Build your world, Track your finances, Create something great */
 	tagline: StrSchema,

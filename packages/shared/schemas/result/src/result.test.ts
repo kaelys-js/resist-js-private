@@ -30,7 +30,7 @@ describe('Result system', () => {
     }
   });
 
-  test('ERRORS registry contains WebForge domains', () => {
+  test('ERRORS registry contains Storylyne domains', () => {
     expect(ERRORS.VALIDATION).toBeDefined();
     expect(ERRORS.SCENE).toBeDefined();
     expect(ERRORS.PLUGIN).toBeDefined();
