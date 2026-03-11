@@ -59,7 +59,7 @@ import type { PropMeta, VariantMeta } from '../lens/types.js';
 import { buildBaseProps } from '../lens/extract-props.js';
 import LensError from '../lens-error/LensError.svelte';
 import LensStats from '../lens-stats/LensStats.svelte';
-import type { LensStatsData, BudgetLevel, MetricBudget } from '../lens-stats/types.js';
+import type { LensStatsData, BudgetLevel, MetricBudget, WebVitals } from '../lens-stats/types.js';
 import CopyButton from '../copy-button/CopyButton.svelte';
 import CodeBlock from '../code-block/CodeBlock.svelte';
 import ColorPicker from '../color-picker/ColorPicker.svelte';
@@ -105,11 +105,14 @@ import FileType from '@lucide/svelte/icons/file-type';
 import FileCode from '@lucide/svelte/icons/file-code';
 import Link from '@lucide/svelte/icons/link';
 import Globe from '@lucide/svelte/icons/globe';
+import ChevronRight from '@lucide/svelte/icons/chevron-right';
+import FileJson from '@lucide/svelte/icons/file-json';
+import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 import * as Popover from '../popover/index.js';
 import { exportPng, exportJpeg, exportSvg, exportWebp, copyImageToClipboard, copyHtml, copyDataUri, downloadHtml, downloadStandaloneHtml } from '../lens/export-utils.js';
 import * as Tooltip from '../tooltip/index.js';
-import { slide } from 'svelte/transition';
+import { fade, slide } from 'svelte/transition';
 import { cn } from '../utils.js';
 import LensPortalScope from './LensPortalScope.svelte';
 
@@ -218,6 +221,173 @@ function budgetColor(level: BudgetLevel): Str {
 const propsWithDefaultsCount: Num = $derived(
 	propsMeta.filter((p: PropMeta): Bool => p.default !== '').length,
 );
+
+/* ------------------------------------------------------------------ */
+/*  Stats popover — collapsible section state                         */
+/* ------------------------------------------------------------------ */
+
+/** Collapsible section open states for the stats popover. */
+let statsVitalsOpen: Bool = $state(true);
+let statsDomOpen: Bool = $state(true);
+let statsMemoryOpen: Bool = $state(true);
+let statsA11yOpen: Bool = $state(true);
+let statsConsoleOpen: Bool = $state(true);
+let statsPropCoverageOpen: Bool = $state(true);
+
+/* ------------------------------------------------------------------ */
+/*  Stats popover — export                                            */
+/* ------------------------------------------------------------------ */
+
+/** Which stats export button was recently clicked ('json' | 'markdown' | '' for none). */
+let statsExportCopied: Str = $state('');
+
+/**
+ * Format stats data as a JSON string for export.
+ *
+ * @param stats - The LensStatsData to format
+ * @param componentName - Display name of the component
+ * @returns Pretty-printed JSON string
+ */
+function formatStatsJson(stats: LensStatsData, componentName: Str): Str {
+	return JSON.stringify({ component: componentName, ...stats }, null, 2);
+}
+
+/**
+ * Format stats data as a human-readable Markdown report.
+ *
+ * @param stats - The LensStatsData to format
+ * @param componentName - Display name of the component
+ * @returns Markdown string
+ */
+function formatStatsMarkdown(stats: LensStatsData, componentName: Str): Str {
+	const lines: Str[] = [
+		`# Performance Report: ${componentName}`,
+		'',
+		`**Overall Health:** ${stats.overallHealth}`,
+		'',
+		'## Budget Metrics',
+		'',
+		'| Metric | Value | Level | Thresholds |',
+		'|--------|-------|-------|------------|',
+		...stats.budgets.map((b: MetricBudget): Str => `| ${b.label} | ${b.value} | ${b.level} | ${b.thresholds} |`),
+		'',
+		'## Timing',
+		'',
+		`- **Mount Time:** ${stats.mountTimeMs}ms`,
+		`- **Re-renders:** ${stats.reRenderCount}`,
+		`- **Async Content:** ${stats.hasAsyncContent ? 'Yes' : 'No'}`,
+		'',
+		'## Web Vitals',
+		'',
+		`- **CLS:** ${stats.vitals.clsScore} (${stats.vitals.clsShiftCount} shifts)`,
+	];
+	if (stats.vitals.clsSources.length > 0) {
+		for (const src of stats.vitals.clsSources) {
+			lines.push(`  - \`${src.selector}\` (${src.tag}, shift: ${src.shiftValue})`);
+		}
+	}
+	lines.push(
+		`- **Long Tasks:** ${stats.vitals.longTaskCount === 0 ? 'None' : `${stats.vitals.longTaskCount} · ${stats.vitals.worstLongTaskMs}ms peak`}`,
+		`- **First Paint:** ${stats.vitals.paintTimeMs < 0 ? 'Before mount' : `${stats.vitals.paintTimeMs}ms`}`,
+		`- **FCP:** ${stats.vitals.fcpTimeMs < 0 ? 'Before mount' : `${stats.vitals.fcpTimeMs}ms`}`,
+		`- **LCP:** ${stats.vitals.isLcpComponent ? `${stats.vitals.lcpTimeMs}ms` : '—'}`,
+	);
+	if (stats.vitals.isLcpComponent && stats.vitals.lcpElement) {
+		lines.push(`  - Element: \`${stats.vitals.lcpElement}\``);
+	}
+	lines.push(
+		`- **FID:** ${stats.vitals.fidMs < 0 ? 'Waiting' : `${stats.vitals.fidMs}ms`}`,
+		`- **TTFB:** ${stats.vitals.ttfbMs < 0 ? 'Unavailable' : `${stats.vitals.ttfbMs}ms`}`,
+		`- **Supported:** ${stats.vitals.supported ? 'Yes' : 'No'}`,
+		'',
+		'## DOM Structure',
+		'',
+		`- **Nodes:** ${stats.nodeCount}`,
+		`- **Depth:** ${stats.domDepth}`,
+		`- **Text Nodes:** ${stats.textNodeCount}`,
+		`- **Event Listeners:** ${stats.eventListenerCount}`,
+		'',
+		'## Accessibility',
+		'',
+		`- **Labels:** ${stats.a11y.labeledCount}/${stats.a11y.focusableCount}`,
+		`- **Buttons:** ${stats.a11y.buttonCount}`,
+		`- **Links:** ${stats.a11y.linkCount}`,
+		`- **Inputs:** ${stats.a11y.inputCount}`,
+		`- **Focus Order Issues:** ${stats.a11y.focusOrderIssues.length}`,
+	);
+	if (stats.a11y.focusOrderIssues.length > 0) {
+		for (const issue of stats.a11y.focusOrderIssues) {
+			lines.push(`  - \`<${issue.tag} tabindex="${issue.tabindex}">\` ${issue.text}`);
+		}
+	}
+	lines.push(`- **Headings:** ${stats.a11y.headings.length} (${stats.a11y.headingSkipsLevel ? 'skips levels' : 'sequential'})`);
+	if (stats.a11y.headings.length > 0) {
+		for (const h of stats.a11y.headings) {
+			lines.push(`  - h${h.level}: ${h.text}`);
+		}
+	}
+	if (stats.a11y.roles.length > 0) {
+		lines.push(`- **ARIA Roles:** ${stats.a11y.roles.join(', ')}`);
+	}
+	if (stats.a11y.landmarks.length > 0) {
+		lines.push(`- **Landmarks:** ${stats.a11y.landmarks.join(', ')}`);
+	}
+	if (stats.a11y.unlabeled.length > 0) {
+		lines.push(`- **Unlabeled Elements:** ${stats.a11y.unlabeled.length}`);
+		for (const el of stats.a11y.unlabeled) {
+			lines.push(`  - \`<${el.tag}${el.classes ? ` class="${el.classes}"` : ''}>\`${el.parentContext ? ` in ${el.parentContext}` : ''}`);
+		}
+	}
+	lines.push(
+		'',
+		'## Prop Coverage',
+		'',
+		`- **With Defaults:** ${stats.propsWithDefaults}/${stats.propsTotal} (${stats.propsTotal > 0 ? Math.round((stats.propsWithDefaults / stats.propsTotal) * 100) : 0}%)`,
+	);
+	if (stats.memoryDeltaBytes >= 0) {
+		lines.push('', '## Memory', '', `- **JS Heap (page total):** ${(stats.memoryDeltaBytes / 1_048_576).toFixed(1)} MB`);
+	}
+	if (stats.consoleMessages.length > 0) {
+		lines.push('', '## Console Messages', '');
+		for (const msg of stats.consoleMessages) {
+			lines.push(`- **[${msg.level}]** ${msg.message}`);
+		}
+	}
+	return lines.join('\n');
+}
+
+/**
+ * Copy stats to clipboard in the given format.
+ *
+ * @param stats - The LensStatsData to copy
+ * @param componentName - Display name of the component
+ * @param format - 'json' or 'markdown'
+ */
+async function copyStatsToClipboard(stats: LensStatsData, componentName: Str, format: 'json' | 'markdown'): Promise<void> {
+	const text: Str = format === 'json'
+		? formatStatsJson(stats, componentName)
+		: formatStatsMarkdown(stats, componentName);
+	await navigator.clipboard.writeText(text);
+	statsExportCopied = format;
+	setTimeout((): Void => { statsExportCopied = ''; }, 2000);
+}
+
+/**
+ * Download stats as a JSON file.
+ *
+ * @param stats - The LensStatsData to download
+ * @param componentName - Display name of the component
+ */
+function downloadStatsJson(stats: LensStatsData, componentName: Str): Void {
+	const json: Str = formatStatsJson(stats, componentName);
+	const blob: Blob = new Blob([json], { type: 'application/json' });
+	const url: Str = URL.createObjectURL(blob);
+	const a: HTMLAnchorElement = document.createElement('a');
+	a.href = url;
+	a.download = `${componentName.toLowerCase().replace(/\s+/g, '-')}-stats.json`;
+	a.click();
+	URL.revokeObjectURL(url);
+}
 
 /**
  * Toggle fullscreen mode for a specific card.
@@ -1893,9 +2063,89 @@ function isIconOption(option: Str): boolean {
 						</Popover.Trigger>
 						<Popover.Content side="bottom" align="end" class="w-96 max-h-[28rem] overflow-y-auto p-0">
 							<!-- Header -->
-							<div class="border-b px-3 py-2">
-								<h4 class="text-xs font-semibold">Performance Statistics</h4>
-								<p class="text-[10px] text-muted-foreground">Measured at mount time. Hover metrics for details.</p>
+							<div class="flex items-start justify-between border-b px-3 py-2">
+								<div>
+									<h4 class="text-xs font-semibold">Performance Statistics</h4>
+									<p class="text-[10px] text-muted-foreground">Measured at mount time. Hover metrics for details.</p>
+								</div>
+								<div class="flex items-center gap-0.5">
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={300} open={statsExportCopied === 'json' ? true : undefined}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<button
+														{...tipProps}
+														type="button"
+														class="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+														onclick={() => copyStatsToClipboard(stats, tagName ?? componentName ?? 'Component', 'json')}
+														aria-label="Copy as JSON"
+													>
+														{#if statsExportCopied === 'json'}
+															<span in:fade={{ duration: 150 }}>
+																<Check class="size-3 text-green-500" aria-hidden="true" />
+															</span>
+														{:else}
+															<span in:fade={{ duration: 150 }}>
+																<ClipboardCopy class="size-3" aria-hidden="true" />
+															</span>
+														{/if}
+													</button>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="bottom" sideOffset={4}>
+												{statsExportCopied === 'json' ? 'Copied!' : 'Copy as JSON'}
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={300} open={statsExportCopied === 'markdown' ? true : undefined}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<button
+														{...tipProps}
+														type="button"
+														class="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+														onclick={() => copyStatsToClipboard(stats, tagName ?? componentName ?? 'Component', 'markdown')}
+														aria-label="Copy as Markdown"
+													>
+														{#if statsExportCopied === 'markdown'}
+															<span in:fade={{ duration: 150 }}>
+																<Check class="size-3 text-green-500" aria-hidden="true" />
+															</span>
+														{:else}
+															<span in:fade={{ duration: 150 }}>
+																<FileCode class="size-3" aria-hidden="true" />
+															</span>
+														{/if}
+													</button>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="bottom" sideOffset={4}>
+												{statsExportCopied === 'markdown' ? 'Copied!' : 'Copy as Markdown'}
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={300}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<button
+														{...tipProps}
+														type="button"
+														class="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+														onclick={() => downloadStatsJson(stats, tagName ?? componentName ?? 'Component')}
+														aria-label="Download JSON"
+													>
+														<Download class="size-3" aria-hidden="true" />
+													</button>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="bottom" sideOffset={4}>
+												Download JSON
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+								</div>
 							</div>
 
 							<!-- Budget metrics with tooltip explanations -->
@@ -1928,10 +2178,317 @@ function isIconOption(option: Str): boolean {
 								{/each}
 							</div>
 
+							<!-- Web Vitals section -->
+							<div class="border-t px-3 py-2">
+								<button type="button" class="flex w-full items-center gap-1" onclick={() => statsVitalsOpen = !statsVitalsOpen}>
+									<svelte:component this={statsVitalsOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+									<h4 class="text-xs font-semibold">Web Vitals</h4>
+								</button>
+								{#if statsVitalsOpen}
+								<p class="mb-1.5 mt-0.5 text-[10px] text-muted-foreground">
+									{#if stats.vitals.supported}
+										Component-scoped performance vitals via PerformanceObserver.
+									{:else}
+										Browser does not support required PerformanceObserver APIs.
+									{/if}
+								</p>
+								<div class="space-y-1 text-xs">
+									<!-- CLS -->
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="flex cursor-help items-center justify-between">
+														<div class="flex items-center gap-2">
+															{#if stats.vitals.supported}
+																<span class={cn('text-base leading-none', stats.vitals.clsScore === 0 ? 'text-emerald-500' : stats.vitals.clsScore <= 0.1 ? 'text-amber-500' : 'text-red-500')}>●</span>
+															{:else}
+																<span class="text-base leading-none text-muted-foreground/40">●</span>
+															{/if}
+															<span class="text-muted-foreground">CLS</span>
+														</div>
+														<span class={cn('font-mono font-medium', !stats.vitals.supported && 'text-muted-foreground/50')}>
+															{stats.vitals.supported ? stats.vitals.clsScore : 'Unsupported'}
+														</span>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">Cumulative Layout Shift — measures visual stability. Layout shifts from elements inside this component.</p>
+													<p class="font-mono text-[10px] text-primary-foreground/70">🟢 0 · 🟡 ≤0.1 · 🔴 >0.1</p>
+													{#if !stats.vitals.supported}
+														<p class="text-[10px] text-primary-foreground/50">Requires layout-shift PerformanceObserver (Chrome/Edge).</p>
+													{/if}
+												</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+									{#if stats.vitals.clsSources.length > 0}
+										<div class="ml-6 space-y-0.5">
+											{#each stats.vitals.clsSources as src (src.selector)}
+												<div class="truncate font-mono text-[10px] text-amber-500/80">{src.selector}</div>
+											{/each}
+										</div>
+									{/if}
+
+									<!-- Long Tasks -->
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="flex cursor-help items-center justify-between">
+														<div class="flex items-center gap-2">
+															{#if stats.vitals.supported}
+																<span class={cn('text-base leading-none', stats.vitals.longTaskCount === 0 ? 'text-emerald-500' : stats.vitals.longTaskCount <= 2 ? 'text-amber-500' : 'text-red-500')}>●</span>
+															{:else}
+																<span class="text-base leading-none text-muted-foreground/40">●</span>
+															{/if}
+															<span class="text-muted-foreground">Long Tasks</span>
+														</div>
+														<span class={cn('font-mono font-medium', !stats.vitals.supported && 'text-muted-foreground/50')}>
+															{#if !stats.vitals.supported}
+																Unsupported
+															{:else if stats.vitals.longTaskCount === 0}
+																None
+															{:else}
+																{stats.vitals.longTaskCount} · {stats.vitals.worstLongTaskMs}ms peak
+															{/if}
+														</span>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">Main-thread tasks exceeding 50ms during component mount. Blocks user interaction.</p>
+													<p class="font-mono text-[10px] text-primary-foreground/70">🟢 0 · 🟡 ≤2 · 🔴 >2</p>
+													{#if !stats.vitals.supported}
+														<p class="text-[10px] text-primary-foreground/50">Requires longtask PerformanceObserver (Chrome/Edge).</p>
+													{/if}
+												</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+
+									<!-- Paint Timing -->
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="flex cursor-help items-center justify-between">
+													<div class="flex items-center gap-2">
+														{#if !stats.vitals.supported}
+															<span class="text-base leading-none text-muted-foreground/40">●</span>
+														{:else if stats.vitals.paintTimeMs < 0}
+															<span class="text-base leading-none text-muted-foreground/40">●</span>
+														{:else if stats.vitals.paintTimeMs <= 100}
+															<span class="text-base leading-none text-emerald-500">●</span>
+														{:else if stats.vitals.paintTimeMs <= 300}
+															<span class="text-base leading-none text-amber-500">●</span>
+														{:else}
+															<span class="text-base leading-none text-red-500">●</span>
+														{/if}
+														<span class="text-muted-foreground">First Paint</span>
+													</div>
+													<span class={cn('font-mono font-medium', !stats.vitals.supported && 'text-muted-foreground/50')}>
+														{#if !stats.vitals.supported}
+															Unsupported
+														{:else if stats.vitals.paintTimeMs < 0}
+															Before mount
+														{:else}
+															{stats.vitals.paintTimeMs}ms
+														{/if}
+													</span>
+												</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">First Paint — when the browser first renders any pixel. "Before mount" means the page already painted before this component mounted.</p>
+												<p class="font-mono text-[10px] text-primary-foreground/70">🟢 ≤100ms · 🟡 ≤300ms · 🔴 >300ms</p>
+												</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="flex cursor-help items-center justify-between">
+													<div class="flex items-center gap-2">
+														{#if !stats.vitals.supported}
+															<span class="text-base leading-none text-muted-foreground/40">●</span>
+														{:else if stats.vitals.fcpTimeMs < 0}
+															<span class="text-base leading-none text-muted-foreground/40">●</span>
+														{:else if stats.vitals.fcpTimeMs <= 100}
+															<span class="text-base leading-none text-emerald-500">●</span>
+														{:else if stats.vitals.fcpTimeMs <= 300}
+															<span class="text-base leading-none text-amber-500">●</span>
+														{:else}
+															<span class="text-base leading-none text-red-500">●</span>
+														{/if}
+														<span class="text-muted-foreground">First Contentful Paint</span>
+													</div>
+													<span class={cn('font-mono font-medium', !stats.vitals.supported && 'text-muted-foreground/50')}>
+														{#if !stats.vitals.supported}
+															Unsupported
+														{:else if stats.vitals.fcpTimeMs < 0}
+															Before mount
+														{:else}
+															{stats.vitals.fcpTimeMs}ms
+														{/if}
+													</span>
+												</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">First Contentful Paint — when the browser first renders text, image, or SVG content. "Before mount" means content already painted before this component mounted.</p>
+												<p class="font-mono text-[10px] text-primary-foreground/70">🟢 ≤100ms · 🟡 ≤300ms · 🔴 >300ms</p>
+												</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+
+									<!-- LCP -->
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="flex cursor-help items-center justify-between">
+													<div class="flex items-center gap-2">
+														{#if !stats.vitals.supported}
+															<span class="text-base leading-none text-muted-foreground/40">●</span>
+														{:else if stats.vitals.isLcpComponent && stats.vitals.lcpTimeMs <= 2500}
+															<span class="text-base leading-none text-emerald-500">●</span>
+														{:else if stats.vitals.isLcpComponent && stats.vitals.lcpTimeMs <= 4000}
+															<span class="text-base leading-none text-amber-500">●</span>
+														{:else if stats.vitals.isLcpComponent}
+															<span class="text-base leading-none text-red-500">●</span>
+														{:else}
+															<span class="text-base leading-none text-muted-foreground/40">●</span>
+														{/if}
+														<span class="text-muted-foreground">Largest Contentful Paint</span>
+													</div>
+													<span class={cn('font-mono font-medium', !stats.vitals.supported && 'text-muted-foreground/50')}>
+														{#if !stats.vitals.supported}
+															Unsupported
+														{:else if stats.vitals.isLcpComponent}
+															{stats.vitals.lcpTimeMs}ms
+														{:else}
+															—
+														{/if}
+													</span>
+												</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">Largest Contentful Paint — identifies whether this component contains the page's largest visible content element. "—" means another component holds the LCP element.</p>
+												<p class="font-mono text-[10px] text-primary-foreground/70">🟢 ≤2500ms · 🟡 ≤4000ms · 🔴 >4000ms</p>
+													{#if stats.vitals.isLcpComponent && stats.vitals.lcpElement}
+														<p class="font-mono text-[10px] text-primary-foreground/70">{stats.vitals.lcpElement}</p>
+													{/if}
+													{#if !stats.vitals.supported}
+														<p class="text-[10px] text-primary-foreground/50">Requires largest-contentful-paint PerformanceObserver.</p>
+													{/if}
+												</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+
+									<!-- FID -->
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="flex cursor-help items-center justify-between">
+														<div class="flex items-center gap-2">
+															{#if !stats.vitals.supported}
+																<span class="text-base leading-none text-muted-foreground/40">●</span>
+															{:else if stats.vitals.fidMs < 0}
+																<span class="text-base leading-none text-muted-foreground/40">●</span>
+															{:else if stats.vitals.fidMs <= 100}
+																<span class="text-base leading-none text-emerald-500">●</span>
+															{:else if stats.vitals.fidMs <= 300}
+																<span class="text-base leading-none text-amber-500">●</span>
+															{:else}
+																<span class="text-base leading-none text-red-500">●</span>
+															{/if}
+															<span class="text-muted-foreground">First Input Delay</span>
+														</div>
+														<span class={cn('font-mono font-medium', !stats.vitals.supported && 'text-muted-foreground/50')}>
+															{#if !stats.vitals.supported}
+																Unsupported
+															{:else if stats.vitals.fidMs < 0}
+																Waiting
+															{:else}
+																{stats.vitals.fidMs}ms
+															{/if}
+														</span>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">First Input Delay — time between the user's first interaction (click, tap, key press) and the browser's response. "Waiting" means no interaction has occurred yet.</p>
+													<p class="font-mono text-[10px] text-primary-foreground/70">🟢 ≤100ms · 🟡 ≤300ms · 🔴 >300ms</p>
+													{#if !stats.vitals.supported}
+														<p class="text-[10px] text-primary-foreground/50">Requires first-input PerformanceObserver (Chrome/Edge).</p>
+													{/if}
+												</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+
+									<!-- TTFB -->
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="flex cursor-help items-center justify-between">
+														<div class="flex items-center gap-2">
+															{#if stats.vitals.ttfbMs < 0}
+																<span class="text-base leading-none text-muted-foreground/40">●</span>
+															{:else if stats.vitals.ttfbMs <= 800}
+																<span class="text-base leading-none text-emerald-500">●</span>
+															{:else if stats.vitals.ttfbMs <= 1800}
+																<span class="text-base leading-none text-amber-500">●</span>
+															{:else}
+																<span class="text-base leading-none text-red-500">●</span>
+															{/if}
+															<span class="text-muted-foreground">TTFB</span>
+														</div>
+														<span class={cn('font-mono font-medium', stats.vitals.ttfbMs < 0 && 'text-muted-foreground/50')}>
+															{#if stats.vitals.ttfbMs < 0}
+																Unavailable
+															{:else}
+																{stats.vitals.ttfbMs}ms
+															{/if}
+														</span>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">Time to First Byte — time from the page request until the first byte of the response. This is a page-level metric (same for all components).</p>
+													<p class="font-mono text-[10px] text-primary-foreground/70">🟢 ≤800ms · 🟡 ≤1800ms · 🔴 >1800ms</p>
+												</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+								</div>
+								{/if}
+							</div>
+
 							<!-- DOM section -->
 							<div class="border-t px-3 py-2">
-								<h4 class="mb-0.5 text-xs font-semibold">DOM Structure</h4>
-								<p class="mb-1.5 text-[10px] text-muted-foreground">Element count and nesting depth of the rendered component.</p>
+								<button type="button" class="flex w-full items-center gap-1" onclick={() => statsDomOpen = !statsDomOpen}>
+									<svelte:component this={statsDomOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+									<h4 class="text-xs font-semibold">DOM Structure</h4>
+								</button>
+								{#if statsDomOpen}
+								<p class="mb-1.5 mt-0.5 text-[10px] text-muted-foreground">Element count and nesting depth of the rendered component.</p>
 								<div class="grid grid-cols-3 gap-2 text-xs">
 									<Tooltip.Provider>
 										<Tooltip.Root delayDuration={200}>
@@ -1979,81 +2536,136 @@ function isIconOption(option: Str): boolean {
 										</Tooltip.Root>
 									</Tooltip.Provider>
 								</div>
+								{/if}
 							</div>
 
 							<!-- Memory (Chrome only) -->
 							{#if stats.memoryDeltaBytes >= 0}
 								<div class="border-t px-3 py-2">
-									<h4 class="mb-0.5 text-xs font-semibold">Memory</h4>
-									<p class="mb-1 text-[10px] text-muted-foreground">JS heap size at time of measurement (Chrome only).</p>
-									<span class="font-mono text-xs font-medium">{(stats.memoryDeltaBytes / 1_048_576).toFixed(1)} MB</span>
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<button {...tipProps} type="button" class="flex w-full cursor-help items-center gap-1" onclick={() => statsMemoryOpen = !statsMemoryOpen}>
+														<svelte:component this={statsMemoryOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+														<h4 class="text-xs font-semibold">Memory</h4>
+														<span class="ml-auto font-mono text-xs font-medium">{(stats.memoryDeltaBytes / 1_048_576).toFixed(1)} MB</span>
+													</button>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={4} class="max-w-[18rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">Total JS heap size for the entire page, not scoped to this component. Browsers cannot isolate memory per component.</p>
+													<p class="text-[10px] text-primary-foreground/70">Measured via <span class="font-mono">performance.memory</span> (Chrome/Edge only). Compare values across components to spot outliers.</p>
+												</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
 								</div>
 							{/if}
 
 							<!-- Accessibility section -->
 							<div class="border-t px-3 py-2">
-								<h4 class="mb-0.5 text-xs font-semibold">Accessibility</h4>
-								<p class="mb-1.5 text-[10px] text-muted-foreground">Interactive elements, labels, landmarks, and focus order.</p>
-								<div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+								<button type="button" class="flex w-full items-center gap-1" onclick={() => statsA11yOpen = !statsA11yOpen}>
+									<svelte:component this={statsA11yOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+									<h4 class="text-xs font-semibold">Accessibility</h4>
+								</button>
+								{#if statsA11yOpen}
+								<p class="mb-1.5 mt-0.5 text-[10px] text-muted-foreground">Interactive elements, labels, landmarks, and focus order.</p>
+								<div class="space-y-1 text-xs">
 									<Tooltip.Provider>
 										<Tooltip.Root delayDuration={200}>
 											<Tooltip.Trigger>
 												{#snippet child({ props: tipProps })}
-													<div {...tipProps} class="flex cursor-help justify-between">
-														<span class="text-muted-foreground">Focusable</span>
-														<span class="font-mono">{stats.a11y.focusableCount}</span>
-													</div>
-												{/snippet}
-											</Tooltip.Trigger>
-											<Tooltip.Content side="left" sideOffset={4}>
-												Elements reachable via Tab key (links, buttons, inputs)
-											</Tooltip.Content>
-										</Tooltip.Root>
-									</Tooltip.Provider>
-									<Tooltip.Provider>
-										<Tooltip.Root delayDuration={200}>
-											<Tooltip.Trigger>
-												{#snippet child({ props: tipProps })}
-													<div {...tipProps} class="flex cursor-help justify-between">
-														<span class="text-muted-foreground">Labeled</span>
-														<span class={cn('font-mono', stats.a11y.labeledCount < stats.a11y.focusableCount && 'text-amber-500')}>
+													<div {...tipProps} class="flex cursor-help items-center justify-between">
+														<div class="flex items-center gap-2">
+															<span class={cn('text-base leading-none', stats.a11y.focusableCount === stats.a11y.labeledCount ? 'text-emerald-500' : stats.a11y.unlabeled.length <= 2 ? 'text-amber-500' : 'text-red-500')}>●</span>
+															<span class="text-muted-foreground">Labels</span>
+														</div>
+														<span class={cn('font-mono font-medium', stats.a11y.labeledCount < stats.a11y.focusableCount && 'text-amber-500')}>
 															{stats.a11y.labeledCount}/{stats.a11y.focusableCount}
 														</span>
 													</div>
 												{/snippet}
 											</Tooltip.Trigger>
-											<Tooltip.Content side="left" sideOffset={4}>
-												Elements with aria-label, aria-labelledby, title, or associated label
+											<Tooltip.Content side="left" sideOffset={4} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">Interactive elements with accessible labels (aria-label, aria-labelledby, title, or associated label) out of total focusable elements.</p>
+													<p class="font-mono text-[10px] text-primary-foreground/70">🟢 All labeled · 🟡 ≤2 missing · 🔴 >2 missing</p>
+												</div>
 											</Tooltip.Content>
 										</Tooltip.Root>
 									</Tooltip.Provider>
-									<div class="flex justify-between">
-										<span class="text-muted-foreground">Buttons</span>
-										<span class="font-mono">{stats.a11y.buttonCount}</span>
-									</div>
-									<div class="flex justify-between">
-										<span class="text-muted-foreground">Links</span>
-										<span class="font-mono">{stats.a11y.linkCount}</span>
-									</div>
-									<div class="flex justify-between">
-										<span class="text-muted-foreground">Inputs</span>
-										<span class="font-mono">{stats.a11y.inputCount}</span>
-									</div>
 									<Tooltip.Provider>
 										<Tooltip.Root delayDuration={200}>
 											<Tooltip.Trigger>
 												{#snippet child({ props: tipProps })}
-													<div {...tipProps} class="flex cursor-help justify-between">
-														<span class="text-muted-foreground">Listeners</span>
-														<span class="font-mono">{stats.eventListenerCount}</span>
+													<div {...tipProps} class="flex cursor-help items-center justify-between">
+														<div class="flex items-center gap-2">
+															<span class={cn('text-base leading-none', stats.a11y.focusOrderIssues.length === 0 ? 'text-emerald-500' : 'text-red-500')}>●</span>
+															<span class="text-muted-foreground">Focus Order</span>
+														</div>
+														<span class={cn('font-mono font-medium', stats.a11y.focusOrderIssues.length > 0 && 'text-red-500')}>
+															{stats.a11y.focusOrderIssues.length === 0 ? 'OK' : `${stats.a11y.focusOrderIssues.length} issues`}
+														</span>
 													</div>
 												{/snippet}
 											</Tooltip.Trigger>
-											<Tooltip.Content side="left" sideOffset={4}>
-												Elements with inline event handlers (onclick, onkeydown, etc.)
+											<Tooltip.Content side="left" sideOffset={4} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">Elements with positive tabindex disrupt natural tab order. Use tabindex="0" or "-1" instead.</p>
+													<p class="font-mono text-[10px] text-primary-foreground/70">🟢 None · 🔴 Has positive tabindex</p>
+												</div>
 											</Tooltip.Content>
 										</Tooltip.Root>
 									</Tooltip.Provider>
+									<div class="grid grid-cols-3 gap-2 pt-1">
+										<Tooltip.Provider>
+											<Tooltip.Root delayDuration={200}>
+												<Tooltip.Trigger>
+													{#snippet child({ props: tipProps })}
+														<div {...tipProps} class="cursor-help">
+															<span class="text-muted-foreground">Buttons</span>
+															<div class="font-mono font-medium">{stats.a11y.buttonCount}</div>
+														</div>
+													{/snippet}
+												</Tooltip.Trigger>
+												<Tooltip.Content side="bottom" sideOffset={4}>
+													Button elements found in the component
+												</Tooltip.Content>
+											</Tooltip.Root>
+										</Tooltip.Provider>
+										<Tooltip.Provider>
+											<Tooltip.Root delayDuration={200}>
+												<Tooltip.Trigger>
+													{#snippet child({ props: tipProps })}
+														<div {...tipProps} class="cursor-help">
+															<span class="text-muted-foreground">Links</span>
+															<div class="font-mono font-medium">{stats.a11y.linkCount}</div>
+														</div>
+													{/snippet}
+												</Tooltip.Trigger>
+												<Tooltip.Content side="bottom" sideOffset={4}>
+													Anchor/link elements found in the component
+												</Tooltip.Content>
+											</Tooltip.Root>
+										</Tooltip.Provider>
+										<Tooltip.Provider>
+											<Tooltip.Root delayDuration={200}>
+												<Tooltip.Trigger>
+													{#snippet child({ props: tipProps })}
+														<div {...tipProps} class="cursor-help">
+															<span class="text-muted-foreground">Inputs</span>
+															<div class="font-mono font-medium">{stats.a11y.inputCount}</div>
+														</div>
+													{/snippet}
+												</Tooltip.Trigger>
+												<Tooltip.Content side="bottom" sideOffset={4}>
+													Form input elements found in the component
+												</Tooltip.Content>
+											</Tooltip.Root>
+										</Tooltip.Provider>
+									</div>
 								</div>
 
 								<!-- Roles -->
@@ -2101,20 +2713,26 @@ function isIconOption(option: Str): boolean {
 											<Tooltip.Root delayDuration={200}>
 												<Tooltip.Trigger>
 													{#snippet child({ props: tipProps })}
-														<span {...tipProps} class="cursor-help text-[10px] font-medium text-muted-foreground">
-															Headings ({stats.a11y.headings.length})
-															{#if stats.a11y.headingSkipsLevel}
-																<span class="text-amber-500"> — skips levels</span>
-															{/if}
-														</span>
+														<div {...tipProps} class="flex cursor-help items-center justify-between">
+															<div class="flex items-center gap-2">
+																<span class={cn('text-base leading-none', stats.a11y.headingSkipsLevel ? 'text-amber-500' : 'text-emerald-500')}>●</span>
+																<span class="text-[10px] font-medium text-muted-foreground">Headings ({stats.a11y.headings.length})</span>
+															</div>
+															<span class={cn('font-mono text-[10px] font-medium', stats.a11y.headingSkipsLevel ? 'text-amber-500' : 'text-emerald-500')}>
+																{stats.a11y.headingSkipsLevel ? 'Skips levels' : 'Sequential'}
+															</span>
+														</div>
 													{/snippet}
 												</Tooltip.Trigger>
-												<Tooltip.Content side="bottom" sideOffset={4}>
-													Heading hierarchy should be sequential (h1 → h2 → h3). Skipping levels confuses screen readers.
+												<Tooltip.Content side="bottom" sideOffset={4} class="max-w-[16rem] p-0">
+													<div class="space-y-1 px-3 py-2">
+														<p class="text-xs text-primary-foreground">Heading hierarchy should be sequential (h1 → h2 → h3). Skipping levels confuses screen readers.</p>
+														<p class="font-mono text-[10px] text-primary-foreground/70">🟢 Sequential · 🟡 Skips levels</p>
+													</div>
 												</Tooltip.Content>
 											</Tooltip.Root>
 										</Tooltip.Provider>
-										<div class="mt-0.5 space-y-0">
+										<div class="ml-6 mt-0.5 space-y-0">
 											{#each stats.a11y.headings.slice(0, 5) as heading (heading.text + heading.level)}
 												<div class="flex items-center gap-1 text-[10px]" style="padding-left: {(heading.level - 1) * 8}px">
 													<span class={cn('font-mono font-medium', stats.a11y.headingSkipsLevel ? 'text-amber-500' : 'text-muted-foreground')}>
@@ -2157,13 +2775,18 @@ function isIconOption(option: Str): boolean {
 										{/each}
 									</div>
 								{/if}
+								{/if}
 							</div>
 
 							<!-- Console messages -->
 							{#if stats.consoleMessages.length > 0}
 								<div class="border-t px-3 py-2">
-									<h4 class="mb-0.5 text-xs font-semibold">Console ({stats.consoleMessages.length})</h4>
-									<p class="mb-1 text-[10px] text-muted-foreground">Warnings and errors logged during component mount.</p>
+									<button type="button" class="flex w-full items-center gap-1" onclick={() => statsConsoleOpen = !statsConsoleOpen}>
+										<svelte:component this={statsConsoleOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+										<h4 class="text-xs font-semibold">Console ({stats.consoleMessages.length})</h4>
+									</button>
+									{#if statsConsoleOpen}
+									<p class="mb-1 mt-0.5 text-[10px] text-muted-foreground">Warnings and errors logged during component mount.</p>
 									<div class="max-h-20 space-y-0.5 overflow-auto">
 										{#each stats.consoleMessages.slice(0, 5) as msg (msg.message)}
 											<div class="flex items-start gap-1.5 text-[10px]">
@@ -2177,6 +2800,7 @@ function isIconOption(option: Str): boolean {
 											<span class="text-[10px] text-muted-foreground/60">…and {stats.consoleMessages.length - 5} more</span>
 										{/if}
 									</div>
+								{/if}
 								</div>
 							{/if}
 
@@ -2206,7 +2830,11 @@ function isIconOption(option: Str): boolean {
 									<Tooltip.Root delayDuration={200}>
 										<Tooltip.Trigger>
 											{#snippet child({ props: tipProps })}
-												<h4 {...tipProps} class="mb-1 cursor-help text-xs font-semibold">Prop Coverage</h4>
+												<button {...tipProps} type="button" class="flex w-full cursor-help items-center gap-1" onclick={() => statsPropCoverageOpen = !statsPropCoverageOpen}>
+													<svelte:component this={statsPropCoverageOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+													<h4 class="text-xs font-semibold">Prop Coverage</h4>
+													<span class="ml-auto font-mono text-xs text-muted-foreground">{stats.propsWithDefaults}/{stats.propsTotal}</span>
+												</button>
 											{/snippet}
 										</Tooltip.Trigger>
 										<Tooltip.Content side="left" sideOffset={4}>
@@ -2214,7 +2842,8 @@ function isIconOption(option: Str): boolean {
 										</Tooltip.Content>
 									</Tooltip.Root>
 								</Tooltip.Provider>
-								<div class="flex items-center gap-2 text-xs">
+								{#if statsPropCoverageOpen}
+								<div class="mt-1 flex items-center gap-2 text-xs">
 									<div class="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
 										<div
 											class="h-full rounded-full bg-emerald-500 transition-all"
@@ -2223,6 +2852,31 @@ function isIconOption(option: Str): boolean {
 									</div>
 									<span class="font-mono text-muted-foreground">{stats.propsWithDefaults}/{stats.propsTotal}</span>
 								</div>
+								{#if propsMeta.filter((p: PropMeta): Bool => p.default === '').length > 0}
+									<div class="mt-1.5 space-y-1">
+										{#if propsMeta.filter((p: PropMeta): Bool => p.default === '' && !p.optional).length > 0}
+											<div>
+												<span class="text-[10px] font-medium text-red-500">Required — no default:</span>
+												<div class="mt-0.5 flex flex-wrap gap-1">
+													{#each propsMeta.filter((p: PropMeta): Bool => p.default === '' && !p.optional) as prop (prop.name)}
+														<span class="rounded bg-red-500/10 px-1.5 py-0.5 font-mono text-[10px] text-red-600 dark:text-red-400">{prop.name}</span>
+													{/each}
+												</div>
+											</div>
+										{/if}
+										{#if propsMeta.filter((p: PropMeta): Bool => p.default === '' && !!p.optional).length > 0}
+											<div>
+												<span class="text-[10px] font-medium text-amber-500">Optional — no default:</span>
+												<div class="mt-0.5 flex flex-wrap gap-1">
+													{#each propsMeta.filter((p: PropMeta): Bool => p.default === '' && !!p.optional) as prop (prop.name)}
+														<span class="rounded bg-amber-500/10 px-1.5 py-0.5 font-mono text-[10px] text-amber-600 dark:text-amber-400">{prop.name}</span>
+													{/each}
+												</div>
+											</div>
+										{/if}
+									</div>
+								{/if}
+								{/if}
 							</div>
 						</Popover.Content>
 					</Popover.Root>
