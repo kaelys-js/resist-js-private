@@ -1838,11 +1838,17 @@ function startConsoleCapture(key: Str, container: HTMLDivElement): () => void {
 	function makeInterceptor(level: 'log' | 'info' | 'warn' | 'error' | 'debug', orig: (...args: unknown[]) => void): (...args: unknown[]) => void {
 		return (...args: unknown[]): void => {
 			const ts: Num = Math.round((performance.now() - mountTime) * 100) / 100;
+			let msg: Str = serializeArg(args[0]);
+			/* Count %c directives so we can skip the corresponding CSS style args */
+			const formatCount: Num = typeof args[0] === 'string' ? (args[0].match(/%c/g) ?? []).length : 0;
+			msg = msg.replaceAll('%c', '');
+			/* Skip the CSS style args that follow %c directives */
+			const detailArgs: unknown[] = args.slice(1 + formatCount);
 			pushConsoleLog(key, {
 				type: 'console',
 				level,
-				message: serializeArg(args[0]),
-				detail: args.length > 1 ? args.slice(1).map(serializeArg).join(' ') : '',
+				message: msg,
+				detail: detailArgs.length > 0 ? detailArgs.map(serializeArg).join(' ') : '',
 				ts,
 				source: '',
 			});
@@ -4119,7 +4125,7 @@ function isIconOption(option: Str): boolean {
 									<Terminal class="size-3.5" aria-hidden="true" />
 									{#if (cardConsoleLogs[cardKey] ?? []).length > 0}
 										<span class={cn(
-											'min-w-[1.25rem] rounded-full px-1 text-center font-mono text-[9px] font-bold leading-tight',
+											'inline-flex h-[0.875rem] min-w-[1.25rem] items-center justify-center rounded-full px-1 font-mono text-[9px] font-bold leading-none',
 											(cardConsoleLogs[cardKey] ?? []).some((l) => l.level === 'error') ? 'bg-red-500/20 text-red-500' : 'bg-muted-foreground/20 text-muted-foreground',
 										)}>
 											{(cardConsoleLogs[cardKey] ?? []).length > 99 ? '99+' : (cardConsoleLogs[cardKey] ?? []).length}
