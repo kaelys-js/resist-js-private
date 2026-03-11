@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Tooling Feedback Inbox
+# -------------------------------------------------------------------
+# Purpose: Capture developer feedback about CLI tools, automation, workflows, or environments.
+# Enterprise-ready, generic, and schema-compliant. Enables platform and DX teams to prioritize improvement work.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: tooling-feedback-inbox
+
+name: "📥 Tooling Feedback Inbox"
+description: Share feedback, pain points, or suggestions about dev tools, environments, or automation.
+title: "[Tooling Feedback]: "
+labels:
+  - tooling
+  - developer-experience
+  - feedback
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the reporter.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Tool or Surface (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: What’s the Tool or Area?
+      description: Identify the tool, script, CI step, repo, CLI, or environment you're commenting on.
+      placeholder: |
+        - Tool: biome  
+        - Context: formatting feedback in monorepos  
+        - Surface: `biome check` in pre-commit hook for apps/*
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Feedback (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Feedback or Suggestion
+      description: Describe what's great, frustrating, or confusing. Include workarounds if applicable.
+      placeholder: |
+        - Pain Point: Biome hangs on `*.svelte` files unless cache is cleared  
+        - Suggestion: Add clearer error messages for invalid config paths  
+        - Workaround: Restart IDE or run `biome clean` after rebasing
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Technical References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Link to Logs or Repos (Optional)
+      description: Add a link to related output, script, repo, or config file.
+      placeholder: |
+        - https://github.com/org/tooling-scripts/blob/main/setup.sh  
+        - .github/workflows/lint.yaml  
+        - CLI output or error trace
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Functional Severity
+      description: How much does this affect day-to-day work?
+      options:
+        - "Critical – blocking work or causing breakage"
+        - "High – slows teams or generates consistent friction"
+        - "Medium – annoying but tolerable"
+        - "Low – polish or UX improvement"
+      default: "Medium – annoying but tolerable"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be reviewed?
+      options:
+        - "Immediate – hotfix or regression"
+        - "High – address this sprint"
+        - "Medium – next cycle"
+        - "Low – log for backlog"
+      default: "Medium – next cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: What surface or audience does this affect?
+      options:
+        - "Org-wide – all engineers or CI pipelines"
+        - "Team-wide – local tooling or environments"
+        - "Single developer – edge case"
+        - "Unclear – needs validation"
+      default: "Team-wide – local tooling or environments"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Assign an overall priority for addressing this issue.
+      options:
+        - "P0 – top priority"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – low"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this is genuine and relevant.
+      options:
+        - label: This is constructive feedback or a real issue.
+        - label: I’m open to helping improve or test a solution.
+    validations:
+      required: true

@@ -1,0 +1,173 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Design System Contribution
+# -------------------------------------------------------------------
+# Purpose: Propose new components or updates to a shared design system.
+# Encourages reusable, accessible, and consistent UI across products.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: design-system-contribution
+
+name: "📐 Design System Contribution"
+description: Propose a new component or update to the shared design system.
+title: "[Design System]: "
+labels:
+  - design-system
+  - component
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the contributor.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Component Name
+  # --------------------------------------------------------------------
+  - type: input
+    id: component_name
+    attributes:
+      label: Component or Token Name
+      description: Suggest the name of the component or design token.
+      placeholder: "e.g., Dialog, Breadcrumb, spacing-xl"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Use Case (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use Case
+      description: What problem does this solve? Where is it needed?
+      placeholder: |
+        e.g., We need a breadcrumb to replace hardcoded nav structures in 3 apps.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Requirements (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Requirements
+      description: Functional, accessibility, platform or tech constraints.
+      placeholder: |
+        - Must work in mobile and web  
+        - Compliant with WCAG 2.1  
+        - Should support keyboard interaction and localization
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Design Reference (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: figma
+    attributes:
+      label: Figma or Design Reference
+      description: Link to design file or documentation.
+      placeholder: "e.g., https://figma.com/file/..."
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Discussions or Issues
+      description: Link to any internal discussions, prior implementations, or design tokens.
+      placeholder: "e.g., GitHub issue #456, Notion doc, internal usage audit"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What level of design inconsistency or need does this address?
+      options:
+        - "Critical – blocks accessibility or usage across apps"
+        - "High – affects multiple products or user journeys"
+        - "Medium – improvement or consolidation of UI"
+        - "Low – nice to have or stylistic refinement"
+      default: "Medium – improvement or consolidation of UI"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly is this needed?
+      options:
+        - "Immediate – required for launch or compliance"
+        - "High – needed in current cycle"
+        - "Medium – no strict deadline"
+        - "Low – explore or backlog"
+      default: "Medium – no strict deadline"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who benefits from this contribution?
+      options:
+        - "Org-wide – used across apps or platforms"
+        - "Team-wide – specific product team or surface"
+        - "Feature-level – localized UI need"
+        - "Unclear – exploration or draft"
+      default: "Team-wide – specific product team or surface"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: What priority should this be considered with?
+      options:
+        - "P0 – must include in current sprint"
+        - "P1 – high-priority UX debt"
+        - "P2 – normal roadmap proposal"
+        - "P3 – future evaluation"
+      default: "P2 – normal roadmap proposal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this request follows design system contribution guidelines.
+      options:
+        - label: I confirm this component follows the design system principles
+        - label: I will help maintain or document the component if accepted
+    validations:
+      required: true

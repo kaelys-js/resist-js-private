@@ -1,0 +1,154 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Compliance Checklist
+# -------------------------------------------------------------------
+# Purpose: Ensure a project, service, or release complies with legal, security,
+# privacy, and audit controls. Used pre-launch, post-change, or as part of audits.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: compliance-checklist
+
+name: "🧾 Compliance Checklist"
+description: Ensure a feature, release, or repo meets legal, security, and audit standards.
+title: "[Compliance]: "
+labels:
+  - compliance
+  - legal
+  - checklist
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person submitting this.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Compliance Checklist
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Compliance Requirements
+      description: Select all items that have been reviewed and completed.
+      options:
+        - label: All secrets stored in vault or GCP Secret Manager
+        - label: License headers are present and SPDX-compliant
+        - label: GDPR/CCPA user data flows documented
+        - label: Audit logs and access controls in place
+        - label: Data is region-compliant and tagged correctly
+        - label: Third-party dependencies reviewed and approved
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Notes or Exceptions
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes or Exceptions
+      description: List any risks, blockers, or items under review.
+      placeholder: |
+        e.g., Waiting on legal review for new vendor  
+        No PII processed in this service  
+        Open question around cookie duration in EU
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reviewer (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: reviewer
+    attributes:
+      label: Reviewed By (Compliance or Legal)
+      description: Who approved or is reviewing the checklist (if applicable)?
+      placeholder: "@reviewer-username"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How critical are the compliance obligations or gaps?
+      options:
+        - "Critical – blocking go-live or breach risk"
+        - "High – legal/compliance dependency before ship"
+        - "Medium – documentable or minor concern"
+        - "Low – informational or hygiene task"
+      default: "Medium – documentable or minor concern"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When must this be resolved?
+      options:
+        - "Immediate – legal or breach risk"
+        - "High – before milestone release"
+        - "Medium – by end of quarter"
+        - "Low – track for routine audit"
+      default: "High – before milestone release"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by the compliance review?
+      options:
+        - "Org-wide – regulatory or customer-wide exposure"
+        - "Team-wide – scoped to one service or product"
+        - "Feature-level – narrow technical change"
+        - "Unclear – needs clarification"
+      default: "Team-wide – scoped to one service or product"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Overall priority level for remediation or action.
+      options:
+        - "P0 – must resolve immediately"
+        - "P1 – resolve before launch"
+        - "P2 – track with other tech debt"
+        - "P3 – informational only"
+      default: "P2 – track with other tech debt"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm checklist completion and risk awareness.
+      options:
+        - label: I confirm this checklist was completed to the best of my knowledge
+        - label: I understand any exceptions must be approved before release
+    validations:
+      required: true

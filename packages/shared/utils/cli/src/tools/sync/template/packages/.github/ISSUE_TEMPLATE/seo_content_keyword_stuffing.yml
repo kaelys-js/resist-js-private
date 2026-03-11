@@ -1,0 +1,185 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Duplicate H1 Tags
+# -------------------------------------------------------------------
+# Purpose: Report instances where multiple <h1> tags exist on a single page,
+# which can harm SEO semantics and accessibility standards.
+# Built for platform-agnostic SEO/a11y/compliance auditing.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-duplicate-h1-tags
+
+name: "🔠 SEO Duplicate H1 Tags"
+description: Report multiple H1 tags used on a single page which may affect SEO structure or accessibility.
+title: "[SEO Duplicate H1 Tags]: "
+labels:
+  - seo
+  - headings
+  - accessibility
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contact of the person submitting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Duplicate Heading Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧩 Duplicate H1 Details  
+        Identify which pages are affected and explain the structural problem.
+
+  - type: textarea
+    id: duplicate_h1_details
+    attributes:
+      label: Duplicate H1 Details
+      description: Detail the affected URL(s), number of H1s found, and what the expected structure should be.
+      placeholder: |
+        - URL: /pricing  
+        - Found 3 `<h1>` tags (expected: 1)  
+        - Header, CTA block, and modal title all using <h1>  
+        - Should be: page title only in <h1>, others demoted to <h2>/<h3>
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help assess urgency and the scope of the semantic/SEO impact.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How should this be prioritized in the SEO and accessibility backlog?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How significant is the issue from a semantic and SEO standpoint?
+      options:
+        - "Critical – affects multiple templates or indexed pages"
+        - "High – affects high-traffic templates or core components"
+        - "Medium – single-page issue with accessibility/SEO warning"
+        - "Low – low-visibility or cosmetic impact"
+      default: "Medium – single-page issue with accessibility/SEO warning"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly should this be fixed?
+      options:
+        - "Critical – fix immediately"
+        - "High – fix this sprint"
+        - "Medium – fix in next 2 sprints"
+        - "Low – backlog for cleanup"
+      default: "Next cycle – backlog for cleanup"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: Who or what is affected by this issue?
+      options:
+        - "Org-wide – brand or compliance at risk"
+        - "Team-wide – affects core flows or reusable components"
+        - "Single page or template – localized issue"
+        - "Unclear – requires further audit"
+      default: "Team-wide – affects core flows or reusable components"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Evidence
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Validation  
+        Add HTML audits, crawler reports, or relevant discussions.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Add Lighthouse results, internal audits, issue links, or crawler screenshots.
+      placeholder: |
+        - Lighthouse accessibility warning for /signup  
+        - Screaming Frog export shows multiple <h1>  
+        - PR #1027 introduced duplicate structure  
+        - Cloudflare HTML snapshot or DOM capture
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Upload screenshots, source markup, or test output to support this issue.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste relevant HTML snippets, accessibility test output, or annotated screenshots.
+      placeholder: |
+        ```html
+        <h1>Pricing</h1>
+        <section>
+          <h1>Choose a Plan</h1>
+        </section>
+        <div class="modal">
+          <h1>Contact Sales</h1>
+        </div>
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that the duplicate H1 issue has been verified internally.
+      options:
+        - label: I confirm this duplicate H1 issue has been validated and is ready for triage.
+    validations:
+      required: true

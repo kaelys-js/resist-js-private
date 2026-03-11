@@ -1,0 +1,268 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: billing-issue-form
+
+name: "💳 Billing Issue"
+description: Report a billing or payment-related problem such as charges, refunds, subscription changes, or VAT issues.
+title: "[Billing] "
+labels:
+  - billing
+  - customer
+
+body:
+
+  # ------------------------------
+  # SECTION: System Metadata
+  # ------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person reporting the issue.
+      value: "@{{ github.actor }}"
+      placeholder: "@your-username"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Issue Summary
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧾 Account Info  
+        Provide key account and invoice details.
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Type of Billing Issue
+      description: Select the best match for this issue.
+      options:
+        - "Overcharge"
+        - "Invoice request"
+        - "Refund request"
+        - "Duplicate charge"
+        - "Subscription cancellation"
+        - "Payment method update"
+        - "Tax/VAT-related issue"
+        - "Other"
+      default: "Other"
+    validations:
+      required: true
+
+  - type: input
+    id: account-email
+    attributes:
+      label: Email Used for Billing
+      description: The email address associated with your billing account.
+      placeholder: "billing@example.com"
+    validations:
+      required: true
+
+  - type: input
+    id: company-name
+    attributes:
+      label: Company or Organization Name (optional)
+      placeholder: "e.g., Acme Corp"
+
+  - type: input
+    id: invoice-number
+    attributes:
+      label: Invoice Number (if available)
+      placeholder: "e.g., INV-2025-00123"
+
+  - type: input
+    id: internal-account-id
+    attributes:
+      label: Internal Account ID or Reference (if known)
+      placeholder: "e.g., ACC-00452 or CUST-1001"
+
+  # ------------------------------
+  # SECTION: Billing Plan Details
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 💸 Billing Plan & Details
+
+  - type: input
+    id: billing-plan
+    attributes:
+      label: Billing Plan or Tier
+      placeholder: "e.g., Enterprise, Pay-as-you-go, Trial"
+
+  - type: input
+    id: affected-product
+    attributes:
+      label: Product or Service Affected
+      placeholder: "e.g., API usage, mobile app, payment gateway"
+
+  - type: input
+    id: region
+    attributes:
+      label: Country or Billing Region
+      placeholder: "e.g., United States, Germany, Singapore"
+
+  - type: input
+    id: currency
+    attributes:
+      label: Currency Used
+      placeholder: "e.g., USD, EUR, GBP"
+
+  # ------------------------------
+  # SECTION: Issue Description
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📄 Describe the Problem
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Describe the Issue
+      description: Include relevant amounts, dates, and plan changes.
+      placeholder: |
+        e.g., Charged twice on May 28. Both charges were for the same plan.
+    validations:
+      required: true
+
+  - type: textarea
+    id: resolution
+    attributes:
+      label: What Outcome Are You Expecting?
+      placeholder: "e.g., Refund the duplicate charge, confirm cancellation."
+
+  - type: textarea
+    id: time-sensitive
+    attributes:
+      label: Is This Time-Sensitive?
+      placeholder: "e.g., Yes — the payment deadline is tomorrow."
+
+  # ------------------------------
+  # SECTION: Triage & Business Impact
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Priority & Severity  
+        This helps us triage your billing issue effectively.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this issue?
+      options:
+        - "Low – nice to have"
+        - "Medium – needs resolution soon"
+        - "High – blocking other actions"
+        - "Critical – affecting access or revenue"
+      default: "Medium – needs resolution soon"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What is the technical or operational impact?
+      options:
+        - "Minor – cosmetic or edge case"
+        - "Moderate – needs staff attention"
+        - "Major – billing process broken"
+        - "Critical – major financial/production impact"
+      default: "Moderate – needs staff attention"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon does this need to be resolved?
+      options:
+        - "Low – informational only"
+        - "Medium – affects upcoming billing"
+        - "High – deadline this week"
+        - "Critical – urgent financial issue"
+      default: "Medium – affects upcoming billing"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: Scope of the issue's effect.
+      options:
+        - "Single customer account"
+        - "Multiple subscriptions"
+        - "Department-wide"
+        - "Company-wide or revenue-impacting"
+      default: "Single customer account"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Contact & Traceability
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📬 Contact & Reference
+
+  - type: input
+    id: contact-preference
+    attributes:
+      label: Preferred Contact Method
+      placeholder: "e.g., billing@example.com"
+
+  - type: checkboxes
+    id: contact-consent
+    attributes:
+      label: Consent to Contact
+      options:
+        - label: I agree to be contacted about this billing issue.
+    validations:
+      required: true
+
+  - type: input
+    id: reference-id
+    attributes:
+      label: Internal Ticket or Case ID (if any)
+      placeholder: "e.g., ZD-2214, CASE-1023"
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Reference or Link
+      description: Link to related documentation, portal, or form submission.
+      placeholder: "e.g., https://example.com/billing-history"
+
+  # ------------------------------
+  # SECTION: Confirmation & Attachments
+  # ------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      options:
+        - label: I confirm all information is accurate and relevant to billing.
+    validations:
+      required: true
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Upload screenshots, PDFs, or receipts to help resolve the issue.
+      multiple: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ⏳ **Note:** Our billing team will review this as soon as possible.  
+        If the issue is time-sensitive, please ensure it's clearly marked above.

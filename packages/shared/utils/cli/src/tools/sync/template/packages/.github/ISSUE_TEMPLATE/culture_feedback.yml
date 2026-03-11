@@ -1,0 +1,124 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Anonymous Culture Feedback
+# -------------------------------------------------------------------
+# Purpose: Provide a private and respectful channel for confidential, org-wide or team-level cultural feedback.
+# Built for psychological safety and organizational learning. Form is intentionally minimal and anonymous-friendly.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: anonymous-culture-feedback
+
+name: "💬 Anonymous Culture Feedback"
+description: Confidentially raise team or org-level concerns or suggestions. This will be reviewed respectfully and privately.
+title: "[Culture Feedback]: "
+labels:
+  - culture
+  - feedback
+  - hr
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Feedback Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: What would you like to share?
+      description: Your thoughts, concerns, or observations. All submissions will be treated respectfully and confidentially.
+      placeholder: |
+        - I feel the team is lacking psychological safety during retros  
+        - Communication expectations across functions are unclear  
+        - I’ve noticed certain individuals dominate decision-making
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Suggestions or Supporting Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: What would help improve things?
+      description: If you have examples or ideas for how to improve the situation, share them here.
+      placeholder: |
+        - Consider anonymous retro inputs  
+        - Publish decision logs in a transparent location  
+        - Normalize time for async follow-up before finalizing big changes
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED, DEFAULTED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How serious or impactful is this concern?
+      options:
+        - "Critical – affects safety, retention, or trust"
+        - "High – repeated pattern with team/process impact"
+        - "Medium – occasional but notable issue"
+        - "Low – minor or early signal"
+      default: "Medium – occasional but notable issue"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be addressed?
+      options:
+        - "Immediate – active harm or escalation risk"
+        - "Soon – noticeable tension or impact"
+        - "Next cycle – track and review"
+        - "Not urgent – log for long-term improvement"
+      default: "Next cycle – track and review"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Organizational Impact
+      description: What scope does this concern affect?
+      options:
+        - "Org-wide – culture, trust, or systemic concern"
+        - "Team-wide – leadership, coordination, or morale"
+        - "Single project or moment – localized issue"
+        - "Unclear – needs exploration"
+      default: "Team-wide – leadership, coordination, or morale"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How should this feedback be prioritized in internal review?
+      options:
+        - "P0 – review immediately"
+        - "P1 – review this quarter"
+        - "P2 – monitor over time"
+        - "P3 – backlog for culture tracking"
+      default: "P2 – monitor over time"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confidentiality (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confidentiality
+      description: Please confirm this submission is made with good intent and will be treated privately.
+      options:
+        - label: I understand this will be reviewed confidentially and used only to improve team culture.
+    validations:
+      required: true

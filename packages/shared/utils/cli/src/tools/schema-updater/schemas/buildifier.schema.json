@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://resist.js/schemas/buildifier.schema.json",
+  "title": "Buildifier Configuration",
+  "description": "Configuration file for Buildifier Bazel/Starlark formatter (.buildifier.json)",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "Input file type",
+      "enum": ["auto", "build", "bzl", "workspace", "default", "module"],
+      "default": "auto"
+    },
+    "mode": {
+      "type": "string",
+      "description": "Formatting mode",
+      "enum": ["check", "diff", "fix", "print_if_changed"],
+      "default": "fix"
+    },
+    "lint": {
+      "type": "string",
+      "description": "Lint mode",
+      "enum": ["off", "warn", "fix"],
+      "default": "off"
+    },
+    "warnings": {
+      "type": "string",
+      "description": "Comma-separated list of warning identifiers to enable/disable",
+      "default": ""
+    },
+    "warningsList": {
+      "type": "array",
+      "description": "Warning identifiers as an array (alternative to warnings string)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "format": {
+      "type": "string",
+      "description": "Diagnostics output format",
+      "enum": ["text", "json"],
+      "default": "text"
+    },
+    "recursive": {
+      "type": "boolean",
+      "description": "Find Starlark files recursively in directories",
+      "default": false
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Output verbose diagnostics",
+      "default": false
+    },
+    "diffCommand": {
+      "type": "string",
+      "description": "Custom diff command",
+      "default": ""
+    },
+    "multiDiff": {
+      "type": "boolean",
+      "description": "Whether the diff command supports multiple files",
+      "default": false
+    },
+    "tables": {
+      "type": "string",
+      "description": "Path to JSON file with custom table definitions (replaces built-in tables)",
+      "default": ""
+    },
+    "addTables": {
+      "type": "string",
+      "description": "Path to JSON file with custom table definitions (merges with built-in tables)",
+      "default": ""
+    },
+    "path": {
+      "type": "string",
+      "description": "Assume the BUILD file has this path relative to the workspace directory",
+      "default": ""
+    },
+    "buildifier_disable": {
+      "type": "array",
+      "description": "List of buildifier rewrites to disable",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowsort": {
+      "type": "array",
+      "description": "Additional sort contexts to treat as safe for sorting",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

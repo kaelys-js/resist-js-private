@@ -1,0 +1,180 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: blocked-task-form
+
+name: "🚧 Blocked Task"
+description: Report a task or issue that is currently blocked.
+title: "[Blocked Task] "
+labels:
+  - blocked
+  - workflow
+
+body:
+
+  # ------------------------------
+  # SECTION: System Metadata
+  # ------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person reporting the block.
+      value: "@{{ github.actor }}"
+      placeholder: "@your-username"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Task Identification
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 Task Identification  
+        Identify the task or issue currently blocked.
+
+  - type: input
+    id: task
+    attributes:
+      label: Task or Issue
+      description: Provide the task reference (issue number, title, or brief description).
+      placeholder: "e.g., #456 or 'Set up CI pipeline for deployments'"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Triage & Priority
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help us understand the scope and urgency of the block.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severely does this block your work?
+      options:
+        - "Low – can work around"
+        - "Medium – delaying progress"
+        - "High – fully blocked"
+        - "Critical – blocking release or deployment"
+      default: "Medium – delaying progress"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is resolving this block?
+      options:
+        - "Low – background work"
+        - "Medium – sprint priority"
+        - "High – team blocker"
+        - "Critical – exec/launch-critical"
+      default: "Medium – sprint priority"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How time-sensitive is this issue?
+      options:
+        - "Low – informational"
+        - "Medium – blocking this sprint"
+        - "High – blocking milestone"
+        - "Critical – must unblock this week"
+      default: "Medium – blocking this sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: Scope of disruption caused by this block.
+      options:
+        - "Single developer affected"
+        - "Team-level blocker"
+        - "Multiple teams impacted"
+        - "Organization-wide impact"
+      default: "Team-level blocker"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Blocking Details
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚫 Blocking Details  
+        Describe what is causing the block and what’s needed to resolve it.
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Blocking Reason
+      description: Explain the blocker (e.g., external dependency, pending approval).
+      placeholder: |
+        e.g., Waiting for API approval or access to test credentials.
+    validations:
+      required: true
+
+  - type: textarea
+    id: help
+    attributes:
+      label: Required to Unblock
+      description: What action, resource, or support is needed to move forward?
+      placeholder: |
+        e.g., Resolution of failing dependency or review sign-off.
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Additional Context
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Additional Context
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context (Optional)
+      description: Any relevant info to help triage or assess downstream risk.
+      placeholder: "e.g., Blocking iOS submission or pre-release testing."
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or IDs
+      description: Add any related tickets, PRs, or docs.
+      placeholder: "e.g., PR #987, design doc, or internal tracking ID"
+
+  # ------------------------------
+  # SECTION: Confirmation & Uploads
+  # ------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that this issue has been reviewed and is valid.
+      options:
+        - label: I confirm this block is valid and team-acknowledged.
+    validations:
+      required: true
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Add screenshots, logs, configs, or any files that clarify the issue.
+      multiple: true

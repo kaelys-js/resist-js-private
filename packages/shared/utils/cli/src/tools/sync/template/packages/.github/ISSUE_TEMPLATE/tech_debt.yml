@@ -1,0 +1,179 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: technical-debt
+
+name: "🧱 Technical Debt"
+description: Log and track technical debt to improve long-term code health, reliability, and development velocity.
+labels:
+  - tech debt
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person reporting the technical debt.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Debt Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: title
+    attributes:
+      label: 📌 Summary
+      description: Short title summarizing the technical debt.
+      placeholder: "e.g., Hardcoded API Keys in Payment Service"
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: 🗂️ Affected Area
+      description: File(s), module(s), service(s), or function(s) where the issue exists.
+      placeholder: |
+        - services/payment/index.ts  
+        - modules/auth/hooks/useToken.ts  
+        - Dockerfile for staging image
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 🧠 Technical Debt Details
+      description: Describe what the debt is, how it came to exist, and any relevant history.
+      placeholder: |
+        - API keys are currently hardcoded into the service layer  
+        - This was introduced during a migration phase before secret storage was fully set up  
+        - Auth logic is duplicated across multiple modules
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: 🚨 Impact and Risks
+      description: Explain the consequences of not addressing this debt (e.g., reliability issues, security risk, dev velocity drag).
+      placeholder: |
+        - Possible leakage of secrets  
+        - Slows onboarding and testing due to fragile mocks  
+        - Contributes to flaky builds in CI/CD pipeline
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: remediation
+    attributes:
+      label: 🛠️ Suggested Remediation (Optional)
+      description: Outline possible solutions or fixes. Include technical paths, owners, or dependencies if known.
+      placeholder: |
+        - Migrate secrets to GCP Secret Manager  
+        - Consolidate token logic into a shared utility  
+        - Add type-safe wrapper for config access
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help assess urgency, risk, and remediation planning.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is resolving this debt?
+      options:
+        - Low – non-blocking cleanup
+        - Medium – affects velocity or reliability
+        - High – actively blocking team delivery
+        - Critical – urgent security or stability concern
+      default: Medium – affects velocity or reliability
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: Scope and seriousness of the technical debt.
+      options:
+        - Low – minor inefficiency or cosmetic
+        - Medium – affects DX or maintainability
+        - High – breaks patterns or causes duplication
+        - Critical – introduces instability, risk, or major slowdown
+      default: Medium – affects DX or maintainability
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon this should be addressed.
+      options:
+        - Low – backlog
+        - Medium – within next 2 sprints
+        - High – this sprint
+        - Critical – immediate follow-up required
+      default: Medium – within next 2 sprints
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by this technical debt?
+      options:
+        - Individual developer or single file
+        - Team or feature module
+        - Cross-team or shared code
+        - Production systems or customer-facing behavior
+      default: Team or feature module
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: 🔗 Related Issues or PRs
+      description: Link to related bug reports, design docs, past incidents, or source code.
+      placeholder: "e.g., GitHub issue #101, PR #204, doc/architecture.md"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: 📎 Upload Supporting Files (Optional)
+      description: Add logs, screenshots, diagrams, or related artifacts.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm the accuracy and relevance of this report.
+      options:
+        - label: I have described the debt clearly and explained its impact
+        - label: I understand this issue may be reviewed, grouped, or reprioritized based on team planning
+    validations:
+      required: true

@@ -1,0 +1,154 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Optimization Request
+# -------------------------------------------------------------------
+# Purpose: Allow anyone to submit an SEO improvement opportunity for content, metadata, technical fixes, or structured data enhancements.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-optimization-request
+
+name: "🔎 SEO Optimization Request"
+description: Propose a change to improve site SEO or discoverability.
+title: "[SEO Optimization]: "
+labels:
+  - seo
+  - marketing
+  - docs
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the person submitting this request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe the issue or proposed SEO improvement.
+      placeholder: |
+        - Meta description missing on /pricing  
+        - Duplicate H1 on blog template  
+        - Add FAQ schema to /docs/getting-started  
+        - Canonical tag mismatch for multilingual docs
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context or Details (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Details or Background
+      description: Add relevant technical context, business goal, timeline, or user impact.
+      placeholder: |
+        - Detected via Ahrefs crawl  
+        - Impacts featured snippets  
+        - Customer complaint about /docs not appearing in Google  
+        - Timeline: fix by end of sprint for launch alignment
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Related References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Accounts
+      description: Link to pages, tools, or dashboards that highlight the issue.
+      placeholder: |
+        - https://ahrefs.com/site-audit  
+        - https://web.dev/measure  
+        - https://example.com/docs/page-with-issue
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: SEO Severity
+      description: How impactful is this issue on organic visibility or ranking?
+      options:
+        - "Critical – SEO penalty or major visibility loss"
+        - "High – impacts ranking or CTR significantly"
+        - "Medium – standard opportunity or hygiene"
+        - "Low – nice to have or edge case"
+      default: "Medium – standard opportunity or hygiene"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be resolved?
+      options:
+        - "Immediate – blocking upcoming launch or press"
+        - "High – resolve this sprint"
+        - "Medium – this quarter"
+        - "Low – backlog or async"
+      default: "Medium – this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What aspect of the business does this affect?
+      options:
+        - "Org-wide – traffic, visibility, brand perception"
+        - "Team-level – docs, blog, marketing site"
+        - "Customer – user trust or discoverability"
+        - "Unclear – needs review"
+      default: "Team-level – docs, blog, marketing site"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Suggested Priority
+      description: Use this to guide triage across SEO/infra/content teams.
+      options:
+        - "P0 – fix immediately"
+        - "P1 – fix this sprint"
+        - "P2 – triage for roadmap"
+        - "P3 – backlog"
+      default: "P2 – triage for roadmap"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that the report is accurate and actionable.
+      options:
+        - label: I confirm this information is accurate and complete.
+        - label: I understand this may be reviewed by success, legal, finance, or engineering teams.
+    validations:
+      required: true

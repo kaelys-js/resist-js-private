@@ -1,0 +1,215 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: api-change-proposal-form
+
+name: "🔁 API Change Proposal"
+description: Propose a change to a public or internal API with full context and impact analysis.
+title: "[API Proposal] "
+labels:
+  - api
+  - enhancement
+
+body:
+
+  # ------------------------------
+  # SECTION: System Metadata
+  # ------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the submitter (auto-filled).
+      value: "@{{ github.actor }}"
+      placeholder: "@your-username"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Summary
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧾 Summary  
+        Provide a short summary of the API change being proposed.
+
+  - type: input
+    id: title
+    attributes:
+      label: API Change Summary
+      description: One-line description of the change.
+      placeholder: "e.g., Add `timeout` parameter to `GET /fetch`"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Triage & Impact
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Indicate urgency, disruption, and importance of this change.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Strategic urgency or business value.
+      options:
+        - "Low – minor improvement"
+        - "Medium – useful enhancement"
+        - "High – enables key functionality"
+        - "Critical – unblock or regulatory need"
+      default: "Medium – useful enhancement"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: Level of risk or breakage caused by the change.
+      options:
+        - "Minor – edge case or workaround exists"
+        - "Moderate – breaks internal use or SDK"
+        - "Major – breaks public integration"
+        - "Critical – causes production failure"
+      default: "Moderate – breaks internal use or SDK"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly the change needs to be delivered.
+      options:
+        - "Low – future consideration"
+        - "Medium – this quarter"
+        - "High – within next sprint"
+        - "Critical – immediately required"
+      default: "Medium – this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: Who or what is affected by this proposal?
+      options:
+        - "Single team or service"
+        - "Multiple teams or SDKs"
+        - "Cross-platform or app-wide"
+        - "System-wide or external partners"
+      default: "Single team or service"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: API Behavior
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 API Behavior (Before & After)  
+        Describe what the API does now and what is being proposed.
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Current API Behavior
+      description: Existing behavior, request/response structure, endpoints, etc.
+      placeholder: |
+        e.g., `GET /users` returns all users in a single unpaginated response.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Proposed Change
+      description: Describe new parameters, schema changes, or endpoint behavior.
+      placeholder: |
+        e.g., Add `limit` and `offset` query parameters to `GET /users` for pagination.
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Risks & Rationale
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ Risks & Motivation  
+        Outline technical risks and business or technical motivation.
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Potential Impact
+      description: Describe migration needs, compatibility risks, and rollout concerns.
+      placeholder: |
+        e.g., Clients using default behavior will remain unaffected.
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale or Motivation
+      description: Why is this change important? (e.g., DX, performance, security, compliance)
+      placeholder: |
+        e.g., Enables pagination to reduce response size and improve performance.
+
+  # ------------------------------
+  # SECTION: Operational Considerations
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔍 Operational Considerations  
+        Highlight implementation details that affect operations, infra, or tooling.
+
+  - type: textarea
+    id: considerations
+    attributes:
+      label: Operational Notes
+      description: Versioning, rate limits, monitoring, metrics, deployment plans, etc.
+      placeholder: |
+        e.g., Requires a new `v3` version; observability tags must be updated.
+
+  # ------------------------------
+  # SECTION: References & Confirmation
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Confirmation  
+        Link related discussions or documents and confirm the impact has been reviewed.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Docs
+      description: Supporting references like design docs, implementation notes, or tickets.
+      placeholder: "e.g., Design Doc #123, https://github.com/org/repo/discussions/456"
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm you’ve reviewed downstream effects and client impact.
+      options:
+        - label: I have reviewed backwards compatibility, risks, and rollout considerations.
+    validations:
+      required: true
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Include OpenAPI specs, JSON payloads, visual diagrams, or logs.
+      multiple: true

@@ -1,0 +1,155 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Pricing Plan Feedback
+# -------------------------------------------------------------------
+# Purpose: Collect structured, verifiable pricing feedback tied to customer sentiment,
+# use cases, or plan-level friction. Enterprise-ready and tool-agnostic.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: pricing-plan-feedback
+
+name: "📋 Pricing Plan Feedback"
+description: Capture customer feedback about pricing tiers, perceived value, or plan limitations.
+title: "[Pricing Feedback]: "
+labels:
+  - pricing
+  - feedback
+  - billing
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the submitter.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Pricing Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Pricing Concern or Suggestion
+      description: What feedback was received about our pricing? Include direct quotes when possible.
+      placeholder: |
+        - "Starter plan is too limited for serious prototyping"  
+        - "We hit rate limits in the first week — consider tiered usage"  
+        - "Not clear what’s included in ‘support’ on the Pro plan"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Use Case & Plan Friction (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Use Case or Friction Point
+      description: What plan were they on? What use case or product feature triggered the concern?
+      placeholder: |
+        - Customer was on Starter  
+        - Use case: rapid onboarding of 30+ developers  
+        - Feature constraint: account-level project cap hit at 5  
+        - Impact: blocked internal testing of core app
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Source Reference (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Customer Link or Feedback Source
+      description: Add link to support ticket, Gong call, community thread, or CRM.
+      placeholder: |
+        - Zendesk #43210  
+        - Discord #pricing thread  
+        - Gong call ID: 98FDX23  
+        - Salesforce opportunity note
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Evaluation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How serious is the issue in terms of friction or sales risk?
+      options:
+        - "Critical – blocker or dealbreaker on paid plan"
+        - "High – major friction or downgrade trigger"
+        - "Medium – confusion or feature limitation"
+        - "Low – mild concern or curiosity"
+      default: "Medium – confusion or feature limitation"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be reviewed by the team?
+      options:
+        - "Immediate – active renewal or sales concern"
+        - "High – this sprint"
+        - "Medium – next cycle"
+        - "Low – backlog"
+      default: "Medium – next cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What level of business visibility or revenue influence does this carry?
+      options:
+        - "Org-wide – broad pricing perception issue"
+        - "Team-wide – affects product-market fit or conversions"
+        - "Single customer – case-by-case"
+        - "Unclear – needs follow-up"
+      default: "Team-wide – affects product-market fit or conversions"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Set a priority level for review or pricing backlog triage.
+      options:
+        - "P0 – top priority"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – low"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm the feedback is legitimate and has been shared with appropriate teams.
+      options:
+        - label: This is verifiable customer or user feedback.
+        - label: I’ve tagged pricing, product, or sales teams as needed.
+    validations:
+      required: true

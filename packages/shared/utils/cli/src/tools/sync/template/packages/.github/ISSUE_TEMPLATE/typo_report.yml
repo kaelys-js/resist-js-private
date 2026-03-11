@@ -1,0 +1,151 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: typo-formatting-error
+
+name: "✏️ Typo or Formatting Error"
+description: Report a typo, grammatical mistake, or formatting issue in code, documentation, or UI.
+labels:
+  - typo
+  - documentation
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person reporting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Issue Location & Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: location
+    attributes:
+      label: 📍 Location
+      description: File path and line number, or UI/screen where the issue appears.
+      placeholder: "e.g., `src/lib/utils/formatDate.ts`, line 12 or 'Settings screen'"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: ✏️ Issue Description
+      description: Describe the typo, grammar mistake, or formatting issue. Include the incorrect and correct versions if known.
+      placeholder: |
+        Incorrect: "recieve"  
+        Correct: "receive"  
+        Found in tooltip on Settings screen.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: ℹ️ Context (Optional)
+      description: Add browser/device/language info, how it was found, or related notes.
+      placeholder: "e.g., Found in the Android app, English locale, using Sentry onboarding guide."
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help prioritize and route the fix appropriately.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance of correcting this typo or formatting issue.
+      options:
+        - Low – minor or cosmetic
+        - Medium – affects clarity or translation accuracy
+        - High – visible to end users, impacts trust
+        - Critical – security, legal, or brand-sensitive copy
+      default: Medium – affects clarity or translation accuracy
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How technically disruptive or misleading is this?
+      options:
+        - Low – not user-visible
+        - Medium – visible but non-blocking
+        - High – misleads users or affects functionality
+        - Critical – breaks rendering or legal meaning
+      default: Medium – visible but non-blocking
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly should this be addressed?
+      options:
+        - Low – future backlog
+        - Medium – next sprint
+        - High – this sprint
+        - Critical – fix immediately
+      default: Medium – next sprint
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who is affected by this typo or formatting error?
+      options:
+        - Developers only
+        - Internal users or docs
+        - End users or customers
+        - All user-facing platforms
+      default: End users or customers
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: 🔗 Related Issues or Sources
+      description: Link to relevant PRs, documentation pages, UI screenshots, or prior fixes.
+      placeholder: "e.g., GitHub issue #12, README.md, App Store copy"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: 📎 Upload Screenshot or Snippet (Optional)
+      description: Attach screenshots or copied UI text that clearly shows the issue.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Reporter Confirmation
+      description: Confirm this is a real issue and not stylistic preference.
+      options:
+        - label: I have confirmed this is a typo, grammar error, or formatting inconsistency
+        - label: I understand this issue may be prioritized based on visibility and impact
+    validations:
+      required: true

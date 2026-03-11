@@ -1,0 +1,151 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: System Freeze Request
+# -------------------------------------------------------------------
+# Purpose: Used to coordinate and track scheduled freeze periods across deployments or infrastructure.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: system-freeze-request
+
+name: "⏹ System Freeze Request"
+description: Request a freeze for deploys, migrations, or changes.
+title: "[System Freeze]: "
+labels:
+  - ops
+  - freeze
+  - release
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or person coordinating the freeze.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary and Scope
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What services, environments, or actions are affected by this freeze?
+      placeholder: |
+        - Affects all production deploys to US and EU clusters  
+        - Scope includes backend services and data pipelines  
+        - Reason: Black Friday traffic surge
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context and Timing
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Details or Background
+      description: Explain the timing, reason, risk level, related events, and duration of the freeze.
+      placeholder: |
+        - Freeze begins: Dec 20, 2025 @ 10:00 UTC  
+        - Freeze ends: Jan 2, 2026 @ 18:00 UTC  
+        - Reason: End-of-year stability period + compliance review  
+        - Risk: Prevent accidental deploys to customer-facing infrastructure  
+        - Related: SOC2 audit, feature embargo
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Docs
+      description: Add calendars, incident reports, RFCs, or dashboards.
+      placeholder: "e.g., incident #123, freeze calendar, compliance policy doc"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Risk Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Risk Level
+      description: What is the potential risk if a change occurs during the freeze?
+      options:
+        - "Critical – user impact or system outage possible"
+        - "High – loss of telemetry, incorrect usage metering, alerts"
+        - "Medium – user confusion or degraded reliability"
+        - "Low – internal annoyance or noise"
+      default: "High – loss of telemetry, incorrect usage metering, alerts"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Time Sensitivity
+      description: How urgent is this freeze request?
+      options:
+        - "Immediate – unplanned incident containment"
+        - "High – scheduled deployment freeze (next 7 days)"
+        - "Medium – part of known release process"
+        - "Low – advanced planning or doc-only"
+      default: "Medium – part of known release process"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Scope
+      description: What teams or systems are affected?
+      options:
+        - "Org-wide – global infra or user-facing systems"
+        - "Platform – CI/CD, observability, or infra deploy tooling"
+        - "Product – app-facing or service-specific systems"
+        - "Team-local – non-prod environments"
+      default: "Org-wide – global infra or user-facing systems"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Recommended visibility level for coordination.
+      options:
+        - "P0 – requires company-wide awareness"
+        - "P1 – notify engineering leads"
+        - "P2 – async team documentation"
+        - "P3 – low-impact, informational"
+      default: "P1 – notify engineering leads"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm readiness and coordination.
+      options:
+        - label: I confirm this freeze request is coordinated with affected teams.
+        - label: I have communicated rollback and escalation plans.
+    validations:
+      required: true

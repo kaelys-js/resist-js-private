@@ -1,0 +1,178 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Link Toxicity Alert
+# -------------------------------------------------------------------
+# Purpose: Report a surge in spammy or toxic backlinks that may pose a risk
+# to SEO health or require disavowal. Supports platform-agnostic workflows.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-link-toxicity-alert
+
+name: "🚨 SEO Link Toxicity Alert"
+description: Report a sudden influx of toxic backlinks or spam domains that may harm SEO.
+title: "[SEO Link Toxicity Alert]: "
+labels:
+  - seo
+  - backlinks
+  - disavow
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contact of the person reporting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Link Toxicity Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧨 Toxic Link Details  
+        Describe the source, nature, and timeline of suspicious links.
+
+  - type: textarea
+    id: toxic_link_details
+    attributes:
+      label: Toxic Link Details
+      description: Provide detail on domains, anchor text, velocity, or unusual linking patterns.
+      placeholder: |
+        - Spike in backlinks from low-quality directories  
+        - Repeated anchor text with irrelevant keywords  
+        - Referring domain: spamdomain.xyz  
+        - Sudden increase on 2025-06-01 across .info domains
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help us assess risk and resolution urgency for SEO and reputation management.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: What is the response priority based on risk?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How technically severe is the backlink spike or toxicity?
+      options:
+        - "Critical – high-volume attack or SEO rank loss"
+        - "High – widespread spam domains across keywords"
+        - "Medium – contained to non-core content"
+        - "Low – few low-impact domains or alerts"
+      default: "Medium – contained to non-core content"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be mitigated or reviewed?
+      options:
+        - "Critical – immediate action required"
+        - "High – within current sprint"
+        - "Medium – next 2 sprints"
+        - "Low – future cycle or monitoring"
+      default: "Next cycle – future cycle or monitoring"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What business scope or surface is impacted?
+      options:
+        - "Org-wide – potential domain-wide penalty risk"
+        - "Team-wide – impacts tracked keywords or sections"
+        - "Single user or page – isolated visibility issue"
+        - "Unclear – needs analysis"
+      default: "Team-wide – impacts tracked keywords or sections"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Monitoring Tools
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Evidence  
+        Include exports or dashboard links from backlink monitoring tools.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Links to tools (e.g. Ahrefs, GSC, Semrush), spreadsheets, or audit notes.
+      placeholder: |
+        - https://search.google.com/search-console  
+        - Ahrefs backlink audit (PDF export)  
+        - Domain pattern match in disavow planning sheet
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Add evidence of link spikes, audit exports, CSVs, or screenshots.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste or link to exported files, charts, or raw backlink logs.
+      placeholder: |
+        ```csv
+        Domain,Anchor,Date Detected
+        spamdomain.xyz,"free download",2025-06-01
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that this issue has been reviewed and is actionable.
+      options:
+        - label: I confirm this backlink anomaly has been validated and poses potential SEO risk.
+    validations:
+      required: true

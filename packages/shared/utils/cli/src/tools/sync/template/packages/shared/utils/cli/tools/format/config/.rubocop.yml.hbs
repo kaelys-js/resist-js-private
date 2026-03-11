@@ -1,0 +1,134 @@
+{{syncHeader "#" "https://docs.rubocop.org/rubocop"}}
+
+# yaml-language-server: $schema={{schemaPath 'tooling/rubocop'}}
+
+plugins: []
+
+AllCops:
+  TargetRubyVersion: 3.4
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - 'vendor/**/*'
+    - 'node_modules/**/*'
+    - 'tmp/**/*'
+    - 'log/**/*'
+    - 'db/schema.rb'
+    - 'bin/*'
+    - '.git/**/*'
+
+# Disable non-formatting cops — this config is used by the format CLI tool,
+# which should only handle whitespace/layout, not semantic code changes.
+Style:
+  Enabled: false
+
+Naming:
+  Enabled: false
+
+Metrics:
+  Enabled: false
+
+Lint:
+  Enabled: false
+
+Bundler:
+  Enabled: false
+
+Gemspec:
+  Enabled: false
+
+Security:
+  Enabled: false
+
+# =============================================================================
+# Layout (Formatting)
+# =============================================================================
+
+Layout/LineLength:
+  Max: {{ format.global.line_length }}
+  AllowedPatterns:
+    - '^\s*#'
+    - 'https?://'
+
+Layout/IndentationWidth:
+  Width: {{ format.alternate.indent_size }}
+
+Layout/IndentationStyle:
+  EnforcedStyle: spaces
+
+Layout/IndentationConsistency:
+  EnforcedStyle: normal
+
+Layout/EndOfLine:
+  EnforcedStyle: lf
+
+Layout/TrailingEmptyLines:
+  EnforcedStyle: final_newline
+
+Layout/TrailingWhitespace:
+  Enabled: true
+
+Layout/LeadingCommentSpace:
+  Enabled: true
+
+Layout/EmptyLines:
+  Enabled: true
+
+Layout/EmptyLinesAroundBlockBody:
+  EnforcedStyle: no_empty_lines
+
+Layout/EmptyLinesAroundClassBody:
+  EnforcedStyle: no_empty_lines
+
+Layout/EmptyLinesAroundModuleBody:
+  EnforcedStyle: no_empty_lines
+
+Layout/EmptyLineBetweenDefs:
+  NumberOfEmptyLines: 1
+  AllowAdjacentOneLineDefs: true
+
+Layout/ExtraSpacing:
+  AllowForAlignment: true
+  AllowBeforeTrailingComments: true
+  ForceEqualSignAlignment: false
+
+Layout/SpaceAfterComma:
+  Enabled: true
+
+Layout/SpaceAroundEqualsInParameterDefault:
+  EnforcedStyle: space
+
+Layout/SpaceAroundOperators:
+  Enabled: true
+  AllowForAlignment: true
+
+Layout/SpaceBeforeBlockBraces:
+  EnforcedStyle: space
+  EnforcedStyleForEmptyBraces: space
+
+Layout/SpaceInsideBlockBraces:
+  EnforcedStyle: space
+  EnforcedStyleForEmptyBraces: no_space
+  SpaceBeforeBlockParameters: true
+
+Layout/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: space
+  EnforcedStyleForEmptyBraces: no_space
+
+Layout/SpaceInsideArrayLiteralBrackets:
+  EnforcedStyle: no_space
+
+Layout/SpaceInsideParens:
+  EnforcedStyle: no_space
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/MultilineOperationIndentation:
+  EnforcedStyle: indented
+
+Layout/DotPosition:
+  EnforcedStyle: leading
+
+Layout/AccessModifierIndentation:
+  EnforcedStyle: indent

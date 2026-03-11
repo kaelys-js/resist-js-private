@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Customer Offboarding Log
+# -------------------------------------------------------------------
+# Purpose: Log and document churned or canceled customers with structured insights to support CS, product, marketing, and finance teams.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: customer-offboarding-log
+
+name: "📤 Customer Offboarding Log"
+description: Track customer departures and exit reasons.
+title: "[Offboarding]: "
+labels:
+  - customer
+  - offboarding
+  - churn
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the person submitting the log.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Customer Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Customer Name / Org
+      description: Name of the customer and their plan or SKU before offboarding.
+      placeholder: |
+        - Customer: Acme Corp  
+        - Plan: Enterprise – Annual  
+        - Product: Platform + Analytics
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Departure Reason (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Offboarding Context
+      description: Reason for leaving, complaints, product gaps, usage drop, or support friction.
+      placeholder: |
+        - Reason: Switched to internal solution  
+        - NPS: 5 → 2 in last 3 months  
+        - Usage: Dropped by 80% post-Q1  
+        - Offboarding: Canceled via Stripe, final invoice sent
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference Materials (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: CRM or Account Link
+      description: Link to CRM, support thread, invoice, dashboard, etc.
+      placeholder: |
+        - https://hubspot.com/accounts/acme  
+        - https://stripe.com/customers/cus_123abc  
+        - https://internal-dashboard/accounts/321
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Strategic Impact
+      description: How critical is this account from a GTM, retention, or ARR perspective?
+      options:
+        - "Critical – major logo or strategic loss"
+        - "High – significant ARR or high-usage team"
+        - "Medium – standard plan or engagement"
+        - "Low – trial, sandbox, or small usage"
+      default: "Medium – standard plan or engagement"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Time Sensitivity
+      description: Is this related to a live issue, refund, or compliance requirement?
+      options:
+        - "Immediate – financial/legal action needed"
+        - "High – needs processing this week"
+        - "Medium – standard churn log"
+        - "Low – async or retrospective"
+      default: "Medium – standard churn log"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Internal Impact
+      description: Who else does this offboarding affect?
+      options:
+        - "Org-wide – revenue, brand, product signals"
+        - "Department-level – CS, product, support"
+        - "Team-level – isolated usage"
+        - "Unclear – still investigating"
+      default: "Department-level – CS, product, support"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Follow-Up Priority
+      description: Suggested priority for post-mortem, product review, or outreach.
+      options:
+        - "P0 – requires exec/PM review"
+        - "P1 – include in QBR/post-mortem"
+        - "P2 – log and track trend"
+        - "P3 – archival only"
+      default: "P2 – log and track trend"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm offboarding steps are completed or coordinated.
+      options:
+        - label: I have verified this customer has churned or canceled.
+        - label: I have notified finance, success, or engineering as needed.
+    validations:
+      required: true

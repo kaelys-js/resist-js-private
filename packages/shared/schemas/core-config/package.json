@@ -1,0 +1,15 @@
+{
+  "name": "@/schemas/core-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "qa:test": "vitest run",
+    "qa:test:unit": "vitest run",
+    "qa:test:coverage": "vitest run --coverage",
+    "qa:benchmark": "vitest bench",
+    "qa:type-check": "tsc --noEmit",
+    "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
+  }
+}

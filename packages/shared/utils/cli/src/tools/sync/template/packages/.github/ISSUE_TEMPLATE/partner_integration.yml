@@ -1,0 +1,155 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Partner Integration Request
+# -------------------------------------------------------------------
+# Purpose: Propose new BD, technical, or co-marketing integrations based on customer demand, ecosystem gaps, or growth opportunities.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: partner-integration-request
+
+name: "🧩 Partner Integration Request"
+description: Suggest a new technical or BD integration.
+title: "[Integration Request]: "
+labels:
+  - integration
+  - partnership
+  - business
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the requester.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Partner Overview (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Partner Name
+      description: Name of the company, platform, or ecosystem partner.
+      placeholder: |
+        - Zapier  
+        - Shopify  
+        - Segment  
+        - Datadog  
+        - Industry org: Cloud Native Foundation
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Use Case or Value (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Customer Demand / Use Case
+      description: Why should we integrate with them? Include GTM opportunity, customer requests, co-marketing potential, or infra fit.
+      placeholder: |
+        - Requested by 3 enterprise customers for workflow automation  
+        - Allows easy sync between our webhooks and their triggers  
+        - Segment integration would reduce SDK footprint  
+        - Partner open to co-launch blog + webinar
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference Materials (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Link to Integration Page or Contact
+      description: Add BD contact, product page, ecosystem doc, or a request from a customer.
+      placeholder: |
+        - https://segment.com/docs/integrations  
+        - BD contact: partner@acme.com  
+        - https://github.com/acme/integrations-sdk
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Depth
+      description: How much engineering work would this likely involve?
+      options:
+        - "Critical – core platform or auth dependency"
+        - "High – SDK or backend feature work"
+        - "Medium – plugin, webhook, or adapter"
+        - "Low – outbound link, config, or doc-level"
+      default: "Medium – plugin, webhook, or adapter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When do we need this considered or delivered?
+      options:
+        - "Immediate – tied to deal or campaign"
+        - "High – QBR or upcoming sprint"
+        - "Medium – planning this quarter"
+        - "Low – future or exploratory"
+      default: "Medium – planning this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Ecosystem Impact
+      description: What teams or users would this benefit?
+      options:
+        - "Org-wide – cross-platform growth or usage"
+        - "Department-level – specific team use cases"
+        - "Customer-requested – case-by-case enablement"
+        - "Unclear – exploration only"
+      default: "Customer-requested – case-by-case enablement"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Internal triage level for BD and product review.
+      options:
+        - "P0 – must land now"
+        - "P1 – important"
+        - "P2 – normal"
+        - "P3 – backlog"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that this is a valid, aligned integration suggestion.
+      options:
+        - label: This partner has technical or business alignment.
+        - label: I’ve documented what we’d build or why it matters.
+    validations:
+      required: true

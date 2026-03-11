@@ -1,0 +1,168 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Local Dev Environment Issue
+# -------------------------------------------------------------------
+# Purpose: Report issues with local setup, toolchain config, or environment-specific problems.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: local-dev-env-issue
+
+name: "💻 Local Dev Environment Issue"
+description: Problems with setting up or using the project locally.
+title: "[Dev Setup Issue]: "
+labels:
+  - setup
+  - local-env
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this form.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Brief summary of the issue or failure encountered.
+      placeholder: |
+        e.g., `bun install` fails due to missing permissions  
+        e.g., Docker build fails with missing `.env`  
+        e.g., Biome fails to run after switching to Node 20
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Details
+      description: Include tools, environments, commands run, OS, and any variations tried.
+      placeholder: |
+        - macOS 14.3, bun 1.1.2, GCP creds via gcloud CLI  
+        - Docker + SvelteKit fails with missing volume mount  
+        - Using VS Code devcontainer  
+        - Local runs fine but GitHub Codespaces fails setup
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Link to any related documentation, logs, PRs, or historical issues.
+      placeholder: "e.g., GitHub issue #101, https://docs.example.com"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Logs or Screenshots (Optional)
+      description: Add logs, terminal output, screenshots, or error stack traces.
+      placeholder: |
+        ```bash
+        Error: Module not found: Cannot resolve 'valibot/config'  
+        ```
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severely this affects local development or onboarding.
+      options:
+        - "Critical – completely blocked from developing"
+        - "High – setup works inconsistently or partially"
+        - "Medium – workaround available"
+        - "Low – cosmetic or minor tooling issue"
+      default: "Medium – workaround available"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon this needs resolution.
+      options:
+        - "Immediate – critical onboarding or productivity issue"
+        - "High – blocks planned work"
+        - "Medium – fix within this cycle"
+        - "Low – triage later"
+      default: "High – blocks planned work"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who is affected by this issue?
+      options:
+        - "All contributors – universal setup path broken"
+        - "Mac/Linux only – OS-specific issue"
+        - "New contributors – onboarding scripts/tools"
+        - "Edge cases – unusual setup or overrides"
+        - "Unclear – needs review"
+      default: "New contributors – onboarding scripts/tools"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Prioritize this for engineering triage.
+      options:
+        - "P0 – must fix now"
+        - "P1 – high priority"
+        - "P2 – normal triage"
+        - "P3 – backlog or future improvement"
+      default: "P2 – normal triage"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Ensure the issue is unique and actionable.
+      options:
+        - label: I have reviewed existing issues to avoid duplication.
+        - label: I have included enough detail to support triage and review.
+    validations:
+      required: true

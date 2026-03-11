@@ -1,0 +1,151 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Behavioral Test Case Request
+# -------------------------------------------------------------------
+# Purpose: Capture high-impact behavioral test cases from product, QA, or dev contributors
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: behavioral-test-case-request
+
+name: "🔍 Behavioral Test Case Request"
+description: Suggest a user-facing scenario to guide test coverage and behavior verification.
+title: "[Test Case]: "
+labels:
+  - testing
+  - coverage
+  - bdd
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person submitting the test case.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Feature or Area (RECOMMENDED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: feature
+    attributes:
+      label: Affected Feature or Area
+      description: What part of the system does this test relate to?
+      placeholder: "e.g., Payment Flow, Webhook Handler, Onboarding UI"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Scenario (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Behavior Scenario
+      description: Write the scenario using Given / When / Then if applicable.
+      placeholder: |
+        Given I am a logged-in user with a trial account  
+        When I visit the billing page  
+        Then I should see a prompt to enter payment details
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Test Value or Risk (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: coverage_gap
+    attributes:
+      label: Why This Case Matters
+      description: Explain the edge case, risk, or regression this is meant to catch.
+      placeholder: |
+        - This path caused an outage last quarter  
+        - Currently untested Stripe failure mode for 3DS payments  
+        - Regression risk from recent UI refactor
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What is the risk if this behavior breaks?
+      options:
+        - "Critical – impacts financials, data loss, or auth/security"
+        - "High – affects primary user workflow or SLA"
+        - "Medium – results in poor UX or degraded fallback"
+        - "Low – cosmetic or unlikely edge case"
+      default: "Medium – results in poor UX or degraded fallback"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this case be added to test coverage?
+      options:
+        - "Immediate – block release or patch"
+        - "High – within sprint"
+        - "Medium – next release"
+        - "Low – add to backlog"
+      default: "High – within sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by this behavior?
+      options:
+        - "Org-wide – shared service or platform"
+        - "Team-wide – impacts owned system"
+        - "Feature-level – scoped flow or component"
+        - "Unclear – exploratory or needs refinement"
+      default: "Feature-level – scoped flow or component"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Assign an overall priority for triage and automation.
+      options:
+        - "P0 – must add before shipping"
+        - "P1 – should add to prevent known risk"
+        - "P2 – nice-to-have for stability"
+        - "P3 – low impact coverage"
+      default: "P1 – should add to prevent known risk"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm you've considered duplication and test goals.
+      options:
+        - label: I’ve reviewed current tests and this case is not already covered
+        - label: I understand this may be converted into an automated test
+    validations:
+      required: true

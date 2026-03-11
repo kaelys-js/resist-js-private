@@ -1,0 +1,184 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: compliance-licensing-report
+
+name: "📜 Compliance or Licensing Concern"
+description: Report a potential compliance, licensing, legal, or regulatory issue. Reviewed confidentially by authorized personnel only.
+labels:
+  - compliance
+  - legal
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the individual reporting this concern.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary & Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📌 Overview of the Concern  
+        Provide a brief summary and detailed explanation of the legal or compliance issue.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Summary of the Concern
+      placeholder: "e.g., Potential open-source license conflict in dependency"
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Detailed Explanation
+      description: >
+        Provide as much detail as possible for legal/compliance review. Include:
+        - How the issue was identified
+        - Systems or services affected (e.g., staging, prod)
+        - Any technologies or licenses involved
+        - Business risks or legal exposure
+        - Urgency or severity (if known)
+      placeholder: |
+        e.g.,
+        - Discovered license conflict in a transitive dependency via license audit tool  
+        - Affects cloud-deployed service in production  
+        - Involves AGPL-licensed package bundled in build  
+        - Risk of license violation on distribution  
+        - Needs review before next release
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Risk Assessment  
+        Classify the urgency, impact, and technical severity of the issue.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance of addressing this concern from a planning perspective.
+      options:
+        - "Low – no immediate risk"
+        - "Medium – should be reviewed in current cycle"
+        - "High – may affect releases"
+        - "Critical – potential legal or compliance exposure"
+      default: "Medium – should be reviewed in current cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Legal/Compliance Severity
+      description: Level of technical or legal risk associated.
+      options:
+        - "Low – informational only"
+        - "Medium – minor or internal impact"
+        - "High – product-wide or external exposure"
+        - "Critical – significant regulatory/legal liability"
+      default: "Medium – minor or internal impact"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be reviewed and resolved?
+      options:
+        - "Low – can wait until next audit cycle"
+        - "Medium – resolve in upcoming sprint"
+        - "High – address within current sprint"
+        - "Critical – immediate legal risk"
+      default: "Medium – resolve in upcoming sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Affected Scope
+      description: Who or what is potentially affected?
+      options:
+        - "Internal documentation or tooling only"
+        - "Developer builds or dev environment"
+        - "Production systems or public releases"
+        - "Cross-org or third-party exposure"
+      default: "Developer builds or dev environment"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Attachments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 References & Evidence  
+        Add any supporting materials, such as audit outputs, license files, documentation links, etc.
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Relevant Files (Optional)
+      description: Upload license reports, screenshots, dependency trees, contracts, etc.
+      multiple: true
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Sources
+      description: Link to related issues, tools, or documentation.
+      placeholder: "e.g., SPDX report, internal legal doc, GitHub issue #456"
+
+  # --------------------------------------------------------------------
+  # SECTION: Additional Context
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧠 Additional Context  
+        Share any technical background or organizational context that may help reviewers.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Background or History
+      description: Mention any prior handling of this issue, escalations, or relevant policies.
+      placeholder: |
+        - Occurred after switching base image  
+        - Previously approved license in other project  
+        - First identified in security review  
+        - Relevant to GCP-hosted environments or client SDKs
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm the information is accurate and submitted in good faith for review.
+      options:
+        - label: I confirm this report is factual and relevant to compliance, legal, or licensing concerns.
+    validations:
+      required: true

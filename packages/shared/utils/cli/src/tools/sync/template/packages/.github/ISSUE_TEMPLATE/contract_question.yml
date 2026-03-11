@@ -1,0 +1,201 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: contract-terms-clarification
+
+name: "📜 Contract or Terms Clarification"
+description: Submit inquiries or request clarifications related to contracts, SLAs, terms of service, or legal agreements.
+labels:
+  - contract
+  - legal
+  - sla
+  - terms
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this inquiry.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Inquiry Details
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧾 Contract Topic & Clarification Request  
+        Provide context for your question or concern regarding the contract or terms.
+
+  - type: dropdown
+    id: contract_topic
+    attributes:
+      label: Category of Contract or Terms
+      description: Select the contract area most relevant to your inquiry.
+      options:
+        - SLA response times
+        - Data privacy and processing
+        - Billing and payment terms
+        - Licensing and intellectual property
+        - Liability and indemnification
+        - Termination or renewal terms
+        - Security, compliance, and audits
+        - General or other
+    validations:
+      required: true
+
+  - type: textarea
+    id: detailed_question
+    attributes:
+      label: Describe Your Question or Concern
+      description: Provide a clear and specific explanation. Mention the relevant clause or context if possible.
+      placeholder: |
+        e.g., Could you clarify the SLA response times outlined in Section 4.2?
+      validations:
+        required: true
+        minLength: 15
+
+  - type: input
+    id: reference_section
+    attributes:
+      label: Specific Clause or Section (Optional)
+      description: Provide a clause, section, or annex reference to help legal teams locate the issue faster.
+      placeholder: "e.g., Section 3.1, Clause 5(b), Annex C"
+
+  - type: input
+    id: contact_email
+    attributes:
+      label: Follow-Up Email (Optional)
+      description: Add your email if you'd prefer to receive a direct follow-up.
+      placeholder: "name@example.com"
+    validations:
+      format: email
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Risk Evaluation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Review  
+        Help the legal and compliance team assess the urgency and potential impact of your request.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance of responding to this inquiry in relation to business timelines.
+      options:
+        - "Low – general clarification only"
+        - "Medium – affects planning or project delivery"
+        - "High – blocks procurement, onboarding, or compliance"
+        - "Critical – time-sensitive or external deadline"
+      default: "Medium – affects planning or project delivery"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Legal or Contractual Severity
+      description: How significant is the potential contractual or compliance risk?
+      options:
+        - "Low – informational or administrative"
+        - "Medium – affects internal agreements"
+        - "High – requires legal interpretation"
+        - "Critical – external legal or contractual risk"
+      default: "Medium – affects internal agreements"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly must this question be resolved?
+      options:
+        - "Low – no immediate timeline"
+        - "Medium – needs clarification within 2 sprints"
+        - "High – needs resolution this sprint"
+        - "Critical – immediate deadline or blocker"
+      default: "Medium – needs clarification within 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business or Operational Impact
+      description: What scope of operations or teams does this affect?
+      options:
+        - "Single contributor or team"
+        - "Multiple internal teams"
+        - "External vendor or partner relationship"
+        - "Cross-org or public-facing compliance"
+      default: "Multiple internal teams"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting Information
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Attachments & References  
+        Add contracts, terms documents, logs, or evidence relevant to your question.
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Documents (Optional)
+      description: Upload contracts, marked-up PDFs, screenshots, or audit reports.
+      multiple: true
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Internal References
+      description: Mention any internal pages, previous issues, or contract tracking IDs.
+      placeholder: "e.g., Contract ID 2023-08, doc link, related issue #77"
+
+  # --------------------------------------------------------------------
+  # SECTION: Additional Context
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧠 Additional Context  
+        Provide legal, technical, or business context that may aid resolution.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Background Information
+      description: Include any relevant history, policy changes, or internal discussions that add context.
+      placeholder: |
+        - Previous clarification received in 2023  
+        - New SLA requirement introduced by vendor  
+        - Related to onboarding of new payment processor
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that this request is relevant and complete for legal or contract review.
+      options:
+        - label: I confirm this request is accurate and submitted in good faith for legal or contractual review.
+    validations:
+      required: true

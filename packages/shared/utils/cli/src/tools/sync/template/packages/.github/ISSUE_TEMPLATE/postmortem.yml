@@ -1,0 +1,272 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: incident-postmortem
+
+name: "💥 Incident Postmortem"
+description: Document a critical failure for analysis, response improvement, and long-term reliability.
+labels:
+  - incident
+  - postmortem
+  - reliability
+  - ops
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this postmortem.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Incident Overview (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: incident_timestamp
+    attributes:
+      label: 📅 Date and Time of Incident
+      description: Use ISO 8601 format (e.g., 2025-06-01T14:30:00Z)
+      placeholder: "e.g., 2025-06-01T14:30:00Z"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 🚨 Severity
+      description: Classify based on user/system impact.
+      options:
+        - SEV-1: Critical (full outage or major financial loss)
+        - SEV-2: High (partial outage or significant degradation)
+        - SEV-3: Moderate (minor degradation or workaround available)
+        - SEV-4: Low (cosmetic or non-urgent)
+      default: SEV-3: Moderate (minor degradation or workaround available)
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 📝 Summary of the Incident
+      description: High-level overview of what happened, affected systems, and symptoms.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: 🌍 Impact
+      description: Who or what was affected? Include duration, user scope, and system effects.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Root Cause & Response (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: root_cause
+    attributes:
+      label: 🧠 Root Cause
+      description: Describe the technical and/or process failures and contributing factors.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: detection
+    attributes:
+      label: 🔍 Detection and Response
+      description: How was the issue detected and by whom? Include alerting tools or symptoms.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: detection_gap
+    attributes:
+      label: 🚨 Detection Gaps or Alerting Issues
+      description: Were alerts missing, noisy, late, or ignored? What could have worked better?
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: observability_data
+    attributes:
+      label: 📊 Observability Data
+      description: Add links to dashboards, metrics, logs, Sentry errors, traces, screenshots, etc.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: escalation_notes
+    attributes:
+      label: 📣 Escalation and Coordination
+      description: Who was paged? What Slack channels, runbooks, or tooling were involved?
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: resolution
+    attributes:
+      label: ✅ Resolution
+      description: Detail the fixes or mitigations applied to restore service.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: timeline
+    attributes:
+      label: 🕒 Timeline of Events
+      description: Chronological event log with timestamps (e.g., detection, mitigation, resolution).
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Follow-Up Actions (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: followup
+    attributes:
+      label: 🔄 Follow-up Actions
+      description: List specific tasks to prevent recurrence, including owners and timelines.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: prevention
+    attributes:
+      label: 🛡️ Preventative Measures
+      description: Recommend long-term controls like circuit breakers, testing, rate limiting, etc.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: lessons
+    attributes:
+      label: 📚 Lessons Learned
+      description: Reflect on what worked, what didn’t, and where process or tooling can improve.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Communication & Related Incidents (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: comms
+    attributes:
+      label: 📢 Customer Communication
+      description: Note how and when users were notified (status page, support tickets, etc.)
+      render: markdown
+
+  - type: textarea
+    id: related
+    attributes:
+      label: 🔗 Related Incidents
+      description: Link to previous or follow-up issues related to this incident.
+      placeholder: "e.g., incident #42, PR #117, dashboard alert"
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: priority
+    attributes:
+      label: ⏱️ Priority for Follow-up
+      description: How urgently should action items be resolved?
+      options:
+        - P0 – Immediate priority
+        - P1 – This sprint
+        - P2 – Next sprint
+        - P3 – Future backlog
+      default: P1 – This sprint
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency of Remediation
+      description: Timeline pressure to address risks or gaps found.
+      options:
+        - Low – can wait
+        - Medium – resolve soon
+        - High – resolve this quarter
+        - Critical – resolve immediately
+      default: Medium – resolve soon
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what was affected by this incident?
+      options:
+        - Internal team only
+        - Multiple internal systems
+        - External beta users
+        - Public production users
+      default: Multiple internal systems
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity_level
+    attributes:
+      label: Incident Severity (for audit)
+      description: Same as above, but for post-review logging.
+      options:
+        - SEV-1
+        - SEV-2
+        - SEV-3
+        - SEV-4
+      default: SEV-3
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Dashboards
+      description: Link to any incident dashboards, logs, PRs, or related work.
+      placeholder: "e.g., Grafana board, Sentry trace, GitHub issue #122"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Include PDFs, screenshots, trace dumps, playbooks, etc.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm the postmortem is accurate and actionable.
+      options:
+        - label: I have reviewed and confirmed the accuracy of this incident report
+        - label: I understand this report may be used for audit, legal, or post-incident review
+    validations:
+      required: true

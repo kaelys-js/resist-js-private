@@ -1,0 +1,179 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: community-suggestion
+
+name: "🌍 Community Suggestion"
+description: Propose actionable ideas to enhance community engagement, developer collaboration, and transparency.
+labels:
+  - community
+  - enhancement
+  - suggestion
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the contributor proposing the idea.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Suggestion & Rationale
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 💡 Idea Submission  
+        Share your community-facing improvement or engagement initiative.
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 💡 Suggestion or Idea
+      description: Describe your proposed initiative clearly. Include motivation, context, and example implementation (if applicable).
+      placeholder: |
+        e.g., "Introduce a monthly community AMA to discuss roadmap updates and collect feedback."
+      render: markdown
+      collapsible: true
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefit
+    attributes:
+      label: 🌱 Community Benefit
+      description: Describe the expected positive outcomes—collaboration, transparency, inclusion, engagement, etc.
+      placeholder: |
+        e.g., "Fosters open dialogue, builds trust, and aligns development with real community needs."
+      render: markdown
+      collapsible: true
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help prioritize and evaluate your idea for planning purposes.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this suggestion from a planning perspective?
+      options:
+        - "Low – aspirational or nice to have"
+        - "Medium – meaningful improvement"
+        - "High – should be implemented soon"
+        - "Critical – urgent or strategic initiative"
+      default: "Medium – meaningful improvement"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Community Impact Severity
+      description: How significantly does this impact the community experience?
+      options:
+        - "Low – minimal or cosmetic"
+        - "Medium – improves general engagement"
+        - "High – unlocks major collaboration opportunities"
+        - "Critical – addresses a systemic gap"
+      default: "Medium – improves general engagement"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be addressed?
+      options:
+        - "Low – can wait for future roadmap"
+        - "Medium – within next quarter"
+        - "High – this quarter"
+        - "Critical – needs immediate discussion"
+      default: "Medium – within next quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what will benefit from this?
+      options:
+        - "Small group or niche use case"
+        - "General contributor community"
+        - "Internal teams and contributors"
+        - "Organization-wide visibility or adoption"
+      default: "General contributor community"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Attachments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Supporting Information  
+        Add any references, artifacts, or documentation to clarify the proposal.
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Related Files (Optional)
+      description: Upload mockups, documents, images, or diagrams.
+      multiple: true
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Mention relevant issues, documentation, past discussions, or proposals.
+      placeholder: "e.g., GitHub issue #101, community call notes, internal doc"
+
+  # --------------------------------------------------------------------
+  # SECTION: Additional Context
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧠 Additional Context  
+        Share background, recent changes, or historical decisions that led to this suggestion.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Background or Context
+      description: Include relevant history, prior attempts, or triggers for this idea.
+      placeholder: |
+        - Previously discussed during monthly call  
+        - Triggered by contributor feedback in last release  
+        - Inspired by another open source project initiative
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Contributor Confirmation
+      description: Confirm that this suggestion is clear, feasible, and rooted in community value.
+      options:
+        - label: I confirm this idea is clearly described and motivated by community impact.
+    validations:
+      required: true

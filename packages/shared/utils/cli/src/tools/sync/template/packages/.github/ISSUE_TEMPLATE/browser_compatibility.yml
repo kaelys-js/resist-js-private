@@ -1,0 +1,197 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: browser-compatibility-issue-form
+
+name: "🌐 Browser Compatibility Issue"
+description: Report layout, rendering, or interaction bugs in a specific browser.
+title: "[Browser Bug] "
+labels:
+  - browser
+  - frontend
+
+body:
+
+  # ------------------------------
+  # SECTION: System Metadata
+  # ------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person reporting this issue (auto-filled).
+      value: "@{{ github.actor }}"
+      placeholder: "@your-username"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Browser Details
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧭 Browser Details  
+        Provide details about the affected browser environment.
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Affected Browser
+      description: Select the browser where the issue occurs.
+      options:
+        - "Chrome"
+        - "Firefox"
+        - "Safari"
+        - "Edge"
+        - "Other"
+      default: "Chrome"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Browser Version
+      description: Enter the exact version of the browser.
+      placeholder: "e.g., 125.0.6422.141"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: Issue Description
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🐛 Issue Description  
+        Share a clear and reproducible description of the issue.
+
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Describe the Issue
+      description: Steps to reproduce, expected vs. actual behavior.
+      placeholder: |
+        Example:
+        1. Visit homepage  
+        2. Resize below 768px  
+        3. Navigation overlaps logo in Safari 17  
+        
+        ✅ Expected: Navigation collapses into hamburger menu  
+        ❌ Actual: Items overlap the logo
+    validations:
+      required: true
+
+  - type: textarea
+    id: system
+    attributes:
+      label: Environment Details (optional)
+      description: OS, device type, resolution, input type, etc.
+      placeholder: "e.g., macOS 14.4, iPhone 13, 1170x2532, touch input"
+
+  - type: checkboxes
+    id: reproducible
+    attributes:
+      label: Reproducibility
+      description: Can this issue be reproduced consistently?
+      options:
+        - label: Yes, it's reproducible
+
+  # ------------------------------
+  # SECTION: Triage & Impact
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help us prioritize and assess the impact of this issue.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severely does this issue affect the user experience?
+      options:
+        - "Minor – visual only"
+        - "Moderate – affects layout but usable"
+        - "Major – key function broken"
+        - "Critical – app unusable"
+      default: "Moderate – affects layout but usable"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be fixed?
+      options:
+        - "Low – future fix"
+        - "Medium – this quarter"
+        - "High – next sprint"
+        - "Critical – launch-blocking"
+      default: "Medium – this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What is the scope of the issue’s effect?
+      options:
+        - "Affects only one browser/device combo"
+        - "Affects multiple browsers"
+        - "Affects a key customer segment"
+        - "Blocks accessibility or compliance"
+      default: "Affects only one browser/device combo"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Priority for team planning and triage.
+      options:
+        - "Low – can delay"
+        - "Medium – useful to fix"
+        - "High – team priority"
+        - "Critical – executive visibility"
+      default: "Medium – useful to fix"
+    validations:
+      required: true
+
+  # ------------------------------
+  # SECTION: References & Attachments
+  # ------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Attachments  
+        Add any related items or visual evidence for easier debugging.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: URLs or issue numbers relevant to this report.
+      placeholder: "e.g., GitHub issue #102, video demo link, spec page"
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that this report is complete and accurate.
+      options:
+        - label: I confirm this issue has been reviewed and includes all required info.
+    validations:
+      required: true
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Visual Evidence (Optional)
+      description: Screenshots, recordings, or logs that demonstrate the issue.
+      multiple: true

@@ -1,0 +1,372 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Access Exception Request
+# -------------------------------------------------------------------
+# Purpose: Capture requests for temporary or permanent access exceptions across systems, tools, or environments.
+# Supports auditability, compliance alignment, and approval tracking.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: access-exception-request
+
+name: "🔓 Access Exception Request"
+description: Request temporary or permanent access exceptions for specific resources or services.
+title:
+  "[Access Exception]: "
+  placeholder: "e.g., Temporary read access to S3 audit logs for incident review"
+
+labels:
+  - access
+  - exception
+  - needs-triage
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the contributor.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  - type: input
+    id: co_authors
+    attributes:
+      label: Co-authors or Reviewers (Optional)
+      description: Anyone who helped raise or review this request.
+      placeholder: "@collaborator-name"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Request Summary
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: What kind of issue are you reporting?
+      options:
+        - Access Exception – Temporary
+        - Access Exception – Permanent
+        - Other
+      default: Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: ✏️ Summary
+      description: What is this request about?
+      placeholder: |
+        e.g., Need temporary read-only access to GCP logs for RCA on login issues.
+        e.g., Permanent access exception to internal telemetry system for CI bot.
+      render: markdown
+    validations:
+      required: true
+
+  - type: input
+    id: component
+    attributes:
+      label: Affected Component or Area (Optional)
+      description: Use consistent naming like "auth", "infra", "data-lake", "CI/CD" — or say "Not sure".
+      placeholder: "e.g., auth, infra, data-lake, CI/CD — or 'Not sure'"
+
+  - type: input
+    id: version
+    attributes:
+      label: Affected Version
+      placeholder: "e.g., N/A or internal tool version"
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Platform or Device (Optional)
+      placeholder: "e.g., AWS Console, GCP, Okta Admin"
+
+  - type: input
+    id: env
+    attributes:
+      label: Environment Context (Optional)
+      placeholder: "e.g., staging, prod, internal tooling"
+
+  - type: input
+    id: references
+    attributes:
+      label: Related PRs or Issues (Optional)
+      placeholder: "e.g., Incident #123, Policy Doc #456"
+
+  # --------------------------------------------------------------------
+  # SECTION: Context and Reproduction (especially for exception needs)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context_steps
+    attributes:
+      label: Context or Steps
+      description: What led to this request? Why is this access needed now?
+      placeholder: |
+        1. Engaged in an incident review
+        2. Blocked by permission denied error
+        3. Need to access IAM logs for RCA
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Reproducibility (Optional)
+      description: Will this issue reoccur without the exception?
+      options:
+        - "Always"
+        - "Often"
+        - "Sometimes"
+        - "Rarely"
+        - "Can't reproduce anymore"
+        - "Not applicable"
+      default: "Not applicable"
+
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Has this behavior changed from before?
+      description: Was this access previously granted?
+      options:
+        - "Yes – it worked previously but is restricted now"
+        - "No – it has never been allowed"
+        - "Not sure"
+      default: "Not sure"
+
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: Expected vs Actual Behavior
+      description: What do you need to do and what is blocking you?
+      placeholder: |
+        Expected: Able to query audit logs for investigation  
+        Actual: Permission denied (403) when accessing GCP logs
+    validations:
+      required: true
+
+  - type: dropdown
+    id: workaround
+    attributes:
+      label: Is there any workaround you’re using?
+      description: Can you continue work via another method?
+      options:
+        - "Yes – workaround available"
+        - "No – completely blocked"
+        - "Not sure"
+      default: "Not sure"
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution or Suggestion (Optional)
+      description: If you know what access is needed or can be scoped, explain here.
+      placeholder: "e.g., Grant read-only access to IAM logs for 7 days via AccessGroup-RCA"
+
+  - type: textarea
+    id: feature_use_case
+    attributes:
+      label: Use Case or Context (Optional)
+      description: Why is this access important to you or your team?
+      placeholder: |
+        e.g., Needed to complete compliance-mandated audit investigation
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Who or what is affected? (Optional)
+      description: Helps prioritize the request.
+      placeholder: "e.g., Blocks security team from completing RCA on incident INC-304"
+
+  - type: input
+    id: reproduction_link
+    attributes:
+      label: Reproduction Project (Optional)
+      placeholder: "e.g., Link to internal runbook or terminal output"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or Console Output (Optional)
+      description: Paste relevant output showing access error or denied message.
+      render: plain
+      placeholder: |
+        e.g., Error: User does not have permission "logging.viewer" on resource
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments (Optional)
+      description: Include screenshots, markdown snippets, or logs.
+      render: markdown
+      placeholder: |
+        Paste screenshots or policy docs here.
+
+  - type: input
+    id: media_links
+    attributes:
+      label: Media or Demo Link (Optional)
+      placeholder: "e.g., Loom walkthrough, shared doc link"
+
+  - type: dropdown
+    id: preferred_outcome
+    attributes:
+      label: What are you hoping for?
+      options:
+        - Temporary access granted
+        - Permanent exception approved
+        - Clarification or docs update
+        - Just logging the request
+      default: Just logging the request
+
+  - type: dropdown
+    id: user_urgency
+    attributes:
+      label: How urgent is this for you?
+      description: Helps us prioritize based on user needs.
+      options:
+        - Blocking – I can’t continue work
+        - High – I’m actively waiting on this
+        - Medium – It’s important but not urgent
+        - Low – Just wanted to share
+      default: Medium – It’s important but not urgent
+
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: Anything else you'd like to add? (Optional)
+      description: Include any other context, links, or notes not covered above.
+      placeholder: "e.g., This exception aligns with security policy rev 2025.3"
+
+  - type: checkboxes
+    id: issue_stage
+    attributes:
+      label: Stage of this Issue (Optional)
+      description: Where in the lifecycle is this request?
+      options:
+        - label: New or recently submitted
+        - label: Under review or pending approval
+        - label: Needs additional context or evidence
+
+  # --------------------------------------------------------------------
+  # SECTION: Tags, History, Misc
+  # --------------------------------------------------------------------
+  - type: input
+    id: suggested_labels
+    attributes:
+      label: Suggested Tags or Labels (Optional)
+      description: Suggest any helpful tags for triage (e.g., auth, logs, compliance).
+      placeholder: "e.g., logs, compliance, security"
+
+  - type: checkboxes
+    id: prior_issues
+    attributes:
+      label: Prior Reports (Optional)
+      description: Has this request or a similar one been raised before?
+      options:
+        - label: I checked existing issues
+        - label: This continues a previous exception or incident
+
+  - type: input
+    id: contact
+    attributes:
+      label: Optional Contact (Optional)
+      placeholder: "Email or Slack/Discord if follow-up is needed"
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage (Maintainer Use)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity (Optional)
+      description: Choose based on resource sensitivity or access risk.
+      options:
+        - "Critical – high-risk system or compliance scope"
+        - "High – privileged resource, external access, or PII"
+        - "Medium – internal system, read access, non-prod"
+        - "Low – low-sensitivity system, sandbox, or read-only"
+        - "Unclear"
+      default: "Medium – internal system, read access, non-prod"
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency (Optional)
+      description: When does this need attention?
+      options:
+        - "Immediate – blocks release or workflow"
+        - "High – should be picked up soon"
+        - "Medium – next sprint or cycle"
+        - "Low – future backlog"
+        - "Unclear"
+      default: "Medium – next sprint or cycle"
+
+  - type: dropdown
+    id: impact_scope
+    attributes:
+      label: Scope of Impact (Optional)
+      description: Who is affected by this?
+      options:
+        - "User-facing – external developers or customers"
+        - "Internal – affects team workflows"
+        - "Infra-only – CI/CD, telemetry, etc."
+        - "Unclear"
+      default: "Internal – affects team workflows"
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority (Optional)
+      description: Maintainer-assigned priority for access escalation or roadmap.
+      options:
+        - "P0 – must be addressed immediately"
+        - "P1 – important, include soon"
+        - "P2 – normal priority"
+        - "P3 – nice-to-have or backlog"
+        - "Unclear"
+      default: "P2 – normal priority"
+
+  # --------------------------------------------------------------------
+  # SECTION: Final Confirmation
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        👉 Before submitting, ensure this request aligns with your team’s internal access policy and includes all relevant approvals or justifications.
+
+  - type: dropdown
+    id: disclosure_preference
+    attributes:
+      label: Do you prefer to disclose this publicly?
+      options:
+        - Yes, it's okay to discuss openly
+        - No, I’d prefer private follow-up
+      default: Yes, it's okay to discuss openly
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Final Check – ready to submit?
+      description: Tick the box once you’ve provided all details and reviewed for completeness.
+      options:
+        - label: I’ve provided all relevant information and reviewed for clarity
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        🙏 Thanks for submitting your access exception request! A reviewer will respond as soon as possible.

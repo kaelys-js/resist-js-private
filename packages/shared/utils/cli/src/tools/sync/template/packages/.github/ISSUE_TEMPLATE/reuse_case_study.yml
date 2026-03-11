@@ -1,0 +1,169 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: reuse-case-study
+
+name: "📣 Reuse Case Study"
+description: Share how your team or organization is using this project so others can learn and be inspired.
+labels:
+  - case-study
+  - community
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this reuse case.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Case Study Content (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: org
+    attributes:
+      label: 🏢 Organization or Project Name
+      description: Name of the organization, company, or project using this technology.
+      placeholder: "e.g., Acme Corp, DevHub, OpenFinance, or MyStartup"
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: 🔧 How are you using this project?
+      description: Describe your implementation, workflows, or architecture. Include platforms, services, or tools.
+      placeholder: |
+        We're using this as the foundation for our app backend, built with Bun, Docker, and deployed to GCP via Argo CD.
+        It powers our Stripe billing, analytics via Umami, and observability via Sentry.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefit
+    attributes:
+      label: ✅ What value has this project provided?
+      description: Share measurable or qualitative impact—e.g., reliability, DX, performance, cost savings.
+      placeholder: |
+        - Cut deploy time by 70%  
+        - Reduced K8s costs by 40%  
+        - Improved mobile app startup time on Android by 25%  
+        - Developers prefer it over previous setup due to TypeScript and Biome integration
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: permission
+    attributes:
+      label: 📣 Can we share your story publicly?
+      description: Let us know if you're okay with us highlighting your story in blog posts, case studies, talks, or social media. Mention conditions or credits.
+      placeholder: |
+        Yes, feel free to share it publicly.  
+        Please link to our homepage and tag our GitHub handle.  
+        Contact us before publishing anything with financials.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help us assess how broadly your story applies and prioritize content integration.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance of including this story in external communication.
+      options:
+        - Low – optional community content
+        - Medium – relevant to roadmap or showcase
+        - High – aligns with core messaging or target market
+        - Critical – strategic case study for growth, investment, or sales
+      default: Medium – relevant to roadmap or showcase
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Depth of Adoption
+      description: How deeply is this project integrated into your stack?
+      options:
+        - Low – experiment or proof-of-concept
+        - Medium – non-critical component in production
+        - High – core system dependency
+        - Critical – essential infrastructure or platform foundation
+      default: High – core system dependency
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When this story should be reviewed and promoted.
+      options:
+        - Low – evergreen content
+        - Medium – share this quarter
+        - High – share this month
+        - Critical – align with launch, campaign, or press
+      default: Medium – share this quarter
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Visibility
+      description: How widely does this use case or story apply?
+      options:
+        - Team-level
+        - Department-wide
+        - Company-wide
+        - Ecosystem / community relevance
+      default: Ecosystem / community relevance
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: 🔗 Related Links or Contacts
+      description: Add links to a blog post, site, press release, or contact person.
+      placeholder: "e.g., https://acme.dev, GitHub @acmeco, marketing@acme.dev"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: 📎 Upload Assets (Optional)
+      description: Add images, diagrams, quotes, or stats you’d like us to include.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this story is accurate and you have permission to share it.
+      options:
+        - label: I confirm this story is accurate and I have authority to share it on behalf of the named organization/project
+        - label: I understand this story may be featured in documentation, marketing, or community updates
+    validations:
+      required: true

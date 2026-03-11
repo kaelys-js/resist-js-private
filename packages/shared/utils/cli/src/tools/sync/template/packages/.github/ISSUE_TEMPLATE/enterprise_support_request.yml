@@ -1,0 +1,195 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: enterprise-support-request
+
+name: "🏢 Enterprise Support Request"
+description: Contact us to discuss enterprise plans, SLAs, deployment models, compliance, or commercial partnership needs.
+labels:
+  - enterprise
+  - customer
+  - inquiry
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this enterprise inquiry.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Company & Contact Information (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🏷️ Organization & Contact  
+        Tell us who you are and how to follow up.
+
+  - type: input
+    id: company
+    attributes:
+      label: Company Name
+      description: Your organization's legal or commonly used name.
+      placeholder: "e.g., Acme Corporation"
+    validations:
+      required: true
+
+  - type: input
+    id: contact_email
+    attributes:
+      label: Business Email
+      description: Valid work email address for further correspondence.
+      placeholder: "your.name@company.com"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Topic & Request (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📬 Request Details  
+        Choose a topic and describe your enterprise needs.
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Area of Interest
+      description: Select the primary focus of your request.
+      options:
+        - Enterprise pricing and licensing
+        - SLA and uptime guarantees
+        - On-premise or private cloud deployment
+        - Custom integration or roadmap alignment
+        - Security, compliance, or procurement
+        - Other
+      default: "Enterprise pricing and licensing"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Request Details
+      description: Describe your use case, purchasing criteria, and any relevant technical, legal, or operational requirements.
+      placeholder: |
+        - Evaluating enterprise vendors—need pricing and SLA docs  
+        - Require SOC 2 Type II, ISO 27001, and GDPR compliance  
+        - Looking to deploy in regulated GCP or K8s environment  
+        - Need SSO via Okta or Azure AD  
+        - Procurement review needed this quarter
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help us understand the scope and priority of your request.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How critical is this request to your planning or procurement timeline?
+      options:
+        - "Low – exploratory or optional inquiry"
+        - "Medium – affects upcoming planning"
+        - "High – aligns with current procurement goals"
+        - "Critical – urgent procurement or legal deadline"
+      default: "Medium – affects upcoming planning"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Business Need
+      description: What level of business need or dependency is driving this request?
+      options:
+        - "Low – general vendor research"
+        - "Medium – internal evaluation in progress"
+        - "High – cross-functional dependency"
+        - "Critical – legal, compliance, or customer requirement"
+      default: "Medium – internal evaluation in progress"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Expected response timeframe or urgency of this engagement.
+      options:
+        - "Low – flexible timeline"
+        - "Medium – needs review this month"
+        - "High – blocking next sprint or quarter"
+        - "Critical – immediate deadline or contract block"
+      default: "Medium – needs review this month"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what will be affected if this request is delayed or unresolved?
+      options:
+        - "Single team or evaluator"
+        - "Multiple internal departments"
+        - "Enterprise rollout or production deployment"
+        - "External customer or regulatory dependency"
+      default: "Multiple internal departments"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Attachments (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Supporting Files or Links  
+        Share any documents, specifications, or references.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Documents or Links
+      description: Provide links to RFPs, compliance checklists, internal docs, or relevant GitHub issues.
+      placeholder: "e.g., compliance checklist doc, GitHub issue #422, procurement form"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Upload RFPs, spreadsheets, documents, or security questionnaires.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Request Confirmation
+      description: Confirm the scope and intent of this enterprise request.
+      options:
+        - label: I confirm this request is related to an enterprise or commercial use case
+        - label: I understand this form is not for technical support or product bugs
+    validations:
+      required: true

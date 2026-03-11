@@ -1,0 +1,52 @@
+{{syncHeaderBlock "<!--" "-->" "https://commonmark.org/help"}}
+
+<p align="center">
+  <a href="{{business.domains.marketing}}">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="{{git.rawContentUrl}}/resources/logo-dark.svg" width="280">
+      <source media="(prefers-color-scheme: light)" srcset="{{git.rawContentUrl}}/resources/logo.svg" width="280">
+      <img alt="{{business.company}}" src="{{git.rawContentUrl}}/resources/logo.svg" width="280">
+    </picture>
+  </a>
+</p>
+
+<h1 align="center">{{business.company}}</h1>
+
+{{#if repo.description}}
+<p align="center">
+  <strong>{{repo.description}}</strong>
+</p>
+{{/if}}
+
+<p align="center">
+{{#ifProvider "github"}}
+  <a href="https://github.com/{{repo.owner}}/{{repo.name}}/releases"><img src="https://img.shields.io/github/v/release/{{repo.owner}}/{{repo.name}}?style=flat-square&labelColor=18181b&color=4f46e5" alt="Release"></a>&nbsp;&nbsp;<a href="LICENSE"><img src="https://img.shields.io/badge/license-{{business.license}}-4f46e5?style=flat-square&labelColor=18181b" alt="License"></a>&nbsp;&nbsp;<a href="https://github.com/{{repo.owner}}/{{repo.name}}/stargazers"><img src="https://img.shields.io/github/stars/{{repo.owner}}/{{repo.name}}?style=flat-square&labelColor=18181b&color=4f46e5" alt="Stars"></a>
+{{/ifProvider}}
+{{#ifProvider "gitlab"}}
+  <a href="https://gitlab.com/{{repo.owner}}/{{repo.name}}/-/releases"><img src="https://img.shields.io/gitlab/v/release/{{repo.owner}}/{{repo.name}}?style=flat-square&labelColor=18181b&color=4f46e5" alt="Release"></a>&nbsp;&nbsp;<a href="LICENSE"><img src="https://img.shields.io/badge/license-{{business.license}}-4f46e5?style=flat-square&labelColor=18181b" alt="License"></a>&nbsp;&nbsp;<a href="https://img.shields.io/gitlab/stars/{{repo.owner}}/{{repo.name}}?style=flat-square&labelColor=18181b&color=4f46e5" alt="Stars"></a>
+{{/ifProvider}}
+</p>
+
+<br>
+
+<p align="center">
+  {{#each locales}}<a href="docs/{{this}}/README.md"><strong>{{localeName this}}</strong></a>{{#unless @last}} &nbsp;·&nbsp; {{/unless}}{{/each}}
+</p>
+
+<p align="center">
+  <sub>Select a language to read the full documentation.</sub>
+</p>
+
+<br>
+
+<p align="center">
+  <a href="docs/{{defaultLocale}}/README.md"><strong>→ Read the Documentation</strong></a>
+</p>
+
+<br>
+
+---
+
+<p align="center">
+  <sub><a href="LICENSE">{{business.license}}</a> © {{year}} <a href="{{business.domains.marketing}}">{{business.company}}</a></sub>
+</p>

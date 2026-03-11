@@ -1,0 +1,237 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: dependency-issue-report
+
+name: "📦 Dependency Issue"
+description: Report problems with third-party packages, modules, or libraries used in this project.
+labels:
+  - bug
+  - dependency
+  - triage
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the individual submitting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Affected Dependency (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📦 Dependency & Issue Summary  
+        Specify the dependency involved and summarize the problem.
+
+  - type: input
+    id: dependency
+    attributes:
+      label: Affected Dependency
+      description: Include package name and version.
+      placeholder: "e.g., stripe@12.0.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Issue Summary
+      description: Describe what went wrong, what was expected, and what actually occurred. Include any stack traces or logs.
+      placeholder: |
+        - Expected: Stripe signature verification succeeds  
+        - Actual: Throws `Error: Unexpected header format`  
+        - This started after upgrading from `stripe@11.10.0` to `12.0.0`
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Reproduction & Environment
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧪 Reproduction & Environment  
+        Share reproduction steps and your runtime setup.
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Include minimal code, config, or steps to trigger the issue.
+      placeholder: |
+        1. Install dependency: `bun add stripe`  
+        2. Add the following code:  
+           ```ts  
+           const sig = headers['stripe-signature'];  
+           verifyWebhook(sig); // ❌ throws  
+           ```  
+        3. Run: `bun run dev`
+      render: markdown
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Include all relevant runtime, infra, and toolchain versions.
+      placeholder: |
+        - Runtime: Bun v1.0.8  
+        - TypeScript: 5.4.3  
+        - OS: macOS 14.4.1 / Ubuntu 22.04  
+        - Container: Docker / Kubernetes  
+        - Package Manager: Bun  
+        - Cloud: GCP, Cloudflare  
+        - CI/CD: Argo CD  
+        - Observability: Sentry, Umami  
+        - Other: Stripe, Valibot, Biome, SvelteKit
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Attempts & Impact
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧯 Attempts & Impact  
+        Share what you’ve tried and how this issue affects your workflows.
+
+  - type: textarea
+    id: workarounds
+    attributes:
+      label: Workarounds Attempted
+      description: Describe any downgrades, patches, or mitigations you’ve tried.
+      placeholder: |
+        - Downgraded to `stripe@11.10.0` — resolved issue  
+        - Used patch-package to override method  
+        - Disabled SSR temporarily
+      render: markdown
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Business or Technical Impact
+      description: What is the consequence of this issue on delivery, customers, or deployment?
+      placeholder: |
+        - Blocks production release  
+        - Breaks webhook handling  
+        - Affects mobile login (iOS/Android)  
+        - Prevents staging deployment
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Risk Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Severity  
+        Help us understand the scope and urgency of this issue.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance of addressing this issue relative to other tasks.
+      options:
+        - "Low – minimal disruption"
+        - "Medium – affects developer experience"
+        - "High – blocks workflow or release"
+        - "Critical – urgent production issue"
+      default: "Medium – affects developer experience"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: Scope of system breakage or disruption caused.
+      options:
+        - "Low – isolated or cosmetic"
+        - "Medium – breaks expected behavior"
+        - "High – major functionality broken"
+        - "Critical – total failure or security concern"
+      default: "Medium – breaks expected behavior"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly this needs resolution.
+      options:
+        - "Low – future backlog item"
+        - "Medium – within 2 sprints"
+        - "High – this sprint"
+        - "Critical – immediate fix needed"
+      default: "Medium – within 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Impact Scope
+      description: Who or what is affected?
+      options:
+        - "Single contributor"
+        - "Development team"
+        - "Multiple teams or systems"
+        - "Production or end-users"
+      default: "Development team"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Attachments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 References & Attachments  
+        Provide logs, patches, or links that help diagnose the issue.
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Add logs, screenshots, diffs, or patch files.
+      multiple: true
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Reference related issues, PRs, changelogs, or documentation.
+      placeholder: "e.g., GitHub issue #42, release notes, upstream bug"
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Reporter Confirmation
+      description: Confirm your report is complete and actionable.
+      options:
+        - label: I have searched existing issues and confirmed this is not a duplicate
+        - label: I have tested with the latest version of the dependency
+        - label: I have included all required logs, environment details, and reproduction steps
+    validations:
+      required: true

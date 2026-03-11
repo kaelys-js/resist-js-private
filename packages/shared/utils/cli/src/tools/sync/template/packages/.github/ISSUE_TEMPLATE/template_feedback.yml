@@ -1,0 +1,170 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: template-feedback
+
+name: "🧪 Template Feedback"
+description: Help us improve our issue templates by sharing specific, constructive suggestions.
+labels:
+  - meta
+  - template
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting feedback.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Feedback Content (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: feedback
+    attributes:
+      label: ✏️ Suggested Improvement
+      description: What change do you propose? Be specific. Include examples or phrasing improvements where possible.
+      placeholder: |
+        Example: In the "Bug Report" template, make "Steps to Reproduce" required, and include a placeholder like:
+        1. Run `bun dev`
+        2. Click on checkout
+        3. Observe error
+      render: markdown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 📂 Template Category
+      description: Select the issue template or topic area this suggestion applies to.
+      options:
+        - Bug Report
+        - Feature Request
+        - Documentation
+        - Community
+        - Governance
+        - Internal / Maintainers
+        - Other
+      default: Bug Report
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: 💡 Why It Matters
+      description: Describe the motivation for your suggestion. What will it improve? Who benefits?
+      placeholder: |
+        Example: New contributors often skip critical info—making this required helps triage faster.
+      render: markdown
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 📎 Additional Context (Optional)
+      description: Add related links, examples from other projects, screenshots, or references.
+      placeholder: |
+        Example: See how Biome and Cloudflare format their issue templates for similar suggestions.
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help us understand urgency and potential scope.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this change to your workflow or others’?
+      options:
+        - Low – nice-to-have
+        - Medium – would improve contribution experience
+        - High – frequently causes friction or confusion
+        - Critical – urgently needed for clarity, security, or compliance
+      default: Medium – would improve contribution experience
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What is the potential effect of the current issue template’s limitation?
+      options:
+        - Low – minimal or cosmetic
+        - Medium – results in incomplete submissions
+        - High – causes delays or rework for maintainers
+        - Critical – blocks collaboration or audit requirements
+      default: Medium – results in incomplete submissions
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this change be evaluated or made?
+      options:
+        - Low – backlog item
+        - Medium – this quarter
+        - High – this sprint
+        - Critical – immediate follow-up needed
+      default: Medium – this quarter
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who will benefit from this change?
+      options:
+        - Single contributor
+        - New contributors or community
+        - Internal maintainers
+        - All users and contributors
+      default: New contributors or community
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: 🔗 Related Issues or Sources
+      description: Link to GitHub issues, upstream project examples, or prior discussion.
+      placeholder: "e.g., GitHub issue #314, Biome RFC, Cloudflare template"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: 📎 Upload Example Files (Optional)
+      description: Attach template diffs, screenshots, or examples.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm your suggestion is specific, constructive, and aligned with the project’s values.
+      options:
+        - label: I have reviewed the current template and verified that this suggestion would improve it
+        - label: I understand this feedback may be reviewed, edited, or bundled with other changes
+    validations:
+      required: true

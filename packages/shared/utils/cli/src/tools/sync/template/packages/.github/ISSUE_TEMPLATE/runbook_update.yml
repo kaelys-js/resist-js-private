@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Ops Runbook Change Request
+# -------------------------------------------------------------------
+# Purpose: Suggest improvements or updates to operational runbooks for accuracy, clarity, or completeness.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: ops-runbook-change
+
+name: "⚙️ Ops Runbook Change Request"
+description: Suggest an update to an operational or incident runbook.
+title: "[Runbook Update]: "
+labels:
+  - runbook
+  - ops
+  - documentation
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person submitting this update request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Clear summary of the proposed update, issue, or concern.
+      placeholder: |
+        - Update outdated IP allowlist instructions  
+        - Add escalation path for failed backup jobs  
+        - Remove deprecated `foo_service` restart steps
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context or Background (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: Add relevant details such as affected systems, triggers, SLOs, incident history, or compliance needs.
+      placeholder: |
+        - Observed discrepancy during incident IN-3423  
+        - Current steps do not reflect GCP load balancer UI changes  
+        - Steps mismatch ArgoCD deployment process
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Link to the runbook file, past incidents, or related documentation.
+      placeholder: |
+        - https://docs.internal/runbooks/db-failover.md  
+        - GitHub issue #1421  
+        - Postmortem: IN-4097
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What is the consequence of not updating the runbook?
+      options:
+        - "Critical – outage or recovery will fail"
+        - "High – likely confusion or incident misstep"
+        - "Medium – improvement to accuracy or confidence"
+        - "Low – stylistic or cosmetic"
+      default: "Medium – improvement to accuracy or confidence"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this change be prioritized?
+      options:
+        - "Immediate – related to active or recent incident"
+        - "High – resolve within this sprint"
+        - "Medium – next doc update cycle"
+        - "Low – backlog OK"
+      default: "Medium – next doc update cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: What teams or workflows are affected?
+      options:
+        - "Org-wide – impacts company-wide runbook access or critical infra"
+        - "Team-wide – affects specific SRE/on-call procedures"
+        - "Service-specific – scoped to one system or function"
+        - "Unclear – needs more review"
+      default: "Service-specific – scoped to one system or function"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Assign an overall priority for triage.
+      options:
+        - "P0 – must fix immediately"
+        - "P1 – fix before next incident"
+        - "P2 – fix during next planning cycle"
+        - "P3 – log for future update"
+      default: "P2 – fix during next planning cycle"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm readiness of this request for review.
+      options:
+        - label: I have reviewed existing runbooks to avoid duplication.
+        - label: I have provided enough detail for responders to update the documentation.
+    validations:
+      required: true

@@ -1,0 +1,154 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Internal Process Friction Report
+# -------------------------------------------------------------------
+# Purpose: Capture recurring workflow friction, inefficiencies, or manual steps
+# that affect developer experience, operations, or cross-team delivery.
+# Schema-compliant, team-agnostic, enterprise-aligned.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: internal-process-friction
+
+name: "🧼 Internal Process Friction Report"
+description: Report unnecessary manual steps or process inefficiencies that could be automated or improved.
+title: "[Process Friction]: "
+labels:
+  - process
+  - internal-tools
+  - friction
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or name of the person submitting this report.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Friction Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: What’s frustrating or inefficient?
+      description: Describe the manual step, tool gap, or process bottleneck in detail.
+      placeholder: |
+        - Need to manually edit `.env` files for staging toggles  
+        - Approval to access VPN requires 2 emails + Slack ping  
+        - CI takes 12m even for doc-only PRs due to full image build
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Process Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: When and Where It Happens
+      description: Describe when this friction occurs (e.g., deploy, onboarding, incident review) and what systems it involves.
+      placeholder: |
+        - Happens during staging deploys from dev branches  
+        - Touches Argo, GCP IAM, internal Vault CLI  
+        - Part of post-incident cleanup for on-call
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference Links (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Slack Threads, SOPs, or Logs
+      description: Link to anything that helps show the workflow or past workarounds.
+      placeholder: |
+        - SOP: https://docs.internal.example.com/sop-vpn-access  
+        - Slack: https://company.slack.com/archives/C12345678/p1689717280000000  
+        - GDoc: "Dev Env Setup Audit 2025"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Workflow Severity
+      description: How disruptive is this friction day-to-day?
+      options:
+        - "Critical – blocks or delays essential work"
+        - "High – regularly breaks flow or wastes time"
+        - "Medium – tolerable but slows progress"
+        - "Low – minor annoyance or UX papercut"
+      default: "Medium – tolerable but slows progress"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be reviewed or addressed?
+      options:
+        - "Immediate – affects current milestone or reliability"
+        - "High – fix this quarter"
+        - "Medium – roadmap candidate"
+        - "Low – log for improvement audit"
+      default: "Medium – roadmap candidate"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who is affected by this inefficiency?
+      options:
+        - "Org-wide – multiple teams or shared platforms"
+        - "Team-wide – squad or surface-specific"
+        - "Single person – dev machine or personal tooling"
+        - "Unclear – needs scoping"
+      default: "Team-wide – squad or surface-specific"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Set triage priority based on impact and effort.
+      options:
+        - "P0 – urgent DX improvement"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – backlog"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this is a repeatable, validated source of friction.
+      options:
+        - label: This friction is ongoing and not a one-time inconvenience.
+        - label: I’m open to helping test improvements or alternatives.
+    validations:
+      required: true

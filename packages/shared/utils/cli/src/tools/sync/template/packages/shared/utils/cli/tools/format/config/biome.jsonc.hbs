@@ -1,0 +1,144 @@
+{{syncHeader "//" "https://biomejs.dev/reference/configuration"}}
+{
+	"$schema": "{{schemaPath 'tooling/biome'}}",
+
+	// =============================================================================
+	// VCS Integration (disabled - format tool handles ignore patterns)
+	// =============================================================================
+	"vcs": {
+		"enabled": false
+	},
+
+	// =============================================================================
+	// File Handling
+	// =============================================================================
+	"files": {
+		"maxSize": 1048576,
+		"ignoreUnknown": true
+	},
+
+	// =============================================================================
+	// Organize Imports
+	// =============================================================================
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on",
+				"useSortedKeys": "on",
+				"useSortedAttributes": "on"
+			}
+		}
+	},
+
+	// =============================================================================
+	// Linter (disabled - use oxlint)
+	// =============================================================================
+	"linter": {
+		"enabled": false,
+		"rules": {
+			"recommended": false
+		}
+	},
+
+	// =============================================================================
+	// Formatter - Global Settings
+	// =============================================================================
+	"formatter": {
+		"enabled": true,
+		"formatWithErrors": true,
+		"indentStyle": "{{ format.global.indent_style }}",
+		"indentWidth": {{ format.global.indent_size }},
+		"lineWidth": {{ format.global.line_length }},
+		"lineEnding": "lf",
+		"attributePosition": "auto",
+		"bracketSpacing": true
+	},
+
+	// =============================================================================
+	// JavaScript/TypeScript Settings
+	// =============================================================================
+	"javascript": {
+		"formatter": {
+			"enabled": true,
+			"quoteStyle": "{{#if tooling.formatting.singleQuote}}single{{else}}double{{/if}}",
+			"jsxQuoteStyle": "double",
+			"quoteProperties": "asNeeded",
+			"trailingCommas": "all",
+			"semicolons": "{{#if tooling.formatting.semi}}always{{else}}asNeeded{{/if}}",
+			"arrowParentheses": "always",
+			"bracketSameLine": false
+		},
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
+		}
+	},
+
+	// =============================================================================
+	// JSON Settings
+	// =============================================================================
+	"json": {
+		"formatter": {
+			"enabled": true,
+			"trailingCommas": "none"
+		},
+		"parser": {
+			"allowComments": true,
+			"allowTrailingCommas": true
+		}
+	},
+
+	// =============================================================================
+	// CSS Settings
+	// =============================================================================
+	"css": {
+		"formatter": {
+			"enabled": true,
+			"quoteStyle": "{{#if tooling.formatting.singleQuote}}single{{else}}double{{/if}}"
+		},
+		"parser": {
+			"allowWrongLineComments": false
+		},
+		"linter": {
+			"enabled": false
+		}
+	},
+
+	// =============================================================================
+	// GraphQL Settings
+	// =============================================================================
+	"graphql": {
+		"formatter": {
+			"enabled": true,
+			"quoteStyle": "double"
+		}
+	},
+
+	// =============================================================================
+	// File-Specific Overrides
+	// =============================================================================
+	"overrides": [
+		{
+			"includes": [
+				"**/*.jsonc",
+				"**/tsconfig.json",
+				"**/tsconfig.*.json",
+				"**/biome.json",
+				"**/biome.jsonc"
+			],
+			"json": {
+				"parser": {
+					"allowComments": true,
+					"allowTrailingCommas": true
+				}
+			}
+		},
+		{
+			"includes": ["**/package.json"],
+			"json": {
+				"formatter": {
+					"lineWidth": 1
+				}
+			}
+		}
+	]
+}

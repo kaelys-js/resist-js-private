@@ -1,0 +1,167 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: integration-issue
+
+name: "🔗 Integration Issue"
+description: Trouble integrating with a third-party system, SDK, or API? Share technical details to help us investigate.
+labels:
+  - integration
+  - bug
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person reporting the integration issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Integration Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📦 Integration Context  
+        Tell us which third-party system or SDK you're having trouble with.
+
+  - type: input
+    id: tool
+    attributes:
+      label: Library or Service
+      description: Which system, SDK, or platform are you integrating with?
+      placeholder: "e.g., Stripe, GCP, Cloudflare, Sentry, Docker, Umami"
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: Issue Summary
+      description: |
+        Help us understand the problem. Include relevant technical and environmental detail:
+        - What you were trying to do  
+        - What you expected to happen  
+        - What actually happened  
+        - Logs, error messages, or screenshots  
+        - Runtime/toolchain/environment info
+      placeholder: |
+        Example:  
+        Attempting to integrate Stripe payments into a SvelteKit app using Bun and TypeScript.  
+        In GCP K8s staging, the Stripe API returns 401 errors, though local runs succeed.  
+        Secrets are managed via ArgoCD and appear correctly injected.  
+        Sentry logs show requests being made but no response body is returned.  
+        Infra: GKE + Docker + Biome + Umami
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help us assess the impact and urgency of this integration issue.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Business priority for resolving this integration issue.
+      options:
+        - "Low – nice to fix eventually"
+        - "Medium – affects development or testing"
+        - "High – blocking internal workflows"
+        - "Critical – blocking release or external integration"
+      default: "Medium – affects development or testing"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: What level of technical failure does this represent?
+      options:
+        - "Low – degraded but functional"
+        - "Medium – partially broken behavior"
+        - "High – key functionality broken"
+        - "Critical – complete failure or crash"
+      default: "Medium – partially broken behavior"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline for needing resolution.
+      options:
+        - "Low – can wait for future cycle"
+        - "Medium – needed in 1–2 sprints"
+        - "High – needed this sprint"
+        - "Critical – urgent or blocking current milestone"
+      default: "Medium – needed in 1–2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected?
+      options:
+        - "Single contributor or dev use case"
+        - "Internal team or project"
+        - "Multiple systems or environments"
+        - "Production or end users"
+      default: "Internal team or project"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Related Artifacts (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Logs, Links & Artifacts  
+        Include links to logs, monitoring dashboards, pull requests, or relevant documentation.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Add links to dashboards (Sentry, Umami), issues, PRs, docs, or external tickets.
+      placeholder: "e.g., PR #392, Sentry logs, Stripe docs link, GCP run URL"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Logs or Screenshots (Optional)
+      description: Upload screenshots, error logs, trace output, or JSON payloads.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this issue is complete and actionable.
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+        - label: I have included enough technical detail for someone to investigate the integration issue
+    validations:
+      required: true

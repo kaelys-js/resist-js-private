@@ -1,0 +1,156 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Ranking Drop Alert
+# -------------------------------------------------------------------
+# Purpose: Alert stakeholders to a verified drop in search ranking or organic visibility for a page, keyword, or topic.
+# Generic and enterprise-ready. Works with data from any SEO or analytics platform.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-ranking-drop-alert
+
+name: "📉 SEO Ranking Drop Alert"
+description: Alert for recent or sustained keyword ranking or visibility losses.
+title: "[SEO Ranking Drop]: "
+labels:
+  - seo
+  - ranking
+  - alert
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contact submitting the alert.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Ranking Loss Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Affected Page or Keyword
+      description: Identify the URL, query, or topic that dropped in search visibility.
+      placeholder: |
+        - Page: /guides/setup-cli  
+        - Keyword: "biome install guide"  
+        - Ahrefs Rank Drop: #3 → #12 over 7 days  
+        - Query type: How-to / setup / developer
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Drop Details (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Drop Details
+      description: Include timeline, traffic impact, and tool(s) used to detect the ranking loss.
+      placeholder: |
+        - Drop began: 2025-06-01  
+        - Source: Google Search Console → CTR fell from 11.4% → 3.1%  
+        - Position: Average rank dropped from 2.7 → 8.2  
+        - Traffic loss: 58% fewer clicks WoW  
+        - Comparison: No competitor outranking previously
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference URLs or Keywords (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Tool Link or Keyword
+      description: Add a direct link to an SEO report or the tracked keyword.
+      placeholder: |
+        https://ahrefs.com/keyword-explorer/biome-install-guide  
+        or  
+        Google Search Console Performance → /guides/setup-cli
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How severe is the ranking change from an SEO perspective?
+      options:
+        - "Critical – top 3 position loss on strategic keyword"
+        - "High – commercial or top-funnel keyword impacted"
+        - "Medium – mid-volume, secondary keyword drop"
+        - "Low – experimental or informational query"
+      default: "Medium – mid-volume, secondary keyword drop"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this need to be investigated or mitigated?
+      options:
+        - "Immediate – priority hotfix or rollback"
+        - "High – review this sprint"
+        - "Medium – review next sprint"
+        - "Low – monitor over time"
+      default: "High – review this sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: Who or what is affected by this ranking loss?
+      options:
+        - "Org-wide – high-traffic, high-intent search loss"
+        - "Team-wide – marketing, docs, or product surface affected"
+        - "Single URL – page-specific drop"
+        - "Unclear – diagnostic needed"
+      default: "Team-wide – marketing, docs, or product surface affected"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Assign a priority for review or remediation.
+      options:
+        - "P0 – top priority"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – low"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this is a legitimate drop that’s actionable.
+      options:
+        - label: This drop is recent, sustained, and relevant.
+        - label: I’ve tagged marketing, docs, or SEO for awareness.
+    validations:
+      required: true

@@ -1,0 +1,150 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: workflow-automation-proposal
+
+name: "🔁 Workflow Automation Proposal"
+description: Propose a new GitHub Actions workflow or CI/CD automation.
+title: "[Automation Proposal]: "
+labels:
+  - automation
+  - workflow
+  - ci
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Reporter Identity
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Proposal Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What automation are you proposing and what problem does it solve?
+      placeholder: |
+        e.g., Add GitHub Action to auto-tag releases, run valibot schema validation, cache bun deps
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Technical Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: Describe affected repos, workflows, triggers, teams, or environments.
+      placeholder: |
+        - Applies to: monorepo/.github/workflows/lint.yml
+        - Trigger: On PR label 'ready-for-review'
+        - Pain point: Manual step to run type-checks is error-prone
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Operational Triage
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What is the cost of not doing this automation?
+      options:
+        - High – blocks productivity or deploys
+        - Medium – slows feedback or dev flow
+        - Low – convenience or polish
+      default: Medium – slows feedback or dev flow
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be implemented?
+      options:
+        - Immediate – unblock something
+        - Soon – in the current sprint
+        - Later – good to have
+        - Not urgent
+      default: Later – good to have
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: Who benefits or is affected?
+      options:
+        - Org-wide
+        - Multiple teams
+        - Single team
+        - Unclear
+      default: Multiple teams
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Recommend a prioritization tier.
+      options:
+        - P0 – Must implement ASAP
+        - P1 – Important automation
+        - P2 – Backlog candidate
+        - P3 – Optional quality improvement
+      default: P2 – Backlog candidate
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Links
+      placeholder: "e.g., GitHub issue #42, .github/workflows/deploy.yml, bun.lockb"
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments or Snippets
+      description: Paste example YAML, screenshots, or logs if relevant.
+      placeholder: |
+        ```yaml
+        name: Bun Cache Restore
+        uses: actions/cache@v3
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ hashFiles('**/bun.lockb') }}
+        ```
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this is scoped and actionable.
+      options:
+        - label: I have checked for duplicates or existing automation.
+        - label: This includes enough detail to estimate or implement.
+    validations:
+      required: true

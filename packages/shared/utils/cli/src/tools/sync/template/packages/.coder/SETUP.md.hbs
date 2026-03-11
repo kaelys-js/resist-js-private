@@ -1,0 +1,168 @@
+{{syncHeaderBlock "<!--" "-->" "https://coder.com/docs/install"}}
+
+# Coder Setup Guide
+
+Full walkthrough for provisioning a VPS with Coder for **{{ business.company }}** remote development.
+
+> **Automated alternative:** Run `{{ pm.run }} tool devenv deploy` to automate all steps below.
+
+## 1. Choose a VPS Provider
+
+**Recommended:** [Hetzner Cloud](https://console.hetzner.cloud) CX32 (4 vCPU, 8 GB RAM, 80 GB disk) at ~$9/month.
+
+- Each SvelteKit workspace uses ~1-2 GB RAM
+- 8 GB supports 4-6 concurrent workspaces
+- For 10+ workspaces: Hetzner CX42 (8 vCPU, 16 GB) or dedicated server
+
+## 2. Provision the Server
+
+1. Create an Ubuntu 24.04 LTS server with SSH key access
+2. Open firewall ports: 80, 443, 22
+3. Update system packages:
+
+```sh
+ssh root@<VPS_IP>
+apt update && apt upgrade -y
+```
+
+## 3. Install Kubernetes (k3s)
+
+[k3s](https://k3s.io) is a lightweight single-binary Kubernetes distribution.
+
+```sh
+# On the VPS:
+curl -sfL https://get.k3s.io | sh -
+
+# Verify:
+kubectl get nodes
+
+# Copy kubeconfig to local machine:
+# (from your local machine)
+scp root@<VPS_IP>:/etc/rancher/k3s/k3s.yaml ~/.kube/config-coder
+
+# Rewrite server address:
+sed -i '' "s/127.0.0.1/<VPS_IP>/g" ~/.kube/config-coder
+
+# Verify local access:
+KUBECONFIG=~/.kube/config-coder kubectl get nodes
+```
+
+## 4. Install Coder
+
+Install Coder via Helm chart into the k3s cluster:
+
+```sh
+export KUBECONFIG=~/.kube/config-coder
+
+helm repo add coder-v2 https://helm.coder.com/v2
+helm repo update
+
+helm install coder coder-v2/coder \
+  --set coder.env[0].name=CODER_ACCESS_URL \
+  --set coder.env[0].value=https://coder.{{ business.domain }}
+
+# Wait for pods:
+kubectl wait --for=condition=ready pod -l app=coder --timeout=120s
+```
+
+## 5. Configure DNS + TLS
+
+### Option A: Cloudflare Tunnel (recommended)
+
+```sh
+cloudflared tunnel create coder-tunnel
+cloudflared tunnel route dns coder-tunnel coder.{{ business.domain }}
+```
+
+Deploy cloudflared as a k8s pod that routes traffic to the Coder service.
+
+### Option B: Direct DNS + Let's Encrypt
+
+1. Create A record: `coder.{{ business.domain }}` → VPS IP
+2. Enable Coder's built-in TLS:
+
+```sh
+helm upgrade coder coder-v2/coder \
+  --set coder.env[0].name=CODER_ACCESS_URL \
+  --set coder.env[0].value=https://coder.{{ business.domain }} \
+  --set coder.env[1].name=CODER_TLS_ENABLE \
+  --set coder.env[1].value=true
+```
+
+## 6. Configure {{ git.oauthLabel }}
+
+1. {{ git.oauthSetupInstructions }}
+2. **Homepage URL:** `https://coder.{{ business.domain }}`
+3. **Callback URL:** `https://coder.{{ business.domain }}/api/v2/users/oidc/callback`
+4. Copy Client ID and Client Secret
+5. Update Coder:
+
+```sh
+helm upgrade coder coder-v2/coder \
+  --set coder.env[0].name=CODER_ACCESS_URL \
+  --set coder.env[0].value=https://coder.{{ business.domain }} \
+  --set coder.env[1].name=CODER_OIDC_ISSUER_URL \
+  --set coder.env[1].value={{ git.oidcIssuerUrl }} \
+  --set coder.env[2].name=CODER_OIDC_CLIENT_ID \
+  --set coder.env[2].value=<CLIENT_ID> \
+  --set coder.env[3].name=CODER_OIDC_CLIENT_SECRET \
+  --set coder.env[3].value=<CLIENT_SECRET>
+```
+
+## 7. Build and Push the Workspace Image
+
+```sh
+# Build from the devcontainer Dockerfile:
+docker build -t {{ kebabCase business.company }}-workspace:latest \
+  -f .devcontainer/Dockerfile .
+
+# Push to a registry accessible from k3s:
+docker tag {{ kebabCase business.company }}-workspace:latest \
+  {{ git.registry }}-workspace:latest
+docker push {{ git.registry }}-workspace:latest
+```
+
+## 8. Push the Workspace Template
+
+```sh
+coder login https://coder.{{ business.domain }}
+coder templates push {{ kebabCase business.company }} --directory .coder/
+```
+
+## 9. Create Your First Workspace
+
+**Via web:** Visit `https://coder.{{ business.domain }}` → Create Workspace → select template → Create
+
+**Via CLI:**
+
+```sh
+coder create my-workspace --template {{ kebabCase business.company }}
+```
+
+## 10. Maintenance
+
+### Update Coder
+
+```sh
+helm repo update
+helm upgrade coder coder-v2/coder
+```
+
+### Update workspace template
+
+```sh
+{{ pm.run }} tool sync
+{{ pm.run }} tool devenv push
+```
+
+### Monitoring
+
+- Coder admin dashboard: `https://coder.{{ business.domain }}/admin`
+- Resource usage: `coder stat`
+- k8s metrics: `kubectl top pods`
+
+### Backup
+
+- PVC data: snapshot via k3s storage provider
+- Config: `.devenv.json` contains deployment tokens (gitignored)
+- Template: regenerated from `resist.config.ts` via sync

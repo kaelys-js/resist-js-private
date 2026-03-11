@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SaaS Plan Migration Tracker
+# -------------------------------------------------------------------
+# Purpose: Track customer movement between SaaS pricing plans/SKUs, including details relevant to billing, product, and finance.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: saas-plan-migration-tracker
+
+name: "🔁 SaaS Plan Migration Tracker"
+description: Track movement between pricing plans or SKUs.
+title: "[Plan Migration]: "
+labels:
+  - billing
+  - migration
+  - pricing
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the person submitting this migration.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Customer Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Customer / Org
+      description: Which customer/org is migrating? Include rationale if known.
+      placeholder: |
+        - Org: Acme Corp  
+        - Reason: Moving to Enterprise for SAML + volume discount  
+        - Contact: Jane Doe (CSM)
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Plan Migration Details (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: From → To Plan
+      description: What’s the old plan and new plan? List feature changes, toggles, or usage tier adjustments.
+      placeholder: |
+        - From: Pro Plan – Monthly  
+        - To: Enterprise – Annual (custom terms)  
+        - Feature Toggles: SAML on, Audit Logs enabled  
+        - Migration: Effective July 1, 2025
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference Links (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Contract or Admin Link
+      description: Provide links to billing, CRM, or contract tracking systems.
+      placeholder: |
+        - Stripe: cus_123abc  
+        - SFDC: https://sfdc.com/opportunity/1234  
+        - Admin: https://admin.acme.io/customers/123
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Plan Change Type
+      description: What type of migration is this?
+      options:
+        - "Critical – contractual change or custom SKU"
+        - "High – plan tier or billing model change"
+        - "Medium – add-on or usage tier update"
+        - "Low – internal plan rename or cosmetic"
+      default: "High – plan tier or billing model change"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be updated or validated in systems?
+      options:
+        - "Immediate – billing or go-live is imminent"
+        - "High – this sprint or billing cycle"
+        - "Medium – scheduled this quarter"
+        - "Low – async sync"
+      default: "High – this sprint or billing cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What team or metric does this affect?
+      options:
+        - "Org-wide – ARR, COGS, or compliance"
+        - "Department-level – CS, Sales, or Finance workflow"
+        - "Team-level – backend or billing infra"
+        - "Unclear – tracking only"
+      default: "Department-level – CS, Sales, or Finance workflow"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Set the triage level for implementation or coordination.
+      options:
+        - "P0 – immediate action"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – backlog"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that the migration is valid and coordinated.
+      options:
+        - label: I have verified the change is in progress or complete.
+        - label: I have looped in the finance and product team if required.
+    validations:
+      required: true

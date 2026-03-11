@@ -1,0 +1,145 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Launch Checklist
+# -------------------------------------------------------------------
+# Purpose: Track readiness steps, dependencies, and approvals for launches.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: launch-readiness-checklist
+
+name: "🎬 Launch Checklist"
+description: Track readiness tasks and approvals for product or feature launch.
+title: "[Launch Checklist]: "
+labels:
+  - launch
+  - release
+  - checklist
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the person tracking this launch.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Launch Metadata
+  # --------------------------------------------------------------------
+  - type: input
+    id: launch_name
+    attributes:
+      label: Launch Name or Feature
+      description: What is being launched?
+      placeholder: "e.g., Stripe Integration GA, Mobile App v2.0"
+    validations:
+      required: true
+
+  - type: input
+    id: launch_date
+    attributes:
+      label: Target Launch Date
+      description: When is the expected go-live?
+      placeholder: "e.g., 2024-08-15"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Launch Checklist Items
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Launch Checklist Items
+      description: Track major launch readiness tasks using a markdown task list (`- [ ]`).
+      placeholder: |
+        - [ ] Docs reviewed and published  
+        - [ ] Sentry monitoring enabled  
+        - [ ] App Store metadata updated  
+        - [ ] Legal and compliance sign-off
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Launch Scope
+      description: How wide is the blast radius or visibility of this launch?
+      options:
+        - "Critical – user-facing and high-risk"
+        - "High – multi-system or compliance-involved"
+        - "Medium – product-facing but limited blast radius"
+        - "Low – internal or incremental"
+      default: "Medium – product-facing but limited blast radius"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this launch need to go live?
+      options:
+        - "Immediate – blocking timeline"
+        - "High – committed externally"
+        - "Medium – within quarter"
+        - "Low – async / no fixed date"
+      default: "High – committed externally"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: What type of teams or users are affected?
+      options:
+        - "Org-wide – legal, marketing, eng, support"
+        - "Team-wide – eng and product"
+        - "Feature-level – isolated to one surface"
+        - "Unclear – needs clarification"
+      default: "Team-wide – eng and product"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Overall level of coordination and follow-up needed.
+      options:
+        - "P0 – must launch cleanly"
+        - "P1 – should track to avoid gaps"
+        - "P2 – lightweight async OK"
+        - "P3 – archive or informal checklist"
+      default: "P1 – should track to avoid gaps"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this launch tracking is up-to-date and action-oriented.
+      options:
+        - label: I confirm this checklist is accurate and up to date.
+        - label: I understand all unchecked items must be complete before go-live.
+    validations:
+      required: true

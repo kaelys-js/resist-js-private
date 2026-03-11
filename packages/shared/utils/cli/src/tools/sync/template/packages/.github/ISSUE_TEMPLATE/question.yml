@@ -1,0 +1,162 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: general-question
+
+name: "❓ Question"
+description: Ask a general question or request clarification related to tooling, workflows, usage, or project direction.
+labels:
+  - question
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting the question.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Question Context (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: title
+    attributes:
+      label: Question Summary
+      description: A short, clear summary of your question.
+      placeholder: "e.g., How can I safely enable debug mode in production?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 🧠 Context
+      description: |
+        Describe what you're trying to achieve, clarify, or understand.
+        Include your stack and environment if relevant (e.g., Bun, Stripe, SvelteKit, Kubernetes, Docker, GCP).
+      placeholder: |
+        - Trying to configure Stripe webhooks in GCP Cloud Run  
+        - Using SvelteKit SSR on Cloudflare, unsure about session storage  
+        - Building mobile apps with Expo, seeking guidance on biometric login
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: 🔍 What Have You Tried?
+      description: |
+        Share what you’ve already attempted. Helps others avoid repeating suggestions.
+      placeholder: |
+        - Reviewed Stripe and GCP docs  
+        - Tried adding a `debug: true` flag in the config  
+        - Deployed to staging but encountered CORS errors  
+        - Checked logs in Sentry and found no trace
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help prioritize this question by specifying its importance and urgency.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance of getting this question answered.
+      options:
+        - "Low – curiosity or optional clarification"
+        - "Medium – blocks planning or decision-making"
+        - "High – blocking development work"
+        - "Critical – urgent for security, compliance, or customer delivery"
+      default: "Medium – blocks planning or decision-making"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Scope
+      description: How technically significant is the question?
+      options:
+        - "Low – narrow question or clarification"
+        - "Medium – involves common tooling or config"
+        - "High – affects core architectural behavior"
+        - "Critical – platform-wide uncertainty or risk"
+      default: "Medium – involves common tooling or config"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When an answer is needed.
+      options:
+        - "Low – informational"
+        - "Medium – needed in 1–2 sprints"
+        - "High – this sprint"
+        - "Critical – immediate need"
+      default: "Medium – needed in 1–2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Affected Scope
+      description: Who or what is affected by this unanswered question?
+      options:
+        - "Single developer"
+        - "Internal team or project"
+        - "Multiple services or stakeholders"
+        - "Production system or external users"
+      default: "Internal team or project"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Attachments (Optional)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Docs
+      description: Link to any related issues, documentation, discussion threads, or external references.
+      placeholder: "e.g., GitHub issue #123, docs link, Cloudflare API docs"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Upload screenshots, configs, or example outputs for clarity.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that your submission is complete and respectful of contributor time.
+      options:
+        - label: I have searched existing issues or documentation before submitting
+        - label: I have provided enough detail to help someone answer the question
+    validations:
+      required: true

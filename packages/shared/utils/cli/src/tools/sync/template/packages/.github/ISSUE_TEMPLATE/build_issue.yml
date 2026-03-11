@@ -1,0 +1,201 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# YAML Metadata
+version: 1.0.0
+form_id: build-error-report
+
+name: "🧱 Build Error"
+description: Report issues related to build failures, compilation errors, or packaging problems across environments.
+title: "[Build Error] "
+labels:
+  - bug
+  - build
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the individual submitting the report.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Environment & Tooling
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🖥️ Environment & Tooling  
+        Provide details about your local or CI environment, including OS, language/runtime, toolchains, and dependency versions.
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment Details
+      description: OS, runtime, package manager, versions, CI/CD stack, containerization, or deployment context.
+      placeholder: "e.g., Ubuntu 22.04, bun 1.0.25, TypeScript 5.3, Docker, GCP"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Reproduction Steps & Logs
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧪 Steps & Logs  
+        Detail how the error can be reproduced and share any console or CI logs.
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Describe step-by-step how to reliably reproduce the build issue.
+      placeholder: |
+        1. Clone the repository  
+        2. Run `bun install`  
+        3. Run `bun run build`  
+        4. Observe the failure
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Full Error Output / Logs
+      description: Include full logs, console output, or tracebacks. Use triple backticks for formatting.
+      placeholder: |
+        ```
+        error: Cannot find module 'xyz'
+        error: Build failed with exit code 1
+        ```
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help us understand the technical and business severity of this issue.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is resolving this issue?
+      options:
+        - "Low – nice to fix eventually"
+        - "Medium – affects developer workflow"
+        - "High – blocking team builds"
+        - "Critical – blocking release or hotfix"
+      default: "Medium – affects developer workflow"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How severe is the breakage from a technical standpoint?
+      options:
+        - "Low – cosmetic or warning only"
+        - "Medium – some developers blocked"
+        - "High – entire team blocked"
+        - "Critical – CI/CD pipeline blocked"
+      default: "Medium – some developers blocked"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly does this need to be resolved?
+      options:
+        - "Low – can wait for future sprint"
+        - "Medium – resolve within 2 sprints"
+        - "High – needs resolution this sprint"
+        - "Critical – immediate resolution required"
+      default: "Medium – resolve within 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: Who or what is affected by this issue?
+      options:
+        - "Local developer build only"
+        - "Team development workflows"
+        - "Multiple teams or services"
+        - "Production pipelines or release process"
+      default: "Team development workflows"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments & Related References
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Attachments & References  
+        Upload logs or link to related issues or PRs for further context.
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Logs or Artifacts (Optional)
+      description: Upload any relevant build logs, screenshots, or zipped artifacts.
+      multiple: true
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Links
+      description: Related issue numbers, build URLs, or documentation links.
+      placeholder: "e.g., #123, build run URL, internal doc"
+
+  # --------------------------------------------------------------------
+  # SECTION: Additional Technical Context
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧠 Additional Context  
+        Include environment-specific behaviors or recent changes that could affect builds.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Info
+      description: Recent infra/toolchain changes, CI/CD differences, or external services involved.
+      placeholder: |
+        - Issue occurs only in GCP Cloud Build  
+        - Fails inside Docker container using Alpine base  
+        - Works locally but fails on CI  
+        - Upgraded TypeScript from 5.2 to 5.3 recently
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm that this report contains accurate and reproducible information.
+      options:
+        - label: I confirm this build issue is reproducible and the provided information is accurate.
+    validations:
+      required: true

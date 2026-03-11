@@ -1,0 +1,224 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: design-spec-proposal
+
+name: "🧰 Design Spec Proposal"
+description: Propose a significant technical feature, architectural design, or cross-system change for review and alignment.
+labels:
+  - design
+  - rfc
+  - architecture
+  - planning
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person proposing the design.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Design Overview (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧱 Proposal Overview  
+        Describe the proposal’s purpose, system scope, and current state.
+
+  - type: input
+    id: title
+    attributes:
+      label: Proposal Title
+      description: Short and descriptive title for this proposal.
+      placeholder: "e.g., Unified Auth Layer for Web & Mobile"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and Problem Statement
+      description: Describe the existing limitations, use cases, or inconsistencies prompting this change.
+      placeholder: |
+        - Web and mobile clients use different authentication backends  
+        - Stripe webhook retries are unreliable across availability zones  
+        - Logging structure differs across services
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Provide a detailed explanation of the proposed design. Include architecture, key decisions, affected components, and technical rationale.
+      placeholder: |
+        - Introduce an API Gateway for multi-client routing  
+        - Use shared Valibot schemas for consistent validation  
+        - Centralize secrets via GCP Secret Manager  
+        - See `/docs/architecture/unified-auth.svg` for flow
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Evaluation & Risks
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚖️ Evaluation  
+        Include alternatives, risks, trade-offs, and system-wide impact.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Briefly describe any alternative approaches and why they were not chosen.
+      placeholder: |
+        - Firebase Auth lacks regional redundancy  
+        - Building an in-house validator increases security risk  
+        - Express Gateway not compatible with Bun-native services
+      render: markdown
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Risks and Impact
+      description: Outline risks, edge cases, or downstream effects across users, teams, timelines, or services.
+      placeholder: |
+        - May delay Android and iOS release schedules  
+        - Requires full rollout across 4 microservices  
+        - Migration breaks backward compatibility for SDK clients
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: rollout
+    attributes:
+      label: Rollout and Monitoring Plan
+      description: Describe deployment strategy, flags, observability, rollback, and validation approach.
+      placeholder: |
+        - Feature flag: `FEATURE_UNIFIED_AUTH`  
+        - Deploy via Argo CD to staging → 10% prod canary  
+        - Monitor with Umami + Sentry  
+        - Rollback: revert Helm chart + Cloudflare route config
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Dependencies & Links
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Dependencies  
+        Link to relevant diagrams, upstream blockers, or associated work.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References and Dependencies
+      description: Link to related specs, issues, diagrams, blockers, or migration guides.
+      placeholder: |
+        - RFC: `rfc/2025-auth-unification.md`  
+        - Depends on: `migration-guide/auth-2025.md`  
+        - Related: #1023, #1089
+      render: markdown
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Add diagrams, architecture visuals, tables, or slides that support the proposal.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help assess the scope, urgency, and priority for planning.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How critical is this proposal for current or upcoming work?
+      options:
+        - "Low – exploratory or backlog item"
+        - "Medium – relevant to current roadmap"
+        - "High – enables critical milestones"
+        - "Critical – blocks release or org-wide initiative"
+      default: "Medium – relevant to current roadmap"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Complexity
+      description: Expected scope and depth of engineering effort.
+      options:
+        - "Low – scoped to one system or team"
+        - "Medium – affects several services"
+        - "High – cross-system integration"
+        - "Critical – platform-wide architectural shift"
+      default: "Medium – affects several services"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon does this decision or design need to be finalized?
+      options:
+        - "Low – future planning"
+        - "Medium – finalize within next 2 sprints"
+        - "High – needs decision this sprint"
+        - "Critical – blocking ongoing work"
+      default: "Medium – finalize within next 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business or Product Impact
+      description: What is the scope of systems or users impacted by this proposal?
+      options:
+        - "Local system or service"
+        - "Multiple product teams"
+        - "Cross-platform or customer-facing"
+        - "Production-critical or regulatory"
+      default: "Multiple product teams"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Proposal Confirmation
+      description: Confirm readiness for review and cross-team visibility.
+      options:
+        - label: I have reviewed this proposal with relevant teams and stakeholders
+        - label: This design aligns with our product, infra, and security standards
+        - label: All known risks, tradeoffs, and migrations are documented
+    validations:
+      required: true

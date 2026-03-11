@@ -1,0 +1,151 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Customer Insights Log
+# -------------------------------------------------------------------
+# Purpose: Log structured customer feedback from interviews, surveys, or product engagements.
+# Useful for roadmap planning, GTM validation, user research, and product alignment.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: customer-insights-log
+
+name: "🧠 Customer Insights Log"
+description: Log feedback from customer interviews, surveys, or product sessions to inform roadmap and product strategy.
+title: "[Customer Insight]: "
+labels:
+  - customer
+  - insights
+  - product
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the person logging this insight.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Insight Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Summarize the customer insight in 1–3 sentences.
+      placeholder: |
+        - Feedback: "I don’t know when my config is valid — validation needs to be surfaced earlier."  
+        - Theme: Developer onboarding friction  
+        - Opportunity: Improve CLI feedback in biome init
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Source Info (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Source / Background
+      description: Where did the insight come from? (e.g., call, support ticket, form, Slack)
+      placeholder: |
+        - Source: Product call with Acme Corp  
+        - Date: 2025-06-04  
+        - Method: Customer onboarding interview  
+        - Interviewer: @product-lead
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Reference Links (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: CRM or Session Link
+      description: Paste link to Gong call, Salesforce note, Notion summary, or CRM entry.
+      placeholder: "e.g., https://app.gong.io/call/abc123, https://crm.example.com/customer/42"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Insight Severity
+      description: How strong or urgent is this feedback?
+      options:
+        - "Critical – frequent theme with business impact"
+        - "High – directly affects retention, expansion, or conversion"
+        - "Medium – important but situational"
+        - "Low – interesting but non-blocking"
+      default: "Medium – important but situational"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this need to be reviewed?
+      options:
+        - "Immediate – relevant to current roadmap"
+        - "High – this quarter"
+        - "Medium – track for next planning cycle"
+        - "Low – log for future research"
+      default: "Medium – track for next planning cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What scope or team does this insight affect?
+      options:
+        - "Org-wide – pricing, core experience, or strategy"
+        - "Team-wide – docs, onboarding, performance, UX"
+        - "Single feature – tactical product feedback"
+        - "Unclear – needs validation"
+      default: "Team-wide – docs, onboarding, performance, UX"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Prioritize this feedback based on potential actionability.
+      options:
+        - "P0 – needs immediate follow-up"
+        - "P1 – evaluate this cycle"
+        - "P2 – monitor"
+        - "P3 – backlog only"
+      default: "P2 – monitor"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this is a valid customer insight.
+      options:
+        - label: This is based on a real customer conversation or data point.
+        - label: This insight is relevant to roadmap or product feedback.
+    validations:
+      required: true

@@ -1,0 +1,151 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Policy Expiration Tracker
+# -------------------------------------------------------------------
+# Purpose: Track time-limited policies, compliance exceptions, or temporary security waivers.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: policy-expiration-tracker
+
+name: "📆 Policy Expiration Tracker"
+description: Track expirations for temporary policies or exceptions.
+title: "[Policy Expiration]: "
+labels:
+  - policy
+  - compliance
+  - expiration
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Reporter Identity
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or name of submitter.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary of Temporary Policy
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What temporary policy, exemption, or compliance workaround is being tracked?
+      placeholder: |
+        - Firewall rule allowing internal IP exception  
+        - Temporary access to production data for debugging  
+        - MFA exception for service account on build server
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Policy Context and Risk
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Details or Background
+      description: Include justification, systems impacted, associated risk, and expected expiration or review date.
+      placeholder: |
+        - Requested by: Security Engineering  
+        - Systems affected: VPN gateway, internal CI runners  
+        - Reason: Short-term debug requirement for vendor audit  
+        - Risk: Low, access limited to internal subnet  
+        - Expiration: August 15, 2025
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Docs
+      description: Link to compliance review, waiver document, policy record, or GitHub issues.
+      placeholder: "e.g., waiver-GRC-2025-001, SOC2 checklist row, issue #432"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Risk Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Policy Risk Level
+      description: What is the security or compliance risk of this policy being in place?
+      options:
+        - "Critical – non-compliant with data protection/regulations"
+        - "High – elevated access or production bypass"
+        - "Medium – user friction, audit deviation"
+        - "Low – operational delay or documentation gap"
+      default: "Medium – user friction, audit deviation"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Review Timeline Urgency
+      description: When must this be reviewed or revoked?
+      options:
+        - "Immediate – before next release or audit"
+        - "High – within 7 days"
+        - "Medium – this month"
+        - "Low – in next quarter"
+      default: "Medium – this month"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by this exception or policy?
+      options:
+        - "Org-wide – compliance posture, regulatory scope"
+        - "Product-specific – scoped to service or feature"
+        - "Team-level – single group or workflow"
+        - "Unclear – needs triage"
+      default: "Product-specific – scoped to service or feature"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Suggested visibility or tracking level.
+      options:
+        - "P0 – track daily and escalate"
+        - "P1 – review in sprint check-ins"
+        - "P2 – async triage and doc tracking"
+        - "P3 – non-blocking audit note"
+      default: "P2 – async triage and doc tracking"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that policy ownership and expiration tracking are in place.
+      options:
+        - label: I have recorded an expiration date and reviewer.
+        - label: I understand this policy must be reviewed or revoked by that date.
+    validations:
+      required: true

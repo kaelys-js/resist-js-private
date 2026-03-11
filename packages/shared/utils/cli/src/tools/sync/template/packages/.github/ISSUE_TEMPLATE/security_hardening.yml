@@ -1,0 +1,171 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Security Hardening Proposal
+# -------------------------------------------------------------------
+# Purpose: Submit proactive security enhancements or improvements.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: security-hardening-proposal
+
+name: "🔐 Security Hardening Proposal"
+description: Propose proactive security improvements.
+title: "[Security]: "
+labels:
+  - security
+  - enhancement
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this form.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Proposal Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What security improvement do you propose?
+      placeholder: |
+        Example:
+        - Enable HTTP Strict Transport Security (HSTS) across all services.
+        - Migrate from SHA1 to SHA256 for token signing.
+        - Harden GKE node pools by removing legacy service accounts.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context / Background
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Details
+      description: Tools, systems, or scenarios involved. Include motivations or threat models.
+      placeholder: |
+        - Applies to Cloudflare edge rules and internal GCP ingress  
+        - Risks elevated after recent audit  
+        - Dependencies include Bun, TypeScript, and Docker base image security scans
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References / Evidence
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Link to security audits, CVEs, docs, or GitHub issues.
+      placeholder: e.g., CVE-2023-55555, GitHub issue #92, https://owasp.org
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (optional)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments (Optional)
+      description: Paste or link to supporting logs, screenshots, configurations, or threat diagrams.
+      render: markdown
+      placeholder: |
+        You can paste YAML, JSON configs, architecture maps, etc.
+        ```json
+        {
+          "policy": "X-Content-Type-Options: nosniff",
+          "applies_to": ["prod", "staging"]
+        }
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How critical is the improvement to your security posture?
+      options:
+        - "Critical – unmitigated vulnerability or CVE"
+        - "High – necessary for audit compliance or high risk"
+        - "Medium – recommended best practice"
+        - "Low – defense-in-depth or hygiene"
+      default: "Medium – recommended best practice"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be addressed?
+      options:
+        - "Immediate – before next release or audit"
+        - "High – within current quarter"
+        - "Medium – part of ongoing security roadmap"
+        - "Low – backlog for later review"
+      default: "High – within current quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by this proposal?
+      options:
+        - "Org-wide – all environments and teams"
+        - "Team-level – scoped to specific services or infra"
+        - "User-facing – impacts client behavior or trust"
+        - "Tooling or CI – development pipeline only"
+      default: "Team-level – scoped to specific services or infra"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Suggested prioritization for backlog or implementation.
+      options:
+        - "P0 – must fix now"
+        - "P1 – top priority in current milestone"
+        - "P2 – triaged for upcoming cycle"
+        - "P3 – best-effort or optional"
+      default: "P2 – triaged for upcoming cycle"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this is a legitimate, scoped security enhancement.
+      options:
+        - label: I have reviewed existing issues to avoid duplication.
+        - label: I have provided enough context for the proposal to be evaluated.
+    validations:
+      required: true

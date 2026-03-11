@@ -1,0 +1,147 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Learning Resource Request
+# -------------------------------------------------------------------
+# Purpose: Help contributors request educational materials on concepts, systems, or tools.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: learning-resource-request
+
+name: "🎓 Learning Resource Request"
+description: Suggest a guide, explainer, or diagram to help contributors understand a system or concept.
+title: "[Learning Resource]: "
+labels:
+  - documentation
+  - learning
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person submitting this request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Topic
+  # --------------------------------------------------------------------
+  - type: input
+    id: topic
+    attributes:
+      label: Topic or Concept
+      description: Area or system you want a learning resource for.
+      placeholder: "e.g., Argo CD rollout strategy, Valibot schema inference"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Learning Objective
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: value
+    attributes:
+      label: What Do You Want to Learn?
+      description: Describe your learning need and why a guide or explainer would help.
+      placeholder: |
+        I’d like a visual walkthrough of how Biome integrates with Bun and Valibot in the validation pipeline.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Where this would be used, or what it's currently blocking.
+      placeholder: |
+        - Working on mobile CI pipelines with Stripe + Sentry  
+        - Observability and logs are hard to trace in GCP  
+        - Want to contribute to the Argo CD config but unclear on structure
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How big a blocker is this to productivity or understanding?
+      options:
+        - "Critical – totally blocked without this resource"
+        - "High – struggling to contribute or proceed"
+        - "Medium – useful for ramp-up or improvement"
+        - "Low – nice to have for clarity"
+      default: "Medium – useful for ramp-up or improvement"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When do you need this by?
+      options:
+        - "Immediate – actively blocked"
+        - "High – would help within this sprint"
+        - "Medium – this month or next"
+        - "Low – log for later onboarding docs"
+      default: "High – would help within this sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who would benefit from this learning asset?
+      options:
+        - "Org-wide – useful for all contributors"
+        - "Team-wide – helpful for a specific working group"
+        - "Individual – personal ramp-up or context"
+        - "Unclear – needs scoping"
+      default: "Team-wide – helpful for a specific working group"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Recommended priority for creating this resource.
+      options:
+        - "P0 – needed for current sprint"
+        - "P1 – near-term contributor enablement"
+        - "P2 – standard backlog doc request"
+        - "P3 – add to onboarding wishlist"
+      default: "P2 – standard backlog doc request"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this is an educational resource request.
+      options:
+        - label: I confirm this request is for a learning or documentation asset, not a product feature
+    validations:
+      required: true

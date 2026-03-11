@@ -1,0 +1,154 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Refund or Credit Request
+# -------------------------------------------------------------------
+# Purpose: Log, triage, and route refund or credit requests based on valid customer cases.
+# Designed for use across finance, support, and account management teams.
+# Schema-compliant, platform-neutral, audit-ready.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: refund-or-credit-request
+
+name: "📥 Refund or Credit Request"
+description: Log a refund or credit case for triage and review by support, finance, or account teams.
+title: "[Refund or Credit]: "
+labels:
+  - billing
+  - credit
+  - support
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or full name of the requester.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Customer + Reason (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Customer and Reason
+      description: Who is requesting the refund or credit, and what is the reason behind it?
+      placeholder: |
+        - Customer: acme-corp@example.com  
+        - Reason: Mischarged for unused seats in May billing cycle  
+        - Type: Credit requested, not full refund
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Incident
+      description: Add service or support history context. Was there downtime, onboarding friction, pricing confusion, etc.?
+      placeholder: |
+        - Onboarding was delayed due to incorrect role permissions  
+        - Production API was degraded for 4+ hours on 2025-06-01  
+        - Customer eligible for 30-day satisfaction guarantee
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: External References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Support Ticket or Invoice Link
+      description: Add supporting URLs from CRM, support, billing, or ticketing systems.
+      placeholder: |
+        - Zendesk: https://support.example.com/ticket/124321  
+        - Stripe: https://dashboard.stripe.com/invoices/in_1Gs...  
+        - Notion: Refund Approval Notes
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Case Severity
+      description: How serious is the issue from a customer success, support, or trust standpoint?
+      options:
+        - "Critical – billing error, legal concern, or reputational risk"
+        - "High – high-value customer with time-sensitive issue"
+        - "Medium – standard refund/credit flow"
+        - "Low – minor adjustment or goodwill gesture"
+      default: "Medium – standard refund/credit flow"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this refund or credit need to be processed?
+      options:
+        - "Immediate – SLA breach or retention risk"
+        - "High – process within 48 hours"
+        - "Medium – process within this sprint"
+        - "Low – async or non-blocking"
+      default: "Medium – process within this sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What level of business/customer risk does this issue represent?
+      options:
+        - "Org-wide – potential legal or major account impact"
+        - "Team-wide – multiple accounts or repeated incident"
+        - "Single account – isolated case"
+        - "Unclear – needs triage"
+      default: "Single account – isolated case"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How should this be prioritized relative to other requests?
+      options:
+        - "P0 – top priority"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – low"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm the request has been verified and routed appropriately.
+      options:
+        - label: I’ve verified this is a real refund/credit request.
+        - label: I have tagged finance, support, or account owners.
+    validations:
+      required: true

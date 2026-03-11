@@ -1,0 +1,166 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Design Feedback
+# -------------------------------------------------------------------
+# Purpose: Gather structured feedback on design mockups, flows, UI/UX patterns, and component clarity.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: design-feedback
+
+name: "🎨 Design Feedback"
+description: Share feedback on mockups, design systems, or interactions.
+title: "[Design Feedback]: "
+labels:
+  - design
+  - uiux
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this form.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Brief overview or goal of this feedback.
+      placeholder: |
+        - Suggesting a clearer icon for the save action  
+        - Modal flow feels disconnected on mobile breakpoints  
+        - Text alignment is inconsistent in form fields
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Details
+      description: Provide relevant details—Figma links, screenshots, flow problems, interaction confusion, etc.
+      placeholder: |
+        - Figma file: https://figma.com/file/...  
+        - Using Chrome on macOS  
+        - Button hierarchy is unclear in mobile settings modal
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Related Links or Discussions (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Link to any design files, related tickets, or specs.
+      placeholder: "e.g., Figma file, GitHub issue #22, https://design.example.com"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments or Screenshots
+      description: Paste screenshots or visuals that illustrate your feedback.
+      placeholder: |
+        - Screenshot of spacing issue in dark mode  
+        - Before/after comparison of button placement  
+        - GIF of focus state behavior
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How impactful is this feedback to user experience or consistency?
+      options:
+        - "Critical – blocks core functionality or accessibility"
+        - "High – major usability or consistency issue"
+        - "Medium – minor UI/UX concern or improvement"
+        - "Low – polish or visual enhancement"
+      default: "Medium – minor UI/UX concern or improvement"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be addressed?
+      options:
+        - "Immediate – affects launch or key milestone"
+        - "High – should be reviewed this sprint"
+        - "Medium – add to next grooming/review"
+        - "Low – async backlog for later review"
+      default: "Medium – add to next grooming/review"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by the design feedback?
+      options:
+        - "User-facing – visible to all users"
+        - "Internal – only affects internal dashboards or tools"
+        - "System-wide – shared design system or components"
+        - "Unclear – needs review"
+      default: "User-facing – visible to all users"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Overall priority for triage or review.
+      options:
+        - "P0 – urgent fix required"
+        - "P1 – important design consistency issue"
+        - "P2 – moderate, not blocking"
+        - "P3 – nice-to-have"
+      default: "P2 – moderate, not blocking"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this feedback is actionable and well-scoped.
+      options:
+        - label: I have reviewed the current design or experience
+        - label: I’ve provided enough information for design or product review
+    validations:
+      required: true

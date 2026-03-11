@@ -1,0 +1,181 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Title Tag Conflict
+# -------------------------------------------------------------------
+# Purpose: Flag issues with title tags that harm SEO performance, CTR, or branding.
+# Includes duplicate, missing, misleading, or inconsistent title tag cases.
+# Fully generic and compatible across all platforms and stacks.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-title-tag-conflict
+
+name: "🏷️ SEO Title Tag Conflict"
+description: Report duplicate, missing, or misleading title tags across site pages.
+title: "[SEO Title Tag Conflict]: "
+labels:
+  - seo
+  - title-tag
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contact of the individual submitting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Title Tag Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧾 Title Tag Issue  
+        Provide details about the problematic page titles and why they are a concern.
+
+  - type: textarea
+    id: title_tag_details
+    attributes:
+      label: Title Tag Issue
+      description: Identify affected pages and describe the issue with title tag usage.
+      placeholder: |
+        - Page: /docs/api → No title tag present  
+        - Page: /login → Title: "Home - SiteName" (should reflect login intent)  
+        - Page: /blog/* → All pages share same title "Blog - SiteName"  
+        - Issue: SEO performance, brand inconsistency, low CTR
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help triage based on scope, visibility, and business impact.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How severe is this issue from an SEO perspective?
+      options:
+        - "Critical – widespread or template-level title issue"
+        - "High – affects key pages or indexed surfaces"
+        - "Medium – isolated pages or low-priority terms"
+        - "Low – branding or editorial inconsistency only"
+      default: "Medium – isolated pages or low-priority terms"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does this need to be addressed?
+      options:
+        - "Critical – fix immediately"
+        - "High – this sprint"
+        - "Medium – next 2 sprints"
+        - "Low – backlog for future"
+      default: "Next cycle – backlog for future"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: Who or what is affected if this remains unresolved?
+      options:
+        - "Org-wide – significant impact on traffic or conversions"
+        - "Team-wide – campaign, product, or section visibility"
+        - "Single page or query – isolated, non-critical"
+        - "Unclear – needs analysis"
+      default: "Team-wide – campaign, product, or section visibility"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Overall priority for this issue considering severity and urgency.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Evidence (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Validation  
+        Include crawl data, audit exports, or traffic performance metrics.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Link to SEO tools, dashboards, content audits, or issue threads.
+      placeholder: |
+        - Screaming Frog or Ahrefs title tag report  
+        - GSC low CTR pages with generic titles  
+        - PR #341 introduced layout with static titles  
+        - Brand guidelines reference for page types
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Share any exports, screenshots, or crawl logs highlighting the issue.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste CSV extracts, screenshots, or DOM examples.
+      placeholder: |
+        ```csv
+        URL,Title
+        /login,"Home - SiteName"
+        /blog/post-1,"Blog - SiteName"
+        /blog/post-2,"Blog - SiteName"
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm the issue has been reviewed and is ready for triage.
+      options:
+        - label: I confirm this title tag issue is valid, reproducible, and internally reviewed.
+    validations:
+      required: true

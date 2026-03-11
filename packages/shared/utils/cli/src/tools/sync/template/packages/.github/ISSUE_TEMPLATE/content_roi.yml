@@ -1,0 +1,155 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Content ROI Feedback
+# -------------------------------------------------------------------
+# Purpose: Capture performance signals for content—both positive and negative—
+# across organic, campaign, and product marketing surfaces.
+# Schema-compliant, attribution-aware, and growth-aligned.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: content-roi-feedback
+
+name: "📈 Content ROI Feedback"
+description: Track performance of content efforts based on growth, engagement, or conversion metrics.
+title: "[Content ROI Feedback]: "
+labels:
+  - content
+  - marketing
+  - growth
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or name of the person submitting this feedback.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary of Content Performance (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Content Piece or Channel
+      description: Which content, campaign, or surface is being reviewed?
+      placeholder: |
+        - Blog: “Why switch to Biome”  
+        - Channel: /blog, newsletter, YouTube, landing page  
+        - Content Type: Comparison article, video walkthrough, email CTA
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Metrics Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Engagement or Metrics
+      description: Provide metrics like CTR, bounce rate, average time, scroll %, conversions, or demo requests.
+      placeholder: |
+        - GA4 shows 65% bounce rate, avg time on page 41s  
+        - 280 scroll completions out of 1.1k visits  
+        - Conversion rate: 3.1% to /signup from this blog  
+        - UTM campaign drove 17 signups last week
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attribution & Source (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Analytics or UTM Link
+      description: Link to relevant dashboard, UTM report, or content location.
+      placeholder: |
+        - https://umami.example.com/content-performance  
+        - https://blog.example.com/posts/biome-vs-eslint  
+        - https://ga.example.com/path-to-report
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Performance Severity
+      description: How significant was the content’s impact (positive or negative)?
+      options:
+        - "Critical – top campaign piece with strong business signal"
+        - "High – content influenced conversion, signup, or growth spike"
+        - "Medium – healthy engagement or trend noticed"
+        - "Low – early or niche performance data"
+      default: "Medium – healthy engagement or trend noticed"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be reviewed or followed up on?
+      options:
+        - "Immediate – part of launch or product signal"
+        - "Soon – this sprint"
+        - "Next cycle – end of quarter review"
+        - "Not urgent – backlog, trend tracking"
+      default: "Next cycle – end of quarter review"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business Impact
+      description: What level of team or org exposure does this content feedback affect?
+      options:
+        - "Org-wide – affects GTM, product, or growth strategy"
+        - "Team-wide – impacts marketing or docs planning"
+        - "Single asset or page – localized visibility"
+        - "Unclear – validation or context needed"
+      default: "Team-wide – impacts marketing or docs planning"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Assign an appropriate priority for action or follow-up.
+      options:
+        - "P0 – top priority"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – low"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm accuracy and relevance of this feedback.
+      options:
+        - label: Metrics are supported by analytics tools or reliable attribution.
+        - label: I’ve shared this with content or growth leads.
+    validations:
+      required: true

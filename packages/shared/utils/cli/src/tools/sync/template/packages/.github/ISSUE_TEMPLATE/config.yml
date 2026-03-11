@@ -1,0 +1,196 @@
+# TODO: enable/disable?
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-config.json
+
+blank_issues_enabled: false
+
+contact_links:
+  - name: 💬 Ask a Question
+    url: https://github.com/YOUR_REPO/discussions
+    about: Ask or answer questions outside structured issues
+  - name: 📚 Read the Documentation
+    url: https://yourproject.org/docs
+    about: Explore official docs, guides, and references
+  - name: 🔐 Report a Security Issue
+    url: https://github.com/YOUR_REPO/SECURITY.md
+    about: Privately report vulnerabilities or security concerns
+
+issue_templates:
+  # 🐞 Core & General Issues
+  - name: 🐞 Bug Report
+    file: bug_report.yml
+    description: Reproducible bugs or incorrect behavior
+  - name: 💡 Feature Request
+    file: feature_request.yml
+    description: Suggest a new feature or enhancement
+  - name: 💬 Support Request
+    file: support.yml
+    description: Troubleshooting, setup help, or general assistance
+  - name: ❓ General Question
+    file: question.yml
+    description: Questions not covered by other templates
+
+  # 💳 Account & Billing
+  - name: 🔐 Account Access Issue
+    file: account_access_issue.yml
+    description: Login, MFA, or account recovery issues
+  - name: 💳 Billing Issue
+    file: billing_issue.yml
+    description: Subscription, invoice, or payment issues
+  - name: 🔑 License Key Issue
+    file: license_key_issue.yml
+    description: Activation or retrieval problems
+  - name: 🧾 Contract/Terms Question
+    file: contract_question.yml
+    description: Questions about terms, contracts, or SLAs
+  - name: 🏢 Enterprise Support Request
+    file: enterprise_support_request.yml
+    description: Contact us regarding enterprise plans
+  - name: 🤝 Sponsorship Interest
+    file: sponsorship_interest.yml
+    description: Partner or sponsor our work
+
+  # 🛠 Developer & Engineering
+  - name: ⚙️ CI/CD Issue
+    file: CI_issue.yml
+    description: Problems with GitHub Actions or pipelines
+  - name: 🧪 Environment Support Request
+    file: env_support_request.yml
+    description: Suggest support for platforms or runtimes
+  - name: 🌐 Integration Issue
+    file: integration_issue.yml
+    description: Issues with third-party services or SDKs
+  - name: 🧱 Build Error
+    file: build_issue.yml
+    description: Build system or compiler failures
+  - name: 📦 Dependency Issue
+    file: dependency_issue.yml
+    description: Issues with external libraries or packages
+  - name: 🤖 Automation Request
+    file: automation_request.yml
+    description: Request or improve automations or workflows
+  - name: 🔁 API Change Proposal
+    file: api_change.yml
+    description: Propose modifications to the public API
+  - name: 🧼 Refactor Request
+    file: refactor_request.yml
+    description: Internal code cleanup or improvements
+  - name: 🧱 Technical Debt
+    file: tech_debt.yml
+    description: Track or raise technical debt
+  - name: 🔄 Handoff Request
+    file: handoff_request.yml
+    description: Reassign task or pull request ownership
+  - name: 🚧 Blocked Task
+    file: blocked_task.yml
+    description: Work blocked and needing attention
+
+  # 🔄 Migrations & Upgrades
+  - name: 🚚 Feature Migration Issue
+    file: feature_migration_issue.yml
+    description: Issues when migrating to newer features or versions
+
+  # 📘 Documentation
+  - name: 📘 Tutorial Request
+    file: tutorial_request.yml
+    description: Request a new guide or walkthrough
+  - name: 📂 Example Request
+    file: example_request.yml
+    description: Ask for code examples or usage patterns
+  - name: 📚 Citation Request
+    file: citation_request.yml
+    description: How to cite this project in academic works
+  - name: ✏️ Typo or Formatting Issue
+    file: typo_report.yml
+    description: Typos, grammar, or markdown formatting issues
+
+  # 🌍 Community & Contributors
+  - name: ✨ First-Time Contribution
+    file: first_time_contribution.yml
+    description: Share your first contribution experience
+  - name: 🧑‍🏫 Mentorship Request
+    file: mentorship_request.yml
+    description: Request help to start contributing
+  - name: 🧭 Onboarding Feedback
+    file: onboarding_feedback.yml
+    description: Feedback from new users or contributors
+  - name: 🌍 Community Suggestion
+    file: community_suggestion.yml
+    description: Improve community processes or engagement
+  - name: 📅 Community Event Idea
+    file: event_idea.yml
+    description: Propose meetups, AMAs, or online events
+  - name: 📰 Content Request
+    file: content_request.yml
+    description: Blog, social, or marketing content ideas
+  - name: 📣 Reuse Case Study
+    file: reuse_case_study.yml
+    description: Showcase how you're using this project
+  - name: 🌐 Translation Request
+    file: translation_request.yml
+    description: Suggest language localization needs
+
+  # 🧪 Maintainers & Triage
+  - name: 🧪 Needs Triage
+    file: triage.yml
+    description: Flag for maintainer triage
+  - name: 📎 Duplicate Issue
+    file: duplicate_issue.yml
+    description: Link to an existing issue
+  - name: 🚫 Invalid Issue
+    file: invalid_issue.yml
+    description: Doesn’t meet contribution guidelines
+  - name: ❗ Needs More Info
+    file: needs_more_info.yml
+    description: Ask for more context or details
+  - name: 🔬 Research or Benchmark Request
+    file: research_request.yml
+    description: Request for data, testing, or benchmarks
+  - name: 🧰 Design Spec Proposal
+    file: design_spec_proposal.yml
+    description: Propose a technical spec or RFC
+  - name: 🧪 Experimental Feature Feedback
+    file: experimental_feature_feedback.yml
+    description: Share feedback on alpha or beta features
+  - name: ⚠️ Deprecation Notice
+    file: deprecation_notice.yml
+    description: Flag features marked for deprecation
+  - name: ❌ Abandonment Notice
+    file: abandonment_notice.yml
+    description: Notify about dropped or obsolete work
+  - name: 💥 Incident Postmortem
+    file: postmortem.yml
+    description: Post-incident report and resolution notes
+  - name: 📝 Meeting Notes
+    file: meeting_notes.yml
+    description: Share internal or community meeting summaries
+
+  # ⚖️ Governance & Policy
+  - name: 🧑‍⚖️ Code of Conduct Violation
+    file: code_of_conduct_violation.md
+    description: Privately report a behavior violation
+  - name: 🚩 Moderation Flag
+    file: moderation_flag.md
+    description: Report harmful or spammy content
+  - name: ⚖️ License Question
+    file: license_question.yml
+    description: Ask about licensing, usage, or IP
+  - name: 📜 Compliance Concern
+    file: compliance_issue.yml
+    description: Raise legal, IP, or regulatory issues
+  - name: 🧾 Policy Proposal
+    file: policy_proposal.yml
+    description: Suggest a new project policy
+  - name: 🏛️ Governance Question
+    file: governance_question.yml
+    description: Ask about roles, processes, or leadership
+
+  # 🛠 Meta & Infrastructure
+  - name: 🏗 Infrastructure Issue
+    file: infra_issue.yml
+    description: Hosting, DNS, or Cloudflare-related issues
+  - name: 🧪 Template Feedback
+    file: template_feedback.yml
+    description: Suggest improvements to issue templates
+  - name: 🎨 UI/UX Feedback
+    file: ui_ux_feedback.yml
+    description: Suggest usability or design improvements

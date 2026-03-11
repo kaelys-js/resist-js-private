@@ -1,0 +1,119 @@
+{
+	"$schema": "{{schemaPath 'tooling/syncpack'}}",
+	"indent": "\t",
+	"dependencyTypes": [
+		"dev",
+		"local",
+		"overrides",
+		"peer",
+		"pnpmOverrides",
+		"prod",
+		"resolutions"
+	],
+	"specifierTypes": [
+		"exact",
+		"latest",
+		"range",
+		"tag",
+		"workspace-protocol"
+	],
+	"sortFirst": [
+		"name",
+		"version",
+		"private",
+		"type",
+		"description",
+		"license",
+		"author",
+		"maintainers",
+		"contributors",
+		"homepage",
+		"repository",
+		"bugs",
+		"funding",
+		"keywords",
+		"publishConfig",
+		"workspaces",
+		"engines",
+		"packageManager",
+		"main",
+		"module",
+		"types",
+		"typings",
+		"exports",
+		"imports",
+		"bin",
+		"files",
+		"sideEffects",
+		"scripts",
+		"dependencies",
+		"peerDependencies",
+		"peerDependenciesMeta",
+		"optionalDependencies",
+		"devDependencies",
+		"overrides",
+		"resolutions",
+		"pnpm"
+	],
+	"sortAz": [
+		"contributors",
+		"dependencies",
+		"devDependencies",
+		"keywords",
+		"optionalDependencies",
+		"peerDependencies",
+		"pnpm.overrides",
+		"resolutions",
+		"overrides",
+		"scripts"
+	],
+	"versionGroups": [
+		{
+			"label": "Use workspace protocol for internal packages",
+			"dependencies": ["@/*", "@{product}/*"],
+			"dependencyTypes": ["dev", "peer", "prod"],
+			"pinVersion": "workspace:*"
+		},
+		{
+			"label": "TypeScript must be consistent across packages",
+			"dependencies": ["typescript", "@types/node"],
+			"policy": "sameRange"
+		},
+		{
+			"label": "Valibot must be consistent across packages",
+			"dependencies": ["valibot"],
+			"policy": "sameRange"
+		},
+		{
+			"label": "Svelte ecosystem must be consistent",
+			"dependencies": ["svelte", "svelte-check", "@sveltejs/*"],
+			"policy": "sameRange"
+		},
+		{
+			"label": "Build tools must be consistent",
+			"dependencies": ["vite", "tsx"],
+			"policy": "sameRange"
+		},
+		{
+			"label": "Testing libraries must be consistent",
+			"dependencies": ["vitest", "@vitest/*", "playwright", "@playwright/*"],
+			"policy": "sameRange"
+		},
+		{
+			"label": "Cloudflare tools must be consistent",
+			"dependencies": ["wrangler", "@cloudflare/*", "miniflare"],
+			"policy": "sameRange"
+		},
+		{
+			"label": "Capacitor must be consistent",
+			"dependencies": ["@capacitor/*"],
+			"policy": "sameRange"
+		}
+	],
+	"semverGroups": [
+		{
+			"label": "All dependencies use exact versions",
+			"range": ""
+		}
+	]
+}

@@ -1,0 +1,149 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Dead Code Removal Proposal
+# -------------------------------------------------------------------
+# Purpose: Propose clean removal of unused, obsolete, or unreferenced code
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: dead-code-removal
+
+name: "🪓 Dead Code Removal"
+description: Propose removal of unused or deprecated code to improve maintainability.
+title: "[Dead Code]: "
+labels:
+  - refactor
+  - cleanup
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person proposing removal.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Code Location (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: location
+    attributes:
+      label: Code Location
+      description: File(s), function(s), or module(s) believed to be dead or deprecated.
+      placeholder: "e.g., src/hooks/useOldToken.ts, utils/legacyAPI.ts"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Reasoning (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: reasoning
+    attributes:
+      label: Why Should This Be Removed?
+      description: Describe how you determined it was dead code and any impact.
+      placeholder: |
+        - No references found via static analysis or grep  
+        - Superseded by valibot schema utils in PR #1024  
+        - Causes confusion for new contributors
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: References or Confirming Evidence
+      description: Links or logs proving it's unused or replaced.
+      placeholder: |
+        - grep logs  
+        - RFC or migration guide  
+        - Related PRs (#2021) or deprecation notices
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What impact does keeping this code have?
+      options:
+        - "Critical – poses risk or confusion to core paths"
+        - "High – legacy code increasing maintenance cost"
+        - "Medium – minor clutter or deprecated path"
+        - "Low – low-touch artifact, cosmetic only"
+      default: "Medium – minor clutter or deprecated path"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly should this code be removed?
+      options:
+        - "Immediate – blocking other work or audit"
+        - "High – clean this sprint"
+        - "Medium – safe to queue for cleanup"
+        - "Low – no rush, backlogged"
+      default: "Medium – safe to queue for cleanup"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: How widespread is this code’s footprint?
+      options:
+        - "Org-wide – shared libraries or components"
+        - "Team-level – feature owned by 1–2 teams"
+        - "Scoped – single file or isolated logic"
+        - "Unknown – needs review"
+      default: "Scoped – single file or isolated logic"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: What is your proposed removal priority?
+      options:
+        - "P0 – must be removed now"
+        - "P1 – clear next sprint candidate"
+        - "P2 – normal cleanup priority"
+        - "P3 – just noted, can wait"
+      default: "P2 – normal cleanup priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm the code is unused and safe to remove.
+      options:
+        - label: I have verified that this code is no longer in use
+        - label: I understand this change may require team or reviewer validation
+    validations:
+      required: true

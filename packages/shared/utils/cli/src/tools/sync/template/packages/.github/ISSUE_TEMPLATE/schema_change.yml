@@ -1,0 +1,148 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: schema-change-proposal
+
+name: "🧬 Schema Change Proposal"
+description: Propose changes to shared data or API schemas.
+title: "[Schema Change Proposal]: "
+labels:
+  - schema
+  - api
+  - breaking-change
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Proposal Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What change is being proposed and why?
+      placeholder: |
+        e.g., Rename `user_id` to `account_id`, or switch date format to ISO 8601
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: Provide affected services, pain points, data models, or interfaces impacted.
+      placeholder: |
+        - Related services: auth-api, reporting, ingestion pipeline  
+        - Current behavior: inconsistent `timestamp` formats  
+        - Use case: unify data types for downstream analytics
+
+  # --------------------------------------------------------------------
+  # SECTION: Impact Assessment
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How significant is this schema change?
+      options:
+        - "Critical – breaking for consumers"
+        - "High – affects multiple systems"
+        - "Medium – isolated impact or deprecation"
+        - "Low – naming or doc-only change"
+      default: "Medium – isolated impact or deprecation"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be discussed or scheduled?
+      options:
+        - "Immediate – blocks work"
+        - "This Cycle – needed soon"
+        - "Next Cycle – can wait"
+        - "Async – future discussion"
+      default: "Next Cycle – can wait"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Scope
+      description: What is the reach of this change?
+      options:
+        - "Org-wide"
+        - "Multiple teams"
+        - "Single system"
+        - "Unclear"
+      default: "Multiple teams"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Suggested triage level.
+      options:
+        - "P0 – breaking or urgent"
+        - "P1 – roadmap or planning item"
+        - "P2 – backlog or hygiene"
+        - "P3 – long-term track"
+      default: "P2 – backlog or hygiene"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Links
+      placeholder: "e.g., API schema file, GitHub issue #42, OpenAPI spec, config paths"
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Notes or Examples
+      description: Paste in schema diffs, JSON samples, OpenAPI snippets, screenshots, etc.
+      placeholder: |
+        ```json
+        {
+          "account_id": "abc123",
+          "created_at": "2024-11-01T12:00:00Z"
+        }
+        ```
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm proposal validity and readiness.
+      options:
+        - label: I have checked for duplicates or open discussions
+        - label: This includes enough information for teams to take action
+    validations:
+      required: true

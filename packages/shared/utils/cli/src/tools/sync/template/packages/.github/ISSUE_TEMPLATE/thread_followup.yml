@@ -1,0 +1,133 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Thread Follow-Up
+# -------------------------------------------------------------------
+# Purpose: Prompt a timely follow-up or unblock on an open PR, issue, or discussion.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: thread-follow-up
+
+name: "🧵 Thread Follow-Up"
+description: Request resolution or next steps on a previously opened issue, discussion, or PR.
+title: "[Follow-Up]: "
+labels:
+  - follow-up
+  - blocked
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person initiating follow-up.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Target Thread (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: original
+    attributes:
+      label: Original Issue, PR, or Discussion
+      description: Paste the issue, pull request, or discussion number you're following up on.
+      placeholder: "e.g., #512, PR #98, discussion #45"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Follow-Up Context (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: reason
+    attributes:
+      label: What Needs Follow-Up?
+      description: Summarize what is unresolved and what kind of response is needed (e.g., review, unblock, next step).
+      placeholder: |
+        Waiting on review from security team.  
+        Need design confirmation before implementing.  
+        Previous PR stalled — unsure if still relevant.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How much is this delay affecting work?
+      options:
+        - "Critical – blocking delivery or customer impact"
+        - "High – stalling planned or active work"
+        - "Medium – worth closing out in this cycle"
+        - "Low – async resolution fine"
+      default: "Medium – worth closing out in this cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this thread get resolved?
+      options:
+        - "Immediate – needed this sprint"
+        - "High – unblock within a week"
+        - "Medium – next triage/review cycle"
+        - "Low – follow up when bandwidth allows"
+      default: "High – unblock within a week"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is impacted by this being unresolved?
+      options:
+        - "Org-wide – blocking multiple teams or deliverables"
+        - "Team-wide – part of a sprint milestone"
+        - "Individual – personal or isolated context"
+        - "Unclear – needs owner input"
+      default: "Team-wide – part of a sprint milestone"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Recommend a resolution priority for reviewers.
+      options:
+        - "P0 – needs immediate resolution"
+        - "P1 – unblock within sprint"
+        - "P2 – resolve before next cycle"
+        - "P3 – track but not urgent"
+      default: "P2 – resolve before next cycle"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this thread is still relevant and unresolved.
+      options:
+        - label: I have confirmed that this thread is unresolved and still relevant
+    validations:
+      required: true

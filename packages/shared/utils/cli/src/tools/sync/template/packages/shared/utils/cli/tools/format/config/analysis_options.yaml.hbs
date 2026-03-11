@@ -1,0 +1,27 @@
+{{syncHeader "#" "https://dart.dev/tools/analysis"}}
+
+# yaml-language-server: $schema={{schemaPath 'tooling/dart'}}
+
+# =============================================================================
+# Dart Formatter Configuration
+# =============================================================================
+# dart format auto-discovers this file from the project root.
+# Only the `formatter` section affects dart format behavior.
+# =============================================================================
+
+formatter:
+  page_width: {{ format.global.line_length }}
+
+# =============================================================================
+# Analyzer - Exclude Generated Files
+# =============================================================================
+
+analyzer:
+  exclude:
+    - '**/*.g.dart'
+    - '**/*.freezed.dart'
+    - '**/*.mocks.dart'
+    - '**/*.config.dart'
+    - '**/generated/**'
+    - '**/build/**'
+    - '**/.dart_tool/**'

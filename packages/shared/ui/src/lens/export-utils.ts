@@ -58,7 +58,7 @@ type ChainExportNode = v.InferOutput<typeof ChainExportNodeSchema>;
  */
 function dataUrlToBlob(dataUrl: Str): Blob {
   const parts: Str[] = dataUrl.split(',');
-  const mimeMatch: RegExpMatchArray | null = parts[0]?.match(/:(.*?);/);
+  const mimeMatch: RegExpMatchArray | null | undefined = parts[0]?.match(/:(.*?);/);
   const mime: Str = mimeMatch?.[1] ?? 'image/png';
   const b64: Str = parts[1] ?? '';
   const binary: Str = atob(b64);

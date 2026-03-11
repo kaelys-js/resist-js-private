@@ -1,0 +1,182 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Unlinked Mentions
+# -------------------------------------------------------------------
+# Purpose: Capture and triage brand mentions that do not currently link back to the site,
+# enabling SEO teams to reclaim link equity via outreach or PR.
+# Designed for platform-agnostic, enterprise-scale workflows.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-unlinked-mentions
+
+name: "🔗 SEO Unlinked Mentions"
+description: Track brand mentions without backlinks that could be converted into SEO value.
+title: "[SEO Unlinked Mentions]: "
+labels:
+  - seo
+  - backlinks
+  - opportunity
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the person submitting this issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Unlinked Mention Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔍 Unlinked Mention Details  
+        Describe where and how the brand is mentioned online without a backlink.
+
+  - type: textarea
+    id: unlinked_mentions
+    attributes:
+      label: Unlinked Mentions
+      description: List one or more unlinked mentions with context.
+      placeholder: |
+        - Mention in TechCrunch article without link  
+        - Product cited in top-10 list on /tools-review  
+        - Name dropped in Reddit thread with no link to homepage  
+        - Branded term used in forum post (no anchor tag)
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Evaluate how urgent and impactful this mention is for SEO goals.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How should this opportunity be prioritized?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P3 – low priority"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Strategic Value
+      description: How significant is this mention from an SEO/link equity perspective?
+      options:
+        - "Critical – high authority domain or major visibility"
+        - "High – niche relevance, high trust site"
+        - "Medium – moderate site or traffic channel"
+        - "Low – minor exposure or noindex/low value page"
+      default: "Low – minor exposure or noindex/low value page"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this mention ideally be followed up on?
+      options:
+        - "Critical – immediate outreach recommended"
+        - "High – this sprint"
+        - "Medium – within 2 sprints"
+        - "Low – backlog opportunity"
+      default: "Next cycle – backlog opportunity"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What area or audience does this mention affect?
+      options:
+        - "Org-wide – major brand or product exposure"
+        - "Team-wide – campaign or feature-specific"
+        - "Single audience – limited scope or visibility"
+        - "Unclear – further investigation needed"
+      default: "Team-wide – campaign or feature-specific"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Supporting Links
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Evidence  
+        Include links to the mention source or analysis tools that surfaced it.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: URLs of mentions, brand monitoring platforms, screenshots, or relevant audit data.
+      placeholder: |
+        - https://example.com/blog/best-tools-2025  
+        - Ahrefs unlinked brand report  
+        - Mention detected via Brand24, link to dashboard
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Add screenshots, exports, or contact logs supporting this opportunity.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste relevant exports, conversation records, or screenshot notes.
+      placeholder: |
+        ```json
+        {
+          "domain": "example.com",
+          "mention_context": "Blog mentions product name, no anchor link",
+          "authority": 82
+        }
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm internal review and actionable quality of submission.
+      options:
+        - label: I confirm this unlinked mention is accurate, publicly viewable, and relevant to SEO strategy.
+    validations:
+      required: true

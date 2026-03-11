@@ -1,0 +1,375 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# 📘 GitHub Issue Form: Architectural Decision Record (ADR)
+# -------------------------------------------------------------------
+# Document a key architectural decision with context, tradeoffs, and
+# rationale. Mirrors general issue format with ADR-specific phrasing.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: adr-submission-form
+
+name: "📘 Architectural Decision Record (ADR)"
+description: Document a key architectural decision with context and tradeoffs.
+title:
+  "[ADR]: "
+  placeholder: "e.g., Adopt Bun as runtime for JavaScript services"
+
+labels:
+  - architecture
+  - adr
+  - needs-triage
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the contributor.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  - type: input
+    id: co_authors
+    attributes:
+      label: Co-authors or Reviewers (Optional)
+      description: Anyone who helped raise or review this ADR.
+      placeholder: "@collaborator-name"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Issue Type & Summary
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: What kind of issue are you reporting?
+      options:
+        - Bug
+        - Feature Request
+        - Question
+        - Enhancement
+        - Task
+        - Other
+      default: Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: ✏️ Summary
+      description: What architectural decision or change is being proposed?
+      placeholder: |
+        e.g., Adopt Bun for runtime instead of Node.js
+        e.g., Deprecate custom validation logic in favor of Valibot
+      render: markdown
+    validations:
+      required: true
+
+  - type: input
+    id: component
+    attributes:
+      label: Affected Component or Area (Optional)
+      description: Use consistent naming like "auth", "dashboard", "infra", "API" — or say "Not sure".
+      placeholder: "e.g., backend, infra, CI/CD — or 'Not sure'"
+
+  - type: input
+    id: version
+    attributes:
+      label: Affected Version
+      placeholder: "e.g., v3.4.0"
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Platform or Device (Optional)
+      placeholder: "e.g., AWS Lambda, Kubernetes, GitHub Actions"
+
+  - type: input
+    id: env
+    attributes:
+      label: Environment Context (Optional)
+      placeholder: "e.g., Node.js 20, Bun 1.1.3, Vite 5"
+
+  - type: input
+    id: references
+    attributes:
+      label: Related PRs or Issues (Optional)
+      placeholder: "e.g., PR #123, Issue #456"
+
+  # --------------------------------------------------------------------
+  # SECTION: Context and Reproduction (especially for bug reports)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context_steps
+    attributes:
+      label: Context or Steps
+      description: What led to this architectural need or proposal?
+      placeholder: |
+        1. Evaluated cold start issues  
+        2. Compared Node vs Bun benchmarks  
+        3. Found operational gaps in current stack
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Reproducibility (Optional)
+      description: If relevant, can the situation prompting this ADR be reliably reproduced?
+      options:
+        - "Always"
+        - "Often"
+        - "Sometimes"
+        - "Rarely"
+        - "Can't reproduce anymore"
+        - "Not applicable"
+      default: "Not applicable"
+
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Has this behavior changed from before?
+      description: Is this ADR prompted by a regression or recent issue?
+      options:
+        - "Yes – it worked previously but is broken now"
+        - "No – it has never worked"
+        - "Not sure"
+      default: "Not sure"
+
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: Expected vs Actual Behavior
+      description: Describe expectations vs current outcomes.
+      placeholder: |
+        Expected: More reliable performance under high load  
+        Actual: Current runtime has frequent cold start spikes
+    validations:
+      required: true
+
+  - type: dropdown
+    id: workaround
+    attributes:
+      label: Is there any workaround you’re using?
+      description: Are you mitigating the issue currently?
+      options:
+        - "Yes – workaround available"
+        - "No – completely blocked"
+        - "Not sure"
+      default: "Not sure"
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution or Suggestion (Optional)
+      description: Optional – suggest an architectural direction or tooling.
+      placeholder: "e.g., Switch from Node.js to Bun for API layer"
+
+  - type: textarea
+    id: feature_use_case
+    attributes:
+      label: Use Case or Context (Optional)
+      description: Why does this ADR matter? Who benefits?
+      placeholder: |
+        e.g., As a platform team, we want faster CI runtimes with smaller container footprints.
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Who or what is affected? (Optional)
+      description: Helps prioritize the ADR’s importance.
+      placeholder: "e.g., Affects all microservices deployed via Cloudflare Workers"
+
+  - type: input
+    id: reproduction_link
+    attributes:
+      label: Reproduction Project (Optional)
+      placeholder: "e.g., GitHub repo, RFC doc, or benchmark repo"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or Console Output (Optional)
+      description: Paste any relevant logs or metrics (redact if sensitive).
+      render: plain
+      placeholder: |
+        e.g., Bun cold start: 22ms, Node.js cold start: 130ms
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments (Optional)
+      description: Include diagrams, markdown notes, benchmarks, etc.
+      render: markdown
+      placeholder: |
+        Paste diagrams, screenshots, or markdown here.
+
+  - type: input
+    id: media_links
+    attributes:
+      label: Media or Demo Link (Optional)
+      placeholder: "e.g., Loom walkthrough, Notion spec"
+
+  - type: dropdown
+    id: preferred_outcome
+    attributes:
+      label: What are you hoping for?
+      options:
+        - A fix or patch (code-level solution)
+        - A workaround (temporary or non-ideal fix)
+        - An explanation or docs update
+        - Just reporting for awareness
+      default: Just reporting for awareness
+
+  - type: dropdown
+    id: user_urgency
+    attributes:
+      label: How urgent is this for you?
+      description: Helps us prioritize based on user needs.
+      options:
+        - Blocking – I can’t continue work
+        - High – I’m actively waiting on this
+        - Medium – It’s important but not urgent
+        - Low – Just wanted to share
+      default: Medium – It’s important but not urgent
+
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: Anything else you'd like to add? (Optional)
+      description: Include any other context, links, or notes not covered above.
+      placeholder: "e.g., Team is evaluating options this quarter"
+
+  - type: checkboxes
+    id: issue_stage
+    attributes:
+      label: Stage of this Issue (Optional)
+      description: Where in the lifecycle is this ADR?
+      options:
+        - label: New or recently discovered
+        - label: Under discussion or being worked on
+        - label: Needs more info or reproduction
+
+  # --------------------------------------------------------------------
+  # SECTION: Tags, History, Misc
+  # --------------------------------------------------------------------
+  - type: input
+    id: suggested_labels
+    attributes:
+      label: Suggested Tags or Labels (Optional)
+      description: Suggest any helpful tags for triage (e.g., infra, DX).
+      placeholder: "e.g., infra, performance, dev experience"
+
+  - type: checkboxes
+    id: prior_issues
+    attributes:
+      label: Prior Reports (Optional)
+      description: Has this been reported or discussed before?
+      options:
+        - label: I checked existing issues
+        - label: This continues a previous issue or thread
+
+  - type: input
+    id: contact
+    attributes:
+      label: Optional Contact (Optional)
+      placeholder: "Email or Discord (if you're okay with follow-up)"
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage (Maintainer Use)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity (Optional)
+      description: Choose based on how badly this affects users or systems.
+      options:
+        - "Critical – blocks usage or is urgent"
+        - "High – impacts many users or key systems"
+        - "Medium – affects a segment of usage"
+        - "Low – minor or cosmetic"
+        - "Unclear"
+      default: "Medium – affects a segment of usage"
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency (Optional)
+      description: When does this need attention?
+      options:
+        - "Immediate – blocks release or workflow"
+        - "High – should be picked up soon"
+        - "Medium – next sprint or cycle"
+        - "Low – future backlog"
+        - "Unclear"
+      default: "Medium – next sprint or cycle"
+
+  - type: dropdown
+    id: impact_scope
+    attributes:
+      label: Scope of Impact (Optional)
+      description: Who is affected by this?
+      options:
+        - "User-facing – external developers or customers"
+        - "Internal – affects team workflows"
+        - "Infra-only – CI/CD, telemetry, etc."
+        - "Unclear"
+      default: "User-facing – external developers or customers"
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority (Optional)
+      description: Maintainer-assigned priority for roadmap and triage.
+      options:
+        - "P0 – must be addressed immediately"
+        - "P1 – important, include soon"
+        - "P2 – normal priority"
+        - "P3 – nice-to-have or backlog"
+        - "Unclear"
+      default: "P2 – normal priority"
+
+  # --------------------------------------------------------------------
+  # SECTION: Final Confirmation
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        👉 Before submitting, please make sure to [review our contributing guide](../../blob/main/CONTRIBUTING.md) and [code of conduct](../../blob/main/CODE_OF_CONDUCT.md).
+
+  - type: dropdown
+    id: disclosure_preference
+    attributes:
+      label: Do you prefer to disclose this publicly?
+      options:
+        - Yes, it's okay to discuss openly
+        - No, I’d prefer private follow-up
+      default: Yes, it's okay to discuss openly
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Final Check – ready to submit?
+      description: Tick the box once you’ve filled everything you can.
+      options:
+        - label: I’ve provided all relevant information and reviewed for clarity
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        🙏 Thanks for submitting this ADR! A maintainer will review and help shepherd it through.

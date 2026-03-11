@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Contributor Recognition Nomination
+# -------------------------------------------------------------------
+# Purpose: Celebrate and document individual contributions that had a
+# meaningful positive impact on a project, release, or team culture.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: contributor-recognition-nomination
+
+name: "🏆 Contributor Recognition Nomination"
+description: Nominate someone for a contribution highlight.
+title: "[Contributor Nomination]: "
+labels:
+  - community
+  - recognition
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person nominating.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Nomination Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Nominee & Contribution
+      description: Who are you recognizing, and what did they contribute?
+      placeholder: |
+        - @devjam refactored our CI and cut build time in half  
+        - Alice cleaned up legacy docs and improved onboarding  
+        - Bob led async testing sprint and unblocked the team
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context & Background (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Detail
+      description: Add timeline, systems, teams, values demonstrated, or impact.
+      placeholder: |
+        - Contribution spanned across #infra, #devxp  
+        - Unblocked sprint velocity and reduced churn  
+        - Modeled exceptional async communication
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or References
+      description: Add links to PRs, issues, dashboards, or Slack threads if relevant.
+      placeholder: |
+        - PR #1234  
+        - https://github.com/org/repo/pull/5678  
+        - #contributor-shoutouts on 2025-05-01
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Impact Scope
+      description: What kind of impact did this contribution have?
+      options:
+        - "Org-wide – major cultural or operational impact"
+        - "Team-level – improved workflows, comms, or team support"
+        - "Project-level – meaningful delivery or quality win"
+        - "Emerging – promising contributor or new teammate"
+      default: "Team-level – improved workflows, comms, or team support"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Time Sensitivity
+      description: Does this need to be celebrated at a specific event or time?
+      options:
+        - "Immediate – for next retro or all-hands"
+        - "This month – async recognition"
+        - "Quarterly – for awards or promotion review"
+        - "No rush – log for future highlight"
+      default: "This month – async recognition"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Recognition Type
+      description: How should this be considered?
+      options:
+        - "Public – okay to share internally or externally"
+        - "Internal only – private feedback loop"
+        - "To discuss – needs review before publishing"
+        - "Nominate for formal recognition or reward"
+      default: "Public – okay to share internally or externally"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Help prioritize review if nomination volume is high.
+      options:
+        - "P0 – highlight this immediately"
+        - "P1 – next nomination round"
+        - "P2 – keep on file"
+        - "P3 – exploratory or FYI"
+      default: "P2 – keep on file"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this is a thoughtful and constructive nomination.
+      options:
+        - label: I’ve verified this contribution is recent and impactful.
+        - label: This nomination is made in good faith and celebrates real effort.
+    validations:
+      required: true

@@ -1,0 +1,150 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Third-Party Data Disclosure Tracker
+# -------------------------------------------------------------------
+# Purpose: Track and audit disclosures of personal or regulated data to external vendors or services.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: third-party-data-disclosure-tracker
+
+name: "🪪 Third-Party Data Disclosure Tracker"
+description: Log regulated data shared with third parties.
+title: "[Third-Party Disclosure]: "
+labels:
+  - compliance
+  - privacy
+  - third-party
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or name of the submitter.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Provide a short description of the disclosure or request.
+      placeholder: |
+        - Shared user signup email list with external marketing agency  
+        - Stripe data passed to tax vendor for VAT validation  
+        - Temporary logging to third-party error tracking tool
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Disclosure Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Details or Background
+      description: Include systems, vendors, regions, data types, timelines, or roles involved.
+      placeholder: |
+        - Vendor: Snowflake, Segment, Sentry  
+        - Data types: PII (email, IP), payment metadata  
+        - Duration: 30 days  
+        - Stakeholders: Security, Legal, Data team
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Data Sensitivity
+      description: What type of data was involved?
+      options:
+        - "Critical – special categories (e.g., health, biometric, financial)"
+        - "High – direct identifiers (e.g., email, IP, ID token)"
+        - "Medium – usage or metadata"
+        - "Low – anonymized or aggregate"
+      default: "High – direct identifiers (e.g., email, IP, ID token)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Review Urgency
+      description: How quickly does this need to be reviewed or acted on?
+      options:
+        - "Immediate – incident or breach"
+        - "High – regulatory deadline"
+        - "Medium – active vendor onboarding"
+        - "Low – doc tracking or retrospective"
+      default: "Medium – active vendor onboarding"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Disclosure Scope
+      description: What is the scope of affected users or systems?
+      options:
+        - "Org-wide – all users or high-traffic systems"
+        - "Product-specific – single app or service"
+        - "Team-level – internal tools only"
+        - "Unclear – needs review"
+      default: "Product-specific – single app or service"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Tracking Priority
+      description: How visible should this disclosure be across compliance and legal teams?
+      options:
+        - "P0 – immediate coordination and escalation"
+        - "P1 – requires tracking and follow-up this week"
+        - "P2 – document and monitor"
+        - "P3 – archival or for future reference"
+      default: "P1 – requires tracking and follow-up this week"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Docs
+      description: Include data processing agreements, internal tickets, or relevant files.
+      placeholder: "e.g., Jira #456, audit log, SOC 2 DPA file"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm ownership and accuracy of submission.
+      options:
+        - label: I have confirmed this submission is accurate.
+        - label: I understand this may require legal, compliance, or infra review.
+    validations:
+      required: true

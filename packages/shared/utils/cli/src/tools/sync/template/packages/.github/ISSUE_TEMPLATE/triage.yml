@@ -1,0 +1,135 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: needs-triage
+
+name: "🧪 Needs Triage"
+description: For maintainers to review and categorize uncategorized issues.
+labels:
+  - triage
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Maintainer
+      description: GitHub username of the person performing triage.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Context (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: notes
+    attributes:
+      label: 📝 Maintainer Notes
+      description: Add any context or insights to help categorize and route the issue.
+      placeholder: |
+        E.g.  
+        - Likely caused by recent upgrade to Valibot  
+        - References observability stack—may need review by platform team  
+        - Mentions mobile app release flow and App Store issues  
+        - Related to Docker + Stripe integration, possibly infra-specific
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Classify this issue to support prioritization and assignment.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this issue based on initial review?
+      options:
+        - Low – backlog or non-blocking
+        - Medium – requires timely review
+        - High – affects team deliverables
+        - Critical – time-sensitive or blocking work
+      default: Medium – requires timely review
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: Scope or complexity of the issue as initially understood.
+      options:
+        - Low – minor or cosmetic
+        - Medium – affects module behavior or experience
+        - High – breaks core workflows
+        - Critical – system-wide failure, security, or loss of function
+      default: Medium – affects module behavior or experience
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline for needed attention based on potential risk or visibility.
+      options:
+        - Low – review later
+        - Medium – next planning cycle
+        - High – this sprint
+        - Critical – needs immediate triage or escalation
+      default: Medium – next planning cycle
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what could be affected?
+      options:
+        - Isolated contributor or dev setup
+        - A single product team or component
+        - Multiple systems or teams
+        - External users or production behavior
+      default: A single product team or component
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: 🔗 Related Issues or PRs
+      description: Link to related issues, pull requests, docs, dashboards, or external artifacts.
+      placeholder: "e.g., GitHub issue #52, PR #122, sentry.io/org/project/event-id"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: 📎 Upload Logs or Screenshots (Optional)
+      description: Attach crash dumps, logs, metrics, error screenshots, or debug traces.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Maintainer Confirmation
+      description: Confirm you’ve done initial triage and shared enough to enable further action.
+      options:
+        - label: I have reviewed the issue and provided enough metadata for assignment or deeper investigation
+        - label: I understand this triage note will guide next steps and may be referenced in planning
+    validations:
+      required: true

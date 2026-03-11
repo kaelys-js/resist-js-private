@@ -1,0 +1,113 @@
+{{syncHeader "#" "https://github.com/evilmartians/lefthook"}}
+
+# yaml-language-server: $schema={{schemaPath 'tooling/lefthook'}}
+
+# Hook execution model:
+#   piped: true  — commands run in priority order; a failure stops the pipeline
+#   priority: N  — lower runs first; same priority runs in parallel
+#   stage_fixed  — auto-stages files modified by the command
+#
+# Override locally via lefthook-local.yml (not committed).
+# Skip all hooks: LEFTHOOK=0 git commit ...
+
+# ─── Commit Message ──────────────────────────────────────────────────────────
+
+commit-msg:
+  commands:
+    validate:
+      run: {{ pm.run }} lint:commit --edit {1}
+      fail_text: "Commit message does not follow conventional commits. See https://www.conventionalcommits.org"
+
+# ─── Pre-Commit ──────────────────────────────────────────────────────────────
+# Runs on every commit. Keep this fast — lint and format only, no tests or builds.
+# Pipeline: sync (p1) → schemas + contributors (p2) → format + lint (p3)
+
+pre-commit:
+  piped: true
+  commands:
+
+    # p1 — Regenerate configs from resist.config.ts templates before anything else
+    sync:
+      priority: 1
+      glob: "{{ paths.configFilename }}"
+      run: {{ pm.run }} update:sync
+      stage_fixed: true
+
+    # p2 — Derived artifacts that depend on sync output
+    schema-updater:
+      priority: 2
+      glob: "{packages/shared/schemas/**/*.ts,{{ paths.configFilename }}}"
+      run: {{ pm.run }} update:schemas
+      stage_fixed: true
+    contributors:
+      priority: 2
+      glob: "packages/shared/config/contributors/base*.json"
+      run: {{ pm.run }} contributors && git add CONTRIBUTORS.md
+
+    # p3 — Format then lint staged files
+    # No glob — Biome and Oxlint handle their own file-type filtering internally
+    # Invokes CLI tools directly (bypasses turbo) for staged-file support
+    format:
+      priority: 3
+      run: {{ pm.filter }} @/cli tool format {staged_files}
+      stage_fixed: true
+      fail_text: "Formatting failed. Run '{{ pm.run }} qa:format' to fix."
+    lint:
+      priority: 3
+      run: {{ pm.filter }} @/cli tool checks {staged_files}
+      fail_text: "Linting failed. Run '{{ pm.run }} qa:checks' to fix."
+
+# ─── Pre-Push ────────────────────────────────────────────────────────────────
+# Thorough validation before code leaves the machine.
+# Pipeline: type-check + tests + benchmarks (p1) → coverage (p2)
+
+pre-push:
+  piped: true
+  commands:
+
+    # p1 — All independent checks run in parallel
+    boundaries:
+      priority: 1
+      run: turbo boundaries
+      fail_text: "Boundary violations detected. Products must not import from other products."
+    type-check:
+      priority: 1
+      run: {{ pm.run }} qa:type-check
+      fail_text: "Type check failed. Run '{{ pm.run }} qa:type-check' to see errors."
+    test-unit:
+      priority: 1
+      run: {{ pm.run }} qa:test:unit
+      fail_text: "Unit tests failed. Run '{{ pm.run }} qa:test:unit' to see failures."
+    test-e2e:
+      priority: 1
+      run: {{ pm.run }} qa:test:e2e
+      fail_text: "E2E tests failed. Run '{{ pm.run }} qa:test:e2e' to see failures."
+    benchmark:
+      priority: 1
+      run: {{ pm.run }} qa:benchmark
+      fail_text: "Benchmarks failed. Run '{{ pm.run }} qa:benchmark' to see results."
+
+    # p2 — Coverage instruments tests, so it runs after benchmarks to avoid skewing results
+    test-coverage:
+      priority: 2
+      run: {{ pm.run }} qa:test:coverage
+      fail_text: "Coverage check failed. Run '{{ pm.run }} qa:test:coverage' to see report."
+
+# ─── Post-Checkout / Post-Merge ──────────────────────────────────────────────
+# Keep the working tree consistent after branch switches and merges:
+#   deps — reinstall from lockfile in case dependencies changed
+#   sync — regenerate configs in case resist.config.ts diverged
+
+post-checkout:
+  commands:
+    deps:
+      run: {{ pm.installFrozen }}
+    sync:
+      run: {{ pm.run }} update:sync
+
+post-merge:
+  commands:
+    deps:
+      run: {{ pm.installFrozen }}
+    sync:
+      run: {{ pm.run }} update:sync

@@ -1,0 +1,71 @@
+{{syncHeaderBlock "<!--" "-->" "https://coder.com/docs/templates"}}
+
+# Coder Workspace Template
+
+Remote development environment for **{{ business.company }}** powered by [Coder](https://coder.com).
+
+## Prerequisites
+
+- Running Coder instance (see [SETUP.md](./SETUP.md) or use `{{ pm.run }} tool devenv deploy`)
+- [Coder CLI](https://coder.com/docs/install) installed
+- `kubectl` access to the k3s cluster
+
+## Quick Start
+
+### Push the template
+
+```sh
+coder templates push {{ kebabCase business.company }} --directory .coder/
+```
+
+### Create a workspace
+
+```sh
+coder create my-workspace --template {{ kebabCase business.company }}
+```
+
+### Connect
+
+```sh
+coder open my-workspace
+```
+
+Or visit the Coder web UI directly.
+
+## What's Included
+
+- **Node.js** {{ versions.node }}
+- **{{ pm.name }}** {{ versions.packageManager }}
+- All system tools from `mise.toml` (caddy, mkcert, terraform, cloudflared, etc.)
+- VSCode extensions from `.vscode/extensions.json`
+- Port forwarding for all dev proxy ports
+- Persistent storage via Kubernetes PVC
+
+## Daily Workflow
+
+1. Open Coder dashboard in browser
+2. Click your workspace → VS Code opens in browser
+3. Start dev proxy: `{{ pm.run }} dev:proxy`
+4. Code, commit, push from the terminal
+5. Close the browser tab when done
+6. Workspace auto-stops after 30 minutes idle
+7. Reopen later — picks up exactly where you left off
+
+## Updating
+
+When `resist.config.ts` changes:
+
+```sh
+{{ pm.run }} tool sync
+{{ pm.run }} tool devenv push
+```
+
+Existing workspaces update when you click "Update" in the Coder dashboard.
+
+## Setup from Scratch
+
+See [SETUP.md](./SETUP.md) for full VPS + Coder provisioning guide, or use:
+
+```sh
+{{ pm.run }} tool devenv deploy
+```

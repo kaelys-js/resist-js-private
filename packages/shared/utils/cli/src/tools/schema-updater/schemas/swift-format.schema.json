@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://resist.js/schemas/swift-format.schema.json",
+  "title": "swift-format Configuration",
+  "description": "Configuration file for Apple swift-format (.swift-format)",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "integer",
+      "description": "Configuration file version",
+      "default": 1,
+      "minimum": 1
+    },
+    "lineLength": {
+      "type": "integer",
+      "description": "Maximum line length in characters",
+      "default": 100,
+      "minimum": 1
+    },
+    "indentation": {
+      "type": "object",
+      "description": "Indentation configuration",
+      "properties": {
+        "spaces": {
+          "type": "integer",
+          "description": "Number of spaces for indentation",
+          "minimum": 1
+        },
+        "tabs": {
+          "type": "integer",
+          "description": "Number of tabs for indentation",
+          "minimum": 1
+        }
+      },
+      "maxProperties": 1,
+      "additionalProperties": false
+    },
+    "tabWidth": {
+      "type": "integer",
+      "description": "Width of a tab character",
+      "default": 8,
+      "minimum": 1
+    },
+    "maximumBlankLines": {
+      "type": "integer",
+      "description": "Maximum consecutive blank lines",
+      "default": 1,
+      "minimum": 0
+    },
+    "spacesBeforeEndOfLineComments": {
+      "type": "integer",
+      "description": "Number of spaces before end-of-line comments",
+      "default": 2,
+      "minimum": 0
+    },
+    "respectsExistingLineBreaks": {
+      "type": "boolean",
+      "description": "Respect existing line breaks",
+      "default": true
+    },
+    "lineBreakBeforeControlFlowKeywords": {
+      "type": "boolean",
+      "description": "Line break before control flow keywords",
+      "default": false
+    },
+    "lineBreakBeforeEachArgument": {
+      "type": "boolean",
+      "description": "Line break before each argument when wrapping",
+      "default": false
+    },
+    "lineBreakBeforeEachGenericRequirement": {
+      "type": "boolean",
+      "description": "Line break before each generic requirement",
+      "default": false
+    },
+    "lineBreakBetweenDeclarationAttributes": {
+      "type": "boolean",
+      "description": "Line break between declaration attributes",
+      "default": false
+    },
+    "prioritizeKeepingFunctionOutputTogether": {
+      "type": "boolean",
+      "description": "Prioritize keeping function output together",
+      "default": false
+    },
+    "indentConditionalCompilationBlocks": {
+      "type": "boolean",
+      "description": "Indent conditional compilation blocks",
+      "default": true
+    },
+    "lineBreakAroundMultilineExpressionChainComponents": {
+      "type": "boolean",
+      "description": "Line break around multiline expression chain components",
+      "default": false
+    },
+    "fileScopedDeclarationPrivacy": {
+      "type": "object",
+      "description": "File-scoped declaration privacy settings",
+      "properties": {
+        "accessLevel": {
+          "type": "string",
+          "description": "Access level for file-scoped declarations",
+          "enum": ["private", "fileprivate"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "indentSwitchCaseLabels": {
+      "type": "boolean",
+      "description": "Indent switch case labels",
+      "default": false
+    },
+    "indentBlankLines": {
+      "type": "boolean",
+      "description": "Whether blank lines should be indented",
+      "default": false
+    },
+    "rules": {
+      "type": "object",
+      "description": "Enable or disable individual formatting rules by name",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "spacesAroundRangeFormationOperators": {
+      "type": "boolean",
+      "description": "Spaces around range formation operators",
+      "default": false
+    },
+    "noAssignmentInExpressions": {
+      "type": "object",
+      "description": "Configuration for NoAssignmentInExpressions rule",
+      "properties": {
+        "allowedFunctions": {
+          "type": "array",
+          "description": "Functions where assignment in expressions is allowed",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "multiElementCollectionTrailingCommas": {
+      "type": "boolean",
+      "description": "Trailing commas in multi-element collections",
+      "default": true
+    },
+    "reflowMultilineStringLiterals": {
+      "type": "string",
+      "description": "How to reflow multiline string literals",
+      "enum": ["never", "onlyLinesOverLength", "always"],
+      "default": "never"
+    }
+  },
+  "additionalProperties": false
+}

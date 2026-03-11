@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "qa:type-check": "svelte-check --tsconfig ./tsconfig.json --compiler-warnings \"state_referenced_locally:ignore\""
+  },
   "dependencies": {
     "@/schemas/common": "workspace:*",
     "@internationalized/date": "^3.11.0",
@@ -20,7 +22,14 @@
     "vaul-svelte": "1.0.0-next.7"
   },
   "devDependencies": {
+    "@tanstack/table-core": "^8.21.3",
+    "embla-carousel-svelte": "^8.6.0",
+    "formsnap": "^2.0.1",
+    "layerchart": "2.0.0-next.43",
+    "mode-watcher": "^1.1.0",
     "svelte": "^5.53.5",
+    "svelte-check": "^4.4.3",
+    "sveltekit-superforms": "^2.30.0",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {

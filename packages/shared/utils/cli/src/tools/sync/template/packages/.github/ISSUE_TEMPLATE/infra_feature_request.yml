@@ -1,0 +1,146 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Infrastructure Feature Request
+# -------------------------------------------------------------------
+# Purpose: Capture requests for new infra capabilities or platform support.
+# Audience: Engineering, SRE, Platform, DevOps.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: infra-feature-request
+
+name: "🛠️ Infrastructure Feature Request"
+description: Request a new capability, improvement, or system-level feature from platform/infra teams.
+title: "[Infra Feature]: "
+labels:
+  - infra
+  - feature-request
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person making the request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Request Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: goal
+    attributes:
+      label: What Do You Need?
+      description: Describe the infra feature or change, the problem it solves, and why it’s necessary.
+      placeholder: |
+        e.g., Requesting Cloudflare Workers KV support for faster edge caching of login tokens.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Who is Affected (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: impact
+    attributes:
+      label: Who Needs This and Why?
+      description: Explain how this will help, which teams or workflows are affected, and what the current pain points are.
+      placeholder: |
+        - Used by onboarding flows to reduce API roundtrips  
+        - Currently using workaround with GCP Memcache, which adds latency
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Optional Timing or Deadline
+  # --------------------------------------------------------------------
+  - type: input
+    id: deadline
+    attributes:
+      label: Deadline or Timeline
+      description: Add any target milestone, audit deadline, or go-live dependency.
+      placeholder: "e.g., Needed before Q3 release / Blocker for audit"
+
+  # --------------------------------------------------------------------
+  # SECTION: Metadata for Triage (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: What’s the level of current pain or deficiency?
+      options:
+        - "Critical – blocking system function"
+        - "High – needs solution to scale or unblock team"
+        - "Medium – nice to have, improves DX or performance"
+        - "Low – future enhancement or idea"
+      default: "Medium – nice to have, improves DX or performance"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon does this need to be addressed?
+      options:
+        - "Immediate – sprint/blocker level"
+        - "High – needed in current or next cycle"
+        - "Medium – this quarter"
+        - "Low – no urgent timeline"
+      default: "High – needed in current or next cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: What’s the likely reach or importance of this change?
+      options:
+        - "Org-wide – affects most teams or systems"
+        - "Team-wide – improves delivery for a focused group"
+        - "Feature-specific – narrow usage but valuable"
+        - "Unclear – needs triage"
+      default: "Team-wide – improves delivery for a focused group"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Based on impact × urgency, what’s the suggested priority?
+      options:
+        - "P0 – must-do now"
+        - "P1 – should do soon"
+        - "P2 – can plan for later"
+        - "P3 – low/archival interest"
+      default: "P2 – can plan for later"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Please confirm the following before submission.
+      options:
+        - label: I’ve checked that this feature is not already supported or in progress
+        - label: I understand this request may require security or compliance review
+    validations:
+      required: true

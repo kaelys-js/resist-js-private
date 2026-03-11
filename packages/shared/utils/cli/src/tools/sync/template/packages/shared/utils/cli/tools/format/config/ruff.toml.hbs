@@ -1,0 +1,35 @@
+"$schema" = "{{schemaPath 'tooling/ruff'}}"
+
+{{syncHeader "#" "https://docs.astral.sh/ruff/configuration"}}
+
+# =============================================================================
+# Ruff Formatter Configuration
+# =============================================================================
+
+# Target Python version
+target-version = "py313"
+
+# Line length
+line-length = {{ format.global.line_length }}
+
+# =============================================================================
+# Formatting Settings
+# =============================================================================
+[format]
+# Quote style
+quote-style = "{{#if tooling.formatting.singleQuote}}single{{else}}double{{/if}}"
+
+# Indent with spaces (Python convention)
+indent-style = "{{ format.alternate.indent_style }}"
+
+# Preserve magic trailing comma
+skip-magic-trailing-comma = false
+
+# Line ending
+line-ending = "lf"
+
+# Docstring code formatting
+docstring-code-format = true
+
+# Docstring code line length
+docstring-code-line-length = "dynamic"

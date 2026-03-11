@@ -1,0 +1,172 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: experimental-feature-feedback
+
+name: "🧪 Experimental Feature Feedback"
+description: Share feedback on a beta, preview, or experimental feature to help us improve future releases.
+labels:
+  - feedback
+  - experimental
+  - beta
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person providing this feedback.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Feature Feedback (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧬 Experimental Feature Overview  
+        Identify the feature and describe your testing experience.
+
+  - type: input
+    id: feature
+    attributes:
+      label: Feature Name
+      description: Name of the experimental or beta feature under evaluation.
+      placeholder: "e.g., Svelte SSR Streaming, Cloudflare Metrics Export, Argo Auto-Rollbacks"
+    validations:
+      required: true
+
+  - type: textarea
+    id: feedback
+    attributes:
+      label: What Worked Well or Didn’t?
+      description: Share feedback on your experience—what worked, what didn’t, what was confusing, or unexpected behavior you encountered.
+      placeholder: |
+        - Setup was smooth, but deploys fail in GCP Cloud Run  
+        - Validation broke when using Valibot with Bun in dev mode  
+        - Sentry middleware crashed during SSR rendering  
+        - Worked locally but silently failed in iOS production builds
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment and Stack (Optional)
+      description: Add relevant runtimes, infrastructure, tools, or config details used while testing the feature.
+      placeholder: |
+        - Bun + TypeScript + Valibot + Biome  
+        - GCP (GKE) + Docker + Argo CD + Cloudflare  
+        - SvelteKit (SSR) + Stripe Webhooks + Sentry  
+        - Mobile builds with Expo + App Store + Umami
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Prioritization (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help us prioritize and categorize this feedback.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feedback in shaping future support?
+      options:
+        - "Low – general feedback"
+        - "Medium – useful for stability or polish"
+        - "High – affects rollout planning"
+        - "Critical – blocks adoption or production use"
+      default: "Medium – useful for stability or polish"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How severely did this feature impact your testing or functionality?
+      options:
+        - "Low – cosmetic or non-blocking"
+        - "Medium – minor limitations or edge case bugs"
+        - "High – core functionality issues"
+        - "Critical – breaks builds or causes failures"
+      default: "Medium – minor limitations or edge case bugs"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this feedback be addressed?
+      options:
+        - "Low – track for future release"
+        - "Medium – fix in upcoming release"
+        - "High – address in next sprint"
+        - "Critical – urgent fix or regression"
+      default: "Medium – fix in upcoming release"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected if this feedback isn't addressed?
+      options:
+        - "Single developer experience"
+        - "Internal teams or workflows"
+        - "Multiple environments or clients"
+        - "Production users or external stakeholders"
+      default: "Internal teams or workflows"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting References & Attachments (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Supporting Information  
+        Add any links, screenshots, or files that help illustrate your feedback.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Documentation
+      description: Link to changelogs, docs, or related issues (if any).
+      placeholder: "e.g., GitHub issue #92, preview docs, internal beta notes"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Screenshots or Logs (Optional)
+      description: Upload logs, crash reports, screenshots, or reproduction artifacts.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm the nature and completeness of this feedback.
+      options:
+        - label: I understand this feature is experimental and may be unstable or incomplete
+        - label: I have provided enough detail for the team to understand and evaluate my feedback
+    validations:
+      required: true

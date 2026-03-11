@@ -1,0 +1,180 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Meta Tag Issue
+# -------------------------------------------------------------------
+# Purpose: Identify missing, incorrect, or duplicated SEO-related meta tags such as meta description,
+# robots, viewport, canonical, og:title, etc. Supports content integrity and search visibility.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-meta-tag-issue
+
+name: "🔖 SEO Meta Tag Issue"
+description: Report incorrect, missing, or conflicting SEO-relevant meta tags.
+title: "[SEO Meta Tag Issue]: "
+labels:
+  - seo
+  - meta
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the person submitting this issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Meta Tag Problem (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🏷️ Meta Tag Problem  
+        Describe the specific tag(s) with incorrect usage or misconfiguration.
+
+  - type: textarea
+    id: meta_tag_issue
+    attributes:
+      label: Meta Tag Problem
+      description: What meta tag is problematic and how should it be configured?
+      placeholder: |
+        - Page: /features  
+        - Issue: Missing `<meta name="description">`  
+        - Found: Duplicate `<meta name="robots">`  
+        - Expected: `<meta name="robots" content="index, follow">`  
+        - Also observed: og:image tag points to broken URL
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Help prioritize the issue based on its impact and scope.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How technically problematic is the meta tag issue?
+      options:
+        - "Critical – blocks indexing, duplicates canonical, or misleads bots"
+        - "High – affects rankings or visibility on key pages"
+        - "Medium – best practice violation or duplicated tags"
+        - "Low – minor or cosmetic metadata issue"
+      default: "Medium – best practice violation or duplicated tags"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this issue be addressed?
+      options:
+        - "Critical – fix before next deploy"
+        - "High – resolve this sprint"
+        - "Medium – address within 2 sprints"
+        - "Low – monitor or backlog"
+      default: "Next cycle – monitor or backlog"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: Who or what is affected by the tag misconfiguration?
+      options:
+        - "Org-wide – visibility, indexing, or SEO trust at risk"
+        - "Team-wide – product/docs/marketing performance affected"
+        - "Single page – isolated or local metadata concern"
+        - "Unclear – needs validation"
+      default: "Team-wide – product/docs/marketing performance affected"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Based on severity and urgency, how should this be prioritized?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Validation (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Evidence  
+        Add links to reports, crawl tools, GSC insights, or related issue threads.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Links to source audits, GSC validation errors, or developer documentation.
+      placeholder: |
+        - Ahrefs: duplicate meta description alert  
+        - Screaming Frog meta export  
+        - GSC → HTML improvements → meta description missing  
+        - PR #2021 updated canonical but missed og:url
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Upload screenshots, exported HTML, or structured markup for review.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste examples or HTML snippets showing the issue.
+      placeholder: |
+        ```html
+        <meta name="robots" content="noindex, nofollow">
+        <meta name="robots" content="index, follow">
+        <meta property="og:image" content="https://site.com/img/404.jpg">
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm the meta tag issue is valid and verified.
+      options:
+        - label: I confirm this meta tag issue has been reviewed and validated for submission.
+    validations:
+      required: true

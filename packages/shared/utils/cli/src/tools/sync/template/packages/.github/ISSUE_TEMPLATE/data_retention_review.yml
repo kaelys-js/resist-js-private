@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Data Retention/Deletion Policy Review
+# -------------------------------------------------------------------
+# Purpose: Submit requests to evaluate, revise, or align data lifecycle policies with compliance or system requirements.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: data-retention-review
+
+name: "🧾 Data Retention/Deletion Policy Review"
+description: Request review or update of a data lifecycle policy.
+title: "[Data Policy Review]: "
+labels:
+  - compliance
+  - data
+  - retention
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the submitter.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Provide a concise description of the policy review request or issue.
+      placeholder: |
+        - Request to extend log retention from 30 to 90 days  
+        - Need to confirm deletion window for inactive accounts  
+        - Proposal to align export lifecycle with GDPR rules
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context / Background (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: Describe relevant systems, timelines, risks, or stakeholders.
+      placeholder: |
+        - Current data is stored in BigQuery, Cloud Storage, and Postgres  
+        - Engineering needs automated deletion jobs for deleted orgs  
+        - Policy last reviewed in Q2 2024 under SOC 2 review
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Add related tickets, policy links, or compliance pages.
+      placeholder: |
+        - https://company-internal/wiki/retention-policy  
+        - GitHub issue #98  
+        - External DPA clause 4.3
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How important is this policy review to operational or legal requirements?
+      options:
+        - "Critical – legal or contractual breach likely"
+        - "High – regulatory or product-level risk"
+        - "Medium – data correctness or system performance"
+        - "Low – policy clarification or cleanup"
+      default: "Medium – data correctness or system performance"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How urgent is this review or update?
+      options:
+        - "Immediate – blocking release, audit, or contract"
+        - "High – needs resolution within quarter"
+        - "Medium – resolve in next policy cycle"
+        - "Low – no immediate impact"
+      default: "High – needs resolution within quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by the change?
+      options:
+        - "Org-wide – impacts compliance posture"
+        - "Team-wide – affects specific infra or workflow"
+        - "Product-level – changes user-facing guarantees"
+        - "Unclear – needs review"
+      default: "Team-wide – affects specific infra or workflow"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Overall priority for triage and follow-up.
+      options:
+        - "P0 – must address immediately"
+        - "P1 – high priority review"
+        - "P2 – standard review cycle"
+        - "P3 – informational or future consideration"
+      default: "P2 – standard review cycle"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm submission readiness and policy awareness.
+      options:
+        - label: I have reviewed the relevant retention/deletion policies and legal requirements.
+        - label: I have included sufficient technical, legal, or business context for review.
+    validations:
+      required: true

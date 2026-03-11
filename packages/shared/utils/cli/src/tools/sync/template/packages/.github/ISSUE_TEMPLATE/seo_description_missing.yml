@@ -1,0 +1,181 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Description Missing
+# -------------------------------------------------------------------
+# Purpose: Flag pages with missing, duplicated, or ineffective meta descriptions
+# that may impact CTR, SEO visibility, or user understanding in SERPs.
+# Platform-agnostic and built for content and SEO team collaboration.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-description-missing
+
+name: "📝 SEO Description Missing"
+description: Report missing, duplicated, or poorly optimized meta descriptions across pages.
+title: "[SEO Description Missing]: "
+labels:
+  - seo
+  - meta-description
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the person submitting this issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Description Problem Details (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔍 Meta Description Problem  
+        Identify pages that lack meta descriptions or need improvements.
+
+  - type: textarea
+    id: description_details
+    attributes:
+      label: Meta Description Problem
+      description: List affected pages and what’s wrong with the meta descriptions.
+      placeholder: |
+        - URL: /docs/getting-started → Missing entirely  
+        - URL: /pricing → "Learn more about our plans" (too vague)  
+        - URL: /support → Same description as /contact  
+        - Recommended fix: write unique, benefit-oriented descriptions for each
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Provide context around visibility, conversion impact, and content priority.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: What is the severity of the issue from a technical or SEO lens?
+      options:
+        - "Critical – affects top landing pages or indexed templates"
+        - "High – affects key traffic-driving pages"
+        - "Medium – moderate pages or minor SERP losses"
+        - "Low – limited visibility or duplicate only"
+      default: "Medium – moderate pages or minor SERP losses"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How fast should this be addressed?
+      options:
+        - "Critical – resolve immediately"
+        - "High – resolve this sprint"
+        - "Medium – next 2 sprints"
+        - "Low – backlog for review"
+      default: "Next cycle – backlog for review"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What scope or audience is impacted?
+      options:
+        - "Org-wide – affects CTR or visibility at scale"
+        - "Team-wide – campaign or product surfaces"
+        - "Single page/user – isolated content"
+        - "Unclear – needs further analysis"
+      default: "Team-wide – campaign or product surfaces"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Set a priority for addressing this issue in the content pipeline.
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Supporting Evidence (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Signals  
+        Add crawl exports, audit logs, GSC/GTM insights, or team notes.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Include links or citations from audits, dashboards, or keyword research.
+      placeholder: |
+        - Screaming Frog meta report  
+        - GSC: coverage → missing description warning  
+        - Internal CTR comparison for /pricing  
+        - Shared Notion doc with description draft backlog
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Upload screenshots, exports, or marked-up examples for review.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste exports, CSV samples, or highlighted SERPs.
+      placeholder: |
+        ```csv
+        URL,Meta Description
+        /docs/getting-started,
+        /pricing,"Learn more about our plans"
+        /support,"Contact our team anytime"
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm the issue is internally validated and ready for triage.
+      options:
+        - label: I confirm this description issue has been reviewed and needs SEO/content attention.
+    validations:
+      required: true

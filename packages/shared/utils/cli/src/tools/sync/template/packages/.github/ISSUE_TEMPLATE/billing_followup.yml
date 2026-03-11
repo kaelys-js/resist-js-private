@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Billing or Contract Follow-Up
+# -------------------------------------------------------------------
+# Purpose: Track and triage customer-facing finance actions such as invoice disputes, contract amendments, renewal prep, and billing escalations.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: billing-contract-followup
+
+name: "🧾 Billing or Contract Follow-Up"
+description: Track actions on billing, invoices, contracts, or renewals.
+title: "[Billing/Contract]: "
+labels:
+  - billing
+  - finance
+  - contracts
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the requester.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Account Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Account or Customer Name
+      description: Include company name, billing contact, or internal CRM ID.
+      placeholder: |
+        - Customer: Acme Corp  
+        - Stripe: cus_123abc  
+        - CSM: @jane-doe
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Issue Description (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Issue Summary
+      description: Describe the billing or contract issue and what action is needed.
+      placeholder: |
+        - Issue: Invoice for March was overbilled by 20%  
+        - Contract: Renewal doc needs updated net terms  
+        - Next step: Resend updated contract for signature
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Invoice or Deal Reference
+      description: Add links to Stripe invoices, DocuSign files, CRM records, or deal docs.
+      placeholder: |
+        - https://dashboard.stripe.com/invoices/inv_123  
+        - https://docusign.com/envelope/xyz  
+        - https://salesforce.com/opportunity/456
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Issue Severity
+      description: How serious or blocking is this item?
+      options:
+        - "Critical – legal/financial deadline risk"
+        - "High – revenue or renewal dependent"
+        - "Medium – needs resolution this month"
+        - "Low – async or backlog follow-up"
+      default: "Medium – needs resolution this month"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Time Sensitivity
+      description: When is follow-up needed?
+      options:
+        - "Immediate – deal-blocking or urgent"
+        - "High – this sprint"
+        - "Medium – this quarter"
+        - "Low – no deadline"
+      default: "High – this sprint"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Scope
+      description: What part of the business is affected?
+      options:
+        - "Org-wide – compliance or public exposure"
+        - "Department-level – sales, legal, CS, finance"
+        - "Team-level – internal ops or support"
+        - "Unclear – triage needed"
+      default: "Department-level – sales, legal, CS, finance"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Internal Priority
+      description: For triage within legal/finance/revenue teams.
+      options:
+        - "P0 – top priority"
+        - "P1 – urgent"
+        - "P2 – standard"
+        - "P3 – backlog"
+      default: "P2 – standard"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm issue validity and completeness.
+      options:
+        - label: I have confirmed this request needs follow-up.
+        - label: I’ve included enough context to proceed.
+    validations:
+      required: true

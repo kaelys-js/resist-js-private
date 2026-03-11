@@ -1,0 +1,20 @@
+{
+	"$schema": "{{schemaPath 'tooling/blade-formatter'}}",
+
+	"indentSize": {{ format.alternate.indent_size }},
+	"wrapLineLength": {{ format.global.line_length }},
+	"wrapAttributes": "auto",
+	"wrapAttributesMinAttrs": 2,
+	"endWithNewLine": true,
+	"endOfLine": "LF",
+	"useTabs": {{useTabs format.global.indent_style}},
+	"sortTailwindcssClasses": true,
+	"sortHtmlAttributes": "none",
+	"noMultipleEmptyLines": true,
+	"noPhpSyntaxCheck": false,
+	"noSingleQuote": false,
+	"trailingCommaPHP": true,
+	"indentInnerHtml": true,
+	"extraLiners": [],
+	"phpVersion": "8.4"
+}

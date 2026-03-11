@@ -1,0 +1,247 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: mobile-app-issue
+
+name: "📱 Mobile App Issue"
+description: Report a bug or unexpected behavior in the mobile application.
+labels:
+  - mobile
+  - bug
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person reporting this issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Device & App Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📲 Device & App Information  
+        Provide details about the environment where the issue was observed.
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: Select the platform where the issue occurred.
+      options:
+        - iOS (iPhone / iPad)
+        - Android (Phone / Tablet)
+        - watchOS (Apple Watch)
+        - tvOS (Apple TV)
+      default: iOS (iPhone / iPad)
+    validations:
+      required: true
+
+  - type: input
+    id: app_version
+    attributes:
+      label: App Version
+      description: The version of the app where the issue occurred.
+      placeholder: "e.g., 2.3.1"
+    validations:
+      required: true
+
+  - type: input
+    id: os_version
+    attributes:
+      label: OS Version & Device
+      description: Include the operating system version and the device model.
+      placeholder: "e.g., iOS 17.4 on iPhone 13, Android 14 on Pixel 7"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Issue Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🐞 Issue Description  
+        Provide detailed steps to reproduce the problem and what you expected to happen.
+
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Provide clear, step-by-step instructions that triggered the issue.
+      placeholder: |
+        1. Open the app  
+        2. Navigate to ...  
+        3. Tap on ...  
+        4. Observe the behavior
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen.
+      placeholder: "e.g., The settings screen should open after tapping the gear icon."
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual_behavior
+    attributes:
+      label: Actual Behavior
+      description: Describe what actually happened instead.
+      placeholder: "e.g., The app crashes and returns to the home screen."
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Prioritization  
+        Help us understand how serious this issue is.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is it to resolve this issue?
+      options:
+        - "Low – nice to fix eventually"
+        - "Medium – affects user experience"
+        - "High – limits core functionality"
+        - "Critical – prevents release or breaks main feature"
+      default: "Medium – affects user experience"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How severely does this affect the app from a technical perspective?
+      options:
+        - "Low – cosmetic or layout issue"
+        - "Medium – minor feature impacted"
+        - "High – major feature not working"
+        - "Critical – app crash or data loss"
+      default: "Medium – minor feature impacted"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly does this need to be addressed?
+      options:
+        - "Low – can wait for future release"
+        - "Medium – address within 1–2 sprints"
+        - "High – fix in current sprint"
+        - "Critical – fix immediately"
+      default: "Medium – address within 1–2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: User Impact Scope
+      description: Who is affected by this issue?
+      options:
+        - "Single device or tester"
+        - "Internal QA team"
+        - "Beta testers or limited audience"
+        - "Production users or public release"
+      default: "Internal QA team"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Additional Info (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Supporting Information  
+        Add logs, screenshots, or other evidence to help diagnose the issue.
+
+  - type: checkboxes
+    id: impact_check
+    attributes:
+      label: Impact Type
+      description: Select all that apply to the type of impact.
+      options:
+        - label: App crash or won't launch
+        - label: Major feature is broken
+        - label: Minor feature is broken
+        - label: UI or layout issue
+        - label: Other
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Screenshots / Error IDs
+      description: Paste logs, attach screenshots, or include error tracking IDs (e.g., from Sentry).
+      placeholder: |
+        Screenshot:  
+        ![screenshot](https://...)  
+
+        Sentry ID: abc123  
+        Log Snippet:  
+        ```  
+        Error: Unexpected null value  
+        at src/components/Menu.ts:42  
+        ```
+      render: markdown
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Mention anything else that might help, such as app state, network conditions, or test flags.
+      placeholder: "e.g., Happens only on 5G, or after reinstalling the app"
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## ✅ Confirmation  
+        Final confirmation that this is a valid and complete issue report.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or PRs (Optional)
+      description: Add any related issue or pull request links.
+      placeholder: "e.g., GitHub issue #542, PR #1031"
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm you’ve followed the reporting guidelines.
+      options:
+        - label: I have searched existing issues to avoid duplicates
+        - label: I have provided all required information to reproduce the issue
+    validations:
+      required: true

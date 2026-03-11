@@ -1,0 +1,182 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Thin Content Issue
+# -------------------------------------------------------------------
+# Purpose: Flag pages or content sections with insufficient word count,
+# weak topical relevance, or low user value that may harm SEO performance.
+# This is platform-agnostic and suitable for all environments.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-thin-content-issue
+
+name: "📉 SEO Thin Content Issue"
+description: Report content that is too short, lacks value, or doesn’t meet SEO quality expectations.
+title: "[SEO Thin Content]: "
+labels:
+  - seo
+  - content
+  - thin
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or email of the individual reporting the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Thin Content Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔍 Thin Content Details  
+        Describe the affected pages, low-value content, and context for concern.
+
+  - type: textarea
+    id: thin_content_details
+    attributes:
+      label: Thin Content Details
+      description: List pages with weak, brief, or low-quality content and explain why it's an issue.
+      placeholder: |
+        - URL: /docs/legacy-api  
+        - Word Count: ~90  
+        - Content: outdated or placeholder-level copy  
+        - Notes: duplicates content from /docs/api-overview  
+        - Recommendation: merge or expand with use case examples
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Provide insight on how urgent and impactful this thin content is.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How technically severe is the content gap?
+      options:
+        - "Critical – large-scale or sitewide template"
+        - "High – key sections underperforming or cannibalized"
+        - "Medium – isolated pages below quality threshold"
+        - "Low – minor or niche content"
+      default: "Medium – isolated pages below quality threshold"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this content issue be addressed?
+      options:
+        - "Critical – fix immediately"
+        - "High – resolve this sprint"
+        - "Medium – next 2 sprints"
+        - "Low – backlog for review"
+      default: "Next cycle – backlog for review"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: What’s the scope of business or user effect?
+      options:
+        - "Org-wide – core pages hurt performance or trust"
+        - "Team-wide – product or marketing section affected"
+        - "Single page/user – limited ranking value"
+        - "Unclear – needs validation"
+      default: "Team-wide – product or marketing section affected"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Based on severity and urgency, how should this be prioritized?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P2 – normal priority"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Sources (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Signals  
+        Link to audits, analytics, dashboards, or editorial review.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Include keyword data, user feedback, or internal tracking docs.
+      placeholder: |
+        - Ahrefs content gap for /features  
+        - GA or Umami: /support/faq has high bounce rate  
+        - SEO audit from March 2025 flagged 3 thin pages  
+        - Notion: backlog ticket for /terms page rewrite
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Paste sample text, screenshots, or reports showing the issue.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Add brief excerpts, visual evidence, or exported reports.
+      placeholder: |
+        ```html
+        <div class="article-body">
+          <p>This page is currently being updated. Check back soon.</p>
+        </div>
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm internal review of the thin content before submission.
+      options:
+        - label: I confirm this thin content issue is valid and has been internally reviewed.
+    validations:
+      required: true

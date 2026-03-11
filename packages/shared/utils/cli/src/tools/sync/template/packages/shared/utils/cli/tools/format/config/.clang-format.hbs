@@ -1,0 +1,260 @@
+{{syncHeader "#" "https://clang.llvm.org/docs/ClangFormatStyleOptions.html"}}
+
+# =============================================================================
+# Clang-Format Configuration
+# =============================================================================
+
+---
+Language: Cpp
+BasedOnStyle: Google
+
+# =============================================================================
+# Indentation
+# =============================================================================
+IndentWidth: {{ format.alternate.indent_size }}
+TabWidth: {{ format.alternate.indent_size }}
+UseTab: {{#ifEquals format.global.indent_style "tab"}}ForIndentation{{else}}Never{{/ifEquals}}
+ContinuationIndentWidth: {{ format.alternate.indent_size }}
+ConstructorInitializerIndentWidth: {{ format.alternate.indent_size }}
+AccessModifierOffset: -{{ format.alternate.indent_size }}
+IndentCaseLabels: true
+IndentCaseBlocks: false
+IndentGotoLabels: true
+IndentPPDirectives: BeforeHash
+IndentExternBlock: AfterExternBlock
+IndentWrappedFunctionNames: false
+IndentRequiresClause: true
+NamespaceIndentation: None
+LambdaBodyIndentation: Signature
+
+# =============================================================================
+# Alignment
+# =============================================================================
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Right
+AlignConsecutiveAssignments:
+  Enabled: false
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCompound: false
+  PadOperators: true
+AlignConsecutiveBitFields:
+  Enabled: false
+  AcrossEmptyLines: false
+  AcrossComments: false
+AlignConsecutiveDeclarations:
+  Enabled: false
+  AcrossEmptyLines: false
+  AcrossComments: false
+AlignConsecutiveMacros:
+  Enabled: false
+  AcrossEmptyLines: false
+  AcrossComments: false
+AlignEscapedNewlines: Left
+AlignOperands: Align
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 0
+
+# =============================================================================
+# Line Breaking
+# =============================================================================
+ColumnLimit: {{ format.global.line_length }}
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: false
+AllowShortNamespacesOnASingleLine: true
+BreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+BreakTemplateDeclarations: Yes
+BreakAdjacentStringLiterals: true
+BreakBeforeBinaryOperators: None
+BreakBinaryOperations: Never
+BreakBeforeBraces: Attach
+BreakBeforeConceptDeclarations: Always
+BreakBeforeInlineASMColon: OnlyMultiline
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeColon
+BreakInheritanceList: BeforeColon
+BreakStringLiterals: true
+BreakAfterAttributes: Never
+PackConstructorInitializers: BinPack
+
+# =============================================================================
+# Braces
+# =============================================================================
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterObjCDeclaration: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+InsertBraces: false
+RemoveBracesLLVM: false
+
+# =============================================================================
+# Spaces
+# =============================================================================
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: true
+SpaceAroundPointerQualifiers: Default
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatements
+SpaceBeforeParensOptions:
+  AfterControlStatements: true
+  AfterForeachMacros: true
+  AfterFunctionDefinitionName: false
+  AfterFunctionDeclarationName: false
+  AfterIfMacros: true
+  AfterOverloadedOperator: false
+  AfterRequiresInClause: false
+  AfterRequiresInExpression: false
+  BeforeNonEmptyParentheses: false
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
+SpacesBeforeTrailingComments: 2
+SpacesInAngles: Never
+SpacesInContainerLiterals: false
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: -1
+SpacesInParens: Never
+SpacesInSquareBrackets: false
+Cpp11BracedListStyle: true
+
+# =============================================================================
+# Pointers and References
+# =============================================================================
+DerivePointerAlignment: false
+PointerAlignment: Left
+ReferenceAlignment: Pointer
+QualifierAlignment: Leave
+
+# =============================================================================
+# Includes and Sorting
+# =============================================================================
+SortIncludes: CaseSensitive
+SortUsingDeclarations: LexicographicNumeric
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<.*\.h>'
+    Priority: 1
+    SortPriority: 0
+    CaseSensitive: false
+  - Regex: '^<.*>'
+    Priority: 2
+    SortPriority: 0
+    CaseSensitive: false
+  - Regex: '^".*"'
+    Priority: 3
+    SortPriority: 0
+    CaseSensitive: false
+
+# =============================================================================
+# Comments
+# =============================================================================
+ReflowComments: Always
+FixNamespaceComments: true
+ShortNamespaceLines: 1
+
+# =============================================================================
+# Other Settings
+# =============================================================================
+BinPackArguments: true
+BinPackParameters: true
+CompactNamespaces: false
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
+InsertNewlineAtEOF: true
+InsertTrailingCommas: None
+KeepEmptyLines:
+  AtStartOfBlock: false
+MaxEmptyLinesToKeep: 1
+SeparateDefinitionBlocks: Leave
+Standard: Latest
+LineEnding: LF
+
+# =============================================================================
+# Penalty Settings (for line breaking decisions)
+# =============================================================================
+PenaltyBreakAssignment: 2
+PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakComment: 300
+PenaltyBreakFirstLessLess: 120
+PenaltyBreakOpenParenthesis: 0
+PenaltyBreakString: 1000
+PenaltyBreakTemplateDeclaration: 10
+PenaltyExcessCharacter: 1000000
+PenaltyIndentedWhitespace: 0
+PenaltyReturnTypeOnItsOwnLine: 60
+
+# =============================================================================
+# Require Clause Position
+# =============================================================================
+RequiresClausePosition: OwnLine
+RequiresExpressionIndentation: OuterScope
+
+# =============================================================================
+# Objective-C Settings
+# =============================================================================
+---
+Language: ObjC
+BasedOnStyle: Google
+ColumnLimit: {{ format.global.line_length }}
+IndentWidth: {{ format.alternate.indent_size }}
+TabWidth: {{ format.alternate.indent_size }}
+UseTab: {{#ifEquals format.global.indent_style "tab"}}ForIndentation{{else}}Never{{/ifEquals}}
+ObjCBinPackProtocolList: Auto
+ObjCBlockIndentWidth: {{ format.alternate.indent_size }}
+ObjCBreakBeforeNestedBlockParam: true
+ObjCSpaceAfterProperty: false
+ObjCSpaceBeforeProtocolList: true
+
+# =============================================================================
+# Protocol Buffers
+# =============================================================================
+---
+Language: Proto
+BasedOnStyle: Google
+ColumnLimit: {{ format.global.line_length }}
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+
+# =============================================================================
+# Java (if using clang-format for Java)
+# =============================================================================
+---
+Language: Java
+BasedOnStyle: Google
+ColumnLimit: {{ format.global.line_length }}
+IndentWidth: {{ format.alternate.indent_size }}
+TabWidth: {{ format.alternate.indent_size }}
+UseTab: {{#ifEquals format.global.indent_style "tab"}}ForIndentation{{else}}Never{{/ifEquals}}
+BreakAfterJavaFieldAnnotations: true
+

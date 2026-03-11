@@ -1,0 +1,151 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Broken Link or Redirect Report
+# -------------------------------------------------------------------
+# Purpose: Report invalid URLs, redirect mismatches, broken anchors, or mislinked content.
+# Generic, schema-compliant, and stack-agnostic.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: broken-link-redirect-report
+
+name: "🧼 Broken Link or Redirect Report"
+description: Report broken links, 404s, redirect loops, or mismatched destinations.
+title: "[Link Issue]: "
+labels:
+  - seo
+  - link
+  - bug
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle of the person reporting this link issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary of Link Issue (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Affected Link or Path
+      description: What link is broken or incorrectly redirected? Provide full URL or path.
+      placeholder: |
+        - Broken Link: https://site.com/docs/install-cli  
+        - Anchor: #configure-project missing on /docs/setup  
+        - Redirect loop on /login → /signin → /login
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Link Behavior Details (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Link Behavior
+      description: What exactly is broken? HTTP status code, unexpected destination, redirect chain, etc.
+      placeholder: |
+        - 404 returned from documentation sidebar link  
+        - Link redirects to old domain: docs.legacy.site.com  
+        - Anchor is missing from rendered HTML  
+        - Redirect loops between /auth and /login
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Link Source Reference (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Source Page or File
+      description: Where is the broken link found?
+      placeholder: "e.g., /docs/setup.md, /sitemap.xml, /blog/post-slug"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severely does this affect users or search engines?
+      options:
+        - "Critical – widespread or crawl-blocking"
+        - "High – user journey broken or core UX path impacted"
+        - "Medium – content-level or partial-page link"
+        - "Low – minor or visual-only anchor"
+      default: "Medium – content-level or partial-page link"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be fixed?
+      options:
+        - "Immediate – fix before next deploy"
+        - "High – this sprint"
+        - "Medium – fix within 2 sprints"
+        - "Low – backlog"
+      default: "Medium – fix within 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: What scope or function does this affect?
+      options:
+        - "Org-wide – affects search engine coverage or public trust"
+        - "Team-wide – impacts product/docs/service experience"
+        - "Single user – isolated link or page"
+        - "Unclear – needs review"
+      default: "Team-wide – impacts product/docs/service experience"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Priority for resolving this issue.
+      options:
+        - "P0 – top priority"
+        - "P1 – high"
+        - "P2 – normal"
+        - "P3 – low"
+      default: "P2 – normal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm that this issue is valid and includes all known context.
+      options:
+        - label: I’ve verified this behavior on multiple devices or browsers.
+        - label: I’ve included enough detail to fix or validate.
+    validations:
+      required: true

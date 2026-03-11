@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://resist.js/schemas/csharpier.schema.json",
+  "title": "CSharpier Configuration",
+  "description": "Configuration file for CSharpier C# formatter (.csharpierrc.json)",
+  "type": "object",
+  "properties": {
+    "printWidth": {
+      "type": "integer",
+      "description": "Soft line width at which the printer will wrap content",
+      "default": 100,
+      "minimum": 1
+    },
+    "useTabs": {
+      "type": "boolean",
+      "description": "Indent lines with tabs instead of spaces",
+      "default": false
+    },
+    "indentSize": {
+      "type": "integer",
+      "description": "Number of spaces per indentation level (ignored when useTabs is true)",
+      "default": 4,
+      "minimum": 1
+    },
+    "endOfLine": {
+      "type": "string",
+      "description": "Line ending style",
+      "enum": ["auto", "lf", "crlf"],
+      "default": "auto"
+    },
+    "overrides": {
+      "type": "array",
+      "description": "Per-file-pattern configuration overrides",
+      "items": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "string",
+            "description": "Glob pattern to match files"
+          },
+          "formatter": {
+            "type": "string",
+            "description": "Formatter to use for matched files",
+            "enum": ["csharp"]
+          },
+          "printWidth": {
+            "type": "integer",
+            "description": "Override print width for matched files",
+            "minimum": 1
+          },
+          "useTabs": {
+            "type": "boolean",
+            "description": "Override tab usage for matched files"
+          },
+          "indentSize": {
+            "type": "integer",
+            "description": "Override indent size for matched files",
+            "minimum": 1
+          },
+          "endOfLine": {
+            "type": "string",
+            "description": "Override line ending for matched files",
+            "enum": ["auto", "lf", "crlf"]
+          }
+        },
+        "required": ["files"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

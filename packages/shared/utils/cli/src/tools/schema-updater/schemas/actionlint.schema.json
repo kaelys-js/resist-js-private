@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://resist.js/schemas/actionlint.schema.json",
+  "title": "actionlint Configuration",
+  "description": "Configuration file for actionlint GitHub Actions linter (.actionlint.yaml)",
+  "type": "object",
+  "properties": {
+    "self-hosted-runner": {
+      "type": "object",
+      "description": "Configuration for self-hosted runner labels",
+      "properties": {
+        "labels": {
+          "type": "array",
+          "description": "List of labels for self-hosted runners (supports glob patterns via Go path.Match syntax, e.g. gpu-*)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "config-variables": {
+      "oneOf": [
+        {
+          "type": "array",
+          "description": "List of configuration variable names available in the repository. Empty array enables strict mode (no variables allowed).",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "null",
+          "description": "Null disables config variable validation (default)"
+        }
+      ]
+    },
+    "paths": {
+      "type": "object",
+      "description": "Per-path configurations keyed by glob patterns (relative to repo root)",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "ignore": {
+            "type": "array",
+            "description": "Regular expressions (RE2 syntax) to filter errors by message content",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

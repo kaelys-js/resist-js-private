@@ -1,0 +1,165 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: support-request
+
+name: "💬 Support Request"
+description: Get help with using the project—troubleshooting errors, integrations, or usage questions.
+labels:
+  - support
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person requesting support.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Request Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: issue-summary
+    attributes:
+      label: ❓ What do you need help with?
+      description: |
+        Briefly describe what you're trying to do and where you're getting stuck.
+        Be specific so we can assist you more effectively.
+      placeholder: |
+        I'm integrating Stripe webhooks using TypeScript and Valibot.  
+        The endpoint on GCP returns a 400 error — I’ve checked the payload and headers but can’t find the problem.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Environment (Optional)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: tech-environment
+    attributes:
+      label: 🛠️ Tech Stack
+      description: |
+        List tools, services, or frameworks you're using that relate to this support request.
+      placeholder: |
+        Bun, TypeScript, Valibot, GCP, Kubernetes, Stripe, Argo, Biome, Docker,  
+        Svelte, iOS, Android, App Stores, Umami, Sentry, Cloudflare
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Reproduction and Logs (Optional)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: extra-details
+    attributes:
+      label: 🧪 Additional Context
+      description: |
+        Include steps to reproduce, errors, logs, or screenshots that help clarify the problem.
+      placeholder: |
+        **Steps to reproduce:**  
+        1. Run `bun dev`  
+        2. Go to /checkout  
+        3. Submit payment form  
+        4. Observe 400 error in logs  
+
+        **Logs:**  
+        ```
+        Error: Unexpected token '}' in JSON at position 45  
+        at parseWebhook (webhooks.ts:42:15)
+        ```
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: priority
+    attributes:
+      label: ⏱️ Priority
+      description: How important is it to resolve this issue?
+      options:
+        - Low – general usage question
+        - Medium – blocks a feature in staging
+        - High – blocks delivery in production
+        - Critical – user-facing or revenue-impacting
+      default: Medium – blocks a feature in staging
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How disruptive is the issue from a technical perspective?
+      options:
+        - Low – workaround available
+        - Medium – requires manual intervention
+        - High – broken integration or major functionality affected
+        - Critical – total failure, crash, or data loss
+      default: Medium – requires manual intervention
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline urgency for needing support.
+      options:
+        - Low – informational or non-blocking
+        - Medium – resolve within 1–2 sprints
+        - High – this sprint
+        - Critical – needs attention immediately
+      default: Medium – resolve within 1–2 sprints
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected by this issue?
+      options:
+        - Single developer or test environment
+        - Internal team or staging workflow
+        - Multiple services or development areas
+        - Production users or public app
+      default: Internal team or staging workflow
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: 🔗 Related Links or Issues
+      description: Link to any related PRs, issues, dashboards, or documentation.
+      placeholder: "e.g., GitHub issue #142, Stripe dashboard, Sentry trace URL"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: 📎 Upload Logs or Screenshots (Optional)
+      description: Attach any files that support your request.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm the request is complete and ready for support review.
+      options:
+        - label: I have provided enough context to begin investigation
+        - label: I understand that responses are prioritized based on severity and scope
+    validations:
+      required: true

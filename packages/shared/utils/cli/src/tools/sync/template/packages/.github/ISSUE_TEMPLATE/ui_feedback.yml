@@ -1,0 +1,178 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: ui-ux-feedback
+
+name: "🎨 UI/UX Feedback"
+description: Share feedback to help us improve the design, usability, and accessibility of the product.
+labels:
+  - ui
+  - enhancement
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting the UI/UX feedback.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Feedback Content (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: area
+    attributes:
+      label: 🎯 Affected UI Area
+      description: Which part of the UI is this about?
+      placeholder: "e.g., Navigation, Dark mode, Checkout, Settings"
+    validations:
+      required: true
+
+  - type: textarea
+    id: feedback
+    attributes:
+      label: 🧠 What Was Your Experience?
+      description: Describe what worked well, what was confusing, or where the UX didn’t meet expectations.
+      placeholder: |
+        The dark mode toggle was easy to find, but the contrast in the sidebar is too low in dark mode.  
+        Tab focus states on the settings page feel inconsistent across components.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: 💡 How Could We Improve? (Optional)
+      description: Propose design, interaction, or accessibility improvements.
+      placeholder: |
+        Improve button spacing on mobile checkout.  
+        Consider adding visual feedback for the form submission state.
+      render: markdown
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 🖥️ Platform
+      description: Which platform or surface did this occur on?
+      options:
+        - Web
+        - iOS
+        - Android
+        - Multiple
+        - Other
+      default: Web
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 📎 Extra Context (Optional)
+      description: Add browser, OS, device, steps to reproduce, or any screenshots/logs that clarify your feedback.
+      placeholder: |
+        Using Chrome on macOS Sonoma  
+        Observed on iPhone 14 with iOS 17  
+        Happens after submitting form on mobile in dark mode  
+        Screenshot:
+        ![screenshot](https://link.to/screenshot)
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help us understand the severity and prioritization of this feedback.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 🔢 Priority
+      description: Importance of resolving this feedback in context of other work.
+      options:
+        - Low – nice-to-have
+        - Medium – affects general usability
+        - High – disrupts user flow or accessibility
+        - Critical – severely broken or blocks users
+      default: Medium – affects general usability
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical or Design Severity
+      description: How much does this affect the user’s experience?
+      options:
+        - Low – cosmetic or minor UX friction
+        - Medium – confusing behavior or missing interaction state
+        - High – significantly impacts usability or interaction
+        - Critical – UI prevents intended action or causes errors
+      default: Medium – confusing behavior or missing interaction state
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: ⏱️ Urgency
+      description: How quickly this should be addressed.
+      options:
+        - Low – backlog or future polish
+        - Medium – next UX improvement cycle
+        - High – this sprint
+        - Critical – fix immediately
+      default: Medium – next UX improvement cycle
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who is affected by this issue?
+      options:
+        - Single user or edge case
+        - Internal users or QA team
+        - General users across devices
+        - Production users or accessibility-critical audience
+      default: General users across devices
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: 🔗 Related Screens, Files, or Components
+      description: Add paths, component names, URLs, or links to Figma/docs/code if applicable.
+      placeholder: "e.g., /settings/billing, Figma design #8, Svelte component: Button.svelte"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: 📎 Upload Screenshots or Visuals (Optional)
+      description: Upload screen recordings, screenshots, or UI specs.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Feedback Confirmation
+      description: Confirm your feedback is based on real usage and not stylistic preference only.
+      options:
+        - label: I have shared feedback based on actual usage or testing
+        - label: I understand this may be reviewed, grouped, or prioritized alongside other UX improvements
+    validations:
+      required: true

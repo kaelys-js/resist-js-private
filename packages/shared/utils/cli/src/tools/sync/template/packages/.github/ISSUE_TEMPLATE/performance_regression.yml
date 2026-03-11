@@ -1,0 +1,169 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Performance Regression
+# -------------------------------------------------------------------
+# Purpose: Report regressions in latency, resource usage, startup, responsiveness, or throughput.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: performance-regression
+
+name: "📉 Performance Regression"
+description: Report regressions in latency, memory, or responsiveness.
+title: "[Perf Regression]: "
+labels:
+  - performance
+  - regression
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this form.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Short description of the regression and observed impact.
+      placeholder: |
+        Example:
+        - Load time increased 45% on the homepage.
+        - Latency spike in Stripe webhook handler after PR #123.
+        - SvelteKit build time increased after Biome upgrade.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context / Evidence
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Details
+      description: Include tools, platforms, flags, devices, metrics, benchmarks, etc.
+      placeholder: |
+        - Bun 1.1.4, Docker on M1 Mac  
+        - Tracked via Umami + Cloudflare logs  
+        - Observed in GCP Cloud Run logs, memory doubled
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Related References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Issues
+      description: Add links to dashboards, issues, PRs, logs, or past benchmarks.
+      placeholder: e.g., PR #1337, Grafana dashboard, GitHub issue #57
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments (optional)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments (Optional)
+      description: Include screenshots, flamegraphs, diffs, or logs supporting the regression.
+      placeholder: |
+        You can paste metrics output, graphs, or flame charts here.
+        ```bash
+        p95_latency_before=182ms
+        p95_latency_after=412ms
+        ```
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How significant is the regression?
+      options:
+        - "Critical – causes outages or violations"
+        - "High – affects user experience or reliability"
+        - "Medium – observable slowdown under load"
+        - "Low – minor degradation"
+      default: "High – affects user experience or reliability"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How quickly should this be addressed?
+      options:
+        - "Immediate – actively degrading production"
+        - "High – must resolve before next release"
+        - "Medium – address in current sprint"
+        - "Low – triage and monitor"
+      default: "High – must resolve before next release"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what is affected?
+      options:
+        - "User-facing – affects end users"
+        - "Team-facing – affects dev/test/debug cycles"
+        - "Infra-level – backend infra, CI/CD, or build"
+        - "Unclear – needs investigation"
+      default: "User-facing – affects end users"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How should this be prioritized?
+      options:
+        - "P0 – blocks delivery or violates SLAs"
+        - "P1 – must fix in current milestone"
+        - "P2 – fix when bandwidth allows"
+        - "P3 – track for review"
+      default: "P1 – must fix in current milestone"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this is a reproducible performance regression.
+      options:
+        - label: I have reviewed existing performance issues to avoid duplicates
+        - label: I have included logs, metrics, or a test case for reproduction
+    validations:
+      required: true

@@ -1,0 +1,154 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Customer Feature Gap Report
+# -------------------------------------------------------------------
+# Purpose: Document customer-requested functionality that is currently unsupported.
+# Enables product teams to assess demand, opportunity, and potential roadmap impact.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: customer-feature-gap-report
+
+name: "💬 Customer Feature Gap Report"
+description: Record a feature customers request that we don’t support.
+title: "[Feature Gap]: "
+labels:
+  - feature-request
+  - customer
+  - gap
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub handle or name of the person submitting the request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Feature Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature Request Summary
+      description: Describe the customer-requested functionality that is not currently supported.
+      placeholder: |
+        - Request: Ability to schedule reports via email  
+        - Context: Customers want automated reporting at week/month intervals  
+        - Gap: Reports only available manually via dashboard today
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Use Case & Importance (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Customer Use Case
+      description: Why does the customer want this? What are they doing today instead?
+      placeholder: |
+        - Customer: Acme Corp  
+        - Use Case: Internal compliance requires archived audit reports  
+        - Workaround: They download CSVs manually each Friday  
+        - Concern: Risk of human error + overhead for CS team
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Customer Account or Link
+      description: Add CRM record, support ticket, or community post.
+      placeholder: |
+        - https://notion.so/accounts/acme-feature-gap  
+        - Zendesk: #1234  
+        - Salesforce: https://sfdc.com/opportunity/4321
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Functional Gap Severity
+      description: How major is this feature gap from a functionality perspective?
+      options:
+        - "Critical – must-have feature missing"
+        - "High – common customer blocker or ask"
+        - "Medium – important but has workaround"
+        - "Low – nice to have or edge case"
+      default: "Medium – important but has workaround"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When does the customer expect resolution or a workaround?
+      options:
+        - "Immediate – deal blocked or urgent churn risk"
+        - "High – renewal or QBR coming up"
+        - "Medium – expected this quarter"
+        - "Low – no deadline communicated"
+      default: "Medium – expected this quarter"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Customer Impact
+      description: How many customers or teams does this impact?
+      options:
+        - "Org-wide – multiple accounts or strategic customers"
+        - "Department-level – specific function across accounts"
+        - "Single customer – isolated need"
+        - "Unclear – early-stage or exploratory"
+      default: "Single customer – isolated need"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Suggested follow-up priority from a GTM/CS lens.
+      options:
+        - "P0 – roadmap consideration now"
+        - "P1 – review in next triage cycle"
+        - "P2 – backlog"
+        - "P3 – monitor"
+      default: "P2 – backlog"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Please confirm the validity and relevance of this request.
+      options:
+        - label: I’ve verified this is not already available.
+        - label: I’ve confirmed this matters to a real customer or prospect.
+    validations:
+      required: true

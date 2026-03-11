@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Innovation Proposal
+# -------------------------------------------------------------------
+# Purpose: Capture bold or unconventional ideas that may create long-term impact.
+# Encourages experimentation, curiosity, and early-stage discussions.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: innovation-proposal
+
+name: "💡 Innovation Proposal"
+description: Share an unconventional or bold idea that could lead to significant long-term value.
+title: "[Innovation Idea]: "
+labels:
+  - innovation
+  - proposal
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: Your GitHub handle or name.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Idea Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea Summary
+      description: What is the core idea or innovation?
+      placeholder: |
+        e.g., What if we replaced SSR with edge workers backed by valibot + Umami to reduce global latency by 40%?
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Potential Value (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: value
+    attributes:
+      label: Potential Impact
+      description: What upside might this create? Think performance, usability, growth, resilience, or differentiation.
+      placeholder: |
+        - Reduce user latency globally  
+        - Improve security by running isolated per-request workers  
+        - Could simplify our architecture by removing Express
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Risks or Unknowns (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: unknowns
+    attributes:
+      label: Risks or Unknowns
+      description: Any technical, operational, financial, or legal unknowns?
+      placeholder: |
+        - Unclear if Biome can handle per-request state  
+        - GCP billing model might spike  
+        - Needs review from mobile team
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Innovation Level
+      description: How potentially disruptive or transformative is this idea?
+      options:
+        - "High – paradigm shift or new category"
+        - "Medium – improves multiple systems significantly"
+        - "Low – niche or scoped win"
+        - "Unclear – needs further shaping"
+      default: "Medium – improves multiple systems significantly"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency to Explore
+      description: When should we start exploring this?
+      options:
+        - "Now – let’s prioritize a prototype"
+        - "Soon – add to innovation backlog"
+        - "Later – track for future roadmap"
+        - "Unclear – just sharing for now"
+      default: "Soon – add to innovation backlog"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what does this idea potentially affect?
+      options:
+        - "Org-wide – strategic or business-wide"
+        - "Team-wide – major process or tooling gain"
+        - "Feature-level – narrow but useful"
+        - "Unclear – needs shaping"
+      default: "Team-wide – major process or tooling gain"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: Overall prioritization based on impact vs effort.
+      options:
+        - "P0 – urgent, start now"
+        - "P1 – high value if resourced"
+        - "P2 – optional for later"
+        - "P3 – log for reference"
+      default: "P2 – optional for later"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Acknowledgment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm your intent and expectations.
+      options:
+        - label: I acknowledge this is experimental and may be high-risk
+        - label: I’m open to helping validate or prototype the idea
+    validations:
+      required: true

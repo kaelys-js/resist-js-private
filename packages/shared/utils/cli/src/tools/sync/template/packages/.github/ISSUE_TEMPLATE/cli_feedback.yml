@@ -1,0 +1,162 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: CLI Usability Feedback
+# -------------------------------------------------------------------
+# Purpose: Collect feedback on developer CLI experience and ergonomics.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: cli-usability-feedback
+
+name: "🧰 CLI Usability Feedback"
+description: Share feedback on the usability, output, or ergonomics of our CLI.
+title: "[CLI Feedback]: "
+labels:
+  - cli
+  - feedback
+  - developer-experience
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or team handle of the person submitting feedback.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: CLI Command or Area (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: command
+    attributes:
+      label: CLI Command
+      description: Specify the CLI command or area being referenced (if applicable).
+      placeholder: "e.g., bun dev, argo submit, biome check"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Feedback Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Feedback Summary
+      description: What worked well, what didn’t, or what confused you?
+      placeholder: |
+        `biome check` fails silently if config is invalid.  
+        Help output should show how to disable strict formatting rules.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Suggestions (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: Suggested Improvements
+      description: Suggest CLI flags, output formats, error handling, etc.
+      placeholder: |
+        - Add `--verbose` flag  
+        - Color-code errors/warnings  
+        - Show version in `--help` output
+      render: markdown
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Logs
+      description: Link to related logs, screenshots, usage output, etc.
+      placeholder: "e.g., CLI output screenshot, GitHub issue #77"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How impactful is this usability issue?
+      options:
+        - "Critical – CLI is unusable or blocking work"
+        - "High – poor experience or error-prone"
+        - "Medium – confusing or inconsistent"
+        - "Low – cosmetic or nice-to-have"
+      default: "Medium – confusing or inconsistent"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be addressed?
+      options:
+        - "Immediate – actively blocking work"
+        - "High – within current milestone"
+        - "Medium – include in backlog triage"
+        - "Low – improve later"
+      default: "Medium – include in backlog triage"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who or what workflows are affected?
+      options:
+        - "Org-wide – affects all dev workflows"
+        - "Team-wide – affects a product vertical or platform"
+        - "CLI-specific – limited to one tool or subcommand"
+        - "Unclear – needs triage"
+      default: "CLI-specific – limited to one tool or subcommand"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Priority based on severity × urgency.
+      options:
+        - "P0 – urgent and unblocks work"
+        - "P1 – needs improvement soon"
+        - "P2 – backlog quality improvement"
+        - "P3 – track for future DX review"
+      default: "P2 – backlog quality improvement"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm the following before submitting.
+      options:
+        - label: I’ve tested this on the latest version
+        - label: I’ve included enough context for maintainers to review
+    validations:
+      required: true

@@ -1,0 +1,263 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: policy-proposal
+
+name: "🧾 Policy Proposal"
+description: Submit a proposal to introduce, revise, or clarify a policy in the project or organization.
+labels:
+  - governance
+  - policy
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the individual or team submitting the proposal.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Policy Proposal Content (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: policy_title
+    attributes:
+      label: 📌 Policy Title
+      description: Provide a short, descriptive title for this policy proposal.
+      placeholder: "e.g., Service Deployment Policy"
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 📝 Policy Summary
+      description: Provide a clear, concise overview of the policy or the change being introduced.
+      placeholder: |
+        Describe the policy’s scope, purpose, and high-level intent.
+        Include key behaviors or standards it defines.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: 💡 Rationale
+      description: Explain why this policy or change is needed. Address existing pain points, risks, or strategic goals.
+      placeholder: |
+        Why is this policy being proposed now?
+        What problems or opportunities does it address?
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: 🌍 Impact Assessment
+      description: Describe how the policy will affect systems, processes, teams, or contributors.
+      placeholder: |
+        Who will be affected?
+        What will they need to do differently?
+        What benefits or drawbacks are expected?
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: 🚀 Implementation Plan
+      description: Suggest how this policy should be adopted, phased in, or enforced. Include steps, owners, and tooling.
+      placeholder: |
+        Who owns implementation?
+        Are there phases or milestones?
+        Are any approvals or tools needed?
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: stakeholders
+    attributes:
+      label: 👥 Stakeholders & Reviewers
+      description: List individuals or groups who should review or approve this proposal and why.
+      placeholder: |
+        e.g., DevOps for rollout coordination, Security for compliance, Legal for risk analysis
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: 📈 Success Criteria
+      description: Define how to evaluate whether this policy is working as intended.
+      placeholder: |
+        What metrics or signals will indicate success?
+        How will effectiveness be measured over time?
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🔄 Alternatives Considered
+      description: Summarize other options that were explored and why they were not selected.
+      placeholder: |
+        What were the pros and cons of other approaches?
+        Why is this the preferred solution?
+      render: markdown
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: ⚠️ Risks & Mitigations
+      description: Identify potential risks and how they can be prevented, monitored, or mitigated.
+      placeholder: |
+        What could go wrong?
+        What safeguards or contingency plans are recommended?
+      render: markdown
+
+  - type: textarea
+    id: compliance
+    attributes:
+      label: 🛡️ Compliance & Legal Considerations
+      description: Include any relevant legal, regulatory, or contractual requirements this policy must address.
+      placeholder: |
+        Are there external standards this policy must comply with?
+        Any open-source license or privacy requirements?
+      render: markdown
+
+  - type: textarea
+    id: maintenance
+    attributes:
+      label: 🔧 Maintenance & Review Cadence
+      description: Propose how this policy will be maintained over time and who is responsible.
+      placeholder: |
+        Who owns this policy post-approval?
+        How often should it be reviewed or updated?
+      render: markdown
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: 🔗 Dependencies
+      description: Note any systems, processes, or teams that this policy depends on to succeed.
+      placeholder: |
+        Are there technical, operational, or organizational prerequisites?
+      render: markdown
+
+  - type: textarea
+    id: change_log
+    attributes:
+      label: 🕘 Version History
+      description: Track revisions to the proposal for transparency.
+      placeholder: |
+        v1.0 – Initial draft by Alice  
+        v1.1 – Updated after security review  
+        v1.2 – Legal feedback incorporated
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help prioritize review and alignment.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this policy to current goals?
+      options:
+        - "Low – future consideration"
+        - "Medium – aligns with planned work"
+        - "High – enables critical initiatives"
+        - "Critical – required for compliance, funding, or launch"
+      default: "Medium – aligns with planned work"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Policy Scope or Impact
+      description: What is the scale or depth of change this policy introduces?
+      options:
+        - "Low – minor adjustment or clarification"
+        - "Medium – meaningful change to team behavior"
+        - "High – org-wide procedural shift"
+        - "Critical – cross-functional or public-facing requirement"
+      default: "Medium – meaningful change to team behavior"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Timeline sensitivity of this proposal.
+      options:
+        - "Low – no immediate need"
+        - "Medium – needed in 1–2 quarters"
+        - "High – needed this quarter"
+        - "Critical – required immediately"
+      default: "Medium – needed in 1–2 quarters"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Affected Scope
+      description: Who is impacted by this policy?
+      options:
+        - "Single contributor or working group"
+        - "Multiple internal teams"
+        - "All contributors or maintainers"
+        - "External stakeholders or regulated users"
+      default: "Multiple internal teams"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Docs or Policies
+      description: Link to any related issue, policy, RFC, or document.
+      placeholder: "e.g., Governance.md, GitHub issue #127, policy-draft.pdf"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Attachments (Optional)
+      description: Upload PDFs, diagrams, comparison tables, or legal references.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this submission is complete and ready for stakeholder review.
+      options:
+        - label: I have reviewed existing policies and confirmed this proposal adds value
+        - label: I understand this may be reviewed and revised collaboratively
+    validations:
+      required: true

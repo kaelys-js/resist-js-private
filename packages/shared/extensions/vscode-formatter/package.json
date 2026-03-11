@@ -1,0 +1,111 @@
+{
+  "name": "@resist/vscode-formatter",
+  "displayName": "Resist Formatter",
+  "description": "Multi-language formatter with format-on-save, format-on-type, and format-on-paste for 67+ file types",
+  "version": "0.0.1",
+  "publisher": "resist",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Formatters"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "resistFormatter.formatFile",
+        "title": "Format Current File",
+        "category": "Resist Formatter"
+      },
+      {
+        "command": "resistFormatter.formatSelection",
+        "title": "Format Selection",
+        "category": "Resist Formatter"
+      },
+      {
+        "command": "resistFormatter.formatAll",
+        "title": "Format All Files",
+        "category": "Resist Formatter"
+      },
+      {
+        "command": "resistFormatter.checkTools",
+        "title": "Check & Install Tools",
+        "category": "Resist Formatter"
+      },
+      {
+        "command": "resistFormatter.resetToolPrompt",
+        "title": "Reset Tool Installation Prompt",
+        "category": "Resist Formatter"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "resistFormatter.formatFile",
+        "key": "shift+alt+f",
+        "mac": "shift+alt+f",
+        "when": "editorTextFocus"
+      }
+    ],
+    "configuration": {
+      "title": "Resist Formatter",
+      "properties": {
+        "resistFormatter.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable the formatter"
+        },
+        "resistFormatter.formatOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Format files on save"
+        },
+        "resistFormatter.formatOnType": {
+          "type": "boolean",
+          "default": false,
+          "description": "Format files as you type (debounced)"
+        },
+        "resistFormatter.formatOnPaste": {
+          "type": "boolean",
+          "default": false,
+          "description": "Format pasted content"
+        },
+        "resistFormatter.debounceMs": {
+          "type": "number",
+          "default": 1000,
+          "minimum": 500,
+          "maximum": 10000,
+          "description": "Debounce delay for format-on-type (ms)"
+        },
+        "resistFormatter.checkToolsOnActivation": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically check for missing tools when the extension activates"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "oxlint src/",
+    "package": "vsce package --no-dependencies",
+    "vscode:prepublish": "pnpm compile",
+    "qa:checks": "pnpm --filter @/cli tool checks --cwd ."
+  },
+  "dependencies": {
+    "@/cli": "workspace:*",
+    "@/schemas/result": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.22.0",
+    "typescript": "^5.3.0"
+  }
+}

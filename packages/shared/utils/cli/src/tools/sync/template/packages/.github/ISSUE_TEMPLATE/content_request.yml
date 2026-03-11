@@ -1,0 +1,181 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: content-request
+
+name: "📰 Content Request"
+description: Propose new content such as blog posts, tweets, or community outreach stories to amplify ideas or initiatives.
+labels:
+  - content
+  - outreach
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this content request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Content Proposal (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📝 Content Proposal  
+        Share your idea for content and what makes it valuable to publish.
+
+  - type: input
+    id: title
+    attributes:
+      label: Suggested Title or Topic
+      placeholder: "e.g. Scaling a modern SaaS stack with Kubernetes and TypeScript"
+    validations:
+      required: true
+
+  - type: textarea
+    id: pitch
+    attributes:
+      label: Purpose and Value
+      description: >
+        Clearly explain the purpose, audience, and relevance of the proposed content.
+        Mention key takeaways, unique perspectives, or insights that would benefit others.
+      placeholder: |
+        e.g.,
+        - Highlights lessons from migrating to modern infra  
+        - Provides insight into bundling strategy with zero-runtime valibot  
+        - Helps others adopt lightweight observability tools like Umami  
+        - Ties into broader developer trends like edge-first architecture
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Content Planning  
+        Help assess the urgency and reach of this content request.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Importance or strategic relevance of publishing this content.
+      options:
+        - "Low – nice to have"
+        - "Medium – aligns with ongoing themes"
+        - "High – supports upcoming initiatives"
+        - "Critical – time-sensitive or external campaign"
+      default: "Medium – aligns with ongoing themes"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Communications Value
+      description: Potential impact on audience or brand positioning.
+      options:
+        - "Low – internal interest only"
+        - "Medium – valuable to dev community"
+        - "High – strong thought leadership or visibility"
+        - "Critical – externally strategic narrative"
+      default: "Medium – valuable to dev community"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: Expected timing or coordination needs for this content.
+      options:
+        - "Low – evergreen topic"
+        - "Medium – timely but not urgent"
+        - "High – publish this quarter"
+        - "Critical – immediate campaign deadline"
+      default: "Medium – timely but not urgent"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Audience Impact
+      description: Who would benefit or be influenced by this content?
+      options:
+        - "Internal teams"
+        - "Contributors and maintainers"
+        - "Developer ecosystem"
+        - "Partners, customers, or general public"
+      default: "Developer ecosystem"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Supporting Materials
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Supporting Materials  
+        Attach drafts, screenshots, or related references.
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Drafts or Visuals (Optional)
+      description: Upload any prepared content, diagrams, screenshots, or outlines.
+      multiple: true
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Background
+      description: Link to related initiatives, tweets, issues, or documentation.
+      placeholder: "e.g., related tweet, roadmap item, internal doc"
+
+  # --------------------------------------------------------------------
+  # SECTION: Additional Context
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧠 Additional Context  
+        Provide any technical, marketing, or strategic background.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Background or Motivation
+      description: Include context like product launches, recent contributions, or trends this supports.
+      placeholder: |
+        - Builds on recent feature release  
+        - Follows successful AMA or dev post  
+        - Complements new app store release  
+        - Supports a theme like sustainability or privacy
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this proposal is relevant and complete for evaluation.
+      options:
+        - label: I confirm this content request is accurate and ready for review.
+    validations:
+      required: true

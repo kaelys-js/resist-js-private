@@ -1,0 +1,117 @@
+{
+	"$schema": "{{schemaPath 'tooling/package'}}",
+	"name": "{{ business.company }}",
+	"version": "0.0.0",
+	"description": "{{ repo.description }}",
+	"type": "module",
+	"private": true,
+	"license": "{{ business.license }}",
+	"author": {
+		"name": "{{ business.company }}",
+		"email": "{{ business.emails.npm }}"
+	},
+	"homepage": "{{ business.domains.marketing }}",
+	"repository": {
+		"type": "git",
+		"url": "{{ repo.urls.repo }}"
+	},
+	"bugs": {
+		"url": "{{ repo.urls.bugs }}"
+	},
+	"funding": "{{ repo.urls.funding }}",
+	"engines": {
+		"node": "{{ versions.node }}"{{#ifPm "pnpm"}},
+		"pnpm": "{{ pm.version }}"{{/ifPm}}{{#ifPm "npm"}},
+		"npm": "{{ pm.version }}"{{/ifPm}}{{#ifPm "yarn"}},
+		"yarn": "{{ pm.version }}"{{/ifPm}}
+	},
+	"keywords": {{{json repo.keywords}}},
+	"packageManager": "{{ pm.name }}@{{ pm.version }}",{{#unlessPm "pnpm"}}
+	"workspaces": [
+		"packages/**"
+	],{{/unlessPm}}
+	"scripts": {
+		"_check:onboard": "node -e \"const{CI,RESIST_ONBOARDING}=process.env;if(CI||RESIST_ONBOARDING||require('fs').existsSync('{{ paths.markerDir }}/.onboarded'))process.exit(0);const{execSync}=require('child_process');try{execSync('{{ pm.run }} onboard',{stdio:'inherit'});process.exit(0)}catch{process.exit(1)}\"",
+
+		"dev": "{{ pm.run }} _check:onboard && INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run -- turbo dev --filter=packages/products/${npm_config_product:-**}/${npm_config_service:-**} --",
+		"dev:proxy": "{{ pm.filter }} @/cli dev:proxy --",
+		"dev:api": "{{ pm.run }} _check:onboard && INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run --path=/api -- turbo dev --filter=packages/products/${npm_config_product:-**}/api --",
+		"dev:app": "{{ pm.run }} _check:onboard && INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run --path=/app -- turbo dev --filter=packages/products/${npm_config_product:-**}/app --",
+		"dev:ios": "{{ pm.run }} _check:onboard && INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run --path=/app -- turbo dev:ios --filter=packages/products/${npm_config_product:-**}/app --",
+		"dev:android": "{{ pm.run }} _check:onboard && INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run --path=/app -- turbo dev:android --filter=packages/products/${npm_config_product:-**}/app --",
+		"dev:desktop": "{{ pm.run }} _check:onboard && INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run --path=/app -- turbo dev:desktop --filter=packages/products/${npm_config_product:-**}/app --",
+		"dev:marketing": "{{ pm.run }} _check:onboard && INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run --path=/marketing -- turbo dev --filter=packages/products/${npm_config_product:-**}/marketing --",
+		"dev:status": "{{ pm.run }} _check:onboard && INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run --path=/status -- turbo dev --filter=packages/products/${npm_config_product:-**}/status --",
+		"dev:admin": "{{ pm.run }} _check:onboard && INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run -- turbo dev --filter=packages/tools/admin --",
+		"dev:docs": "{{ pm.run }} _check:onboard && INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run -- turbo dev --filter=packages/tools/docs --",
+		"dev:qa": "{{ pm.run }} _check:onboard && INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run -- turbo dev --filter=packages/tools/qa --",
+
+		"build": "{{ pm.run }} _check:onboard && turbo build --",
+		"preview": "{{ pm.run }} _check:onboard && turbo preview --",
+		"clean": "turbo clean && node -e \"const fs=require('fs');['node_modules','.turbo'].forEach(d=>fs.rmSync(d,{recursive:true,force:true}))\"",
+
+		"qa:test": "{{ pm.run }} _check:onboard && turbo qa:test --",
+		"qa:test:unit": "{{ pm.run }} _check:onboard && turbo qa:test:unit --",
+		"qa:test:e2e": "{{ pm.run }} _check:onboard && turbo qa:test:e2e --",
+		"qa:test:coverage": "{{ pm.run }} _check:onboard && turbo qa:test:coverage --",
+		"qa:type-check": "{{ pm.run }} _check:onboard && turbo qa:type-check --",
+		"qa:benchmark": "{{ pm.run }} _check:onboard && turbo qa:benchmark --",
+
+		"ci": "turbo //#qa:format:check qa:checks qa:type-check qa:test qa:test:unit build qa:test:e2e --",
+		"ci:local": "turbo //#qa:format:check qa:checks qa:type-check qa:test qa:test:unit build --",
+		"local-ci:run": "{{ pm.filter }} @/cli tool local-ci run --",
+		"local-ci:lint": "{{ pm.filter }} @/cli tool local-ci lint",
+		"local-ci:list": "{{ pm.filter }} @/cli tool local-ci list",
+		"local-ci:status": "{{ pm.filter }} @/cli tool local-ci status",
+
+		"db:generate": "{{ pm.run }} _check:onboard && turbo db:generate --",
+		"db:migrate": "{{ pm.run }} _check:onboard && turbo db:migrate --",
+		"db:seed": "{{ pm.run }} _check:onboard && turbo db:seed --",
+		"db:studio": "{{ pm.run }} _check:onboard && turbo db:studio --",
+
+		"deploy:staging": "{{ pm.run }} _check:onboard && turbo deploy:staging --",
+		"deploy:prod": "{{ pm.run }} _check:onboard && turbo deploy:prod --",
+		"deploy:preview": "{{ pm.run }} _check:onboard && turbo deploy:preview --",
+
+		"devenv:up": "{{ pm.filter }} @/cli tool devenv up --",
+		"devenv:down": "{{ pm.filter }} @/cli tool devenv down --",
+		"devenv:deploy": "INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run --path=/devenv -- {{ pm.filter }} @/cli tool devenv deploy --",
+		"devenv:destroy": "INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run --path=/devenv -- {{ pm.filter }} @/cli tool devenv destroy --",
+		"devenv:push": "INFISICAL_API_URL={{ tooling.infisical.siteUrl }} infisical run --path=/devenv -- {{ pm.filter }} @/cli tool devenv push --",
+		"devenv:status": "{{ pm.filter }} @/cli tool devenv status",
+
+		"secrets:server:up": "docker compose -f docker-compose.infisical.yml up -d",
+		"secrets:server:down": "docker compose -f docker-compose.infisical.yml down",
+		"secrets:server:destroy": "docker compose -f docker-compose.infisical.yml down -v",
+		"secrets:server:logs": "docker compose -f docker-compose.infisical.yml logs -f infisical",
+
+		"contributors": "all-contributors generate --contributorsPerLine 8 --config packages/shared/config/contributors/base.json",
+		"prepare": "lefthook install",
+
+		"qa:format": "{{ pm.filter }} @/cli tool format --",
+		"qa:format:check": "{{ pm.filter }} @/cli tool format --check --",
+		"qa:checks": "{{ pm.filter }} @/cli tool checks --",
+		"product:create": "{{ pm.filter }} @/cli tool product-create --",
+		"product:logs": "{{ pm.filter }} @/cli tool product-logs --",
+		"product:config": "{{ pm.filter }} @/cli tool config",
+		"product:secrets": "{{ pm.filter }} @/cli tool secrets --",
+		"onboard": "{{ pm.filter }} @/cli tool onboard",
+		"shared:config": "{{ pm.filter }} @/cli tool config",
+		"shared:secrets": "{{ pm.filter }} @/cli tool secrets --",
+		"secrets:setup": "{{ pm.filter }} @/cli tool secrets-setup",
+		"update:sync": "{{ pm.filter }} @/cli tool sync --",
+		"update:schemas": "{{ pm.filter }} @/cli tool schema-updater --",
+		"setup:vscode": "{{ pm.filter }} @/cli tool setup-vscode",
+
+		"qa:boundaries": "turbo boundaries",
+
+		"lint:commit": "commitlint --config packages/shared/config/commitlint/base.json --edit",
+		"lint:deps": "syncpack lint --config packages/shared/config/syncpack/base.json",
+		"fix:deps": "syncpack fix-mismatches --config packages/shared/config/syncpack/base.json"
+	},
+	"devDependencies": {
+		{{#each versions.nodeTools}}
+		"{{@key}}": "{{this}}"{{#unless @last}},{{/unless}}
+		{{/each}}
+	}
+}

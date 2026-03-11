@@ -18,6 +18,7 @@
     "ignoreUnknown": true,
     "includes": [
       "**",
+      "!**/_INTEGRATE/**",
       "!**/.agents/**",
       "!**/.claude/**",
       "!**/app.css",

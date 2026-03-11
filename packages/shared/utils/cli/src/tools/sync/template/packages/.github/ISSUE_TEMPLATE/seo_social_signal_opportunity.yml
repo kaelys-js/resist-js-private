@@ -1,0 +1,184 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: SEO Social Signal Opportunity
+# -------------------------------------------------------------------
+# Purpose: Flag socially-driven moments, mentions, or content that could enhance SEO
+# through structured amplification, earned media, or link opportunities.
+# Designed to be stack-agnostic and workflow-neutral for enterprise environments.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: seo-social-signal-opportunity
+
+name: "📣 SEO Social Signal Opportunity"
+description: Flag social content or engagement that could be leveraged for SEO performance or visibility.
+title: "[SEO Social Signal Opportunity]: "
+labels:
+  - seo
+  - social
+  - opportunity
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or contact of the individual submitting the insight.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Opportunity Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📢 Social Signal Opportunity  
+        Share the context and relevance of the social activity that could benefit SEO.
+
+  - type: textarea
+    id: social_signal_details
+    attributes:
+      label: Social Signal Insight
+      description: Describe the social engagement or content opportunity worth SEO amplification.
+      placeholder: |
+        - Influencer tagged our product on Instagram  
+        - Branded hashtag trending on Twitter  
+        - Viral TikTok video mentions our feature  
+        - Reddit thread driving backlinks to blog post
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage & Impact Assessment (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage & Impact  
+        Provide the priority and impact of this signal on SEO strategy or execution.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How should this opportunity be prioritized?
+      options:
+        - "P0 – top priority"
+        - "P1 – high priority"
+        - "P2 – normal priority"
+        - "P3 – low priority"
+      default: "P3 – low priority"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Severity
+      description: How significant is this from a strategic or traffic growth standpoint?
+      options:
+        - "Critical – urgent brand or traffic impact"
+        - "High – major amplification or earned media boost"
+        - "Medium – meaningful engagement or signal opportunity"
+        - "Low – niche opportunity or long-tail play"
+      default: "Low – niche opportunity or long-tail play"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How time-sensitive is this opportunity?
+      options:
+        - "Critical – must act immediately"
+        - "High – amplify this sprint"
+        - "Medium – address within 2 sprints"
+        - "Low – add to backlog"
+      default: "Next cycle – add to backlog"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Business/User Impact
+      description: Who or what does this opportunity benefit?
+      options:
+        - "Org-wide – brand boost or cross-cutting opportunity"
+        - "Team-wide – relevant to specific campaign or product"
+        - "Single user or audience – targeted opportunity"
+        - "Unclear – needs triage"
+      default: "Team-wide – relevant to specific campaign or product"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Supporting Links
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🔗 References & Examples  
+        Include any external URLs or dashboards showing signal strength or audience engagement.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Context
+      description: Links to social media posts, analytics dashboards, mentions, or content engagement data.
+      placeholder: |
+        - https://twitter.com/mention/status/123  
+        - LinkedIn influencer thread  
+        - Umami traffic spike on /blog/launch-post  
+        - Screenshot of post engagement
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Attachments
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📂 Attachments  
+        Include relevant screenshots, exports, or content examples for review.
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Artifacts
+      description: Paste links, screenshots, or file contents related to the signal.
+      placeholder: |
+        ```json
+        {
+          "source": "LinkedIn",
+          "engagement": 892,
+          "mention": "@company",
+          "timestamp": "2025-05-20T17:42:00Z"
+        }
+        ```
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm review and clarity of information before submitting.
+      options:
+        - label: I confirm this opportunity is valid and relevant for SEO consideration.
+    validations:
+      required: true

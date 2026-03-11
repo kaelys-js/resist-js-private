@@ -1,0 +1,54 @@
+{{syncHeader "#" "https://docs.docker.com/build/building/context/#dockerignore-files"}}
+
+{{> ignore-common}}
+
+# Docker: Private keys (inject at runtime)
+*.key
+
+# Docker: Git (not needed in image)
+.git/
+.gitignore
+.gitattributes
+.gitmodules
+
+# Docker: Test source files (not for production)
+**/*.test.ts
+**/*.spec.ts
+**/*.test.js
+**/*.spec.js
+**/tests/
+**/tester/
+
+# Docker: Documentation (reduce image size)
+*.md
+!README.md
+docs/
+.github/
+
+# Docker: Config files (not needed at runtime)
+.editorconfig
+.prettierrc*
+.prettierignore
+.eslintrc*
+.eslintignore
+oxlint.json
+biome.json
+biome.jsonc
+lefthook.yml
+.all-contributorsrc
+.nvmrc
+.npmrc
+commitlint.config.*
+turbo.json
+
+# Docker: CI/CD (not needed in image)
+.gitlab-ci.yml
+.circleci/
+.travis.yml
+azure-pipelines.yml
+Jenkinsfile
+
+# Docker: Self-exclude
+Dockerfile*
+docker-compose*.yml
+.dockerignore

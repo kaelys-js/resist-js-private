@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Docs Refactor Proposal
+# -------------------------------------------------------------------
+# Purpose: Propose changes to improve documentation structure, navigation, or clarity.
+# Encourages contributions toward improving the developer experience through better organization and usability.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: docs-refactor-proposal
+
+name: "🧵 Docs Refactor Proposal"
+description: Propose improvements to documentation structure or navigation.
+title: "[Docs Refactor]: "
+labels:
+  - docs
+  - refactor
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the submitter.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly explain the issue, suggestion, or desired structure change.
+      placeholder: |
+        - Sidebar too deep — navigation overwhelming  
+        - Guides and concepts are split in multiple places  
+        - Redundant “index.md” files under every subfolder
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Detail
+      description: Describe the rationale, affected systems, or developer friction observed.
+      placeholder: |
+        - Docs were updated for v3 but still link to v2  
+        - Customers report they can't find guides in support tickets  
+        - Team triage showed ~30% duplicated headings across folders
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or References
+      description: Add URLs to existing documentation, issues, or mockups.
+      placeholder: |
+        - https://docs.example.com/setup  
+        - #456 (prior nav issue)  
+        - Figma: “Docs UX Sprint v2”
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How significantly does this impact the developer or user experience?
+      options:
+        - "Critical – users are blocked or misled"
+        - "High – major confusion or redundant structure"
+        - "Medium – navigation friction, but not a blocker"
+        - "Low – minor style or clarity improvement"
+      default: "Medium – navigation friction, but not a blocker"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be prioritized?
+      options:
+        - "Immediate – tied to launch or release"
+        - "High – should be resolved this sprint"
+        - "Medium – next docs planning cycle"
+        - "Low – add to backlog"
+      default: "Medium – next docs planning cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: What documentation areas are affected?
+      options:
+        - "Org-wide – multiple teams or products"
+        - "Team-wide – developer-facing docs"
+        - "Section-level – one category or guide set"
+        - "Unclear – needs scoping"
+      default: "Team-wide – developer-facing docs"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Overall triage priority for action or discussion.
+      options:
+        - "P0 – immediate fix required"
+        - "P1 – high priority for planning"
+        - "P2 – standard review path"
+        - "P3 – backlog or exploratory"
+      default: "P2 – standard review path"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this submission is actionable.
+      options:
+        - label: I have verified this is not already addressed.
+        - label: I have provided enough context to take action.
+    validations:
+      required: true

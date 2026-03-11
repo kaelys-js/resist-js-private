@@ -173,6 +173,10 @@ export function extractDeps(source: Str): DepTree {
   let match: RegExpExecArray | null = IMPORT_RE.exec(fullScript);
   while (match) {
     const [, clause, specifier]: RegExpExecArray = match;
+    if (!clause || !specifier) {
+      match = IMPORT_RE.exec(fullScript);
+      continue;
+    }
     const parsed: ParsedImport = parseImport(clause);
 
     const entry: DepEntry = {

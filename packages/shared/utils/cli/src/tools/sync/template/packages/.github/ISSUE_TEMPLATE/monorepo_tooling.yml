@@ -1,0 +1,134 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: monorepo-tooling-issue
+
+name: "📦 Monorepo Tooling Issue"
+description: Report issues with build tooling, workspace layout, or config in a monorepo.
+title: "[Monorepo Tooling]: "
+labels:
+  - monorepo
+  - tooling
+assignees: []
+
+body:
+
+  # -------------------------------
+  # Submitter Metadata
+  # -------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # -------------------------------
+  # Summary
+  # -------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Provide a short summary of the issue or improvement proposal.
+      placeholder: |
+        e.g., "Build fails when running `turbo run build` in nested package due to missing path alias resolution"
+    validations:
+      required: true
+
+  # -------------------------------
+  # Detailed Context
+  # -------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Detail
+      description: What led to this? Mention affected packages, CI issues, tooling bugs, config gaps, or tech debt.
+      placeholder: |
+        - Toolchain: Biome, Bun, PNPM, Turborepo, Nx, etc.
+        - Problem: e.g. build cache mismatch, cross-package linking error
+        - Context: any recent config changes, version bumps, or monorepo layout updates
+
+  # -------------------------------
+  # Optional Reference Links
+  # -------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or References
+      placeholder: "e.g., GitHub issue #789, CI logs, pnpm-workspace.yaml, turbo.json"
+
+  # -------------------------------
+  # Severity / Priority Fields
+  # -------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is the issue in terms of developer friction?
+      options:
+        - Critical – breaks build or deploy
+        - High – requires workarounds
+        - Medium – annoying but not blocking
+        - Low – minor or cosmetic
+      default: Medium – annoying but not blocking
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be resolved ideally?
+      options:
+        - Immediate
+        - Soon (next sprint)
+        - Backlog
+        - No urgency
+      default: Soon (next sprint)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: Who or what is affected?
+      options:
+        - Org-wide
+        - Engineering team
+        - Single workspace
+        - Unclear or unknown
+      default: Engineering team
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How should this be prioritized relative to other monorepo work?
+      options:
+        - P0 – must fix immediately
+        - P1 – high priority fix
+        - P2 – fix when convenient
+        - P3 – low priority backlog
+      default: P2 – fix when convenient
+    validations:
+      required: true
+
+  # -------------------------------
+  # Acknowledgment
+  # -------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this submission is scoped and triageable.
+      options:
+        - label: I have verified this is not already addressed.
+        - label: I have provided enough context to take action.
+    validations:
+      required: true

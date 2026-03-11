@@ -1,0 +1,151 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: invalid-issue-flag
+
+name: "🚫 Invalid Issue"
+description: Flag issues that do not follow contribution guidelines or are not actionable.
+labels:
+  - invalid
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person flagging the issue.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Invalidity Explanation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚫 Invalid Issue Report  
+        Use this form to explain why a submitted issue is considered invalid. Be specific and reference contribution guidelines or project policies where applicable.
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Reason for Marking as Invalid
+      description: Clearly explain why this issue is invalid—missing required fields, violates submission format, off-topic, spam, etc.
+      placeholder: |
+        Example:  
+        - Missing reproduction steps  
+        - Not using the required issue template  
+        - Incomplete environment or log data  
+        - Off-topic or unrelated to this project  
+        - Duplicate of an existing closed issue
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help us track the frequency and impact of invalid submissions.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Triage relevance of this invalid issue for cleanup or contributor education.
+      options:
+        - "Low – harmless or self-resolving"
+        - "Medium – requires maintainer review"
+        - "High – repeated pattern or contributor misunderstanding"
+        - "Critical – disruptive or spammy"
+      default: "Medium – requires maintainer review"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Submission Severity
+      description: How invalid or unusable the original submission is.
+      options:
+        - "Low – minor format issue"
+        - "Medium – lacks required information"
+        - "High – misuses issue tracker"
+        - "Critical – abusive or spam"
+      default: "Medium – lacks required information"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When this invalid flag should be reviewed or followed up on.
+      options:
+        - "Low – no rush"
+        - "Medium – within 2 sprints"
+        - "High – this sprint"
+        - "Critical – immediate moderation required"
+      default: "Medium – within 2 sprints"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact of Invalid Submission
+      description: Who or what is affected by this invalid issue?
+      options:
+        - "No impact"
+        - "Contributor confusion"
+        - "Maintainer time lost"
+        - "Repository quality or moderation risk"
+      default: "Maintainer time lost"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Evidence (Optional)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📎 Evidence & References  
+        Link to the issue, related discussions, or screenshots for review.
+
+  - type: input
+    id: references
+    attributes:
+      label: Related Issue or URL
+      description: Paste the URL of the issue being flagged or related reference links.
+      placeholder: "e.g., https://github.com/org/repo/issues/123"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: Upload Supporting Files (Optional)
+      description: Screenshots, logs, or evidence that show the issue’s invalidity.
+      multiple: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this is a valid flag made in good faith and based on objective review.
+      options:
+        - label: I have reviewed the original issue and contribution guidelines before marking this as invalid
+        - label: I understand this flag may be reviewed and challenged by maintainers
+    validations:
+      required: true

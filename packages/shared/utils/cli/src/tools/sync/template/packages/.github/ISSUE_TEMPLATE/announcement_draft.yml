@@ -1,0 +1,233 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# 📣 GitHub Issue Form: Feature Announcement Draft
+# -------------------------------------------------------------------
+# Submit a draft announcement for a release, blog post, or changelog.
+# Designed to streamline reviews, ensure completeness, and improve messaging.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: feature-announcement-draft
+
+name: "📣 Feature Announcement Draft"
+description: Submit a draft announcement for release, blog, or changelog.
+title:
+  "[Feature Announcement Draft]: "
+  placeholder: "e.g., Scoped API Tokens for Secure Integrations"
+
+labels:
+  - announcement
+  - marketing
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the contributor.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  - type: input
+    id: co_authors
+    attributes:
+      label: Co-authors or Reviewers (Optional)
+      description: Anyone who helped write or review this announcement.
+      placeholder: "@collaborator-name"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Announcement Content
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: 📣 Announcement Summary
+      description: A concise statement of what’s being announced and why it matters.
+      placeholder: |
+        e.g., We’ve launched scoped API tokens to give developers more secure and fine-grained access controls.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Details
+      description: What changed, what’s new, who it affects, any limitations or dates. Include links if relevant.
+      placeholder: |
+        e.g., This affects developers integrating with our REST API.
+        Includes UI + CLI support. Docs updated here: [link]
+      render: markdown
+
+  - type: input
+    id: audience
+    attributes:
+      label: Target Audience
+      description: Who is this announcement for?
+      placeholder: "e.g., Developers, internal teams, enterprise customers, open source users"
+
+  - type: textarea
+    id: feature_use_case
+    attributes:
+      label: Use Case or Context (Optional)
+      description: Describe why this matters or how users are affected.
+      placeholder: |
+        e.g., As a user, I want to export reports as CSV so I can analyze them in Excel.
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Who or what is affected? (Optional)
+      description: Helps prioritize the issue.
+      placeholder: "e.g., Impacts all users on mobile devices"
+
+  # --------------------------------------------------------------------
+  # SECTION: Operational Metadata
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How important is this for communication priority?
+      options:
+        - Critical – requires urgent visibility
+        - High – major product or platform launch
+        - Medium – feature enhancement or UX win
+        - Low – minor or optional user impact
+      default: Medium – feature enhancement or UX win
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this go out?
+      options:
+        - Immediate
+        - This week
+        - This month
+        - Not urgent
+      default: This week
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact_scope
+    attributes:
+      label: Audience Reach
+      description: Who does this announcement impact?
+      options:
+        - External users
+        - Internal teams
+        - Both internal and external
+        - Unclear
+      default: External users
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Communications Priority
+      description: What is the expected level of visibility?
+      options:
+        - P0 – blog, changelog, banner
+        - P1 – changelog + newsletter
+        - P2 – changelog only
+        - P3 – optional or minor note
+      default: P1 – changelog + newsletter
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References / Assets
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related PRs or Docs (Optional)
+      placeholder: "e.g., Figma file, Notion launch doc, PR, changelog entry"
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments (Optional)
+      description: Include screenshots, visuals, or links to assets.
+      render: markdown
+      placeholder: |
+        Paste image links, diagrams, or asset folders here.
+
+  - type: input
+    id: media_links
+    attributes:
+      label: Media or Demo Link (Optional)
+      placeholder: "e.g., Loom video, public blog preview, product demo"
+
+  # --------------------------------------------------------------------
+  # SECTION: Tags, History, Misc
+  # --------------------------------------------------------------------
+  - type: input
+    id: suggested_labels
+    attributes:
+      label: Suggested Tags or Labels (Optional)
+      description: Suggest any helpful tags (e.g., frontend, API, marketing).
+      placeholder: "e.g., frontend, release, marketing"
+
+  - type: checkboxes
+    id: prior_issues
+    attributes:
+      label: Prior References (Optional)
+      description: Has this been discussed or reviewed previously?
+      options:
+        - label: I checked for previous internal discussions
+        - label: This continues a previous idea or doc
+
+  - type: input
+    id: contact
+    attributes:
+      label: Optional Contact (Optional)
+      placeholder: "Email or Slack handle (if you're okay with follow-up)"
+
+  # --------------------------------------------------------------------
+  # SECTION: Final Confirmation
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        👉 Before submitting, ensure accuracy, attach relevant links, and tag reviewers if needed.
+
+  - type: dropdown
+    id: disclosure_preference
+    attributes:
+      label: Do you prefer to disclose this publicly?
+      options:
+        - Yes, it's okay to discuss openly
+        - No, I’d prefer private follow-up
+      default: Yes, it's okay to discuss openly
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Final Check – ready to submit?
+      description: Tick the box once you’ve reviewed everything.
+      options:
+        - label: I confirm this is accurate and appropriate for the intended audience.
+        - label: I’ve included all necessary links, visuals, or product references.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        🙌 Thanks for preparing this announcement draft! A reviewer will follow up shortly.

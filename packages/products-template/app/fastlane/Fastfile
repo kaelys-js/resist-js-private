@@ -1,0 +1,25 @@
+# Fastfile for {product} app deployment
+#
+# Usage:
+#   fastlane ios beta     - Deploy to TestFlight
+#   fastlane android beta - Deploy to Play Store internal testing
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Deploy to TestFlight"
+  lane :beta do
+    # TODO: Configure app-specific settings
+    # build_app(scheme: "{product}")
+    # upload_to_testflight
+  end
+end
+
+platform :android do
+  desc "Deploy to Play Store internal testing"
+  lane :beta do
+    # TODO: Configure app-specific settings
+    # gradle(task: "clean assembleRelease")
+    # upload_to_play_store(track: "internal")
+  end
+end

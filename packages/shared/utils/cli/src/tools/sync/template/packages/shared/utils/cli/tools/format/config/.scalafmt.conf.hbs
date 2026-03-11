@@ -1,0 +1,192 @@
+{{syncHeader "#" "https://scalameta.org/scalafmt/docs/configuration.html"}}
+
+# =============================================================================
+# Scalafmt Configuration
+# =============================================================================
+
+version = "3.10.6"
+
+# =============================================================================
+# General Settings
+# =============================================================================
+runner.dialect = scala3
+
+maxColumn = {{ format.global.line_length }}
+lineEndings = unix
+
+# =============================================================================
+# Indentation
+# =============================================================================
+
+indent.main = {{ format.alternate.indent_size }}
+indent.significant = {{ format.alternate.indent_size }}
+indent.callSite = {{ format.alternate.indent_size }}
+indent.ctrlSite = {{ format.alternate.indent_size }}
+indent.defnSite = {{ format.alternate.indent_size }}
+indent.caseSite = {{ format.alternate.indent_size }}
+indent.extendSite = {{ format.alternate.indent_size }}
+indent.withSiteRelativeToExtends = {{ format.alternate.indent_size }}
+indent.commaSiteRelativeToExtends = {{ format.alternate.indent_size }}
+
+# =============================================================================
+# Alignment
+# =============================================================================
+align.preset = more
+
+align.tokens."+" = [
+  { code = "=>", owner = "Case" }
+  { code = "->", owner = "Term.ApplyInfix" }
+  { code = "<-", owner = "Enumerator.Generator" }
+  { code = "=", owner = "(Enumerator.Val|Defn.(Va(l|r)|Def|Type|GivenAlias)|Term.Assign)" }
+  { code = "%", owner = "Term.ApplyInfix" }
+  { code = "%%", owner = "Term.ApplyInfix" }
+  { code = "%%%", owner = "Term.ApplyInfix" }
+  { code = ":=", owner = "Term.ApplyInfix" }
+  { code = "+=", owner = "Term.ApplyInfix" }
+  { code = "++=", owner = "Term.ApplyInfix" }
+]
+
+align.arrowEnumeratorGenerator = true
+align.closeParenSite = false
+align.openParenCallSite = false
+align.openParenDefnSite = false
+align.openParenCtrlSite = false
+align.openParenTupleSite = false
+align.multiline = true
+
+# =============================================================================
+# Newlines
+# =============================================================================
+newlines.source = keep
+newlines.topLevelStatementBlankLines = [
+  { blanks { before = 1 } }
+]
+newlines.beforeMultiline = fold
+newlines.alwaysBeforeElseAfterCurlyIf = false
+newlines.beforeCurlyLambdaParams = multilineWithCaseOnly
+newlines.afterCurlyLambdaParams = squash
+newlines.implicitParamListModifierForce = []
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+newlines.inInterpolation = oneline
+newlines.penalizeSingleSelectMultiArgList = true
+newlines.configStyle.fallBack.prefer = true
+newlines.selectChains.classicKeepFirst = true
+newlines.selectChains.classicKeepAfterFirstBreak = true
+newlines.selfAnnotation = true
+newlines.annotation = true
+
+# =============================================================================
+# Rewrite Rules
+# =============================================================================
+rewrite.rules = [
+  AvoidInfix
+  RedundantBraces
+  RedundantParens
+  SortModifiers
+  PreferCurlyFors
+  Imports
+]
+
+rewrite.imports.sort = scalastyle
+rewrite.imports.groups = [
+  ["java\\..*"]
+  ["javax\\..*"]
+  ["scala\\..*"]
+  [".*"]
+]
+rewrite.imports.contiguousGroups = no
+
+rewrite.redundantBraces.stringInterpolation = true
+rewrite.redundantBraces.defnBodies = all
+rewrite.redundantBraces.generalExpressions = true
+rewrite.redundantBraces.ifElseExpressions = true
+rewrite.redundantBraces.methodBodies = true
+rewrite.redundantBraces.includeUnitMethods = true
+rewrite.redundantBraces.maxBreaks = 100
+
+rewrite.sortModifiers.order = [
+  "implicit"
+  "final"
+  "sealed"
+  "abstract"
+  "override"
+  "private"
+  "protected"
+  "lazy"
+  "open"
+  "transparent"
+  "inline"
+  "infix"
+  "opaque"
+]
+
+rewrite.trailingCommas.style = multiple
+rewrite.trailingCommas.allowFolding = true
+
+# =============================================================================
+# Spaces
+# =============================================================================
+spaces.beforeContextBoundColon = Never
+spaces.afterTripleEquals = true
+spaces.inImportCurlyBraces = false
+spaces.inInterpolatedStringCurlyBraces = false
+spaces.inParentheses = false
+spaces.neverAroundInfixTypes = []
+spaces.afterKeywordBeforeParen = true
+spaces.inByNameTypes = true
+spaces.afterSymbolicDefs = false
+
+# =============================================================================
+# Literals
+# =============================================================================
+literals.long = Upper
+literals.float = Lower
+literals.double = Lower
+literals.hexPrefix = Lower
+literals.hexDigits = Lower
+literals.scientific = Lower
+
+# =============================================================================
+# Binpacking
+# =============================================================================
+binPack.literalArgumentLists = true
+binPack.literalsIncludeSimpleExpr = true
+binPack.literalsSingleLine = false
+binPack.parentConstructors = source
+
+# =============================================================================
+# Docstrings
+# =============================================================================
+docstrings.style = SpaceAsterisk
+docstrings.removeEmpty = true
+docstrings.oneline = fold
+docstrings.wrap = no
+docstrings.blankFirstLine = yes
+docstrings.forceBlankLineBefore = true
+
+# =============================================================================
+# Comments
+# =============================================================================
+comments.wrap = no
+comments.wrapStandaloneSlcAsSlc = false
+
+# =============================================================================
+# Dangles
+# =============================================================================
+danglingParentheses.defnSite = true
+danglingParentheses.callSite = true
+danglingParentheses.ctrlSite = true
+danglingParentheses.tupleSite = true
+danglingParentheses.exclude = []
+
+# =============================================================================
+# Vertical Multiline
+# =============================================================================
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 3
+verticalMultiline.newlineAfterOpenParen = true
+
+# =============================================================================
+# XML
+# =============================================================================
+xmlLiterals.assumeFormatted = true

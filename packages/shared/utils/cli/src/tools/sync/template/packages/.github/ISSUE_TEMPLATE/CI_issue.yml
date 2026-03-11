@@ -1,0 +1,222 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: "1.0"
+form_id: cicd-issue
+
+name: "⚙️ CI/CD Issue"
+description: Report problems related to GitHub Actions, build pipelines, or deployment workflows.
+title: "[CI/CD Issue] "
+labels:
+  - ci
+  - bug
+
+body:
+
+  # -------------------------------------
+  # 🔒 System Metadata
+  # -------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting this issue.
+      value: "@{{ github.actor }}"
+      placeholder: "@your-username"
+    validations:
+      required: true
+
+  - type: input
+    id: form_version
+    attributes:
+      label: Form Schema Version
+      description: For internal tracking only.
+      placeholder: "1.0"
+    validations:
+      required: false
+
+  # -------------------------------------
+  # 🚨 Group: Problem Description
+  # -------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚨 Problem Description  
+        Describe what went wrong and what was expected.
+
+  - type: textarea
+    id: error
+    attributes:
+      label: 🛠 Describe the Problem
+      description: >
+        What happened and what was expected to happen? Include the type of pipeline (build, test, deploy), environment (e.g., staging, production), and platform/tool name.
+      placeholder: |
+        e.g., Production deployment failed. GitHub Actions timed out during Docker image push.
+      validations:
+        required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: 🔁 Steps to Reproduce
+      description: >
+        Provide steps to reproduce the issue. Include commands, repo branches, or workflow names.
+      placeholder: |
+        1. Push to `main`  
+        2. Workflow "Deploy to GKE" fails with timeout  
+        3. Logs indicate docker push stalled
+      validations:
+        required: false
+
+  # -------------------------------------
+  # 📄 Group: Logs & Evidence
+  # -------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 📄 Logs & Evidence  
+        Add output, error messages, and attach any files that help debug.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 📋 Logs or Console Output
+      description: >
+        Paste logs or CI output. Use fenced code blocks. Redact any sensitive data.
+      placeholder: |
+        ```
+        Error: gcloud auth failed with PERMISSION_DENIED
+        at deploy-to-gke.ts:42
+        ```
+      validations:
+        required: true
+
+  - type: file
+    id: attachments
+    attributes:
+      label: 📎 Attach Files (Optional)
+      description: Upload artifacts, log files, or screenshots (.txt, .log, .png, .json, .zip).
+      multiple: true
+
+  # -------------------------------------
+  # 🧩 Group: Impact & Triage
+  # -------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧩 Impact & Triage  
+        Define scope and urgency to help us prioritize.
+
+  - type: input
+    id: impacted_components
+    attributes:
+      label: Affected Components
+      description: Services or tools impacted (e.g., ArgoCD, GitHub Actions, Sentry, Docker).
+      placeholder: e.g., GitHub Actions, ArgoCD, Docker, Sentry
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Frequency of Occurrence
+      description: How often does this issue occur?
+      options:
+        - Always
+        - Frequently
+        - Occasionally
+        - Once
+        - Unable to determine
+      default: Occasionally
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 🔥 Severity
+      description: How critical is this to development or delivery?
+      options:
+        - Low – minor inconvenience or workaround exists
+        - Medium – delays some work or feature testing
+        - High – blocking CI pipeline or major workflow
+        - Critical – blocks production deployment or security fix
+      default: Medium – delays some work or feature testing
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: ⏱️ Urgency
+      description: How quickly does this need to be addressed?
+      options:
+        - Low – not time-sensitive
+        - Medium – resolve within sprint
+        - High – resolve this week
+        - Critical – immediate attention required
+      default: Medium – resolve within sprint
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: 📊 Business Impact
+      description: What is the scope of the effect?
+      options:
+        - Limited to one developer
+        - Team-level disruption
+        - Multiple teams blocked
+        - Org-wide release delay or risk
+      default: Team-level disruption
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 🧭 Priority
+      description: Suggested priority based on urgency, severity, and impact.
+      options:
+        - Low – review later
+        - Medium – add to triage board
+        - High – fast follow
+        - Critical – needs escalation
+      default: Medium – add to triage board
+    validations:
+      required: true
+
+  # -------------------------------------
+  # 🧠 Group: Debugging Context
+  # -------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧠 Investigation & Context  
+        Provide debugging insights, conditions, or observability data.
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Observability or Debug Notes
+      description: Metrics, traces, dashboards, or recent changes related to this issue.
+      placeholder: |
+        e.g., Spike in 5xx errors in Cloudflare  
+        e.g., Stripe webhook retries failed  
+        e.g., Bun upgraded last week, correlated failures observed
+
+  # -------------------------------------
+  # 🔗 Group: References & Confirmation
+  # -------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related References
+      description: Add links to associated PRs, issues, builds, or dashboards.
+      placeholder: e.g., GitHub PR #123, pipeline run URL, architecture doc
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm this report is valid, complete, and not a duplicate.
+      options:
+        - label: I confirm this report is complete and ready for review.
+    validations:
+      required: true

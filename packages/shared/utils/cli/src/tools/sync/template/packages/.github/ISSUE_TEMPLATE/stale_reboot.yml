@@ -1,0 +1,147 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: stale-work-reboot
+
+name: "⏳ Stale Work Reboot"
+description: Reopen and re-evaluate paused or abandoned work.
+title: "[Stale Work Reboot]: "
+labels:
+  - stale
+  - reboot
+  - roadmap
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Summary
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is the paused idea, request, or effort you'd like to revisit?
+      placeholder: |
+        e.g. "Revive stale PR #842: partial static exports",
+        "Reconsider team-wide linting proposal"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Context
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: context
+    attributes:
+      label: Context or Background
+      description: What has changed? Why is this relevant now? Who might own it?
+      placeholder: |
+        - Org priority shift
+        - Dependencies resolved
+        - Owner available
+        - Stakeholder reengaged
+
+  # --------------------------------------------------------------------
+  # SECTION: Impact Assessment
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How critical or foundational is this work?
+      options:
+        - "Critical – blocks roadmap items"
+        - "High – important but not blocking"
+        - "Medium – would improve flow or delivery"
+        - "Low – cleanup or polish"
+      default: "Medium – would improve flow or delivery"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this be picked up again?
+      options:
+        - "Immediate – unblock something now"
+        - "This Quarter – align with current work"
+        - "Next Cycle – reevaluate later"
+        - "No Rush – track only"
+      default: "Next Cycle – reevaluate later"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Scope
+      description: Who would be affected or benefit?
+      options:
+        - "Org-wide"
+        - "Team-wide"
+        - "Single contributor"
+        - "Unclear or speculative"
+      default: "Team-wide"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Suggested triage level.
+      options:
+        - "P0 – restart immediately"
+        - "P1 – prioritize this quarter"
+        - "P2 – track in backlog"
+        - "P3 – low-priority observation"
+      default: "P2 – track in backlog"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Issues or Links
+      placeholder: "e.g., PR #401, GitHub issue #98, Notion doc, roadmap item"
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Supporting Material
+      description: Paste links or notes that support restarting this work.
+      placeholder: |
+        - Slack convo with @product
+        - Updated use case
+        - Design doc refresh
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm readiness to re-evaluate.
+      options:
+        - label: I’ve reviewed why this was paused originally
+        - label: I’ve included enough context to resume the discussion
+    validations:
+      required: true

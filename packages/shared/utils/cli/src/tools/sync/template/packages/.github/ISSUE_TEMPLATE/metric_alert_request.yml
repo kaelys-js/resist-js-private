@@ -1,0 +1,163 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+# -------------------------------------------------------------------
+# ✅ GitHub Issue Form: Metric or Alert Request
+# -------------------------------------------------------------------
+# Purpose: Propose a new signal, log, or alert to enhance observability and system reliability.
+# -------------------------------------------------------------------
+
+version: 1.0.0
+form_id: metric-alert-request
+
+name: "📊 Metric or Alert Request"
+description: Propose a new metric, log, or alert to improve observability or reliability.
+title: "[Signal Request]: "
+labels:
+  - observability
+  - metrics
+  - alerting
+assignees: []
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Info (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username or full name of the person submitting this request.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Signal Description (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: signal
+    attributes:
+      label: What Signal or Metric Should Be Added?
+      description: Clearly describe the metric, alert, or log you're requesting.
+      placeholder: |
+        - Alert when checkout latency exceeds 2s P95  
+        - Metric for failed webhooks per hour  
+        - Track DB connection count per pod in GKE
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Purpose & Impact (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: textarea
+    id: purpose
+    attributes:
+      label: What Is This Measuring or Protecting?
+      description: Describe the business or technical risk this helps address.
+      placeholder: |
+        - Prevent UX degradation due to backend slowness  
+        - Detect silent Stripe webhook failures  
+        - Alert if background job queue stalls
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Target Environments (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: target_env
+    attributes:
+      label: Affected Environment(s)
+      description: What environments should this apply to?
+      placeholder: "e.g., staging, prod, ios, Cloudflare edge, GKE"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: References (OPTIONAL)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: Related Links or Dashboards
+      description: Add existing chart URLs, alerts, PRs, or RFCs.
+      placeholder: "e.g., Grafana dashboard link, alert rule, GitHub issue #123"
+    validations:
+      required: false
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How critical is the lack of this signal?
+      options:
+        - "Critical – must have to detect major failures"
+        - "High – production stability or business impact"
+        - "Medium – improves clarity and supportability"
+        - "Low – nice-to-have insight or edge case"
+      default: "Medium – improves clarity and supportability"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: When should this be implemented?
+      options:
+        - "Immediate – security or production risk"
+        - "High – in current sprint or on-call cycle"
+        - "Medium – within next month"
+        - "Low – backlog item"
+      default: "High – in current sprint or on-call cycle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: What systems, users, or workflows are affected?
+      options:
+        - "Org-wide – affects critical product/service visibility"
+        - "Team-wide – required for reliable feature monitoring"
+        - "Feature-level – scoped to a single service or endpoint"
+        - "Exploratory – not tied to an immediate use case"
+      default: "Team-wide – required for reliable feature monitoring"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Assign an overall priority for implementation.
+      options:
+        - "P0 – critical for incident readiness"
+        - "P1 – important for service reliability"
+        - "P2 – improves ops, not urgent"
+        - "P3 – informational or future-oriented"
+      default: "P1 – important for service reliability"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Confirmation
+      description: Confirm this request has been reviewed for duplication and ownership.
+      options:
+        - label: I have confirmed this signal is not already tracked
+        - label: I understand alerts may require runbook ownership or rotation updates
+    validations:
+      required: true

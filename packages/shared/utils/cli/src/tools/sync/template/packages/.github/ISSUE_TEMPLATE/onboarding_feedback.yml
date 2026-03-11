@@ -1,0 +1,239 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: onboarding-feedback
+
+name: "🧭 Onboarding Feedback"
+description: Share your experience as a first-time user or contributor to help us improve onboarding.
+labels:
+  - onboarding
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Identity (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting feedback.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Feedback Content (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧪 Onboarding Experience  
+        Tell us what went well, what was unclear, and how we can improve onboarding.
+
+  - type: textarea
+    id: experience
+    attributes:
+      label: 🧪 What was your first experience like?
+      description: Share what felt smooth, surprising, or stood out (positively or negatively).
+      placeholder: |
+        e.g., "Setup was smooth, loved the CLI flow."  
+        e.g., "Docs were clear and actionable with good examples."
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: confusing
+    attributes:
+      label: ❓ What was unclear or could be improved?
+      description: Mention any blockers, confusing docs, or parts of the tooling/setup that were hard to understand.
+      placeholder: |
+        e.g., "Wasn’t sure how to configure Stripe with the local dev setup."  
+        e.g., "Valibot integration was tricky to follow without examples."
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: 💡 Any suggestions or ideas?
+      description: Optional: Suggest ways to improve setup, documentation, workflows, or examples.
+      placeholder: |
+        e.g., "A guided CLI init would help a lot."  
+        e.g., "Add more examples for Svelte + Biome setup."
+      render: markdown
+
+  # --------------------------------------------------------------------
+  # SECTION: Environment & Context (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: dropdown
+    id: environment
+    attributes:
+      label: 🛠️ Where did you interact with the project?
+      description: Select the environment where your onboarding experience occurred.
+      options:
+        - Local development
+        - Cloud deployment
+        - Mobile app (iOS)
+        - Mobile app (Android)
+        - Documentation site
+        - Other
+      default: Local development
+    validations:
+      required: true
+
+  - type: dropdown
+    id: feedback_type
+    attributes:
+      label: 🗂️ Type of Feedback
+      description: Help us route this to the right team.
+      options:
+        - Bug
+        - Usability issue
+        - Documentation
+        - Performance
+        - Other
+      default: Usability issue
+    validations:
+      required: true
+
+  - type: input
+    id: onboarding_time
+    attributes:
+      label: ⏱️ How long did onboarding take?
+      description: Approximate time from start to successful setup or contribution.
+      placeholder: "e.g., 30 minutes, 2 hours, 1 day"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: rating
+    attributes:
+      label: ⭐ Overall Onboarding Experience
+      description: Quick gut-check rating.
+      options:
+        - Excellent
+        - Good
+        - Okay
+        - Poor
+        - Terrible
+      default: Good
+    validations:
+      required: true
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: 👤 What best describes your role?
+      description: Help us understand your technical background.
+      options:
+        - Backend Engineer
+        - Frontend Engineer
+        - Mobile Developer
+        - DevOps / Infra
+        - Designer
+        - Product Manager
+        - Other
+      default: Frontend Engineer
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Contact & Consent (Optional)
+  # --------------------------------------------------------------------
+  - type: input
+    id: contact
+    attributes:
+      label: 🧵 Want to be contacted for follow-up?
+      description: Optional: GitHub handle or email for follow-up on your feedback.
+      placeholder: "e.g., @yourhandle or email@example.com"
+
+  - type: checkbox
+    id: consent
+    attributes:
+      label: ✅ Can we use your feedback?
+      description: Allow us to share your (anonymized) feedback in changelogs or reviews.
+      options:
+        - label: Yes, feel free to use it!
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Feedback Triage  
+        Internal use to prioritize onboarding improvements.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feedback to address?
+      options:
+        - "Low – good to know"
+        - "Medium – affects experience"
+        - "High – causes blockers"
+        - "Critical – breaks onboarding entirely"
+      default: "Medium – affects experience"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Impact Severity
+      description: How disruptive was the issue to your onboarding flow?
+      options:
+        - "Low – cosmetic or minor confusion"
+        - "Medium – slowed down setup or clarity"
+        - "High – major confusion or technical barrier"
+        - "Critical – unable to onboard without help"
+      default: "Medium – slowed down setup or clarity"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How soon should this feedback be addressed?
+      options:
+        - "Low – track for future"
+        - "Medium – improve in next release"
+        - "High – address in upcoming sprint"
+        - "Critical – fix immediately"
+      default: "Medium – improve in next release"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Scope of Impact
+      description: Who would benefit from addressing this feedback?
+      options:
+        - "Single contributor"
+        - "Contributor cohort or team"
+        - "Entire developer community"
+        - "Public users or customers"
+      default: "Contributor cohort or team"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Feedback Confirmation
+      description: Confirm this submission reflects your honest onboarding experience.
+      options:
+        - label: I have shared accurate and constructive feedback based on my experience
+        - label: I understand this feedback may be used to guide onboarding improvements
+    validations:
+      required: true

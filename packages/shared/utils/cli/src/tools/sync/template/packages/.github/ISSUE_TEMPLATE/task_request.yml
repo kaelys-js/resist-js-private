@@ -1,0 +1,143 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+version: 1.0.0
+form_id: task-request
+
+name: "🛠️ Task Request"
+description: Propose or assign a scoped engineering task with clear objectives and technical context.
+labels:
+  - task
+
+body:
+
+  # --------------------------------------------------------------------
+  # SECTION: Submitter Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Submitted By
+      description: GitHub username of the person submitting or assigning the task.
+      placeholder: "@your-username"
+      value: "@{{ github.actor }}"
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Task Overview (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: title
+    attributes:
+      label: 📝 Title
+      description: Short, action-oriented task title.
+      placeholder: "e.g., Validate Stripe webhooks using valibot"
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: 🎯 Objective & Context
+      description: Describe the goal, expected outcome, and relevant tools, infra, or systems.
+      placeholder: |
+        Build a TypeScript module to validate Stripe webhook events using valibot.  
+        Deploy using ArgoCD to GKE.  
+        Enable observability through Sentry, Umami, and Cloudflare logs.  
+        This supports the mobile billing experience and backend fraud checks.
+      render: markdown
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: Triage Metadata (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚦 Triage Metadata  
+        Help prioritize and scope this task appropriately.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 🏷️ Priority
+      description: How important is this task to active initiatives?
+      options:
+        - Low – cleanup or backlog item
+        - Medium – aligned with current sprint
+        - High – unlocks next phase of work
+        - Critical – blocks milestone or release
+      default: Medium – aligned with current sprint
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Technical Scope
+      description: How complex or invasive is this task technically?
+      options:
+        - Low – localized or simple
+        - Medium – moderate cross-cutting impact
+        - High – touches multiple systems or teams
+        - Critical – risky or architectural
+      default: Medium – moderate cross-cutting impact
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: ⏱️ Urgency
+      description: When this task should be completed.
+      options:
+        - Low – future sprint
+        - Medium – current cycle
+        - High – this sprint
+        - Critical – ASAP
+      default: Medium – current cycle
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Scope
+      description: Who or what will benefit from this task?
+      options:
+        - Internal dev-only
+        - Single feature or team
+        - Multi-team / cross-system
+        - End users or production environments
+      default: Single feature or team
+    validations:
+      required: true
+
+  # --------------------------------------------------------------------
+  # SECTION: References & Confirmation (REQUIRED)
+  # --------------------------------------------------------------------
+  - type: input
+    id: references
+    attributes:
+      label: 🔗 Related Links or Issues
+      description: Link to related issues, PRs, specs, or documentation.
+      placeholder: "e.g., GitHub issue #123, RFC doc, system diagram, PR #456"
+
+  - type: file
+    id: attachments
+    attributes:
+      label: 📎 Upload Supporting Files (Optional)
+      description: Upload diagrams, error logs, example payloads, specs, or API contracts.
+      multiple: true
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Submitter Confirmation
+      description: Confirm the request is scoped, actionable, and non-duplicative.
+      options:
+        - label: I have verified this task is not already covered elsewhere
+        - label: I have provided enough detail for someone to take action or follow up
+    validations:
+      required: true
