@@ -78,7 +78,11 @@ export function createGlowLayer(options: CreateGlowLayerOptions): BabylonResult<
       glowOptions.mainTextureFixedSize = config.mainTextureFixedSize;
     }
 
-    const glowLayer: BABYLON.GlowLayer = new BABYLON.GlowLayer('storylyne-glow', scene, glowOptions);
+    const glowLayer: BABYLON.GlowLayer = new BABYLON.GlowLayer(
+      'storylyne-glow',
+      scene,
+      glowOptions,
+    );
 
     glowLayer.intensity = config.intensity ?? 0.5;
 
