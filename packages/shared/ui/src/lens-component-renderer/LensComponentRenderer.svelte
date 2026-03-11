@@ -5399,6 +5399,9 @@ function isIconOption(option: Str): boolean {
 												>
 													<Check class={cn('size-4', (cardScreenDevice[cardKey] || '') !== device.name && 'opacity-0')} />
 													<span class="flex-1 truncate">{device.name}</span>
+													{#if device.os}
+														<span class="text-[9px] text-muted-foreground/60">{device.os}</span>
+													{/if}
 													<span class="ml-auto text-[10px] text-muted-foreground">{device.width}×{device.height}</span>
 												</DropdownMenu.Item>
 											{/each}
