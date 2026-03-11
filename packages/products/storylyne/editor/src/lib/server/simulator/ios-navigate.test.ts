@@ -11,15 +11,15 @@ import { openUrlInSimulator } from './ios-navigate';
 describe('ios-navigate', () => {
   describe('openUrlInSimulator validation', () => {
     it('rejects empty URL', async () => {
-      await expect(
-        openUrlInSimulator('fake-udid' as Str, '' as Str),
-      ).rejects.toThrow('URL is required');
+      await expect(openUrlInSimulator('fake-udid' as Str, '' as Str)).rejects.toThrow(
+        'URL is required',
+      );
     });
 
     it('rejects invalid URL format', async () => {
-      await expect(
-        openUrlInSimulator('fake-udid' as Str, 'not-a-url' as Str),
-      ).rejects.toThrow('Invalid URL');
+      await expect(openUrlInSimulator('fake-udid' as Str, 'not-a-url' as Str)).rejects.toThrow(
+        'Invalid URL',
+      );
     });
 
     it('rejects non-http protocols', async () => {
@@ -28,9 +28,9 @@ describe('ios-navigate', () => {
       ).rejects.toThrow('URL must use http:// or https://');
     });
 
-    it('rejects javascript: protocol', async () => {
+    it('rejects data: protocol', async () => {
       await expect(
-        openUrlInSimulator('fake-udid' as Str, 'javascript:alert(1)' as Str),
+        openUrlInSimulator('fake-udid' as Str, 'data:text/html,hello' as Str),
       ).rejects.toThrow('URL must use http:// or https://');
     });
 

@@ -230,7 +230,7 @@ export default defineConfig({
             },
           },
         },
-      }
+      },
     ],
   },
 });

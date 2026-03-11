@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 424 922" width="424" height="922">
+  <rect x="0" y="0" width="424" height="922" rx="38" fill="#1a1a1a"/>
+  <rect x="14" y="14" width="396" height="894" rx="28" fill="#000"/>
+  <!-- Camera punch-hole -->
+  <circle cx="212" cy="32" r="8" fill="#1a1a1a"/>
+  <!-- Side buttons -->
+  <rect x="422" y="260" width="4" height="60" rx="2" fill="#2a2a2a"/>
+  <rect x="422" y="340" width="4" height="80" rx="2" fill="#2a2a2a"/>
+</svg>

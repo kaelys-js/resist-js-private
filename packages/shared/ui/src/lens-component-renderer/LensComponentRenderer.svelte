@@ -107,6 +107,10 @@ import Link from '@lucide/svelte/icons/link';
 import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 import Globe from '@lucide/svelte/icons/globe';
 import Languages from '@lucide/svelte/icons/languages';
+import Layers from '@lucide/svelte/icons/layers';
+import Play from '@lucide/svelte/icons/play';
+import Pause from '@lucide/svelte/icons/pause';
+import Radio from '@lucide/svelte/icons/radio';
 import ALargeSmall from '@lucide/svelte/icons/a-large-small';
 import ChevronRight from '@lucide/svelte/icons/chevron-right';
 import FileJson from '@lucide/svelte/icons/file-json';
@@ -325,6 +329,9 @@ type ScreenshotCapture = {
 	deviceFrame?: { frameId: Str; screenRegion: { x: Num; y: Num; width: Num; height: Num } };
 };
 
+/** Per-card selected screenshot source engine. */
+let cardScreenSource: Record<Str, ScreenshotSource> = $state({});
+
 /** Per-card selected browser engine for real browser screenshots. */
 let cardScreenBrowser: Record<Str, Str> = $state({});
 
@@ -365,6 +372,40 @@ let playwrightDevices: PlaywrightDevice[] = $state([]);
 
 /** Whether the device list has been loaded. */
 let devicesLoaded: Bool = $state(false);
+
+/** iOS Simulator device list. */
+let iosDevices: Array<Record<Str, unknown>> = $state([]);
+
+/** Android emulator AVD list. */
+let androidDevices: Array<Record<Str, unknown>> = $state([]);
+
+/** Whether iOS devices have been loaded. */
+let iosDevicesLoaded: Bool = $state(false);
+
+/** Whether Android devices have been loaded. */
+let androidDevicesLoaded: Bool = $state(false);
+
+/** Engine availability status. */
+let engineStatus: Record<Str, { available: boolean; reason?: Str }> = $state({
+	playwright: { available: true },
+	'ios-simulator': { available: false, reason: 'Checking...' as Str },
+	'android-emulator': { available: false, reason: 'Checking...' as Str },
+});
+
+/** Polling interval ID for engine status (while Real Browser menu is open). */
+let statusPollInterval: ReturnType<typeof setInterval> | null = $state(null);
+
+/** Whether safe area inset overlays are shown on iOS screenshots. */
+let showSafeAreaOverlay: Bool = $state(false);
+
+/** Whether device frame compositing is enabled on screenshot cards. */
+let showDeviceFrame: Bool = $state(false);
+
+/** Live preview streaming state per card. */
+let livePreviewActive: Record<Str, Bool> = $state({});
+
+/** Live preview source per card. */
+let livePreviewSource: Record<Str, ScreenshotSource> = $state({});
 
 /**
  * Callback for LensStats to report collected statistics.
@@ -2710,6 +2751,73 @@ async function fetchPlaywrightDevices(): Promise<void> {
 }
 
 /**
+ * Fetch iOS Simulator device list.
+ * Cached after first call.
+ */
+async function fetchIosDevices(): Promise<void> {
+	if (iosDevicesLoaded) return;
+	try {
+		const res: Response = await fetch('/api/lens/screenshot/ios/devices');
+		if (res.ok) {
+			const data: Record<Str, unknown> = (await res.json()) as Record<Str, unknown>;
+			if (Array.isArray(data.devices)) {
+				iosDevices = data.devices as Array<Record<Str, unknown>>;
+			}
+		}
+	} catch {
+		/* iOS device list fetch failed */
+	}
+	iosDevicesLoaded = true;
+}
+
+/**
+ * Fetch Android emulator AVD list.
+ * Cached after first call.
+ */
+async function fetchAndroidDevices(): Promise<void> {
+	if (androidDevicesLoaded) return;
+	try {
+		const res: Response = await fetch('/api/lens/screenshot/android/devices');
+		if (res.ok) {
+			const data: Record<Str, unknown> = (await res.json()) as Record<Str, unknown>;
+			if (Array.isArray(data.devices)) {
+				androidDevices = data.devices as Array<Record<Str, unknown>>;
+			}
+		}
+	} catch {
+		/* Android device list fetch failed */
+	}
+	androidDevicesLoaded = true;
+}
+
+/**
+ * Fetch engine availability status.
+ */
+async function fetchEngineStatus(): Promise<void> {
+	try {
+		const res: Response = await fetch('/api/lens/screenshot/status');
+		if (res.ok) {
+			const data: Record<Str, unknown> = (await res.json()) as Record<Str, unknown>;
+			const ios: Record<Str, unknown> = (data.iosSimulator ?? {}) as Record<Str, unknown>;
+			const android: Record<Str, unknown> = (data.androidEmulator ?? {}) as Record<Str, unknown>;
+			engineStatus = {
+				playwright: { available: true },
+				'ios-simulator': {
+					available: Boolean(ios.available),
+					reason: (ios.reason ?? '') as Str,
+				},
+				'android-emulator': {
+					available: Boolean(android.available),
+					reason: (android.reason ?? '') as Str,
+				},
+			};
+		}
+	} catch {
+		/* Status fetch failed — keep defaults */
+	}
+}
+
+/**
  * Infer a device category from its Playwright name.
  *
  * @param name - Playwright device name
@@ -2746,6 +2854,32 @@ const filteredDeviceCategories: Str[] = $derived.by((): Str[] => {
 	return [...cats] as Str[];
 });
 
+/** Filtered iOS devices based on search query. */
+const filteredIosDevices: Array<Record<Str, unknown>> = $derived.by((): Array<Record<Str, unknown>> => {
+	if (!browserSearchQuery) return iosDevices;
+	const q: Str = browserSearchQuery.toLowerCase() as Str;
+	return iosDevices.filter(
+		(d: Record<Str, unknown>): boolean => {
+			const name: Str = ((d.name as string) ?? '').toLowerCase() as Str;
+			const runtime: Str = ((d.runtimeVersion as string) ?? '').toLowerCase() as Str;
+			return name.includes(q) || runtime.includes(q);
+		},
+	);
+});
+
+/** Filtered Android devices based on search query. */
+const filteredAndroidDevices: Array<Record<Str, unknown>> = $derived.by((): Array<Record<Str, unknown>> => {
+	if (!browserSearchQuery) return androidDevices;
+	const q: Str = browserSearchQuery.toLowerCase() as Str;
+	return androidDevices.filter(
+		(d: Record<Str, unknown>): boolean => {
+			const name: Str = ((d.name as string) ?? '').toLowerCase() as Str;
+			const tag: Str = ((d.displayTag as string) ?? '').toLowerCase() as Str;
+			return name.includes(q) || tag.includes(q);
+		},
+	);
+});
+
 /**
  * Capture a real browser screenshot for a card.
  *
@@ -2757,72 +2891,92 @@ async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promis
 	if (!componentName) return;
 	cardScreenCapturing[key] = true;
 
+	const source: ScreenshotSource = cardScreenSource[key] || 'playwright';
 	const browser: Str = cardScreenBrowser[key] || ('chromium' as Str);
 	const device: Str = cardScreenDevice[key] || ('' as Str);
 
-	/* Build the screenshot API URL */
+	/* Build shared params used by all engines */
 	const params: URLSearchParams = new URLSearchParams();
 	params.set('component', componentName);
-	params.set('browser', browser);
-	if (device) params.set('device', device);
+	if (variantKey) params.set('variant', variantKey);
+	if (option) params.set('option', option);
 
 	/* Pass current card styles */
 	const styles: Record<Str, Str> = collectCardStyles(key);
 	if (Object.keys(styles).length > 0) {
 		params.set('s', btoa(JSON.stringify(styles)));
 	}
-	if (variantKey) params.set('variant', variantKey);
-	if (option) params.set('option', option);
 
-	/* Media emulation from card settings */
+	/* Dark/light mode — used by all engines */
 	const mode: Str = cardModes[key] ?? 'auto';
 	if (mode === 'dark' || mode === 'light') {
-		params.set('colorScheme', mode);
+		if (source === 'playwright') {
+			params.set('colorScheme', mode);
+		} else if (source === 'ios-simulator') {
+			params.set('appearance', mode);
+		} else if (source === 'android-emulator') {
+			params.set('nightMode', mode === 'dark' ? 'yes' : 'no');
+		}
 	}
 
-	/* Pass viewport dimensions to Playwright context */
-	const vp: Str = cardViewports[key] ?? 'auto';
-	if (vp !== 'auto' && !device) {
-		if (vp === 'custom') {
-			const dims = cardCustomViewports[key];
-			if (dims) {
-				params.set('width', String(dims.w));
-				params.set('height', String(dims.h));
+	/* Determine the endpoint URL based on source */
+	let endpoint: Str;
+	if (source === 'ios-simulator') {
+		endpoint = '/api/lens/screenshot/ios' as Str;
+		/* iOS uses a fixed device from the simulator pool — no browser/device params */
+	} else if (source === 'android-emulator') {
+		endpoint = '/api/lens/screenshot/android' as Str;
+		/* Android uses the emulator pool — no browser/device params */
+	} else {
+		endpoint = '/api/lens/screenshot' as Str;
+		/* Playwright-specific params */
+		params.set('browser', browser);
+		if (device) params.set('device', device);
+
+		/* Viewport dimensions (Playwright only) */
+		const vp: Str = cardViewports[key] ?? 'auto';
+		if (vp !== 'auto' && !device) {
+			if (vp === 'custom') {
+				const dims = cardCustomViewports[key];
+				if (dims) {
+					params.set('width', String(dims.w));
+					params.set('height', String(dims.h));
+				}
+			} else {
+				const preset = VIEWPORT_PRESETS.find((p) => p.id === vp);
+				if (preset) {
+					params.set('width', String(preset.width));
+					params.set('height', String(preset.height));
+				}
 			}
-		} else {
-			const preset = VIEWPORT_PRESETS.find((p) => p.id === vp);
-			if (preset) {
-				params.set('width', String(preset.width));
-				params.set('height', String(preset.height));
+		}
+
+		/* Media preferences (Playwright only) */
+		const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+		if (prefs) {
+			if (prefs['reduced-motion'] === 'reduce') {
+				params.set('reducedMotion', 'reduce');
+			}
+			if (prefs['forced-colors'] === 'active') {
+				params.set('forcedColors', 'active');
 			}
 		}
-	}
 
-	/* Pass media preferences to Playwright context */
-	const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
-	if (prefs) {
-		if (prefs['reduced-motion'] === 'reduce') {
-			params.set('reducedMotion', 'reduce');
-		}
-		if (prefs['forced-colors'] === 'active') {
-			params.set('forcedColors', 'active');
-		}
-	}
-
-	/* Pass network throttling delay (ms) to Playwright route interceptor */
-	const netSim: Str = cardNetworkSim[key] ?? 'none';
-	if (netSim !== 'none') {
-		if (netSim === 'custom') {
-			const custom = cardCustomNetwork[key];
-			if (custom) params.set('networkThrottle', String(custom.delay));
-		} else {
-			const preset = NETWORK_PRESETS.find((p) => p.id === netSim);
-			if (preset) params.set('networkThrottle', String(preset.delay));
+		/* Network throttling (Playwright only) */
+		const netSim: Str = cardNetworkSim[key] ?? 'none';
+		if (netSim !== 'none') {
+			if (netSim === 'custom') {
+				const custom = cardCustomNetwork[key];
+				if (custom) params.set('networkThrottle', String(custom.delay));
+			} else {
+				const preset = NETWORK_PRESETS.find((p) => p.id === netSim);
+				if (preset) params.set('networkThrottle', String(preset.delay));
+			}
 		}
 	}
 
 	try {
-		const res: Response = await fetch(`/api/lens/screenshot?${params.toString()}`);
+		const res: Response = await fetch(`${endpoint}?${params.toString()}`);
 		if (!res.ok) {
 			const errBody: unknown = await res.json().catch(() => ({}));
 			const errMsg: Str = (
@@ -2879,18 +3033,44 @@ async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promis
 			}
 		}
 
-		/* Look up device OS from cached device list */
-		const matchedDevice: PlaywrightDevice | undefined = playwrightDevices.find(
-			(d: PlaywrightDevice): boolean => d.name === device,
-		);
+		/* Determine browser/device display info based on source */
+		let displayBrowser: Str;
+		let displayBrowserName: Str;
+		let displayBrowserVersion: Str;
+		let displayDevice: Str;
+		let displayDeviceOS: Str;
+
+		if (source === 'ios-simulator') {
+			displayBrowser = 'safari' as Str;
+			displayBrowserName = ((body.browserDisplayName as Str) ?? 'Safari') as Str;
+			displayBrowserVersion = ((body.browserVersion as Str) ?? '') as Str;
+			displayDevice = ((body.device as Str) ?? 'iOS Simulator') as Str;
+			displayDeviceOS = ((body.deviceOS as Str) ?? '') as Str;
+		} else if (source === 'android-emulator') {
+			displayBrowser = 'chrome-mobile' as Str;
+			displayBrowserName = ((body.browserDisplayName as Str) ?? 'Chrome Mobile') as Str;
+			displayBrowserVersion = ((body.browserVersion as Str) ?? '') as Str;
+			displayDevice = ((body.device as Str) ?? 'Android Emulator') as Str;
+			displayDeviceOS = ((body.deviceOS as Str) ?? '') as Str;
+		} else {
+			displayBrowser = browser;
+			displayBrowserName = ((body.browserDisplayName as Str) ?? browser) as Str;
+			displayBrowserVersion = ((body.browserVersion as Str) ?? '') as Str;
+			displayDevice = device || ('custom' as Str);
+			/* Look up device OS from cached Playwright device list */
+			const matchedDevice: PlaywrightDevice | undefined = playwrightDevices.find(
+				(d: PlaywrightDevice): boolean => d.name === device,
+			);
+			displayDeviceOS = (matchedDevice?.os ?? '') as Str;
+		}
 
 		const capture: ScreenshotCapture = {
-			source: 'playwright',
-			browser,
-			browserDisplayName: ((body.browserDisplayName as Str) ?? browser) as Str,
-			browserVersion: ((body.browserVersion as Str) ?? '') as Str,
-			device: device || ('custom' as Str),
-			deviceOS: (matchedDevice?.os ?? '') as Str,
+			source,
+			browser: displayBrowser,
+			browserDisplayName: displayBrowserName,
+			browserVersion: displayBrowserVersion,
+			device: displayDevice,
+			deviceOS: displayDeviceOS,
 			imageUrl,
 			timestamp: Date.now() as Num,
 			consoleLogs,
@@ -2907,6 +3087,40 @@ async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promis
 	} finally {
 		cardScreenCapturing[key] = false;
 	}
+}
+
+/**
+ * Capture screenshots from all available engines in parallel.
+ *
+ * Fires all three sources simultaneously and appends each result
+ * as it arrives. Only fires sources that are available.
+ *
+ * @param key - Card key
+ * @param variantKey - Variant prop name (for isolation URL)
+ * @param option - Variant option value
+ */
+async function captureParallel(key: Str, variantKey: Str, option: Str): Promise<void> {
+	if (!componentName) return;
+	cardScreenCapturing[key] = true;
+
+	const sources: ScreenshotSource[] = ['playwright' as ScreenshotSource];
+	if (engineStatus['ios-simulator']?.available) {
+		sources.push('ios-simulator' as ScreenshotSource);
+	}
+	if (engineStatus['android-emulator']?.available) {
+		sources.push('android-emulator' as ScreenshotSource);
+	}
+
+	/* Fire each source sequentially to avoid cardScreenSource race */
+	const originalSource: ScreenshotSource = cardScreenSource[key] || 'playwright';
+	const promises: Array<Promise<void>> = sources.map((src: ScreenshotSource): Promise<void> => {
+		cardScreenSource[key] = src;
+		return captureScreenshot(key, variantKey, option);
+	});
+
+	await Promise.allSettled(promises);
+	cardScreenSource[key] = originalSource;
+	cardScreenCapturing[key] = false;
 }
 
 /**
@@ -5334,6 +5548,18 @@ function isIconOption(option: Str): boolean {
 								if (open) {
 									browserSearchQuery = '';
 									fetchPlaywrightDevices();
+									fetchIosDevices();
+									fetchAndroidDevices();
+									fetchEngineStatus();
+									/* Poll engine status every 5s while menu is open */
+									if (statusPollInterval) clearInterval(statusPollInterval);
+									statusPollInterval = setInterval(() => { fetchEngineStatus(); }, 5000);
+								} else {
+									/* Stop polling when menu closes */
+									if (statusPollInterval) {
+										clearInterval(statusPollInterval);
+										statusPollInterval = null;
+									}
 								}
 							}}
 						>
@@ -5351,11 +5577,48 @@ function isIconOption(option: Str): boolean {
 											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
 											bind:value={browserSearchQuery}
 											onkeydown={(e) => e.stopPropagation()}
+											onkeyup={(e) => e.stopPropagation()}
+											onkeypress={(e) => e.stopPropagation()}
 										/>
 									</div>
 								</div>
 								<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-									<!-- Browser engine selector -->
+									<!-- Source selector (Playwright / iOS Simulator / Android Emulator) -->
+									<DropdownMenu.Label class="text-xs">Source</DropdownMenu.Label>
+									{#each [
+										{ id: 'playwright' as ScreenshotSource, label: 'Playwright' as Str, desc: 'Headless browsers' as Str },
+										{ id: 'ios-simulator' as ScreenshotSource, label: 'iOS Simulator' as Str, desc: 'Real Safari' as Str },
+										{ id: 'android-emulator' as ScreenshotSource, label: 'Android Emulator' as Str, desc: 'Real Chrome' as Str },
+									] as src (src.id)}
+										<DropdownMenu.Item
+											onSelect={(e) => {
+												e.preventDefault();
+												cardScreenSource[cardKey] = src.id;
+											}}
+										>
+											<Check class={cn('size-4', (cardScreenSource[cardKey] || 'playwright') !== src.id && 'opacity-0')} />
+											<span class="flex-1">{src.label}</span>
+											<span class="text-[9px] text-muted-foreground/60">{src.desc}</span>
+											{#if src.id !== 'playwright'}
+												<Tooltip.Root delayDuration={200}>
+													<Tooltip.Trigger>
+														{#snippet child({ props: tipProps })}
+															<span
+																{...tipProps}
+																class={cn('ml-1 inline-block size-1.5 rounded-full cursor-help', engineStatus[src.id]?.available ? 'bg-emerald-500' : 'bg-muted-foreground/40')}
+															></span>
+														{/snippet}
+													</Tooltip.Trigger>
+													<Tooltip.Content side="top" sideOffset={4}>
+														{engineStatus[src.id]?.available ? 'Available — engine detected' : (engineStatus[src.id]?.reason ?? 'Unavailable — tools not installed')}
+													</Tooltip.Content>
+												</Tooltip.Root>
+											{/if}
+										</DropdownMenu.Item>
+									{/each}
+									<DropdownMenu.Separator />
+									<!-- Browser engine selector (Playwright only) -->
+									{#if (cardScreenSource[cardKey] || 'playwright') === 'playwright'}
 									<DropdownMenu.Label class="text-xs">Engine</DropdownMenu.Label>
 									{#each [
 										{ id: 'chromium' as Str, label: 'Chromium' as Str },
@@ -5417,23 +5680,176 @@ function isIconOption(option: Str): boolean {
 											{/each}
 										{/each}
 									{/if}
+									{:else if (cardScreenSource[cardKey] || 'playwright') === 'ios-simulator'}
+									<!-- iOS Simulator device list -->
+									<DropdownMenu.Label class="text-xs">iOS Devices</DropdownMenu.Label>
+									{#if !iosDevicesLoaded}
+										<div class="flex items-center justify-center py-4">
+											<LoaderCircle class="size-4 animate-spin text-muted-foreground" />
+										</div>
+									{:else if filteredIosDevices.length === 0}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-8 text-center text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-1 px-4">
+												{#if iosDevices.length === 0}
+													<p class="text-xs font-medium">No iOS Simulators available</p>
+													<p class="max-w-48 text-[11px] leading-snug">{engineStatus['ios-simulator']?.reason || 'Install Xcode and create simulator devices via Xcode → Window → Devices and Simulators'}</p>
+												{:else}
+													<p class="text-xs font-medium">No devices found</p>
+													<p class="text-[11px]">Try a different search term</p>
+												{/if}
+											</div>
+										</div>
+									{:else}
+										{#each filteredIosDevices as device, idx (idx)}
+											<DropdownMenu.Item
+												onSelect={(e) => {
+													e.preventDefault();
+													cardScreenDevice[cardKey] = (device.udid ?? device.name ?? '') as Str;
+												}}
+											>
+												<Check class={cn('size-4', (cardScreenDevice[cardKey] || '') !== ((device.udid ?? device.name ?? '') as Str) && 'opacity-0')} />
+												<span class="flex-1 truncate">{device.name ?? 'Unknown'}</span>
+												{#if device.runtimeVersion}
+													<span class="text-[9px] text-muted-foreground/60">{device.runtimeVersion}</span>
+												{:else if device.os}
+													<span class="text-[9px] text-muted-foreground/60">{device.os}</span>
+												{/if}
+												{#if device.screenWidth && device.screenHeight}
+													<span class="text-[10px] text-muted-foreground">{device.screenWidth}×{device.screenHeight}</span>
+												{/if}
+												<Tooltip.Root delayDuration={200}>
+													<Tooltip.Trigger>
+														{#snippet child({ props: devTipProps })}
+															<span
+																{...devTipProps}
+																class={cn('ml-1 inline-block size-1.5 rounded-full cursor-help', device.state === 'Booted' ? 'bg-emerald-500' : 'bg-muted-foreground/40')}
+															></span>
+														{/snippet}
+													</Tooltip.Trigger>
+													<Tooltip.Content side="top" sideOffset={4}>
+														{device.state === 'Booted' ? 'Booted — ready to capture' : 'Shutdown — will boot on capture'}
+													</Tooltip.Content>
+												</Tooltip.Root>
+											</DropdownMenu.Item>
+										{/each}
+									{/if}
+									{:else if (cardScreenSource[cardKey] || 'playwright') === 'android-emulator'}
+									<!-- Android Emulator device list -->
+									<DropdownMenu.Label class="text-xs">Android Devices</DropdownMenu.Label>
+									{#if !androidDevicesLoaded}
+										<div class="flex items-center justify-center py-4">
+											<LoaderCircle class="size-4 animate-spin text-muted-foreground" />
+										</div>
+									{:else if filteredAndroidDevices.length === 0}
+										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-8 text-center text-muted-foreground">
+											<SearchX class="size-5" />
+											<div class="flex flex-col items-center gap-1 px-4">
+												{#if androidDevices.length === 0}
+													<p class="text-xs font-medium">No Android Emulators available</p>
+													<p class="max-w-48 text-[11px] leading-snug">{engineStatus['android-emulator']?.reason || 'Install Android Studio and create AVD devices via Tools → Device Manager'}</p>
+												{:else}
+													<p class="text-xs font-medium">No devices found</p>
+													<p class="text-[11px]">Try a different search term</p>
+												{/if}
+											</div>
+										</div>
+									{:else}
+										{#each filteredAndroidDevices as device, idx (idx)}
+											<DropdownMenu.Item
+												onSelect={(e) => {
+													e.preventDefault();
+													cardScreenDevice[cardKey] = (device.name ?? '') as Str;
+												}}
+											>
+												<Check class={cn('size-4', (cardScreenDevice[cardKey] || '') !== ((device.name ?? '') as Str) && 'opacity-0')} />
+												<span class="flex-1 truncate">{device.displayTag ?? device.name ?? 'Unknown'}</span>
+												{#if device.apiLevel}
+													<span class="text-[9px] text-muted-foreground/60">API {device.apiLevel}</span>
+												{/if}
+												{#if device.width && device.height}
+													<span class="text-[10px] text-muted-foreground">{device.width}×{device.height}</span>
+												{/if}
+												<Tooltip.Root delayDuration={200}>
+													<Tooltip.Trigger>
+														{#snippet child({ props: aDevTipProps })}
+															<span
+																{...aDevTipProps}
+																class={cn('ml-1 inline-block size-1.5 rounded-full cursor-help', device.state === 'running' ? 'bg-emerald-500' : 'bg-muted-foreground/40')}
+															></span>
+														{/snippet}
+													</Tooltip.Trigger>
+													<Tooltip.Content side="top" sideOffset={4}>
+														{device.state === 'running' ? 'Running — ready to capture' : 'Stopped — will boot on capture'}
+													</Tooltip.Content>
+												</Tooltip.Root>
+											</DropdownMenu.Item>
+										{/each}
+									{/if}
+									{/if}
 									<DropdownMenu.Separator />
-									<!-- Capture button -->
+									<!-- Capture buttons -->
 									<div class="sticky bottom-0 border-t bg-popover px-2 py-1.5">
-										<button
-											type="button"
-											class="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
-											disabled={cardScreenCapturing[cardKey]}
-											onclick={() => captureScreenshot(cardKey, variantKey, variantOption)}
-										>
-											{#if cardScreenCapturing[cardKey]}
-												<LoaderCircle class="size-3.5 animate-spin" />
-												Capturing...
-											{:else}
-												<Camera class="size-3.5" />
-												Capture Screenshot
+										<div class="flex gap-1.5">
+											<button
+												type="button"
+												class="flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+												disabled={cardScreenCapturing[cardKey]}
+												onclick={() => captureScreenshot(cardKey, variantKey, variantOption)}
+											>
+												{#if cardScreenCapturing[cardKey]}
+													<LoaderCircle class="size-3.5 animate-spin" />
+													Capturing...
+												{:else}
+													<Camera class="size-3.5" />
+													Capture
+												{/if}
+											</button>
+											{#if engineStatus['ios-simulator']?.available || engineStatus['android-emulator']?.available}
+												<Tooltip.Root delayDuration={300}>
+													<Tooltip.Trigger>
+														{#snippet child({ props: triggerProps })}
+															<button
+																{...triggerProps}
+																type="button"
+																class="flex items-center justify-center gap-1.5 rounded-md border bg-popover px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-accent disabled:opacity-50"
+																disabled={cardScreenCapturing[cardKey]}
+																onclick={() => captureParallel(cardKey, variantKey, variantOption)}
+															>
+																<Layers class="size-3.5" />
+																All
+															</button>
+														{/snippet}
+													</Tooltip.Trigger>
+													<Tooltip.Content side="top" sideOffset={4}>
+														Capture from all available engines
+													</Tooltip.Content>
+												</Tooltip.Root>
 											{/if}
-										</button>
+											{#if (cardScreenSource[cardKey] || 'playwright') !== 'playwright' && engineStatus[cardScreenSource[cardKey] || 'playwright']?.available}
+												<Tooltip.Root delayDuration={300}>
+													<Tooltip.Trigger>
+														{#snippet child({ props: liveProps })}
+															<button
+																{...liveProps}
+																type="button"
+																class="flex items-center justify-center gap-1.5 rounded-md border bg-popover px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
+																onclick={() => {
+																	livePreviewSource[cardKey] = cardScreenSource[cardKey] || ('ios-simulator' as ScreenshotSource);
+																	livePreviewActive[cardKey] = true;
+																}}
+															>
+																<Play class="size-3.5" />
+																Live
+															</button>
+														{/snippet}
+													</Tooltip.Trigger>
+													<Tooltip.Content side="top" sideOffset={4}>
+														Stream live preview from simulator
+													</Tooltip.Content>
+												</Tooltip.Root>
+											{/if}
+										</div>
 									</div>
 								</div>
 							</DropdownMenu.SubContent>
@@ -5459,6 +5875,8 @@ function isIconOption(option: Str): boolean {
 											class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
 											bind:value={exportSearchQuery}
 											onkeydown={(e) => e.stopPropagation()}
+											onkeyup={(e) => e.stopPropagation()}
+											onkeypress={(e) => e.stopPropagation()}
 										/>
 									</div>
 								</div>
@@ -5874,6 +6292,47 @@ function isIconOption(option: Str): boolean {
 						<span class="text-xs font-semibold text-muted-foreground">Screenshots</span>
 						<span class="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{(cardScreenshots[cardKey] ?? []).length}</span>
 					</div>
+					<div class="flex items-center gap-1.5">
+					{#if (cardScreenshots[cardKey] ?? []).some((c) => c.source === 'ios-simulator' && c.safeAreaInsets)}
+						<Tooltip.Root delayDuration={300}>
+							<Tooltip.Trigger>
+								{#snippet child({ props: triggerProps })}
+									<button
+										{...triggerProps}
+										type="button"
+										class={cn('inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs transition-colors', showSafeAreaOverlay ? 'border-primary/30 bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted')}
+										onclick={() => { showSafeAreaOverlay = !showSafeAreaOverlay; }}
+									>
+										<Ruler class="size-3.5" aria-hidden="true" />
+										Safe Area
+									</button>
+								{/snippet}
+							</Tooltip.Trigger>
+							<Tooltip.Content side="top" sideOffset={4}>
+								Toggle safe area inset overlays
+							</Tooltip.Content>
+						</Tooltip.Root>
+					{/if}
+					{#if (cardScreenshots[cardKey] ?? []).some((c) => c.deviceFrame)}
+						<Tooltip.Root delayDuration={300}>
+							<Tooltip.Trigger>
+								{#snippet child({ props: triggerProps })}
+									<button
+										{...triggerProps}
+										type="button"
+										class={cn('inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs transition-colors', showDeviceFrame ? 'border-primary/30 bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted')}
+										onclick={() => { showDeviceFrame = !showDeviceFrame; }}
+									>
+										<Smartphone class="size-3.5" aria-hidden="true" />
+										Frame
+									</button>
+								{/snippet}
+							</Tooltip.Trigger>
+							<Tooltip.Content side="top" sideOffset={4}>
+								Toggle device frame bezels
+							</Tooltip.Content>
+						</Tooltip.Root>
+					{/if}
 					<Tooltip.Root delayDuration={300}>
 						<Tooltip.Trigger>
 							{#snippet child({ props: triggerProps })}
@@ -5896,13 +6355,23 @@ function isIconOption(option: Str): boolean {
 							Clear all screenshots
 						</Tooltip.Content>
 					</Tooltip.Root>
+					</div>
 				</div>
 				<div class="flex max-h-[32rem] flex-wrap gap-3 overflow-y-auto p-3">
 					{#each (cardScreenshots[cardKey] ?? []) as capture, idx (capture.timestamp)}
 						<div class="w-80 overflow-hidden rounded-md border bg-background shadow-sm">
-							<!-- Header: browser name + version + device + delete -->
+							<!-- Header: source badge + browser name + version + device + delete -->
 							<div class="flex items-center gap-1.5 border-b bg-muted/30 px-2 py-1.5">
-								<Chrome class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+								{#if capture.source === 'ios-simulator'}
+									<Smartphone class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+								{:else if capture.source === 'android-emulator'}
+									<Smartphone class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+								{:else}
+									<Chrome class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+								{/if}
+								{#if capture.source !== 'playwright'}
+									<span class="rounded bg-primary/10 px-1 py-0.5 text-[8px] font-semibold uppercase leading-none text-primary/80">{capture.source === 'ios-simulator' ? 'iOS' : 'Android'}</span>
+								{/if}
 								<span class="text-[11px] font-semibold text-foreground">{capture.browserDisplayName}</span>
 								{#if capture.browserVersion}
 									<span class="text-[10px] text-muted-foreground/60">v{capture.browserVersion}</span>
@@ -5933,13 +6402,53 @@ function isIconOption(option: Str): boolean {
 								</Tooltip.Root>
 							</div>
 							<!-- Screenshot image -->
-							<a href={capture.imageUrl} target="_blank" rel="noopener" class="block border-b">
-								<img
-									src={capture.imageUrl}
-									alt="{cardKey} screenshot — {capture.browserDisplayName} {capture.device}"
-									class="max-h-64 w-full object-contain"
-								/>
-							</a>
+							<div class="relative border-b">
+								{#if showDeviceFrame && capture.deviceFrame}
+									<!-- Device frame compositing -->
+									<a href={capture.imageUrl} target="_blank" rel="noopener" class="block p-2">
+										<div class="relative mx-auto" style="width: {capture.deviceFrame.screenRegion.width + capture.deviceFrame.screenRegion.x * 2}px; max-width: 100%;">
+											<img
+												src={capture.deviceFrame.frameId}
+												alt="Device frame"
+												class="pointer-events-none relative z-10 block w-full"
+											/>
+											<img
+												src={capture.imageUrl}
+												alt="{cardKey} screenshot — {capture.browserDisplayName} {capture.device}"
+												class="absolute object-cover"
+												style="top: {capture.deviceFrame.screenRegion.y}px; left: {capture.deviceFrame.screenRegion.x}px; width: {capture.deviceFrame.screenRegion.width}px; height: {capture.deviceFrame.screenRegion.height}px;"
+											/>
+										</div>
+									</a>
+								{:else}
+									<a href={capture.imageUrl} target="_blank" rel="noopener" class="block">
+										<img
+											src={capture.imageUrl}
+											alt="{cardKey} screenshot — {capture.browserDisplayName} {capture.device}"
+											class="max-h-64 w-full object-contain"
+										/>
+									</a>
+								{/if}
+								{#if showSafeAreaOverlay && capture.source === 'ios-simulator' && capture.safeAreaInsets}
+									<!-- Safe area inset overlay (colored regions) -->
+									<div class="pointer-events-none absolute inset-0">
+										<!-- Top inset -->
+										{#if (capture.safeAreaInsets.top as number) > 0}
+											<div
+												class="absolute inset-x-0 top-0 bg-blue-500/20 border-b border-blue-500/40"
+												style="height: {capture.safeAreaInsets.top}px"
+											></div>
+										{/if}
+										<!-- Bottom inset -->
+										{#if (capture.safeAreaInsets.bottom as number) > 0}
+											<div
+												class="absolute inset-x-0 bottom-0 bg-orange-500/20 border-t border-orange-500/40"
+												style="height: {capture.safeAreaInsets.bottom}px"
+											></div>
+										{/if}
+									</div>
+								{/if}
+							</div>
 							<!-- Performance timing -->
 							{#if Object.keys(capture.performance).length > 0}
 								<div class="border-b px-2 py-1.5">
@@ -5995,6 +6504,39 @@ function isIconOption(option: Str): boolean {
 							{/if}
 						</div>
 					{/each}
+				</div>
+			</div>
+		{/if}
+		<!-- Live preview panel -->
+		{#if livePreviewActive[cardKey]}
+			<div class="overflow-hidden border-t bg-muted/20" transition:slide={{ duration: 200 }}>
+				<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
+					<div class="flex items-center gap-2">
+						<Radio class="size-3.5 text-red-500 animate-pulse" aria-hidden="true" />
+						<span class="text-xs font-semibold text-muted-foreground">Live Preview</span>
+						<span class="text-[10px] text-muted-foreground/60">
+							{livePreviewSource[cardKey] === 'ios-simulator' ? 'iOS Simulator' : 'Android Emulator'}
+						</span>
+					</div>
+					<button
+						type="button"
+						class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted"
+						onclick={() => {
+							livePreviewActive[cardKey] = false;
+						}}
+					>
+						<Pause class="size-3.5" aria-hidden="true" />
+						Stop
+					</button>
+				</div>
+				<div class="flex items-center justify-center p-3">
+					<img
+						src={livePreviewSource[cardKey] === 'ios-simulator'
+							? '/api/lens/screenshot/ios/stream'
+							: '/api/lens/screenshot/android/stream'}
+						alt="Live simulator preview"
+						class="max-h-96 max-w-full rounded border object-contain"
+					/>
 				</div>
 			</div>
 		{/if}

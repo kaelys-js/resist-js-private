@@ -13,17 +13,23 @@ Several Issues:
 - LensComponentRenderer Real Browser
   - For Local:
     - Live view from playwright (basically display a cloned variant card below with a badge in the header for current browser/etc) that clones exact state/interactivity
-      - We could stream playwright/ios/android engines to a canvas? And pass clicks between over websocket or something?
-      - After that: Diff between variants
+      - We could stream playwright/ios/android engines to a canvas? And pass clicks between over websocket or something? or webrtc?
+      - After that: Live Diff between variants
     - Screenshot comparison/diff view — Side-by-side or overlay comparison between browser engines, with pixel diff highlighting
     - Batch capture — Capture screenshots across multiple browsers/devices in one action
+    - Screenshots: Export
 
 Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
 
-- BrowserRender: Real Devices
+- BrowserRender: Real Devices (are iOS/Android Simulators and Playwright Enough?)
 - LensComponentRenderer Performance Statistics: Are they missing INP?
 - The Sidebar/CommandSearch components don't render right contained to preview (use playwright mcp any you will see what i mean)
-- The "bundle size" route won't work outside dev like in cloudflare and what about the import globbing and that used for component listing/source reding/global search/etc?
+- Production/Cloudflare Concerns
+  - The following will or will not work:
+    - Bundle Size
+    - Import Globbing For Components/etc
+    - Global Search
+    - Real Browser: Playwright/iOS/Android Engines
 - Intelligent Automatic Examples Instead of examples/
 - Sidebar Component Entries:
   - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the overall component?
