@@ -205,6 +205,19 @@ function exitFullscreen(): Void {
 	}
 }
 
+/** Whether any card is currently fullscreen — drives body scroll lock. */
+const anyFullscreen: Bool = $derived(Object.values(cardFullscreen).some(Boolean));
+
+/** Lock body scroll while any card is in fullscreen mode. */
+$effect(() => {
+	if (anyFullscreen) {
+		document.body.style.overflow = 'hidden';
+	}
+	return (): Void => {
+		document.body.style.overflow = '';
+	};
+});
+
 /** DOM references to card preview areas for export. */
 let cardPreviewRefs: Record<Str, HTMLDivElement | undefined> = $state({});
 

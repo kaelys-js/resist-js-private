@@ -191,6 +191,16 @@ function toggleChainFullscreen(): Void {
 	}
 }
 
+/** Lock body scroll while chain is in fullscreen mode. */
+$effect(() => {
+	if (chainFullscreen) {
+		document.body.style.overflow = 'hidden';
+	}
+	return (): Void => {
+		document.body.style.overflow = '';
+	};
+});
+
 /**
  * Copy an import path to the clipboard with visual feedback.
  *
@@ -720,46 +730,74 @@ async function handleChainExport(formatId: Str): Promise<void> {
 				<div class={cn(chainFullscreen && 'flex flex-1 flex-col')} transition:slide={{ duration: 200 }}>
 				<!-- Zoom toolbar -->
 				<div class="flex items-center gap-1 border-t px-3 py-1.5">
-					<button
-						type="button"
-						class="inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
-						onclick={chainZoomOut}
-						disabled={chainZoom <= ZOOM_MIN}
-						aria-label="Zoom out"
-					>
-						<ZoomOut class="size-3.5" />
-					</button>
+					<Tooltip.Root delayDuration={300}>
+						<Tooltip.Trigger>
+							{#snippet child({ props: tipProps })}
+								<button
+									{...tipProps}
+									type="button"
+									class={cn('inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors', chainZoom <= ZOOM_MIN ? 'cursor-not-allowed opacity-30' : 'hover:bg-muted hover:text-foreground')}
+									onclick={chainZoom <= ZOOM_MIN ? undefined : chainZoomOut}
+									aria-disabled={chainZoom <= ZOOM_MIN}
+								>
+									<ZoomOut class="size-3.5" />
+								</button>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content side="top" sideOffset={4}>Zoom out</Tooltip.Content>
+					</Tooltip.Root>
 					<span class="min-w-[3rem] text-center text-[11px] font-medium text-muted-foreground">{chainZoomLabel()}</span>
-					<button
-						type="button"
-						class="inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
-						onclick={chainZoomIn}
-						disabled={chainZoom >= ZOOM_MAX}
-						aria-label="Zoom in"
-					>
-						<ZoomIn class="size-3.5" />
-					</button>
-					<button
-						type="button"
-						class="inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
-						onclick={chainZoomFit}
-						disabled={chainZoom === 1}
-						aria-label="Fit (100%)"
-					>
-						<Maximize class="size-3.5" />
-					</button>
-					<button
-						type="button"
-						class="inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-						onclick={toggleChainFullscreen}
-						aria-label={chainFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-					>
-						{#if chainFullscreen}
-							<Minimize2 class="size-3.5" />
-						{:else}
-							<Maximize2 class="size-3.5" />
-						{/if}
-					</button>
+					<Tooltip.Root delayDuration={300}>
+						<Tooltip.Trigger>
+							{#snippet child({ props: tipProps })}
+								<button
+									{...tipProps}
+									type="button"
+									class={cn('inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors', chainZoom >= ZOOM_MAX ? 'cursor-not-allowed opacity-30' : 'hover:bg-muted hover:text-foreground')}
+									onclick={chainZoom >= ZOOM_MAX ? undefined : chainZoomIn}
+									aria-disabled={chainZoom >= ZOOM_MAX}
+								>
+									<ZoomIn class="size-3.5" />
+								</button>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content side="top" sideOffset={4}>Zoom in</Tooltip.Content>
+					</Tooltip.Root>
+					<Tooltip.Root delayDuration={300}>
+						<Tooltip.Trigger>
+							{#snippet child({ props: tipProps })}
+								<button
+									{...tipProps}
+									type="button"
+									class={cn('inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors', chainZoom === 1 ? 'cursor-not-allowed opacity-30' : 'hover:bg-muted hover:text-foreground')}
+									onclick={chainZoom === 1 ? undefined : chainZoomFit}
+									aria-disabled={chainZoom === 1}
+								>
+									<Maximize class="size-3.5" />
+								</button>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content side="top" sideOffset={4}>Fit (100%)</Tooltip.Content>
+					</Tooltip.Root>
+					<Tooltip.Root delayDuration={300}>
+						<Tooltip.Trigger>
+							{#snippet child({ props: tipProps })}
+								<button
+									{...tipProps}
+									type="button"
+									class="inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+									onclick={toggleChainFullscreen}
+								>
+									{#if chainFullscreen}
+										<Minimize2 class="size-3.5" />
+									{:else}
+										<Maximize2 class="size-3.5" />
+									{/if}
+								</button>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content side="top" sideOffset={4}>{chainFullscreen ? 'Exit fullscreen' : 'Fullscreen'}</Tooltip.Content>
+					</Tooltip.Root>
 					<div class="ml-auto">
 						<DropdownMenu.Root>
 							<DropdownMenu.Trigger>
