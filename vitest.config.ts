@@ -5,8 +5,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
 const root = import.meta.dirname;
-const editorSrc = path.resolve(root, 'packages/products/webforge/editor/src');
-const financesEditorSrc = path.resolve(root, 'packages/products/finances/editor/src');
+const storylyneEditorSrc = path.resolve(root, 'packages/products/storylyne/editor/src');
 
 /**
  * Explicit `@/` path aliases for Svelte test projects.
@@ -169,7 +168,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'runtime',
-          root: 'packages/products/webforge/runtime',
+          root: 'packages/products/storylyne/runtime',
           setupFiles: ['./src/test-setup.ts'],
           server: {
             deps: {
@@ -187,7 +186,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'plugin-api',
-          root: 'packages/products/webforge/plugin-api',
+          root: 'packages/products/storylyne/plugin-api',
         },
       },
       {
@@ -202,65 +201,26 @@ export default defineConfig({
           __BUILD_TIMESTAMP__: JSON.stringify('2026-01-01T00:00:00.000Z'),
         },
         test: {
-          name: 'editor',
-          root: 'packages/products/webforge/editor',
+          name: 'storylyne-editor',
+          root: 'packages/products/storylyne/editor',
           environment: 'jsdom',
           globals: true,
           include: ['src/**/*.test.ts'],
           exclude: ['e2e/**', 'node_modules/**', '.svelte-kit/**'],
           setupFiles: ['./src/test-setup-component.ts'],
           alias: [
-            { find: '$lib', replacement: path.join(editorSrc, 'lib') },
+            { find: '$lib', replacement: path.join(storylyneEditorSrc, 'lib') },
             {
               find: '$app/environment',
-              replacement: path.join(editorSrc, 'test-mocks/app-environment.ts'),
+              replacement: path.join(storylyneEditorSrc, 'test-mocks/app-environment.ts'),
             },
             {
               find: '$app/navigation',
-              replacement: path.join(editorSrc, 'test-mocks/app-navigation.ts'),
-            },
-            { find: '$app/state', replacement: path.join(editorSrc, 'test-mocks/app-state.ts') },
-            ...sharedPathAliases,
-          ],
-          server: {
-            deps: {
-              inline: ['@lucide/svelte', 'bits-ui', 'mode-watcher', 'runed', 'svelte-toolbelt'],
-            },
-          },
-        },
-      },
-      {
-        extends: true,
-        plugins: [svelte({ hot: false }), svelteTesting()],
-        define: {
-          __APP_VERSION__: JSON.stringify('0.0.0-test'),
-          __GIT_COMMIT__: JSON.stringify('abc1234'),
-          __GIT_COMMIT_FULL__: JSON.stringify('abc1234def5678901234567890abcdef12345678'),
-          __GIT_BRANCH__: JSON.stringify('test-branch'),
-          __GIT_DIRTY__: 'false',
-          __BUILD_TIMESTAMP__: JSON.stringify('2026-01-01T00:00:00.000Z'),
-        },
-        test: {
-          name: 'finances-editor',
-          root: 'packages/products/finances/editor',
-          environment: 'jsdom',
-          globals: true,
-          include: ['src/**/*.test.ts'],
-          exclude: ['e2e/**', 'node_modules/**', '.svelte-kit/**'],
-          setupFiles: ['./src/test-setup-component.ts'],
-          alias: [
-            { find: '$lib', replacement: path.join(financesEditorSrc, 'lib') },
-            {
-              find: '$app/environment',
-              replacement: path.join(financesEditorSrc, 'test-mocks/app-environment.ts'),
-            },
-            {
-              find: '$app/navigation',
-              replacement: path.join(financesEditorSrc, 'test-mocks/app-navigation.ts'),
+              replacement: path.join(storylyneEditorSrc, 'test-mocks/app-navigation.ts'),
             },
             {
               find: '$app/state',
-              replacement: path.join(financesEditorSrc, 'test-mocks/app-state.ts'),
+              replacement: path.join(storylyneEditorSrc, 'test-mocks/app-state.ts'),
             },
             ...sharedPathAliases,
           ],
@@ -270,7 +230,7 @@ export default defineConfig({
             },
           },
         },
-      },
+      }
     ],
   },
 });
