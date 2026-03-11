@@ -230,6 +230,7 @@ const propsWithDefaultsCount: Num = $derived(
 /* ------------------------------------------------------------------ */
 
 /** Collapsible section open states for the stats popover. */
+let statsReportOpen: Bool = $state(true);
 let statsVitalsOpen: Bool = $state(true);
 let statsDomOpen: Bool = $state(true);
 let statsMemoryOpen: Bool = $state(true);
@@ -2113,7 +2114,7 @@ function isIconOption(option: Str): boolean {
 						</Popover.Trigger>
 						<Popover.Content side="bottom" align="end" class="w-96 max-h-[28rem] overflow-y-auto p-0">
 							<!-- Header -->
-							<div class="flex items-start justify-between border-b px-3 py-2">
+							<div class="flex items-start justify-between border-b bg-muted/30 px-3 py-2">
 								<div>
 									<h4 class="text-xs font-semibold">Performance Statistics</h4>
 									<p class="text-[10px] text-muted-foreground">Measured at mount time. Hover metrics for details.</p>
@@ -2202,34 +2203,43 @@ function isIconOption(option: Str): boolean {
 								</span>
 							</div>
 
-							<!-- Budget metrics with tooltip explanations -->
-							<div class="space-y-0 divide-y text-xs">
-								{#each stats.budgets as budget (budget.label)}
-									<Tooltip.Provider>
-										<Tooltip.Root delayDuration={200}>
-											<Tooltip.Trigger>
-												{#snippet child({ props: tipProps })}
-													<div
-														{...tipProps}
-														class="flex cursor-help items-center justify-between px-3 py-1.5 transition-colors hover:bg-muted/50"
-													>
-														<div class="flex items-center gap-2">
-															<span class={cn('text-base leading-none', budgetColor(budget.level))}>●</span>
-															<span class="text-muted-foreground">{budget.label}</span>
+							<!-- Report — budget metrics with tooltip explanations -->
+							<div class="px-3 py-2">
+								<button type="button" class="flex w-full items-center gap-1" aria-expanded={statsReportOpen} aria-controls="stats-report" onclick={() => statsReportOpen = !statsReportOpen}>
+									<svelte:component this={statsReportOpen ? ChevronDown : ChevronRight} class="size-3 text-muted-foreground" />
+									<h4 class="text-xs font-semibold">Report</h4>
+								</button>
+								{#if statsReportOpen}<div id="stats-report">
+								<p class="mb-1 mt-0.5 text-[10px] text-muted-foreground">Performance and accessibility budget metrics. Hover for details.</p>
+								<div class="space-y-0 divide-y text-xs">
+									{#each stats.budgets as budget (budget.label)}
+										<Tooltip.Provider>
+											<Tooltip.Root delayDuration={200}>
+												<Tooltip.Trigger>
+													{#snippet child({ props: tipProps })}
+														<div
+															{...tipProps}
+															class="flex cursor-help items-center justify-between px-3 py-1.5 transition-colors hover:bg-muted/50"
+														>
+															<div class="flex items-center gap-2">
+																<span class={cn('text-base leading-none', budgetColor(budget.level))}>●</span>
+																<span class="text-muted-foreground">{budget.label}</span>
+															</div>
+															<span class="font-mono font-medium">{budget.value}</span>
 														</div>
-														<span class="font-mono font-medium">{budget.value}</span>
+													{/snippet}
+												</Tooltip.Trigger>
+												<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+													<div class="space-y-1 px-3 py-2">
+														<p class="text-xs text-primary-foreground">{budget.description}</p>
+														<p class="font-mono text-[10px] text-primary-foreground/70">{budget.thresholds}</p>
 													</div>
-												{/snippet}
-											</Tooltip.Trigger>
-											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
-												<div class="space-y-1 px-3 py-2">
-													<p class="text-xs text-primary-foreground">{budget.description}</p>
-													<p class="font-mono text-[10px] text-primary-foreground/70">{budget.thresholds}</p>
-												</div>
-											</Tooltip.Content>
-										</Tooltip.Root>
-									</Tooltip.Provider>
-								{/each}
+												</Tooltip.Content>
+											</Tooltip.Root>
+										</Tooltip.Provider>
+									{/each}
+								</div>
+								</div>{/if}
 							</div>
 
 							<!-- Web Vitals section -->
@@ -2869,49 +2879,103 @@ function isIconOption(option: Str): boolean {
 
 								<!-- SVGs without labels -->
 								{#if stats.a11y.svgsWithoutLabel > 0}
-									<div class="mt-1.5 rounded bg-amber-500/10 px-2 py-1">
-										<span class="text-[10px] font-medium text-amber-600 dark:text-amber-400">
-											{stats.a11y.svgsWithoutLabel} SVG{stats.a11y.svgsWithoutLabel === 1 ? '' : 's'} without accessible label
-										</span>
-									</div>
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="mt-1.5 flex cursor-help items-center justify-between text-[10px]">
+														<div class="flex items-center gap-2">
+															<span class="text-base leading-none text-amber-500">●</span>
+															<span class="font-medium text-muted-foreground">SVG Labels</span>
+														</div>
+														<span class="font-mono font-medium text-amber-500">
+															{stats.a11y.svgsWithoutLabel} missing
+														</span>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">SVGs without aria-label, &lt;title&gt;, or role="presentation". Unlabeled SVGs are invisible to screen readers.</p>
+													<p class="font-mono text-[10px] text-primary-foreground/70">🟢 0 · 🟡 &gt;0</p>
+												</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
 								{/if}
 
 								<!-- Animations / Motion -->
 								{#if stats.a11y.animatedElementCount > 0}
-									<div class="mt-1.5">
-										<div class="flex items-center justify-between text-[10px]">
-											<div class="flex items-center gap-2">
-												<span class={cn('text-base leading-none', stats.a11y.hasReducedMotionOverride ? 'text-emerald-500' : 'text-amber-500')}>●</span>
-												<span class="font-medium text-muted-foreground">Animations</span>
-											</div>
-											<span class={cn('font-mono font-medium', stats.a11y.hasReducedMotionOverride ? 'text-emerald-500' : 'text-amber-500')}>
-												{stats.a11y.animatedElementCount} element{stats.a11y.animatedElementCount === 1 ? '' : 's'}
-											</span>
-										</div>
-										<div class="ml-6 text-[10px] text-muted-foreground">
-											{stats.a11y.hasReducedMotionOverride ? '✓ prefers-reduced-motion override detected' : '⚠ No prefers-reduced-motion override found'}
-										</div>
-									</div>
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="mt-1.5 cursor-help">
+														<div class="flex items-center justify-between text-[10px]">
+															<div class="flex items-center gap-2">
+																<span class={cn('text-base leading-none', stats.a11y.hasReducedMotionOverride ? 'text-emerald-500' : 'text-amber-500')}>●</span>
+																<span class="font-medium text-muted-foreground">Animations</span>
+															</div>
+															<span class={cn('font-mono font-medium', stats.a11y.hasReducedMotionOverride ? 'text-emerald-500' : 'text-amber-500')}>
+																{stats.a11y.animatedElementCount} element{stats.a11y.animatedElementCount === 1 ? '' : 's'}
+															</span>
+														</div>
+														<div class="ml-6 text-[10px] text-muted-foreground">
+															{stats.a11y.hasReducedMotionOverride ? '✓ prefers-reduced-motion override detected' : '⚠ No prefers-reduced-motion override found'}
+														</div>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">CSS animations or transitions detected. Components with motion should include a prefers-reduced-motion media query for users with vestibular disorders.</p>
+													<p class="font-mono text-[10px] text-primary-foreground/70">🟢 Has override · 🟡 No override</p>
+												</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
 								{/if}
 
 								<!-- Tab Order (first 10 elements) -->
 								{#if stats.a11y.tabOrder.length > 0}
-									<div class="mt-1.5">
-										<span class="text-[10px] font-medium text-muted-foreground">Tab Order ({stats.a11y.tabOrder.length} elements):</span>
-										<div class="ml-2 mt-0.5 space-y-0">
-											{#each stats.a11y.tabOrder.slice(0, 10) as entry, i (entry.tag + entry.text + i)}
-												<div class="flex items-center gap-1.5 text-[10px]">
-													<span class="font-mono text-muted-foreground/50">{i + 1}.</span>
-													<span class={cn('font-mono', entry.tabindex > 0 ? 'text-red-400' : 'text-muted-foreground')}>&lt;{entry.tag}&gt;</span>
-													{#if entry.text}
-														<span class="truncate text-muted-foreground/60">{entry.text}</span>
-													{/if}
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="mt-1.5 cursor-help">
+														<div class="flex items-center justify-between text-[10px]">
+															<div class="flex items-center gap-2">
+																<span class="text-base leading-none text-emerald-500">●</span>
+																<span class="font-medium text-muted-foreground">Tab Order</span>
+															</div>
+															<span class="font-mono font-medium text-muted-foreground">
+																{stats.a11y.tabOrder.length} element{stats.a11y.tabOrder.length === 1 ? '' : 's'}
+															</span>
+														</div>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">Focusable elements in keyboard navigation order. Elements with positive tabindex (shown in red) disrupt natural focus order.</p>
+													<p class="font-mono text-[10px] text-primary-foreground/70">Tab order follows DOM order + tabindex sorting</p>
 												</div>
-											{/each}
-											{#if stats.a11y.tabOrder.length > 10}
-												<span class="text-[10px] text-muted-foreground/50">…and {stats.a11y.tabOrder.length - 10} more</span>
-											{/if}
-										</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+									<div class="ml-6 mt-0.5 space-y-0">
+										{#each stats.a11y.tabOrder.slice(0, 10) as entry, i (entry.tag + entry.text + i)}
+											<div class="flex items-center gap-1.5 text-[10px]">
+												<span class="font-mono text-muted-foreground/50">{i + 1}.</span>
+												<span class={cn('font-mono', entry.tabindex > 0 ? 'text-red-400' : 'text-muted-foreground')}>&lt;{entry.tag}&gt;</span>
+												{#if entry.text}
+													<span class="truncate text-muted-foreground/60">{entry.text}</span>
+												{/if}
+											</div>
+										{/each}
+										{#if stats.a11y.tabOrder.length > 10}
+											<span class="text-[10px] text-muted-foreground/50">…and {stats.a11y.tabOrder.length - 10} more</span>
+										{/if}
 									</div>
 								{/if}
 								</div>{/if}
@@ -4100,7 +4164,7 @@ function isIconOption(option: Str): boolean {
 								}}
 							>
 								<FileJson class="size-3.5" aria-hidden="true" />
-								Export All Stats ({Object.keys(cardStats).length} variants)
+								Export All Performance Statistics ({Object.keys(cardStats).length} variants)
 							</button>
 						{/snippet}
 					</Tooltip.Trigger>
