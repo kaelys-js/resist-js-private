@@ -10,7 +10,9 @@ Several Issues (build-editor OR fix-bug if needed):
 ----
 
 Several Issues:
-- Dependency Chain: Can support grab and drag to move around?
+- LensComponentRender (in general and the toolbar options, dropdown options)
+  - Think hard about what's missing and provide suggestions.
+  - I have thought of these but will defer for now: Measure/Inspect, Logging/State Changes/etc
 
 Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
 
@@ -30,27 +32,18 @@ Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
 - The "bundle size" route won't work outside dev like in cloudflare and what about the import globbing and that used for component listing/source reding/global search/etc?
 - Intelligent Automatic Examples Instead of examples/
 - LensComponentRenderer
-  - Animation/Transition Testing
-  - Keyboard Navigation Testing
-  - Other Accessibility Testing
-  - Statistic Tooltip:
-    - Render/Mount/Unmount/Re-Render Time
-    - Vitals
-    - Performance Budgets/Thresholds + Warnings
-  - Resizable Render Area
   - Measure/Inspect
-  - Logging
+  - Logging/State Changes/etc
   - Network Conditions (Real)
   - Browser + Resolution + Device + Browser Version + Device Version (Real)
 - New Component Sections
   - ** Need to consider: Global Search, Go to menu, ?
-  - Variant For Live Component Editing
+  - Live Component Editing: LensComponentRenderer
   - Design Token Viewer
   - Changelog/Version History
   - Custom Component Documentation
 - Sidebar Component Entries:
-  - Warnings: Vitals/Bund size budget/Perf Budgets/other details?
-
+  - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the overall component?
 - Fully localize
 
 * Shaded Workspace Components
@@ -96,13 +89,6 @@ Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
 
 * For **.svelte -> Fix so CLAUDE.md code conventions are followed. Massive violations in those files.
 * For **.ts -> Fix so CLAUDE.md code conventions are followed. Massive violations in those files.
-
-* finances
-  * You replaced all the data with fake data not matching what I gave you from Budget.md (your a complete fucking asshole!)
-  * Sidebar has user dropdown which was a "project" dropdown before should replace with..?
-  * Does sidebar dropdown settings do anything?
-  * What will log out do?
-  * Update all tests/e2e tests
 
 * Breadcrumb header scrolling issue + frosted glass underneath
 * Component level error boundary (with fallback, retry, etc) and app level error boundary with full tests (unit/integration/e2e and manual testing path for me for component and app error boundaries) plus other suggestions for component/app error boundary component

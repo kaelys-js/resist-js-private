@@ -2,7 +2,7 @@ import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
   category: 'overlay',
-  tags: ['shadcn', 'compound'],
+  tags: ['shadcn', 'compound', 'tv-variant'],
   description: 'Slide-out panel from screen edge.',
 };
 

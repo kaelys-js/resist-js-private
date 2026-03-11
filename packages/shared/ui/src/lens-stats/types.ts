@@ -44,6 +44,57 @@ export const FocusOrderIssueSchema = v.strictObject({
 export type FocusOrderIssue = v.InferOutput<typeof FocusOrderIssueSchema>;
 
 /* ------------------------------------------------------------------ */
+/*  Tab order entry                                                    */
+/* ------------------------------------------------------------------ */
+
+/** A focusable element in the component's tab order. */
+export const TabOrderEntrySchema = v.strictObject({
+  /** HTML tag name. */
+  tag: StrSchema,
+  /** Element text preview (truncated to 40 chars). */
+  text: StrSchema,
+  /** Tabindex value (0 = natural order, -1 = programmatic only, >0 = explicit). */
+  tabindex: NumSchema,
+});
+export type TabOrderEntry = v.InferOutput<typeof TabOrderEntrySchema>;
+
+/* ------------------------------------------------------------------ */
+/*  Contrast issue                                                     */
+/* ------------------------------------------------------------------ */
+
+/** A text element with insufficient color contrast ratio. */
+export const ContrastIssueSchema = v.strictObject({
+  /** HTML tag name. */
+  tag: StrSchema,
+  /** Element text preview (truncated to 40 chars). */
+  text: StrSchema,
+  /** Computed contrast ratio (rounded to 2 decimals). */
+  ratio: NumSchema,
+  /** Required ratio for WCAG AA compliance (4.5 for normal text, 3 for large text). */
+  required: NumSchema,
+  /** Computed foreground color as CSS value. */
+  textColor: StrSchema,
+  /** Effective background color as CSS value. */
+  bgColor: StrSchema,
+});
+export type ContrastIssue = v.InferOutput<typeof ContrastIssueSchema>;
+
+/* ------------------------------------------------------------------ */
+/*  ARIA issue                                                         */
+/* ------------------------------------------------------------------ */
+
+/** An ARIA attribute misuse found in the component. */
+export const AriaIssueSchema = v.strictObject({
+  /** HTML tag name of the element. */
+  tag: StrSchema,
+  /** Element text or class preview for identification. */
+  text: StrSchema,
+  /** Description of the ARIA issue. */
+  issue: StrSchema,
+});
+export type AriaIssue = v.InferOutput<typeof AriaIssueSchema>;
+
+/* ------------------------------------------------------------------ */
 /*  Accessibility audit                                               */
 /* ------------------------------------------------------------------ */
 
@@ -86,6 +137,20 @@ export const A11yAuditSchema = v.strictObject({
   focusOrderIssues: v.array(FocusOrderIssueSchema),
   /** Count of elements with inline event handlers (onclick, onmousedown, etc.). */
   eventListenerCount: NumSchema,
+  /** Focusable elements in tab order (natural DOM order + tabindex sorting). */
+  tabOrder: v.array(TabOrderEntrySchema),
+  /** Text elements with insufficient color contrast ratio (WCAG AA). */
+  contrastIssues: v.array(ContrastIssueSchema),
+  /** Count of <img> elements missing alt attributes. */
+  imagesWithoutAlt: NumSchema,
+  /** ARIA attribute misuse found in the component. */
+  ariaIssues: v.array(AriaIssueSchema),
+  /** Count of <svg> elements without accessible labels (aria-label, <title>, or role="presentation"). */
+  svgsWithoutLabel: NumSchema,
+  /** Whether the component has CSS animations/transitions with prefers-reduced-motion overrides. */
+  hasReducedMotionOverride: BoolSchema,
+  /** Count of elements with active CSS animations or transitions. */
+  animatedElementCount: NumSchema,
 });
 export type A11yAudit = v.InferOutput<typeof A11yAuditSchema>;
 
@@ -211,5 +276,7 @@ export const LensStatsDataSchema = v.strictObject({
   eventListenerCount: NumSchema,
   /** Component-scoped Web Vitals (CLS, long tasks, paint timing, LCP). */
   vitals: WebVitalsSchema,
+  /** Duration of each re-render in milliseconds (measured via MutationObserver + rAF). */
+  reRenderTimings: v.array(NumSchema),
 });
 export type LensStatsData = v.InferOutput<typeof LensStatsDataSchema>;
