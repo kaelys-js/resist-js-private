@@ -2,7 +2,6 @@
 import * as v from 'valibot';
 import { StrSchema, BoolSchema } from '@/schemas/common';
 import { LensMetaSchema, type LensMeta } from '../lens/types.js';
-import { SearchItemSchema, type SearchItem } from '../search-autocomplete/search-item.js';
 
 /** Schema for the LensHeader component props. */
 export const LensHeaderPropsSchema = v.strictObject({
@@ -22,10 +21,6 @@ export const LensHeaderPropsSchema = v.strictObject({
 	hasSource: v.optional(BoolSchema),
 	/** Whether the component has any import dependencies. @values true, false */
 	hasDeps: v.optional(BoolSchema),
-	/** Search items for the search popover. Empty array hides the search button. @values [{value: "variant", label: "variant", group: "Props"}] */
-	searchItems: v.optional(v.array(SearchItemSchema)),
-	/** Callback fired when a search item is selected. @values () => void */
-	onSearchSelect: v.optional(v.custom<(item: SearchItem) => void>((val: unknown): boolean => typeof val === 'function')),
 	/** Previous component name for sequential navigation (kebab-case). @values button, dialog, sidebar */
 	prevComponent: v.optional(v.nullable(StrSchema)),
 	/** Next component name for sequential navigation (kebab-case). @values button, dialog, sidebar */
@@ -41,20 +36,17 @@ export type LensHeaderProps = v.InferOutput<typeof LensHeaderPropsSchema>;
  *
  * Displays an icon, title, description, category/tag badges, a
  * copy-import shortcut, a section navigation dropdown menu, and
- * an optional search popover for filtering props/variants/examples.
+ * previous/next component navigation.
  */
 import type { Bool, Str, Void } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 import { toTitle, stripSvelteProps } from '../lens/lens-utils.js';
 import Badge from '../badge/badge.svelte';
 import CopyImport from '../copy-import/CopyImport.svelte';
-import * as Command from '../command/index.js';
 import * as DropdownMenu from '../dropdown-menu/index.js';
-import * as Popover from '../popover/index.js';
 import * as Tooltip from '../tooltip/index.js';
 import ComponentIcon from '@lucide/svelte/icons/component';
 import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
-import SearchIcon from '@lucide/svelte/icons/search';
 import TableProperties from '@lucide/svelte/icons/table-properties';
 import Layers from '@lucide/svelte/icons/layers';
 import BookOpen from '@lucide/svelte/icons/book-open';
@@ -72,18 +64,6 @@ const validated: LensHeaderProps = $derived.by(() => {
 	// DeepReadonly from safeParse is safe to cast — props are read-only in templates
 	return result.data as LensHeaderProps;
 });
-
-/** Whether the search popover is open. */
-let searchOpen: Bool = $state(false);
-
-/** Current search input value. */
-let searchValue: Str = $state('');
-
-/** Mutable copy of validated search items (frozen data needs spreading for Array methods). */
-const searchItems: SearchItem[] = $derived(
-	// safeParse freezes data — spread to mutable array for grouping logic
-	[...(validated.searchItems ?? [])] as SearchItem[],
-);
 
 /** Whether the component has renderable variants. */
 const hasVariants: Bool = $derived(validated.hasVariants ?? false);
@@ -105,39 +85,6 @@ const hasDeps: Bool = $derived(validated.hasDeps ?? false);
 function scrollTo(id: Str): Void {
 	document.querySelector(`#${id}`)?.scrollIntoView({ behavior: 'smooth' });
 }
-
-/**
- * Group search items by their `group` field for Command rendering.
- *
- * @returns Array of `{ name, items }` tuples preserving insertion order.
- */
-const groupedItems: Array<{ name: Str; items: SearchItem[] }> = $derived.by(() => {
-	const groups: Map<Str, SearchItem[]> = new Map();
-	for (const item of searchItems) {
-		const key: Str = item.group ?? '';
-		const existing: SearchItem[] | undefined = groups.get(key);
-		if (existing) {
-			existing.push(item);
-		} else {
-			groups.set(key, [item]);
-		}
-	}
-	return [...groups.entries()].map(([groupName, groupItems]: [Str, SearchItem[]]) => ({
-		name: groupName,
-		items: groupItems,
-	}));
-});
-
-/**
- * Handle search item selection — fire callback, close popover, reset search.
- *
- * @param item - The selected search item
- */
-function handleSelect(item: SearchItem): Void {
-	validated.onSearchSelect?.(item);
-	searchOpen = false;
-	searchValue = '';
-}
 </script>
 
 <div class="flex items-start gap-4">
@@ -150,67 +97,6 @@ function handleSelect(item: SearchItem): Void {
 				<h1 class="text-3xl font-bold tracking-tight">{toTitle(validated.name)}</h1>
 
 				<div class="flex items-center gap-1">
-				<!-- Search icon -> Popover -> Command search -->
-				{#if searchItems.length > 0}
-					<Popover.Root bind:open={searchOpen}>
-						<Tooltip.Root delayDuration={300}>
-							<Tooltip.Trigger>
-								{#snippet child({ props: tooltipProps })}
-									<Popover.Trigger>
-										{#snippet child({ props: triggerProps })}
-											<button
-												type="button"
-												class="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-												{...tooltipProps}
-												{...triggerProps}
-											>
-												<SearchIcon class="size-4" />
-												<span class="sr-only">Search props, variants, examples</span>
-											</button>
-										{/snippet}
-									</Popover.Trigger>
-								{/snippet}
-							</Tooltip.Trigger>
-							<Tooltip.Content side="right" sideOffset={4}>
-								Search
-							</Tooltip.Content>
-						</Tooltip.Root>
-						<Popover.Content class="w-[280px] p-0" align="start" sideOffset={8}>
-							<Command.Root shouldFilter={true}>
-								<Command.Input placeholder="Search props, variants..." bind:value={searchValue} />
-								<Command.List>
-									<Command.Empty>No matches.</Command.Empty>
-									{#each groupedItems as group, gi (gi)}
-										{#if group.name}
-											<Command.Group heading={group.name}>
-												{#each group.items as item, ii (item.value ?? ii)}
-													<Command.Item
-														value={item.value}
-														keywords={item.keywords}
-														onSelect={() => handleSelect(item)}
-													>
-														{item.label}
-													</Command.Item>
-												{/each}
-											</Command.Group>
-										{:else}
-											{#each group.items as item, ii (item.value ?? ii)}
-												<Command.Item
-													value={item.value}
-													keywords={item.keywords}
-													onSelect={() => handleSelect(item)}
-												>
-													{item.label}
-												</Command.Item>
-											{/each}
-										{/if}
-									{/each}
-								</Command.List>
-							</Command.Root>
-						</Popover.Content>
-					</Popover.Root>
-				{/if}
-
 				<!-- Section navigation dropdown -->
 				<DropdownMenu.Root>
 				<Tooltip.Root delayDuration={300}>

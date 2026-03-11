@@ -13,11 +13,14 @@ let {
 	children,
 	/** Group heading label text. @values Actions, Settings, Navigation */
 	heading,
+	/** Additional CSS classes for the heading element. @values text-sm font-semibold, text-xs ps-4 */
+	headingClass,
 	/** Group value for filtering. @values actions, settings, navigation */
 	value,
 	...restProps
 }: CommandPrimitive.GroupProps & {
 	heading?: string;
+	headingClass?: string;
 } = $props();
 </script>
 
@@ -30,7 +33,7 @@ let {
 >
 	{#if heading}
 		<CommandPrimitive.GroupHeading
-			class="text-muted-foreground px-2 py-1.5 text-xs font-medium"
+			class={cn("text-muted-foreground px-2 py-1.5 text-xs font-medium", headingClass)}
 		>
 			{heading}
 		</CommandPrimitive.GroupHeading>

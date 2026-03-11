@@ -5,10 +5,9 @@
  * Extracts props, TV variants, and examples from raw component source
  * at runtime — no hand-written Demo.svelte files needed.
  */
-import type { Bool, Num, Str, Void } from '@/schemas/common';
+import type { Bool, Num, Str } from '@/schemas/common';
 import type { Component } from 'svelte';
 import type { PropMeta, VariantMeta, VariantKeyMeta, LensExample, LensMeta } from '@/ui/lens/types.js';
-import type { SearchItem } from '@/ui/search-autocomplete/search-item.js';
 import { extractProps, extractDescription, extractPropsVariants } from '@/ui/lens/extract-props.js';
 import { extractVariants } from '@/ui/lens/extract-variants.js';
 import { extractDeps, extractReverseDeps, type DepTree, type ReverseDep } from '@/ui/lens/extract-deps.js';
@@ -352,98 +351,13 @@ function toTag(componentName: Str): Str {
 	return toTitle(componentName).replaceAll(' ', '');
 }
 
-/**
- * Unified search items combining props, variants, and examples.
- * Grouped by section for the SearchAutocomplete dropdown.
- */
-const searchItems: SearchItem[] = $derived.by((): SearchItem[] => {
-	const items: SearchItem[] = [];
-
-	// Props — searchable by name, type, default, description, typeFields, mockValues
-	for (const prop of props) {
-		const kw: Str[] = [prop.type, prop.default, prop.description].filter(Boolean);
-		// Include nested field names, types, accepts, and descriptions from expandable schemas
-		if (prop.typeFields) {
-			for (const tf of prop.typeFields) {
-				kw.push(tf.field, tf.type, tf.accepts, tf.description);
-			}
-		}
-		// Include explicit @values JSDoc annotations
-		if (prop.mockValues) {
-			kw.push(...prop.mockValues);
-		}
-		items.push({
-			value: `prop:${prop.name}`,
-			label: prop.name,
-			group: 'Props',
-			keywords: kw.filter(Boolean),
-		});
-	}
-
-	// Variants — searchable by key name and option values
-	for (const v of allVariants) {
-		items.push({
-			value: `variant:${v.key}`,
-			label: toTitle(v.key),
-			group: 'Variants',
-			keywords: v.options,
-		});
-	}
-
-	// Examples — searchable by title, name, description
-	for (const ex of lensExamples) {
-		items.push({
-			value: `example:${ex.name}`,
-			label: ex.title,
-			group: 'Examples',
-			keywords: [ex.name, ex.description].filter(Boolean),
-		});
-	}
-
-	// Sections — navigable section anchors
-	items.push({
-		value: 'section:error-boundary',
-		label: 'Error Boundary',
-		group: 'Sections',
-		keywords: ['error', 'boundary', 'validation', 'safeParse', 'fallback'],
-	});
-	if (hasDeps) {
-		items.push({
-			value: 'section:dependencies',
-			label: 'Dependencies',
-			group: 'Sections',
-			keywords: ['deps', 'imports', 'internal', 'external', 'workspace', 'packages'],
-		});
-	}
-
-	return items;
-});
-
-/**
- * Handle search item selection — scroll to the matching section element.
- *
- * @param item - The selected search item
- */
-function handleSearchSelect(item: SearchItem): Void {
-	const [section, id]: Str[] = item.value.split(':');
-	let selector: Str = '';
-
-	if (section === 'prop') selector = `#prop-${id}`;
-	else if (section === 'variant') selector = `#variant-${id}`;
-	else if (section === 'example') selector = `#example-${id}`;
-	else if (section === 'section') selector = `#${id}`;
-
-	if (selector) {
-		document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth' });
-	}
-}
 
 </script>
 
 <div class="w-full">
 	{#if !loadError}
 		<div class="sticky top-(--header-height) z-10 border-b bg-background px-8 pb-4 pt-10">
-			<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} {hasDeps} searchItems={loading || loadError ? [] : searchItems} onSearchSelect={handleSearchSelect} {prevComponent} {nextComponent} />
+			<LensHeader {name} description={componentDescription} meta={lensMeta} {hasVariants} {hasExamples} hasSource={!!rawSource} {hasDeps} {prevComponent} {nextComponent} />
 		</div>
 	{/if}
 
