@@ -1,0 +1,1296 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="theme-color" content="#000000" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>Storylyne Runtime — Dev Harness</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				background: #000;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, Helvetica, Arial, sans-serif;
+				font-size: 11px;
+				color: #e0e0e0;
+				user-select: none;
+				-webkit-user-select: none;
+				-webkit-touch-callout: none;
+				-webkit-tap-highlight-color: transparent;
+				touch-action: none;
+				overscroll-behavior: none;
+			}
+			input[type='text'],
+			input[type='number'],
+			textarea {
+				user-select: auto;
+				-webkit-user-select: auto;
+				-webkit-touch-callout: default;
+			}
+			/* Style number input steppers for dark theme */
+			input[type='number']::-webkit-inner-spin-button,
+			input[type='number']::-webkit-outer-spin-button {
+				-webkit-appearance: none;
+				appearance: none;
+				margin: 0;
+			}
+			input[type='number'] {
+				-moz-appearance: textfield;
+				appearance: textfield;
+			}
+			canvas {
+				display: block;
+				width: 100%;
+				height: 100vh;
+				touch-action: none;
+				outline: none;
+			}
+
+			/* ── Control Panel ─────────────────────────────────── */
+			#control-panel {
+				position: fixed;
+				top: 8px;
+				right: 8px;
+				width: 290px;
+				max-height: calc(100vh - 16px);
+				overflow-y: auto;
+				background: rgba(18, 18, 24, 0.93);
+				border: 1px solid rgba(255, 255, 255, 0.08);
+				border-radius: 8px;
+				backdrop-filter: blur(12px);
+				z-index: 100;
+				padding: 0;
+				scrollbar-width: thin;
+				scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+				transition: opacity 0.2s ease, transform 0.2s ease;
+				transform-origin: top right;
+			}
+			#control-panel.hidden {
+				opacity: 0;
+				transform: scale(0.95) translateY(-8px);
+				pointer-events: none;
+			}
+
+			/* ── Minimized Icon ──────────────────────────────── */
+			#panel-icon {
+				position: fixed;
+				top: 8px;
+				right: 8px;
+				width: 40px;
+				height: 40px;
+				background: rgba(22, 28, 32, 0.95);
+				border: 1px solid rgba(80, 200, 200, 0.25);
+				border-radius: 10px;
+				backdrop-filter: blur(12px);
+				z-index: 100;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				font-size: 18px;
+				color: #6ecfcf;
+				transition: all 0.2s ease;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+				opacity: 0;
+				transform: scale(0.8);
+				pointer-events: none;
+			}
+			#panel-icon:hover {
+				background: rgba(28, 36, 40, 0.98);
+				border-color: rgba(80, 200, 200, 0.5);
+				color: #8ee0e0;
+				transform: scale(1.05);
+				box-shadow: 0 2px 14px rgba(80, 200, 200, 0.15);
+			}
+			#panel-icon.visible {
+				opacity: 1;
+				transform: scale(1);
+				pointer-events: auto;
+			}
+
+			.panel-sticky-top {
+				position: sticky;
+				top: 0;
+				z-index: 10;
+				background: rgba(18, 18, 24, 0.98);
+				backdrop-filter: blur(12px);
+			}
+			.panel-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 8px 12px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+				cursor: grab;
+				user-select: none;
+			}
+			.panel-header:active {
+				cursor: grabbing;
+			}
+			.panel-btn {
+				font-size: 14px;
+				line-height: 1;
+				opacity: 0.6;
+				cursor: pointer;
+				padding: 0 2px;
+				border-radius: 3px;
+				transition: all 0.12s;
+			}
+			.panel-btn:hover {
+				opacity: 1;
+				background: rgba(255, 255, 255, 0.1);
+			}
+			.panel-header:hover {
+				background: rgba(255, 255, 255, 0.03);
+			}
+			.panel-title {
+				display: flex;
+				align-items: center;
+				color: #6ecfcf;
+			}
+			.panel-title svg {
+				width: 18px;
+				height: 18px;
+			}
+			.panel-toggle {
+				transition: transform 0.25s ease;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 16px;
+				height: 16px;
+				opacity: 0.5;
+			}
+			.panel-toggle svg {
+				width: 12px;
+				height: 12px;
+				fill: none;
+				stroke: currentColor;
+				stroke-width: 2;
+				stroke-linecap: round;
+				stroke-linejoin: round;
+			}
+			.section-header:hover .panel-toggle { opacity: 0.8; }
+			.section.collapsed .panel-toggle {
+				transform: rotate(-90deg);
+			}
+
+			/* ── FPS Bar ─────────────────────────────────────── */
+			#fps-bar {
+				padding: 4px 12px 5px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+				font-size: 10px;
+				color: #a0d0a0;
+				display: flex;
+				flex-direction: column;
+				gap: 3px;
+			}
+			.fps-row-top {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+			}
+			.fps-row-bottom {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				font-size: 9px;
+				color: #888;
+			}
+			.fps-metric {
+				display: flex;
+				align-items: center;
+				gap: 3px;
+			}
+			.fps-icon {
+				opacity: 0.5;
+				flex-shrink: 0;
+			}
+			#fps-sparkline {
+				width: 60px;
+				height: 14px;
+				flex-shrink: 0;
+				opacity: 0.7;
+				border-radius: 2px;
+			}
+			.fps-green { color: #a0d0a0; }
+			.fps-yellow { color: #d0d0a0; }
+			.fps-red { color: #d0a0a0; }
+
+			/* ── Sections ────────────────────────────────────── */
+			.section {
+				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+				transition: background 0.2s ease;
+			}
+			.section:not(.collapsed) {
+				background: rgba(255, 255, 255, 0.02);
+			}
+			.section:last-child {
+				border-bottom: none;
+			}
+			.section-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 7px 12px;
+				cursor: pointer;
+				user-select: none;
+				font-size: 10px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.8px;
+				color: #aaa;
+				border-left: 3px solid transparent;
+				transition: all 0.12s;
+			}
+			.section:not(.collapsed) > .section-header {
+				color: #ccc;
+				border-left-color: rgba(80, 200, 200, 0.25);
+			}
+			.section-header:hover {
+				background: rgba(255, 255, 255, 0.04);
+				color: #ccc;
+				border-left-color: rgba(80, 200, 200, 0.4);
+			}
+			.section-body {
+				padding: 4px 12px 8px;
+				overflow: visible;
+				max-height: 2000px;
+				transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+				opacity: 1;
+			}
+			.section.collapsed > .section-body {
+				max-height: 0;
+				opacity: 0;
+				padding-top: 0;
+				padding-bottom: 0;
+				overflow: hidden;
+			}
+
+			/* ── Collapsible Groups (within sections) ────────── */
+			.cg {
+				border-top: 1px solid rgba(255, 255, 255, 0.06);
+			}
+			.cg:first-child {
+				border-top: none;
+			}
+			.cg-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 6px 4px;
+				cursor: pointer;
+				user-select: none;
+				font-size: 10.5px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				color: #999;
+				transition: color 0.12s;
+			}
+			.cg-header:hover {
+				color: #ccc;
+			}
+			.cg-header .cg-chevron {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 14px;
+				height: 14px;
+				opacity: 0.45;
+				transition: transform 0.15s;
+			}
+			.cg-header .cg-chevron svg {
+				width: 10px;
+				height: 10px;
+				fill: none;
+				stroke: currentColor;
+				stroke-width: 2;
+				stroke-linecap: round;
+				stroke-linejoin: round;
+			}
+			.cg-header:hover .cg-chevron { opacity: 0.75; }
+			.cg.collapsed .cg-chevron {
+				transform: rotate(-90deg);
+			}
+			.cg-body {
+				padding: 0 0 4px 8px;
+				overflow: visible;
+				max-height: 1500px;
+				transition: max-height 0.2s ease, opacity 0.15s ease;
+				opacity: 1;
+			}
+			.cg.collapsed > .cg-body {
+				max-height: 0;
+				opacity: 0;
+				padding-bottom: 0;
+				overflow: hidden;
+			}
+
+			/* Layer row header — sits above collapsible groups */
+			.layer-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 5px 4px;
+				cursor: pointer;
+				user-select: none;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+			}
+			.layer-header:hover {
+				background: rgba(255, 255, 255, 0.03);
+			}
+			.layer-header .layer-title {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				font-size: 10px;
+				color: #bbb;
+				font-weight: 500;
+			}
+			.layer-header .layer-kind {
+				font-size: 8px;
+				font-weight: 700;
+				padding: 1px 4px;
+				border-radius: 3px;
+				letter-spacing: 0.3px;
+			}
+			.layer-kind-tile { background: rgba(80, 180, 220, 0.2); color: #6cc; }
+			.layer-kind-object { background: rgba(220, 160, 60, 0.2); color: #da6; }
+			.layer-kind-group { background: rgba(160, 120, 220, 0.2); color: #a8d; }
+			.layer-reorder {
+				display: flex;
+				gap: 2px;
+				margin-left: auto;
+				margin-right: 6px;
+			}
+			.layer-reorder button {
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				color: #888;
+				font-size: 9px;
+				width: 18px;
+				height: 18px;
+				border-radius: 3px;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 0;
+				transition: all 0.12s;
+			}
+			.layer-reorder button:hover {
+				background: rgba(255, 255, 255, 0.12);
+				color: #ccc;
+			}
+			.layer-reorder button:disabled {
+				opacity: 0.25;
+				cursor: default;
+			}
+			.layer-header .layer-chevron {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 14px;
+				height: 14px;
+				opacity: 0.45;
+				transition: transform 0.15s;
+			}
+			.layer-header .layer-chevron svg {
+				width: 10px;
+				height: 10px;
+				fill: none;
+				stroke: currentColor;
+				stroke-width: 2;
+				stroke-linecap: round;
+				stroke-linejoin: round;
+			}
+			.layer-header:hover .layer-chevron { opacity: 0.75; }
+			.layer-row.collapsed > .layer-header .layer-chevron {
+				transform: rotate(-90deg);
+			}
+			.layer-row-body {
+				padding: 2px 0 4px 4px;
+				overflow: visible;
+				max-height: 3000px;
+				transition: max-height 0.25s ease, opacity 0.15s ease;
+				opacity: 1;
+			}
+			.layer-row.collapsed > .layer-row-body {
+				max-height: 0;
+				opacity: 0;
+				overflow: hidden;
+			}
+
+			/* Empty state for tile inspector */
+			.ti-empty {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 6px;
+				padding: 20px 12px;
+				color: #555;
+				text-align: center;
+			}
+			.ti-empty-icon {
+				font-size: 24px;
+				opacity: 0.4;
+			}
+			.ti-empty-text {
+				font-size: 10px;
+				letter-spacing: 0.3px;
+			}
+
+			/* ── Map Editor Scrollbars (macOS-style overlay) ── */
+			/* ── Scrollbar custom properties ─────────────── */
+			:root {
+				--sb-color: rgba(180, 180, 180, 0.6);
+				--sb-color-hover: rgba(200, 200, 200, 0.85);
+				--sb-color-active: rgba(220, 220, 220, 0.9);
+				--sb-hover-size: 12px;
+				--sb-show-delay: 0.35s;
+				--sb-hover-linger: 0s;
+			}
+			.map-scrollbar {
+				position: fixed;
+				z-index: 10;
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.4s var(--sb-hover-linger);
+			}
+			.map-scrollbar.sb-active {
+				pointer-events: auto;
+			}
+			.map-scrollbar.sb-active .sb-thumb {
+				pointer-events: auto;
+			}
+			/* JS scroll flash — immediate show */
+			.map-scrollbar.visible {
+				opacity: 0.7;
+				transition: opacity 0.1s;
+			}
+			/* Hover — delayed reveal (requires sb-active so "never" mode blocks it) */
+			.map-scrollbar.sb-active:hover {
+				opacity: 1;
+				transition: opacity 0.15s var(--sb-show-delay);
+			}
+			.map-scrollbar-h {
+				left: 4px;
+				bottom: 0;
+				right: 18px;
+				height: 14px;
+			}
+			.map-scrollbar-v {
+				top: 4px;
+				right: 0;
+				bottom: 18px;
+				width: 14px;
+			}
+			.sb-track {
+				position: relative;
+				width: 100%;
+				height: 100%;
+				background: transparent;
+				border-radius: 4px;
+			}
+			.sb-thumb {
+				position: absolute;
+				background: var(--sb-color);
+				border-radius: 4px;
+				cursor: grab;
+				pointer-events: none;
+				transition: background 0.15s, box-shadow 0.15s, width 0.15s, height 0.15s;
+			}
+			.sb-thumb:hover {
+				background: var(--sb-color-hover);
+				box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+			}
+			.sb-thumb:active {
+				background: var(--sb-color-active);
+				cursor: grabbing;
+			}
+			/* Horizontal: thumb hugs bottom edge */
+			.map-scrollbar-h .sb-thumb {
+				bottom: 2px;
+				height: 6px;
+				min-width: 40px;
+			}
+			.map-scrollbar-h.visible .sb-thumb {
+				height: 8px;
+			}
+			.map-scrollbar-h:hover .sb-thumb {
+				height: var(--sb-hover-size);
+			}
+			/* Vertical: thumb hugs right edge */
+			.map-scrollbar-v .sb-thumb {
+				right: 2px;
+				width: 6px;
+				min-height: 40px;
+			}
+			.map-scrollbar-v.visible .sb-thumb {
+				width: 8px;
+			}
+			.map-scrollbar-v:hover .sb-thumb {
+				width: var(--sb-hover-size);
+			}
+
+			/* Corner piece where horizontal and vertical scrollbars meet */
+			#scrollbar-corner {
+				position: fixed;
+				right: 0;
+				bottom: 0;
+				width: 14px;
+				height: 14px;
+				z-index: 10;
+				background: var(--sb-color);
+				border-radius: 4px;
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.4s var(--sb-hover-linger);
+			}
+			#scrollbar-corner.visible {
+				opacity: 0.7;
+				transition: opacity 0.1s;
+			}
+
+			/* ── Controls ────────────────────────────────────── */
+			.control-row {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 3px 0;
+				gap: 6px;
+			}
+			.control-label {
+				font-size: 10px;
+				color: #b0b0b0;
+				flex-shrink: 0;
+				max-width: 120px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			/* ── Tooltip System ─────────────────────────────── */
+			.control-label-wrap {
+				display: flex;
+				align-items: center;
+				gap: 3px;
+				flex-shrink: 0;
+				max-width: 120px;
+				position: relative;
+			}
+			.control-label-wrap .control-label {
+				max-width: none;
+			}
+			.tip-icon {
+				font-size: 9px;
+				width: 13px;
+				height: 13px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 50%;
+				background: rgba(255, 255, 255, 0.06);
+				color: #666;
+				flex-shrink: 0;
+				cursor: default;
+				line-height: 1;
+				border: 1px solid rgba(255, 255, 255, 0.08);
+				transition: color 0.12s, border-color 0.12s, background 0.12s;
+			}
+			.tip-icon:hover {
+				color: #6ecfcf;
+				border-color: rgba(110, 207, 207, 0.3);
+				background: rgba(110, 207, 207, 0.08);
+			}
+			.tip-bubble {
+				display: none;
+				position: absolute;
+				bottom: calc(100% + 6px);
+				left: 0;
+				width: 220px;
+				padding: 7px 9px;
+				background: rgba(22, 22, 32, 0.97);
+				border: 1px solid rgba(110, 207, 207, 0.2);
+				border-radius: 5px;
+				font-size: 11px;
+				line-height: 1.45;
+				color: #ccc;
+				font-weight: 400;
+				text-transform: none;
+				letter-spacing: 0;
+				white-space: normal;
+				z-index: 200;
+				pointer-events: none;
+				box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+			}
+			.tip-bubble::before {
+				content: '';
+				position: absolute;
+				top: 100%;
+				left: 12px;
+				border: 6px solid transparent;
+				border-top-color: rgba(110, 207, 207, 0.2);
+			}
+			.tip-bubble::after {
+				content: '';
+				position: absolute;
+				top: 100%;
+				left: 13px;
+				border: 5px solid transparent;
+				border-top-color: rgba(22, 22, 32, 0.97);
+			}
+			.tip-icon:hover + .tip-bubble {
+				display: block;
+			}
+			.control-value {
+				font-size: 10px;
+				color: #6ecfcf;
+				min-width: 36px;
+				flex-shrink: 0;
+				text-align: right;
+				white-space: nowrap;
+				overflow: visible;
+			}
+			/* Buttons */
+			.btn-group {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 3px;
+				padding: 2px 0;
+			}
+			.btn {
+				padding: 5px 10px;
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				border-radius: 4px;
+				background: rgba(255, 255, 255, 0.04);
+				color: #ccc;
+				font-family: inherit;
+				font-size: 10px;
+				cursor: pointer;
+				transition: all 0.12s;
+			}
+			.btn:hover {
+				background: rgba(255, 255, 255, 0.1);
+				color: #fff;
+				border-color: rgba(255, 255, 255, 0.2);
+			}
+			.btn:disabled {
+				opacity: 0.3;
+				cursor: default;
+				pointer-events: none;
+			}
+			kbd {
+				background: #333;
+				padding: 1px 5px;
+				border-radius: 3px;
+				font-family: monospace;
+				font-size: 11px;
+				border: 1px solid #555;
+			}
+			.btn.active {
+				background: rgba(80, 200, 200, 0.15);
+				border-color: rgba(80, 200, 200, 0.4);
+				color: #7dd;
+			}
+			.btn-wide {
+				flex: 1;
+				text-align: center;
+			}
+			.btn-danger {
+				border-color: rgba(255, 100, 100, 0.3);
+				color: #f88;
+			}
+			.btn-danger:hover {
+				background: rgba(255, 100, 100, 0.15);
+			}
+
+			/* Navigation inputs */
+			.nav-input {
+				width: 48px;
+				padding: 3px 4px;
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				border-radius: 4px;
+				color: #ccc;
+				font-family: inherit;
+				font-size: 10px;
+				text-align: center;
+				outline: none;
+			}
+			.nav-input:focus {
+				border-color: rgba(80, 200, 200, 0.4);
+			}
+			.nav-readout {
+				display: flex;
+				justify-content: space-between;
+				padding: 2px 0;
+				font-size: 10px;
+			}
+			.nav-readout-label {
+				color: #888;
+			}
+			.nav-readout-value {
+				color: #6ecfcf;
+				font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+				font-size: 10px;
+			}
+
+			/* Sliders */
+			input[type='range'] {
+				-webkit-appearance: none;
+				appearance: none;
+				flex: 1;
+				min-width: 60px;
+				height: 4px;
+				background: rgba(255, 255, 255, 0.1);
+				border-radius: 2px;
+				outline: none;
+			}
+			input[type='range']::-webkit-slider-thumb {
+				-webkit-appearance: none;
+				appearance: none;
+				width: 12px;
+				height: 12px;
+				background: #5cc9c9;
+				border-radius: 50%;
+				cursor: pointer;
+			}
+
+			/* Toggle */
+			.toggle-row {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 3px 0;
+			}
+			.toggle-switch {
+				position: relative;
+				width: 32px;
+				height: 16px;
+				background: rgba(255, 255, 255, 0.1);
+				border-radius: 8px;
+				cursor: pointer;
+				transition: background 0.2s;
+			}
+			.toggle-switch.on {
+				background: rgba(100, 200, 100, 0.4);
+			}
+			.toggle-switch::after {
+				content: '';
+				position: absolute;
+				top: 2px;
+				left: 2px;
+				width: 12px;
+				height: 12px;
+				background: #ccc;
+				border-radius: 50%;
+				transition: transform 0.2s;
+			}
+			.toggle-switch.on::after {
+				transform: translateX(16px);
+				background: #8f8;
+			}
+
+			/* Color preview */
+			.color-swatch {
+				width: 16px;
+				height: 16px;
+				border-radius: 3px;
+				border: 1px solid rgba(255, 255, 255, 0.15);
+				display: inline-block;
+				vertical-align: middle;
+			}
+
+			/* Status text */
+			.status-text {
+				font-size: 9px;
+				color: #666;
+				padding: 2px 0;
+				font-style: italic;
+			}
+
+			/* Dropdown */
+			.control-dropdown {
+				-webkit-appearance: none;
+				appearance: none;
+				width: 100%;
+				padding: 4px 8px;
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				border-radius: 4px;
+				color: #ccc;
+				font-family: inherit;
+				font-size: 10px;
+				cursor: pointer;
+				outline: none;
+			}
+			.control-dropdown:hover {
+				background: rgba(255, 255, 255, 0.1);
+				border-color: rgba(255, 255, 255, 0.2);
+				color: #fff;
+			}
+			.control-dropdown:focus {
+				border-color: rgba(80, 200, 200, 0.4);
+			}
+			.control-dropdown option {
+				background: #1a1a2e;
+				color: #ccc;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="game-canvas"></canvas>
+
+		<!-- Map Editor Scrollbars -->
+		<div id="scrollbar-h" class="map-scrollbar map-scrollbar-h">
+			<div class="sb-track"><div id="sb-thumb-h" class="sb-thumb"></div></div>
+		</div>
+		<div id="scrollbar-v" class="map-scrollbar map-scrollbar-v">
+			<div class="sb-track"><div id="sb-thumb-v" class="sb-thumb"></div></div>
+		</div>
+		<div id="scrollbar-corner"></div>
+
+		<div id="panel-icon" onclick="restorePanel()" title="Open DevTools (`)">
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<polyline points="4 17 10 11 4 5"></polyline>
+				<line x1="12" y1="19" x2="20" y2="19"></line>
+			</svg>
+		</div>
+
+		<div id="control-panel">
+			<div class="panel-sticky-top">
+				<div class="panel-header" id="panel-header">
+					<span class="panel-title"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" fill="rgba(110,207,207,0.12)" stroke="#6ecfcf" stroke-width="1.2"/><path d="M5.5 7.5L8 16L10.5 9.5L12 14L13.5 9.5L16 16L18.5 7.5" stroke="#6ecfcf" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+					<span class="panel-btn" id="panel-minimize-btn" onclick="minimizePanel()" title="Minimize to icon (`)">&times;</span>
+				</div>
+
+				<!-- Status Bar -->
+				<div id="fps-bar">
+					<div class="fps-row-top">
+						<svg class="fps-icon" width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 1.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 4a.5.5 0 0 1 .5.5v3.3l2.15 2.15a.5.5 0 0 1-.7.7L7.65 8.35A.5.5 0 0 1 7.5 8V4.5A.5.5 0 0 1 8 4z"/></svg>
+						<span id="fps-display" title="Frames per second">-- fps</span>
+						<canvas id="fps-sparkline" width="60" height="14" title="FPS history (last 60 frames)"></canvas>
+					</div>
+					<div class="fps-row-bottom">
+						<span class="fps-metric">
+							<svg class="fps-icon" width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><line x1="8" y1="4" x2="8" y2="8"/><line x1="8" y1="8" x2="11" y2="8"/></svg>
+							<span id="frametime-display" title="Frame time in milliseconds">-- ms</span>
+						</span>
+						<span class="fps-metric">
+							<svg class="fps-icon" width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M8 2L2.5 5.5v5L8 14l5.5-3.5v-5L8 2z"/><path d="M8 8.5v5.5M2.5 5.5L8 8.5l5.5-3"/></svg>
+							<span id="meshes-display" title="Active mesh count">-- meshes</span>
+						</span>
+						<span class="fps-metric">
+							<svg class="fps-icon" width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="8,2 14,13 2,13"/></svg>
+							<span id="tris-display" title="Triangle count">-- tris</span>
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="panel-body">
+
+				<!-- 0. Navigation -->
+				<div class="section collapsed" id="section-camera-nav" data-section="camera-nav">
+					<div class="section-header" onclick="toggleSection('section-camera-nav')">
+						<span>Map Navigation</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="camera-nav-body"></div>
+				</div>
+
+				<!-- Scrollbar Settings -->
+				<div class="section collapsed" id="section-scrollbar" data-section="scrollbar">
+					<div class="section-header" onclick="toggleSection('section-scrollbar')">
+						<span>Scrollbar</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="scrollbar-body"></div>
+				</div>
+
+				<!-- 1. Camera -->
+				<div class="section collapsed" id="section-camera" data-section="camera">
+					<div class="section-header" onclick="toggleSection('section-camera')">
+						<span>Camera Presets</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body">
+						<div id="camera-preset-dropdown"></div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Transition Time</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Duration of animated camera preset transitions in milliseconds.</span>
+							</div>
+							<input
+								type="range"
+								id="transition-duration"
+								data-control="transition-duration"
+								min="0"
+								max="30000"
+								value="500"
+								step="50"
+							/>
+							<span class="control-value" id="transition-value">500ms</span>
+						</div>
+						<div class="control-row" style="padding-top: 4px">
+							<div class="control-label-wrap">
+								<span class="control-label">Tactical Rotate</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">FF Tactics-style 90° camera rotation around the map center.</span>
+							</div>
+							<div class="btn-group" style="flex: 1; justify-content: flex-end">
+								<button class="btn" onclick="rotateCCW()" title="Rotate camera 90° counter-clockwise">&larr; Rotate</button>
+								<button class="btn" onclick="rotateCW()" title="Rotate camera 90° clockwise">Rotate &rarr;</button>
+							</div>
+						</div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Rotation Angle</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Current camera orbit angle in degrees (0° = default, rotates in 90° steps).</span>
+							</div>
+							<span id="tactical-angle" class="control-value">0°</span>
+						</div>
+						<div class="control-row" style="padding-top: 4px">
+							<span class="control-label">Actions</span>
+							<div class="btn-group" style="flex: 1; justify-content: flex-end">
+								<button class="btn" onclick="resetCam()" title="Reset camera to current preset defaults">Reset Camera</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 2. Time of Day -->
+				<div class="section collapsed" id="section-daynight" data-section="daynight">
+					<div class="section-header" onclick="toggleSection('section-daynight')">
+						<span>Day / Night Cycle</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body">
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Time of Day</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Current hour (0:00–23:59). Drag to scrub through the day manually.</span>
+							</div>
+							<input type="range" id="time-slider" data-control="time" min="0" max="23.99" value="12" step="0.1" />
+							<span class="control-value" id="time-value">12:00</span>
+						</div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Cycle Speed</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Time progression multiplier. 0 = paused, 1 = real-time, higher = faster day/night cycling.</span>
+							</div>
+							<input type="range" id="speed-slider" data-control="speed" min="0" max="100" value="0" step="0.5" />
+							<span class="control-value" id="speed-value">0x</span>
+						</div>
+						<div id="daynight-preset-dropdown"></div>
+						<div style="display: flex; gap: 4px; margin-top: 4px">
+							<button class="btn" id="daynight-pause-btn" data-control="daynight-pause" style="flex: 1" title="Start or stop automatic time progression">
+								&#9654; Play
+							</button>
+							<button class="btn" id="daynight-now-btn" data-control="daynight-now" style="flex: 0 0 auto; padding: 0 10px" title="Set time to current real-world time">
+								&#128337; Now
+							</button>
+						</div>
+						<!-- Time Source & Progression -->
+						<div id="daynight-timesource-dropdown" style="margin-top: 6px"></div>
+						<div id="daynight-day-duration-row"></div>
+						<div id="daynight-reverse-row"></div>
+						<div id="daynight-timezone-row"></div>
+						<div id="daynight-realtime-season-row"></div>
+						<div id="daynight-realtime-moon-row"></div>
+						<!-- Season & Cycling -->
+						<div id="daynight-season-dropdown" style="margin-top: 6px"></div>
+						<div id="daynight-season-duration-row"></div>
+						<div id="daynight-current-day-row"></div>
+						<div id="daynight-season-transition-row"></div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Moon Phase</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Current lunar phase (0 = New Moon → 7 = Waning Crescent). Affects nighttime moonlight intensity.</span>
+							</div>
+							<input type="range" id="moonphase-slider" data-control="moonphase" min="0" max="7" value="4" step="1" />
+							<span class="control-value" id="moonphase-value">Full</span>
+						</div>
+						<div id="daynight-auto-moon-row"></div>
+						<div id="daynight-moon-cycle-row"></div>
+						<!-- Indoor & Easing -->
+						<div id="daynight-indoor-dropdown"></div>
+						<div id="daynight-halt-time-row"></div>
+						<div id="daynight-easing-dropdown"></div>
+						<div id="daynight-postfx-row"></div>
+						<!-- Smooth Jump -->
+						<div id="daynight-smooth-jump-row" style="margin-top: 6px"></div>
+						<!-- Statistics -->
+						<div class="control-row" style="margin-top: 4px">
+							<div class="control-label-wrap">
+								<span class="control-label">Time Phase</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Current phase of day: Dawn, Morning, Noon, Afternoon, Dusk, Night.</span>
+							</div>
+							<span class="control-value" id="daynight-phase-display">--</span>
+						</div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Season · Day</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Current season and elapsed day within that season.</span>
+							</div>
+							<span class="control-value" id="daynight-season-day">--</span>
+						</div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Moon · Phase</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Current moon intensity and lunar phase name (New, Waxing, Full, Waning).</span>
+							</div>
+							<span class="control-value" id="daynight-moon-intensity">--</span>
+						</div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Rise / Set</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Computed sunrise and sunset times based on season and day length.</span>
+							</div>
+							<span class="control-value" id="daynight-sunrise-sunset">--</span>
+						</div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Sun Elevation°</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Sun angle above the horizon in degrees. 0° = horizon, 90° = zenith.</span>
+							</div>
+							<span class="control-value" id="daynight-sun-elevation">--</span>
+						</div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Daylight Left</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Hours and minutes of daylight remaining before sunset.</span>
+							</div>
+							<span class="control-value" id="daynight-daylight-remaining">--</span>
+						</div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Effective Speed</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Actual speed after applying easing curves, halt, and indoor modifiers.</span>
+							</div>
+							<span class="control-value" id="daynight-effective-speed">--</span>
+						</div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Frames Rendered</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Total day/night cycle frames processed since page load.</span>
+							</div>
+							<span class="control-value" id="daynight-frames-rendered">--</span>
+						</div>
+						<div class="control-row">
+							<div class="control-label-wrap">
+								<span class="control-label">Event Log</span>
+								<span class="tip-icon">?</span>
+								<span class="tip-bubble">Most recent day/night event (phase change, sunrise, sunset, etc.).</span>
+							</div>
+							<span class="control-value" id="daynight-event-log" style="font-size: 9px; color: #888; max-width: 140px; text-overflow: ellipsis; overflow: hidden">--</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- 3. Environment -->
+				<div class="section collapsed" id="section-sky" data-section="sky">
+					<div class="section-header" onclick="toggleSection('section-sky')">
+						<span>Environment & Sky</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="sky-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+
+				<!-- 4. Map Layers -->
+				<div class="section collapsed" id="section-layers" data-section="layers">
+					<div class="section-header" onclick="toggleSection('section-layers')">
+						<span>Map Layers</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="layers-body">
+						<div class="status-text">Loading layers...</div>
+					</div>
+				</div>
+
+				<!-- 5. Tile Inspector -->
+			<div class="section collapsed" id="section-tileinspector" data-section="tileinspector">
+				<div class="section-header" onclick="toggleSection('section-tileinspector')">
+					<span>Tile Inspector</span>
+					<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+				</div>
+				<div class="section-body" id="tileinspector-body">
+					<div class="ti-empty" id="ti-empty-state">
+						<div class="ti-empty-icon">&#9698;</div>
+						<div class="ti-empty-text">Select a tile on the map to inspect</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 6. Transitions -->
+			<div class="section collapsed" id="section-transitions" data-section="transitions">
+				<div class="section-header" onclick="toggleSection('section-transitions')">
+					<span>Screen Effects</span>
+					<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+				</div>
+				<div class="section-body" id="transitions-body">
+					<!-- Built dynamically by dev.ts -->
+				</div>
+			</div>
+
+				<!-- 6. Shake -->
+				<div class="section collapsed" id="section-shake" data-section="shake">
+					<div class="section-header" onclick="toggleSection('section-shake')">
+						<span>Screen Shake</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="shake-body"></div>
+				</div>
+
+				<!-- 7. Render Toggles -->
+				<div class="section collapsed" id="section-rendering" data-section="rendering">
+					<div class="section-header" onclick="toggleSection('section-rendering')">
+						<span>Render Pipeline</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body">
+						<div class="toggle-row" data-control="tilemap" data-type="toggle">
+							<div class="control-label-wrap"><span class="control-label">Tilemap</span><span class="tip-icon">?</span><span class="tip-bubble">Show or hide all tilemap chunk meshes.</span></div>
+							<div class="toggle-switch on" id="toggle-tilemap" onclick="toggleTilemap()"></div>
+						</div>
+						<div class="toggle-row" data-control="post-processing" data-type="toggle">
+							<div class="control-label-wrap"><span class="control-label">Post-FX Pipeline</span><span class="tip-icon">?</span><span class="tip-bubble">Enable the full post-processing pipeline (bloom, DoF, grain, etc.).</span></div>
+							<div class="toggle-switch on" id="toggle-postprocess" onclick="togglePostProcess()"></div>
+						</div>
+						<div class="toggle-row" data-control="glow-layer" data-type="toggle">
+							<div class="control-label-wrap"><span class="control-label">Glow Layer</span><span class="tip-icon">?</span><span class="tip-bubble">Enable the glow/bloom layer for emissive materials and highlights.</span></div>
+							<div class="toggle-switch on" id="toggle-glow" onclick="toggleGlow()"></div>
+						</div>
+						<div class="toggle-row" data-control="shadows" data-type="toggle">
+							<div class="control-label-wrap"><span class="control-label">Shadows</span><span class="tip-icon">?</span><span class="tip-bubble">Enable real-time shadow casting from directional and spot lights.</span></div>
+							<div class="toggle-switch on" id="toggle-shadows" onclick="toggleShadows()"></div>
+						</div>
+						<div class="toggle-row" data-control="god-rays" data-type="toggle">
+							<div class="control-label-wrap"><span class="control-label">Volumetric Rays</span><span class="tip-icon">?</span><span class="tip-bubble">Enable volumetric light scattering (god rays) from directional lights.</span></div>
+							<div class="toggle-switch on" id="toggle-godrays" onclick="toggleGodRays()"></div>
+						</div>
+						<div class="toggle-row" data-control="lens-flares" data-type="toggle">
+							<div class="control-label-wrap"><span class="control-label">Lens Flares</span><span class="tip-icon">?</span><span class="tip-bubble">Enable camera lens flare effects on bright light sources.</span></div>
+							<div class="toggle-switch on" id="toggle-lensflares" onclick="toggleLensFlares()"></div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 8. Post-Processing -->
+				<div class="section collapsed" id="section-postfx" data-section="postfx">
+					<div class="section-header" onclick="toggleSection('section-postfx')">
+						<span>Post-FX</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="postfx-body">
+						<div class="status-text">Loading pipeline...</div>
+					</div>
+				</div>
+
+				<!-- 9. Glow -->
+				<div class="section collapsed" id="section-glowdetails" data-section="glow">
+					<div class="section-header" onclick="toggleSection('section-glowdetails')">
+						<span>Glow Layer</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="glowdetails-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+
+				<!-- 10. Fog -->
+				<div class="section collapsed" id="section-fog" data-section="fog">
+					<div class="section-header" onclick="toggleSection('section-fog')">
+						<span>Volumetric Fog</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="fog-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+
+				<!-- 11. Camera Properties -->
+				<div class="section collapsed" id="section-camdetails" data-section="camdetails">
+					<div class="section-header" onclick="toggleSection('section-camdetails')">
+						<span>Camera Settings</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="camdetails-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+
+				<!-- 12. Lights -->
+				<div class="section collapsed" id="section-lights" data-section="lights">
+					<div class="section-header" onclick="toggleSection('section-lights')">
+						<span>Scene Lighting</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="lights-body">
+						<div class="status-text">Loading lights...</div>
+					</div>
+				</div>
+
+				<!-- 13. Debug Info -->
+				<div class="section collapsed" id="section-info" data-section="info">
+					<div class="section-header" onclick="toggleSection('section-info')">
+						<span>Performance & Debug</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="info-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+
+				<div class="section collapsed" id="section-shortcuts">
+					<div class="section-header" onclick="toggleSection('section-shortcuts')">
+						<span>Shortcuts</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="shortcuts-body"></div>
+				</div>
+
+				<!-- Test Map Controls -->
+				<div class="section collapsed" id="section-testmap" data-section="testmap">
+					<div class="section-header" onclick="toggleSection('section-testmap')">
+						<span>Test Map</span>
+						<span class="panel-toggle"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg></span>
+					</div>
+					<div class="section-body" id="testmap-body">
+						<div class="status-text">Loading...</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script type="module" src="./dev.ts"></script>
+	</body>
+</html>

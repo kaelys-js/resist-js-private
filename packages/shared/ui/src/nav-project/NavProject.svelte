@@ -5,7 +5,7 @@ import type { Snippet } from 'svelte';
 
 /** Schema for the NavProject component props. */
 export const NavProjectPropsSchema = v.strictObject({
-	/** Display name (project or user). @values WebForge RPG, My Project, Demo App */
+	/** Display name (project or user). @values Storylyne RPG, My Project, Demo App */
 	name: StrSchema,
 	/** Subtitle text (project subtitle, email, or em dash). @values v1.0.0, Production, Development */
 	subtitle: StrSchema,
