@@ -161,7 +161,7 @@
     downloadStandaloneHtml,
   } from '../lens/export-utils.js';
   import * as Tooltip from '../tooltip/index.js';
-  import { fade, slide } from 'svelte/transition';
+  import { fade, scale as scaleTransition, slide } from 'svelte/transition';
   import { cn } from '../utils.js';
   import LensPortalScope from './LensPortalScope.svelte';
   import LensCardSettingsMenu from '../lens-card-settings-menu/LensCardSettingsMenu.svelte';
@@ -3992,16 +3992,18 @@
     label: Str;
     /** Tailwind text color class. */
     color: Str;
+    /** Tailwind bg color class for dot indicators. */
+    dotColor: Str;
   }> = [
-    { id: 'error', label: 'Error', color: 'text-red-500' },
-    { id: 'warn', label: 'Warn', color: 'text-amber-500' },
-    { id: 'info', label: 'Info', color: 'text-blue-400' },
-    { id: 'log', label: 'Log', color: 'text-muted-foreground' },
-    { id: 'debug', label: 'Debug', color: 'text-muted-foreground/60' },
-    { id: 'event', label: 'Event', color: 'text-violet-400' },
-    { id: 'mutation', label: 'Mutation', color: 'text-teal-400' },
-    { id: 'lifecycle', label: 'Lifecycle', color: 'text-emerald-400' },
-    { id: 'render', label: 'Render', color: 'text-indigo-400' },
+    { id: 'error', label: 'Error', color: 'text-red-500', dotColor: 'bg-red-500' },
+    { id: 'warn', label: 'Warn', color: 'text-amber-500', dotColor: 'bg-amber-500' },
+    { id: 'info', label: 'Info', color: 'text-blue-400', dotColor: 'bg-blue-400' },
+    { id: 'log', label: 'Log', color: 'text-muted-foreground', dotColor: 'bg-zinc-400' },
+    { id: 'debug', label: 'Debug', color: 'text-muted-foreground/60', dotColor: 'bg-zinc-400/60' },
+    { id: 'event', label: 'Event', color: 'text-violet-400', dotColor: 'bg-violet-400' },
+    { id: 'mutation', label: 'Mutation', color: 'text-teal-400', dotColor: 'bg-teal-400' },
+    { id: 'lifecycle', label: 'Lifecycle', color: 'text-emerald-400', dotColor: 'bg-emerald-400' },
+    { id: 'render', label: 'Render', color: 'text-indigo-400', dotColor: 'bg-indigo-400' },
   ];
 
   /**
@@ -9731,127 +9733,129 @@
             {/each}
           </button>
           <div class="flex items-center gap-1">
-            <!-- Search input -->
-            <div class="flex items-center gap-1.5 rounded-md border bg-transparent px-1.5 py-0.5">
-              <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
-              <input
-                type="text"
-                placeholder="Filter..."
-                class="w-20 bg-transparent text-[11px] outline-none placeholder:text-muted-foreground"
-                value={cardConsoleSearch[cardKey] ?? ''}
-                oninput={(e) => {
-                  cardConsoleSearch[cardKey] = (e.currentTarget as HTMLInputElement).value as Str;
-                }}
-              />
-              {#if cardConsoleSearch[cardKey]}
-                <button
-                  type="button"
-                  class="text-muted-foreground/60 transition-colors hover:text-foreground"
-                  onclick={() => {
-                    cardConsoleSearch[cardKey] = '' as Str;
+            {#if allLogs.length > 0}
+              <!-- Search input -->
+              <div class="flex items-center gap-1.5 rounded-md border bg-transparent px-1.5 py-0.5">
+                <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <input
+                  type="text"
+                  placeholder="Filter..."
+                  class="w-20 bg-transparent text-[11px] outline-none placeholder:text-muted-foreground"
+                  value={cardConsoleSearch[cardKey] ?? ''}
+                  oninput={(e) => {
+                    cardConsoleSearch[cardKey] = (e.currentTarget as HTMLInputElement).value as Str;
                   }}
-                  aria-label="Clear search"
-                >
-                  <X class="size-3" />
-                </button>
-              {/if}
-            </div>
-            <!-- Level filter dropdown -->
-            <DropdownMenu.Root
-              onOpenChange={(open) => {
-                if (open) consoleLevelFilterSearch = '' as Str;
-              }}
-            >
-              <DropdownMenu.Trigger>
-                {#snippet child({ props: menuProps })}
+                />
+                {#if cardConsoleSearch[cardKey]}
                   <button
-                    {...menuProps}
                     type="button"
-                    class={cn(
-                      'relative inline-flex size-5 items-center justify-center rounded transition-colors',
-                      activeFilterCount > 0
-                        ? 'text-primary hover:bg-primary/10'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                    )}
-                    aria-label="Filter by level"
+                    class="text-muted-foreground/60 transition-colors hover:text-foreground"
+                    onclick={() => {
+                      cardConsoleSearch[cardKey] = '' as Str;
+                    }}
+                    aria-label="Clear search"
                   >
-                    <ListFilter class="size-3" />
-                    {#if activeFilterCount > 0}
-                      <span class="absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-primary"
-                      ></span>
-                    {/if}
+                    <X class="size-3" />
                   </button>
-                {/snippet}
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="end" class="flex max-h-80 w-52 flex-col overflow-hidden">
-                <div class="shrink-0 px-2 pb-1.5 pt-1">
-                  <div
-                    class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
-                  >
-                    <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
-                    <input
-                      type="text"
-                      placeholder="Search levels..."
-                      class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                      bind:value={consoleLevelFilterSearch}
-                      onkeydown={(e) => e.stopPropagation()}
-                      onkeyup={(e) => e.stopPropagation()}
-                      onkeypress={(e) => e.stopPropagation()}
-                    />
-                  </div>
-                </div>
-                <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-                  {#each filteredConsoleLevels as lvl (lvl.id)}
-                    {@const lvCount = allLogs.filter((e) => e.level === lvl.id).length}
-                    <DropdownMenu.Item
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        const filters: Record<Str, Bool> = { ...levelFilters };
-                        filters[lvl.id] = (filters[lvl.id] === false ? true : false) as Bool;
-                        cardConsoleLevelFilter[cardKey] = filters;
-                      }}
+                {/if}
+              </div>
+              <!-- Level filter dropdown -->
+              <DropdownMenu.Root
+                onOpenChange={(open) => {
+                  if (open) consoleLevelFilterSearch = '' as Str;
+                }}
+              >
+                <DropdownMenu.Trigger>
+                  {#snippet child({ props: menuProps })}
+                    <button
+                      {...menuProps}
+                      type="button"
+                      class={cn(
+                        'relative inline-flex size-5 items-center justify-center rounded transition-colors',
+                        activeFilterCount > 0
+                          ? 'text-primary hover:bg-primary/10'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                      )}
+                      aria-label="Filter by level"
                     >
-                      <span
-                        class={cn(
-                          'size-2 shrink-0 rounded-full',
-                          lvl.color.replace('text-', 'bg-'),
-                        )}
-                      ></span>
-                      {lvl.label}
-                      <span class="ml-auto text-[10px] tabular-nums text-muted-foreground"
-                        >{lvCount}</span
-                      >
-                      {#if levelFilters[lvl.id] !== false}
-                        <Check class="size-3.5 text-primary" />
+                      <ListFilter class="size-3" />
+                      {#if activeFilterCount > 0}
+                        <span class="absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-primary"
+                        ></span>
                       {/if}
-                    </DropdownMenu.Item>
-                  {:else}
+                    </button>
+                  {/snippet}
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content
+                  align="end"
+                  class="flex max-h-80 w-52 flex-col overflow-hidden"
+                >
+                  <div class="shrink-0 px-2 pb-1.5 pt-1">
                     <div
-                      class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                      class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
                     >
-                      <SearchX class="size-5" />
-                      <div class="flex flex-col items-center gap-0.5">
-                        <p class="text-xs font-medium">No levels found</p>
-                        <p class="text-[11px]">Try a different search term</p>
-                      </div>
+                      <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                      <input
+                        type="text"
+                        placeholder="Search levels..."
+                        class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                        bind:value={consoleLevelFilterSearch}
+                        onkeydown={(e) => e.stopPropagation()}
+                        onkeyup={(e) => e.stopPropagation()}
+                        onkeypress={(e) => e.stopPropagation()}
+                      />
                     </div>
-                  {/each}
-                  {#if filteredConsoleLevels.length > 0}
-                    <DropdownMenu.Separator />
-                    <DropdownMenu.Item
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        cardConsoleLevelFilter[cardKey] = {};
-                      }}
-                      disabled={activeFilterCount === 0}
-                    >
-                      <RotateCcw class="size-4" />
-                      Show all
-                    </DropdownMenu.Item>
-                  {/if}
-                </div>
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
+                  </div>
+                  <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+                    {#each filteredConsoleLevels as lvl (lvl.id)}
+                      {@const lvCount = allLogs.filter((e) => e.level === lvl.id).length}
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          const filters: Record<Str, Bool> = { ...levelFilters };
+                          filters[lvl.id] = (filters[lvl.id] === false ? true : false) as Bool;
+                          cardConsoleLevelFilter[cardKey] = filters;
+                        }}
+                      >
+                        <span class={cn('size-2 shrink-0 rounded-full', lvl.dotColor)}></span>
+                        {lvl.label}
+                        <span class="ml-auto text-[10px] tabular-nums text-muted-foreground"
+                          >{lvCount}</span
+                        >
+                        {#if levelFilters[lvl.id] !== false}
+                          <span transition:scaleTransition={{ duration: 150, start: 0.5 }}>
+                            <Check class="size-3.5 text-primary" />
+                          </span>
+                        {/if}
+                      </DropdownMenu.Item>
+                    {:else}
+                      <div
+                        class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                      >
+                        <SearchX class="size-5" />
+                        <div class="flex flex-col items-center gap-0.5">
+                          <p class="text-xs font-medium">No levels found</p>
+                          <p class="text-[11px]">Try a different search term</p>
+                        </div>
+                      </div>
+                    {/each}
+                    {#if filteredConsoleLevels.length > 0}
+                      <DropdownMenu.Separator />
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          cardConsoleLevelFilter[cardKey] = {};
+                        }}
+                        disabled={activeFilterCount === 0}
+                      >
+                        <RotateCcw class="size-4" />
+                        Show all
+                      </DropdownMenu.Item>
+                    {/if}
+                  </div>
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
+            {/if}
             <!-- Options menu -->
             <DropdownMenu.Root>
               <DropdownMenu.Trigger>
