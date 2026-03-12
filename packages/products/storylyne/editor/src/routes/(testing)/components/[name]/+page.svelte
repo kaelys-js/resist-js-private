@@ -636,7 +636,7 @@ function changelogToMarkdown(entries: ChangelogEntry[]): Str {
 		'| Hash | Message | Date | Author |',
 		'|------|---------|------|--------|',
 		...entries.map((e: ChangelogEntry): Str =>
-			`| ${e.hash} | ${e.message} | ${new Date(e.date).toLocaleDateString()} | ${e.author} |`,
+			`| ${e.hash} | ${e.message} | ${new Date(e.date).toLocaleString()} | ${e.author} |`,
 		),
 	];
 	return lines.join('\n');
@@ -653,7 +653,7 @@ function changelogToCsv(entries: ChangelogEntry[]): Str {
 	const rows: Str[] = entries.map((e: ChangelogEntry): Str => {
 		const msg: Str = e.message.replaceAll('"', '""');
 		const author: Str = e.author.replaceAll('"', '""');
-		return `${e.hash},"${msg}",${new Date(e.date).toLocaleDateString()},"${author}"`;
+		return `${e.hash},"${msg}",${new Date(e.date).toLocaleString()},"${author}"`;
 	});
 	return [header, ...rows].join('\n');
 }
@@ -1087,7 +1087,7 @@ $effect(() => {
 										<tr class="border-b text-left text-xs text-muted-foreground">
 											<th class="w-20 px-4 py-2">Hash</th>
 											<th class="px-4 py-2">Message</th>
-											<th class="w-28 px-4 py-2">Date</th>
+											<th class="w-44 px-4 py-2">Date</th>
 											<th class="w-32 px-4 py-2">Author</th>
 											<th class="w-16 px-2 py-2"><span class="sr-only">Actions</span></th>
 										</tr>
@@ -1099,11 +1099,11 @@ $effect(() => {
 													<code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{entry.hash}</code>
 												</td>
 												<td class="truncate px-4 py-2 text-sm">{entry.message}</td>
-												<td class="px-4 py-2 text-xs text-muted-foreground">{new Date(entry.date).toLocaleDateString()}</td>
+												<td class="whitespace-nowrap px-4 py-2 text-xs text-muted-foreground">{new Date(entry.date).toLocaleString()}</td>
 												<td class="truncate px-4 py-2 text-xs text-muted-foreground">{entry.author}</td>
 												<td class="px-2 py-2">
 													<div class="flex items-center gap-0.5">
-														<CopyButton text={`${entry.hash} ${entry.message} (${entry.author}, ${new Date(entry.date).toLocaleDateString()})`} label="Copy row" />
+														<CopyButton text={`${entry.hash} ${entry.message} (${entry.author}, ${new Date(entry.date).toLocaleString()})`} label="Copy row" />
 														{#if changelogRepoUrl}
 															<a
 																href="{changelogRepoUrl}/commit/{entry.hash}{changelogDiffAnchor ? `#diff-${changelogDiffAnchor}` : ''}"
