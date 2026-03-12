@@ -145,6 +145,7 @@
   import FileArchive from '@lucide/svelte/icons/file-archive';
   import RefreshCw from '@lucide/svelte/icons/refresh-cw';
   import ArrowDownToLine from '@lucide/svelte/icons/arrow-down-to-line';
+  import ListFilter from '@lucide/svelte/icons/list-filter';
   import { zipSync, strToU8 } from 'fflate';
   import * as DropdownMenu from '../dropdown-menu/index.js';
   import * as Popover from '../popover/index.js';
@@ -455,6 +456,14 @@
   let cardConsoleExpanded: Record<Str, Bool> = $state({});
   /** Whether to auto-scroll console to bottom on new entries. */
   let cardConsoleAutoScroll: Record<Str, Bool> = $state({});
+  /** Per-card console search/filter text. */
+  let cardConsoleSearch: Record<Str, Str> = $state({});
+  /** Per-card console level filter — levels set to false are hidden. */
+  let cardConsoleLevelFilter: Record<Str, Record<Str, Bool>> = $state({});
+  /** Per-card expanded console entry index (-1 = none). */
+  let cardConsoleExpandedEntry: Record<Str, Num> = $state({});
+  /** Search query for console level filter dropdown. */
+  let consoleLevelFilterSearch: Str = $state('' as Str);
 
   /** Per-screenshot-capture console section collapsed state (true = expanded, default true). */
   let screenshotConsoleExpanded: Record<Str, Bool> = $state({});
@@ -3935,21 +3944,75 @@
   }
 
   /**
-   * Get a short label for a console log level.
+   * Get a human-readable label for a console log level.
    *
    * @param level - Log level
-   * @returns Short label string
+   * @returns Full-word label string
    */
   function getConsoleLabel(level: ConsoleLogEntry['level']): Str {
-    if (level === 'error') return 'ERR';
-    if (level === 'warn') return 'WRN';
-    if (level === 'info') return 'INF';
-    if (level === 'debug') return 'DBG';
-    if (level === 'event') return 'EVT';
-    if (level === 'mutation') return 'MUT';
-    if (level === 'lifecycle') return 'LCY';
-    if (level === 'render') return 'RND';
-    return 'LOG';
+    if (level === 'error') return 'Error';
+    if (level === 'warn') return 'Warn';
+    if (level === 'info') return 'Info';
+    if (level === 'debug') return 'Debug';
+    if (level === 'event') return 'Event';
+    if (level === 'mutation') return 'Mutation';
+    if (level === 'lifecycle') return 'Lifecycle';
+    if (level === 'render') return 'Render';
+    return 'Log';
+  }
+
+  /** All console log levels with their display metadata. */
+  const CONSOLE_LEVELS: ReadonlyArray<{
+    /** Log level identifier. */
+    id: ConsoleLogEntry['level'];
+    /** Human-readable label. */
+    label: Str;
+    /** Tailwind text color class. */
+    color: Str;
+  }> = [
+    { id: 'error', label: 'Error', color: 'text-red-500' },
+    { id: 'warn', label: 'Warn', color: 'text-amber-500' },
+    { id: 'info', label: 'Info', color: 'text-blue-400' },
+    { id: 'log', label: 'Log', color: 'text-muted-foreground' },
+    { id: 'debug', label: 'Debug', color: 'text-muted-foreground/60' },
+    { id: 'event', label: 'Event', color: 'text-violet-400' },
+    { id: 'mutation', label: 'Mutation', color: 'text-teal-400' },
+    { id: 'lifecycle', label: 'Lifecycle', color: 'text-emerald-400' },
+    { id: 'render', label: 'Render', color: 'text-indigo-400' },
+  ];
+
+  /**
+   * Format a millisecond timestamp for human-friendly display.
+   * Shows ms for <1s, seconds with 1 decimal for <60s, minutes for >=60s.
+   *
+   * @param ms - Milliseconds since mount
+   * @returns Formatted timestamp string like "+142ms", "+1.2s", "+2m 5s"
+   */
+  function formatConsoleTs(ms: Num): Str {
+    const n: number = ms as number;
+    if (n < 1000) return `+${n}ms` as Str;
+    if (n < 60_000) return `+${(n / 1000).toFixed(1)}s` as Str;
+    const minutes: number = Math.floor(n / 60_000);
+    const seconds: number = Math.floor((n % 60_000) / 1000);
+    return `+${minutes}m ${seconds}s` as Str;
+  }
+
+  /**
+   * Get the absolute time string for a console entry's timestamp.
+   * Uses the mount time + entry offset to compute wall clock time.
+   *
+   * @param mountTime - Performance.now() at component mount
+   * @param entryTs - Entry's offset in ms from mount
+   * @returns Formatted time string like "12:45:03.142"
+   */
+  function getAbsoluteTime(mountTime: Num, entryTs: Num): Str {
+    const epoch: number = performance.timeOrigin + (mountTime as number) + (entryTs as number);
+    const d: Date = new Date(epoch);
+    const h: Str = String(d.getHours()).padStart(2, '0') as Str;
+    const m: Str = String(d.getMinutes()).padStart(2, '0') as Str;
+    const s: Str = String(d.getSeconds()).padStart(2, '0') as Str;
+    const ms: Str = String(d.getMilliseconds()).padStart(3, '0') as Str;
+    return `${h}:${m}:${s}.${ms}` as Str;
   }
 
   /**
@@ -4001,6 +4064,13 @@
     ...new Set(filteredConsoleExportItems.map((p) => p.category)),
   ]);
 
+  /** Console levels filtered by level filter search query. */
+  const filteredConsoleLevels = $derived.by(() => {
+    const q: Str = (consoleLevelFilterSearch as string).toLowerCase() as Str;
+    if (!q) return CONSOLE_LEVELS;
+    return CONSOLE_LEVELS.filter((l) => (l.label as string).toLowerCase().includes(q as string));
+  });
+
   /** Feedback state for console export actions. */
   let consoleExportFeedback: Str = $state('');
 
@@ -4014,7 +4084,7 @@
     return logs
       .map(
         (e: ConsoleLogEntry): Str =>
-          `[+${e.ts}ms] [${e.level.toUpperCase()}] ${e.message}${e.detail ? ` ${e.detail}` : ''}${e.source ? ` (${e.source})` : ''}`,
+          `[${formatConsoleTs(e.ts)}] [${getConsoleLabel(e.level)}] ${e.message}${e.detail ? ` ${e.detail}` : ''}${e.source ? ` (${e.source})` : ''}`,
       )
       .join('\n');
   }
@@ -4031,7 +4101,7 @@
       const msg: Str = e.message.replaceAll('"', '""');
       const detail: Str = (e.detail ?? '').replaceAll('"', '""');
       const source: Str = (e.source ?? '').replaceAll('"', '""');
-      return `${e.ts},${e.level},"${msg}","${detail}","${source}"`;
+      return `${e.ts},${getConsoleLabel(e.level)},"${msg}","${detail}","${source}"`;
     });
     return [header, ...rows].join('\n');
   }
@@ -4898,6 +4968,9 @@
     cardMeasureData[key] = null;
     cardConsoleOpen[key] = false;
     cardConsoleLogs[key] = [];
+    cardConsoleSearch[key] = '' as Str;
+    cardConsoleLevelFilter[key] = {};
+    cardConsoleExpandedEntry[key] = -1 as Num;
     cardScreenBrowser[key] = '';
     cardScreenDevice[key] = '';
     cardScreenshots[key] = [];
@@ -9173,7 +9246,21 @@
       </div>
     {/if}
     {#if cardConsoleOpen[cardKey]}
-      {@const logs = cardConsoleLogs[cardKey] ?? []}
+      {@const allLogs = cardConsoleLogs[cardKey] ?? []}
+      {@const levelFilters = cardConsoleLevelFilter[cardKey] ?? {}}
+      {@const searchQ = ((cardConsoleSearch[cardKey] ?? '') as string).toLowerCase()}
+      {@const logs = allLogs.filter((e) => {
+        if (levelFilters[e.level] === false) return false;
+        if (
+          searchQ &&
+          !(e.message as string).toLowerCase().includes(searchQ) &&
+          !(e.detail as string).toLowerCase().includes(searchQ)
+        )
+          return false;
+        return true;
+      })}
+      {@const mountTime = cardConsoleMountTime[cardKey] ?? (0 as Num)}
+      {@const activeFilterCount = CONSOLE_LEVELS.filter((l) => levelFilters[l.id] === false).length}
       <div class="overflow-hidden border-t bg-muted/20" transition:slide={{ duration: 200 }}>
         <div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
           <button
@@ -9192,108 +9279,251 @@
             />
             <Terminal class="size-3.5 text-muted-foreground" aria-hidden="true" />
             <span class="text-xs font-semibold text-muted-foreground">Console</span>
-            <span class="text-[10px] text-muted-foreground/60">{logs.length} entries</span>
-          </button>
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger>
-              {#snippet child({ props: menuProps })}
-                <button
-                  {...menuProps}
-                  type="button"
-                  class="inline-flex size-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  aria-label="Console options"
+            <!-- Level count badges -->
+            {#each CONSOLE_LEVELS as lvl (lvl.id)}
+              {@const count = allLogs.filter((e) => e.level === lvl.id).length}
+              {#if count > 0}
+                <span
+                  class={cn(
+                    'rounded-full px-1.5 py-0.5 text-[9px] font-medium tabular-nums leading-none',
+                    lvl.id === 'error'
+                      ? 'bg-red-500/15 text-red-500'
+                      : lvl.id === 'warn'
+                        ? 'bg-amber-500/15 text-amber-500'
+                        : 'bg-muted text-muted-foreground/70',
+                    levelFilters[lvl.id] === false && 'opacity-30 line-through',
+                  )}
+                  title="{count} {lvl.label}"
+                  >{count}
+                  {lvl.label.toLowerCase()}{count > 1 && lvl.id !== 'info' ? 's' : ''}</span
                 >
-                  <EllipsisVertical class="size-3" />
+              {/if}
+            {/each}
+          </button>
+          <div class="flex items-center gap-1">
+            <!-- Search input -->
+            <div class="flex items-center gap-1.5 rounded-md border bg-transparent px-1.5 py-0.5">
+              <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <input
+                type="text"
+                placeholder="Filter..."
+                class="w-20 bg-transparent text-[11px] outline-none placeholder:text-muted-foreground"
+                value={cardConsoleSearch[cardKey] ?? ''}
+                oninput={(e) => {
+                  cardConsoleSearch[cardKey] = (e.currentTarget as HTMLInputElement).value as Str;
+                }}
+              />
+              {#if cardConsoleSearch[cardKey]}
+                <button
+                  type="button"
+                  class="text-muted-foreground/60 transition-colors hover:text-foreground"
+                  onclick={() => {
+                    cardConsoleSearch[cardKey] = '' as Str;
+                  }}
+                  aria-label="Clear search"
+                >
+                  <X class="size-3" />
                 </button>
-              {/snippet}
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content align="end" class="w-44">
-              <DropdownMenu.Sub
-                onOpenChange={(open) => {
-                  if (open) consoleExportSearchQuery = '';
-                }}
-              >
-                <DropdownMenu.SubTrigger>
-                  <Download class="size-4" />
-                  Export
-                </DropdownMenu.SubTrigger>
-                <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
-                  <div class="shrink-0 px-2 pb-1.5 pt-1">
-                    <div
-                      class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+              {/if}
+            </div>
+            <!-- Level filter dropdown -->
+            <DropdownMenu.Root
+              onOpenChange={(open) => {
+                if (open) consoleLevelFilterSearch = '' as Str;
+              }}
+            >
+              <DropdownMenu.Trigger>
+                {#snippet child({ props: menuProps })}
+                  <button
+                    {...menuProps}
+                    type="button"
+                    class={cn(
+                      'relative inline-flex size-5 items-center justify-center rounded transition-colors',
+                      activeFilterCount > 0
+                        ? 'text-primary hover:bg-primary/10'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                    )}
+                    aria-label="Filter by level"
+                  >
+                    <ListFilter class="size-3" />
+                    {#if activeFilterCount > 0}
+                      <span class="absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-primary"
+                      ></span>
+                    {/if}
+                  </button>
+                {/snippet}
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content align="end" class="flex max-h-80 w-52 flex-col overflow-hidden">
+                <div class="shrink-0 px-2 pb-1.5 pt-1">
+                  <div
+                    class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                  >
+                    <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                    <input
+                      type="text"
+                      placeholder="Search levels..."
+                      class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                      bind:value={consoleLevelFilterSearch}
+                      onkeydown={(e) => e.stopPropagation()}
+                      onkeyup={(e) => e.stopPropagation()}
+                      onkeypress={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                </div>
+                <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+                  {#each filteredConsoleLevels as lvl (lvl.id)}
+                    {@const lvCount = allLogs.filter((e) => e.level === lvl.id).length}
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        const filters: Record<Str, Bool> = { ...levelFilters };
+                        filters[lvl.id] = (filters[lvl.id] === false ? true : false) as Bool;
+                        cardConsoleLevelFilter[cardKey] = filters;
+                      }}
                     >
-                      <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
-                      <input
-                        type="text"
-                        placeholder="Search formats..."
-                        class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                        bind:value={consoleExportSearchQuery}
-                        onkeydown={(e) => e.stopPropagation()}
-                        onkeyup={(e) => e.stopPropagation()}
-                        onkeypress={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  </div>
-                  <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-                    {#each filteredConsoleExportCategories as category (category)}
-                      {#if filteredConsoleExportCategories.indexOf(category) > 0}
-                        <DropdownMenu.Separator />
-                      {/if}
-                      <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
-                      {#each filteredConsoleExportItems.filter((i) => i.category === category) as item (item.id)}
-                        <DropdownMenu.Item
-                          onSelect={(e) => {
-                            e.preventDefault();
-                            handleConsoleExport(cardKey, item.id);
-                          }}
-                        >
-                          {#if consoleExportFeedback === item.id}
-                            <Check class="size-4 text-green-500" />
-                          {:else}
-                            <item.icon class="size-4" />
-                          {/if}
-                          {item.label}
-                        </DropdownMenu.Item>
-                      {/each}
-                    {:else}
-                      <div
-                        class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                      <span
+                        class={cn(
+                          'size-2 shrink-0 rounded-full',
+                          lvl.color.replace('text-', 'bg-'),
+                        )}
+                      ></span>
+                      {lvl.label}
+                      <span class="ml-auto text-[10px] tabular-nums text-muted-foreground"
+                        >{lvCount}</span
                       >
-                        <SearchX class="size-5" />
-                        <div class="flex flex-col items-center gap-0.5">
-                          <p class="text-xs font-medium">No formats found</p>
-                          <p class="text-[11px]">Try a different search term</p>
-                        </div>
+                      {#if levelFilters[lvl.id] !== false}
+                        <Check class="size-3.5 text-primary" />
+                      {/if}
+                    </DropdownMenu.Item>
+                  {:else}
+                    <div
+                      class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                    >
+                      <SearchX class="size-5" />
+                      <div class="flex flex-col items-center gap-0.5">
+                        <p class="text-xs font-medium">No levels found</p>
+                        <p class="text-[11px]">Try a different search term</p>
                       </div>
-                    {/each}
-                  </div>
-                </DropdownMenu.SubContent>
-              </DropdownMenu.Sub>
-              <DropdownMenu.Separator />
-              <DropdownMenu.Item
-                onSelect={(e) => {
-                  e.preventDefault();
-                  cardConsoleAutoScroll[cardKey] = !(cardConsoleAutoScroll[cardKey] ?? true);
-                }}
-              >
-                <ArrowDownToLine class="size-4" />
-                Auto-scroll
-                {#if cardConsoleAutoScroll[cardKey] ?? true}
-                  <Check class="ml-auto size-3.5 text-primary" />
-                {/if}
-              </DropdownMenu.Item>
-              <DropdownMenu.Separator />
-              <DropdownMenu.Item
-                onclick={() => {
-                  cardConsoleLogs[cardKey] = [];
-                }}
-                disabled={logs.length === 0}
-              >
-                <Trash2 class="size-4" />
-                Clear
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
+                    </div>
+                  {/each}
+                  {#if filteredConsoleLevels.length > 0}
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        cardConsoleLevelFilter[cardKey] = {};
+                      }}
+                      disabled={activeFilterCount === 0}
+                    >
+                      <RotateCcw class="size-4" />
+                      Show all
+                    </DropdownMenu.Item>
+                  {/if}
+                </div>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+            <!-- Options menu -->
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger>
+                {#snippet child({ props: menuProps })}
+                  <button
+                    {...menuProps}
+                    type="button"
+                    class="inline-flex size-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    aria-label="Console options"
+                  >
+                    <EllipsisVertical class="size-3" />
+                  </button>
+                {/snippet}
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content align="end" class="w-44">
+                <DropdownMenu.Sub
+                  onOpenChange={(open) => {
+                    if (open) consoleExportSearchQuery = '';
+                  }}
+                >
+                  <DropdownMenu.SubTrigger>
+                    <Download class="size-4" />
+                    Export
+                  </DropdownMenu.SubTrigger>
+                  <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+                    <div class="shrink-0 px-2 pb-1.5 pt-1">
+                      <div
+                        class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                      >
+                        <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+                        <input
+                          type="text"
+                          placeholder="Search formats..."
+                          class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                          bind:value={consoleExportSearchQuery}
+                          onkeydown={(e) => e.stopPropagation()}
+                          onkeyup={(e) => e.stopPropagation()}
+                          onkeypress={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </div>
+                    <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+                      {#each filteredConsoleExportCategories as category (category)}
+                        {#if filteredConsoleExportCategories.indexOf(category) > 0}
+                          <DropdownMenu.Separator />
+                        {/if}
+                        <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+                        {#each filteredConsoleExportItems.filter((i) => i.category === category) as item (item.id)}
+                          <DropdownMenu.Item
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              handleConsoleExport(cardKey, item.id);
+                            }}
+                          >
+                            {#if consoleExportFeedback === item.id}
+                              <Check class="size-4 text-green-500" />
+                            {:else}
+                              <item.icon class="size-4" />
+                            {/if}
+                            {item.label}
+                          </DropdownMenu.Item>
+                        {/each}
+                      {:else}
+                        <div
+                          class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                        >
+                          <SearchX class="size-5" />
+                          <div class="flex flex-col items-center gap-0.5">
+                            <p class="text-xs font-medium">No formats found</p>
+                            <p class="text-[11px]">Try a different search term</p>
+                          </div>
+                        </div>
+                      {/each}
+                    </div>
+                  </DropdownMenu.SubContent>
+                </DropdownMenu.Sub>
+                <DropdownMenu.Separator />
+                <DropdownMenu.Item
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    cardConsoleAutoScroll[cardKey] = !(cardConsoleAutoScroll[cardKey] ?? true);
+                  }}
+                >
+                  <ArrowDownToLine class="size-4" />
+                  Auto-scroll
+                  {#if cardConsoleAutoScroll[cardKey] ?? true}
+                    <Check class="ml-auto size-3.5 text-primary" />
+                  {/if}
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator />
+                <DropdownMenu.Item
+                  onclick={() => {
+                    cardConsoleLogs[cardKey] = [];
+                  }}
+                  disabled={allLogs.length === 0}
+                >
+                  <Trash2 class="size-4" />
+                  Clear
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          </div>
         </div>
         {#if cardConsoleExpanded[cardKey] ?? true}
           <div
@@ -9303,35 +9533,98 @@
           >
             {#if logs.length === 0}
               <div class="px-3 py-4 text-center text-[11px] text-muted-foreground/50">
-                No console output yet. Interact with the component to see events, mutations, and
-                logs.
+                {#if allLogs.length > 0}
+                  All {allLogs.length} entries hidden by filters.
+                {:else}
+                  No console output yet. Interact with the component to see events, mutations, and
+                  logs.
+                {/if}
               </div>
             {:else}
               {#each logs as entry, i (i)}
-                <div
+                {@const isExpanded =
+                  (cardConsoleExpandedEntry[cardKey] ?? (-1 as Num)) === (i as Num)}
+                <button
+                  type="button"
                   class={cn(
-                    'flex items-start gap-2 border-b border-border/30 px-3 py-1 last:border-b-0',
+                    'flex w-full cursor-pointer items-start gap-2 border-b border-border/30 px-3 py-1 text-left last:border-b-0 transition-colors hover:bg-muted/50',
                     entry.level === 'error' && 'bg-red-500/5',
                     entry.level === 'warn' && 'bg-amber-500/5',
                   )}
+                  onclick={() => {
+                    cardConsoleExpandedEntry[cardKey] = isExpanded ? (-1 as Num) : (i as Num);
+                  }}
                 >
-                  <span class="shrink-0 pt-px text-[9px] tabular-nums text-muted-foreground/50"
-                    >+{entry.ts}ms</span
+                  <span
+                    class="shrink-0 pt-px text-[9px] tabular-nums text-muted-foreground/50"
+                    title={getAbsoluteTime(mountTime, entry.ts)}>{formatConsoleTs(entry.ts)}</span
                   >
                   <span
-                    class={cn('shrink-0 pt-px text-[9px] font-bold', getConsoleColor(entry.level))}
-                    >{getConsoleLabel(entry.level)}</span
+                    class={cn(
+                      'shrink-0 rounded-sm px-1 py-px text-[9px] font-semibold leading-tight',
+                      getConsoleColor(entry.level),
+                      entry.level === 'error'
+                        ? 'bg-red-500/10'
+                        : entry.level === 'warn'
+                          ? 'bg-amber-500/10'
+                          : entry.level === 'event'
+                            ? 'bg-violet-500/10'
+                            : entry.level === 'mutation'
+                              ? 'bg-teal-500/10'
+                              : entry.level === 'lifecycle'
+                                ? 'bg-emerald-500/10'
+                                : entry.level === 'render'
+                                  ? 'bg-indigo-500/10'
+                                  : entry.level === 'info'
+                                    ? 'bg-blue-500/10'
+                                    : 'bg-muted',
+                    )}>{getConsoleLabel(entry.level)}</span
                   >
                   <div class="min-w-0 flex-1">
                     <span class="break-all">{entry.message}</span>
-                    {#if entry.detail}
+                    {#if !isExpanded && entry.detail}
                       <span class="ml-1 break-all text-muted-foreground/60">{entry.detail}</span>
                     {/if}
                   </div>
-                  {#if entry.source}
+                  {#if entry.source && !isExpanded}
                     <span class="shrink-0 text-[9px] text-muted-foreground/40">{entry.source}</span>
                   {/if}
-                </div>
+                  <ChevronDown
+                    class={cn(
+                      'size-3 shrink-0 text-muted-foreground/30 transition-transform',
+                      isExpanded && 'rotate-180',
+                    )}
+                    aria-hidden="true"
+                  />
+                </button>
+                {#if isExpanded}
+                  <div
+                    class="border-b border-border/30 bg-muted/30 px-3 py-1.5"
+                    transition:slide={{ duration: 150 }}
+                  >
+                    <div class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-[10px]">
+                      <span class="text-muted-foreground/60">Time</span>
+                      <span
+                        >{formatConsoleTs(entry.ts)} ({getAbsoluteTime(mountTime, entry.ts)})</span
+                      >
+                      <span class="text-muted-foreground/60">Level</span>
+                      <span class={getConsoleColor(entry.level)}
+                        >{getConsoleLabel(entry.level)}</span
+                      >
+                      <span class="text-muted-foreground/60">Message</span>
+                      <span class="break-all">{entry.message}</span>
+                      {#if entry.detail}
+                        <span class="text-muted-foreground/60">Detail</span>
+                        <pre
+                          class="whitespace-pre-wrap break-all text-muted-foreground/80">{entry.detail}</pre>
+                      {/if}
+                      {#if entry.source}
+                        <span class="text-muted-foreground/60">Source</span>
+                        <span class="text-muted-foreground/80">{entry.source}</span>
+                      {/if}
+                    </div>
+                  </div>
+                {/if}
               {/each}
             {/if}
           </div>
