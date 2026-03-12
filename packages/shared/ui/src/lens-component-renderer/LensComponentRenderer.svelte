@@ -1330,6 +1330,11 @@
   let statsA11yOpen: Bool = $state(true);
   let statsConsoleOpen: Bool = $state(true);
   let statsPropCoverageOpen: Bool = $state(true);
+  /** Whether the re-render timings section is expanded. */
+  let statsReRenderOpen: Bool = $state(true);
+
+  /** Per-card refresh counter — incrementing remounts LensStats to re-collect. */
+  let statsRefreshKey: Record<Str, Num> = $state({});
 
   /* ------------------------------------------------------------------ */
   /*  Stats popover — export                                            */
@@ -1566,6 +1571,14 @@
       description: 'Formatted table file',
       ext: '.md',
     },
+    {
+      id: 'download-csv',
+      label: 'Download CSV',
+      icon: Download,
+      category: 'File',
+      description: 'Spreadsheet data file',
+      ext: '.csv',
+    },
   ];
 
   /** Search query for stats export menu filtering. */
@@ -1619,6 +1632,14 @@
       const a: HTMLAnchorElement = document.createElement('a');
       a.href = url;
       a.download = `${slug}-stats.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else if (formatId === 'download-csv') {
+      const blob: Blob = new Blob([formatStatsCsv(stats, name)], { type: 'text/csv' });
+      const url: Str = URL.createObjectURL(blob);
+      const a: HTMLAnchorElement = document.createElement('a');
+      a.href = url;
+      a.download = `${slug}-stats.csv`;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -7384,18 +7405,30 @@
         {#if cardStats[cardKey]}
           {@const stats: LensStatsData = cardStats[cardKey]}
           <Popover.Root>
-            <Popover.Trigger>
-              <button
-                type="button"
-                class={cn(
-                  'inline-flex size-7 items-center justify-center rounded-md transition-colors hover:bg-muted',
-                  budgetColor(stats.overallHealth),
-                )}
-                aria-label="Performance statistics"
-              >
-                <Activity class="size-3.5" aria-hidden="true" />
-              </button>
-            </Popover.Trigger>
+            <Tooltip.Provider>
+              <Tooltip.Root delayDuration={400}>
+                <Tooltip.Trigger>
+                  {#snippet child({ props: tipProps })}
+                    <Popover.Trigger>
+                      <button
+                        {...tipProps}
+                        type="button"
+                        class={cn(
+                          'inline-flex size-7 items-center justify-center rounded-md transition-colors hover:bg-muted',
+                          budgetColor(stats.overallHealth),
+                        )}
+                        aria-label="Performance statistics"
+                      >
+                        <Activity class="size-3.5" aria-hidden="true" />
+                      </button>
+                    </Popover.Trigger>
+                  {/snippet}
+                </Tooltip.Trigger>
+                <Tooltip.Content side="bottom" sideOffset={4}>
+                  Mount: {stats.mountTimeMs}ms · Nodes: {stats.nodeCount} · Health: {stats.overallHealth}
+                </Tooltip.Content>
+              </Tooltip.Root>
+            </Tooltip.Provider>
             <Popover.Content
               side="bottom"
               align="end"
@@ -7515,12 +7548,85 @@
                         </div>
                       </DropdownMenu.SubContent>
                     </DropdownMenu.Sub>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        const allOpen: Bool =
+                          statsReportOpen &&
+                          statsVitalsOpen &&
+                          statsDomOpen &&
+                          statsA11yOpen &&
+                          statsPropCoverageOpen &&
+                          statsReRenderOpen;
+                        const next: Bool = !allOpen as Bool;
+                        statsReportOpen = next;
+                        statsVitalsOpen = next;
+                        statsDomOpen = next;
+                        statsMemoryOpen = next;
+                        statsA11yOpen = next;
+                        statsConsoleOpen = next;
+                        statsPropCoverageOpen = next;
+                        statsReRenderOpen = next;
+                      }}
+                    >
+                      <ChevronsUpDown class="size-4" />
+                      {statsReportOpen &&
+                      statsVitalsOpen &&
+                      statsDomOpen &&
+                      statsA11yOpen &&
+                      statsPropCoverageOpen &&
+                      statsReRenderOpen
+                        ? 'Collapse All'
+                        : 'Expand All'}
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        delete cardStats[cardKey];
+                        statsRefreshKey[cardKey] = ((statsRefreshKey[cardKey] ?? 0) + 1) as Num;
+                      }}
+                    >
+                      <RefreshCw class="size-4" />
+                      Refresh Stats
+                    </DropdownMenu.Item>
                   </DropdownMenu.Content>
                 </DropdownMenu.Root>
                 <!-- Aria-live region for export copy feedback -->
                 <span class="sr-only" role="status" aria-live="polite" aria-atomic="true">
                   {#if statsExportCopied}Exported!{/if}
                 </span>
+              </div>
+
+              <!-- Summary strip — key metrics at a glance -->
+              <div
+                class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5 text-[10px]"
+              >
+                <div class="flex items-center gap-3">
+                  <span class="text-muted-foreground"
+                    >Mount <span class="font-mono font-medium text-foreground"
+                      >{stats.mountTimeMs}ms</span
+                    ></span
+                  >
+                  <span class="text-muted-foreground"
+                    >Re-renders <span class="font-mono font-medium text-foreground"
+                      >{stats.reRenderCount}</span
+                    ></span
+                  >
+                  <span class="text-muted-foreground"
+                    >Nodes <span class="font-mono font-medium text-foreground"
+                      >{stats.nodeCount}</span
+                    ></span
+                  >
+                </div>
+                <span
+                  class={cn(
+                    'rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase',
+                    stats.overallHealth === 'green' && 'bg-emerald-500/15 text-emerald-500',
+                    stats.overallHealth === 'yellow' && 'bg-amber-500/15 text-amber-500',
+                    stats.overallHealth === 'red' && 'bg-red-500/15 text-red-500',
+                  )}>{stats.overallHealth}</span
+                >
               </div>
 
               <!-- Report — budget metrics with tooltip explanations -->
@@ -8296,7 +8402,7 @@
                     <p class="mb-1.5 mt-0.5 text-[10px] text-muted-foreground">
                       Element count and nesting depth of the rendered component.
                     </p>
-                    <div class="grid grid-cols-3 gap-2 text-xs">
+                    <div class="grid grid-cols-4 gap-2 text-xs">
                       <Tooltip.Provider>
                         <Tooltip.Root delayDuration={200}>
                           <Tooltip.Trigger>
@@ -8339,6 +8445,21 @@
                           </Tooltip.Trigger>
                           <Tooltip.Content side="bottom" sideOffset={4}>
                             Number of text nodes (visible text content)
+                          </Tooltip.Content>
+                        </Tooltip.Root>
+                      </Tooltip.Provider>
+                      <Tooltip.Provider>
+                        <Tooltip.Root delayDuration={200}>
+                          <Tooltip.Trigger>
+                            {#snippet child({ props: tipProps })}
+                              <div {...tipProps} class="cursor-help">
+                                <span class="text-muted-foreground">Events</span>
+                                <div class="font-mono font-medium">{stats.eventListenerCount}</div>
+                              </div>
+                            {/snippet}
+                          </Tooltip.Trigger>
+                          <Tooltip.Content side="bottom" sideOffset={4}>
+                            Elements with inline event handlers
                           </Tooltip.Content>
                         </Tooltip.Root>
                       </Tooltip.Provider>
@@ -8960,31 +9081,48 @@
 
               <!-- Re-render timings -->
               {#if stats.reRenderTimings.length > 0}
-                <div class="border-t px-3 py-1.5">
-                  <span class="text-[10px] font-medium text-muted-foreground"
-                    >Re-render timings:</span
+                <div class="border-t px-3 py-2">
+                  <button
+                    type="button"
+                    class="flex w-full items-center gap-1"
+                    aria-expanded={statsReRenderOpen}
+                    aria-controls="stats-rerender"
+                    onclick={() => (statsReRenderOpen = !statsReRenderOpen)}
                   >
-                  <div class="mt-0.5 flex flex-wrap gap-1">
-                    {#each stats.reRenderTimings.slice(0, 8) as timing, i (i)}
-                      <span
-                        class={cn(
-                          'rounded px-1 py-0.5 font-mono text-[10px]',
-                          timing > 50
-                            ? 'bg-red-500/10 text-red-500'
-                            : timing > 16
-                              ? 'bg-amber-500/10 text-amber-500'
-                              : 'bg-muted text-muted-foreground',
-                        )}
-                      >
-                        {timing}ms
-                      </span>
-                    {/each}
-                    {#if stats.reRenderTimings.length > 8}
-                      <span class="text-[10px] text-muted-foreground/50"
-                        >+{stats.reRenderTimings.length - 8}</span
-                      >
-                    {/if}
-                  </div>
+                    {#if statsReRenderOpen}<ChevronDown
+                        class="size-3 text-muted-foreground"
+                      />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
+                    <h4 class="text-xs font-semibold">Re-render Timings</h4>
+                    <span class="ml-auto font-mono text-xs text-muted-foreground"
+                      >{stats.reRenderTimings.length}</span
+                    >
+                  </button>
+                  {#if statsReRenderOpen}<div
+                      id="stats-rerender"
+                      transition:slide={{ duration: 150 }}
+                    >
+                      <div class="mt-1 flex flex-wrap gap-1">
+                        {#each stats.reRenderTimings.slice(0, 8) as timing, i (i)}
+                          <span
+                            class={cn(
+                              'rounded px-1 py-0.5 font-mono text-[10px]',
+                              timing > 50
+                                ? 'bg-red-500/10 text-red-500'
+                                : timing > 16
+                                  ? 'bg-amber-500/10 text-amber-500'
+                                  : 'bg-muted text-muted-foreground',
+                            )}
+                          >
+                            {timing}ms
+                          </span>
+                        {/each}
+                        {#if stats.reRenderTimings.length > 8}
+                          <span class="text-[10px] text-muted-foreground/50"
+                            >+{stats.reRenderTimings.length - 8}</span
+                          >
+                        {/if}
+                      </div>
+                    </div>{/if}
                 </div>
               {/if}
 
@@ -9859,16 +9997,38 @@
                       ] as 'ltr' | 'rtl')
                     : undefined}
                 >
-                  <LensStats
-                    {cardKey}
-                    onstats={handleStats}
-                    propsTotal={propsMeta.length}
-                    propsWithDefaults={propsWithDefaultsCount}
-                  >
-                    {#if children}
-                      {@render children()}
-                    {:else if ContextWrapper}
-                      <ContextWrapper>
+                  {#key statsRefreshKey[cardKey] ?? 0}
+                    <LensStats
+                      {cardKey}
+                      onstats={handleStats}
+                      propsTotal={propsMeta.length}
+                      propsWithDefaults={propsWithDefaultsCount}
+                    >
+                      {#if children}
+                        {@render children()}
+                      {:else if ContextWrapper}
+                        <ContextWrapper>
+                          <Target {...baseProps} {...extraProps}>
+                            {#if useIcon}
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              >
+                                <circle cx="12" cy="12" r="10"></circle>
+                              </svg>
+                            {:else}
+                              {label}
+                            {/if}
+                          </Target>
+                        </ContextWrapper>
+                      {:else}
                         <Target {...baseProps} {...extraProps}>
                           {#if useIcon}
                             <svg
@@ -9888,29 +10048,9 @@
                             {label}
                           {/if}
                         </Target>
-                      </ContextWrapper>
-                    {:else}
-                      <Target {...baseProps} {...extraProps}>
-                        {#if useIcon}
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          >
-                            <circle cx="12" cy="12" r="10"></circle>
-                          </svg>
-                        {:else}
-                          {label}
-                        {/if}
-                      </Target>
-                    {/if}
-                  </LensStats>
+                      {/if}
+                    </LensStats>
+                  {/key}
                 </div>
               </div>
             </LensPortalScope>
@@ -11237,37 +11377,80 @@
                           <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 px-3 py-2">
                             {#if capture.performance.firstContentfulPaint != null}
                               <span class="text-[10px] text-muted-foreground">FCP</span>
-                              <span class="text-[10px] font-mono"
-                                >{capture.performance.firstContentfulPaint}ms</span
+                              <span
+                                class={cn(
+                                  'text-[10px] font-mono',
+                                  (capture.performance.firstContentfulPaint as Num) <= 1800
+                                    ? 'text-emerald-500'
+                                    : (capture.performance.firstContentfulPaint as Num) <= 3000
+                                      ? 'text-amber-500'
+                                      : 'text-red-500',
+                                )}>{capture.performance.firstContentfulPaint}ms</span
                               >
                             {/if}
                             {#if capture.performance.firstPaint != null}
                               <span class="text-[10px] text-muted-foreground">First Paint</span>
-                              <span class="text-[10px] font-mono"
-                                >{capture.performance.firstPaint}ms</span
+                              <span
+                                class={cn(
+                                  'text-[10px] font-mono',
+                                  (capture.performance.firstPaint as Num) <= 1000
+                                    ? 'text-emerald-500'
+                                    : (capture.performance.firstPaint as Num) <= 2500
+                                      ? 'text-amber-500'
+                                      : 'text-red-500',
+                                )}>{capture.performance.firstPaint}ms</span
                               >
                             {/if}
                             {#if capture.performance.domContentLoaded != null}
                               <span class="text-[10px] text-muted-foreground">DCL</span>
-                              <span class="text-[10px] font-mono"
-                                >{capture.performance.domContentLoaded}ms</span
+                              <span
+                                class={cn(
+                                  'text-[10px] font-mono',
+                                  (capture.performance.domContentLoaded as Num) <= 1500
+                                    ? 'text-emerald-500'
+                                    : (capture.performance.domContentLoaded as Num) <= 3000
+                                      ? 'text-amber-500'
+                                      : 'text-red-500',
+                                )}>{capture.performance.domContentLoaded}ms</span
                               >
                             {/if}
                             {#if capture.performance.load != null}
                               <span class="text-[10px] text-muted-foreground">Load</span>
-                              <span class="text-[10px] font-mono">{capture.performance.load}ms</span
+                              <span
+                                class={cn(
+                                  'text-[10px] font-mono',
+                                  (capture.performance.load as Num) <= 2500
+                                    ? 'text-emerald-500'
+                                    : (capture.performance.load as Num) <= 4000
+                                      ? 'text-amber-500'
+                                      : 'text-red-500',
+                                )}>{capture.performance.load}ms</span
                               >
                             {/if}
                             {#if capture.performance.domInteractive != null}
                               <span class="text-[10px] text-muted-foreground">Interactive</span>
-                              <span class="text-[10px] font-mono"
-                                >{capture.performance.domInteractive}ms</span
+                              <span
+                                class={cn(
+                                  'text-[10px] font-mono',
+                                  (capture.performance.domInteractive as Num) <= 1500
+                                    ? 'text-emerald-500'
+                                    : (capture.performance.domInteractive as Num) <= 3000
+                                      ? 'text-amber-500'
+                                      : 'text-red-500',
+                                )}>{capture.performance.domInteractive}ms</span
                               >
                             {/if}
                             {#if capture.performance.responseEnd != null}
                               <span class="text-[10px] text-muted-foreground">TTFB</span>
-                              <span class="text-[10px] font-mono"
-                                >{capture.performance.responseEnd}ms</span
+                              <span
+                                class={cn(
+                                  'text-[10px] font-mono',
+                                  (capture.performance.responseEnd as Num) <= 800
+                                    ? 'text-emerald-500'
+                                    : (capture.performance.responseEnd as Num) <= 1800
+                                      ? 'text-amber-500'
+                                      : 'text-red-500',
+                                )}>{capture.performance.responseEnd}ms</span
                               >
                             {/if}
                           </div>
