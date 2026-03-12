@@ -60,6 +60,18 @@
   import Link from '@lucide/svelte/icons/link';
   import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
   import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+  import Watch from '@lucide/svelte/icons/watch';
+  import Laptop from '@lucide/svelte/icons/laptop';
+  import Car from '@lucide/svelte/icons/car';
+  import Glasses from '@lucide/svelte/icons/glasses';
+  import Tv from '@lucide/svelte/icons/tv';
+  import Gamepad2 from '@lucide/svelte/icons/gamepad-2';
+  import Image from '@lucide/svelte/icons/image';
+  import AppWindow from '@lucide/svelte/icons/app-window';
+  import LayoutGrid from '@lucide/svelte/icons/layout-grid';
+  import BookOpenText from '@lucide/svelte/icons/book-open-text';
+  import MonitorSmartphone from '@lucide/svelte/icons/monitor-smartphone';
+  import Share2 from '@lucide/svelte/icons/share-2';
 
   /* ------------------------------------------------------------------ */
   /*  Props                                                              */
@@ -1068,13 +1080,28 @@
   ];
 
   /** Viewport presets organized by device category. Width and height in CSS pixels. */
-  const VIEWPORT_PRESETS: Array<{ id: Str; label: Str; width: Num; height: Num; category: Str }> = [
+  const VIEWPORT_PRESETS: Array<{
+    /** Preset identifier. */
+    id: Str;
+    /** Display label. */
+    label: Str;
+    /** Width in CSS pixels. */
+    width: Num;
+    /** Height in CSS pixels. */
+    height: Num;
+    /** Device category. */
+    category: Str;
+    /** Brief description. */
+    description: Str;
+  }> = [
+    /* ── Watches ─────────────────────────────────────────────── */
     {
       id: 'watch-sm',
       label: 'Apple Watch (38–40mm)',
       width: 197,
       height: 162,
       category: 'Watches',
+      description: 'Series 4/5/6/7/SE small',
     },
     {
       id: 'watch-md',
@@ -1082,6 +1109,7 @@
       width: 224,
       height: 184,
       category: 'Watches',
+      description: 'Series 4/5/6/7/SE large',
     },
     {
       id: 'watch-ultra',
@@ -1089,15 +1117,32 @@
       width: 205,
       height: 251,
       category: 'Watches',
+      description: 'Ultra/Ultra 2',
     },
-    { id: 'watch-galaxy', label: 'Galaxy Watch', width: 240, height: 240, category: 'Watches' },
-    { id: 'watch-wear-os', label: 'Wear OS (round)', width: 240, height: 240, category: 'Watches' },
+    {
+      id: 'watch-galaxy',
+      label: 'Galaxy Watch',
+      width: 240,
+      height: 240,
+      category: 'Watches',
+      description: 'Galaxy Watch 4/5/6',
+    },
+    {
+      id: 'watch-wear-os',
+      label: 'Wear OS (round)',
+      width: 240,
+      height: 240,
+      category: 'Watches',
+      description: 'Pixel Watch, TicWatch',
+    },
+    /* ── Phones ──────────────────────────────────────────────── */
     {
       id: 'galaxy-z-fold-cover',
       label: 'Galaxy Z Fold (Cover)',
       width: 323,
       height: 694,
       category: 'Phones',
+      description: 'Fold 4/5 outer display',
     },
     {
       id: 'galaxy-s25',
@@ -1105,6 +1150,7 @@
       width: 360,
       height: 800,
       category: 'Phones',
+      description: 'Samsung flagship',
     },
     {
       id: 'galaxy-a-760',
@@ -1112,14 +1158,23 @@
       width: 360,
       height: 760,
       category: 'Phones',
+      description: 'Budget Android',
     },
-    { id: 'galaxy-a-780', label: 'Galaxy A13 / A23', width: 360, height: 780, category: 'Phones' },
+    {
+      id: 'galaxy-a-780',
+      label: 'Galaxy A13 / A23',
+      width: 360,
+      height: 780,
+      category: 'Phones',
+      description: 'Mid-range Android',
+    },
     {
       id: 'galaxy-a-804',
       label: 'Galaxy A (mid, 804)',
       width: 360,
       height: 804,
       category: 'Phones',
+      description: 'Mid-range Android',
     },
     {
       id: 'galaxy-a-806',
@@ -1127,128 +1182,821 @@
       width: 360,
       height: 806,
       category: 'Phones',
+      description: 'Popular Android viewport',
     },
-    { id: 'iphone-se', label: 'iPhone SE', width: 375, height: 667, category: 'Phones' },
+    {
+      id: 'iphone-se',
+      label: 'iPhone SE',
+      width: 375,
+      height: 667,
+      category: 'Phones',
+      description: 'Classic 4.7" form factor',
+    },
     {
       id: 'iphone-x',
       label: 'iPhone X / XS / 12 Mini / 13 Mini',
       width: 375,
       height: 812,
       category: 'Phones',
+      description: 'First notch iPhones',
     },
-    { id: 'iphone-xr', label: 'iPhone XR / 11', width: 414, height: 896, category: 'Phones' },
-    { id: 'iphone-12', label: 'iPhone 12 / 13 / 14', width: 390, height: 844, category: 'Phones' },
     {
-      id: 'iphone-12-pro-max',
-      label: 'iPhone 12 Pro Max / 13 Pro Max',
-      width: 428,
-      height: 926,
+      id: 'galaxy-s24',
+      label: 'Galaxy S24 / A55',
+      width: 384,
+      height: 832,
       category: 'Phones',
+      description: 'Samsung mid flagship',
     },
     {
-      id: 'iphone-14-pro',
-      label: 'iPhone 14 Pro / 15 / 16',
+      id: 'galaxy-a-854',
+      label: 'Galaxy A14 / A series (854)',
+      width: 384,
+      height: 854,
+      category: 'Phones',
+      description: 'Budget Galaxy A',
+    },
+    {
+      id: 'galaxy-a-857',
+      label: 'Galaxy A series (857)',
+      width: 384,
+      height: 857,
+      category: 'Phones',
+      description: 'Mid-range Galaxy A',
+    },
+    {
+      id: 'galaxy-s25-new',
+      label: 'Galaxy S25 / S25+',
+      width: 385,
+      height: 854,
+      category: 'Phones',
+      description: 'Latest Samsung flagship',
+    },
+    {
+      id: 'iphone-16',
+      label: 'iPhone 16 / 15 / 14 / 13 / 12',
+      width: 390,
+      height: 844,
+      category: 'Phones',
+      description: 'Standard 6.1" OLED',
+    },
+    {
+      id: 'xiaomi-851',
+      label: 'Xiaomi / Samsung (851)',
+      width: 393,
+      height: 851,
+      category: 'Phones',
+      description: 'Popular Android viewport',
+    },
+    {
+      id: 'iphone-16-pro',
+      label: 'iPhone 16 Pro / 15 Pro / Z Flip',
       width: 393,
       height: 852,
       category: 'Phones',
+      description: 'Dynamic Island Pro',
     },
     {
-      id: 'iphone-14-pro-max',
-      label: 'iPhone 14 Pro Max / 15 Plus / 16 Plus',
+      id: 'galaxy-a54',
+      label: 'Galaxy A54 / A55',
+      width: 393,
+      height: 873,
+      category: 'Phones',
+      description: 'Mid-range Samsung',
+    },
+    {
+      id: 'iphone-17',
+      label: 'iPhone 17 / 17 Pro',
+      width: 402,
+      height: 874,
+      category: 'Phones',
+      description: 'Next-gen iPhone',
+    },
+    {
+      id: 'pixel-10-pro',
+      label: 'Pixel 10 Pro',
+      width: 410,
+      height: 892,
+      category: 'Phones',
+      description: 'Latest Pixel Pro',
+    },
+    {
+      id: 'pixel-9-pro',
+      label: 'Pixel 9 Pro / OnePlus',
+      width: 412,
+      height: 892,
+      category: 'Phones',
+      description: 'Pixel 9 Pro flagship',
+    },
+    {
+      id: 'pixel-10',
+      label: 'Pixel 10 / 9 / 8 / 7 / Galaxy S Ultra',
+      width: 412,
+      height: 915,
+      category: 'Phones',
+      description: 'Stock Android standard',
+    },
+    {
+      id: 'iphone-11',
+      label: 'iPhone 11 / XR / Pixel Pro XL',
+      width: 414,
+      height: 896,
+      category: 'Phones',
+      description: 'LCD era large',
+    },
+    {
+      id: 'iphone-16-plus',
+      label: 'iPhone 16 Plus / 15 Plus / 12 Pro Max / 13 Pro Max',
+      width: 428,
+      height: 926,
+      category: 'Phones',
+      description: 'Large 6.7" OLED',
+    },
+    {
+      id: 'iphone-16-pro-max',
+      label: 'iPhone 16 Pro Max / 15 Pro Max / 14 Pro Max',
       width: 430,
       height: 932,
       category: 'Phones',
+      description: 'Largest Pro Max',
     },
-    { id: 'iphone-16-pro', label: 'iPhone 16 Pro', width: 402, height: 874, category: 'Phones' },
     {
-      id: 'iphone-16-pro-max',
-      label: 'iPhone 16 Pro Max',
+      id: 'iphone-17-pro-max',
+      label: 'iPhone 17 Pro Max',
       width: 440,
       height: 956,
       category: 'Phones',
+      description: 'Next-gen Pro Max',
     },
-    { id: 'pixel-7', label: 'Pixel 7 / 7a', width: 412, height: 915, category: 'Phones' },
-    { id: 'pixel-8', label: 'Pixel 8', width: 412, height: 915, category: 'Phones' },
-    { id: 'pixel-9', label: 'Pixel 9', width: 412, height: 924, category: 'Phones' },
-    { id: 'pixel-9-pro-xl', label: 'Pixel 9 Pro XL', width: 448, height: 998, category: 'Phones' },
+    /* ── Foldables ───────────────────────────────────────────── */
     {
-      id: 'galaxy-z-fold-inner',
-      label: 'Galaxy Z Fold (Inner)',
-      width: 717,
-      height: 840,
+      id: 'galaxy-z-fold-main',
+      label: 'Galaxy Z Fold (Main)',
+      width: 619,
+      height: 876,
       category: 'Foldables',
+      description: 'Fold 4/5 inner display',
     },
-    { id: 'galaxy-z-flip', label: 'Galaxy Z Flip', width: 412, height: 846, category: 'Foldables' },
-    { id: 'ipad-mini', label: 'iPad Mini', width: 744, height: 1133, category: 'Tablets' },
-    { id: 'ipad-10', label: 'iPad (10th gen)', width: 820, height: 1180, category: 'Tablets' },
-    { id: 'ipad-air', label: 'iPad Air', width: 820, height: 1180, category: 'Tablets' },
-    { id: 'ipad-pro-11', label: 'iPad Pro 11"', width: 834, height: 1194, category: 'Tablets' },
-    { id: 'ipad-pro-13', label: 'iPad Pro 13"', width: 1024, height: 1366, category: 'Tablets' },
-    { id: 'galaxy-tab-s9', label: 'Galaxy Tab S9', width: 800, height: 1280, category: 'Tablets' },
     {
-      id: 'galaxy-tab-s9-ultra',
-      label: 'Galaxy Tab S9 Ultra',
+      id: 'galaxy-z-flip',
+      label: 'Galaxy Z Flip',
+      width: 412,
+      height: 846,
+      category: 'Foldables',
+      description: 'Clamshell foldable',
+    },
+    {
+      id: 'pixel-fold-main',
+      label: 'Pixel Fold (Main)',
+      width: 692,
+      height: 1004,
+      category: 'Foldables',
+      description: 'Google foldable inner',
+    },
+    /* ── E-Readers ───────────────────────────────────────────── */
+    {
+      id: 'kindle-pw',
+      label: 'Kindle Paperwhite',
+      width: 632,
+      height: 842,
+      category: 'E-Readers',
+      description: 'E-ink reader 6.8"',
+    },
+    {
+      id: 'kindle-oasis',
+      label: 'Kindle Oasis',
+      width: 640,
+      height: 920,
+      category: 'E-Readers',
+      description: 'Premium E-ink 7"',
+    },
+    /* ── Fire Tablets ────────────────────────────────────────── */
+    {
+      id: 'fire-7',
+      label: 'Amazon Fire 7',
+      width: 600,
+      height: 1024,
+      category: 'Fire Tablets',
+      description: 'Budget 7" tablet',
+    },
+    {
+      id: 'fire-hd-8',
+      label: 'Amazon Fire HD 8',
+      width: 601,
+      height: 1007,
+      category: 'Fire Tablets',
+      description: 'Mid-range 8" tablet',
+    },
+    {
+      id: 'fire-hd-10',
+      label: 'Amazon Fire HD 10',
+      width: 810,
+      height: 1080,
+      category: 'Fire Tablets',
+      description: '10.1" tablet',
+    },
+    {
+      id: 'fire-max-11',
+      label: 'Amazon Fire Max 11',
       width: 1200,
-      height: 1920,
-      category: 'Tablets',
+      height: 2000,
+      category: 'Fire Tablets',
+      description: 'Premium 11" tablet',
     },
-    { id: 'surface-go', label: 'Surface Go', width: 1024, height: 768, category: 'Tablets' },
-    { id: 'surface-pro-9', label: 'Surface Pro 9', width: 1368, height: 912, category: 'Tablets' },
+    /* ── Tablets ─────────────────────────────────────────────── */
     {
-      id: 'laptop-sm',
-      label: 'Small Laptop (13")',
+      id: 'ipad-mini',
+      label: 'iPad Mini',
+      width: 744,
+      height: 1133,
+      category: 'Tablets',
+      description: '8.3" compact tablet',
+    },
+    {
+      id: 'surface-go',
+      label: 'Surface Go',
+      width: 768,
+      height: 1024,
+      category: 'Tablets',
+      description: 'Microsoft 10.5"',
+    },
+    {
+      id: 'galaxy-tab',
+      label: 'Galaxy Tab S7+ / S9',
+      width: 800,
+      height: 1280,
+      category: 'Tablets',
+      description: 'Samsung tablet',
+    },
+    {
+      id: 'ipad-10',
+      label: 'iPad 10th gen',
+      width: 810,
+      height: 1080,
+      category: 'Tablets',
+      description: 'Standard iPad',
+    },
+    {
+      id: 'ipad-air',
+      label: 'iPad Air',
+      width: 820,
+      height: 1180,
+      category: 'Tablets',
+      description: 'M-series chip',
+    },
+    {
+      id: 'ipad-pro-11',
+      label: 'iPad Pro 11"',
+      width: 834,
+      height: 1194,
+      category: 'Tablets',
+      description: 'Pro compact',
+    },
+    {
+      id: 'surface-pro',
+      label: 'Surface Pro',
+      width: 912,
+      height: 1368,
+      category: 'Tablets',
+      description: 'Microsoft 13"',
+    },
+    {
+      id: 'ipad-pro-12',
+      label: 'iPad Pro 12.9" / 13"',
+      width: 1024,
+      height: 1366,
+      category: 'Tablets',
+      description: 'Pro full-size',
+    },
+    {
+      id: 'xiaomi-pad',
+      label: 'Xiaomi Pad 6',
+      width: 1200,
+      height: 2000,
+      category: 'Tablets',
+      description: 'Android 12.4" tablet',
+    },
+    /* ── Chromebooks ─────────────────────────────────────────── */
+    {
+      id: 'chromebook',
+      label: 'Chromebook (common)',
+      width: 1366,
+      height: 768,
+      category: 'Chromebooks',
+      description: 'Standard Chromebook',
+    },
+    {
+      id: 'chromebook-hd',
+      label: 'Chromebook HD+',
+      width: 1536,
+      height: 864,
+      category: 'Chromebooks',
+      description: 'High-res Chromebook',
+    },
+    /* ── Handhelds ───────────────────────────────────────────── */
+    {
+      id: 'steam-deck',
+      label: 'Steam Deck',
       width: 1280,
       height: 800,
-      category: 'Laptops / Desktops',
+      category: 'Handhelds',
+      description: 'Valve handheld',
     },
     {
-      id: 'laptop-md',
-      label: 'Laptop (14–15")',
-      width: 1440,
-      height: 900,
-      category: 'Laptops / Desktops',
+      id: 'steam-deck-oled',
+      label: 'Steam Deck OLED',
+      width: 1280,
+      height: 800,
+      category: 'Handhelds',
+      description: 'OLED variant',
+    },
+    {
+      id: 'switch',
+      label: 'Nintendo Switch',
+      width: 1280,
+      height: 720,
+      category: 'Handhelds',
+      description: 'Original / Lite',
+    },
+    {
+      id: 'switch-oled',
+      label: 'Nintendo Switch OLED',
+      width: 1280,
+      height: 720,
+      category: 'Handhelds',
+      description: '7" OLED model',
+    },
+    {
+      id: 'switch-2',
+      label: 'Nintendo Switch 2',
+      width: 1920,
+      height: 1080,
+      category: 'Handhelds',
+      description: 'Next-gen Nintendo',
+    },
+    {
+      id: 'ps-portal',
+      label: 'PlayStation Portal',
+      width: 1920,
+      height: 1080,
+      category: 'Handhelds',
+      description: 'PS5 Remote Play',
+    },
+    {
+      id: 'rog-ally',
+      label: 'ASUS ROG Ally',
+      width: 1920,
+      height: 1080,
+      category: 'Handhelds',
+      description: 'Windows handheld',
+    },
+    {
+      id: 'lenovo-legion-go',
+      label: 'Lenovo Legion Go',
+      width: 2560,
+      height: 1600,
+      category: 'Handhelds',
+      description: 'QHD+ handheld',
+    },
+    /* ── Laptop / Desktop ───────────────────────────────────── */
+    {
+      id: 'laptop-sm',
+      label: 'Laptop (small)',
+      width: 1280,
+      height: 800,
+      category: 'Laptop / Desktop',
+      description: 'MacBook Air 13"',
     },
     {
       id: 'laptop-lg',
-      label: 'MacBook Pro 16"',
-      width: 1728,
-      height: 1117,
-      category: 'Laptops / Desktops',
+      label: 'Laptop (large)',
+      width: 1440,
+      height: 900,
+      category: 'Laptop / Desktop',
+      description: 'Standard 14–15" laptop',
     },
     {
-      id: 'desktop-hd',
-      label: 'Desktop HD',
+      id: 'desktop-fhd',
+      label: 'Desktop Full HD',
       width: 1920,
       height: 1080,
-      category: 'Laptops / Desktops',
+      category: 'Laptop / Desktop',
+      description: '1080p Full HD',
     },
     {
-      id: 'desktop-2k',
-      label: 'Desktop 2K / QHD',
+      id: 'desktop-qhd',
+      label: 'Desktop QHD',
       width: 2560,
       height: 1440,
-      category: 'Laptops / Desktops',
+      category: 'Laptop / Desktop',
+      description: '1440p QHD',
+    },
+    {
+      id: 'ultrawide',
+      label: 'Ultrawide',
+      width: 3440,
+      height: 1440,
+      category: 'Laptop / Desktop',
+      description: '21:9 ultrawide',
     },
     {
       id: 'desktop-4k',
       label: 'Desktop 4K',
       width: 3840,
       height: 2160,
-      category: 'Laptops / Desktops',
+      category: 'Laptop / Desktop',
+      description: '2160p Ultra HD',
+    },
+    /* ── Smart Displays ─────────────────────────────────────── */
+    {
+      id: 'echo-show-5',
+      label: 'Echo Show 5',
+      width: 960,
+      height: 480,
+      category: 'Smart Displays',
+      description: 'Amazon 5.5"',
     },
     {
-      id: 'tesla-model3',
-      label: 'Tesla Model 3 / Y',
+      id: 'nest-hub',
+      label: 'Google Nest Hub',
+      width: 1024,
+      height: 600,
+      category: 'Smart Displays',
+      description: 'Google 7"',
+    },
+    {
+      id: 'echo-show-8',
+      label: 'Echo Show 8',
       width: 1200,
-      height: 720,
-      category: 'Automotive',
+      height: 800,
+      category: 'Smart Displays',
+      description: 'Amazon 8"',
     },
     {
-      id: 'tesla-model-s',
-      label: 'Tesla Model S / X',
-      width: 2200,
-      height: 1300,
+      id: 'echo-show-10',
+      label: 'Echo Show 10',
+      width: 1200,
+      height: 800,
+      category: 'Smart Displays',
+      description: 'Amazon 10.1" rotating',
+    },
+    {
+      id: 'nest-hub-max',
+      label: 'Google Nest Hub Max',
+      width: 1280,
+      height: 800,
+      category: 'Smart Displays',
+      description: 'Google 10"',
+    },
+    {
+      id: 'echo-show-15',
+      label: 'Echo Show 15',
+      width: 1920,
+      height: 1080,
+      category: 'Smart Displays',
+      description: 'Amazon 15.6" wall mount',
+    },
+    /* ── iOS Widgets ─────────────────────────────────────────── */
+    {
+      id: 'ios-widget-sm',
+      label: 'Small Widget',
+      width: 170,
+      height: 170,
+      category: 'iOS Widgets',
+      description: 'iPhone home screen',
+    },
+    {
+      id: 'ios-widget-md',
+      label: 'Medium Widget',
+      width: 364,
+      height: 170,
+      category: 'iOS Widgets',
+      description: 'iPhone home screen',
+    },
+    {
+      id: 'ios-widget-lg',
+      label: 'Large Widget',
+      width: 364,
+      height: 382,
+      category: 'iOS Widgets',
+      description: 'iPhone home screen',
+    },
+    {
+      id: 'ios-widget-xl',
+      label: 'Extra Large Widget',
+      width: 795,
+      height: 382,
+      category: 'iOS Widgets',
+      description: 'iPad only',
+    },
+    /* ── Android Widgets ─────────────────────────────────────── */
+    {
+      id: 'android-widget-1x1',
+      label: '1×1 Widget',
+      width: 57,
+      height: 57,
+      category: 'Android Widgets',
+      description: 'Smallest widget cell',
+    },
+    {
+      id: 'android-widget-2x1',
+      label: '2×1 Widget',
+      width: 130,
+      height: 57,
+      category: 'Android Widgets',
+      description: 'Wide single row',
+    },
+    {
+      id: 'android-widget-2x2',
+      label: '2×2 Widget',
+      width: 130,
+      height: 130,
+      category: 'Android Widgets',
+      description: 'Small square widget',
+    },
+    {
+      id: 'android-widget-3x2',
+      label: '3×2 Widget',
+      width: 203,
+      height: 130,
+      category: 'Android Widgets',
+      description: 'Medium widget',
+    },
+    {
+      id: 'android-widget-4x1',
+      label: '4×1 Widget',
+      width: 276,
+      height: 57,
+      category: 'Android Widgets',
+      description: 'Full-width bar',
+    },
+    {
+      id: 'android-widget-4x2',
+      label: '4×2 Widget',
+      width: 276,
+      height: 130,
+      category: 'Android Widgets',
+      description: 'Full-width medium',
+    },
+    {
+      id: 'android-widget-4x3',
+      label: '4×3 Widget',
+      width: 276,
+      height: 203,
+      category: 'Android Widgets',
+      description: 'Full-width large',
+    },
+    {
+      id: 'android-widget-4x4',
+      label: '4×4 Widget',
+      width: 276,
+      height: 276,
+      category: 'Android Widgets',
+      description: 'Maximum widget size',
+    },
+    /* ── App Icons ────────────────────────────────────────────── */
+    {
+      id: 'icon-ios-appstore',
+      label: 'iOS App Store',
+      width: 1024,
+      height: 1024,
+      category: 'App Icons',
+      description: 'App Store listing icon',
+    },
+    {
+      id: 'icon-ios-3x',
+      label: 'iPhone @3x',
+      width: 180,
+      height: 180,
+      category: 'App Icons',
+      description: 'Super Retina devices',
+    },
+    {
+      id: 'icon-ios-2x',
+      label: 'iPhone @2x',
+      width: 120,
+      height: 120,
+      category: 'App Icons',
+      description: 'Retina devices',
+    },
+    {
+      id: 'icon-ipad-pro',
+      label: 'iPad Pro',
+      width: 167,
+      height: 167,
+      category: 'App Icons',
+      description: 'iPad Pro @2x',
+    },
+    {
+      id: 'icon-ipad',
+      label: 'iPad',
+      width: 152,
+      height: 152,
+      category: 'App Icons',
+      description: 'iPad @2x',
+    },
+    {
+      id: 'icon-ios-spotlight',
+      label: 'iOS Spotlight @3x',
+      width: 87,
+      height: 87,
+      category: 'App Icons',
+      description: 'Search results',
+    },
+    {
+      id: 'icon-ios-settings',
+      label: 'iOS Settings @3x',
+      width: 58,
+      height: 58,
+      category: 'App Icons',
+      description: 'Settings app',
+    },
+    {
+      id: 'icon-android-play',
+      label: 'Google Play Store',
+      width: 512,
+      height: 512,
+      category: 'App Icons',
+      description: 'Play Store listing',
+    },
+    {
+      id: 'icon-android-xxxhdpi',
+      label: 'Android xxxhdpi',
+      width: 192,
+      height: 192,
+      category: 'App Icons',
+      description: '4x density',
+    },
+    {
+      id: 'icon-android-xxhdpi',
+      label: 'Android xxhdpi',
+      width: 144,
+      height: 144,
+      category: 'App Icons',
+      description: '3x density',
+    },
+    {
+      id: 'icon-android-xhdpi',
+      label: 'Android xhdpi',
+      width: 96,
+      height: 96,
+      category: 'App Icons',
+      description: '2x density',
+    },
+    {
+      id: 'icon-android-hdpi',
+      label: 'Android hdpi',
+      width: 72,
+      height: 72,
+      category: 'App Icons',
+      description: '1.5x density',
+    },
+    {
+      id: 'icon-android-mdpi',
+      label: 'Android mdpi',
+      width: 48,
+      height: 48,
+      category: 'App Icons',
+      description: '1x baseline density',
+    },
+    {
+      id: 'icon-macos-appstore',
+      label: 'macOS App Store',
+      width: 1024,
+      height: 1024,
+      category: 'App Icons',
+      description: 'Mac App Store',
+    },
+    {
+      id: 'icon-macos-512',
+      label: 'macOS 512',
+      width: 512,
+      height: 512,
+      category: 'App Icons',
+      description: 'Finder @2x',
+    },
+    {
+      id: 'icon-macos-256',
+      label: 'macOS 256',
+      width: 256,
+      height: 256,
+      category: 'App Icons',
+      description: 'Finder',
+    },
+    {
+      id: 'icon-macos-128',
+      label: 'macOS 128',
+      width: 128,
+      height: 128,
+      category: 'App Icons',
+      description: 'Dock @2x',
+    },
+    {
+      id: 'icon-watchos-appstore',
+      label: 'watchOS App Store',
+      width: 1024,
+      height: 1024,
+      category: 'App Icons',
+      description: 'Watch App Store',
+    },
+    {
+      id: 'icon-watchos-home',
+      label: 'watchOS Home 44mm',
+      width: 88,
+      height: 88,
+      category: 'App Icons',
+      description: 'Watch home screen',
+    },
+    /* ── Favicons ─────────────────────────────────────────────── */
+    {
+      id: 'favicon-pwa-512',
+      label: 'PWA Icon 512',
+      width: 512,
+      height: 512,
+      category: 'Favicons',
+      description: 'Splash screen',
+    },
+    {
+      id: 'favicon-pwa-192',
+      label: 'PWA Icon 192',
+      width: 192,
+      height: 192,
+      category: 'Favicons',
+      description: 'Home screen icon',
+    },
+    {
+      id: 'favicon-apple-touch',
+      label: 'Apple Touch Icon',
+      width: 180,
+      height: 180,
+      category: 'Favicons',
+      description: 'iOS bookmark',
+    },
+    {
+      id: 'favicon-32',
+      label: 'Favicon 32x32',
+      width: 32,
+      height: 32,
+      category: 'Favicons',
+      description: 'Browser tab icon',
+    },
+    {
+      id: 'favicon-16',
+      label: 'Favicon 16x16',
+      width: 16,
+      height: 16,
+      category: 'Favicons',
+      description: 'Smallest favicon',
+    },
+    /* ── Social Media / OG ───────────────────────────────────── */
+    {
+      id: 'og-image',
+      label: 'OG Image',
+      width: 1200,
+      height: 630,
+      category: 'Social / OG',
+      description: 'Facebook / LinkedIn',
+    },
+    {
+      id: 'twitter-card',
+      label: 'Twitter Card',
+      width: 1200,
+      height: 675,
+      category: 'Social / OG',
+      description: 'X / Twitter summary',
+    },
+    {
+      id: 'instagram-post',
+      label: 'Instagram Post',
+      width: 1080,
+      height: 1080,
+      category: 'Social / OG',
+      description: 'Square feed post',
+    },
+    {
+      id: 'instagram-story',
+      label: 'Instagram Story',
+      width: 1080,
+      height: 1920,
+      category: 'Social / OG',
+      description: '9:16 vertical',
+    },
+    {
+      id: 'youtube-thumb',
+      label: 'YouTube Thumbnail',
+      width: 1280,
+      height: 720,
+      category: 'Social / OG',
+      description: 'Video thumbnail',
+    },
+    /* ── Automotive ───────────────────────────────────────────── */
+    {
+      id: 'car-cluster',
+      label: 'Car Instrument Cluster',
+      width: 1280,
+      height: 480,
       category: 'Automotive',
+      description: 'Digital instrument panel',
     },
     {
       id: 'carplay',
@@ -1256,14 +2004,56 @@
       width: 1920,
       height: 720,
       category: 'Automotive',
+      description: 'Ultrawide CarPlay',
     },
-    { id: 'android-auto', label: 'Android Auto', width: 1280, height: 720, category: 'Automotive' },
+    {
+      id: 'android-auto',
+      label: 'Android Auto',
+      width: 1280,
+      height: 720,
+      category: 'Automotive',
+      description: 'Standard auto display',
+    },
+    {
+      id: 'tesla-rear',
+      label: 'Tesla Rear Display',
+      width: 1440,
+      height: 900,
+      category: 'Automotive',
+      description: 'Rear passenger screen',
+    },
+    {
+      id: 'tesla-3y',
+      label: 'Tesla Model 3 / Y',
+      width: 1920,
+      height: 1200,
+      category: 'Automotive',
+      description: '15" center display',
+    },
+    {
+      id: 'tesla-sx',
+      label: 'Tesla Model S / X',
+      width: 2200,
+      height: 1300,
+      category: 'Automotive',
+      description: '17" center display',
+    },
+    {
+      id: 'mbux',
+      label: 'Mercedes MBUX Hyperscreen',
+      width: 2400,
+      height: 900,
+      category: 'Automotive',
+      description: '56" spanning display',
+    },
+    /* ── VR / AR ──────────────────────────────────────────────── */
     {
       id: 'quest-browser',
       label: 'Meta Quest Browser',
       width: 1280,
       height: 670,
       category: 'VR / AR',
+      description: 'Quest 2/3/Pro browser',
     },
     {
       id: 'vision-pro',
@@ -1271,13 +2061,16 @@
       width: 1280,
       height: 720,
       category: 'VR / AR',
+      description: 'visionOS Safari',
     },
+    /* ── Smart Appliances ────────────────────────────────────── */
     {
       id: 'family-hub',
       label: 'Samsung Family Hub (21.5")',
       width: 1920,
       height: 1080,
       category: 'Smart Appliances',
+      description: 'Smart fridge display',
     },
     {
       id: 'family-hub-plus',
@@ -1285,13 +2078,16 @@
       width: 1920,
       height: 1080,
       category: 'Smart Appliances',
+      description: 'Large fridge display',
     },
+    /* ── Kiosk / Signage ─────────────────────────────────────── */
     {
       id: 'kiosk-portrait',
       label: 'Kiosk Portrait',
       width: 1080,
       height: 1920,
       category: 'Kiosk / Signage',
+      description: 'Vertical kiosk',
     },
     {
       id: 'kiosk-landscape',
@@ -1299,10 +2095,49 @@
       width: 1920,
       height: 1080,
       category: 'Kiosk / Signage',
+      description: 'Horizontal kiosk',
     },
-    { id: 'tv-hd', label: 'TV 720p / HD', width: 1280, height: 720, category: 'TV' },
-    { id: 'tv-fhd', label: 'TV 1080p / Full HD', width: 1920, height: 1080, category: 'TV' },
-    { id: 'tv-4k', label: 'TV 4K / Ultra HD', width: 3840, height: 2160, category: 'TV' },
+    /* ── TV ───────────────────────────────────────────────────── */
+    {
+      id: 'tv-sd',
+      label: 'TV 480p / SD',
+      width: 854,
+      height: 480,
+      category: 'TV',
+      description: 'Standard definition',
+    },
+    {
+      id: 'tv-hd',
+      label: 'TV 720p / HD',
+      width: 1280,
+      height: 720,
+      category: 'TV',
+      description: 'Standard HD',
+    },
+    {
+      id: 'tv-fhd',
+      label: 'TV 1080p / Full HD',
+      width: 1920,
+      height: 1080,
+      category: 'TV',
+      description: 'Full HD 1080p',
+    },
+    {
+      id: 'tv-4k',
+      label: 'TV 4K / Ultra HD',
+      width: 3840,
+      height: 2160,
+      category: 'TV',
+      description: 'Ultra HD 4K',
+    },
+    {
+      id: 'tv-8k',
+      label: 'TV 8K',
+      width: 7680,
+      height: 4320,
+      category: 'TV',
+      description: 'Ultra HD 8K',
+    },
   ];
 
   /** Color vision deficiency menu items grouped by cone type. */
@@ -1929,13 +2764,29 @@
     return (found?.label ?? '') as Str;
   });
   const filteredViewportPresets = $derived(
-    VIEWPORT_PRESETS.filter((item) =>
-      item.label.toLowerCase().includes(viewportSearchQuery.toLowerCase()),
-    ),
+    viewportSearchQuery.length === 0
+      ? VIEWPORT_PRESETS
+      : VIEWPORT_PRESETS.filter((item) => {
+          const q: Str = viewportSearchQuery.toLowerCase() as Str;
+          const dims: Str = `${item.width}x${item.height}` as Str;
+          return (
+            item.label.toLowerCase().includes(q) ||
+            item.description.toLowerCase().includes(q) ||
+            item.category.toLowerCase().includes(q) ||
+            dims.includes(q)
+          );
+        }),
   );
   const filteredViewportCategories: Str[] = $derived([
     ...new Set(filteredViewportPresets.map((p) => p.category)),
   ]);
+  const activeViewportLabel: Str = $derived.by((): Str => {
+    if (activeViewport === 'auto') return '' as Str;
+    if (activeViewport === 'custom')
+      return `${activeCustomViewport.w}×${activeCustomViewport.h}` as Str;
+    const found = VIEWPORT_PRESETS.find((p) => p.id === activeViewport);
+    return found ? (found.label as Str) : ('' as Str);
+  });
   const filteredColorItems = $derived(
     COLOR_VISION_ITEMS.filter((item) => {
       const q: Str = simSearchQuery.toLowerCase() as Str;
@@ -2035,7 +2886,7 @@
     Background
     {#if activeBgLabel}
       <span
-        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
         >{activeBgLabel}</span
       >
     {/if}
@@ -2201,7 +3052,7 @@
         value={Math.round(activeZoom * 100)}
         min={ZOOM_MIN * 100}
         max={ZOOM_MAX * 100}
-        step={5}
+        step={1}
         onValueChange={(v) => onSetting('zoom', v / 100)}
       />
     </div>
@@ -2222,7 +3073,7 @@
     Outline
     {#if activeOutlineLabel}
       <span
-        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
         >{activeOutlineLabel}</span
       >
     {/if}
@@ -2461,7 +3312,7 @@
     Orientation
     {#if activeOrientationLabel}
       <span
-        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
         >{activeOrientationLabel}</span
       >
     {/if}
@@ -2568,7 +3419,7 @@
     Color Mode
     {#if activeModeLabel}
       <span
-        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
         >{activeModeLabel}</span
       >
     {/if}
@@ -2631,7 +3482,7 @@
     Theme
     {#if activeThemeLabel}
       <span
-        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
         >{activeThemeLabel}</span
       >
     {/if}
@@ -2721,7 +3572,8 @@
       {#each filteredMediaPrefGroups as group (group.pref)}
         <DropdownMenu.Label class="flex items-center gap-2 text-xs">
           <span>{group.label}</span>
-          <code class="rounded bg-muted px-1 font-mono text-[9px] text-muted-foreground/70"
+          <code
+            class="ml-auto rounded bg-muted px-1 text-center font-mono text-[9px] text-muted-foreground/70"
             >{group.query}</code
           >
         </DropdownMenu.Label>
@@ -2799,7 +3651,7 @@
     Network Simulation
     {#if activeNetworkLabel}
       <span
-        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
         >{activeNetworkLabel}</span
       >
     {/if}
@@ -2939,6 +3791,12 @@
   <DropdownMenu.SubTrigger>
     <Tablet class="size-4" />
     Viewport
+    {#if activeViewportLabel}
+      <span
+        class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        >{activeViewportLabel}</span
+      >
+    {/if}
   </DropdownMenu.SubTrigger>
   <DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
     <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -2953,25 +3811,71 @@
         />
       </div>
     </div>
-    <div class="flex max-h-72 flex-col overflow-y-auto" use:lockHeight>
+    <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Size</DropdownMenu.Label>
       <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('viewport', 'auto')}>
         <Check class={cn('size-4 shrink-0', activeViewport !== 'auto' && 'opacity-0')} />
-        Auto (full width)
+        <div class="flex flex-col">
+          <span>Auto (full width)</span>
+          <span class="font-mono text-[10px] leading-tight text-muted-foreground"
+            >Match container width</span
+          >
+        </div>
       </DropdownMenu.Item>
       {#each filteredViewportCategories as category (category)}
         <DropdownMenu.Separator />
-        <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+        <DropdownMenu.Label class="flex items-center gap-1.5 text-xs">
+          {#if category === 'Watches'}
+            <Watch class="size-3" />
+          {:else if category === 'Phones'}
+            <Smartphone class="size-3" />
+          {:else if category === 'Foldables'}
+            <Smartphone class="size-3" />
+          {:else if category === 'E-Readers'}
+            <BookOpenText class="size-3" />
+          {:else if category === 'Fire Tablets'}
+            <Tablet class="size-3" />
+          {:else if category === 'Tablets'}
+            <Tablet class="size-3" />
+          {:else if category === 'Chromebooks'}
+            <Laptop class="size-3" />
+          {:else if category === 'Handhelds'}
+            <Gamepad2 class="size-3" />
+          {:else if category === 'Laptop / Desktop'}
+            <Laptop class="size-3" />
+          {:else if category === 'Smart Displays'}
+            <MonitorSmartphone class="size-3" />
+          {:else if category === 'iOS Widgets'}
+            <LayoutGrid class="size-3" />
+          {:else if category === 'Android Widgets'}
+            <LayoutGrid class="size-3" />
+          {:else if category === 'App Icons'}
+            <AppWindow class="size-3" />
+          {:else if category === 'Favicons'}
+            <Image class="size-3" />
+          {:else if category === 'Social / OG'}
+            <Share2 class="size-3" />
+          {:else if category === 'Automotive'}
+            <Car class="size-3" />
+          {:else if category === 'VR / AR'}
+            <Glasses class="size-3" />
+          {:else if category === 'Smart Appliances'}
+            <MonitorSmartphone class="size-3" />
+          {:else if category === 'Kiosk / Signage'}
+            <MonitorSmartphone class="size-3" />
+          {:else if category === 'TV'}
+            <Tv class="size-3" />
+          {/if}
+          {category}
+        </DropdownMenu.Label>
         {#each filteredViewportPresets.filter((p) => p.category === category) as preset (preset.id)}
           <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('viewport', preset.id)}>
-            <div class="flex items-center gap-2">
-              <Check class={cn('size-4 shrink-0', activeViewport !== preset.id && 'opacity-0')} />
-              <div class="flex flex-col">
-                <span class="truncate">{preset.label}</span>
-                <span class="text-[10px] leading-tight text-muted-foreground"
-                  >{preset.width} &times; {preset.height}</span
-                >
-              </div>
+            <Check class={cn('size-4 shrink-0', activeViewport !== preset.id && 'opacity-0')} />
+            <div class="flex flex-col">
+              <span class="truncate">{preset.label}</span>
+              <span class="font-mono text-[10px] leading-tight text-muted-foreground"
+                >{preset.width} &times; {preset.height} — {preset.description}</span
+              >
             </div>
           </DropdownMenu.Item>
         {/each}
@@ -2989,33 +3893,35 @@
       {/if}
     </div>
     <DropdownMenu.Separator />
-    <div class="shrink-0 px-2 py-1.5">
-      <p class="mb-1.5 text-xs font-medium text-muted-foreground">
-        Custom Width ({activeCustomViewport.w}px)
-      </p>
-      <Slider
-        type="single"
-        value={activeCustomViewport.w}
-        min={100}
-        max={3840}
-        step={10}
-        onValueChange={(v) => onSetting('customViewportW', v)}
-        onValueCommit={() => onSetting('viewport', 'custom')}
-      />
-    </div>
-    <div class="shrink-0 px-2 py-1.5">
-      <p class="mb-1.5 text-xs font-medium text-muted-foreground">
-        Custom Height ({activeCustomViewport.h}px)
-      </p>
-      <Slider
-        type="single"
-        value={activeCustomViewport.h}
-        min={100}
-        max={2160}
-        step={10}
-        onValueChange={(v) => onSetting('customViewportH', v)}
-        onValueCommit={() => onSetting('viewport', 'custom')}
-      />
+    <div class="sticky bottom-0 bg-popover">
+      <div class="shrink-0 px-2 py-1.5">
+        <p class="mb-1.5 text-xs font-medium text-muted-foreground">
+          Custom Width ({activeCustomViewport.w}px)
+        </p>
+        <Slider
+          type="single"
+          value={activeCustomViewport.w}
+          min={100}
+          max={3840}
+          step={10}
+          onValueChange={(v) => onSetting('customViewportW', v)}
+          onValueCommit={() => onSetting('viewport', 'custom')}
+        />
+      </div>
+      <div class="shrink-0 px-2 py-1.5">
+        <p class="mb-1.5 text-xs font-medium text-muted-foreground">
+          Custom Height ({activeCustomViewport.h}px)
+        </p>
+        <Slider
+          type="single"
+          value={activeCustomViewport.h}
+          min={100}
+          max={2160}
+          step={10}
+          onValueChange={(v) => onSetting('customViewportH', v)}
+          onValueCommit={() => onSetting('viewport', 'custom')}
+        />
+      </div>
     </div>
   </DropdownMenu.SubContent>
 </DropdownMenu.Sub>
@@ -3034,7 +3940,7 @@
     Accessibility
     {#if activeSimLabel}
       <span
-        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
         >{activeSimLabel}</span
       >
     {/if}
@@ -3126,7 +4032,7 @@
     Text Direction
     {#if activeDirLabel}
       <span
-        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
         >{activeDirLabel}</span
       >
     {/if}
