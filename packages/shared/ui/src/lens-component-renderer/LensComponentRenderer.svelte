@@ -149,6 +149,7 @@
   import Clock from '@lucide/svelte/icons/clock';
   import WrapText from '@lucide/svelte/icons/wrap-text';
   import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+  import Zap from '@lucide/svelte/icons/zap';
   import { zipSync, strToU8 } from 'fflate';
   import * as DropdownMenu from '../dropdown-menu/index.js';
   import * as Popover from '../popover/index.js';
@@ -1310,6 +1311,24 @@
     if (level === 'green') return 'text-emerald-500';
     if (level === 'yellow') return 'text-amber-500';
     return 'text-red-500';
+  }
+
+  /**
+   * Calculate a health percentage from budget metrics.
+   * Green = 100%, Yellow = 50%, Red = 0%. Returns weighted average.
+   *
+   * @param stats - The stats data containing budget evaluations
+   * @returns Health percentage (0-100)
+   */
+  function healthPercent(stats: LensStatsData): Num {
+    const { budgets }: { budgets: MetricBudget[] } = stats;
+    if (budgets.length === 0) return 100 as Num;
+    const total: Num = budgets.reduce((sum: Num, b: MetricBudget): Num => {
+      if (b.level === 'green') return (sum + 100) as Num;
+      if (b.level === 'yellow') return (sum + 50) as Num;
+      return sum;
+    }, 0 as Num);
+    return Math.round((total as number) / budgets.length) as Num;
   }
 
   /** Count of props with default values for prop coverage metric. */
@@ -7409,23 +7428,27 @@
               <Tooltip.Root delayDuration={400}>
                 <Tooltip.Trigger>
                   {#snippet child({ props: tipProps })}
+                    {@const hp = healthPercent(stats)}
                     <Popover.Trigger>
                       <button
                         {...tipProps}
                         type="button"
                         class={cn(
-                          'inline-flex size-7 items-center justify-center rounded-md transition-colors hover:bg-muted',
+                          'inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-semibold tabular-nums transition-colors hover:bg-muted',
                           budgetColor(stats.overallHealth),
                         )}
-                        aria-label="Performance statistics"
+                        aria-label="Performance statistics ({hp}%)"
                       >
                         <Activity class="size-3.5" aria-hidden="true" />
+                        <span>{hp}%</span>
                       </button>
                     </Popover.Trigger>
                   {/snippet}
                 </Tooltip.Trigger>
                 <Tooltip.Content side="bottom" sideOffset={4}>
-                  Mount: {stats.mountTimeMs}ms · Nodes: {stats.nodeCount} · Health: {stats.overallHealth}
+                  Mount: {stats.mountTimeMs}ms · Nodes: {stats.nodeCount} · Health: {healthPercent(
+                    stats,
+                  )}%
                 </Tooltip.Content>
               </Tooltip.Root>
             </Tooltip.Provider>
@@ -7583,7 +7606,6 @@
                     <DropdownMenu.Item
                       onSelect={(e) => {
                         e.preventDefault();
-                        delete cardStats[cardKey];
                         statsRefreshKey[cardKey] = ((statsRefreshKey[cardKey] ?? 0) + 1) as Num;
                       }}
                     >
@@ -7621,11 +7643,13 @@
                 </div>
                 <span
                   class={cn(
-                    'rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase',
-                    stats.overallHealth === 'green' && 'bg-emerald-500/15 text-emerald-500',
-                    stats.overallHealth === 'yellow' && 'bg-amber-500/15 text-amber-500',
-                    stats.overallHealth === 'red' && 'bg-red-500/15 text-red-500',
-                  )}>{stats.overallHealth}</span
+                    'rounded px-1.5 py-0.5 text-[9px] font-semibold',
+                    healthPercent(stats) >= 80 && 'bg-emerald-500/15 text-emerald-500',
+                    healthPercent(stats) >= 50 &&
+                      healthPercent(stats) < 80 &&
+                      'bg-amber-500/15 text-amber-500',
+                    healthPercent(stats) < 50 && 'bg-red-500/15 text-red-500',
+                  )}>{healthPercent(stats)}%</span
                 >
               </div>
 
@@ -9065,8 +9089,12 @@
                     <Tooltip.Root delayDuration={200}>
                       <Tooltip.Trigger>
                         {#snippet child({ props: tipProps })}
-                          <span {...tipProps} class="cursor-help text-[10px] text-muted-foreground">
-                            ⚡ Async content detected
+                          <span
+                            {...tipProps}
+                            class="inline-flex cursor-help items-center gap-1 text-[10px] text-muted-foreground"
+                          >
+                            <Zap class="size-3" aria-hidden="true" />
+                            Async content detected
                           </span>
                         {/snippet}
                       </Tooltip.Trigger>
