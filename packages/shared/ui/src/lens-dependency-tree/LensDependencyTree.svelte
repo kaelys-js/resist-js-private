@@ -674,21 +674,72 @@
     return layoutGraph(current, dependencyChain);
   });
 
+  /* ------------------------------------------------------------------ */
+  /*  lockHeight Svelte action                                           */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * Svelte action that locks an element's min-height to its current height
+   * on mount, preventing layout shift when filtering reduces content.
+   *
+   * @param node - The DOM element to lock height on
+   * @returns Svelte action lifecycle object with destroy method
+   */
+  function lockHeight(node: HTMLElement): { destroy: () => void } {
+    const raf: Num = requestAnimationFrame((): void => {
+      node.style.minHeight = `${node.offsetHeight}px`;
+    });
+    return {
+      destroy(): void {
+        cancelAnimationFrame(raf);
+        node.style.minHeight = '';
+      },
+    };
+  }
+
   /** Zoom level for the dependency chain graph. */
   let chainZoom: Num = $state(1 as Num);
-  const ZOOM_STEP: Num = 0.15 as Num;
-  const ZOOM_MIN: Num = 0.3 as Num;
-  const ZOOM_MAX: Num = 2 as Num;
+  const ZOOM_STEP: Num = 0.25 as Num;
+  const ZOOM_MIN: Num = 0.25 as Num;
+  const ZOOM_MAX: Num = 5 as Num;
 
-  /** Zoom preset levels for the dropdown menu. */
-  const ZOOM_PRESETS: Array<{ value: Num; label: Str }> = [
-    { value: 0.5 as Num, label: '50%' as Str },
-    { value: 0.75 as Num, label: '75%' as Str },
-    { value: 1 as Num, label: '100%' as Str },
-    { value: 1.25 as Num, label: '125%' as Str },
-    { value: 1.5 as Num, label: '150%' as Str },
-    { value: 2 as Num, label: '200%' as Str },
+  /** Search query for zoom level menu filtering. */
+  let chainZoomSearchQuery: Str = $state('' as Str);
+
+  /** Zoom level presets with descriptions. */
+  const ZOOM_PRESETS: Array<{
+    /** Zoom multiplier (1 = 100%). */
+    value: Num;
+    /** Display label. */
+    label: Str;
+    /** Brief description. */
+    description: Str;
+  }> = [
+    { value: 0.25, label: '25%', description: 'Quarter size' },
+    { value: 0.33, label: '33%', description: 'Third size' },
+    { value: 0.5, label: '50%', description: 'Half size' },
+    { value: 0.67, label: '67%', description: 'Two-thirds size' },
+    { value: 0.75, label: '75%', description: 'Three-quarters' },
+    { value: 1, label: '100%', description: 'Default — actual size' },
+    { value: 1.25, label: '125%', description: 'Slight magnification' },
+    { value: 1.5, label: '150%', description: '1.5\u00D7 magnification' },
+    { value: 1.75, label: '175%', description: 'Near double' },
+    { value: 2, label: '200%', description: 'Retina 2\u00D7' },
+    { value: 2.5, label: '250%', description: '2.5\u00D7 magnification' },
+    { value: 3, label: '300%', description: 'Retina 3\u00D7' },
+    { value: 4, label: '400%', description: 'Extreme zoom' },
+    { value: 5, label: '500%', description: 'Maximum zoom' },
   ];
+
+  /** Zoom presets filtered by search query. */
+  const filteredZoomPresets = $derived(
+    chainZoomSearchQuery.length === 0
+      ? ZOOM_PRESETS
+      : ZOOM_PRESETS.filter((p) => {
+          const q: Str = chainZoomSearchQuery.toLowerCase() as Str;
+          return p.label.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
+        }),
+  );
 
   /**
    * Get the zoom percentage label.
@@ -727,37 +778,120 @@
   /*  Chain export items                                                 */
   /* ------------------------------------------------------------------ */
 
-  /** Chain export format menu items with id, label, icon, and category. */
-  const CHAIN_EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: typeof FileImage; category: Str }> =
-    [
-      { id: 'png', label: 'PNG', icon: FileImage, category: 'Image' },
-      { id: 'jpeg', label: 'JPEG', icon: FileImage, category: 'Image' },
-      { id: 'svg', label: 'SVG', icon: FileImage, category: 'Image' },
-      { id: 'webp', label: 'WebP', icon: FileImage, category: 'Image' },
-      { id: 'copy-image', label: 'Copy as Image', icon: Clipboard, category: 'Clipboard' },
-      { id: 'copy-json', label: 'Copy as JSON', icon: Braces, category: 'Data' },
-      { id: 'copy-mermaid', label: 'Copy as Mermaid', icon: GitBranch, category: 'Data' },
-      { id: 'copy-dot', label: 'Copy as DOT', icon: GitBranch, category: 'Data' },
-      { id: 'copy-csv', label: 'Copy as CSV', icon: Table, category: 'Data' },
-      { id: 'copy-plantuml', label: 'Copy as PlantUML', icon: FileCode, category: 'Data' },
-      { id: 'copy-markdown', label: 'Copy as Markdown', icon: FileText, category: 'Data' },
-    ];
-
-  /** Search query for chain export menu filtering. */
-  let chainExportSearchQuery: Str = $state('');
-
-  /** Chain export items filtered by search query. */
-  const filteredChainExportItems: Array<{
+  /** Chain export format menu items with descriptions and file extension badges. */
+  const CHAIN_EXPORT_ITEMS: Array<{
     id: Str;
     label: Str;
     icon: typeof FileImage;
     category: Str;
-  }> = $derived(
+    description: Str;
+    ext: Str;
+  }> = [
+    {
+      id: 'png',
+      label: 'PNG',
+      icon: FileImage,
+      category: 'Image',
+      description: 'Lossless raster, best quality',
+      ext: '.png',
+    },
+    {
+      id: 'jpeg',
+      label: 'JPEG',
+      icon: FileImage,
+      category: 'Image',
+      description: 'Lossy compressed, smaller files',
+      ext: '.jpg',
+    },
+    {
+      id: 'svg',
+      label: 'SVG',
+      icon: FileImage,
+      category: 'Image',
+      description: 'Vector format, infinitely scalable',
+      ext: '.svg',
+    },
+    {
+      id: 'webp',
+      label: 'WebP',
+      icon: FileImage,
+      category: 'Image',
+      description: 'Modern format, best compression',
+      ext: '.webp',
+    },
+    {
+      id: 'copy-image',
+      label: 'Copy as Image',
+      icon: Clipboard,
+      category: 'Clipboard',
+      description: 'Copies PNG to clipboard',
+      ext: '',
+    },
+    {
+      id: 'copy-json',
+      label: 'Copy as JSON',
+      icon: Braces,
+      category: 'Data',
+      description: 'Structured data format',
+      ext: '',
+    },
+    {
+      id: 'copy-mermaid',
+      label: 'Copy as Mermaid',
+      icon: GitBranch,
+      category: 'Data',
+      description: 'Mermaid diagram syntax',
+      ext: '',
+    },
+    {
+      id: 'copy-dot',
+      label: 'Copy as DOT',
+      icon: GitBranch,
+      category: 'Data',
+      description: 'Graphviz graph description',
+      ext: '',
+    },
+    {
+      id: 'copy-csv',
+      label: 'Copy as CSV',
+      icon: Table,
+      category: 'Data',
+      description: 'Spreadsheet-compatible format',
+      ext: '',
+    },
+    {
+      id: 'copy-plantuml',
+      label: 'Copy as PlantUML',
+      icon: FileCode,
+      category: 'Data',
+      description: 'PlantUML diagram syntax',
+      ext: '',
+    },
+    {
+      id: 'copy-markdown',
+      label: 'Copy as Markdown',
+      icon: FileText,
+      category: 'Data',
+      description: 'Formatted table for docs',
+      ext: '',
+    },
+  ];
+
+  /** Search query for chain export menu filtering. */
+  let chainExportSearchQuery: Str = $state('');
+
+  /** Chain export items filtered by search query (searches label, description, category). */
+  const filteredChainExportItems = $derived(
     chainExportSearchQuery.length === 0
       ? CHAIN_EXPORT_ITEMS
-      : CHAIN_EXPORT_ITEMS.filter((p) =>
-          p.label.toLowerCase().includes(chainExportSearchQuery.toLowerCase()),
-        ),
+      : CHAIN_EXPORT_ITEMS.filter((p) => {
+          const q: Str = chainExportSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.category.toLowerCase().includes(q)
+          );
+        }),
   );
 
   /** Unique chain export categories present after filtering. */
@@ -1065,38 +1199,113 @@
                   {/snippet}
                 </DropdownMenu.Trigger>
                 <DropdownMenu.Content align="end" class="w-52">
-                  <DropdownMenu.Sub>
+                  <DropdownMenu.Sub
+                    onOpenChange={(open) => {
+                      if (open) chainZoomSearchQuery = '' as Str;
+                    }}
+                  >
                     <DropdownMenu.SubTrigger>
                       <ZoomIn class="size-4" />
-                      Zoom ({chainZoomLabel()})
+                      Zoom
+                      <span
+                        class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]"
+                        >{chainZoomLabel()}</span
+                      >
                     </DropdownMenu.SubTrigger>
-                    <DropdownMenu.SubContent class="w-44">
-                      <DropdownMenu.Item onclick={chainZoomIn} disabled={chainZoom >= ZOOM_MAX}>
-                        <ZoomIn class="size-4" />
-                        Zoom in
-                      </DropdownMenu.Item>
-                      <DropdownMenu.Item onclick={chainZoomOut} disabled={chainZoom <= ZOOM_MIN}>
-                        <ZoomOut class="size-4" />
-                        Zoom out
-                      </DropdownMenu.Item>
-                      <DropdownMenu.Item onclick={chainZoomFit} disabled={chainZoom === 1}>
-                        <Maximize class="size-4" />
-                        Fit (100%)
-                      </DropdownMenu.Item>
-                      <DropdownMenu.Separator />
-                      <DropdownMenu.Label class="text-xs">Zoom Level</DropdownMenu.Label>
-                      {#each ZOOM_PRESETS as preset (preset.value)}
-                        <DropdownMenu.Item
-                          onclick={() => {
-                            chainZoom = preset.value;
-                          }}
+                    <DropdownMenu.SubContent class="flex max-h-96 w-72 flex-col overflow-hidden">
+                      <div class="shrink-0 px-2 pb-1.5 pt-1">
+                        <div
+                          class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
                         >
-                          <Check class={cn('size-4', chainZoom !== preset.value && 'opacity-0')} />
-                          {preset.label}
+                          <Search
+                            class="size-3 shrink-0 text-muted-foreground"
+                            aria-hidden="true"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Search zoom levels..."
+                            class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                            bind:value={chainZoomSearchQuery}
+                            onkeydown={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      </div>
+                      <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+                        <!-- Zoom Actions -->
+                        <DropdownMenu.Label class="text-xs">Actions</DropdownMenu.Label>
+                        <DropdownMenu.Item
+                          closeOnSelect={false}
+                          onclick={chainZoomIn}
+                          disabled={chainZoom >= ZOOM_MAX}
+                        >
+                          <ZoomIn class="size-4" />
+                          <div class="flex flex-col gap-0.5">
+                            <span class="text-sm">Zoom In</span>
+                            <span class="text-[11px] text-muted-foreground">Increase by 25%</span>
+                          </div>
                         </DropdownMenu.Item>
-                      {/each}
+                        <DropdownMenu.Item
+                          closeOnSelect={false}
+                          onclick={chainZoomOut}
+                          disabled={chainZoom <= ZOOM_MIN}
+                        >
+                          <ZoomOut class="size-4" />
+                          <div class="flex flex-col gap-0.5">
+                            <span class="text-sm">Zoom Out</span>
+                            <span class="text-[11px] text-muted-foreground">Decrease by 25%</span>
+                          </div>
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item
+                          closeOnSelect={false}
+                          onclick={chainZoomFit}
+                          disabled={chainZoom === 1}
+                        >
+                          <Maximize class="size-4" />
+                          <div class="flex flex-col gap-0.5">
+                            <span class="text-sm">Reset (100%)</span>
+                            <span class="text-[11px] text-muted-foreground"
+                              >Restore to actual size</span
+                            >
+                          </div>
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Separator />
+                        <!-- Zoom Level Presets -->
+                        <DropdownMenu.Label class="text-xs">Zoom Level</DropdownMenu.Label>
+                        {#each filteredZoomPresets as preset (preset.value)}
+                          <DropdownMenu.Item
+                            closeOnSelect={false}
+                            onclick={() => {
+                              chainZoom = preset.value;
+                            }}
+                          >
+                            <Check
+                              class={cn(
+                                'size-4 shrink-0',
+                                chainZoom !== preset.value && 'opacity-0',
+                              )}
+                            />
+                            <div class="flex flex-col gap-0.5">
+                              <span class="text-sm">{preset.label}</span>
+                              <span class="text-[11px] text-muted-foreground"
+                                >{preset.description}</span
+                              >
+                            </div>
+                          </DropdownMenu.Item>
+                        {:else}
+                          <div
+                            class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                          >
+                            <SearchX class="size-5" />
+                            <div class="flex flex-col items-center gap-0.5">
+                              <p class="text-xs font-medium">No zoom levels found</p>
+                              <p class="text-[11px]">Try a different search term</p>
+                            </div>
+                          </div>
+                        {/each}
+                      </div>
+                      <!-- Sticky custom section -->
                       <DropdownMenu.Separator />
-                      <div class="px-2 py-1.5">
+                      <div class="shrink-0 px-2 py-1.5">
                         <p class="mb-1.5 text-xs font-medium text-muted-foreground">
                           Custom ({chainZoomLabel()})
                         </p>
@@ -1122,7 +1331,9 @@
                       <Download class="size-4" />
                       Export
                     </DropdownMenu.SubTrigger>
-                    <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+                    <DropdownMenu.SubContent
+                      class="flex max-h-[28rem] w-64 flex-col overflow-hidden"
+                    >
                       <div class="shrink-0 px-2 pb-1.5 pt-1">
                         <div
                           class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
@@ -1147,7 +1358,18 @@
                           {#if filteredChainExportCategories.indexOf(category) > 0}
                             <DropdownMenu.Separator />
                           {/if}
-                          <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+                          <DropdownMenu.Label
+                            class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+                          >
+                            {#if category === 'Image'}
+                              <FileImage class="size-3" />
+                            {:else if category === 'Clipboard'}
+                              <Clipboard class="size-3" />
+                            {:else}
+                              <Braces class="size-3" />
+                            {/if}
+                            {category}
+                          </DropdownMenu.Label>
                           {#each filteredChainExportItems.filter((i) => i.category === category) as item (item.id)}
                             <DropdownMenu.Item
                               onSelect={(e) => {
@@ -1160,7 +1382,18 @@
                               {:else}
                                 <item.icon class="size-4" />
                               {/if}
-                              {item.label}
+                              <div class="flex min-w-0 flex-1 flex-col">
+                                <span class="text-sm">{item.label}</span>
+                                <span class="text-[11px] text-muted-foreground/60"
+                                  >{item.description}</span
+                                >
+                              </div>
+                              {#if item.ext}
+                                <code
+                                  class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                                  >{item.ext}</code
+                                >
+                              {/if}
                             </DropdownMenu.Item>
                           {/each}
                         {:else}

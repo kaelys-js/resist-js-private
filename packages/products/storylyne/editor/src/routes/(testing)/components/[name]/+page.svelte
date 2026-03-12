@@ -65,6 +65,7 @@
   import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
   import Check from '@lucide/svelte/icons/check';
   import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
+  import Clipboard from '@lucide/svelte/icons/clipboard';
   import CopyButton from '@/ui/copy-button/CopyButton.svelte';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
   import * as Tooltip from '@/ui/tooltip/index.js';
@@ -507,36 +508,80 @@
   /** Feedback state for props export actions. */
   let propsExportFeedback: Str = $state('');
 
-  /** Props export format menu items with id, label, icon, and category. */
+  /** Props export format menu items with descriptions and file extension badges. */
   const PROPS_EXPORT_ITEMS: Array<{
     id: Str;
     label: Str;
     icon: typeof ClipboardCopy;
     category: Str;
+    description: Str;
+    ext: Str;
   }> = [
-    { id: 'copy-json', label: 'Copy as JSON', icon: ClipboardCopy, category: 'Clipboard' },
-    { id: 'copy-markdown', label: 'Copy as Markdown', icon: FileText, category: 'Clipboard' },
-    { id: 'copy-csv', label: 'Copy as CSV', icon: ClipboardCopy, category: 'Clipboard' },
-    { id: 'copy-typescript', label: 'Copy as TypeScript', icon: FileCode, category: 'Clipboard' },
-    { id: 'download-json', label: 'Download JSON', icon: Download, category: 'File' },
-    { id: 'download-markdown', label: 'Download Markdown', icon: Download, category: 'File' },
+    {
+      id: 'copy-json',
+      label: 'Copy as JSON',
+      icon: ClipboardCopy,
+      category: 'Clipboard',
+      description: 'Structured data format',
+      ext: '',
+    },
+    {
+      id: 'copy-markdown',
+      label: 'Copy as Markdown',
+      icon: FileText,
+      category: 'Clipboard',
+      description: 'Formatted table for docs',
+      ext: '',
+    },
+    {
+      id: 'copy-csv',
+      label: 'Copy as CSV',
+      icon: ClipboardCopy,
+      category: 'Clipboard',
+      description: 'Spreadsheet-compatible format',
+      ext: '',
+    },
+    {
+      id: 'copy-typescript',
+      label: 'Copy as TypeScript',
+      icon: FileCode,
+      category: 'Clipboard',
+      description: 'Type definitions for code',
+      ext: '',
+    },
+    {
+      id: 'download-json',
+      label: 'Download JSON',
+      icon: Download,
+      category: 'File',
+      description: 'Structured data file',
+      ext: '.json',
+    },
+    {
+      id: 'download-markdown',
+      label: 'Download Markdown',
+      icon: Download,
+      category: 'File',
+      description: 'Formatted doc file',
+      ext: '.md',
+    },
   ];
 
   /** Search query for props export menu filtering. */
   let propsExportSearchQuery: Str = $state('');
 
-  /** Props export items filtered by search query. */
-  const filteredPropsExportItems: Array<{
-    id: Str;
-    label: Str;
-    icon: typeof ClipboardCopy;
-    category: Str;
-  }> = $derived(
+  /** Props export items filtered by search query (searches label, description, category). */
+  const filteredPropsExportItems = $derived(
     propsExportSearchQuery.length === 0
       ? PROPS_EXPORT_ITEMS
-      : PROPS_EXPORT_ITEMS.filter((p) =>
-          p.label.toLowerCase().includes(propsExportSearchQuery.toLowerCase()),
-        ),
+      : PROPS_EXPORT_ITEMS.filter((p) => {
+          const q: Str = propsExportSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.category.toLowerCase().includes(q)
+          );
+        }),
   );
 
   /** Unique props export categories present after filtering. */
@@ -651,35 +696,72 @@
   /** Feedback state for changelog export actions. */
   let changelogExportFeedback: Str = $state('');
 
-  /** Changelog export format menu items with id, label, icon, and category. */
+  /** Changelog export format menu items with descriptions and file extension badges. */
   const CHANGELOG_EXPORT_ITEMS: Array<{
     id: Str;
     label: Str;
     icon: typeof ClipboardCopy;
     category: Str;
+    description: Str;
+    ext: Str;
   }> = [
-    { id: 'copy-json', label: 'Copy as JSON', icon: ClipboardCopy, category: 'Clipboard' },
-    { id: 'copy-markdown', label: 'Copy as Markdown', icon: FileText, category: 'Clipboard' },
-    { id: 'copy-csv', label: 'Copy as CSV', icon: ClipboardCopy, category: 'Clipboard' },
-    { id: 'download-json', label: 'Download JSON', icon: Download, category: 'File' },
-    { id: 'download-markdown', label: 'Download Markdown', icon: Download, category: 'File' },
+    {
+      id: 'copy-json',
+      label: 'Copy as JSON',
+      icon: ClipboardCopy,
+      category: 'Clipboard',
+      description: 'Structured data format',
+      ext: '',
+    },
+    {
+      id: 'copy-markdown',
+      label: 'Copy as Markdown',
+      icon: FileText,
+      category: 'Clipboard',
+      description: 'Formatted table for docs',
+      ext: '',
+    },
+    {
+      id: 'copy-csv',
+      label: 'Copy as CSV',
+      icon: ClipboardCopy,
+      category: 'Clipboard',
+      description: 'Spreadsheet-compatible format',
+      ext: '',
+    },
+    {
+      id: 'download-json',
+      label: 'Download JSON',
+      icon: Download,
+      category: 'File',
+      description: 'Structured data file',
+      ext: '.json',
+    },
+    {
+      id: 'download-markdown',
+      label: 'Download Markdown',
+      icon: Download,
+      category: 'File',
+      description: 'Formatted doc file',
+      ext: '.md',
+    },
   ];
 
   /** Search query for changelog export menu filtering. */
   let changelogExportSearchQuery: Str = $state('');
 
-  /** Changelog export items filtered by search query. */
-  const filteredChangelogExportItems: Array<{
-    id: Str;
-    label: Str;
-    icon: typeof ClipboardCopy;
-    category: Str;
-  }> = $derived(
+  /** Changelog export items filtered by search query (searches label, description, category). */
+  const filteredChangelogExportItems = $derived(
     changelogExportSearchQuery.length === 0
       ? CHANGELOG_EXPORT_ITEMS
-      : CHANGELOG_EXPORT_ITEMS.filter((p) =>
-          p.label.toLowerCase().includes(changelogExportSearchQuery.toLowerCase()),
-        ),
+      : CHANGELOG_EXPORT_ITEMS.filter((p) => {
+          const q: Str = changelogExportSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.category.toLowerCase().includes(q)
+          );
+        }),
   );
 
   /** Unique changelog export categories present after filtering. */
@@ -1075,7 +1157,9 @@
                         <Download class="size-4" />
                         Export
                       </DropdownMenu.SubTrigger>
-                      <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+                      <DropdownMenu.SubContent
+                        class="flex max-h-[28rem] w-64 flex-col overflow-hidden"
+                      >
                         <div class="shrink-0 px-2 pb-1.5 pt-1">
                           <div
                             class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
@@ -1100,7 +1184,16 @@
                             {#if filteredPropsExportCategories.indexOf(category) > 0}
                               <DropdownMenu.Separator />
                             {/if}
-                            <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+                            <DropdownMenu.Label
+                              class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+                            >
+                              {#if category === 'Clipboard'}
+                                <Clipboard class="size-3" />
+                              {:else}
+                                <Download class="size-3" />
+                              {/if}
+                              {category}
+                            </DropdownMenu.Label>
                             {#each filteredPropsExportItems.filter((i) => i.category === category) as item (item.id)}
                               <DropdownMenu.Item
                                 onSelect={(e) => {
@@ -1113,7 +1206,18 @@
                                 {:else}
                                   <item.icon class="size-4" />
                                 {/if}
-                                {item.label}
+                                <div class="flex min-w-0 flex-1 flex-col">
+                                  <span class="text-sm">{item.label}</span>
+                                  <span class="text-[11px] text-muted-foreground/60"
+                                    >{item.description}</span
+                                  >
+                                </div>
+                                {#if item.ext}
+                                  <code
+                                    class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                                    >{item.ext}</code
+                                  >
+                                {/if}
                               </DropdownMenu.Item>
                             {/each}
                           {:else}
@@ -1526,7 +1630,9 @@
                         <Download class="size-4" />
                         Export
                       </DropdownMenu.SubTrigger>
-                      <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+                      <DropdownMenu.SubContent
+                        class="flex max-h-[28rem] w-64 flex-col overflow-hidden"
+                      >
                         <div class="shrink-0 px-2 pb-1.5 pt-1">
                           <div
                             class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
@@ -1551,7 +1657,16 @@
                             {#if filteredChangelogExportCategories.indexOf(category) > 0}
                               <DropdownMenu.Separator />
                             {/if}
-                            <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+                            <DropdownMenu.Label
+                              class="flex items-center gap-1.5 text-xs text-muted-foreground/60"
+                            >
+                              {#if category === 'Clipboard'}
+                                <Clipboard class="size-3" />
+                              {:else}
+                                <Download class="size-3" />
+                              {/if}
+                              {category}
+                            </DropdownMenu.Label>
                             {#each filteredChangelogExportItems.filter((i) => i.category === category) as item (item.id)}
                               <DropdownMenu.Item
                                 onSelect={(e) => {
@@ -1564,7 +1679,18 @@
                                 {:else}
                                   <item.icon class="size-4" />
                                 {/if}
-                                {item.label}
+                                <div class="flex min-w-0 flex-1 flex-col">
+                                  <span class="text-sm">{item.label}</span>
+                                  <span class="text-[11px] text-muted-foreground/60"
+                                    >{item.description}</span
+                                  >
+                                </div>
+                                {#if item.ext}
+                                  <code
+                                    class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                                    >{item.ext}</code
+                                  >
+                                {/if}
                               </DropdownMenu.Item>
                             {/each}
                           {:else}
