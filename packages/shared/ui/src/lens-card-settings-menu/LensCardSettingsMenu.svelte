@@ -776,15 +776,42 @@
     { id: 'rtl', label: 'RTL (Right to Left)' },
   ];
 
-  /** Font size presets. */
-  const FONT_SIZE_PRESETS: Array<{ px: Num; label: Str }> = [
-    { px: 0, label: 'Default' },
-    { px: 12, label: '12px' },
-    { px: 14, label: '14px' },
-    { px: 16, label: '16px' },
-    { px: 18, label: '18px' },
-    { px: 20, label: '20px' },
-    { px: 24, label: '24px' },
+  /** Font size presets organized by typographic category. */
+  const FONT_SIZE_PRESETS: Array<{
+    /** Size in pixels (0 = browser default). */
+    px: Num;
+    /** Display label. */
+    label: Str;
+    /** Scale factor relative to 16px base. */
+    scale: Str;
+    /** Typographic category for grouped display. */
+    category: Str;
+  }> = [
+    { px: 0, label: 'Default (16px)', scale: '1.0x', category: '' },
+    { px: 8, label: '8px', scale: '0.50x', category: 'Small' },
+    { px: 9, label: '9px', scale: '0.56x', category: 'Small' },
+    { px: 10, label: '10px', scale: '0.63x', category: 'Small' },
+    { px: 11, label: '11px', scale: '0.69x', category: 'Small' },
+    { px: 12, label: '12px', scale: '0.75x', category: 'Small' },
+    { px: 13, label: '13px', scale: '0.81x', category: 'Body' },
+    { px: 14, label: '14px', scale: '0.88x', category: 'Body' },
+    { px: 15, label: '15px', scale: '0.94x', category: 'Body' },
+    { px: 16, label: '16px', scale: '1.0x', category: 'Body' },
+    { px: 17, label: '17px', scale: '1.06x', category: 'Body' },
+    { px: 18, label: '18px', scale: '1.13x', category: 'Body' },
+    { px: 20, label: '20px', scale: '1.25x', category: 'Heading' },
+    { px: 22, label: '22px', scale: '1.38x', category: 'Heading' },
+    { px: 24, label: '24px', scale: '1.50x', category: 'Heading' },
+    { px: 28, label: '28px', scale: '1.75x', category: 'Heading' },
+    { px: 32, label: '32px', scale: '2.0x', category: 'Heading' },
+    { px: 36, label: '36px', scale: '2.25x', category: 'Heading' },
+    { px: 40, label: '40px', scale: '2.50x', category: 'Display' },
+    { px: 48, label: '48px', scale: '3.0x', category: 'Display' },
+    { px: 56, label: '56px', scale: '3.50x', category: 'Display' },
+    { px: 64, label: '64px', scale: '4.0x', category: 'Display' },
+    { px: 72, label: '72px', scale: '4.50x', category: 'Display' },
+    { px: 96, label: '96px', scale: '6.0x', category: 'Display' },
+    { px: 128, label: '128px', scale: '8.0x', category: 'Display' },
   ];
 
   /** Export format menu items. */
@@ -899,12 +926,14 @@
       : DIR_PRESETS.filter((p) => p.label.toLowerCase().includes(dirSearchQuery.toLowerCase())),
   );
   const filteredFontSizePresets = $derived(
-    fontSizeSearchQuery.length === 0
-      ? FONT_SIZE_PRESETS
-      : FONT_SIZE_PRESETS.filter((p) =>
-          p.label.toLowerCase().includes(fontSizeSearchQuery.toLowerCase()),
-        ),
+    FONT_SIZE_PRESETS.filter(
+      (item) =>
+        item.px === 0 || item.label.toLowerCase().includes(fontSizeSearchQuery.toLowerCase()),
+    ),
   );
+  const filteredFontSizeCategories: Str[] = $derived([
+    ...new Set(filteredFontSizePresets.filter((p) => p.category).map((p) => p.category)),
+  ]);
   const filteredExportItems = $derived(
     exportSearchQuery.length === 0
       ? EXPORT_ITEMS
@@ -1756,7 +1785,7 @@
     <ALargeSmall class="size-4" />
     Font Size
   </DropdownMenu.SubTrigger>
-  <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+  <DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
     <div class="shrink-0 px-2 pb-1.5 pt-1">
       <div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
         <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -1769,14 +1798,27 @@
         />
       </div>
     </div>
-    <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-      <DropdownMenu.Label class="text-xs">Presets</DropdownMenu.Label>
-      {#each filteredFontSizePresets as item (item.px)}
-        <DropdownMenu.Item onclick={() => onSetting('fontSize', item.px)}>
-          <Check class={cn('size-4', activeFontSize !== item.px && 'opacity-0')} />
-          {item.label}
-        </DropdownMenu.Item>
-      {:else}
+    <div class="flex max-h-72 flex-col overflow-y-auto" use:lockHeight>
+      <DropdownMenu.Label class="text-xs">Base</DropdownMenu.Label>
+      <DropdownMenu.Item onclick={() => onSetting('fontSize', 0)}>
+        <Check class={cn('size-4 shrink-0', activeFontSize !== 0 && 'opacity-0')} />
+        Default (16px)
+        <span class="ml-auto font-mono text-[10px] tabular-nums text-muted-foreground">1.0x</span>
+      </DropdownMenu.Item>
+      {#each filteredFontSizeCategories as category (category)}
+        <DropdownMenu.Separator />
+        <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+        {#each filteredFontSizePresets.filter((p) => p.category === category) as preset (preset.px)}
+          <DropdownMenu.Item onclick={() => onSetting('fontSize', preset.px)}>
+            <Check class={cn('size-4 shrink-0', activeFontSize !== preset.px && 'opacity-0')} />
+            {preset.label}
+            <span class="ml-auto font-mono text-[10px] tabular-nums text-muted-foreground"
+              >{preset.scale}</span
+            >
+          </DropdownMenu.Item>
+        {/each}
+      {/each}
+      {#if filteredFontSizeCategories.length === 0}
         <div
           class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
         >
@@ -1786,26 +1828,21 @@
             <p class="text-[11px]">Try a different search term</p>
           </div>
         </div>
-      {/each}
-      <DropdownMenu.Separator />
-      <div class="px-2 py-1.5">
-        <div class="flex items-center justify-between gap-2">
-          <span class="text-[11px] text-muted-foreground">Custom</span>
-          <span class="font-mono text-[11px] font-medium text-muted-foreground"
-            >{activeFontSize || 16}px</span
-          >
-        </div>
-        <input
-          type="range"
-          min="8"
-          max="48"
-          step="1"
-          value={activeFontSize || 16}
-          class="mt-1 w-full accent-primary"
-          oninput={(e) => onSetting('fontSize', Number((e.target as HTMLInputElement).value))}
-          onkeydown={(e) => e.stopPropagation()}
-        />
-      </div>
+      {/if}
+    </div>
+    <DropdownMenu.Separator />
+    <div class="shrink-0 px-2 py-1.5">
+      <p class="mb-1.5 text-xs font-medium text-muted-foreground">
+        Custom ({activeFontSize || 16}px &middot; {((activeFontSize || 16) / 16).toFixed(2)}x)
+      </p>
+      <Slider
+        type="single"
+        value={activeFontSize || 16}
+        min={4}
+        max={128}
+        step={1}
+        onValueChange={(v) => onSetting('fontSize', v)}
+      />
     </div>
   </DropdownMenu.SubContent>
 </DropdownMenu.Sub>
