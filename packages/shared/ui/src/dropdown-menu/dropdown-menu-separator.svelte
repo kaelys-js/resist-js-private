@@ -1,20 +1,20 @@
 <script lang="ts">
-/**
- * A horizontal divider line used to visually separate sections within a dropdown menu.
- */
-import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
-import { cn } from '../utils.js';
+  /**
+   * A horizontal divider line used to visually separate sections within a dropdown menu.
+   */
+  import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
+  import { cn } from '../utils.js';
 
-let {
-	ref = $bindable(null),
-	class: className,
-	...restProps
-}: DropdownMenuPrimitive.SeparatorProps = $props();
+  let {
+    ref = $bindable(null),
+    class: className,
+    ...restProps
+  }: DropdownMenuPrimitive.SeparatorProps = $props();
 </script>
 
 <DropdownMenuPrimitive.Separator
-	bind:ref
-	data-slot="dropdown-menu-separator"
-	class={cn("bg-border -mx-1 my-1 h-px", className)}
-	{...restProps}
+  bind:ref
+  data-slot="dropdown-menu-separator"
+  class={cn('bg-border -mx-1 my-1 h-px', className)}
+  {...restProps}
 />

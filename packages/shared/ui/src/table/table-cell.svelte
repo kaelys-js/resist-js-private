@@ -1,26 +1,26 @@
 <script lang="ts">
-/**
- * Table data cell (`<td>`) with consistent padding and vertical alignment.
- */
-import { cn, type WithElementRef } from '../utils.js';
-import type { HTMLTdAttributes } from 'svelte/elements';
+  /**
+   * Table data cell (`<td>`) with consistent padding and vertical alignment.
+   */
+  import { cn, type WithElementRef } from '../utils.js';
+  import type { HTMLTdAttributes } from 'svelte/elements';
 
-let {
-	ref = $bindable(null),
-	class: className,
-	children,
-	...restProps
-}: WithElementRef<HTMLTdAttributes> = $props();
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLTdAttributes> = $props();
 </script>
 
 <td
-	bind:this={ref}
-	data-slot="table-cell"
-	class={cn(
-		"bg-clip-padding p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pe-0",
-		className
-	)}
-	{...restProps}
+  bind:this={ref}
+  data-slot="table-cell"
+  class={cn(
+    'bg-clip-padding p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pe-0',
+    className,
+  )}
+  {...restProps}
 >
-	{@render children?.()}
+  {@render children?.()}
 </td>

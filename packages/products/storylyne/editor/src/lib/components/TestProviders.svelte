@@ -1,14 +1,14 @@
 <script lang="ts">
-import type { Bool } from '@/schemas/common';
-import type { Snippet } from 'svelte';
-import * as Sidebar from '@/ui/sidebar/index.js';
-import { initEditorStore } from '$lib/stores/editor-state.svelte';
+  import type { Bool } from '@/schemas/common';
+  import type { Snippet } from 'svelte';
+  import * as Sidebar from '@/ui/sidebar/index.js';
+  import { initEditorStore } from '$lib/stores/editor-state.svelte';
 
-let { children, sidebarOpen = true }: { children: Snippet; sidebarOpen?: Bool } = $props();
+  let { children, sidebarOpen = true }: { children: Snippet; sidebarOpen?: Bool } = $props();
 
-initEditorStore();
+  initEditorStore();
 </script>
 
 <Sidebar.Provider open={sidebarOpen}>
-	{@render children()}
+  {@render children()}
 </Sidebar.Provider>

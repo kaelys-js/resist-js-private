@@ -1,26 +1,26 @@
 <script lang="ts">
-/**
- * Table row with hover highlight and selected-state background styling.
- */
-import { cn, type WithElementRef } from '../utils.js';
-import type { HTMLAttributes } from 'svelte/elements';
+  /**
+   * Table row with hover highlight and selected-state background styling.
+   */
+  import { cn, type WithElementRef } from '../utils.js';
+  import type { HTMLAttributes } from 'svelte/elements';
 
-let {
-	ref = $bindable(null),
-	class: className,
-	children,
-	...restProps
-}: WithElementRef<HTMLAttributes<HTMLTableRowElement>> = $props();
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLTableRowElement>> = $props();
 </script>
 
 <tr
-	bind:this={ref}
-	data-slot="table-row"
-	class={cn(
-		"hover:[&,&>svelte-css-wrapper]:[&>th,td]:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
-		className
-	)}
-	{...restProps}
+  bind:this={ref}
+  data-slot="table-row"
+  class={cn(
+    'hover:[&,&>svelte-css-wrapper]:[&>th,td]:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors',
+    className,
+  )}
+  {...restProps}
 >
-	{@render children?.()}
+  {@render children?.()}
 </tr>

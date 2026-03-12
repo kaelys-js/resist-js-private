@@ -1,23 +1,23 @@
 <script lang="ts">
-/**
- * Table body section (`<tbody>`) with last-row border removal.
- */
-import { cn, type WithElementRef } from '../utils.js';
-import type { HTMLAttributes } from 'svelte/elements';
+  /**
+   * Table body section (`<tbody>`) with last-row border removal.
+   */
+  import { cn, type WithElementRef } from '../utils.js';
+  import type { HTMLAttributes } from 'svelte/elements';
 
-let {
-	ref = $bindable(null),
-	class: className,
-	children,
-	...restProps
-}: WithElementRef<HTMLAttributes<HTMLTableSectionElement>> = $props();
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLTableSectionElement>> = $props();
 </script>
 
 <tbody
-	bind:this={ref}
-	data-slot="table-body"
-	class={cn("[&_tr:last-child]:border-0", className)}
-	{...restProps}
+  bind:this={ref}
+  data-slot="table-body"
+  class={cn('[&_tr:last-child]:border-0', className)}
+  {...restProps}
 >
-	{@render children?.()}
+  {@render children?.()}
 </tbody>

@@ -22,39 +22,39 @@ this component, so the fade always plays from a clean state.
 ```
 -->
 <script lang="ts">
-/**
- * Page enter animation wrapper that fades content in on mount.
- *
- * Uses double `requestAnimationFrame` to ensure the browser paints the transparent
- * frame before transitioning. SSR-safe: content renders fully visible on the server.
- */
-import type { Bool } from '@/schemas/common';
-import type { Snippet } from 'svelte';
+  /**
+   * Page enter animation wrapper that fades content in on mount.
+   *
+   * Uses double `requestAnimationFrame` to ensure the browser paints the transparent
+   * frame before transitioning. SSR-safe: content renders fully visible on the server.
+   */
+  import type { Bool } from '@/schemas/common';
+  import type { Snippet } from 'svelte';
 
-const { children }: { children: Snippet } = $props();
+  const { children }: { children: Snippet } = $props();
 
-// Fade-in on client mount only. SSR renders without the animation class
-// so content is immediately visible. The {#key} block swap re-mounts
-// this component during navigation — applying the class via $effect
-// ensures the animation plays exactly once per mount.
-let animate: Bool = $state(false);
-$effect(() => {
-	// Double rAF ensures the browser paints the opacity-0 frame before
-	// transitioning to opacity-100. A single rAF fires before the paint,
-	// so the initial state would never be committed.
-	let rafId: ReturnType<typeof requestAnimationFrame> = requestAnimationFrame(() => {
-		rafId = requestAnimationFrame(() => {
-			animate = true;
-		});
-	});
-	return () => cancelAnimationFrame(rafId);
-});
+  // Fade-in on client mount only. SSR renders without the animation class
+  // so content is immediately visible. The {#key} block swap re-mounts
+  // this component during navigation — applying the class via $effect
+  // ensures the animation plays exactly once per mount.
+  let animate: Bool = $state(false);
+  $effect(() => {
+    // Double rAF ensures the browser paints the opacity-0 frame before
+    // transitioning to opacity-100. A single rAF fires before the paint,
+    // so the initial state would never be committed.
+    let rafId: ReturnType<typeof requestAnimationFrame> = requestAnimationFrame(() => {
+      rafId = requestAnimationFrame(() => {
+        animate = true;
+      });
+    });
+    return () => cancelAnimationFrame(rafId);
+  });
 </script>
 
 <div
-	class="flex flex-1 flex-col transition-opacity duration-700 ease-out {animate
-		? 'opacity-100'
-		: 'opacity-0'}"
+  class="flex flex-1 flex-col transition-opacity duration-700 ease-out {animate
+    ? 'opacity-100'
+    : 'opacity-0'}"
 >
-	{@render children()}
+  {@render children()}
 </div>

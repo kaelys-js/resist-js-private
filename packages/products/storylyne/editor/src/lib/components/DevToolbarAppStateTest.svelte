@@ -1,8 +1,8 @@
 <script lang="ts">
-import DevToolbarAppState from './DevToolbarAppState.svelte';
-import { initEditorStore } from '$lib/stores/editor-state.svelte';
+  import DevToolbarAppState from './DevToolbarAppState.svelte';
+  import { initEditorStore } from '$lib/stores/editor-state.svelte';
 
-const editorStore = initEditorStore();
+  const editorStore = initEditorStore();
 </script>
 
 <DevToolbarAppState {editorStore} />
