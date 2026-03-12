@@ -102,6 +102,8 @@
     customNetwork?: { delay: Num; label: Str };
     /** Custom viewport dimensions. */
     customViewport?: { w: Num; h: Num };
+    /** Custom rotation angle in degrees (0-359). */
+    customRotation?: Num;
   };
 
   let {
@@ -142,9 +144,28 @@
   const activeGrid: Str = $derived(active.grid ?? 'none');
   const activeGridFill: Str = $derived(active.gridFill ?? 'none');
   const activeOrientation: Str = $derived(active.orientation ?? 'default');
+  const activeOrientationLabel: Str = $derived.by((): Str => {
+    const id: Str = activeOrientation;
+    if (id === 'default') return '' as Str;
+    if (id === 'custom') {
+      const deg: Num = active.customRotation ?? 0;
+      return `${deg}°` as Str;
+    }
+    const preset = ORIENTATION_PRESETS.find((p) => p.id === id);
+    return preset ? (`${preset.rotation}°` as Str) : ('' as Str);
+  });
   const activeMode: Str = $derived(active.mode ?? 'auto');
   const activeTheme: Str = $derived(active.theme ?? '');
   const activeSim: Str = $derived(active.sim ?? 'none');
+  const activeSimLabel: Str = $derived.by((): Str => {
+    const sim: Str = activeSim;
+    if (sim === 'none') return '' as Str;
+    const color = COLOR_VISION_ITEMS.find((i) => i.id === sim);
+    if (color) return color.label;
+    const vision = VISION_ITEMS.find((i) => i.id === sim);
+    if (vision) return vision.label;
+    return '' as Str;
+  });
   const activeDir: Str = $derived(active.dir ?? 'auto');
   const activeFontSize: Num = $derived(active.fontSize ?? 0);
   const activeNetworkSim: Str = $derived(active.networkSim ?? 'none');
@@ -259,12 +280,103 @@
     { id: 'yellow', label: 'Yellow', color: 'rgba(234, 179, 8, 0.08)' },
   ];
 
-  /** Orientation presets. */
-  const ORIENTATION_PRESETS: Array<{ id: Str; label: Str; rotation: Num }> = [
-    { id: 'portrait-primary', label: 'Portrait Primary (0°)', rotation: 0 },
-    { id: 'portrait-secondary', label: 'Portrait Secondary (180°)', rotation: 180 },
-    { id: 'landscape-primary', label: 'Landscape Primary (90°)', rotation: 90 },
-    { id: 'landscape-secondary', label: 'Landscape Secondary (270°)', rotation: 270 },
+  /** Orientation presets grouped by type. */
+  const ORIENTATION_PRESETS: Array<{
+    /** Preset identifier. */
+    id: Str;
+    /** Display label. */
+    label: Str;
+    /** Rotation angle in degrees. */
+    rotation: Num;
+    /** Brief description. */
+    description: Str;
+    /** Category for grouped display. */
+    category: Str;
+  }> = [
+    {
+      id: 'portrait-primary',
+      label: 'Portrait',
+      rotation: 0,
+      description: 'Natural upright (0°)',
+      category: 'Standard',
+    },
+    {
+      id: 'landscape-primary',
+      label: 'Landscape',
+      rotation: 90,
+      description: 'Rotated right (90°)',
+      category: 'Standard',
+    },
+    {
+      id: 'portrait-secondary',
+      label: 'Portrait Inverted',
+      rotation: 180,
+      description: 'Upside down (180°)',
+      category: 'Standard',
+    },
+    {
+      id: 'landscape-secondary',
+      label: 'Landscape Inverted',
+      rotation: 270,
+      description: 'Rotated left (270°)',
+      category: 'Standard',
+    },
+    {
+      id: 'tilt-15',
+      label: 'Slight Tilt',
+      rotation: 15,
+      description: 'Subtle clockwise lean',
+      category: 'Tilted',
+    },
+    {
+      id: 'tilt-30',
+      label: 'Moderate Tilt',
+      rotation: 30,
+      description: 'Noticeable clockwise lean',
+      category: 'Tilted',
+    },
+    {
+      id: 'tilt-345',
+      label: 'Slight Counter-Tilt',
+      rotation: 345,
+      description: 'Subtle counter-clockwise lean',
+      category: 'Tilted',
+    },
+    {
+      id: 'tilt-330',
+      label: 'Moderate Counter-Tilt',
+      rotation: 330,
+      description: 'Noticeable counter-clockwise lean',
+      category: 'Tilted',
+    },
+    {
+      id: 'diagonal-45',
+      label: 'Diagonal Right',
+      rotation: 45,
+      description: '45° clockwise diagonal',
+      category: 'Diagonal',
+    },
+    {
+      id: 'diagonal-135',
+      label: 'Diagonal Down-Right',
+      rotation: 135,
+      description: '135° rotation',
+      category: 'Diagonal',
+    },
+    {
+      id: 'diagonal-225',
+      label: 'Diagonal Down-Left',
+      rotation: 225,
+      description: '225° rotation',
+      category: 'Diagonal',
+    },
+    {
+      id: 'diagonal-315',
+      label: 'Diagonal Left',
+      rotation: 315,
+      description: '315° counter-clockwise diagonal',
+      category: 'Diagonal',
+    },
   ];
 
   /** Color mode presets. */
@@ -749,24 +861,163 @@
     { id: 'tv-4k', label: 'TV 4K / Ultra HD', width: 3840, height: 2160, category: 'TV' },
   ];
 
-  /** Color vision deficiency menu items. */
-  const COLOR_VISION_ITEMS: Array<{ id: Str; label: Str }> = [
-    { id: 'protanopia', label: 'Protanopia (no red)' },
-    { id: 'protanomaly', label: 'Protanomaly (low red)' },
-    { id: 'deuteranopia', label: 'Deuteranopia (no green)' },
-    { id: 'deuteranomaly', label: 'Deuteranomaly (low green)' },
-    { id: 'tritanopia', label: 'Tritanopia (no blue)' },
-    { id: 'tritanomaly', label: 'Tritanomaly (low blue)' },
-    { id: 'achromatopsia', label: 'Achromatopsia (no color)' },
-    { id: 'achromatomaly', label: 'Achromatomaly (low color)' },
+  /** Color vision deficiency menu items grouped by cone type. */
+  const COLOR_VISION_ITEMS: Array<{
+    /** Simulation identifier. */
+    id: Str;
+    /** Display label. */
+    label: Str;
+    /** Brief clinical description. */
+    description: Str;
+    /** Approximate population prevalence. */
+    prevalence: Str;
+    /** Cone type category. */
+    category: Str;
+    /** Category dot color (Tailwind bg class). */
+    dotColor: Str;
+  }> = [
+    {
+      id: 'protanopia',
+      label: 'Protanopia',
+      description: 'No red cones — reds appear dark',
+      prevalence: '~1%',
+      category: 'Red (Protan)',
+      dotColor: 'bg-red-500',
+    },
+    {
+      id: 'protanomaly',
+      label: 'Protanomaly',
+      description: 'Weak red cones — reduced red sensitivity',
+      prevalence: '~1%',
+      category: 'Red (Protan)',
+      dotColor: 'bg-red-500',
+    },
+    {
+      id: 'deuteranopia',
+      label: 'Deuteranopia',
+      description: 'No green cones — greens appear beige',
+      prevalence: '~1%',
+      category: 'Green (Deutan)',
+      dotColor: 'bg-green-500',
+    },
+    {
+      id: 'deuteranomaly',
+      label: 'Deuteranomaly',
+      description: 'Weak green cones — most common CVD',
+      prevalence: '~5%',
+      category: 'Green (Deutan)',
+      dotColor: 'bg-green-500',
+    },
+    {
+      id: 'tritanopia',
+      label: 'Tritanopia',
+      description: 'No blue cones — blues appear green',
+      prevalence: '~0.01%',
+      category: 'Blue (Tritan)',
+      dotColor: 'bg-blue-500',
+    },
+    {
+      id: 'tritanomaly',
+      label: 'Tritanomaly',
+      description: 'Weak blue cones — reduced blue-yellow range',
+      prevalence: '~0.01%',
+      category: 'Blue (Tritan)',
+      dotColor: 'bg-blue-500',
+    },
+    {
+      id: 'achromatopsia',
+      label: 'Achromatopsia',
+      description: 'No color cones — full grayscale vision',
+      prevalence: '~0.003%',
+      category: 'Full (Achromat)',
+      dotColor: 'bg-zinc-400',
+    },
+    {
+      id: 'achromatomaly',
+      label: 'Achromatomaly',
+      description: 'Weak color cones — severely muted colors',
+      prevalence: 'rare',
+      category: 'Full (Achromat)',
+      dotColor: 'bg-zinc-400',
+    },
   ];
 
-  /** Vision impairment menu items. */
-  const VISION_ITEMS: Array<{ id: Str; label: Str }> = [
-    { id: 'blurred-vision', label: 'Blurred Vision' },
-    { id: 'cataracts', label: 'Cataracts' },
-    { id: 'low-contrast', label: 'Low Contrast' },
-    { id: 'tunnel-vision', label: 'Tunnel Vision' },
+  /** Vision impairment simulation items. */
+  const VISION_ITEMS: Array<{
+    /** Simulation identifier. */
+    id: Str;
+    /** Display label. */
+    label: Str;
+    /** Brief description of the visual effect. */
+    description: Str;
+    /** Approximate population prevalence or context. */
+    prevalence: Str;
+    /** Impairment category. */
+    category: Str;
+  }> = [
+    {
+      id: 'blurred-vision',
+      label: 'Blurred Vision',
+      description: 'Uncorrected refractive error',
+      prevalence: '~43%',
+      category: 'Refractive',
+    },
+    {
+      id: 'presbyopia',
+      label: 'Presbyopia',
+      description: 'Age-related near-focus loss (40+)',
+      prevalence: '~25%',
+      category: 'Refractive',
+    },
+    {
+      id: 'cataracts',
+      label: 'Cataracts',
+      description: 'Clouded lens — hazy, yellowed vision',
+      prevalence: '~15%',
+      category: 'Degenerative',
+    },
+    {
+      id: 'macular-degeneration',
+      label: 'Macular Degeneration',
+      description: 'Central vision loss — blurred center',
+      prevalence: '~9%',
+      category: 'Degenerative',
+    },
+    {
+      id: 'glaucoma',
+      label: 'Glaucoma',
+      description: 'Optic nerve damage — peripheral loss',
+      prevalence: '~3%',
+      category: 'Degenerative',
+    },
+    {
+      id: 'tunnel-vision',
+      label: 'Tunnel Vision',
+      description: 'Extreme peripheral vision loss',
+      prevalence: '~2%',
+      category: 'Degenerative',
+    },
+    {
+      id: 'low-contrast',
+      label: 'Low Contrast',
+      description: 'Reduced contrast sensitivity',
+      prevalence: 'common',
+      category: 'Environmental',
+    },
+    {
+      id: 'sunlight-glare',
+      label: 'Sunlight Glare',
+      description: 'Outdoor screen readability loss',
+      prevalence: 'common',
+      category: 'Environmental',
+    },
+    {
+      id: 'color-desaturation',
+      label: 'Color Desaturation',
+      description: 'Age-related color fading (60+)',
+      prevalence: '~20%',
+      category: 'Environmental',
+    },
   ];
 
   /** Text direction presets. */
@@ -870,10 +1121,18 @@
   const filteredOrientationPresets = $derived(
     orientationSearchQuery.length === 0
       ? ORIENTATION_PRESETS
-      : ORIENTATION_PRESETS.filter((p) =>
-          p.label.toLowerCase().includes(orientationSearchQuery.toLowerCase()),
-        ),
+      : ORIENTATION_PRESETS.filter((p) => {
+          const q: Str = orientationSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.category.toLowerCase().includes(q)
+          );
+        }),
   );
+  const filteredOrientationCategories: Str[] = $derived([
+    ...new Set(filteredOrientationPresets.map((p) => p.category)),
+  ]);
   const filteredModePresets = $derived(
     modeSearchQuery.length === 0
       ? MODE_PRESETS
@@ -913,13 +1172,31 @@
     ...new Set(filteredViewportPresets.map((p) => p.category)),
   ]);
   const filteredColorItems = $derived(
-    COLOR_VISION_ITEMS.filter((item) =>
-      item.label.toLowerCase().includes(simSearchQuery.toLowerCase()),
-    ),
+    COLOR_VISION_ITEMS.filter((item) => {
+      const q: Str = simSearchQuery.toLowerCase() as Str;
+      return (
+        item.label.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q)
+      );
+    }),
   );
+  const filteredColorCategories: Str[] = $derived([
+    ...new Set(filteredColorItems.filter((p) => p.category).map((p) => p.category)),
+  ]);
   const filteredVisionItems = $derived(
-    VISION_ITEMS.filter((item) => item.label.toLowerCase().includes(simSearchQuery.toLowerCase())),
+    VISION_ITEMS.filter((item) => {
+      const q: Str = simSearchQuery.toLowerCase() as Str;
+      return (
+        item.label.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q)
+      );
+    }),
   );
+  const filteredVisionCategories: Str[] = $derived([
+    ...new Set(filteredVisionItems.filter((p) => p.category).map((p) => p.category)),
+  ]);
   const filteredDirPresets = $derived(
     dirSearchQuery.length === 0
       ? DIR_PRESETS
@@ -986,7 +1263,7 @@
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Background Color</DropdownMenu.Label>
       {#each filteredBgPresets as preset (preset.id)}
-        <DropdownMenu.Item onclick={() => onSetting('bg', preset.id)}>
+        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('bg', preset.id)}>
           <div class="flex items-center gap-2">
             <Check class={cn('size-4 shrink-0', activeBg !== preset.id && 'opacity-0')} />
             {#if preset.id !== 'default'}
@@ -1046,14 +1323,18 @@
       <ZoomOut class="size-4" />
       Zoom out
     </DropdownMenu.Item>
-    <DropdownMenu.Item onclick={() => onSetting('zoom', 1)} disabled={activeZoom === 1}>
+    <DropdownMenu.Item
+      closeOnSelect={false}
+      onclick={() => onSetting('zoom', 1)}
+      disabled={activeZoom === 1}
+    >
       <Maximize class="size-4" />
       Fit (100%)
     </DropdownMenu.Item>
     <DropdownMenu.Separator />
     <DropdownMenu.Label class="text-xs">Zoom Level</DropdownMenu.Label>
     {#each ZOOM_PRESETS as preset (preset.value)}
-      <DropdownMenu.Item onclick={() => onSetting('zoom', preset.value)}>
+      <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('zoom', preset.value)}>
         <Check class={cn('size-4', activeZoom !== preset.value && 'opacity-0')} />
         {preset.label}
       </DropdownMenu.Item>
@@ -1101,12 +1382,12 @@
     </div>
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Outline Color</DropdownMenu.Label>
-      <DropdownMenu.Item onclick={() => onSetting('outline', 'none')}>
+      <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('outline', 'none')}>
         <Check class={cn('size-4 shrink-0', activeOutline !== 'none' && 'opacity-0')} />
         None
       </DropdownMenu.Item>
       {#each filteredOutlinePresets as preset (preset.id)}
-        <DropdownMenu.Item onclick={() => onSetting('outline', preset.id)}>
+        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('outline', preset.id)}>
           <div class="flex items-center gap-2">
             <Check class={cn('size-4 shrink-0', activeOutline !== preset.id && 'opacity-0')} />
             <span
@@ -1167,12 +1448,12 @@
     </div>
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Grid Background Color</DropdownMenu.Label>
-      <DropdownMenu.Item onclick={() => onSetting('grid', 'none')}>
+      <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('grid', 'none')}>
         <Check class={cn('size-4 shrink-0', activeGrid !== 'none' && 'opacity-0')} />
         None
       </DropdownMenu.Item>
       {#each filteredGridPresets as preset (preset.id)}
-        <DropdownMenu.Item onclick={() => onSetting('grid', preset.id)}>
+        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('grid', preset.id)}>
           <div class="flex items-center gap-2">
             <Check class={cn('size-4 shrink-0', activeGrid !== preset.id && 'opacity-0')} />
             <span
@@ -1203,12 +1484,12 @@
       </div>
       <DropdownMenu.Separator />
       <DropdownMenu.Label class="text-xs">Grid Fill Color</DropdownMenu.Label>
-      <DropdownMenu.Item onclick={() => onSetting('gridFill', 'none')}>
+      <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('gridFill', 'none')}>
         <Check class={cn('size-4 shrink-0', activeGridFill !== 'none' && 'opacity-0')} />
         None (transparent)
       </DropdownMenu.Item>
       {#each GRID_FILL_PRESETS as preset (preset.id)}
-        <DropdownMenu.Item onclick={() => onSetting('gridFill', preset.id)}>
+        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('gridFill', preset.id)}>
           <div class="flex items-center gap-2">
             <Check class={cn('size-4 shrink-0', activeGridFill !== preset.id && 'opacity-0')} />
             <span
@@ -1257,8 +1538,14 @@
   <DropdownMenu.SubTrigger>
     <Smartphone class="size-4" />
     Orientation
+    {#if activeOrientationLabel}
+      <span
+        class="ml-auto rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        >{activeOrientationLabel}</span
+      >
+    {/if}
   </DropdownMenu.SubTrigger>
-  <DropdownMenu.SubContent class="flex max-h-80 w-64 flex-col overflow-hidden">
+  <DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
     <div class="shrink-0 px-2 pb-1.5 pt-1">
       <div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
         <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -1271,34 +1558,50 @@
         />
       </div>
     </div>
-    <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-      <DropdownMenu.Label class="text-xs">Orientation</DropdownMenu.Label>
-      <DropdownMenu.Item onclick={() => onSetting('orientation', 'default')}>
+    <div class="flex max-h-80 flex-col overflow-y-auto" use:lockHeight>
+      <DropdownMenu.Label class="text-xs">Default</DropdownMenu.Label>
+      <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('orientation', 'default')}>
         <Check class={cn('size-4 shrink-0', activeOrientation !== 'default' && 'opacity-0')} />
-        Default (none)
+        None (no rotation)
       </DropdownMenu.Item>
-      {#each filteredOrientationPresets as preset (preset.id)}
-        <DropdownMenu.Item onclick={() => onSetting('orientation', preset.id)}>
-          <div class="flex items-center gap-2">
-            <Check class={cn('size-4 shrink-0', activeOrientation !== preset.id && 'opacity-0')} />
-            <span
-              class="relative inline-flex items-center justify-center"
-              style="width: 16px; height: 16px;"
-            >
+      {#each filteredOrientationCategories as category (category)}
+        <DropdownMenu.Separator />
+        <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+        {#each filteredOrientationPresets.filter((p) => p.category === category) as preset (preset.id)}
+          <DropdownMenu.Item
+            closeOnSelect={false}
+            onclick={() => onSetting('orientation', preset.id)}
+          >
+            <div class="flex items-center gap-2">
+              <Check
+                class={cn('size-4 shrink-0', activeOrientation !== preset.id && 'opacity-0')}
+              />
               <span
-                class="rounded-[2px] border border-current"
-                style="width: 8px; height: 14px; transform: rotate({preset.rotation}deg);"
+                class="relative inline-flex items-center justify-center"
+                style="width: 16px; height: 16px;"
               >
                 <span
-                  class="absolute rounded-full bg-current"
-                  style="width: 3px; height: 3px; bottom: 1px; left: 50%; transform: translateX(-50%);"
-                ></span>
+                  class="rounded-[2px] border border-current"
+                  style="width: 8px; height: 14px; transform: rotate({preset.rotation}deg);"
+                >
+                  <span
+                    class="absolute rounded-full bg-current"
+                    style="width: 3px; height: 3px; bottom: 1px; left: 50%; transform: translateX(-50%);"
+                  ></span>
+                </span>
               </span>
-            </span>
-            {preset.label}
-          </div>
-        </DropdownMenu.Item>
-      {:else}
+              <div class="flex flex-col">
+                <span class="text-sm">{preset.label}</span>
+                <span class="text-[11px] text-muted-foreground">{preset.description}</span>
+              </div>
+            </div>
+            <span class="ml-auto shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground"
+              >{preset.rotation}°</span
+            >
+          </DropdownMenu.Item>
+        {/each}
+      {/each}
+      {#if filteredOrientationCategories.length === 0}
         <div
           class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
         >
@@ -1308,7 +1611,24 @@
             <p class="text-[11px]">Try a different search term</p>
           </div>
         </div>
-      {/each}
+      {/if}
+    </div>
+    <DropdownMenu.Separator />
+    <div class="shrink-0 px-2 py-1.5">
+      <p class="mb-1.5 text-xs font-medium text-muted-foreground">
+        Custom ({activeOrientation === 'custom' ? (active.customRotation ?? 0) : 0}°)
+      </p>
+      <Slider
+        type="single"
+        value={activeOrientation === 'custom' ? (active.customRotation ?? 0) : 0}
+        min={0}
+        max={359}
+        step={1}
+        onValueChange={(v) => {
+          onSetting('customRotation', v);
+          onSetting('orientation', 'custom');
+        }}
+      />
     </div>
   </DropdownMenu.SubContent>
 </DropdownMenu.Sub>
@@ -1342,7 +1662,7 @@
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Color Mode</DropdownMenu.Label>
       {#each filteredModePresets as preset (preset.id)}
-        <DropdownMenu.Item onclick={() => onSetting('mode', preset.id)}>
+        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('mode', preset.id)}>
           <Check class={cn('size-4 shrink-0', activeMode !== preset.id && 'opacity-0')} />
           <preset.icon class="size-4" />
           {preset.label}
@@ -1391,7 +1711,7 @@
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Theme</DropdownMenu.Label>
       {#each filteredThemePresets as preset (preset.id)}
-        <DropdownMenu.Item onclick={() => onSetting('theme', preset.id)}>
+        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('theme', preset.id)}>
           <div class="flex items-center gap-2">
             <Check class={cn('size-4 shrink-0', activeTheme !== preset.id && 'opacity-0')} />
             {#if preset.dot}
@@ -1449,6 +1769,7 @@
         <DropdownMenu.Label class="text-xs">{group.label}</DropdownMenu.Label>
         {#each group.options as option (option.value)}
           <DropdownMenu.Item
+            closeOnSelect={false}
             onclick={() => onSetting('mediaPref', { pref: group.pref, value: option.value })}
           >
             <Check
@@ -1507,7 +1828,7 @@
     </div>
     <div class="flex max-h-72 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Throttling</DropdownMenu.Label>
-      <DropdownMenu.Item onclick={() => onSetting('networkSim', 'none')}>
+      <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('networkSim', 'none')}>
         <Check class={cn('size-4 shrink-0', activeNetworkSim !== 'none' && 'opacity-0')} />
         No throttling
       </DropdownMenu.Item>
@@ -1515,7 +1836,10 @@
         <DropdownMenu.Separator />
         <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
         {#each filteredNetworkPresets.filter((p) => p.category === category) as preset (preset.id)}
-          <DropdownMenu.Item onclick={() => onSetting('networkSim', preset.id)}>
+          <DropdownMenu.Item
+            closeOnSelect={false}
+            onclick={() => onSetting('networkSim', preset.id)}
+          >
             <div class="flex items-center gap-2">
               <Check class={cn('size-4 shrink-0', activeNetworkSim !== preset.id && 'opacity-0')} />
               {#if preset.id === 'offline'}
@@ -1591,7 +1915,7 @@
     </div>
     <div class="flex max-h-72 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Size</DropdownMenu.Label>
-      <DropdownMenu.Item onclick={() => onSetting('viewport', 'auto')}>
+      <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('viewport', 'auto')}>
         <Check class={cn('size-4 shrink-0', activeViewport !== 'auto' && 'opacity-0')} />
         Auto (full width)
       </DropdownMenu.Item>
@@ -1599,7 +1923,7 @@
         <DropdownMenu.Separator />
         <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
         {#each filteredViewportPresets.filter((p) => p.category === category) as preset (preset.id)}
-          <DropdownMenu.Item onclick={() => onSetting('viewport', preset.id)}>
+          <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('viewport', preset.id)}>
             <div class="flex items-center gap-2">
               <Check class={cn('size-4 shrink-0', activeViewport !== preset.id && 'opacity-0')} />
               <div class="flex flex-col">
@@ -1668,47 +1992,64 @@
   <DropdownMenu.SubTrigger>
     <Eye class="size-4" />
     Accessibility
+    {#if activeSimLabel}
+      <span
+        class="ml-auto max-w-24 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        >{activeSimLabel}</span
+      >
+    {/if}
   </DropdownMenu.SubTrigger>
-  <DropdownMenu.SubContent class="w-56">
-    <div class="px-2 pb-1.5 pt-1">
+  <DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
+    <div class="shrink-0 px-2 pb-1.5 pt-1">
       <div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
         <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search simulations..."
           class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           bind:value={simSearchQuery}
           onkeydown={(e) => e.stopPropagation()}
         />
       </div>
     </div>
-    <div class="flex max-h-60 flex-col overflow-y-auto" use:lockHeight>
-      <DropdownMenu.Item onclick={() => onSetting('sim', 'none')}>
-        <Check class={cn('size-4 shrink-0', activeSim !== 'none' && 'opacity-0')} />
-        None
-      </DropdownMenu.Item>
-      {#if filteredColorItems.length > 0}
+    <div class="flex max-h-80 flex-col overflow-y-auto" use:lockHeight>
+      {#each filteredColorCategories as category (category)}
         <DropdownMenu.Separator />
-        <DropdownMenu.Label class="text-xs">Color Vision</DropdownMenu.Label>
-        {#each filteredColorItems as item (item.id)}
-          <DropdownMenu.Item onclick={() => onSetting('sim', item.id)}>
-            <Check class={cn('size-4', activeSim !== item.id && 'opacity-0')} />
-            {item.label}
+        <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+        {#each filteredColorItems.filter((p) => p.category === category) as item (item.id)}
+          <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('sim', item.id)}>
+            <div class="flex items-center gap-2">
+              <Check class={cn('size-4 shrink-0', activeSim !== item.id && 'opacity-0')} />
+              <span class={cn('size-2 shrink-0 rounded-full', item.dotColor)}></span>
+              <div class="flex flex-col">
+                <span class="text-sm">{item.label}</span>
+                <span class="text-[11px] text-muted-foreground">{item.description}</span>
+              </div>
+            </div>
+            <span class="ml-auto shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground"
+              >{item.prevalence}</span
+            >
           </DropdownMenu.Item>
         {/each}
-      {/if}
-      {#if filteredVisionItems.length > 0}
-        {#if filteredColorItems.length > 0}
-          <DropdownMenu.Separator />
-        {/if}
-        <DropdownMenu.Label class="text-xs">Vision Impairments</DropdownMenu.Label>
-        {#each filteredVisionItems as item (item.id)}
-          <DropdownMenu.Item onclick={() => onSetting('sim', item.id)}>
-            <Check class={cn('size-4', activeSim !== item.id && 'opacity-0')} />
-            {item.label}
+      {/each}
+      {#each filteredVisionCategories as category (category)}
+        <DropdownMenu.Separator />
+        <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+        {#each filteredVisionItems.filter((p) => p.category === category) as item (item.id)}
+          <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('sim', item.id)}>
+            <div class="flex items-center gap-2">
+              <Check class={cn('size-4 shrink-0', activeSim !== item.id && 'opacity-0')} />
+              <div class="flex flex-col">
+                <span class="text-sm">{item.label}</span>
+                <span class="text-[11px] text-muted-foreground">{item.description}</span>
+              </div>
+            </div>
+            <span class="ml-auto shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground"
+              >{item.prevalence}</span
+            >
           </DropdownMenu.Item>
         {/each}
-      {/if}
+      {/each}
       {#if filteredColorItems.length === 0 && filteredVisionItems.length === 0}
         <div
           class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
@@ -1720,6 +2061,13 @@
           </div>
         </div>
       {/if}
+    </div>
+    <DropdownMenu.Separator />
+    <div class="shrink-0">
+      <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('sim', 'none')}>
+        <Check class={cn('size-4 shrink-0', activeSim !== 'none' && 'opacity-0')} />
+        None (reset)
+      </DropdownMenu.Item>
     </div>
   </DropdownMenu.SubContent>
 </DropdownMenu.Sub>
@@ -1753,7 +2101,7 @@
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Direction</DropdownMenu.Label>
       {#each filteredDirPresets as item (item.id)}
-        <DropdownMenu.Item onclick={() => onSetting('dir', item.id)}>
+        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('dir', item.id)}>
           <Check class={cn('size-4', activeDir !== item.id && 'opacity-0')} />
           {item.label}
         </DropdownMenu.Item>
@@ -1800,7 +2148,7 @@
     </div>
     <div class="flex max-h-72 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Base</DropdownMenu.Label>
-      <DropdownMenu.Item onclick={() => onSetting('fontSize', 0)}>
+      <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('fontSize', 0)}>
         <Check class={cn('size-4 shrink-0', activeFontSize !== 0 && 'opacity-0')} />
         Default (16px)
         <span class="ml-auto font-mono text-[10px] tabular-nums text-muted-foreground">1.0x</span>
@@ -1809,7 +2157,7 @@
         <DropdownMenu.Separator />
         <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
         {#each filteredFontSizePresets.filter((p) => p.category === category) as preset (preset.px)}
-          <DropdownMenu.Item onclick={() => onSetting('fontSize', preset.px)}>
+          <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('fontSize', preset.px)}>
             <Check class={cn('size-4 shrink-0', activeFontSize !== preset.px && 'opacity-0')} />
             {preset.label}
             <span class="ml-auto font-mono text-[10px] tabular-nums text-muted-foreground"

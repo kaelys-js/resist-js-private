@@ -213,6 +213,9 @@
   /** Per-card orientation keyed by card identifier ('default' = no rotation). */
   let cardOrientations: Record<Str, Str> = $state({});
 
+  /** Per-card custom rotation angle in degrees (0-359). */
+  let cardCustomRotation: Record<Str, Num> = $state({});
+
   /** Per-card color mode keyed by card identifier ('auto' = inherit from page). */
   let cardModes: Record<Str, Str> = $state({});
 
@@ -1928,10 +1931,18 @@
   /* ------------------------------------------------------------------ */
 
   const ORIENTATION_PRESETS: Array<{ id: Str; label: Str; rotation: Num }> = [
-    { id: 'portrait-primary', label: 'Portrait Primary (0°)', rotation: 0 },
-    { id: 'portrait-secondary', label: 'Portrait Secondary (180°)', rotation: 180 },
-    { id: 'landscape-primary', label: 'Landscape Primary (90°)', rotation: 90 },
-    { id: 'landscape-secondary', label: 'Landscape Secondary (270°)', rotation: 270 },
+    { id: 'portrait-primary', label: 'Portrait', rotation: 0 },
+    { id: 'landscape-primary', label: 'Landscape', rotation: 90 },
+    { id: 'portrait-secondary', label: 'Portrait Inverted', rotation: 180 },
+    { id: 'landscape-secondary', label: 'Landscape Inverted', rotation: 270 },
+    { id: 'tilt-15', label: 'Slight Tilt', rotation: 15 },
+    { id: 'tilt-30', label: 'Moderate Tilt', rotation: 30 },
+    { id: 'tilt-345', label: 'Slight Counter-Tilt', rotation: 345 },
+    { id: 'tilt-330', label: 'Moderate Counter-Tilt', rotation: 330 },
+    { id: 'diagonal-45', label: 'Diagonal Right', rotation: 45 },
+    { id: 'diagonal-135', label: 'Diagonal Down-Right', rotation: 135 },
+    { id: 'diagonal-225', label: 'Diagonal Down-Left', rotation: 225 },
+    { id: 'diagonal-315', label: 'Diagonal Left', rotation: 315 },
   ];
 
   /* ------------------------------------------------------------------ */
@@ -2656,28 +2667,38 @@
   /** CSS filter strings for vision impairment simulations. */
   const CSS_FILTERS: Record<Str, Str> = {
     'blurred-vision': 'blur(2px)',
+    presbyopia: 'blur(1.5px) contrast(0.85)',
     cataracts: 'blur(0.5px) brightness(1.15) contrast(0.7) sepia(0.25)',
+    'macular-degeneration': 'blur(3px) contrast(0.6)',
+    glaucoma: 'blur(1px) contrast(0.7) brightness(0.9)',
     'low-contrast': 'contrast(0.4)',
+    'sunlight-glare': 'brightness(1.6) contrast(0.5) saturate(0.7)',
+    'color-desaturation': 'saturate(0.35) contrast(0.85)',
   };
 
-  /** Color vision deficiency menu items. */
+  /** Color vision deficiency label lookup (for active settings display). */
   const COLOR_VISION_ITEMS: Array<{ id: Str; label: Str }> = [
-    { id: 'protanopia', label: 'Protanopia (no red)' },
-    { id: 'protanomaly', label: 'Protanomaly (low red)' },
-    { id: 'deuteranopia', label: 'Deuteranopia (no green)' },
-    { id: 'deuteranomaly', label: 'Deuteranomaly (low green)' },
-    { id: 'tritanopia', label: 'Tritanopia (no blue)' },
-    { id: 'tritanomaly', label: 'Tritanomaly (low blue)' },
-    { id: 'achromatopsia', label: 'Achromatopsia (no color)' },
-    { id: 'achromatomaly', label: 'Achromatomaly (low color)' },
+    { id: 'protanopia', label: 'Protanopia' },
+    { id: 'protanomaly', label: 'Protanomaly' },
+    { id: 'deuteranopia', label: 'Deuteranopia' },
+    { id: 'deuteranomaly', label: 'Deuteranomaly' },
+    { id: 'tritanopia', label: 'Tritanopia' },
+    { id: 'tritanomaly', label: 'Tritanomaly' },
+    { id: 'achromatopsia', label: 'Achromatopsia' },
+    { id: 'achromatomaly', label: 'Achromatomaly' },
   ];
 
-  /** Vision impairment menu items. */
+  /** Vision impairment label lookup (for active settings display). */
   const VISION_ITEMS: Array<{ id: Str; label: Str }> = [
     { id: 'blurred-vision', label: 'Blurred Vision' },
+    { id: 'presbyopia', label: 'Presbyopia' },
     { id: 'cataracts', label: 'Cataracts' },
-    { id: 'low-contrast', label: 'Low Contrast' },
+    { id: 'macular-degeneration', label: 'Macular Degeneration' },
+    { id: 'glaucoma', label: 'Glaucoma' },
     { id: 'tunnel-vision', label: 'Tunnel Vision' },
+    { id: 'low-contrast', label: 'Low Contrast' },
+    { id: 'sunlight-glare', label: 'Sunlight Glare' },
+    { id: 'color-desaturation', label: 'Color Desaturation' },
   ];
 
   /** Color vision items filtered by search query. */
@@ -3035,11 +3056,53 @@
    * @returns CSS style string or empty
    */
   function getOrientationStyle(key: Str): Str {
+    const deg: Num = getOrientationDeg(key);
+    if (deg === 0) return '';
+    return `transform: rotate(${deg}deg); transform-origin: center center`;
+  }
+
+  /**
+   * Get the rotation angle in degrees for a card.
+   *
+   * @param key - Card key
+   * @returns Rotation angle (0 = no rotation)
+   */
+  function getOrientationDeg(key: Str): Num {
     const id: Str = cardOrientations[key] ?? 'default';
-    if (id === 'default') return '';
+    if (id === 'default') return 0 as Num;
+    if (id === 'custom') return (cardCustomRotation[key] ?? 0) as Num;
     const preset = ORIENTATION_PRESETS.find((p) => p.id === id);
-    if (!preset || preset.rotation === 0) return '';
-    return `transform: rotate(${preset.rotation}deg); transform-origin: center center`;
+    return (preset?.rotation ?? 0) as Num;
+  }
+
+  /**
+   * Check if a card has a non-axis-aligned rotation (not 0, 90, 180, 270).
+   * These rotations need extra padding to keep content visible.
+   *
+   * @param key - Card key
+   * @returns True if rotation is non-axis-aligned
+   */
+  function hasNonAxisRotation(key: Str): Bool {
+    const deg: Num = getOrientationDeg(key);
+    const normalized: Num = ((((deg as number) % 360) + 360) % 360) as Num;
+    return normalized !== 0 && normalized !== 90 && normalized !== 180 && normalized !== 270;
+  }
+
+  /**
+   * Get padding style for the orientation wrapper to accommodate non-axis rotations.
+   * Uses sin(θ) to calculate how much the bounding box expands beyond the original.
+   *
+   * @param key - Card key
+   * @returns CSS padding style string or empty
+   */
+  function getOrientationPadding(key: Str): Str {
+    if (!hasNonAxisRotation(key)) return '';
+    const deg: Num = getOrientationDeg(key);
+    const normalized: Num = ((((deg as number) % 360) + 360) % 360) as Num;
+    const rad: Num = (((normalized as number) * Math.PI) / 180) as Num;
+    const sinA: Num = Math.abs(Math.sin(rad as number)) as Num;
+    const padPct: Num = Math.ceil((sinA as number) * 40) as Num;
+    return `padding: ${padPct}% 0`;
   }
 
   /**
@@ -3051,6 +3114,10 @@
   function isLandscapeOrientation(key: Str): Bool {
     const id: Str = cardOrientations[key] ?? 'default';
     if (id === 'default') return false;
+    if (id === 'custom') {
+      const deg: Num = cardCustomRotation[key] ?? 0;
+      return deg === 90 || deg === 270;
+    }
     const preset = ORIENTATION_PRESETS.find((p) => p.id === id);
     return preset?.rotation === 90 || preset?.rotation === 270;
   }
@@ -4769,8 +4836,13 @@
     }
     const orientation: Str = cardOrientations[key] ?? 'default';
     if (orientation !== 'default') {
-      const orientPreset = ORIENTATION_PRESETS.find((p) => p.id === orientation);
-      settings.push({ label: 'Orientation', value: orientPreset?.label ?? orientation });
+      if (orientation === 'custom') {
+        const deg: Num = cardCustomRotation[key] ?? 0;
+        settings.push({ label: 'Orientation', value: `Custom (${deg}°)` });
+      } else {
+        const orientPreset = ORIENTATION_PRESETS.find((p) => p.id === orientation);
+        settings.push({ label: 'Orientation', value: orientPreset?.label ?? orientation });
+      }
     }
     const mode: Str = cardModes[key] ?? 'auto';
     if (mode !== 'auto')
@@ -5129,6 +5201,7 @@
     cardGridSizes[key] = GRID_DEFAULT_SIZE;
     cardGridFills[key] = 'none';
     cardOrientations[key] = 'default';
+    cardCustomRotation[key] = 0;
     cardModes[key] = 'auto';
     cardThemes[key] = '';
     cardMediaPrefs[key] = {};
@@ -5875,6 +5948,7 @@
       cardGridSizes[key] = cardGridSizes[sourceKey] ?? GRID_DEFAULT_SIZE;
       cardGridFills[key] = cardGridFills[sourceKey] ?? 'none';
       cardOrientations[key] = cardOrientations[sourceKey] ?? 'default';
+      cardCustomRotation[key] = cardCustomRotation[sourceKey] ?? 0;
       cardModes[key] = cardModes[sourceKey] ?? 'auto';
       cardThemes[key] = cardThemes[sourceKey] ?? '';
       cardMediaPrefs[key] = { ...cardMediaPrefs[sourceKey] };
@@ -5917,7 +5991,9 @@
     else if (name === 'gridSize') setGridSize(key, value as Num);
     else if (name === 'gridFill') setGridFill(key, value as Str);
     else if (name === 'orientation') setOrientation(key, value as Str);
-    else if (name === 'mode') setCardMode(key, value as Str);
+    else if (name === 'customRotation') {
+      cardCustomRotation[key] = value as Num;
+    } else if (name === 'mode') setCardMode(key, value as Str);
     else if (name === 'theme') setCardTheme(key, value as Str);
     else if (name === 'sim') toggleSimulation(key, value as Str);
     else if (name === 'dir') {
@@ -5956,6 +6032,7 @@
       gridSize: cardGridSizes[key] ?? GRID_DEFAULT_SIZE,
       gridFill: cardGridFills[key] ?? 'none',
       orientation: cardOrientations[key] ?? 'default',
+      customRotation: cardCustomRotation[key] ?? 0,
       mode: cardModes[key] ?? 'auto',
       theme: cardThemes[key] ?? '',
       sim: cardSimulations[key] ?? 'none',
@@ -9066,34 +9143,65 @@
           >
             <LensPortalScope mode={activeMode} theme={activeTheme} {pageIsDark}>
               <div
-                use:trackContentSize={{ key: cardKey, landscape: isLandscapeOrientation(cardKey) }}
-                class={cn(activeOutline !== 'none' && 'lens-outline', getMediaPrefClasses(cardKey))}
-                style={[
-                  getSimulationFilter(cardKey),
-                  getZoomStyle(cardKey),
-                  getOrientationStyle(cardKey),
-                  activeOutline !== 'none'
-                    ? `--lens-outline-color: ${getOutlineColor(cardKey)}`
-                    : '',
-                ]
-                  .filter(Boolean)
-                  .join('; ')}
-                dir={(cardTextDir[cardKey] ?? 'auto') !== 'auto'
-                  ? /* Guard ensures 'ltr' | 'rtl' — Str too wide for dir attr */ (cardTextDir[
-                      cardKey
-                    ] as 'ltr' | 'rtl')
-                  : undefined}
+                class={cn(hasNonAxisRotation(cardKey) && 'flex items-center justify-center')}
+                style={getOrientationPadding(cardKey)}
               >
-                <LensStats
-                  {cardKey}
-                  onstats={handleStats}
-                  propsTotal={propsMeta.length}
-                  propsWithDefaults={propsWithDefaultsCount}
+                <div
+                  use:trackContentSize={{
+                    key: cardKey,
+                    landscape: isLandscapeOrientation(cardKey),
+                  }}
+                  class={cn(
+                    activeOutline !== 'none' && 'lens-outline',
+                    getMediaPrefClasses(cardKey),
+                  )}
+                  style={[
+                    getSimulationFilter(cardKey),
+                    getZoomStyle(cardKey),
+                    getOrientationStyle(cardKey),
+                    activeOutline !== 'none'
+                      ? `--lens-outline-color: ${getOutlineColor(cardKey)}`
+                      : '',
+                  ]
+                    .filter(Boolean)
+                    .join('; ')}
+                  dir={(cardTextDir[cardKey] ?? 'auto') !== 'auto'
+                    ? /* Guard ensures 'ltr' | 'rtl' — Str too wide for dir attr */ (cardTextDir[
+                        cardKey
+                      ] as 'ltr' | 'rtl')
+                    : undefined}
                 >
-                  {#if children}
-                    {@render children()}
-                  {:else if ContextWrapper}
-                    <ContextWrapper>
+                  <LensStats
+                    {cardKey}
+                    onstats={handleStats}
+                    propsTotal={propsMeta.length}
+                    propsWithDefaults={propsWithDefaultsCount}
+                  >
+                    {#if children}
+                      {@render children()}
+                    {:else if ContextWrapper}
+                      <ContextWrapper>
+                        <Target {...baseProps} {...extraProps}>
+                          {#if useIcon}
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <circle cx="12" cy="12" r="10"></circle>
+                            </svg>
+                          {:else}
+                            {label}
+                          {/if}
+                        </Target>
+                      </ContextWrapper>
+                    {:else}
                       <Target {...baseProps} {...extraProps}>
                         {#if useIcon}
                           <svg
@@ -9113,29 +9221,9 @@
                           {label}
                         {/if}
                       </Target>
-                    </ContextWrapper>
-                  {:else}
-                    <Target {...baseProps} {...extraProps}>
-                      {#if useIcon}
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <circle cx="12" cy="12" r="10"></circle>
-                        </svg>
-                      {:else}
-                        {label}
-                      {/if}
-                    </Target>
-                  {/if}
-                </LensStats>
+                    {/if}
+                  </LensStats>
+                </div>
               </div>
             </LensPortalScope>
             {#if hasTunnelVision(cardKey)}
