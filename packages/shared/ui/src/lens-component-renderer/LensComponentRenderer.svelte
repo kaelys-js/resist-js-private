@@ -76,6 +76,7 @@
   import CodeBlock from '../code-block/CodeBlock.svelte';
   import ColorPicker from '../color-picker/ColorPicker.svelte';
   import { Slider } from '../slider/index.js';
+  import { Switch } from '../switch/index.js';
   import Activity from '@lucide/svelte/icons/activity';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import Code from '@lucide/svelte/icons/code';
@@ -129,6 +130,8 @@
   import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
   import CopyCheck from '@lucide/svelte/icons/copy-check';
   import Ruler from '@lucide/svelte/icons/ruler';
+  import EyeOff from '@lucide/svelte/icons/eye-off';
+  import Accessibility from '@lucide/svelte/icons/accessibility';
   import ScanLine from '@lucide/svelte/icons/scan-line';
   import MousePointerClick from '@lucide/svelte/icons/mouse-pointer-click';
   import Camera from '@lucide/svelte/icons/camera';
@@ -245,8 +248,52 @@
   /** Per-card debug outline mode (Pesticide-style element-type outlines). */
   let cardDebugOutline: Record<Str, Bool> = $state({});
 
+  /** Per-card debug outline category visibility (index into DEBUG_OUTLINE_LEGEND). */
+  let cardDebugCategories: Record<Str, Record<Num, Bool>> = $state({});
+
+  /** Per-card debug outline style. */
+  let cardDebugOutlineStyle: Record<Str, Str> = $state({});
+
+  /** Per-card debug outline width in px. */
+  let cardDebugOutlineWidth: Record<Str, Num> = $state({});
+
+  /** Per-card debug outline opacity (0–100). */
+  let cardDebugOutlineOpacity: Record<Str, Num> = $state({});
+
+  /** Search query for the debug outline settings dropdown. */
+  let debugOutlineSettingsSearch: Str = $state('' as Str);
+
+  /** Filtered outline style options based on search query. */
+  const filteredDebugOutlineStyles = $derived.by(() => {
+    const q: Str = (debugOutlineSettingsSearch as string).toLowerCase() as Str;
+    if (!q) return DEBUG_OUTLINE_STYLES;
+    return DEBUG_OUTLINE_STYLES.filter(
+      (s) =>
+        (s.label as string).toLowerCase().includes(q as string) ||
+        (s.desc as string).toLowerCase().includes(q as string),
+    );
+  });
+
+  /** Filtered outline width options based on search query. */
+  const filteredDebugOutlineWidths = $derived.by(() => {
+    const q: Str = (debugOutlineSettingsSearch as string).toLowerCase() as Str;
+    if (!q) return DEBUG_OUTLINE_WIDTHS;
+    return DEBUG_OUTLINE_WIDTHS.filter((w) =>
+      (w.label as string).toLowerCase().includes(q as string),
+    );
+  });
+
+  /** Per-card color-blind friendly palette mode. */
+  let cardDebugColorBlind: Record<Str, Bool> = $state({});
+
+  /** Per-card category index currently being hovered in the legend. -1 = none. */
+  let cardDebugHoverCategory: Record<Str, Num> = $state({});
+
   /** Per-card measure mode (hover box model overlay). */
   let cardMeasureActive: Record<Str, Bool> = $state({});
+
+  /** Per-card "Copied!" flash indicator for measure click-to-copy. */
+  let cardMeasureCopied: Record<Str, Bool> = $state({});
 
   /** Per-card inspect mode (click element to see computed CSS). */
   let cardInspectActive: Record<Str, Bool> = $state({});
@@ -272,6 +319,8 @@
   let cardMeasureData: Record<
     Str,
     {
+      /** HTML tag name of the hovered element (lowercase). */
+      tag: Str;
       /** Content box dimensions and position relative to preview container. */
       content: { x: Num; y: Num; w: Num; h: Num };
       /** Padding values in px. */
@@ -284,6 +333,22 @@
       width: Num;
       /** Overall element height. */
       height: Num;
+      /** CSS box-sizing value. */
+      boxSizing: Str;
+      /** Distance to parent element edges (top, right, bottom, left) in px. Null if no parent in container. */
+      parentDistance: { top: Num; right: Num; bottom: Num; left: Num } | null;
+      /** Bounding box left edge relative to container (for guide lines). */
+      absX: Num;
+      /** Bounding box top edge relative to container (for guide lines). */
+      absY: Num;
+      /** Container dimensions for guide lines. */
+      containerW: Num;
+      /** Container height for guide lines. */
+      containerH: Num;
+      /** CSS position value (static, relative, absolute, fixed, sticky). */
+      position: Str;
+      /** CSS display value (block, flex, grid, inline, etc). */
+      display: Str;
     } | null
   > = $state({});
 
@@ -3060,7 +3125,11 @@
     if (dir !== 'auto') s.dir = dir;
     const fontSize: Num = cardFontSize[key] ?? 0;
     if (fontSize > 0) s.fontSize = `${fontSize}px (${(fontSize / 16).toFixed(2)}x)`;
-    if (cardDebugOutline[key]) s.debugOutline = '1';
+    if (cardDebugOutline[key]) {
+      s.debugOutline = '1';
+      const outStyle: Str = cardDebugOutlineStyle[key] ?? DEBUG_OUTLINE_DEFAULT_STYLE;
+      if (outStyle !== DEBUG_OUTLINE_DEFAULT_STYLE) s.debugOutlineStyle = outStyle;
+    }
     if (cardMeasureActive[key]) s.measure = '1';
     if (cardInspectActive[key]) s.inspect = '1';
     if (cardConsoleOpen[key]) s.console = '1';
@@ -3241,64 +3310,304 @@
   /* ------------------------------------------------------------------ */
 
   /**
-   * CSS rules for debug outline mode — colored outlines per HTML element type.
-   * Inspired by Pesticide CSS debugger. Applied inside the preview container only.
+   * Legend entries mapping debug outline colors to element categories.
+   * Colors match those used in `buildDebugOutlineCSS`.
+   * Each entry also stores the CSS selectors used for that category and a color-blind pattern.
    */
+  const DEBUG_OUTLINE_LEGEND: ReadonlyArray<{
+    /** Outline color. */
+    color: Str;
+    /** Color-blind friendly outline style override. */
+    cbStyle: Str;
+    /** Category label. */
+    label: Str;
+    /** Human-readable element list. */
+    elements: Str;
+    /** CSS selectors for this category. */
+    selectors: readonly Str[];
+  }> = [
+    {
+      color: 'rgba(59,130,246,0.6)',
+      cbStyle: 'solid',
+      label: 'Semantic',
+      elements: 'article, nav, aside, section, header, footer, main',
+      selectors: ['article', 'nav', 'aside', 'section', 'header', 'footer', 'main'] as Str[],
+    },
+    {
+      color: 'rgba(99,102,241,0.6)',
+      cbStyle: 'double',
+      label: 'Headings',
+      elements: 'h1–h6',
+      selectors: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as Str[],
+    },
+    {
+      color: 'rgba(147,197,253,0.4)',
+      cbStyle: 'dashed',
+      label: 'Containers',
+      elements: 'div',
+      selectors: ['div'] as Str[],
+    },
+    {
+      color: 'rgba(96,165,250,0.5)',
+      cbStyle: 'dotted',
+      label: 'Text blocks',
+      elements: 'p, hr, pre, blockquote',
+      selectors: ['p', 'hr', 'pre', 'blockquote'] as Str[],
+    },
+    {
+      color: 'rgba(239,68,68,0.5)',
+      cbStyle: 'solid',
+      label: 'Lists',
+      elements: 'ol, ul, li, dl, dt, dd',
+      selectors: ['ol', 'ul', 'li', 'dl', 'dt', 'dd'] as Str[],
+    },
+    {
+      color: 'rgba(168,85,247,0.6)',
+      cbStyle: 'double',
+      label: 'Media',
+      elements: 'figure, img, iframe, video, audio, canvas, svg',
+      selectors: ['figure', 'img', 'iframe', 'video', 'audio', 'canvas', 'svg'] as Str[],
+    },
+    {
+      color: 'rgba(20,184,166,0.5)',
+      cbStyle: 'dashed',
+      label: 'Tables',
+      elements: 'table, thead, tbody, tfoot, tr, th, td, caption',
+      selectors: ['table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption'] as Str[],
+    },
+    {
+      color: 'rgba(249,115,22,0.6)',
+      cbStyle: 'dotted',
+      label: 'Forms',
+      elements: 'button, input, select, textarea, form, fieldset, label, legend',
+      selectors: [
+        'button',
+        'input',
+        'select',
+        'textarea',
+        'form',
+        'fieldset',
+        'label',
+        'legend',
+      ] as Str[],
+    },
+    {
+      color: 'rgba(236,72,153,0.5)',
+      cbStyle: 'solid',
+      label: 'Links',
+      elements: 'a',
+      selectors: ['a'] as Str[],
+    },
+    {
+      color: 'rgba(244,63,94,0.4)',
+      cbStyle: 'dashed',
+      label: 'Inline',
+      elements:
+        'em, strong, i, b, u, s, code, kbd, samp, var, mark, small, sub, sup, abbr, time, span',
+      selectors: [
+        'em',
+        'strong',
+        'i',
+        'b',
+        'u',
+        's',
+        'code',
+        'kbd',
+        'samp',
+        'var',
+        'mark',
+        'small',
+        'sub',
+        'sup',
+        'abbr',
+        'time',
+        'span',
+      ] as Str[],
+    },
+  ];
+
+  /** Default outline style. */
+  const DEBUG_OUTLINE_DEFAULT_STYLE: Str = 'solid' as Str;
+
+  /** Default outline width in px. */
+  const DEBUG_OUTLINE_DEFAULT_WIDTH: Num = 1 as Num;
+
+  /** Default outline opacity. */
+  const DEBUG_OUTLINE_DEFAULT_OPACITY: Num = 100 as Num;
+
+  /** Available outline style options with labels, descriptions, and grouping. */
+  const DEBUG_OUTLINE_STYLES: ReadonlyArray<{ id: Str; label: Str; desc: Str; group: Str }> = [
+    {
+      id: 'solid' as Str,
+      label: 'Solid' as Str,
+      desc: 'Standard solid line' as Str,
+      group: 'Basic' as Str,
+    },
+    {
+      id: 'dashed' as Str,
+      label: 'Dashed' as Str,
+      desc: 'Spaced dash segments' as Str,
+      group: 'Basic' as Str,
+    },
+    {
+      id: 'dotted' as Str,
+      label: 'Dotted' as Str,
+      desc: 'Small round dots' as Str,
+      group: 'Basic' as Str,
+    },
+    {
+      id: 'double' as Str,
+      label: 'Double' as Str,
+      desc: 'Two parallel lines (min 3px)' as Str,
+      group: 'Basic' as Str,
+    },
+    {
+      id: 'groove' as Str,
+      label: 'Groove' as Str,
+      desc: 'Carved groove effect' as Str,
+      group: '3D Effects' as Str,
+    },
+    {
+      id: 'ridge' as Str,
+      label: 'Ridge' as Str,
+      desc: 'Raised ridge effect' as Str,
+      group: '3D Effects' as Str,
+    },
+    {
+      id: 'inset' as Str,
+      label: 'Inset' as Str,
+      desc: 'Sunken panel effect' as Str,
+      group: '3D Effects' as Str,
+    },
+    {
+      id: 'outset' as Str,
+      label: 'Outset' as Str,
+      desc: 'Raised panel effect' as Str,
+      group: '3D Effects' as Str,
+    },
+  ];
+
+  /** Available outline width options. */
+  const DEBUG_OUTLINE_WIDTHS: ReadonlyArray<{ px: Num; label: Str }> = [
+    { px: 1 as Num, label: '1px — Thin' as Str },
+    { px: 2 as Num, label: '2px — Medium' as Str },
+    { px: 3 as Num, label: '3px — Thick' as Str },
+    { px: 4 as Num, label: '4px — Heavy' as Str },
+    { px: 5 as Num, label: '5px — Extra heavy' as Str },
+  ];
+
+  /**
+   * Apply opacity to an rgba color string.
+   *
+   * @param rgba - Original rgba color string
+   * @param opacityPct - Opacity percentage 0–100
+   * @returns Adjusted rgba string
+   */
+  function applyOutlineOpacity(rgba: Str, opacityPct: Num): Str {
+    const match: RegExpMatchArray | null = (rgba as string).match(
+      /rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([\d.]*)\)/,
+    );
+    if (!match) return rgba;
+    const baseAlpha: Num = (match[4] ? Number.parseFloat(match[4]) : 1) as Num;
+    const adjusted: Num = ((baseAlpha as number) * ((opacityPct as number) / 100)) as Num;
+    return `rgba(${match[1]},${match[2]},${match[3]},${adjusted})` as Str;
+  }
+
   /**
    * Build scoped debug outline CSS for a specific card's preview container.
-   * Uses `[data-lens-debug]` attribute selector to scope outlines to only that container.
+   * Respects per-category toggles, outline style, opacity, color-blind mode, and hover highlight.
    *
    * @param cardKey - Card key used as the data attribute value
    * @returns Scoped CSS string
    */
   function buildDebugOutlineCSS(cardKey: Str): Str {
     const s: Str = `[data-lens-debug="${cardKey}"]`;
-    return [
-      `${s} article,${s} nav,${s} aside,${s} section,${s} header,${s} footer,${s} main{outline:1px solid rgba(59,130,246,0.6)!important}`,
-      `${s} h1,${s} h2,${s} h3,${s} h4,${s} h5,${s} h6{outline:1px solid rgba(99,102,241,0.6)!important}`,
-      `${s} div{outline:1px solid rgba(147,197,253,0.4)!important}`,
-      `${s} p,${s} hr,${s} pre,${s} blockquote{outline:1px solid rgba(96,165,250,0.5)!important}`,
-      `${s} ol,${s} ul,${s} li,${s} dl,${s} dt,${s} dd{outline:1px solid rgba(239,68,68,0.5)!important}`,
-      `${s} figure,${s} img,${s} iframe,${s} video,${s} audio,${s} canvas,${s} svg{outline:1px solid rgba(168,85,247,0.6)!important}`,
-      `${s} table,${s} thead,${s} tbody,${s} tfoot,${s} tr,${s} th,${s} td,${s} caption{outline:1px solid rgba(20,184,166,0.5)!important}`,
-      `${s} button,${s} input,${s} select,${s} textarea,${s} form,${s} fieldset,${s} label,${s} legend{outline:1px solid rgba(249,115,22,0.6)!important}`,
-      `${s} a{outline:1px solid rgba(236,72,153,0.5)!important}`,
-      `${s} em,${s} strong,${s} i,${s} b,${s} u,${s} s,${s} code,${s} kbd,${s} samp,${s} var,${s} mark,${s} small,${s} sub,${s} sup,${s} abbr,${s} time,${s} span{outline:1px solid rgba(244,63,94,0.4)!important}`,
-    ].join('\n');
+    const cats: Record<Num, Bool> = cardDebugCategories[cardKey] ?? {};
+    const style: Str = cardDebugOutlineStyle[cardKey] ?? DEBUG_OUTLINE_DEFAULT_STYLE;
+    const baseWidth: Num = cardDebugOutlineWidth[cardKey] ?? DEBUG_OUTLINE_DEFAULT_WIDTH;
+    const opacityPct: Num = cardDebugOutlineOpacity[cardKey] ?? DEBUG_OUTLINE_DEFAULT_OPACITY;
+    const colorBlind: Bool = cardDebugColorBlind[cardKey] ?? (false as Bool);
+    const hoverIdx: Num = cardDebugHoverCategory[cardKey] ?? (-1 as Num);
+    const rules: Str[] = [];
+
+    for (
+      let idx: Num = 0 as Num;
+      (idx as number) < DEBUG_OUTLINE_LEGEND.length;
+      idx = ((idx as number) + 1) as Num
+    ) {
+      /* Skip disabled categories (default = enabled when not in map) */
+      if (cats[idx] === false) continue;
+
+      const entry = DEBUG_OUTLINE_LEGEND[idx as number];
+      if (!entry) continue;
+      const outlineStyle: Str = colorBlind ? entry.cbStyle : style;
+      /* Dim non-hovered categories when one is being hovered */
+      const dimmed: Bool = ((hoverIdx as number) >= 0 && idx !== hoverIdx) as Bool;
+      const effectiveOpacity: Num = dimmed
+        ? (Math.max(10, (opacityPct as number) * 0.2) as Num)
+        : opacityPct;
+      const color: Str = applyOutlineOpacity(entry.color, effectiveOpacity);
+      /* Double style needs minimum 3px width to render both lines */
+      const width: Str =
+        outlineStyle === ('double' as Str)
+          ? (`${Math.max(3, baseWidth as number)}px` as Str)
+          : (`${baseWidth}px` as Str);
+      const selectorList: Str = entry.selectors.map((sel) => `${s} ${sel}`).join(',') as Str;
+      rules.push(`${selectorList}{outline:${width} ${outlineStyle} ${color}!important}` as Str);
+    }
+
+    return rules.join('\n') as Str;
   }
 
   /**
-   * Legend entries mapping debug outline colors to element categories.
-   * Colors match those used in `buildDebugOutlineCSS`.
+   * Count elements in a container matching a given set of CSS selectors.
+   *
+   * @param container - DOM element to search within
+   * @param selectors - Array of CSS selector strings
+   * @returns Number of matching elements
    */
-  const DEBUG_OUTLINE_LEGEND: ReadonlyArray<{ color: Str; label: Str; elements: Str }> = [
-    {
-      color: 'rgba(59,130,246,0.6)',
-      label: 'Semantic',
-      elements: 'article, nav, aside, section, header, footer, main',
-    },
-    { color: 'rgba(99,102,241,0.6)', label: 'Headings', elements: 'h1–h6' },
-    { color: 'rgba(147,197,253,0.4)', label: 'Containers', elements: 'div' },
-    { color: 'rgba(96,165,250,0.5)', label: 'Text blocks', elements: 'p, hr, pre, blockquote' },
-    { color: 'rgba(239,68,68,0.5)', label: 'Lists', elements: 'ol, ul, li, dl, dt, dd' },
-    {
-      color: 'rgba(168,85,247,0.6)',
-      label: 'Media',
-      elements: 'figure, img, iframe, video, audio, canvas, svg',
-    },
-    { color: 'rgba(20,184,166,0.5)', label: 'Tables', elements: 'table, thead, tbody, tr, th, td' },
-    {
-      color: 'rgba(249,115,22,0.6)',
-      label: 'Forms',
-      elements: 'button, input, select, textarea, form, fieldset, label',
-    },
-    { color: 'rgba(236,72,153,0.5)', label: 'Links', elements: 'a' },
-    {
-      color: 'rgba(244,63,94,0.4)',
-      label: 'Inline',
-      elements: 'em, strong, code, kbd, span, mark, abbr, …',
-    },
-  ];
+  function countElements(container: Element, selectors: readonly Str[]): Num {
+    if (!container) return 0 as Num;
+    const selector: Str = selectors.join(',') as Str;
+    try {
+      return container.querySelectorAll(selector as string).length as Num;
+    } catch (_) {
+      /* Invalid selector — non-critical */
+      return 0 as Num;
+    }
+  }
+
+  /**
+   * Scroll to and flash the first element matching a category's selectors inside a card container.
+   *
+   * @param cardKey - Card key to find the container
+   * @param categoryIdx - Index into DEBUG_OUTLINE_LEGEND
+   */
+  function highlightFirstElement(cardKey: Str, categoryIdx: Num): Void {
+    const container: Element | null = document.querySelector(`[data-lens-debug="${cardKey}"]`);
+    if (!container) return;
+    const entry = DEBUG_OUTLINE_LEGEND[categoryIdx as number];
+    if (!entry) return;
+    const selector: Str = entry.selectors.join(',') as Str;
+    try {
+      const el: Element | null = container.querySelector(selector as string);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      /* Flash animation via temporary class */
+      (el as HTMLElement).style.setProperty('animation', 'lens-debug-flash 0.6s ease-out');
+      const onEnd = (): Void => {
+        (el as HTMLElement).style.removeProperty('animation');
+        el.removeEventListener('animationend', onEnd);
+      };
+      el.addEventListener('animationend', onEnd);
+    } catch (_) {
+      /* Invalid selector — non-critical */
+    }
+  }
+
+  /** CSS keyframes for the highlight flash animation. */
+  const DEBUG_FLASH_KEYFRAMES: Str =
+    '@keyframes lens-debug-flash{0%{outline-width:3px;outline-offset:2px}50%{outline-width:4px;outline-offset:4px}100%{outline-width:1px;outline-offset:0}}' as Str;
 
   /* ------------------------------------------------------------------ */
   /*  Debug Console — types + capture helpers                            */
@@ -3993,7 +4302,20 @@
     const x: Num = elRect.left - cRect.left + container.scrollLeft;
     const y: Num = elRect.top - cRect.top + container.scrollTop;
 
+    /* Distance to parent — always computed for the sticky panel */
+    let parentDistance: { top: Num; right: Num; bottom: Num; left: Num } | null = null;
+    if (el.parentElement && container.contains(el.parentElement)) {
+      const pRect: DOMRect = el.parentElement.getBoundingClientRect();
+      parentDistance = {
+        top: (elRect.top - pRect.top) as Num,
+        right: (pRect.right - elRect.right) as Num,
+        bottom: (pRect.bottom - elRect.bottom) as Num,
+        left: (elRect.left - pRect.left) as Num,
+      };
+    }
+
     return {
+      tag: el.tagName.toLowerCase() as Str,
       content: {
         x: x + bl + pl,
         y: y + bt + pt,
@@ -4005,6 +4327,14 @@
       margin: { top: mt, right: mr, bottom: mb, left: ml },
       width: elRect.width,
       height: elRect.height,
+      boxSizing: cs.boxSizing as Str,
+      parentDistance,
+      absX: x,
+      absY: y,
+      containerW: cRect.width as Num,
+      containerH: cRect.height as Num,
+      position: cs.position as Str,
+      display: cs.display as Str,
     };
   }
 
@@ -4097,6 +4427,37 @@
    */
   function handleMeasureLeave(key: Str): Void {
     cardMeasureData[key] = null;
+  }
+
+  /**
+   * Handle click in measure mode — copy box model dimensions to clipboard.
+   *
+   * @param e - Mouse event
+   * @param key - Card key
+   */
+  async function handleMeasureClick(e: MouseEvent, key: Str): Promise<void> {
+    if (!cardMeasureActive[key]) return;
+    const m = cardMeasureData[key];
+    if (!m) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const parts: Str[] = [
+      `<${m.tag}> ${Math.round(m.width as number)} × ${Math.round(m.height as number)}` as Str,
+      `content: ${Math.round(m.content.w as number)} × ${Math.round(m.content.h as number)}` as Str,
+      `padding: ${Math.round(m.padding.top as number)} ${Math.round(m.padding.right as number)} ${Math.round(m.padding.bottom as number)} ${Math.round(m.padding.left as number)}` as Str,
+      `margin: ${Math.round(m.margin.top as number)} ${Math.round(m.margin.right as number)} ${Math.round(m.margin.bottom as number)} ${Math.round(m.margin.left as number)}` as Str,
+      `border: ${Math.round(m.border.top as number)} ${Math.round(m.border.right as number)} ${Math.round(m.border.bottom as number)} ${Math.round(m.border.left as number)}` as Str,
+      `box-sizing: ${m.boxSizing}` as Str,
+    ];
+    try {
+      await navigator.clipboard.writeText(parts.join('\n'));
+      cardMeasureCopied[key] = true as Bool;
+      setTimeout((): Void => {
+        cardMeasureCopied[key] = false as Bool;
+      }, 1500);
+    } catch (_) {
+      /* Clipboard unavailable (iframe sandbox) — non-critical, silently ignore */
+    }
   }
 
   /**
@@ -4232,7 +4593,21 @@
         value: `${fontSize}px (${(fontSize / 16).toFixed(1)}x)`,
       });
     // Dev tools
-    if (cardDebugOutline[key]) settings.push({ label: 'Debug Outline', value: 'On' });
+    if (cardDebugOutline[key]) {
+      const cats: Record<Num, Bool> = cardDebugCategories[key] ?? {};
+      const disabledCount: Num = Object.values(cats).filter((v) => v === false).length as Num;
+      const outStyle: Str = cardDebugOutlineStyle[key] ?? DEBUG_OUTLINE_DEFAULT_STYLE;
+      const outOpacity: Num = cardDebugOutlineOpacity[key] ?? DEBUG_OUTLINE_DEFAULT_OPACITY;
+      const parts: Str[] = ['On' as Str];
+      if ((disabledCount as number) > 0)
+        parts.push(
+          `${DEBUG_OUTLINE_LEGEND.length - (disabledCount as number)}/${DEBUG_OUTLINE_LEGEND.length} categories` as Str,
+        );
+      if (outStyle !== DEBUG_OUTLINE_DEFAULT_STYLE) parts.push(outStyle);
+      if ((outOpacity as number) < 100) parts.push(`${outOpacity}%` as Str);
+      if (cardDebugColorBlind[key]) parts.push('CB' as Str);
+      settings.push({ label: 'Debug Outline', value: parts.join(', ') });
+    }
     if (cardMeasureActive[key]) settings.push({ label: 'Measure', value: 'On' });
     if (cardInspectActive[key]) settings.push({ label: 'Inspect', value: 'On' });
     if (cardConsoleOpen[key]) {
@@ -4511,6 +4886,12 @@
     cardTextDir[key] = 'auto';
     cardFontSize[key] = 0;
     cardDebugOutline[key] = false;
+    cardDebugCategories[key] = {};
+    cardDebugOutlineStyle[key] = 'solid';
+    cardDebugOutlineWidth[key] = 1;
+    cardDebugOutlineOpacity[key] = 100;
+    cardDebugColorBlind[key] = false;
+    cardDebugHoverCategory[key] = -1;
     cardMeasureActive[key] = false;
     cardInspectActive[key] = false;
     cardInspectedEl[key] = null;
@@ -5251,6 +5632,11 @@
       cardTextDir[key] = cardTextDir[sourceKey] ?? 'auto';
       cardFontSize[key] = cardFontSize[sourceKey] ?? 0;
       cardDebugOutline[key] = cardDebugOutline[sourceKey] ?? false;
+      cardDebugCategories[key] = { ...cardDebugCategories[sourceKey] };
+      cardDebugOutlineStyle[key] = cardDebugOutlineStyle[sourceKey] ?? 'solid';
+      cardDebugOutlineWidth[key] = cardDebugOutlineWidth[sourceKey] ?? 1;
+      cardDebugOutlineOpacity[key] = cardDebugOutlineOpacity[sourceKey] ?? 100;
+      cardDebugColorBlind[key] = cardDebugColorBlind[sourceKey] ?? false;
       cardMeasureActive[key] = cardMeasureActive[sourceKey] ?? false;
       cardInspectActive[key] = cardInspectActive[sourceKey] ?? false;
       cardConsoleOpen[key] = cardConsoleOpen[sourceKey] ?? false;
@@ -5669,52 +6055,322 @@
         {@render toolbarButton(ZoomIn, 'Zoom in', () => zoomIn(cardKey), activeZoom >= ZOOM_MAX)}
         {@render toolbarButton(Maximize, 'Fit (100%)', () => zoomFit(cardKey), activeZoom === 1)}
         <span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
-        <Popover.Root>
-          <Popover.Trigger>
-            <button
-              type="button"
-              class={cn(
-                'inline-flex size-7 items-center justify-center rounded-md transition-colors',
-                (cardDebugOutline[cardKey] ?? false)
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-              )}
-              onclick={() => {
-                cardDebugOutline[cardKey] = !cardDebugOutline[cardKey];
-              }}
-              aria-pressed={cardDebugOutline[cardKey] ?? false}
-              aria-label="Debug outlines"
-            >
-              <ScanLine class="size-3.5" aria-hidden="true" />
-            </button>
-          </Popover.Trigger>
-          <Popover.Content side="bottom" align="start" class="w-72 p-0">
-            <div class="flex items-center justify-between border-b bg-muted/30 px-3 py-2">
-              <h4 class="text-xs font-semibold">Debug Outline Legend</h4>
-              <span class="text-[10px] text-muted-foreground"
-                >{(cardDebugOutline[cardKey] ?? false) ? 'Active' : 'Inactive'}</span
-              >
-            </div>
-            <div class="space-y-0">
-              {#each DEBUG_OUTLINE_LEGEND as entry (entry.label)}
-                <div class="flex items-center gap-2.5 border-b px-3 py-1.5 last:border-b-0">
-                  <span
-                    class="inline-block size-2.5 shrink-0 rounded-sm"
-                    style="background:{entry.color};outline:1px solid {entry.color}"
-                  ></span>
-                  <div class="min-w-0">
-                    <span class="text-[11px] font-medium">{entry.label}</span>
-                    <span class="ml-1 text-[10px] text-muted-foreground">{entry.elements}</span>
+        <Tooltip.Provider>
+          <Tooltip.Root delayDuration={300}>
+            <Popover.Root>
+              <Tooltip.Trigger>
+                {#snippet child({ props: tipProps })}
+                  <Popover.Trigger>
+                    <button
+                      type="button"
+                      {...tipProps}
+                      class={cn(
+                        'inline-flex size-7 items-center justify-center rounded-md transition-colors',
+                        (cardDebugOutline[cardKey] ?? false)
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                      )}
+                      aria-pressed={cardDebugOutline[cardKey] ?? false}
+                      aria-label="Debug outlines"
+                    >
+                      <ScanLine class="size-3.5" aria-hidden="true" />
+                    </button>
+                  </Popover.Trigger>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content side="top" sideOffset={4}>Debug outlines</Tooltip.Content>
+              <Popover.Content side="bottom" align="start" class="w-80 p-0">
+                {@const debugContainer = document.querySelector(`[data-lens-debug="${cardKey}"]`)}
+                {@const cats = cardDebugCategories[cardKey] ?? {}}
+                {@const outStyle = cardDebugOutlineStyle[cardKey] ?? DEBUG_OUTLINE_DEFAULT_STYLE}
+                {@const outWidth = cardDebugOutlineWidth[cardKey] ?? DEBUG_OUTLINE_DEFAULT_WIDTH}
+                {@const outOpacity =
+                  cardDebugOutlineOpacity[cardKey] ?? DEBUG_OUTLINE_DEFAULT_OPACITY}
+                {@const isCB = cardDebugColorBlind[cardKey] ?? false}
+                <!-- Header with toggle + controls -->
+                <div class="flex items-center justify-between border-b bg-muted/30 px-3 py-2">
+                  <div class="flex items-center gap-2">
+                    <Switch
+                      checked={cardDebugOutline[cardKey] ?? false}
+                      onCheckedChange={(checked: boolean) => {
+                        cardDebugOutline[cardKey] = checked as Bool;
+                      }}
+                      aria-label="Enable debug outlines"
+                    />
+                    <h4 class="text-xs font-semibold">Debug Outline</h4>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <!-- Color-blind toggle -->
+                    <Tooltip.Provider>
+                      <Tooltip.Root delayDuration={200}>
+                        <Tooltip.Trigger>
+                          {#snippet child({ props: cbTipProps })}
+                            <button
+                              type="button"
+                              {...cbTipProps}
+                              class={cn(
+                                'inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors',
+                                isCB
+                                  ? 'bg-primary/10 text-primary'
+                                  : 'hover:bg-muted hover:text-foreground',
+                              )}
+                              onclick={() => {
+                                cardDebugColorBlind[cardKey] = !cardDebugColorBlind[cardKey];
+                              }}
+                              aria-pressed={isCB}
+                              aria-label="Color-blind friendly mode"
+                            >
+                              <Accessibility class="size-3.5" />
+                            </button>
+                          {/snippet}
+                        </Tooltip.Trigger>
+                        <Tooltip.Content side="top" sideOffset={4}>
+                          Color-blind mode — uses distinct border patterns
+                        </Tooltip.Content>
+                      </Tooltip.Root>
+                    </Tooltip.Provider>
+                    <!-- Settings dropdown -->
+                    <Tooltip.Provider>
+                      <Tooltip.Root delayDuration={200}>
+                        <DropdownMenu.Root
+                          onOpenChange={(open) => {
+                            if (open) debugOutlineSettingsSearch = '' as Str;
+                          }}
+                        >
+                          <Tooltip.Trigger>
+                            {#snippet child({ props: settingsTipProps })}
+                              <DropdownMenu.Trigger>
+                                <button
+                                  {...settingsTipProps}
+                                  type="button"
+                                  class="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                  aria-label="Outline settings"
+                                >
+                                  <SlidersHorizontal class="size-3.5" />
+                                </button>
+                              </DropdownMenu.Trigger>
+                            {/snippet}
+                          </Tooltip.Trigger>
+                          <Tooltip.Content side="top" sideOffset={4}>
+                            Outline style and width settings
+                          </Tooltip.Content>
+                          <DropdownMenu.Content
+                            align="end"
+                            class="flex max-h-80 w-56 flex-col overflow-hidden"
+                          >
+                            <div class="shrink-0 px-2 pb-1.5 pt-1">
+                              <div
+                                class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                              >
+                                <Search
+                                  class="size-3 shrink-0 text-muted-foreground"
+                                  aria-hidden="true"
+                                />
+                                <input
+                                  type="text"
+                                  placeholder="Search styles..."
+                                  class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                                  bind:value={debugOutlineSettingsSearch}
+                                  onkeydown={(e) => e.stopPropagation()}
+                                  onkeyup={(e) => e.stopPropagation()}
+                                  onkeypress={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                            </div>
+                            <div class="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                              {#if filteredDebugOutlineStyles.length > 0}
+                                {#each ['Basic', '3D Effects'] as group (group)}
+                                  {@const groupItems = filteredDebugOutlineStyles.filter(
+                                    (s) => s.group === group,
+                                  )}
+                                  {#if groupItems.length > 0}
+                                    <DropdownMenu.Label class="text-xs">{group}</DropdownMenu.Label>
+                                    <DropdownMenu.Separator />
+                                    {#each groupItems as styleOpt (styleOpt.id)}
+                                      <DropdownMenu.Item
+                                        onSelect={() => {
+                                          cardDebugOutlineStyle[cardKey] = styleOpt.id;
+                                        }}
+                                      >
+                                        <div class="flex w-full items-center gap-2">
+                                          <div
+                                            class="h-0 w-5 shrink-0"
+                                            style="border-top:2px {styleOpt.id} currentColor"
+                                          ></div>
+                                          <div class="min-w-0 flex-1">
+                                            <div class="text-xs">{styleOpt.label}</div>
+                                            <div class="text-[10px] text-muted-foreground">
+                                              {styleOpt.desc}
+                                            </div>
+                                          </div>
+                                          {#if outStyle === styleOpt.id}
+                                            <Check class="size-3.5 shrink-0" />
+                                          {/if}
+                                        </div>
+                                      </DropdownMenu.Item>
+                                    {/each}
+                                  {/if}
+                                {/each}
+                              {/if}
+                              {#if filteredDebugOutlineWidths.length > 0}
+                                <DropdownMenu.Label class="text-xs">Width</DropdownMenu.Label>
+                                <DropdownMenu.Separator />
+                                {#each filteredDebugOutlineWidths as widthOpt (widthOpt.px)}
+                                  <DropdownMenu.Item
+                                    onSelect={() => {
+                                      cardDebugOutlineWidth[cardKey] = widthOpt.px;
+                                    }}
+                                  >
+                                    <div class="flex w-full items-center gap-2">
+                                      <div
+                                        class="w-5 shrink-0"
+                                        style="border-top:{widthOpt.px}px solid currentColor"
+                                      ></div>
+                                      <span class="text-xs">{widthOpt.label}</span>
+                                      {#if outWidth === widthOpt.px}
+                                        <Check class="ml-auto size-3.5 shrink-0" />
+                                      {/if}
+                                    </div>
+                                  </DropdownMenu.Item>
+                                {/each}
+                              {/if}
+                              {#if filteredDebugOutlineStyles.length === 0 && filteredDebugOutlineWidths.length === 0}
+                                <div class="px-3 py-4 text-center text-xs text-muted-foreground">
+                                  No matches
+                                </div>
+                              {/if}
+                            </div>
+                          </DropdownMenu.Content>
+                        </DropdownMenu.Root>
+                      </Tooltip.Root>
+                    </Tooltip.Provider>
                   </div>
                 </div>
-              {/each}
-            </div>
-          </Popover.Content>
-        </Popover.Root>
-        {@render toolbarToggle(Ruler, 'Measure', cardMeasureActive[cardKey] ?? false, () => {
-          cardMeasureActive[cardKey] = !cardMeasureActive[cardKey];
-          if (!cardMeasureActive[cardKey]) cardMeasureData[cardKey] = null;
-        })}
+                <!-- Opacity slider -->
+                <div class="flex items-center gap-2 border-b px-3 py-1.5">
+                  <span class="text-[10px] text-muted-foreground">Opacity</span>
+                  <Slider
+                    type="single"
+                    value={outOpacity as number}
+                    min={10}
+                    max={100}
+                    step={5}
+                    class="flex-1"
+                    onValueChange={(val: number) => {
+                      cardDebugOutlineOpacity[cardKey] = (val ?? 100) as Num;
+                    }}
+                  />
+                  <span
+                    class="w-8 text-right font-mono text-[10px] tabular-nums text-muted-foreground"
+                    >{outOpacity}%</span
+                  >
+                </div>
+                <!-- Toggle all / none -->
+                {@const allEnabled = DEBUG_OUTLINE_LEGEND.every((_, i) => cats[i as Num] !== false)}
+                <div class="flex items-center justify-between border-b px-3 py-1">
+                  <span class="text-[10px] font-medium text-muted-foreground">Categories</span>
+                  <button
+                    type="button"
+                    class="text-[10px] text-muted-foreground transition-colors hover:text-foreground"
+                    onclick={() => {
+                      const next: Record<Num, Bool> = {};
+                      for (
+                        let i: Num = 0 as Num;
+                        (i as number) < DEBUG_OUTLINE_LEGEND.length;
+                        i = ((i as number) + 1) as Num
+                      ) {
+                        next[i] = !allEnabled as Bool;
+                      }
+                      cardDebugCategories[cardKey] = next;
+                    }}
+                    aria-label={allEnabled ? 'Hide all categories' : 'Show all categories'}
+                  >
+                    {allEnabled ? 'Hide all' : 'Show all'}
+                  </button>
+                </div>
+                <!-- Category list -->
+                <div class="space-y-0">
+                  {#each DEBUG_OUTLINE_LEGEND as entry, idx (entry.label)}
+                    {@const isEnabled = cats[idx as Num] !== false}
+                    {@const count = debugContainer
+                      ? countElements(debugContainer, entry.selectors)
+                      : (0 as Num)}
+                    <div
+                      class={cn(
+                        'flex w-full items-start gap-2.5 border-b px-3 py-1.5 transition-colors last:border-b-0',
+                        isEnabled ? 'hover:bg-muted/50' : 'opacity-40',
+                      )}
+                      onmouseenter={() => {
+                        if (isEnabled) cardDebugHoverCategory[cardKey] = idx as Num;
+                      }}
+                      onmouseleave={() => {
+                        cardDebugHoverCategory[cardKey] = -1 as Num;
+                      }}
+                      role="group"
+                      aria-label="{entry.label} — {count} elements"
+                    >
+                      <Switch
+                        checked={isEnabled}
+                        onCheckedChange={(checked: boolean) => {
+                          cardDebugCategories[cardKey] = {
+                            ...cardDebugCategories[cardKey],
+                            [idx]: checked as Bool,
+                          };
+                        }}
+                        class="mt-0.5 scale-75"
+                        aria-label="Show {entry.label} outlines"
+                      />
+                      <button
+                        type="button"
+                        class="min-w-0 flex-1 text-left"
+                        onclick={() => {
+                          if (isEnabled && (count as number) > 0) {
+                            highlightFirstElement(cardKey, idx as Num);
+                          }
+                        }}
+                        aria-label="Scroll to first {entry.label} element"
+                      >
+                        <div class="flex items-center gap-1.5">
+                          <span
+                            class="inline-block size-3 shrink-0 rounded-sm"
+                            style="background:{isEnabled
+                              ? entry.color
+                              : 'transparent'};outline:1px {isCB
+                              ? entry.cbStyle
+                              : outStyle} {entry.color}"
+                          ></span>
+                          <div class="text-[11px] font-medium leading-tight">{entry.label}</div>
+                          {#if (count as number) > 0}
+                            <span
+                              class="rounded-full bg-muted px-1.5 py-px font-mono text-[9px] tabular-nums text-muted-foreground"
+                              >{count}</span
+                            >
+                          {/if}
+                        </div>
+                        <div class="mt-0.5 text-[10px] leading-relaxed text-muted-foreground">
+                          {entry.elements}
+                        </div>
+                      </button>
+                    </div>
+                  {/each}
+                </div>
+                <!-- Footer hint -->
+                <div class="border-t bg-muted/20 px-3 py-1.5">
+                  <p class="text-[9px] text-muted-foreground">Click row to scroll to element</p>
+                </div>
+              </Popover.Content>
+            </Popover.Root>
+          </Tooltip.Root>
+        </Tooltip.Provider>
+        {@render toolbarToggle(
+          Ruler,
+          'Measure — hover to inspect box model, click to copy' as Str,
+          cardMeasureActive[cardKey] ?? false,
+          () => {
+            cardMeasureActive[cardKey] = !cardMeasureActive[cardKey];
+            if (!cardMeasureActive[cardKey]) cardMeasureData[cardKey] = null;
+          },
+        )}
         {@render toolbarToggle(
           MousePointerClick,
           'Inspect',
@@ -8023,7 +8679,10 @@
         : undefined}
       onmousemove={(e) => handleMeasureMove(e, cardKey)}
       onmouseleave={() => handleMeasureLeave(cardKey)}
-      onclickcapture={(e) => handleInspectClick(e, cardKey)}
+      onclickcapture={(e) => {
+        handleMeasureClick(e, cardKey);
+        handleInspectClick(e, cardKey);
+      }}
       onkeydown={(e) => {
         if (cardInspectActive[cardKey] && e.key === 'Escape') {
           cardInspectActive[cardKey] = false;
@@ -8278,11 +8937,28 @@
         </div>
       </div>
       {#if cardDebugOutline[cardKey]}
-        {@html `<style data-lens-debug-outline>${buildDebugOutlineCSS(cardKey)}</style>`}
+        {@html `<style data-lens-debug-outline>${DEBUG_FLASH_KEYFRAMES}\n${buildDebugOutlineCSS(cardKey)}</style>`}
       {/if}
       {#if cardMeasureActive[cardKey] && cardMeasureData[cardKey]}
         {@const m = cardMeasureData[cardKey]}
         {#if m}
+          <!-- Guide lines — horizontal and vertical extending from element edges -->
+          <div
+            class="pointer-events-none absolute border-t border-dashed border-primary/30"
+            style="left:0;top:{m.absY}px;width:{m.containerW}px;"
+          ></div>
+          <div
+            class="pointer-events-none absolute border-t border-dashed border-primary/30"
+            style="left:0;top:{m.absY + m.height}px;width:{m.containerW}px;"
+          ></div>
+          <div
+            class="pointer-events-none absolute border-l border-dashed border-primary/30"
+            style="left:{m.absX}px;top:0;height:{m.containerH}px;"
+          ></div>
+          <div
+            class="pointer-events-none absolute border-l border-dashed border-primary/30"
+            style="left:{m.absX + m.width}px;top:0;height:{m.containerH}px;"
+          ></div>
           <!-- Margin overlay -->
           <div
             class="pointer-events-none absolute"
@@ -8317,62 +8993,139 @@
             style="left:{m.content.x}px;top:{m.content.y}px;width:{m.content.w}px;height:{m.content
               .h}px;background:rgba(111,168,220,0.3);"
           ></div>
-          <!-- Dimension label -->
-          <div
-            class="pointer-events-none absolute rounded bg-gray-900/90 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-white"
-            style="left:{m.content.x}px;top:{m.content.y - 20}px;"
-          >
-            {Math.round(m.width)} × {Math.round(m.height)}
-          </div>
-          <!-- Margin labels -->
-          {#if m.margin.top > 0}
+          <!-- Copied indicator -->
+          {#if cardMeasureCopied[cardKey]}
             <div
-              class="pointer-events-none absolute font-mono text-[9px] font-medium text-orange-700"
-              style="left:{m.content.x + m.content.w / 2 - 8}px;top:{m.content.y -
-                m.padding.top -
-                m.border.top -
-                m.margin.top +
-                1}px;"
+              class="pointer-events-none absolute flex items-center gap-1 rounded-md bg-primary px-2.5 py-1 text-[10px] font-medium text-primary-foreground shadow-md"
+              style="left:{m.content.x + m.width / 2 - 32}px;top:{m.content.y +
+                m.height / 2 -
+                12}px;"
             >
-              {Math.round(m.margin.top)}
-            </div>
-          {/if}
-          {#if m.margin.bottom > 0}
-            <div
-              class="pointer-events-none absolute font-mono text-[9px] font-medium text-orange-700"
-              style="left:{m.content.x + m.content.w / 2 - 8}px;top:{m.content.y +
-                m.content.h +
-                m.padding.bottom +
-                m.border.bottom +
-                1}px;"
-            >
-              {Math.round(m.margin.bottom)}
-            </div>
-          {/if}
-          <!-- Padding labels -->
-          {#if m.padding.top > 0}
-            <div
-              class="pointer-events-none absolute font-mono text-[9px] font-medium text-green-700"
-              style="left:{m.content.x + m.content.w / 2 - 8}px;top:{m.content.y -
-                m.padding.top +
-                1}px;"
-            >
-              {Math.round(m.padding.top)}
-            </div>
-          {/if}
-          {#if m.padding.bottom > 0}
-            <div
-              class="pointer-events-none absolute font-mono text-[9px] font-medium text-green-700"
-              style="left:{m.content.x + m.content.w / 2 - 8}px;top:{m.content.y +
-                m.content.h +
-                1}px;"
-            >
-              {Math.round(m.padding.bottom)}
+              <Check class="size-3.5" />
+              Copied
             </div>
           {/if}
         {/if}
       {/if}
     </div>
+    <!-- Sticky box model info panel -->
+    {#if cardMeasureActive[cardKey] && cardMeasureData[cardKey]}
+      {@const md = cardMeasureData[cardKey]}
+      {#if md}
+        <div class="border-t bg-muted/30 px-3 py-2 text-xs" transition:slide={{ duration: 200 }}>
+          <!-- Header: tag + size + layout badges + copy button -->
+          <div class="mb-2 flex items-center gap-1.5">
+            <code
+              class="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-primary"
+              >&lt;{md.tag}&gt;</code
+            >
+            <span class="font-mono text-[10px] tabular-nums text-muted-foreground"
+              >{Math.round(md.width)} × {Math.round(md.height)}</span
+            >
+            <span class="rounded bg-muted px-1 py-0.5 font-mono text-[9px] text-muted-foreground"
+              >{md.display}</span
+            >
+            {#if md.position !== 'static'}
+              <span class="rounded bg-muted px-1 py-0.5 font-mono text-[9px] text-muted-foreground"
+                >{md.position}</span
+              >
+            {/if}
+            <button
+              type="button"
+              class="ml-auto inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              onclick={() => handleMeasureClick(new MouseEvent('click'), cardKey)}
+            >
+              {#if cardMeasureCopied[cardKey]}
+                <Check class="size-3" />
+                <span>Copied</span>
+              {:else}
+                <ClipboardCopy class="size-3" />
+                <span>Copy</span>
+              {/if}
+            </button>
+          </div>
+          <!-- Chrome DevTools-style nested box diagram -->
+          <div class="flex items-start gap-3">
+            <div class="font-mono text-[9px] tabular-nums">
+              <!-- Margin (outermost) -->
+              <div
+                class="rounded border border-dashed px-2 pb-1 pt-0.5"
+                style="border-color:rgba(246,178,107,0.6);background:rgba(246,178,107,0.08)"
+              >
+                <div class="mb-0.5 flex items-center justify-between">
+                  <span
+                    class="text-[8px] font-medium uppercase tracking-wider text-muted-foreground/60"
+                    >margin</span
+                  >
+                  <span class="text-muted-foreground/50">{md.boxSizing}</span>
+                </div>
+                <div class="text-center text-muted-foreground">{Math.round(md.margin.top)}</div>
+                <div class="flex items-center gap-1">
+                  <span class="text-muted-foreground">{Math.round(md.margin.left)}</span>
+                  <!-- Border -->
+                  <div
+                    class="flex-1 rounded border px-1.5 pb-0.5 pt-0.5"
+                    style="border-color:rgba(255,229,153,0.7);background:rgba(255,229,153,0.08)"
+                  >
+                    <div class="text-center text-muted-foreground">{Math.round(md.border.top)}</div>
+                    <div class="flex items-center gap-1">
+                      <span class="text-muted-foreground">{Math.round(md.border.left)}</span>
+                      <!-- Padding -->
+                      <div
+                        class="flex-1 rounded border px-1.5 pb-0.5 pt-0.5"
+                        style="border-color:rgba(147,196,125,0.6);background:rgba(147,196,125,0.08)"
+                      >
+                        <div class="text-center text-muted-foreground">
+                          {Math.round(md.padding.top)}
+                        </div>
+                        <div class="flex items-center gap-1">
+                          <span class="text-muted-foreground">{Math.round(md.padding.left)}</span>
+                          <!-- Content (innermost) -->
+                          <div
+                            class="flex-1 rounded px-1.5 py-0.5 text-center font-semibold"
+                            style="background:rgba(111,168,220,0.15);color:rgba(111,168,220,1)"
+                          >
+                            {Math.round(md.content.w)} × {Math.round(md.content.h)}
+                          </div>
+                          <span class="text-muted-foreground">{Math.round(md.padding.right)}</span>
+                        </div>
+                        <div class="text-center text-muted-foreground">
+                          {Math.round(md.padding.bottom)}
+                        </div>
+                      </div>
+                      <span class="text-muted-foreground">{Math.round(md.border.right)}</span>
+                    </div>
+                    <div class="text-center text-muted-foreground">
+                      {Math.round(md.border.bottom)}
+                    </div>
+                  </div>
+                  <span class="text-muted-foreground">{Math.round(md.margin.right)}</span>
+                </div>
+                <div class="text-center text-muted-foreground">{Math.round(md.margin.bottom)}</div>
+              </div>
+            </div>
+            <!-- Parent offset -->
+            {#if md.parentDistance}
+              <div class="border-l pl-3 pt-0.5">
+                <span class="text-[9px] font-medium text-muted-foreground">Parent offset</span>
+                <div
+                  class="mt-1 grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 font-mono text-[9px] tabular-nums"
+                >
+                  <span class="text-muted-foreground/60">top</span>
+                  <span>{Math.round(md.parentDistance.top)}</span>
+                  <span class="text-muted-foreground/60">right</span>
+                  <span>{Math.round(md.parentDistance.right)}</span>
+                  <span class="text-muted-foreground/60">bottom</span>
+                  <span>{Math.round(md.parentDistance.bottom)}</span>
+                  <span class="text-muted-foreground/60">left</span>
+                  <span>{Math.round(md.parentDistance.left)}</span>
+                </div>
+              </div>
+            {/if}
+          </div>
+        </div>
+      {/if}
+    {/if}
     {#if cardInspectActive[cardKey] && cardInspectedEl[cardKey]}
       {@const el = cardInspectedEl[cardKey]}
       {#if el}
