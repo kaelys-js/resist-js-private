@@ -157,6 +157,9 @@ let changelogRepoUrl: Str = $state('');
 /** Component path relative to repo root for GitHub tree URLs. */
 let changelogComponentPath: Str = $state('');
 
+/** SHA256 diff anchor for scrolling to the primary file in GitHub commit views. */
+let changelogDiffAnchor: Str = $state('');
+
 $effect(() => {
 	const currentName: Str = name;
 	let cancelled: Bool = false;
@@ -397,6 +400,7 @@ $effect(() => {
 	changelog = [];
 	changelogRepoUrl = '';
 	changelogComponentPath = '';
+	changelogDiffAnchor = '';
 	(async (): Promise<void> => {
 		try {
 			const response: Response = await fetch(`/api/lens/changelog/${currentName}`);
@@ -404,11 +408,12 @@ $effect(() => {
 			if (response.ok) {
 				const data: unknown = await response.json();
 				if (cancelled) return;
-				// Server returns { entries, repoUrl, componentPath }
-				const body: { entries: ChangelogEntry[]; repoUrl: Str; componentPath: Str } = data as { entries: ChangelogEntry[]; repoUrl: Str; componentPath: Str };
+				// Server returns { entries, repoUrl, componentPath, diffAnchor }
+				const body: { entries: ChangelogEntry[]; repoUrl: Str; componentPath: Str; diffAnchor: Str } = data as { entries: ChangelogEntry[]; repoUrl: Str; componentPath: Str; diffAnchor: Str };
 				changelog = body.entries;
 				changelogRepoUrl = body.repoUrl;
 				changelogComponentPath = body.componentPath;
+				changelogDiffAnchor = body.diffAnchor;
 			}
 		} catch {
 			/* Changelog fetch failed — entries remain empty */
@@ -1101,7 +1106,7 @@ $effect(() => {
 														<CopyButton text={`${entry.hash} ${entry.message} (${entry.author}, ${new Date(entry.date).toLocaleDateString()})`} label="Copy row" />
 														{#if changelogRepoUrl}
 															<a
-																href="{changelogRepoUrl}/tree/{entry.hash}/{changelogComponentPath}"
+																href="{changelogRepoUrl}/commit/{entry.hash}{changelogDiffAnchor ? `#diff-${changelogDiffAnchor}` : ''}"
 																target="_blank"
 																rel="noopener noreferrer"
 																class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

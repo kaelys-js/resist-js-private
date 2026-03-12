@@ -10,8 +10,9 @@
 import type { RequestHandler } from './$types';
 import type { Num, Str } from '@/schemas/common';
 import { execSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
-import { statSync } from 'node:fs';
+import { readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 /** Maximum number of commits to return per component. */
@@ -152,6 +153,52 @@ function getChangelog(componentName: Str): ChangelogEntry[] {
 }
 
 /**
+ * Convert a kebab-case name to PascalCase.
+ *
+ * @param kebab - Kebab-case string (e.g. "copy-button")
+ * @returns PascalCase string (e.g. "CopyButton")
+ */
+function toPascalCase(kebab: Str): Str {
+  return kebab
+    .split('-')
+    .map((seg: Str): Str => (seg.charAt(0).toUpperCase() + seg.slice(1)) as Str)
+    .join('') as Str;
+}
+
+/**
+ * Compute the GitHub diff anchor hash for a component's primary Svelte file.
+ *
+ * GitHub uses `#diff-{SHA256(filePath)}` to scroll to a specific file
+ * in the commit diff view. This finds the primary `.svelte` file in
+ * the component directory and returns its SHA256 hash.
+ *
+ * @param componentName - Kebab-case component directory name
+ * @param componentPath - Repo-relative path to the component directory
+ * @returns SHA256 hex string or empty string if no Svelte file found
+ */
+function computeDiffAnchor(componentName: Str, componentPath: Str): Str {
+  const uiSrcDir: Str = resolveUiSrcDir();
+  const componentDir: Str = join(uiSrcDir, componentName) as Str;
+
+  try {
+    const files: Str[] = readdirSync(componentDir) as Str[];
+    const svelteFiles: Str[] = files.filter((f: Str): boolean => f.endsWith('.svelte'));
+    if (svelteFiles.length === 0) return '' as Str;
+
+    /* Prefer the file matching the PascalCase directory name */
+    const primaryName: Str = `${toPascalCase(componentName)}.svelte` as Str;
+    const primary: Str =
+      svelteFiles.find((f: Str): boolean => f === primaryName) ?? (svelteFiles[0] as Str);
+    const relativePath: Str = `${componentPath}/${primary}` as Str;
+
+    return createHash('sha256').update(relativePath).digest('hex') as Str;
+  } catch {
+    /* Directory read failed */
+    return '' as Str;
+  }
+}
+
+/**
  * GET handler — returns git changelog for a specific component.
  *
  * @param root0 - SvelteKit request event
@@ -169,8 +216,9 @@ export const GET: RequestHandler = ({ params }) => {
   const entries: ChangelogEntry[] = getChangelog(name);
   const repoUrl: Str = detectRepoUrl();
   const componentPath: Str = `packages/shared/ui/src/${name}` as Str;
+  const diffAnchor: Str = computeDiffAnchor(name, componentPath);
 
-  return new Response(JSON.stringify({ entries, repoUrl, componentPath }), {
+  return new Response(JSON.stringify({ entries, repoUrl, componentPath, diffAnchor }), {
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache',
