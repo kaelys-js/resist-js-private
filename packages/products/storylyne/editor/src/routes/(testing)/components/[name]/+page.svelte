@@ -177,6 +177,12 @@
   /** GitHub repo base URL for commit links (empty if unavailable). */
   let changelogRepoUrl: Str = $state('');
 
+  /** Section-level settings state for Variants section checkmarks. */
+  let variantSectionActive: Record<Str, unknown> = $state({});
+
+  /** Section-level settings state for Examples section checkmarks. */
+  let exampleSectionActive: Record<Str, unknown> = $state({});
+
   /** Component path relative to repo root for GitHub tree URLs. */
   let changelogComponentPath: Str = $state('');
 
@@ -1384,9 +1390,24 @@
                       </button>
                     {/snippet}
                   </DropdownMenu.Trigger>
-                  <DropdownMenu.Content align="end" class="w-56">
+                  <DropdownMenu.Content align="end" class="min-w-56">
                     <LensCardSettingsMenu
+                      active={variantSectionActive}
                       onSetting={(settingName, value) => {
+                        if (settingName === 'mediaPref') {
+                          const mp = value as { pref: Str; value: Str };
+                          const prev: Record<Str, Str> =
+                            (variantSectionActive.mediaPrefs as Record<Str, Str>) ?? {};
+                          variantSectionActive = {
+                            ...variantSectionActive,
+                            mediaPrefs: { ...prev, [mp.pref]: mp.value },
+                          };
+                        } else {
+                          variantSectionActive = {
+                            ...variantSectionActive,
+                            [settingName]: value,
+                          };
+                        }
                         document.dispatchEvent(
                           new CustomEvent('lens:section-settings', {
                             detail: { sectionId: 'variants', setting: settingName, value },
@@ -1394,6 +1415,7 @@
                         );
                       }}
                       onReset={() => {
+                        variantSectionActive = {};
                         document.dispatchEvent(
                           new CustomEvent('lens:section-settings', {
                             detail: { sectionId: 'variants', setting: 'reset', value: null },
@@ -1470,9 +1492,24 @@
                       </button>
                     {/snippet}
                   </DropdownMenu.Trigger>
-                  <DropdownMenu.Content align="end" class="w-56">
+                  <DropdownMenu.Content align="end" class="min-w-56">
                     <LensCardSettingsMenu
+                      active={exampleSectionActive}
                       onSetting={(settingName, value) => {
+                        if (settingName === 'mediaPref') {
+                          const mp = value as { pref: Str; value: Str };
+                          const prev: Record<Str, Str> =
+                            (exampleSectionActive.mediaPrefs as Record<Str, Str>) ?? {};
+                          exampleSectionActive = {
+                            ...exampleSectionActive,
+                            mediaPrefs: { ...prev, [mp.pref]: mp.value },
+                          };
+                        } else {
+                          exampleSectionActive = {
+                            ...exampleSectionActive,
+                            [settingName]: value,
+                          };
+                        }
                         document.dispatchEvent(
                           new CustomEvent('lens:section-settings', {
                             detail: { sectionId: 'examples', setting: settingName, value },
@@ -1480,6 +1517,7 @@
                         );
                       }}
                       onReset={() => {
+                        exampleSectionActive = {};
                         document.dispatchEvent(
                           new CustomEvent('lens:section-settings', {
                             detail: { sectionId: 'examples', setting: 'reset', value: null },

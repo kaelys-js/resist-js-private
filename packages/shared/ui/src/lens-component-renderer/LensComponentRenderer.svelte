@@ -2529,6 +2529,7 @@
       height: 876,
       category: 'Foldables',
     },
+    { id: 'galaxy-z-flip', label: 'Galaxy Z Flip', width: 412, height: 846, category: 'Foldables' },
     {
       id: 'pixel-fold-main',
       label: 'Pixel Fold (Main)',
@@ -2721,6 +2722,14 @@
       category: 'Automotive',
     },
     {
+      id: 'carplay',
+      label: 'Apple CarPlay (wide)',
+      width: 1920,
+      height: 720,
+      category: 'Automotive',
+    },
+    { id: 'android-auto', label: 'Android Auto', width: 1280, height: 720, category: 'Automotive' },
+    {
       id: 'tesla-rear',
       label: 'Tesla Rear Display',
       width: 1440,
@@ -2794,9 +2803,231 @@
       category: 'Kiosk / Signage',
     },
     // ── TV ──
+    { id: 'tv-sd', label: 'TV 480p / SD', width: 854, height: 480, category: 'TV' },
     { id: 'tv-hd', label: 'TV 720p / HD', width: 1280, height: 720, category: 'TV' },
     { id: 'tv-fhd', label: 'TV 1080p / Full HD', width: 1920, height: 1080, category: 'TV' },
     { id: 'tv-4k', label: 'TV 4K / Ultra HD', width: 3840, height: 2160, category: 'TV' },
+    { id: 'tv-8k', label: 'TV 8K', width: 7680, height: 4320, category: 'TV' },
+    // ── iOS Widgets ──
+    {
+      id: 'ios-widget-sm',
+      label: 'Small Widget',
+      width: 170,
+      height: 170,
+      category: 'iOS Widgets',
+    },
+    {
+      id: 'ios-widget-md',
+      label: 'Medium Widget',
+      width: 364,
+      height: 170,
+      category: 'iOS Widgets',
+    },
+    {
+      id: 'ios-widget-lg',
+      label: 'Large Widget',
+      width: 364,
+      height: 382,
+      category: 'iOS Widgets',
+    },
+    {
+      id: 'ios-widget-xl',
+      label: 'Extra Large Widget',
+      width: 795,
+      height: 382,
+      category: 'iOS Widgets',
+    },
+    // ── Android Widgets ──
+    {
+      id: 'android-widget-1x1',
+      label: '1\u00D71 Widget',
+      width: 57,
+      height: 57,
+      category: 'Android Widgets',
+    },
+    {
+      id: 'android-widget-2x1',
+      label: '2\u00D71 Widget',
+      width: 130,
+      height: 57,
+      category: 'Android Widgets',
+    },
+    {
+      id: 'android-widget-2x2',
+      label: '2\u00D72 Widget',
+      width: 130,
+      height: 130,
+      category: 'Android Widgets',
+    },
+    {
+      id: 'android-widget-3x2',
+      label: '3\u00D72 Widget',
+      width: 203,
+      height: 130,
+      category: 'Android Widgets',
+    },
+    {
+      id: 'android-widget-4x1',
+      label: '4\u00D71 Widget',
+      width: 276,
+      height: 57,
+      category: 'Android Widgets',
+    },
+    {
+      id: 'android-widget-4x2',
+      label: '4\u00D72 Widget',
+      width: 276,
+      height: 130,
+      category: 'Android Widgets',
+    },
+    {
+      id: 'android-widget-4x3',
+      label: '4\u00D73 Widget',
+      width: 276,
+      height: 203,
+      category: 'Android Widgets',
+    },
+    {
+      id: 'android-widget-4x4',
+      label: '4\u00D74 Widget',
+      width: 276,
+      height: 276,
+      category: 'Android Widgets',
+    },
+    // ── App Icons ──
+    {
+      id: 'icon-ios-appstore',
+      label: 'iOS App Store',
+      width: 1024,
+      height: 1024,
+      category: 'App Icons',
+    },
+    { id: 'icon-ios-3x', label: 'iPhone @3x', width: 180, height: 180, category: 'App Icons' },
+    { id: 'icon-ios-2x', label: 'iPhone @2x', width: 120, height: 120, category: 'App Icons' },
+    { id: 'icon-ipad-pro', label: 'iPad Pro', width: 167, height: 167, category: 'App Icons' },
+    { id: 'icon-ipad', label: 'iPad', width: 152, height: 152, category: 'App Icons' },
+    {
+      id: 'icon-ios-spotlight',
+      label: 'iOS Spotlight @3x',
+      width: 87,
+      height: 87,
+      category: 'App Icons',
+    },
+    {
+      id: 'icon-ios-settings',
+      label: 'iOS Settings @3x',
+      width: 58,
+      height: 58,
+      category: 'App Icons',
+    },
+    {
+      id: 'icon-android-play',
+      label: 'Google Play Store',
+      width: 512,
+      height: 512,
+      category: 'App Icons',
+    },
+    {
+      id: 'icon-android-xxxhdpi',
+      label: 'Android xxxhdpi',
+      width: 192,
+      height: 192,
+      category: 'App Icons',
+    },
+    {
+      id: 'icon-android-xxhdpi',
+      label: 'Android xxhdpi',
+      width: 144,
+      height: 144,
+      category: 'App Icons',
+    },
+    {
+      id: 'icon-android-xhdpi',
+      label: 'Android xhdpi',
+      width: 96,
+      height: 96,
+      category: 'App Icons',
+    },
+    {
+      id: 'icon-android-hdpi',
+      label: 'Android hdpi',
+      width: 72,
+      height: 72,
+      category: 'App Icons',
+    },
+    {
+      id: 'icon-android-mdpi',
+      label: 'Android mdpi',
+      width: 48,
+      height: 48,
+      category: 'App Icons',
+    },
+    {
+      id: 'icon-macos-appstore',
+      label: 'macOS App Store',
+      width: 1024,
+      height: 1024,
+      category: 'App Icons',
+    },
+    { id: 'icon-macos-512', label: 'macOS 512', width: 512, height: 512, category: 'App Icons' },
+    { id: 'icon-macos-256', label: 'macOS 256', width: 256, height: 256, category: 'App Icons' },
+    { id: 'icon-macos-128', label: 'macOS 128', width: 128, height: 128, category: 'App Icons' },
+    {
+      id: 'icon-watchos-appstore',
+      label: 'watchOS App Store',
+      width: 1024,
+      height: 1024,
+      category: 'App Icons',
+    },
+    {
+      id: 'icon-watchos-home',
+      label: 'watchOS Home 44mm',
+      width: 88,
+      height: 88,
+      category: 'App Icons',
+    },
+    // ── Favicons ──
+    { id: 'favicon-pwa-512', label: 'PWA Icon 512', width: 512, height: 512, category: 'Favicons' },
+    { id: 'favicon-pwa-192', label: 'PWA Icon 192', width: 192, height: 192, category: 'Favicons' },
+    {
+      id: 'favicon-apple-touch',
+      label: 'Apple Touch Icon',
+      width: 180,
+      height: 180,
+      category: 'Favicons',
+    },
+    { id: 'favicon-32', label: 'Favicon 32x32', width: 32, height: 32, category: 'Favicons' },
+    { id: 'favicon-16', label: 'Favicon 16x16', width: 16, height: 16, category: 'Favicons' },
+    // ── Social / OG ──
+    { id: 'og-image', label: 'OG Image', width: 1200, height: 630, category: 'Social / OG' },
+    {
+      id: 'twitter-card',
+      label: 'Twitter Card',
+      width: 1200,
+      height: 675,
+      category: 'Social / OG',
+    },
+    {
+      id: 'instagram-post',
+      label: 'Instagram Post',
+      width: 1080,
+      height: 1080,
+      category: 'Social / OG',
+    },
+    {
+      id: 'instagram-story',
+      label: 'Instagram Story',
+      width: 1080,
+      height: 1920,
+      category: 'Social / OG',
+    },
+    {
+      id: 'youtube-thumb',
+      label: 'YouTube Thumbnail',
+      width: 1280,
+      height: 720,
+      category: 'Social / OG',
+    },
   ];
 
   /* ------------------------------------------------------------------ */
@@ -8868,7 +9099,7 @@
             <EllipsisVertical class="size-3.5" aria-hidden="true" />
             <span class="sr-only">Card options</span>
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content align="end" class="w-56">
+          <DropdownMenu.Content align="end" class="min-w-56">
             {#if componentName}
               <DropdownMenu.Item onclick={() => openIsolation(cardKey, variantKey, variantOption)}>
                 <ExternalLink class="size-4" />
