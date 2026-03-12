@@ -80,7 +80,7 @@
           {...props}
           type="button"
           class={cn(
-            'rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
+            'inline-flex items-center justify-center rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
             validated.class,
           )}
           onclick={handleCopy}

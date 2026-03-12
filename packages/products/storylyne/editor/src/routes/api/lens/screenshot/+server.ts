@@ -1,5 +1,5 @@
 /**
- * Screenshot API — Playwright Real Browser Rendering
+ * Screenshot API — Playwright Browser & Device Preview Rendering
  *
  * Server endpoint that uses Playwright to render components in actual
  * browser engines (Chromium, Firefox, WebKit) with full device emulation.
@@ -37,6 +37,44 @@ const VALID_ENGINES: Set<Str> = new Set(['chromium' as Str, 'firefox' as Str, 'w
  * Survives across requests for fast context creation (~50ms vs ~2s cold start).
  */
 const browserCache: Map<Str, Browser> = new Map();
+
+/* ------------------------------------------------------------------ */
+/*  Concurrency semaphore                                              */
+/* ------------------------------------------------------------------ */
+
+/** Maximum concurrent Playwright contexts across all engines. */
+const MAX_CONCURRENT: Num = 3 as Num;
+
+/** Currently active screenshot captures. */
+let activeCaptureCount: Num = 0 as Num;
+
+/** Queue of resolve callbacks waiting for a semaphore slot. */
+const waitQueue: Array<() => void> = [];
+
+/**
+ * Acquire a semaphore slot, waiting if at capacity.
+ *
+ * @returns Release function to call when the capture is done
+ */
+function acquireSlot(): Promise<() => void> {
+  const release = (): void => {
+    activeCaptureCount = ((activeCaptureCount as number) - 1) as Num;
+    const next: (() => void) | undefined = waitQueue.shift();
+    if (next) next();
+  };
+
+  if ((activeCaptureCount as number) < (MAX_CONCURRENT as number)) {
+    activeCaptureCount = ((activeCaptureCount as number) + 1) as Num;
+    return Promise.resolve(release);
+  }
+
+  return new Promise<() => void>((resolve) => {
+    waitQueue.push(() => {
+      activeCaptureCount = ((activeCaptureCount as number) + 1) as Num;
+      resolve(release);
+    });
+  });
+}
 
 /**
  * Get or launch a persistent headless browser for the specified engine.
@@ -171,11 +209,14 @@ export const GET: RequestHandler = async ({ url }) => {
   /* ---- Build isolate URL ---- */
 
   const isolateUrl: URL = new URL(`/isolate/${component}`, url.origin);
+  isolateUrl.searchParams.set('screenshot', '1');
   if (cardStylesParam) isolateUrl.searchParams.set('s', cardStylesParam);
   if (variant) isolateUrl.searchParams.set('variant', variant);
   if (option) isolateUrl.searchParams.set('option', option);
 
-  /* ---- Build Playwright context & capture ---- */
+  /* ---- Acquire semaphore slot & capture ---- */
+
+  const releaseSlot: () => void = await acquireSlot();
 
   try {
     const pw = await import('playwright');
@@ -339,5 +380,7 @@ export const GET: RequestHandler = async ({ url }) => {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
+  } finally {
+    releaseSlot();
   }
 };

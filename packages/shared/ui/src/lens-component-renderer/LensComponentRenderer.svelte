@@ -397,7 +397,7 @@
   /** Per-card performance statistics collected by LensStats wrapper. */
   let cardStats: Record<Str, LensStatsData> = $state({});
 
-  /* ---- Real Browser Screenshot State ---- */
+  /* ---- Browser & Device Preview Screenshot State ---- */
 
   /** Console log entry captured during Playwright page load. */
   type ScreenshotConsoleEntry = {
@@ -491,7 +491,7 @@
   /** Per-screenshot-capture console section collapsed state (true = expanded, default true). */
   let screenshotConsoleExpanded: Record<Str, Bool> = $state({});
 
-  /** Search query for the Real Browser device list. */
+  /** Search query for the Browser & Device Preview device list. */
   let browserSearchQuery: Str = $state('');
 
   /** Playwright device info from /api/lens/screenshot/devices. */
@@ -539,7 +539,7 @@
     'android-emulator': { available: false, reason: 'Checking...' as Str },
   });
 
-  /** Polling interval ID for engine status (while Real Browser menu is open). */
+  /** Polling interval ID for engine status (while Browser & Device Preview menu is open). */
   let statusPollInterval: ReturnType<typeof setInterval> | null = $state(null);
 
   /** Whether safe area inset overlays are shown on iOS screenshots. */
@@ -5186,7 +5186,7 @@
     cardScreenError[key] = '' as Str;
   }
 
-  /* ---- Real Browser Screenshot Functions ---- */
+  /* ---- Browser & Device Preview Screenshot Functions ---- */
 
   /**
    * Fetch the Playwright device list from the screenshot API.
@@ -8466,7 +8466,7 @@
               {exportInProgress}
               showReset={false}
             />
-            <!-- Real Browser submenu -->
+            <!-- Browser & Device Preview submenu -->
             {#if componentName}
               <DropdownMenu.Sub
                 onOpenChange={(open) => {
@@ -8492,7 +8492,7 @@
               >
                 <DropdownMenu.SubTrigger>
                   <Camera class="size-4" />
-                  Real Browser
+                  Browser & Device Preview
                 </DropdownMenu.SubTrigger>
                 <DropdownMenu.SubContent class="flex max-h-96 w-80 flex-col overflow-hidden">
                   <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -8953,11 +8953,6 @@
         .join('; ')}
       data-theme={activeTheme || undefined}
       data-lens-debug={cardDebugOutline[cardKey] ? cardKey : undefined}
-      dir={(cardTextDir[cardKey] ?? 'auto') !== 'auto'
-        ? /* Guard ensures 'ltr' | 'rtl' — Str too wide for dir attr */ (cardTextDir[cardKey] as
-            | 'ltr'
-            | 'rtl')
-        : undefined}
       onmousemove={(e) => handleMeasureMove(e, cardKey)}
       onmouseleave={() => handleMeasureLeave(cardKey)}
       onclickcapture={(e) => {
@@ -9106,6 +9101,11 @@
                 ]
                   .filter(Boolean)
                   .join('; ')}
+                dir={(cardTextDir[cardKey] ?? 'auto') !== 'auto'
+                  ? /* Guard ensures 'ltr' | 'rtl' — Str too wide for dir attr */ (cardTextDir[
+                      cardKey
+                    ] as 'ltr' | 'rtl')
+                  : undefined}
               >
                 <LensStats
                   {cardKey}

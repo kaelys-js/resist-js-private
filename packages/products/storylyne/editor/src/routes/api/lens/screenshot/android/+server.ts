@@ -103,6 +103,7 @@ export const GET: RequestHandler = async ({ url }) => {
   /* ---- Build isolate URL ---- */
 
   const isolateUrl: URL = new URL(`/isolate/${component}`, url.origin);
+  isolateUrl.searchParams.set('screenshot', '1');
   if (cardStylesParam) isolateUrl.searchParams.set('s', cardStylesParam);
   if (variant) isolateUrl.searchParams.set('variant', variant);
   if (option) isolateUrl.searchParams.set('option', option);
