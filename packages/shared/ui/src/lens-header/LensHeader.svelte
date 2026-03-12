@@ -129,26 +129,65 @@
   /*  Component page export                                              */
   /* ------------------------------------------------------------------ */
 
-  /** Component page export format menu items. */
-  const PAGE_EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: Component; category: Str }> = [
-    { id: 'copy-json', label: 'Copy as JSON', icon: ClipboardCopy, category: 'Clipboard' },
-    { id: 'copy-markdown', label: 'Copy as Markdown', icon: FileText, category: 'Clipboard' },
-    { id: 'download-json', label: 'Download JSON', icon: Download, category: 'File' },
-    { id: 'download-markdown', label: 'Download Markdown', icon: Download, category: 'File' },
+  /** Component page export format menu items with descriptions and file extension badges. */
+  const PAGE_EXPORT_ITEMS: Array<{
+    id: Str;
+    label: Str;
+    icon: Component;
+    category: Str;
+    description: Str;
+    ext: Str;
+  }> = [
+    {
+      id: 'copy-json',
+      label: 'Copy as JSON',
+      icon: ClipboardCopy,
+      category: 'Clipboard',
+      description: 'Structured page data',
+      ext: '',
+    },
+    {
+      id: 'copy-markdown',
+      label: 'Copy as Markdown',
+      icon: FileText,
+      category: 'Clipboard',
+      description: 'Formatted documentation',
+      ext: '',
+    },
+    {
+      id: 'download-json',
+      label: 'Download JSON',
+      icon: Download,
+      category: 'File',
+      description: 'Structured page file',
+      ext: '.json',
+    },
+    {
+      id: 'download-markdown',
+      label: 'Download Markdown',
+      icon: Download,
+      category: 'File',
+      description: 'Formatted doc file',
+      ext: '.md',
+    },
   ];
 
   /** Search query for page export menu filtering. */
   let pageExportSearchQuery: Str = $state('');
 
-  /** Page export items filtered by search query. */
-  const filteredPageExportItems: Array<{ id: Str; label: Str; icon: Component; category: Str }> =
-    $derived(
-      pageExportSearchQuery.length === 0
-        ? PAGE_EXPORT_ITEMS
-        : PAGE_EXPORT_ITEMS.filter((p) =>
-            p.label.toLowerCase().includes(pageExportSearchQuery.toLowerCase()),
-          ),
-    );
+  /** Page export items filtered by search query (searches label, description, category). */
+  const filteredPageExportItems = $derived(
+    pageExportSearchQuery.length === 0
+      ? PAGE_EXPORT_ITEMS
+      : PAGE_EXPORT_ITEMS.filter((p) => {
+          const q: Str = pageExportSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.category.toLowerCase().includes(q)
+          );
+        }),
+  );
 
   /** Unique page export categories present after filtering. */
   const filteredPageExportCategories: Str[] = $derived([
@@ -175,35 +214,112 @@
   /*  Component export (same formats as LensComponentRenderer)            */
   /* ------------------------------------------------------------------ */
 
-  /** Component export format menu items (identical to LensComponentRenderer). */
-  const COMPONENT_EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: Component; category: Str }> = [
-    { id: 'png', label: 'PNG', icon: FileImage, category: 'Image' },
-    { id: 'jpeg', label: 'JPEG', icon: FileImage, category: 'Image' },
-    { id: 'svg', label: 'SVG', icon: FileImage, category: 'Image' },
-    { id: 'webp', label: 'WebP', icon: FileImage, category: 'Image' },
-    { id: 'html', label: 'HTML', icon: FileType, category: 'Document' },
-    { id: 'standalone-html', label: 'Standalone HTML', icon: Globe, category: 'Document' },
-    { id: 'copy-image', label: 'Copy as Image', icon: Clipboard, category: 'Clipboard' },
-    { id: 'copy-html', label: 'Copy as HTML', icon: FileType, category: 'Clipboard' },
-    { id: 'copy-svelte', label: 'Copy as Svelte', icon: FileCode, category: 'Clipboard' },
-    { id: 'copy-data-uri', label: 'Copy as Data URI', icon: Link, category: 'Clipboard' },
+  /** Component export format menu items with descriptions and file extension badges. */
+  const COMPONENT_EXPORT_ITEMS: Array<{
+    id: Str;
+    label: Str;
+    icon: Component;
+    category: Str;
+    description: Str;
+    ext: Str;
+  }> = [
+    {
+      id: 'png',
+      label: 'PNG',
+      icon: FileImage,
+      category: 'Image',
+      description: 'Lossless raster, best quality',
+      ext: '.png',
+    },
+    {
+      id: 'jpeg',
+      label: 'JPEG',
+      icon: FileImage,
+      category: 'Image',
+      description: 'Lossy compressed, smaller files',
+      ext: '.jpg',
+    },
+    {
+      id: 'svg',
+      label: 'SVG',
+      icon: FileImage,
+      category: 'Image',
+      description: 'Vector format, infinitely scalable',
+      ext: '.svg',
+    },
+    {
+      id: 'webp',
+      label: 'WebP',
+      icon: FileImage,
+      category: 'Image',
+      description: 'Modern format, best compression',
+      ext: '.webp',
+    },
+    {
+      id: 'html',
+      label: 'HTML',
+      icon: FileType,
+      category: 'Document',
+      description: 'Markup with external dependencies',
+      ext: '.html',
+    },
+    {
+      id: 'standalone-html',
+      label: 'Standalone HTML',
+      icon: Globe,
+      category: 'Document',
+      description: 'Self-contained, no dependencies',
+      ext: '.html',
+    },
+    {
+      id: 'copy-image',
+      label: 'Copy as Image',
+      icon: Clipboard,
+      category: 'Clipboard',
+      description: 'Copies PNG to clipboard',
+      ext: '',
+    },
+    {
+      id: 'copy-html',
+      label: 'Copy as HTML',
+      icon: FileType,
+      category: 'Clipboard',
+      description: 'Copies rendered markup',
+      ext: '',
+    },
+    {
+      id: 'copy-svelte',
+      label: 'Copy as Svelte',
+      icon: FileCode,
+      category: 'Clipboard',
+      description: 'Copies component source',
+      ext: '',
+    },
+    {
+      id: 'copy-data-uri',
+      label: 'Copy as Data URI',
+      icon: Link,
+      category: 'Clipboard',
+      description: 'Base64-encoded inline image',
+      ext: '',
+    },
   ];
 
   /** Search query for component export menu filtering. */
   let componentExportSearchQuery: Str = $state('');
 
-  /** Component export items filtered by search query. */
-  const filteredComponentExportItems: Array<{
-    id: Str;
-    label: Str;
-    icon: Component;
-    category: Str;
-  }> = $derived(
+  /** Component export items filtered by search query (searches label, description, category). */
+  const filteredComponentExportItems = $derived(
     componentExportSearchQuery.length === 0
       ? COMPONENT_EXPORT_ITEMS
-      : COMPONENT_EXPORT_ITEMS.filter((p) =>
-          p.label.toLowerCase().includes(componentExportSearchQuery.toLowerCase()),
-        ),
+      : COMPONENT_EXPORT_ITEMS.filter((p) => {
+          const q: Str = componentExportSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.category.toLowerCase().includes(q)
+          );
+        }),
   );
 
   /** Unique component export categories present after filtering. */
@@ -315,7 +431,7 @@
                   <Download class="mr-2 size-4" />
                   Export
                 </DropdownMenu.SubTrigger>
-                <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+                <DropdownMenu.SubContent class="flex max-h-[28rem] w-64 flex-col overflow-hidden">
                   <div class="shrink-0 px-2 pb-1.5 pt-1">
                     <div
                       class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
@@ -339,9 +455,20 @@
                       </div>
                     {:else}
                       {#each filteredPageExportCategories as category (category)}
-                        <DropdownMenu.Label class="px-2 text-xs text-muted-foreground/60"
-                          >{category}</DropdownMenu.Label
+                        <DropdownMenu.Label
+                          class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
                         >
+                          {#if category === 'Image'}
+                            <FileImage class="size-3" />
+                          {:else if category === 'Document'}
+                            <FileType class="size-3" />
+                          {:else if category === 'Clipboard'}
+                            <Clipboard class="size-3" />
+                          {:else}
+                            <Download class="size-3" />
+                          {/if}
+                          {category}
+                        </DropdownMenu.Label>
                         {#each filteredPageExportItems.filter((p) => p.category === category) as item (item.id)}
                           <DropdownMenu.Item onclick={() => handlePageExport(item.id)}>
                             {#if pageExportFeedback === item.id}
@@ -349,7 +476,18 @@
                             {:else}
                               <item.icon class="mr-2 size-4" />
                             {/if}
-                            {item.label}
+                            <div class="flex min-w-0 flex-1 flex-col">
+                              <span class="text-sm">{item.label}</span>
+                              <span class="text-[11px] text-muted-foreground/60"
+                                >{item.description}</span
+                              >
+                            </div>
+                            {#if item.ext}
+                              <code
+                                class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                                >{item.ext}</code
+                              >
+                            {/if}
                           </DropdownMenu.Item>
                         {/each}
                       {/each}
@@ -366,7 +504,7 @@
                   <ComponentIcon class="mr-2 size-4" />
                   Export Component
                 </DropdownMenu.SubTrigger>
-                <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+                <DropdownMenu.SubContent class="flex max-h-[28rem] w-64 flex-col overflow-hidden">
                   <div class="shrink-0 px-2 pb-1.5 pt-1">
                     <div
                       class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
@@ -390,9 +528,20 @@
                       </div>
                     {:else}
                       {#each filteredComponentExportCategories as category (category)}
-                        <DropdownMenu.Label class="px-2 text-xs text-muted-foreground/60"
-                          >{category}</DropdownMenu.Label
+                        <DropdownMenu.Label
+                          class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
                         >
+                          {#if category === 'Image'}
+                            <FileImage class="size-3" />
+                          {:else if category === 'Document'}
+                            <FileType class="size-3" />
+                          {:else if category === 'Clipboard'}
+                            <Clipboard class="size-3" />
+                          {:else}
+                            <Download class="size-3" />
+                          {/if}
+                          {category}
+                        </DropdownMenu.Label>
                         {#each filteredComponentExportItems.filter((p) => p.category === category) as item (item.id)}
                           <DropdownMenu.Item onclick={() => handleComponentExport(item.id)}>
                             {#if componentExportFeedback === item.id}
@@ -400,7 +549,18 @@
                             {:else}
                               <item.icon class="mr-2 size-4" />
                             {/if}
-                            {item.label}
+                            <div class="flex min-w-0 flex-1 flex-col">
+                              <span class="text-sm">{item.label}</span>
+                              <span class="text-[11px] text-muted-foreground/60"
+                                >{item.description}</span
+                              >
+                            </div>
+                            {#if item.ext}
+                              <code
+                                class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                                >{item.ext}</code
+                              >
+                            {/if}
                           </DropdownMenu.Item>
                         {/each}
                       {/each}

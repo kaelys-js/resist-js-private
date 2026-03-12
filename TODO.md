@@ -40,7 +40,7 @@ Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
     - Real Browser: Playwright/iOS/Android Engines (Screenshot/Live/etc)
 
 Test:
-  Sidebar/LensHeader/Props/Dependencies/Changleog/Screenshot Exports
+  Sidebar/LensHeader/Props/Dependencies/Changelog/Screenshot/Props Exports
   Variant Dropdown Menu (All Options)
 - Notifications
 - Do the component conversions

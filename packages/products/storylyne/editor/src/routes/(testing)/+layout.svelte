@@ -48,6 +48,7 @@
   import FileText from '@lucide/svelte/icons/file-text';
   import Check from '@lucide/svelte/icons/check';
   import SearchX from '@lucide/svelte/icons/search-x';
+  import Clipboard from '@lucide/svelte/icons/clipboard';
 
   const { children } = $props();
 
@@ -480,12 +481,47 @@
   /*  Sidebar export                                                      */
   /* ------------------------------------------------------------------ */
 
-  /** Sidebar export menu items. */
-  const SIDEBAR_EXPORT_ITEMS: Array<{ id: Str; label: Str; category: Str }> = [
-    { id: 'copy-json', label: 'Copy as JSON', category: 'Clipboard' },
-    { id: 'copy-markdown', label: 'Copy as Markdown', category: 'Clipboard' },
-    { id: 'download-json', label: 'Download JSON', category: 'File' },
-    { id: 'download-markdown', label: 'Download Markdown', category: 'File' },
+  /** Sidebar export menu items with descriptions and file extension badges. */
+  const SIDEBAR_EXPORT_ITEMS: Array<{
+    id: Str;
+    label: Str;
+    icon: typeof ClipboardCopy;
+    category: Str;
+    description: Str;
+    ext: Str;
+  }> = [
+    {
+      id: 'copy-json',
+      label: 'Copy as JSON',
+      icon: ClipboardCopy,
+      category: 'Clipboard',
+      description: 'Structured data format',
+      ext: '',
+    },
+    {
+      id: 'copy-markdown',
+      label: 'Copy as Markdown',
+      icon: FileText,
+      category: 'Clipboard',
+      description: 'Formatted table for docs',
+      ext: '',
+    },
+    {
+      id: 'download-json',
+      label: 'Download JSON',
+      icon: Download,
+      category: 'File',
+      description: 'Structured data file',
+      ext: '.json',
+    },
+    {
+      id: 'download-markdown',
+      label: 'Download Markdown',
+      icon: Download,
+      category: 'File',
+      description: 'Formatted doc file',
+      ext: '.md',
+    },
   ];
 
   /** Feedback state for sidebar export actions. */
@@ -494,13 +530,18 @@
   /** Search query for sidebar export menu filtering. */
   let sidebarExportSearchQuery: Str = $state('');
 
-  /** Sidebar export items filtered by search query. */
-  const filteredSidebarExportItems: Array<{ id: Str; label: Str; category: Str }> = $derived(
+  /** Sidebar export items filtered by search query (searches label, description, category). */
+  const filteredSidebarExportItems = $derived(
     sidebarExportSearchQuery.length === 0
       ? SIDEBAR_EXPORT_ITEMS
-      : SIDEBAR_EXPORT_ITEMS.filter((p) =>
-          p.label.toLowerCase().includes(sidebarExportSearchQuery.toLowerCase()),
-        ),
+      : SIDEBAR_EXPORT_ITEMS.filter((p) => {
+          const q: Str = sidebarExportSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.category.toLowerCase().includes(q)
+          );
+        }),
   );
 
   /** Unique sidebar export categories present after filtering. */
@@ -633,7 +674,7 @@
                   <Download class="mr-2 size-4" />
                   Export
                 </DropdownMenu.SubTrigger>
-                <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+                <DropdownMenu.SubContent class="flex max-h-[28rem] w-64 flex-col overflow-hidden">
                   <div class="shrink-0 px-2 pb-1.5 pt-1">
                     <p class="mb-1.5 text-[11px] font-medium text-muted-foreground">
                       Component index · {componentNames.length} components
@@ -663,17 +704,35 @@
                       </div>
                     {:else}
                       {#each filteredSidebarExportCategories as category (category)}
-                        <DropdownMenu.Label class="px-2 text-xs text-muted-foreground/60"
-                          >{category}</DropdownMenu.Label
+                        <DropdownMenu.Label
+                          class="flex items-center gap-1.5 px-2 text-xs text-muted-foreground/60"
                         >
+                          {#if category === 'Clipboard'}
+                            <Clipboard class="size-3" />
+                          {:else}
+                            <Download class="size-3" />
+                          {/if}
+                          {category}
+                        </DropdownMenu.Label>
                         {#each filteredSidebarExportItems.filter((p) => p.category === category) as item (item.id)}
                           <DropdownMenu.Item onclick={() => handleSidebarExport(item.id)}>
                             {#if sidebarExportFeedback === item.id}
                               <Check class="mr-2 size-4 text-green-500" />
                             {:else}
-                              <ClipboardCopy class="mr-2 size-4" />
+                              <item.icon class="mr-2 size-4" />
                             {/if}
-                            {item.label}
+                            <div class="flex min-w-0 flex-1 flex-col">
+                              <span class="text-sm">{item.label}</span>
+                              <span class="text-[11px] text-muted-foreground/60"
+                                >{item.description}</span
+                              >
+                            </div>
+                            {#if item.ext}
+                              <code
+                                class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground"
+                                >{item.ext}</code
+                              >
+                            {/if}
                           </DropdownMenu.Item>
                         {/each}
                       {/each}
