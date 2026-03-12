@@ -201,6 +201,9 @@
   /** Per-card outline color keyed by card identifier ('none' = off). */
   let cardOutlines: Record<Str, Str> = $state({});
 
+  /** Per-card outline thickness in pixels keyed by card identifier. */
+  let cardOutlineThickness: Record<Str, Num> = $state({});
+
   /** Per-card grid style keyed by card identifier ('none' = off). */
   let cardGrids: Record<Str, Str> = $state({});
 
@@ -1867,6 +1870,30 @@
       style:
         'background-image: radial-gradient(circle, #d4d4d4 1px, transparent 1px); background-size: 16px 16px',
     },
+    {
+      id: 'cross-hatch',
+      label: 'Cross Hatch',
+      style:
+        'background-image: linear-gradient(45deg, #d4d4d4 1px, transparent 1px), linear-gradient(-45deg, #d4d4d4 1px, transparent 1px); background-size: 12px 12px',
+    },
+    {
+      id: 'diagonal-stripes',
+      label: 'Diagonal Stripes',
+      style:
+        'background-image: repeating-linear-gradient(45deg, transparent, transparent 8px, #d4d4d4 8px, #d4d4d4 9px); background-size: 16px 16px',
+    },
+    {
+      id: 'horizontal-lines',
+      label: 'Horizontal Lines',
+      style:
+        'background-image: repeating-linear-gradient(0deg, transparent, transparent 7px, #d4d4d4 7px, #d4d4d4 8px)',
+    },
+    {
+      id: 'graph-paper',
+      label: 'Graph Paper',
+      style:
+        'background-image: linear-gradient(#d4d4d4 1px, transparent 1px), linear-gradient(90deg, #d4d4d4 1px, transparent 1px); background-size: 16px 16px',
+    },
   ];
 
   /* ------------------------------------------------------------------ */
@@ -1875,19 +1902,24 @@
 
   const ZOOM_PRESETS: Array<{ value: Num; label: Str }> = [
     { value: 0.25, label: '25%' },
+    { value: 0.33, label: '33%' },
     { value: 0.5, label: '50%' },
+    { value: 0.67, label: '67%' },
     { value: 0.75, label: '75%' },
     { value: 1, label: '100%' },
     { value: 1.25, label: '125%' },
     { value: 1.5, label: '150%' },
+    { value: 1.75, label: '175%' },
     { value: 2, label: '200%' },
+    { value: 2.5, label: '250%' },
     { value: 3, label: '300%' },
     { value: 4, label: '400%' },
+    { value: 5, label: '500%' },
   ];
 
   const ZOOM_STEP: Num = 0.25;
   const ZOOM_MIN: Num = 0.25;
-  const ZOOM_MAX: Num = 4;
+  const ZOOM_MAX: Num = 5;
 
   /* ------------------------------------------------------------------ */
   /*  Outline presets                                                    */
@@ -1895,9 +1927,15 @@
 
   const OUTLINE_PRESETS: Array<{ id: Str; label: Str; color: Str }> = [
     { id: 'red', label: 'Red', color: 'rgba(239, 68, 68, 0.25)' },
-    { id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.35)' },
-    { id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.35)' },
+    { id: 'orange', label: 'Orange', color: 'rgba(249, 115, 22, 0.3)' },
     { id: 'yellow', label: 'Yellow', color: 'rgba(234, 179, 8, 0.35)' },
+    { id: 'pink', label: 'Pink', color: 'rgba(236, 72, 153, 0.3)' },
+    { id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.35)' },
+    { id: 'cyan', label: 'Cyan', color: 'rgba(6, 182, 212, 0.3)' },
+    { id: 'teal', label: 'Teal', color: 'rgba(20, 184, 166, 0.3)' },
+    { id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.35)' },
+    { id: 'purple', label: 'Purple', color: 'rgba(168, 85, 247, 0.3)' },
+    { id: 'lime', label: 'Lime', color: 'rgba(132, 204, 22, 0.3)' },
     { id: 'white', label: 'White', color: 'rgba(255, 255, 255, 0.5)' },
     { id: 'black', label: 'Black', color: 'rgba(0, 0, 0, 0.25)' },
   ];
@@ -1913,16 +1951,22 @@
     { id: 'medium', label: 'Medium', color: 'rgba(0, 0, 0, 0.12)' },
     { id: 'dark', label: 'Dark', color: 'rgba(0, 0, 0, 0.25)' },
     { id: 'red', label: 'Red', color: 'rgba(239, 68, 68, 0.15)' },
+    { id: 'orange', label: 'Orange', color: 'rgba(249, 115, 22, 0.15)' },
     { id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.2)' },
+    { id: 'cyan', label: 'Cyan', color: 'rgba(6, 182, 212, 0.15)' },
     { id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.2)' },
+    { id: 'purple', label: 'Purple', color: 'rgba(168, 85, 247, 0.15)' },
   ];
 
   const GRID_FILL_PRESETS: Array<{ id: Str; label: Str; color: Str }> = [
     { id: 'white', label: 'White', color: 'rgba(255, 255, 255, 0.5)' },
     { id: 'black', label: 'Black', color: 'rgba(0, 0, 0, 0.3)' },
     { id: 'red', label: 'Red', color: 'rgba(239, 68, 68, 0.08)' },
+    { id: 'orange', label: 'Orange', color: 'rgba(249, 115, 22, 0.08)' },
     { id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.08)' },
+    { id: 'cyan', label: 'Cyan', color: 'rgba(6, 182, 212, 0.08)' },
     { id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.08)' },
+    { id: 'purple', label: 'Purple', color: 'rgba(168, 85, 247, 0.08)' },
     { id: 'yellow', label: 'Yellow', color: 'rgba(234, 179, 8, 0.08)' },
   ];
 
@@ -1950,9 +1994,10 @@
   /* ------------------------------------------------------------------ */
 
   const MODE_PRESETS: Array<{ id: Str; label: Str; icon: Component }> = [
-    { id: 'auto', label: 'Auto (inherit)', icon: Monitor },
+    { id: 'auto', label: 'Auto', icon: Monitor },
     { id: 'light', label: 'Light', icon: Sun },
     { id: 'dark', label: 'Dark', icon: Moon },
+    { id: 'high-contrast', label: 'High Contrast', icon: Sun },
   ];
 
   /* ------------------------------------------------------------------ */
@@ -1960,29 +2005,33 @@
   /* ------------------------------------------------------------------ */
 
   const THEME_PRESETS: Array<{ id: Str; label: Str; dot: Str }> = [
-    { id: '', label: 'Default (inherit)', dot: '' },
+    { id: '', label: 'Default', dot: '' },
     { id: 'midnight', label: 'Midnight', dot: 'oklch(0.55 0.22 260)' },
-    { id: 'warm', label: 'Warm', dot: 'oklch(0.50 0.16 50)' },
-    { id: 'forest', label: 'Forest', dot: 'oklch(0.50 0.16 155)' },
     { id: 'ocean', label: 'Ocean', dot: 'oklch(0.52 0.15 200)' },
+    { id: 'slate', label: 'Slate', dot: 'oklch(0.48 0.08 240)' },
+    { id: 'warm', label: 'Warm', dot: 'oklch(0.50 0.16 50)' },
+    { id: 'sunset', label: 'Sunset', dot: 'oklch(0.55 0.20 30)' },
+    { id: 'copper', label: 'Copper', dot: 'oklch(0.52 0.16 60)' },
     { id: 'rose', label: 'Rose', dot: 'oklch(0.55 0.18 350)' },
     { id: 'lavender', label: 'Lavender', dot: 'oklch(0.52 0.20 290)' },
-    { id: 'sunset', label: 'Sunset', dot: 'oklch(0.55 0.20 30)' },
-    { id: 'slate', label: 'Slate', dot: 'oklch(0.48 0.08 240)' },
-    { id: 'copper', label: 'Copper', dot: 'oklch(0.52 0.16 60)' },
-    { id: 'aurora', label: 'Aurora', dot: 'oklch(0.52 0.15 170)' },
     { id: 'amethyst', label: 'Amethyst', dot: 'oklch(0.52 0.22 310)' },
+    { id: 'forest', label: 'Forest', dot: 'oklch(0.50 0.16 155)' },
+    { id: 'aurora', label: 'Aurora', dot: 'oklch(0.52 0.15 170)' },
   ];
 
   /* ------------------------------------------------------------------ */
   /*  Media query preference presets                                     */
   /* ------------------------------------------------------------------ */
 
-  /** Media query preference groups with their options. */
+  /** Media query preference groups with their options (synced with LensCardSettingsMenu). */
   const MEDIA_PREF_GROUPS: Array<{
+    /** CSS media feature name. */
     pref: Str;
+    /** Display label. */
     label: Str;
+    /** Default/neutral value. */
     defaultValue: Str;
+    /** Available options. */
     options: Array<{ value: Str; label: Str }>;
   }> = [
     {
@@ -2022,6 +2071,56 @@
         { value: 'active', label: 'Active' },
       ],
     },
+    {
+      pref: 'color-scheme',
+      label: 'Color Scheme',
+      defaultValue: 'no-preference',
+      options: [
+        { value: 'no-preference', label: 'No Preference' },
+        { value: 'light', label: 'Light' },
+        { value: 'dark', label: 'Dark' },
+      ],
+    },
+    {
+      pref: 'color-gamut',
+      label: 'Color Gamut',
+      defaultValue: 'no-preference',
+      options: [
+        { value: 'no-preference', label: 'No Preference' },
+        { value: 'srgb', label: 'sRGB' },
+        { value: 'p3', label: 'Display P3' },
+        { value: 'rec2020', label: 'Rec. 2020' },
+      ],
+    },
+    {
+      pref: 'inverted-colors',
+      label: 'Inverted Colors',
+      defaultValue: 'none',
+      options: [
+        { value: 'none', label: 'None' },
+        { value: 'inverted', label: 'Inverted' },
+      ],
+    },
+    {
+      pref: 'reduced-data',
+      label: 'Reduced Data',
+      defaultValue: 'no-preference',
+      options: [
+        { value: 'no-preference', label: 'No Preference' },
+        { value: 'reduce', label: 'Reduce' },
+      ],
+    },
+    {
+      pref: 'display-mode',
+      label: 'Display Mode',
+      defaultValue: 'browser',
+      options: [
+        { value: 'browser', label: 'Browser' },
+        { value: 'standalone', label: 'Standalone' },
+        { value: 'fullscreen', label: 'Fullscreen' },
+        { value: 'minimal-ui', label: 'Minimal UI' },
+      ],
+    },
   ];
 
   /* ------------------------------------------------------------------ */
@@ -2036,7 +2135,13 @@
     description: Str;
     category: Str;
   }> = [
-    { id: 'none', label: 'No throttling', delay: 0, description: '', category: '' },
+    {
+      id: 'none',
+      label: 'No throttling',
+      delay: 0,
+      description: 'Full speed, no artificial delay',
+      category: '',
+    },
     // Mobile
     {
       id: 'gprs',
@@ -2731,7 +2836,7 @@
     ...new Set(filteredViewportPresets.map((p) => p.category)),
   ]);
 
-  /** Network presets filtered by search query (excludes 'No throttling' from search). */
+  /** Network presets filtered by search query (searches label, description, and category). */
   const filteredNetworkPresets: Array<{
     id: Str;
     label: Str;
@@ -2739,10 +2844,17 @@
     description: Str;
     category: Str;
   }> = $derived(
-    NETWORK_PRESETS.filter(
-      (item) =>
-        item.id === 'none' || item.label.toLowerCase().includes(networkSearchQuery.toLowerCase()),
-    ),
+    networkSearchQuery.length === 0
+      ? NETWORK_PRESETS
+      : NETWORK_PRESETS.filter((item) => {
+          if (item.id === 'none') return true;
+          const q: Str = networkSearchQuery.toLowerCase() as Str;
+          return (
+            item.label.toLowerCase().includes(q) ||
+            item.description.toLowerCase().includes(q) ||
+            item.category.toLowerCase().includes(q)
+          );
+        }),
   );
 
   /** Unique network categories present after filtering (excludes empty category for 'none'). */
@@ -4845,8 +4957,10 @@
       }
     }
     const mode: Str = cardModes[key] ?? 'auto';
-    if (mode !== 'auto')
-      settings.push({ label: 'Mode', value: mode === 'dark' ? 'Dark' : 'Light' });
+    if (mode !== 'auto') {
+      const modePreset = MODE_PRESETS.find((p) => p.id === mode);
+      settings.push({ label: 'Mode', value: modePreset?.label ?? mode });
+    }
     const theme: Str = cardThemes[key] ?? '';
     if (theme) {
       const themePreset = THEME_PRESETS.find((p) => p.id === theme);
@@ -4909,7 +5023,11 @@
     }
     // Text direction
     const dir: Str = cardTextDir[key] ?? 'auto';
-    if (dir !== 'auto') settings.push({ label: 'Direction', value: dir.toUpperCase() });
+    if (dir !== 'auto')
+      settings.push({
+        label: 'Direction',
+        value: dir === 'inherit' ? 'Inherit' : dir.toUpperCase(),
+      });
     // Font size
     const fontSize: Num = cardFontSize[key] ?? 0;
     if (fontSize > 0)
@@ -4996,6 +5114,16 @@
     if (prefs['contrast'] === 'less') classes.push('lens-contrast-less');
     if (prefs['reduced-transparency'] === 'reduce') classes.push('lens-reduced-transparency');
     if (prefs['forced-colors'] === 'active') classes.push('lens-forced-colors');
+    if (prefs['color-scheme'] === 'light') classes.push('lens-color-scheme-light');
+    if (prefs['color-scheme'] === 'dark') classes.push('lens-color-scheme-dark');
+    if (prefs['inverted-colors'] === 'inverted') classes.push('lens-inverted-colors');
+    if (prefs['reduced-data'] === 'reduce') classes.push('lens-reduced-data');
+    if (prefs['color-gamut'] === 'srgb') classes.push('lens-gamut-srgb');
+    if (prefs['color-gamut'] === 'p3') classes.push('lens-gamut-p3');
+    if (prefs['color-gamut'] === 'rec2020') classes.push('lens-gamut-rec2020');
+    if (prefs['display-mode'] === 'standalone') classes.push('lens-display-standalone');
+    if (prefs['display-mode'] === 'fullscreen') classes.push('lens-display-fullscreen');
+    if (prefs['display-mode'] === 'minimal-ui') classes.push('lens-display-minimal-ui');
     return classes.join(' ');
   }
 
@@ -5197,6 +5325,7 @@
     cardBackgrounds[key] = 'default';
     cardZoom[key] = 1;
     cardOutlines[key] = 'none';
+    cardOutlineThickness[key] = 1;
     cardGrids[key] = 'none';
     cardGridSizes[key] = GRID_DEFAULT_SIZE;
     cardGridFills[key] = 'none';
@@ -5944,6 +6073,7 @@
       cardBackgrounds[key] = cardBackgrounds[sourceKey] ?? 'default';
       cardZoom[key] = cardZoom[sourceKey] ?? 1;
       cardOutlines[key] = cardOutlines[sourceKey] ?? 'none';
+      cardOutlineThickness[key] = cardOutlineThickness[sourceKey] ?? 1;
       cardGrids[key] = cardGrids[sourceKey] ?? 'none';
       cardGridSizes[key] = cardGridSizes[sourceKey] ?? GRID_DEFAULT_SIZE;
       cardGridFills[key] = cardGridFills[sourceKey] ?? 'none';
@@ -5987,7 +6117,9 @@
     if (name === 'bg') setBackground(key, value as Str);
     else if (name === 'zoom') setZoom(key, value as Num);
     else if (name === 'outline') setOutline(key, value as Str);
-    else if (name === 'grid') setGrid(key, value as Str);
+    else if (name === 'outlineThickness') {
+      cardOutlineThickness[key] = value as Num;
+    } else if (name === 'grid') setGrid(key, value as Str);
     else if (name === 'gridSize') setGridSize(key, value as Num);
     else if (name === 'gridFill') setGridFill(key, value as Str);
     else if (name === 'orientation') setOrientation(key, value as Str);
@@ -6028,6 +6160,7 @@
       bg: cardBackgrounds[key] ?? 'default',
       zoom: cardZoom[key] ?? 1,
       outline: cardOutlines[key] ?? 'none',
+      outlineThickness: cardOutlineThickness[key] ?? 1,
       grid: cardGrids[key] ?? 'none',
       gridSize: cardGridSizes[key] ?? GRID_DEFAULT_SIZE,
       gridFill: cardGridFills[key] ?? 'none',
@@ -6324,7 +6457,7 @@
   {@const activeOutline: Str = cardOutlines[cardKey] ?? 'none'}
   {@const activeGrid: Str = cardGrids[cardKey] ?? 'none'}
   {@const activeOrientation: Str = cardOrientations[cardKey] ?? 'default'}
-  {@const activeMode: 'auto' | 'light' | 'dark' = (cardModes[cardKey] as 'auto' | 'light' | 'dark' | undefined) ?? 'auto'}
+  {@const activeMode: Str = cardModes[cardKey] ?? 'auto'}
   {@const activeTheme: Str = cardThemes[cardKey] ?? ''}
   {@const activeSettings = getActiveSettings(cardKey)}
   {@const isFullscreen: Bool = Boolean(cardFullscreen[cardKey])}
@@ -8989,6 +9122,7 @@
         !hasViewport(cardKey) && 'justify-center',
         activeMode === 'dark' && 'dark bg-background text-foreground',
         activeMode === 'light' && 'lens-force-light bg-background text-foreground',
+        activeMode === 'high-contrast' && 'lens-high-contrast bg-background text-foreground',
         activeMode === 'auto' && activeTheme && pageIsDark && 'dark',
         activeMode === 'auto' && activeTheme && !pageIsDark && 'lens-force-light',
         activeTheme && 'bg-background text-foreground',
@@ -8999,6 +9133,7 @@
         cardContentHeights[cardKey] ? `min-height: ${cardContentHeights[cardKey] + 32}px` : '',
         activeMode === 'light' ? 'color-scheme: light' : '',
         activeMode === 'dark' ? 'color-scheme: dark' : '',
+        activeMode === 'high-contrast' ? 'color-scheme: light' : '',
         activeMode === 'auto' && activeTheme && !pageIsDark ? 'color-scheme: light' : '',
         activeMode === 'auto' && activeTheme && pageIsDark ? 'color-scheme: dark' : '',
         getFontSizeVars(cardKey),
@@ -9141,7 +9276,11 @@
             )}
             style={getViewportContentStyle(cardKey)}
           >
-            <LensPortalScope mode={activeMode} theme={activeTheme} {pageIsDark}>
+            <LensPortalScope
+              mode={activeMode as 'auto' | 'light' | 'dark' | 'high-contrast'}
+              theme={activeTheme}
+              {pageIsDark}
+            >
               <div
                 class={cn(hasNonAxisRotation(cardKey) && 'flex items-center justify-center')}
                 style={getOrientationPadding(cardKey)}
@@ -9160,12 +9299,13 @@
                     getZoomStyle(cardKey),
                     getOrientationStyle(cardKey),
                     activeOutline !== 'none'
-                      ? `--lens-outline-color: ${getOutlineColor(cardKey)}`
+                      ? `--lens-outline-color: ${getOutlineColor(cardKey)}; --lens-outline-thickness: ${cardOutlineThickness[cardKey] ?? 1}px`
                       : '',
                   ]
                     .filter(Boolean)
                     .join('; ')}
-                  dir={(cardTextDir[cardKey] ?? 'auto') !== 'auto'
+                  dir={(cardTextDir[cardKey] ?? 'auto') === 'ltr' ||
+                  (cardTextDir[cardKey] ?? 'auto') === 'rtl'
                     ? /* Guard ensures 'ltr' | 'rtl' — Str too wide for dir attr */ (cardTextDir[
                         cardKey
                       ] as 'ltr' | 'rtl')
@@ -11262,7 +11402,8 @@
   }
 
   :global(.lens-outline *) {
-    outline: 1px solid var(--lens-outline-color, rgba(239, 68, 68, 0.25));
+    outline: var(--lens-outline-thickness, 1px) solid
+      var(--lens-outline-color, rgba(239, 68, 68, 0.25));
   }
 
   /* ── Media Query Preference emulation ── */
@@ -11326,6 +11467,92 @@
     background: ButtonFace !important;
   }
 
+  /** Emulate prefers-color-scheme: light — force light appearance via CSS variables. */
+  :global(.lens-color-scheme-light) {
+    color-scheme: light;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+  }
+
+  /** Emulate prefers-color-scheme: dark — force dark appearance via CSS variables. */
+  :global(.lens-color-scheme-dark) {
+    color-scheme: dark;
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+  }
+
+  /** Emulate inverted-colors: inverted — invert all colors via CSS filter. */
+  :global(.lens-inverted-colors) {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  /** Emulate inverted-colors — re-invert images so they look normal. */
+  :global(.lens-inverted-colors img),
+  :global(.lens-inverted-colors video),
+  :global(.lens-inverted-colors picture),
+  :global(.lens-inverted-colors svg) {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  /**
+   * Emulate prefers-reduced-data: reduce — hide heavy media elements.
+   * Adds a visual indicator that assets are suppressed.
+   */
+  :global(.lens-reduced-data img),
+  :global(.lens-reduced-data video),
+  :global(.lens-reduced-data iframe) {
+    visibility: hidden;
+    position: relative;
+  }
+
+  :global(.lens-reduced-data img::after),
+  :global(.lens-reduced-data video::after) {
+    content: '[data-saver]';
+    visibility: visible;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--muted-foreground);
+    background: var(--muted);
+  }
+
+  /**
+   * Emulate color-gamut: srgb — desaturate slightly to simulate limited gamut.
+   * This is a visual approximation; true gamut clamping requires ICC profiles.
+   */
+  :global(.lens-gamut-srgb) {
+    filter: saturate(0.85);
+  }
+
+  /** Emulate color-gamut: p3 — subtle saturation boost to suggest wide gamut. */
+  :global(.lens-gamut-p3) {
+    filter: saturate(1.15);
+  }
+
+  /** Emulate color-gamut: rec2020 — strong saturation boost to suggest ultra-wide gamut. */
+  :global(.lens-gamut-rec2020) {
+    filter: saturate(1.35);
+  }
+
+  /** Emulate display-mode: standalone — hide simulated browser chrome. */
+  :global(.lens-display-standalone) {
+    border-radius: 0;
+  }
+
+  /** Emulate display-mode: fullscreen — remove all padding and borders. */
+  :global(.lens-display-fullscreen) {
+    border-radius: 0;
+    padding: 0 !important;
+  }
+
+  /** Emulate display-mode: minimal-ui — subtle border to suggest minimal chrome. */
+  :global(.lens-display-minimal-ui) {
+    border-top: 2px solid var(--border);
+  }
+
   /* Force light mode variables on a card preview, overriding .dark ancestor cascade. */
   :global(.lens-force-light) {
     --background: oklch(1 0 0);
@@ -11355,5 +11582,33 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.556 0 0);
+  }
+
+  /** High contrast mode — maximized contrast for accessibility testing. */
+  :global(.lens-high-contrast) {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0 0 0);
+    --primary: oklch(0 0 0);
+    --primary-foreground: oklch(1 0 0);
+    --secondary: oklch(0.95 0 0);
+    --secondary-foreground: oklch(0 0 0);
+    --muted: oklch(0.93 0 0);
+    --muted-foreground: oklch(0.2 0 0);
+    --accent: oklch(0.93 0 0);
+    --accent-foreground: oklch(0 0 0);
+    --destructive: oklch(0.5 0.3 27);
+    --destructive-foreground: oklch(1 0 0);
+    --border: oklch(0 0 0);
+    --input: oklch(0 0 0);
+    --ring: oklch(0 0 0);
+  }
+
+  :global(.lens-high-contrast *) {
+    border-color: oklch(0 0 0) !important;
+    outline-color: oklch(0 0 0) !important;
   }
 </style>

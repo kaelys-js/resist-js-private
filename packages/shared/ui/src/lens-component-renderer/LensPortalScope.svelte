@@ -4,8 +4,8 @@
   import type { Snippet } from 'svelte';
 
   export const LensPortalScopePropsSchema = v.strictObject({
-    /** Per-card color mode. @values auto, light, dark */
-    mode: v.picklist(['auto', 'light', 'dark']),
+    /** Per-card color mode. @values auto, light, dark, high-contrast */
+    mode: v.picklist(['auto', 'light', 'dark', 'high-contrast']),
     /** Per-card theme id (empty string for default). @values midnight, ocean, forest */
     theme: StrSchema,
     /** Whether the page-level dark mode is active (for auto mode mirroring). @values true, false */
@@ -68,6 +68,7 @@
     portalEl.className = cn(
       validated.mode === 'dark' && 'dark',
       validated.mode === 'light' && 'lens-force-light',
+      validated.mode === 'high-contrast' && 'lens-high-contrast',
       validated.mode === 'auto' && validated.theme && validated.pageIsDark && 'dark',
       validated.mode === 'auto' && validated.theme && !validated.pageIsDark && 'lens-force-light',
     );

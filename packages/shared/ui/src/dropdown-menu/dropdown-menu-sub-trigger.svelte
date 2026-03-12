@@ -25,6 +25,8 @@
   )}
   {...restProps}
 >
-  {@render children?.()}
-  <ChevronRightIcon class="ms-auto size-4" />
+  <span class="flex min-w-0 flex-1 items-center gap-2">
+    {@render children?.()}
+  </span>
+  <ChevronRightIcon class="shrink-0 size-4" />
 </DropdownMenuPrimitive.SubTrigger>
