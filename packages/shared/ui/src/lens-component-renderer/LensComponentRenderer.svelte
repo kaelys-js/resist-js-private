@@ -146,6 +146,9 @@
   import RefreshCw from '@lucide/svelte/icons/refresh-cw';
   import ArrowDownToLine from '@lucide/svelte/icons/arrow-down-to-line';
   import ListFilter from '@lucide/svelte/icons/list-filter';
+  import Clock from '@lucide/svelte/icons/clock';
+  import WrapText from '@lucide/svelte/icons/wrap-text';
+  import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
   import { zipSync, strToU8 } from 'fflate';
   import * as DropdownMenu from '../dropdown-menu/index.js';
   import * as Popover from '../popover/index.js';
@@ -489,10 +492,16 @@
   let cardConsoleSearch: Record<Str, Str> = $state({});
   /** Per-card console level filter — levels set to false are hidden. */
   let cardConsoleLevelFilter: Record<Str, Record<Str, Bool>> = $state({});
-  /** Per-card expanded console entry index (-1 = none). */
+  /** Per-card expanded console entry index (-1 = none, used for single-click expand). */
   let cardConsoleExpandedEntry: Record<Str, Num> = $state({});
+  /** Per-card console "expand all" mode (true = all entries expanded). */
+  let cardConsoleExpandAll: Record<Str, Bool> = $state({});
   /** Search query for console level filter dropdown. */
   let consoleLevelFilterSearch: Str = $state('' as Str);
+  /** Per-card console timestamp visibility (true = show, default true). */
+  let cardConsoleShowTimestamps: Record<Str, Bool> = $state({});
+  /** Per-card console word-wrap mode (true = wrap, default true). */
+  let cardConsoleWordWrap: Record<Str, Bool> = $state({});
 
   /** Per-screenshot-capture console section collapsed state (true = expanded, default true). */
   let screenshotConsoleExpanded: Record<Str, Bool> = $state({});
@@ -4504,20 +4513,76 @@
     id: ConsoleLogEntry['level'];
     /** Human-readable label. */
     label: Str;
+    /** Short description of what this level captures. */
+    description: Str;
     /** Tailwind text color class. */
     color: Str;
     /** Tailwind bg color class for dot indicators. */
     dotColor: Str;
   }> = [
-    { id: 'error', label: 'Error', color: 'text-red-500', dotColor: 'bg-red-500' },
-    { id: 'warn', label: 'Warn', color: 'text-amber-500', dotColor: 'bg-amber-500' },
-    { id: 'info', label: 'Info', color: 'text-blue-400', dotColor: 'bg-blue-400' },
-    { id: 'log', label: 'Log', color: 'text-muted-foreground', dotColor: 'bg-zinc-400' },
-    { id: 'debug', label: 'Debug', color: 'text-muted-foreground/60', dotColor: 'bg-zinc-400/60' },
-    { id: 'event', label: 'Event', color: 'text-violet-400', dotColor: 'bg-violet-400' },
-    { id: 'mutation', label: 'Mutation', color: 'text-teal-400', dotColor: 'bg-teal-400' },
-    { id: 'lifecycle', label: 'Lifecycle', color: 'text-emerald-400', dotColor: 'bg-emerald-400' },
-    { id: 'render', label: 'Render', color: 'text-indigo-400', dotColor: 'bg-indigo-400' },
+    {
+      id: 'error',
+      label: 'Error',
+      description: 'Runtime exceptions & thrown errors',
+      color: 'text-red-500',
+      dotColor: 'bg-red-500',
+    },
+    {
+      id: 'warn',
+      label: 'Warn',
+      description: 'Deprecations & potential issues',
+      color: 'text-amber-500',
+      dotColor: 'bg-amber-500',
+    },
+    {
+      id: 'info',
+      label: 'Info',
+      description: 'Informational messages',
+      color: 'text-blue-400',
+      dotColor: 'bg-blue-400',
+    },
+    {
+      id: 'log',
+      label: 'Log',
+      description: 'General console.log output',
+      color: 'text-muted-foreground',
+      dotColor: 'bg-zinc-400',
+    },
+    {
+      id: 'debug',
+      label: 'Debug',
+      description: 'Verbose debugging output',
+      color: 'text-muted-foreground/60',
+      dotColor: 'bg-zinc-400/60',
+    },
+    {
+      id: 'event',
+      label: 'Event',
+      description: 'DOM & custom event dispatches',
+      color: 'text-violet-400',
+      dotColor: 'bg-violet-400',
+    },
+    {
+      id: 'mutation',
+      label: 'Mutation',
+      description: 'DOM tree changes',
+      color: 'text-teal-400',
+      dotColor: 'bg-teal-400',
+    },
+    {
+      id: 'lifecycle',
+      label: 'Lifecycle',
+      description: 'Component mount & destroy',
+      color: 'text-emerald-400',
+      dotColor: 'bg-emerald-400',
+    },
+    {
+      id: 'render',
+      label: 'Render',
+      description: 'Component re-render cycles',
+      color: 'text-indigo-400',
+      dotColor: 'bg-indigo-400',
+    },
   ];
 
   /**
@@ -4537,21 +4602,27 @@
   }
 
   /**
-   * Get the absolute time string for a console entry's timestamp.
+   * Get the absolute date/time string for a console entry's timestamp.
    * Uses the mount time + entry offset to compute wall clock time.
    *
    * @param mountTime - Performance.now() at component mount
    * @param entryTs - Entry's offset in ms from mount
-   * @returns Formatted time string like "12:45:03.142"
+   * @returns Formatted date/time string like "Mar 12, 2026, 3:45:03.142 PM"
    */
   function getAbsoluteTime(mountTime: Num, entryTs: Num): Str {
     const epoch: number = performance.timeOrigin + (mountTime as number) + (entryTs as number);
     const d: Date = new Date(epoch);
-    const h: Str = String(d.getHours()).padStart(2, '0') as Str;
+    const date: Str = d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }) as Str;
+    const h: Str = String(d.getHours() % 12 || 12) as Str;
     const m: Str = String(d.getMinutes()).padStart(2, '0') as Str;
     const s: Str = String(d.getSeconds()).padStart(2, '0') as Str;
     const ms: Str = String(d.getMilliseconds()).padStart(3, '0') as Str;
-    return `${h}:${m}:${s}.${ms}` as Str;
+    const ampm: Str = (d.getHours() >= 12 ? 'PM' : 'AM') as Str;
+    return `${date}, ${h}:${m}:${s}.${ms} ${ampm}` as Str;
   }
 
   /**
@@ -9580,7 +9651,10 @@
                   Apply to All Cards
                 </DropdownMenu.Item>
               {/if}
-              <DropdownMenu.Item onclick={() => resetCard(cardKey)}>
+              <DropdownMenu.Item
+                onclick={() => resetCard(cardKey)}
+                class="text-destructive focus:bg-destructive/10 focus:text-destructive"
+              >
                 <RotateCcw class="size-4" />
                 Reset to Defaults
               </DropdownMenu.Item>
@@ -10500,7 +10574,12 @@
                         }}
                       >
                         <span class={cn('size-2 shrink-0 rounded-full', lvl.dotColor)}></span>
-                        {lvl.label}
+                        <div class="flex flex-col gap-0.5">
+                          <span class="text-sm">{lvl.label}</span>
+                          <span class="text-[10px] leading-tight text-muted-foreground"
+                            >{lvl.description}</span
+                          >
+                        </div>
                         <span class="ml-auto text-[10px] tabular-nums text-muted-foreground"
                           >{lvCount}</span
                         >
@@ -10530,8 +10609,22 @@
                         }}
                         disabled={activeFilterCount === 0}
                       >
-                        <RotateCcw class="size-4" />
+                        <Eye class="size-4" />
                         Show all
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          const hideAll: Record<Str, Bool> = {};
+                          for (const lvl of CONSOLE_LEVELS) {
+                            hideAll[lvl.id] = false as Bool;
+                          }
+                          cardConsoleLevelFilter[cardKey] = hideAll;
+                        }}
+                        disabled={activeFilterCount === CONSOLE_LEVELS.length}
+                      >
+                        <EyeOff class="size-4" />
+                        Hide all
                       </DropdownMenu.Item>
                     {/if}
                   </div>
@@ -10545,10 +10638,16 @@
                   <button
                     {...menuProps}
                     type="button"
-                    class="inline-flex size-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    class="relative inline-flex size-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     aria-label="Console options"
                   >
                     <EllipsisVertical class="size-3" />
+                    {#if allLogs.length > 0}
+                      <span
+                        class="absolute -right-1 -top-1 min-w-3.5 rounded-full bg-muted px-1 text-center text-[8px] font-medium tabular-nums leading-[14px] text-muted-foreground"
+                        >{allLogs.length > 99 ? '99+' : allLogs.length}</span
+                      >
+                    {/if}
                   </button>
                 {/snippet}
               </DropdownMenu.Trigger>
@@ -10647,12 +10746,51 @@
                     <Check class="ml-auto size-3.5 text-primary" />
                   {/if}
                 </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    cardConsoleShowTimestamps[cardKey] = !(
+                      cardConsoleShowTimestamps[cardKey] ?? true
+                    );
+                  }}
+                >
+                  <Clock class="size-4" />
+                  Timestamps
+                  {#if cardConsoleShowTimestamps[cardKey] ?? true}
+                    <Check class="ml-auto size-3.5 text-primary" />
+                  {/if}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    cardConsoleWordWrap[cardKey] = !(cardConsoleWordWrap[cardKey] ?? true);
+                  }}
+                >
+                  <WrapText class="size-4" />
+                  Word wrap
+                  {#if cardConsoleWordWrap[cardKey] ?? true}
+                    <Check class="ml-auto size-3.5 text-primary" />
+                  {/if}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    const expanding: Bool = !(cardConsoleExpandAll[cardKey] ?? false);
+                    cardConsoleExpandAll[cardKey] = expanding;
+                    cardConsoleExpandedEntry[cardKey] = -1 as Num;
+                  }}
+                  disabled={logs.length === 0}
+                >
+                  <ChevronsUpDown class="size-4" />
+                  {cardConsoleExpandAll[cardKey] ? 'Collapse all' : 'Expand all'}
+                </DropdownMenu.Item>
                 <DropdownMenu.Separator />
                 <DropdownMenu.Item
                   onclick={() => {
                     cardConsoleLogs[cardKey] = [];
                   }}
                   disabled={allLogs.length === 0}
+                  class="text-destructive focus:bg-destructive/10 focus:text-destructive"
                 >
                   <Trash2 class="size-4" />
                   Clear
@@ -10679,6 +10817,7 @@
             {:else}
               {#each logs as entry, i (i)}
                 {@const isExpanded =
+                  (cardConsoleExpandAll[cardKey] ?? false) ||
                   (cardConsoleExpandedEntry[cardKey] ?? (-1 as Num)) === (i as Num)}
                 <button
                   type="button"
@@ -10688,13 +10827,32 @@
                     entry.level === 'warn' && 'bg-amber-500/5',
                   )}
                   onclick={() => {
-                    cardConsoleExpandedEntry[cardKey] = isExpanded ? (-1 as Num) : (i as Num);
+                    if (cardConsoleExpandAll[cardKey]) {
+                      cardConsoleExpandAll[cardKey] = false as Bool;
+                      cardConsoleExpandedEntry[cardKey] = -1 as Num;
+                    } else {
+                      cardConsoleExpandedEntry[cardKey] = isExpanded ? (-1 as Num) : (i as Num);
+                    }
                   }}
                 >
-                  <span
-                    class="shrink-0 pt-px text-[9px] tabular-nums text-muted-foreground/50"
-                    title={getAbsoluteTime(mountTime, entry.ts)}>{formatConsoleTs(entry.ts)}</span
-                  >
+                  {#if cardConsoleShowTimestamps[cardKey] ?? true}
+                    <Tooltip.Provider>
+                      <Tooltip.Root delayDuration={300}>
+                        <Tooltip.Trigger>
+                          {#snippet child({ props: tsProps })}
+                            <span
+                              {...tsProps}
+                              class="shrink-0 cursor-default pt-px text-[9px] tabular-nums text-muted-foreground/50"
+                              >{formatConsoleTs(entry.ts)}</span
+                            >
+                          {/snippet}
+                        </Tooltip.Trigger>
+                        <Tooltip.Content side="top" sideOffset={4} class="font-mono text-xs">
+                          {getAbsoluteTime(mountTime, entry.ts)}
+                        </Tooltip.Content>
+                      </Tooltip.Root>
+                    </Tooltip.Provider>
+                  {/if}
                   <span
                     class={cn(
                       'shrink-0 rounded-sm px-1 py-px text-[9px] font-semibold leading-tight',
@@ -10716,10 +10874,24 @@
                                     : 'bg-muted',
                     )}>{getConsoleLabel(entry.level)}</span
                   >
-                  <div class="min-w-0 flex-1">
-                    <span class="break-all">{entry.message}</span>
+                  <div
+                    class={cn(
+                      'min-w-0 flex-1',
+                      (cardConsoleWordWrap[cardKey] ?? true) ? '' : 'overflow-hidden',
+                    )}
+                  >
+                    <span
+                      class={cn(
+                        (cardConsoleWordWrap[cardKey] ?? true) ? 'break-all' : 'truncate block',
+                      )}>{entry.message}</span
+                    >
                     {#if !isExpanded && entry.detail}
-                      <span class="ml-1 break-all text-muted-foreground/60">{entry.detail}</span>
+                      <span
+                        class={cn(
+                          'ml-1 text-muted-foreground/60',
+                          (cardConsoleWordWrap[cardKey] ?? true) ? 'break-all' : 'truncate block',
+                        )}>{entry.detail}</span
+                      >
                     {/if}
                   </div>
                   {#if entry.source && !isExpanded}
