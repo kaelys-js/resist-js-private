@@ -44,6 +44,7 @@ import Check from '@lucide/svelte/icons/check';
 import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
 import CopyButton from '@/ui/copy-button/CopyButton.svelte';
 import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
+import * as Tooltip from '@/ui/tooltip/index.js';
 
 /* ------------------------------------------------------------------ */
 /*  Globs                                                             */
@@ -694,10 +695,136 @@ async function handleChangelogExport(formatId: Str): Promise<void> {
 	}, 2000);
 }
 
+/* ------------------------------------------------------------------ */
+/*  Component page export (from LensHeader dropdown)                   */
+/* ------------------------------------------------------------------ */
+
 /**
- * Listen for `lens:scroll-to` events from LensHeader.
- * Opens the target section if collapsed, waits a tick for DOM update,
- * then smooth-scrolls to it.
+ * Build a comprehensive page data object for export.
+ *
+ * @returns Page data record with component info, props, variants, deps, and changelog
+ */
+function buildPageData(): Record<string, unknown> {
+	return {
+		name,
+		description: componentDescription,
+		importPath: `@/ui/${name}`,
+		meta: lensMeta ? { category: lensMeta.category, tags: [...lensMeta.tags] } : null,
+		props: props.map((p) => ({
+			name: p.name,
+			type: p.type,
+			required: !p.optional && !p.default,
+			default: p.default || null,
+			description: p.description || null,
+		})),
+		variants: allVariants.map((v) => ({
+			key: v.key,
+			options: v.options,
+			default: v.default,
+		})),
+		dependencies: {
+			internal: deps.internal,
+			workspace: deps.workspace,
+			external: deps.external,
+			usedBy: usedBy.map((r) => ({ component: r.component, names: r.names })),
+		},
+		changelog: changelog.map((e) => ({
+			hash: e.hash,
+			message: e.message,
+			date: e.date,
+			author: e.author,
+		})),
+	};
+}
+
+/**
+ * Format full page data as a markdown document.
+ *
+ * @returns Formatted markdown string
+ */
+function pageToMarkdown(): Str {
+	const sections: Str[] = [
+		`# ${toTitle(name)}`,
+		...(componentDescription ? ['', componentDescription] : []),
+		...(lensMeta ? ['', `**Category:** ${lensMeta.category}`, `**Tags:** ${lensMeta.tags.join(', ')}`] : []),
+		'',
+		`**Import:** \`@/ui/${name}\``,
+	];
+
+	// Props
+	if (props.length > 0) {
+		const propsRows: Str[] = props.map((p): Str => {
+			let required: Str = 'Yes';
+			if (p.optional) required = 'No';
+			else if (p.default) required = 'No';
+			return `| ${p.name} | ${required} | ${p.type || '—'} | ${p.default || '—'} | ${p.description || '—'} |`;
+		});
+		sections.push('', '## Props', '', '| Name | Required | Type | Default | Description |', '|------|----------|------|---------|-------------|', ...propsRows);
+	}
+
+	// Variants
+	if (allVariants.length > 0) {
+		const variantRows: Str[] = allVariants.map((v): Str => `- **${v.key}**: ${v.options.join(', ')} (default: ${v.default})`);
+		sections.push('', '## Variants', '', ...variantRows);
+	}
+
+	// Dependencies
+	if (hasDeps) {
+		sections.push('', '## Dependencies', '');
+		if (deps.internal.length > 0) sections.push(`**Internal:** ${deps.internal.join(', ')}`);
+		if (deps.workspace.length > 0) sections.push(`**Workspace:** ${deps.workspace.join(', ')}`);
+		if (deps.external.length > 0) sections.push(`**External:** ${deps.external.join(', ')}`);
+		if (usedBy.length > 0) sections.push(`**Used by:** ${usedBy.map((r) => r.component).join(', ')}`);
+	}
+
+	// Changelog
+	if (changelog.length > 0) {
+		const changelogRows: Str[] = changelog.map((e): Str =>
+			`| ${e.hash} | ${e.message} | ${new Date(e.date).toLocaleString()} | ${e.author} |`,
+		);
+		sections.push('', '## Changelog', '', '| Hash | Message | Date | Author |', '|------|---------|------|--------|', ...changelogRows);
+	}
+
+	// Cast is safe — array join always returns string, branded Str needed for return type
+	return sections.join('\n') as Str;
+}
+
+/**
+ * Handle component page export by format id.
+ * Dispatched from LensHeader via `lens:export` CustomEvent.
+ *
+ * @param formatId - Export format identifier
+ */
+async function handlePageExport(formatId: Str): Promise<void> {
+	const slug: Str = name.toLowerCase().replaceAll(/\s+/g, '-');
+	const data: Record<string, unknown> = buildPageData();
+
+	if (formatId === 'copy-json') {
+		await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+	} else if (formatId === 'copy-markdown') {
+		await navigator.clipboard.writeText(pageToMarkdown());
+	} else if (formatId === 'download-json') {
+		const blob: Blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+		const url: Str = URL.createObjectURL(blob);
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = url;
+		a.download = `${slug}-page.json`;
+		a.click();
+		URL.revokeObjectURL(url);
+	} else if (formatId === 'download-markdown') {
+		const blob: Blob = new Blob([pageToMarkdown()], { type: 'text/markdown' });
+		const url: Str = URL.createObjectURL(blob);
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = url;
+		a.download = `${slug}-page.md`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+}
+
+/**
+ * Listen for `lens:scroll-to`, `lens:expand-all`, `lens:collapse-all`,
+ * and `lens:export` events from LensHeader.
  */
 $effect(() => {
 	async function handleScrollTo(e: Event): Promise<void> {
@@ -719,13 +846,20 @@ $effect(() => {
 			sectionOpen[key] = false;
 		}
 	}
+	function handleExport(e: Event): Void {
+		const formatId: Str = (e as CustomEvent).detail;
+		// CustomEvent detail is string — safe to cast to Str
+		handlePageExport(formatId as Str);
+	}
 	document.addEventListener('lens:scroll-to', handleScrollTo);
 	document.addEventListener('lens:expand-all', handleExpandAll);
 	document.addEventListener('lens:collapse-all', handleCollapseAll);
+	document.addEventListener('lens:export', handleExport);
 	return (): void => {
 		document.removeEventListener('lens:scroll-to', handleScrollTo);
 		document.removeEventListener('lens:expand-all', handleExpandAll);
 		document.removeEventListener('lens:collapse-all', handleCollapseAll);
+		document.removeEventListener('lens:export', handleExport);
 	};
 });
 
@@ -1105,15 +1239,24 @@ $effect(() => {
 													<div class="flex items-center gap-0.5">
 														<CopyButton text={`${entry.hash} ${entry.message} (${entry.author}, ${new Date(entry.date).toLocaleString()})`} label="Copy row" />
 														{#if changelogRepoUrl}
-															<a
-																href="{changelogRepoUrl}/commit/{entry.hash}{changelogDiffAnchor ? `#diff-${changelogDiffAnchor}` : ''}"
-																target="_blank"
-																rel="noopener noreferrer"
-																class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-																title="Open in GitHub"
-															>
-																<ExternalLink class="size-3.5" />
-															</a>
+															<Tooltip.Root delayDuration={300}>
+																<Tooltip.Trigger>
+																	{#snippet child({ props: tipProps })}
+																		<a
+																			{...tipProps}
+																			href="{changelogRepoUrl}/commit/{entry.hash}{changelogDiffAnchor ? `#diff-${changelogDiffAnchor}` : ''}"
+																			target="_blank"
+																			rel="noopener noreferrer"
+																			class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+																		>
+																			<ExternalLink class="size-3.5" />
+																		</a>
+																	{/snippet}
+																</Tooltip.Trigger>
+																<Tooltip.Content side="top" sideOffset={4}>
+																	Open in GitHub
+																</Tooltip.Content>
+															</Tooltip.Root>
 														{/if}
 													</div>
 												</td>

@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "qa:type-check": "svelte-check --tsconfig ./tsconfig.json --compiler-warnings \"state_referenced_locally:ignore\""
+    "qa:type-check": "svelte-check --tsconfig ./tsconfig.json --compiler-warnings \"state_referenced_locally:ignore\"",
+    "qa:test": "cd ../../.. && vitest run --project ui"
   },
   "dependencies": {
     "@/schemas/common": "workspace:*",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@tanstack/table-core": "^8.21.3",
     "embla-carousel-svelte": "^8.6.0",
+    "fflate": "^0.8.2",
     "formsnap": "^2.0.1",
     "layerchart": "2.0.0-next.43",
     "mode-watcher": "^1.1.0",
