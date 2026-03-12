@@ -358,6 +358,9 @@ let cardScreenshotsOpen: Record<Str, Bool> = $state({});
 /** Per-card console log list collapsed state (true = expanded, default true). */
 let cardConsoleExpanded: Record<Str, Bool> = $state({});
 
+/** Per-screenshot-capture console section collapsed state (true = expanded, default true). */
+let screenshotConsoleExpanded: Record<Str, Bool> = $state({});
+
 /** Search query for the Real Browser device list. */
 let browserSearchQuery: Str = $state('');
 
@@ -738,6 +741,26 @@ $effect(() => {
 	}
 	return (): Void => {
 		document.body.style.overflow = '';
+	};
+});
+
+/**
+ * Listen for `lens:export-component` events dispatched from LensHeader.
+ * Triggers handleExport on the default card with the requested format.
+ */
+$effect(() => {
+	/**
+	 * Handle lens:export-component custom event.
+	 *
+	 * @param e - CustomEvent with format ID detail
+	 */
+	const onExportComponent = (e: Event): void => {
+		const formatId: Str = (e as CustomEvent<Str>).detail;
+		handleExport('default', formatId);
+	};
+	document.addEventListener('lens:export-component', onExportComponent);
+	return (): Void => {
+		document.removeEventListener('lens:export-component', onExportComponent);
 	};
 });
 
@@ -7202,20 +7225,29 @@ function isIconOption(option: Str): boolean {
 							{/if}
 							<!-- Console logs -->
 							{#if capture.consoleLogs.length > 0}
+								{@const sConsoleKey = `${cardKey}-${capture.timestamp}`}
 								<div class="px-2 py-1.5">
-									<div class="mb-1 flex items-center gap-1.5">
+									<button
+										type="button"
+										class="mb-1 flex w-full items-center gap-1.5"
+										onclick={() => { screenshotConsoleExpanded[sConsoleKey] = !(screenshotConsoleExpanded[sConsoleKey] ?? true); }}
+										aria-expanded={screenshotConsoleExpanded[sConsoleKey] ?? true}
+									>
+										<ChevronDown class={cn('size-3 text-muted-foreground transition-transform duration-200', !(screenshotConsoleExpanded[sConsoleKey] ?? true) && '-rotate-90')} aria-hidden="true" />
 										<Terminal class="size-3 text-muted-foreground" aria-hidden="true" />
 										<span class="text-[10px] font-semibold text-muted-foreground">Console</span>
 										<span class="text-[10px] text-muted-foreground/60">{capture.consoleLogs.length}</span>
-									</div>
-									<div class="max-h-24 overflow-y-auto">
-										{#each capture.consoleLogs as entry (entry.text + entry.level)}
-											<div class="flex gap-1.5 border-t border-dashed border-muted py-0.5 first:border-0">
-												<span class="shrink-0 text-[9px] font-mono {entry.level === 'error' ? 'text-red-500' : entry.level === 'warn' ? 'text-yellow-500' : 'text-muted-foreground/60'}">{entry.level}</span>
-												<span class="truncate text-[10px] font-mono text-muted-foreground">{entry.text}</span>
-											</div>
-										{/each}
-									</div>
+									</button>
+									{#if screenshotConsoleExpanded[sConsoleKey] ?? true}
+										<div class="max-h-24 overflow-y-auto" transition:slide={{ duration: 200 }}>
+											{#each capture.consoleLogs as entry (entry.text + entry.level)}
+												<div class="flex gap-1.5 border-t border-dashed border-muted py-0.5 first:border-0">
+													<span class="shrink-0 text-[9px] font-mono {entry.level === 'error' ? 'text-red-500' : entry.level === 'warn' ? 'text-yellow-500' : 'text-muted-foreground/60'}">{entry.level}</span>
+													<span class="truncate text-[10px] font-mono text-muted-foreground">{entry.text}</span>
+												</div>
+											{/each}
+										</div>
+									{/if}
 								</div>
 							{/if}
 						</div>

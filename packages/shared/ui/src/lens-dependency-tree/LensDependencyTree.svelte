@@ -263,6 +263,65 @@ function onCanvasPointerUp(): Void {
 }
 
 /**
+ * Zoom the dependency chain graph towards the cursor with Ctrl/Meta + mouse wheel.
+ *
+ * Plain scroll is left alone so the overflow container scrolls normally.
+ * Only Ctrl+wheel (Windows/Linux) or Meta+wheel (macOS pinch-to-zoom)
+ * triggers zoom, matching the pattern browsers use for native page zoom.
+ *
+ * Uses proportional scaling (exponential) and adjusts scroll position
+ * so the content point under the cursor stays fixed ("zoom to point").
+ *
+ * @param e - Wheel event from the canvas container
+ */
+function onCanvasWheel(e: WheelEvent): Void {
+	if (!e.ctrlKey && !e.metaKey) return;
+	e.preventDefault();
+	if (!chainCanvasRef) return;
+
+	const oldZoom: Num = chainZoom;
+	// Normalize deltaY across browsers (line vs pixel mode)
+	const delta: Num = (e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY) as Num;
+	// Exponential zoom factor — small delta = tiny change, large delta = bigger change
+	const factor: Num = (1.002 ** -delta) as Num;
+	const newZoom: Num = Math.min(Math.max(oldZoom * factor, ZOOM_MIN), ZOOM_MAX) as Num;
+	if (newZoom === oldZoom) return;
+
+	// Cursor position relative to the scroll viewport
+	const rect: DOMRect = chainCanvasRef.getBoundingClientRect();
+	const cursorX: Num = (e.clientX - rect.left) as Num;
+	const cursorY: Num = (e.clientY - rect.top) as Num;
+
+	// Content coordinate under cursor (unzoomed)
+	const contentX: Num = ((chainCanvasRef.scrollLeft + cursorX) / oldZoom) as Num;
+	const contentY: Num = ((chainCanvasRef.scrollTop + cursorY) / oldZoom) as Num;
+
+	// Apply new zoom level
+	chainZoom = newZoom;
+
+	// After DOM updates, adjust scroll so content point stays under cursor
+	requestAnimationFrame((): Void => {
+		if (!chainCanvasRef) return;
+		chainCanvasRef.scrollLeft = contentX * newZoom - cursorX;
+		chainCanvasRef.scrollTop = contentY * newZoom - cursorY;
+	});
+}
+
+/**
+ * Attach the wheel-zoom listener with `passive: false` so that
+ * `preventDefault()` works reliably across all browsers. Svelte's
+ * `onwheel` attribute may be passive by default in some environments.
+ */
+$effect(() => {
+	const el: HTMLDivElement | undefined = chainCanvasRef;
+	if (!el) return;
+	el.addEventListener('wheel', onCanvasWheel, { passive: false });
+	return (): Void => {
+		el.removeEventListener('wheel', onCanvasWheel);
+	};
+});
+
+/**
  * Copy an import path to the clipboard with visual feedback.
  *
  * @param path - The import path to copy
@@ -1024,7 +1083,7 @@ async function handleChainExport(formatId: Str): Promise<void> {
 					onmouseup={onCanvasPointerUp}
 					onmouseleave={onCanvasPointerUp}
 					role="application"
-					aria-label="Dependency chain graph — drag to pan"
+					aria-label="Dependency chain graph — drag to pan, Ctrl+scroll to zoom"
 				>
 					<div
 						class="relative origin-top-left transition-transform"

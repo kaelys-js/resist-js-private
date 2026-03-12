@@ -32,7 +32,16 @@ import ComponentIcon from '@lucide/svelte/icons/component';
 import SearchIcon from '@lucide/svelte/icons/search';
 import Palette from '@lucide/svelte/icons/palette';
 import * as Tooltip from '@/ui/tooltip/index.js';
+import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
 import ChevronRight from '@lucide/svelte/icons/chevron-right';
+import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
+import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+import ChevronsDownUp from '@lucide/svelte/icons/chevrons-down-up';
+import Download from '@lucide/svelte/icons/download';
+import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
+import FileText from '@lucide/svelte/icons/file-text';
+import Check from '@lucide/svelte/icons/check';
+import SearchX from '@lucide/svelte/icons/search-x';
 
 const { children } = $props();
 
@@ -397,6 +406,141 @@ const setMode = (m: Str): void => {
 
 /** Whether the global command search dialog is open. */
 let searchOpen: boolean = $state(false);
+
+/* ------------------------------------------------------------------ */
+/*  Sidebar section collapse / expand state                            */
+/* ------------------------------------------------------------------ */
+
+/** Whether the top-level "Components" collapsible group is open. */
+let sidebarComponentsOpen: boolean = $state(true);
+
+/** Per-category collapsible open state (keyed by category name, default open). */
+let sidebarCategoryOpen: Record<Str, boolean> = $state(
+	Object.fromEntries(categoryOrder.map((cat: Str): [Str, boolean] => [cat, true])),
+);
+
+/**
+ * Expand all sidebar collapsible sections.
+ */
+function expandAllSidebar(): void {
+	sidebarComponentsOpen = true;
+	for (const cat of categoryOrder) {
+		sidebarCategoryOpen[cat] = true;
+	}
+}
+
+/**
+ * Collapse all sidebar collapsible sections.
+ */
+function collapseAllSidebar(): void {
+	sidebarComponentsOpen = false;
+	for (const cat of categoryOrder) {
+		sidebarCategoryOpen[cat] = false;
+	}
+}
+
+/* ------------------------------------------------------------------ */
+/*  Sidebar export                                                      */
+/* ------------------------------------------------------------------ */
+
+/** Sidebar export menu items. */
+const SIDEBAR_EXPORT_ITEMS: Array<{ id: Str; label: Str; category: Str }> = [
+	{ id: 'copy-json', label: 'Copy as JSON', category: 'Clipboard' },
+	{ id: 'copy-markdown', label: 'Copy as Markdown', category: 'Clipboard' },
+	{ id: 'download-json', label: 'Download JSON', category: 'File' },
+	{ id: 'download-markdown', label: 'Download Markdown', category: 'File' },
+];
+
+/** Feedback state for sidebar export actions. */
+let sidebarExportFeedback: Str = $state('');
+
+/** Search query for sidebar export menu filtering. */
+let sidebarExportSearchQuery: Str = $state('');
+
+/** Sidebar export items filtered by search query. */
+const filteredSidebarExportItems: Array<{ id: Str; label: Str; category: Str }> = $derived(
+	sidebarExportSearchQuery.length === 0
+		? SIDEBAR_EXPORT_ITEMS
+		: SIDEBAR_EXPORT_ITEMS.filter((p) => p.label.toLowerCase().includes(sidebarExportSearchQuery.toLowerCase())),
+);
+
+/** Unique sidebar export categories present after filtering. */
+const filteredSidebarExportCategories: Str[] = $derived(
+	[...new Set(filteredSidebarExportItems.map((p) => p.category))],
+);
+
+/**
+ * Build the component index data for export.
+ *
+ * @returns Component index object with all components and metadata
+ */
+function buildComponentIndex(): Record<Str, unknown> {
+	const components: Array<Record<Str, unknown>> = componentNames.map((name: Str) => {
+		const m: LensMeta | undefined = metaByName.get(name);
+		return {
+			name,
+			title: toTitle(name),
+			category: m?.category ?? 'display',
+			tags: m?.tags ?? [],
+			description: m?.description ?? '',
+		};
+	});
+	return {
+		totalComponents: componentNames.length,
+		categories: categoryOrder.filter((cat: Str) => groupedComponents.some((g) => g.name === cat)),
+		components,
+	};
+}
+
+/**
+ * Convert component index to Markdown format.
+ *
+ * @returns Markdown string of the component index
+ */
+function indexToMarkdown(): Str {
+	const lines: Str[] = ['# Lens Component Index', ''];
+	for (const group of groupedComponents) {
+		lines.push(`## ${group.label} (${group.components.length})`, '');
+		for (const name of group.components) {
+			const m: LensMeta | undefined = metaByName.get(name);
+			const desc: Str = m?.description ? ` — ${m.description}` : '';
+			lines.push(`- **${toTitle(name)}**${desc}`);
+		}
+		lines.push('');
+	}
+	return lines.join('\n');
+}
+
+/**
+ * Handle a sidebar export action.
+ *
+ * @param formatId - Export format identifier
+ */
+async function handleSidebarExport(formatId: Str): Promise<void> {
+	if (formatId === 'copy-json') {
+		await navigator.clipboard.writeText(JSON.stringify(buildComponentIndex(), null, 2));
+	} else if (formatId === 'copy-markdown') {
+		await navigator.clipboard.writeText(indexToMarkdown());
+	} else if (formatId === 'download-json') {
+		const blob: Blob = new Blob([JSON.stringify(buildComponentIndex(), null, 2)], { type: 'application/json' });
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = URL.createObjectURL(blob);
+		a.download = 'lens-component-index.json';
+		a.click();
+		URL.revokeObjectURL(a.href);
+	} else if (formatId === 'download-markdown') {
+		const blob: Blob = new Blob([indexToMarkdown()], { type: 'text/markdown' });
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = URL.createObjectURL(blob);
+		a.download = 'lens-component-index.md';
+		a.click();
+		URL.revokeObjectURL(a.href);
+	}
+	sidebarExportFeedback = formatId;
+	setTimeout((): void => {
+		sidebarExportFeedback = '';
+	}, 2000);
+}
 </script>
 
 <ModeWatcher
@@ -416,10 +560,95 @@ let searchOpen: boolean = $state(false);
 			<div class="flex items-center gap-2 px-2 py-1.5">
 				<AppLogo size={20} />
 				<span class="text-sm font-semibold tracking-tight">Lens</span>
+				<div class="ml-auto">
+					<DropdownMenu.Root>
+						<Tooltip.Root delayDuration={300}>
+							<Tooltip.Trigger>
+								{#snippet child({ props: tooltipProps })}
+									<DropdownMenu.Trigger>
+										{#snippet child({ props: triggerProps })}
+											<button
+												type="button"
+												class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+												{...tooltipProps}
+												{...triggerProps}
+											>
+												<EllipsisVertical class="size-4" />
+												<span class="sr-only">Sidebar menu</span>
+											</button>
+										{/snippet}
+									</DropdownMenu.Trigger>
+								{/snippet}
+							</Tooltip.Trigger>
+							<Tooltip.Content side="right" sideOffset={4}>
+								Sidebar menu
+							</Tooltip.Content>
+						</Tooltip.Root>
+						<DropdownMenu.Content align="start" sideOffset={4}>
+							<DropdownMenu.Sub
+								onOpenChange={(open) => {
+									if (open) sidebarExportSearchQuery = '';
+								}}
+							>
+								<DropdownMenu.SubTrigger>
+									<Download class="mr-2 size-4" />
+									Export
+								</DropdownMenu.SubTrigger>
+								<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+									<div class="shrink-0 px-2 pb-1.5 pt-1">
+										<p class="mb-1.5 text-[11px] font-medium text-muted-foreground">Component index · {componentNames.length} components</p>
+										<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+											<SearchIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+											<input
+												type="text"
+												placeholder="Search formats..."
+												class="h-5 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
+												bind:value={sidebarExportSearchQuery}
+												onclick={(e) => e.stopPropagation()}
+												onkeydown={(e) => e.stopPropagation()}
+											/>
+										</div>
+									</div>
+									<div class="flex-1 overflow-y-auto">
+										{#if filteredSidebarExportItems.length === 0}
+											<div class="flex flex-col items-center gap-1 px-2 py-4 text-center">
+												<SearchX class="size-4 text-muted-foreground/40" />
+												<span class="text-xs text-muted-foreground/60">No formats match</span>
+											</div>
+										{:else}
+											{#each filteredSidebarExportCategories as category (category)}
+												<DropdownMenu.Label class="px-2 text-xs text-muted-foreground/60">{category}</DropdownMenu.Label>
+												{#each filteredSidebarExportItems.filter((p) => p.category === category) as item (item.id)}
+													<DropdownMenu.Item onclick={() => handleSidebarExport(item.id)}>
+														{#if sidebarExportFeedback === item.id}
+															<Check class="mr-2 size-4 text-green-500" />
+														{:else}
+															<ClipboardCopy class="mr-2 size-4" />
+														{/if}
+														{item.label}
+													</DropdownMenu.Item>
+												{/each}
+											{/each}
+										{/if}
+									</div>
+								</DropdownMenu.SubContent>
+							</DropdownMenu.Sub>
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item onclick={expandAllSidebar}>
+								<ChevronsUpDown class="mr-2 size-4" />
+								Expand All
+							</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={collapseAllSidebar}>
+								<ChevronsDownUp class="mr-2 size-4" />
+								Collapse All
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
+				</div>
 			</div>
 		</Sidebar.Header>
 		<Sidebar.Content>
-			<Collapsible.Root open class="group/collapsible">
+			<Collapsible.Root bind:open={sidebarComponentsOpen} class="group/collapsible">
 				<Sidebar.Group>
 					<Sidebar.GroupLabel class="text-sm">
 						{#snippet child({ props })}
@@ -434,7 +663,7 @@ let searchOpen: boolean = $state(false);
 					<Collapsible.Content>
 						<Sidebar.GroupContent>
 							{#each groupedComponents as group (group.name)}
-								<Collapsible.Root open class="group/category mb-0.5">
+								<Collapsible.Root bind:open={sidebarCategoryOpen[group.name]} class="group/category mb-0.5">
 									<Collapsible.Trigger
 										class="flex w-full items-center gap-1.5 rounded-md px-3 py-1 transition-colors hover:bg-accent/50"
 									>
