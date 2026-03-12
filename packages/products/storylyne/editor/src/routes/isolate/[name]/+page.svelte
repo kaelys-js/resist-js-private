@@ -47,6 +47,9 @@
   const variantParam: Str = $derived(page.url.searchParams.get('variant') ?? '');
   const optionParam: Str = $derived(page.url.searchParams.get('option') ?? '');
 
+  /** Screenshot mode: strips all chrome (title, centering, padding) for pixel-perfect capture. */
+  const screenshotMode: Bool = $derived(page.url.searchParams.has('screenshot'));
+
   /** Decoded card styles from the `s` base64 JSON param. */
   const cardStyles: Record<Str, Str> = $derived.by((): Record<Str, Str> => {
     const raw: Str = page.url.searchParams.get('s') ?? '';
@@ -215,7 +218,9 @@
 </svelte:head>
 
 <div
-  class="flex min-h-svh items-center justify-center p-8 {modeClass} {cardStyles.theme
+  class="{screenshotMode
+    ? 'inline-block'
+    : 'flex min-h-svh items-center justify-center p-8'} {modeClass} {cardStyles.theme
     ? 'bg-background text-foreground'
     : 'bg-background'}"
   style={containerStyle}
@@ -244,25 +249,27 @@
       description="Check that the component exists and has a valid source file."
     />
   {:else if PrimaryComponent}
-    <div class="flex flex-col items-center gap-4">
-      <div class="text-xs text-muted-foreground">
-        {toTitle(name)}
-        {#if variantParam}
-          <span class="ml-1 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-            {variantParam}="{optionParam}"
-          </span>
-        {/if}
-        {#if cardStyles.net}
-          <span
-            class="ml-1 rounded bg-yellow-500/10 px-1.5 py-0.5 font-mono text-[10px] text-yellow-600"
-          >
-            {cardStyles.net}
-          </span>
-        {/if}
-      </div>
+    <div class={screenshotMode ? '' : 'flex flex-col items-center gap-4'}>
+      {#if !screenshotMode}
+        <div class="text-xs text-muted-foreground">
+          {toTitle(name)}
+          {#if variantParam}
+            <span class="ml-1 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+              {variantParam}="{optionParam}"
+            </span>
+          {/if}
+          {#if cardStyles.net}
+            <span
+              class="ml-1 rounded bg-yellow-500/10 px-1.5 py-0.5 font-mono text-[10px] text-yellow-600"
+            >
+              {cardStyles.net}
+            </span>
+          {/if}
+        </div>
+      {/if}
       {#if vpDimensions}
         <div
-          class="overflow-auto border border-border"
+          class="overflow-auto {screenshotMode ? '' : 'border border-border'}"
           style="width: {vpDimensions.w}px; max-height: {vpDimensions.h}px"
         >
           <div

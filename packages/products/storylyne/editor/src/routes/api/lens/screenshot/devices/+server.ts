@@ -2,7 +2,7 @@
  * Screenshot Devices API — Available Playwright Device Profiles
  *
  * Returns all device profiles from Playwright's built-in registry
- * for use in the LensComponentRenderer "Real Browser" submenu.
+ * for use in the LensComponentRenderer "Browser & Device Preview" submenu.
  * Each device includes viewport dimensions, scale factor, touch/mobile
  * flags, recommended browser engine, and OS version extracted from UA.
  *
