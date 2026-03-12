@@ -3625,7 +3625,7 @@
               onSetting('mediaPref', { pref: group.pref, value: group.defaultValue });
             }
           }}
-          class="text-destructive focus:bg-destructive/10 focus:text-destructive"
+          variant="destructive"
         >
           <RotateCcw class="size-4" />
           Reset All Preferences
@@ -4271,10 +4271,7 @@
 
 {#if showReset && onReset}
   <DropdownMenu.Separator />
-  <DropdownMenu.Item
-    onclick={() => onReset()}
-    class="text-destructive focus:bg-destructive/10 focus:text-destructive"
-  >
+  <DropdownMenu.Item onclick={() => onReset()} variant="destructive">
     <RotateCcw class="size-4" />
     Reset to Defaults
   </DropdownMenu.Item>

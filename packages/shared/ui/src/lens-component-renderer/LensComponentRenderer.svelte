@@ -9651,10 +9651,7 @@
                   Apply to All Cards
                 </DropdownMenu.Item>
               {/if}
-              <DropdownMenu.Item
-                onclick={() => resetCard(cardKey)}
-                class="text-destructive focus:bg-destructive/10 focus:text-destructive"
-              >
+              <DropdownMenu.Item onclick={() => resetCard(cardKey)} variant="destructive">
                 <RotateCcw class="size-4" />
                 Reset to Defaults
               </DropdownMenu.Item>
@@ -10790,7 +10787,7 @@
                     cardConsoleLogs[cardKey] = [];
                   }}
                   disabled={allLogs.length === 0}
-                  class="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                  variant="destructive"
                 >
                   <Trash2 class="size-4" />
                   Clear
@@ -11120,7 +11117,7 @@
                     for (const c of captures) URL.revokeObjectURL(c.imageUrl);
                     cardScreenshots[cardKey] = [];
                   }}
-                  class="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                  variant="destructive"
                 >
                   <Trash2 class="size-4" />
                   Clear All
@@ -11426,7 +11423,7 @@
                         <DropdownMenu.Separator />
                         <DropdownMenu.Item
                           onclick={() => removeScreenshot(cardKey, idx as Num)}
-                          class="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                          variant="destructive"
                         >
                           <Trash2 class="size-4" />
                           Delete
