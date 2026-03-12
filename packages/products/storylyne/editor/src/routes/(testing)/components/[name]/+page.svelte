@@ -32,10 +32,18 @@ import BookOpen from '@lucide/svelte/icons/book-open';
 import GitFork from '@lucide/svelte/icons/git-fork';
 import FileCode from '@lucide/svelte/icons/file-code';
 import ChevronRight from '@lucide/svelte/icons/chevron-right';
+import Search from '@lucide/svelte/icons/search';
 import SearchX from '@lucide/svelte/icons/search-x';
 import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 import History from '@lucide/svelte/icons/history';
+import ExternalLink from '@lucide/svelte/icons/external-link';
 import FileText from '@lucide/svelte/icons/file-text';
+import Download from '@lucide/svelte/icons/download';
+import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
+import Check from '@lucide/svelte/icons/check';
+import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
+import CopyButton from '@/ui/copy-button/CopyButton.svelte';
+import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
 
 /* ------------------------------------------------------------------ */
 /*  Globs                                                             */
@@ -142,6 +150,12 @@ type ChangelogEntry = { hash: Str; message: Str; date: Str; author: Str };
 
 /** Changelog entries for the current component. */
 let changelog: ChangelogEntry[] = $state([]);
+
+/** GitHub repo base URL for commit links (empty if unavailable). */
+let changelogRepoUrl: Str = $state('');
+
+/** Component path relative to repo root for GitHub tree URLs. */
+let changelogComponentPath: Str = $state('');
 
 $effect(() => {
 	const currentName: Str = name;
@@ -381,6 +395,8 @@ $effect(() => {
 	if (!currentName) return;
 	let cancelled: Bool = false;
 	changelog = [];
+	changelogRepoUrl = '';
+	changelogComponentPath = '';
 	(async (): Promise<void> => {
 		try {
 			const response: Response = await fetch(`/api/lens/changelog/${currentName}`);
@@ -388,8 +404,11 @@ $effect(() => {
 			if (response.ok) {
 				const data: unknown = await response.json();
 				if (cancelled) return;
-				// Server returns ChangelogEntry[] — safe to assign
-				changelog = data as ChangelogEntry[];
+				// Server returns { entries, repoUrl, componentPath }
+				const body: { entries: ChangelogEntry[]; repoUrl: Str; componentPath: Str } = data as { entries: ChangelogEntry[]; repoUrl: Str; componentPath: Str };
+				changelog = body.entries;
+				changelogRepoUrl = body.repoUrl;
+				changelogComponentPath = body.componentPath;
 			}
 		} catch {
 			/* Changelog fetch failed — entries remain empty */
@@ -434,6 +453,240 @@ let sectionOpen: Record<Str, Bool> = $state({
  */
 function toggleSection(id: Str): Void {
 	sectionOpen[id] = !sectionOpen[id];
+}
+
+/* ------------------------------------------------------------------ */
+/*  Props export                                                       */
+/* ------------------------------------------------------------------ */
+
+/** Feedback state for props export actions. */
+let propsExportFeedback: Str = $state('');
+
+/** Props export format menu items with id, label, icon, and category. */
+const PROPS_EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: typeof ClipboardCopy; category: Str }> = [
+	{ id: 'copy-json', label: 'Copy as JSON', icon: ClipboardCopy, category: 'Clipboard' },
+	{ id: 'copy-markdown', label: 'Copy as Markdown', icon: FileText, category: 'Clipboard' },
+	{ id: 'copy-csv', label: 'Copy as CSV', icon: ClipboardCopy, category: 'Clipboard' },
+	{ id: 'copy-typescript', label: 'Copy as TypeScript', icon: FileCode, category: 'Clipboard' },
+	{ id: 'download-json', label: 'Download JSON', icon: Download, category: 'File' },
+	{ id: 'download-markdown', label: 'Download Markdown', icon: Download, category: 'File' },
+];
+
+/** Search query for props export menu filtering. */
+let propsExportSearchQuery: Str = $state('');
+
+/** Props export items filtered by search query. */
+const filteredPropsExportItems: Array<{ id: Str; label: Str; icon: typeof ClipboardCopy; category: Str }> = $derived(
+	propsExportSearchQuery.length === 0
+		? PROPS_EXPORT_ITEMS
+		: PROPS_EXPORT_ITEMS.filter((p) => p.label.toLowerCase().includes(propsExportSearchQuery.toLowerCase())),
+);
+
+/** Unique props export categories present after filtering. */
+const filteredPropsExportCategories: Str[] = $derived(
+	[...new Set(filteredPropsExportItems.map((p) => p.category))],
+);
+
+/**
+ * Format props as a markdown table.
+ *
+ * @param propsData - Array of prop metadata
+ * @returns Formatted markdown string
+ */
+function propsToMarkdown(propsData: typeof props): Str {
+	const lines: Str[] = [
+		`# Props — ${name}`,
+		'',
+		'| Name | Required | Type | Default | Description |',
+		'|------|----------|------|---------|-------------|',
+		...propsData.map((p): Str => {
+			let required: Str = 'Yes';
+			if (p.optional) required = 'No';
+			else if (p.default) required = 'No';
+			return `| ${p.name} | ${required} | ${p.type || '—'} | ${p.default || '—'} | ${p.description || '—'} |`;
+		}),
+	];
+	return lines.join('\n');
+}
+
+/**
+ * Format props as CSV.
+ *
+ * @param propsData - Array of prop metadata
+ * @returns CSV-formatted string
+ */
+function propsToCsv(propsData: typeof props): Str {
+	const header: Str = 'Name,Required,Type,Default,Description';
+	const rows: Str[] = propsData.map((p): Str => {
+		let required: Str = 'Yes';
+		if (p.optional) required = 'No';
+		else if (p.default) required = 'No';
+		const desc: Str = (p.description || '').replaceAll('"', '""');
+		const type: Str = (p.type || '').replaceAll('"', '""');
+		const def: Str = (p.default || '').replaceAll('"', '""');
+		return `${p.name},${required},"${type}","${def}","${desc}"`;
+	});
+	return [header, ...rows].join('\n');
+}
+
+/**
+ * Format props as a TypeScript interface.
+ *
+ * @param propsData - Array of prop metadata
+ * @returns TypeScript interface string
+ */
+function propsToTypeScript(propsData: typeof props): Str {
+	const lines: Str[] = [
+		`interface ${name.replaceAll(/[^a-zA-Z0-9]/g, '')}Props {`,
+		...propsData.map((p): Str => {
+			const opt: Str = p.optional ? '?' : '';
+			const type: Str = p.type || 'unknown';
+			const comment: Str = p.description ? ` /** ${p.description} */` : '';
+			return `${comment}\n  ${p.name}${opt}: ${type};`;
+		}),
+		'}',
+	];
+	return lines.join('\n');
+}
+
+/**
+ * Handle props export by format id.
+ *
+ * @param formatId - Export format identifier
+ */
+async function handlePropsExport(formatId: Str): Promise<void> {
+	const slug: Str = name.toLowerCase().replaceAll(/\s+/g, '-');
+	if (formatId === 'copy-json') {
+		await navigator.clipboard.writeText(JSON.stringify(props, null, 2));
+	} else if (formatId === 'copy-markdown') {
+		await navigator.clipboard.writeText(propsToMarkdown(props));
+	} else if (formatId === 'copy-csv') {
+		await navigator.clipboard.writeText(propsToCsv(props));
+	} else if (formatId === 'copy-typescript') {
+		await navigator.clipboard.writeText(propsToTypeScript(props));
+	} else if (formatId === 'download-json') {
+		const blob: Blob = new Blob([JSON.stringify(props, null, 2)], { type: 'application/json' });
+		const url: Str = URL.createObjectURL(blob);
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = url;
+		a.download = `${slug}-props.json`;
+		a.click();
+		URL.revokeObjectURL(url);
+	} else if (formatId === 'download-markdown') {
+		const blob: Blob = new Blob([propsToMarkdown(props)], { type: 'text/markdown' });
+		const url: Str = URL.createObjectURL(blob);
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = url;
+		a.download = `${slug}-props.md`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+	propsExportFeedback = formatId;
+	setTimeout((): Void => {
+		propsExportFeedback = '';
+	}, 2000);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Changelog export                                                   */
+/* ------------------------------------------------------------------ */
+
+/** Feedback state for changelog export actions. */
+let changelogExportFeedback: Str = $state('');
+
+/** Changelog export format menu items with id, label, icon, and category. */
+const CHANGELOG_EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: typeof ClipboardCopy; category: Str }> = [
+	{ id: 'copy-json', label: 'Copy as JSON', icon: ClipboardCopy, category: 'Clipboard' },
+	{ id: 'copy-markdown', label: 'Copy as Markdown', icon: FileText, category: 'Clipboard' },
+	{ id: 'copy-csv', label: 'Copy as CSV', icon: ClipboardCopy, category: 'Clipboard' },
+	{ id: 'download-json', label: 'Download JSON', icon: Download, category: 'File' },
+	{ id: 'download-markdown', label: 'Download Markdown', icon: Download, category: 'File' },
+];
+
+/** Search query for changelog export menu filtering. */
+let changelogExportSearchQuery: Str = $state('');
+
+/** Changelog export items filtered by search query. */
+const filteredChangelogExportItems: Array<{ id: Str; label: Str; icon: typeof ClipboardCopy; category: Str }> = $derived(
+	changelogExportSearchQuery.length === 0
+		? CHANGELOG_EXPORT_ITEMS
+		: CHANGELOG_EXPORT_ITEMS.filter((p) => p.label.toLowerCase().includes(changelogExportSearchQuery.toLowerCase())),
+);
+
+/** Unique changelog export categories present after filtering. */
+const filteredChangelogExportCategories: Str[] = $derived(
+	[...new Set(filteredChangelogExportItems.map((p) => p.category))],
+);
+
+/**
+ * Format changelog entries as a markdown table.
+ *
+ * @param entries - Changelog entries to format
+ * @returns Formatted markdown string
+ */
+function changelogToMarkdown(entries: ChangelogEntry[]): Str {
+	const lines: Str[] = [
+		`# Changelog — ${name}`,
+		'',
+		'| Hash | Message | Date | Author |',
+		'|------|---------|------|--------|',
+		...entries.map((e: ChangelogEntry): Str =>
+			`| ${e.hash} | ${e.message} | ${new Date(e.date).toLocaleDateString()} | ${e.author} |`,
+		),
+	];
+	return lines.join('\n');
+}
+
+/**
+ * Format changelog entries as CSV.
+ *
+ * @param entries - Changelog entries to format
+ * @returns CSV-formatted string
+ */
+function changelogToCsv(entries: ChangelogEntry[]): Str {
+	const header: Str = 'Hash,Message,Date,Author';
+	const rows: Str[] = entries.map((e: ChangelogEntry): Str => {
+		const msg: Str = e.message.replaceAll('"', '""');
+		const author: Str = e.author.replaceAll('"', '""');
+		return `${e.hash},"${msg}",${new Date(e.date).toLocaleDateString()},"${author}"`;
+	});
+	return [header, ...rows].join('\n');
+}
+
+/**
+ * Handle changelog export by format id.
+ *
+ * @param formatId - Export format identifier
+ */
+async function handleChangelogExport(formatId: Str): Promise<void> {
+	const slug: Str = name.toLowerCase().replaceAll(/\s+/g, '-');
+	if (formatId === 'copy-json') {
+		await navigator.clipboard.writeText(JSON.stringify(changelog, null, 2));
+	} else if (formatId === 'copy-markdown') {
+		await navigator.clipboard.writeText(changelogToMarkdown(changelog));
+	} else if (formatId === 'copy-csv') {
+		await navigator.clipboard.writeText(changelogToCsv(changelog));
+	} else if (formatId === 'download-json') {
+		const blob: Blob = new Blob([JSON.stringify(changelog, null, 2)], { type: 'application/json' });
+		const url: Str = URL.createObjectURL(blob);
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = url;
+		a.download = `${slug}-changelog.json`;
+		a.click();
+		URL.revokeObjectURL(url);
+	} else if (formatId === 'download-markdown') {
+		const blob: Blob = new Blob([changelogToMarkdown(changelog)], { type: 'text/markdown' });
+		const url: Str = URL.createObjectURL(blob);
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = url;
+		a.download = `${slug}-changelog.md`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+	changelogExportFeedback = formatId;
+	setTimeout((): Void => {
+		changelogExportFeedback = '';
+	}, 2000);
 }
 
 /**
@@ -501,28 +754,106 @@ $effect(() => {
 	{:else}
 		<div class="space-y-10">
 			<!-- ═══ Documentation ═══ -->
-			{#if hasDocs}
-				<section id="docs" class="scroll-mt-60">
-					<button type="button" onclick={() => toggleSection('docs')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
-						<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.docs ? 'rotate-90' : ''}" />
-						<FileText class="size-5" /> Documentation
-					</button>
-					{#if sectionOpen.docs}
-						<div transition:slide={{ duration: 200 }}>
+			<section id="docs" class="scroll-mt-60">
+				<button type="button" onclick={() => toggleSection('docs')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
+					<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.docs ? 'rotate-90' : ''}" />
+					<FileText class="size-5" /> Documentation
+				</button>
+				{#if sectionOpen.docs}
+					<div transition:slide={{ duration: 200 }}>
+						{#if hasDocs}
 							<div class="prose prose-sm dark:prose-invert max-w-none rounded-lg border bg-card p-6">
 								{@html docsContent}
 							</div>
-						</div>
-					{/if}
-				</section>
-			{/if}
+						{:else}
+							<div class="rounded-lg border border-dashed bg-muted/20 px-6 py-8 text-center">
+								<p class="text-sm text-muted-foreground">No documentation available for this component.</p>
+								<p class="mt-1 text-xs text-muted-foreground/60">Add a <code class="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">docs.md</code> file to the component directory to add documentation.</p>
+							</div>
+						{/if}
+					</div>
+				{/if}
+			</section>
 
 			<!-- ═══ Props ═══ -->
 			<section id="props" class="scroll-mt-60">
-				<button type="button" onclick={() => toggleSection('props')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
-					<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.props ? 'rotate-90' : ''}" />
-					<TableProperties class="size-5" /> Props
-				</button>
+				<div class="mb-3 flex items-center justify-between">
+					<button type="button" onclick={() => toggleSection('props')} class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
+						<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.props ? 'rotate-90' : ''}" />
+						<TableProperties class="size-5" /> Props
+						<span class="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground">{props.length}</span>
+					</button>
+					{#if props.length > 0}
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({ props: menuProps })}
+								<button {...menuProps} class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" aria-label="Props options">
+									<EllipsisVertical class="size-4" />
+								</button>
+							{/snippet}
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content align="end" class="w-48">
+							<DropdownMenu.Sub
+								onOpenChange={(open) => {
+									if (open) propsExportSearchQuery = '';
+								}}
+							>
+								<DropdownMenu.SubTrigger>
+									<Download class="size-4" />
+									Export
+								</DropdownMenu.SubTrigger>
+								<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+									<div class="shrink-0 px-2 pb-1.5 pt-1">
+										<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+											<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+											<input
+												type="text"
+												placeholder="Search formats..."
+												class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+												bind:value={propsExportSearchQuery}
+												onkeydown={(e) => e.stopPropagation()}
+												onkeyup={(e) => e.stopPropagation()}
+												onkeypress={(e) => e.stopPropagation()}
+											/>
+										</div>
+									</div>
+									<div class="flex min-h-0 flex-1 flex-col overflow-y-auto">
+										{#each filteredPropsExportCategories as category (category)}
+											{#if filteredPropsExportCategories.indexOf(category) > 0}
+												<DropdownMenu.Separator />
+											{/if}
+											<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+											{#each filteredPropsExportItems.filter((i) => i.category === category) as item (item.id)}
+												<DropdownMenu.Item
+													onSelect={(e) => {
+														e.preventDefault();
+														handlePropsExport(item.id);
+													}}
+												>
+													{#if propsExportFeedback === item.id}
+														<Check class="size-4 text-green-500" />
+													{:else}
+														<item.icon class="size-4" />
+													{/if}
+													{item.label}
+												</DropdownMenu.Item>
+											{/each}
+										{:else}
+											<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+												<SearchX class="size-5" />
+												<div class="flex flex-col items-center gap-0.5">
+													<p class="text-xs font-medium">No formats found</p>
+													<p class="text-[11px]">Try a different search term</p>
+												</div>
+											</div>
+										{/each}
+									</div>
+								</DropdownMenu.SubContent>
+							</DropdownMenu.Sub>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
+					{/if}
+				</div>
 				{#if sectionOpen.props}
 					<div transition:slide={{ duration: 200 }}>
 						<PropsTable {props} variantKeys={allVariants.map((v) => v.key)} />
@@ -668,10 +999,81 @@ $effect(() => {
 			<!-- ═══ Changelog ═══ -->
 			{#if hasChangelog}
 				<section id="changelog" class="scroll-mt-60">
-					<button type="button" onclick={() => toggleSection('changelog')} class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
-						<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.changelog ? 'rotate-90' : ''}" />
-						<History class="size-5" /> Changelog
-					</button>
+					<div class="mb-3 flex items-center justify-between">
+						<button type="button" onclick={() => toggleSection('changelog')} class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80">
+							<ChevronRight class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.changelog ? 'rotate-90' : ''}" />
+							<History class="size-5" /> Changelog
+							<span class="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground">{changelog.length}</span>
+						</button>
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger>
+								{#snippet child({ props })}
+									<button {...props} class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" aria-label="Changelog options">
+										<EllipsisVertical class="size-4" />
+									</button>
+								{/snippet}
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content align="end" class="w-48">
+								<DropdownMenu.Sub
+									onOpenChange={(open) => {
+										if (open) changelogExportSearchQuery = '';
+									}}
+								>
+									<DropdownMenu.SubTrigger>
+										<Download class="size-4" />
+										Export
+									</DropdownMenu.SubTrigger>
+									<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+										<div class="shrink-0 px-2 pb-1.5 pt-1">
+											<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+												<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+												<input
+													type="text"
+													placeholder="Search formats..."
+													class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+													bind:value={changelogExportSearchQuery}
+													onkeydown={(e) => e.stopPropagation()}
+													onkeyup={(e) => e.stopPropagation()}
+													onkeypress={(e) => e.stopPropagation()}
+												/>
+											</div>
+										</div>
+										<div class="flex min-h-0 flex-1 flex-col overflow-y-auto">
+											{#each filteredChangelogExportCategories as category (category)}
+												{#if filteredChangelogExportCategories.indexOf(category) > 0}
+													<DropdownMenu.Separator />
+												{/if}
+												<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+												{#each filteredChangelogExportItems.filter((i) => i.category === category) as item (item.id)}
+													<DropdownMenu.Item
+														onSelect={(e) => {
+															e.preventDefault();
+															handleChangelogExport(item.id);
+														}}
+													>
+														{#if changelogExportFeedback === item.id}
+															<Check class="size-4 text-green-500" />
+														{:else}
+															<item.icon class="size-4" />
+														{/if}
+														{item.label}
+													</DropdownMenu.Item>
+												{/each}
+											{:else}
+												<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+													<SearchX class="size-5" />
+													<div class="flex flex-col items-center gap-0.5">
+														<p class="text-xs font-medium">No formats found</p>
+														<p class="text-[11px]">Try a different search term</p>
+													</div>
+												</div>
+											{/each}
+										</div>
+									</DropdownMenu.SubContent>
+								</DropdownMenu.Sub>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
+					</div>
 					{#if sectionOpen.changelog}
 						<div transition:slide={{ duration: 200 }}>
 							<div class="rounded-lg border bg-card">
@@ -682,6 +1084,7 @@ $effect(() => {
 											<th class="px-4 py-2">Message</th>
 											<th class="w-28 px-4 py-2">Date</th>
 											<th class="w-32 px-4 py-2">Author</th>
+											<th class="w-16 px-2 py-2"><span class="sr-only">Actions</span></th>
 										</tr>
 									</thead>
 									<tbody>
@@ -693,6 +1096,22 @@ $effect(() => {
 												<td class="truncate px-4 py-2 text-sm">{entry.message}</td>
 												<td class="px-4 py-2 text-xs text-muted-foreground">{new Date(entry.date).toLocaleDateString()}</td>
 												<td class="truncate px-4 py-2 text-xs text-muted-foreground">{entry.author}</td>
+												<td class="px-2 py-2">
+													<div class="flex items-center gap-0.5">
+														<CopyButton text={`${entry.hash} ${entry.message} (${entry.author}, ${new Date(entry.date).toLocaleDateString()})`} label="Copy row" />
+														{#if changelogRepoUrl}
+															<a
+																href="{changelogRepoUrl}/tree/{entry.hash}/{changelogComponentPath}"
+																target="_blank"
+																rel="noopener noreferrer"
+																class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+																title="Open in GitHub"
+															>
+																<ExternalLink class="size-3.5" />
+															</a>
+														{/if}
+													</div>
+												</td>
 											</tr>
 										{/each}
 									</tbody>

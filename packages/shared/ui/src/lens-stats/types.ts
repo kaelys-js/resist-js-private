@@ -233,6 +233,8 @@ export const WebVitalsSchema = v.strictObject({
   lcpElement: StrSchema,
   /** First Input Delay in ms — time between first user interaction and browser response (-1 if no interaction yet or unsupported). */
   fidMs: NumSchema,
+  /** Interaction to Next Paint in ms — worst interaction latency (replaces FID as Core Web Vital, -1 if no interaction yet or unsupported). */
+  inpMs: NumSchema,
   /** Time to First Byte in ms — page-level server response time (-1 if unavailable). */
   ttfbMs: NumSchema,
   /** Whether the browser supports the required PerformanceObserver entry types. */

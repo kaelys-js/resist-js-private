@@ -150,12 +150,10 @@ function collapseAll(): Void {
 					</Tooltip.Content>
 				</Tooltip.Root>
 				<DropdownMenu.Content align="start" sideOffset={4}>
-					{#if hasDocs}
-						<DropdownMenu.Item onclick={() => scrollTo('docs')}>
-							<FileText class="mr-2 size-4" />
-							Go to Documentation
-						</DropdownMenu.Item>
-					{/if}
+					<DropdownMenu.Item onclick={() => scrollTo('docs')}>
+						<FileText class="mr-2 size-4" />
+						Go to Documentation
+					</DropdownMenu.Item>
 					<DropdownMenu.Item onclick={() => scrollTo('props')}>
 						<TableProperties class="mr-2 size-4" />
 						Go to Props
