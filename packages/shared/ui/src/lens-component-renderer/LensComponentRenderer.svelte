@@ -9456,35 +9456,35 @@
             {/if}
           </div>
 
-          <div class="px-3 py-1.5">
+          <div class="flex flex-col gap-1.5 px-3 py-1.5">
             <!-- Box model summary -->
-            <div class="mb-2 rounded border bg-muted/20 px-2 py-1.5">
+            <div class="rounded border bg-muted/20 px-2 py-1.5">
               <div class="grid grid-cols-3 gap-x-3 gap-y-0.5 text-[10px]">
                 <div>
                   <span class="text-muted-foreground/60">margin</span>
                   <span class="ml-1 font-mono"
-                    >{Math.round(el.boxModel.margin.top as number)}
-                    {Math.round(el.boxModel.margin.right as number)}
-                    {Math.round(el.boxModel.margin.bottom as number)}
-                    {Math.round(el.boxModel.margin.left as number)}</span
+                    >{Math.round(el.boxModel.margin.top as number)}px
+                    {Math.round(el.boxModel.margin.right as number)}px
+                    {Math.round(el.boxModel.margin.bottom as number)}px
+                    {Math.round(el.boxModel.margin.left as number)}px</span
                   >
                 </div>
                 <div>
                   <span class="text-muted-foreground/60">padding</span>
                   <span class="ml-1 font-mono"
-                    >{Math.round(el.boxModel.padding.top as number)}
-                    {Math.round(el.boxModel.padding.right as number)}
-                    {Math.round(el.boxModel.padding.bottom as number)}
-                    {Math.round(el.boxModel.padding.left as number)}</span
+                    >{Math.round(el.boxModel.padding.top as number)}px
+                    {Math.round(el.boxModel.padding.right as number)}px
+                    {Math.round(el.boxModel.padding.bottom as number)}px
+                    {Math.round(el.boxModel.padding.left as number)}px</span
                   >
                 </div>
                 <div>
                   <span class="text-muted-foreground/60">border</span>
                   <span class="ml-1 font-mono"
-                    >{Math.round(el.boxModel.border.top as number)}
-                    {Math.round(el.boxModel.border.right as number)}
-                    {Math.round(el.boxModel.border.bottom as number)}
-                    {Math.round(el.boxModel.border.left as number)}</span
+                    >{Math.round(el.boxModel.border.top as number)}px
+                    {Math.round(el.boxModel.border.right as number)}px
+                    {Math.round(el.boxModel.border.bottom as number)}px
+                    {Math.round(el.boxModel.border.left as number)}px</span
                   >
                 </div>
               </div>
@@ -9493,10 +9493,10 @@
             <!-- DOM Attributes section -->
             {#if Object.keys(el.attrs).length > 0}
               {@const attrCollapsed = collapsed['Attributes'] ?? false}
-              <div class="mb-1.5">
+              <div class="rounded border bg-muted/10">
                 <button
                   type="button"
-                  class="mb-0.5 flex w-full items-center gap-1 text-left transition-colors hover:text-foreground"
+                  class="flex w-full items-center gap-1.5 px-2 py-1 text-left transition-colors hover:bg-muted/30"
                   onclick={() => {
                     const c: Record<Str, Bool> = { ...collapsed };
                     c['Attributes'] = !attrCollapsed as Bool;
@@ -9511,13 +9511,14 @@
                     aria-hidden="true"
                   />
                   <span class="text-[10px] font-semibold text-muted-foreground">Attributes</span>
-                  <span class="text-[9px] text-muted-foreground/50"
+                  <span
+                    class="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium tabular-nums text-muted-foreground"
                     >{Object.keys(el.attrs).length}</span
                   >
                 </button>
                 {#if !attrCollapsed}
                   <div
-                    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0"
+                    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0 border-t px-2 py-1"
                     transition:slide={{ duration: 150 }}
                   >
                     {#each Object.entries(el.attrs) as [prop, val] (prop)}
@@ -9528,8 +9529,11 @@
                         title="Click to copy"
                       >
                         <span class="font-mono text-[10px] text-violet-400">{prop}</span>
-                        <span class="break-all text-left font-mono text-[10px]">
+                        <span
+                          class="flex items-center gap-1 break-all text-left font-mono text-[10px]"
+                        >
                           {#if copyFeedback === prop}
+                            <Check class="inline size-3 text-green-500" />
                             <span class="text-green-500">Copied!</span>
                           {:else}
                             {val}
@@ -9545,10 +9549,10 @@
             <!-- Accessibility section -->
             {#if Object.keys(el.a11y).length > 0}
               {@const a11yCollapsed = collapsed['Accessibility'] ?? false}
-              <div class="mb-1.5">
+              <div class="rounded border bg-muted/10">
                 <button
                   type="button"
-                  class="mb-0.5 flex w-full items-center gap-1 text-left transition-colors hover:text-foreground"
+                  class="flex w-full items-center gap-1.5 px-2 py-1 text-left transition-colors hover:bg-muted/30"
                   onclick={() => {
                     const c: Record<Str, Bool> = { ...collapsed };
                     c['Accessibility'] = !a11yCollapsed as Bool;
@@ -9564,13 +9568,14 @@
                   />
                   <Accessibility class="size-3 text-muted-foreground" aria-hidden="true" />
                   <span class="text-[10px] font-semibold text-muted-foreground">Accessibility</span>
-                  <span class="text-[9px] text-muted-foreground/50"
+                  <span
+                    class="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium tabular-nums text-muted-foreground"
                     >{Object.keys(el.a11y).length}</span
                   >
                 </button>
                 {#if !a11yCollapsed}
                   <div
-                    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0"
+                    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0 border-t px-2 py-1"
                     transition:slide={{ duration: 150 }}
                   >
                     {#each Object.entries(el.a11y) as [prop, val] (prop)}
@@ -9581,8 +9586,11 @@
                         title="Click to copy"
                       >
                         <span class="font-mono text-[10px] text-emerald-400">{prop}</span>
-                        <span class="break-all text-left font-mono text-[10px]">
+                        <span
+                          class="flex items-center gap-1 break-all text-left font-mono text-[10px]"
+                        >
                           {#if copyFeedback === prop}
+                            <Check class="inline size-3 text-green-500" />
                             <span class="text-green-500">Copied!</span>
                           {:else}
                             {val}
@@ -9598,10 +9606,10 @@
             <!-- CSS Style groups -->
             {#each Object.entries(el.styles) as [group, props] (group)}
               {@const groupCollapsed = collapsed[group] ?? false}
-              <div class="mb-1.5">
+              <div class="rounded border bg-muted/10">
                 <button
                   type="button"
-                  class="mb-0.5 flex w-full items-center gap-1 text-left transition-colors hover:text-foreground"
+                  class="flex w-full items-center gap-1.5 px-2 py-1 text-left transition-colors hover:bg-muted/30"
                   onclick={() => {
                     const c: Record<Str, Bool> = { ...collapsed };
                     c[group] = !groupCollapsed as Bool;
@@ -9616,13 +9624,14 @@
                     aria-hidden="true"
                   />
                   <span class="text-[10px] font-semibold text-muted-foreground">{group}</span>
-                  <span class="text-[9px] text-muted-foreground/50"
+                  <span
+                    class="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium tabular-nums text-muted-foreground"
                     >{Object.keys(props).length}</span
                   >
                 </button>
                 {#if !groupCollapsed}
                   <div
-                    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0"
+                    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0 border-t px-2 py-1"
                     transition:slide={{ duration: 150 }}
                   >
                     {#each Object.entries(props) as [prop, val] (prop)}
@@ -9637,6 +9646,7 @@
                           class="flex items-center gap-1 break-all text-left font-mono text-[10px]"
                         >
                           {#if copyFeedback === prop}
+                            <Check class="inline size-3 text-green-500" />
                             <span class="text-green-500">Copied!</span>
                           {:else}
                             {#if isCssColor(val as Str)}
