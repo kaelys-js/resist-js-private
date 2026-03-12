@@ -299,7 +299,7 @@
   /** Per-card inspect mode (click element to see computed CSS). */
   let cardInspectActive: Record<Str, Bool> = $state({});
 
-  /** Per-card inspected element data (computed styles + bounding rect). */
+  /** Per-card inspected element data (computed styles, DOM attrs, accessibility, hierarchy). */
   let cardInspectedEl: Record<
     Str,
     {
@@ -313,8 +313,31 @@
       rect: { width: Num; height: Num; top: Num; left: Num };
       /** Key computed CSS properties grouped by category. */
       styles: Record<Str, Record<Str, Str>>;
+      /** DOM attributes (data-*, aria-*, role, href, src, etc). */
+      attrs: Record<Str, Str>;
+      /** Accessibility info (role, label, description, tabindex, hidden). */
+      a11y: Record<Str, Str>;
+      /** Parent chain breadcrumb (e.g. "body > main > div.container > button"). */
+      breadcrumb: Str;
+      /** Truncated text content (first 100 chars). */
+      textContent: Str;
+      /** Box model summary (padding, margin, border). */
+      boxModel: {
+        /** Padding values. */
+        padding: { top: Num; right: Num; bottom: Num; left: Num };
+        /** Margin values. */
+        margin: { top: Num; right: Num; bottom: Num; left: Num };
+        /** Border widths. */
+        border: { top: Num; right: Num; bottom: Num; left: Num };
+      };
     } | null
   > = $state({});
+
+  /** Per-card collapsed inspect section groups. */
+  let cardInspectCollapsed: Record<Str, Record<Str, Bool>> = $state({});
+
+  /** Per-card inspect property copy feedback (property name being flashed). */
+  let cardInspectCopyFeedback: Record<Str, Str> = $state({});
 
   /** Per-card measure overlay data (hovered element box model). */
   let cardMeasureData: Record<
@@ -4414,39 +4437,118 @@
    * @param el - The clicked DOM element
    * @returns Grouped computed styles
    */
+  /** Default/empty CSS values to skip — reduces noise in the inspect panel. */
+  const INSPECT_SKIP_VALS: ReadonlySet<Str> = new Set([
+    '',
+    'none',
+    'normal',
+    '0px',
+    '0',
+    'auto',
+    'rgba(0, 0, 0, 0)',
+    'start',
+    'stretch',
+    'baseline',
+    'visible',
+    'static',
+    'content-box',
+    'ltr',
+    'separate',
+    'inline',
+    'repeat',
+    'padding-box',
+    'border-box',
+    'scroll',
+  ]);
+
+  /** DOM attribute names worth showing in the inspect panel. */
+  const INSPECT_ATTR_PREFIXES: readonly Str[] = ['data-', 'aria-'];
+  /** Specific non-prefixed attributes to include. */
+  const INSPECT_ATTR_NAMES: ReadonlySet<Str> = new Set([
+    'role',
+    'tabindex',
+    'href',
+    'src',
+    'alt',
+    'title',
+    'type',
+    'name',
+    'value',
+    'placeholder',
+    'for',
+    'action',
+    'method',
+    'target',
+    'rel',
+    'disabled',
+    'readonly',
+    'required',
+    'checked',
+    'selected',
+    'hidden',
+    'loading',
+    'decoding',
+    'fetchpriority',
+    'draggable',
+    'contenteditable',
+    'autocomplete',
+    'autofocus',
+    'pattern',
+    'min',
+    'max',
+    'step',
+    'maxlength',
+    'minlength',
+    'accept',
+    'multiple',
+    'download',
+    'media',
+    'sizes',
+    'srcset',
+    'slot',
+    'part',
+    'is',
+    'popover',
+    'popovertarget',
+  ]);
+
+  /**
+   * Build parent chain breadcrumb for an element.
+   *
+   * @param el - Target element
+   * @param maxDepth - Maximum ancestors to include
+   * @returns Breadcrumb string like "body > main > div.container > button.primary"
+   */
+  function buildBreadcrumb(el: Element, maxDepth: Num): Str {
+    const parts: Str[] = [];
+    let current: Element | null = el;
+    let depth: Num = 0 as Num;
+    while (current && (depth as number) < (maxDepth as number)) {
+      let segment: Str = current.tagName.toLowerCase() as Str;
+      if (current.id) segment = `${segment}#${current.id}` as Str;
+      else if (current.className && typeof current.className === 'string') {
+        const firstClass: Str = current.className.split(/\s+/)[0] ?? ('' as Str);
+        if (firstClass) segment = `${segment}.${firstClass}` as Str;
+      }
+      parts.unshift(segment);
+      current = current.parentElement;
+      depth = ((depth as number) + 1) as Num;
+    }
+    return parts.join(' > ') as Str;
+  }
+
+  // oxlint-ignore-next-line max-lines-per-function -- collects 6 data categories from a single element
   function collectInspectData(el: Element): (typeof cardInspectedEl)[Str] {
     const cs: CSSStyleDeclaration = getComputedStyle(el);
     const rect: DOMRect = el.getBoundingClientRect();
-    const styles: Record<Str, Record<Str, Str>> = {};
 
+    /* --- Computed styles --- */
+    const styles: Record<Str, Record<Str, Str>> = {};
     for (const group of INSPECT_GROUPS) {
       const groupStyles: Record<Str, Str> = {};
-      /** Default/empty values to skip — reduces noise in the panel. */
-      const SKIP_VALS: ReadonlySet<Str> = new Set([
-        '',
-        'none',
-        'normal',
-        '0px',
-        '0',
-        'auto',
-        'rgba(0, 0, 0, 0)',
-        'start',
-        'stretch',
-        'baseline',
-        'visible',
-        'static',
-        'content-box',
-        'ltr',
-        'separate',
-        'inline',
-        'repeat',
-        'padding-box',
-        'border-box',
-        'scroll',
-      ]);
       for (const prop of group.props) {
         const val: Str = cs.getPropertyValue(prop);
-        if (val && !SKIP_VALS.has(val)) {
+        if (val && !INSPECT_SKIP_VALS.has(val)) {
           groupStyles[prop] = val;
         }
       }
@@ -4454,6 +4556,66 @@
         styles[group.label] = groupStyles;
       }
     }
+
+    /* --- DOM attributes --- */
+    const attrs: Record<Str, Str> = {};
+    for (
+      let i: Num = 0 as Num;
+      (i as number) < el.attributes.length;
+      i = ((i as number) + 1) as Num
+    ) {
+      const attr: Attr | null = el.attributes.item(i as number);
+      if (!attr) continue;
+      const name: Str = attr.name as Str;
+      if (name === 'class' || name === 'id' || name === 'style') continue;
+      const isPrefix: Bool = INSPECT_ATTR_PREFIXES.some((p) =>
+        (name as string).startsWith(p as string),
+      ) as Bool;
+      if (isPrefix || INSPECT_ATTR_NAMES.has(name)) {
+        attrs[name] = (attr.value || 'true') as Str;
+      }
+    }
+
+    /* --- Accessibility info --- */
+    const a11y: Record<Str, Str> = {};
+    const role: Str = (el.getAttribute('role') ?? '') as Str;
+    if (role) a11y['role'] = role;
+    const ariaLabel: Str = (el.getAttribute('aria-label') ?? '') as Str;
+    if (ariaLabel) a11y['aria-label'] = ariaLabel;
+    const ariaDescribedby: Str = (el.getAttribute('aria-describedby') ?? '') as Str;
+    if (ariaDescribedby) a11y['aria-describedby'] = ariaDescribedby;
+    const ariaLabelledby: Str = (el.getAttribute('aria-labelledby') ?? '') as Str;
+    if (ariaLabelledby) a11y['aria-labelledby'] = ariaLabelledby;
+    const ariaHidden: Str = (el.getAttribute('aria-hidden') ?? '') as Str;
+    if (ariaHidden) a11y['aria-hidden'] = ariaHidden;
+    const ariaExpanded: Str = (el.getAttribute('aria-expanded') ?? '') as Str;
+    if (ariaExpanded) a11y['aria-expanded'] = ariaExpanded;
+    const ariaPressed: Str = (el.getAttribute('aria-pressed') ?? '') as Str;
+    if (ariaPressed) a11y['aria-pressed'] = ariaPressed;
+    const tabIdx: Str = (el.getAttribute('tabindex') ?? '') as Str;
+    if (tabIdx) a11y['tabindex'] = tabIdx;
+    /* Computed accessible name via the element's labels or aria */
+    if (el instanceof HTMLElement && el.title && !a11y['aria-label']) {
+      a11y['accessible-name'] = el.title as Str;
+    }
+
+    /* --- Text content --- */
+    const rawText: Str = ((el.textContent ?? '') as string).trim().slice(0, 100) as Str;
+    const textContent: Str = rawText.length === 100 ? (`${rawText}…` as Str) : rawText;
+
+    /* --- Box model --- */
+    const pt: Num = (Number.parseFloat(cs.paddingTop) || 0) as Num;
+    const pr: Num = (Number.parseFloat(cs.paddingRight) || 0) as Num;
+    const pb: Num = (Number.parseFloat(cs.paddingBottom) || 0) as Num;
+    const pl: Num = (Number.parseFloat(cs.paddingLeft) || 0) as Num;
+    const bt: Num = (Number.parseFloat(cs.borderTopWidth) || 0) as Num;
+    const br: Num = (Number.parseFloat(cs.borderRightWidth) || 0) as Num;
+    const bb: Num = (Number.parseFloat(cs.borderBottomWidth) || 0) as Num;
+    const bl: Num = (Number.parseFloat(cs.borderLeftWidth) || 0) as Num;
+    const mt: Num = (Number.parseFloat(cs.marginTop) || 0) as Num;
+    const mr: Num = (Number.parseFloat(cs.marginRight) || 0) as Num;
+    const mb: Num = (Number.parseFloat(cs.marginBottom) || 0) as Num;
+    const ml: Num = (Number.parseFloat(cs.marginLeft) || 0) as Num;
 
     return {
       tag: el.tagName.toLowerCase(),
@@ -4469,6 +4631,15 @@
         left: Math.round(rect.left),
       },
       styles,
+      attrs,
+      a11y,
+      breadcrumb: buildBreadcrumb(el, 6 as Num),
+      textContent,
+      boxModel: {
+        padding: { top: pt, right: pr, bottom: pb, left: pl },
+        margin: { top: mt, right: mr, bottom: mb, left: ml },
+        border: { top: bt, right: br, bottom: bb, left: bl },
+      },
     };
   }
 
@@ -4527,6 +4698,39 @@
       }, 1500);
     } catch (_) {
       /* Clipboard unavailable (iframe sandbox) — non-critical, silently ignore */
+    }
+  }
+
+  /** CSS color value regex — matches rgb(), rgba(), hsl(), hsla(), hex, and named colors. */
+  const CSS_COLOR_RE: RegExp =
+    /^(#[\da-f]{3,8}|rgba?\(\s*[\d.]+[%,\s]+[\d.]+[%,\s]+[\d.]+[%,\s/]*[\d.]*%?\s*\)|hsla?\(\s*[\d.]+(?:deg)?[,\s]+[\d.]+%[,\s]+[\d.]+%[,\s/]*[\d.]*%?\s*\))$/i;
+
+  /**
+   * Test if a CSS value is a color.
+   *
+   * @param val - CSS property value
+   * @returns True if the value looks like a color
+   */
+  function isCssColor(val: Str): Bool {
+    return CSS_COLOR_RE.test(val as string) as Bool;
+  }
+
+  /**
+   * Copy an inspect property to clipboard and flash feedback.
+   *
+   * @param cardKey - Card identifier
+   * @param prop - Property name
+   * @param val - Property value
+   */
+  async function copyInspectProp(cardKey: Str, prop: Str, val: Str): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(`${prop}: ${val}`);
+      cardInspectCopyFeedback[cardKey] = prop;
+      setTimeout((): Void => {
+        cardInspectCopyFeedback[cardKey] = '' as Str;
+      }, 1200);
+    } catch (_) {
+      /* Clipboard unavailable (iframe sandbox) — non-critical */
     }
   }
 
@@ -4965,6 +5169,8 @@
     cardMeasureActive[key] = false;
     cardInspectActive[key] = false;
     cardInspectedEl[key] = null;
+    cardInspectCollapsed[key] = {};
+    cardInspectCopyFeedback[key] = '' as Str;
     cardMeasureData[key] = null;
     cardConsoleOpen[key] = false;
     cardConsoleLogs[key] = [];
@@ -6446,7 +6652,7 @@
         )}
         {@render toolbarToggle(
           MousePointerClick,
-          'Inspect',
+          'Inspect — click any element to see its properties',
           cardInspectActive[cardKey] ?? false,
           () => {
             cardInspectActive[cardKey] = !cardInspectActive[cardKey];
@@ -9201,40 +9407,254 @@
     {/if}
     {#if cardInspectActive[cardKey] && cardInspectedEl[cardKey]}
       {@const el = cardInspectedEl[cardKey]}
+      {@const collapsed = cardInspectCollapsed[cardKey] ?? {}}
+      {@const copyFeedback = cardInspectCopyFeedback[cardKey] ?? ''}
       {#if el}
-        <div class="border-t bg-muted/30 px-3 py-2 text-xs" transition:slide={{ duration: 200 }}>
-          <div class="mb-1.5 flex items-center gap-2">
-            <code
-              class="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-primary"
-              >&lt;{el.tag}&gt;</code
-            >
-            {#if el.id}<code class="font-mono text-[10px] text-muted-foreground">#{el.id}</code
-              >{/if}
-            <span class="ml-auto font-mono text-[10px] text-muted-foreground"
-              >{el.rect.width} × {el.rect.height}px</span
-            >
-          </div>
-          {#if el.classes}
-            <div class="mb-1.5 flex flex-wrap gap-1">
-              {#each el.classes.split(' ').filter(Boolean) as cls (cls)}
-                <code
-                  class="rounded bg-muted px-1 py-0.5 font-mono text-[9px] text-muted-foreground"
-                  >.{cls}</code
-                >
-              {/each}
+        <div
+          class="max-h-80 overflow-y-auto border-t bg-muted/30 text-xs"
+          transition:slide={{ duration: 200 }}
+        >
+          <!-- Element header -->
+          <div class="sticky top-0 z-10 border-b bg-muted/50 px-3 py-2 backdrop-blur-sm">
+            <div class="mb-1 flex items-center gap-2">
+              <code
+                class="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-primary"
+                >&lt;{el.tag}&gt;</code
+              >
+              {#if el.id}<code class="font-mono text-[10px] text-muted-foreground">#{el.id}</code
+                >{/if}
+              <span class="ml-auto font-mono text-[10px] text-muted-foreground"
+                >{el.rect.width} × {el.rect.height}px</span
+              >
             </div>
-          {/if}
-          {#each Object.entries(el.styles) as [group, props] (group)}
-            <div class="mb-1">
-              <h5 class="mb-0.5 text-[10px] font-semibold text-muted-foreground">{group}</h5>
-              <div class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0">
-                {#each Object.entries(props) as [prop, val] (prop)}
-                  <span class="font-mono text-[10px] text-muted-foreground">{prop}</span>
-                  <span class="truncate font-mono text-[10px]">{val}</span>
+            <!-- Breadcrumb -->
+            <div
+              class="mb-1 truncate font-mono text-[9px] text-muted-foreground/60"
+              title={el.breadcrumb}
+            >
+              {el.breadcrumb}
+            </div>
+            <!-- Classes -->
+            {#if el.classes}
+              <div class="mb-1 flex flex-wrap gap-1">
+                {#each el.classes.split(' ').filter(Boolean) as cls (cls)}
+                  <code
+                    class="rounded bg-muted px-1 py-0.5 font-mono text-[9px] text-muted-foreground"
+                    >.{cls}</code
+                  >
                 {/each}
               </div>
+            {/if}
+            <!-- Text content preview -->
+            {#if el.textContent}
+              <div
+                class="truncate font-mono text-[9px] text-muted-foreground/50"
+                title={el.textContent}
+              >
+                "{el.textContent}"
+              </div>
+            {/if}
+          </div>
+
+          <div class="px-3 py-1.5">
+            <!-- Box model summary -->
+            <div class="mb-2 rounded border bg-muted/20 px-2 py-1.5">
+              <div class="grid grid-cols-3 gap-x-3 gap-y-0.5 text-[10px]">
+                <div>
+                  <span class="text-muted-foreground/60">margin</span>
+                  <span class="ml-1 font-mono"
+                    >{Math.round(el.boxModel.margin.top as number)}
+                    {Math.round(el.boxModel.margin.right as number)}
+                    {Math.round(el.boxModel.margin.bottom as number)}
+                    {Math.round(el.boxModel.margin.left as number)}</span
+                  >
+                </div>
+                <div>
+                  <span class="text-muted-foreground/60">padding</span>
+                  <span class="ml-1 font-mono"
+                    >{Math.round(el.boxModel.padding.top as number)}
+                    {Math.round(el.boxModel.padding.right as number)}
+                    {Math.round(el.boxModel.padding.bottom as number)}
+                    {Math.round(el.boxModel.padding.left as number)}</span
+                  >
+                </div>
+                <div>
+                  <span class="text-muted-foreground/60">border</span>
+                  <span class="ml-1 font-mono"
+                    >{Math.round(el.boxModel.border.top as number)}
+                    {Math.round(el.boxModel.border.right as number)}
+                    {Math.round(el.boxModel.border.bottom as number)}
+                    {Math.round(el.boxModel.border.left as number)}</span
+                  >
+                </div>
+              </div>
             </div>
-          {/each}
+
+            <!-- DOM Attributes section -->
+            {#if Object.keys(el.attrs).length > 0}
+              {@const attrCollapsed = collapsed['Attributes'] ?? false}
+              <div class="mb-1.5">
+                <button
+                  type="button"
+                  class="mb-0.5 flex w-full items-center gap-1 text-left transition-colors hover:text-foreground"
+                  onclick={() => {
+                    const c: Record<Str, Bool> = { ...collapsed };
+                    c['Attributes'] = !attrCollapsed as Bool;
+                    cardInspectCollapsed[cardKey] = c;
+                  }}
+                >
+                  <ChevronDown
+                    class={cn(
+                      'size-3 text-muted-foreground transition-transform',
+                      attrCollapsed && '-rotate-90',
+                    )}
+                    aria-hidden="true"
+                  />
+                  <span class="text-[10px] font-semibold text-muted-foreground">Attributes</span>
+                  <span class="text-[9px] text-muted-foreground/50"
+                    >{Object.keys(el.attrs).length}</span
+                  >
+                </button>
+                {#if !attrCollapsed}
+                  <div
+                    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0"
+                    transition:slide={{ duration: 150 }}
+                  >
+                    {#each Object.entries(el.attrs) as [prop, val] (prop)}
+                      <button
+                        type="button"
+                        class="col-span-2 grid grid-cols-subgrid rounded-sm px-0.5 transition-colors hover:bg-muted"
+                        onclick={() => copyInspectProp(cardKey, prop as Str, val as Str)}
+                        title="Click to copy"
+                      >
+                        <span class="font-mono text-[10px] text-violet-400">{prop}</span>
+                        <span class="break-all text-left font-mono text-[10px]">
+                          {#if copyFeedback === prop}
+                            <span class="text-green-500">Copied!</span>
+                          {:else}
+                            {val}
+                          {/if}
+                        </span>
+                      </button>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            {/if}
+
+            <!-- Accessibility section -->
+            {#if Object.keys(el.a11y).length > 0}
+              {@const a11yCollapsed = collapsed['Accessibility'] ?? false}
+              <div class="mb-1.5">
+                <button
+                  type="button"
+                  class="mb-0.5 flex w-full items-center gap-1 text-left transition-colors hover:text-foreground"
+                  onclick={() => {
+                    const c: Record<Str, Bool> = { ...collapsed };
+                    c['Accessibility'] = !a11yCollapsed as Bool;
+                    cardInspectCollapsed[cardKey] = c;
+                  }}
+                >
+                  <ChevronDown
+                    class={cn(
+                      'size-3 text-muted-foreground transition-transform',
+                      a11yCollapsed && '-rotate-90',
+                    )}
+                    aria-hidden="true"
+                  />
+                  <Accessibility class="size-3 text-muted-foreground" aria-hidden="true" />
+                  <span class="text-[10px] font-semibold text-muted-foreground">Accessibility</span>
+                  <span class="text-[9px] text-muted-foreground/50"
+                    >{Object.keys(el.a11y).length}</span
+                  >
+                </button>
+                {#if !a11yCollapsed}
+                  <div
+                    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0"
+                    transition:slide={{ duration: 150 }}
+                  >
+                    {#each Object.entries(el.a11y) as [prop, val] (prop)}
+                      <button
+                        type="button"
+                        class="col-span-2 grid grid-cols-subgrid rounded-sm px-0.5 transition-colors hover:bg-muted"
+                        onclick={() => copyInspectProp(cardKey, prop as Str, val as Str)}
+                        title="Click to copy"
+                      >
+                        <span class="font-mono text-[10px] text-emerald-400">{prop}</span>
+                        <span class="break-all text-left font-mono text-[10px]">
+                          {#if copyFeedback === prop}
+                            <span class="text-green-500">Copied!</span>
+                          {:else}
+                            {val}
+                          {/if}
+                        </span>
+                      </button>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            {/if}
+
+            <!-- CSS Style groups -->
+            {#each Object.entries(el.styles) as [group, props] (group)}
+              {@const groupCollapsed = collapsed[group] ?? false}
+              <div class="mb-1.5">
+                <button
+                  type="button"
+                  class="mb-0.5 flex w-full items-center gap-1 text-left transition-colors hover:text-foreground"
+                  onclick={() => {
+                    const c: Record<Str, Bool> = { ...collapsed };
+                    c[group] = !groupCollapsed as Bool;
+                    cardInspectCollapsed[cardKey] = c;
+                  }}
+                >
+                  <ChevronDown
+                    class={cn(
+                      'size-3 text-muted-foreground transition-transform',
+                      groupCollapsed && '-rotate-90',
+                    )}
+                    aria-hidden="true"
+                  />
+                  <span class="text-[10px] font-semibold text-muted-foreground">{group}</span>
+                  <span class="text-[9px] text-muted-foreground/50"
+                    >{Object.keys(props).length}</span
+                  >
+                </button>
+                {#if !groupCollapsed}
+                  <div
+                    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0"
+                    transition:slide={{ duration: 150 }}
+                  >
+                    {#each Object.entries(props) as [prop, val] (prop)}
+                      <button
+                        type="button"
+                        class="col-span-2 grid grid-cols-subgrid rounded-sm px-0.5 transition-colors hover:bg-muted"
+                        onclick={() => copyInspectProp(cardKey, prop as Str, val as Str)}
+                        title="Click to copy"
+                      >
+                        <span class="font-mono text-[10px] text-muted-foreground">{prop}</span>
+                        <span
+                          class="flex items-center gap-1 break-all text-left font-mono text-[10px]"
+                        >
+                          {#if copyFeedback === prop}
+                            <span class="text-green-500">Copied!</span>
+                          {:else}
+                            {#if isCssColor(val as Str)}
+                              <span
+                                class="inline-block size-2.5 shrink-0 rounded-sm border border-border/50"
+                                style="background-color: {val}"
+                              ></span>
+                            {/if}
+                            {val}
+                          {/if}
+                        </span>
+                      </button>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
         </div>
       {/if}
     {/if}
