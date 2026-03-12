@@ -43,6 +43,7 @@ export type LensHeaderProps = v.InferOutput<typeof LensHeaderPropsSchema>;
  * previous/next component navigation.
  */
 import type { Bool, Str, Void } from '@/schemas/common';
+import type { Component } from 'svelte';
 import { safeParse } from '@/utils/result/safe';
 import { toTitle, stripSvelteProps } from '../lens/lens-utils.js';
 import Badge from '../badge/badge.svelte';
@@ -63,6 +64,11 @@ import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 import ChevronRight from '@lucide/svelte/icons/chevron-right';
 import History from '@lucide/svelte/icons/history';
 import FileText from '@lucide/svelte/icons/file-text';
+import Download from '@lucide/svelte/icons/download';
+import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
+import Check from '@lucide/svelte/icons/check';
+import Search from '@lucide/svelte/icons/search';
+import SearchX from '@lucide/svelte/icons/search-x';
 
 const allProps: LensHeaderProps = $props();
 const validated: LensHeaderProps = $derived.by(() => {
@@ -112,6 +118,49 @@ function expandAll(): Void {
 /** Collapse all collapsible page sections. */
 function collapseAll(): Void {
 	document.dispatchEvent(new CustomEvent('lens:collapse-all'));
+}
+
+/* ------------------------------------------------------------------ */
+/*  Component page export                                              */
+/* ------------------------------------------------------------------ */
+
+/** Component page export format menu items. */
+const PAGE_EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: Component; category: Str }> = [
+	{ id: 'copy-json', label: 'Copy as JSON', icon: ClipboardCopy, category: 'Clipboard' },
+	{ id: 'copy-markdown', label: 'Copy as Markdown', icon: FileText, category: 'Clipboard' },
+	{ id: 'download-json', label: 'Download JSON', icon: Download, category: 'File' },
+	{ id: 'download-markdown', label: 'Download Markdown', icon: Download, category: 'File' },
+];
+
+/** Search query for page export menu filtering. */
+let pageExportSearchQuery: Str = $state('');
+
+/** Page export items filtered by search query. */
+const filteredPageExportItems: Array<{ id: Str; label: Str; icon: Component; category: Str }> = $derived(
+	pageExportSearchQuery.length === 0
+		? PAGE_EXPORT_ITEMS
+		: PAGE_EXPORT_ITEMS.filter((p) => p.label.toLowerCase().includes(pageExportSearchQuery.toLowerCase())),
+);
+
+/** Unique page export categories present after filtering. */
+const filteredPageExportCategories: Str[] = $derived(
+	[...new Set(filteredPageExportItems.map((p) => p.category))],
+);
+
+/** Feedback state for page export actions (stores format id briefly). */
+let pageExportFeedback: Str = $state('');
+
+/**
+ * Dispatch a page export event to the parent page.
+ *
+ * @param formatId - Export format identifier
+ */
+function handlePageExport(formatId: Str): Void {
+	document.dispatchEvent(new CustomEvent('lens:export', { detail: formatId }));
+	pageExportFeedback = formatId;
+	setTimeout((): Void => {
+		pageExportFeedback = '';
+	}, 2000);
 }
 </script>
 
@@ -194,6 +243,54 @@ function collapseAll(): Void {
 							Go to Changelog
 						</DropdownMenu.Item>
 					{/if}
+					<DropdownMenu.Separator />
+					<DropdownMenu.Sub
+						onOpenChange={(open) => {
+							if (open) pageExportSearchQuery = '';
+						}}
+					>
+						<DropdownMenu.SubTrigger>
+							<Download class="mr-2 size-4" />
+							Export
+						</DropdownMenu.SubTrigger>
+						<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+							<div class="shrink-0 px-2 pb-1.5 pt-1">
+								<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+									<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+									<input
+										type="text"
+										placeholder="Search formats..."
+										class="h-5 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
+										bind:value={pageExportSearchQuery}
+										onclick={(e) => e.stopPropagation()}
+										onkeydown={(e) => e.stopPropagation()}
+									/>
+								</div>
+							</div>
+							<div class="flex-1 overflow-y-auto">
+								{#if filteredPageExportItems.length === 0}
+									<div class="flex flex-col items-center gap-1 px-2 py-4 text-center">
+										<SearchX class="size-4 text-muted-foreground/40" />
+										<span class="text-xs text-muted-foreground/60">No formats match</span>
+									</div>
+								{:else}
+									{#each filteredPageExportCategories as category (category)}
+										<DropdownMenu.Label class="px-2 text-xs text-muted-foreground/60">{category}</DropdownMenu.Label>
+										{#each filteredPageExportItems.filter((p) => p.category === category) as item (item.id)}
+											<DropdownMenu.Item onclick={() => handlePageExport(item.id)}>
+												{#if pageExportFeedback === item.id}
+													<Check class="mr-2 size-4 text-green-500" />
+												{:else}
+													<item.icon class="mr-2 size-4" />
+												{/if}
+												{item.label}
+											</DropdownMenu.Item>
+										{/each}
+									{/each}
+								{/if}
+							</div>
+						</DropdownMenu.SubContent>
+					</DropdownMenu.Sub>
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item onclick={expandAll}>
 						<ChevronsUpDown class="mr-2 size-4" />

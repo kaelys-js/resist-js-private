@@ -127,7 +127,9 @@ import Terminal from '@lucide/svelte/icons/terminal';
 import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 import Trash2 from '@lucide/svelte/icons/trash-2';
 import FileText from '@lucide/svelte/icons/file-text';
+import FileArchive from '@lucide/svelte/icons/file-archive';
 import RefreshCw from '@lucide/svelte/icons/refresh-cw';
+import { zipSync, strToU8 } from 'fflate';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 import * as Popover from '../popover/index.js';
 import { exportPng, exportJpeg, exportSvg, exportWebp, copyImageToClipboard, copyHtml, copyDataUri, downloadHtml, downloadStandaloneHtml } from '../lens/export-utils.js';
@@ -3433,20 +3435,105 @@ async function handleScreenshotExport(capture: ScreenshotCapture, formatId: Str)
 	setTimeout((): Void => { screenshotExportFeedback = ''; }, 2000);
 }
 
+/** Export All screenshot format menu items. */
+const SCREENSHOT_EXPORT_ALL_ITEMS: Array<{ id: Str; label: Str; icon: Component; category: Str }> = [
+	{ id: 'zip-png', label: 'Download ZIP (PNG)', icon: FileArchive, category: 'File' },
+	{ id: 'zip-json', label: 'Download ZIP (JSON metadata)', icon: FileArchive, category: 'File' },
+	{ id: 'copy-all-json', label: 'Copy All as JSON', icon: Clipboard, category: 'Clipboard' },
+];
+
+/** Search query for screenshot export-all menu filtering. */
+let screenshotExportAllSearchQuery: Str = $state('');
+
+/** Export All items filtered by search query. */
+const filteredScreenshotExportAllItems: Array<{ id: Str; label: Str; icon: Component; category: Str }> = $derived(
+	screenshotExportAllSearchQuery.length === 0
+		? SCREENSHOT_EXPORT_ALL_ITEMS
+		: SCREENSHOT_EXPORT_ALL_ITEMS.filter((p) => p.label.toLowerCase().includes(screenshotExportAllSearchQuery.toLowerCase())),
+);
+
+/** Unique Export All categories present after filtering. */
+const filteredScreenshotExportAllCategories: Str[] = $derived(
+	[...new Set(filteredScreenshotExportAllItems.map((p) => p.category))],
+);
+
 /**
- * Export all screenshots for a card as individual downloads.
+ * Download a ZIP blob with the given filename.
+ *
+ * @param zipped - ZIP file contents as Uint8Array
+ * @param filename - Output filename for download
+ */
+function downloadZip(zipped: Uint8Array, filename: Str): void {
+	/* TS 5.7+ Uint8Array<ArrayBufferLike> → BlobPart requires .buffer cast */
+	const blob: Blob = new Blob([zipped.buffer as ArrayBuffer], { type: 'application/zip' });
+	const a: HTMLAnchorElement = document.createElement('a');
+	a.href = URL.createObjectURL(blob);
+	a.download = filename;
+	a.click();
+	URL.revokeObjectURL(a.href);
+}
+
+/**
+ * Export all screenshots for a card in the selected format.
  *
  * @param key - Card key
+ * @param formatId - Export format identifier
  */
-function handleScreenshotExportAll(key: Str): Void {
+async function handleScreenshotExportAll(key: Str, formatId: Str): Promise<void> {
 	const captures: ScreenshotCapture[] = cardScreenshots[key] ?? [];
-	for (const capture of captures) {
-		const a: HTMLAnchorElement = document.createElement('a');
-		a.href = capture.imageUrl;
-		a.download = `screenshot-${capture.browserDisplayName}-${capture.device}-${capture.timestamp}.png`;
-		a.click();
+	if (captures.length === 0) return;
+
+	/**
+	 * Fetch all capture blobs in parallel and return filename→data pairs.
+	 *
+	 * @returns Array of name→data pairs for each capture
+	 */
+	function fetchAllCaptures(): Promise<Array<{ name: Str; data: Uint8Array }>> {
+		return Promise.all(
+			captures.map(async (c: ScreenshotCapture): Promise<{ name: Str; data: Uint8Array }> => {
+				const response: Response = await fetch(c.imageUrl);
+				const buffer: ArrayBuffer = await response.arrayBuffer();
+				return {
+					name: `screenshot-${c.browserDisplayName}-${c.device}-${c.timestamp}.png` as Str,
+					data: new Uint8Array(buffer),
+				};
+			}),
+		);
 	}
-	screenshotExportFeedback = 'download-all';
+
+	/**
+	 * Build metadata JSON array from captures.
+	 *
+	 * @returns Array of metadata objects for each capture
+	 */
+	function buildMetadata(): Array<Record<string, unknown>> {
+		return captures.map((c: ScreenshotCapture) => ({
+			browser: c.browserDisplayName,
+			browserVersion: c.browserVersion,
+			device: c.device,
+			source: c.source,
+			timestamp: c.timestamp,
+			performance: c.performance,
+		}));
+	}
+
+	if (formatId === 'zip-png') {
+		const pairs: Array<{ name: Str; data: Uint8Array }> = await fetchAllCaptures();
+		const files: Record<string, Uint8Array> = Object.fromEntries(
+			pairs.map((p) => [p.name, p.data]),
+		);
+		downloadZip(zipSync(files), `screenshots-${key}.zip` as Str);
+	} else if (formatId === 'zip-json') {
+		const pairs: Array<{ name: Str; data: Uint8Array }> = await fetchAllCaptures();
+		const files: Record<string, Uint8Array> = Object.fromEntries([
+			['metadata.json', strToU8(JSON.stringify(buildMetadata(), null, 2))],
+			...pairs.map((p) => [p.name, p.data]),
+		]);
+		downloadZip(zipSync(files), `screenshots-${key}.zip` as Str);
+	} else if (formatId === 'copy-all-json') {
+		await navigator.clipboard.writeText(JSON.stringify(buildMetadata(), null, 2));
+	}
+	screenshotExportFeedback = formatId;
 	setTimeout((): Void => { screenshotExportFeedback = ''; }, 2000);
 }
 
@@ -6811,18 +6898,64 @@ function isIconOption(option: Str): boolean {
 								</button>
 							{/snippet}
 						</DropdownMenu.Trigger>
-						<DropdownMenu.Content align="end" class="w-48">
-							<DropdownMenu.Item
-								onclick={() => handleScreenshotExportAll(cardKey)}
-								disabled={(cardScreenshots[cardKey] ?? []).length === 0}
+						<DropdownMenu.Content align="end" class="w-52">
+							<DropdownMenu.Sub
+								onOpenChange={(open) => {
+									if (open) screenshotExportAllSearchQuery = '';
+								}}
 							>
-								{#if screenshotExportFeedback === 'download-all'}
-									<Check class="size-4 text-green-500" />
-								{:else}
+								<DropdownMenu.SubTrigger disabled={(cardScreenshots[cardKey] ?? []).length === 0}>
 									<Download class="size-4" />
-								{/if}
-								Export All
-							</DropdownMenu.Item>
+									Export All
+								</DropdownMenu.SubTrigger>
+								<DropdownMenu.SubContent class="flex max-h-80 w-56 flex-col overflow-hidden">
+									<div class="shrink-0 px-2 pb-1.5 pt-1">
+										<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+											<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+											<input
+												type="text"
+												placeholder="Search formats..."
+												class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+												bind:value={screenshotExportAllSearchQuery}
+												onkeydown={(e) => e.stopPropagation()}
+												onkeyup={(e) => e.stopPropagation()}
+												onkeypress={(e) => e.stopPropagation()}
+											/>
+										</div>
+									</div>
+									<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+										{#each filteredScreenshotExportAllCategories as category (category)}
+											{#if filteredScreenshotExportAllCategories.indexOf(category) > 0}
+												<DropdownMenu.Separator />
+											{/if}
+											<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+											{#each filteredScreenshotExportAllItems.filter((i) => i.category === category) as item (item.id)}
+												<DropdownMenu.Item
+													onSelect={(e) => {
+														e.preventDefault();
+														handleScreenshotExportAll(cardKey, item.id);
+													}}
+												>
+													{#if screenshotExportFeedback === item.id}
+														<Check class="size-4 text-green-500" />
+													{:else}
+														<item.icon class="size-4" />
+													{/if}
+													{item.label}
+												</DropdownMenu.Item>
+											{/each}
+										{:else}
+											<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+												<SearchX class="size-5" />
+												<div class="flex flex-col items-center gap-0.5">
+													<p class="text-xs font-medium">No formats found</p>
+													<p class="text-[11px]">Try a different search term</p>
+												</div>
+											</div>
+										{/each}
+									</div>
+								</DropdownMenu.SubContent>
+							</DropdownMenu.Sub>
 							<DropdownMenu.Separator />
 							<DropdownMenu.Item
 								onclick={() => {
