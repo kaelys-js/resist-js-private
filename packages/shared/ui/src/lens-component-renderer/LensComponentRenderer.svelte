@@ -1792,9 +1792,6 @@
   /** Search query for filtering text direction items. */
   let dirSearchQuery: Str = $state('');
 
-  /** Search query for filtering font size items. */
-  let fontSizeSearchQuery: Str = $state('');
-
   /**
    * Svelte action that locks an element's height to its initial rendered value.
    * Prevents dropdown SubContent from shrinking when search filtering reduces
@@ -2817,26 +2814,6 @@
   /* ------------------------------------------------------------------ */
   /*  Font size items                                                   */
   /* ------------------------------------------------------------------ */
-
-  /** Font size presets. */
-  const FONT_SIZE_PRESETS: Array<{ px: Num; label: Str }> = [
-    { px: 0, label: 'Default' },
-    { px: 12, label: '12px' },
-    { px: 14, label: '14px' },
-    { px: 16, label: '16px' },
-    { px: 18, label: '18px' },
-    { px: 20, label: '20px' },
-    { px: 24, label: '24px' },
-  ];
-
-  /** Font size presets filtered by search query. */
-  const filteredFontSizePresets: Array<{ px: Num; label: Str }> = $derived(
-    fontSizeSearchQuery.length === 0
-      ? FONT_SIZE_PRESETS
-      : FONT_SIZE_PRESETS.filter((p) =>
-          p.label.toLowerCase().includes(fontSizeSearchQuery.toLowerCase()),
-        ),
-  );
 
   /* ------------------------------------------------------------------ */
   /*  Export format items                                                */
