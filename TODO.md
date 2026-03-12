@@ -10,30 +10,29 @@ Several Issues (build-editor OR fix-bug if needed):
 ----
 
 Several Issues:
-- LensComponentRenderer Real Browser
-  - For Local:
-    - Live view from playwright (basically display a cloned variant card below with a badge in the header for current browser/etc) that clones exact state/interactivity
-      - We could stream playwright/ios/android engines to a canvas? And pass clicks between over websocket or something? or webrtc?
-      - After that: Live Diff between variants
-    - Screenshot comparison/diff view — Side-by-side or overlay comparison between browser engines, with pixel diff highlighting
-    - Batch capture — Capture screenshots across multiple browsers/devices in one action
-    - Screenshots: Export
-
+- 
 Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
+----
+Test:
+  Sidebar/LensHeader/Props/Dependencies/Changleog/Screenshot Exports
+  Variant Dropdown Menu (All Options)
 
-- pnpm qa:test, pnpm qa:type-check don't seem to have turbo?
-- BrowserRender: Real Devices (are iOS/Android Simulators and Playwright Enough?)
-- LensComponentRenderer Performance Statistics: Are they missing INP?
+- Real Browser
+  - Verify All Options Passed And Appear In Screenshot For Each Engine
+  - Screenshot Diff
+  - Live View
+    - Stream Engines To Canvas/WebRTC and use WebSockets To Pass Clicks/Keyboard/MouseEvents/Touch/etc from main card.. do you understand?
 - The Sidebar/CommandSearch components don't render right contained to preview (use playwright mcp any you will see what i mean)
+- Intelligent Automatic Examples Instead of examples/
+- Sidebar Component Entries:
+  - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the overall component?
 - Production/Cloudflare Concerns
   - The following will or will not work:
     - Bundle Size
     - Import Globbing For Components/etc
     - Global Search
     - Real Browser: Playwright/iOS/Android Engines
-- Intelligent Automatic Examples Instead of examples/
-- Sidebar Component Entries:
-  - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the overall component?
+- Notifications
 - Do the component conversions
 - Create Shared Components Following Existing Shared Components Supporting Lens System:
   - Dropdown Search Input
@@ -48,6 +47,7 @@ Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
   - LensHeader Icon
 - Fully localize
 
+----
 * Shaded Workspace Components
   * Devtoolbar
 
@@ -77,7 +77,6 @@ Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
   * Search Input: Autocomplete, Empty State, Clear
   * Swtich Toggle With Help Icon Tooltip/Feature Flag
   * Slider Pill With: Help Icon, Range, Unit, Min, Max, Step, Feature Flag, Custom Input w/ Validation
-
 * Move To Shared + Shared Workspace Logic
   * scripts/generate-icons.sh
   * Playwright Config
@@ -88,17 +87,13 @@ Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
   * DevToolbar
   * Dark Mode Toggle
   * ** REVIEW LIB **
-
 * For **.svelte -> Fix so CLAUDE.md code conventions are followed. Massive violations in those files.
 * For **.ts -> Fix so CLAUDE.md code conventions are followed. Massive violations in those files.
-
 * Breadcrumb header scrolling issue + frosted glass underneath
 * Component level error boundary (with fallback, retry, etc) and app level error boundary with full tests (unit/integration/e2e and manual testing path for me for component and app error boundaries) plus other suggestions for component/app error boundary component
-
 * Astro Islands but for Svelte
     https://github.com/11ty/is-land/blob/main/is-land.js (if relevant)
     https://github.com/ElMassimo/iles/blob/main/packages/iles/src/node/build/islands.ts (if relevant)
-
 * Benchmarks & Performance Tests
 * Full PWA Support
 * Capacitor
@@ -106,7 +101,6 @@ Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
   * iOS, Android, Mac, Windows, Linux
     * Full/Proper meta coverage, icon coverage, splash screen coverage
   * Application Menu Bar, Notifications, Suggest All Other Plugins
-
 * Sidebar Frosted Glass + Grainy Effect
 * Analytics
 * History Manager: Undo/Redo Any Action
