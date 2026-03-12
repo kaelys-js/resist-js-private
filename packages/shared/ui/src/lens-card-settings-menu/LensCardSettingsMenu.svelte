@@ -45,6 +45,8 @@
   import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
   import Wifi from '@lucide/svelte/icons/wifi';
   import WifiOff from '@lucide/svelte/icons/wifi-off';
+  import Signal from '@lucide/svelte/icons/signal';
+  import Satellite from '@lucide/svelte/icons/satellite';
   import Tablet from '@lucide/svelte/icons/tablet';
   import Eye from '@lucide/svelte/icons/eye';
   import Languages from '@lucide/svelte/icons/languages';
@@ -74,6 +76,8 @@
     zoom?: Num;
     /** Outline preset id, hex color, or 'none'. */
     outline?: Str;
+    /** Outline thickness in px (1-8). */
+    outlineThickness?: Num;
     /** Grid preset id, hex color, or 'none'. */
     grid?: Str;
     /** Grid cell size in px. */
@@ -141,6 +145,7 @@
   const activeBg: Str = $derived(active.bg ?? 'default');
   const activeZoom: Num = $derived(active.zoom ?? 1);
   const activeOutline: Str = $derived(active.outline ?? 'none');
+  const activeOutlineThickness: Num = $derived(active.outlineThickness ?? 1);
   const activeGrid: Str = $derived(active.grid ?? 'none');
   const activeGridFill: Str = $derived(active.gridFill ?? 'none');
   const activeOrientation: Str = $derived(active.orientation ?? 'default');
@@ -205,79 +210,309 @@
   /*  Preset constants                                                   */
   /* ------------------------------------------------------------------ */
 
-  /** Background color presets. */
-  const BG_PRESETS: Array<{ id: Str; label: Str; style: Str }> = [
-    { id: 'default', label: 'Default', style: '' },
-    { id: 'white', label: 'White', style: 'background-color: #ffffff' },
-    { id: 'light', label: 'Light', style: 'background-color: #f8f8f8' },
-    { id: 'light-gray', label: 'Light Gray', style: 'background-color: #e5e5e5' },
-    { id: 'medium-gray', label: 'Medium Gray', style: 'background-color: #a3a3a3' },
-    { id: 'dark-gray', label: 'Dark Gray', style: 'background-color: #404040' },
-    { id: 'near-black', label: 'Near Black', style: 'background-color: #1a1a1a' },
-    { id: 'black', label: 'Black', style: 'background-color: #000000' },
+  /** Background color presets with categories and descriptions. */
+  const BG_PRESETS: Array<{
+    /** Preset identifier. */
+    id: Str;
+    /** Display label. */
+    label: Str;
+    /** CSS inline style for the background. */
+    style: Str;
+    /** Hex value or pattern description. */
+    description: Str;
+    /** Grouping category. */
+    category: Str;
+  }> = [
+    {
+      id: 'default',
+      label: 'Default',
+      style: '',
+      description: 'Inherits from theme',
+      category: 'Solid',
+    },
+    {
+      id: 'white',
+      label: 'White',
+      style: 'background-color: #ffffff',
+      description: '#ffffff',
+      category: 'Solid',
+    },
+    {
+      id: 'light',
+      label: 'Light',
+      style: 'background-color: #f8f8f8',
+      description: '#f8f8f8',
+      category: 'Solid',
+    },
+    {
+      id: 'light-gray',
+      label: 'Light Gray',
+      style: 'background-color: #e5e5e5',
+      description: '#e5e5e5',
+      category: 'Solid',
+    },
+    {
+      id: 'medium-gray',
+      label: 'Medium Gray',
+      style: 'background-color: #a3a3a3',
+      description: '#a3a3a3',
+      category: 'Solid',
+    },
+    {
+      id: 'dark-gray',
+      label: 'Dark Gray',
+      style: 'background-color: #404040',
+      description: '#404040',
+      category: 'Solid',
+    },
+    {
+      id: 'near-black',
+      label: 'Near Black',
+      style: 'background-color: #1a1a1a',
+      description: '#1a1a1a',
+      category: 'Solid',
+    },
+    {
+      id: 'black',
+      label: 'Black',
+      style: 'background-color: #000000',
+      description: '#000000',
+      category: 'Solid',
+    },
     {
       id: 'checkerboard',
       label: 'Checkerboard',
       style:
         'background-image: repeating-conic-gradient(#d4d4d4 0% 25%, transparent 0% 50%); background-size: 16px 16px',
+      description: 'Transparency indicator',
+      category: 'Pattern',
     },
     {
       id: 'dot-grid',
       label: 'Dot Grid',
       style:
         'background-image: radial-gradient(circle, #d4d4d4 1px, transparent 1px); background-size: 16px 16px',
+      description: 'Alignment reference dots',
+      category: 'Pattern',
+    },
+    {
+      id: 'cross-hatch',
+      label: 'Cross Hatch',
+      style:
+        'background-image: linear-gradient(45deg, #d4d4d4 1px, transparent 1px), linear-gradient(-45deg, #d4d4d4 1px, transparent 1px); background-size: 12px 12px',
+      description: 'Diagonal cross pattern',
+      category: 'Pattern',
+    },
+    {
+      id: 'diagonal-stripes',
+      label: 'Diagonal Stripes',
+      style:
+        'background-image: repeating-linear-gradient(45deg, transparent, transparent 8px, #d4d4d4 8px, #d4d4d4 9px); background-size: 16px 16px',
+      description: '45° repeating lines',
+      category: 'Pattern',
+    },
+    {
+      id: 'horizontal-lines',
+      label: 'Horizontal Lines',
+      style:
+        'background-image: repeating-linear-gradient(0deg, transparent, transparent 7px, #d4d4d4 7px, #d4d4d4 8px)',
+      description: 'Ruled notebook lines',
+      category: 'Pattern',
+    },
+    {
+      id: 'graph-paper',
+      label: 'Graph Paper',
+      style:
+        'background-image: linear-gradient(#d4d4d4 1px, transparent 1px), linear-gradient(90deg, #d4d4d4 1px, transparent 1px); background-size: 16px 16px',
+      description: '16px square grid',
+      category: 'Pattern',
     },
   ];
 
-  /** Zoom level presets. */
-  const ZOOM_PRESETS: Array<{ value: Num; label: Str }> = [
-    { value: 0.25, label: '25%' },
-    { value: 0.5, label: '50%' },
-    { value: 0.75, label: '75%' },
-    { value: 1, label: '100%' },
-    { value: 1.25, label: '125%' },
-    { value: 1.5, label: '150%' },
-    { value: 2, label: '200%' },
-    { value: 3, label: '300%' },
-    { value: 4, label: '400%' },
+  /** Zoom level presets with descriptions. */
+  const ZOOM_PRESETS: Array<{
+    /** Zoom multiplier (1 = 100%). */
+    value: Num;
+    /** Display label. */
+    label: Str;
+    /** Brief description. */
+    description: Str;
+  }> = [
+    { value: 0.25, label: '25%', description: 'Quarter size' },
+    { value: 0.33, label: '33%', description: 'Third size' },
+    { value: 0.5, label: '50%', description: 'Half size' },
+    { value: 0.67, label: '67%', description: 'Two-thirds size' },
+    { value: 0.75, label: '75%', description: 'Three-quarters' },
+    { value: 1, label: '100%', description: 'Default — actual size' },
+    { value: 1.25, label: '125%', description: 'Slight magnification' },
+    { value: 1.5, label: '150%', description: '1.5\u00D7 magnification' },
+    { value: 1.75, label: '175%', description: 'Near double' },
+    { value: 2, label: '200%', description: 'Retina 2\u00D7' },
+    { value: 2.5, label: '250%', description: '2.5\u00D7 magnification' },
+    { value: 3, label: '300%', description: 'Retina 3\u00D7' },
+    { value: 4, label: '400%', description: 'Extreme zoom' },
+    { value: 5, label: '500%', description: 'Maximum zoom' },
   ];
 
   /** Zoom limits. */
   const ZOOM_STEP: Num = 0.25;
   const ZOOM_MIN: Num = 0.25;
-  const ZOOM_MAX: Num = 4;
+  const ZOOM_MAX: Num = 5;
 
-  /** Outline color presets. */
-  const OUTLINE_PRESETS: Array<{ id: Str; label: Str; color: Str }> = [
-    { id: 'red', label: 'Red', color: 'rgba(239, 68, 68, 0.25)' },
-    { id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.35)' },
-    { id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.35)' },
-    { id: 'yellow', label: 'Yellow', color: 'rgba(234, 179, 8, 0.35)' },
-    { id: 'white', label: 'White', color: 'rgba(255, 255, 255, 0.5)' },
-    { id: 'black', label: 'Black', color: 'rgba(0, 0, 0, 0.25)' },
+  /** Outline color presets with categories and RGBA descriptions. */
+  const OUTLINE_PRESETS: Array<{
+    /** Preset identifier. */
+    id: Str;
+    /** Display label. */
+    label: Str;
+    /** CSS rgba color value. */
+    color: Str;
+    /** RGBA value description. */
+    description: Str;
+    /** Grouping category. */
+    category: Str;
+  }> = [
+    {
+      id: 'red',
+      label: 'Red',
+      color: 'rgba(239, 68, 68, 0.25)',
+      description: 'rgba(239, 68, 68, 0.25)',
+      category: 'Warm',
+    },
+    {
+      id: 'orange',
+      label: 'Orange',
+      color: 'rgba(249, 115, 22, 0.3)',
+      description: 'rgba(249, 115, 22, 0.3)',
+      category: 'Warm',
+    },
+    {
+      id: 'yellow',
+      label: 'Yellow',
+      color: 'rgba(234, 179, 8, 0.35)',
+      description: 'rgba(234, 179, 8, 0.35)',
+      category: 'Warm',
+    },
+    {
+      id: 'pink',
+      label: 'Pink',
+      color: 'rgba(236, 72, 153, 0.3)',
+      description: 'rgba(236, 72, 153, 0.3)',
+      category: 'Warm',
+    },
+    {
+      id: 'blue',
+      label: 'Blue',
+      color: 'rgba(59, 130, 246, 0.35)',
+      description: 'rgba(59, 130, 246, 0.35)',
+      category: 'Cool',
+    },
+    {
+      id: 'cyan',
+      label: 'Cyan',
+      color: 'rgba(6, 182, 212, 0.3)',
+      description: 'rgba(6, 182, 212, 0.3)',
+      category: 'Cool',
+    },
+    {
+      id: 'teal',
+      label: 'Teal',
+      color: 'rgba(20, 184, 166, 0.3)',
+      description: 'rgba(20, 184, 166, 0.3)',
+      category: 'Cool',
+    },
+    {
+      id: 'green',
+      label: 'Green',
+      color: 'rgba(34, 197, 94, 0.35)',
+      description: 'rgba(34, 197, 94, 0.35)',
+      category: 'Cool',
+    },
+    {
+      id: 'purple',
+      label: 'Purple',
+      color: 'rgba(168, 85, 247, 0.3)',
+      description: 'rgba(168, 85, 247, 0.3)',
+      category: 'Accent',
+    },
+    {
+      id: 'lime',
+      label: 'Lime',
+      color: 'rgba(132, 204, 22, 0.3)',
+      description: 'rgba(132, 204, 22, 0.3)',
+      category: 'Accent',
+    },
+    {
+      id: 'white',
+      label: 'White',
+      color: 'rgba(255, 255, 255, 0.5)',
+      description: 'rgba(255, 255, 255, 0.5)',
+      category: 'Neutral',
+    },
+    {
+      id: 'black',
+      label: 'Black',
+      color: 'rgba(0, 0, 0, 0.25)',
+      description: 'rgba(0, 0, 0, 0.25)',
+      category: 'Neutral',
+    },
   ];
 
   /** Default grid cell size in px. */
   const GRID_DEFAULT_SIZE: Num = 16;
 
-  /** Grid line color presets. */
-  const GRID_PRESETS: Array<{ id: Str; label: Str; color: Str }> = [
-    { id: 'light', label: 'Light', color: 'rgba(0, 0, 0, 0.06)' },
-    { id: 'medium', label: 'Medium', color: 'rgba(0, 0, 0, 0.12)' },
-    { id: 'dark', label: 'Dark', color: 'rgba(0, 0, 0, 0.25)' },
-    { id: 'red', label: 'Red', color: 'rgba(239, 68, 68, 0.15)' },
-    { id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.2)' },
-    { id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.2)' },
+  /** Grid line color presets with RGBA descriptions. */
+  const GRID_PRESETS: Array<{
+    /** Preset identifier. */
+    id: Str;
+    /** Display label. */
+    label: Str;
+    /** CSS rgba color value. */
+    color: Str;
+    /** RGBA value description. */
+    description: Str;
+  }> = [
+    { id: 'light', label: 'Light', color: 'rgba(0, 0, 0, 0.06)', description: '6% black' },
+    { id: 'medium', label: 'Medium', color: 'rgba(0, 0, 0, 0.12)', description: '12% black' },
+    { id: 'dark', label: 'Dark', color: 'rgba(0, 0, 0, 0.25)', description: '25% black' },
+    { id: 'red', label: 'Red', color: 'rgba(239, 68, 68, 0.15)', description: '15% opacity' },
+    {
+      id: 'orange',
+      label: 'Orange',
+      color: 'rgba(249, 115, 22, 0.15)',
+      description: '15% opacity',
+    },
+    { id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.2)', description: '20% opacity' },
+    { id: 'cyan', label: 'Cyan', color: 'rgba(6, 182, 212, 0.15)', description: '15% opacity' },
+    { id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.2)', description: '20% opacity' },
+    {
+      id: 'purple',
+      label: 'Purple',
+      color: 'rgba(168, 85, 247, 0.15)',
+      description: '15% opacity',
+    },
   ];
 
-  /** Grid fill color presets. */
-  const GRID_FILL_PRESETS: Array<{ id: Str; label: Str; color: Str }> = [
-    { id: 'white', label: 'White', color: 'rgba(255, 255, 255, 0.5)' },
-    { id: 'black', label: 'Black', color: 'rgba(0, 0, 0, 0.3)' },
-    { id: 'red', label: 'Red', color: 'rgba(239, 68, 68, 0.08)' },
-    { id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.08)' },
-    { id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.08)' },
-    { id: 'yellow', label: 'Yellow', color: 'rgba(234, 179, 8, 0.08)' },
+  /** Grid fill color presets with RGBA descriptions. */
+  const GRID_FILL_PRESETS: Array<{
+    /** Preset identifier. */
+    id: Str;
+    /** Display label. */
+    label: Str;
+    /** CSS rgba color value. */
+    color: Str;
+    /** RGBA value description. */
+    description: Str;
+  }> = [
+    { id: 'white', label: 'White', color: 'rgba(255, 255, 255, 0.5)', description: '50% white' },
+    { id: 'black', label: 'Black', color: 'rgba(0, 0, 0, 0.3)', description: '30% black' },
+    { id: 'red', label: 'Red', color: 'rgba(239, 68, 68, 0.08)', description: '8% opacity' },
+    { id: 'orange', label: 'Orange', color: 'rgba(249, 115, 22, 0.08)', description: '8% opacity' },
+    { id: 'blue', label: 'Blue', color: 'rgba(59, 130, 246, 0.08)', description: '8% opacity' },
+    { id: 'cyan', label: 'Cyan', color: 'rgba(6, 182, 212, 0.08)', description: '8% opacity' },
+    { id: 'green', label: 'Green', color: 'rgba(34, 197, 94, 0.08)', description: '8% opacity' },
+    { id: 'purple', label: 'Purple', color: 'rgba(168, 85, 247, 0.08)', description: '8% opacity' },
+    { id: 'yellow', label: 'Yellow', color: 'rgba(234, 179, 8, 0.08)', description: '8% opacity' },
   ];
 
   /** Orientation presets grouped by type. */
@@ -379,71 +614,274 @@
     },
   ];
 
-  /** Color mode presets. */
-  const MODE_PRESETS: Array<{ id: Str; label: Str; icon: Component }> = [
-    { id: 'auto', label: 'Auto (inherit)', icon: Monitor },
-    { id: 'light', label: 'Light', icon: Sun },
-    { id: 'dark', label: 'Dark', icon: Moon },
-  ];
-
-  /** Theme presets. */
-  const THEME_PRESETS: Array<{ id: Str; label: Str; dot: Str }> = [
-    { id: '', label: 'Default (inherit)', dot: '' },
-    { id: 'midnight', label: 'Midnight', dot: 'oklch(0.55 0.22 260)' },
-    { id: 'warm', label: 'Warm', dot: 'oklch(0.50 0.16 50)' },
-    { id: 'forest', label: 'Forest', dot: 'oklch(0.50 0.16 155)' },
-    { id: 'ocean', label: 'Ocean', dot: 'oklch(0.52 0.15 200)' },
-    { id: 'rose', label: 'Rose', dot: 'oklch(0.55 0.18 350)' },
-    { id: 'lavender', label: 'Lavender', dot: 'oklch(0.52 0.20 290)' },
-    { id: 'sunset', label: 'Sunset', dot: 'oklch(0.55 0.20 30)' },
-    { id: 'slate', label: 'Slate', dot: 'oklch(0.48 0.08 240)' },
-    { id: 'copper', label: 'Copper', dot: 'oklch(0.52 0.16 60)' },
-    { id: 'aurora', label: 'Aurora', dot: 'oklch(0.52 0.15 170)' },
-    { id: 'amethyst', label: 'Amethyst', dot: 'oklch(0.52 0.22 310)' },
-  ];
-
-  /** Media query preference groups. */
-  const MEDIA_PREF_GROUPS: Array<{
-    pref: Str;
+  /** Color mode presets with descriptions and CSS query info. */
+  const MODE_PRESETS: Array<{
+    /** Preset identifier. */
+    id: Str;
+    /** Display label. */
     label: Str;
+    /** Lucide icon component. */
+    icon: Component;
+    /** Brief description. */
+    description: Str;
+    /** CSS media query reference. */
+    query: Str;
+  }> = [
+    {
+      id: 'auto',
+      label: 'Auto',
+      icon: Monitor,
+      description: 'Follows system preference',
+      query: 'prefers-color-scheme',
+    },
+    {
+      id: 'light',
+      label: 'Light',
+      icon: Sun,
+      description: 'Forces light color scheme',
+      query: 'prefers-color-scheme: light',
+    },
+    {
+      id: 'dark',
+      label: 'Dark',
+      icon: Moon,
+      description: 'Forces dark color scheme',
+      query: 'prefers-color-scheme: dark',
+    },
+    {
+      id: 'high-contrast',
+      label: 'High Contrast',
+      icon: Sun,
+      description: 'Maximized contrast for accessibility',
+      query: 'prefers-contrast: more',
+    },
+  ];
+
+  /** Theme presets with descriptions and categories. */
+  const THEME_PRESETS: Array<{
+    /** Preset identifier. */
+    id: Str;
+    /** Display label. */
+    label: Str;
+    /** Color dot CSS value. */
+    dot: Str;
+    /** Brief description. */
+    description: Str;
+    /** Category for grouped display. */
+    category: Str;
+  }> = [
+    {
+      id: '',
+      label: 'Default',
+      dot: '',
+      description: 'Inherits from system theme',
+      category: 'Base',
+    },
+    {
+      id: 'midnight',
+      label: 'Midnight',
+      dot: 'oklch(0.55 0.22 260)',
+      description: 'Deep blues and indigo tones',
+      category: 'Cool',
+    },
+    {
+      id: 'ocean',
+      label: 'Ocean',
+      dot: 'oklch(0.52 0.15 200)',
+      description: 'Calm aquatic blues',
+      category: 'Cool',
+    },
+    {
+      id: 'slate',
+      label: 'Slate',
+      dot: 'oklch(0.48 0.08 240)',
+      description: 'Subtle blue-grey neutrals',
+      category: 'Cool',
+    },
+    {
+      id: 'warm',
+      label: 'Warm',
+      dot: 'oklch(0.50 0.16 50)',
+      description: 'Amber and earth tones',
+      category: 'Warm',
+    },
+    {
+      id: 'sunset',
+      label: 'Sunset',
+      dot: 'oklch(0.55 0.20 30)',
+      description: 'Orange and golden hues',
+      category: 'Warm',
+    },
+    {
+      id: 'copper',
+      label: 'Copper',
+      dot: 'oklch(0.52 0.16 60)',
+      description: 'Rich metallic bronze',
+      category: 'Warm',
+    },
+    {
+      id: 'rose',
+      label: 'Rose',
+      dot: 'oklch(0.55 0.18 350)',
+      description: 'Soft pinks and magentas',
+      category: 'Vivid',
+    },
+    {
+      id: 'lavender',
+      label: 'Lavender',
+      dot: 'oklch(0.52 0.20 290)',
+      description: 'Purple and violet accents',
+      category: 'Vivid',
+    },
+    {
+      id: 'amethyst',
+      label: 'Amethyst',
+      dot: 'oklch(0.52 0.22 310)',
+      description: 'Deep purple gemstone tones',
+      category: 'Vivid',
+    },
+    {
+      id: 'forest',
+      label: 'Forest',
+      dot: 'oklch(0.50 0.16 155)',
+      description: 'Natural greens and moss',
+      category: 'Vivid',
+    },
+    {
+      id: 'aurora',
+      label: 'Aurora',
+      dot: 'oklch(0.52 0.15 170)',
+      description: 'Northern lights teal-green',
+      category: 'Vivid',
+    },
+  ];
+
+  /** Media query preference groups with descriptions and CSS query names. */
+  const MEDIA_PREF_GROUPS: Array<{
+    /** CSS media feature name. */
+    pref: Str;
+    /** Display label. */
+    label: Str;
+    /** What this preference controls. */
+    description: Str;
+    /** CSS media query syntax. */
+    query: Str;
+    /** Default/neutral value. */
     defaultValue: Str;
-    options: Array<{ value: Str; label: Str }>;
+    /** Available options with descriptions. */
+    options: Array<{ value: Str; label: Str; description: Str }>;
   }> = [
     {
       pref: 'reduced-motion',
       label: 'Reduced Motion',
+      description: 'Controls animation and transition behavior',
+      query: 'prefers-reduced-motion',
       defaultValue: 'no-preference',
       options: [
-        { value: 'no-preference', label: 'No Preference' },
-        { value: 'reduce', label: 'Reduce' },
+        { value: 'no-preference', label: 'No Preference', description: 'Animations play normally' },
+        { value: 'reduce', label: 'Reduce', description: 'Disables animations and transitions' },
       ],
     },
     {
       pref: 'contrast',
       label: 'Contrast',
+      description: 'Adjusts contrast level for readability',
+      query: 'prefers-contrast',
       defaultValue: 'no-preference',
       options: [
-        { value: 'no-preference', label: 'No Preference' },
-        { value: 'more', label: 'More' },
-        { value: 'less', label: 'Less' },
+        { value: 'no-preference', label: 'No Preference', description: 'Default contrast levels' },
+        { value: 'more', label: 'More', description: 'Increase contrast between colors' },
+        { value: 'less', label: 'Less', description: 'Decrease contrast for comfort' },
       ],
     },
     {
       pref: 'reduced-transparency',
       label: 'Reduced Transparency',
+      description: 'Controls translucent overlay behavior',
+      query: 'prefers-reduced-transparency',
       defaultValue: 'no-preference',
       options: [
-        { value: 'no-preference', label: 'No Preference' },
-        { value: 'reduce', label: 'Reduce' },
+        {
+          value: 'no-preference',
+          label: 'No Preference',
+          description: 'Transparency effects enabled',
+        },
+        { value: 'reduce', label: 'Reduce', description: 'Replace translucent with opaque' },
       ],
     },
     {
       pref: 'forced-colors',
       label: 'Forced Colors',
+      description: 'Simulates Windows High Contrast mode',
+      query: 'forced-colors',
       defaultValue: 'none',
       options: [
-        { value: 'none', label: 'None' },
-        { value: 'active', label: 'Active' },
+        { value: 'none', label: 'None', description: 'Colors render as authored' },
+        { value: 'active', label: 'Active', description: 'System-enforced color palette' },
+      ],
+    },
+    {
+      pref: 'color-scheme',
+      label: 'Color Scheme',
+      description: 'Light or dark appearance preference',
+      query: 'prefers-color-scheme',
+      defaultValue: 'no-preference',
+      options: [
+        { value: 'no-preference', label: 'No Preference', description: 'No explicit preference' },
+        { value: 'light', label: 'Light', description: 'Prefers light backgrounds' },
+        { value: 'dark', label: 'Dark', description: 'Prefers dark backgrounds' },
+      ],
+    },
+    {
+      pref: 'color-gamut',
+      label: 'Color Gamut',
+      description: 'Simulates display color range capability',
+      query: 'color-gamut',
+      defaultValue: 'no-preference',
+      options: [
+        { value: 'no-preference', label: 'No Preference', description: 'Default display gamut' },
+        { value: 'srgb', label: 'sRGB', description: 'Standard gamut (most displays)' },
+        { value: 'p3', label: 'Display P3', description: 'Wide gamut (modern phones/Macs)' },
+        { value: 'rec2020', label: 'Rec. 2020', description: 'Ultra-wide gamut (HDR displays)' },
+      ],
+    },
+    {
+      pref: 'inverted-colors',
+      label: 'Inverted Colors',
+      description: 'Simulates OS-level color inversion',
+      query: 'inverted-colors',
+      defaultValue: 'none',
+      options: [
+        { value: 'none', label: 'None', description: 'Colors render normally' },
+        { value: 'inverted', label: 'Inverted', description: 'All colors are inverted' },
+      ],
+    },
+    {
+      pref: 'reduced-data',
+      label: 'Reduced Data',
+      description: 'User prefers less data usage',
+      query: 'prefers-reduced-data',
+      defaultValue: 'no-preference',
+      options: [
+        { value: 'no-preference', label: 'No Preference', description: 'Load all assets normally' },
+        { value: 'reduce', label: 'Reduce', description: 'Minimize data transfer' },
+      ],
+    },
+    {
+      pref: 'display-mode',
+      label: 'Display Mode',
+      description: 'Simulates PWA display context',
+      query: 'display-mode',
+      defaultValue: 'browser',
+      options: [
+        { value: 'browser', label: 'Browser', description: 'Standard browser tab with UI chrome' },
+        { value: 'standalone', label: 'Standalone', description: 'App-like window, no browser UI' },
+        { value: 'fullscreen', label: 'Fullscreen', description: 'Fills entire screen, no chrome' },
+        {
+          value: 'minimal-ui',
+          label: 'Minimal UI',
+          description: 'Browser with minimal navigation',
+        },
       ],
     },
   ];
@@ -456,7 +894,13 @@
     description: Str;
     category: Str;
   }> = [
-    { id: 'none', label: 'No throttling', delay: 0, description: '', category: '' },
+    {
+      id: 'none',
+      label: 'No throttling',
+      delay: 0,
+      description: 'Full speed, no artificial delay',
+      category: '',
+    },
     {
       id: 'gprs',
       label: 'GPRS',
@@ -1021,10 +1465,148 @@
   ];
 
   /** Text direction presets. */
-  const DIR_PRESETS: Array<{ id: Str; label: Str }> = [
-    { id: 'auto', label: 'Auto' },
-    { id: 'ltr', label: 'LTR (Left to Right)' },
-    { id: 'rtl', label: 'RTL (Right to Left)' },
+  const DIR_PRESETS: Array<{
+    /** Unique item identifier. */
+    id: Str;
+    /** Direction value applied to the component (auto, ltr, rtl, inherit). */
+    dir: Str;
+    /** Display label. */
+    label: Str;
+    /** What this direction does. */
+    description: Str;
+    /** Example languages/scripts. */
+    examples: Str;
+    /** Flow arrow indicator. */
+    arrow: Str;
+    /** Grouping category. */
+    category: Str;
+  }> = [
+    {
+      id: 'auto',
+      dir: 'auto',
+      label: 'Auto',
+      description: 'Browser detects from content',
+      examples: 'Unicode Bidi Algorithm',
+      arrow: '↔',
+      category: 'Base',
+    },
+    {
+      id: 'ltr',
+      dir: 'ltr',
+      label: 'LTR',
+      description: 'Left-to-right text flow',
+      examples: 'Most Western languages',
+      arrow: '→',
+      category: 'Base',
+    },
+    {
+      id: 'rtl',
+      dir: 'rtl',
+      label: 'RTL',
+      description: 'Right-to-left text flow',
+      examples: 'Arabic, Hebrew, Persian',
+      arrow: '←',
+      category: 'Base',
+    },
+    {
+      id: 'inherit',
+      dir: 'inherit',
+      label: 'Inherit',
+      description: 'Inherit from parent element',
+      examples: 'Matches container direction',
+      arrow: '↕',
+      category: 'Base',
+    },
+    {
+      id: 'ltr-latin',
+      dir: 'ltr',
+      label: 'Latin',
+      description: 'Western European scripts',
+      examples: 'English, French, German, Spanish, Portuguese',
+      arrow: '→',
+      category: 'LTR Scripts',
+    },
+    {
+      id: 'ltr-cyrillic',
+      dir: 'ltr',
+      label: 'Cyrillic',
+      description: 'Eastern European & Central Asian',
+      examples: 'Russian, Ukrainian, Bulgarian, Serbian',
+      arrow: '→',
+      category: 'LTR Scripts',
+    },
+    {
+      id: 'ltr-cjk',
+      dir: 'ltr',
+      label: 'CJK Horizontal',
+      description: 'East Asian horizontal layout',
+      examples: 'Chinese, Japanese, Korean',
+      arrow: '→',
+      category: 'LTR Scripts',
+    },
+    {
+      id: 'ltr-devanagari',
+      dir: 'ltr',
+      label: 'Devanagari',
+      description: 'South Asian Indic scripts',
+      examples: 'Hindi, Sanskrit, Marathi, Nepali',
+      arrow: '→',
+      category: 'LTR Scripts',
+    },
+    {
+      id: 'ltr-thai',
+      dir: 'ltr',
+      label: 'Thai / Khmer',
+      description: 'Southeast Asian scripts',
+      examples: 'Thai, Cambodian, Lao',
+      arrow: '→',
+      category: 'LTR Scripts',
+    },
+    {
+      id: 'ltr-greek',
+      dir: 'ltr',
+      label: 'Greek',
+      description: 'Hellenic script',
+      examples: 'Modern Greek, Ancient Greek',
+      arrow: '→',
+      category: 'LTR Scripts',
+    },
+    {
+      id: 'rtl-arabic',
+      dir: 'rtl',
+      label: 'Arabic',
+      description: 'Arabic script family',
+      examples: 'Arabic, Urdu, Pashto, Sindhi',
+      arrow: '←',
+      category: 'RTL Scripts',
+    },
+    {
+      id: 'rtl-hebrew',
+      dir: 'rtl',
+      label: 'Hebrew',
+      description: 'Hebrew script',
+      examples: 'Hebrew, Yiddish, Ladino',
+      arrow: '←',
+      category: 'RTL Scripts',
+    },
+    {
+      id: 'rtl-persian',
+      dir: 'rtl',
+      label: 'Persian / Farsi',
+      description: 'Persian script variant',
+      examples: 'Persian, Dari, Tajik',
+      arrow: '←',
+      category: 'RTL Scripts',
+    },
+    {
+      id: 'rtl-syriac',
+      dir: 'rtl',
+      label: 'Syriac / Thaana',
+      description: 'Historic & island RTL scripts',
+      examples: 'Syriac, Dhivehi (Maldivian)',
+      arrow: '←',
+      category: 'RTL Scripts',
+    },
   ];
 
   /** Font size presets organized by typographic category. */
@@ -1083,6 +1665,7 @@
   /*  Search state                                                       */
   /* ------------------------------------------------------------------ */
 
+  let zoomSearchQuery: Str = $state('');
   let bgSearchQuery: Str = $state('');
   let outlineSearchQuery: Str = $state('');
   let gridSearchQuery: Str = $state('');
@@ -1101,23 +1684,78 @@
   /*  Filtered derivations                                               */
   /* ------------------------------------------------------------------ */
 
+  const filteredZoomPresets = $derived(
+    zoomSearchQuery.length === 0
+      ? ZOOM_PRESETS
+      : ZOOM_PRESETS.filter((p) => {
+          const q: Str = zoomSearchQuery.toLowerCase() as Str;
+          return p.label.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
+        }),
+  );
   const filteredBgPresets = $derived(
     bgSearchQuery.length === 0
       ? BG_PRESETS
-      : BG_PRESETS.filter((p) => p.label.toLowerCase().includes(bgSearchQuery.toLowerCase())),
+      : BG_PRESETS.filter((p) => {
+          const q: Str = bgSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.category.toLowerCase().includes(q)
+          );
+        }),
   );
+  const filteredBgCategories: Str[] = $derived([
+    ...new Set(filteredBgPresets.map((p) => p.category)),
+  ]);
+  const activeBgLabel: Str = $derived.by((): Str => {
+    if (activeBg === 'default') return '' as Str;
+    if (activeBg.startsWith('#')) return activeBg as Str;
+    const preset = BG_PRESETS.find((p) => p.id === activeBg);
+    return preset ? (preset.label as Str) : ('' as Str);
+  });
   const filteredOutlinePresets = $derived(
     outlineSearchQuery.length === 0
       ? OUTLINE_PRESETS
-      : OUTLINE_PRESETS.filter((p) =>
-          p.label.toLowerCase().includes(outlineSearchQuery.toLowerCase()),
-        ),
+      : OUTLINE_PRESETS.filter((p) => {
+          const q: Str = outlineSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.category.toLowerCase().includes(q)
+          );
+        }),
   );
+  const filteredOutlineCategories: Str[] = $derived([
+    ...new Set(filteredOutlinePresets.map((p) => p.category)),
+  ]);
+  const activeOutlineLabel: Str = $derived.by((): Str => {
+    if (activeOutline === 'none') return '' as Str;
+    if (activeOutline.startsWith('#')) return activeOutline as Str;
+    const preset = OUTLINE_PRESETS.find((p) => p.id === activeOutline);
+    return preset ? (preset.label as Str) : ('' as Str);
+  });
   const filteredGridPresets = $derived(
     gridSearchQuery.length === 0
       ? GRID_PRESETS
-      : GRID_PRESETS.filter((p) => p.label.toLowerCase().includes(gridSearchQuery.toLowerCase())),
+      : GRID_PRESETS.filter((p) => {
+          const q: Str = gridSearchQuery.toLowerCase() as Str;
+          return p.label.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
+        }),
   );
+  const filteredGridFillPresets = $derived(
+    gridSearchQuery.length === 0
+      ? GRID_FILL_PRESETS
+      : GRID_FILL_PRESETS.filter((p) => {
+          const q: Str = gridSearchQuery.toLowerCase() as Str;
+          return p.label.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
+        }),
+  );
+  const activeGridLabel: Str = $derived.by((): Str => {
+    if (activeGrid === 'none') return '' as Str;
+    if (activeGrid.startsWith('#')) return activeGrid as Str;
+    const preset = GRID_PRESETS.find((p) => p.id === activeGrid);
+    return preset ? (preset.label as Str) : ('' as Str);
+  });
   const filteredOrientationPresets = $derived(
     orientationSearchQuery.length === 0
       ? ORIENTATION_PRESETS
@@ -1136,33 +1774,83 @@
   const filteredModePresets = $derived(
     modeSearchQuery.length === 0
       ? MODE_PRESETS
-      : MODE_PRESETS.filter((p) => p.label.toLowerCase().includes(modeSearchQuery.toLowerCase())),
+      : MODE_PRESETS.filter((p) => {
+          const q: Str = modeSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.query.toLowerCase().includes(q)
+          );
+        }),
   );
+  const activeModeLabel: Str = $derived.by((): Str => {
+    if (activeMode === 'auto') return '' as Str;
+    const preset = MODE_PRESETS.find((p) => p.id === activeMode);
+    return preset ? (preset.label as Str) : ('' as Str);
+  });
   const filteredThemePresets = $derived(
     themeSearchQuery.length === 0
       ? THEME_PRESETS
-      : THEME_PRESETS.filter((p) => p.label.toLowerCase().includes(themeSearchQuery.toLowerCase())),
+      : THEME_PRESETS.filter((p) => {
+          const q: Str = themeSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.category.toLowerCase().includes(q)
+          );
+        }),
   );
+  const filteredThemeCategories: Str[] = $derived([
+    ...new Set(filteredThemePresets.map((p) => p.category)),
+  ]);
+  const activeThemeLabel: Str = $derived.by((): Str => {
+    if (activeTheme === '') return '' as Str;
+    const preset = THEME_PRESETS.find((p) => p.id === activeTheme);
+    return preset ? (preset.label as Str) : ('' as Str);
+  });
   const filteredMediaPrefGroups = $derived(
     mediaPrefSearchQuery.length === 0
       ? MEDIA_PREF_GROUPS
-      : MEDIA_PREF_GROUPS.filter(
-          (g) =>
-            g.label.toLowerCase().includes(mediaPrefSearchQuery.toLowerCase()) ||
-            g.options.some((o) =>
-              o.label.toLowerCase().includes(mediaPrefSearchQuery.toLowerCase()),
-            ),
-        ),
+      : MEDIA_PREF_GROUPS.filter((g) => {
+          const q: Str = mediaPrefSearchQuery.toLowerCase() as Str;
+          return (
+            g.label.toLowerCase().includes(q) ||
+            g.description.toLowerCase().includes(q) ||
+            g.query.toLowerCase().includes(q) ||
+            g.options.some(
+              (o) => o.label.toLowerCase().includes(q) || o.description.toLowerCase().includes(q),
+            )
+          );
+        }),
+  );
+  const activeMediaPrefCount: Num = $derived(
+    MEDIA_PREF_GROUPS.filter((g) => {
+      const val: Str = activeMediaPrefs[g.pref] ?? g.defaultValue;
+      return val !== g.defaultValue;
+    }).length as Num,
   );
   const filteredNetworkPresets = $derived(
-    NETWORK_PRESETS.filter(
-      (item) =>
-        item.id === 'none' || item.label.toLowerCase().includes(networkSearchQuery.toLowerCase()),
-    ),
+    networkSearchQuery.length === 0
+      ? NETWORK_PRESETS
+      : NETWORK_PRESETS.filter((item) => {
+          if (item.id === 'none') return true;
+          const q: Str = networkSearchQuery.toLowerCase() as Str;
+          return (
+            item.label.toLowerCase().includes(q) ||
+            item.description.toLowerCase().includes(q) ||
+            item.category.toLowerCase().includes(q)
+          );
+        }),
   );
   const filteredNetworkCategories: Str[] = $derived([
     ...new Set(filteredNetworkPresets.filter((p) => p.category).map((p) => p.category)),
   ]);
+  const activeNetworkLabel: Str = $derived.by(() => {
+    if (activeNetworkSim === 'none') return '' as Str;
+    if (activeNetworkSim === 'custom') return `Custom ${activeCustomNetwork.delay}ms` as Str;
+    const found = NETWORK_PRESETS.find((p) => p.id === activeNetworkSim);
+    return (found?.label ?? '') as Str;
+  });
   const filteredViewportPresets = $derived(
     VIEWPORT_PRESETS.filter((item) =>
       item.label.toLowerCase().includes(viewportSearchQuery.toLowerCase()),
@@ -1200,8 +1888,23 @@
   const filteredDirPresets = $derived(
     dirSearchQuery.length === 0
       ? DIR_PRESETS
-      : DIR_PRESETS.filter((p) => p.label.toLowerCase().includes(dirSearchQuery.toLowerCase())),
+      : DIR_PRESETS.filter((p) => {
+          const q: Str = dirSearchQuery.toLowerCase() as Str;
+          return (
+            p.label.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.examples.toLowerCase().includes(q)
+          );
+        }),
   );
+  const filteredDirCategories: Str[] = $derived([
+    ...new Set(filteredDirPresets.map((p) => p.category)),
+  ]);
+  const activeDirLabel: Str = $derived.by((): Str => {
+    if (activeDir === 'auto') return '' as Str;
+    const base = DIR_PRESETS.find((p) => p.category === 'Base' && p.dir === activeDir);
+    return base ? (base.label as Str) : ('' as Str);
+  });
   const filteredFontSizePresets = $derived(
     FONT_SIZE_PRESETS.filter(
       (item) =>
@@ -1246,8 +1949,14 @@
   <DropdownMenu.SubTrigger>
     <Paintbrush class="size-4" />
     Background
+    {#if activeBgLabel}
+      <span
+        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        >{activeBgLabel}</span
+      >
+    {/if}
   </DropdownMenu.SubTrigger>
-  <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+  <DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
     <div class="shrink-0 px-2 pb-1.5 pt-1">
       <div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
         <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -1261,20 +1970,28 @@
       </div>
     </div>
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-      <DropdownMenu.Label class="text-xs">Background Color</DropdownMenu.Label>
-      {#each filteredBgPresets as preset (preset.id)}
-        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('bg', preset.id)}>
-          <div class="flex items-center gap-2">
+      {#each filteredBgCategories as category (category)}
+        <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+        {#each filteredBgPresets.filter((p) => p.category === category) as preset (preset.id)}
+          <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('bg', preset.id)}>
             <Check class={cn('size-4 shrink-0', activeBg !== preset.id && 'opacity-0')} />
             {#if preset.id !== 'default'}
               <span
-                class="inline-block size-3.5 shrink-0 rounded-sm border"
+                class="inline-block size-4 shrink-0 rounded-sm border"
                 style={preset.style || 'background-color: transparent'}
               ></span>
             {/if}
-            {preset.label}
-          </div>
-        </DropdownMenu.Item>
+            <div class="flex flex-col">
+              <span>{preset.label}</span>
+              <span class="font-mono text-[10px] leading-tight text-muted-foreground"
+                >{preset.description}</span
+              >
+            </div>
+          </DropdownMenu.Item>
+        {/each}
+        {#if category !== filteredBgCategories[filteredBgCategories.length - 1]}
+          <DropdownMenu.Separator />
+        {/if}
       {:else}
         <div
           class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
@@ -1286,14 +2003,19 @@
           </div>
         </div>
       {/each}
-      <DropdownMenu.Separator />
-      <div class="px-2 py-1.5">
-        <p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom</p>
-        <ColorPicker
-          value={activeBg.startsWith('#') ? activeBg : '#ffffff'}
-          onValueChange={(v) => onSetting('bg', v)}
-        />
+    </div>
+    <DropdownMenu.Separator />
+    <div class="shrink-0 px-2 py-1.5">
+      <div class="mb-1.5 flex items-center justify-between">
+        <p class="text-xs font-medium text-muted-foreground">Custom Color</p>
+        {#if activeBg.startsWith('#')}
+          <span class="font-mono text-[10px] text-muted-foreground">{activeBg}</span>
+        {/if}
       </div>
+      <ColorPicker
+        value={activeBg.startsWith('#') ? activeBg : '#ffffff'}
+        onValueChange={(v) => onSetting('bg', v)}
+      />
     </div>
   </DropdownMenu.SubContent>
 </DropdownMenu.Sub>
@@ -1302,45 +2024,93 @@
 <!--  Zoom submenu                                                      -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 
-<DropdownMenu.Sub>
+<DropdownMenu.Sub
+  onOpenChange={(open) => {
+    if (open) zoomSearchQuery = '';
+  }}
+>
   <DropdownMenu.SubTrigger>
     <ZoomIn class="size-4" />
-    Zoom ({getZoomLabel()})
+    Zoom
+    <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]"
+      >{getZoomLabel()}</span
+    >
   </DropdownMenu.SubTrigger>
-  <DropdownMenu.SubContent class="w-52">
-    <DropdownMenu.Label class="text-xs">Zoom Actions</DropdownMenu.Label>
-    <DropdownMenu.Item
-      onclick={() => onSetting('zoom', Math.min(activeZoom + ZOOM_STEP, ZOOM_MAX))}
-      disabled={activeZoom >= ZOOM_MAX}
-    >
-      <ZoomIn class="size-4" />
-      Zoom in
-    </DropdownMenu.Item>
-    <DropdownMenu.Item
-      onclick={() => onSetting('zoom', Math.max(activeZoom - ZOOM_STEP, ZOOM_MIN))}
-      disabled={activeZoom <= ZOOM_MIN}
-    >
-      <ZoomOut class="size-4" />
-      Zoom out
-    </DropdownMenu.Item>
-    <DropdownMenu.Item
-      closeOnSelect={false}
-      onclick={() => onSetting('zoom', 1)}
-      disabled={activeZoom === 1}
-    >
-      <Maximize class="size-4" />
-      Fit (100%)
-    </DropdownMenu.Item>
-    <DropdownMenu.Separator />
-    <DropdownMenu.Label class="text-xs">Zoom Level</DropdownMenu.Label>
-    {#each ZOOM_PRESETS as preset (preset.value)}
-      <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('zoom', preset.value)}>
-        <Check class={cn('size-4', activeZoom !== preset.value && 'opacity-0')} />
-        {preset.label}
+  <DropdownMenu.SubContent class="flex max-h-96 w-72 flex-col overflow-hidden">
+    <div class="shrink-0 px-2 pb-1.5 pt-1">
+      <div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+        <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+        <input
+          type="text"
+          placeholder="Search zoom levels..."
+          class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          bind:value={zoomSearchQuery}
+          onkeydown={(e) => e.stopPropagation()}
+        />
+      </div>
+    </div>
+    <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+      <!-- Zoom Actions -->
+      <DropdownMenu.Label class="text-xs">Actions</DropdownMenu.Label>
+      <DropdownMenu.Item
+        closeOnSelect={false}
+        onclick={() => onSetting('zoom', Math.min(activeZoom + ZOOM_STEP, ZOOM_MAX))}
+        disabled={activeZoom >= ZOOM_MAX}
+      >
+        <ZoomIn class="size-4" />
+        <div class="flex flex-col gap-0.5">
+          <span class="text-sm">Zoom In</span>
+          <span class="text-[11px] text-muted-foreground">Increase by 25%</span>
+        </div>
       </DropdownMenu.Item>
-    {/each}
+      <DropdownMenu.Item
+        closeOnSelect={false}
+        onclick={() => onSetting('zoom', Math.max(activeZoom - ZOOM_STEP, ZOOM_MIN))}
+        disabled={activeZoom <= ZOOM_MIN}
+      >
+        <ZoomOut class="size-4" />
+        <div class="flex flex-col gap-0.5">
+          <span class="text-sm">Zoom Out</span>
+          <span class="text-[11px] text-muted-foreground">Decrease by 25%</span>
+        </div>
+      </DropdownMenu.Item>
+      <DropdownMenu.Item
+        closeOnSelect={false}
+        onclick={() => onSetting('zoom', 1)}
+        disabled={activeZoom === 1}
+      >
+        <Maximize class="size-4" />
+        <div class="flex flex-col gap-0.5">
+          <span class="text-sm">Reset (100%)</span>
+          <span class="text-[11px] text-muted-foreground">Restore to actual size</span>
+        </div>
+      </DropdownMenu.Item>
+      <DropdownMenu.Separator />
+      <!-- Zoom Level Presets -->
+      <DropdownMenu.Label class="text-xs">Zoom Level</DropdownMenu.Label>
+      {#each filteredZoomPresets as preset (preset.value)}
+        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('zoom', preset.value)}>
+          <Check class={cn('size-4 shrink-0', activeZoom !== preset.value && 'opacity-0')} />
+          <div class="flex flex-col gap-0.5">
+            <span class="text-sm">{preset.label}</span>
+            <span class="text-[11px] text-muted-foreground">{preset.description}</span>
+          </div>
+        </DropdownMenu.Item>
+      {:else}
+        <div
+          class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+        >
+          <SearchX class="size-5" />
+          <div class="flex flex-col items-center gap-0.5">
+            <p class="text-xs font-medium">No zoom levels found</p>
+            <p class="text-[11px]">Try a different search term</p>
+          </div>
+        </div>
+      {/each}
+    </div>
+    <!-- Sticky custom section -->
     <DropdownMenu.Separator />
-    <div class="px-2 py-1.5">
+    <div class="shrink-0 px-2 py-1.5">
       <p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom ({getZoomLabel()})</p>
       <Slider
         type="single"
@@ -1366,8 +2136,14 @@
   <DropdownMenu.SubTrigger>
     <SquareDashedMousePointer class="size-4" />
     Outline
+    {#if activeOutlineLabel}
+      <span
+        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        >{activeOutlineLabel}</span
+      >
+    {/if}
   </DropdownMenu.SubTrigger>
-  <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+  <DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
     <div class="shrink-0 px-2 pb-1.5 pt-1">
       <div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
         <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -1381,22 +2157,31 @@
       </div>
     </div>
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-      <DropdownMenu.Label class="text-xs">Outline Color</DropdownMenu.Label>
       <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('outline', 'none')}>
         <Check class={cn('size-4 shrink-0', activeOutline !== 'none' && 'opacity-0')} />
         None
       </DropdownMenu.Item>
-      {#each filteredOutlinePresets as preset (preset.id)}
-        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('outline', preset.id)}>
-          <div class="flex items-center gap-2">
+      <DropdownMenu.Separator />
+      {#each filteredOutlineCategories as category (category)}
+        <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+        {#each filteredOutlinePresets.filter((p) => p.category === category) as preset (preset.id)}
+          <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('outline', preset.id)}>
             <Check class={cn('size-4 shrink-0', activeOutline !== preset.id && 'opacity-0')} />
             <span
-              class="inline-block size-3.5 shrink-0 rounded-sm border"
+              class="inline-block size-4 shrink-0 rounded-sm border"
               style="background-color: {preset.color}"
             ></span>
-            {preset.label}
-          </div>
-        </DropdownMenu.Item>
+            <div class="flex flex-col">
+              <span>{preset.label}</span>
+              <span class="font-mono text-[10px] leading-tight text-muted-foreground"
+                >{preset.description}</span
+              >
+            </div>
+          </DropdownMenu.Item>
+        {/each}
+        {#if category !== filteredOutlineCategories[filteredOutlineCategories.length - 1]}
+          <DropdownMenu.Separator />
+        {/if}
       {:else}
         <div
           class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
@@ -1408,12 +2193,48 @@
           </div>
         </div>
       {/each}
-      <DropdownMenu.Separator />
-      <div class="px-2 py-1.5">
-        <p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom</p>
+    </div>
+    <DropdownMenu.Separator />
+    <div class="shrink-0 space-y-3 px-2 py-1.5">
+      <div>
+        <div class="mb-1.5 flex items-center justify-between">
+          <p class="text-xs font-medium text-muted-foreground">Custom Color</p>
+          {#if activeOutline.startsWith('#')}
+            <span class="font-mono text-[10px] text-muted-foreground">{activeOutline}</span>
+          {/if}
+        </div>
         <ColorPicker
           value={activeOutline.startsWith('#') ? activeOutline : '#ef4444'}
           onValueChange={(v) => onSetting('outline', v)}
+        />
+      </div>
+      <div>
+        <p class="mb-1.5 text-xs font-medium text-muted-foreground">
+          Thickness ({activeOutlineThickness}px)
+        </p>
+        <div class="mb-2.5 flex gap-1">
+          {#each [1, 2, 3, 4] as px (px)}
+            <button
+              type="button"
+              class={cn(
+                'flex-1 rounded border px-1 py-0.5 text-center font-mono text-[10px] transition-colors',
+                activeOutlineThickness === px
+                  ? 'border-primary bg-primary/10 text-foreground'
+                  : 'border-border text-muted-foreground hover:bg-muted',
+              )}
+              onclick={() => onSetting('outlineThickness', px)}
+            >
+              {px}px
+            </button>
+          {/each}
+        </div>
+        <Slider
+          type="single"
+          value={activeOutlineThickness}
+          min={1}
+          max={8}
+          step={1}
+          onValueChange={(v) => onSetting('outlineThickness', v)}
         />
       </div>
     </div>
@@ -1432,8 +2253,13 @@
   <DropdownMenu.SubTrigger>
     <Grid3x3 class="size-4" />
     Grid
+    {#if activeGridLabel}
+      <span class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]"
+        >{activeGridLabel}</span
+      >
+    {/if}
   </DropdownMenu.SubTrigger>
-  <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+  <DropdownMenu.SubContent class="flex max-h-96 w-72 flex-col overflow-hidden">
     <div class="shrink-0 px-2 pb-1.5 pt-1">
       <div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
         <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -1447,20 +2273,25 @@
       </div>
     </div>
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-      <DropdownMenu.Label class="text-xs">Grid Background Color</DropdownMenu.Label>
+      <!-- Grid Line Color -->
+      <DropdownMenu.Label class="text-xs">Line Color</DropdownMenu.Label>
       <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('grid', 'none')}>
         <Check class={cn('size-4 shrink-0', activeGrid !== 'none' && 'opacity-0')} />
-        None
+        <div class="flex flex-col gap-0.5">
+          <span class="text-sm">None</span>
+          <span class="text-[11px] text-muted-foreground">No grid lines</span>
+        </div>
       </DropdownMenu.Item>
       {#each filteredGridPresets as preset (preset.id)}
         <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('grid', preset.id)}>
-          <div class="flex items-center gap-2">
-            <Check class={cn('size-4 shrink-0', activeGrid !== preset.id && 'opacity-0')} />
-            <span
-              class="inline-block size-3.5 shrink-0 rounded-sm border"
-              style="background-color: {preset.color}"
-            ></span>
-            {preset.label}
+          <Check class={cn('size-4 shrink-0', activeGrid !== preset.id && 'opacity-0')} />
+          <span
+            class="inline-block size-3.5 shrink-0 rounded-sm border"
+            style="background-color: {preset.color}"
+          ></span>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-sm">{preset.label}</span>
+            <span class="text-[11px] text-muted-foreground">{preset.description}</span>
           </div>
         </DropdownMenu.Item>
       {:else}
@@ -1475,41 +2306,47 @@
         </div>
       {/each}
       <DropdownMenu.Separator />
-      <div class="px-2 py-1.5">
-        <p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom Grid Background Color</p>
+      <!-- Grid Fill Color -->
+      <DropdownMenu.Label class="text-xs">Fill Color</DropdownMenu.Label>
+      <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('gridFill', 'none')}>
+        <Check class={cn('size-4 shrink-0', activeGridFill !== 'none' && 'opacity-0')} />
+        <div class="flex flex-col gap-0.5">
+          <span class="text-sm">None</span>
+          <span class="text-[11px] text-muted-foreground">Transparent background</span>
+        </div>
+      </DropdownMenu.Item>
+      {#each filteredGridFillPresets as preset (preset.id)}
+        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('gridFill', preset.id)}>
+          <Check class={cn('size-4 shrink-0', activeGridFill !== preset.id && 'opacity-0')} />
+          <span
+            class="inline-block size-3.5 shrink-0 rounded-sm border"
+            style="background-color: {preset.color}"
+          ></span>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-sm">{preset.label}</span>
+            <span class="text-[11px] text-muted-foreground">{preset.description}</span>
+          </div>
+        </DropdownMenu.Item>
+      {/each}
+    </div>
+    <!-- Sticky custom section -->
+    <DropdownMenu.Separator />
+    <div class="shrink-0 space-y-3 px-2 py-1.5">
+      <div>
+        <p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom Line Color</p>
         <ColorPicker
           value={activeGrid.startsWith('#') ? activeGrid : '#000000'}
           onValueChange={(v) => onSetting('grid', v)}
         />
       </div>
-      <DropdownMenu.Separator />
-      <DropdownMenu.Label class="text-xs">Grid Fill Color</DropdownMenu.Label>
-      <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('gridFill', 'none')}>
-        <Check class={cn('size-4 shrink-0', activeGridFill !== 'none' && 'opacity-0')} />
-        None (transparent)
-      </DropdownMenu.Item>
-      {#each GRID_FILL_PRESETS as preset (preset.id)}
-        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('gridFill', preset.id)}>
-          <div class="flex items-center gap-2">
-            <Check class={cn('size-4 shrink-0', activeGridFill !== preset.id && 'opacity-0')} />
-            <span
-              class="inline-block size-3.5 shrink-0 rounded-sm border"
-              style="background-color: {preset.color}"
-            ></span>
-            {preset.label}
-          </div>
-        </DropdownMenu.Item>
-      {/each}
-      <DropdownMenu.Separator />
-      <div class="px-2 py-1.5">
-        <p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom Grid Fill Color</p>
+      <div>
+        <p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom Fill Color</p>
         <ColorPicker
           value={activeGridFill.startsWith('#') ? activeGridFill : '#ffffff'}
           onValueChange={(v) => onSetting('gridFill', v)}
         />
       </div>
-      <DropdownMenu.Separator />
-      <div class="px-2 py-1.5">
+      <div>
         <p class="mb-1.5 text-xs font-medium text-muted-foreground">
           Size ({active.gridSize ?? GRID_DEFAULT_SIZE}px)
         </p>
@@ -1540,7 +2377,7 @@
     Orientation
     {#if activeOrientationLabel}
       <span
-        class="ml-auto rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
         >{activeOrientationLabel}</span
       >
     {/if}
@@ -1645,8 +2482,14 @@
   <DropdownMenu.SubTrigger>
     <Sun class="size-4" />
     Color Mode
+    {#if activeModeLabel}
+      <span
+        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        >{activeModeLabel}</span
+      >
+    {/if}
   </DropdownMenu.SubTrigger>
-  <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+  <DropdownMenu.SubContent class="flex max-h-96 w-72 flex-col overflow-hidden">
     <div class="shrink-0 px-2 pb-1.5 pt-1">
       <div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
         <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -1660,12 +2503,20 @@
       </div>
     </div>
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-      <DropdownMenu.Label class="text-xs">Color Mode</DropdownMenu.Label>
       {#each filteredModePresets as preset (preset.id)}
         <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('mode', preset.id)}>
           <Check class={cn('size-4 shrink-0', activeMode !== preset.id && 'opacity-0')} />
-          <preset.icon class="size-4" />
-          {preset.label}
+          <preset.icon class="size-4 shrink-0" />
+          <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+            <div class="flex items-center gap-2">
+              <span class="text-sm">{preset.label}</span>
+              <code
+                class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 font-mono text-[9px] text-muted-foreground"
+                >{preset.query}</code
+              >
+            </div>
+            <span class="text-[11px] text-muted-foreground">{preset.description}</span>
+          </div>
         </DropdownMenu.Item>
       {:else}
         <div
@@ -1694,8 +2545,14 @@
   <DropdownMenu.SubTrigger>
     <Palette class="size-4" />
     Theme
+    {#if activeThemeLabel}
+      <span
+        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        >{activeThemeLabel}</span
+      >
+    {/if}
   </DropdownMenu.SubTrigger>
-  <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+  <DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
     <div class="shrink-0 px-2 pb-1.5 pt-1">
       <div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
         <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -1709,20 +2566,26 @@
       </div>
     </div>
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-      <DropdownMenu.Label class="text-xs">Theme</DropdownMenu.Label>
-      {#each filteredThemePresets as preset (preset.id)}
-        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('theme', preset.id)}>
-          <div class="flex items-center gap-2">
+      {#each filteredThemeCategories as category (category)}
+        <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+        {#each filteredThemePresets.filter((p) => p.category === category) as preset (preset.id)}
+          <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('theme', preset.id)}>
             <Check class={cn('size-4 shrink-0', activeTheme !== preset.id && 'opacity-0')} />
             {#if preset.dot}
               <span
-                class="inline-block size-3.5 shrink-0 rounded-full shadow-sm ring-1 ring-black/10"
+                class="inline-block size-4 shrink-0 rounded-full shadow-sm ring-1 ring-black/10"
                 style="background-color: {preset.dot}"
               ></span>
             {/if}
-            {preset.label}
-          </div>
-        </DropdownMenu.Item>
+            <div class="flex flex-col gap-0.5">
+              <span class="text-sm">{preset.label}</span>
+              <span class="text-[11px] text-muted-foreground">{preset.description}</span>
+            </div>
+          </DropdownMenu.Item>
+        {/each}
+        {#if category !== filteredThemeCategories[filteredThemeCategories.length - 1]}
+          <DropdownMenu.Separator />
+        {/if}
       {:else}
         <div
           class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
@@ -1750,8 +2613,14 @@
   <DropdownMenu.SubTrigger>
     <SlidersHorizontal class="size-4" />
     Media Preferences
+    {#if activeMediaPrefCount > 0}
+      <span
+        class="ml-auto shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        >{activeMediaPrefCount}</span
+      >
+    {/if}
   </DropdownMenu.SubTrigger>
-  <DropdownMenu.SubContent class="flex max-h-80 w-56 flex-col overflow-hidden">
+  <DropdownMenu.SubContent class="flex max-h-[32rem] w-72 flex-col overflow-hidden">
     <div class="shrink-0 px-2 pb-1.5 pt-1">
       <div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
         <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -1766,7 +2635,15 @@
     </div>
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
       {#each filteredMediaPrefGroups as group (group.pref)}
-        <DropdownMenu.Label class="text-xs">{group.label}</DropdownMenu.Label>
+        <DropdownMenu.Label class="flex items-center gap-2 text-xs">
+          <span>{group.label}</span>
+          <code class="rounded bg-muted px-1 font-mono text-[9px] text-muted-foreground/70"
+            >{group.query}</code
+          >
+        </DropdownMenu.Label>
+        <div class="px-2 pb-1">
+          <p class="text-[11px] leading-tight text-muted-foreground">{group.description}</p>
+        </div>
         {#each group.options as option (option.value)}
           <DropdownMenu.Item
             closeOnSelect={false}
@@ -1779,7 +2656,12 @@
                   'opacity-0',
               )}
             />
-            {option.label}
+            <div class="flex flex-col">
+              <span>{option.label}</span>
+              <span class="text-[11px] leading-tight text-muted-foreground"
+                >{option.description}</span
+              >
+            </div>
           </DropdownMenu.Item>
         {/each}
         {#if group !== filteredMediaPrefGroups[filteredMediaPrefGroups.length - 1]}
@@ -1797,6 +2679,25 @@
         </div>
       {/each}
     </div>
+    {#if activeMediaPrefCount > 0}
+      <DropdownMenu.Separator />
+      <div class="shrink-0 p-1">
+        <DropdownMenu.Item
+          closeOnSelect={false}
+          onclick={() => {
+            for (const group of MEDIA_PREF_GROUPS) {
+              onSetting('mediaPref', { pref: group.pref, value: group.defaultValue });
+            }
+          }}
+        >
+          <RotateCcw class="size-4" />
+          Reset All Preferences
+          <span class="ml-auto font-mono text-[10px] text-muted-foreground"
+            >{activeMediaPrefCount} active</span
+          >
+        </DropdownMenu.Item>
+      </div>
+    {/if}
   </DropdownMenu.SubContent>
 </DropdownMenu.Sub>
 
@@ -1812,6 +2713,12 @@
   <DropdownMenu.SubTrigger>
     <Wifi class="size-4" />
     Network Simulation
+    {#if activeNetworkLabel}
+      <span
+        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        >{activeNetworkLabel}</span
+      >
+    {/if}
   </DropdownMenu.SubTrigger>
   <DropdownMenu.SubContent class="flex max-h-[28rem] w-72 flex-col overflow-hidden">
     <div class="shrink-0 px-2 pb-1.5 pt-1">
@@ -1819,7 +2726,7 @@
         <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search presets..."
           class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           bind:value={networkSearchQuery}
           onkeydown={(e) => e.stopPropagation()}
@@ -1827,37 +2734,65 @@
       </div>
     </div>
     <div class="flex max-h-72 flex-col overflow-y-auto" use:lockHeight>
-      <DropdownMenu.Label class="text-xs">Throttling</DropdownMenu.Label>
       <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('networkSim', 'none')}>
         <Check class={cn('size-4 shrink-0', activeNetworkSim !== 'none' && 'opacity-0')} />
-        No throttling
+        <div class="flex flex-col">
+          <span>No throttling</span>
+          <span class="text-[10px] leading-tight text-muted-foreground"
+            >Full speed, no artificial delay</span
+          >
+        </div>
       </DropdownMenu.Item>
       {#each filteredNetworkCategories as category (category)}
         <DropdownMenu.Separator />
-        <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+        <DropdownMenu.Label class="flex items-center gap-1.5 text-xs">
+          {#if category === 'Mobile'}
+            <Signal class="size-3 text-muted-foreground" />
+          {:else if category === 'Fixed'}
+            <Wifi class="size-3 text-muted-foreground" />
+          {:else if category === 'Satellite'}
+            <Satellite class="size-3 text-muted-foreground" />
+          {:else if category === 'Special'}
+            <WifiOff class="size-3 text-muted-foreground" />
+          {/if}
+          {category}
+        </DropdownMenu.Label>
         {#each filteredNetworkPresets.filter((p) => p.category === category) as preset (preset.id)}
           <DropdownMenu.Item
             closeOnSelect={false}
             onclick={() => onSetting('networkSim', preset.id)}
           >
-            <div class="flex items-center gap-2">
-              <Check class={cn('size-4 shrink-0', activeNetworkSim !== preset.id && 'opacity-0')} />
-              {#if preset.id === 'offline'}
-                <WifiOff class="size-3.5 text-destructive" />
-              {/if}
-              <div class="flex flex-col">
-                <span>{preset.label}</span>
-                {#if preset.description}
-                  <span class="text-[10px] leading-tight text-muted-foreground"
-                    >{preset.description}</span
+            <Check class={cn('size-4 shrink-0', activeNetworkSim !== preset.id && 'opacity-0')} />
+            {#if preset.id === 'offline'}
+              <WifiOff class="size-3.5 text-destructive" />
+            {/if}
+            <div class="flex min-w-0 flex-1 flex-col">
+              <span class="flex items-center gap-2">
+                <span class="truncate">{preset.label}</span>
+                {#if preset.delay > 0}
+                  <code
+                    class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 font-mono text-[9px] text-muted-foreground"
+                    >{preset.delay >= 1000
+                      ? `${(preset.delay / 1000).toFixed(preset.delay % 1000 === 0 ? 0 : 1)}s`
+                      : `${preset.delay}ms`}</code
+                  >
+                {:else if preset.delay === -1}
+                  <code
+                    class="ml-auto shrink-0 rounded bg-destructive/10 px-1 py-0.5 font-mono text-lg leading-none text-destructive"
+                    >∞</code
                   >
                 {/if}
-              </div>
+              </span>
+              {#if preset.description}
+                <span class="text-[10px] leading-tight text-muted-foreground"
+                  >{preset.description}</span
+                >
+              {/if}
             </div>
           </DropdownMenu.Item>
         {/each}
       {/each}
-      {#if filteredNetworkCategories.length === 0}
+      {#if filteredNetworkCategories.length === 0 && activeNetworkSim !== 'none'}
         <div
           class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
         >
@@ -1871,9 +2806,26 @@
     </div>
     <DropdownMenu.Separator />
     <div class="shrink-0 px-2 py-1.5">
-      <p class="mb-1.5 text-xs font-medium text-muted-foreground">
+      <p class="mb-1 text-xs font-medium text-muted-foreground">
         Custom Latency ({activeCustomNetwork.delay}ms)
       </p>
+      <div class="mb-2.5 flex gap-1">
+        {#each [100, 500, 1000, 3000] as ms (ms)}
+          <button
+            type="button"
+            class={cn(
+              'flex-1 rounded border px-1 py-0.5 text-center font-mono text-[10px] transition-colors',
+              activeNetworkSim === 'custom' && activeCustomNetwork.delay === ms
+                ? 'border-primary bg-primary/10 text-foreground'
+                : 'border-border text-muted-foreground hover:bg-muted',
+            )}
+            onclick={() => {
+              onSetting('customNetworkDelay', ms);
+              onSetting('networkSim', 'custom');
+            }}>{ms >= 1000 ? `${ms / 1000}s` : `${ms}ms`}</button
+          >
+        {/each}
+      </div>
       <Slider
         type="single"
         value={activeCustomNetwork.delay}
@@ -1883,6 +2835,10 @@
         onValueChange={(v) => onSetting('customNetworkDelay', v)}
         onValueCommit={() => onSetting('networkSim', 'custom')}
       />
+      <div class="mt-1 flex justify-between text-[10px] text-muted-foreground">
+        <span>0ms</span>
+        <span>10,000ms</span>
+      </div>
     </div>
   </DropdownMenu.SubContent>
 </DropdownMenu.Sub>
@@ -1994,7 +2950,7 @@
     Accessibility
     {#if activeSimLabel}
       <span
-        class="ml-auto max-w-24 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
         >{activeSimLabel}</span
       >
     {/if}
@@ -2084,14 +3040,20 @@
   <DropdownMenu.SubTrigger>
     <Languages class="size-4" />
     Text Direction
+    {#if activeDirLabel}
+      <span
+        class="ml-auto max-w-24 shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+        >{activeDirLabel}</span
+      >
+    {/if}
   </DropdownMenu.SubTrigger>
-  <DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+  <DropdownMenu.SubContent class="flex max-h-80 w-72 flex-col overflow-hidden">
     <div class="shrink-0 px-2 pb-1.5 pt-1">
       <div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
         <Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search directions..."
           class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           bind:value={dirSearchQuery}
           onkeydown={(e) => e.stopPropagation()}
@@ -2099,12 +3061,30 @@
       </div>
     </div>
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-      <DropdownMenu.Label class="text-xs">Direction</DropdownMenu.Label>
-      {#each filteredDirPresets as item (item.id)}
-        <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('dir', item.id)}>
-          <Check class={cn('size-4', activeDir !== item.id && 'opacity-0')} />
-          {item.label}
-        </DropdownMenu.Item>
+      {#each filteredDirCategories as category (category)}
+        <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+        {#each filteredDirPresets.filter((p) => p.category === category) as item (item.id)}
+          <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('dir', item.dir)}>
+            <Check class={cn('size-4', activeDir !== item.dir && 'opacity-0')} />
+            <div class="flex flex-1 items-center gap-2">
+              <span class="font-mono text-base leading-none text-muted-foreground"
+                >{item.arrow}</span
+              >
+              <div class="flex flex-col">
+                <span>{item.label}</span>
+                <span class="text-[11px] leading-tight text-muted-foreground"
+                  >{item.description}</span
+                >
+                <span class="text-[10px] leading-tight text-muted-foreground/70"
+                  >{item.examples}</span
+                >
+              </div>
+            </div>
+          </DropdownMenu.Item>
+        {/each}
+        {#if category !== filteredDirCategories[filteredDirCategories.length - 1]}
+          <DropdownMenu.Separator />
+        {/if}
       {:else}
         <div
           class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
@@ -2116,6 +3096,14 @@
           </div>
         </div>
       {/each}
+    </div>
+    <DropdownMenu.Separator />
+    <div class="shrink-0 px-3 py-2">
+      <p class="text-[11px] leading-relaxed text-muted-foreground">
+        The <code class="rounded bg-muted px-1 font-mono text-[10px]">dir</code> attribute controls text
+        alignment, punctuation placement, and bidirectional text rendering. Test RTL to catch layout mirroring
+        issues.
+      </p>
     </div>
   </DropdownMenu.SubContent>
 </DropdownMenu.Sub>
