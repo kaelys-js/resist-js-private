@@ -1031,7 +1031,7 @@ async function handleChainExport(formatId: Str): Promise<void> {
 						style="width: {graphLayout.width}px; height: {graphLayout.height}px; min-width: 200px; zoom: {chainZoom};"
 						bind:this={chainGraphRef}
 					>
-						<!-- SVG connector lines -->
+						<!-- SVG connector lines (behind cards) -->
 						<svg class="pointer-events-none absolute inset-0" width={graphLayout.width} height={graphLayout.height}>
 							{#each graphLayout.connectors as conn, ci (ci)}
 								{@const midY = (conn.y1 + (conn.y2 - conn.y1) * 0.5)}
@@ -1053,14 +1053,6 @@ async function handleChainExport(formatId: Str): Promise<void> {
 									stroke-linecap="round"
 									class="text-muted-foreground/25"
 								/>
-								<!-- Start knob shadow -->
-								<circle cx={conn.x1} cy={conn.y1} r="6" fill="currentColor" class="text-foreground/[0.06]" />
-								<!-- Start knob (toggle-style solid circle) -->
-								<circle cx={conn.x1} cy={conn.y1} r="3.5" fill="currentColor" class="text-muted-foreground/40" />
-								<!-- End knob shadow -->
-								<circle cx={conn.x2} cy={conn.y2} r="6" fill="currentColor" class="text-foreground/[0.06]" />
-								<!-- End knob (toggle-style solid circle) -->
-								<circle cx={conn.x2} cy={conn.y2} r="3.5" fill="currentColor" class="text-muted-foreground/40" />
 							{/each}
 						</svg>
 						<!-- Node cards -->
@@ -1118,6 +1110,19 @@ async function handleChainExport(formatId: Str): Promise<void> {
 								{/if}
 							</div>
 						{/each}
+						<!-- SVG connector knobs (above cards) -->
+						<svg class="pointer-events-none absolute inset-0 z-10" width={graphLayout.width} height={graphLayout.height}>
+							{#each graphLayout.connectors as conn, ci (ci)}
+								<!-- Start knob shadow -->
+								<circle cx={conn.x1} cy={conn.y1} r="8" fill="currentColor" class="text-foreground/[0.06]" />
+								<!-- Start knob (toggle-style solid circle) -->
+								<circle cx={conn.x1} cy={conn.y1} r="5" fill="currentColor" class="text-muted-foreground/40" />
+								<!-- End knob shadow -->
+								<circle cx={conn.x2} cy={conn.y2} r="8" fill="currentColor" class="text-foreground/[0.06]" />
+								<!-- End knob (toggle-style solid circle) -->
+								<circle cx={conn.x2} cy={conn.y2} r="5" fill="currentColor" class="text-muted-foreground/40" />
+							{/each}
+						</svg>
 					</div>
 				</div>
 			</div>
