@@ -16,26 +16,26 @@
   not during SSR.
 -->
 <script lang="ts">
-import { browser } from '$app/environment';
-import { ERRORS, err } from '@/schemas/result/result';
+  import { browser } from '$app/environment';
+  import { ERRORS, err } from '@/schemas/result/result';
 
-/**
- * Triggers a deliberate client error to exercise the full beacon pipeline.
- *
- * Uses a domain error (HTTP.SERVER_ERROR) so the beacon payload contains
- * a meaningful code rather than INTERNAL.UNEXPECTED. The error is thrown
- * (not returned) to simulate an uncaught exception flowing through
- * window.onerror → setupGlobalErrorHandling → onError → beaconError.
- */
-if (browser) {
-	const result = err(
-		ERRORS.HTTP.SERVER_ERROR,
-		'Simulated beacon test — verifies full error reporting pipeline',
-	);
-	if (!result.ok) {
-		throw result.error;
-	}
-}
+  /**
+   * Triggers a deliberate client error to exercise the full beacon pipeline.
+   *
+   * Uses a domain error (HTTP.SERVER_ERROR) so the beacon payload contains
+   * a meaningful code rather than INTERNAL.UNEXPECTED. The error is thrown
+   * (not returned) to simulate an uncaught exception flowing through
+   * window.onerror → setupGlobalErrorHandling → onError → beaconError.
+   */
+  if (browser) {
+    const result = err(
+      ERRORS.HTTP.SERVER_ERROR,
+      'Simulated beacon test — verifies full error reporting pipeline',
+    );
+    if (!result.ok) {
+      throw result.error;
+    }
+  }
 </script>
 
 <p>Loading error beacon test...</p>

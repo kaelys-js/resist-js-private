@@ -1,8 +1,5 @@
 # Prettier is only used for .svelte files (Biome handles everything else)
-# The qa:format scripts already scope prettier to '**/*.svelte'
-# This ignore file prevents accidental full-repo prettier runs
-*
-!**/*.svelte
+# The qa:format script already scopes prettier to '**/*.svelte'
 node_modules
 dist
 .svelte-kit

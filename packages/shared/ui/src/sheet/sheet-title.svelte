@@ -1,16 +1,20 @@
 <script lang="ts">
-/**
- * Sheet heading text rendered with semibold foreground styling.
- */
-import { Dialog as SheetPrimitive } from 'bits-ui';
-import { cn } from '../utils.js';
+  /**
+   * Sheet heading text rendered with semibold foreground styling.
+   */
+  import { Dialog as SheetPrimitive } from 'bits-ui';
+  import { cn } from '../utils.js';
 
-let { ref = $bindable(null), class: className, ...restProps }: SheetPrimitive.TitleProps = $props();
+  let {
+    ref = $bindable(null),
+    class: className,
+    ...restProps
+  }: SheetPrimitive.TitleProps = $props();
 </script>
 
 <SheetPrimitive.Title
-	bind:ref
-	data-slot="sheet-title"
-	class={cn("text-foreground font-semibold", className)}
-	{...restProps}
+  bind:ref
+  data-slot="sheet-title"
+  class={cn('text-foreground font-semibold', className)}
+  {...restProps}
 />

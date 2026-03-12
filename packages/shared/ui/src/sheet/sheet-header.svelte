@@ -1,23 +1,23 @@
 <script lang="ts">
-/**
- * Sheet header area containing the title and description at the top of the panel.
- */
-import type { HTMLAttributes } from 'svelte/elements';
-import { cn, type WithElementRef } from '../utils.js';
+  /**
+   * Sheet header area containing the title and description at the top of the panel.
+   */
+  import type { HTMLAttributes } from 'svelte/elements';
+  import { cn, type WithElementRef } from '../utils.js';
 
-let {
-	ref = $bindable(null),
-	class: className,
-	children,
-	...restProps
-}: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
 </script>
 
 <div
-	bind:this={ref}
-	data-slot="sheet-header"
-	class={cn("flex flex-col gap-1.5 p-4", className)}
-	{...restProps}
+  bind:this={ref}
+  data-slot="sheet-header"
+  class={cn('flex flex-col gap-1.5 p-4', className)}
+  {...restProps}
 >
-	{@render children?.()}
+  {@render children?.()}
 </div>

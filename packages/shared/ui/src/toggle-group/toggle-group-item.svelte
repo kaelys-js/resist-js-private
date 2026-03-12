@@ -1,38 +1,38 @@
 <script lang="ts">
-	import { ToggleGroup as ToggleGroupPrimitive } from "bits-ui";
-	import { getToggleGroupCtx } from "./toggle-group.svelte";
-	import { cn } from "../utils.js";
-	import { type ToggleVariants, toggleVariants } from "../toggle/index.js";
+  import { ToggleGroup as ToggleGroupPrimitive } from 'bits-ui';
+  import { getToggleGroupCtx } from './toggle-group.svelte';
+  import { cn } from '../utils.js';
+  import { type ToggleVariants, toggleVariants } from '../toggle/index.js';
 
-	let {
-		ref = $bindable(null),
-		/** The value submitted when this item is selected. */
-		value = $bindable(),
-		class: className,
-		/** Item size preset (inherits from group). @values default, sm, lg */
-		size,
-		/** Item style variant (inherits from group). @values default, outline */
-		variant,
-		...restProps
-	}: ToggleGroupPrimitive.ItemProps & ToggleVariants = $props();
+  let {
+    ref = $bindable(null),
+    /** The value submitted when this item is selected. */
+    value = $bindable(),
+    class: className,
+    /** Item size preset (inherits from group). @values default, sm, lg */
+    size,
+    /** Item style variant (inherits from group). @values default, outline */
+    variant,
+    ...restProps
+  }: ToggleGroupPrimitive.ItemProps & ToggleVariants = $props();
 
-	const ctx = getToggleGroupCtx();
+  const ctx = getToggleGroupCtx();
 </script>
 
 <ToggleGroupPrimitive.Item
-	bind:ref
-	data-slot="toggle-group-item"
-	data-variant={ctx.variant || variant}
-	data-size={ctx.size || size}
-	data-spacing={ctx.spacing}
-	class={cn(
-		toggleVariants({
-			variant: ctx.variant || variant,
-			size: ctx.size || size,
-		}),
-		"w-auto min-w-0 shrink-0 px-3 focus:z-10 focus-visible:z-10 data-[spacing=0]:rounded-none data-[spacing=0]:shadow-none data-[spacing=0]:first:rounded-l-md data-[spacing=0]:last:rounded-r-md data-[spacing=0]:data-[variant=outline]:border-l-0 data-[spacing=0]:data-[variant=outline]:first:border-l",
-		className
-	)}
-	{value}
-	{...restProps}
+  bind:ref
+  data-slot="toggle-group-item"
+  data-variant={ctx.variant || variant}
+  data-size={ctx.size || size}
+  data-spacing={ctx.spacing}
+  class={cn(
+    toggleVariants({
+      variant: ctx.variant || variant,
+      size: ctx.size || size,
+    }),
+    'w-auto min-w-0 shrink-0 px-3 focus:z-10 focus-visible:z-10 data-[spacing=0]:rounded-none data-[spacing=0]:shadow-none data-[spacing=0]:first:rounded-l-md data-[spacing=0]:last:rounded-r-md data-[spacing=0]:data-[variant=outline]:border-l-0 data-[spacing=0]:data-[variant=outline]:first:border-l',
+    className,
+  )}
+  {value}
+  {...restProps}
 />

@@ -1,8 +1,8 @@
 <script lang="ts">
-import TestProviders from './TestProviders.svelte';
-import ModeToggle from './ModeToggle.svelte';
+  import TestProviders from './TestProviders.svelte';
+  import ModeToggle from './ModeToggle.svelte';
 </script>
 
 <TestProviders>
-	<ModeToggle />
+  <ModeToggle />
 </TestProviders>

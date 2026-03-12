@@ -1,24 +1,27 @@
 <script lang="ts">
-/**
- * Sidebar menu list item (`<li>`) wrapper that provides group context for menu buttons.
- */
-import { cn, type WithElementRef } from '../utils.js';
-import type { HTMLAttributes } from 'svelte/elements';
+  /**
+   * Sidebar menu list item (`<li>`) wrapper that provides group context for menu buttons.
+   */
+  import { cn, type WithElementRef } from '../utils.js';
+  import type { HTMLAttributes } from 'svelte/elements';
 
-let {
-	ref = $bindable(null),
-	class: className,
-	children,
-	...restProps
-}: WithElementRef<HTMLAttributes<HTMLLIElement>, HTMLLIElement> = $props();
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLLIElement>, HTMLLIElement> = $props();
 </script>
 
 <li
-	bind:this={ref}
-	data-slot="sidebar-menu-item"
-	data-sidebar="menu-item"
-	class={cn("group/menu-item relative group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center", className)}
-	{...restProps}
+  bind:this={ref}
+  data-slot="sidebar-menu-item"
+  data-sidebar="menu-item"
+  class={cn(
+    'group/menu-item relative group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center',
+    className,
+  )}
+  {...restProps}
 >
-	{@render children?.()}
+  {@render children?.()}
 </li>

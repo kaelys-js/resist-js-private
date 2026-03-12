@@ -1,26 +1,26 @@
 <script lang="ts">
-/**
- * Header area of a Card with a grid layout for title, description, and optional action slots.
- */
-import { cn, type WithElementRef } from '../utils.js';
-import type { HTMLAttributes } from 'svelte/elements';
+  /**
+   * Header area of a Card with a grid layout for title, description, and optional action slots.
+   */
+  import { cn, type WithElementRef } from '../utils.js';
+  import type { HTMLAttributes } from 'svelte/elements';
 
-let {
-	ref = $bindable(null),
-	class: className,
-	children,
-	...restProps
-}: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
 </script>
 
 <div
-	bind:this={ref}
-	data-slot="card-header"
-	class={cn(
-		"@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
-		className
-	)}
-	{...restProps}
+  bind:this={ref}
+  data-slot="card-header"
+  class={cn(
+    '@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6',
+    className,
+  )}
+  {...restProps}
 >
-	{@render children?.()}
+  {@render children?.()}
 </div>

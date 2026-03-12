@@ -33,9 +33,16 @@ const LENS_DIR: string = dirname(fileURLToPath(import.meta.url));
 const UI_SRC: string = join(LENS_DIR, '..');
 
 /** All .svelte component files in the shared UI library (excludes examples/). */
+/** Lens-internal infrastructure dirs — excluded from all lint scans. */
+const INTERNAL_DIRS: ReadonlySet<string> = new Set(['hooks', 'lens', 'lens-card-settings-menu']);
+
 const svelteFiles: string[] = readdirSync(UI_SRC, { recursive: true })
   .filter(
-    (f): f is string => typeof f === 'string' && f.endsWith('.svelte') && !f.includes('examples/'),
+    (f): f is string =>
+      typeof f === 'string' &&
+      f.endsWith('.svelte') &&
+      !f.includes('examples/') &&
+      ![...INTERNAL_DIRS].some((d: string): boolean => f.startsWith(`${d}/`)),
   )
   .map((f: string): string => join(UI_SRC, f));
 
@@ -368,7 +375,7 @@ describe('Lens lint', () => {
 
   describe('Rule 6: Every component directory needs valid lens.ts', () => {
     /** Directories that are infrastructure, not components — no lens.ts needed. */
-    const SKIP_DIRS: ReadonlySet<string> = new Set(['hooks', 'lens']);
+    const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
 
     /** All component directories with .svelte files. */
     const componentDirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
@@ -570,8 +577,7 @@ describe('Lens lint', () => {
 
   describe('Rule 11: Primary .svelte file exists per component dir', () => {
     const SKIP_DIRS: ReadonlySet<string> = new Set([
-      'hooks',
-      'lens',
+      ...INTERNAL_DIRS,
       'chart',
       'data-table',
       'form',
@@ -602,7 +608,7 @@ describe('Lens lint', () => {
 
   describe('Rule 12: Converted components use v.strictObject() schema (skip @convert-to-lens)', () => {
     const violations: string[] = [];
-    const SKIP_DIRS: ReadonlySet<string> = new Set(['hooks', 'lens']);
+    const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
 
     const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
       .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
@@ -653,7 +659,7 @@ describe('Lens lint', () => {
 
   describe('Rule 14: safeParse + stripSvelteProps required (skip @convert-to-lens)', () => {
     const violations: string[] = [];
-    const SKIP_DIRS: ReadonlySet<string> = new Set(['hooks', 'lens']);
+    const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
 
     const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
       .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))

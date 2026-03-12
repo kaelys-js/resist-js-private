@@ -1,39 +1,39 @@
 <script lang="ts">
-/**
- * Sidebar toggle trigger button that expands or collapses the sidebar on click.
- */
-import { Button } from '../button/index.js';
-import { cn } from '../utils.js';
-import PanelLeftIcon from '@lucide/svelte/icons/panel-left';
-import type { ComponentProps } from 'svelte';
-import { useSidebar } from './context.svelte.js';
+  /**
+   * Sidebar toggle trigger button that expands or collapses the sidebar on click.
+   */
+  import { Button } from '../button/index.js';
+  import { cn } from '../utils.js';
+  import PanelLeftIcon from '@lucide/svelte/icons/panel-left';
+  import type { ComponentProps } from 'svelte';
+  import { useSidebar } from './context.svelte.js';
 
-let {
-	ref = $bindable(null),
-	class: className,
-	/** Click handler for the sidebar toggle button. */
-	onclick,
-	...restProps
-}: ComponentProps<typeof Button> & {
-	onclick?: (e: MouseEvent) => void;
-} = $props();
+  let {
+    ref = $bindable(null),
+    class: className,
+    /** Click handler for the sidebar toggle button. */
+    onclick,
+    ...restProps
+  }: ComponentProps<typeof Button> & {
+    onclick?: (e: MouseEvent) => void;
+  } = $props();
 
-const sidebar = useSidebar();
+  const sidebar = useSidebar();
 </script>
 
 <Button
-	data-sidebar="trigger"
-	data-slot="sidebar-trigger"
-	variant="ghost"
-	size="icon"
-	class={cn("size-7", className)}
-	type="button"
-	onclick={(e) => {
-		onclick?.(e);
-		sidebar.toggle();
-	}}
-	{...restProps}
+  data-sidebar="trigger"
+  data-slot="sidebar-trigger"
+  variant="ghost"
+  size="icon"
+  class={cn('size-7', className)}
+  type="button"
+  onclick={(e) => {
+    onclick?.(e);
+    sidebar.toggle();
+  }}
+  {...restProps}
 >
-	<PanelLeftIcon />
-	<span class="sr-only">Toggle Sidebar</span>
+  <PanelLeftIcon />
+  <span class="sr-only">Toggle Sidebar</span>
 </Button>
