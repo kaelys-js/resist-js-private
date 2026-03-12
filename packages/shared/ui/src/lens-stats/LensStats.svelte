@@ -104,9 +104,25 @@ const LONG_TASK_COUNT_YELLOW: Num = 2;
 const LONG_TASK_MS_GREEN: Num = 50;
 const LONG_TASK_MS_YELLOW: Num = 100;
 
+/** First Paint / First Contentful Paint thresholds in ms. */
+const PAINT_GREEN: Num = 100;
+const PAINT_YELLOW: Num = 300;
+
+/** FCP (First Contentful Paint) thresholds in ms (Google's Web Vitals). */
+const FCP_GREEN: Num = 1800;
+const FCP_YELLOW: Num = 3000;
+
+/** LCP (Largest Contentful Paint) thresholds in ms (Google's Web Vitals). */
+const LCP_GREEN: Num = 2500;
+const LCP_YELLOW: Num = 4000;
+
 /** FID (First Input Delay) thresholds in ms (Google's Web Vitals). */
 const FID_GREEN: Num = 100;
 const FID_YELLOW: Num = 300;
+
+/** INP (Interaction to Next Paint) thresholds in ms (Google's Web Vitals — replaced FID as Core Web Vital in March 2024). */
+const INP_GREEN: Num = 200;
+const INP_YELLOW: Num = 500;
 
 /** TTFB (Time to First Byte) thresholds in ms (Google's Web Vitals). */
 const TTFB_GREEN: Num = 800;
@@ -778,6 +794,7 @@ function collectVitals(
 		lcpTimeMs: -1,
 		lcpElement: '',
 		fidMs: -1,
+		inpMs: -1,
 		ttfbMs: -1,
 		supported: false,
 	};
@@ -787,7 +804,8 @@ function collectVitals(
 	const hasPaint: Bool = supportsEntryType('paint');
 	const hasLcp: Bool = supportsEntryType('largest-contentful-paint');
 	const hasFid: Bool = supportsEntryType('first-input');
-	vitals.supported = hasLayoutShift || hasLongTask || hasPaint || hasLcp || hasFid;
+	const hasEvent: Bool = supportsEntryType('event');
+	vitals.supported = hasLayoutShift || hasLongTask || hasPaint || hasLcp || hasFid || hasEvent;
 
 	/* ---- Layout Shift (CLS) ---- */
 	if (hasLayoutShift) {
@@ -904,6 +922,28 @@ function collectVitals(
 		);
 		fidObserver.observe({ type: 'first-input', buffered: true });
 		observers.push(fidObserver);
+	}
+
+	/* ---- Interaction to Next Paint (INP) ---- */
+	if (hasEvent) {
+		const inpObserver: PerformanceObserver = new PerformanceObserver(
+			(list: PerformanceObserverEntryList): Void => {
+				for (const entry of list.getEntries()) {
+					const eventEntry: PerformanceEntry & { target?: Element; processingStart?: number; processingEnd?: number } = entry;
+					/* Only attribute INP to this component if the interaction target is within wrapper */
+					if (eventEntry.target && eventEntry.target instanceof Element && wrapper.contains(eventEntry.target)) {
+						const duration: Num = entry.duration as Num;
+						/* INP is the worst (highest) interaction latency */
+						if (duration > vitals.inpMs) {
+							vitals.inpMs = Math.round(duration * 100) / 100;
+						}
+					}
+				}
+			},
+		);
+		// durationThreshold is part of the Event Timing API but not yet in TS's PerformanceObserverInit type
+		inpObserver.observe({ type: 'event', buffered: true, durationThreshold: 16 } as PerformanceObserverInit);
+		observers.push(inpObserver);
 	}
 
 	/* ---- TTFB (Time to First Byte) — page-level from navigation timing ---- */
@@ -1046,10 +1086,13 @@ onMount((): (() => void) => {
 					),
 				);
 			}
-			if (supportsEntryType('longtask') && componentVitals.longTaskCount > 0) {
+			if (supportsEntryType('longtask')) {
+				const taskLabel: Str = componentVitals.longTaskCount === 0
+					? 'None'
+					: `${componentVitals.longTaskCount}`;
 				budgets.push(
 					buildBudget(
-						'Long Tasks', `${componentVitals.longTaskCount}`, componentVitals.longTaskCount,
+						'Long Tasks', taskLabel, componentVitals.longTaskCount,
 						LONG_TASK_COUNT_GREEN, LONG_TASK_COUNT_YELLOW, '',
 						'Tasks blocking the main thread for >50ms during component mount.',
 					),
@@ -1064,12 +1107,70 @@ onMount((): (() => void) => {
 					);
 				}
 			}
-			if (supportsEntryType('first-input') && componentVitals.fidMs >= 0) {
+			/* Paint timing — always show when supported */
+			if (supportsEntryType('paint')) {
+				const fpLabel: Str = componentVitals.paintTimeMs < 0 ? 'Before mount' : `${componentVitals.paintTimeMs}ms`;
+				const fpValue: Num = componentVitals.paintTimeMs < 0 ? 0 : componentVitals.paintTimeMs;
 				budgets.push(
 					buildBudget(
-						'FID', `${componentVitals.fidMs}ms`, componentVitals.fidMs,
+						'First Paint', fpLabel, fpValue,
+						PAINT_GREEN, PAINT_YELLOW, 'ms',
+						'First Paint — when the browser first renders any pixel relative to component mount.',
+					),
+				);
+				const fcpLabel: Str = componentVitals.fcpTimeMs < 0 ? 'Before mount' : `${componentVitals.fcpTimeMs}ms`;
+				const fcpValue: Num = componentVitals.fcpTimeMs < 0 ? 0 : componentVitals.fcpTimeMs;
+				budgets.push(
+					buildBudget(
+						'FCP', fcpLabel, fcpValue,
+						FCP_GREEN, FCP_YELLOW, 'ms',
+						'First Contentful Paint — when the browser first renders text, image, or SVG content (Core Web Vital).',
+					),
+				);
+			}
+			/* LCP — always show when supported */
+			if (supportsEntryType('largest-contentful-paint')) {
+				if (componentVitals.isLcpComponent) {
+					budgets.push(
+						buildBudget(
+							'LCP', `${componentVitals.lcpTimeMs}ms`, componentVitals.lcpTimeMs,
+							LCP_GREEN, LCP_YELLOW, 'ms',
+							'Largest Contentful Paint — this component contains the page\'s largest visible content element (Core Web Vital).',
+						),
+					);
+				} else {
+					budgets.push({
+						label: 'LCP',
+						value: '—',
+						level: 'green',
+						description: 'Largest Contentful Paint — another component holds the LCP element (Core Web Vital).',
+						thresholds: '🟢 ≤2500ms · 🟡 ≤4000ms · 🔴 >4000ms',
+						greenMax: LCP_GREEN,
+						yellowMax: LCP_YELLOW,
+					});
+				}
+			}
+			/* FID — always show, "Waiting" when no interaction yet */
+			if (supportsEntryType('first-input')) {
+				const fidLabel: Str = componentVitals.fidMs < 0 ? 'Waiting' : `${componentVitals.fidMs}ms`;
+				const fidValue: Num = componentVitals.fidMs < 0 ? 0 : componentVitals.fidMs;
+				budgets.push(
+					buildBudget(
+						'FID', fidLabel, fidValue,
 						FID_GREEN, FID_YELLOW, 'ms',
 						'First Input Delay — time between first user interaction and browser response.',
+					),
+				);
+			}
+			/* INP — always show, "Waiting" when no interaction yet */
+			if (supportsEntryType('event')) {
+				const inpLabel: Str = componentVitals.inpMs < 0 ? 'Waiting' : `${componentVitals.inpMs}ms`;
+				const inpValue: Num = componentVitals.inpMs < 0 ? 0 : componentVitals.inpMs;
+				budgets.push(
+					buildBudget(
+						'INP', inpLabel, inpValue,
+						INP_GREEN, INP_YELLOW, 'ms',
+						'Interaction to Next Paint — worst interaction latency (Core Web Vital).',
 					),
 				);
 			}

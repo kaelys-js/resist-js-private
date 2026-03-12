@@ -32,6 +32,42 @@ type ChangelogEntry = {
 /** In-memory cache keyed by component name. */
 const cache: Map<Str, ChangelogEntry[]> = new Map();
 
+/** Cached GitHub repo base URL (e.g. "https://github.com/org/repo"). Empty if unavailable. */
+let repoUrlCache: Str | null = null;
+
+/**
+ * Detect the GitHub repository base URL from git remote origin.
+ *
+ * Parses SSH (`git@github.com:org/repo.git`) and HTTPS (`https://github.com/org/repo.git`)
+ * remote formats into a browseable URL.
+ *
+ * @returns GitHub repo URL or empty string if not available
+ */
+function detectRepoUrl(): Str {
+  if (repoUrlCache !== null) return repoUrlCache;
+  try {
+    const remote: Str = execSync('git remote get-url origin', {
+      encoding: 'utf8',
+      timeout: 3000,
+    }).trim() as Str;
+    let url: Str = remote;
+    /* SSH format: git@github.com:org/repo.git → https://github.com/org/repo */
+    const sshMatch: RegExpMatchArray | null = remote.match(/^git@([^:]+):(.+?)(?:\.git)?$/);
+    if (sshMatch) {
+      url = `https://${sshMatch[1]}/${sshMatch[2]}` as Str;
+    } else {
+      /* HTTPS format: strip trailing .git */
+      url = remote.replace(/\.git$/, '') as Str;
+    }
+    repoUrlCache = url;
+    return url;
+  } catch {
+    /* git remote not available */
+    repoUrlCache = '' as Str;
+    return '' as Str;
+  }
+}
+
 /**
  * Resolve the absolute path to `packages/shared/ui/src/` from the project root.
  *
@@ -131,8 +167,10 @@ export const GET: RequestHandler = ({ params }) => {
   }
 
   const entries: ChangelogEntry[] = getChangelog(name);
+  const repoUrl: Str = detectRepoUrl();
+  const componentPath: Str = `packages/shared/ui/src/${name}` as Str;
 
-  return new Response(JSON.stringify(entries), {
+  return new Response(JSON.stringify({ entries, repoUrl, componentPath }), {
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache',

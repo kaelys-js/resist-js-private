@@ -112,7 +112,11 @@ import FileText from '@lucide/svelte/icons/file-text';
 import Table from '@lucide/svelte/icons/table';
 import Clipboard from '@lucide/svelte/icons/clipboard';
 import Braces from '@lucide/svelte/icons/braces';
+import Search from '@lucide/svelte/icons/search';
+import SearchX from '@lucide/svelte/icons/search-x';
+import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
 import * as DropdownMenu from '../dropdown-menu/index.js';
+import Slider from '../slider/slider.svelte';
 import {
 	exportPng, exportJpeg, exportSvg, exportWebp,
 	copyImageToClipboard, copyChainJson, copyChainMermaid, copyChainDot,
@@ -581,6 +585,16 @@ const ZOOM_STEP: Num = 0.15 as Num;
 const ZOOM_MIN: Num = 0.3 as Num;
 const ZOOM_MAX: Num = 2 as Num;
 
+/** Zoom preset levels for the dropdown menu. */
+const ZOOM_PRESETS: Array<{ value: Num; label: Str }> = [
+	{ value: 0.5 as Num, label: '50%' as Str },
+	{ value: 0.75 as Num, label: '75%' as Str },
+	{ value: 1 as Num, label: '100%' as Str },
+	{ value: 1.25 as Num, label: '125%' as Str },
+	{ value: 1.5 as Num, label: '150%' as Str },
+	{ value: 2 as Num, label: '200%' as Str },
+];
+
 /**
  * Get the zoom percentage label.
  *
@@ -614,6 +628,43 @@ function chainZoomFit(): void {
 /** DOM reference to the chain graph container for image export. */
 let chainGraphRef: HTMLDivElement | undefined = $state(undefined);
 
+/* ------------------------------------------------------------------ */
+/*  Chain export items                                                 */
+/* ------------------------------------------------------------------ */
+
+/** Chain export format menu items with id, label, icon, and category. */
+const CHAIN_EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: typeof FileImage; category: Str }> = [
+	{ id: 'png', label: 'PNG', icon: FileImage, category: 'Image' },
+	{ id: 'jpeg', label: 'JPEG', icon: FileImage, category: 'Image' },
+	{ id: 'svg', label: 'SVG', icon: FileImage, category: 'Image' },
+	{ id: 'webp', label: 'WebP', icon: FileImage, category: 'Image' },
+	{ id: 'copy-image', label: 'Copy as Image', icon: Clipboard, category: 'Clipboard' },
+	{ id: 'copy-json', label: 'Copy as JSON', icon: Braces, category: 'Data' },
+	{ id: 'copy-mermaid', label: 'Copy as Mermaid', icon: GitBranch, category: 'Data' },
+	{ id: 'copy-dot', label: 'Copy as DOT', icon: GitBranch, category: 'Data' },
+	{ id: 'copy-csv', label: 'Copy as CSV', icon: Table, category: 'Data' },
+	{ id: 'copy-plantuml', label: 'Copy as PlantUML', icon: FileCode, category: 'Data' },
+	{ id: 'copy-markdown', label: 'Copy as Markdown', icon: FileText, category: 'Data' },
+];
+
+/** Search query for chain export menu filtering. */
+let chainExportSearchQuery: Str = $state('');
+
+/** Chain export items filtered by search query. */
+const filteredChainExportItems: Array<{ id: Str; label: Str; icon: typeof FileImage; category: Str }> = $derived(
+	chainExportSearchQuery.length === 0
+		? CHAIN_EXPORT_ITEMS
+		: CHAIN_EXPORT_ITEMS.filter((p) => p.label.toLowerCase().includes(chainExportSearchQuery.toLowerCase())),
+);
+
+/** Unique chain export categories present after filtering. */
+const filteredChainExportCategories: Str[] = $derived(
+	[...new Set(filteredChainExportItems.map((p) => p.category))],
+);
+
+/** Feedback state for chain export actions. */
+let chainExportFeedback: Str = $state('');
+
 /**
  * Convert the graph layout nodes into flat ChainExportNode[] for data export.
  *
@@ -641,36 +692,27 @@ async function handleChainExport(formatId: Str): Promise<void> {
 
 	if (formatId === 'copy-json') {
 		await copyChainJson(buildExportNodes(), name);
-		return;
-	}
-	if (formatId === 'copy-mermaid') {
+	} else if (formatId === 'copy-mermaid') {
 		await copyChainMermaid(buildExportNodes());
-		return;
-	}
-	if (formatId === 'copy-dot') {
+	} else if (formatId === 'copy-dot') {
 		await copyChainDot(buildExportNodes(), name);
-		return;
-	}
-	if (formatId === 'copy-csv') {
+	} else if (formatId === 'copy-csv') {
 		await copyChainCsv(buildExportNodes());
-		return;
-	}
-	if (formatId === 'copy-plantuml') {
+	} else if (formatId === 'copy-plantuml') {
 		await copyChainPlantUml(buildExportNodes(), name);
-		return;
-	}
-	if (formatId === 'copy-markdown') {
+	} else if (formatId === 'copy-markdown') {
 		await copyChainMarkdown(buildExportNodes(), name);
-		return;
+	} else {
+		const el: HTMLDivElement | undefined = chainGraphRef;
+		if (!el) return;
+		if (formatId === 'png') await exportPng(el, filename);
+		else if (formatId === 'jpeg') await exportJpeg(el, filename);
+		else if (formatId === 'svg') await exportSvg(el, filename);
+		else if (formatId === 'webp') await exportWebp(el, filename);
+		else if (formatId === 'copy-image') await copyImageToClipboard(el);
 	}
-
-	const el: HTMLDivElement | undefined = chainGraphRef;
-	if (!el) return;
-	if (formatId === 'png') await exportPng(el, filename);
-	else if (formatId === 'jpeg') await exportJpeg(el, filename);
-	else if (formatId === 'svg') await exportSvg(el, filename);
-	else if (formatId === 'webp') await exportWebp(el, filename);
-	else if (formatId === 'copy-image') await copyImageToClipboard(el);
+	chainExportFeedback = formatId;
+	setTimeout((): Void => { chainExportFeedback = ''; }, 2000);
 }
 </script>
 
@@ -863,51 +905,110 @@ async function handleChainExport(formatId: Str): Promise<void> {
 										{...props}
 										type="button"
 										class="inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-										aria-label="Export"
+										aria-label="Options"
 									>
-										<Download class="size-3.5" />
+										<EllipsisVertical class="size-3.5" />
 									</button>
 								{/snippet}
 							</DropdownMenu.Trigger>
-							<DropdownMenu.Content align="end" class="w-48">
-								<DropdownMenu.Label class="text-xs">Image</DropdownMenu.Label>
-								<DropdownMenu.Item onclick={() => handleChainExport('png')} class="gap-2">
-									<FileImage class="size-3.5" /> PNG
-								</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('jpeg')} class="gap-2">
-									<FileImage class="size-3.5" /> JPEG
-								</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('svg')} class="gap-2">
-									<FileImage class="size-3.5" /> SVG
-								</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('webp')} class="gap-2">
-									<FileImage class="size-3.5" /> WebP
-								</DropdownMenu.Item>
-								<DropdownMenu.Separator />
-								<DropdownMenu.Label class="text-xs">Clipboard</DropdownMenu.Label>
-								<DropdownMenu.Item onclick={() => handleChainExport('copy-image')} class="gap-2">
-									<Clipboard class="size-3.5" /> Copy as Image
-								</DropdownMenu.Item>
-								<DropdownMenu.Separator />
-								<DropdownMenu.Label class="text-xs">Data</DropdownMenu.Label>
-								<DropdownMenu.Item onclick={() => handleChainExport('copy-json')} class="gap-2">
-									<Braces class="size-3.5" /> Copy as JSON
-								</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('copy-mermaid')} class="gap-2">
-									<GitBranch class="size-3.5" /> Copy as Mermaid
-								</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('copy-dot')} class="gap-2">
-									<GitBranch class="size-3.5" /> Copy as DOT
-								</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('copy-csv')} class="gap-2">
-									<Table class="size-3.5" /> Copy as CSV
-								</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('copy-plantuml')} class="gap-2">
-									<FileCode class="size-3.5" /> Copy as PlantUML
-								</DropdownMenu.Item>
-								<DropdownMenu.Item onclick={() => handleChainExport('copy-markdown')} class="gap-2">
-									<FileText class="size-3.5" /> Copy as Markdown
-								</DropdownMenu.Item>
+							<DropdownMenu.Content align="end" class="w-52">
+								<DropdownMenu.Sub>
+									<DropdownMenu.SubTrigger>
+										<ZoomIn class="size-4" />
+										Zoom ({chainZoomLabel()})
+									</DropdownMenu.SubTrigger>
+									<DropdownMenu.SubContent class="w-44">
+										<DropdownMenu.Item onclick={chainZoomIn} disabled={chainZoom >= ZOOM_MAX}>
+											<ZoomIn class="size-4" />
+											Zoom in
+										</DropdownMenu.Item>
+										<DropdownMenu.Item onclick={chainZoomOut} disabled={chainZoom <= ZOOM_MIN}>
+											<ZoomOut class="size-4" />
+											Zoom out
+										</DropdownMenu.Item>
+										<DropdownMenu.Item onclick={chainZoomFit} disabled={chainZoom === 1}>
+											<Maximize class="size-4" />
+											Fit (100%)
+										</DropdownMenu.Item>
+										<DropdownMenu.Separator />
+										<DropdownMenu.Label class="text-xs">Zoom Level</DropdownMenu.Label>
+										{#each ZOOM_PRESETS as preset (preset.value)}
+											<DropdownMenu.Item onclick={() => { chainZoom = preset.value; }}>
+												<Check class={cn('size-4', chainZoom !== preset.value && 'opacity-0')} />
+												{preset.label}
+											</DropdownMenu.Item>
+										{/each}
+										<DropdownMenu.Separator />
+										<div class="px-2 py-1.5">
+											<p class="mb-1.5 text-xs font-medium text-muted-foreground">Custom ({chainZoomLabel()})</p>
+											<Slider
+												type="single"
+												value={Math.round(chainZoom * 100)}
+												min={ZOOM_MIN * 100}
+												max={ZOOM_MAX * 100}
+												step={5}
+												onValueChange={(v) => { chainZoom = (v / 100) as Num; }}
+											/>
+										</div>
+									</DropdownMenu.SubContent>
+								</DropdownMenu.Sub>
+								<DropdownMenu.Sub
+									onOpenChange={(open) => {
+										if (open) chainExportSearchQuery = '';
+									}}
+								>
+									<DropdownMenu.SubTrigger>
+										<Download class="size-4" />
+										Export
+									</DropdownMenu.SubTrigger>
+									<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+										<div class="shrink-0 px-2 pb-1.5 pt-1">
+											<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+												<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+												<input
+													type="text"
+													placeholder="Search formats..."
+													class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+													bind:value={chainExportSearchQuery}
+													onkeydown={(e) => e.stopPropagation()}
+													onkeyup={(e) => e.stopPropagation()}
+													onkeypress={(e) => e.stopPropagation()}
+												/>
+											</div>
+										</div>
+										<div class="flex min-h-0 flex-1 flex-col overflow-y-auto">
+											{#each filteredChainExportCategories as category (category)}
+												{#if filteredChainExportCategories.indexOf(category) > 0}
+													<DropdownMenu.Separator />
+												{/if}
+												<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+												{#each filteredChainExportItems.filter((i) => i.category === category) as item (item.id)}
+													<DropdownMenu.Item
+														onSelect={(e) => {
+															e.preventDefault();
+															handleChainExport(item.id);
+														}}
+													>
+														{#if chainExportFeedback === item.id}
+															<Check class="size-4 text-green-500" />
+														{:else}
+															<item.icon class="size-4" />
+														{/if}
+														{item.label}
+													</DropdownMenu.Item>
+												{/each}
+											{:else}
+												<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+													<SearchX class="size-5" />
+													<div class="flex flex-col items-center gap-0.5">
+														<p class="text-xs font-medium">No formats found</p>
+														<p class="text-[11px]">Try a different search term</p>
+													</div>
+												</div>
+											{/each}
+										</div>
+									</DropdownMenu.SubContent>
+								</DropdownMenu.Sub>
 							</DropdownMenu.Content>
 						</DropdownMenu.Root>
 					</div>
@@ -934,14 +1035,32 @@ async function handleChainExport(formatId: Str): Promise<void> {
 						<svg class="pointer-events-none absolute inset-0" width={graphLayout.width} height={graphLayout.height}>
 							{#each graphLayout.connectors as conn, ci (ci)}
 								{@const midY = (conn.y1 + (conn.y2 - conn.y1) * 0.5)}
+								<!-- Line shadow (wide, faint glow) -->
 								<path
 									d="M {conn.x1} {conn.y1} C {conn.x1} {midY}, {conn.x2} {midY}, {conn.x2} {conn.y2}"
 									fill="none"
 									stroke="currentColor"
-									stroke-width="1.5"
-									class="text-muted-foreground/30"
+									stroke-width="6"
+									stroke-linecap="round"
+									class="text-foreground/[0.05]"
 								/>
-								<circle cx={conn.x2} cy={conn.y2} r="3" fill="currentColor" class="text-rose-500/50" />
+								<!-- Main line -->
+								<path
+									d="M {conn.x1} {conn.y1} C {conn.x1} {midY}, {conn.x2} {midY}, {conn.x2} {conn.y2}"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									class="text-muted-foreground/25"
+								/>
+								<!-- Start knob shadow -->
+								<circle cx={conn.x1} cy={conn.y1} r="6" fill="currentColor" class="text-foreground/[0.06]" />
+								<!-- Start knob (toggle-style solid circle) -->
+								<circle cx={conn.x1} cy={conn.y1} r="3.5" fill="currentColor" class="text-muted-foreground/40" />
+								<!-- End knob shadow -->
+								<circle cx={conn.x2} cy={conn.y2} r="6" fill="currentColor" class="text-foreground/[0.06]" />
+								<!-- End knob (toggle-style solid circle) -->
+								<circle cx={conn.x2} cy={conn.y2} r="3.5" fill="currentColor" class="text-muted-foreground/40" />
 							{/each}
 						</svg>
 						<!-- Node cards -->

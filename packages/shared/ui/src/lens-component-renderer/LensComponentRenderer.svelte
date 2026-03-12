@@ -124,7 +124,10 @@ import Chrome from '@lucide/svelte/icons/chrome';
 import ImageIcon from '@lucide/svelte/icons/image';
 import X from '@lucide/svelte/icons/x';
 import Terminal from '@lucide/svelte/icons/terminal';
+import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 import Trash2 from '@lucide/svelte/icons/trash-2';
+import FileText from '@lucide/svelte/icons/file-text';
+import RefreshCw from '@lucide/svelte/icons/refresh-cw';
 import * as DropdownMenu from '../dropdown-menu/index.js';
 import * as Popover from '../popover/index.js';
 import { exportPng, exportJpeg, exportSvg, exportWebp, copyImageToClipboard, copyHtml, copyDataUri, downloadHtml, downloadStandaloneHtml } from '../lens/export-utils.js';
@@ -344,6 +347,15 @@ let cardScreenshots: Record<Str, ScreenshotCapture[]> = $state({});
 /** Per-card screenshot capture loading state. */
 let cardScreenCapturing: Record<Str, Bool> = $state({});
 
+/** Per-card screenshot capture error message (empty = no error). */
+let cardScreenError: Record<Str, Str> = $state({});
+
+/** Per-card screenshots section collapsed state (true = expanded, default true). */
+let cardScreenshotsOpen: Record<Str, Bool> = $state({});
+
+/** Per-card console log list collapsed state (true = expanded, default true). */
+let cardConsoleExpanded: Record<Str, Bool> = $state({});
+
 /** Search query for the Real Browser device list. */
 let browserSearchQuery: Str = $state('');
 
@@ -511,6 +523,7 @@ function formatStatsMarkdown(stats: LensStatsData, name: Str): Str {
 	}
 	lines.push(
 		`- **FID:** ${stats.vitals.fidMs < 0 ? 'Waiting' : `${stats.vitals.fidMs}ms`}`,
+		`- **INP:** ${stats.vitals.inpMs < 0 ? 'Waiting' : `${stats.vitals.inpMs}ms`}`,
 		`- **TTFB:** ${stats.vitals.ttfbMs < 0 ? 'Unavailable' : `${stats.vitals.ttfbMs}ms`}`,
 		`- **Supported:** ${stats.vitals.supported ? 'Yes' : 'No'}`,
 		'',
@@ -600,36 +613,80 @@ function formatStatsMarkdown(stats: LensStatsData, name: Str): Str {
 }
 
 /**
- * Copy stats to clipboard in the given format.
+ * Format stats data as CSV.
  *
- * @param stats - The LensStatsData to copy
+ * @param stats - The LensStatsData to format
  * @param name - Display name of the component
- * @param format - 'json' or 'markdown'
+ * @returns CSV-formatted string
  */
-async function copyStatsToClipboard(stats: LensStatsData, name: Str, format: 'json' | 'markdown'): Promise<void> {
-	const text: Str = format === 'json'
-		? formatStatsJson(stats, name)
-		: formatStatsMarkdown(stats, name);
-	await navigator.clipboard.writeText(text);
-	statsExportCopied = format;
-	setTimeout((): Void => { statsExportCopied = ''; }, 2000);
+function formatStatsCsv(stats: LensStatsData, name: Str): Str {
+	const header: Str = 'Component,Metric,Value,Level,Thresholds';
+	const rows: Str[] = stats.budgets.map((b: MetricBudget): Str => {
+		const val: Str = b.value.replaceAll('"', '""');
+		const thresh: Str = b.thresholds.replaceAll('"', '""');
+		return `"${name}","${b.label}","${val}",${b.level},"${thresh}"`;
+	});
+	return [header, ...rows].join('\n');
 }
 
+/** Stats export format menu items with id, label, icon, and category. */
+const STATS_EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: Component; category: Str }> = [
+	{ id: 'copy-json', label: 'Copy as JSON', icon: ClipboardCopy, category: 'Clipboard' },
+	{ id: 'copy-markdown', label: 'Copy as Markdown', icon: FileText, category: 'Clipboard' },
+	{ id: 'copy-csv', label: 'Copy as CSV', icon: ClipboardCopy, category: 'Clipboard' },
+	{ id: 'download-json', label: 'Download JSON', icon: Download, category: 'File' },
+	{ id: 'download-markdown', label: 'Download Markdown', icon: Download, category: 'File' },
+];
+
+/** Search query for stats export menu filtering. */
+let statsExportSearchQuery: Str = $state('');
+
+/** Stats export items filtered by search query. */
+const filteredStatsExportItems: Array<{ id: Str; label: Str; icon: Component; category: Str }> = $derived(
+	statsExportSearchQuery.length === 0
+		? STATS_EXPORT_ITEMS
+		: STATS_EXPORT_ITEMS.filter((p) => p.label.toLowerCase().includes(statsExportSearchQuery.toLowerCase())),
+);
+
+/** Unique stats export categories present after filtering. */
+const filteredStatsExportCategories: Str[] = $derived(
+	[...new Set(filteredStatsExportItems.map((p) => p.category))],
+);
+
 /**
- * Download stats as a JSON file.
+ * Handle stats export by format id.
  *
- * @param stats - The LensStatsData to download
+ * @param stats - The LensStatsData to export
  * @param name - Display name of the component
+ * @param formatId - Export format identifier
  */
-function downloadStatsJson(stats: LensStatsData, name: Str): Void {
-	const json: Str = formatStatsJson(stats, name);
-	const blob: Blob = new Blob([json], { type: 'application/json' });
-	const url: Str = URL.createObjectURL(blob);
-	const a: HTMLAnchorElement = document.createElement('a');
-	a.href = url;
-	a.download = `${name.toLowerCase().replaceAll(/\s+/g, '-')}-stats.json`;
-	a.click();
-	URL.revokeObjectURL(url);
+async function handleStatsExport(stats: LensStatsData, name: Str, formatId: Str): Promise<void> {
+	const slug: Str = name.toLowerCase().replaceAll(/\s+/g, '-');
+	if (formatId === 'copy-json') {
+		await navigator.clipboard.writeText(formatStatsJson(stats, name));
+	} else if (formatId === 'copy-markdown') {
+		await navigator.clipboard.writeText(formatStatsMarkdown(stats, name));
+	} else if (formatId === 'copy-csv') {
+		await navigator.clipboard.writeText(formatStatsCsv(stats, name));
+	} else if (formatId === 'download-json') {
+		const blob: Blob = new Blob([formatStatsJson(stats, name)], { type: 'application/json' });
+		const url: Str = URL.createObjectURL(blob);
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = url;
+		a.download = `${slug}-stats.json`;
+		a.click();
+		URL.revokeObjectURL(url);
+	} else if (formatId === 'download-markdown') {
+		const blob: Blob = new Blob([formatStatsMarkdown(stats, name)], { type: 'text/markdown' });
+		const url: Str = URL.createObjectURL(blob);
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = url;
+		a.download = `${slug}-stats.md`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+	statsExportCopied = formatId;
+	setTimeout((): Void => { statsExportCopied = ''; }, 2000);
 }
 
 /**
@@ -2194,6 +2251,101 @@ function consoleCapture(node: HTMLDivElement, key: Str): { destroy: () => void }
 }
 
 /* ------------------------------------------------------------------ */
+/*  Console export items                                               */
+/* ------------------------------------------------------------------ */
+
+/** Console export format menu items with id, label, icon, and category. */
+const CONSOLE_EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: Component; category: Str }> = [
+	{ id: 'copy-json', label: 'Copy as JSON', icon: ClipboardCopy, category: 'Clipboard' },
+	{ id: 'copy-text', label: 'Copy as Text', icon: FileCode, category: 'Clipboard' },
+	{ id: 'copy-csv', label: 'Copy as CSV', icon: ClipboardCopy, category: 'Clipboard' },
+	{ id: 'download-json', label: 'Download JSON', icon: Download, category: 'File' },
+	{ id: 'download-text', label: 'Download Text', icon: Download, category: 'File' },
+];
+
+/** Search query for console export menu filtering. */
+let consoleExportSearchQuery: Str = $state('');
+
+/** Console export items filtered by search query. */
+const filteredConsoleExportItems: Array<{ id: Str; label: Str; icon: Component; category: Str }> = $derived(
+	consoleExportSearchQuery.length === 0
+		? CONSOLE_EXPORT_ITEMS
+		: CONSOLE_EXPORT_ITEMS.filter((p) => p.label.toLowerCase().includes(consoleExportSearchQuery.toLowerCase())),
+);
+
+/** Unique console export categories present after filtering. */
+const filteredConsoleExportCategories: Str[] = $derived(
+	[...new Set(filteredConsoleExportItems.map((p) => p.category))],
+);
+
+/** Feedback state for console export actions. */
+let consoleExportFeedback: Str = $state('');
+
+/**
+ * Format console logs as plain text lines.
+ *
+ * @param logs - Console log entries to format
+ * @returns Formatted text string
+ */
+function formatConsolePlainText(logs: ConsoleLogEntry[]): Str {
+	return logs.map((e: ConsoleLogEntry): Str =>
+		`[+${e.ts}ms] [${e.level.toUpperCase()}] ${e.message}${e.detail ? ` ${e.detail}` : ''}${e.source ? ` (${e.source})` : ''}`,
+	).join('\n');
+}
+
+/**
+ * Format console logs as CSV.
+ *
+ * @param logs - Console log entries to format
+ * @returns CSV-formatted string
+ */
+function formatConsoleCsv(logs: ConsoleLogEntry[]): Str {
+	const header: Str = 'Timestamp (ms),Level,Message,Detail,Source';
+	const rows: Str[] = logs.map((e: ConsoleLogEntry): Str => {
+		const msg: Str = e.message.replaceAll('"', '""');
+		const detail: Str = (e.detail ?? '').replaceAll('"', '""');
+		const source: Str = (e.source ?? '').replaceAll('"', '""');
+		return `${e.ts},${e.level},"${msg}","${detail}","${source}"`;
+	});
+	return [header, ...rows].join('\n');
+}
+
+/**
+ * Export console logs for a card in the given format.
+ *
+ * @param key - Card identifier
+ * @param formatId - Export format identifier
+ */
+async function handleConsoleExport(key: Str, formatId: Str): Promise<void> {
+	const logs: ConsoleLogEntry[] = cardConsoleLogs[key] ?? [];
+	if (formatId === 'copy-json') {
+		await navigator.clipboard.writeText(JSON.stringify(logs, null, 2));
+	} else if (formatId === 'copy-text') {
+		await navigator.clipboard.writeText(formatConsolePlainText(logs));
+	} else if (formatId === 'copy-csv') {
+		await navigator.clipboard.writeText(formatConsoleCsv(logs));
+	} else if (formatId === 'download-json') {
+		const blob: Blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+		const url: Str = URL.createObjectURL(blob);
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = url;
+		a.download = `${key}-console.json`;
+		a.click();
+		URL.revokeObjectURL(url);
+	} else if (formatId === 'download-text') {
+		const blob: Blob = new Blob([formatConsolePlainText(logs)], { type: 'text/plain' });
+		const url: Str = URL.createObjectURL(blob);
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = url;
+		a.download = `${key}-console.txt`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+	consoleExportFeedback = formatId;
+	setTimeout((): Void => { consoleExportFeedback = ''; }, 2000);
+}
+
+/* ------------------------------------------------------------------ */
 /*  Measure / Inspect helpers                                          */
 /* ------------------------------------------------------------------ */
 
@@ -2725,6 +2877,7 @@ function resetCard(key: Str): Void {
 	cardScreenDevice[key] = '';
 	cardScreenshots[key] = [];
 	cardScreenCapturing[key] = false;
+	cardScreenError[key] = '' as Str;
 }
 
 /* ---- Real Browser Screenshot Functions ---- */
@@ -2890,6 +3043,7 @@ const filteredAndroidDevices: Array<Record<Str, unknown>> = $derived.by((): Arra
 async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promise<void> {
 	if (!componentName) return;
 	cardScreenCapturing[key] = true;
+	cardScreenError[key] = '' as Str;
 
 	const source: ScreenshotSource = cardScreenSource[key] || 'playwright';
 	const browser: Str = cardScreenBrowser[key] || ('chromium' as Str);
@@ -3021,6 +3175,7 @@ async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promis
 					: 'Screenshot failed'
 			) as Str;
 			log.warn(`Screenshot capture failed: ${errMsg}`);
+			cardScreenError[key] = errMsg;
 			return;
 		}
 
@@ -3029,6 +3184,7 @@ async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promis
 		const base64Image: Str = (body.image ?? '') as Str;
 		if (!base64Image) {
 			log.warn('Screenshot API returned no image data');
+			cardScreenError[key] = 'No image data returned' as Str;
 			return;
 		}
 
@@ -3155,6 +3311,7 @@ async function captureScreenshot(key: Str, variantKey: Str, option: Str): Promis
 			error instanceof Error ? error.message : 'Screenshot request failed'
 		) as Str;
 		log.warn(`Screenshot capture error: ${msg}`);
+		cardScreenError[key] = msg;
 	} finally {
 		cardScreenCapturing[key] = false;
 	}
@@ -3205,6 +3362,92 @@ function removeScreenshot(key: Str, index: Num): Void {
 	const removed: ScreenshotCapture | undefined = captures[index];
 	if (removed) URL.revokeObjectURL(removed.imageUrl);
 	cardScreenshots[key] = captures.filter((_: ScreenshotCapture, i: Num): boolean => i !== index);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Screenshot export                                                  */
+/* ------------------------------------------------------------------ */
+
+/** Screenshot export format menu items. */
+const SCREENSHOT_EXPORT_ITEMS: Array<{ id: Str; label: Str; icon: Component; category: Str }> = [
+	{ id: 'copy-image', label: 'Copy as Image', icon: Clipboard, category: 'Clipboard' },
+	{ id: 'copy-data-uri', label: 'Copy as Data URI', icon: Link, category: 'Clipboard' },
+	{ id: 'download-png', label: 'Download PNG', icon: Download, category: 'File' },
+];
+
+/** Search query for screenshot export menu filtering. */
+let screenshotExportSearchQuery: Str = $state('');
+
+/** Screenshot export items filtered by search query. */
+const filteredScreenshotExportItems: Array<{ id: Str; label: Str; icon: Component; category: Str }> = $derived(
+	screenshotExportSearchQuery.length === 0
+		? SCREENSHOT_EXPORT_ITEMS
+		: SCREENSHOT_EXPORT_ITEMS.filter((p) => p.label.toLowerCase().includes(screenshotExportSearchQuery.toLowerCase())),
+);
+
+/** Unique screenshot export categories present after filtering. */
+const filteredScreenshotExportCategories: Str[] = $derived(
+	[...new Set(filteredScreenshotExportItems.map((p) => p.category))],
+);
+
+/** Feedback state for screenshot export actions. */
+let screenshotExportFeedback: Str = $state('');
+
+/**
+ * Export a single screenshot capture by format.
+ *
+ * @param capture - The screenshot capture to export
+ * @param formatId - Export format identifier
+ */
+async function handleScreenshotExport(capture: ScreenshotCapture, formatId: Str): Promise<void> {
+	if (formatId === 'copy-image') {
+		try {
+			const response: Response = await fetch(capture.imageUrl);
+			const blob: Blob = await response.blob();
+			await navigator.clipboard.write([
+				new ClipboardItem({ [blob.type]: blob }),
+			]);
+		} catch {
+			/* Clipboard write failed — browser may not support ClipboardItem */
+		}
+	} else if (formatId === 'copy-data-uri') {
+		try {
+			const response: Response = await fetch(capture.imageUrl);
+			const blob: Blob = await response.blob();
+			const reader: FileReader = new FileReader();
+			const dataUri: Str = await new Promise<Str>((resolve) => {
+				reader.onloadend = (): void => resolve(reader.result as Str);
+				reader.readAsDataURL(blob);
+			});
+			await navigator.clipboard.writeText(dataUri);
+		} catch {
+			/* Data URI conversion failed */
+		}
+	} else if (formatId === 'download-png') {
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = capture.imageUrl;
+		a.download = `screenshot-${capture.browserDisplayName}-${capture.device}-${capture.timestamp}.png`;
+		a.click();
+	}
+	screenshotExportFeedback = formatId;
+	setTimeout((): Void => { screenshotExportFeedback = ''; }, 2000);
+}
+
+/**
+ * Export all screenshots for a card as individual downloads.
+ *
+ * @param key - Card key
+ */
+function handleScreenshotExportAll(key: Str): Void {
+	const captures: ScreenshotCapture[] = cardScreenshots[key] ?? [];
+	for (const capture of captures) {
+		const a: HTMLAnchorElement = document.createElement('a');
+		a.href = capture.imageUrl;
+		a.download = `screenshot-${capture.browserDisplayName}-${capture.device}-${capture.timestamp}.png`;
+		a.click();
+	}
+	screenshotExportFeedback = 'download-all';
+	setTimeout((): Void => { screenshotExportFeedback = ''; }, 2000);
 }
 
 /**
@@ -3604,92 +3847,87 @@ function isIconOption(option: Str): boolean {
 						</Popover.Trigger>
 						<Popover.Content side="bottom" align="end" class="w-96 max-h-[28rem] overflow-y-auto p-0">
 							<!-- Header -->
-							<div class="flex items-start justify-between border-b bg-muted/30 px-3 py-2">
+							<div class="sticky top-0 z-10 flex items-start justify-between border-b bg-popover px-3 py-2">
 								<div>
 									<h4 class="text-xs font-semibold">Performance Statistics</h4>
 									<p class="text-[10px] text-muted-foreground">Measured at mount time. Hover metrics for details.</p>
 								</div>
-								<div class="flex items-center gap-0.5">
-									<Tooltip.Provider>
-										<Tooltip.Root delayDuration={300} open={statsExportCopied === 'json' ? true : undefined}>
-											<Tooltip.Trigger>
-												{#snippet child({ props: tipProps })}
-													<button
-														{...tipProps}
-														type="button"
-														class="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-														onclick={() => copyStatsToClipboard(stats, tagName ?? componentName ?? 'Component', 'json')}
-														aria-label="Copy as JSON"
-													>
-														{#if statsExportCopied === 'json'}
-															<span in:fade={{ duration: 150 }}>
-																<Check class="size-3 text-green-500" aria-hidden="true" />
-															</span>
-														{:else}
-															<span in:fade={{ duration: 150 }}>
-																<ClipboardCopy class="size-3" aria-hidden="true" />
-															</span>
-														{/if}
-													</button>
-												{/snippet}
-											</Tooltip.Trigger>
-											<Tooltip.Content side="bottom" sideOffset={4}>
-												{statsExportCopied === 'json' ? 'Copied!' : 'Copy as JSON'}
-											</Tooltip.Content>
-										</Tooltip.Root>
-									</Tooltip.Provider>
-									<Tooltip.Provider>
-										<Tooltip.Root delayDuration={300} open={statsExportCopied === 'markdown' ? true : undefined}>
-											<Tooltip.Trigger>
-												{#snippet child({ props: tipProps })}
-													<button
-														{...tipProps}
-														type="button"
-														class="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-														onclick={() => copyStatsToClipboard(stats, tagName ?? componentName ?? 'Component', 'markdown')}
-														aria-label="Copy as Markdown"
-													>
-														{#if statsExportCopied === 'markdown'}
-															<span in:fade={{ duration: 150 }}>
-																<Check class="size-3 text-green-500" aria-hidden="true" />
-															</span>
-														{:else}
-															<span in:fade={{ duration: 150 }}>
-																<FileCode class="size-3" aria-hidden="true" />
-															</span>
-														{/if}
-													</button>
-												{/snippet}
-											</Tooltip.Trigger>
-											<Tooltip.Content side="bottom" sideOffset={4}>
-												{statsExportCopied === 'markdown' ? 'Copied!' : 'Copy as Markdown'}
-											</Tooltip.Content>
-										</Tooltip.Root>
-									</Tooltip.Provider>
-									<Tooltip.Provider>
-										<Tooltip.Root delayDuration={300}>
-											<Tooltip.Trigger>
-												{#snippet child({ props: tipProps })}
-													<button
-														{...tipProps}
-														type="button"
-														class="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-														onclick={() => downloadStatsJson(stats, tagName ?? componentName ?? 'Component')}
-														aria-label="Download JSON"
-													>
-														<Download class="size-3" aria-hidden="true" />
-													</button>
-												{/snippet}
-											</Tooltip.Trigger>
-											<Tooltip.Content side="bottom" sideOffset={4}>
-												Download JSON
-											</Tooltip.Content>
-										</Tooltip.Root>
-									</Tooltip.Provider>
-								</div>
+								<DropdownMenu.Root>
+								<DropdownMenu.Trigger>
+									{#snippet child({ props: menuProps })}
+										<button
+											{...menuProps}
+											type="button"
+											class="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+											aria-label="Statistics options"
+										>
+											<EllipsisVertical class="size-3.5" />
+										</button>
+									{/snippet}
+								</DropdownMenu.Trigger>
+								<DropdownMenu.Content align="end" class="w-48">
+									<DropdownMenu.Sub
+										onOpenChange={(open) => {
+											if (open) statsExportSearchQuery = '';
+										}}
+									>
+										<DropdownMenu.SubTrigger>
+											<Download class="size-4" />
+											Export
+										</DropdownMenu.SubTrigger>
+										<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+											<div class="shrink-0 px-2 pb-1.5 pt-1">
+												<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+													<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+													<input
+														type="text"
+														placeholder="Search formats..."
+														class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+														bind:value={statsExportSearchQuery}
+														onkeydown={(e) => e.stopPropagation()}
+														onkeyup={(e) => e.stopPropagation()}
+														onkeypress={(e) => e.stopPropagation()}
+													/>
+												</div>
+											</div>
+											<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+												{#each filteredStatsExportCategories as category (category)}
+													{#if filteredStatsExportCategories.indexOf(category) > 0}
+														<DropdownMenu.Separator />
+													{/if}
+													<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+													{#each filteredStatsExportItems.filter((i) => i.category === category) as item (item.id)}
+														<DropdownMenu.Item
+															onSelect={(e) => {
+																e.preventDefault();
+																handleStatsExport(stats, tagName ?? componentName ?? 'Component', item.id);
+															}}
+														>
+															{#if statsExportCopied === item.id}
+																<Check class="size-4 text-green-500" />
+															{:else}
+																<item.icon class="size-4" />
+															{/if}
+															{item.label}
+														</DropdownMenu.Item>
+													{/each}
+												{:else}
+													<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+														<SearchX class="size-5" />
+														<div class="flex flex-col items-center gap-0.5">
+															<p class="text-xs font-medium">No formats found</p>
+															<p class="text-[11px]">Try a different search term</p>
+														</div>
+													</div>
+												{/each}
+											</div>
+										</DropdownMenu.SubContent>
+									</DropdownMenu.Sub>
+								</DropdownMenu.Content>
+							</DropdownMenu.Root>
 								<!-- Aria-live region for export copy feedback -->
 								<span class="sr-only" role="status" aria-live="polite" aria-atomic="true">
-									{#if statsExportCopied === 'json'}Copied as JSON!{:else if statsExportCopied === 'markdown'}Copied as Markdown!{/if}
+									{#if statsExportCopied}Exported!{/if}
 								</span>
 							</div>
 
@@ -3699,7 +3937,7 @@ function isIconOption(option: Str): boolean {
 									{#if statsReportOpen}<ChevronDown class="size-3 text-muted-foreground" />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
 									<h4 class="text-xs font-semibold">Report</h4>
 								</button>
-								{#if statsReportOpen}<div id="stats-report">
+								{#if statsReportOpen}<div id="stats-report" transition:slide={{ duration: 150 }}>
 								<p class="mb-1 mt-0.5 text-[10px] text-muted-foreground">Performance and accessibility budget metrics. Hover for details.</p>
 								<div class="space-y-0 divide-y text-xs">
 									{#each stats.budgets as budget (budget.label)}
@@ -3855,7 +4093,7 @@ function isIconOption(option: Str): boolean {
 									{#if statsVitalsOpen}<ChevronDown class="size-3 text-muted-foreground" />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
 									<h4 class="text-xs font-semibold">Web Vitals</h4>
 								</button>
-								{#if statsVitalsOpen}<div id="stats-vitals">
+								{#if statsVitalsOpen}<div id="stats-vitals" transition:slide={{ duration: 150 }}>
 								<p class="mb-1.5 mt-0.5 text-[10px] text-muted-foreground">
 									{#if stats.vitals.supported}
 										Component-scoped performance vitals via PerformanceObserver.
@@ -4112,6 +4350,51 @@ function isIconOption(option: Str): boolean {
 										</Tooltip.Root>
 									</Tooltip.Provider>
 
+									<!-- INP -->
+									<Tooltip.Provider>
+										<Tooltip.Root delayDuration={200}>
+											<Tooltip.Trigger>
+												{#snippet child({ props: tipProps })}
+													<div {...tipProps} class="flex cursor-help items-center justify-between">
+														<div class="flex items-center gap-2">
+															{#if !stats.vitals.supported}
+																<span class="text-base leading-none text-muted-foreground/40">●</span>
+															{:else if stats.vitals.inpMs < 0}
+																<span class="text-base leading-none text-muted-foreground/40">●</span>
+															{:else if stats.vitals.inpMs <= 200}
+																<span class="text-base leading-none text-emerald-500">●</span>
+															{:else if stats.vitals.inpMs <= 500}
+																<span class="text-base leading-none text-amber-500">●</span>
+															{:else}
+																<span class="text-base leading-none text-red-500">●</span>
+															{/if}
+															<span class="text-muted-foreground">INP</span>
+															<span class="rounded border px-1 text-[8px] leading-tight text-muted-foreground/60">Core</span>
+														</div>
+														<span class={cn('font-mono font-medium', !stats.vitals.supported && 'text-muted-foreground/50')}>
+															{#if !stats.vitals.supported}
+																Unsupported
+															{:else if stats.vitals.inpMs < 0}
+																Waiting
+															{:else}
+																{stats.vitals.inpMs}ms
+															{/if}
+														</span>
+													</div>
+												{/snippet}
+											</Tooltip.Trigger>
+											<Tooltip.Content side="left" sideOffset={8} class="max-w-[16rem] p-0">
+												<div class="space-y-1 px-3 py-2">
+													<p class="text-xs text-primary-foreground">Interaction to Next Paint — measures the worst interaction latency (click, tap, key press to visual update). Replaced FID as a Core Web Vital in March 2024.</p>
+													<p class="font-mono text-[10px] text-primary-foreground/70">🟢 ≤200ms · 🟡 ≤500ms · 🔴 >500ms</p>
+													{#if !stats.vitals.supported}
+														<p class="text-[10px] text-primary-foreground/50">Requires event PerformanceObserver (Chrome/Edge).</p>
+													{/if}
+												</div>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+
 									<!-- TTFB -->
 									<Tooltip.Provider>
 										<Tooltip.Root delayDuration={200}>
@@ -4158,7 +4441,7 @@ function isIconOption(option: Str): boolean {
 									{#if statsDomOpen}<ChevronDown class="size-3 text-muted-foreground" />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
 									<h4 class="text-xs font-semibold">DOM Structure</h4>
 								</button>
-								{#if statsDomOpen}<div id="stats-dom">
+								{#if statsDomOpen}<div id="stats-dom" transition:slide={{ duration: 150 }}>
 								<p class="mb-1.5 mt-0.5 text-[10px] text-muted-foreground">Element count and nesting depth of the rendered component.</p>
 								<div class="grid grid-cols-3 gap-2 text-xs">
 									<Tooltip.Provider>
@@ -4241,7 +4524,7 @@ function isIconOption(option: Str): boolean {
 									{#if statsA11yOpen}<ChevronDown class="size-3 text-muted-foreground" />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
 									<h4 class="text-xs font-semibold">Accessibility</h4>
 								</button>
-								{#if statsA11yOpen}<div id="stats-a11y">
+								{#if statsA11yOpen}<div id="stats-a11y" transition:slide={{ duration: 150 }}>
 								<p class="mb-1.5 mt-0.5 text-[10px] text-muted-foreground">Interactive elements, labels, landmarks, and focus order.</p>
 								<div class="space-y-1 text-xs">
 									<Tooltip.Provider>
@@ -4595,7 +4878,7 @@ function isIconOption(option: Str): boolean {
 										{#if statsConsoleOpen}<ChevronDown class="size-3 text-muted-foreground" />{:else}<ChevronRight class="size-3 text-muted-foreground" />{/if}
 										<h4 class="text-xs font-semibold">Console ({stats.consoleMessages.length})</h4>
 									</button>
-									{#if statsConsoleOpen}<div id="stats-console">
+									{#if statsConsoleOpen}<div id="stats-console" transition:slide={{ duration: 150 }}>
 									<p class="mb-1 mt-0.5 text-[10px] text-muted-foreground">Warnings and errors logged during component mount.</p>
 									<div class="max-h-20 space-y-0.5 overflow-auto">
 										{#each stats.consoleMessages.slice(0, 5) as msg (msg.message)}
@@ -4669,7 +4952,7 @@ function isIconOption(option: Str): boolean {
 										</Tooltip.Content>
 									</Tooltip.Root>
 								</Tooltip.Provider>
-								{#if statsPropCoverageOpen}<div id="stats-props">
+								{#if statsPropCoverageOpen}<div id="stats-props" transition:slide={{ duration: 150 }}>
 								<div class="mt-1 flex items-center gap-2 text-xs">
 									<div class="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
 										<div
@@ -4873,7 +5156,7 @@ function isIconOption(option: Str): boolean {
 						<DropdownMenu.Sub>
 							<DropdownMenu.SubTrigger>
 								<ZoomIn class="size-4" />
-								Zoom
+								Zoom ({getZoomLabel(cardKey)})
 							</DropdownMenu.SubTrigger>
 							<DropdownMenu.SubContent class="w-52">
 								<DropdownMenu.Label class="text-xs">Zoom Actions</DropdownMenu.Label>
@@ -5638,7 +5921,7 @@ function isIconOption(option: Str): boolean {
 								<Camera class="size-4" />
 								Real Browser
 							</DropdownMenu.SubTrigger>
-							<DropdownMenu.SubContent class="flex max-h-96 w-64 flex-col overflow-hidden">
+							<DropdownMenu.SubContent class="flex max-h-96 w-80 flex-col overflow-hidden">
 								<div class="shrink-0 px-2 pb-1.5 pt-1">
 									<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
 										<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -5662,6 +5945,7 @@ function isIconOption(option: Str): boolean {
 										{ id: 'android-emulator' as ScreenshotSource, label: 'Android Emulator' as Str, desc: 'Real Chrome' as Str },
 									] as src (src.id)}
 										<DropdownMenu.Item
+											class={cn(src.id !== 'playwright' && !engineStatus[src.id]?.available && 'opacity-50')}
 											onSelect={(e) => {
 												e.preventDefault();
 												cardScreenSource[cardKey] = src.id;
@@ -5669,7 +5953,11 @@ function isIconOption(option: Str): boolean {
 										>
 											<Check class={cn('size-4', (cardScreenSource[cardKey] || 'playwright') !== src.id && 'opacity-0')} />
 											<span class="flex-1">{src.label}</span>
-											<span class="text-[9px] text-muted-foreground/60">{src.desc}</span>
+											{#if src.id !== 'playwright' && !engineStatus[src.id]?.available}
+												<span class="text-[9px] font-medium text-amber-600">Setup&nbsp;→</span>
+											{:else}
+												<span class="text-[9px] text-muted-foreground/60">{src.desc}</span>
+											{/if}
 											{#if src.id !== 'playwright'}
 												<Tooltip.Root delayDuration={200}>
 													<Tooltip.Trigger>
@@ -5680,8 +5968,14 @@ function isIconOption(option: Str): boolean {
 															></span>
 														{/snippet}
 													</Tooltip.Trigger>
-													<Tooltip.Content side="top" sideOffset={4}>
-														{engineStatus[src.id]?.available ? 'Available — engine detected' : (engineStatus[src.id]?.reason ?? 'Unavailable — tools not installed')}
+													<Tooltip.Content side="top" sideOffset={4} class="max-w-52">
+														{#if engineStatus[src.id]?.available}
+															Available — engine detected
+														{:else if src.id === 'ios-simulator'}
+															Install Xcode and create simulators via Xcode → Window → Devices and Simulators
+														{:else}
+															Install Android Studio and create AVDs via Tools → Device Manager
+														{/if}
 													</Tooltip.Content>
 												</Tooltip.Root>
 											{/if}
@@ -5760,26 +6054,29 @@ function isIconOption(option: Str): boolean {
 										</div>
 									{:else if filteredIosDevices.length === 0}
 										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-8 text-center text-muted-foreground">
-											<SearchX class="size-5" />
-											<div class="flex flex-col items-center gap-1 px-4">
-												{#if iosDevices.length === 0}
-													<p class="text-xs font-medium">No iOS Simulators available</p>
-													<p class="max-w-48 text-[11px] leading-snug">{engineStatus['ios-simulator']?.reason || 'Install Xcode and create simulator devices via Xcode → Window → Devices and Simulators'}</p>
-												{:else}
+											{#if iosDevices.length === 0}
+												<Smartphone class="size-5" />
+												<div class="flex flex-col items-center gap-1 px-4">
+													<p class="text-xs font-medium">No iOS Simulators found</p>
+													<p class="max-w-52 text-[11px] leading-snug">To use real Safari rendering, install Xcode and create simulator devices via <span class="font-medium text-foreground/70">Xcode → Window → Devices and Simulators</span></p>
+												</div>
+											{:else}
+												<SearchX class="size-5" />
+												<div class="flex flex-col items-center gap-0.5">
 													<p class="text-xs font-medium">No devices found</p>
 													<p class="text-[11px]">Try a different search term</p>
-												{/if}
-											</div>
+												</div>
+											{/if}
 										</div>
 									{:else}
 										{#each filteredIosDevices as device, idx (idx)}
 											<DropdownMenu.Item
 												onSelect={(e) => {
 													e.preventDefault();
-													cardScreenDevice[cardKey] = (device.udid ?? device.name ?? '') as Str;
+													cardScreenDevice[cardKey] = (device.name ?? '') as Str;
 												}}
 											>
-												<Check class={cn('size-4', (cardScreenDevice[cardKey] || '') !== ((device.udid ?? device.name ?? '') as Str) && 'opacity-0')} />
+												<Check class={cn('size-4', (cardScreenDevice[cardKey] || '') !== ((device.name ?? '') as Str) && 'opacity-0')} />
 												<span class="flex-1 truncate">{device.name ?? 'Unknown'}</span>
 												{#if device.runtimeVersion}
 													<span class="text-[9px] text-muted-foreground/60">{device.runtimeVersion}</span>
@@ -5794,12 +6091,12 @@ function isIconOption(option: Str): boolean {
 														{#snippet child({ props: devTipProps })}
 															<span
 																{...devTipProps}
-																class={cn('ml-1 inline-block size-1.5 rounded-full cursor-help', device.state === 'Booted' ? 'bg-emerald-500' : 'bg-muted-foreground/40')}
+																class={cn('ml-1 inline-block size-1.5 rounded-full cursor-help', String(device.state ?? '').toLowerCase() === 'booted' ? 'bg-emerald-500' : 'bg-muted-foreground/40')}
 															></span>
 														{/snippet}
 													</Tooltip.Trigger>
 													<Tooltip.Content side="top" sideOffset={4}>
-														{device.state === 'Booted' ? 'Booted — ready to capture' : 'Shutdown — will boot on capture'}
+														{String(device.state ?? '').toLowerCase() === 'booted' ? 'Booted — ready to capture' : 'Shutdown — will boot on capture'}
 													</Tooltip.Content>
 												</Tooltip.Root>
 											</DropdownMenu.Item>
@@ -5814,16 +6111,19 @@ function isIconOption(option: Str): boolean {
 										</div>
 									{:else if filteredAndroidDevices.length === 0}
 										<div class="flex flex-1 flex-col items-center justify-center gap-2 py-8 text-center text-muted-foreground">
-											<SearchX class="size-5" />
-											<div class="flex flex-col items-center gap-1 px-4">
-												{#if androidDevices.length === 0}
-													<p class="text-xs font-medium">No Android Emulators available</p>
-													<p class="max-w-48 text-[11px] leading-snug">{engineStatus['android-emulator']?.reason || 'Install Android Studio and create AVD devices via Tools → Device Manager'}</p>
-												{:else}
+											{#if androidDevices.length === 0}
+												<Smartphone class="size-5" />
+												<div class="flex flex-col items-center gap-1 px-4">
+													<p class="text-xs font-medium">No Android Emulators found</p>
+													<p class="max-w-52 text-[11px] leading-snug">To use real Chrome rendering, install Android Studio and create AVDs via <span class="font-medium text-foreground/70">Tools → Device Manager</span></p>
+												</div>
+											{:else}
+												<SearchX class="size-5" />
+												<div class="flex flex-col items-center gap-0.5">
 													<p class="text-xs font-medium">No devices found</p>
 													<p class="text-[11px]">Try a different search term</p>
-												{/if}
-											</div>
+												</div>
+											{/if}
 										</div>
 									{:else}
 										{#each filteredAndroidDevices as device, idx (idx)}
@@ -5860,22 +6160,35 @@ function isIconOption(option: Str): boolean {
 									{/if}
 									<DropdownMenu.Separator />
 									<!-- Capture buttons -->
+									{#if true}
+									{@const selectedSource = cardScreenSource[cardKey] || 'playwright'}
+									{@const sourceUnavailable = selectedSource !== 'playwright' && !engineStatus[selectedSource]?.available}
 									<div class="sticky bottom-0 border-t bg-popover px-2 py-1.5">
 										<div class="flex gap-1.5">
-											<button
-												type="button"
-												class="flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
-												disabled={cardScreenCapturing[cardKey]}
-												onclick={() => captureScreenshot(cardKey, variantKey, variantOption)}
-											>
-												{#if cardScreenCapturing[cardKey]}
-													<LoaderCircle class="size-3.5 animate-spin" />
-													Capturing...
-												{:else}
-													<Camera class="size-3.5" />
-													Capture
-												{/if}
-											</button>
+											<Tooltip.Root delayDuration={300} disabled={!sourceUnavailable}>
+												<Tooltip.Trigger disabled={sourceUnavailable}>
+													{#snippet child({ props: capTipProps })}
+														<button
+															{...capTipProps}
+															type="button"
+															class="flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+															disabled={cardScreenCapturing[cardKey] || sourceUnavailable}
+															onclick={() => captureScreenshot(cardKey, variantKey, variantOption)}
+														>
+															{#if cardScreenCapturing[cardKey]}
+																<LoaderCircle class="size-3.5 animate-spin" />
+																Capturing...
+															{:else}
+																<Camera class="size-3.5" />
+																Capture
+															{/if}
+														</button>
+													{/snippet}
+												</Tooltip.Trigger>
+												<Tooltip.Content side="top" sideOffset={4}>
+													{selectedSource === 'ios-simulator' ? 'iOS Simulator not available — install Xcode' : 'Android Emulator not available — install Android Studio'}
+												</Tooltip.Content>
+											</Tooltip.Root>
 											{#if engineStatus['ios-simulator']?.available || engineStatus['android-emulator']?.available}
 												<Tooltip.Root delayDuration={300}>
 													<Tooltip.Trigger>
@@ -5922,6 +6235,7 @@ function isIconOption(option: Str): boolean {
 											{/if}
 										</div>
 									</div>
+									{/if}
 								</div>
 							</DropdownMenu.SubContent>
 						</DropdownMenu.Sub>
@@ -6310,23 +6624,97 @@ function isIconOption(option: Str): boolean {
 			{@const logs = cardConsoleLogs[cardKey] ?? []}
 			<div class="overflow-hidden border-t bg-muted/20" transition:slide={{ duration: 200 }}>
 				<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
-					<div class="flex items-center gap-2">
+					<button
+						type="button"
+						class="flex items-center gap-2 transition-colors hover:text-foreground"
+						onclick={() => { cardConsoleExpanded[cardKey] = !(cardConsoleExpanded[cardKey] ?? true); }}
+					>
+						<ChevronDown class={cn('size-3 text-muted-foreground transition-transform duration-200', !(cardConsoleExpanded[cardKey] ?? true) && '-rotate-90')} aria-hidden="true" />
 						<Terminal class="size-3 text-muted-foreground" aria-hidden="true" />
 						<span class="text-[10px] font-semibold text-muted-foreground">Console</span>
 						<span class="text-[10px] text-muted-foreground/60">{logs.length} entries</span>
-					</div>
-					{#if logs.length > 0}
-						<button
-							type="button"
-							class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-							onclick={() => { cardConsoleLogs[cardKey] = []; }}
-						>
-							<Trash2 class="size-3" aria-hidden="true" />
-							Clear
-						</button>
-					{/if}
+					</button>
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({ props: menuProps })}
+								<button
+									{...menuProps}
+									type="button"
+									class="inline-flex size-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+									aria-label="Console options"
+								>
+									<EllipsisVertical class="size-3" />
+								</button>
+							{/snippet}
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content align="end" class="w-44">
+							<DropdownMenu.Sub
+								onOpenChange={(open) => {
+									if (open) consoleExportSearchQuery = '';
+								}}
+							>
+								<DropdownMenu.SubTrigger>
+									<Download class="size-4" />
+									Export
+								</DropdownMenu.SubTrigger>
+								<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+									<div class="shrink-0 px-2 pb-1.5 pt-1">
+										<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+											<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+											<input
+												type="text"
+												placeholder="Search formats..."
+												class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+												bind:value={consoleExportSearchQuery}
+												onkeydown={(e) => e.stopPropagation()}
+												onkeyup={(e) => e.stopPropagation()}
+												onkeypress={(e) => e.stopPropagation()}
+											/>
+										</div>
+									</div>
+									<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+										{#each filteredConsoleExportCategories as category (category)}
+											{#if filteredConsoleExportCategories.indexOf(category) > 0}
+												<DropdownMenu.Separator />
+											{/if}
+											<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+											{#each filteredConsoleExportItems.filter((i) => i.category === category) as item (item.id)}
+												<DropdownMenu.Item
+													onSelect={(e) => {
+														e.preventDefault();
+														handleConsoleExport(cardKey, item.id);
+													}}
+												>
+													{#if consoleExportFeedback === item.id}
+														<Check class="size-4 text-green-500" />
+													{:else}
+														<item.icon class="size-4" />
+													{/if}
+													{item.label}
+												</DropdownMenu.Item>
+											{/each}
+										{:else}
+											<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+												<SearchX class="size-5" />
+												<div class="flex flex-col items-center gap-0.5">
+													<p class="text-xs font-medium">No formats found</p>
+													<p class="text-[11px]">Try a different search term</p>
+												</div>
+											</div>
+										{/each}
+									</div>
+								</DropdownMenu.SubContent>
+							</DropdownMenu.Sub>
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item onclick={() => { cardConsoleLogs[cardKey] = []; }} disabled={logs.length === 0}>
+								<Trash2 class="size-4" />
+								Clear
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
 				</div>
-				<div class="max-h-64 overflow-y-auto font-mono text-[11px]">
+				{#if cardConsoleExpanded[cardKey] ?? true}
+				<div class="max-h-64 overflow-y-auto font-mono text-[11px]" transition:slide={{ duration: 200 }}>
 					{#if logs.length === 0}
 						<div class="px-3 py-4 text-center text-[11px] text-muted-foreground/50">
 							No console output yet. Interact with the component to see events, mutations, and logs.
@@ -6353,16 +6741,22 @@ function isIconOption(option: Str): boolean {
 						{/each}
 					{/if}
 				</div>
+				{/if}
 			</div>
 		{/if}
-		{#if (cardScreenshots[cardKey] ?? []).length > 0}
+		{#if (cardScreenshots[cardKey] ?? []).length > 0 || cardScreenCapturing[cardKey] || cardScreenError[cardKey]}
 			<div class="overflow-hidden border-t bg-muted/20" transition:slide={{ duration: 200 }}>
 				<div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
-					<div class="flex items-center gap-2">
+					<button
+						type="button"
+						class="flex items-center gap-2 transition-colors hover:text-foreground"
+						onclick={() => { cardScreenshotsOpen[cardKey] = !(cardScreenshotsOpen[cardKey] ?? true); }}
+					>
+						<ChevronDown class={cn('size-3.5 text-muted-foreground transition-transform duration-200', !(cardScreenshotsOpen[cardKey] ?? true) && '-rotate-90')} aria-hidden="true" />
 						<Camera class="size-3.5 text-muted-foreground" aria-hidden="true" />
 						<span class="text-xs font-semibold text-muted-foreground">Screenshots</span>
 						<span class="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{(cardScreenshots[cardKey] ?? []).length}</span>
-					</div>
+					</button>
 					<div class="flex items-center gap-1.5">
 					{#if (cardScreenshots[cardKey] ?? []).some((c) => c.source === 'ios-simulator' && c.safeAreaInsets)}
 						<Tooltip.Root delayDuration={300}>
@@ -6404,31 +6798,86 @@ function isIconOption(option: Str): boolean {
 							</Tooltip.Content>
 						</Tooltip.Root>
 					{/if}
-					<Tooltip.Root delayDuration={300}>
-						<Tooltip.Trigger>
-							{#snippet child({ props: triggerProps })}
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({ props: menuProps })}
 								<button
-									{...triggerProps}
+									{...menuProps}
 									type="button"
-									class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-									onclick={() => {
-										const captures: ScreenshotCapture[] = cardScreenshots[cardKey] ?? [];
-										for (const c of captures) URL.revokeObjectURL(c.imageUrl);
-										cardScreenshots[cardKey] = [];
-									}}
+									class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+									aria-label="Screenshot options"
 								>
-									<Trash2 class="size-3.5" aria-hidden="true" />
-									Clear All
+									<EllipsisVertical class="size-3.5" aria-hidden="true" />
 								</button>
 							{/snippet}
-						</Tooltip.Trigger>
-						<Tooltip.Content side="top" sideOffset={4}>
-							Clear all screenshots
-						</Tooltip.Content>
-					</Tooltip.Root>
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content align="end" class="w-48">
+							<DropdownMenu.Item
+								onclick={() => handleScreenshotExportAll(cardKey)}
+								disabled={(cardScreenshots[cardKey] ?? []).length === 0}
+							>
+								{#if screenshotExportFeedback === 'download-all'}
+									<Check class="size-4 text-green-500" />
+								{:else}
+									<Download class="size-4" />
+								{/if}
+								Export All
+							</DropdownMenu.Item>
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item
+								onclick={() => {
+									const captures: ScreenshotCapture[] = cardScreenshots[cardKey] ?? [];
+									for (const c of captures) URL.revokeObjectURL(c.imageUrl);
+									cardScreenshots[cardKey] = [];
+								}}
+								class="text-destructive focus:bg-destructive/10 focus:text-destructive"
+							>
+								<Trash2 class="size-4" />
+								Clear All
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
 					</div>
 				</div>
-				<div class="flex max-h-[32rem] flex-wrap gap-3 overflow-y-auto p-3">
+				{#if cardScreenshotsOpen[cardKey] ?? true}
+				<div class="flex max-h-[32rem] flex-wrap gap-3 overflow-y-auto p-3" transition:slide={{ duration: 200 }}>
+					{#if cardScreenError[cardKey]}
+						<!-- Error feedback card -->
+						<div class="flex w-full items-center justify-center">
+							<div class="w-80 overflow-hidden rounded-md border border-destructive/30 bg-destructive/5 shadow-sm">
+								<div class="flex flex-col items-center gap-2 px-4 py-6 text-center">
+									<TriangleAlert class="size-5 text-destructive" aria-hidden="true" />
+									<p class="text-xs font-medium text-destructive">Screenshot failed</p>
+									<p class="max-w-56 text-[11px] leading-snug text-muted-foreground">{cardScreenError[cardKey]}</p>
+									<button
+										type="button"
+										class="mt-1 inline-flex items-center gap-1.5 rounded-md border border-destructive/30 px-3 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
+										onclick={() => {
+											cardScreenError[cardKey] = '' as Str;
+											captureScreenshot(cardKey, variantKey, variantOption);
+										}}
+									>
+										<RefreshCw class="size-3" aria-hidden="true" />
+										Retry
+									</button>
+								</div>
+							</div>
+						</div>
+					{/if}
+					{#if cardScreenCapturing[cardKey]}
+						<!-- Loading placeholder card -->
+						<div class="w-80 overflow-hidden rounded-md border bg-background shadow-sm">
+							<div class="flex items-center gap-1.5 border-b bg-muted/30 px-2 py-1.5">
+								<LoaderCircle class="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
+								<span class="text-[11px] font-semibold text-muted-foreground">Capturing screenshot…</span>
+							</div>
+							<div class="flex flex-col gap-2 px-4 py-8">
+								<div class="mx-auto h-32 w-full animate-pulse rounded bg-muted/50"></div>
+								<div class="mx-auto h-2.5 w-3/4 animate-pulse rounded bg-muted/40"></div>
+								<div class="mx-auto h-2.5 w-1/2 animate-pulse rounded bg-muted/30"></div>
+							</div>
+						</div>
+					{/if}
 					{#each (cardScreenshots[cardKey] ?? []) as capture, idx (capture.timestamp)}
 						<div class="w-80 overflow-hidden rounded-md border bg-background shadow-sm">
 							<!-- Header: source badge + browser name + version + device + delete -->
@@ -6453,24 +6902,87 @@ function isIconOption(option: Str): boolean {
 								{#if capture.deviceOS}
 									<span class="rounded bg-muted px-1 text-[9px] text-muted-foreground/70">{capture.deviceOS}</span>
 								{/if}
-								<Tooltip.Root delayDuration={300}>
-									<Tooltip.Trigger>
-										{#snippet child({ props: triggerProps })}
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger>
+										{#snippet child({ props: menuProps })}
 											<button
-												{...triggerProps}
+												{...menuProps}
 												type="button"
-												class="ml-auto rounded p-1 text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
-												onclick={() => removeScreenshot(cardKey, idx as Num)}
-												aria-label="Remove screenshot"
+												class="ml-auto rounded p-1 text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
+												aria-label="Screenshot options"
 											>
-												<Trash2 class="size-3.5" />
+												<EllipsisVertical class="size-3.5" />
 											</button>
 										{/snippet}
-									</Tooltip.Trigger>
-									<Tooltip.Content side="top" sideOffset={4}>
-										Remove this screenshot
-									</Tooltip.Content>
-								</Tooltip.Root>
+									</DropdownMenu.Trigger>
+									<DropdownMenu.Content align="end" class="w-48">
+										<DropdownMenu.Sub
+											onOpenChange={(open) => {
+												if (open) screenshotExportSearchQuery = '';
+											}}
+										>
+											<DropdownMenu.SubTrigger>
+												<Download class="size-4" />
+												Export
+											</DropdownMenu.SubTrigger>
+											<DropdownMenu.SubContent class="flex max-h-80 w-52 flex-col overflow-hidden">
+												<div class="shrink-0 px-2 pb-1.5 pt-1">
+													<div class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm">
+														<Search class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+														<input
+															type="text"
+															placeholder="Search formats..."
+															class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+															bind:value={screenshotExportSearchQuery}
+															onkeydown={(e) => e.stopPropagation()}
+															onkeyup={(e) => e.stopPropagation()}
+															onkeypress={(e) => e.stopPropagation()}
+														/>
+													</div>
+												</div>
+												<div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
+													{#each filteredScreenshotExportCategories as category (category)}
+														{#if filteredScreenshotExportCategories.indexOf(category) > 0}
+															<DropdownMenu.Separator />
+														{/if}
+														<DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
+														{#each filteredScreenshotExportItems.filter((i) => i.category === category) as item (item.id)}
+															<DropdownMenu.Item
+																onSelect={(e) => {
+																	e.preventDefault();
+																	handleScreenshotExport(capture, item.id);
+																}}
+															>
+																{#if screenshotExportFeedback === item.id}
+																	<Check class="size-4 text-green-500" />
+																{:else}
+																	<item.icon class="size-4" />
+																{/if}
+																{item.label}
+															</DropdownMenu.Item>
+														{/each}
+													{:else}
+														<div class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground">
+															<SearchX class="size-5" />
+															<div class="flex flex-col items-center gap-0.5">
+																<p class="text-xs font-medium">No formats found</p>
+																<p class="text-[11px]">Try a different search term</p>
+															</div>
+														</div>
+													{/each}
+												</div>
+											</DropdownMenu.SubContent>
+										</DropdownMenu.Sub>
+										<DropdownMenu.Separator />
+										<DropdownMenu.Item
+											onclick={() => removeScreenshot(cardKey, idx as Num)}
+											class="text-destructive focus:bg-destructive/10 focus:text-destructive"
+										>
+											<Trash2 class="size-4" />
+											Delete
+										</DropdownMenu.Item>
+									</DropdownMenu.Content>
+								</DropdownMenu.Root>
 							</div>
 							<!-- Screenshot image -->
 							<div class="relative border-b">
@@ -6576,6 +7088,7 @@ function isIconOption(option: Str): boolean {
 						</div>
 					{/each}
 				</div>
+				{/if}
 			</div>
 		{/if}
 		<!-- Live preview panel -->
