@@ -457,6 +457,727 @@
   /** Live preview source per card. */
   let livePreviewSource: Record<Str, ScreenshotSource> = $state({});
 
+  /** Live View codec mode per card ('jpeg' for createImageBitmap, 'h264' for WebCodecs). */
+  let liveViewCodecMode: Record<Str, Str> = $state({});
+
+  /** WebCodecs VideoDecoder instance per card. */
+  let liveViewDecoder: Record<Str, VideoDecoder | undefined> = $state({});
+
+  /** Monotonic frame timestamp counter per card (microseconds). */
+  let liveViewFrameTs: Record<Str, Num> = $state({});
+
+  /** Live View WebSocket connections per card. */
+  let liveViewWs: Record<Str, WebSocket> = $state({});
+
+  /** Live View FPS per card. */
+  let liveViewFps: Record<Str, Num> = $state({});
+
+  /** Live View latency per card (ms). */
+  let liveViewLatency: Record<Str, Num> = $state({});
+
+  /** Live View cursor style per card. */
+  let liveViewCursor: Record<Str, Str> = $state({});
+
+  /** Live View engine label per card. */
+  let liveViewEngine: Record<Str, Str> = $state({});
+
+  /** Live View connection status per card. */
+  let liveViewStatus: Record<Str, Str> = $state({});
+
+  /** Whether a frame is currently being decoded/rendered per card. */
+  let liveViewRendering: Record<Str, Bool> = $state({});
+
+  /** Latest pending frame data per card (for frame skipping). */
+  let liveViewPendingFrame: Record<Str, ArrayBuffer | undefined> = $state({});
+
+  /** Pending mouseMove input per card (for batching). */
+  let liveViewPendingMove: Record<Str, Record<string, unknown> | undefined> = $state({});
+
+  /** rAF handle for mouseMove batching per card. */
+  let liveViewMoveRaf: Record<Str, Num | undefined> = $state({});
+
+  /** Live View reconnect attempt counter per card. */
+  let liveViewReconnectAttempt: Record<Str, Num> = $state({});
+
+  /** Live View reconnect timer per card. */
+  let liveViewReconnectTimer: Record<Str, ReturnType<typeof setTimeout> | undefined> = $state({});
+
+  /** Maximum reconnect backoff delay in milliseconds. */
+  const RECONNECT_MAX_DELAY_MS: Num = 10_000 as Num;
+
+  /** Base reconnect delay in milliseconds. */
+  const RECONNECT_BASE_DELAY_MS: Num = 1000 as Num;
+
+  /** Maximum number of reconnect attempts before giving up. */
+  const RECONNECT_MAX_ATTEMPTS: Num = 5 as Num;
+
+  /** Live View fullscreen state per card. */
+  let liveViewFullscreen: Record<Str, Bool> = $state({});
+
+  /** Live View touch simulation state per card (translates mouse→touch). */
+  let liveViewTouchSim: Record<Str, Bool> = $state({});
+
+  /** Live View viewport width per card. */
+  let liveViewWidth: Record<Str, Num> = $state({});
+
+  /** Live View viewport height per card. */
+  let liveViewHeight: Record<Str, Num> = $state({});
+
+  /**
+   * Start an interactive Live View session on a card.
+   *
+   * Opens a WebSocket to `/api/lens/preview/ws`, renders binary JPEG
+   * frames to a `<canvas>`, and forwards user input events back.
+   *
+   * @param cardKey - Card identifier
+   * @param component - Component directory name
+   * @param engine - Browser engine to use
+   * @param width - Viewport width
+   * @param height - Viewport height
+   */
+  function startLiveView(cardKey: Str, component: Str, engine: Str, width: Num, height: Num): void {
+    // Close existing connection + cancel pending reconnect
+    cancelReconnect(cardKey);
+    if (liveViewWs[cardKey]) {
+      liveViewWs[cardKey].close();
+    }
+
+    // Default codec mode: JPEG for all engines
+    liveViewCodecMode[cardKey] = 'jpeg' as Str;
+
+    // Reset reconnect counter on fresh start (not on reconnect)
+    if (liveViewReconnectAttempt[cardKey] === undefined) {
+      liveViewReconnectAttempt[cardKey] = 0 as Num;
+    }
+
+    const params: URLSearchParams = new URLSearchParams({
+      engine: engine as string,
+      component: component as string,
+      width: String(width),
+      height: String(height),
+    });
+
+    const protocol: Str = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') as Str;
+    const wsUrl: Str = `${protocol}//${window.location.host}/api/lens/preview/ws?${params}` as Str;
+
+    const ws: WebSocket = new WebSocket(wsUrl as string);
+    ws.binaryType = 'arraybuffer';
+
+    liveViewWs[cardKey] = ws;
+    liveViewStatus[cardKey] = 'connecting' as Str;
+    liveViewFps[cardKey] = 0 as Num;
+    liveViewLatency[cardKey] = 0 as Num;
+    liveViewEngine[cardKey] = engine;
+    liveViewWidth[cardKey] = width;
+    liveViewHeight[cardKey] = height;
+
+    ws.addEventListener('open', async (): Promise<void> => {
+      liveViewStatus[cardKey] = 'connected' as Str;
+      // Reset reconnect counter on successful connection
+      liveViewReconnectAttempt[cardKey] = 0 as Num;
+
+      // For Android emulator, detect WebCodecs and request H.264 if supported
+      if (engine === 'android-emulator') {
+        const supported: boolean = await isWebCodecsSupported();
+        const codecMode: Str = (supported ? 'h264' : 'jpeg') as Str;
+        liveViewCodecMode[cardKey] = codecMode;
+        ws.send(JSON.stringify({ type: 'start', codec_mode: codecMode }));
+      } else {
+        ws.send(JSON.stringify({ type: 'start' }));
+      }
+    });
+
+    ws.addEventListener('message', (event: MessageEvent): void => {
+      if (event.data instanceof ArrayBuffer) {
+        // Route to H.264 decoder or JPEG renderer based on codec mode
+        if (liveViewCodecMode[cardKey] === 'h264') {
+          decodeH264Frame(cardKey, event.data);
+        } else {
+          renderFrame(cardKey, event.data);
+        }
+      } else {
+        try {
+          const msg = JSON.parse(event.data as string);
+          if (msg.type === 'fps') {
+            liveViewFps[cardKey] = msg.value as Num;
+          } else if (msg.type === 'latency') {
+            liveViewLatency[cardKey] = msg.value as Num;
+          } else if (msg.type === 'cursor') {
+            liveViewCursor[cardKey] = msg.cursor as Str;
+          } else if (msg.type === 'metadata') {
+            liveViewEngine[cardKey] = msg.engine as Str;
+          } else if (msg.type === 'codec-config') {
+            // Initialize H.264 WebCodecs decoder with SPS/PPS
+            initH264Decoder(cardKey, msg.sps as Str, msg.pps as Str);
+          } else if (msg.type === 'error') {
+            log.warn(`Live View error: ${msg.message}`);
+          }
+        } catch {
+          /* Malformed JSON from server — non-critical, skip frame */
+        }
+      }
+    });
+
+    ws.addEventListener('close', (): void => {
+      // Auto-reconnect if the session is still active (not manually stopped)
+      if (livePreviewActive[cardKey]) {
+        const attempt: Num = (liveViewReconnectAttempt[cardKey] ?? 0) as Num;
+        if ((attempt as number) < (RECONNECT_MAX_ATTEMPTS as number)) {
+          liveViewStatus[cardKey] = 'reconnecting' as Str;
+          const delay: Num = Math.min(
+            (RECONNECT_BASE_DELAY_MS as number) * 2 ** (attempt as number),
+            RECONNECT_MAX_DELAY_MS as number,
+          ) as Num;
+          liveViewReconnectAttempt[cardKey] = ((attempt as number) + 1) as Num;
+          log.info(
+            `Live View reconnecting in ${delay}ms (attempt ${(attempt as number) + 1}/${RECONNECT_MAX_ATTEMPTS})`,
+          );
+          liveViewReconnectTimer[cardKey] = setTimeout((): void => {
+            startLiveView(cardKey, component, engine, width, height);
+          }, delay as number);
+        } else {
+          liveViewStatus[cardKey] = 'disconnected' as Str;
+          log.warn(`Live View gave up reconnecting after ${RECONNECT_MAX_ATTEMPTS} attempts`);
+        }
+      } else {
+        liveViewStatus[cardKey] = 'disconnected' as Str;
+      }
+    });
+
+    ws.addEventListener('error', (): void => {
+      liveViewStatus[cardKey] = 'error' as Str;
+    });
+
+    livePreviewActive[cardKey] = true as Bool;
+  }
+
+  /**
+   * Cancel a pending reconnect timer for a card.
+   *
+   * @param cardKey - Card identifier
+   */
+  function cancelReconnect(cardKey: Str): void {
+    const timer = liveViewReconnectTimer[cardKey];
+    if (timer !== undefined) {
+      clearTimeout(timer);
+      liveViewReconnectTimer[cardKey] = undefined;
+    }
+  }
+
+  /**
+   * Toggle fullscreen mode for a Live View canvas.
+   *
+   * @param cardKey - Card identifier
+   */
+  function toggleLiveViewFullscreen(cardKey: Str): void {
+    const entering: Bool = !liveViewFullscreen[cardKey] as Bool;
+    liveViewFullscreen[cardKey] = entering;
+
+    if (entering) {
+      // Auto-focus the canvas when entering fullscreen
+      requestAnimationFrame((): void => {
+        const canvas: HTMLCanvasElement | null = document.querySelector(
+          `[data-live-canvas="${cardKey}"]`,
+        );
+        if (canvas) canvas.focus();
+      });
+    }
+  }
+
+  /**
+   * Handle keydown on the Live View fullscreen wrapper.
+   * Exits fullscreen on ESC.
+   *
+   * @param e - Keyboard event
+   * @param cardKey - Card identifier
+   */
+  function handleFullscreenKeydown(e: KeyboardEvent, cardKey: Str): void {
+    if (e.key === 'Escape' && liveViewFullscreen[cardKey]) {
+      e.preventDefault();
+      e.stopPropagation();
+      liveViewFullscreen[cardKey] = false as Bool;
+    }
+  }
+
+  /**
+   * Capture the current Live View canvas frame as a screenshot card.
+   *
+   * Converts the canvas to a PNG blob URL and adds it to the
+   * card's screenshot list alongside regular API-captured screenshots.
+   *
+   * @param cardKey - Card identifier
+   */
+  function captureLiveViewFrame(cardKey: Str): void {
+    const canvas: HTMLCanvasElement | null = document.querySelector(
+      `[data-live-canvas="${cardKey}"]`,
+    );
+    if (!canvas) return;
+
+    canvas.toBlob((blob: Blob | null): void => {
+      if (!blob) return;
+
+      const imageUrl: Str = URL.createObjectURL(blob) as Str;
+      const engine: Str = liveViewEngine[cardKey] ?? ('chromium' as Str);
+
+      const capture: ScreenshotCapture = {
+        source: 'playwright' as ScreenshotSource,
+        browser: engine,
+        browserDisplayName: engine as Str,
+        browserVersion: '' as Str,
+        device: 'Live View' as Str,
+        deviceOS: '' as Str,
+        imageUrl,
+        timestamp: Date.now() as Num,
+        consoleLogs: [],
+        performance: {},
+      };
+
+      const existing: ScreenshotCapture[] = cardScreenshots[cardKey] ?? [];
+      cardScreenshots[cardKey] = [...existing, capture];
+    }, 'image/png');
+  }
+
+  /**
+   * Stop a Live View session.
+   *
+   * @param cardKey - Card identifier
+   */
+  function stopLiveView(cardKey: Str): void {
+    // Cancel any pending reconnect — user explicitly stopped
+    cancelReconnect(cardKey);
+    liveViewReconnectAttempt[cardKey] = 0 as Num;
+
+    // Exit fullscreen if active
+    liveViewFullscreen[cardKey] = false as Bool;
+
+    // Mark inactive BEFORE closing WS so the close handler doesn't auto-reconnect
+    livePreviewActive[cardKey] = false as Bool;
+
+    const ws: WebSocket | undefined = liveViewWs[cardKey];
+    if (ws) {
+      ws.send(JSON.stringify({ type: 'stop' }));
+      ws.close();
+      liveViewWs[cardKey] = undefined as never;
+    }
+    liveViewStatus[cardKey] = 'disconnected' as Str;
+
+    // Clean up H.264 decoder
+    cleanupH264Decoder(cardKey);
+    liveViewCodecMode[cardKey] = 'jpeg' as Str;
+
+    // Clean up frame skipping + input batching state
+    liveViewRendering[cardKey] = false as Bool;
+    liveViewPendingFrame[cardKey] = undefined;
+    liveViewPendingMove[cardKey] = undefined;
+    const raf: Num | undefined = liveViewMoveRaf[cardKey];
+    if (raf !== undefined) {
+      cancelAnimationFrame(raf as number);
+      liveViewMoveRaf[cardKey] = undefined;
+    }
+  }
+
+  /**
+   * Render a JPEG binary frame to the card's canvas.
+   *
+   * Uses frame skipping: if a new frame arrives while the previous
+   * one is still decoding, the old frame is dropped and the newest
+   * frame is rendered instead (latest-frame-wins).
+   *
+   * @param cardKey - Card identifier
+   * @param data - Raw JPEG bytes as ArrayBuffer
+   */
+  async function renderFrame(cardKey: Str, data: ArrayBuffer): Promise<void> {
+    // If already rendering, store as pending and skip — latest frame wins
+    if (liveViewRendering[cardKey]) {
+      liveViewPendingFrame[cardKey] = data;
+      return;
+    }
+
+    liveViewRendering[cardKey] = true as Bool;
+
+    try {
+      const canvas: HTMLCanvasElement | null = document.querySelector(
+        `[data-live-canvas="${cardKey}"]`,
+      );
+      if (!canvas) return;
+
+      const blob: Blob = new Blob([data], { type: 'image/jpeg' });
+      const bitmap: ImageBitmap = await createImageBitmap(blob);
+      const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+      if (!ctx) {
+        bitmap.close();
+        return;
+      }
+
+      // Resize canvas to match frame dimensions if needed
+      if (canvas.width !== bitmap.width || canvas.height !== bitmap.height) {
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+      }
+
+      ctx.drawImage(bitmap, 0, 0);
+      bitmap.close();
+    } finally {
+      liveViewRendering[cardKey] = false as Bool;
+
+      // If a newer frame arrived during decode, render it now
+      const pending: ArrayBuffer | undefined = liveViewPendingFrame[cardKey];
+      if (pending) {
+        liveViewPendingFrame[cardKey] = undefined;
+        renderFrame(cardKey, pending);
+      }
+    }
+  }
+
+  /**
+   * Send an input event from the canvas to the WebSocket.
+   *
+   * Translates canvas coordinates to viewport coordinates using
+   * the canvas display size vs internal resolution.
+   *
+   * @param cardKey - Card identifier
+   * @param msg - Input message object to send
+   */
+  function sendLiveInput(cardKey: Str, msg: Record<string, unknown>): void {
+    const ws: WebSocket | undefined = liveViewWs[cardKey];
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(msg));
+    }
+  }
+
+  /**
+   * Send a batched mouseMove event.
+   *
+   * Stores the latest mouseMove payload and schedules a single
+   * send per animation frame, reducing WS traffic from high-DPI
+   * pointer events (~120 Hz) down to display refresh rate (~60 Hz).
+   *
+   * @param cardKey - Card identifier
+   * @param msg - mouseMove input message
+   */
+  function sendBatchedMouseMove(cardKey: Str, msg: Record<string, unknown>): void {
+    liveViewPendingMove[cardKey] = msg;
+
+    // Only schedule one rAF per card
+    if (liveViewMoveRaf[cardKey] !== undefined) return;
+
+    liveViewMoveRaf[cardKey] = requestAnimationFrame((): void => {
+      liveViewMoveRaf[cardKey] = undefined;
+      const pending: Record<string, unknown> | undefined = liveViewPendingMove[cardKey];
+      if (pending) {
+        liveViewPendingMove[cardKey] = undefined;
+        sendLiveInput(cardKey, pending);
+      }
+    }) as Num;
+  }
+
+  /**
+   * Translate mouse event coordinates to viewport coordinates.
+   *
+   * @param event - Mouse event from the canvas
+   * @param canvas - The canvas element
+   * @returns Viewport x,y coordinates
+   */
+  function canvasToViewport(event: MouseEvent, canvas: HTMLCanvasElement): { x: Num; y: Num } {
+    const rect: DOMRect = canvas.getBoundingClientRect();
+    const x: Num = Math.round(((event.clientX - rect.left) / rect.width) * canvas.width) as Num;
+    const y: Num = Math.round(((event.clientY - rect.top) / rect.height) * canvas.height) as Num;
+    return { x, y };
+  }
+
+  /**
+   * Get modifier key bitmask from a keyboard/mouse event.
+   * Alt=1, Ctrl=2, Meta=4, Shift=8.
+   *
+   * @param event - Keyboard or mouse event
+   * @returns Modifier bitmask
+   */
+  function getModifiers(event: MouseEvent | KeyboardEvent): Num {
+    let mods: Num = 0 as Num;
+    if (event.altKey) mods = ((mods as number) | 1) as Num;
+    if (event.ctrlKey) mods = ((mods as number) | 2) as Num;
+    if (event.metaKey) mods = ((mods as number) | 4) as Num;
+    if (event.shiftKey) mods = ((mods as number) | 8) as Num;
+    return mods;
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*  WebCodecs detection                                               */
+  /* ---------------------------------------------------------------- */
+
+  /**
+   * Check if the browser supports WebCodecs VideoDecoder with H.264.
+   *
+   * Tests for the VideoDecoder API and probes H.264 Baseline codec
+   * support via `VideoDecoder.isConfigSupported()`.
+   *
+   * @returns True if H.264 decoding via WebCodecs is available
+   */
+  async function isWebCodecsSupported(): Promise<boolean> {
+    try {
+      if (typeof VideoDecoder === 'undefined') return false;
+      const support = await VideoDecoder.isConfigSupported({
+        codec: 'avc1.42001e', // H.264 Baseline Level 3.0
+      });
+      return support.supported === true;
+    } catch {
+      /* VideoDecoder.isConfigSupported not available — non-critical */
+      return false;
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*  WebCodecs H.264 decoder                                          */
+  /* ---------------------------------------------------------------- */
+
+  /**
+   * Build an AVCC DecoderConfigurationRecord from raw SPS and PPS.
+   *
+   * Format: version(1) + profile(1) + compat(1) + level(1) +
+   * lengthSizeMinusOne(1) + numSPS(1) + spsLen(2) + spsData +
+   * numPPS(1) + ppsLen(2) + ppsData
+   *
+   * @param sps - Raw SPS NAL unit bytes (without start code)
+   * @param pps - Raw PPS NAL unit bytes (without start code)
+   * @returns AVCC description as Uint8Array
+   */
+  function buildAvccDescription(sps: Uint8Array, pps: Uint8Array): Uint8Array {
+    const size: Num = (11 + sps.length + pps.length) as Num;
+    const buf: Uint8Array = new Uint8Array(size as number);
+    const view: DataView = new DataView(buf.buffer);
+
+    buf[0] = 1; // version
+    buf[1] = sps[1] ?? 0x42; // profile_idc — fallback to Baseline
+    buf[2] = sps[2] ?? 0x00; // constraint_set_flags
+    buf[3] = sps[3] ?? 0x1e; // level_idc — fallback to 3.0
+    buf[4] = 0xff; // lengthSizeMinusOne = 3 (4-byte length prefix)
+    buf[5] = 0xe1; // numSPS = 1
+
+    view.setUint16(6, sps.length, false); // big-endian
+    buf.set(sps, 8);
+
+    const ppsOffset: Num = (8 + sps.length) as Num;
+    buf[ppsOffset as number] = 1; // numPPS = 1
+    view.setUint16((ppsOffset as number) + 1, pps.length, false);
+    buf.set(pps, (ppsOffset as number) + 3);
+
+    return buf;
+  }
+
+  /**
+   * Derive the AVC codec string from SPS profile/compat/level bytes.
+   *
+   * Format: `avc1.XXYYZZ` where XX=profile, YY=compat, ZZ=level (hex).
+   *
+   * @param sps - Raw SPS NAL unit bytes
+   * @returns Codec string like 'avc1.42001e'
+   */
+  function deriveCodecString(sps: Uint8Array): Str {
+    const profile: Str = (sps[1] ?? 0x42).toString(16).padStart(2, '0') as Str;
+    const compat: Str = (sps[2] ?? 0x00).toString(16).padStart(2, '0') as Str;
+    const level: Str = (sps[3] ?? 0x1e).toString(16).padStart(2, '0') as Str;
+    return `avc1.${profile}${compat}${level}` as Str;
+  }
+
+  /**
+   * Initialize a WebCodecs H.264 VideoDecoder for a card.
+   *
+   * Creates the decoder, configures it with the AVCC description
+   * from SPS/PPS, and wires its output to the card's canvas.
+   *
+   * @param cardKey - Card identifier
+   * @param spsBase64 - Base64-encoded SPS NAL unit
+   * @param ppsBase64 - Base64-encoded PPS NAL unit
+   */
+  function initH264Decoder(cardKey: Str, spsBase64: Str, ppsBase64: Str): void {
+    // Clean up existing decoder
+    cleanupH264Decoder(cardKey);
+
+    const spsBytes: Uint8Array = Uint8Array.from(
+      atob(spsBase64 as string),
+      (c: string) => c.codePointAt(0) ?? 0,
+    );
+    const ppsBytes: Uint8Array = Uint8Array.from(
+      atob(ppsBase64 as string),
+      (c: string) => c.codePointAt(0) ?? 0,
+    );
+
+    const description: Uint8Array = buildAvccDescription(spsBytes, ppsBytes);
+    const codec: Str = deriveCodecString(spsBytes);
+
+    const decoder: VideoDecoder = new VideoDecoder({
+      output(frame: VideoFrame): void {
+        renderVideoFrame(cardKey, frame);
+      },
+      error(err: DOMException): void {
+        log.warn(`H.264 decoder error: ${err.message}`);
+      },
+    });
+
+    decoder.configure({
+      codec: codec as string,
+      description: description.buffer as ArrayBuffer,
+    });
+
+    liveViewDecoder[cardKey] = decoder;
+    liveViewFrameTs[cardKey] = 0 as Num;
+    liveViewCodecMode[cardKey] = 'h264' as Str;
+  }
+
+  /**
+   * Render a VideoFrame from the WebCodecs decoder to the canvas.
+   *
+   * @param cardKey - Card identifier
+   * @param frame - Decoded VideoFrame
+   */
+  function renderVideoFrame(cardKey: Str, frame: VideoFrame): void {
+    try {
+      const canvas: HTMLCanvasElement | null = document.querySelector(
+        `[data-live-canvas="${cardKey}"]`,
+      );
+      if (!canvas) {
+        frame.close();
+        return;
+      }
+
+      const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+      if (!ctx) {
+        frame.close();
+        return;
+      }
+
+      // Resize canvas to match frame dimensions if needed
+      if (canvas.width !== frame.displayWidth || canvas.height !== frame.displayHeight) {
+        canvas.width = frame.displayWidth;
+        canvas.height = frame.displayHeight;
+      }
+
+      ctx.drawImage(frame, 0, 0);
+    } finally {
+      frame.close();
+    }
+  }
+
+  /**
+   * Decode an H.264 binary frame via WebCodecs VideoDecoder.
+   *
+   * Expects the binary data to have a 1-byte header:
+   * - Byte 0: flags (bit 0 = keyframe)
+   * - Bytes 1..N: H.264 NAL data (Annex B format)
+   *
+   * Converts Annex B to AVCC format (4-byte length prefix) before
+   * feeding to the decoder, which expects AVCC when configured
+   * with an AVCC description.
+   *
+   * @param cardKey - Card identifier
+   * @param data - Binary frame data with 1-byte header
+   */
+  function decodeH264Frame(cardKey: Str, data: ArrayBuffer): void {
+    const decoder: VideoDecoder | undefined = liveViewDecoder[cardKey];
+    if (!decoder || decoder.state !== 'configured') return;
+
+    const view: Uint8Array = new Uint8Array(data);
+    if (view.length < 2) return;
+
+    const firstByte: number = view[0] ?? 0;
+    const isKeyframe: boolean = (firstByte & 0x01) !== 0;
+    const nalData: Uint8Array = view.subarray(1);
+
+    // Convert Annex B → AVCC (replace start codes with 4-byte length prefix)
+    const avccData: Uint8Array = annexBToAvcc(nalData);
+
+    // Increment monotonic timestamp
+    const ts: Num = liveViewFrameTs[cardKey] ?? (0 as Num);
+    const nextTs: Num = ((ts as number) + 33_333) as Num; // ~30 FPS (33.3ms per frame)
+    liveViewFrameTs[cardKey] = nextTs;
+
+    const chunk: EncodedVideoChunk = new EncodedVideoChunk({
+      type: isKeyframe ? 'key' : 'delta',
+      timestamp: nextTs as number,
+      data: avccData,
+    });
+
+    decoder.decode(chunk);
+  }
+
+  /**
+   * Convert Annex B byte stream to AVCC format.
+   *
+   * Replaces 3-byte (0x000001) and 4-byte (0x00000001) start codes
+   * with 4-byte big-endian NAL unit length prefixes.
+   *
+   * @param data - Annex B formatted H.264 data
+   * @returns AVCC formatted data
+   */
+  function annexBToAvcc(data: Uint8Array): Uint8Array {
+    // Find all start code positions
+    const nalStarts: Array<{ offset: Num; headerLen: Num }> = [];
+    let i: Num = 0 as Num;
+
+    while ((i as number) < data.length - 2) {
+      const idx: number = i as number;
+      if (data[idx] === 0 && data[idx + 1] === 0) {
+        if (data[idx + 2] === 1) {
+          nalStarts.push({ offset: i, headerLen: 3 as Num });
+          i = (idx + 3) as Num;
+          continue;
+        }
+        if (idx < data.length - 3 && data[idx + 2] === 0 && data[idx + 3] === 1) {
+          nalStarts.push({ offset: i, headerLen: 4 as Num });
+          i = (idx + 4) as Num;
+          continue;
+        }
+      }
+      i = (idx + 1) as Num;
+    }
+
+    if (nalStarts.length === 0) return data;
+
+    // Calculate total size: each NAL gets a 4-byte length prefix
+    let totalSize: Num = 0 as Num;
+    for (let n: Num = 0 as Num; (n as number) < nalStarts.length; n = ((n as number) + 1) as Num) {
+      const start = nalStarts[n as number];
+      if (start === undefined) continue;
+      const nalBodyStart: number = (start.offset as number) + (start.headerLen as number);
+      const next = nalStarts[(n as number) + 1];
+      const nalBodyEnd: number = next === undefined ? data.length : (next.offset as number);
+      totalSize = ((totalSize as number) + 4 + (nalBodyEnd - nalBodyStart)) as Num;
+    }
+
+    const result: Uint8Array = new Uint8Array(totalSize as number);
+    const resultView: DataView = new DataView(result.buffer);
+    let writePos: Num = 0 as Num;
+
+    for (let n: Num = 0 as Num; (n as number) < nalStarts.length; n = ((n as number) + 1) as Num) {
+      const start = nalStarts[n as number];
+      if (start === undefined) continue;
+      const nalBodyStart: number = (start.offset as number) + (start.headerLen as number);
+      const next = nalStarts[(n as number) + 1];
+      const nalBodyEnd: number = next === undefined ? data.length : (next.offset as number);
+      const nalLen: number = nalBodyEnd - nalBodyStart;
+
+      resultView.setUint32(writePos as number, nalLen, false); // big-endian
+      result.set(data.subarray(nalBodyStart, nalBodyEnd), (writePos as number) + 4);
+      writePos = ((writePos as number) + 4 + nalLen) as Num;
+    }
+
+    return result;
+  }
+
+  /**
+   * Clean up a WebCodecs H.264 decoder for a card.
+   *
+   * @param cardKey - Card identifier
+   */
+  function cleanupH264Decoder(cardKey: Str): void {
+    const decoder: VideoDecoder | undefined = liveViewDecoder[cardKey];
+    if (decoder && decoder.state !== 'closed') {
+      decoder.close();
+    }
+    liveViewDecoder[cardKey] = undefined;
+    liveViewFrameTs[cardKey] = 0 as Num;
+  }
+
   /**
    * Callback for LensStats to report collected statistics.
    *
@@ -7209,7 +7930,13 @@
                               </Tooltip.Content>
                             </Tooltip.Root>
                           {/if}
-                          {#if (cardScreenSource[cardKey] || 'playwright') !== 'playwright' && engineStatus[cardScreenSource[cardKey] || 'playwright']?.available}
+                          {#if componentName}
+                            {@const liveEngine: Str = (() => {
+                              const src: Str = cardScreenSource[cardKey] || ('playwright' as Str);
+                              if (src === 'playwright') return cardScreenBrowser[cardKey] || ('chromium' as Str);
+                              if (src === 'ios-simulator') return 'ios-simulator' as Str;
+                              return 'android-emulator' as Str;
+                            })()}
                             <Tooltip.Root delayDuration={300}>
                               <Tooltip.Trigger>
                                 {#snippet child({ props: liveProps })}
@@ -7218,10 +7945,13 @@
                                     type="button"
                                     class="flex items-center justify-center gap-1.5 rounded-md border bg-popover px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
                                     onclick={() => {
-                                      livePreviewSource[cardKey] =
-                                        cardScreenSource[cardKey] ||
-                                        ('ios-simulator' as ScreenshotSource);
-                                      livePreviewActive[cardKey] = true;
+                                      startLiveView(
+                                        cardKey,
+                                        componentName,
+                                        liveEngine,
+                                        1280 as Num,
+                                        720 as Num,
+                                      );
                                     }}
                                   >
                                     <Play class="size-3.5" />
@@ -7230,7 +7960,7 @@
                                 {/snippet}
                               </Tooltip.Trigger>
                               <Tooltip.Content side="top" sideOffset={4}>
-                                Stream live preview from simulator
+                                Interactive live preview with real browser
                               </Tooltip.Content>
                             </Tooltip.Root>
                           {/if}
@@ -8402,38 +9132,370 @@
         {/if}
       </div>
     {/if}
-    <!-- Live preview panel -->
+    <!-- Live View interactive canvas panel -->
     {#if livePreviewActive[cardKey]}
-      <div class="overflow-hidden border-t bg-muted/20" transition:slide={{ duration: 200 }}>
+      {@const lvStatus: Str = liveViewStatus[cardKey] ?? ('connecting' as Str)}
+      {@const lvFps: Num = liveViewFps[cardKey] ?? (0 as Num)}
+      {@const lvLatency: Num = liveViewLatency[cardKey] ?? (0 as Num)}
+      {@const lvEngine: Str = liveViewEngine[cardKey] ?? ('' as Str)}
+      {@const lvCursor: Str = liveViewCursor[cardKey] ?? ('default' as Str)}
+      {@const lvFullscreen: Bool = liveViewFullscreen[cardKey] ?? (false as Bool)}
+      {@const lvW: Num = liveViewWidth[cardKey] ?? (1280 as Num)}
+      {@const lvH: Num = liveViewHeight[cardKey] ?? (720 as Num)}
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <div
+        class={cn(
+          'overflow-hidden bg-muted/20',
+          lvFullscreen ? 'fixed inset-0 z-50 flex flex-col border-0' : 'border-t',
+        )}
+        onkeydown={(e) => handleFullscreenKeydown(e, cardKey)}
+        transition:slide={{ duration: 200 }}
+      >
+        <!-- Live View header toolbar -->
         <div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
           <div class="flex items-center gap-2">
-            <Radio class="size-3.5 text-red-500 animate-pulse" aria-hidden="true" />
-            <span class="text-xs font-semibold text-muted-foreground">Live Preview</span>
-            <span class="text-[10px] text-muted-foreground/60">
-              {livePreviewSource[cardKey] === 'ios-simulator'
-                ? 'iOS Simulator'
-                : 'Android Emulator'}
+            <!-- Connection status dot -->
+            <span
+              class={cn(
+                'inline-block size-2 rounded-full',
+                lvStatus === 'connected'
+                  ? 'bg-emerald-500 animate-pulse'
+                  : lvStatus === 'connecting' || lvStatus === 'reconnecting'
+                    ? 'bg-amber-500 animate-pulse'
+                    : 'bg-red-500',
+              )}
+            ></span>
+            <span class="text-xs font-semibold text-muted-foreground">Live View</span>
+            <!-- Engine selector dropdown -->
+            <select
+              class="h-5 rounded border bg-muted px-1 text-[10px] font-medium text-muted-foreground outline-none"
+              value={lvEngine}
+              onchange={(e) => {
+                const newEngine: Str = (e.currentTarget as HTMLSelectElement).value as Str;
+                if (newEngine !== lvEngine && componentName) {
+                  stopLiveView(cardKey);
+                  startLiveView(cardKey, componentName, newEngine, 1280 as Num, 720 as Num);
+                }
+              }}
+            >
+              <option value="chromium">Chromium</option>
+              <option value="firefox">Firefox</option>
+              <option value="webkit">WebKit</option>
+              <option value="android-emulator">Android</option>
+            </select>
+            <!-- scrcpy codec indicator for Android engine -->
+            {#if lvEngine === 'android-emulator'}
+              <span
+                class={cn(
+                  'rounded px-1 py-0.5 text-[9px] font-medium',
+                  liveViewCodecMode[cardKey] === 'h264'
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-muted text-muted-foreground',
+                )}
+              >
+                {liveViewCodecMode[cardKey] === 'h264' ? 'H.264' : 'JPEG'}
+              </span>
+            {/if}
+            <!-- FPS counter -->
+            {#if (lvFps as number) > 0}
+              <span class="text-[10px] tabular-nums text-muted-foreground/60">
+                {lvFps} fps
+              </span>
+            {/if}
+            <!-- Latency -->
+            {#if (lvLatency as number) > 0}
+              <span class="text-[10px] tabular-nums text-muted-foreground/60">
+                {lvLatency}ms
+              </span>
+            {/if}
+            <!-- Resolution badge -->
+            <span
+              class="rounded bg-muted px-1 py-0.5 text-[9px] font-medium tabular-nums text-muted-foreground"
+            >
+              {lvW}&times;{lvH}
             </span>
+            <!-- Viewport preset selector -->
+            <select
+              class="h-5 rounded border bg-muted px-1 text-[10px] font-medium text-muted-foreground outline-none"
+              value=""
+              onchange={(e) => {
+                const val: Str = (e.currentTarget as HTMLSelectElement).value as Str;
+                if (!val || !componentName) return;
+                const parts: string[] = (val as string).split('x');
+                const w: Num = Number.parseInt(parts[0] ?? '1280', 10) as Num;
+                const h: Num = Number.parseInt(parts[1] ?? '720', 10) as Num;
+                stopLiveView(cardKey);
+                startLiveView(
+                  cardKey,
+                  componentName,
+                  liveViewEngine[cardKey] ?? ('chromium' as Str),
+                  w,
+                  h,
+                );
+                /* Reset select to placeholder */
+                (e.currentTarget as HTMLSelectElement).value = '';
+              }}
+            >
+              <option value="" disabled selected>Size</option>
+              <option value="375x667">iPhone SE</option>
+              <option value="390x844">iPhone 14</option>
+              <option value="430x932">iPhone 15 Pro Max</option>
+              <option value="768x1024">iPad</option>
+              <option value="1280x720">720p</option>
+              <option value="1920x1080">1080p</option>
+            </select>
           </div>
-          <button
-            type="button"
-            class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted"
-            onclick={() => {
-              livePreviewActive[cardKey] = false;
-            }}
-          >
-            <Pause class="size-3.5" aria-hidden="true" />
-            Stop
-          </button>
+          <div class="flex items-center gap-1">
+            <!-- Capture screenshot from Live View -->
+            <button
+              type="button"
+              class="inline-flex items-center rounded-md border p-1 text-muted-foreground transition-colors hover:bg-muted"
+              onclick={() => captureLiveViewFrame(cardKey)}
+              title="Capture screenshot from Live View"
+            >
+              <Camera class="size-3.5" aria-hidden="true" />
+            </button>
+            <!-- Touch simulation toggle -->
+            <button
+              type="button"
+              class={cn(
+                'inline-flex items-center rounded-md border p-1 transition-colors hover:bg-muted',
+                liveViewTouchSim[cardKey]
+                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                  : 'text-muted-foreground',
+              )}
+              onclick={() => {
+                liveViewTouchSim[cardKey] = !liveViewTouchSim[cardKey] as Bool;
+              }}
+              title={liveViewTouchSim[cardKey]
+                ? 'Disable touch simulation'
+                : 'Enable touch simulation (Shift+click for multi-touch)'}
+            >
+              <Smartphone class="size-3.5" aria-hidden="true" />
+            </button>
+            <!-- Fullscreen toggle -->
+            <button
+              type="button"
+              class="inline-flex items-center rounded-md border p-1 text-muted-foreground transition-colors hover:bg-muted"
+              onclick={() => toggleLiveViewFullscreen(cardKey)}
+              title={lvFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            >
+              {#if lvFullscreen}
+                <Minimize2 class="size-3.5" aria-hidden="true" />
+              {:else}
+                <Maximize2 class="size-3.5" aria-hidden="true" />
+              {/if}
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted"
+              onclick={() => stopLiveView(cardKey)}
+            >
+              <Pause class="size-3.5" aria-hidden="true" />
+              Stop
+            </button>
+          </div>
         </div>
-        <div class="flex items-center justify-center p-3">
-          <img
-            src={livePreviewSource[cardKey] === 'ios-simulator'
-              ? '/api/lens/screenshot/ios/stream'
-              : '/api/lens/screenshot/android/stream'}
-            alt="Live simulator preview"
-            class="max-h-96 max-w-full rounded border object-contain"
-          />
+        <!-- Interactive canvas -->
+        <div
+          class={cn(
+            'relative flex items-center justify-center',
+            lvFullscreen ? 'flex-1 bg-black p-0' : 'bg-black/5 p-3',
+          )}
+        >
+          <!-- Reconnecting overlay -->
+          {#if lvStatus === 'reconnecting' || lvStatus === 'error'}
+            {@const attempt: Num = liveViewReconnectAttempt[cardKey] ?? (0 as Num)}
+            <div
+              class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm"
+            >
+              {#if lvStatus === 'reconnecting'}
+                <div
+                  class="mb-2 size-5 animate-spin rounded-full border-2 border-white/30 border-t-white"
+                ></div>
+                <span class="text-xs font-medium text-white">Reconnecting...</span>
+                <span class="mt-0.5 text-[10px] text-white/60">
+                  Attempt {attempt}/{RECONNECT_MAX_ATTEMPTS}
+                </span>
+              {:else}
+                <span class="mb-1 text-sm text-red-400">Connection lost</span>
+                <button
+                  type="button"
+                  class="rounded-md border border-white/20 bg-white/10 px-3 py-1 text-xs text-white transition-colors hover:bg-white/20"
+                  onclick={() => {
+                    if (componentName) {
+                      liveViewReconnectAttempt[cardKey] = 0 as Num;
+                      startLiveView(
+                        cardKey,
+                        componentName,
+                        liveViewEngine[cardKey] ?? ('chromium' as Str),
+                        1280 as Num,
+                        720 as Num,
+                      );
+                    }
+                  }}
+                >
+                  Retry
+                </button>
+              {/if}
+            </div>
+          {/if}
+          <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+          <canvas
+            data-live-canvas={cardKey}
+            class={cn(
+              'object-contain',
+              lvFullscreen ? 'h-full w-full' : 'max-h-[600px] max-w-full rounded border bg-white',
+            )}
+            style="cursor: {lvCursor};"
+            tabindex="0"
+            onmousedown={(e) => {
+              const canvas: HTMLCanvasElement = e.currentTarget;
+              const { x, y } = canvasToViewport(e, canvas);
+              if (liveViewTouchSim[cardKey]) {
+                const touches = [{ x, y, id: 0 }];
+                /* Shift+click simulates a two-finger pinch (mirrored point) */
+                if (e.shiftKey) {
+                  touches.push({
+                    x: (canvas.width as number) - (x as number),
+                    y: (canvas.height as number) - (y as number),
+                    id: 1,
+                  });
+                }
+                sendLiveInput(cardKey, { type: 'touchStart', touches });
+              } else {
+                sendLiveInput(cardKey, {
+                  type: 'mouseDown',
+                  x,
+                  y,
+                  button: e.button === 0 ? 'left' : e.button === 1 ? 'middle' : 'right',
+                  modifiers: getModifiers(e),
+                });
+              }
+            }}
+            onmouseup={(e) => {
+              const canvas: HTMLCanvasElement = e.currentTarget;
+              const { x, y } = canvasToViewport(e, canvas);
+              if (liveViewTouchSim[cardKey]) {
+                const touches = [{ x, y, id: 0 }];
+                if (e.shiftKey) {
+                  touches.push({
+                    x: (canvas.width as number) - (x as number),
+                    y: (canvas.height as number) - (y as number),
+                    id: 1,
+                  });
+                }
+                sendLiveInput(cardKey, { type: 'touchEnd', touches });
+              } else {
+                sendLiveInput(cardKey, {
+                  type: 'mouseUp',
+                  x,
+                  y,
+                  button: e.button === 0 ? 'left' : e.button === 1 ? 'middle' : 'right',
+                  modifiers: getModifiers(e),
+                });
+              }
+            }}
+            onmousemove={(e) => {
+              const canvas: HTMLCanvasElement = e.currentTarget;
+              const { x, y } = canvasToViewport(e, canvas);
+              if (liveViewTouchSim[cardKey] && e.buttons > 0) {
+                const touches = [{ x, y, id: 0 }];
+                if (e.shiftKey) {
+                  touches.push({
+                    x: (canvas.width as number) - (x as number),
+                    y: (canvas.height as number) - (y as number),
+                    id: 1,
+                  });
+                }
+                sendLiveInput(cardKey, { type: 'touchMove', touches });
+              } else if (!liveViewTouchSim[cardKey]) {
+                sendBatchedMouseMove(cardKey, { type: 'mouseMove', x, y });
+              }
+            }}
+            onclick={(e) => {
+              if (liveViewTouchSim[cardKey]) return;
+              const canvas: HTMLCanvasElement = e.currentTarget;
+              const { x, y } = canvasToViewport(e, canvas);
+              sendLiveInput(cardKey, {
+                type: 'click',
+                x,
+                y,
+                button: e.button === 0 ? 'left' : e.button === 1 ? 'middle' : 'right',
+                modifiers: getModifiers(e),
+                clickCount: 1,
+              });
+            }}
+            ondblclick={(e) => {
+              if (liveViewTouchSim[cardKey]) return;
+              const canvas: HTMLCanvasElement = e.currentTarget;
+              const { x, y } = canvasToViewport(e, canvas);
+              sendLiveInput(cardKey, { type: 'dblclick', x, y });
+            }}
+            onwheel={(e) => {
+              e.preventDefault();
+              const canvas: HTMLCanvasElement = e.currentTarget;
+              const { x, y } = canvasToViewport(e, canvas);
+              sendLiveInput(cardKey, {
+                type: 'wheel',
+                x,
+                y,
+                deltaX: e.deltaX,
+                deltaY: e.deltaY,
+              });
+            }}
+            onkeydown={(e) => {
+              e.preventDefault();
+              sendLiveInput(cardKey, {
+                type: 'keyDown',
+                key: e.key,
+                code: e.code,
+                modifiers: getModifiers(e),
+              });
+            }}
+            onkeyup={(e) => {
+              e.preventDefault();
+              sendLiveInput(cardKey, {
+                type: 'keyUp',
+                key: e.key,
+                code: e.code,
+                modifiers: getModifiers(e),
+              });
+            }}
+            ontouchstart={(e) => {
+              e.preventDefault();
+              const canvas: HTMLCanvasElement = e.currentTarget;
+              const rect: DOMRect = canvas.getBoundingClientRect();
+              const touches = Array.from(e.touches).map((t, i) => ({
+                x: Math.round(((t.clientX - rect.left) / rect.width) * canvas.width),
+                y: Math.round(((t.clientY - rect.top) / rect.height) * canvas.height),
+                id: i,
+              }));
+              sendLiveInput(cardKey, { type: 'touchStart', touches });
+            }}
+            ontouchmove={(e) => {
+              e.preventDefault();
+              const canvas: HTMLCanvasElement = e.currentTarget;
+              const rect: DOMRect = canvas.getBoundingClientRect();
+              const touches = Array.from(e.touches).map((t, i) => ({
+                x: Math.round(((t.clientX - rect.left) / rect.width) * canvas.width),
+                y: Math.round(((t.clientY - rect.top) / rect.height) * canvas.height),
+                id: i,
+              }));
+              sendLiveInput(cardKey, { type: 'touchMove', touches });
+            }}
+            ontouchend={(e) => {
+              e.preventDefault();
+              const canvas: HTMLCanvasElement = e.currentTarget;
+              const rect: DOMRect = canvas.getBoundingClientRect();
+              const touches = Array.from(e.changedTouches).map((t, i) => ({
+                x: Math.round(((t.clientX - rect.left) / rect.width) * canvas.width),
+                y: Math.round(((t.clientY - rect.top) / rect.height) * canvas.height),
+                id: i,
+              }));
+              sendLiveInput(cardKey, { type: 'touchEnd', touches });
+            }}
+          ></canvas>
         </div>
       </div>
     {/if}

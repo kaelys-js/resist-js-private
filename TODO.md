@@ -13,25 +13,80 @@ Several Issues:
 - 
 Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
 ----
-Test:
-  Sidebar/LensHeader/Props/Dependencies/Changleog/Screenshot Exports
-  Variant Dropdown Menu (All Options)
+- Live Preview (each engine):
+  - What happens if Lens is closed while Live Preview is running?
+  - What happens on errors in the UX when clicking "Live" or during the Live session?
+  - Mouse/Keyboard/Touch/etc on the rendered component are passed to the Live session?
+
+- LensComponentRenderer Debug Outline Legend:
+  - Labels are truncated, should wrap
+  - Missing any?
+  - "Active" in header of legend should be removed as the legend isn't shown unless the feature is active
+- LensComponentRenderer Measure:
+  - Tooltip should be clear about how to use it
+  - The thing that shows the size could be more detailed?
+- LensComponentRenderer Inspect:
+  - Tooltip should be clear about how to use it
+  - Output section should be separated better, expcanse/collapse + animation
+  - Output section if line too long it's truncated, should wrap
+  - Output section:
+    - Only shows styles/css right?
+    - Could be a lot more thorough?
+- LensComponentRenderer Console Output
+  - MUT/RND/LCY/etc all of those are not clear
+  - The timestamp (+x ms) is not clear and maybe on hover should have full timestamp tooltip
+
+- "Real Browser", do you have a better name for this?
+- Text Direction isn't constrained to only the component it affects everything in the card
+- The isolate route for component preview.. when using browser engine screenshots should match the rendered component exactly (no component title, no container centering it in the page/etc), do you understand?
+- After Take 6 Screenshots With Playwright I Think API Fails With 30s Timeout?
+
+- Install/setup all the stuff I need for the Android screenshot/live streaming
 
 - Real Browser
   - Verify All Options Passed And Appear In Screenshot For Each Engine
+    - Font Size Not Passed
+    - Network Simulation Not Respected
   - Screenshot Diff
-  - Live View
-    - Stream Engines To Canvas/WebRTC and use WebSockets To Pass Clicks/Keyboard/MouseEvents/Touch/etc from main card.. do you understand?
+
 - The Sidebar/CommandSearch components don't render right contained to preview (use playwright mcp any you will see what i mean)
+
 - Intelligent Automatic Examples Instead of examples/
+
 - Sidebar Component Entries:
-  - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the overall component?
+  - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the overall component? and a green/yellow/red dot to the right of the component name in the sidebar like you have in performance statistics?
+
 - Production/Cloudflare Concerns
   - The following will or will not work:
     - Bundle Size
     - Import Globbing For Components/etc
     - Global Search
     - Real Browser: Playwright/iOS/Android Engines
+
+- Dropdown Options
+  - Sidebar
+    - ?
+  - LensHeader
+    - ?
+  - Props
+    - ?
+  - Dependency Chain
+    - ?
+  - Changelog
+    - ?
+  - Dependencies
+    - Missing main 3 dot menu next to header like Changelog
+  - Source
+    - Missing main 3 dot menu next to header like Changelog
+  - LensComponentRenderer
+    - Console
+    - Performance Statistics
+    - Main
+    - Screenshots/Live
+
+Test:
+  Sidebar/LensHeader/Props/Dependencies/Changleog/Screenshot Exports
+  Variant Dropdown Menu (All Options)
 - Notifications
 - Do the component conversions
 - Create Shared Components Following Existing Shared Components Supporting Lens System:

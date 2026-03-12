@@ -70,6 +70,7 @@
     "GPUPowerPreference": "readonly",
     "ResizeObserver": "readonly",
     "PerformanceObserver": "readonly",
+    "MutationObserver": "readonly",
     "ClipboardItem": "readonly",
     "CSSStyleRule": "readonly",
     "require": "readonly",
@@ -85,7 +86,8 @@
     "Event": "readonly",
     "CustomEvent": "readonly",
     "ReadableStream": "readonly",
-    "ReadableStreamDefaultController": "readonly"
+    "ReadableStreamDefaultController": "readonly",
+    "Buffer": "readonly"
   },
   "rules": {
     "no-inline-comments": "off",

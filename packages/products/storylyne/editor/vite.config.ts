@@ -3,8 +3,33 @@ import { readFileSync } from 'node:fs';
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import { templateAppHtml, templateErrorHtml } from './vite-plugin-template-html.js';
+
+/**
+ * Lazy wrapper for the Live View preview WebSocket plugin.
+ *
+ * Dynamically imports the real plugin implementation inside
+ * `configureServer` to avoid `@/` path resolution issues
+ * during Vite config loading (esbuild can't resolve workspace aliases).
+ *
+ * @returns Vite plugin that defers to the real implementation
+ */
+function previewWsPlugin(): Plugin {
+  return {
+    name: 'lens-preview-ws',
+    apply: 'serve',
+
+    async configureServer(server): Promise<void> {
+      /* Use ssrLoadModule to go through Vite's pipeline — handles TS
+         compilation and @/ alias resolution at runtime. Raw import()
+         fails because Vite bundles the config to .vite-temp/ and
+         relative paths resolve from there, not the project root. */
+      const mod = await server.ssrLoadModule('./src/lib/server/preview/vite-plugin-preview-ws.ts');
+      mod.setupPreviewWs(server);
+    },
+  };
+}
 
 /**
  * Reads git metadata for build-time injection.
@@ -33,7 +58,14 @@ const git = getGitInfo();
 const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 
 export default defineConfig({
-  plugins: [templateAppHtml(), templateErrorHtml(), tailwindcss(), sveltekit(), devtoolsJson()],
+  plugins: [
+    templateAppHtml(),
+    templateErrorHtml(),
+    tailwindcss(),
+    previewWsPlugin(),
+    sveltekit(),
+    devtoolsJson(),
+  ],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
     __GIT_COMMIT__: JSON.stringify(git.commit),
