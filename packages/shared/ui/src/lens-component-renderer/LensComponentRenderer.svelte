@@ -6542,6 +6542,119 @@
     }, 2000);
   }
 
+  /**
+   * Load an image from a URL and return an HTMLImageElement.
+   *
+   * @param url - Image source URL (object URL or data URI)
+   * @returns Resolved HTMLImageElement when loaded
+   */
+  function loadImage(url: Str): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const img: HTMLImageElement = new Image();
+      img.addEventListener('load', (): void => resolve(img));
+      img.addEventListener('error', reject);
+      img.src = url;
+    });
+  }
+
+  /**
+   * Composite two compare images into a single image with the slider line.
+   *
+   * @param leftUrl - Object URL of the left screenshot
+   * @param rightUrl - Object URL of the right screenshot
+   * @param position - Slider position (0–100)
+   * @returns Object URL of the composited PNG image
+   */
+  async function compositeCompareImage(leftUrl: Str, rightUrl: Str, position: Num): Promise<Str> {
+    const [leftImg, rightImg]: [HTMLImageElement, HTMLImageElement] = await Promise.all([
+      loadImage(leftUrl),
+      loadImage(rightUrl),
+    ]);
+
+    const width: Num = Math.max(leftImg.naturalWidth, rightImg.naturalWidth) as Num;
+    const height: Num = Math.max(leftImg.naturalHeight, rightImg.naturalHeight) as Num;
+
+    const canvas: HTMLCanvasElement = document.createElement('canvas');
+    canvas.width = width as number;
+    canvas.height = height as number;
+    /* 2D context is always available in browser — non-null assertion is safe */
+    const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
+
+    /**
+     * Draw an image centered within the canvas, preserving aspect ratio (object-contain).
+     *
+     * @param img - Image element to draw
+     */
+    const drawContained = (img: HTMLImageElement): void => {
+      const scale: Num = Math.min(
+        (width as number) / img.naturalWidth,
+        (height as number) / img.naturalHeight,
+      ) as Num;
+      const w: Num = (img.naturalWidth * (scale as number)) as Num;
+      const h: Num = (img.naturalHeight * (scale as number)) as Num;
+      const x: Num = (((width as number) - (w as number)) / 2) as Num;
+      const y: Num = (((height as number) - (h as number)) / 2) as Num;
+      ctx.drawImage(img, x as number, y as number, w as number, h as number);
+    };
+
+    /* Draw right image as background */
+    drawContained(rightImg);
+
+    /* Clip and draw left image at slider position */
+    const clipX: Num = (((position as number) / 100) * (width as number)) as Num;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, clipX as number, height as number);
+    ctx.clip();
+    drawContained(leftImg);
+    ctx.restore();
+
+    /* Draw slider line */
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(clipX as number, 0);
+    ctx.lineTo(clipX as number, height as number);
+    ctx.stroke();
+
+    const blob: Blob = await new Promise<Blob>((resolve) => {
+      canvas.toBlob((b: Blob | null): void => {
+        /* toBlob always produces a blob for 'image/png' — non-null is safe */
+        resolve(b!); // eslint-disable-line @typescript-eslint/no-non-null-assertion
+      }, 'image/png');
+    });
+    return URL.createObjectURL(blob) as Str;
+  }
+
+  /**
+   * Export a compare composite image in the given format.
+   *
+   * @param leftUrl - Object URL of the left screenshot
+   * @param rightUrl - Object URL of the right screenshot
+   * @param position - Slider position (0–100)
+   * @param leftCapture - Left capture metadata (for filename)
+   * @param rightCapture - Right capture metadata (for filename)
+   * @param formatId - Export format identifier
+   */
+  async function handleCompareExport(
+    leftUrl: Str,
+    rightUrl: Str,
+    position: Num,
+    leftCapture: ScreenshotCapture,
+    rightCapture: ScreenshotCapture,
+    formatId: Str,
+  ): Promise<void> {
+    const compositeUrl: Str = await compositeCompareImage(leftUrl, rightUrl, position);
+    const virtualCapture: ScreenshotCapture = {
+      ...leftCapture,
+      imageUrl: compositeUrl,
+      browserDisplayName:
+        `${leftCapture.browserDisplayName} vs ${rightCapture.browserDisplayName}` as Str,
+      device: 'compare' as Str,
+    };
+    await handleScreenshotExport(virtualCapture, formatId);
+  }
+
   /** Export All screenshot format menu items with descriptions and file extension badges. */
   const SCREENSHOT_EXPORT_ALL_ITEMS: Array<{
     id: Str;
@@ -11376,7 +11489,7 @@
                   {/snippet}
                 </Tooltip.Trigger>
                 <Tooltip.Content side="top" sideOffset={4}>
-                  Side-by-side comparison of the two most recent screenshots
+                  Compare any two screenshots with a slider overlay
                 </Tooltip.Content>
               </Tooltip.Root>
             {/if}
@@ -11564,37 +11677,40 @@
                             </div>
                           </div>
                           <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-                            {#each allCaptures as cap, i (cap.timestamp)}
-                              {@const capLabel = `#${i + 1} ${cap.browserDisplayName}${cap.device !== 'custom' ? ` · ${cap.device}` : ''}`}
-                              {#if !compareLeftSearch || capLabel
-                                  .toLowerCase()
-                                  .includes(compareLeftSearch.toLowerCase())}
-                                <DropdownMenu.Item
-                                  onSelect={(e) => {
-                                    e.preventDefault();
-                                    cardCompareLeft[cardKey] = i as Num;
-                                  }}
+                            {#each allCaptures
+                              .map( (cap, i) => ({ cap, idx: i, label: `#${i + 1} ${cap.browserDisplayName}${cap.device !== 'custom' ? ` · ${cap.device}` : ''}` }), )
+                              .filter(({ label }) => !compareLeftSearch || label
+                                    .toLowerCase()
+                                    .includes(compareLeftSearch.toLowerCase())) as { cap, idx, label } (cap.timestamp)}
+                              <DropdownMenu.Item
+                                onSelect={(e) => {
+                                  e.preventDefault();
+                                  cardCompareLeft[cardKey] = idx as Num;
+                                }}
+                              >
+                                <Check class={cn('size-4', leftIdx !== idx && 'opacity-0')} />
+                                {#if cap.source === 'ios-simulator'}
+                                  <Apple class="size-3 text-muted-foreground" aria-hidden="true" />
+                                {:else if cap.source === 'android-emulator'}
+                                  <Bot class="size-3 text-muted-foreground" aria-hidden="true" />
+                                {:else}
+                                  <Chrome class="size-3 text-muted-foreground" aria-hidden="true" />
+                                {/if}
+                                <span class="flex-1 truncate text-[11px]">{label}</span>
+                                <span class="text-[9px] text-muted-foreground/40"
+                                  >{relativeTime(cap.timestamp)}</span
                                 >
-                                  <Check class={cn('size-4', leftIdx !== i && 'opacity-0')} />
-                                  {#if cap.source === 'ios-simulator'}
-                                    <Apple
-                                      class="size-3 text-muted-foreground"
-                                      aria-hidden="true"
-                                    />
-                                  {:else if cap.source === 'android-emulator'}
-                                    <Bot class="size-3 text-muted-foreground" aria-hidden="true" />
-                                  {:else}
-                                    <Chrome
-                                      class="size-3 text-muted-foreground"
-                                      aria-hidden="true"
-                                    />
-                                  {/if}
-                                  <span class="flex-1 truncate text-[11px]">{capLabel}</span>
-                                  <span class="text-[9px] text-muted-foreground/40"
-                                    >{relativeTime(cap.timestamp)}</span
-                                  >
-                                </DropdownMenu.Item>
-                              {/if}
+                              </DropdownMenu.Item>
+                            {:else}
+                              <div
+                                class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                              >
+                                <SearchX class="size-5" />
+                                <div class="flex flex-col items-center gap-0.5">
+                                  <p class="text-xs font-medium">No screenshots found</p>
+                                  <p class="text-[11px]">Try a different search term</p>
+                                </div>
+                              </div>
                             {/each}
                           </div>
                         </DropdownMenu.Content>
@@ -11651,47 +11767,59 @@
                             </div>
                           </div>
                           <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
-                            {#each allCaptures as cap, i (cap.timestamp)}
-                              {@const capLabel = `#${i + 1} ${cap.browserDisplayName}${cap.device !== 'custom' ? ` · ${cap.device}` : ''}`}
-                              {#if !compareRightSearch || capLabel
-                                  .toLowerCase()
-                                  .includes(compareRightSearch.toLowerCase())}
-                                <DropdownMenu.Item
-                                  onSelect={(e) => {
-                                    e.preventDefault();
-                                    cardCompareRight[cardKey] = i as Num;
-                                  }}
+                            {#each allCaptures
+                              .map( (cap, i) => ({ cap, idx: i, label: `#${i + 1} ${cap.browserDisplayName}${cap.device !== 'custom' ? ` · ${cap.device}` : ''}` }), )
+                              .filter(({ label }) => !compareRightSearch || label
+                                    .toLowerCase()
+                                    .includes(compareRightSearch.toLowerCase())) as { cap, idx, label } (cap.timestamp)}
+                              <DropdownMenu.Item
+                                onSelect={(e) => {
+                                  e.preventDefault();
+                                  cardCompareRight[cardKey] = idx as Num;
+                                }}
+                              >
+                                <Check class={cn('size-4', rightIdx !== idx && 'opacity-0')} />
+                                {#if cap.source === 'ios-simulator'}
+                                  <Apple class="size-3 text-muted-foreground" aria-hidden="true" />
+                                {:else if cap.source === 'android-emulator'}
+                                  <Bot class="size-3 text-muted-foreground" aria-hidden="true" />
+                                {:else}
+                                  <Chrome class="size-3 text-muted-foreground" aria-hidden="true" />
+                                {/if}
+                                <span class="flex-1 truncate text-[11px]">{label}</span>
+                                <span class="text-[9px] text-muted-foreground/40"
+                                  >{relativeTime(cap.timestamp)}</span
                                 >
-                                  <Check class={cn('size-4', rightIdx !== i && 'opacity-0')} />
-                                  {#if cap.source === 'ios-simulator'}
-                                    <Apple
-                                      class="size-3 text-muted-foreground"
-                                      aria-hidden="true"
-                                    />
-                                  {:else if cap.source === 'android-emulator'}
-                                    <Bot class="size-3 text-muted-foreground" aria-hidden="true" />
-                                  {:else}
-                                    <Chrome
-                                      class="size-3 text-muted-foreground"
-                                      aria-hidden="true"
-                                    />
-                                  {/if}
-                                  <span class="flex-1 truncate text-[11px]">{capLabel}</span>
-                                  <span class="text-[9px] text-muted-foreground/40"
-                                    >{relativeTime(cap.timestamp)}</span
-                                  >
-                                </DropdownMenu.Item>
-                              {/if}
+                              </DropdownMenu.Item>
+                            {:else}
+                              <div
+                                class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
+                              >
+                                <SearchX class="size-5" />
+                                <div class="flex flex-col items-center gap-0.5">
+                                  <p class="text-xs font-medium">No screenshots found</p>
+                                  <p class="text-[11px]">Try a different search term</p>
+                                </div>
+                              </div>
                             {/each}
                           </div>
                         </DropdownMenu.Content>
                       </DropdownMenu.Root>
                     </div>
                     <div class="flex items-center gap-1.5">
-                      <span class="text-[9px] tabular-nums text-muted-foreground/50">
-                        {cardComparePosition[cardKey] ?? 50}%
-                      </span>
-                      <!-- Click left/right image to lightbox -->
+                      <Tooltip.Root delayDuration={300}>
+                        <Tooltip.Trigger>
+                          {#snippet child({ props: sliderTipProps })}
+                            <span
+                              {...sliderTipProps}
+                              class="cursor-default text-[9px] tabular-nums text-muted-foreground/50"
+                            >
+                              {cardComparePosition[cardKey] ?? 50}%
+                            </span>
+                          {/snippet}
+                        </Tooltip.Trigger>
+                        <Tooltip.Content side="top" sideOffset={4}>Slider position</Tooltip.Content>
+                      </Tooltip.Root>
                       <Tooltip.Root delayDuration={300}>
                         <Tooltip.Trigger>
                           {#snippet child({ props: tipProps })}
@@ -11699,19 +11827,23 @@
                               {...tipProps}
                               type="button"
                               class="rounded p-1 text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
-                              onclick={() => {
-                                lightboxUrl = leftCapture.imageUrl;
-                                lightboxCardKey = cardKey;
-                                lightboxIdx = leftIdx as Num;
+                              onclick={async () => {
+                                const pos: Num = (cardComparePosition[cardKey] ?? 50) as Num;
+                                lightboxUrl = await compositeCompareImage(
+                                  leftCapture.imageUrl,
+                                  rightCapture.imageUrl,
+                                  pos,
+                                );
+                                lightboxCardKey = null;
                               }}
-                              aria-label="View left screenshot"
+                              aria-label="View compare full size"
                             >
                               <ZoomIn class="size-3.5" aria-hidden="true" />
                             </button>
                           {/snippet}
                         </Tooltip.Trigger>
                         <Tooltip.Content side="top" sideOffset={4}
-                          >View left image full size</Tooltip.Content
+                          >View compare full size</Tooltip.Content
                         >
                       </Tooltip.Root>
                       <!-- Export submenu for compare -->
@@ -11736,7 +11868,7 @@
                           >
                             <DropdownMenu.SubTrigger>
                               <Download class="size-4" />
-                              Export Left (#{leftIdx + 1})
+                              Export Compare
                             </DropdownMenu.SubTrigger>
                             <DropdownMenu.SubContent
                               class="flex max-h-[28rem] w-64 flex-col overflow-hidden"
@@ -11780,97 +11912,16 @@
                                     <DropdownMenu.Item
                                       onSelect={(e) => {
                                         e.preventDefault();
-                                        handleScreenshotExport(leftCapture, item.id);
-                                      }}
-                                    >
-                                      {#if screenshotExportFeedback === item.id}
-                                        <Check class="size-4 text-green-500" />
-                                      {:else}
-                                        <item.icon class="size-4" />
-                                      {/if}
-                                      <div class="flex min-w-0 flex-1 flex-col">
-                                        <span class="flex items-center gap-2">
-                                          <span class="truncate">{item.label}</span>
-                                          {#if item.ext}
-                                            <code
-                                              class="ml-auto shrink-0 rounded bg-muted px-1 py-0.5 font-mono text-[9px] text-muted-foreground"
-                                              >{item.ext}</code
-                                            >
-                                          {/if}
-                                        </span>
-                                        <span
-                                          class="text-[10px] leading-tight text-muted-foreground"
-                                          >{item.description}</span
-                                        >
-                                      </div>
-                                    </DropdownMenu.Item>
-                                  {/each}
-                                {:else}
-                                  <div
-                                    class="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-muted-foreground"
-                                  >
-                                    <SearchX class="size-5" />
-                                    <div class="flex flex-col items-center gap-0.5">
-                                      <p class="text-xs font-medium">No formats found</p>
-                                      <p class="text-[11px]">Try a different search term</p>
-                                    </div>
-                                  </div>
-                                {/each}
-                              </div>
-                            </DropdownMenu.SubContent>
-                          </DropdownMenu.Sub>
-                          <DropdownMenu.Sub
-                            onOpenChange={(open) => {
-                              if (open) screenshotExportSearchQuery = '';
-                            }}
-                          >
-                            <DropdownMenu.SubTrigger>
-                              <Download class="size-4" />
-                              Export Right (#{rightIdx + 1})
-                            </DropdownMenu.SubTrigger>
-                            <DropdownMenu.SubContent
-                              class="flex max-h-[28rem] w-64 flex-col overflow-hidden"
-                            >
-                              <div class="shrink-0 px-2 pb-1.5 pt-1">
-                                <div
-                                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
-                                >
-                                  <Search
-                                    class="size-3 shrink-0 text-muted-foreground"
-                                    aria-hidden="true"
-                                  />
-                                  <input
-                                    type="text"
-                                    placeholder="Search formats..."
-                                    class="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                                    bind:value={screenshotExportSearchQuery}
-                                    onkeydown={(e) => e.stopPropagation()}
-                                    onkeyup={(e) => e.stopPropagation()}
-                                    onkeypress={(e) => e.stopPropagation()}
-                                  />
-                                </div>
-                              </div>
-                              <div
-                                class="flex min-h-0 flex-1 flex-col overflow-y-auto"
-                                use:lockHeight
-                              >
-                                {#each filteredScreenshotExportCategories as category (category)}
-                                  {#if filteredScreenshotExportCategories.indexOf(category) > 0}
-                                    <DropdownMenu.Separator />
-                                  {/if}
-                                  <DropdownMenu.Label class="flex items-center gap-1.5 text-xs">
-                                    {#if category === 'Clipboard'}
-                                      <Clipboard class="size-3 text-muted-foreground" />
-                                    {:else if category === 'File'}
-                                      <Download class="size-3 text-muted-foreground" />
-                                    {/if}
-                                    {category}
-                                  </DropdownMenu.Label>
-                                  {#each filteredScreenshotExportItems.filter((i) => i.category === category) as item (item.id)}
-                                    <DropdownMenu.Item
-                                      onSelect={(e) => {
-                                        e.preventDefault();
-                                        handleScreenshotExport(rightCapture, item.id);
+                                        const pos: Num = (cardComparePosition[cardKey] ??
+                                          50) as Num;
+                                        handleCompareExport(
+                                          leftCapture.imageUrl,
+                                          rightCapture.imageUrl,
+                                          pos,
+                                          leftCapture,
+                                          rightCapture,
+                                          item.id,
+                                        );
                                       }}
                                     >
                                       {#if screenshotExportFeedback === item.id}
@@ -12978,7 +13029,7 @@
             </button>
           {/snippet}
         </Tooltip.Trigger>
-        <Tooltip.Content side="bottom" sideOffset={4}>
+        <Tooltip.Content side="bottom" sideOffset={4} class="z-[10001]">
           Close <kbd
             class="ml-1 rounded border border-white/20 bg-white/10 px-1 py-0.5 font-mono text-[10px]"
             >Esc</kbd
@@ -13009,7 +13060,7 @@
               </button>
             {/snippet}
           </Tooltip.Trigger>
-          <Tooltip.Content side="right" sideOffset={4}>
+          <Tooltip.Content side="right" sideOffset={4} class="z-[10001]">
             Previous <kbd
               class="ml-1 rounded border border-white/20 bg-white/10 px-1 py-0.5 font-mono text-[10px]"
               >←</kbd
@@ -13041,7 +13092,7 @@
               </button>
             {/snippet}
           </Tooltip.Trigger>
-          <Tooltip.Content side="left" sideOffset={4}>
+          <Tooltip.Content side="left" sideOffset={4} class="z-[10001]">
             Next <kbd
               class="ml-1 rounded border border-white/20 bg-white/10 px-1 py-0.5 font-mono text-[10px]"
               >→</kbd
