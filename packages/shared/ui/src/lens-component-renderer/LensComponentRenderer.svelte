@@ -1789,6 +1789,9 @@
   /** DOM references to card preview areas for export. */
   let cardPreviewRefs: Record<Str, HTMLDivElement | undefined> = $state({});
 
+  /** DOM references to the actual rendered component wrapper for size measurement. */
+  let cardComponentRefs: Record<Str, HTMLDivElement | undefined> = $state({});
+
   /**
    * Extract a short human-readable cause from a caught error.
    *
@@ -3760,12 +3763,12 @@
     }
     const vp: Str = cardViewports[key] ?? 'auto';
     if (vp === 'auto') {
-      /* For "auto" viewport, measure the actual component display area so the isolate page
-         renders the component at the same width the user sees in the editor. */
-      const container: HTMLDivElement | undefined = cardPreviewRefs[key];
-      if (container) {
-        const measuredW: Num = Math.round(container.clientWidth - 32) as Num;
-        const measuredH: Num = Math.round(container.clientHeight - 32) as Num;
+      /* For "auto" viewport, measure the actual rendered component wrapper so the isolate
+         page renders the component at the same size the user sees in the editor. */
+      const compEl: HTMLDivElement | undefined = cardComponentRefs[key];
+      if (compEl) {
+        const measuredW: Num = Math.round(compEl.clientWidth) as Num;
+        const measuredH: Num = Math.round(compEl.clientHeight) as Num;
         if ((measuredW as number) > 0 && (measuredH as number) > 0) {
           s.vp = `${measuredW}x${measuredH}`;
         }
@@ -6221,12 +6224,11 @@
       const vp: Str = cardViewports[key] ?? 'auto';
       if (!device) {
         if (vp === 'auto') {
-          /* Measure the actual component display size so the screenshot matches what the user sees */
-          const container: HTMLDivElement | undefined = cardPreviewRefs[key];
-          if (container) {
-            /* Container has p-4 (16px padding each side) — subtract to get content area */
-            const measuredW: Num = Math.round(container.clientWidth - 32) as Num;
-            const measuredH: Num = Math.round(container.clientHeight - 32) as Num;
+          /* Measure the actual rendered component wrapper — not the card container */
+          const compEl: HTMLDivElement | undefined = cardComponentRefs[key];
+          if (compEl) {
+            const measuredW: Num = Math.round(compEl.clientWidth) as Num;
+            const measuredH: Num = Math.round(compEl.clientHeight) as Num;
             if ((measuredW as number) > 0 && (measuredH as number) > 0) {
               params.set('width', String(measuredW));
               params.set('height', String(measuredH));
@@ -10436,6 +10438,7 @@
                 style={getOrientationPadding(cardKey)}
               >
                 <div
+                  bind:this={cardComponentRefs[cardKey]}
                   use:trackContentSize={{
                     key: cardKey,
                     landscape: isLandscapeOrientation(cardKey),
