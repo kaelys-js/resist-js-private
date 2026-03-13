@@ -1051,6 +1051,10 @@
         {hasDeps}
         {hasDocs}
         {hasChangelog}
+        propCount={props.length}
+        variantCount={allVariants.length}
+        exampleCount={lensExamples.length}
+        changelogCount={changelog.length}
         {prevComponent}
         {nextComponent}
       />
