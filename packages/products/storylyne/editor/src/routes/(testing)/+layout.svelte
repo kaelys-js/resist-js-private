@@ -63,6 +63,7 @@
   import Filter from '@lucide/svelte/icons/filter';
   import CircleAlert from '@lucide/svelte/icons/circle-alert';
   import EyeOff from '@lucide/svelte/icons/eye-off';
+  import Home from '@lucide/svelte/icons/home';
 
   const { children } = $props();
 
@@ -1011,6 +1012,21 @@
       </div>
     </Sidebar.Header>
     <Sidebar.Content>
+      <!-- Overview link -->
+      <Sidebar.Group>
+        <Sidebar.Menu>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton isActive={page.url.pathname === '/components' && !currentName}>
+              {#snippet child({ props })}
+                <a href="/components" {...props}>
+                  <Home class="size-4" />
+                  <span>Overview</span>
+                </a>
+              {/snippet}
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+        </Sidebar.Menu>
+      </Sidebar.Group>
       <Collapsible.Root bind:open={sidebarComponentsOpen} class="group/collapsible">
         <Sidebar.Group>
           <Sidebar.GroupLabel class="text-sm">
