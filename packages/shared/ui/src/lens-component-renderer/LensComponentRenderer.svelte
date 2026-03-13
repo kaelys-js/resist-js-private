@@ -154,6 +154,7 @@
   import Apple from '@lucide/svelte/icons/apple';
   import Bot from '@lucide/svelte/icons/bot';
   import Star from '@lucide/svelte/icons/star';
+  import ArrowLeftRight from '@lucide/svelte/icons/arrow-left-right';
   import SplitSquareHorizontal from '@lucide/svelte/icons/split-square-horizontal';
   import { zipSync, strToU8 } from 'fflate';
   import * as DropdownMenu from '../dropdown-menu/index.js';
@@ -6513,6 +6514,43 @@
   }
 
   /**
+   * Copy compare metadata (both sides) to the clipboard.
+   *
+   * @param leftCapture - Left side screenshot capture
+   * @param rightCapture - Right side screenshot capture
+   * @param leftIdx - Left side index in captures array
+   * @param rightIdx - Right side index in captures array
+   * @param position - Slider position percentage (0–100)
+   */
+  async function copyCompareInfo(
+    leftCapture: ScreenshotCapture,
+    rightCapture: ScreenshotCapture,
+    leftIdx: Num,
+    rightIdx: Num,
+    position: Num,
+  ): Promise<void> {
+    const lines: Str[] = [
+      `Compare: #${(leftIdx as number) + 1} vs #${(rightIdx as number) + 1}` as Str,
+      `Slider: ${position}%` as Str,
+      '' as Str,
+      `Left (#${(leftIdx as number) + 1}):` as Str,
+      `  Browser: ${leftCapture.browserDisplayName}${leftCapture.browserVersion ? ` v${leftCapture.browserVersion}` : ''}` as Str,
+      `  Device: ${leftCapture.device}` as Str,
+      `  Source: ${leftCapture.source ?? 'playwright'}` as Str,
+      '' as Str,
+      `Right (#${(rightIdx as number) + 1}):` as Str,
+      `  Browser: ${rightCapture.browserDisplayName}${rightCapture.browserVersion ? ` v${rightCapture.browserVersion}` : ''}` as Str,
+      `  Device: ${rightCapture.device}` as Str,
+      `  Source: ${rightCapture.source ?? 'playwright'}` as Str,
+    ];
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+    } catch {
+      /* Clipboard write failed — browser may not support it in this context */
+    }
+  }
+
+  /**
    * Remove a screenshot capture and revoke its object URL.
    *
    * @param key - Card key
@@ -11584,38 +11622,42 @@
               </Tooltip.Root>
             {/if}
             {#if (cardScreenshots[cardKey] ?? []).length >= 2}
-              <Tooltip.Root delayDuration={300}>
-                <Tooltip.Trigger>
-                  {#snippet child({ props: triggerProps })}
-                    <button
-                      {...triggerProps}
-                      type="button"
-                      class={cn(
-                        'inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs transition-colors',
-                        (cardScreenCompare[cardKey] ?? false)
-                          ? 'border-primary/30 bg-primary/10 text-primary'
-                          : 'text-muted-foreground hover:bg-muted',
-                      )}
-                      onclick={() => {
-                        cardScreenCompare[cardKey] = !(cardScreenCompare[cardKey] ?? false);
-                        if (!cardComparePosition[cardKey]) cardComparePosition[cardKey] = 50 as Num;
-                        /* Default to last two screenshots */
-                        const len: Num = (cardScreenshots[cardKey] ?? []).length as Num;
-                        if (cardCompareLeft[cardKey] == null)
-                          cardCompareLeft[cardKey] = ((len as number) - 2) as Num;
-                        if (cardCompareRight[cardKey] == null)
-                          cardCompareRight[cardKey] = ((len as number) - 1) as Num;
-                      }}
-                    >
-                      <SplitSquareHorizontal class="size-3.5" aria-hidden="true" />
-                      Compare
-                    </button>
-                  {/snippet}
-                </Tooltip.Trigger>
-                <Tooltip.Content side="top" sideOffset={4}>
-                  Compare any two screenshots with a slider overlay
-                </Tooltip.Content>
-              </Tooltip.Root>
+              <div transition:fade={{ duration: 200 }}>
+                <Tooltip.Root delayDuration={300}>
+                  <Tooltip.Trigger>
+                    {#snippet child({ props: triggerProps })}
+                      <button
+                        {...triggerProps}
+                        type="button"
+                        class={cn(
+                          'inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs transition-colors',
+                          (cardScreenCompare[cardKey] ?? false)
+                            ? 'border-primary/30 bg-primary/10 text-primary'
+                            : 'text-muted-foreground hover:bg-muted',
+                        )}
+                        onclick={() => {
+                          cardScreenCompare[cardKey] = !(cardScreenCompare[cardKey] ?? false);
+                          /* Use undefined check — 0 is a valid slider position */
+                          if (cardComparePosition[cardKey] === undefined)
+                            cardComparePosition[cardKey] = 50 as Num;
+                          /* Default to last two screenshots */
+                          const len: Num = (cardScreenshots[cardKey] ?? []).length as Num;
+                          if (cardCompareLeft[cardKey] === undefined)
+                            cardCompareLeft[cardKey] = ((len as number) - 2) as Num;
+                          if (cardCompareRight[cardKey] === undefined)
+                            cardCompareRight[cardKey] = ((len as number) - 1) as Num;
+                        }}
+                      >
+                        <SplitSquareHorizontal class="size-3.5" aria-hidden="true" />
+                        Compare
+                      </button>
+                    {/snippet}
+                  </Tooltip.Trigger>
+                  <Tooltip.Content side="top" sideOffset={4}>
+                    Compare any two screenshots with a slider overlay
+                  </Tooltip.Content>
+                </Tooltip.Root>
+              </div>
             {/if}
             <DropdownMenu.Root>
               <DropdownMenu.Trigger>
@@ -11817,8 +11859,11 @@
                               <DropdownMenu.Item
                                 onSelect={(e) => {
                                   e.preventDefault();
+                                  if (idx === rightIdx) return;
                                   cardCompareLeft[cardKey] = idx as Num;
                                 }}
+                                disabled={idx === rightIdx}
+                                class={cn(idx === rightIdx && 'opacity-40')}
                               >
                                 <Check class={cn('size-4', leftIdx !== idx && 'opacity-0')} />
                                 {#if cap.source === 'ios-simulator'}
@@ -11829,9 +11874,13 @@
                                   <Chrome class="size-3 text-muted-foreground" aria-hidden="true" />
                                 {/if}
                                 <span class="flex-1 truncate text-[11px]">{label}</span>
-                                <span class="text-[9px] text-muted-foreground/40"
-                                  >{relativeTime(cap.timestamp)}</span
-                                >
+                                {#if idx === rightIdx}
+                                  <span class="text-[9px] italic text-muted-foreground/40">R</span>
+                                {:else}
+                                  <span class="text-[9px] text-muted-foreground/40"
+                                    >{relativeTime(cap.timestamp)}</span
+                                  >
+                                {/if}
                               </DropdownMenu.Item>
                             {:else}
                               <div
@@ -11847,7 +11896,31 @@
                           </div>
                         </DropdownMenu.Content>
                       </DropdownMenu.Root>
-                      <span class="text-[9px] font-medium text-muted-foreground/40">vs</span>
+                      <Tooltip.Root delayDuration={300}>
+                        <Tooltip.Trigger>
+                          {#snippet child({ props: swapTipProps })}
+                            <button
+                              {...swapTipProps}
+                              type="button"
+                              class="rounded p-0.5 text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground"
+                              onclick={() => {
+                                const tmpLeft: Num | undefined = cardCompareLeft[cardKey];
+                                const tmpRight: Num | undefined = cardCompareRight[cardKey];
+                                cardCompareLeft[cardKey] =
+                                  tmpRight ?? ((allCaptures.length - 1) as Num);
+                                cardCompareRight[cardKey] =
+                                  tmpLeft ?? ((allCaptures.length - 2) as Num);
+                              }}
+                              aria-label="Swap left and right"
+                            >
+                              <ArrowLeftRight class="size-3" aria-hidden="true" />
+                            </button>
+                          {/snippet}
+                        </Tooltip.Trigger>
+                        <Tooltip.Content side="top" sideOffset={4}
+                          >Swap left and right</Tooltip.Content
+                        >
+                      </Tooltip.Root>
                       <!-- Right selector -->
                       <DropdownMenu.Root
                         onOpenChange={(open) => {
@@ -11907,8 +11980,11 @@
                               <DropdownMenu.Item
                                 onSelect={(e) => {
                                   e.preventDefault();
+                                  if (idx === leftIdx) return;
                                   cardCompareRight[cardKey] = idx as Num;
                                 }}
+                                disabled={idx === leftIdx}
+                                class={cn(idx === leftIdx && 'opacity-40')}
                               >
                                 <Check class={cn('size-4', rightIdx !== idx && 'opacity-0')} />
                                 {#if cap.source === 'ios-simulator'}
@@ -11919,9 +11995,13 @@
                                   <Chrome class="size-3 text-muted-foreground" aria-hidden="true" />
                                 {/if}
                                 <span class="flex-1 truncate text-[11px]">{label}</span>
-                                <span class="text-[9px] text-muted-foreground/40"
-                                  >{relativeTime(cap.timestamp)}</span
-                                >
+                                {#if idx === leftIdx}
+                                  <span class="text-[9px] italic text-muted-foreground/40">L</span>
+                                {:else}
+                                  <span class="text-[9px] text-muted-foreground/40"
+                                    >{relativeTime(cap.timestamp)}</span
+                                  >
+                                {/if}
                               </DropdownMenu.Item>
                             {:else}
                               <div
@@ -12093,12 +12173,50 @@
                               </div>
                             </DropdownMenu.SubContent>
                           </DropdownMenu.Sub>
+                          <DropdownMenu.Item
+                            onSelect={async () => {
+                              const pos: Num = (cardComparePosition[cardKey] ?? 50) as Num;
+                              const url: Str = await compositeCompareImage(
+                                leftCapture.imageUrl,
+                                rightCapture.imageUrl,
+                                pos,
+                              );
+                              window.open(url, '_blank');
+                            }}
+                          >
+                            <ExternalLink class="size-4" />
+                            Open in New Tab
+                          </DropdownMenu.Item>
+                          <DropdownMenu.Item
+                            onSelect={() => {
+                              const pos: Num = (cardComparePosition[cardKey] ?? 50) as Num;
+                              copyCompareInfo(
+                                leftCapture,
+                                rightCapture,
+                                leftIdx as Num,
+                                rightIdx as Num,
+                                pos,
+                              );
+                            }}
+                          >
+                            <ClipboardCopy class="size-4" />
+                            Copy Compare Info
+                          </DropdownMenu.Item>
+                          <DropdownMenu.Separator />
+                          <DropdownMenu.Item
+                            onSelect={() => {
+                              cardComparePosition[cardKey] = 50 as Num;
+                            }}
+                          >
+                            <RotateCcw class="size-4" />
+                            Reset Slider
+                          </DropdownMenu.Item>
                         </DropdownMenu.Content>
                       </DropdownMenu.Root>
                     </div>
                   </div>
                   <!-- Slider viewport — both images positioned identically, left is clipped -->
-                  <div class="relative overflow-hidden" style="height: 320px;">
+                  <div class="relative overflow-hidden" style="height: clamp(200px, 40vw, 480px);">
                     <!-- Right image (background, full width) -->
                     <img
                       src={rightCapture.imageUrl}
@@ -12116,6 +12234,15 @@
                         class="absolute inset-0 h-full w-full object-contain"
                       />
                     </div>
+                    <!-- L/R side labels -->
+                    <span
+                      class="pointer-events-none absolute left-2 top-2 z-10 rounded bg-black/40 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-white/80"
+                      >L</span
+                    >
+                    <span
+                      class="pointer-events-none absolute right-2 top-2 z-10 rounded bg-black/40 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-white/80"
+                      >R</span
+                    >
                     <!-- Slider handle -->
                     <div
                       class="absolute inset-y-0 z-10 w-0.5 bg-primary shadow-sm"
@@ -12127,7 +12254,7 @@
                         <SplitSquareHorizontal class="size-3 text-muted-foreground" />
                       </div>
                     </div>
-                    <!-- Invisible slider input -->
+                    <!-- Invisible slider input with Shift+Arrow for 10% jumps -->
                     <input
                       type="range"
                       min="0"
@@ -12138,8 +12265,19 @@
                           (e.target as HTMLInputElement).value,
                         ) as Num;
                       }}
+                      onkeydown={(e) => {
+                        if (!e.shiftKey) return;
+                        const cur: Num = (cardComparePosition[cardKey] ?? 50) as Num;
+                        if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+                          e.preventDefault();
+                          cardComparePosition[cardKey] = Math.max(0, (cur as number) - 10) as Num;
+                        } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+                          e.preventDefault();
+                          cardComparePosition[cardKey] = Math.min(100, (cur as number) + 10) as Num;
+                        }
+                      }}
                       class="absolute inset-0 z-20 size-full cursor-col-resize opacity-0"
-                      aria-label="Compare slider"
+                      aria-label="Compare slider — Shift+Arrow for 10% jumps"
                     />
                   </div>
                 </div>
