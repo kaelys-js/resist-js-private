@@ -7370,7 +7370,13 @@
   }}
 />
 
-{#snippet toolbarButton(Icon: Component, tooltipText: Str, onclick: () => void, disabled: Bool)}
+{#snippet toolbarButton(
+  Icon: Component,
+  tooltipText: Str,
+  onclick: () => void,
+  disabled: Bool,
+  iconClass?: Str,
+)}
   <Tooltip.Provider>
     <Tooltip.Root delayDuration={300}>
       <Tooltip.Trigger>
@@ -7386,7 +7392,7 @@
             {disabled}
             tabindex={disabled ? -1 : undefined}
           >
-            <Icon class="size-3.5" aria-hidden="true" />
+            <Icon class={cn('size-3.5', iconClass)} aria-hidden="true" />
           </button>
         {/snippet}
       </Tooltip.Trigger>
@@ -7837,12 +7843,15 @@
           },
         )}
         <span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
-        <!-- #10 Screenshot button -->
+        <!-- #10 Screenshot button (spinner + disabled while capturing) -->
         {@render toolbarButton(
-          Camera,
-          'Take screenshot',
+          (cardScreenCapturing[cardKey] ?? false) ? LoaderCircle : Camera,
+          (cardScreenCapturing[cardKey] ?? false)
+            ? ('Capturing…' as Str)
+            : ('Take screenshot' as Str),
           () => captureScreenshot(cardKey, variantKey, variantOption),
-          false,
+          cardScreenCapturing[cardKey] ?? false,
+          (cardScreenCapturing[cardKey] ?? false) ? ('animate-spin' as Str) : undefined,
         )}
         <!-- #12 Dark/Light mode quick toggle -->
         {@render toolbarToggle(
