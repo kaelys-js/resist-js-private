@@ -1398,6 +1398,9 @@
   /** Per-card refresh counter — incrementing remounts LensStats to re-collect. */
   let statsRefreshKey: Record<Str, Num> = $state({});
 
+  /** Per-card feedback state for "Refresh Stats" checkmark (card key while active). */
+  let statsRefreshFeedback: Str = $state('' as Str);
+
   /* ------------------------------------------------------------------ */
   /*  Stats popover — export                                            */
   /* ------------------------------------------------------------------ */
@@ -1708,7 +1711,7 @@
     statsExportCopied = formatId;
     setTimeout((): Void => {
       statsExportCopied = '';
-    }, 2000);
+    }, 1250);
   }
 
   /**
@@ -6479,13 +6482,21 @@
     return false as Bool;
   }
 
+  /** Per-card + per-capture feedback key for "Copy Image Info" (e.g. `"card-0"`). */
+  let copyImageInfoFeedback: Str = $state('' as Str);
+
   /**
    * Copy screenshot metadata to clipboard as formatted text.
    *
    * @param capture - The screenshot capture to copy info for
    * @param index - Display index of the capture
+   * @param feedbackKey - Unique key for showing checkmark feedback
    */
-  async function copyScreenshotInfo(capture: ScreenshotCapture, index: Num): Promise<void> {
+  async function copyScreenshotInfo(
+    capture: ScreenshotCapture,
+    index: Num,
+    feedbackKey: Str,
+  ): Promise<void> {
     const lines: Str[] = [
       `Screenshot #${(index as number) + 1}` as Str,
       `Browser: ${capture.browserDisplayName}${capture.browserVersion ? ` v${capture.browserVersion}` : ''}` as Str,
@@ -6510,6 +6521,10 @@
     }
     try {
       await navigator.clipboard.writeText(lines.join('\n'));
+      copyImageInfoFeedback = feedbackKey;
+      setTimeout((): Void => {
+        copyImageInfoFeedback = '' as Str;
+      }, 1250);
     } catch {
       /* Clipboard write failed — browser may not support it */
     }
@@ -7106,6 +7121,41 @@
     document.addEventListener('lens:section-settings', onSectionSetting);
     return (): Void => {
       document.removeEventListener('lens:section-settings', onSectionSetting);
+    };
+  });
+
+  /* -- Section-level export event listener -- */
+  $effect(() => {
+    if (!sectionId) return;
+    const onSectionExport = async (e: Event): Promise<void> => {
+      const { sectionId: sid, exportId } = (e as CustomEvent<{ sectionId: Str; exportId: Str }>)
+        .detail;
+      if (sid !== sectionId) return;
+      if (exportId === 'stats') {
+        const allStats: Record<Str, LensStatsData> = cardStats;
+        const report: Str = JSON.stringify(
+          {
+            component: tagName ?? componentName ?? 'Component',
+            variantCount: Object.keys(allStats).length,
+            variants: allStats,
+          },
+          null,
+          2,
+        ) as Str;
+        try {
+          await navigator.clipboard.writeText(report);
+          statsExportCopied = 'all' as Str;
+          setTimeout((): Void => {
+            statsExportCopied = '' as Str;
+          }, 1250);
+        } catch (_) {
+          /* clipboard write failed (no permission or non-secure context) */
+        }
+      }
+    };
+    document.addEventListener('lens:section-export', onSectionExport);
+    return (): Void => {
+      document.removeEventListener('lens:section-export', onSectionExport);
     };
   });
 
@@ -7876,7 +7926,9 @@
                                 }}
                               >
                                 {#if statsExportCopied === item.id}
-                                  <Check class="size-4 text-green-500" />
+                                  <span in:fade={{ duration: 150 }}
+                                    ><Check class="size-4 text-green-500" /></span
+                                  >
                                 {:else}
                                   <item.icon class="size-4" />
                                 {/if}
@@ -7946,9 +7998,19 @@
                       onSelect={(e) => {
                         e.preventDefault();
                         statsRefreshKey[cardKey] = ((statsRefreshKey[cardKey] ?? 0) + 1) as Num;
+                        statsRefreshFeedback = cardKey;
+                        setTimeout((): Void => {
+                          statsRefreshFeedback = '' as Str;
+                        }, 1250);
                       }}
                     >
-                      <RefreshCw class="size-4" />
+                      {#if statsRefreshFeedback === cardKey}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <RefreshCw class="size-4" />
+                      {/if}
                       Refresh Stats
                     </DropdownMenu.Item>
                   </DropdownMenu.Content>
@@ -9688,7 +9750,7 @@
                 }}
               >
                 {#if linkCopied}
-                  <Check class="size-4 text-green-500" />
+                  <span in:fade={{ duration: 150 }}><Check class="size-4 text-green-500" /></span>
                   Copied!
                 {:else}
                   <Link class="size-4" />
@@ -10895,7 +10957,9 @@
                           class="flex items-center gap-1 break-all text-left font-mono text-[10px]"
                         >
                           {#if copyFeedback === prop}
-                            <Check class="inline size-3 text-green-500" />
+                            <span in:fade={{ duration: 150 }}
+                              ><Check class="inline size-3 text-green-500" /></span
+                            >
                             <span class="text-green-500">Copied!</span>
                           {:else}
                             {val}
@@ -10952,7 +11016,9 @@
                           class="flex items-center gap-1 break-all text-left font-mono text-[10px]"
                         >
                           {#if copyFeedback === prop}
-                            <Check class="inline size-3 text-green-500" />
+                            <span in:fade={{ duration: 150 }}
+                              ><Check class="inline size-3 text-green-500" /></span
+                            >
                             <span class="text-green-500">Copied!</span>
                           {:else}
                             {val}
@@ -11008,7 +11074,9 @@
                           class="flex items-center gap-1 break-all text-left font-mono text-[10px]"
                         >
                           {#if copyFeedback === prop}
-                            <Check class="inline size-3 text-green-500" />
+                            <span in:fade={{ duration: 150 }}
+                              ><Check class="inline size-3 text-green-500" /></span
+                            >
                             <span class="text-green-500">Copied!</span>
                           {:else}
                             {#if isCssColor(val as Str)}
@@ -11303,7 +11371,9 @@
                             }}
                           >
                             {#if consoleExportFeedback === item.id}
-                              <Check class="size-4 text-green-500" />
+                              <span in:fade={{ duration: 150 }}
+                                ><Check class="size-4 text-green-500" /></span
+                              >
                             {:else}
                               <item.icon class="size-4" />
                             {/if}
@@ -11347,7 +11417,9 @@
                   <ArrowDownToLine class="size-4" />
                   Auto-scroll
                   {#if cardConsoleAutoScroll[cardKey] ?? true}
-                    <Check class="ml-auto size-3.5 text-primary" />
+                    <span in:fade={{ duration: 150 }}
+                      ><Check class="ml-auto size-3.5 text-primary" /></span
+                    >
                   {/if}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
@@ -11361,7 +11433,9 @@
                   <Clock class="size-4" />
                   Timestamps
                   {#if cardConsoleShowTimestamps[cardKey] ?? true}
-                    <Check class="ml-auto size-3.5 text-primary" />
+                    <span in:fade={{ duration: 150 }}
+                      ><Check class="ml-auto size-3.5 text-primary" /></span
+                    >
                   {/if}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
@@ -11373,7 +11447,9 @@
                   <WrapText class="size-4" />
                   Word wrap
                   {#if cardConsoleWordWrap[cardKey] ?? true}
-                    <Check class="ml-auto size-3.5 text-primary" />
+                    <span in:fade={{ duration: 150 }}
+                      ><Check class="ml-auto size-3.5 text-primary" /></span
+                    >
                   {/if}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
@@ -11723,7 +11799,9 @@
                             }}
                           >
                             {#if screenshotExportFeedback[cardKey] === item.id}
-                              <Check class="size-4 text-green-500" />
+                              <span in:fade={{ duration: 150 }}
+                                ><Check class="size-4 text-green-500" /></span
+                              >
                             {:else}
                               <item.icon class="size-4" />
                             {/if}
@@ -12141,7 +12219,9 @@
                                       }}
                                     >
                                       {#if screenshotExportFeedback[`compare-${cardKey}`] === item.id}
-                                        <Check class="size-4 text-green-500" />
+                                        <span in:fade={{ duration: 150 }}
+                                          ><Check class="size-4 text-green-500" /></span
+                                        >
                                       {:else}
                                         <item.icon class="size-4" />
                                       {/if}
@@ -12622,7 +12702,9 @@
                                     }}
                                   >
                                     {#if screenshotExportFeedback[cardKey] === item.id}
-                                      <Check class="size-4 text-green-500" />
+                                      <span in:fade={{ duration: 150 }}
+                                        ><Check class="size-4 text-green-500" /></span
+                                      >
                                     {:else}
                                       <item.icon class="size-4" />
                                     {/if}
@@ -12665,11 +12747,18 @@
                           Open in New Tab
                         </DropdownMenu.Item>
                         <DropdownMenu.Item
-                          onSelect={() => {
-                            copyScreenshotInfo(capture, idx as Num);
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            copyScreenshotInfo(capture, idx as Num, `${cardKey}-${idx}` as Str);
                           }}
                         >
-                          <ClipboardCopy class="size-4" />
+                          {#if copyImageInfoFeedback === `${cardKey}-${idx}`}
+                            <span in:fade={{ duration: 150 }}
+                              ><Check class="size-4 text-green-500" /></span
+                            >
+                          {:else}
+                            <ClipboardCopy class="size-4" />
+                          {/if}
                           Copy Image Info
                         </DropdownMenu.Item>
                         <DropdownMenu.Item
@@ -13195,57 +13284,7 @@
 {/snippet}
 
 {#if hasVariants}
-  <!-- Variant mode: export all stats button + per-option cards -->
-  {#if Object.keys(cardStats).length > 1}
-    <div class="mb-2 flex justify-end gap-2">
-      <Tooltip.Provider>
-        <Tooltip.Root delayDuration={300} open={statsExportCopied === 'all' ? true : undefined}>
-          <Tooltip.Trigger>
-            {#snippet child({ props: tipProps })}
-              <button
-                {...tipProps}
-                type="button"
-                class="inline-flex items-center gap-1.5 rounded-md border bg-muted/30 px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                onclick={async () => {
-                  const allStats: Record<Str, LensStatsData> = cardStats;
-                  const report: Str = JSON.stringify(
-                    {
-                      component: tagName ?? componentName ?? 'Component',
-                      variantCount: Object.keys(allStats).length,
-                      variants: allStats,
-                    },
-                    null,
-                    2,
-                  );
-                  await navigator.clipboard.writeText(report);
-                  statsExportCopied = 'all';
-                  setTimeout((): Void => {
-                    statsExportCopied = '';
-                  }, 2000);
-                }}
-              >
-                {#if statsExportCopied === 'all'}
-                  <span in:fade={{ duration: 150 }}>
-                    <Check class="size-3.5 text-green-500" aria-hidden="true" />
-                  </span>
-                {:else}
-                  <span in:fade={{ duration: 150 }}>
-                    <FileJson class="size-3.5" aria-hidden="true" />
-                  </span>
-                {/if}
-                Export All Performance Statistics ({Object.keys(cardStats).length} variants)
-              </button>
-            {/snippet}
-          </Tooltip.Trigger>
-          <Tooltip.Content side="top" sideOffset={4}>
-            {statsExportCopied === 'all'
-              ? 'Copied!'
-              : 'Copy all variant stats as JSON to clipboard'}
-          </Tooltip.Content>
-        </Tooltip.Root>
-      </Tooltip.Provider>
-    </div>
-  {/if}
+  <!-- Variant mode: per-option cards -->
   <div class={cn('space-y-4', className)}>
     {#each (meta?.variants ?? []).filter((v) => v.key) as variantKey, vi (variantKey.key ?? `fallback-${vi}`)}
       {@const variantName: Str = variantKey.key}

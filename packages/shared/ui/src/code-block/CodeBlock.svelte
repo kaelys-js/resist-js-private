@@ -41,6 +41,7 @@
 <script lang="ts">
   import type { Bool, Num, Str, Void } from '@/schemas/common';
   import { safeParse } from '@/utils/result/safe';
+  import { fade } from 'svelte/transition';
   import { cn } from '../utils.js';
   import { stripSvelteProps } from '../lens/lens-utils.js';
   import * as DropdownMenu from '../dropdown-menu/index.js';
@@ -310,7 +311,9 @@
             <Search class="size-4" />
             Search
             {#if searchOpen}
-              <Check class="ml-auto size-3.5 text-green-500" />
+              <span in:fade={{ duration: 150 }}
+                ><Check class="ml-auto size-3.5 text-green-500" /></span
+              >
             {/if}
           </DropdownMenu.Item>
         {/if}
@@ -323,7 +326,9 @@
           <ListOrdered class="size-4" />
           Line Numbers
           {#if lineNumbers}
-            <Check class="ml-auto size-3.5 text-green-500" />
+            <span in:fade={{ duration: 150 }}
+              ><Check class="ml-auto size-3.5 text-green-500" /></span
+            >
           {/if}
         </DropdownMenu.Item>
         <DropdownMenu.Item
@@ -335,7 +340,9 @@
           <WrapText class="size-4" />
           Word Wrap
           {#if wrapEnabled}
-            <Check class="ml-auto size-3.5 text-green-500" />
+            <span in:fade={{ duration: 150 }}
+              ><Check class="ml-auto size-3.5 text-green-500" /></span
+            >
           {/if}
         </DropdownMenu.Item>
       </DropdownMenu.Content>

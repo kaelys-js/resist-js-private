@@ -53,6 +53,7 @@
   import type { Bool, Num, Str, Void } from '@/schemas/common';
   import type { Component } from 'svelte';
   import { safeParse } from '@/utils/result/safe';
+  import { fade } from 'svelte/transition';
   import { toTitle, stripSvelteProps } from '../lens/lens-utils.js';
   import Badge from '../badge/badge.svelte';
   import CopyImport from '../copy-import/CopyImport.svelte';
@@ -532,14 +533,6 @@
                 <ArrowUp class="size-4" />
                 Scroll to Top
               </DropdownMenu.Item>
-              <DropdownMenu.Item
-                onclick={() => scrollTo('docs')}
-                disabled={!hasDocs}
-                class={cn(!hasDocs && 'opacity-40')}
-              >
-                <FileText class="size-4" />
-                Go to Documentation
-              </DropdownMenu.Item>
               <DropdownMenu.Item onclick={() => scrollTo('props')}>
                 <TableProperties class="size-4" />
                 <span class="flex-1">Go to Props</span>
@@ -557,14 +550,6 @@
               >
                 <ComponentIcon class="size-4" />
                 Go to Default
-              </DropdownMenu.Item>
-              <DropdownMenu.Item
-                onclick={() => scrollTo('error-boundary')}
-                disabled={!hasVariants}
-                class={cn(!hasVariants && 'opacity-40')}
-              >
-                <ShieldAlert class="size-4" />
-                Go to Error Boundary
               </DropdownMenu.Item>
               <DropdownMenu.Item
                 onclick={() => scrollTo('variants')}
@@ -595,12 +580,28 @@
                 {/if}
               </DropdownMenu.Item>
               <DropdownMenu.Item
+                onclick={() => scrollTo('error-boundary')}
+                disabled={!hasVariants}
+                class={cn(!hasVariants && 'opacity-40')}
+              >
+                <ShieldAlert class="size-4" />
+                Go to Error Boundary
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
                 onclick={() => scrollTo('source')}
                 disabled={!hasSource}
                 class={cn(!hasSource && 'opacity-40')}
               >
                 <FileCode class="size-4" />
                 Go to Source
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                onclick={() => scrollTo('docs')}
+                disabled={!hasDocs}
+                class={cn(!hasDocs && 'opacity-40')}
+              >
+                <FileText class="size-4" />
+                Go to Documentation
               </DropdownMenu.Item>
               <DropdownMenu.Item
                 onclick={() => scrollTo('dependencies')}
@@ -682,7 +683,9 @@
                             }}
                           >
                             {#if pageExportFeedback === item.id}
-                              <Check class="size-4 text-green-500" />
+                              <span in:fade={{ duration: 150 }}
+                                ><Check class="size-4 text-green-500" /></span
+                              >
                             {:else}
                               <item.icon class="size-4" />
                             {/if}
@@ -760,7 +763,9 @@
                             }}
                           >
                             {#if componentExportFeedback === item.id}
-                              <Check class="size-4 text-green-500" />
+                              <span in:fade={{ duration: 150 }}
+                                ><Check class="size-4 text-green-500" /></span
+                              >
                             {:else}
                               <item.icon class="size-4" />
                             {/if}

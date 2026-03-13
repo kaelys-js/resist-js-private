@@ -7,7 +7,7 @@
    */
   import type { Bool, Num, Str, Void } from '@/schemas/common';
   import { tick, type Component } from 'svelte';
-  import { slide } from 'svelte/transition';
+  import { fade, slide } from 'svelte/transition';
   import type {
     PropMeta,
     VariantMeta,
@@ -218,6 +218,9 @@
 
   /** Section-level settings state for Variants section checkmarks. */
   let variantSectionActive: Record<Str, unknown> = $state({});
+
+  /** Feedback state for Variants section export (shows green check). */
+  let variantExportFeedback: Str = $state('' as Str);
 
   /** Section-level settings state for Examples section checkmarks. */
   let exampleSectionActive: Record<Str, unknown> = $state({});
@@ -675,13 +678,13 @@
 
   /** All page sections are expanded by default. */
   let sectionOpen: Record<Str, Bool> = $state({
-    docs: true,
     props: true,
     default: true,
-    'error-boundary': true,
     variants: true,
     examples: true,
+    'error-boundary': true,
     source: true,
+    docs: true,
     dependencies: true,
     changelog: true,
   });
@@ -1195,15 +1198,35 @@
     },
     {
       id: 'required-only' as Str,
-      title: 'Only Required Props' as Str,
+      title: 'Default Props' as Str,
       description:
-        'Component rendered with only required props at minimum values — shows the baseline functional state.' as Str,
+        'Component rendered with props at their default values — shows the baseline functional state.' as Str,
       rendered: true as Bool,
       passed: null,
       errorMessage: '' as Str,
       expanded: true as Bool,
     },
   ]);
+
+  /**
+   * Props for the required-only test. Uses strictly required props with empty
+   * defaults. Falls back to ALL props at their defaults if none qualify, so
+   * the test is always distinct from the `missing-props` scenario.
+   */
+  const requiredOnlyTestProps: PropMeta[] = $derived.by((): PropMeta[] => {
+    const strict: PropMeta[] = props.filter(
+      (p: PropMeta): boolean => !p.optional && p.default === '',
+    );
+    return strict.length > 0 ? strict : props;
+  });
+
+  /**
+   * Whether the required-only test fell back to using all props.
+   * Used to update the test description dynamically.
+   */
+  const requiredOnlyUsesAllProps: Bool = $derived(
+    props.filter((p: PropMeta): boolean => !p.optional && p.default === '').length === 0,
+  );
 
   /** Custom error scenario JSON input. */
   let customErrorPropsJson: Str = $state('');
@@ -1936,220 +1959,13 @@
         </div>
       {:else}
         <div class="space-y-10">
-          <!-- ═══ Documentation ═══ -->
-          <section id="docs" class="scroll-mt-60">
-            <div class="mb-3 flex items-center justify-between">
-              <button
-                type="button"
-                onclick={() => toggleSection('docs')}
-                class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
-              >
-                <ChevronRight
-                  class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.docs
-                    ? 'rotate-90'
-                    : ''}"
-                />
-                <FileText class="size-5" /> Documentation
-                {#if hasDocs}
-                  <span
-                    class="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
-                  >
-                    <Clock class="size-3" />{docsReadingTime} min read
-                  </span>
-                {/if}
-              </button>
-              {#if hasDocs}
-                <DropdownMenu.Root>
-                  <DropdownMenu.Trigger>
-                    {#snippet child({ props: menuProps })}
-                      <button
-                        {...menuProps}
-                        class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        aria-label="Documentation options"
-                      >
-                        <EllipsisVertical class="size-4" />
-                      </button>
-                    {/snippet}
-                  </DropdownMenu.Trigger>
-                  <DropdownMenu.Content align="end" class="w-52">
-                    <DropdownMenu.Item
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        handleDocsExport('copy-markdown');
-                      }}
-                    >
-                      {#if docsExportFeedback === 'copy-markdown'}
-                        <Check class="size-4 text-green-500" />
-                      {:else}
-                        <ClipboardCopy class="size-4" />
-                      {/if}
-                      Copy as Markdown
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        handleDocsExport('copy-html');
-                      }}
-                    >
-                      {#if docsExportFeedback === 'copy-html'}
-                        <Check class="size-4 text-green-500" />
-                      {:else}
-                        <Copy class="size-4" />
-                      {/if}
-                      Copy as HTML
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        handleDocsExport('copy-path');
-                      }}
-                    >
-                      {#if docsExportFeedback === 'copy-path'}
-                        <Check class="size-4 text-green-500" />
-                      {:else}
-                        <Clipboard class="size-4" />
-                      {/if}
-                      Copy File Path
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Separator />
-                    <DropdownMenu.Item
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        handleDocsExport('download');
-                      }}
-                    >
-                      <Download class="size-4" />
-                      Download docs.md
-                    </DropdownMenu.Item>
-                  </DropdownMenu.Content>
-                </DropdownMenu.Root>
-              {/if}
-            </div>
-            {#if sectionOpen.docs}
-              <div transition:slide={{ duration: 200 }}>
-                {#if hasDocs}
-                  <div class="flex gap-6">
-                    <!-- Table of contents sidebar -->
-                    {#if docHeadings.length > 2}
-                      <nav class="hidden w-48 shrink-0 lg:block" aria-label="Table of contents">
-                        <div class="sticky top-60">
-                          <p
-                            class="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground"
-                          >
-                            <ListTree class="size-3" /> On this page
-                          </p>
-                          <ul class="space-y-1 border-l">
-                            {#each docHeadings as heading (heading.slug)}
-                              <li>
-                                <a
-                                  href="#{heading.slug}"
-                                  class={cn(
-                                    'block border-l-2 py-0.5 text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground',
-                                    (heading.level as number) === 2 ? '-ml-px pl-3' : '-ml-px pl-6',
-                                  )}
-                                >
-                                  {heading.text}
-                                </a>
-                              </li>
-                            {/each}
-                          </ul>
-                          <p class="mt-3 text-[10px] text-muted-foreground/50">
-                            {docsWordCount} words
-                          </p>
-                        </div>
-                      </nav>
-                    {/if}
-                    <!-- Documentation content -->
-                    <div
-                      class="prose prose-sm dark:prose-invert min-w-0 max-w-none flex-1 overflow-hidden rounded-lg border bg-card p-6 [overflow-wrap:break-word]"
-                    >
-                      {#each docSegments as segment, i (i)}
-                        {#if segment.type === 'text'}
-                          <!-- eslint-disable-next-line svelte/no-at-html-tags -- Markdown HTML is generated from trusted docs.md content -->
-                          {@html segment.html}
-                        {:else}
-                          <CodeBlock
-                            code={segment.code}
-                            lang={segment.lang}
-                            showLineNumbers
-                            class="my-4"
-                          />
-                        {/if}
-                      {/each}
-                    </div>
-                  </div>
-                {:else}
-                  <div class="rounded-lg border border-dashed bg-muted/20 px-6 py-8 text-center">
-                    <FileText
-                      class="mx-auto mb-3 size-10 text-muted-foreground/30"
-                      strokeWidth={1.5}
-                    />
-                    <p class="text-sm font-medium text-muted-foreground">
-                      No documentation available
-                    </p>
-                    <p class="mt-1 text-xs text-muted-foreground/60">
-                      Add a <code class="rounded bg-muted px-1 py-0.5 font-mono text-[11px]"
-                        >docs.md</code
-                      > file to the component directory to add documentation.
-                    </p>
-                    <div class="mt-4 flex items-center justify-center gap-2">
-                      <button
-                        type="button"
-                        class="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                        onclick={async () => {
-                          await generateDocsTemplate();
-                          docsExportFeedback = 'template';
-                          setTimeout(() => {
-                            docsExportFeedback = '';
-                          }, 3000);
-                        }}
-                      >
-                        {#if docsExportFeedback === 'template'}
-                          <Check class="size-3 text-green-500" />
-                          Template copied!
-                        {:else}
-                          <Pencil class="size-3" />
-                          Copy docs.md template
-                        {/if}
-                      </button>
-                      <button
-                        type="button"
-                        class="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                        onclick={async () => {
-                          const path = `packages/shared/ui/src/${name}/docs.md`;
-                          try {
-                            await navigator.clipboard.writeText(path);
-                          } catch {
-                            /* Clipboard failed — browser restrictions */
-                          }
-                          docsExportFeedback = 'path';
-                          setTimeout(() => {
-                            docsExportFeedback = '';
-                          }, 2000);
-                        }}
-                      >
-                        {#if docsExportFeedback === 'path'}
-                          <Check class="size-3 text-green-500" />
-                          Path copied!
-                        {:else}
-                          <Clipboard class="size-3" />
-                          Copy file path
-                        {/if}
-                      </button>
-                    </div>
-                  </div>
-                {/if}
-              </div>
-            {/if}
-          </section>
-
           <!-- ═══ Props ═══ -->
           <section id="props" class="scroll-mt-60">
             <div class="mb-3 flex items-center justify-between">
               <button
                 type="button"
                 onclick={() => toggleSection('props')}
-                class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+                class="flex flex-1 items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
               >
                 <ChevronRight
                   class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.props
@@ -2230,7 +2046,9 @@
                                 }}
                               >
                                 {#if propsExportFeedback === item.id}
-                                  <Check class="size-4 text-green-500" />
+                                  <span in:fade={{ duration: 150 }}
+                                    ><Check class="size-4 text-green-500" /></span
+                                  >
                                 {:else}
                                   <item.icon class="size-4" />
                                 {/if}
@@ -2305,6 +2123,241 @@
             </section>
           {/if}
 
+          <!-- ═══ Variants ═══ -->
+          <section id="variants" class="scroll-mt-60">
+            <div class="mb-3 flex items-center justify-between">
+              <button
+                type="button"
+                onclick={() => toggleSection('variants')}
+                class="flex flex-1 items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+              >
+                <ChevronRight
+                  class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.variants
+                    ? 'rotate-90'
+                    : ''}"
+                />
+                <Layers class="size-5" /> Variants
+              </button>
+              {#if hasVariants}
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger>
+                    {#snippet child({ props: menuProps })}
+                      <button
+                        {...menuProps}
+                        class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        aria-label="Variants options"
+                      >
+                        <EllipsisVertical class="size-4" />
+                      </button>
+                    {/snippet}
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content align="end" class="min-w-56">
+                    <LensCardSettingsMenu
+                      active={variantSectionActive}
+                      onSetting={(settingName, value) => {
+                        if (settingName === 'mediaPref') {
+                          const mp = value as { pref: Str; value: Str };
+                          const prev: Record<Str, Str> =
+                            (variantSectionActive.mediaPrefs as Record<Str, Str>) ?? {};
+                          variantSectionActive = {
+                            ...variantSectionActive,
+                            mediaPrefs: { ...prev, [mp.pref]: mp.value },
+                          };
+                        } else {
+                          variantSectionActive = {
+                            ...variantSectionActive,
+                            [settingName]: value,
+                          };
+                        }
+                        document.dispatchEvent(
+                          new CustomEvent('lens:section-settings', {
+                            detail: { sectionId: 'variants', setting: settingName, value },
+                          }),
+                        );
+                      }}
+                      onReset={() => {
+                        variantSectionActive = {};
+                        document.dispatchEvent(
+                          new CustomEvent('lens:section-settings', {
+                            detail: { sectionId: 'variants', setting: 'reset', value: null },
+                          }),
+                        );
+                      }}
+                      showExport={false}
+                    />
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Sub>
+                      <DropdownMenu.SubTrigger>
+                        <Download class="size-4" />
+                        Export
+                      </DropdownMenu.SubTrigger>
+                      <DropdownMenu.SubContent class="min-w-48">
+                        <DropdownMenu.Item
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            document.dispatchEvent(
+                              new CustomEvent('lens:section-export', {
+                                detail: { sectionId: 'variants', exportId: 'stats' },
+                              }),
+                            );
+                            variantExportFeedback = 'stats' as Str;
+                            setTimeout((): Void => {
+                              variantExportFeedback = '' as Str;
+                            }, 2000);
+                          }}
+                        >
+                          {#if variantExportFeedback === 'stats'}
+                            <span in:fade={{ duration: 150 }}>
+                              <Check class="size-4 text-green-500" />
+                            </span>
+                          {:else}
+                            <Braces class="size-4" />
+                          {/if}
+                          Export Performance Statistics
+                        </DropdownMenu.Item>
+                      </DropdownMenu.SubContent>
+                    </DropdownMenu.Sub>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              {/if}
+            </div>
+            {#if sectionOpen.variants}
+              <div transition:slide={{ duration: 200 }}>
+                {#if hasVariants && PrimaryComponent}
+                  <div class="space-y-4">
+                    {#each allVariants as variantKey (variantKey.key)}
+                      {@const singleMeta: VariantMeta = { variants: [variantKey] }}
+                      <div id="variant-{variantKey.key}" class="scroll-mt-60">
+                        <LensSection
+                          title={toTitle(variantKey.key)}
+                          description="Options for the {variantKey.key} prop."
+                          propName={variantKey.key}
+                        >
+                          <LensComponentRenderer
+                            component={PrimaryComponent}
+                            meta={singleMeta}
+                            {props}
+                            tagName={toTag(name)}
+                            componentName={name}
+                            silent={isCompound}
+                            contextWrapper={lensContextWrapper ?? undefined}
+                            sectionId="variants"
+                          />
+                        </LensSection>
+                      </div>
+                    {/each}
+                  </div>
+                {:else}
+                  <LensEmpty
+                    title="No variants detected"
+                    description="Add a tv() call in the component's <script module> to auto-generate variant cards."
+                  />
+                {/if}
+              </div>
+            {/if}
+          </section>
+
+          <!-- ═══ Examples ═══ -->
+          <section id="examples" class="scroll-mt-60">
+            <div class="mb-3 flex items-center justify-between">
+              <button
+                type="button"
+                onclick={() => toggleSection('examples')}
+                class="flex flex-1 items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+              >
+                <ChevronRight
+                  class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.examples
+                    ? 'rotate-90'
+                    : ''}"
+                />
+                <BookOpen class="size-5" /> Examples
+              </button>
+              {#if hasExamples}
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger>
+                    {#snippet child({ props: menuProps })}
+                      <button
+                        {...menuProps}
+                        class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        aria-label="Examples options"
+                      >
+                        <EllipsisVertical class="size-4" />
+                      </button>
+                    {/snippet}
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content align="end" class="min-w-56">
+                    <LensCardSettingsMenu
+                      active={exampleSectionActive}
+                      onSetting={(settingName, value) => {
+                        if (settingName === 'mediaPref') {
+                          const mp = value as { pref: Str; value: Str };
+                          const prev: Record<Str, Str> =
+                            (exampleSectionActive.mediaPrefs as Record<Str, Str>) ?? {};
+                          exampleSectionActive = {
+                            ...exampleSectionActive,
+                            mediaPrefs: { ...prev, [mp.pref]: mp.value },
+                          };
+                        } else {
+                          exampleSectionActive = {
+                            ...exampleSectionActive,
+                            [settingName]: value,
+                          };
+                        }
+                        document.dispatchEvent(
+                          new CustomEvent('lens:section-settings', {
+                            detail: { sectionId: 'examples', setting: settingName, value },
+                          }),
+                        );
+                      }}
+                      onReset={() => {
+                        exampleSectionActive = {};
+                        document.dispatchEvent(
+                          new CustomEvent('lens:section-settings', {
+                            detail: { sectionId: 'examples', setting: 'reset', value: null },
+                          }),
+                        );
+                      }}
+                      showExport={false}
+                    />
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              {/if}
+            </div>
+            {#if sectionOpen.examples}
+              <div transition:slide={{ duration: 200 }}>
+                {#if hasExamples}
+                  <div class="space-y-4">
+                    {#each lensExamples as example (example.name)}
+                      {@const ExComponent: Component | undefined = exampleComponents.get(example.name)}
+                      {@const exSource: Str = exampleSources.get(example.name) ?? ''}
+                      {#if ExComponent}
+                        <div id="example-{example.name}" class="scroll-mt-60">
+                          <LensSection title={example.title} description={example.description}>
+                            <LensComponentRenderer
+                              component={ExComponent}
+                              componentName={name}
+                              codeText={exSource}
+                              sectionId="examples"
+                            >
+                              {#snippet children()}
+                                <ExComponent />
+                              {/snippet}
+                            </LensComponentRenderer>
+                          </LensSection>
+                        </div>
+                      {/if}
+                    {/each}
+                  </div>
+                {:else}
+                  <LensEmpty
+                    title="No examples"
+                    description="Create a lens.ts and examples/ directory in this component's folder to add live examples."
+                  />
+                {/if}
+              </div>
+            {/if}
+          </section>
+
           <!-- ═══ Error Boundary ═══ -->
           {#if PrimaryComponent}
             <section id="error-boundary" class="scroll-mt-60">
@@ -2312,7 +2365,7 @@
                 <button
                   type="button"
                   onclick={() => toggleSection('error-boundary')}
-                  class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+                  class="flex flex-1 items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
                 >
                   <ChevronRight
                     class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen[
@@ -2386,7 +2439,9 @@
                             onclick={resetErrorBoundaryTests}
                           >
                             {#if errorBoundaryExportFeedback === 'reset'}
-                              <Check class="size-3.5 text-green-500" />
+                              <span in:fade={{ duration: 150 }}
+                                ><Check class="size-3.5 text-green-500" /></span
+                              >
                             {:else}
                               <RefreshCw class="size-3.5" />
                             {/if}
@@ -2416,7 +2471,9 @@
                         }}
                       >
                         {#if errorBoundaryExportFeedback === 'copy-results'}
-                          <Check class="size-4 text-green-500" />
+                          <span in:fade={{ duration: 150 }}
+                            ><Check class="size-4 text-green-500" /></span
+                          >
                         {:else}
                           <ClipboardCopy class="size-4" />
                         {/if}
@@ -2429,7 +2486,9 @@
                         }}
                       >
                         {#if errorBoundaryExportFeedback === 'copy-markdown'}
-                          <Check class="size-4 text-green-500" />
+                          <span in:fade={{ duration: 150 }}
+                            ><Check class="size-4 text-green-500" /></span
+                          >
                         {:else}
                           <FileText class="size-4" />
                         {/if}
@@ -2443,7 +2502,9 @@
                         }}
                       >
                         {#if errorBoundaryExportFeedback === 'reset'}
-                          <Check class="size-4 text-green-500" />
+                          <span in:fade={{ duration: 150 }}
+                            ><Check class="size-4 text-green-500" /></span
+                          >
                         {:else}
                           <RefreshCw class="size-4" />
                         {/if}
@@ -2552,9 +2613,13 @@
                           class="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium transition-colors hover:bg-muted/50"
                         >
                           {#if test.passed === true}
-                            <CircleCheck class="size-4 shrink-0 text-green-500" />
+                            <span in:fade={{ duration: 150 }}>
+                              <CircleCheck class="size-4 shrink-0 text-green-500" />
+                            </span>
                           {:else if test.passed === false}
-                            <CircleX class="size-4 shrink-0 text-red-500" />
+                            <span in:fade={{ duration: 150 }}>
+                              <CircleX class="size-4 shrink-0 text-red-500" />
+                            </span>
                           {:else}
                             <div
                               class="size-4 shrink-0 rounded-full border-2 border-muted-foreground/30"
@@ -2648,13 +2713,13 @@
                                 >
                                   <LensComponentRenderer
                                     component={PrimaryComponent}
-                                    props={props.filter((p) => !p.optional && p.default === '')}
+                                    props={requiredOnlyTestProps}
                                     tagName={toTag(name)}
                                     componentName={name}
                                     label=""
                                     silent={isCompound}
                                     contextWrapper={lensContextWrapper ?? undefined}
-                                    codeText={`<!-- Only required props (minimum values) -->\n<${toTag(name)} ... />`}
+                                    codeText={`<!-- ${requiredOnlyUsesAllProps ? 'All props at defaults' : 'Only required props (minimum values)'} -->\n<${toTag(name)} ... />`}
                                   />
                                   {#snippet failed(error)}
                                     <LensError
@@ -2677,209 +2742,6 @@
             </section>
           {/if}
 
-          <!-- ═══ Variants ═══ -->
-          <section id="variants" class="scroll-mt-60">
-            <div class="mb-3 flex items-center justify-between">
-              <button
-                type="button"
-                onclick={() => toggleSection('variants')}
-                class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
-              >
-                <ChevronRight
-                  class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.variants
-                    ? 'rotate-90'
-                    : ''}"
-                />
-                <Layers class="size-5" /> Variants
-              </button>
-              {#if hasVariants}
-                <DropdownMenu.Root>
-                  <DropdownMenu.Trigger>
-                    {#snippet child({ props: menuProps })}
-                      <button
-                        {...menuProps}
-                        class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        aria-label="Variants options"
-                      >
-                        <EllipsisVertical class="size-4" />
-                      </button>
-                    {/snippet}
-                  </DropdownMenu.Trigger>
-                  <DropdownMenu.Content align="end" class="min-w-56">
-                    <LensCardSettingsMenu
-                      active={variantSectionActive}
-                      onSetting={(settingName, value) => {
-                        if (settingName === 'mediaPref') {
-                          const mp = value as { pref: Str; value: Str };
-                          const prev: Record<Str, Str> =
-                            (variantSectionActive.mediaPrefs as Record<Str, Str>) ?? {};
-                          variantSectionActive = {
-                            ...variantSectionActive,
-                            mediaPrefs: { ...prev, [mp.pref]: mp.value },
-                          };
-                        } else {
-                          variantSectionActive = {
-                            ...variantSectionActive,
-                            [settingName]: value,
-                          };
-                        }
-                        document.dispatchEvent(
-                          new CustomEvent('lens:section-settings', {
-                            detail: { sectionId: 'variants', setting: settingName, value },
-                          }),
-                        );
-                      }}
-                      onReset={() => {
-                        variantSectionActive = {};
-                        document.dispatchEvent(
-                          new CustomEvent('lens:section-settings', {
-                            detail: { sectionId: 'variants', setting: 'reset', value: null },
-                          }),
-                        );
-                      }}
-                      showExport={false}
-                    />
-                  </DropdownMenu.Content>
-                </DropdownMenu.Root>
-              {/if}
-            </div>
-            {#if sectionOpen.variants}
-              <div transition:slide={{ duration: 200 }}>
-                {#if hasVariants && PrimaryComponent}
-                  <div class="space-y-4">
-                    {#each allVariants as variantKey (variantKey.key)}
-                      {@const singleMeta: VariantMeta = { variants: [variantKey] }}
-                      <div id="variant-{variantKey.key}" class="scroll-mt-60">
-                        <LensSection
-                          title={toTitle(variantKey.key)}
-                          description="Options for the {variantKey.key} prop."
-                          propName={variantKey.key}
-                        >
-                          <LensComponentRenderer
-                            component={PrimaryComponent}
-                            meta={singleMeta}
-                            {props}
-                            tagName={toTag(name)}
-                            componentName={name}
-                            silent={isCompound}
-                            contextWrapper={lensContextWrapper ?? undefined}
-                            sectionId="variants"
-                          />
-                        </LensSection>
-                      </div>
-                    {/each}
-                  </div>
-                {:else}
-                  <LensEmpty
-                    title="No variants detected"
-                    description="Add a tv() call in the component's <script module> to auto-generate variant cards."
-                  />
-                {/if}
-              </div>
-            {/if}
-          </section>
-
-          <!-- ═══ Examples ═══ -->
-          <section id="examples" class="scroll-mt-60">
-            <div class="mb-3 flex items-center justify-between">
-              <button
-                type="button"
-                onclick={() => toggleSection('examples')}
-                class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
-              >
-                <ChevronRight
-                  class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.examples
-                    ? 'rotate-90'
-                    : ''}"
-                />
-                <BookOpen class="size-5" /> Examples
-              </button>
-              {#if hasExamples}
-                <DropdownMenu.Root>
-                  <DropdownMenu.Trigger>
-                    {#snippet child({ props: menuProps })}
-                      <button
-                        {...menuProps}
-                        class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        aria-label="Examples options"
-                      >
-                        <EllipsisVertical class="size-4" />
-                      </button>
-                    {/snippet}
-                  </DropdownMenu.Trigger>
-                  <DropdownMenu.Content align="end" class="min-w-56">
-                    <LensCardSettingsMenu
-                      active={exampleSectionActive}
-                      onSetting={(settingName, value) => {
-                        if (settingName === 'mediaPref') {
-                          const mp = value as { pref: Str; value: Str };
-                          const prev: Record<Str, Str> =
-                            (exampleSectionActive.mediaPrefs as Record<Str, Str>) ?? {};
-                          exampleSectionActive = {
-                            ...exampleSectionActive,
-                            mediaPrefs: { ...prev, [mp.pref]: mp.value },
-                          };
-                        } else {
-                          exampleSectionActive = {
-                            ...exampleSectionActive,
-                            [settingName]: value,
-                          };
-                        }
-                        document.dispatchEvent(
-                          new CustomEvent('lens:section-settings', {
-                            detail: { sectionId: 'examples', setting: settingName, value },
-                          }),
-                        );
-                      }}
-                      onReset={() => {
-                        exampleSectionActive = {};
-                        document.dispatchEvent(
-                          new CustomEvent('lens:section-settings', {
-                            detail: { sectionId: 'examples', setting: 'reset', value: null },
-                          }),
-                        );
-                      }}
-                      showExport={false}
-                    />
-                  </DropdownMenu.Content>
-                </DropdownMenu.Root>
-              {/if}
-            </div>
-            {#if sectionOpen.examples}
-              <div transition:slide={{ duration: 200 }}>
-                {#if hasExamples}
-                  <div class="space-y-4">
-                    {#each lensExamples as example (example.name)}
-                      {@const ExComponent: Component | undefined = exampleComponents.get(example.name)}
-                      {@const exSource: Str = exampleSources.get(example.name) ?? ''}
-                      {#if ExComponent}
-                        <div id="example-{example.name}" class="scroll-mt-60">
-                          <LensSection title={example.title} description={example.description}>
-                            <LensComponentRenderer
-                              component={ExComponent}
-                              componentName={name}
-                              codeText={exSource}
-                              sectionId="examples"
-                            >
-                              {#snippet children()}
-                                <ExComponent />
-                              {/snippet}
-                            </LensComponentRenderer>
-                          </LensSection>
-                        </div>
-                      {/if}
-                    {/each}
-                  </div>
-                {:else}
-                  <LensEmpty
-                    title="No examples"
-                    description="Create a lens.ts and examples/ directory in this component's folder to add live examples."
-                  />
-                {/if}
-              </div>
-            {/if}
-          </section>
-
           <!-- ═══ Source ═══ -->
           {#if rawSource}
             <section id="source" class="scroll-mt-60">
@@ -2887,7 +2749,7 @@
                 <button
                   type="button"
                   onclick={() => toggleSection('source')}
-                  class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+                  class="flex flex-1 items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
                 >
                   <ChevronRight
                     class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.source
@@ -2927,7 +2789,9 @@
                       }}
                     >
                       {#if sourceExportFeedback === 'copy-source'}
-                        <Check class="size-4 text-green-500" />
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
                       {:else}
                         <ClipboardCopy class="size-4" />
                       {/if}
@@ -2940,7 +2804,9 @@
                       }}
                     >
                       {#if sourceExportFeedback === 'copy-markdown'}
-                        <Check class="size-4 text-green-500" />
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
                       {:else}
                         <FileText class="size-4" />
                       {/if}
@@ -2953,7 +2819,9 @@
                       }}
                     >
                       {#if sourceExportFeedback === 'copy-path'}
-                        <Check class="size-4 text-green-500" />
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
                       {:else}
                         <Clipboard class="size-4" />
                       {/if}
@@ -3022,6 +2890,223 @@
             </section>
           {/if}
 
+          <!-- ═══ Documentation ═══ -->
+          <section id="docs" class="scroll-mt-60">
+            <div class="mb-3 flex items-center justify-between">
+              <button
+                type="button"
+                onclick={() => toggleSection('docs')}
+                class="flex flex-1 items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+              >
+                <ChevronRight
+                  class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.docs
+                    ? 'rotate-90'
+                    : ''}"
+                />
+                <FileText class="size-5" /> Documentation
+                {#if hasDocs}
+                  <span
+                    class="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
+                  >
+                    <Clock class="size-3" />{docsReadingTime} min read
+                  </span>
+                {/if}
+              </button>
+              {#if hasDocs}
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger>
+                    {#snippet child({ props: menuProps })}
+                      <button
+                        {...menuProps}
+                        class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        aria-label="Documentation options"
+                      >
+                        <EllipsisVertical class="size-4" />
+                      </button>
+                    {/snippet}
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content align="end" class="w-52">
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDocsExport('copy-markdown');
+                      }}
+                    >
+                      {#if docsExportFeedback === 'copy-markdown'}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <ClipboardCopy class="size-4" />
+                      {/if}
+                      Copy as Markdown
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDocsExport('copy-html');
+                      }}
+                    >
+                      {#if docsExportFeedback === 'copy-html'}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <Copy class="size-4" />
+                      {/if}
+                      Copy as HTML
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDocsExport('copy-path');
+                      }}
+                    >
+                      {#if docsExportFeedback === 'copy-path'}
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
+                      {:else}
+                        <Clipboard class="size-4" />
+                      {/if}
+                      Copy File Path
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDocsExport('download');
+                      }}
+                    >
+                      <Download class="size-4" />
+                      Download docs.md
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              {/if}
+            </div>
+            {#if sectionOpen.docs}
+              <div transition:slide={{ duration: 200 }}>
+                {#if hasDocs}
+                  <div class="flex gap-6">
+                    <!-- Table of contents sidebar -->
+                    {#if docHeadings.length > 2}
+                      <nav class="hidden w-48 shrink-0 lg:block" aria-label="Table of contents">
+                        <div class="sticky top-60">
+                          <p
+                            class="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground"
+                          >
+                            <ListTree class="size-3" /> On this page
+                          </p>
+                          <ul class="space-y-1 border-l">
+                            {#each docHeadings as heading (heading.slug)}
+                              <li>
+                                <a
+                                  href="#{heading.slug}"
+                                  class={cn(
+                                    'block border-l-2 py-0.5 text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground',
+                                    (heading.level as number) === 2 ? '-ml-px pl-3' : '-ml-px pl-6',
+                                  )}
+                                >
+                                  {heading.text}
+                                </a>
+                              </li>
+                            {/each}
+                          </ul>
+                          <p class="mt-3 text-[10px] text-muted-foreground/50">
+                            {docsWordCount} words
+                          </p>
+                        </div>
+                      </nav>
+                    {/if}
+                    <!-- Documentation content -->
+                    <div
+                      class="prose prose-sm dark:prose-invert min-w-0 max-w-none flex-1 overflow-hidden rounded-lg border bg-card p-6 [overflow-wrap:break-word]"
+                    >
+                      {#each docSegments as segment, i (i)}
+                        {#if segment.type === 'text'}
+                          <!-- eslint-disable-next-line svelte/no-at-html-tags -- Markdown HTML is generated from trusted docs.md content -->
+                          {@html segment.html}
+                        {:else}
+                          <CodeBlock
+                            code={segment.code}
+                            lang={segment.lang}
+                            showLineNumbers
+                            class="my-4"
+                          />
+                        {/if}
+                      {/each}
+                    </div>
+                  </div>
+                {:else}
+                  <div class="rounded-lg border border-dashed bg-muted/20 px-6 py-8 text-center">
+                    <FileText
+                      class="mx-auto mb-3 size-10 text-muted-foreground/30"
+                      strokeWidth={1.5}
+                    />
+                    <p class="text-sm font-medium text-muted-foreground">
+                      No documentation available
+                    </p>
+                    <p class="mt-1 text-xs text-muted-foreground/60">
+                      Add a <code class="rounded bg-muted px-1 py-0.5 font-mono text-[11px]"
+                        >docs.md</code
+                      > file to the component directory to add documentation.
+                    </p>
+                    <div class="mt-4 flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                        onclick={async () => {
+                          await generateDocsTemplate();
+                          docsExportFeedback = 'template';
+                          setTimeout(() => {
+                            docsExportFeedback = '';
+                          }, 3000);
+                        }}
+                      >
+                        {#if docsExportFeedback === 'template'}
+                          <span in:fade={{ duration: 150 }}
+                            ><Check class="size-3 text-green-500" /></span
+                          >
+                          Template copied!
+                        {:else}
+                          <Pencil class="size-3" />
+                          Copy docs.md template
+                        {/if}
+                      </button>
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                        onclick={async () => {
+                          const path = `packages/shared/ui/src/${name}/docs.md`;
+                          try {
+                            await navigator.clipboard.writeText(path);
+                          } catch {
+                            /* Clipboard failed — browser restrictions */
+                          }
+                          docsExportFeedback = 'path';
+                          setTimeout(() => {
+                            docsExportFeedback = '';
+                          }, 2000);
+                        }}
+                      >
+                        {#if docsExportFeedback === 'path'}
+                          <span in:fade={{ duration: 150 }}
+                            ><Check class="size-3 text-green-500" /></span
+                          >
+                          Path copied!
+                        {:else}
+                          <Clipboard class="size-3" />
+                          Copy file path
+                        {/if}
+                      </button>
+                    </div>
+                  </div>
+                {/if}
+              </div>
+            {/if}
+          </section>
+
           <!-- ═══ Dependencies ═══ -->
           {#if hasDeps}
             <section id="dependencies" class="scroll-mt-60">
@@ -3059,7 +3144,7 @@
                 <button
                   type="button"
                   onclick={() => toggleSection('changelog')}
-                  class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+                  class="flex flex-1 items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
                 >
                   <ChevronRight
                     class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.changelog
@@ -3097,7 +3182,9 @@
                       }}
                     >
                       {#if changelogExportFeedback === 'copy-markdown'}
-                        <Check class="size-4 text-green-500" />
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
                       {:else}
                         <ClipboardCopy class="size-4" />
                       {/if}
@@ -3110,7 +3197,9 @@
                       }}
                     >
                       {#if changelogExportFeedback === 'copy-json'}
-                        <Check class="size-4 text-green-500" />
+                        <span in:fade={{ duration: 150 }}
+                          ><Check class="size-4 text-green-500" /></span
+                        >
                       {:else}
                         <ClipboardCopy class="size-4" />
                       {/if}
@@ -3182,7 +3271,9 @@
                                 }}
                               >
                                 {#if changelogExportFeedback === item.id}
-                                  <Check class="size-4 text-green-500" />
+                                  <span in:fade={{ duration: 150 }}
+                                    ><Check class="size-4 text-green-500" /></span
+                                  >
                                 {:else}
                                   <item.icon class="size-4" />
                                 {/if}

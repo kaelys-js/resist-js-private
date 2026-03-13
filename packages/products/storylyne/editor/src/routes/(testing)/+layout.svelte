@@ -34,7 +34,7 @@
   import AppLogo from '@/ui/app-logo/AppLogo.svelte';
   import Badge from '@/ui/badge/badge.svelte';
   import { extractTokens, type ThemeTokenSet } from '@/ui/lens/extract-tokens.js';
-  import { slide } from 'svelte/transition';
+  import { fade, slide } from 'svelte/transition';
   import type { Component } from 'svelte';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import SearchIcon from '@lucide/svelte/icons/search';
@@ -845,9 +845,16 @@
                           {category}
                         </DropdownMenu.Label>
                         {#each filteredSidebarExportItems.filter((p) => p.category === category) as item (item.id)}
-                          <DropdownMenu.Item onclick={() => handleSidebarExport(item.id)}>
+                          <DropdownMenu.Item
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              handleSidebarExport(item.id);
+                            }}
+                          >
                             {#if sidebarExportFeedback === item.id}
-                              <Check class="mr-2 size-4 text-green-500" />
+                              <span in:fade={{ duration: 150 }}
+                                ><Check class="mr-2 size-4 text-green-500" /></span
+                              >
                             {:else}
                               <item.icon class="mr-2 size-4" />
                             {/if}
