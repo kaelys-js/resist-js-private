@@ -517,6 +517,12 @@
   /** Per-card compare slider position (0–100, default 50). */
   let cardComparePosition: Record<Str, Num> = $state({});
 
+  /** Per-card compare left screenshot index. */
+  let cardCompareLeft: Record<Str, Num> = $state({});
+
+  /** Per-card compare right screenshot index. */
+  let cardCompareRight: Record<Str, Num> = $state({});
+
   /** Screenshot lightbox state — null when closed, object URL when open. */
   let lightboxUrl: Str | null = $state(null);
 
@@ -11334,6 +11340,12 @@
                       onclick={() => {
                         cardScreenCompare[cardKey] = !(cardScreenCompare[cardKey] ?? false);
                         if (!cardComparePosition[cardKey]) cardComparePosition[cardKey] = 50 as Num;
+                        /* Default to last two screenshots */
+                        const len: Num = (cardScreenshots[cardKey] ?? []).length as Num;
+                        if (cardCompareLeft[cardKey] == null)
+                          cardCompareLeft[cardKey] = ((len as number) - 2) as Num;
+                        if (cardCompareRight[cardKey] == null)
+                          cardCompareRight[cardKey] = ((len as number) - 1) as Num;
                       }}
                     >
                       <SplitSquareHorizontal class="size-3.5" aria-hidden="true" />
@@ -11459,61 +11471,89 @@
         </div>
         {#if cardScreenshotsOpen[cardKey] ?? true}
           {#if (cardScreenCompare[cardKey] ?? false) && (cardScreenshots[cardKey] ?? []).length >= 2}
-            <!-- Compare view: side-by-side slider -->
-            {@const comparePair = (() => {
-              const all: ScreenshotCapture[] = cardScreenshots[cardKey] ?? [];
-              return { left: all[all.length - 2]!, right: all[all.length - 1]! };
-            })()}
-            {#if comparePair.left && comparePair.right}
-              {@const leftCapture = comparePair.left}
-              {@const rightCapture = comparePair.right}
+            <!-- Compare view: side-by-side slider with selectable screenshots -->
+            {@const allCaptures = cardScreenshots[cardKey] ?? []}
+            {@const leftIdx = Math.min(
+              cardCompareLeft[cardKey] ?? ((allCaptures.length - 2) as Num),
+              (allCaptures.length - 1) as Num,
+            )}
+            {@const rightIdx = Math.min(
+              cardCompareRight[cardKey] ?? ((allCaptures.length - 1) as Num),
+              (allCaptures.length - 1) as Num,
+            )}
+            {#if allCaptures[leftIdx] && allCaptures[rightIdx]}
+              {@const leftCapture = allCaptures[leftIdx]}
+              {@const rightCapture = allCaptures[rightIdx]}
               <div class="p-3" transition:slide={{ duration: 200 }}>
                 <div
                   class="mx-auto max-w-2xl overflow-hidden rounded-md border bg-background shadow-sm"
                 >
+                  <!-- Compare header with selectable dropdowns -->
                   <div class="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
-                    <div class="flex items-center gap-2">
-                      {#if leftCapture.source === 'ios-simulator'}
-                        <Apple class="size-3 text-muted-foreground" aria-hidden="true" />
-                      {:else if leftCapture.source === 'android-emulator'}
-                        <Bot class="size-3 text-muted-foreground" aria-hidden="true" />
-                      {:else}
-                        <Chrome class="size-3 text-muted-foreground" aria-hidden="true" />
-                      {/if}
-                      <span class="text-[10px] font-medium">{leftCapture.browserDisplayName}</span>
-                      <span class="text-[9px] text-muted-foreground/40">vs</span>
-                      {#if rightCapture.source === 'ios-simulator'}
-                        <Apple class="size-3 text-muted-foreground" aria-hidden="true" />
-                      {:else if rightCapture.source === 'android-emulator'}
-                        <Bot class="size-3 text-muted-foreground" aria-hidden="true" />
-                      {:else}
-                        <Chrome class="size-3 text-muted-foreground" aria-hidden="true" />
-                      {/if}
-                      <span class="text-[10px] font-medium">{rightCapture.browserDisplayName}</span>
+                    <div class="flex items-center gap-1.5">
+                      <!-- Left selector -->
+                      <select
+                        class="rounded border bg-transparent px-1.5 py-0.5 text-[10px] font-medium outline-none"
+                        value={leftIdx}
+                        onchange={(e) => {
+                          cardCompareLeft[cardKey] = Number(
+                            (e.target as HTMLSelectElement).value,
+                          ) as Num;
+                        }}
+                      >
+                        {#each allCaptures as cap, i (cap.timestamp)}
+                          <option value={i}
+                            >#{i + 1}
+                            {cap.browserDisplayName}{cap.device !== 'custom'
+                              ? ` · ${cap.device}`
+                              : ''}</option
+                          >
+                        {/each}
+                      </select>
+                      <span class="text-[9px] font-medium text-muted-foreground/40">vs</span>
+                      <!-- Right selector -->
+                      <select
+                        class="rounded border bg-transparent px-1.5 py-0.5 text-[10px] font-medium outline-none"
+                        value={rightIdx}
+                        onchange={(e) => {
+                          cardCompareRight[cardKey] = Number(
+                            (e.target as HTMLSelectElement).value,
+                          ) as Num;
+                        }}
+                      >
+                        {#each allCaptures as cap, i (cap.timestamp)}
+                          <option value={i}
+                            >#{i + 1}
+                            {cap.browserDisplayName}{cap.device !== 'custom'
+                              ? ` · ${cap.device}`
+                              : ''}</option
+                          >
+                        {/each}
+                      </select>
                     </div>
                     <span class="text-[9px] tabular-nums text-muted-foreground/50">
                       {cardComparePosition[cardKey] ?? 50}%
                     </span>
                   </div>
+                  <!-- Slider viewport — both images positioned identically, left is clipped -->
                   <div class="relative overflow-hidden" style="height: 320px;">
-                    <!-- Left image (clipped by slider) -->
+                    <!-- Right image (background, full width) -->
+                    <img
+                      src={rightCapture.imageUrl}
+                      alt="Right: #{rightIdx + 1} {rightCapture.browserDisplayName}"
+                      class="absolute inset-0 h-full w-full object-contain"
+                    />
+                    <!-- Left image (foreground, clipped by slider) -->
                     <div
                       class="absolute inset-0 overflow-hidden"
-                      style="width: {cardComparePosition[cardKey] ?? 50}%;"
+                      style="clip-path: inset(0 {100 - (cardComparePosition[cardKey] ?? 50)}% 0 0);"
                     >
                       <img
                         src={leftCapture.imageUrl}
-                        alt="Left: {leftCapture.browserDisplayName}"
-                        class="h-full w-full object-contain"
-                        style="max-width: none; width: 100%;"
+                        alt="Left: #{leftIdx + 1} {leftCapture.browserDisplayName}"
+                        class="absolute inset-0 h-full w-full object-contain"
                       />
                     </div>
-                    <!-- Right image (full) -->
-                    <img
-                      src={rightCapture.imageUrl}
-                      alt="Right: {rightCapture.browserDisplayName}"
-                      class="h-full w-full object-contain"
-                    />
                     <!-- Slider handle -->
                     <div
                       class="absolute inset-y-0 z-10 w-0.5 bg-primary shadow-sm"
@@ -11605,6 +11645,10 @@
                   {:else}
                     <Chrome class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
                   {/if}
+                  <span
+                    class="rounded bg-muted px-1 py-0.5 text-[8px] font-semibold tabular-nums leading-none text-muted-foreground"
+                    >#{idx + 1}</span
+                  >
                   {#if capture.source !== 'playwright'}
                     <span
                       class="rounded bg-primary/10 px-1 py-0.5 text-[8px] font-semibold uppercase leading-none text-primary/80"
