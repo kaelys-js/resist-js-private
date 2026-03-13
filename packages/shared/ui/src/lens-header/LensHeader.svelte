@@ -818,7 +818,10 @@
             </Tooltip.Trigger>
             <Tooltip.Content side="bottom" sideOffset={4}>
               Previous: {toTitle(validated.prevComponent ?? '')}
-              <kbd class="ml-1.5 rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">←</kbd>
+              <kbd
+                class="ml-1.5 rounded border border-current/20 bg-current/10 px-1 py-0.5 font-mono text-[10px]"
+                >←</kbd
+              >
             </Tooltip.Content>
           </Tooltip.Root>
         {:else}
@@ -849,7 +852,10 @@
             </Tooltip.Trigger>
             <Tooltip.Content side="bottom" sideOffset={4}>
               Next: {toTitle(validated.nextComponent ?? '')}
-              <kbd class="ml-1.5 rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">→</kbd>
+              <kbd
+                class="ml-1.5 rounded border border-current/20 bg-current/10 px-1 py-0.5 font-mono text-[10px]"
+                >→</kbd
+              >
             </Tooltip.Content>
           </Tooltip.Root>
         {:else}
