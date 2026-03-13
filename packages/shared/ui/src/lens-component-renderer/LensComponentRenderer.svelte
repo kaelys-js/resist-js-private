@@ -3748,14 +3748,23 @@
       }
     }
     const vp: Str = cardViewports[key] ?? 'auto';
-    if (vp !== 'auto') {
-      if (vp === 'custom') {
-        const dims = cardCustomViewports[key];
-        if (dims) s.vp = `${dims.w}x${dims.h}`;
-      } else {
-        const preset = VIEWPORT_PRESETS.find((p) => p.id === vp);
-        if (preset) s.vp = `${preset.width}x${preset.height}`;
+    if (vp === 'auto') {
+      /* For "auto" viewport, measure the actual component display area so the isolate page
+         renders the component at the same width the user sees in the editor. */
+      const container: HTMLDivElement | undefined = cardPreviewRefs[key];
+      if (container) {
+        const measuredW: Num = Math.round(container.clientWidth - 32) as Num;
+        const measuredH: Num = Math.round(container.clientHeight - 32) as Num;
+        if ((measuredW as number) > 0 && (measuredH as number) > 0) {
+          s.vp = `${measuredW}x${measuredH}`;
+        }
       }
+    } else if (vp === 'custom') {
+      const dims = cardCustomViewports[key];
+      if (dims) s.vp = `${dims.w}x${dims.h}`;
+    } else {
+      const preset = VIEWPORT_PRESETS.find((p) => p.id === vp);
+      if (preset) s.vp = `${preset.width}x${preset.height}`;
     }
     const dir: Str = cardTextDir[key] ?? 'auto';
     if (dir !== 'auto') s.dir = dir;
@@ -6199,8 +6208,20 @@
 
       /* Viewport dimensions (Playwright only) */
       const vp: Str = cardViewports[key] ?? 'auto';
-      if (vp !== 'auto' && !device) {
-        if (vp === 'custom') {
+      if (!device) {
+        if (vp === 'auto') {
+          /* Measure the actual component display size so the screenshot matches what the user sees */
+          const container: HTMLDivElement | undefined = cardPreviewRefs[key];
+          if (container) {
+            /* Container has p-4 (16px padding each side) — subtract to get content area */
+            const measuredW: Num = Math.round(container.clientWidth - 32) as Num;
+            const measuredH: Num = Math.round(container.clientHeight - 32) as Num;
+            if ((measuredW as number) > 0 && (measuredH as number) > 0) {
+              params.set('width', String(measuredW));
+              params.set('height', String(measuredH));
+            }
+          }
+        } else if (vp === 'custom') {
           const dims = cardCustomViewports[key];
           if (dims) {
             params.set('width', String(dims.w));
