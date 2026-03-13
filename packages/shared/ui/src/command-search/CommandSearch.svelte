@@ -70,6 +70,27 @@
   /** Current search input value. */
   let searchValue: Str = $state('');
 
+  /** Maximum search history entries. */
+  const MAX_HISTORY: number = 5;
+
+  /** localStorage key for search history. */
+  const HISTORY_KEY: Str = 'lens-search-history' as Str;
+
+  /** Recent search selections (most recent first). */
+  let searchHistory: SearchItem[] = $state([]);
+
+  // Restore search history from localStorage on mount
+  $effect(() => {
+    try {
+      const stored: Str | null = localStorage.getItem(HISTORY_KEY);
+      if (stored) {
+        searchHistory = JSON.parse(stored) as SearchItem[];
+      }
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — default empty is fine */
+    }
+  });
+
   /** Register Cmd+K / Ctrl+K keyboard shortcut. */
   $effect(() => {
     if (!enableShortcut) return;
@@ -124,6 +145,16 @@
    * @param item - The selected search item
    */
   function handleSelect(item: SearchItem): Void {
+    // Save to search history
+    const filtered: SearchItem[] = searchHistory.filter(
+      (h: SearchItem): boolean => h.value !== item.value,
+    );
+    searchHistory = [item, ...filtered].slice(0, MAX_HISTORY);
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(searchHistory));
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — non-critical */
+    }
     onSelect?.(item);
     open = false;
     searchValue = '';
@@ -161,6 +192,32 @@
             <p class="text-sm">{emptyText ?? 'No results found.'}</p>
           </div>
         </Command.Empty>
+        {#if searchValue.length === 0 && searchHistory.length > 0}
+          <Command.Group heading="Recent" value="__history">
+            {#each searchHistory as histItem, hi (histItem.value ?? hi)}
+              {#if histItem.href}
+                <Command.LinkItem
+                  href={histItem.href}
+                  value="history-{histItem.value}"
+                  keywords={histItem.keywords}
+                  class="py-1.5 ps-3"
+                  onSelect={() => handleSelect(histItem)}
+                >
+                  {histItem.label}
+                </Command.LinkItem>
+              {:else}
+                <Command.Item
+                  value="history-{histItem.value}"
+                  keywords={histItem.keywords}
+                  class="py-1.5 ps-3 text-muted-foreground/50 italic"
+                  onSelect={() => handleSelect(histItem)}
+                >
+                  {histItem.label}
+                </Command.Item>
+              {/if}
+            {/each}
+          </Command.Group>
+        {/if}
         {#each groupedItems as group, gi (gi)}
           {#if group.name}
             {@const parts = group.name.split(' › ')}
