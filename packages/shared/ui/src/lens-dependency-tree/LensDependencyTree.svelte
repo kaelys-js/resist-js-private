@@ -87,7 +87,7 @@
   import { stripSvelteProps, toTitle, extractDir, findPrimaryKey } from '../lens/lens-utils.js';
   import { formatBytes } from '../lens/extract-sizes.js';
   import { extractDeps, type DepEntry, type DepTree } from '../lens/extract-deps.js';
-  import { slide } from 'svelte/transition';
+  import { fade, slide } from 'svelte/transition';
   import { cn } from '../utils.js';
   import Badge from '../badge/badge.svelte';
   import * as Tooltip from '../tooltip/index.js';
@@ -1047,7 +1047,9 @@
                           onclick={() => copyPath(revPath)}
                         >
                           {#if copiedPath === revPath}
-                            <Check class="size-3 text-emerald-500" />
+                            <span in:fade={{ duration: 150 }}
+                              ><Check class="size-3 text-emerald-500" /></span
+                            >
                           {:else}
                             <Copy class="size-3" />
                           {/if}
@@ -1280,7 +1282,7 @@
                           >
                             <Check
                               class={cn(
-                                'size-4 shrink-0',
+                                'size-4 shrink-0 transition-opacity duration-150',
                                 chainZoom !== preset.value && 'opacity-0',
                               )}
                             />
@@ -1378,7 +1380,9 @@
                               }}
                             >
                               {#if chainExportFeedback === item.id}
-                                <Check class="size-4 text-green-500" />
+                                <span in:fade={{ duration: 150 }}
+                                  ><Check class="size-4 text-green-500" /></span
+                                >
                               {:else}
                                 <item.icon class="size-4" />
                               {/if}
@@ -1660,7 +1664,9 @@
                           onclick={() => copyPath(dep.path)}
                         >
                           {#if copiedPath === dep.path}
-                            <Check class="size-3 text-emerald-500" />
+                            <span in:fade={{ duration: 150 }}
+                              ><Check class="size-3 text-emerald-500" /></span
+                            >
                           {:else}
                             <Copy class="size-3" />
                           {/if}
@@ -1724,7 +1730,9 @@
                           onclick={() => copyPath(dep.path)}
                         >
                           {#if copiedPath === dep.path}
-                            <Check class="size-3 text-emerald-500" />
+                            <span in:fade={{ duration: 150 }}
+                              ><Check class="size-3 text-emerald-500" /></span
+                            >
                           {:else}
                             <Copy class="size-3" />
                           {/if}
@@ -1798,7 +1806,9 @@
                           onclick={() => copyPath(dep.path)}
                         >
                           {#if copiedPath === dep.path}
-                            <Check class="size-3 text-emerald-500" />
+                            <span in:fade={{ duration: 150 }}
+                              ><Check class="size-3 text-emerald-500" /></span
+                            >
                           {:else}
                             <Copy class="size-3" />
                           {/if}
@@ -1862,7 +1872,9 @@
                           onclick={() => copyPath(dep.path)}
                         >
                           {#if copiedPath === dep.path}
-                            <Check class="size-3 text-emerald-500" />
+                            <span in:fade={{ duration: 150 }}
+                              ><Check class="size-3 text-emerald-500" /></span
+                            >
                           {:else}
                             <Copy class="size-3" />
                           {/if}

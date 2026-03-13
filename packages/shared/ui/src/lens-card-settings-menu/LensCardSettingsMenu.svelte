@@ -28,6 +28,7 @@
   import { cn } from '../utils.js';
 
   /* ── Icons ── */
+  import { fade } from 'svelte/transition';
   import Check from '@lucide/svelte/icons/check';
   import Search from '@lucide/svelte/icons/search';
   import SearchX from '@lucide/svelte/icons/search-x';
@@ -193,6 +194,11 @@
   );
   const activeCustomViewport: { w: Num; h: Num } = $derived(
     active.customViewport ?? { w: 1024, h: 768 },
+  );
+
+  /** Whether any settings differ from defaults (used to disable Reset). */
+  const hasActiveOverrides: Bool = $derived(
+    Object.values(active).some((v: unknown): boolean => v !== undefined),
   );
 
   /* ------------------------------------------------------------------ */
@@ -2909,7 +2915,12 @@
         <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
         {#each filteredBgPresets.filter((p) => p.category === category) as preset (preset.id)}
           <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('bg', preset.id)}>
-            <Check class={cn('size-4 shrink-0', activeBg !== preset.id && 'opacity-0')} />
+            <Check
+              class={cn(
+                'size-4 shrink-0 transition-opacity duration-150',
+                activeBg !== preset.id && 'opacity-0',
+              )}
+            />
             {#if preset.id !== 'default'}
               <span
                 class="inline-block size-4 shrink-0 rounded-sm border"
@@ -3025,7 +3036,12 @@
       <DropdownMenu.Label class="text-xs">Zoom Level</DropdownMenu.Label>
       {#each filteredZoomPresets as preset (preset.value)}
         <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('zoom', preset.value)}>
-          <Check class={cn('size-4 shrink-0', activeZoom !== preset.value && 'opacity-0')} />
+          <Check
+            class={cn(
+              'size-4 shrink-0 transition-opacity duration-150',
+              activeZoom !== preset.value && 'opacity-0',
+            )}
+          />
           <div class="flex flex-col gap-0.5">
             <span class="text-sm">{preset.label}</span>
             <span class="text-[11px] text-muted-foreground">{preset.description}</span>
@@ -3093,7 +3109,12 @@
     </div>
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('outline', 'none')}>
-        <Check class={cn('size-4 shrink-0', activeOutline !== 'none' && 'opacity-0')} />
+        <Check
+          class={cn(
+            'size-4 shrink-0 transition-opacity duration-150',
+            activeOutline !== 'none' && 'opacity-0',
+          )}
+        />
         None
       </DropdownMenu.Item>
       <DropdownMenu.Separator />
@@ -3101,7 +3122,12 @@
         <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
         {#each filteredOutlinePresets.filter((p) => p.category === category) as preset (preset.id)}
           <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('outline', preset.id)}>
-            <Check class={cn('size-4 shrink-0', activeOutline !== preset.id && 'opacity-0')} />
+            <Check
+              class={cn(
+                'size-4 shrink-0 transition-opacity duration-150',
+                activeOutline !== preset.id && 'opacity-0',
+              )}
+            />
             <span
               class="inline-block size-4 shrink-0 rounded-sm border"
               style="background-color: {preset.color}"
@@ -3211,7 +3237,12 @@
       <!-- Grid Line Color -->
       <DropdownMenu.Label class="text-xs">Line Color</DropdownMenu.Label>
       <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('grid', 'none')}>
-        <Check class={cn('size-4 shrink-0', activeGrid !== 'none' && 'opacity-0')} />
+        <Check
+          class={cn(
+            'size-4 shrink-0 transition-opacity duration-150',
+            activeGrid !== 'none' && 'opacity-0',
+          )}
+        />
         <div class="flex flex-col gap-0.5">
           <span class="text-sm">None</span>
           <span class="text-[11px] text-muted-foreground">No grid lines</span>
@@ -3219,7 +3250,12 @@
       </DropdownMenu.Item>
       {#each filteredGridPresets as preset (preset.id)}
         <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('grid', preset.id)}>
-          <Check class={cn('size-4 shrink-0', activeGrid !== preset.id && 'opacity-0')} />
+          <Check
+            class={cn(
+              'size-4 shrink-0 transition-opacity duration-150',
+              activeGrid !== preset.id && 'opacity-0',
+            )}
+          />
           <span
             class="inline-block size-3.5 shrink-0 rounded-sm border"
             style="background-color: {preset.color}"
@@ -3244,7 +3280,12 @@
       <!-- Grid Fill Color -->
       <DropdownMenu.Label class="text-xs">Fill Color</DropdownMenu.Label>
       <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('gridFill', 'none')}>
-        <Check class={cn('size-4 shrink-0', activeGridFill !== 'none' && 'opacity-0')} />
+        <Check
+          class={cn(
+            'size-4 shrink-0 transition-opacity duration-150',
+            activeGridFill !== 'none' && 'opacity-0',
+          )}
+        />
         <div class="flex flex-col gap-0.5">
           <span class="text-sm">None</span>
           <span class="text-[11px] text-muted-foreground">Transparent background</span>
@@ -3252,7 +3293,12 @@
       </DropdownMenu.Item>
       {#each filteredGridFillPresets as preset (preset.id)}
         <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('gridFill', preset.id)}>
-          <Check class={cn('size-4 shrink-0', activeGridFill !== preset.id && 'opacity-0')} />
+          <Check
+            class={cn(
+              'size-4 shrink-0 transition-opacity duration-150',
+              activeGridFill !== preset.id && 'opacity-0',
+            )}
+          />
           <span
             class="inline-block size-3.5 shrink-0 rounded-sm border"
             style="background-color: {preset.color}"
@@ -3333,7 +3379,12 @@
     <div class="flex max-h-80 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Default</DropdownMenu.Label>
       <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('orientation', 'default')}>
-        <Check class={cn('size-4 shrink-0', activeOrientation !== 'default' && 'opacity-0')} />
+        <Check
+          class={cn(
+            'size-4 shrink-0 transition-opacity duration-150',
+            activeOrientation !== 'default' && 'opacity-0',
+          )}
+        />
         None (no rotation)
       </DropdownMenu.Item>
       {#each filteredOrientationCategories as category (category)}
@@ -3346,7 +3397,10 @@
           >
             <div class="flex items-center gap-2">
               <Check
-                class={cn('size-4 shrink-0', activeOrientation !== preset.id && 'opacity-0')}
+                class={cn(
+                  'size-4 shrink-0 transition-opacity duration-150',
+                  activeOrientation !== preset.id && 'opacity-0',
+                )}
               />
               <span
                 class="relative inline-flex items-center justify-center"
@@ -3440,7 +3494,12 @@
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
       {#each filteredModePresets as preset (preset.id)}
         <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('mode', preset.id)}>
-          <Check class={cn('size-4 shrink-0', activeMode !== preset.id && 'opacity-0')} />
+          <Check
+            class={cn(
+              'size-4 shrink-0 transition-opacity duration-150',
+              activeMode !== preset.id && 'opacity-0',
+            )}
+          />
           <preset.icon class="size-4 shrink-0" />
           <div class="flex min-w-0 flex-1 flex-col gap-0.5">
             <div class="flex items-center gap-2">
@@ -3505,7 +3564,12 @@
         <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
         {#each filteredThemePresets.filter((p) => p.category === category) as preset (preset.id)}
           <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('theme', preset.id)}>
-            <Check class={cn('size-4 shrink-0', activeTheme !== preset.id && 'opacity-0')} />
+            <Check
+              class={cn(
+                'size-4 shrink-0 transition-opacity duration-150',
+                activeTheme !== preset.id && 'opacity-0',
+              )}
+            />
             {#if preset.dot}
               <span
                 class="inline-block size-4 shrink-0 rounded-full shadow-sm ring-1 ring-black/10"
@@ -3672,7 +3736,12 @@
     </div>
     <div class="flex max-h-72 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('networkSim', 'none')}>
-        <Check class={cn('size-4 shrink-0', activeNetworkSim !== 'none' && 'opacity-0')} />
+        <Check
+          class={cn(
+            'size-4 shrink-0 transition-opacity duration-150',
+            activeNetworkSim !== 'none' && 'opacity-0',
+          )}
+        />
         <div class="flex flex-col">
           <span>No throttling</span>
           <span class="text-[10px] leading-tight text-muted-foreground"
@@ -3699,7 +3768,12 @@
             closeOnSelect={false}
             onclick={() => onSetting('networkSim', preset.id)}
           >
-            <Check class={cn('size-4 shrink-0', activeNetworkSim !== preset.id && 'opacity-0')} />
+            <Check
+              class={cn(
+                'size-4 shrink-0 transition-opacity duration-150',
+                activeNetworkSim !== preset.id && 'opacity-0',
+              )}
+            />
             {#if preset.id === 'offline'}
               <WifiOff class="size-3.5 text-destructive" />
             {/if}
@@ -3815,7 +3889,12 @@
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Size</DropdownMenu.Label>
       <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('viewport', 'auto')}>
-        <Check class={cn('size-4 shrink-0', activeViewport !== 'auto' && 'opacity-0')} />
+        <Check
+          class={cn(
+            'size-4 shrink-0 transition-opacity duration-150',
+            activeViewport !== 'auto' && 'opacity-0',
+          )}
+        />
         <div class="flex flex-col">
           <span>Auto (full width)</span>
           <span class="font-mono text-[10px] leading-tight text-muted-foreground"
@@ -3871,7 +3950,12 @@
         </DropdownMenu.Label>
         {#each filteredViewportPresets.filter((p) => p.category === category) as preset (preset.id)}
           <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('viewport', preset.id)}>
-            <Check class={cn('size-4 shrink-0', activeViewport !== preset.id && 'opacity-0')} />
+            <Check
+              class={cn(
+                'size-4 shrink-0 transition-opacity duration-150',
+                activeViewport !== preset.id && 'opacity-0',
+              )}
+            />
             <div class="flex flex-col">
               <span class="truncate">{preset.label}</span>
               <span class="font-mono text-[10px] leading-tight text-muted-foreground"
@@ -3966,7 +4050,12 @@
         {#each filteredColorItems.filter((p) => p.category === category) as item (item.id)}
           <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('sim', item.id)}>
             <div class="flex items-center gap-2">
-              <Check class={cn('size-4 shrink-0', activeSim !== item.id && 'opacity-0')} />
+              <Check
+                class={cn(
+                  'size-4 shrink-0 transition-opacity duration-150',
+                  activeSim !== item.id && 'opacity-0',
+                )}
+              />
               <span class={cn('size-2 shrink-0 rounded-full', item.dotColor)}></span>
               <div class="flex flex-col">
                 <span class="text-sm">{item.label}</span>
@@ -3985,7 +4074,12 @@
         {#each filteredVisionItems.filter((p) => p.category === category) as item (item.id)}
           <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('sim', item.id)}>
             <div class="flex items-center gap-2">
-              <Check class={cn('size-4 shrink-0', activeSim !== item.id && 'opacity-0')} />
+              <Check
+                class={cn(
+                  'size-4 shrink-0 transition-opacity duration-150',
+                  activeSim !== item.id && 'opacity-0',
+                )}
+              />
               <div class="flex flex-col">
                 <span class="text-sm">{item.label}</span>
                 <span class="text-[11px] text-muted-foreground">{item.description}</span>
@@ -4012,7 +4106,12 @@
     <DropdownMenu.Separator />
     <div class="shrink-0">
       <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('sim', 'none')}>
-        <Check class={cn('size-4 shrink-0', activeSim !== 'none' && 'opacity-0')} />
+        <Check
+          class={cn(
+            'size-4 shrink-0 transition-opacity duration-150',
+            activeSim !== 'none' && 'opacity-0',
+          )}
+        />
         None (reset)
       </DropdownMenu.Item>
     </div>
@@ -4056,7 +4155,12 @@
         <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
         {#each filteredDirPresets.filter((p) => p.category === category) as item (item.id)}
           <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('dir', item.dir)}>
-            <Check class={cn('size-4', activeDir !== item.dir && 'opacity-0')} />
+            <Check
+              class={cn(
+                'size-4 transition-opacity duration-150',
+                activeDir !== item.dir && 'opacity-0',
+              )}
+            />
             <div class="flex flex-1 items-center gap-2">
               <span class="font-mono text-base leading-none text-muted-foreground"
                 >{item.arrow}</span
@@ -4128,7 +4232,12 @@
     <div class="flex max-h-72 flex-col overflow-y-auto" use:lockHeight>
       <DropdownMenu.Label class="text-xs">Base</DropdownMenu.Label>
       <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('fontSize', 0)}>
-        <Check class={cn('size-4 shrink-0', activeFontSize !== 0 && 'opacity-0')} />
+        <Check
+          class={cn(
+            'size-4 shrink-0 transition-opacity duration-150',
+            activeFontSize !== 0 && 'opacity-0',
+          )}
+        />
         Default (16px)
         <span class="ml-auto font-mono text-[10px] tabular-nums text-muted-foreground">1.0x</span>
       </DropdownMenu.Item>
@@ -4137,7 +4246,12 @@
         <DropdownMenu.Label class="text-xs">{category}</DropdownMenu.Label>
         {#each filteredFontSizePresets.filter((p) => p.category === category) as preset (preset.px)}
           <DropdownMenu.Item closeOnSelect={false} onclick={() => onSetting('fontSize', preset.px)}>
-            <Check class={cn('size-4 shrink-0', activeFontSize !== preset.px && 'opacity-0')} />
+            <Check
+              class={cn(
+                'size-4 shrink-0 transition-opacity duration-150',
+                activeFontSize !== preset.px && 'opacity-0',
+              )}
+            />
             {preset.label}
             <span class="ml-auto font-mono text-[10px] tabular-nums text-muted-foreground"
               >{preset.scale}</span
@@ -4227,11 +4341,17 @@
               }}
             >
               {#if exportInProgress === item.id}
-                <LoaderCircle class="size-4 animate-spin text-muted-foreground" />
+                <span in:fade={{ duration: 150 }}>
+                  <LoaderCircle class="size-4 animate-spin text-muted-foreground" />
+                </span>
               {:else if exportFeedback === item.id}
-                <Check class="size-4 text-green-500" />
+                <span in:fade={{ duration: 150 }}>
+                  <Check class="size-4 text-green-500" />
+                </span>
               {:else}
-                <item.icon class="size-4" />
+                <span in:fade={{ duration: 150 }}>
+                  <item.icon class="size-4"></item.icon>
+                </span>
               {/if}
               <div class="flex min-w-0 flex-1 flex-col">
                 <span class="flex items-center gap-2">
@@ -4271,7 +4391,7 @@
 
 {#if showReset && onReset}
   <DropdownMenu.Separator />
-  <DropdownMenu.Item onclick={() => onReset()} variant="destructive">
+  <DropdownMenu.Item onclick={() => onReset()} variant="destructive" disabled={!hasActiveOverrides}>
     <RotateCcw class="size-4" />
     Reset to Defaults
   </DropdownMenu.Item>
