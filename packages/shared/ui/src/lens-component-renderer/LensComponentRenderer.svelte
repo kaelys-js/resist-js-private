@@ -2055,9 +2055,9 @@
 
   const ZOOM_PRESETS: Array<{ value: Num; label: Str }> = [
     { value: 0.25, label: '25%' },
-    { value: 0.33, label: '33%' },
+    { value: (1 / 3) as Num, label: '33%' },
     { value: 0.5, label: '50%' },
-    { value: 0.67, label: '67%' },
+    { value: (2 / 3) as Num, label: '67%' },
     { value: 0.75, label: '75%' },
     { value: 1, label: '100%' },
     { value: 1.25, label: '125%' },
@@ -5468,7 +5468,7 @@
       cardInspectCopyFeedback[cardKey] = prop;
       setTimeout((): Void => {
         cardInspectCopyFeedback[cardKey] = '' as Str;
-      }, 1200);
+      }, 1250);
     } catch (_) {
       /* Clipboard unavailable (iframe sandbox) — non-critical */
     }
@@ -7470,11 +7470,10 @@
           {@render toolbarButton(RotateCcw, 'Reset to defaults', () => resetCard(cardKey), false)}
         {/if}
         {@render toolbarButton(ZoomOut, 'Zoom out', () => zoomOut(cardKey), activeZoom <= ZOOM_MIN)}
-        {#if activeZoom !== 1}
-          <span class="px-0.5 font-mono text-[10px] font-medium text-muted-foreground"
-            >{Math.round(activeZoom * 100)}%</span
-          >
-        {/if}
+        <span
+          class="min-w-[3rem] text-center font-mono text-[10px] font-medium text-muted-foreground"
+          >{Math.round(activeZoom * 100)}%</span
+        >
         {@render toolbarButton(ZoomIn, 'Zoom in', () => zoomIn(cardKey), activeZoom >= ZOOM_MAX)}
         {@render toolbarButton(Maximize, 'Fit (100%)', () => zoomFit(cardKey), activeZoom === 1)}
         <span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
@@ -7611,7 +7610,8 @@
                                     <DropdownMenu.Separator />
                                     {#each groupItems as styleOpt (styleOpt.id)}
                                       <DropdownMenu.Item
-                                        onSelect={() => {
+                                        onSelect={(e) => {
+                                          e.preventDefault();
                                           cardDebugOutlineStyle[cardKey] = styleOpt.id;
                                         }}
                                       >
@@ -7627,7 +7627,9 @@
                                             </div>
                                           </div>
                                           {#if outStyle === styleOpt.id}
-                                            <Check class="size-3.5 shrink-0" />
+                                            <Check
+                                              class="size-3.5 shrink-0 transition-opacity duration-150"
+                                            />
                                           {/if}
                                         </div>
                                       </DropdownMenu.Item>
@@ -7640,7 +7642,8 @@
                                 <DropdownMenu.Separator />
                                 {#each filteredDebugOutlineWidths as widthOpt (widthOpt.px)}
                                   <DropdownMenu.Item
-                                    onSelect={() => {
+                                    onSelect={(e) => {
+                                      e.preventDefault();
                                       cardDebugOutlineWidth[cardKey] = widthOpt.px;
                                     }}
                                   >
@@ -7651,7 +7654,9 @@
                                       ></div>
                                       <span class="text-xs">{widthOpt.label}</span>
                                       {#if outWidth === widthOpt.px}
-                                        <Check class="ml-auto size-3.5 shrink-0" />
+                                        <Check
+                                          class="ml-auto size-3.5 shrink-0 transition-opacity duration-150"
+                                        />
                                       {/if}
                                     </div>
                                   </DropdownMenu.Item>

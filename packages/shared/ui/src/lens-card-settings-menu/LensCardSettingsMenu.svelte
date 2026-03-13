@@ -2598,6 +2598,9 @@
   let fontSizeSearchQuery: Str = $state('');
   let exportSearchQuery: Str = $state('');
 
+  /** Whether the reset confirmation is pending (two-click destructive pattern). */
+  let pendingReset: Bool = $state(false);
+
   /* ------------------------------------------------------------------ */
   /*  Filtered derivations                                               */
   /* ------------------------------------------------------------------ */
@@ -4391,8 +4394,23 @@
 
 {#if showReset && onReset}
   <DropdownMenu.Separator />
-  <DropdownMenu.Item onclick={() => onReset()} variant="destructive" disabled={!hasActiveOverrides}>
+  <DropdownMenu.Item
+    onSelect={(e) => {
+      e.preventDefault();
+      if (pendingReset) {
+        pendingReset = false;
+        onReset();
+      } else {
+        pendingReset = true;
+        setTimeout((): Void => {
+          pendingReset = false;
+        }, 3000);
+      }
+    }}
+    variant="destructive"
+    disabled={!hasActiveOverrides}
+  >
     <RotateCcw class="size-4" />
-    Reset to Defaults
+    {pendingReset ? 'Confirm Reset' : 'Reset to Defaults'}
   </DropdownMenu.Item>
 {/if}
