@@ -34,9 +34,18 @@
   import AppLogo from '@/ui/app-logo/AppLogo.svelte';
   import Badge from '@/ui/badge/badge.svelte';
   import { extractTokens, type ThemeTokenSet } from '@/ui/lens/extract-tokens.js';
+  import { slide } from 'svelte/transition';
+  import type { Component } from 'svelte';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import SearchIcon from '@lucide/svelte/icons/search';
   import Palette from '@lucide/svelte/icons/palette';
+  import TextCursorInput from '@lucide/svelte/icons/text-cursor-input';
+  import LayoutGrid from '@lucide/svelte/icons/layout-grid';
+  import Layers2 from '@lucide/svelte/icons/layers-2';
+  import Compass from '@lucide/svelte/icons/compass';
+  import Eye from '@lucide/svelte/icons/eye';
+  import Wrench from '@lucide/svelte/icons/wrench';
+  import Microscope from '@lucide/svelte/icons/microscope';
   import * as Tooltip from '@/ui/tooltip/index.js';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
@@ -49,6 +58,7 @@
   import Check from '@lucide/svelte/icons/check';
   import SearchX from '@lucide/svelte/icons/search-x';
   import Clipboard from '@lucide/svelte/icons/clipboard';
+  import Filter from '@lucide/svelte/icons/filter';
 
   const { children } = $props();
 
@@ -163,6 +173,39 @@
       }),
     )
     .filter((g: CategoryGroup): boolean => g.components.length > 0);
+
+  /** Category-to-icon mapping for visual differentiation in sidebar triggers. */
+  const CATEGORY_ICONS: Record<Str, Component> = {
+    form: TextCursorInput,
+    layout: LayoutGrid,
+    overlay: Layers2,
+    navigation: Compass,
+    display: Eye,
+    utility: Wrench,
+    lens: Microscope,
+  };
+
+  /** Category-to-color mapping for sidebar component item icons. */
+  const CATEGORY_COLORS: Record<Str, Str> = {
+    form: 'text-blue-600 dark:text-blue-400' as Str,
+    layout: 'text-purple-600 dark:text-purple-400' as Str,
+    overlay: 'text-amber-600 dark:text-amber-400' as Str,
+    navigation: 'text-emerald-600 dark:text-emerald-400' as Str,
+    display: 'text-rose-600 dark:text-rose-400' as Str,
+    utility: 'text-slate-600 dark:text-slate-400' as Str,
+    lens: 'text-primary' as Str,
+  };
+
+  /** Short description per category for sidebar header tooltips. */
+  const CATEGORY_DESCRIPTIONS: Record<Str, Str> = {
+    form: 'Input controls, selectors, and form elements' as Str,
+    layout: 'Structural components for page and content layout' as Str,
+    overlay: 'Modals, dialogs, popovers, and floating UI' as Str,
+    navigation: 'Menus, breadcrumbs, tabs, and wayfinding' as Str,
+    display: 'Visual content presentation and data display' as Str,
+    utility: 'Utility primitives and helper components' as Str,
+    lens: 'Lens documentation system components' as Str,
+  };
 
   /**
    * Build global search items with hierarchical grouping.
@@ -445,6 +488,88 @@
   /** Whether the global command search dialog is open. */
   let searchOpen: boolean = $state(false);
 
+  /** Inline sidebar filter query (filters component list without opening command palette). */
+  let sidebarFilter: Str = $state('' as Str);
+
+  /**
+   * Grouped components filtered by the inline sidebar filter.
+   * When filter is empty, returns all groups. Otherwise, filters component names
+   * by case-insensitive substring match on name and title.
+   */
+  const filteredGroupedComponents: CategoryGroup[] = $derived(
+    sidebarFilter.length === 0
+      ? groupedComponents
+      : groupedComponents
+          .map(
+            (g: CategoryGroup): CategoryGroup => ({
+              ...g,
+              components: g.components.filter((n: Str): boolean => {
+                const q: Str = sidebarFilter.toLowerCase() as Str;
+                return n.toLowerCase().includes(q) || toTitle(n).toLowerCase().includes(q);
+              }),
+            }),
+          )
+          .filter((g: CategoryGroup): boolean => g.components.length > 0),
+  );
+
+  /** Total design token count for the sidebar badge. */
+  const tokenCount: number = $derived.by(() => {
+    if (!cssRawSource) return 0;
+    const sets: ThemeTokenSet[] = extractTokens(cssRawSource);
+    const rootSet: ThemeTokenSet | undefined = sets.find(
+      (s: ThemeTokenSet): boolean => s.selector === ':root',
+    );
+    return rootSet?.tokens.length ?? 0;
+  });
+
+  /**
+   * Auto-expand the active component's category when navigating.
+   * Also scrolls the active sidebar item into view after a short delay.
+   */
+  $effect(() => {
+    if (!currentName) return;
+    const meta: LensMeta | undefined = metaByName.get(currentName);
+    const cat: Str = (meta?.category ?? 'display') as Str;
+    // Ensure the parent "Components" group is open
+    sidebarComponentsOpen = true;
+    // Expand the category containing the active component
+    sidebarCategoryOpen[cat] = true;
+    // Scroll into view after DOM updates
+    setTimeout((): void => {
+      const activeEl: HTMLElement | null = document.querySelector(
+        '[data-sidebar="menu-button"][data-active="true"]',
+      );
+      activeEl?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }, 100);
+  });
+
+  /**
+   * `/` keyboard shortcut to focus the sidebar filter input.
+   * Only fires when no input/textarea/select is focused.
+   */
+  $effect(() => {
+    /**
+     * Handle keydown for `/` shortcut.
+     *
+     * @param e - Keyboard event
+     */
+    function onSlashKey(e: KeyboardEvent): void {
+      const tag: Str = (document.activeElement?.tagName ?? '') as Str;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if ((document.activeElement as HTMLElement)?.isContentEditable) return;
+      if (e.key === '/') {
+        e.preventDefault();
+        const filterInput: HTMLInputElement | null =
+          document.querySelector('[data-sidebar-filter]');
+        filterInput?.focus();
+      }
+    }
+    window.addEventListener('keydown', onSlashKey);
+    return (): void => {
+      window.removeEventListener('keydown', onSlashKey);
+    };
+  });
+
   /* ------------------------------------------------------------------ */
   /*  Sidebar section collapse / expand state                            */
   /* ------------------------------------------------------------------ */
@@ -642,6 +767,11 @@
       <div class="flex items-center gap-2 px-2 py-1.5">
         <AppLogo size={20} />
         <span class="text-sm font-semibold tracking-tight">Lens</span>
+        <Badge
+          variant="secondary"
+          class="h-5 rounded-full px-1.5 text-[10px] leading-none tabular-nums"
+          >{componentNames.length}</Badge
+        >
         <div class="ml-auto">
           <DropdownMenu.Root>
             <Tooltip.Root delayDuration={300}>
@@ -769,67 +899,121 @@
           </Sidebar.GroupLabel>
           <Collapsible.Content>
             <Sidebar.GroupContent>
-              {#each groupedComponents as group (group.name)}
+              <!-- Inline filter input -->
+              <div class="px-3 pb-2">
+                <div
+                  class="flex items-center gap-2 rounded-md border bg-transparent px-2 py-1 text-sm"
+                >
+                  <Filter class="size-3 shrink-0 text-muted-foreground/50" aria-hidden="true" />
+                  <input
+                    type="text"
+                    data-sidebar-filter
+                    placeholder="Filter..."
+                    class="h-5 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
+                    bind:value={sidebarFilter}
+                  />
+                  {#if sidebarFilter.length > 0}
+                    <button
+                      type="button"
+                      class="shrink-0 text-muted-foreground/50 hover:text-foreground"
+                      onclick={() => {
+                        sidebarFilter = '' as Str;
+                      }}
+                      aria-label="Clear filter"
+                    >
+                      <SearchX class="size-3" />
+                    </button>
+                  {/if}
+                  <Kbd label="/" class="ml-auto shrink-0 text-[10px]" />
+                </div>
+              </div>
+              {#if sidebarFilter.length > 0 && filteredGroupedComponents.length === 0}
+                <div class="flex flex-col items-center gap-1 px-2 py-4 text-center">
+                  <SearchX class="size-4 text-muted-foreground/40" />
+                  <span class="text-xs text-muted-foreground/60">No components match</span>
+                </div>
+              {/if}
+              {#each filteredGroupedComponents as group (group.name)}
+                {@const CatIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+                {@const catColor = CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
                 <Collapsible.Root
                   bind:open={sidebarCategoryOpen[group.name]}
                   class="group/category mb-0.5"
                 >
-                  <Collapsible.Trigger
-                    class="flex w-full items-center gap-1.5 rounded-md px-3 py-1 transition-colors hover:bg-accent/50"
-                  >
-                    <ChevronRight
-                      class="size-3 text-muted-foreground/50 transition-transform group-data-[state=open]/category:rotate-90"
-                    />
-                    <span
-                      class="text-xs font-medium uppercase tracking-wider text-muted-foreground/60"
-                      >{group.label}</span
-                    >
-                    <Badge
-                      variant="secondary"
-                      class="ml-auto h-5 rounded px-1.5 text-[11px] leading-none"
-                      >{group.components.length}</Badge
-                    >
-                  </Collapsible.Trigger>
+                  <Tooltip.Root delayDuration={400}>
+                    <Tooltip.Trigger>
+                      {#snippet child({ props: catTooltipProps })}
+                        <Collapsible.Trigger
+                          class="flex w-full items-center gap-1.5 rounded-md px-3 py-1 transition-colors hover:bg-accent/50"
+                          {...catTooltipProps}
+                        >
+                          <ChevronRight
+                            class="size-3 text-muted-foreground/50 transition-transform group-data-[state=open]/category:rotate-90"
+                          />
+                          <CatIcon class="size-3.5 {catColor}"></CatIcon>
+                          <span
+                            class="text-xs font-medium uppercase tracking-wider text-muted-foreground/60"
+                            >{group.label}</span
+                          >
+                          <Badge
+                            variant="secondary"
+                            class="ml-auto h-5 rounded px-1.5 text-[11px] leading-none"
+                            >{group.components.length}</Badge
+                          >
+                        </Collapsible.Trigger>
+                      {/snippet}
+                    </Tooltip.Trigger>
+                    {#if CATEGORY_DESCRIPTIONS[group.name]}
+                      <Tooltip.Content side="right" sideOffset={8} class="max-w-56">
+                        <p class="text-xs">{CATEGORY_DESCRIPTIONS[group.name]}</p>
+                      </Tooltip.Content>
+                    {/if}
+                  </Tooltip.Root>
                   <Collapsible.Content>
-                    <Sidebar.Menu class="pl-4">
-                      {#each group.components as name (name)}
-                        {@const itemMeta = metaByName.get(name)}
-                        <Sidebar.MenuItem>
-                          <Tooltip.Root delayDuration={400}>
-                            <Tooltip.Trigger>
-                              {#snippet child({ props: tooltipProps })}
-                                <Sidebar.MenuButton
-                                  isActive={currentName === name}
-                                  {...tooltipProps}
-                                >
-                                  {#snippet child({ props })}
-                                    <a href="/components/{name}" {...props}>
-                                      <ComponentIcon class="size-4" />
-                                      <span>{toTitle(name)}</span>
-                                    </a>
-                                  {/snippet}
-                                </Sidebar.MenuButton>
-                              {/snippet}
-                            </Tooltip.Trigger>
-                            {#if itemMeta?.description}
-                              <Tooltip.Content side="right" sideOffset={8} class="max-w-64">
-                                <p class="text-xs">{itemMeta.description}</p>
-                                {#if itemMeta.tags.length > 0}
-                                  <div class="mt-1 flex flex-wrap gap-1">
-                                    {#each itemMeta.tags as tag (tag)}
-                                      <span
-                                        class="rounded bg-primary-foreground/20 px-1 py-0.5 text-[10px]"
-                                        >{tag}</span
-                                      >
-                                    {/each}
-                                  </div>
-                                {/if}
-                              </Tooltip.Content>
-                            {/if}
-                          </Tooltip.Root>
-                        </Sidebar.MenuItem>
-                      {/each}
-                    </Sidebar.Menu>
+                    <div transition:slide={{ duration: 150 }}>
+                      <Sidebar.Menu class="pl-4">
+                        {#each group.components as name (name)}
+                          {@const itemMeta = metaByName.get(name)}
+                          {@const ItemIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+                          {@const itemColor =
+                            CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
+                          <Sidebar.MenuItem>
+                            <Tooltip.Root delayDuration={400}>
+                              <Tooltip.Trigger>
+                                {#snippet child({ props: tooltipProps })}
+                                  <Sidebar.MenuButton
+                                    isActive={currentName === name}
+                                    {...tooltipProps}
+                                  >
+                                    {#snippet child({ props })}
+                                      <a href="/components/{name}" {...props}>
+                                        <ItemIcon class="size-4 {itemColor}"></ItemIcon>
+                                        <span>{toTitle(name)}</span>
+                                      </a>
+                                    {/snippet}
+                                  </Sidebar.MenuButton>
+                                {/snippet}
+                              </Tooltip.Trigger>
+                              {#if itemMeta?.description}
+                                <Tooltip.Content side="right" sideOffset={8} class="max-w-64">
+                                  <p class="text-xs">{itemMeta.description}</p>
+                                  {#if itemMeta.tags.length > 0}
+                                    <div class="mt-1 flex flex-wrap gap-1">
+                                      {#each itemMeta.tags as tag (tag)}
+                                        <span
+                                          class="rounded bg-primary-foreground/20 px-1 py-0.5 text-[10px]"
+                                          >{tag}</span
+                                        >
+                                      {/each}
+                                    </div>
+                                  {/if}
+                                </Tooltip.Content>
+                              {/if}
+                            </Tooltip.Root>
+                          </Sidebar.MenuItem>
+                        {/each}
+                      </Sidebar.Menu>
+                    </div>
                   </Collapsible.Content>
                 </Collapsible.Root>
               {/each}
@@ -846,6 +1030,13 @@
                 <a href="/tokens" {...props}>
                   <Palette class="size-4" />
                   <span>Design Tokens</span>
+                  {#if tokenCount > 0}
+                    <Badge
+                      variant="secondary"
+                      class="ml-auto h-5 rounded px-1.5 text-[11px] leading-none tabular-nums"
+                      >{tokenCount}</Badge
+                    >
+                  {/if}
                 </a>
               {/snippet}
             </Sidebar.MenuButton>
@@ -884,18 +1075,30 @@
           </Breadcrumb.List>
         </Breadcrumb.Root>
         <div class="ml-auto flex items-center gap-2">
-          <button
-            type="button"
-            class="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-3 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-            onclick={() => {
-              searchOpen = true;
-            }}
-            aria-label="Search components"
-          >
-            <SearchIcon class="size-4" />
-            <span class="hidden sm:inline">Search...</span>
-            <Kbd label="⌘K" class="ml-1" />
-          </button>
+          <Tooltip.Root delayDuration={300}>
+            <Tooltip.Trigger>
+              {#snippet child({ props: searchTooltipProps })}
+                <button
+                  type="button"
+                  class="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-3 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+                  onclick={() => {
+                    searchOpen = true;
+                  }}
+                  aria-label="Search components"
+                  {...searchTooltipProps}
+                >
+                  <SearchIcon class="size-4" />
+                  <span class="hidden sm:inline">Search...</span>
+                  <Kbd label="⌘K" class="ml-1" />
+                </button>
+              {/snippet}
+            </Tooltip.Trigger>
+            <Tooltip.Content sideOffset={4}>
+              <span class="flex items-center gap-1.5"
+                >Search components <Kbd label="⌘K" class="border-current/20 bg-current/10" /></span
+              >
+            </Tooltip.Content>
+          </Tooltip.Root>
           <ModeToggle
             mode={currentMode}
             {setMode}
