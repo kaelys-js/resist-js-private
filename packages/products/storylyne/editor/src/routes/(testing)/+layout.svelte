@@ -545,6 +545,11 @@
   /** Whether the current page is the tokens viewer. */
   const isTokensPage: boolean = $derived(page.url.pathname === '/tokens');
 
+  /** Current category page name (from /components/category/[category]). */
+  const currentCategory: Str = $derived(
+    (page.url.pathname.match(/^\/components\/category\/([^/]+)/)?.[1] ?? '') as Str,
+  );
+
   /** Current mode from mode-watcher for the toggle. */
   const currentMode: 'light' | 'dark' | 'system' = $derived(derivedMode.current ?? 'system');
 
@@ -1671,13 +1676,68 @@
         <Breadcrumb.Root>
           <Breadcrumb.List>
             <Breadcrumb.Item>
-              {#if currentName || isTokensPage}
-                <Breadcrumb.Link href="/components">Lens</Breadcrumb.Link>
-              {:else}
-                <Breadcrumb.Page>Lens</Breadcrumb.Page>
-              {/if}
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger
+                  class="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground [&[data-state=open]]:text-foreground"
+                >
+                  Lens
+                  <ChevronRight class="size-3 rotate-90" />
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content align="start" sideOffset={8} class="w-52">
+                  <DropdownMenu.Item>
+                    {#snippet child({ props: overviewProps })}
+                      <a href="/components" {...overviewProps}>
+                        <Home class="size-4" />
+                        Overview
+                      </a>
+                    {/snippet}
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Separator />
+                  <DropdownMenu.Label class="text-xs text-muted-foreground/60">
+                    Categories
+                  </DropdownMenu.Label>
+                  {#each groupedComponents as group (group.name)}
+                    {@const BcIcon = CATEGORY_ICONS[group.name] ?? ComponentIcon}
+                    {@const bcColor =
+                      CATEGORY_COLORS[group.name] ?? ('text-muted-foreground' as Str)}
+                    <DropdownMenu.Item>
+                      {#snippet child({ props: catItemProps })}
+                        <a
+                          href="/components/category/{group.name}"
+                          class="flex w-full items-center"
+                          {...catItemProps}
+                        >
+                          <BcIcon class="size-4 {bcColor}" />
+                          <span class="flex-1">{group.label}</span>
+                          <span
+                            class="rounded-full bg-muted px-1.5 py-0.5 text-[10px] tabular-nums text-muted-foreground/60"
+                          >
+                            {group.components.length}
+                          </span>
+                        </a>
+                      {/snippet}
+                    </DropdownMenu.Item>
+                  {/each}
+                  <DropdownMenu.Separator />
+                  <DropdownMenu.Item>
+                    {#snippet child({ props: tokensProps })}
+                      <a href="/tokens" {...tokensProps}>
+                        <Palette class="size-4" />
+                        Design Tokens
+                      </a>
+                    {/snippet}
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
             </Breadcrumb.Item>
-            {#if currentName}
+            {#if currentCategory}
+              <Breadcrumb.Separator />
+              <Breadcrumb.Item>
+                <Breadcrumb.Page>
+                  {currentCategory.charAt(0).toUpperCase()}{currentCategory.slice(1)}
+                </Breadcrumb.Page>
+              </Breadcrumb.Item>
+            {:else if currentName}
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Breadcrumb.Page>{toTitle(currentName)}</Breadcrumb.Page>
