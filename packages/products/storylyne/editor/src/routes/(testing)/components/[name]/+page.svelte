@@ -87,6 +87,7 @@
   import { cn } from '@/ui/utils.js';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
   import * as Tooltip from '@/ui/tooltip/index.js';
+  import { Skeleton } from '@/ui/skeleton/index.js';
 
   /* ------------------------------------------------------------------ */
   /*  Globs                                                             */
@@ -184,6 +185,7 @@
   let lensMeta: LensMeta | null = $state(null);
   let lensContextWrapper: Component | null = $state(null);
   let loading: Bool = $state(true);
+  let showSkeleton: Bool = $state(false);
   let loadError: Str | null = $state(null);
 
   /** Changelog entry from git log API. */
@@ -363,6 +365,18 @@
       /* Clipboard write failed — browser may not support it in this context */
     }
   }
+
+  /* Show skeleton only after 300ms to avoid jarring flash on fast loads */
+  $effect(() => {
+    if (!loading) {
+      showSkeleton = false;
+      return;
+    }
+    const timer: ReturnType<typeof setTimeout> = setTimeout(() => {
+      showSkeleton = true;
+    }, 300);
+    return () => clearTimeout(timer);
+  });
 
   $effect(() => {
     const currentName: Str = name;
@@ -1880,7 +1894,69 @@
 </script>
 
 <div class="w-full">
-  {#if !loadError}
+  {#if loading && !showSkeleton}
+    <!-- Brief delay before skeleton — render nothing to avoid flash -->
+  {:else if loading && showSkeleton}
+    <!-- Skeleton header matching LensHeader layout -->
+    <div class="sticky top-(--header-height) z-10 border-b bg-background px-8 pb-4 pt-10">
+      <div class="flex items-start gap-4">
+        <!-- Icon skeleton -->
+        <Skeleton class="size-12 shrink-0 rounded-xl" />
+        <div class="min-w-0 flex-1">
+          <!-- Title row -->
+          <div class="flex items-center gap-4">
+            <Skeleton class="h-9 w-56" />
+            <div class="ml-auto flex items-center gap-1">
+              <Skeleton class="h-8 w-16 rounded-md" />
+              <Skeleton class="h-8 w-16 rounded-md" />
+            </div>
+          </div>
+          <!-- Description -->
+          <Skeleton class="mt-1.5 h-4 w-80" />
+          <!-- Badge row -->
+          <div class="mt-2 flex items-center gap-1.5">
+            <Skeleton class="h-5 w-16 rounded-full" />
+            <Skeleton class="h-5 w-12 rounded-full" />
+            <Skeleton class="h-5 w-14 rounded-full" />
+          </div>
+          <!-- Import path -->
+          <Skeleton class="mt-1.5 h-5 w-48" />
+        </div>
+      </div>
+    </div>
+    <!-- Skeleton sections -->
+    <div class="space-y-10 px-8 py-8">
+      {#each { length: 4 } as _}
+        <div>
+          <div class="mb-3 flex items-center gap-2">
+            <Skeleton class="size-4" />
+            <Skeleton class="size-5" />
+            <Skeleton class="h-5 w-24" />
+            <Skeleton class="h-5 w-8 rounded-full" />
+          </div>
+          <Skeleton class="h-32 w-full rounded-xl" />
+        </div>
+      {/each}
+    </div>
+  {:else if loadError}
+    <div class="px-8 py-8">
+      <div class="flex flex-col items-center justify-center py-20 text-center">
+        <SearchX class="mb-4 size-12 text-muted-foreground/30" strokeWidth={1.5} />
+        <h2 class="text-lg font-semibold text-muted-foreground">Component not found</h2>
+        <p class="mt-1 max-w-sm text-sm text-muted-foreground/70">
+          There is no component named "{name}". Check the URL or use search to find what you're
+          looking for.
+        </p>
+        <a
+          href="/components"
+          class="mt-6 inline-flex items-center gap-2 rounded-md border bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        >
+          <ArrowLeft class="size-4" />
+          Back to gallery
+        </a>
+      </div>
+    </div>
+  {:else}
     <div class="sticky top-(--header-height) z-10 border-b bg-background px-8 pb-4 pt-10">
       <LensHeader
         {name}
@@ -1900,33 +1976,8 @@
         {nextComponent}
       />
     </div>
-  {/if}
-
-  <div class="px-8 py-8">
-    <svelte:boundary>
-      {#if loading}
-        <div class="flex items-center justify-center rounded-xl border py-20">
-          <div
-            class="size-5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-primary"
-          ></div>
-        </div>
-      {:else if loadError}
-        <div class="flex flex-col items-center justify-center py-20 text-center">
-          <SearchX class="mb-4 size-12 text-muted-foreground/30" strokeWidth={1.5} />
-          <h2 class="text-lg font-semibold text-muted-foreground">Component not found</h2>
-          <p class="mt-1 max-w-sm text-sm text-muted-foreground/70">
-            There is no component named "{name}". Check the URL or use search to find what you're
-            looking for.
-          </p>
-          <a
-            href="/components"
-            class="mt-6 inline-flex items-center gap-2 rounded-md border bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            <ArrowLeft class="size-4" />
-            Back to gallery
-          </a>
-        </div>
-      {:else}
+    <div class="px-8 py-8">
+      <svelte:boundary>
         <div class="space-y-10">
           <!-- ═══ Props ═══ -->
           <section id="props" class="scroll-mt-60">
@@ -3558,28 +3609,28 @@
             </section>
           {/if}
         </div>
-      {/if}
-      {#snippet failed(error)}
-        <div class="overflow-hidden rounded-lg border border-dashed">
-          <LensError
-            title="Page render error"
-            description={error instanceof Error ? error.message : String(error)}
-            class="rounded-none border-0 py-4"
-          />
-          <div class="max-h-64 overflow-auto border-t bg-muted/20 text-xs">
-            <CodeBlock
-              code={error instanceof Error
-                ? JSON.stringify(
-                    { name: error.name, message: error.message, stack: error.stack },
-                    null,
-                    2,
-                  )
-                : JSON.stringify(error, null, 2)}
-              lang="json"
+        {#snippet failed(error)}
+          <div class="overflow-hidden rounded-lg border border-dashed">
+            <LensError
+              title="Page render error"
+              description={error instanceof Error ? error.message : String(error)}
+              class="rounded-none border-0 py-4"
             />
+            <div class="max-h-64 overflow-auto border-t bg-muted/20 text-xs">
+              <CodeBlock
+                code={error instanceof Error
+                  ? JSON.stringify(
+                      { name: error.name, message: error.message, stack: error.stack },
+                      null,
+                      2,
+                    )
+                  : JSON.stringify(error, null, 2)}
+                lang="json"
+              />
+            </div>
           </div>
-        </div>
-      {/snippet}
-    </svelte:boundary>
-  </div>
+        {/snippet}
+      </svelte:boundary>
+    </div>
+  {/if}
 </div>

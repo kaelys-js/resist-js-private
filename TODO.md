@@ -13,7 +13,6 @@ Several Issues:
 - 
 Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
 ----
-- Like the Props Section shows the count, Variants/examples should have that also
 
 - Real Browser
   - Install/setup all the stuff I need for the Android screenshot/live streaming
@@ -29,8 +28,9 @@ Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
 
 - The Sidebar/CommandSearch components don't render right contained to preview (use playwright mcp any you will see what i mean)
 
-- Lens Homepage: Complete Redesign
+- Lens Homepage: Complete Redesign (Add sidebar entry also)
 - Intelligent Automatic Examples Instead of examples/
+- Lens: What is missing from a component documentation system like this? We have Components and Design Tokens, what else?
 
 - Sidebar Component Entries:
   - Is it possible to include the "Performance statistics" in the App sidebar to the right of the component with the same details for the overall component? and a green/yellow/red dot to the right of the component name in the sidebar like you have in performance statistics?
@@ -42,9 +42,6 @@ Invoke the fix-bug skill. Follow CLAUDE.md. Present changelog.
     - Global Search
     - Real Browser: Playwright/iOS/Android Engines (Screenshot/Live/etc)
 
-Test:
-  Sidebar/LensHeader/Props/Dependencies/Changelog/Screenshot/Props Exports
-  Variant Dropdown Menu (All Options)
 - Notifications
 - Do the component conversions
 - Create Shared Components Following Existing Shared Components Supporting Lens System:
