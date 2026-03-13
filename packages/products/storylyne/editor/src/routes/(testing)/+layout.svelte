@@ -9,8 +9,8 @@
   import { ModeWatcher, mode as derivedMode, setMode as rawSetMode } from 'mode-watcher';
   import { page } from '$app/state';
   import { storageKey } from '$lib/config/app-meta';
-  import type { Str } from '@/schemas/common';
-  import type { LensMeta, CategoryGroup, LensExample } from '@/ui/lens/types.js';
+  import type { Num, Str } from '@/schemas/common';
+  import type { LensMeta, CategoryGroup, LensExample, LensStatus } from '@/ui/lens/types.js';
   import type { Result } from '@/schemas/result/result';
   import type { SearchItem } from '@/ui/search-autocomplete/search-item.js';
   import {
@@ -64,6 +64,9 @@
   import CircleAlert from '@lucide/svelte/icons/circle-alert';
   import EyeOff from '@lucide/svelte/icons/eye-off';
   import Home from '@lucide/svelte/icons/home';
+  import Star from '@lucide/svelte/icons/star';
+  import Clock from '@lucide/svelte/icons/clock';
+  import StarOff from '@lucide/svelte/icons/star-off';
 
   const { children } = $props();
 
@@ -587,6 +590,111 @@
     }
   });
 
+  /* ------------------------------------------------------------------ */
+  /*  Pinned / favorites (persisted to localStorage)                     */
+  /* ------------------------------------------------------------------ */
+
+  /** Maximum number of pinned components. */
+  const MAX_PINNED: Num = 20 as Num;
+
+  /** Set of pinned component names. */
+  let pinnedComponents: Set<Str> = $state(new Set());
+
+  // Restore pinned from localStorage on mount
+  $effect(() => {
+    try {
+      const stored: Str | null = localStorage.getItem(storageKey('lens-pinned'));
+      if (stored) {
+        const parsed: Str[] = JSON.parse(stored) as Str[];
+        pinnedComponents = new Set(parsed.filter((n: Str): boolean => componentNames.includes(n)));
+      }
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — default empty is fine */
+    }
+  });
+
+  // Persist pinned to localStorage on change
+  $effect(() => {
+    try {
+      localStorage.setItem(storageKey('lens-pinned'), JSON.stringify([...pinnedComponents]));
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — non-critical */
+    }
+  });
+
+  /**
+   * Toggle a component's pinned state.
+   *
+   * @param name - Component directory name to toggle
+   */
+  function togglePin(name: Str): void {
+    const next: Set<Str> = new Set(pinnedComponents);
+    if (next.has(name)) {
+      next.delete(name);
+    } else if (next.size < MAX_PINNED) {
+      next.add(name);
+    }
+    pinnedComponents = next;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Recently viewed (persisted to localStorage)                        */
+  /* ------------------------------------------------------------------ */
+
+  /** Maximum recently viewed entries. */
+  const MAX_RECENT: Num = 8 as Num;
+
+  /** Ordered list of recently viewed component names (most recent first). */
+  let recentComponents: Str[] = $state([]);
+
+  // Restore recent from localStorage on mount
+  $effect(() => {
+    try {
+      const stored: Str | null = localStorage.getItem(storageKey('lens-recent'));
+      if (stored) {
+        const parsed: Str[] = JSON.parse(stored) as Str[];
+        recentComponents = parsed.filter((n: Str): boolean => componentNames.includes(n));
+      }
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — default empty is fine */
+    }
+  });
+
+  // Track navigation — add current component to recent list
+  $effect(() => {
+    if (!currentName || currentName.length === 0) return;
+    const filtered: Str[] = recentComponents.filter((n: Str): boolean => n !== currentName);
+    recentComponents = [currentName, ...filtered].slice(0, MAX_RECENT);
+  });
+
+  // Persist recent to localStorage on change
+  $effect(() => {
+    if (recentComponents.length === 0) return;
+    try {
+      localStorage.setItem(storageKey('lens-recent'), JSON.stringify(recentComponents));
+    } catch {
+      /* localStorage unavailable (SSR/incognito) — non-critical */
+    }
+  });
+
+  /* ------------------------------------------------------------------ */
+  /*  Status badge helpers                                               */
+  /* ------------------------------------------------------------------ */
+
+  /** Status badge color mapping. */
+  const STATUS_COLORS: Record<LensStatus, Str> = {
+    new: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400' as Str,
+    updated: 'bg-blue-500/15 text-blue-700 dark:text-blue-400' as Str,
+    deprecated: 'bg-red-500/15 text-red-700 dark:text-red-400' as Str,
+  };
+
+  /** Status badge labels. */
+  const STATUS_LABELS: Record<LensStatus, Str> = {
+    new: 'New' as Str,
+    updated: 'Updated' as Str,
+    deprecated: 'Deprecated' as Str,
+  };
+
   /**
    * Count compatible components within a category group.
    *
@@ -687,6 +795,55 @@
     window.addEventListener('keydown', onSlashKey);
     return (): void => {
       window.removeEventListener('keydown', onSlashKey);
+    };
+  });
+
+  /* ------------------------------------------------------------------ */
+  /*  Arrow-key sidebar navigation                                       */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * Arrow Up/Down navigates sidebar menu buttons; Enter follows the link.
+   * Only active when sidebar content area has focus (not in inputs).
+   */
+  $effect(() => {
+    /**
+     * Handle arrow key navigation in sidebar.
+     *
+     * @param e - Keyboard event
+     */
+    function onArrowNav(e: KeyboardEvent): void {
+      const tag: Str = (document.activeElement?.tagName ?? '') as Str;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'Enter') return;
+
+      const buttons: HTMLElement[] = [
+        ...document.querySelectorAll('[data-sidebar="menu-button"] a'),
+      ] as HTMLElement[];
+      if (buttons.length === 0) return;
+
+      const currentIdx: Num = buttons.indexOf(document.activeElement as HTMLElement) as Num;
+
+      if (e.key === 'Enter' && currentIdx >= 0) {
+        e.preventDefault();
+        (buttons[currentIdx] as HTMLAnchorElement).click();
+        return;
+      }
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const nextIdx: Num = (currentIdx < buttons.length - 1 ? currentIdx + 1 : 0) as Num;
+        buttons[nextIdx]?.focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prevIdx: Num = (currentIdx > 0 ? currentIdx - 1 : buttons.length - 1) as Num;
+        buttons[prevIdx]?.focus();
+      }
+    }
+    window.addEventListener('keydown', onArrowNav);
+    return (): void => {
+      window.removeEventListener('keydown', onArrowNav);
     };
   });
 
@@ -1027,6 +1184,89 @@
           </Sidebar.MenuItem>
         </Sidebar.Menu>
       </Sidebar.Group>
+      <!-- Pinned components -->
+      {#if pinnedComponents.size > 0}
+        <Sidebar.Group>
+          <Sidebar.GroupLabel class="text-xs">
+            <Star class="mr-1 size-3" />
+            Pinned
+          </Sidebar.GroupLabel>
+          <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              {#each [...pinnedComponents] as name (name)}
+                {@const pinMeta = metaByName.get(name)}
+                {@const PinIcon = CATEGORY_ICONS[pinMeta?.category ?? 'display'] ?? ComponentIcon}
+                {@const pinColor =
+                  CATEGORY_COLORS[pinMeta?.category ?? 'display'] ??
+                  ('text-muted-foreground' as Str)}
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuButton isActive={currentName === name}>
+                    {#snippet child({ props })}
+                      <a href="/components/{name}" {...props}>
+                        <PinIcon class="size-4 {pinColor}" />
+                        <span>{toTitle(name)}</span>
+                      </a>
+                    {/snippet}
+                  </Sidebar.MenuButton>
+                  <Sidebar.MenuAction>
+                    <Tooltip.Root delayDuration={300}>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props: unpinTip })}
+                          <button
+                            type="button"
+                            class="size-5 rounded-sm text-muted-foreground/50 hover:text-foreground"
+                            {...unpinTip}
+                            onclick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              togglePin(name);
+                            }}
+                          >
+                            <StarOff class="size-3" />
+                          </button>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content side="right" sideOffset={4}>Unpin</Tooltip.Content>
+                    </Tooltip.Root>
+                  </Sidebar.MenuAction>
+                </Sidebar.MenuItem>
+              {/each}
+            </Sidebar.Menu>
+          </Sidebar.GroupContent>
+        </Sidebar.Group>
+      {/if}
+      <!-- Recently viewed -->
+      {#if recentComponents.length > 0}
+        <Sidebar.Group>
+          <Sidebar.GroupLabel class="text-xs">
+            <Clock class="mr-1 size-3" />
+            Recent
+          </Sidebar.GroupLabel>
+          <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              {#each recentComponents
+                .filter((n) => !pinnedComponents.has(n))
+                .slice(0, 5) as name (name)}
+                {@const recMeta = metaByName.get(name)}
+                {@const RecIcon = CATEGORY_ICONS[recMeta?.category ?? 'display'] ?? ComponentIcon}
+                {@const recColor =
+                  CATEGORY_COLORS[recMeta?.category ?? 'display'] ??
+                  ('text-muted-foreground' as Str)}
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuButton isActive={currentName === name}>
+                    {#snippet child({ props })}
+                      <a href="/components/{name}" {...props}>
+                        <RecIcon class="size-4 {recColor}" />
+                        <span>{toTitle(name)}</span>
+                      </a>
+                    {/snippet}
+                  </Sidebar.MenuButton>
+                </Sidebar.MenuItem>
+              {/each}
+            </Sidebar.Menu>
+          </Sidebar.GroupContent>
+        </Sidebar.Group>
+      {/if}
       <Collapsible.Root bind:open={sidebarComponentsOpen} class="group/collapsible">
         <Sidebar.Group>
           <Sidebar.GroupLabel class="text-sm">
@@ -1177,7 +1417,13 @@
                                       >
                                         <ItemIcon class="size-4 {itemColor}"></ItemIcon>
                                         <span>{toTitle(name)}</span>
-                                        {#if isIncompat}
+                                        {#if itemMeta?.status}
+                                          <span
+                                            class="ml-auto shrink-0 rounded px-1 py-0.5 text-[9px] font-medium leading-none {STATUS_COLORS[
+                                              itemMeta.status
+                                            ]}">{STATUS_LABELS[itemMeta.status]}</span
+                                          >
+                                        {:else if isIncompat}
                                           <CircleAlert
                                             class="ml-auto size-3 shrink-0 text-amber-500"
                                             aria-hidden="true"
@@ -1233,6 +1479,37 @@
                                 {/if}
                               </Tooltip.Content>
                             </Tooltip.Root>
+                            <Sidebar.MenuAction>
+                              <Tooltip.Root delayDuration={300}>
+                                <Tooltip.Trigger>
+                                  {#snippet child({ props: pinTip })}
+                                    <button
+                                      type="button"
+                                      class="size-5 rounded-sm text-muted-foreground/40 transition-colors hover:text-foreground {pinnedComponents.has(
+                                        name,
+                                      )
+                                        ? 'text-amber-500 hover:text-amber-600'
+                                        : ''}"
+                                      {...pinTip}
+                                      onclick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        togglePin(name);
+                                      }}
+                                    >
+                                      <Star
+                                        class="size-3 {pinnedComponents.has(name)
+                                          ? 'fill-current'
+                                          : ''}"
+                                      />
+                                    </button>
+                                  {/snippet}
+                                </Tooltip.Trigger>
+                                <Tooltip.Content side="right" sideOffset={4}>
+                                  {pinnedComponents.has(name) ? 'Unpin' : 'Pin to sidebar'}
+                                </Tooltip.Content>
+                              </Tooltip.Root>
+                            </Sidebar.MenuAction>
                           </Sidebar.MenuItem>
                         {/each}
                       </Sidebar.Menu>

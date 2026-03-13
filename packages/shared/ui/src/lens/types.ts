@@ -167,6 +167,16 @@ export type LensCategory = v.InferOutput<typeof LensCategorySchema>;
  * };
  * ```
  */
+/**
+ * Component lifecycle status for sidebar badges.
+ *
+ * - 'new' — recently added
+ * - 'updated' — recently changed
+ * - 'deprecated' — scheduled for removal
+ */
+export const LensStatusSchema = v.picklist(['new', 'updated', 'deprecated']);
+export type LensStatus = v.InferOutput<typeof LensStatusSchema>;
+
 export const LensMetaSchema = v.strictObject({
   /** Sidebar grouping category. */
   category: LensCategorySchema,
@@ -174,6 +184,8 @@ export const LensMetaSchema = v.strictObject({
   tags: v.pipe(v.array(StrSchema), v.minLength(1)),
   /** Short component description for search and page header. */
   description: StrSchema,
+  /** Optional lifecycle status badge shown in sidebar. @values 'new', 'updated', 'deprecated' */
+  status: v.optional(LensStatusSchema),
 });
 export type LensMeta = v.InferOutput<typeof LensMetaSchema>;
 

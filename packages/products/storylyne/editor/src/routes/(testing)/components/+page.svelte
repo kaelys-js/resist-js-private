@@ -12,6 +12,7 @@
   import { extractTokens, type ThemeTokenSet } from '@/ui/lens/extract-tokens.js';
   import { log } from '@/utils/core/logger';
   import Kbd from '@/ui/kbd/Kbd.svelte';
+  import * as Tooltip from '@/ui/tooltip/index.js';
   import { cn } from '@/ui/utils.js';
   import type { Component } from 'svelte';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
@@ -25,7 +26,6 @@
   import Palette from '@lucide/svelte/icons/palette';
   import ComponentIcon from '@lucide/svelte/icons/component';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
-  import ArrowRight from '@lucide/svelte/icons/arrow-right';
 
   /* ------------------------------------------------------------------ */
   /*  Glob-based data (mirrors layout pattern)                           */
@@ -163,9 +163,12 @@
 
   /**
    * Open the ⌘K command search by dispatching the keyboard shortcut.
+   * Dispatches on `document` because CommandSearch listens via `document.addEventListener`.
    */
   function openSearch(): void {
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }),
+    );
   }
 </script>
 
@@ -187,35 +190,69 @@
 
   <!-- Quick Stats -->
   <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-    <div class="rounded-lg border bg-card p-4">
-      <div class="flex items-center gap-2 text-muted-foreground">
-        <ComponentIcon class="size-4" />
-        <span class="text-xs font-medium uppercase tracking-wider">Components</span>
-      </div>
-      <p class="mt-2 text-2xl font-bold tabular-nums">{componentNames.length}</p>
-    </div>
-    <div class="rounded-lg border bg-card p-4">
-      <div class="flex items-center gap-2 text-muted-foreground">
-        <LayoutGrid class="size-4" />
-        <span class="text-xs font-medium uppercase tracking-wider">Categories</span>
-      </div>
-      <p class="mt-2 text-2xl font-bold tabular-nums">{groupedComponents.length}</p>
-    </div>
-    <div class="rounded-lg border bg-card p-4">
-      <div class="flex items-center gap-2 text-muted-foreground">
-        <Palette class="size-4" />
-        <span class="text-xs font-medium uppercase tracking-wider">Tokens</span>
-      </div>
-      <p class="mt-2 text-2xl font-bold tabular-nums">{tokenCount}</p>
-    </div>
-    <div class="rounded-lg border bg-card p-4">
-      <div class="flex items-center gap-2 text-muted-foreground">
-        <CircleCheck class="size-4" />
-        <span class="text-xs font-medium uppercase tracking-wider">Documented</span>
-      </div>
-      <p class="mt-2 text-2xl font-bold tabular-nums">{documentedPercent}%</p>
-      <p class="text-xs text-muted-foreground">{documentedCount}/{componentNames.length}</p>
-    </div>
+    <Tooltip.Root delayDuration={300}>
+      <Tooltip.Trigger>
+        {#snippet child({ props: tipProps })}
+          <div class="rounded-lg border bg-card p-4" {...tipProps}>
+            <div class="flex items-center gap-2 text-muted-foreground">
+              <ComponentIcon class="size-4" />
+              <span class="text-xs font-medium uppercase tracking-wider">Components</span>
+            </div>
+            <p class="mt-2 text-2xl font-bold tabular-nums">{componentNames.length}</p>
+          </div>
+        {/snippet}
+      </Tooltip.Trigger>
+      <Tooltip.Content sideOffset={4}>Total UI components discovered in @/ui</Tooltip.Content>
+    </Tooltip.Root>
+    <Tooltip.Root delayDuration={300}>
+      <Tooltip.Trigger>
+        {#snippet child({ props: tipProps })}
+          <div class="rounded-lg border bg-card p-4" {...tipProps}>
+            <div class="flex items-center gap-2 text-muted-foreground">
+              <LayoutGrid class="size-4" />
+              <span class="text-xs font-medium uppercase tracking-wider">Categories</span>
+            </div>
+            <p class="mt-2 text-2xl font-bold tabular-nums">{groupedComponents.length}</p>
+          </div>
+        {/snippet}
+      </Tooltip.Trigger>
+      <Tooltip.Content sideOffset={4}>
+        Component groups: form, layout, overlay, navigation, display, utility
+      </Tooltip.Content>
+    </Tooltip.Root>
+    <Tooltip.Root delayDuration={300}>
+      <Tooltip.Trigger>
+        {#snippet child({ props: tipProps })}
+          <div class="rounded-lg border bg-card p-4" {...tipProps}>
+            <div class="flex items-center gap-2 text-muted-foreground">
+              <Palette class="size-4" />
+              <span class="text-xs font-medium uppercase tracking-wider">Tokens</span>
+            </div>
+            <p class="mt-2 text-2xl font-bold tabular-nums">{tokenCount}</p>
+          </div>
+        {/snippet}
+      </Tooltip.Trigger>
+      <Tooltip.Content sideOffset={4}>
+        CSS custom properties extracted from app.css across all themes
+      </Tooltip.Content>
+    </Tooltip.Root>
+    <Tooltip.Root delayDuration={300}>
+      <Tooltip.Trigger>
+        {#snippet child({ props: tipProps })}
+          <div class="rounded-lg border bg-card p-4" {...tipProps}>
+            <div class="flex items-center gap-2 text-muted-foreground">
+              <CircleCheck class="size-4" />
+              <span class="text-xs font-medium uppercase tracking-wider">Documented</span>
+            </div>
+            <p class="mt-2 text-2xl font-bold tabular-nums">{documentedPercent}%</p>
+            <p class="text-xs text-muted-foreground">{documentedCount}/{componentNames.length}</p>
+          </div>
+        {/snippet}
+      </Tooltip.Trigger>
+      <Tooltip.Content sideOffset={4}>
+        Components with a lens.ts metadata file for docs generation
+      </Tooltip.Content>
+    </Tooltip.Root>
   </div>
 
   <!-- Search CTA -->
@@ -241,13 +278,7 @@
         {@const catBg = CATEGORY_BG[group.name] ?? ('hover:border-border' as Str)}
         {@const catDesc = CATEGORY_DESCRIPTIONS[group.name] ?? ('' as Str)}
         {@const docCount = group.components.filter((n) => metaByName.has(n)).length}
-        <a
-          href="/components/{group.components[0]}"
-          class={cn(
-            'group flex flex-col gap-3 rounded-lg border bg-card p-4 transition-all hover:shadow-md',
-            catBg,
-          )}
-        >
+        <div class={cn('flex flex-col gap-3 rounded-lg border bg-card p-4 transition-all', catBg)}>
           <div class="flex items-start justify-between">
             <div class="flex items-center gap-2.5">
               <div class={cn('flex size-9 items-center justify-center rounded-lg bg-muted/50')}>
@@ -258,41 +289,50 @@
                 <p class="text-xs text-muted-foreground">{group.components.length} components</p>
               </div>
             </div>
-            <ArrowRight
-              class="size-4 text-muted-foreground/0 transition-all group-hover:translate-x-0.5 group-hover:text-muted-foreground"
-            />
           </div>
           {#if catDesc}
             <p class="text-xs leading-relaxed text-muted-foreground">{catDesc}</p>
           {/if}
-          <!-- Component list preview -->
+          <!-- Component list — each name links to its page -->
           <div class="flex flex-wrap gap-1">
-            {#each group.components.slice(0, 6) as name (name)}
-              <span class="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
-                >{toTitle(name)}</span
+            {#each group.components.slice(0, 8) as name (name)}
+              <a
+                href="/components/{name}"
+                class="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                >{toTitle(name)}</a
               >
             {/each}
-            {#if group.components.length > 6}
+            {#if group.components.length > 8}
               <span class="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground/60"
-                >+{group.components.length - 6} more</span
+                >+{group.components.length - 8} more</span
               >
             {/if}
           </div>
-          <!-- Compatibility bar -->
-          <div class="flex items-center gap-2">
-            <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-              <div
-                class="h-full rounded-full bg-emerald-500 transition-all"
-                style="width: {group.components.length > 0
-                  ? Math.round((docCount / group.components.length) * 100)
-                  : 0}%"
-              ></div>
-            </div>
-            <span class="text-[11px] tabular-nums text-muted-foreground">
-              {docCount}/{group.components.length}
-            </span>
-          </div>
-        </a>
+          <!-- Documentation coverage bar -->
+          <Tooltip.Root delayDuration={300}>
+            <Tooltip.Trigger>
+              {#snippet child({ props: barTipProps })}
+                <div class="flex items-center gap-2" {...barTipProps}>
+                  <span class="text-[11px] text-muted-foreground/60">Documented</span>
+                  <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                    <div
+                      class="h-full rounded-full bg-emerald-500 transition-all"
+                      style="width: {group.components.length > 0
+                        ? Math.round((docCount / group.components.length) * 100)
+                        : 0}%"
+                    ></div>
+                  </div>
+                  <span class="text-[11px] tabular-nums text-muted-foreground">
+                    {docCount}/{group.components.length}
+                  </span>
+                </div>
+              {/snippet}
+            </Tooltip.Trigger>
+            <Tooltip.Content sideOffset={4}>
+              {docCount} of {group.components.length} components have lens.ts metadata
+            </Tooltip.Content>
+          </Tooltip.Root>
+        </div>
       {/each}
     </div>
   </div>
@@ -311,8 +351,5 @@
         {tokenCount} CSS custom properties across themes
       </p>
     </div>
-    <ArrowRight
-      class="size-4 text-muted-foreground/0 transition-all group-hover:translate-x-0.5 group-hover:text-muted-foreground"
-    />
   </a>
 </div>
