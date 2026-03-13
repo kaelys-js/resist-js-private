@@ -38,10 +38,13 @@
     return result.data as LensPortalScopeProps;
   });
 
-  /** Body-level div that serves as the portal target. */
+  /** Portal target div — lives inside the card's transform container for containment. */
   let portalEl: HTMLDivElement | undefined = $state(undefined);
+  /** Anchor element used to find the card container at mount time. */
+  let anchorEl: HTMLDivElement | undefined = $state(undefined);
 
   $effect(() => {
+    if (!anchorEl) return;
     const div: HTMLDivElement = document.createElement('div');
     // Position off-flow so it doesn't affect layout
     div.style.position = 'absolute';
@@ -52,7 +55,11 @@
     div.style.overflow = 'visible';
     div.style.pointerEvents = 'none';
     div.dataset.lensPortal = '';
-    document.body.insertBefore(div, null);
+    // Append inside the card's transform container (parent of this component)
+    // so position:fixed portaled content is contained by the transform
+    // SvelteKit editor tsconfig adds Body.append(string|Response|...) which conflicts
+    // with ParentNode.append(Node) — use unknown cast to bypass
+    (anchorEl as unknown as ParentNode).append(div);
     portalEl = div;
 
     return (): Void => {
@@ -81,10 +88,12 @@
   });
 </script>
 
-{#if portalEl}
-  <BitsConfig defaultPortalTo={portalEl}>
+<div bind:this={anchorEl} style="position: relative;">
+  {#if portalEl}
+    <BitsConfig defaultPortalTo={portalEl}>
+      {@render validated.children()}
+    </BitsConfig>
+  {:else}
     {@render validated.children()}
-  </BitsConfig>
-{:else}
-  {@render validated.children()}
-{/if}
+  {/if}
+</div>
