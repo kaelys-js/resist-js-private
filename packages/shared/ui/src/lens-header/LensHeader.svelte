@@ -45,6 +45,12 @@
     onTogglePin: v.optional(
       v.custom<() => void>((val: unknown): boolean => typeof val === 'function'),
     ),
+    /** Whether this component is being watched for changes. @values true, false */
+    isWatched: v.optional(BoolSchema),
+    /** Callback fired when the watch/unwatch button is clicked. @values () => void */
+    onToggleWatch: v.optional(
+      v.custom<() => void>((val: unknown): boolean => typeof val === 'function'),
+    ),
   });
   /** Props for the LensHeader component. */
   export type LensHeaderProps = v.InferOutput<typeof LensHeaderPropsSchema>;
@@ -100,6 +106,7 @@
   import Wrench from '@lucide/svelte/icons/wrench';
   import Microscope from '@lucide/svelte/icons/microscope';
   import Star from '@lucide/svelte/icons/star';
+  import EyeOff from '@lucide/svelte/icons/eye-off';
   import { cn } from '../utils.js';
 
   /** Category-to-icon mapping for visual differentiation in the header. */
@@ -532,6 +539,35 @@
             </Tooltip.Trigger>
             <Tooltip.Content side="bottom" sideOffset={4}>
               {validated.isPinned ? 'Unpin from sidebar' : 'Pin to sidebar'}
+            </Tooltip.Content>
+          </Tooltip.Root>
+        {/if}
+
+        {#if validated.onToggleWatch}
+          <Tooltip.Root delayDuration={300}>
+            <Tooltip.Trigger>
+              {#snippet child({ props: watchTooltipProps })}
+                <button
+                  type="button"
+                  class={cn(
+                    'flex size-7 items-center justify-center rounded-md transition-colors',
+                    validated.isWatched
+                      ? 'text-blue-500 hover:text-blue-600'
+                      : 'text-muted-foreground/40 hover:text-foreground',
+                  )}
+                  {...watchTooltipProps}
+                  onclick={validated.onToggleWatch}
+                >
+                  {#if validated.isWatched}
+                    <Eye class="size-4" />
+                  {:else}
+                    <EyeOff class="size-4" />
+                  {/if}
+                </button>
+              {/snippet}
+            </Tooltip.Trigger>
+            <Tooltip.Content side="bottom" sideOffset={4}>
+              {validated.isWatched ? 'Stop watching' : 'Watch for changes'}
             </Tooltip.Content>
           </Tooltip.Root>
         {/if}
