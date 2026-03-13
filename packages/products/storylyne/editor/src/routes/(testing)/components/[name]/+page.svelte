@@ -74,6 +74,15 @@
   import Copy from '@lucide/svelte/icons/copy';
   import FolderOpen from '@lucide/svelte/icons/folder-open';
   import Hash from '@lucide/svelte/icons/hash';
+  import RefreshCw from '@lucide/svelte/icons/refresh-cw';
+  import CircleCheck from '@lucide/svelte/icons/circle-check';
+  import CircleX from '@lucide/svelte/icons/circle-x';
+  import Play from '@lucide/svelte/icons/play';
+  import Plus from '@lucide/svelte/icons/plus';
+  import Clock from '@lucide/svelte/icons/clock';
+  import Pencil from '@lucide/svelte/icons/pencil';
+  import ListTree from '@lucide/svelte/icons/list-tree';
+  import Braces from '@lucide/svelte/icons/braces';
   import CopyButton from '@/ui/copy-button/CopyButton.svelte';
   import { cn } from '@/ui/utils.js';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';
@@ -1144,6 +1153,552 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /*  Error Boundary section                                             */
+  /* ------------------------------------------------------------------ */
+
+  /** Error boundary test case definition. */
+  type ErrorBoundaryTest = {
+    id: Str;
+    title: Str;
+    description: Str;
+    /** Whether the test has been run (rendered). */
+    rendered: Bool;
+    /** Whether the error boundary successfully caught the error. */
+    passed: Bool | null;
+    /** The error message captured from the boundary. */
+    errorMessage: Str;
+    /** Whether this individual test card is expanded. */
+    expanded: Bool;
+  };
+
+  /** Reactive array of error boundary tests with pass/fail tracking. */
+  let errorBoundaryTests: ErrorBoundaryTest[] = $state([
+    {
+      id: 'missing-props' as Str,
+      title: 'Missing Required Props' as Str,
+      description:
+        'Component rendered with no props — triggers safeParse validation and shows the error boundary fallback.' as Str,
+      rendered: true as Bool,
+      passed: null,
+      errorMessage: '' as Str,
+      expanded: true as Bool,
+    },
+    {
+      id: 'invalid-props' as Str,
+      title: 'Invalid Props' as Str,
+      description:
+        'Component rendered with an unknown prop key — triggers strictObject validation and shows the error boundary fallback.' as Str,
+      rendered: true as Bool,
+      passed: null,
+      errorMessage: '' as Str,
+      expanded: true as Bool,
+    },
+    {
+      id: 'required-only' as Str,
+      title: 'Only Required Props' as Str,
+      description:
+        'Component rendered with only required props at minimum values — shows the baseline functional state.' as Str,
+      rendered: true as Bool,
+      passed: null,
+      errorMessage: '' as Str,
+      expanded: true as Bool,
+    },
+  ]);
+
+  /** Custom error scenario JSON input. */
+  let customErrorPropsJson: Str = $state('');
+
+  /** Whether the custom error scenario is being shown. */
+  let showCustomErrorTest: Bool = $state(false);
+
+  /** Error message from parsing custom JSON. */
+  let customJsonError: Str = $state('');
+
+  /** Parsed custom props for the custom error scenario. */
+  let customParsedProps: PropMeta[] = $state([]);
+
+  /** Counter to force re-rendering of error boundary tests (incremented by Reset). */
+  let errorBoundaryRenderKey: Num = $state(0 as Num);
+
+  /** Total number of error boundary tests. */
+  const errorBoundaryTestCount: Num = $derived(
+    (errorBoundaryTests.length + (showCustomErrorTest ? 1 : 0)) as Num,
+  );
+
+  /** Number of tests that passed. */
+  const errorBoundaryPassCount: Num = $derived(
+    errorBoundaryTests.filter((t: ErrorBoundaryTest): boolean => t.passed === true).length as Num,
+  );
+
+  /** Number of tests that failed. */
+  const errorBoundaryFailCount: Num = $derived(
+    errorBoundaryTests.filter((t: ErrorBoundaryTest): boolean => t.passed === false).length as Num,
+  );
+
+  /** Feedback state for error boundary export actions. */
+  let errorBoundaryExportFeedback: Str = $state('');
+
+  /**
+   * Record an error boundary catch event for a test case.
+   * Deferred via queueMicrotask to avoid mutating $state during template evaluation.
+   *
+   * @param testId - The test case identifier
+   * @param error - The caught error
+   */
+  function recordErrorBoundaryCatch(testId: Str, error: unknown): Void {
+    queueMicrotask((): void => {
+      const test: ErrorBoundaryTest | undefined = errorBoundaryTests.find(
+        (t: ErrorBoundaryTest): boolean => t.id === testId,
+      );
+      if (test) {
+        test.passed = true;
+        test.errorMessage = (error instanceof Error ? error.message : String(error)) as Str;
+      }
+    });
+  }
+
+  /**
+   * After each render cycle, mark tests with passed=null as successful (no error caught).
+   * Uses a double microtask to run AFTER the onerror catch records complete.
+   */
+  $effect(() => {
+    /* Read renderKey to re-trigger on reset */
+    const _key: Num = errorBoundaryRenderKey;
+    /* Schedule after the recordErrorBoundaryCatch queueMicrotask calls complete */
+    queueMicrotask((): void => {
+      queueMicrotask((): void => {
+        for (const test of errorBoundaryTests) {
+          if (test.passed === null) {
+            /* For "missing props" and "invalid props", a successful render means the boundary
+               DIDN'T catch — which is actually a failure (the component should have thrown).
+               For "required only", a successful render means it works — which is a pass. */
+            test.passed = test.id === 'required-only';
+            test.errorMessage = '' as Str;
+          }
+        }
+      });
+    });
+  });
+
+  /**
+   * Reset all error boundary tests to re-render.
+   */
+  function resetErrorBoundaryTests(): Void {
+    errorBoundaryRenderKey = ((errorBoundaryRenderKey as number) + 1) as Num;
+    for (const test of errorBoundaryTests) {
+      test.passed = null;
+      test.errorMessage = '' as Str;
+    }
+    errorBoundaryExportFeedback = 'reset' as Str;
+    setTimeout((): void => {
+      errorBoundaryExportFeedback = '';
+    }, 2000);
+  }
+
+  /**
+   * Toggle expansion of an individual error boundary test card.
+   *
+   * @param testId - The test case identifier
+   */
+  function toggleErrorBoundaryCard(testId: Str): Void {
+    const test: ErrorBoundaryTest | undefined = errorBoundaryTests.find(
+      (t: ErrorBoundaryTest): boolean => t.id === testId,
+    );
+    if (test) {
+      test.expanded = !test.expanded;
+    }
+  }
+
+  /**
+   * Try parsing custom JSON into props for the custom error test scenario.
+   */
+  function parseCustomErrorProps(): Void {
+    if (!customErrorPropsJson.trim()) {
+      customJsonError = '' as Str;
+      customParsedProps = [];
+      return;
+    }
+    try {
+      const parsed: unknown = JSON.parse(customErrorPropsJson);
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+        customJsonError = 'Must be a JSON object (e.g., { "label": "test" })' as Str;
+        customParsedProps = [];
+        return;
+      }
+      /* Convert JSON object entries to PropMeta array for LensComponentRenderer */
+      const entries: Array<[Str, unknown]> = Object.entries(parsed) as Array<[Str, unknown]>;
+      customParsedProps = entries.map(
+        ([key, val]: [Str, unknown]): PropMeta => ({
+          name: key,
+          type: typeof val as Str,
+          default: JSON.stringify(val) as Str,
+          optional: false as Bool,
+          bindable: false as Bool,
+          description: '' as Str,
+        }),
+      );
+      customJsonError = '' as Str;
+    } catch {
+      /* JSON parse failed — show error to user */
+      customJsonError = 'Invalid JSON syntax' as Str;
+      customParsedProps = [];
+    }
+  }
+
+  /**
+   * Handle error boundary section export/copy actions.
+   *
+   * @param action - The export action to perform
+   */
+  /**
+   * Get a text status icon for a test result.
+   *
+   * @param passed - Test result (true=pass, false=fail, null=pending)
+   * @returns Status character
+   */
+  function testStatusIcon(passed: Bool | null): Str {
+    if (passed === true) return '\u2713' as Str;
+    if (passed === false) return '\u2717' as Str;
+    return '?' as Str;
+  }
+
+  /**
+   * Get an emoji status icon for a test result.
+   *
+   * @param passed - Test result (true=pass, false=fail, null=pending)
+   * @returns Status emoji
+   */
+  function testStatusEmoji(passed: Bool | null): Str {
+    if (passed === true) return '\u2705' as Str;
+    if (passed === false) return '\u274C' as Str;
+    return '\u23F3' as Str;
+  }
+
+  async function handleErrorBoundaryExport(action: Str): Promise<void> {
+    try {
+      if (action === 'copy-results') {
+        const lines: Str[] = errorBoundaryTests.map(
+          (t: ErrorBoundaryTest): Str =>
+            `${testStatusIcon(t.passed)} ${t.title}: ${t.errorMessage || 'No error'}` as Str,
+        );
+        const text: Str =
+          `Error Boundary Tests — ${toTitle(name)}\n${'─'.repeat(40)}\n${lines.join('\n')}` as Str;
+        await navigator.clipboard.writeText(text);
+      } else if (action === 'copy-markdown') {
+        const rows: Str[] = errorBoundaryTests.map(
+          (t: ErrorBoundaryTest): Str =>
+            `| ${testStatusEmoji(t.passed)} | ${t.title} | ${t.errorMessage || '—'} |` as Str,
+        );
+        const md: Str =
+          `## Error Boundary Tests — ${toTitle(name)}\n\n| Status | Test | Error |\n|--------|------|-------|\n${rows.join('\n')}` as Str;
+        await navigator.clipboard.writeText(md);
+      }
+    } catch {
+      /* Clipboard action failed — browser restrictions */
+    }
+    errorBoundaryExportFeedback = action;
+    setTimeout((): void => {
+      errorBoundaryExportFeedback = '';
+    }, 2000);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Documentation section                                              */
+  /* ------------------------------------------------------------------ */
+
+  /** Feedback state for documentation export actions. */
+  let docsExportFeedback: Str = $state('');
+
+  /**
+   * Parsed documentation headings for the table of contents.
+   * Extracts ## and ### headings from the raw markdown.
+   */
+  type DocHeading = { level: Num; text: Str; slug: Str };
+  const docHeadings: DocHeading[] = $derived.by((): DocHeading[] => {
+    if (!docsContent) return [];
+    const headings: DocHeading[] = [];
+    const lines: Str[] = docsContent.split('\n') as Str[];
+    for (const line of lines) {
+      const match: RegExpMatchArray | null = line.match(/^(#{2,3})\s+(.+)$/);
+      if (match) {
+        const level: Num = (match[1]?.length ?? 2) as Num;
+        const text: Str = (match[2] ?? '') as Str;
+        const slug: Str = text
+          .toLowerCase()
+          .replaceAll(/[^\w\s-]/g, '')
+          .replaceAll(/\s+/g, '-') as Str;
+        headings.push({ level, text, slug });
+      }
+    }
+    return headings;
+  });
+
+  /** Estimated reading time in minutes. */
+  const docsReadingTime: Num = $derived.by((): Num => {
+    if (!docsContent) return 0 as Num;
+    const wordCount: Num = docsContent.split(/\s+/).length as Num;
+    /* Average reading speed: ~200 words per minute */
+    return Math.max(1, Math.ceil((wordCount as number) / 200)) as Num;
+  });
+
+  /** Word count of the documentation. */
+  const docsWordCount: Num = $derived.by((): Num => {
+    if (!docsContent) return 0 as Num;
+    return docsContent.split(/\s+/).filter((w: Str): boolean => w.length > 0).length as Num;
+  });
+
+  /**
+   * Render a markdown text segment to HTML.
+   * Handles headings, inline code, bold, italic, links, tables, lists, and paragraphs.
+   *
+   * @param md - Raw markdown text (no code fences)
+   * @returns HTML string
+   */
+  function renderMarkdown(md: Str): Str {
+    let html: Str = md;
+    /* Headings — process longest prefix first to avoid ### matching ## */
+    html = html.replaceAll(/^### (.+)$/gm, (_, text: Str): Str => {
+      const slug: Str = text
+        .toLowerCase()
+        .replaceAll(/[^\w\s-]/g, '')
+        .replaceAll(/\s+/g, '-') as Str;
+      return `<h3 id="${slug}" class="mt-6 mb-2 scroll-mt-60 text-base font-semibold">${text}</h3>`;
+    }) as Str;
+    html = html.replaceAll(/^## (.+)$/gm, (_, text: Str): Str => {
+      const slug: Str = text
+        .toLowerCase()
+        .replaceAll(/[^\w\s-]/g, '')
+        .replaceAll(/\s+/g, '-') as Str;
+      return `<h2 id="${slug}" class="mt-8 mb-3 scroll-mt-60 text-lg font-semibold">${text}</h2>`;
+    }) as Str;
+    html = html.replaceAll(/^# (.+)$/gm, (_, text: Str): Str => {
+      const slug: Str = text
+        .toLowerCase()
+        .replaceAll(/[^\w\s-]/g, '')
+        .replaceAll(/\s+/g, '-') as Str;
+      return `<h1 id="${slug}" class="mt-0 mb-4 scroll-mt-60 text-2xl font-bold">${text}</h1>`;
+    }) as Str;
+    /* Tables — must come before inline formatting to avoid mangling pipe chars */
+    html = html.replaceAll(
+      /^\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)*)/gm,
+      (_match: Str, headerRow: Str, bodyRows: Str): Str => {
+        const headers: Str[] = headerRow.split('|').map((h: Str): Str => h.trim()) as Str[];
+        const headerCells: Str = headers
+          .filter((h: Str): boolean => h.length > 0)
+          .map(
+            (h: Str): Str =>
+              `<th class="border border-border px-3 py-2 text-left text-xs font-medium">${h}</th>`,
+          )
+          .join('') as Str;
+        const rows: Str[] = bodyRows
+          .trim()
+          .split('\n')
+          .filter((r: Str): boolean => r.length > 0) as Str[];
+        const bodyHtml: Str = rows
+          .map((row: Str): Str => {
+            const cells: Str[] = row.split('|').map((c: Str): Str => c.trim()) as Str[];
+            const cellHtml: Str = cells
+              .filter((c: Str): boolean => c.length > 0)
+              .map((c: Str): Str => `<td class="border border-border px-3 py-2 text-xs">${c}</td>`)
+              .join('') as Str;
+            return `<tr class="even:bg-muted/30">${cellHtml}</tr>`;
+          })
+          .join('') as Str;
+        return `<div class="my-4 overflow-x-auto rounded-lg border border-border"><table class="w-full border-collapse text-sm"><thead class="bg-muted/50"><tr>${headerCells}</tr></thead><tbody>${bodyHtml}</tbody></table></div>`;
+      },
+    ) as Str;
+    /* Inline code — HTML-escape content so tags like <pre> render as text */
+    html = html.replaceAll(/`([^`]+)`/g, (_: Str, code: Str): Str => {
+      const escaped: Str = code
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;') as Str;
+      return `<code class="rounded bg-muted px-1.5 py-0.5 font-mono text-[13px] break-words">${escaped}</code>`;
+    }) as Str;
+    /* Bold */
+    html = html.replaceAll(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>') as Str;
+    /* Italic */
+    html = html.replaceAll(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>') as Str;
+    /* Links */
+    html = html.replaceAll(
+      /\[([^\]]+)]\(([^)]+)\)/g,
+      '<a href="$2" class="text-primary underline underline-offset-4 hover:text-primary/80" target="_blank" rel="noopener">$1</a>',
+    ) as Str;
+    /* Horizontal rules */
+    html = html.replaceAll(/^---$/gm, '<hr class="my-6 border-border" />') as Str;
+    /* Ordered lists: consecutive `1. ` lines become an <ol> */
+    html = html.replaceAll(/(?:^\d+\. .+\n?)+/gm, (block: Str): Str => {
+      const items: Str = block
+        .trim()
+        .split('\n')
+        .map(
+          (line: Str): Str =>
+            `<li class="ml-4 list-decimal text-sm leading-relaxed">${line.replace(/^\d+\. /, '')}</li>`,
+        )
+        .join('') as Str;
+      return `<ol class="my-3 space-y-1">${items}</ol>`;
+    }) as Str;
+    /* Unordered lists: consecutive `- ` lines become a <ul> */
+    html = html.replaceAll(/(?:^- .+\n?)+/gm, (block: Str): Str => {
+      const items: Str = block
+        .trim()
+        .split('\n')
+        .map(
+          (line: Str): Str =>
+            `<li class="ml-4 list-disc text-sm leading-relaxed">${line.replace(/^- /, '')}</li>`,
+        )
+        .join('') as Str;
+      return `<ul class="my-3 space-y-1">${items}</ul>`;
+    }) as Str;
+    /* Paragraphs — wrap non-HTML, non-empty lines */
+    html = html.replaceAll(
+      /^(?!<[a-z/]|$)(.+)$/gm,
+      '<p class="my-2 text-sm leading-relaxed">$1</p>',
+    ) as Str;
+    return html;
+  }
+
+  /**
+   * Documentation content split into alternating segments of text and code.
+   * Text segments are rendered via {@html}, code segments via CodeBlock components.
+   */
+  type DocSegment = { type: 'text'; html: Str } | { type: 'code'; lang: Str; code: Str };
+  const docSegments: DocSegment[] = $derived.by((): DocSegment[] => {
+    if (!docsContent) return [];
+    const segments: DocSegment[] = [];
+    const fenceRegex: RegExp = /```(\w+)?\n([\s\S]*?)```/g;
+    let lastIndex: Num = 0 as Num;
+    let match: RegExpExecArray | null = fenceRegex.exec(docsContent);
+    while (match !== null) {
+      /* Text before this code fence */
+      const textBefore: Str = docsContent.slice(lastIndex as number, match.index) as Str;
+      if (textBefore.trim()) {
+        segments.push({ type: 'text' as const, html: renderMarkdown(textBefore) });
+      }
+      /* Code block */
+      segments.push({
+        type: 'code' as const,
+        lang: (match[1] ?? 'text') as Str,
+        code: (match[2] ?? '').trim() as Str,
+      });
+      lastIndex = ((match.index ?? 0) + match[0].length) as Num;
+      match = fenceRegex.exec(docsContent);
+    }
+    /* Remaining text after last code fence */
+    const remaining: Str = docsContent.slice(lastIndex as number) as Str;
+    if (remaining.trim()) {
+      segments.push({ type: 'text' as const, html: renderMarkdown(remaining) });
+    }
+    return segments;
+  });
+
+  /**
+   * Handle documentation section export/copy actions.
+   *
+   * @param action - The export action to perform
+   */
+  async function handleDocsExport(action: Str): Promise<void> {
+    if (!docsContent) return;
+    try {
+      if (action === 'copy-markdown') {
+        await navigator.clipboard.writeText(docsContent);
+      } else if (action === 'copy-html') {
+        const html: Str = docSegments
+          .filter((s): s is { type: 'text'; html: Str } => s.type === 'text')
+          .map((s) => s.html)
+          .join('\n') as Str;
+        await navigator.clipboard.writeText(html);
+      } else if (action === 'copy-path') {
+        const path: Str = `packages/shared/ui/src/${name}/docs.md` as Str;
+        await navigator.clipboard.writeText(path);
+      } else if (action === 'download') {
+        const blob: Blob = new Blob([docsContent], { type: 'text/markdown' });
+        const url: Str = URL.createObjectURL(blob) as Str;
+        const a: HTMLAnchorElement = document.createElement('a');
+        a.href = url;
+        a.download = `${name}-docs.md`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch {
+      /* Clipboard/download action failed — browser restrictions */
+    }
+    docsExportFeedback = action;
+    setTimeout((): void => {
+      docsExportFeedback = '';
+    }, 2000);
+  }
+
+  /**
+   * Generate a starter docs.md template for a component.
+   * Copies the template to clipboard so the user can create the file.
+   */
+  async function generateDocsTemplate(): Promise<void> {
+    const title: Str = toTitle(name);
+    const tag: Str = toTag(name);
+    /* Build template lines to avoid Svelte parser choking on <script> and <Tag /> in template literals */
+    const lines: Str[] = [
+      `# ${title}`,
+      '',
+      `A brief description of what the ${title} component does and when to use it.`,
+      '',
+      '## Features',
+      '',
+      '- **Feature 1** — Description of the first key feature',
+      '- **Feature 2** — Description of the second key feature',
+      '- **Feature 3** — Description of the third key feature',
+      '',
+      '## Quick Start',
+      '',
+      '```svelte',
+      `<${tag} />`,
+      '```',
+      '',
+      '## Usage',
+      '',
+      '### Basic',
+      '',
+      'Description of the most basic usage pattern.',
+      '',
+      '```svelte',
+      `<${tag} />`,
+      '```',
+      '',
+      '### With Options',
+      '',
+      'Description of a more advanced usage pattern.',
+      '',
+      '```svelte',
+      `<${tag} option="value" />`,
+      '```',
+      '',
+      '## Props',
+      '',
+      '| Prop | Type | Default | Description |',
+      '|------|------|---------|-------------|',
+      '| `prop1` | `Str` | — | Description of prop1 |',
+      '| `prop2` | `Bool` | `false` | Description of prop2 |',
+      '',
+      '## Accessibility',
+      '',
+      '- Keyboard navigation details',
+      '- Screen reader considerations',
+      '- ARIA attributes used',
+      '',
+      '## Notes',
+      '',
+      'Any additional notes, caveats, or migration guides.',
+      '',
+    ] as Str[];
+    const template: Str = lines.join('\n') as Str;
+    try {
+      await navigator.clipboard.writeText(template);
+    } catch {
+      /* Clipboard failed — browser restrictions */
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
   /*  Component page export (from LensHeader dropdown)                   */
   /* ------------------------------------------------------------------ */
 
@@ -1383,36 +1938,205 @@
         <div class="space-y-10">
           <!-- ═══ Documentation ═══ -->
           <section id="docs" class="scroll-mt-60">
-            <button
-              type="button"
-              onclick={() => toggleSection('docs')}
-              class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
-            >
-              <ChevronRight
-                class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.docs
-                  ? 'rotate-90'
-                  : ''}"
-              />
-              <FileText class="size-5" /> Documentation
-            </button>
+            <div class="mb-3 flex items-center justify-between">
+              <button
+                type="button"
+                onclick={() => toggleSection('docs')}
+                class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+              >
+                <ChevronRight
+                  class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen.docs
+                    ? 'rotate-90'
+                    : ''}"
+                />
+                <FileText class="size-5" /> Documentation
+                {#if hasDocs}
+                  <span
+                    class="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
+                  >
+                    <Clock class="size-3" />{docsReadingTime} min read
+                  </span>
+                {/if}
+              </button>
+              {#if hasDocs}
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger>
+                    {#snippet child({ props: menuProps })}
+                      <button
+                        {...menuProps}
+                        class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        aria-label="Documentation options"
+                      >
+                        <EllipsisVertical class="size-4" />
+                      </button>
+                    {/snippet}
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content align="end" class="w-52">
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDocsExport('copy-markdown');
+                      }}
+                    >
+                      {#if docsExportFeedback === 'copy-markdown'}
+                        <Check class="size-4 text-green-500" />
+                      {:else}
+                        <ClipboardCopy class="size-4" />
+                      {/if}
+                      Copy as Markdown
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDocsExport('copy-html');
+                      }}
+                    >
+                      {#if docsExportFeedback === 'copy-html'}
+                        <Check class="size-4 text-green-500" />
+                      {:else}
+                        <Copy class="size-4" />
+                      {/if}
+                      Copy as HTML
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDocsExport('copy-path');
+                      }}
+                    >
+                      {#if docsExportFeedback === 'copy-path'}
+                        <Check class="size-4 text-green-500" />
+                      {:else}
+                        <Clipboard class="size-4" />
+                      {/if}
+                      Copy File Path
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDocsExport('download');
+                      }}
+                    >
+                      <Download class="size-4" />
+                      Download docs.md
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              {/if}
+            </div>
             {#if sectionOpen.docs}
               <div transition:slide={{ duration: 200 }}>
                 {#if hasDocs}
-                  <div
-                    class="prose prose-sm dark:prose-invert max-w-none rounded-lg border bg-card p-6"
-                  >
-                    {@html docsContent}
+                  <div class="flex gap-6">
+                    <!-- Table of contents sidebar -->
+                    {#if docHeadings.length > 2}
+                      <nav class="hidden w-48 shrink-0 lg:block" aria-label="Table of contents">
+                        <div class="sticky top-60">
+                          <p
+                            class="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground"
+                          >
+                            <ListTree class="size-3" /> On this page
+                          </p>
+                          <ul class="space-y-1 border-l">
+                            {#each docHeadings as heading (heading.slug)}
+                              <li>
+                                <a
+                                  href="#{heading.slug}"
+                                  class={cn(
+                                    'block border-l-2 py-0.5 text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground',
+                                    (heading.level as number) === 2 ? '-ml-px pl-3' : '-ml-px pl-6',
+                                  )}
+                                >
+                                  {heading.text}
+                                </a>
+                              </li>
+                            {/each}
+                          </ul>
+                          <p class="mt-3 text-[10px] text-muted-foreground/50">
+                            {docsWordCount} words
+                          </p>
+                        </div>
+                      </nav>
+                    {/if}
+                    <!-- Documentation content -->
+                    <div
+                      class="prose prose-sm dark:prose-invert min-w-0 max-w-none flex-1 overflow-hidden rounded-lg border bg-card p-6 [overflow-wrap:break-word]"
+                    >
+                      {#each docSegments as segment, i (i)}
+                        {#if segment.type === 'text'}
+                          <!-- eslint-disable-next-line svelte/no-at-html-tags -- Markdown HTML is generated from trusted docs.md content -->
+                          {@html segment.html}
+                        {:else}
+                          <CodeBlock
+                            code={segment.code}
+                            lang={segment.lang}
+                            showLineNumbers
+                            class="my-4"
+                          />
+                        {/if}
+                      {/each}
+                    </div>
                   </div>
                 {:else}
                   <div class="rounded-lg border border-dashed bg-muted/20 px-6 py-8 text-center">
-                    <p class="text-sm text-muted-foreground">
-                      No documentation available for this component.
+                    <FileText
+                      class="mx-auto mb-3 size-10 text-muted-foreground/30"
+                      strokeWidth={1.5}
+                    />
+                    <p class="text-sm font-medium text-muted-foreground">
+                      No documentation available
                     </p>
                     <p class="mt-1 text-xs text-muted-foreground/60">
                       Add a <code class="rounded bg-muted px-1 py-0.5 font-mono text-[11px]"
                         >docs.md</code
                       > file to the component directory to add documentation.
                     </p>
+                    <div class="mt-4 flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                        onclick={async () => {
+                          await generateDocsTemplate();
+                          docsExportFeedback = 'template';
+                          setTimeout(() => {
+                            docsExportFeedback = '';
+                          }, 3000);
+                        }}
+                      >
+                        {#if docsExportFeedback === 'template'}
+                          <Check class="size-3 text-green-500" />
+                          Template copied!
+                        {:else}
+                          <Pencil class="size-3" />
+                          Copy docs.md template
+                        {/if}
+                      </button>
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                        onclick={async () => {
+                          const path = `packages/shared/ui/src/${name}/docs.md`;
+                          try {
+                            await navigator.clipboard.writeText(path);
+                          } catch {
+                            /* Clipboard failed — browser restrictions */
+                          }
+                          docsExportFeedback = 'path';
+                          setTimeout(() => {
+                            docsExportFeedback = '';
+                          }, 2000);
+                        }}
+                      >
+                        {#if docsExportFeedback === 'path'}
+                          <Check class="size-3 text-green-500" />
+                          Path copied!
+                        {:else}
+                          <Clipboard class="size-3" />
+                          Copy file path
+                        {/if}
+                      </button>
+                    </div>
                   </div>
                 {/if}
               </div>
@@ -1584,76 +2308,369 @@
           <!-- ═══ Error Boundary ═══ -->
           {#if PrimaryComponent}
             <section id="error-boundary" class="scroll-mt-60">
-              <button
-                type="button"
-                onclick={() => toggleSection('error-boundary')}
-                class="mb-3 flex w-full items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
-              >
-                <ChevronRight
-                  class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen[
-                    'error-boundary'
-                  ]
-                    ? 'rotate-90'
-                    : ''}"
-                />
-                <ShieldAlert class="size-5" /> Error Boundary
-              </button>
+              <div class="mb-3 flex items-center justify-between">
+                <button
+                  type="button"
+                  onclick={() => toggleSection('error-boundary')}
+                  class="flex items-center gap-2 text-left text-lg font-semibold transition-colors hover:text-foreground/80"
+                >
+                  <ChevronRight
+                    class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 {sectionOpen[
+                      'error-boundary'
+                    ]
+                      ? 'rotate-90'
+                      : ''}"
+                  />
+                  <ShieldAlert class="size-5" /> Error Boundary
+                  <Tooltip.Provider>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props: badgeProps })}
+                          <span
+                            {...badgeProps}
+                            class="rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
+                            >{errorBoundaryTestCount} tests</span
+                          >
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>Error boundary validation test cases</Tooltip.Content>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                  {#if errorBoundaryPassCount > 0 || errorBoundaryFailCount > 0}
+                    <span class="flex items-center gap-1.5 text-xs font-normal">
+                      {#if errorBoundaryPassCount > 0}
+                        <Tooltip.Provider>
+                          <Tooltip.Root>
+                            <Tooltip.Trigger>
+                              {#snippet child({ props: passProps })}
+                                <span {...passProps} class="flex items-center gap-1 text-green-500">
+                                  <CircleCheck class="size-3" />{errorBoundaryPassCount}
+                                </span>
+                              {/snippet}
+                            </Tooltip.Trigger>
+                            <Tooltip.Content
+                              >Tests passed — error boundary caught the error</Tooltip.Content
+                            >
+                          </Tooltip.Root>
+                        </Tooltip.Provider>
+                      {/if}
+                      {#if errorBoundaryFailCount > 0}
+                        <Tooltip.Provider>
+                          <Tooltip.Root>
+                            <Tooltip.Trigger>
+                              {#snippet child({ props: failProps })}
+                                <span {...failProps} class="flex items-center gap-1 text-red-500">
+                                  <CircleX class="size-3" />{errorBoundaryFailCount}
+                                </span>
+                              {/snippet}
+                            </Tooltip.Trigger>
+                            <Tooltip.Content
+                              >Tests failed — error was not caught as expected</Tooltip.Content
+                            >
+                          </Tooltip.Root>
+                        </Tooltip.Provider>
+                      {/if}
+                    </span>
+                  {/if}
+                </button>
+                <div class="flex items-center gap-1">
+                  <Tooltip.Provider>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props: tipProps })}
+                          <button
+                            {...tipProps}
+                            type="button"
+                            class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                            aria-label="Re-run all error boundary tests"
+                            onclick={resetErrorBoundaryTests}
+                          >
+                            {#if errorBoundaryExportFeedback === 'reset'}
+                              <Check class="size-3.5 text-green-500" />
+                            {:else}
+                              <RefreshCw class="size-3.5" />
+                            {/if}
+                          </button>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>Re-run all tests</Tooltip.Content>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger>
+                      {#snippet child({ props: menuProps })}
+                        <button
+                          {...menuProps}
+                          class="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                          aria-label="Error boundary options"
+                        >
+                          <EllipsisVertical class="size-4" />
+                        </button>
+                      {/snippet}
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content align="end" class="w-52">
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          handleErrorBoundaryExport('copy-results');
+                        }}
+                      >
+                        {#if errorBoundaryExportFeedback === 'copy-results'}
+                          <Check class="size-4 text-green-500" />
+                        {:else}
+                          <ClipboardCopy class="size-4" />
+                        {/if}
+                        Copy Results
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          handleErrorBoundaryExport('copy-markdown');
+                        }}
+                      >
+                        {#if errorBoundaryExportFeedback === 'copy-markdown'}
+                          <Check class="size-4 text-green-500" />
+                        {:else}
+                          <FileText class="size-4" />
+                        {/if}
+                        Copy as Markdown
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Separator />
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          resetErrorBoundaryTests();
+                        }}
+                      >
+                        {#if errorBoundaryExportFeedback === 'reset'}
+                          <Check class="size-4 text-green-500" />
+                        {:else}
+                          <RefreshCw class="size-4" />
+                        {/if}
+                        Re-run All Tests
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          showCustomErrorTest = !showCustomErrorTest;
+                        }}
+                      >
+                        <Plus class="size-4" />
+                        {showCustomErrorTest ? 'Hide' : 'Show'} Custom Scenario
+                      </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
+                </div>
+              </div>
               {#if sectionOpen['error-boundary']}
                 <div transition:slide={{ duration: 200 }}>
-                  <div class="space-y-4">
-                    <LensSection
-                      title="Missing Required Props"
-                      description="Component rendered with no props — triggers safeParse validation and shows the error boundary fallback."
-                    >
-                      <LensComponentRenderer
-                        component={PrimaryComponent}
-                        tagName={toTag(name)}
-                        componentName={name}
-                        label=""
-                        silent={true}
-                        contextWrapper={lensContextWrapper ?? undefined}
-                        codeText={`<!-- Missing required props — validation error -->\n<${toTag(name)} />`}
-                      />
-                    </LensSection>
-                    <LensSection
-                      title="Invalid Props"
-                      description="Component rendered with an unknown prop key — triggers strictObject validation and shows the error boundary fallback."
-                    >
-                      <LensComponentRenderer
-                        component={PrimaryComponent}
-                        props={[
-                          {
-                            name: '__invalid__',
-                            type: 'unknown',
-                            default: "'test'",
-                            optional: false,
-                            bindable: false,
-                            description: '',
-                          },
-                        ]}
-                        tagName={toTag(name)}
-                        componentName={name}
-                        label=""
-                        silent={true}
-                        contextWrapper={lensContextWrapper ?? undefined}
-                        codeText={`<!-- Unknown prop key — strictObject rejection -->\n<${toTag(name)} __invalid__="test" />`}
-                      />
-                    </LensSection>
-                    <LensSection
-                      title="Only Required Props"
-                      description="Component rendered with only required props at minimum values — shows the baseline functional state."
-                    >
-                      <LensComponentRenderer
-                        component={PrimaryComponent}
-                        props={props.filter((p) => !p.optional && p.default === '')}
-                        tagName={toTag(name)}
-                        componentName={name}
-                        label=""
-                        silent={isCompound}
-                        contextWrapper={lensContextWrapper ?? undefined}
-                        codeText={`<!-- Only required props (minimum values) -->\n<${toTag(name)} ... />`}
-                      />
-                    </LensSection>
+                  <div class="space-y-3">
+                    <!-- Custom error scenario (first card) -->
+                    {#if showCustomErrorTest}
+                      <div
+                        class="rounded-lg border border-dashed"
+                        transition:slide={{ duration: 200 }}
+                      >
+                        <div class="flex items-center gap-2 px-4 py-2.5">
+                          <Braces class="size-4 shrink-0 text-muted-foreground" />
+                          <span class="flex-1 text-sm font-medium">Custom Error Scenario</span>
+                        </div>
+                        <div class="border-t px-4 py-3">
+                          <p class="mb-2 text-xs text-muted-foreground">
+                            Enter a JSON object of props to test (e.g., <code
+                              class="rounded bg-muted px-1 py-0.5 font-mono text-[11px]"
+                              >{'{"label": 42}'}</code
+                            >)
+                          </p>
+                          <div class="flex gap-2">
+                            <input
+                              type="text"
+                              class={cn(
+                                'flex-1 rounded-md border bg-transparent px-3 py-1.5 font-mono text-xs outline-none placeholder:text-muted-foreground focus:ring-1 focus:ring-ring',
+                                customJsonError ? 'border-destructive/50' : '',
+                              )}
+                              placeholder={'{"unknownProp": "value"}'}
+                              bind:value={customErrorPropsJson}
+                              oninput={parseCustomErrorProps}
+                              onkeydown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  parseCustomErrorProps();
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              class="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+                              onclick={parseCustomErrorProps}
+                              disabled={!customErrorPropsJson.trim()}
+                            >
+                              <Play class="size-3" /> Run
+                            </button>
+                          </div>
+                          {#if customJsonError}
+                            <div
+                              class="mt-2 flex items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/5 px-2.5 py-1.5"
+                            >
+                              <AlertCircle class="size-3.5 shrink-0 text-destructive/70" />
+                              <p class="text-xs text-destructive/80">{customJsonError}</p>
+                            </div>
+                          {/if}
+                          {#if customParsedProps.length > 0}
+                            <div class="mt-3">
+                              <svelte:boundary>
+                                <LensComponentRenderer
+                                  component={PrimaryComponent}
+                                  props={customParsedProps}
+                                  tagName={toTag(name)}
+                                  componentName={name}
+                                  label=""
+                                  silent={true}
+                                  contextWrapper={lensContextWrapper ?? undefined}
+                                  codeText={`<!-- Custom props test -->\n<${toTag(name)} ${customErrorPropsJson} />`}
+                                />
+                                {#snippet failed(error)}
+                                  <LensError
+                                    title="Validation Error"
+                                    description={error instanceof Error
+                                      ? error.message
+                                      : String(error)}
+                                  />
+                                {/snippet}
+                              </svelte:boundary>
+                            </div>
+                          {/if}
+                        </div>
+                      </div>
+                    {/if}
+                    {#each errorBoundaryTests as test (test.id + '-' + errorBoundaryRenderKey)}
+                      <div class="rounded-lg border">
+                        <!-- Test card header -->
+                        <button
+                          type="button"
+                          onclick={() => toggleErrorBoundaryCard(test.id)}
+                          class="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium transition-colors hover:bg-muted/50"
+                        >
+                          {#if test.passed === true}
+                            <CircleCheck class="size-4 shrink-0 text-green-500" />
+                          {:else if test.passed === false}
+                            <CircleX class="size-4 shrink-0 text-red-500" />
+                          {:else}
+                            <div
+                              class="size-4 shrink-0 rounded-full border-2 border-muted-foreground/30"
+                            ></div>
+                          {/if}
+                          <span class="flex-1">{test.title}</span>
+                          <ChevronRight
+                            class="size-3.5 text-muted-foreground transition-transform duration-200 {test.expanded
+                              ? 'rotate-90'
+                              : ''}"
+                          />
+                        </button>
+                        {#if test.expanded}
+                          <div class="border-t" transition:slide={{ duration: 200 }}>
+                            <p class="px-4 pt-2 text-xs text-muted-foreground">
+                              {test.description}
+                            </p>
+                            <!-- Error message display -->
+                            {#if test.errorMessage}
+                              <div
+                                class="mx-4 mt-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2"
+                              >
+                                <p
+                                  class="font-mono text-[11px] leading-relaxed text-destructive/80"
+                                >
+                                  {test.errorMessage}
+                                </p>
+                              </div>
+                            {/if}
+                            <div class="p-4 pt-2">
+                              {#if test.id === 'missing-props'}
+                                <svelte:boundary
+                                  onerror={(error) =>
+                                    recordErrorBoundaryCatch('missing-props' as Str, error)}
+                                >
+                                  <LensComponentRenderer
+                                    component={PrimaryComponent}
+                                    tagName={toTag(name)}
+                                    componentName={name}
+                                    label=""
+                                    silent={true}
+                                    contextWrapper={lensContextWrapper ?? undefined}
+                                    codeText={`<!-- Missing required props — validation error -->\n<${toTag(name)} />`}
+                                  />
+                                  {#snippet failed(error)}
+                                    <LensError
+                                      title="Validation Error"
+                                      description={error instanceof Error
+                                        ? error.message
+                                        : String(error)}
+                                    />
+                                  {/snippet}
+                                </svelte:boundary>
+                              {:else if test.id === 'invalid-props'}
+                                <svelte:boundary
+                                  onerror={(error) =>
+                                    recordErrorBoundaryCatch('invalid-props' as Str, error)}
+                                >
+                                  <LensComponentRenderer
+                                    component={PrimaryComponent}
+                                    props={[
+                                      {
+                                        name: '__invalid__',
+                                        type: 'unknown',
+                                        default: "'test'",
+                                        optional: false,
+                                        bindable: false,
+                                        description: '',
+                                      },
+                                    ]}
+                                    tagName={toTag(name)}
+                                    componentName={name}
+                                    label=""
+                                    silent={true}
+                                    contextWrapper={lensContextWrapper ?? undefined}
+                                    codeText={`<!-- Unknown prop key — strictObject rejection -->\n<${toTag(name)} __invalid__="test" />`}
+                                  />
+                                  {#snippet failed(error)}
+                                    <LensError
+                                      title="Validation Error"
+                                      description={error instanceof Error
+                                        ? error.message
+                                        : String(error)}
+                                    />
+                                  {/snippet}
+                                </svelte:boundary>
+                              {:else if test.id === 'required-only'}
+                                <svelte:boundary
+                                  onerror={(error) =>
+                                    recordErrorBoundaryCatch('required-only' as Str, error)}
+                                >
+                                  <LensComponentRenderer
+                                    component={PrimaryComponent}
+                                    props={props.filter((p) => !p.optional && p.default === '')}
+                                    tagName={toTag(name)}
+                                    componentName={name}
+                                    label=""
+                                    silent={isCompound}
+                                    contextWrapper={lensContextWrapper ?? undefined}
+                                    codeText={`<!-- Only required props (minimum values) -->\n<${toTag(name)} ... />`}
+                                  />
+                                  {#snippet failed(error)}
+                                    <LensError
+                                      title="Render Error"
+                                      description={error instanceof Error
+                                        ? error.message
+                                        : String(error)}
+                                    />
+                                  {/snippet}
+                                </svelte:boundary>
+                              {/if}
+                            </div>
+                          </div>
+                        {/if}
+                      </div>
+                    {/each}
                   </div>
                 </div>
               {/if}
