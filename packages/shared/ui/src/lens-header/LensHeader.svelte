@@ -1,6 +1,6 @@
 <script module lang="ts">
   import * as v from 'valibot';
-  import { StrSchema, BoolSchema } from '@/schemas/common';
+  import { StrSchema, BoolSchema, NumSchema } from '@/schemas/common';
   import { LensMetaSchema, type LensMeta } from '../lens/types.js';
 
   /** Schema for the LensHeader component props. */
@@ -25,6 +25,14 @@
     hasDocs: v.optional(BoolSchema),
     /** Whether the component has changelog entries. @values true, false */
     hasChangelog: v.optional(BoolSchema),
+    /** Number of props defined (shown as badge on "Go to Props"). @values 0, 5, 20 */
+    propCount: v.optional(NumSchema),
+    /** Number of variant cards rendered (shown as badge on "Go to Variants"). @values 0, 3, 12 */
+    variantCount: v.optional(NumSchema),
+    /** Number of example cards rendered (shown as badge on "Go to Examples"). @values 0, 2, 8 */
+    exampleCount: v.optional(NumSchema),
+    /** Number of changelog entries (shown as badge on "Go to Changelog"). @values 0, 4, 15 */
+    changelogCount: v.optional(NumSchema),
     /** Previous component name for sequential navigation (kebab-case). @values button, dialog, sidebar */
     prevComponent: v.optional(v.nullable(StrSchema)),
     /** Next component name for sequential navigation (kebab-case). @values button, dialog, sidebar */
@@ -42,7 +50,7 @@
    * copy-import shortcut, a section navigation dropdown menu, and
    * previous/next component navigation.
    */
-  import type { Bool, Str, Void } from '@/schemas/common';
+  import type { Bool, Num, Str, Void } from '@/schemas/common';
   import type { Component } from 'svelte';
   import { safeParse } from '@/utils/result/safe';
   import { toTitle, stripSvelteProps } from '../lens/lens-utils.js';
@@ -74,6 +82,8 @@
   import Globe from '@lucide/svelte/icons/globe';
   import Clipboard from '@lucide/svelte/icons/clipboard';
   import Link from '@lucide/svelte/icons/link';
+  import ArrowUp from '@lucide/svelte/icons/arrow-up';
+  import { cn } from '../utils.js';
 
   const allProps: LensHeaderProps = $props();
   const validated: LensHeaderProps = $derived.by(() => {
@@ -101,6 +111,38 @@
 
   /** Whether the component has changelog entries from git log. */
   const hasChangelog: Bool = $derived(validated.hasChangelog ?? false);
+
+  /** Number of props defined (0 if not provided). */
+  const propCount: Num = $derived(validated.propCount ?? 0);
+
+  /** Number of variant cards (0 if not provided). */
+  const variantCount: Num = $derived(validated.variantCount ?? 0);
+
+  /** Number of example cards (0 if not provided). */
+  const exampleCount: Num = $derived(validated.exampleCount ?? 0);
+
+  /** Number of changelog entries (0 if not provided). */
+  const changelogCount: Num = $derived(validated.changelogCount ?? 0);
+
+  /** Whether the page is scrolled to the top. */
+  let isAtTop: Bool = $state(true);
+
+  $effect(() => {
+    /** Update isAtTop on scroll. */
+    function onScroll(): Void {
+      isAtTop = (window.scrollY < 10) as Bool;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return (): void => {
+      window.removeEventListener('scroll', onScroll);
+    };
+  });
+
+  /** Scroll smoothly to the top of the page. */
+  function scrollToTop(): Void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   /**
    * Open a collapsible section and smooth-scroll to it.
@@ -377,58 +419,118 @@
               <Tooltip.Content side="right" sideOffset={4}>Page menu</Tooltip.Content>
             </Tooltip.Root>
             <DropdownMenu.Content align="start" sideOffset={4}>
-              <DropdownMenu.Item onclick={() => scrollTo('docs')}>
-                <FileText class="mr-2 size-4" />
+              <!-- Navigate section -->
+              <DropdownMenu.Label class="text-xs">Navigate</DropdownMenu.Label>
+              <DropdownMenu.Item
+                onclick={scrollToTop}
+                disabled={isAtTop}
+                class={cn(isAtTop && 'opacity-40')}
+              >
+                <ArrowUp class="size-4" />
+                Scroll to Top
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                onclick={() => scrollTo('docs')}
+                disabled={!hasDocs}
+                class={cn(!hasDocs && 'opacity-40')}
+              >
+                <FileText class="size-4" />
                 Go to Documentation
               </DropdownMenu.Item>
               <DropdownMenu.Item onclick={() => scrollTo('props')}>
-                <TableProperties class="mr-2 size-4" />
-                Go to Props
+                <TableProperties class="size-4" />
+                <span class="flex-1">Go to Props</span>
+                {#if (propCount as number) > 0}
+                  <span
+                    class="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground/60"
+                    >{propCount}</span
+                  >
+                {/if}
               </DropdownMenu.Item>
-              {#if hasVariants}
-                <DropdownMenu.Item onclick={() => scrollTo('default')}>
-                  <ComponentIcon class="mr-2 size-4" />
-                  Go to Default
-                </DropdownMenu.Item>
-                <DropdownMenu.Item onclick={() => scrollTo('error-boundary')}>
-                  <ShieldAlert class="mr-2 size-4" />
-                  Go to Error Boundary
-                </DropdownMenu.Item>
-                <DropdownMenu.Item onclick={() => scrollTo('variants')}>
-                  <Layers class="mr-2 size-4" />
-                  Go to Variants
-                </DropdownMenu.Item>
-              {/if}
-              <DropdownMenu.Item onclick={() => scrollTo('examples')}>
-                <BookOpen class="mr-2 size-4" />
-                Go to Examples
+              <DropdownMenu.Item
+                onclick={() => scrollTo('default')}
+                disabled={!hasVariants}
+                class={cn(!hasVariants && 'opacity-40')}
+              >
+                <ComponentIcon class="size-4" />
+                Go to Default
               </DropdownMenu.Item>
-              {#if hasSource}
-                <DropdownMenu.Item onclick={() => scrollTo('source')}>
-                  <FileCode class="mr-2 size-4" />
-                  Go to Source
-                </DropdownMenu.Item>
-              {/if}
-              {#if hasDeps}
-                <DropdownMenu.Item onclick={() => scrollTo('dependencies')}>
-                  <GitFork class="mr-2 size-4" />
-                  Go to Dependencies
-                </DropdownMenu.Item>
-              {/if}
-              {#if hasChangelog}
-                <DropdownMenu.Item onclick={() => scrollTo('changelog')}>
-                  <History class="mr-2 size-4" />
-                  Go to Changelog
-                </DropdownMenu.Item>
-              {/if}
+              <DropdownMenu.Item
+                onclick={() => scrollTo('error-boundary')}
+                disabled={!hasVariants}
+                class={cn(!hasVariants && 'opacity-40')}
+              >
+                <ShieldAlert class="size-4" />
+                Go to Error Boundary
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                onclick={() => scrollTo('variants')}
+                disabled={!hasVariants}
+                class={cn(!hasVariants && 'opacity-40')}
+              >
+                <Layers class="size-4" />
+                <span class="flex-1">Go to Variants</span>
+                {#if (variantCount as number) > 0}
+                  <span
+                    class="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground/60"
+                    >{variantCount}</span
+                  >
+                {/if}
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                onclick={() => scrollTo('examples')}
+                disabled={!hasExamples}
+                class={cn(!hasExamples && 'opacity-40')}
+              >
+                <BookOpen class="size-4" />
+                <span class="flex-1">Go to Examples</span>
+                {#if (exampleCount as number) > 0}
+                  <span
+                    class="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground/60"
+                    >{exampleCount}</span
+                  >
+                {/if}
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                onclick={() => scrollTo('source')}
+                disabled={!hasSource}
+                class={cn(!hasSource && 'opacity-40')}
+              >
+                <FileCode class="size-4" />
+                Go to Source
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                onclick={() => scrollTo('dependencies')}
+                disabled={!hasDeps}
+                class={cn(!hasDeps && 'opacity-40')}
+              >
+                <GitFork class="size-4" />
+                Go to Dependencies
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                onclick={() => scrollTo('changelog')}
+                disabled={!hasChangelog}
+                class={cn(!hasChangelog && 'opacity-40')}
+              >
+                <History class="size-4" />
+                <span class="flex-1">Go to Changelog</span>
+                {#if (changelogCount as number) > 0}
+                  <span
+                    class="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground/60"
+                    >{changelogCount}</span
+                  >
+                {/if}
+              </DropdownMenu.Item>
               <DropdownMenu.Separator />
+              <!-- Actions section -->
+              <DropdownMenu.Label class="text-xs">Actions</DropdownMenu.Label>
               <DropdownMenu.Sub
                 onOpenChange={(open) => {
                   if (open) pageExportSearchQuery = '';
                 }}
               >
                 <DropdownMenu.SubTrigger>
-                  <Download class="mr-2 size-4" />
+                  <Download class="size-4" />
                   Export
                 </DropdownMenu.SubTrigger>
                 <DropdownMenu.SubContent class="flex max-h-[28rem] w-64 flex-col overflow-hidden">
@@ -470,11 +572,16 @@
                           {category}
                         </DropdownMenu.Label>
                         {#each filteredPageExportItems.filter((p) => p.category === category) as item (item.id)}
-                          <DropdownMenu.Item onclick={() => handlePageExport(item.id)}>
+                          <DropdownMenu.Item
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              handlePageExport(item.id);
+                            }}
+                          >
                             {#if pageExportFeedback === item.id}
-                              <Check class="mr-2 size-4 text-green-500" />
+                              <Check class="size-4 text-green-500" />
                             {:else}
-                              <item.icon class="mr-2 size-4" />
+                              <item.icon class="size-4" />
                             {/if}
                             <div class="flex min-w-0 flex-1 flex-col">
                               <span class="text-sm">{item.label}</span>
@@ -501,7 +608,7 @@
                 }}
               >
                 <DropdownMenu.SubTrigger>
-                  <ComponentIcon class="mr-2 size-4" />
+                  <ComponentIcon class="size-4" />
                   Export Component
                 </DropdownMenu.SubTrigger>
                 <DropdownMenu.SubContent class="flex max-h-[28rem] w-64 flex-col overflow-hidden">
@@ -543,11 +650,16 @@
                           {category}
                         </DropdownMenu.Label>
                         {#each filteredComponentExportItems.filter((p) => p.category === category) as item (item.id)}
-                          <DropdownMenu.Item onclick={() => handleComponentExport(item.id)}>
+                          <DropdownMenu.Item
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              handleComponentExport(item.id);
+                            }}
+                          >
                             {#if componentExportFeedback === item.id}
-                              <Check class="mr-2 size-4 text-green-500" />
+                              <Check class="size-4 text-green-500" />
                             {:else}
-                              <item.icon class="mr-2 size-4" />
+                              <item.icon class="size-4" />
                             {/if}
                             <div class="flex min-w-0 flex-1 flex-col">
                               <span class="text-sm">{item.label}</span>
@@ -570,11 +682,11 @@
               </DropdownMenu.Sub>
               <DropdownMenu.Separator />
               <DropdownMenu.Item onclick={expandAll}>
-                <ChevronsUpDown class="mr-2 size-4" />
+                <ChevronsUpDown class="size-4" />
                 Expand All
               </DropdownMenu.Item>
               <DropdownMenu.Item onclick={collapseAll}>
-                <ChevronsDownUp class="mr-2 size-4" />
+                <ChevronsDownUp class="size-4" />
                 Collapse All
               </DropdownMenu.Item>
             </DropdownMenu.Content>
